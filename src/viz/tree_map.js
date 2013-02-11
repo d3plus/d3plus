@@ -88,9 +88,6 @@ vizwhiz.viz.tree_map = function() {
         .attr('y','0em')
         .attr('dy','1em')
         .attr("fill", "white")
-        .text(function(d){
-          return d.name;
-        })
       
       // text (share)
       cell_enter.append("text")
@@ -129,6 +126,11 @@ vizwhiz.viz.tree_map = function() {
         .attr("height", function(d){ return d.dy })
         .attr("fill", function(d){
           return d.color ? d.color : vizwhiz.utils.rand_color();
+        })
+      
+      cell.selectAll("text.name")
+        .each(function(d){
+          wordWrap(d.name,this,d.dx,d.dy,true)
         })
 
       //===================================================================
