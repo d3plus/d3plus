@@ -13,11 +13,13 @@ body {
 <div id="viz"></div>
 
 <script src="../lib/d3.js"></script>
+<script src="../src/general.js"></script>
+<script src="../src/utils.js"></script>
 <script src="../src/viz/tree_map.js"></script>
 <script>
 
 var width = 960,
-    height = 55,
+    height = 550,
     margin = {top: 5, right: 40, bottom: 20, left: 120};
 
 var viz = vizwhiz.viz.tree_map()
@@ -25,21 +27,35 @@ var viz = vizwhiz.viz.tree_map()
     .height(height - margin.top - margin.bottom);
 
 
-  data = []
+  data =   {
+     "name": "flare",
+     "children": [
+      {
+       "name": "analytics",
+       "children": [
+        {
+         "name": "cluster",
+         "children": [
+          {"name": "AgglomerativeCluster", "value": 3938},
+          {"name": "CommunityStructure", "value": 3812},
+          {"name": "MergeEdge", "value": 743}
+         ]
+        },
+        {
+         "name": "graph",
+         "children": [
+          {"name": "BetweennessCentrality", "value": 3534},
+          {"name": "LinkDistance", "value": 5731}
+         ]
+        }
+       ]
+      }
+     ]
+    }
 
-  //TODO: to be consistent with other models, should be appending a g to an already made svg, not creating the svg element
-  var chart = d3.select("#viz").selectAll("svg")
-    .data(data)
-    .enter().append("svg")
-      .attr("width", width)
-      .attr("height", height)
-
-
-  window.transition = function() {
-
-    viz
-      .call(chart);
-  };
+  d3.select("#viz")
+    .datum(data)
+    .call(viz)
 
 
 
