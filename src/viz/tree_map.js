@@ -8,13 +8,14 @@ vizwhiz.viz.tree_map = function() {
   var margin = {top: 0, right: 0, bottom: 0, left: 0},
     width = 380,
     height = 30,
+    depth = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
   //===================================================================
 
 
   function chart(selection) {
-    selection.each(function(d, i) {
+    selection.each(function(data) {
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -32,7 +33,15 @@ vizwhiz.viz.tree_map = function() {
         .sort(function(a, b) { return a.value - b.value; })
         .value(function(d) { return d.value; })
         .nodes(data)
-        .filter(function(d) { return !d.children; })
+        // .filter(function(d) { return !d.children; })
+      
+      // We'll figure out how many levels of nesting there are to determine
+      // the options for which depths to show
+      var max_depth = d3.max(tmap_data, function(d){ return d.depth; });
+      
+      // filter the tree map nodes to only the depth requested
+      tmap_data = tmap_data.filter(function(d) { return d.depth == (depth || max_depth); });
+      console.log(tmap_data)
       
       // If it's the first time the app is being built, add group for nodes
       svg_enter.append("clipPath")
@@ -51,7 +60,7 @@ vizwhiz.viz.tree_map = function() {
         .attr("clip-path","url(#clipping)")
       
       var cell = d3.select("g.viz").selectAll("g")
-        .data(tmap_data)
+        .data(tmap_data, function(d){ return d.name; })
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New cells enter, initialize them here
@@ -85,7 +94,10 @@ vizwhiz.viz.tree_map = function() {
         .attr('x','0.2em')
         .attr('y','0em')
         .attr('dy','1em')
-        .attr("fill", "white")
+        .attr("fill", function(d){
+          if(d.text_color) return d.text_color
+          return d3.hsl(d.color).l > 0.6 ? "#333" : "#fff";
+        })
       
       // text (share)
       cell_enter.append("text")
@@ -93,7 +105,10 @@ vizwhiz.viz.tree_map = function() {
         .attr("text-anchor","middle")
         .style("font-weight","bold")
         .attr("font-family","Helvetica")
-        .attr("fill", "white")
+        .attr("fill", function(d){
+          if(d.text_color) return d.text_color
+          return d3.hsl(d.color).l > 0.6 ? "#333" : "#fff";
+        })
         .text(function(d) {
           var root = d;
           while(root.parent){ root = root.parent; } // find top most parent ndoe
@@ -122,16 +137,29 @@ vizwhiz.viz.tree_map = function() {
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
       
       cell.selectAll("rect")
-        .attr("width", function(d){ return d.dx })
-        .attr("height", function(d){ return d.dy })
+        .attr('width', function(d) {
+          console.log(d.dx)
+          return d.dx+'px'
+        })
+        .attr('height', function(d) { 
+          return d.dy+'px'
+        })
         .attr("fill", function(d){
           return d.color ? d.color : vizwhiz.utils.rand_color();
         })
       
       cell.selectAll("text.name")
         .each(function(d){
-          wordWrap(d.name,this,d.dx,d.dy,true)
+          vizwhiz.utils.wordWrap(d.name,this,d.dx,d.dy,true)
         })
+
+      //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Exis, get rid of old cells
+      //-------------------------------------------------------------------
+      
+      cell.exit().remove()
 
       //===================================================================
       
@@ -157,6 +185,12 @@ vizwhiz.viz.tree_map = function() {
   chart.height = function(x) {
     if (!arguments.length) return height;
     height = x;
+    return chart;
+  };
+  
+  chart.depth = function(x) {
+    if (!arguments.length) return depth;
+    depth = x;
     return chart;
   };
 
