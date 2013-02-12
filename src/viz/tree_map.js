@@ -50,8 +50,6 @@ vizwhiz.viz.tree_map = function() {
         // .attr("transform", function(d){ return "translate("+(stroke_width/2)+", "+height+")"; })
         .attr("clip-path","url(#clipping)")
       
-      console.log(tmap_data)
-      
       var cell = d3.select("g.viz").selectAll("g")
         .data(tmap_data)
       
@@ -97,7 +95,9 @@ vizwhiz.viz.tree_map = function() {
         .attr("font-family","Helvetica")
         .attr("fill", "white")
         .text(function(d) {
-          return vizwhiz.utils.format_num(d.value/d.parent.value, true, 2);
+          var root = d;
+          while(root.parent){ root = root.parent; } // find top most parent ndoe
+          return vizwhiz.utils.format_num(d.value/root.value, true, 2);
         })
         .attr('font-size',function(d){
           var size = (d.dx)/7
