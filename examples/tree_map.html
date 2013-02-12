@@ -53,13 +53,43 @@ var data =   {
   ]
 }
 
+var data2 =   {
+  "name": "flare",
+  "children": [
+    {
+      "name": "Countries",
+      "children": [
+      {
+        "name": "South America",
+        "children": [
+            {"name": "Brazil", "value": 1938, "color": "#43f9c2"},
+            {"name": "Bolivarian Republic of Venezuela", "value": 4812, "color": "#43f9c2"},
+            {"name": "Peru", "value": 1243, "color": "#43f9c2"},
+            {"name": "Argentina", "value": 3043, "color": "#43f9c2"}
+          ]
+        },
+        {
+          "name": "North America",
+          "children": [
+            {"name": "Mexico", "value": 2534, "color": "#ca3422"},
+            {"name": "United States of America", "value": 3731, "color": "#ca3422"}
+          ]
+        }
+      ]
+    }
+  ]
+}
+
 d3.select("#viz")
   .datum(data)
   .call(viz)
 
-
-
 d3.select('body').on('click', window.transition);
 
+setTimeout(function(){
+  d3.select("#viz")
+    .datum(data2)
+    .call(viz)
+},3000)
 
 </script>
