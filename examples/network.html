@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="../src/vizwhiz.css" rel="stylesheet" type="text/css">
+  <style>
+
+  body {
+  
+  }
+
+  </style>
+</head>
+<body>
+
+<div id="viz"></div>
+
+<script src="../lib/d3.js"></script>
+<script src="../lib/modernizr.custom.js"></script>
+<script src="../src/general.js"></script>
+<script src="../src/utils.js"></script>
+<script src="../src/viz/network.js"></script>
+<script>
+
+  var width = 960,
+      height = 550,
+      nodes = [
+          {"id": "a", "x": 20, "y": 25},
+          {"id": "b", "x": 30, "y": 40},
+          {"id": "c", "x": 40, "y": 20},
+          {"id": "d", "x": 50, "y": 30},
+          {"id": "e", "x": 10, "y": 35}
+        ],
+      links = [
+          {"source": nodes[0], "target": nodes[1]},
+          {"source": nodes[1], "target": nodes[2]},
+          {"source": nodes[2], "target": nodes[0]},
+          {"source": nodes[2], "target": nodes[3]},
+          {"source": nodes[4], "target": nodes[1]},
+          {"source": nodes[4], "target": nodes[0]},
+          {"source": nodes[3], "target": nodes[0]}
+        ],
+      data = {
+          "a": {"name": "AgglomerativeCluster", "value": 0, "color": "#ff0000", "rca": 0.5},
+          "b": {"name": "CommunityStructure", "value": 3812, "color": "#00ff00", "rca": 5},
+          "c": {"name": "MergeEdge", "value": 1400, "color": "#0000ff", "rca": 2},
+          "d": {"name": "MergeEdge", "value": 3500, "color": "#00ffff", "rca": 2},
+          "e": {"name": "MergeEdge", "value": 803, "color": "#ff00ff", "rca": 0.8}
+        },
+      data2 = {
+          "a": {"name": "AgglomerativeCluster", "value": 1000, "color": "#ff0000", "rca": 5},
+          "b": {"name": "CommunityStructure", "value": 1500, "color": "#00ff00", "rca": 3},
+          "c": {"name": "MergeEdge", "value": 600, "color": "#0000ff", "rca": 0.1},
+          "d": {"name": "MergeEdge", "value": 0, "color": "#00ffff", "rca": 0},
+          "e": {"name": "MergeEdge", "value": 2000, "color": "#ff00ff", "rca": 1}
+        },
+      viz = vizwhiz.viz.network()
+              .width(width)
+              .height(height)
+              .nodes(nodes)
+              .links(links);
+              
+  d3.select("#viz")
+    .datum(data)
+    .call(viz);
+
+
+</script>
+</body>
+</html>
