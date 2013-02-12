@@ -19,44 +19,43 @@ body {
 <script>
 
 var width = 960,
-    height = 550,
-    margin = {top: 5, right: 40, bottom: 20, left: 120};
+  height = 550,
+  margin = {top: 5, right: 40, bottom: 20, left: 120};
 
 var viz = vizwhiz.viz.tree_map()
-    .width(width - margin.right - margin.left)
-    .height(height - margin.top - margin.bottom);
+  .width(width - margin.right - margin.left)
+  .height(height - margin.top - margin.bottom);
 
 
-  data =   {
-     "name": "flare",
-     "children": [
+var data =   {
+  "name": "flare",
+  "children": [
+    {
+      "name": "Countries",
+      "children": [
       {
-       "name": "analytics",
-       "children": [
-        {
-         "name": "cluster",
-         "children": [
-          {"name": "AgglomerativeCluster", "value": 3938},
-          {"name": "CommunityStructure", "value": 3812},
-          {"name": "MergeEdge", "value": 743}
-         ]
+        "name": "South America",
+        "children": [
+            {"name": "Brazil", "value": 3938, "color": "#43f9c2"},
+            {"name": "Bolivarian Republic of Venezuela", "value": 3812, "color": "#43f9c2"},
+            {"name": "Peru", "value": 743, "color": "#43f9c2"}
+          ]
         },
         {
-         "name": "graph",
-         "children": [
-          {"name": "BetweennessCentrality", "value": 3534},
-          {"name": "LinkDistance", "value": 5731}
-         ]
+          "name": "North America",
+          "children": [
+            {"name": "Mexico", "value": 3534, "color": "#ca3422"},
+            {"name": "United States of America", "value": 5731, "color": "#ca3422"}
+          ]
         }
-       ]
-      }
-     ]
+      ]
     }
+  ]
+}
 
-  d3.select("#viz")
-    .datum(data)
-    .call(viz)
-
+d3.select("#viz")
+  .datum(data)
+  .call(viz)
 
 
 

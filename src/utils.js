@@ -30,7 +30,7 @@ vizwhiz.utils.rand_color = function() {
 // function ourselves
 //-------------------------------------------------------------------
 
-function wordWrap(text, parent, width, height, resize) {
+vizwhiz.utils.wordWrap = function(text, parent, width, height, resize) {
   
   var words = text.split(/[\s-]/),
       tspan,
