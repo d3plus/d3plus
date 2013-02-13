@@ -19,7 +19,7 @@
 <script src="../lib/modernizr.custom.js"></script>
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
-<script src="../src/viz/network.js"></script>
+<script src="../src/viz/force.js"></script>
 <script>
 
   var width = 1100,
@@ -55,7 +55,7 @@
           "e": {"name": "MergeEdge", "value": 2000, "color": "#ff00ff", "active": true}
         }
         
-  // var viz = vizwhiz.viz.network()
+  // var viz = vizwhiz.viz.force()
   //   .width(width)
   //   .height(height)
   //   .nodes(viz_nodes)
@@ -84,7 +84,7 @@
           data[d.id].active = data[d.id].rca >= 1 ? true : false
         })
         
-        viz = vizwhiz.viz.network()
+        viz = vizwhiz.viz.force()
           .width(width)
           .height(height)
           .nodes(viz_nodes)
