@@ -9,6 +9,9 @@ vizwhiz.viz.tree_map = function() {
     width = 380,
     height = 30,
     depth = null,
+    value_var = null,
+    id_var = null,
+    text_var = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
   //===================================================================
@@ -33,17 +36,15 @@ vizwhiz.viz.tree_map = function() {
         .size([width, height])
         .children(function(d) { return d.children; })
         .sort(function(a, b) { return a.value - b.value; })
-        .value(function(d) { return d.value; })
+        .value(function(d) { return value_var ? d[value_var] : d.value; })
         .nodes(cloned_data)
-        // .filter(function(d) { return !d.children; })
       
       // We'll figure out how many levels of nesting there are to determine
       // the options for which depths to show
       var max_depth = d3.max(tmap_data, function(d){ return d.depth; });
       
       // filter the tree map nodes to only the depth requested
-      tmap_data = tmap_data.filter(function(d) { return d.depth == (depth || max_depth); });
-      // console.log(tm dap_data)
+      tmap_data = tmap_data.filter(function(d) { return d.depth === (depth || max_depth); });
       
       // If it's the first time the app is being built, add group for nodes
       svg_enter.append("clipPath")
@@ -62,7 +63,7 @@ vizwhiz.viz.tree_map = function() {
         .attr("clip-path","url(#clipping)")
       
       var cell = d3.select("g.viz").selectAll("g")
-        .data(tmap_data, function(d){ return d.name; })
+        .data(tmap_data, function(d){ return id_var ? d[id_var] : d.id; })
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New cells enter, initialize them here
@@ -84,6 +85,12 @@ vizwhiz.viz.tree_map = function() {
           return d.dy+'px'
         })
         .attr("fill", function(d){
+          // in case this depth doesn't have a color but a child of
+          // this element DOES... use that color
+          while(!d.color && d.children){
+            d = d.children[0]
+          }
+          // if a color cannot be found (at this depth of deeper) use random
           return d.color ? d.color : vizwhiz.utils.rand_color();
         })
       
@@ -101,7 +108,10 @@ vizwhiz.viz.tree_map = function() {
           return d3.hsl(d.color).l > 0.6 ? "#333" : "#fff";
         })
         .each(function(d){
-          vizwhiz.utils.wordWrap(d.name,this,d.dx,d.dy,true)
+          var text = text_var ? d[text_var] : d.name;
+          if(text){
+            vizwhiz.utils.wordWrap(text, this, d.dx, d.dy, true)
+          }
         })
       
       // text (share)
@@ -140,12 +150,12 @@ vizwhiz.viz.tree_map = function() {
       
       // need to perform updates in "each" clause so that new data is 
       // propogated down to rects and text elements
-      cell.transition().duration(2000)
+      cell
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
         .each(function(g_data) {
           
           // update rectangles
-          d3.select(this).selectAll("rect").transition().duration(2000)
+          d3.select(this).selectAll("rect")
             .attr('width', function() {
               return g_data.dx+'px'
             })
@@ -157,7 +167,10 @@ vizwhiz.viz.tree_map = function() {
           d3.select(this).selectAll("text.name")
             .each(function(){
               // need to recalculate word wrapping because dimensions have changed
-              vizwhiz.utils.wordWrap(g_data.name, this, g_data.dx, g_data.dy, true)
+              var text = text_var ? g_data[text_var] : g_data.name;
+              if(text){
+                // vizwhiz.utils.wordWrap(text, this, g_data.dx, g_data.dy, true)
+              }
             })
           
           // text (share)
@@ -181,23 +194,6 @@ vizwhiz.viz.tree_map = function() {
             })
           
         })
-      
-      // cell.selectAll("rect")
-      //   .attr('width', function(d) {
-      //     console.log(d)
-      //     return d.dx+'px'
-      //   })
-      //   .attr('height', function(d) { 
-      //     return d.dy+'px'
-      //   })
-      //   .attr("fill", function(d){
-      //     return d.color ? d.color : vizwhiz.utils.rand_color();
-      //   })
-      // 
-      // cell.selectAll("text.name")
-      //   .each(function(d){
-      //     vizwhiz.utils.wordWrap(d.name,this,d.dx,d.dy,true)
-      //   })
 
       //===================================================================
       
@@ -237,6 +233,24 @@ vizwhiz.viz.tree_map = function() {
   chart.depth = function(x) {
     if (!arguments.length) return depth;
     depth = x;
+    return chart;
+  };
+  
+  chart.value_var = function(x) {
+    if (!arguments.length) return value_var;
+    value_var = x;
+    return chart;
+  };
+  
+  chart.id_var = function(x) {
+    if (!arguments.length) return id_var;
+    id_var = x;
+    return chart;
+  };
+  
+  chart.text_var = function(x) {
+    if (!arguments.length) return text_var;
+    text_var = x;
     return chart;
   };
 

@@ -26,6 +26,19 @@ vizwhiz.utils.rand_color = function() {
 //===================================================================
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Random color generator (if no color is given)
+//-------------------------------------------------------------------
+
+vizwhiz.utils.merge = function(obj1,obj2) {
+  var obj3 = {};
+  for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+  for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+  return obj3;
+}
+
+//===================================================================
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // for SVGs word wrapping is not built in, so here we must creat this
 // function ourselves
 //-------------------------------------------------------------------
@@ -119,8 +132,8 @@ vizwhiz.utils.wordWrap = function(text, parent, width, height, resize) {
       parent.removeChild(parent.lastChild)
       cut = true
     }
-    // if (cut && parent.childNodes.length != 0) {
-    if (cut) {
+    if (cut && parent.childNodes.length != 0) {
+    // if (cut) {
       tspan = parent.lastChild
       words = d3.select(tspan).text().split(/[\s-]/)
       

@@ -78,7 +78,7 @@
         data = {}
         viz_nodes.forEach(function(d){
           data[d.id] = ps_data.filter(function(f){return f.id == d.id})[0]
-          data[d.id] = merge(data[d.id],attr[d.id])
+          data[d.id] = vizwhiz.utils.merge(data[d.id],attr[d.id])
           data[d.id].value = data[d.id].val_usd
           data[d.id].rca = get_rca(data[d.id])
           data[d.id].active = data[d.id].rca >= 1 ? true : false
@@ -116,14 +116,8 @@
     
       })
     })
-  })
+  });
   
-  function merge(obj1,obj2) {
-    var obj3 = {};
-    for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-    for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
-    return obj3;
-  }
 
 </script>
 </body>
