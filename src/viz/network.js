@@ -141,10 +141,18 @@ vizwhiz.viz.network = function() {
           if (!clicked) {
             highlight = d.id;
             update();
+          } else {
+            d3.select(this).attr("stroke",highlight_color)
+          }
+        })
+        .on(vizwhiz.evt.out, function(d){
+          if (clicked) {
+            d3.select(this).attr("stroke","#dedede")
           }
         })
         .on(vizwhiz.evt.click, function(d){
           highlight = d.id;
+          zoom(highlight);
           update();
         })
       
@@ -172,7 +180,17 @@ vizwhiz.viz.network = function() {
       //-------------------------------------------------------------------
 
       node.transition().duration(timing)
-        .call(update_nodes)
+        .attr("cx", function(d) { return scale.x(d.x); })
+        .attr("cy", function(d) { return scale.y(d.y); })
+        .attr("r", function(d) { 
+          var value = data[d.id].value
+          return value > 0 ? scale.size(value) : scale.size(val_range[0])
+        })
+        .attr("stroke-width", function(d){
+          if(data[d.id].active) return 2;
+          else return 1;
+        })
+        .call(color_nodes)
         
       link.transition().duration(timing)
         .attr("x1", function(d) { return scale.x(d.source.x); })
@@ -200,15 +218,10 @@ vizwhiz.viz.network = function() {
       //===================================================================
       
       update();
+      if (highlight && clicked) zoom(highlight);
       
-      function update_nodes(n) {
+      function color_nodes(n) {
         n
-          .attr("cx", function(d) { return scale.x(d.x); })
-          .attr("cy", function(d) { return scale.y(d.y); })
-          .attr("r", function(d) { 
-            var value = data[d.id].value
-            return value > 0 ? scale.size(value) : scale.size(val_range[0])
-          })
           .attr("fill", function(d){
             var color = data[d.id].color ? data[d.id].color : vizwhiz.utils.rand_color()
             if (data[d.id].active) {
@@ -226,10 +239,6 @@ vizwhiz.viz.network = function() {
             if (data[d.id].active) return d3.rgb(color).darker().darker().toString();
             else if (spotlight) return "#dedede";
             else return d3.rgb(color).darker().toString()
-          })
-          .attr("stroke-width", function(d){
-            if(data[d.id].active) return 2;
-            else return 1;
           })
       }
       
@@ -344,12 +353,14 @@ vizwhiz.viz.network = function() {
               }
             })
             .on(vizwhiz.evt.click, function(d){
-              if (!clicked) clicked = true
-              else clicked = false
+              if (!clicked) {
+                zoom(highlight);
+                clicked = true;
+              } else clicked = false;
             })
           
         } else {
-          node.call(update_nodes)
+          node.call(color_nodes)
         }
         
       }
@@ -361,7 +372,7 @@ vizwhiz.viz.network = function() {
       function zoom(direction) {
         
         var zoom_extent = zoom_behavior.scaleExtent()
-        
+        console.log(d3.event)
         // If d3 zoom event is detected, use it!
         if(d3.event.scale) {
           evt_scale = d3.event.scale
@@ -370,37 +381,62 @@ vizwhiz.viz.network = function() {
           if (direction == "in") {
             if (zoom_behavior.scale() > zoom_extent[1]/2) multiplier = zoom_extent[1]/zoom_behavior.scale()
             else multiplier = 2
-          } else {
+          } else if (direction == "out") {
             if (zoom_behavior.scale() < zoom_extent[0]*2) multiplier = zoom_extent[0]/zoom_behavior.scale()
             else multiplier = 0.5
-          }
-          var trans = d3.select("g.viz")[0][0].getAttribute('transform')
-          if (trans) {
-            trans = trans.split('(')
-            var coords = trans[1].split(')')
-            coords = coords[0].replace(' ',',')
-            coords = coords.substring(0,trans[1].length-6).split(',')
-            offset_x = parseFloat(coords[0])
-            offset_y = coords.length == 2 ? parseFloat(coords[1]) : parseFloat(coords[0])
-            zoom_var = parseFloat(trans[2].substring(0,trans[2].length-1))
-          } else {
-            offset_x = 0
-            offset_y = 0
-            zoom_var = 1
-          }
-          if ((multiplier > 0.5 && multiplier <= 1) && direction == "out") {
-            offset_x = 0
-            offset_y = 0
-          } else {
-            offset_x = (width/2)-(((width/2)-offset_x)*multiplier)
-            offset_y = (height/2)-(((height/2)-offset_y)*multiplier)
+          } else if (connections[highlight]) {
+            var x_bounds = d3.extent(d3.values(connections[highlight]),function(v){return scale.x(v.x);})
+            var y_bounds = d3.extent(d3.values(connections[highlight]),function(v){return scale.y(v.y);})
+            var w_zoom = width/(x_bounds[1]-x_bounds[0])
+            var h_zoom = height/(y_bounds[1]-y_bounds[0])
+            
+            if (w_zoom < h_zoom) {
+              x_bounds = [x_bounds[0]-(max_size*2),x_bounds[1]+(max_size*2)]
+              evt_scale = width/(x_bounds[1]-x_bounds[0])
+              if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
+              offset_x = -(x_bounds[0]*evt_scale)
+              offset_y = -(y_bounds[0]*evt_scale)+((height-((y_bounds[1]-y_bounds[0])*evt_scale))/2)
+            } else {
+              y_bounds = [y_bounds[0]-(max_size*2),y_bounds[1]+(max_size*2)]
+              evt_scale = height/(y_bounds[1]-y_bounds[0])
+              if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
+              offset_x = -(x_bounds[0]*evt_scale)+((width-((x_bounds[1]-x_bounds[0])*evt_scale))/2)
+              offset_y = -(y_bounds[0]*evt_scale)
+            }
+
+            translate = [offset_x,offset_y]
           }
           
-          translate = [offset_x,offset_y]
-          evt_scale = zoom_var*multiplier
-          zoom_behavior.translate(translate).scale(evt_scale)
+          if (direction == "in" || direction == "out") {
+            var trans = d3.select("g.viz")[0][0].getAttribute('transform')
+            if (trans) {
+              trans = trans.split('(')
+              var coords = trans[1].split(')')
+              coords = coords[0].replace(' ',',')
+              coords = coords.substring(0,trans[1].length-6).split(',')
+              offset_x = parseFloat(coords[0])
+              offset_y = coords.length == 2 ? parseFloat(coords[1]) : parseFloat(coords[0])
+              zoom_var = parseFloat(trans[2].substring(0,trans[2].length-1))
+            } else {
+              offset_x = 0
+              offset_y = 0
+              zoom_var = 1
+            }
+            if ((multiplier > 0.5 && multiplier <= 1) && direction == "out") {
+              offset_x = 0
+              offset_y = 0
+            } else {
+              offset_x = (width/2)-(((width/2)-offset_x)*multiplier)
+              offset_y = (height/2)-(((height/2)-offset_y)*multiplier)
+            }
+          
+            translate = [offset_x,offset_y]
+            evt_scale = zoom_var*multiplier
+          }
         
         }
+        
+        zoom_behavior.translate(translate).scale(evt_scale)
         
         // Auto center visualization
         if (translate[0] > 0) translate[0] = 0
@@ -408,9 +444,19 @@ vizwhiz.viz.network = function() {
         if (translate[1] > 0) translate[1] = 0
         else if (translate[1] < -((height*evt_scale)-height)) translate[1] = -((height*evt_scale)-height)
         
-        d3.select(".viz").attr("transform", 
-          "translate(" + translate + ")" + 
-          "scale(" + evt_scale + ")")
+        if (d3.event.scale) {
+          if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
+            d3.select(".viz")
+              .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+          } else {
+            d3.select(".viz").transition().duration(timing)
+              .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+          }
+        } else {
+          d3.select(".viz").transition().duration(timing*4)
+            .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+        }
+        
       }
 
       //===================================================================
