@@ -79,17 +79,23 @@
         viz_nodes.forEach(function(d){
           data[d.id] = ps_data.filter(function(f){return f.id == d.id})[0]
           data[d.id] = vizwhiz.utils.merge(data[d.id],attr[d.id])
-          data[d.id].value = data[d.id].val_usd
           data[d.id].rca = get_rca(data[d.id])
           data[d.id].active = data[d.id].rca >= 1 ? true : false
+          delete data[d.id].year
+          delete data[d.id].bra_val_kg
+          delete data[d.id].bra_val_quantity
+          delete data[d.id].bra_val_usd
+          delete data[d.id].wld_val_usd
+          delete data[d.id].attr_type
         })
         
         viz = vizwhiz.viz.network()
           .width(width)
           .height(height)
           .nodes(viz_nodes)
-          .links(viz_links);
-              
+          .links(viz_links)
+          .value_var("val_usd");
+          
         d3.select("#viz")
           .datum(data)
           .call(viz);
