@@ -7,6 +7,9 @@ vizwhiz.utils.format_num = function(val, percent, sig_figs) {
   if(percent){
     val = d3.format("."+sig_figs+"p")(val)
   }
+  else {
+    val = d3.format(",."+sig_figs+"d")(val)
+  }
   
   return val;
 };

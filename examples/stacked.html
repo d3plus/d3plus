@@ -23,16 +23,6 @@ var width = 960,
   height = 550,
   margin = {top: 5, right: 40, bottom: 20, left: 120};
 
-var viz = vizwhiz.viz.stacked()
-  .nesting(["continent", "country"])
-  .xaxis_var("year")
-  .value_var("value")
-  // .text_var("name")
-  // .id_var("name")
-  // .width(width - margin.right - margin.left)
-  // .height(height - margin.top - margin.bottom);
-
-
 var sample_data = [
   {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "mg"},
   {"continent": "South America", "country": "Brazil", "year": 2000, "value": 3938, "color": "#43f9c2", "state": "mg"},
@@ -75,22 +65,41 @@ function rename_key_value(obj) {
   }
 }
 
-d3.select("#viz")
-  .datum(sample_data)
-  .call(viz)
+// var viz = vizwhiz.viz.stacked()
+//   .nesting(["continent", "country"])
+//   .xaxis_var("year")
+//   .value_var("value")
+  // .text_var("name")
+  // .id_var("name")
+  // .width(width - margin.right - margin.left)
+  // .height(height - margin.top - margin.bottom);
 
-// d3.json("data/products_mg.json", function(flat_data){
-//   d3.json("data/attr_hs.json", function(attrs){
-// 
-//     flat_data = flat_data.filter(function(d){
-//       return d.year == 2010;
-//     })
-// 
-//     flat_data.map(function(d, i){
-//       d.value = d.val_usd;
-//       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
-//     })
-//   
+// d3.select("#viz")
+//   .datum(sample_data)
+//   .call(viz)
+
+var viz = vizwhiz.viz.stacked()
+  .nesting(["category", "two_digit", "id"])
+  .xaxis_var("year")
+  .value_var("value")
+  // .text_var("name")
+  .id_var("id")
+
+d3.json("data/products_mg.json", function(flat_data){
+  d3.json("data/attr_hs.json", function(attrs){
+
+    flat_data.map(function(d, i){
+      d.value = d.val_usd;
+      d.category = d.id.slice(0, 2)
+      d.two_digit = d.id.slice(0, 4)
+      flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+    })
+    console.log(flat_data)
+    
+    d3.select("#viz")
+      .datum(flat_data)
+      .call(viz)
+    
 //     var nested_data = d3.nest()
 //       .key(function(d){
 //         return d.id.substr(0, 2);
@@ -106,7 +115,7 @@ d3.select("#viz")
 //         .call(viz.text_var("name").id_var("id"))
 //     },1000)
 //     
-//   })
-// })
+  })
+})
 
 </script>

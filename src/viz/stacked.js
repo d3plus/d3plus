@@ -22,13 +22,15 @@ vizwhiz.viz.stacked = function() {
   function chart(selection) {
     selection.each(function(data) {
       
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // INIT vars & data munging
+      //-------------------------------------------------------------------
+      
       var size = {
-        "chart": {
-          "width": width-margin.left-margin.right,
-          "height": height-margin.top-margin.bottom,
-          "x": margin.left,
-          "y": margin.top
-        }
+        "width": width-margin.left-margin.right,
+        "height": height-margin.top-margin.bottom,
+        "x": margin.left,
+        "y": margin.top
       }
       
       // get unique values for xaxis
@@ -41,6 +43,7 @@ vizwhiz.viz.stacked = function() {
       // nest data properly according to nesting array
       nested_data = nest_data(xaxis_vals, data);
       
+      // get max total for sums of each year
       var data_max = d3.max(d3.nest()
         .key(function(d){return d.year})
         .rollup(function(leaves){
@@ -48,23 +51,11 @@ vizwhiz.viz.stacked = function() {
         })
         .entries(data), function(d){ return d.values; });
       
-      // Helper functions used to create stack polygon
-      var stack = d3.layout.stack()
-        .offset("zero")
-        .values(function(d) { return d.values; })
-        .x(function(d) { return parseInt(d.key); })
-        .y(function(d) { return d.values; });
-      
+      // scales for both X and Y values
       var x_scale = d3.scale.linear()
-        .domain([xaxis_vals[0], xaxis_vals[xaxis_vals.length-1]]).range([0, size.chart.width]);
+        .domain([xaxis_vals[0], xaxis_vals[xaxis_vals.length-1]]).range([0, size.width]);
       var y_scale = d3.scale.linear()
-        .domain([0, data_max]).range([size.chart.height, 0]);
-      
-      var area = d3.svg.area()
-        .interpolate("monotone")
-        .x(function(d) { return x_scale(parseInt(d.key)); })
-        .y0(function(d) { return y_scale(d.y0); })
-        .y1(function(d) { return y_scale(d.y0 + d.y); });
+        .domain([0, data_max]).range([size.height, 0]);
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -74,7 +65,7 @@ vizwhiz.viz.stacked = function() {
       
       // container for the visualization
       var viz_enter = svg_enter.append("g").attr("class", "viz")
-        .attr("transform", "translate(" + size.chart.x + "," + size.chart.y + ")")
+        .attr("transform", "translate(" + size.x + "," + size.y + ")")
 
       // add grey background for viz
       viz_enter.append("rect")
@@ -82,14 +73,45 @@ vizwhiz.viz.stacked = function() {
         .style('stroke-width',1)
         .style('fill','#efefef')
         .attr("class","background")
-        .attr('width', size.chart.width)
-        .attr('height', size.chart.height)
+        .attr('width', size.width)
+        .attr('height', size.height)
         .attr('x',0)
         .attr('y',0)
       
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // X AXIS
+      //-------------------------------------------------------------------
+      
+      // enter
+      viz_enter.append("g")
+        .attr("class", "xaxis")
+        .attr("transform", "translate(0," + size.height + ")")
+      
+      // update
+      d3.select(".xaxis").call(x_axis.scale(x_scale).ticks(xaxis_vals.length))
+      
+      //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Y AXIS
+      //-------------------------------------------------------------------
+      
+      // enter
+      viz_enter.append("g")
+        .attr("class", "yaxis")
+      
+      // update
+      d3.select(".yaxis").call(y_axis)
+      
+      //===================================================================
+      
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // LAYERS
+      //-------------------------------------------------------------------
+      
       // Get layers from d3.stack function (gives x, y, y0 values)
       var layers = stack(nested_data)
-      
       
       // give data with key function to variables to draw
       var paths = d3.select("g.viz").selectAll(".layer")
@@ -108,8 +130,21 @@ vizwhiz.viz.stacked = function() {
           return area(d.values);
         })
       
+      // update
+      paths
+        .attr("fill", function(d){
+          return d.color
+        })
+        .attr("d", function(d) {
+          return area(d.values);
+        })
+      
+      // exit
+      paths.exit().remove()
+      
+      //===================================================================
+      
     });
-
 
     return chart;
   }
@@ -162,6 +197,89 @@ vizwhiz.viz.stacked = function() {
     });
     
   }
+
+  //===================================================================
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Helper function used to create stack polygon
+  //-------------------------------------------------------------------
+  
+  var stack = d3.layout.stack()
+    .offset("zero")
+    .values(function(d) { return d.values; })
+    .x(function(d) { return parseInt(d.key); })
+    .y(function(d) { return d.values; });
+  
+  //===================================================================
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Helper function unsed to convert stack values to X, Y coords 
+  //-------------------------------------------------------------------
+  
+  var area = d3.svg.area()
+    .interpolate("monotone")
+    .x(function(d) { return x_scale(parseInt(d.key)); })
+    .y0(function(d) { return y_scale(d.y0); })
+    .y1(function(d) { return y_scale(d.y0 + d.y); });
+  
+  //===================================================================
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // X & Y Axis formatting help
+  //-------------------------------------------------------------------
+  
+  var x_axis = d3.svg.axis()
+    .tickSize(0)
+    .tickPadding(15)
+    .orient('bottom')
+    .tickFormat(function(d, i) {
+      d3.select(this)
+        .attr("text-anchor","middle")
+        .style("font-weight","bold")
+        .attr("font-size","12px")
+        .attr("font-family","Helvetica")
+        .attr("fill","#4c4c4c")
+      d3.select(this.parentNode).append("line")
+        .attr("class","tick_line")
+        .attr("x1", 0)
+        .attr("x2", 0)
+        .attr("y1", 1)
+        .attr("y2", 10)
+        .attr("stroke", "#000")
+        .attr("stroke-width",1)
+      return d
+    });
+  
+  var y_axis = d3.svg.axis()
+    .tickSize(0)
+    .tickPadding(15)
+    .orient('left')
+    .scale(y_scale)
+    .tickFormat(function(d, i) {
+      d3.select(this)
+        .attr("text-anchor","middle")
+        .style("font-weight","bold")
+        .attr("font-size","12px")
+        .attr("font-family","Helvetica")
+        .attr("fill","#4c4c4c")
+      d3.select(this.parentNode).append("line")
+        .attr("class","tick_line")
+        .attr("x1", 0+1)
+        .attr("x2", 0+size.width-1)
+        .attr("y1", 0)
+        .attr("y2", 0)
+        .attr("stroke", "#ccc")
+        .attr("stroke-width",1/2)
+      d3.select(this.parentNode).append("line")
+        .attr("class","tick_line")
+        .attr("x1", -10)
+        .attr("x2", 0-1)
+        .attr("y1", 0)
+        .attr("y2", 0)
+        .attr("stroke", "#000")
+        .attr("stroke-width",1)
+      return vizwhiz.utils.format_num(d, false, 2)
+    });
 
   //===================================================================
 
@@ -229,7 +347,6 @@ vizwhiz.viz.stacked = function() {
   };
 
   //===================================================================
-
 
   return chart;
 };
