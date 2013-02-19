@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="../src/vizwhiz.css" rel="stylesheet" type="text/css">
+<style>
+
+body {
+  margin: 0; padding:0;
+}
+
+</style>
+<body>
+
+<div id="viz"></div>
+
+<script src="../lib/d3.js"></script>
+<script src="../lib/modernizr.custom.js"></script>
+<script src="../src/general.js"></script>
+<script src="../src/utils.js"></script>
+<script src="../src/viz/stacked.js"></script>
+<script>
+
+var width = 960,
+  height = 550,
+  margin = {top: 5, right: 40, bottom: 20, left: 120};
+
+var viz = vizwhiz.viz.stacked()
+  .nesting(["continent", "country"])
+  .xaxis_var("year")
+  .value_var("value")
+  // .text_var("name")
+  // .id_var("name")
+  // .width(width - margin.right - margin.left)
+  // .height(height - margin.top - margin.bottom);
+
+
+var sample_data = [
+  {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "mg"},
+  {"continent": "South America", "country": "Brazil", "year": 2000, "value": 3938, "color": "#43f9c2", "state": "mg"},
+  {"continent": "South America", "country": "Brazil", "year": 2001, "value": 3938, "color": "#43f9c2", "state": "mg"},
+  {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "rr"},
+  {"continent": "South America", "country": "Brazil", "year": 2000, "value": 3938, "color": "#43f9c2", "state": "rr"},
+  {"continent": "South America", "country": "Brazil", "year": 2001, "value": 3938, "color": "#43f9c2", "state": "rr"},
+  {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "sp"},
+  {"continent": "South America", "country": "Brazil", "year": 2000, "value": 3938, "color": "#43f9c2", "state": "sp"},
+  {"continent": "South America", "country": "Brazil", "year": 2001, "value": 3938, "color": "#43f9c2", "state": "sp"},
+  {"continent": "South America", "country": "Bolivarian Republic of Venezuela", "year": 1999, "value": 3812, "color": "#43f9c2", "state": "a"},
+  {"continent": "South America", "country": "Bolivarian Republic of Venezuela", "year": 2000, "value": 3812, "color": "#43f9c2", "state": "a"},
+  {"continent": "South America", "country": "Bolivarian Republic of Venezuela", "year": 2001, "value": 3812, "color": "#43f9c2", "state": "a"},
+  {"continent": "South America", "country": "Peru", "year": 1999, "value": 743, "color": "#43f9c2", "state": "p"},
+  {"continent": "South America", "country": "Peru", "year": 2000, "value": 743, "color": "#43f9c2", "state": "p"},
+  {"continent": "South America", "country": "Peru", "year": 2001, "value": 743, "color": "#43f9c2", "state": "p"},
+  {"continent": "North America", "country": "Mexico", "year": 1999, "value": 3534, "color": "#ca3422", "state": "m"},
+  {"continent": "North America", "country": "Mexico", "year": 2000, "value": 3534, "color": "#ca3422", "state": "m"},
+  {"continent": "North America", "country": "Mexico", "year": 2001, "value": 3534, "color": "#ca3422", "state": "m"},
+  {"continent": "North America", "country": "United States of America", "year": 1999, "value": 5731, "color": "#ca3422", "state": "ma"},
+  {"continent": "North America", "country": "United States of America", "year": 2000, "value": 5731, "color": "#ca3422", "state": "ma"},
+  // {"continent": "North America", "country": "United States of America", "year": 2001, "value": 5731, "color": "#ca3422", "state": "ma"},
+  // {"continent": "North America", "country": "United States of America", "year": 1999, "value": 5731, "color": "#ca3422", "state": "ny"},
+  {"continent": "North America", "country": "United States of America", "year": 2000, "value": 5731, "color": "#ca3422", "state": "ny"},
+  {"continent": "North America", "country": "United States of America", "year": 2001, "value": 5731, "color": "#ca3422", "state": "ny"}
+]
+
+// recursive function to rename "values" to "children" and "key" to "id"
+function rename_key_value(obj) { 
+  if (obj.values && obj.values.length) { 
+    return { 
+      'name': obj.key, 
+      'id': obj.key, 
+      'children': obj.values.map(function(obj) { 
+        return renameKeyValue(obj); 
+      }) 
+    }; 
+  } else { 
+    return obj; 
+  }
+}
+
+d3.select("#viz")
+  .datum(sample_data)
+  .call(viz)
+
+// d3.json("data/products_mg.json", function(flat_data){
+//   d3.json("data/attr_hs.json", function(attrs){
+// 
+//     flat_data = flat_data.filter(function(d){
+//       return d.year == 2010;
+//     })
+// 
+//     flat_data.map(function(d, i){
+//       d.value = d.val_usd;
+//       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+//     })
+//   
+//     var nested_data = d3.nest()
+//       .key(function(d){
+//         return d.id.substr(0, 2);
+//       })
+//       .key(function(d){
+//         return d.id.substr(0, 4);
+//       })
+//       .entries(flat_data).map(renameKeyValue);
+//   
+//     setTimeout(function(){
+//       d3.select("#viz")
+//         .datum({"name":"top", "children": nested_data})
+//         .call(viz.text_var("name").id_var("id"))
+//     },1000)
+//     
+//   })
+// })
+
+</script>
