@@ -8,6 +8,12 @@ vizwhiz.viz.stacked = function() {
   var margin = {top: 5, right: 40, bottom: 20, left: 120},
     width = window.innerWidth,
     height = window.innerHeight,
+    size = {
+      "width": width-margin.left-margin.right,
+      "height": height-margin.top-margin.bottom,
+      "x": margin.left,
+      "y": margin.top
+    },
     depth = null,
     value_var = null,
     id_var = null,
@@ -25,13 +31,6 @@ vizwhiz.viz.stacked = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
       //-------------------------------------------------------------------
-      
-      var size = {
-        "width": width-margin.left-margin.right,
-        "height": height-margin.top-margin.bottom,
-        "x": margin.left,
-        "y": margin.top
-      }
       
       // get unique values for xaxis
       xaxis_vals = data
@@ -56,6 +55,13 @@ vizwhiz.viz.stacked = function() {
         .domain([xaxis_vals[0], xaxis_vals[xaxis_vals.length-1]]).range([0, size.width]);
       var y_scale = d3.scale.linear()
         .domain([0, data_max]).range([size.height, 0]);
+      
+      // Helper function unsed to convert stack values to X, Y coords 
+      var area = d3.svg.area()
+        .interpolate("monotone")
+        .x(function(d) { return x_scale(parseInt(d.key)); })
+        .y0(function(d) { return y_scale(d.y0); })
+        .y1(function(d) { return y_scale(d.y0 + d.y); });
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -101,7 +107,7 @@ vizwhiz.viz.stacked = function() {
         .attr("class", "yaxis")
       
       // update
-      d3.select(".yaxis").call(y_axis)
+      d3.select(".yaxis").call(y_axis.scale(y_scale))
       
       //===================================================================
       
@@ -212,16 +218,6 @@ vizwhiz.viz.stacked = function() {
   
   //===================================================================
   
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Helper function unsed to convert stack values to X, Y coords 
-  //-------------------------------------------------------------------
-  
-  var area = d3.svg.area()
-    .interpolate("monotone")
-    .x(function(d) { return x_scale(parseInt(d.key)); })
-    .y0(function(d) { return y_scale(d.y0); })
-    .y1(function(d) { return y_scale(d.y0 + d.y); });
-  
   //===================================================================
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -254,7 +250,6 @@ vizwhiz.viz.stacked = function() {
     .tickSize(0)
     .tickPadding(15)
     .orient('left')
-    .scale(y_scale)
     .tickFormat(function(d, i) {
       d3.select(this)
         .attr("text-anchor","middle")
@@ -343,6 +338,10 @@ vizwhiz.viz.stacked = function() {
     margin.right  = typeof x.right  != 'undefined' ? x.right  : margin.right;
     margin.bottom = typeof x.bottom != 'undefined' ? x.bottom : margin.bottom;
     margin.left   = typeof x.left   != 'undefined' ? x.left   : margin.left;
+    size.width    = width-margin.left-margin.right;
+    size.height   = height-margin.top-margin.bottom;
+    size.x        = margin.left;
+    size.y        = margin.top;
     return chart;
   };
 
