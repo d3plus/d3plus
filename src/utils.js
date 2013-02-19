@@ -2,10 +2,19 @@
 // Number formatter
 //-------------------------------------------------------------------
 
-vizwhiz.utils.format_num = function(val, percent, sig_figs) {
+vizwhiz.utils.format_num = function(val, percent, sig_figs, abbrv) {
   
   if(percent){
     val = d3.format("."+sig_figs+"p")(val)
+  }
+  else if(abbrv){
+    var symbol = d3.formatPrefix(val).symbol
+    symbol = symbol.replace("G", "B") // d3 uses G for giga
+
+    // Format number to precision level using proper scale
+    val = d3.formatPrefix(val).scale(val)
+    val = parseFloat(d3.format("."+sig_figs+"g")(val))
+    val = val + " " + symbol;
   }
   else {
     val = d3.format(",."+sig_figs+"d")(val)

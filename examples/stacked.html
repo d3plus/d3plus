@@ -21,7 +21,7 @@ body {
 
 var width = 960,
   height = 550,
-  margin = {top: 5, right: 40, bottom: 20, left: 120};
+  margin = {top: 5, right: 30, bottom: 70, left: 120};
 
 var sample_data = [
   {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "mg"},
@@ -79,9 +79,12 @@ function rename_key_value(obj) {
 //   .call(viz)
 
 var viz = vizwhiz.viz.stacked()
-  .nesting(["category", "two_digit", "id"])
+  .nesting(["two", "four", "six"])
   .xaxis_var("year")
+  .xaxis_label("Year")
+  .yaxis_label("Value USD")
   .value_var("value")
+  .margin(margin)
   // .text_var("name")
   .id_var("id")
 
@@ -90,11 +93,12 @@ d3.json("data/products_mg.json", function(flat_data){
 
     flat_data.map(function(d, i){
       d.value = d.val_usd;
-      d.category = d.id.slice(0, 2)
-      d.two_digit = d.id.slice(0, 4)
+      d.two = attrs[d.id.slice(0, 2)].name
+      d.four = attrs[d.id.slice(0, 4)].name
+      d.six = attrs[d.id.slice(0, 6)].name
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
-    console.log(flat_data)
+    console.log(flat_data[0])
     
     d3.select("#viz")
       .datum(flat_data)

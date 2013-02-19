@@ -19,6 +19,8 @@ vizwhiz.viz.stacked = function() {
     id_var = null,
     text_var = null,
     xaxis_var = null,
+    xaxis_label = "",
+    yaxis_label = "",
     nesting = [],
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
@@ -89,12 +91,25 @@ vizwhiz.viz.stacked = function() {
       //-------------------------------------------------------------------
       
       // enter
-      viz_enter.append("g")
+      var xaxis_enter = viz_enter.append("g")
         .attr("class", "xaxis")
         .attr("transform", "translate(0," + size.height + ")")
       
       // update
       d3.select(".xaxis").call(x_axis.scale(x_scale).ticks(xaxis_vals.length))
+      
+      // label
+      xaxis_enter.append('text')
+        .attr('width', size.width)
+        .attr('x', size.width/2)
+        .attr('y', 60)
+        .attr('class', 'axis_title x')
+        .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .attr("font-size", "14px")
+        .attr("font-family", "Helvetica")
+        .attr("fill", "#4c4c4c")
+        .text(xaxis_label)
       
       //===================================================================
       
@@ -103,11 +118,23 @@ vizwhiz.viz.stacked = function() {
       //-------------------------------------------------------------------
       
       // enter
-      viz_enter.append("g")
+      var yaxis_enter = viz_enter.append("g")
         .attr("class", "yaxis")
       
       // update
       d3.select(".yaxis").call(y_axis.scale(y_scale))
+      
+      // label
+      yaxis_enter.append('text')
+        .attr('width', size.width)
+        .attr('class', 'axis_title y')
+        .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .attr("font-size", "14px")
+        .attr("font-family", "Helvetica")
+        .attr("fill", "#4c4c4c")
+        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .text(yaxis_label)
       
       //===================================================================
       
@@ -149,6 +176,84 @@ vizwhiz.viz.stacked = function() {
       paths.exit().remove()
       
       //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // TEXT LAYERS
+      // TODO: add text wrapping for long labels
+      //-------------------------------------------------------------------
+      
+      // filter layers to only the ones with a height larger than 6% of viz
+      var text_layers = [];
+      var text_height_scale = d3.scale.linear().range([0, 1]).domain([0, data_max]);
+      layers.forEach(function(layer){
+        
+        // find out which is the largest
+        var tallest = d3.max(layer.values, function(d){ return d.y; });
+        tallest = layer.values.filter(function(d){ return d.y == tallest; })[0]
+        
+        // if the height is taller than 6% of the viz height add it to the list
+        if(text_height_scale(tallest.y) > 0.06){
+          // tallest["id"] = layer.key;
+          layer.tallest = tallest;
+          text_layers.push(layer)
+        }
+      })
+      
+      // give data with key function to variables to draw
+      var texts = d3.select("g.viz").selectAll(".label")
+        .data(text_layers, function(d){ return d.key; })
+      
+      // enter new paths, could be next level deep or up a level
+      texts.enter().append("text")
+        .attr("class", "label")
+        .style("font-weight","bold")
+        .attr("font-size","14px")
+        .attr("font-family","Helvetica")
+        .attr("x", function(d){
+          var pad = 0;
+          var values_index = d.values.indexOf(d.tallest)
+          if(values_index == 0) pad += 10;
+          if(values_index == d.values.length-1) pad -= 10;
+          return x_scale(d.tallest.key) + pad;
+        })
+        .attr("dy", 6)
+        .attr("y", function(d){
+          d = d.tallest;
+          var height = y_scale(d.y0 - d.y) - y_scale(d.y0 + d.y);
+          return y_scale(d.y0 + d.y) + (height/4);
+        })
+        .attr("text-anchor", function(d){
+          var values_index = d.values.indexOf(d.tallest)
+          if(values_index == 0) return "start";
+          if(values_index == d.values.length-1) return "end";
+          return "middle"
+        })
+        .attr("fill", function(d){
+          return "white"
+        })
+        .text(function(d) { 
+          return d[nesting[nesting.length-1]]
+        })
+      
+      // exit
+      texts.exit().remove()
+      
+      //===================================================================
+      
+      
+      // Draw foreground bounding box
+      viz_enter.append('rect')
+        .style('stroke','#000')
+        .style('stroke-width',1*2)
+        .style('fill','none')
+        .attr('class', "border")
+        .attr('width', size.width)
+        .attr('height', size.height)
+        .attr('x',0)
+        .attr('y',0)
+      
+      // Always bring to front
+      d3.select("rect.border").node().parentNode.appendChild(d3.select("rect.border").node())
       
     });
 
@@ -273,7 +378,7 @@ vizwhiz.viz.stacked = function() {
         .attr("y2", 0)
         .attr("stroke", "#000")
         .attr("stroke-width",1)
-      return vizwhiz.utils.format_num(d, false, 2)
+      return vizwhiz.utils.format_num(d, false, 3, true)
     });
 
   //===================================================================
@@ -323,6 +428,18 @@ vizwhiz.viz.stacked = function() {
   chart.xaxis_var = function(x) {
     if (!arguments.length) return xaxis_var;
     xaxis_var = x;
+    return chart;
+  };
+  
+  chart.xaxis_label = function(x) {
+    if (!arguments.length) return xaxis_label;
+    xaxis_label = x;
+    return chart;
+  };
+  
+  chart.yaxis_label = function(x) {
+    if (!arguments.length) return yaxis_label;
+    yaxis_label = x;
     return chart;
   };
   
