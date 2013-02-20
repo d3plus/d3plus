@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="../src/vizwhiz.css" rel="stylesheet" type="text/css">
+  <style>
+
+  body {
+  
+  }
+
+  </style>
+</head>
+<body>
+
+<div id="viz"></div>
+
+<script src="../lib/d3.js"></script>
+<script src="../lib/d3.geo.tile.js"></script>
+<script src="../lib/topojson.js"></script>
+<script src="../lib/modernizr.custom.js"></script>
+<script src="../src/general.js"></script>
+<script src="../src/utils.js"></script>
+<script src="../src/viz/geo_map.js"></script>
+<script>
+
+  var width = 1100,
+      height = 700;
+    
+  d3.json("data/geo/mg_munic.json", function(countries) {
+    d3.json("data/geo/land.json", function(land) {
+        
+      viz = vizwhiz.viz.network()
+        .width(width)
+        .height(height)
+        .layer("countries",countries)
+        .background(land);
+          
+      d3.select("#viz")
+        // .datum(data)
+        .call(viz);
+        
+    });
+  });
+  
+
+</script>
+</body>
+</html>
