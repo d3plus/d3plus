@@ -55,6 +55,7 @@ vizwhiz.viz.stacked = function() {
       // scales for both X and Y values
       var x_scale = d3.scale.linear()
         .domain([xaxis_vals[0], xaxis_vals[xaxis_vals.length-1]]).range([0, size.width]);
+      // **WARNING reverse scale from 0 - max converts from height to 0 (inverse)
       var y_scale = d3.scale.linear()
         .domain([0, data_max]).range([size.height, 0]);
       
@@ -179,8 +180,10 @@ vizwhiz.viz.stacked = function() {
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // TEXT LAYERS
-      // TODO: add text wrapping for long labels
       //-------------------------------------------------------------------
+      
+      var defs = svg_enter.append('svg:defs')
+      vizwhiz.utils.drop_shadow(defs)
       
       // filter layers to only the ones with a height larger than 6% of viz
       var text_layers = [];
@@ -205,34 +208,59 @@ vizwhiz.viz.stacked = function() {
       
       // enter new paths, could be next level deep or up a level
       texts.enter().append("text")
+        .attr('filter', 'url(#dropShadow)')
         .attr("class", "label")
         .style("font-weight","bold")
         .attr("font-size","14px")
         .attr("font-family","Helvetica")
         .attr("x", function(d){
           var pad = 0;
+          // determine the index of the tallest item
           var values_index = d.values.indexOf(d.tallest)
+          // if first, push it off 10 pixels from left side
           if(values_index == 0) pad += 10;
+          // if last, push it off 10 pixels from right side
           if(values_index == d.values.length-1) pad -= 10;
           return x_scale(d.tallest.key) + pad;
         })
         .attr("dy", 6)
         .attr("y", function(d){
-          d = d.tallest;
-          var height = y_scale(d.y0 - d.y) - y_scale(d.y0 + d.y);
-          return y_scale(d.y0 + d.y) + (height/4);
+          var height = size.height - y_scale(d.tallest.y)
+          return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
         })
         .attr("text-anchor", function(d){
+          // determine the index of the tallest item
           var values_index = d.values.indexOf(d.tallest)
+          // if first, left-align text
           if(values_index == 0) return "start";
+          // if last, right-align text
           if(values_index == d.values.length-1) return "end";
+          // otherwise go with middle
           return "middle"
         })
         .attr("fill", function(d){
           return "white"
         })
-        .text(function(d) { 
+        .text(function(d) {
           return d[nesting[nesting.length-1]]
+        })
+        .each(function(d){
+          // set usable width to 2x the width of each x-axis tick
+          var tick_width = (size.width / xaxis_vals.length) * 2;
+          // if the text box's width is larger than the tick width wrap text
+          if(this.getBBox().width > tick_width){
+            // first remove the current text
+            d3.select(this).text("")
+            // figure out the usable height for this location along x-axis
+            var height = size.height-y_scale(d.tallest.y)
+            // wrap text WITHOUT resizing
+            vizwhiz.utils.wordWrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
+            // reset Y to compensate for new multi-line height
+            var offset = (height - this.getBBox().height) / 2;
+            // top of the element's y attr
+            var y_top = y_scale(d.tallest.y0 + d.tallest.y);
+            d3.select(this).attr("y", y_top + offset)
+          }
         })
       
       // exit

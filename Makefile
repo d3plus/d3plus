@@ -1,9 +1,11 @@
 JS_FILES = \
+	src/begin.js \
 	src/general.js \
 	src/utils.js \
 	src/viz/network.js \
 	src/viz/stacked.js \
 	src/viz/tree_map.js \
+	src/end.js \
 
 JS_COMPILER = uglifyjs
 

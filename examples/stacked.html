@@ -44,26 +44,12 @@ var sample_data = [
   {"continent": "North America", "country": "Mexico", "year": 2001, "value": 3534, "color": "#ca3422", "state": "m"},
   {"continent": "North America", "country": "United States of America", "year": 1999, "value": 5731, "color": "#ca3422", "state": "ma"},
   {"continent": "North America", "country": "United States of America", "year": 2000, "value": 5731, "color": "#ca3422", "state": "ma"},
+  // test with missing data
   // {"continent": "North America", "country": "United States of America", "year": 2001, "value": 5731, "color": "#ca3422", "state": "ma"},
   // {"continent": "North America", "country": "United States of America", "year": 1999, "value": 5731, "color": "#ca3422", "state": "ny"},
   {"continent": "North America", "country": "United States of America", "year": 2000, "value": 5731, "color": "#ca3422", "state": "ny"},
   {"continent": "North America", "country": "United States of America", "year": 2001, "value": 5731, "color": "#ca3422", "state": "ny"}
 ]
-
-// recursive function to rename "values" to "children" and "key" to "id"
-function rename_key_value(obj) { 
-  if (obj.values && obj.values.length) { 
-    return { 
-      'name': obj.key, 
-      'id': obj.key, 
-      'children': obj.values.map(function(obj) { 
-        return renameKeyValue(obj); 
-      }) 
-    }; 
-  } else { 
-    return obj; 
-  }
-}
 
 // var viz = vizwhiz.viz.stacked()
 //   .nesting(["continent", "country"])
@@ -79,7 +65,8 @@ function rename_key_value(obj) {
 //   .call(viz)
 
 var viz = vizwhiz.viz.stacked()
-  .nesting(["two", "four", "six"])
+  .nesting(["two", "four"])
+  // .nesting(["two", "four", "six"])
   .xaxis_var("year")
   .xaxis_label("Year")
   .yaxis_label("Value USD")
@@ -98,7 +85,6 @@ d3.json("data/products_mg.json", function(flat_data){
       d.six = attrs[d.id.slice(0, 6)].name
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
-    console.log(flat_data[0])
     
     d3.select("#viz")
       .datum(flat_data)

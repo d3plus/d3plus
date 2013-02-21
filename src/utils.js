@@ -167,3 +167,37 @@ vizwhiz.utils.wordWrap = function(text, parent, width, height, resize) {
 
 //===================================================================
 
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Drop shadow function, adds the proper definition with th parameters
+// used to the page
+//-------------------------------------------------------------------
+
+vizwhiz.utils.drop_shadow = function(defs) {
+  
+  // add filter to svg defs
+  var drop_shadow_filter = defs.append('filter')
+    .attr('id', 'dropShadow')
+    .attr('filterUnits', "userSpaceOnUse")
+    .attr('width', '100%')
+    .attr('height', '100%');
+  
+  // shadow blue
+  drop_shadow_filter.append('feGaussianBlur')
+    .attr('in', 'SourceAlpha')
+    .attr('stdDeviation', 2);
+  
+  // shadow offset
+  drop_shadow_filter.append('feOffset')
+    .attr('dx', 1)
+    .attr('dy', 1)
+    .attr('result', 'offsetblur');
+  
+  var feMerge = drop_shadow_filter.append('feMerge');  
+  feMerge.append('feMergeNode');
+  
+  // put original on top of shadow
+  feMerge.append('feMergeNode')
+    .attr('in', "SourceGraphic");
+
+}
