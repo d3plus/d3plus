@@ -2,10 +2,22 @@
 // Number formatter
 //-------------------------------------------------------------------
 
-vizwhiz.utils.format_num = function(val, percent, sig_figs) {
+vizwhiz.utils.format_num = function(val, percent, sig_figs, abbrv) {
   
   if(percent){
     val = d3.format("."+sig_figs+"p")(val)
+  }
+  else if(abbrv){
+    var symbol = d3.formatPrefix(val).symbol
+    symbol = symbol.replace("G", "B") // d3 uses G for giga
+
+    // Format number to precision level using proper scale
+    val = d3.formatPrefix(val).scale(val)
+    val = parseFloat(d3.format("."+sig_figs+"g")(val))
+    val = val + " " + symbol;
+  }
+  else {
+    val = d3.format(",."+sig_figs+"d")(val)
   }
   
   return val;
@@ -154,3 +166,38 @@ vizwhiz.utils.wordWrap = function(text, parent, width, height, resize) {
 }
 
 //===================================================================
+
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Drop shadow function, adds the proper definition with th parameters
+// used to the page
+//-------------------------------------------------------------------
+
+vizwhiz.utils.drop_shadow = function(defs) {
+  
+  // add filter to svg defs
+  var drop_shadow_filter = defs.append('filter')
+    .attr('id', 'dropShadow')
+    .attr('filterUnits', "userSpaceOnUse")
+    .attr('width', '100%')
+    .attr('height', '100%');
+  
+  // shadow blue
+  drop_shadow_filter.append('feGaussianBlur')
+    .attr('in', 'SourceAlpha')
+    .attr('stdDeviation', 2);
+  
+  // shadow offset
+  drop_shadow_filter.append('feOffset')
+    .attr('dx', 1)
+    .attr('dy', 1)
+    .attr('result', 'offsetblur');
+  
+  var feMerge = drop_shadow_filter.append('feMerge');  
+  feMerge.append('feMergeNode');
+  
+  // put original on top of shadow
+  feMerge.append('feMergeNode')
+    .attr('in', "SourceGraphic");
+
+}

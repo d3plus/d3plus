@@ -6,8 +6,8 @@ vizwhiz.viz.tree_map = function() {
   //-------------------------------------------------------------------
 
   var margin = {top: 0, right: 0, bottom: 0, left: 0},
-    width = 380,
-    height = 30,
+    width = window.innerWidth,
+    height = window.innerHeight,
     depth = null,
     value_var = null,
     id_var = null,
