@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="../src/vizwhiz.css" rel="stylesheet" type="text/css">
+<style>
+
+body {
+  margin: 0; padding:0;
+}
+
+</style>
+<body>
+
+<div id="viz"></div>
+
+<script src="../lib/d3.js"></script>
+<script src="../lib/modernizr.custom.js"></script>
+<script src="../src/general.js"></script>
+<script src="../src/utils.js"></script>
+<script src="../src/viz/pie_scatter.js"></script>
+
+<script>
+
+var viz = vizwhiz.viz.pie_scatter()
+
+d3.json("data/products_mg.json", function(flat_data){
+  d3.json("data/attr_hs.json", function(attrs){
+
+    flat_data = flat_data.filter(function(d){
+      return d.year == 2010;
+    })
+
+    flat_data.map(function(d, i){
+      d.value = d.val_usd;
+      d.active = Math.floor(Math.random()*2);
+      d.nesting_0 = attrs[d.id.slice(0, 2)].name;
+      d.nesting_1 = attrs[d.id.slice(0, 4)].name;
+      d.nesting_2 = attrs[d.id.slice(0, 6)].name;
+      flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+    })
+
+    viz
+      .text_var("name")
+      .id_var("id")
+      .xaxis_label("Distance")
+      .xaxis_var("distance")
+      .yaxis_label("Complexity")
+      .yaxis_var("complexity")
+      .size_var("value")
+      .nesting(["nesting_0"])
+
+    d3.select("#viz")
+      .datum(flat_data)
+      .call(viz)    
+
+  })
+})
+
+</script>
