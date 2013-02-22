@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="../src/vizwhiz.css" rel="stylesheet" type="text/css">
+  <style>
+
+  body {
+  
+  }
+
+  </style>
+</head>
+<body>
+
+<div id="viz"></div>
+
+<script src="../lib/d3.js"></script>
+<script src="../lib/d3.geo.tile.js"></script>
+<script src="../lib/topojson.js"></script>
+<script src="../lib/modernizr.custom.js"></script>
+<script src="../src/general.js"></script>
+<script src="../src/utils.js"></script>
+<script src="../src/viz/geo_map.js"></script>
+<script>
+
+  var width = 1100,
+      height = 700;
+    
+  d3.json("data/geo/mg_munic.json", function(shapes) {
+    d3.json("data/geo/land.json", function(land) {
+      d3.json("data/munic_mg.json", function(geo_data) {
+        d3.json("data/attr_munic.json", function(attr) {
+        
+          geo_data = geo_data.filter(function(d){ return d.year == 2010; })
+          
+          data = {}
+          geo_data.forEach(function(d){
+            var id = attr[d.id].id_mdic
+            data[id] = geo_data.filter(function(f){return f.id == d.id})[0]
+            // console.log(d.id,data[d.id],attr[d.id])
+            data[id] = vizwhiz.utils.merge(data[id],attr[d.id])
+            delete data[id].year
+            delete data[id].attr_type
+          })
+          
+          viz = vizwhiz.viz.network()
+            .width(width)
+            .height(height)
+            .coords(shapes)
+            .background(land)
+            .id_var("id")
+            .value_var("wage")
+            .text_var("name");
+          
+          d3.select("#viz")
+            .datum(data)
+            .call(viz);
+        
+        });
+      });
+    });
+  });
+  
+
+</script>
+</body>
+</html>

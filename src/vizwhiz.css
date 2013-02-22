@@ -24,6 +24,7 @@ svg {
   position: absolute;
   top: 5px;
   left: 5px;
+  z-index: 50;
 }
 
 #zoom_in, #zoom_out {
