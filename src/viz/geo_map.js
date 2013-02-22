@@ -13,13 +13,16 @@ vizwhiz.viz.network = function() {
       highlight = null,
       timing = 500,
       zoom_timing = null,
-      layer = {},
+      coords = null,
+      shape = null,
       terrain = true,
       background = null,
-      default_opacity = 0.5,
+      default_opacity = 0.25,
       select_opacity = 0.75,
-      land_style = {"fill": "#375629"},
-      water_color = "#153D72";
+      land_style = {"fill": "#F1EEE8"},
+      water_color = "#B5D0D0",
+      stroke_width = 1,
+      color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"];
 
   //===================================================================
 
@@ -30,7 +33,7 @@ vizwhiz.viz.network = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Private Variables
       //-------------------------------------------------------------------
-
+      
       var this_selection = this,
           dragging = false,
           info_width = 300,
@@ -43,7 +46,26 @@ vizwhiz.viz.network = function() {
             .scaleExtent([width, 1 << 23])
             .translate(projection.translate())
             .on("zoom",zoom),
-          tile = d3.geo.tile().size([width, height]);
+          tile = d3.geo.tile().size([width, height]),
+          old_scale = projection.scale(),
+          old_translate = projection.translate();
+          
+
+      if (data) {
+        data_extent = d3.extent(d3.values(data),function(d){
+          return d[value_var] && d[value_var] != 0 ? d[value_var] : null
+        })
+        var data_range = [],
+            step = 0.0
+        while(step <= 1) {
+          data_range.push((data_extent[0]*Math.pow((data_extent[1]/data_extent[0]),step)))
+          step += 0.2
+        }
+        var value_color = d3.scale.log()
+          .domain(data_range)
+          .interpolate(d3.interpolateRgb)
+          .range(color_gradient)
+      }
 
       //===================================================================
       
@@ -98,48 +120,56 @@ vizwhiz.viz.network = function() {
             d3.select("#path"+highlight.id).attr("opacity",default_opacity)
             highlight = null;
             clicked = false;
-            zoom("reset")
+            zoom(shape)
           }
         });
         
-      var country_group = viz_enter.append('g')
-        .attr('class','countries');
+      var coord_group = viz_enter.append('g')
+        .attr('class','paths');
+        
+      var defs = coord_group.append("defs")
         
       // Create group outside of zoom group for info panel
-      // var info_group = svg_enter.append("g")
-      //   .attr("class","info")
+      var info_group = svg_enter.append("g")
+        .attr("class","info")
         
       // Create Zoom Controls div on svg_enter
-      // var zoom_div = svg.enter().append("div")
-      //   .attr("id","zoom_controls")
-      //   
-      // zoom_div.append("div")
-      //   .attr("id","zoom_in")
-      //   .attr("unselectable","on")
-      //   .on(vizwhiz.evt.click,function(){ zoom("in") })
-      //   .text("+")
-      //   
-      // zoom_div.append("div")
-      //   .attr("id","zoom_out")
-      //   .attr("unselectable","on")
-      //   .on(vizwhiz.evt.click,function(){ zoom("out") })
-      //   .text("-")
+      var zoom_div = svg.enter().append("div")
+        .attr("id","zoom_controls")
+        
+      zoom_div.append("div")
+        .attr("id","zoom_in")
+        .attr("unselectable","on")
+        .on(vizwhiz.evt.click,function(){ zoom("in") })
+        .text("+")
+        
+      zoom_div.append("div")
+        .attr("id","zoom_out")
+        .attr("unselectable","on")
+        .on(vizwhiz.evt.click,function(){ zoom("out") })
+        .text("-")
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New nodes and links enter, initialize them here
       //-------------------------------------------------------------------
 
-      var country = country_group.selectAll("path.country")
-        .data(topojson.object(layer.countries, layer.countries.objects.munic).geometries)
+      var coord = coord_group.selectAll("path")
+        .data(coords)
         
-      country.enter().append("path")
-        .attr("class","country")
+      coord.enter().append("path")
         .attr("id",function(d) { return "path"+d.id } )
         .attr("d",path)
-        .attr("fill","red")
-        .attr("stroke","black")
-        .attr("stroke-width",0.5)
+        .attr("stroke-width",stroke_width)
+        .attr("stroke","white")
+        .attr("vector-effect","non-scaling-stroke")
         .attr("opacity",default_opacity)
+        // .attr("clip-path",function(d) { return "url(#clip-path"+d.id+")" } )
+        // .each(function(d){
+        //   defs.append("clipPath")
+        //     .attr("id",function(dd) { return "clip-path"+d.id } )
+        //     .append("use")
+        //       .attr("xlink:href",function(dd) { return "#path"+d.id } )
+        // })
         .on(vizwhiz.evt.over, function(d) {
           if (highlight != d) d3.select(this).attr("opacity",select_opacity);
         })
@@ -151,7 +181,7 @@ vizwhiz.viz.network = function() {
             d3.select("#path"+highlight.id).attr("opacity",default_opacity)
             highlight = null;
             clicked = false;
-            zoom("reset")
+            zoom(shape);
           } else {
             if (highlight) d3.select("#path"+highlight.id).attr("opacity",default_opacity)
             highlight = d;
@@ -160,6 +190,7 @@ vizwhiz.viz.network = function() {
             zoom(highlight);
           }
         })
+        .call(color_paths);
       
       //===================================================================
       
@@ -189,6 +220,16 @@ vizwhiz.viz.network = function() {
 
       //===================================================================
       
+      zoom(shape);
+      
+      function color_paths(p) {
+        p
+          .attr("fill",function(d){ 
+            if (!data) return "#888888"
+            else return data[d.id] ? value_color(data[d.id][value_var]) : "#eeeeee"
+          });
+      }
+      
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Zoom Function
       //-------------------------------------------------------------------
@@ -196,24 +237,25 @@ vizwhiz.viz.network = function() {
       function zoom(param) {
         
         var translate = zoom_behavior.translate(),
-            scale = zoom_behavior.scale(),
-            zoom_extent = zoom_behavior.scaleExtent(),
-            svg_scale = scale/width,
+            zoom_extent = zoom_behavior.scaleExtent()
+            
+        var scale = zoom_behavior.scale()
+        if (param == "in") var scale = ((scale/width)*2)*width
+        else if (param == "out") var scale = ((scale/width)*0.5)*width
+        
+        var svg_scale = scale/width,
             svg_translate = [translate[0]-(scale/2),translate[1]-(scale/2)+(200*svg_scale)]
             
-        if (param == "reset") {
+        old_scale = projection.scale()
+        old_translate = projection.translate()
             
-          scale = width
-          translate = [(scale/2),(scale/2)-(200*scale/width)]
-            
-        } else if (param) {
+        if (param.coordinates) {
+          
           var b = path.bounds(param),
               w = b[1][0] - b[0][0],
               h = b[1][1] - b[0][1],
-              c = path.centroid(param),
               s_width = scale/w,
               s_height = (height*(scale/width))/h
-              
           if (s_width < s_height) {
             var s = s_width*width,
                 offset_left = 0,
@@ -232,8 +274,16 @@ vizwhiz.viz.network = function() {
           translate = t
           scale = s
           
+        } else if (param == "in" || param == "out") {
+          
+          var b = projection.translate()
+          
+          if (param == "in") translate = [b[0]+(b[0]-(width/2)),b[1]+(b[1]-(height/2))]
+          else if (param == "out") translate = [b[0]+(((width/2)-b[0])/2),b[1]+(((height/2)-b[1])/2)]
         }
-        
+        // if (d3.event.sourceEvent) console.log(d3.event.sourceEvent.layerX)
+        // console.log(projection.translate()[0],translate[0],svg_translate[0],width,scale,svg_scale)
+        // console.log(svg_translate[0],translate[0],(width*svg_scale)/2)
         // Scale Boundries
         if (scale < zoom_extent[0]) scale = zoom_extent[0]
         else if (scale > zoom_extent[1]) scale = zoom_extent[1]
@@ -249,97 +299,30 @@ vizwhiz.viz.network = function() {
         svg_scale = scale/width;
         svg_translate = [translate[0]-(scale/2),translate[1]-(scale/2)+(200*svg_scale)];
             
-        if (d3.event.scale) {
-          if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
-            zoom_timing = 0
+        if (d3.event) {
+          if (d3.event.scale) {
+            if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
+              zoom_timing = 0
+            } else {
+              zoom_timing = timing
+            }
           } else {
             zoom_timing = timing
           }
         } else {
           zoom_timing = timing*4
         }
-        
+
         if (terrain) update_tiles();
         
-        d3.selectAll(".viz").transition().duration(zoom_timing)
-          .attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
-        
-        d3.selectAll("path").transition().duration(zoom_timing)
-          .attr("stroke-width",0.5/svg_scale)
-            
-      }
-
-      function zoomer(direction) {
-        
-        // If d3 zoom event is detected, use it!
-        if(d3.event.scale) {
-          evt_scale = d3.event.scale
-          translate = d3.event.translate
+        if (zoom_timing > 0) {
+          d3.selectAll(".viz").transition().duration(zoom_timing)
+            .attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
         } else {
-          if (direction == "in") {
-            if (zoom_behavior.scale() > zoom_extent[1]/2) multiplier = zoom_extent[1]/zoom_behavior.scale()
-            else multiplier = 2
-          } else if (direction == "out") {
-            if (zoom_behavior.scale() < zoom_extent[0]*2) multiplier = zoom_extent[0]/zoom_behavior.scale()
-            else multiplier = 0.5
-          } else if (connections[direction]) {
-            var x_bounds = [scale.x(connections[direction].extent.x[0]),scale.x(connections[direction].extent.x[1])],
-                y_bounds = [scale.y(connections[direction].extent.y[0]),scale.y(connections[direction].extent.y[1])]
-                
-            if (x_bounds[1] > (width-info_width-5)) var offset_left = info_width+32
-            else var offset_left = 0
-                
-            var w_zoom = (width-info_width-10)/(x_bounds[1]-x_bounds[0]),
-                h_zoom = height/(y_bounds[1]-y_bounds[0])
-            
-            if (w_zoom < h_zoom) {
-              x_bounds = [x_bounds[0]-(max_size*2),x_bounds[1]+(max_size*2)]
-              evt_scale = (width-info_width-10)/(x_bounds[1]-x_bounds[0])
-              if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
-              offset_x = -(x_bounds[0]*evt_scale)
-              offset_y = -(y_bounds[0]*evt_scale)+((height-((y_bounds[1]-y_bounds[0])*evt_scale))/2)
-            } else {
-              y_bounds = [y_bounds[0]-(max_size*2),y_bounds[1]+(max_size*2)]
-              evt_scale = height/(y_bounds[1]-y_bounds[0])
-              if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
-              offset_x = -(x_bounds[0]*evt_scale)+(((width-info_width-10)-((x_bounds[1]-x_bounds[0])*evt_scale))/2)
-              offset_y = -(y_bounds[0]*evt_scale)
-            }
-
-            translate = [offset_x+offset_left,offset_y]
-          } else if (direction == "reset") {
-            translate = [0,0]
-            evt_scale = 1
-          }
-          
-          if (direction == "in" || direction == "out") {
-            var trans = d3.select("g.viz")[0][0].getAttribute('transform')
-            if (trans) {
-              trans = trans.split('(')
-              var coords = trans[1].split(')')
-              coords = coords[0].replace(' ',',')
-              coords = coords.substring(0,trans[1].length-6).split(',')
-              offset_x = parseFloat(coords[0])
-              offset_y = coords.length == 2 ? parseFloat(coords[1]) : parseFloat(coords[0])
-              zoom_var = parseFloat(trans[2].substring(0,trans[2].length-1))
-            } else {
-              offset_x = 0
-              offset_y = 0
-              zoom_var = 1
-            }
-            if ((multiplier > 0.5 && multiplier <= 1) && direction == "out") {
-              offset_x = 0
-              offset_y = 0
-            } else {
-              offset_x = (width/2)-(((width/2)-offset_x)*multiplier)
-              offset_y = (height/2)-(((height/2)-offset_y)*multiplier)
-            }
-          
-            translate = [offset_x,offset_y]
-            evt_scale = zoom_var*multiplier
-          }
-        
+          d3.selectAll(".viz")
+            .attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
         }
+            
       }
 
       //===================================================================
@@ -351,29 +334,49 @@ vizwhiz.viz.network = function() {
       function update_tiles() {
 
         var t = projection.translate(),
-            s = projection.scale(),
-            z = Math.max(Math.log(s) / Math.log(2) - 8, 0);
-            rz = Math.floor(z),
-            ts = 256 * Math.pow(2, z - rz);
+            s = projection.scale();
           
-        var tile_origin = [s / 2 - t[0], s / 2 - t[1]];
-          
-        var tiles = tile.scale(s).translate(t)();
+        var tiles = tile.scale(s).translate(t)(),
+            old_tiles = tile.scale(old_scale).translate(old_translate)()
         
         var image = tile_group.selectAll("image.tile")
           .data(tiles, function(d) { return d; });
-
+          
         image.enter().append('image')
           .attr('class', 'tile')
-          .attr('xlink:href', tileUrl);
+          .attr('xlink:href', tileUrl)
+          .attr("opacity",0)
+          .attr("width", Math.ceil(tiles.scale/(s/old_scale)))
+          .attr("height", Math.ceil(tiles.scale/(s/old_scale)))
+          .attr("x", function(d) { 
+            var test = -(t[0]-(s/(old_scale/old_translate[0])));
+            return Math.ceil(((d[0] + tiles.translate[0]) * tiles.scale)+test)/(s/old_scale); 
+          })
+          .attr("y", function(d) { 
+            var test = -(t[1]-(s/(old_scale/old_translate[1])));
+            return Math.ceil(((d[1] + tiles.translate[1]) * tiles.scale)+test)/(s/old_scale); 
+          });
+
+        if (zoom_timing > 0) {
+          image.transition().duration(zoom_timing)
+            .attr("opacity",1)
+            .attr("width", Math.ceil(tiles.scale))
+            .attr("height", Math.ceil(tiles.scale))
+            .attr("x", function(d) { return Math.ceil((d[0] + tiles.translate[0]) * tiles.scale); })
+            .attr("y", function(d) { return Math.ceil((d[1] + tiles.translate[1]) * tiles.scale); });
+          image.exit().remove();
+        } else {
+          image
+            .attr("opacity",1)
+            .attr("width", Math.ceil(tiles.scale))
+            .attr("height", Math.ceil(tiles.scale))
+            .attr("x", function(d) { return Math.ceil((d[0] + tiles.translate[0]) * tiles.scale); })
+            .attr("y", function(d) { return Math.ceil((d[1] + tiles.translate[1]) * tiles.scale); });
           
-        image.transition().duration(zoom_timing)
-          .attr("width", Math.ceil(tiles.scale))
-          .attr("height", Math.ceil(tiles.scale))
-          .attr("x", function(d) { return Math.round((d[0] + tiles.translate[0]) * tiles.scale); })
-          .attr("y", function(d) { return Math.round((d[1] + tiles.translate[1]) * tiles.scale); });
+          image.exit().remove();
+            
+        }
           
-        image.exit().remove();
           
       }
       
@@ -400,9 +403,15 @@ vizwhiz.viz.network = function() {
     return chart;
   };
 
-  chart.layer = function(n,x) {
-    if (!arguments.length) return layer[n];
-    layer[n] = x;
+  chart.coords = function(x) {
+    if (!arguments.length) return coords;
+    coords = topojson.object(x, x.objects.munic).geometries;
+    shape = {"coordinates": [[]], "type": "Polygon"}
+    coords.forEach(function(v,i){
+      v.coordinates[0].forEach(function(a){
+        shape.coordinates[0].push(a)
+      })
+    })
     return chart;
   };
 
