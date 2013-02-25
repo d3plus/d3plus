@@ -406,13 +406,17 @@ vizwhiz.viz.network = function() {
           var d = data[highlight]
           if (scale.x(connections[highlight].extent.x[1]) > (width-info_width-5)) var x_pos = 37
           else var x_pos = width-info_width
+          
           var bg = info_group.append("rect")
             .attr("width",info_width+"px")
             .attr("height",height-10+"px")
             .attr("y","5px")
             .attr("x",(x_pos-5)+"px")
             .attr("ry","3")
-            .attr("fill","#dddddd")
+            .attr("fill","white")
+            .attr("stroke","#333333")
+            .attr("stroke-width",0.25)
+            
           var text = info_group.append("text")
             .attr("y","8px")
             .attr("x",x_pos+"px")
