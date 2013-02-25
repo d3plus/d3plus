@@ -41,7 +41,8 @@ vizwhiz.viz.pie_scatter = function() {
       var cloned_data = JSON.parse(JSON.stringify(data));
       // nest the flat data by nesting array
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, true,
-          [{"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}]);
+          [{"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}]);
+      console.log(nested_data)
       // console.log(nested_data.length)
       // return
       
@@ -145,11 +146,16 @@ vizwhiz.viz.pie_scatter = function() {
       
       var nodes = d3.select("g.viz")
         .selectAll("g.circle")
-        .data(nested_data, function(d){ return d[nesting[nesting.length-1]]; })
+        .data(nested_data, function(d){ return d.name; })
+        // .data(nested_data, function(d){ return d[nesting[nesting.length-1]]; })
       
       var nodes_enter = nodes.enter().append("g")
         .attr("class", "circle")
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
+        .on(vizwhiz.evt.over, hover(x_scale, y_scale, size_scale))
+        .on(vizwhiz.evt.out, function(){
+          d3.selectAll(".axis_hover").remove();
+        })
       
       nodes_enter
         .append("circle")
@@ -162,7 +168,6 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("r", function(d){ 
           return size_scale(d[size_var]);
         })
-      
 
       nodes_enter
         .append("path")
@@ -178,7 +183,6 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("r", function(d){ 
           return size_scale(d[size_var]);
         })
-        .on("mouseover", function(d){ console.log(d); })
       
       nodes.selectAll("path")
         .attr("d", function(d){
@@ -219,7 +223,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("stroke", function(d){
           return d.color;
         })
-        .attr("stroke-width", stroke)
+        .attr("stroke-width", stroke/2)
       
       // y ticks
       ticks_enter.append("line")
@@ -234,7 +238,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("stroke", function(d){
           return d.color;
         })
-        .attr("stroke-width", stroke)
+        .attr("stroke-width", stroke/2)
         
       
       //===================================================================
@@ -296,16 +300,88 @@ vizwhiz.viz.pie_scatter = function() {
   //===================================================================
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Helper function used to create stack polygon
+  // Hover over nodes
   //-------------------------------------------------------------------
   
-  var stack = d3.layout.stack()
-    .offset("zero")
-    .values(function(d) { return d.values; })
-    .x(function(d) { return parseInt(d.key); })
-    .y(function(d) { return d.values; });
-  
-  //===================================================================
+  function hover(x_scale, y_scale, size_scale){
+    return function(d){
+      
+      console.log(d[nesting[nesting.length-1]], d)
+      
+      var radius = size_scale(d[size_var]),
+          x = x_scale(d[xaxis_var]),
+          y = y_scale(d[yaxis_var]),
+          color = d.color;
+      
+      // vertical line to x-axis
+      d3.select("g.viz").append("line")
+        .attr("class", "axis_hover")
+        .attr("x1", x)
+        .attr("x2", x)
+        .attr("y1", y+radius) // offset so hover doens't flicker
+        .attr("y2", size.height)
+        .attr("stroke", color)
+        .attr("stroke-width", stroke)
+
+      // horizontal line to y-axis
+      d3.select("g.viz").append("line")
+        .attr("class", "axis_hover")
+        .attr("x1", 0)
+        .attr("x2", x-radius) // offset so hover doens't flicker
+        .attr("y1", y)
+        .attr("y2", y)
+        .attr("stroke", color)
+        .attr("stroke-width", stroke)
+      
+      // x-axis value box
+      d3.select("g.viz").append("rect")
+        .attr("class", "axis_hover")
+        .attr("x", x-25)
+        .attr("y", size.height)
+        .attr("width", 50)
+        .attr("height", 20)
+        .attr("fill", "white")
+        .attr("stroke", color)
+        .attr("stroke-width", stroke)
+      
+      // xvalue text element
+      d3.select("g.viz").append("text")
+        .attr("class", "axis_hover")
+        .attr("x", x)
+        .attr("y", size.height)
+        .attr("dy", 14)
+        .attr("text-anchor","middle")
+        .style("font-weight","bold")
+        .attr("font-size","12px")
+        .attr("font-family","Helvetica")
+        .attr("fill","#4c4c4c")
+        .text(vizwhiz.utils.format_num(d[xaxis_var], false, 3, true))
+      
+      // y-axis value box
+      d3.select("g.viz").append("rect")
+        .attr("class", "axis_hover")
+        .attr("x", -50)
+        .attr("y", y-10)
+        .attr("width", 50)
+        .attr("height", 20)
+        .attr("fill", "white")
+        .attr("stroke", color)
+        .attr("stroke-width", stroke)
+      
+      // xvalue text element
+      d3.select("g.viz").append("text")
+        .attr("class", "axis_hover")
+        .attr("x", -25)
+        .attr("y", y-10)
+        .attr("dy", 14)
+        .attr("text-anchor","middle")
+        .style("font-weight","bold")
+        .attr("font-size","12px")
+        .attr("font-family","Helvetica")
+        .attr("fill","#4c4c4c")
+        .text(vizwhiz.utils.format_num(d[yaxis_var], false, 3, true))
+    }
+  }
   
   //===================================================================
   
@@ -315,7 +391,7 @@ vizwhiz.viz.pie_scatter = function() {
   
   var x_axis = d3.svg.axis()
     .tickSize(0)
-    .tickPadding(15)
+    .tickPadding(25)
     .orient('bottom')
     .tickFormat(function(d, i) {
       d3.select(this)
@@ -324,6 +400,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
+      // background line
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
         .attr("x1", 0)
@@ -332,20 +409,21 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("y2", -size.height-stroke)
         .attr("stroke", "#ccc")
         .attr("stroke-width",stroke/2)
+      // tick
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
         .attr("x1", 0)
         .attr("x2", 0)
         .attr("y1", 1)
-        .attr("y2", 10)
+        .attr("y2", 20)
         .attr("stroke", "#000")
-        .attr("stroke-width",1)
+        .attr("stroke-width", stroke)
       return d
     });
   
   var y_axis = d3.svg.axis()
     .tickSize(0)
-    .tickPadding(15)
+    .tickPadding(25)
     .orient('left')
     .tickFormat(function(d, i) {
       d3.select(this)
@@ -354,6 +432,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
+      // background line
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
         .attr("x1", 0+stroke)
@@ -362,10 +441,11 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("y2", 0)
         .attr("stroke", "#ccc")
         .attr("stroke-width",stroke/2)
+      // tick
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
-        .attr("x1", -10)
-        .attr("x2", 0-stroke)
+        .attr("x1", -20)
+        .attr("x2", 0)
         .attr("y1", 0)
         .attr("y2", 0)
         .attr("stroke", "#4c4c4c")
