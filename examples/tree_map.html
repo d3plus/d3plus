@@ -23,45 +23,12 @@ var width = 960,
   height = 550,
   margin = {top: 5, right: 40, bottom: 20, left: 120};
 
-// var viz = vizwhiz.viz.tree_map()
-//   .text_var("name")
-//   .id_var("name")
-//   .width(width - margin.right - margin.left)
-//   .height(height - margin.top - margin.bottom);
-
-
-var sample_nested_data = {
-  "name": "Top",
-  "children": [
-    {
-      "name": "Countries",
-      "children": [
-      {
-        "name": "South America",
-        "children": [
-            {"name": "Brazil", "value": 3938, "color": "#43f9c2"},
-            {"name": "Bolivarian Republic of Venezuela", "value": 3812, "color": "#43f9c2"},
-            {"name": "Peru", "value": 743, "color": "#43f9c2"}
-          ]
-        },
-        {
-          "name": "North America",
-          "children": [
-            {"name": "Mexico", "value": 3534, "color": "#ca3422"},
-            {"name": "United States of America", "value": 5731, "color": "#ca3422"}
-          ]
-        }
-      ]
-    }
-  ]
-}
-
 var viz = vizwhiz.viz.tree_map();
 
-d3.json("data/products_mg.json", function(flat_data){
+d3.json("data/products_mg.json", function(raw_data){
   d3.json("data/attr_hs.json", function(attrs){
 
-    flat_data = flat_data.filter(function(d){
+    var flat_data = raw_data.filter(function(d){
       return d.year == 2010;
     })
 
@@ -81,12 +48,27 @@ d3.json("data/products_mg.json", function(flat_data){
       d3.select("#viz")
         .datum(flat_data)
         .call(viz)
-  
-    // setTimeout(function(){
-      // d3.select("#viz")
-      //   .datum({"name":"top", "children": nested_data})
-      //   .call(viz.text_var("name").id_var("id"))
-    // },1000)
+    
+    setTimeout(function(){
+      
+      // test for animating between years
+      var flat_data = raw_data.filter(function(d){
+        return d.year == 2005;
+      })
+    
+      flat_data.map(function(d, i){
+        d.value = d.val_usd;
+        d.nesting_0 = attrs[d.id.slice(0, 2)].name;
+        d.nesting_1 = attrs[d.id.slice(0, 4)].name;
+        d.nesting_2 = attrs[d.id.slice(0, 6)].name;
+        flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+      })
+      
+      d3.select("#viz")
+        .datum(flat_data)
+        .call(viz)
+      
+    },4000)
     
   })
 })

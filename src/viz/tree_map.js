@@ -14,6 +14,8 @@ vizwhiz.viz.tree_map = function() {
     text_var = "name",
     nesting = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
+    
+  var first_time = true;
 
   //===================================================================
 
@@ -26,6 +28,7 @@ vizwhiz.viz.tree_map = function() {
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, false, [{"key":"color"}])
       
       // Select the svg element, if it exists.
+      var animation_time = 750;
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
       var svg_enter = svg.enter().append("svg")
         .attr('width',width)
@@ -75,8 +78,9 @@ vizwhiz.viz.tree_map = function() {
       
       // cell aka container
       var cell_enter = cell.enter().append("g")
+        .attr("opacity", 0)
         .attr("transform", function(d) {
-          return "translate(" + d.x/2 + "," + d.y/2 + ")"; 
+          return "translate(" + d.x + "," + d.y + ")"; 
         })
       
       // rectangle
@@ -100,6 +104,7 @@ vizwhiz.viz.tree_map = function() {
       
       // text (name)
       cell_enter.append("text")
+        .attr("opacity", 1)
         .attr("text-anchor","start")
         .style("font-weight","bold")
         .attr("font-family","Helvetica")
@@ -154,12 +159,13 @@ vizwhiz.viz.tree_map = function() {
       
       // need to perform updates in "each" clause so that new data is 
       // propogated down to rects and text elements
-      cell
+      cell.transition().duration(animation_time)
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+        .attr("opacity", 1)
         .each(function(g_data) {
           
           // update rectangles
-          d3.select(this).selectAll("rect")
+          d3.select(this).selectAll("rect").transition().duration(animation_time)
             .attr('width', function() {
               return g_data.dx+'px'
             })
@@ -169,16 +175,22 @@ vizwhiz.viz.tree_map = function() {
           
           // text (name)
           d3.select(this).selectAll("text.name")
-            .each(function(){
+            .attr("opacity", function(){
+              return first_time ? 1 : 0;
+            })
+            .transition().duration(animation_time)
+            .each("end", function(q, i){
+              first_time = false;
               // need to recalculate word wrapping because dimensions have changed
               var text = text_var ? g_data[text_var] : g_data.name;
               if(text){
-                // vizwhiz.utils.wordWrap(text, this, g_data.dx, g_data.dy, true)
+                vizwhiz.utils.wordWrap(text, this, g_data.dx, g_data.dy, true)
               }
+              d3.select(this).transition().duration(animation_time/2).attr("opacity", 1)
             })
           
           // text (share)
-          d3.select(this).selectAll("text.share")
+          d3.select(this).selectAll("text.share").transition().duration(animation_time)
             .text(function(){
               var root = g_data;
               while(root.parent){ root = root.parent; } // find top most parent ndoe
@@ -205,7 +217,9 @@ vizwhiz.viz.tree_map = function() {
       // Exis, get rid of old cells
       //-------------------------------------------------------------------
       
-      cell.exit().remove()
+      cell.exit().transition().duration(animation_time)
+        .attr("opacity", 0)
+        .remove()
 
       //===================================================================
       
