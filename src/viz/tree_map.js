@@ -9,9 +9,10 @@ vizwhiz.viz.tree_map = function() {
     width = window.innerWidth,
     height = window.innerHeight,
     depth = null,
-    value_var = null,
-    id_var = null,
-    text_var = null,
+    value_var = "value",
+    id_var = "id",
+    text_var = "name",
+    nesting = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
   //===================================================================
@@ -22,8 +23,10 @@ vizwhiz.viz.tree_map = function() {
       
       var cloned_data = JSON.parse(JSON.stringify(data));
       
+      var nested_data = vizwhiz.utils.nest(cloned_data, nesting)
+      
       // Select the svg element, if it exists.
-      var svg = d3.select(this).selectAll("svg").data([data]);
+      var svg = d3.select(this).selectAll("svg").data([nested_data]);
       var svg_enter = svg.enter().append("svg")
         .attr('width',width)
         .attr('height',height)
@@ -37,14 +40,15 @@ vizwhiz.viz.tree_map = function() {
         .children(function(d) { return d.children; })
         .sort(function(a, b) { return a.value - b.value; })
         .value(function(d) { return value_var ? d[value_var] : d.value; })
-        .nodes(cloned_data)
+        .nodes(nested_data)
+        .filter(function(d) { return !d.children; });
       
       // We'll figure out how many levels of nesting there are to determine
       // the options for which depths to show
-      var max_depth = d3.max(tmap_data, function(d){ return d.depth; });
+      // var max_depth = d3.max(tmap_data, function(d){ return d.depth; });
       
       // filter the tree map nodes to only the depth requested
-      tmap_data = tmap_data.filter(function(d) { return d.depth === (depth || max_depth); });
+      // tmap_data = tmap_data.filter(function(d) { return d.depth === (depth || max_depth); });
       
       // If it's the first time the app is being built, add group for nodes
       svg_enter.append("clipPath")
@@ -251,6 +255,12 @@ vizwhiz.viz.tree_map = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return text_var;
     text_var = x;
+    return chart;
+  };
+  
+  chart.nesting = function(x) {
+    if (!arguments.length) return nesting;
+    nesting = x;
     return chart;
   };
 

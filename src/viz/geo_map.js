@@ -1,4 +1,4 @@
-vizwhiz.viz.network = function() {
+vizwhiz.viz.geo_map = function() {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Public Variables with Default Settings

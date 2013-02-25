@@ -4,6 +4,11 @@
 
 vizwhiz.utils.format_num = function(val, percent, sig_figs, abbrv) {
   
+  // test if number is REALLY small
+  if(Math.abs(val - 1e-16) < 1e-10){
+    val = 0;
+  }
+  
   if(percent){
     val = d3.format("."+sig_figs+"p")(val)
   }
@@ -38,14 +43,99 @@ vizwhiz.utils.rand_color = function() {
 //===================================================================
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Random color generator (if no color is given)
+// Merge two objects to create a new one with the properties of both
 //-------------------------------------------------------------------
 
-vizwhiz.utils.merge = function(obj1,obj2) {
+vizwhiz.utils.merge = function(obj1, obj2) {
   var obj3 = {};
   for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
   for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
   return obj3;
+}
+
+//===================================================================
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// recursive function to rename "values" to "children" and "key" to "id"
+// src: https://groups.google.com/group/d3-js/tree/browse_frm/month/2011-11/a5dc689238c3a685
+//-------------------------------------------------------------------
+
+vizwhiz.utils.rename_key_value = function(obj) { 
+  if (obj.values && obj.values.length) { 
+    return { 
+      'name': obj.key, 
+      'id': obj.key, 
+      'children': obj.values.map(function(obj) { 
+        return vizwhiz.utils.rename_key_value(obj);
+      }) 
+    }; 
+  } 
+  else if(obj.values) { 
+    return obj.values
+  }
+  else {
+    return obj; 
+  }
+}
+
+//===================================================================
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Merge two objects to create a new one with the properties of both
+//-------------------------------------------------------------------
+
+vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
+
+  var flattened = [];
+  var nested_data = d3.nest();
+  
+  nesting.forEach(function(nest_key, i){
+    
+    nested_data.key(function(d){
+      return d[nest_key];
+    })
+    
+    if(i == nesting.length-1){
+      nested_data.rollup(function(leaves){
+        if(leaves.length == 1){
+          flattened.push(leaves[0]);
+          return leaves[0]
+        }
+        to_return = leaves[0]
+        to_return.value = d3.sum(leaves, function(d){ return d.value; })
+        to_return.name = leaves[0][nest_key]
+        to_return.num_children = leaves.length;
+        to_return.num_children_active = d3.sum(leaves, function(d){ return d.active; });
+        
+        if(extra){
+          extra.forEach(function(e){
+            if(e.agg == "sum"){
+              to_return[e.key] = d3.sum(leaves, function(d){ return d[e.key]; })
+            }
+            else if(e.agg == "avg"){
+              to_return[e.key] = d3.mean(leaves, function(d){ return d[e.key]; })
+            }
+          })
+        }
+        
+        flattened.push(to_return);
+        
+        return to_return
+      })
+    }
+    
+  })
+    
+  nested_data = nested_data
+    .entries(flat_data)
+    .map(vizwhiz.utils.rename_key_value);
+
+  if(flatten){
+    return flattened;
+  }
+
+  return {"name":"root", "children": nested_data};
+
 }
 
 //===================================================================
