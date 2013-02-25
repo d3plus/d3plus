@@ -414,8 +414,8 @@ vizwhiz.viz.network = function() {
             .attr("x",(x_pos-5)+"px")
             .attr("ry","3")
             .attr("fill","white")
-            .attr("stroke","#333333")
-            .attr("stroke-width",0.25)
+            .attr("stroke","#cccccc")
+            .attr("stroke-width",2)
             
           var text = info_group.append("text")
             .attr("y","8px")
