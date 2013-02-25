@@ -78,6 +78,8 @@ vizwhiz.viz.geo_map = function() {
         .style("z-index", 10)
         .style("position","absolute");
         
+      var defs = svg_enter.append("defs")
+        
       if (background) {
             
         svg_enter.append("rect")
@@ -117,17 +119,20 @@ vizwhiz.viz.geo_map = function() {
         .attr("fill","transparent")
         .on(vizwhiz.evt.click, function(d) {
           if (highlight) {
-            d3.select("#path"+highlight.id).attr("opacity",default_opacity)
+            d3.select("#path"+highlight.id)
+              .attr("opacity",default_opacity)
+              .attr("clip-path","none")
+              .call(color_paths);
+            defs.selectAll("*").remove();
             highlight = null;
             clicked = false;
-            zoom(shape)
+            zoom(shape);
+            info();
           }
         });
         
       var coord_group = viz_enter.append('g')
         .attr('class','paths');
-        
-      var defs = coord_group.append("defs")
         
       // Create group outside of zoom group for info panel
       var info_group = svg_enter.append("g")
@@ -159,35 +164,62 @@ vizwhiz.viz.geo_map = function() {
       coord.enter().append("path")
         .attr("id",function(d) { return "path"+d.id } )
         .attr("d",path)
-        .attr("stroke-width",stroke_width)
-        .attr("stroke","white")
         .attr("vector-effect","non-scaling-stroke")
         .attr("opacity",default_opacity)
-        // .attr("clip-path",function(d) { return "url(#clip-path"+d.id+")" } )
-        // .each(function(d){
-        //   defs.append("clipPath")
-        //     .attr("id",function(dd) { return "clip-path"+d.id } )
-        //     .append("use")
-        //       .attr("xlink:href",function(dd) { return "#path"+d.id } )
-        // })
-        .on(vizwhiz.evt.over, function(d) {
+        .on(vizwhiz.evt.over, function(d){
+          if (!clicked) {
+            highlight = d;
+            d3.select(this).attr("opacity",select_opacity);
+            info();
+          }
           if (highlight != d) d3.select(this).attr("opacity",select_opacity);
         })
-        .on(vizwhiz.evt.out, function(d) {
+        .on(vizwhiz.evt.out, function(d){
+          if (!clicked) {
+            highlight = null;
+            d3.select(this).attr("opacity",default_opacity);
+            info();
+          }
           if (highlight != d) d3.select(this).attr("opacity",default_opacity);
         })
         .on(vizwhiz.evt.click, function(d) {
-          if (highlight == d) {
-            d3.select("#path"+highlight.id).attr("opacity",default_opacity)
+          if (clicked && highlight == d) {
+            d3.select("#path"+highlight.id)
+              .attr("opacity",default_opacity)
+              .attr("clip-path","none")
+              .call(color_paths);
+            defs.selectAll("*").remove();
             highlight = null;
             clicked = false;
             zoom(shape);
+            info();
           } else {
-            if (highlight) d3.select("#path"+highlight.id).attr("opacity",default_opacity)
+            if (highlight) {
+              d3.select("#path"+highlight.id)
+                .attr("opacity",default_opacity)
+                .attr("clip-path","none")
+                .call(color_paths);
+              defs.selectAll("*").remove();
+            }
             highlight = d;
-            d3.select("#path"+highlight.id).attr("opacity",select_opacity)
+            d3.select(this)
+              .attr("opacity",select_opacity)
+              .attr("clip-path","url(#stroke_clip)")
+              .attr("fill","none")
+              .attr("stroke",function(d){ 
+                if (!data) return "#888888"
+                else return data[d.id] ? value_color(data[d.id][value_var]) : "#eeeeee"
+              })
+              .attr("stroke-width",10)
+              .each(function(d){
+                defs.append("clipPath")
+                  .attr("id","stroke_clip")
+                  .append("use")
+                    .attr("xlink:href",function(dd) { return "#path"+d.id } )
+              })
             clicked = true;
             zoom(highlight);
+            info();
           }
         })
         .call(color_paths);
@@ -227,7 +259,9 @@ vizwhiz.viz.geo_map = function() {
           .attr("fill",function(d){ 
             if (!data) return "#888888"
             else return data[d.id] ? value_color(data[d.id][value_var]) : "#eeeeee"
-          });
+          })
+          .attr("stroke-width",stroke_width)
+          .attr("stroke","white");
       }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -251,19 +285,23 @@ vizwhiz.viz.geo_map = function() {
             
         if (param.coordinates) {
           
+          if (clicked && highlight) var w_avail = width-info_width-37
+          else var w_avail = width
+          
           var b = path.bounds(param),
-              w = b[1][0] - b[0][0],
-              h = b[1][1] - b[0][1],
-              s_width = scale/w,
+              w = (b[1][0] - b[0][0])*1.1,
+              h = (b[1][1] - b[0][1])*1.1,
+              s_width = (w_avail*(scale/width))/w,
               s_height = (height*(scale/width))/h
+              
           if (s_width < s_height) {
             var s = s_width*width,
-                offset_left = 0,
+                offset_left = (w_avail-(((w/1.1)/svg_scale)*s/width))/2,
                 offset_top = (height-((h/svg_scale)*s/width))/2
           } else {
             var s = s_height*width,
-                offset_left = (width-((w/svg_scale)*s/width))/2,
-                offset_top = 0
+                offset_left = (w_avail-((w/svg_scale)*s/width))/2,
+                offset_top = (height-(((h/1.1)/svg_scale)*s/width))/2
           }
           
           var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/width)+offset_left,
@@ -281,9 +319,7 @@ vizwhiz.viz.geo_map = function() {
           if (param == "in") translate = [b[0]+(b[0]-(width/2)),b[1]+(b[1]-(height/2))]
           else if (param == "out") translate = [b[0]+(((width/2)-b[0])/2),b[1]+(((height/2)-b[1])/2)]
         }
-        // if (d3.event.sourceEvent) console.log(d3.event.sourceEvent.layerX)
-        // console.log(projection.translate()[0],translate[0],svg_translate[0],width,scale,svg_scale)
-        // console.log(svg_translate[0],translate[0],(width*svg_scale)/2)
+        
         // Scale Boundries
         if (scale < zoom_extent[0]) scale = zoom_extent[0]
         else if (scale > zoom_extent[1]) scale = zoom_extent[1]
@@ -326,6 +362,57 @@ vizwhiz.viz.geo_map = function() {
       }
 
       //===================================================================
+
+      function info() {
+        info_group.selectAll("*").remove()
+        
+        if (highlight && data[highlight.id]) {
+
+          var d = data[highlight.id], x_pos = width-info_width
+
+          var bg = info_group.append("rect")
+            .attr("width",info_width+"px")
+            .attr("height",height-10+"px")
+            .attr("y","5px")
+            .attr("x",(x_pos-5)+"px")
+            .attr("ry","3")
+            .attr("fill","white")
+            .attr("stroke","#cccccc")
+            .attr("stroke-width",2)
+            
+          var text = info_group.append("text")
+            .attr("y","8px")
+            .attr("x",x_pos+"px")
+            .attr("fill","#333333")
+            .attr("text-anchor","start")
+            .style("font-weight","bold")
+            .attr("font-size","14px")
+            .attr("font-family","Helvetica")
+            .each(function(dd){vizwhiz.utils.wordWrap(d[text_var],this,info_width-10,info_width,false)})
+            
+          if (!clicked) {
+            text.append("tspan")
+              .attr("dy","14px")
+              .attr("font-size","10px")
+              .attr("x",x_pos+"px")
+              .style("font-weight","normal")
+              .text("Click Node for More Info")
+          } else {
+            for (var id in d) {
+              if ([text_var,"color","text_color","active"].indexOf(id) < 0) {
+                text.append("tspan")
+                  .attr("dy","14px")
+                  .attr("font-size","12px")
+                  .attr("x",x_pos+"px")
+                  .style("font-weight","normal")
+                  .text(id+": "+d[id])
+              }
+            }
+          }
+          bg.attr("height",(text.node().getBBox().height+10)+"px")
+        }
+        
+      }
 
       function tileUrl(d) {
         return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.openstreetmap.org/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
