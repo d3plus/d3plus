@@ -195,6 +195,50 @@ vizwhiz.viz.pie_scatter = function() {
       
       //===================================================================
       
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // TICKS
+      //-------------------------------------------------------------------
+      
+      var ticks = d3.select("g.viz")
+        .selectAll("g.ticks")
+        .data(nested_data, function(d){ return d[nesting[nesting.length-1]]; })
+      
+      var ticks_enter = ticks.enter().append("g")
+        .attr("class", "ticks")
+      
+      // x ticks
+      ticks_enter.append("line")
+        .attr("x1", -10)
+        .attr("x2", 0)
+        .attr("y1", function(d){
+          return y_scale(d[yaxis_var])
+        })
+        .attr("y2", function(d){
+          return y_scale(d[yaxis_var])
+        })
+        .attr("stroke", function(d){
+          return d.color;
+        })
+        .attr("stroke-width", stroke)
+      
+      // y ticks
+      ticks_enter.append("line")
+        .attr("x1", function(d){
+          return x_scale(d[xaxis_var])
+        })
+        .attr("x2", function(d){
+          return x_scale(d[xaxis_var])
+        })
+        .attr("y1", size.height)
+        .attr("y2", size.height + 10)
+        .attr("stroke", function(d){
+          return d.color;
+        })
+        .attr("stroke-width", stroke)
+        
+      
+      //===================================================================
+      
     });
 
     return chart;
