@@ -45,7 +45,8 @@
         .height(height)
         .id_var("id")
         .value_var("val_usd")
-        .text_var("name");
+        .text_var("name")
+        .tooltip(["val_usd","val_quantity","val_kg"]);
           
       d3.select("#viz")
         .datum(data)
