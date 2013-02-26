@@ -24,14 +24,12 @@ vizwhiz.viz.tree_map = function() {
       var cloned_data = JSON.parse(JSON.stringify(data));
       
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, false, [{"key":"color"}])
-      console.log(nested_data)
       nested_data.children = nested_data.children.filter(filter_data)
       // console.log(nested_data)
       // return
       
       
       // Select the svg element, if it exists.
-      var animation_time = 750;
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
       var svg_enter = svg.enter().append("svg")
         .attr('width',width)
@@ -65,7 +63,7 @@ vizwhiz.viz.tree_map = function() {
           .attr("width",width)
           .attr("height",height)
           
-      d3.select("#clipping rect").transition(750)
+      d3.select("#clipping rect").transition(vizwhiz.timing)
         .attr("width",width)
         .attr("height",height)
         
@@ -83,13 +81,13 @@ vizwhiz.viz.tree_map = function() {
 
       // need to perform updates in "each" clause so that new data is 
       // propogated down to rects and text elements
-      cell.transition().duration(animation_time)
+      cell.transition().duration(vizwhiz.timing)
         .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
         .attr("opacity", 1)
         .each(function(g_data) {
 
           // update rectangles
-          d3.select(this).selectAll("rect").transition().duration(animation_time)
+          d3.select(this).selectAll("rect").transition().duration(vizwhiz.timing)
             .attr('width', function() {
               return g_data.dx+'px'
             })
@@ -102,18 +100,18 @@ vizwhiz.viz.tree_map = function() {
             .attr("opacity", function(){
               return 0;
             })
-            .transition().duration(animation_time)
+            .transition().duration(vizwhiz.timing)
             .each("end", function(q, i){
               // need to recalculate word wrapping because dimensions have changed
               var text = text_var ? g_data[text_var] : g_data.name;
               if(text){
                 vizwhiz.utils.wordWrap(text, this, g_data.dx, g_data.dy, true)
               }
-              d3.select(this).transition().duration(animation_time/2).attr("opacity", 1)
+              d3.select(this).transition().duration(vizwhiz.timing/2).attr("opacity", 1)
             })
 
           // text (share)
-          d3.select(this).selectAll("text.share").transition().duration(animation_time)
+          d3.select(this).selectAll("text.share").transition().duration(vizwhiz.timing)
             .text(function(){
               var root = g_data;
               while(root.parent){ root = root.parent; } // find top most parent ndoe
@@ -221,7 +219,7 @@ vizwhiz.viz.tree_map = function() {
       // Exis, get rid of old cells
       //-------------------------------------------------------------------
       
-      cell.exit().transition().duration(animation_time)
+      cell.exit().transition().duration(vizwhiz.timing)
         .attr("opacity", 0)
         .remove()
 
@@ -294,7 +292,7 @@ vizwhiz.viz.tree_map = function() {
   
   chart.filter = function(x) {
     if (!arguments.length) return filter;
-    // if we've given an array then overwrite the current filter var
+    // if we're given an array then overwrite the current filter var
     if(x instanceof Array){
       filter = x;
     }
@@ -304,6 +302,7 @@ vizwhiz.viz.tree_map = function() {
       if(filter.indexOf(x) > -1){
         filter.splice(filter.indexOf(x), 1)
       }
+      // element not in current filter so add it
       else {
         filter.push(x)
       }

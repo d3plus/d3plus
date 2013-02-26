@@ -123,7 +123,12 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
           })
         }
         
-        flattened.push(to_return);
+        if(flatten){
+          nesting.forEach(function(nk){
+            to_return[nk] = leaves[0][nk]
+          })
+          flattened.push(to_return);
+        }
         
         return to_return
       })
