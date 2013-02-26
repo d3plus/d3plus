@@ -9,7 +9,7 @@ vizwhiz.viz.bubbles = function() {
       value_var = "value",
       id_var = "id",
       text_var = "name",
-      grouping = "category",
+      grouping = "name",
       tooltip_info = [];
 
   //===================================================================
@@ -23,7 +23,7 @@ vizwhiz.viz.bubbles = function() {
       //-------------------------------------------------------------------
       
       var this_selection = this,
-          timing = 500,
+          timing = vizwhiz.timing,
           stroke_width = 1,
           groups = {},
           value_extent = d3.extent(d3.values(data),function(d){ return d[value_var]; }),
