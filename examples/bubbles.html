@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="../src/vizwhiz.css" rel="stylesheet" type="text/css">
+  <style>
+
+  body {
+    margin: 0px;
+  }
+
+  </style>
+</head>
+<body>
+
+<div id="viz"></div>
+
+<script src="../lib/d3.js"></script>
+<script src="../lib/modernizr.custom.js"></script>
+<script src="../src/general.js"></script>
+<script src="../src/utils.js"></script>
+<script src="../src/viz/bubbles.js"></script>
+<script>
+
+  var width = window.innerWidth,
+      height = window.innerHeight;
+    
+  d3.json("data/products_mg.json", function(raw_data) {
+    d3.json("data/attr_hs.json", function(attr) {
+        
+      raw_data = raw_data.filter(function(d){ return d.year == 2010 && d.val_usd > 50000000 && d.val_usd < 10000000000; })
+      
+      var data = []
+      raw_data.forEach(function(d){
+        var obj = vizwhiz.utils.merge(d,attr[d.id])
+        obj.available = Math.random() < 0.5
+        obj.category = attr[d.id.substr(0,2)].name
+        delete obj.year
+        delete obj.attr_type
+        data.push(obj)
+      })
+      
+      viz = vizwhiz.viz.bubbles()
+        .width(width)
+        .height(height)
+        .id_var("id")
+        .value_var("val_usd")
+        .text_var("name");
+          
+      d3.select("#viz")
+        .datum(data)
+        .call(viz);
+        
+    });
+  });
+  
+
+</script>
+</body>
+</html>
