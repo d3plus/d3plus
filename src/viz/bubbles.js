@@ -9,7 +9,7 @@ vizwhiz.viz.bubbles = function() {
       value_var = "value",
       id_var = "id",
       text_var = "name",
-      grouping = "category";
+      grouping = "available";
 
   //===================================================================
 
@@ -35,11 +35,13 @@ vizwhiz.viz.bubbles = function() {
       //-------------------------------------------------------------------
         
       data.forEach(function(value,index){
-        if (!groups[value[grouping]]) { groups[value[grouping]] = 0 }
-        groups[value[grouping]] += value[value_var] ? value_map(value[value_var]) : value_map(value_extent[0])
+        if (!groups[value[grouping]]) { 
+          groups[value[grouping]] = {"name": value[grouping], "value": 0, "x": 0, "y": 0, "width": 0, "height": 0}
+        }
+        groups[value[grouping]].value += value[value_var] ? value_map(value[value_var]) : value_map(value_extent[0])
       })
       
-      if (grouping == "id") {
+      if (grouping == "id" || grouping == "name") {
         
         if(data.length == 1) {
           var columns = 1,
@@ -52,11 +54,11 @@ vizwhiz.viz.bubbles = function() {
         while ((rows-1)*columns >= data.length) rows--
         
         var r = 0, c = 0
-        data.forEach(function(d){
-          d.cx = ((width/columns)*c)+((width/columns)/2)
-          d.cy = ((height/rows)*r)+((height/rows)/2)
-          d.width = (width/columns)
-          d.height = (height/rows)
+        for (var g in groups) {
+          groups[g].x = ((width/columns)*c)+((width/columns)/2)
+          groups[g].y = ((height/rows)*r)+((height/rows)/2)
+          groups[g].width = (width/columns)
+          groups[g].height = (height/rows)
 
           if (c < columns-1) c++
           else {
@@ -64,21 +66,20 @@ vizwhiz.viz.bubbles = function() {
             r++
           }
           
-        })
+        }
         
       } else if (Object.keys(groups).length == 2) {
         
         var total = 0
-        for (var g in groups) total += groups[g]
-
-        data.forEach(function(d){
-          if (d[grouping] == false) var offset = width*(groups["true"]/total)
+        for (var g in groups) total += groups[g].value
+        for (var g in groups) {
+          if (g == "false") var offset = width*(groups["true"].value/total)
           else var offset = 0
-          d.width = width*(groups[d[grouping]]/total)
-          d.height = height
-          d.cx = (d.width/2)+offset
-          d.cy = height/2
-        })
+          groups[g].width = width*(groups[g].value/total)
+          groups[g].height = height
+          groups[g].x = (groups[g].width/2)+offset
+          groups[g].y = height/2
+        }
         
       } else {
 
@@ -86,7 +87,7 @@ vizwhiz.viz.bubbles = function() {
             positions = {}
         
         for (var i in groups) {
-          groups_tm.push({'key': i, 'values': Math.sqrt(groups[i])})
+          groups_tm.push({'key': i, 'values': Math.sqrt(groups[i].value)})
         }
         
         var tm = d3.layout.treemap()
@@ -100,36 +101,32 @@ vizwhiz.viz.bubbles = function() {
 
         tm.forEach(function(value,index){
           if (value.name != 'root') {
-            positions[value.key] = {
-              'width': value.dx,
-              'height': value.dy,
-              'x': value.x+value.dx/2,
-              'y': value.y+value.dy/2
-            }
+            groups[value.key].width = value.dx
+            groups[value.key].height = value.dy
+            groups[value.key].x = value.x+value.dx/2
+            groups[value.key].y = value.y+value.dy/2
           }
-        })
-
-        data.forEach(function(d){
-          d.cx = positions[d[grouping]].x
-          d.cy = positions[d[grouping]].y
-          d.width = positions[d[grouping]].width
-          d.height = positions[d[grouping]].height
         })
         
       }
 
-      var constraints = [d3.min(data,function(d){return d.width/Math.ceil(Math.sqrt(groups[d[grouping]]))})/2,
-                         d3.min(data,function(d){return d.height/Math.ceil(Math.sqrt(groups[d[grouping]]))})/2],
+      var constraints = [d3.min(data,function(d){
+                            return groups[d[grouping]].width/Math.ceil(Math.sqrt(groups[d[grouping]].value))
+                          })/2,
+                         d3.min(data,function(d){
+                           return groups[d[grouping]].height/Math.ceil(Math.sqrt(groups[d[grouping]].value))
+                         })/2],
           max_size = d3.min(constraints)*0.9
           
-      if (grouping != 'id') max_size = max_size*1.75
-      else max_size = max_size*0.8
+      if (grouping != "id" && grouping != "name") max_size = max_size*1.75
       var node_size = d3.scale.linear().domain(value_extent).range([max_size/4,max_size])
       
       data.forEach(function(d){
         if (value_var != 'none') var size = d[value_var] ? node_size(d[value_var]) : node_size(value_extent[0])
         else var size = max_size
         d.radius = size
+        d.cx = groups[d[grouping]].x
+        d.cy = groups[d[grouping]].y
       })
         
       //===================================================================
@@ -181,6 +178,31 @@ vizwhiz.viz.bubbles = function() {
           console.log(d)
         });
       
+      var label = d3.select("g.labels").selectAll("text")
+        .data(d3.values(groups), function(d) { return d.name })
+        
+      label.enter().append("text")
+        .attr("opacity",0)
+        .attr("text-anchor","middle")
+        .attr("font-weight","bold")
+        .attr("font-size","12px")
+        .attr("font-family","Helvetica")
+        .attr("fill","#4c4c4c")
+        .attr('x',function(d) { return d.x; })
+        .attr('y',function(d) {
+          if (Object.keys(groups).length == 2) var y_offset = height
+          else var y_offset = d3.min([d.width,d.height]);
+          return d.y+(y_offset/2)-30;
+        })
+        .each(function(d){
+          if (grouping == 'available') {
+            var t = d.name == true ? 'Available' : 'Not Available'
+          } else {
+            var t = d.name
+          }
+          vizwhiz.utils.wordWrap(t,this,d.width,40,false)
+        })
+      
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -189,12 +211,13 @@ vizwhiz.viz.bubbles = function() {
         
       bubble.transition().duration(timing)
         .attr("r", function(d){ return d.radius; })
-        .attr('cx', function(d) { return d.x })
-        .attr('cy', function(d) { return d.y })
         .style('fill-opacity', function(d){
           if (d.available) return 1
           return 0.25
         });
+        
+      label.transition().duration(timing/2)
+        .attr("opacity",1)
         
       svg.transition().duration(timing)
         .attr("width", width)
@@ -211,12 +234,16 @@ vizwhiz.viz.bubbles = function() {
         .attr('r',0)
         .remove()
 
+      label.exit().transition().duration(timing/2)
+        .attr('opacity',0)
+        .remove()
+
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Force layout, to control hit detection
       //-------------------------------------------------------------------
-      
+      var bool = false
       d3.layout.force()
         .friction(0.2)
         .charge(0)
@@ -229,7 +256,7 @@ vizwhiz.viz.bubbles = function() {
             .each(function(d) {
               d.y += (d.cy - d.y) * e.alpha;
               d.x += (d.cx - d.x) * e.alpha;
-              if (grouping != 'id') {
+              if (grouping != "id" && grouping != "name") {
                 for (var group in groups) {
                   if (group == "true") var g = true
                   else if (group == "false") var g = false
