@@ -101,11 +101,13 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
           flattened.push(leaves[0]);
           return leaves[0]
         }
-        to_return = leaves[0]
-        to_return.value = d3.sum(leaves, function(d){ return d.value; })
-        to_return.name = leaves[0][nest_key]
-        to_return.num_children = leaves.length;
-        to_return.num_children_active = d3.sum(leaves, function(d){ return d.active; });
+        // to_return = leaves[0]
+        to_return = {
+          "value": d3.sum(leaves, function(d){ return d.value; }),
+          "name": leaves[0][nest_key],
+          "num_children": leaves.length,
+          "num_children_active": d3.sum(leaves, function(d){ return d.active; })
+        }
         
         if(extra){
           extra.forEach(function(e){
@@ -114,6 +116,9 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
             }
             else if(e.agg == "avg"){
               to_return[e.key] = d3.mean(leaves, function(d){ return d[e.key]; })
+            }
+            else {
+              to_return[e.key] = leaves[0][e.key];
             }
           })
         }

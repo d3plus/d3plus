@@ -23,7 +23,7 @@ vizwhiz.viz.tree_map = function() {
       
       var cloned_data = JSON.parse(JSON.stringify(data));
       
-      var nested_data = vizwhiz.utils.nest(cloned_data, nesting)
+      var nested_data = vizwhiz.utils.nest(cloned_data, nesting, false, [{"key":"color"}])
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
@@ -67,7 +67,7 @@ vizwhiz.viz.tree_map = function() {
         .attr("clip-path","url(#clipping)")
       
       var cell = d3.select("g.viz").selectAll("g")
-        .data(tmap_data, function(d){ return id_var ? d[id_var] : d.id; })
+        .data(tmap_data, function(d){ return d[text_var]; })
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New cells enter, initialize them here
@@ -109,7 +109,7 @@ vizwhiz.viz.tree_map = function() {
         .attr('dy','1em')
         .attr("fill", function(d){
           if(d.text_color) return d.text_color
-          return d3.hsl(d.color).l > 0.6 ? "#333" : "#fff";
+          return d3.hsl(d.color).l >= 0.5 ? "#333" : "#fff";
         })
         .each(function(d){
           var text = text_var ? d[text_var] : d.name;
@@ -126,7 +126,7 @@ vizwhiz.viz.tree_map = function() {
         .attr("font-family","Helvetica")
         .attr("fill", function(d){
           if(d.text_color) return d.text_color
-          return d3.hsl(d.color).l > 0.6 ? "#333" : "#fff";
+          return d3.hsl(d.color).l >= 0.5 ? "#333" : "#fff";
         })
         .text(function(d) {
           var root = d;
