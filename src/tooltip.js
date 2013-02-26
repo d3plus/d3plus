@@ -2,15 +2,14 @@
 // Dynamic Tooltip
 //-------------------------------------------------------------------
 
-vizwhiz.tooltip.dynamic = function(g,w,data) {
+vizwhiz.tooltip.dynamic = function(data) {
   
   var width = 200,
       padding = 10,
       triangle_size = 20,
-      stroke_width = 2,
-      exclusions = ["x","y","offset","name"]
+      stroke_width = 2
   
-  var group = g.append("g")
+  var group = data.parent.append("g")
   
   var box = group.append("rect")
     .attr("width",width+"px")
@@ -20,7 +19,7 @@ vizwhiz.tooltip.dynamic = function(g,w,data) {
     .attr("stroke","#cccccc")
     .attr("stroke-width",stroke_width)
   
-  if (data.name) {
+  if (data.title) {
     var text = group.append("text")
       .attr("fill","#000000")
       .attr("font-size","16px")
@@ -29,26 +28,24 @@ vizwhiz.tooltip.dynamic = function(g,w,data) {
       .attr("y",padding*0.75+"px")
       .attr("text-anchor","start")
       .attr("font-family","Helvetica")
-      .each(function(dd){vizwhiz.utils.wordWrap(data.name,this,width-(padding*2),width,false);})
+      .each(function(dd){vizwhiz.utils.wordWrap(data.title,this,width-(padding*2),width,false);})
   }
     
   var y_offset = padding + text.node().getBBox().height
   
-  for (var d in data) {
-    if (exclusions.indexOf(d) < 0) {
-      if (typeof data[d] == "number") var t = d+": "+vizwhiz.utils.format_num(data[d])
-      else var t = d+": "+data[d]
-      text = group.append("text")
-        .attr("fill","#333333")
-        .attr("font-size","12px")
-        .style("font-weight","normal")
-        .attr("x",padding+"px")
-        .attr("y",y_offset+"px")
-        .attr("text-anchor","start")
-        .attr("font-family","Helvetica")
-        .each(function(dd){vizwhiz.utils.wordWrap(t,this,width-(padding*2),width,false);})
-      y_offset += text.node().getBBox().height
-    }
+  for (var d in data.data) {
+    if (typeof data.data[d] == "number") var t = d+": "+vizwhiz.utils.format_num(data.data[d])
+    else var t = d+": "+data.data[d]
+    text = group.append("text")
+      .attr("fill","#333333")
+      .attr("font-size","12px")
+      .style("font-weight","normal")
+      .attr("x",padding+"px")
+      .attr("y",y_offset+"px")
+      .attr("text-anchor","start")
+      .attr("font-family","Helvetica")
+      .each(function(dd){vizwhiz.utils.wordWrap(t,this,width-(padding*2),width,false);})
+    y_offset += text.node().getBBox().height
   }
   
   var box_height = y_offset+padding
@@ -64,7 +61,7 @@ vizwhiz.tooltip.dynamic = function(g,w,data) {
   }
   
   if (data.x-data.offset-padding < width/2) var tooltip_x = padding
-  else if (data.x+data.offset+padding > w-(width/2)) var tooltip_x = w-width-padding
+  else if (data.x+data.offset+padding > data.width-(width/2)) var tooltip_x = data.width-width-padding
   else var tooltip_x = data.x-(width/2)
   
   group.append("line")

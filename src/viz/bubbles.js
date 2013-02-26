@@ -171,11 +171,21 @@ vizwhiz.viz.bubbles = function() {
         .attr("stroke", function(d){ return d.color; })
         .on(vizwhiz.evt.over, function(d){
           
-          var tooltip_data = {"name": d[text_var], "x": d.x, "y": d.y, "offset": d.radius}
+          var tooltip_data = {}
           tooltip_info.forEach(function(t){
             tooltip_data[t] = d[t]
           })
-          vizwhiz.tooltip.dynamic(d3.select("g.info"),width,tooltip_data)
+          
+          vizwhiz.tooltip.dynamic({
+            "parent": d3.select("g.info"),
+            "width": width,
+            "data": tooltip_data,
+            "title": d[text_var],
+            "x": d.x,
+            "y": d.y,
+            "offset": d.radius
+          })
+          
         })
         .on(vizwhiz.evt.out, function(d){
           d3.select("g.info").selectAll("*").remove()
