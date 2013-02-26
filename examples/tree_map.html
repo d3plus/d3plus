@@ -43,32 +43,32 @@ d3.json("data/products_mg.json", function(raw_data){
     viz
       .text_var("name")
       .id_var("id")
-      .nesting(["nesting_0"])
+      .nesting(["nesting_0", "nesting_1", "nesting_2"])
 
       d3.select("#viz")
         .datum(flat_data)
         .call(viz)
     
-    setTimeout(function(){
-      
-      // test for animating between years
-      var flat_data = raw_data.filter(function(d){
-        return d.year == 2005;
-      })
-    
-      flat_data.map(function(d, i){
-        d.value = d.val_usd;
-        d.nesting_0 = attrs[d.id.slice(0, 2)].name;
-        d.nesting_1 = attrs[d.id.slice(0, 4)].name;
-        d.nesting_2 = attrs[d.id.slice(0, 6)].name;
-        flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
-      })
-      
-      d3.select("#viz")
-        .datum(flat_data)
-        .call(viz)
-      
-    },4000)
+    // setTimeout(function(){
+    //   
+    //   // test for animating between years
+    //   var flat_data = raw_data.filter(function(d){
+    //     return d.year == 2005;
+    //   })
+    // 
+    //   flat_data.map(function(d, i){
+    //     d.value = d.val_usd;
+    //     d.nesting_0 = attrs[d.id.slice(0, 2)].name;
+    //     d.nesting_1 = attrs[d.id.slice(0, 4)].name;
+    //     d.nesting_2 = attrs[d.id.slice(0, 6)].name;
+    //     flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+    //   })
+    //   
+    //   d3.select("#viz")
+    //     .datum(flat_data)
+    //     .call(viz)
+    //   
+    // },4000)
     
   })
 })

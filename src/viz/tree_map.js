@@ -13,12 +13,10 @@ vizwhiz.viz.tree_map = function() {
     id_var = "id",
     text_var = "name",
     nesting = null,
+    filter = [],
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
-    
-  var first_time = true;
-
+  
   //===================================================================
-
 
   function chart(selection) {
     selection.each(function(data) {
@@ -26,6 +24,11 @@ vizwhiz.viz.tree_map = function() {
       var cloned_data = JSON.parse(JSON.stringify(data));
       
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, false, [{"key":"color"}])
+      console.log(nested_data)
+      nested_data.children = nested_data.children.filter(filter_data)
+      // console.log(nested_data)
+      // return
+      
       
       // Select the svg element, if it exists.
       var animation_time = 750;
@@ -44,7 +47,9 @@ vizwhiz.viz.tree_map = function() {
         .sort(function(a, b) { return a.value - b.value; })
         .value(function(d) { return value_var ? d[value_var] : d.value; })
         .nodes(nested_data)
-        .filter(function(d) { return !d.children; });
+        .filter(function(d) {
+          return !d.children;
+        })
       
       // We'll figure out how many levels of nesting there are to determine
       // the options for which depths to show
@@ -73,12 +78,71 @@ vizwhiz.viz.tree_map = function() {
         .data(tmap_data, function(d){ return d[text_var]; })
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Update, for cells that are already in existance
+      //-------------------------------------------------------------------
+
+      // need to perform updates in "each" clause so that new data is 
+      // propogated down to rects and text elements
+      cell.transition().duration(animation_time)
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+        .attr("opacity", 1)
+        .each(function(g_data) {
+
+          // update rectangles
+          d3.select(this).selectAll("rect").transition().duration(animation_time)
+            .attr('width', function() {
+              return g_data.dx+'px'
+            })
+            .attr('height', function() { 
+              return g_data.dy+'px'
+            })
+
+          // text (name)
+          d3.select(this).selectAll("text.name")
+            .attr("opacity", function(){
+              return 0;
+            })
+            .transition().duration(animation_time)
+            .each("end", function(q, i){
+              // need to recalculate word wrapping because dimensions have changed
+              var text = text_var ? g_data[text_var] : g_data.name;
+              if(text){
+                vizwhiz.utils.wordWrap(text, this, g_data.dx, g_data.dy, true)
+              }
+              d3.select(this).transition().duration(animation_time/2).attr("opacity", 1)
+            })
+
+          // text (share)
+          d3.select(this).selectAll("text.share").transition().duration(animation_time)
+            .text(function(){
+              var root = g_data;
+              while(root.parent){ root = root.parent; } // find top most parent ndoe
+              return vizwhiz.utils.format_num(g_data.value/root.value, true, 2);
+            })
+            .attr('font-size',function(){
+              var size = (g_data.dx)/7
+              if(g_data.dx < g_data.dy) var size = g_data.dx/7
+              else var size = g_data.dy/7
+              return size
+            })
+            .attr('x', function(){
+              return g_data.dx/2
+            })
+            .attr('y',function(){
+              return g_data.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
+            })
+
+        })
+
+      //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New cells enter, initialize them here
       //-------------------------------------------------------------------
       
       // cell aka container
       var cell_enter = cell.enter().append("g")
-        .attr("opacity", 0)
+        .attr("opacity", 1)
         .attr("transform", function(d) {
           return "translate(" + d.x + "," + d.y + ")"; 
         })
@@ -154,66 +218,6 @@ vizwhiz.viz.tree_map = function() {
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Update, for cells that are already in existance
-      //-------------------------------------------------------------------
-      
-      // need to perform updates in "each" clause so that new data is 
-      // propogated down to rects and text elements
-      cell.transition().duration(animation_time)
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-        .attr("opacity", 1)
-        .each(function(g_data) {
-          
-          // update rectangles
-          d3.select(this).selectAll("rect").transition().duration(animation_time)
-            .attr('width', function() {
-              return g_data.dx+'px'
-            })
-            .attr('height', function() { 
-              return g_data.dy+'px'
-            })
-          
-          // text (name)
-          d3.select(this).selectAll("text.name")
-            .attr("opacity", function(){
-              return first_time ? 1 : 0;
-            })
-            .transition().duration(animation_time)
-            .each("end", function(q, i){
-              first_time = false;
-              // need to recalculate word wrapping because dimensions have changed
-              var text = text_var ? g_data[text_var] : g_data.name;
-              if(text){
-                vizwhiz.utils.wordWrap(text, this, g_data.dx, g_data.dy, true)
-              }
-              d3.select(this).transition().duration(animation_time/2).attr("opacity", 1)
-            })
-          
-          // text (share)
-          d3.select(this).selectAll("text.share").transition().duration(animation_time)
-            .text(function(){
-              var root = g_data;
-              while(root.parent){ root = root.parent; } // find top most parent ndoe
-              return vizwhiz.utils.format_num(g_data.value/root.value, true, 2);
-            })
-            .attr('font-size',function(){
-              var size = (g_data.dx)/7
-              if(g_data.dx < g_data.dy) var size = g_data.dx/7
-              else var size = g_data.dy/7
-              return size
-            })
-            .attr('x', function(){
-              return g_data.dx/2
-            })
-            .attr('y',function(){
-              return g_data.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
-            })
-          
-        })
-
-      //===================================================================
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Exis, get rid of old cells
       //-------------------------------------------------------------------
       
@@ -227,6 +231,16 @@ vizwhiz.viz.tree_map = function() {
 
 
     return chart;
+  }
+  
+  function filter_data(d){
+    if(d.children && d.children.length){
+      d.children = d.children.filter(filter_data);
+    }
+    if(filter.indexOf(d.name) > -1){
+      return false
+    }
+    return true;
   }
 
 
@@ -275,6 +289,25 @@ vizwhiz.viz.tree_map = function() {
   chart.nesting = function(x) {
     if (!arguments.length) return nesting;
     nesting = x;
+    return chart;
+  };
+  
+  chart.filter = function(x) {
+    if (!arguments.length) return filter;
+    // if we've given an array then overwrite the current filter var
+    if(x instanceof Array){
+      filter = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+      }
+      else {
+        filter.push(x)
+      }
+    }
     return chart;
   };
 
