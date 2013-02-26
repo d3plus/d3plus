@@ -9,7 +9,8 @@ vizwhiz.viz.bubbles = function() {
       value_var = "value",
       id_var = "id",
       text_var = "name",
-      grouping = "available";
+      grouping = "category",
+      tooltip_info = [];
 
   //===================================================================
 
@@ -169,13 +170,14 @@ vizwhiz.viz.bubbles = function() {
         .attr("stroke-width",2)
         .attr("stroke", function(d){ return d.color; })
         .on(vizwhiz.evt.over, function(d){
-
+          var tooltip_data = {"name": d[text_var], "x": d.x, "y": d.y, "offset": d.radius}
+          tooltip_info.forEach(function(t){
+            tooltip_data[t] = d[t]
+          })
+          vizwhiz.utils.tooltip(d3.select("g.info"),width,tooltip_data)
         })
         .on(vizwhiz.evt.out, function(d){
-
-        })
-        .on(vizwhiz.evt.click, function(d) {
-          console.log(d)
+          d3.select("g.info").selectAll("*").remove()
         });
       
       var label = d3.select("g.labels").selectAll("text")
@@ -352,6 +354,12 @@ vizwhiz.viz.bubbles = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return text_var;
     text_var = x;
+    return chart;
+  };
+  
+  chart.tooltip = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
     return chart;
   };
 
