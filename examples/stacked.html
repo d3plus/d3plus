@@ -51,22 +51,9 @@ var sample_data = [
   {"continent": "North America", "country": "United States of America", "year": 2001, "value": 5731, "color": "#ca3422", "state": "ny"}
 ]
 
-// var viz = vizwhiz.viz.stacked()
-//   .nesting(["continent", "country"])
-//   .xaxis_var("year")
-//   .value_var("value")
-  // .text_var("name")
-  // .id_var("name")
-  // .width(width - margin.right - margin.left)
-  // .height(height - margin.top - margin.bottom);
-
-// d3.select("#viz")
-//   .datum(sample_data)
-//   .call(viz)
-
 var viz = vizwhiz.viz.stacked()
-  .nesting(["two", "four"])
-  // .nesting(["two", "four", "six"])
+  .nesting(["nesting_0", "nesting_1"])
+  // .nesting(["nesting_0", "nesting_1", "nesting_2"])
   .xaxis_var("year")
   .xaxis_label("Year")
   .yaxis_label("Value USD")
@@ -80,9 +67,9 @@ d3.json("data/products_mg.json", function(flat_data){
 
     flat_data.map(function(d, i){
       d.value = d.val_usd;
-      d.two = attrs[d.id.slice(0, 2)].name
-      d.four = attrs[d.id.slice(0, 4)].name
-      d.six = attrs[d.id.slice(0, 6)].name
+      d["nesting_0"] = attrs[d.id.slice(0, 2)].name
+      d["nesting_1"] = attrs[d.id.slice(0, 4)].name
+      d["nesting_2"] = attrs[d.id.slice(0, 6)].name
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
     

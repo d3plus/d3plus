@@ -46,7 +46,7 @@ d3.json("data/products_mg.json", function(flat_data){
       .yaxis_label("Complexity")
       .yaxis_var("complexity")
       .size_var("value")
-      .nesting(["nesting_0"])
+      .nesting(["nesting_0", "nesting_1"])
 
     d3.select("#viz")
       .datum(flat_data)

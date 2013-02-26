@@ -5,6 +5,8 @@ vizwhiz.dev = true //set false when in production
 
 window.vizwhiz = vizwhiz;
 
+vizwhiz.timing = 600; // milliseconds for animations
+
 vizwhiz.tooltip = {}; // For the tooltip system
 vizwhiz.utils = {}; // Utility subsystem
 vizwhiz.viz = {}; //stores all the possible visualizations

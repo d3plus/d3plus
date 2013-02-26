@@ -24,6 +24,7 @@ vizwhiz.viz.pie_scatter = function() {
     yaxis_label = "",
     size_var = null,
     nesting = [],
+    filter = [],
     stroke = 2,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
@@ -41,10 +42,7 @@ vizwhiz.viz.pie_scatter = function() {
       var cloned_data = JSON.parse(JSON.stringify(data));
       // nest the flat data by nesting array
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, true,
-          [{"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}]);
-      console.log(nested_data)
-      // console.log(nested_data.length)
-      // return
+          [{"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -144,12 +142,28 @@ vizwhiz.viz.pie_scatter = function() {
       
       var has_children = nested_data[0].num_children ? true : false;
       
+      // filter data AFTER axis have been set
+      nested_data = nested_data.filter(function(d){
+        // if this items name is in the filter list, remove it
+        if(filter.indexOf(d.name) > -1){
+          return false
+        }
+        // if any of this item's parents are in the filter list, remove it
+        for(var i = 0; i < nesting.length; i++){
+          if(filter.indexOf(d[nesting[i]]) > -1){
+            return false;
+          }
+        }
+        return true
+      })
+      // console.log(nested_data)
+      
       var nodes = d3.select("g.viz")
         .selectAll("g.circle")
         .data(nested_data, function(d){ return d.name; })
-        // .data(nested_data, function(d){ return d[nesting[nesting.length-1]]; })
       
       var nodes_enter = nodes.enter().append("g")
+        .attr("opacity", 0)
         .attr("class", "circle")
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
         .on(vizwhiz.evt.over, hover(x_scale, y_scale, size_scale))
@@ -175,8 +189,9 @@ vizwhiz.viz.pie_scatter = function() {
         .style("fill-opacity", 1)
       
       // update
-      nodes
+      nodes.transition().duration(vizwhiz.timing)
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
+        .attr("opacity", 1)
       
       nodes.selectAll("circle")
         .style('fill', function(d){ return d.color })
@@ -195,7 +210,10 @@ vizwhiz.viz.pie_scatter = function() {
         })
       
       // exit
-      nodes.exit().remove()
+      nodes.exit()
+        .transition().duration(vizwhiz.timing)
+        .attr("opacity", 0)
+        .remove()
       
       //===================================================================
       
@@ -205,7 +223,7 @@ vizwhiz.viz.pie_scatter = function() {
       
       var ticks = d3.select("g.viz")
         .selectAll("g.ticks")
-        .data(nested_data, function(d){ return d[nesting[nesting.length-1]]; })
+        .data(nested_data, function(d){ return d.name; })
       
       var ticks_enter = ticks.enter().append("g")
         .attr("class", "ticks")
@@ -305,8 +323,6 @@ vizwhiz.viz.pie_scatter = function() {
   
   function hover(x_scale, y_scale, size_scale){
     return function(d){
-      
-      console.log(d[nesting[nesting.length-1]], d)
       
       var radius = size_scale(d[size_var]),
           x = x_scale(d[xaxis_var]),
@@ -531,6 +547,26 @@ vizwhiz.viz.pie_scatter = function() {
   chart.nesting = function(x) {
     if (!arguments.length) return nesting;
     nesting = x;
+    return chart;
+  };
+
+  chart.filter = function(x) {
+    if (!arguments.length) return filter;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      filter = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+      }
+      // element not in current filter so add it
+      else {
+        filter.push(x)
+      }
+    }
     return chart;
   };
 
