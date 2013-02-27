@@ -5,7 +5,8 @@
 vizwhiz.tooltip.create = function(data) {
   
   var window_width = parseInt(data.svg.attr("width"),10),
-      padding = 10,
+      outer_padding = 5,
+      inner_padding = 10,
       triangle_size = 20,
       stroke_width = 2
       
@@ -14,6 +15,9 @@ vizwhiz.tooltip.create = function(data) {
       
   if (data.width) var tooltip_width = data.width
   else var tooltip_width = 200
+      
+  if (data.offset) var tooltip_offset = data.offset
+  else var tooltip_offset = 0
       
   var group = data.svg.append("g")
     .attr("class","vizwhiz_tooltip")
@@ -33,14 +37,27 @@ vizwhiz.tooltip.create = function(data) {
       .attr("fill","#000000")
       .attr("font-size","16px")
       .style("font-weight","bold")
-      .attr("x",padding+"px")
-      .attr("y",padding*0.75+"px")
+      .attr("x",inner_padding+"px")
+      .attr("y",inner_padding*0.75+"px")
       .attr("text-anchor","start")
       .attr("font-family","Helvetica")
-      .each(function(dd){vizwhiz.utils.wordWrap(data.title,this,tooltip_width-(padding*2),tooltip_width,false);})
-      var y_offset = padding + text.node().getBBox().height
-  } else var y_offset = padding
+      .each(function(dd){vizwhiz.utils.wordWrap(data.title,this,tooltip_width-(inner_padding*2),tooltip_width,false);})
+      var y_offset = inner_padding + text.node().getBBox().height
+  } else var y_offset = inner_padding
     
+    
+  if (data.sub_title) {
+    var text = group.append("text")
+      .attr("fill","#333333")
+      .attr("font-size","12px")
+      .attr("text-anchor","start")
+      .attr("font-family","Helvetica")
+      .attr("x",inner_padding+"px")
+      .attr("y",y_offset+"px")
+      .style("font-weight","normal")
+      .each(function(dd){vizwhiz.utils.wordWrap(data.sub_title,this,tooltip_width-(inner_padding*2),tooltip_width,false);});
+    y_offset += text.node().getBBox().height;
+  }
   
   for (var d in data.data) {
     if (typeof data.data[d] == "number") var t = vizwhiz.utils.format_num(data.data[d])
@@ -49,7 +66,7 @@ vizwhiz.tooltip.create = function(data) {
       .attr("fill","#333333")
       .attr("font-size","12px")
       .style("font-weight","normal")
-      .attr("x",padding+"px")
+      .attr("x",inner_padding+"px")
       .attr("y",y_offset+"px")
       .attr("dy","12px")
       .attr("text-anchor","start")
@@ -59,7 +76,7 @@ vizwhiz.tooltip.create = function(data) {
       .attr("fill","#333333")
       .attr("font-size","12px")
       .style("font-weight","normal")
-      .attr("x",tooltip_width-padding+"px")
+      .attr("x",tooltip_width-inner_padding+"px")
       .attr("y",y_offset+"px")
       .attr("dy","12px")
       .attr("text-anchor","end")
@@ -68,20 +85,21 @@ vizwhiz.tooltip.create = function(data) {
     y_offset += text.node().getBBox().height
   }
   
-  var box_height = y_offset+padding
+  var box_height = y_offset+inner_padding
   
-  if (data.y-data.offset-padding < box_height+triangle_size/2) {
-    var tooltip_y = data.y+data.offset+(triangle_size/2),
+  if (data.y-tooltip_offset-outer_padding < box_height+triangle_size/2) {
+    var tooltip_y = data.y+tooltip_offset+(triangle_size/2),
         triangle_y = 0,
         p = "M "+(-triangle_size/2)+" 0 L 0 "+(-triangle_size/2)+" L "+(triangle_size/2)+" 0";
+    if (tooltip_y < outer_padding) tooltip_y = outer_padding;
   } else {
-    var tooltip_y = data.y-data.offset-box_height-(triangle_size/2),
+    var tooltip_y = data.y-tooltip_offset-box_height-(triangle_size/2),
         triangle_y = box_height,
         p = "M "+(-triangle_size/2)+" 0 L 0 "+(triangle_size/2)+" L "+(triangle_size/2)+" 0";
   }
   
-  if (data.x-data.offset-padding < tooltip_width/2) var tooltip_x = padding
-  else if (data.x+data.offset+padding > window_width-(tooltip_width/2)) var tooltip_x = window_width-tooltip_width-padding
+  if (data.x-tooltip_offset-outer_padding < tooltip_width/2) var tooltip_x = outer_padding
+  else if (data.x+tooltip_offset+outer_padding > window_width-(tooltip_width/2)) var tooltip_x = window_width-tooltip_width-outer_padding
   else var tooltip_x = data.x-(tooltip_width/2)
   
   if (data.arrow) {
