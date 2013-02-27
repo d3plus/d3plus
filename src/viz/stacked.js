@@ -14,7 +14,6 @@ vizwhiz.viz.stacked = function() {
       "x": margin.left,
       "y": margin.top
     },
-    depth = null,
     value_var = null,
     id_var = null,
     text_var = null,
@@ -504,12 +503,6 @@ vizwhiz.viz.stacked = function() {
   chart.height = function(x) {
     if (!arguments.length) return height;
     height = x;
-    return chart;
-  };
-  
-  chart.depth = function(x) {
-    if (!arguments.length) return depth;
-    depth = x;
     return chart;
   };
   
