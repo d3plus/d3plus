@@ -98,7 +98,6 @@ vizwhiz.viz.network = function() {
           }
         })
         .on(vizwhiz.evt.click,function(d){
-          clicked = null;
           highlight = null;
           zoom("reset");
           update();
@@ -172,7 +171,6 @@ vizwhiz.viz.network = function() {
         .attr("stroke", "#dedede")
         .attr("stroke-width", "1px")
         .on(vizwhiz.evt.click,function(d){
-          clicked = null
           highlight = null;
           zoom("reset");
           update();
@@ -276,61 +274,63 @@ vizwhiz.viz.network = function() {
         info_group.selectAll("*").remove()
         
         if (highlight) {
-          
-          node
-            .attr("fill","#efefef")
-            .attr("stroke","#dedede")
             
           var center = connections[highlight].center,
               primaries = connections[highlight].primary,
               secondaries = connections[highlight].secondary
               
-          // Draw Primary, Secondary and Center Connection Lines and BGs
-          highlight_group.selectAll("line.sec_links")
-            .data(secondaries.links).enter()
-            .append("line")
-              .attr("class","sec_links")
-              .attr("stroke-width", "1px")
-              .attr("stroke", secondary_color)
-              .call(position_links)
-              .on(vizwhiz.evt.click, function(d){
-                zoom("reset");
-                clicked = false;
-                update();
-              });
-          highlight_group.selectAll("circle.sec_bgs")
-            .data(secondaries.nodes).enter()
-            .append("circle")
-              .attr("class","sec_bgs")
-              .attr("fill", secondary_color)
-              .call(size_bgs);
+          if (clicked) {
           
-          // Draw Secondary Nodes
-          highlight_group.selectAll("circle.sec_nodes")
-            .data(secondaries.nodes).enter()
-            .append("circle")
-              .attr("class","sec_nodes")
-              .call(size_nodes)
+            node
               .attr("fill","#efefef")
               .attr("stroke","#dedede")
-              .on(vizwhiz.evt.over, function(d){
-                if (!clicked) {
-                  highlight = d[id_var];
+            
+            // Draw Secondary Connection Lines and BGs
+            highlight_group.selectAll("line.sec_links")
+              .data(secondaries.links).enter()
+              .append("line")
+                .attr("class","sec_links")
+                .attr("stroke-width", "1px")
+                .attr("stroke", secondary_color)
+                .call(position_links)
+                .on(vizwhiz.evt.click, function(d){
+                  zoom("reset");
                   update();
-                } else {
-                  d3.select(this).attr("stroke",highlight_color)
-                }
-              })
-              .on(vizwhiz.evt.out, function(d){
-                if (clicked) {
-                  d3.select(this).attr("stroke","#dedede")
-                }
-              })
-              .on(vizwhiz.evt.click, function(d){
-                highlight = d[id_var];
-                zoom(highlight);
-                update();
-              });
+                });
+            highlight_group.selectAll("circle.sec_bgs")
+              .data(secondaries.nodes).enter()
+              .append("circle")
+                .attr("class","sec_bgs")
+                .attr("fill", secondary_color)
+                .call(size_bgs);
+          
+            // Draw Secondary Nodes
+            highlight_group.selectAll("circle.sec_nodes")
+              .data(secondaries.nodes).enter()
+              .append("circle")
+                .attr("class","sec_nodes")
+                .call(size_nodes)
+                .attr("fill","#efefef")
+                .attr("stroke","#dedede")
+                .on(vizwhiz.evt.over, function(d){
+                  if (!clicked) {
+                    highlight = d[id_var];
+                    update();
+                  } else {
+                    d3.select(this).attr("stroke",highlight_color)
+                  }
+                })
+                .on(vizwhiz.evt.out, function(d){
+                  if (clicked) {
+                    d3.select(this).attr("stroke","#dedede")
+                  }
+                })
+                .on(vizwhiz.evt.click, function(d){
+                  highlight = d[id_var];
+                  zoom(highlight);
+                  update();
+                });
+          }
               
           // Draw Primary Connection Lines and BGs
           highlight_group.selectAll("line.prim_links")
@@ -342,7 +342,6 @@ vizwhiz.viz.network = function() {
               .call(position_links)
               .on(vizwhiz.evt.click, function(d){
                 zoom("reset");
-                clicked = false;
                 update();
               });
           highlight_group.selectAll("circle.prim_bgs")
@@ -397,7 +396,6 @@ vizwhiz.viz.network = function() {
                   update();
                 } else {
                   zoom("reset");
-                  clicked = false;
                   update();
                 }
               })
@@ -515,8 +513,9 @@ vizwhiz.viz.network = function() {
             bg.attr("height",y+"px")
           }
           
-        } else {
+        } else if (clicked) {
           node.call(color_nodes)
+          clicked = false;
         }
         
       }
