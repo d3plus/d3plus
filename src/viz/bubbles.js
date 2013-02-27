@@ -189,7 +189,7 @@ vizwhiz.viz.bubbles = function() {
         });
       
       var label = d3.select("g.labels").selectAll("text")
-        .data(d3.values(groups), function(d) { return d.name })
+        .data(d3.values(groups), function(d) { return d.name+d.x+d.y })
         
       label.enter().append("text")
         .attr("opacity",0)
@@ -228,6 +228,12 @@ vizwhiz.viz.bubbles = function() {
         
       label.transition().duration(timing/2)
         .attr("opacity",1)
+        .attr('x',function(d) { return d.x; })
+        .attr('y',function(d) {
+          if (Object.keys(groups).length == 2) var y_offset = height
+          else var y_offset = d3.min([d.width,d.height]);
+          return d.y+(y_offset/2)-30;
+        })
         
       svg.transition().duration(timing)
         .attr("width", width)
