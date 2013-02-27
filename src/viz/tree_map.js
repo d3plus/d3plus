@@ -8,7 +8,6 @@ vizwhiz.viz.tree_map = function() {
   var margin = {top: 0, right: 0, bottom: 0, left: 0},
     width = window.innerWidth,
     height = window.innerHeight,
-    depth = null,
     value_var = "value",
     id_var = "id",
     text_var = "name",
@@ -257,12 +256,6 @@ vizwhiz.viz.tree_map = function() {
   chart.height = function(x) {
     if (!arguments.length) return height;
     height = x;
-    return chart;
-  };
-  
-  chart.depth = function(x) {
-    if (!arguments.length) return depth;
-    depth = x;
     return chart;
   };
   
