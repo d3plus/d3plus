@@ -12,7 +12,6 @@ vizwhiz.viz.network = function() {
       clicked = false,
       spotlight = true,
       highlight = null,
-      timing = 100,
       zoom_behavior = d3.behavior.zoom().scaleExtent([1, 16]),
       nodes = [],
       x_range,
@@ -32,6 +31,7 @@ vizwhiz.viz.network = function() {
       //-------------------------------------------------------------------
 
       var this_selection = this,
+          timing = vizwhiz.timing,
           dragging = false,
           highlight_color = "#cc0000",
           select_color = "#ee0000",
@@ -383,18 +383,13 @@ vizwhiz.viz.network = function() {
               .attr("class","center")
               .call(size_nodes)
               .call(color_nodes)
-              .on(vizwhiz.evt.out, function(d){
-                if (!clicked) {
-                  highlight = null;
-                  update();
-                }
-              })
               .on(vizwhiz.evt.click, function(d){
                 if (!clicked) {
                   zoom(highlight);
                   clicked = true;
                   update();
                 } else {
+                  highlight = null;
                   zoom("reset");
                   update();
                 }
@@ -608,16 +603,14 @@ vizwhiz.viz.network = function() {
         else if (translate[1] < -((height*evt_scale)-height)) translate[1] = -((height*evt_scale)-height)
         if (d3.event.scale) {
           if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
-            d3.select(".viz")
-              .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+            var viz_timing = d3.select(".viz")
           } else {
-            d3.select(".viz").transition().duration(timing)
-              .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+            var viz_timing = d3.select(".viz").transition().duration(timing)
           }
         } else {
-          d3.select(".viz").transition().duration(timing*4)
-            .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+          var viz_timing = d3.select(".viz").transition().duration(timing)
         }
+        viz_timing.attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
         
       }
 
@@ -692,7 +685,8 @@ vizwhiz.viz.network = function() {
           }
         })
       })
-      var node_check = connections[c].primary.nodes.concat(connections[c].secondary.nodes).concat([connections[c].center])
+      // var node_check = connections[c].primary.nodes.concat(connections[c].secondary.nodes).concat([connections[c].center])
+      var node_check = connections[c].primary.nodes.concat([connections[c].center])
       connections[c].extent = {}
       connections[c].extent.x = d3.extent(d3.values(node_check),function(v){return v.x;}),
       connections[c].extent.y = d3.extent(d3.values(node_check),function(v){return v.y;})
