@@ -18,7 +18,8 @@ vizwhiz.viz.network = function() {
       y_range,
       aspect,
       links = [],
-      connections = {};
+      connections = {},
+      scale = {};
 
   //===================================================================
 
@@ -36,7 +37,6 @@ vizwhiz.viz.network = function() {
           highlight_color = "#cc0000",
           select_color = "#ee0000",
           secondary_color = "#ffdddd",
-          scale = {},
           offset_top = 0,
           offset_left = 0,
           info_width = 300;
@@ -63,18 +63,18 @@ vizwhiz.viz.network = function() {
           min_size = max_size/5 < 2 ? 2 : max_size/5
           
       // x scale
-      scale["x"] = d3.scale.linear()
+      scale.x = d3.scale.linear()
         .domain(x_range)
         .range([offset_left+(max_size*2), width-(max_size*2)-offset_left])
       // y scale
-      scale["y"] = d3.scale.linear()
+      scale.y = d3.scale.linear()
         .domain(y_range)
         .range([offset_top+(max_size*2), height-(max_size*2)-offset_top])
       // size scale
       var val_range = d3.extent(d3.values(data), function(d){
         return d[value_var] > 0 ? d[value_var] : null
       });
-      scale["size"] = d3.scale.log()
+      scale.size = d3.scale.log()
         .domain(val_range)
         .range([min_size, max_size])
         
@@ -101,23 +101,24 @@ vizwhiz.viz.network = function() {
           highlight = null;
           zoom("reset");
           update();
-        })
+        });
         
-      var link_group = viz_enter.append('g')
+      viz_enter.append('g')
         .attr('class','links')
         
-      var node_group = viz_enter.append('g')
+      viz_enter.append('g')
         .attr('class','nodes')
         
-      var highlight_group = viz_enter.append('g')
+      viz_enter.append('g')
         .attr('class','highlight')
         
       // Create group outside of zoom group for info panel
-      var info_group = svg_enter.append("g")
+      svg_enter.append("g")
         .attr("class","info")
         
       // Create Zoom Controls div on svg_enter
-      var zoom_div = svg.enter().append("div")
+      d3.select(this_selection).select("div#zoom_controls").remove()
+      var zoom_div = d3.select(this_selection).append("div")
         .attr("id","zoom_controls")
         
       zoom_div.append("div")
@@ -136,13 +137,14 @@ vizwhiz.viz.network = function() {
       // New nodes and links enter, initialize them here
       //-------------------------------------------------------------------
       
-      var node = node_group.selectAll("circle.node")
+      var node = d3.select("g.nodes").selectAll("circle.node")
         .data(nodes, function(d) { return d[id_var]; })
       
       node.enter().append("circle")
         .attr("class","node")
-        .call(size_nodes)
-        .call(color_nodes)
+        .call(node_size)
+        .attr("fill","white")
+        .attr("stroke","white")
         .on(vizwhiz.evt.over, function(d){
           if (!clicked) {
             highlight = d[id_var];
@@ -160,16 +162,16 @@ vizwhiz.viz.network = function() {
           highlight = d[id_var];
           zoom(highlight);
           update();
-        })
+        });
       
-      var link = link_group.selectAll("line.link")
+      var link = d3.select("g.links").selectAll("line.link")
         .data(links, function(d) { return d.source[id_var] + "-" + d.target[id_var]; })
         
       link.enter().append("line")
         .attr("class","link")
-        .call(position_links)
-        .attr("stroke", "#dedede")
+        .attr("stroke", "white")
         .attr("stroke-width", "1px")
+        .call(link_position)
         .on(vizwhiz.evt.click,function(d){
           highlight = null;
           zoom("reset");
@@ -183,15 +185,16 @@ vizwhiz.viz.network = function() {
       //-------------------------------------------------------------------
 
       node.transition().duration(timing)
-        .call(size_nodes)
-        .call(color_nodes);
+        .call(node_size)
+        .call(node_color);
         
       link.transition().duration(timing)
-        .call(position_links);
+        .attr("stroke", "#dedede")
+        .call(link_position);
         
       d3.select('.overlay').transition().duration(timing)
         .attr("width", viz_width)
-        .attr("height", viz_height)
+        .attr("height", viz_height);
         
       svg.transition().duration(timing)
         .attr("width", width)
@@ -211,26 +214,12 @@ vizwhiz.viz.network = function() {
       update();
       if (highlight && clicked) zoom(highlight);
           
-      function position_links(l) {
+      function link_position(l) {
         l
           .attr("x1", function(d) { return scale.x(d.source.x); })
           .attr("y1", function(d) { return scale.y(d.source.y); })
           .attr("x2", function(d) { return scale.x(d.target.x); })
           .attr("y2", function(d) { return scale.y(d.target.y); });
-      }
-      
-      function size_nodes(n) {
-        n
-          .attr("cx", function(d) { return scale.x(d.x); })
-          .attr("cy", function(d) { return scale.y(d.y); })
-          .attr("r", function(d) { 
-            var value = data[d[id_var]][value_var]
-            return value > 0 ? scale.size(value) : scale.size(val_range[0])
-          })
-          .attr("stroke-width", function(d){
-            if(data[d[id_var]].active) return 2;
-            else return 1;
-          })
       }
       
       function size_bgs(b) {
@@ -246,7 +235,21 @@ vizwhiz.viz.network = function() {
           .attr("stroke-width",0)
       }
       
-      function color_nodes(n) {
+      function node_size(n) {
+        n
+          .attr("cx", function(d) { return scale.x(d.x); })
+          .attr("cy", function(d) { return scale.y(d.y); })
+          .attr("r", function(d) { 
+            var value = data[d[id_var]][value_var]
+            return value > 0 ? scale.size(value) : scale.size(val_range[0])
+          })
+          .attr("stroke-width", function(d){
+            if(data[d[id_var]].active) return 2;
+            else return 1;
+          })
+      }
+      
+      function node_color(n) {
         n
           .attr("fill", function(d){
             var color = data[d[id_var]].color ? data[d[id_var]].color : vizwhiz.utils.rand_color()
@@ -270,8 +273,8 @@ vizwhiz.viz.network = function() {
       
       function update() {
         
-        highlight_group.selectAll("*").remove()
-        info_group.selectAll("*").remove()
+        d3.select("g.highlight").selectAll("*").remove()
+        d3.select("g.info").selectAll("*").remove()
         
         if (highlight) {
             
@@ -286,18 +289,18 @@ vizwhiz.viz.network = function() {
               .attr("stroke","#dedede")
             
             // Draw Secondary Connection Lines and BGs
-            highlight_group.selectAll("line.sec_links")
+            d3.select("g.highlight").selectAll("line.sec_links")
               .data(secondaries.links).enter()
               .append("line")
                 .attr("class","sec_links")
                 .attr("stroke-width", "1px")
                 .attr("stroke", secondary_color)
-                .call(position_links)
+                .call(link_position)
                 .on(vizwhiz.evt.click, function(d){
                   zoom("reset");
                   update();
                 });
-            highlight_group.selectAll("circle.sec_bgs")
+            d3.select("g.highlight").selectAll("circle.sec_bgs")
               .data(secondaries.nodes).enter()
               .append("circle")
                 .attr("class","sec_bgs")
@@ -305,11 +308,11 @@ vizwhiz.viz.network = function() {
                 .call(size_bgs);
           
             // Draw Secondary Nodes
-            highlight_group.selectAll("circle.sec_nodes")
+            d3.select("g.highlight").selectAll("circle.sec_nodes")
               .data(secondaries.nodes).enter()
               .append("circle")
                 .attr("class","sec_nodes")
-                .call(size_nodes)
+                .call(node_size)
                 .attr("fill","#efefef")
                 .attr("stroke","#dedede")
                 .on(vizwhiz.evt.over, function(d){
@@ -331,20 +334,20 @@ vizwhiz.viz.network = function() {
                   update();
                 });
           }
-              
+          
           // Draw Primary Connection Lines and BGs
-          highlight_group.selectAll("line.prim_links")
+          d3.select("g.highlight").selectAll("line.prim_links")
             .data(primaries.links).enter()
             .append("line")
               .attr("class","prim_links")
               .attr("stroke", highlight_color)
               .attr("stroke-width", "2px")
-              .call(position_links)
+              .call(link_position)
               .on(vizwhiz.evt.click, function(d){
                 zoom("reset");
                 update();
               });
-          highlight_group.selectAll("circle.prim_bgs")
+          d3.select("g.highlight").selectAll("circle.prim_bgs")
             .data(primaries.nodes).enter()
             .append("circle")
               .attr("class","prim_bgs")
@@ -352,12 +355,12 @@ vizwhiz.viz.network = function() {
               .attr("fill",highlight_color);
           
           // Draw Primary Nodes
-          highlight_group.selectAll("circle.prim_nodes")
+          d3.select("g.highlight").selectAll("circle.prim_nodes")
             .data(primaries.nodes).enter()
             .append("circle")
               .attr("class","prim_nodes")
-              .call(size_nodes)
-              .call(color_nodes)
+              .call(node_size)
+              .call(node_color)
               .on(vizwhiz.evt.over, function(d){
                 if (!clicked) {
                   highlight = d[id_var];
@@ -371,18 +374,18 @@ vizwhiz.viz.network = function() {
               });
           
           // Draw Main Center Node and BG
-          highlight_group.selectAll("circle.center_bg")
+          d3.select("g.highlight").selectAll("circle.center_bg")
             .data([center]).enter()
             .append("circle")
               .attr("class","center_bg")
               .call(size_bgs)
               .attr("fill",select_color);
-          highlight_group.selectAll("circle.center")
+          d3.select("g.highlight").selectAll("circle.center")
             .data([center]).enter()
             .append("circle")
               .attr("class","center")
-              .call(size_nodes)
-              .call(color_nodes)
+              .call(node_size)
+              .call(node_color)
               .on(vizwhiz.evt.click, function(d){
                 if (!clicked) {
                   zoom(highlight);
@@ -400,7 +403,7 @@ vizwhiz.viz.network = function() {
           if (scale.x(connections[highlight].extent.x[1]) > (width-info_width-5)) var x_pos = 37
           else var x_pos = width-info_width
           
-          var bg = info_group.append("rect")
+          var bg = d3.select("g.info").append("rect")
             .attr("width",info_width+"px")
             .attr("height",height-10+"px")
             .attr("y","5px")
@@ -410,7 +413,7 @@ vizwhiz.viz.network = function() {
             .attr("stroke","#cccccc")
             .attr("stroke-width",2)
             
-          var text = info_group.append("text")
+          var text = d3.select("g.info").append("text")
             .attr("y","8px")
             .attr("x",x_pos+"px")
             .attr("fill","#333333")
@@ -439,7 +442,7 @@ vizwhiz.viz.network = function() {
               }
             }
             var y = (text.node().getBBox().height+15)
-            var primary_title = info_group.append("text")
+            var primary_title = d3.select("g.info").append("text")
               .attr("x",x_pos+"px")
               .attr("y",y+"px")
               .attr("dy","18px")
@@ -458,7 +461,7 @@ vizwhiz.viz.network = function() {
             })
             prims.forEach(function(c,i){
               if (!trunc) {
-                info_group.append("circle")
+                d3.select("g.info").append("circle")
                   .attr("cx",(x_pos+5)+"px")
                   .attr("cy",(y+8)+"px")
                   .attr("r",5)
@@ -481,7 +484,7 @@ vizwhiz.viz.network = function() {
                     if(data[c].active) return 2;
                     else return 1;
                   })
-                var temp_title = info_group.append("text")
+                var temp_title = d3.select("g.info").append("text")
                   .attr("x",(x_pos+13)+"px")
                   .attr("y",y+"px")
                   .attr("fill","#333333")
@@ -509,7 +512,7 @@ vizwhiz.viz.network = function() {
           }
           
         } else if (clicked) {
-          node.call(color_nodes)
+          node.call(node_color)
           clicked = false;
         }
         
