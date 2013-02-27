@@ -19,6 +19,7 @@
 <script src="../lib/modernizr.custom.js"></script>
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
+<script src="../src/tooltip.js"></script>
 <script src="../src/viz/bubbles.js"></script>
 <script>
 
@@ -45,7 +46,8 @@
         .height(height)
         .id_var("id")
         .value_var("val_usd")
-        .text_var("name");
+        .text_var("name")
+        .tooltip(["val_usd","val_quantity","val_kg"]);
           
       d3.select("#viz")
         .datum(data)

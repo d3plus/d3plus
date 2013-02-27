@@ -6,7 +6,7 @@
   <style>
 
   body {
-  
+    margin: 0px;
   }
 
   </style>
@@ -22,8 +22,8 @@
 <script src="../src/viz/network.js"></script>
 <script>
 
-  var width = 1100,
-      height = 700,
+  var width = window.innerWidth,
+      height = window.innerHeight,
       viz_nodes = [
           {"id": "a", "x": 20, "y": 25},
           {"id": "b", "x": 30, "y": 40},

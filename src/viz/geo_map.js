@@ -12,7 +12,6 @@ vizwhiz.viz.geo_map = function() {
       clicked = false,
       highlight = null,
       timing = 500,
-      zoom_timing = null,
       coords = null,
       shape = null,
       terrain = true,
@@ -22,6 +21,7 @@ vizwhiz.viz.geo_map = function() {
       land_style = {"fill": "#F1EEE8"},
       water_color = "#B5D0D0",
       stroke_width = 1,
+      tooltip_info = [],
       color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"];
 
   //===================================================================
@@ -36,7 +36,7 @@ vizwhiz.viz.geo_map = function() {
       
       var this_selection = this,
           dragging = false,
-          info_width = 300,
+          info_width = 200,
           projection = d3.geo.mercator()
             .scale(width)
             .translate([width/2,height/2]),
@@ -45,7 +45,7 @@ vizwhiz.viz.geo_map = function() {
             .scale(projection.scale())
             .scaleExtent([width, 1 << 23])
             .translate(projection.translate())
-            .on("zoom",zoom),
+            .on("zoom",function(d){ zoom(d); }),
           tile = d3.geo.tile().size([width, height]),
           old_scale = projection.scale(),
           old_translate = projection.translate();
@@ -101,7 +101,7 @@ vizwhiz.viz.geo_map = function() {
         var tile_group = svg_enter.append('g')
           .attr('class','tiles');
           
-        update_tiles();
+        update_tiles(0);
       }
         
       // Create viz group on svg_enter
@@ -134,12 +134,9 @@ vizwhiz.viz.geo_map = function() {
       var coord_group = viz_enter.append('g')
         .attr('class','paths');
         
-      // Create group outside of zoom group for info panel
-      var info_group = svg_enter.append("g")
-        .attr("class","info")
-        
       // Create Zoom Controls div on svg_enter
-      var zoom_div = svg.enter().append("div")
+      d3.select(this_selection).select("div#zoom_controls").remove()
+      var zoom_div = d3.select(this_selection).append("div")
         .attr("id","zoom_controls")
         
       zoom_div.append("div")
@@ -229,18 +226,10 @@ vizwhiz.viz.geo_map = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Update, for things that are already in existance
       //-------------------------------------------------------------------
-
-      // node.transition().duration(timing)
-      //   .call(size_nodes)
-      //   .call(color_nodes);
-      //   
-      // svg.transition().duration(timing)
-      //   .attr("width", width)
-      //   .attr("height", height);
-      //   
-      // d3.select('.overlay').transition().duration(timing)
-      //   .attr("width", viz_width)
-      //   .attr("height", viz_height);
+        
+      svg.transition().duration(timing)
+        .attr("width", width)
+        .attr("height", height);
           
       //===================================================================
       
@@ -252,7 +241,7 @@ vizwhiz.viz.geo_map = function() {
 
       //===================================================================
       
-      zoom(shape);
+      zoom(shape,0);
       
       function color_paths(p) {
         p
@@ -268,7 +257,7 @@ vizwhiz.viz.geo_map = function() {
       // Zoom Function
       //-------------------------------------------------------------------
       
-      function zoom(param) {
+      function zoom(param,custom_timing) {
         
         var translate = zoom_behavior.translate(),
             zoom_extent = zoom_behavior.scaleExtent()
@@ -333,83 +322,62 @@ vizwhiz.viz.geo_map = function() {
         projection.scale(scale).translate(translate);
         zoom_behavior.scale(scale).translate(translate);
         svg_scale = scale/width;
-        svg_translate = [translate[0]-(scale/2),translate[1]-(scale/2)+(200*svg_scale)];
-            
-        if (d3.event) {
-          if (d3.event.scale) {
-            if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
-              zoom_timing = 0
+        svg_translate = [translate[0]-(scale/2),translate[1]-(scale/2)+(((width-height)/2)*svg_scale)];
+        
+        if (typeof custom_timing != "number") {
+          if (d3.event) {
+            if (d3.event.scale) {
+              if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
+                var zoom_timing = 0
+              } else {
+                var zoom_timing = timing
+              }
             } else {
-              zoom_timing = timing
+              var zoom_timing = timing
             }
           } else {
-            zoom_timing = timing
+            var zoom_timing = timing*4
           }
-        } else {
-          zoom_timing = timing*4
-        }
+        } else var zoom_timing = custom_timing
 
-        if (terrain) update_tiles();
+        if (terrain) update_tiles(zoom_timing);
         
-        if (zoom_timing > 0) {
-          d3.selectAll(".viz").transition().duration(zoom_timing)
-            .attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
-        } else {
-          d3.selectAll(".viz")
-            .attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
-        }
+        if (zoom_timing > 0) var viz_transition = d3.selectAll(".viz").transition().duration(zoom_timing)
+        else var viz_transition = d3.selectAll(".viz")
+        
+        viz_transition.attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
             
       }
 
       //===================================================================
 
       function info() {
-        info_group.selectAll("*").remove()
+        
+        vizwhiz.tooltip.remove();
         
         if (highlight && data[highlight.id]) {
-
-          var d = data[highlight.id], x_pos = width-info_width
-
-          var bg = info_group.append("rect")
-            .attr("width",info_width+"px")
-            .attr("height",height-10+"px")
-            .attr("y","5px")
-            .attr("x",(x_pos-5)+"px")
-            .attr("ry","3")
-            .attr("fill","white")
-            .attr("stroke","#cccccc")
-            .attr("stroke-width",2)
             
-          var text = info_group.append("text")
-            .attr("y","8px")
-            .attr("x",x_pos+"px")
-            .attr("fill","#333333")
-            .attr("text-anchor","start")
-            .style("font-weight","bold")
-            .attr("font-size","14px")
-            .attr("font-family","Helvetica")
-            .each(function(dd){vizwhiz.utils.wordWrap(d[text_var],this,info_width-10,info_width,false)})
-            
+          var tooltip_data = {}, sub_title = null
+          
           if (!clicked) {
-            text.append("tspan")
-              .attr("dy","14px")
-              .attr("font-size","10px")
-              .attr("x",x_pos+"px")
-              .style("font-weight","normal")
-              .text("Click Node for More Info")
+            sub_title = "Click for More Info"
           } else {
-            for (var id in d) {
-              if ([text_var,"color","text_color","active"].indexOf(id) < 0) {
-                text.append("tspan")
-                  .attr("dy","14px")
-                  .attr("font-size","12px")
-                  .attr("x",x_pos+"px")
-                  .style("font-weight","normal")
-                  .text(id+": "+d[id])
-              }
-            }
+            tooltip_info.forEach(function(t){
+              tooltip_data[t] = data[highlight.id][t]
+            })
           }
-          bg.attr("height",(text.node().getBBox().height+10)+"px")
+          
+          vizwhiz.tooltip.create({
+            "svg": svg,
+            "data": tooltip_data,
+            "title": data[highlight.id][text_var],
+            "sub_title": sub_title,
+            "x": width,
+            "y": 0,
+            "width": info_width,
+            "arrow": false
+          })
+          
         }
         
       }
@@ -418,7 +386,7 @@ vizwhiz.viz.geo_map = function() {
         return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.openstreetmap.org/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
       }
       
-      function update_tiles() {
+      function update_tiles(image_timing) {
 
         var t = projection.translate(),
             s = projection.scale();
@@ -444,25 +412,16 @@ vizwhiz.viz.geo_map = function() {
             return Math.ceil(((d[1] + tiles.translate[1]) * tiles.scale)+test)/(s/old_scale); 
           });
 
-        if (zoom_timing > 0) {
-          image.transition().duration(zoom_timing)
-            .attr("opacity",1)
-            .attr("width", Math.ceil(tiles.scale))
-            .attr("height", Math.ceil(tiles.scale))
-            .attr("x", function(d) { return Math.ceil((d[0] + tiles.translate[0]) * tiles.scale); })
-            .attr("y", function(d) { return Math.ceil((d[1] + tiles.translate[1]) * tiles.scale); });
-          image.exit().remove();
-        } else {
-          image
-            .attr("opacity",1)
-            .attr("width", Math.ceil(tiles.scale))
-            .attr("height", Math.ceil(tiles.scale))
-            .attr("x", function(d) { return Math.ceil((d[0] + tiles.translate[0]) * tiles.scale); })
-            .attr("y", function(d) { return Math.ceil((d[1] + tiles.translate[1]) * tiles.scale); });
-          
-          image.exit().remove();
-            
-        }
+        if (image_timing > 0) var image_transition = image.transition().duration(image_timing)
+        else var image_transition = image
+
+        image_transition
+          .attr("opacity",1)
+          .attr("width", Math.ceil(tiles.scale))
+          .attr("height", Math.ceil(tiles.scale))
+          .attr("x", function(d) { return Math.ceil((d[0] + tiles.translate[0]) * tiles.scale); })
+          .attr("y", function(d) { return Math.ceil((d[1] + tiles.translate[1]) * tiles.scale); });
+        image.exit().remove();
           
           
       }
@@ -549,6 +508,12 @@ vizwhiz.viz.geo_map = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return text_var;
     text_var = x;
+    return chart;
+  };
+  
+  chart.tooltip = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
     return chart;
   };
 
