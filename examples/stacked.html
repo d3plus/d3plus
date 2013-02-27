@@ -20,8 +20,7 @@ body {
 <script>
 
 var width = 960,
-  height = 550,
-  margin = {top: 5, right: 30, bottom: 70, left: 120};
+  height = 550;
 
 var sample_data = [
   {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "mg"},
@@ -54,11 +53,11 @@ var sample_data = [
 var viz = vizwhiz.viz.stacked()
   .nesting(["nesting_0", "nesting_1"])
   // .nesting(["nesting_0", "nesting_1", "nesting_2"])
-  .xaxis_var("year")
+  .xaxis_var("test_x_val")
   .xaxis_label("Year")
   .yaxis_label("Value USD")
   .value_var("value")
-  .margin(margin)
+  .title("Title of the chart")
   // .text_var("name")
   .id_var("id")
 
@@ -70,8 +69,11 @@ d3.json("data/products_mg.json", function(flat_data){
       d["nesting_0"] = attrs[d.id.slice(0, 2)].name
       d["nesting_1"] = attrs[d.id.slice(0, 4)].name
       d["nesting_2"] = attrs[d.id.slice(0, 6)].name
+      d["test_x_val"] = d.year
+      delete d.year
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
+    console.log(flat_data)
     
     d3.select("#viz")
       .datum(flat_data)

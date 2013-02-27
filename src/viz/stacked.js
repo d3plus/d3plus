@@ -5,7 +5,7 @@ vizwhiz.viz.stacked = function() {
   // Public Variables with Default Settings
   //-------------------------------------------------------------------
 
-  var margin = {top: 5, right: 40, bottom: 20, left: 120},
+  var margin = {top: 10, right: 40, bottom: 80, left: 120},
     width = window.innerWidth,
     height = window.innerHeight,
     size = {
@@ -22,6 +22,9 @@ vizwhiz.viz.stacked = function() {
     xaxis_label = "",
     yaxis_label = "",
     nesting = [],
+    filter = [],
+    layout = "value",
+    title = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
   //===================================================================
@@ -33,24 +36,48 @@ vizwhiz.viz.stacked = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
       //-------------------------------------------------------------------
+
+      // first clone input so we know we are working with fresh data
+      var cloned_data = JSON.parse(JSON.stringify(data));
+      
+      // filter raw data
+      cloned_data = cloned_data.filter(function(d){
+        // if any of this item's parents are in the filter list, remove it
+        for(var i = 0; i < nesting.length; i++){
+          if(filter.indexOf(d[nesting[i]]) > -1){
+            return false;
+          }
+        }
+        return true
+      })
       
       // get unique values for xaxis
-      xaxis_vals = data
-        .reduce(function(a, b){ return a.concat(b.year) }, [])
+      xaxis_vals = cloned_data
+        .reduce(function(a, b){ return a.concat(b[xaxis_var]) }, [])
         .filter(function(value, index, self) { 
           return self.indexOf(value) === index;
         })
       
-      // nest data properly according to nesting array
-      nested_data = nest_data(xaxis_vals, data);
-      
-      // get max total for sums of each year
-      var data_max = d3.max(d3.nest()
-        .key(function(d){return d.year})
+      // get max total for sums of each xaxis
+      var xaxis_sums = d3.nest()
+        .key(function(d){return d[xaxis_var] })
         .rollup(function(leaves){
           return d3.sum(leaves, function(d){return d[value_var];})
         })
-        .entries(data), function(d){ return d.values; });
+        .entries(cloned_data)
+      
+      var data_max = layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
+      
+      // nest data properly according to nesting array
+      nested_data = nest_data(xaxis_vals, cloned_data, xaxis_sums);
+      
+      // increase top margin if it's not large enough
+      margin.top = title && margin.top < 40 ? 40 : margin.top;
+      // update size
+      size.width = width-margin.left-margin.right;
+      size.height = height-margin.top-margin.bottom;
+      size.x = margin.left;
+      size.y = margin.top;
       
       // scales for both X and Y values
       var x_scale = d3.scale.linear()
@@ -86,6 +113,25 @@ vizwhiz.viz.stacked = function() {
         .attr('height', size.height)
         .attr('x',0)
         .attr('y',0)
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // TITLE
+      //-------------------------------------------------------------------
+      
+      svg_enter.append("text")
+        .attr('width', size.width)
+        .attr('x', (size.width/2) + margin.left) 
+        .attr('y', margin.top/2)
+        .attr('class', 'title')
+        .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .attr("font-size", "14px")
+        .attr("font-family", "Helvetica")
+        .attr("fill", "#4c4c4c");
+        
+      d3.select(".title").text(title);
+      
+      //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // X AXIS
@@ -145,14 +191,20 @@ vizwhiz.viz.stacked = function() {
       //-------------------------------------------------------------------
       
       // Get layers from d3.stack function (gives x, y, y0 values)
-      var layers = stack(nested_data)
+      var offset = layout == "value" ? "zero" : "expand";
+      var layers = stack.offset(offset)(nested_data)
+      
+      // container for layers
+      viz_enter.append("g").attr("class", "layers")
       
       // give data with key function to variables to draw
-      var paths = d3.select("g.viz").selectAll(".layer")
+      var paths = d3.select("g.layers").selectAll(".layer")
         .data(layers, function(d){ return d.key; })
       
+      // ENTER
       // enter new paths, could be next level deep or up a level
       paths.enter().append("path")
+        .attr("opacity", 0)
         .attr("class", "layer")
         .attr("fill-opacity", 0.8)
         .attr("stroke-width",1)
@@ -164,17 +216,31 @@ vizwhiz.viz.stacked = function() {
           return area(d.values);
         })
       
-      // update
-      paths
+      // UPDATE
+      paths.transition().duration(vizwhiz.timing)
+        .attr("opacity", 1)
         .attr("fill", function(d){
           return d.color
         })
         .attr("d", function(d) {
           return area(d.values);
+        });
+      // mouseover
+      paths.on(vizwhiz.evt.over, function(d){
+          this.parentNode.appendChild(this)
+          d3.select(this)
+            .attr("stroke", "black")
         })
+        .on(vizwhiz.evt.out, function(d){
+            d3.select(this)
+              .attr("stroke", "white")
+          })
       
-      // exit
-      paths.exit().remove()
+      // EXIT
+      paths.exit()
+        .transition().duration(vizwhiz.timing)
+        .attr("opacity", 0)
+        .remove()
       
       //===================================================================
       
@@ -202,11 +268,14 @@ vizwhiz.viz.stacked = function() {
         }
       })
       
+      // container for text layers
+      viz_enter.append("g").attr("class", "text_layers")
+      
       // give data with key function to variables to draw
-      var texts = d3.select("g.viz").selectAll(".label")
+      var texts = d3.select("g.text_layers").selectAll(".label")
         .data(text_layers, function(d){ return d.key; })
       
-      // enter new paths, could be next level deep or up a level
+      // ENTER
       texts.enter().append("text")
         .attr('filter', 'url(#dropShadow)')
         .attr("class", "label")
@@ -224,10 +293,6 @@ vizwhiz.viz.stacked = function() {
           return x_scale(d.tallest.key) + pad;
         })
         .attr("dy", 6)
-        .attr("y", function(d){
-          var height = size.height - y_scale(d.tallest.y)
-          return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
-        })
         .attr("text-anchor", function(d){
           // determine the index of the tallest item
           var values_index = d.values.indexOf(d.tallest)
@@ -243,6 +308,16 @@ vizwhiz.viz.stacked = function() {
         })
         .text(function(d) {
           return d[nesting[nesting.length-1]]
+        })
+      
+      // UPDATE
+      texts
+        .attr("y", function(d){
+          var height = size.height - y_scale(d.tallest.y);
+          if(d.id == 178701){
+            console.log(d.tallest.y0, d.tallest.y, height, y_scale.domain())
+          }
+          return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
         })
         .each(function(d){
           // set usable width to 2x the width of each x-axis tick
@@ -263,7 +338,7 @@ vizwhiz.viz.stacked = function() {
           }
         })
       
-      // exit
+      // EXIT
       texts.exit().remove()
       
       //===================================================================
@@ -292,7 +367,7 @@ vizwhiz.viz.stacked = function() {
   // Nest data function (needed for getting flat data ready for stacks)
   //-------------------------------------------------------------------
   
-  function nest_data(xaxis_vals, data){
+  function nest_data(xaxis_vals, data, xaxis_sums){
     var nest_key = nesting[nesting.length-1];
     var info_lookup = {};
     
@@ -304,17 +379,19 @@ vizwhiz.viz.stacked = function() {
         delete info_lookup[leaves[0][nest_key]][value_var]
         
         var values = d3.nest()
-          .key(function(d){ return d.year; })
-          .rollup(function(l) { return d3.sum(l, function(d){ return d[value_var]})})
+          .key(function(d){ return d[xaxis_var]; })
+          .rollup(function(l) {
+            return d3.sum(l, function(d){ return d[value_var]});
+          })
           .entries(leaves)
         
-        // Make sure all years at least have 0 values
-        years_available = values
+        // Make sure all xaxis_vars at least have 0 values
+        xaxis_vars_available = values
           .reduce(function(a, b){ return a.concat(b.key)}, [])
           .filter(function(y, i, arr) { return arr.indexOf(y) == i })
         
         xaxis_vals.forEach(function(y){
-          if(years_available.indexOf(""+y) < 0){
+          if(xaxis_vars_available.indexOf(""+y) < 0){
             values.push({"key": ""+y, "values": 0})
           }
         })
@@ -348,8 +425,6 @@ vizwhiz.viz.stacked = function() {
     .values(function(d) { return d.values; })
     .x(function(d) { return parseInt(d.key); })
     .y(function(d) { return d.values; });
-  
-  //===================================================================
   
   //===================================================================
   
@@ -406,6 +481,9 @@ vizwhiz.viz.stacked = function() {
         .attr("y2", 0)
         .attr("stroke", "#000")
         .attr("stroke-width",1)
+      if(layout == "share"){
+        return d3.format("p")(d);
+      }
       return vizwhiz.utils.format_num(d, false, 3, true)
     });
 
@@ -474,6 +552,38 @@ vizwhiz.viz.stacked = function() {
   chart.nesting = function(x) {
     if (!arguments.length) return nesting;
     nesting = x;
+    return chart;
+  };
+  
+  chart.filter = function(x) {
+    if (!arguments.length) return filter;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      filter = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+      }
+      // element not in current filter so add it
+      else {
+        filter.push(x)
+      }
+    }
+    return chart;
+  };
+  
+  chart.layout = function(x) {
+    if (!arguments.length) return layout;
+    layout = x;
+    return chart;
+  };
+  
+  chart.title = function(x) {
+    if (!arguments.length) return title;
+    title = x;
     return chart;
   };
 
