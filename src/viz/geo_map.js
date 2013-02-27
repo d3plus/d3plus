@@ -22,7 +22,9 @@ vizwhiz.viz.geo_map = function() {
       water_color = "#B5D0D0",
       stroke_width = 1,
       tooltip_info = [],
-      color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"];
+      color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
+      zoom_behavior = d3.behavior.zoom(),
+      projection = d3.geo.mercator();
 
   //===================================================================
 
@@ -34,21 +36,26 @@ vizwhiz.viz.geo_map = function() {
       // Private Variables
       //-------------------------------------------------------------------
       
+
+      projection
+        .scale(width)
+        .translate([width/2,height/2]);
+      
       var this_selection = this,
           dragging = false,
           info_width = 200,
-          projection = d3.geo.mercator()
-            .scale(width)
-            .translate([width/2,height/2]),
           path = d3.geo.path().projection(projection),
-          zoom_behavior = d3.behavior.zoom()
-            .scale(projection.scale())
-            .scaleExtent([width, 1 << 23])
-            .translate(projection.translate())
-            .on("zoom",function(d){ zoom(d); }),
           tile = d3.geo.tile().size([width, height]),
           old_scale = projection.scale(),
-          old_translate = projection.translate();
+          old_translate = projection.translate(),
+          land = null;
+      
+
+      zoom_behavior
+        .scale(projection.scale())
+        .scaleExtent([width, 1 << 23])
+        .translate(projection.translate())
+        .on("zoom",function(d){ zoom(d); });
           
 
       if (data) {
@@ -88,17 +95,20 @@ vizwhiz.viz.geo_map = function() {
           .attr("fill",water_color);
           
         svg_enter.append("g")
+          .attr("id","land")
           .attr("class","viz")
-            .append("path")
-              .datum(topojson.object(background, background.objects.land))
-              .attr("id","land")
-              .attr("d",path)
-              .attr(land_style)
+              
+        var land = d3.select("g#land").selectAll("path")
+          .data(topojson.object(background, background.objects.land).geometries)
+        
+        land.enter().append("path")
+          .attr("d",path)
+          .attr(land_style)
             
       }
           
       if (terrain) {
-        var tile_group = svg_enter.append('g')
+        svg_enter.append('g')
           .attr('class','tiles');
           
         update_tiles(0);
@@ -131,7 +141,7 @@ vizwhiz.viz.geo_map = function() {
           }
         });
         
-      var coord_group = viz_enter.append('g')
+      viz_enter.append('g')
         .attr('class','paths');
         
       // Create Zoom Controls div on svg_enter
@@ -155,7 +165,7 @@ vizwhiz.viz.geo_map = function() {
       // New nodes and links enter, initialize them here
       //-------------------------------------------------------------------
 
-      var coord = coord_group.selectAll("path")
+      var coord = d3.select("g.paths").selectAll("path")
         .data(coords)
         
       coord.enter().append("path")
@@ -227,9 +237,16 @@ vizwhiz.viz.geo_map = function() {
       // Update, for things that are already in existance
       //-------------------------------------------------------------------
         
+      coord.attr("d",path)
+        
+      land.attr("d",path)
+        
       svg.transition().duration(timing)
         .attr("width", width)
-        .attr("height", height);
+        .attr("height", height)
+        .each("end",function(){
+          info()
+        });
           
       //===================================================================
       
@@ -241,7 +258,8 @@ vizwhiz.viz.geo_map = function() {
 
       //===================================================================
       
-      zoom(shape,0);
+      if (!clicked) zoom(shape,0);
+      else zoom(highlight,0);
       
       function color_paths(p) {
         p
@@ -394,7 +412,7 @@ vizwhiz.viz.geo_map = function() {
         var tiles = tile.scale(s).translate(t)(),
             old_tiles = tile.scale(old_scale).translate(old_translate)()
         
-        var image = tile_group.selectAll("image.tile")
+        var image = d3.select("g.tiles").selectAll("image.tile")
           .data(tiles, function(d) { return d; });
           
         image.enter().append('image')
