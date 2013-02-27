@@ -149,10 +149,6 @@ vizwhiz.viz.bubbles = function() {
       svg_enter.append('g')
         .attr('class','labels');
         
-      // Create group outside of zoom group for info panel
-      svg_enter.append("g")
-        .attr("class","info")
-        
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -176,19 +172,20 @@ vizwhiz.viz.bubbles = function() {
             tooltip_data[t] = d[t]
           })
           
-          vizwhiz.tooltip.dynamic({
-            "parent": d3.select("g.info"),
-            "width": width,
+          vizwhiz.tooltip.create({
+            "svg": svg,
+            "id": d[id_var],
             "data": tooltip_data,
             "title": d[text_var],
             "x": d.x,
             "y": d.y,
-            "offset": d.radius
+            "offset": d.radius,
+            "arrow": true
           })
           
         })
         .on(vizwhiz.evt.out, function(d){
-          d3.select("g.info").selectAll("*").remove()
+          vizwhiz.tooltip.remove(d[id_var])
         });
       
       var label = d3.select("g.labels").selectAll("text")
