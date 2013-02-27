@@ -5,7 +5,7 @@ vizwhiz.viz.stacked = function() {
   // Public Variables with Default Settings
   //-------------------------------------------------------------------
 
-  var margin = {top: 10, right: 40, bottom: 80, left: 120},
+  var margin = {top: 10, right: 40, bottom: 80, left: 90},
     width = window.innerWidth,
     height = window.innerHeight,
     size = {
