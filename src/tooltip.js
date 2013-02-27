@@ -4,14 +4,16 @@
 
 vizwhiz.tooltip.create = function(data) {
   
-  var tooltip_width = 200,
-      window_width = parseInt(data.svg.attr("width"),10),
+  var window_width = parseInt(data.svg.attr("width"),10),
       padding = 10,
       triangle_size = 20,
       stroke_width = 2
       
   if (data.arrow) var triangle_size = 20
   else var triangle_size = 0
+      
+  if (data.width) var tooltip_width = data.width
+  else var tooltip_width = 200
       
   var group = data.svg.append("g")
     .attr("class","vizwhiz_tooltip")
