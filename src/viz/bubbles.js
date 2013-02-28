@@ -169,7 +169,7 @@ vizwhiz.viz.bubbles = function() {
           
           var tooltip_data = {}
           tooltip_info.forEach(function(t){
-            tooltip_data[t] = d[t]
+            if (d[t]) tooltip_data[t] = d[t]
           })
           
           vizwhiz.tooltip.create({
