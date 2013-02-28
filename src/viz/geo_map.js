@@ -389,7 +389,7 @@ vizwhiz.viz.geo_map = function() {
             "svg": svg,
             "data": tooltip_data,
             "title": data[highlight.id][text_var],
-            "sub_title": sub_title,
+            "description": sub_title,
             "x": width,
             "y": 0,
             "width": info_width,
