@@ -5,19 +5,13 @@
 vizwhiz.tooltip.create = function(data) {
   
   var window_width = parseInt(data.svg.attr("width"),10),
+      window_height = parseInt(data.svg.attr("height"),10),
+      tooltip_width = data.width ? data.width : 200,
+      tooltip_offset = data.offset ? data.offset : 0,
       outer_padding = 5,
       inner_padding = 10,
-      triangle_size = 20,
-      stroke_width = 2
-      
-  if (data.arrow) var triangle_size = 20
-  else var triangle_size = 0
-      
-  if (data.width) var tooltip_width = data.width
-  else var tooltip_width = 200
-      
-  if (data.offset) var tooltip_offset = data.offset
-  else var tooltip_offset = 0
+      triangle_size = data.arrow ? 20 : 0,
+      stroke_width = 2;
       
   var group = data.svg.append("g")
     .attr("class","vizwhiz_tooltip")
@@ -41,12 +35,18 @@ vizwhiz.tooltip.create = function(data) {
       .attr("y",inner_padding*0.75+"px")
       .attr("text-anchor","start")
       .attr("font-family","Helvetica")
-      .each(function(dd){vizwhiz.utils.wordWrap(data.title,this,tooltip_width-(inner_padding*2),tooltip_width,false);})
+      .each(function(dd){
+        vizwhiz.utils.wordwrap({
+          "text": data.title,
+          "parent": this,
+          "width": tooltip_width-(inner_padding*2)
+        });
+      })
       var y_offset = inner_padding + text.node().getBBox().height
   } else var y_offset = inner_padding
     
     
-  if (data.sub_title) {
+  if (data.description) {
     var text = group.append("text")
       .attr("fill","#333333")
       .attr("font-size","12px")
@@ -55,7 +55,13 @@ vizwhiz.tooltip.create = function(data) {
       .attr("x",inner_padding+"px")
       .attr("y",y_offset+"px")
       .style("font-weight","normal")
-      .each(function(dd){vizwhiz.utils.wordWrap(data.sub_title,this,tooltip_width-(inner_padding*2),tooltip_width,false);});
+      .each(function(dd){
+        vizwhiz.utils.wordwrap({
+          "text": data.description,
+          "parent": this,
+          "width": tooltip_width-(inner_padding*2)
+        });
+      });
     y_offset += text.node().getBBox().height;
   }
   
@@ -72,7 +78,7 @@ vizwhiz.tooltip.create = function(data) {
       .attr("text-anchor","start")
       .attr("font-family","Helvetica")
       .text(d+":")
-    text = group.append("text")
+    var text = group.append("text")
       .attr("fill","#333333")
       .attr("font-size","12px")
       .style("font-weight","normal")
@@ -82,7 +88,23 @@ vizwhiz.tooltip.create = function(data) {
       .attr("text-anchor","end")
       .attr("font-family","Helvetica")
       .text(t)
-    y_offset += text.node().getBBox().height
+    y_offset += text.node().getBBox().height;
+  }
+  
+  if (data.appends) {
+    if (data.appends.length > 0) y_offset += inner_padding
+    var truncate = false;
+    data.appends.forEach(function(a){
+      if (a.append && !truncate) {
+        var text = append(group,a);
+        y_offset += text.node().getBBox().height;
+        if (y_offset > window_height-(outer_padding*2)-(inner_padding*2)) {
+          y_offset -= text.node().getBBox().height;
+          text.remove()
+          truncate = true;
+        }
+      }
+    })
   }
   
   var box_height = y_offset+inner_padding
@@ -121,8 +143,33 @@ vizwhiz.tooltip.create = function(data) {
   
   group.attr("transform","translate("+tooltip_x+","+tooltip_y+")")
     
-  box
-    .attr("height",box_height+"px")
+  box.attr("height",box_height+"px")
+  
+  function append(parent,obj) {
+    var obj_x = obj.x || obj.cx ? obj.x : inner_padding,
+        obj_y = obj.y || obj.cy ? obj.y : y_offset
+    var a = parent.append(obj.append)
+    if (obj.append == "g") a.attr("transform","translate("+obj_x+","+obj_y+")")
+    else if (obj.append == "circle") {
+      if (!obj.cx) a.attr("cx",obj_x)
+      if (!obj.cy) a.attr("cy",obj_y)
+    }
+    else {
+      if (!obj.x) a.attr("x",obj_x)
+      if (!obj.y) a.attr("y",obj_y)
+    }
+    for (var attr in obj) if (attr != "children" && attr != "events" && attr != "text") a[attr](obj[attr])
+    if (obj.append == "text" && obj.text) a.each(function(dd){
+      vizwhiz.utils.wordwrap({
+        "text": obj.text,
+        "parent": this,
+        "width": tooltip_width-(inner_padding*2)
+      });
+    })
+    if (obj.events) for (var evt in obj.events) a.on(evt,obj.events[evt])
+    if (obj.children) obj.children.forEach(function(c){ var child = append(a,c); })
+    return a;
+  }
 
 }
 

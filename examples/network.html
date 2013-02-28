@@ -19,6 +19,7 @@
 <script src="../lib/modernizr.custom.js"></script>
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
+<script src="../src/tooltip.js"></script>
 <script src="../src/viz/network.js"></script>
 <script>
 
@@ -94,7 +95,8 @@
           .height(height)
           .nodes(viz_nodes)
           .links(viz_links)
-          .value_var("val_usd");
+          .value_var("val_usd")
+          .tooltip(["id","val_usd","val_quantity","val_kg","complexity","distance","rca"]);
           
         d3.select("#viz")
           .datum(data)

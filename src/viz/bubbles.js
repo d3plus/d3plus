@@ -169,7 +169,7 @@ vizwhiz.viz.bubbles = function() {
           
           var tooltip_data = {}
           tooltip_info.forEach(function(t){
-            tooltip_data[t] = d[t]
+            if (d[t]) tooltip_data[t] = d[t]
           })
           
           vizwhiz.tooltip.create({
@@ -210,7 +210,12 @@ vizwhiz.viz.bubbles = function() {
           } else {
             var t = d.name
           }
-          vizwhiz.utils.wordWrap(t,this,d.width,40,false)
+          vizwhiz.utils.wordwrap({
+            "text": t,
+            "parent": this,
+            "width": d.width,
+            "height": 40
+          })
         })
       
       //===================================================================

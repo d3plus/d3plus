@@ -102,9 +102,15 @@ vizwhiz.viz.tree_map = function() {
             .transition().duration(vizwhiz.timing)
             .each("end", function(q, i){
               // need to recalculate word wrapping because dimensions have changed
-              var text = text_var ? g_data[text_var] : g_data.name;
-              if(text){
-                vizwhiz.utils.wordWrap(text, this, g_data.dx, g_data.dy, true)
+              if(g_data[text_var]){
+                var text = g_data[id_var] ? [g_data[text_var],g_data[id_var]] : g_data[text_var]
+                vizwhiz.utils.wordwrap({
+                  "text": text,
+                  "parent": this,
+                  "width": g_data.dx,
+                  "height": g_data.dy,
+                  "resize": true
+                })
               }
               d3.select(this).transition().duration(vizwhiz.timing/2).attr("opacity", 1)
             })
@@ -178,9 +184,15 @@ vizwhiz.viz.tree_map = function() {
           return d3.hsl(d.color).l >= 0.5 ? "#333" : "#fff";
         })
         .each(function(d){
-          var text = text_var ? d[text_var] : d.name;
-          if(text){
-            vizwhiz.utils.wordWrap(text, this, d.dx, d.dy, true)
+          if(d[text_var]){
+            var text = d[id_var] ? [d[text_var],d[id_var]] : d[text_var]
+            vizwhiz.utils.wordwrap({
+              "text": text,
+              "parent": this,
+              "width": d.dx,
+              "height": d.dy,
+              "resize": true
+            })
           }
         })
       
