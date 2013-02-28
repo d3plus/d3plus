@@ -303,6 +303,9 @@ vizwhiz.viz.geo_map = function() {
           info()
         });
         
+      d3.select("g.scale").transition().duration(timing)
+        .attr("transform","translate("+(width-info_width-5)+","+5+")");
+        
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
