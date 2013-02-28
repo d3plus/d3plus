@@ -33,16 +33,24 @@
       d3.json("data/munic_mg.json", function(geo_data) {
         d3.json("data/attr_munic.json", function(attr) {
         
-          geo_data = geo_data.filter(function(d){ return d.year == 2010; })
-          
-          data = {}
-          geo_data.forEach(function(d){
+          var data = geo_data.filter(function(d){ return d.year == 2010; })
+          data2010 = {}
+          data.forEach(function(d){
             var id = attr[d.id].id_mdic
-            data[id] = geo_data.filter(function(f){return f.id == d.id})[0]
-            // console.log(d.id,data[d.id],attr[d.id])
-            data[id] = vizwhiz.utils.merge(data[id],attr[d.id])
-            delete data[id].year
-            delete data[id].attr_type
+            data2010[id] = data.filter(function(f){return f.id == d.id})[0]
+            data2010[id] = vizwhiz.utils.merge(data2010[id],attr[d.id])
+            delete data2010[id].year
+            delete data2010[id].attr_type
+          })
+
+          var data = geo_data.filter(function(d){ return d.year == 2005; })
+          data2005 = {}
+          data.forEach(function(d){
+            var id = attr[d.id].id_mdic
+            data2005[id] = data.filter(function(f){return f.id == d.id})[0]
+            data2005[id] = vizwhiz.utils.merge(data2005[id],attr[d.id])
+            delete data2005[id].year
+            delete data2005[id].attr_type
           })
           
           viz = vizwhiz.viz.geo_map()
@@ -56,8 +64,15 @@
             .tooltip(["id","id_mdic","wage","num_emp","num_est"]);
           
           d3.select("#viz")
-            .datum(data)
+            .datum(data2010)
             .call(viz);
+            
+          // setTimeout(function(){
+          //   console.log("switch")
+          //   d3.select("#viz")
+          //     .datum(data2005)
+          //     .call(viz);
+          // },2000)
         
         });
       });
