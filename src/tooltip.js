@@ -2,87 +2,90 @@
 // Create a Tooltip
 //-------------------------------------------------------------------
 
-vizwhiz.tooltip.create = function(data) {
+vizwhiz.tooltip.create = function(params) {
   
-  var window_width = parseInt(data.svg.attr("width"),10),
-      window_height = parseInt(data.svg.attr("height"),10),
-      tooltip_width = data.width ? data.width : 200,
-      tooltip_offset = data.offset ? data.offset : 0,
-      outer_padding = 5,
-      inner_padding = 10,
-      triangle_size = data.arrow ? 20 : 0,
-      stroke_width = 2;
-      
-  var group = data.svg.append("g")
+  params.window_width = parseInt(params.svg.attr("width"),10);
+  params.window_height = parseInt(params.svg.attr("height"),10);
+  params.width = params.width ? params.width : 200;
+  params.offset = params.offset ? params.offset : 0;
+  params.margin = 5;
+  params.padding = 10;
+  params.triangle_size = params.arrow ? 20 : 0;
+  params.stroke_width = 2;
+  params.id = params.id ? params.id : "default";
+  
+  var group = params.svg.append("g")
+    .datum(params)
     .attr("class","vizwhiz_tooltip")
-    
-  if (data.id) group.attr("id","vizwhiz_tooltip_"+data.id)
+    .attr("id",function(d){ return "vizwhiz_tooltip_"+d.id; })
   
   var box = group.append("rect")
-    .attr("width",tooltip_width+"px")
+    .attr("width",function(d){ return d.width+"px"; })
     .attr("ry","3")
     .attr("rx","3")
     .attr("fill","white")
     .attr("stroke","#cccccc")
-    .attr("stroke-width",stroke_width)
+    .attr("stroke-width",function(d){ return d.stroke_width; })
   
-  if (data.title) {
+  if (params.title) {
     var text = group.append("text")
       .attr("fill","#000000")
       .attr("font-size","16px")
       .style("font-weight","bold")
-      .attr("x",inner_padding+"px")
-      .attr("y",inner_padding*0.75+"px")
+      .attr("x",function(d){ return d.padding+"px"; })
+      .attr("y",function(d){ return (d.padding*0.75)+"px"; })
       .attr("text-anchor","start")
       .attr("font-family","Helvetica")
-      .each(function(dd){
+      .each(function(d){
         vizwhiz.utils.wordwrap({
-          "text": data.title,
+          "text": d.title,
           "parent": this,
-          "width": tooltip_width-(inner_padding*2)
+          "width": d.width-(d.padding*2)
         });
       })
-      var y_offset = inner_padding + text.node().getBBox().height
-  } else var y_offset = inner_padding
+      var y_offset = params.padding+text.node().getBBox().height
+  } else var y_offset = params.padding
     
     
-  if (data.description) {
+  if (params.description) {
     var text = group.append("text")
       .attr("fill","#333333")
       .attr("font-size","12px")
       .attr("text-anchor","start")
       .attr("font-family","Helvetica")
-      .attr("x",inner_padding+"px")
+      .attr("x",function(d){ return d.padding+"px"; })
       .attr("y",y_offset+"px")
       .style("font-weight","normal")
-      .each(function(dd){
+      .each(function(d){
         vizwhiz.utils.wordwrap({
-          "text": data.description,
+          "text": d.description,
           "parent": this,
-          "width": tooltip_width-(inner_padding*2)
+          "width": d.width-(d.padding*2)
         });
       });
     y_offset += text.node().getBBox().height;
   }
   
-  for (var d in data.data) {
-    if (typeof data.data[d] == "number") var t = vizwhiz.utils.format_num(data.data[d])
-    else var t = data.data[d]
+  for (var id in params.data) {
     group.append("text")
       .attr("fill","#333333")
       .attr("font-size","12px")
       .style("font-weight","normal")
-      .attr("x",inner_padding+"px")
+      .attr("x",function(d){ return d.padding+"px"; })
       .attr("y",y_offset+"px")
       .attr("dy","12px")
       .attr("text-anchor","start")
       .attr("font-family","Helvetica")
-      .text(d+":")
+      .text(id+":")
+      
+    if (typeof params.data[id] == "number") var t = vizwhiz.utils.format_num(params.data[id])
+    else var t = params.data[id]
+    
     var text = group.append("text")
       .attr("fill","#333333")
       .attr("font-size","12px")
       .style("font-weight","normal")
-      .attr("x",tooltip_width-inner_padding+"px")
+      .attr("x",function(d){ return d.width-d.padding+"px"; })
       .attr("y",y_offset+"px")
       .attr("dy","12px")
       .attr("text-anchor","end")
@@ -91,14 +94,14 @@ vizwhiz.tooltip.create = function(data) {
     y_offset += text.node().getBBox().height;
   }
   
-  if (data.appends) {
-    if (data.appends.length > 0) y_offset += inner_padding
+  if (params.appends) {
+    if (params.appends.length > 0) y_offset += params.padding
     var truncate = false;
-    data.appends.forEach(function(a){
+    params.appends.forEach(function(a){
       if (a.append && !truncate) {
         var text = append(group,a);
         y_offset += text.node().getBBox().height;
-        if (y_offset > window_height-(outer_padding*2)-(inner_padding*2)) {
+        if (y_offset > params.window_height-(params.margin*2)-(params.padding*2)) {
           y_offset -= text.node().getBBox().height;
           text.remove()
           truncate = true;
@@ -107,46 +110,30 @@ vizwhiz.tooltip.create = function(data) {
     })
   }
   
-  var box_height = y_offset+inner_padding
+  var box_height = y_offset+params.padding
+    
+  box.attr("height",function(d){ 
+    d.height = box_height;
+    return d.height+"px";
+  })
   
-  if (data.y-tooltip_offset-outer_padding < box_height+triangle_size/2) {
-    var tooltip_y = data.y+tooltip_offset+(triangle_size/2),
-        triangle_y = 0,
-        p = "M "+(-triangle_size/2)+" 0 L 0 "+(-triangle_size/2)+" L "+(triangle_size/2)+" 0";
-    if (tooltip_y < outer_padding) tooltip_y = outer_padding;
-  } else {
-    var tooltip_y = data.y-tooltip_offset-box_height-(triangle_size/2),
-        triangle_y = box_height,
-        p = "M "+(-triangle_size/2)+" 0 L 0 "+(triangle_size/2)+" L "+(triangle_size/2)+" 0";
-  }
-  
-  if (data.x-tooltip_offset-outer_padding < tooltip_width/2) var tooltip_x = outer_padding
-  else if (data.x+tooltip_offset+outer_padding > window_width-(tooltip_width/2)) var tooltip_x = window_width-tooltip_width-outer_padding
-  else var tooltip_x = data.x-(tooltip_width/2)
-  
-  if (data.arrow) {
+  if (params.arrow) {
     group.append("line")
-      .attr("x1",(data.x-tooltip_x-triangle_size/2+1))
-      .attr("x2",(data.x-tooltip_x+triangle_size/2-1))
-      .attr("y1",triangle_y)
-      .attr("y2",triangle_y)
-      .attr("stroke-width",stroke_width*2)
-      .attr("stroke","white")
+      .attr("class","arrow_line")
+      .attr("stroke-width",function(d){ return d.stroke_width*2; })
+      .attr("stroke","white");
     
     group.append("path")
-      .attr("d",p)
+      .attr("class","arrow")
       .attr("fill","white")
       .attr("stroke","#cccccc")
-      .attr("stroke-width",stroke_width)
-      .attr("transform","translate("+(data.x-tooltip_x)+","+triangle_y+")");
+      .attr("stroke-width",function(d){ return d.stroke_width; });
   }
   
-  group.attr("transform","translate("+tooltip_x+","+tooltip_y+")")
-    
-  box.attr("height",box_height+"px")
+  vizwhiz.tooltip.move(params.x,params.y,params.id);
   
   function append(parent,obj) {
-    var obj_x = obj.x || obj.cx ? obj.x : inner_padding,
+    var obj_x = obj.x || obj.cx ? obj.x : params.padding,
         obj_y = obj.y || obj.cy ? obj.y : y_offset
     var a = parent.append(obj.append)
     if (obj.append == "g") a.attr("transform","translate("+obj_x+","+obj_y+")")
@@ -163,7 +150,7 @@ vizwhiz.tooltip.create = function(data) {
       vizwhiz.utils.wordwrap({
         "text": obj.text,
         "parent": this,
-        "width": tooltip_width-(inner_padding*2)
+        "width": params.width-(params.padding*2)
       });
     })
     if (obj.events) for (var evt in obj.events) a.on(evt,obj.events[evt])
@@ -181,8 +168,53 @@ vizwhiz.tooltip.create = function(data) {
 
 vizwhiz.tooltip.remove = function(id) {
   
-  if (id) d3.select("g#vizwhiz_tooltip_"+id).remove()
-  else d3.selectAll("g.vizwhiz_tooltip").remove()
+  if (id) d3.select("g#vizwhiz_tooltip_"+id).remove();
+  else d3.selectAll("g.vizwhiz_tooltip").remove();
+
+}
+
+//===================================================================
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Get X and Y position for Tooltip
+//-------------------------------------------------------------------
+
+vizwhiz.tooltip.move = function(x,y,id) {
+  
+  if (!id) var obj = d3.selectAll("g.vizwhiz_tooltip")
+  else var obj = d3.selectAll("g#vizwhiz_tooltip_"+id)
+  
+  obj.attr("transform",function(d){
+  
+    if (y-d.offset-d.margin < d.height+d.triangle_size/2) {
+      var tooltip_y = y+d.offset+(d.triangle_size/2),
+          triangle_y = 0,
+          p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(-d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
+      if (tooltip_y < d.margin) tooltip_y = d.margin;
+    } else {
+      var tooltip_y = y-d.offset-d.height-(d.triangle_size/2),
+          triangle_y = d.height,
+          p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
+    }
+  
+    if (x-d.offset-d.margin < d.width/2) var tooltip_x = d.margin
+    else if (x+d.offset+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
+    else var tooltip_x = x-(d.width/2)
+  
+    if (d.arrow) {
+      d3.select(this).select("line.arrow_line")
+        .attr("x1",(x-tooltip_x-d.triangle_size/2+1))
+        .attr("x2",(x-tooltip_x+d.triangle_size/2-1))
+        .attr("y1",triangle_y)
+        .attr("y2",triangle_y);
+    
+
+      d3.select(this).select("path.arrow").attr("d",p)
+        .attr("transform","translate("+(x-tooltip_x)+","+triangle_y+")");
+    }
+    
+    return "translate("+tooltip_x+","+tooltip_y+")";
+  })
 
 }
 
