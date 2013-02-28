@@ -210,7 +210,12 @@ vizwhiz.viz.bubbles = function() {
           } else {
             var t = d.name
           }
-          vizwhiz.utils.wordWrap(t,this,d.width,40,false)
+          vizwhiz.utils.wordwrap({
+            "text": t,
+            "parent": this,
+            "width": d.width,
+            "height": 40
+          })
         })
       
       //===================================================================
