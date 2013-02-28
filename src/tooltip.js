@@ -35,7 +35,13 @@ vizwhiz.tooltip.create = function(data) {
       .attr("y",inner_padding*0.75+"px")
       .attr("text-anchor","start")
       .attr("font-family","Helvetica")
-      .each(function(dd){vizwhiz.utils.wordWrap(data.title,this,tooltip_width-(inner_padding*2),tooltip_width,false);})
+      .each(function(dd){
+        vizwhiz.utils.wordwrap({
+          "text": data.title,
+          "parent": this,
+          "width": tooltip_width-(inner_padding*2)
+        });
+      })
       var y_offset = inner_padding + text.node().getBBox().height
   } else var y_offset = inner_padding
     
@@ -49,7 +55,13 @@ vizwhiz.tooltip.create = function(data) {
       .attr("x",inner_padding+"px")
       .attr("y",y_offset+"px")
       .style("font-weight","normal")
-      .each(function(dd){vizwhiz.utils.wordWrap(data.description,this,tooltip_width-(inner_padding*2),tooltip_width,false);});
+      .each(function(dd){
+        vizwhiz.utils.wordwrap({
+          "text": data.description,
+          "parent": this,
+          "width": tooltip_width-(inner_padding*2)
+        });
+      });
     y_offset += text.node().getBBox().height;
   }
   
@@ -148,7 +160,11 @@ vizwhiz.tooltip.create = function(data) {
     }
     for (var attr in obj) if (attr != "children" && attr != "events" && attr != "text") a[attr](obj[attr])
     if (obj.append == "text" && obj.text) a.each(function(dd){
-      vizwhiz.utils.wordWrap(obj.text,this,tooltip_width-(inner_padding*2),tooltip_width,false);
+      vizwhiz.utils.wordwrap({
+        "text": obj.text,
+        "parent": this,
+        "width": tooltip_width-(inner_padding*2)
+      });
     })
     if (obj.events) for (var evt in obj.events) a.on(evt,obj.events[evt])
     if (obj.children) obj.children.forEach(function(c){ var child = append(a,c); })
