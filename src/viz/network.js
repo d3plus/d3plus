@@ -19,7 +19,8 @@ vizwhiz.viz.network = function() {
       aspect,
       links = [],
       connections = {},
-      scale = {};
+      scale = {},
+      tooltip_info = [];
 
   //===================================================================
 
@@ -274,7 +275,7 @@ vizwhiz.viz.network = function() {
       function update() {
         
         d3.select("g.highlight").selectAll("*").remove()
-        d3.select("g.info").selectAll("*").remove()
+        vizwhiz.tooltip.remove();
         
         if (highlight) {
             
@@ -344,6 +345,7 @@ vizwhiz.viz.network = function() {
               .attr("stroke-width", "2px")
               .call(link_position)
               .on(vizwhiz.evt.click, function(d){
+                highlight = null;
                 zoom("reset");
                 update();
               });
@@ -397,119 +399,122 @@ vizwhiz.viz.network = function() {
                   update();
                 }
               })
+            
               
           // Draw Info Panel
-          var d = data[highlight]
-          if (scale.x(connections[highlight].extent.x[1]) > (width-info_width-5)) var x_pos = 37
-          else var x_pos = width-info_width
+          if (scale.x(connections[highlight].extent.x[1]) > (width-info_width-10)) var x_pos = 37+(info_width/2)
+          else var x_pos = width
           
-          var bg = d3.select("g.info").append("rect")
-            .attr("width",info_width+"px")
-            .attr("height",height-10+"px")
-            .attr("y","5px")
-            .attr("x",(x_pos-5)+"px")
-            .attr("ry","3")
-            .attr("fill","white")
-            .attr("stroke","#cccccc")
-            .attr("stroke-width",2)
-            
-          var text = d3.select("g.info").append("text")
-            .attr("y","8px")
-            .attr("x",x_pos+"px")
-            .attr("fill","#333333")
-            .attr("text-anchor","start")
-            .style("font-weight","bold")
-            .attr("font-size","14px")
-            .attr("font-family","Helvetica")
-            .each(function(dd){vizwhiz.utils.wordWrap(d[text_var],this,info_width-10,info_width,false)})
+          var tooltip_data = {},
+              tooltip_appends = [],
+              sub_title = null
+          
           if (!clicked) {
-            text.append("tspan")
-              .attr("dy","14px")
-              .attr("font-size","10px")
-              .attr("x",x_pos+"px")
-              .style("font-weight","normal")
-              .text("Click Node for More Info")
-            bg.attr("height",(text.node().getBBox().height+10)+"px")
+            sub_title = "Click Node for More Info"
           } else {
-            for (var id in d) {
-              if ([text_var,"color","text_color","active"].indexOf(id) < 0) {
-                text.append("tspan")
-                  .attr("dy","14px")
-                  .attr("font-size","12px")
-                  .attr("x",x_pos+"px")
-                  .style("font-weight","normal")
-                  .text(id+": "+d[id])
-              }
-            }
-            var y = (text.node().getBBox().height+15)
-            var primary_title = d3.select("g.info").append("text")
-              .attr("x",x_pos+"px")
-              .attr("y",y+"px")
-              .attr("dy","18px")
-              .attr("fill","#333333")
-              .attr("text-anchor","start")
-              .attr("font-size","12px")
-              .attr("font-family","Helvetica")
-              .attr("x",x_pos+"px")
-              .style("font-weight","bold")
-              .text("Primary Connections")
-                  
-            y += primary_title.node().getBBox().height+5
-            var prims = [], trunc = false
-            connections[highlight].primary.nodes.forEach(function(c){
+            tooltip_info.forEach(function(t){
+              if (data[highlight][t]) tooltip_data[t] = data[highlight][t]
+            })
+            tooltip_appends.push({
+              "append": "text",
+              "attr": {
+                "dy": "18px",
+                "fill": "#333333",
+                "text-anchor": "start",
+                "font-size": "12px",
+                "font-family": "Helvetica"
+              },
+              "style": {
+                "font-weight": "bold"
+              },
+              "text": "Primary Connections"
+            })
+            
+            var prims = []
+            primaries.nodes.forEach(function(c){
               prims.push(c[id_var])
             })
-            prims.forEach(function(c,i){
-              if (!trunc) {
-                d3.select("g.info").append("circle")
-                  .attr("cx",(x_pos+5)+"px")
-                  .attr("cy",(y+8)+"px")
-                  .attr("r",5)
-                  .attr("fill", function(){
-                    var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
-                    if (data[c].active) {
-                      return color;
-                    } else {
-                      color = d3.hsl(color)
-                      color.l = 0.98
-                      return color.toString()
-                    }
-                  })
-                  .attr("stroke", function(){
-                    var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
-                    if (data[c].active) return d3.rgb(color).darker().darker().toString();
-                    else return d3.rgb(color).darker().toString()
-                  })
-                  .attr("stroke-width", function(){
-                    if(data[c].active) return 2;
-                    else return 1;
-                  })
-                var temp_title = d3.select("g.info").append("text")
-                  .attr("x",(x_pos+13)+"px")
-                  .attr("y",y+"px")
-                  .attr("fill","#333333")
-                  .attr("text-anchor","start")
-                  .attr("font-size","12px")
-                  .attr("font-family","Helvetica")
-                  .style("font-weight","normal")
-                  .on(vizwhiz.evt.over,function(){
-                    d3.select(this).attr("fill",highlight_color).style("cursor","pointer")
-                  })
-                  .on(vizwhiz.evt.out,function(){
-                    d3.select(this).attr("fill","#333333")
-                  })
-                  .on(vizwhiz.evt.click,function(){
-                    highlight = c;
-                    zoom(highlight);
-                    update();
-                  })
-                  .each(function(dd){vizwhiz.utils.wordWrap(data[c][text_var],this,info_width-10,info_width,false)})
-                y += temp_title.node().getBBox().height
-                if (y > height-40) trunc = true
+            
+            prims.forEach(function(c){
+              var obj = {
+                "append": "g",
+                "children": [
+                  {
+                    "append": "circle",
+                    "attr": {
+                      "r": "5",
+                      "cx": "5",
+                      "cy": "8"
+                    },
+                    "style": {
+                      "font-weight": "normal"
+                    },
+                    "text": data[c][text_var],
+                    "events": {}
+                  },
+                  {
+                    "append": "text",
+                    "attr": {
+                      "fill": "#333333",
+                      "text-anchor": "start",
+                      "font-size": "12px",
+                      "font-family": "Helvetica",
+                      "y": "0",
+                      "x": "13"
+                    },
+                    "style": {
+                      "font-weight": "normal"
+                    },
+                    "text": data[c][text_var],
+                    "events": {}
+                  }
+                ]
               }
+              obj.children[0].attr["fill"] = function(){
+                  var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
+                  if (data[c].active) {
+                    return color;
+                  } else {
+                    color = d3.hsl(color)
+                    color.l = 0.98
+                    return color.toString()
+                  }
+                }
+              obj.children[0].attr["stroke"] = function(){
+                  var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
+                  if (data[c].active) return d3.rgb(color).darker().darker().toString();
+                  else return d3.rgb(color).darker().toString()
+                }
+              obj.children[0].attr["stroke-width"] = function(){
+                  if(data[c].active) return 2;
+                  else return 1;
+                }
+              obj.children[1].events[vizwhiz.evt.over] = function(){
+                  d3.select(this).attr('fill',highlight_color).style('cursor','pointer')
+                }
+              obj.children[1].events[vizwhiz.evt.out] = function(){
+                  d3.select(this).attr("fill","#333333")
+                }
+              obj.children[1].events[vizwhiz.evt.click] = function(){
+                  highlight = c;
+                  zoom(highlight);
+                  update();
+                }
+              tooltip_appends.push(obj)
             })
-            bg.attr("height",y+"px")
           }
+          
+          vizwhiz.tooltip.create({
+            "svg": svg,
+            "data": tooltip_data,
+            "title": data[highlight][text_var],
+            "description": sub_title,
+            "x": x_pos,
+            "y": 0,
+            "width": info_width,
+            "arrow": false,
+            "appends": tooltip_appends
+          })
           
         } else if (clicked) {
           node.call(node_color)
@@ -726,6 +731,12 @@ vizwhiz.viz.network = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return text_var;
     text_var = x;
+    return chart;
+  };
+  
+  chart.tooltip = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
     return chart;
   };
 
