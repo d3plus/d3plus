@@ -178,7 +178,11 @@ vizwhiz.viz.pie_scatter = function() {
         }
         return true
       })
-      // console.log(nested_data)
+      
+      // sort nodes so that smallest are always on top
+      nested_data.sort(function(node_a, node_b){
+        return node_b[size_var] - node_a[size_var];
+      })
       
       var nodes = d3.select("g.viz")
         .selectAll("g.circle")
