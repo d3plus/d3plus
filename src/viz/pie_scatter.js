@@ -72,10 +72,23 @@ vizwhiz.viz.pie_scatter = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // X AXIS
       //-------------------------------------------------------------------
+      
+      // create scale for buffer of largest item
+      
       var x_scale = d3.scale.linear()
         .domain(d3.extent(nested_data, function(d){ return d[xaxis_var]; }))
         .range([0, size.width])
         .nice()
+      
+      // get buffer room (take into account largest size var)
+      var inverse_x_scale = d3.scale.linear().domain(x_scale.range()).range(x_scale.domain())
+      var largest_size = size_scale.range()[1]
+      // convert largest size to x scale domain
+      largest_size = inverse_x_scale(largest_size)
+      // get radius of largest in pixels by subtracting this value from the x scale minimum
+      var x_buffer = largest_size - x_scale.domain()[0];
+      // update x scale with new buffer offsets
+      x_scale.domain([x_scale.domain()[0]-x_buffer, x_scale.domain()[1]+x_buffer])
       
       // enter
       var xaxis_enter = viz_enter.append("g")
@@ -108,7 +121,17 @@ vizwhiz.viz.pie_scatter = function() {
         .domain(d3.extent(nested_data, function(d){ return d[yaxis_var]; }).reverse())
         .range([0, size.height])
         .nice()
-        
+      
+      // get buffer room (take into account largest size var)
+      var inverse_y_scale = d3.scale.linear().domain(y_scale.range()).range(y_scale.domain())
+      largest_size = size_scale.range()[1]
+      // convert largest size to x scale domain
+      largest_size = inverse_y_scale(largest_size)
+      // get radius of largest in pixels by subtracting this value from the x scale minimum
+      var y_buffer = largest_size - y_scale.domain()[0];
+      // update x scale with new buffer offsets
+      y_scale.domain([y_scale.domain()[0]-y_buffer, y_scale.domain()[1]+y_buffer])
+      
       // enter
       var yaxis_enter = viz_enter.append("g")
         .attr("class", "yaxis")
