@@ -24,7 +24,11 @@ vizwhiz.viz.geo_map = function() {
       tooltip_info = [],
       color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
       zoom_behavior = d3.behavior.zoom(),
-      projection = d3.geo.mercator();
+      projection = d3.geo.mercator(),
+      value_color = d3.scale.log(),
+      initial_width,
+      initial_height,
+      first = true;
 
   //===================================================================
 
@@ -36,28 +40,32 @@ vizwhiz.viz.geo_map = function() {
       // Private Variables
       //-------------------------------------------------------------------
       
-
-      projection
-        .scale(width)
-        .translate([width/2,height/2]);
+      if (first) {
+        projection
+          .scale(width)
+          .translate([width/2,height/2]);
+          
+        initial_width = width
+        initial_height = height
+          
+        zoom_behavior
+          .scale(projection.scale())
+          .translate(projection.translate())
+          .on("zoom",function(d){ zoom(d); })
+          .scaleExtent([width, 1 << 23]);
+      }
       
       var this_selection = this,
           dragging = false,
-          info_width = 200,
+          info_width = 300,
+          scale_height = 10,
+          scale_padding = 20,
           path = d3.geo.path().projection(projection),
           tile = d3.geo.tile().size([width, height]),
           old_scale = projection.scale(),
-          old_translate = projection.translate(),
-          land = null;
-      
-
-      zoom_behavior
-        .scale(projection.scale())
-        .scaleExtent([width, 1 << 23])
-        .translate(projection.translate())
-        .on("zoom",function(d){ zoom(d); });
+          old_translate = projection.translate();
           
-
+      
       if (data) {
         data_extent = d3.extent(d3.values(data),function(d){
           return d[value_var] && d[value_var] != 0 ? d[value_var] : null
@@ -68,7 +76,7 @@ vizwhiz.viz.geo_map = function() {
           data_range.push((data_extent[0]*Math.pow((data_extent[1]/data_extent[0]),step)))
           step += 0.2
         }
-        var value_color = d3.scale.log()
+        value_color
           .domain(data_range)
           .interpolate(d3.interpolateRgb)
           .range(color_gradient)
@@ -106,13 +114,12 @@ vizwhiz.viz.geo_map = function() {
           .attr(land_style)
             
       }
-          
-      if (terrain) {
-        svg_enter.append('g')
-          .attr('class','tiles');
-          
-        update_tiles(0);
-      }
+
+      svg_enter.append('g')
+        .attr('class','tiles');
+        
+      if (terrain) update_tiles(0);
+      else d3.selectAll("g.tiles *").remove()
         
       // Create viz group on svg_enter
       var viz_enter = svg_enter.append('g')
@@ -129,12 +136,9 @@ vizwhiz.viz.geo_map = function() {
         .attr("fill","transparent")
         .on(vizwhiz.evt.click, function(d) {
           if (highlight) {
-            d3.select("#path"+highlight.id)
-              .attr("opacity",default_opacity)
-              .attr("clip-path","none")
-              .call(color_paths);
-            defs.selectAll("*").remove();
+            var temp = highlight;
             highlight = null;
+            d3.select("#path"+temp).call(color_paths);
             clicked = false;
             zoom(shape);
             info();
@@ -143,6 +147,75 @@ vizwhiz.viz.geo_map = function() {
         
       viz_enter.append('g')
         .attr('class','paths');
+        
+      // add scale
+        
+      var gradient = defs
+        .append("svg:linearGradient")
+        .attr("id", "gradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+        .attr("spreadMethod", "pad");
+           
+      data_range.forEach(function(v,i){
+        gradient.append("stop")
+          .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
+          .attr("stop-color", value_color(v))
+          .attr("stop-opacity", 1)
+      })
+        
+      var scale = svg_enter.append('g')
+        .attr('class','scale')
+        .attr("transform","translate("+(width-info_width-5)+","+5+")");
+        
+      scale.append("rect")
+        .attr("width", info_width+"px")
+        .attr("height", (scale_height*3)+"px")
+        .attr("fill","#ffffff")
+        .attr("rx",3)
+        .attr("ry",3)
+        .attr("stroke","#cccccc")
+        .attr("stroke-width",2)
+        
+      scale.append("rect")
+        .attr("x",scale_padding+"px")
+        .attr("y","5px")
+        .attr("width", (info_width-(scale_padding*2))+"px")
+        .attr("height", scale_height+"px")
+        .style("fill", "url(#gradient)")
+           
+      data_range.forEach(function(v,i){
+        if (i == data_range.length-1) {
+          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-2
+        } else if (i != 0) {
+          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
+        } else {
+          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))
+        }
+        scale.append("rect")
+          .attr("x", x+"px")
+          .attr("y", "5px")
+          .attr("width", 2)
+          .attr("height", scale_height+"px")
+          .style("fill", "#fff")
+            
+        scale.append("text")
+          .attr("id","scale_"+i)
+          .attr("x",x+"px")
+          .attr("y", (scale_height+5)+"px")
+          .attr("dy","1em")
+          .attr("text-anchor","middle")
+          .attr("fill","#000000")
+          .style("font-weight","bold")
+          .attr("font-size","10px")
+          .attr("font-family","Helvetica")
+      })
+      
+      data_range.forEach(function(v,i){
+        d3.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
+      })
         
       // Create Zoom Controls div on svg_enter
       d3.select(this_selection).select("div#zoom_controls").remove()
@@ -172,14 +245,14 @@ vizwhiz.viz.geo_map = function() {
         .attr("id",function(d) { return "path"+d.id } )
         .attr("d",path)
         .attr("vector-effect","non-scaling-stroke")
-        .attr("opacity",default_opacity)
+        .attr("opacity",0)
         .on(vizwhiz.evt.over, function(d){
           if (!clicked) {
-            highlight = d;
+            highlight = d[id_var];
             d3.select(this).attr("opacity",select_opacity);
             info();
           }
-          if (highlight != d) d3.select(this).attr("opacity",select_opacity);
+          if (highlight != d[id_var]) d3.select(this).attr("opacity",select_opacity);
         })
         .on(vizwhiz.evt.out, function(d){
           if (!clicked) {
@@ -187,59 +260,41 @@ vizwhiz.viz.geo_map = function() {
             d3.select(this).attr("opacity",default_opacity);
             info();
           }
-          if (highlight != d) d3.select(this).attr("opacity",default_opacity);
+          if (highlight != d[id_var]) d3.select(this).attr("opacity",default_opacity);
         })
         .on(vizwhiz.evt.click, function(d) {
-          if (clicked && highlight == d) {
-            d3.select("#path"+highlight.id)
-              .attr("opacity",default_opacity)
-              .attr("clip-path","none")
-              .call(color_paths);
-            defs.selectAll("*").remove();
+          if (clicked && highlight == d[id_var]) {
+            var temp = highlight;
             highlight = null;
+            d3.select("#path"+temp).call(color_paths);
             clicked = false;
             zoom(shape);
             info();
           } else {
             if (highlight) {
-              d3.select("#path"+highlight.id)
-                .attr("opacity",default_opacity)
-                .attr("clip-path","none")
-                .call(color_paths);
-              defs.selectAll("*").remove();
+              var temp = highlight;
+              highlight = null;
+              d3.select("#path"+temp).call(color_paths);
             }
-            highlight = d;
-            d3.select(this)
-              .attr("opacity",select_opacity)
-              .attr("clip-path","url(#stroke_clip)")
-              .attr("fill","none")
-              .attr("stroke",function(d){ 
-                if (!data) return "#888888"
-                else return data[d.id] ? value_color(data[d.id][value_var]) : "#eeeeee"
-              })
-              .attr("stroke-width",10)
-              .each(function(d){
-                defs.append("clipPath")
-                  .attr("id","stroke_clip")
-                  .append("use")
-                    .attr("xlink:href",function(dd) { return "#path"+d.id } )
-              })
+            highlight = d[id_var];
+            d3.select(this).call(color_paths);
             clicked = true;
-            zoom(highlight);
+            zoom(d3.select("path#path"+highlight).datum());
             info();
           }
-        })
-        .call(color_paths);
+        });
       
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Update, for things that are already in existance
       //-------------------------------------------------------------------
+      
+      coord.transition().duration(timing)
+        .attr("opacity",default_opacity)
+        .call(color_paths);
         
-      coord.attr("d",path)
-        
-      land.attr("d",path)
+      // land.attr("d",path);
         
       svg.transition().duration(timing)
         .attr("width", width)
@@ -247,7 +302,7 @@ vizwhiz.viz.geo_map = function() {
         .each("end",function(){
           info()
         });
-          
+        
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -258,17 +313,45 @@ vizwhiz.viz.geo_map = function() {
 
       //===================================================================
       
-      if (!clicked) zoom(shape,0);
-      else zoom(highlight,0);
+      if (first) {
+        zoom(shape,0);
+        first = false;
+      } else if (clicked) {
+        zoom(d3.select("path#path"+highlight).datum());
+      }
       
       function color_paths(p) {
         p
           .attr("fill",function(d){ 
-            if (!data) return "#888888"
-            else return data[d.id] ? value_color(data[d.id][value_var]) : "#eeeeee"
+            if (d[id_var] == highlight) return "none";
+            else if (!data) return "#888888";
+            else return data[d[id_var]] ? value_color(data[d[id_var]][value_var]) : "#eeeeee"
           })
-          .attr("stroke-width",stroke_width)
-          .attr("stroke","white");
+          .attr("stroke-width",function(d) {
+            if (d[id_var] == highlight) return 10;
+            else return stroke_width;
+          })
+          .attr("stroke",function(d) {
+            if (d[id_var] == highlight) return data[d[id_var]] ? value_color(data[d[id_var]][value_var]) : "#eeeeee";
+            else return "white";
+          })
+          .attr("opacity",function(d){
+            if (d[id_var] == highlight) return select_opacity;
+            else return default_opacity;
+          })
+          .attr("clip-path",function(d){ 
+            if (d[id_var] == highlight) return "url(#stroke_clip)";
+            else return "none"
+          })
+          .each(function(d){
+            if (d[id_var] == highlight) {
+              defs.selectAll("#stroke_clip").remove();
+              d3.select("defs").append("clipPath")
+                .attr("id","stroke_clip")
+                .append("use")
+                  .attr("xlink:href",function(dd) { return "#path"+highlight } )
+            }
+          });
       }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -281,40 +364,44 @@ vizwhiz.viz.geo_map = function() {
             zoom_extent = zoom_behavior.scaleExtent()
             
         var scale = zoom_behavior.scale()
-        if (param == "in") var scale = ((scale/width)*2)*width
-        else if (param == "out") var scale = ((scale/width)*0.5)*width
         
-        var svg_scale = scale/width,
-            svg_translate = [translate[0]-(scale/2),translate[1]-(scale/2)+(200*svg_scale)]
+        if (param == "in") var scale = scale*2
+        else if (param == "out") var scale = scale*0.5
+        
+        var svg_scale = scale/initial_width,
+            svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/initial_width)*initial_height)/2)]
             
         old_scale = projection.scale()
         old_translate = projection.translate()
             
         if (param.coordinates) {
           
-          if (clicked && highlight) var w_avail = width-info_width-37
-          else var w_avail = width
+          if (clicked && highlight) { 
+            var left = 20, w_avail = width-info_width-left
+          } else {
+            var left = 0, w_avail = width
+          }
           
           var b = path.bounds(param),
               w = (b[1][0] - b[0][0])*1.1,
               h = (b[1][1] - b[0][1])*1.1,
-              s_width = (w_avail*(scale/width))/w,
-              s_height = (height*(scale/width))/h
+              s_width = (w_avail*(scale/initial_width))/w,
+              s_height = (height*(scale/initial_width))/h
               
           if (s_width < s_height) {
-            var s = s_width*width,
-                offset_left = (w_avail-(((w/1.1)/svg_scale)*s/width))/2,
-                offset_top = (height-((h/svg_scale)*s/width))/2
+            var s = s_width*initial_width,
+                offset_left = ((w_avail-(((w/1.1)/svg_scale)*s/initial_width))/2)+left,
+                offset_top = (height-((h/svg_scale)*s/initial_width))/2
           } else {
-            var s = s_height*width,
-                offset_left = (w_avail-((w/svg_scale)*s/width))/2,
-                offset_top = (height-(((h/1.1)/svg_scale)*s/width))/2
+            var s = s_height*initial_width,
+                offset_left = ((w_avail-((w/svg_scale)*s/initial_width))/2)+left,
+                offset_top = (height-(((h/1.1)/svg_scale)*s/initial_width))/2
           }
           
-          var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/width)+offset_left,
-              t_y = ((-(b[0][1]-svg_translate[1])/svg_scale)*s/width)+offset_top
+          var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/initial_width)+offset_left,
+              t_y = ((-(b[0][1]-svg_translate[1])/svg_scale)*s/initial_width)+offset_top
               
-          var t = [t_x+(s/2),t_y+(s/2)-(200*s/width)]
+          var t = [t_x+(s/2),t_y+(((s/initial_width)*initial_height)/2)]
           
           translate = t
           scale = s
@@ -336,11 +423,11 @@ vizwhiz.viz.geo_map = function() {
         // Y Boundries
         if (translate[1] > scale/2) translate[1] = scale/2
         else if (translate[1] < height-scale/2) translate[1] = height-scale/2
-        
+
         projection.scale(scale).translate(translate);
         zoom_behavior.scale(scale).translate(translate);
-        svg_scale = scale/width;
-        svg_translate = [translate[0]-(scale/2),translate[1]-(scale/2)+(((width-height)/2)*svg_scale)];
+        svg_scale = scale/initial_width;
+        svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/initial_width)*initial_height)/2)];
         
         if (typeof custom_timing != "number") {
           if (d3.event) {
@@ -373,7 +460,7 @@ vizwhiz.viz.geo_map = function() {
         
         vizwhiz.tooltip.remove();
         
-        if (highlight && data[highlight.id]) {
+        if (highlight && data[highlight]) {
             
           var tooltip_data = {}, sub_title = null
           
@@ -381,17 +468,17 @@ vizwhiz.viz.geo_map = function() {
             sub_title = "Click for More Info"
           } else {
             tooltip_info.forEach(function(t){
-              tooltip_data[t] = data[highlight.id][t]
+              if (data[highlight][t]) tooltip_data[t] = data[highlight][t]
             })
           }
           
           vizwhiz.tooltip.create({
             "svg": svg,
             "data": tooltip_data,
-            "title": data[highlight.id][text_var],
+            "title": data[highlight][text_var],
             "description": sub_title,
             "x": width,
-            "y": 0,
+            "y": (scale_height*3)+10,
             "width": info_width,
             "arrow": false
           })
@@ -408,7 +495,7 @@ vizwhiz.viz.geo_map = function() {
 
         var t = projection.translate(),
             s = projection.scale();
-          
+            
         var tiles = tile.scale(s).translate(t)(),
             old_tiles = tile.scale(old_scale).translate(old_translate)()
         
@@ -479,25 +566,17 @@ vizwhiz.viz.geo_map = function() {
     return chart;
   };
 
-  chart.background = function(x) {
+  chart.background = function(x,style) {
     if (!arguments.length) return background;
     background = x;
+    if (style) {
+      land_style = style.land;
+      water_color = style.water;
+    }
     return chart;
   };
   
-  chart.land = function(x) {
-    if (!arguments.length) return land_style;
-    land_style = x;
-    return chart;
-  };
-  
-  chart.water = function(x) {
-    if (!arguments.length) return water_color;
-    water_color = x;
-    return chart;
-  };
-  
-  chart.terrain = function(x) {
+  chart.tiles = function(x) {
     if (!arguments.length) return terrain;
     terrain = x;
     return chart;
