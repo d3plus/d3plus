@@ -18,12 +18,10 @@ vizwhiz.viz.pie_scatter = function() {
     id_var = null,
     text_var = null,
     xaxis_var = null,
-    xaxis_label = "",
     yaxis_var = null,
-    yaxis_label = "",
-    size_var = null,
     nesting = [],
     filter = [],
+    solo = [],
     stroke = 2,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
   
@@ -49,8 +47,13 @@ vizwhiz.viz.pie_scatter = function() {
       // first clone input so we know we are working with fresh data
       var cloned_data = JSON.parse(JSON.stringify(data));
       // nest the flat data by nesting array
+      // console.log(value_var)
+      // value_var = "val_kg"
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, true,
-          [{"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
+          [{"key":value_var, "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
+      
+      // console.log(nested_data)
+      // return
       
       size = {
         "width": width-margin.left-margin.right,
@@ -84,7 +87,7 @@ vizwhiz.viz.pie_scatter = function() {
           .attr('height', size.height)
       
       size_scale
-        .domain(d3.extent(nested_data, function(d){ return d[size_var]; }))
+        .domain(d3.extent(nested_data, function(d){ return d[value_var]; }))
         .range([10, d3.min([width,height])/10])
         .nice()
 
@@ -131,7 +134,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
-        .text(xaxis_label)
+        .text(xaxis_var)
       
       // update label
       d3.select(".axis_title_x")
@@ -178,7 +181,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
-        .text(yaxis_label)
+        .text(yaxis_var)
         
       // update label
       d3.select(".axis_title_y")
@@ -197,32 +200,50 @@ vizwhiz.viz.pie_scatter = function() {
         .startAngle(0)
       
       var has_children = nested_data[0].num_children ? true : false;
+      // console.log(nested_data)
       
       // filter data AFTER axis have been set
       nested_data = nested_data.filter(function(d){
+        
         // if this items name is in the filter list, remove it
         if(filter.indexOf(d.name) > -1){
           return false
         }
+        
         // if any of this item's parents are in the filter list, remove it
         for(var i = 0; i < nesting.length; i++){
           if(filter.indexOf(d[nesting[i]]) > -1){
             return false;
           }
         }
-        return true
+        
+        if(!solo.length){
+          return true
+        }
+        
+        if(solo.indexOf(d.name) > -1){
+          return true;
+        }
+
+        // if any of this item's parents are in the filter list, remove it
+        for(var i = 0; i < nesting.length; i++){
+          if(solo.indexOf(d[nesting[i]]) > -1){
+            return true;
+          }
+        }
+        
+        return false;
       })
       
       // sort nodes so that smallest are always on top
       nested_data.sort(function(node_a, node_b){
-        return node_b[size_var] - node_a[size_var];
+        return node_b[value_var] - node_a[value_var];
       })
       
       var nodes = d3.select("g.viz")
         .selectAll("g.circle")
         .data(nested_data, function(d){ return d.name; })
       
-      console.log(x_scale.range())
       var nodes_enter = nodes.enter().append("g")
         .attr("opacity", 0)
         .attr("class", "circle")
@@ -241,7 +262,7 @@ vizwhiz.viz.pie_scatter = function() {
           return d.active ? 0.75 : 0.25;
         })
         .attr("r", function(d){ 
-          return size_scale(d[size_var]);
+          return size_scale(d[value_var]);
         })
 
       nodes_enter
@@ -257,7 +278,7 @@ vizwhiz.viz.pie_scatter = function() {
       nodes.selectAll("circle")
         .style('fill', function(d){ return d.color })
         .attr("r", function(d){ 
-          return size_scale(d[size_var]);
+          return size_scale(d[value_var]);
         })
       
       nodes.selectAll("path")
@@ -265,7 +286,7 @@ vizwhiz.viz.pie_scatter = function() {
           var angle = 0, radius = 0;
           if(d.num_children){
             angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
-            radius = size_scale(d[size_var]);
+            radius = size_scale(d[value_var]);
           }
           return arc.endAngle(angle).outerRadius(radius)(d);
         })
@@ -335,57 +356,6 @@ vizwhiz.viz.pie_scatter = function() {
 
     return chart;
   }
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Nest data function (needed for getting flat data ready for stacks)
-  //-------------------------------------------------------------------
-  
-  function nest_data(xaxis_vals, data){
-    var nest_key = nesting[nesting.length-1];
-    var info_lookup = {};
-    
-    var nested = d3.nest()
-      .key(function(d){ return d[nest_key]; })
-      .rollup(function(leaves){
-        info_lookup[leaves[0][nest_key]] = JSON.parse(JSON.stringify(leaves[0]))
-        delete info_lookup[leaves[0][nest_key]][xaxis_var]
-        delete info_lookup[leaves[0][nest_key]][value_var]
-        
-        var values = d3.nest()
-          .key(function(d){ return d.year; })
-          .rollup(function(l) { return d3.sum(l, function(d){ return d[value_var]})})
-          .entries(leaves)
-        
-        // Make sure all years at least have 0 values
-        years_available = values
-          .reduce(function(a, b){ return a.concat(b.key)}, [])
-          .filter(function(y, i, arr) { return arr.indexOf(y) == i })
-        
-        xaxis_vals.forEach(function(y){
-          if(years_available.indexOf(""+y) < 0){
-            values.push({"key": ""+y, "values": 0})
-          }
-        })
-
-        return values.sort(function(a,b){return a.key-b.key;});
-      })
-      .entries(data)
-    
-    nested.forEach(function(d, i){
-      d["total"] = d3.sum(d.values, function(dd){ return dd.values; })
-      nested[i] = vizwhiz.utils.merge(d, info_lookup[d.key]);
-    })
-    return nested
-    
-    return nested.sort(function(a,b){
-      if(a[sort]<b[sort]) return -1;
-      if(a[sort]>b[sort]) return 1;
-      return 0;
-    });
-    
-  }
-
-  //===================================================================
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Hover over nodes
@@ -395,7 +365,7 @@ vizwhiz.viz.pie_scatter = function() {
 
       return function(d){
       
-        var radius = size_scale(d[size_var]),
+        var radius = size_scale(d[value_var]),
             x = x_scale(d[xaxis_var]),
             y = y_scale(d[yaxis_var]),
             color = d.color;
@@ -585,27 +555,9 @@ vizwhiz.viz.pie_scatter = function() {
     return chart;
   };
   
-  chart.xaxis_label = function(x) {
-    if (!arguments.length) return xaxis_label;
-    xaxis_label = x;
-    return chart;
-  };
-  
   chart.yaxis_var = function(x) {
     if (!arguments.length) return yaxis_var;
     yaxis_var = x;
-    return chart;
-  };
-  
-  chart.yaxis_label = function(x) {
-    if (!arguments.length) return yaxis_label;
-    yaxis_label = x;
-    return chart;
-  };
-  
-  chart.size_var = function(x) {
-    if (!arguments.length) return size_var;
-    size_var = x;
     return chart;
   };
   
@@ -630,6 +582,26 @@ vizwhiz.viz.pie_scatter = function() {
       // element not in current filter so add it
       else {
         filter.push(x)
+      }
+    }
+    return chart;
+  };
+  
+  chart.solo = function(x) {
+    if (!arguments.length) return solo;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      solo = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+      }
+      // element not in current filter so add it
+      else {
+        solo.push(x)
       }
     }
     return chart;

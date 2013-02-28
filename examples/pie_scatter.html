@@ -31,6 +31,7 @@ d3.json("data/products_mg.json", function(flat_data){
 
     flat_data.map(function(d, i){
       d.value = d.val_usd;
+      d.val_kg = d.val_kg;
       d.active = Math.floor(Math.random()*2);
       d.nesting_0 = attrs[d.id.slice(0, 2)].name;
       d.nesting_1 = attrs[d.id.slice(0, 4)].name;
@@ -41,11 +42,9 @@ d3.json("data/products_mg.json", function(flat_data){
     viz
       .text_var("name")
       .id_var("id")
-      .xaxis_label("Distance")
       .xaxis_var("distance")
-      .yaxis_label("Complexity")
       .yaxis_var("complexity")
-      .size_var("value")
+      .value_var("value")
       .nesting(["nesting_0", "nesting_1"])
 
     d3.select("#viz")
