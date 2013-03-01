@@ -593,8 +593,13 @@ vizwhiz.viz.network = function() {
           .attr("y", function(e) { return scale.y(e.y)-(text.node().getBBox().height/2); })
                   
         var w = text.node().getBBox().width+5
-        bg.attr("width",w)
-          .attr("x", function(e) { return scale.x(e.x)-(w/2); })
+        var value = data[d[id_var]][value_var]
+        var size = value > 0 ? scale.size(value) : scale.size(val_range[0])
+        if (w < size*2) {
+          bg.remove();
+        } else {
+          bg.attr("width",w).attr("x", function(e) { return scale.x(e.x)-(w/2); });
+        }
       }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
