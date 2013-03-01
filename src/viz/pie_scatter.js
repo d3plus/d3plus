@@ -51,16 +51,12 @@ vizwhiz.viz.pie_scatter = function() {
       // value_var = "val_kg"
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, true,
           [{"key":value_var, "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
-      
-      // console.log(nested_data)
-      // return
-      
-      size = {
-        "width": width-margin.left-margin.right,
-        "height": height-margin.top-margin.bottom,
-        "x": margin.left,
-        "y": margin.top
-      }
+
+      // update size
+      size.width = width-margin.left-margin.right;
+      size.height = height-margin.top-margin.bottom;
+      size.x = margin.left;
+      size.y = margin.top;
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);

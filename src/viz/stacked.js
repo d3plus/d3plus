@@ -18,10 +18,9 @@ vizwhiz.viz.stacked = function() {
     id_var = null,
     text_var = null,
     xaxis_var = null,
-    xaxis_label = "",
-    yaxis_label = "",
     nesting = [],
     filter = [],
+    solo = [],
     layout = "value",
     title = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
@@ -47,7 +46,19 @@ vizwhiz.viz.stacked = function() {
             return false;
           }
         }
-        return true
+        
+        if(!solo.length){
+          return true
+        }
+
+        // if any of this item's parents are in the filter list, remove it
+        for(var i = 0; i < nesting.length; i++){
+          if(solo.indexOf(d[nesting[i]]) > -1){
+            return true;
+          }
+        }
+        
+        return false;
       })
       
       // get unique values for xaxis
@@ -100,7 +111,6 @@ vizwhiz.viz.stacked = function() {
       
       // container for the visualization
       var viz_enter = svg_enter.append("g").attr("class", "viz")
-        .attr("transform", "translate(" + size.x + "," + size.y + ")")
 
       // add grey background for viz
       viz_enter.append("rect")
@@ -108,19 +118,21 @@ vizwhiz.viz.stacked = function() {
         .style('stroke-width',1)
         .style('fill','#efefef')
         .attr("class","background")
-        .attr('width', size.width)
-        .attr('height', size.height)
         .attr('x',0)
         .attr('y',0)
+      
+      // update (in case width and height are changed)
+      d3.select(".viz")
+        .attr("transform", "translate(" + size.x + "," + size.y + ")")
+        .select("rect")
+          .attr('width', size.width)
+          .attr('height', size.height)
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // TITLE
       //-------------------------------------------------------------------
       
       svg_enter.append("text")
-        .attr('width', size.width)
-        .attr('x', (size.width/2) + margin.left) 
-        .attr('y', margin.top/2)
         .attr('class', 'title')
         .attr("text-anchor", "middle")
         .style("font-weight", "bold")
@@ -128,7 +140,11 @@ vizwhiz.viz.stacked = function() {
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c");
         
-      d3.select(".title").text(title);
+      d3.select(".title")
+        .attr('width', size.width)
+        .attr('x', (size.width/2) + margin.left) 
+        .attr('y', margin.top/2)
+        .text(title);
       
       //===================================================================
       
@@ -136,26 +152,30 @@ vizwhiz.viz.stacked = function() {
       // X AXIS
       //-------------------------------------------------------------------
       
-      // enter
+      // enter axis ticks
       var xaxis_enter = viz_enter.append("g")
         .attr("class", "xaxis")
+      
+      // update axis ticks
+      d3.select(".xaxis")
         .attr("transform", "translate(0," + size.height + ")")
+        .call(x_axis.scale(x_scale))
       
-      // update
-      d3.select(".xaxis").call(x_axis.scale(x_scale).ticks(xaxis_vals.length))
-      
-      // label
+      // enter label
       xaxis_enter.append('text')
-        .attr('width', size.width)
-        .attr('x', size.width/2)
+        .attr('class', 'axis_title_x')
         .attr('y', 60)
-        .attr('class', 'axis_title x')
         .attr("text-anchor", "middle")
         .style("font-weight", "bold")
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
-        .text(xaxis_label)
+        .text(xaxis_var)
+      
+      // update label
+      d3.select(".axis_title_x")
+        .attr('width', size.width)
+        .attr('x', size.width/2)
       
       //===================================================================
       
@@ -170,17 +190,24 @@ vizwhiz.viz.stacked = function() {
       // update
       d3.select(".yaxis").call(y_axis.scale(y_scale))
       
+      // also update background tick lines
+      d3.selectAll(".y_bg_line")
+        .attr("x2", size.width)
+      
       // label
       yaxis_enter.append('text')
-        .attr('width', size.width)
-        .attr('class', 'axis_title y')
+        .attr('class', 'axis_title_y')
         .attr("text-anchor", "middle")
         .style("font-weight", "bold")
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
+        .text(value_var)
+      
+      // update label
+      d3.select(".axis_title_y")
+        .attr('width', size.width)
         .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
-        .text(yaxis_label)
       
       //===================================================================
       
@@ -281,16 +308,6 @@ vizwhiz.viz.stacked = function() {
         .style("font-weight","bold")
         .attr("font-size","14px")
         .attr("font-family","Helvetica")
-        .attr("x", function(d){
-          var pad = 0;
-          // determine the index of the tallest item
-          var values_index = d.values.indexOf(d.tallest)
-          // if first, push it off 10 pixels from left side
-          if(values_index == 0) pad += 10;
-          // if last, push it off 10 pixels from right side
-          if(values_index == d.values.length-1) pad -= 10;
-          return x_scale(d.tallest.key) + pad;
-        })
         .attr("dy", 6)
         .attr("text-anchor", function(d){
           // determine the index of the tallest item
@@ -305,18 +322,25 @@ vizwhiz.viz.stacked = function() {
         .attr("fill", function(d){
           return "white"
         })
-        .text(function(d) {
-          return d[nesting[nesting.length-1]]
-        })
       
       // UPDATE
       texts
+        .attr("x", function(d){
+          var pad = 0;
+          // determine the index of the tallest item
+          var values_index = d.values.indexOf(d.tallest)
+          // if first, push it off 10 pixels from left side
+          if(values_index == 0) pad += 10;
+          // if last, push it off 10 pixels from right side
+          if(values_index == d.values.length-1) pad -= 10;
+          return x_scale(d.tallest.key) + pad;
+        })
         .attr("y", function(d){
           var height = size.height - y_scale(d.tallest.y);
-          if(d.id == 178701){
-            console.log(d.tallest.y0, d.tallest.y, height, y_scale.domain())
-          }
           return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
+        })
+        .text(function(d) {
+          return d[nesting[nesting.length-1]]
         })
         .each(function(d){
           // set usable width to 2x the width of each x-axis tick
@@ -328,7 +352,16 @@ vizwhiz.viz.stacked = function() {
             // figure out the usable height for this location along x-axis
             var height = size.height-y_scale(d.tallest.y)
             // wrap text WITHOUT resizing
-            vizwhiz.utils.wordWrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
+            // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
+            
+            vizwhiz.utils.wordwrap({
+              "text": d[nesting[nesting.length-1]],
+              "parent": this,
+              "width": tick_width,
+              "height": height,
+              "resize": false
+            })
+            
             // reset Y to compensate for new multi-line height
             var offset = (height - this.getBBox().height) / 2;
             // top of the element's y attr
@@ -349,10 +382,13 @@ vizwhiz.viz.stacked = function() {
         .style('stroke-width',1*2)
         .style('fill','none')
         .attr('class', "border")
-        .attr('width', size.width)
-        .attr('height', size.height)
         .attr('x',0)
         .attr('y',0)
+      
+      // update (in case width and height are changed)
+      d3.select(".border")
+        .attr('width', size.width)
+        .attr('height', size.height)
       
       // Always bring to front
       d3.select("rect.border").node().parentNode.appendChild(d3.select("rect.border").node())
@@ -465,7 +501,7 @@ vizwhiz.viz.stacked = function() {
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
       d3.select(this.parentNode).append("line")
-        .attr("class","tick_line")
+        .attr("class","y_bg_line")
         .attr("x1", 0+1)
         .attr("x2", 0+size.width-1)
         .attr("y1", 0)
@@ -512,6 +548,12 @@ vizwhiz.viz.stacked = function() {
     return chart;
   };
   
+  chart.xaxis_var = function(x) {
+    if (!arguments.length) return xaxis_var;
+    xaxis_var = x;
+    return chart;
+  };
+  
   chart.id_var = function(x) {
     if (!arguments.length) return id_var;
     id_var = x;
@@ -521,24 +563,6 @@ vizwhiz.viz.stacked = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return text_var;
     text_var = x;
-    return chart;
-  };
-  
-  chart.xaxis_var = function(x) {
-    if (!arguments.length) return xaxis_var;
-    xaxis_var = x;
-    return chart;
-  };
-  
-  chart.xaxis_label = function(x) {
-    if (!arguments.length) return xaxis_label;
-    xaxis_label = x;
-    return chart;
-  };
-  
-  chart.yaxis_label = function(x) {
-    if (!arguments.length) return yaxis_label;
-    yaxis_label = x;
     return chart;
   };
   
@@ -563,6 +587,26 @@ vizwhiz.viz.stacked = function() {
       // element not in current filter so add it
       else {
         filter.push(x)
+      }
+    }
+    return chart;
+  };
+  
+  chart.solo = function(x) {
+    if (!arguments.length) return solo;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      solo = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+      }
+      // element not in current filter so add it
+      else {
+        solo.push(x)
       }
     }
     return chart;
