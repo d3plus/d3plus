@@ -375,60 +375,7 @@ vizwhiz.viz.network = function() {
               .each(function(d){
                 var value = data[d[id_var]][value_var]
                 var size = value > 0 ? scale.size(value) : scale.size(val_range[0])
-                if (size > 6 && labels && clicked) {
-                  var bg = d3.select("g.highlight").append("rect")
-                    .datum(d)
-                    .attr("y", function(e) { return scale.y(e.y)-4; })
-                    .attr("height", "8px")
-                    .attr("rx",3)
-                    .attr("ry",3)
-                    .attr("stroke-width", function(d){
-                      if(data[d[id_var]].active) return 2;
-                      else return 1;
-                    })
-                    .call(node_color)
-                    .on(vizwhiz.evt.over, function(d){
-                      d3.select(this).style("cursor","pointer")
-                    })
-                    .on(vizwhiz.evt.click, function(d){
-                      highlight = d[id_var];
-                      zoom(highlight);
-                      update();
-                    })
-                  var text = d3.select("g.highlight").append("text")
-                    .datum(d)
-                    .attr("x", function(e) { return scale.x(e.x); })
-                    .attr("y", function(e) { return scale.y(e.y); })
-                    .attr("fill", function(e) { 
-                      return d3.hsl(bg.attr("fill")).l >= 0.6 ? "#333" : "#fff";
-                    })
-                    .attr("font-size","4px")
-                    .attr("text-anchor","middle")
-                    .attr("font-family","Helvetica")
-                    .style("font-weight","bold")
-                    .each(function(e){
-                      vizwhiz.utils.wordwrap({
-                        "text": data[e[id_var]][text_var],
-                        "parent": this,
-                        "width": 50,
-                        "height": 10
-                      });
-                    })
-                    .on(vizwhiz.evt.over, function(d){
-                      d3.select(this).style("cursor","pointer")
-                    })
-                    .on(vizwhiz.evt.click, function(d){
-                      highlight = d[id_var];
-                      zoom(highlight);
-                      update();
-                    })
-                    
-                  text.select("tspan").attr("dy","0.35em")
-                  
-                  var w = text.node().getBBox().width+5
-                  bg.attr("width",w)
-                    .attr("x", function(e) { return scale.x(e.x)-(w/2); })
-                }
+                if (size > 6 && labels && clicked) create_label(d);
               });
           
           // Draw Main Center Node and BG
@@ -458,6 +405,7 @@ vizwhiz.viz.network = function() {
                   update();
                 }
               })
+              .each(function(d){ if (labels && clicked) create_label(d); });
             
               
           // Draw Info Panel
@@ -580,6 +528,73 @@ vizwhiz.viz.network = function() {
           node.call(node_color)
         }
         
+      }
+      
+      function create_label(d) {
+        var bg = d3.select("g.highlight").append("rect")
+          .datum(d)
+          .attr("y", function(e) { return scale.y(e.y)-5; })
+          .attr("height", "10px")
+          .attr("rx",3)
+          .attr("ry",3)
+          .attr("stroke-width", function(d){
+            if(data[d[id_var]].active) return 2;
+            else return 1;
+          })
+          .call(node_color)
+          .on(vizwhiz.evt.over, function(d){
+            d3.select(this).style("cursor","pointer")
+          })
+          .on(vizwhiz.evt.click, function(d){
+            if (d[id_var] == highlight) {
+              highlight = null;
+              zoom("reset");
+              update();
+            } else {
+              highlight = d[id_var];
+              zoom(highlight);
+              update();
+            }
+          })
+        var text = d3.select("g.highlight").append("text")
+          .datum(d)
+          .attr("x", function(e) { return scale.x(e.x); })
+          .attr("fill", function(e) { 
+            return d3.hsl(bg.attr("fill")).l >= 0.5 ? "#333" : "#fff";
+          })
+          .attr("font-size","3px")
+          .attr("text-anchor","middle")
+          .attr("font-family","Helvetica")
+          .style("font-weight","bold")
+          .each(function(e){
+            vizwhiz.utils.wordwrap({
+              "text": data[e[id_var]][text_var],
+              "parent": this,
+              "width": 60,
+              "height": 10
+            });
+          })
+          .on(vizwhiz.evt.over, function(d){
+            d3.select(this).style("cursor","pointer")
+          })
+          .on(vizwhiz.evt.click, function(d){
+            if (d[id_var] == highlight) {
+              highlight = null;
+              zoom("reset");
+              update();
+            } else {
+              highlight = d[id_var];
+              zoom(highlight);
+              update();
+            }
+          })
+                    
+        text
+          .attr("y", function(e) { return scale.y(e.y)-(text.node().getBBox().height/2); })
+                  
+        var w = text.node().getBBox().width+5
+        bg.attr("width",w)
+          .attr("x", function(e) { return scale.x(e.x)-(w/2); })
       }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
