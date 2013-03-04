@@ -16,6 +16,7 @@ body {
 <script src="../lib/modernizr.custom.js"></script>
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
+<script src="../src/tooltip.js"></script>
 <script src="../src/viz/pie_scatter.js"></script>
 
 <script>
@@ -46,6 +47,7 @@ d3.json("data/products_mg.json", function(flat_data){
       .yaxis_var("complexity")
       .value_var("value")
       .nesting(["nesting_0", "nesting_1"])
+      .tooltip_info(["distance", "complexity", "value"])
 
     d3.select("#viz")
       .datum(flat_data)

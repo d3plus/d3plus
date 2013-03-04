@@ -22,8 +22,7 @@ vizwhiz.viz.pie_scatter = function() {
     nesting = [],
     filter = [],
     solo = [],
-    stroke = 2,
-    dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
+    tooltip_info = [];
   
   //===================================================================
   
@@ -33,7 +32,8 @@ vizwhiz.viz.pie_scatter = function() {
   
   var x_scale = d3.scale.linear(),
     y_scale = d3.scale.linear(),
-    size_scale = d3.scale.linear();
+    size_scale = d3.scale.linear(),
+    stroke = 2;
 
   //===================================================================
 
@@ -196,7 +196,6 @@ vizwhiz.viz.pie_scatter = function() {
         .startAngle(0)
       
       var has_children = nested_data[0].num_children ? true : false;
-      // console.log(nested_data)
       
       // filter data AFTER axis have been set
       nested_data = nested_data.filter(function(d){
@@ -246,6 +245,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
         .on(vizwhiz.evt.over, hover(x_scale, y_scale, size_scale, size))
         .on(vizwhiz.evt.out, function(){
+          vizwhiz.tooltip.remove();
           d3.selectAll(".axis_hover").remove();
         })
       
@@ -346,6 +346,9 @@ vizwhiz.viz.pie_scatter = function() {
           return x_scale(d[xaxis_var])
         })
       
+      // EXIT (needed for when things are filtered/soloed)
+      ticks.exit().remove()
+      
       //===================================================================
       
     });
@@ -360,24 +363,41 @@ vizwhiz.viz.pie_scatter = function() {
   function hover(x_scale, y_scale, size_scale, xsize){
 
       return function(d){
-      
+        
         var radius = size_scale(d[value_var]),
             x = x_scale(d[xaxis_var]),
             y = y_scale(d[yaxis_var]),
-            color = d.color;
+            color = d.color,
+            viz = d3.select("g.viz"),
+            tooltip_data = {};
+      
+        tooltip_info.forEach(function(t){
+          if (d[t]) tooltip_data[t] = d[t]
+        })
+      
+        vizwhiz.tooltip.create({
+          "svg": viz,
+          "id": d.id,
+          "data": tooltip_data,
+          "title": d[text_var],
+          "x": x,
+          "y": y,
+          "offset": radius,
+          "arrow": true
+        })
       
         // vertical line to x-axis
-        d3.select("g.viz").append("line")
+        viz.append("line")
           .attr("class", "axis_hover")
           .attr("x1", x)
           .attr("x2", x)
-          .attr("y1", y+radius) // offset so hover doens't flicker
+          .attr("y1", y+radius+stroke) // offset so hover doens't flicker
           .attr("y2", xsize.height)
           .attr("stroke", color)
           .attr("stroke-width", stroke)
       
         // horizontal line to y-axis
-        d3.select("g.viz").append("line")
+        viz.append("line")
           .attr("class", "axis_hover")
           .attr("x1", 0)
           .attr("x2", x-radius) // offset so hover doens't flicker
@@ -387,7 +407,7 @@ vizwhiz.viz.pie_scatter = function() {
           .attr("stroke-width", stroke)
       
         // x-axis value box
-        d3.select("g.viz").append("rect")
+        viz.append("rect")
           .attr("class", "axis_hover")
           .attr("x", x-25)
           .attr("y", size.height)
@@ -398,7 +418,7 @@ vizwhiz.viz.pie_scatter = function() {
           .attr("stroke-width", stroke)
       
         // xvalue text element
-        d3.select("g.viz").append("text")
+        viz.append("text")
           .attr("class", "axis_hover")
           .attr("x", x)
           .attr("y", size.height)
@@ -411,7 +431,7 @@ vizwhiz.viz.pie_scatter = function() {
           .text(vizwhiz.utils.format_num(d[xaxis_var], false, 3, true))
       
         // y-axis value box
-        d3.select("g.viz").append("rect")
+        viz.append("rect")
           .attr("class", "axis_hover")
           .attr("x", -50)
           .attr("y", y-10)
@@ -422,7 +442,7 @@ vizwhiz.viz.pie_scatter = function() {
           .attr("stroke-width", stroke)
       
         // xvalue text element
-        d3.select("g.viz").append("text")
+        viz.append("text")
           .attr("class", "axis_hover")
           .attr("x", -25)
           .attr("y", y-10)
@@ -513,8 +533,6 @@ vizwhiz.viz.pie_scatter = function() {
   // Expose Public Variables
   //-------------------------------------------------------------------
 
-  chart.dispatch = dispatch;
-
   chart.width = function(x) {
     if (!arguments.length) return width;
     width = x;
@@ -560,6 +578,12 @@ vizwhiz.viz.pie_scatter = function() {
   chart.nesting = function(x) {
     if (!arguments.length) return nesting;
     nesting = x;
+    return chart;
+  };
+
+  chart.tooltip_info = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
     return chart;
   };
 

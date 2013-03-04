@@ -14,6 +14,7 @@ vizwhiz.viz.tree_map = function() {
     nesting = null,
     filter = [],
     solo = [],
+    tooltip_info = [],
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
   
   //===================================================================
@@ -166,6 +167,10 @@ vizwhiz.viz.tree_map = function() {
           // if a color cannot be found (at this depth of deeper) use random
           return d.color ? d.color : vizwhiz.utils.rand_color();
         })
+        .on(vizwhiz.evt.move, mouseover)
+        .on(vizwhiz.evt.out, function(d){
+          vizwhiz.tooltip.remove();
+        })
       
       // text (name)
       cell_enter.append("text")
@@ -180,6 +185,10 @@ vizwhiz.viz.tree_map = function() {
         .attr("fill", function(d){
           if(d.text_color) return d.text_color
           return d3.hsl(d.color).l >= 0.5 ? "#333" : "#fff";
+        })
+        .on(vizwhiz.evt.move, mouseover)
+        .on(vizwhiz.evt.out, function(d){
+          vizwhiz.tooltip.remove();
         })
         .each(function(d){
           if(d[text_var]){
@@ -239,14 +248,26 @@ vizwhiz.viz.tree_map = function() {
     return chart;
   }
   
+  function mouseover(d){
+    // tooltip
+    var svg = d3.select("svg");
+    var tooltip_data = {}
+    tooltip_info.forEach(function(t){
+      if (d[t]) tooltip_data[t] = d[t]
+    })
+    vizwhiz.tooltip.create({
+      "svg": svg,
+      "id": d.id,
+      "data": tooltip_data,
+      "title": d[text_var],
+      "x": d3.mouse(svg.node())[0],
+      "y": d3.mouse(svg.node())[1],
+      "offset": 10,
+      "arrow": true
+    })
+  }
+  
   function filter_data(d){
-    // if(d.children && d.children.length){
-    //   d.children = d.children.filter(filter_data);
-    // }
-    // if(filter.indexOf(d.name) > -1){
-    //   return false
-    // }
-    // return true;
     
     // if this items name is in the filter list, remove it
     if(filter.indexOf(d.name) > -1){
@@ -304,6 +325,12 @@ vizwhiz.viz.tree_map = function() {
   chart.nesting = function(x) {
     if (!arguments.length) return nesting;
     nesting = x;
+    return chart;
+  };
+  
+  chart.tooltip_info = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
     return chart;
   };
   

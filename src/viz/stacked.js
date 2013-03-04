@@ -24,6 +24,7 @@ vizwhiz.viz.stacked = function() {
     layout = "value",
     sort = "total",
     sort_order = "asc",
+    tooltip_info = [],
     title = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
@@ -112,7 +113,10 @@ vizwhiz.viz.stacked = function() {
         .attr('height',height)
       
       // container for the visualization
-      var viz_enter = svg_enter.append("g").attr("class", "viz")
+      var viz_enter = svg_enter.append("g")
+        .attr("class", "viz")
+        .attr("width", size.width)
+        .attr("height", size.height)
 
       // add grey background for viz
       viz_enter.append("rect")
@@ -254,15 +258,45 @@ vizwhiz.viz.stacked = function() {
           return area(d.values);
         });
       // mouseover
-      paths.on(vizwhiz.evt.over, function(d){
-          this.parentNode.appendChild(this)
-          d3.select(this)
-            .attr("stroke", "black")
+      paths.on(vizwhiz.evt.move, function(d){
+        d3.selectAll("line.rule").remove();
+        var mouse_x = d3.mouse(this)[0];
+        var rev_x_scale = d3.scale.linear()
+          .domain(x_scale.range()).range(x_scale.domain());
+        var this_x = Math.round(rev_x_scale(mouse_x));
+        var this_x_index = xaxis_vals.indexOf(this_x)
+        var this_value = d.values[this_x_index]
+        // add dashed line at closest X position to mouse location
+        d3.select("g.viz").append("line")
+          .attr("class", "rule")
+          .attr({"x1": x_scale(this_x), "x2": x_scale(this_x)})
+          .attr({"y1": y_scale(this_value.y0), "y2": y_scale(this_value.y + this_value.y0)})
+          .attr("stroke", "white")
+          .attr("stroke-width", 2)
+          .attr("stroke-opacity", 0.75)
+          .attr("stroke-dasharray", "5,3")
+        
+        // tooltip
+        var tooltip_data = {}
+        tooltip_data["Value ("+this_x+")"] = this_value.values;
+        tooltip_info.forEach(function(t){
+          if (d[t]) tooltip_data[t] = d[t]
         })
-        .on(vizwhiz.evt.out, function(d){
-            d3.select(this)
-              .attr("stroke", "white")
-          })
+        
+        vizwhiz.tooltip.create({
+          "svg": d3.select("g.viz"),
+          "id": d.id,
+          "data": tooltip_data,
+          "title": d[nesting[nesting.length-1]],
+          "x": x_scale(this_x),
+          "y": y_scale(this_value.y0 + this_value.y),
+          "offset": 8,
+          "arrow": true
+        })
+      })
+      .on(vizwhiz.evt.out, function(d){
+        vizwhiz.tooltip.remove()
+      })
       
       // EXIT
       paths.exit()
@@ -646,6 +680,12 @@ vizwhiz.viz.stacked = function() {
   chart.sort_order = function(x) {
     if (!arguments.length) return sort_order;
     sort_order = x;
+    return chart;
+  };
+  
+  chart.tooltip_info = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
     return chart;
   };
 

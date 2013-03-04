@@ -16,6 +16,7 @@ body {
 <script src="../lib/modernizr.custom.js"></script>
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
+<script src="../src/tooltip.js"></script>
 <script src="../src/viz/tree_map.js"></script>
 <script>
 
@@ -44,6 +45,7 @@ d3.json("data/products_mg.json", function(raw_data){
       .text_var("name")
       .id_var("id")
       .nesting(["nesting_0", "nesting_1", "nesting_2"])
+      .tooltip_info(["distance", "complexity", "value"])
 
       d3.select("#viz")
         .datum(flat_data)
