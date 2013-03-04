@@ -22,6 +22,8 @@ vizwhiz.viz.stacked = function() {
     filter = [],
     solo = [],
     layout = "value",
+    sort = "total",
+    sort_order = "asc",
     title = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
@@ -439,11 +441,12 @@ vizwhiz.viz.stacked = function() {
       d["total"] = d3.sum(d.values, function(dd){ return dd.values; })
       nested[i] = vizwhiz.utils.merge(d, info_lookup[d.key]);
     })
-    return nested
+    // return nested
     
     return nested.sort(function(a,b){
-      if(a[sort]<b[sort]) return -1;
-      if(a[sort]>b[sort]) return 1;
+      // console.log(a)
+      if(a[sort]<b[sort]) return sort_order == "desc" ? -1 : 1;
+      if(a[sort]>b[sort]) return sort_order == "desc" ? 1 : -1;
       return 0;
     });
     
@@ -584,6 +587,11 @@ vizwhiz.viz.stacked = function() {
       if(filter.indexOf(x) > -1){
         filter.splice(filter.indexOf(x), 1)
       }
+      // if element is in the solo array remove it and add to this one
+      else if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+        filter.push(x)
+      }
       // element not in current filter so add it
       else {
         filter.push(x)
@@ -604,6 +612,11 @@ vizwhiz.viz.stacked = function() {
       if(solo.indexOf(x) > -1){
         solo.splice(solo.indexOf(x), 1)
       }
+      // if element is in the filter array remove it and add to this one
+      else if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+        solo.push(x)
+      }
       // element not in current filter so add it
       else {
         solo.push(x)
@@ -621,6 +634,18 @@ vizwhiz.viz.stacked = function() {
   chart.title = function(x) {
     if (!arguments.length) return title;
     title = x;
+    return chart;
+  };
+  
+  chart.sort = function(x) {
+    if (!arguments.length) return sort;
+    sort = x;
+    return chart;
+  };
+  
+  chart.sort_order = function(x) {
+    if (!arguments.length) return sort_order;
+    sort_order = x;
     return chart;
   };
 

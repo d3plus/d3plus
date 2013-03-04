@@ -13,6 +13,7 @@ vizwhiz.viz.tree_map = function() {
     text_var = "name",
     nesting = null,
     filter = [],
+    solo = [],
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
   
   //===================================================================
@@ -24,9 +25,6 @@ vizwhiz.viz.tree_map = function() {
       
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, false, [{"key":"color"}])
       nested_data.children = nested_data.children.filter(filter_data)
-      // console.log(nested_data)
-      // return
-      
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
@@ -238,18 +236,32 @@ vizwhiz.viz.tree_map = function() {
       
     });
 
-
     return chart;
   }
   
   function filter_data(d){
-    if(d.children && d.children.length){
-      d.children = d.children.filter(filter_data);
-    }
+    // if(d.children && d.children.length){
+    //   d.children = d.children.filter(filter_data);
+    // }
+    // if(filter.indexOf(d.name) > -1){
+    //   return false
+    // }
+    // return true;
+    
+    // if this items name is in the filter list, remove it
     if(filter.indexOf(d.name) > -1){
       return false
     }
-    return true;
+    
+    if(!solo.length){
+      return true
+    }
+    
+    if(solo.indexOf(d.name) > -1){
+      return true;
+    }
+    
+    return false;
   }
 
 
@@ -307,9 +319,39 @@ vizwhiz.viz.tree_map = function() {
       if(filter.indexOf(x) > -1){
         filter.splice(filter.indexOf(x), 1)
       }
+      // if element is in the solo array remove it and add to this one
+      else if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+        filter.push(x)
+      }
       // element not in current filter so add it
       else {
         filter.push(x)
+      }
+    }
+    return chart;
+  };
+  
+  chart.solo = function(x) {
+    if (!arguments.length) return solo;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      solo = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+      }
+      // if element is in the filter array remove it and add to this one
+      else if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+        solo.push(x)
+      }
+      // element not in current filter so add it
+      else {
+        solo.push(x)
       }
     }
     return chart;

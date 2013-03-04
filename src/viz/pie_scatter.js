@@ -575,6 +575,11 @@ vizwhiz.viz.pie_scatter = function() {
       if(filter.indexOf(x) > -1){
         filter.splice(filter.indexOf(x), 1)
       }
+      // if element is in the solo array remove it and add to this one
+      else if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+        filter.push(x)
+      }
       // element not in current filter so add it
       else {
         filter.push(x)
@@ -594,6 +599,11 @@ vizwhiz.viz.pie_scatter = function() {
       // if element is in the array remove it
       if(solo.indexOf(x) > -1){
         solo.splice(solo.indexOf(x), 1)
+      }
+      // if element is in the filter array remove it and add to this one
+      else if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+        solo.push(x)
       }
       // element not in current filter so add it
       else {
