@@ -172,19 +172,23 @@ vizwhiz.viz.geo_map = function() {
         
       scale.append("rect")
         .attr("width", info_width+"px")
-        .attr("height", (scale_height*3)+"px")
+        .attr("height", (scale_height*5)+"px")
         .attr("fill","#ffffff")
         .attr("rx",3)
         .attr("ry",3)
         .attr("stroke","#cccccc")
         .attr("stroke-width",2)
-        
-      scale.append("rect")
-        .attr("x",scale_padding+"px")
-        .attr("y","5px")
-        .attr("width", (info_width-(scale_padding*2))+"px")
-        .attr("height", scale_height+"px")
-        .style("fill", "url(#gradient)")
+            
+      scale.append("text")
+        .attr("id","scale_title")
+        .attr("x",(info_width/2)+"px")
+        .attr("y","0px")
+        .attr("dy","1.25em")
+        .attr("text-anchor","middle")
+        .attr("fill","#333")
+        .style("font-weight","bold")
+        .attr("font-size","12px")
+        .attr("font-family","Helvetica")
            
       data_range.forEach(function(v,i){
         if (i == data_range.length-1) {
@@ -196,18 +200,25 @@ vizwhiz.viz.geo_map = function() {
         }
         scale.append("rect")
           .attr("x", x+"px")
-          .attr("y", "5px")
+          .attr("y", (scale_height*2)+"px")
           .attr("width", 2)
-          .attr("height", scale_height+"px")
-          .style("fill", "#fff")
+          .attr("height", (scale_height*1.5)+"px")
+          .style("fill", "#333")
+        
+      scale.append("rect")
+        .attr("x",scale_padding+"px")
+        .attr("y",(scale_height*2)+"px")
+        .attr("width", (info_width-(scale_padding*2))+"px")
+        .attr("height", scale_height+"px")
+        .style("fill", "url(#gradient)")
             
         scale.append("text")
           .attr("id","scale_"+i)
           .attr("x",x+"px")
-          .attr("y", (scale_height+5)+"px")
+          .attr("y", ((scale_height*3)+5)+"px")
           .attr("dy","1em")
           .attr("text-anchor","middle")
-          .attr("fill","#000000")
+          .attr("fill","#333")
           .style("font-weight","bold")
           .attr("font-size","10px")
           .attr("font-family","Helvetica")
@@ -216,6 +227,7 @@ vizwhiz.viz.geo_map = function() {
       data_range.forEach(function(v,i){
         d3.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
       })
+      d3.select("text#scale_title").text(value_var)
         
       // Create Zoom Controls div on svg_enter
       d3.select(this_selection).select("div#zoom_controls").remove()
@@ -481,7 +493,8 @@ vizwhiz.viz.geo_map = function() {
             "title": data[highlight][text_var],
             "description": sub_title,
             "x": width,
-            "y": (scale_height*3)+10,
+            "y": 0,
+            "offset": (scale_height*5)+10,
             "width": info_width,
             "arrow": false
           })
@@ -491,7 +504,10 @@ vizwhiz.viz.geo_map = function() {
       }
 
       function tileUrl(d) {
-        return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.openstreetmap.org/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
+        // Standard OSM
+        // return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.openstreetmap.org/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
+        // Custom CloudMade
+        return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.cloudmade.com/c3cf91e1455249adaef26d096785dc90/88261/256/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
       }
       
       function update_tiles(image_timing) {
