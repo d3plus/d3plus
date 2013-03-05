@@ -515,6 +515,15 @@ vizwhiz.viz.stacked = function() {
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
+      // vertical lines up and down
+      d3.select(this.parentNode).append("line")
+        .attr("class","tick_line")
+        .attr("x1", 0)
+        .attr("x2", 0)
+        .attr("y1", 0-1)
+        .attr("y2", -size.height+1)
+        .attr("stroke", "#ccc")
+        .attr("stroke-width",1/2)
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
         .attr("x1", 0)
@@ -537,6 +546,7 @@ vizwhiz.viz.stacked = function() {
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
+      // horizontal lines across
       d3.select(this.parentNode).append("line")
         .attr("class","y_bg_line")
         .attr("x1", 0+1)
