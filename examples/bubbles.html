@@ -34,8 +34,9 @@
       var data = []
       raw_data.forEach(function(d){
         var obj = vizwhiz.utils.merge(d,attr[d.id])
-        obj.available = Math.random() < 0.5
-        obj.category = attr[d.id.substr(0,2)].name
+        obj.total = Math.floor(Math.random() * (800 - 2 + 1)) + 2;
+        obj.available = Math.ceil(obj.total * Math.random());
+        obj.category = attr[d.id.substr(0,2)].name;
         delete obj.year
         delete obj.attr_type
         data.push(obj)
@@ -47,7 +48,7 @@
         .id_var("id")
         .value_var("val_usd")
         .text_var("name")
-        .tooltip(["val_usd","val_quantity","val_kg"]);
+        .tooltip(["available","total","val_usd","val_quantity","val_kg"]);
           
       d3.select("#viz")
         .datum(data)

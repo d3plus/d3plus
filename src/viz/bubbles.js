@@ -154,17 +154,17 @@ vizwhiz.viz.bubbles = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New nodes and links enter, initialize them here
       //-------------------------------------------------------------------
+      
+      var arc = d3.svg.arc()
+        .innerRadius(0)
+        .startAngle(0)
 
-      var bubble = d3.select("g.bubbles").selectAll("circle")
+      var bubble = d3.select("g.bubbles").selectAll("g.bubble")
         .data(data, function(d) { return d[id_var] })
         
-      bubble.enter().append("circle")
-        .attr("fill", function(d){ return d.color; })
-        .attr("r",0)
-        .attr("cx", function(d){ return d.cx; })
-        .attr("cy", function(d){ return d.cy; })
-        .attr("stroke-width",2)
-        .attr("stroke", function(d){ return d.color; })
+      var bubble_enter = bubble.enter().append("g")
+        .attr("class", "bubble")
+        .attr("transform", function(d){ return "translate("+d.cx+","+d.cy+")"; })
         .on(vizwhiz.evt.over, function(d){
           
           var tooltip_data = {}
@@ -173,7 +173,7 @@ vizwhiz.viz.bubbles = function() {
           })
           
           vizwhiz.tooltip.create({
-            "svg": svg,
+            "parent": svg,
             "id": d[id_var],
             "data": tooltip_data,
             "title": d[text_var],
@@ -187,9 +187,24 @@ vizwhiz.viz.bubbles = function() {
         .on(vizwhiz.evt.out, function(d){
           vizwhiz.tooltip.remove(d[id_var])
         });
+        
+      bubble_enter.append("circle")
+        .attr("fill", function(d){ return d.color; })
+        .attr("r",0)
+        .attr("stroke-width",2)
+        .attr("stroke", function(d){ return d.color; });
+        
+      bubble_enter.append("path")
+        .attr("fill", function(d){ return d.color; })
+        .attr("d", function(d){
+          if(d.total){
+            var angle = (((d.available / d.total)*360) * (Math.PI/180));
+          } else var angle = 360; 
+          return arc.endAngle(angle).outerRadius(0)(d);
+        });
       
       var label = d3.select("g.labels").selectAll("text")
-        .data(d3.values(groups), function(d) { return d.name+d.x+d.y })
+        .data(d3.values(groups), function(d) { return d.name+d.cx+d.cy })
         
       label.enter().append("text")
         .attr("opacity",0)
@@ -224,11 +239,16 @@ vizwhiz.viz.bubbles = function() {
       // Update, for things that are already in existance
       //-------------------------------------------------------------------
         
-      bubble.transition().duration(timing)
+      bubble.selectAll("circle").transition().duration(timing)
         .attr("r", function(d){ return d.radius; })
-        .style('fill-opacity', function(d){
-          if (d.available) return 1
-          return 0.25
+        .style('fill-opacity', 0.25 );
+        
+      bubble.selectAll("path").transition().duration(timing)
+        .attr("d", function(d){
+          if(d.total){
+            var angle = (((d.available / d.total)*360) * (Math.PI/180));
+          } else var angle = 360; 
+          return arc.endAngle(angle).outerRadius(d.radius)(d);
         });
         
       label.transition().duration(timing/2)
@@ -252,7 +272,6 @@ vizwhiz.viz.bubbles = function() {
 
       bubble.exit().transition().duration(timing)
         .attr('opacity',0)
-        .attr('r',0)
         .remove()
 
       label.exit().transition().duration(timing/2)
@@ -294,8 +313,7 @@ vizwhiz.viz.bubbles = function() {
                 }
               }
             })
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; });
+            .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; });
             
         }).start()
         

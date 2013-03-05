@@ -4,8 +4,8 @@
 
 vizwhiz.tooltip.create = function(params) {
   
-  params.window_width = parseInt(params.svg.attr("width"),10);
-  params.window_height = parseInt(params.svg.attr("height"),10);
+  params.window_width = parseInt(params.parent.attr("width"),10);
+  params.window_height = parseInt(params.parent.attr("height"),10);
   params.width = params.width ? params.width : 200;
   params.offset = params.offset ? params.offset : 0;
   params.margin = 5;
@@ -14,7 +14,7 @@ vizwhiz.tooltip.create = function(params) {
   params.stroke_width = 2;
   params.id = params.id ? params.id : "default";
   
-  var group = params.svg.append("g")
+  var group = params.parent.append("g")
     .datum(params)
     .attr("class","vizwhiz_tooltip")
     .attr("id",function(d){ return "vizwhiz_tooltip_"+d.id; })
