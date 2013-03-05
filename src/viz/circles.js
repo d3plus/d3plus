@@ -17,6 +17,7 @@ vizwhiz.viz.circles = function() {
     value_var = "value",
     id_var = "id",
     text_var = "name",
+    center = null,
     nodes = [],
     links = [],
     connections = {},
@@ -52,13 +53,16 @@ vizwhiz.viz.circles = function() {
       var diagonal = d3.svg.diagonal.radial()
           .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
       
-      var root = get_root2(data)
-      // return
+      var root = get_root(data)
+      
       var tree_nodes = tree.nodes(root),
         tree_links = tree.links(tree_nodes);
-      // console.log(tree_links)
       
       //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // LINKS
+      //-------------------------------------------------------------------
       
       var link = d3.select(".viz").selectAll(".link")
           .data(tree_links)
@@ -68,6 +72,12 @@ vizwhiz.viz.circles = function() {
           .attr("stroke-width", "1.5")
           .attr("class", "link")
           .attr("d", diagonal);
+
+      //===================================================================
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // NODES
+      //-------------------------------------------------------------------
 
       var node = d3.select(".viz").selectAll(".node")
           .data(tree_nodes)
@@ -105,6 +115,12 @@ vizwhiz.viz.circles = function() {
         })
         .attr("stroke-width", "1.5")
         .attr("r", 4.5);
+
+      //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // TEXT
+      //-------------------------------------------------------------------
       
       node.append("text")
         .style("font", "10px sans-serif")
@@ -112,14 +128,16 @@ vizwhiz.viz.circles = function() {
         .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
         .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
         .text(function(d) { return d.name; });
+      
+      //===================================================================
+      
     });
 
     return chart;
   }
   
-  function get_root2(attr_lookup){
-    var prod = attr_lookup["168480"]
-    // console.log(prod)
+  function get_root(attr_lookup){
+    var prod = attr_lookup[center]
     
     var used = [prod],
       root = {
@@ -153,47 +171,6 @@ vizwhiz.viz.circles = function() {
     
     return root;
   }
-  
-  // function get_root(){
-  //   // var prod = "020910"; // ginger
-  //   // var prod = "157202"; // ferroalloys
-  //   // var prod = "178703"; // cars
-  //   var prod = "168480"
-  //   
-  //   var prod_id,
-  //     used = [prod],
-  //     prod_lookup = {},
-  //     node_lookup = {},
-  //     root = {
-  //       "name":"attr[prod].name",
-  //       "id": prod,
-  //       "children":[]
-  //     }
-  //   
-  //   links.nodes.forEach(function(l, i){
-  //     if(l.id == prod){
-  //       console.log(l)
-  //     }
-  //     node_lookup[i] = l.id;
-  //     prod_lookup[l.id] = i;
-  //   })
-  //   
-  //   edges = {}
-  //   links.edges.forEach(function(e, i){
-  //     var s = node_lookup[e.source]
-  //     var t = node_lookup[e.target]
-  //     if(!edges[s]){
-  //       edges[s] = []
-  //     }
-  //     edges[s].push({"id": s, "target":t, "strength":e.strength})
-  //     if(!edges[t]){
-  //       edges[t] = []
-  //     }
-  //     edges[t].push({"id": t, "target":s, "strength":e.strength})
-  //   })
-  //   
-  //   return root
-  // }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Expose Public Variables
@@ -238,6 +215,12 @@ vizwhiz.viz.circles = function() {
   chart.nodes = function(x) {
     if (!arguments.length) return nodes;
     nodes = x;
+    return chart;
+  };
+  
+  chart.center = function(x) {
+    if (!arguments.length) return center;
+    center = x;
     return chart;
   };
 

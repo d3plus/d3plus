@@ -49,6 +49,10 @@ d3.json("data/attr_hs.json", function(attr) {
         .nodes(viz_nodes)
         .links(viz_links)
         .value_var("value")
+        // .center("020910") // ginger
+        // .center("157202") // ferroalloys
+        // .center("178703") // cars
+        .center("168480")
         .tooltip_info(["distance", "complexity", "value"])
 
       d3.select("#viz")
