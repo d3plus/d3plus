@@ -512,7 +512,7 @@ vizwhiz.viz.network = function() {
           }
           
           vizwhiz.tooltip.create({
-            "svg": svg,
+            "parent": svg,
             "data": tooltip_data,
             "title": data[highlight][text_var],
             "description": sub_title,
