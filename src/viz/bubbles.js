@@ -164,7 +164,7 @@ vizwhiz.viz.bubbles = function() {
         
       var bubble_enter = bubble.enter().append("g")
         .attr("class", "bubble")
-        .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
+        .attr("transform", function(d){ return "translate("+d.cx+","+d.cy+")"; })
         .on(vizwhiz.evt.over, function(d){
           
           var tooltip_data = {}
@@ -195,10 +195,16 @@ vizwhiz.viz.bubbles = function() {
         .attr("stroke", function(d){ return d.color; });
         
       bubble_enter.append("path")
-        .attr("fill", function(d){ return d.color; });
+        .attr("fill", function(d){ return d.color; })
+        .attr("d", function(d){
+          if(d.total){
+            var angle = (((d.available / d.total)*360) * (Math.PI/180));
+          } else var angle = 360; 
+          return arc.endAngle(angle).outerRadius(0)(d);
+        });
       
       var label = d3.select("g.labels").selectAll("text")
-        .data(d3.values(groups), function(d) { return d.name+d.x+d.y })
+        .data(d3.values(groups), function(d) { return d.name+d.cx+d.cy })
         
       label.enter().append("text")
         .attr("opacity",0)
@@ -239,10 +245,9 @@ vizwhiz.viz.bubbles = function() {
         
       bubble.selectAll("path").transition().duration(timing)
         .attr("d", function(d){
-          var angle = 0;
           if(d.total){
-            angle = (((d.available / d.total)*360) * (Math.PI/180));
-          }
+            var angle = (((d.available / d.total)*360) * (Math.PI/180));
+          } else var angle = 360; 
           return arc.endAngle(angle).outerRadius(d.radius)(d);
         });
         
