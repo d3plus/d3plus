@@ -37,12 +37,45 @@ vizwhiz.viz.bubbles = function() {
         
       data.forEach(function(value,index){
         if (!groups[value[grouping]]) { 
-          groups[value[grouping]] = {"name": value[grouping], "value": 0, "x": 0, "y": 0, "width": 0, "height": 0}
+          groups[value[grouping]] = {
+                                      "name": value[grouping],
+                                      "value": 0,
+                                      "x": 0,
+                                      "y": 0,
+                                      "width": 0,
+                                      "height": 0,
+                                      "available": 0,
+                                      "total": 0
+                                   }
         }
         groups[value[grouping]].value += value[value_var] ? value_map(value[value_var]) : value_map(value_extent[0])
+        groups[value[grouping]].available += value.available ? value.available : value.active ? 1 : 0
+        groups[value[grouping]].total += value.total ? value.total : 1
       })
       
-      if (grouping == "id" || grouping == "name") {
+      if (Object.keys(groups).length == 1) {
+
+        for (var g in groups) {
+          groups[g].x = (width)/2
+          groups[g].y = (height)/2
+          groups[g].width = width
+          groups[g].height = height
+        }
+        
+      } else if (Object.keys(groups).length == 2) {
+        
+        var total = 0
+        for (var g in groups) total += groups[g].value
+        for (var g in groups) {
+          if (g == "false") var offset = width*(groups["true"].value/total)
+          else var offset = 0
+          groups[g].width = width*(groups[g].value/total)
+          groups[g].height = height
+          groups[g].x = (groups[g].width/2)+offset
+          groups[g].y = height/2
+        }
+        
+      } else if (grouping == "id" || grouping == "name") {
         
         if(data.length == 1) {
           var columns = 1,
@@ -67,19 +100,6 @@ vizwhiz.viz.bubbles = function() {
             r++
           }
           
-        }
-        
-      } else if (Object.keys(groups).length == 2) {
-        
-        var total = 0
-        for (var g in groups) total += groups[g].value
-        for (var g in groups) {
-          if (g == "false") var offset = width*(groups["true"].value/total)
-          else var offset = 0
-          groups[g].width = width*(groups[g].value/total)
-          groups[g].height = height
-          groups[g].x = (groups[g].width/2)+offset
-          groups[g].y = height/2
         }
         
       } else {
@@ -199,12 +219,14 @@ vizwhiz.viz.bubbles = function() {
         .attr("d", function(d){
           if(d.total){
             var angle = (((d.available / d.total)*360) * (Math.PI/180));
-          } else var angle = 360; 
+          } else if (d.active) {
+            var angle = 360; 
+          } else var angle = 0;
           return arc.endAngle(angle).outerRadius(0)(d);
         });
       
       var label = d3.select("g.labels").selectAll("text")
-        .data(d3.values(groups), function(d) { return d.name+d.cx+d.cy })
+        .data(d3.values(groups), function(d) { return d.name+d.x+d.y })
         
       label.enter().append("text")
         .attr("opacity",0)
@@ -220,7 +242,7 @@ vizwhiz.viz.bubbles = function() {
           return d.y+(y_offset/2)-30;
         })
         .each(function(d){
-          if (grouping == 'available') {
+          if (grouping == 'active') {
             var t = d.name == true ? 'Available' : 'Not Available'
           } else {
             var t = d.name
@@ -229,8 +251,19 @@ vizwhiz.viz.bubbles = function() {
             "text": t,
             "parent": this,
             "width": d.width,
-            "height": 40
+            "height": 20
           })
+          
+          if (d.total == 1) {
+            if (d.available == 0) var t = "Not Available"
+            else var t = "Available"
+          } else var t = d.available + " out of " + d.total
+          
+            d3.select(this).append("tspan")
+              .attr("x",d.x)
+              .attr("dy","14px")
+              .style("font-weight","normal")
+              .text(t)
         })
       
       //===================================================================
@@ -247,7 +280,9 @@ vizwhiz.viz.bubbles = function() {
         .attr("d", function(d){
           if(d.total){
             var angle = (((d.available / d.total)*360) * (Math.PI/180));
-          } else var angle = 360; 
+          } else if (d.active) {
+            var angle = 360; 
+          } else var angle = 0;
           return arc.endAngle(angle).outerRadius(d.radius)(d);
         });
         

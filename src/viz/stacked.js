@@ -103,7 +103,7 @@ vizwhiz.viz.stacked = function() {
       var area = d3.svg.area()
         .interpolate("monotone")
         .x(function(d) { return x_scale(parseInt(d.key)); })
-        .y0(function(d) { return y_scale(d.y0); })
+        .y0(function(d) { return y_scale(d.y0)-1; })
         .y1(function(d) { return y_scale(d.y0 + d.y); });
       
       // Select the svg element, if it exists.
@@ -238,9 +238,9 @@ vizwhiz.viz.stacked = function() {
       paths.enter().append("path")
         .attr("opacity", 0)
         .attr("class", "layer")
-        .attr("fill-opacity", 0.8)
-        .attr("stroke-width",1)
-        .attr("stroke", "#ffffff")
+        // .attr("fill-opacity", 0.8)
+        // .attr("stroke-width",1)
+        // .attr("stroke", "#ffffff")
         .attr("fill", function(d){
           return d.color
         })
@@ -258,9 +258,16 @@ vizwhiz.viz.stacked = function() {
           return area(d.values);
         });
       // mouseover
-      paths.on(vizwhiz.evt.move, function(d){
+      paths
+        .on(vizwhiz.evt.move, path_tooltip)
+        .on(vizwhiz.evt.out, function(d){
+          d3.selectAll("line.rule").remove();
+          vizwhiz.tooltip.remove();
+        })
+        
+      function path_tooltip(d){
         d3.selectAll("line.rule").remove();
-        var mouse_x = d3.mouse(this)[0];
+        var mouse_x = d3.event.x-margin.left;
         var rev_x_scale = d3.scale.linear()
           .domain(x_scale.range()).range(x_scale.domain());
         var this_x = Math.round(rev_x_scale(mouse_x));
@@ -268,13 +275,15 @@ vizwhiz.viz.stacked = function() {
         var this_value = d.values[this_x_index]
         // add dashed line at closest X position to mouse location
         d3.select("g.viz").append("line")
+          .datum(d)
           .attr("class", "rule")
           .attr({"x1": x_scale(this_x), "x2": x_scale(this_x)})
           .attr({"y1": y_scale(this_value.y0), "y2": y_scale(this_value.y + this_value.y0)})
           .attr("stroke", "white")
           .attr("stroke-width", 2)
-          .attr("stroke-opacity", 0.75)
+          .attr("stroke-opacity", 0.5)
           .attr("stroke-dasharray", "5,3")
+          .on(vizwhiz.evt.over, path_tooltip)
         
         // tooltip
         var tooltip_data = {}
@@ -282,21 +291,19 @@ vizwhiz.viz.stacked = function() {
         tooltip_info.forEach(function(t){
           if (d[t]) tooltip_data[t] = d[t]
         })
-        
+
+        vizwhiz.tooltip.remove();
         vizwhiz.tooltip.create({
-          "parent": d3.select("g.viz"),
+          "parent": svg,
           "id": d.id,
           "data": tooltip_data,
           "title": d[nesting[nesting.length-1]],
-          "x": x_scale(this_x),
-          "y": y_scale(this_value.y0 + this_value.y),
-          "offset": 8,
+          "x": x_scale(this_x)+margin.left,
+          "y": y_scale(this_value.y0 + this_value.y)+(size.height-y_scale(this_value.y))/2+margin.top,
+          "offset": ((size.height-y_scale(this_value.y))/2)+2,
           "arrow": true
         })
-      })
-      .on(vizwhiz.evt.out, function(d){
-        vizwhiz.tooltip.remove()
-      })
+      }
       
       // EXIT
       paths.exit()
@@ -319,24 +326,85 @@ vizwhiz.viz.stacked = function() {
       layers.forEach(function(layer){
         
         // find out which is the largest
-        var tallest = d3.max(layer.values, function(d){ return d.y; });
-        tallest = layer.values.filter(function(d){ return d.y == tallest; })[0]
-        
-        // if the height is taller than 6% of the viz height add it to the list
-        if(text_height_scale(tallest.y) > 0.06){
-          // tallest["id"] = layer.key;
-          layer.tallest = tallest;
+        var available_areas = layer.values.filter(function(d,i,a){
+          var min_height = 30;
+          if (i == 0) {
+            return (size.height-y_scale(d.y)) >= min_height 
+                && (size.height-y_scale(a[i+1].y)) >= min_height
+                && (size.height-y_scale(a[i+2].y)) >= min_height
+                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
+                && y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0)) < y_scale(a[i+2].y0)
+                && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
+                && y_scale(a[i+1].y0) > y_scale(a[i+2].y)-(size.height-y_scale(a[i+2].y0));
+          }
+          else if (i == a.length-1) {
+            return (size.height-y_scale(d.y)) >= min_height 
+                && (size.height-y_scale(a[i-1].y)) >= min_height
+                && (size.height-y_scale(a[i-2].y)) >= min_height
+                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
+                && y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0)) < y_scale(a[i-2].y0)
+                && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0))
+                && y_scale(a[i-1].y0) > y_scale(a[i-2].y)-(size.height-y_scale(a[i-2].y0));
+          }
+          else {
+            return (size.height-y_scale(d.y)) >= min_height 
+                && (size.height-y_scale(a[i-1].y)) >= min_height
+                && (size.height-y_scale(a[i+1].y)) >= min_height
+                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
+                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
+                && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
+                && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0));
+          }
+        });
+        var best_area = d3.max(layer.values,function(d,i){
+          if (available_areas.indexOf(d) >= 0) {
+            if (i == 0) {
+              return (size.height-y_scale(d.y))
+                   + (size.height-y_scale(layer.values[i+1].y))
+                   + (size.height-y_scale(layer.values[i+2].y));
+            }
+            else if (i == layer.values.length-1) {
+              return (size.height-y_scale(d.y))
+                   + (size.height-y_scale(layer.values[i-1].y))
+                   + (size.height-y_scale(layer.values[i-2].y));
+            }
+            else {
+              return (size.height-y_scale(d.y))
+                   + (size.height-y_scale(layer.values[i-1].y))
+                   + (size.height-y_scale(layer.values[i+1].y));
+            }
+          } else return null;
+        });
+        var best_area = layer.values.filter(function(d,i,a){
+          if (i == 0) {
+            return (size.height-y_scale(d.y))
+                 + (size.height-y_scale(layer.values[i+1].y))
+                 + (size.height-y_scale(layer.values[i+2].y)) == best_area;
+          }
+          else if (i == layer.values.length-1) {
+            return (size.height-y_scale(d.y))
+                 + (size.height-y_scale(layer.values[i-1].y))
+                 + (size.height-y_scale(layer.values[i-2].y)) == best_area;
+          }
+          else {
+            return (size.height-y_scale(d.y))
+                 + (size.height-y_scale(layer.values[i-1].y))
+                 + (size.height-y_scale(layer.values[i+1].y)) == best_area;
+          }
+        })[0]
+        if (best_area) {
+          layer.tallest = best_area
           text_layers.push(layer)
         }
+        
       })
-      
       // container for text layers
       viz_enter.append("g").attr("class", "text_layers")
       
       // give data with key function to variables to draw
       var texts = d3.select("g.text_layers").selectAll(".label")
-        .data(text_layers, function(d){ return d.key; })
-      
+        .data(text_layers, function(d){ return d.key+d.tallest.key; })
+        
       // ENTER
       texts.enter().append("text")
         .attr('filter', 'url(#dropShadow)')
@@ -345,30 +413,24 @@ vizwhiz.viz.stacked = function() {
         .attr("font-size","14px")
         .attr("font-family","Helvetica")
         .attr("dy", 6)
+        .attr("opacity",0)
         .attr("text-anchor", function(d){
-          // determine the index of the tallest item
-          var values_index = d.values.indexOf(d.tallest)
           // if first, left-align text
-          if(values_index == 0) return "start";
+          if(d.tallest.key == x_scale.domain()[0]) return "start";
           // if last, right-align text
-          if(values_index == d.values.length-1) return "end";
+          if(d.tallest.key == x_scale.domain()[1]) return "end";
           // otherwise go with middle
           return "middle"
         })
         .attr("fill", function(d){
           return "white"
         })
-      
-      // UPDATE
-      texts
         .attr("x", function(d){
           var pad = 0;
-          // determine the index of the tallest item
-          var values_index = d.values.indexOf(d.tallest)
           // if first, push it off 10 pixels from left side
-          if(values_index == 0) pad += 10;
+          if(d.tallest.key == x_scale.domain()[0]) pad += 10;
           // if last, push it off 10 pixels from right side
-          if(values_index == d.values.length-1) pad -= 10;
+          if(d.tallest.key == x_scale.domain()[1]) pad -= 10;
           return x_scale(d.tallest.key) + pad;
         })
         .attr("y", function(d){
@@ -378,6 +440,7 @@ vizwhiz.viz.stacked = function() {
         .text(function(d) {
           return d[nesting[nesting.length-1]]
         })
+        .on(vizwhiz.evt.over, path_tooltip)
         .each(function(d){
           // set usable width to 2x the width of each x-axis tick
           var tick_width = (size.width / xaxis_vals.length) * 2;
@@ -406,8 +469,14 @@ vizwhiz.viz.stacked = function() {
           }
         })
       
+      // UPDATE
+      texts.transition().duration(vizwhiz.timing)
+        .attr("opacity",1)
+      
       // EXIT
-      texts.exit().remove()
+      texts.exit().transition().duration(vizwhiz.timing)
+        .attr("opacity",0)
+        .remove()
       
       //===================================================================
       

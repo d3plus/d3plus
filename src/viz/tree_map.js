@@ -230,6 +230,10 @@ vizwhiz.viz.tree_map = function() {
         .attr('y',function(d){
           return d.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
         })
+        .on(vizwhiz.evt.move, mouseover)
+        .on(vizwhiz.evt.out, function(d){
+          vizwhiz.tooltip.remove();
+        })
       
       //===================================================================
       

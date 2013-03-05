@@ -6,6 +6,8 @@ vizwhiz.dev = true //set false when in production
 
 window.vizwhiz = vizwhiz;
 
+vizwhiz.timing = 600; // milliseconds for animations
+
 vizwhiz.tooltip = {}; // For the tooltip system
 vizwhiz.utils = {}; // Utility subsystem
 vizwhiz.viz = {}; //stores all the possible visualizations
@@ -130,11 +132,13 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
           flattened.push(leaves[0]);
           return leaves[0]
         }
-        to_return = leaves[0]
-        to_return.value = d3.sum(leaves, function(d){ return d.value; })
-        to_return.name = leaves[0][nest_key]
-        to_return.num_children = leaves.length;
-        to_return.num_children_active = d3.sum(leaves, function(d){ return d.active; });
+        // to_return = leaves[0]
+        to_return = {
+          "value": d3.sum(leaves, function(d){ return d.value; }),
+          "name": leaves[0][nest_key],
+          "num_children": leaves.length,
+          "num_children_active": d3.sum(leaves, function(d){ return d.active; })
+        }
         
         if(extra){
           extra.forEach(function(e){
@@ -144,10 +148,18 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
             else if(e.agg == "avg"){
               to_return[e.key] = d3.mean(leaves, function(d){ return d[e.key]; })
             }
+            else {
+              to_return[e.key] = leaves[0][e.key];
+            }
           })
         }
         
-        flattened.push(to_return);
+        if(flatten){
+          nesting.forEach(function(nk){
+            to_return[nk] = leaves[0][nk]
+          })
+          flattened.push(to_return);
+        }
         
         return to_return
       })
@@ -174,112 +186,118 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
 // function ourselves
 //-------------------------------------------------------------------
 
-vizwhiz.utils.wordWrap = function(text, parent, width, height, resize) {
+vizwhiz.utils.wordwrap = function(params) {
   
-  var words = text.split(/[\s-]/),
-      tspan,
-      width = width*0.9, // width & height slightly smaller for buffer
-      height = height*0.9;
+  var parent = params.parent,
+      padding = params.padding ? params.padding : 10,
+      width = params.width ? params.width-(padding*2) : 20000,
+      height = params.height ? params.height : 20000,
+      resize = params.resize,
+      font_max = params.font_max ? params.font_max : 40,
+      font_min = params.font_min ? params.font_min : 8;
+  if (typeof params.text == "string") wrap(params.text.split(/[\s-]/))
+  else wrap(params.text.shift().split(/[\s-]/))
   
-  if (resize) {
+  function wrap(words) {
     
-    // default max and min font sizes
-    var max_font_size = 40, min_font_size = 8;
+    if (resize) {
     
-    // base scaling on whichever is larger width or height
-    var size = height
-    if (width < height) {
-      var size = width
-    }
-    
-    d3.select(parent).attr('font-size',size)
-
-    var text_width = 0
-    for(var i=0; i<words.length; i++) {
-      tspan = d3.select(parent).append('tspan')
-        .attr('x',0)
-        .attr('dx','0.15em')
-        .text(words[i]+" ...")
-        
-      if (tspan.node().getComputedTextLength() > text_width) {
-        text_width = tspan.node().getComputedTextLength()
-      }
-    }
-  
-    if (text_width > width) {
-      size = size*(width/text_width)
-    }
-  
-    if (size < min_font_size) {
-      d3.select(parent).selectAll('tspan').remove()
-      return
-    } else if (size > max_font_size) size = max_font_size
-    
-    d3.select(parent).attr('font-size',size)
-    
-    flow()
-    
-    if (parent.childNodes.length*parent.getBBox().height > height) {
-      var temp_size = size*(height/(parent.childNodes.length*parent.getBBox().height))
-      if (temp_size < min_font_size) size = min_font_size
-      else size = temp_size
+      // Start by trying the largest font size
+      var size = font_max
       d3.select(parent).attr('font-size',size)
+    
+      // Add each word to it's own line (to test for longest word)
+      d3.select(parent).selectAll('tspan').remove()
+      for(var i=0; i<words.length; i++) {
+        if (words.length == 1) var t = words[i]
+        else var t = words[i]+"..."
+        d3.select(parent).append('tspan').attr('x',0).text(t)
+      }
+    
+      // If the longest word is too wide, make the text proportionately smaller
+      if (parent.getBBox().width > width) size = size*(width/parent.getBBox().width)
+  
+      // If the new size is too small, return NOTHING
+      if (size < font_min) {
+        d3.select(parent).selectAll('tspan').remove();
+        if (typeof params.text == "string" || params.text.length == 0) return;
+        else wrap(params.text.shift().split(/[\s-]/))
+        return;
+      }
+    
+      // Use new text size
+      d3.select(parent).attr('font-size',size);
+    
+      // Flow text into box
+      flow();
+    
+      // If text doesn't fit height-wise, shrink it!
+      if (parent.childNodes.length*parent.getBBox().height > height) {
+        var temp_size = size*(height/(parent.childNodes.length*parent.getBBox().height))
+        if (temp_size < font_min) size = font_min
+        else size = temp_size
+        d3.select(parent).attr('font-size',size)
+      } else finish();
+    
     }
-    
-  }
   
-  flow()
-  truncate()
-  d3.select(parent).selectAll('tspan').attr("dy", d3.select(parent).style('font-size'))
+    flow();
+    truncate();
+    finish();
   
-  function flow() {
+    function flow() {
     
-    d3.select(parent).selectAll('tspan').remove()
+      d3.select(parent).selectAll('tspan').remove()
     
-    var tspan = d3.select(parent).append('tspan')
-      .attr('x',parent.getAttribute('x'))
-      .text(words[0])
+      var tspan = d3.select(parent).append('tspan')
+        .attr('x',parent.getAttribute('x'))
+        .text(words[0])
 
-    for (var i=1; i<words.length; i++) {
+      for (var i=1; i < words.length; i++) {
         
-      tspan.text(tspan.text()+" "+words[i])
+        tspan.text(tspan.text()+" "+words[i])
       
-      if (tspan.node().getComputedTextLength() > width) {
+        if (tspan.node().getComputedTextLength() > width) {
             
-        tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(" ")))
+          tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(" ")))
     
-        tspan = d3.select(parent).append('tspan')
-          .attr('x',parent.getAttribute('x'))
-          .text(words[i])
+          tspan = d3.select(parent).append('tspan')
+            .attr('x',parent.getAttribute('x'))
+            .text(words[i])
             
+        }
       }
+  
     }
   
+    function truncate() {
+      var cut = false
+      while (parent.childNodes.length*parent.getBBox().height > height && parent.lastChild && !cut) {
+        parent.removeChild(parent.lastChild)
+        if (parent.childNodes.length*parent.getBBox().height < height && parent.lastChild) cut = true
+      }
+      if (cut) {
+        tspan = parent.lastChild
+        words = d3.select(tspan).text().split(/[\s-]/)
+      
+        var last_char = words[words.length-1].charAt(words[words.length-1].length-1)
+        if (last_char == ',' || last_char == ';' || last_char == ':') words[words.length-1] = words[words.length-1].substr(0,words[words.length-1].length-1)
+      
+        d3.select(tspan).text(words.join(' ')+'...')
+      
+        if (tspan.getComputedTextLength() > width) {
+          if (words.length > 1) words.pop(words.length-1)
+          last_char = words[words.length-1].charAt(words[words.length-1].length-1)
+          if (last_char == ',' || last_char == ';' || last_char == ':') words[words.length-1].substr(0,words[words.length-1].length-2)
+          d3.select(tspan).text(words.join(' ')+'...')
+        }
+      }
+    }
   }
   
-  function truncate() {
-    var cut = false
-    while (parent.childNodes.length*parent.getBBox().height > height) {
-      parent.removeChild(parent.lastChild)
-      cut = true
-    }
-    if (cut && parent.childNodes.length != 0) {
-    // if (cut) {
-      tspan = parent.lastChild
-      words = d3.select(tspan).text().split(/[\s-]/)
-      
-      var last_char = words[words.length-1].charAt(words[words.length-1].length-1)
-      if (last_char == ',' || last_char == ';' || last_char == ':') words[words.length-1] = words[words.length-1].substr(0,words[words.length-1].length-1)
-      
-      d3.select(tspan).text(words.join(' ')+'...')
-      
-      if (tspan.getComputedTextLength() > width) {
-        if (words.length > 1) words.pop(words.length-1)
-        last_char = words[words.length-1].charAt(words[words.length-1].length-1)
-        if (last_char == ',' || last_char == ';' || last_char == ':') words[words.length-1].substr(0,words[words.length-1].length-2)
-        d3.select(tspan).text(words.join(' ')+'...')
-      }
-    }
+  function finish() {
+    d3.select(parent).selectAll('tspan').attr("dy", d3.select(parent).style('font-size'));
+    return;
   }
   
 }
@@ -320,6 +338,8 @@ vizwhiz.utils.drop_shadow = function(defs) {
     .attr('in', "SourceGraphic");
 
 }
+
+//===================================================================
 vizwhiz.viz.network = function() {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -334,14 +354,16 @@ vizwhiz.viz.network = function() {
       clicked = false,
       spotlight = true,
       highlight = null,
-      timing = 100,
+      labels = true,
       zoom_behavior = d3.behavior.zoom().scaleExtent([1, 16]),
       nodes = [],
       x_range,
       y_range,
       aspect,
       links = [],
-      connections = {};
+      connections = {},
+      scale = {},
+      tooltip_info = [];
 
   //===================================================================
 
@@ -354,11 +376,11 @@ vizwhiz.viz.network = function() {
       //-------------------------------------------------------------------
 
       var this_selection = this,
+          timing = vizwhiz.timing,
           dragging = false,
           highlight_color = "#cc0000",
           select_color = "#ee0000",
           secondary_color = "#ffdddd",
-          scale = {},
           offset_top = 0,
           offset_left = 0,
           info_width = 300;
@@ -385,24 +407,24 @@ vizwhiz.viz.network = function() {
           min_size = max_size/5 < 2 ? 2 : max_size/5
           
       // x scale
-      scale["x"] = d3.scale.linear()
+      scale.x = d3.scale.linear()
         .domain(x_range)
         .range([offset_left+(max_size*2), width-(max_size*2)-offset_left])
       // y scale
-      scale["y"] = d3.scale.linear()
+      scale.y = d3.scale.linear()
         .domain(y_range)
         .range([offset_top+(max_size*2), height-(max_size*2)-offset_top])
       // size scale
       var val_range = d3.extent(d3.values(data), function(d){
         return d[value_var] > 0 ? d[value_var] : null
       });
-      scale["size"] = d3.scale.log()
+      scale.size = d3.scale.log()
         .domain(val_range)
         .range([min_size, max_size])
         
       // Create viz group on svg_enter
       var viz_enter = svg_enter.append("g")
-        .call(zoom_behavior.on("zoom", zoom))
+        .call(zoom_behavior.on("zoom",function(){ zoom(); }))
         .on(vizwhiz.evt.down,function(d){dragging = true})
         .on(vizwhiz.evt.up,function(d){dragging = false})
         .append('g')
@@ -420,27 +442,23 @@ vizwhiz.viz.network = function() {
           }
         })
         .on(vizwhiz.evt.click,function(d){
-          clicked = null;
           highlight = null;
           zoom("reset");
           update();
-        })
+        });
         
-      var link_group = viz_enter.append('g')
+      viz_enter.append('g')
         .attr('class','links')
         
-      var node_group = viz_enter.append('g')
+      viz_enter.append('g')
         .attr('class','nodes')
         
-      var highlight_group = viz_enter.append('g')
+      viz_enter.append('g')
         .attr('class','highlight')
         
-      // Create group outside of zoom group for info panel
-      var info_group = svg_enter.append("g")
-        .attr("class","info")
-        
       // Create Zoom Controls div on svg_enter
-      var zoom_div = svg.enter().append("div")
+      d3.select(this_selection).select("div#zoom_controls").remove()
+      var zoom_div = d3.select(this_selection).append("div")
         .attr("id","zoom_controls")
         
       zoom_div.append("div")
@@ -459,13 +477,14 @@ vizwhiz.viz.network = function() {
       // New nodes and links enter, initialize them here
       //-------------------------------------------------------------------
       
-      var node = node_group.selectAll("circle.node")
+      var node = d3.select("g.nodes").selectAll("circle.node")
         .data(nodes, function(d) { return d[id_var]; })
       
       node.enter().append("circle")
         .attr("class","node")
-        .call(size_nodes)
-        .call(color_nodes)
+        .call(node_size)
+        .attr("fill","white")
+        .attr("stroke","white")
         .on(vizwhiz.evt.over, function(d){
           if (!clicked) {
             highlight = d[id_var];
@@ -483,18 +502,17 @@ vizwhiz.viz.network = function() {
           highlight = d[id_var];
           zoom(highlight);
           update();
-        })
+        });
       
-      var link = link_group.selectAll("line.link")
+      var link = d3.select("g.links").selectAll("line.link")
         .data(links, function(d) { return d.source[id_var] + "-" + d.target[id_var]; })
         
       link.enter().append("line")
         .attr("class","link")
-        .call(position_links)
-        .attr("stroke", "#dedede")
+        .attr("stroke", "white")
         .attr("stroke-width", "1px")
+        .call(link_position)
         .on(vizwhiz.evt.click,function(d){
-          clicked = null
           highlight = null;
           zoom("reset");
           update();
@@ -507,15 +525,16 @@ vizwhiz.viz.network = function() {
       //-------------------------------------------------------------------
 
       node.transition().duration(timing)
-        .call(size_nodes)
-        .call(color_nodes);
+        .call(node_size)
+        .call(node_color);
         
       link.transition().duration(timing)
-        .call(position_links);
+        .attr("stroke", "#dedede")
+        .call(link_position);
         
       d3.select('.overlay').transition().duration(timing)
         .attr("width", viz_width)
-        .attr("height", viz_height)
+        .attr("height", viz_height);
         
       svg.transition().duration(timing)
         .attr("width", width)
@@ -535,7 +554,7 @@ vizwhiz.viz.network = function() {
       update();
       if (highlight && clicked) zoom(highlight);
           
-      function position_links(l) {
+      function link_position(l) {
         l
           .attr("x1", function(d) { return scale.x(d.source.x); })
           .attr("y1", function(d) { return scale.y(d.source.y); })
@@ -543,7 +562,20 @@ vizwhiz.viz.network = function() {
           .attr("y2", function(d) { return scale.y(d.target.y); });
       }
       
-      function size_nodes(n) {
+      function bg_size(b) {
+        b
+          .attr("cx", function(d) { return scale.x(d.x); })
+          .attr("cy", function(d) { return scale.y(d.y); })
+          .attr("r", function(d) { 
+            var value = data[d[id_var]][value_var],
+                buffer = data[d[id_var]].active ? 3 : 2
+            value = value > 0 ? scale.size(value) : scale.size(val_range[0])
+            return value+buffer
+          })
+          .attr("stroke-width",0)
+      }
+      
+      function node_size(n) {
         n
           .attr("cx", function(d) { return scale.x(d.x); })
           .attr("cy", function(d) { return scale.y(d.y); })
@@ -557,22 +589,10 @@ vizwhiz.viz.network = function() {
           })
       }
       
-      function size_bgs(b) {
-        b
-          .attr("cx", function(d) { return scale.x(d.x); })
-          .attr("cy", function(d) { return scale.y(d.y); })
-          .attr("r", function(d) { 
-            var value = data[d[id_var]][value_var],
-                buffer = data[d[id_var]].active ? 3 : 2
-            value = value > 0 ? scale.size(value) : scale.size(val_range[0])
-            return value+buffer
-          })
-          .attr("stroke-width",0)
-      }
-      
-      function color_nodes(n) {
+      function node_color(n) {
         n
           .attr("fill", function(d){
+            if (clicked && d3.select(this.parentNode).attr("class") == "nodes") return "#efefef";
             var color = data[d[id_var]].color ? data[d[id_var]].color : vizwhiz.utils.rand_color()
             if (data[d[id_var]].active) {
               this.parentNode.appendChild(this)
@@ -585,6 +605,7 @@ vizwhiz.viz.network = function() {
             }
           })
           .attr("stroke", function(d){
+            if (clicked && d3.select(this.parentNode).attr("class") == "nodes") return "#dedede";
             var color = data[d[id_var]].color ? data[d[id_var]].color : vizwhiz.utils.rand_color()
             if (data[d[id_var]].active) return d3.rgb(color).darker().darker().toString();
             else if (spotlight && !highlight) return "#dedede";
@@ -594,94 +615,95 @@ vizwhiz.viz.network = function() {
       
       function update() {
         
-        highlight_group.selectAll("*").remove()
-        info_group.selectAll("*").remove()
+        d3.select("g.highlight").selectAll("*").remove()
+        vizwhiz.tooltip.remove();
         
         if (highlight) {
-          
-          node
-            .attr("fill","#efefef")
-            .attr("stroke","#dedede")
             
           var center = connections[highlight].center,
               primaries = connections[highlight].primary,
               secondaries = connections[highlight].secondary
               
-          // Draw Primary, Secondary and Center Connection Lines and BGs
-          highlight_group.selectAll("line.sec_links")
-            .data(secondaries.links).enter()
-            .append("line")
-              .attr("class","sec_links")
-              .attr("stroke-width", "1px")
-              .attr("stroke", secondary_color)
-              .call(position_links)
-              .on(vizwhiz.evt.click, function(d){
-                zoom("reset");
-                clicked = false;
-                update();
-              });
-          highlight_group.selectAll("circle.sec_bgs")
-            .data(secondaries.nodes).enter()
-            .append("circle")
-              .attr("class","sec_bgs")
-              .attr("fill", secondary_color)
-              .call(size_bgs);
+          if (clicked) {
           
-          // Draw Secondary Nodes
-          highlight_group.selectAll("circle.sec_nodes")
-            .data(secondaries.nodes).enter()
-            .append("circle")
-              .attr("class","sec_nodes")
-              .call(size_nodes)
-              .attr("fill","#efefef")
-              .attr("stroke","#dedede")
-              .on(vizwhiz.evt.over, function(d){
-                if (!clicked) {
-                  highlight = d[id_var];
+            node.call(node_color);
+            
+            // Draw Secondary Connection Lines and BGs
+            d3.select("g.highlight").selectAll("line.sec_links")
+              .data(secondaries.links).enter()
+              .append("line")
+                .attr("class","sec_links")
+                .attr("stroke-width", "1px")
+                .attr("stroke", secondary_color)
+                .call(link_position)
+                .on(vizwhiz.evt.click, function(d){
+                  zoom("reset");
                   update();
-                } else {
-                  d3.select(this).attr("stroke",highlight_color)
-                }
-              })
-              .on(vizwhiz.evt.out, function(d){
-                if (clicked) {
-                  d3.select(this).attr("stroke","#dedede")
-                }
-              })
-              .on(vizwhiz.evt.click, function(d){
-                highlight = d[id_var];
-                zoom(highlight);
-                update();
-              });
-              
+                });
+            d3.select("g.highlight").selectAll("circle.sec_bgs")
+              .data(secondaries.nodes).enter()
+              .append("circle")
+                .attr("class","sec_bgs")
+                .attr("fill", secondary_color)
+                .call(bg_size);
+          
+            // Draw Secondary Nodes
+            d3.select("g.highlight").selectAll("circle.sec_nodes")
+              .data(secondaries.nodes).enter()
+              .append("circle")
+                .attr("class","sec_nodes")
+                .call(node_size)
+                .attr("fill","#efefef")
+                .attr("stroke","#dedede")
+                .on(vizwhiz.evt.over, function(d){
+                  if (!clicked) {
+                    highlight = d[id_var];
+                    update();
+                  } else {
+                    d3.select(this).attr("stroke",highlight_color)
+                  }
+                })
+                .on(vizwhiz.evt.out, function(d){
+                  if (clicked) {
+                    d3.select(this).attr("stroke","#dedede")
+                  }
+                })
+                .on(vizwhiz.evt.click, function(d){
+                  highlight = d[id_var];
+                  zoom(highlight);
+                  update();
+                });
+          }
+          
           // Draw Primary Connection Lines and BGs
-          highlight_group.selectAll("line.prim_links")
+          d3.select("g.highlight").selectAll("line.prim_links")
             .data(primaries.links).enter()
             .append("line")
               .attr("class","prim_links")
               .attr("stroke", highlight_color)
               .attr("stroke-width", "2px")
-              .call(position_links)
+              .call(link_position)
               .on(vizwhiz.evt.click, function(d){
+                highlight = null;
                 zoom("reset");
-                clicked = false;
                 update();
               });
-          highlight_group.selectAll("circle.prim_bgs")
+          d3.select("g.highlight").selectAll("circle.prim_bgs")
             .data(primaries.nodes).enter()
             .append("circle")
               .attr("class","prim_bgs")
-              .call(size_bgs)
+              .call(bg_size)
               .attr("fill",highlight_color);
           
           // Draw Primary Nodes
-          highlight_group.selectAll("circle.prim_nodes")
+          d3.select("g.highlight").selectAll("circle.prim_nodes")
             .data(primaries.nodes).enter()
             .append("circle")
               .attr("class","prim_nodes")
-              .call(size_nodes)
-              .call(color_nodes)
+              .call(node_size)
+              .call(node_color)
               .on(vizwhiz.evt.over, function(d){
+                d3.select(this).style("cursor","pointer")
                 if (!clicked) {
                   highlight = d[id_var];
                   update();
@@ -691,26 +713,28 @@ vizwhiz.viz.network = function() {
                 highlight = d[id_var];
                 zoom(highlight);
                 update();
+              })
+              .each(function(d){
+                var value = data[d[id_var]][value_var]
+                var size = value > 0 ? scale.size(value) : scale.size(val_range[0])
+                if (size > 6 && labels && clicked) create_label(d);
               });
           
           // Draw Main Center Node and BG
-          highlight_group.selectAll("circle.center_bg")
+          d3.select("g.highlight").selectAll("circle.center_bg")
             .data([center]).enter()
             .append("circle")
               .attr("class","center_bg")
-              .call(size_bgs)
+              .call(bg_size)
               .attr("fill",select_color);
-          highlight_group.selectAll("circle.center")
+          d3.select("g.highlight").selectAll("circle.center")
             .data([center]).enter()
             .append("circle")
               .attr("class","center")
-              .call(size_nodes)
-              .call(color_nodes)
-              .on(vizwhiz.evt.out, function(d){
-                if (!clicked) {
-                  highlight = null;
-                  update();
-                }
+              .call(node_size)
+              .call(node_color)
+              .on(vizwhiz.evt.over, function(d){
+                d3.select(this).style("cursor","pointer")
               })
               .on(vizwhiz.evt.click, function(d){
                 if (!clicked) {
@@ -718,125 +742,206 @@ vizwhiz.viz.network = function() {
                   clicked = true;
                   update();
                 } else {
+                  highlight = null;
                   zoom("reset");
-                  clicked = false;
                   update();
                 }
               })
+              .each(function(d){ if (labels && clicked) create_label(d); });
+            
               
           // Draw Info Panel
-          var d = data[highlight]
-          if (scale.x(connections[highlight].extent.x[1]) > (width-info_width-5)) var x_pos = 37
-          else var x_pos = width-info_width
-          var bg = info_group.append("rect")
-            .attr("width",info_width+"px")
-            .attr("height",height-10+"px")
-            .attr("y","5px")
-            .attr("x",(x_pos-5)+"px")
-            .attr("ry","3")
-            .attr("fill","#dddddd")
-          var text = info_group.append("text")
-            .attr("y","8px")
-            .attr("x",x_pos+"px")
-            .attr("fill","#333333")
-            .attr("text-anchor","start")
-            .style("font-weight","bold")
-            .attr("font-size","14px")
-            .attr("font-family","Helvetica")
-            .each(function(dd){vizwhiz.utils.wordWrap(d[text_var],this,info_width-10,info_width,false)})
+          if (scale.x(connections[highlight].extent.x[1]) > (width-info_width-10)) var x_pos = 37+(info_width/2)
+          else var x_pos = width
+          
+          var tooltip_data = {},
+              tooltip_appends = [],
+              sub_title = null
+          
           if (!clicked) {
-            text.append("tspan")
-              .attr("dy","14px")
-              .attr("font-size","10px")
-              .attr("x",x_pos+"px")
-              .style("font-weight","normal")
-              .text("Click Node for More Info")
-            bg.attr("height",(text.node().getBBox().height+10)+"px")
+            sub_title = "Click Node for More Info"
           } else {
-            for (var id in d) {
-              if ([text_var,"color","text_color","active"].indexOf(id) < 0) {
-                text.append("tspan")
-                  .attr("dy","14px")
-                  .attr("font-size","12px")
-                  .attr("x",x_pos+"px")
-                  .style("font-weight","normal")
-                  .text(id+": "+d[id])
-              }
-            }
-            var y = (text.node().getBBox().height+15)
-            var primary_title = info_group.append("text")
-              .attr("x",x_pos+"px")
-              .attr("y",y+"px")
-              .attr("dy","18px")
-              .attr("fill","#333333")
-              .attr("text-anchor","start")
-              .attr("font-size","12px")
-              .attr("font-family","Helvetica")
-              .attr("x",x_pos+"px")
-              .style("font-weight","bold")
-              .text("Primary Connections")
-                  
-            y += primary_title.node().getBBox().height+5
-            var prims = [], trunc = false
-            connections[highlight].primary.nodes.forEach(function(c){
+            tooltip_info.forEach(function(t){
+              if (data[highlight][t]) tooltip_data[t] = data[highlight][t]
+            })
+            tooltip_appends.push({
+              "append": "text",
+              "attr": {
+                "dy": "18px",
+                "fill": "#333333",
+                "text-anchor": "start",
+                "font-size": "12px",
+                "font-family": "Helvetica"
+              },
+              "style": {
+                "font-weight": "bold"
+              },
+              "text": "Primary Connections"
+            })
+            
+            var prims = []
+            primaries.nodes.forEach(function(c){
               prims.push(c[id_var])
             })
-            prims.forEach(function(c,i){
-              if (!trunc) {
-                info_group.append("circle")
-                  .attr("cx",(x_pos+5)+"px")
-                  .attr("cy",(y+8)+"px")
-                  .attr("r",5)
-                  .attr("fill", function(){
-                    var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
-                    if (data[c].active) {
-                      return color;
-                    } else {
-                      color = d3.hsl(color)
-                      color.l = 0.98
-                      return color.toString()
-                    }
-                  })
-                  .attr("stroke", function(){
-                    var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
-                    if (data[c].active) return d3.rgb(color).darker().darker().toString();
-                    else return d3.rgb(color).darker().toString()
-                  })
-                  .attr("stroke-width", function(){
-                    if(data[c].active) return 2;
-                    else return 1;
-                  })
-                var temp_title = info_group.append("text")
-                  .attr("x",(x_pos+13)+"px")
-                  .attr("y",y+"px")
-                  .attr("fill","#333333")
-                  .attr("text-anchor","start")
-                  .attr("font-size","12px")
-                  .attr("font-family","Helvetica")
-                  .style("font-weight","normal")
-                  .on(vizwhiz.evt.over,function(){
-                    d3.select(this).attr("fill",highlight_color).style("cursor","pointer")
-                  })
-                  .on(vizwhiz.evt.out,function(){
-                    d3.select(this).attr("fill","#333333")
-                  })
-                  .on(vizwhiz.evt.click,function(){
-                    highlight = c;
-                    zoom(highlight);
-                    update();
-                  })
-                  .each(function(dd){vizwhiz.utils.wordWrap(data[c][text_var],this,info_width-10,info_width,false)})
-                y += temp_title.node().getBBox().height
-                if (y > height-40) trunc = true
+            
+            prims.forEach(function(c){
+              var obj = {
+                "append": "g",
+                "children": [
+                  {
+                    "append": "circle",
+                    "attr": {
+                      "r": "5",
+                      "cx": "5",
+                      "cy": "8"
+                    },
+                    "style": {
+                      "font-weight": "normal"
+                    },
+                    "text": data[c][text_var],
+                    "events": {}
+                  },
+                  {
+                    "append": "text",
+                    "attr": {
+                      "fill": "#333333",
+                      "text-anchor": "start",
+                      "font-size": "12px",
+                      "font-family": "Helvetica",
+                      "y": "0",
+                      "x": "13"
+                    },
+                    "style": {
+                      "font-weight": "normal"
+                    },
+                    "text": data[c][text_var],
+                    "events": {}
+                  }
+                ]
               }
+              obj.children[0].attr["fill"] = function(){
+                  var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
+                  if (data[c].active) {
+                    return color;
+                  } else {
+                    color = d3.hsl(color)
+                    color.l = 0.98
+                    return color.toString()
+                  }
+                }
+              obj.children[0].attr["stroke"] = function(){
+                  var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
+                  if (data[c].active) return d3.rgb(color).darker().darker().toString();
+                  else return d3.rgb(color).darker().toString()
+                }
+              obj.children[0].attr["stroke-width"] = function(){
+                  if(data[c].active) return 2;
+                  else return 1;
+                }
+              obj.children[1].events[vizwhiz.evt.over] = function(){
+                  d3.select(this).attr('fill',highlight_color).style('cursor','pointer')
+                }
+              obj.children[1].events[vizwhiz.evt.out] = function(){
+                  d3.select(this).attr("fill","#333333")
+                }
+              obj.children[1].events[vizwhiz.evt.click] = function(){
+                  highlight = c;
+                  zoom(highlight);
+                  update();
+                }
+              tooltip_appends.push(obj)
             })
-            bg.attr("height",y+"px")
           }
           
-        } else {
-          node.call(color_nodes)
+          vizwhiz.tooltip.create({
+            "parent": svg,
+            "data": tooltip_data,
+            "title": data[highlight][text_var],
+            "description": sub_title,
+            "x": x_pos,
+            "y": 0,
+            "width": info_width,
+            "arrow": false,
+            "appends": tooltip_appends
+          })
+          
+        } else if (clicked) {
+          clicked = false;
+          node.call(node_color)
         }
         
+      }
+      
+      function create_label(d) {
+        var bg = d3.select("g.highlight").append("rect")
+          .datum(d)
+          .attr("y", function(e) { return scale.y(e.y)-5; })
+          .attr("height", "10px")
+          .attr("rx",3)
+          .attr("ry",3)
+          .attr("stroke-width", function(d){
+            if(data[d[id_var]].active) return 2;
+            else return 1;
+          })
+          .call(node_color)
+          .on(vizwhiz.evt.over, function(d){
+            d3.select(this).style("cursor","pointer")
+          })
+          .on(vizwhiz.evt.click, function(d){
+            if (d[id_var] == highlight) {
+              highlight = null;
+              zoom("reset");
+              update();
+            } else {
+              highlight = d[id_var];
+              zoom(highlight);
+              update();
+            }
+          })
+        var text = d3.select("g.highlight").append("text")
+          .datum(d)
+          .attr("x", function(e) { return scale.x(e.x); })
+          .attr("fill", function(e) { 
+            return d3.hsl(bg.attr("fill")).l >= 0.5 ? "#333" : "#fff";
+          })
+          .attr("font-size","3px")
+          .attr("text-anchor","middle")
+          .attr("font-family","Helvetica")
+          .style("font-weight","bold")
+          .each(function(e){
+            vizwhiz.utils.wordwrap({
+              "text": data[e[id_var]][text_var],
+              "parent": this,
+              "width": 60,
+              "height": 10
+            });
+          })
+          .on(vizwhiz.evt.over, function(d){
+            d3.select(this).style("cursor","pointer")
+          })
+          .on(vizwhiz.evt.click, function(d){
+            if (d[id_var] == highlight) {
+              highlight = null;
+              zoom("reset");
+              update();
+            } else {
+              highlight = d[id_var];
+              zoom(highlight);
+              update();
+            }
+          })
+                    
+        text
+          .attr("y", function(e) { return scale.y(e.y)-(text.node().getBBox().height/2); })
+                  
+        var w = text.node().getBBox().width+5
+        var value = data[d[id_var]][value_var]
+        var size = value > 0 ? scale.size(value) : scale.size(val_range[0])
+        if (w < size*2) {
+          bg.remove();
+        } else {
+          bg.attr("width",w).attr("x", function(e) { return scale.x(e.x)-(w/2); });
+        }
       }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -847,7 +952,7 @@ vizwhiz.viz.network = function() {
         
         var zoom_extent = zoom_behavior.scaleExtent()
         // If d3 zoom event is detected, use it!
-        if(d3.event.scale) {
+        if(!direction) {
           evt_scale = d3.event.scale
           translate = d3.event.translate
         } else {
@@ -925,18 +1030,16 @@ vizwhiz.viz.network = function() {
         }
         if (translate[1] > 0) translate[1] = 0
         else if (translate[1] < -((height*evt_scale)-height)) translate[1] = -((height*evt_scale)-height)
-        if (d3.event.scale) {
+        if (!direction) {
           if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
-            d3.select(".viz")
-              .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+            var viz_timing = d3.select(".viz")
           } else {
-            d3.select(".viz").transition().duration(timing)
-              .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+            var viz_timing = d3.select(".viz").transition().duration(timing)
           }
         } else {
-          d3.select(".viz").transition().duration(timing*4)
-            .attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+          var viz_timing = d3.select(".viz").transition().duration(timing)
         }
+        viz_timing.attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
         
       }
 
@@ -1011,7 +1114,8 @@ vizwhiz.viz.network = function() {
           }
         })
       })
-      var node_check = connections[c].primary.nodes.concat(connections[c].secondary.nodes).concat([connections[c].center])
+      // var node_check = connections[c].primary.nodes.concat(connections[c].secondary.nodes).concat([connections[c].center])
+      var node_check = connections[c].primary.nodes.concat([connections[c].center])
       connections[c].extent = {}
       connections[c].extent.x = d3.extent(d3.values(node_check),function(v){return v.x;}),
       connections[c].extent.y = d3.extent(d3.values(node_check),function(v){return v.y;})
@@ -1022,6 +1126,12 @@ vizwhiz.viz.network = function() {
   chart.spotlight = function(x) {
     if (!arguments.length) return spotlight;
     spotlight = x;
+    return chart;
+  };
+
+  chart.labels = function(x) {
+    if (!arguments.length) return labels;
+    labels = x;
     return chart;
   };
 
@@ -1050,6 +1160,12 @@ vizwhiz.viz.network = function() {
     text_var = x;
     return chart;
   };
+  
+  chart.tooltip = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
+    return chart;
+  };
 
   //===================================================================
 
@@ -1062,7 +1178,7 @@ vizwhiz.viz.stacked = function() {
   // Public Variables with Default Settings
   //-------------------------------------------------------------------
 
-  var margin = {top: 5, right: 40, bottom: 20, left: 120},
+  var margin = {top: 10, right: 40, bottom: 80, left: 90},
     width = window.innerWidth,
     height = window.innerHeight,
     size = {
@@ -1071,14 +1187,18 @@ vizwhiz.viz.stacked = function() {
       "x": margin.left,
       "y": margin.top
     },
-    depth = null,
     value_var = null,
     id_var = null,
     text_var = null,
     xaxis_var = null,
-    xaxis_label = "",
-    yaxis_label = "",
     nesting = [],
+    filter = [],
+    solo = [],
+    layout = "value",
+    sort = "total",
+    sort_order = "asc",
+    tooltip_info = [],
+    title = null,
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
 
   //===================================================================
@@ -1090,24 +1210,60 @@ vizwhiz.viz.stacked = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
       //-------------------------------------------------------------------
+
+      // first clone input so we know we are working with fresh data
+      var cloned_data = JSON.parse(JSON.stringify(data));
+      
+      // filter raw data
+      cloned_data = cloned_data.filter(function(d){
+        // if any of this item's parents are in the filter list, remove it
+        for(var i = 0; i < nesting.length; i++){
+          if(filter.indexOf(d[nesting[i]]) > -1){
+            return false;
+          }
+        }
+        
+        if(!solo.length){
+          return true
+        }
+
+        // if any of this item's parents are in the filter list, remove it
+        for(var i = 0; i < nesting.length; i++){
+          if(solo.indexOf(d[nesting[i]]) > -1){
+            return true;
+          }
+        }
+        
+        return false;
+      })
       
       // get unique values for xaxis
-      xaxis_vals = data
-        .reduce(function(a, b){ return a.concat(b.year) }, [])
+      xaxis_vals = cloned_data
+        .reduce(function(a, b){ return a.concat(b[xaxis_var]) }, [])
         .filter(function(value, index, self) { 
           return self.indexOf(value) === index;
         })
       
-      // nest data properly according to nesting array
-      nested_data = nest_data(xaxis_vals, data);
-      
-      // get max total for sums of each year
-      var data_max = d3.max(d3.nest()
-        .key(function(d){return d.year})
+      // get max total for sums of each xaxis
+      var xaxis_sums = d3.nest()
+        .key(function(d){return d[xaxis_var] })
         .rollup(function(leaves){
           return d3.sum(leaves, function(d){return d[value_var];})
         })
-        .entries(data), function(d){ return d.values; });
+        .entries(cloned_data)
+      
+      var data_max = layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
+      
+      // nest data properly according to nesting array
+      nested_data = nest_data(xaxis_vals, cloned_data, xaxis_sums);
+      
+      // increase top margin if it's not large enough
+      margin.top = title && margin.top < 40 ? 40 : margin.top;
+      // update size
+      size.width = width-margin.left-margin.right;
+      size.height = height-margin.top-margin.bottom;
+      size.x = margin.left;
+      size.y = margin.top;
       
       // scales for both X and Y values
       var x_scale = d3.scale.linear()
@@ -1130,8 +1286,10 @@ vizwhiz.viz.stacked = function() {
         .attr('height',height)
       
       // container for the visualization
-      var viz_enter = svg_enter.append("g").attr("class", "viz")
-        .attr("transform", "translate(" + size.x + "," + size.y + ")")
+      var viz_enter = svg_enter.append("g")
+        .attr("class", "viz")
+        .attr("width", size.width)
+        .attr("height", size.height)
 
       // add grey background for viz
       viz_enter.append("rect")
@@ -1139,35 +1297,67 @@ vizwhiz.viz.stacked = function() {
         .style('stroke-width',1)
         .style('fill','#efefef')
         .attr("class","background")
-        .attr('width', size.width)
-        .attr('height', size.height)
         .attr('x',0)
         .attr('y',0)
+        .on(vizwhiz.evt.move, function(d){
+          vizwhiz.tooltip.remove();
+        })
+      
+      // update (in case width and height are changed)
+      d3.select(".viz")
+        .attr("transform", "translate(" + size.x + "," + size.y + ")")
+        .select("rect")
+          .attr('width', size.width)
+          .attr('height', size.height)
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // TITLE
+      //-------------------------------------------------------------------
+      
+      svg_enter.append("text")
+        .attr('class', 'title')
+        .attr("text-anchor", "middle")
+        .style("font-weight", "bold")
+        .attr("font-size", "14px")
+        .attr("font-family", "Helvetica")
+        .attr("fill", "#4c4c4c");
+        
+      d3.select(".title")
+        .attr('width', size.width)
+        .attr('x', (size.width/2) + margin.left) 
+        .attr('y', margin.top/2)
+        .text(title);
+      
+      //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // X AXIS
       //-------------------------------------------------------------------
       
-      // enter
+      // enter axis ticks
       var xaxis_enter = viz_enter.append("g")
         .attr("class", "xaxis")
+      
+      // update axis ticks
+      d3.select(".xaxis")
         .attr("transform", "translate(0," + size.height + ")")
+        .call(x_axis.scale(x_scale))
       
-      // update
-      d3.select(".xaxis").call(x_axis.scale(x_scale).ticks(xaxis_vals.length))
-      
-      // label
+      // enter label
       xaxis_enter.append('text')
-        .attr('width', size.width)
-        .attr('x', size.width/2)
+        .attr('class', 'axis_title_x')
         .attr('y', 60)
-        .attr('class', 'axis_title x')
         .attr("text-anchor", "middle")
         .style("font-weight", "bold")
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
-        .text(xaxis_label)
+        .text(xaxis_var)
+      
+      // update label
+      d3.select(".axis_title_x")
+        .attr('width', size.width)
+        .attr('x', size.width/2)
       
       //===================================================================
       
@@ -1182,17 +1372,24 @@ vizwhiz.viz.stacked = function() {
       // update
       d3.select(".yaxis").call(y_axis.scale(y_scale))
       
+      // also update background tick lines
+      d3.selectAll(".y_bg_line")
+        .attr("x2", size.width)
+      
       // label
       yaxis_enter.append('text')
-        .attr('width', size.width)
-        .attr('class', 'axis_title y')
+        .attr('class', 'axis_title_y')
         .attr("text-anchor", "middle")
         .style("font-weight", "bold")
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
+        .text(value_var)
+      
+      // update label
+      d3.select(".axis_title_y")
+        .attr('width', size.width)
         .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
-        .text(yaxis_label)
       
       //===================================================================
       
@@ -1202,14 +1399,20 @@ vizwhiz.viz.stacked = function() {
       //-------------------------------------------------------------------
       
       // Get layers from d3.stack function (gives x, y, y0 values)
-      var layers = stack(nested_data)
+      var offset = layout == "value" ? "zero" : "expand";
+      var layers = stack.offset(offset)(nested_data)
+      
+      // container for layers
+      viz_enter.append("g").attr("class", "layers")
       
       // give data with key function to variables to draw
-      var paths = d3.select("g.viz").selectAll(".layer")
+      var paths = d3.select("g.layers").selectAll(".layer")
         .data(layers, function(d){ return d.key; })
       
+      // ENTER
       // enter new paths, could be next level deep or up a level
       paths.enter().append("path")
+        .attr("opacity", 0)
         .attr("class", "layer")
         .attr("fill-opacity", 0.8)
         .attr("stroke-width",1)
@@ -1221,17 +1424,64 @@ vizwhiz.viz.stacked = function() {
           return area(d.values);
         })
       
-      // update
-      paths
+      // UPDATE
+      paths.transition().duration(vizwhiz.timing)
+        .attr("opacity", 1)
         .attr("fill", function(d){
           return d.color
         })
         .attr("d", function(d) {
           return area(d.values);
+        });
+      // mouseover
+      paths
+        .on(vizwhiz.evt.move, path_tooltip)
+        
+      function path_tooltip(d){
+        d3.selectAll("line.rule").remove();
+        var mouse_x = d3.mouse(this)[0];
+        var rev_x_scale = d3.scale.linear()
+          .domain(x_scale.range()).range(x_scale.domain());
+        var this_x = Math.round(rev_x_scale(mouse_x));
+        var this_x_index = xaxis_vals.indexOf(this_x)
+        var this_value = d.values[this_x_index]
+        // add dashed line at closest X position to mouse location
+        d3.select("g.viz").append("line")
+          .datum(d)
+          .attr("class", "rule")
+          .attr({"x1": x_scale(this_x), "x2": x_scale(this_x)})
+          .attr({"y1": y_scale(this_value.y0), "y2": y_scale(this_value.y + this_value.y0)})
+          .attr("stroke", "white")
+          .attr("stroke-width", 2)
+          .attr("stroke-opacity", 0.75)
+          .attr("stroke-dasharray", "5,3")
+          .on(vizwhiz.evt.move, null)
+        
+        // tooltip
+        var tooltip_data = {}
+        tooltip_data["Value ("+this_x+")"] = this_value.values;
+        tooltip_info.forEach(function(t){
+          if (d[t]) tooltip_data[t] = d[t]
         })
+
+        vizwhiz.tooltip.remove();
+        vizwhiz.tooltip.create({
+          "parent": svg,
+          "id": d.id,
+          "data": tooltip_data,
+          "title": d[nesting[nesting.length-1]],
+          "x": x_scale(this_x)+margin.left,
+          "y": y_scale(this_value.y0 + this_value.y)+(size.height-y_scale(this_value.y))/2+margin.top,
+          "offset": ((size.height-y_scale(this_value.y))/2)+2,
+          "arrow": true
+        })
+      }
       
-      // exit
-      paths.exit().remove()
+      // EXIT
+      paths.exit()
+        .transition().duration(vizwhiz.timing)
+        .attr("opacity", 0)
+        .remove()
       
       //===================================================================
       
@@ -1248,55 +1498,116 @@ vizwhiz.viz.stacked = function() {
       layers.forEach(function(layer){
         
         // find out which is the largest
-        var tallest = d3.max(layer.values, function(d){ return d.y; });
-        tallest = layer.values.filter(function(d){ return d.y == tallest; })[0]
-        
-        // if the height is taller than 6% of the viz height add it to the list
-        if(text_height_scale(tallest.y) > 0.06){
-          // tallest["id"] = layer.key;
-          layer.tallest = tallest;
+        var available_areas = layer.values.filter(function(d,i,a){
+          var min_height = 30;
+          if (i == 0) {
+            return (size.height-y_scale(d.y)) >= min_height 
+                && (size.height-y_scale(a[i+1].y)) >= min_height
+                && (size.height-y_scale(a[i+2].y)) >= min_height
+                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
+                && y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0)) < y_scale(a[i+2].y0)
+                && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
+                && y_scale(a[i+1].y0) > y_scale(a[i+2].y)-(size.height-y_scale(a[i+2].y0));
+          }
+          else if (i == a.length-1) {
+            return (size.height-y_scale(d.y)) >= min_height 
+                && (size.height-y_scale(a[i-1].y)) >= min_height
+                && (size.height-y_scale(a[i-2].y)) >= min_height
+                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
+                && y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0)) < y_scale(a[i-2].y0)
+                && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0))
+                && y_scale(a[i-1].y0) > y_scale(a[i-2].y)-(size.height-y_scale(a[i-2].y0));
+          }
+          else {
+            return (size.height-y_scale(d.y)) >= min_height 
+                && (size.height-y_scale(a[i-1].y)) >= min_height
+                && (size.height-y_scale(a[i+1].y)) >= min_height
+                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
+                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
+                && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
+                && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0));
+          }
+        });
+        var best_area = d3.max(layer.values,function(d,i){
+          if (available_areas.indexOf(d) >= 0) {
+            if (i == 0) {
+              return (size.height-y_scale(d.y))
+                   + (size.height-y_scale(layer.values[i+1].y))
+                   + (size.height-y_scale(layer.values[i+2].y));
+            }
+            else if (i == layer.values.length-1) {
+              return (size.height-y_scale(d.y))
+                   + (size.height-y_scale(layer.values[i-1].y))
+                   + (size.height-y_scale(layer.values[i-2].y));
+            }
+            else {
+              return (size.height-y_scale(d.y))
+                   + (size.height-y_scale(layer.values[i-1].y))
+                   + (size.height-y_scale(layer.values[i+1].y));
+            }
+          } else return null;
+        });
+        var best_area = layer.values.filter(function(d,i,a){
+          if (i == 0) {
+            return (size.height-y_scale(d.y))
+                 + (size.height-y_scale(layer.values[i+1].y))
+                 + (size.height-y_scale(layer.values[i+2].y)) == best_area;
+          }
+          else if (i == layer.values.length-1) {
+            return (size.height-y_scale(d.y))
+                 + (size.height-y_scale(layer.values[i-1].y))
+                 + (size.height-y_scale(layer.values[i-2].y)) == best_area;
+          }
+          else {
+            return (size.height-y_scale(d.y))
+                 + (size.height-y_scale(layer.values[i-1].y))
+                 + (size.height-y_scale(layer.values[i+1].y)) == best_area;
+          }
+        })[0]
+        if (best_area) {
+          layer.tallest = best_area
           text_layers.push(layer)
         }
+        
       })
+      // container for text layers
+      viz_enter.append("g").attr("class", "text_layers")
       
       // give data with key function to variables to draw
-      var texts = d3.select("g.viz").selectAll(".label")
-        .data(text_layers, function(d){ return d.key; })
-      
-      // enter new paths, could be next level deep or up a level
+      var texts = d3.select("g.text_layers").selectAll(".label")
+        .data(text_layers, function(d){ return d.key+d.tallest.key; })
+        
+      // ENTER
       texts.enter().append("text")
         .attr('filter', 'url(#dropShadow)')
         .attr("class", "label")
         .style("font-weight","bold")
         .attr("font-size","14px")
         .attr("font-family","Helvetica")
-        .attr("x", function(d){
-          var pad = 0;
-          // determine the index of the tallest item
-          var values_index = d.values.indexOf(d.tallest)
-          // if first, push it off 10 pixels from left side
-          if(values_index == 0) pad += 10;
-          // if last, push it off 10 pixels from right side
-          if(values_index == d.values.length-1) pad -= 10;
-          return x_scale(d.tallest.key) + pad;
-        })
         .attr("dy", 6)
-        .attr("y", function(d){
-          var height = size.height - y_scale(d.tallest.y)
-          return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
-        })
+        .attr("opacity",0)
         .attr("text-anchor", function(d){
-          // determine the index of the tallest item
-          var values_index = d.values.indexOf(d.tallest)
           // if first, left-align text
-          if(values_index == 0) return "start";
+          if(d.tallest.key == x_scale.domain()[0]) return "start";
           // if last, right-align text
-          if(values_index == d.values.length-1) return "end";
+          if(d.tallest.key == x_scale.domain()[1]) return "end";
           // otherwise go with middle
           return "middle"
         })
         .attr("fill", function(d){
           return "white"
+        })
+        .attr("x", function(d){
+          var pad = 0;
+          // if first, push it off 10 pixels from left side
+          if(d.tallest.key == x_scale.domain()[0]) pad += 10;
+          // if last, push it off 10 pixels from right side
+          if(d.tallest.key == x_scale.domain()[1]) pad -= 10;
+          return x_scale(d.tallest.key) + pad;
+        })
+        .attr("y", function(d){
+          var height = size.height - y_scale(d.tallest.y);
+          return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
         })
         .text(function(d) {
           return d[nesting[nesting.length-1]]
@@ -1311,7 +1622,16 @@ vizwhiz.viz.stacked = function() {
             // figure out the usable height for this location along x-axis
             var height = size.height-y_scale(d.tallest.y)
             // wrap text WITHOUT resizing
-            vizwhiz.utils.wordWrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
+            // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
+            
+            vizwhiz.utils.wordwrap({
+              "text": d[nesting[nesting.length-1]],
+              "parent": this,
+              "width": tick_width,
+              "height": height,
+              "resize": false
+            })
+            
             // reset Y to compensate for new multi-line height
             var offset = (height - this.getBBox().height) / 2;
             // top of the element's y attr
@@ -1320,8 +1640,14 @@ vizwhiz.viz.stacked = function() {
           }
         })
       
-      // exit
-      texts.exit().remove()
+      // UPDATE
+      texts.transition().duration(vizwhiz.timing)
+        .attr("opacity",1)
+      
+      // EXIT
+      texts.exit().transition().duration(vizwhiz.timing)
+        .attr("opacity",0)
+        .remove()
       
       //===================================================================
       
@@ -1332,10 +1658,13 @@ vizwhiz.viz.stacked = function() {
         .style('stroke-width',1*2)
         .style('fill','none')
         .attr('class', "border")
-        .attr('width', size.width)
-        .attr('height', size.height)
         .attr('x',0)
         .attr('y',0)
+      
+      // update (in case width and height are changed)
+      d3.select(".border")
+        .attr('width', size.width)
+        .attr('height', size.height)
       
       // Always bring to front
       d3.select("rect.border").node().parentNode.appendChild(d3.select("rect.border").node())
@@ -1349,7 +1678,7 @@ vizwhiz.viz.stacked = function() {
   // Nest data function (needed for getting flat data ready for stacks)
   //-------------------------------------------------------------------
   
-  function nest_data(xaxis_vals, data){
+  function nest_data(xaxis_vals, data, xaxis_sums){
     var nest_key = nesting[nesting.length-1];
     var info_lookup = {};
     
@@ -1361,17 +1690,19 @@ vizwhiz.viz.stacked = function() {
         delete info_lookup[leaves[0][nest_key]][value_var]
         
         var values = d3.nest()
-          .key(function(d){ return d.year; })
-          .rollup(function(l) { return d3.sum(l, function(d){ return d[value_var]})})
+          .key(function(d){ return d[xaxis_var]; })
+          .rollup(function(l) {
+            return d3.sum(l, function(d){ return d[value_var]});
+          })
           .entries(leaves)
         
-        // Make sure all years at least have 0 values
-        years_available = values
+        // Make sure all xaxis_vars at least have 0 values
+        xaxis_vars_available = values
           .reduce(function(a, b){ return a.concat(b.key)}, [])
           .filter(function(y, i, arr) { return arr.indexOf(y) == i })
         
         xaxis_vals.forEach(function(y){
-          if(years_available.indexOf(""+y) < 0){
+          if(xaxis_vars_available.indexOf(""+y) < 0){
             values.push({"key": ""+y, "values": 0})
           }
         })
@@ -1384,11 +1715,12 @@ vizwhiz.viz.stacked = function() {
       d["total"] = d3.sum(d.values, function(dd){ return dd.values; })
       nested[i] = vizwhiz.utils.merge(d, info_lookup[d.key]);
     })
-    return nested
+    // return nested
     
     return nested.sort(function(a,b){
-      if(a[sort]<b[sort]) return -1;
-      if(a[sort]>b[sort]) return 1;
+      // console.log(a)
+      if(a[sort]<b[sort]) return sort_order == "desc" ? -1 : 1;
+      if(a[sort]>b[sort]) return sort_order == "desc" ? 1 : -1;
       return 0;
     });
     
@@ -1408,8 +1740,6 @@ vizwhiz.viz.stacked = function() {
   
   //===================================================================
   
-  //===================================================================
-  
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // X & Y Axis formatting help
   //-------------------------------------------------------------------
@@ -1425,6 +1755,15 @@ vizwhiz.viz.stacked = function() {
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
+      // vertical lines up and down
+      d3.select(this.parentNode).append("line")
+        .attr("class","tick_line")
+        .attr("x1", 0)
+        .attr("x2", 0)
+        .attr("y1", 0-1)
+        .attr("y2", -size.height+1)
+        .attr("stroke", "#ccc")
+        .attr("stroke-width",1/2)
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
         .attr("x1", 0)
@@ -1447,8 +1786,9 @@ vizwhiz.viz.stacked = function() {
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
+      // horizontal lines across
       d3.select(this.parentNode).append("line")
-        .attr("class","tick_line")
+        .attr("class","y_bg_line")
         .attr("x1", 0+1)
         .attr("x2", 0+size.width-1)
         .attr("y1", 0)
@@ -1463,6 +1803,9 @@ vizwhiz.viz.stacked = function() {
         .attr("y2", 0)
         .attr("stroke", "#000")
         .attr("stroke-width",1)
+      if(layout == "share"){
+        return d3.format("p")(d);
+      }
       return vizwhiz.utils.format_num(d, false, 3, true)
     });
 
@@ -1486,15 +1829,15 @@ vizwhiz.viz.stacked = function() {
     return chart;
   };
   
-  chart.depth = function(x) {
-    if (!arguments.length) return depth;
-    depth = x;
-    return chart;
-  };
-  
   chart.value_var = function(x) {
     if (!arguments.length) return value_var;
     value_var = x;
+    return chart;
+  };
+  
+  chart.xaxis_var = function(x) {
+    if (!arguments.length) return xaxis_var;
+    xaxis_var = x;
     return chart;
   };
   
@@ -1510,27 +1853,89 @@ vizwhiz.viz.stacked = function() {
     return chart;
   };
   
-  chart.xaxis_var = function(x) {
-    if (!arguments.length) return xaxis_var;
-    xaxis_var = x;
-    return chart;
-  };
-  
-  chart.xaxis_label = function(x) {
-    if (!arguments.length) return xaxis_label;
-    xaxis_label = x;
-    return chart;
-  };
-  
-  chart.yaxis_label = function(x) {
-    if (!arguments.length) return yaxis_label;
-    yaxis_label = x;
-    return chart;
-  };
-  
   chart.nesting = function(x) {
     if (!arguments.length) return nesting;
     nesting = x;
+    return chart;
+  };
+  
+  chart.filter = function(x) {
+    if (!arguments.length) return filter;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      filter = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+      }
+      // if element is in the solo array remove it and add to this one
+      else if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+        filter.push(x)
+      }
+      // element not in current filter so add it
+      else {
+        filter.push(x)
+      }
+    }
+    return chart;
+  };
+  
+  chart.solo = function(x) {
+    if (!arguments.length) return solo;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      solo = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+      }
+      // if element is in the filter array remove it and add to this one
+      else if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+        solo.push(x)
+      }
+      // element not in current filter so add it
+      else {
+        solo.push(x)
+      }
+    }
+    return chart;
+  };
+  
+  chart.layout = function(x) {
+    if (!arguments.length) return layout;
+    layout = x;
+    return chart;
+  };
+  
+  chart.title = function(x) {
+    if (!arguments.length) return title;
+    title = x;
+    return chart;
+  };
+  
+  chart.sort = function(x) {
+    if (!arguments.length) return sort;
+    sort = x;
+    return chart;
+  };
+  
+  chart.sort_order = function(x) {
+    if (!arguments.length) return sort_order;
+    sort_order = x;
+    return chart;
+  };
+  
+  chart.tooltip_info = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
     return chart;
   };
 
@@ -1560,22 +1965,24 @@ vizwhiz.viz.tree_map = function() {
   var margin = {top: 0, right: 0, bottom: 0, left: 0},
     width = window.innerWidth,
     height = window.innerHeight,
-    depth = null,
     value_var = "value",
     id_var = "id",
     text_var = "name",
     nesting = null,
+    filter = [],
+    solo = [],
+    tooltip_info = [],
     dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
-
+  
   //===================================================================
-
 
   function chart(selection) {
     selection.each(function(data) {
       
       var cloned_data = JSON.parse(JSON.stringify(data));
       
-      var nested_data = vizwhiz.utils.nest(cloned_data, nesting)
+      var nested_data = vizwhiz.utils.nest(cloned_data, nesting, false, [{"key":"color"}])
+      nested_data.children = nested_data.children.filter(filter_data)
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
@@ -1593,7 +2000,9 @@ vizwhiz.viz.tree_map = function() {
         .sort(function(a, b) { return a.value - b.value; })
         .value(function(d) { return value_var ? d[value_var] : d.value; })
         .nodes(nested_data)
-        .filter(function(d) { return !d.children; });
+        .filter(function(d) {
+          return !d.children;
+        })
       
       // We'll figure out how many levels of nesting there are to determine
       // the options for which depths to show
@@ -1609,7 +2018,7 @@ vizwhiz.viz.tree_map = function() {
           .attr("width",width)
           .attr("height",height)
           
-      d3.select("#clipping rect").transition(750)
+      d3.select("#clipping rect").transition(vizwhiz.timing)
         .attr("width",width)
         .attr("height",height)
         
@@ -1619,7 +2028,72 @@ vizwhiz.viz.tree_map = function() {
         .attr("clip-path","url(#clipping)")
       
       var cell = d3.select("g.viz").selectAll("g")
-        .data(tmap_data, function(d){ return id_var ? d[id_var] : d.id; })
+        .data(tmap_data, function(d){ return d[text_var]; })
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Update, for cells that are already in existance
+      //-------------------------------------------------------------------
+
+      // need to perform updates in "each" clause so that new data is 
+      // propogated down to rects and text elements
+      cell.transition().duration(vizwhiz.timing)
+        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
+        .attr("opacity", 1)
+        .each(function(g_data) {
+
+          // update rectangles
+          d3.select(this).selectAll("rect").transition().duration(vizwhiz.timing)
+            .attr('width', function() {
+              return g_data.dx+'px'
+            })
+            .attr('height', function() { 
+              return g_data.dy+'px'
+            })
+
+          // text (name)
+          d3.select(this).selectAll("text.name")
+            .attr("opacity", function(){
+              return 0;
+            })
+            .transition().duration(vizwhiz.timing)
+            .each("end", function(q, i){
+              // need to recalculate word wrapping because dimensions have changed
+              if(g_data[text_var]){
+                var text = g_data[id_var] ? [g_data[text_var],g_data[id_var]] : g_data[text_var]
+                vizwhiz.utils.wordwrap({
+                  "text": text,
+                  "parent": this,
+                  "width": g_data.dx,
+                  "height": g_data.dy,
+                  "resize": true
+                })
+              }
+              d3.select(this).transition().duration(vizwhiz.timing/2).attr("opacity", 1)
+            })
+
+          // text (share)
+          d3.select(this).selectAll("text.share").transition().duration(vizwhiz.timing)
+            .text(function(){
+              var root = g_data;
+              while(root.parent){ root = root.parent; } // find top most parent ndoe
+              return vizwhiz.utils.format_num(g_data.value/root.value, true, 2);
+            })
+            .attr('font-size',function(){
+              var size = (g_data.dx)/7
+              if(g_data.dx < g_data.dy) var size = g_data.dx/7
+              else var size = g_data.dy/7
+              return size
+            })
+            .attr('x', function(){
+              return g_data.dx/2
+            })
+            .attr('y',function(){
+              return g_data.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
+            })
+
+        })
+
+      //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New cells enter, initialize them here
@@ -1627,8 +2101,9 @@ vizwhiz.viz.tree_map = function() {
       
       // cell aka container
       var cell_enter = cell.enter().append("g")
+        .attr("opacity", 1)
         .attr("transform", function(d) {
-          return "translate(" + d.x/2 + "," + d.y/2 + ")"; 
+          return "translate(" + d.x + "," + d.y + ")"; 
         })
       
       // rectangle
@@ -1649,9 +2124,14 @@ vizwhiz.viz.tree_map = function() {
           // if a color cannot be found (at this depth of deeper) use random
           return d.color ? d.color : vizwhiz.utils.rand_color();
         })
+        .on(vizwhiz.evt.move, mouseover)
+        .on(vizwhiz.evt.out, function(d){
+          vizwhiz.tooltip.remove();
+        })
       
       // text (name)
       cell_enter.append("text")
+        .attr("opacity", 1)
         .attr("text-anchor","start")
         .style("font-weight","bold")
         .attr("font-family","Helvetica")
@@ -1661,12 +2141,22 @@ vizwhiz.viz.tree_map = function() {
         .attr('dy','1em')
         .attr("fill", function(d){
           if(d.text_color) return d.text_color
-          return d3.hsl(d.color).l > 0.6 ? "#333" : "#fff";
+          return d3.hsl(d.color).l >= 0.5 ? "#333" : "#fff";
+        })
+        .on(vizwhiz.evt.move, mouseover)
+        .on(vizwhiz.evt.out, function(d){
+          vizwhiz.tooltip.remove();
         })
         .each(function(d){
-          var text = text_var ? d[text_var] : d.name;
-          if(text){
-            vizwhiz.utils.wordWrap(text, this, d.dx, d.dy, true)
+          if(d[text_var]){
+            var text = d[id_var] ? [d[text_var],d[id_var]] : d[text_var]
+            vizwhiz.utils.wordwrap({
+              "text": text,
+              "parent": this,
+              "width": d.dx,
+              "height": d.dy,
+              "resize": true
+            })
           }
         })
       
@@ -1678,7 +2168,7 @@ vizwhiz.viz.tree_map = function() {
         .attr("font-family","Helvetica")
         .attr("fill", function(d){
           if(d.text_color) return d.text_color
-          return d3.hsl(d.color).l > 0.6 ? "#333" : "#fff";
+          return d3.hsl(d.color).l >= 0.5 ? "#333" : "#fff";
         })
         .text(function(d) {
           var root = d;
@@ -1701,70 +2191,55 @@ vizwhiz.viz.tree_map = function() {
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Update, for cells that are already in existance
-      //-------------------------------------------------------------------
-      
-      // need to perform updates in "each" clause so that new data is 
-      // propogated down to rects and text elements
-      cell
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-        .each(function(g_data) {
-          
-          // update rectangles
-          d3.select(this).selectAll("rect")
-            .attr('width', function() {
-              return g_data.dx+'px'
-            })
-            .attr('height', function() { 
-              return g_data.dy+'px'
-            })
-          
-          // text (name)
-          d3.select(this).selectAll("text.name")
-            .each(function(){
-              // need to recalculate word wrapping because dimensions have changed
-              var text = text_var ? g_data[text_var] : g_data.name;
-              if(text){
-                // vizwhiz.utils.wordWrap(text, this, g_data.dx, g_data.dy, true)
-              }
-            })
-          
-          // text (share)
-          d3.select(this).selectAll("text.share")
-            .text(function(){
-              var root = g_data;
-              while(root.parent){ root = root.parent; } // find top most parent ndoe
-              return vizwhiz.utils.format_num(g_data.value/root.value, true, 2);
-            })
-            .attr('font-size',function(){
-              var size = (g_data.dx)/7
-              if(g_data.dx < g_data.dy) var size = g_data.dx/7
-              else var size = g_data.dy/7
-              return size
-            })
-            .attr('x', function(){
-              return g_data.dx/2
-            })
-            .attr('y',function(){
-              return g_data.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
-            })
-          
-        })
-
-      //===================================================================
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Exis, get rid of old cells
       //-------------------------------------------------------------------
       
-      cell.exit().remove()
+      cell.exit().transition().duration(vizwhiz.timing)
+        .attr("opacity", 0)
+        .remove()
 
       //===================================================================
       
     });
 
-
     return chart;
+  }
+  
+  function mouseover(d){
+    // tooltip
+    var svg = d3.select("svg");
+    var tooltip_data = {}
+    tooltip_info.forEach(function(t){
+      if (d[t]) tooltip_data[t] = d[t]
+    })
+    vizwhiz.tooltip.create({
+      "parent": svg,
+      "id": d.id,
+      "data": tooltip_data,
+      "title": d[text_var],
+      "x": d3.mouse(svg.node())[0],
+      "y": d3.mouse(svg.node())[1],
+      "offset": 10,
+      "arrow": true
+    })
+  }
+  
+  function filter_data(d){
+    
+    // if this items name is in the filter list, remove it
+    if(filter.indexOf(d.name) > -1){
+      return false
+    }
+    
+    if(!solo.length){
+      return true
+    }
+    
+    if(solo.indexOf(d.name) > -1){
+      return true;
+    }
+    
+    return false;
   }
 
 
@@ -1783,12 +2258,6 @@ vizwhiz.viz.tree_map = function() {
   chart.height = function(x) {
     if (!arguments.length) return height;
     height = x;
-    return chart;
-  };
-  
-  chart.depth = function(x) {
-    if (!arguments.length) return depth;
-    depth = x;
     return chart;
   };
   
@@ -1813,6 +2282,62 @@ vizwhiz.viz.tree_map = function() {
   chart.nesting = function(x) {
     if (!arguments.length) return nesting;
     nesting = x;
+    return chart;
+  };
+  
+  chart.tooltip_info = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
+    return chart;
+  };
+  
+  chart.filter = function(x) {
+    if (!arguments.length) return filter;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      filter = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+      }
+      // if element is in the solo array remove it and add to this one
+      else if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+        filter.push(x)
+      }
+      // element not in current filter so add it
+      else {
+        filter.push(x)
+      }
+    }
+    return chart;
+  };
+  
+  chart.solo = function(x) {
+    if (!arguments.length) return solo;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      solo = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+      }
+      // if element is in the filter array remove it and add to this one
+      else if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+        solo.push(x)
+      }
+      // element not in current filter so add it
+      else {
+        solo.push(x)
+      }
+    }
     return chart;
   };
 
@@ -1843,7 +2368,6 @@ vizwhiz.viz.tree_map = function() {
       clicked = false,
       highlight = null,
       timing = 500,
-      zoom_timing = null,
       coords = null,
       shape = null,
       terrain = true,
@@ -1853,7 +2377,14 @@ vizwhiz.viz.tree_map = function() {
       land_style = {"fill": "#F1EEE8"},
       water_color = "#B5D0D0",
       stroke_width = 1,
-      color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"];
+      tooltip_info = [],
+      color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
+      zoom_behavior = d3.behavior.zoom(),
+      projection = d3.geo.mercator(),
+      value_color = d3.scale.log(),
+      initial_width,
+      initial_height,
+      first = true;
 
   //===================================================================
 
@@ -1865,23 +2396,32 @@ vizwhiz.viz.tree_map = function() {
       // Private Variables
       //-------------------------------------------------------------------
       
+      if (first) {
+        projection
+          .scale(width)
+          .translate([width/2,height/2]);
+          
+        initial_width = width
+        initial_height = height
+          
+        zoom_behavior
+          .scale(projection.scale())
+          .translate(projection.translate())
+          .on("zoom",function(d){ zoom(d); })
+          .scaleExtent([width, 1 << 23]);
+      }
+      
       var this_selection = this,
           dragging = false,
           info_width = 300,
-          projection = d3.geo.mercator()
-            .scale(width)
-            .translate([width/2,height/2]),
+          scale_height = 10,
+          scale_padding = 20,
           path = d3.geo.path().projection(projection),
-          zoom_behavior = d3.behavior.zoom()
-            .scale(projection.scale())
-            .scaleExtent([width, 1 << 23])
-            .translate(projection.translate())
-            .on("zoom",zoom),
           tile = d3.geo.tile().size([width, height]),
           old_scale = projection.scale(),
           old_translate = projection.translate();
           
-
+      
       if (data) {
         data_extent = d3.extent(d3.values(data),function(d){
           return d[value_var] && d[value_var] != 0 ? d[value_var] : null
@@ -1892,7 +2432,7 @@ vizwhiz.viz.tree_map = function() {
           data_range.push((data_extent[0]*Math.pow((data_extent[1]/data_extent[0]),step)))
           step += 0.2
         }
-        var value_color = d3.scale.log()
+        value_color
           .domain(data_range)
           .interpolate(d3.interpolateRgb)
           .range(color_gradient)
@@ -1909,6 +2449,8 @@ vizwhiz.viz.tree_map = function() {
         .style("z-index", 10)
         .style("position","absolute");
         
+      var defs = svg_enter.append("defs")
+        
       if (background) {
             
         svg_enter.append("rect")
@@ -1917,21 +2459,23 @@ vizwhiz.viz.tree_map = function() {
           .attr("fill",water_color);
           
         svg_enter.append("g")
+          .attr("id","land")
           .attr("class","viz")
-            .append("path")
-              .datum(topojson.object(background, background.objects.land))
-              .attr("id","land")
-              .attr("d",path)
-              .attr(land_style)
+              
+        var land = d3.select("g#land").selectAll("path")
+          .data(topojson.object(background, background.objects.land).geometries)
+        
+        land.enter().append("path")
+          .attr("d",path)
+          .attr(land_style)
             
       }
-          
-      if (terrain) {
-        var tile_group = svg_enter.append('g')
-          .attr('class','tiles');
-          
-        update_tiles();
-      }
+
+      svg_enter.append('g')
+        .attr('class','tiles');
+        
+      if (terrain) update_tiles(0);
+      else d3.selectAll("g.tiles *").remove()
         
       // Create viz group on svg_enter
       var viz_enter = svg_enter.append('g')
@@ -1941,12 +2485,426 @@ vizwhiz.viz.tree_map = function() {
         .append('g')
           .attr('class','viz');
         
-      viz_enter.append("rect").attr("class", "overlay");
+      viz_enter.append("rect")
+        .attr("class","overlay")
+        .attr("width",width)
+        .attr("height",height)
+        .attr("fill","transparent")
+        .on(vizwhiz.evt.click, function(d) {
+          if (highlight) {
+            var temp = highlight;
+            highlight = null;
+            d3.select("#path"+temp).call(color_paths);
+            clicked = false;
+            zoom(shape);
+            info();
+          }
+        });
+        
+      viz_enter.append('g')
+        .attr('class','paths');
+        
+      // add scale
+        
+      var gradient = defs
+        .append("svg:linearGradient")
+        .attr("id", "gradient")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+        .attr("spreadMethod", "pad");
+           
+      data_range.forEach(function(v,i){
+        gradient.append("stop")
+          .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
+          .attr("stop-color", value_color(v))
+          .attr("stop-opacity", 1)
+      })
+        
+      var scale = svg_enter.append('g')
+        .attr('class','scale')
+        .attr("transform","translate("+(width-info_width-5)+","+5+")");
+        
+      scale.append("rect")
+        .attr("width", info_width+"px")
+        .attr("height", (scale_height*5)+"px")
+        .attr("fill","#ffffff")
+        .attr("rx",3)
+        .attr("ry",3)
+        .attr("stroke","#cccccc")
+        .attr("stroke-width",2)
+            
+      scale.append("text")
+        .attr("id","scale_title")
+        .attr("x",(info_width/2)+"px")
+        .attr("y","0px")
+        .attr("dy","1.25em")
+        .attr("text-anchor","middle")
+        .attr("fill","#333")
+        .style("font-weight","bold")
+        .attr("font-size","12px")
+        .attr("font-family","Helvetica")
+           
+      data_range.forEach(function(v,i){
+        if (i == data_range.length-1) {
+          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-2
+        } else if (i != 0) {
+          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
+        } else {
+          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))
+        }
+        scale.append("rect")
+          .attr("x", x+"px")
+          .attr("y", (scale_height*2)+"px")
+          .attr("width", 2)
+          .attr("height", (scale_height*1.5)+"px")
+          .style("fill", "#333")
+        
+      scale.append("rect")
+        .attr("x",scale_padding+"px")
+        .attr("y",(scale_height*2)+"px")
+        .attr("width", (info_width-(scale_padding*2))+"px")
+        .attr("height", scale_height+"px")
+        .style("fill", "url(#gradient)")
+            
+        scale.append("text")
+          .attr("id","scale_"+i)
+          .attr("x",x+"px")
+          .attr("y", ((scale_height*3)+5)+"px")
+          .attr("dy","1em")
+          .attr("text-anchor","middle")
+          .attr("fill","#333")
+          .style("font-weight","bold")
+          .attr("font-size","10px")
+          .attr("font-family","Helvetica")
+      })
       
+      data_range.forEach(function(v,i){
+        d3.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
+      })
+      d3.select("text#scale_title").text(value_var)
+        
+      // Create Zoom Controls div on svg_enter
+      d3.select(this_selection).select("div#zoom_controls").remove()
+      var zoom_div = d3.select(this_selection).append("div")
+        .attr("id","zoom_controls")
+        
+      zoom_div.append("div")
+        .attr("id","zoom_in")
+        .attr("unselectable","on")
+        .on(vizwhiz.evt.click,function(){ zoom("in") })
+        .text("+")
+        
+      zoom_div.append("div")
+        .attr("id","zoom_out")
+        .attr("unselectable","on")
+        .on(vizwhiz.evt.click,function(){ zoom("out") })
+        .text("-")
       
-      var v = 44;
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // New nodes and links enter, initialize them here
+      //-------------------------------------------------------------------
+
+      var coord = d3.select("g.paths").selectAll("path")
+        .data(coords)
+        
+      coord.enter().append("path")
+        .attr("id",function(d) { return "path"+d.id } )
+        .attr("d",path)
+        .attr("vector-effect","non-scaling-stroke")
+        .attr("opacity",0)
+        .on(vizwhiz.evt.over, function(d){
+          if (!clicked) {
+            highlight = d[id_var];
+            d3.select(this).attr("opacity",select_opacity);
+            info();
+          }
+          if (highlight != d[id_var]) d3.select(this).attr("opacity",select_opacity);
+        })
+        .on(vizwhiz.evt.out, function(d){
+          if (!clicked) {
+            highlight = null;
+            d3.select(this).attr("opacity",default_opacity);
+            info();
+          }
+          if (highlight != d[id_var]) d3.select(this).attr("opacity",default_opacity);
+        })
+        .on(vizwhiz.evt.click, function(d) {
+          if (clicked && highlight == d[id_var]) {
+            var temp = highlight;
+            highlight = null;
+            d3.select("#path"+temp).call(color_paths);
+            clicked = false;
+            zoom(shape);
+            info();
+          } else {
+            if (highlight) {
+              var temp = highlight;
+              highlight = null;
+              d3.select("#path"+temp).call(color_paths);
+            }
+            highlight = d[id_var];
+            d3.select(this).call(color_paths);
+            clicked = true;
+            zoom(d3.select("path#path"+highlight).datum());
+            info();
+          }
+        });
       
+      //===================================================================
       
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Update, for things that are already in existance
+      //-------------------------------------------------------------------
+      
+      coord.transition().duration(timing)
+        .attr("opacity",default_opacity)
+        .call(color_paths);
+        
+      // land.attr("d",path);
+        
+      svg.transition().duration(timing)
+        .attr("width", width)
+        .attr("height", height)
+        .each("end",function(){
+          info()
+        });
+        
+      d3.select("g.scale").transition().duration(timing)
+        .attr("transform","translate("+(width-info_width-5)+","+5+")");
+        
+      //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Exit, for nodes and links that are being removed
+      //-------------------------------------------------------------------
+
+      // node.exit().remove()
+
+      //===================================================================
+      
+      if (first) {
+        zoom(shape,0);
+        first = false;
+      } else if (clicked) {
+        zoom(d3.select("path#path"+highlight).datum());
+      }
+      
+      function color_paths(p) {
+        p
+          .attr("fill",function(d){ 
+            if (d[id_var] == highlight) return "none";
+            else if (!data) return "#888888";
+            else return data[d[id_var]] ? value_color(data[d[id_var]][value_var]) : "#eeeeee"
+          })
+          .attr("stroke-width",function(d) {
+            if (d[id_var] == highlight) return 10;
+            else return stroke_width;
+          })
+          .attr("stroke",function(d) {
+            if (d[id_var] == highlight) return data[d[id_var]] ? value_color(data[d[id_var]][value_var]) : "#eeeeee";
+            else return "white";
+          })
+          .attr("opacity",function(d){
+            if (d[id_var] == highlight) return select_opacity;
+            else return default_opacity;
+          })
+          .attr("clip-path",function(d){ 
+            if (d[id_var] == highlight) return "url(#stroke_clip)";
+            else return "none"
+          })
+          .each(function(d){
+            if (d[id_var] == highlight) {
+              defs.selectAll("#stroke_clip").remove();
+              d3.select("defs").append("clipPath")
+                .attr("id","stroke_clip")
+                .append("use")
+                  .attr("xlink:href",function(dd) { return "#path"+highlight } )
+            }
+          });
+      }
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Zoom Function
+      //-------------------------------------------------------------------
+      
+      function zoom(param,custom_timing) {
+        
+        var translate = zoom_behavior.translate(),
+            zoom_extent = zoom_behavior.scaleExtent()
+            
+        var scale = zoom_behavior.scale()
+        
+        if (param == "in") var scale = scale*2
+        else if (param == "out") var scale = scale*0.5
+        
+        var svg_scale = scale/initial_width,
+            svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/initial_width)*initial_height)/2)]
+            
+        old_scale = projection.scale()
+        old_translate = projection.translate()
+            
+        if (param.coordinates) {
+          
+          if (clicked && highlight) { 
+            var left = 20, w_avail = width-info_width-left
+          } else {
+            var left = 0, w_avail = width
+          }
+          
+          var b = path.bounds(param),
+              w = (b[1][0] - b[0][0])*1.1,
+              h = (b[1][1] - b[0][1])*1.1,
+              s_width = (w_avail*(scale/initial_width))/w,
+              s_height = (height*(scale/initial_width))/h
+              
+          if (s_width < s_height) {
+            var s = s_width*initial_width,
+                offset_left = ((w_avail-(((w/1.1)/svg_scale)*s/initial_width))/2)+left,
+                offset_top = (height-((h/svg_scale)*s/initial_width))/2
+          } else {
+            var s = s_height*initial_width,
+                offset_left = ((w_avail-((w/svg_scale)*s/initial_width))/2)+left,
+                offset_top = (height-(((h/1.1)/svg_scale)*s/initial_width))/2
+          }
+          
+          var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/initial_width)+offset_left,
+              t_y = ((-(b[0][1]-svg_translate[1])/svg_scale)*s/initial_width)+offset_top
+              
+          var t = [t_x+(s/2),t_y+(((s/initial_width)*initial_height)/2)]
+          
+          translate = t
+          scale = s
+          
+        } else if (param == "in" || param == "out") {
+          
+          var b = projection.translate()
+          
+          if (param == "in") translate = [b[0]+(b[0]-(width/2)),b[1]+(b[1]-(height/2))]
+          else if (param == "out") translate = [b[0]+(((width/2)-b[0])/2),b[1]+(((height/2)-b[1])/2)]
+        }
+        
+        // Scale Boundries
+        if (scale < zoom_extent[0]) scale = zoom_extent[0]
+        else if (scale > zoom_extent[1]) scale = zoom_extent[1]
+        // X Boundries
+        if (translate[0] > scale/2) translate[0] = scale/2
+        else if (translate[0] < width-scale/2) translate[0] = width-scale/2
+        // Y Boundries
+        if (translate[1] > scale/2) translate[1] = scale/2
+        else if (translate[1] < height-scale/2) translate[1] = height-scale/2
+
+        projection.scale(scale).translate(translate);
+        zoom_behavior.scale(scale).translate(translate);
+        svg_scale = scale/initial_width;
+        svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/initial_width)*initial_height)/2)];
+        
+        if (typeof custom_timing != "number") {
+          if (d3.event) {
+            if (d3.event.scale) {
+              if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
+                var zoom_timing = 0
+              } else {
+                var zoom_timing = timing
+              }
+            } else {
+              var zoom_timing = timing
+            }
+          } else {
+            var zoom_timing = timing*4
+          }
+        } else var zoom_timing = custom_timing
+
+        if (terrain) update_tiles(zoom_timing);
+        
+        if (zoom_timing > 0) var viz_transition = d3.selectAll(".viz").transition().duration(zoom_timing)
+        else var viz_transition = d3.selectAll(".viz")
+        
+        viz_transition.attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
+            
+      }
+
+      //===================================================================
+
+      function info() {
+        
+        vizwhiz.tooltip.remove();
+        
+        if (highlight && data[highlight]) {
+            
+          var tooltip_data = {}, sub_title = null
+          
+          if (!clicked) {
+            sub_title = "Click for More Info"
+          } else {
+            tooltip_info.forEach(function(t){
+              if (data[highlight][t]) tooltip_data[t] = data[highlight][t]
+            })
+          }
+          
+          vizwhiz.tooltip.create({
+            "parent": svg,
+            "data": tooltip_data,
+            "title": data[highlight][text_var],
+            "description": sub_title,
+            "x": width,
+            "y": 0,
+            "offset": (scale_height*5)+10,
+            "width": info_width,
+            "arrow": false
+          })
+          
+        }
+        
+      }
+
+      function tileUrl(d) {
+        // Standard OSM
+        // return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.openstreetmap.org/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
+        // Custom CloudMade
+        return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.cloudmade.com/c3cf91e1455249adaef26d096785dc90/88261/256/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
+      }
+      
+      function update_tiles(image_timing) {
+
+        var t = projection.translate(),
+            s = projection.scale();
+            
+        var tiles = tile.scale(s).translate(t)(),
+            old_tiles = tile.scale(old_scale).translate(old_translate)()
+        
+        var image = d3.select("g.tiles").selectAll("image.tile")
+          .data(tiles, function(d) { return d; });
+          
+        image.enter().append('image')
+          .attr('class', 'tile')
+          .attr('xlink:href', tileUrl)
+          .attr("opacity",0)
+          .attr("width", Math.ceil(tiles.scale/(s/old_scale)))
+          .attr("height", Math.ceil(tiles.scale/(s/old_scale)))
+          .attr("x", function(d) { 
+            var test = -(t[0]-(s/(old_scale/old_translate[0])));
+            return Math.ceil(((d[0] + tiles.translate[0]) * tiles.scale)+test)/(s/old_scale); 
+          })
+          .attr("y", function(d) { 
+            var test = -(t[1]-(s/(old_scale/old_translate[1])));
+            return Math.ceil(((d[1] + tiles.translate[1]) * tiles.scale)+test)/(s/old_scale); 
+          });
+
+        if (image_timing > 0) var image_transition = image.transition().duration(image_timing)
+        else var image_transition = image
+
+        image_transition
+          .attr("opacity",1)
+          .attr("width", Math.ceil(tiles.scale))
+          .attr("height", Math.ceil(tiles.scale))
+          .attr("x", function(d) { return Math.ceil((d[0] + tiles.translate[0]) * tiles.scale); })
+          .attr("y", function(d) { return Math.ceil((d[1] + tiles.translate[1]) * tiles.scale); });
+        image.exit().remove();
+          
+          
+      }
       
     });
     
@@ -1954,8 +2912,89 @@ vizwhiz.viz.tree_map = function() {
     
   }
 
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Expose Public Variables
+  //-------------------------------------------------------------------
+
+  chart.width = function(x) {
+    if (!arguments.length) return width;
+    width = x;
+    return chart;
+  };
+
+  chart.height = function(x) {
+    if (!arguments.length) return height;
+    height = x;
+    return chart;
+  };
+
+  chart.coords = function(x) {
+    if (!arguments.length) return coords;
+    coords = topojson.object(x, x.objects.munic).geometries;
+    shape = {"coordinates": [[]], "type": "Polygon"}
+    coords.forEach(function(v,i){
+      v.coordinates[0].forEach(function(a){
+        shape.coordinates[0].push(a)
+      })
+    })
+    return chart;
+  };
+
+  chart.background = function(x,style) {
+    if (!arguments.length) return background;
+    background = x;
+    if (style) {
+      land_style = style.land;
+      water_color = style.water;
+    }
+    return chart;
+  };
+  
+  chart.tiles = function(x) {
+    if (!arguments.length) return terrain;
+    terrain = x;
+    return chart;
+  };
+
+  chart.highlight = function(x) {
+    if (!arguments.length) return highlight;
+    highlight = x;
+    if (highlight) clicked = true;
+    else clicked = false;
+    return chart;
+  };
+  
+  chart.value_var = function(x) {
+    if (!arguments.length) return value_var;
+    value_var = x;
+    return chart;
+  };
+  
+  chart.id_var = function(x) {
+    if (!arguments.length) return id_var;
+    id_var = x;
+    return chart;
+  };
+  
+  chart.text_var = function(x) {
+    if (!arguments.length) return text_var;
+    text_var = x;
+    return chart;
+  };
+  
+  chart.tooltip = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
+    return chart;
+  };
+
+  //===================================================================
+
+
   return chart;
 };
+
 vizwhiz.viz.pie_scatter = function() {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1971,21 +3010,28 @@ vizwhiz.viz.pie_scatter = function() {
       "x": margin.left,
       "y": margin.top
     },
-    depth = null,
     value_var = null,
     id_var = null,
     text_var = null,
     xaxis_var = null,
-    xaxis_label = "",
     yaxis_var = null,
-    yaxis_label = "",
-    size_var = null,
     nesting = [],
-    stroke = 2,
-    dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
+    filter = [],
+    solo = [],
+    tooltip_info = [];
+  
+  //===================================================================
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Private variables initialized (for use in mouseover functions)
+  //-------------------------------------------------------------------
+  
+  var x_scale = d3.scale.linear(),
+    y_scale = d3.scale.linear(),
+    size_scale = d3.scale.linear(),
+    stroke = 2;
 
   //===================================================================
-
 
   function chart(selection) {
     selection.each(function(data) {
@@ -1997,10 +3043,16 @@ vizwhiz.viz.pie_scatter = function() {
       // first clone input so we know we are working with fresh data
       var cloned_data = JSON.parse(JSON.stringify(data));
       // nest the flat data by nesting array
+      // console.log(value_var)
+      // value_var = "val_kg"
       var nested_data = vizwhiz.utils.nest(cloned_data, nesting, true,
-          [{"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}]);
-      // console.log(nested_data.length)
-      // return
+          [{"key":value_var, "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
+
+      // update size
+      size.width = width-margin.left-margin.right;
+      size.height = height-margin.top-margin.bottom;
+      size.x = margin.left;
+      size.y = margin.top;
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -2010,7 +3062,6 @@ vizwhiz.viz.pie_scatter = function() {
       
       // container for the visualization
       var viz_enter = svg_enter.append("g").attr("class", "viz")
-        .attr("transform", "translate(" + size.x + "," + size.y + ")")
 
       // add grey background for viz
       viz_enter.append("rect")
@@ -2018,44 +3069,69 @@ vizwhiz.viz.pie_scatter = function() {
         .style('stroke-width',1)
         .style('fill','#efefef')
         .attr("class","background")
-        .attr('width', size.width)
-        .attr('height', size.height)
         .attr('x',0)
-        .attr('y',0)      
+        .attr('y',0)
+      // update (in case width and height are changed)
+      d3.select(".viz")
+        .attr("transform", "translate(" + size.x + "," + size.y + ")")
+        .select("rect")
+          .attr('width', size.width)
+          .attr('height', size.height)
       
-        var size_scale = d3.scale.linear()
-          .domain(d3.extent(nested_data, function(d){ return d[size_var]; }))
-          .range([10, d3.min([width,height])/10])
-          .nice()
+      size_scale
+        .domain(d3.extent(nested_data, function(d){ return d[value_var]; }))
+        .range([10, d3.min([width,height])/10])
+        .nice()
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // X AXIS
       //-------------------------------------------------------------------
-      var x_scale = d3.scale.linear()
+      
+      // create scale for buffer of largest item
+      
+      x_scale
         .domain(d3.extent(nested_data, function(d){ return d[xaxis_var]; }))
         .range([0, size.width])
         .nice()
       
+      // get buffer room (take into account largest size var)
+      var inverse_x_scale = d3.scale.linear().domain(x_scale.range()).range(x_scale.domain())
+      var largest_size = size_scale.range()[1]
+      // convert largest size to x scale domain
+      largest_size = inverse_x_scale(largest_size)
+      // get radius of largest in pixels by subtracting this value from the x scale minimum
+      var x_buffer = largest_size - x_scale.domain()[0];
+      // update x scale with new buffer offsets
+      x_scale.domain([x_scale.domain()[0]-x_buffer, x_scale.domain()[1]+x_buffer])
+      
       // enter
       var xaxis_enter = viz_enter.append("g")
         .attr("class", "xaxis")
-        .attr("transform", "translate(0," + size.height + ")")
       
       // update
-      d3.select(".xaxis").call(x_axis.scale(x_scale))
+      d3.select(".xaxis")
+        .attr("transform", "translate(0," + size.height + ")")
+        .call(x_axis.scale(x_scale))
+      
+      // also update background tick lines
+      d3.selectAll(".x_bg_line")
+        .attr("y2", -size.height-stroke)
       
       // label
       xaxis_enter.append('text')
-        .attr('width', size.width)
-        .attr('x', size.width/2)
         .attr('y', 60)
-        .attr('class', 'axis_title x')
+        .attr('class', 'axis_title_x')
         .attr("text-anchor", "middle")
         .style("font-weight", "bold")
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
-        .text(xaxis_label)
+        .text(xaxis_var)
+      
+      // update label
+      d3.select(".axis_title_x")
+        .attr('width', size.width)
+        .attr('x', size.width/2)
       
       //===================================================================
       
@@ -2063,11 +3139,21 @@ vizwhiz.viz.pie_scatter = function() {
       // Y AXIS
       //-------------------------------------------------------------------
       
-      var y_scale = d3.scale.linear()
+      y_scale
         .domain(d3.extent(nested_data, function(d){ return d[yaxis_var]; }).reverse())
         .range([0, size.height])
         .nice()
-        
+      
+      // get buffer room (take into account largest size var)
+      var inverse_y_scale = d3.scale.linear().domain(y_scale.range()).range(y_scale.domain())
+      largest_size = size_scale.range()[1]
+      // convert largest size to x scale domain
+      largest_size = inverse_y_scale(largest_size)
+      // get radius of largest in pixels by subtracting this value from the x scale minimum
+      var y_buffer = largest_size - y_scale.domain()[0];
+      // update x scale with new buffer offsets
+      y_scale.domain([y_scale.domain()[0]-y_buffer, y_scale.domain()[1]+y_buffer])
+      
       // enter
       var yaxis_enter = viz_enter.append("g")
         .attr("class", "yaxis")
@@ -2075,17 +3161,24 @@ vizwhiz.viz.pie_scatter = function() {
       // update
       d3.select(".yaxis").call(y_axis.scale(y_scale))
       
+      // also update background tick lines
+      d3.selectAll(".y_bg_line")
+        .attr("x2", 0+size.width-stroke)
+      
       // label
       yaxis_enter.append('text')
-        .attr('width', size.width)
-        .attr('class', 'axis_title y')
+        .attr('class', 'axis_title_y')
         .attr("text-anchor", "middle")
         .style("font-weight", "bold")
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
+        .text(yaxis_var)
+        
+      // update label
+      d3.select(".axis_title_y")
+        .attr('width', size.width)
         .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
-        .text(yaxis_label)
       
       //===================================================================
       
@@ -2100,13 +3193,57 @@ vizwhiz.viz.pie_scatter = function() {
       
       var has_children = nested_data[0].num_children ? true : false;
       
+      // filter data AFTER axis have been set
+      nested_data = nested_data.filter(function(d){
+        
+        // if this items name is in the filter list, remove it
+        if(filter.indexOf(d.name) > -1){
+          return false
+        }
+        
+        // if any of this item's parents are in the filter list, remove it
+        for(var i = 0; i < nesting.length; i++){
+          if(filter.indexOf(d[nesting[i]]) > -1){
+            return false;
+          }
+        }
+        
+        if(!solo.length){
+          return true
+        }
+        
+        if(solo.indexOf(d.name) > -1){
+          return true;
+        }
+
+        // if any of this item's parents are in the filter list, remove it
+        for(var i = 0; i < nesting.length; i++){
+          if(solo.indexOf(d[nesting[i]]) > -1){
+            return true;
+          }
+        }
+        
+        return false;
+      })
+      
+      // sort nodes so that smallest are always on top
+      nested_data.sort(function(node_a, node_b){
+        return node_b[value_var] - node_a[value_var];
+      })
+      
       var nodes = d3.select("g.viz")
         .selectAll("g.circle")
-        .data(nested_data, function(d){ return d[nesting[nesting.length-1]]; })
+        .data(nested_data, function(d){ return d.name; })
       
       var nodes_enter = nodes.enter().append("g")
+        .attr("opacity", 0)
         .attr("class", "circle")
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
+        .on(vizwhiz.evt.over, hover(x_scale, y_scale, size_scale, size))
+        .on(vizwhiz.evt.out, function(){
+          vizwhiz.tooltip.remove();
+          d3.selectAll(".axis_hover").remove();
+        })
       
       nodes_enter
         .append("circle")
@@ -2117,9 +3254,8 @@ vizwhiz.viz.pie_scatter = function() {
           return d.active ? 0.75 : 0.25;
         })
         .attr("r", function(d){ 
-          return size_scale(d[size_var]);
+          return size_scale(d[value_var]);
         })
-      
 
       nodes_enter
         .append("path")
@@ -2127,28 +3263,87 @@ vizwhiz.viz.pie_scatter = function() {
         .style("fill-opacity", 1)
       
       // update
-      nodes
+      nodes.transition().duration(vizwhiz.timing)
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
+        .attr("opacity", 1)
       
       nodes.selectAll("circle")
         .style('fill', function(d){ return d.color })
         .attr("r", function(d){ 
-          return size_scale(d[size_var]);
+          return size_scale(d[value_var]);
         })
-        .on("mouseover", function(d){ console.log(d); })
       
       nodes.selectAll("path")
         .attr("d", function(d){
           var angle = 0, radius = 0;
           if(d.num_children){
             angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
-            radius = size_scale(d[size_var]);
+            radius = size_scale(d[value_var]);
           }
           return arc.endAngle(angle).outerRadius(radius)(d);
         })
       
       // exit
-      nodes.exit().remove()
+      nodes.exit()
+        .transition().duration(vizwhiz.timing)
+        .attr("opacity", 0)
+        .remove()
+      
+      //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // TICKS
+      //-------------------------------------------------------------------
+      
+      var ticks = d3.select("g.viz")
+        .selectAll("g.ticks")
+        .data(nested_data, function(d){ return d.name; })
+      
+      var ticks_enter = ticks.enter().append("g")
+        .attr("class", "ticks")
+      
+      // y ticks
+      // ENTER
+      ticks_enter.append("line")
+        .attr("class", "yticks")
+        .attr("x1", -10)
+        .attr("x2", 0)
+        .attr("stroke", function(d){
+          return d.color;
+        })
+        .attr("stroke-width", stroke/2)
+      
+      // UPDATE      
+      ticks.selectAll(".yticks")
+        .attr("y1", function(d){
+          return y_scale(d[yaxis_var])
+        })
+        .attr("y2", function(d){
+          return y_scale(d[yaxis_var])
+        })
+      
+      // x ticks
+      // ENTER
+      ticks_enter.append("line")
+        .attr("class", "xticks")
+        .attr("stroke", function(d){
+          return d.color;
+        })
+        .attr("stroke-width", stroke/2)
+      
+      // UPDATE
+      ticks.selectAll(".xticks")
+        .attr("y1", size.height)
+        .attr("y2", size.height + 10)      
+        .attr("x1", function(d){
+          return x_scale(d[xaxis_var])
+        })
+        .attr("x2", function(d){
+          return x_scale(d[xaxis_var])
+        })
+      
+      // EXIT (needed for when things are filtered/soloed)
+      ticks.exit().remove()
       
       //===================================================================
       
@@ -2156,69 +3351,106 @@ vizwhiz.viz.pie_scatter = function() {
 
     return chart;
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Nest data function (needed for getting flat data ready for stacks)
+  // Hover over nodes
   //-------------------------------------------------------------------
   
-  function nest_data(xaxis_vals, data){
-    var nest_key = nesting[nesting.length-1];
-    var info_lookup = {};
-    
-    var nested = d3.nest()
-      .key(function(d){ return d[nest_key]; })
-      .rollup(function(leaves){
-        info_lookup[leaves[0][nest_key]] = JSON.parse(JSON.stringify(leaves[0]))
-        delete info_lookup[leaves[0][nest_key]][xaxis_var]
-        delete info_lookup[leaves[0][nest_key]][value_var]
+  function hover(x_scale, y_scale, size_scale, xsize){
+
+      return function(d){
         
-        var values = d3.nest()
-          .key(function(d){ return d.year; })
-          .rollup(function(l) { return d3.sum(l, function(d){ return d[value_var]})})
-          .entries(leaves)
-        
-        // Make sure all years at least have 0 values
-        years_available = values
-          .reduce(function(a, b){ return a.concat(b.key)}, [])
-          .filter(function(y, i, arr) { return arr.indexOf(y) == i })
-        
-        xaxis_vals.forEach(function(y){
-          if(years_available.indexOf(""+y) < 0){
-            values.push({"key": ""+y, "values": 0})
-          }
+        var radius = size_scale(d[value_var]),
+            x = x_scale(d[xaxis_var]),
+            y = y_scale(d[yaxis_var]),
+            color = d.color,
+            viz = d3.select("g.viz"),
+            tooltip_data = {};
+      
+        tooltip_info.forEach(function(t){
+          if (d[t]) tooltip_data[t] = d[t]
         })
-
-        return values.sort(function(a,b){return a.key-b.key;});
-      })
-      .entries(data)
-    
-    nested.forEach(function(d, i){
-      d["total"] = d3.sum(d.values, function(dd){ return dd.values; })
-      nested[i] = vizwhiz.utils.merge(d, info_lookup[d.key]);
-    })
-    return nested
-    
-    return nested.sort(function(a,b){
-      if(a[sort]<b[sort]) return -1;
-      if(a[sort]>b[sort]) return 1;
-      return 0;
-    });
-    
+      
+        vizwhiz.tooltip.create({
+          "parent": viz,
+          "id": d.id,
+          "data": tooltip_data,
+          "title": d[text_var],
+          "x": x,
+          "y": y,
+          "offset": radius,
+          "arrow": true
+        })
+      
+        // vertical line to x-axis
+        viz.append("line")
+          .attr("class", "axis_hover")
+          .attr("x1", x)
+          .attr("x2", x)
+          .attr("y1", y+radius+stroke) // offset so hover doens't flicker
+          .attr("y2", xsize.height)
+          .attr("stroke", color)
+          .attr("stroke-width", stroke)
+      
+        // horizontal line to y-axis
+        viz.append("line")
+          .attr("class", "axis_hover")
+          .attr("x1", 0)
+          .attr("x2", x-radius) // offset so hover doens't flicker
+          .attr("y1", y)
+          .attr("y2", y)
+          .attr("stroke", color)
+          .attr("stroke-width", stroke)
+      
+        // x-axis value box
+        viz.append("rect")
+          .attr("class", "axis_hover")
+          .attr("x", x-25)
+          .attr("y", size.height)
+          .attr("width", 50)
+          .attr("height", 20)
+          .attr("fill", "white")
+          .attr("stroke", color)
+          .attr("stroke-width", stroke)
+      
+        // xvalue text element
+        viz.append("text")
+          .attr("class", "axis_hover")
+          .attr("x", x)
+          .attr("y", size.height)
+          .attr("dy", 14)
+          .attr("text-anchor","middle")
+          .style("font-weight","bold")
+          .attr("font-size","12px")
+          .attr("font-family","Helvetica")
+          .attr("fill","#4c4c4c")
+          .text(vizwhiz.utils.format_num(d[xaxis_var], false, 3, true))
+      
+        // y-axis value box
+        viz.append("rect")
+          .attr("class", "axis_hover")
+          .attr("x", -50)
+          .attr("y", y-10)
+          .attr("width", 50)
+          .attr("height", 20)
+          .attr("fill", "white")
+          .attr("stroke", color)
+          .attr("stroke-width", stroke)
+      
+        // xvalue text element
+        viz.append("text")
+          .attr("class", "axis_hover")
+          .attr("x", -25)
+          .attr("y", y-10)
+          .attr("dy", 14)
+          .attr("text-anchor","middle")
+          .style("font-weight","bold")
+          .attr("font-size","12px")
+          .attr("font-family","Helvetica")
+          .attr("fill","#4c4c4c")
+          .text(vizwhiz.utils.format_num(d[yaxis_var], false, 3, true))
+      }
   }
-
-  //===================================================================
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Helper function used to create stack polygon
-  //-------------------------------------------------------------------
-  
-  var stack = d3.layout.stack()
-    .offset("zero")
-    .values(function(d) { return d.values; })
-    .x(function(d) { return parseInt(d.key); })
-    .y(function(d) { return d.values; });
-  
-  //===================================================================
   
   //===================================================================
   
@@ -2228,7 +3460,7 @@ vizwhiz.viz.pie_scatter = function() {
   
   var x_axis = d3.svg.axis()
     .tickSize(0)
-    .tickPadding(15)
+    .tickPadding(25)
     .orient('bottom')
     .tickFormat(function(d, i) {
       d3.select(this)
@@ -2237,28 +3469,30 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
+      // background line
       d3.select(this.parentNode).append("line")
-        .attr("class","tick_line")
+        .attr("class","x_bg_line")
         .attr("x1", 0)
         .attr("x2", 0)
         .attr("y1", 0+stroke)
         .attr("y2", -size.height-stroke)
         .attr("stroke", "#ccc")
         .attr("stroke-width",stroke/2)
+      // tick
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
         .attr("x1", 0)
         .attr("x2", 0)
         .attr("y1", 1)
-        .attr("y2", 10)
+        .attr("y2", 20)
         .attr("stroke", "#000")
-        .attr("stroke-width",1)
+        .attr("stroke-width", stroke)
       return d
     });
   
   var y_axis = d3.svg.axis()
     .tickSize(0)
-    .tickPadding(15)
+    .tickPadding(25)
     .orient('left')
     .tickFormat(function(d, i) {
       d3.select(this)
@@ -2267,18 +3501,20 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
+      // background line
       d3.select(this.parentNode).append("line")
-        .attr("class","tick_line")
+        .attr("class","y_bg_line")
         .attr("x1", 0+stroke)
         .attr("x2", 0+size.width-stroke)
         .attr("y1", 0)
         .attr("y2", 0)
         .attr("stroke", "#ccc")
         .attr("stroke-width",stroke/2)
+      // tick
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
-        .attr("x1", -10)
-        .attr("x2", 0-stroke)
+        .attr("x1", -20)
+        .attr("x2", 0)
         .attr("y1", 0)
         .attr("y2", 0)
         .attr("stroke", "#4c4c4c")
@@ -2293,8 +3529,6 @@ vizwhiz.viz.pie_scatter = function() {
   // Expose Public Variables
   //-------------------------------------------------------------------
 
-  chart.dispatch = dispatch;
-
   chart.width = function(x) {
     if (!arguments.length) return width;
     width = x;
@@ -2304,12 +3538,6 @@ vizwhiz.viz.pie_scatter = function() {
   chart.height = function(x) {
     if (!arguments.length) return height;
     height = x;
-    return chart;
-  };
-  
-  chart.depth = function(x) {
-    if (!arguments.length) return depth;
-    depth = x;
     return chart;
   };
   
@@ -2337,33 +3565,71 @@ vizwhiz.viz.pie_scatter = function() {
     return chart;
   };
   
-  chart.xaxis_label = function(x) {
-    if (!arguments.length) return xaxis_label;
-    xaxis_label = x;
-    return chart;
-  };
-  
   chart.yaxis_var = function(x) {
     if (!arguments.length) return yaxis_var;
     yaxis_var = x;
     return chart;
   };
   
-  chart.yaxis_label = function(x) {
-    if (!arguments.length) return yaxis_label;
-    yaxis_label = x;
-    return chart;
-  };
-  
-  chart.size_var = function(x) {
-    if (!arguments.length) return size_var;
-    size_var = x;
-    return chart;
-  };
-  
   chart.nesting = function(x) {
     if (!arguments.length) return nesting;
     nesting = x;
+    return chart;
+  };
+
+  chart.tooltip_info = function(x) {
+    if (!arguments.length) return tooltip_info;
+    tooltip_info = x;
+    return chart;
+  };
+
+  chart.filter = function(x) {
+    if (!arguments.length) return filter;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      filter = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+      }
+      // if element is in the solo array remove it and add to this one
+      else if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+        filter.push(x)
+      }
+      // element not in current filter so add it
+      else {
+        filter.push(x)
+      }
+    }
+    return chart;
+  };
+  
+  chart.solo = function(x) {
+    if (!arguments.length) return solo;
+    // if we're given an array then overwrite the current filter var
+    if(x instanceof Array){
+      solo = x;
+    }
+    // otherwise add/remove it from array
+    else {
+      // if element is in the array remove it
+      if(solo.indexOf(x) > -1){
+        solo.splice(solo.indexOf(x), 1)
+      }
+      // if element is in the filter array remove it and add to this one
+      else if(filter.indexOf(x) > -1){
+        filter.splice(filter.indexOf(x), 1)
+        solo.push(x)
+      }
+      // element not in current filter so add it
+      else {
+        solo.push(x)
+      }
+    }
     return chart;
   };
 
