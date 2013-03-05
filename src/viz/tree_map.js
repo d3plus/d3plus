@@ -256,7 +256,7 @@ vizwhiz.viz.tree_map = function() {
       if (d[t]) tooltip_data[t] = d[t]
     })
     vizwhiz.tooltip.create({
-      "svg": svg,
+      "parent": svg,
       "id": d.id,
       "data": tooltip_data,
       "title": d[text_var],

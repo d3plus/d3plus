@@ -376,7 +376,7 @@ vizwhiz.viz.pie_scatter = function() {
         })
       
         vizwhiz.tooltip.create({
-          "svg": viz,
+          "parent": viz,
           "id": d.id,
           "data": tooltip_data,
           "title": d[text_var],

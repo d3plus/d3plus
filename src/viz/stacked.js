@@ -284,7 +284,7 @@ vizwhiz.viz.stacked = function() {
         })
         
         vizwhiz.tooltip.create({
-          "svg": d3.select("g.viz"),
+          "parent": d3.select("g.viz"),
           "id": d.id,
           "data": tooltip_data,
           "title": d[nesting[nesting.length-1]],
