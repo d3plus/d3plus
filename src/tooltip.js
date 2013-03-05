@@ -200,17 +200,22 @@ vizwhiz.tooltip.move = function(x,y,id) {
     if (x-d.offset-d.margin < d.width/2) var tooltip_x = d.margin
     else if (x+d.offset+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
     else var tooltip_x = x-(d.width/2)
-  
+    
     if (d.arrow) {
+  
+      var triangle_x = x-tooltip_x
+      if (triangle_x < d.padding+d.triangle_size/2) var triangle_x = d.padding+d.triangle_size/2
+      else if (triangle_x > d.width-d.padding-d.triangle_size/2) var triangle_x = d.width-d.padding-d.triangle_size/2
+    
       d3.select(this).select("line.arrow_line")
-        .attr("x1",(x-tooltip_x-d.triangle_size/2+1))
-        .attr("x2",(x-tooltip_x+d.triangle_size/2-1))
+        .attr("x1",(triangle_x-d.triangle_size/2+1))
+        .attr("x2",(triangle_x+d.triangle_size/2-1))
         .attr("y1",triangle_y)
         .attr("y2",triangle_y);
     
 
       d3.select(this).select("path.arrow").attr("d",p)
-        .attr("transform","translate("+(x-tooltip_x)+","+triangle_y+")");
+        .attr("transform","translate("+triangle_x+","+triangle_y+")");
     }
     
     return "translate("+tooltip_x+","+tooltip_y+")";
