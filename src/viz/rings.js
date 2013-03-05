@@ -1,5 +1,5 @@
 
-vizwhiz.viz.circles = function() {
+vizwhiz.viz.rings = function() {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Public Variables with Default Settings
@@ -21,8 +21,6 @@ vizwhiz.viz.circles = function() {
     nodes = [],
     links = [],
     connections = {},
-    filter = [],
-    solo = [],
     tooltip_info = [];
   
   //===================================================================
@@ -30,7 +28,9 @@ vizwhiz.viz.circles = function() {
   function chart(selection) {
     selection.each(function(data) {
       
-      var diameter = height > width ? width : height;
+      var tree_radius = height > width ? width/2 : height/2,
+          ring_width = tree_radius/3,
+          node_size = d3.scale.linear().domain([1,3]).range([8,4]);
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -47,16 +47,25 @@ vizwhiz.viz.circles = function() {
       //-------------------------------------------------------------------
 
       var tree = d3.layout.tree()
-          .size([360, diameter / 2 - 120]) // 120 = outer padding
+          .size([360, tree_radius - ring_width])
           .separation(function(a, b) { return (a.parent == b.parent ? 1 : 2) / a.depth; });
 
       var diagonal = d3.svg.diagonal.radial()
           .projection(function(d) { return [d.y, d.x / 180 * Math.PI]; });
+          
+      var line = d3.svg.line()
+          .x(function(d) { return d.x; })
+          .y(function(d) { return d.y; })
+          .interpolate("basis");
       
       var root = get_root(data)
       
       var tree_nodes = tree.nodes(root),
-        tree_links = tree.links(tree_nodes);
+          tree_links = tree.links(tree_nodes);
+          
+      var unique_nodes = tree_nodes.filter(function(elem, pos, self) {
+          return self.indexOf(elem) == pos;
+      })
       
       //===================================================================
       
@@ -71,7 +80,13 @@ vizwhiz.viz.circles = function() {
           .attr("stroke", "#ccc")
           .attr("stroke-width", "1.5")
           .attr("class", "link")
-          .attr("d", diagonal);
+          .attr("d", function(d) {
+            if (d.source[id_var] == center) {
+              var x = d.target.y * Math.cos((d.target.x-90)*(Math.PI/180)),
+                  y = d.target.y * Math.sin((d.target.x-90)*(Math.PI/180))
+              return line([{"x":0,"y":0},{"x":x,"y":y}]);
+            } else return diagonal(d);
+          });
 
       //===================================================================
 
@@ -80,15 +95,18 @@ vizwhiz.viz.circles = function() {
       //-------------------------------------------------------------------
 
       var node = d3.select(".viz").selectAll(".node")
-          .data(tree_nodes)
+          .data(unique_nodes)
         .enter().append("g")
           .attr("class", "node")
-          .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; })
+          .attr("transform", function(d) { 
+            if (d[id_var] == center) return "none"
+            else return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; 
+          })
 
       // console.log(ps_data["data_nested"])
       node.append("circle")
         .attr("fill", function(d){
-          var item = data[d.id]
+          var item = data[d[id_var]]
           
           if(item.active){
             var color = item.color;
@@ -114,7 +132,15 @@ vizwhiz.viz.circles = function() {
           
         })
         .attr("stroke-width", "1.5")
-        .attr("r", 4.5);
+        .attr("r", function(d){
+          if (d[id_var] == center) return node_size(1);
+          var present = false;
+          connections[center].primary.nodes.forEach(function(n){
+            if (n[id_var] == d[id_var]) present = true;
+          })
+          if (present) return node_size(2);
+          else return node_size(3);
+        });
 
       //===================================================================
       
@@ -123,11 +149,34 @@ vizwhiz.viz.circles = function() {
       //-------------------------------------------------------------------
       
       node.append("text")
-        .style("font", "10px sans-serif")
-        .attr("dy", ".31em")
-        .attr("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-        .attr("transform", function(d) { return d.x < 180 ? "translate(8)" : "rotate(180)translate(-8)"; })
-        .text(function(d) { return d.name; });
+        .attr("font-weight","bold")
+        .attr("font-size", function(d) { 
+          if (d[id_var] == center) return "14px"
+          else return "10px"; 
+        })
+        .attr("font-family","Helvetica")
+        .attr("fill","#4c4c4c")
+        .attr("text-anchor", function(d) { 
+          if (d[id_var] == center) return "middle"
+          else return d.x%360 < 180 ? "start" : "end"; 
+        })
+        .attr("transform", function(d) { 
+          if (d[id_var] == center) return "translate(0,20)"
+          else return d.x%360 < 180 ? "translate(8)" : "rotate(180)translate(-8)"; 
+        })
+        .each(function(d) {
+          if (d[id_var] == center) var w = ring_width*1.75, h = ring_width*0.75;
+          else var w = ring_width, h = 30;
+          vizwhiz.utils.wordwrap({
+            "text": d.name,
+            "parent": this,
+            "width": w,
+            "height": h
+          })
+          
+          d3.select(this).attr("y",(-d3.select(this).node().getBBox().height/2)+"px")
+          d3.select(this).selectAll("tspan").attr("x",0)
+        });
       
       //===================================================================
       
@@ -162,8 +211,12 @@ vizwhiz.viz.circles = function() {
 
         // first check if the potential node has already been used
         if(used.indexOf(potential_node) < 0){
-          if(node.children) node.children.push(potential_node);
+          if(node.children) {
+            if (node.children.length < 1) node.children.push(potential_node);
+            // node.children.push(potential_node);
+          }
           else node.children = [potential_node]
+          // used.push(potential_node)
         }
         
       })
@@ -263,56 +316,6 @@ vizwhiz.viz.circles = function() {
       })
       // var node_check = connections[c].primary.nodes.concat(connections[c].secondary.nodes).concat([connections[c].center])
       var node_check = connections[c].primary.nodes.concat([connections[c].center])
-    }
-    return chart;
-  };
-
-  chart.filter = function(x) {
-    if (!arguments.length) return filter;
-    // if we're given an array then overwrite the current filter var
-    if(x instanceof Array){
-      filter = x;
-    }
-    // otherwise add/remove it from array
-    else {
-      // if element is in the array remove it
-      if(filter.indexOf(x) > -1){
-        filter.splice(filter.indexOf(x), 1)
-      }
-      // if element is in the solo array remove it and add to this one
-      else if(solo.indexOf(x) > -1){
-        solo.splice(solo.indexOf(x), 1)
-        filter.push(x)
-      }
-      // element not in current filter so add it
-      else {
-        filter.push(x)
-      }
-    }
-    return chart;
-  };
-  
-  chart.solo = function(x) {
-    if (!arguments.length) return solo;
-    // if we're given an array then overwrite the current filter var
-    if(x instanceof Array){
-      solo = x;
-    }
-    // otherwise add/remove it from array
-    else {
-      // if element is in the array remove it
-      if(solo.indexOf(x) > -1){
-        solo.splice(solo.indexOf(x), 1)
-      }
-      // if element is in the filter array remove it and add to this one
-      else if(filter.indexOf(x) > -1){
-        filter.splice(filter.indexOf(x), 1)
-        solo.push(x)
-      }
-      // element not in current filter so add it
-      else {
-        solo.push(x)
-      }
     }
     return chart;
   };
