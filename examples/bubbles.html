@@ -34,7 +34,8 @@
       var data = []
       raw_data.forEach(function(d){
         var obj = vizwhiz.utils.merge(d,attr[d.id])
-        obj.available = Math.random() < 0.5
+        obj.total = Math.floor(Math.random() * (800 - 2 + 1)) + 2;
+        obj.available = Math.ceil(obj.total * Math.random());
         obj.category = attr[d.id.substr(0,2)].name
         delete obj.year
         delete obj.attr_type
