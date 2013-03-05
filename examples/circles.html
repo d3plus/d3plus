@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="../src/vizwhiz.css" rel="stylesheet" type="text/css">
+<style>
+
+body {
+  margin: 0; padding:0;
+}
+
+</style>
+<body>
+
+<div id="viz"></div>
+
+<script src="../lib/d3.js"></script>
+<script src="../lib/modernizr.custom.js"></script>
+<script src="../src/general.js"></script>
+<script src="../src/utils.js"></script>
+<script src="../src/tooltip.js"></script>
+<script src="../src/viz/circles.js"></script>
+
+<script>
+
+var viz = vizwhiz.viz.circles()
+
+d3.json("data/attr_hs.json", function(attr) {
+  d3.json("data/network_hs.json", function(hs) {
+    
+    viz_nodes = hs.nodes
+    viz_links = hs.edges
+    viz_links.forEach(function(link){
+      link.source = viz_nodes[link.source]
+      link.target = viz_nodes[link.target]
+    })
+    
+    d3.json("data/products_mg.json", function(ps_data) {
+      
+      ps_data = ps_data.filter(function(d){ return d.year == 2010; })
+      data = {} // to pass to viz
+      viz_nodes.forEach(function(d){
+        data[d.id] = ps_data.filter(function(f){return f.id == d.id})[0]
+        data[d.id] = vizwhiz.utils.merge(data[d.id],attr[d.id])
+        data[d.id].active = Math.floor(Math.random()*2);
+      })
+
+      viz
+        .text_var("name")
+        .id_var("id")
+        .nodes(viz_nodes)
+        .links(viz_links)
+        .value_var("value")
+        .tooltip_info(["distance", "complexity", "value"])
+
+      d3.select("#viz")
+        .datum(data)
+        .call(viz)    
+
+    })
+  })
+})
+
+</script>
