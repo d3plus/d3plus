@@ -73,7 +73,7 @@ d3.json("data/products_mg.json", function(flat_data){
       delete d.year
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
-    console.log(flat_data)
+    // console.log(flat_data)
     
     d3.select("#viz")
       .datum(flat_data)
