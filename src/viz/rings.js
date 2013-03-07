@@ -5,23 +5,16 @@ vizwhiz.viz.rings = function() {
   // Public Variables with Default Settings
   //-------------------------------------------------------------------
 
-  var margin = {top: 0, right: 0, bottom: 0, left: 0},
-    width = window.innerWidth,
-    height = window.innerHeight,
-    size = {
-      "width": width-margin.left-margin.right,
-      "height": height-margin.top-margin.bottom,
-      "x": margin.left,
-      "y": margin.top
-    },
-    value_var = "value",
-    id_var = "id",
-    text_var = "name",
-    center = null,
-    nodes = [],
-    links = [],
-    connections = {},
-    tooltip_info = [];
+  var width = window.innerWidth,
+      height = window.innerHeight,
+      value_var = "value",
+      id_var = "id",
+      text_var = "name",
+      center = null,
+      nodes = [],
+      links = [],
+      connections = {},
+      tooltip_info = [];
   
   //===================================================================
 
@@ -29,8 +22,8 @@ vizwhiz.viz.rings = function() {
     selection.each(function(data) {
       
       var tree_radius = height > width ? width/2 : height/2,
-          ring_width = tree_radius/3,
-          node_size = d3.scale.linear().domain([1,3]).range([8,4]);
+          node_size = d3.scale.linear().domain([1,2]).range([8,4]),
+          ring_width = tree_radius/3;
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -58,14 +51,10 @@ vizwhiz.viz.rings = function() {
           .y(function(d) { return d.y; })
           .interpolate("basis");
       
-      var root = get_root(data)
+      var root = get_root(data);
       
-      var tree_nodes = tree.nodes(root),
-          tree_links = tree.links(tree_nodes);
-          
-      var unique_nodes = tree_nodes.filter(function(elem, pos, self) {
-          return self.indexOf(elem) == pos;
-      })
+      var tree_nodes = root.nodes,
+          tree_links = root.links;
       
       //===================================================================
       
@@ -77,7 +66,7 @@ vizwhiz.viz.rings = function() {
           .data(tree_links)
         .enter().append("path")
           .attr("fill", "none")
-          .attr("stroke", "#ccc")
+          .attr("stroke", "#ddd")
           .attr("stroke-width", "1.5")
           .attr("class", "link")
           .attr("d", function(d) {
@@ -95,23 +84,21 @@ vizwhiz.viz.rings = function() {
       //-------------------------------------------------------------------
 
       var node = d3.select(".viz").selectAll(".node")
-          .data(unique_nodes)
+          .data(tree_nodes)
         .enter().append("g")
           .attr("class", "node")
-          .attr("transform", function(d) { 
-            if (d[id_var] == center) return "none"
+          .attr("transform", function(d) {
+            if (d.depth == 0) return "none"
             else return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; 
           })
 
-      // console.log(ps_data["data_nested"])
       node.append("circle")
+        .attr("id",function(d) { return "node_"+d[id_var]; })
         .attr("fill", function(d){
-          var item = data[d[id_var]]
-          
-          if(item.active){
-            var color = item.color;
+          if(d.active){
+            var color = d.color;
           } else {
-            var lighter_col = d3.hsl(item.color);
+            var lighter_col = d3.hsl(d.color);
             lighter_col.l = 0.95;
             var color = lighter_col.toString()
             // var color = "lightgray"
@@ -120,26 +107,19 @@ vizwhiz.viz.rings = function() {
           
         })
         .attr("stroke", function(d){
-          var item = data[d.id]
-        
-          if(item.active){
-            var color = d3.rgb(item.color).darker().darker().toString();
+          if(d.active){
+            var color = d3.rgb(d.color).darker().darker().toString();
           } else {
-            var color = d3.rgb(item.color).darker().toString()
+            var color = d3.rgb(d.color).darker().toString()
             // var color = "lightgray"
           }
           return color
           
         })
         .attr("stroke-width", "1.5")
-        .attr("r", function(d){
-          if (d[id_var] == center) return node_size(1);
-          var present = false;
-          connections[center].primary.nodes.forEach(function(n){
-            if (n[id_var] == d[id_var]) present = true;
-          })
-          if (present) return node_size(2);
-          else return node_size(3);
+        .attr("r", function(d){ 
+          if (d.depth == 0) return ring_width/2;
+          else return node_size(d.depth); 
         });
 
       //===================================================================
@@ -151,22 +131,29 @@ vizwhiz.viz.rings = function() {
       node.append("text")
         .attr("font-weight","bold")
         .attr("font-size", function(d) { 
-          if (d[id_var] == center) return "14px"
+          if (d.depth == 0) return "14px"
           else return "10px"; 
         })
         .attr("font-family","Helvetica")
-        .attr("fill","#4c4c4c")
+        .attr("fill",function(d){
+          if (d.depth == 0) {
+            return vizwhiz.utils.text_color(d3.select("circle#node_"+d[id_var]).attr("fill"));
+          } else return "#4c4c4c";
+        })
         .attr("text-anchor", function(d) { 
-          if (d[id_var] == center) return "middle"
+          if (d.depth == 0) return "middle"
           else return d.x%360 < 180 ? "start" : "end"; 
         })
         .attr("transform", function(d) { 
-          if (d[id_var] == center) return "translate(0,20)"
-          else return d.x%360 < 180 ? "translate(8)" : "rotate(180)translate(-8)"; 
+          if (d.depth == 0) return "none"
+          else {
+            var offset = node_size(d.depth)*2
+            return d.x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
+          }
         })
         .each(function(d) {
-          if (d[id_var] == center) var w = ring_width*1.75, h = ring_width*0.75;
-          else var w = ring_width, h = 30;
+          if (d.depth == 0) var w = ring_width*0.3, h = ring_width*0.3;
+          else var w = ring_width-node_size(d.depth)*2, h = 30;
           vizwhiz.utils.wordwrap({
             "text": d.name,
             "parent": this,
@@ -180,49 +167,148 @@ vizwhiz.viz.rings = function() {
       
       //===================================================================
       
+      function get_root(attr_lookup){
+        var prod = attr_lookup[center]
+    
+        var links = [], nodes = [],
+          root = {
+            "name": prod[text_var],
+            "id": prod[id_var],
+            "children":[],
+            "x": 0,
+            "y": 0,
+            "depth": 0,
+            "color": prod.color,
+            "text_color": prod.text_color,
+            "active": prod.active
+          }
+      
+        nodes.push(root);
+    
+        // populate first level
+        connections[prod[id_var]].forEach(function(child){
+      
+          // give first level child the properties
+          child.x = 0;
+          child.y = ring_width;
+          child.depth = 1;
+          child[text_var] = attr_lookup[child[id_var]][text_var]
+          child.children = []
+          child.color = attr_lookup[child[id_var]].color
+          child.text_color = attr_lookup[child[id_var]].text_color
+          child.active = attr_lookup[child[id_var]].active
+      
+          // push first level child into nodes
+          nodes.push(child);
+          root.children.push(child);
+      
+          // create link from center to first level child
+          links.push({"source": nodes[nodes.indexOf(root)], "target": nodes[nodes.indexOf(child)]})
+      
+        })
+    
+        // populate second level
+        var len = nodes.length,
+            len2 = nodes.length
+        while(len--) {
+
+          connections[nodes[len][id_var]].forEach(function(grandchild){
+        
+            // if grandchild isn't already a first level child or the center node
+            if (connections[prod[id_var]].indexOf(grandchild) < 0 && grandchild[id_var] != prod[id_var]) {
+          
+              grandchild.x = 0;
+              grandchild.y = ring_width*2;
+              grandchild.depth = 2;
+              grandchild[text_var] = attr_lookup[grandchild[id_var]][text_var]
+              grandchild.color = attr_lookup[grandchild[id_var]].color
+              grandchild.text_color = attr_lookup[grandchild[id_var]].text_color
+              grandchild.active = attr_lookup[grandchild[id_var]].active
+          
+              var s = 10000, node_id = 0;
+              connections[prod[id_var]].forEach(function(node){
+                connections[node[id_var]].forEach(function(node2){
+                  if (node2[id_var] == grandchild[id_var] && connections[node[id_var]].length < s) {
+                    s = connections[node[id_var]].length
+                    node_id = node[id_var]
+                  }
+                })
+              })
+              var len3 = len2;
+              while(len3--) {
+                if (nodes[len3][id_var] == node_id && nodes[len3].children.indexOf(grandchild) < 0) {
+                  nodes[len3].children.push(grandchild);
+                }
+              }
+          
+              // if grandchild hasn't been added to the nodes list, add it
+              if (nodes.indexOf(grandchild) < 0) {
+                nodes.push(grandchild);
+              }
+          
+              // create link from child to grandchild
+              links.push({"source": nodes[len], "target": nodes[nodes.indexOf(grandchild)]})
+          
+            }
+        
+          })
+      
+        }
+    
+        var first_offset = 0,
+            denom = d3.sum(nodes,function(dd){
+              if (dd.depth == 1) {
+                if (dd.children.length > 0) return dd.children.length;
+                else return 1;
+              } else return 0;
+            })
+        
+
+        // sort first level connections by color
+        nodes[0].children.sort(function(a, b){
+          var a_color = d3.rgb(a.color).hsl().h
+          var b_color = d3.rgb(b.color).hsl().h
+          if (d3.rgb(a.color).hsl().s == 0) a_color = 361
+          if (d3.rgb(b.color).hsl().s == 0) b_color = 361
+          if (a_color < b_color) return -1;
+          if (a_color > b_color) return 1;
+          return 0;
+        })
+        
+        nodes[0].children.forEach(function(d){
+          if (d.children.length > 0) var num = d.children.length;
+          else var num = 1;
+        
+          d.x = ((first_offset+(num/2))/denom)*360
+        
+          var positions = (num)/2,
+              size = (num/denom)*360
+          
+          // sort children by color
+          d.children.sort(function(a, b){
+            var a_color = d3.rgb(a.color).hsl().h
+            var b_color = d3.rgb(b.color).hsl().h
+            if (d3.rgb(a.color).hsl().s == 0) a_color = 361
+            if (d3.rgb(b.color).hsl().s == 0) b_color = 361
+            if (a_color < b_color) return -1;
+            if (a_color > b_color) return 1;
+            return 0;
+          })  
+          
+          d.children.forEach(function(c,i){
+            if (d.children.length == 1) c.x = d.x
+            else c.x = d.x+((i-positions)/positions)*(size/2)
+          })
+          first_offset += num
+        })
+    
+    
+        return {"nodes": nodes, "links": links};
+      }
+      
     });
 
     return chart;
-  }
-  
-  function get_root(attr_lookup){
-    var prod = attr_lookup[center]
-    
-    var used = [prod],
-      root = {
-        "name": prod[text_var],
-        "id": prod[id_var],
-        "children":[]
-      }
-    
-    // populate first level
-    connections[prod[id_var]].primary.nodes.forEach(function(node){
-      // add first level connections as children of root
-      root.children.push(attr_lookup[node.id])
-      // make sure to add these used up nodes to used list
-      used.push(attr_lookup[node.id])
-    })
-    
-    // populate second level
-    root.children.forEach(function(node){
-      // look up THIS item's primary nodes
-      connections[node.id].primary.nodes.forEach(function(potential_node){
-        potential_node = attr_lookup[potential_node.id]
-
-        // first check if the potential node has already been used
-        if(used.indexOf(potential_node) < 0){
-          if(node.children) {
-            if (node.children.length < 1) node.children.push(potential_node);
-            // node.children.push(potential_node);
-          }
-          else node.children = [potential_node]
-          // used.push(potential_node)
-        }
-        
-      })
-    })
-    
-    return root;
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -282,54 +368,14 @@ vizwhiz.viz.rings = function() {
     links = x;
     links.forEach(function(d) {
       if (!connections[d.source[id_var]]) {
-        connections[d.source[id_var]] = {}
-        connections[d.source[id_var]].center = d.source
-        connections[d.source[id_var]].primary = {"nodes": [], "links": []}
+        connections[d.source[id_var]] = []
       }
-      connections[d.source[id_var]].primary.nodes.push(d.target)
-      connections[d.source[id_var]].primary.links.push({"source": d.source, "target": d.target})
+      connections[d.source[id_var]].push(d.target)
       if (!connections[d.target[id_var]]) {
-        connections[d.target[id_var]] = {}
-        connections[d.target[id_var]].center = d.target
-        connections[d.target[id_var]].primary = {"nodes": [], "links": []}
+        connections[d.target[id_var]] = []
       }
-      connections[d.target[id_var]].primary.nodes.push(d.source)
-      connections[d.target[id_var]].primary.links.push({"source": d.target, "target": d.source})
+      connections[d.target[id_var]].push(d.source)
     })
-    for (var c in connections) {
-      connections[c].secondary = {"nodes": [], "links": []}
-      connections[c].primary.nodes.forEach(function(p){
-        connections[p[id_var]].primary.nodes.forEach(function(s){
-          if (s[id_var] != c) {
-            if (connections[c].primary.nodes.indexOf(s) < 0 && connections[c].secondary.nodes.indexOf(s) < 0) {
-              connections[c].secondary.nodes.push(s)
-            }
-            var dupe = false
-            connections[c].secondary.links.forEach(function(l){
-              if (l.source == s && l.target == p) dupe = true
-            })
-            if (!dupe) {
-              connections[c].secondary.links.push({"source": p, "target": s})
-            }
-          }
-        })
-      })
-      // var node_check = connections[c].primary.nodes.concat(connections[c].secondary.nodes).concat([connections[c].center])
-      var node_check = connections[c].primary.nodes.concat([connections[c].center])
-    }
-    return chart;
-  };
-
-  chart.margin = function(x) {
-    if (!arguments.length) return margin;
-    margin.top    = typeof x.top    != 'undefined' ? x.top    : margin.top;
-    margin.right  = typeof x.right  != 'undefined' ? x.right  : margin.right;
-    margin.bottom = typeof x.bottom != 'undefined' ? x.bottom : margin.bottom;
-    margin.left   = typeof x.left   != 'undefined' ? x.left   : margin.left;
-    size.width    = width-margin.left-margin.right;
-    size.height   = height-margin.top-margin.bottom;
-    size.x        = margin.left;
-    size.y        = margin.top;
     return chart;
   };
 
