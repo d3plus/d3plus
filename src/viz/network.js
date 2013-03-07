@@ -560,7 +560,7 @@ vizwhiz.viz.network = function() {
           .datum(d)
           .attr("x", function(e) { return scale.x(e.x); })
           .attr("fill", function(e) { 
-            return d3.hsl(bg.attr("fill")).l >= 0.5 ? "#333" : "#fff";
+            return vizwhiz.utils.text_color(bg.attr("fill"))
           })
           .attr("font-size","3px")
           .attr("text-anchor","middle")

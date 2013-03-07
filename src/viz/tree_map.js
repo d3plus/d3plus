@@ -184,7 +184,7 @@ vizwhiz.viz.tree_map = function() {
         .attr('dy','1em')
         .attr("fill", function(d){
           if(d.text_color) return d.text_color
-          return d3.hsl(d.color).l >= 0.5 ? "#333" : "#fff";
+          return vizwhiz.utils.text_color(d.color);
         })
         .on(vizwhiz.evt.move, mouseover)
         .on(vizwhiz.evt.out, function(d){
@@ -211,7 +211,7 @@ vizwhiz.viz.tree_map = function() {
         .attr("font-family","Helvetica")
         .attr("fill", function(d){
           if(d.text_color) return d.text_color
-          return d3.hsl(d.color).l >= 0.5 ? "#333" : "#fff";
+          return vizwhiz.utils.text_color(d.color);
         })
         .text(function(d) {
           var root = d;
