@@ -203,6 +203,8 @@ vizwhiz.viz.rings = function() {
                   if (d.depth == 2) var h = (Math.PI*((tree_radius-ring_width)*2))/total_children;
                 }
           
+                if (h < 15) h = 15;
+          
                 vizwhiz.utils.wordwrap({
                   "text": d.name,
                   "parent": this,
@@ -276,17 +278,21 @@ vizwhiz.viz.rings = function() {
       function line_styles(l) {
         l
           .attr("stroke", function(d) {
-            if (highlight && (d.source == highlight || d.target == highlight || 
-              (highlight.depth == 2 && (highlight.parents.indexOf(d.target) >= 0)))) {
-               return "#cc0000"
+            if (highlight) {
+              if (d.source == highlight || d.target == highlight || 
+              (highlight.depth == 2 && (highlight.parents.indexOf(d.target) >= 0))) {
+                this.parentNode.appendChild(this);
+                return "#cc0000";
+              } else if (highlight.depth == 1 && highlight.children_total.indexOf(d.target) >= 0) {
+                return "#ffbbbb";
+              } else return "#ddd";
             } else return "#ddd";
           })
           .attr("stroke-width", "1.5")
           .attr("opacity",function(d) {
-            if ((highlight && (d.source == highlight || d.target == highlight || 
-              (highlight.depth == 2 && (highlight.parents.indexOf(d.target) >= 0)))) || !highlight) {
-               return 1
-            } return 0.25;
+            if (highlight && d3.select(this).attr("stroke") == "#ddd") {
+               return 0.25
+            } return 1;
           })
       }
       
