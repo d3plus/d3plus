@@ -32,18 +32,19 @@ d3.json("data/products_mg.json", function(raw_data){
     var flat_data = raw_data.filter(function(d){
       return d.year == 2010;
     })
-
+    console.log(raw_data)
     flat_data.map(function(d, i){
-      d.value = d.val_usd;
       d.nesting_0 = attrs[d.id.slice(0, 2)].name;
       d.nesting_1 = attrs[d.id.slice(0, 4)].name;
       d.nesting_2 = attrs[d.id.slice(0, 6)].name;
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
+    console.log(flat_data)
 
     viz
       .text_var("name")
       .id_var("id")
+      .value_var("val_usd")
       .nesting(["nesting_0", "nesting_1", "nesting_2"])
       .tooltip_info(["distance", "complexity", "value"])
 
