@@ -5,17 +5,16 @@ vizwhiz.viz.tree_map = function() {
   // Public Variables with Default Settings
   //-------------------------------------------------------------------
 
-  var margin = {top: 0, right: 0, bottom: 0, left: 0},
-    width = window.innerWidth,
-    height = window.innerHeight,
-    value_var = "value",
-    id_var = "id",
-    text_var = "name",
-    nesting = null,
-    filter = [],
-    solo = [],
-    tooltip_info = [],
-    dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
+  var width = window.innerWidth,
+      height = window.innerHeight,
+      value_var = "value",
+      id_var = "id",
+      text_var = "name",
+      nesting = null,
+      filter = [],
+      solo = [],
+      tooltip_info = [],
+      dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
   
   //===================================================================
 
@@ -41,7 +40,7 @@ vizwhiz.viz.tree_map = function() {
         .size([width, height])
         .children(function(d) { return d.children; })
         .sort(function(a, b) { return a.value - b.value; })
-        .value(function(d) { return value_var ? d[value_var] : d.value; })
+        .value(function(d) { return d[value_var]; })
         .nodes(nested_data)
         .filter(function(d) {
           return !d.children;
@@ -182,10 +181,7 @@ vizwhiz.viz.tree_map = function() {
         .attr('x','0.2em')
         .attr('y','0em')
         .attr('dy','1em')
-        .attr("fill", function(d){
-          if(d.text_color) return d.text_color
-          return vizwhiz.utils.text_color(d.color);
-        })
+        .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
         .on(vizwhiz.evt.move, mouseover)
         .on(vizwhiz.evt.out, function(d){
           vizwhiz.tooltip.remove();
@@ -209,10 +205,7 @@ vizwhiz.viz.tree_map = function() {
         .attr("text-anchor","middle")
         .style("font-weight","bold")
         .attr("font-family","Helvetica")
-        .attr("fill", function(d){
-          if(d.text_color) return d.text_color
-          return vizwhiz.utils.text_color(d.color);
-        })
+        .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
         .text(function(d) {
           var root = d;
           while(root.parent){ root = root.parent; } // find top most parent ndoe
@@ -261,7 +254,7 @@ vizwhiz.viz.tree_map = function() {
     })
     vizwhiz.tooltip.create({
       "parent": svg,
-      "id": d.id,
+      "id": d[id_var],
       "data": tooltip_data,
       "title": d[text_var],
       "x": d3.mouse(svg.node())[0],
@@ -274,7 +267,7 @@ vizwhiz.viz.tree_map = function() {
   function filter_data(d){
     
     // if this items name is in the filter list, remove it
-    if(filter.indexOf(d.name) > -1){
+    if(filter.indexOf(d[text_var]) > -1){
       return false
     }
     
@@ -282,7 +275,7 @@ vizwhiz.viz.tree_map = function() {
       return true
     }
     
-    if(solo.indexOf(d.name) > -1){
+    if(solo.indexOf(d[text_var]) > -1){
       return true;
     }
     
@@ -385,15 +378,6 @@ vizwhiz.viz.tree_map = function() {
         solo.push(x)
       }
     }
-    return chart;
-  };
-
-  chart.margin = function(x) {
-    if (!arguments.length) return margin;
-    margin.top    = typeof x.top    != 'undefined' ? x.top    : margin.top;
-    margin.right  = typeof x.right  != 'undefined' ? x.right  : margin.right;
-    margin.bottom = typeof x.bottom != 'undefined' ? x.bottom : margin.bottom;
-    margin.left   = typeof x.left   != 'undefined' ? x.left   : margin.left;
     return chart;
   };
 
