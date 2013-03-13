@@ -54,8 +54,8 @@ var sample_data = [
 var viz = vizwhiz.viz.stacked()
   .nesting(["nesting_0", "nesting_1"])
   // .nesting(["nesting_0", "nesting_1", "nesting_2"])
-  .xaxis_var("test_x_val")
-  .value_var("value")
+  .xaxis_var("year")
+  .value_var("val_usd")
   .title("Title of the chart")
   .tooltip_info(["id", "complexity", "distance"])
   // .text_var("name")
@@ -65,12 +65,9 @@ d3.json("data/products_mg.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){
 
     flat_data.map(function(d, i){
-      d.value = d.val_usd;
       d["nesting_0"] = attrs[d.id.slice(0, 2)].name
       d["nesting_1"] = attrs[d.id.slice(0, 4)].name
       d["nesting_2"] = attrs[d.id.slice(0, 6)].name
-      d["test_x_val"] = d.year
-      delete d.year
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
     // console.log(flat_data)
