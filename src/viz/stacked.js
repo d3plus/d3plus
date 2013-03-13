@@ -295,7 +295,7 @@ vizwhiz.viz.stacked = function() {
         vizwhiz.tooltip.remove();
         vizwhiz.tooltip.create({
           "parent": svg,
-          "id": d.id,
+          "id": d[id_var],
           "data": tooltip_data,
           "title": d[nesting[nesting.length-1]],
           "x": x_scale(this_x)+margin.left,
