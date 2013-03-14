@@ -70,7 +70,7 @@ vizwhiz.viz.tree_map = function() {
         .attr("clip-path","url(#clipping)")
       
       var cell = d3.select("g.viz").selectAll("g")
-        .data(tmap_data, function(d){ return d[text_var]; })
+        .data(tmap_data, function(d){ return d[id_var]; })
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Update, for cells that are already in existance
@@ -170,7 +170,7 @@ vizwhiz.viz.tree_map = function() {
         .on(vizwhiz.evt.out, function(d){
           vizwhiz.tooltip.remove();
         })
-      
+        
       // text (name)
       cell_enter.append("text")
         .attr("opacity", 1)
