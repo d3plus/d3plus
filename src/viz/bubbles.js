@@ -429,7 +429,7 @@ vizwhiz.viz.bubbles = function() {
     return chart;
   };
   
-  chart.tooltip = function(x) {
+  chart.tooltip_info = function(x) {
     if (!arguments.length) return tooltip_info;
     tooltip_info = x;
     return chart;
