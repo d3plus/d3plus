@@ -127,9 +127,13 @@ vizwhiz.viz.stacked = function() {
         .attr("class","background")
         .attr('x',0)
         .attr('y',0)
+        .attr("opacity",0)
+        .attr('width', size.width)
+        .attr('height', size.height)
       
       // update (in case width and height are changed)
       d3.select(".viz rect").transition().duration(vizwhiz.timing)
+        .attr("opacity",1)
         .attr('width', size.width)
         .attr('height', size.height)
       
@@ -143,9 +147,15 @@ vizwhiz.viz.stacked = function() {
         .style("font-weight", "bold")
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
-        .attr("fill", "#4c4c4c");
+        .attr("fill", "#4c4c4c")
+        .attr("opacity",0)
+        .attr('width', size.width)
+        .attr('x', (size.width/2) + margin.left) 
+        .attr('y', margin.top/2)
+        .text(title);
         
-      d3.select(".title")
+      d3.select(".title").transition().duration(vizwhiz.timing)
+        .attr("opacity",1)
         .attr('width', size.width)
         .attr('x', (size.width/2) + margin.left) 
         .attr('y', margin.top/2)
@@ -179,12 +189,17 @@ vizwhiz.viz.stacked = function() {
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
+        .attr("opacity",0)
+        .attr('width', size.width)
+        .attr('x', size.width/2)
         .text(xaxis_var)
       
       // update label
-      d3.select(".axis_title_x")
+      d3.select(".axis_title_x").transition().duration(vizwhiz.timing)
+        .attr("opacity",1)
         .attr('width', size.width)
         .attr('x', size.width/2)
+        .text(xaxis_var)
       
       //===================================================================
       
@@ -215,12 +230,17 @@ vizwhiz.viz.stacked = function() {
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
+        .attr("opacity",0)
+        .attr('width', size.width)
+        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
         .text(value_var)
       
       // update label
-      d3.select(".axis_title_y")
+      d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
+        .attr("opacity",1)
         .attr('width', size.width)
         .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .text(value_var)
       
       //===================================================================
       
@@ -497,13 +517,17 @@ vizwhiz.viz.stacked = function() {
         .style('stroke-width',1*2)
         .style('fill','none')
         .attr('class', "border")
+        .attr('width', size.width)
+        .attr('height', size.height)
         .attr('x',0)
         .attr('y',0)
+        .attr("opacity",0)
       
       // update (in case width and height are changed)
       d3.select(".border").transition().duration(vizwhiz.timing)
         .attr('width', size.width)
         .attr('height', size.height)
+        .attr("opacity",1)
       
       // Always bring to front
       d3.select("rect.border").node().parentNode.appendChild(d3.select("rect.border").node())
@@ -635,14 +659,22 @@ vizwhiz.viz.stacked = function() {
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
       // horizontal lines across
-      d3.select(this.parentNode).append("line")
-        .attr("class","y_bg_line")
+      
+      var bgtick = d3.select(this.parentNode).selectAll(".bgtick")
+        .data([i])
+        
+      bgtick.enter().append("line")
+        .attr("class","bgtick")
         .attr("x1", 0+1)
         .attr("x2", 0+size.width-1)
         .attr("y1", 0)
         .attr("y2", 0)
         .attr("stroke", "#ccc")
         .attr("stroke-width",1/2)
+      
+      bgtick.transition().duration(vizwhiz.timing) 
+        .attr("x2", 0+size.width-1)
+        
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
         .attr("x1", -10)

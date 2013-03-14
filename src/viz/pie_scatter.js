@@ -5,7 +5,7 @@ vizwhiz.viz.pie_scatter = function() {
   // Public Variables with Default Settings
   //-------------------------------------------------------------------
 
-  var margin = {top: 20, right: 40, bottom: 80, left: 120},
+  var margin = {top: 20, right: 40, bottom: 80, left: 90},
     width = window.innerWidth,
     height = window.innerHeight,
     size = {
@@ -66,6 +66,7 @@ vizwhiz.viz.pie_scatter = function() {
       
       // container for the visualization
       var viz_enter = svg_enter.append("g").attr("class", "viz")
+        .attr("transform", "translate(" + size.x + "," + size.y + ")")
 
       // add grey background for viz
       viz_enter.append("rect")
@@ -75,16 +76,16 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("class","background")
         .attr('x',0)
         .attr('y',0)
+        .attr('width', size.width)
+        .attr('height', size.height)
       // update (in case width and height are changed)
-      d3.select(".viz")
-        .attr("transform", "translate(" + size.x + "," + size.y + ")")
-        .select("rect")
-          .attr('width', size.width)
-          .attr('height', size.height)
-      
+      d3.select(".viz rect").transition().duration(vizwhiz.timing)
+        .attr('width', size.width)
+        .attr('height', size.height)
+        
       size_scale
         .domain(d3.extent(nested_data, function(d){ return d[value_var]; }))
-        .range([10, d3.min([width,height])/10])
+        .range([d3.max([d3.min([width,height])/75,5]), d3.max([d3.min([width,height])/10,10])])
         .nice()
       
       //===================================================================
@@ -109,13 +110,15 @@ vizwhiz.viz.pie_scatter = function() {
       var x_buffer = largest_size - x_scale.domain()[0];
       // update x scale with new buffer offsets
       x_scale.domain([x_scale.domain()[0]-x_buffer, x_scale.domain()[1]+x_buffer])
-      
+      console.log(largest_size)
       // enter
       var xaxis_enter = viz_enter.append("g")
+        .attr("transform", "translate(0," + size.height + ")")
         .attr("class", "xaxis")
+        .call(x_axis.scale(x_scale))
       
       // update
-      d3.select(".xaxis")
+      d3.select(".xaxis").transition().duration(vizwhiz.timing)
         .attr("transform", "translate(0," + size.height + ")")
         .call(x_axis.scale(x_scale))
       
@@ -132,10 +135,12 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
+        .attr('width', size.width)
+        .attr('x', size.width/2)
         .text(xaxis_var)
       
       // update label
-      d3.select(".axis_title_x")
+      d3.select(".axis_title_x").transition().duration(vizwhiz.timing)
         .attr('width', size.width)
         .attr('x', size.width/2)
       
@@ -163,9 +168,11 @@ vizwhiz.viz.pie_scatter = function() {
       // enter
       var yaxis_enter = viz_enter.append("g")
         .attr("class", "yaxis")
+        .call(y_axis.scale(y_scale))
       
       // update
-      d3.select(".yaxis").call(y_axis.scale(y_scale))
+      d3.select(".yaxis").transition().duration(vizwhiz.timing)
+        .call(y_axis.scale(y_scale))
       
       // also update background tick lines
       d3.selectAll(".y_bg_line")
@@ -179,10 +186,12 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-size", "14px")
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
+        .attr('width', size.width)
+        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
         .text(yaxis_var)
         
       // update label
-      d3.select(".axis_title_y")
+      d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
         .attr('width', size.width)
         .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
       
@@ -273,13 +282,11 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
         .attr("opacity", 1)
       
-      nodes.selectAll("circle")
+      nodes.selectAll("circle").transition().duration(vizwhiz.timing)
         .style('fill', function(d){ return d.color })
-        .attr("r", function(d){ 
-          return size_scale(d[value_var]);
-        })
+        .attr("r", function(d){ return size_scale(d[value_var]); })
       
-      nodes.selectAll("path")
+      nodes.selectAll("path").transition().duration(vizwhiz.timing)
         .attr("d", function(d){
           var angle = 0, radius = 0;
           if(d.num_children){
@@ -314,44 +321,60 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("class", "yticks")
         .attr("x1", -10)
         .attr("x2", 0)
-        .attr("stroke", function(d){
-          return d.color;
-        })
+        .attr("y1", function(d){ return y_scale(d[yaxis_var]) })
+        .attr("y2", function(d){ return y_scale(d[yaxis_var]) })
+        .attr("stroke", function(d){ return d.color; })
         .attr("stroke-width", stroke/2)
       
       // UPDATE      
-      ticks.selectAll(".yticks")
-        .attr("y1", function(d){
-          return y_scale(d[yaxis_var])
-        })
-        .attr("y2", function(d){
-          return y_scale(d[yaxis_var])
-        })
+      ticks.selectAll(".yticks").transition().duration(vizwhiz.timing)
+        .attr("x1", -10)
+        .attr("x2", 0)
+        .attr("y1", function(d){ return y_scale(d[yaxis_var]) })
+        .attr("y2", function(d){ return y_scale(d[yaxis_var]) })
       
       // x ticks
       // ENTER
       ticks_enter.append("line")
         .attr("class", "xticks")
-        .attr("stroke", function(d){
-          return d.color;
-        })
+        .attr("y1", size.height)
+        .attr("y2", size.height + 10)      
+        .attr("x1", function(d){ return x_scale(d[xaxis_var]) })
+        .attr("x2", function(d){ return x_scale(d[xaxis_var]) })
+        .attr("stroke", function(d){ return d.color; })
         .attr("stroke-width", stroke/2)
       
       // UPDATE
-      ticks.selectAll(".xticks")
+      ticks.selectAll(".xticks").transition().duration(vizwhiz.timing)
         .attr("y1", size.height)
         .attr("y2", size.height + 10)      
-        .attr("x1", function(d){
-          return x_scale(d[xaxis_var])
-        })
-        .attr("x2", function(d){
-          return x_scale(d[xaxis_var])
-        })
+        .attr("x1", function(d){ return x_scale(d[xaxis_var]) })
+        .attr("x2", function(d){ return x_scale(d[xaxis_var]) })
       
       // EXIT (needed for when things are filtered/soloed)
       ticks.exit().remove()
       
       //===================================================================
+      
+      
+      // Draw foreground bounding box
+      viz_enter.append('rect')
+        .style('stroke','#000')
+        .style('stroke-width',1*2)
+        .style('fill','none')
+        .attr('class', "border")
+        .attr('width', size.width)
+        .attr('height', size.height)
+        .attr('x',0)
+        .attr('y',0)
+      
+      // update (in case width and height are changed)
+      d3.select(".border").transition().duration(vizwhiz.timing)
+        .attr('width', size.width)
+        .attr('height', size.height)
+      
+      // Always bring to front
+      d3.select("rect.border").node().parentNode.appendChild(d3.select("rect.border").node())
       
     });
 
@@ -372,21 +395,6 @@ vizwhiz.viz.pie_scatter = function() {
             color = d.color,
             viz = d3.select("g.viz"),
             tooltip_data = {};
-      
-        tooltip_info.forEach(function(t){
-          if (d[t]) tooltip_data[t] = d[t]
-        })
-      
-        vizwhiz.tooltip.create({
-          "parent": viz,
-          "id": d.id,
-          "data": tooltip_data,
-          "title": d[text_var],
-          "x": x,
-          "y": y,
-          "offset": radius,
-          "arrow": true
-        })
       
         // vertical line to x-axis
         viz.append("line")
@@ -455,6 +463,21 @@ vizwhiz.viz.pie_scatter = function() {
           .attr("font-family","Helvetica")
           .attr("fill","#4c4c4c")
           .text(vizwhiz.utils.format_num(d[yaxis_var], false, 3, true))
+      
+        tooltip_info.forEach(function(t){
+          if (d[t]) tooltip_data[t] = d[t]
+        })
+      
+        vizwhiz.tooltip.create({
+          "parent": viz,
+          "id": d.id,
+          "data": tooltip_data,
+          "title": d[text_var],
+          "x": x,
+          "y": y,
+          "offset": radius,
+          "arrow": true
+        })
       }
   }
   
@@ -476,14 +499,22 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
       // background line
-      d3.select(this.parentNode).append("line")
-        .attr("class","x_bg_line")
+      
+      var bgtick = d3.select(this.parentNode).selectAll(".bgtick")
+        .data([i])
+        
+      bgtick.enter().append("line")
+        .attr("class","bgtick")
         .attr("x1", 0)
         .attr("x2", 0)
-        .attr("y1", 0+stroke)
-        .attr("y2", -size.height-stroke)
+        .attr("y1", 0-1)
+        .attr("y2", -size.height+1)
         .attr("stroke", "#ccc")
         .attr("stroke-width",stroke/2)
+      
+      bgtick.transition().duration(vizwhiz.timing) 
+        .attr("y2", -size.height+1)
+        
       // tick
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
@@ -508,14 +539,22 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
       // background line
-      d3.select(this.parentNode).append("line")
-        .attr("class","y_bg_line")
+      
+      var bgtick = d3.select(this.parentNode).selectAll(".bgtick")
+        .data([i])
+        
+      bgtick.enter().append("line")
+        .attr("class","bgtick")
         .attr("x1", 0+stroke)
         .attr("x2", 0+size.width-stroke)
         .attr("y1", 0)
         .attr("y2", 0)
         .attr("stroke", "#ccc")
         .attr("stroke-width",stroke/2)
+      
+      bgtick.transition().duration(vizwhiz.timing) 
+        .attr("x2", 0+size.width-stroke)
+        
       // tick
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
