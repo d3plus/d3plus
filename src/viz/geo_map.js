@@ -107,7 +107,7 @@ vizwhiz.viz.geo_map = function() {
           .attr("class","viz")
               
         var land = d3.select("g#land").selectAll("path")
-          .data(topojson.object(background, background.objects.land).geometries)
+          .data(topojson.object(background, background.objects[Object.keys(background.objects)[0]]).geometries)
         
         land.enter().append("path")
           .attr("d",path)
@@ -575,7 +575,7 @@ vizwhiz.viz.geo_map = function() {
 
   chart.coords = function(x) {
     if (!arguments.length) return coords;
-    coords = topojson.object(x, x.objects.munic).geometries;
+    coords = topojson.object(x, x.objects[Object.keys(x.objects)[0]]).geometries;
     shape = {"coordinates": [[]], "type": "Polygon"}
     coords.forEach(function(v,i){
       v.coordinates[0].forEach(function(a){
