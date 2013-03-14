@@ -117,6 +117,7 @@ vizwhiz.viz.stacked = function() {
         .attr("class", "viz")
         .attr("width", size.width)
         .attr("height", size.height)
+        .attr("transform", "translate(" + size.x + "," + size.y + ")")
 
       // add grey background for viz
       viz_enter.append("rect")
@@ -128,11 +129,9 @@ vizwhiz.viz.stacked = function() {
         .attr('y',0)
       
       // update (in case width and height are changed)
-      d3.select(".viz")
-        .attr("transform", "translate(" + size.x + "," + size.y + ")")
-        .select("rect")
-          .attr('width', size.width)
-          .attr('height', size.height)
+      d3.select(".viz rect").transition().duration(vizwhiz.timing)
+        .attr('width', size.width)
+        .attr('height', size.height)
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // TITLE
@@ -161,10 +160,14 @@ vizwhiz.viz.stacked = function() {
       // enter axis ticks
       var xaxis_enter = viz_enter.append("g")
         .attr("class", "xaxis")
+        .attr("transform", "translate(0," + size.height + ")")
+        .attr("opacity",0)
+        .call(x_axis.scale(x_scale))
       
       // update axis ticks
-      d3.select(".xaxis")
+      d3.select(".xaxis").transition().duration(vizwhiz.timing)
         .attr("transform", "translate(0," + size.height + ")")
+        .attr("opacity",1)
         .call(x_axis.scale(x_scale))
       
       // enter label
@@ -192,9 +195,13 @@ vizwhiz.viz.stacked = function() {
       // enter
       var yaxis_enter = viz_enter.append("g")
         .attr("class", "yaxis")
+        .attr("opacity",0)
+        .call(y_axis.scale(y_scale))
       
       // update
-      d3.select(".yaxis").call(y_axis.scale(y_scale))
+      d3.select(".yaxis").transition().duration(vizwhiz.timing)
+        .attr("opacity",1)
+        .call(y_axis.scale(y_scale))
       
       // also update background tick lines
       d3.selectAll(".y_bg_line")
@@ -323,6 +330,7 @@ vizwhiz.viz.stacked = function() {
       // filter layers to only the ones with a height larger than 6% of viz
       var text_layers = [];
       var text_height_scale = d3.scale.linear().range([0, 1]).domain([0, data_max]);
+      
       layers.forEach(function(layer){
         
         // find out which is the largest
@@ -400,10 +408,17 @@ vizwhiz.viz.stacked = function() {
       })
       // container for text layers
       viz_enter.append("g").attr("class", "text_layers")
+
+      // RESET
+      var texts = d3.select("g.text_layers").selectAll(".label")
+        .data([])
+      
+      // EXIT
+      texts.exit().remove()
       
       // give data with key function to variables to draw
       var texts = d3.select("g.text_layers").selectAll(".label")
-        .data(text_layers, function(d){ return d.key+d.tallest.key; })
+        .data(text_layers)
         
       // ENTER
       texts.enter().append("text")
@@ -473,11 +488,6 @@ vizwhiz.viz.stacked = function() {
       texts.transition().duration(vizwhiz.timing)
         .attr("opacity",1)
       
-      // EXIT
-      texts.exit().transition().duration(vizwhiz.timing)
-        .attr("opacity",0)
-        .remove()
-      
       //===================================================================
       
       
@@ -491,7 +501,7 @@ vizwhiz.viz.stacked = function() {
         .attr('y',0)
       
       // update (in case width and height are changed)
-      d3.select(".border")
+      d3.select(".border").transition().duration(vizwhiz.timing)
         .attr('width', size.width)
         .attr('height', size.height)
       
@@ -578,6 +588,7 @@ vizwhiz.viz.stacked = function() {
     .tickPadding(15)
     .orient('bottom')
     .tickFormat(function(d, i) {
+      
       d3.select(this)
         .attr("text-anchor","middle")
         .style("font-weight","bold")
@@ -585,14 +596,22 @@ vizwhiz.viz.stacked = function() {
         .attr("font-family","Helvetica")
         .attr("fill","#4c4c4c")
       // vertical lines up and down
-      d3.select(this.parentNode).append("line")
-        .attr("class","tick_line")
+      
+      var bgtick = d3.select(this.parentNode).selectAll(".bgtick")
+        .data([i])
+        
+      bgtick.enter().append("line")
+        .attr("class","bgtick")
         .attr("x1", 0)
         .attr("x2", 0)
         .attr("y1", 0-1)
         .attr("y2", -size.height+1)
         .attr("stroke", "#ccc")
         .attr("stroke-width",1/2)
+      
+      bgtick.transition().duration(vizwhiz.timing) 
+        .attr("y2", -size.height+1) 
+      
       d3.select(this.parentNode).append("line")
         .attr("class","tick_line")
         .attr("x1", 0)
