@@ -7,10 +7,9 @@ vizwhiz.viz.tree_map = function() {
 
   var width = window.innerWidth,
       height = window.innerHeight,
-      value_var = "value",
       id_var = "id",
+      value_var = "value",
       text_var = "name",
-      nesting = null,
       filter = [],
       solo = [],
       tooltip_info = [],
@@ -21,10 +20,8 @@ vizwhiz.viz.tree_map = function() {
   function chart(selection) {
     selection.each(function(data) {
       
-      var cloned_data = JSON.parse(JSON.stringify(data));
-      
-      var nested_data = vizwhiz.utils.nest(cloned_data, nesting, false, [{"key":"color"}])
-      nested_data.children = nested_data.children.filter(filter_data)
+      // var cloned_data = JSON.parse(JSON.stringify(data));
+      var nested_data = data;
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
@@ -301,27 +298,21 @@ vizwhiz.viz.tree_map = function() {
     return chart;
   };
   
-  chart.value_var = function(x) {
-    if (!arguments.length) return value_var;
-    value_var = x;
-    return chart;
-  };
-  
   chart.id_var = function(x) {
     if (!arguments.length) return id_var;
     id_var = x;
     return chart;
   };
   
-  chart.text_var = function(x) {
-    if (!arguments.length) return text_var;
-    text_var = x;
+  chart.value_var = function(x) {
+    if (!arguments.length) return value_var;
+    value_var = x;
     return chart;
   };
   
-  chart.nesting = function(x) {
-    if (!arguments.length) return nesting;
-    nesting = x;
+  chart.text_var = function(x) {
+    if (!arguments.length) return text_var;
+    text_var = x;
     return chart;
   };
   

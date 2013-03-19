@@ -45,12 +45,8 @@ vizwhiz.viz.pie_scatter = function() {
       //-------------------------------------------------------------------
       
       // first clone input so we know we are working with fresh data
-      var cloned_data = JSON.parse(JSON.stringify(data));
-      // nest the flat data by nesting array
-      // console.log(value_var)
-      // value_var = "val_kg"
-      var nested_data = vizwhiz.utils.nest(cloned_data, nesting, true,
-          [{"key":value_var, "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
+      // var cloned_data = JSON.parse(JSON.stringify(data));
+      var nested_data = data;
 
       // update size
       size.width = width-margin.left-margin.right;

@@ -102,7 +102,7 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
   nesting.forEach(function(nest_key, i){
     
     nested_data.key(function(d){
-      return d[nest_key];
+      return d[nest_key].name;
     })
     
     if(i == nesting.length-1){
@@ -114,7 +114,8 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
         // to_return = leaves[0]
         to_return = {
           "value": d3.sum(leaves, function(d){ return d.value; }),
-          "name": leaves[0][nest_key],
+          "name": leaves[0][nest_key].name,
+          "id": leaves[0][nest_key].id,
           "num_children": leaves.length,
           "num_children_active": d3.sum(leaves, function(d){ return d.active; })
         }

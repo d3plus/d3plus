@@ -32,23 +32,27 @@ d3.json("data/products_mg.json", function(flat_data){
 
     flat_data.map(function(d, i){
       d.active = Math.floor(Math.random()*2);
-      d.nesting_0 = attrs[d.id.slice(0, 2)].name;
-      d.nesting_1 = attrs[d.id.slice(0, 4)].name;
-      d.nesting_2 = attrs[d.id.slice(0, 6)].name;
+      d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+      d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+      d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+      d.value = d.val_usd;
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
+    
+    // nest the flat data by nesting array
+    var nested_data = vizwhiz.utils.nest(flat_data, ["nesting_0", "nesting_1"], true,
+        [{"key":"value", "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
 
     viz
       .text_var("name")
       .id_var("id")
       .xaxis_var("distance")
       .yaxis_var("complexity")
-      .value_var("val_usd")
-      .nesting(["nesting_0", "nesting_1"])
+      .value_var("value")
       .tooltip_info(["distance", "complexity", "value"])
 
     d3.select("#viz")
-      .datum(flat_data)
+      .datum(nested_data)
       .call(viz)    
 
   })

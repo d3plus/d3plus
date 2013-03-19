@@ -34,22 +34,25 @@ d3.json("data/products_mg.json", function(raw_data){
     })
     
     flat_data.map(function(d, i){
-      d.nesting_0 = attrs[d.id.slice(0, 2)].name;
-      d.nesting_1 = attrs[d.id.slice(0, 4)].name;
-      d.nesting_2 = attrs[d.id.slice(0, 6)].name;
+      d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+      d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+      d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+      d.value = d.val_usd;
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
-
+    
+    var nested_data = vizwhiz.utils.nest(flat_data, ["nesting_0", "nesting_1"], false, [{"key":"color"}])
+    // nested_data.children = nested_data.children.filter(filter_data)
+    
     viz
-      .text_var("name")
       .id_var("id")
-      .value_var("val_usd")
-      .nesting(["nesting_0", "nesting_1", "nesting_2"])
+      .text_var("name")
+      .value_var("value")
       .tooltip_info(["distance", "complexity", "value"])
-
-      d3.select("#viz")
-        .datum(flat_data)
-        .call(viz)
+console.log(nested_data)
+    d3.select("#viz")
+      .datum(nested_data)
+      .call(viz)
     
     // setTimeout(function(){
     //   
