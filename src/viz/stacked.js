@@ -37,32 +37,6 @@ vizwhiz.viz.stacked = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
       //-------------------------------------------------------------------
-
-      // first clone input so we know we are working with fresh data
-      var cloned_data = JSON.parse(JSON.stringify(data));
-      
-      // filter raw data
-      cloned_data = cloned_data.filter(function(d){
-        // if any of this item's parents are in the filter list, remove it
-        for(var i = 0; i < nesting.length; i++){
-          if(filter.indexOf(d[nesting[i]]) > -1){
-            return false;
-          }
-        }
-        
-        if(!solo.length){
-          return true
-        }
-
-        // if any of this item's parents are in the filter list, remove it
-        for(var i = 0; i < nesting.length; i++){
-          if(solo.indexOf(d[nesting[i]]) > -1){
-            return true;
-          }
-        }
-        
-        return false;
-      })
       
       // get unique values for xaxis
       xaxis_vals = cloned_data

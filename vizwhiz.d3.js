@@ -133,7 +133,7 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
   nesting.forEach(function(nest_key, i){
     
     nested_data.key(function(d){
-      return d[nest_key];
+      return d[nest_key].name;
     })
     
     if(i == nesting.length-1){
@@ -145,7 +145,8 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
         // to_return = leaves[0]
         to_return = {
           "value": d3.sum(leaves, function(d){ return d.value; }),
-          "name": leaves[0][nest_key],
+          "name": leaves[0][nest_key].name,
+          "id": leaves[0][nest_key].id,
           "num_children": leaves.length,
           "num_children_active": d3.sum(leaves, function(d){ return d.active; })
         }
@@ -1447,32 +1448,6 @@ vizwhiz.viz.stacked = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
       //-------------------------------------------------------------------
-
-      // first clone input so we know we are working with fresh data
-      var cloned_data = JSON.parse(JSON.stringify(data));
-      
-      // filter raw data
-      cloned_data = cloned_data.filter(function(d){
-        // if any of this item's parents are in the filter list, remove it
-        for(var i = 0; i < nesting.length; i++){
-          if(filter.indexOf(d[nesting[i]]) > -1){
-            return false;
-          }
-        }
-        
-        if(!solo.length){
-          return true
-        }
-
-        // if any of this item's parents are in the filter list, remove it
-        for(var i = 0; i < nesting.length; i++){
-          if(solo.indexOf(d[nesting[i]]) > -1){
-            return true;
-          }
-        }
-        
-        return false;
-      })
       
       // get unique values for xaxis
       xaxis_vals = cloned_data
@@ -2255,10 +2230,9 @@ vizwhiz.viz.tree_map = function() {
 
   var width = window.innerWidth,
       height = window.innerHeight,
-      value_var = "value",
       id_var = "id",
+      value_var = "value",
       text_var = "name",
-      nesting = null,
       filter = [],
       solo = [],
       tooltip_info = [],
@@ -2269,10 +2243,8 @@ vizwhiz.viz.tree_map = function() {
   function chart(selection) {
     selection.each(function(data) {
       
-      var cloned_data = JSON.parse(JSON.stringify(data));
-      
-      var nested_data = vizwhiz.utils.nest(cloned_data, nesting, false, [{"key":"color"}])
-      nested_data.children = nested_data.children.filter(filter_data)
+      // var cloned_data = JSON.parse(JSON.stringify(data));
+      var nested_data = data;
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
@@ -2549,27 +2521,21 @@ vizwhiz.viz.tree_map = function() {
     return chart;
   };
   
-  chart.value_var = function(x) {
-    if (!arguments.length) return value_var;
-    value_var = x;
-    return chart;
-  };
-  
   chart.id_var = function(x) {
     if (!arguments.length) return id_var;
     id_var = x;
     return chart;
   };
   
-  chart.text_var = function(x) {
-    if (!arguments.length) return text_var;
-    text_var = x;
+  chart.value_var = function(x) {
+    if (!arguments.length) return value_var;
+    value_var = x;
     return chart;
   };
   
-  chart.nesting = function(x) {
-    if (!arguments.length) return nesting;
-    nesting = x;
+  chart.text_var = function(x) {
+    if (!arguments.length) return text_var;
+    text_var = x;
     return chart;
   };
   
@@ -3328,12 +3294,8 @@ vizwhiz.viz.pie_scatter = function() {
       //-------------------------------------------------------------------
       
       // first clone input so we know we are working with fresh data
-      var cloned_data = JSON.parse(JSON.stringify(data));
-      // nest the flat data by nesting array
-      // console.log(value_var)
-      // value_var = "val_kg"
-      var nested_data = vizwhiz.utils.nest(cloned_data, nesting, true,
-          [{"key":value_var, "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
+      // var cloned_data = JSON.parse(JSON.stringify(data));
+      var nested_data = data;
 
       // update size
       size.width = width-margin.left-margin.right;

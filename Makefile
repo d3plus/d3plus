@@ -24,7 +24,8 @@ vizwhiz.d3.js: Makefile
 
 vizwhiz.d3.min.js: Makefile
 	rm -f $@
-	cat $(filter %.js,$^) | $(JS_COMPILER) -c sequences=true,unsafe=true >> $@
+	$(JS_COMPILER) vizwhiz.d3.js --output $@
+  # cat $(filter %.js,$^) | $(JS_COMPILER) >> $@
 
 clean:
 	rm -rf vizwhiz.d3.js vizwhiz.d3.min.js
