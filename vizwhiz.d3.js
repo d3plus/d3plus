@@ -803,7 +803,7 @@ vizwhiz.viz.network = function() {
           .attr("cx", function(d) { return scale.x(d.x); })
           .attr("cy", function(d) { return scale.y(d.y); })
           .attr("r", function(d) { 
-            var value = data[d[id_var]][value_var],
+            var value = data[d[id_var]][value_var] ? data[d[id_var]][value_var] : 0,
                 buffer = data[d[id_var]].active ? 3 : 2
             value = value > 0 ? scale.size(value) : scale.size(val_range[0])
             return value+buffer
@@ -816,7 +816,7 @@ vizwhiz.viz.network = function() {
           .attr("cx", function(d) { return scale.x(d.x); })
           .attr("cy", function(d) { return scale.y(d.y); })
           .attr("r", function(d) { 
-            var value = data[d[id_var]][value_var]
+            var value = data[d[id_var]][value_var] ? data[d[id_var]][value_var] : 0
             return value > 0 ? scale.size(value) : scale.size(val_range[0])
           })
           .attr("stroke-width", function(d){
