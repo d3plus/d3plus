@@ -28,9 +28,9 @@
   var width = window.innerWidth,
       height = window.innerHeight;
     
-  d3.json("data/geo/mg_munic.json", function(shapes) {
+  d3.json("data/geo/ap_munic.json", function(shapes) {
     d3.json("data/geo/land.json", function(land) {
-      d3.json("data/munic_mg.json", function(geo_data) {
+      d3.json("data/munic_ap.json", function(geo_data) {
         d3.json("data/attr_munic.json", function(attr) {
         
           var data = geo_data.filter(function(d){ return d.year == 2010; })

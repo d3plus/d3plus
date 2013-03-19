@@ -18,8 +18,8 @@ vizwhiz.viz.geo_map = function() {
       background = null,
       default_opacity = 0.25,
       select_opacity = 0.75,
-      land_style = {"fill": "#F1EEE8"},
-      water_color = "#B5D0D0",
+      land_style = {"fill": "#f9f4e8"},
+      water_color = "#bfd1df",
       stroke_width = 1,
       tooltip_info = [],
       color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
@@ -578,8 +578,15 @@ vizwhiz.viz.geo_map = function() {
     coords = topojson.object(x, x.objects[Object.keys(x.objects)[0]]).geometries;
     shape = {"coordinates": [[]], "type": "Polygon"}
     coords.forEach(function(v,i){
-      v.coordinates[0].forEach(function(a){
-        shape.coordinates[0].push(a)
+      v.coordinates.forEach(function(c){
+        c.forEach(function(a){
+          if (a.length == 2) shape.coordinates[0].push(a)
+          else {
+            a.forEach(function(aa){
+              shape.coordinates[0].push(aa)
+            })
+          }
+        })
       })
     })
     return chart;
