@@ -78,8 +78,10 @@ vizwhiz.tooltip.create = function(params) {
       .attr("font-family","Helvetica")
       .text(id+":")
       
-    if (typeof params.data[id] == "number") var t = vizwhiz.utils.format_num(params.data[id])
-    else var t = params.data[id]
+    if (typeof params.data[id] == "number") {
+      if (params.data[id] > 9999) var t = vizwhiz.utils.format_num(params.data[id], false, 2, true);
+      else var t = vizwhiz.utils.format_num(params.data[id], false, 2, false);
+    } else var t = params.data[id];
     
     var text = group.append("text")
       .attr("fill","#333333")

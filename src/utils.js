@@ -22,7 +22,7 @@ vizwhiz.utils.format_num = function(val, percent, sig_figs, abbrv) {
     val = val + " " + symbol;
   }
   else {
-    val = d3.format(",."+sig_figs+"d")(val)
+    val = d3.format(",."+sig_figs+"f")(val)
   }
   
   return val;
