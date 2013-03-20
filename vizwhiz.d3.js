@@ -1451,6 +1451,8 @@ vizwhiz.viz.stacked = function() {
       // INIT vars & data munging
       //-------------------------------------------------------------------
       
+      var cloned_data = data;
+      
       // get unique values for xaxis
       xaxis_vals = cloned_data
         .reduce(function(a, b){ return a.concat(b[xaxis_var]) }, [])
@@ -1711,7 +1713,7 @@ vizwhiz.viz.stacked = function() {
           "parent": svg,
           "id": d[id_var],
           "data": tooltip_data,
-          "title": d[nesting[nesting.length-1]],
+          "title": d[text_var],
           "x": x_scale(this_x)+margin.left,
           "y": y_scale(this_value.y0 + this_value.y)+(size.height-y_scale(this_value.y))/2+margin.top,
           "offset": ((size.height-y_scale(this_value.y))/2)+2,
@@ -1739,9 +1741,9 @@ vizwhiz.viz.stacked = function() {
       var text_height_scale = d3.scale.linear().range([0, 1]).domain([0, data_max]);
       
       layers.forEach(function(layer){
-        
         // find out which is the largest
         var available_areas = layer.values.filter(function(d,i,a){
+          
           var min_height = 30;
           if (i == 0) {
             return (size.height-y_scale(d.y)) >= min_height 
@@ -1860,7 +1862,7 @@ vizwhiz.viz.stacked = function() {
           return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
         })
         .text(function(d) {
-          return d[nesting[nesting.length-1]]
+          return d[text_var]
         })
         .on(vizwhiz.evt.over, path_tooltip)
         .each(function(d){
@@ -1876,7 +1878,7 @@ vizwhiz.viz.stacked = function() {
             // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
             
             vizwhiz.utils.wordwrap({
-              "text": d[nesting[nesting.length-1]],
+              "text": d[text_var],
               "parent": this,
               "width": tick_width,
               "height": height,
@@ -1929,15 +1931,15 @@ vizwhiz.viz.stacked = function() {
   //-------------------------------------------------------------------
   
   function nest_data(xaxis_vals, data, xaxis_sums){
-    var nest_key = nesting[nesting.length-1];
     var info_lookup = {};
     
     var nested = d3.nest()
-      .key(function(d){ return d[nest_key]; })
+      .key(function(d){ return d[id_var]; })
       .rollup(function(leaves){
-        info_lookup[leaves[0][nest_key]] = JSON.parse(JSON.stringify(leaves[0]))
-        delete info_lookup[leaves[0][nest_key]][xaxis_var]
-        delete info_lookup[leaves[0][nest_key]][value_var]
+        
+        info_lookup[leaves[0][id_var]] = JSON.parse(JSON.stringify(leaves[0]))
+        delete info_lookup[leaves[0][id_var]][xaxis_var]
+        delete info_lookup[leaves[0][id_var]][value_var]
         
         var values = d3.nest()
           .key(function(d){ return d[xaxis_var]; })
@@ -1968,7 +1970,6 @@ vizwhiz.viz.stacked = function() {
     // return nested
     
     return nested.sort(function(a,b){
-      // console.log(a)
       if(a[sort]<b[sort]) return sort_order == "desc" ? -1 : 1;
       if(a[sort]>b[sort]) return sort_order == "desc" ? 1 : -1;
       return 0;
