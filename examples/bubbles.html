@@ -35,11 +35,11 @@
       flat2010.forEach(function(d){
         var obj = vizwhiz.utils.merge(d,attr[d.id])
         obj.category = attr[d.id.substr(0,2)].name;
-        // obj.total = Math.floor(Math.random() * (800 - 2 + 1)) + 2;
-        // obj.available = Math.ceil(obj.total * Math.random());
-        // if (obj.available/obj.total == 1) obj.active = true;
-        // else obj.active = false;
-        obj.active = Math.random() < 0.5
+        obj.total = Math.floor(Math.random() * (800 - 2 + 1)) + 2;
+        obj.available = Math.ceil(obj.total * Math.random());
+        if (obj.available/obj.total == 1) obj.active = true;
+        else obj.active = false;
+        // obj.active = Math.random() < 0.5
         delete obj.year
         delete obj.attr_type
         data2010.push(obj)
@@ -51,11 +51,11 @@
       flat2003.forEach(function(d){
         var obj = vizwhiz.utils.merge(d,attr[d.id])
         obj.category = attr[d.id.substr(0,2)].name;
-        // obj.total = Math.floor(Math.random() * (800 - 2 + 1)) + 2;
-        // obj.available = Math.ceil(obj.total * Math.random());
-        // if (obj.available/obj.total == 1) obj.active = true;
-        // else obj.active = false;
-        obj.active = Math.random() < 0.5
+        obj.total = Math.floor(Math.random() * (800 - 2 + 1)) + 2;
+        obj.available = Math.ceil(obj.total * Math.random());
+        if (obj.available/obj.total == 1) obj.active = true;
+        else obj.active = false;
+        // obj.active = Math.random() < 0.5
         delete obj.year
         delete obj.attr_type
         data2003.push(obj)
@@ -70,7 +70,7 @@
         .tooltip_info(["available","total","val_usd","val_quantity","val_kg"]);
           
       d3.select("#viz")
-        .datum(data2010)
+        .datum([data2010[0],data2010[1]])
         .call(viz);
     
       // setTimeout(function(){

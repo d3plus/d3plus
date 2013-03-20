@@ -64,18 +64,6 @@ vizwhiz.viz.bubbles = function() {
           groups[g].height = height
         }
         
-      } else if (Object.keys(groups).length == 2) {
-        
-        var total = d3.sum(d3.values(groups),function(d){return d.value;})
-        var offset = 0;
-        for (var g in groups) {
-          groups[g].width = width*(groups[g].value/total)
-          groups[g].height = height
-          groups[g].x = (groups[g].width/2)+offset
-          groups[g].y = height/2
-          offset += groups[g].width;
-        }
-        
       } else if (grouping == "id" || grouping == "name") {
         
         if(data.length == 1) {
@@ -101,6 +89,18 @@ vizwhiz.viz.bubbles = function() {
             r++
           }
           
+        }
+        
+      } else if (Object.keys(groups).length == 2) {
+        
+        var total = d3.sum(d3.values(groups),function(d){return d.value;})
+        var offset = 0;
+        for (var g in groups) {
+          groups[g].width = width*(groups[g].value/total)
+          groups[g].height = height
+          groups[g].x = (groups[g].width/2)+offset
+          groups[g].y = height/2
+          offset += groups[g].width;
         }
         
       } else {
