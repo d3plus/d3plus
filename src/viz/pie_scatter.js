@@ -22,7 +22,9 @@ vizwhiz.viz.pie_scatter = function() {
     nesting = [],
     filter = [],
     solo = [],
-    tooltip_info = [];
+    tooltip_info = [],
+    arc_angles = {},
+    arc_sizes = {};
   
   //===================================================================
   
@@ -47,7 +49,7 @@ vizwhiz.viz.pie_scatter = function() {
       // first clone input so we know we are working with fresh data
       // var cloned_data = JSON.parse(JSON.stringify(data));
       var nested_data = data;
-
+      
       // update size
       size.width = width-margin.left-margin.right;
       size.height = height-margin.top-margin.bottom;
@@ -96,7 +98,7 @@ vizwhiz.viz.pie_scatter = function() {
         .domain(d3.extent(nested_data, function(d){ return d[xaxis_var]; }))
         .range([0, size.width])
         .nice()
-      
+        
       // get buffer room (take into account largest size var)
       var inverse_x_scale = d3.scale.linear().domain(x_scale.range()).range(x_scale.domain())
       var largest_size = size_scale.range()[1]
@@ -106,7 +108,6 @@ vizwhiz.viz.pie_scatter = function() {
       var x_buffer = largest_size - x_scale.domain()[0];
       // update x scale with new buffer offsets
       x_scale.domain([x_scale.domain()[0]-x_buffer, x_scale.domain()[1]+x_buffer])
-      console.log(largest_size)
       // enter
       var xaxis_enter = viz_enter.append("g")
         .attr("transform", "translate(0," + size.height + ")")
@@ -201,6 +202,8 @@ vizwhiz.viz.pie_scatter = function() {
       var arc = d3.svg.arc()
         .innerRadius(0)
         .startAngle(0)
+        .outerRadius(function(d) { return d.arc_radius })
+        .endAngle(function(d) { return d.arc_angle })
       
       var has_children = nested_data[0].num_children ? true : false;
       
@@ -246,7 +249,7 @@ vizwhiz.viz.pie_scatter = function() {
         .selectAll("g.circle")
         .data(nested_data, function(d){ return d.name; })
       
-      var nodes_enter = nodes.enter().append("g")
+      nodes.enter().append("g")
         .attr("opacity", 0)
         .attr("class", "circle")
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
@@ -255,41 +258,49 @@ vizwhiz.viz.pie_scatter = function() {
           vizwhiz.tooltip.remove();
           d3.selectAll(".axis_hover").remove();
         })
-      
-      nodes_enter
-        .append("circle")
-        .style('stroke', function(d){ return d.color })
-        .style('stroke-width', 3)
-        .style('fill', function(d){ return d.color })
-        .style("fill-opacity", function(d) {
-          return d.active ? 0.75 : 0.25;
+        .each(function(d){
+          
+          d3.select(this)
+            .append("circle")
+            .style('stroke', d.color )
+            .style('stroke-width', 3)
+            .style('fill', d.color )
+            .style("fill-opacity", function(dd) { return d.active ? 0.75 : 0.25; })
+            .attr("r", 0 )
+            
+          arc_angles[d.id] = 0
+          arc_sizes[d.id] = 0
+            
+          d3.select(this)
+            .append("path")
+            .style('fill', d.color )
+            .style("fill-opacity", 1)
+            
+          d3.select(this).select("path").transition().duration(vizwhiz.timing)
+            .attrTween("d",arcTween)
+            
         })
-        .attr("r", function(d){ 
-          return size_scale(d[value_var]);
-        })
-
-      nodes_enter
-        .append("path")
-        .style('fill', function(d){ return d.color })
-        .style("fill-opacity", 1)
       
       // update
       nodes.transition().duration(vizwhiz.timing)
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
         .attr("opacity", 1)
-      
-      nodes.selectAll("circle").transition().duration(vizwhiz.timing)
-        .style('fill', function(d){ return d.color })
-        .attr("r", function(d){ return size_scale(d[value_var]); })
-      
-      nodes.selectAll("path").transition().duration(vizwhiz.timing)
-        .attr("d", function(d){
-          var angle = 0, radius = 0;
-          if(d.num_children){
-            angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
-            radius = size_scale(d[value_var]);
-          }
-          return arc.endAngle(angle).outerRadius(radius)(d);
+        .each(function(d){
+
+          d.arc_radius = size_scale(d[value_var]);
+          if (d.num_children) d.arc_angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
+          
+          d3.select(this).select("circle").transition().duration(vizwhiz.timing)
+            .style('fill', d.color )
+            .attr("r", d.arc_radius )
+          
+          d3.select(this).select("path").transition().duration(vizwhiz.timing)
+            .attrTween("d",arcTween)
+            .each("end", function(dd) {
+              arc_angles[d.id] = d.arc_angle
+              arc_sizes[d.id] = d.arc_radius
+            })
+          
         })
       
       // exit
@@ -371,6 +382,13 @@ vizwhiz.viz.pie_scatter = function() {
       
       // Always bring to front
       d3.select("rect.border").node().parentNode.appendChild(d3.select("rect.border").node())
+      
+      function arcTween(b) {
+        var i = d3.interpolate({arc_angle: arc_angles[b.id], arc_radius: arc_sizes[b.id]}, b);
+        return function(t) {
+          return arc(i(t));
+        };
+      }
       
     });
 
@@ -520,7 +538,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("y2", 20)
         .attr("stroke", "#000")
         .attr("stroke-width", stroke)
-      return d
+      return vizwhiz.utils.format_num(d, false, 3, true);
     });
   
   var y_axis = d3.svg.axis()
@@ -561,7 +579,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("stroke", "#4c4c4c")
         .attr("stroke-width",stroke)
       // return parseFloat(d.toFixed(3))
-      return vizwhiz.utils.format_num(d, false, 3, true)
+      return vizwhiz.utils.format_num(d, false, 3, true);
     });
 
   //===================================================================

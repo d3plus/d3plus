@@ -10,7 +10,9 @@ vizwhiz.viz.bubbles = function() {
       id_var = "id",
       text_var = "name",
       grouping = "name",
-      tooltip_info = [];
+      tooltip_info = []
+      arc_angles = {},
+      arc_sizes = {};
 
   //===================================================================
 
@@ -27,7 +29,7 @@ vizwhiz.viz.bubbles = function() {
           stroke_width = 1,
           groups = {},
           value_extent = d3.extent(d3.values(data),function(d){ return d[value_var]; }),
-            value_map = d3.scale.linear().domain(value_extent).range([1,4]);
+          value_map = d3.scale.linear().domain(value_extent).range([1,4]);
 
       //===================================================================
       
@@ -178,13 +180,34 @@ vizwhiz.viz.bubbles = function() {
       var arc = d3.svg.arc()
         .innerRadius(0)
         .startAngle(0)
+        .outerRadius(function(d) { return d.arc_radius })
+        .endAngle(function(d) { return d.arc_angle })
 
       var bubble = d3.select("g.bubbles").selectAll("g.bubble")
         .data(data, function(d) { return d[id_var] })
         
-      var bubble_enter = bubble.enter().append("g")
+      bubble.enter().append("g")
         .attr("class", "bubble")
         .attr("transform", function(d){ return "translate("+d.cx+","+d.cy+")"; })
+        .each(function(d){
+          
+          d3.select(this).append("circle")
+            .attr("fill", d.color )
+            .style('fill-opacity', 0.25 )
+            .attr("r",0)
+            .attr("stroke-width",2)
+            .attr("stroke", d.color );
+            
+          arc_angles[d.id] = 0
+          arc_sizes[d.id] = 0
+            
+          d3.select(this).append("path")
+            .style('fill', d.color )
+            
+          d3.select(this).select("path").transition().duration(vizwhiz.timing)
+            .attrTween("d",arcTween)
+            
+        })
         .on(vizwhiz.evt.over, function(d){
           
           var tooltip_data = {}
@@ -206,23 +229,6 @@ vizwhiz.viz.bubbles = function() {
         })
         .on(vizwhiz.evt.out, function(d){
           vizwhiz.tooltip.remove(d[id_var])
-        });
-        
-      bubble_enter.append("circle")
-        .attr("fill", function(d){ return d.color; })
-        .attr("r",0)
-        .attr("stroke-width",2)
-        .attr("stroke", function(d){ return d.color; });
-        
-      bubble_enter.append("path")
-        .attr("fill", function(d){ return d.color; })
-        .attr("d", function(d){
-          if(d.total){
-            var angle = (((d.available / d.total)*360) * (Math.PI/180));
-          } else if (d.active) {
-            var angle = 360; 
-          } else var angle = 0;
-          return arc.endAngle(angle).outerRadius(0)(d);
         });
       
       var label = d3.select("g.labels").selectAll("text")
@@ -272,27 +278,23 @@ vizwhiz.viz.bubbles = function() {
       // Update, for things that are already in existance
       //-------------------------------------------------------------------
         
-      bubble.selectAll("circle").transition().duration(timing)
-        .attr("r", function(d){ return d.radius; })
-        .style('fill-opacity', 0.25 );
-        
-      bubble.selectAll("path").transition().duration(timing)
-        .attr("d", function(d){
-          if(d.total){
-            var angle = (((d.available / d.total)*360) * (Math.PI/180));
-          } else if (d.active) {
-            var angle = 360; 
-          } else var angle = 0;
-          return arc.endAngle(angle).outerRadius(d.radius)(d);
-        });
-        
-      label.transition().duration(timing/2)
-        .attr("opacity",1)
-        .attr('x',function(d) { return d.x; })
-        .attr('y',function(d) {
-          if (Object.keys(groups).length == 2) var y_offset = height
-          else var y_offset = d3.min([d.width,d.height]);
-          return d.y+(y_offset/2)-30;
+      bubble.transition().duration(vizwhiz.timing)
+        .each(function(d){
+          
+          d.arc_radius = d.radius;
+          if (d.total) d.arc_angle = (((d.available / d.total)*360) * (Math.PI/180));
+          else if (d.active) d.arc_angle = 360; 
+          
+          d3.select(this).select("circle").transition().duration(vizwhiz.timing)
+            .attr("r", d.arc_radius )
+          
+          d3.select(this).select("path").transition().duration(vizwhiz.timing)
+            .attrTween("d",arcTween)
+            .each("end", function(dd) {
+              arc_angles[d.id] = d.arc_angle
+              arc_sizes[d.id] = d.arc_radius
+            })
+          
         })
         
       svg.transition().duration(timing)
@@ -377,6 +379,13 @@ vizwhiz.viz.bubbles = function() {
               || x2 < nx1
               || y1 > ny2
               || y2 < ny1;
+        };
+      }
+      
+      function arcTween(b) {
+        var i = d3.interpolate({arc_angle: arc_angles[b.id], arc_radius: arc_sizes[b.id]}, b);
+        return function(t) {
+          return arc(i(t));
         };
       }
 

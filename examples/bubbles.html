@@ -29,10 +29,10 @@
   d3.json("data/products_mg.json", function(raw_data) {
     d3.json("data/attr_hs.json", function(attr) {
         
-      raw_data = raw_data.filter(function(d){ return d.year == 2010 && d.val_usd > 50000000 && d.val_usd < 10000000000; })
+      flat2010 = raw_data.filter(function(d){ return d.year == 2010 && d.val_usd > 50000000 && d.val_usd < 10000000000; })
       
-      var data = []
-      raw_data.forEach(function(d){
+      var data2010 = []
+      flat2010.forEach(function(d){
         var obj = vizwhiz.utils.merge(d,attr[d.id])
         obj.category = attr[d.id.substr(0,2)].name;
         obj.total = Math.floor(Math.random() * (800 - 2 + 1)) + 2;
@@ -42,7 +42,23 @@
         // obj.active = Math.random() < 0.5
         delete obj.year
         delete obj.attr_type
-        data.push(obj)
+        data2010.push(obj)
+      })
+        
+      flat2003 = raw_data.filter(function(d){ return d.year == 2003 && d.val_usd > 50000000 && d.val_usd < 10000000000; })
+      
+      var data2003 = []
+      flat2003.forEach(function(d){
+        var obj = vizwhiz.utils.merge(d,attr[d.id])
+        obj.category = attr[d.id.substr(0,2)].name;
+        obj.total = Math.floor(Math.random() * (800 - 2 + 1)) + 2;
+        obj.available = Math.ceil(obj.total * Math.random());
+        if (obj.available/obj.total == 1) obj.active = true;
+        else obj.active = false;
+        // obj.active = Math.random() < 0.5
+        delete obj.year
+        delete obj.attr_type
+        data2003.push(obj)
       })
       
       viz = vizwhiz.viz.bubbles()
@@ -54,8 +70,16 @@
         .tooltip_info(["available","total","val_usd","val_quantity","val_kg"]);
           
       d3.select("#viz")
-        .datum(data)
+        .datum(data2010)
         .call(viz);
+    
+      setTimeout(function(){
+      
+        d3.select("#viz")
+          .datum(data2003)
+          .call(viz)
+      
+      },4000)
         
     });
   });

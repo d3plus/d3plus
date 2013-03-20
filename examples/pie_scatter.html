@@ -26,34 +26,59 @@ var viz = vizwhiz.viz.pie_scatter()
 d3.json("data/products_mg.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){
 
-    flat_data = flat_data.filter(function(d){
+    data2010 = flat_data.filter(function(d){
       return d.year == 2010;
     })
 
-    flat_data.map(function(d, i){
+    data2010.map(function(d, i){
       d.active = Math.floor(Math.random()*2);
       d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
       d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
       d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-      d.value = d.val_usd;
-      flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+      // d.value = d.val_usd;
+      data2010[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
     
     // nest the flat data by nesting array
-    var nested_data = vizwhiz.utils.nest(flat_data, ["nesting_0", "nesting_1"], true,
-        [{"key":"value", "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
+    var nested2010 = vizwhiz.utils.nest(data2010, ["nesting_0"], true,
+        [{"key":"val_usd", "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
+
+    data2003 = flat_data.filter(function(d){
+      return d.year == 2003;
+    })
+
+    data2003.map(function(d, i){
+      d.active = Math.floor(Math.random()*2);
+      d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+      d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+      d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+      // d.value = d.val_usd;
+      data2003[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+    })
+    
+    // nest the flat data by nesting array
+    var nested2003 = vizwhiz.utils.nest(data2003, ["nesting_0"], true,
+        [{"key":"val_usd", "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
 
     viz
       .text_var("name")
       .id_var("id")
       .xaxis_var("distance")
       .yaxis_var("complexity")
-      .value_var("value")
+      .value_var("val_usd")
       .tooltip_info(["distance", "complexity", "value"])
 
     d3.select("#viz")
-      .datum(nested_data)
-      .call(viz)    
+      .datum(nested2010)
+      .call(viz)   
+    
+    setTimeout(function(){
+      
+      d3.select("#viz")
+        .datum(nested2003)
+        .call(viz)
+      
+    },4000)
 
   })
 })
