@@ -4256,6 +4256,9 @@ vizwhiz.viz.bubbles = function() {
             })
           
         })
+
+      label.transition().duration(timing/2)
+        .attr('opacity',1)
         
       svg.transition().duration(timing)
         .attr("width", width)
