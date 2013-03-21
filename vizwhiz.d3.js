@@ -3975,7 +3975,8 @@ vizwhiz.viz.bubbles = function() {
       grouping = "name",
       tooltip_info = []
       arc_angles = {},
-      arc_sizes = {};
+      arc_sizes = {},
+      avail_var = "available";
 
   //===================================================================
 
@@ -4009,13 +4010,15 @@ vizwhiz.viz.bubbles = function() {
                                       "y": 0,
                                       "width": 0,
                                       "height": 0,
-                                      "available": 0,
-                                      "total": 0
+                                      "total": 0,
+                                      "elsewhere": 0
                                    }
         }
+        if (!groups[value[grouping]][avail_var]) groups[value[grouping]][avail_var] = 0
         groups[value[grouping]].value += value[value_var] ? value_map(value[value_var]) : value_map(value_extent[0])
-        groups[value[grouping]].available += value.available ? value.available : value.active ? 1 : 0
+        groups[value[grouping]][avail_var] += value[avail_var] ? value[avail_var] : value.active ? 1 : 0
         groups[value[grouping]].total += value.total ? value.total : 1
+        groups[value[grouping]].elsewhere += value.elsewhere ? value.elsewhere : 0
       })
       
       if (Object.keys(groups).length == 1) {
@@ -4139,11 +4142,75 @@ vizwhiz.viz.bubbles = function() {
       // New nodes and links enter, initialize them here
       //-------------------------------------------------------------------
       
+      var label = d3.select("g.labels").selectAll("text")
+        .data(d3.values(groups), function(d) { return d.name+d.x+d.y })
+        
+      label.enter().append("text")
+        .attr("opacity",0)
+        .attr("text-anchor","middle")
+        .attr("font-weight","bold")
+        .attr("font-size","12px")
+        .attr("font-family","Helvetica")
+        .attr("fill","#4c4c4c")
+        .attr('x',function(d) { return d.x; })
+        .attr('y',function(d) {
+          if (Object.keys(groups).length == 2) var y_offset = height
+          else var y_offset = d3.min([d.width,d.height]);
+          return d.y+(y_offset/2)-45;
+        })
+        .each(function(d){
+          if (grouping == 'active') {
+            var t = d.name == true ? 'Available' : 'Not Available'
+          } else {
+            var t = d.name
+          }
+          vizwhiz.utils.wordwrap({
+            "text": t,
+            "parent": this,
+            "width": d.width,
+            "height": 20
+          })
+          
+          if (!d.total) {
+            if (!d.active) var t = "Not "+avail_var
+            else var t = avail_var
+          } else {
+            var t2 = null
+            if (d[avail_var] < d.total) {
+              var t = d[avail_var] + " of " + d.total + " " + avail_var
+              if (d.elsewhere > 0) t2 = "(" +(d.elsewhere)+ " elsewhere)"
+            } else if (d[avail_var] >= d.total) {
+              var t = d.total + " " + avail_var
+              if (d[avail_var] > d.total) t2 = "(" +(d[avail_var]-d.total)+ " extra)"
+            }
+          }
+          
+          d3.select(this).append("tspan")
+            .attr("x",d.x)
+            .attr("dy","14px")
+            .style("font-weight","normal")
+            .text(t)
+          
+          if (t2) {
+            d3.select(this).append("tspan")
+              .attr("x",d.x)
+              .attr("dy","14px")
+              .style("font-weight","normal")
+              .text(t2)
+          }
+        })
+      
       var arc = d3.svg.arc()
         .innerRadius(0)
         .startAngle(0)
         .outerRadius(function(d) { return d.arc_radius })
         .endAngle(function(d) { return d.arc_angle })
+      
+      var arc_else = d3.svg.arc()
+        .innerRadius(0)
+        .startAngle(0)
+        .outerRadius(function(d) { return d.arc_radius_else })
+        .endAngle(function(d) { return d.arc_angle_else })
 
       var bubble = d3.select("g.bubbles").selectAll("g.bubble")
         .data(data, function(d) { return d[id_var] })
@@ -4151,25 +4218,6 @@ vizwhiz.viz.bubbles = function() {
       bubble.enter().append("g")
         .attr("class", "bubble")
         .attr("transform", function(d){ return "translate("+d.cx+","+d.cy+")"; })
-        .each(function(d){
-          
-          d3.select(this).append("circle")
-            .attr("fill", d.color )
-            .style('fill-opacity', 0.25 )
-            .attr("r",0)
-            .attr("stroke-width",2)
-            .attr("stroke", d.color );
-            
-          arc_angles[d.id] = 0
-          arc_sizes[d.id] = 0
-            
-          d3.select(this).append("path")
-            .style('fill', d.color )
-            
-          d3.select(this).select("path").transition().duration(vizwhiz.timing)
-            .attrTween("d",arcTween)
-            
-        })
         .on(vizwhiz.evt.over, function(d){
           
           var tooltip_data = {}
@@ -4191,48 +4239,42 @@ vizwhiz.viz.bubbles = function() {
         })
         .on(vizwhiz.evt.out, function(d){
           vizwhiz.tooltip.remove(d[id_var])
-        });
-      
-      var label = d3.select("g.labels").selectAll("text")
-        .data(d3.values(groups), function(d) { return d.name+d.x+d.y })
-        
-      label.enter().append("text")
-        .attr("opacity",0)
-        .attr("text-anchor","middle")
-        .attr("font-weight","bold")
-        .attr("font-size","12px")
-        .attr("font-family","Helvetica")
-        .attr("fill","#4c4c4c")
-        .attr('x',function(d) { return d.x; })
-        .attr('y',function(d) {
-          if (Object.keys(groups).length == 2) var y_offset = height
-          else var y_offset = d3.min([d.width,d.height]);
-          return d.y+(y_offset/2)-30;
         })
         .each(function(d){
-          if (grouping == 'active') {
-            var t = d.name == true ? 'Available' : 'Not Available'
-          } else {
-            var t = d.name
+          
+          d3.select(this).append("circle")
+            .attr("fill", d.color )
+            .style('fill-opacity', 0.1 )
+            .attr("r",0)
+            .attr("stroke-width",2)
+            .attr("stroke", d.color );
+            
+          arc_angles[d[id_var]] = 0
+          arc_sizes[d[id_var]] = 0
+          
+          if (d.elsewhere) {
+          
+            arc_angles[d[id_var]+"else"] = 0
+            arc_sizes[d[id_var]+"else"] = 0
+            
+            d3.select(this).append("path")
+              .attr("class","elsewhere")
+              .style('fill', d.color )
+              .style('fill-opacity', 0.5 )
+            
+            d3.select(this).select("path").transition().duration(vizwhiz.timing)
+              .attrTween("d",arcTween)
           }
-          vizwhiz.utils.wordwrap({
-            "text": t,
-            "parent": this,
-            "width": d.width,
-            "height": 20
-          })
-          
-          if (d.total == 1) {
-            if (d.available == 0) var t = "Not Available"
-            else var t = "Available"
-          } else var t = d.available + " out of " + d.total
-          
-            d3.select(this).append("tspan")
-              .attr("x",d.x)
-              .attr("dy","14px")
-              .style("font-weight","normal")
-              .text(t)
-        })
+            
+          d3.select(this).append("path")
+            .each(function(dd) { dd.arc_id = dd[id_var]; })
+            .attr("class","available")
+            .style('fill', d.color )
+            
+          d3.select(this).select("path").transition().duration(vizwhiz.timing)
+            .attrTween("d",arcTween)
+            
+        });
       
       //===================================================================
       
@@ -4244,18 +4286,30 @@ vizwhiz.viz.bubbles = function() {
         .each(function(d){
           
           d.arc_radius = d.radius;
-          if (d.total) d.arc_angle = (((d.available / d.total)*360) * (Math.PI/180));
-          else if (d.active) d.arc_angle = 360; 
           
           d3.select(this).select("circle").transition().duration(vizwhiz.timing)
             .attr("r", d.arc_radius )
           
-          d3.select(this).select("path").transition().duration(vizwhiz.timing)
+          if (d.total) d.arc_angle = (((d[avail_var] / d.total)*360) * (Math.PI/180));
+          else if (d.active) d.arc_angle = 360; 
+
+          d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
             .attrTween("d",arcTween)
             .each("end", function(dd) {
-              arc_angles[d.id] = d.arc_angle
-              arc_sizes[d.id] = d.arc_radius
+              arc_angles[d[id_var]] = d.arc_angle
+              arc_sizes[dd[id_var]] = d.arc_radius
             })
+          
+          if (d.elsewhere) {
+            d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
+            d.arc_radius_else = d.radius*0.6;
+            d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+              .attrTween("d",arcTween_else)
+              .each("end", function(dd) {
+                arc_angles[d[id_var]+"else"] = d.arc_angle_else
+                arc_sizes[d[id_var]+"else"] = d.arc_radius_else
+              })
+          }
           
         })
 
@@ -4348,9 +4402,16 @@ vizwhiz.viz.bubbles = function() {
       }
       
       function arcTween(b) {
-        var i = d3.interpolate({arc_angle: arc_angles[b.id], arc_radius: arc_sizes[b.id]}, b);
+        var i = d3.interpolate({arc_angle: arc_angles[b[id_var]], arc_radius: arc_sizes[b[id_var]]}, b);
         return function(t) {
           return arc(i(t));
+        };
+      }
+      
+      function arcTween_else(b) {
+        var i = d3.interpolate({arc_angle_else: arc_angles[b[id_var]+"else"], arc_radius_else: arc_sizes[b[id_var]+"else"]}, b);
+        return function(t) {
+          return arc_else(i(t));
         };
       }
 
@@ -4400,6 +4461,12 @@ vizwhiz.viz.bubbles = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return text_var;
     text_var = x;
+    return chart;
+  };
+  
+  chart.avail_var = function(x) {
+    if (!arguments.length) return avail_var;
+    avail_var = x;
     return chart;
   };
   
