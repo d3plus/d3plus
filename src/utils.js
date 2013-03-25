@@ -175,8 +175,9 @@ vizwhiz.utils.wordwrap = function(params) {
       resize = params.resize,
       font_max = params.font_max ? params.font_max : 40,
       font_min = params.font_min ? params.font_min : 8;
-  if (typeof params.text == "string") wrap(params.text.split(/[\s-]/))
-  else wrap(params.text.shift().split(/[\s-]/))
+      
+  if (params.text instanceof Array) wrap(String(params.text.shift()).split(/[\s-]/))
+  else wrap(String(params.text).split(/[\s-]/))
   
   function wrap(words) {
     
