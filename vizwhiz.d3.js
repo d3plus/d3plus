@@ -233,7 +233,7 @@ vizwhiz.utils.wordwrap = function(params) {
       if (size < font_min) {
         d3.select(parent).selectAll('tspan').remove();
         if (typeof params.text == "string" || params.text.length == 0) return;
-        else wrap(params.text.shift().split(/[\s-]/))
+        else wrap(String(params.text.shift()).split(/[\s-]/))
         return;
       }
     
