@@ -212,8 +212,6 @@ vizwhiz.viz.pie_scatter = function() {
         .outerRadius(function(d) { return d.arc_radius })
         .endAngle(function(d) { return d.arc_angle })
       
-      var has_children = nested_data[0].num_children ? true : false;
-      
       // filter data AFTER axis have been set
       nested_data = nested_data.filter(function(d){
         
@@ -223,9 +221,13 @@ vizwhiz.viz.pie_scatter = function() {
         }
         
         // if any of this item's parents are in the filter list, remove it
-        for(var i = 0; i < nesting.length; i++){
-          if(filter.indexOf(d[nesting[i]]) > -1){
-            return false;
+        for (var key in d){
+          if (typeof d[key] == "object") {
+            if (d[key].name) {
+              if (filter.indexOf(d[key].name) >= 0) {
+                return false;
+              }
+            }
           }
         }
         
@@ -237,10 +239,14 @@ vizwhiz.viz.pie_scatter = function() {
           return true;
         }
 
-        // if any of this item's parents are in the filter list, remove it
-        for(var i = 0; i < nesting.length; i++){
-          if(solo.indexOf(d[nesting[i]]) > -1){
-            return true;
+        // if any of this item's parents are in the solo list, keep it
+        for (var key in d){
+          if (typeof d[key] == "object") {
+            if (d[key].name) {
+              if (solo.indexOf(d[key].name) >= 0) {
+                return true;
+              }
+            }
           }
         }
         
@@ -293,7 +299,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
         .attr("opacity", 1)
         .each(function(d){
-
+          
           d.arc_radius = size_scale(d[value_var]);
           if (d.num_children) d.arc_angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
           

@@ -21,7 +21,14 @@ vizwhiz.viz.tree_map = function() {
     selection.each(function(data) {
       
       // var cloned_data = JSON.parse(JSON.stringify(data));
-      var nested_data = data;
+      var nested_data = {"name": "root", "children": []};
+      
+      nested_data.children = data.children.filter(function(d){
+        if (filter.indexOf(d.name) >= 0) return false;
+        if (!solo.length) return true;
+        if (solo.indexOf(d.name) >= 0) return true;
+        return false;
+      })
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
@@ -260,25 +267,6 @@ vizwhiz.viz.tree_map = function() {
       "arrow": true
     })
   }
-  
-  function filter_data(d){
-    
-    // if this items name is in the filter list, remove it
-    if(filter.indexOf(d[text_var]) > -1){
-      return false
-    }
-    
-    if(!solo.length){
-      return true
-    }
-    
-    if(solo.indexOf(d[text_var]) > -1){
-      return true;
-    }
-    
-    return false;
-  }
-
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Expose Public Variables
@@ -321,7 +309,7 @@ vizwhiz.viz.tree_map = function() {
     tooltip_info = x;
     return chart;
   };
-  
+
   chart.filter = function(x) {
     if (!arguments.length) return filter;
     // if we're given an array then overwrite the current filter var

@@ -57,7 +57,7 @@ d3.json("data/products_mg.json", function(flat_data){
     })
     
     // nest the flat data by nesting array
-    var nested2003 = vizwhiz.utils.nest(data2003, ["nesting_0"], true,
+    var nested2003 = vizwhiz.utils.nest(data2003, ["nesting_0","nesting_1"], true,
         [{"key":"val_usd", "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
 
     viz

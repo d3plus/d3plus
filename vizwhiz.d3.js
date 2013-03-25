@@ -1536,7 +1536,45 @@ vizwhiz.viz.stacked = function() {
       // INIT vars & data munging
       //-------------------------------------------------------------------
       
-      var cloned_data = data;
+      var cloned_data = data.filter(function(d){
+        
+        // if this items name is in the filter list, remove it
+        if(filter.indexOf(d.name) > -1){
+          return false
+        }
+        
+        // if any of this item's parents are in the filter list, remove it
+        for (var key in d){
+          if (typeof d[key] == "object") {
+            if (d[key].name) {
+              if (filter.indexOf(d[key].name) >= 0) {
+                return false;
+              }
+            }
+          }
+        }
+        
+        if(!solo.length){
+          return true
+        }
+        
+        if(solo.indexOf(d.name) > -1){
+          return true;
+        }
+
+        // if any of this item's parents are in the solo list, keep it
+        for (var key in d){
+          if (typeof d[key] == "object") {
+            if (d[key].name) {
+              if (solo.indexOf(d[key].name) >= 0) {
+                return true;
+              }
+            }
+          }
+        }
+        
+        return false;
+      });
       
       // get unique values for xaxis
       xaxis_vals = cloned_data
@@ -2332,7 +2370,14 @@ vizwhiz.viz.tree_map = function() {
     selection.each(function(data) {
       
       // var cloned_data = JSON.parse(JSON.stringify(data));
-      var nested_data = data;
+      var nested_data = {"name": "root", "children": []};
+      
+      nested_data.children = data.children.filter(function(d){
+        if (filter.indexOf(d.name) >= 0) return false;
+        if (!solo.length) return true;
+        if (solo.indexOf(d.name) >= 0) return true;
+        return false;
+      })
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([nested_data]);
@@ -2571,25 +2616,6 @@ vizwhiz.viz.tree_map = function() {
       "arrow": true
     })
   }
-  
-  function filter_data(d){
-    
-    // if this items name is in the filter list, remove it
-    if(filter.indexOf(d[text_var]) > -1){
-      return false
-    }
-    
-    if(!solo.length){
-      return true
-    }
-    
-    if(solo.indexOf(d[text_var]) > -1){
-      return true;
-    }
-    
-    return false;
-  }
-
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Expose Public Variables
@@ -2632,7 +2658,7 @@ vizwhiz.viz.tree_map = function() {
     tooltip_info = x;
     return chart;
   };
-  
+
   chart.filter = function(x) {
     if (!arguments.length) return filter;
     // if we're given an array then overwrite the current filter var
@@ -3549,8 +3575,6 @@ vizwhiz.viz.pie_scatter = function() {
         .outerRadius(function(d) { return d.arc_radius })
         .endAngle(function(d) { return d.arc_angle })
       
-      var has_children = nested_data[0].num_children ? true : false;
-      
       // filter data AFTER axis have been set
       nested_data = nested_data.filter(function(d){
         
@@ -3560,9 +3584,13 @@ vizwhiz.viz.pie_scatter = function() {
         }
         
         // if any of this item's parents are in the filter list, remove it
-        for(var i = 0; i < nesting.length; i++){
-          if(filter.indexOf(d[nesting[i]]) > -1){
-            return false;
+        for (var key in d){
+          if (typeof d[key] == "object") {
+            if (d[key].name) {
+              if (filter.indexOf(d[key].name) >= 0) {
+                return false;
+              }
+            }
           }
         }
         
@@ -3574,10 +3602,14 @@ vizwhiz.viz.pie_scatter = function() {
           return true;
         }
 
-        // if any of this item's parents are in the filter list, remove it
-        for(var i = 0; i < nesting.length; i++){
-          if(solo.indexOf(d[nesting[i]]) > -1){
-            return true;
+        // if any of this item's parents are in the solo list, keep it
+        for (var key in d){
+          if (typeof d[key] == "object") {
+            if (d[key].name) {
+              if (solo.indexOf(d[key].name) >= 0) {
+                return true;
+              }
+            }
           }
         }
         
@@ -3630,7 +3662,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("transform", function(d) { return "translate("+x_scale(d[xaxis_var])+","+y_scale(d[yaxis_var])+")" } )
         .attr("opacity", 1)
         .each(function(d){
-
+          
           d.arc_radius = size_scale(d[value_var]);
           if (d.num_children) d.arc_angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
           

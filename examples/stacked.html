@@ -72,19 +72,19 @@ d3.json("data/products_mg.json", function(flat_data){
     // console.log(flat_data)
     
     var data2010 = flat_data.filter(function(d){return d.year == 2010})
-    var nested2010 = vizwhiz.utils.nest(data2010, ["nesting_0"], true,
+    var nested2010 = vizwhiz.utils.nest(data2010, ["nesting_0","nesting_1"], true,
         [{"key":"val_usd", "agg":"sum"}, {"key":"color"}, {"key":"year"}])
     
     var data2009 = flat_data.filter(function(d){return d.year == 2009})
-    var nested2009 = vizwhiz.utils.nest(data2009, ["nesting_0"], true,
+    var nested2009 = vizwhiz.utils.nest(data2009, ["nesting_0","nesting_1"], true,
         [{"key":"val_usd", "agg":"sum"}, {"key":"color"}, {"key":"year"}])
     
     var data2008 = flat_data.filter(function(d){return d.year == 2008})
-    var nested2008 = vizwhiz.utils.nest(data2008, ["nesting_0"], true,
+    var nested2008 = vizwhiz.utils.nest(data2008, ["nesting_0","nesting_1"], true,
         [{"key":"val_usd", "agg":"sum"}, {"key":"color"}, {"key":"year"}])
     
     var data2007 = flat_data.filter(function(d){return d.year == 2007})
-    var nested2007 = vizwhiz.utils.nest(data2007, ["nesting_0"], true,
+    var nested2007 = vizwhiz.utils.nest(data2007, ["nesting_0","nesting_1"], true,
         [{"key":"val_usd", "agg":"sum"}, {"key":"color"}, {"key":"year"}])
         
     var data = nested2007.concat(nested2008).concat(nested2009).concat(nested2010)

@@ -38,7 +38,45 @@ vizwhiz.viz.stacked = function() {
       // INIT vars & data munging
       //-------------------------------------------------------------------
       
-      var cloned_data = data;
+      var cloned_data = data.filter(function(d){
+        
+        // if this items name is in the filter list, remove it
+        if(filter.indexOf(d.name) > -1){
+          return false
+        }
+        
+        // if any of this item's parents are in the filter list, remove it
+        for (var key in d){
+          if (typeof d[key] == "object") {
+            if (d[key].name) {
+              if (filter.indexOf(d[key].name) >= 0) {
+                return false;
+              }
+            }
+          }
+        }
+        
+        if(!solo.length){
+          return true
+        }
+        
+        if(solo.indexOf(d.name) > -1){
+          return true;
+        }
+
+        // if any of this item's parents are in the solo list, keep it
+        for (var key in d){
+          if (typeof d[key] == "object") {
+            if (d[key].name) {
+              if (solo.indexOf(d[key].name) >= 0) {
+                return true;
+              }
+            }
+          }
+        }
+        
+        return false;
+      });
       
       // get unique values for xaxis
       xaxis_vals = cloned_data
