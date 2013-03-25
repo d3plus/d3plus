@@ -578,7 +578,7 @@ vizwhiz.tooltip.move = function(x,y,id) {
           var tooltip_y = y+d.offset+(d.triangle_size/2)
           if (tooltip_y < d.margin) tooltip_y = d.margin;
         } else var tooltip_y = y-d.offset-d.height-(d.triangle_size/2)
-        console.log(tooltip_y)
+        
         return tooltip_y;
         
       })
