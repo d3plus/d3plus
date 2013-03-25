@@ -64,7 +64,9 @@ d3.json("data/products_mg.json", function(flat_data){
       .text_var("name")
       .id_var("id")
       .xaxis_var("distance")
+      .xaxis_domain(d3.extent(flat_data,function(d){return d.distance}))
       .yaxis_var("complexity")
+      .yaxis_domain(d3.extent(flat_data,function(d){return d.complexity}).reverse())
       .value_var("val_usd")
       .tooltip_info(["distance", "complexity", "value"])
 
@@ -78,7 +80,7 @@ d3.json("data/products_mg.json", function(flat_data){
         .datum(nested2003)
         .call(viz)
       
-    },4000)
+    },2000)
 
   })
 })

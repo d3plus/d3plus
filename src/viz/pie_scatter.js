@@ -18,7 +18,9 @@ vizwhiz.viz.pie_scatter = function() {
     id_var = null,
     text_var = null,
     xaxis_var = null,
+    xaxis_domain = null,
     yaxis_var = null,
+    yaxis_domain = null,
     nesting = [],
     filter = [],
     solo = [],
@@ -93,9 +95,11 @@ vizwhiz.viz.pie_scatter = function() {
       //-------------------------------------------------------------------
       
       // create scale for buffer of largest item
+      if (!xaxis_domain) var x_domain = d3.extent(nested_data, function(d){ return d[xaxis_var]; })
+      else var x_domain = xaxis_domain
       
       x_scale
-        .domain(d3.extent(nested_data, function(d){ return d[xaxis_var]; }))
+        .domain(x_domain)
         .range([0, size.width])
         .nice()
         
@@ -146,12 +150,15 @@ vizwhiz.viz.pie_scatter = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Y AXIS
       //-------------------------------------------------------------------
+      // 
+      if (!yaxis_domain) var y_domain = d3.extent(nested_data, function(d){ return d[yaxis_var]; }).reverse();
+      else var y_domain = yaxis_domain;
       
       y_scale
-        .domain(d3.extent(nested_data, function(d){ return d[yaxis_var]; }).reverse())
+        .domain(y_domain)
         .range([0, size.height])
         .nice()
-      
+
       // get buffer room (take into account largest size var)
       var inverse_y_scale = d3.scale.linear().domain(y_scale.range()).range(y_scale.domain())
       largest_size = size_scale.range()[1]
@@ -161,7 +168,7 @@ vizwhiz.viz.pie_scatter = function() {
       var y_buffer = largest_size - y_scale.domain()[0];
       // update x scale with new buffer offsets
       y_scale.domain([y_scale.domain()[0]-y_buffer, y_scale.domain()[1]+y_buffer])
-      
+
       // enter
       var yaxis_enter = viz_enter.append("g")
         .attr("class", "yaxis")
@@ -565,7 +572,7 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("y2", 0)
         .attr("stroke", "#ccc")
         .attr("stroke-width",stroke/2)
-      
+        
       bgtick.transition().duration(vizwhiz.timing) 
         .attr("x2", 0+size.width-stroke)
         
@@ -624,9 +631,21 @@ vizwhiz.viz.pie_scatter = function() {
     return chart;
   };
   
+  chart.xaxis_domain = function(x) {
+    if (!arguments.length) return xaxis_domain;
+    xaxis_domain = x;
+    return chart;
+  };
+  
   chart.yaxis_var = function(x) {
     if (!arguments.length) return yaxis_var;
     yaxis_var = x;
+    return chart;
+  };
+  
+  chart.yaxis_domain = function(x) {
+    if (!arguments.length) return yaxis_domain;
+    yaxis_domain = x;
     return chart;
   };
   
