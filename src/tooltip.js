@@ -9,6 +9,7 @@ vizwhiz.tooltip.create = function(params) {
       .attr("id","tooltip")
       .style("position","absolute")
       .style("overflow","visible")
+      .style("z-index",10000)
     if (params.width) params.parent.attr("width",params.width+"px")
     else params.parent.attr("width","200px")
   
