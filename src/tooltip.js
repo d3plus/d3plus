@@ -8,7 +8,6 @@ vizwhiz.tooltip.create = function(params) {
     params.parent = d3.select("body").append("svg")
       .attr("id","tooltip")
       .style("position","absolute")
-      .style("overflow","visible")
       .style("z-index",10000)
     if (params.width) params.parent.attr("width",params.width+"px")
     else params.parent.attr("width","200px")
@@ -139,7 +138,7 @@ vizwhiz.tooltip.create = function(params) {
       .datum(params)
       .attr("height",function(d){
         d.height = box_height;
-        return (d.height+d.triangle_size)+"px";
+        return (d.height+(d.triangle_size/2)+2)+"px";
       });
   }
   
