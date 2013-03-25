@@ -206,8 +206,9 @@ vizwhiz.utils.wordwrap = function(params) {
       resize = params.resize,
       font_max = params.font_max ? params.font_max : 40,
       font_min = params.font_min ? params.font_min : 8;
-  if (typeof params.text == "string") wrap(params.text.split(/[\s-]/))
-  else wrap(params.text.shift().split(/[\s-]/))
+      
+  if (params.text instanceof Array) wrap(String(params.text.shift()).split(/[\s-]/))
+  else wrap(String(params.text).split(/[\s-]/))
   
   function wrap(words) {
     
@@ -357,8 +358,22 @@ vizwhiz.utils.drop_shadow = function(defs) {
 
 vizwhiz.tooltip.create = function(params) {
   
-  params.window_width = parseInt(params.parent.attr("width"),10);
-  params.window_height = parseInt(params.parent.attr("height"),10);
+  if (!params.parent) {
+    params.parent = d3.select("body").append("svg")
+      .attr("id","tooltip")
+      .style("position","absolute")
+      .style("overflow","visible")
+    if (params.width) params.parent.attr("width",params.width+"px")
+    else params.parent.attr("width","200px")
+  
+    params.window_width = window.innerWidth
+    params.window_height = window.innerHeight;
+    
+  } else {
+    params.window_width = parseInt(params.parent.attr("width"),10);
+    params.window_height = parseInt(params.parent.attr("height"),10);
+  }
+  
   params.width = params.width ? params.width : 200;
   params.offset = params.offset ? params.offset : 0;
   params.margin = 5;
@@ -472,6 +487,15 @@ vizwhiz.tooltip.create = function(params) {
     return d.height+"px";
   })
   
+  if (d3.select("svg#tooltip")[0][0]) {
+    d3.select("svg#tooltip")
+      .datum(params)
+      .attr("height",function(d){
+        d.height = box_height;
+        return (d.height+d.triangle_size)+"px";
+      });
+  }
+  
   if (params.arrow) {
     group.append("line")
       .attr("class","arrow_line")
@@ -523,7 +547,8 @@ vizwhiz.tooltip.create = function(params) {
 
 vizwhiz.tooltip.remove = function(id) {
   
-  if (id) d3.select("g#vizwhiz_tooltip_"+id).remove();
+  if (d3.select("svg#tooltip")[0][0]) d3.select("svg#tooltip").remove();
+  else if (id) d3.select("g#vizwhiz_tooltip_"+id).remove();
   else d3.selectAll("g.vizwhiz_tooltip").remove();
 
 }
@@ -536,45 +561,105 @@ vizwhiz.tooltip.remove = function(id) {
 
 vizwhiz.tooltip.move = function(x,y,id) {
   
-  if (!id) var obj = d3.selectAll("g.vizwhiz_tooltip")
-  else var obj = d3.selectAll("g#vizwhiz_tooltip_"+id)
+  if (d3.select("svg#tooltip")[0][0]) {
+    d3.select("svg#tooltip")
+      .style("left",function(d){
+        
+        if (x-d.margin < d.width/2) var tooltip_x = d.margin
+        else if (x+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
+        else var tooltip_x = x-(d.width/2)
+        
+        return tooltip_x;
+      
+      })
+      .style("top",function(d){
+        
+        if (y-d.offset-d.margin < d.height+d.triangle_size/2) {
+          var tooltip_y = y+d.offset+(d.triangle_size/2)
+          if (tooltip_y < d.margin) tooltip_y = d.margin;
+        } else var tooltip_y = y-d.offset-d.height-(d.triangle_size/2)
+        console.log(tooltip_y)
+        return tooltip_y;
+        
+      })
+      .each(function(d){
+        
+        if (d.arrow) {
+          
+          if (y-d.offset-d.margin < d.height+d.triangle_size/2) {
+            var tooltip_y = y+d.offset+(d.triangle_size/2),
+                triangle_y = 0,
+                p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(-d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
+            if (tooltip_y < d.margin) tooltip_y = d.margin;
+          } else {
+            var tooltip_y = y-d.offset-d.height-(d.triangle_size/2),
+                triangle_y = d.height,
+                p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
+          }
   
-  obj.attr("transform",function(d){
+          if (x-d.margin < d.width/2) var tooltip_x = d.margin
+          else if (x+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
+          else var tooltip_x = x-(d.width/2)
   
-    if (y-d.offset-d.margin < d.height+d.triangle_size/2) {
-      var tooltip_y = y+d.offset+(d.triangle_size/2),
-          triangle_y = 0,
-          p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(-d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
-      if (tooltip_y < d.margin) tooltip_y = d.margin;
-    } else {
-      var tooltip_y = y-d.offset-d.height-(d.triangle_size/2),
-          triangle_y = d.height,
-          p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
-    }
-  
-    if (x-d.offset-d.margin < d.width/2) var tooltip_x = d.margin
-    else if (x+d.offset+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
-    else var tooltip_x = x-(d.width/2)
+          var triangle_x = x-tooltip_x
+          if (triangle_x < d.padding+d.triangle_size/2) var triangle_x = d.padding+d.triangle_size/2
+          else if (triangle_x > d.width-d.padding-d.triangle_size/2) var triangle_x = d.width-d.padding-d.triangle_size/2
     
-    if (d.arrow) {
-  
-      var triangle_x = x-tooltip_x
-      if (triangle_x < d.padding+d.triangle_size/2) var triangle_x = d.padding+d.triangle_size/2
-      else if (triangle_x > d.width-d.padding-d.triangle_size/2) var triangle_x = d.width-d.padding-d.triangle_size/2
-    
-      d3.select(this).select("line.arrow_line")
-        .attr("x1",(triangle_x-d.triangle_size/2+1))
-        .attr("x2",(triangle_x+d.triangle_size/2-1))
-        .attr("y1",triangle_y)
-        .attr("y2",triangle_y);
+          d3.select(this).select("line.arrow_line")
+            .attr("x1",(triangle_x-d.triangle_size/2+1))
+            .attr("x2",(triangle_x+d.triangle_size/2-1))
+            .attr("y1",triangle_y)
+            .attr("y2",triangle_y);
     
 
-      d3.select(this).select("path.arrow").attr("d",p)
-        .attr("transform","translate("+triangle_x+","+triangle_y+")");
-    }
+          d3.select(this).select("path.arrow").attr("d",p)
+            .attr("transform","translate("+triangle_x+","+triangle_y+")");
+        }
+        
+      })
+  } else {
     
-    return "translate("+tooltip_x+","+tooltip_y+")";
-  })
+    if (!id) var obj = d3.selectAll("g.vizwhiz_tooltip")
+    else var obj = d3.selectAll("g#vizwhiz_tooltip_"+id)
+
+    obj.attr("transform",function(d){
+  
+      if (y-d.offset-d.margin < d.height+d.triangle_size/2) {
+        var tooltip_y = y+d.offset+(d.triangle_size/2),
+            triangle_y = 0,
+            p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(-d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
+        if (tooltip_y < d.margin) tooltip_y = d.margin;
+      } else {
+        var tooltip_y = y-d.offset-d.height-(d.triangle_size/2),
+            triangle_y = d.height,
+            p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
+      }
+  
+      if (x-d.offset-d.margin < d.width/2) var tooltip_x = d.margin
+      else if (x+d.offset+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
+      else var tooltip_x = x-(d.width/2)
+    
+      if (d.arrow) {
+  
+        var triangle_x = x-tooltip_x
+        if (triangle_x < d.padding+d.triangle_size/2) var triangle_x = d.padding+d.triangle_size/2
+        else if (triangle_x > d.width-d.padding-d.triangle_size/2) var triangle_x = d.width-d.padding-d.triangle_size/2
+    
+        d3.select(this).select("line.arrow_line")
+          .attr("x1",(triangle_x-d.triangle_size/2+1))
+          .attr("x2",(triangle_x+d.triangle_size/2-1))
+          .attr("y1",triangle_y)
+          .attr("y2",triangle_y);
+    
+
+        d3.select(this).select("path.arrow").attr("d",p)
+          .attr("transform","translate("+triangle_x+","+triangle_y+")");
+      }
+    
+      return "translate("+tooltip_x+","+tooltip_y+")";
+    })
+    
+  }
 
 }
 
