@@ -2361,7 +2361,8 @@ vizwhiz.viz.tree_map = function() {
       filter = [],
       solo = [],
       tooltip_info = [],
-      dispatch = d3.dispatch('elementMouseover', 'elementMouseout');
+      dispatch = d3.dispatch('elementMouseover', 'elementMouseout'),
+      name_array = null;
   
   //===================================================================
 
@@ -2453,7 +2454,14 @@ vizwhiz.viz.tree_map = function() {
             .each("end", function(q, i){
               // need to recalculate word wrapping because dimensions have changed
               if(g_data[text_var]){
-                var text = g_data[id_var] ? [g_data[text_var],g_data[id_var]] : g_data[text_var]
+                if (name_array) {
+                  var text = []
+                  name_array.forEach(function(n){
+                    text.push(g_data[n])
+                  })
+                } else {
+                  var text = g_data[id_var] ? [g_data[text_var],g_data[id_var]] : g_data[text_var]
+                }
                 vizwhiz.utils.wordwrap({
                   "text": text,
                   "parent": this,
@@ -2539,16 +2547,21 @@ vizwhiz.viz.tree_map = function() {
           vizwhiz.tooltip.remove();
         })
         .each(function(d){
-          if(d[text_var]){
-            var text = d[id_var] ? [d[text_var],d[id_var]] : d[text_var]
-            vizwhiz.utils.wordwrap({
-              "text": text,
-              "parent": this,
-              "width": d.dx,
-              "height": d.dy,
-              "resize": true
+          if (name_array) {
+            var text = []
+            name_array.forEach(function(n){
+              text.push(d[n])
             })
+          } else {
+            var text = d[id_var] ? [d[text_var],d[id_var]] : d[text_var]
           }
+          vizwhiz.utils.wordwrap({
+            "text": text,
+            "parent": this,
+            "width": d.dx,
+            "height": d.dy,
+            "resize": true
+          })
         })
       
       // text (share)
@@ -2649,6 +2662,12 @@ vizwhiz.viz.tree_map = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return text_var;
     text_var = x;
+    return chart;
+  };
+  
+  chart.name_array = function(x) {
+    if (!arguments.length) return name_array;
+    name_array = x;
     return chart;
   };
   

@@ -49,6 +49,7 @@ d3.json("data/products_mg.json", function(raw_data){
       .text_var("name")
       .value_var("value")
       .tooltip_info(["distance", "complexity", "value"])
+      .name_array(["name","id"])
       
     d3.select("#viz")
       .datum(nested_data)
