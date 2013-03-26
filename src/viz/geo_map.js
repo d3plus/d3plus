@@ -340,14 +340,14 @@ vizwhiz.viz.geo_map = function() {
           .attr("fill",function(d){ 
             if (d[id_var] == highlight) return "none";
             else if (!data) return "#888888";
-            else return data[d[id_var]] ? value_color(data[d[id_var]][value_var]) : "#eeeeee"
+            else return data[d[id_var]][value_var] ? value_color(data[d[id_var]][value_var]) : "#888888"
           })
           .attr("stroke-width",function(d) {
             if (d[id_var] == highlight) return 10;
             else return stroke_width;
           })
           .attr("stroke",function(d) {
-            if (d[id_var] == highlight) return data[d[id_var]] ? value_color(data[d[id_var]][value_var]) : "#eeeeee";
+            if (d[id_var] == highlight) return data[d[id_var]][value_var] ? value_color(data[d[id_var]][value_var]) : "#888888";
             else return "white";
           })
           .attr("opacity",function(d){
@@ -475,16 +475,18 @@ vizwhiz.viz.geo_map = function() {
         
         vizwhiz.tooltip.remove();
         
-        if (highlight && data[highlight]) {
-            
+        if (highlight) {
+          
           var tooltip_data = {}, sub_title = null
           
-          if (!clicked) {
-            sub_title = "Click for More Info"
-          } else {
-            tooltip_info.forEach(function(t){
-              if (data[highlight][t]) tooltip_data[t] = data[highlight][t]
-            })
+          if (!data[highlight][value_var]) sub_title = "No Data Available"
+          else {
+            if (!clicked) sub_title = "Click for More Info"
+            else {
+              tooltip_info.forEach(function(t){
+                if (data[highlight][t]) tooltip_data[t] = data[highlight][t]
+              })
+            }
           }
           
           vizwhiz.tooltip.create({

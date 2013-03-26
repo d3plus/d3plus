@@ -35,13 +35,12 @@
         
           var data = geo_data.filter(function(d){ return d.year == 2010; })
           data2010 = {}
-          data.forEach(function(d){
-            var id = attr[d.id].id_mdic
-            data2010[id] = data.filter(function(f){return f.id == d.id})[0]
-            data2010[id] = vizwhiz.utils.merge(data2010[id],attr[d.id])
-            delete data2010[id].year
-            delete data2010[id].attr_type
-          })
+          for (var d in attr) {
+            var id = attr[d].id_mdic
+            var temp = data.filter(function(f){return f.id == d})[0]
+            if (temp) data2010[id] = vizwhiz.utils.merge(temp,attr[d])
+            else data2010[id] = attr[d]
+          }
 
           var data = geo_data.filter(function(d){ return d.year == 2005; })
           data2005 = {}
@@ -49,8 +48,6 @@
             var id = attr[d.id].id_mdic
             data2005[id] = data.filter(function(f){return f.id == d.id})[0]
             data2005[id] = vizwhiz.utils.merge(data2005[id],attr[d.id])
-            delete data2005[id].year
-            delete data2005[id].attr_type
           })
           
           viz = vizwhiz.viz.geo_map()
