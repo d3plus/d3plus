@@ -73,8 +73,8 @@ vizwhiz.utils.merge = function(obj1, obj2) {
 vizwhiz.utils.rename_key_value = function(obj) { 
   if (obj.values && obj.values.length) { 
     return { 
-      'name': obj.key, 
-      'id': obj.key, 
+      'name': obj.key.split("|")[1], 
+      'id': obj.key.split("|")[0], 
       'children': obj.values.map(function(obj) { 
         return vizwhiz.utils.rename_key_value(obj);
       }) 
@@ -101,11 +101,10 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
   
   nesting.forEach(function(nest_key, i){
     
-    nested_data.key(function(d){
-      return d[nest_key].name;
-    })
+    nested_data
+      .key(function(d){ return d[nest_key].id+"|"+d[nest_key].name; })
     
-    if(i == nesting.length-1){
+    if (i == nesting.length-1) {
       nested_data.rollup(function(leaves){
         if(leaves.length == 1){
           flattened.push(leaves[0]);
