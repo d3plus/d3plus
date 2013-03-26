@@ -308,7 +308,7 @@ vizwhiz.viz.stacked = function() {
         
       function path_tooltip(d){
         d3.selectAll("line.rule").remove();
-        var mouse_x = d3.event.x-margin.left;
+        var mouse_x = d3.event.layerX-margin.left;
         var rev_x_scale = d3.scale.linear()
           .domain(x_scale.range()).range(x_scale.domain());
         var this_x = Math.round(rev_x_scale(mouse_x));
