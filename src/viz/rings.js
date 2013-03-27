@@ -11,8 +11,6 @@ vizwhiz.viz.rings = function() {
       id_var = "id",
       text_var = "name",
       center = null,
-      nodes = [],
-      links = [],
       connections = {},
       tooltip_info = [],
       highlight = null;
@@ -93,10 +91,16 @@ vizwhiz.viz.rings = function() {
         .attr("opacity",1)
         .attr("d", function(d) {
           if (d.source[id_var] == center) {
-            var x = d.target.y * Math.cos((d.target.x-90)*(Math.PI/180)),
-                y = d.target.y * Math.sin((d.target.x-90)*(Math.PI/180))
+            var x = d.target.ring_y * Math.cos((d.target.ring_x-90)*(Math.PI/180)),
+                y = d.target.ring_y * Math.sin((d.target.ring_x-90)*(Math.PI/180))
             return line([{"x":0,"y":0},{"x":x,"y":y}]);
-          } else return diagonal(d);
+          } else {
+            var x1 = d.source.ring_x,
+                y1 = d.source.ring_y,
+                x2 = d.target.ring_x,
+                y2 = d.target.ring_y
+            return diagonal({"source":{"x":x1,"y":y1},"target":{"x":x2,"y":y2}});
+          }
         })
         .call(line_styles);
           
@@ -123,7 +127,7 @@ vizwhiz.viz.rings = function() {
           .attr("opacity",0)
           .attr("transform", function(d) {
             if (d.depth == 0) return "none"
-            else return "rotate(" + (d.x - 90) + ")translate(" + 0 + ")"; 
+            else return "rotate(" + (d.ring_x - 90) + ")translate(" + 0 + ")"; 
           })
           .on(vizwhiz.evt.over,function(d){
             if (d.depth != 0) {
@@ -159,7 +163,7 @@ vizwhiz.viz.rings = function() {
           .attr("opacity",1)
           .attr("transform", function(d) {
             if (d.depth == 0) return "none"
-            else return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")"; 
+            else return "rotate(" + (d.ring_x - 90) + ")translate(" + d.ring_y + ")"; 
           })
           .each(function(e){
             
@@ -179,20 +183,20 @@ vizwhiz.viz.rings = function() {
             d3.select(this).select("text")
               .attr("text-anchor", function(d) { 
                 if (d.depth == 0) return "middle"
-                else return d.x%360 < 180 ? "start" : "end"; 
+                else return d.ring_x%360 < 180 ? "start" : "end"; 
               })
               .attr("transform", function(d) { 
                 if (d.depth == 0) return "none"
                 else {
                   var offset = d.radius*2
-                  return d.x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
+                  return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
                 }
               })
               .attr("transform", function(d) { 
                 if (d.depth == 0) return "none"
                 else {
                   var offset = d.radius*2
-                  return d.x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
+                  return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
                 }
               })
               .each(function(d) {
@@ -241,7 +245,7 @@ vizwhiz.viz.rings = function() {
             if (data[highlight[id_var]][t]) tooltip_data[t] = data[highlight[id_var]][t]
           })
           
-          if (highlight.x%360 < 180) var x_pos = 0;
+          if (highlight.ring_x%360 < 180) var x_pos = 0;
           else var x_pos = width;
 
           vizwhiz.tooltip.remove();
@@ -349,8 +353,8 @@ vizwhiz.viz.rings = function() {
             "name": prod[text_var],
             "id": prod[id_var],
             "children":[],
-            "x": 0,
-            "y": 0,
+            "ring_x": 0,
+            "ring_y": 0,
             "depth": 0,
             "color": prod.color,
             "text_color": prod.text_color,
@@ -363,8 +367,8 @@ vizwhiz.viz.rings = function() {
         connections[prod[id_var]].forEach(function(child){
       
           // give first level child the properties
-          child.x = 0;
-          child.y = ring_width;
+          child.ring_x = 0;
+          child.ring_y = ring_width;
           child.depth = 1;
           child[text_var] = data[child[id_var]][text_var]
           child.children = []
@@ -396,8 +400,8 @@ vizwhiz.viz.rings = function() {
             // if grandchild isn't already a first level child or the center node
             if (connections[prod[id_var]].indexOf(grandchild) < 0 && grandchild[id_var] != prod[id_var]) {
           
-              grandchild.x = 0;
-              grandchild.y = ring_width*2;
+              grandchild.ring_x = 0;
+              grandchild.ring_y = ring_width*2;
               grandchild.depth = 2;
               grandchild[text_var] = data[grandchild[id_var]][text_var]
               grandchild.color = data[grandchild[id_var]].color
@@ -463,7 +467,7 @@ vizwhiz.viz.rings = function() {
           if (d.children.length > 1) var num = d.children.length;
           else var num = 1;
         
-          d.x = ((first_offset+(num/2))/total_children)*360
+          d.ring_x = ((first_offset+(num/2))/total_children)*360
           d.size = (num/total_children)*360
           if (d.size > 180) d.size = 180
           
@@ -481,8 +485,8 @@ vizwhiz.viz.rings = function() {
           })
           
           d.children.forEach(function(c,i){
-            if (d.children.length <= 1) c.x = d.x
-            else c.x = d.x+(((i+0.5)-positions)/positions)*(d.size/2)
+            if (d.children.length <= 1) c.ring_x = d.ring_x
+            else c.ring_x = d.ring_x+(((i+0.5)-positions)/positions)*(d.size/2)
           })
           first_offset += num
         })
@@ -536,12 +540,6 @@ vizwhiz.viz.rings = function() {
     return chart;
   };
   
-  chart.nodes = function(x) {
-    if (!arguments.length) return nodes;
-    nodes = x;
-    return chart;
-  };
-  
   chart.center = function(x) {
     if (!arguments.length) return center;
     center = x;
@@ -549,9 +547,7 @@ vizwhiz.viz.rings = function() {
   };
 
   chart.links = function(x) {
-    if (!arguments.length) return links;
-    links = x;
-    links.forEach(function(d) {
+    x.forEach(function(d) {
       if (!connections[d.source[id_var]]) {
         connections[d.source[id_var]] = []
       }
