@@ -36,6 +36,10 @@ vizwhiz.viz.tree_map = function() {
       var svg_enter = svg.enter().append("svg")
         .attr('width',width)
         .attr('height',height)
+        
+      svg.transition().duration(vizwhiz.timing)
+        .attr('width',width)
+        .attr('height',height);
       
       // Ok, to get started, lets run our heirarchically nested
       // data object through the d3 treemap function to get a

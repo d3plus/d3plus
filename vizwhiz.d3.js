@@ -1622,6 +1622,10 @@ vizwhiz.viz.stacked = function() {
       var svg_enter = svg.enter().append("svg")
         .attr('width',width)
         .attr('height',height)
+        
+      svg.transition().duration(vizwhiz.timing)
+        .attr('width',width)
+        .attr('height',height);
       
       // container for the visualization
       var viz_enter = svg_enter.append("g")
@@ -2384,6 +2388,10 @@ vizwhiz.viz.tree_map = function() {
       var svg_enter = svg.enter().append("svg")
         .attr('width',width)
         .attr('height',height)
+        
+      svg.transition().duration(vizwhiz.timing)
+        .attr('width',width)
+        .attr('height',height);
       
       // Ok, to get started, lets run our heirarchically nested
       // data object through the d3 treemap function to get a
@@ -3446,6 +3454,10 @@ vizwhiz.viz.pie_scatter = function() {
       var svg_enter = svg.enter().append("svg")
         .attr('width',width)
         .attr('height',height)
+        
+      svg.transition().duration(vizwhiz.timing)
+        .attr('width',width)
+        .attr('height',height);
       
       // container for the visualization
       var viz_enter = svg_enter.append("g").attr("class", "viz")
