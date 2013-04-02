@@ -113,7 +113,7 @@ vizwhiz.viz.tree_map = function() {
                 if (name_array) {
                   var text = []
                   name_array.forEach(function(n){
-                    text.push(g_data[n])
+                    if (g_data[n]) text.push(g_data[n])
                   })
                 } else {
                   var text = g_data[id_var] ? [g_data[text_var],g_data[id_var]] : g_data[text_var]
@@ -206,7 +206,7 @@ vizwhiz.viz.tree_map = function() {
           if (name_array) {
             var text = []
             name_array.forEach(function(n){
-              text.push(d[n])
+              if (d[n]) text.push(d[n])
             })
           } else {
             var text = d[id_var] ? [d[text_var],d[id_var]] : d[text_var]
