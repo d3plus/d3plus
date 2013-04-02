@@ -2487,12 +2487,14 @@ vizwhiz.viz.tree_map = function() {
             .text(function(){
               var root = g_data;
               while(root.parent){ root = root.parent; } // find top most parent ndoe
-              return vizwhiz.utils.format_num(g_data.value/root.value, true, 2);
+              d.share = vizwhiz.utils.format_num(g_data.value/root.value, true, 2)
+              return d.share;
             })
             .attr('font-size',function(){
               var size = (g_data.dx)/7
               if(g_data.dx < g_data.dy) var size = g_data.dx/7
               else var size = g_data.dy/7
+              if (size < 10) size = 10;
               return size
             })
             .attr('x', function(){
@@ -2500,6 +2502,11 @@ vizwhiz.viz.tree_map = function() {
             })
             .attr('y',function(){
               return g_data.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
+            })
+            .each(function(d){
+              var el = d3.select(this).node().getBBox()
+              if (d.dx < el.width) d3.select(this).remove()
+              else if (d.dy < el.height) d3.select(this).remove()
             })
 
         })
@@ -2580,15 +2587,18 @@ vizwhiz.viz.tree_map = function() {
         .style("font-weight","bold")
         .attr("font-family","Helvetica")
         .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
+        .attr("fill-opacity",0.75)
         .text(function(d) {
           var root = d;
-          while(root.parent){ root = root.parent; } // find top most parent ndoe
-          return vizwhiz.utils.format_num(d.value/root.value, true, 2);
+          while(root.parent){ root = root.parent; } // find top most parent node
+          d.share = vizwhiz.utils.format_num(d.value/root.value, true, 2);
+          return d.share;
         })
         .attr('font-size',function(d){
           var size = (d.dx)/7
           if(d.dx < d.dy) var size = d.dx/7
           else var size = d.dy/7
+          if (size < 10) size = 10;
           return size
         })
         .attr('x', function(d){
@@ -2600,6 +2610,11 @@ vizwhiz.viz.tree_map = function() {
         .on(vizwhiz.evt.move, mouseover)
         .on(vizwhiz.evt.out, function(d){
           vizwhiz.tooltip.remove();
+        })
+        .each(function(d){
+          var el = d3.select(this).node().getBBox()
+          if (d.dx < el.width) d3.select(this).remove()
+          else if (d.dy < el.height) d3.select(this).remove()
         })
       
       //===================================================================
@@ -2626,6 +2641,7 @@ vizwhiz.viz.tree_map = function() {
     tooltip_info.forEach(function(t){
       if (d[t]) tooltip_data[t] = d[t]
     })
+    tooltip_data["Share"] = d.share;
     vizwhiz.tooltip.create({
       "parent": svg,
       "id": d[id_var],

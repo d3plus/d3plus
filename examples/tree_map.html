@@ -41,7 +41,7 @@ d3.json("data/products_mg.json", function(raw_data){
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
     
-    var nested_data = vizwhiz.utils.nest(flat_data, ["nesting_0", "nesting_1"], false, [{"key":"color"}])
+    var nested_data = vizwhiz.utils.nest(flat_data, ["nesting_0","nesting_1","nesting_2"], false, [{"key":"color"}])
     // nested_data.children = nested_data.children.filter(filter_data)
     
     viz
