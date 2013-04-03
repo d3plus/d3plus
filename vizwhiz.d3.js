@@ -146,10 +146,11 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
           "value": d3.sum(leaves, function(d){ return d.value; }),
           "name": leaves[0][nest_key].name,
           "id": leaves[0][nest_key].id,
-          "display_id": leaves[0][nest_key].display_id,
           "num_children": leaves.length,
           "num_children_active": d3.sum(leaves, function(d){ return d.active; })
         }
+        
+        if (leaves[0][nest_key].display_id) to_return.display_id = leaves[0][nest_key].display_id;
         
         if(extra){
           extra.forEach(function(e){
@@ -2484,7 +2485,7 @@ vizwhiz.viz.tree_map = function() {
 
           // text (share)
           d3.select(this).selectAll("text.share").transition().duration(vizwhiz.timing)
-            .text(function(){
+            .text(function(d){
               var root = g_data;
               while(root.parent){ root = root.parent; } // find top most parent ndoe
               d.share = vizwhiz.utils.format_num(g_data.value/root.value, true, 2)
