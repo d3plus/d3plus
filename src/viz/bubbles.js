@@ -15,7 +15,8 @@ vizwhiz.viz.bubbles = function() {
       arc_sizes = {},
       arc_inners = {},
       avail_var = "available",
-      layout = "pie";
+      layout = "pie",
+      donut = "false";
 
   //===================================================================
 
@@ -29,10 +30,13 @@ vizwhiz.viz.bubbles = function() {
       
       var this_selection = this,
           timing = vizwhiz.timing,
-          stroke_width = 1,
           groups = {},
           value_extent = d3.extent(d3.values(data),function(d){ return d[value_var]; }),
-          value_map = d3.scale.linear().domain(value_extent).range([1,4]);
+          value_map = d3.scale.linear().domain(value_extent).range([1,4]),
+          donut_size = 0.4;
+            
+      if (donut) var arc_offset = donut_size;
+      else var arc_offset = 0;
 
       //===================================================================
       
@@ -334,13 +338,13 @@ vizwhiz.viz.bubbles = function() {
             .attr("r", d.radius )
           
           if (layout != "inner") d.arc_radius = d.radius;
-          else d.arc_radius = d.radius*0.75;
+          else d.arc_radius = d.radius*(arc_offset+(1-arc_offset)/2);
           
           if (d.total) d.arc_angle = (((d[avail_var] / d.total)*360) * (Math.PI/180));
           else if (d.active) d.arc_angle = 360; 
           
-          if (layout == "outer") d.arc_inner = d.radius*0.75
-          else d.arc_inner = d.radius*0.5
+          if (layout == "outer") d.arc_inner = d.radius*(arc_offset+(1-arc_offset)/2);
+          else d.arc_inner = d.radius*arc_offset;
 
           d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
             .attrTween("d",arcTween)
@@ -351,15 +355,15 @@ vizwhiz.viz.bubbles = function() {
             })
           
           if (d.elsewhere) {
-          
-            if (layout == "inner") d.arc_inner_else = d.radius*0.75
-            else d.arc_inner_else = d.radius*0.5
             
-            if (layout != "pie") d.arc_angle_else = (((d.elsewhere / d.total)*360) * (Math.PI/180));
+            if (layout != "donut" && layout != "pie") d.arc_angle_else = (((d.elsewhere / d.total)*360) * (Math.PI/180));
             else d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
             
-            if (layout == "outer") d.arc_radius_else = d.radius*0.75;
+            if (layout == "outer") d.arc_radius_else = d.radius*(arc_offset+(1-arc_offset)/2);
             else d.arc_radius_else = d.radius;
+          
+            if (layout == "inner") d.arc_inner_else = d.radius*(arc_offset+(1-arc_offset)/2);
+            else d.arc_inner_else = d.radius*arc_offset;
             
             d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
               .attrTween("d",arcTween_else)
@@ -371,7 +375,11 @@ vizwhiz.viz.bubbles = function() {
           }
 
           d3.select(this).select("circle.hole").transition().duration(vizwhiz.timing)
-            .attr("r", d.radius*0.5 )
+            .attr("r", d.radius*arc_offset )
+            .attr("opacity",function(){
+              if (donut) return 1;
+              else return 0;
+            })
           
         })
 
@@ -437,7 +445,7 @@ vizwhiz.viz.bubbles = function() {
         
       // Resolve collisions between nodes.
       function collide(node) {
-        var r = node.radius + node_size.domain()[1] + (stroke_width*2),
+        var r = node.radius + node_size.domain()[1],
             nx1 = node.x - r,
             nx2 = node.x + r,
             ny1 = node.y - r,
@@ -447,7 +455,7 @@ vizwhiz.viz.bubbles = function() {
             var x = node.x - quad.point.x,
                 y = node.y - quad.point.y,
                 l = Math.sqrt(x * x + y * y),
-                r = node.radius + quad.point.radius + (stroke_width*2);
+                r = node.radius + quad.point.radius;
             if (l < r) {
               l = (l - r) / l * .5;
               node.x -= x *= l;
@@ -541,6 +549,12 @@ vizwhiz.viz.bubbles = function() {
   chart.layout = function(x) {
     if (!arguments.length) return layout;
     layout = x;
+    return chart;
+  };
+  
+  chart.donut = function(x) {
+    if (!arguments.length) return donut;
+    donut = x;
     return chart;
   };
 
