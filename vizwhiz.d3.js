@@ -4505,7 +4505,7 @@ vizwhiz.viz.bubbles = function() {
           else if (d.active) d.arc_angle = 360; 
           
           if (layout == "outer") d.arc_inner = d.radius*0.75
-          else d.arc_inner = 0
+          else d.arc_inner = d.radius*0.5
 
           d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
             .attrTween("d",arcTween)
@@ -4518,7 +4518,7 @@ vizwhiz.viz.bubbles = function() {
           if (d.elsewhere) {
           
             if (layout == "inner") d.arc_inner_else = d.radius*0.75
-            else d.arc_inner_else = 0
+            else d.arc_inner_else = d.radius*0.5
             
             if (layout != "pie") d.arc_angle_else = (((d.elsewhere / d.total)*360) * (Math.PI/180));
             else d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
