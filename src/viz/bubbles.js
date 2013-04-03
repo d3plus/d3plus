@@ -16,7 +16,20 @@ vizwhiz.viz.bubbles = function() {
       arc_inners = {},
       avail_var = "available",
       layout = "pie",
-      donut = "false";
+      donut = "false",
+      padding = 5;
+      
+  var arc = d3.svg.arc()
+    .startAngle(0)
+    .innerRadius(function(d) { return d.arc_inner })
+    .outerRadius(function(d) { return d.arc_radius })
+    .endAngle(function(d) { return d.arc_angle });
+  
+  var arc_else = d3.svg.arc()
+    .startAngle(0)
+    .innerRadius(function(d) { return d.arc_inner_else })
+    .outerRadius(function(d) { return d.arc_radius_else })
+    .endAngle(function(d) { return d.arc_angle_else });
 
   //===================================================================
 
@@ -158,6 +171,8 @@ vizwhiz.viz.bubbles = function() {
         d.radius = size
         d.cx = groups[d[grouping]].x
         d.cy = groups[d[grouping]].y
+        // d.x = d.cx;
+        // d.y = d.cy;
       })
         
       //===================================================================
@@ -182,7 +197,7 @@ vizwhiz.viz.bubbles = function() {
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // New nodes and links enter, initialize them here
+      // New labels enter, initialize them here
       //-------------------------------------------------------------------
       
       var label = d3.select("g.labels").selectAll("text")
@@ -242,25 +257,21 @@ vizwhiz.viz.bubbles = function() {
               .text(t2)
           }
         })
+        
+      //===================================================================
       
-      var arc = d3.svg.arc()
-        .startAngle(0)
-        .innerRadius(function(d) { return d.arc_inner })
-        .outerRadius(function(d) { return d.arc_radius })
-        .endAngle(function(d) { return d.arc_angle })
-      
-      var arc_else = d3.svg.arc()
-        .startAngle(0)
-        .innerRadius(function(d) { return d.arc_inner_else })
-        .outerRadius(function(d) { return d.arc_radius_else })
-        .endAngle(function(d) { return d.arc_angle_else })
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // New bubbles enter, initialize them here
+      //-------------------------------------------------------------------
 
       var bubble = d3.select("g.bubbles").selectAll("g.bubble")
         .data(data, function(d) { return d[id_var] })
         
       bubble.enter().append("g")
         .attr("class", "bubble")
-        .attr("transform", function(d){ return "translate("+d.cx+","+d.cy+")"; })
+        .attr("transform", function(d){ 
+          return "translate("+d.x+","+d.y+")"; 
+        })
         .on(vizwhiz.evt.over, function(d){
           
           var tooltip_data = {}
@@ -419,55 +430,46 @@ vizwhiz.viz.bubbles = function() {
         .on("tick",function(e) {
           
           bubble
-            .each(function(d) {
-              d.y += (d.cy - d.y) * e.alpha;
-              d.x += (d.cx - d.x) * e.alpha;
-              if (grouping != "id" && grouping != "name") {
-                for (var group in groups) {
-                  if (group == "true") var g = true
-                  else if (group == "false") var g = false
-                  else var g = group
-                  
-                  var nodegroup = data.filter(function(d){ return d[grouping] == g; }),
-                      q = d3.geom.quadtree(nodegroup),
-                      i = 0,
-                      n = nodegroup.length;
-                  
-                  while (++i < n) {
-                    q.visit(collide(nodegroup[i]))
-                  }
-                }
-              }
-            })
+            .each(cluster(2*e.alpha))
+            .each(collide(0.5))
             .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; });
             
         }).start()
         
-      // Resolve collisions between nodes.
-      function collide(node) {
-        var r = node.radius + node_size.domain()[1],
-            nx1 = node.x - r,
-            nx2 = node.x + r,
-            ny1 = node.y - r,
-            ny2 = node.y + r;
-        return function(quad, x1, y1, x2, y2) {
-          if (quad.point && (quad.point !== node)) {
-            var x = node.x - quad.point.x,
-                y = node.y - quad.point.y,
-                l = Math.sqrt(x * x + y * y),
-                r = node.radius + quad.point.radius;
-            if (l < r) {
-              l = (l - r) / l * .5;
-              node.x -= x *= l;
-              node.y -= y *= l;
-              quad.point.x += x;
-              quad.point.y += y;
+      function cluster(alpha) {
+        return function(d) {
+          // if (d.id == "178703") console.log(d.x)
+          d.y += (d.cy - d.y) * alpha;
+          d.x += (d.cx - d.x) * alpha;
+        }
+      }
+        
+      // Resolve collisions between nodes.      
+      function collide(alpha) {
+        var quadtree = d3.geom.quadtree(data);
+        return function(d) {
+          // if (d.id == "178703") console.log(d.x)
+          var r = d.radius + node_size.domain()[1],
+              nx1 = d.x - r,
+              nx2 = d.x + r,
+              ny1 = d.y - r,
+              ny2 = d.y + r;
+          quadtree.visit(function(quad, x1, y1, x2, y2) {
+            if (quad.point && (quad.point !== d)) {
+              var x = d.x - quad.point.x,
+                  y = d.y - quad.point.y,
+                  l = Math.sqrt(x * x + y * y),
+                  r = d.radius + quad.point.radius + padding;
+              if (l < r) {
+                l = (l - r) / l * alpha;
+                d.x -= x *= l;
+                d.y -= y *= l;
+                quad.point.x += x;
+                quad.point.y += y;
+              }
             }
-          }
-          return x1 > nx2
-              || x2 < nx1
-              || y1 > ny2
-              || y2 < ny1;
+            return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+          });
         };
       }
       
