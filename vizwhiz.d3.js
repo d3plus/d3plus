@@ -4536,7 +4536,7 @@ vizwhiz.viz.bubbles = function() {
           }
 
           d3.select(this).select("circle.hole").transition().duration(vizwhiz.timing)
-            .attr("r", d.arc_radius*0.5 )
+            .attr("r", d.radius*0.5 )
           
         })
 
