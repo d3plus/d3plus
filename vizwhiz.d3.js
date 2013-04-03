@@ -4178,7 +4178,9 @@ vizwhiz.viz.bubbles = function() {
       tooltip_info = []
       arc_angles = {},
       arc_sizes = {},
-      avail_var = "available";
+      arc_inners = {},
+      avail_var = "available",
+      layout = "pie";
 
   //===================================================================
 
@@ -4403,14 +4405,14 @@ vizwhiz.viz.bubbles = function() {
         })
       
       var arc = d3.svg.arc()
-        .innerRadius(0)
         .startAngle(0)
+        .innerRadius(function(d) { return d.arc_inner })
         .outerRadius(function(d) { return d.arc_radius })
         .endAngle(function(d) { return d.arc_angle })
       
       var arc_else = d3.svg.arc()
-        .innerRadius(0)
         .startAngle(0)
+        .innerRadius(function(d) { return d.arc_inner_else })
         .outerRadius(function(d) { return d.arc_radius_else })
         .endAngle(function(d) { return d.arc_angle_else })
 
@@ -4445,19 +4447,20 @@ vizwhiz.viz.bubbles = function() {
         .each(function(d){
           
           d3.select(this).append("circle")
+            .attr("class","bg")
             .attr("fill", d.color )
             .style('fill-opacity', 0.1 )
-            .attr("r",0)
-            .attr("stroke-width",2)
-            .attr("stroke", d.color );
+            .attr("r",0);
             
           arc_angles[d[id_var]] = 0
           arc_sizes[d[id_var]] = 0
+          arc_inners[d[id_var]] = 0
           
           if (d.elsewhere) {
           
             arc_angles[d[id_var]+"else"] = 0
             arc_sizes[d[id_var]+"else"] = 0
+            arc_inners[d[id_var]+"else"] = 0
             
             d3.select(this).append("path")
               .attr("class","elsewhere")
@@ -4475,6 +4478,11 @@ vizwhiz.viz.bubbles = function() {
             
           d3.select(this).select("path").transition().duration(vizwhiz.timing)
             .attrTween("d",arcTween)
+          
+          d3.select(this).append("circle")
+            .attr("class","hole")
+            .attr("fill", "#ffffff")
+            .attr("r",0);
             
         });
       
@@ -4487,31 +4495,48 @@ vizwhiz.viz.bubbles = function() {
       bubble.transition().duration(vizwhiz.timing)
         .each(function(d){
           
-          d.arc_radius = d.radius;
+          d3.select(this).select("circle.bg").transition().duration(vizwhiz.timing)
+            .attr("r", d.radius )
           
-          d3.select(this).select("circle").transition().duration(vizwhiz.timing)
-            .attr("r", d.arc_radius )
+          if (layout != "inner") d.arc_radius = d.radius;
+          else d.arc_radius = d.radius*0.75;
           
           if (d.total) d.arc_angle = (((d[avail_var] / d.total)*360) * (Math.PI/180));
           else if (d.active) d.arc_angle = 360; 
+          
+          if (layout == "outer") d.arc_inner = d.radius*0.75
+          else d.arc_inner = 0
 
           d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
             .attrTween("d",arcTween)
             .each("end", function(dd) {
               arc_angles[d[id_var]] = d.arc_angle
               arc_sizes[dd[id_var]] = d.arc_radius
+              arc_inners[dd[id_var]] = d.arc_inner
             })
           
           if (d.elsewhere) {
-            d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
-            d.arc_radius_else = d.radius*0.6;
+          
+            if (layout == "inner") d.arc_inner_else = d.radius*0.75
+            else d.arc_inner_else = 0
+            
+            if (layout != "pie") d.arc_angle_else = (((d.elsewhere / d.total)*360) * (Math.PI/180));
+            else d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
+            
+            if (layout == "outer") d.arc_radius_else = d.radius*0.75;
+            else d.arc_radius_else = d.radius;
+            
             d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
               .attrTween("d",arcTween_else)
               .each("end", function(dd) {
                 arc_angles[d[id_var]+"else"] = d.arc_angle_else
                 arc_sizes[d[id_var]+"else"] = d.arc_radius_else
+                arc_inners[d[id_var]+"else"] = d.arc_inner_else
               })
           }
+
+          d3.select(this).select("circle.hole").transition().duration(vizwhiz.timing)
+            .attr("r", d.arc_radius*0.5 )
           
         })
 
@@ -4604,14 +4629,14 @@ vizwhiz.viz.bubbles = function() {
       }
       
       function arcTween(b) {
-        var i = d3.interpolate({arc_angle: arc_angles[b[id_var]], arc_radius: arc_sizes[b[id_var]]}, b);
+        var i = d3.interpolate({arc_angle: arc_angles[b[id_var]], arc_radius: arc_sizes[b[id_var]], arc_inner: arc_inners[b[id_var]]}, b);
         return function(t) {
           return arc(i(t));
         };
       }
       
       function arcTween_else(b) {
-        var i = d3.interpolate({arc_angle_else: arc_angles[b[id_var]+"else"], arc_radius_else: arc_sizes[b[id_var]+"else"]}, b);
+        var i = d3.interpolate({arc_angle_else: arc_angles[b[id_var]+"else"], arc_radius_else: arc_sizes[b[id_var]+"else"], arc_inner_else: arc_inners[b[id_var]+"else"]}, b);
         return function(t) {
           return arc_else(i(t));
         };
@@ -4675,6 +4700,12 @@ vizwhiz.viz.bubbles = function() {
   chart.tooltip_info = function(x) {
     if (!arguments.length) return tooltip_info;
     tooltip_info = x;
+    return chart;
+  };
+  
+  chart.layout = function(x) {
+    if (!arguments.length) return layout;
+    layout = x;
     return chart;
   };
 

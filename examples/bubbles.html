@@ -35,9 +35,10 @@
       flat2010.forEach(function(d){
         var obj = vizwhiz.utils.merge(d,attr[d.id])
         obj.category = attr[d.id.substr(0,2)].name;
-        obj.total = Math.floor(Math.random() * (10 - 2 + 1)) + 2;
-        obj.employed = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
-        obj.elsewhere = Math.floor(Math.random() * (40 - 2 + 1)) + 2;
+        obj.importance = Math.floor(Math.random() * (10 - 2 + 1)) + 2;
+        obj.total = Math.floor(Math.random() * (1200 - 2 + 1)) + 2;
+        obj.employed = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
+        obj.elsewhere = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
         if (obj.employed/obj.total >= 1) obj.active = true;
         else obj.active = false;
         // obj.active = Math.random() < 0.5
@@ -67,7 +68,7 @@
         .width(width)
         .height(height)
         .id_var("id")
-        .value_var("val_usd")
+        .value_var("importance")
         .text_var("name")
         .avail_var("employed")
         .tooltip_info(["test","available","total","elsewhere","val_usd","val_quantity","val_kg"])
