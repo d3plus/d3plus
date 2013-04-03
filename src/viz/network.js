@@ -59,19 +59,35 @@ vizwhiz.viz.network = function() {
         var viz_width = height*aspect, viz_height = height
         offset_left = ((width-viz_width)/2)
       }
-          
-      var columns = Math.ceil(Math.sqrt(Object.keys(nodes).length*(viz_width/viz_height))),
-          max_size = viz_width/(columns*3),
-          min_size = max_size/5 < 2 ? 2 : max_size/5
-          
+      
       // x scale
       scale.x = d3.scale.linear()
         .domain(x_range)
-        .range([offset_left+(max_size*2), width-(max_size*2)-offset_left])
+        .range([offset_left, width-offset_left])
       // y scale
       scale.y = d3.scale.linear()
         .domain(y_range)
-        .range([offset_top+(max_size*2), height-(max_size*2)-offset_top])
+        .range([offset_top, height-offset_top])
+      
+      var min_dist = 10000;
+      d3.values(nodes).forEach(function(n){
+        var temp_dist = 10000;
+        d3.values(nodes).forEach(function(n2){
+          var xx = Math.abs(scale.x(n.x)-scale.x(n2.x));
+          var yy = Math.abs(scale.y(n.y)-scale.y(n2.y));
+          var dd = Math.sqrt((xx*xx)+(yy*yy))
+          if (dd < temp_dist && dd != 0) temp_dist = dd;
+        })
+        if (temp_dist < min_dist) min_dist = temp_dist;
+      })
+          
+      var max_size = min_dist,
+          min_size = max_size/5 < 2 ? 2 : max_size/5;
+      
+      // x scale
+      scale.x.range([offset_left+(max_size*2), width-(max_size*2)-offset_left])
+      // y scale
+      scale.y.range([offset_top+(max_size*2), height-(max_size*2)-offset_top])
       // size scale
       var val_range = d3.extent(d3.values(data), function(d){
         return d[value_var] > 0 ? d[value_var] : null
