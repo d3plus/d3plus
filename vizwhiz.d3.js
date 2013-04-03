@@ -4719,7 +4719,9 @@ vizwhiz.viz.bubbles = function() {
   
   chart.donut = function(x) {
     if (!arguments.length) return donut;
-    donut = x;
+    if (x == "true") donut = true;
+    else if (x == "false") donut = false;
+    else donut = x;
     return chart;
   };
 
