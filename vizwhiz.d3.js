@@ -4175,13 +4175,14 @@ vizwhiz.viz.bubbles = function() {
       id_var = "id",
       text_var = "name",
       grouping = "name",
+      sorting = "name",
       tooltip_info = []
       arc_angles = {},
       arc_sizes = {},
       arc_inners = {},
       avail_var = "available",
-      layout = "pie",
-      donut = "false",
+      donut = true,
+      group_bgs = true,
       padding = 5;
       
   var arc = d3.svg.arc()
@@ -4195,12 +4196,6 @@ vizwhiz.viz.bubbles = function() {
     .innerRadius(function(d) { return d.arc_inner_else })
     .outerRadius(function(d) { return d.arc_radius_else })
     .endAngle(function(d) { return d.arc_angle_else });
-  
-  var arc_text = d3.svg.arc()
-    .startAngle(0)
-    .innerRadius(0)
-    .outerRadius(function(d) { return d.arc_radius })
-    .endAngle(360);
   
   var arc_bg = d3.svg.arc()
     .startAngle(0)
@@ -4226,50 +4221,105 @@ vizwhiz.viz.bubbles = function() {
       if (donut) var arc_offset = donut_size;
       else var arc_offset = 0;
       
+      if (sorting == "value") var sort_order = value_var;
+      else var sort_order = sorting;
+      
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Calculate positioning for each bubble
       //-------------------------------------------------------------------
       
-      if (grouping == "id" || grouping == "name") {
-        
-        if(data.length == 1) {
-          var columns = 1,
-              rows = 1
-        } else {
-          var rows = Math.ceil(Math.sqrt(data.length/(width/height))),
-              columns = Math.ceil(Math.sqrt(data.length*(width/height)))
-        }
-        
-        while ((rows-1)*columns >= data.length) rows--
-        
-        var max_size = d3.min([(width/columns)/2,(height/rows)/2-title_height])
-        
-        var size_range = d3.scale.linear()
-          .domain(d3.extent(data,function(d){return d[value_var]}))
-          .range([max_size/4,max_size])
-        
-        var r = 0, c = 0;
+      var data_nested = {}
+      data_nested.key = "root";
+      data_nested.values = d3.nest()
+        .key(function(d){ return d[grouping] })
+        .entries(data)
+    
+      var pack = d3.layout.pack()
+        .size([width,height])
+        .children(function(d) { return d.values; })
+        .padding(padding)
+        .value(function(d) { return d[value_var]; })
+        .sort(function(a,b) { 
+          if (a.values && b.values) return a.values.length - b.values.length;
+          else return a[value_var] - b[value_var];
+        })
+      
+      var data_packed = pack.nodes(data_nested)
+        .filter(function(d){
+          if (d.depth == 1) {
+            if (d.children.length == 1 ) {
+              d[text_var] = d.children[0][text_var];
+              d.category = d.children[0].category;
+            }
+            else {
+              d[text_var] = d.key;
+              d.category = d.key;
+            }
+            d[value_var] = d.value;
+          }
+          return d.depth == 1;
+        })
+        .sort(function(a,b){
+          if (typeof a[sort_order] == "number") {
+            if(a[sort_order] < b[sort_order]) return 1;
+            if(a[sort_order] > b[sort_order]) return -1;
+          }
+          else {
+            if(a[sort_order] < b[sort_order]) return -1;
+            if(a[sort_order] > b[sort_order]) return 1;
+          }
+          return 0;
+        })
+      
+      if(data_packed.length == 1) {
+        var columns = 1,
+            rows = 1;
+      }
+      else if (data_packed.length < 4) {
+        var columns = data_packed.length,
+            rows = 1;
+      } 
+      else {
+        var rows = Math.ceil(Math.sqrt(data_packed.length/(width/height))),
+            columns = Math.ceil(Math.sqrt(data_packed.length*(width/height)));
+      }
+      
+      while ((rows-1)*columns >= data_packed.length) rows--
+      
 
-        data.forEach(function(d){
-            
-          var color = d3.rgb(d.color).hsl()
+      
+      var max_size = d3.max(data_packed,function(d){return d.r;})*2,
+          downscale = (d3.min([width/columns,(height/rows)-title_height])*0.9)/max_size;
+      
+      var r = 0, c = 0;
+      data_packed.forEach(function(d){
+        
+        if (d.depth == 1) {
+          
+          if (grouping != "active") {
+            var color = d.children[0].color;
+          }
+          else {
+            var color = "#cccccc";
+          }
+          
+          color = d3.rgb(color).hsl()
           if (color.s > 0.9) color.s = 0.75
           while (color.l > 0.75) color = color.darker()
           color = color.rgb()
           
-          groups[d[grouping]] = {};
-          groups[d[grouping]].color = color
-          groups[d[grouping]].key = d[grouping];
-          groups[d[grouping]].x = ((width/columns)*c)+((width/columns)/2)
-          groups[d[grouping]].y = ((height/rows)*r)+((height/rows)/2)+(title_height/2)
-          groups[d[grouping]].width = (width/columns)
-          groups[d[grouping]].height = (height/rows)
-          
-          d.x = groups[d[grouping]].x;
-          d.y = groups[d[grouping]].y;
-          d.r = size_range(d[value_var]);
+          groups[d.key] = {};
+          groups[d.key].color = color;
+          groups[d.key].children = d.children.length;
+          groups[d.key].key = d.key;
+          groups[d.key][text_var] = d[text_var];
+          groups[d.key].x = ((width/columns)*c)+((width/columns)/2);
+          groups[d.key].y = ((height/rows)*r)+((height/rows)/2)+(title_height/2);
+          groups[d.key].width = (width/columns);
+          groups[d.key].height = (height/rows);
+          groups[d.key].r = d.r*downscale;
 
           if (c < columns-1) c++
           else {
@@ -4277,91 +4327,22 @@ vizwhiz.viz.bubbles = function() {
             r++
           }
           
-        })
+        }
         
-      }
-      else {
+      })
       
-        var data_nested = {}
-        data_nested.key = "root";
-        data_nested.values = d3.nest()
-          .key(function(d){ return d[grouping] })
-          .entries(data)
-      
-        var pack = d3.layout.pack()
-          .size([width,height])
-          .children(function(d) { return d.values; })
-          .padding(padding)
-          .value(function(d) { return d[value_var]; })
-          .sort(function(a,b) { 
-            if (a.values && b.values) return a.values.length - b.values.length;
-            else return a[value_var] - b[value_var];
-          })
+      data.forEach(function(d){
+        var parent = data_packed.filter(function(p){ 
+          if (d[grouping] === false) var key = "false";
+          else if (d[grouping] === true) var key = "true";
+          else var key = d[grouping]
+          return key == p.key 
+        })[0]
+        d.x = (downscale*(d.x-parent.x))+groups[parent.key].x;
+        d.y = (downscale*(d.y-parent.y))+groups[parent.key].y;
+        d.r = d.r*downscale;
+      })
         
-        var data_packed = pack.nodes(data_nested)
-        var tm_data = {"key": "root", "children": []}
-        
-        data_packed.forEach(function(d){
-          if (d.depth == 1) {
-            var obj = {}
-            obj.r = d.r;
-            obj.key = d.key;
-            tm_data.children.push(obj);
-          }
-        })
-        
-        if (tm_data.children.length < 4) var mode = "slice";
-        else var mode = "squarify";
-        
-        var tm = d3.layout.treemap()
-          .round(false)
-          .mode(mode)
-          .size([width,height])
-          .value(function(d) { return d.r; })
-          .sort(function(a,b) {
-            return a.r - b.r
-          })
-          .nodes(tm_data)
-        
-        tm.forEach(function(value){
-          if (value.key != 'root') {
-            groups[value.key] = {};
-            if (grouping == "category") {
-              var c = data.filter(function(d){return d.category == value.key })[0].color;
-            }
-            else {
-              var c = "#cccccc";
-            }
-
-            
-            var color = d3.rgb(c).hsl()
-            if (color.s > 0.9) color.s = 0.75
-            while (color.l > 0.75) color = color.darker()
-            color = color.rgb()
-            groups[value.key].children = data_packed.filter(function(d){return d.key == value.key})[0].children.length
-            groups[value.key].color = color
-            groups[value.key].key = value.key;
-            groups[value.key].width = value.dx;
-            groups[value.key].height = value.dy;
-            groups[value.key].x = value.x+value.dx/2;
-            groups[value.key].y = value.y+value.dy/2;
-            groups[value.key].r = value.r*0.9+5;
-          }
-        })
-
-        data.forEach(function(d){
-          var parent = data_packed.filter(function(p){ 
-            if (d[grouping] === false) var key = "false";
-            else if (d[grouping] === true) var key = "true";
-            else var key = d[grouping]
-            return key == p.key 
-          })[0]
-          d.x = (0.9*(d.x-parent.x))+groups[parent.key].x;
-          d.y = (0.9*(d.y-parent.y))+groups[parent.key].y;
-          d.r = d.r*0.9;
-        })
-        
-      }
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4401,47 +4382,31 @@ vizwhiz.viz.bubbles = function() {
         .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
         .each(function(d){
           
-          if (grouping != "id" && grouping != "name") {
-          
-            d3.select(this).append("circle")
-              .attr("fill", d.color )
-              .attr("stroke",d.color)
-              .attr("stroke-width",1)
-              .style('fill-opacity', 0.1 )
-              .attr("r",0);
-
-            arc_sizes[d.key+"_group"] = 0;
-          
-            d3.select(this).append("path")
-              .attr("fill","transparent")
-              .style('fill-opacity', 0.1 )
-              .attr("id","path_"+d.key);
-          
-            d3.select(this).select("path").transition().duration(vizwhiz.timing)
-              .attrTween("d",arcTween_text)
-              
+          if (grouping == "active") {
+            var t = d[text_var] == "true" ? "Fully "+avail_var : "Not Fully "+avail_var
+          } else {
+            var t = d[text_var]
           }
-          else {
-            d3.select(this).append("text")
-              .attr("opacity",0)
-              .attr("text-anchor","middle")
-              .attr("font-weight","bold")
-              .attr("font-size","12px")
-              .attr("font-family","Helvetica")
-              .attr("fill",d.color)
-              .attr('x',0)
-              .attr('y',function(dd) {
-                return -(d.height/2)-title_height/4;
+            
+          d3.select(this).append("text")
+            .attr("opacity",0)
+            .attr("text-anchor","middle")
+            .attr("font-weight","bold")
+            .attr("font-size","12px")
+            .attr("font-family","Helvetica")
+            .attr("fill",d.color)
+            .attr('x',0)
+            .attr('y',function(dd) {
+              return -(d.height/2)-title_height/4;
+            })
+            .each(function(){
+              vizwhiz.utils.wordwrap({
+                "text": t,
+                "parent": this,
+                "width": d.width,
+                "height": 30
               })
-              .each(function(){
-                vizwhiz.utils.wordwrap({
-                  "text": d.key,
-                  "parent": this,
-                  "width": d.width,
-                  "height": 30
-                })
-              })
-          }
+            })
           
         });
         
@@ -4449,106 +4414,45 @@ vizwhiz.viz.bubbles = function() {
         .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
         .each(function(d){
           
-          if (grouping != "id" && grouping != "name") {
-          
-            var parent = this;
+          if (group_bgs && d.children > 1) {
             
-            d3.select(parent).select("circle").transition().duration(vizwhiz.timing)
+            var bg = d3.select(this).selectAll("circle")
+              .data([d]);
+            
+            bg.enter().append("circle")
+              .attr("fill", d.color )
+              .attr("stroke",d.color)
+              .attr("stroke-width",1)
+              .style('fill-opacity', 0.1 )
+              .attr("opacity",0)
+              .attr("r",d.r)
+            
+            bg.transition().duration(vizwhiz.timing)
+              .attr("opacity",1)
               .attr("r",d.r);
-        
-            d.arc_radius = d.r+5;
-            
-            if (grouping == "active") {
-              var t = d.key == "true" ? "Fully "+avail_var : "Not Fully "+avail_var
-            } else {
-              var t = d.key
-            }
-    
-            var split = t.split(" "),
-                text = [""];
-
-            if (t.length * 3 > d.r && split.length > 1) {
-              var i = 0;
-              while (text[i].length * 3 < d.r) {
-                var word = split.shift();
-                text[i] = text[i] + word;
-                
-                if (text[i].length * 3 < d.r) text[i] = text[i] + " "
-                else {
-                  if (text[i].indexOf(" ") >= 0) {
-                    text[i] = text[i].slice(0,text[i].lastIndexOf(" "))
-                    split.unshift(word);
-                  }
-                  if (split.length > 0 && split[0]) {
-                    text.push("");
-                    i++;
-                  } else {
-                    break;
-                  }
-                }
-                
-              }
-              if (split.length > 0 && split[0]) text.push(split.join(" "))
-            }
-            else {
-              text[0] = t;
-            }
-            var start = -14*(text.length-1);
-          
-            d3.select(parent).selectAll("text").transition().duration(vizwhiz.timing)
+              
+          } else {
+            d3.select(this).select("circle").transition().duration(vizwhiz.timing)
               .attr("opacity",0)
               .remove();
-              
-            d3.select(parent).select("path").transition().duration(vizwhiz.timing)
-              .attrTween("d",arcTween_text)
-              .each("end", function(dd) {
-              
-                arc_sizes[d.key+"_group"] = d.arc_radius;
-              
-                text.forEach(function(t,i){
-      
-                  d3.select(parent).append("text")
-                    .attr("fill", d.color )
-                    .attr("opacity",0)
-                    .attr("font-weight","bold")
-                    .attr("font-size","12px")
-                    .attr("font-family","Helvetica")
-                    .attr("text-anchor","middle")
-                    .attr("transform","translate(0,"+start+")")
-                    .append("textPath")
-                      .attr("startOffset",d.arc_radius*Math.PI)
-                      .attr("xlink:href","#path_"+d.key)
-                      .text(t);
+          }
           
-                  start += 14;
-                })
-      
-                d3.select(parent).selectAll("text").transition().duration(vizwhiz.timing)
-                  .attr("opacity",1)
-              
-              })
-            
-          }
-          else {
-            d3.select(this).select("text").transition().duration(vizwhiz.timing)
-              .attr("opacity",1)
-          }
+          d3.select(this).select("text").transition().duration(vizwhiz.timing)
+            .attr("opacity",1)
           
         });
         
       group.exit().transition().duration(vizwhiz.timing)
         .each(function(d){
           
-          d3.select(this).select("circle").transition().duration(vizwhiz.timing)
-            .attr("r",0);
-        
-          d.arc_radius = 0;
+          if (group_bgs) {
+            d3.select(this).select("circle").transition().duration(vizwhiz.timing)
+              .attr("r",0)
+              .attr("opacity",0);
+          }
           
           d3.select(this).selectAll("text").transition().duration(vizwhiz.timing)
             .attr("opacity",0);
-
-          d3.select(this).select("path").transition().duration(vizwhiz.timing)
-            .attrTween("d",arcTween_text)
             
         }).remove();
         
@@ -4650,15 +4554,15 @@ vizwhiz.viz.bubbles = function() {
               arc_sizes[d[id_var]+"_bg"] = d.arc_radius_bg
               arc_inners[d[id_var]+"_bg"] = d.arc_inner_bg
             })
-        
-          if (layout != "inner") d.arc_radius = d.r;
-          else d.arc_radius = d.r*(arc_offset+(1-arc_offset)/2);
+            
+            
+          var arc_start = d.r*arc_offset;
+          
+          d.arc_inner = arc_start+((d.r-arc_start)*0.25);
+          d.arc_radius = arc_start+((d.r-arc_start)*0.75);
         
           if (d.total) d.arc_angle = (((d[avail_var] / d.total)*360) * (Math.PI/180));
           else if (d.active) d.arc_angle = 360; 
-        
-          if (layout == "outer") d.arc_inner = d.r*(arc_offset+(1-arc_offset)/2);
-          else d.arc_inner = d.r*arc_offset;
 
           d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
             .attrTween("d",arcTween)
@@ -4670,14 +4574,9 @@ vizwhiz.viz.bubbles = function() {
         
           if (d.elsewhere) {
           
-            if (layout != "donut" && layout != "pie") d.arc_angle_else = (((d.elsewhere / d.total)*360) * (Math.PI/180));
-            else d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
-          
-            if (layout == "outer") d.arc_radius_else = d.r*(arc_offset+(1-arc_offset)/2);
-            else d.arc_radius_else = d.r;
-        
-            if (layout == "inner") d.arc_inner_else = d.r*(arc_offset+(1-arc_offset)/2);
-            else d.arc_inner_else = d.r*arc_offset;
+            d.arc_inner_else = arc_start;
+            d.arc_radius_else = d.r;
+            d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
           
             d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
               .attrTween("d",arcTween_else)
@@ -4689,9 +4588,6 @@ vizwhiz.viz.bubbles = function() {
           }
           
         })
-
-      // label.transition().duration(vizwhiz.timing/2)
-      //   .attr('opacity',1)
           
       //===================================================================
       
@@ -4761,13 +4657,6 @@ vizwhiz.viz.bubbles = function() {
         };
       }
       
-      function arcTween_text(b) {
-        var i = d3.interpolate({arc_radius: arc_sizes[b.key+"_group"]}, b);
-        return function(t) {
-          return arc_text(i(t));
-        };
-      }
-      
       function arcTween_bg(b) {
         var i = d3.interpolate({arc_radius_bg: arc_sizes[b[id_var]+"_bg"], arc_inner_bg: arc_inners[b[id_var]+"_bg"]}, b);
         return function(t) {
@@ -4805,6 +4694,12 @@ vizwhiz.viz.bubbles = function() {
     grouping = x;
     return chart;
   };
+
+  chart.sorting = function(x) {
+    if (!arguments.length) return sorting;
+    sorting = x;
+    return chart;
+  };
   
   chart.value_var = function(x) {
     if (!arguments.length) return value_var;
@@ -4836,17 +4731,19 @@ vizwhiz.viz.bubbles = function() {
     return chart;
   };
   
-  chart.layout = function(x) {
-    if (!arguments.length) return layout;
-    layout = x;
-    return chart;
-  };
-  
   chart.donut = function(x) {
     if (!arguments.length) return donut;
     if (x == "true") donut = true;
     else if (x == "false") donut = false;
     else donut = x;
+    return chart;
+  };
+  
+  chart.group_bgs = function(x) {
+    if (!arguments.length) return group_bgs;
+    if (x == "true") group_bgs = true;
+    else if (x == "false") group_bgs = false;
+    else group_bgs = x;
     return chart;
   };
 
