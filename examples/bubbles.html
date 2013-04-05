@@ -28,7 +28,7 @@
     
   d3.json("data/products_mg.json", function(raw_data) {
     d3.json("data/attr_hs.json", function(attr) {
-        
+
       flat2010 = raw_data.filter(function(d){ return d.year == 2010 && d.val_usd > 50000000 && d.val_usd < 10000000000; })
       
       var data2010 = []
@@ -37,9 +37,9 @@
         obj.category = attr[d.id.substr(0,2)].name;
         obj.importance = Math.floor(Math.random() * (10 - 2 + 1)) + 2;
         obj.total = Math.floor(Math.random() * (1200 - 2 + 1)) + 2;
-        obj.employed = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
+        obj.Employed = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
         obj.elsewhere = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
-        if (obj.employed/obj.total >= 1) obj.active = true;
+        if (obj.Employed/obj.total >= 1) obj.active = true;
         else obj.active = false;
         // obj.active = Math.random() < 0.5
         delete obj.year
@@ -55,9 +55,9 @@
         obj.category = attr[d.id.substr(0,2)].name;
         obj.importance = Math.floor(Math.random() * (10 - 2 + 1)) + 2;
         obj.total = Math.floor(Math.random() * (1200 - 2 + 1)) + 2;
-        obj.employed = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
+        obj.Employed = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
         obj.elsewhere = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
-        if (obj.employed/obj.total == 1) obj.active = true;
+        if (obj.Employed/obj.total >= 1) obj.active = true;
         else obj.active = false;
         // obj.active = Math.random() < 0.5
         delete obj.year
@@ -71,10 +71,10 @@
         .id_var("id")
         .value_var("importance")
         .text_var("name")
-        .avail_var("employed")
+        .avail_var("Employed")
         .tooltip_info(["test","available","total","elsewhere","val_usd","val_quantity","val_kg"])
-        .grouping("name");
-          
+        .grouping("category");
+        
       d3.select("#viz")
         .datum(data2010)
         .call(viz);
@@ -85,7 +85,7 @@
       //     .datum(data2003)
       //     .call(viz)
       // 
-      // },4000)
+      // },2000)
         
     });
   });
