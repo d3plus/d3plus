@@ -21,7 +21,8 @@ vizwhiz.viz.network = function() {
       links = [],
       connections = {},
       scale = {},
-      tooltip_info = [];
+      tooltip_info = [],
+      active_var = "active";
 
   //===================================================================
 
@@ -242,7 +243,7 @@ vizwhiz.viz.network = function() {
           .attr("cy", function(d) { return scale.y(d.y); })
           .attr("r", function(d) { 
             var value = data[d[id_var]][value_var] ? data[d[id_var]][value_var] : 0,
-                buffer = data[d[id_var]].active ? 3 : 2
+                buffer = data[d[id_var]][active_var] ? 3 : 2
             value = value > 0 ? scale.size(value) : scale.size(val_range[0])
             return value+buffer
           })
@@ -258,7 +259,7 @@ vizwhiz.viz.network = function() {
             return value > 0 ? scale.size(value) : scale.size(val_range[0])
           })
           .attr("stroke-width", function(d){
-            if(data[d[id_var]].active) return 2;
+            if(data[d[id_var]][active_var]) return 2;
             else return 1;
           })
       }
@@ -268,7 +269,7 @@ vizwhiz.viz.network = function() {
           .attr("fill", function(d){
             if (clicked && d3.select(this.parentNode).attr("class") == "nodes") return "#efefef";
             var color = data[d[id_var]].color ? data[d[id_var]].color : vizwhiz.utils.rand_color()
-            if (data[d[id_var]].active) {
+            if (data[d[id_var]][active_var]) {
               this.parentNode.appendChild(this)
               return color;
             } else if (spotlight && !highlight) return "#eeeeee";
@@ -281,7 +282,7 @@ vizwhiz.viz.network = function() {
           .attr("stroke", function(d){
             if (clicked && d3.select(this.parentNode).attr("class") == "nodes") return "#dedede";
             var color = data[d[id_var]].color ? data[d[id_var]].color : vizwhiz.utils.rand_color()
-            if (data[d[id_var]].active) return d3.rgb(color).darker().darker().toString();
+            if (data[d[id_var]][active_var]) return d3.rgb(color).darker().darker().toString();
             else if (spotlight && !highlight) return "#dedede";
             else return d3.rgb(color).darker().toString()
           })
@@ -495,7 +496,7 @@ vizwhiz.viz.network = function() {
               }
               obj.children[0].attr["fill"] = function(){
                   var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
-                  if (data[c].active) {
+                  if (data[c][active_var]) {
                     return color;
                   } else {
                     color = d3.hsl(color)
@@ -505,11 +506,11 @@ vizwhiz.viz.network = function() {
                 }
               obj.children[0].attr["stroke"] = function(){
                   var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
-                  if (data[c].active) return d3.rgb(color).darker().darker().toString();
+                  if (data[c][active_var]) return d3.rgb(color).darker().darker().toString();
                   else return d3.rgb(color).darker().toString()
                 }
               obj.children[0].attr["stroke-width"] = function(){
-                  if(data[c].active) return 2;
+                  if(data[c][active_var]) return 2;
                   else return 1;
                 }
               obj.children[1].events[vizwhiz.evt.over] = function(){
@@ -554,7 +555,7 @@ vizwhiz.viz.network = function() {
           .attr("rx",3)
           .attr("ry",3)
           .attr("stroke-width", function(d){
-            if(data[d[id_var]].active) return 2;
+            if(data[d[id_var]][active_var]) return 2;
             else return 1;
           })
           .call(node_color)
@@ -838,6 +839,12 @@ vizwhiz.viz.network = function() {
   chart.tooltip_info = function(x) {
     if (!arguments.length) return tooltip_info;
     tooltip_info = x;
+    return chart;
+  };
+  
+  chart.active_var = function(x) {
+    if (!arguments.length) return active_var;
+    active_var = x;
     return chart;
   };
 
