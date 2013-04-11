@@ -68,26 +68,22 @@
     
   d3.json("data/attr_hs.json", function(attr) {
     d3.json("data/network_hs.json", function(hs) {
+      
       viz_nodes = hs.nodes
       viz_links = hs.edges
       viz_links.forEach(function(link){
         link.source = viz_nodes[link.source]
         link.target = viz_nodes[link.target]
       })
+      
       d3.json("data/products_mg.json", function(ps_data) {
-        ps_data = ps_data.filter(function(d){ return d.year == 2010; })
+        
         data = {}
         viz_nodes.forEach(function(d){
-          data[d.id] = ps_data.filter(function(f){return f.id == d.id})[0]
+          data[d.id] = ps_data.filter(function(f){return f.year == 2010 && f.id == d.id})[0]
           data[d.id] = vizwhiz.utils.merge(data[d.id],attr[d.id])
           data[d.id].rca = get_rca(data[d.id])
           data[d.id].active = data[d.id].rca >= 1 ? true : false
-          delete data[d.id].year
-          delete data[d.id].bra_val_kg
-          delete data[d.id].bra_val_quantity
-          delete data[d.id].bra_val_usd
-          delete data[d.id].wld_val_usd
-          delete data[d.id].attr_type
         })
         
         viz = vizwhiz.viz.network()
@@ -101,11 +97,27 @@
         d3.select("#viz")
           .datum(data)
           .call(viz);
-          
-        function get_rca(item){
-    
-          var rca_name = "val_usd", rca_denom = "bra"
         
+        data2 = {}
+        viz_nodes.forEach(function(d){
+          data2[d.id] = ps_data.filter(function(f){return f.year == 2005 && f.id == d.id})[0]
+          data2[d.id] = vizwhiz.utils.merge(data2[d.id],attr[d.id])
+          data2[d.id].rca = get_rca(data2[d.id])
+          data2[d.id].active = data2[d.id].rca >= 1 ? true : false
+        })
+          
+        setTimeout(function(){
+          
+          d3.select("#viz")
+            .datum(data2)
+            .call(viz);
+            
+        },2000)
+        
+        function get_rca(item){
+
+          var rca_name = "val_usd", rca_denom = "bra"
+
           if (!item || !item[rca_name]) return 0
 
           var numerator = item[rca_name] / d3.sum(ps_data,function(d){return d[rca_name]});
@@ -115,13 +127,13 @@
           else {
             var denominator = item["wld_"+rca_name] / d3.sum(ps_data,function(d){return d["wld_"+rca_name]});
           }
-                
+        
           if(denominator != 0){
             return numerator / denominator;
           }
           return 0;
         }
-    
+          
       })
     })
   });

@@ -695,7 +695,7 @@ vizwhiz.viz.network = function() {
 
 
   function chart(selection) {
-    selection.each(function(data, i) {
+    selection.each(function(data) {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Private Variables
@@ -824,9 +824,24 @@ vizwhiz.viz.network = function() {
       
       node.enter().append("circle")
         .attr("class","node")
-        .call(node_size)
         .attr("fill","white")
-        .attr("stroke","white")
+        .attr("stroke","white");
+      
+      var link = d3.select("g.links").selectAll("line.link")
+        .data(links, function(d) { return d.source[id_var] + "-" + d.target[id_var]; })
+        
+      link.enter().append("line")
+        .attr("class","link")
+        .attr("stroke", "white")
+        .attr("stroke-width", "1px");
+      
+      //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Update, for nodes and links that are already in existance
+      //-------------------------------------------------------------------
+
+      node
         .on(vizwhiz.evt.over, function(d){
           if (!clicked) {
             highlight = d[id_var];
@@ -845,30 +860,17 @@ vizwhiz.viz.network = function() {
           zoom(highlight);
           update();
         });
-      
-      var link = d3.select("g.links").selectAll("line.link")
-        .data(links, function(d) { return d.source[id_var] + "-" + d.target[id_var]; })
-        
-      link.enter().append("line")
-        .attr("class","link")
-        .attr("stroke", "white")
-        .attr("stroke-width", "1px")
-        .call(link_position)
-        .on(vizwhiz.evt.click,function(d){
-          highlight = null;
-          zoom("reset");
-          update();
-        });
-      
-      //===================================================================
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Update, for nodes and links that are already in existance
-      //-------------------------------------------------------------------
 
       node.transition().duration(timing)
         .call(node_size)
         .call(node_color);
+        
+      link
+        .on(vizwhiz.evt.click,function(d){
+          highlight = null;
+          zoom("reset");
+          update();
+        })
         
       link.transition().duration(timing)
         .attr("stroke", "#dedede")
@@ -939,7 +941,8 @@ vizwhiz.viz.network = function() {
             if (data[d[id_var]][active_var]) {
               this.parentNode.appendChild(this)
               return color;
-            } else if (spotlight && !highlight) return "#eeeeee";
+            } 
+            else if (spotlight && !clicked) return "#eeeeee";
             else {
               color = d3.hsl(color)
               color.l = 0.98
@@ -950,7 +953,7 @@ vizwhiz.viz.network = function() {
             if (clicked && d3.select(this.parentNode).attr("class") == "nodes") return "#dedede";
             var color = data[d[id_var]].color ? data[d[id_var]].color : vizwhiz.utils.rand_color()
             if (data[d[id_var]][active_var]) return d3.rgb(color).darker().darker().toString();
-            else if (spotlight && !highlight) return "#dedede";
+            else if (spotlight && !clicked) return "#dedede";
             else return d3.rgb(color).darker().toString()
           })
       }
@@ -964,7 +967,7 @@ vizwhiz.viz.network = function() {
             
           var center = connections[highlight].center,
               primaries = connections[highlight].primary,
-              secondaries = connections[highlight].secondary
+              secondaries = connections[highlight].secondary;
               
           if (clicked) {
           
@@ -1102,7 +1105,8 @@ vizwhiz.viz.network = function() {
           
           if (!clicked) {
             sub_title = "Click Node for More Info"
-          } else {
+          } 
+          else {
             tooltip_info.forEach(function(t){
               if (data[highlight][t]) tooltip_data[t] = data[highlight][t]
             })
@@ -1207,7 +1211,8 @@ vizwhiz.viz.network = function() {
             "appends": tooltip_appends
           })
           
-        } else if (clicked) {
+        } 
+        else if (clicked) {
           clicked = false;
           node.call(node_color)
         }
@@ -1217,8 +1222,6 @@ vizwhiz.viz.network = function() {
       function create_label(d) {
         var bg = d3.select("g.highlight").append("rect")
           .datum(d)
-          .attr("y", function(e) { return scale.y(e.y)-5; })
-          .attr("height", "10px")
           .attr("rx",3)
           .attr("ry",3)
           .attr("stroke-width", function(d){
@@ -1255,7 +1258,7 @@ vizwhiz.viz.network = function() {
               "text": data[e[id_var]][text_var],
               "parent": this,
               "width": 60,
-              "height": 10
+              "height": 7
             });
           })
           .on(vizwhiz.evt.over, function(d){
@@ -1272,17 +1275,22 @@ vizwhiz.viz.network = function() {
               update();
             }
           })
-                    
-        text
-          .attr("y", function(e) { return scale.y(e.y)-(text.node().getBBox().height/2); })
                   
-        var w = text.node().getBBox().width+5
+        var w = text.node().getBBox().width+5,
+            h = text.node().getBBox().height+5;
+            
+        text
+          .attr("y", function(e) { return scale.y(e.y)-((h-5)/2); })
+          
         var value = data[d[id_var]][value_var]
         var size = value > 0 ? scale.size(value) : scale.size(val_range[0])
-        if (w < size*2) {
+        if (w-5 <= size*2 && h-5 <= size*2) {
           bg.remove();
         } else {
-          bg.attr("width",w).attr("x", function(e) { return scale.x(e.x)-(w/2); });
+          bg.attr("width",w)
+            .attr("height",h)
+            .attr("y", function(e) { return scale.y(e.y)-(h/2); })
+            .attr("x", function(e) { return scale.x(e.x)-(w/2); });
         }
       }
       
