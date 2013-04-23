@@ -2833,14 +2833,14 @@ vizwhiz.viz.geo_map = function() {
       
       if (first) {
         projection
-          .scale(width)
+          .scale(width/(2*Math.PI))
           .translate([width/2,height/2]);
           
         initial_width = width
         initial_height = height
           
         zoom_behavior
-          .scale(projection.scale())
+          .scale(projection.scale()*2*Math.PI)
           .translate(projection.translate())
           .on("zoom",function(d){ zoom(d); })
           .scaleExtent([width, 1 << 23]);
@@ -2853,7 +2853,7 @@ vizwhiz.viz.geo_map = function() {
           scale_padding = 20,
           path = d3.geo.path().projection(projection),
           tile = d3.geo.tile().size([width, height]),
-          old_scale = projection.scale(),
+          old_scale = projection.scale()*2*Math.PI,
           old_translate = projection.translate();
           
       
@@ -3177,7 +3177,7 @@ vizwhiz.viz.geo_map = function() {
         var svg_scale = scale/initial_width,
             svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/initial_width)*initial_height)/2)]
             
-        old_scale = projection.scale()
+        old_scale = projection.scale()*2*Math.PI
         old_translate = projection.translate()
             
         if (param.coordinates) {
@@ -3230,7 +3230,7 @@ vizwhiz.viz.geo_map = function() {
         if (translate[1] > scale/2) translate[1] = scale/2
         else if (translate[1] < height-scale/2) translate[1] = height-scale/2
 
-        projection.scale(scale).translate(translate);
+        projection.scale(scale/(2*Math.PI)).translate(translate);
         zoom_behavior.scale(scale).translate(translate);
         svg_scale = scale/initial_width;
         svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/initial_width)*initial_height)/2)];
@@ -3306,7 +3306,7 @@ vizwhiz.viz.geo_map = function() {
       function update_tiles(image_timing) {
 
         var t = projection.translate(),
-            s = projection.scale();
+            s = projection.scale()*2*Math.PI;
             
         var tiles = tile.scale(s).translate(t)(),
             old_tiles = tile.scale(old_scale).translate(old_translate)()
