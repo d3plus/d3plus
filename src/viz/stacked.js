@@ -33,6 +33,16 @@ vizwhiz.viz.stacked = function() {
 
   function chart(selection) {
     selection.each(function(data) {
+
+      var min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
+      
+      if (small) {
+        margin = {top: 0, right: 0, bottom: 0, left: 0}
+      }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
@@ -99,7 +109,7 @@ vizwhiz.viz.stacked = function() {
       nested_data = nest_data(xaxis_vals, cloned_data, xaxis_sums);
       
       // increase top margin if it's not large enough
-      margin.top = title && margin.top < 40 ? 40 : margin.top;
+      margin.top = title && margin.top < 40 && !small ? 40 : margin.top;
       // update size
       size.width = width-margin.left-margin.right;
       size.height = height-margin.top-margin.bottom;
@@ -250,14 +260,14 @@ vizwhiz.viz.stacked = function() {
         .attr("fill", "#4c4c4c")
         .attr("opacity",0)
         .attr('width', size.width)
-        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .attr("transform", "translate(" + (size.x-150) + "," + (size.y+size.height/2) + ") rotate(-90)")
         .text(value_var)
       
       // update label
       d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
         .attr("opacity",1)
         .attr('width', size.width)
-        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .attr("transform", "translate(" + (size.x-150) + "," + (size.y+size.height/2) + ") rotate(-90)")
         .text(value_var)
       
       //===================================================================
@@ -362,169 +372,173 @@ vizwhiz.viz.stacked = function() {
       // TEXT LAYERS
       //-------------------------------------------------------------------
       
-      var defs = svg_enter.append('svg:defs')
-      vizwhiz.utils.drop_shadow(defs)
+      if (!small) {
+
+        var defs = svg_enter.append('svg:defs')
+        vizwhiz.utils.drop_shadow(defs)
       
-      // filter layers to only the ones with a height larger than 6% of viz
-      var text_layers = [];
-      var text_height_scale = d3.scale.linear().range([0, 1]).domain([0, data_max]);
+        // filter layers to only the ones with a height larger than 6% of viz
+        var text_layers = [];
+        var text_height_scale = d3.scale.linear().range([0, 1]).domain([0, data_max]);
       
-      layers.forEach(function(layer){
-        // find out which is the largest
-        var available_areas = layer.values.filter(function(d,i,a){
+        layers.forEach(function(layer){
+          // find out which is the largest
+          var available_areas = layer.values.filter(function(d,i,a){
           
-          var min_height = 30;
-          if (i == 0) {
-            return (size.height-y_scale(d.y)) >= min_height 
-                && (size.height-y_scale(a[i+1].y)) >= min_height
-                && (size.height-y_scale(a[i+2].y)) >= min_height
-                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
-                && y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0)) < y_scale(a[i+2].y0)
-                && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
-                && y_scale(a[i+1].y0) > y_scale(a[i+2].y)-(size.height-y_scale(a[i+2].y0));
-          }
-          else if (i == a.length-1) {
-            return (size.height-y_scale(d.y)) >= min_height 
-                && (size.height-y_scale(a[i-1].y)) >= min_height
-                && (size.height-y_scale(a[i-2].y)) >= min_height
-                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
-                && y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0)) < y_scale(a[i-2].y0)
-                && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0))
-                && y_scale(a[i-1].y0) > y_scale(a[i-2].y)-(size.height-y_scale(a[i-2].y0));
-          }
-          else {
-            return (size.height-y_scale(d.y)) >= min_height 
-                && (size.height-y_scale(a[i-1].y)) >= min_height
-                && (size.height-y_scale(a[i+1].y)) >= min_height
-                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
-                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
-                && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
-                && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0));
-          }
-        });
-        var best_area = d3.max(layer.values,function(d,i){
-          if (available_areas.indexOf(d) >= 0) {
+            var min_height = 30;
+            if (i == 0) {
+              return (size.height-y_scale(d.y)) >= min_height 
+                  && (size.height-y_scale(a[i+1].y)) >= min_height
+                  && (size.height-y_scale(a[i+2].y)) >= min_height
+                  && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
+                  && y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0)) < y_scale(a[i+2].y0)
+                  && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
+                  && y_scale(a[i+1].y0) > y_scale(a[i+2].y)-(size.height-y_scale(a[i+2].y0));
+            }
+            else if (i == a.length-1) {
+              return (size.height-y_scale(d.y)) >= min_height 
+                  && (size.height-y_scale(a[i-1].y)) >= min_height
+                  && (size.height-y_scale(a[i-2].y)) >= min_height
+                  && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
+                  && y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0)) < y_scale(a[i-2].y0)
+                  && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0))
+                  && y_scale(a[i-1].y0) > y_scale(a[i-2].y)-(size.height-y_scale(a[i-2].y0));
+            }
+            else {
+              return (size.height-y_scale(d.y)) >= min_height 
+                  && (size.height-y_scale(a[i-1].y)) >= min_height
+                  && (size.height-y_scale(a[i+1].y)) >= min_height
+                  && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
+                  && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
+                  && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
+                  && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0));
+            }
+          });
+          var best_area = d3.max(layer.values,function(d,i){
+            if (available_areas.indexOf(d) >= 0) {
+              if (i == 0) {
+                return (size.height-y_scale(d.y))
+                     + (size.height-y_scale(layer.values[i+1].y))
+                     + (size.height-y_scale(layer.values[i+2].y));
+              }
+              else if (i == layer.values.length-1) {
+                return (size.height-y_scale(d.y))
+                     + (size.height-y_scale(layer.values[i-1].y))
+                     + (size.height-y_scale(layer.values[i-2].y));
+              }
+              else {
+                return (size.height-y_scale(d.y))
+                     + (size.height-y_scale(layer.values[i-1].y))
+                     + (size.height-y_scale(layer.values[i+1].y));
+              }
+            } else return null;
+          });
+          var best_area = layer.values.filter(function(d,i,a){
             if (i == 0) {
               return (size.height-y_scale(d.y))
                    + (size.height-y_scale(layer.values[i+1].y))
-                   + (size.height-y_scale(layer.values[i+2].y));
+                   + (size.height-y_scale(layer.values[i+2].y)) == best_area;
             }
             else if (i == layer.values.length-1) {
               return (size.height-y_scale(d.y))
                    + (size.height-y_scale(layer.values[i-1].y))
-                   + (size.height-y_scale(layer.values[i-2].y));
+                   + (size.height-y_scale(layer.values[i-2].y)) == best_area;
             }
             else {
               return (size.height-y_scale(d.y))
                    + (size.height-y_scale(layer.values[i-1].y))
-                   + (size.height-y_scale(layer.values[i+1].y));
+                   + (size.height-y_scale(layer.values[i+1].y)) == best_area;
             }
-          } else return null;
-        });
-        var best_area = layer.values.filter(function(d,i,a){
-          if (i == 0) {
-            return (size.height-y_scale(d.y))
-                 + (size.height-y_scale(layer.values[i+1].y))
-                 + (size.height-y_scale(layer.values[i+2].y)) == best_area;
+          })[0]
+          if (best_area) {
+            layer.tallest = best_area
+            text_layers.push(layer)
           }
-          else if (i == layer.values.length-1) {
-            return (size.height-y_scale(d.y))
-                 + (size.height-y_scale(layer.values[i-1].y))
-                 + (size.height-y_scale(layer.values[i-2].y)) == best_area;
-          }
-          else {
-            return (size.height-y_scale(d.y))
-                 + (size.height-y_scale(layer.values[i-1].y))
-                 + (size.height-y_scale(layer.values[i+1].y)) == best_area;
-          }
-        })[0]
-        if (best_area) {
-          layer.tallest = best_area
-          text_layers.push(layer)
-        }
         
-      })
-      // container for text layers
-      viz_enter.append("g").attr("class", "text_layers")
+        })
+        // container for text layers
+        viz_enter.append("g").attr("class", "text_layers")
 
-      // RESET
-      var texts = d3.select("g.text_layers").selectAll(".label")
-        .data([])
+        // RESET
+        var texts = d3.select("g.text_layers").selectAll(".label")
+          .data([])
       
-      // EXIT
-      texts.exit().remove()
+        // EXIT
+        texts.exit().remove()
       
-      // give data with key function to variables to draw
-      var texts = d3.select("g.text_layers").selectAll(".label")
-        .data(text_layers)
+        // give data with key function to variables to draw
+        var texts = d3.select("g.text_layers").selectAll(".label")
+          .data(text_layers)
         
-      // ENTER
-      texts.enter().append("text")
-        .attr('filter', 'url(#dropShadow)')
-        .attr("class", "label")
-        .style("font-weight","bold")
-        .attr("font-size","14px")
-        .attr("font-family","Helvetica")
-        .attr("dy", 6)
-        .attr("opacity",0)
-        .attr("text-anchor", function(d){
-          // if first, left-align text
-          if(d.tallest.key == x_scale.domain()[0]) return "start";
-          // if last, right-align text
-          if(d.tallest.key == x_scale.domain()[1]) return "end";
-          // otherwise go with middle
-          return "middle"
-        })
-        .attr("fill", function(d){
-          return "white"
-        })
-        .attr("x", function(d){
-          var pad = 0;
-          // if first, push it off 10 pixels from left side
-          if(d.tallest.key == x_scale.domain()[0]) pad += 10;
-          // if last, push it off 10 pixels from right side
-          if(d.tallest.key == x_scale.domain()[1]) pad -= 10;
-          return x_scale(d.tallest.key) + pad;
-        })
-        .attr("y", function(d){
-          var height = size.height - y_scale(d.tallest.y);
-          return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
-        })
-        .text(function(d) {
-          return d[text_var]
-        })
-        .on(vizwhiz.evt.over, path_tooltip)
-        .each(function(d){
-          // set usable width to 2x the width of each x-axis tick
-          var tick_width = (size.width / xaxis_vals.length) * 2;
-          // if the text box's width is larger than the tick width wrap text
-          if(this.getBBox().width > tick_width){
-            // first remove the current text
-            d3.select(this).text("")
-            // figure out the usable height for this location along x-axis
-            var height = size.height-y_scale(d.tallest.y)
-            // wrap text WITHOUT resizing
-            // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
+        // ENTER
+        texts.enter().append("text")
+          .attr('filter', 'url(#dropShadow)')
+          .attr("class", "label")
+          .style("font-weight","bold")
+          .attr("font-size","14px")
+          .attr("font-family","Helvetica")
+          .attr("dy", 6)
+          .attr("opacity",0)
+          .attr("text-anchor", function(d){
+            // if first, left-align text
+            if(d.tallest.key == x_scale.domain()[0]) return "start";
+            // if last, right-align text
+            if(d.tallest.key == x_scale.domain()[1]) return "end";
+            // otherwise go with middle
+            return "middle"
+          })
+          .attr("fill", function(d){
+            return "white"
+          })
+          .attr("x", function(d){
+            var pad = 0;
+            // if first, push it off 10 pixels from left side
+            if(d.tallest.key == x_scale.domain()[0]) pad += 10;
+            // if last, push it off 10 pixels from right side
+            if(d.tallest.key == x_scale.domain()[1]) pad -= 10;
+            return x_scale(d.tallest.key) + pad;
+          })
+          .attr("y", function(d){
+            var height = size.height - y_scale(d.tallest.y);
+            return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
+          })
+          .text(function(d) {
+            return d[text_var]
+          })
+          .on(vizwhiz.evt.over, path_tooltip)
+          .each(function(d){
+            // set usable width to 2x the width of each x-axis tick
+            var tick_width = (size.width / xaxis_vals.length) * 2;
+            // if the text box's width is larger than the tick width wrap text
+            if(this.getBBox().width > tick_width){
+              // first remove the current text
+              d3.select(this).text("")
+              // figure out the usable height for this location along x-axis
+              var height = size.height-y_scale(d.tallest.y)
+              // wrap text WITHOUT resizing
+              // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
             
-            vizwhiz.utils.wordwrap({
-              "text": d[text_var],
-              "parent": this,
-              "width": tick_width,
-              "height": height,
-              "resize": false
-            })
+              vizwhiz.utils.wordwrap({
+                "text": d[text_var],
+                "parent": this,
+                "width": tick_width,
+                "height": height,
+                "resize": false
+              })
             
-            // reset Y to compensate for new multi-line height
-            var offset = (height - this.getBBox().height) / 2;
-            // top of the element's y attr
-            var y_top = y_scale(d.tallest.y0 + d.tallest.y);
-            d3.select(this).attr("y", y_top + offset)
-          }
-        })
+              // reset Y to compensate for new multi-line height
+              var offset = (height - this.getBBox().height) / 2;
+              // top of the element's y attr
+              var y_top = y_scale(d.tallest.y0 + d.tallest.y);
+              d3.select(this).attr("y", y_top + offset)
+            }
+          })
       
-      // UPDATE
-      texts.transition().duration(vizwhiz.timing)
-        .attr("opacity",1)
+        // UPDATE
+        texts.transition().duration(vizwhiz.timing)
+          .attr("opacity",1)
+          
+      }
       
       //===================================================================
       

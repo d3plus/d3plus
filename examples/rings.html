@@ -23,19 +23,19 @@ body {
 
 var viz = vizwhiz.viz.rings()
 
-d3.json("data/attr_cbo.json", function(attr) {
-  d3.json("data/network_cbo.json", function(hs) {
+d3.json("data/attr_hs.json", function(attr) {
+  d3.json("data/network_hs.json", function(hs) {
     
     viz_nodes = hs.nodes
     viz_links = hs.edges
-    // viz_links.forEach(function(link){
-    //   link.source = viz_nodes[link.source]
-    //   link.target = viz_nodes[link.target]
-    // })
     viz_links.forEach(function(link){
-      link.source = viz_nodes.filter(function(d){return d.id == link.source})[0]
-      link.target = viz_nodes.filter(function(d){return d.id == link.target})[0]
+      link.source = viz_nodes[link.source]
+      link.target = viz_nodes[link.target]
     })
+    // viz_links.forEach(function(link){
+    //   link.source = viz_nodes.filter(function(d){return d.id == link.source})[0]
+    //   link.target = viz_nodes.filter(function(d){return d.id == link.target})[0]
+    // })
     
     d3.json("data/products_mg.json", function(ps_data) {
       
@@ -46,28 +46,27 @@ d3.json("data/attr_cbo.json", function(attr) {
         data[d.id] = vizwhiz.utils.merge(data[d.id],attr[d.id])
         data[d.id].active = Math.floor(Math.random()*2);
       })
-
-      // viz
-      //   .text_var("name")
-      //   .id_var("id")
-      //   .nodes(viz_nodes)
-      //   .links(viz_links)
-      //   .value_var("value")
-      //   // .center("116108") // women's undergarments
-      //   // .center("020910") // ginger
-      //   // .center("157202") // ferroalloys
-      //   .center("178703") // cars
-      //   // .center("168480") // molding boxes
-      //   .tooltip_info(["distance", "complexity", "value"])
-
+      
       viz
         .text_var("name")
         .id_var("id")
         .links(viz_links)
         .value_var("value")
-        .center("3762") // Circus
-        // .center("1210") // CEOs
-        .tooltip_info([])
+        // .center("116108") // women's undergarments
+        // .center("020910") // ginger
+        // .center("157202") // ferroalloys
+        .center("178703") // cars
+        // .center("168480") // molding boxes
+        .tooltip_info(["distance", "complexity", "value"])
+
+      // viz
+      //   .text_var("name")
+      //   .id_var("id")
+      //   .links(viz_links)
+      //   .value_var("value")
+      //   .center("3762") // Circus
+      //   // .center("1210") // CEOs
+      //   .tooltip_info([])
 
       d3.select("#viz")
         .datum(data)

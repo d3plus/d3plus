@@ -42,7 +42,12 @@ vizwhiz.viz.network = function() {
           secondary_color = "#ffdddd",
           offset_top = 0,
           offset_left = 0,
-          info_width = 300;
+          info_width = 300,
+          min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
 
       //===================================================================
       
@@ -131,22 +136,24 @@ vizwhiz.viz.network = function() {
       viz_enter.append('g')
         .attr('class','highlight')
         
-      // Create Zoom Controls div on svg_enter
-      d3.select(this_selection).select("div#zoom_controls").remove()
-      var zoom_div = d3.select(this_selection).append("div")
-        .attr("id","zoom_controls")
+      if (!small) {
+        // Create Zoom Controls div on svg_enter
+        d3.select(this_selection).select("div#zoom_controls").remove()
+        var zoom_div = d3.select(this_selection).append("div")
+          .attr("id","zoom_controls")
         
-      zoom_div.append("div")
-        .attr("id","zoom_in")
-        .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ zoom("in") })
-        .text("+")
+        zoom_div.append("div")
+          .attr("id","zoom_in")
+          .attr("unselectable","on")
+          .on(vizwhiz.evt.click,function(){ zoom("in") })
+          .text("+")
         
-      zoom_div.append("div")
-        .attr("id","zoom_out")
-        .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ zoom("out") })
-        .text("-")
+        zoom_div.append("div")
+          .attr("id","zoom_out")
+          .attr("unselectable","on")
+          .on(vizwhiz.evt.click,function(){ zoom("out") })
+          .text("-")
+      }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New nodes and links enter, initialize them here

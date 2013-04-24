@@ -709,7 +709,12 @@ vizwhiz.viz.network = function() {
           secondary_color = "#ffdddd",
           offset_top = 0,
           offset_left = 0,
-          info_width = 300;
+          info_width = 300,
+          min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
 
       //===================================================================
       
@@ -798,22 +803,24 @@ vizwhiz.viz.network = function() {
       viz_enter.append('g')
         .attr('class','highlight')
         
-      // Create Zoom Controls div on svg_enter
-      d3.select(this_selection).select("div#zoom_controls").remove()
-      var zoom_div = d3.select(this_selection).append("div")
-        .attr("id","zoom_controls")
+      if (!small) {
+        // Create Zoom Controls div on svg_enter
+        d3.select(this_selection).select("div#zoom_controls").remove()
+        var zoom_div = d3.select(this_selection).append("div")
+          .attr("id","zoom_controls")
         
-      zoom_div.append("div")
-        .attr("id","zoom_in")
-        .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ zoom("in") })
-        .text("+")
+        zoom_div.append("div")
+          .attr("id","zoom_in")
+          .attr("unselectable","on")
+          .on(vizwhiz.evt.click,function(){ zoom("in") })
+          .text("+")
         
-      zoom_div.append("div")
-        .attr("id","zoom_out")
-        .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ zoom("out") })
-        .text("-")
+        zoom_div.append("div")
+          .attr("id","zoom_out")
+          .attr("unselectable","on")
+          .on(vizwhiz.evt.click,function(){ zoom("out") })
+          .text("-")
+      }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New nodes and links enter, initialize them here
@@ -1563,6 +1570,16 @@ vizwhiz.viz.stacked = function() {
 
   function chart(selection) {
     selection.each(function(data) {
+
+      var min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
+      
+      if (small) {
+        margin = {top: 0, right: 0, bottom: 0, left: 0}
+      }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
@@ -1629,7 +1646,7 @@ vizwhiz.viz.stacked = function() {
       nested_data = nest_data(xaxis_vals, cloned_data, xaxis_sums);
       
       // increase top margin if it's not large enough
-      margin.top = title && margin.top < 40 ? 40 : margin.top;
+      margin.top = title && margin.top < 40 && !small ? 40 : margin.top;
       // update size
       size.width = width-margin.left-margin.right;
       size.height = height-margin.top-margin.bottom;
@@ -1780,14 +1797,14 @@ vizwhiz.viz.stacked = function() {
         .attr("fill", "#4c4c4c")
         .attr("opacity",0)
         .attr('width', size.width)
-        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .attr("transform", "translate(" + (size.x-150) + "," + (size.y+size.height/2) + ") rotate(-90)")
         .text(value_var)
       
       // update label
       d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
         .attr("opacity",1)
         .attr('width', size.width)
-        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .attr("transform", "translate(" + (size.x-150) + "," + (size.y+size.height/2) + ") rotate(-90)")
         .text(value_var)
       
       //===================================================================
@@ -1892,169 +1909,173 @@ vizwhiz.viz.stacked = function() {
       // TEXT LAYERS
       //-------------------------------------------------------------------
       
-      var defs = svg_enter.append('svg:defs')
-      vizwhiz.utils.drop_shadow(defs)
+      if (!small) {
+
+        var defs = svg_enter.append('svg:defs')
+        vizwhiz.utils.drop_shadow(defs)
       
-      // filter layers to only the ones with a height larger than 6% of viz
-      var text_layers = [];
-      var text_height_scale = d3.scale.linear().range([0, 1]).domain([0, data_max]);
+        // filter layers to only the ones with a height larger than 6% of viz
+        var text_layers = [];
+        var text_height_scale = d3.scale.linear().range([0, 1]).domain([0, data_max]);
       
-      layers.forEach(function(layer){
-        // find out which is the largest
-        var available_areas = layer.values.filter(function(d,i,a){
+        layers.forEach(function(layer){
+          // find out which is the largest
+          var available_areas = layer.values.filter(function(d,i,a){
           
-          var min_height = 30;
-          if (i == 0) {
-            return (size.height-y_scale(d.y)) >= min_height 
-                && (size.height-y_scale(a[i+1].y)) >= min_height
-                && (size.height-y_scale(a[i+2].y)) >= min_height
-                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
-                && y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0)) < y_scale(a[i+2].y0)
-                && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
-                && y_scale(a[i+1].y0) > y_scale(a[i+2].y)-(size.height-y_scale(a[i+2].y0));
-          }
-          else if (i == a.length-1) {
-            return (size.height-y_scale(d.y)) >= min_height 
-                && (size.height-y_scale(a[i-1].y)) >= min_height
-                && (size.height-y_scale(a[i-2].y)) >= min_height
-                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
-                && y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0)) < y_scale(a[i-2].y0)
-                && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0))
-                && y_scale(a[i-1].y0) > y_scale(a[i-2].y)-(size.height-y_scale(a[i-2].y0));
-          }
-          else {
-            return (size.height-y_scale(d.y)) >= min_height 
-                && (size.height-y_scale(a[i-1].y)) >= min_height
-                && (size.height-y_scale(a[i+1].y)) >= min_height
-                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
-                && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
-                && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
-                && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0));
-          }
-        });
-        var best_area = d3.max(layer.values,function(d,i){
-          if (available_areas.indexOf(d) >= 0) {
+            var min_height = 30;
+            if (i == 0) {
+              return (size.height-y_scale(d.y)) >= min_height 
+                  && (size.height-y_scale(a[i+1].y)) >= min_height
+                  && (size.height-y_scale(a[i+2].y)) >= min_height
+                  && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
+                  && y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0)) < y_scale(a[i+2].y0)
+                  && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
+                  && y_scale(a[i+1].y0) > y_scale(a[i+2].y)-(size.height-y_scale(a[i+2].y0));
+            }
+            else if (i == a.length-1) {
+              return (size.height-y_scale(d.y)) >= min_height 
+                  && (size.height-y_scale(a[i-1].y)) >= min_height
+                  && (size.height-y_scale(a[i-2].y)) >= min_height
+                  && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
+                  && y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0)) < y_scale(a[i-2].y0)
+                  && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0))
+                  && y_scale(a[i-1].y0) > y_scale(a[i-2].y)-(size.height-y_scale(a[i-2].y0));
+            }
+            else {
+              return (size.height-y_scale(d.y)) >= min_height 
+                  && (size.height-y_scale(a[i-1].y)) >= min_height
+                  && (size.height-y_scale(a[i+1].y)) >= min_height
+                  && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i+1].y0)
+                  && y_scale(d.y)-(size.height-y_scale(d.y0)) < y_scale(a[i-1].y0)
+                  && y_scale(d.y0) > y_scale(a[i+1].y)-(size.height-y_scale(a[i+1].y0))
+                  && y_scale(d.y0) > y_scale(a[i-1].y)-(size.height-y_scale(a[i-1].y0));
+            }
+          });
+          var best_area = d3.max(layer.values,function(d,i){
+            if (available_areas.indexOf(d) >= 0) {
+              if (i == 0) {
+                return (size.height-y_scale(d.y))
+                     + (size.height-y_scale(layer.values[i+1].y))
+                     + (size.height-y_scale(layer.values[i+2].y));
+              }
+              else if (i == layer.values.length-1) {
+                return (size.height-y_scale(d.y))
+                     + (size.height-y_scale(layer.values[i-1].y))
+                     + (size.height-y_scale(layer.values[i-2].y));
+              }
+              else {
+                return (size.height-y_scale(d.y))
+                     + (size.height-y_scale(layer.values[i-1].y))
+                     + (size.height-y_scale(layer.values[i+1].y));
+              }
+            } else return null;
+          });
+          var best_area = layer.values.filter(function(d,i,a){
             if (i == 0) {
               return (size.height-y_scale(d.y))
                    + (size.height-y_scale(layer.values[i+1].y))
-                   + (size.height-y_scale(layer.values[i+2].y));
+                   + (size.height-y_scale(layer.values[i+2].y)) == best_area;
             }
             else if (i == layer.values.length-1) {
               return (size.height-y_scale(d.y))
                    + (size.height-y_scale(layer.values[i-1].y))
-                   + (size.height-y_scale(layer.values[i-2].y));
+                   + (size.height-y_scale(layer.values[i-2].y)) == best_area;
             }
             else {
               return (size.height-y_scale(d.y))
                    + (size.height-y_scale(layer.values[i-1].y))
-                   + (size.height-y_scale(layer.values[i+1].y));
+                   + (size.height-y_scale(layer.values[i+1].y)) == best_area;
             }
-          } else return null;
-        });
-        var best_area = layer.values.filter(function(d,i,a){
-          if (i == 0) {
-            return (size.height-y_scale(d.y))
-                 + (size.height-y_scale(layer.values[i+1].y))
-                 + (size.height-y_scale(layer.values[i+2].y)) == best_area;
+          })[0]
+          if (best_area) {
+            layer.tallest = best_area
+            text_layers.push(layer)
           }
-          else if (i == layer.values.length-1) {
-            return (size.height-y_scale(d.y))
-                 + (size.height-y_scale(layer.values[i-1].y))
-                 + (size.height-y_scale(layer.values[i-2].y)) == best_area;
-          }
-          else {
-            return (size.height-y_scale(d.y))
-                 + (size.height-y_scale(layer.values[i-1].y))
-                 + (size.height-y_scale(layer.values[i+1].y)) == best_area;
-          }
-        })[0]
-        if (best_area) {
-          layer.tallest = best_area
-          text_layers.push(layer)
-        }
         
-      })
-      // container for text layers
-      viz_enter.append("g").attr("class", "text_layers")
+        })
+        // container for text layers
+        viz_enter.append("g").attr("class", "text_layers")
 
-      // RESET
-      var texts = d3.select("g.text_layers").selectAll(".label")
-        .data([])
+        // RESET
+        var texts = d3.select("g.text_layers").selectAll(".label")
+          .data([])
       
-      // EXIT
-      texts.exit().remove()
+        // EXIT
+        texts.exit().remove()
       
-      // give data with key function to variables to draw
-      var texts = d3.select("g.text_layers").selectAll(".label")
-        .data(text_layers)
+        // give data with key function to variables to draw
+        var texts = d3.select("g.text_layers").selectAll(".label")
+          .data(text_layers)
         
-      // ENTER
-      texts.enter().append("text")
-        .attr('filter', 'url(#dropShadow)')
-        .attr("class", "label")
-        .style("font-weight","bold")
-        .attr("font-size","14px")
-        .attr("font-family","Helvetica")
-        .attr("dy", 6)
-        .attr("opacity",0)
-        .attr("text-anchor", function(d){
-          // if first, left-align text
-          if(d.tallest.key == x_scale.domain()[0]) return "start";
-          // if last, right-align text
-          if(d.tallest.key == x_scale.domain()[1]) return "end";
-          // otherwise go with middle
-          return "middle"
-        })
-        .attr("fill", function(d){
-          return "white"
-        })
-        .attr("x", function(d){
-          var pad = 0;
-          // if first, push it off 10 pixels from left side
-          if(d.tallest.key == x_scale.domain()[0]) pad += 10;
-          // if last, push it off 10 pixels from right side
-          if(d.tallest.key == x_scale.domain()[1]) pad -= 10;
-          return x_scale(d.tallest.key) + pad;
-        })
-        .attr("y", function(d){
-          var height = size.height - y_scale(d.tallest.y);
-          return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
-        })
-        .text(function(d) {
-          return d[text_var]
-        })
-        .on(vizwhiz.evt.over, path_tooltip)
-        .each(function(d){
-          // set usable width to 2x the width of each x-axis tick
-          var tick_width = (size.width / xaxis_vals.length) * 2;
-          // if the text box's width is larger than the tick width wrap text
-          if(this.getBBox().width > tick_width){
-            // first remove the current text
-            d3.select(this).text("")
-            // figure out the usable height for this location along x-axis
-            var height = size.height-y_scale(d.tallest.y)
-            // wrap text WITHOUT resizing
-            // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
+        // ENTER
+        texts.enter().append("text")
+          .attr('filter', 'url(#dropShadow)')
+          .attr("class", "label")
+          .style("font-weight","bold")
+          .attr("font-size","14px")
+          .attr("font-family","Helvetica")
+          .attr("dy", 6)
+          .attr("opacity",0)
+          .attr("text-anchor", function(d){
+            // if first, left-align text
+            if(d.tallest.key == x_scale.domain()[0]) return "start";
+            // if last, right-align text
+            if(d.tallest.key == x_scale.domain()[1]) return "end";
+            // otherwise go with middle
+            return "middle"
+          })
+          .attr("fill", function(d){
+            return "white"
+          })
+          .attr("x", function(d){
+            var pad = 0;
+            // if first, push it off 10 pixels from left side
+            if(d.tallest.key == x_scale.domain()[0]) pad += 10;
+            // if last, push it off 10 pixels from right side
+            if(d.tallest.key == x_scale.domain()[1]) pad -= 10;
+            return x_scale(d.tallest.key) + pad;
+          })
+          .attr("y", function(d){
+            var height = size.height - y_scale(d.tallest.y);
+            return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
+          })
+          .text(function(d) {
+            return d[text_var]
+          })
+          .on(vizwhiz.evt.over, path_tooltip)
+          .each(function(d){
+            // set usable width to 2x the width of each x-axis tick
+            var tick_width = (size.width / xaxis_vals.length) * 2;
+            // if the text box's width is larger than the tick width wrap text
+            if(this.getBBox().width > tick_width){
+              // first remove the current text
+              d3.select(this).text("")
+              // figure out the usable height for this location along x-axis
+              var height = size.height-y_scale(d.tallest.y)
+              // wrap text WITHOUT resizing
+              // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
             
-            vizwhiz.utils.wordwrap({
-              "text": d[text_var],
-              "parent": this,
-              "width": tick_width,
-              "height": height,
-              "resize": false
-            })
+              vizwhiz.utils.wordwrap({
+                "text": d[text_var],
+                "parent": this,
+                "width": tick_width,
+                "height": height,
+                "resize": false
+              })
             
-            // reset Y to compensate for new multi-line height
-            var offset = (height - this.getBBox().height) / 2;
-            // top of the element's y attr
-            var y_top = y_scale(d.tallest.y0 + d.tallest.y);
-            d3.select(this).attr("y", y_top + offset)
-          }
-        })
+              // reset Y to compensate for new multi-line height
+              var offset = (height - this.getBBox().height) / 2;
+              // top of the element's y attr
+              var y_top = y_scale(d.tallest.y0 + d.tallest.y);
+              d3.select(this).attr("y", y_top + offset)
+            }
+          })
       
-      // UPDATE
-      texts.transition().duration(vizwhiz.timing)
-        .attr("opacity",1)
+        // UPDATE
+        texts.transition().duration(vizwhiz.timing)
+          .attr("opacity",1)
+          
+      }
       
       //===================================================================
       
@@ -2827,9 +2848,11 @@ vizwhiz.viz.geo_map = function() {
   function chart(selection) {
     selection.each(function(data, i) {
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Private Variables
-      //-------------------------------------------------------------------
+      var min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
       
       if (first) {
         projection
@@ -2940,102 +2963,104 @@ vizwhiz.viz.geo_map = function() {
         .attr('class','paths');
         
       // add scale
-        
-      var gradient = defs
-        .append("svg:linearGradient")
-        .attr("id", "gradient")
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "0%")
-        .attr("spreadMethod", "pad");
+      
+      if (!small) {
+        var gradient = defs
+          .append("svg:linearGradient")
+          .attr("id", "gradient")
+          .attr("x1", "0%")
+          .attr("y1", "0%")
+          .attr("x2", "100%")
+          .attr("y2", "0%")
+          .attr("spreadMethod", "pad");
            
-      data_range.forEach(function(v,i){
-        gradient.append("stop")
-          .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
-          .attr("stop-color", value_color(v))
-          .attr("stop-opacity", 1)
-      })
+        data_range.forEach(function(v,i){
+          gradient.append("stop")
+            .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
+            .attr("stop-color", value_color(v))
+            .attr("stop-opacity", 1)
+        })
         
-      var scale = svg_enter.append('g')
-        .attr('class','scale')
-        .attr("transform","translate("+(width-info_width-5)+","+5+")");
+        var scale = svg_enter.append('g')
+          .attr('class','scale')
+          .attr("transform","translate("+(width-info_width-5)+","+5+")");
         
-      scale.append("rect")
-        .attr("width", info_width+"px")
-        .attr("height", (scale_height*5)+"px")
-        .attr("fill","#ffffff")
-        .attr("rx",3)
-        .attr("ry",3)
-        .attr("stroke","#cccccc")
-        .attr("stroke-width",2)
-            
-      scale.append("text")
-        .attr("id","scale_title")
-        .attr("x",(info_width/2)+"px")
-        .attr("y","0px")
-        .attr("dy","1.25em")
-        .attr("text-anchor","middle")
-        .attr("fill","#333")
-        .style("font-weight","bold")
-        .attr("font-size","12px")
-        .attr("font-family","Helvetica")
-           
-      data_range.forEach(function(v,i){
-        if (i == data_range.length-1) {
-          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-2
-        } else if (i != 0) {
-          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
-        } else {
-          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))
-        }
         scale.append("rect")
-          .attr("x", x+"px")
-          .attr("y", (scale_height*2)+"px")
-          .attr("width", 2)
-          .attr("height", (scale_height*1.5)+"px")
-          .style("fill", "#333")
-        
-      scale.append("rect")
-        .attr("x",scale_padding+"px")
-        .attr("y",(scale_height*2)+"px")
-        .attr("width", (info_width-(scale_padding*2))+"px")
-        .attr("height", scale_height+"px")
-        .style("fill", "url(#gradient)")
+          .attr("width", info_width+"px")
+          .attr("height", (scale_height*5)+"px")
+          .attr("fill","#ffffff")
+          .attr("rx",3)
+          .attr("ry",3)
+          .attr("stroke","#cccccc")
+          .attr("stroke-width",2)
             
         scale.append("text")
-          .attr("id","scale_"+i)
-          .attr("x",x+"px")
-          .attr("y", ((scale_height*3)+5)+"px")
-          .attr("dy","1em")
+          .attr("id","scale_title")
+          .attr("x",(info_width/2)+"px")
+          .attr("y","0px")
+          .attr("dy","1.25em")
           .attr("text-anchor","middle")
           .attr("fill","#333")
           .style("font-weight","bold")
-          .attr("font-size","10px")
+          .attr("font-size","12px")
           .attr("font-family","Helvetica")
-      })
+           
+        data_range.forEach(function(v,i){
+          if (i == data_range.length-1) {
+            var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-2
+          } else if (i != 0) {
+            var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
+          } else {
+            var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))
+          }
+          scale.append("rect")
+            .attr("x", x+"px")
+            .attr("y", (scale_height*2)+"px")
+            .attr("width", 2)
+            .attr("height", (scale_height*1.5)+"px")
+            .style("fill", "#333")
+        
+        scale.append("rect")
+          .attr("x",scale_padding+"px")
+          .attr("y",(scale_height*2)+"px")
+          .attr("width", (info_width-(scale_padding*2))+"px")
+          .attr("height", scale_height+"px")
+          .style("fill", "url(#gradient)")
+            
+          scale.append("text")
+            .attr("id","scale_"+i)
+            .attr("x",x+"px")
+            .attr("y", ((scale_height*3)+5)+"px")
+            .attr("dy","1em")
+            .attr("text-anchor","middle")
+            .attr("fill","#333")
+            .style("font-weight","bold")
+            .attr("font-size","10px")
+            .attr("font-family","Helvetica")
+        })
       
-      data_range.forEach(function(v,i){
-        d3.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
-      })
-      d3.select("text#scale_title").text(value_var)
+        data_range.forEach(function(v,i){
+          d3.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
+        })
+        d3.select("text#scale_title").text(value_var)
         
-      // Create Zoom Controls div on svg_enter
-      d3.select(this_selection).select("div#zoom_controls").remove()
-      var zoom_div = d3.select(this_selection).append("div")
-        .attr("id","zoom_controls")
+        // Create Zoom Controls div on svg_enter
+        d3.select(this_selection).select("div#zoom_controls").remove()
+        var zoom_div = d3.select(this_selection).append("div")
+          .attr("id","zoom_controls")
         
-      zoom_div.append("div")
-        .attr("id","zoom_in")
-        .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ zoom("in") })
-        .text("+")
+        zoom_div.append("div")
+          .attr("id","zoom_in")
+          .attr("unselectable","on")
+          .on(vizwhiz.evt.click,function(){ zoom("in") })
+          .text("+")
         
-      zoom_div.append("div")
-        .attr("id","zoom_out")
-        .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ zoom("out") })
-        .text("-")
+        zoom_div.append("div")
+          .attr("id","zoom_out")
+          .attr("unselectable","on")
+          .on(vizwhiz.evt.click,function(){ zoom("out") })
+          .text("-")
+      }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New nodes and links enter, initialize them here
@@ -3483,6 +3508,14 @@ vizwhiz.viz.pie_scatter = function() {
 
   function chart(selection) {
     selection.each(function(data) {
+
+      var min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
+      
+      if (small) margin = {top: 0, right: 0, bottom: 0, left: 0}
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
@@ -3635,13 +3668,13 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
         .attr('width', size.width)
-        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .attr("transform", "translate(" + (size.x-150) + "," + (size.y+size.height/2) + ") rotate(-90)")
         .text(yaxis_var)
         
       // update label
       d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
         .attr('width', size.width)
-        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .attr("transform", "translate(" + (size.x-150) + "," + (size.y+size.height/2) + ") rotate(-90)")
       
       //===================================================================
       
@@ -4231,8 +4264,15 @@ vizwhiz.viz.bubbles = function() {
       var this_selection = this,
           groups = {},
           donut_size = 0.4,
-          title_height = 30;
-            
+          title_height = 30,
+          min_height = 400,
+          min_width = 400;
+      
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
+      
+      if (small) title_height = 0;
+      
       if (donut) var arc_offset = donut_size;
       else var arc_offset = 0;
       
@@ -4388,6 +4428,8 @@ vizwhiz.viz.bubbles = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New labels enter, initialize them here
       //-------------------------------------------------------------------
+
+      if (small) groups = {};
 
       var group = d3.select("g.groups").selectAll("g.group")
         .data(d3.values(groups),function(d){ return d.key })
@@ -4794,6 +4836,15 @@ vizwhiz.viz.rings = function() {
           ring_width = tree_radius/3,
           total_children,
           parent = this;
+
+      var min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else {
+        var small = true;
+        ring_width = tree_radius/2.25
+      }
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -4921,11 +4972,13 @@ vizwhiz.viz.rings = function() {
               .attr("r", 0)
               .call(circle_styles);
               
-            d3.select(this).append("text")
-              .attr("font-weight","bold")
-              .attr("font-size", "10px")
-              .attr("font-family","Helvetica")
-              .call(text_styles);
+            if (!small) {
+              d3.select(this).append("text")
+                .attr("font-weight","bold")
+                .attr("font-size", "10px")
+                .attr("font-family","Helvetica")
+                .call(text_styles);
+            }
           })
           
       node.transition().duration(vizwhiz.timing)
@@ -5003,49 +5056,50 @@ vizwhiz.viz.rings = function() {
       update();
       
       function update() {
-        link.call(line_styles);
-        d3.selectAll(".node circle").call(circle_styles);
-        d3.selectAll(".node text").call(text_styles);
+        if (!small) {
+          link.call(line_styles);
+          d3.selectAll(".node circle").call(circle_styles);
+          d3.selectAll(".node text").call(text_styles);
         
-        if (highlight) {
+          if (highlight) {
           
-          var tooltip_data = {}
-          tooltip_info.forEach(function(t){
-            if (data[highlight[id_var]][t]) tooltip_data[t] = data[highlight[id_var]][t]
-          })
+            var tooltip_data = {}
+            tooltip_info.forEach(function(t){
+              if (data[highlight[id_var]][t]) tooltip_data[t] = data[highlight[id_var]][t]
+            })
           
-          if (highlight.ring_x%360 < 180) var x_pos = 0;
-          else var x_pos = width;
+            if (highlight.ring_x%360 < 180) var x_pos = 0;
+            else var x_pos = width;
 
-          vizwhiz.tooltip.remove();
-          vizwhiz.tooltip.create({
-            "parent": svg,
-            "data": tooltip_data,
-            "title": highlight[text_var],
-            "x": x_pos,
-            "y": 0,
-            "arrow": false
-          })
+            vizwhiz.tooltip.remove();
+            vizwhiz.tooltip.create({
+              "parent": svg,
+              "data": tooltip_data,
+              "title": highlight[text_var],
+              "x": x_pos,
+              "y": 0,
+              "arrow": false
+            })
           
-        } else {
+          } else {
           
-          var tooltip_data = {}
-          tooltip_info.forEach(function(t){
-            if (data[center][t]) tooltip_data[t] = data[center][t]
-          })
+            var tooltip_data = {}
+            tooltip_info.forEach(function(t){
+              if (data[center][t]) tooltip_data[t] = data[center][t]
+            })
 
-          vizwhiz.tooltip.remove();
-          vizwhiz.tooltip.create({
-            "parent": svg,
-            "data": tooltip_data,
-            "title": data[center][text_var],
-            "x": width,
-            "y": 0,
-            "arrow": false
-          })
+            vizwhiz.tooltip.remove();
+            vizwhiz.tooltip.create({
+              "parent": svg,
+              "data": tooltip_data,
+              "title": data[center][text_var],
+              "x": width,
+              "y": 0,
+              "arrow": false
+            })
           
+          }
         }
-        
       }
       
       function line_styles(l) {

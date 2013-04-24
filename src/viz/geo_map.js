@@ -36,9 +36,11 @@ vizwhiz.viz.geo_map = function() {
   function chart(selection) {
     selection.each(function(data, i) {
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Private Variables
-      //-------------------------------------------------------------------
+      var min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
       
       if (first) {
         projection
@@ -149,102 +151,104 @@ vizwhiz.viz.geo_map = function() {
         .attr('class','paths');
         
       // add scale
-        
-      var gradient = defs
-        .append("svg:linearGradient")
-        .attr("id", "gradient")
-        .attr("x1", "0%")
-        .attr("y1", "0%")
-        .attr("x2", "100%")
-        .attr("y2", "0%")
-        .attr("spreadMethod", "pad");
+      
+      if (!small) {
+        var gradient = defs
+          .append("svg:linearGradient")
+          .attr("id", "gradient")
+          .attr("x1", "0%")
+          .attr("y1", "0%")
+          .attr("x2", "100%")
+          .attr("y2", "0%")
+          .attr("spreadMethod", "pad");
            
-      data_range.forEach(function(v,i){
-        gradient.append("stop")
-          .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
-          .attr("stop-color", value_color(v))
-          .attr("stop-opacity", 1)
-      })
+        data_range.forEach(function(v,i){
+          gradient.append("stop")
+            .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
+            .attr("stop-color", value_color(v))
+            .attr("stop-opacity", 1)
+        })
         
-      var scale = svg_enter.append('g')
-        .attr('class','scale')
-        .attr("transform","translate("+(width-info_width-5)+","+5+")");
+        var scale = svg_enter.append('g')
+          .attr('class','scale')
+          .attr("transform","translate("+(width-info_width-5)+","+5+")");
         
-      scale.append("rect")
-        .attr("width", info_width+"px")
-        .attr("height", (scale_height*5)+"px")
-        .attr("fill","#ffffff")
-        .attr("rx",3)
-        .attr("ry",3)
-        .attr("stroke","#cccccc")
-        .attr("stroke-width",2)
-            
-      scale.append("text")
-        .attr("id","scale_title")
-        .attr("x",(info_width/2)+"px")
-        .attr("y","0px")
-        .attr("dy","1.25em")
-        .attr("text-anchor","middle")
-        .attr("fill","#333")
-        .style("font-weight","bold")
-        .attr("font-size","12px")
-        .attr("font-family","Helvetica")
-           
-      data_range.forEach(function(v,i){
-        if (i == data_range.length-1) {
-          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-2
-        } else if (i != 0) {
-          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
-        } else {
-          var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))
-        }
         scale.append("rect")
-          .attr("x", x+"px")
-          .attr("y", (scale_height*2)+"px")
-          .attr("width", 2)
-          .attr("height", (scale_height*1.5)+"px")
-          .style("fill", "#333")
-        
-      scale.append("rect")
-        .attr("x",scale_padding+"px")
-        .attr("y",(scale_height*2)+"px")
-        .attr("width", (info_width-(scale_padding*2))+"px")
-        .attr("height", scale_height+"px")
-        .style("fill", "url(#gradient)")
+          .attr("width", info_width+"px")
+          .attr("height", (scale_height*5)+"px")
+          .attr("fill","#ffffff")
+          .attr("rx",3)
+          .attr("ry",3)
+          .attr("stroke","#cccccc")
+          .attr("stroke-width",2)
             
         scale.append("text")
-          .attr("id","scale_"+i)
-          .attr("x",x+"px")
-          .attr("y", ((scale_height*3)+5)+"px")
-          .attr("dy","1em")
+          .attr("id","scale_title")
+          .attr("x",(info_width/2)+"px")
+          .attr("y","0px")
+          .attr("dy","1.25em")
           .attr("text-anchor","middle")
           .attr("fill","#333")
           .style("font-weight","bold")
-          .attr("font-size","10px")
+          .attr("font-size","12px")
           .attr("font-family","Helvetica")
-      })
+           
+        data_range.forEach(function(v,i){
+          if (i == data_range.length-1) {
+            var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-2
+          } else if (i != 0) {
+            var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
+          } else {
+            var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))
+          }
+          scale.append("rect")
+            .attr("x", x+"px")
+            .attr("y", (scale_height*2)+"px")
+            .attr("width", 2)
+            .attr("height", (scale_height*1.5)+"px")
+            .style("fill", "#333")
+        
+        scale.append("rect")
+          .attr("x",scale_padding+"px")
+          .attr("y",(scale_height*2)+"px")
+          .attr("width", (info_width-(scale_padding*2))+"px")
+          .attr("height", scale_height+"px")
+          .style("fill", "url(#gradient)")
+            
+          scale.append("text")
+            .attr("id","scale_"+i)
+            .attr("x",x+"px")
+            .attr("y", ((scale_height*3)+5)+"px")
+            .attr("dy","1em")
+            .attr("text-anchor","middle")
+            .attr("fill","#333")
+            .style("font-weight","bold")
+            .attr("font-size","10px")
+            .attr("font-family","Helvetica")
+        })
       
-      data_range.forEach(function(v,i){
-        d3.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
-      })
-      d3.select("text#scale_title").text(value_var)
+        data_range.forEach(function(v,i){
+          d3.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
+        })
+        d3.select("text#scale_title").text(value_var)
         
-      // Create Zoom Controls div on svg_enter
-      d3.select(this_selection).select("div#zoom_controls").remove()
-      var zoom_div = d3.select(this_selection).append("div")
-        .attr("id","zoom_controls")
+        // Create Zoom Controls div on svg_enter
+        d3.select(this_selection).select("div#zoom_controls").remove()
+        var zoom_div = d3.select(this_selection).append("div")
+          .attr("id","zoom_controls")
         
-      zoom_div.append("div")
-        .attr("id","zoom_in")
-        .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ zoom("in") })
-        .text("+")
+        zoom_div.append("div")
+          .attr("id","zoom_in")
+          .attr("unselectable","on")
+          .on(vizwhiz.evt.click,function(){ zoom("in") })
+          .text("+")
         
-      zoom_div.append("div")
-        .attr("id","zoom_out")
-        .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ zoom("out") })
-        .text("-")
+        zoom_div.append("div")
+          .attr("id","zoom_out")
+          .attr("unselectable","on")
+          .on(vizwhiz.evt.click,function(){ zoom("out") })
+          .text("-")
+      }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New nodes and links enter, initialize them here

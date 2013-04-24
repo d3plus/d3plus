@@ -25,6 +25,15 @@ vizwhiz.viz.rings = function() {
           ring_width = tree_radius/3,
           total_children,
           parent = this;
+
+      var min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else {
+        var small = true;
+        ring_width = tree_radius/2.25
+      }
       
       // Select the svg element, if it exists.
       var svg = d3.select(this).selectAll("svg").data([data]);
@@ -152,11 +161,13 @@ vizwhiz.viz.rings = function() {
               .attr("r", 0)
               .call(circle_styles);
               
-            d3.select(this).append("text")
-              .attr("font-weight","bold")
-              .attr("font-size", "10px")
-              .attr("font-family","Helvetica")
-              .call(text_styles);
+            if (!small) {
+              d3.select(this).append("text")
+                .attr("font-weight","bold")
+                .attr("font-size", "10px")
+                .attr("font-family","Helvetica")
+                .call(text_styles);
+            }
           })
           
       node.transition().duration(vizwhiz.timing)
@@ -234,49 +245,50 @@ vizwhiz.viz.rings = function() {
       update();
       
       function update() {
-        link.call(line_styles);
-        d3.selectAll(".node circle").call(circle_styles);
-        d3.selectAll(".node text").call(text_styles);
+        if (!small) {
+          link.call(line_styles);
+          d3.selectAll(".node circle").call(circle_styles);
+          d3.selectAll(".node text").call(text_styles);
         
-        if (highlight) {
+          if (highlight) {
           
-          var tooltip_data = {}
-          tooltip_info.forEach(function(t){
-            if (data[highlight[id_var]][t]) tooltip_data[t] = data[highlight[id_var]][t]
-          })
+            var tooltip_data = {}
+            tooltip_info.forEach(function(t){
+              if (data[highlight[id_var]][t]) tooltip_data[t] = data[highlight[id_var]][t]
+            })
           
-          if (highlight.ring_x%360 < 180) var x_pos = 0;
-          else var x_pos = width;
+            if (highlight.ring_x%360 < 180) var x_pos = 0;
+            else var x_pos = width;
 
-          vizwhiz.tooltip.remove();
-          vizwhiz.tooltip.create({
-            "parent": svg,
-            "data": tooltip_data,
-            "title": highlight[text_var],
-            "x": x_pos,
-            "y": 0,
-            "arrow": false
-          })
+            vizwhiz.tooltip.remove();
+            vizwhiz.tooltip.create({
+              "parent": svg,
+              "data": tooltip_data,
+              "title": highlight[text_var],
+              "x": x_pos,
+              "y": 0,
+              "arrow": false
+            })
           
-        } else {
+          } else {
           
-          var tooltip_data = {}
-          tooltip_info.forEach(function(t){
-            if (data[center][t]) tooltip_data[t] = data[center][t]
-          })
+            var tooltip_data = {}
+            tooltip_info.forEach(function(t){
+              if (data[center][t]) tooltip_data[t] = data[center][t]
+            })
 
-          vizwhiz.tooltip.remove();
-          vizwhiz.tooltip.create({
-            "parent": svg,
-            "data": tooltip_data,
-            "title": data[center][text_var],
-            "x": width,
-            "y": 0,
-            "arrow": false
-          })
+            vizwhiz.tooltip.remove();
+            vizwhiz.tooltip.create({
+              "parent": svg,
+              "data": tooltip_data,
+              "title": data[center][text_var],
+              "x": width,
+              "y": 0,
+              "arrow": false
+            })
           
+          }
         }
-        
       }
       
       function line_styles(l) {
