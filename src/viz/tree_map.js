@@ -337,7 +337,7 @@ vizwhiz.viz.tree_map = function() {
     // Get the total value from the data passed.
     total_val = d3.sum(current, function(d){ return d["value"] })
   
-    var percent =  (total_val / annual[year])
+    // var percent =  (total_val / annual[year])
     
     // Set the total value as data for element.
     var total = d3.select("svg").selectAll("g.title").data([total_val])
@@ -373,9 +373,9 @@ vizwhiz.viz.tree_map = function() {
     
     // Set the text value to the total $$$ amount
     total_text = total.select("text").text(function(d){
-      if (percent<0.99){
-        return "$"+d3.format(",f")(d)+"-- "+d3.format(".1%")(percent)+" of total";
-      }  
+      // if (percent<0.99){
+        // return "$"+d3.format(",f")(d)+"-- "+d3.format(".1%")(percent)+" of total";
+      // }  
         return "$"+d3.format(",f")(d);
     })
   
