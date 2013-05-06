@@ -30,25 +30,19 @@
     
   d3.json("data/geo/ap_munic.json", function(shapes) {
     d3.json("data/geo/land.json", function(land) {
-      d3.json("data/munic_ap.json", function(geo_data) {
+      d3.json("data/munic_a0112.json", function(geo_data) {
         d3.json("data/attr_munic.json", function(attr) {
         
-          var data = geo_data.filter(function(d){ return d.year == 2010; })
+          var data = geo_data.data.filter(function(d){ return d.year == 2010 && d.bra_id.substr(0,2) == "ap"; })
+          
           data2010 = {}
           for (var d in attr) {
-            var id = attr[d].id_mdic
-            var temp = data.filter(function(f){return f.id == d})[0]
-            if (temp) data2010[id] = vizwhiz.utils.merge(temp,attr[d])
-            else data2010[id] = attr[d]
+            if (d.substr(0,2) == "ap") {
+              var temp = data.filter(function(f){return f.bra_id == d})[0]
+              if (temp) data2010[d] = vizwhiz.utils.merge(temp,attr[d])
+              else data2010[d] = attr[d]
+            }
           }
-
-          var data = geo_data.filter(function(d){ return d.year == 2005; })
-          data2005 = {}
-          data.forEach(function(d){
-            var id = attr[d.id].id_mdic
-            data2005[id] = data.filter(function(f){return f.id == d.id})[0]
-            data2005[id] = vizwhiz.utils.merge(data2005[id],attr[d.id])
-          })
           
           viz = vizwhiz.viz.geo_map()
             .width(width)
@@ -63,13 +57,6 @@
           d3.select("#viz")
             .datum(data2010)
             .call(viz);
-            
-          // setTimeout(function(){
-          //   console.log("switch")
-          //   d3.select("#viz")
-          //     .datum(data2005)
-          //     .call(viz);
-          // },2000)
         
         });
       });

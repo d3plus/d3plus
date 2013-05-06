@@ -43,6 +43,14 @@ vizwhiz.viz.pie_scatter = function() {
 
   function chart(selection) {
     selection.each(function(data) {
+
+      var min_height = 400,
+          min_width = 400;
+  
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
+      
+      if (small) margin = {top: 0, right: 0, bottom: 0, left: 0}
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // INIT vars & data munging
@@ -195,13 +203,13 @@ vizwhiz.viz.pie_scatter = function() {
         .attr("font-family", "Helvetica")
         .attr("fill", "#4c4c4c")
         .attr('width', size.width)
-        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .attr("transform", "translate(" + (size.x-150) + "," + (size.y+size.height/2) + ") rotate(-90)")
         .text(yaxis_var)
         
       // update label
       d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
         .attr('width', size.width)
-        .attr("transform", "translate(" + (-size.x+25) + "," + (size.y+size.height/2) + ") rotate(-90)")
+        .attr("transform", "translate(" + (size.x-150) + "," + (size.y+size.height/2) + ") rotate(-90)")
       
       //===================================================================
       

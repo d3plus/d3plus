@@ -51,8 +51,15 @@ vizwhiz.viz.bubbles = function() {
       var this_selection = this,
           groups = {},
           donut_size = 0.4,
-          title_height = 30;
-            
+          title_height = 30,
+          min_height = 400,
+          min_width = 400;
+      
+      if (width > min_width && height > min_height) var small = false;
+      else var small = true;
+      
+      if (small) title_height = 0;
+      
       if (donut) var arc_offset = donut_size;
       else var arc_offset = 0;
       
@@ -208,6 +215,8 @@ vizwhiz.viz.bubbles = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New labels enter, initialize them here
       //-------------------------------------------------------------------
+
+      if (small) groups = {};
 
       var group = d3.select("g.groups").selectAll("g.group")
         .data(d3.values(groups),function(d){ return d.key })
