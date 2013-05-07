@@ -96,107 +96,20 @@ vizwhiz.viz.tree_map = function() {
         .data(tmap_data, function(d){ return d[id_var]; })
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Update, for cells that are already in existance
-      //-------------------------------------------------------------------
-      
-      // need to perform updates in "each" clause so that new data is 
-      // propogated down to rects and text elements
-      
-      cell.transition().duration(vizwhiz.timing)
-        .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; })
-        .attr("opacity", 1)
-        .each(function(g_data) {
-          
-          // update rectangles
-          d3.select(this).selectAll("rect").transition().duration(vizwhiz.timing)
-            .attr('width', function() {
-              return g_data.dx+'px'
-            })
-            .attr('height', function() { 
-              return g_data.dy+'px'
-            })
-            .attr('fill', function(d) {
-
-              // Check highlighting 
-              if (highlight && highlight.id!=d.community_id){
-                 return "#CCC";
-              }
-              
-              while(!d.color && d.children){
-                 d = d.children[0]
-              }
-                 return d.color ? d.color : vizwhiz.utils.rand_color()  ;
-            })
-
-          // text (name)
-          d3.select(this).selectAll("text.name")
-            .attr("opacity", function(){
-              return 0;
-            })
-            .transition().duration(vizwhiz.timing)
-            .each("end", function(q, i){
-              // need to recalculate word wrapping because dimensions have changed
-              if(g_data[text_var]){
-                if (name_array) {
-                  var text = []
-                  name_array.forEach(function(n){
-                    if (g_data[n]) text.push(g_data[n])
-                  })
-                } else {
-                  var text = g_data[id_var] ? [g_data[text_var],g_data[id_var]] : g_data[text_var]
-                }
-                vizwhiz.utils.wordwrap({
-                  "text": text,
-                  "parent": this,
-                  "width": g_data.dx,
-                  "height": g_data.dy,
-                  "resize": true
-                })
-              }
-              d3.select(this).transition().duration(vizwhiz.timing/2).attr("opacity", 1)
-            })
-
-          // text (share)
-          d3.select(this).selectAll("text.share").transition().duration(vizwhiz.timing)
-            .text(function(d){
-              var root = g_data;
-              while(root.parent){ root = root.parent; } // find top most parent ndoe
-              d.share = vizwhiz.utils.format_num(g_data.value/root.value, true, 2)
-              return d.share;
-            })
-            .attr('font-size',function(){
-              var size = (g_data.dx)/7
-              if(g_data.dx < g_data.dy) var size = g_data.dx/7
-              else var size = g_data.dy/7
-              if (size < 10) size = 10;
-              return size
-            })
-            .attr('x', function(){
-              return g_data.dx/2
-            })
-            .attr('y',function(){
-              return g_data.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
-            })
-            .each(function(d){
-              var el = d3.select(this).node().getBBox()
-              if (d.dx < el.width) d3.select(this).remove()
-              else if (d.dy < el.height) d3.select(this).remove()
-            })
-        })
-
-      //===================================================================
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // New cells enter, initialize them here
       //-------------------------------------------------------------------
       
       // cell aka container
       var cell_enter = cell.enter().append("g")
-        .attr("opacity", 1)
+        .attr("opacity", 0)
         .attr("transform", function(d) {
           return "translate(" + d.x + "," + d.y + ")"; 
         })
-      
+        .on(vizwhiz.evt.move, mouseover)
+        .on(vizwhiz.evt.out, function(d){
+          vizwhiz.tooltip.remove();
+        })
+        
       // rectangle
       cell_enter.append("rect")
         .attr("stroke","#ffffff")
@@ -215,10 +128,6 @@ vizwhiz.viz.tree_map = function() {
           // if a color cannot be found (at this depth of deeper) use random
           return d.color ? d.color : vizwhiz.utils.rand_color();
         })
-        .on(vizwhiz.evt.move, mouseover)
-        .on(vizwhiz.evt.out, function(d){
-          vizwhiz.tooltip.remove();
-        })
         
       // text (name)
       cell_enter.append("text")
@@ -231,28 +140,7 @@ vizwhiz.viz.tree_map = function() {
         .attr('y','0em')
         .attr('dy','1em')
         .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
-        .on(vizwhiz.evt.move, mouseover)
-        .on(vizwhiz.evt.out, function(d){
-          vizwhiz.tooltip.remove();
-        })
-        .each(function(d){
-          if (name_array) {
-            var text = []
-            name_array.forEach(function(n){
-              if (d[n]) text.push(d[n])
-            })
-          } else {
-            var text = d[id_var] ? [d[text_var],d[id_var]] : d[text_var]
-          }
-          vizwhiz.utils.wordwrap({
-            "text": text,
-            "parent": this,
-            "width": d.dx,
-            "height": d.dy,
-            "resize": true
-          })
-        })
-      
+        
       // text (share)
       cell_enter.append("text")
         .attr('class','share')
@@ -280,10 +168,6 @@ vizwhiz.viz.tree_map = function() {
         .attr('y',function(d){
           return d.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
         })
-        .on(vizwhiz.evt.move, mouseover)
-        .on(vizwhiz.evt.out, function(d){
-          vizwhiz.tooltip.remove();
-        })
         .each(function(d){
           var el = d3.select(this).node().getBBox()
           if (d.dx < el.width) d3.select(this).remove()
@@ -292,6 +176,94 @@ vizwhiz.viz.tree_map = function() {
         
         
       
+      //===================================================================
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Update, for cells that are already in existance
+      //-------------------------------------------------------------------
+      
+      // need to perform updates in "each" clause so that new data is 
+      // propogated down to rects and text elements
+      
+      cell.transition().duration(vizwhiz.timing)
+        .attr("transform", function(d) { 
+          return "translate(" + d.x + "," + d.y + ")"; 
+        })
+        .attr("opacity", 1)
+        
+      // update rectangles
+      cell.select("rect").transition().duration(vizwhiz.timing)
+        .attr('width', function(d) {
+          return d.dx+'px'
+        })
+        .attr('height', function(d) { 
+          return d.dy+'px'
+        })
+
+      // text (name)
+      cell.select("text.name").transition()
+        .duration(vizwhiz.timing/2)
+        .attr("opacity", 0)
+        .transition().duration(vizwhiz.timing/2)
+        .each("end", function(d){
+          
+          if(d[text_var] && d.dx > 40 && d.dy > 40){
+            if (name_array) {
+              var text = []
+              name_array.forEach(function(n){
+                if (d[n]) text.push(d[n])
+              })
+            } else {
+              var text = d[id_var] ? [d[text_var],d[id_var]] : d[text_var]
+            }
+            vizwhiz.utils.wordwrap({
+              "text": text,
+              "parent": this,
+              "width": d.dx,
+              "height": d.dy,
+              "resize": true
+            })
+          }
+          
+          d3.select(this).transition().duration(vizwhiz.timing/2)
+            .attr("opacity", 1)
+        })
+
+
+      // text (share)
+      cell.select("text.share").transition().duration(vizwhiz.timing/2)
+        .attr("opacity", 0)
+        .each("end",function(d){
+          d3.select(this)
+            .text(function(d){
+              var root = d.parent;
+              while(root.parent){ root = root.parent; } // find top most parent ndoe
+              d.share = vizwhiz.utils.format_num(d.value/root.value, true, 2)
+              return d.share;
+            })
+            .attr('font-size',function(d){
+              var size = (d.dx)/7
+              if(d.dx < d.dy) var size = d.dx/7
+              else var size = d.dy/7
+              if (size < 10) size = 10;
+              return size
+            })
+            .attr('x', function(d){
+              return d.dx/2
+            })
+            .attr('y',function(d){
+              return d.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
+            })
+            .each(function(d){
+              var el = d3.select(this).node().getBBox()
+              if (d.dx < el.width) d3.select(this).remove()
+              else if (d.dy < el.height) d3.select(this).remove()
+            })
+          d3.select(this).transition().duration(vizwhiz.timing/2)
+            .attr("opacity", 1)
+        })
+        
+
       //===================================================================
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -70,12 +70,11 @@ d3.json("data/products_mg.json", function(raw_data){
       })
       
       var data_2005 = vizwhiz.utils.nest(new_data, ["nesting_0","nesting_1","nesting_2"], false, [{"key":"color"}])
-      console.log("Start")
       d3.select("#viz")
         .datum(data_2005)
         .call(viz)
       
-    },2000)
+    },4000)
     
   })
 })
