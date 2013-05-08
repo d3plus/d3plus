@@ -20,11 +20,9 @@
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
 <script src="../src/tooltip.js"></script>
+<script src="../src/viz/viz.js"></script>
 <script src="../src/viz/bubbles.js"></script>
 <script>
-
-  var width = window.innerWidth,
-      height = window.innerHeight;
     
   d3.json("data/products_mg.json", function(raw_data) {
     d3.json("data/attr_hs.json", function(attr) {
@@ -65,13 +63,12 @@
         data2003.push(obj)
       })
       
-      viz = vizwhiz.viz.bubbles()
-        .width(width)
-        .height(height)
+      viz = vizwhiz.viz()
+        .type("bubbles")
         .id_var("id")
         .value_var("importance")
         .text_var("name")
-        .avail_var("Employed")
+        .active_var("Employed")
         .tooltip_info(["test","available","total","elsewhere","val_usd","val_quantity","val_kg"])
         .grouping("category");
         

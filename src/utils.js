@@ -95,7 +95,7 @@ vizwhiz.utils.rename_key_value = function(obj) {
 //-------------------------------------------------------------------
 
 vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
-
+  
   var flattened = [];
   var nested_data = d3.nest();
   
@@ -123,6 +123,7 @@ vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
         
         if(extra){
           extra.forEach(function(e){
+            
             if(e.agg == "sum"){
               to_return[e.key] = d3.sum(leaves, function(d){ return d[e.key]; })
             }

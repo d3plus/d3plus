@@ -22,12 +22,10 @@
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
 <script src="../src/tooltip.js"></script>
+<script src="../src/viz/viz.js"></script>
 <script src="../src/viz/geo_map.js"></script>
 <script>
 
-  var width = window.innerWidth,
-      height = window.innerHeight;
-    
   d3.json("data/geo/ap_munic.json", function(shapes) {
     d3.json("data/geo/land.json", function(land) {
       d3.json("data/munic_a0112.json", function(geo_data) {
@@ -44,11 +42,10 @@
             }
           }
           
-          viz = vizwhiz.viz.geo_map()
-            .width(width)
-            .height(height)
+          viz = vizwhiz.viz()
+            .type("geo_map")
             .coords(shapes)
-            .background(land)
+            .map(land)
             .id_var("id")
             .value_var("wage")
             .text_var("name")

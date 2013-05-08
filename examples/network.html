@@ -20,11 +20,11 @@
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
 <script src="../src/tooltip.js"></script>
+<script src="../src/viz/viz.js"></script>
 <script src="../src/viz/network.js"></script>
 <script>
 
-  var width = window.innerWidth,
-      height = window.innerHeight,
+  var viz = vizwhiz.viz(),
       viz_nodes = [
           {"id": "a", "x": 20, "y": 25},
           {"id": "b", "x": 30, "y": 40},
@@ -86,9 +86,8 @@
           data[d.id].active = data[d.id].rca >= 1 ? true : false
         })
         
-        viz = vizwhiz.viz.network()
-          .width(width)
-          .height(height)
+        viz
+          .type("network")
           .nodes(viz_nodes)
           .links(viz_links)
           .value_var("val_usd")

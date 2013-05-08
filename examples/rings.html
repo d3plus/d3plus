@@ -17,11 +17,12 @@ body {
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
 <script src="../src/tooltip.js"></script>
+<script src="../src/viz/viz.js"></script>
 <script src="../src/viz/rings.js"></script>
 
 <script>
 
-var viz = vizwhiz.viz.rings()
+var viz = vizwhiz.viz()
 
 d3.json("data/attr_hs.json", function(attr) {
   d3.json("data/network_hs.json", function(hs) {
@@ -48,6 +49,7 @@ d3.json("data/attr_hs.json", function(attr) {
       })
       
       viz
+        .type("rings")
         .text_var("name")
         .id_var("id")
         .links(viz_links)
@@ -57,7 +59,7 @@ d3.json("data/attr_hs.json", function(attr) {
         // .center("157202") // ferroalloys
         .center("178703") // cars
         // .center("168480") // molding boxes
-        .tooltip_info(["distance", "complexity", "value"])
+        .tooltip_info(["id","distance", "complexity", "value"])
 
       // viz
       //   .text_var("name")

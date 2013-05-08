@@ -17,6 +17,7 @@ body {
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
 <script src="../src/tooltip.js"></script>
+<script src="../src/viz/viz.js"></script>
 <script src="../src/viz/stacked.js"></script>
 <script>
 
@@ -51,11 +52,10 @@ var sample_data = [
   {"continent": "North America", "country": "United States of America", "year": 2001, "value": 5731, "color": "#ca3422", "state": "ny"}
 ]
 
-var viz = vizwhiz.viz.stacked()
-  .nesting(["nesting_0", "nesting_1"])
+var viz = vizwhiz.viz()
+  .type("stacked")
   .xaxis_var("year")
   .value_var("val_usd")
-  .title("Title of the chart")
   .tooltip_info(["id", "complexity", "distance"])
   .text_var("name")
   .id_var("id")

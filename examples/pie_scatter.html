@@ -17,11 +17,12 @@ body {
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
 <script src="../src/tooltip.js"></script>
+<script src="../src/viz/viz.js"></script>
 <script src="../src/viz/pie_scatter.js"></script>
 
 <script>
 
-var viz = vizwhiz.viz.pie_scatter()
+var viz = vizwhiz.viz()
 
 d3.json("data/products_mg.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){
@@ -61,6 +62,7 @@ d3.json("data/products_mg.json", function(flat_data){
         [{"key":"val_usd", "agg":"sum"}, {"key":"complexity", "agg":"avg"}, {"key":"distance", "agg":"avg"}, {"key":"color"}])
 
     viz
+      .type("pie_scatter")
       .text_var("name")
       .id_var("id")
       .xaxis_var("distance")

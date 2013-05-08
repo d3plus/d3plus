@@ -9,7 +9,6 @@ vizwhiz.timing = 600; // milliseconds for animations
 
 vizwhiz.tooltip = {}; // For the tooltip system
 vizwhiz.utils = {}; // Utility subsystem
-vizwhiz.viz = {}; //stores all the possible visualizations
 vizwhiz.evt = {}; // stores all mouse events that could occur
 
 // Modernizr touch events

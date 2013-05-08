@@ -3,6 +3,7 @@ JS_FILES = \
 	src/general.js \
 	src/utils.js \
 	src/tooltip.js \
+	src/viz/viz.js \
 	src/viz/network.js \
 	src/viz/stacked.js \
 	src/viz/tree_map.js \

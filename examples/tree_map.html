@@ -17,14 +17,11 @@ body {
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
 <script src="../src/tooltip.js"></script>
+<script src="../src/viz/viz.js"></script>
 <script src="../src/viz/tree_map.js"></script>
 <script>
 
-var width = 960,
-  height = 550,
-  margin = {top: 5, right: 40, bottom: 20, left: 120};
-
-var viz = vizwhiz.viz.tree_map();
+var viz = vizwhiz.viz()
 
 d3.json("data/products_mg.json", function(raw_data){
   d3.json("data/attr_hs.json", function(attrs){
@@ -41,40 +38,46 @@ d3.json("data/products_mg.json", function(raw_data){
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
     
-    var nested_data = vizwhiz.utils.nest(flat_data, ["nesting_0","nesting_1","nesting_2"], false, [{"key":"color"}])
-    
+    var nested_data = vizwhiz.utils.nest(
+      flat_data, 
+      ["nesting_0","nesting_1","nesting_2"], 
+      false, 
+      [{"key":"color"},{"key":"value", "agg":"sum"}])
+    console.log(flat_data,nested_data)
     viz
+      .type("tree_map")
       .id_var("id")
       .text_var("name")
       .value_var("value")
       .tooltip_info(["distance", "complexity", "value"])
       .name_array(["name","id"])
+      .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
       
     d3.select("#viz")
       .datum(nested_data)
       .call(viz)
     
-    setTimeout(function(){
-      
-      // test for animating between years
-      var new_data = raw_data.filter(function(d){
-        return d.year == 2005;
-      })
-    
-      new_data.map(function(d, i){
-        d.value = d.val_usd;
-        d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
-        d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
-        d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-        new_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
-      })
-      
-      var data_2005 = vizwhiz.utils.nest(new_data, ["nesting_0","nesting_1","nesting_2"], false, [{"key":"color"}])
-      d3.select("#viz")
-        .datum(data_2005)
-        .call(viz)
-      
-    },4000)
+    // setTimeout(function(){
+    //   
+    //   // test for animating between years
+    //   var new_data = raw_data.filter(function(d){
+    //     return d.year == 2005;
+    //   })
+    // 
+    //   new_data.map(function(d, i){
+    //     d.value = d.val_usd;
+    //     d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+    //     d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+    //     d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+    //     new_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+    //   })
+    //   
+    //   var data_2005 = vizwhiz.utils.nest(new_data, ["nesting_0","nesting_1","nesting_2"], false, [{"key":"color"}])
+    //   d3.select("#viz")
+    //     .datum(data_2005)
+    //     .call(viz)
+    //   
+    // },4000)
     
   })
 })
