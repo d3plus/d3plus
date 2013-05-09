@@ -201,15 +201,15 @@ vizwhiz.network = function(data,vars) {
   function link_position(l) {
     l
       .attr("x1", function(d) { return scale.x(d.source.x); })
-      .attr("y1", function(d) { return scale.y(d.source.y)+vars.margin.top; })
+      .attr("y1", function(d) { return scale.y(d.source.y); })
       .attr("x2", function(d) { return scale.x(d.target.x); })
-      .attr("y2", function(d) { return scale.y(d.target.y)+vars.margin.top; });
+      .attr("y2", function(d) { return scale.y(d.target.y); });
   }
   
   function bg_size(b) {
     b
       .attr("cx", function(d) { return scale.x(d.x); })
-      .attr("cy", function(d) { return scale.y(d.y)+vars.margin.top; })
+      .attr("cy", function(d) { return scale.y(d.y); })
       .attr("r", function(d) { 
         var value = data[d[vars.id_var]][vars.value_var] ? data[d[vars.id_var]][vars.value_var] : 0,
             buffer = data[d[vars.id_var]][vars.active_var] ? 3 : 2
@@ -222,7 +222,7 @@ vizwhiz.network = function(data,vars) {
   function node_size(n) {
     n
       .attr("cx", function(d) { return scale.x(d.x); })
-      .attr("cy", function(d) { return scale.y(d.y)+vars.margin.top; })
+      .attr("cy", function(d) { return scale.y(d.y); })
       .attr("r", function(d) { 
         var value = data[d[vars.id_var]][vars.value_var] ? data[d[vars.id_var]][vars.value_var] : 0
         return value > 0 ? scale.size(value) : scale.size(val_range[0])
