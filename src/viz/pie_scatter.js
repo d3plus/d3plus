@@ -105,13 +105,13 @@ vizwhiz.pie_scatter = function(data,vars) {
 
   graph = {
         "width": vars.width-graph_margin.left-graph_margin.right,
-        "height": vars.height-graph_margin.top-graph_margin.bottom-vars.margin.top,
+        "height": vars.height-graph_margin.top-graph_margin.bottom,
         "x": graph_margin.left,
         "y": graph_margin.top+vars.margin.top
       }
   
   // container for the visualization
-  var viz_enter = vars.svg_enter.append("g").attr("class", "viz")
+  var viz_enter = vars.parent_enter.append("g").attr("class", "viz")
     .attr("transform", "translate(" + graph.x + "," + graph.y + ")")
 
   // add grey background for viz
@@ -126,9 +126,11 @@ vizwhiz.pie_scatter = function(data,vars) {
     .attr('height', graph.height)
     
   // update (in case width and height are changed)
-  d3.select(".viz rect").transition().duration(vizwhiz.timing)
-    .attr('width', graph.width)
-    .attr('height', graph.height)
+  d3.select(".viz").transition().duration(vizwhiz.timing)
+    .attr("transform", "translate(" + graph.x + "," + graph.y + ")")
+    .select("rect")
+      .attr('width', graph.width)
+      .attr('height', graph.height)
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // INIT vars & data munging

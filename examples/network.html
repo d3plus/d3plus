@@ -91,7 +91,8 @@
           .nodes(viz_nodes)
           .links(viz_links)
           .value_var("val_usd")
-          .tooltip_info(["id","val_usd","val_quantity","val_kg","complexity","distance","rca"]);
+          .tooltip_info(["id","val_usd","val_quantity","val_kg","complexity","distance","rca"])
+          .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"});
           
         d3.select("#viz")
           .datum(data)
@@ -105,13 +106,13 @@
           data2[d.id].active = data2[d.id].rca >= 1 ? true : false
         })
           
-        setTimeout(function(){
-          
-          d3.select("#viz")
-            .datum(data2)
-            .call(viz);
-            
-        },2000)
+        // setTimeout(function(){
+        //   
+        //   d3.select("#viz")
+        //     .datum(data2)
+        //     .call(viz);
+        //     
+        // },2000)
         
         function get_rca(item){
 

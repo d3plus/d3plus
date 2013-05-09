@@ -66,16 +66,13 @@ vizwhiz.network = function(data,vars) {
     .domain(val_range)
     .range([min_size, max_size])
     
-  // Create viz group on vars.svg_enter
-  var viz_enter = vars.svg_enter.append("g")
+  // Create viz group on vars.parent_enter
+  var viz_enter = vars.parent_enter.append("g")
     .call(zoom_behavior.on("zoom",function(){ zoom(); }))
     .on(vizwhiz.evt.down,function(d){dragging = true})
     .on(vizwhiz.evt.up,function(d){dragging = false})
     .append('g')
       .attr('class','viz')
-    
-  // d3.select("g.parent")
-  //   .attr("translate","transform("+vars.margin.left+","+vars.margin.top+")")
     
   viz_enter.append('rect')
     .attr('class','overlay')
@@ -104,7 +101,7 @@ vizwhiz.network = function(data,vars) {
     .attr('class','highlight')
     
   if (!vars.small) {
-    // Create Zoom Controls div on vars.svg_enter
+    // Create Zoom Controls div on vars.parent_enter
     vars.parent.select("div#zoom_controls").remove()
     var zoom_div = vars.parent.append("div")
       .attr("id","zoom_controls")

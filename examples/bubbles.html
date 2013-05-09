@@ -70,7 +70,8 @@
         .text_var("name")
         .active_var("Employed")
         .tooltip_info(["test","available","total","elsewhere","val_usd","val_quantity","val_kg"])
-        .grouping("category");
+        .grouping("category")
+        .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"});
         
       d3.select("#viz")
         .datum(data2010)

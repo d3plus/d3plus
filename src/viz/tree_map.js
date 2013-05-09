@@ -14,30 +14,7 @@ vizwhiz.tree_map = function(data,vars) {
       return !d.children;
     })
   
-  // If it's the first time the app is being built, add group for nodes
-  vars.svg_enter.append("clipPath")
-    .attr("id","clipping")
-    .append("rect")
-      .attr("width",vars.width)
-      .attr("height",vars.height)
-      
-  d3.select("#clipping rect").transition(vizwhiz.timing)
-    .attr("width",vars.width)
-    .attr("height",vars.height)
-    
-    
-  vars.svg_enter.append("g")
-    .attr("class", "viz")
-    // .attr("transform", function(d){ return "translate("+(stroke_width/2)+", "+height+")"; })
-    .attr("clip-path","url(#clipping)")
-  
-  // Move treemap itself to accommodate total  
-  d3.select("g.viz")
-    .attr("transform", function(d){
-      return "translate(0, "+vars.margin.top+")";
-    })
-  
-  var cell = d3.select("g.viz").selectAll("g")
+  var cell = d3.select("g.parent").selectAll("g")
     .data(tmap_data, function(d){ return d[vars.id_var]; })
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

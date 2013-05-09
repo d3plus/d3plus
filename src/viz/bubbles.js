@@ -153,13 +153,13 @@ vizwhiz.bubbles = function(data,vars) {
   // Set up initial SVG groups
   //-------------------------------------------------------------------
     
-  vars.svg_enter.append('g')
+  vars.parent_enter.append('g')
     .attr('class','groups');
     
-  vars.svg_enter.append('g')
+  vars.parent_enter.append('g')
     .attr('class','bubbles');
     
-  vars.svg_enter.append('g')
+  vars.parent_enter.append('g')
     .attr('class','labels');
     
   //===================================================================

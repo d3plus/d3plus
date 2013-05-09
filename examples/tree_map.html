@@ -43,7 +43,7 @@ d3.json("data/products_mg.json", function(raw_data){
       ["nesting_0","nesting_1","nesting_2"], 
       false, 
       [{"key":"color"},{"key":"value", "agg":"sum"}])
-    console.log(flat_data,nested_data)
+      
     viz
       .type("tree_map")
       .id_var("id")

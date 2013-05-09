@@ -59,6 +59,7 @@ var viz = vizwhiz.viz()
   .tooltip_info(["id", "complexity", "distance"])
   .text_var("name")
   .id_var("id")
+  .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
 
 d3.json("data/products_mg.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){

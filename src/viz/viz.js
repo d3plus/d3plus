@@ -33,6 +33,7 @@ vizwhiz.viz = function() {
     "name_array": null,
     "nodes": null,
     "order": "asc",
+    "projection": d3.geo.mercator(),
     "solo": [],
     "sort": "total",
     "spotlight": true,
@@ -47,7 +48,8 @@ vizwhiz.viz = function() {
     "xaxis_domain": null,
     "xaxis_var": null,
     "yaxis_domain": null,
-    "yaxis_var": null
+    "yaxis_var": null,
+    "zoom_behavior": d3.behavior.zoom()
   }
   
   //===================================================================
@@ -62,6 +64,8 @@ vizwhiz.viz = function() {
       public_variables.svg_enter = public_variables.svg.enter().append("svg")
         .attr('width',public_variables.svg_width)
         .attr('height',public_variables.svg_height)
+        .style("z-index", 10)
+        .style("position","absolute");
     
       public_variables.svg.transition().duration(vizwhiz.timing)
         .attr('width',public_variables.svg_width)
@@ -78,9 +82,19 @@ vizwhiz.viz = function() {
           return false;
         })
 
-        var total_val = d3.sum(filtered_data.children, function(d){ 
-          return d[public_variables.value_var] 
+        var val = public_variables.value_var
+        var total_val = d3.sum(filtered_data.children,function(d) {
+          return check_for_value(d);
         })
+        
+        function check_for_value(d) {
+          if (d[val]) return d[val]
+          else if (d.children) {
+            return d3.sum(d.children,function(dd) {
+              return check_for_value(dd);
+            })
+          }
+        }
         
       }
       else if (data instanceof Array) {
@@ -119,19 +133,43 @@ vizwhiz.viz = function() {
         public_variables.small = false;
       }
       
+      public_variables.width = public_variables.svg_width;
+      
       if (public_variables.total_bar) {
         public_variables.margin.top = 20;
+        public_variables.height = public_variables.svg_height - public_variables.margin.top;
         make_total(total_val);
       }
       else {
         public_variables.margin.top = 0;
+        public_variables.height = public_variables.svg_height;
         public_variables.svg.selectAll("g.title")
           .transition().duration(vizwhiz.timing)
           .style("opacity",0)
           .remove();
       }
-      public_variables.height = public_variables.svg_height - public_variables.margin.top;
-      public_variables.width = public_variables.svg_width;
+      
+      public_variables.svg_enter.append("clipPath")
+        .attr("id","clipping")
+        .append("rect")
+          .attr("width",public_variables.width)
+          .attr("height",public_variables.height)
+      
+      public_variables.svg.select("#clipping rect").transition().duration(vizwhiz.timing)
+        .attr("width",public_variables.width)
+        .attr("height",public_variables.height)
+    
+      public_variables.parent_enter = public_variables.svg_enter.append("g")
+        .attr("class","parent")
+        .attr("width",public_variables.width)
+        .attr("height",public_variables.height)
+        .attr("clip-path","url(#clipping)")
+        .attr("transform","translate("+public_variables.margin.left+","+public_variables.margin.top+")")
+    
+      public_variables.svg.select("g.parent").transition().duration(vizwhiz.timing)
+        .attr("width",public_variables.width)
+        .attr("height",public_variables.height)
+        .attr("transform","translate("+public_variables.margin.left+","+public_variables.margin.top+")")
       
       vizwhiz[public_variables.type](filtered_data,public_variables);
       

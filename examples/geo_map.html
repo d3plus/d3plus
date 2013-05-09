@@ -49,11 +49,29 @@
             .id_var("id")
             .value_var("wage")
             .text_var("name")
-            .tooltip_info(["wage","num_emp","num_est"]);
+            .tooltip_info(["wage","num_emp","num_est"])
+            .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"});
           
           d3.select("#viz")
             .datum(data2010)
             .call(viz);
+            
+          var data = geo_data.data.filter(function(d){ return d.year == 2005 && d.bra_id.substr(0,2) == "ap"; })
+          
+          data2005 = {}
+          for (var d in attr) {
+            if (d.substr(0,2) == "ap") {
+              var temp = data.filter(function(f){return f.bra_id == d})[0]
+              if (temp) data2005[d] = vizwhiz.utils.merge(temp,attr[d])
+              else data2005[d] = attr[d]
+            }
+          }
+          
+          setTimeout(function(){
+            d3.select("#viz")
+              .datum(data2005)
+              .call(viz);
+          },2000)
         
         });
       });

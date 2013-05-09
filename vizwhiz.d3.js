@@ -700,6 +700,7 @@ vizwhiz.viz = function() {
     "name_array": null,
     "nodes": null,
     "order": "asc",
+    "projection": d3.geo.mercator(),
     "solo": [],
     "sort": "total",
     "spotlight": true,
@@ -714,7 +715,8 @@ vizwhiz.viz = function() {
     "xaxis_domain": null,
     "xaxis_var": null,
     "yaxis_domain": null,
-    "yaxis_var": null
+    "yaxis_var": null,
+    "zoom_behavior": d3.behavior.zoom()
   }
   
   //===================================================================
@@ -729,6 +731,8 @@ vizwhiz.viz = function() {
       public_variables.svg_enter = public_variables.svg.enter().append("svg")
         .attr('width',public_variables.svg_width)
         .attr('height',public_variables.svg_height)
+        .style("z-index", 10)
+        .style("position","absolute");
     
       public_variables.svg.transition().duration(vizwhiz.timing)
         .attr('width',public_variables.svg_width)
@@ -745,9 +749,19 @@ vizwhiz.viz = function() {
           return false;
         })
 
-        var total_val = d3.sum(filtered_data.children, function(d){ 
-          return d[public_variables.value_var] 
+        var val = public_variables.value_var
+        var total_val = d3.sum(filtered_data.children,function(d) {
+          return check_for_value(d);
         })
+        
+        function check_for_value(d) {
+          if (d[val]) return d[val]
+          else if (d.children) {
+            return d3.sum(d.children,function(dd) {
+              return check_for_value(dd);
+            })
+          }
+        }
         
       }
       else if (data instanceof Array) {
@@ -786,19 +800,43 @@ vizwhiz.viz = function() {
         public_variables.small = false;
       }
       
+      public_variables.width = public_variables.svg_width;
+      
       if (public_variables.total_bar) {
         public_variables.margin.top = 20;
+        public_variables.height = public_variables.svg_height - public_variables.margin.top;
         make_total(total_val);
       }
       else {
         public_variables.margin.top = 0;
+        public_variables.height = public_variables.svg_height;
         public_variables.svg.selectAll("g.title")
           .transition().duration(vizwhiz.timing)
           .style("opacity",0)
           .remove();
       }
-      public_variables.height = public_variables.svg_height - public_variables.margin.top;
-      public_variables.width = public_variables.svg_width;
+      
+      public_variables.svg_enter.append("clipPath")
+        .attr("id","clipping")
+        .append("rect")
+          .attr("width",public_variables.width)
+          .attr("height",public_variables.height)
+      
+      public_variables.svg.select("#clipping rect").transition().duration(vizwhiz.timing)
+        .attr("width",public_variables.width)
+        .attr("height",public_variables.height)
+    
+      public_variables.parent_enter = public_variables.svg_enter.append("g")
+        .attr("class","parent")
+        .attr("width",public_variables.width)
+        .attr("height",public_variables.height)
+        .attr("clip-path","url(#clipping)")
+        .attr("transform","translate("+public_variables.margin.left+","+public_variables.margin.top+")")
+    
+      public_variables.svg.select("g.parent").transition().duration(vizwhiz.timing)
+        .attr("width",public_variables.width)
+        .attr("height",public_variables.height)
+        .attr("transform","translate("+public_variables.margin.left+","+public_variables.margin.top+")")
       
       vizwhiz[public_variables.type](filtered_data,public_variables);
       
@@ -1261,16 +1299,13 @@ vizwhiz.network = function(data,vars) {
     .domain(val_range)
     .range([min_size, max_size])
     
-  // Create viz group on vars.svg_enter
-  var viz_enter = vars.svg_enter.append("g")
+  // Create viz group on vars.parent_enter
+  var viz_enter = vars.parent_enter.append("g")
     .call(zoom_behavior.on("zoom",function(){ zoom(); }))
     .on(vizwhiz.evt.down,function(d){dragging = true})
     .on(vizwhiz.evt.up,function(d){dragging = false})
     .append('g')
       .attr('class','viz')
-    
-  // d3.select("g.parent")
-  //   .attr("translate","transform("+vars.margin.left+","+vars.margin.top+")")
     
   viz_enter.append('rect')
     .attr('class','overlay')
@@ -1299,7 +1334,7 @@ vizwhiz.network = function(data,vars) {
     .attr('class','highlight')
     
   if (!vars.small) {
-    // Create Zoom Controls div on vars.svg_enter
+    // Create Zoom Controls div on vars.parent_enter
     vars.parent.select("div#zoom_controls").remove()
     var zoom_div = vars.parent.append("div")
       .attr("id","zoom_controls")
@@ -2006,11 +2041,11 @@ vizwhiz.stacked = function(data,vars) {
   
   graph = {
         "width": vars.width-graph_margin.left-graph_margin.right,
-        "height": vars.height-graph_margin.top-graph_margin.bottom-vars.margin.top,
+        "height": vars.height-graph_margin.top-graph_margin.bottom,
         "x": graph_margin.left,
         "y": graph_margin.top+vars.margin.top
       }
-  
+      
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // INIT vars & data munging
   //-------------------------------------------------------------------
@@ -2050,7 +2085,7 @@ vizwhiz.stacked = function(data,vars) {
     .y1(function(d) { return y_scale(d.y0 + d.y); });
   
   // container for the visualization
-  var viz_enter = vars.svg_enter.append("g")
+  var viz_enter = vars.parent_enter.append("g")
     .attr("class", "viz")
     .attr("width", graph.width)
     .attr("height", graph.height)
@@ -2069,10 +2104,14 @@ vizwhiz.stacked = function(data,vars) {
     .attr('height', graph.height)
   
   // update (in case width and height are changed)
-  d3.select(".viz rect").transition().duration(vizwhiz.timing)
-    .attr("opacity",1)
+  d3.select(".viz").transition().duration(vizwhiz.timing)
     .attr('width', graph.width)
     .attr('height', graph.height)
+    .attr("transform", "translate(" + graph.x + "," + graph.y + ")")
+    .select(".viz rect")
+      .attr("opacity",1)
+      .attr('width', graph.width)
+      .attr('height', graph.height)
   
   //===================================================================
   
@@ -2259,7 +2298,7 @@ vizwhiz.stacked = function(data,vars) {
   
   if (!vars.small) {
 
-    var defs = vars.svg_enter.append('svg:defs')
+    var defs = vars.parent_enter.append('svg:defs')
     vizwhiz.utils.drop_shadow(defs)
   
     // filter layers to only the ones with a height larger than 6% of viz
@@ -2519,30 +2558,7 @@ vizwhiz.tree_map = function(data,vars) {
       return !d.children;
     })
   
-  // If it's the first time the app is being built, add group for nodes
-  vars.svg_enter.append("clipPath")
-    .attr("id","clipping")
-    .append("rect")
-      .attr("width",vars.width)
-      .attr("height",vars.height)
-      
-  d3.select("#clipping rect").transition(vizwhiz.timing)
-    .attr("width",vars.width)
-    .attr("height",vars.height)
-    
-    
-  vars.svg_enter.append("g")
-    .attr("class", "viz")
-    // .attr("transform", function(d){ return "translate("+(stroke_width/2)+", "+height+")"; })
-    .attr("clip-path","url(#clipping)")
-  
-  // Move treemap itself to accommodate total  
-  d3.select("g.viz")
-    .attr("transform", function(d){
-      return "translate(0, "+vars.margin.top+")";
-    })
-  
-  var cell = d3.select("g.viz").selectAll("g")
+  var cell = d3.select("g.parent").selectAll("g")
     .data(tmap_data, function(d){ return d[vars.id_var]; })
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -2732,24 +2748,21 @@ vizwhiz.geo_map = function(data,vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables with Default Settings
   //-------------------------------------------------------------------
-      
+  
   if (vars.init) {
     
-    var projection = d3.geo.mercator()
+    vars.projection
       .scale(vars.width/(2*Math.PI))
       .translate([vars.width/2,vars.height/2]);
       
-    var initial_width = vars.width
-    var initial_height = vars.height
-      
-    var zoom_behavior = d3.behavior.zoom()
-      .scale(projection.scale()*2*Math.PI)
-      .translate(projection.translate())
+    vars.zoom_behavior
+      .scale(vars.projection.scale()*2*Math.PI)
+      .translate(vars.projection.translate())
       .on("zoom",function(d){ zoom(d); })
       .scaleExtent([vars.width, 1 << 23]);
       
   }
-
+  
   var default_opacity = 0.25,
       select_opacity = 0.75,
       stroke_width = 1,
@@ -2758,10 +2771,10 @@ vizwhiz.geo_map = function(data,vars) {
       info_width = 300,
       scale_height = 10,
       scale_padding = 20,
-      path = d3.geo.path().projection(projection),
+      path = d3.geo.path().projection(vars.projection),
       tile = d3.geo.tile().size([vars.width, vars.height]),
-      old_scale = projection.scale()*2*Math.PI,
-      old_translate = projection.translate();
+      old_scale = vars.projection.scale()*2*Math.PI,
+      old_translate = vars.projection.translate();
 
   //===================================================================
   
@@ -2782,23 +2795,17 @@ vizwhiz.geo_map = function(data,vars) {
   }
 
   //===================================================================
-  
-  // Select the svg element, if it exists.
-  
-  vars.svg
-    .style("z-index", 10)
-    .style("position","absolute");
     
-  var defs = vars.svg_enter.append("defs")
+  var defs = vars.parent_enter.append("defs")
     
   if (vars.map.coords) {
         
-    vars.svg_enter.append("rect")
+    vars.parent_enter.append("rect")
       .attr("width",vars.width)
       .attr("height",vars.height)
       .attr(vars.map.style.water);
       
-    vars.svg_enter.append("g")
+    vars.parent_enter.append("g")
       .attr("id","land")
       .attr("class","viz")
           
@@ -2811,15 +2818,15 @@ vizwhiz.geo_map = function(data,vars) {
         
   }
 
-  vars.svg_enter.append('g')
+  vars.parent_enter.append('g')
     .attr('class','tiles');
     
   if (vars.tiles) update_tiles(0);
   else d3.selectAll("g.tiles *").remove()
     
   // Create viz group on vars.svg_enter
-  var viz_enter = vars.svg_enter.append('g')
-    .call(zoom_behavior)
+  var viz_enter = vars.parent_enter.append('g')
+    .call(vars.zoom_behavior)
     .on(vizwhiz.evt.down,function(d){dragging = true})
     .on(vizwhiz.evt.up,function(d){dragging = false})
     .append('g')
@@ -2863,7 +2870,7 @@ vizwhiz.geo_map = function(data,vars) {
         .attr("stop-opacity", 1)
     })
     
-    var scale = vars.svg_enter.append('g')
+    var scale = vars.parent_enter.append('g')
       .attr('class','scale')
       .attr("transform","translate("+(vars.width-info_width-5)+","+5+")");
     
@@ -2930,6 +2937,9 @@ vizwhiz.geo_map = function(data,vars) {
     vars.parent.select("div#zoom_controls").remove()
     var zoom_div = vars.parent.append("div")
       .attr("id","zoom_controls")
+      .style("top",function(){
+        return this.offsetTop+vars.margin.top+"px";
+      })
     
     zoom_div.append("div")
       .attr("id","zoom_in")
@@ -3066,19 +3076,19 @@ vizwhiz.geo_map = function(data,vars) {
   
   function zoom(param,custom_timing) {
     
-    var translate = zoom_behavior.translate(),
-        zoom_extent = zoom_behavior.scaleExtent()
+    var translate = vars.zoom_behavior.translate(),
+        zoom_extent = vars.zoom_behavior.scaleExtent()
         
-    var scale = zoom_behavior.scale()
+    var scale = vars.zoom_behavior.scale()
     
     if (param == "in") var scale = scale*2
     else if (param == "out") var scale = scale*0.5
     
-    var svg_scale = scale/initial_width,
-        svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/initial_width)*initial_height)/2)]
+    var svg_scale = scale/vars.width,
+        svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/vars.width)*vars.height)/2)]
         
-    old_scale = projection.scale()*2*Math.PI
-    old_translate = projection.translate()
+    old_scale = vars.projection.scale()*2*Math.PI
+    old_translate = vars.projection.translate()
         
     if (param.coordinates) {
       
@@ -3091,30 +3101,30 @@ vizwhiz.geo_map = function(data,vars) {
       var b = path.bounds(param),
           w = (b[1][0] - b[0][0])*1.1,
           h = (b[1][1] - b[0][1])*1.1,
-          s_width = (w_avail*(scale/initial_width))/w,
-          s_height = (vars.height*(scale/initial_width))/h
+          s_width = (w_avail*(scale/vars.width))/w,
+          s_height = (vars.height*(scale/vars.width))/h
           
       if (s_width < s_height) {
-        var s = s_width*initial_width,
-            offset_left = ((w_avail-(((w/1.1)/svg_scale)*s/initial_width))/2)+left,
-            offset_top = (vars.height-((h/svg_scale)*s/initial_width))/2
+        var s = s_width*vars.width,
+            offset_left = ((w_avail-(((w/1.1)/svg_scale)*s/vars.width))/2)+left,
+            offset_top = (vars.height-((h/svg_scale)*s/vars.width))/2
       } else {
-        var s = s_height*initial_width,
-            offset_left = ((w_avail-((w/svg_scale)*s/initial_width))/2)+left,
-            offset_top = (vars.height-(((h/1.1)/svg_scale)*s/initial_width))/2
+        var s = s_height*vars.width,
+            offset_left = ((w_avail-((w/svg_scale)*s/vars.width))/2)+left,
+            offset_top = (vars.height-(((h/1.1)/svg_scale)*s/vars.width))/2
       }
       
-      var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/initial_width)+offset_left,
-          t_y = ((-(b[0][1]-svg_translate[1])/svg_scale)*s/initial_width)+offset_top
+      var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/vars.width)+offset_left,
+          t_y = ((-(b[0][1]-svg_translate[1])/svg_scale)*s/vars.width)+offset_top
           
-      var t = [t_x+(s/2),t_y+(((s/initial_width)*initial_height)/2)]
+      var t = [t_x+(s/2),t_y+(((s/vars.width)*vars.height)/2)]
       
       translate = t
       scale = s
       
     } else if (param == "in" || param == "out") {
       
-      var b = projection.translate()
+      var b = vars.projection.translate()
       
       if (param == "in") translate = [b[0]+(b[0]-(vars.width/2)),b[1]+(b[1]-(vars.height/2))]
       else if (param == "out") translate = [b[0]+(((vars.width/2)-b[0])/2),b[1]+(((vars.height/2)-b[1])/2)]
@@ -3130,10 +3140,10 @@ vizwhiz.geo_map = function(data,vars) {
     if (translate[1] > scale/2) translate[1] = scale/2
     else if (translate[1] < vars.height-scale/2) translate[1] = vars.height-scale/2
 
-    projection.scale(scale/(2*Math.PI)).translate(translate);
-    zoom_behavior.scale(scale).translate(translate);
-    svg_scale = scale/initial_width;
-    svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/initial_width)*initial_height)/2)];
+    vars.projection.scale(scale/(2*Math.PI)).translate(translate);
+    vars.zoom_behavior.scale(scale).translate(translate);
+    svg_scale = scale/vars.width;
+    svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/vars.width)*vars.height)/2)];
     
     if (typeof custom_timing != "number") {
       if (d3.event) {
@@ -3186,7 +3196,7 @@ vizwhiz.geo_map = function(data,vars) {
         "title": data[vars.highlight][vars.text_var],
         "description": sub_title,
         "x": vars.width,
-        "y": 0,
+        "y": 0+vars.margin.top,
         "offset": (scale_height*5)+10,
         "width": info_width,
         "arrow": false
@@ -3205,8 +3215,8 @@ vizwhiz.geo_map = function(data,vars) {
   
   function update_tiles(image_timing) {
 
-    var t = projection.translate(),
-        s = projection.scale()*2*Math.PI;
+    var t = vars.projection.translate(),
+        s = vars.projection.scale()*2*Math.PI;
         
     var tiles = tile.scale(s).translate(t)(),
         old_tiles = tile.scale(old_scale).translate(old_translate)()
@@ -3350,13 +3360,13 @@ vizwhiz.pie_scatter = function(data,vars) {
 
   graph = {
         "width": vars.width-graph_margin.left-graph_margin.right,
-        "height": vars.height-graph_margin.top-graph_margin.bottom-vars.margin.top,
+        "height": vars.height-graph_margin.top-graph_margin.bottom,
         "x": graph_margin.left,
         "y": graph_margin.top+vars.margin.top
       }
   
   // container for the visualization
-  var viz_enter = vars.svg_enter.append("g").attr("class", "viz")
+  var viz_enter = vars.parent_enter.append("g").attr("class", "viz")
     .attr("transform", "translate(" + graph.x + "," + graph.y + ")")
 
   // add grey background for viz
@@ -3371,9 +3381,11 @@ vizwhiz.pie_scatter = function(data,vars) {
     .attr('height', graph.height)
     
   // update (in case width and height are changed)
-  d3.select(".viz rect").transition().duration(vizwhiz.timing)
-    .attr('width', graph.width)
-    .attr('height', graph.height)
+  d3.select(".viz").transition().duration(vizwhiz.timing)
+    .attr("transform", "translate(" + graph.x + "," + graph.y + ")")
+    .select("rect")
+      .attr('width', graph.width)
+      .attr('height', graph.height)
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // INIT vars & data munging
@@ -3916,13 +3928,13 @@ vizwhiz.bubbles = function(data,vars) {
   // Set up initial SVG groups
   //-------------------------------------------------------------------
     
-  vars.svg_enter.append('g')
+  vars.parent_enter.append('g')
     .attr('class','groups');
     
-  vars.svg_enter.append('g')
+  vars.parent_enter.append('g')
     .attr('class','bubbles');
     
-  vars.svg_enter.append('g')
+  vars.parent_enter.append('g')
     .attr('class','labels');
     
   //===================================================================
@@ -4234,7 +4246,7 @@ vizwhiz.rings = function(data,vars) {
       total_children;
       
   // container for the visualization
-  var viz_enter = vars.svg_enter.append("g").attr("class", "viz")
+  var viz_enter = vars.parent_enter.append("g").attr("class", "viz")
     .attr("transform", "translate(" + vars.width / 2 + "," + vars.height / 2 + ")");
     
   viz_enter.append("g").attr("class","links")

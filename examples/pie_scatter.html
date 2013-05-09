@@ -71,6 +71,7 @@ d3.json("data/products_mg.json", function(flat_data){
       .yaxis_domain(d3.extent(flat_data,function(d){return d.complexity}).reverse())
       .value_var("val_usd")
       .tooltip_info(["distance", "complexity", "value"])
+      .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
 
     d3.select("#viz")
       .datum(nested2010)

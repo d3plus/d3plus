@@ -110,11 +110,11 @@ vizwhiz.stacked = function(data,vars) {
   
   graph = {
         "width": vars.width-graph_margin.left-graph_margin.right,
-        "height": vars.height-graph_margin.top-graph_margin.bottom-vars.margin.top,
+        "height": vars.height-graph_margin.top-graph_margin.bottom,
         "x": graph_margin.left,
         "y": graph_margin.top+vars.margin.top
       }
-  
+      
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // INIT vars & data munging
   //-------------------------------------------------------------------
@@ -154,7 +154,7 @@ vizwhiz.stacked = function(data,vars) {
     .y1(function(d) { return y_scale(d.y0 + d.y); });
   
   // container for the visualization
-  var viz_enter = vars.svg_enter.append("g")
+  var viz_enter = vars.parent_enter.append("g")
     .attr("class", "viz")
     .attr("width", graph.width)
     .attr("height", graph.height)
@@ -173,10 +173,14 @@ vizwhiz.stacked = function(data,vars) {
     .attr('height', graph.height)
   
   // update (in case width and height are changed)
-  d3.select(".viz rect").transition().duration(vizwhiz.timing)
-    .attr("opacity",1)
+  d3.select(".viz").transition().duration(vizwhiz.timing)
     .attr('width', graph.width)
     .attr('height', graph.height)
+    .attr("transform", "translate(" + graph.x + "," + graph.y + ")")
+    .select(".viz rect")
+      .attr("opacity",1)
+      .attr('width', graph.width)
+      .attr('height', graph.height)
   
   //===================================================================
   
@@ -363,7 +367,7 @@ vizwhiz.stacked = function(data,vars) {
   
   if (!vars.small) {
 
-    var defs = vars.svg_enter.append('svg:defs')
+    var defs = vars.parent_enter.append('svg:defs')
     vizwhiz.utils.drop_shadow(defs)
   
     // filter layers to only the ones with a height larger than 6% of viz

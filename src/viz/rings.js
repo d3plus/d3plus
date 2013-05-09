@@ -7,7 +7,7 @@ vizwhiz.rings = function(data,vars) {
       total_children;
       
   // container for the visualization
-  var viz_enter = vars.svg_enter.append("g").attr("class", "viz")
+  var viz_enter = vars.parent_enter.append("g").attr("class", "viz")
     .attr("transform", "translate(" + vars.width / 2 + "," + vars.height / 2 + ")");
     
   viz_enter.append("g").attr("class","links")
