@@ -681,6 +681,8 @@ vizwhiz.viz = function() {
     "clicked": false,
     "connections": null,
     "coords": null,
+    "csv_columns": null,
+    "csv_data": [],
     "donut": true,
     "filter": [],
     "group_bgs": true,
@@ -748,8 +750,38 @@ vizwhiz.viz = function() {
           if (public_variables.solo.indexOf(d[public_variables.text_var]) >= 0) return true;
           return false;
         })
-
+        
+        // create CSV data
         var val = public_variables.value_var
+        var csv_d = []
+        find_deepest(filtered_data)
+        
+        if(public_variables.csv_columns){
+          csv_d.forEach(function(d){
+            csv_obj = {}
+            d3.keys(d).forEach(function(k){
+              if(public_variables.csv_columns.indexOf(k) > -1){
+                csv_obj[k] = d[k]
+              }
+            })
+            public_variables.csv_data.push(csv_obj)
+          })
+        }
+        else {
+          public_variables.csv_data = csv_d;
+        }
+        
+        function find_deepest(d) {
+          if (d[val]) {
+            csv_d.push(d)
+          }
+          else if (d.children) {
+            d.children.forEach(function(dd){
+              find_deepest(dd);
+            })
+          }
+        }
+
         var total_val = d3.sum(filtered_data.children,function(d) {
           return check_for_value(d);
         })
@@ -773,6 +805,22 @@ vizwhiz.viz = function() {
           return false;
         })
         
+        // create CSV data
+        if(public_variables.csv_columns){
+          filtered_data.forEach(function(d){
+            var csv_obj = {}
+            d3.keys(d).forEach(function(k){
+              if(public_variables.csv_columns.indexOf(k) > -1){
+                csv_obj[k] = d[k]
+              }
+            })
+            public_variables.csv_data.push(csv_obj)
+          })
+        }
+        else {
+          public_variables.csv_data = filtered_data;
+        }
+        
         var total_val = d3.sum(data, function(d){ 
           return d[public_variables.value_var] 
         })
@@ -786,6 +834,23 @@ vizwhiz.viz = function() {
           if (!public_variables.solo.length) filtered_data[d] = data[d];
           if (public_variables.solo.indexOf(d[public_variables.text_var]) >= 0) filtered_data[d] = data[d];
         }
+        
+        // create CSV data
+        if(public_variables.csv_columns){
+          d3.values(filtered_data).forEach(function(d){
+            var csv_obj = {}
+            d3.keys(d).forEach(function(k){
+              if(public_variables.csv_columns.indexOf(k) > -1){
+                csv_obj[k] = d[k]
+              }
+            })
+            public_variables.csv_data.push(csv_obj)
+          })
+        }
+        else {
+          public_variables.csv_data = d3.values(filtered_data);
+        }
+        console.log(public_variables.csv_data)
         
         var total_val = d3.sum(d3.values(data), function(d){ 
           return d[public_variables.value_var] 
@@ -984,6 +1049,24 @@ vizwhiz.viz = function() {
   chart.center = function(x) {
     if (!arguments.length) return public_variables.center;
     public_variables.center = x;
+    return chart;
+  };
+  
+  chart.csv_data = function(x) {
+    if (!arguments.length) {
+      var csv_to_return = []
+      csv_to_return.push(d3.keys(public_variables.csv_data[0]));
+      public_variables.csv_data.forEach(function(d){
+        csv_to_return.push(d3.values(d))
+      })
+      return csv_to_return;
+    }
+    return chart;
+  };
+  
+  chart.csv_columns = function(x) {
+    if (!arguments.length) return public_variables.csv_columns;
+    public_variables.csv_columns = x;
     return chart;
   };
   
@@ -1434,15 +1517,15 @@ vizwhiz.network = function(data,vars) {
   function link_position(l) {
     l
       .attr("x1", function(d) { return scale.x(d.source.x); })
-      .attr("y1", function(d) { return scale.y(d.source.y)+vars.margin.top; })
+      .attr("y1", function(d) { return scale.y(d.source.y); })
       .attr("x2", function(d) { return scale.x(d.target.x); })
-      .attr("y2", function(d) { return scale.y(d.target.y)+vars.margin.top; });
+      .attr("y2", function(d) { return scale.y(d.target.y); });
   }
   
   function bg_size(b) {
     b
       .attr("cx", function(d) { return scale.x(d.x); })
-      .attr("cy", function(d) { return scale.y(d.y)+vars.margin.top; })
+      .attr("cy", function(d) { return scale.y(d.y); })
       .attr("r", function(d) { 
         var value = data[d[vars.id_var]][vars.value_var] ? data[d[vars.id_var]][vars.value_var] : 0,
             buffer = data[d[vars.id_var]][vars.active_var] ? 3 : 2
@@ -1455,7 +1538,7 @@ vizwhiz.network = function(data,vars) {
   function node_size(n) {
     n
       .attr("cx", function(d) { return scale.x(d.x); })
-      .attr("cy", function(d) { return scale.y(d.y)+vars.margin.top; })
+      .attr("cy", function(d) { return scale.y(d.y); })
       .attr("r", function(d) { 
         var value = data[d[vars.id_var]][vars.value_var] ? data[d[vars.id_var]][vars.value_var] : 0
         return value > 0 ? scale.size(value) : scale.size(val_range[0])
