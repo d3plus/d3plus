@@ -88,21 +88,7 @@ vizwhiz.viz = function() {
         var val = public_variables.value_var
         var csv_d = []
         find_deepest(filtered_data)
-        
-        if(public_variables.csv_columns){
-          csv_d.forEach(function(d){
-            csv_obj = {}
-            d3.keys(d).forEach(function(k){
-              if(public_variables.csv_columns.indexOf(k) > -1){
-                csv_obj[k] = d[k]
-              }
-            })
-            public_variables.csv_data.push(csv_obj)
-          })
-        }
-        else {
-          public_variables.csv_data = csv_d;
-        }
+        public_variables.csv_data = csv_d;
         
         function find_deepest(d) {
           if (d[val]) {
@@ -139,20 +125,7 @@ vizwhiz.viz = function() {
         })
         
         // create CSV data
-        if(public_variables.csv_columns){
-          filtered_data.forEach(function(d){
-            var csv_obj = {}
-            d3.keys(d).forEach(function(k){
-              if(public_variables.csv_columns.indexOf(k) > -1){
-                csv_obj[k] = d[k]
-              }
-            })
-            public_variables.csv_data.push(csv_obj)
-          })
-        }
-        else {
-          public_variables.csv_data = filtered_data;
-        }
+        public_variables.csv_data = filtered_data;
         
         var total_val = d3.sum(data, function(d){ 
           return d[public_variables.value_var] 
@@ -169,21 +142,7 @@ vizwhiz.viz = function() {
         }
         
         // create CSV data
-        if(public_variables.csv_columns){
-          d3.values(filtered_data).forEach(function(d){
-            var csv_obj = {}
-            d3.keys(d).forEach(function(k){
-              if(public_variables.csv_columns.indexOf(k) > -1){
-                csv_obj[k] = d[k]
-              }
-            })
-            public_variables.csv_data.push(csv_obj)
-          })
-        }
-        else {
-          public_variables.csv_data = d3.values(filtered_data);
-        }
-        console.log(public_variables.csv_data)
+        public_variables.csv_data = d3.values(filtered_data);
         
         var total_val = d3.sum(d3.values(data), function(d){ 
           return d[public_variables.value_var] 
@@ -388,6 +347,18 @@ vizwhiz.viz = function() {
   chart.csv_data = function(x) {
     if (!arguments.length) {
       var csv_to_return = []
+      
+      // filter out the columns (if specified)
+      if(public_variables.csv_columns){
+        public_variables.csv_data.map(function(d){
+          d3.keys(d).forEach(function(d_key){
+            if(public_variables.csv_columns.indexOf(d_key) < 0){
+              delete d[d_key]
+            }
+          })
+        })
+      }
+      
       csv_to_return.push(d3.keys(public_variables.csv_data[0]));
       public_variables.csv_data.forEach(function(d){
         csv_to_return.push(d3.values(d))
