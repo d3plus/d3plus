@@ -2097,7 +2097,7 @@ vizwhiz.stacked = function(data,vars) {
         "width": vars.width-graph_margin.left-graph_margin.right,
         "height": vars.height-graph_margin.top-graph_margin.bottom,
         "x": graph_margin.left,
-        "y": graph_margin.top+vars.margin.top
+        "y": graph_margin.top
       }
       
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -3416,7 +3416,7 @@ vizwhiz.pie_scatter = function(data,vars) {
         "width": vars.width-graph_margin.left-graph_margin.right,
         "height": vars.height-graph_margin.top-graph_margin.bottom,
         "x": graph_margin.left,
-        "y": graph_margin.top+vars.margin.top
+        "y": graph_margin.top
       }
   
   // container for the visualization
