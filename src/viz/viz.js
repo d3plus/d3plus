@@ -449,7 +449,7 @@ vizwhiz.viz = function() {
   chart.highlight = function(value) {
     if (!arguments.length) return public_variables.highlight;
     public_variables.highlight = value;
-    if (highlight) public_variables.clicked = true;
+    if (public_variables.highlight) public_variables.clicked = true;
     else public_variables.clicked = false;
     return chart;
   };
