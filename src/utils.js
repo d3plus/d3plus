@@ -47,7 +47,12 @@ vizwhiz.utils.rand_color = function() {
 //-------------------------------------------------------------------
 
 vizwhiz.utils.text_color = function(color) {
-  return d3.hsl(color).l >= 0.5 ? "#333333" : "#ffffff";
+  var hsl = d3.hsl(color);
+  if (color == "#408E60") console.log(color,hsl.h,hsl.s,hsl.l)
+  var light = "#fff", dark = "#333"
+  if (hsl.l > 0.65) return dark;
+  else if (hsl.l < 0.48) return light;
+  return hsl.h > 35 && hsl.s >= 0.3 && hsl.l >= 0.41 ? "#333333" : "#ffffff";
 }
 
 //===================================================================
