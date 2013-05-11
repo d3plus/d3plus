@@ -286,9 +286,6 @@ vizwhiz.stacked = function(data,vars) {
   paths.enter().append("path")
     .attr("opacity", 0)
     .attr("class", "layer")
-    // .attr("fill-opacity", 0.8)
-    // .attr("stroke-width",1)
-    // .attr("stroke", "#ffffff")
     .attr("fill", function(d){
       return d.color
     })
@@ -304,9 +301,7 @@ vizwhiz.stacked = function(data,vars) {
     })
     .attr("d", function(d) {
       return area(d.values);
-    });
-  // mouseover
-  paths
+    })
     .on(vizwhiz.evt.move, path_tooltip)
     .on(vizwhiz.evt.out, function(d){
       d3.selectAll("line.rule").remove();

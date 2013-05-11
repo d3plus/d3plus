@@ -264,28 +264,6 @@ vizwhiz.bubbles = function(data,vars) {
   bubble.enter().append("g")
     .attr("class", "bubble")
     .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
-    .on(vizwhiz.evt.over, function(d){
-      
-      var tooltip_data = {}
-      vars.tooltip_info.forEach(function(t){
-        if (d[t]) tooltip_data[t] = d[t]
-      })
-      
-      vizwhiz.tooltip.create({
-        "parent": vars.svg,
-        "id": d[vars.id_var],
-        "data": tooltip_data,
-        "title": d[vars.text_var],
-        "x": d.x,
-        "y": d.y,
-        "offset": d.r,
-        "arrow": true
-      })
-      
-    })
-    .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove(d[vars.id_var])
-    })
     .each(function(d){
       
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
@@ -338,6 +316,28 @@ vizwhiz.bubbles = function(data,vars) {
     
   bubble.transition().duration(vizwhiz.timing)
     .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
+    .on(vizwhiz.evt.over, function(d){
+      
+      var tooltip_data = {}
+      vars.tooltip_info.forEach(function(t){
+        if (d[t]) tooltip_data[t] = d[t]
+      })
+      
+      vizwhiz.tooltip.create({
+        "parent": vars.svg,
+        "id": d[vars.id_var],
+        "data": tooltip_data,
+        "title": d[vars.text_var],
+        "x": d.x,
+        "y": d.y,
+        "offset": d.r,
+        "arrow": true
+      })
+      
+    })
+    .on(vizwhiz.evt.out, function(d){
+      vizwhiz.tooltip.remove(d[vars.id_var])
+    })
     .each(function(d){
     
       if (vars.donut) d.arc_inner_bg = d.r*arc_offset;

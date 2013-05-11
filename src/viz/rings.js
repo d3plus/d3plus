@@ -99,22 +99,6 @@ vizwhiz.rings = function(data,vars) {
         if (d.depth == 0) return "none"
         else return "rotate(" + (d.ring_x - 90) + ")translate(" + 0 + ")"; 
       })
-      .on(vizwhiz.evt.over,function(d){
-        if (d.depth != 0) {
-          d3.select(this).style("cursor","pointer");
-          vars.highlight = d;
-          update();
-        }
-      })
-      .on(vizwhiz.evt.out,function(d){
-        if (d.depth != 0) {
-          vars.highlight = null;
-          update();
-        }
-      })
-      .on(vizwhiz.evt.click,function(d){
-        if (d.depth != 0) vars.parent.call(chart.center(d[vars.id_var]));
-      })
       .each(function(e){
         
         d3.select(this).append("circle")
@@ -136,6 +120,22 @@ vizwhiz.rings = function(data,vars) {
       .attr("transform", function(d) {
         if (d.depth == 0) return "none"
         else return "rotate(" + (d.ring_x - 90) + ")translate(" + d.ring_y + ")"; 
+      })
+      .on(vizwhiz.evt.over,function(d){
+        if (d.depth != 0) {
+          d3.select(this).style("cursor","pointer");
+          vars.highlight = d;
+          update();
+        }
+      })
+      .on(vizwhiz.evt.out,function(d){
+        if (d.depth != 0) {
+          vars.highlight = null;
+          update();
+        }
+      })
+      .on(vizwhiz.evt.click,function(d){
+        if (d.depth != 0) vars.parent.call(chart.center(d[vars.id_var]));
       })
       .each(function(e){
         

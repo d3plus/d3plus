@@ -220,7 +220,16 @@ vizwhiz.geo_map = function(data,vars) {
     .attr("id",function(d) { return "path"+d.id } )
     .attr("d",path)
     .attr("vector-effect","non-scaling-stroke")
-    .attr("opacity",0)
+    .attr("opacity",0);
+  
+  //===================================================================
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Update, for things that are already in existance
+  //-------------------------------------------------------------------
+  
+  coord.transition().duration(vizwhiz.timing)
+    .attr("opacity",default_opacity)
     .on(vizwhiz.evt.over, function(d){
       if (!vars.clicked) {
         vars.highlight = d[vars.id_var];
@@ -257,16 +266,7 @@ vizwhiz.geo_map = function(data,vars) {
         zoom(d3.select("path#path"+vars.highlight).datum());
         info();
       }
-    });
-  
-  //===================================================================
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Update, for things that are already in existance
-  //-------------------------------------------------------------------
-  
-  coord.transition().duration(vizwhiz.timing)
-    .attr("opacity",default_opacity)
+    })
     .call(color_paths);
   
   info();

@@ -278,11 +278,6 @@ vizwhiz.pie_scatter = function(data,vars) {
     .attr("opacity", 0)
     .attr("class", "circle")
     .attr("transform", function(d) { return "translate("+x_scale(d[vars.xaxis_var])+","+y_scale(d[vars.yaxis_var])+")" } )
-    .on(vizwhiz.evt.over, hover(x_scale, y_scale, size_scale, graph))
-    .on(vizwhiz.evt.out, function(){
-      vizwhiz.tooltip.remove();
-      d3.selectAll(".axis_hover").remove();
-    })
     .each(function(d){
       
       d3.select(this)
@@ -310,6 +305,11 @@ vizwhiz.pie_scatter = function(data,vars) {
   nodes.transition().duration(vizwhiz.timing)
     .attr("transform", function(d) { return "translate("+x_scale(d[vars.xaxis_var])+","+y_scale(d[vars.yaxis_var])+")" } )
     .attr("opacity", 1)
+    .on(vizwhiz.evt.over, hover(x_scale, y_scale, size_scale, graph))
+    .on(vizwhiz.evt.out, function(){
+      vizwhiz.tooltip.remove();
+      d3.selectAll(".axis_hover").remove();
+    })
     .each(function(d){
       
       d.arc_radius = size_scale(d[vars.value_var]);
