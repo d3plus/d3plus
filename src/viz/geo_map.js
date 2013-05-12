@@ -91,7 +91,9 @@ vizwhiz.geo_map = function(data,vars) {
     .attr("class","overlay")
     .attr("width",vars.width)
     .attr("height",vars.height)
-    .attr("fill","transparent")
+    .attr("fill","transparent");
+    
+  d3.select("rect.overlay")
     .on(vizwhiz.evt.click, function(d) {
       if (vars.highlight) {
         var temp = vars.highlight;
@@ -101,7 +103,7 @@ vizwhiz.geo_map = function(data,vars) {
         zoom(vars.boundries);
         info();
       }
-    });
+    })
     
   viz_enter.append('g')
     .attr('class','paths');
@@ -127,6 +129,7 @@ vizwhiz.geo_map = function(data,vars) {
     
     var scale = vars.parent_enter.append('g')
       .attr('class','scale')
+      .style("opacity",0)
       .attr("transform","translate("+(vars.width-info_width-5)+","+5+")");
     
     scale.append("rect")
@@ -182,11 +185,18 @@ vizwhiz.geo_map = function(data,vars) {
         .attr("font-size","10px")
         .attr("font-family","Helvetica")
     })
-  
-    data_range.forEach(function(v,i){
-      d3.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
-    })
-    d3.select("text#scale_title").text(vars.value_var)
+    
+    if (!data_extent[0]) {
+      d3.select("g.scale").style("opacity",0)
+    }
+    else {
+
+      data_range.forEach(function(v,i){
+        scale.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
+      })
+      scale.select("text#scale_title").text(vars.value_var)
+      d3.select("g.scale").style("opacity",1)
+    }
     
     // Create Zoom Controls div on vars.svg_enter
     vars.parent.select("div#zoom_controls").remove()
@@ -254,14 +264,16 @@ vizwhiz.geo_map = function(data,vars) {
         zoom(vars.boundries);
         info();
       } else {
-        if (vars.highlight) {
+        if (vars.highlight && vars.clicked) {
           var temp = vars.highlight;
           vars.highlight = null;
           d3.select("#path"+temp).call(color_paths);
         }
+        else {
+          vars.clicked = true;
+        }
         vars.highlight = d[vars.id_var];
         d3.select(this).call(color_paths);
-        vars.clicked = true;
         zoom(d3.select("path#path"+vars.highlight).datum());
         info();
       }
@@ -295,18 +307,21 @@ vizwhiz.geo_map = function(data,vars) {
   }
   
   function color_paths(p) {
+    defs.selectAll("#stroke_clip").remove();
     p
       .attr("fill",function(d){ 
-        if (d[vars.id_var] == vars.highlight) return "none";
+        if (d[vars.id_var] == vars.highlight && vars.clicked) return "none";
         else if (!data) return "#888888";
         else return data[d[vars.id_var]][vars.value_var] ? value_color(data[d[vars.id_var]][vars.value_var]) : "#888888"
       })
       .attr("stroke-width",function(d) {
-        if (d[vars.id_var] == vars.highlight) return 10;
+        if (d[vars.id_var] == vars.highlight && vars.clicked) return 10;
         else return stroke_width;
       })
       .attr("stroke",function(d) {
-        if (d[vars.id_var] == vars.highlight) return data[d[vars.id_var]][vars.value_var] ? value_color(data[d[vars.id_var]][vars.value_var]) : "#888888";
+        if (d[vars.id_var] == vars.highlight && vars.clicked) {
+          return data[d[vars.id_var]][vars.value_var] ? value_color(data[d[vars.id_var]][vars.value_var]) : "#888888";
+        }
         else return "white";
       })
       .attr("opacity",function(d){
@@ -314,12 +329,11 @@ vizwhiz.geo_map = function(data,vars) {
         else return default_opacity;
       })
       .attr("clip-path",function(d){ 
-        if (d[vars.id_var] == vars.highlight) return "url(#stroke_clip)";
+        if (d[vars.id_var] == vars.highlight && vars.clicked) return "url(#stroke_clip)";
         else return "none"
       })
       .each(function(d){
-        if (d[vars.id_var] == vars.highlight) {
-          defs.selectAll("#stroke_clip").remove();
+        if (d[vars.id_var] == vars.highlight && vars.clicked) {
           d3.select("defs").append("clipPath")
             .attr("id","stroke_clip")
             .append("use")
