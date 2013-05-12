@@ -23,7 +23,7 @@ vizwhiz.geo_map = function(data,vars) {
       stroke_width = 1,
       color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
       dragging = false,
-      info_width = 300,
+      info_width = vars.small ? 0 : 300,
       scale_height = 10,
       scale_padding = 20,
       path = d3.geo.path().projection(vars.projection),
@@ -289,7 +289,8 @@ vizwhiz.geo_map = function(data,vars) {
   if (vars.init) {
     zoom(vars.boundries,0);
     vars.init = false;
-  } else if (vars.clicked) {
+  }
+  if (vars.clicked) {
     zoom(d3.select("path#path"+vars.highlight).datum());
   }
   
@@ -433,7 +434,7 @@ vizwhiz.geo_map = function(data,vars) {
     
     vizwhiz.tooltip.remove();
     
-    if (vars.highlight) {
+    if (vars.highlight && !vars.small) {
       
       var tooltip_data = {}, sub_title = null
       

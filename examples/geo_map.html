@@ -46,10 +46,12 @@
             .type("geo_map")
             .coords(shapes)
             .map(land)
+            .tiles(false)
             .id_var("id")
             .value_var("wage")
             .text_var("name")
-            .tooltip_info(["wage","num_emp","num_est"])
+            // .highlight("ap000000")
+            .tooltip_info(["id","wage","num_emp","num_est"])
             .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"});
           
           d3.select("#viz")
@@ -67,11 +69,11 @@
             }
           }
           
-          setTimeout(function(){
-            d3.select("#viz")
-              .datum(data2005)
-              .call(viz);
-          },2000)
+          // setTimeout(function(){
+          //   d3.select("#viz")
+          //     .datum(data2005)
+          //     .call(viz);
+          // },2000)
         
         });
       });
