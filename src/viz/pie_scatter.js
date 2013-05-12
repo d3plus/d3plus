@@ -302,14 +302,17 @@ vizwhiz.pie_scatter = function(data,vars) {
     })
   
   // update
-  nodes.transition().duration(vizwhiz.timing)
-    .attr("transform", function(d) { return "translate("+x_scale(d[vars.xaxis_var])+","+y_scale(d[vars.yaxis_var])+")" } )
-    .attr("opacity", 1)
+  
+  nodes
     .on(vizwhiz.evt.over, hover(x_scale, y_scale, size_scale, graph))
     .on(vizwhiz.evt.out, function(){
       vizwhiz.tooltip.remove();
       d3.selectAll(".axis_hover").remove();
     })
+    
+  nodes.transition().duration(vizwhiz.timing)
+    .attr("transform", function(d) { return "translate("+x_scale(d[vars.xaxis_var])+","+y_scale(d[vars.yaxis_var])+")" } )
+    .attr("opacity", 1)
     .each(function(d){
       
       d.arc_radius = size_scale(d[vars.value_var]);

@@ -228,8 +228,7 @@ vizwhiz.geo_map = function(data,vars) {
   // Update, for things that are already in existance
   //-------------------------------------------------------------------
   
-  coord.transition().duration(vizwhiz.timing)
-    .attr("opacity",default_opacity)
+  coord
     .on(vizwhiz.evt.over, function(d){
       if (!vars.clicked) {
         vars.highlight = d[vars.id_var];
@@ -267,6 +266,9 @@ vizwhiz.geo_map = function(data,vars) {
         info();
       }
     })
+  
+  coord.transition().duration(vizwhiz.timing)
+    .attr("opacity",default_opacity)
     .call(color_paths);
   
   info();

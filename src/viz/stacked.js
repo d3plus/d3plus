@@ -294,6 +294,13 @@ vizwhiz.stacked = function(data,vars) {
     })
   
   // UPDATE
+  paths
+    .on(vizwhiz.evt.move, path_tooltip)
+    .on(vizwhiz.evt.out, function(d){
+      d3.selectAll("line.rule").remove();
+      vizwhiz.tooltip.remove();
+    })
+  
   paths.transition().duration(vizwhiz.timing)
     .attr("opacity", 1)
     .attr("fill", function(d){
@@ -301,11 +308,6 @@ vizwhiz.stacked = function(data,vars) {
     })
     .attr("d", function(d) {
       return area(d.values);
-    })
-    .on(vizwhiz.evt.move, path_tooltip)
-    .on(vizwhiz.evt.out, function(d){
-      d3.selectAll("line.rule").remove();
-      vizwhiz.tooltip.remove();
     })
     
   function path_tooltip(d){

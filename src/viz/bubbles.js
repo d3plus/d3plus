@@ -314,8 +314,7 @@ vizwhiz.bubbles = function(data,vars) {
   // Update, for things that are already in existance
   //-------------------------------------------------------------------
     
-  bubble.transition().duration(vizwhiz.timing)
-    .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
+  bubble
     .on(vizwhiz.evt.over, function(d){
       
       var tooltip_data = {}
@@ -338,6 +337,9 @@ vizwhiz.bubbles = function(data,vars) {
     .on(vizwhiz.evt.out, function(d){
       vizwhiz.tooltip.remove(d[vars.id_var])
     })
+  
+  bubble.transition().duration(vizwhiz.timing)
+    .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
     .each(function(d){
     
       if (vars.donut) d.arc_inner_bg = d.r*arc_offset;
