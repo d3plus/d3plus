@@ -278,7 +278,7 @@ vizwhiz.rings = function(data,vars) {
   function circle_styles(c) {
     c
       .attr("fill", function(d){
-        if(d.active){
+        if(d[vars.active_var]){
           var color = d.color;
         } else {
           var lighter_col = d3.hsl(d.color);
@@ -292,7 +292,7 @@ vizwhiz.rings = function(data,vars) {
       
       })
       .attr("stroke", function(d){
-        if(d.active){
+        if(d[vars.active_var]){
           var color = d3.rgb(d.color).darker().darker().toString();
         } else {
           var color = d3.rgb(d.color).darker().toString()
@@ -322,7 +322,7 @@ vizwhiz.rings = function(data,vars) {
   
   function get_root(){
     var prod = data[vars.center]
-
+    
     var links = [], nodes = [],
       root = {
         "name": prod[vars.text_var],
@@ -332,8 +332,7 @@ vizwhiz.rings = function(data,vars) {
         "ring_y": 0,
         "depth": 0,
         "color": prod.color,
-        "text_color": prod.text_color,
-        "active": prod.active
+        "active": prod[vars.active_var]
       }
   
     nodes.push(root);
@@ -349,8 +348,7 @@ vizwhiz.rings = function(data,vars) {
       child.children = []
       child.children_total = []
       child.color = data[child[vars.id_var]].color
-      child.text_color = data[child[vars.id_var]].text_color
-      child.active = data[child[vars.id_var]].active
+      child[vars.active_var] = data[child[vars.id_var]][vars.active_var]
   
       // push first level child into nodes
       nodes.push(child);
@@ -380,8 +378,7 @@ vizwhiz.rings = function(data,vars) {
           grandchild.depth = 2;
           grandchild[vars.text_var] = data[grandchild[vars.id_var]][vars.text_var]
           grandchild.color = data[grandchild[vars.id_var]].color
-          grandchild.text_color = data[grandchild[vars.id_var]].text_color
-          grandchild.active = data[grandchild[vars.id_var]].active
+          grandchild[vars.active_var] = data[grandchild[vars.id_var]][vars.active_var]
           grandchild.parents = []
       
           var s = 10000, node_id = 0;
