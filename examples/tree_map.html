@@ -57,27 +57,27 @@ d3.json("data/products_mg.json", function(raw_data){
       .datum(nested_data)
       .call(viz)
     
-    // setTimeout(function(){
-    //   
-    //   // test for animating between years
-    //   var new_data = raw_data.filter(function(d){
-    //     return d.year == 2005;
-    //   })
-    // 
-    //   new_data.map(function(d, i){
-    //     d.value = d.val_usd;
-    //     d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
-    //     d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
-    //     d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-    //     new_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
-    //   })
-    //   
-    //   var data_2005 = vizwhiz.utils.nest(new_data, ["nesting_0","nesting_1","nesting_2"], false, [{"key":"color"}])
-    //   d3.select("#viz")
-    //     .datum(data_2005)
-    //     .call(viz)
-    //   
-    // },4000)
+    setTimeout(function(){
+      
+      // test for animating between years
+      var new_data = raw_data.filter(function(d){
+        return d.year == 2005;
+      })
+    
+      new_data.map(function(d, i){
+        d.value = d.val_usd;
+        d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+        d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+        d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+        new_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+      })
+      
+      var data_2005 = vizwhiz.utils.nest(new_data, ["nesting_0","nesting_1","nesting_2"], false, [{"key":"color"}])
+      d3.select("#viz")
+        .datum(data_2005)
+        .call(viz)
+      
+    },4000)
     
   })
 })

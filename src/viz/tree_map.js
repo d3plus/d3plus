@@ -128,8 +128,8 @@ vizwhiz.tree_map = function(data,vars) {
     .attr("opacity", 0)
     .transition().duration(vizwhiz.timing/2)
     .each("end", function(d){
-      
-      if(d[vars.text_var] && d.dx > 40 && d.dy > 40){
+      d3.select(this).selectAll("tspan").remove();
+      if(d[vars.text_var] && d.dx > 30 && d.dy > 30){
         if (vars.name_array) {
           var text = []
           vars.name_array.forEach(function(n){
