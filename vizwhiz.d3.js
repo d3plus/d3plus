@@ -711,10 +711,12 @@ vizwhiz.viz = function() {
     "solo": [],
     "sort": "total",
     "spotlight": true,
+    "sub_title": null,
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
     "text_var": "name",
     "tiles": true,
+    "title": null,
     "tooltip_info": [],
     "total_bar": false,
     "type": "tree_map",
@@ -822,28 +824,41 @@ vizwhiz.viz = function() {
         
       }
       
+      vars.width = vars.svg_width;
+      
+      vars.margin.top = 0;
       if (vars.svg_width < 400 || vars.svg_height < 400) {
         vars.small = true;
+        make_title(null,"title");
+        make_title(null,"sub_title");
+        make_title(null,"total_bar");
       }
       else {
         vars.small = false;
+        if (vars.title) {
+          vars.margin.top += 20;
+          make_title(vars.title,"title");
+        }
+        else {
+          make_title(null,"title");
+        }
+        if (vars.sub_title) {
+          vars.margin.top += 15;
+          make_title(vars.sub_title,"sub_title");
+        }
+        else {
+          make_title(null,"sub_title");
+        }
+        if (vars.total_bar) {
+          vars.margin.top += 15;
+          make_title(total_val,"total_bar");
+        }
+        else {
+          make_title(null,"total_bar");
+        }
       }
-      
-      vars.width = vars.svg_width;
-      
-      if (vars.total_bar && !vars.small) {
-        vars.margin.top = 20;
-        vars.height = vars.svg_height - vars.margin.top;
-        make_total(total_val);
-      }
-      else {
-        vars.margin.top = 0;
-        vars.height = vars.svg_height;
-        vars.svg.selectAll("g.title")
-          .transition().duration(vizwhiz.timing)
-          .style("opacity",0)
-          .remove();
-      }
+
+      vars.height = vars.svg_height - vars.margin.top;
       
       vars.svg_enter.append("clipPath")
         .attr("id","clipping")
@@ -898,19 +913,43 @@ vizwhiz.viz = function() {
     })
   }
 
-  make_total = function(total_val){
+  make_title = function(title,type){
     
     // Set the total value as data for element.
-    var total = vars.svg.selectAll("g.title").data([total_val]),
-        total_position = {"x": function(d){ return vars.width/2 }, "y": 15}
+    var data = title ? [title] : [],
+        total = vars.svg.selectAll("g."+type)
+          .data(data),
+        title_position = {
+          "x": vars.width/2,
+          "y": function() {
+            if (type == "title") {
+              return 15;
+            }
+            else if (type == "sub_title") {
+              if (vars.title) return 30;
+              else return 13;
+            }
+            else if (type == "total_bar") {
+              if (vars.title && vars.sub_title) return 45;
+              else if (vars.title) return 30;
+              else if (vars.sub_title) return 28;
+              else return 13;
+            }
+          }
+        }
     
     // Enter
     total.enter().append("g")
-      .attr("class", "title")
+      .attr("class",type)
       .style("opacity",0)
       .append("text")
-        .attr(total_position)
-        .attr("fill", "#333333")
+        .attr(title_position)
+        .attr("font-size",function(d){
+          return type == "title" ? 14 : 12;
+        })
+        .attr("fill", function(){
+          return type == "title" ? "#333" : "#666";
+        })
         .attr("text-anchor", "middle")
         .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
         .style("font-weight", "bold")
@@ -919,17 +958,19 @@ vizwhiz.viz = function() {
     total.transition().duration(vizwhiz.timing)
       .style("opacity",1)
     total.select("text").transition().duration(vizwhiz.timing)
-      .attr(total_position)
+      .attr(title_position)
       .text(function(d){
         var text = d, format = ",f";
-        if (vars.total_bar.format) {
-          text = d3.format(vars.total_bar.format)(text);
+        if (type == "total_bar") {
+          if (vars.total_bar.format) {
+            text = d3.format(vars.total_bar.format)(text);
+          }
+          else {
+            text = d3.format(format)(text);
+          }
+          vars.total_bar.prefix ? text = vars.total_bar.prefix + text : null;
+          vars.total_bar.suffix ? text = text + vars.total_bar.suffix : null;
         }
-        else {
-          text = d3.format(format)(text);
-        }
-        vars.total_bar.prefix ? text = vars.total_bar.prefix + text : null;
-        vars.total_bar.suffix ? text = text + vars.total_bar.suffix : null;
         return text;
       })
     
@@ -1218,6 +1259,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.sub_title = function(x) {
+    if (!arguments.length) return vars.sub_title;
+    vars.sub_title = x;
+    return chart;
+  };
+  
   chart.text_var = function(x) {
     if (!arguments.length) return vars.text_var;
     vars.text_var = x;
@@ -1229,6 +1276,12 @@ vizwhiz.viz = function() {
     if (typeof x == "boolean")  vars.tiles = x;
     else if (x === "false") vars.tiles = false;
     else vars.tiles = true;
+    return chart;
+  };
+  
+  chart.title = function(x) {
+    if (!arguments.length) return vars.title;
+    vars.title = x;
     return chart;
   };
   
