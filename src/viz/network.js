@@ -6,13 +6,16 @@ vizwhiz.network = function(data,vars) {
   
   var dragging = false,
       highlight_color = "#cc0000",
-      select_color = "#ee0000",
       secondary_color = "#ffdddd",
       offset_top = 0,
       offset_left = 0,
       info_width = 300,
       zoom_behavior = d3.behavior.zoom().scaleExtent([1, 16]),
-      scale = {};
+      scale = {},
+      hover = null,
+      last_hover = null,
+      last_highlight = null,
+      highlight_extent = {};
 
   //===================================================================
     
@@ -38,30 +41,54 @@ vizwhiz.network = function(data,vars) {
   scale.y = d3.scale.linear()
     .domain(y_range)
     .range([offset_top, vars.height-offset_top])
-  
-  var min_dist = 10000;
-  d3.values(vars.nodes).forEach(function(n){
-    var temp_dist = 10000;
-    d3.values(vars.nodes).forEach(function(n2){
-      var xx = Math.abs(scale.x(n.x)-scale.x(n2.x));
-      var yy = Math.abs(scale.y(n.y)-scale.y(n2.y));
-      var dd = Math.sqrt((xx*xx)+(yy*yy))
-      if (dd < temp_dist && dd != 0) temp_dist = dd;
-    })
-    if (temp_dist < min_dist) min_dist = temp_dist;
-  })
-      
-  var max_size = min_dist,
-      min_size = max_size/5 < 2 ? 2 : max_size/5;
-  
-  // x scale
-  scale.x.range([offset_left+(max_size*2), vars.width-(max_size*2)-offset_left])
-  // y scale
-  scale.y.range([offset_top+(max_size*2), vars.height-(max_size*2)-offset_top])
-  // size scale
+    
   var val_range = d3.extent(d3.values(data), function(d){
     return d[vars.value_var] > 0 ? d[vars.value_var] : null
   });
+  
+  var max_dist = 0
+  d3.values(vars.nodes).forEach(function(n){
+    d3.values(vars.nodes).forEach(function(n2){
+      if (n != n2) {
+        var xx = Math.abs(scale.x(n.x)-scale.x(n2.x));
+        var yy = Math.abs(scale.y(n.y)-scale.y(n2.y));
+        var dd = Math.sqrt((xx*xx)+(yy*yy))
+        if (dd > max_dist) max_dist = dd;
+      }
+    })
+  })
+  
+  var min_dist = {"value": 0};
+  d3.values(vars.nodes).forEach(function(n){
+    d3.values(vars.nodes).forEach(function(n2){
+      if (n != n2) {
+        var xx = Math.abs(scale.x(n.x)-scale.x(n2.x));
+        var yy = Math.abs(scale.y(n.y)-scale.y(n2.y));
+        var dd = Math.sqrt((xx*xx)+(yy*yy))
+        var v1 = data[n[vars.id_var]][vars.value_var]
+        var v2 = data[n2[vars.id_var]][vars.value_var]
+        var factor = max_dist/dd+(v1+v2)/(val_range[1]*2)
+        if (factor > min_dist.value) {
+          min_dist = {"value": factor, "node1": n, "node2": n2, "v1": v1, "v2": v2, "distance": dd}
+        }
+      }
+    })
+  })
+  
+  var biggest = min_dist.v1 > min_dist.v2 ? min_dist.v1 : min_dist.v2
+  var dd = min_dist.distance*(biggest/(min_dist.v1+min_dist.v2))
+  var wc = (vars.height-dd*2)/vars.height
+  var hc = (vars.width-dd*2)/vars.width
+  var delta = wc < hc ? wc : hc
+  var max_size = dd*delta-1,
+      min_size = max_size/5 < 2 ? 2 : max_size/5;
+      
+  // return
+  // x scale
+  scale.x.range([offset_left+(max_size*1.5), vars.width-(max_size*1.5)-offset_left])
+  // y scale
+  scale.y.range([offset_top+(max_size*1.5), vars.height-(max_size*1.5)-offset_top])
+  // size scale
   scale.size = d3.scale.log()
     .domain(val_range)
     .range([min_size, max_size])
@@ -69,19 +96,25 @@ vizwhiz.network = function(data,vars) {
   // Create viz group on vars.parent_enter
   var viz_enter = vars.parent_enter.append("g")
     .call(zoom_behavior.on("zoom",function(){ zoom(); }))
-    .on(vizwhiz.evt.down,function(d){dragging = true})
-    .on(vizwhiz.evt.up,function(d){dragging = false})
+    .on(vizwhiz.evt.down,function(d){
+      dragging = true
+    })
+    .on(vizwhiz.evt.up,function(d){
+      dragging = false
+    })
     .append('g')
       .attr('class','viz')
     
   viz_enter.append('rect')
     .attr('class','overlay')
-    .attr("width", viz_width)
-    .attr("height", viz_height)
-    .attr("fill","transparent")
+    .attr("fill","transparent");
+    
+  d3.select("rect.overlay")
+    .attr("width", vars.width)
+    .attr("height", vars.height)
     .on(vizwhiz.evt.over,function(d){
-      if (!vars.clicked && vars.highlight) {
-        vars.highlight = null;
+      if (!vars.highlight && hover) {
+        hover = null;
         update();
       }
     })
@@ -89,6 +122,22 @@ vizwhiz.network = function(data,vars) {
       vars.highlight = null;
       zoom("reset");
       update();
+    })
+    .on(vizwhiz.evt.move,function(d){
+      if (zoom_behavior.scale() > 1) {
+        d3.select(this).style("cursor","move")
+        if (dragging) {
+          d3.select(this).style("cursor","-moz-grabbing")
+          d3.select(this).style("cursor","-webkit-grabbing")
+        }
+        else {
+          d3.select(this).style("cursor","-moz-grab")
+          d3.select(this).style("cursor","-webkit-grab")
+        }
+      }
+      else {
+        d3.select(this).style("cursor","default")
+      }
     });
     
   viz_enter.append('g')
@@ -99,6 +148,9 @@ vizwhiz.network = function(data,vars) {
     
   viz_enter.append('g')
     .attr('class','highlight')
+    
+  viz_enter.append('g')
+    .attr('class','hover')
     
   if (!vars.small) {
     // Create Zoom Controls div on vars.parent_enter
@@ -129,15 +181,18 @@ vizwhiz.network = function(data,vars) {
   node.enter().append("circle")
     .attr("class","node")
     .attr("fill","white")
-    .attr("stroke","white");
+    .attr("stroke","white")
+    .call(node_size);
   
   var link = d3.select("g.links").selectAll("line.link")
     .data(vars.links, function(d) { return d.source[vars.id_var] + "-" + d.target[vars.id_var]; })
     
   link.enter().append("line")
     .attr("class","link")
+    .attr("pointer-events","none")
     .attr("stroke", "white")
-    .attr("stroke-width", "1px");
+    .attr("stroke-width", 1)
+    .call(link_position);
   
   //===================================================================
   
@@ -147,21 +202,7 @@ vizwhiz.network = function(data,vars) {
 
   node
     .on(vizwhiz.evt.over, function(d){
-      if (!vars.clicked) {
-        vars.highlight = d[vars.id_var];
-        update();
-      } else {
-        d3.select(this).attr("stroke",highlight_color)
-      }
-    })
-    .on(vizwhiz.evt.out, function(d){
-      if (vars.clicked) {
-        d3.select(this).attr("stroke","#dedede")
-      }
-    })
-    .on(vizwhiz.evt.click, function(d){
-      vars.highlight = d[vars.id_var];
-      zoom(vars.highlight);
+      hover = d[vars.id_var];
       update();
     });
 
@@ -170,19 +211,11 @@ vizwhiz.network = function(data,vars) {
     .call(node_color);
     
   link
-    .on(vizwhiz.evt.click,function(d){
-      vars.highlight = null;
-      zoom("reset");
-      update();
-    })
+    .call(link_events);
     
   link.transition().duration(vizwhiz.timing)
     .attr("stroke", "#dedede")
     .call(link_position);
-    
-  d3.select('.overlay').transition().duration(vizwhiz.timing)
-    .attr("width", viz_width)
-    .attr("height", viz_height);
       
   //===================================================================
   
@@ -196,7 +229,7 @@ vizwhiz.network = function(data,vars) {
   //===================================================================
   
   update();
-  if (vars.highlight && vars.clicked) zoom(vars.highlight);
+  if (vars.highlight) zoom(vars.highlight);
       
   function link_position(l) {
     l
@@ -206,17 +239,13 @@ vizwhiz.network = function(data,vars) {
       .attr("y2", function(d) { return scale.y(d.target.y); });
   }
   
-  function bg_size(b) {
-    b
-      .attr("cx", function(d) { return scale.x(d.x); })
-      .attr("cy", function(d) { return scale.y(d.y); })
-      .attr("r", function(d) { 
-        var value = data[d[vars.id_var]][vars.value_var] ? data[d[vars.id_var]][vars.value_var] : 0,
-            buffer = data[d[vars.id_var]][vars.active_var] ? 3 : 2
-        value = value > 0 ? scale.size(value) : scale.size(val_range[0])
-        return value+buffer
+  function link_events(l) {
+    l
+      .on(vizwhiz.evt.click,function(d){
+        vars.highlight = null;
+        zoom("reset");
+        update();
       })
-      .attr("stroke-width",0)
   }
   
   function node_size(n) {
@@ -227,8 +256,25 @@ vizwhiz.network = function(data,vars) {
         var value = data[d[vars.id_var]][vars.value_var] ? data[d[vars.id_var]][vars.value_var] : 0
         return value > 0 ? scale.size(value) : scale.size(val_range[0])
       })
+      .call(node_stroke)
+  }
+  
+  function node_stroke(b) {
+    b
       .attr("stroke-width", function(d){
-        if(data[d[vars.id_var]][vars.active_var]) return 2;
+        
+        // Determine which type of node we're dealing with, based on "g" class
+        var parent_group = this.parentNode.className.baseVal
+        var class_name = this.className.baseVal
+        // "True" if node is in the highlight or hover groups
+        var highlighted = parent_group == "hover_node"
+        var bg = class_name == "bg"
+        
+        if (bg) {
+          if (vars.highlight == d[vars.id_var]) return 3;
+          else return 2;
+        }
+        else if (highlighted) return 0;
         else return 1;
       })
   }
@@ -236,361 +282,408 @@ vizwhiz.network = function(data,vars) {
   function node_color(n) {
     n
       .attr("fill", function(d){
-        if (vars.clicked && d3.select(this.parentNode).attr("class") == "nodes") return "#efefef";
-        var color = data[d[vars.id_var]].color ? data[d[vars.id_var]].color : vizwhiz.utils.rand_color()
-        if (data[d[vars.id_var]][vars.active_var]) {
-          this.parentNode.appendChild(this)
-          return color;
-        } 
-        else if (vars.spotlight && !vars.clicked) return "#eeeeee";
-        else {
-          color = d3.hsl(color)
-          color.l = 0.98
-          return color.toString()
-        }
+        
+        // Determine which type of node we're dealing with, based on "g" class
+        var parent_group = this.parentNode.className.baseVal
+        
+        // "True" if node is a background node and a node has been highlighted
+        var background_node = vars.highlight && parent_group == "nodes"
+        // "True" if node is in the highlight or hover groups
+        var highlighted = parent_group == "hover_node"
+        // "True" if vars.spotlight is true and node vars.active_var is false
+        var hidden = vars.spotlight && !data[d[vars.id_var]][vars.active_var]
+        // Grey out nodes that are in the background or hidden by spotlight,
+        // otherwise, use the active_color function
+        return (background_node || hidden) && !highlighted ? "#efefef" : fill_color(d);
+        
       })
       .attr("stroke", function(d){
-        if (vars.clicked && d3.select(this.parentNode).attr("class") == "nodes") return "#dedede";
-        var color = data[d[vars.id_var]].color ? data[d[vars.id_var]].color : vizwhiz.utils.rand_color()
-        if (data[d[vars.id_var]][vars.active_var]) return d3.rgb(color).darker().darker().toString();
-        else if (vars.spotlight && !vars.clicked) return "#dedede";
-        else return d3.rgb(color).darker().toString()
+        
+        // Determine which type of node we're dealing with, based on "g" class
+        var parent_group = this.parentNode.className.baseVal;
+        
+        // "True" if node is a background node and a node has been highlighted
+        var background_node = vars.highlight && parent_group == "nodes";
+        // "True" if node is in the highlight or hover groups
+        var highlighted = parent_group == "hover_node"
+        // "True" if vars.spotlight is true and node vars.active_var is false
+        var hidden = vars.spotlight && !data[d[vars.id_var]][vars.active_var];
+        
+        if (highlighted) return fill_color(d);
+        else if (background_node || hidden) return "#dedede";
+        else return stroke_color(d);
+        
+      })
+  }
+  
+  function fill_color(d) {
+    
+    // Get elements' color
+    var color = get_color(d);
+    
+    // If node is not active, lighten the color
+    if (!data[d[vars.id_var]][vars.active_var]) {
+      var color = d3.hsl(color);
+      color.l = 0.95;
+    }
+    
+    // Return the color
+    return color;
+    
+  }
+  
+  function stroke_color(d) {
+    
+    // Get elements' color
+    var color = get_color(d);
+    
+    // If node is active, return a darker color, else, return the normal color
+    return data[d[vars.id_var]][vars.active_var] ? "#333" : color;
+    
+  }
+  
+  // Helper function to acquire an elements' color, or set one randomly
+  function get_color(d) {
+    
+    // Get element color from data, based on id_var
+    var color = data[d[vars.id_var]].color
+    
+    // If no color exists, get one randomly
+    if (!color) color = vizwhiz.utils.rand_color()
+    
+    // Return color
+    return color;
+    
+  }
+  
+  function node_events(n) {
+    n
+      .on(vizwhiz.evt.over, function(d){
+        
+        d3.select(this).style("cursor","pointer")
+        d3.select(this).style("cursor","-moz-zoom-in")
+        d3.select(this).style("cursor","-webkit-zoom-in")
+          
+        if (d[vars.id_var] == vars.highlight) {
+          d3.select(this).style("cursor","-moz-zoom-out")
+          d3.select(this).style("cursor","-webkit-zoom-out")
+        }
+        
+        if (d[vars.id_var] != hover) {
+          hover = d[vars.id_var];
+          update();
+        }
+        
+      })
+      .on(vizwhiz.evt.out, function(d){
+        
+        // Returns false if the mouse has moved into a child element.
+        // This is used to catch when the mouse moves onto label text.
+        var id_check = d3.event.toElement.__data__[vars.id_var] == d[vars.id_var]
+        if (d3.event.toElement.parentNode != this && !id_check) {
+          hover = null;
+          update();
+        }
+        
+      })
+      .on(vizwhiz.evt.click, function(d){
+        
+        d3.select(this).style("cursor","auto")
+
+        // If there is no highlighted node, 
+        // or the hover node is not the highlighted node
+        if (!vars.highlight || vars.highlight != d[vars.id_var]) {
+          vars.highlight = d[vars.id_var];
+        } 
+        
+        // Else, the user is clicking on the highlighted node.
+        else {
+          vars.highlight = null;
+        }
+        
+        update();
+        
       })
   }
   
   function update() {
     
-    d3.select("g.highlight").selectAll("*").remove()
-    vizwhiz.tooltip.remove();
-    
-    if (vars.highlight) {
-        
-      var center = vars.connections[vars.highlight].center,
-          primaries = vars.connections[vars.highlight].primary,
-          secondaries = vars.connections[vars.highlight].secondary;
-          
-      if (vars.clicked) {
+    // If highlight variable has ACTUALLY changed, do this stuff
+    if (last_highlight != vars.highlight) {
       
-        node.call(node_color);
-        
-        // Draw Secondary Connection Lines and BGs
-        d3.select("g.highlight").selectAll("line.sec_links")
-          .data(secondaries.links).enter()
-          .append("line")
-            .attr("class","sec_links")
-            .attr("stroke-width", "1px")
-            .attr("stroke", secondary_color)
-            .call(link_position)
-            .on(vizwhiz.evt.click, function(d){
-              zoom("reset");
-              update();
-            });
-        d3.select("g.highlight").selectAll("circle.sec_bgs")
-          .data(secondaries.nodes).enter()
-          .append("circle")
-            .attr("class","sec_bgs")
-            .attr("fill", secondary_color)
-            .call(bg_size);
+      // Remove all tooltips on page
+      vizwhiz.tooltip.remove()
+      d3.select("g.highlight").selectAll("*").remove()
+      d3.select("g.hover").selectAll("*").remove()
       
-        // Draw Secondary Nodes
-        d3.select("g.highlight").selectAll("circle.sec_nodes")
-          .data(secondaries.nodes).enter()
-          .append("circle")
-            .attr("class","sec_nodes")
-            .call(node_size)
-            .attr("fill","#efefef")
-            .attr("stroke","#dedede")
-            .on(vizwhiz.evt.over, function(d){
-              if (!vars.clicked) {
-                vars.highlight = d[vars.id_var];
-                update();
-              } else {
-                d3.select(this).attr("stroke",highlight_color)
-              }
-            })
-            .on(vizwhiz.evt.out, function(d){
-              if (vars.clicked) {
-                d3.select(this).attr("stroke","#dedede")
-              }
-            })
-            .on(vizwhiz.evt.click, function(d){
-              vars.highlight = d[vars.id_var];
-              zoom(vars.highlight);
-              update();
-            });
+      if (vars.highlight) {
+                          
+        create_nodes("highlight")
+        
       }
-      
-      // Draw Primary Connection Lines and BGs
-      d3.select("g.highlight").selectAll("line.prim_links")
-        .data(primaries.links).enter()
-        .append("line")
-          .attr("class","prim_links")
-          .attr("stroke", highlight_color)
-          .attr("stroke-width", "2px")
-          .call(link_position)
-          .on(vizwhiz.evt.click, function(d){
-            vars.highlight = null;
-            zoom("reset");
-            update();
-          });
-      d3.select("g.highlight").selectAll("circle.prim_bgs")
-        .data(primaries.nodes).enter()
-        .append("circle")
-          .attr("class","prim_bgs")
-          .call(bg_size)
-          .attr("fill",highlight_color);
-      
-      // Draw Primary Nodes
-      d3.select("g.highlight").selectAll("circle.prim_nodes")
-        .data(primaries.nodes).enter()
-        .append("circle")
-          .attr("class","prim_nodes")
-          .call(node_size)
-          .call(node_color)
-          .on(vizwhiz.evt.over, function(d){
-            d3.select(this).style("cursor","pointer")
-            if (!vars.clicked) {
-              vars.highlight = d[vars.id_var];
-              update();
-            }
-          })
-          .on(vizwhiz.evt.click, function(d){
-            vars.highlight = d[vars.id_var];
-            zoom(vars.highlight);
-            update();
-          })
-          .each(function(d){
-            var value = data[d[vars.id_var]][vars.value_var]
-            var size = value > 0 ? scale.size(value) : scale.size(val_range[0])
-            if (size > 6 && vars.labels && vars.clicked) create_label(d);
-          });
-      
-      // Draw Main Center Node and BG
-      d3.select("g.highlight").selectAll("circle.center_bg")
-        .data([center]).enter()
-        .append("circle")
-          .attr("class","center_bg")
-          .call(bg_size)
-          .attr("fill",select_color);
-      d3.select("g.highlight").selectAll("circle.center")
-        .data([center]).enter()
-        .append("circle")
-          .attr("class","center")
-          .call(node_size)
-          .call(node_color)
-          .on(vizwhiz.evt.over, function(d){
-            d3.select(this).style("cursor","pointer")
-          })
-          .on(vizwhiz.evt.click, function(d){
-            if (!vars.clicked) {
-              zoom(vars.highlight);
-              vars.clicked = true;
-              update();
-            } else {
-              vars.highlight = null;
-              zoom("reset");
-              update();
-            }
-          })
-          .each(function(d){ if (vars.labels && vars.clicked) create_label(d); });
-        
-          
-      // Draw Info Panel
-      if (scale.x(vars.connections[vars.highlight].extent.x[1]) > (vars.width-info_width-10)) var x_pos = 37+(info_width/2)
-      else var x_pos = vars.width
-      
-      var tooltip_data = {},
-          tooltip_appends = [],
-          sub_title = null
-      
-      if (!vars.clicked) {
-        sub_title = "Click Node for More Info"
-      } 
       else {
-        vars.tooltip_info.forEach(function(t){
-          if (data[vars.highlight][t]) tooltip_data[t] = data[vars.highlight][t]
-        })
-        tooltip_appends.push({
-          "append": "text",
-          "attr": {
-            "dy": "18px",
-            "fill": "#333333",
-            "text-anchor": "start",
-            "font-size": "12px",
-            "font-family": "Helvetica"
-          },
-          "style": {
-            "font-weight": "bold"
-          },
-          "text": "Primary Connections"
-        })
-        
-        var prims = []
-        primaries.nodes.forEach(function(c){
-          prims.push(c[vars.id_var])
-        })
-        
-        prims.forEach(function(c){
-          var obj = {
-            "append": "g",
-            "children": [
-              {
-                "append": "circle",
-                "attr": {
-                  "r": "5",
-                  "cx": "5",
-                  "cy": "8"
-                },
-                "style": {
-                  "font-weight": "normal"
-                },
-                "text": data[c][vars.text_var],
-                "events": {}
-              },
-              {
-                "append": "text",
-                "attr": {
-                  "fill": "#333333",
-                  "text-anchor": "start",
-                  "font-size": "12px",
-                  "font-family": "Helvetica",
-                  "y": "0",
-                  "x": "13"
-                },
-                "style": {
-                  "font-weight": "normal"
-                },
-                "text": data[c][vars.text_var],
-                "events": {}
-              }
-            ]
-          }
-          obj.children[0].attr["fill"] = function(){
-              var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
-              if (data[c][vars.active_var]) {
-                return color;
-              } else {
-                color = d3.hsl(color)
-                color.l = 0.98
-                return color.toString()
-              }
-            }
-          obj.children[0].attr["stroke"] = function(){
-              var color = data[c].color ? data[c].color : vizwhiz.utils.rand_color()
-              if (data[c][vars.active_var]) return d3.rgb(color).darker().darker().toString();
-              else return d3.rgb(color).darker().toString()
-            }
-          obj.children[0].attr["stroke-width"] = function(){
-              if(data[c][vars.active_var]) return 2;
-              else return 1;
-            }
-          obj.children[1].events[vizwhiz.evt.over] = function(){
-              d3.select(this).attr('fill',highlight_color).style('cursor','pointer')
-            }
-          obj.children[1].events[vizwhiz.evt.out] = function(){
-              d3.select(this).attr("fill","#333333")
-            }
-          obj.children[1].events[vizwhiz.evt.click] = function(){
-              vars.highlight = c;
-              zoom(vars.highlight);
-              update();
-            }
-          tooltip_appends.push(obj)
-        })
+        zoom("reset");
       }
       
-      vizwhiz.tooltip.create({
-        "parent": vars.svg,
-        "data": tooltip_data,
-        "title": data[vars.highlight][vars.text_var],
-        "description": sub_title,
-        "x": x_pos,
-        "y": 0,
-        "width": info_width,
-        "arrow": false,
-        "appends": tooltip_appends
-      })
-      
-    } 
-    else if (vars.clicked) {
-      vars.clicked = false;
       node.call(node_color)
+      
+      last_highlight = vars.highlight
+    }
+
+    // If hover variable has ACTUALLY changed, do this stuff
+    if (last_hover != hover) {
+
+      d3.select("g.hover").selectAll("*").remove()
+      
+      // If a new hover element exists, create it
+      if (hover && hover != vars.highlight) {
+        create_nodes("hover")
+      }
+      
+      // Set last_hover to the new hover ID
+      last_hover = hover
+    }
+    
+    function create_nodes(group) {
+      
+      if (group == "highlight") {
+        var c = vars.highlight
+      }
+      else {
+        var c = hover
+      }
+      
+      var node_data = vars.nodes.filter(function(n){
+                          return n[vars.id_var] == c
+                        })
+      
+      if (group == "highlight" || !vars.highlight) {
+        var prim_nodes = vars.connections[c]
+        
+        var prim_links = []
+        prim_nodes.forEach(function(n){
+          prim_links.push({"source": node_data[0], "target": n})
+        })
+        
+        var node_data = prim_nodes.concat(node_data)
+        highlight_extent.x = d3.extent(d3.values(node_data),function(v){return v.x;}),
+        highlight_extent.y = d3.extent(d3.values(node_data),function(v){return v.y;})
+
+        if (group == "highlight") {
+          zoom(c);
+          
+          // Draw Info Panel
+          if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) var x_pos = 37+(info_width/2)
+          else var x_pos = vars.width
+      
+          var tooltip_data = {},
+              tooltip_appends = []
+      
+          vars.tooltip_info.forEach(function(t){
+            if (data[vars.highlight][t]) tooltip_data[t] = data[vars.highlight][t]
+          })
+          tooltip_appends.push({
+            "append": "text",
+            "attr": {
+              "dy": "18px",
+              "fill": "#333333",
+              "text-anchor": "start",
+              "font-size": "12px",
+              "font-family": "Helvetica"
+            },
+            "style": {
+              "font-weight": "bold"
+            },
+            "text": "Primary Connections"
+          })
+      
+          prim_nodes.forEach(function(n){
+            var id = n[vars.id_var]
+            var obj = {
+              "append": "g",
+              "children": [
+                {
+                  "append": "circle",
+                  "attr": {
+                    "r": "5",
+                    "cx": "5",
+                    "cy": "8"
+                  },
+                  "style": {
+                    "font-weight": "normal"
+                  },
+                  "text": data[id][vars.text_var],
+                  "events": {}
+                },
+                {
+                  "append": "text",
+                  "attr": {
+                    "fill": "#333333",
+                    "text-anchor": "start",
+                    "font-size": "12px",
+                    "font-family": "Helvetica",
+                    "y": "0",
+                    "x": "13"
+                  },
+                  "style": {
+                    "font-weight": "normal"
+                  },
+                  "text": data[id][vars.text_var],
+                  "events": {}
+                }
+              ]
+            }
+            obj.children[0].attr["fill"] = function(){
+                var color = data[id].color ? data[id].color : vizwhiz.utils.rand_color()
+                if (data[id][vars.active_var]) {
+                  return color;
+                } else {
+                  color = d3.hsl(color)
+                  color.l = 0.95
+                  return color.toString()
+                }
+              }
+            obj.children[0].attr["stroke"] = function(){
+                var color = data[id].color ? data[id].color : vizwhiz.utils.rand_color()
+                return data[id][vars.active_var] ? "#333" : color
+              }
+            obj.children[0].attr["stroke-width"] = 1
+            obj.children[1].events[vizwhiz.evt.over] = function(){
+                d3.select(this).attr('fill',highlight_color).style('cursor','pointer')
+              }
+            obj.children[1].events[vizwhiz.evt.out] = function(){
+                d3.select(this).attr("fill","#333333")
+              }
+            obj.children[1].events[vizwhiz.evt.click] = function(){
+                vars.highlight = id;
+                update();
+              }
+            tooltip_appends.push(obj)
+          })
+      
+          vizwhiz.tooltip.create({
+            "parent": vars.svg,
+            "data": tooltip_data,
+            "title": data[vars.highlight][vars.text_var],
+            "x": x_pos,
+            "y": 0,
+            "width": info_width,
+            "arrow": false,
+            "appends": tooltip_appends
+          })
+          
+        }
+        
+        d3.select("g."+group).selectAll("line")
+          .data(prim_links).enter().append("line")
+            .attr("pointer-events","none")
+            .attr("stroke",highlight_color)
+            .attr("stroke-width",1.5)
+            .call(link_position)
+      }
+      
+      var node_groups = d3.select("g."+group).selectAll("g")
+        .data(node_data).enter().append("g")
+          .attr("class","hover_node")
+          .call(node_events)
+    
+      node_groups
+        .append("circle")
+          .attr("class","bg")
+          .call(node_size)
+          .call(node_stroke)
+          .attr("stroke",highlight_color);
+        
+      node_groups
+        .append("circle")
+          .call(node_size)
+          .call(node_stroke)
+          .call(node_color)
+          .call(create_label);
     }
     
   }
   
-  function create_label(d) {
-    var bg = d3.select("g.highlight").append("rect")
-      .datum(d)
-      .attr("rx",3)
-      .attr("ry",3)
-      .attr("stroke-width", function(d){
-        if(data[d[vars.id_var]][vars.active_var]) return 2;
-        else return 1;
-      })
-      .call(node_color)
-      .on(vizwhiz.evt.over, function(d){
-        d3.select(this).style("cursor","pointer")
-      })
-      .on(vizwhiz.evt.click, function(d){
-        if (d[vars.id_var] == vars.highlight) {
-          vars.highlight = null;
-          zoom("reset");
-          update();
-        } else {
-          vars.highlight = d[vars.id_var];
-          zoom(vars.highlight);
-          update();
-        }
-      })
-    var text = d3.select("g.highlight").append("text")
-      .datum(d)
-      .attr("x", function(e) { return scale.x(e.x); })
-      .attr("fill", function(e) { 
-        return vizwhiz.utils.text_color(bg.attr("fill"))
-      })
-      .attr("font-size","3px")
-      .attr("text-anchor","middle")
-      .attr("font-family","Helvetica")
-      .style("font-weight","bold")
-      .each(function(e){
-        vizwhiz.utils.wordwrap({
-          "text": data[e[vars.id_var]][vars.text_var],
-          "parent": this,
-          "width": 60,
-          "height": 7
-        });
-      })
-      .on(vizwhiz.evt.over, function(d){
-        d3.select(this).style("cursor","pointer")
-      })
-      .on(vizwhiz.evt.click, function(d){
-        if (d[vars.id_var] == vars.highlight) {
-          vars.highlight = null;
-          zoom("reset");
-          update();
-        } else {
-          vars.highlight = d[vars.id_var];
-          zoom(vars.highlight);
-          update();
-        }
-      })
-              
-    var w = text.node().getBBox().width+5,
-        h = text.node().getBBox().height+5;
-        
-    text
-      .attr("y", function(e) { return scale.y(e.y)-((h-5)/2); })
+  function create_label(n) {
+    if (vars.labels) {
+      n.each(function(d){
+
+        var font_size = Math.round(10/zoom_behavior.scale()),
+            value = data[d[vars.id_var]][vars.value_var],
+            size = value > 0 ? scale.size(value) : scale.size(val_range[0])
       
-    var value = data[d[vars.id_var]][vars.value_var]
-    var size = value > 0 ? scale.size(value) : scale.size(val_range[0])
-    if (w-5 <= size*2 && h-5 <= size*2) {
-      bg.remove();
-    } else {
-      bg.attr("width",w)
-        .attr("height",h)
-        .attr("y", function(e) { return scale.y(e.y)-(h/2); })
-        .attr("x", function(e) { return scale.x(e.x)-(w/2); });
+        d3.select(this.parentNode).append("text")
+          .attr("pointer-events","none")
+          .attr("x",scale.x(d.x))
+          .attr("fill",vizwhiz.utils.text_color(fill_color(d)))
+          .attr("font-size",font_size+"px")
+          .attr("text-anchor","middle")
+          .attr("font-family","Helvetica")
+          .style("font-weight","bold")
+          .each(function(e){
+            var tw = size*6,
+                th = size < font_size*2 ? font_size*2 : size
+            if (vars.name_array) {
+              var text = []
+              vars.name_array.forEach(function(n){
+                if (data[d[vars.id_var]][n]) text.push(data[d[vars.id_var]][n])
+              })
+            } else {
+              var text = d[vars.id_var] ? [d[vars.text_var],d[vars.id_var]] : d[vars.text_var]
+            }
+                
+            vizwhiz.utils.wordwrap({
+              "text": text,
+              "parent": this,
+              "width": tw,
+              "height": th,
+              "padding": 0
+            });
+            if (!d3.select(this).select("tspan")[0][0]) {
+              d3.select(this).remove();
+            }
+            else {
+              finish_label(d3.select(this));
+            }
+          })
+              
+        function finish_label(text) {
+          
+          var w = text.node().getBBox().width,
+              h = text.node().getBBox().height
+        
+          text.attr("y",scale.y(d.y)-(h/2))
+          
+          if (h+(font_size*1.5) > size*2 && d[vars.id_var] != hover && d[vars.id_var] != vars.highlight) {
+            text.remove();
+          }
+          else if (w+(font_size) > size*2) {
+            d3.select(text.node().parentNode)
+              .insert("rect","circle")
+                .attr("class","bg")
+                .attr("rx",font_size)
+                .attr("ry",font_size)
+                .attr("width",w+(font_size*1.5))
+                .attr("height",h+(font_size*1.5))
+                .attr("y",scale.y(d.y)-((h+(font_size*1.5))/2))
+                .attr("x",scale.x(d.x)-((w+(font_size*1.5))/2))
+                .call(node_stroke)
+                .attr("stroke",highlight_color);
+            d3.select(text.node().parentNode)
+              .insert("rect","text")
+                .attr("rx",font_size)
+                .attr("ry",font_size)
+                .attr("stroke-width", 0)
+                .attr("fill",fill_color(d))
+                .attr("width",w+(font_size*1.5))
+                .attr("height",h+(font_size*1.5))
+                .attr("y",scale.y(d.y)-((h+(font_size*1.5))/2))
+                .attr("x",scale.x(d.x)-((w+(font_size*1.5))/2));
+          }
+        }
+        
+      })
+      
     }
   }
   
@@ -613,8 +706,8 @@ vizwhiz.network = function(data,vars) {
         if (zoom_behavior.scale() < zoom_extent[0]*2) multiplier = zoom_extent[0]/zoom_behavior.scale()
         else multiplier = 0.5
       } else if (vars.connections[direction]) {
-        var x_bounds = [scale.x(vars.connections[direction].extent.x[0]),scale.x(vars.connections[direction].extent.x[1])],
-            y_bounds = [scale.y(vars.connections[direction].extent.y[0]),scale.y(vars.connections[direction].extent.y[1])]
+        var x_bounds = [scale.x(highlight_extent.x[0]),scale.x(highlight_extent.x[1])],
+            y_bounds = [scale.y(highlight_extent.y[0]),scale.y(highlight_extent.y[1])]
             
         if (x_bounds[1] > (vars.width-info_width-5)) var offset_left = info_width+32
         else var offset_left = 0
