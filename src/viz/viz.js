@@ -11,7 +11,6 @@ vizwhiz.viz = function() {
     "arc_sizes": {},
     "boundries": null,
     "center": null,
-    "clicked": false,
     "connections": null,
     "coords": null,
     "csv_columns": null,
@@ -155,7 +154,7 @@ vizwhiz.viz = function() {
       vars.width = vars.svg_width;
       
       vars.margin.top = 0;
-      if (vars.svg_width < 400 || vars.svg_height < 400) {
+      if (vars.svg_width < 300 || vars.svg_height < 200) {
         vars.small = true;
         make_title(null,"title");
         make_title(null,"sub_title");
@@ -311,59 +310,16 @@ vizwhiz.viz = function() {
   
   get_connections = function(links) {
     var connections = {};
-    if (vars.type == "network") {
-      links.forEach(function(d) {
-        if (!connections[d.source[vars.id_var]]) {
-          connections[d.source[vars.id_var]] = {}
-          connections[d.source[vars.id_var]].center = d.source
-          connections[d.source[vars.id_var]].primary = {"nodes": [], "links": []}
-        }
-        connections[d.source[vars.id_var]].primary.nodes.push(d.target)
-        connections[d.source[vars.id_var]].primary.links.push({"source": d.source, "target": d.target})
-        if (!connections[d.target[vars.id_var]]) {
-          connections[d.target[vars.id_var]] = {}
-          connections[d.target[vars.id_var]].center = d.target
-          connections[d.target[vars.id_var]].primary = {"nodes": [], "links": []}
-        }
-        connections[d.target[vars.id_var]].primary.nodes.push(d.source)
-        connections[d.target[vars.id_var]].primary.links.push({"source": d.target, "target": d.source})
-      })
-      for (var c in connections) {
-        connections[c].secondary = {"nodes": [], "links": []}
-        connections[c].primary.nodes.forEach(function(p){
-          connections[p[vars.id_var]].primary.nodes.forEach(function(s){
-            if (s[vars.id_var] != c) {
-              if (connections[c].primary.nodes.indexOf(s) < 0 && connections[c].secondary.nodes.indexOf(s) < 0) {
-                connections[c].secondary.nodes.push(s)
-              }
-              var dupe = false
-              connections[c].secondary.links.forEach(function(l){
-                if (l.source == s && l.target == p) dupe = true
-              })
-              if (!dupe) {
-                connections[c].secondary.links.push({"source": p, "target": s})
-              }
-            }
-          })
-        })
-        var node_check = connections[c].primary.nodes.concat([connections[c].center])
-        connections[c].extent = {}
-        connections[c].extent.x = d3.extent(d3.values(node_check),function(v){return v.x;}),
-        connections[c].extent.y = d3.extent(d3.values(node_check),function(v){return v.y;})
+    links.forEach(function(d) {
+      if (!connections[d.source[vars.id_var]]) {
+        connections[d.source[vars.id_var]] = []
       }
-    }
-    else {
-      links.forEach(function(d) {
-        if (!connections[d.source[vars.id_var]]) {
-          connections[d.source[vars.id_var]] = []
-        }
-        connections[d.source[vars.id_var]].push(d.target)
-        if (!connections[d.target[vars.id_var]]) {
-          connections[d.target[vars.id_var]] = []
-        }
-        connections[d.target[vars.id_var]].push(d.source)
-      })
-    }
+      connections[d.source[vars.id_var]].push(d.target)
+      if (!connections[d.target[vars.id_var]]) {
+        connections[d.target[vars.id_var]] = []
+      }
+      connections[d.target[vars.id_var]].push(d.source)
+    })
     return connections;
   }
   
@@ -490,8 +446,6 @@ vizwhiz.viz = function() {
   chart.highlight = function(value) {
     if (!arguments.length) return vars.highlight;
     vars.highlight = value;
-    if (vars.highlight) vars.clicked = true;
-    else vars.clicked = false;
     return chart;
   };
   
