@@ -611,41 +611,42 @@ vizwhiz.network = function(data,vars) {
         var font_size = Math.round(10/zoom_behavior.scale()),
             value = data[d[vars.id_var]][vars.value_var],
             size = value > 0 ? scale.size(value) : scale.size(val_range[0])
-      
-        d3.select(this.parentNode).append("text")
-          .attr("pointer-events","none")
-          .attr("x",scale.x(d.x))
-          .attr("fill",vizwhiz.utils.text_color(fill_color(d)))
-          .attr("font-size",font_size+"px")
-          .attr("text-anchor","middle")
-          .attr("font-family","Helvetica")
-          .style("font-weight","bold")
-          .each(function(e){
-            var tw = size*6,
-                th = size < font_size*2 ? font_size*2 : size
-            if (vars.name_array) {
-              var text = []
-              vars.name_array.forEach(function(n){
-                if (data[d[vars.id_var]][n]) text.push(data[d[vars.id_var]][n])
-              })
-            } else {
-              var text = d[vars.id_var] ? [d[vars.text_var],d[vars.id_var]] : d[vars.text_var]
-            }
+        if (font_size < size || d[vars.id_var] == hover || d[vars.id_var] == vars.highlight) {
+          d3.select(this.parentNode).append("text")
+            .attr("pointer-events","none")
+            .attr("x",scale.x(d.x))
+            .attr("fill",vizwhiz.utils.text_color(fill_color(d)))
+            .attr("font-size",font_size+"px")
+            .attr("text-anchor","middle")
+            .attr("font-family","Helvetica")
+            .style("font-weight","bold")
+            .each(function(e){
+              var tw = size*6,
+                  th = size < font_size*2 ? font_size*2 : size
+              if (vars.name_array) {
+                var text = []
+                vars.name_array.forEach(function(n){
+                  if (data[d[vars.id_var]][n]) text.push(data[d[vars.id_var]][n])
+                })
+              } else {
+                var text = d[vars.id_var] ? [d[vars.text_var],d[vars.id_var]] : d[vars.text_var]
+              }
                 
-            vizwhiz.utils.wordwrap({
-              "text": text,
-              "parent": this,
-              "width": tw,
-              "height": th,
-              "padding": 0
-            });
-            if (!d3.select(this).select("tspan")[0][0]) {
-              d3.select(this).remove();
-            }
-            else {
-              finish_label(d3.select(this));
-            }
-          })
+              vizwhiz.utils.wordwrap({
+                "text": text,
+                "parent": this,
+                "width": tw,
+                "height": th,
+                "padding": 0
+              });
+              if (!d3.select(this).select("tspan")[0][0]) {
+                d3.select(this).remove();
+              }
+              else {
+                finish_label(d3.select(this));
+              }
+            })
+        }
               
         function finish_label(text) {
           
