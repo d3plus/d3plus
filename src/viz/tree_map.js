@@ -13,7 +13,7 @@ vizwhiz.tree_map = function(data,vars) {
     .filter(function(d) {
       return !d.children;
     })
-  
+    
   var cell = d3.select("g.parent").selectAll("g")
     .data(tmap_data, function(d){ return d[vars.id_var]; })
   
@@ -104,9 +104,6 @@ vizwhiz.tree_map = function(data,vars) {
   // Update, for cells that are already in existance
   //-------------------------------------------------------------------
   
-  // need to perform updates in "each" clause so that new data is 
-  // propogated down to rects and text elements
-  
   cell.transition().duration(vizwhiz.timing)
     .attr("transform", function(d) { 
       return "translate(" + d.x + "," + d.y + ")"; 
@@ -135,7 +132,8 @@ vizwhiz.tree_map = function(data,vars) {
           vars.name_array.forEach(function(n){
             if (d[n]) text.push(d[n])
           })
-        } else {
+        } 
+        else {
           var text = d[vars.id_var] ? [d[vars.text_var],d[vars.id_var]] : d[vars.text_var]
         }
         vizwhiz.utils.wordwrap({

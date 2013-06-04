@@ -39,14 +39,22 @@ d3.json("data/attr_hs.json", function(attr) {
     // })
     
     d3.json("data/products_mg.json", function(ps_data) {
-      
-      ps_data = ps_data.filter(function(d){ return d.year == 2010; })
-      data = {} // to pass to viz
-      viz_nodes.forEach(function(d){
-        data[d.id] = ps_data.filter(function(f){return f.id == d.id})[0]
-        data[d.id] = vizwhiz.utils.merge(data[d.id],attr[d.id])
-        data[d.id].active = Math.floor(Math.random()*2);
-      })
+        
+        var data = [],
+            years = vizwhiz.utils.uniques(ps_data,"year")
+        years.forEach(function(year){
+          viz_nodes.forEach(function(n){
+            var d = ps_data.filter(function(p){ return p.year == year && p.id == n.id })[0]
+            var obj = vizwhiz.utils.merge(d,attr[n.id])
+            obj.year = year;
+            obj = vizwhiz.utils.merge(obj,n)
+            obj.nesting_0 = {"name":attr[obj.id.slice(0, 2)].name, "id":obj.id.slice(0, 2)};
+            obj.nesting_1 = {"name":attr[obj.id.slice(0, 4)].name, "id":obj.id.slice(0, 4)};
+            obj.nesting_2 = {"name":attr[obj.id.slice(0, 6)].name, "id":obj.id.slice(0, 6)};
+            obj.active = Math.floor(Math.random()*2);
+            data.push(obj)
+          })
+        })
       
       viz
         .type("rings")
@@ -54,12 +62,13 @@ d3.json("data/attr_hs.json", function(attr) {
         .id_var("id")
         .links(viz_links)
         .value_var("value")
-        // .center("116108") // women's undergarments
-        // .center("020910") // ginger
-        // .center("157202") // ferroalloys
-        .center("178703") // cars
-        // .center("168480") // molding boxes
+        // .highlight("116108") // women's undergarments
+        .highlight("020910") // ginger
+        // .highlight("157202") // ferroalloys
+        // .highlight("178703") // cars
+        // .highlight("168480") // molding boxes
         .tooltip_info(["id","distance", "complexity", "value"])
+        .nesting(["nesting_0","nesting_1","nesting_2"])
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
 
       // viz

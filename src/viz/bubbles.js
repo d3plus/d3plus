@@ -5,7 +5,7 @@ vizwhiz.bubbles = function(data,vars) {
   //-------------------------------------------------------------------
   
   var groups = {},
-      donut_size = 0.4,
+      donut_size = 0.35,
       title_height = vars.small ? 0 : 30,
       arc_offset = vars.donut ? donut_size : 0,
       sort_order = vars.sort == "value" ? vars.value_var : vars.sort;
@@ -235,6 +235,9 @@ vizwhiz.bubbles = function(data,vars) {
       
       d3.select(this).select("text").transition().duration(vizwhiz.timing)
         .attr("opacity",1)
+        .attr('y',function(dd) {
+          return -(d.height/2)-title_height/4;
+        })
       
     });
     
@@ -269,12 +272,15 @@ vizwhiz.bubbles = function(data,vars) {
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
+      var bg_color = d3.hsl(d.color)
+      bg_color.l = 0.95
+      bg_color = bg_color.toString()
+      
       d3.select(this).append("path")
         .attr("class","bg")
-        .attr("fill", d.color )
+        .attr("fill", bg_color )
         .attr("stroke", d.color )
         .attr("stroke-width",1)
-        .style('fill-opacity', 0.1 )
       
       d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
         .attrTween("d",arcTween_bg)
@@ -306,6 +312,68 @@ vizwhiz.bubbles = function(data,vars) {
       d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
         .attrTween("d",arcTween)
         
+    })
+    .transition().duration(vizwhiz.timing)
+    .each(function(d){
+    
+      if (vars.donut) d.arc_inner_bg = d.r*arc_offset;
+      else d.arc_inner_bg = 0;
+      d.arc_radius_bg = d.r;
+      
+      d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
+        .attrTween("d",arcTween_bg)
+        .each("end", function() {
+          vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
+          vars.arc_inners[d[vars.id_var]+"_bg"] = d.arc_inner_bg
+        })
+        
+        
+      var arc_start = d.r*arc_offset;
+      
+      d.arc_inner = arc_start;
+      d.arc_radius = arc_start+(d.r-arc_start);
+
+      d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
+        .attrTween("d",arcTween)
+        .each("end", function() {
+          vars.arc_sizes[d[vars.id_var]] = d.arc_radius
+          vars.arc_inners[d[vars.id_var]] = d.arc_inner
+          
+          if (d.total) d.arc_angle = (((d[vars.active_var] / d.total)*360) * (Math.PI/180));
+          else if (d.active) d.arc_angle = Math.PI; 
+          
+          d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
+          
+          d3.select(this).transition().duration(vizwhiz.timing*(d.arc_angle/2))
+            .attrTween("d",arcTween)
+            .each("end", function() {
+              vars.arc_angles[d[vars.id_var]] = d.arc_angle
+            })
+        })
+    
+      if (d.elsewhere) {
+      
+        d.arc_inner_else = arc_start;
+        d.arc_radius_else = d.r;
+      
+        d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+          .attrTween("d",arcTween_else)
+          .each("end", function() {
+            vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
+            vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
+      
+            d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
+
+            d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
+            
+            d3.select(this).transition().duration(vizwhiz.timing*(d.arc_angle_else/2))
+              .attrTween("d",arcTween_else)
+              .each("end", function() {
+                vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
+              })
+          })
+      }
+      
     });
   
   //===================================================================
@@ -340,51 +408,53 @@ vizwhiz.bubbles = function(data,vars) {
   
   bubble.transition().duration(vizwhiz.timing)
     .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
-    .each(function(d){
-    
+    .each("end",function(d){
       if (vars.donut) d.arc_inner_bg = d.r*arc_offset;
       else d.arc_inner_bg = 0;
       d.arc_radius_bg = d.r;
-      
+    
       d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
         .attrTween("d",arcTween_bg)
         .each("end", function() {
           vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
           vars.arc_inners[d[vars.id_var]+"_bg"] = d.arc_inner_bg
         })
-        
-        
-      var arc_start = d.r*arc_offset;
       
-      d.arc_inner = arc_start+((d.r-arc_start)*0.25);
-      d.arc_radius = arc_start+((d.r-arc_start)*0.75);
+      
+      var arc_start = d.r*arc_offset;
     
+      d.arc_inner = arc_start;
+      d.arc_radius = arc_start+(d.r-arc_start);
+        
       if (d.total) d.arc_angle = (((d[vars.active_var] / d.total)*360) * (Math.PI/180));
-      else if (d.active) d.arc_angle = 360; 
+      else if (d.active) d.arc_angle = Math.PI; 
+    
+      d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
 
       d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
         .attrTween("d",arcTween)
         .each("end", function() {
-          vars.arc_angles[d[vars.id_var]] = d.arc_angle
           vars.arc_sizes[d[vars.id_var]] = d.arc_radius
           vars.arc_inners[d[vars.id_var]] = d.arc_inner
+          vars.arc_angles[d[vars.id_var]] = d.arc_angle
         })
-    
+  
       if (d.elsewhere) {
-      
+    
         d.arc_inner_else = arc_start;
         d.arc_radius_else = d.r;
-        d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
       
+        d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
+        d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
+    
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
           .attrTween("d",arcTween_else)
           .each("end", function() {
-            vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
             vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
             vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
+            vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
           })
       }
-      
     })
       
   //===================================================================

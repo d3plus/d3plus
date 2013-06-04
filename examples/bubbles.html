@@ -27,40 +27,22 @@
   d3.json("data/products_mg.json", function(raw_data) {
     d3.json("data/attr_hs.json", function(attr) {
 
-      flat2010 = raw_data.filter(function(d){ return d.year == 2010 && d.val_usd > 50000000 && d.val_usd < 10000000000; })
+      flat2010 = raw_data.filter(function(d){ return d.val_usd > 50000000 && d.val_usd < 10000000000; })
       
       var data2010 = []
       flat2010.forEach(function(d){
         var obj = vizwhiz.utils.merge(d,attr[d.id])
         obj.category = attr[d.id.substr(0,2)].name;
+        obj.nesting_0 = {"name":attr[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+        obj.nesting_1 = {"name":attr[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+        obj.nesting_2 = {"name":attr[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
         obj.importance = Math.floor(Math.random() * (10 - 2 + 1)) + 2;
-        obj.total = Math.floor(Math.random() * (1200 - 2 + 1)) + 2;
-        obj.Employed = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
-        obj.elsewhere = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
+        obj.total = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
+        obj.Employed = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
+        obj.elsewhere = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
         if (obj.Employed/obj.total >= 1) obj.active = true;
         else obj.active = false;
-        // obj.active = Math.random() < 0.5
-        delete obj.year
-        delete obj.attr_type
         data2010.push(obj)
-      })
-        
-      flat2003 = raw_data.filter(function(d){ return d.year == 2003 && d.val_usd > 50000000 && d.val_usd < 10000000000; })
-      
-      var data2003 = []
-      flat2003.forEach(function(d){
-        var obj = vizwhiz.utils.merge(d,attr[d.id])
-        obj.category = attr[d.id.substr(0,2)].name;
-        obj.importance = Math.floor(Math.random() * (10 - 2 + 1)) + 2;
-        obj.total = Math.floor(Math.random() * (1200 - 2 + 1)) + 2;
-        obj.Employed = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
-        obj.elsewhere = Math.floor(Math.random() * (600 - 2 + 1)) + 2;
-        if (obj.Employed/obj.total >= 1) obj.active = true;
-        else obj.active = false;
-        // obj.active = Math.random() < 0.5
-        delete obj.year
-        delete obj.attr_type
-        data2003.push(obj)
       })
       
       viz = vizwhiz.viz()
@@ -69,9 +51,11 @@
         .value_var("importance")
         .text_var("name")
         .active_var("Employed")
-        .tooltip_info(["test","available","total","elsewhere","val_usd","val_quantity","val_kg"])
-        .grouping("category")
-        .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"});
+        .tooltip_info(["test","Employed","elsewhere","total","val_usd","val_quantity","val_kg"])
+        .grouping("id")
+        .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+        .year(2010)
+        .nesting(["nesting_0","nesting_1","nesting_2"]);
         
       d3.select("#viz")
         .datum(data2010)

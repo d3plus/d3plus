@@ -1,11 +1,5 @@
 
 vizwhiz.pie_scatter = function(data,vars) {
- 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Private variables initialized
-  //-------------------------------------------------------------------
-  
-  var stroke = 2;
 
   //===================================================================
   
@@ -36,7 +30,7 @@ vizwhiz.pie_scatter = function(data,vars) {
         .attr("y1", 0-1)
         .attr("y2", -graph.height+1)
         .attr("stroke", "#ccc")
-        .attr("stroke-width",stroke/2)
+        .attr("stroke-width",1)
       
       bgtick.transition().duration(vizwhiz.timing) 
         .attr("y2", -graph.height+1)
@@ -49,7 +43,7 @@ vizwhiz.pie_scatter = function(data,vars) {
         .attr("y1", 1)
         .attr("y2", 20)
         .attr("stroke", "#000")
-        .attr("stroke-width", stroke)
+        .attr("stroke-width",1)
       return vizwhiz.utils.format_num(d, false, 3, true);
     });
   
@@ -71,15 +65,15 @@ vizwhiz.pie_scatter = function(data,vars) {
         
       bgtick.enter().append("line")
         .attr("class","bgtick")
-        .attr("x1", 0+stroke)
-        .attr("x2", 0+graph.width-stroke)
+        .attr("x1", 0+1)
+        .attr("x2", 0+graph.width-1)
         .attr("y1", 0)
         .attr("y2", 0)
         .attr("stroke", "#ccc")
-        .attr("stroke-width",stroke/2)
+        .attr("stroke-width",1)
         
       bgtick.transition().duration(vizwhiz.timing) 
-        .attr("x2", 0+graph.width-stroke)
+        .attr("x2", 0+graph.width-1)
         
       // tick
       d3.select(this.parentNode).append("line")
@@ -89,7 +83,7 @@ vizwhiz.pie_scatter = function(data,vars) {
         .attr("y1", 0)
         .attr("y2", 0)
         .attr("stroke", "#4c4c4c")
-        .attr("stroke-width",stroke)
+        .attr("stroke-width",1)
       // return parseFloat(d.toFixed(3))
       return vizwhiz.utils.format_num(d, false, 3, true);
     });
@@ -136,11 +130,15 @@ vizwhiz.pie_scatter = function(data,vars) {
   // INIT vars & data munging
   //-------------------------------------------------------------------
     
+  var data_range = d3.extent(data, function(d){ return d[vars.value_var]; })
+  
+  if (!data_range[1]) data_range = [0,0]
+  
   var size_scale = d3.scale.linear()
-    .domain(d3.extent(data, function(d){ return d[vars.value_var]; }))
+    .domain(data_range)
     .range([d3.max([d3.min([vars.width,vars.height])/75,5]), d3.max([d3.min([vars.width,vars.height])/10,10])])
     .nice()
-  
+    
   //===================================================================
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -148,7 +146,7 @@ vizwhiz.pie_scatter = function(data,vars) {
   //-------------------------------------------------------------------
   
   // create scale for buffer of largest item
-  if (!vars.xaxis_domain) var x_domain = d3.extent(data, function(d){ return d[vars.xaxis_var]; })
+  if (vars.xaxis_domain.length < 2) var x_domain = d3.extent(data, function(d){ return d[vars.xaxis_var]; })
   else var x_domain = vars.xaxis_domain
   
   var x_scale = d3.scale.linear()
@@ -178,7 +176,7 @@ vizwhiz.pie_scatter = function(data,vars) {
   
   // also update background tick lines
   d3.selectAll(".x_bg_line")
-    .attr("y2", -graph.height-stroke)
+    .attr("y2", -graph.height-1)
   
   // label
   xaxis_enter.append('text')
@@ -204,7 +202,7 @@ vizwhiz.pie_scatter = function(data,vars) {
   // Y AXIS
   //-------------------------------------------------------------------
   // 
-  if (!vars.yaxis_domain) var y_domain = d3.extent(data, function(d){ return d[vars.yaxis_var]; }).reverse();
+  if (vars.yaxis_domain.length < 2) var y_domain = d3.extent(data, function(d){ return d[vars.yaxis_var]; }).reverse();
   else var y_domain = vars.yaxis_domain;
   
   var y_scale = d3.scale.linear()
@@ -233,7 +231,7 @@ vizwhiz.pie_scatter = function(data,vars) {
   
   // also update background tick lines
   d3.selectAll(".y_bg_line")
-    .attr("x2", 0+graph.width-stroke)
+    .attr("x2", 0+graph.width-1)
   
   // label
   yaxis_enter.append('text')
@@ -282,10 +280,19 @@ vizwhiz.pie_scatter = function(data,vars) {
       
       d3.select(this)
         .append("circle")
-        .style('stroke', d.color )
-        .style('stroke-width', 3)
-        .style('fill', d.color )
-        .style("fill-opacity", function(dd) { return d.active ? 0.75 : 0.25; })
+        .style("stroke", function(dd){
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
+          else return d.color;
+        })
+        .style('stroke-width', 2)
+        .style('fill', function(dd){
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return d.color;
+          else {
+            var c = d3.hsl(d.color);
+            c.l = 0.95;
+            return c.toString();
+          }
+        })
         .attr("r", 0 )
         
       vars.arc_angles[d.id] = 0
@@ -315,19 +322,34 @@ vizwhiz.pie_scatter = function(data,vars) {
     .attr("opacity", 1)
     .each(function(d){
       
-      d.arc_radius = size_scale(d[vars.value_var]);
-      if (d.num_children) d.arc_angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
+      var val = d[vars.value_var] ? d[vars.value_var] : size_scale.domain()[0]
+      d.arc_radius = size_scale(val);
       
       d3.select(this).select("circle").transition().duration(vizwhiz.timing)
-        .style('fill', d.color )
-        .attr("r", d.arc_radius )
-      
-      d3.select(this).select("path").transition().duration(vizwhiz.timing)
-        .attrTween("d",arcTween)
-        .each("end", function(dd) {
-          vars.arc_angles[d.id] = d.arc_angle
-          vars.arc_sizes[d.id] = d.arc_radius
+        .style("stroke", function(dd){
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
+          else return d.color;
         })
+        .style('fill', function(dd){
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return d.color;
+          else {
+            var c = d3.hsl(d.color);
+            c.l = 0.95;
+            return c.toString();
+          }
+        })
+        .attr("r", d.arc_radius )
+
+      
+      if (d.num_children) {
+        d.arc_angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
+        d3.select(this).select("path").transition().duration(vizwhiz.timing)
+          .attrTween("d",arcTween)
+          .each("end", function(dd) {
+            vars.arc_angles[d.id] = d.arc_angle
+            vars.arc_sizes[d.id] = d.arc_radius
+          })
+      }
       
     })
   
@@ -359,7 +381,7 @@ vizwhiz.pie_scatter = function(data,vars) {
     .attr("y1", function(d){ return y_scale(d[vars.yaxis_var]) })
     .attr("y2", function(d){ return y_scale(d[vars.yaxis_var]) })
     .attr("stroke", function(d){ return d.color; })
-    .attr("stroke-width", stroke/2)
+    .attr("stroke-width", 1)
   
   // UPDATE      
   ticks.selectAll(".yticks").transition().duration(vizwhiz.timing)
@@ -377,7 +399,7 @@ vizwhiz.pie_scatter = function(data,vars) {
     .attr("x1", function(d){ return x_scale(d[vars.xaxis_var]) })
     .attr("x2", function(d){ return x_scale(d[vars.xaxis_var]) })
     .attr("stroke", function(d){ return d.color; })
-    .attr("stroke-width", stroke/2)
+    .attr("stroke-width", 1)
   
   // UPDATE
   ticks.selectAll(".xticks").transition().duration(vizwhiz.timing)
@@ -426,22 +448,23 @@ vizwhiz.pie_scatter = function(data,vars) {
 
       return function(d){
         
-        var radius = size_scale(d[vars.value_var]),
+        var val = d[vars.value_var] ? d[vars.value_var] : size_scale.domain()[0]
+        var radius = size_scale(val),
             x = x_scale(d[vars.xaxis_var]),
             y = y_scale(d[vars.yaxis_var]),
-            color = d.color,
+            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : d.color,
             viz = d3.select("g.viz"),
             tooltip_data = {};
-      
+            
         // vertical line to x-axis
         viz.append("line")
           .attr("class", "axis_hover")
           .attr("x1", x)
           .attr("x2", x)
-          .attr("y1", y+radius+stroke) // offset so hover doens't flicker
+          .attr("y1", y+radius+1) // offset so hover doens't flicker
           .attr("y2", graph.height)
           .attr("stroke", color)
-          .attr("stroke-width", stroke)
+          .attr("stroke-width", 2)
       
         // horizontal line to y-axis
         viz.append("line")
@@ -451,7 +474,7 @@ vizwhiz.pie_scatter = function(data,vars) {
           .attr("y1", y)
           .attr("y2", y)
           .attr("stroke", color)
-          .attr("stroke-width", stroke)
+          .attr("stroke-width", 2)
       
         // x-axis value box
         viz.append("rect")
@@ -462,7 +485,7 @@ vizwhiz.pie_scatter = function(data,vars) {
           .attr("height", 20)
           .attr("fill", "white")
           .attr("stroke", color)
-          .attr("stroke-width", stroke)
+          .attr("stroke-width", 2)
       
         // xvalue text element
         viz.append("text")
@@ -486,7 +509,7 @@ vizwhiz.pie_scatter = function(data,vars) {
           .attr("height", 20)
           .attr("fill", "white")
           .attr("stroke", color)
-          .attr("stroke-width", stroke)
+          .attr("stroke-width", 2)
       
         // xvalue text element
         viz.append("text")

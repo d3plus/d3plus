@@ -10,11 +10,11 @@ vizwhiz.viz = function() {
     "arc_inners": {},
     "arc_sizes": {},
     "boundries": null,
-    "center": null,
     "connections": null,
     "coords": null,
     "csv_columns": null,
     "csv_data": [],
+    "depth": null,
     "donut": true,
     "filter": [],
     "group_bgs": true,
@@ -22,6 +22,7 @@ vizwhiz.viz = function() {
     "highlight": null,
     "id_var": "id",
     "init": true,
+    "keys": [],
     "labels": true,
     "layout": "value",
     "links": null,
@@ -32,7 +33,8 @@ vizwhiz.viz = function() {
            },
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "name_array": null,
-    "nodes": null,
+    "nesting": [],
+    "nesting_aggs": {},
     "order": "asc",
     "projection": d3.geo.mercator(),
     "solo": [],
@@ -52,14 +54,19 @@ vizwhiz.viz = function() {
     "xaxis_var": null,
     "yaxis_domain": null,
     "yaxis_var": null,
+    "year": null,
+    "years": null,
+    "year_var": "year",
     "zoom_behavior": d3.behavior.zoom()
   }
+  
+  var links;
   
   //===================================================================
 
   chart = function(selection) {
     selection.each(function(data) {
-      
+
       vars.parent = d3.select(this)
       
       vars.svg = vars.parent.selectAll("svg").data([data]);
@@ -74,81 +81,108 @@ vizwhiz.viz = function() {
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
         
-      if (data.children) {
+      vars.years = vizwhiz.utils.uniques(data,vars.year_var)
+      if (!vars.year) vars.year = vars.years[vars.years.length-1]
 
-        var filtered_data = {"name": "root", "children": []};
-
-        filtered_data.children = data.children.filter(function(d){
-          if (vars.filter.indexOf(d[vars.text_var]) >= 0) return false;
-          if (!vars.solo.length) return true;
-          if (vars.solo.indexOf(d[vars.text_var]) >= 0) return true;
-          return false;
-        })
-        
-        // create CSV data
-        var val = vars.value_var
-        var csv_d = []
-        find_deepest(filtered_data)
-        vars.csv_data = csv_d;
-        
-        function find_deepest(d) {
-          if (d[val]) {
-            csv_d.push(d)
-          }
-          else if (d.children) {
-            d.children.forEach(function(dd){
-              find_deepest(dd);
-            })
+      vars.keys = {}
+      var filtered_data = data.filter(function(d){
+        for (k in d) {
+          if (!vars.keys[k]) {
+            vars.keys[k] = typeof d[k]
           }
         }
-
-        var total_val = d3.sum(filtered_data.children,function(d) {
-          return check_for_value(d);
-        })
-        
-        function check_for_value(d) {
-          if (d[val]) return d[val]
-          else if (d.children) {
-            return d3.sum(d.children,function(dd) {
-              return check_for_value(dd);
-            })
-          }
+        if (vars.xaxis_var) {
+          if (typeof d[vars.xaxis_var] == "undefined") return false
         }
-        
+        if (vars.yaxis_var) {
+          if (typeof d[vars.yaxis_var] == "undefined") return false
+        }
+        if (vars.spotlight && vars.type == "pie_scatter") {
+          if (!d[vars.active_var]) return false
+        }
+        if (vars.year && vars.type != "stacked") return d[vars.year_var] == vars.year;
+        return true;
+      })
+      
+      // Filter & Solo the data!
+      removed_ids = []
+      if (vars.solo.length || vars.filter.length) {
+        filtered_data = filtered_data.filter(function(d){
+          var check = [d[vars.id_var],d[vars.text_var]]
+          vars.nesting.forEach(function(key){
+            for (x in d[key]) {
+              check.push(d[key][x])
+            }
+          })
+          var match = false
+          if (d[vars.id_var] != vars.highlight || vars.type != "rings") {
+            if (vars.solo.length) {
+              check.forEach(function(c){
+                if (vars.solo.indexOf(c) >= 0) match = true;
+              })
+              if (match) return true
+              removed_ids.push(d[vars.id_var])
+              return false
+            }
+            else {
+              check.forEach(function(c){
+                if (vars.filter.indexOf(c) >= 0) match = true;
+              })
+              if (match) {
+                removed_ids.push(d[vars.id_var])
+                return false
+              }
+              return true
+            }
+          }
+          else {
+            return true
+          }
+        })
       }
-      else if (data instanceof Array) {
+      
+      // create CSV data
+      vars.csv_data = filtered_data;
+      
+      var total_val = d3.sum(filtered_data, function(d){ 
+        return d[vars.value_var] 
+      })
         
-        var filtered_data = data.filter(function(d){
-          if (vars.filter.indexOf(d[vars.text_var]) >= 0) return false;
-          if (!vars.solo.length) return true;
-          if (vars.solo.indexOf(d[vars.text_var]) >= 0) return true;
-          return false;
+      if (["tree_map","pie_scatter"].indexOf(vars.type) >= 0) {
+        var cleaned_data = nest(filtered_data)
+      }
+      else if (vars.type == "stacked") {
+        var temp_data = []
+        vars.years.forEach(function(year){
+          var year_data = filtered_data.filter(function(d){
+            return d[vars.year_var] == year;
+          })
+          year_data = nest(year_data)
+          temp_data = temp_data.concat(year_data)
         })
-        
-        // create CSV data
-        vars.csv_data = filtered_data;
-        
-        var total_val = d3.sum(data, function(d){ 
-          return d[vars.value_var] 
+        cleaned_data = temp_data
+      }
+      else if (vars.type == "geo_map") {
+        cleaned_data = {};
+        filtered_data.forEach(function(d){
+          cleaned_data[d[vars.id_var]] = d;
         })
-        
       }
       else {
-        
-        var filtered_data = {}
-        for (d in data) {
-          if (vars.filter.indexOf(d[vars.text_var]) < 0) filtered_data[d] = data[d];
-          if (!vars.solo.length) filtered_data[d] = data[d];
-          if (vars.solo.indexOf(d[vars.text_var]) >= 0) filtered_data[d] = data[d];
-        }
-        
-        // create CSV data
-        vars.csv_data = d3.values(filtered_data);
-        
-        var total_val = d3.sum(d3.values(data), function(d){ 
-          return d[vars.value_var] 
+        cleaned_data = filtered_data
+      }
+      
+      if (["network","rings"].indexOf(vars.type) >= 0) {
+        vars.links = links.filter(function(l){
+          if (removed_ids.indexOf(l.source[vars.id_var]) >= 0
+           || removed_ids.indexOf(l.target[vars.id_var]) >= 0) {
+            return false;
+          }
+          else {
+            return true;
+          }
         })
-        
+        vars.connections = get_connections(vars.links)
       }
       
       vars.width = vars.svg_width;
@@ -208,8 +242,8 @@ vizwhiz.viz = function() {
         .attr("width",vars.width)
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-      
-      vizwhiz[vars.type](filtered_data,vars);
+        
+      vizwhiz[vars.type](cleaned_data,vars);
       
     });
     
@@ -219,6 +253,78 @@ vizwhiz.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Helper Functions
   //-------------------------------------------------------------------
+
+  nest = function(flat_data) {
+  
+    var flattened = [];
+    var nested_data = d3.nest();
+    
+    var levels = vars.depth ? vars.nesting.slice(0,vars.nesting.indexOf(vars.depth)+1) : vars.nesting
+    
+    levels.forEach(function(nest_key, i){
+    
+      nested_data
+        .key(function(d){ return d[nest_key].id+"|"+d[nest_key].name; })
+        
+      if (i == levels.length-1) {
+        nested_data.rollup(function(leaves){
+          
+          if(leaves.length == 1){
+            flattened.push(leaves[0]);
+            return leaves[0]
+          }
+          
+          to_return = {
+            "name": leaves[0][nest_key].name,
+            "id": leaves[0][nest_key].id,
+            "num_children": leaves.length,
+            "num_children_active": d3.sum(leaves, function(d){ return d.active; })
+          }
+          
+          if (leaves[0][nest_key].display_id) to_return.display_id = leaves[0][nest_key].display_id;
+          
+          for (key in vars.keys) {
+            if (vars.nesting_aggs[key]) {
+              to_return[key] = d3[vars.nesting_aggs[key]](leaves, function(d){ return d[key]; })
+            }
+            else {
+              if (["color",vars.year_var].indexOf(key) >= 0) {
+                to_return[key] = leaves[0][key];
+              }
+              else if (vars.keys[key] === "number") {
+                to_return[key] = d3.sum(leaves, function(d){ return d[key]; })
+              }
+            }
+          }
+          
+          if(vars.type != "tree_map"){
+            levels.forEach(function(nk){
+              to_return[nk] = leaves[0][nk]
+            })
+            flattened.push(to_return);
+          }
+        
+          return to_return
+        })
+      }
+    
+    })
+    
+    nested_data = nested_data
+      .entries(flat_data)
+      .map(vizwhiz.utils.rename_key_value);
+
+    if(vars.type != "tree_map"){
+      return flattened;
+    }
+
+    return {"name":"root", "children": nested_data};
+
+  }
+  
+  filter = function(d) {
+    
+  }
   
   mouseover = function(d){
     
@@ -335,12 +441,6 @@ vizwhiz.viz = function() {
     return chart;
   };
   
-  chart.center = function(x) {
-    if (!arguments.length) return vars.center;
-    vars.center = x;
-    return chart;
-  };
-  
   chart.csv_data = function(x) {
     if (!arguments.length) {
       var csv_to_return = []
@@ -387,6 +487,12 @@ vizwhiz.viz = function() {
         })
       })
     })
+    return chart;
+  };
+  
+  chart.depth = function(x) {
+    if (!arguments.length) return vars.depth;
+    vars.depth = x;
     return chart;
   };
 
@@ -469,8 +575,7 @@ vizwhiz.viz = function() {
   
   chart.links = function(x) {
     if (!arguments.length) return vars.links;
-    vars.links = x;
-    vars.connections = get_connections(x);
+    links = x;
     return chart;
   };
   
@@ -490,9 +595,15 @@ vizwhiz.viz = function() {
     return chart;
   };
   
-  chart.nodes = function(x) {
-    if (!arguments.length) return vars.nodes;
-    vars.nodes = x;
+  chart.nesting = function(x) {
+    if (!arguments.length) return vars.nesting;
+    vars.nesting = x;
+    return chart;
+  };
+  
+  chart.nesting_aggs = function(x) {
+    if (!arguments.length) return vars.nesting_aggs;
+    vars.nesting_aggs = x;
     return chart;
   };
   
@@ -618,6 +729,18 @@ vizwhiz.viz = function() {
   chart.yaxis_var = function(x) {
     if (!arguments.length) return vars.yaxis_var;
     vars.yaxis_var = x;
+    return chart;
+  };
+  
+  chart.year = function(x) {
+    if (!arguments.length) return vars.year;
+    vars.year = x;
+    return chart;
+  };
+  
+  chart.year_var = function(x) {
+    if (!arguments.length) return vars.year_var;
+    vars.year_var = x;
     return chart;
   };
 

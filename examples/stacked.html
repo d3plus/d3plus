@@ -60,6 +60,8 @@ var viz = vizwhiz.viz()
   .text_var("name")
   .id_var("id")
   .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+  .nesting(["nesting_0","nesting_1","nesting_2"])
+  .depth("nesting_0")
 
 d3.json("data/products_mg.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){
@@ -70,39 +72,11 @@ d3.json("data/products_mg.json", function(flat_data){
       d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
       flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
-    // console.log(flat_data)
-    
-    var data2010 = flat_data.filter(function(d){return d.year == 2010})
-    var nested2010 = vizwhiz.utils.nest(data2010, ["nesting_0","nesting_1"], true,
-        [{"key":"val_usd", "agg":"sum"}, {"key":"color"}, {"key":"year"}])
-    
-    var data2009 = flat_data.filter(function(d){return d.year == 2009})
-    var nested2009 = vizwhiz.utils.nest(data2009, ["nesting_0","nesting_1"], true,
-        [{"key":"val_usd", "agg":"sum"}, {"key":"color"}, {"key":"year"}])
-    
-    var data2008 = flat_data.filter(function(d){return d.year == 2008})
-    var nested2008 = vizwhiz.utils.nest(data2008, ["nesting_0","nesting_1"], true,
-        [{"key":"val_usd", "agg":"sum"}, {"key":"color"}, {"key":"year"}])
-    
-    var data2007 = flat_data.filter(function(d){return d.year == 2007})
-    var nested2007 = vizwhiz.utils.nest(data2007, ["nesting_0","nesting_1"], true,
-        [{"key":"val_usd", "agg":"sum"}, {"key":"color"}, {"key":"year"}])
-        
-    var data = nested2007.concat(nested2008).concat(nested2009).concat(nested2010)
     
     
     d3.select("#viz")
-      .datum(data)
+      .datum(flat_data)
       .call(viz)
-    
-//     var nested_data = d3.nest()
-//       .key(function(d){
-//         return d.id.substr(0, 2);
-//       })
-//       .key(function(d){
-//         return d.id.substr(0, 4);
-//       })
-//       .entries(flat_data).map(renameKeyValue);
 //   
 //     setTimeout(function(){
 //       d3.select("#viz")

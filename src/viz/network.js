@@ -20,8 +20,8 @@ vizwhiz.network = function(data,vars) {
   //===================================================================
     
 
-  var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x});
-  var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y});
+  var x_range = d3.extent(d3.values(data), function(d){return d.x});
+  var y_range = d3.extent(d3.values(data), function(d){return d.y});
   var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0]);
     
   // Define Scale
@@ -43,12 +43,14 @@ vizwhiz.network = function(data,vars) {
     .range([offset_top, vars.height-offset_top])
     
   var val_range = d3.extent(d3.values(data), function(d){
-    return d[vars.value_var] > 0 ? d[vars.value_var] : null
+    return d[vars.value_var] ? d[vars.value_var] : null
   });
   
+  if (typeof val_range[0] == "undefined") val_range = [1,1]
+  
   var max_dist = 0
-  d3.values(vars.nodes).forEach(function(n){
-    d3.values(vars.nodes).forEach(function(n2){
+  d3.values(data).forEach(function(n){
+    d3.values(data).forEach(function(n2){
       if (n != n2) {
         var xx = Math.abs(scale.x(n.x)-scale.x(n2.x));
         var yy = Math.abs(scale.y(n.y)-scale.y(n2.y));
@@ -59,14 +61,14 @@ vizwhiz.network = function(data,vars) {
   })
   
   var min_dist = {"value": 0};
-  d3.values(vars.nodes).forEach(function(n){
-    d3.values(vars.nodes).forEach(function(n2){
+  d3.values(data).forEach(function(n){
+    d3.values(data).forEach(function(n2){
       if (n != n2) {
         var xx = Math.abs(scale.x(n.x)-scale.x(n2.x));
         var yy = Math.abs(scale.y(n.y)-scale.y(n2.y));
         var dd = Math.sqrt((xx*xx)+(yy*yy))
-        var v1 = data[n[vars.id_var]][vars.value_var]
-        var v2 = data[n2[vars.id_var]][vars.value_var]
+        var v1 = n[vars.value_var] ? n[vars.value_var] : 0
+        var v2 = n2[vars.value_var] ? n2[vars.value_var] : 0
         var factor = max_dist/dd+(v1+v2)/(val_range[1]*2)
         if (factor > min_dist.value) {
           min_dist = {"value": factor, "node1": n, "node2": n2, "v1": v1, "v2": v2, "distance": dd}
@@ -80,9 +82,9 @@ vizwhiz.network = function(data,vars) {
   var wc = (vars.height-dd*2)/vars.height
   var hc = (vars.width-dd*2)/vars.width
   var delta = wc < hc ? wc : hc
-  var max_size = dd*delta-1,
-      min_size = max_size/5 < 2 ? 2 : max_size/5;
-      
+  var max_size = dd*delta-1;
+  if (!max_size) max_size = 10;
+  var min_size = max_size/5 < 2 ? 2 : max_size/5;
   // return
   // x scale
   scale.x.range([offset_left+(max_size*1.5), vars.width-(max_size*1.5)-offset_left])
@@ -176,13 +178,14 @@ vizwhiz.network = function(data,vars) {
   //-------------------------------------------------------------------
   
   var node = d3.select("g.nodes").selectAll("circle.node")
-    .data(vars.nodes, function(d) { return d[vars.id_var]; })
+    .data(data, function(d) { return d[vars.id_var]; })
   
   node.enter().append("circle")
     .attr("class","node")
-    .attr("fill","white")
-    .attr("stroke","white")
-    .call(node_size);
+    .attr("r",0)
+    .call(node_position)
+    .call(node_color)
+    .call(node_stroke);
   
   var link = d3.select("g.links").selectAll("line.link")
     .data(vars.links, function(d) { return d.source[vars.id_var] + "-" + d.target[vars.id_var]; })
@@ -208,6 +211,8 @@ vizwhiz.network = function(data,vars) {
 
   node.transition().duration(vizwhiz.timing)
     .call(node_size)
+    .call(node_stroke)
+    .call(node_position)
     .call(node_color);
     
   link
@@ -223,13 +228,32 @@ vizwhiz.network = function(data,vars) {
   // Exit, for nodes and links that are being removed
   //-------------------------------------------------------------------
 
-  node.exit().remove()
-  link.exit().remove()
+  node.exit().transition().duration(vizwhiz.timing)
+    .attr("r",0)
+    .remove()
+    
+  link.exit().transition().duration(vizwhiz.timing)
+    .attr("stroke", "white")
+    .remove()
 
   //===================================================================
   
+  if (vars.highlight) {
+    var present = false;
+    data.forEach(function(d){
+      if (d[vars.id_var] == vars.highlight) present = true;
+    })
+    if (!present) {
+      vizwhiz.tooltip.remove()
+      d3.select("g.highlight").selectAll("*").remove()
+      vars.highlight = null;
+      zoom("reset");
+    }
+    else {
+      zoom(vars.highlight);
+    }
+  }
   update();
-  if (vars.highlight) zoom(vars.highlight);
       
   function link_position(l) {
     l
@@ -248,15 +272,18 @@ vizwhiz.network = function(data,vars) {
       })
   }
   
-  function node_size(n) {
+  function node_position(n) {
     n
       .attr("cx", function(d) { return scale.x(d.x); })
       .attr("cy", function(d) { return scale.y(d.y); })
+  }
+  
+  function node_size(n) {
+    n
       .attr("r", function(d) { 
-        var value = data[d[vars.id_var]][vars.value_var] ? data[d[vars.id_var]][vars.value_var] : 0
+        var value = d[vars.value_var] ? d[vars.value_var] : 0
         return value > 0 ? scale.size(value) : scale.size(val_range[0])
       })
-      .call(node_stroke)
   }
   
   function node_stroke(b) {
@@ -291,7 +318,8 @@ vizwhiz.network = function(data,vars) {
         // "True" if node is in the highlight or hover groups
         var highlighted = parent_group == "hover_node"
         // "True" if vars.spotlight is true and node vars.active_var is false
-        var hidden = vars.spotlight && !data[d[vars.id_var]][vars.active_var]
+        var active = d[vars.active_var] ? d[vars.active_var] : false
+        var hidden = vars.spotlight && !active
         // Grey out nodes that are in the background or hidden by spotlight,
         // otherwise, use the active_color function
         return (background_node || hidden) && !highlighted ? "#efefef" : fill_color(d);
@@ -307,7 +335,8 @@ vizwhiz.network = function(data,vars) {
         // "True" if node is in the highlight or hover groups
         var highlighted = parent_group == "hover_node"
         // "True" if vars.spotlight is true and node vars.active_var is false
-        var hidden = vars.spotlight && !data[d[vars.id_var]][vars.active_var];
+        var active = d[vars.active_var] ? d[vars.active_var] : false
+        var hidden = vars.spotlight && !active
         
         if (highlighted) return fill_color(d);
         else if (background_node || hidden) return "#dedede";
@@ -322,7 +351,8 @@ vizwhiz.network = function(data,vars) {
     var color = get_color(d);
     
     // If node is not active, lighten the color
-    if (!data[d[vars.id_var]][vars.active_var]) {
+    var active = d[vars.active_var] ? d[vars.active_var] : false
+    if (!active) {
       var color = d3.hsl(color);
       color.l = 0.95;
     }
@@ -338,21 +368,16 @@ vizwhiz.network = function(data,vars) {
     var color = get_color(d);
     
     // If node is active, return a darker color, else, return the normal color
-    return data[d[vars.id_var]][vars.active_var] ? "#333" : color;
+    var active = d[vars.active_var] ? d[vars.active_var] : false
+    return active ? "#333" : color;
     
   }
   
   // Helper function to acquire an elements' color, or set one randomly
   function get_color(d) {
     
-    // Get element color from data, based on id_var
-    var color = data[d[vars.id_var]].color
-    
     // If no color exists, get one randomly
-    if (!color) color = vizwhiz.utils.rand_color()
-    
-    // Return color
-    return color;
+    return d.color ? d.color : vizwhiz.utils.rand_color()
     
   }
   
@@ -453,17 +478,23 @@ vizwhiz.network = function(data,vars) {
         var c = hover
       }
       
-      var node_data = vars.nodes.filter(function(n){
+      var node_data = data.filter(function(n){
                           return n[vars.id_var] == c
                         })
       
       if (group == "highlight" || !vars.highlight) {
-        var prim_nodes = vars.connections[c]
-        
-        var prim_links = []
-        prim_nodes.forEach(function(n){
-          prim_links.push({"source": node_data[0], "target": n})
-        })
+
+        var prim_nodes = [],
+            prim_links = [];
+            
+        if (vars.connections[c]) {
+          vars.connections[c].forEach(function(n){
+            prim_nodes.push(data.filter(function(d){return d[vars.id_var] == n[vars.id_var]})[0])
+          })
+          prim_nodes.forEach(function(n){
+            prim_links.push({"source": node_data[0], "target": n})
+          })
+        }
         
         var node_data = prim_nodes.concat(node_data)
         highlight_extent.x = d3.extent(d3.values(node_data),function(v){return v.x;}),
@@ -478,9 +509,10 @@ vizwhiz.network = function(data,vars) {
       
           var tooltip_data = {},
               tooltip_appends = []
-      
+              
+          var h = data.filter(function(d){return d[vars.id_var] == vars.highlight})[0]
           vars.tooltip_info.forEach(function(t){
-            if (data[vars.highlight][t]) tooltip_data[t] = data[vars.highlight][t]
+            if (h[t]) tooltip_data[t] = h[t]
           })
           tooltip_appends.push({
             "append": "text",
@@ -498,7 +530,6 @@ vizwhiz.network = function(data,vars) {
           })
       
           prim_nodes.forEach(function(n){
-            var id = n[vars.id_var]
             var obj = {
               "append": "g",
               "children": [
@@ -512,7 +543,7 @@ vizwhiz.network = function(data,vars) {
                   "style": {
                     "font-weight": "normal"
                   },
-                  "text": data[id][vars.text_var],
+                  "text": n[vars.text_var],
                   "events": {}
                 },
                 {
@@ -528,14 +559,14 @@ vizwhiz.network = function(data,vars) {
                   "style": {
                     "font-weight": "normal"
                   },
-                  "text": data[id][vars.text_var],
+                  "text": n[vars.text_var],
                   "events": {}
                 }
               ]
             }
             obj.children[0].attr["fill"] = function(){
-                var color = data[id].color ? data[id].color : vizwhiz.utils.rand_color()
-                if (data[id][vars.active_var]) {
+                var color = n.color ? n.color : vizwhiz.utils.rand_color()
+                if (n[vars.active_var]) {
                   return color;
                 } else {
                   color = d3.hsl(color)
@@ -544,8 +575,8 @@ vizwhiz.network = function(data,vars) {
                 }
               }
             obj.children[0].attr["stroke"] = function(){
-                var color = data[id].color ? data[id].color : vizwhiz.utils.rand_color()
-                return data[id][vars.active_var] ? "#333" : color
+                var color = n.color ? n.color : vizwhiz.utils.rand_color()
+                return n[vars.active_var] ? "#333" : color
               }
             obj.children[0].attr["stroke-width"] = 1
             obj.children[1].events[vizwhiz.evt.over] = function(){
@@ -555,7 +586,7 @@ vizwhiz.network = function(data,vars) {
                 d3.select(this).attr("fill","#333333")
               }
             obj.children[1].events[vizwhiz.evt.click] = function(){
-                vars.highlight = id;
+                vars.highlight = n[vars.id_var];
                 update();
               }
             tooltip_appends.push(obj)
@@ -564,7 +595,7 @@ vizwhiz.network = function(data,vars) {
           vizwhiz.tooltip.create({
             "parent": vars.svg,
             "data": tooltip_data,
-            "title": data[vars.highlight][vars.text_var],
+            "title": h[vars.text_var],
             "x": x_pos,
             "y": 0,
             "width": info_width,
@@ -591,12 +622,14 @@ vizwhiz.network = function(data,vars) {
         .append("circle")
           .attr("class","bg")
           .call(node_size)
+          .call(node_position)
           .call(node_stroke)
           .attr("stroke",highlight_color);
         
       node_groups
         .append("circle")
           .call(node_size)
+          .call(node_position)
           .call(node_stroke)
           .call(node_color)
           .call(create_label);
@@ -608,8 +641,8 @@ vizwhiz.network = function(data,vars) {
     if (vars.labels) {
       n.each(function(d){
 
-        var font_size = Math.round(10/zoom_behavior.scale()),
-            value = data[d[vars.id_var]][vars.value_var],
+        var font_size = Math.ceil(10/zoom_behavior.scale()),
+            value = d[vars.value_var] ? d[vars.value_var] : 0,
             size = value > 0 ? scale.size(value) : scale.size(val_range[0])
         if (font_size < size || d[vars.id_var] == hover || d[vars.id_var] == vars.highlight) {
           d3.select(this.parentNode).append("text")
@@ -621,12 +654,12 @@ vizwhiz.network = function(data,vars) {
             .attr("font-family","Helvetica")
             .style("font-weight","bold")
             .each(function(e){
-              var tw = size*6,
+              var tw = size*8,
                   th = size < font_size*2 ? font_size*2 : size
               if (vars.name_array) {
                 var text = []
                 vars.name_array.forEach(function(n){
-                  if (data[d[vars.id_var]][n]) text.push(data[d[vars.id_var]][n])
+                  if (d[n]) text.push(d[n])
                 })
               } else {
                 var text = d[vars.id_var] ? [d[vars.text_var],d[vars.id_var]] : d[vars.text_var]
@@ -706,7 +739,7 @@ vizwhiz.network = function(data,vars) {
       } else if (direction == "out") {
         if (zoom_behavior.scale() < zoom_extent[0]*2) multiplier = zoom_extent[0]/zoom_behavior.scale()
         else multiplier = 0.5
-      } else if (vars.connections[direction]) {
+      } else if (direction == vars.highlight) {
         var x_bounds = [scale.x(highlight_extent.x[0]),scale.x(highlight_extent.x[1])],
             y_bounds = [scale.y(highlight_extent.y[0]),scale.y(highlight_extent.y[1])]
             

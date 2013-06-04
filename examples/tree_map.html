@@ -25,59 +25,36 @@ var viz = vizwhiz.viz()
 
 d3.json("data/products_mg.json", function(raw_data){
   d3.json("data/attr_hs.json", function(attrs){
-
-    var flat_data = raw_data.filter(function(d){
-      return d.year == 2010;
-    })
     
-    flat_data.map(function(d, i){
+    raw_data.forEach(function(d, i){
       d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
       d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
       d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-      d.value = d.val_usd;
-      flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+      raw_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
     
-    var nested_data = vizwhiz.utils.nest(
-      flat_data, 
-      ["nesting_0","nesting_1","nesting_2"], 
-      false, 
-      [{"key":"color"},{"key":"value", "agg":"sum"}])
-      
     viz
       .type("tree_map")
       .id_var("id")
       .text_var("name")
-      .value_var("value")
-      .tooltip_info(["distance", "complexity", "value"])
+      .value_var("val_usd")
+      .tooltip_info(["id","distance", "complexity", "val_usd"])
       .name_array(["name","id"])
       .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+      .nesting(["nesting_0","nesting_1","nesting_2"])
+      .nesting_aggs({"distance":"mean","complexity":"mean"})
+      .depth("nesting_0")
+      .year(2010)
       
     d3.select("#viz")
-      .datum(nested_data)
+      .datum(raw_data)
       .call(viz)
     
-    setTimeout(function(){
-      
-      // test for animating between years
-      var new_data = raw_data.filter(function(d){
-        return d.year == 2005;
-      })
-    
-      new_data.map(function(d, i){
-        d.value = d.val_usd;
-        d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
-        d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
-        d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-        new_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
-      })
-      
-      var data_2005 = vizwhiz.utils.nest(new_data, ["nesting_0","nesting_1","nesting_2"], false, [{"key":"color"}])
-      d3.select("#viz")
-        .datum(data_2005)
-        .call(viz)
-      
-    },4000)
+    // setTimeout(function(){
+    //   
+    //   d3.select("#viz").call(viz.year(2005))
+    //   
+    // },4000)
     
   })
 })

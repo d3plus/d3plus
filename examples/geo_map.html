@@ -30,17 +30,19 @@
     d3.json("data/geo/land.json", function(land) {
       d3.json("data/munic_a0112.json", function(geo_data) {
         d3.json("data/attr_munic.json", function(attr) {
-        
-          var data = geo_data.data.filter(function(d){ return d.year == 2010 && d.bra_id.substr(0,2) == "ap"; })
           
-          data2010 = {}
-          for (var d in attr) {
-            if (d.substr(0,2) == "ap") {
-              var temp = data.filter(function(f){return f.bra_id == d})[0]
-              if (temp) data2010[d] = vizwhiz.utils.merge(temp,attr[d])
-              else data2010[d] = attr[d]
+          var data = [],
+              years = vizwhiz.utils.uniques(geo_data.data,"year")
+          years.forEach(function(year){
+            for (var d in attr) {
+              if (d.substr(0,2) == "ap") {
+                var temp = geo_data.data.filter(function(f){return f.year == year && f.bra_id == d})[0]
+                var obj = vizwhiz.utils.merge(temp,attr[d])
+                obj.year = year
+                data.push(obj)
+              }
             }
-          }
+          })
           
           viz = vizwhiz.viz()
             .type("geo_map")
@@ -55,25 +57,8 @@
             .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"});
           
           d3.select("#viz")
-            .datum(data2010)
+            .datum(data)
             .call(viz);
-            
-          var data = geo_data.data.filter(function(d){ return d.year == 2005 && d.bra_id.substr(0,2) == "ap"; })
-          
-          data2005 = {}
-          for (var d in attr) {
-            if (d.substr(0,2) == "ap") {
-              var temp = data.filter(function(f){return f.bra_id == d})[0]
-              if (temp) data2005[d] = vizwhiz.utils.merge(temp,attr[d])
-              else data2005[d] = attr[d]
-            }
-          }
-          
-          setTimeout(function(){
-            d3.select("#viz")
-              .datum(data2005)
-              .call(viz);
-          },4000)
         
         });
       });

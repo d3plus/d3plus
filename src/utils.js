@@ -58,6 +58,20 @@ vizwhiz.utils.text_color = function(color) {
 //===================================================================
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Returns list of unique values
+//-------------------------------------------------------------------
+        
+vizwhiz.utils.uniques = function(data,value) {
+  return d3.nest().key(function(d) { 
+    return d[value]
+  }).entries(data).reduce(function(a,b,i,arr){ 
+    return a.concat(parseInt(b['key'])) 
+  },[])
+}
+
+//===================================================================
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merge two objects to create a new one with the properties of both
 //-------------------------------------------------------------------
 
@@ -91,79 +105,6 @@ vizwhiz.utils.rename_key_value = function(obj) {
   else {
     return obj; 
   }
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Merge two objects to create a new one with the properties of both
-//-------------------------------------------------------------------
-
-vizwhiz.utils.nest = function(flat_data, nesting, flatten, extra) {
-  
-  var flattened = [];
-  var nested_data = d3.nest();
-  
-  nesting.forEach(function(nest_key, i){
-    
-    nested_data
-      .key(function(d){ return d[nest_key].id+"|"+d[nest_key].name; })
-    
-    if (i == nesting.length-1) {
-      nested_data.rollup(function(leaves){
-        if(leaves.length == 1){
-          flattened.push(leaves[0]);
-          return leaves[0]
-        }
-        // to_return = leaves[0]
-        to_return = {
-          "value": d3.sum(leaves, function(d){ return d.value; }),
-          "name": leaves[0][nest_key].name,
-          "id": leaves[0][nest_key].id,
-          "num_children": leaves.length,
-          "num_children_active": d3.sum(leaves, function(d){ return d.active; })
-        }
-        
-        if (leaves[0][nest_key].display_id) to_return.display_id = leaves[0][nest_key].display_id;
-        
-        if(extra){
-          extra.forEach(function(e){
-            
-            if(e.agg == "sum"){
-              to_return[e.key] = d3.sum(leaves, function(d){ return d[e.key]; })
-            }
-            else if(e.agg == "avg"){
-              to_return[e.key] = d3.mean(leaves, function(d){ return d[e.key]; })
-            }
-            else {
-              to_return[e.key] = leaves[0][e.key];
-            }
-          })
-        }
-        
-        if(flatten){
-          nesting.forEach(function(nk){
-            to_return[nk] = leaves[0][nk]
-          })
-          flattened.push(to_return);
-        }
-        
-        return to_return
-      })
-    }
-    
-  })
-    
-  nested_data = nested_data
-    .entries(flat_data)
-    .map(vizwhiz.utils.rename_key_value);
-
-  if(flatten){
-    return flattened;
-  }
-
-  return {"name":"root", "children": nested_data};
-
 }
 
 //===================================================================

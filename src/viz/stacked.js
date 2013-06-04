@@ -125,7 +125,7 @@ vizwhiz.stacked = function(data,vars) {
     .filter(function(value, index, self) { 
       return self.indexOf(value) === index;
     })
-  
+    
   // get max total for sums of each xaxis
   var xaxis_sums = d3.nest()
     .key(function(d){return d[vars.xaxis_var] })
@@ -374,7 +374,7 @@ vizwhiz.stacked = function(data,vars) {
     layers.forEach(function(layer){
       // find out which is the largest
       var available_areas = layer.values.filter(function(d,i,a){
-      
+        
         var min_height = 30;
         if (i == 0) {
           return (graph.height-y_scale(d.y)) >= min_height 

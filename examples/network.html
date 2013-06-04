@@ -62,42 +62,37 @@
       
       d3.json("data/products_mg.json", function(ps_data) {
         
-        data = {}
-        // viz_nodes.forEach(function(d){
-        //   data[d.id] = attr[d.id]
-        //   data[d.id].val_usd = data_values[d.id]
-        //   data[d.id].rca = data_rcas[d.id]
-        //   data[d.id].active = data[d.id].rca >= 1 ? true : false
-        // })
-        viz_nodes.forEach(function(d){
-          data[d.id] = ps_data.filter(function(f){return f.year == 2010 && f.id == d.id})[0]
-          data[d.id] = vizwhiz.utils.merge(data[d.id],attr[d.id])
-          data[d.id].rca = get_rca(data[d.id])
-          data[d.id].active = data[d.id].rca >= 1 ? true : false
+        var data = [],
+            years = vizwhiz.utils.uniques(ps_data,"year")
+        years.forEach(function(year){
+          viz_nodes.forEach(function(n){
+            var d = ps_data.filter(function(p){ return p.year == year && p.id == n.id })[0]
+            var obj = vizwhiz.utils.merge(d,attr[n.id])
+            obj.year = year;
+            obj = vizwhiz.utils.merge(obj,n)
+            obj.nesting_0 = {"name":attr[obj.id.slice(0, 2)].name, "id":obj.id.slice(0, 2)};
+            obj.nesting_1 = {"name":attr[obj.id.slice(0, 4)].name, "id":obj.id.slice(0, 4)};
+            obj.nesting_2 = {"name":attr[obj.id.slice(0, 6)].name, "id":obj.id.slice(0, 6)};
+            obj.active = Math.floor(Math.random()*2);
+            data.push(obj)
+          })
         })
         
         viz
           .type("network")
-          .nodes(viz_nodes)
           .links(viz_links)
           .value_var("val_usd")
           .name_array(["name"])
           .title("Product Space for Minas Gerais")
           // .sub_title("Cool example of a sub-title")
+          .nesting(["nesting_0","nesting_1","nesting_2"])
           .tooltip_info(["id","val_usd","val_quantity","val_kg","complexity","distance","rca"])
-          .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"});
+          .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+          .year(2010);
           
         d3.select("#viz")
           .datum(data)
           .call(viz);
-        
-        data2 = {}
-        viz_nodes.forEach(function(d){
-          data2[d.id] = ps_data.filter(function(f){return f.year == 2005 && f.id == d.id})[0]
-          data2[d.id] = vizwhiz.utils.merge(data2[d.id],attr[d.id])
-          data2[d.id].rca = get_rca(data2[d.id])
-          data2[d.id].active = data2[d.id].rca >= 1 ? true : false
-        })
           
         // setTimeout(function(){
         //   
