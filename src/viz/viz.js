@@ -98,7 +98,7 @@ vizwhiz.viz = function() {
           if (typeof d[vars.yaxis_var] == "undefined") return false
         }
         if (vars.spotlight && vars.type == "pie_scatter") {
-          if (!d[vars.active_var]) return false
+          if (d[vars.active_var]) return false
         }
         if (vars.year && vars.type != "stacked") return d[vars.year_var] == vars.year;
         return true;
