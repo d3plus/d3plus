@@ -40,10 +40,13 @@ d3.json("data/products_mg.json", function(raw_data){
       .value_var("val_usd")
       .tooltip_info(["id","distance", "complexity", "val_usd"])
       .name_array(["name","id"])
+      .title("Product Exports of Minas Gerais")
+      .sub_title("Excluding Mineral Products")
       .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
       .nesting(["nesting_0","nesting_1","nesting_2"])
       .nesting_aggs({"distance":"mean","complexity":"mean"})
       .depth("nesting_0")
+      .filter("Mineral Products")
       .year(2010)
       
     d3.select("#viz")

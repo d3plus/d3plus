@@ -24,7 +24,7 @@ body {
 
 var viz = vizwhiz.viz()
 
-d3.json("data/rio_branco_test_data.json", function(flat_data){
+d3.json("data/mg_test_data.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){
     
     var data = []
@@ -53,7 +53,6 @@ d3.json("data/rio_branco_test_data.json", function(flat_data){
       .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
       .nesting(["nesting_0","nesting_1","nesting_2"])
       .nesting_aggs({"complexity":"mean","distance":"mean","rca":"mean"})
-      .solo("Wood Products")
       .depth("nesting_2")
       .spotlight(false)
       .year(2010)

@@ -711,7 +711,7 @@ vizwhiz.viz = function() {
           if (typeof d[vars.yaxis_var] == "undefined") return false
         }
         if (vars.spotlight && vars.type == "pie_scatter") {
-          if (!d[vars.active_var]) return false
+          if (d[vars.active_var]) return false
         }
         if (vars.year && vars.type != "stacked") return d[vars.year_var] == vars.year;
         return true;
@@ -760,6 +760,7 @@ vizwhiz.viz = function() {
       var total_val = d3.sum(filtered_data, function(d){ 
         return d[vars.value_var] 
       })
+      if (!vars.total_bar) var total_val = null
         
       if (["tree_map","pie_scatter"].indexOf(vars.type) >= 0) {
         var cleaned_data = nest(filtered_data)
@@ -809,29 +810,13 @@ vizwhiz.viz = function() {
       }
       else {
         vars.small = false;
-        if (vars.title) {
-          vars.margin.top += 20;
-          make_title(vars.title,"title");
-        }
-        else {
-          make_title(null,"title");
-        }
-        if (vars.sub_title) {
-          vars.margin.top += 15;
-          make_title(vars.sub_title,"sub_title");
-        }
-        else {
-          make_title(null,"sub_title");
-        }
-        if (vars.total_bar) {
-          vars.margin.top += 15;
-          make_title(total_val,"total_bar");
-        }
-        else {
-          make_title(null,"total_bar");
-        }
+        make_title(vars.title,"title");
+        make_title(vars.sub_title,"sub_title");
+        make_title(total_val,"total_bar");
       }
-
+      
+      if (vars.margin.top > 0) vars.margin.top += 3
+      
       vars.height = vars.svg_height - vars.margin.top;
       
       vars.svg_enter.append("clipPath")
@@ -963,25 +948,12 @@ vizwhiz.viz = function() {
     
     // Set the total value as data for element.
     var data = title ? [title] : [],
-        total = vars.svg.selectAll("g."+type)
-          .data(data),
+        font_size = type == "title" ? 18 : 13,
+        font_color = type == "title" ? "#333" : "#666",
+        total = vars.svg.selectAll("g."+type).data(data),
         title_position = {
           "x": vars.width/2,
-          "y": function() {
-            if (type == "title") {
-              return 15;
-            }
-            else if (type == "sub_title") {
-              if (vars.title) return 30;
-              else return 13;
-            }
-            else if (type == "total_bar") {
-              if (vars.title && vars.sub_title) return 45;
-              else if (vars.title) return 30;
-              else if (vars.sub_title) return 28;
-              else return 13;
-            }
-          }
+          "y": vars.margin.top+font_size
         }
     
     // Enter
@@ -990,15 +962,25 @@ vizwhiz.viz = function() {
       .style("opacity",0)
       .append("text")
         .attr(title_position)
-        .attr("font-size",function(d){
-          return type == "title" ? 14 : 12;
-        })
-        .attr("fill", function(){
-          return type == "title" ? "#333" : "#666";
-        })
+        .attr("font-size",font_size)
+        .attr("fill",font_color)
         .attr("text-anchor", "middle")
         .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
         .style("font-weight", "bold")
+        .text(function(d){
+          var text = d, format = ",f";
+          if (type == "total_bar") {
+            if (vars.total_bar.format) {
+              text = d3.format(vars.total_bar.format)(text);
+            }
+            else {
+              text = d3.format(format)(text);
+            }
+            vars.total_bar.prefix ? text = vars.total_bar.prefix + text : null;
+            vars.total_bar.suffix ? text = text + vars.total_bar.suffix : null;
+          }
+          return text;
+        })
     
     // Update
     total.transition().duration(vizwhiz.timing)
@@ -1024,6 +1006,8 @@ vizwhiz.viz = function() {
     total.exit().transition().duration(vizwhiz.timing)
       .style("opacity",0)
       .remove();
+
+    if (total.node()) vars.margin.top += total.select("text").node().getBBox().height
 
   }
   

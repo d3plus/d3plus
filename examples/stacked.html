@@ -61,21 +61,23 @@ var viz = vizwhiz.viz()
   .id_var("id")
   .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
   .nesting(["nesting_0","nesting_1","nesting_2"])
-  .depth("nesting_0")
+  .depth("nesting_2")
 
-d3.json("data/products_mg.json", function(flat_data){
+d3.json("data/mg_test_data.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){
 
-    flat_data.map(function(d, i){
+    var data = []
+    flat_data.data.forEach(function(d){
+      d.id = d.hs_id
       d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
       d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
       d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-      flat_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
+      var obj = vizwhiz.utils.merge(d, attrs[d.id]);
+      data.push(obj)
     })
     
-    
     d3.select("#viz")
-      .datum(flat_data)
+      .datum(data)
       .call(viz)
 //   
 //     setTimeout(function(){
