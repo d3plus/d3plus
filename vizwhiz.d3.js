@@ -950,11 +950,28 @@ vizwhiz.viz = function() {
     var data = title ? [title] : [],
         font_size = type == "title" ? 18 : 13,
         font_color = type == "title" ? "#333" : "#666",
-        total = vars.svg.selectAll("g."+type).data(data),
         title_position = {
           "x": vars.width/2,
-          "y": vars.margin.top+font_size
+          "y": vars.margin.top
         }
+
+    
+    if (type == "total_bar") {
+    
+      var format = ",f";
+      
+      if (vars.total_bar.format) {
+        data = d3.format(vars.total_bar.format)(data);
+      }
+      else {
+        data = d3.format(format)(data);
+      }
+      vars.total_bar.prefix ? data = vars.total_bar.prefix + data : null;
+      vars.total_bar.suffix ? data = data + vars.total_bar.suffix : null;
+      data = [data]
+    }
+    
+    var total = vars.svg.selectAll("g."+type).data(data)
     
     // Enter
     total.enter().append("g")
@@ -967,19 +984,14 @@ vizwhiz.viz = function() {
         .attr("text-anchor", "middle")
         .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
         .style("font-weight", "bold")
-        .text(function(d){
-          var text = d, format = ",f";
-          if (type == "total_bar") {
-            if (vars.total_bar.format) {
-              text = d3.format(vars.total_bar.format)(text);
-            }
-            else {
-              text = d3.format(format)(text);
-            }
-            vars.total_bar.prefix ? text = vars.total_bar.prefix + text : null;
-            vars.total_bar.suffix ? text = text + vars.total_bar.suffix : null;
-          }
-          return text;
+        .each(function(d){
+          vizwhiz.utils.wordwrap({
+            "text": d,
+            "parent": this,
+            "width": vars.svg_width,
+            "height": vars.svg_height/8,
+            "resize": false
+          })
         })
     
     // Update
@@ -987,19 +999,14 @@ vizwhiz.viz = function() {
       .style("opacity",1)
     total.select("text").transition().duration(vizwhiz.timing)
       .attr(title_position)
-      .text(function(d){
-        var text = d, format = ",f";
-        if (type == "total_bar") {
-          if (vars.total_bar.format) {
-            text = d3.format(vars.total_bar.format)(text);
-          }
-          else {
-            text = d3.format(format)(text);
-          }
-          vars.total_bar.prefix ? text = vars.total_bar.prefix + text : null;
-          vars.total_bar.suffix ? text = text + vars.total_bar.suffix : null;
-        }
-        return text;
+      .each(function(d){
+        vizwhiz.utils.wordwrap({
+          "text": d,
+          "parent": this,
+          "width": vars.svg_width,
+          "height": vars.svg_height/4,
+          "resize": false
+        })
       })
     
     // Exit
