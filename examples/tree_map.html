@@ -4,8 +4,14 @@
 <style>
 
 body {
-  margin: 0; padding:0;
+  margin: 100px; padding:0;
 }
+
+/*div#viz {
+  top: 50px;
+  left: 50px;
+}*/
+
 
 </style>
 <body>
@@ -61,11 +67,12 @@ d3.json("data/products_mg.json", function(raw_data){
       .nesting(["nesting_0","nesting_1","nesting_2"])
       .nesting_aggs({"distance":"mean","complexity":"mean"})
       .number_format(format_nums)
-      .click_function(inner_html)
+      // .click_function(inner_html)
       .depth("nesting_0")
       .filter("Mineral Products")
       .year(2010)
       .data_source("Data provided by SECEX")
+      .width(window.innerWidth-100)
       
     d3.select("#viz")
       .datum(raw_data)

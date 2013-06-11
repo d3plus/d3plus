@@ -64,6 +64,8 @@ vizwhiz.viz = function() {
     "zoom_behavior": d3.behavior.zoom()
   }
   
+  console.log(window)
+  
   var links;
   
   //===================================================================

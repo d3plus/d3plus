@@ -827,6 +827,8 @@ vizwhiz.viz = function() {
     "zoom_behavior": d3.behavior.zoom()
   }
   
+  console.log(window)
+  
   var links;
   
   //===================================================================
@@ -2626,8 +2628,8 @@ vizwhiz.stacked = function(data,vars) {
       "title": d[vars.text_var],
       "id": d[vars.id_var],
       "color": d.color,
-      "x": x_scale(this_x)+graph_margin.left+vars.margin.left,
-      "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top+vars.margin.top,
+      "x": x_scale(this_x)+graph_margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+      "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top+vars.margin.top+vars.parent.node().offsetTop,
       "offset": ((graph.height-y_scale(this_value.y))/2)+2,
       "arrow": true,
       "mouseevents": false
@@ -3013,7 +3015,9 @@ vizwhiz.tree_map = function(data,vars) {
       })
       tooltip_data.push({"name": "Share", "value": d.share});
       
-      var footer_text = vars.click_function ? "Click box for more info" : null
+      var html = vars.click_function(d)
+      
+      var footer_text = html ? "Click box for more info" : null
       
       vizwhiz.tooltip.create({
         "title": d[vars.text_var],
@@ -3043,10 +3047,9 @@ vizwhiz.tree_map = function(data,vars) {
       }
     })
     .on(vizwhiz.evt.click,function(d){
-      if (vars.click_function) {
+      var html = vars.click_function(d)
+      if (html) {
         vizwhiz.tooltip.remove()
-        
-        var html = vars.click_function(d)
         
         var tooltip_data = []
         if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info

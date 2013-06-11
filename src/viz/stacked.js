@@ -347,8 +347,8 @@ vizwhiz.stacked = function(data,vars) {
       "title": d[vars.text_var],
       "id": d[vars.id_var],
       "color": d.color,
-      "x": x_scale(this_x)+graph_margin.left+vars.margin.left,
-      "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top+vars.margin.top,
+      "x": x_scale(this_x)+graph_margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+      "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top+vars.margin.top+vars.parent.node().offsetTop,
       "offset": ((graph.height-y_scale(this_value.y))/2)+2,
       "arrow": true,
       "mouseevents": false
