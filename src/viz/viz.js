@@ -10,10 +10,12 @@ vizwhiz.viz = function() {
     "arc_inners": {},
     "arc_sizes": {},
     "boundries": null,
+    "click_function": function() { return null },
     "connections": null,
     "coords": null,
     "csv_columns": null,
     "csv_data": [],
+    "data_source": null,
     "depth": null,
     "donut": true,
     "filter": [],
@@ -35,10 +37,12 @@ vizwhiz.viz = function() {
     "name_array": null,
     "nesting": [],
     "nesting_aggs": {},
+    "number_format": null,
     "order": "asc",
     "projection": d3.geo.mercator(),
     "solo": [],
     "sort": "total",
+    "source_text": null,
     "spotlight": true,
     "sub_title": null,
     "svg_height": window.innerHeight,
@@ -144,11 +148,15 @@ vizwhiz.viz = function() {
       // create CSV data
       vars.csv_data = filtered_data;
       
-      var total_val = d3.sum(filtered_data, function(d){ 
-        return d[vars.value_var] 
-      })
-      if (!vars.total_bar) var total_val = null
-        
+      if (!vars.total_bar) {
+        var total_val = null
+      }
+      else {
+        var total_val = d3.sum(filtered_data, function(d){ 
+          return d[vars.value_var] 
+        })
+      }
+      
       if (["tree_map","pie_scatter"].indexOf(vars.type) >= 0) {
         var cleaned_data = nest(filtered_data)
       }
@@ -306,30 +314,6 @@ vizwhiz.viz = function() {
     return {"name":"root", "children": nested_data};
 
   }
-  
-  filter = function(d) {
-    
-  }
-  
-  mouseover = function(d){
-    
-    var svg = d3.select("svg");
-    var tooltip_data = {}
-    vars.tooltip_info.forEach(function(t){
-      if (d[t]) tooltip_data[t] = d[t]
-    })
-    tooltip_data["Share"] = d.share;
-    vizwhiz.tooltip.create({
-      "parent": svg,
-      "id": d[vars.id_var],
-      "data": tooltip_data,
-      "title": d[vars.text_var],
-      "x": d3.mouse(svg.node())[0],
-      "y": d3.mouse(svg.node())[1],
-      "offset": 10,
-      "arrow": true
-    })
-  }
 
   make_title = function(title,type){
     
@@ -341,9 +325,8 @@ vizwhiz.viz = function() {
           "x": vars.width/2,
           "y": vars.margin.top
         }
-
-    
-    if (type == "total_bar") {
+        
+    if (type == "total_bar" && vars.total_bar) {
     
       var format = ",f";
       
@@ -432,6 +415,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.click_function = function(x) {
+    if (!arguments.length) return vars.click_function;
+    vars.click_function = x;
+    return chart;
+  };
+  
   chart.csv_data = function(x) {
     if (!arguments.length) {
       var csv_to_return = []
@@ -478,6 +467,12 @@ vizwhiz.viz = function() {
         })
       })
     })
+    return chart;
+  };
+  
+  chart.data_source = function(x) {
+    if (!arguments.length) return vars.data_source;
+    vars.data_source = x;
     return chart;
   };
   
@@ -598,6 +593,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.number_format = function(x) {
+    if (!arguments.length) return vars.number_format;
+    vars.number_format = x;
+    return chart;
+  };
+  
   chart.order = function(x) {
     if (!arguments.length) return vars.order;
     vars.order = x;
@@ -632,6 +633,12 @@ vizwhiz.viz = function() {
   chart.sort = function(x) {
     if (!arguments.length) return vars.sort;
     vars.sort = x;
+    return chart;
+  };
+  
+  chart.source_text = function(x) {
+    if (!arguments.length) return vars.source_text;
+    vars.source_text = x;
     return chart;
   };
 

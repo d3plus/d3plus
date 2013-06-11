@@ -134,12 +134,12 @@ vizwhiz.geo_map = function(data,vars) {
     
     scale.append("rect")
       .attr("width", info_width+"px")
-      .attr("height", (scale_height*5)+"px")
+      .attr("height", (scale_height*6)+"px")
       .attr("fill","#ffffff")
       .attr("rx",3)
       .attr("ry",3)
-      .attr("stroke","#cccccc")
-      .attr("stroke-width",2)
+      .attr("stroke","#888")
+      .attr("stroke-width",1)
         
     scale.append("text")
       .attr("id","scale_title")
@@ -154,7 +154,7 @@ vizwhiz.geo_map = function(data,vars) {
        
     data_range.forEach(function(v,i){
       if (i == data_range.length-1) {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-2
+        var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
       } else if (i != 0) {
         var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
       } else {
@@ -162,26 +162,26 @@ vizwhiz.geo_map = function(data,vars) {
       }
       scale.append("rect")
         .attr("x", x+"px")
-        .attr("y", (scale_height*2)+"px")
-        .attr("width", 2)
+        .attr("y", (scale_height*2.5)+"px")
+        .attr("width", 1)
         .attr("height", (scale_height*1.5)+"px")
         .style("fill", "#333")
     
-    scale.append("rect")
-      .attr("x",scale_padding+"px")
-      .attr("y",(scale_height*2)+"px")
-      .attr("width", (info_width-(scale_padding*2))+"px")
-      .attr("height", scale_height+"px")
-      .style("fill", "url(#gradient)")
+      scale.append("rect")
+        .attr("x",scale_padding+"px")
+        .attr("y",(scale_height*2.5)+"px")
+        .attr("width", (info_width-(scale_padding*2))+"px")
+        .attr("height", scale_height+"px")
+        .style("fill", "url(#gradient)")
         
       scale.append("text")
         .attr("id","scale_"+i)
         .attr("x",x+"px")
-        .attr("y", ((scale_height*3)+5)+"px")
+        .attr("y", ((scale_height*3.5)+5)+"px")
         .attr("dy","1em")
         .attr("text-anchor","middle")
         .attr("fill","#333")
-        .style("font-weight","bold")
+        .style("font-weight","normal")
         .attr("font-size","10px")
         .attr("font-family","Helvetica")
     })
@@ -450,28 +450,39 @@ vizwhiz.geo_map = function(data,vars) {
     
     if (vars.highlight && !vars.small) {
       
-      var tooltip_data = {}, sub_title = null
+      var tooltip_data = []
       
-      if (!data[vars.highlight][vars.value_var]) sub_title = "No Data Available"
+      if (!data[vars.highlight][vars.value_var]) {
+        var footer = "No Data Available",
+            color = "#888"
+      }
       else {
-        if (!vars.clicked) sub_title = "Click for More Info"
+        var color = data[vars.highlight][vars.value_var] ? value_color(data[vars.highlight][vars.value_var]) : "#888888"
+        if (!vars.clicked) var footer = "Click for More Info"
         else {
-          vars.tooltip_info.forEach(function(t){
-            if (data[vars.highlight][t]) tooltip_data[t] = data[vars.highlight][t]
+          var footer = vars.data_source
+          if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+          else var a = vars.tooltip_info.long
+          a.forEach(function(t){
+            if (data[vars.highlight][t]) {
+              h = t == vars.value_var
+              tooltip_data.push({"name": t, "value": data[vars.highlight][t], "highlight": h, "format": vars.number_format})
+            }
           })
         }
       }
       
       vizwhiz.tooltip.create({
-        "parent": vars.svg,
         "data": tooltip_data,
         "title": data[vars.highlight][vars.text_var],
-        "description": sub_title,
-        "x": vars.width,
-        "y": 0+vars.margin.top,
-        "offset": (scale_height*5)+10,
-        "width": info_width,
-        "arrow": false
+        "id": data[vars.highlight][vars.id_var],
+        "icon": data[vars.highlight].icon,
+        "color": color,
+        "footer": footer,
+        "x": vars.width-info_width-5,
+        "y": vars.margin.top+10+(scale_height*6),
+        "fixed": true,
+        "width": info_width
       })
       
     }

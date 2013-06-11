@@ -12,6 +12,8 @@ vizwhiz.tooltip = {}; // For the tooltip system
 vizwhiz.utils = {}; // Utility subsystem
 vizwhiz.evt = {}; // stores all mouse events that could occur
 
+vizwhiz.ie = /*@cc_on!@*/false;
+
 // Modernizr touch events
 if (Modernizr.touch) {
   vizwhiz.evt.click = 'touchend'
@@ -24,8 +26,14 @@ if (Modernizr.touch) {
   vizwhiz.evt.click = 'click'
   vizwhiz.evt.down = 'mousedown'
   vizwhiz.evt.up = 'mouseup'
-  vizwhiz.evt.over = 'mouseover'
-  vizwhiz.evt.out = 'mouseout'
+  if (vizwhiz.ie) {
+    vizwhiz.evt.over = 'mouseenter'
+    vizwhiz.evt.out = 'mouseleave'
+  }
+  else {
+    vizwhiz.evt.over = 'mouseover'
+    vizwhiz.evt.out = 'mouseout'
+  }
   vizwhiz.evt.move = 'mousemove'
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -83,6 +91,19 @@ vizwhiz.utils.text_color = function(color) {
   if (hsl.l > 0.65) return dark;
   else if (hsl.l < 0.48) return light;
   return hsl.h > 35 && hsl.s >= 0.3 && hsl.l >= 0.41 ? dark : light;
+}
+
+//===================================================================
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Darkens a color if it's too light to appear on white
+//-------------------------------------------------------------------
+
+vizwhiz.utils.darker_color = function(color) {
+  var hsl = d3.hsl(color)
+  if (hsl.s > .9) hsl.s = .9
+  if (hsl.l > .4) hsl.l = .4
+  return hsl.toString();
 }
 
 //===================================================================
@@ -305,185 +326,295 @@ vizwhiz.utils.drop_shadow = function(defs) {
 
 vizwhiz.tooltip.create = function(params) {
   
-  if (!params.parent) {
-    params.parent = d3.select("body").append("svg")
-      .attr("id","tooltip")
-      .style("position","absolute")
-      .style("z-index",10000)
-    if (params.width) params.parent.attr("width",params.width+"px")
-    else params.parent.attr("width","200px")
+  params.width = params.width ? params.width : 200
+  params.id = params.id ? params.id : "default"
+  params.html = params.html ? params.html : null
+  params.size = params.fullscreen ? "large" : "small"
+  params.offset = params.offset ? params.offset : 0
+  params.arrow_offset = params.arrow ? 10 : 0
+  params.mouseevents = params.mouseevents === undefined ? true : params.mouseevents
+  params.x = params.x ? params.x : 0
+  params.y = params.y ? params.y : 0
   
-    params.window_width = window.innerWidth
-    params.window_height = window.innerHeight;
-    
-  } else {
-    params.window_width = parseInt(params.parent.attr("width"),10);
-    params.window_height = parseInt(params.parent.attr("height"),10);
+  params.anchor = {}
+  if (params.fullscreen) {
+    params.anchor.x = "center"
+    params.anchor.y = "center"
+    params.x = window.innerWidth/2
+    params.y = window.innerHeight/2
+  }
+  else if (params.align) {
+    var a = params.align.split(" ")
+    params.anchor.y = a[0]
+    if (a[1]) params.anchor.x = a[1]
+    else params.anchor.x = "center"
+  }
+  else {
+    params.anchor.x = "center"
+    params.anchor.y = "bottom"
   }
   
-  params.width = params.width ? params.width : 200;
-  params.offset = params.offset ? params.offset : 0;
-  params.margin = 5;
-  params.padding = 10;
-  params.triangle_size = params.arrow ? 20 : 0;
-  params.stroke_width = 2;
-  params.id = params.id ? params.id : "default";
+  var title_width = params.fullscreen && params.html ? window.innerWidth*0.75 - 18 : params.width - 18
   
-  var group = params.parent.append("g")
+  if (params.fullscreen) {
+    var curtain = d3.select("body").append("div")
+      .attr("class","vizwhiz_tooltip_curtain")
+      .on(vizwhiz.evt.click,function(){
+        vizwhiz.tooltip.remove(params.id)
+      })
+  }
+  
+  var tooltip = d3.select("body").append("div")
     .datum(params)
-    .attr("class","vizwhiz_tooltip")
-    .attr("id",function(d){ return "vizwhiz_tooltip_"+d.id; })
+    .attr("id","vizwhiz_tooltip_id_"+params.id)
+    .attr("class","vizwhiz_tooltip vizwhiz_tooltip_"+params.size)
+    
+  if (params.title || params.description || params.icon) {
+    var header = tooltip.append("div")
+      .attr("class","vizwhiz_tooltip_header")
+      .style("color",vizwhiz.utils.text_color(params.color))
+      
+    if (params.color) {
+      header
+        .style("background-color",params.color)
+    }
+    if (!params.data && !params.footer) {
+      header
+        .style("-webkit-border-radius","2px")
+        .style("-moz-border-radius","2px")
+        .style("border-radius","2px")
+    }
+    if (params.id != "default" && params.size == "small") {
+      var title_id = header.append("div")
+        .attr("class","vizwhiz_tooltip_id")
+        .text(params.id)
+      title_width -= title_id.node().offsetWidth+6
+    }
+    else if (params.fullscreen) {
+      var close = header.append("div")
+        .attr("class","vizwhiz_tooltip_close")
+        .text("x")
+        .on(vizwhiz.evt.click,function(){
+          vizwhiz.tooltip.remove(params.id)
+        })
+    }
+  }
   
-  var box = group.append("rect")
-    .attr("width",function(d){ return d.width+"px"; })
-    .attr("ry","3")
-    .attr("rx","3")
-    .attr("fill","white")
-    .attr("stroke","#cccccc")
-    .attr("stroke-width",function(d){ return d.stroke_width; })
+  if (params.fullscreen && params.html) {
+    
+    tooltip
+      .style("height",(window.innerHeight*0.75)+"px")
+      .style("width",(window.innerWidth*0.75)+"px")
+      
+    var body = tooltip.append("div")
+      .attr("class","vizwhiz_tooltip_body")
+      .style("width",params.width+"px")
+      
+  }
+  else {
+
+    if (params.width == "auto") var w = "auto"
+    else var w = params.width+"px"
+
+    var body = tooltip
+      .style("width",w)
+      
+  }
+  
+  if (!params.mouseevents) {
+    tooltip
+      .style("pointer-events","none")
+  }
+    
+  if (params.arrow) {
+    var arrow = body.append("div")
+      .attr("class","vizwhiz_tooltip_arrow")
+  }
+  
+  if (params.icon) {
+    var title_icon = header.append("div")
+      .attr("class","vizwhiz_tooltip_icon")
+      .style("background-image","url("+params.icon+")")
+    title_width -= title_icon.node().offsetWidth
+  }
   
   if (params.title) {
-    var text = group.append("text")
-      .attr("fill","#000000")
-      .attr("font-size","16px")
-      .style("font-weight","bold")
-      .attr("x",function(d){ return d.padding+"px"; })
-      .attr("y",function(d){ return (d.padding*0.75)+"px"; })
-      .attr("text-anchor","start")
-      .attr("font-family","Helvetica")
-      .each(function(d){
-        vizwhiz.utils.wordwrap({
-          "text": d.title,
-          "parent": this,
-          "width": d.width-(d.padding*2)
-        });
-      })
-      var y_offset = params.padding+text.node().getBBox().height
-  } else var y_offset = params.padding
-    
-    
+    var title = header.append("div")
+      .attr("class","vizwhiz_tooltip_title")
+      .style("width",title_width+"px")
+      .text(params.title)
+  }
+  
   if (params.description) {
-    var text = group.append("text")
-      .attr("fill","#333333")
-      .attr("font-size","12px")
-      .attr("text-anchor","start")
-      .attr("font-family","Helvetica")
-      .attr("x",function(d){ return d.padding+"px"; })
-      .attr("y",y_offset+"px")
-      .style("font-weight","normal")
-      .each(function(d){
-        vizwhiz.utils.wordwrap({
-          "text": d.description,
-          "parent": this,
-          "width": d.width-(d.padding*2)
-        });
-      });
-    y_offset += text.node().getBBox().height;
+    var description = header.append("div")
+      .attr("class","vizwhiz_tooltip_description")
+      .style("width",title_width+"px")
+      .text(params.description)
+    if (params.icon) {
+      description
+        .style("margin-left",(title_icon.node().offsetWidth+3)+"px")
+    }
   }
   
-  for (var id in params.data) {
-    group.append("text")
-      .attr("fill","#333333")
-      .attr("font-size","12px")
-      .style("font-weight","normal")
-      .attr("x",function(d){ return d.padding+"px"; })
-      .attr("y",y_offset+"px")
-      .attr("dy","12px")
-      .attr("text-anchor","start")
-      .attr("font-family","Helvetica")
-      .text(id+":")
+  if (params.data) {
+    var data_container = body.append("div")
+      .attr("class","vizwhiz_tooltip_data_container")
       
-    if (typeof params.data[id] == "number") {
-      if (params.data[id] > 9999) var t = vizwhiz.utils.format_num(params.data[id], false, 2, true);
-      else var t = vizwhiz.utils.format_num(params.data[id], false, 2, false);
-    } else var t = params.data[id];
-    
-    var text = group.append("text")
-      .attr("fill","#333333")
-      .attr("font-size","12px")
-      .style("font-weight","normal")
-      .attr("x",function(d){ return d.width-d.padding+"px"; })
-      .attr("y",y_offset+"px")
-      .attr("dy","12px")
-      .attr("text-anchor","end")
-      .attr("font-family","Helvetica")
-      .text(t)
-    y_offset += text.node().getBBox().height;
-  }
-  
-  if (params.appends) {
-    if (params.appends.length > 0) y_offset += params.padding
-    var truncate = false;
-    params.appends.forEach(function(a){
-      if (a.append && !truncate) {
-        var text = append(group,a);
-        y_offset += text.node().getBBox().height;
-        if (y_offset > params.window_height-(params.margin*2)-(params.padding*2)) {
-          y_offset -= text.node().getBBox().height;
-          text.remove()
-          truncate = true;
-        }
+    params.data.forEach(function(d){
+      var block = data_container.append("div")
+        .attr("class","vizwhiz_tooltip_data_block")
+        .text(d.name)
+      if (d.highlight) {
+        block
+          .attr("class","vizwhiz_tooltip_data_block vizwhiz_tooltip_data_block_highlight")
       }
+      var format = d.format ? d.format : ",f"
+      if (typeof format == "string" && typeof d.value == "number") {
+        var value = d3.format(format)(d.value)
+      }
+      else if (typeof format == "function" && typeof d.value == "number") {
+        var value = format(d)
+      }
+      else {
+        var value = d.value
+      }
+      block.append("div")
+          .attr("class","vizwhiz_tooltip_data_value")
+          .text(value)
     })
+    d3.select(".vizwhiz_tooltip_data_block").style("margin-top","0px")
+    
+    if (params.html && !params.fullscreen) {
+      data_container.html(data_container.html()+params.html)
+    }
+    
   }
   
-  var box_height = y_offset+params.padding
-    
-  box.attr("height",function(d){ 
-    d.height = box_height;
-    return d.height+"px";
-  })
-  
-  if (d3.select("svg#tooltip")[0][0]) {
-    d3.select("svg#tooltip")
-      .datum(params)
-      .attr("height",function(d){
-        d.height = box_height;
-        return (d.height+(d.triangle_size/2)+2)+"px";
-      });
+  if (params.footer) {
+    var footer = body.append("div")
+      .attr("class","vizwhiz_tooltip_footer")
+      .html(params.footer)
   }
   
-  if (params.arrow) {
-    group.append("line")
-      .attr("class","arrow_line")
-      .attr("stroke-width",function(d){ return d.stroke_width*2; })
-      .attr("stroke","white");
-    
-    group.append("path")
-      .attr("class","arrow")
-      .attr("fill","white")
-      .attr("stroke","#cccccc")
-      .attr("stroke-width",function(d){ return d.stroke_width; });
+  params.height = tooltip.node().offsetHeight
+  
+  if (params.html) {
+    if (params.fullscreen) {
+      var h = params.height-header.node().offsetHeight-14
+      tooltip.append("div")
+        .attr("class","vizwhiz_tooltip_html")
+        .style("width",(tooltip.node().offsetWidth-params.width-14)+"px")
+        .style("height",h+"px")
+        .html(params.html)
+    }
+  }
+  
+  params.width = tooltip.node().offsetWidth
+  
+  if (params.anchor.y != "center") params.height += params.arrow_offset
+  else params.width += params.arrow_offset
+      
+  if (params.data) {
+    var h = params.height-8
+    if (header) h -= header.node().offsetHeight
+    if (footer) h -= footer.node().offsetHeight
+    data_container
+      .style("max-height",h+"px")
   }
   
   vizwhiz.tooltip.move(params.x,params.y,params.id);
-  
-  function append(parent,obj) {
-    var obj_x = obj.x || obj.cx ? obj.x : params.padding,
-        obj_y = obj.y || obj.cy ? obj.y : y_offset
-    var a = parent.append(obj.append)
-    if (obj.append == "g") a.attr("transform","translate("+obj_x+","+obj_y+")")
-    else if (obj.append == "circle") {
-      if (!obj.cx) a.attr("cx",obj_x)
-      if (!obj.cy) a.attr("cy",obj_y)
-    }
-    else {
-      if (!obj.x) a.attr("x",obj_x)
-      if (!obj.y) a.attr("y",obj_y)
-    }
-    for (var attr in obj) if (attr != "children" && attr != "events" && attr != "text") a[attr](obj[attr])
-    if (obj.append == "text" && obj.text) a.each(function(dd){
-      vizwhiz.utils.wordwrap({
-        "text": obj.text,
-        "parent": this,
-        "width": params.width-(params.padding*2)
-      });
-    })
-    if (obj.events) for (var evt in obj.events) a.on(evt,obj.events[evt])
-    if (obj.children) obj.children.forEach(function(c){ var child = append(a,c); })
-    return a;
-  }
+    
+}
 
+vizwhiz.tooltip.arrow = function(arrow) {
+  arrow
+    .style("background-color", function(d){
+      if (((d.flip || (!d.data && !d.footer)) && d.anchor.y != "center")
+      || (d.anchor.y == "center" && !d.data && !d.footer) && d.color) {
+        return d.color
+      }
+      else {
+        return "#ddd"
+      }
+    })
+    .style("bottom", function(d){
+      if (d.anchor.y != "center" && !d.flip) return "-9px"
+      else return "auto"
+    })
+    .style("top", function(d){
+      if (d.anchor.y != "center" && d.flip) return "-9px"
+      else if (d.anchor.y == "center") return "50%"
+      else return "auto"
+    })
+    .style("left", function(d){
+      if (d.anchor.y == "center" && d.flip) return "-9px"
+      else if (d.anchor.y != "center") return "50%"
+      else return "auto"
+    })
+    .style("right", function(d){
+      if (d.anchor.y == "center" && !d.flip) return "-9px"
+      else return "auto"
+    })
+    .style("border-color", function(d){
+      if (d.anchor.y == "center") {
+        if (d.flip) return "border-color","transparent transparent #888 #888"
+        else return "#888 #888 transparent transparent"
+      }
+      else {
+        if (d.flip) return "border-color","#888 transparent transparent #888"
+        else return "transparent #888 #888 transparent"
+      }
+    })
+    .style("margin-left", function(d){
+      if (d.anchor.y == "center") {
+        return "auto"
+      }
+      else {
+        if (d.anchor.x == "left") {
+          var arrow_x = -d.width/2+d.arrow_offset/2 - 1
+        }
+        else if (d.anchor.x == "right") {
+          var arrow_x = d.width/2-d.arrow_offset*2 - 2
+        }
+        else {
+          var arrow_x = -9
+        }
+        if (d.cx-d.width/2-d.arrow_offset < arrow_x) {
+          arrow_x = d.cx-d.width/2-d.arrow_offset
+          if (arrow_x < 4-d.width/2) arrow_x = 4-d.width/2
+        }
+        else if (-(window.innerWidth-d.cx-d.width/2+d.arrow_offset) > arrow_x) {
+          var arrow_x = -(window.innerWidth-d.cx-d.width/2+d.arrow_offset)
+          if (arrow_x > d.width/2-22) arrow_x = d.width/2-22
+        }
+        return arrow_x+"px"
+      }
+    })
+    .style("margin-top", function(d){
+      if (d.anchor.y != "center") {
+        return "auto"
+      }
+      else {
+        if (d.anchor.y == "top") {
+          var arrow_y = -d.height/2+d.arrow_offset/2 - 1
+        }
+        else if (d.anchor.y == "bottom") {
+          var arrow_y = d.height/2-d.arrow_offset*2 - 2
+        }
+        else {
+          var arrow_y = -9
+        }
+        if (d.cy-d.height/2-d.arrow_offset < arrow_y) {
+          arrow_y = d.cy-d.height/2-d.arrow_offset
+          if (arrow_y < 4-d.height/2) arrow_y = 4-d.height/2
+        }
+        else if (-(window.innerHeight-d.cy-d.height/2+d.arrow_offset) > arrow_y) {
+          var arrow_y = -(window.innerHeight-d.cy-d.height/2+d.arrow_offset)
+          if (arrow_y > d.height/2-22) arrow_y = d.height/2-22
+        }
+        return arrow_y+"px"
+      }
+    })
 }
 
 //===================================================================
@@ -494,9 +625,10 @@ vizwhiz.tooltip.create = function(params) {
 
 vizwhiz.tooltip.remove = function(id) {
   
-  if (d3.select("svg#tooltip")[0][0]) d3.select("svg#tooltip").remove();
-  else if (id) d3.select("g#vizwhiz_tooltip_"+id).remove();
-  else d3.selectAll("g.vizwhiz_tooltip").remove();
+  if (id) d3.select("div#vizwhiz_tooltip_id_"+id).remove();
+  else d3.selectAll("div.vizwhiz_tooltip").remove();
+  
+  d3.selectAll("div.vizwhiz_tooltip_curtain").remove()
 
 }
 
@@ -508,106 +640,124 @@ vizwhiz.tooltip.remove = function(id) {
 
 vizwhiz.tooltip.move = function(x,y,id) {
   
-  if (d3.select("svg#tooltip")[0][0]) {
-    d3.select("svg#tooltip")
-      .style("left",function(d){
-        
-        if (x-d.margin < d.width/2) var tooltip_x = d.margin
-        else if (x+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
-        else var tooltip_x = x-(d.width/2)
-        
-        return tooltip_x;
-      
-      })
-      .style("top",function(d){
-        
-        if (y-d.offset-d.margin < d.height+d.triangle_size/2) {
-          var tooltip_y = y+d.offset+(d.triangle_size/2)
-          if (tooltip_y < d.margin) tooltip_y = d.margin;
-        } else var tooltip_y = y-d.offset-d.height-(d.triangle_size/2)
-        
-        return tooltip_y;
-        
-      })
-      .each(function(d){
-        
-        if (d.arrow) {
-          
-          if (y-d.offset-d.margin < d.height+d.triangle_size/2) {
-            var tooltip_y = y+d.offset+(d.triangle_size/2),
-                triangle_y = 0,
-                p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(-d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
-            if (tooltip_y < d.margin) tooltip_y = d.margin;
-          } else {
-            var tooltip_y = y-d.offset-d.height-(d.triangle_size/2),
-                triangle_y = d.height,
-                p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
-          }
+  if (!id) var tooltip = d3.select("div#vizwhiz_tooltip_id_default")
+  else var tooltip = d3.select("div#vizwhiz_tooltip_id_"+id)
   
-          if (x-d.margin < d.width/2) var tooltip_x = d.margin
-          else if (x+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
-          else var tooltip_x = x-(d.width/2)
+  if (tooltip.node()) {
+    
+    var d = tooltip.datum()
   
-          var triangle_x = x-tooltip_x
-          if (triangle_x < d.padding+d.triangle_size/2) var triangle_x = d.padding+d.triangle_size/2
-          else if (triangle_x > d.width-d.padding-d.triangle_size/2) var triangle_x = d.width-d.padding-d.triangle_size/2
-    
-          d3.select(this).select("line.arrow_line")
-            .attr("x1",(triangle_x-d.triangle_size/2+1))
-            .attr("x2",(triangle_x+d.triangle_size/2-1))
-            .attr("y1",triangle_y)
-            .attr("y2",triangle_y);
-    
+    d.cx = x
+    d.cy = y
+  
+    if (!d.fixed) {
 
-          d3.select(this).select("path.arrow").attr("d",p)
-            .attr("transform","translate("+triangle_x+","+triangle_y+")");
+      // Set initial values, based off of anchor
+      if (d.anchor.y != "center") {
+
+        if (d.anchor.x == "left") {
+          d.x = d.cx - d.arrow_offset - 4
         }
-        
-      })
-  } else {
-    
-    if (!id) var obj = d3.selectAll("g.vizwhiz_tooltip")
-    else var obj = d3.selectAll("g#vizwhiz_tooltip_"+id)
+        else if (d.anchor.x == "center") {
+          d.x = d.cx - d.width/2
+        }
+        else if (d.anchor.x == "right") {
+          d.x = d.cx - d.width + d.arrow_offset + 2
+        }
 
-    obj.attr("transform",function(d){
-  
-      if (y-d.offset-d.margin < d.height+d.triangle_size/2) {
-        var tooltip_y = y+d.offset+(d.triangle_size/2),
-            triangle_y = 0,
-            p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(-d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
-        if (tooltip_y < d.margin) tooltip_y = d.margin;
-      } else {
-        var tooltip_y = y-d.offset-d.height-(d.triangle_size/2),
-            triangle_y = d.height,
-            p = "M "+(-d.triangle_size/2)+" 0 L 0 "+(d.triangle_size/2)+" L "+(d.triangle_size/2)+" 0";
+        // Determine whether or not to flip the tooltip
+        if (d.anchor.y == "top") {
+          d.flip = d.cy + d.height + d.offset <= window.innerHeight
+        }
+        else if (d.anchor.y == "bottom") {
+          d.flip = d.cy - d.height - d.offset < 0
+        }
+
+        if (d.anchor.y == "center") {
+          d.flip = false
+          d.y = d.cy - d.height/2
+        }
+        else if (d.flip) {
+          d.y = d.cy + d.offset + d.arrow_offset
+        }
+        else {
+          d.y = d.cy - d.height - d.offset
+        }
+    
+      }
+      else {
+
+        if (d.anchor.y == "top") {
+          d.y = d.cy - d.arrow_offset - 4
+        }
+        else if (d.anchor.y == "center") {
+          d.y = d.cy - d.height/2
+        }
+        else if (d.anchor.y == "right") {
+          d.y = d.cy - d.height + d.arrow_offset + 2
+        }
+
+        // Determine whether or not to flip the tooltip
+        if (d.anchor.x == "left") {
+          d.flip = d.cx + d.width + d.offset <= window.innerWidth
+        }
+        else if (d.anchor.x == "right") {
+          d.flip = d.cx - d.width - d.offset < 0
+        }
+    
+        if (d.anchor.x == "center") {
+          d.flip = false
+          d.x = d.cx - d.width/2
+        }
+        else if (d.flip) {
+          d.x = d.cx + d.offset + d.arrow_offset
+        }
+        else {
+          d.x = d.cx - d.width - d.offset
+        }
       }
   
-      if (x-d.offset-d.margin < d.width/2) var tooltip_x = d.margin
-      else if (x+d.offset+d.margin > d.window_width-(d.width/2)) var tooltip_x = d.window_width-d.width-d.margin
-      else var tooltip_x = x-(d.width/2)
-    
-      if (d.arrow) {
-  
-        var triangle_x = x-tooltip_x
-        if (triangle_x < d.padding+d.triangle_size/2) var triangle_x = d.padding+d.triangle_size/2
-        else if (triangle_x > d.width-d.padding-d.triangle_size/2) var triangle_x = d.width-d.padding-d.triangle_size/2
-    
-        d3.select(this).select("line.arrow_line")
-          .attr("x1",(triangle_x-d.triangle_size/2+1))
-          .attr("x2",(triangle_x+d.triangle_size/2-1))
-          .attr("y1",triangle_y)
-          .attr("y2",triangle_y);
-    
-
-        d3.select(this).select("path.arrow").attr("d",p)
-          .attr("transform","translate("+triangle_x+","+triangle_y+")");
+      // Limit X to the bounds of the screen
+      if (d.x < 0) {
+        d.x = 0
       }
+      else if (d.x + d.width > window.innerWidth) {
+        d.x = window.innerWidth - d.width
+      }
+  
+      // Limit Y to the bounds of the screen
+      if (d.y < 0) {
+        d.y = 0
+      }
+      else if (d.y + d.height > window.innerHeight) {
+        d.y = window.innerHeight - d.height
+      }
+      
+    }
+    else {
+      var th = window.innerHeight-5-d.y
+      tooltip
+        .style("max-height",th+"px")
+      if (d.data || d.html) {
+        if (tooltip.select(".vizwhiz_tooltip_header").node()) {
+          th -= tooltip.select(".vizwhiz_tooltip_header").node().offsetHeight
+        }
+        tooltip.select(".vizwhiz_tooltip_data_container")
+          .style("max-height",(th-6)+"px")
+      }
+    }
     
-      return "translate("+tooltip_x+","+tooltip_y+")";
-    })
+    tooltip
+      .style("top",d.y+"px")
+      .style("left",d.x+"px")
+  
+    if (d.arrow) {
+      tooltip.select(".vizwhiz_tooltip_arrow")
+        .call(vizwhiz.tooltip.arrow)
+    }
     
   }
-
+    
 }
 
 //===================================================================
@@ -623,10 +773,12 @@ vizwhiz.viz = function() {
     "arc_inners": {},
     "arc_sizes": {},
     "boundries": null,
+    "click_function": function() { return null },
     "connections": null,
     "coords": null,
     "csv_columns": null,
     "csv_data": [],
+    "data_source": null,
     "depth": null,
     "donut": true,
     "filter": [],
@@ -648,10 +800,12 @@ vizwhiz.viz = function() {
     "name_array": null,
     "nesting": [],
     "nesting_aggs": {},
+    "number_format": null,
     "order": "asc",
     "projection": d3.geo.mercator(),
     "solo": [],
     "sort": "total",
+    "source_text": null,
     "spotlight": true,
     "sub_title": null,
     "svg_height": window.innerHeight,
@@ -757,11 +911,15 @@ vizwhiz.viz = function() {
       // create CSV data
       vars.csv_data = filtered_data;
       
-      var total_val = d3.sum(filtered_data, function(d){ 
-        return d[vars.value_var] 
-      })
-      if (!vars.total_bar) var total_val = null
-        
+      if (!vars.total_bar) {
+        var total_val = null
+      }
+      else {
+        var total_val = d3.sum(filtered_data, function(d){ 
+          return d[vars.value_var] 
+        })
+      }
+      
       if (["tree_map","pie_scatter"].indexOf(vars.type) >= 0) {
         var cleaned_data = nest(filtered_data)
       }
@@ -919,30 +1077,6 @@ vizwhiz.viz = function() {
     return {"name":"root", "children": nested_data};
 
   }
-  
-  filter = function(d) {
-    
-  }
-  
-  mouseover = function(d){
-    
-    var svg = d3.select("svg");
-    var tooltip_data = {}
-    vars.tooltip_info.forEach(function(t){
-      if (d[t]) tooltip_data[t] = d[t]
-    })
-    tooltip_data["Share"] = d.share;
-    vizwhiz.tooltip.create({
-      "parent": svg,
-      "id": d[vars.id_var],
-      "data": tooltip_data,
-      "title": d[vars.text_var],
-      "x": d3.mouse(svg.node())[0],
-      "y": d3.mouse(svg.node())[1],
-      "offset": 10,
-      "arrow": true
-    })
-  }
 
   make_title = function(title,type){
     
@@ -954,9 +1088,8 @@ vizwhiz.viz = function() {
           "x": vars.width/2,
           "y": vars.margin.top
         }
-
-    
-    if (type == "total_bar") {
+        
+    if (type == "total_bar" && vars.total_bar) {
     
       var format = ",f";
       
@@ -1045,6 +1178,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.click_function = function(x) {
+    if (!arguments.length) return vars.click_function;
+    vars.click_function = x;
+    return chart;
+  };
+  
   chart.csv_data = function(x) {
     if (!arguments.length) {
       var csv_to_return = []
@@ -1091,6 +1230,12 @@ vizwhiz.viz = function() {
         })
       })
     })
+    return chart;
+  };
+  
+  chart.data_source = function(x) {
+    if (!arguments.length) return vars.data_source;
+    vars.data_source = x;
     return chart;
   };
   
@@ -1211,6 +1356,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.number_format = function(x) {
+    if (!arguments.length) return vars.number_format;
+    vars.number_format = x;
+    return chart;
+  };
+  
   chart.order = function(x) {
     if (!arguments.length) return vars.order;
     vars.order = x;
@@ -1245,6 +1396,12 @@ vizwhiz.viz = function() {
   chart.sort = function(x) {
     if (!arguments.length) return vars.sort;
     vars.sort = x;
+    return chart;
+  };
+  
+  chart.source_text = function(x) {
+    if (!arguments.length) return vars.source_text;
+    vars.source_text = x;
     return chart;
   };
 
@@ -1513,6 +1670,7 @@ vizwhiz.network = function(data,vars) {
     vars.parent.select("div#zoom_controls").remove()
     var zoom_div = vars.parent.append("div")
       .attr("id","zoom_controls")
+      .style("top",(vars.margin.top+5)+"px")
     
     zoom_div.append("div")
       .attr("id","zoom_in")
@@ -1598,13 +1756,7 @@ vizwhiz.network = function(data,vars) {
       if (d[vars.id_var] == vars.highlight) present = true;
     })
     if (!present) {
-      vizwhiz.tooltip.remove()
-      d3.select("g.highlight").selectAll("*").remove()
       vars.highlight = null;
-      zoom("reset");
-    }
-    else {
-      zoom(vars.highlight);
     }
   }
   update();
@@ -1786,7 +1938,6 @@ vizwhiz.network = function(data,vars) {
   }
   
   function update() {
-    
     // If highlight variable has ACTUALLY changed, do this stuff
     if (last_highlight != vars.highlight) {
       
@@ -1858,103 +2009,52 @@ vizwhiz.network = function(data,vars) {
           zoom(c);
           
           // Draw Info Panel
-          if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) var x_pos = 37+(info_width/2)
-          else var x_pos = vars.width
-      
-          var tooltip_data = {},
-              tooltip_appends = []
-              
-          var h = data.filter(function(d){return d[vars.id_var] == vars.highlight})[0]
-          vars.tooltip_info.forEach(function(t){
-            if (h[t]) tooltip_data[t] = h[t]
+          if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) {
+            var x_pos = 30
+          }
+          else {
+            var x_pos = vars.width-info_width-5
+          }
+         
+          var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight})[0]
+          var tooltip_data = []
+          if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+          else var a = vars.tooltip_info.long
+          a.forEach(function(t){
+            if (prod[t]) {
+              h = t == vars.active_var
+              tooltip_data.push({"name": t, "value": prod[t], "highlight": h, "format": vars.number_format})
+            }
           })
-          tooltip_appends.push({
-            "append": "text",
-            "attr": {
-              "dy": "18px",
-              "fill": "#333333",
-              "text-anchor": "start",
-              "font-size": "12px",
-              "font-family": "Helvetica"
-            },
-            "style": {
-              "font-weight": "bold"
-            },
-            "text": "Primary Connections"
-          })
+          
+          var tooltip_appends = "<div class='vizwhiz_tooltip_footer'>Primary Connections</div>"
       
           prim_nodes.forEach(function(n){
-            var obj = {
-              "append": "g",
-              "children": [
-                {
-                  "append": "circle",
-                  "attr": {
-                    "r": "5",
-                    "cx": "5",
-                    "cy": "8"
-                  },
-                  "style": {
-                    "font-weight": "normal"
-                  },
-                  "text": n[vars.text_var],
-                  "events": {}
-                },
-                {
-                  "append": "text",
-                  "attr": {
-                    "fill": "#333333",
-                    "text-anchor": "start",
-                    "font-size": "12px",
-                    "font-family": "Helvetica",
-                    "y": "0",
-                    "x": "13"
-                  },
-                  "style": {
-                    "font-weight": "normal"
-                  },
-                  "text": n[vars.text_var],
-                  "events": {}
-                }
-              ]
-            }
-            obj.children[0].attr["fill"] = function(){
-                var color = n.color ? n.color : vizwhiz.utils.rand_color()
-                if (n[vars.active_var]) {
-                  return color;
-                } else {
-                  color = d3.hsl(color)
-                  color.l = 0.95
-                  return color.toString()
-                }
-              }
-            obj.children[0].attr["stroke"] = function(){
-                var color = n.color ? n.color : vizwhiz.utils.rand_color()
-                return n[vars.active_var] ? "#333" : color
-              }
-            obj.children[0].attr["stroke-width"] = 1
-            obj.children[1].events[vizwhiz.evt.over] = function(){
-                d3.select(this).attr('fill',highlight_color).style('cursor','pointer')
-              }
-            obj.children[1].events[vizwhiz.evt.out] = function(){
-                d3.select(this).attr("fill","#333333")
-              }
-            obj.children[1].events[vizwhiz.evt.click] = function(){
-                vars.highlight = n[vars.id_var];
-                update();
-              }
-            tooltip_appends.push(obj)
+            
+            var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
+            
+            tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+            tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+            tooltip_appends += " style='"
+            tooltip_appends += "background-color:"+fill_color(n)+";"
+            tooltip_appends += "border-color:"+stroke_color(n)+";"
+            tooltip_appends += "'"
+            tooltip_appends += "></div>"
+            tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+            tooltip_appends += n[vars.text_var]
+            tooltip_appends += "</div>"
+            tooltip_appends += "</div>"
           })
-      
+          
           vizwhiz.tooltip.create({
-            "parent": vars.svg,
             "data": tooltip_data,
-            "title": h[vars.text_var],
+            "title": prod[vars.text_var],
+            "color": prod.color,
             "x": x_pos,
-            "y": 0,
+            "y": vars.margin.top+5,
             "width": info_width,
-            "arrow": false,
-            "appends": tooltip_appends
+            "html": tooltip_appends,
+            "fixed": true
           })
           
         }
@@ -2510,22 +2610,27 @@ vizwhiz.stacked = function(data,vars) {
       .on(vizwhiz.evt.over, path_tooltip)
     
     // tooltip
-    var tooltip_data = {}
-    tooltip_data["Value ("+this_x+")"] = this_value.values;
-    vars.tooltip_info.forEach(function(t){
-      if (d[t]) tooltip_data[t] = d[t]
+    var tooltip_data = []
+    if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+    else var a = vars.tooltip_info.long
+    a.forEach(function(t){
+      if (d[t]) {
+        h = t == vars.value_var
+        tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+      }
     })
 
     vizwhiz.tooltip.remove();
     vizwhiz.tooltip.create({
-      "parent": vars.svg,
-      "id": d[vars.id_var],
       "data": tooltip_data,
       "title": d[vars.text_var],
-      "x": x_scale(this_x)+graph_margin.left,
-      "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top,
+      "id": d[vars.id_var],
+      "color": d.color,
+      "x": x_scale(this_x)+graph_margin.left+vars.margin.left,
+      "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top+vars.margin.top,
       "offset": ((graph.height-y_scale(this_value.y))/2)+2,
-      "arrow": true
+      "arrow": true,
+      "mouseevents": false
     })
   }
   
@@ -2816,10 +2921,6 @@ vizwhiz.tree_map = function(data,vars) {
     .attr("transform", function(d) {
       return "translate(" + d.x + "," + d.y + ")"; 
     })
-    .on(vizwhiz.evt.move, mouseover)
-    .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove();
-    })
     
   // rectangle
   cell_enter.append("rect")
@@ -2851,6 +2952,7 @@ vizwhiz.tree_map = function(data,vars) {
     .attr('y','0em')
     .attr('dy','1em')
     .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
+    .style("pointer-events","none")
     
   // text (share)
   cell_enter.append("text")
@@ -2860,6 +2962,7 @@ vizwhiz.tree_map = function(data,vars) {
     .attr("font-family","Helvetica")
     .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
     .attr("fill-opacity",0.75)
+    .style("pointer-events","none")
     .text(function(d) {
       var root = d;
       while(root.parent){ root = root.parent; } // find top most parent node
@@ -2892,6 +2995,82 @@ vizwhiz.tree_map = function(data,vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update, for cells that are already in existance
   //-------------------------------------------------------------------
+  
+  cell
+    .on(vizwhiz.evt.over,function(d){
+      
+      d3.select(this).style("cursor","pointer")
+      vizwhiz.tooltip.remove()
+
+      var tooltip_data = []
+      if (typeof vars.tooltip_info == "object") var a = vars.tooltip_info.short
+      else var a = vars.tooltip_info
+      a.forEach(function(t){
+        if (d[t]) {
+          h = t == vars.value_var
+          tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+        }
+      })
+      tooltip_data.push({"name": "Share", "value": d.share});
+      
+      var footer_text = vars.click_function ? "Click box for more info" : null
+      
+      vizwhiz.tooltip.create({
+        "title": d[vars.text_var],
+        "color": d.color,
+        "icon": d.icon,
+        "id": d[vars.id_var],
+        "x": d3.event.pageX,
+        "y": d3.event.pageY,
+        "offset": 5,
+        "arrow": true,
+        "mouseevents": false,
+        "footer": footer_text,
+        "data": tooltip_data
+      })
+      
+    })
+    .on(vizwhiz.evt.move,function(d){
+      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,d[vars.id_var])
+    })
+    .on(vizwhiz.evt.out,function(d){
+      var target = d3.event.toElement
+      if (target) {
+        var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
+        if (class_name.indexOf("vizwhiz_tooltip") < 0) {
+          vizwhiz.tooltip.remove(d[vars.id_var])
+        }
+      }
+    })
+    .on(vizwhiz.evt.click,function(d){
+      if (vars.click_function) {
+        vizwhiz.tooltip.remove()
+        
+        var html = vars.click_function(d)
+        
+        var tooltip_data = []
+        if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+        else var a = vars.tooltip_info.long
+        a.forEach(function(t){
+          if (d[t]) {
+            h = t == vars.value_var
+            tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+          }
+        })
+        tooltip_data.push({"name": "Share", "value": d.share});
+        
+        vizwhiz.tooltip.create({
+          "title": d[vars.text_var],
+          "color": d.color,
+          "icon": d.icon,
+          "id": d[vars.id_var],
+          "fullscreen": true,
+          "html": html,
+          "footer": vars.data_source,
+          "data": tooltip_data
+        })
+      }
+    })
   
   cell.transition().duration(vizwhiz.timing)
     .attr("transform", function(d) { 
@@ -3122,12 +3301,12 @@ vizwhiz.geo_map = function(data,vars) {
     
     scale.append("rect")
       .attr("width", info_width+"px")
-      .attr("height", (scale_height*5)+"px")
+      .attr("height", (scale_height*6)+"px")
       .attr("fill","#ffffff")
       .attr("rx",3)
       .attr("ry",3)
-      .attr("stroke","#cccccc")
-      .attr("stroke-width",2)
+      .attr("stroke","#888")
+      .attr("stroke-width",1)
         
     scale.append("text")
       .attr("id","scale_title")
@@ -3142,7 +3321,7 @@ vizwhiz.geo_map = function(data,vars) {
        
     data_range.forEach(function(v,i){
       if (i == data_range.length-1) {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-2
+        var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
       } else if (i != 0) {
         var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
       } else {
@@ -3150,26 +3329,26 @@ vizwhiz.geo_map = function(data,vars) {
       }
       scale.append("rect")
         .attr("x", x+"px")
-        .attr("y", (scale_height*2)+"px")
-        .attr("width", 2)
+        .attr("y", (scale_height*2.5)+"px")
+        .attr("width", 1)
         .attr("height", (scale_height*1.5)+"px")
         .style("fill", "#333")
     
-    scale.append("rect")
-      .attr("x",scale_padding+"px")
-      .attr("y",(scale_height*2)+"px")
-      .attr("width", (info_width-(scale_padding*2))+"px")
-      .attr("height", scale_height+"px")
-      .style("fill", "url(#gradient)")
+      scale.append("rect")
+        .attr("x",scale_padding+"px")
+        .attr("y",(scale_height*2.5)+"px")
+        .attr("width", (info_width-(scale_padding*2))+"px")
+        .attr("height", scale_height+"px")
+        .style("fill", "url(#gradient)")
         
       scale.append("text")
         .attr("id","scale_"+i)
         .attr("x",x+"px")
-        .attr("y", ((scale_height*3)+5)+"px")
+        .attr("y", ((scale_height*3.5)+5)+"px")
         .attr("dy","1em")
         .attr("text-anchor","middle")
         .attr("fill","#333")
-        .style("font-weight","bold")
+        .style("font-weight","normal")
         .attr("font-size","10px")
         .attr("font-family","Helvetica")
     })
@@ -3438,28 +3617,39 @@ vizwhiz.geo_map = function(data,vars) {
     
     if (vars.highlight && !vars.small) {
       
-      var tooltip_data = {}, sub_title = null
+      var tooltip_data = []
       
-      if (!data[vars.highlight][vars.value_var]) sub_title = "No Data Available"
+      if (!data[vars.highlight][vars.value_var]) {
+        var footer = "No Data Available",
+            color = "#888"
+      }
       else {
-        if (!vars.clicked) sub_title = "Click for More Info"
+        var color = data[vars.highlight][vars.value_var] ? value_color(data[vars.highlight][vars.value_var]) : "#888888"
+        if (!vars.clicked) var footer = "Click for More Info"
         else {
-          vars.tooltip_info.forEach(function(t){
-            if (data[vars.highlight][t]) tooltip_data[t] = data[vars.highlight][t]
+          var footer = vars.data_source
+          if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+          else var a = vars.tooltip_info.long
+          a.forEach(function(t){
+            if (data[vars.highlight][t]) {
+              h = t == vars.value_var
+              tooltip_data.push({"name": t, "value": data[vars.highlight][t], "highlight": h, "format": vars.number_format})
+            }
           })
         }
       }
       
       vizwhiz.tooltip.create({
-        "parent": vars.svg,
         "data": tooltip_data,
         "title": data[vars.highlight][vars.text_var],
-        "description": sub_title,
-        "x": vars.width,
-        "y": 0+vars.margin.top,
-        "offset": (scale_height*5)+10,
-        "width": info_width,
-        "arrow": false
+        "id": data[vars.highlight][vars.id_var],
+        "icon": data[vars.highlight].icon,
+        "color": color,
+        "footer": footer,
+        "x": vars.width-info_width-5,
+        "y": vars.margin.top+10+(scale_height*6),
+        "fixed": true,
+        "width": info_width
       })
       
     }
@@ -3799,7 +3989,7 @@ vizwhiz.pie_scatter = function(data,vars) {
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
           else return d.color;
         })
-        .style('stroke-width', 2)
+        .style('stroke-width', 1)
         .style('fill', function(dd){
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) return d.color;
           else {
@@ -3968,8 +4158,7 @@ vizwhiz.pie_scatter = function(data,vars) {
             x = x_scale(d[vars.xaxis_var]),
             y = y_scale(d[vars.yaxis_var]),
             color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : d.color,
-            viz = d3.select("g.viz"),
-            tooltip_data = {};
+            viz = d3.select("g.viz");
             
         // vertical line to x-axis
         viz.append("line")
@@ -4039,19 +4228,28 @@ vizwhiz.pie_scatter = function(data,vars) {
           .attr("fill","#4c4c4c")
           .text(vizwhiz.utils.format_num(d[vars.yaxis_var], false, 3, true))
       
-        vars.tooltip_info.forEach(function(t){
-          if (d[t]) tooltip_data[t] = d[t]
+        var tooltip_data = []
+        if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+        else var a = vars.tooltip_info.long
+        a.forEach(function(t){
+          if (d[t]) {
+            h = t == vars.value_var
+            tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+          }
         })
       
         vizwhiz.tooltip.create({
-          "parent": viz,
           "id": d.id,
+          "color": d.color,
+          "icon": d.icon,
           "data": tooltip_data,
           "title": d[vars.text_var],
-          "x": x,
-          "y": y,
+          "x": x+graph.x+vars.margin.left+vars.parent.node().offsetLeft,
+          "y": y+graph.y+vars.margin.top+vars.parent.node().offsetTop,
           "offset": radius,
-          "arrow": true
+          "arrow": true,
+          "footer": vars.data_source,
+          "mouseevents": false
         })
       }
   }
@@ -4446,25 +4644,32 @@ vizwhiz.bubbles = function(data,vars) {
   bubble
     .on(vizwhiz.evt.over, function(d){
       
-      var tooltip_data = {}
-      vars.tooltip_info.forEach(function(t){
-        if (d[t]) tooltip_data[t] = d[t]
+      var tooltip_data = []
+      if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+      else var a = vars.tooltip_info.long
+      a.forEach(function(t){
+        if (d[t]) {
+          h = t == vars.value_var
+          tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+        }
       })
       
       vizwhiz.tooltip.create({
-        "parent": vars.svg,
         "id": d[vars.id_var],
+        "color": d.color,
+        "icon": d.icon,
         "data": tooltip_data,
         "title": d[vars.text_var],
-        "x": d.x,
-        "y": d.y,
+        "x": d.x+vars.margin.left+vars.parent.node().offsetLeft,
+        "y": d.y+vars.margin.top+vars.parent.node().offsetTop,
         "offset": d.r,
-        "arrow": true
+        "arrow": true,
+        "mouseevents": false
       })
       
     })
     .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove(d[vars.id_var])
+      vizwhiz.tooltip.remove()
     })
   
   bubble.transition().duration(vizwhiz.timing)
@@ -4598,7 +4803,11 @@ vizwhiz.bubbles = function(data,vars) {
 
 vizwhiz.rings = function(data,vars) {
       
-  var tree_radius = vars.height > vars.width ? vars.width/2 : vars.height/2,
+  var tooltip_width = 200
+      
+  var width = vars.small ? vars.width : vars.width-tooltip_width
+      
+  var tree_radius = vars.height > width ? width/2 : vars.height/2,
       node_size = d3.scale.linear().domain([1,2]).range([8,4]),
       ring_width = vars.small ? tree_radius/2.25 : tree_radius/3,
       total_children,
@@ -4606,13 +4815,13 @@ vizwhiz.rings = function(data,vars) {
       
   // container for the visualization
   var viz_enter = vars.parent_enter.append("g").attr("class", "viz")
-    .attr("transform", "translate(" + vars.width / 2 + "," + vars.height / 2 + ")");
+    .attr("transform", "translate(" + width / 2 + "," + vars.height / 2 + ")");
     
   viz_enter.append("g").attr("class","links")
   viz_enter.append("g").attr("class","nodes")
     
   d3.select("g.viz").transition().duration(vizwhiz.timing)
-    .attr("transform", "translate(" + vars.width / 2 + "," + vars.height / 2 + ")");
+    .attr("transform", "translate(" + width / 2 + "," + vars.height / 2 + ")");
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // INIT vars & data munging
@@ -4690,41 +4899,49 @@ vizwhiz.rings = function(data,vars) {
   var node = d3.select(".nodes").selectAll(".node")
     .data(tree_nodes)
       
-  node.enter().append("g")
+  var node_enter = node.enter().append("g")
       .attr("class", "node")
       .attr("opacity",0)
       .attr("transform", function(d) {
         if (d.depth == 0) return "none"
         else return "rotate(" + (d.ring_x - 90) + ")translate(" + 0 + ")"; 
       })
-      .each(function(e){
-        
-        d3.select(this).append("circle")
-          .attr("id",function(d) { return "node_"+d[vars.id_var]; })
-          .attr("r", 0)
-          .call(circle_styles);
+      
+  node_enter.append("circle")
+    .attr("id",function(d) { return "node_"+d[vars.id_var]; })
+    .attr("r", 0)
+    .call(circle_styles)
           
-        if (!vars.small) {
-          d3.select(this).append("text")
-            .attr("font-weight","bold")
-            .attr("font-size", "10px")
-            .attr("font-family","Helvetica")
-            .call(text_styles);
-        }
-      })
+  if (!vars.small) {
+    node_enter.append("text")
+      .attr("font-weight","bold")
+      .attr("font-size", "10px")
+      .attr("font-family","Helvetica")
+      .call(text_styles);
+  }
       
   node
     .on(vizwhiz.evt.over,function(d){
       if (d.depth != 0) {
-        d3.select(this).style("cursor","pointer");
+        d3.select(this).style("cursor","pointer")
+        d3.select(this).style("cursor","-moz-zoom-in")
+        d3.select(this).style("cursor","-webkit-zoom-in")
         hover = d;
-        update();
+        if (!vars.small) {
+          link.call(line_styles);
+          d3.selectAll(".node circle").call(circle_styles);
+          d3.selectAll(".node text").call(text_styles);
+        }
       }
     })
     .on(vizwhiz.evt.out,function(d){
       if (d.depth != 0) {
         hover = null;
-        update();
+        if (!vars.small) {
+          link.call(line_styles);
+          d3.selectAll(".node circle").call(circle_styles);
+          d3.selectAll(".node text").call(text_styles);
+        }
       }
     })
     .on(vizwhiz.evt.click,function(d){
@@ -4737,64 +4954,62 @@ vizwhiz.rings = function(data,vars) {
         if (d.depth == 0) return "none"
         else return "rotate(" + (d.ring_x - 90) + ")translate(" + d.ring_y + ")"; 
       })
-      .each(function(e){
-        
-        d3.select(this).select("circle")
-          .attr("r", function(d){ 
-            if (d.depth == 0) return ring_width/2;
-            var s = node_size(d.depth); 
-            if (d.depth == 1) var limit = (Math.PI*((tree_radius-(ring_width*2))*2))/total_children;
-            if (d.depth == 2) var limit = (Math.PI*((tree_radius-ring_width)*2))/total_children;
-            if (s > limit/2) s = limit/2;
-            if (s < 2) s = 2;
-            d.radius = s;
-            return d.radius;
-          })
-          .call(circle_styles);
-          
-        d3.select(this).select("text")
-          .attr("text-anchor", function(d) { 
-            if (d.depth == 0) return "middle"
-            else return d.ring_x%360 < 180 ? "start" : "end"; 
-          })
-          .attr("transform", function(d) { 
-            if (d.depth == 0) return "none"
-            else {
-              var offset = d.radius*2
-              return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
-            }
-          })
-          .attr("transform", function(d) { 
-            if (d.depth == 0) return "none"
-            else {
-              var offset = d.radius*2
-              return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
-            }
-          })
-          .each(function(d) {
-            if (d.depth == 0) var s = Math.sqrt((ring_width*ring_width)/2), w = s*1.5, h = s/1.5, resize = true;
-            else {
-              var w = ring_width-d.radius*2, resize = false
-              if (d.depth == 1) var h = (Math.PI*((tree_radius-(ring_width*2))*2))*(d.size/360);
-              if (d.depth == 2) var h = (Math.PI*((tree_radius-ring_width)*2))/total_children;
-            }
-      
-            if (h < 15) h = 15;
-      
-            vizwhiz.utils.wordwrap({
-              "text": d.name,
-              "parent": this,
-              "width": w,
-              "height": h,
-              "resize": resize,
-              "font_min": 6
-            })
-      
-            d3.select(this).attr("y",(-d3.select(this).node().getBBox().height/2)+"px")
-            d3.select(this).selectAll("tspan").attr("x",0)
-          })
-          .call(text_styles);
+  
+  node.select("circle").transition().duration(vizwhiz.timing)
+    .attr("r", function(d){ 
+      if (d.depth == 0) return ring_width/2;
+      var s = node_size(d.depth); 
+      if (d.depth == 1) var limit = (Math.PI*((tree_radius-(ring_width*2))*2))/total_children;
+      if (d.depth == 2) var limit = (Math.PI*((tree_radius-ring_width)*2))/total_children;
+      if (s > limit/2) s = limit/2;
+      if (s < 2) s = 2;
+      d.radius = s;
+      return d.radius;
+    })
+    .call(circle_styles)
+    
+  node.select("text")
+    .attr("text-anchor", function(d) { 
+      if (d.depth == 0) return "middle"
+      else return d.ring_x%360 < 180 ? "start" : "end"; 
+    })
+    .attr("transform", function(d) { 
+      if (d.depth == 0) return "none"
+      else {
+        var offset = d.radius*2
+        return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
+      }
+    })
+    .attr("transform", function(d) { 
+      if (d.depth == 0) return "none"
+      else {
+        var offset = d.radius*2
+        return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
+      }
+    })
+    .each(function(d) {
+      if (d.depth == 0) var s = Math.sqrt((ring_width*ring_width)/2), w = s*1.5, h = s/1.5, resize = true;
+      else {
+        var w = ring_width-d.radius*2, resize = false
+        if (d.depth == 1) var h = (Math.PI*((tree_radius-(ring_width*2))*2))*(d.size/360);
+        if (d.depth == 2) var h = (Math.PI*((tree_radius-ring_width)*2))/total_children;
+      }
+
+      if (h < 15) h = 15;
+
+      vizwhiz.utils.wordwrap({
+        "text": d.name,
+        "parent": this,
+        "width": w,
+        "height": h,
+        "resize": resize,
+        "font_min": 6
       })
+
+      d3.select(this).attr("y",(-d3.select(this).node().getBBox().height/2)+"px")
+      d3.select(this).selectAll("tspan").attr("x",0)
+    })
+    .call(text_styles);
       
   node.exit().transition().duration(vizwhiz.timing)
       .attr("opacity",0)
@@ -4803,35 +5018,40 @@ vizwhiz.rings = function(data,vars) {
   //===================================================================
   
   hover = null;
-  update();
   
-  function update() {
-    if (!vars.small) {
-      link.call(line_styles);
-      d3.selectAll(".node circle").call(circle_styles);
-      d3.selectAll(".node text").call(text_styles);
-    
-      if (vars.highlight) {
-        
-        var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight })[0]
+  if (!vars.small) {
       
-        var tooltip_data = {}
-        vars.tooltip_info.forEach(function(t){
-          if (prod[t]) tooltip_data[t] = prod[t]
-        })
+    var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight })[0]
 
-        vizwhiz.tooltip.remove();
-        vizwhiz.tooltip.create({
-          "parent": vars.svg,
-          "data": tooltip_data,
-          "title": prod[vars.text_var],
-          "x": vars.width,
-          "y": 0,
-          "arrow": false
-        })
-      
+    vizwhiz.tooltip.remove();
+    
+    var html = vars.click_function(prod)
+    
+    var tooltip_data = []
+    if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+    else var a = vars.tooltip_info.long
+    a.forEach(function(t){
+      if (prod[t]) {
+        h = t == vars.active_var
+        tooltip_data.push({"name": t, "value": prod[t], "highlight": h, "format": vars.number_format})
       }
-    }
+    })
+
+    vizwhiz.tooltip.remove()
+    vizwhiz.tooltip.create({
+      "title": prod[vars.text_var],
+      "color": prod.color,
+      "icon": prod.icon,
+      "id": prod[vars.id_var],
+      "html": html,
+      "footer": vars.data_source,
+      "data": tooltip_data,
+      "x": vars.width-5,
+      "y": vars.margin.top+5,
+      "align": "top right",
+      "width": tooltip_width
+    })
+    
   }
   
   function line_styles(l) {
@@ -4851,7 +5071,7 @@ vizwhiz.rings = function(data,vars) {
       .attr("opacity",function(d) {
         if (hover && d3.select(this).attr("stroke") == "#ddd") {
            return 0.25
-        } return 1;
+        } return 0.75;
       })
   }
   
@@ -4860,11 +5080,13 @@ vizwhiz.rings = function(data,vars) {
       .attr("fill", function(d){
         if(d[vars.active_var]){
           var color = d.color;
-        } else {
+        } 
+        else {
           var lighter_col = d3.hsl(d.color);
           lighter_col.l = 0.95;
           var color = lighter_col.toString()
         }
+        
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
         else if (d.depth == 2 && (!hover || d == hover || d.parents.indexOf(hover) >= 0)) return color;
@@ -4873,9 +5095,9 @@ vizwhiz.rings = function(data,vars) {
       })
       .attr("stroke", function(d){
         if(d[vars.active_var]){
-          var color = d3.rgb(d.color).darker().darker().toString();
+          var color = "#333";
         } else {
-          var color = d3.rgb(d.color).darker().toString()
+          var color = vizwhiz.utils.darker_color(d.color)
         }
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
@@ -4883,7 +5105,7 @@ vizwhiz.rings = function(data,vars) {
         else return "darkgrey"
       
       })
-      .attr("stroke-width", "1.5")
+      .attr("stroke-width", "1")
   }
   
   function text_styles(t) {
@@ -4891,7 +5113,10 @@ vizwhiz.rings = function(data,vars) {
       .attr("fill",function(d){
         if (d.depth == 0) {
           var color = vizwhiz.utils.text_color(d3.select("circle#node_"+d[vars.id_var]).attr("fill"));
-        } else var color = "#4c4c4c";
+        } 
+        else {
+          var color = vizwhiz.utils.darker_color(d.color);
+        }
 
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;

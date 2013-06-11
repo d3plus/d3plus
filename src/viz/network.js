@@ -159,6 +159,7 @@ vizwhiz.network = function(data,vars) {
     vars.parent.select("div#zoom_controls").remove()
     var zoom_div = vars.parent.append("div")
       .attr("id","zoom_controls")
+      .style("top",(vars.margin.top+5)+"px")
     
     zoom_div.append("div")
       .attr("id","zoom_in")
@@ -244,13 +245,7 @@ vizwhiz.network = function(data,vars) {
       if (d[vars.id_var] == vars.highlight) present = true;
     })
     if (!present) {
-      vizwhiz.tooltip.remove()
-      d3.select("g.highlight").selectAll("*").remove()
       vars.highlight = null;
-      zoom("reset");
-    }
-    else {
-      zoom(vars.highlight);
     }
   }
   update();
@@ -432,7 +427,6 @@ vizwhiz.network = function(data,vars) {
   }
   
   function update() {
-    
     // If highlight variable has ACTUALLY changed, do this stuff
     if (last_highlight != vars.highlight) {
       
@@ -504,103 +498,52 @@ vizwhiz.network = function(data,vars) {
           zoom(c);
           
           // Draw Info Panel
-          if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) var x_pos = 37+(info_width/2)
-          else var x_pos = vars.width
-      
-          var tooltip_data = {},
-              tooltip_appends = []
-              
-          var h = data.filter(function(d){return d[vars.id_var] == vars.highlight})[0]
-          vars.tooltip_info.forEach(function(t){
-            if (h[t]) tooltip_data[t] = h[t]
+          if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) {
+            var x_pos = 30
+          }
+          else {
+            var x_pos = vars.width-info_width-5
+          }
+         
+          var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight})[0]
+          var tooltip_data = []
+          if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+          else var a = vars.tooltip_info.long
+          a.forEach(function(t){
+            if (prod[t]) {
+              h = t == vars.active_var
+              tooltip_data.push({"name": t, "value": prod[t], "highlight": h, "format": vars.number_format})
+            }
           })
-          tooltip_appends.push({
-            "append": "text",
-            "attr": {
-              "dy": "18px",
-              "fill": "#333333",
-              "text-anchor": "start",
-              "font-size": "12px",
-              "font-family": "Helvetica"
-            },
-            "style": {
-              "font-weight": "bold"
-            },
-            "text": "Primary Connections"
-          })
+          
+          var tooltip_appends = "<div class='vizwhiz_tooltip_footer'>Primary Connections</div>"
       
           prim_nodes.forEach(function(n){
-            var obj = {
-              "append": "g",
-              "children": [
-                {
-                  "append": "circle",
-                  "attr": {
-                    "r": "5",
-                    "cx": "5",
-                    "cy": "8"
-                  },
-                  "style": {
-                    "font-weight": "normal"
-                  },
-                  "text": n[vars.text_var],
-                  "events": {}
-                },
-                {
-                  "append": "text",
-                  "attr": {
-                    "fill": "#333333",
-                    "text-anchor": "start",
-                    "font-size": "12px",
-                    "font-family": "Helvetica",
-                    "y": "0",
-                    "x": "13"
-                  },
-                  "style": {
-                    "font-weight": "normal"
-                  },
-                  "text": n[vars.text_var],
-                  "events": {}
-                }
-              ]
-            }
-            obj.children[0].attr["fill"] = function(){
-                var color = n.color ? n.color : vizwhiz.utils.rand_color()
-                if (n[vars.active_var]) {
-                  return color;
-                } else {
-                  color = d3.hsl(color)
-                  color.l = 0.95
-                  return color.toString()
-                }
-              }
-            obj.children[0].attr["stroke"] = function(){
-                var color = n.color ? n.color : vizwhiz.utils.rand_color()
-                return n[vars.active_var] ? "#333" : color
-              }
-            obj.children[0].attr["stroke-width"] = 1
-            obj.children[1].events[vizwhiz.evt.over] = function(){
-                d3.select(this).attr('fill',highlight_color).style('cursor','pointer')
-              }
-            obj.children[1].events[vizwhiz.evt.out] = function(){
-                d3.select(this).attr("fill","#333333")
-              }
-            obj.children[1].events[vizwhiz.evt.click] = function(){
-                vars.highlight = n[vars.id_var];
-                update();
-              }
-            tooltip_appends.push(obj)
+            
+            var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
+            
+            tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+            tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+            tooltip_appends += " style='"
+            tooltip_appends += "background-color:"+fill_color(n)+";"
+            tooltip_appends += "border-color:"+stroke_color(n)+";"
+            tooltip_appends += "'"
+            tooltip_appends += "></div>"
+            tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+            tooltip_appends += n[vars.text_var]
+            tooltip_appends += "</div>"
+            tooltip_appends += "</div>"
           })
-      
+          
           vizwhiz.tooltip.create({
-            "parent": vars.svg,
             "data": tooltip_data,
-            "title": h[vars.text_var],
+            "title": prod[vars.text_var],
+            "color": prod.color,
             "x": x_pos,
-            "y": 0,
+            "y": vars.margin.top+5,
             "width": info_width,
-            "arrow": false,
-            "appends": tooltip_appends
+            "html": tooltip_appends,
+            "fixed": true
           })
           
         }

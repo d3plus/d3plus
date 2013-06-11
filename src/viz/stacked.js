@@ -331,22 +331,27 @@ vizwhiz.stacked = function(data,vars) {
       .on(vizwhiz.evt.over, path_tooltip)
     
     // tooltip
-    var tooltip_data = {}
-    tooltip_data["Value ("+this_x+")"] = this_value.values;
-    vars.tooltip_info.forEach(function(t){
-      if (d[t]) tooltip_data[t] = d[t]
+    var tooltip_data = []
+    if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+    else var a = vars.tooltip_info.long
+    a.forEach(function(t){
+      if (d[t]) {
+        h = t == vars.value_var
+        tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+      }
     })
 
     vizwhiz.tooltip.remove();
     vizwhiz.tooltip.create({
-      "parent": vars.svg,
-      "id": d[vars.id_var],
       "data": tooltip_data,
       "title": d[vars.text_var],
-      "x": x_scale(this_x)+graph_margin.left,
-      "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top,
+      "id": d[vars.id_var],
+      "color": d.color,
+      "x": x_scale(this_x)+graph_margin.left+vars.margin.left,
+      "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top+vars.margin.top,
       "offset": ((graph.height-y_scale(this_value.y))/2)+2,
-      "arrow": true
+      "arrow": true,
+      "mouseevents": false
     })
   }
   

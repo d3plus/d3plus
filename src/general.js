@@ -11,6 +11,8 @@ vizwhiz.tooltip = {}; // For the tooltip system
 vizwhiz.utils = {}; // Utility subsystem
 vizwhiz.evt = {}; // stores all mouse events that could occur
 
+vizwhiz.ie = /*@cc_on!@*/false;
+
 // Modernizr touch events
 if (Modernizr.touch) {
   vizwhiz.evt.click = 'touchend'
@@ -23,7 +25,13 @@ if (Modernizr.touch) {
   vizwhiz.evt.click = 'click'
   vizwhiz.evt.down = 'mousedown'
   vizwhiz.evt.up = 'mouseup'
-  vizwhiz.evt.over = 'mouseover'
-  vizwhiz.evt.out = 'mouseout'
+  if (vizwhiz.ie) {
+    vizwhiz.evt.over = 'mouseenter'
+    vizwhiz.evt.out = 'mouseleave'
+  }
+  else {
+    vizwhiz.evt.over = 'mouseover'
+    vizwhiz.evt.out = 'mouseout'
+  }
   vizwhiz.evt.move = 'mousemove'
 }

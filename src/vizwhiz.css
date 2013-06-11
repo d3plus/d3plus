@@ -11,7 +11,245 @@ svg {
 }
 
 /********************
- * Network CSS
+ * Tooltip Styling
+ ********************/
+
+div.vizwhiz_tooltip {
+  background-color: #ddd;
+  border: 1px solid #888;
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  -webkit-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+     -moz-box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  position: absolute;
+  z-index: 10001;
+}
+
+div.vizwhiz_tooltip_curtain {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  background-color: white;
+  opacity: 0.75;
+  z-index: 10000;
+}
+
+div.vizwhiz_tooltip_body {
+  -webkit-border-top-left-radius: 2px;
+     -moz-border-top-left-radius: 2px;
+          border-top-left-radius: 2px;
+  -webkit-border-bottom-left-radius: 2px;
+     -moz-border-bottom-left-radius: 2px;
+          border-bottom-left-radius: 2px;
+  display: inline-block;
+}
+
+div.vizwhiz_tooltip_header {
+  -webkit-border-top-left-radius: 2px;
+     -moz-border-top-left-radius: 2px;
+          border-top-left-radius: 2px;
+  -webkit-border-top-right-radius: 2px;
+     -moz-border-top-right-radius: 2px;
+          border-top-right-radius: 2px;
+  font-weight: bold;
+  padding: 3px 3px 0px 3px;
+}
+
+div.vizwhiz_tooltip_header > div {
+  display: inline-block;
+}
+
+div.vizwhiz_tooltip_small div.vizwhiz_tooltip_title {
+  font-size: 14px;
+  line-height: 15px;
+  padding: 3px 3px 6px 3px;
+}
+
+div.vizwhiz_tooltip_large div.vizwhiz_tooltip_title {
+  font-size: 18px;
+  line-height: 20px;
+  padding: 6px 6px 12px 6px;
+}
+
+div.vizwhiz_tooltip_icon {
+  background-position: 50%;
+  background-size: 100%;
+}
+
+div.vizwhiz_tooltip_small div.vizwhiz_tooltip_icon {
+  height: 25px;
+  width: 25px;
+}
+
+div.vizwhiz_tooltip_large div.vizwhiz_tooltip_icon {
+  height: 50px;
+  width: 50px;
+}
+
+div.vizwhiz_tooltip_title {
+  vertical-align: top;
+}
+
+div.vizwhiz_tooltip_description {
+  font-size: 12px;
+  font-weight: normal;
+  margin: -6px 3px 6px 3px;
+}
+
+div.vizwhiz_tooltip_id {
+  font-size: 12px;
+  line-height: 17px;
+  opacity: 0.5;
+  position: absolute;
+  right: 6px;
+  top: 6px;
+  vertical-align: top;
+}
+
+div.vizwhiz_tooltip_close {
+  font-size: 18px;
+  opacity: 0.5;
+  position: absolute;
+  right: 6px;
+  top: 0px;
+  vertical-align: top;
+}
+
+div.vizwhiz_tooltip_close:hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+div.vizwhiz_tooltip_arrow {
+  background-color: #ddd;
+  border-color: transparent #888 #888 transparent;
+  -webkit-border-bottom-right-radius: 3px;
+     -moz-border-bottom-right-radius: 3px;
+          border-bottom-right-radius: 3px;
+  border-style: solid;
+  border-width: 1px;
+  bottom: -9px;
+  height: 16px;
+  left: 50%;
+  margin-left: -9px;
+  position: absolute;
+  width: 16px;
+  z-index: -1;
+  -webkit-transform: rotate(45deg); 
+     -moz-transform: rotate(45deg); 
+      -ms-transform: rotate(45deg); 
+          transform: rotate(45deg); 
+}
+
+div.vizwhiz_tooltip_data_container {
+  -webkit-border-radius: 3px;
+     -moz-border-radius: 3px;
+          border-radius: 3px;
+  overflow: scroll;
+  padding: 3px;
+}
+
+div.vizwhiz_tooltip_data_block {
+  background-color: #efefef;
+  border: 1px solid #ccc;
+  font-size: 12px;
+  margin-top: 3px;
+  padding: 3px;
+  position: relative;
+}
+
+div.vizwhiz_tooltip_data_block_highlight {
+  background-color: white;
+  border: 1px solid #333;
+  font-weight: bold;
+  -webkit-box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+     -moz-box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+div.vizwhiz_tooltip_data_value {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+}
+
+div.vizwhiz_tooltip_footer {
+  -webkit-border-bottom-left-radius: 2px;
+     -moz-border-bottom-left-radius: 2px;
+          border-bottom-left-radius: 2px;
+  -webkit-border-bottom-right-radius: 2px;
+     -moz-border-bottom-right-radius: 2px;
+          border-bottom-right-radius: 2px;
+  color: #aaa;
+  font-size: 10px;
+  font-weight: bold;
+/*  margin: 3px 3px 0px 3px;*/
+  padding-bottom: 3px;
+  text-align: center;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+div.vizwhiz_tooltip_footer a {
+  color: #aaa;
+}
+
+div.vizwhiz_tooltip_footer a:hover {
+  color: #888;
+}
+
+div.vizwhiz_tooltip_html {
+  background-color: #888;
+  -webkit-box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);
+     -moz-box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);
+          box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.5);
+  display: inline-block;
+  vertical-align: top;
+  overflow: scroll;
+  padding: 6px;
+  position: absolute;
+}
+
+/********************
+ * Network Tooltip
+ ********************/
+
+div.vizwhiz_network_connection {
+  opacity: 0.75;
+  padding: 0px 3px 3px;
+}
+
+div.vizwhiz_network_connection:hover {
+  cursor: pointer;
+  cursor: -moz-zoom-in;
+  cursor: -webkit-zoom-in;
+  opacity: 1;
+}
+
+div.vizwhiz_network_connection_node {
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+  border-style: solid;
+  border-width: 1px;
+  display: inline-block;
+  height: 10px;
+  margin-right: 3px;
+  width: 10px;
+}
+
+div.vizwhiz_network_connection_name {
+  color: "#333";
+  display: inline;
+}
+
+/********************
+ * Zoom Controls
  ********************/
 
 #zoom_controls {
@@ -22,8 +260,11 @@ svg {
 }
 
 #zoom_in, #zoom_out {
-  width: 22px;
-  height: 22px;
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+     -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  width: 18px;
+  height: 18px;
   background-position: 50% 50%;
   background-repeat: no-repeat;
   display: block;
@@ -32,7 +273,7 @@ svg {
   margin-bottom: 5px;
   cursor: pointer;
   color: #333333;
-  border: 2px solid #cccccc;
+  border: 1px solid #888;
   -webkit-text-size-adjust: none;
        -webkit-user-select: none;
           -moz-user-select: none;
@@ -46,9 +287,15 @@ svg {
 }
 
 #zoom_in {
-  font: bold 18px/24px Arial, Helvetica, sans-serif;
+  cursor: pointer;
+  cursor: -moz-zoom-in;
+  cursor: -webkit-zoom-in;
+  font: normal 18px/20px Arial, Helvetica, sans-serif;
 }
 
 #zoom_out {
-  font: bold 23px/20px Tahoma, Verdana, sans-serif;
+  cursor: pointer;
+  cursor: -moz-zoom-out;
+  cursor: -webkit-zoom-out;
+  font: normal 22px/16px Tahoma, Verdana, sans-serif;
 }

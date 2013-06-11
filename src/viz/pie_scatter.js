@@ -284,7 +284,7 @@ vizwhiz.pie_scatter = function(data,vars) {
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
           else return d.color;
         })
-        .style('stroke-width', 2)
+        .style('stroke-width', 1)
         .style('fill', function(dd){
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) return d.color;
           else {
@@ -453,8 +453,7 @@ vizwhiz.pie_scatter = function(data,vars) {
             x = x_scale(d[vars.xaxis_var]),
             y = y_scale(d[vars.yaxis_var]),
             color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : d.color,
-            viz = d3.select("g.viz"),
-            tooltip_data = {};
+            viz = d3.select("g.viz");
             
         // vertical line to x-axis
         viz.append("line")
@@ -524,19 +523,28 @@ vizwhiz.pie_scatter = function(data,vars) {
           .attr("fill","#4c4c4c")
           .text(vizwhiz.utils.format_num(d[vars.yaxis_var], false, 3, true))
       
-        vars.tooltip_info.forEach(function(t){
-          if (d[t]) tooltip_data[t] = d[t]
+        var tooltip_data = []
+        if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+        else var a = vars.tooltip_info.long
+        a.forEach(function(t){
+          if (d[t]) {
+            h = t == vars.value_var
+            tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+          }
         })
       
         vizwhiz.tooltip.create({
-          "parent": viz,
           "id": d.id,
+          "color": d.color,
+          "icon": d.icon,
           "data": tooltip_data,
           "title": d[vars.text_var],
-          "x": x,
-          "y": y,
+          "x": x+graph.x+vars.margin.left+vars.parent.node().offsetLeft,
+          "y": y+graph.y+vars.margin.top+vars.parent.node().offsetTop,
           "offset": radius,
-          "arrow": true
+          "arrow": true,
+          "footer": vars.data_source,
+          "mouseevents": false
         })
       }
   }

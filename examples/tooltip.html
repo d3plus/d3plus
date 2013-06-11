@@ -4,21 +4,18 @@
 <style>
 
 body {
-  margin: 0; padding:0;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
 
 div.tester {
-  background-color: red;
-  width: 200px;
-  height: 200px;
-  margin: 100px;
+  display: inline-block;
+  margin-bottom: -3px;
 }
 
 </style>
 <body>
-
-<div id="test1" class="tester"></div>
-<div id="test2" class="tester"></div>
 
 <script src="../lib/d3.js"></script>
 <script src="../lib/modernizr.custom.js"></script>
@@ -28,24 +25,75 @@ div.tester {
 <script src="../src/viz/rings.js"></script>
 
 <script>
+    
+  format_test = function(obj) {
+    return obj.value+"c";
+  }
+  
+  var xn = 7
+  var yn = 5
+  
+  var boxes = xn*yn
 
-  d3.selectAll("div.tester")
-    .on(vizwhiz.evt.over,function(d){
-      
-      var x_pos = this.offsetLeft+100, y_pos = this.offsetTop+100
-      
-      vizwhiz.tooltip.create({
-        "title": "Testing Content",
-        "x": x_pos,
-        "y": y_pos,
-        "offset": 105,
-        "width": 100,
-        "arrow": true
+  var w = window.innerWidth/xn
+  var h = window.innerHeight/yn
+  
+  while (boxes > 0) {
+    d3.select("body").append("div")
+      .attr("id","box_"+boxes)
+      .attr("class","tester")
+      .style("width",w+"px")
+      .style("height",h+"px")
+      .style("background-color",vizwhiz.utils.rand_color())
+      .on(vizwhiz.evt.over,function(d){
+        
+        vizwhiz.tooltip.create({
+          "title": "Animal Products",
+          // "description": "Including Horses and other cool creatures.",
+          "color": this.style.backgroundColor,
+          "icon": "data/hs_02.png",
+          "id": this.id,
+          "x": d3.event.pageX,
+          "y": d3.event.pageY,
+          // "width": 100,
+          "offset": 5,
+          "arrow": true,
+          // "align": "center left",
+          "mouseevents": false,
+          "footer": "Click box for more info",
+          "data": [{"name":"Trade Value","value":"4000000","format":",f","highlight":true},
+                   {"name":"Complexity","value":"0.89","format":format_test}]
+        })
+        
       })
-      
-    })
-    .on(vizwhiz.evt.out,function(d){
-      // vizwhiz.tooltip.remove()
-    })
+      .on(vizwhiz.evt.move,function(d){
+        vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,this.id)
+      })
+      .on(vizwhiz.evt.out,function(d){
+        var target = d3.event.toElement
+        var class_name = target ? target.className : ""
+        if (class_name.indexOf("vizwhiz_tooltip") < 0) {
+          vizwhiz.tooltip.remove(this.id)
+        }
+      })
+      .on(vizwhiz.evt.click,function(d){
+
+        vizwhiz.tooltip.remove(this.id)
+        
+        vizwhiz.tooltip.create({
+          "title": "Animal Products",
+          "color": this.style.backgroundColor,
+          "icon": "data/hs_02.png",
+          "id": this.id,
+          "fullscreen": true,
+          "html": "I'm some <b>BOLD</b> html text",
+          "footer": "Data provided by SECEX",
+          "data": [{"name":"Trade Value","value":"4000000","format":",f","highlight":true},
+                   {"name":"Complexity","value":"0.89","format":format_test}]
+        })
+        
+      })
+    boxes--
+  }
 
 </script>

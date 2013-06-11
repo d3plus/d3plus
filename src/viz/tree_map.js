@@ -27,10 +27,6 @@ vizwhiz.tree_map = function(data,vars) {
     .attr("transform", function(d) {
       return "translate(" + d.x + "," + d.y + ")"; 
     })
-    .on(vizwhiz.evt.move, mouseover)
-    .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove();
-    })
     
   // rectangle
   cell_enter.append("rect")
@@ -62,6 +58,7 @@ vizwhiz.tree_map = function(data,vars) {
     .attr('y','0em')
     .attr('dy','1em')
     .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
+    .style("pointer-events","none")
     
   // text (share)
   cell_enter.append("text")
@@ -71,6 +68,7 @@ vizwhiz.tree_map = function(data,vars) {
     .attr("font-family","Helvetica")
     .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
     .attr("fill-opacity",0.75)
+    .style("pointer-events","none")
     .text(function(d) {
       var root = d;
       while(root.parent){ root = root.parent; } // find top most parent node
@@ -103,6 +101,82 @@ vizwhiz.tree_map = function(data,vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update, for cells that are already in existance
   //-------------------------------------------------------------------
+  
+  cell
+    .on(vizwhiz.evt.over,function(d){
+      
+      d3.select(this).style("cursor","pointer")
+      vizwhiz.tooltip.remove()
+
+      var tooltip_data = []
+      if (typeof vars.tooltip_info == "object") var a = vars.tooltip_info.short
+      else var a = vars.tooltip_info
+      a.forEach(function(t){
+        if (d[t]) {
+          h = t == vars.value_var
+          tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+        }
+      })
+      tooltip_data.push({"name": "Share", "value": d.share});
+      
+      var footer_text = vars.click_function ? "Click box for more info" : null
+      
+      vizwhiz.tooltip.create({
+        "title": d[vars.text_var],
+        "color": d.color,
+        "icon": d.icon,
+        "id": d[vars.id_var],
+        "x": d3.event.pageX,
+        "y": d3.event.pageY,
+        "offset": 5,
+        "arrow": true,
+        "mouseevents": false,
+        "footer": footer_text,
+        "data": tooltip_data
+      })
+      
+    })
+    .on(vizwhiz.evt.move,function(d){
+      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,d[vars.id_var])
+    })
+    .on(vizwhiz.evt.out,function(d){
+      var target = d3.event.toElement
+      if (target) {
+        var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
+        if (class_name.indexOf("vizwhiz_tooltip") < 0) {
+          vizwhiz.tooltip.remove(d[vars.id_var])
+        }
+      }
+    })
+    .on(vizwhiz.evt.click,function(d){
+      if (vars.click_function) {
+        vizwhiz.tooltip.remove()
+        
+        var html = vars.click_function(d)
+        
+        var tooltip_data = []
+        if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+        else var a = vars.tooltip_info.long
+        a.forEach(function(t){
+          if (d[t]) {
+            h = t == vars.value_var
+            tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+          }
+        })
+        tooltip_data.push({"name": "Share", "value": d.share});
+        
+        vizwhiz.tooltip.create({
+          "title": d[vars.text_var],
+          "color": d.color,
+          "icon": d.icon,
+          "id": d[vars.id_var],
+          "fullscreen": true,
+          "html": html,
+          "footer": vars.data_source,
+          "data": tooltip_data
+        })
+      }
+    })
   
   cell.transition().duration(vizwhiz.timing)
     .attr("transform", function(d) { 

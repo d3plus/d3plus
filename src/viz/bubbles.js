@@ -385,25 +385,32 @@ vizwhiz.bubbles = function(data,vars) {
   bubble
     .on(vizwhiz.evt.over, function(d){
       
-      var tooltip_data = {}
-      vars.tooltip_info.forEach(function(t){
-        if (d[t]) tooltip_data[t] = d[t]
+      var tooltip_data = []
+      if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+      else var a = vars.tooltip_info.long
+      a.forEach(function(t){
+        if (d[t]) {
+          h = t == vars.value_var
+          tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
+        }
       })
       
       vizwhiz.tooltip.create({
-        "parent": vars.svg,
         "id": d[vars.id_var],
+        "color": d.color,
+        "icon": d.icon,
         "data": tooltip_data,
         "title": d[vars.text_var],
-        "x": d.x,
-        "y": d.y,
+        "x": d.x+vars.margin.left+vars.parent.node().offsetLeft,
+        "y": d.y+vars.margin.top+vars.parent.node().offsetTop,
         "offset": d.r,
-        "arrow": true
+        "arrow": true,
+        "mouseevents": false
       })
       
     })
     .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove(d[vars.id_var])
+      vizwhiz.tooltip.remove()
     })
   
   bubble.transition().duration(vizwhiz.timing)

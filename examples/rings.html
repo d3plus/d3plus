@@ -55,6 +55,11 @@ d3.json("data/attr_hs.json", function(attr) {
             data.push(obj)
           })
         })
+        
+      clicker = function(obj) {
+        console.log(obj);
+        return "Some test HTML"
+      }
       
       viz
         .type("rings")
@@ -67,9 +72,11 @@ d3.json("data/attr_hs.json", function(attr) {
         // .highlight("157202") // ferroalloys
         // .highlight("178703") // cars
         // .highlight("168480") // molding boxes
-        .tooltip_info(["id","distance", "complexity", "value"])
+        .tooltip_info(["distance", "complexity", "value"])
         .nesting(["nesting_0","nesting_1","nesting_2"])
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+        .click_function(clicker)
+        .data_source("<a href='www.google.com'>SECEX</a>")
 
       // viz
       //   .text_var("name")
