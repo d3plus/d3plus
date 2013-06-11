@@ -3003,8 +3003,8 @@ vizwhiz.tree_map = function(data,vars) {
       vizwhiz.tooltip.remove()
 
       var tooltip_data = []
-      if (typeof vars.tooltip_info == "object") var a = vars.tooltip_info.short
-      else var a = vars.tooltip_info
+      if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+      else var a = vars.tooltip_info.short
       a.forEach(function(t){
         if (d[t]) {
           h = t == vars.value_var

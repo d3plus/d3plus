@@ -109,8 +109,8 @@ vizwhiz.tree_map = function(data,vars) {
       vizwhiz.tooltip.remove()
 
       var tooltip_data = []
-      if (typeof vars.tooltip_info == "object") var a = vars.tooltip_info.short
-      else var a = vars.tooltip_info
+      if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+      else var a = vars.tooltip_info.short
       a.forEach(function(t){
         if (d[t]) {
           h = t == vars.value_var
@@ -119,7 +119,9 @@ vizwhiz.tree_map = function(data,vars) {
       })
       tooltip_data.push({"name": "Share", "value": d.share});
       
-      var footer_text = vars.click_function ? "Click box for more info" : null
+      var html = vars.click_function(d)
+      
+      var footer_text = html ? "Click box for more info" : null
       
       vizwhiz.tooltip.create({
         "title": d[vars.text_var],
@@ -149,10 +151,9 @@ vizwhiz.tree_map = function(data,vars) {
       }
     })
     .on(vizwhiz.evt.click,function(d){
-      if (vars.click_function) {
+      var html = vars.click_function(d)
+      if (html) {
         vizwhiz.tooltip.remove()
-        
-        var html = vars.click_function(d)
         
         var tooltip_data = []
         if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
