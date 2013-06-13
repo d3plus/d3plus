@@ -4,13 +4,8 @@
 <style>
 
 body {
-  margin: 100px; padding:0;
+  margin: 0px; padding:0;
 }
-
-/*div#viz {
-  top: 50px;
-  left: 50px;
-}*/
 
 
 </style>
@@ -58,8 +53,8 @@ d3.json("data/products_mg.json", function(raw_data){
       .id_var("id")
       .text_var("name")
       .value_var("val_usd")
-      // .tooltip_info({"short": ["val_usd"],"long": ["distance", "complexity", "val_usd"]})
-      .tooltip_info(["distance", "complexity", "val_usd"])
+      .tooltip_info({"short": ["val_usd"],"long": ["distance", "complexity", "val_usd"]})
+      // .tooltip_info(["distance", "complexity", "val_usd"])
       .name_array(["name","id"])
       .title("Product Exports of Minas Gerais")
       .sub_title("Excluding Mineral Products")
@@ -72,7 +67,6 @@ d3.json("data/products_mg.json", function(raw_data){
       .filter("Mineral Products")
       .year(2010)
       .data_source("Data provided by SECEX")
-      .width(window.innerWidth-100)
       
     d3.select("#viz")
       .datum(raw_data)

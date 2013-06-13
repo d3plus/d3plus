@@ -4,15 +4,13 @@
 <style>
 
 body {
-  margin: 100px; padding:0;
+  margin: 0px; padding:0;
 }
 
-div#viz {
-  width: 500px;
-  height: 400px;
-  top: 50px;
-  left: 50px;
+/*div#viz {
+  margin: 0px 50px;
 }
+*/
 
 </style>
 <body>
@@ -66,8 +64,8 @@ var viz = vizwhiz.viz()
   .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
   .nesting(["nesting_0","nesting_1","nesting_2"])
   .depth("nesting_2")
-  .width(500)
-  .height(400)
+  // .width(500)
+  // .height(400)
 
 d3.json("data/mg_test_data.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){

@@ -56,9 +56,14 @@ vizwhiz.geo_map = function(data,vars) {
   if (vars.map.coords) {
         
     vars.parent_enter.append("rect")
+      .attr("id","water")
       .attr("width",vars.width)
       .attr("height",vars.height)
       .attr(vars.map.style.water);
+      
+    d3.select("#water").transition().duration(vizwhiz.timing)
+      .attr("width",vars.width)
+      .attr("height",vars.height)
       
     vars.parent_enter.append("g")
       .attr("id","land")
@@ -479,8 +484,8 @@ vizwhiz.geo_map = function(data,vars) {
         "icon": data[vars.highlight].icon,
         "color": color,
         "footer": footer,
-        "x": vars.width-info_width-5,
-        "y": vars.margin.top+10+(scale_height*6),
+        "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,
+        "y": (scale_height*6)+10+vars.margin.top+vars.parent.node().offsetTop,
         "fixed": true,
         "width": info_width
       })
