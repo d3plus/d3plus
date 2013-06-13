@@ -26,62 +26,30 @@ body {
 <script src="../src/viz/stacked.js"></script>
 <script>
 
-var sample_data = [
-  {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "mg"},
-  {"continent": "South America", "country": "Brazil", "year": 2000, "value": 3938, "color": "#43f9c2", "state": "mg"},
-  {"continent": "South America", "country": "Brazil", "year": 2001, "value": 3938, "color": "#43f9c2", "state": "mg"},
-  {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "rr"},
-  {"continent": "South America", "country": "Brazil", "year": 2000, "value": 3938, "color": "#43f9c2", "state": "rr"},
-  {"continent": "South America", "country": "Brazil", "year": 2001, "value": 3938, "color": "#43f9c2", "state": "rr"},
-  {"continent": "South America", "country": "Brazil", "year": 1999, "value": 3938, "color": "#43f9c2", "state": "sp"},
-  {"continent": "South America", "country": "Brazil", "year": 2000, "value": 3938, "color": "#43f9c2", "state": "sp"},
-  {"continent": "South America", "country": "Brazil", "year": 2001, "value": 3938, "color": "#43f9c2", "state": "sp"},
-  {"continent": "South America", "country": "Bolivarian Republic of Venezuela", "year": 1999, "value": 3812, "color": "#43f9c2", "state": "a"},
-  {"continent": "South America", "country": "Bolivarian Republic of Venezuela", "year": 2000, "value": 3812, "color": "#43f9c2", "state": "a"},
-  {"continent": "South America", "country": "Bolivarian Republic of Venezuela", "year": 2001, "value": 3812, "color": "#43f9c2", "state": "a"},
-  {"continent": "South America", "country": "Peru", "year": 1999, "value": 743, "color": "#43f9c2", "state": "p"},
-  {"continent": "South America", "country": "Peru", "year": 2000, "value": 743, "color": "#43f9c2", "state": "p"},
-  {"continent": "South America", "country": "Peru", "year": 2001, "value": 743, "color": "#43f9c2", "state": "p"},
-  {"continent": "North America", "country": "Mexico", "year": 1999, "value": 3534, "color": "#ca3422", "state": "m"},
-  {"continent": "North America", "country": "Mexico", "year": 2000, "value": 3534, "color": "#ca3422", "state": "m"},
-  {"continent": "North America", "country": "Mexico", "year": 2001, "value": 3534, "color": "#ca3422", "state": "m"},
-  {"continent": "North America", "country": "United States of America", "year": 1999, "value": 5731, "color": "#ca3422", "state": "ma"},
-  {"continent": "North America", "country": "United States of America", "year": 2000, "value": 5731, "color": "#ca3422", "state": "ma"},
-  // test with missing data
-  // {"continent": "North America", "country": "United States of America", "year": 2001, "value": 5731, "color": "#ca3422", "state": "ma"},
-  // {"continent": "North America", "country": "United States of America", "year": 1999, "value": 5731, "color": "#ca3422", "state": "ny"},
-  {"continent": "North America", "country": "United States of America", "year": 2000, "value": 5731, "color": "#ca3422", "state": "ny"},
-  {"continent": "North America", "country": "United States of America", "year": 2001, "value": 5731, "color": "#ca3422", "state": "ny"}
-]
-
-var viz = vizwhiz.viz()
-  .type("stacked")
-  .xaxis_var("year")
-  .value_var("val_usd")
-  .tooltip_info(["id", "complexity", "distance"])
-  .text_var("name")
-  .id_var("id")
-  .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
-  .nesting(["nesting_0","nesting_1","nesting_2"])
-  .depth("nesting_2")
-  // .width(500)
-  // .height(400)
-
 d3.json("data/mg_test_data.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){
 
-    var data = []
     flat_data.data.forEach(function(d){
       d.id = d.hs_id
       d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
       d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
       d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-      var obj = vizwhiz.utils.merge(d, attrs[d.id]);
-      data.push(obj)
     })
     
+    viz = vizwhiz.viz()
+      .type("stacked")
+      .xaxis_var("year")
+      .attrs(attrs)
+      .value_var("val_usd")
+      .tooltip_info(["id", "complexity", "distance"])
+      .text_var("name")
+      .id_var("id")
+      .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+      .nesting(["nesting_0","nesting_1","nesting_2"])
+      .depth("nesting_2")
+    
     d3.select("#viz")
-      .datum(data)
+      .datum(flat_data.data)
       .call(viz)
 //   
 //     setTimeout(function(){

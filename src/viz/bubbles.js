@@ -1,4 +1,4 @@
-vizwhiz.bubbles = function(data,vars) {
+vizwhiz.bubbles = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables
@@ -38,7 +38,7 @@ vizwhiz.bubbles = function(data,vars) {
   data_nested.key = "root";
   data_nested.values = d3.nest()
     .key(function(d){ return d[vars.grouping] })
-    .entries(data)
+    .entries(vars.data)
 
   var pack = d3.layout.pack()
     .size([vars.width,vars.height])
@@ -54,7 +54,7 @@ vizwhiz.bubbles = function(data,vars) {
     .filter(function(d){
       if (d.depth == 1) {
         if (d.children.length == 1 ) {
-          d[vars.text_var] = d.children[0][vars.text_var];
+          d[vars.text_var] = find_variable(d.children[0][vars.id_var],vars.text_var);
           d.category = d.children[0].category;
         }
         else {
@@ -103,7 +103,7 @@ vizwhiz.bubbles = function(data,vars) {
     if (d.depth == 1) {
       
       if (vars.grouping != "active") {
-        var color = d.children[0].color;
+        var color = find_variable(d.children[0][vars.id_var],"color");
       }
       else {
         var color = "#cccccc";
@@ -135,7 +135,7 @@ vizwhiz.bubbles = function(data,vars) {
     
   })
   
-  data.forEach(function(d){
+  vars.data.forEach(function(d){
     var parent = data_packed.filter(function(p){ 
       if (d[vars.grouping] === false) var key = "false";
       else if (d[vars.grouping] === true) var key = "true";
@@ -216,8 +216,8 @@ vizwhiz.bubbles = function(data,vars) {
           .data([d]);
         
         bg.enter().append("circle")
-          .attr("fill", d.color )
-          .attr("stroke",d.color)
+          .attr("fill", d.color)
+          .attr("stroke", d.color)
           .attr("stroke-width",1)
           .style('fill-opacity', 0.1 )
           .attr("opacity",0)
@@ -262,7 +262,7 @@ vizwhiz.bubbles = function(data,vars) {
   //-------------------------------------------------------------------
 
   var bubble = d3.select("g.bubbles").selectAll("g.bubble")
-    .data(data,function(d){ return d[vars.id_var] })
+    .data(vars.data,function(d){ return d[vars.id_var] })
     
   bubble.enter().append("g")
     .attr("class", "bubble")
@@ -272,14 +272,16 @@ vizwhiz.bubbles = function(data,vars) {
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
-      var bg_color = d3.hsl(d.color)
+      var color = find_variable(d[vars.id_var],"color")
+      
+      var bg_color = d3.hsl(color)
       bg_color.l = 0.95
       bg_color = bg_color.toString()
       
       d3.select(this).append("path")
         .attr("class","bg")
         .attr("fill", bg_color )
-        .attr("stroke", d.color )
+        .attr("stroke", color)
         .attr("stroke-width",1)
       
       d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
@@ -293,7 +295,7 @@ vizwhiz.bubbles = function(data,vars) {
       
         d3.select(this).append("path")
           .attr("class","elsewhere")
-          .style('fill', d.color )
+          .style('fill', color)
           .style('fill-opacity', 0.5 )
       
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
@@ -307,7 +309,7 @@ vizwhiz.bubbles = function(data,vars) {
       d3.select(this).append("path")
         .each(function(dd) { dd.arc_id = dd[vars.id_var]; })
         .attr("class","available")
-        .style('fill', d.color )
+        .style('fill', color)
       
       d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
         .attrTween("d",arcTween)
@@ -385,22 +387,14 @@ vizwhiz.bubbles = function(data,vars) {
   bubble
     .on(vizwhiz.evt.over, function(d){
       
-      var tooltip_data = []
-      if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-      else var a = vars.tooltip_info.long
-      a.forEach(function(t){
-        if (d[t]) {
-          h = t == vars.value_var
-          tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
-        }
-      })
+      var tooltip_data = get_tooltip_data(d[vars.id_var])
       
       vizwhiz.tooltip.create({
         "id": d[vars.id_var],
-        "color": d.color,
-        "icon": d.icon,
+        "color": find_variable(d[vars.id_var],"color"),
+        "icon": find_variable(d[vars.id_var],"icon"),
         "data": tooltip_data,
-        "title": d[vars.text_var],
+        "title": find_variable(d[vars.id_var],vars.text_var),
         "x": d.x+vars.margin.left+vars.parent.node().offsetLeft,
         "y": d.y+vars.margin.top+vars.parent.node().offsetTop,
         "offset": d.r,

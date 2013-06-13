@@ -772,16 +772,18 @@ vizwhiz.viz = function() {
     "arc_angles": {},
     "arc_inners": {},
     "arc_sizes": {},
+    "attrs": null,
     "boundries": null,
     "click_function": function() { return null },
     "connections": null,
     "coords": null,
     "csv_columns": null,
-    "csv_data": [],
+    "data": null,
     "data_source": null,
     "depth": null,
     "donut": true,
     "filter": [],
+    "filtered_data": null,
     "group_bgs": true,
     "grouping": "name",
     "highlight": null,
@@ -800,6 +802,7 @@ vizwhiz.viz = function() {
     "name_array": null,
     "nesting": [],
     "nesting_aggs": {},
+    "nodes": null,
     "number_format": null,
     "order": "asc",
     "projection": d3.geo.mercator(),
@@ -827,12 +830,14 @@ vizwhiz.viz = function() {
     "zoom_behavior": d3.behavior.zoom()
   }
   
-  var links;
+  var nodes, links;
   
   //===================================================================
 
   chart = function(selection) {
     selection.each(function(data) {
+
+      if (vizwhiz.dev) console.log("Initializing App")
 
       vars.parent = d3.select(this)
       
@@ -848,9 +853,13 @@ vizwhiz.viz = function() {
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
         
+      if (vizwhiz.dev) console.log("Establishing Year Range and Current Year")
+        
       vars.years = vizwhiz.utils.uniques(data,vars.year_var)
       if (!vars.year) vars.year = vars.years[vars.years.length-1]
 
+
+      if (vizwhiz.dev) console.log("Filtering Data")
       vars.keys = {}
       var filtered_data = data.filter(function(d){
         for (k in d) {
@@ -874,6 +883,7 @@ vizwhiz.viz = function() {
       // Filter & Solo the data!
       removed_ids = []
       if (vars.solo.length || vars.filter.length) {
+        if (vizwhiz.dev) console.log("Removing Solo/Filters")
         filtered_data = filtered_data.filter(function(d){
           var check = [d[vars.id_var],d[vars.text_var]]
           vars.nesting.forEach(function(key){
@@ -906,10 +916,38 @@ vizwhiz.viz = function() {
             return true
           }
         })
+        
+      }
+      
+      if (["network","rings"].indexOf(vars.type) >= 0) {
+        if (vars.solo.length || vars.filter.length) {
+          vars.nodes = nodes.filter(function(n){
+            if (removed_ids.indexOf(n[vars.id_var]) >= 0) {
+              return false;
+            }
+            else {
+              return true;
+            }
+          })
+          vars.links = links.filter(function(l){
+            if (removed_ids.indexOf(l.source[vars.id_var]) >= 0
+             || removed_ids.indexOf(l.target[vars.id_var]) >= 0) {
+              return false;
+            }
+            else {
+              return true;
+            }
+          })
+        }
+        else {
+          vars.nodes = nodes
+          vars.links = links
+        }
+        vars.connections = get_connections(vars.links)
       }
       
       // create CSV data
-      vars.csv_data = filtered_data;
+      vars.filtered_data = filtered_data;
       
       if (!vars.total_bar) {
         var total_val = null
@@ -919,11 +957,13 @@ vizwhiz.viz = function() {
           return d[vars.value_var] 
         })
       }
-      
+
       if (["tree_map","pie_scatter"].indexOf(vars.type) >= 0) {
-        var cleaned_data = nest(filtered_data)
+        if (vizwhiz.dev) console.log("Nesting Data")
+        vars.data = nest(filtered_data)
       }
       else if (vars.type == "stacked") {
+        if (vizwhiz.dev) console.log("Nesting Data")
         var temp_data = []
         vars.years.forEach(function(year){
           var year_data = filtered_data.filter(function(d){
@@ -932,33 +972,20 @@ vizwhiz.viz = function() {
           year_data = nest(year_data)
           temp_data = temp_data.concat(year_data)
         })
-        cleaned_data = temp_data
+        vars.data = temp_data
       }
-      else if (vars.type == "geo_map") {
-        cleaned_data = {};
+      else if (["geo_map","network","rings"].indexOf(vars.type) >= 0) {
+        vars.data = {};
         filtered_data.forEach(function(d){
-          cleaned_data[d[vars.id_var]] = d;
+          vars.data[d[vars.id_var]] = d;
         })
       }
       else {
-        cleaned_data = filtered_data
+        vars.data = filtered_data
       }
-      
-      if (["network","rings"].indexOf(vars.type) >= 0) {
-        vars.links = links.filter(function(l){
-          if (removed_ids.indexOf(l.source[vars.id_var]) >= 0
-           || removed_ids.indexOf(l.target[vars.id_var]) >= 0) {
-            return false;
-          }
-          else {
-            return true;
-          }
-        })
-        vars.connections = get_connections(vars.links)
-      }
-      
       vars.width = vars.svg_width;
-      
+
+      if (vizwhiz.dev) console.log("Creating Titles")
       vars.margin.top = 0;
       if (vars.svg_width < 300 || vars.svg_height < 200) {
         vars.small = true;
@@ -998,8 +1025,9 @@ vizwhiz.viz = function() {
         .attr("width",vars.width)
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-        
-      vizwhiz[vars.type](cleaned_data,vars);
+
+      if (vizwhiz.dev) console.log("Building Specific App")
+      vizwhiz[vars.type](vars);
       
     });
     
@@ -1083,7 +1111,6 @@ vizwhiz.viz = function() {
     // Set the total value as data for element.
     var data = title ? [title] : [],
         font_size = type == "title" ? 18 : 13,
-        font_color = type == "title" ? "#333" : "#666",
         title_position = {
           "x": vars.width/2,
           "y": vars.margin.top
@@ -1113,10 +1140,10 @@ vizwhiz.viz = function() {
       .append("text")
         .attr(title_position)
         .attr("font-size",font_size)
-        .attr("fill",font_color)
+        .attr("fill","#333")
         .attr("text-anchor", "middle")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
-        .style("font-weight", "bold")
+        .attr("font-family", "Helvetica")
+        .style("font-weight", "normal")
         .each(function(d){
           vizwhiz.utils.wordwrap({
             "text": d,
@@ -1166,6 +1193,56 @@ vizwhiz.viz = function() {
     return connections;
   }
   
+  get_tooltip_data = function(id,length) {
+
+    if (!length) var length = "long"
+    
+    if (["network","rings"].indexOf(vars.type) >= 0) {
+      var tooltip_highlight = vars.active_var
+    }
+    else {
+      var tooltip_highlight = vars.value_var
+    }
+
+    if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+    else var a = vars.tooltip_info[length]
+    
+    var data = []
+    a.forEach(function(t){
+      var value = find_variable(id,t)
+      if (value) {
+        var h = t == tooltip_highlight
+        data.push({"name": t, "value": value, "highlight": h, "format": vars.number_format})
+      }
+    })
+    
+    return data
+    
+  }
+  
+  find_variable = function(id,variable) {
+    
+    if (typeof id == "string") {
+      var data = vars.filtered_data.filter(function(d){
+        return d[vars.id_var] == id
+      })[0]
+    }
+    else {
+      var data = id
+    }
+    
+    
+    var attr = vars.attrs[id]
+    
+    if (data && data[variable]) return data[variable]
+    else if (attr && attr[variable]) return attr[variable]
+    else {
+      if (variable == "color") return vizwhiz.utils.rand_color()
+      else return false
+    }
+    
+  }
+  
   //===================================================================
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1175,6 +1252,12 @@ vizwhiz.viz = function() {
   chart.active_var = function(x) {
     if (!arguments.length) return vars.active_var;
     vars.active_var = x;
+    return chart;
+  };
+  
+  chart.attrs = function(x) {
+    if (!arguments.length) return vars.attrs;
+    vars.attrs = x;
     return chart;
   };
   
@@ -1190,7 +1273,7 @@ vizwhiz.viz = function() {
       
       // filter out the columns (if specified)
       if(vars.csv_columns){
-        vars.csv_data.map(function(d){
+        vars.filtered_data.map(function(d){
           d3.keys(d).forEach(function(d_key){
             if(vars.csv_columns.indexOf(d_key) < 0){
               delete d[d_key]
@@ -1199,8 +1282,8 @@ vizwhiz.viz = function() {
         })
       }
       
-      csv_to_return.push(d3.keys(vars.csv_data[0]));
-      vars.csv_data.forEach(function(d){
+      csv_to_return.push(d3.keys(vars.filtered_data[0]));
+      vars.filtered_data.forEach(function(d){
         csv_to_return.push(d3.values(d))
       })
       return csv_to_return;
@@ -1353,6 +1436,12 @@ vizwhiz.viz = function() {
   chart.nesting_aggs = function(x) {
     if (!arguments.length) return vars.nesting_aggs;
     vars.nesting_aggs = x;
+    return chart;
+  };
+  
+  chart.nodes = function(x) {
+    if (!arguments.length) return vars.nodes;
+    nodes = x;
     return chart;
   };
   
@@ -1509,7 +1598,7 @@ vizwhiz.viz = function() {
 
   return chart;
 };
-vizwhiz.network = function(data,vars) {
+vizwhiz.network = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables
@@ -1531,8 +1620,8 @@ vizwhiz.network = function(data,vars) {
   //===================================================================
     
 
-  var x_range = d3.extent(d3.values(data), function(d){return d.x});
-  var y_range = d3.extent(d3.values(data), function(d){return d.y});
+  var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x});
+  var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y});
   var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0]);
     
   // Define Scale
@@ -1553,54 +1642,31 @@ vizwhiz.network = function(data,vars) {
     .domain(y_range)
     .range([offset_top, vars.height-offset_top])
     
-  var val_range = d3.extent(d3.values(data), function(d){
+  var val_range = d3.extent(d3.values(vars.data), function(d){
     return d[vars.value_var] ? d[vars.value_var] : null
   });
   
   if (typeof val_range[0] == "undefined") val_range = [1,1]
   
-  var max_dist = 0
-  d3.values(data).forEach(function(n){
-    d3.values(data).forEach(function(n2){
-      if (n != n2) {
-        var xx = Math.abs(scale.x(n.x)-scale.x(n2.x));
-        var yy = Math.abs(scale.y(n.y)-scale.y(n2.y));
-        var dd = Math.sqrt((xx*xx)+(yy*yy))
-        if (dd > max_dist) max_dist = dd;
+  var distances = []
+  vars.nodes.forEach(function(n1){
+    vars.nodes.forEach(function(n2){
+      if (n1 != n2) {
+        var xx = Math.abs(scale.x(n1.x)-scale.x(n2.x));
+        var yy = Math.abs(scale.y(n1.y)-scale.y(n2.y));
+        distances.push(Math.sqrt((xx*xx)+(yy*yy)))
       }
     })
   })
   
-  var min_dist = {"value": 0};
-  d3.values(data).forEach(function(n){
-    d3.values(data).forEach(function(n2){
-      if (n != n2) {
-        var xx = Math.abs(scale.x(n.x)-scale.x(n2.x));
-        var yy = Math.abs(scale.y(n.y)-scale.y(n2.y));
-        var dd = Math.sqrt((xx*xx)+(yy*yy))
-        var v1 = n[vars.value_var] ? n[vars.value_var] : 0
-        var v2 = n2[vars.value_var] ? n2[vars.value_var] : 0
-        var factor = max_dist/dd+(v1+v2)/(val_range[1]*2)
-        if (factor > min_dist.value) {
-          min_dist = {"value": factor, "node1": n, "node2": n2, "v1": v1, "v2": v2, "distance": dd}
-        }
-      }
-    })
-  })
-  
-  var biggest = min_dist.v1 > min_dist.v2 ? min_dist.v1 : min_dist.v2
-  var dd = min_dist.distance*(biggest/(min_dist.v1+min_dist.v2))
-  var wc = (vars.height-dd*2)/vars.height
-  var hc = (vars.width-dd*2)/vars.width
-  var delta = wc < hc ? wc : hc
-  var max_size = dd*delta-1;
-  if (!max_size) max_size = 10;
-  var min_size = max_size/5 < 2 ? 2 : max_size/5;
+  var max_size = d3.min(distances)
+  var min_size = 2;
   // return
   // x scale
   scale.x.range([offset_left+(max_size*1.5), vars.width-(max_size*1.5)-offset_left])
   // y scale
   scale.y.range([offset_top+(max_size*1.5), vars.height-(max_size*1.5)-offset_top])
+  
   // size scale
   scale.size = d3.scale.log()
     .domain(val_range)
@@ -1690,7 +1756,7 @@ vizwhiz.network = function(data,vars) {
   //-------------------------------------------------------------------
   
   var node = d3.select("g.nodes").selectAll("circle.node")
-    .data(data, function(d) { return d[vars.id_var]; })
+    .data(vars.nodes, function(d) { return d[vars.id_var]; })
   
   node.enter().append("circle")
     .attr("class","node")
@@ -1752,7 +1818,7 @@ vizwhiz.network = function(data,vars) {
   
   if (vars.highlight) {
     var present = false;
-    data.forEach(function(d){
+    vars.nodes.forEach(function(d){
       if (d[vars.id_var] == vars.highlight) present = true;
     })
     if (!present) {
@@ -1787,7 +1853,7 @@ vizwhiz.network = function(data,vars) {
   function node_size(n) {
     n
       .attr("r", function(d) { 
-        var value = d[vars.value_var] ? d[vars.value_var] : 0
+        var value = find_variable(d[vars.id_var],vars.value_var)
         return value > 0 ? scale.size(value) : scale.size(val_range[0])
       })
   }
@@ -1824,7 +1890,7 @@ vizwhiz.network = function(data,vars) {
         // "True" if node is in the highlight or hover groups
         var highlighted = parent_group == "hover_node"
         // "True" if vars.spotlight is true and node vars.active_var is false
-        var active = d[vars.active_var] ? d[vars.active_var] : false
+        var active = find_variable(d[vars.id_var],vars.active_var)
         var hidden = vars.spotlight && !active
         // Grey out nodes that are in the background or hidden by spotlight,
         // otherwise, use the active_color function
@@ -1841,7 +1907,7 @@ vizwhiz.network = function(data,vars) {
         // "True" if node is in the highlight or hover groups
         var highlighted = parent_group == "hover_node"
         // "True" if vars.spotlight is true and node vars.active_var is false
-        var active = d[vars.active_var] ? d[vars.active_var] : false
+        var active = find_variable(d[vars.id_var],vars.active_var)
         var hidden = vars.spotlight && !active
         
         if (highlighted) return fill_color(d);
@@ -1854,10 +1920,10 @@ vizwhiz.network = function(data,vars) {
   function fill_color(d) {
     
     // Get elements' color
-    var color = get_color(d);
+    var color = find_variable(d[vars.id_var],"color")
     
     // If node is not active, lighten the color
-    var active = d[vars.active_var] ? d[vars.active_var] : false
+    var active = find_variable(d[vars.id_var],vars.active_var)
     if (!active) {
       var color = d3.hsl(color);
       color.l = 0.95;
@@ -1871,19 +1937,11 @@ vizwhiz.network = function(data,vars) {
   function stroke_color(d) {
     
     // Get elements' color
-    var color = get_color(d);
+    var color = find_variable(d[vars.id_var],"color")
     
     // If node is active, return a darker color, else, return the normal color
-    var active = d[vars.active_var] ? d[vars.active_var] : false
+    var active = find_variable(d[vars.id_var],vars.active_var)
     return active ? "#333" : color;
-    
-  }
-  
-  // Helper function to acquire an elements' color, or set one randomly
-  function get_color(d) {
-    
-    // If no color exists, get one randomly
-    return d.color ? d.color : vizwhiz.utils.rand_color()
     
   }
   
@@ -1910,8 +1968,15 @@ vizwhiz.network = function(data,vars) {
         
         // Returns false if the mouse has moved into a child element.
         // This is used to catch when the mouse moves onto label text.
-        var id_check = d3.event.toElement.__data__[vars.id_var] == d[vars.id_var]
-        if (d3.event.toElement.parentNode != this && !id_check) {
+        var target = d3.event.toElement
+        if (target) {
+          var id_check = target.__data__[vars.id_var] == d[vars.id_var]
+          if (d3.event.toElement.parentNode != this && !id_check) {
+            hover = null;
+            update();
+          }
+        }
+        else {
           hover = null;
           update();
         }
@@ -1983,9 +2048,7 @@ vizwhiz.network = function(data,vars) {
         var c = hover
       }
       
-      var node_data = data.filter(function(n){
-                          return n[vars.id_var] == c
-                        })
+      var node_data = vars.nodes.filter(function(x){return x[vars.id_var] == c})
       
       if (group == "highlight" || !vars.highlight) {
 
@@ -1994,7 +2057,7 @@ vizwhiz.network = function(data,vars) {
             
         if (vars.connections[c]) {
           vars.connections[c].forEach(function(n){
-            prim_nodes.push(data.filter(function(d){return d[vars.id_var] == n[vars.id_var]})[0])
+            prim_nodes.push(vars.nodes.filter(function(x){return x[vars.id_var] == n[vars.id_var]})[0])
           })
           prim_nodes.forEach(function(n){
             prim_links.push({"source": node_data[0], "target": n})
@@ -2016,16 +2079,9 @@ vizwhiz.network = function(data,vars) {
             var x_pos = vars.width-info_width-5
           }
          
-          var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight})[0]
-          var tooltip_data = []
-          if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-          else var a = vars.tooltip_info.long
-          a.forEach(function(t){
-            if (prod[t]) {
-              h = t == vars.active_var
-              tooltip_data.push({"name": t, "value": prod[t], "highlight": h, "format": vars.number_format})
-            }
-          })
+          var prod = vars.nodes.filter(function(n){return n[vars.id_var] == vars.highlight})[0]
+          
+          var tooltip_data = get_tooltip_data(vars.highlight)
           
           var tooltip_appends = "<div class='vizwhiz_tooltip_footer'>Primary Connections</div>"
       
@@ -2041,15 +2097,15 @@ vizwhiz.network = function(data,vars) {
             tooltip_appends += "'"
             tooltip_appends += "></div>"
             tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
-            tooltip_appends += n[vars.text_var]
+            tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
             tooltip_appends += "</div>"
             tooltip_appends += "</div>"
           })
           
           vizwhiz.tooltip.create({
             "data": tooltip_data,
-            "title": prod[vars.text_var],
-            "color": prod.color,
+            "title": find_variable(vars.highlight,vars.text_var),
+            "color": find_variable(vars.highlight,"color"),
             "x": x_pos,
             "y": vars.margin.top+5,
             "width": info_width,
@@ -2096,7 +2152,7 @@ vizwhiz.network = function(data,vars) {
       n.each(function(d){
 
         var font_size = Math.ceil(10/zoom_behavior.scale()),
-            value = d[vars.value_var] ? d[vars.value_var] : 0,
+            value = find_variable(d[vars.id_var],vars.value_var),
             size = value > 0 ? scale.size(value) : scale.size(val_range[0])
         if (font_size < size || d[vars.id_var] == hover || d[vars.id_var] == vars.highlight) {
           d3.select(this.parentNode).append("text")
@@ -2110,15 +2166,7 @@ vizwhiz.network = function(data,vars) {
             .each(function(e){
               var tw = size*8,
                   th = size < font_size*2 ? font_size*2 : size
-              if (vars.name_array) {
-                var text = []
-                vars.name_array.forEach(function(n){
-                  if (d[n]) text.push(d[n])
-                })
-              } else {
-                var text = d[vars.id_var] ? [d[vars.text_var],d[vars.id_var]] : d[vars.text_var]
-              }
-                
+              var text = find_variable(d[vars.id_var],vars.text_var)
               vizwhiz.utils.wordwrap({
                 "text": text,
                 "parent": this,
@@ -2204,7 +2252,7 @@ vizwhiz.network = function(data,vars) {
             h_zoom = vars.height/(y_bounds[1]-y_bounds[0])
         
         if (w_zoom < h_zoom) {
-          x_bounds = [x_bounds[0]-(max_size*2),x_bounds[1]+(max_size*2)]
+          x_bounds = [x_bounds[0]-(max_size*4),x_bounds[1]+(max_size*4)]
           evt_scale = (vars.width-info_width-10)/(x_bounds[1]-x_bounds[0])
           if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
           offset_x = -(x_bounds[0]*evt_scale)
@@ -2278,7 +2326,7 @@ vizwhiz.network = function(data,vars) {
       
 };
 
-vizwhiz.stacked = function(data,vars) {
+vizwhiz.stacked = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Helper function used to create stack polygon
@@ -2399,7 +2447,7 @@ vizwhiz.stacked = function(data,vars) {
   //-------------------------------------------------------------------
   
   // get unique values for xaxis
-  xaxis_vals = data
+  xaxis_vals = vars.data
     .reduce(function(a, b){ return a.concat(b[vars.xaxis_var]) }, [])
     .filter(function(value, index, self) { 
       return self.indexOf(value) === index;
@@ -2411,12 +2459,12 @@ vizwhiz.stacked = function(data,vars) {
     .rollup(function(leaves){
       return d3.sum(leaves, function(d){return d[vars.value_var];})
     })
-    .entries(data)
+    .entries(vars.data)
   
   var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
   
   // nest data properly according to nesting array
-  nested_data = nest_data(xaxis_vals, data, xaxis_sums);
+  nested_data = nest_data(xaxis_vals, vars.data, xaxis_sums);
   
   // scales for both X and Y values
   var x_scale = d3.scale.linear()
@@ -2566,7 +2614,7 @@ vizwhiz.stacked = function(data,vars) {
     .attr("opacity", 0)
     .attr("class", "layer")
     .attr("fill", function(d){
-      return d.color
+      return find_variable(d[vars.id_var],"color")
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -2583,7 +2631,7 @@ vizwhiz.stacked = function(data,vars) {
   paths.transition().duration(vizwhiz.timing)
     .attr("opacity", 1)
     .attr("fill", function(d){
-      return d.color
+      return find_variable(d[vars.id_var],"color")
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -2610,22 +2658,14 @@ vizwhiz.stacked = function(data,vars) {
       .on(vizwhiz.evt.over, path_tooltip)
     
     // tooltip
-    var tooltip_data = []
-    if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-    else var a = vars.tooltip_info.long
-    a.forEach(function(t){
-      if (d[t]) {
-        h = t == vars.value_var
-        tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
-      }
-    })
+    var tooltip_data = get_tooltip_data(d[vars.id_var])
 
     vizwhiz.tooltip.remove();
     vizwhiz.tooltip.create({
       "data": tooltip_data,
-      "title": d[vars.text_var],
+      "title": find_variable(d[vars.id_var],vars.text_var),
       "id": d[vars.id_var],
-      "color": d.color,
+      "color": find_variable(d[vars.id_var],"color"),
       "x": x_scale(this_x)+graph_margin.left+vars.margin.left+vars.parent.node().offsetLeft,
       "y": y_scale(this_value.y0 + this_value.y)+(graph.height-y_scale(this_value.y))/2+graph_margin.top+vars.margin.top+vars.parent.node().offsetTop,
       "offset": ((graph.height-y_scale(this_value.y))/2)+2,
@@ -2777,7 +2817,7 @@ vizwhiz.stacked = function(data,vars) {
         return y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
       })
       .text(function(d) {
-        return d[vars.text_var]
+        return find_variable(d[vars.id_var],vars.text_var)
       })
       .on(vizwhiz.evt.over, path_tooltip)
       .each(function(d){
@@ -2793,7 +2833,7 @@ vizwhiz.stacked = function(data,vars) {
           // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
         
           vizwhiz.utils.wordwrap({
-            "text": d[vars.text_var],
+            "text": find_variable(d[vars.id_var],vars.text_var),
             "parent": this,
             "width": tick_width,
             "height": height,
@@ -2873,7 +2913,7 @@ vizwhiz.stacked = function(data,vars) {
 
         return values.sort(function(a,b){return a.key-b.key;});
       })
-      .entries(data)
+      .entries(vars.data)
     
     nested.forEach(function(d, i){
       d["total"] = d3.sum(d.values, function(dd){ return dd.values; })
@@ -2892,7 +2932,7 @@ vizwhiz.stacked = function(data,vars) {
   //===================================================================
     
 };
-vizwhiz.tree_map = function(data,vars) {
+vizwhiz.tree_map = function(vars) {
   
   // Ok, to get started, lets run our heirarchically nested
   // data object through the d3 treemap function to get a
@@ -2903,7 +2943,7 @@ vizwhiz.tree_map = function(data,vars) {
     .children(function(d) { return d.children; })
     .sort(function(a, b) { return a.value - b.value; })
     .value(function(d) { return d[vars.value_var]; })
-    .nodes(data)
+    .nodes(vars.data)
     .filter(function(d) {
       return !d.children;
     })
@@ -2932,13 +2972,7 @@ vizwhiz.tree_map = function(data,vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      // in case this depth doesn't have a color but a child of
-      // this element DOES... use that color
-      while(!d.color && d.children){
-        d = d.children[0]
-      }
-      // if a color cannot be found (at this depth of deeper) use random
-      return d.color ? d.color : vizwhiz.utils.rand_color();
+      return find_variable(d[vars.id_var],"color");
     })
     
   // text (name)
@@ -2951,7 +2985,10 @@ vizwhiz.tree_map = function(data,vars) {
     .attr('x','0.2em')
     .attr('y','0em')
     .attr('dy','1em')
-    .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
+    .attr("fill", function(d){ 
+      var color = find_variable(d[vars.id_var],"color")
+      return vizwhiz.utils.text_color(color); 
+    })
     .style("pointer-events","none")
     
   // text (share)
@@ -2960,8 +2997,11 @@ vizwhiz.tree_map = function(data,vars) {
     .attr("text-anchor","middle")
     .style("font-weight","bold")
     .attr("font-family","Helvetica")
-    .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
-    .attr("fill-opacity",0.75)
+    .attr("fill", function(d){
+      var color = find_variable(d[vars.id_var],"color")
+      return vizwhiz.utils.text_color(color); 
+    })
+    .attr("fill-opacity",0.5)
     .style("pointer-events","none")
     .text(function(d) {
       var root = d;
@@ -3002,15 +3042,7 @@ vizwhiz.tree_map = function(data,vars) {
       d3.select(this).style("cursor","pointer")
       vizwhiz.tooltip.remove()
 
-      var tooltip_data = []
-      if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-      else var a = vars.tooltip_info.short
-      a.forEach(function(t){
-        if (d[t]) {
-          h = t == vars.value_var
-          tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
-        }
-      })
+      var tooltip_data = get_tooltip_data(d,"short")
       tooltip_data.push({"name": "Share", "value": d.share});
       
       var html = vars.click_function(d)
@@ -3018,10 +3050,10 @@ vizwhiz.tree_map = function(data,vars) {
       var footer_text = html ? "Click box for more info" : null
       
       vizwhiz.tooltip.create({
-        "title": d[vars.text_var],
-        "color": d.color,
-        "icon": d.icon,
-        "id": d[vars.id_var],
+        "title": find_variable(d[vars.id_var],vars.text_var),
+        "color": find_variable(d[vars.id_var],"color"),
+        "icon": find_variable(d[vars.id_var],"icon"),
+        "id": find_variable(d[vars.id_var],vars.id_var),
         "x": d3.event.pageX,
         "y": d3.event.pageY,
         "offset": 5,
@@ -3043,33 +3075,29 @@ vizwhiz.tree_map = function(data,vars) {
           vizwhiz.tooltip.remove(d[vars.id_var])
         }
       }
+      else {
+        vizwhiz.tooltip.remove(d[vars.id_var])
+      }
     })
     .on(vizwhiz.evt.click,function(d){
       var html = vars.click_function(d)
       if (html) {
         vizwhiz.tooltip.remove()
         
-        var tooltip_data = []
-        if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-        else var a = vars.tooltip_info.long
-        a.forEach(function(t){
-          if (d[t]) {
-            h = t == vars.value_var
-            tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
-          }
-        })
+        var tooltip_data = get_tooltip_data(d,"long")
         tooltip_data.push({"name": "Share", "value": d.share});
         
         vizwhiz.tooltip.create({
-          "title": d[vars.text_var],
-          "color": d.color,
-          "icon": d.icon,
-          "id": d[vars.id_var],
+          "title": find_variable(d[vars.id_var],vars.text_var),
+          "color": find_variable(d[vars.id_var],"color"),
+          "icon": find_variable(d[vars.id_var],"icon"),
+          "id": find_variable(d[vars.id_var],vars.id_var),
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data
         })
+        
       }
     })
   
@@ -3166,7 +3194,7 @@ vizwhiz.tree_map = function(data,vars) {
   //===================================================================
   
 }
-vizwhiz.geo_map = function(data,vars) {
+vizwhiz.geo_map = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables with Default Settings
@@ -3197,12 +3225,13 @@ vizwhiz.geo_map = function(data,vars) {
       path = d3.geo.path().projection(vars.projection),
       tile = d3.geo.tile().size([vars.width, vars.height]),
       old_scale = vars.projection.scale()*2*Math.PI,
-      old_translate = vars.projection.translate();
+      old_translate = vars.projection.translate(),
+      hover = null;
 
   //===================================================================
   
-  if (data) {
-    data_extent = d3.extent(d3.values(data),function(d){
+  if (vars.data) {
+    data_extent = d3.extent(d3.values(vars.data),function(d){
       return d[vars.value_var] && d[vars.value_var] != 0 ? d[vars.value_var] : null
     })
     var data_range = [],
@@ -3272,7 +3301,6 @@ vizwhiz.geo_map = function(data,vars) {
         var temp = vars.highlight;
         vars.highlight = null;
         d3.select("#path"+temp).call(color_paths);
-        vars.clicked = false;
         zoom(vars.boundries);
         info();
       }
@@ -3413,43 +3441,40 @@ vizwhiz.geo_map = function(data,vars) {
   
   coord
     .on(vizwhiz.evt.over, function(d){
-      if (!vars.clicked) {
-        vars.highlight = d[vars.id_var];
+      hover = d[vars.id_var]
+      if (vars.highlight != d[vars.id_var]) {
         d3.select(this).attr("opacity",select_opacity);
+      }
+      if (!vars.highlight) {
         info();
       }
-      if (vars.highlight != d[vars.id_var]) d3.select(this).attr("opacity",select_opacity);
     })
     .on(vizwhiz.evt.out, function(d){
-      if (!vars.clicked) {
-        vars.highlight = null;
+      hover = null
+      if (vars.highlight != d[vars.id_var]) {
         d3.select(this).attr("opacity",default_opacity);
+      }
+      if (!vars.highlight) {
         info();
       }
-      if (vars.highlight != d[vars.id_var]) d3.select(this).attr("opacity",default_opacity);
     })
     .on(vizwhiz.evt.click, function(d) {
-      if (vars.clicked && vars.highlight == d[vars.id_var]) {
-        var temp = vars.highlight;
+      if (vars.highlight == d[vars.id_var]) {
         vars.highlight = null;
-        d3.select("#path"+temp).call(color_paths);
-        vars.clicked = false;
+        d3.select(this).call(color_paths);
         zoom(vars.boundries);
-        info();
-      } else {
-        if (vars.highlight && vars.clicked) {
-          var temp = vars.highlight;
-          vars.highlight = null;
-          d3.select("#path"+temp).call(color_paths);
-        }
-        else {
-          vars.clicked = true;
+      } 
+      else {
+        if (vars.highlight) {
+          var temp = vars.highlight
+          vars.highlight = null
+          d3.select("path#path"+temp).call(color_paths);
         }
         vars.highlight = d[vars.id_var];
         d3.select(this).call(color_paths);
-        zoom(d3.select("path#path"+vars.highlight).datum());
-        info();
+        zoom(d3.select(this).datum());
       }
+      info();
     })
   
   coord.transition().duration(vizwhiz.timing)
@@ -3475,7 +3500,7 @@ vizwhiz.geo_map = function(data,vars) {
     zoom(vars.boundries,0);
     vars.init = false;
   }
-  if (vars.clicked) {
+  if (vars.highlight) {
     zoom(d3.select("path#path"+vars.highlight).datum());
   }
   
@@ -3483,17 +3508,18 @@ vizwhiz.geo_map = function(data,vars) {
     defs.selectAll("#stroke_clip").remove();
     p
       .attr("fill",function(d){ 
-        if (d[vars.id_var] == vars.highlight && vars.clicked) return "none";
-        else if (!data) return "#888888";
-        else return data[d[vars.id_var]][vars.value_var] ? value_color(data[d[vars.id_var]][vars.value_var]) : "#888888"
+        if (d[vars.id_var] == vars.highlight) return "none";
+        else if (!vars.data[d[vars.id_var]]) return "#888888";
+        else return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888"
       })
       .attr("stroke-width",function(d) {
-        if (d[vars.id_var] == vars.highlight && vars.clicked) return 10;
+        if (d[vars.id_var] == vars.highlight) return 10;
         else return stroke_width;
       })
       .attr("stroke",function(d) {
-        if (d[vars.id_var] == vars.highlight && vars.clicked) {
-          return data[d[vars.id_var]][vars.value_var] ? value_color(data[d[vars.id_var]][vars.value_var]) : "#888888";
+        if (d[vars.id_var] == vars.highlight) {
+          if (!vars.data[d[vars.id_var]]) return "#888"
+          return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888";
         }
         else return "white";
       })
@@ -3502,11 +3528,11 @@ vizwhiz.geo_map = function(data,vars) {
         else return default_opacity;
       })
       .attr("clip-path",function(d){ 
-        if (d[vars.id_var] == vars.highlight && vars.clicked) return "url(#stroke_clip)";
+        if (d[vars.id_var] == vars.highlight) return "url(#stroke_clip)";
         else return "none"
       })
       .each(function(d){
-        if (d[vars.id_var] == vars.highlight && vars.clicked) {
+        if (d[vars.id_var] == vars.highlight) {
           d3.select("defs").append("clipPath")
             .attr("id","stroke_clip")
             .append("use")
@@ -3537,7 +3563,7 @@ vizwhiz.geo_map = function(data,vars) {
         
     if (param.coordinates) {
       
-      if (vars.clicked && vars.highlight) { 
+      if (vars.highlight) { 
         var left = 20, w_avail = vars.width-info_width-left
       } else {
         var left = 0, w_avail = vars.width
@@ -3621,35 +3647,36 @@ vizwhiz.geo_map = function(data,vars) {
     
     vizwhiz.tooltip.remove();
     
-    if (vars.highlight && !vars.small) {
+    if (!vars.small && (hover || vars.highlight)) {
       
-      var tooltip_data = []
+      var tooltip_data = get_tooltip_data(vars.highlight)
       
-      if (!data[vars.highlight][vars.value_var]) {
-        var footer = "No Data Available",
-            color = "#888"
+      var id = vars.highlight ? vars.highlight : hover
+      
+      var data = vars.data[id]
+      
+      if (data && data[vars.value_var]) {
+        var color = value_color(data[vars.value_var])
       }
       else {
-        var color = data[vars.highlight][vars.value_var] ? value_color(data[vars.highlight][vars.value_var]) : "#888888"
-        if (!vars.clicked) var footer = "Click for More Info"
-        else {
-          var footer = vars.data_source
-          if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-          else var a = vars.tooltip_info.long
-          a.forEach(function(t){
-            if (data[vars.highlight][t]) {
-              h = t == vars.value_var
-              tooltip_data.push({"name": t, "value": data[vars.highlight][t], "highlight": h, "format": vars.number_format})
-            }
-          })
-        }
+        var color = "#888"
+      }
+      
+      if (!data || !data[vars.value_var]) {
+        var footer = "No Data Available"
+      }
+      else if (!vars.highlight) {
+        var footer = "Click for More Info"
+      }
+      else {
+        var footer = vars.data_source
       }
       
       vizwhiz.tooltip.create({
         "data": tooltip_data,
-        "title": data[vars.highlight][vars.text_var],
-        "id": data[vars.highlight][vars.id_var],
-        "icon": data[vars.highlight].icon,
+        "title": find_variable(id,vars.text_var),
+        "id": find_variable(id,vars.id_var),
+        "icon": find_variable(id,"icon"),
         "color": color,
         "footer": footer,
         "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,
@@ -3710,7 +3737,7 @@ vizwhiz.geo_map = function(data,vars) {
   }
 };
 
-vizwhiz.pie_scatter = function(data,vars) {
+vizwhiz.pie_scatter = function(vars) {
 
   //===================================================================
   
@@ -3841,13 +3868,13 @@ vizwhiz.pie_scatter = function(data,vars) {
   // INIT vars & data munging
   //-------------------------------------------------------------------
     
-  var data_range = d3.extent(data, function(d){ return d[vars.value_var]; })
+  var data_range = d3.extent(vars.data, function(d){ return d[vars.value_var]; })
   
   if (!data_range[1]) data_range = [0,0]
   
-  var size_scale = d3.scale.linear()
+  var size_scale = d3.scale.log()
     .domain(data_range)
-    .range([d3.max([d3.min([vars.width,vars.height])/75,5]), d3.max([d3.min([vars.width,vars.height])/10,10])])
+    .range([2, d3.max([d3.min([vars.width,vars.height])/35,10])])
     .nice()
     
   //===================================================================
@@ -3857,7 +3884,7 @@ vizwhiz.pie_scatter = function(data,vars) {
   //-------------------------------------------------------------------
   
   // create scale for buffer of largest item
-  if (vars.xaxis_domain.length < 2) var x_domain = d3.extent(data, function(d){ return d[vars.xaxis_var]; })
+  if (vars.xaxis_domain.length < 2) var x_domain = d3.extent(vars.data, function(d){ return d[vars.xaxis_var]; })
   else var x_domain = vars.xaxis_domain
   
   var x_scale = d3.scale.linear()
@@ -3913,7 +3940,7 @@ vizwhiz.pie_scatter = function(data,vars) {
   // Y AXIS
   //-------------------------------------------------------------------
   // 
-  if (vars.yaxis_domain.length < 2) var y_domain = d3.extent(data, function(d){ return d[vars.yaxis_var]; }).reverse();
+  if (vars.yaxis_domain.length < 2) var y_domain = d3.extent(vars.data, function(d){ return d[vars.yaxis_var]; }).reverse();
   else var y_domain = vars.yaxis_domain;
   
   var y_scale = d3.scale.linear()
@@ -3975,13 +4002,12 @@ vizwhiz.pie_scatter = function(data,vars) {
     .endAngle(function(d) { return d.arc_angle })
   
   // sort nodes so that smallest are always on top
-  data.sort(function(node_a, node_b){
+  vars.data.sort(function(node_a, node_b){
     return node_b[vars.value_var] - node_a[vars.value_var];
   })
   
-  var nodes = d3.select("g.viz")
-    .selectAll("g.circle")
-    .data(data, function(d){ return d.name; })
+  var nodes = d3.select("g.viz").selectAll("g.circle")
+    .data(vars.data,function(d){ return d[vars.id_var] })
   
   nodes.enter().append("g")
     .attr("opacity", 0)
@@ -3992,14 +4018,20 @@ vizwhiz.pie_scatter = function(data,vars) {
       d3.select(this)
         .append("circle")
         .style("stroke", function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
-          else return d.color;
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) {
+            return "#333";
+          }
+          else {
+            return find_variable(d[vars.id_var],"color");
+          }
         })
         .style('stroke-width', 1)
         .style('fill', function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return d.color;
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) {
+            return find_variable(d[vars.id_var],"color");
+          }
           else {
-            var c = d3.hsl(d.color);
+            var c = d3.hsl(find_variable(d[vars.id_var],"color"));
             c.l = 0.95;
             return c.toString();
           }
@@ -4011,7 +4043,7 @@ vizwhiz.pie_scatter = function(data,vars) {
         
       d3.select(this)
         .append("path")
-        .style('fill', d.color )
+        .style('fill', find_variable(d[vars.id_var],"color") )
         .style("fill-opacity", 1)
         
       d3.select(this).select("path").transition().duration(vizwhiz.timing)
@@ -4039,12 +4071,12 @@ vizwhiz.pie_scatter = function(data,vars) {
       d3.select(this).select("circle").transition().duration(vizwhiz.timing)
         .style("stroke", function(dd){
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
-          else return d.color;
+          else return find_variable(d[vars.id_var],"color");
         })
         .style('fill', function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return d.color;
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return find_variable(d[vars.id_var],"color");
           else {
-            var c = d3.hsl(d.color);
+            var c = d3.hsl(find_variable(d[vars.id_var],"color"));
             c.l = 0.95;
             return c.toString();
           }
@@ -4078,7 +4110,7 @@ vizwhiz.pie_scatter = function(data,vars) {
   
   var ticks = d3.select("g.viz")
     .selectAll("g.ticks")
-    .data(data, function(d){ return d.name; })
+    .data(vars.data, function(d){ return d[vars.id_var]; })
   
   var ticks_enter = ticks.enter().append("g")
     .attr("class", "ticks")
@@ -4091,7 +4123,7 @@ vizwhiz.pie_scatter = function(data,vars) {
     .attr("x2", 0)
     .attr("y1", function(d){ return y_scale(d[vars.yaxis_var]) })
     .attr("y2", function(d){ return y_scale(d[vars.yaxis_var]) })
-    .attr("stroke", function(d){ return d.color; })
+    .attr("stroke", function(d){ return find_variable(d[vars.id_var],"color"); })
     .attr("stroke-width", 1)
   
   // UPDATE      
@@ -4109,7 +4141,7 @@ vizwhiz.pie_scatter = function(data,vars) {
     .attr("y2", graph.height + 10)      
     .attr("x1", function(d){ return x_scale(d[vars.xaxis_var]) })
     .attr("x2", function(d){ return x_scale(d[vars.xaxis_var]) })
-    .attr("stroke", function(d){ return d.color; })
+    .attr("stroke", function(d){ return find_variable(d[vars.id_var],"color"); })
     .attr("stroke-width", 1)
   
   // UPDATE
@@ -4163,7 +4195,7 @@ vizwhiz.pie_scatter = function(data,vars) {
         var radius = size_scale(val),
             x = x_scale(d[vars.xaxis_var]),
             y = y_scale(d[vars.yaxis_var]),
-            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : d.color,
+            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],"color"),
             viz = d3.select("g.viz");
             
         // vertical line to x-axis
@@ -4234,22 +4266,14 @@ vizwhiz.pie_scatter = function(data,vars) {
           .attr("fill","#4c4c4c")
           .text(vizwhiz.utils.format_num(d[vars.yaxis_var], false, 3, true))
       
-        var tooltip_data = []
-        if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-        else var a = vars.tooltip_info.long
-        a.forEach(function(t){
-          if (d[t]) {
-            h = t == vars.value_var
-            tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
-          }
-        })
+        var tooltip_data = get_tooltip_data(d)
       
         vizwhiz.tooltip.create({
-          "id": d.id,
-          "color": d.color,
-          "icon": d.icon,
+          "id": d[vars.id_var],
+          "color": find_variable(d[vars.id_var],"color"),
+          "icon": find_variable(d[vars.id_var],"icon"),
           "data": tooltip_data,
-          "title": d[vars.text_var],
+          "title": find_variable(d[vars.id_var],vars.text_var),
           "x": x+graph.x+vars.margin.left+vars.parent.node().offsetLeft,
           "y": y+graph.y+vars.margin.top+vars.parent.node().offsetTop,
           "offset": radius,
@@ -4263,7 +4287,7 @@ vizwhiz.pie_scatter = function(data,vars) {
   //===================================================================
   
 };
-vizwhiz.bubbles = function(data,vars) {
+vizwhiz.bubbles = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables
@@ -4303,7 +4327,7 @@ vizwhiz.bubbles = function(data,vars) {
   data_nested.key = "root";
   data_nested.values = d3.nest()
     .key(function(d){ return d[vars.grouping] })
-    .entries(data)
+    .entries(vars.data)
 
   var pack = d3.layout.pack()
     .size([vars.width,vars.height])
@@ -4319,7 +4343,7 @@ vizwhiz.bubbles = function(data,vars) {
     .filter(function(d){
       if (d.depth == 1) {
         if (d.children.length == 1 ) {
-          d[vars.text_var] = d.children[0][vars.text_var];
+          d[vars.text_var] = find_variable(d.children[0][vars.id_var],vars.text_var);
           d.category = d.children[0].category;
         }
         else {
@@ -4368,7 +4392,7 @@ vizwhiz.bubbles = function(data,vars) {
     if (d.depth == 1) {
       
       if (vars.grouping != "active") {
-        var color = d.children[0].color;
+        var color = find_variable(d.children[0][vars.id_var],"color");
       }
       else {
         var color = "#cccccc";
@@ -4400,7 +4424,7 @@ vizwhiz.bubbles = function(data,vars) {
     
   })
   
-  data.forEach(function(d){
+  vars.data.forEach(function(d){
     var parent = data_packed.filter(function(p){ 
       if (d[vars.grouping] === false) var key = "false";
       else if (d[vars.grouping] === true) var key = "true";
@@ -4481,8 +4505,8 @@ vizwhiz.bubbles = function(data,vars) {
           .data([d]);
         
         bg.enter().append("circle")
-          .attr("fill", d.color )
-          .attr("stroke",d.color)
+          .attr("fill", d.color)
+          .attr("stroke", d.color)
           .attr("stroke-width",1)
           .style('fill-opacity', 0.1 )
           .attr("opacity",0)
@@ -4527,7 +4551,7 @@ vizwhiz.bubbles = function(data,vars) {
   //-------------------------------------------------------------------
 
   var bubble = d3.select("g.bubbles").selectAll("g.bubble")
-    .data(data,function(d){ return d[vars.id_var] })
+    .data(vars.data,function(d){ return d[vars.id_var] })
     
   bubble.enter().append("g")
     .attr("class", "bubble")
@@ -4537,14 +4561,16 @@ vizwhiz.bubbles = function(data,vars) {
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
-      var bg_color = d3.hsl(d.color)
+      var color = find_variable(d[vars.id_var],"color")
+      
+      var bg_color = d3.hsl(color)
       bg_color.l = 0.95
       bg_color = bg_color.toString()
       
       d3.select(this).append("path")
         .attr("class","bg")
         .attr("fill", bg_color )
-        .attr("stroke", d.color )
+        .attr("stroke", color)
         .attr("stroke-width",1)
       
       d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
@@ -4558,7 +4584,7 @@ vizwhiz.bubbles = function(data,vars) {
       
         d3.select(this).append("path")
           .attr("class","elsewhere")
-          .style('fill', d.color )
+          .style('fill', color)
           .style('fill-opacity', 0.5 )
       
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
@@ -4572,7 +4598,7 @@ vizwhiz.bubbles = function(data,vars) {
       d3.select(this).append("path")
         .each(function(dd) { dd.arc_id = dd[vars.id_var]; })
         .attr("class","available")
-        .style('fill', d.color )
+        .style('fill', color)
       
       d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
         .attrTween("d",arcTween)
@@ -4650,22 +4676,14 @@ vizwhiz.bubbles = function(data,vars) {
   bubble
     .on(vizwhiz.evt.over, function(d){
       
-      var tooltip_data = []
-      if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-      else var a = vars.tooltip_info.long
-      a.forEach(function(t){
-        if (d[t]) {
-          h = t == vars.value_var
-          tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
-        }
-      })
+      var tooltip_data = get_tooltip_data(d[vars.id_var])
       
       vizwhiz.tooltip.create({
         "id": d[vars.id_var],
-        "color": d.color,
-        "icon": d.icon,
+        "color": find_variable(d[vars.id_var],"color"),
+        "icon": find_variable(d[vars.id_var],"icon"),
         "data": tooltip_data,
-        "title": d[vars.text_var],
+        "title": find_variable(d[vars.id_var],vars.text_var),
         "x": d.x+vars.margin.left+vars.parent.node().offsetLeft,
         "y": d.y+vars.margin.top+vars.parent.node().offsetTop,
         "offset": d.r,
@@ -4807,7 +4825,7 @@ vizwhiz.bubbles = function(data,vars) {
   //===================================================================
 };
 
-vizwhiz.rings = function(data,vars) {
+vizwhiz.rings = function(vars) {
       
   var tooltip_width = 200
       
@@ -5026,29 +5044,19 @@ vizwhiz.rings = function(data,vars) {
   hover = null;
   
   if (!vars.small) {
-      
-    var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight })[0]
 
     vizwhiz.tooltip.remove();
     
-    var html = vars.click_function(prod)
+    var html = vars.click_function(vars.data[vars.highlight])
     
-    var tooltip_data = []
-    if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-    else var a = vars.tooltip_info.long
-    a.forEach(function(t){
-      if (prod[t]) {
-        h = t == vars.active_var
-        tooltip_data.push({"name": t, "value": prod[t], "highlight": h, "format": vars.number_format})
-      }
-    })
+    var tooltip_data = get_tooltip_data(vars.highlight)
 
     vizwhiz.tooltip.remove()
     vizwhiz.tooltip.create({
-      "title": prod[vars.text_var],
-      "color": prod.color,
-      "icon": prod.icon,
-      "id": prod[vars.id_var],
+      "title": find_variable(vars.highlight,vars.text_var),
+      "color": find_variable(vars.highlight,"color"),
+      "icon": find_variable(vars.highlight,"icon"),
+      "id": vars.highlight,
       "html": html,
       "footer": vars.data_source,
       "data": tooltip_data,
@@ -5084,7 +5092,7 @@ vizwhiz.rings = function(data,vars) {
   function circle_styles(c) {
     c
       .attr("fill", function(d){
-        if(d[vars.active_var]){
+        if(find_variable(d[vars.id_var],vars.active_var)){
           var color = d.color;
         } 
         else {
@@ -5100,7 +5108,7 @@ vizwhiz.rings = function(data,vars) {
       
       })
       .attr("stroke", function(d){
-        if(d[vars.active_var]){
+        if(find_variable(d[vars.id_var],vars.active_var)){
           var color = "#333";
         } else {
           var color = vizwhiz.utils.darker_color(d.color)
@@ -5133,38 +5141,33 @@ vizwhiz.rings = function(data,vars) {
   
   function get_root(){
     
-    var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight })[0]
-    
-    var links = [], nodes = [],
-      root = {
-        "name": prod[vars.text_var],
-        "id": prod[vars.id_var],
-        "children":[],
-        "ring_x": 0,
-        "ring_y": 0,
-        "depth": 0,
-        "color": prod.color,
-        "active": prod[vars.active_var]
-      }
+    var links = [], nodes = [], root = {}
+      
+    root.ring_x = 0;
+    root.ring_y = 0;
+    root.depth = 0;
+    root[vars.text_var] = find_variable(vars.highlight,vars.text_var)
+    root[vars.id_var] = vars.highlight
+    root.children = []
+    root.color = find_variable(vars.highlight,"color")
+    root[vars.active_var] = find_variable(vars.highlight,vars.active_var)
   
     nodes.push(root);
     
     // populate first level
-    var prim_links = vars.connections[prod[vars.id_var]]
+    var prim_links = vars.connections[vars.highlight]
     if (prim_links) {
       prim_links.forEach(function(child){
-      
-        var prod = data.filter(function(d){return d[vars.id_var] == child[vars.id_var] })[0]
   
         // give first level child the properties
         child.ring_x = 0;
         child.ring_y = ring_width;
         child.depth = 1;
-        child[vars.text_var] = prod[vars.text_var]
+        child[vars.text_var] = find_variable(child[vars.id_var],vars.text_var)
         child.children = []
         child.children_total = []
-        child.color = prod.color
-        child[vars.active_var] = prod[vars.active_var]
+        child.color = find_variable(child[vars.id_var],"color")
+        child[vars.active_var] = find_variable(child[vars.id_var],vars.active_var)
   
         // push first level child into nodes
         nodes.push(child);
@@ -5190,16 +5193,14 @@ vizwhiz.rings = function(data,vars) {
           sec_links.forEach(function(grandchild){
     
             // if grandchild isn't already a first level child or the center node
-            if (prim_links.indexOf(grandchild) < 0 && grandchild[vars.id_var] != prod[vars.id_var]) {
-      
-              var grand_prod = data.filter(function(d){return d[vars.id_var] == grandchild[vars.id_var] })[0]
+            if (prim_links.indexOf(grandchild) < 0 && grandchild[vars.id_var] != vars.highlight) {
           
               grandchild.ring_x = 0;
               grandchild.ring_y = ring_width*2;
               grandchild.depth = 2;
-              grandchild[vars.text_var] = grand_prod[vars.text_var]
-              grandchild.color = grand_prod.color
-              grandchild[vars.active_var] = grand_prod[vars.active_var]
+              grandchild[vars.text_var] = find_variable(grandchild[vars.id_var],vars.text_var)
+              grandchild.color = find_variable(grandchild[vars.id_var],"color")
+              grandchild[vars.active_var] = find_variable(grandchild[vars.id_var],vars.active_var)
               grandchild.parents = []
 
               var s = 10000, node_id = 0;

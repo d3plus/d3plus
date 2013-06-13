@@ -31,7 +31,7 @@
       
       var data2010 = []
       flat2010.forEach(function(d){
-        var obj = vizwhiz.utils.merge(d,attr[d.id])
+        var obj = d
         obj.category = attr[d.id.substr(0,2)].name;
         obj.nesting_0 = {"name":attr[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
         obj.nesting_1 = {"name":attr[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
@@ -48,6 +48,7 @@
       viz = vizwhiz.viz()
         .type("bubbles")
         .id_var("id")
+        .attrs(attr)
         .value_var("importance")
         .text_var("name")
         .active_var("Employed")

@@ -1,4 +1,4 @@
-vizwhiz.geo_map = function(data,vars) {
+vizwhiz.geo_map = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables with Default Settings
@@ -29,12 +29,13 @@ vizwhiz.geo_map = function(data,vars) {
       path = d3.geo.path().projection(vars.projection),
       tile = d3.geo.tile().size([vars.width, vars.height]),
       old_scale = vars.projection.scale()*2*Math.PI,
-      old_translate = vars.projection.translate();
+      old_translate = vars.projection.translate(),
+      hover = null;
 
   //===================================================================
   
-  if (data) {
-    data_extent = d3.extent(d3.values(data),function(d){
+  if (vars.data) {
+    data_extent = d3.extent(d3.values(vars.data),function(d){
       return d[vars.value_var] && d[vars.value_var] != 0 ? d[vars.value_var] : null
     })
     var data_range = [],
@@ -104,7 +105,6 @@ vizwhiz.geo_map = function(data,vars) {
         var temp = vars.highlight;
         vars.highlight = null;
         d3.select("#path"+temp).call(color_paths);
-        vars.clicked = false;
         zoom(vars.boundries);
         info();
       }
@@ -245,43 +245,40 @@ vizwhiz.geo_map = function(data,vars) {
   
   coord
     .on(vizwhiz.evt.over, function(d){
-      if (!vars.clicked) {
-        vars.highlight = d[vars.id_var];
+      hover = d[vars.id_var]
+      if (vars.highlight != d[vars.id_var]) {
         d3.select(this).attr("opacity",select_opacity);
+      }
+      if (!vars.highlight) {
         info();
       }
-      if (vars.highlight != d[vars.id_var]) d3.select(this).attr("opacity",select_opacity);
     })
     .on(vizwhiz.evt.out, function(d){
-      if (!vars.clicked) {
-        vars.highlight = null;
+      hover = null
+      if (vars.highlight != d[vars.id_var]) {
         d3.select(this).attr("opacity",default_opacity);
+      }
+      if (!vars.highlight) {
         info();
       }
-      if (vars.highlight != d[vars.id_var]) d3.select(this).attr("opacity",default_opacity);
     })
     .on(vizwhiz.evt.click, function(d) {
-      if (vars.clicked && vars.highlight == d[vars.id_var]) {
-        var temp = vars.highlight;
+      if (vars.highlight == d[vars.id_var]) {
         vars.highlight = null;
-        d3.select("#path"+temp).call(color_paths);
-        vars.clicked = false;
+        d3.select(this).call(color_paths);
         zoom(vars.boundries);
-        info();
-      } else {
-        if (vars.highlight && vars.clicked) {
-          var temp = vars.highlight;
-          vars.highlight = null;
-          d3.select("#path"+temp).call(color_paths);
-        }
-        else {
-          vars.clicked = true;
+      } 
+      else {
+        if (vars.highlight) {
+          var temp = vars.highlight
+          vars.highlight = null
+          d3.select("path#path"+temp).call(color_paths);
         }
         vars.highlight = d[vars.id_var];
         d3.select(this).call(color_paths);
-        zoom(d3.select("path#path"+vars.highlight).datum());
-        info();
+        zoom(d3.select(this).datum());
       }
+      info();
     })
   
   coord.transition().duration(vizwhiz.timing)
@@ -307,7 +304,7 @@ vizwhiz.geo_map = function(data,vars) {
     zoom(vars.boundries,0);
     vars.init = false;
   }
-  if (vars.clicked) {
+  if (vars.highlight) {
     zoom(d3.select("path#path"+vars.highlight).datum());
   }
   
@@ -315,17 +312,18 @@ vizwhiz.geo_map = function(data,vars) {
     defs.selectAll("#stroke_clip").remove();
     p
       .attr("fill",function(d){ 
-        if (d[vars.id_var] == vars.highlight && vars.clicked) return "none";
-        else if (!data) return "#888888";
-        else return data[d[vars.id_var]][vars.value_var] ? value_color(data[d[vars.id_var]][vars.value_var]) : "#888888"
+        if (d[vars.id_var] == vars.highlight) return "none";
+        else if (!vars.data[d[vars.id_var]]) return "#888888";
+        else return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888"
       })
       .attr("stroke-width",function(d) {
-        if (d[vars.id_var] == vars.highlight && vars.clicked) return 10;
+        if (d[vars.id_var] == vars.highlight) return 10;
         else return stroke_width;
       })
       .attr("stroke",function(d) {
-        if (d[vars.id_var] == vars.highlight && vars.clicked) {
-          return data[d[vars.id_var]][vars.value_var] ? value_color(data[d[vars.id_var]][vars.value_var]) : "#888888";
+        if (d[vars.id_var] == vars.highlight) {
+          if (!vars.data[d[vars.id_var]]) return "#888"
+          return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888";
         }
         else return "white";
       })
@@ -334,11 +332,11 @@ vizwhiz.geo_map = function(data,vars) {
         else return default_opacity;
       })
       .attr("clip-path",function(d){ 
-        if (d[vars.id_var] == vars.highlight && vars.clicked) return "url(#stroke_clip)";
+        if (d[vars.id_var] == vars.highlight) return "url(#stroke_clip)";
         else return "none"
       })
       .each(function(d){
-        if (d[vars.id_var] == vars.highlight && vars.clicked) {
+        if (d[vars.id_var] == vars.highlight) {
           d3.select("defs").append("clipPath")
             .attr("id","stroke_clip")
             .append("use")
@@ -369,7 +367,7 @@ vizwhiz.geo_map = function(data,vars) {
         
     if (param.coordinates) {
       
-      if (vars.clicked && vars.highlight) { 
+      if (vars.highlight) { 
         var left = 20, w_avail = vars.width-info_width-left
       } else {
         var left = 0, w_avail = vars.width
@@ -453,35 +451,36 @@ vizwhiz.geo_map = function(data,vars) {
     
     vizwhiz.tooltip.remove();
     
-    if (vars.highlight && !vars.small) {
+    if (!vars.small && (hover || vars.highlight)) {
       
-      var tooltip_data = []
+      var tooltip_data = get_tooltip_data(vars.highlight)
       
-      if (!data[vars.highlight][vars.value_var]) {
-        var footer = "No Data Available",
-            color = "#888"
+      var id = vars.highlight ? vars.highlight : hover
+      
+      var data = vars.data[id]
+      
+      if (data && data[vars.value_var]) {
+        var color = value_color(data[vars.value_var])
       }
       else {
-        var color = data[vars.highlight][vars.value_var] ? value_color(data[vars.highlight][vars.value_var]) : "#888888"
-        if (!vars.clicked) var footer = "Click for More Info"
-        else {
-          var footer = vars.data_source
-          if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-          else var a = vars.tooltip_info.long
-          a.forEach(function(t){
-            if (data[vars.highlight][t]) {
-              h = t == vars.value_var
-              tooltip_data.push({"name": t, "value": data[vars.highlight][t], "highlight": h, "format": vars.number_format})
-            }
-          })
-        }
+        var color = "#888"
+      }
+      
+      if (!data || !data[vars.value_var]) {
+        var footer = "No Data Available"
+      }
+      else if (!vars.highlight) {
+        var footer = "Click for More Info"
+      }
+      else {
+        var footer = vars.data_source
       }
       
       vizwhiz.tooltip.create({
         "data": tooltip_data,
-        "title": data[vars.highlight][vars.text_var],
-        "id": data[vars.highlight][vars.id_var],
-        "icon": data[vars.highlight].icon,
+        "title": find_variable(id,vars.text_var),
+        "id": find_variable(id,vars.id_var),
+        "icon": find_variable(id,"icon"),
         "color": color,
         "footer": footer,
         "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,

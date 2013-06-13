@@ -31,19 +31,20 @@ d3.json("data/mg_test_data.json", function(flat_data){
     flat_data.data.forEach(function(d, i){
       if (d.hs_id.length == 6) {
         var obj = d
+        obj.id = obj.hs_id
         obj.active = obj.rca >= 1 ? true : false
         obj.nesting_0 = {"name":attrs[obj.hs_id.slice(0, 2)].name, "id":obj.hs_id.slice(0, 2)};
         obj.nesting_1 = {"name":attrs[obj.hs_id.slice(0, 4)].name, "id":obj.hs_id.slice(0, 4)};
         obj.nesting_2 = {"name":attrs[obj.hs_id.slice(0, 6)].name, "id":obj.hs_id.slice(0, 6)};
-        obj = vizwhiz.utils.merge(obj, attrs[obj.hs_id]);
         data.push(obj)
       }
     })
-
+    
     viz
       .type("pie_scatter")
       .text_var("name")
-      .id_var("hs_id")
+      .id_var("id")
+      .attrs(attrs)
       .xaxis_var("distance")
       .xaxis_domain(d3.extent(data,function(d){return d.distance}))
       .yaxis_var("complexity")
@@ -53,7 +54,7 @@ d3.json("data/mg_test_data.json", function(flat_data){
       .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
       .nesting(["nesting_0","nesting_1","nesting_2"])
       .nesting_aggs({"complexity":"mean","distance":"mean","rca":"mean"})
-      .depth("nesting_2")
+      .depth("nesting_0")
       .spotlight(false)
       .year(2010)
 

@@ -9,16 +9,18 @@ vizwhiz.viz = function() {
     "arc_angles": {},
     "arc_inners": {},
     "arc_sizes": {},
+    "attrs": null,
     "boundries": null,
     "click_function": function() { return null },
     "connections": null,
     "coords": null,
     "csv_columns": null,
-    "csv_data": [],
+    "data": null,
     "data_source": null,
     "depth": null,
     "donut": true,
     "filter": [],
+    "filtered_data": null,
     "group_bgs": true,
     "grouping": "name",
     "highlight": null,
@@ -37,6 +39,7 @@ vizwhiz.viz = function() {
     "name_array": null,
     "nesting": [],
     "nesting_aggs": {},
+    "nodes": null,
     "number_format": null,
     "order": "asc",
     "projection": d3.geo.mercator(),
@@ -64,12 +67,14 @@ vizwhiz.viz = function() {
     "zoom_behavior": d3.behavior.zoom()
   }
   
-  var links;
+  var nodes, links;
   
   //===================================================================
 
   chart = function(selection) {
     selection.each(function(data) {
+
+      if (vizwhiz.dev) console.log("Initializing App")
 
       vars.parent = d3.select(this)
       
@@ -85,9 +90,13 @@ vizwhiz.viz = function() {
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
         
+      if (vizwhiz.dev) console.log("Establishing Year Range and Current Year")
+        
       vars.years = vizwhiz.utils.uniques(data,vars.year_var)
       if (!vars.year) vars.year = vars.years[vars.years.length-1]
 
+
+      if (vizwhiz.dev) console.log("Filtering Data")
       vars.keys = {}
       var filtered_data = data.filter(function(d){
         for (k in d) {
@@ -111,6 +120,7 @@ vizwhiz.viz = function() {
       // Filter & Solo the data!
       removed_ids = []
       if (vars.solo.length || vars.filter.length) {
+        if (vizwhiz.dev) console.log("Removing Solo/Filters")
         filtered_data = filtered_data.filter(function(d){
           var check = [d[vars.id_var],d[vars.text_var]]
           vars.nesting.forEach(function(key){
@@ -143,10 +153,38 @@ vizwhiz.viz = function() {
             return true
           }
         })
+        
+      }
+      
+      if (["network","rings"].indexOf(vars.type) >= 0) {
+        if (vars.solo.length || vars.filter.length) {
+          vars.nodes = nodes.filter(function(n){
+            if (removed_ids.indexOf(n[vars.id_var]) >= 0) {
+              return false;
+            }
+            else {
+              return true;
+            }
+          })
+          vars.links = links.filter(function(l){
+            if (removed_ids.indexOf(l.source[vars.id_var]) >= 0
+             || removed_ids.indexOf(l.target[vars.id_var]) >= 0) {
+              return false;
+            }
+            else {
+              return true;
+            }
+          })
+        }
+        else {
+          vars.nodes = nodes
+          vars.links = links
+        }
+        vars.connections = get_connections(vars.links)
       }
       
       // create CSV data
-      vars.csv_data = filtered_data;
+      vars.filtered_data = filtered_data;
       
       if (!vars.total_bar) {
         var total_val = null
@@ -156,11 +194,13 @@ vizwhiz.viz = function() {
           return d[vars.value_var] 
         })
       }
-      
+
       if (["tree_map","pie_scatter"].indexOf(vars.type) >= 0) {
-        var cleaned_data = nest(filtered_data)
+        if (vizwhiz.dev) console.log("Nesting Data")
+        vars.data = nest(filtered_data)
       }
       else if (vars.type == "stacked") {
+        if (vizwhiz.dev) console.log("Nesting Data")
         var temp_data = []
         vars.years.forEach(function(year){
           var year_data = filtered_data.filter(function(d){
@@ -169,33 +209,20 @@ vizwhiz.viz = function() {
           year_data = nest(year_data)
           temp_data = temp_data.concat(year_data)
         })
-        cleaned_data = temp_data
+        vars.data = temp_data
       }
-      else if (vars.type == "geo_map") {
-        cleaned_data = {};
+      else if (["geo_map","network","rings"].indexOf(vars.type) >= 0) {
+        vars.data = {};
         filtered_data.forEach(function(d){
-          cleaned_data[d[vars.id_var]] = d;
+          vars.data[d[vars.id_var]] = d;
         })
       }
       else {
-        cleaned_data = filtered_data
+        vars.data = filtered_data
       }
-      
-      if (["network","rings"].indexOf(vars.type) >= 0) {
-        vars.links = links.filter(function(l){
-          if (removed_ids.indexOf(l.source[vars.id_var]) >= 0
-           || removed_ids.indexOf(l.target[vars.id_var]) >= 0) {
-            return false;
-          }
-          else {
-            return true;
-          }
-        })
-        vars.connections = get_connections(vars.links)
-      }
-      
       vars.width = vars.svg_width;
-      
+
+      if (vizwhiz.dev) console.log("Creating Titles")
       vars.margin.top = 0;
       if (vars.svg_width < 300 || vars.svg_height < 200) {
         vars.small = true;
@@ -235,8 +262,9 @@ vizwhiz.viz = function() {
         .attr("width",vars.width)
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-        
-      vizwhiz[vars.type](cleaned_data,vars);
+
+      if (vizwhiz.dev) console.log("Building Specific App")
+      vizwhiz[vars.type](vars);
       
     });
     
@@ -320,7 +348,6 @@ vizwhiz.viz = function() {
     // Set the total value as data for element.
     var data = title ? [title] : [],
         font_size = type == "title" ? 18 : 13,
-        font_color = type == "title" ? "#333" : "#666",
         title_position = {
           "x": vars.width/2,
           "y": vars.margin.top
@@ -350,10 +377,10 @@ vizwhiz.viz = function() {
       .append("text")
         .attr(title_position)
         .attr("font-size",font_size)
-        .attr("fill",font_color)
+        .attr("fill","#333")
         .attr("text-anchor", "middle")
-        .attr("font-family", "'Helvetica Neue', Helvetica, Arial, sans-serif")
-        .style("font-weight", "bold")
+        .attr("font-family", "Helvetica")
+        .style("font-weight", "normal")
         .each(function(d){
           vizwhiz.utils.wordwrap({
             "text": d,
@@ -403,6 +430,56 @@ vizwhiz.viz = function() {
     return connections;
   }
   
+  get_tooltip_data = function(id,length) {
+
+    if (!length) var length = "long"
+    
+    if (["network","rings"].indexOf(vars.type) >= 0) {
+      var tooltip_highlight = vars.active_var
+    }
+    else {
+      var tooltip_highlight = vars.value_var
+    }
+
+    if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
+    else var a = vars.tooltip_info[length]
+    
+    var data = []
+    a.forEach(function(t){
+      var value = find_variable(id,t)
+      if (value) {
+        var h = t == tooltip_highlight
+        data.push({"name": t, "value": value, "highlight": h, "format": vars.number_format})
+      }
+    })
+    
+    return data
+    
+  }
+  
+  find_variable = function(id,variable) {
+    
+    if (typeof id == "string") {
+      var data = vars.filtered_data.filter(function(d){
+        return d[vars.id_var] == id
+      })[0]
+    }
+    else {
+      var data = id
+    }
+    
+    
+    var attr = vars.attrs[id]
+    
+    if (data && data[variable]) return data[variable]
+    else if (attr && attr[variable]) return attr[variable]
+    else {
+      if (variable == "color") return vizwhiz.utils.rand_color()
+      else return false
+    }
+    
+  }
+  
   //===================================================================
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -412,6 +489,12 @@ vizwhiz.viz = function() {
   chart.active_var = function(x) {
     if (!arguments.length) return vars.active_var;
     vars.active_var = x;
+    return chart;
+  };
+  
+  chart.attrs = function(x) {
+    if (!arguments.length) return vars.attrs;
+    vars.attrs = x;
     return chart;
   };
   
@@ -427,7 +510,7 @@ vizwhiz.viz = function() {
       
       // filter out the columns (if specified)
       if(vars.csv_columns){
-        vars.csv_data.map(function(d){
+        vars.filtered_data.map(function(d){
           d3.keys(d).forEach(function(d_key){
             if(vars.csv_columns.indexOf(d_key) < 0){
               delete d[d_key]
@@ -436,8 +519,8 @@ vizwhiz.viz = function() {
         })
       }
       
-      csv_to_return.push(d3.keys(vars.csv_data[0]));
-      vars.csv_data.forEach(function(d){
+      csv_to_return.push(d3.keys(vars.filtered_data[0]));
+      vars.filtered_data.forEach(function(d){
         csv_to_return.push(d3.values(d))
       })
       return csv_to_return;
@@ -590,6 +673,12 @@ vizwhiz.viz = function() {
   chart.nesting_aggs = function(x) {
     if (!arguments.length) return vars.nesting_aggs;
     vars.nesting_aggs = x;
+    return chart;
+  };
+  
+  chart.nodes = function(x) {
+    if (!arguments.length) return vars.nodes;
+    nodes = x;
     return chart;
   };
   

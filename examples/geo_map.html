@@ -31,22 +31,15 @@
       d3.json("data/munic_a0112.json", function(geo_data) {
         d3.json("data/attr_munic.json", function(attr) {
           
-          var data = [],
-              years = vizwhiz.utils.uniques(geo_data.data,"year")
-          years.forEach(function(year){
-            for (var d in attr) {
-              if (d.substr(0,2) == "ap") {
-                var temp = geo_data.data.filter(function(f){return f.year == year && f.bra_id == d})[0]
-                var obj = vizwhiz.utils.merge(temp,attr[d])
-                obj.year = year
-                data.push(obj)
-              }
-            }
+          var data = geo_data.data.filter(function(d){
+            d.id = d.bra_id
+            return d.id.substr(0,2) == "ap"
           })
           
           viz = vizwhiz.viz()
             .type("geo_map")
             .coords(shapes)
+            .attrs(attr)
             .map(land)
             .tiles(false)
             .id_var("id")
@@ -54,7 +47,9 @@
             .text_var("name")
             // .highlight("ap000000")
             .tooltip_info(["id","wage","num_emp","num_est"])
-            .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"});
+            .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+            .highlight("ap000000")
+            .year(2010);
           
           d3.select("#viz")
             .datum(data)

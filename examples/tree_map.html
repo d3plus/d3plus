@@ -31,7 +31,6 @@ d3.json("data/products_mg.json", function(raw_data){
       d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
       d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
       d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-      raw_data[i] = vizwhiz.utils.merge(d, attrs[d.id]);
     })
       
     format_nums = function(obj) {
@@ -51,6 +50,7 @@ d3.json("data/products_mg.json", function(raw_data){
     viz
       .type("tree_map")
       .id_var("id")
+      .attrs(attrs)
       .text_var("name")
       .value_var("val_usd")
       .tooltip_info({"short": ["val_usd"],"long": ["distance", "complexity", "val_usd"]})
@@ -62,7 +62,7 @@ d3.json("data/products_mg.json", function(raw_data){
       .nesting(["nesting_0","nesting_1","nesting_2"])
       .nesting_aggs({"distance":"mean","complexity":"mean"})
       .number_format(format_nums)
-      // .click_function(inner_html)
+      .click_function(inner_html)
       .depth("nesting_0")
       .filter("Mineral Products")
       .year(2010)

@@ -62,25 +62,36 @@
       
       d3.json("data/products_mg.json", function(ps_data) {
         
-        var data = [],
-            years = vizwhiz.utils.uniques(ps_data,"year")
-        years.forEach(function(year){
-          viz_nodes.forEach(function(n){
-            var d = ps_data.filter(function(p){ return p.year == year && p.id == n.id })[0]
-            var obj = vizwhiz.utils.merge(d,attr[n.id])
-            obj.year = year;
-            obj = vizwhiz.utils.merge(obj,n)
-            obj.nesting_0 = {"name":attr[obj.id.slice(0, 2)].name, "id":obj.id.slice(0, 2)};
-            obj.nesting_1 = {"name":attr[obj.id.slice(0, 4)].name, "id":obj.id.slice(0, 4)};
-            obj.nesting_2 = {"name":attr[obj.id.slice(0, 6)].name, "id":obj.id.slice(0, 6)};
-            obj.active = Math.floor(Math.random()*2);
-            data.push(obj)
-          })
+        // var data = [],
+        //     years = vizwhiz.utils.uniques(ps_data,"year")
+        // years.forEach(function(year){
+        //   if (vizwhiz.dev) console.log("Building data for "+year)
+        //   viz_nodes.forEach(function(n){
+        //     var d = ps_data.filter(function(p){ return p.year == year && p.id == n.id })[0]
+        //     var obj = vizwhiz.utils.merge(d,attr[n.id])
+        //     obj.year = year;
+        //     obj = vizwhiz.utils.merge(obj,n)
+        //     obj.nesting_0 = {"name":attr[obj.id.slice(0, 2)].name, "id":obj.id.slice(0, 2)};
+        //     obj.nesting_1 = {"name":attr[obj.id.slice(0, 4)].name, "id":obj.id.slice(0, 4)};
+        //     obj.nesting_2 = {"name":attr[obj.id.slice(0, 6)].name, "id":obj.id.slice(0, 6)};
+        //     obj.active = Math.floor(Math.random()*2);
+        //     data.push(obj)
+        //   })
+        // })
+        
+
+        ps_data.forEach(function(d){
+          d.nesting_0 = {"name":attr[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+          d.nesting_1 = {"name":attr[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+          d.nesting_2 = {"name":attr[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+          d.active = Math.floor(Math.random()*2);
         })
         
         viz
           .type("network")
           .links(viz_links)
+          .nodes(viz_nodes)
+          .attrs(attr)
           .value_var("val_usd")
           .name_array(["name"])
           .title("Product Space for Minas Gerais")
@@ -91,7 +102,7 @@
           .year(2010);
           
         d3.select("#viz")
-          .datum(data)
+          .datum(ps_data)
           .call(viz);
           
         // setTimeout(function(){

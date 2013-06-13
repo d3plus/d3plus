@@ -1,5 +1,5 @@
 
-vizwhiz.rings = function(data,vars) {
+vizwhiz.rings = function(vars) {
       
   var tooltip_width = 200
       
@@ -218,29 +218,19 @@ vizwhiz.rings = function(data,vars) {
   hover = null;
   
   if (!vars.small) {
-      
-    var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight })[0]
 
     vizwhiz.tooltip.remove();
     
-    var html = vars.click_function(prod)
+    var html = vars.click_function(vars.data[vars.highlight])
     
-    var tooltip_data = []
-    if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-    else var a = vars.tooltip_info.long
-    a.forEach(function(t){
-      if (prod[t]) {
-        h = t == vars.active_var
-        tooltip_data.push({"name": t, "value": prod[t], "highlight": h, "format": vars.number_format})
-      }
-    })
+    var tooltip_data = get_tooltip_data(vars.highlight)
 
     vizwhiz.tooltip.remove()
     vizwhiz.tooltip.create({
-      "title": prod[vars.text_var],
-      "color": prod.color,
-      "icon": prod.icon,
-      "id": prod[vars.id_var],
+      "title": find_variable(vars.highlight,vars.text_var),
+      "color": find_variable(vars.highlight,"color"),
+      "icon": find_variable(vars.highlight,"icon"),
+      "id": vars.highlight,
       "html": html,
       "footer": vars.data_source,
       "data": tooltip_data,
@@ -276,7 +266,7 @@ vizwhiz.rings = function(data,vars) {
   function circle_styles(c) {
     c
       .attr("fill", function(d){
-        if(d[vars.active_var]){
+        if(find_variable(d[vars.id_var],vars.active_var)){
           var color = d.color;
         } 
         else {
@@ -292,7 +282,7 @@ vizwhiz.rings = function(data,vars) {
       
       })
       .attr("stroke", function(d){
-        if(d[vars.active_var]){
+        if(find_variable(d[vars.id_var],vars.active_var)){
           var color = "#333";
         } else {
           var color = vizwhiz.utils.darker_color(d.color)
@@ -325,38 +315,33 @@ vizwhiz.rings = function(data,vars) {
   
   function get_root(){
     
-    var prod = data.filter(function(d){return d[vars.id_var] == vars.highlight })[0]
-    
-    var links = [], nodes = [],
-      root = {
-        "name": prod[vars.text_var],
-        "id": prod[vars.id_var],
-        "children":[],
-        "ring_x": 0,
-        "ring_y": 0,
-        "depth": 0,
-        "color": prod.color,
-        "active": prod[vars.active_var]
-      }
+    var links = [], nodes = [], root = {}
+      
+    root.ring_x = 0;
+    root.ring_y = 0;
+    root.depth = 0;
+    root[vars.text_var] = find_variable(vars.highlight,vars.text_var)
+    root[vars.id_var] = vars.highlight
+    root.children = []
+    root.color = find_variable(vars.highlight,"color")
+    root[vars.active_var] = find_variable(vars.highlight,vars.active_var)
   
     nodes.push(root);
     
     // populate first level
-    var prim_links = vars.connections[prod[vars.id_var]]
+    var prim_links = vars.connections[vars.highlight]
     if (prim_links) {
       prim_links.forEach(function(child){
-      
-        var prod = data.filter(function(d){return d[vars.id_var] == child[vars.id_var] })[0]
   
         // give first level child the properties
         child.ring_x = 0;
         child.ring_y = ring_width;
         child.depth = 1;
-        child[vars.text_var] = prod[vars.text_var]
+        child[vars.text_var] = find_variable(child[vars.id_var],vars.text_var)
         child.children = []
         child.children_total = []
-        child.color = prod.color
-        child[vars.active_var] = prod[vars.active_var]
+        child.color = find_variable(child[vars.id_var],"color")
+        child[vars.active_var] = find_variable(child[vars.id_var],vars.active_var)
   
         // push first level child into nodes
         nodes.push(child);
@@ -382,16 +367,14 @@ vizwhiz.rings = function(data,vars) {
           sec_links.forEach(function(grandchild){
     
             // if grandchild isn't already a first level child or the center node
-            if (prim_links.indexOf(grandchild) < 0 && grandchild[vars.id_var] != prod[vars.id_var]) {
-      
-              var grand_prod = data.filter(function(d){return d[vars.id_var] == grandchild[vars.id_var] })[0]
+            if (prim_links.indexOf(grandchild) < 0 && grandchild[vars.id_var] != vars.highlight) {
           
               grandchild.ring_x = 0;
               grandchild.ring_y = ring_width*2;
               grandchild.depth = 2;
-              grandchild[vars.text_var] = grand_prod[vars.text_var]
-              grandchild.color = grand_prod.color
-              grandchild[vars.active_var] = grand_prod[vars.active_var]
+              grandchild[vars.text_var] = find_variable(grandchild[vars.id_var],vars.text_var)
+              grandchild.color = find_variable(grandchild[vars.id_var],"color")
+              grandchild[vars.active_var] = find_variable(grandchild[vars.id_var],vars.active_var)
               grandchild.parents = []
 
               var s = 10000, node_id = 0;

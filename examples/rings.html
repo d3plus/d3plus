@@ -33,28 +33,15 @@ d3.json("data/attr_hs.json", function(attr) {
       link.source = viz_nodes[link.source]
       link.target = viz_nodes[link.target]
     })
-    // viz_links.forEach(function(link){
-    //   link.source = viz_nodes.filter(function(d){return d.id == link.source})[0]
-    //   link.target = viz_nodes.filter(function(d){return d.id == link.target})[0]
-    // })
     
     d3.json("data/products_mg.json", function(ps_data) {
         
-        var data = [],
-            years = vizwhiz.utils.uniques(ps_data,"year")
-        years.forEach(function(year){
-          viz_nodes.forEach(function(n){
-            var d = ps_data.filter(function(p){ return p.year == year && p.id == n.id })[0]
-            var obj = vizwhiz.utils.merge(d,attr[n.id])
-            obj.year = year;
-            obj = vizwhiz.utils.merge(obj,n)
-            obj.nesting_0 = {"name":attr[obj.id.slice(0, 2)].name, "id":obj.id.slice(0, 2)};
-            obj.nesting_1 = {"name":attr[obj.id.slice(0, 4)].name, "id":obj.id.slice(0, 4)};
-            obj.nesting_2 = {"name":attr[obj.id.slice(0, 6)].name, "id":obj.id.slice(0, 6)};
-            obj.active = Math.floor(Math.random()*2);
-            data.push(obj)
-          })
-        })
+      ps_data.forEach(function(d){
+        d.nesting_0 = {"name":attr[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+        d.nesting_1 = {"name":attr[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+        d.nesting_2 = {"name":attr[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+        d.active = Math.floor(Math.random()*2);
+      })
         
       clicker = function(obj) {
         console.log(obj);
@@ -66,6 +53,8 @@ d3.json("data/attr_hs.json", function(attr) {
         .text_var("name")
         .id_var("id")
         .links(viz_links)
+        .nodes(viz_nodes)
+        .attrs(attr)
         .value_var("value")
         // .highlight("116108") // women's undergarments
         .highlight("020910") // ginger
@@ -78,17 +67,8 @@ d3.json("data/attr_hs.json", function(attr) {
         .click_function(clicker)
         .data_source("<a href='www.google.com'>SECEX</a>")
 
-      // viz
-      //   .text_var("name")
-      //   .id_var("id")
-      //   .links(viz_links)
-      //   .value_var("value")
-      //   .center("3762") // Circus
-      //   // .center("1210") // CEOs
-      //   .tooltip_info([])
-
       d3.select("#viz")
-        .datum(data)
+        .datum(ps_data)
         .call(viz)    
 
     })

@@ -1,4 +1,4 @@
-vizwhiz.tree_map = function(data,vars) {
+vizwhiz.tree_map = function(vars) {
   
   // Ok, to get started, lets run our heirarchically nested
   // data object through the d3 treemap function to get a
@@ -9,7 +9,7 @@ vizwhiz.tree_map = function(data,vars) {
     .children(function(d) { return d.children; })
     .sort(function(a, b) { return a.value - b.value; })
     .value(function(d) { return d[vars.value_var]; })
-    .nodes(data)
+    .nodes(vars.data)
     .filter(function(d) {
       return !d.children;
     })
@@ -38,13 +38,7 @@ vizwhiz.tree_map = function(data,vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      // in case this depth doesn't have a color but a child of
-      // this element DOES... use that color
-      while(!d.color && d.children){
-        d = d.children[0]
-      }
-      // if a color cannot be found (at this depth of deeper) use random
-      return d.color ? d.color : vizwhiz.utils.rand_color();
+      return find_variable(d[vars.id_var],"color");
     })
     
   // text (name)
@@ -57,7 +51,10 @@ vizwhiz.tree_map = function(data,vars) {
     .attr('x','0.2em')
     .attr('y','0em')
     .attr('dy','1em')
-    .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
+    .attr("fill", function(d){ 
+      var color = find_variable(d[vars.id_var],"color")
+      return vizwhiz.utils.text_color(color); 
+    })
     .style("pointer-events","none")
     
   // text (share)
@@ -66,8 +63,11 @@ vizwhiz.tree_map = function(data,vars) {
     .attr("text-anchor","middle")
     .style("font-weight","bold")
     .attr("font-family","Helvetica")
-    .attr("fill", function(d){ return vizwhiz.utils.text_color(d.color); })
-    .attr("fill-opacity",0.75)
+    .attr("fill", function(d){
+      var color = find_variable(d[vars.id_var],"color")
+      return vizwhiz.utils.text_color(color); 
+    })
+    .attr("fill-opacity",0.5)
     .style("pointer-events","none")
     .text(function(d) {
       var root = d;
@@ -108,15 +108,7 @@ vizwhiz.tree_map = function(data,vars) {
       d3.select(this).style("cursor","pointer")
       vizwhiz.tooltip.remove()
 
-      var tooltip_data = []
-      if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-      else var a = vars.tooltip_info.short
-      a.forEach(function(t){
-        if (d[t]) {
-          h = t == vars.value_var
-          tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
-        }
-      })
+      var tooltip_data = get_tooltip_data(d,"short")
       tooltip_data.push({"name": "Share", "value": d.share});
       
       var html = vars.click_function(d)
@@ -124,10 +116,10 @@ vizwhiz.tree_map = function(data,vars) {
       var footer_text = html ? "Click box for more info" : null
       
       vizwhiz.tooltip.create({
-        "title": d[vars.text_var],
-        "color": d.color,
-        "icon": d.icon,
-        "id": d[vars.id_var],
+        "title": find_variable(d[vars.id_var],vars.text_var),
+        "color": find_variable(d[vars.id_var],"color"),
+        "icon": find_variable(d[vars.id_var],"icon"),
+        "id": find_variable(d[vars.id_var],vars.id_var),
         "x": d3.event.pageX,
         "y": d3.event.pageY,
         "offset": 5,
@@ -149,33 +141,29 @@ vizwhiz.tree_map = function(data,vars) {
           vizwhiz.tooltip.remove(d[vars.id_var])
         }
       }
+      else {
+        vizwhiz.tooltip.remove(d[vars.id_var])
+      }
     })
     .on(vizwhiz.evt.click,function(d){
       var html = vars.click_function(d)
       if (html) {
         vizwhiz.tooltip.remove()
         
-        var tooltip_data = []
-        if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-        else var a = vars.tooltip_info.long
-        a.forEach(function(t){
-          if (d[t]) {
-            h = t == vars.value_var
-            tooltip_data.push({"name": t, "value": d[t], "highlight": h, "format": vars.number_format})
-          }
-        })
+        var tooltip_data = get_tooltip_data(d,"long")
         tooltip_data.push({"name": "Share", "value": d.share});
         
         vizwhiz.tooltip.create({
-          "title": d[vars.text_var],
-          "color": d.color,
-          "icon": d.icon,
-          "id": d[vars.id_var],
+          "title": find_variable(d[vars.id_var],vars.text_var),
+          "color": find_variable(d[vars.id_var],"color"),
+          "icon": find_variable(d[vars.id_var],"icon"),
+          "id": find_variable(d[vars.id_var],vars.id_var),
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data
         })
+        
       }
     })
   
