@@ -76,6 +76,7 @@ vizwhiz.viz = function() {
 
       if (vizwhiz.dev) console.log("Initializing App")
 
+      vizwhiz.tooltip.remove();
       vars.parent = d3.select(this)
       
       vars.svg = vars.parent.selectAll("svg").data([data]);

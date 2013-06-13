@@ -1,7 +1,7 @@
 var vizwhiz = window.vizwhiz || {};
 
 vizwhiz.version = '0.0.1';
-vizwhiz.dev = true //set false when in production
+vizwhiz.dev = false //set false when in production
 
 window.vizwhiz = vizwhiz;
 
