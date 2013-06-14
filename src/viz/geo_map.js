@@ -197,9 +197,9 @@ vizwhiz.geo_map = function(vars) {
     else {
 
       data_range.forEach(function(v,i){
-        scale.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
+        scale.select("text#scale_"+i).text(vars.number_format(v))
       })
-      scale.select("text#scale_title").text(vars.value_var)
+      scale.select("text#scale_title").text(vars.text_format(vars.value_var))
       d3.select("g.scale").style("opacity",1)
     }
     
@@ -467,10 +467,10 @@ vizwhiz.geo_map = function(vars) {
       }
       
       if (!data || !data[vars.value_var]) {
-        var footer = "No Data Available"
+        var footer = vars.text_format("No Data Available")
       }
       else if (!vars.highlight) {
-        var footer = "Click for More Info"
+        var footer = vars.text_format("Click for More Info")
       }
       else {
         var footer = vars.data_source

@@ -191,12 +191,12 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("fill", "#4c4c4c")
     .attr('width', graph.width)
     .attr('x', graph.width/2)
-    .text(vars.xaxis_var)
   
   // update label
   d3.select(".axis_title_x").transition().duration(vizwhiz.timing)
     .attr('width', graph.width)
     .attr('x', graph.width/2)
+    .text(vars.text_format(vars.xaxis_var))
   
   //===================================================================
   
@@ -245,12 +245,12 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("fill", "#4c4c4c")
     .attr('width', graph.width)
     .attr("transform", "translate(" + (graph.x-150) + "," + (graph.y+graph.height/2) + ") rotate(-90)")
-    .text(vars.yaxis_var)
     
   // update label
   d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
     .attr('width', graph.width)
     .attr("transform", "translate(" + (graph.x-150) + "," + (graph.y+graph.height/2) + ") rotate(-90)")
+    .text(vars.text_format(vars.yaxis_var))
   
   //===================================================================
   

@@ -49,7 +49,8 @@
             .tooltip_info(["id","wage","num_emp","num_est"])
             .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
             .highlight("ap000000")
-            .year(2010);
+            .year(2010)
+            .text_format(function(d){return d.toUpperCase()})
           
           d3.select("#viz")
             .datum(data)

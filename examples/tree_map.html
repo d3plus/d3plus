@@ -67,6 +67,7 @@ d3.json("data/products_mg.json", function(raw_data){
       .filter("Mineral Products")
       .year(2010)
       .data_source("Data provided by SECEX")
+      .text_format(function(d){return d.toUpperCase()})
       
     d3.select("#viz")
       .datum(raw_data)

@@ -55,6 +55,7 @@ d3.json("data/mg_test_data.json", function(flat_data){
       .nesting(["nesting_0","nesting_1","nesting_2"])
       .nesting_aggs({"complexity":"mean","distance":"mean","rca":"mean"})
       .depth("nesting_1")
+      .text_format(function(d){return d.toUpperCase()})
       .spotlight(false)
       .year(2010)
 

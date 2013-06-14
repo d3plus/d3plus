@@ -40,7 +40,10 @@ vizwhiz.viz = function() {
     "nesting": [],
     "nesting_aggs": {},
     "nodes": null,
-    "number_format": null,
+    "number_format": function(d) { 
+      if (typeof d === "number") return d3.format(",f")(d)
+      else return d3.format(",f")(d.value) 
+    },
     "order": "asc",
     "projection": d3.geo.mercator(),
     "solo": [],
@@ -50,6 +53,7 @@ vizwhiz.viz = function() {
     "sub_title": null,
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
+    "text_format": function(d) { return d },
     "text_var": "name",
     "tiles": true,
     "title": null,
@@ -448,9 +452,10 @@ vizwhiz.viz = function() {
     var data = []
     a.forEach(function(t){
       var value = find_variable(id,t)
+      var name = vars.text_format(t)
       if (value) {
         var h = t == tooltip_highlight
-        data.push({"name": t, "value": value, "highlight": h, "format": vars.number_format})
+        data.push({"name": name, "value": value, "highlight": h, "format": vars.number_format})
       }
     })
     
@@ -472,12 +477,16 @@ vizwhiz.viz = function() {
     
     var attr = vars.attrs[id]
     
-    if (data && data[variable]) return data[variable]
-    else if (attr && attr[variable]) return attr[variable]
-    else {
-      if (variable == "color") return vizwhiz.utils.rand_color()
-      else return false
+    var value = false
+    
+    if (data && data[variable]) value = data[variable]
+    else if (attr && attr[variable]) value = attr[variable]
+    else if (variable == "color") value = vizwhiz.utils.rand_color()
+    
+    if (variable == vars.text_var && value) {
+      return vars.text_format(value)
     }
+    else return value
     
   }
   
@@ -743,6 +752,12 @@ vizwhiz.viz = function() {
   chart.sub_title = function(x) {
     if (!arguments.length) return vars.sub_title;
     vars.sub_title = x;
+    return chart;
+  };
+  
+  chart.text_format = function(x) {
+    if (!arguments.length) return vars.text_format;
+    vars.text_format = x;
     return chart;
   };
   

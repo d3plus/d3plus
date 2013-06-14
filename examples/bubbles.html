@@ -56,7 +56,8 @@
         .grouping("id")
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
         .year(2010)
-        .nesting(["nesting_0","nesting_1","nesting_2"]);
+        .nesting(["nesting_0","nesting_1","nesting_2"])
+        .text_format(function(d){return d.toUpperCase()});
         
       d3.select("#viz")
         .datum(data2010)
