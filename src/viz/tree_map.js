@@ -189,15 +189,18 @@ vizwhiz.tree_map = function(vars) {
     .transition().duration(vizwhiz.timing/2)
     .each("end", function(d){
       d3.select(this).selectAll("tspan").remove();
-      if(d[vars.text_var] && d.dx > 30 && d.dy > 30){
+      var id = d[vars.id_var]
+      var name = find_variable(id,vars.text_var)
+      if(name && d.dx > 30 && d.dy > 30){
+        var text = []
         if (vars.name_array) {
-          var text = []
           vars.name_array.forEach(function(n){
-            if (d[n]) text.push(d[n])
+            if (find_variable(id,n)) text.push(find_variable(id,n))
           })
         } 
         else {
-          var text = d[vars.id_var] ? [d[vars.text_var],d[vars.id_var]] : d[vars.text_var]
+          if (name) text.push(name)
+          if (id) text.push(id)
         }
         vizwhiz.utils.wordwrap({
           "text": text,
