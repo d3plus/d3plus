@@ -1121,7 +1121,7 @@ vizwhiz.viz = function() {
           "y": vars.margin.top
         }
         
-    if (type == "total_bar") {
+    if (type == "total_bar" && title) {
       data = vars.number_format(data[0])
       vars.total_bar.prefix ? data = vars.total_bar.prefix + data : null;
       vars.total_bar.suffix ? data = data + vars.total_bar.suffix : null;
