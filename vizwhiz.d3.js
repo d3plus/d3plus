@@ -803,7 +803,10 @@ vizwhiz.viz = function() {
     "nesting": [],
     "nesting_aggs": {},
     "nodes": null,
-    "number_format": null,
+    "number_format": function(d) { 
+      if (typeof d === "number") return d3.format(",f")(d)
+      else return d3.format(",f")(d.value) 
+    },
     "order": "asc",
     "projection": d3.geo.mercator(),
     "solo": [],
@@ -813,6 +816,7 @@ vizwhiz.viz = function() {
     "sub_title": null,
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
+    "text_format": function(d) { return d },
     "text_var": "name",
     "tiles": true,
     "title": null,
@@ -1211,9 +1215,10 @@ vizwhiz.viz = function() {
     var data = []
     a.forEach(function(t){
       var value = find_variable(id,t)
+      var name = vars.text_format(t)
       if (value) {
         var h = t == tooltip_highlight
-        data.push({"name": t, "value": value, "highlight": h, "format": vars.number_format})
+        data.push({"name": name, "value": value, "highlight": h, "format": vars.number_format})
       }
     })
     
@@ -1235,12 +1240,16 @@ vizwhiz.viz = function() {
     
     var attr = vars.attrs[id]
     
-    if (data && data[variable]) return data[variable]
-    else if (attr && attr[variable]) return attr[variable]
-    else {
-      if (variable == "color") return vizwhiz.utils.rand_color()
-      else return false
+    var value = false
+    
+    if (data && data[variable]) value = data[variable]
+    else if (attr && attr[variable]) value = attr[variable]
+    else if (variable == "color") value = vizwhiz.utils.rand_color()
+    
+    if (variable == vars.text_var && value) {
+      return vars.text_format(value)
     }
+    else return value
     
   }
   
@@ -1506,6 +1515,12 @@ vizwhiz.viz = function() {
   chart.sub_title = function(x) {
     if (!arguments.length) return vars.sub_title;
     vars.sub_title = x;
+    return chart;
+  };
+  
+  chart.text_format = function(x) {
+    if (!arguments.length) return vars.text_format;
+    vars.text_format = x;
     return chart;
   };
   
@@ -2541,14 +2556,13 @@ vizwhiz.stacked = function(vars) {
     .attr("opacity",0)
     .attr('width', graph.width)
     .attr('x', graph.width/2)
-    .text(vars.xaxis_var)
   
   // update label
   d3.select(".axis_title_x").transition().duration(vizwhiz.timing)
     .attr("opacity",1)
     .attr('width', graph.width)
     .attr('x', graph.width/2)
-    .text(vars.xaxis_var)
+    .text(vars.text_format(vars.xaxis_var))
   
   //===================================================================
   
@@ -2582,14 +2596,13 @@ vizwhiz.stacked = function(vars) {
     .attr("opacity",0)
     .attr('width', graph.width)
     .attr("transform", "translate(" + (graph.x-150) + "," + (graph.y+graph.height/2) + ") rotate(-90)")
-    .text(vars.value_var)
   
   // update label
   d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
     .attr("opacity",1)
     .attr('width', graph.width)
     .attr("transform", "translate(" + (graph.x-150) + "," + (graph.y+graph.height/2) + ") rotate(-90)")
-    .text(vars.value_var)
+    .text(vars.text_format(vars.value_var))
   
   //===================================================================
   
@@ -3044,11 +3057,11 @@ vizwhiz.tree_map = function(vars) {
       vizwhiz.tooltip.remove()
 
       var tooltip_data = get_tooltip_data(d,"short")
-      tooltip_data.push({"name": "Share", "value": d.share});
+      tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
       
       var html = vars.click_function(d)
       
-      var footer_text = html ? "Click box for more info" : null
+      var footer_text = html ? vars.text_format("click box for more info") : null
       
       vizwhiz.tooltip.create({
         "title": find_variable(d[vars.id_var],vars.text_var),
@@ -3086,7 +3099,7 @@ vizwhiz.tree_map = function(vars) {
         vizwhiz.tooltip.remove()
         
         var tooltip_data = get_tooltip_data(d,"long")
-        tooltip_data.push({"name": "Share", "value": d.share});
+        tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
         
         vizwhiz.tooltip.create({
           "title": find_variable(d[vars.id_var],vars.text_var),
@@ -3130,7 +3143,8 @@ vizwhiz.tree_map = function(vars) {
         var text = []
         if (vars.name_array) {
           vars.name_array.forEach(function(n){
-            if (find_variable(id,n)) text.push(find_variable(id,n))
+            var name = find_variable(id,n)
+            if (name) text.push(vars.text_format(name))
           })
         } 
         else {
@@ -3397,9 +3411,9 @@ vizwhiz.geo_map = function(vars) {
     else {
 
       data_range.forEach(function(v,i){
-        scale.select("text#scale_"+i).text(vizwhiz.utils.format_num(v,false,2,true))
+        scale.select("text#scale_"+i).text(vars.number_format(v))
       })
-      scale.select("text#scale_title").text(vars.value_var)
+      scale.select("text#scale_title").text(vars.text_format(vars.value_var))
       d3.select("g.scale").style("opacity",1)
     }
     
@@ -3667,10 +3681,10 @@ vizwhiz.geo_map = function(vars) {
       }
       
       if (!data || !data[vars.value_var]) {
-        var footer = "No Data Available"
+        var footer = vars.text_format("No Data Available")
       }
       else if (!vars.highlight) {
-        var footer = "Click for More Info"
+        var footer = vars.text_format("Click for More Info")
       }
       else {
         var footer = vars.data_source
@@ -3933,12 +3947,12 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("fill", "#4c4c4c")
     .attr('width', graph.width)
     .attr('x', graph.width/2)
-    .text(vars.xaxis_var)
   
   // update label
   d3.select(".axis_title_x").transition().duration(vizwhiz.timing)
     .attr('width', graph.width)
     .attr('x', graph.width/2)
+    .text(vars.text_format(vars.xaxis_var))
   
   //===================================================================
   
@@ -3987,12 +4001,12 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("fill", "#4c4c4c")
     .attr('width', graph.width)
     .attr("transform", "translate(" + (graph.x-150) + "," + (graph.y+graph.height/2) + ") rotate(-90)")
-    .text(vars.yaxis_var)
     
   // update label
   d3.select(".axis_title_y").transition().duration(vizwhiz.timing)
     .attr('width', graph.width)
     .attr("transform", "translate(" + (graph.x-150) + "," + (graph.y+graph.height/2) + ") rotate(-90)")
+    .text(vars.text_format(vars.yaxis_var))
   
   //===================================================================
   
