@@ -33,15 +33,6 @@ d3.json("data/products_mg.json", function(raw_data){
       d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
     })
       
-    format_nums = function(obj) {
-      if (["distance","complexity"].indexOf(obj.name) >= 0) {
-        return obj.value.toFixed(2)
-      }
-      else {
-        return obj.value
-      }
-    }
-      
     inner_html = function(obj) {
       console.log(obj)
       return "This is some test HTML"
@@ -58,10 +49,9 @@ d3.json("data/products_mg.json", function(raw_data){
       .name_array(["name","id"])
       .title("Product Exports of Minas Gerais")
       .sub_title("Excluding Mineral Products")
-      .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+      .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
       .nesting(["nesting_0","nesting_1","nesting_2"])
       .nesting_aggs({"distance":"mean","complexity":"mean"})
-      .number_format(format_nums)
       .click_function(inner_html)
       .depth("nesting_0")
       .filter("Mineral Products")

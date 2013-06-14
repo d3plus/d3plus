@@ -358,16 +358,11 @@ vizwhiz.viz = function() {
           "y": vars.margin.top
         }
         
-    if (type == "total_bar" && vars.total_bar) {
-    
-      var format = ",f";
-      
-      if (vars.total_bar.format) {
-        data = d3.format(vars.total_bar.format)(data);
-      }
-      else {
-        data = d3.format(format)(data);
-      }
+    if (type == "total_bar") {
+      console.log(data)
+      console.log(vars.number_format)
+      data = vars.number_format(data[0])
+      console.log(data)
       vars.total_bar.prefix ? data = vars.total_bar.prefix + data : null;
       vars.total_bar.suffix ? data = data + vars.total_bar.suffix : null;
       data = [data]
