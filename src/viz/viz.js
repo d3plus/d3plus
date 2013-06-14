@@ -263,7 +263,7 @@ vizwhiz.viz = function() {
         .attr("width",vars.width)
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-
+        
       if (vizwhiz.dev) console.log("Building Specific App")
       vizwhiz[vars.type](vars);
       

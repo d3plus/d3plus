@@ -33,9 +33,9 @@ d3.json("data/mg_test_data.json", function(flat_data){
         var obj = d
         obj.id = obj.hs_id
         obj.active = obj.rca >= 1 ? true : false
-        obj.nesting_0 = {"name":attrs[obj.hs_id.slice(0, 2)].name, "id":obj.hs_id.slice(0, 2)};
-        obj.nesting_1 = {"name":attrs[obj.hs_id.slice(0, 4)].name, "id":obj.hs_id.slice(0, 4)};
-        obj.nesting_2 = {"name":attrs[obj.hs_id.slice(0, 6)].name, "id":obj.hs_id.slice(0, 6)};
+        obj.nesting_0 = {"name":attrs[obj.id.slice(0, 2)].name, "id":obj.id.slice(0, 2)};
+        obj.nesting_1 = {"name":attrs[obj.id.slice(0, 4)].name, "id":obj.id.slice(0, 4)};
+        obj.nesting_2 = {"name":attrs[obj.id.slice(0, 6)].name, "id":obj.id.slice(0, 6)};
         data.push(obj)
       }
     })
@@ -54,7 +54,7 @@ d3.json("data/mg_test_data.json", function(flat_data){
       .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
       .nesting(["nesting_0","nesting_1","nesting_2"])
       .nesting_aggs({"complexity":"mean","distance":"mean","rca":"mean"})
-      .depth("nesting_0")
+      .depth("nesting_1")
       .spotlight(false)
       .year(2010)
 

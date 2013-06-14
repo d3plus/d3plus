@@ -130,7 +130,9 @@ vizwhiz.pie_scatter = function(vars) {
   // INIT vars & data munging
   //-------------------------------------------------------------------
     
-  var data_range = d3.extent(vars.data, function(d){ return d[vars.value_var]; })
+  var data_range = d3.extent(vars.data, function(d){ 
+    return d[vars.value_var] == 0 ? null : d[vars.value_var] 
+  })
   
   if (!data_range[1]) data_range = [0,0]
   
@@ -326,8 +328,9 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("transform", function(d) { return "translate("+x_scale(d[vars.xaxis_var])+","+y_scale(d[vars.yaxis_var])+")" } )
     .attr("opacity", 1)
     .each(function(d){
-      
-      var val = d[vars.value_var] ? d[vars.value_var] : size_scale.domain()[0]
+
+      var val = d[vars.value_var]
+      val = val && val > 0 ? val : size_scale.domain()[0]
       d.arc_radius = size_scale(val);
       
       d3.select(this).select("circle").transition().duration(vizwhiz.timing)
