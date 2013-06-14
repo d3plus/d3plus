@@ -37,7 +37,7 @@ vizwhiz.bubbles = function(vars) {
   var data_nested = {}
   data_nested.key = "root";
   data_nested.values = d3.nest()
-    .key(function(d){ return d[vars.grouping] })
+    .key(function(d){ return find_variable(d[vars.id_var],vars.grouping) })
     .entries(vars.data)
 
   var pack = d3.layout.pack()
@@ -137,9 +137,9 @@ vizwhiz.bubbles = function(vars) {
   
   vars.data.forEach(function(d){
     var parent = data_packed.filter(function(p){ 
-      if (d[vars.grouping] === false) var key = "false";
-      else if (d[vars.grouping] === true) var key = "true";
-      else var key = d[vars.grouping]
+      if (find_variable(d[vars.id_var],vars.grouping) === false) var key = "false";
+      else if (find_variable(d[vars.id_var],vars.grouping) === true) var key = "true";
+      else var key = find_variable(d[vars.id_var],vars.grouping)
       return key == p.key 
     })[0]
     d.x = (downscale*(d.x-parent.x))+groups[parent.key].x;
