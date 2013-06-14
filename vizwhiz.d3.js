@@ -1122,10 +1122,7 @@ vizwhiz.viz = function() {
         }
         
     if (type == "total_bar") {
-      console.log(data)
-      console.log(vars.number_format)
       data = vars.number_format(data[0])
-      console.log(data)
       vars.total_bar.prefix ? data = vars.total_bar.prefix + data : null;
       vars.total_bar.suffix ? data = data + vars.total_bar.suffix : null;
       data = [data]
