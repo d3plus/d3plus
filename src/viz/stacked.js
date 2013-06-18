@@ -17,13 +17,6 @@ vizwhiz.stacked = function(vars) {
   // INIT vars & data munging
   //-------------------------------------------------------------------
   
-  // get unique values for xaxis
-  xaxis_vals = vars.data
-    .reduce(function(a, b){ return a.concat(b[vars.xaxis_var]) }, [])
-    .filter(function(value, index, self) { 
-      return self.indexOf(value) === index;
-    })
-    
   // get max total for sums of each xaxis
   var xaxis_sums = d3.nest()
     .key(function(d){return d[vars.xaxis_var] })
@@ -35,14 +28,14 @@ vizwhiz.stacked = function(vars) {
   var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
   
   // nest data properly according to nesting array
-  nested_data = nest_data(xaxis_vals, vars.data, xaxis_sums);
+  nested_data = nest_data(xaxis_sums);
   
   // scales for both X and Y values
-  vars.x_scale = d3.scale.linear()
-    .domain([xaxis_vals[0], xaxis_vals[xaxis_vals.length-1]])
+  vars.x_scale = d3.scale[vars.xscale_type]()
+    .domain(d3.extent(vars.years))
     .range([0, vars.graph.width]);
   // **WARNING reverse scale from 0 - max converts from height to 0 (inverse)
-  vars.y_scale = d3.scale.linear()
+  vars.y_scale = d3.scale[vars.yscale_type]()
     .domain([0, data_max])
     .range([vars.graph.height, 0]);
     
@@ -63,12 +56,23 @@ vizwhiz.stacked = function(vars) {
   // LAYERS
   //-------------------------------------------------------------------
   
+  vars.chart_enter.append("clipPath")
+    .attr("id","path_clipping")
+    .append("rect")
+      .attr("width",vars.graph.width)
+      .attr("height",vars.graph.height)
+  
+  d3.select("#path_clipping rect").transition().duration(vizwhiz.timing)
+    .attr("width",vars.graph.width)
+    .attr("height",vars.graph.height)
+  
   // Get layers from d3.stack function (gives x, y, y0 values)
   var offset = vars.layout == "value" ? "zero" : "expand";
   var layers = stack.offset(offset)(nested_data)
   
   // container for layers
   vars.chart_enter.append("g").attr("class", "layers")
+    .attr("clip-path","url(#path_clipping)")
   
   // give data with key function to variables to draw
   var paths = d3.select("g.layers").selectAll(".layer")
@@ -82,7 +86,7 @@ vizwhiz.stacked = function(vars) {
     .attr("stroke",vars.highlight_color)
     .attr("stroke-width",0)
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],"color")
+      return find_variable(d[vars.id_var],vars.color_var)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -103,7 +107,7 @@ vizwhiz.stacked = function(vars) {
   paths.transition().duration(vizwhiz.timing)
     .attr("opacity", 1)
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],"color")
+      return find_variable(d[vars.id_var],vars.color_var)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -115,7 +119,7 @@ vizwhiz.stacked = function(vars) {
     var rev_x_scale = d3.scale.linear()
       .domain(vars.x_scale.range()).range(vars.x_scale.domain());
     var this_x = Math.round(rev_x_scale(mouse_x));
-    var this_x_index = xaxis_vals.indexOf(this_x)
+    var this_x_index = vars.years.indexOf(this_x)
     var this_value = d.values[this_x_index]
     // add dashed line at closest X position to mouse location
     d3.select("g.chart").append("line")
@@ -127,7 +131,7 @@ vizwhiz.stacked = function(vars) {
       .attr("stroke-width", 1)
       .attr("stroke-opacity", 0.5)
       .attr("stroke-dasharray", "5,3")
-      .on(vizwhiz.evt.over, path_tooltip)
+      .attr("pointer-events","none")
     
     // tooltip
     var tooltip_data = get_tooltip_data(d[vars.id_var])
@@ -137,7 +141,7 @@ vizwhiz.stacked = function(vars) {
       "data": tooltip_data,
       "title": find_variable(d[vars.id_var],vars.text_var),
       "id": d[vars.id_var],
-      "color": find_variable(d[vars.id_var],"color"),
+      "color": find_variable(d[vars.id_var],vars.color_var),
       "x": vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
       "y": vars.y_scale(this_value.y0 + this_value.y)+(vars.graph.height-vars.y_scale(this_value.y))/2+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
       "offset": ((vars.graph.height-vars.y_scale(this_value.y))/2)+2,
@@ -265,6 +269,7 @@ vizwhiz.stacked = function(vars) {
       .attr("font-family","Helvetica")
       .attr("dy", 6)
       .attr("opacity",0)
+      .attr("pointer-events","none")
       .attr("text-anchor", function(d){
         // if first, left-align text
         if(d.tallest.key == vars.x_scale.domain()[0]) return "start";
@@ -274,7 +279,7 @@ vizwhiz.stacked = function(vars) {
         return "middle"
       })
       .attr("fill", function(d){
-        return vizwhiz.utils.text_color(find_variable(d[vars.id_var],"color"))
+        return vizwhiz.utils.text_color(find_variable(d[vars.id_var],vars.color_var))
       })
       .attr("x", function(d){
         var pad = 0;
@@ -291,10 +296,9 @@ vizwhiz.stacked = function(vars) {
       .text(function(d) {
         return find_variable(d[vars.id_var],vars.text_var)
       })
-      .on(vizwhiz.evt.over, path_tooltip)
       .each(function(d){
         // set usable width to 2x the width of each x-axis tick
-        var tick_width = (vars.graph.width / xaxis_vals.length) * 2;
+        var tick_width = (vars.graph.width / vars.years.length) * 2;
         // if the text box's width is larger than the tick width wrap text
         if(this.getBBox().width > tick_width){
           // first remove the current text
@@ -332,7 +336,7 @@ vizwhiz.stacked = function(vars) {
   // Nest data function (needed for getting flat data ready for stacks)
   //-------------------------------------------------------------------
   
-  function nest_data(xaxis_vals, data, xaxis_sums){
+  function nest_data(xaxis_sums){
     var info_lookup = {};
     
     var nested = d3.nest()
@@ -355,7 +359,7 @@ vizwhiz.stacked = function(vars) {
           .reduce(function(a, b){ return a.concat(b.key)}, [])
           .filter(function(y, i, arr) { return arr.indexOf(y) == i })
         
-        xaxis_vals.forEach(function(y){
+        vars.years.forEach(function(y){
           if(xaxis_vars_available.indexOf(""+y) < 0){
             values.push({"key": ""+y, "values": 0})
           }

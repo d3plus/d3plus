@@ -228,7 +228,7 @@ vizwhiz.rings = function(vars) {
     vizwhiz.tooltip.remove()
     vizwhiz.tooltip.create({
       "title": find_variable(vars.highlight,vars.text_var),
-      "color": find_variable(vars.highlight,"color"),
+      "color": find_variable(vars.highlight,vars.color_var),
       "icon": find_variable(vars.highlight,"icon"),
       "id": vars.highlight,
       "html": html,
@@ -267,10 +267,10 @@ vizwhiz.rings = function(vars) {
     c
       .attr("fill", function(d){
         if(find_variable(d[vars.id_var],vars.active_var)){
-          var color = d.color;
+          var color = d[vars.color_var];
         } 
         else {
-          var lighter_col = d3.hsl(d.color);
+          var lighter_col = d3.hsl(d[vars.color_var]);
           lighter_col.l = 0.95;
           var color = lighter_col.toString()
         }
@@ -285,7 +285,7 @@ vizwhiz.rings = function(vars) {
         if(find_variable(d[vars.id_var],vars.active_var)){
           var color = "#333";
         } else {
-          var color = vizwhiz.utils.darker_color(d.color)
+          var color = vizwhiz.utils.darker_color(d[vars.color_var])
         }
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
@@ -303,7 +303,7 @@ vizwhiz.rings = function(vars) {
           var color = vizwhiz.utils.text_color(d3.select("circle#node_"+d[vars.id_var]).attr("fill"));
         } 
         else {
-          var color = vizwhiz.utils.darker_color(d.color);
+          var color = vizwhiz.utils.darker_color(d[vars.color_var]);
         }
 
         if (d.depth == 0) return color;
@@ -323,7 +323,7 @@ vizwhiz.rings = function(vars) {
     root[vars.text_var] = find_variable(vars.highlight,vars.text_var)
     root[vars.id_var] = vars.highlight
     root.children = []
-    root.color = find_variable(vars.highlight,"color")
+    root[vars.color_var] = find_variable(vars.highlight,vars.color_var)
     root[vars.active_var] = find_variable(vars.highlight,vars.active_var)
   
     nodes.push(root);
@@ -340,7 +340,7 @@ vizwhiz.rings = function(vars) {
         child[vars.text_var] = find_variable(child[vars.id_var],vars.text_var)
         child.children = []
         child.children_total = []
-        child.color = find_variable(child[vars.id_var],"color")
+        child[vars.color_var] = find_variable(child[vars.id_var],vars.color_var)
         child[vars.active_var] = find_variable(child[vars.id_var],vars.active_var)
   
         // push first level child into nodes
@@ -373,7 +373,7 @@ vizwhiz.rings = function(vars) {
               grandchild.ring_y = ring_width*2;
               grandchild.depth = 2;
               grandchild[vars.text_var] = find_variable(grandchild[vars.id_var],vars.text_var)
-              grandchild.color = find_variable(grandchild[vars.id_var],"color")
+              grandchild[vars.color_var] = find_variable(grandchild[vars.id_var],vars.color_var)
               grandchild[vars.active_var] = find_variable(grandchild[vars.id_var],vars.active_var)
               grandchild.parents = []
 
@@ -425,10 +425,10 @@ vizwhiz.rings = function(vars) {
 
     // sort first level vars.connections by color
     nodes[0].children.sort(function(a, b){
-      var a_color = d3.rgb(a.color).hsl().h
-      var b_color = d3.rgb(b.color).hsl().h
-      if (d3.rgb(a.color).hsl().s == 0) a_color = 361
-      if (d3.rgb(b.color).hsl().s == 0) b_color = 361
+      var a_color = d3.rgb(a[vars.color_var]).hsl().h
+      var b_color = d3.rgb(b[vars.color_var]).hsl().h
+      if (d3.rgb(a[vars.color_var]).hsl().s == 0) a_color = 361
+      if (d3.rgb(b[vars.color_var]).hsl().s == 0) b_color = 361
       if (a_color < b_color) return -1;
       if (a_color > b_color) return 1;
       return 0;
@@ -445,10 +445,10 @@ vizwhiz.rings = function(vars) {
       
       // sort children by color
       d.children.sort(function(a, b){
-        var a_color = d3.rgb(a.color).hsl().h
-        var b_color = d3.rgb(b.color).hsl().h
-        if (d3.rgb(a.color).hsl().s == 0) a_color = 361
-        if (d3.rgb(b.color).hsl().s == 0) b_color = 361
+        var a_color = d3.rgb(a[vars.color_var]).hsl().h
+        var b_color = d3.rgb(b[vars.color_var]).hsl().h
+        if (d3.rgb(a[vars.color_var]).hsl().s == 0) a_color = 361
+        if (d3.rgb(b[vars.color_var]).hsl().s == 0) b_color = 361
         if (a_color < b_color) return -1;
         if (a_color > b_color) return 1;
         return 0;

@@ -743,6 +743,7 @@ vizwhiz.viz = function() {
     "attrs": null,
     "boundries": null,
     "click_function": function() { return null },
+    "color_var": "color",
     "connections": null,
     "coords": null,
     "csv_columns": null,
@@ -1086,7 +1087,7 @@ vizwhiz.viz = function() {
       else {
         if (vizwhiz.dev) console.log("[viz-whiz] Creating Titles")
         vars.small = false;
-        vars.graph.margin = {"top": 0, "right": 5, "bottom": 55, "left": 45}
+        vars.graph.margin = {"top": 5, "right": 10, "bottom": 55, "left": 45}
         vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
@@ -1457,6 +1458,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.color_var = function(x) {
+    if (!arguments.length) return vars.color_var;
+    vars.color_var = x;
+    return chart;
+  };
+  
   chart.coords = function(x) {
     if (!arguments.length) return vars.coords;
     vars.coords = topojson.object(x, x.objects[Object.keys(x.objects)[0]]).geometries;
@@ -1744,7 +1751,7 @@ vizwhiz.viz = function() {
     return chart;
   };
   
-  chart.xscale = function(x) {
+  chart.xaxis_scale = function(x) {
     if (!arguments.length) return vars.xscale_type;
     vars.xscale_type = x;
     return chart;
@@ -1762,7 +1769,7 @@ vizwhiz.viz = function() {
     return chart;
   };
   
-  chart.yscale = function(x) {
+  chart.yaxis_scale = function(x) {
     if (!arguments.length) return vars.yscale_type;
     vars.yscale_type = x;
     return chart;
@@ -1812,9 +1819,16 @@ vizwhiz.viz = function() {
     .orient('bottom')
     .tickFormat(function(d, i) {
       
+      if (vars.xaxis_var == vars.year_var) var text = d;
+      else var text = vars.number_format(d);
+      
       d3.select(this)
-        .attr("text-anchor","middle")
         .style(axis_style)
+        .attr("transform","translate(-22,8)rotate(-65)")
+        .text(text)
+        
+      var height = (Math.cos(25)*this.getBBox().width)-10
+      if (height > vars.graph.yoffset) vars.graph.yoffset = height
       
       var bgtick = d3.select(this.parentNode).selectAll("line.tick")
         .data([i])
@@ -1830,7 +1844,7 @@ vizwhiz.viz = function() {
       bgtick.transition().duration(vizwhiz.timing) 
         .attr("y2", -vars.graph.height)
         
-      return vars.number_format(d);
+      return text;
     });
   
   vars.y_axis = d3.svg.axis()
@@ -1840,7 +1854,6 @@ vizwhiz.viz = function() {
     .tickFormat(function(d, i) {
       
       d3.select(this)
-        .attr("text-anchor","middle")
         .style(axis_style)
         .text(vars.number_format(d))
         
@@ -1929,6 +1942,12 @@ vizwhiz.viz = function() {
     vars.graph.margin.left += vars.graph.offset
     vars.graph.width -= vars.graph.offset
     
+    vars.graph.yoffset = 0
+    d3.select("g.xaxis").transition().duration(vizwhiz.timing)
+      .call(vars.x_axis.scale(vars.x_scale))
+      
+    vars.graph.height -= vars.graph.yoffset
+    
     // Update Graph
     d3.select(".chart").transition().duration(vizwhiz.timing)
       .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
@@ -1944,10 +1963,18 @@ vizwhiz.viz = function() {
 
     // Update X axis
     vars.x_scale.range([0, vars.graph.width]);
+    vars.y_scale.range([0, vars.graph.height]);
+
+    
+    d3.select("g.yaxis").transition().duration(vizwhiz.timing)
+      .call(vars.y_axis.scale(vars.y_scale))
     
     d3.select("g.xaxis").transition().duration(vizwhiz.timing)
       .attr("transform", "translate(0," + vars.graph.height + ")")
       .call(vars.x_axis.scale(vars.x_scale))
+    
+    d3.select("g.xaxis").selectAll("g.tick").select("text")
+      .style("text-anchor","end")
 
     // Update X axis label
     d3.select(".x_axis_label").transition().duration(vizwhiz.timing)
@@ -2294,7 +2321,7 @@ vizwhiz.network = function(vars) {
   function fill_color(d) {
     
     // Get elements' color
-    var color = find_variable(d[vars.id_var],"color")
+    var color = find_variable(d[vars.id_var],vars.color_var)
     
     // If node is not active, lighten the color
     var active = find_variable(d[vars.id_var],vars.active_var)
@@ -2311,7 +2338,7 @@ vizwhiz.network = function(vars) {
   function stroke_color(d) {
     
     // Get elements' color
-    var color = find_variable(d[vars.id_var],"color")
+    var color = find_variable(d[vars.id_var],vars.color_var)
     
     // If node is active, return a darker color, else, return the normal color
     var active = find_variable(d[vars.id_var],vars.active_var)
@@ -2479,7 +2506,7 @@ vizwhiz.network = function(vars) {
           vizwhiz.tooltip.create({
             "data": tooltip_data,
             "title": find_variable(vars.highlight,vars.text_var),
-            "color": find_variable(vars.highlight,"color"),
+            "color": find_variable(vars.highlight,vars.color_var),
             "x": x_pos,
             "y": vars.margin.top+5,
             "width": info_width,
@@ -2718,13 +2745,6 @@ vizwhiz.stacked = function(vars) {
   // INIT vars & data munging
   //-------------------------------------------------------------------
   
-  // get unique values for xaxis
-  xaxis_vals = vars.data
-    .reduce(function(a, b){ return a.concat(b[vars.xaxis_var]) }, [])
-    .filter(function(value, index, self) { 
-      return self.indexOf(value) === index;
-    })
-    
   // get max total for sums of each xaxis
   var xaxis_sums = d3.nest()
     .key(function(d){return d[vars.xaxis_var] })
@@ -2736,14 +2756,14 @@ vizwhiz.stacked = function(vars) {
   var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
   
   // nest data properly according to nesting array
-  nested_data = nest_data(xaxis_vals, vars.data, xaxis_sums);
+  nested_data = nest_data(xaxis_sums);
   
   // scales for both X and Y values
-  vars.x_scale = d3.scale.linear()
-    .domain([xaxis_vals[0], xaxis_vals[xaxis_vals.length-1]])
+  vars.x_scale = d3.scale[vars.xscale_type]()
+    .domain(d3.extent(vars.years))
     .range([0, vars.graph.width]);
   // **WARNING reverse scale from 0 - max converts from height to 0 (inverse)
-  vars.y_scale = d3.scale.linear()
+  vars.y_scale = d3.scale[vars.yscale_type]()
     .domain([0, data_max])
     .range([vars.graph.height, 0]);
     
@@ -2764,12 +2784,23 @@ vizwhiz.stacked = function(vars) {
   // LAYERS
   //-------------------------------------------------------------------
   
+  vars.chart_enter.append("clipPath")
+    .attr("id","path_clipping")
+    .append("rect")
+      .attr("width",vars.graph.width)
+      .attr("height",vars.graph.height)
+  
+  d3.select("#path_clipping rect").transition().duration(vizwhiz.timing)
+    .attr("width",vars.graph.width)
+    .attr("height",vars.graph.height)
+  
   // Get layers from d3.stack function (gives x, y, y0 values)
   var offset = vars.layout == "value" ? "zero" : "expand";
   var layers = stack.offset(offset)(nested_data)
   
   // container for layers
   vars.chart_enter.append("g").attr("class", "layers")
+    .attr("clip-path","url(#path_clipping)")
   
   // give data with key function to variables to draw
   var paths = d3.select("g.layers").selectAll(".layer")
@@ -2783,7 +2814,7 @@ vizwhiz.stacked = function(vars) {
     .attr("stroke",vars.highlight_color)
     .attr("stroke-width",0)
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],"color")
+      return find_variable(d[vars.id_var],vars.color_var)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -2804,7 +2835,7 @@ vizwhiz.stacked = function(vars) {
   paths.transition().duration(vizwhiz.timing)
     .attr("opacity", 1)
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],"color")
+      return find_variable(d[vars.id_var],vars.color_var)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -2816,7 +2847,7 @@ vizwhiz.stacked = function(vars) {
     var rev_x_scale = d3.scale.linear()
       .domain(vars.x_scale.range()).range(vars.x_scale.domain());
     var this_x = Math.round(rev_x_scale(mouse_x));
-    var this_x_index = xaxis_vals.indexOf(this_x)
+    var this_x_index = vars.years.indexOf(this_x)
     var this_value = d.values[this_x_index]
     // add dashed line at closest X position to mouse location
     d3.select("g.chart").append("line")
@@ -2828,7 +2859,7 @@ vizwhiz.stacked = function(vars) {
       .attr("stroke-width", 1)
       .attr("stroke-opacity", 0.5)
       .attr("stroke-dasharray", "5,3")
-      .on(vizwhiz.evt.over, path_tooltip)
+      .attr("pointer-events","none")
     
     // tooltip
     var tooltip_data = get_tooltip_data(d[vars.id_var])
@@ -2838,7 +2869,7 @@ vizwhiz.stacked = function(vars) {
       "data": tooltip_data,
       "title": find_variable(d[vars.id_var],vars.text_var),
       "id": d[vars.id_var],
-      "color": find_variable(d[vars.id_var],"color"),
+      "color": find_variable(d[vars.id_var],vars.color_var),
       "x": vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
       "y": vars.y_scale(this_value.y0 + this_value.y)+(vars.graph.height-vars.y_scale(this_value.y))/2+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
       "offset": ((vars.graph.height-vars.y_scale(this_value.y))/2)+2,
@@ -2966,6 +2997,7 @@ vizwhiz.stacked = function(vars) {
       .attr("font-family","Helvetica")
       .attr("dy", 6)
       .attr("opacity",0)
+      .attr("pointer-events","none")
       .attr("text-anchor", function(d){
         // if first, left-align text
         if(d.tallest.key == vars.x_scale.domain()[0]) return "start";
@@ -2975,7 +3007,7 @@ vizwhiz.stacked = function(vars) {
         return "middle"
       })
       .attr("fill", function(d){
-        return vizwhiz.utils.text_color(find_variable(d[vars.id_var],"color"))
+        return vizwhiz.utils.text_color(find_variable(d[vars.id_var],vars.color_var))
       })
       .attr("x", function(d){
         var pad = 0;
@@ -2992,10 +3024,9 @@ vizwhiz.stacked = function(vars) {
       .text(function(d) {
         return find_variable(d[vars.id_var],vars.text_var)
       })
-      .on(vizwhiz.evt.over, path_tooltip)
       .each(function(d){
         // set usable width to 2x the width of each x-axis tick
-        var tick_width = (vars.graph.width / xaxis_vals.length) * 2;
+        var tick_width = (vars.graph.width / vars.years.length) * 2;
         // if the text box's width is larger than the tick width wrap text
         if(this.getBBox().width > tick_width){
           // first remove the current text
@@ -3033,7 +3064,7 @@ vizwhiz.stacked = function(vars) {
   // Nest data function (needed for getting flat data ready for stacks)
   //-------------------------------------------------------------------
   
-  function nest_data(xaxis_vals, data, xaxis_sums){
+  function nest_data(xaxis_sums){
     var info_lookup = {};
     
     var nested = d3.nest()
@@ -3056,7 +3087,7 @@ vizwhiz.stacked = function(vars) {
           .reduce(function(a, b){ return a.concat(b.key)}, [])
           .filter(function(y, i, arr) { return arr.indexOf(y) == i })
         
-        xaxis_vals.forEach(function(y){
+        vars.years.forEach(function(y){
           if(xaxis_vars_available.indexOf(""+y) < 0){
             values.push({"key": ""+y, "values": 0})
           }
@@ -3123,7 +3154,7 @@ vizwhiz.tree_map = function(vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],"color");
+      return find_variable(d[vars.id_var],vars.color_var);
     })
     
   // text (name)
@@ -3137,7 +3168,7 @@ vizwhiz.tree_map = function(vars) {
     .attr('y','0em')
     .attr('dy','1em')
     .attr("fill", function(d){ 
-      var color = find_variable(d[vars.id_var],"color")
+      var color = find_variable(d[vars.id_var],vars.color_var)
       return vizwhiz.utils.text_color(color); 
     })
     .style("pointer-events","none")
@@ -3149,7 +3180,7 @@ vizwhiz.tree_map = function(vars) {
     .style("font-weight","bold")
     .attr("font-family","Helvetica")
     .attr("fill", function(d){
-      var color = find_variable(d[vars.id_var],"color")
+      var color = find_variable(d[vars.id_var],vars.color_var)
       return vizwhiz.utils.text_color(color); 
     })
     .attr("fill-opacity",0.5)
@@ -3202,7 +3233,7 @@ vizwhiz.tree_map = function(vars) {
       
       vizwhiz.tooltip.create({
         "title": find_variable(d[vars.id_var],vars.text_var),
-        "color": find_variable(d[vars.id_var],"color"),
+        "color": find_variable(d[vars.id_var],vars.color_var),
         "icon": find_variable(d[vars.id_var],"icon"),
         "id": find_variable(d[vars.id_var],vars.id_var),
         "x": d3.event.pageX,
@@ -3240,7 +3271,7 @@ vizwhiz.tree_map = function(vars) {
         
         vizwhiz.tooltip.create({
           "title": find_variable(d[vars.id_var],vars.text_var),
-          "color": find_variable(d[vars.id_var],"color"),
+          "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
           "id": find_variable(d[vars.id_var],vars.id_var),
           "fullscreen": true,
@@ -3898,15 +3929,17 @@ vizwhiz.pie_scatter = function(vars) {
   // Define size scaling
   //-------------------------------------------------------------------
     
-  var data_range = d3.extent(vars.data, function(d){ 
+  var size_domain = d3.extent(vars.data, function(d){ 
     return d[vars.value_var] == 0 ? null : d[vars.value_var] 
   })
   
-  if (!data_range[1]) data_range = [0,0]
+  if (!size_domain[1]) size_domain = [0,0]
+  
+  var size_range = [2, d3.max([d3.min([vars.width,vars.height])/35,10])]
   
   vars.size_scale = d3.scale[vars.size_scale_type]()
-    .domain(data_range)
-    .range([2, d3.max([d3.min([vars.width,vars.height])/35,10])])
+    .domain(size_domain)
+    .range(size_range)
     
   //===================================================================
   
@@ -3925,19 +3958,25 @@ vizwhiz.pie_scatter = function(vars) {
     .range([0, vars.graph.height])
     .nice()
 
-  set_buffer("x")
-  set_buffer("y")
+  if (vars.xscale_type != "log") set_buffer("x")
+  if (vars.yscale_type != "log") set_buffer("y")
   
   // set buffer room (take into account largest size var)
   function set_buffer(axis) {
-
+    
     var scale = vars[axis+"_scale"]
-    var inverse_scale = d3.scale.linear().domain(scale.range()).range(scale.domain())
+    var inverse_scale = d3.scale[vars[axis+"scale_type"]]()
+      .domain(scale.range())
+      .range(scale.domain())
+      
     var largest_size = vars.size_scale.range()[1]
+
     // convert largest size to x scale domain
     largest_size = inverse_scale(largest_size)
+    
     // get radius of largest in pixels by subtracting this value from the x scale minimum
     var buffer = largest_size - scale.domain()[0];
+
     // update x scale with new buffer offsets
     vars[axis+"_scale"]
       .domain([scale.domain()[0]-buffer,scale.domain()[1]+buffer])
@@ -3981,16 +4020,16 @@ vizwhiz.pie_scatter = function(vars) {
             return "#333";
           }
           else {
-            return find_variable(d[vars.id_var],"color");
+            return find_variable(d[vars.id_var],vars.color_var);
           }
         })
         .style('stroke-width', 1)
         .style('fill', function(dd){
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) {
-            return find_variable(d[vars.id_var],"color");
+            return find_variable(d[vars.id_var],vars.color_var);
           }
           else {
-            var c = d3.hsl(find_variable(d[vars.id_var],"color"));
+            var c = d3.hsl(find_variable(d[vars.id_var],vars.color_var));
             c.l = 0.95;
             return c.toString();
           }
@@ -4002,7 +4041,7 @@ vizwhiz.pie_scatter = function(vars) {
         
       d3.select(this)
         .append("path")
-        .style('fill', find_variable(d[vars.id_var],"color") )
+        .style('fill', find_variable(d[vars.id_var],vars.color_var) )
         .style("fill-opacity", 1)
         
       d3.select(this).select("path").transition().duration(vizwhiz.timing)
@@ -4031,12 +4070,12 @@ vizwhiz.pie_scatter = function(vars) {
       d3.select(this).select("circle").transition().duration(vizwhiz.timing)
         .style("stroke", function(dd){
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
-          else return find_variable(d[vars.id_var],"color");
+          else return find_variable(d[vars.id_var],vars.color_var);
         })
         .style('fill', function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return find_variable(d[vars.id_var],"color");
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return find_variable(d[vars.id_var],vars.color_var);
           else {
-            var c = d3.hsl(find_variable(d[vars.id_var],"color"));
+            var c = d3.hsl(find_variable(d[vars.id_var],vars.color_var));
             c.l = 0.95;
             return c.toString();
           }
@@ -4071,7 +4110,7 @@ vizwhiz.pie_scatter = function(vars) {
   var tick_group = vars.chart_enter.append("g")
     .attr("id","data_ticks")
   
-  var ticks = tick_group
+  var ticks = d3.select("g#data_ticks")
     .selectAll("g.data_tick")
     .data(vars.data, function(d){ return d[vars.id_var]; })
   
@@ -4086,11 +4125,12 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("x2", 0)
     .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
     .attr("y2", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
-    .attr("stroke", function(d){ return find_variable(d[vars.id_var],"color"); })
+    .attr("stroke", function(d){ return find_variable(d[vars.id_var],vars.color_var); })
     .attr("stroke-width", 1)
   
   // UPDATE      
-  ticks.selectAll(".ytick").transition().duration(vizwhiz.timing)
+  console.log(ticks)
+  ticks.select(".ytick").transition().duration(vizwhiz.timing)
     .attr("x1", -10)
     .attr("x2", 0)
     .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
@@ -4104,11 +4144,11 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("y2", vars.graph.height + 10)      
     .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
     .attr("x2", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
-    .attr("stroke", function(d){ return find_variable(d[vars.id_var],"color"); })
+    .attr("stroke", function(d){ return find_variable(d[vars.id_var],vars.color_var); })
     .attr("stroke-width", 1)
   
   // UPDATE
-  ticks.selectAll(".xtick").transition().duration(vizwhiz.timing)
+  ticks.select(".xtick").transition().duration(vizwhiz.timing)
     .attr("y1", vars.graph.height)
     .attr("y2", vars.graph.height + 10)      
     .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
@@ -4138,7 +4178,7 @@ vizwhiz.pie_scatter = function(vars) {
         var radius = vars.size_scale(val),
             x = vars.x_scale(d[vars.xaxis_var]),
             y = vars.y_scale(d[vars.yaxis_var]),
-            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],"color"),
+            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],vars.color_var),
             viz = d3.select("g.chart");
             
         // vertical line to x-axis
@@ -4213,7 +4253,7 @@ vizwhiz.pie_scatter = function(vars) {
       
         vizwhiz.tooltip.create({
           "id": d[vars.id_var],
-          "color": find_variable(d[vars.id_var],"color"),
+          "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
           "data": tooltip_data,
           "title": find_variable(d[vars.id_var],vars.text_var),
@@ -4335,7 +4375,7 @@ vizwhiz.bubbles = function(vars) {
     if (d.depth == 1) {
       
       if (vars.grouping != "active") {
-        var color = find_variable(d.children[0][vars.id_var],"color");
+        var color = find_variable(d.children[0][vars.id_var],vars.color_var);
       }
       else {
         var color = "#cccccc";
@@ -4347,7 +4387,7 @@ vizwhiz.bubbles = function(vars) {
       color = color.rgb()
       
       groups[d.key] = {};
-      groups[d.key].color = color;
+      groups[d.key][vars.color_var] = color;
       groups[d.key].children = d.children.length;
       groups[d.key].key = d.key;
       groups[d.key][vars.text_var] = d[vars.text_var];
@@ -4422,7 +4462,7 @@ vizwhiz.bubbles = function(vars) {
         .attr("font-weight","bold")
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
-        .attr("fill",d.color)
+        .attr("fill",d[vars.color_var])
         .attr('x',0)
         .attr('y',function(dd) {
           return -(d.height/2)-title_height/4;
@@ -4448,8 +4488,8 @@ vizwhiz.bubbles = function(vars) {
           .data([d]);
         
         bg.enter().append("circle")
-          .attr("fill", d.color)
-          .attr("stroke", d.color)
+          .attr("fill", d[vars.color_var])
+          .attr("stroke", d[vars.color_var])
           .attr("stroke-width",1)
           .style('fill-opacity', 0.1 )
           .attr("opacity",0)
@@ -4504,7 +4544,7 @@ vizwhiz.bubbles = function(vars) {
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
-      var color = find_variable(d[vars.id_var],"color")
+      var color = find_variable(d[vars.id_var],vars.color_var)
       
       var bg_color = d3.hsl(color)
       bg_color.l = 0.95
@@ -4623,7 +4663,7 @@ vizwhiz.bubbles = function(vars) {
       
       vizwhiz.tooltip.create({
         "id": d[vars.id_var],
-        "color": find_variable(d[vars.id_var],"color"),
+        "color": find_variable(d[vars.id_var],vars.color_var),
         "icon": find_variable(d[vars.id_var],"icon"),
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
@@ -4997,7 +5037,7 @@ vizwhiz.rings = function(vars) {
     vizwhiz.tooltip.remove()
     vizwhiz.tooltip.create({
       "title": find_variable(vars.highlight,vars.text_var),
-      "color": find_variable(vars.highlight,"color"),
+      "color": find_variable(vars.highlight,vars.color_var),
       "icon": find_variable(vars.highlight,"icon"),
       "id": vars.highlight,
       "html": html,
@@ -5036,10 +5076,10 @@ vizwhiz.rings = function(vars) {
     c
       .attr("fill", function(d){
         if(find_variable(d[vars.id_var],vars.active_var)){
-          var color = d.color;
+          var color = d[vars.color_var];
         } 
         else {
-          var lighter_col = d3.hsl(d.color);
+          var lighter_col = d3.hsl(d[vars.color_var]);
           lighter_col.l = 0.95;
           var color = lighter_col.toString()
         }
@@ -5054,7 +5094,7 @@ vizwhiz.rings = function(vars) {
         if(find_variable(d[vars.id_var],vars.active_var)){
           var color = "#333";
         } else {
-          var color = vizwhiz.utils.darker_color(d.color)
+          var color = vizwhiz.utils.darker_color(d[vars.color_var])
         }
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
@@ -5072,7 +5112,7 @@ vizwhiz.rings = function(vars) {
           var color = vizwhiz.utils.text_color(d3.select("circle#node_"+d[vars.id_var]).attr("fill"));
         } 
         else {
-          var color = vizwhiz.utils.darker_color(d.color);
+          var color = vizwhiz.utils.darker_color(d[vars.color_var]);
         }
 
         if (d.depth == 0) return color;
@@ -5092,7 +5132,7 @@ vizwhiz.rings = function(vars) {
     root[vars.text_var] = find_variable(vars.highlight,vars.text_var)
     root[vars.id_var] = vars.highlight
     root.children = []
-    root.color = find_variable(vars.highlight,"color")
+    root[vars.color_var] = find_variable(vars.highlight,vars.color_var)
     root[vars.active_var] = find_variable(vars.highlight,vars.active_var)
   
     nodes.push(root);
@@ -5109,7 +5149,7 @@ vizwhiz.rings = function(vars) {
         child[vars.text_var] = find_variable(child[vars.id_var],vars.text_var)
         child.children = []
         child.children_total = []
-        child.color = find_variable(child[vars.id_var],"color")
+        child[vars.color_var] = find_variable(child[vars.id_var],vars.color_var)
         child[vars.active_var] = find_variable(child[vars.id_var],vars.active_var)
   
         // push first level child into nodes
@@ -5142,7 +5182,7 @@ vizwhiz.rings = function(vars) {
               grandchild.ring_y = ring_width*2;
               grandchild.depth = 2;
               grandchild[vars.text_var] = find_variable(grandchild[vars.id_var],vars.text_var)
-              grandchild.color = find_variable(grandchild[vars.id_var],"color")
+              grandchild[vars.color_var] = find_variable(grandchild[vars.id_var],vars.color_var)
               grandchild[vars.active_var] = find_variable(grandchild[vars.id_var],vars.active_var)
               grandchild.parents = []
 
@@ -5194,10 +5234,10 @@ vizwhiz.rings = function(vars) {
 
     // sort first level vars.connections by color
     nodes[0].children.sort(function(a, b){
-      var a_color = d3.rgb(a.color).hsl().h
-      var b_color = d3.rgb(b.color).hsl().h
-      if (d3.rgb(a.color).hsl().s == 0) a_color = 361
-      if (d3.rgb(b.color).hsl().s == 0) b_color = 361
+      var a_color = d3.rgb(a[vars.color_var]).hsl().h
+      var b_color = d3.rgb(b[vars.color_var]).hsl().h
+      if (d3.rgb(a[vars.color_var]).hsl().s == 0) a_color = 361
+      if (d3.rgb(b[vars.color_var]).hsl().s == 0) b_color = 361
       if (a_color < b_color) return -1;
       if (a_color > b_color) return 1;
       return 0;
@@ -5214,10 +5254,10 @@ vizwhiz.rings = function(vars) {
       
       // sort children by color
       d.children.sort(function(a, b){
-        var a_color = d3.rgb(a.color).hsl().h
-        var b_color = d3.rgb(b.color).hsl().h
-        if (d3.rgb(a.color).hsl().s == 0) a_color = 361
-        if (d3.rgb(b.color).hsl().s == 0) b_color = 361
+        var a_color = d3.rgb(a[vars.color_var]).hsl().h
+        var b_color = d3.rgb(b[vars.color_var]).hsl().h
+        if (d3.rgb(a[vars.color_var]).hsl().s == 0) a_color = 361
+        if (d3.rgb(b[vars.color_var]).hsl().s == 0) b_color = 361
         if (a_color < b_color) return -1;
         if (a_color > b_color) return 1;
         return 0;

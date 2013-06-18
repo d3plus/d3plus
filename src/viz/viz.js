@@ -12,6 +12,7 @@ vizwhiz.viz = function() {
     "attrs": null,
     "boundries": null,
     "click_function": function() { return null },
+    "color_var": "color",
     "connections": null,
     "coords": null,
     "csv_columns": null,
@@ -355,7 +356,7 @@ vizwhiz.viz = function() {
       else {
         if (vizwhiz.dev) console.log("[viz-whiz] Creating Titles")
         vars.small = false;
-        vars.graph.margin = {"top": 0, "right": 5, "bottom": 55, "left": 45}
+        vars.graph.margin = {"top": 5, "right": 10, "bottom": 55, "left": 45}
         vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
@@ -726,6 +727,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.color_var = function(x) {
+    if (!arguments.length) return vars.color_var;
+    vars.color_var = x;
+    return chart;
+  };
+  
   chart.coords = function(x) {
     if (!arguments.length) return vars.coords;
     vars.coords = topojson.object(x, x.objects[Object.keys(x.objects)[0]]).geometries;
@@ -1013,7 +1020,7 @@ vizwhiz.viz = function() {
     return chart;
   };
   
-  chart.xscale = function(x) {
+  chart.xaxis_scale = function(x) {
     if (!arguments.length) return vars.xscale_type;
     vars.xscale_type = x;
     return chart;
@@ -1031,7 +1038,7 @@ vizwhiz.viz = function() {
     return chart;
   };
   
-  chart.yscale = function(x) {
+  chart.yaxis_scale = function(x) {
     if (!arguments.length) return vars.yscale_type;
     vars.yscale_type = x;
     return chart;
@@ -1081,9 +1088,16 @@ vizwhiz.viz = function() {
     .orient('bottom')
     .tickFormat(function(d, i) {
       
+      if (vars.xaxis_var == vars.year_var) var text = d;
+      else var text = vars.number_format(d);
+      
       d3.select(this)
-        .attr("text-anchor","middle")
         .style(axis_style)
+        .attr("transform","translate(-22,8)rotate(-65)")
+        .text(text)
+        
+      var height = (Math.cos(25)*this.getBBox().width)-10
+      if (height > vars.graph.yoffset) vars.graph.yoffset = height
       
       var bgtick = d3.select(this.parentNode).selectAll("line.tick")
         .data([i])
@@ -1099,7 +1113,7 @@ vizwhiz.viz = function() {
       bgtick.transition().duration(vizwhiz.timing) 
         .attr("y2", -vars.graph.height)
         
-      return vars.number_format(d);
+      return text;
     });
   
   vars.y_axis = d3.svg.axis()
@@ -1109,7 +1123,6 @@ vizwhiz.viz = function() {
     .tickFormat(function(d, i) {
       
       d3.select(this)
-        .attr("text-anchor","middle")
         .style(axis_style)
         .text(vars.number_format(d))
         
@@ -1198,6 +1211,12 @@ vizwhiz.viz = function() {
     vars.graph.margin.left += vars.graph.offset
     vars.graph.width -= vars.graph.offset
     
+    vars.graph.yoffset = 0
+    d3.select("g.xaxis").transition().duration(vizwhiz.timing)
+      .call(vars.x_axis.scale(vars.x_scale))
+      
+    vars.graph.height -= vars.graph.yoffset
+    
     // Update Graph
     d3.select(".chart").transition().duration(vizwhiz.timing)
       .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
@@ -1213,10 +1232,18 @@ vizwhiz.viz = function() {
 
     // Update X axis
     vars.x_scale.range([0, vars.graph.width]);
+    vars.y_scale.range([0, vars.graph.height]);
+
+    
+    d3.select("g.yaxis").transition().duration(vizwhiz.timing)
+      .call(vars.y_axis.scale(vars.y_scale))
     
     d3.select("g.xaxis").transition().duration(vizwhiz.timing)
       .attr("transform", "translate(0," + vars.graph.height + ")")
       .call(vars.x_axis.scale(vars.x_scale))
+    
+    d3.select("g.xaxis").selectAll("g.tick").select("text")
+      .style("text-anchor","end")
 
     // Update X axis label
     d3.select(".x_axis_label").transition().duration(vizwhiz.timing)

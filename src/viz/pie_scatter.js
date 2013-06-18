@@ -5,15 +5,17 @@ vizwhiz.pie_scatter = function(vars) {
   // Define size scaling
   //-------------------------------------------------------------------
     
-  var data_range = d3.extent(vars.data, function(d){ 
+  var size_domain = d3.extent(vars.data, function(d){ 
     return d[vars.value_var] == 0 ? null : d[vars.value_var] 
   })
   
-  if (!data_range[1]) data_range = [0,0]
+  if (!size_domain[1]) size_domain = [0,0]
+  
+  var size_range = [2, d3.max([d3.min([vars.width,vars.height])/35,10])]
   
   vars.size_scale = d3.scale[vars.size_scale_type]()
-    .domain(data_range)
-    .range([2, d3.max([d3.min([vars.width,vars.height])/35,10])])
+    .domain(size_domain)
+    .range(size_range)
     
   //===================================================================
   
@@ -32,19 +34,25 @@ vizwhiz.pie_scatter = function(vars) {
     .range([0, vars.graph.height])
     .nice()
 
-  set_buffer("x")
-  set_buffer("y")
+  if (vars.xscale_type != "log") set_buffer("x")
+  if (vars.yscale_type != "log") set_buffer("y")
   
   // set buffer room (take into account largest size var)
   function set_buffer(axis) {
-
+    
     var scale = vars[axis+"_scale"]
-    var inverse_scale = d3.scale.linear().domain(scale.range()).range(scale.domain())
+    var inverse_scale = d3.scale[vars[axis+"scale_type"]]()
+      .domain(scale.range())
+      .range(scale.domain())
+      
     var largest_size = vars.size_scale.range()[1]
+
     // convert largest size to x scale domain
     largest_size = inverse_scale(largest_size)
+    
     // get radius of largest in pixels by subtracting this value from the x scale minimum
     var buffer = largest_size - scale.domain()[0];
+
     // update x scale with new buffer offsets
     vars[axis+"_scale"]
       .domain([scale.domain()[0]-buffer,scale.domain()[1]+buffer])
@@ -88,16 +96,16 @@ vizwhiz.pie_scatter = function(vars) {
             return "#333";
           }
           else {
-            return find_variable(d[vars.id_var],"color");
+            return find_variable(d[vars.id_var],vars.color_var);
           }
         })
         .style('stroke-width', 1)
         .style('fill', function(dd){
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) {
-            return find_variable(d[vars.id_var],"color");
+            return find_variable(d[vars.id_var],vars.color_var);
           }
           else {
-            var c = d3.hsl(find_variable(d[vars.id_var],"color"));
+            var c = d3.hsl(find_variable(d[vars.id_var],vars.color_var));
             c.l = 0.95;
             return c.toString();
           }
@@ -109,7 +117,7 @@ vizwhiz.pie_scatter = function(vars) {
         
       d3.select(this)
         .append("path")
-        .style('fill', find_variable(d[vars.id_var],"color") )
+        .style('fill', find_variable(d[vars.id_var],vars.color_var) )
         .style("fill-opacity", 1)
         
       d3.select(this).select("path").transition().duration(vizwhiz.timing)
@@ -138,12 +146,12 @@ vizwhiz.pie_scatter = function(vars) {
       d3.select(this).select("circle").transition().duration(vizwhiz.timing)
         .style("stroke", function(dd){
           if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
-          else return find_variable(d[vars.id_var],"color");
+          else return find_variable(d[vars.id_var],vars.color_var);
         })
         .style('fill', function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return find_variable(d[vars.id_var],"color");
+          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return find_variable(d[vars.id_var],vars.color_var);
           else {
-            var c = d3.hsl(find_variable(d[vars.id_var],"color"));
+            var c = d3.hsl(find_variable(d[vars.id_var],vars.color_var));
             c.l = 0.95;
             return c.toString();
           }
@@ -178,7 +186,7 @@ vizwhiz.pie_scatter = function(vars) {
   var tick_group = vars.chart_enter.append("g")
     .attr("id","data_ticks")
   
-  var ticks = tick_group
+  var ticks = d3.select("g#data_ticks")
     .selectAll("g.data_tick")
     .data(vars.data, function(d){ return d[vars.id_var]; })
   
@@ -193,11 +201,12 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("x2", 0)
     .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
     .attr("y2", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
-    .attr("stroke", function(d){ return find_variable(d[vars.id_var],"color"); })
+    .attr("stroke", function(d){ return find_variable(d[vars.id_var],vars.color_var); })
     .attr("stroke-width", 1)
   
   // UPDATE      
-  ticks.selectAll(".ytick").transition().duration(vizwhiz.timing)
+  console.log(ticks)
+  ticks.select(".ytick").transition().duration(vizwhiz.timing)
     .attr("x1", -10)
     .attr("x2", 0)
     .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
@@ -211,11 +220,11 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("y2", vars.graph.height + 10)      
     .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
     .attr("x2", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
-    .attr("stroke", function(d){ return find_variable(d[vars.id_var],"color"); })
+    .attr("stroke", function(d){ return find_variable(d[vars.id_var],vars.color_var); })
     .attr("stroke-width", 1)
   
   // UPDATE
-  ticks.selectAll(".xtick").transition().duration(vizwhiz.timing)
+  ticks.select(".xtick").transition().duration(vizwhiz.timing)
     .attr("y1", vars.graph.height)
     .attr("y2", vars.graph.height + 10)      
     .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
@@ -245,7 +254,7 @@ vizwhiz.pie_scatter = function(vars) {
         var radius = vars.size_scale(val),
             x = vars.x_scale(d[vars.xaxis_var]),
             y = vars.y_scale(d[vars.yaxis_var]),
-            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],"color"),
+            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],vars.color_var),
             viz = d3.select("g.chart");
             
         // vertical line to x-axis
@@ -320,7 +329,7 @@ vizwhiz.pie_scatter = function(vars) {
       
         vizwhiz.tooltip.create({
           "id": d[vars.id_var],
-          "color": find_variable(d[vars.id_var],"color"),
+          "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
           "data": tooltip_data,
           "title": find_variable(d[vars.id_var],vars.text_var),

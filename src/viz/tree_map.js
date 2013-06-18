@@ -38,7 +38,7 @@ vizwhiz.tree_map = function(vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],"color");
+      return find_variable(d[vars.id_var],vars.color_var);
     })
     
   // text (name)
@@ -52,7 +52,7 @@ vizwhiz.tree_map = function(vars) {
     .attr('y','0em')
     .attr('dy','1em')
     .attr("fill", function(d){ 
-      var color = find_variable(d[vars.id_var],"color")
+      var color = find_variable(d[vars.id_var],vars.color_var)
       return vizwhiz.utils.text_color(color); 
     })
     .style("pointer-events","none")
@@ -64,7 +64,7 @@ vizwhiz.tree_map = function(vars) {
     .style("font-weight","bold")
     .attr("font-family","Helvetica")
     .attr("fill", function(d){
-      var color = find_variable(d[vars.id_var],"color")
+      var color = find_variable(d[vars.id_var],vars.color_var)
       return vizwhiz.utils.text_color(color); 
     })
     .attr("fill-opacity",0.5)
@@ -117,7 +117,7 @@ vizwhiz.tree_map = function(vars) {
       
       vizwhiz.tooltip.create({
         "title": find_variable(d[vars.id_var],vars.text_var),
-        "color": find_variable(d[vars.id_var],"color"),
+        "color": find_variable(d[vars.id_var],vars.color_var),
         "icon": find_variable(d[vars.id_var],"icon"),
         "id": find_variable(d[vars.id_var],vars.id_var),
         "x": d3.event.pageX,
@@ -155,7 +155,7 @@ vizwhiz.tree_map = function(vars) {
         
         vizwhiz.tooltip.create({
           "title": find_variable(d[vars.id_var],vars.text_var),
-          "color": find_variable(d[vars.id_var],"color"),
+          "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
           "id": find_variable(d[vars.id_var],vars.id_var),
           "fullscreen": true,

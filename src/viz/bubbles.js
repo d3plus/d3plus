@@ -103,7 +103,7 @@ vizwhiz.bubbles = function(vars) {
     if (d.depth == 1) {
       
       if (vars.grouping != "active") {
-        var color = find_variable(d.children[0][vars.id_var],"color");
+        var color = find_variable(d.children[0][vars.id_var],vars.color_var);
       }
       else {
         var color = "#cccccc";
@@ -115,7 +115,7 @@ vizwhiz.bubbles = function(vars) {
       color = color.rgb()
       
       groups[d.key] = {};
-      groups[d.key].color = color;
+      groups[d.key][vars.color_var] = color;
       groups[d.key].children = d.children.length;
       groups[d.key].key = d.key;
       groups[d.key][vars.text_var] = d[vars.text_var];
@@ -190,7 +190,7 @@ vizwhiz.bubbles = function(vars) {
         .attr("font-weight","bold")
         .attr("font-size","12px")
         .attr("font-family","Helvetica")
-        .attr("fill",d.color)
+        .attr("fill",d[vars.color_var])
         .attr('x',0)
         .attr('y',function(dd) {
           return -(d.height/2)-title_height/4;
@@ -216,8 +216,8 @@ vizwhiz.bubbles = function(vars) {
           .data([d]);
         
         bg.enter().append("circle")
-          .attr("fill", d.color)
-          .attr("stroke", d.color)
+          .attr("fill", d[vars.color_var])
+          .attr("stroke", d[vars.color_var])
           .attr("stroke-width",1)
           .style('fill-opacity', 0.1 )
           .attr("opacity",0)
@@ -272,7 +272,7 @@ vizwhiz.bubbles = function(vars) {
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
-      var color = find_variable(d[vars.id_var],"color")
+      var color = find_variable(d[vars.id_var],vars.color_var)
       
       var bg_color = d3.hsl(color)
       bg_color.l = 0.95
@@ -391,7 +391,7 @@ vizwhiz.bubbles = function(vars) {
       
       vizwhiz.tooltip.create({
         "id": d[vars.id_var],
-        "color": find_variable(d[vars.id_var],"color"),
+        "color": find_variable(d[vars.id_var],vars.color_var),
         "icon": find_variable(d[vars.id_var],"icon"),
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
