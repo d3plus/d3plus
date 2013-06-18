@@ -131,18 +131,20 @@ vizwhiz.tree_map = function(vars) {
       
     })
     .on(vizwhiz.evt.move,function(d){
-      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,d[vars.id_var])
+      var id = find_variable(d[vars.id_var],vars.id_var)
+      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
     })
     .on(vizwhiz.evt.out,function(d){
       var target = d3.event.toElement
+      var id = find_variable(d[vars.id_var],vars.id_var)
       if (target) {
         var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
         if (class_name.indexOf("vizwhiz_tooltip") < 0) {
-          vizwhiz.tooltip.remove(d[vars.id_var])
+          vizwhiz.tooltip.remove(id)
         }
       }
       else {
-        vizwhiz.tooltip.remove(d[vars.id_var])
+        vizwhiz.tooltip.remove(id)
       }
     })
     .on(vizwhiz.evt.click,function(d){

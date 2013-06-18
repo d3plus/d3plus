@@ -26,49 +26,73 @@ var viz = vizwhiz.viz()
 
 d3.json("data/products_mg.json", function(raw_data){
   d3.json("data/attr_hs.json", function(attrs){
+    d3.json("data/eric.json", function(eric){
     
-    raw_data.forEach(function(d, i){
-      d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
-      d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
-      d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+      raw_data.forEach(function(d, i){
+        d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+        d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+        d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+      })
+      
+      inner_html = function(obj) {
+        // console.log(obj)
+        return "This is some test HTML"
+      }
+    
+      // viz
+      //   .type("tree_map")
+      //   .id_var("id")
+      //   .attrs(attrs)
+      //   .text_var("name")
+      //   .value_var("val_usd")
+      //   .tooltip_info({"short": ["val_usd"],"long": ["distance", "complexity", "val_usd"]})
+      //   // .tooltip_info(["distance", "complexity", "val_usd"])
+      //   .name_array(["name","id"])
+      //   .title("Product Exports of Minas Gerais")
+      //   .sub_title("Excluding Mineral Products")
+      //   .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
+      //   .nesting(["nesting_0","nesting_1","nesting_2"])
+      //   .nesting_aggs({"distance":"mean","complexity":"mean"})
+      //   .click_function(inner_html)
+      //   .depth("nesting_0")
+      //   .filter("Mineral Products")
+      //   .year(2010)
+      //   .data_source("Data provided by SECEX")
+      // 
+      // d3.select("#viz")
+      //   .datum(raw_data)
+      //   .call(viz)
+    
+      viz
+        .type("tree_map")
+        .id_var("id")
+        .attrs(eric.attr)
+        .text_var("name")
+        .value_var("value")
+        .tooltip_info({"short": ["value"],"long": ["distance", "complexity", "value"]})
+        // .tooltip_info(["distance", "complexity", "val_usd"])
+        .name_array(["name","id"])
+        .title("Product Exports of Minas Gerais")
+        .sub_title("Excluding Mineral Products")
+        .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
+        .nesting(["nesting_0","nesting_1","nesting_2"])
+        .nesting_aggs({"distance":"mean","complexity":"mean"})
+        .click_function(inner_html)
+        .depth("nesting_0")
+        .year(2010)
+        .data_source("Data provided by SECEX")
+        console.log(eric.data)
+      d3.select("#viz")
+        .datum(eric.data)
+        .call(viz)
+    
+      // setTimeout(function(){
+      //   
+      //   d3.select("#viz").call(viz.year(2005))
+      //   
+      // },4000)
+    
     })
-      
-    inner_html = function(obj) {
-      console.log(obj)
-      return "This is some test HTML"
-    }
-    
-    viz
-      .type("tree_map")
-      .id_var("id")
-      .attrs(attrs)
-      .text_var("name")
-      .value_var("val_usd")
-      .tooltip_info({"short": ["val_usd"],"long": ["distance", "complexity", "val_usd"]})
-      // .tooltip_info(["distance", "complexity", "val_usd"])
-      .name_array(["name","id"])
-      .title("Product Exports of Minas Gerais")
-      .sub_title("Excluding Mineral Products")
-      .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
-      .nesting(["nesting_0","nesting_1","nesting_2"])
-      .nesting_aggs({"distance":"mean","complexity":"mean"})
-      .click_function(inner_html)
-      .depth("nesting_0")
-      .filter("Mineral Products")
-      .year(2010)
-      .data_source("Data provided by SECEX")
-      .text_format(function(d){return d.toUpperCase()})
-      
-    d3.select("#viz")
-      .datum(raw_data)
-      .call(viz)
-    
-    // setTimeout(function(){
-    //   
-    //   d3.select("#viz").call(viz.year(2005))
-    //   
-    // },4000)
-    
   })
 })
 

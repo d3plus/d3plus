@@ -740,6 +740,7 @@ vizwhiz.viz = function() {
     "arc_angles": {},
     "arc_inners": {},
     "arc_sizes": {},
+    "axis_change": true,
     "attrs": null,
     "boundries": null,
     "click_function": function() { return null },
@@ -883,12 +884,6 @@ vizwhiz.viz = function() {
               vars.keys[k] = typeof d[k]
             }
           }
-          if (vars.xaxis_var) {
-            if (typeof d[vars.xaxis_var] == "undefined") return false
-          }
-          if (vars.yaxis_var) {
-            if (typeof d[vars.yaxis_var] == "undefined") return false
-          }
           return true;
         })
         
@@ -903,7 +898,8 @@ vizwhiz.viz = function() {
         
       }
       
-      if (filter_change) {
+      if (filter_change || 
+          ["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change) {
         delete data_obj[data_type[vars.type]]
       }
       
@@ -1136,11 +1132,19 @@ vizwhiz.viz = function() {
 
   filter_check = function(check_data) {
     
-    if (filter_change) {
+    if (filter_change || 
+        ["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change) {
       
       if (vizwhiz.dev) console.log("[viz-whiz] Removing Solo/Filters")
       
       return check_data.filter(function(d){
+        
+        if (vars.xaxis_var) {
+          if (typeof d[vars.xaxis_var] == "undefined") return false
+        }
+        if (vars.yaxis_var) {
+          if (typeof d[vars.yaxis_var] == "undefined") return false
+        }
         
         var check = [d[vars.id_var],d[vars.text_var]]
         vars.nesting.forEach(function(key){
@@ -1748,6 +1752,7 @@ vizwhiz.viz = function() {
   chart.xaxis_var = function(x) {
     if (!arguments.length) return vars.xaxis_var;
     vars.xaxis_var = x;
+    axis_change = true;
     return chart;
   };
   
@@ -1766,6 +1771,7 @@ vizwhiz.viz = function() {
   chart.yaxis_var = function(x) {
     if (!arguments.length) return vars.yaxis_var;
     vars.yaxis_var = x;
+    axis_change = true;
     return chart;
   };
   
@@ -3252,18 +3258,20 @@ vizwhiz.tree_map = function(vars) {
       
     })
     .on(vizwhiz.evt.move,function(d){
-      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,d[vars.id_var])
+      var id = find_variable(d[vars.id_var],vars.id_var)
+      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
     })
     .on(vizwhiz.evt.out,function(d){
       var target = d3.event.toElement
+      var id = find_variable(d[vars.id_var],vars.id_var)
       if (target) {
         var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
         if (class_name.indexOf("vizwhiz_tooltip") < 0) {
-          vizwhiz.tooltip.remove(d[vars.id_var])
+          vizwhiz.tooltip.remove(id)
         }
       }
       else {
-        vizwhiz.tooltip.remove(d[vars.id_var])
+        vizwhiz.tooltip.remove(id)
       }
     })
     .on(vizwhiz.evt.click,function(d){
