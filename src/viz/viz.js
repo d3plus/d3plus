@@ -1232,7 +1232,12 @@ vizwhiz.viz = function() {
 
     // Update X axis
     vars.x_scale.range([0, vars.graph.width]);
-    vars.y_scale.range([0, vars.graph.height]);
+    if (vars.type == "stacked") {
+    vars.y_scale.range([vars.graph.height,0]);
+    }
+    else {
+      vars.y_scale.range([0, vars.graph.height]);
+    }
 
     
     d3.select("g.yaxis").transition().duration(vizwhiz.timing)
