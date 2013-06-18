@@ -975,8 +975,6 @@ vizwhiz.viz = function() {
           }
         }
         
-        filter_change = false
-        
       }
 
       vizwhiz.tooltip.remove();
@@ -994,7 +992,8 @@ vizwhiz.viz = function() {
         .attr('height',vars.svg_height)
       
       if (["network","rings"].indexOf(vars.type) >= 0) {
-        if (vars.solo.length || vars.filter.length) {
+        if (filter_change) {
+          if (vizwhiz.dev) console.log("[viz-whiz] Filtering Nodes and Edges")
           vars.nodes = nodes.filter(function(n){
             if (removed_ids.indexOf(n[vars.id_var]) >= 0) {
               return false;
@@ -1117,6 +1116,7 @@ vizwhiz.viz = function() {
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
+      filter_change = false
       if (vizwhiz.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
       vizwhiz[vars.type](vars);
       if (vizwhiz.dev) console.log("[viz-whiz] *** End Chart ***")
@@ -1136,7 +1136,7 @@ vizwhiz.viz = function() {
         ["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change) {
       
       if (vizwhiz.dev) console.log("[viz-whiz] Removing Solo/Filters")
-      
+      removed_ids = []
       return check_data.filter(function(d){
         
         if (vars.xaxis_var) {
@@ -1377,8 +1377,10 @@ vizwhiz.viz = function() {
   
   find_variable = function(id,variable) {
     
-    if (typeof id == "string") {
-      
+    if (typeof id == "object") {
+      var dat = id
+    }
+    else {
       if (vars.data instanceof Array) {
         var dat = vars.data.filter(function(d){
           return d[vars.id_var] == id
@@ -1388,10 +1390,6 @@ vizwhiz.viz = function() {
         var dat = vars.data[id]
       }
     }
-    else {
-      var dat = id
-    }
-    
     
     var attr = vars.attrs[id]
     
