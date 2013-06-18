@@ -21,9 +21,11 @@ vizwhiz.viz = function() {
     "donut": true,
     "filter": [],
     "filtered_data": null,
+    "graph": {},
     "group_bgs": true,
     "grouping": "name",
     "highlight": null,
+    "highlight_color": "#cc0000",
     "id_var": "id",
     "init": true,
     "keys": [],
@@ -40,12 +42,33 @@ vizwhiz.viz = function() {
     "nesting": [],
     "nesting_aggs": {},
     "nodes": null,
-    "number_format": function(d) { 
-      if (typeof d === "number") return d3.format(",f")(d)
-      else return d3.format(",f")(d.value) 
+    "number_format": function(obj) { 
+      if (typeof obj === "number") var value = obj
+      else var value = obj.value
+      
+      if (value < 1) {
+        return d3.round(value,2)
+      }
+      else if (value.toString().split(".")[0].length > 4) {
+        var symbol = d3.formatPrefix(value).symbol
+        symbol = symbol.replace("G", "B") // d3 uses G for giga
+        
+        // Format number to precision level using proper scale
+        value = d3.formatPrefix(value).scale(value)
+        value = parseFloat(d3.format(".3g")(value))
+        value = value + symbol;
+      }
+      else {
+        value = d3.format(",f")(value)
+      }
+      
+      return value
     },
     "order": "asc",
     "projection": d3.geo.mercator(),
+    "secondary_color": "#ffdddd",
+    "size_scale": null,
+    "size_scale_type": "log",
     "solo": [],
     "sort": "total",
     "source_text": null,
@@ -63,25 +86,172 @@ vizwhiz.viz = function() {
     "value_var": "value",
     "xaxis_domain": null,
     "xaxis_var": null,
+    "xscale": null,
+    "xscale_type": "linear",
     "yaxis_domain": null,
     "yaxis_var": null,
+    "yscale": null,
+    "yscale_type": "linear",
     "year": null,
     "years": null,
     "year_var": "year",
     "zoom_behavior": d3.behavior.zoom()
   }
   
-  var nodes, links;
+  var data_obj = {"raw": null},
+      filter_change = false,
+      nodes,
+      links,
+      removed_ids = [],
+      xaxis_domain = null,
+      yaxis_domain = null;
+      
+  var data_type = {
+    "bubbles": "array",
+    "geo_map": "object",
+    "network": "object",
+    "pie_scatter": "pie_scatter",
+    "rings": "object",
+    "stacked": "stacked",
+    "tree_map": "tree_map"
+  }
+  
+  var nested_apps = ["pie_scatter","stacked","tree_map"]
   
   //===================================================================
 
   chart = function(selection) {
-    selection.each(function(data) {
+    selection.each(function(data_passed) {
 
-      if (vizwhiz.dev) console.log("Initializing App")
+      if (vizwhiz.dev) console.log("[viz-whiz] *** Start Chart ***")
+      
+      // Things to do ONLY when the data has changed
+      if (data_passed != data_obj.raw) {
+        
+        if (vizwhiz.dev) console.log("[viz-whiz] New Data Detected")
+        // Copy data to "raw_data" variable
+        var data = {}
+        data_obj.raw = data_passed
+        vars.parent = d3.select(this)
+        
+        if (vizwhiz.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
+        // Find available years
+        vars.years = vizwhiz.utils.uniques(data_obj.raw,vars.year_var)
+        // Set initial year if it doesn't exist
+        if (!vars.year) {
+          if (vars.years.length) vars.year = vars.years[vars.years.length-1]
+          else vars.year = "all"
+        }
+        
+        if (vizwhiz.dev) console.log("[viz-whiz] Cleaning Data")
+        vars.keys = {}
+        data_obj.clean = data_obj.raw.filter(function(d){
+          for (k in d) {
+            if (!vars.keys[k]) {
+              vars.keys[k] = typeof d[k]
+            }
+          }
+          if (vars.xaxis_var) {
+            if (typeof d[vars.xaxis_var] == "undefined") return false
+          }
+          if (vars.yaxis_var) {
+            if (typeof d[vars.yaxis_var] == "undefined") return false
+          }
+          return true;
+        })
+        
+        data_obj.year = {}
+        if (vars.years.length) {
+          vars.years.forEach(function(y){
+            data_obj.year[y] = data_obj.clean.filter(function(d){
+              return d[vars.year_var] == y;
+            })
+          })
+        }
+        
+      }
+      
+      if (filter_change) {
+        delete data_obj[data_type[vars.type]]
+      }
+      
+      if (!data_obj[data_type[vars.type]]) {
+        
+        data_obj[data_type[vars.type]] = {}
+        
+        if (nested_apps.indexOf(vars.type) >= 0) {
+          
+          if (vizwhiz.dev) console.log("[viz-whiz] Nesting Data")
+          
+          vars.nesting.forEach(function(depth){
+            
+            var level = vars.nesting.slice(0,vars.nesting.indexOf(depth)+1)
+            
+            if (vars.type == "stacked") {
+              var temp_data = []
+              for (y in data_obj.year) {
+                var filtered_data = filter_check(data_obj.year[y])
+                var yd = nest(filtered_data,level)
+                temp_data = temp_data.concat(yd)
+              }
+              data_obj[data_type[vars.type]][depth] = temp_data
+            }
+            else if (vars.type == "pie_scatter") {
+
+              data_obj[data_type[vars.type]][depth] = {"true": {}, "false": {}}
+              for (b in data_obj[data_type[vars.type]][depth]) {
+                var all_array = []
+                if (b == "true") var spotlight = true
+                else var spotlight = false
+                for (y in data_obj.year) {
+                  var filtered_data = filter_check(data_obj.year[y])
+                  if (spotlight) {
+                    filtered_data = filtered_data.filter(function(d){
+                      return d[vars.active_var] == spotlight
+                    })
+                  }
+                  data_obj[data_type[vars.type]][depth][b][y] = nest(filtered_data,level)
+                  all_array = all_array.concat(data_obj[data_type[vars.type]][depth][b][y])
+                }
+                data_obj[data_type[vars.type]][depth][b].all = all_array
+              }
+              
+            }
+            else {
+              data_obj[data_type[vars.type]][depth] = {}
+              var all_array = []
+              for (y in data_obj.year) {
+                var filtered_data = filter_check(data_obj.year[y])
+                data_obj[data_type[vars.type]][depth][y] = nest(filtered_data,level)
+                all_array = all_array.concat(data_obj[data_type[vars.type]][depth][y])
+              }
+              data_obj[data_type[vars.type]][depth].all = all_array
+            }
+            
+          })
+          
+        }
+        else if (data_type[vars.type] == "object") {
+          for (y in data_obj.year) {
+            data_obj[data_type[vars.type]][y] = {}
+            var filtered_data = filter_check(data_obj.year[y])
+            filtered_data.forEach(function(d){
+              data_obj[data_type[vars.type]][y][d[vars.id_var]] = d;
+            })
+          }
+        }
+        else {
+          for (y in data_obj.year) {
+            var filtered_data = filter_check(data_obj.year[y])
+            data_obj[data_type[vars.type]][y] = filtered_data
+          }
+        }
+        
+        filter_change = false
+        
+      }
 
       vizwhiz.tooltip.remove();
-      vars.parent = d3.select(this)
       
       vars.svg = vars.parent.selectAll("svg").data([data]);
       
@@ -94,72 +264,6 @@ vizwhiz.viz = function() {
       vars.svg.transition().duration(vizwhiz.timing)
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
-        
-      if (vizwhiz.dev) console.log("Establishing Year Range and Current Year")
-        
-      vars.years = vizwhiz.utils.uniques(data,vars.year_var)
-      if (!vars.year) vars.year = vars.years[vars.years.length-1]
-
-
-      if (vizwhiz.dev) console.log("Filtering Data")
-      vars.keys = {}
-      var filtered_data = data.filter(function(d){
-        for (k in d) {
-          if (!vars.keys[k]) {
-            vars.keys[k] = typeof d[k]
-          }
-        }
-        if (vars.xaxis_var) {
-          if (typeof d[vars.xaxis_var] == "undefined") return false
-        }
-        if (vars.yaxis_var) {
-          if (typeof d[vars.yaxis_var] == "undefined") return false
-        }
-        if (vars.spotlight && vars.type == "pie_scatter") {
-          if (d[vars.active_var]) return false
-        }
-        if (vars.year && vars.type != "stacked") return d[vars.year_var] == vars.year;
-        return true;
-      })
-      
-      // Filter & Solo the data!
-      removed_ids = []
-      if (vars.solo.length || vars.filter.length) {
-        if (vizwhiz.dev) console.log("Removing Solo/Filters")
-        filtered_data = filtered_data.filter(function(d){
-          var check = [d[vars.id_var],d[vars.text_var]]
-          vars.nesting.forEach(function(key){
-            for (x in d[key]) {
-              check.push(d[key][x])
-            }
-          })
-          var match = false
-          if (d[vars.id_var] != vars.highlight || vars.type != "rings") {
-            if (vars.solo.length) {
-              check.forEach(function(c){
-                if (vars.solo.indexOf(c) >= 0) match = true;
-              })
-              if (match) return true
-              removed_ids.push(d[vars.id_var])
-              return false
-            }
-            else {
-              check.forEach(function(c){
-                if (vars.filter.indexOf(c) >= 0) match = true;
-              })
-              if (match) {
-                removed_ids.push(d[vars.id_var])
-                return false
-              }
-              return true
-            }
-          }
-          else {
-            return true
-          }
-        })
-        
-      }
       
       if (["network","rings"].indexOf(vars.type) >= 0) {
         if (vars.solo.length || vars.filter.length) {
@@ -188,63 +292,80 @@ vizwhiz.viz = function() {
         vars.connections = get_connections(vars.links)
       }
       
-      // create CSV data
-      vars.filtered_data = filtered_data;
+      if (nested_apps.indexOf(vars.type) >= 0) {
+        
+        if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
+        
+        if (vars.type == "stacked") {
+          vars.data = data_obj[data_type[vars.type]][vars.depth]
+        }
+        else if (vars.type == "pie_scatter") {
+          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
+        }
+        else {
+          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
+        }
+        
+      }
+      else {
+        vars.data = data_obj[data_type[vars.type]][vars.year];
+      }
       
+      vars.width = vars.svg_width;
+      
+      if (vars.type == "pie_scatter") {
+        if (vizwhiz.dev) console.log("[viz-whiz] Setting Axes Domains")
+        if (xaxis_domain) vars.xaxis_domain = xaxis_domain
+        else {
+          vars.xaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight].all,function(d){
+            return d[vars.xaxis_var]
+          })
+        }
+        if (yaxis_domain) vars.yaxis_domain = yaxis_domain
+        else {
+          vars.yaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight].all,function(d){
+            return d[vars.yaxis_var]
+          }).reverse()
+        }
+      }
+      
+      // Calculate total_bar value
       if (!vars.total_bar) {
         var total_val = null
       }
       else {
-        var total_val = d3.sum(filtered_data, function(d){ 
+        if (vizwhiz.dev) console.log("[viz-whiz] Calculating Total Value")
+        var total_val = d3.sum(data_obj.clean, function(d){ 
           return d[vars.value_var] 
         })
       }
+      
+      vars.svg_enter.append("g")
+        .attr("class","titles")
 
-      if (["tree_map","pie_scatter"].indexOf(vars.type) >= 0) {
-        if (vizwhiz.dev) console.log("Nesting Data")
-        vars.data = nest(filtered_data)
-      }
-      else if (vars.type == "stacked") {
-        if (vizwhiz.dev) console.log("Nesting Data")
-        var temp_data = []
-        vars.years.forEach(function(year){
-          var year_data = filtered_data.filter(function(d){
-            return d[vars.year_var] == year;
-          })
-          year_data = nest(year_data)
-          temp_data = temp_data.concat(year_data)
-        })
-        vars.data = temp_data
-      }
-      else if (["geo_map","network","rings"].indexOf(vars.type) >= 0) {
-        vars.data = {};
-        filtered_data.forEach(function(d){
-          vars.data[d[vars.id_var]] = d;
-        })
-      }
-      else {
-        vars.data = filtered_data
-      }
-      vars.width = vars.svg_width;
-
-      if (vizwhiz.dev) console.log("Creating Titles")
+      // Create titles
       vars.margin.top = 0;
       if (vars.svg_width < 300 || vars.svg_height < 200) {
         vars.small = true;
+        vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
         make_title(null,"title");
         make_title(null,"sub_title");
         make_title(null,"total_bar");
       }
       else {
+        if (vizwhiz.dev) console.log("[viz-whiz] Creating Titles")
         vars.small = false;
+        vars.graph.margin = {"top": 0, "right": 5, "bottom": 55, "left": 45}
+        vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
         make_title(total_val,"total_bar");
+        if (vars.margin.top > 0) vars.margin.top += 3
       }
       
-      if (vars.margin.top > 0) vars.margin.top += 3
-      
       vars.height = vars.svg_height - vars.margin.top;
+      
+      vars.graph.height = vars.height-vars.graph.margin.top-vars.graph.margin.bottom
       
       vars.svg_enter.append("clipPath")
         .attr("id","clipping")
@@ -268,8 +389,9 @@ vizwhiz.viz = function() {
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
-      if (vizwhiz.dev) console.log("Building Specific App")
+      if (vizwhiz.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
       vizwhiz[vars.type](vars);
+      if (vizwhiz.dev) console.log("[viz-whiz] *** End Chart ***")
       
     });
     
@@ -280,12 +402,56 @@ vizwhiz.viz = function() {
   // Helper Functions
   //-------------------------------------------------------------------
 
-  nest = function(flat_data) {
+  filter_check = function(check_data) {
+    
+    if (filter_change) {
+      
+      if (vizwhiz.dev) console.log("[viz-whiz] Removing Solo/Filters")
+      
+      return check_data.filter(function(d){
+        
+        var check = [d[vars.id_var],d[vars.text_var]]
+        vars.nesting.forEach(function(key){
+          for (x in d[key]) {
+            check.push(d[key][x])
+          }
+        })
+        var match = false
+        if (d[vars.id_var] != vars.highlight || vars.type != "rings") {
+          if (vars.solo.length) {
+            check.forEach(function(c){
+              if (vars.solo.indexOf(c) >= 0) match = true;
+            })
+            if (match) return true
+            removed_ids.push(d[vars.id_var])
+            return false
+          }
+          else {
+            check.forEach(function(c){
+              if (vars.filter.indexOf(c) >= 0) match = true;
+            })
+            if (match) {
+              removed_ids.push(d[vars.id_var])
+              return false
+            }
+            return true
+          }
+        }
+        else {
+          return true
+        }
+      })
+      
+    }
+    else {
+      return check_data
+    }
+  }
+
+  nest = function(flat_data,levels) {
   
     var flattened = [];
     var nested_data = d3.nest();
-    
-    var levels = vars.depth ? vars.nesting.slice(0,vars.nesting.indexOf(vars.depth)+1) : vars.nesting
     
     levels.forEach(function(nest_key, i){
     
@@ -351,21 +517,21 @@ vizwhiz.viz = function() {
   make_title = function(title,type){
     
     // Set the total value as data for element.
-    var data = title ? [title] : [],
+    var title_data = title ? [title] : [],
         font_size = type == "title" ? 18 : 13,
         title_position = {
-          "x": vars.width/2,
+          "x": vars.svg_width/2,
           "y": vars.margin.top
         }
-        
+    
     if (type == "total_bar" && title) {
-      data = vars.number_format(data[0])
-      vars.total_bar.prefix ? data = vars.total_bar.prefix + data : null;
-      vars.total_bar.suffix ? data = data + vars.total_bar.suffix : null;
-      data = [data]
+      title_data = vars.number_format(title_data[0])
+      vars.total_bar.prefix ? title_data = vars.total_bar.prefix + title_data : null;
+      vars.total_bar.suffix ? title_data = title_data + vars.total_bar.suffix : null;
+      title_data = [title_data]
     }
     
-    var total = vars.svg.selectAll("g."+type).data(data)
+    var total = d3.select("g.titles").selectAll("g."+type).data(title_data)
     
     // Enter
     total.enter().append("g")
@@ -391,17 +557,11 @@ vizwhiz.viz = function() {
     // Update
     total.transition().duration(vizwhiz.timing)
       .style("opacity",1)
+      
+    update_titles()
+    
     total.select("text").transition().duration(vizwhiz.timing)
-      .attr(title_position)
-      .each(function(d){
-        vizwhiz.utils.wordwrap({
-          "text": d,
-          "parent": this,
-          "width": vars.svg_width,
-          "height": vars.svg_height/4,
-          "resize": false
-        })
-      })
+      .attr("y",title_position.y)
     
     // Exit
     total.exit().transition().duration(vizwhiz.timing)
@@ -410,6 +570,30 @@ vizwhiz.viz = function() {
 
     if (total.node()) vars.margin.top += total.select("text").node().getBBox().height
 
+  }
+  
+  update_titles = function() {
+    
+    var xpos = vars.svg_width/2
+    if (["pie_scatter","stacked"].indexOf(vars.type) >= 0) {
+      xpos = vars.graph.width/2 + vars.graph.margin.left
+    }
+
+    d3.select("g.titles").selectAll("g").select("text")
+      .transition().duration(vizwhiz.timing)
+        .attr("x",xpos)
+        .each(function(d){
+          vizwhiz.utils.wordwrap({
+            "text": d,
+            "parent": this,
+            "width": vars.svg_width,
+            "height": vars.svg_height/8,
+            "resize": false
+          })
+        })
+        .selectAll("tspan")
+          .attr("x",xpos)
+        
   }
   
   get_connections = function(links) {
@@ -441,29 +625,35 @@ vizwhiz.viz = function() {
     if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
     else var a = vars.tooltip_info[length]
     
-    var data = []
+    var tooltip_data = []
     a.forEach(function(t){
       var value = find_variable(id,t)
       var name = vars.text_format(t)
       if (value) {
         var h = t == tooltip_highlight
-        data.push({"name": name, "value": value, "highlight": h, "format": vars.number_format})
+        tooltip_data.push({"name": name, "value": value, "highlight": h, "format": vars.number_format})
       }
     })
     
-    return data
+    return tooltip_data
     
   }
   
   find_variable = function(id,variable) {
     
     if (typeof id == "string") {
-      var data = vars.filtered_data.filter(function(d){
-        return d[vars.id_var] == id
-      })[0]
+      
+      if (vars.data instanceof Array) {
+        var dat = vars.data.filter(function(d){
+          return d[vars.id_var] == id
+        })[0]
+      }
+      else {
+        var dat = vars.data[id]
+      }
     }
     else {
-      var data = id
+      var dat = id
     }
     
     
@@ -471,7 +661,7 @@ vizwhiz.viz = function() {
     
     var value = false
     
-    if (data && data[variable]) value = data[variable]
+    if (dat && dat[variable]) value = dat[variable]
     else if (attr && attr[variable]) value = attr[variable]
     else if (variable == "color") value = vizwhiz.utils.rand_color()
     
@@ -512,7 +702,7 @@ vizwhiz.viz = function() {
       
       // filter out the columns (if specified)
       if(vars.csv_columns){
-        vars.filtered_data.map(function(d){
+        vars.data.map(function(d){
           d3.keys(d).forEach(function(d_key){
             if(vars.csv_columns.indexOf(d_key) < 0){
               delete d[d_key]
@@ -521,8 +711,8 @@ vizwhiz.viz = function() {
         })
       }
       
-      csv_to_return.push(d3.keys(vars.filtered_data[0]));
-      vars.filtered_data.forEach(function(d){
+      csv_to_return.push(vars.keys);
+      vars.data.forEach(function(d){
         csv_to_return.push(d3.values(d))
       })
       return csv_to_return;
@@ -597,6 +787,7 @@ vizwhiz.viz = function() {
         vars.filter.push(x)
       }
     }
+    filter_change = true;
     return chart;
   };
 
@@ -695,6 +886,12 @@ vizwhiz.viz = function() {
     vars.order = x;
     return chart;
   };
+  
+  chart.size_scale = function(x) {
+    if (!arguments.length) return vars.size_scale_type;
+    vars.size_scale_type = x;
+    return chart;
+  };
     
   chart.solo = function(x) {
     if (!arguments.length) return vars.solo;
@@ -718,6 +915,7 @@ vizwhiz.viz = function() {
         vars.solo.push(x)
       }
     }
+    filter_change = true;
     return chart;
   };
   
@@ -805,7 +1003,7 @@ vizwhiz.viz = function() {
   
   chart.xaxis_domain = function(x) {
     if (!arguments.length) return vars.xaxis_domain;
-    vars.xaxis_domain = x;
+    xaxis_domain = x;
     return chart;
   };
   
@@ -815,15 +1013,27 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.xscale = function(x) {
+    if (!arguments.length) return vars.xscale_type;
+    vars.xscale_type = x;
+    return chart;
+  };
+  
   chart.yaxis_domain = function(x) {
     if (!arguments.length) return vars.yaxis_domain;
-    vars.yaxis_domain = x;
+    yaxis_domain = x.reverse();
     return chart;
   };
   
   chart.yaxis_var = function(x) {
     if (!arguments.length) return vars.yaxis_var;
     vars.yaxis_var = x;
+    return chart;
+  };
+  
+  chart.yscale = function(x) {
+    if (!arguments.length) return vars.yscale_type;
+    vars.yscale_type = x;
     return chart;
   };
   
@@ -838,6 +1048,196 @@ vizwhiz.viz = function() {
     vars.year_var = x;
     return chart;
   };
+  
+  //===================================================================
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // X/Y Graph System
+  //-------------------------------------------------------------------
+  
+  var tick_style = {
+    "stroke": "#ccc",
+    "stroke-width": 1
+  }
+  
+  var axis_style = {
+    "font-family": "Helvetica",
+    "font-size": "12px",
+    "font-weight": "normal",
+    "fill": "#888"
+  }
+  
+  var label_style = {
+    "font-family": "Helvetica",
+    "font-size": "14px",
+    "font-weight": "normal",
+    "fill": "#333",
+    "text-anchor": "middle"
+  }
+  
+  vars.x_axis = d3.svg.axis()
+    .tickSize(0)
+    .tickPadding(20)
+    .orient('bottom')
+    .tickFormat(function(d, i) {
+      
+      d3.select(this)
+        .attr("text-anchor","middle")
+        .style(axis_style)
+      
+      var bgtick = d3.select(this.parentNode).selectAll("line.tick")
+        .data([i])
+        
+      bgtick.enter().append("line")
+        .attr("class","tick")
+        .attr("x1", 0)
+        .attr("x2", 0)
+        .attr("y1", 15)
+        .attr("y2", -vars.graph.height)
+        .attr(tick_style)
+        
+      bgtick.transition().duration(vizwhiz.timing) 
+        .attr("y2", -vars.graph.height)
+        
+      return vars.number_format(d);
+    });
+  
+  vars.y_axis = d3.svg.axis()
+    .tickSize(0)
+    .tickPadding(20)
+    .orient('left')
+    .tickFormat(function(d, i) {
+      
+      d3.select(this)
+        .attr("text-anchor","middle")
+        .style(axis_style)
+        .text(vars.number_format(d))
+        
+      var width = this.getBBox().width
+      if (width > vars.graph.offset) vars.graph.offset = width
+      
+      var bgtick = d3.select(this.parentNode).selectAll("line.tick")
+        .data([i])
+        
+      bgtick.enter().append("line")
+        .attr("class","tick")
+        .attr("x1", -15)
+        .attr("x2", vars.graph.width)
+        .attr("y1", 0)
+        .attr("y2", 0)
+        .attr(tick_style)
+        
+      bgtick.transition().duration(vizwhiz.timing) 
+        .attr("x2", vars.graph.width)
+        
+      return vars.number_format(d);
+    });
+    
+  graph_update = function() {
+    
+    // Enter Graph
+    vars.chart_enter = vars.parent_enter.append("g")
+      .attr("class", "chart")
+      .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
+
+    vars.chart_enter.append("rect")
+      .style('fill','#fafafa')
+      .attr("id","background")
+      .attr('x',0)
+      .attr('y',0)
+      .attr('width', vars.graph.width)
+      .attr('height', vars.graph.height)
+      
+    vars.parent_enter.append("rect")
+      .attr("id", "border")
+      .attr("fill","none")
+      .attr('x', vars.graph.margin.left)
+      .attr('y', vars.graph.margin.top)
+      .attr('width', vars.graph.width)
+      .attr('height', vars.graph.height)
+      .attr("stroke-width",1)
+      .attr("stroke","#ccc")
+
+    // Create X axis
+    vars.chart_enter.append("g")
+      .attr("transform", "translate(0," + vars.graph.height + ")")
+      .attr("class", "xaxis")
+      .call(vars.x_axis.scale(vars.x_scale))
+
+    // Create Y axis
+    vars.chart_enter.append("g")
+      .attr("class", "yaxis")
+      .call(vars.y_axis.scale(vars.y_scale))
+
+    // create label group
+    var axes = vars.parent_enter.append("g")
+      .attr("class","axes_labels")
+      
+    // create X axis label
+    axes.append('text')
+      .attr('class', 'x_axis_label')
+      .attr('x', vars.graph.width/2+vars.graph.margin.left)
+      .attr('y', vars.height-10)
+      .text(vars.text_format(vars.xaxis_var))
+      .attr(label_style)
+      
+    // create Y axis label
+    axes.append('text')
+      .attr('class', 'y_axis_label')
+      .attr('y', 15)
+      .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
+      .text(vars.text_format(vars.yaxis_var))
+      .attr("transform","rotate(-90)")
+      .attr(label_style)
+
+    // Update Y axis
+    vars.graph.offset = 0
+    d3.select("g.yaxis").transition().duration(vizwhiz.timing)
+      .call(vars.y_axis.scale(vars.y_scale))
+      
+    vars.graph.margin.left += vars.graph.offset
+    vars.graph.width -= vars.graph.offset
+    
+    // Update Graph
+    d3.select(".chart").transition().duration(vizwhiz.timing)
+      .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
+      .select("rect#background")
+        .attr('width', vars.graph.width)
+        .attr('height', vars.graph.height)
+      
+    d3.select("rect#border").transition().duration(vizwhiz.timing)
+      .attr('x', vars.graph.margin.left)
+      .attr('y', vars.graph.margin.top)
+      .attr('width', vars.graph.width)
+      .attr('height', vars.graph.height)
+
+    // Update X axis
+    vars.x_scale.range([0, vars.graph.width]);
+    
+    d3.select("g.xaxis").transition().duration(vizwhiz.timing)
+      .attr("transform", "translate(0," + vars.graph.height + ")")
+      .call(vars.x_axis.scale(vars.x_scale))
+
+    // Update X axis label
+    d3.select(".x_axis_label").transition().duration(vizwhiz.timing)
+      .attr('x', vars.graph.width/2+vars.graph.margin.left)
+      .attr('y', vars.height-10)
+      .text(vars.text_format(vars.xaxis_var))
+
+    // Update Y axis
+    d3.select("g.yaxis").transition().duration(vizwhiz.timing)
+      .call(vars.y_axis.scale(vars.y_scale))
+
+    // Update Y axis label
+    d3.select(".y_axis_label").transition().duration(vizwhiz.timing)
+      .attr('y', 15)
+      .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
+      .text(vars.text_format(vars.yaxis_var))
+      
+    // Move titles
+    update_titles()
+      
+  }
 
   //===================================================================
 

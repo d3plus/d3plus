@@ -1,36 +1,4 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Number formatter
-//-------------------------------------------------------------------
-
-vizwhiz.utils.format_num = function(val, percent, sig_figs, abbrv) {
-  
-  // test if number is REALLY small
-  if(Math.abs(val - 1e-16) < 1e-10){
-    val = 0;
-  }
-  
-  if(percent){
-    val = d3.format("."+sig_figs+"p")(val)
-  }
-  else if(abbrv){
-    var symbol = d3.formatPrefix(val).symbol
-    symbol = symbol.replace("G", "B") // d3 uses G for giga
-
-    // Format number to precision level using proper scale
-    val = d3.formatPrefix(val).scale(val)
-    val = parseFloat(d3.format("."+sig_figs+"g")(val))
-    val = val + " " + symbol;
-  }
-  else {
-    val = d3.format(",."+sig_figs+"f")(val)
-  }
-  
-  return val;
-};
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator (if no color is given)
 //-------------------------------------------------------------------
 

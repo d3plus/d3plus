@@ -249,9 +249,9 @@ vizwhiz.rings = function(vars) {
           if (d.source == hover || d.target == hover || 
           (hover.depth == 2 && (hover.parents.indexOf(d.target) >= 0))) {
             this.parentNode.appendChild(this);
-            return "#cc0000";
+            return vars.highlight_color;
           } else if (hover.depth == 1 && hover.children_total.indexOf(d.target) >= 0) {
-            return "#ffbbbb";
+            return vars.secondary_color;
           } else return "#ddd";
         } else return "#ddd";
       })

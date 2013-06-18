@@ -72,7 +72,7 @@ vizwhiz.tree_map = function(vars) {
     .text(function(d) {
       var root = d;
       while(root.parent){ root = root.parent; } // find top most parent node
-      d.share = vizwhiz.utils.format_num(d.value/root.value, true, 2);
+      d.share = vars.number_format((d.value/root.value)*100)+"%";
       return d.share;
     })
     .attr('font-size',function(d){
@@ -224,8 +224,8 @@ vizwhiz.tree_map = function(vars) {
       d3.select(this)
         .text(function(d){
           var root = d.parent;
-          while(root.parent){ root = root.parent; } // find top most parent ndoe
-          d.share = vizwhiz.utils.format_num(d.value/root.value, true, 2)
+          while(root.parent){ root = root.parent; } // find top most parent node
+          d.share = vars.number_format((d.value/root.value)*100)+"%";
           return d.share;
         })
         .attr('font-size',function(d){

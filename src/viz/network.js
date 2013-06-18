@@ -5,8 +5,6 @@ vizwhiz.network = function(vars) {
   //-------------------------------------------------------------------
   
   var dragging = false,
-      highlight_color = "#cc0000",
-      secondary_color = "#ffdddd",
       offset_top = 0,
       offset_left = 0,
       info_width = 300,
@@ -518,7 +516,7 @@ vizwhiz.network = function(vars) {
         d3.select("g."+group).selectAll("line")
           .data(prim_links).enter().append("line")
             .attr("pointer-events","none")
-            .attr("stroke",highlight_color)
+            .attr("stroke",vars.highlight_color)
             .attr("stroke-width",1.5)
             .call(link_position)
       }
@@ -534,7 +532,7 @@ vizwhiz.network = function(vars) {
           .call(node_size)
           .call(node_position)
           .call(node_stroke)
-          .attr("stroke",highlight_color);
+          .attr("stroke",vars.highlight_color);
         
       node_groups
         .append("circle")
@@ -604,7 +602,7 @@ vizwhiz.network = function(vars) {
                 .attr("y",scale.y(d.y)-((h+(font_size*1.5))/2))
                 .attr("x",scale.x(d.x)-((w+(font_size*1.5))/2))
                 .call(node_stroke)
-                .attr("stroke",highlight_color);
+                .attr("stroke",vars.highlight_color);
             d3.select(text.node().parentNode)
               .insert("rect","text")
                 .attr("rx",font_size)
