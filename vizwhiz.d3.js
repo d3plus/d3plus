@@ -294,7 +294,8 @@ vizwhiz.utils.drop_shadow = function(defs) {
 
 vizwhiz.tooltip.create = function(params) {
   
-  params.width = params.width ? params.width-14 : 186
+  params.width = params.width ? params.width : 200
+  params.max_width = params.max_width ? params.max_width : 386
   params.id = params.id ? params.id : "default"
   params.html = params.html ? params.html : null
   params.size = params.fullscreen ? "large" : "small"
@@ -354,9 +355,12 @@ vizwhiz.tooltip.create = function(params) {
       
   }
   else {
-
-    if (params.width == "auto") var w = "auto"
-    else var w = params.width+"px"
+    
+    if (params.width == "auto") {
+      var w = "auto"
+      container.style("max-width",params.max_width+"px")
+    }
+    else var w = params.width-14+"px"
 
     var body = container
       .style("width",w)
