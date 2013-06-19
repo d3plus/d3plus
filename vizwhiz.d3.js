@@ -3906,9 +3906,9 @@ vizwhiz.geo_map = function(vars) {
     
     if (!vars.small && (hover || vars.highlight)) {
       
-      var tooltip_data = get_tooltip_data(vars.highlight)
-      
       var id = vars.highlight ? vars.highlight : hover
+      
+      var tooltip_data = get_tooltip_data(id)
       
       var data = vars.data[id]
       
