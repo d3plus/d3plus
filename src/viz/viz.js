@@ -132,7 +132,7 @@ vizwhiz.viz = function() {
         
         if (vizwhiz.dev) console.log("[viz-whiz] New Data Detected")
         // Copy data to "raw_data" variable
-        var data = {}
+        data_obj = {}
         data_obj.raw = data_passed
         vars.parent = d3.select(this)
         
