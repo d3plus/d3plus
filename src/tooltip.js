@@ -349,14 +349,14 @@ vizwhiz.tooltip.move = function(x,y,id) {
 
         // Determine whether or not to flip the tooltip
         if (d.anchor.y == "bottom") {
-          d.flip = d.cy + d.height + d.offset + 10 <= window.innerHeight
+          d.flip = d.cy + d.height + d.offset <= window.innerHeight
         }
         else if (d.anchor.y == "top") {
           d.flip = d.cy - d.height - d.offset < 0
         }
         
         if (d.flip) {
-          d.y = d.cy + d.offset + d.arrow_offset + 10
+          d.y = d.cy + d.offset + d.arrow_offset
         }
         else {
           d.y = d.cy - d.height - d.offset
