@@ -8,8 +8,8 @@ vizwhiz.stacked = function(vars) {
   var stack = d3.layout.stack()
     .offset("zero")
     .values(function(d) { return d.values; })
-    .x(function(d) { return parseInt(d.key); })
-    .y(function(d) { return d.values; });
+    .x(function(d) { return d[vars.year_var]; })
+    .y(function(d) { return d[vars.value_var]; });
   
   //===================================================================
       
@@ -28,7 +28,7 @@ vizwhiz.stacked = function(vars) {
   var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
   
   // nest data properly according to nesting array
-  nested_data = nest_data(xaxis_sums);
+  nested_data = nest_data();
   
   // scales for both X and Y values
   vars.x_scale = d3.scale[vars.xscale_type]()
@@ -46,7 +46,7 @@ vizwhiz.stacked = function(vars) {
   // Helper function unsed to convert stack values to X, Y coords 
   var area = d3.svg.area()
     .interpolate("monotone")
-    .x(function(d) { return vars.x_scale(parseInt(d.key)); })
+    .x(function(d) { return vars.x_scale(d[vars.year_var]); })
     .y0(function(d) { return vars.y_scale(d.y0); })
     .y1(function(d) { return vars.y_scale(d.y0 + d.y)+1; });
   
@@ -86,7 +86,7 @@ vizwhiz.stacked = function(vars) {
     .attr("stroke",vars.highlight_color)
     .attr("stroke-width",0)
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],vars.color_var)
+      return find_variable(d.key,vars.color_var)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -107,7 +107,7 @@ vizwhiz.stacked = function(vars) {
   paths.transition().duration(vizwhiz.timing)
     .attr("opacity", 1)
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],vars.color_var)
+      return find_variable(d.key,vars.color_var)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -132,9 +132,9 @@ vizwhiz.stacked = function(vars) {
       .attr("stroke-opacity", 0.5)
       .attr("stroke-dasharray", "5,3")
       .attr("pointer-events","none")
-    
+      
     // tooltip
-    var tooltip_data = get_tooltip_data(d[vars.id_var])
+    var tooltip_data = get_tooltip_data(this_value)
 
     vizwhiz.tooltip.remove();
     vizwhiz.tooltip.create({
@@ -149,7 +149,7 @@ vizwhiz.stacked = function(vars) {
       "mouseevents": false
     })
   }
-  
+
   // EXIT
   paths.exit()
     .transition().duration(vizwhiz.timing)
@@ -272,9 +272,9 @@ vizwhiz.stacked = function(vars) {
       .attr("pointer-events","none")
       .attr("text-anchor", function(d){
         // if first, left-align text
-        if(d.tallest.key == vars.x_scale.domain()[0]) return "start";
+        if(d.tallest[vars.id_var] == vars.x_scale.domain()[0]) return "start";
         // if last, right-align text
-        if(d.tallest.key == vars.x_scale.domain()[1]) return "end";
+        if(d.tallest[vars.id_var] == vars.x_scale.domain()[1]) return "end";
         // otherwise go with middle
         return "middle"
       })
@@ -284,10 +284,10 @@ vizwhiz.stacked = function(vars) {
       .attr("x", function(d){
         var pad = 0;
         // if first, push it off 10 pixels from left side
-        if(d.tallest.key == vars.x_scale.domain()[0]) pad += 10;
+        if(d.tallest[vars.year_var] == vars.x_scale.domain()[0]) pad += 10;
         // if last, push it off 10 pixels from right side
-        if(d.tallest.key == vars.x_scale.domain()[1]) pad -= 10;
-        return vars.x_scale(d.tallest.key) + pad;
+        if(d.tallest[vars.year_var] == vars.x_scale.domain()[1]) pad -= 10;
+        return vars.x_scale(d.tallest[vars.year_var]) + pad;
       })
       .attr("y", function(d){
         var height = vars.graph.height - vars.y_scale(d.tallest.y);
@@ -323,7 +323,6 @@ vizwhiz.stacked = function(vars) {
           d3.select(this).attr("y", y_top + offset)
         }
       })
-  
     // UPDATE
     texts.transition().duration(vizwhiz.timing)
       .attr("opacity",1)
@@ -336,42 +335,39 @@ vizwhiz.stacked = function(vars) {
   // Nest data function (needed for getting flat data ready for stacks)
   //-------------------------------------------------------------------
   
-  function nest_data(xaxis_sums){
-    var info_lookup = {};
+  function nest_data(){
     
     var nested = d3.nest()
       .key(function(d){ return d[vars.id_var]; })
       .rollup(function(leaves){
-        
-        info_lookup[leaves[0][vars.id_var]] = JSON.parse(JSON.stringify(leaves[0]))
-        delete info_lookup[leaves[0][vars.id_var]][vars.xaxis_var]
-        delete info_lookup[leaves[0][vars.id_var]][vars.value_var]
-        
-        var values = d3.nest()
-          .key(function(d){ return d[vars.xaxis_var]; })
-          .rollup(function(l) {
-            return d3.sum(l, function(d){ return d[vars.value_var]});
-          })
-          .entries(leaves)
-        
+          
         // Make sure all xaxis_vars at least have 0 values
-        xaxis_vars_available = values
-          .reduce(function(a, b){ return a.concat(b.key)}, [])
+        var years_available = leaves
+          .reduce(function(a, b){ return a.concat(b[vars.xaxis_var])}, [])
           .filter(function(y, i, arr) { return arr.indexOf(y) == i })
-        
+          
         vars.years.forEach(function(y){
-          if(xaxis_vars_available.indexOf(""+y) < 0){
-            values.push({"key": ""+y, "values": 0})
+          if(years_available.indexOf(y) < 0){
+            var obj = {}
+            obj[vars.xaxis_var] = y
+            obj[vars.value_var] = 0
+            if (leaves[0][vars.id_var]) obj[vars.id_var] = leaves[0][vars.id_var]
+            if (leaves[0][vars.text_var]) obj[vars.text_var] = leaves[0][vars.text_var]
+            leaves.push(obj)
           }
         })
-
-        return values.sort(function(a,b){return a.key-b.key;});
+        
+        return leaves.sort(function(a,b){
+          return a[vars.xaxis_var]-b[vars.xaxis_var];
+        });
+        
       })
       .entries(vars.data)
     
     nested.forEach(function(d, i){
-      d["total"] = d3.sum(d.values, function(dd){ return dd.values; })
-      nested[i] = vizwhiz.utils.merge(d, info_lookup[d.key]);
+      d.total = d3.sum(d.values, function(dd){ return dd[vars.value_var]; })
+      d[vars.text_var] = d.values[0][vars.text_var]
+      d[vars.id_var] = d.values[0][vars.id_var]
     })
     // return nested
     

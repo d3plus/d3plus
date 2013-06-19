@@ -139,6 +139,7 @@ vizwhiz.viz = function() {
         if (vizwhiz.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
         // Find available years
         vars.years = vizwhiz.utils.uniques(data_obj.raw,vars.year_var)
+        vars.years.sort()
         // Set initial year if it doesn't exist
         if (!vars.year) {
           if (vars.years.length) vars.year = vars.years[vars.years.length-1]
@@ -168,7 +169,7 @@ vizwhiz.viz = function() {
       }
       
       if (filter_change || 
-          ["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change) {
+          (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
         delete data_obj[data_type[vars.type]]
       }
       
@@ -349,7 +350,7 @@ vizwhiz.viz = function() {
         make_title(null,"total_bar");
       }
       else {
-        if (vizwhiz.dev) console.log("[viz-whiz] Creating Titles")
+        if (vizwhiz.dev) console.log("[viz-whiz] Creating/Updating Titles")
         vars.small = false;
         vars.graph.margin = {"top": 5, "right": 10, "bottom": 55, "left": 45}
         vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
@@ -386,6 +387,7 @@ vizwhiz.viz = function() {
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
       filter_change = false
+      axis_change = false
       if (vizwhiz.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
       vizwhiz[vars.type](vars);
       if (vizwhiz.dev) console.log("[viz-whiz] *** End Chart ***")
@@ -402,7 +404,7 @@ vizwhiz.viz = function() {
   filter_check = function(check_data) {
     
     if (filter_change || 
-        ["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change) {
+        (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
       
       if (vizwhiz.dev) console.log("[viz-whiz] Removing Solo/Filters")
       removed_ids = []
@@ -522,18 +524,25 @@ vizwhiz.viz = function() {
   make_title = function(title,type){
     
     // Set the total value as data for element.
-    var title_data = title ? [title] : [],
-        font_size = type == "title" ? 18 : 13,
+    var font_size = type == "title" ? 18 : 13,
         title_position = {
           "x": vars.svg_width/2,
           "y": vars.margin.top
         }
     
     if (type == "total_bar" && title) {
-      title_data = vars.number_format(title_data[0])
-      vars.total_bar.prefix ? title_data = vars.total_bar.prefix + title_data : null;
-      vars.total_bar.suffix ? title_data = title_data + vars.total_bar.suffix : null;
+      title = vars.number_format(title)
+      vars.total_bar.prefix ? title = vars.total_bar.prefix + title : null;
+      vars.total_bar.suffix ? title = title + vars.total_bar.suffix : null;
+    }
+    
+    if (title) {
+      var title_data = title_position
+      title_data.title = title
       title_data = [title_data]
+    }
+    else {
+      var title_data = []
     }
     
     var total = d3.select("g.titles").selectAll("g."+type).data(title_data)
@@ -543,7 +552,8 @@ vizwhiz.viz = function() {
       .attr("class",type)
       .style("opacity",0)
       .append("text")
-        .attr(title_position)
+        .attr("x",function(d) { return d.x; })
+        .attr("y",function(d) { return d.y; })
         .attr("font-size",font_size)
         .attr("fill","#333")
         .attr("text-anchor", "middle")
@@ -551,7 +561,7 @@ vizwhiz.viz = function() {
         .style("font-weight", "normal")
         .each(function(d){
           vizwhiz.utils.wordwrap({
-            "text": d,
+            "text": d.title,
             "parent": this,
             "width": vars.svg_width,
             "height": vars.svg_height/8,
@@ -565,9 +575,6 @@ vizwhiz.viz = function() {
       
     update_titles()
     
-    total.select("text").transition().duration(vizwhiz.timing)
-      .attr("y",title_position.y)
-    
     // Exit
     total.exit().transition().duration(vizwhiz.timing)
       .style("opacity",0)
@@ -579,17 +586,18 @@ vizwhiz.viz = function() {
   
   update_titles = function() {
     
-    var xpos = vars.svg_width/2
+    var offset = 0
     if (["pie_scatter","stacked"].indexOf(vars.type) >= 0) {
-      xpos = vars.graph.width/2 + vars.graph.margin.left
+      offset = vars.graph.margin.left
     }
 
     d3.select("g.titles").selectAll("g").select("text")
       .transition().duration(vizwhiz.timing)
-        .attr("x",xpos)
+        .attr("x",function(d) { return d.x+offset; })
+        .attr("y",function(d) { return d.y; })
         .each(function(d){
           vizwhiz.utils.wordwrap({
-            "text": d,
+            "text": d.title,
             "parent": this,
             "width": vars.svg_width,
             "height": vars.svg_height/8,
@@ -597,7 +605,7 @@ vizwhiz.viz = function() {
           })
         })
         .selectAll("tspan")
-          .attr("x",xpos)
+          .attr("x",function(d) { return d.x+offset; })
         
   }
   
