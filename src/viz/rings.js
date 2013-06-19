@@ -234,8 +234,8 @@ vizwhiz.rings = function(vars) {
       "html": html,
       "footer": vars.data_source,
       "data": tooltip_data,
-      "x": vars.width-5,
-      "y": vars.margin.top+5,
+      "x": vars.parent.node().offsetLeft+vars.width-5,
+      "y": vars.parent.node().offsetTop+vars.margin.top+5,
       "align": "top right",
       "width": tooltip_width
     })
