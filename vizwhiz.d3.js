@@ -1072,6 +1072,7 @@ vizwhiz.viz = function() {
       if (vars.svg_width < 300 || vars.svg_height < 200) {
         vars.small = true;
         vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
+        vars.graph.width = vars.width
         make_title(null,"title");
         make_title(null,"sub_title");
         make_title(null,"total_bar");
@@ -1844,7 +1845,7 @@ vizwhiz.viz = function() {
           .text(text)
         
         var height = (Math.cos(25)*this.getBBox().width)
-        if (height > vars.graph.yoffset) vars.graph.yoffset = height
+        if (height > vars.graph.yoffset && !vars.small) vars.graph.yoffset = height
         
         tick_offset = 10
       }
@@ -1890,7 +1891,7 @@ vizwhiz.viz = function() {
           .text(text)
         
         var width = this.getBBox().width
-        if (width > vars.graph.offset) vars.graph.offset = width
+        if (width > vars.graph.offset && !vars.small) vars.graph.offset = width
         
         tick_offset = -10
       }
@@ -1918,6 +1919,10 @@ vizwhiz.viz = function() {
     });
     
   graph_update = function() {
+
+    // create label group
+    var axes = vars.parent_enter.append("g")
+      .attr("class","axes_labels")
     
     // Enter Graph
     vars.chart_enter = vars.parent_enter.append("g")
@@ -1953,10 +1958,6 @@ vizwhiz.viz = function() {
     vars.chart_enter.append("g")
       .attr("class", "yaxis")
       .call(vars.y_axis.scale(vars.y_scale))
-
-    // create label group
-    var axes = vars.parent_enter.append("g")
-      .attr("class","axes_labels")
       
     // create X axis label
     axes.append('text')
