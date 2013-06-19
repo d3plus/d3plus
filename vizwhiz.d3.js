@@ -973,10 +973,29 @@ vizwhiz.viz = function() {
         }
         
       }
+      
+      if (nested_apps.indexOf(vars.type) >= 0) {
+        
+        if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
+        
+        if (vars.type == "stacked") {
+          vars.data = data_obj[data_type[vars.type]][vars.depth]
+        }
+        else if (vars.type == "pie_scatter") {
+          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
+        }
+        else {
+          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
+        }
+        
+      }
+      else {
+        vars.data = data_obj[data_type[vars.type]][vars.year];
+      }
 
       vizwhiz.tooltip.remove();
       
-      vars.svg = vars.parent.selectAll("svg").data([data]);
+      vars.svg = vars.parent.selectAll("svg").data([vars.data]);
       
       vars.svg_enter = vars.svg.enter().append("svg")
         .attr('width',vars.svg_width)
@@ -1014,25 +1033,6 @@ vizwhiz.viz = function() {
           vars.links = links
         }
         vars.connections = get_connections(vars.links)
-      }
-      
-      if (nested_apps.indexOf(vars.type) >= 0) {
-        
-        if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
-        
-        if (vars.type == "stacked") {
-          vars.data = data_obj[data_type[vars.type]][vars.depth]
-        }
-        else if (vars.type == "pie_scatter") {
-          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
-        }
-        else {
-          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
-        }
-        
-      }
-      else {
-        vars.data = data_obj[data_type[vars.type]][vars.year];
       }
       
       vars.width = vars.svg_width;
@@ -3272,10 +3272,10 @@ vizwhiz.tree_map = function(vars) {
       var footer_text = html ? vars.text_format("click box for more info") : null
       
       vizwhiz.tooltip.create({
-        "title": find_variable(d[vars.id_var],vars.text_var),
-        "color": find_variable(d[vars.id_var],vars.color_var),
-        "icon": find_variable(d[vars.id_var],"icon"),
-        "id": find_variable(d[vars.id_var],vars.id_var),
+        "title": find_variable(d,vars.text_var),
+        "color": find_variable(d,vars.color_var),
+        "icon": find_variable(d,"icon"),
+        "id": find_variable(d,vars.id_var),
         "x": d3.event.pageX,
         "y": d3.event.pageY,
         "offset": 5,
@@ -3312,10 +3312,10 @@ vizwhiz.tree_map = function(vars) {
         tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
         
         vizwhiz.tooltip.create({
-          "title": find_variable(d[vars.id_var],vars.text_var),
-          "color": find_variable(d[vars.id_var],vars.color_var),
-          "icon": find_variable(d[vars.id_var],"icon"),
-          "id": find_variable(d[vars.id_var],vars.id_var),
+          "title": find_variable(d,vars.text_var),
+          "color": find_variable(d,vars.color_var),
+          "icon": find_variable(d,"icon"),
+          "id": find_variable(d,vars.id_var),
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,

@@ -116,10 +116,10 @@ vizwhiz.tree_map = function(vars) {
       var footer_text = html ? vars.text_format("click box for more info") : null
       
       vizwhiz.tooltip.create({
-        "title": find_variable(d[vars.id_var],vars.text_var),
-        "color": find_variable(d[vars.id_var],vars.color_var),
-        "icon": find_variable(d[vars.id_var],"icon"),
-        "id": find_variable(d[vars.id_var],vars.id_var),
+        "title": find_variable(d,vars.text_var),
+        "color": find_variable(d,vars.color_var),
+        "icon": find_variable(d,"icon"),
+        "id": find_variable(d,vars.id_var),
         "x": d3.event.pageX,
         "y": d3.event.pageY,
         "offset": 5,
