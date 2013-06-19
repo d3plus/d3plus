@@ -168,6 +168,10 @@ vizwhiz.viz = function() {
         
       }
       
+      if (vars.type == "stacked") {
+        vars.yaxis_var = vars.value_var
+      }
+      
       if (filter_change || 
           (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
         delete data_obj[data_type[vars.type]]

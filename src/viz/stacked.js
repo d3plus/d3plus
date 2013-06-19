@@ -9,7 +9,7 @@ vizwhiz.stacked = function(vars) {
     .offset("zero")
     .values(function(d) { return d.values; })
     .x(function(d) { return d[vars.year_var]; })
-    .y(function(d) { return d[vars.value_var]; });
+    .y(function(d) { return d[vars.yaxis_var]; });
   
   //===================================================================
       
@@ -21,7 +21,7 @@ vizwhiz.stacked = function(vars) {
   var xaxis_sums = d3.nest()
     .key(function(d){return d[vars.xaxis_var] })
     .rollup(function(leaves){
-      return d3.sum(leaves, function(d){return d[vars.value_var];})
+      return d3.sum(leaves, function(d){return d[vars.yaxis_var];})
     })
     .entries(vars.data)
   
@@ -38,8 +38,6 @@ vizwhiz.stacked = function(vars) {
   vars.y_scale = d3.scale[vars.yscale_type]()
     .domain([0, data_max])
     .range([vars.graph.height, 0]);
-    
-  vars.yaxis_var = vars.value_var
     
   graph_update()
   
@@ -350,9 +348,10 @@ vizwhiz.stacked = function(vars) {
           if(years_available.indexOf(y) < 0){
             var obj = {}
             obj[vars.xaxis_var] = y
-            obj[vars.value_var] = 0
+            obj[vars.yaxis_var] = 0
             if (leaves[0][vars.id_var]) obj[vars.id_var] = leaves[0][vars.id_var]
             if (leaves[0][vars.text_var]) obj[vars.text_var] = leaves[0][vars.text_var]
+            if (leaves[0][vars.color_var]) obj[vars.color_var] = leaves[0][vars.color_var]
             leaves.push(obj)
           }
         })
@@ -365,7 +364,7 @@ vizwhiz.stacked = function(vars) {
       .entries(vars.data)
     
     nested.forEach(function(d, i){
-      d.total = d3.sum(d.values, function(dd){ return dd[vars.value_var]; })
+      d.total = d3.sum(d.values, function(dd){ return dd[vars.yaxis_var]; })
       d[vars.text_var] = d.values[0][vars.text_var]
       d[vars.id_var] = d.values[0][vars.id_var]
     })
