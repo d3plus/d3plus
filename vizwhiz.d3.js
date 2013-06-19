@@ -936,7 +936,7 @@ vizwhiz.viz = function() {
                   var filtered_data = filter_check(data_obj.year[y])
                   if (spotlight) {
                     filtered_data = filtered_data.filter(function(d){
-                      return d[vars.active_var] == spotlight
+                      return d[vars.active_var] != spotlight
                     })
                   }
                   data_obj[data_type[vars.type]][depth][b][y] = nest(filtered_data,level)
