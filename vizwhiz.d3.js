@@ -4174,7 +4174,6 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("stroke-width", 1)
   
   // UPDATE      
-  console.log(ticks)
   ticks.select(".ytick").transition().duration(vizwhiz.timing)
     .attr("x1", -10)
     .attr("x2", 0)
@@ -4257,6 +4256,10 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("stroke", color)
           .attr("stroke-width", 2)
       
+        var xtext = vars.number_format({
+          "value": d[vars.xaxis_var],
+          "name": vars.xaxis_var
+        })
         // xvalue text element
         viz.append("text")
           .attr("class", "axis_hover")
@@ -4268,7 +4271,7 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("font-size","12px")
           .attr("font-family","Helvetica")
           .attr("fill","#4c4c4c")
-          .text(vars.number_format(d[vars.xaxis_var]))
+          .text(xtext)
       
         // y-axis value box
         viz.append("rect")
@@ -4281,6 +4284,10 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("stroke", color)
           .attr("stroke-width", 2)
       
+        var ytext = vars.number_format({
+          "value": d[vars.yaxis_var],
+          "name": vars.yaxis_var
+        })
         // xvalue text element
         viz.append("text")
           .attr("class", "axis_hover")
@@ -4292,7 +4299,7 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("font-size","12px")
           .attr("font-family","Helvetica")
           .attr("fill","#4c4c4c")
-          .text(vars.number_format(d[vars.yaxis_var]))
+          .text(ytext)
       
         var tooltip_data = get_tooltip_data(d)
       
