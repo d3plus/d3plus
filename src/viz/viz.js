@@ -1104,7 +1104,10 @@ vizwhiz.viz = function() {
           || vars.xscale_type != "log") {
       
         if (vars.xaxis_var == vars.year_var) var text = d;
-        else var text = vars.number_format(d);
+        else {
+          var obj = {"name": vars.xaxis_var, "value": d}
+          var text = vars.number_format(obj);
+        }
       
         d3.select(this)
           .style(axis_style)
@@ -1148,7 +1151,10 @@ vizwhiz.viz = function() {
           || vars.yscale_type != "log") {
       
         if (vars.yaxis_var == vars.year_var) var text = d;
-        else var text = vars.number_format(d);
+        else {
+          var obj = {"name": vars.yaxis_var, "value": d}
+          var text = vars.number_format(obj);
+        }
       
         d3.select(this)
           .style(axis_style)
