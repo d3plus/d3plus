@@ -34,7 +34,7 @@ vizwhiz.tooltip.create = function(params) {
     params.anchor.y = "top"
   }
   
-  var title_width = params.width - 18
+  var title_width = params.width - 30
   
   if (params.fullscreen) {
     var curtain = d3.select("body").append("div")

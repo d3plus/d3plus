@@ -660,6 +660,7 @@ vizwhiz.viz = function() {
     
     if (typeof id == "object") {
       var dat = id
+      id = dat[vars.id_var]
     }
     else {
       if (vars.data instanceof Array) {

@@ -324,7 +324,7 @@ vizwhiz.tooltip.create = function(params) {
     params.anchor.y = "top"
   }
   
-  var title_width = params.width - 18
+  var title_width = params.width - 30
   
   if (params.fullscreen) {
     var curtain = d3.select("body").append("div")
@@ -1383,6 +1383,7 @@ vizwhiz.viz = function() {
     
     if (typeof id == "object") {
       var dat = id
+      id = dat[vars.id_var]
     }
     else {
       if (vars.data instanceof Array) {
@@ -3287,7 +3288,7 @@ vizwhiz.tree_map = function(vars) {
       
     })
     .on(vizwhiz.evt.move,function(d){
-      var id = find_variable(d[vars.id_var],vars.id_var)
+      var id = find_variable(d,vars.id_var)
       vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
     })
     .on(vizwhiz.evt.out,function(d){

@@ -131,7 +131,7 @@ vizwhiz.tree_map = function(vars) {
       
     })
     .on(vizwhiz.evt.move,function(d){
-      var id = find_variable(d[vars.id_var],vars.id_var)
+      var id = find_variable(d,vars.id_var)
       vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
     })
     .on(vizwhiz.evt.out,function(d){
