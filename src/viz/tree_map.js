@@ -156,10 +156,10 @@ vizwhiz.tree_map = function(vars) {
         tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
         
         vizwhiz.tooltip.create({
-          "title": find_variable(d[vars.id_var],vars.text_var),
-          "color": find_variable(d[vars.id_var],vars.color_var),
-          "icon": find_variable(d[vars.id_var],"icon"),
-          "id": find_variable(d[vars.id_var],vars.id_var),
+          "title": find_variable(d,vars.text_var),
+          "color": find_variable(d,vars.color_var),
+          "icon": find_variable(d,"icon"),
+          "id": find_variable(d,vars.id_var),
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,

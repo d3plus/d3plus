@@ -250,10 +250,29 @@ vizwhiz.viz = function() {
         }
         
       }
+      
+      if (nested_apps.indexOf(vars.type) >= 0) {
+        
+        if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
+        
+        if (vars.type == "stacked") {
+          vars.data = data_obj[data_type[vars.type]][vars.depth]
+        }
+        else if (vars.type == "pie_scatter") {
+          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
+        }
+        else {
+          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
+        }
+        
+      }
+      else {
+        vars.data = data_obj[data_type[vars.type]][vars.year];
+      }
 
       vizwhiz.tooltip.remove();
       
-      vars.svg = vars.parent.selectAll("svg").data([data]);
+      vars.svg = vars.parent.selectAll("svg").data([vars.data]);
       
       vars.svg_enter = vars.svg.enter().append("svg")
         .attr('width',vars.svg_width)
@@ -291,25 +310,6 @@ vizwhiz.viz = function() {
           vars.links = links
         }
         vars.connections = get_connections(vars.links)
-      }
-      
-      if (nested_apps.indexOf(vars.type) >= 0) {
-        
-        if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
-        
-        if (vars.type == "stacked") {
-          vars.data = data_obj[data_type[vars.type]][vars.depth]
-        }
-        else if (vars.type == "pie_scatter") {
-          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
-        }
-        else {
-          vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
-        }
-        
-      }
-      else {
-        vars.data = data_obj[data_type[vars.type]][vars.year];
       }
       
       vars.width = vars.svg_width;
