@@ -1083,7 +1083,7 @@ vizwhiz.viz = function() {
       else {
         if (vizwhiz.dev) console.log("[viz-whiz] Creating/Updating Titles")
         vars.small = false;
-        vars.graph.margin = {"top": 5, "right": 10, "bottom": 55, "left": 45}
+        vars.graph.margin = {"top": 5, "right": 10, "bottom": 40, "left": 40}
         vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
@@ -1831,16 +1831,26 @@ vizwhiz.viz = function() {
     .orient('bottom')
     .tickFormat(function(d, i) {
       
-      if (vars.xaxis_var == vars.year_var) var text = d;
-      else var text = vars.number_format(d);
+      if ((vars.xscale_type == "log" && d.toString().charAt(0) == "1")
+          || vars.xscale_type != "log") {
       
-      d3.select(this)
-        .style(axis_style)
-        .attr("transform","translate(-22,8)rotate(-65)")
-        .text(text)
+        if (vars.xaxis_var == vars.year_var) var text = d;
+        else var text = vars.number_format(d);
+      
+        d3.select(this)
+          .style(axis_style)
+          .attr("transform","translate(-22,3)rotate(-65)")
+          .text(text)
         
-      var height = (Math.cos(25)*this.getBBox().width)-10
-      if (height > vars.graph.yoffset) vars.graph.yoffset = height
+        var height = (Math.cos(25)*this.getBBox().width)
+        if (height > vars.graph.yoffset) vars.graph.yoffset = height
+        
+        tick_offset = 10
+      }
+      else {
+        text = null
+        tick_offset = 5
+      }
       
       var bgtick = d3.select(this.parentNode).selectAll("line.tick")
         .data([i])
@@ -1849,35 +1859,48 @@ vizwhiz.viz = function() {
         .attr("class","tick")
         .attr("x1", 0)
         .attr("x2", 0)
-        .attr("y1", 15)
+        .attr("y1", tick_offset)
         .attr("y2", -vars.graph.height)
         .attr(tick_style)
         
       bgtick.transition().duration(vizwhiz.timing) 
         .attr("y2", -vars.graph.height)
-        
+      
       return text;
     });
   
   vars.y_axis = d3.svg.axis()
     .tickSize(0)
-    .tickPadding(20)
+    .tickPadding(15)
     .orient('left')
     .tickFormat(function(d, i) {
       
-      d3.select(this)
-        .style(axis_style)
-        .text(vars.number_format(d))
+      if ((vars.yscale_type == "log" && d.toString().charAt(0) == "1")
+          || vars.yscale_type != "log") {
+      
+        if (vars.yaxis_var == vars.year_var) var text = d;
+        else var text = vars.number_format(d);
+      
+        d3.select(this)
+          .style(axis_style)
+          .text(text)
         
-      var width = this.getBBox().width
-      if (width > vars.graph.offset) vars.graph.offset = width
+        var width = this.getBBox().width
+        if (width > vars.graph.offset) vars.graph.offset = width
+        
+        tick_offset = -10
+      }
+      else {
+        text = null
+        tick_offset = -5
+      }
       
       var bgtick = d3.select(this.parentNode).selectAll("line.tick")
         .data([i])
         
       bgtick.enter().append("line")
         .attr("class","tick")
-        .attr("x1", -15)
+        .attr("x1", tick_offset)
         .attr("x2", vars.graph.width)
         .attr("y1", 0)
         .attr("y2", 0)
@@ -1885,8 +1908,9 @@ vizwhiz.viz = function() {
         
       bgtick.transition().duration(vizwhiz.timing) 
         .attr("x2", vars.graph.width)
-        
-      return vars.number_format(d);
+      
+      return text;
+      
     });
     
   graph_update = function() {
