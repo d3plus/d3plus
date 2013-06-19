@@ -26,6 +26,7 @@ vizwhiz.geo_map = function(vars) {
       info_width = vars.small ? 0 : 300,
       scale_height = 10,
       scale_padding = 20,
+      scale_width = 250,
       path = d3.geo.path().projection(vars.projection),
       tile = d3.geo.tile().size([vars.width, vars.height]),
       old_scale = vars.projection.scale()*2*Math.PI,
@@ -117,7 +118,7 @@ vizwhiz.geo_map = function(vars) {
   
   if (!vars.small) {
     var gradient = defs
-      .append("svg:linearGradient")
+      .append("linearGradient")
       .attr("id", "gradient")
       .attr("x1", "0%")
       .attr("y1", "0%")
@@ -135,54 +136,84 @@ vizwhiz.geo_map = function(vars) {
     var scale = vars.parent_enter.append('g')
       .attr('class','scale')
       .style("opacity",0)
-      .attr("transform","translate("+(vars.width-info_width-5)+","+5+")");
+      .attr("transform","translate(30,5)");
+      
+    var shadow = defs.append("filter")
+      .attr("id", "shadow")
+      .attr("x", "-50%")
+      .attr("y", "0")
+      .attr("width", "200%")
+      .attr("height", "200%");
+      
+    shadow.append("feGaussianBlur")
+      .attr("in","SourceAlpha")
+      .attr("result","blurOut")
+      .attr("stdDeviation","3")
+      
+    shadow.append("feOffset")
+      .attr("in","blurOut")
+      .attr("result","the-shadow")
+      .attr("dx","0")
+      .attr("dy","1")
+      
+    shadow.append("feColorMatrix")
+      .attr("in","the-shadow")
+      .attr("result","colorOut")
+      .attr("type","matrix")
+      .attr("values","0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0")
+      
+    shadow.append("feBlend")
+      .attr("in","SourceGraphic")
+      .attr("in2","colorOut")
+      .attr("mode","normal")
     
     scale.append("rect")
-      .attr("width", info_width+"px")
-      .attr("height", (scale_height*6)+"px")
+      .attr("width", scale_width+"px")
+      .attr("height", "45px")
       .attr("fill","#ffffff")
-      .attr("rx",3)
-      .attr("ry",3)
+      .attr("opacity",0.75)
       .attr("stroke","#888")
-      .attr("stroke-width",1)
+      .attr("stroke-weight",1)
+      .attr("filter","url(#shadow)")
+      .attr("shape-rendering","crispEdges")
         
     scale.append("text")
       .attr("id","scale_title")
-      .attr("x",(info_width/2)+"px")
+      .attr("x",(scale_width/2)+"px")
       .attr("y","0px")
       .attr("dy","1.25em")
       .attr("text-anchor","middle")
       .attr("fill","#333")
-      .style("font-weight","bold")
-      .attr("font-size","12px")
+      .attr("font-size","10px")
       .attr("font-family","Helvetica")
        
     data_range.forEach(function(v,i){
       if (i == data_range.length-1) {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
+        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
       } else if (i != 0) {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))-1
+        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
       } else {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(info_width-(scale_padding*2)))
+        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))
       }
       scale.append("rect")
         .attr("x", x+"px")
-        .attr("y", (scale_height*2.5)+"px")
+        .attr("y", (scale_height*1.75)+"px")
         .attr("width", 1)
-        .attr("height", (scale_height*1.5)+"px")
+        .attr("height", ((scale_height*0.75)+3)+"px")
         .style("fill", "#333")
+        .attr("opacity",0.25)
     
       scale.append("rect")
         .attr("x",scale_padding+"px")
-        .attr("y",(scale_height*2.5)+"px")
-        .attr("width", (info_width-(scale_padding*2))+"px")
-        .attr("height", scale_height+"px")
+        .attr("y",(scale_height*1.75)+"px")
+        .attr("width", (scale_width-(scale_padding*2))+"px")
+        .attr("height", scale_height*0.75+"px")
         .style("fill", "url(#gradient)")
         
       scale.append("text")
         .attr("id","scale_"+i)
         .attr("x",x+"px")
-        .attr("y", ((scale_height*3.5)+5)+"px")
+        .attr("y", (scale_height*2.75)+"px")
         .attr("dy","1em")
         .attr("text-anchor","middle")
         .attr("fill","#333")
@@ -195,11 +226,10 @@ vizwhiz.geo_map = function(vars) {
       d3.select("g.scale").style("opacity",0)
     }
     else {
-
       data_range.forEach(function(v,i){
-        scale.select("text#scale_"+i).text(vars.number_format(v))
+        d3.select("g.scale").select("text#scale_"+i).text(vars.number_format(v))
       })
-      scale.select("text#scale_title").text(vars.text_format(vars.value_var))
+      d3.select("g.scale").select("text#scale_title").text(vars.text_format(vars.value_var))
       d3.select("g.scale").style("opacity",1)
     }
     
@@ -286,9 +316,6 @@ vizwhiz.geo_map = function(vars) {
     .call(color_paths);
   
   info();
-    
-  d3.select("g.scale").transition().duration(vizwhiz.timing)
-    .attr("transform","translate("+(vars.width-info_width-5)+","+5+")");
     
   //===================================================================
   
@@ -484,7 +511,7 @@ vizwhiz.geo_map = function(vars) {
         "color": color,
         "footer": footer,
         "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,
-        "y": (scale_height*6)+10+vars.margin.top+vars.parent.node().offsetTop,
+        "y": vars.margin.top+vars.parent.node().offsetTop+5,
         "fixed": true,
         "width": info_width
       })

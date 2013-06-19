@@ -1080,7 +1080,8 @@ vizwhiz.viz = function() {
   
   var tick_style = {
     "stroke": "#ccc",
-    "stroke-width": 1
+    "stroke-width": 1,
+    "shape-rendering": "crispEdges"
   }
   
   var axis_style = {
@@ -1216,6 +1217,7 @@ vizwhiz.viz = function() {
       .attr('height', vars.graph.height)
       .attr("stroke-width",1)
       .attr("stroke","#ccc")
+      .attr("shape-rendering","crispEdges")
 
     // Create X axis
     vars.chart_enter.append("g")
