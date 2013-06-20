@@ -203,6 +203,7 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("y2", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
     .attr("stroke", function(d){ return find_variable(d[vars.id_var],vars.color_var); })
     .attr("stroke-width", 1)
+    .attr("shape-rendering","crispEdges")
   
   // UPDATE      
   ticks.select(".ytick").transition().duration(vizwhiz.timing)
@@ -221,6 +222,7 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("x2", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
     .attr("stroke", function(d){ return find_variable(d[vars.id_var],vars.color_var); })
     .attr("stroke-width", 1)
+    .attr("shape-rendering","crispEdges")
   
   // UPDATE
   ticks.select(".xtick").transition().duration(vizwhiz.timing)
@@ -264,7 +266,8 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("y1", y+radius+1) // offset so hover doens't flicker
           .attr("y2", vars.graph.height)
           .attr("stroke", color)
-          .attr("stroke-width", 2)
+          .attr("stroke-width", 1)
+          .attr("shape-rendering","crispEdges")
       
         // horizontal line to y-axis
         viz.append("line")
@@ -274,7 +277,8 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("y1", y)
           .attr("y2", y)
           .attr("stroke", color)
-          .attr("stroke-width", 2)
+          .attr("stroke-width", 1)
+          .attr("shape-rendering","crispEdges")
       
         // x-axis value box
         viz.append("rect")
@@ -285,7 +289,8 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("height", 20)
           .attr("fill", "white")
           .attr("stroke", color)
-          .attr("stroke-width", 2)
+          .attr("stroke-width", 1)
+          .attr("shape-rendering","crispEdges")
       
         var xtext = vars.number_format({
           "value": d[vars.xaxis_var],
@@ -313,7 +318,8 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("height", 20)
           .attr("fill", "white")
           .attr("stroke", color)
-          .attr("stroke-width", 2)
+          .attr("stroke-width", 1)
+          .attr("shape-rendering","crispEdges")
       
         var ytext = vars.number_format({
           "value": d[vars.yaxis_var],
