@@ -11,7 +11,12 @@ vizwhiz.pie_scatter = function(vars) {
   
   if (!size_domain[1]) size_domain = [0,0]
   
-  var size_range = [2, d3.max([d3.min([vars.width,vars.height])/35,10])]
+  var max_size = d3.max([d3.min([vars.graph.width,vars.graph.height])/25,10]),
+      min_size = 3
+      
+  if (size_domain[0] == size_domain[1]) var min_size = max_size
+  
+  var size_range = [min_size,max_size]
   
   vars.size_scale = d3.scale[vars.size_scale_type]()
     .domain(size_domain)
