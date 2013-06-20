@@ -1,4 +1,255 @@
 vizwhiz.network = function(vars) {
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Function that handles the zooming and panning of the visualization
+  //-------------------------------------------------------------------
+  
+  vars.zoom = function(direction) {
+    
+    var zoom_extent = zoom_behavior.scaleExtent()
+    // If d3 zoom event is detected, use it!
+    if(!direction) {
+      evt_scale = d3.event.scale
+      translate = d3.event.translate
+    } 
+    else {
+      if (direction == "in") {
+        if (zoom_behavior.scale() > zoom_extent[1]/2) multiplier = zoom_extent[1]/zoom_behavior.scale()
+        else multiplier = 2
+      } 
+      else if (direction == "out") {
+        if (zoom_behavior.scale() < zoom_extent[0]*2) multiplier = zoom_extent[0]/zoom_behavior.scale()
+        else multiplier = 0.5
+      } 
+      else if (direction == vars.highlight) {
+        var x_bounds = [scale.x(highlight_extent.x[0]),scale.x(highlight_extent.x[1])],
+            y_bounds = [scale.y(highlight_extent.y[0]),scale.y(highlight_extent.y[1])]
+            
+        if (x_bounds[1] > (vars.width-info_width-5)) var offset_left = info_width+32
+        else var offset_left = 0
+            
+        var w_zoom = (vars.width-info_width-10)/(x_bounds[1]-x_bounds[0]),
+            h_zoom = vars.height/(y_bounds[1]-y_bounds[0])
+        
+        if (w_zoom < h_zoom) {
+          x_bounds = [x_bounds[0]-(max_size*4),x_bounds[1]+(max_size*4)]
+          evt_scale = (vars.width-info_width-10)/(x_bounds[1]-x_bounds[0])
+          if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
+          offset_x = -(x_bounds[0]*evt_scale)
+          offset_y = -(y_bounds[0]*evt_scale)+((vars.height-((y_bounds[1]-y_bounds[0])*evt_scale))/2)
+        } else {
+          y_bounds = [y_bounds[0]-(max_size*2),y_bounds[1]+(max_size*2)]
+          evt_scale = vars.height/(y_bounds[1]-y_bounds[0])
+          if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
+          offset_x = -(x_bounds[0]*evt_scale)+(((vars.width-info_width-10)-((x_bounds[1]-x_bounds[0])*evt_scale))/2)
+          offset_y = -(y_bounds[0]*evt_scale)
+        }
+
+        translate = [offset_x+offset_left,offset_y]
+      } 
+      else if (direction == "reset") {
+        vars.highlight = null
+        translate = [0,0]
+        evt_scale = 1
+      }
+      
+      if (direction == "in" || direction == "out") {
+        var trans = d3.select("g.viz")[0][0].getAttribute('transform')
+        if (trans) {
+          trans = trans.split('(')
+          var coords = trans[1].split(')')
+          coords = coords[0].replace(' ',',')
+          coords = coords.substring(0,trans[1].length-6).split(',')
+          offset_x = parseFloat(coords[0])
+          offset_y = coords.length == 2 ? parseFloat(coords[1]) : parseFloat(coords[0])
+          zoom_var = parseFloat(trans[2].substring(0,trans[2].length-1))
+        } else {
+          offset_x = 0
+          offset_y = 0
+          zoom_var = 1
+        }
+        if ((multiplier > 0.5 && multiplier <= 1) && direction == "out") {
+          offset_x = 0
+          offset_y = 0
+        } else {
+          offset_x = (vars.width/2)-(((vars.width/2)-offset_x)*multiplier)
+          offset_y = (vars.height/2)-(((vars.height/2)-offset_y)*multiplier)
+        }
+      
+        translate = [offset_x,offset_y]
+        evt_scale = zoom_var*multiplier
+      }
+    
+    }
+    
+    zoom_behavior.translate(translate).scale(evt_scale)
+    
+    // Auto center visualization
+    if (translate[0] > 0) translate[0] = 0
+    else if (translate[0] < -((vars.width*evt_scale)-vars.width)) {
+      translate[0] = -((vars.width*evt_scale)-vars.width)
+    }
+    if (translate[1] > 0) translate[1] = 0
+    else if (translate[1] < -((vars.height*evt_scale)-vars.height)) translate[1] = -((vars.height*evt_scale)-vars.height)
+    if (!direction) {
+      if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
+        var viz_timing = d3.select(".viz")
+      } else {
+        var viz_timing = d3.select(".viz").transition().duration(vizwhiz.timing)
+      }
+    } else {
+      var viz_timing = d3.select(".viz").transition().duration(vizwhiz.timing)
+    }
+    viz_timing.attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
+    
+  }
+
+  //===================================================================
+  
+  vars.update = function() {
+    // If highlight variable has ACTUALLY changed, do this stuff
+    if (last_highlight != vars.highlight) {
+      
+      // Remove all tooltips on page
+      vizwhiz.tooltip.remove()
+      d3.select("g.highlight").selectAll("*").remove()
+      d3.select("g.hover").selectAll("*").remove()
+      
+      if (vars.highlight) {
+                          
+        create_nodes("highlight")
+        
+      }
+      else {
+        vars.zoom("reset");
+      }
+      
+      node.call(node_color)
+      
+      last_highlight = vars.highlight
+    }
+
+    // If hover variable has ACTUALLY changed, do this stuff
+    if (last_hover != hover) {
+
+      d3.select("g.hover").selectAll("*").remove()
+      
+      // If a new hover element exists, create it
+      if (hover && hover != vars.highlight) {
+        create_nodes("hover")
+      }
+      
+      // Set last_hover to the new hover ID
+      last_hover = hover
+    }
+    
+    function create_nodes(group) {
+      
+      if (group == "highlight") {
+        var c = vars.highlight
+      }
+      else {
+        var c = hover
+      }
+      
+      var node_data = vars.nodes.filter(function(x){return x[vars.id_var] == c})
+      
+      if (group == "highlight" || !vars.highlight) {
+
+        var prim_nodes = [],
+            prim_links = [];
+            
+        if (vars.connections[c]) {
+          vars.connections[c].forEach(function(n){
+            prim_nodes.push(vars.nodes.filter(function(x){return x[vars.id_var] == n[vars.id_var]})[0])
+          })
+          prim_nodes.forEach(function(n){
+            prim_links.push({"source": node_data[0], "target": n})
+          })
+        }
+        
+        var node_data = prim_nodes.concat(node_data)
+        highlight_extent.x = d3.extent(d3.values(node_data),function(v){return v.x;}),
+        highlight_extent.y = d3.extent(d3.values(node_data),function(v){return v.y;})
+
+        if (group == "highlight") {
+          vars.zoom(c);
+          
+          // Draw Info Panel
+          if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) {
+            var x_pos = 30
+          }
+          else {
+            var x_pos = vars.width-info_width-5
+          }
+         
+          var prod = vars.nodes.filter(function(n){return n[vars.id_var] == vars.highlight})[0]
+          
+          var tooltip_data = get_tooltip_data(vars.highlight)
+          
+          var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
+      
+          prim_nodes.forEach(function(n){
+            
+            var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
+            
+            tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+            tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+            tooltip_appends += " style='"
+            tooltip_appends += "background-color:"+fill_color(n)+";"
+            tooltip_appends += "border-color:"+stroke_color(n)+";"
+            tooltip_appends += "'"
+            tooltip_appends += "></div>"
+            tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+            tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
+            tooltip_appends += "</div>"
+            tooltip_appends += "</div>"
+          })
+          
+          vizwhiz.tooltip.create({
+            "data": tooltip_data,
+            "title": find_variable(vars.highlight,vars.text_var),
+            "color": find_variable(vars.highlight,vars.color_var),
+            "x": vars.parent.node().offsetLeft+x_pos,
+            "y": vars.parent.node().offsetTop+vars.margin.top+5,
+            "width": info_width,
+            "html": tooltip_appends,
+            "fixed": true
+          })
+          
+        }
+        
+        d3.select("g."+group).selectAll("line")
+          .data(prim_links).enter().append("line")
+            .attr("pointer-events","none")
+            .attr("stroke",vars.highlight_color)
+            .attr("stroke-width",2)
+            .call(link_position)
+      }
+      
+      var node_groups = d3.select("g."+group).selectAll("g")
+        .data(node_data).enter().append("g")
+          .attr("class","hover_node")
+          .call(node_events)
+    
+      node_groups
+        .append("circle")
+          .attr("class","bg")
+          .call(node_size)
+          .call(node_position)
+          .call(node_stroke)
+          .attr("stroke",vars.highlight_color);
+        
+      node_groups
+        .append("circle")
+          .call(node_size)
+          .call(node_position)
+          .call(node_stroke)
+          .call(node_color)
+          .call(create_label);
+    }
+    
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables
@@ -72,7 +323,7 @@ vizwhiz.network = function(vars) {
     
   // Create viz group on vars.parent_enter
   var viz_enter = vars.parent_enter.append("g")
-    .call(zoom_behavior.on("zoom",function(){ zoom(); }))
+    .call(zoom_behavior.on("zoom",function(){ vars.zoom(); }))
     .on(vizwhiz.evt.down,function(d){
       dragging = true
     })
@@ -92,13 +343,13 @@ vizwhiz.network = function(vars) {
     .on(vizwhiz.evt.over,function(d){
       if (!vars.highlight && hover) {
         hover = null;
-        update();
+        vars.update();
       }
     })
     .on(vizwhiz.evt.click,function(d){
       vars.highlight = null;
-      zoom("reset");
-      update();
+      vars.zoom("reset");
+      vars.update();
     })
     .on(vizwhiz.evt.move,function(d){
       if (zoom_behavior.scale() > 1) {
@@ -129,25 +380,7 @@ vizwhiz.network = function(vars) {
   viz_enter.append('g')
     .attr('class','hover')
     
-  if (!vars.small) {
-    // Create Zoom Controls div on vars.parent_enter
-    vars.parent.select("div#zoom_controls").remove()
-    var zoom_div = vars.parent.append("div")
-      .attr("id","zoom_controls")
-      .style("top",(vars.margin.top+5)+"px")
-    
-    zoom_div.append("div")
-      .attr("id","zoom_in")
-      .attr("unselectable","on")
-      .on(vizwhiz.evt.click,function(){ zoom("in") })
-      .text("+")
-    
-    zoom_div.append("div")
-      .attr("id","zoom_out")
-      .attr("unselectable","on")
-      .on(vizwhiz.evt.click,function(){ zoom("out") })
-      .text("-")
-  }
+  zoom_controls();
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // New nodes and links enter, initialize them here
@@ -182,7 +415,7 @@ vizwhiz.network = function(vars) {
   node
     .on(vizwhiz.evt.over, function(d){
       hover = d[vars.id_var];
-      update();
+      vars.update();
     });
 
   node.transition().duration(vizwhiz.timing)
@@ -223,22 +456,23 @@ vizwhiz.network = function(vars) {
       vars.highlight = null;
     }
   }
-  update();
+  vars.update();
       
   function link_position(l) {
     l
       .attr("x1", function(d) { return scale.x(d.source.x); })
       .attr("y1", function(d) { return scale.y(d.source.y); })
       .attr("x2", function(d) { return scale.x(d.target.x); })
-      .attr("y2", function(d) { return scale.y(d.target.y); });
+      .attr("y2", function(d) { return scale.y(d.target.y); })
+      .attr("vector-effect","non-scaling-stroke")
   }
   
   function link_events(l) {
     l
       .on(vizwhiz.evt.click,function(d){
         vars.highlight = null;
-        zoom("reset");
-        update();
+        vars.zoom("reset");
+        vars.update();
       })
   }
   
@@ -268,12 +502,13 @@ vizwhiz.network = function(vars) {
         var bg = class_name == "bg"
         
         if (bg) {
-          if (vars.highlight == d[vars.id_var]) return 3;
-          else return 2;
+          if (vars.highlight == d[vars.id_var]) return 6;
+          else return 4;
         }
         else if (highlighted) return 0;
         else return 1;
       })
+      .attr("vector-effect","non-scaling-stroke")
   }
   
   function node_color(n) {
@@ -358,7 +593,7 @@ vizwhiz.network = function(vars) {
         
         if (d[vars.id_var] != hover) {
           hover = d[vars.id_var];
-          update();
+          vars.update();
         }
         
       })
@@ -371,12 +606,12 @@ vizwhiz.network = function(vars) {
           var id_check = target.__data__[vars.id_var] == d[vars.id_var]
           if (d3.event.toElement.parentNode != this && !id_check) {
             hover = null;
-            update();
+            vars.update();
           }
         }
         else {
           hover = null;
-          update();
+          vars.update();
         }
         
       })
@@ -395,154 +630,9 @@ vizwhiz.network = function(vars) {
           vars.highlight = null;
         }
         
-        update();
+        vars.update();
         
       })
-  }
-  
-  function update() {
-    // If highlight variable has ACTUALLY changed, do this stuff
-    if (last_highlight != vars.highlight) {
-      
-      // Remove all tooltips on page
-      vizwhiz.tooltip.remove()
-      d3.select("g.highlight").selectAll("*").remove()
-      d3.select("g.hover").selectAll("*").remove()
-      
-      if (vars.highlight) {
-                          
-        create_nodes("highlight")
-        
-      }
-      else {
-        zoom("reset");
-      }
-      
-      node.call(node_color)
-      
-      last_highlight = vars.highlight
-    }
-
-    // If hover variable has ACTUALLY changed, do this stuff
-    if (last_hover != hover) {
-
-      d3.select("g.hover").selectAll("*").remove()
-      
-      // If a new hover element exists, create it
-      if (hover && hover != vars.highlight) {
-        create_nodes("hover")
-      }
-      
-      // Set last_hover to the new hover ID
-      last_hover = hover
-    }
-    
-    function create_nodes(group) {
-      
-      if (group == "highlight") {
-        var c = vars.highlight
-      }
-      else {
-        var c = hover
-      }
-      
-      var node_data = vars.nodes.filter(function(x){return x[vars.id_var] == c})
-      
-      if (group == "highlight" || !vars.highlight) {
-
-        var prim_nodes = [],
-            prim_links = [];
-            
-        if (vars.connections[c]) {
-          vars.connections[c].forEach(function(n){
-            prim_nodes.push(vars.nodes.filter(function(x){return x[vars.id_var] == n[vars.id_var]})[0])
-          })
-          prim_nodes.forEach(function(n){
-            prim_links.push({"source": node_data[0], "target": n})
-          })
-        }
-        
-        var node_data = prim_nodes.concat(node_data)
-        highlight_extent.x = d3.extent(d3.values(node_data),function(v){return v.x;}),
-        highlight_extent.y = d3.extent(d3.values(node_data),function(v){return v.y;})
-
-        if (group == "highlight") {
-          zoom(c);
-          
-          // Draw Info Panel
-          if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) {
-            var x_pos = 30
-          }
-          else {
-            var x_pos = vars.width-info_width-5
-          }
-         
-          var prod = vars.nodes.filter(function(n){return n[vars.id_var] == vars.highlight})[0]
-          
-          var tooltip_data = get_tooltip_data(vars.highlight)
-          
-          var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
-      
-          prim_nodes.forEach(function(n){
-            
-            var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
-            
-            tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
-            tooltip_appends += "<div class='vizwhiz_network_connection_node'"
-            tooltip_appends += " style='"
-            tooltip_appends += "background-color:"+fill_color(n)+";"
-            tooltip_appends += "border-color:"+stroke_color(n)+";"
-            tooltip_appends += "'"
-            tooltip_appends += "></div>"
-            tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
-            tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
-            tooltip_appends += "</div>"
-            tooltip_appends += "</div>"
-          })
-          
-          vizwhiz.tooltip.create({
-            "data": tooltip_data,
-            "title": find_variable(vars.highlight,vars.text_var),
-            "color": find_variable(vars.highlight,vars.color_var),
-            "x": vars.parent.node().offsetLeft+x_pos,
-            "y": vars.parent.node().offsetTop+vars.margin.top+5,
-            "width": info_width,
-            "html": tooltip_appends,
-            "fixed": true
-          })
-          
-        }
-        
-        d3.select("g."+group).selectAll("line")
-          .data(prim_links).enter().append("line")
-            .attr("pointer-events","none")
-            .attr("stroke",vars.highlight_color)
-            .attr("stroke-width",1.5)
-            .call(link_position)
-      }
-      
-      var node_groups = d3.select("g."+group).selectAll("g")
-        .data(node_data).enter().append("g")
-          .attr("class","hover_node")
-          .call(node_events)
-    
-      node_groups
-        .append("circle")
-          .attr("class","bg")
-          .call(node_size)
-          .call(node_position)
-          .call(node_stroke)
-          .attr("stroke",vars.highlight_color);
-        
-      node_groups
-        .append("circle")
-          .call(node_size)
-          .call(node_position)
-          .call(node_stroke)
-          .call(node_color)
-          .call(create_label);
-    }
-    
   }
   
   function create_label(n) {
@@ -550,6 +640,8 @@ vizwhiz.network = function(vars) {
       n.each(function(d){
 
         var font_size = Math.ceil(10/zoom_behavior.scale()),
+            padding = font_size/4,
+            corner = Math.ceil(3/zoom_behavior.scale())
             value = find_variable(d[vars.id_var],vars.value_var),
             size = value > 0 ? scale.size(value) : scale.size(val_range[0])
         if (font_size < size || d[vars.id_var] == hover || d[vars.id_var] == vars.highlight) {
@@ -560,10 +652,10 @@ vizwhiz.network = function(vars) {
             .attr("font-size",font_size+"px")
             .attr("text-anchor","middle")
             .attr("font-family","Helvetica")
-            .style("font-weight","bold")
+            .attr("font-weight","bold")
             .each(function(e){
-              var tw = size*8,
-                  th = size < font_size*2 ? font_size*2 : size
+              var th = size < font_size+padding*2 ? font_size+padding*2 : size,
+                  tw = ((font_size*5)/th)*(font_size*5)
               var text = find_variable(d[vars.id_var],vars.text_var)
               vizwhiz.utils.wordwrap({
                 "text": text,
@@ -586,33 +678,33 @@ vizwhiz.network = function(vars) {
           var w = text.node().getBBox().width,
               h = text.node().getBBox().height
         
-          text.attr("y",scale.y(d.y)-(h/2))
+          text.attr("y",scale.y(d.y)-(h/2)-(padding/3))
           
-          if (h+(font_size*1.5) > size*2 && d[vars.id_var] != hover && d[vars.id_var] != vars.highlight) {
-            text.remove();
-          }
-          else if (w+(font_size) > size*2) {
+          w = w+(padding*6)
+          h = h+(padding*2)
+          
+          if (w > size*2) {
             d3.select(text.node().parentNode)
               .insert("rect","circle")
                 .attr("class","bg")
-                .attr("rx",font_size)
-                .attr("ry",font_size)
-                .attr("width",w+(font_size*1.5))
-                .attr("height",h+(font_size*1.5))
-                .attr("y",scale.y(d.y)-((h+(font_size*1.5))/2))
-                .attr("x",scale.x(d.x)-((w+(font_size*1.5))/2))
+                .attr("rx",corner)
+                .attr("ry",corner)
+                .attr("width",w)
+                .attr("height",h)
+                .attr("y",scale.y(d.y)-(h/2))
+                .attr("x",scale.x(d.x)-(w/2))
                 .call(node_stroke)
                 .attr("stroke",vars.highlight_color);
             d3.select(text.node().parentNode)
               .insert("rect","text")
-                .attr("rx",font_size)
-                .attr("ry",font_size)
+                .attr("rx",corner)
+                .attr("ry",corner)
                 .attr("stroke-width", 0)
                 .attr("fill",fill_color(d))
-                .attr("width",w+(font_size*1.5))
-                .attr("height",h+(font_size*1.5))
-                .attr("y",scale.y(d.y)-((h+(font_size*1.5))/2))
-                .attr("x",scale.x(d.x)-((w+(font_size*1.5))/2));
+                .attr("width",w)
+                .attr("height",h)
+                .attr("y",scale.y(d.y)-(h/2))
+                .attr("x",scale.x(d.x)-(w/2));
           }
         }
         
@@ -620,106 +712,5 @@ vizwhiz.network = function(vars) {
       
     }
   }
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Function that handles the zooming and panning of the visualization
-  //-------------------------------------------------------------------
-  
-  function zoom(direction) {
-    
-    var zoom_extent = zoom_behavior.scaleExtent()
-    // If d3 zoom event is detected, use it!
-    if(!direction) {
-      evt_scale = d3.event.scale
-      translate = d3.event.translate
-    } else {
-      if (direction == "in") {
-        if (zoom_behavior.scale() > zoom_extent[1]/2) multiplier = zoom_extent[1]/zoom_behavior.scale()
-        else multiplier = 2
-      } else if (direction == "out") {
-        if (zoom_behavior.scale() < zoom_extent[0]*2) multiplier = zoom_extent[0]/zoom_behavior.scale()
-        else multiplier = 0.5
-      } else if (direction == vars.highlight) {
-        var x_bounds = [scale.x(highlight_extent.x[0]),scale.x(highlight_extent.x[1])],
-            y_bounds = [scale.y(highlight_extent.y[0]),scale.y(highlight_extent.y[1])]
-            
-        if (x_bounds[1] > (vars.width-info_width-5)) var offset_left = info_width+32
-        else var offset_left = 0
-            
-        var w_zoom = (vars.width-info_width-10)/(x_bounds[1]-x_bounds[0]),
-            h_zoom = vars.height/(y_bounds[1]-y_bounds[0])
-        
-        if (w_zoom < h_zoom) {
-          x_bounds = [x_bounds[0]-(max_size*4),x_bounds[1]+(max_size*4)]
-          evt_scale = (vars.width-info_width-10)/(x_bounds[1]-x_bounds[0])
-          if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
-          offset_x = -(x_bounds[0]*evt_scale)
-          offset_y = -(y_bounds[0]*evt_scale)+((vars.height-((y_bounds[1]-y_bounds[0])*evt_scale))/2)
-        } else {
-          y_bounds = [y_bounds[0]-(max_size*2),y_bounds[1]+(max_size*2)]
-          evt_scale = vars.height/(y_bounds[1]-y_bounds[0])
-          if (evt_scale > zoom_extent[1]) evt_scale = zoom_extent[1]
-          offset_x = -(x_bounds[0]*evt_scale)+(((vars.width-info_width-10)-((x_bounds[1]-x_bounds[0])*evt_scale))/2)
-          offset_y = -(y_bounds[0]*evt_scale)
-        }
-
-        translate = [offset_x+offset_left,offset_y]
-      } else if (direction == "reset") {
-        translate = [0,0]
-        evt_scale = 1
-      }
-      
-      if (direction == "in" || direction == "out") {
-        var trans = d3.select("g.viz")[0][0].getAttribute('transform')
-        if (trans) {
-          trans = trans.split('(')
-          var coords = trans[1].split(')')
-          coords = coords[0].replace(' ',',')
-          coords = coords.substring(0,trans[1].length-6).split(',')
-          offset_x = parseFloat(coords[0])
-          offset_y = coords.length == 2 ? parseFloat(coords[1]) : parseFloat(coords[0])
-          zoom_var = parseFloat(trans[2].substring(0,trans[2].length-1))
-        } else {
-          offset_x = 0
-          offset_y = 0
-          zoom_var = 1
-        }
-        if ((multiplier > 0.5 && multiplier <= 1) && direction == "out") {
-          offset_x = 0
-          offset_y = 0
-        } else {
-          offset_x = (vars.width/2)-(((vars.width/2)-offset_x)*multiplier)
-          offset_y = (vars.height/2)-(((vars.height/2)-offset_y)*multiplier)
-        }
-      
-        translate = [offset_x,offset_y]
-        evt_scale = zoom_var*multiplier
-      }
-    
-    }
-    
-    zoom_behavior.translate(translate).scale(evt_scale)
-    
-    // Auto center visualization
-    if (translate[0] > 0) translate[0] = 0
-    else if (translate[0] < -((vars.width*evt_scale)-vars.width)) {
-      translate[0] = -((vars.width*evt_scale)-vars.width)
-    }
-    if (translate[1] > 0) translate[1] = 0
-    else if (translate[1] < -((vars.height*evt_scale)-vars.height)) translate[1] = -((vars.height*evt_scale)-vars.height)
-    if (!direction) {
-      if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
-        var viz_timing = d3.select(".viz")
-      } else {
-        var viz_timing = d3.select(".viz").transition().duration(vizwhiz.timing)
-      }
-    } else {
-      var viz_timing = d3.select(".viz").transition().duration(vizwhiz.timing)
-    }
-    viz_timing.attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
-    
-  }
-
-  //===================================================================
       
 };

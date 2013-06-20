@@ -110,17 +110,23 @@ div.vizwhiz_tooltip_close {
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
      -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-  border: 1px solid #888;
-  font-size: 14px;
-  padding: 3px 6px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  height: 18px;
+  line-height: 15px;
   position: absolute;
-  right: 18px;
-  top: -11px;
+  right: 16px;
+  text-align: center;
+  top: -10px;
+  width: 18px;
 }
 
 div.vizwhiz_tooltip_close:hover {
   cursor: pointer;
-  text-decoration: underline;
+  -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+     -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
 div.vizwhiz_tooltip_arrow {
@@ -251,7 +257,7 @@ div.vizwhiz_network_connection_name {
   z-index: 50;
 }
 
-#zoom_in, #zoom_out {
+#zoom_in, #zoom_out, #zoom_reset {
   background-color: #ffffff;
   background-position: 50% 50%;
   background-repeat: no-repeat;
@@ -271,21 +277,21 @@ div.vizwhiz_network_connection_name {
           -moz-user-select: none;
 }
 
-#zoom_in:hover, #zoom_out:hover {
-  cursor: pointer;
+#zoom_in:hover, #zoom_out:hover, #zoom_reset:hover {
   opacity: 1;
 }
 
 #zoom_in {
   cursor: pointer;
-  cursor: -moz-zoom-in;
-  cursor: -webkit-zoom-in;
   font: normal 18px/20px Arial, Helvetica, sans-serif;
 }
 
 #zoom_out {
   cursor: pointer;
-  cursor: -moz-zoom-out;
-  cursor: -webkit-zoom-out;
   font: normal 22px/16px Tahoma, Verdana, sans-serif;
+}
+
+#zoom_reset {
+  cursor: pointer;
+  font: bold 15px/19px Arial, Helvetica, sans-serif;
 }

@@ -1,4 +1,162 @@
-vizwhiz.geo_map = function(vars) {
+vizwhiz.geo_map = function(vars) { 
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Zoom Function
+  //-------------------------------------------------------------------
+  
+  vars.zoom = function(param,custom_timing) {
+    
+    var translate = vars.zoom_behavior.translate(),
+        zoom_extent = vars.zoom_behavior.scaleExtent()
+        
+    var scale = vars.zoom_behavior.scale()
+    
+    if (param == "in") var scale = scale*2
+    else if (param == "out") var scale = scale*0.5
+    else if (param == "reset") {
+      console.log(param)
+      var param = vars.boundries
+      if (vars.highlight) {
+        var temp = vars.highlight;
+        vars.highlight = null;
+        d3.select("#path"+temp).call(color_paths);
+        vars.update();
+      }
+    }
+    
+    var svg_scale = scale/vars.width,
+        svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/vars.width)*vars.height)/2)]
+        
+    old_scale = vars.projection.scale()*2*Math.PI
+    old_translate = vars.projection.translate()
+        
+    if (param.coordinates) {
+      
+      if (vars.highlight) { 
+        var left = 20, w_avail = vars.width-info_width-left
+      } else {
+        var left = 0, w_avail = vars.width
+      }
+      
+      var b = path.bounds(param),
+          w = (b[1][0] - b[0][0])*1.1,
+          h = (b[1][1] - b[0][1])*1.1,
+          s_width = (w_avail*(scale/vars.width))/w,
+          s_height = (vars.height*(scale/vars.width))/h
+          
+      if (s_width < s_height) {
+        var s = s_width*vars.width,
+            offset_left = ((w_avail-(((w/1.1)/svg_scale)*s/vars.width))/2)+left,
+            offset_top = (vars.height-((h/svg_scale)*s/vars.width))/2
+      } else {
+        var s = s_height*vars.width,
+            offset_left = ((w_avail-((w/svg_scale)*s/vars.width))/2)+left,
+            offset_top = (vars.height-(((h/1.1)/svg_scale)*s/vars.width))/2
+      }
+      
+      var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/vars.width)+offset_left,
+          t_y = ((-(b[0][1]-svg_translate[1])/svg_scale)*s/vars.width)+offset_top
+          
+      var t = [t_x+(s/2),t_y+(((s/vars.width)*vars.height)/2)]
+      
+      translate = t
+      scale = s
+      
+    } else if (param == "in" || param == "out") {
+      
+      var b = vars.projection.translate()
+      
+      if (param == "in") translate = [b[0]+(b[0]-(vars.width/2)),b[1]+(b[1]-(vars.height/2))]
+      else if (param == "out") translate = [b[0]+(((vars.width/2)-b[0])/2),b[1]+(((vars.height/2)-b[1])/2)]
+    }
+    
+    // Scale Boundries
+    if (scale < zoom_extent[0]) scale = zoom_extent[0]
+    else if (scale > zoom_extent[1]) scale = zoom_extent[1]
+    // X Boundries
+    if (translate[0] > scale/2) translate[0] = scale/2
+    else if (translate[0] < vars.width-scale/2) translate[0] = vars.width-scale/2
+    // Y Boundries
+    if (translate[1] > scale/2) translate[1] = scale/2
+    else if (translate[1] < vars.height-scale/2) translate[1] = vars.height-scale/2
+
+    vars.projection.scale(scale/(2*Math.PI)).translate(translate);
+    vars.zoom_behavior.scale(scale).translate(translate);
+    svg_scale = scale/vars.width;
+    svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/vars.width)*vars.height)/2)];
+    
+    if (typeof custom_timing != "number") {
+      if (d3.event) {
+        if (d3.event.scale) {
+          if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
+            var zoom_timing = 0
+          } else {
+            var zoom_timing = vizwhiz.timing
+          }
+        } else {
+          var zoom_timing = vizwhiz.timing
+        }
+      } else {
+        var zoom_timing = vizwhiz.timing*4
+      }
+    } else var zoom_timing = custom_timing
+
+    if (vars.tiles) update_tiles(zoom_timing);
+    
+    if (zoom_timing > 0) var viz_transition = d3.selectAll(".viz").transition().duration(zoom_timing)
+    else var viz_transition = d3.selectAll(".viz")
+    
+    viz_transition.attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
+        
+  }
+
+  //===================================================================
+
+  vars.update = function() {
+    
+    vizwhiz.tooltip.remove();
+    
+    if (!vars.small && (hover || vars.highlight)) {
+      
+      var id = vars.highlight ? vars.highlight : hover
+      
+      var tooltip_data = get_tooltip_data(id)
+      
+      var data = vars.data[id]
+      
+      if (data && data[vars.value_var]) {
+        var color = value_color(data[vars.value_var])
+      }
+      else {
+        var color = "#888"
+      }
+      
+      if (!data || !data[vars.value_var]) {
+        var footer = vars.text_format("No Data Available")
+      }
+      else if (!vars.highlight) {
+        var footer = vars.text_format("Click for More Info")
+      }
+      else {
+        var footer = vars.data_source
+      }
+      
+      vizwhiz.tooltip.create({
+        "data": tooltip_data,
+        "title": find_variable(id,vars.text_var),
+        "id": find_variable(id,vars.id_var),
+        "icon": find_variable(id,"icon"),
+        "color": color,
+        "footer": footer,
+        "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,
+        "y": vars.margin.top+vars.parent.node().offsetTop+5,
+        "fixed": true,
+        "width": info_width
+      })
+      
+    }
+    
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables with Default Settings
@@ -13,7 +171,7 @@ vizwhiz.geo_map = function(vars) {
     vars.zoom_behavior
       .scale(vars.projection.scale()*2*Math.PI)
       .translate(vars.projection.translate())
-      .on("zoom",function(d){ zoom(d); })
+      .on("zoom",function(d){ vars.zoom(d); })
       .scaleExtent([vars.width, 1 << 23]);
       
   }
@@ -103,11 +261,7 @@ vizwhiz.geo_map = function(vars) {
   d3.select("rect.overlay")
     .on(vizwhiz.evt.click, function(d) {
       if (vars.highlight) {
-        var temp = vars.highlight;
-        vars.highlight = null;
-        d3.select("#path"+temp).call(color_paths);
-        zoom(vars.boundries);
-        info();
+        vars.zoom("reset");
       }
     })
     
@@ -232,27 +386,9 @@ vizwhiz.geo_map = function(vars) {
       d3.select("g.scale").select("text#scale_title").text(vars.text_format(vars.value_var))
       d3.select("g.scale").style("opacity",1)
     }
-    
-    // Create Zoom Controls div on vars.svg_enter
-    vars.parent.select("div#zoom_controls").remove()
-    var zoom_div = vars.parent.append("div")
-      .attr("id","zoom_controls")
-      .style("top",function(){
-        return this.offsetTop+vars.margin.top+"px";
-      })
-    
-    zoom_div.append("div")
-      .attr("id","zoom_in")
-      .attr("unselectable","on")
-      .on(vizwhiz.evt.click,function(){ zoom("in") })
-      .text("+")
-    
-    zoom_div.append("div")
-      .attr("id","zoom_out")
-      .attr("unselectable","on")
-      .on(vizwhiz.evt.click,function(){ zoom("out") })
-      .text("-")
   }
+  
+  zoom_controls();
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // New nodes and links enter, initialize them here
@@ -280,7 +416,7 @@ vizwhiz.geo_map = function(vars) {
         d3.select(this).attr("opacity",select_opacity);
       }
       if (!vars.highlight) {
-        info();
+        vars.update();
       }
     })
     .on(vizwhiz.evt.out, function(d){
@@ -289,14 +425,12 @@ vizwhiz.geo_map = function(vars) {
         d3.select(this).attr("opacity",default_opacity);
       }
       if (!vars.highlight) {
-        info();
+        vars.update();
       }
     })
     .on(vizwhiz.evt.click, function(d) {
       if (vars.highlight == d[vars.id_var]) {
-        vars.highlight = null;
-        d3.select(this).call(color_paths);
-        zoom(vars.boundries);
+        vars.zoom("reset");
       } 
       else {
         if (vars.highlight) {
@@ -306,16 +440,16 @@ vizwhiz.geo_map = function(vars) {
         }
         vars.highlight = d[vars.id_var];
         d3.select(this).call(color_paths);
-        zoom(d3.select(this).datum());
+        vars.zoom(d3.select(this).datum());
       }
-      info();
+      vars.update();
     })
   
   coord.transition().duration(vizwhiz.timing)
     .attr("opacity",default_opacity)
     .call(color_paths);
   
-  info();
+  vars.update();
     
   //===================================================================
   
@@ -328,11 +462,11 @@ vizwhiz.geo_map = function(vars) {
   //===================================================================
   
   if (vars.init) {
-    zoom(vars.boundries,0);
+    vars.zoom(vars.boundries,0);
     vars.init = false;
   }
   if (vars.highlight) {
-    zoom(d3.select("path#path"+vars.highlight).datum());
+    vars.zoom(d3.select("path#path"+vars.highlight).datum());
   }
   
   function color_paths(p) {
@@ -370,154 +504,6 @@ vizwhiz.geo_map = function(vars) {
               .attr("xlink:href",function(dd) { return "#path"+vars.highlight } )
         }
       });
-  }
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Zoom Function
-  //-------------------------------------------------------------------
-  
-  function zoom(param,custom_timing) {
-    
-    var translate = vars.zoom_behavior.translate(),
-        zoom_extent = vars.zoom_behavior.scaleExtent()
-        
-    var scale = vars.zoom_behavior.scale()
-    
-    if (param == "in") var scale = scale*2
-    else if (param == "out") var scale = scale*0.5
-    
-    var svg_scale = scale/vars.width,
-        svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/vars.width)*vars.height)/2)]
-        
-    old_scale = vars.projection.scale()*2*Math.PI
-    old_translate = vars.projection.translate()
-        
-    if (param.coordinates) {
-      
-      if (vars.highlight) { 
-        var left = 20, w_avail = vars.width-info_width-left
-      } else {
-        var left = 0, w_avail = vars.width
-      }
-      
-      var b = path.bounds(param),
-          w = (b[1][0] - b[0][0])*1.1,
-          h = (b[1][1] - b[0][1])*1.1,
-          s_width = (w_avail*(scale/vars.width))/w,
-          s_height = (vars.height*(scale/vars.width))/h
-          
-      if (s_width < s_height) {
-        var s = s_width*vars.width,
-            offset_left = ((w_avail-(((w/1.1)/svg_scale)*s/vars.width))/2)+left,
-            offset_top = (vars.height-((h/svg_scale)*s/vars.width))/2
-      } else {
-        var s = s_height*vars.width,
-            offset_left = ((w_avail-((w/svg_scale)*s/vars.width))/2)+left,
-            offset_top = (vars.height-(((h/1.1)/svg_scale)*s/vars.width))/2
-      }
-      
-      var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/vars.width)+offset_left,
-          t_y = ((-(b[0][1]-svg_translate[1])/svg_scale)*s/vars.width)+offset_top
-          
-      var t = [t_x+(s/2),t_y+(((s/vars.width)*vars.height)/2)]
-      
-      translate = t
-      scale = s
-      
-    } else if (param == "in" || param == "out") {
-      
-      var b = vars.projection.translate()
-      
-      if (param == "in") translate = [b[0]+(b[0]-(vars.width/2)),b[1]+(b[1]-(vars.height/2))]
-      else if (param == "out") translate = [b[0]+(((vars.width/2)-b[0])/2),b[1]+(((vars.height/2)-b[1])/2)]
-    }
-    
-    // Scale Boundries
-    if (scale < zoom_extent[0]) scale = zoom_extent[0]
-    else if (scale > zoom_extent[1]) scale = zoom_extent[1]
-    // X Boundries
-    if (translate[0] > scale/2) translate[0] = scale/2
-    else if (translate[0] < vars.width-scale/2) translate[0] = vars.width-scale/2
-    // Y Boundries
-    if (translate[1] > scale/2) translate[1] = scale/2
-    else if (translate[1] < vars.height-scale/2) translate[1] = vars.height-scale/2
-
-    vars.projection.scale(scale/(2*Math.PI)).translate(translate);
-    vars.zoom_behavior.scale(scale).translate(translate);
-    svg_scale = scale/vars.width;
-    svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/vars.width)*vars.height)/2)];
-    
-    if (typeof custom_timing != "number") {
-      if (d3.event) {
-        if (d3.event.scale) {
-          if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
-            var zoom_timing = 0
-          } else {
-            var zoom_timing = vizwhiz.timing
-          }
-        } else {
-          var zoom_timing = vizwhiz.timing
-        }
-      } else {
-        var zoom_timing = vizwhiz.timing*4
-      }
-    } else var zoom_timing = custom_timing
-
-    if (vars.tiles) update_tiles(zoom_timing);
-    
-    if (zoom_timing > 0) var viz_transition = d3.selectAll(".viz").transition().duration(zoom_timing)
-    else var viz_transition = d3.selectAll(".viz")
-    
-    viz_transition.attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
-        
-  }
-
-  //===================================================================
-
-  function info() {
-    
-    vizwhiz.tooltip.remove();
-    
-    if (!vars.small && (hover || vars.highlight)) {
-      
-      var id = vars.highlight ? vars.highlight : hover
-      
-      var tooltip_data = get_tooltip_data(id)
-      
-      var data = vars.data[id]
-      
-      if (data && data[vars.value_var]) {
-        var color = value_color(data[vars.value_var])
-      }
-      else {
-        var color = "#888"
-      }
-      
-      if (!data || !data[vars.value_var]) {
-        var footer = vars.text_format("No Data Available")
-      }
-      else if (!vars.highlight) {
-        var footer = vars.text_format("Click for More Info")
-      }
-      else {
-        var footer = vars.data_source
-      }
-      
-      vizwhiz.tooltip.create({
-        "data": tooltip_data,
-        "title": find_variable(id,vars.text_var),
-        "id": find_variable(id,vars.id_var),
-        "icon": find_variable(id,"icon"),
-        "color": color,
-        "footer": footer,
-        "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,
-        "y": vars.margin.top+vars.parent.node().offsetTop+5,
-        "fixed": true,
-        "width": info_width
-      })
-      
-    }
-    
   }
 
   function tileUrl(d) {
