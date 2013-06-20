@@ -92,8 +92,8 @@ vizwhiz.tooltip.create = function(params) {
   if (params.fullscreen) {
     var close = tooltip.append("div")
       .attr("class","vizwhiz_tooltip_close")
-      .style("color",vizwhiz.utils.darker_color(params.color))
-      .text("Close")
+      .style("background-color",vizwhiz.utils.darker_color(params.color))
+      .html("\&times;")
       .on(vizwhiz.evt.click,function(){
         vizwhiz.tooltip.remove(params.id)
       })
@@ -170,7 +170,7 @@ vizwhiz.tooltip.create = function(params) {
   }
     
   if (params.html && !params.fullscreen) {
-    body.append("div")
+    data_container.append("div")
       .style("padding","3px")
       .style("margin-bottom","3px")
       .html(params.html)
@@ -200,11 +200,11 @@ vizwhiz.tooltip.create = function(params) {
   else params.width += params.arrow_offset
       
   if (params.data) {
-    var h = params.height-20
+    var h = window.innerHeight-params.y-20
     if (header) h -= header.node().offsetHeight
     if (footer) {
-      h -= footer.node().offsetHeight
       footer.style("margin-top","6px")
+      h -= footer.node().offsetHeight
     }
     data_container
       .style("max-height",h+"px")
@@ -403,18 +403,6 @@ vizwhiz.tooltip.move = function(x,y,id) {
         d.y = window.innerHeight - d.height
       }
       
-    }
-    else {
-      var th = window.innerHeight-5-d.y
-      tooltip
-        .style("max-height",th+"px")
-      if (d.data || d.html) {
-        if (tooltip.select(".vizwhiz_tooltip_header").node()) {
-          th -= tooltip.select(".vizwhiz_tooltip_header").node().offsetHeight
-        }
-        tooltip.select(".vizwhiz_tooltip_data_container")
-          .style("max-height",(th-6)+"px")
-      }
     }
     
     tooltip
