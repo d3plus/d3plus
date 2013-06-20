@@ -31,6 +31,7 @@ vizwhiz.tree_map = function(vars) {
   // rectangle
   cell_enter.append("rect")
     .attr("stroke","#ffffff")
+    .attr("stroke-width",1)
     .attr('width', function(d) {
       return d.dx+'px'
     })
@@ -40,6 +41,7 @@ vizwhiz.tree_map = function(vars) {
     .attr("fill", function(d){
       return find_variable(d[vars.id_var],vars.color_var);
     })
+    .attr("shape-rendering","crispEdges")
     
   // text (name)
   cell_enter.append("text")
@@ -105,7 +107,13 @@ vizwhiz.tree_map = function(vars) {
   cell
     .on(vizwhiz.evt.over,function(d){
       
-      d3.select(this).style("cursor","pointer")
+      this.parentNode.appendChild(this)
+      
+      d3.select(this)
+        .style("cursor","pointer")
+        .select("rect")
+          .attr("stroke",vars.highlight_color)
+          .attr("stroke-width",2)
       vizwhiz.tooltip.remove()
 
       var tooltip_data = get_tooltip_data(d,"short")
@@ -140,10 +148,16 @@ vizwhiz.tree_map = function(vars) {
       if (target) {
         var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
         if (class_name.indexOf("vizwhiz_tooltip") < 0) {
+          d3.select(this).select("rect")
+            .attr("stroke","#ffffff")
+            .attr("stroke-width",1)
           vizwhiz.tooltip.remove(id)
         }
       }
       else {
+        d3.select(this).select("rect")
+          .attr("stroke","#ffffff")
+          .attr("stroke-width",1)
         vizwhiz.tooltip.remove(id)
       }
     })
