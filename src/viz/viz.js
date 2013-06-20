@@ -85,6 +85,7 @@ vizwhiz.viz = function() {
     "tooltip_info": [],
     "total_bar": false,
     "type": "tree_map",
+    "update_function": null,
     "value_var": "value",
     "xaxis_domain": null,
     "xaxis_var": null,
@@ -97,7 +98,8 @@ vizwhiz.viz = function() {
     "year": null,
     "years": null,
     "year_var": "year",
-    "zoom_behavior": d3.behavior.zoom()
+    "zoom_behavior": d3.behavior.zoom(),
+    "zoom_function": null
   }
   
   var data_obj = {"raw": null},
@@ -1075,6 +1077,37 @@ vizwhiz.viz = function() {
   };
   
   //===================================================================
+  
+  zoom_controls = function() {
+    d3.select("#zoom_controls").remove()
+    if (!vars.small) {
+      // Create Zoom Controls
+      var zoom_enter = vars.parent.append("div")
+        .attr("id","zoom_controls")
+        .style("top",(vars.margin.top+5)+"px")
+    
+      zoom_enter.append("div")
+        .attr("id","zoom_in")
+        .attr("unselectable","on")
+        .on(vizwhiz.evt.click,function(){ vars.zoom("in") })
+        .text("+")
+    
+      zoom_enter.append("div")
+        .attr("id","zoom_out")
+        .attr("unselectable","on")
+        .on(vizwhiz.evt.click,function(){ vars.zoom("out") })
+        .text("-")
+    
+      zoom_enter.append("div")
+        .attr("id","zoom_reset")
+        .attr("unselectable","on")
+        .on(vizwhiz.evt.click,function(){ 
+          vars.zoom("reset") 
+          vars.update()
+        })
+        .html("\&#8634;")
+    }
+  }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // X/Y Graph System
