@@ -25,14 +25,14 @@ body {
 var viz = vizwhiz.viz()
 
 d3.json("data/products_mg.json", function(raw_data){
-  d3.json("data/attr_hs.json", function(attrs){
-    d3.json("data/eric.json", function(eric){
+  d3.json("data/atlas/region_attrs.json", function(attrs){
+    d3.json("data/atlas/flat_data.json", function(data){
     
-      raw_data.forEach(function(d, i){
-        d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
-        d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
-        d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-      })
+      // raw_data.forEach(function(d, i){
+      //   d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
+      //   d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
+      //   d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
+      // })
       
       inner_html = function(obj) {
         // console.log(obj)
@@ -66,7 +66,7 @@ d3.json("data/products_mg.json", function(raw_data){
       viz
         .type("tree_map")
         .id_var("id")
-        .attrs(eric.attr)
+        .attrs(attrs)
         .text_var("name")
         .value_var("value")
         .tooltip_info({"short": ["value"],"long": ["distance", "complexity", "value"]})
@@ -81,9 +81,11 @@ d3.json("data/products_mg.json", function(raw_data){
         .depth("nesting_0")
         .year(2010)
         .data_source("Data provided by SECEX")
-        console.log(eric.data)
+        
+        console.log(data,attrs)
+        
       d3.select("#viz")
-        .datum(eric.data)
+        .datum(data)
         .call(viz)
     
       // setTimeout(function(){

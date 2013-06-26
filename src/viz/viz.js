@@ -392,7 +392,7 @@ vizwhiz.viz = function() {
         .attr("width",vars.width)
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-        
+        console.log(vars.data)
       filter_change = false
       axis_change = false
       if (vizwhiz.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")

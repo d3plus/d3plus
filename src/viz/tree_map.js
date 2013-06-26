@@ -39,7 +39,7 @@ vizwhiz.tree_map = function(vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      return find_variable(d[vars.id_var],vars.color_var);
+      return find_variable(d,vars.color_var);
     })
     .attr("shape-rendering","crispEdges")
     
@@ -54,7 +54,7 @@ vizwhiz.tree_map = function(vars) {
     .attr('y','0em')
     .attr('dy','1em')
     .attr("fill", function(d){ 
-      var color = find_variable(d[vars.id_var],vars.color_var)
+      var color = find_variable(d,vars.color_var)
       return vizwhiz.utils.text_color(color); 
     })
     .style("pointer-events","none")
@@ -66,7 +66,7 @@ vizwhiz.tree_map = function(vars) {
     .style("font-weight","bold")
     .attr("font-family","Helvetica")
     .attr("fill", function(d){
-      var color = find_variable(d[vars.id_var],vars.color_var)
+      var color = find_variable(d,vars.color_var)
       return vizwhiz.utils.text_color(color); 
     })
     .attr("fill-opacity",0.5)
@@ -144,7 +144,7 @@ vizwhiz.tree_map = function(vars) {
     })
     .on(vizwhiz.evt.out,function(d){
       var target = d3.event.toElement
-      var id = find_variable(d[vars.id_var],vars.id_var)
+      var id = find_variable(d,vars.id_var)
       if (target) {
         var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
         if (class_name.indexOf("vizwhiz_tooltip") < 0) {
@@ -205,20 +205,15 @@ vizwhiz.tree_map = function(vars) {
     .transition().duration(vizwhiz.timing/2)
     .each("end", function(d){
       d3.select(this).selectAll("tspan").remove();
-      var id = d[vars.id_var]
-      var name = find_variable(id,vars.text_var)
+      var name = find_variable(d,vars.text_var)
       if(name && d.dx > 30 && d.dy > 30){
         var text = []
-        if (vars.name_array) {
-          vars.name_array.forEach(function(n){
-            var name = find_variable(id,n)
-            if (name) text.push(vars.text_format(name))
-          })
-        } 
-        else {
-          if (name) text.push(name)
-          if (id) text.push(id)
-        }
+        var arr = vars.name_array ? vars.name_array : [vars.text_var,vars.id_var]
+        arr.forEach(function(n){
+          var name = find_variable(d,n)
+          if (name) text.push(vars.text_format(name))
+        })
+        
         vizwhiz.utils.wordwrap({
           "text": text,
           "parent": this,
