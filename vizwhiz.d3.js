@@ -2015,14 +2015,16 @@ vizwhiz.viz = function() {
       .attr("class", "yaxis")
       .call(vars.y_axis.scale(vars.y_scale))
       
+    var labelx = vars.width/2
+    if (!vars.title_center) labelx += vars.graph.margin.left
+      
     // create X axis label
     axes.append('text')
       .attr('class', 'x_axis_label')
-      .attr('x', vars.graph.width/2+vars.graph.margin.left)
+      .attr('x', labelx)
       .attr('y', vars.height-10)
       .text(vars.text_format(vars.xaxis_var))
       .attr(label_style)
-      
     // create Y axis label
     axes.append('text')
       .attr('class', 'y_axis_label')
@@ -2081,7 +2083,7 @@ vizwhiz.viz = function() {
 
     // Update X axis label
     d3.select(".x_axis_label").transition().duration(vizwhiz.timing)
-      .attr('x', vars.graph.width/2+vars.graph.margin.left)
+      .attr('x', labelx)
       .attr('y', vars.height-10)
       .text(vars.text_format(vars.xaxis_var))
 
