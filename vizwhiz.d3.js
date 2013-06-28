@@ -300,7 +300,7 @@ vizwhiz.tooltip.create = function(params) {
   params.html = params.html ? params.html : null
   params.size = params.fullscreen ? "large" : "small"
   params.offset = params.offset ? params.offset : 0
-  params.arrow_offset = params.arrow ? 5 : 0
+  params.arrow_offset = params.arrow ? 12 : 0
   params.mouseevents = params.mouseevents === undefined ? true : params.mouseevents
   params.x = params.x ? params.x : 0
   params.y = params.y ? params.y : 0
@@ -397,9 +397,6 @@ vizwhiz.tooltip.create = function(params) {
   if (params.arrow) {
     var arrow = tooltip.append("div")
       .attr("class","vizwhiz_tooltip_arrow")
-      
-    container.append("div")
-      .attr("class","vizwhiz_tooltip_arrow cover")
   }
   
   if (params.icon) {
@@ -423,9 +420,13 @@ vizwhiz.tooltip.create = function(params) {
       .text(params.description)
   }
   
-  if (params.data) {
+  if (params.data || params.html && !params.fullscreen) {
+
     var data_container = body.append("div")
       .attr("class","vizwhiz_tooltip_data_container")
+  }
+  
+  if (params.data) {
       
     params.data.forEach(function(d,i){
       var block = data_container.append("div")
@@ -507,35 +508,22 @@ vizwhiz.tooltip.create = function(params) {
 vizwhiz.tooltip.arrow = function(arrow) {
   arrow
     .style("bottom", function(d){
-      if (d.anchor.y != "center" && !d.flip) return "-4.5px"
+      if (d.anchor.y != "center" && !d.flip) return "-5px"
       else return "auto"
     })
     .style("top", function(d){
-      if (d.anchor.y != "center" && d.flip) return "-4.5px"
+      if (d.anchor.y != "center" && d.flip) return "-5px"
       else if (d.anchor.y == "center") return "50%"
       else return "auto"
     })
     .style("left", function(d){
-      if (d.anchor.y == "center" && d.flip) return "-4.5px"
+      if (d.anchor.y == "center" && d.flip) return "-5px"
       else if (d.anchor.y != "center") return "50%"
       else return "auto"
     })
     .style("right", function(d){
-      if (d.anchor.y == "center" && !d.flip) return "-4.5px"
+      if (d.anchor.y == "center" && !d.flip) return "-5px"
       else return "auto"
-    })
-    .style("border-color", function(d){
-      if (d3.select(this).style("z-index") == "-1") {
-        return "transparent"
-      }
-      if (d.anchor.y == "center") {
-        if (d.flip) return "border-color","transparent transparent #888 #888"
-        else return "#888 #888 transparent transparent"
-      }
-      else {
-        if (d.flip) return "border-color","#888 transparent transparent #888"
-        else return "transparent #888 #888 transparent"
-      }
     })
     .style("margin-left", function(d){
       if (d.anchor.y == "center") {
@@ -546,17 +534,17 @@ vizwhiz.tooltip.arrow = function(arrow) {
           var arrow_x = -d.width/2+d.arrow_offset/2
         }
         else if (d.anchor.x == "left") {
-          var arrow_x = d.width/2-d.arrow_offset*2 - 4.5
+          var arrow_x = d.width/2-d.arrow_offset*2 - 5
         }
         else {
-          var arrow_x = -4.5
+          var arrow_x = -5
         }
-        if (d.cx-d.width/2-d.arrow_offset < arrow_x) {
-          arrow_x = d.cx-d.width/2-d.arrow_offset
+        if (d.cx-d.width/2-5 < arrow_x) {
+          arrow_x = d.cx-d.width/2-5
           if (arrow_x < 2-d.width/2) arrow_x = 2-d.width/2
         }
-        else if (-(window.innerWidth-d.cx-d.width/2+d.arrow_offset) > arrow_x) {
-          var arrow_x = -(window.innerWidth-d.cx-d.width/2+d.arrow_offset)
+        else if (-(window.innerWidth-d.cx-d.width/2+5) > arrow_x) {
+          var arrow_x = -(window.innerWidth-d.cx-d.width/2+5)
           if (arrow_x > d.width/2-11) arrow_x = d.width/2-11
         }
         return arrow_x+"px"
@@ -722,6 +710,7 @@ vizwhiz.viz = function() {
     "arc_sizes": {},
     "axis_change": true,
     "attrs": null,
+    "background": "#ffffff",
     "boundries": null,
     "click_function": function() { return null },
     "color_var": "color",
@@ -793,6 +782,8 @@ vizwhiz.viz = function() {
     "text_var": "name",
     "tiles": true,
     "title": null,
+    "title_center": true,
+    "title_width": null,
     "tooltip_info": [],
     "total_bar": false,
     "type": "tree_map",
@@ -969,7 +960,14 @@ vizwhiz.viz = function() {
         if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
         
         if (vars.type == "stacked") {
-          vars.data = data_obj[data_type[vars.type]][vars.depth]
+          vars.data = data_obj[data_type[vars.type]][vars.depth].filter(function(d){
+            if (vars.year instanceof Array) {
+              return d[vars.year_var] >= vars.year[0] && d[vars.year_var] <= vars.year[1]
+            }
+            else {
+              return true
+            }
+          })
         }
         else if (vars.type == "pie_scatter") {
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
@@ -991,9 +989,19 @@ vizwhiz.viz = function() {
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
         .style("z-index", 10)
-        .style("position","absolute");
+        .style("position","absolute")
+        
+      vars.svg_enter.append("rect")
+        .attr("id","svgbg")
+        .attr("fill",vars.background)
+        .attr('width',vars.svg_width)
+        .attr('height',vars.svg_height)
     
       vars.svg.transition().duration(vizwhiz.timing)
+        .attr('width',vars.svg_width)
+        .attr('height',vars.svg_height)
+    
+      vars.svg.select("rect#svgbg").transition().duration(vizwhiz.timing)
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
       
@@ -1103,7 +1111,7 @@ vizwhiz.viz = function() {
         .attr("width",vars.width)
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-        console.log(vars.data)
+        
       filter_change = false
       axis_change = false
       if (vizwhiz.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
@@ -1205,7 +1213,7 @@ vizwhiz.viz = function() {
               to_return[key] = d3[vars.nesting_aggs[key]](leaves, function(d){ return d[key]; })
             }
             else {
-              if (["color",vars.year_var].indexOf(key) >= 0) {
+              if ([vars.color_var,vars.year_var,"icon"].indexOf(key) >= 0) {
                 to_return[key] = leaves[0][key];
               }
               else if (vars.keys[key] === "number") {
@@ -1265,23 +1273,30 @@ vizwhiz.viz = function() {
     
     var total = d3.select("g.titles").selectAll("g."+type).data(title_data)
     
+    var offset = 0
+    if (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && !vars.title_center) {
+      offset = vars.graph.margin.left
+    }
+    
     // Enter
     total.enter().append("g")
       .attr("class",type)
       .style("opacity",0)
       .append("text")
         .attr("x",function(d) { return d.x; })
-        .attr("y",function(d) { return d.y; })
+        .attr("y",function(d) { return d.y+offset; })
         .attr("font-size",font_size)
         .attr("fill","#333")
         .attr("text-anchor", "middle")
         .attr("font-family", "Helvetica")
         .style("font-weight", "normal")
         .each(function(d){
+          var width = vars.title_width ? vars.title_width : vars.svg_width
+          width -= offset*2
           vizwhiz.utils.wordwrap({
             "text": d.title,
             "parent": this,
-            "width": vars.svg_width,
+            "width": width,
             "height": vars.svg_height/8,
             "resize": false
           })
@@ -1305,7 +1320,7 @@ vizwhiz.viz = function() {
   update_titles = function() {
     
     var offset = 0
-    if (["pie_scatter","stacked"].indexOf(vars.type) >= 0) {
+    if (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && !vars.title_center) {
       offset = vars.graph.margin.left
     }
 
@@ -1314,10 +1329,12 @@ vizwhiz.viz = function() {
         .attr("x",function(d) { return d.x+offset; })
         .attr("y",function(d) { return d.y; })
         .each(function(d){
+          var width = vars.title_width ? vars.title_width : vars.svg_width
+          width -= offset*2
           vizwhiz.utils.wordwrap({
             "text": d.title,
             "parent": this,
-            "width": vars.svg_width,
+            "width": width,
             "height": vars.svg_height/8,
             "resize": false
           })
@@ -1417,6 +1434,12 @@ vizwhiz.viz = function() {
   chart.attrs = function(x) {
     if (!arguments.length) return vars.attrs;
     vars.attrs = x;
+    return chart;
+  };
+  
+  chart.background = function(x) {
+    if (!arguments.length) return vars.background;
+    vars.background = x;
     return chart;
   };
   
@@ -1704,6 +1727,18 @@ vizwhiz.viz = function() {
   chart.title = function(x) {
     if (!arguments.length) return vars.title;
     vars.title = x;
+    return chart;
+  };
+  
+  chart.title_center = function(x) {
+    if (!arguments.length) return vars.title_center;
+    vars.title_center = x;
+    return chart;
+  };
+  
+  chart.title_width = function(x) {
+    if (!arguments.length) return vars.title_width;
+    vars.title_width = x;
     return chart;
   };
   
@@ -2406,7 +2441,7 @@ vizwhiz.network = function(vars) {
     
   viz_enter.append('rect')
     .attr('class','overlay')
-    .attr("fill","#fff");
+    .attr("fill","transparent");
     
   d3.select("rect.overlay")
     .attr("width", vars.width)
@@ -2818,8 +2853,10 @@ vizwhiz.stacked = function(vars) {
   nested_data = nest_data();
   
   // scales for both X and Y values
+  var year_extent = vars.year instanceof Array ? vars.year : d3.extent(vars.years)
+  
   vars.x_scale = d3.scale[vars.xscale_type]()
-    .domain(d3.extent(vars.years))
+    .domain(year_extent)
     .range([0, vars.graph.width]);
   // **WARNING reverse scale from 0 - max converts from height to 0 (inverse)
   vars.y_scale = d3.scale[vars.yscale_type]()
@@ -3200,7 +3237,7 @@ vizwhiz.tree_map = function(vars) {
     
   // rectangle
   cell_enter.append("rect")
-    .attr("stroke","#ffffff")
+    .attr("stroke",vars.background)
     .attr("stroke-width",1)
     .attr('width', function(d) {
       return d.dx+'px'
@@ -3319,14 +3356,14 @@ vizwhiz.tree_map = function(vars) {
         var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
         if (class_name.indexOf("vizwhiz_tooltip") < 0) {
           d3.select(this).select("rect")
-            .attr("stroke","#ffffff")
+            .attr("stroke",vars.background)
             .attr("stroke-width",1)
           vizwhiz.tooltip.remove(id)
         }
       }
       else {
         d3.select(this).select("rect")
-          .attr("stroke","#ffffff")
+          .attr("stroke",vars.background)
           .attr("stroke-width",1)
         vizwhiz.tooltip.remove(id)
       }
@@ -3773,8 +3810,6 @@ vizwhiz.geo_map = function(vars) {
       .attr("height", "45px")
       .attr("fill","#ffffff")
       .attr("opacity",0.75)
-      .attr("stroke","#888")
-      .attr("stroke-weight",1)
       .attr("filter","url(#shadow)")
       .attr("shape-rendering","crispEdges")
         

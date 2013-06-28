@@ -24,7 +24,7 @@ div.vizwhiz_tooltip {
 
 div.vizwhiz_tooltip_container {
   background-color: #fff;
-  border: 1px solid #888;
+/*  border: 1px solid #888;*/
   padding: 6px 6px 0px 6px;
 }
 
@@ -131,27 +131,17 @@ div.vizwhiz_tooltip_close:hover {
 
 div.vizwhiz_tooltip_arrow {
   background-color: #fff;
-  border-style: solid;
-  border-width: 1px;
-  bottom: -4.5px;
-  height: 8px;
+  bottom: -5px;
+  height: 10px;
   left: 50%;
-  margin-left: -4.5px;
+  margin-left: -5px;
   position: absolute;
-  width: 8px;
+  width: 10px;
   -webkit-transform: rotate(45deg); 
      -moz-transform: rotate(45deg); 
       -ms-transform: rotate(45deg); 
           transform: rotate(45deg); 
   z-index: -1;
-}
-
-div.vizwhiz_tooltip_arrow.cover {
-  border-color: transparent #888 #888 transparent;
-  z-index: 0;
-  -webkit-box-shadow: none;
-     -moz-box-shadow: none;
-          box-shadow: none;
 }
 
 div.vizwhiz_tooltip_description {
@@ -261,7 +251,6 @@ div.vizwhiz_network_connection_name {
   background-color: #ffffff;
   background-position: 50% 50%;
   background-repeat: no-repeat;
-  border: 1px solid #888;
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
      -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);

@@ -335,7 +335,7 @@ vizwhiz.network = function(vars) {
     
   viz_enter.append('rect')
     .attr('class','overlay')
-    .attr("fill","#fff");
+    .attr("fill","transparent");
     
   d3.select("rect.overlay")
     .attr("width", vars.width)

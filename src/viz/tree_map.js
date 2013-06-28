@@ -30,7 +30,7 @@ vizwhiz.tree_map = function(vars) {
     
   // rectangle
   cell_enter.append("rect")
-    .attr("stroke","#ffffff")
+    .attr("stroke",vars.background)
     .attr("stroke-width",1)
     .attr('width', function(d) {
       return d.dx+'px'
@@ -149,14 +149,14 @@ vizwhiz.tree_map = function(vars) {
         var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
         if (class_name.indexOf("vizwhiz_tooltip") < 0) {
           d3.select(this).select("rect")
-            .attr("stroke","#ffffff")
+            .attr("stroke",vars.background)
             .attr("stroke-width",1)
           vizwhiz.tooltip.remove(id)
         }
       }
       else {
         d3.select(this).select("rect")
-          .attr("stroke","#ffffff")
+          .attr("stroke",vars.background)
           .attr("stroke-width",1)
         vizwhiz.tooltip.remove(id)
       }

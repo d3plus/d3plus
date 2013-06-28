@@ -10,7 +10,7 @@ vizwhiz.tooltip.create = function(params) {
   params.html = params.html ? params.html : null
   params.size = params.fullscreen ? "large" : "small"
   params.offset = params.offset ? params.offset : 0
-  params.arrow_offset = params.arrow ? 5 : 0
+  params.arrow_offset = params.arrow ? 12 : 0
   params.mouseevents = params.mouseevents === undefined ? true : params.mouseevents
   params.x = params.x ? params.x : 0
   params.y = params.y ? params.y : 0
@@ -107,9 +107,6 @@ vizwhiz.tooltip.create = function(params) {
   if (params.arrow) {
     var arrow = tooltip.append("div")
       .attr("class","vizwhiz_tooltip_arrow")
-      
-    container.append("div")
-      .attr("class","vizwhiz_tooltip_arrow cover")
   }
   
   if (params.icon) {
@@ -133,9 +130,13 @@ vizwhiz.tooltip.create = function(params) {
       .text(params.description)
   }
   
-  if (params.data) {
+  if (params.data || params.html && !params.fullscreen) {
+
     var data_container = body.append("div")
       .attr("class","vizwhiz_tooltip_data_container")
+  }
+  
+  if (params.data) {
       
     params.data.forEach(function(d,i){
       var block = data_container.append("div")
@@ -217,35 +218,22 @@ vizwhiz.tooltip.create = function(params) {
 vizwhiz.tooltip.arrow = function(arrow) {
   arrow
     .style("bottom", function(d){
-      if (d.anchor.y != "center" && !d.flip) return "-4.5px"
+      if (d.anchor.y != "center" && !d.flip) return "-5px"
       else return "auto"
     })
     .style("top", function(d){
-      if (d.anchor.y != "center" && d.flip) return "-4.5px"
+      if (d.anchor.y != "center" && d.flip) return "-5px"
       else if (d.anchor.y == "center") return "50%"
       else return "auto"
     })
     .style("left", function(d){
-      if (d.anchor.y == "center" && d.flip) return "-4.5px"
+      if (d.anchor.y == "center" && d.flip) return "-5px"
       else if (d.anchor.y != "center") return "50%"
       else return "auto"
     })
     .style("right", function(d){
-      if (d.anchor.y == "center" && !d.flip) return "-4.5px"
+      if (d.anchor.y == "center" && !d.flip) return "-5px"
       else return "auto"
-    })
-    .style("border-color", function(d){
-      if (d3.select(this).style("z-index") == "-1") {
-        return "transparent"
-      }
-      if (d.anchor.y == "center") {
-        if (d.flip) return "border-color","transparent transparent #888 #888"
-        else return "#888 #888 transparent transparent"
-      }
-      else {
-        if (d.flip) return "border-color","#888 transparent transparent #888"
-        else return "transparent #888 #888 transparent"
-      }
     })
     .style("margin-left", function(d){
       if (d.anchor.y == "center") {
@@ -256,17 +244,17 @@ vizwhiz.tooltip.arrow = function(arrow) {
           var arrow_x = -d.width/2+d.arrow_offset/2
         }
         else if (d.anchor.x == "left") {
-          var arrow_x = d.width/2-d.arrow_offset*2 - 4.5
+          var arrow_x = d.width/2-d.arrow_offset*2 - 5
         }
         else {
-          var arrow_x = -4.5
+          var arrow_x = -5
         }
-        if (d.cx-d.width/2-d.arrow_offset < arrow_x) {
-          arrow_x = d.cx-d.width/2-d.arrow_offset
+        if (d.cx-d.width/2-5 < arrow_x) {
+          arrow_x = d.cx-d.width/2-5
           if (arrow_x < 2-d.width/2) arrow_x = 2-d.width/2
         }
-        else if (-(window.innerWidth-d.cx-d.width/2+d.arrow_offset) > arrow_x) {
-          var arrow_x = -(window.innerWidth-d.cx-d.width/2+d.arrow_offset)
+        else if (-(window.innerWidth-d.cx-d.width/2+5) > arrow_x) {
+          var arrow_x = -(window.innerWidth-d.cx-d.width/2+5)
           if (arrow_x > d.width/2-11) arrow_x = d.width/2-11
         }
         return arrow_x+"px"

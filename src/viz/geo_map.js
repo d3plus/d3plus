@@ -326,8 +326,6 @@ vizwhiz.geo_map = function(vars) {
       .attr("height", "45px")
       .attr("fill","#ffffff")
       .attr("opacity",0.75)
-      .attr("stroke","#888")
-      .attr("stroke-weight",1)
       .attr("filter","url(#shadow)")
       .attr("shape-rendering","crispEdges")
         
