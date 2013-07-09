@@ -4474,13 +4474,16 @@ vizwhiz.bubbles = function(vars) {
       return d.depth == 1;
     })
     .sort(function(a,b){
-      if (typeof a[sort_order] == "number") {
+      var s = sort_order == vars.color_var ? "category" : sort_order
+      var a_val = find_variable(a,s)
+      var b_val = find_variable(b,s)
+      if (typeof a_val == "number") {
         if(a[sort_order] < b[sort_order]) return 1;
         if(a[sort_order] > b[sort_order]) return -1;
       }
       else {
-        if(a[sort_order] < b[sort_order]) return -1;
-        if(a[sort_order] > b[sort_order]) return 1;
+        if(a_val < b_val) return -1;
+        if(a_val > b_val) return 1;
       }
       return 0;
     })
