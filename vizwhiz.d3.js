@@ -1048,7 +1048,8 @@ vizwhiz.viz = function() {
       else {
         if (vizwhiz.dev) console.log("[viz-whiz] Calculating Total Value")
         var total_val = d3.sum(data_obj.clean, function(d){ 
-          return d[vars.value_var] 
+          if (vars.type == "stacked") return d[vars.value_var]
+          else if (vars.year == d[vars.year_var]) return d[vars.value_var]
         })
       }
       
@@ -1238,7 +1239,7 @@ vizwhiz.viz = function() {
   }
 
   make_title = function(title,type){
-    
+
     // Set the total value as data for element.
     var font_size = type == "title" ? 18 : 13,
         title_position = {

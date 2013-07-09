@@ -83,8 +83,6 @@ d3.json("data/products_mg.json", function(raw_data){
         .data_source("Data provided by SECEX")
         .title_width(200)
         
-        console.log(data,attrs)
-        
       d3.select("#viz")
         .datum(data)
         .call(viz)
