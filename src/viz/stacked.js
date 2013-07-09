@@ -373,8 +373,14 @@ vizwhiz.stacked = function(vars) {
     // return nested
     
     return nested.sort(function(a,b){
-      if(a[vars.sort]<b[vars.sort]) return vars.order == "desc" ? -1 : 1;
-      if(a[vars.sort]>b[vars.sort]) return vars.order == "desc" ? 1 : -1;
+      
+      a[vars.color_var] = find_variable(a.id,vars.color_var)
+      b[vars.color_var] = find_variable(b.id,vars.color_var)
+          
+      var s = vars.sort == "value" ? "total" : vars.sort
+      
+      if(a[s]<b[s]) return vars.order == "desc" ? -1 : 1;
+      if(a[s]>b[s]) return vars.order == "desc" ? 1 : -1;
       return 0;
     });
     

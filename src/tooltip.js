@@ -147,19 +147,10 @@ vizwhiz.tooltip.create = function(params) {
           .style("font-weight","bold")
           .style("color",vizwhiz.utils.darker_color(params.color))
       }
-      var format = d.format ? d.format : ",f"
-      if (typeof format == "string" && typeof d.value == "number") {
-        var value = d3.format(format)(d.value)
-      }
-      else if (typeof format == "function" && typeof d.value == "number") {
-        var value = format(d)
-      }
-      else {
-        var value = d.value
-      }
+      
       block.append("div")
           .attr("class","vizwhiz_tooltip_data_value")
-          .text(value)
+          .text(d.value)
           
       if (i != params.data.length-1) {
         data_container.append("div")

@@ -59,13 +59,12 @@ vizwhiz.viz = function() {
         // Format number to precision level using proper scale
         value = d3.formatPrefix(value).scale(value)
         value = parseFloat(d3.format(".3g")(value))
-        value = value + symbol;
+        return value + symbol;
       }
       else {
-        value = d3.format(",f")(value)
+        return d3.format(",f")(value)
       }
       
-      return value
     },
     "order": "asc",
     "projection": d3.geo.mercator(),
@@ -677,10 +676,11 @@ vizwhiz.viz = function() {
     var tooltip_data = []
     a.forEach(function(t){
       var value = find_variable(id,t)
-      var name = vars.text_format(t)
       if (value) {
-        var h = t == tooltip_highlight
-        tooltip_data.push({"name": name, "value": value, "highlight": h, "format": vars.number_format})
+        var name = vars.text_format(t),
+            h = t == tooltip_highlight,
+            val = vars.number_format({"name": t, "value": value})
+        tooltip_data.push({"name": name, "value": val, "highlight": h})
       }
     })
     
