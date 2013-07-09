@@ -1188,7 +1188,8 @@ vizwhiz.viz = function() {
     .tickFormat(function(d, i) {
       
       if ((vars.xscale_type == "log" && d.toString().charAt(0) == "1")
-          || vars.xscale_type != "log") {
+          || (vars.xaxis_var == vars.year_var && d % 1 == 0)
+          || (vars.xscale_type != "log" && vars.xaxis_var != vars.year_var)) {
       
         if (vars.xaxis_var == vars.year_var) var text = d;
         else {
@@ -1235,9 +1236,13 @@ vizwhiz.viz = function() {
     .tickFormat(function(d, i) {
       
       if ((vars.yscale_type == "log" && d.toString().charAt(0) == "1")
-          || vars.yscale_type != "log") {
-      
+          || (vars.yaxis_var == vars.year_var && d % 1 == 0)
+          || (vars.yscale_type != "log" && vars.yaxis_var != vars.year_var)) {
+            
         if (vars.yaxis_var == vars.year_var) var text = d;
+        else if (vars.layout == "share" && vars.type == "stacked") {
+          var text = d*100+"%"
+        }
         else {
           var obj = {"name": vars.yaxis_var, "value": d}
           var text = vars.number_format(obj);
