@@ -190,21 +190,52 @@ div.tester {
     "id": "15"
   })
   
-  // vizwhiz.tooltip.create({
-  //   "title": "Animal Products",
-  //   "description": "Including Horses and other cool creatures.",
-  //   "icon": "data/hs_02.png",
-  //   "id": "023",
-  //   "x": 250,
-  //   "y": 0,
-  //   "fixed": true,
-  //   "width": 200,
-  //   "offset": 5,
-  //   "mouseevents": false,
-  //   "footer": "Click box for more info",
-  //   "data": [{"name":"Trade Value","value":"4000000","format":",f","highlight":true},
-  //            {"name":"Complexity","value":"0.89","format":format_test}]
-  // })
+  vizwhiz.tooltip.create({
+    "title": "Animal Products",
+    "description": "Including Horses and other cool creatures.",
+    "icon": "data/hs_02.png",
+    "id": "023",
+    "x": 250,
+    "y": 0,
+    "fixed": true,
+    "width": 200,
+    "offset": 5,
+    "mouseevents": false,
+    "footer": "Click box for more info",
+    "data": [{"name":"Trade Value","value":"4000000","format":",f","highlight":true},
+             {"name":"Complexity","value":"0.89","format":format_test}]
+  })
+  
+  // d3.select("body").append("div")
+  //   .style("display","block")
+  //   .style("position","absolute")
+  //   .style("width","50px")
+  //   .style("height","50px")
+  //   .style("top","600px")
+  //   .style("left","600px")
+  //   .style("background-color","red")
+  //   .on(vizwhiz.evt.over,function(d){
+  //     vizwhiz.tooltip.create({
+  //       "title": "Animal Products",
+  //       "description": "Including Horses and other cool creatures.",
+  //       "color": this.style.backgroundColor,
+  //       "icon": "data/hs_02.png",
+  //       "id": "tester",
+  //       "x": 625,
+  //       "y": 605,
+  //       "width": "auto",
+  //       "offset": 0,
+  //       "arrow": true,
+  //       "mouseevents": this,
+  //       "footer": "Click box for more info",
+  //       "data": [{"name":"Trade Value","value":"4000000","format":",f","highlight":true},
+  //                {"name":"Complexity","value":"0.89","format":format_test}]
+  //     })
+  //     
+  //   })
+  //   .on(vizwhiz.evt.out,function(d){
+  //       vizwhiz.tooltip.remove("tester")
+  //   })
   
   while (boxes > 0) {
     d3.select("body").append("div")
@@ -244,7 +275,7 @@ div.tester {
         }
       })
       .on(vizwhiz.evt.click,function(d){
-
+  
         vizwhiz.tooltip.remove(this.id)
         
         vizwhiz.tooltip.create({

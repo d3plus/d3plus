@@ -103,6 +103,27 @@ vizwhiz.tooltip.create = function(params) {
     tooltip
       .style("pointer-events","none")
   }
+  else if (params.mouseevents !== true) {
+    
+    var oldout = d3.select(params.mouseevents).on(vizwhiz.evt.out)
+    
+    d3.select(params.mouseevents).on(vizwhiz.evt.out,function() {
+      var target = d3.event.toElement
+      var class_name = target ? target.className : ""
+      if (class_name.indexOf("vizwhiz_tooltip") < 0) {
+        oldout()
+      }
+    })
+    tooltip.on(vizwhiz.evt.out,function() {
+      d3.event.stopPropagation()
+      var target = d3.event.toElement
+      var class_name = target ? target.className : ""
+      if (class_name.indexOf("vizwhiz_tooltip") < 0) {
+        oldout()
+      }
+    })
+    
+  }
     
   if (params.arrow) {
     var arrow = tooltip.append("div")
@@ -192,7 +213,7 @@ vizwhiz.tooltip.create = function(params) {
   else params.width += params.arrow_offset
       
   if (params.data) {
-    var h = window.innerHeight-params.y-20
+    var h = params.height
     if (header) h -= header.node().offsetHeight
     if (footer) {
       footer.style("margin-top","6px")
