@@ -107,21 +107,26 @@ vizwhiz.tooltip.create = function(params) {
     
     var oldout = d3.select(params.mouseevents).on(vizwhiz.evt.out)
     
-    d3.select(params.mouseevents).on(vizwhiz.evt.out,function() {
+    var newout = function() {
       var target = d3.event.toElement
-      var class_name = target ? target.className : ""
-      if (class_name.indexOf("vizwhiz_tooltip") < 0) {
+      if (!target || !ischild(tooltip.node(),target)) {
         oldout()
       }
-    })
-    tooltip.on(vizwhiz.evt.out,function() {
-      d3.event.stopPropagation()
-      var target = d3.event.toElement
-      var class_name = target ? target.className : ""
-      if (class_name.indexOf("vizwhiz_tooltip") < 0) {
-        oldout()
-      }
-    })
+    }
+    
+    var ischild = function(parent, child) {
+       var node = child.parentNode;
+       while (node != null) {
+         if (node == parent) {
+           return true;
+         }
+         node = node.parentNode;
+       }
+       return false;
+    }
+    
+    d3.select(params.mouseevents).on(vizwhiz.evt.out,newout)
+    tooltip.on(vizwhiz.evt.out,newout)
     
   }
     
