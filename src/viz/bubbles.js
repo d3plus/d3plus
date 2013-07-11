@@ -272,6 +272,13 @@ vizwhiz.bubbles = function(vars) {
     .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
     .each(function(d){
       
+      d3.select(this).append("rect")
+        .attr("fill","transparent")
+        .attr("x",-d.r)
+        .attr("y",-d.r)
+        .attr("width",d.r*2)
+        .attr("height",d.r*2)
+      
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
@@ -390,7 +397,7 @@ vizwhiz.bubbles = function(vars) {
   bubble
     .on(vizwhiz.evt.over, function(d){
       
-      var tooltip_data = get_tooltip_data(d[vars.id_var])
+      var tooltip_data = get_tooltip_data(d,"short")
       
       vizwhiz.tooltip.create({
         "id": d[vars.id_var],
@@ -400,14 +407,41 @@ vizwhiz.bubbles = function(vars) {
         "title": find_variable(d[vars.id_var],vars.text_var),
         "x": d.x+vars.margin.left+vars.parent.node().offsetLeft,
         "y": d.y+vars.margin.top+vars.parent.node().offsetTop,
-        "offset": d.r,
+        "offset": d.r-5,
         "arrow": true,
-        "mouseevents": false
+        "mouseevents": false,
+        "footer": footer_text()
       })
       
     })
     .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove()
+      vizwhiz.tooltip.remove(d[vars.id_var])
+    })
+    .on(vizwhiz.evt.click, function(d){
+      
+      var html = vars.click_function ? vars.click_function(d) : null
+      if (html || vars.tooltip_info.long) {
+
+        var id = find_variable(d,vars.id_var)
+        vizwhiz.tooltip.remove(id)
+        d3.selectAll(".axis_hover").remove()
+        
+        var tooltip_data = get_tooltip_data(d,"long")
+        
+        vizwhiz.tooltip.create({
+          "title": find_variable(d,vars.text_var),
+          "color": find_variable(d,vars.color_var),
+          "icon": find_variable(d,"icon"),
+          "id": id,
+          "fullscreen": true,
+          "html": html,
+          "footer": vars.data_source,
+          "data": tooltip_data,
+          "mouseevents": this
+        })
+        
+      }
+      
     })
   
   bubble.transition().duration(vizwhiz.timing)

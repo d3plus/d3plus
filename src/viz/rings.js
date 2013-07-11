@@ -1,7 +1,7 @@
 
 vizwhiz.rings = function(vars) {
       
-  var tooltip_width = 200
+  var tooltip_width = 300
       
   var width = vars.small ? vars.width : vars.width-tooltip_width
       
@@ -221,7 +221,26 @@ vizwhiz.rings = function(vars) {
 
     vizwhiz.tooltip.remove();
     
-    var html = vars.click_function(vars.data[vars.highlight])
+    var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
+
+    vars.connections[vars.highlight].forEach(function(n){
+      
+      var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
+      
+      tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+      tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+      tooltip_appends += " style='"
+      tooltip_appends += "background-color:"+fill_color(n)+";"
+      tooltip_appends += "border-color:"+stroke_color(n)+";"
+      tooltip_appends += "'"
+      tooltip_appends += "></div>"
+      tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+      tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
+      tooltip_appends += "</div>"
+      tooltip_appends += "</div>"
+    })
+    
+    var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight]) : ""
     
     var tooltip_data = get_tooltip_data(vars.highlight)
 
@@ -231,15 +250,35 @@ vizwhiz.rings = function(vars) {
       "color": find_variable(vars.highlight,vars.color_var),
       "icon": find_variable(vars.highlight,"icon"),
       "id": vars.highlight,
-      "html": html,
+      "html": tooltip_appends+html,
       "footer": vars.data_source,
       "data": tooltip_data,
       "x": vars.parent.node().offsetLeft+vars.width-tooltip_width-5,
       "y": vars.parent.node().offsetTop+vars.margin.top+5,
       "fixed": true,
-      "width": tooltip_width
+      "width": tooltip_width,
+      "mouseevents": true
     })
     
+  }
+  
+  function fill_color(d) {
+    if(find_variable(d[vars.id_var],vars.active_var)){
+      return d[vars.color_var];
+    } 
+    else {
+      var lighter_col = d3.hsl(d[vars.color_var]);
+      lighter_col.l = 0.95;
+      return lighter_col.toString()
+    }
+  }
+  
+  function stroke_color(d) {
+    if(find_variable(d[vars.id_var],vars.active_var)){
+      return "#333";
+    } else {
+      return vizwhiz.utils.darker_color(d[vars.color_var])
+    }
   }
   
   function line_styles(l) {
@@ -266,14 +305,7 @@ vizwhiz.rings = function(vars) {
   function circle_styles(c) {
     c
       .attr("fill", function(d){
-        if(find_variable(d[vars.id_var],vars.active_var)){
-          var color = d[vars.color_var];
-        } 
-        else {
-          var lighter_col = d3.hsl(d[vars.color_var]);
-          lighter_col.l = 0.95;
-          var color = lighter_col.toString()
-        }
+        var color = fill_color(d)
         
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
@@ -282,11 +314,8 @@ vizwhiz.rings = function(vars) {
       
       })
       .attr("stroke", function(d){
-        if(find_variable(d[vars.id_var],vars.active_var)){
-          var color = "#333";
-        } else {
-          var color = vizwhiz.utils.darker_color(d[vars.color_var])
-        }
+        var color = stroke_color(d)
+        
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
         else if (d.depth == 2 && (!hover || d == hover || d.parents.indexOf(hover) >= 0)) return color;

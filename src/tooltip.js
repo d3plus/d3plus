@@ -10,8 +10,8 @@ vizwhiz.tooltip.create = function(params) {
   params.html = params.html ? params.html : null
   params.size = params.fullscreen ? "large" : "small"
   params.offset = params.offset ? params.offset : 0
-  params.arrow_offset = params.arrow ? 12 : 0
-  params.mouseevents = params.mouseevents === undefined ? true : params.mouseevents
+  params.arrow_offset = params.arrow ? 8 : 0
+  params.mouseevents = params.mouseevents ? params.mouseevents : false
   params.x = params.x ? params.x : 0
   params.y = params.y ? params.y : 0
   params.color = params.color ? params.color : "#333"
@@ -109,8 +109,9 @@ vizwhiz.tooltip.create = function(params) {
     
     var newout = function() {
       var target = d3.event.toElement
-      if (!target || !ischild(tooltip.node(),target)) {
+      if (!target || (!ischild(tooltip.node(),target) && target.className != "vizwhiz_tooltip_curtain")) {
         oldout()
+        d3.select(params.mouseevents).on(vizwhiz.evt.out,oldout)
       }
     }
     
@@ -194,10 +195,11 @@ vizwhiz.tooltip.create = function(params) {
       .html(params.html)
   }
   
+  var footer = body.append("div")
+    .attr("class","vizwhiz_tooltip_footer")
+  
   if (params.footer) {
-    var footer = body.append("div")
-      .attr("class","vizwhiz_tooltip_footer")
-      .html(params.footer)
+    footer.html(params.footer)
   }
   
   params.height = tooltip.node().offsetHeight
@@ -216,17 +218,32 @@ vizwhiz.tooltip.create = function(params) {
   
   if (params.anchor.y != "center") params.height += params.arrow_offset
   else params.width += params.arrow_offset
-      
-  if (params.data) {
-    var h = params.height
-    if (header) h -= header.node().offsetHeight
+  
+  if (params.data || (!params.fullscreen && params.html)) {
+    
+    if (!params.fullscreen && params.html) {
+      var limit = window.innerHeight-params.y-5
+      var h = params.height < limit ? params.height : limit
+    }
+    else {
+      var h = params.height
+    }
+    
+    if (header) {
+      h -= header.node().offsetHeight
+      h -= parseFloat(header.style("padding-top"),10)
+      h -= parseFloat(header.style("padding-bottom"),10)
+    }
     if (footer) {
-      footer.style("margin-top","6px")
       h -= footer.node().offsetHeight
+      h -= parseFloat(footer.style("padding-top"),10)
+      h -= parseFloat(footer.style("padding-bottom"),10)
     }
     data_container
       .style("max-height",h+"px")
   }
+  
+  params.height = tooltip.node().offsetHeight
   
   vizwhiz.tooltip.move(params.x,params.y,params.id);
     
@@ -364,7 +381,7 @@ vizwhiz.tooltip.move = function(x,y,id) {
           d.y = d.cy + d.offset + d.arrow_offset
         }
         else {
-          d.y = d.cy - d.height - d.offset
+          d.y = d.cy - d.height - d.offset - d.arrow_offset
         }
     
       }

@@ -24,8 +24,7 @@ div.vizwhiz_tooltip {
 
 div.vizwhiz_tooltip_container {
   background-color: #fff;
-/*  border: 1px solid #888;*/
-  padding: 6px 6px 0px 6px;
+  padding: 6px;
 }
 
 div.vizwhiz_tooltip,
@@ -53,6 +52,9 @@ div.vizwhiz_tooltip_body {
 }
 
 div.vizwhiz_tooltip_header {
+  -webkit-box-shadow: 0 3px 3px white;
+     -moz-box-shadow: 0 3px 3px white;
+          box-shadow: 0 3px 3px white;
   padding-bottom: 6px;
   position: relative;
   z-index: 1;
@@ -152,7 +154,7 @@ div.vizwhiz_tooltip_description {
 
 div.vizwhiz_tooltip_data_container {
   overflow: scroll;
-  padding-bottom: 6px;
+  z-index: -1;
 }
 
 div.vizwhiz_tooltip_data_seperator {
@@ -174,9 +176,13 @@ div.vizwhiz_tooltip_data_value {
 }
 
 div.vizwhiz_tooltip_footer {
+  -webkit-box-shadow: 0 -3px 3px white;
+     -moz-box-shadow: 0 -3px 3px white;
+          box-shadow: 0 -3px 3px white;
   color: #aaa;
   font-size: 10px;
-  padding-bottom: 6px;
+  padding-top: 6px;
+  position: relative;
   text-align: center;
 }
 

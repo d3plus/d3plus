@@ -26,15 +26,21 @@
 <script src="../src/viz/geo_map.js"></script>
 <script>
 
-  d3.json("data/geo/ap_munic.json", function(shapes) {
+  d3.json("data/geo/mg_munic.json", function(shapes) {
     d3.json("data/geo/land.json", function(land) {
       d3.json("data/munic_a0112.json", function(geo_data) {
         d3.json("data/attr_munic.json", function(attr) {
           
-          var data = geo_data.data.filter(function(d){
+          var data = geo_data.data.filter(function(d,i){
             d.id = d.bra_id
-            return d.id.substr(0,2) == "ap"
+            return d.id.substr(0,2) == "mg"
           })
+          
+          data[0].year = 2009
+          
+          clicker = function(obj) {
+            return "Some HTML Content"
+          }
           
           viz = vizwhiz.viz()
             .type("geo_map")
@@ -45,12 +51,12 @@
             .id_var("id")
             .value_var("wage")
             .text_var("name")
-            // .highlight("ap000000")
-            .tooltip_info(["id","wage","num_emp","num_est"])
+            .tooltip_info({"short": [],"long": ["wage", "id", "num_emp"]})
+            .click_function(clicker)
             .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
-            .highlight("ap000000")
+            // .highlight("ap000000")
             .year(2010)
-            .text_format(function(d){return d.toUpperCase()})
+            // .text_format(function(d){return d.toUpperCase()})
           
           d3.select("#viz")
             .datum(data)

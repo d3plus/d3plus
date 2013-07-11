@@ -26,6 +26,10 @@ var viz = vizwhiz.viz()
 
 d3.json("data/mg_test_data.json", function(flat_data){
   d3.json("data/attr_hs.json", function(attrs){
+      
+    inner_html = function(obj) {
+      return "This is some test HTML"
+    }
     
     var data = []
     flat_data.data.forEach(function(d, i){
@@ -58,8 +62,9 @@ d3.json("data/mg_test_data.json", function(flat_data){
       .nesting_aggs({"complexity":"mean","distance":"mean","rca":"mean"})
       .depth("nesting_0")
       .text_format(text_formatting)
-      .spotlight(true)
+      .spotlight(false)
       .year(2003)
+      .click_function(inner_html)
 
     d3.select("#viz")
       .datum(data)

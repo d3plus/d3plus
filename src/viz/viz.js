@@ -13,7 +13,7 @@ vizwhiz.viz = function() {
     "attrs": null,
     "background": "#ffffff",
     "boundries": null,
-    "click_function": function() { return null },
+    "click_function": null,
     "color_var": "color",
     "connections": null,
     "coords": null,
@@ -690,6 +690,12 @@ vizwhiz.viz = function() {
     if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
     else var a = vars.tooltip_info[length]
     
+    if (a.indexOf(vars.value_var) < 0) a.unshift(vars.value_var)
+    if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
+         && a.indexOf(vars.xaxis_var) < 0) a.unshift(vars.xaxis_var)
+    if (["stacked"].indexOf(vars.type) >= 0
+         && a.indexOf(vars.yaxis_var) < 0) a.unshift(vars.yaxis_var)
+    
     var tooltip_data = []
     a.forEach(function(t){
       var value = find_variable(id,t)
@@ -742,6 +748,15 @@ vizwhiz.viz = function() {
       return vars.text_format(value)
     }
     else return value
+    
+  }
+  
+  footer_text = function() {
+
+    var text = vars.click_function || vars.tooltip_info.long ? vars.text_format("Click for More Info") : null
+    
+    if (!text && vars.type == "geo_map") return vars.text_format("Click to Zoom")
+    else return text
     
   }
   

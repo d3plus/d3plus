@@ -14,7 +14,6 @@ vizwhiz.geo_map = function(vars) {
     if (param == "in") var scale = scale*2
     else if (param == "out") var scale = scale*0.5
     else if (param == "reset") {
-      console.log(param)
       var param = vars.boundries
       if (vars.highlight) {
         var temp = vars.highlight;
@@ -120,8 +119,6 @@ vizwhiz.geo_map = function(vars) {
       
       var id = vars.highlight ? vars.highlight : hover
       
-      var tooltip_data = get_tooltip_data(id)
-      
       var data = vars.data[id]
       
       if (data && data[vars.value_var]) {
@@ -135,10 +132,14 @@ vizwhiz.geo_map = function(vars) {
         var footer = vars.text_format("No Data Available")
       }
       else if (!vars.highlight) {
-        var footer = vars.text_format("Click for More Info")
+        var tooltip_data = get_tooltip_data(id,"short"),
+            footer = footer_text(),
+            html = null
       }
       else {
-        var footer = vars.data_source
+        var tooltip_data = get_tooltip_data(id,"long"),
+            footer = vars.data_source,
+            html = vars.click_function ? vars.click_function(id) : null
       }
       
       vizwhiz.tooltip.create({
@@ -151,7 +152,8 @@ vizwhiz.geo_map = function(vars) {
         "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,
         "y": vars.margin.top+vars.parent.node().offsetTop+5,
         "fixed": true,
-        "width": info_width
+        "width": info_width,
+        "html": html
       })
       
     }
@@ -247,8 +249,12 @@ vizwhiz.geo_map = function(vars) {
   // Create viz group on vars.svg_enter
   var viz_enter = vars.parent_enter.append('g')
     .call(vars.zoom_behavior)
-    .on(vizwhiz.evt.down,function(d){dragging = true})
-    .on(vizwhiz.evt.up,function(d){dragging = false})
+    .on(vizwhiz.evt.down,function(d){
+      dragging = true
+    })
+    .on(vizwhiz.evt.up,function(d){
+      dragging = false
+    })
     .append('g')
       .attr('class','viz');
     
@@ -259,6 +265,23 @@ vizwhiz.geo_map = function(vars) {
     .attr("fill","transparent");
     
   d3.select("rect.overlay")
+    .on(vizwhiz.evt.move, function(d) {
+      if (vars.highlight) {
+        d3.select(this).style("cursor","-moz-zoom-out")
+        d3.select(this).style("cursor","-webkit-zoom-out")
+      }
+      else {
+        d3.select(this).style("cursor","move")
+        if (dragging) {
+          d3.select(this).style("cursor","-moz-grabbing")
+          d3.select(this).style("cursor","-webkit-grabbing")
+        }
+        else {
+          d3.select(this).style("cursor","-moz-grab")
+          d3.select(this).style("cursor","-webkit-grab")
+        }
+      }
+    })
     .on(vizwhiz.evt.click, function(d) {
       if (vars.highlight) {
         vars.zoom("reset");
@@ -269,121 +292,120 @@ vizwhiz.geo_map = function(vars) {
     .attr('class','paths');
     
   // add scale
+  var gradient = defs
+    .append("linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "0%")
+    .attr("spreadMethod", "pad");
+     
+  data_range.forEach(function(v,i){
+    gradient.append("stop")
+      .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
+      .attr("stop-color", value_color(v))
+      .attr("stop-opacity", 1)
+  })
   
-  if (!vars.small) {
-    var gradient = defs
-      .append("linearGradient")
-      .attr("id", "gradient")
-      .attr("x1", "0%")
-      .attr("y1", "0%")
-      .attr("x2", "100%")
-      .attr("y2", "0%")
-      .attr("spreadMethod", "pad");
-       
-    data_range.forEach(function(v,i){
-      gradient.append("stop")
-        .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
-        .attr("stop-color", value_color(v))
-        .attr("stop-opacity", 1)
-    })
+  var scale = vars.parent_enter.append('g')
+    .attr('class','scale')
+    .style("opacity",0)
+    .attr("transform","translate(30,5)");
     
-    var scale = vars.parent_enter.append('g')
-      .attr('class','scale')
-      .style("opacity",0)
-      .attr("transform","translate(30,5)");
-      
-    var shadow = defs.append("filter")
-      .attr("id", "shadow")
-      .attr("x", "-50%")
-      .attr("y", "0")
-      .attr("width", "200%")
-      .attr("height", "200%");
-      
-    shadow.append("feGaussianBlur")
-      .attr("in","SourceAlpha")
-      .attr("result","blurOut")
-      .attr("stdDeviation","3")
-      
-    shadow.append("feOffset")
-      .attr("in","blurOut")
-      .attr("result","the-shadow")
-      .attr("dx","0")
-      .attr("dy","1")
-      
-    shadow.append("feColorMatrix")
-      .attr("in","the-shadow")
-      .attr("result","colorOut")
-      .attr("type","matrix")
-      .attr("values","0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0")
-      
-    shadow.append("feBlend")
-      .attr("in","SourceGraphic")
-      .attr("in2","colorOut")
-      .attr("mode","normal")
+  var shadow = defs.append("filter")
+    .attr("id", "shadow")
+    .attr("x", "-50%")
+    .attr("y", "0")
+    .attr("width", "200%")
+    .attr("height", "200%");
     
+  shadow.append("feGaussianBlur")
+    .attr("in","SourceAlpha")
+    .attr("result","blurOut")
+    .attr("stdDeviation","3")
+    
+  shadow.append("feOffset")
+    .attr("in","blurOut")
+    .attr("result","the-shadow")
+    .attr("dx","0")
+    .attr("dy","1")
+    
+  shadow.append("feColorMatrix")
+    .attr("in","the-shadow")
+    .attr("result","colorOut")
+    .attr("type","matrix")
+    .attr("values","0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0")
+    
+  shadow.append("feBlend")
+    .attr("in","SourceGraphic")
+    .attr("in2","colorOut")
+    .attr("mode","normal")
+  
+  scale.append("rect")
+    .attr("width", scale_width+"px")
+    .attr("height", "45px")
+    .attr("fill","#ffffff")
+    .attr("opacity",0.75)
+    .attr("filter","url(#shadow)")
+    .attr("shape-rendering","crispEdges")
+      
+  scale.append("text")
+    .attr("id","scale_title")
+    .attr("x",(scale_width/2)+"px")
+    .attr("y","0px")
+    .attr("dy","1.25em")
+    .attr("text-anchor","middle")
+    .attr("fill","#333")
+    .attr("font-size","10px")
+    .attr("font-family","Helvetica")
+     
+  data_range.forEach(function(v,i){
+    if (i == data_range.length-1) {
+      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
+    } else if (i != 0) {
+      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
+    } else {
+      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))
+    }
     scale.append("rect")
-      .attr("width", scale_width+"px")
-      .attr("height", "45px")
-      .attr("fill","#ffffff")
-      .attr("opacity",0.75)
-      .attr("filter","url(#shadow)")
-      .attr("shape-rendering","crispEdges")
-        
+      .attr("x", x+"px")
+      .attr("y", (scale_height*1.75)+"px")
+      .attr("width", 1)
+      .attr("height", ((scale_height*0.75)+3)+"px")
+      .style("fill", "#333")
+      .attr("opacity",0.25)
+  
+    scale.append("rect")
+      .attr("x",scale_padding+"px")
+      .attr("y",(scale_height*1.75)+"px")
+      .attr("width", (scale_width-(scale_padding*2))+"px")
+      .attr("height", scale_height*0.75+"px")
+      .style("fill", "url(#gradient)")
+      
     scale.append("text")
-      .attr("id","scale_title")
-      .attr("x",(scale_width/2)+"px")
-      .attr("y","0px")
-      .attr("dy","1.25em")
+      .attr("id","scale_"+i)
+      .attr("x",x+"px")
+      .attr("y", (scale_height*2.75)+"px")
+      .attr("dy","1em")
       .attr("text-anchor","middle")
       .attr("fill","#333")
+      .style("font-weight","normal")
       .attr("font-size","10px")
       .attr("font-family","Helvetica")
-       
+  })
+
+  if (!data_extent[0] || Object.keys(vars.data).length < 2 || vars.small) {
+    d3.select("g.scale").transition().duration(vizwhiz.timing)
+      .style("opacity",0)
+  }
+  else {
     data_range.forEach(function(v,i){
-      if (i == data_range.length-1) {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
-      } else if (i != 0) {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
-      } else {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))
-      }
-      scale.append("rect")
-        .attr("x", x+"px")
-        .attr("y", (scale_height*1.75)+"px")
-        .attr("width", 1)
-        .attr("height", ((scale_height*0.75)+3)+"px")
-        .style("fill", "#333")
-        .attr("opacity",0.25)
-    
-      scale.append("rect")
-        .attr("x",scale_padding+"px")
-        .attr("y",(scale_height*1.75)+"px")
-        .attr("width", (scale_width-(scale_padding*2))+"px")
-        .attr("height", scale_height*0.75+"px")
-        .style("fill", "url(#gradient)")
-        
-      scale.append("text")
-        .attr("id","scale_"+i)
-        .attr("x",x+"px")
-        .attr("y", (scale_height*2.75)+"px")
-        .attr("dy","1em")
-        .attr("text-anchor","middle")
-        .attr("fill","#333")
-        .style("font-weight","normal")
-        .attr("font-size","10px")
-        .attr("font-family","Helvetica")
+      d3.select("g.scale").select("text#scale_"+i).text(vars.number_format(v))
     })
-    
-    if (!data_extent[0]) {
-      d3.select("g.scale").style("opacity",0)
-    }
-    else {
-      data_range.forEach(function(v,i){
-        d3.select("g.scale").select("text#scale_"+i).text(vars.number_format(v))
-      })
-      d3.select("g.scale").select("text#scale_title").text(vars.text_format(vars.value_var))
-      d3.select("g.scale").style("opacity",1)
-    }
+    d3.select("g.scale").select("text#scale_title").text(vars.text_format(vars.value_var))
+    d3.select("g.scale").transition().duration(vizwhiz.timing)
+      .style("opacity",1)
   }
   
   zoom_controls();
@@ -411,6 +433,9 @@ vizwhiz.geo_map = function(vars) {
     .on(vizwhiz.evt.over, function(d){
       hover = d[vars.id_var]
       if (vars.highlight != d[vars.id_var]) {
+        d3.select(this).style("cursor","pointer")
+        d3.select(this).style("cursor","-moz-zoom-in")
+        d3.select(this).style("cursor","-webkit-zoom-in")
         d3.select(this).attr("opacity",select_opacity);
       }
       if (!vars.highlight) {

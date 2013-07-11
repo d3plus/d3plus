@@ -41,7 +41,10 @@ body {
         d.nesting_2 = {"name":attrs[d.id.slice(0, 5)].name, "id":d.id.slice(0, 5)};
         d.wage_avg = d.wage/d.num_emp
       })
-      
+      inner_html = function(obj) {
+        console.log(obj)
+        return "This is some test HTML"
+      }
       //     
       // viz = vizwhiz.viz()
       //   .type("stacked")
@@ -73,6 +76,7 @@ body {
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
         .nesting(["nesting_0","nesting_1","nesting_2"])
         .depth("nesting_0")
+        .click_function(inner_html)
         // .layout("share")
         // .labels(false)
         // .year([2000,2003])

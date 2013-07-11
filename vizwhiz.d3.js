@@ -275,8 +275,8 @@ vizwhiz.tooltip.create = function(params) {
   params.html = params.html ? params.html : null
   params.size = params.fullscreen ? "large" : "small"
   params.offset = params.offset ? params.offset : 0
-  params.arrow_offset = params.arrow ? 12 : 0
-  params.mouseevents = params.mouseevents === undefined ? true : params.mouseevents
+  params.arrow_offset = params.arrow ? 8 : 0
+  params.mouseevents = params.mouseevents ? params.mouseevents : false
   params.x = params.x ? params.x : 0
   params.y = params.y ? params.y : 0
   params.color = params.color ? params.color : "#333"
@@ -374,8 +374,9 @@ vizwhiz.tooltip.create = function(params) {
     
     var newout = function() {
       var target = d3.event.toElement
-      if (!target || !ischild(tooltip.node(),target)) {
+      if (!target || (!ischild(tooltip.node(),target) && target.className != "vizwhiz_tooltip_curtain")) {
         oldout()
+        d3.select(params.mouseevents).on(vizwhiz.evt.out,oldout)
       }
     }
     
@@ -459,10 +460,11 @@ vizwhiz.tooltip.create = function(params) {
       .html(params.html)
   }
   
+  var footer = body.append("div")
+    .attr("class","vizwhiz_tooltip_footer")
+  
   if (params.footer) {
-    var footer = body.append("div")
-      .attr("class","vizwhiz_tooltip_footer")
-      .html(params.footer)
+    footer.html(params.footer)
   }
   
   params.height = tooltip.node().offsetHeight
@@ -481,17 +483,32 @@ vizwhiz.tooltip.create = function(params) {
   
   if (params.anchor.y != "center") params.height += params.arrow_offset
   else params.width += params.arrow_offset
-      
-  if (params.data) {
-    var h = params.height
-    if (header) h -= header.node().offsetHeight
+  
+  if (params.data || (!params.fullscreen && params.html)) {
+    
+    if (!params.fullscreen && params.html) {
+      var limit = window.innerHeight-params.y-5
+      var h = params.height < limit ? params.height : limit
+    }
+    else {
+      var h = params.height
+    }
+    
+    if (header) {
+      h -= header.node().offsetHeight
+      h -= parseFloat(header.style("padding-top"),10)
+      h -= parseFloat(header.style("padding-bottom"),10)
+    }
     if (footer) {
-      footer.style("margin-top","6px")
       h -= footer.node().offsetHeight
+      h -= parseFloat(footer.style("padding-top"),10)
+      h -= parseFloat(footer.style("padding-bottom"),10)
     }
     data_container
       .style("max-height",h+"px")
   }
+  
+  params.height = tooltip.node().offsetHeight
   
   vizwhiz.tooltip.move(params.x,params.y,params.id);
     
@@ -629,7 +646,7 @@ vizwhiz.tooltip.move = function(x,y,id) {
           d.y = d.cy + d.offset + d.arrow_offset
         }
         else {
-          d.y = d.cy - d.height - d.offset
+          d.y = d.cy - d.height - d.offset - d.arrow_offset
         }
     
       }
@@ -704,7 +721,7 @@ vizwhiz.viz = function() {
     "attrs": null,
     "background": "#ffffff",
     "boundries": null,
-    "click_function": function() { return null },
+    "click_function": null,
     "color_var": "color",
     "connections": null,
     "coords": null,
@@ -1381,6 +1398,12 @@ vizwhiz.viz = function() {
     if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
     else var a = vars.tooltip_info[length]
     
+    if (a.indexOf(vars.value_var) < 0) a.unshift(vars.value_var)
+    if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
+         && a.indexOf(vars.xaxis_var) < 0) a.unshift(vars.xaxis_var)
+    if (["stacked"].indexOf(vars.type) >= 0
+         && a.indexOf(vars.yaxis_var) < 0) a.unshift(vars.yaxis_var)
+    
     var tooltip_data = []
     a.forEach(function(t){
       var value = find_variable(id,t)
@@ -1433,6 +1456,15 @@ vizwhiz.viz = function() {
       return vars.text_format(value)
     }
     else return value
+    
+  }
+  
+  footer_text = function() {
+
+    var text = vars.click_function || vars.tooltip_info.long ? vars.text_format("Click for More Info") : null
+    
+    if (!text && vars.type == "geo_map") return vars.text_format("Click to Zoom")
+    else return text
     
   }
   
@@ -2344,6 +2376,9 @@ vizwhiz.network = function(vars) {
             tooltip_appends += "</div>"
           })
           
+    
+          var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight]) : ""
+          
           vizwhiz.tooltip.create({
             "data": tooltip_data,
             "title": find_variable(vars.highlight,vars.text_var),
@@ -2352,8 +2387,9 @@ vizwhiz.network = function(vars) {
             "x": vars.parent.node().offsetLeft+x_pos,
             "y": vars.parent.node().offsetTop+vars.margin.top+5,
             "width": info_width,
-            "html": tooltip_appends,
-            "fixed": true
+            "html": tooltip_appends+html,
+            "fixed": true,
+            "mouseevents": true
           })
           
         }
@@ -2408,9 +2444,9 @@ vizwhiz.network = function(vars) {
   //===================================================================
     
 
-  var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x});
-  var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y});
-  var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0]);
+  var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x})
+  var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y})
+  var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0])
     
   // Define Scale
   if (aspect > vars.width/vars.height) {
@@ -2936,6 +2972,9 @@ vizwhiz.stacked = function(vars) {
   // enter new paths, could be next level deep or up a level
   paths.enter().append("path")
     .attr("opacity", 0)
+    .attr("id", function(d){
+      return "path_"+d[vars.id_var]
+    })
     .attr("class", "layer")
     .attr("stroke",vars.highlight_color)
     .attr("stroke-width",0)
@@ -2949,13 +2988,131 @@ vizwhiz.stacked = function(vars) {
   // UPDATE
   paths
     .on(vizwhiz.evt.over, function(d){
-      d3.select(this).attr("stroke-width",3)
-    })
-    .on(vizwhiz.evt.move, path_tooltip)
-    .on(vizwhiz.evt.out, function(d){
+      
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#path_"+id).node()
+      
+      d3.select(self).attr("stroke-width",3)
+
       d3.selectAll("line.rule").remove();
-      vizwhiz.tooltip.remove();
-      d3.select(this).attr("stroke-width",0)
+      
+      var mouse_x = d3.event.layerX-vars.graph.margin.left;
+      var rev_x_scale = d3.scale.linear()
+        .domain(vars.x_scale.range()).range(vars.x_scale.domain());
+      var this_x = Math.round(rev_x_scale(mouse_x));
+      var this_x_index = vars.years.indexOf(this_x)
+      var this_value = d.values[this_x_index]
+      
+      // add dashed line at closest X position to mouse location
+      d3.select("g.chart").append("line")
+        .datum(d)
+        .attr("class", "rule")
+        .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
+        .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .attr("stroke-opacity", 0.5)
+        .attr("stroke-dasharray", "5,3")
+        .attr("pointer-events","none")
+      
+      // tooltip
+      var tooltip_data = get_tooltip_data(this_value,"short")
+    
+      var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
+          tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+          tooltip_y = vars.y_scale(this_value.y0 + this_value.y)+(path_height)/2+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
+
+      vizwhiz.tooltip.create({
+        "data": tooltip_data,
+        "title": find_variable(d[vars.id_var],vars.text_var),
+        "id": id,
+        "icon": find_variable(d[vars.id_var],"icon"),
+        "color": find_variable(d[vars.id_var],vars.color_var),
+        "x": tooltip_x,
+        "y": tooltip_y,
+        "offset": (path_height/2),
+        "arrow": true,
+        "footer": footer_text(),
+        "mouseevents": false
+      })
+      
+    })
+    .on(vizwhiz.evt.move, function(d){
+      
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#path_"+id).node()
+          
+      var mouse_x = d3.event.layerX-vars.graph.margin.left;
+      var rev_x_scale = d3.scale.linear()
+        .domain(vars.x_scale.range()).range(vars.x_scale.domain());
+      var this_x = Math.round(rev_x_scale(mouse_x));
+      var this_x_index = vars.years.indexOf(this_x)
+      var this_value = d.values[this_x_index]
+          
+      d3.selectAll("line.rule")
+        .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
+        .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
+        
+      var tooltip_data = get_tooltip_data(this_value,"short")
+    
+      var path_height = vars.y_scale(this_value.y0)-vars.y_scale(this_value.y + this_value.y0),
+          tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+          tooltip_y = vars.y_scale(this_value.y + this_value.y0)+(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
+
+      vizwhiz.tooltip.remove(id)
+      vizwhiz.tooltip.create({
+        "data": tooltip_data,
+        "title": find_variable(d[vars.id_var],vars.text_var),
+        "id": id,
+        "icon": find_variable(d[vars.id_var],"icon"),
+        "color": find_variable(d[vars.id_var],vars.color_var),
+        "x": tooltip_x,
+        "y": tooltip_y,
+        "offset": (path_height/2),
+        "arrow": true,
+        "footer": footer_text(),
+        "mouseevents": false
+      })
+      
+    })
+    .on(vizwhiz.evt.out, function(d){
+      
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#path_"+id).node()
+      
+      d3.selectAll("line.rule").remove()
+      vizwhiz.tooltip.remove(id)
+      d3.select(self).attr("stroke-width",0)
+      
+    })
+    .on(vizwhiz.evt.click, function(d){
+      
+      var html = null
+      if (vars.click_function) html = vars.click_function(d)
+      if (html || vars.tooltip_info.long) {
+        
+        var id = find_variable(d,vars.id_var)
+      
+        d3.selectAll("line.rule").remove()
+        vizwhiz.tooltip.remove(id)
+        d3.select(this).attr("stroke-width",0)
+        
+        var tooltip_data = get_tooltip_data(d,"long")
+        
+        vizwhiz.tooltip.create({
+          "title": find_variable(d[vars.id_var],vars.text_var),
+          "color": find_variable(d[vars.id_var],vars.color_var),
+          "icon": find_variable(d[vars.id_var],"icon"),
+          "id": id,
+          "fullscreen": true,
+          "html": html,
+          "footer": vars.data_source,
+          "data": tooltip_data,
+          "mouseevents": this
+        })
+        
+      }
+      
     })
   
   paths.transition().duration(vizwhiz.timing)
@@ -2966,44 +3123,6 @@ vizwhiz.stacked = function(vars) {
     .attr("d", function(d) {
       return area(d.values);
     })
-    
-  function path_tooltip(d){
-    d3.selectAll("line.rule").remove();
-    var mouse_x = d3.event.layerX-vars.graph.margin.left;
-    var rev_x_scale = d3.scale.linear()
-      .domain(vars.x_scale.range()).range(vars.x_scale.domain());
-    var this_x = Math.round(rev_x_scale(mouse_x));
-    var this_x_index = vars.years.indexOf(this_x)
-    var this_value = d.values[this_x_index]
-    // add dashed line at closest X position to mouse location
-    d3.select("g.chart").append("line")
-      .datum(d)
-      .attr("class", "rule")
-      .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
-      .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
-      .attr("stroke", "white")
-      .attr("stroke-width", 1)
-      .attr("stroke-opacity", 0.5)
-      .attr("stroke-dasharray", "5,3")
-      .attr("pointer-events","none")
-      
-    // tooltip
-    var tooltip_data = get_tooltip_data(this_value)
-
-    vizwhiz.tooltip.remove();
-    vizwhiz.tooltip.create({
-      "data": tooltip_data,
-      "title": find_variable(d[vars.id_var],vars.text_var),
-      "id": d[vars.id_var],
-      "icon": find_variable(d[vars.id_var],"icon"),
-      "color": find_variable(d[vars.id_var],vars.color_var),
-      "x": vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
-      "y": vars.y_scale(this_value.y0 + this_value.y)+(vars.graph.height-vars.y_scale(this_value.y))/2+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
-      "offset": ((vars.graph.height-vars.y_scale(this_value.y))/2)+2,
-      "arrow": true,
-      "mouseevents": false
-    })
-  }
 
   // EXIT
   paths.exit()
@@ -3282,6 +3401,9 @@ vizwhiz.tree_map = function(vars) {
   
   // cell aka container
   var cell_enter = cell.enter().append("g")
+    .attr("id",function(d){
+      return "cell_"+d[vars.id_var]
+    })
     .attr("opacity", 0)
     .attr("transform", function(d) {
       return "translate(" + d.x + "," + d.y + ")"; 
@@ -3366,64 +3488,58 @@ vizwhiz.tree_map = function(vars) {
   cell
     .on(vizwhiz.evt.over,function(d){
       
-      this.parentNode.appendChild(this)
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#cell_"+id).node()
       
-      d3.select(this)
+      self.parentNode.appendChild(self)
+      
+      d3.select("#cell_"+id).select("rect")
         .style("cursor","pointer")
-        .select("rect")
-          .attr("stroke",vars.highlight_color)
-          .attr("stroke-width",2)
-      vizwhiz.tooltip.remove()
+        .attr("stroke",vars.highlight_color)
+        .attr("stroke-width",2)
 
       var tooltip_data = get_tooltip_data(d,"short")
       tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
-      
-      var html = vars.click_function(d)
-      
-      var footer_text = html ? vars.text_format("click box for more info") : null
       
       vizwhiz.tooltip.create({
         "title": find_variable(d,vars.text_var),
         "color": find_variable(d,vars.color_var),
         "icon": find_variable(d,"icon"),
-        "id": find_variable(d,vars.id_var),
+        "id": id,
         "x": d3.event.pageX,
         "y": d3.event.pageY,
-        "offset": 5,
+        "offset": 3,
         "arrow": true,
         "mouseevents": false,
-        "footer": footer_text,
+        "footer": footer_text(),
         "data": tooltip_data
       })
       
     })
-    .on(vizwhiz.evt.move,function(d){
-      var id = find_variable(d,vars.id_var)
-      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
-    })
     .on(vizwhiz.evt.out,function(d){
-      var target = d3.event.toElement
+      
       var id = find_variable(d,vars.id_var)
-      if (target) {
-        var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
-        if (class_name.indexOf("vizwhiz_tooltip") < 0) {
-          d3.select(this).select("rect")
-            .attr("stroke",vars.background)
-            .attr("stroke-width",1)
-          vizwhiz.tooltip.remove(id)
-        }
-      }
-      else {
-        d3.select(this).select("rect")
-          .attr("stroke",vars.background)
-          .attr("stroke-width",1)
-        vizwhiz.tooltip.remove(id)
-      }
+      
+      d3.select("#cell_"+id).select("rect")
+        .attr("stroke",vars.background)
+        .attr("stroke-width",1)
+      
+      vizwhiz.tooltip.remove(id)
+      
     })
     .on(vizwhiz.evt.click,function(d){
-      var html = vars.click_function(d)
-      if (html) {
-        vizwhiz.tooltip.remove()
+      
+      var html = null
+      if (vars.click_function) html = vars.click_function(d)
+      if (html || vars.tooltip_info.long) {
+        
+        var id = find_variable(d,vars.id_var)
+      
+        d3.select("#cell_"+id).select("rect")
+          .attr("stroke",vars.background)
+          .attr("stroke-width",1)
+        
+        vizwhiz.tooltip.remove(id)
         
         var tooltip_data = get_tooltip_data(d,"long")
         tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
@@ -3432,14 +3548,20 @@ vizwhiz.tree_map = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_variable(d,vars.color_var),
           "icon": find_variable(d,"icon"),
-          "id": find_variable(d,vars.id_var),
+          "id": id,
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
-          "data": tooltip_data
+          "data": tooltip_data,
+          "mouseevents": this
         })
         
       }
+      
+    })
+    .on(vizwhiz.evt.move,function(d){
+      var id = find_variable(d,vars.id_var)
+      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
     })
   
   cell.transition().duration(vizwhiz.timing)
@@ -3550,7 +3672,6 @@ vizwhiz.geo_map = function(vars) {
     if (param == "in") var scale = scale*2
     else if (param == "out") var scale = scale*0.5
     else if (param == "reset") {
-      console.log(param)
       var param = vars.boundries
       if (vars.highlight) {
         var temp = vars.highlight;
@@ -3656,8 +3777,6 @@ vizwhiz.geo_map = function(vars) {
       
       var id = vars.highlight ? vars.highlight : hover
       
-      var tooltip_data = get_tooltip_data(id)
-      
       var data = vars.data[id]
       
       if (data && data[vars.value_var]) {
@@ -3671,10 +3790,14 @@ vizwhiz.geo_map = function(vars) {
         var footer = vars.text_format("No Data Available")
       }
       else if (!vars.highlight) {
-        var footer = vars.text_format("Click for More Info")
+        var tooltip_data = get_tooltip_data(id,"short"),
+            footer = footer_text(),
+            html = null
       }
       else {
-        var footer = vars.data_source
+        var tooltip_data = get_tooltip_data(id,"long"),
+            footer = vars.data_source,
+            html = vars.click_function ? vars.click_function(id) : null
       }
       
       vizwhiz.tooltip.create({
@@ -3687,7 +3810,8 @@ vizwhiz.geo_map = function(vars) {
         "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,
         "y": vars.margin.top+vars.parent.node().offsetTop+5,
         "fixed": true,
-        "width": info_width
+        "width": info_width,
+        "html": html
       })
       
     }
@@ -3783,8 +3907,12 @@ vizwhiz.geo_map = function(vars) {
   // Create viz group on vars.svg_enter
   var viz_enter = vars.parent_enter.append('g')
     .call(vars.zoom_behavior)
-    .on(vizwhiz.evt.down,function(d){dragging = true})
-    .on(vizwhiz.evt.up,function(d){dragging = false})
+    .on(vizwhiz.evt.down,function(d){
+      dragging = true
+    })
+    .on(vizwhiz.evt.up,function(d){
+      dragging = false
+    })
     .append('g')
       .attr('class','viz');
     
@@ -3795,6 +3923,23 @@ vizwhiz.geo_map = function(vars) {
     .attr("fill","transparent");
     
   d3.select("rect.overlay")
+    .on(vizwhiz.evt.move, function(d) {
+      if (vars.highlight) {
+        d3.select(this).style("cursor","-moz-zoom-out")
+        d3.select(this).style("cursor","-webkit-zoom-out")
+      }
+      else {
+        d3.select(this).style("cursor","move")
+        if (dragging) {
+          d3.select(this).style("cursor","-moz-grabbing")
+          d3.select(this).style("cursor","-webkit-grabbing")
+        }
+        else {
+          d3.select(this).style("cursor","-moz-grab")
+          d3.select(this).style("cursor","-webkit-grab")
+        }
+      }
+    })
     .on(vizwhiz.evt.click, function(d) {
       if (vars.highlight) {
         vars.zoom("reset");
@@ -3805,121 +3950,120 @@ vizwhiz.geo_map = function(vars) {
     .attr('class','paths');
     
   // add scale
+  var gradient = defs
+    .append("linearGradient")
+    .attr("id", "gradient")
+    .attr("x1", "0%")
+    .attr("y1", "0%")
+    .attr("x2", "100%")
+    .attr("y2", "0%")
+    .attr("spreadMethod", "pad");
+     
+  data_range.forEach(function(v,i){
+    gradient.append("stop")
+      .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
+      .attr("stop-color", value_color(v))
+      .attr("stop-opacity", 1)
+  })
   
-  if (!vars.small) {
-    var gradient = defs
-      .append("linearGradient")
-      .attr("id", "gradient")
-      .attr("x1", "0%")
-      .attr("y1", "0%")
-      .attr("x2", "100%")
-      .attr("y2", "0%")
-      .attr("spreadMethod", "pad");
-       
-    data_range.forEach(function(v,i){
-      gradient.append("stop")
-        .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
-        .attr("stop-color", value_color(v))
-        .attr("stop-opacity", 1)
-    })
+  var scale = vars.parent_enter.append('g')
+    .attr('class','scale')
+    .style("opacity",0)
+    .attr("transform","translate(30,5)");
     
-    var scale = vars.parent_enter.append('g')
-      .attr('class','scale')
-      .style("opacity",0)
-      .attr("transform","translate(30,5)");
-      
-    var shadow = defs.append("filter")
-      .attr("id", "shadow")
-      .attr("x", "-50%")
-      .attr("y", "0")
-      .attr("width", "200%")
-      .attr("height", "200%");
-      
-    shadow.append("feGaussianBlur")
-      .attr("in","SourceAlpha")
-      .attr("result","blurOut")
-      .attr("stdDeviation","3")
-      
-    shadow.append("feOffset")
-      .attr("in","blurOut")
-      .attr("result","the-shadow")
-      .attr("dx","0")
-      .attr("dy","1")
-      
-    shadow.append("feColorMatrix")
-      .attr("in","the-shadow")
-      .attr("result","colorOut")
-      .attr("type","matrix")
-      .attr("values","0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0")
-      
-    shadow.append("feBlend")
-      .attr("in","SourceGraphic")
-      .attr("in2","colorOut")
-      .attr("mode","normal")
+  var shadow = defs.append("filter")
+    .attr("id", "shadow")
+    .attr("x", "-50%")
+    .attr("y", "0")
+    .attr("width", "200%")
+    .attr("height", "200%");
     
+  shadow.append("feGaussianBlur")
+    .attr("in","SourceAlpha")
+    .attr("result","blurOut")
+    .attr("stdDeviation","3")
+    
+  shadow.append("feOffset")
+    .attr("in","blurOut")
+    .attr("result","the-shadow")
+    .attr("dx","0")
+    .attr("dy","1")
+    
+  shadow.append("feColorMatrix")
+    .attr("in","the-shadow")
+    .attr("result","colorOut")
+    .attr("type","matrix")
+    .attr("values","0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0")
+    
+  shadow.append("feBlend")
+    .attr("in","SourceGraphic")
+    .attr("in2","colorOut")
+    .attr("mode","normal")
+  
+  scale.append("rect")
+    .attr("width", scale_width+"px")
+    .attr("height", "45px")
+    .attr("fill","#ffffff")
+    .attr("opacity",0.75)
+    .attr("filter","url(#shadow)")
+    .attr("shape-rendering","crispEdges")
+      
+  scale.append("text")
+    .attr("id","scale_title")
+    .attr("x",(scale_width/2)+"px")
+    .attr("y","0px")
+    .attr("dy","1.25em")
+    .attr("text-anchor","middle")
+    .attr("fill","#333")
+    .attr("font-size","10px")
+    .attr("font-family","Helvetica")
+     
+  data_range.forEach(function(v,i){
+    if (i == data_range.length-1) {
+      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
+    } else if (i != 0) {
+      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
+    } else {
+      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))
+    }
     scale.append("rect")
-      .attr("width", scale_width+"px")
-      .attr("height", "45px")
-      .attr("fill","#ffffff")
-      .attr("opacity",0.75)
-      .attr("filter","url(#shadow)")
-      .attr("shape-rendering","crispEdges")
-        
+      .attr("x", x+"px")
+      .attr("y", (scale_height*1.75)+"px")
+      .attr("width", 1)
+      .attr("height", ((scale_height*0.75)+3)+"px")
+      .style("fill", "#333")
+      .attr("opacity",0.25)
+  
+    scale.append("rect")
+      .attr("x",scale_padding+"px")
+      .attr("y",(scale_height*1.75)+"px")
+      .attr("width", (scale_width-(scale_padding*2))+"px")
+      .attr("height", scale_height*0.75+"px")
+      .style("fill", "url(#gradient)")
+      
     scale.append("text")
-      .attr("id","scale_title")
-      .attr("x",(scale_width/2)+"px")
-      .attr("y","0px")
-      .attr("dy","1.25em")
+      .attr("id","scale_"+i)
+      .attr("x",x+"px")
+      .attr("y", (scale_height*2.75)+"px")
+      .attr("dy","1em")
       .attr("text-anchor","middle")
       .attr("fill","#333")
+      .style("font-weight","normal")
       .attr("font-size","10px")
       .attr("font-family","Helvetica")
-       
+  })
+
+  if (!data_extent[0] || Object.keys(vars.data).length < 2 || vars.small) {
+    d3.select("g.scale").transition().duration(vizwhiz.timing)
+      .style("opacity",0)
+  }
+  else {
     data_range.forEach(function(v,i){
-      if (i == data_range.length-1) {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
-      } else if (i != 0) {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
-      } else {
-        var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))
-      }
-      scale.append("rect")
-        .attr("x", x+"px")
-        .attr("y", (scale_height*1.75)+"px")
-        .attr("width", 1)
-        .attr("height", ((scale_height*0.75)+3)+"px")
-        .style("fill", "#333")
-        .attr("opacity",0.25)
-    
-      scale.append("rect")
-        .attr("x",scale_padding+"px")
-        .attr("y",(scale_height*1.75)+"px")
-        .attr("width", (scale_width-(scale_padding*2))+"px")
-        .attr("height", scale_height*0.75+"px")
-        .style("fill", "url(#gradient)")
-        
-      scale.append("text")
-        .attr("id","scale_"+i)
-        .attr("x",x+"px")
-        .attr("y", (scale_height*2.75)+"px")
-        .attr("dy","1em")
-        .attr("text-anchor","middle")
-        .attr("fill","#333")
-        .style("font-weight","normal")
-        .attr("font-size","10px")
-        .attr("font-family","Helvetica")
+      d3.select("g.scale").select("text#scale_"+i).text(vars.number_format(v))
     })
-    
-    if (!data_extent[0]) {
-      d3.select("g.scale").style("opacity",0)
-    }
-    else {
-      data_range.forEach(function(v,i){
-        d3.select("g.scale").select("text#scale_"+i).text(vars.number_format(v))
-      })
-      d3.select("g.scale").select("text#scale_title").text(vars.text_format(vars.value_var))
-      d3.select("g.scale").style("opacity",1)
-    }
+    d3.select("g.scale").select("text#scale_title").text(vars.text_format(vars.value_var))
+    d3.select("g.scale").transition().duration(vizwhiz.timing)
+      .style("opacity",1)
   }
   
   zoom_controls();
@@ -3947,6 +4091,9 @@ vizwhiz.geo_map = function(vars) {
     .on(vizwhiz.evt.over, function(d){
       hover = d[vars.id_var]
       if (vars.highlight != d[vars.id_var]) {
+        d3.select(this).style("cursor","pointer")
+        d3.select(this).style("cursor","-moz-zoom-in")
+        d3.select(this).style("cursor","-webkit-zoom-in")
         d3.select(this).attr("opacity",select_opacity);
       }
       if (!vars.highlight) {
@@ -4223,9 +4370,43 @@ vizwhiz.pie_scatter = function(vars) {
   
   nodes
     .on(vizwhiz.evt.over, hover())
-    .on(vizwhiz.evt.out, function(){
-      vizwhiz.tooltip.remove();
-      d3.selectAll(".axis_hover").remove();
+    .on(vizwhiz.evt.out, function(d){
+      var id = find_variable(d,vars.id_var)
+      vizwhiz.tooltip.remove(id)
+      d3.selectAll(".axis_hover").remove()
+    })
+    .on(vizwhiz.evt.click, function(d){
+      
+      var html = vars.click_function ? vars.click_function(d) : null
+      if (html || vars.tooltip_info.long) {
+
+        var id = find_variable(d,vars.id_var)
+        vizwhiz.tooltip.remove(id)
+        d3.selectAll(".axis_hover").remove()
+        
+        var tooltip_data = get_tooltip_data(d,"long")
+        if (d.num_children > 1 && !vars.spotlight) {
+          var a = d.num_children_active+"/"+d.num_children
+          tooltip_data.push({
+            "name": vars.text_format(vars.active_var), 
+            "value": a
+          });
+        }
+        
+        vizwhiz.tooltip.create({
+          "title": find_variable(d,vars.text_var),
+          "color": find_variable(d,vars.color_var),
+          "icon": find_variable(d,"icon"),
+          "id": id,
+          "fullscreen": true,
+          "html": html,
+          "footer": vars.data_source,
+          "data": tooltip_data,
+          "mouseevents": this
+        })
+        
+      }
+      
     })
     
   nodes.transition().duration(vizwhiz.timing)
@@ -4431,8 +4612,15 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("font-family","Helvetica")
           .attr("fill","#4c4c4c")
           .text(ytext)
-      
-        var tooltip_data = get_tooltip_data(d)
+          
+        var tooltip_data = get_tooltip_data(d,"short")
+        if (d.num_children > 1 && !vars.spotlight) {
+          var a = d.num_children_active+"/"+d.num_children
+          tooltip_data.push({
+            "name": vars.text_format(vars.active_var), 
+            "value": a
+          });
+        }
       
         vizwhiz.tooltip.create({
           "id": d[vars.id_var],
@@ -4444,7 +4632,7 @@ vizwhiz.pie_scatter = function(vars) {
           "y": y+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
           "offset": radius,
           "arrow": true,
-          "footer": vars.data_source,
+          "footer": footer_text(),
           "mouseevents": false
         })
       }
@@ -4727,6 +4915,13 @@ vizwhiz.bubbles = function(vars) {
     .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
     .each(function(d){
       
+      d3.select(this).append("rect")
+        .attr("fill","transparent")
+        .attr("x",-d.r)
+        .attr("y",-d.r)
+        .attr("width",d.r*2)
+        .attr("height",d.r*2)
+      
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
@@ -4845,7 +5040,7 @@ vizwhiz.bubbles = function(vars) {
   bubble
     .on(vizwhiz.evt.over, function(d){
       
-      var tooltip_data = get_tooltip_data(d[vars.id_var])
+      var tooltip_data = get_tooltip_data(d,"short")
       
       vizwhiz.tooltip.create({
         "id": d[vars.id_var],
@@ -4855,14 +5050,41 @@ vizwhiz.bubbles = function(vars) {
         "title": find_variable(d[vars.id_var],vars.text_var),
         "x": d.x+vars.margin.left+vars.parent.node().offsetLeft,
         "y": d.y+vars.margin.top+vars.parent.node().offsetTop,
-        "offset": d.r,
+        "offset": d.r-5,
         "arrow": true,
-        "mouseevents": false
+        "mouseevents": false,
+        "footer": footer_text()
       })
       
     })
     .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove()
+      vizwhiz.tooltip.remove(d[vars.id_var])
+    })
+    .on(vizwhiz.evt.click, function(d){
+      
+      var html = vars.click_function ? vars.click_function(d) : null
+      if (html || vars.tooltip_info.long) {
+
+        var id = find_variable(d,vars.id_var)
+        vizwhiz.tooltip.remove(id)
+        d3.selectAll(".axis_hover").remove()
+        
+        var tooltip_data = get_tooltip_data(d,"long")
+        
+        vizwhiz.tooltip.create({
+          "title": find_variable(d,vars.text_var),
+          "color": find_variable(d,vars.color_var),
+          "icon": find_variable(d,"icon"),
+          "id": id,
+          "fullscreen": true,
+          "html": html,
+          "footer": vars.data_source,
+          "data": tooltip_data,
+          "mouseevents": this
+        })
+        
+      }
+      
     })
   
   bubble.transition().duration(vizwhiz.timing)
@@ -4996,7 +5218,7 @@ vizwhiz.bubbles = function(vars) {
 
 vizwhiz.rings = function(vars) {
       
-  var tooltip_width = 200
+  var tooltip_width = 300
       
   var width = vars.small ? vars.width : vars.width-tooltip_width
       
@@ -5216,7 +5438,26 @@ vizwhiz.rings = function(vars) {
 
     vizwhiz.tooltip.remove();
     
-    var html = vars.click_function(vars.data[vars.highlight])
+    var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
+
+    vars.connections[vars.highlight].forEach(function(n){
+      
+      var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
+      
+      tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+      tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+      tooltip_appends += " style='"
+      tooltip_appends += "background-color:"+fill_color(n)+";"
+      tooltip_appends += "border-color:"+stroke_color(n)+";"
+      tooltip_appends += "'"
+      tooltip_appends += "></div>"
+      tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+      tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
+      tooltip_appends += "</div>"
+      tooltip_appends += "</div>"
+    })
+    
+    var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight]) : ""
     
     var tooltip_data = get_tooltip_data(vars.highlight)
 
@@ -5226,15 +5467,35 @@ vizwhiz.rings = function(vars) {
       "color": find_variable(vars.highlight,vars.color_var),
       "icon": find_variable(vars.highlight,"icon"),
       "id": vars.highlight,
-      "html": html,
+      "html": tooltip_appends+html,
       "footer": vars.data_source,
       "data": tooltip_data,
       "x": vars.parent.node().offsetLeft+vars.width-tooltip_width-5,
       "y": vars.parent.node().offsetTop+vars.margin.top+5,
       "fixed": true,
-      "width": tooltip_width
+      "width": tooltip_width,
+      "mouseevents": true
     })
     
+  }
+  
+  function fill_color(d) {
+    if(find_variable(d[vars.id_var],vars.active_var)){
+      return d[vars.color_var];
+    } 
+    else {
+      var lighter_col = d3.hsl(d[vars.color_var]);
+      lighter_col.l = 0.95;
+      return lighter_col.toString()
+    }
+  }
+  
+  function stroke_color(d) {
+    if(find_variable(d[vars.id_var],vars.active_var)){
+      return "#333";
+    } else {
+      return vizwhiz.utils.darker_color(d[vars.color_var])
+    }
   }
   
   function line_styles(l) {
@@ -5261,14 +5522,7 @@ vizwhiz.rings = function(vars) {
   function circle_styles(c) {
     c
       .attr("fill", function(d){
-        if(find_variable(d[vars.id_var],vars.active_var)){
-          var color = d[vars.color_var];
-        } 
-        else {
-          var lighter_col = d3.hsl(d[vars.color_var]);
-          lighter_col.l = 0.95;
-          var color = lighter_col.toString()
-        }
+        var color = fill_color(d)
         
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
@@ -5277,11 +5531,8 @@ vizwhiz.rings = function(vars) {
       
       })
       .attr("stroke", function(d){
-        if(find_variable(d[vars.id_var],vars.active_var)){
-          var color = "#333";
-        } else {
-          var color = vizwhiz.utils.darker_color(d[vars.color_var])
-        }
+        var color = stroke_color(d)
+        
         if (d.depth == 0) return color;
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
         else if (d.depth == 2 && (!hover || d == hover || d.parents.indexOf(hover) >= 0)) return color;

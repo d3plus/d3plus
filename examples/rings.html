@@ -45,7 +45,7 @@ d3.json("data/attr_hs.json", function(attr) {
         
       clicker = function(obj) {
         console.log(obj);
-        return "Some test HTML"
+        return "Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML"
       }
       
       viz
@@ -66,7 +66,7 @@ d3.json("data/attr_hs.json", function(attr) {
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
         .click_function(clicker)
         .data_source("<a href='www.google.com'>SECEX</a>")
-        .text_format(function(d){return d.toUpperCase()})
+        // .text_format(function(d){return d.toUpperCase()})
 
       d3.select("#viz")
         .datum(ps_data)

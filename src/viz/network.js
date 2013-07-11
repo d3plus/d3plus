@@ -206,6 +206,9 @@ vizwhiz.network = function(vars) {
             tooltip_appends += "</div>"
           })
           
+    
+          var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight]) : ""
+          
           vizwhiz.tooltip.create({
             "data": tooltip_data,
             "title": find_variable(vars.highlight,vars.text_var),
@@ -214,8 +217,9 @@ vizwhiz.network = function(vars) {
             "x": vars.parent.node().offsetLeft+x_pos,
             "y": vars.parent.node().offsetTop+vars.margin.top+5,
             "width": info_width,
-            "html": tooltip_appends,
-            "fixed": true
+            "html": tooltip_appends+html,
+            "fixed": true,
+            "mouseevents": true
           })
           
         }
@@ -270,9 +274,9 @@ vizwhiz.network = function(vars) {
   //===================================================================
     
 
-  var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x});
-  var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y});
-  var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0]);
+  var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x})
+  var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y})
+  var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0])
     
   // Define Scale
   if (aspect > vars.width/vars.height) {

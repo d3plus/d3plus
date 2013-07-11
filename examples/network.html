@@ -87,6 +87,11 @@
           d.active = Math.floor(Math.random()*2);
         })
         
+        inner_html = function(obj) {
+          console.log(obj)
+          return "This is some test HTML"
+        }
+        
         viz
           .type("network")
           .links(viz_links)
@@ -99,6 +104,7 @@
           .nesting(["nesting_0","nesting_1","nesting_2"])
           .tooltip_info(["id","val_usd","val_quantity","val_kg","complexity","distance","rca"])
           .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+          .click_function(inner_html)
           .year(2010)
           // .text_format(function(d){return d.toUpperCase()})
           

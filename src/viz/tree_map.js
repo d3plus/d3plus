@@ -23,6 +23,9 @@ vizwhiz.tree_map = function(vars) {
   
   // cell aka container
   var cell_enter = cell.enter().append("g")
+    .attr("id",function(d){
+      return "cell_"+d[vars.id_var]
+    })
     .attr("opacity", 0)
     .attr("transform", function(d) {
       return "translate(" + d.x + "," + d.y + ")"; 
@@ -107,64 +110,58 @@ vizwhiz.tree_map = function(vars) {
   cell
     .on(vizwhiz.evt.over,function(d){
       
-      this.parentNode.appendChild(this)
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#cell_"+id).node()
       
-      d3.select(this)
+      self.parentNode.appendChild(self)
+      
+      d3.select("#cell_"+id).select("rect")
         .style("cursor","pointer")
-        .select("rect")
-          .attr("stroke",vars.highlight_color)
-          .attr("stroke-width",2)
-      vizwhiz.tooltip.remove()
+        .attr("stroke",vars.highlight_color)
+        .attr("stroke-width",2)
 
       var tooltip_data = get_tooltip_data(d,"short")
       tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
-      
-      var html = vars.click_function(d)
-      
-      var footer_text = html ? vars.text_format("click box for more info") : null
       
       vizwhiz.tooltip.create({
         "title": find_variable(d,vars.text_var),
         "color": find_variable(d,vars.color_var),
         "icon": find_variable(d,"icon"),
-        "id": find_variable(d,vars.id_var),
+        "id": id,
         "x": d3.event.pageX,
         "y": d3.event.pageY,
-        "offset": 5,
+        "offset": 3,
         "arrow": true,
         "mouseevents": false,
-        "footer": footer_text,
+        "footer": footer_text(),
         "data": tooltip_data
       })
       
     })
-    .on(vizwhiz.evt.move,function(d){
-      var id = find_variable(d,vars.id_var)
-      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
-    })
     .on(vizwhiz.evt.out,function(d){
-      var target = d3.event.toElement
+      
       var id = find_variable(d,vars.id_var)
-      if (target) {
-        var class_name = typeof target.className == "object" ? target.className.baseVal : target.className
-        if (class_name.indexOf("vizwhiz_tooltip") < 0) {
-          d3.select(this).select("rect")
-            .attr("stroke",vars.background)
-            .attr("stroke-width",1)
-          vizwhiz.tooltip.remove(id)
-        }
-      }
-      else {
-        d3.select(this).select("rect")
-          .attr("stroke",vars.background)
-          .attr("stroke-width",1)
-        vizwhiz.tooltip.remove(id)
-      }
+      
+      d3.select("#cell_"+id).select("rect")
+        .attr("stroke",vars.background)
+        .attr("stroke-width",1)
+      
+      vizwhiz.tooltip.remove(id)
+      
     })
     .on(vizwhiz.evt.click,function(d){
-      var html = vars.click_function(d)
-      if (html) {
-        vizwhiz.tooltip.remove()
+      
+      var html = null
+      if (vars.click_function) html = vars.click_function(d)
+      if (html || vars.tooltip_info.long) {
+        
+        var id = find_variable(d,vars.id_var)
+      
+        d3.select("#cell_"+id).select("rect")
+          .attr("stroke",vars.background)
+          .attr("stroke-width",1)
+        
+        vizwhiz.tooltip.remove(id)
         
         var tooltip_data = get_tooltip_data(d,"long")
         tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
@@ -173,14 +170,20 @@ vizwhiz.tree_map = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_variable(d,vars.color_var),
           "icon": find_variable(d,"icon"),
-          "id": find_variable(d,vars.id_var),
+          "id": id,
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
-          "data": tooltip_data
+          "data": tooltip_data,
+          "mouseevents": this
         })
         
       }
+      
+    })
+    .on(vizwhiz.evt.move,function(d){
+      var id = find_variable(d,vars.id_var)
+      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
     })
   
   cell.transition().duration(vizwhiz.timing)

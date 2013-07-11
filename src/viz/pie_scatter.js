@@ -134,9 +134,43 @@ vizwhiz.pie_scatter = function(vars) {
   
   nodes
     .on(vizwhiz.evt.over, hover())
-    .on(vizwhiz.evt.out, function(){
-      vizwhiz.tooltip.remove();
-      d3.selectAll(".axis_hover").remove();
+    .on(vizwhiz.evt.out, function(d){
+      var id = find_variable(d,vars.id_var)
+      vizwhiz.tooltip.remove(id)
+      d3.selectAll(".axis_hover").remove()
+    })
+    .on(vizwhiz.evt.click, function(d){
+      
+      var html = vars.click_function ? vars.click_function(d) : null
+      if (html || vars.tooltip_info.long) {
+
+        var id = find_variable(d,vars.id_var)
+        vizwhiz.tooltip.remove(id)
+        d3.selectAll(".axis_hover").remove()
+        
+        var tooltip_data = get_tooltip_data(d,"long")
+        if (d.num_children > 1 && !vars.spotlight) {
+          var a = d.num_children_active+"/"+d.num_children
+          tooltip_data.push({
+            "name": vars.text_format(vars.active_var), 
+            "value": a
+          });
+        }
+        
+        vizwhiz.tooltip.create({
+          "title": find_variable(d,vars.text_var),
+          "color": find_variable(d,vars.color_var),
+          "icon": find_variable(d,"icon"),
+          "id": id,
+          "fullscreen": true,
+          "html": html,
+          "footer": vars.data_source,
+          "data": tooltip_data,
+          "mouseevents": this
+        })
+        
+      }
+      
     })
     
   nodes.transition().duration(vizwhiz.timing)
@@ -342,8 +376,15 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("font-family","Helvetica")
           .attr("fill","#4c4c4c")
           .text(ytext)
-      
-        var tooltip_data = get_tooltip_data(d)
+          
+        var tooltip_data = get_tooltip_data(d,"short")
+        if (d.num_children > 1 && !vars.spotlight) {
+          var a = d.num_children_active+"/"+d.num_children
+          tooltip_data.push({
+            "name": vars.text_format(vars.active_var), 
+            "value": a
+          });
+        }
       
         vizwhiz.tooltip.create({
           "id": d[vars.id_var],
@@ -355,7 +396,7 @@ vizwhiz.pie_scatter = function(vars) {
           "y": y+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
           "offset": radius,
           "arrow": true,
-          "footer": vars.data_source,
+          "footer": footer_text(),
           "mouseevents": false
         })
       }

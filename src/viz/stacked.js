@@ -81,6 +81,9 @@ vizwhiz.stacked = function(vars) {
   // enter new paths, could be next level deep or up a level
   paths.enter().append("path")
     .attr("opacity", 0)
+    .attr("id", function(d){
+      return "path_"+d[vars.id_var]
+    })
     .attr("class", "layer")
     .attr("stroke",vars.highlight_color)
     .attr("stroke-width",0)
@@ -94,13 +97,131 @@ vizwhiz.stacked = function(vars) {
   // UPDATE
   paths
     .on(vizwhiz.evt.over, function(d){
-      d3.select(this).attr("stroke-width",3)
-    })
-    .on(vizwhiz.evt.move, path_tooltip)
-    .on(vizwhiz.evt.out, function(d){
+      
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#path_"+id).node()
+      
+      d3.select(self).attr("stroke-width",3)
+
       d3.selectAll("line.rule").remove();
-      vizwhiz.tooltip.remove();
-      d3.select(this).attr("stroke-width",0)
+      
+      var mouse_x = d3.event.layerX-vars.graph.margin.left;
+      var rev_x_scale = d3.scale.linear()
+        .domain(vars.x_scale.range()).range(vars.x_scale.domain());
+      var this_x = Math.round(rev_x_scale(mouse_x));
+      var this_x_index = vars.years.indexOf(this_x)
+      var this_value = d.values[this_x_index]
+      
+      // add dashed line at closest X position to mouse location
+      d3.select("g.chart").append("line")
+        .datum(d)
+        .attr("class", "rule")
+        .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
+        .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .attr("stroke-opacity", 0.5)
+        .attr("stroke-dasharray", "5,3")
+        .attr("pointer-events","none")
+      
+      // tooltip
+      var tooltip_data = get_tooltip_data(this_value,"short")
+    
+      var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
+          tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+          tooltip_y = vars.y_scale(this_value.y0 + this_value.y)+(path_height)/2+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
+
+      vizwhiz.tooltip.create({
+        "data": tooltip_data,
+        "title": find_variable(d[vars.id_var],vars.text_var),
+        "id": id,
+        "icon": find_variable(d[vars.id_var],"icon"),
+        "color": find_variable(d[vars.id_var],vars.color_var),
+        "x": tooltip_x,
+        "y": tooltip_y,
+        "offset": (path_height/2),
+        "arrow": true,
+        "footer": footer_text(),
+        "mouseevents": false
+      })
+      
+    })
+    .on(vizwhiz.evt.move, function(d){
+      
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#path_"+id).node()
+          
+      var mouse_x = d3.event.layerX-vars.graph.margin.left;
+      var rev_x_scale = d3.scale.linear()
+        .domain(vars.x_scale.range()).range(vars.x_scale.domain());
+      var this_x = Math.round(rev_x_scale(mouse_x));
+      var this_x_index = vars.years.indexOf(this_x)
+      var this_value = d.values[this_x_index]
+          
+      d3.selectAll("line.rule")
+        .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
+        .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
+        
+      var tooltip_data = get_tooltip_data(this_value,"short")
+    
+      var path_height = vars.y_scale(this_value.y0)-vars.y_scale(this_value.y + this_value.y0),
+          tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+          tooltip_y = vars.y_scale(this_value.y + this_value.y0)+(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
+
+      vizwhiz.tooltip.remove(id)
+      vizwhiz.tooltip.create({
+        "data": tooltip_data,
+        "title": find_variable(d[vars.id_var],vars.text_var),
+        "id": id,
+        "icon": find_variable(d[vars.id_var],"icon"),
+        "color": find_variable(d[vars.id_var],vars.color_var),
+        "x": tooltip_x,
+        "y": tooltip_y,
+        "offset": (path_height/2),
+        "arrow": true,
+        "footer": footer_text(),
+        "mouseevents": false
+      })
+      
+    })
+    .on(vizwhiz.evt.out, function(d){
+      
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#path_"+id).node()
+      
+      d3.selectAll("line.rule").remove()
+      vizwhiz.tooltip.remove(id)
+      d3.select(self).attr("stroke-width",0)
+      
+    })
+    .on(vizwhiz.evt.click, function(d){
+      
+      var html = null
+      if (vars.click_function) html = vars.click_function(d)
+      if (html || vars.tooltip_info.long) {
+        
+        var id = find_variable(d,vars.id_var)
+      
+        d3.selectAll("line.rule").remove()
+        vizwhiz.tooltip.remove(id)
+        d3.select(this).attr("stroke-width",0)
+        
+        var tooltip_data = get_tooltip_data(d,"long")
+        
+        vizwhiz.tooltip.create({
+          "title": find_variable(d[vars.id_var],vars.text_var),
+          "color": find_variable(d[vars.id_var],vars.color_var),
+          "icon": find_variable(d[vars.id_var],"icon"),
+          "id": id,
+          "fullscreen": true,
+          "html": html,
+          "footer": vars.data_source,
+          "data": tooltip_data,
+          "mouseevents": this
+        })
+        
+      }
+      
     })
   
   paths.transition().duration(vizwhiz.timing)
@@ -111,44 +232,6 @@ vizwhiz.stacked = function(vars) {
     .attr("d", function(d) {
       return area(d.values);
     })
-    
-  function path_tooltip(d){
-    d3.selectAll("line.rule").remove();
-    var mouse_x = d3.event.layerX-vars.graph.margin.left;
-    var rev_x_scale = d3.scale.linear()
-      .domain(vars.x_scale.range()).range(vars.x_scale.domain());
-    var this_x = Math.round(rev_x_scale(mouse_x));
-    var this_x_index = vars.years.indexOf(this_x)
-    var this_value = d.values[this_x_index]
-    // add dashed line at closest X position to mouse location
-    d3.select("g.chart").append("line")
-      .datum(d)
-      .attr("class", "rule")
-      .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
-      .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
-      .attr("stroke", "white")
-      .attr("stroke-width", 1)
-      .attr("stroke-opacity", 0.5)
-      .attr("stroke-dasharray", "5,3")
-      .attr("pointer-events","none")
-      
-    // tooltip
-    var tooltip_data = get_tooltip_data(this_value)
-
-    vizwhiz.tooltip.remove();
-    vizwhiz.tooltip.create({
-      "data": tooltip_data,
-      "title": find_variable(d[vars.id_var],vars.text_var),
-      "id": d[vars.id_var],
-      "icon": find_variable(d[vars.id_var],"icon"),
-      "color": find_variable(d[vars.id_var],vars.color_var),
-      "x": vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
-      "y": vars.y_scale(this_value.y0 + this_value.y)+(vars.graph.height-vars.y_scale(this_value.y))/2+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
-      "offset": ((vars.graph.height-vars.y_scale(this_value.y))/2)+2,
-      "arrow": true,
-      "mouseevents": false
-    })
-  }
 
   // EXIT
   paths.exit()
