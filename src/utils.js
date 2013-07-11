@@ -66,31 +66,6 @@ vizwhiz.utils.merge = function(obj1, obj2) {
 //===================================================================
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// recursive function to rename "values" to "children" and "key" to "id"
-// src: https://groups.google.com/group/d3-js/tree/browse_frm/month/2011-11/a5dc689238c3a685
-//-------------------------------------------------------------------
-
-vizwhiz.utils.rename_key_value = function(obj) { 
-  if (obj.values && obj.values.length) { 
-    return { 
-      'name': obj.key.split("|")[1], 
-      'id': obj.key.split("|")[0], 
-      'children': obj.values.map(function(obj) { 
-        return vizwhiz.utils.rename_key_value(obj);
-      }) 
-    }; 
-  } 
-  else if(obj.values) { 
-    return obj.values
-  }
-  else {
-    return obj; 
-  }
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // for SVGs word wrapping is not built in, so here we must creat this
 // function ourselves
 //-------------------------------------------------------------------

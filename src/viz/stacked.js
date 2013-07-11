@@ -141,6 +141,7 @@ vizwhiz.stacked = function(vars) {
       "data": tooltip_data,
       "title": find_variable(d[vars.id_var],vars.text_var),
       "id": d[vars.id_var],
+      "icon": find_variable(d[vars.id_var],"icon"),
       "color": find_variable(d[vars.id_var],vars.color_var),
       "x": vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
       "y": vars.y_scale(this_value.y0 + this_value.y)+(vars.graph.height-vars.y_scale(this_value.y))/2+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
@@ -373,15 +374,28 @@ vizwhiz.stacked = function(vars) {
     // return nested
     
     return nested.sort(function(a,b){
-      
-      a[vars.color_var] = find_variable(a.id,vars.color_var)
-      b[vars.color_var] = find_variable(b.id,vars.color_var)
           
       var s = vars.sort == "value" ? "total" : vars.sort
       
-      if(a[s]<b[s]) return vars.order == "desc" ? -1 : 1;
-      if(a[s]>b[s]) return vars.order == "desc" ? 1 : -1;
+      a_value = find_variable(a,s)
+      b_value = find_variable(b,s)
+      
+      if (s == vars.color_var) {
+      
+        a_value = d3.rgb(a_value).hsl()
+        b_value = d3.rgb(b_value).hsl()
+        
+        if (a_value.s == 0) a_value = 361
+        else a_value = a_value.h
+        if (b_value.s == 0) b_value = 361
+        else b_value = b_value.h
+        
+      }
+      
+      if(a_value<b_value) return vars.order == "desc" ? -1 : 1;
+      if(a_value>b_value) return vars.order == "desc" ? 1 : -1;
       return 0;
+      
     });
     
   }

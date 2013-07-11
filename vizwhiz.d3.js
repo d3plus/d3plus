@@ -104,31 +104,6 @@ vizwhiz.utils.merge = function(obj1, obj2) {
 //===================================================================
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// recursive function to rename "values" to "children" and "key" to "id"
-// src: https://groups.google.com/group/d3-js/tree/browse_frm/month/2011-11/a5dc689238c3a685
-//-------------------------------------------------------------------
-
-vizwhiz.utils.rename_key_value = function(obj) { 
-  if (obj.values && obj.values.length) { 
-    return { 
-      'name': obj.key.split("|")[1], 
-      'id': obj.key.split("|")[0], 
-      'children': obj.values.map(function(obj) { 
-        return vizwhiz.utils.rename_key_value(obj);
-      }) 
-    }; 
-  } 
-  else if(obj.values) { 
-    return obj.values
-  }
-  else {
-    return obj; 
-  }
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // for SVGs word wrapping is not built in, so here we must creat this
 // function ourselves
 //-------------------------------------------------------------------
@@ -762,10 +737,13 @@ vizwhiz.viz = function() {
     "nesting_aggs": {},
     "nodes": null,
     "number_format": function(obj) { 
-      if (typeof obj === "number") var value = obj
-      else var value = obj.value
+      if (typeof obj === "number") var value = obj, name = ""
+      else var value = obj.value, name = obj.name
       
-      if (value < 1) {
+      if (["year",vars.id_var].indexOf(name) >= 0 || typeof value === "string") {
+        return value
+      }
+      else if (value < 1) {
         return d3.round(value,2)
       }
       else if (value.toString().split(".")[0].length > 4) {
@@ -1206,22 +1184,17 @@ vizwhiz.viz = function() {
     levels.forEach(function(nest_key, i){
     
       nested_data
-        .key(function(d){ return d[nest_key].id+"|"+d[nest_key].name; })
-        
+        .key(function(d){ return d[nest_key][vars.id_var]; })
+      
       if (i == levels.length-1) {
         nested_data.rollup(function(leaves){
           
-          if(leaves.length == 1){
-            flattened.push(leaves[0]);
-            return leaves[0]
-          }
-          
           to_return = {
-            "name": leaves[0][nest_key].name,
-            "id": leaves[0][nest_key].id,
             "num_children": leaves.length,
             "num_children_active": d3.sum(leaves, function(d){ return d.active; })
           }
+          
+          to_return[vars.id_var] = leaves[0][nest_key][vars.id_var]
           
           if (leaves[0][nest_key].display_id) to_return.display_id = leaves[0][nest_key].display_id;
           
@@ -1245,16 +1218,34 @@ vizwhiz.viz = function() {
             })
             flattened.push(to_return);
           }
-        
+          
           return to_return
+          
         })
       }
     
     })
+      
+    rename_key_value = function(obj) { 
+      if (obj.values && obj.values.length) { 
+        var return_obj = {}
+        return_obj.children = obj.values.map(function(obj) { 
+          return rename_key_value(obj);
+        })
+        return_obj[vars.id_var] = obj.key
+        return return_obj
+      } 
+      else if(obj.values) { 
+        return obj.values
+      }
+      else {
+        return obj; 
+      }
+    }
     
     nested_data = nested_data
       .entries(flat_data)
-      .map(vizwhiz.utils.rename_key_value);
+      .map(rename_key_value)
 
     if(vars.type != "tree_map"){
       return flattened;
@@ -1426,9 +1417,17 @@ vizwhiz.viz = function() {
     
     var value = false
     
-    if (dat && dat[variable]) value = dat[variable]
-    else if (attr && attr[variable]) value = attr[variable]
-    else if (variable == "color") value = vizwhiz.utils.rand_color()
+    if (dat && dat.values) {
+      dat.values.forEach(function(d){
+        if (d[variable] && !value) value = d[variable]
+      })
+    }
+    
+    if (!value) {
+      if (dat && dat[variable]) value = dat[variable]
+      else if (attr && attr[variable]) value = attr[variable]
+      else if (variable == "color") value = vizwhiz.utils.rand_color()
+    }
     
     if (variable == vars.text_var && value) {
       return vars.text_format(value)
@@ -1929,21 +1928,26 @@ vizwhiz.viz = function() {
         tick_offset = 5
       }
       
-      var bgtick = d3.select(this.parentNode).selectAll("line.tick")
-        .data([i])
+      if (!(tick_offset == 5 && vars.xaxis_var == vars.year_var)) {
+      
+        var bgtick = d3.select(this.parentNode).selectAll("line.tick")
+          .data([i])
         
-      bgtick.enter().append("line")
-        .attr("class","tick")
-        .attr("x1", 0)
-        .attr("x2", 0)
-        .attr("y1", tick_offset)
-        .attr("y2", -vars.graph.height)
-        .attr(tick_style)
+        bgtick.enter().append("line")
+          .attr("class","tick")
+          .attr("x1", 0)
+          .attr("x2", 0)
+          .attr("y1", tick_offset)
+          .attr("y2", -vars.graph.height)
+          .attr(tick_style)
         
-      bgtick.transition().duration(vizwhiz.timing) 
-        .attr("y2", -vars.graph.height)
+        bgtick.transition().duration(vizwhiz.timing) 
+          .attr("y2", -vars.graph.height)
+        
+      }
       
       return text;
+      
     });
   
   vars.y_axis = d3.svg.axis()
@@ -1979,19 +1983,23 @@ vizwhiz.viz = function() {
         tick_offset = -5
       }
       
-      var bgtick = d3.select(this.parentNode).selectAll("line.tick")
-        .data([i])
+      if (!(tick_offset == -5 && vars.yaxis_var == vars.year_var)) {
+      
+        var bgtick = d3.select(this.parentNode).selectAll("line.tick")
+          .data([i])
         
-      bgtick.enter().append("line")
-        .attr("class","tick")
-        .attr("x1", tick_offset)
-        .attr("x2", vars.graph.width)
-        .attr("y1", 0)
-        .attr("y2", 0)
-        .attr(tick_style)
+        bgtick.enter().append("line")
+          .attr("class","tick")
+          .attr("x1", tick_offset)
+          .attr("x2", vars.graph.width)
+          .attr("y1", 0)
+          .attr("y2", 0)
+          .attr(tick_style)
         
-      bgtick.transition().duration(vizwhiz.timing) 
-        .attr("x2", vars.graph.width)
+        bgtick.transition().duration(vizwhiz.timing) 
+          .attr("x2", vars.graph.width)
+        
+      }
       
       return text;
       
@@ -2341,6 +2349,7 @@ vizwhiz.network = function(vars) {
             "data": tooltip_data,
             "title": find_variable(vars.highlight,vars.text_var),
             "color": find_variable(vars.highlight,vars.color_var),
+            "icon": find_variable(vars.highlight,"icon"),
             "x": vars.parent.node().offsetLeft+x_pos,
             "y": vars.parent.node().offsetTop+vars.margin.top+5,
             "width": info_width,
@@ -2988,6 +2997,7 @@ vizwhiz.stacked = function(vars) {
       "data": tooltip_data,
       "title": find_variable(d[vars.id_var],vars.text_var),
       "id": d[vars.id_var],
+      "icon": find_variable(d[vars.id_var],"icon"),
       "color": find_variable(d[vars.id_var],vars.color_var),
       "x": vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
       "y": vars.y_scale(this_value.y0 + this_value.y)+(vars.graph.height-vars.y_scale(this_value.y))/2+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
@@ -3220,15 +3230,28 @@ vizwhiz.stacked = function(vars) {
     // return nested
     
     return nested.sort(function(a,b){
-      
-      a[vars.color_var] = find_variable(a.id,vars.color_var)
-      b[vars.color_var] = find_variable(b.id,vars.color_var)
           
       var s = vars.sort == "value" ? "total" : vars.sort
       
-      if(a[s]<b[s]) return vars.order == "desc" ? -1 : 1;
-      if(a[s]>b[s]) return vars.order == "desc" ? 1 : -1;
+      a_value = find_variable(a,s)
+      b_value = find_variable(b,s)
+      
+      if (s == vars.color_var) {
+      
+        a_value = d3.rgb(a_value).hsl()
+        b_value = d3.rgb(b_value).hsl()
+        
+        if (a_value.s == 0) a_value = 361
+        else a_value = a_value.h
+        if (b_value.s == 0) b_value = 361
+        else b_value = b_value.h
+        
+      }
+      
+      if(a_value<b_value) return vars.order == "desc" ? -1 : 1;
+      if(a_value>b_value) return vars.order == "desc" ? 1 : -1;
       return 0;
+      
     });
     
   }

@@ -210,6 +210,7 @@ vizwhiz.network = function(vars) {
             "data": tooltip_data,
             "title": find_variable(vars.highlight,vars.text_var),
             "color": find_variable(vars.highlight,vars.color_var),
+            "icon": find_variable(vars.highlight,"icon"),
             "x": vars.parent.node().offsetLeft+x_pos,
             "y": vars.parent.node().offsetTop+vars.margin.top+5,
             "width": info_width,

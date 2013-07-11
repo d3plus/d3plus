@@ -27,8 +27,8 @@ body {
 <script>
 
 d3.json("data/mg_test_data.json", function(flat_data){
-  d3.json("data/attr_hs.json", function(attrs){
-    d3.json("data/atlas/eric.json", function(eric){
+  d3.json("data/atlas/region_attrs.json", function(attrs){
+    d3.json("data/atlas/flat_data.json", function(data){
 
       // flat_data.data.forEach(function(d){
       //   d.id = d.hs_id
@@ -54,30 +54,28 @@ d3.json("data/mg_test_data.json", function(flat_data){
       //   .datum(flat_data.data)
       //   .call(viz)
       
-      eric.data.forEach(function(d){
-        if (d.community_id == 706 && d.year == 2000) d.value = d.value*2
-        else if (d.community_id == 706) d.value = d.value/8
-      })
+      console.log(attrs)
         
       viz = vizwhiz.viz()
         .type("stacked")
         .xaxis_var("year")
-        .attrs(eric.attr)
+        .attrs(attrs)
         .value_var("value")
-        .tooltip_info(["id", "value", "complexity", "distance"])
+        .tooltip_info(["id", "region_id", "value", "complexity", "distance"])
         .text_var("name")
         .id_var("id")
         .title("This is the Title of the Visualization")
         // .sub_title("Cool Sub-title")
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
         .nesting(["nesting_0","nesting_1","nesting_2"])
-        .depth("nesting_0")
-        .layout("share")
-        .labels(false)
-        .year([2000,2006])
+        .depth("nesting_1")
+        // .layout("share")
+        // .labels(false)
+        // .year([2000,2003])
+        // .solo("50")
         
       d3.select("#viz")
-        .datum(eric.data)
+        .datum(data)
         .call(viz)
     
     })
