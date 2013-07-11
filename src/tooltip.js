@@ -228,7 +228,8 @@ vizwhiz.tooltip.create = function(params) {
     else {
       var h = params.height
     }
-    
+    h -= parseFloat(container.style("padding-top"),10)
+    h -= parseFloat(container.style("padding-bottom"),10)
     if (header) {
       h -= header.node().offsetHeight
       h -= parseFloat(header.style("padding-top"),10)

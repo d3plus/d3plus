@@ -73,7 +73,6 @@ d3.json("data/products_mg.json", function(raw_data){
         // .tooltip_info(["distance", "complexity", "val_usd"])
         .name_array(["name","id"])
         .title("Product Exports of Minas Gerais")
-        .sub_title("Excluding Mineral Products Excluding Mineral Products Excluding Mineral Products Excluding Mineral Products")
         .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
         .nesting(["nesting_0","nesting_1","nesting_2"])
         .nesting_aggs({"distance":"mean","complexity":"mean"})
@@ -81,7 +80,6 @@ d3.json("data/products_mg.json", function(raw_data){
         .depth("nesting_0")
         .year(2010)
         .data_source("Data provided by SECEX")
-        .title_width(200)
         
       d3.select("#viz")
         .datum(data)

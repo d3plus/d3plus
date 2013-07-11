@@ -493,7 +493,8 @@ vizwhiz.tooltip.create = function(params) {
     else {
       var h = params.height
     }
-    
+    h -= parseFloat(container.style("padding-top"),10)
+    h -= parseFloat(container.style("padding-bottom"),10)
     if (header) {
       h -= header.node().offsetHeight
       h -= parseFloat(header.style("padding-top"),10)
@@ -1068,10 +1069,24 @@ vizwhiz.viz = function() {
       }
       else {
         if (vizwhiz.dev) console.log("[viz-whiz] Calculating Total Value")
-        var total_val = d3.sum(data_obj.clean, function(d){ 
-          if (vars.type == "stacked") return d[vars.value_var]
-          else if (vars.year == d[vars.year_var]) return d[vars.value_var]
-        })
+        console.log(vars.data)
+        if (vars.type == "tree_map") {
+          var total_val = check_child(vars.data)
+          
+          function check_child(c) {
+            if (c[vars.value_var]) return c[vars.value_var]
+            else return d3.sum(c.children,function(c2){
+              return check_child(c2)
+            })
+          }
+        }
+        else {
+          var total_val = d3.sum(data_obj.clean, function(d){ 
+            if (vars.type == "stacked") return d[vars.value_var]
+            else if (vars.year == d[vars.year_var]) return d[vars.value_var]
+          })
+        }
+        console.log(total_val)
       }
       
       vars.svg_enter.append("g")
@@ -1272,7 +1287,7 @@ vizwhiz.viz = function() {
 
   }
 
-  make_title = function(title,type){
+  make_title = function(t,type){
 
     // Set the total value as data for element.
     var font_size = type == "title" ? 18 : 13,
@@ -1281,10 +1296,24 @@ vizwhiz.viz = function() {
           "y": vars.margin.top
         }
     
-    if (type == "total_bar" && title) {
-      title = vars.number_format(title)
+    if (type == "total_bar" && t) {
+      title = vars.number_format(t)
       vars.total_bar.prefix ? title = vars.total_bar.prefix + title : null;
       vars.total_bar.suffix ? title = title + vars.total_bar.suffix : null;
+      
+      var overall_total = d3.sum(data_obj.clean, function(d){ 
+        if (vars.type == "stacked") return d[vars.value_var]
+        else if (vars.year == d[vars.year_var]) return d[vars.value_var]
+      })
+      var pct = (t/overall_total)*100
+      if (pct < 100) {
+        ot = vars.number_format(overall_total)
+        title += " ("+vars.number_format(pct)+"% of "+ot+")"
+      }
+      
+    }
+    else {
+      title = t
     }
     
     if (title) {
