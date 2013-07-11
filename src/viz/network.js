@@ -419,8 +419,10 @@ vizwhiz.network = function(vars) {
 
   node
     .on(vizwhiz.evt.over, function(d){
-      hover = d[vars.id_var];
-      vars.update();
+      if (!dragging) {
+        hover = d[vars.id_var];
+        vars.update();
+      }
     });
 
   node.transition().duration(vizwhiz.timing)

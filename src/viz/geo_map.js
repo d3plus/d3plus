@@ -431,15 +431,17 @@ vizwhiz.geo_map = function(vars) {
   
   coord
     .on(vizwhiz.evt.over, function(d){
-      hover = d[vars.id_var]
-      if (vars.highlight != d[vars.id_var]) {
-        d3.select(this).style("cursor","pointer")
-        d3.select(this).style("cursor","-moz-zoom-in")
-        d3.select(this).style("cursor","-webkit-zoom-in")
-        d3.select(this).attr("opacity",select_opacity);
-      }
-      if (!vars.highlight) {
-        vars.update();
+      if (!dragging) {
+        hover = d[vars.id_var]
+        if (vars.highlight != d[vars.id_var]) {
+          d3.select(this).style("cursor","pointer")
+          d3.select(this).style("cursor","-moz-zoom-in")
+          d3.select(this).style("cursor","-webkit-zoom-in")
+          d3.select(this).attr("opacity",select_opacity);
+        }
+        if (!vars.highlight) {
+          vars.update();
+        }
       }
     })
     .on(vizwhiz.evt.out, function(d){
@@ -473,14 +475,6 @@ vizwhiz.geo_map = function(vars) {
     .call(color_paths);
   
   vars.update();
-    
-  //===================================================================
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Exit, for nodes and links that are being removed
-  //-------------------------------------------------------------------
-
-  // node.exit().remove()
 
   //===================================================================
   

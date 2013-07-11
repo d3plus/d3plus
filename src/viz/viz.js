@@ -355,7 +355,7 @@ vizwhiz.viz = function() {
       }
       
       // Calculate total_bar value
-      if (!vars.total_bar) {
+      if (!vars.total_bar || vars.type == "stacked") {
         var total_val = null
       }
       else {
