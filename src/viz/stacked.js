@@ -6,7 +6,6 @@ vizwhiz.stacked = function(vars) {
   //-------------------------------------------------------------------
   
   var stack = d3.layout.stack()
-    .offset("zero")
     .values(function(d) { return d.values; })
     .x(function(d) { return d[vars.year_var]; })
     .y(function(d) { return d[vars.yaxis_var]; });

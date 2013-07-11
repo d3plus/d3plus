@@ -26,16 +26,22 @@ body {
 <script src="../src/viz/stacked.js"></script>
 <script>
 
-d3.json("data/mg_test_data.json", function(flat_data){
-  d3.json("data/atlas/region_attrs.json", function(attrs){
-    d3.json("data/atlas/flat_data.json", function(data){
+  d3.json("data/attr_isic.json", function(raw_attrs){
+    d3.json("data/isic_mg.json", function(flat_data){
+      
+      var attrs = {}
+      raw_attrs.data.forEach(function(a){
+        attrs[a.id] = a
+      })
 
-      // flat_data.data.forEach(function(d){
-      //   d.id = d.hs_id
-      //   d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
-      //   d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
-      //   d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-      // })
+      flat_data.data.forEach(function(d){
+        d.id = d.isic_id
+        d.nesting_0 = {"name":attrs[d.id.slice(0, 1)].name, "id":d.id.slice(0, 1)};
+        d.nesting_1 = {"name":attrs[d.id.slice(0, 3)].name, "id":d.id.slice(0, 3)};
+        d.nesting_2 = {"name":attrs[d.id.slice(0, 5)].name, "id":d.id.slice(0, 5)};
+        d.wage_avg = d.wage/d.num_emp
+      })
+      
       //     
       // viz = vizwhiz.viz()
       //   .type("stacked")
@@ -53,33 +59,30 @@ d3.json("data/mg_test_data.json", function(flat_data){
       // d3.select("#viz")
       //   .datum(flat_data.data)
       //   .call(viz)
-      
-      console.log(attrs)
         
       viz = vizwhiz.viz()
         .type("stacked")
         .xaxis_var("year")
         .attrs(attrs)
-        .value_var("value")
-        .tooltip_info(["id", "region_id", "value", "complexity", "distance"])
+        .value_var("wage")
+        .tooltip_info(["id", "wage", "num_emp", "wage_avg"])
         .text_var("name")
         .id_var("id")
         .title("This is the Title of the Visualization")
         // .sub_title("Cool Sub-title")
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
         .nesting(["nesting_0","nesting_1","nesting_2"])
-        .depth("nesting_1")
+        .depth("nesting_0")
         // .layout("share")
         // .labels(false)
         // .year([2000,2003])
         // .solo("50")
         
       d3.select("#viz")
-        .datum(data)
+        .datum(flat_data.data)
         .call(viz)
     
     })
   })
-})
 
 </script>

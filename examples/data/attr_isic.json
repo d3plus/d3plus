@@ -1,0 +1,5972 @@
+{
+  "data": [
+    {
+      "available": true, 
+      "name": "Social Sciences R&D", 
+      "color": "#e377c2", 
+      "desc": "Research and experimental development on social sciences and humanities", 
+      "num_emp": 75404, 
+      "keywords": "humanities", 
+      "id": "m7220"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Wholesale", 
+      "color": "#17becf", 
+      "desc": "Non-specialized wholesale trade", 
+      "num_emp": 717552, 
+      "keywords": "artist equipment, art, decorative, decoration", 
+      "id": "g4690"
+    }, 
+    {
+      "available": true, 
+      "name": "Hardware Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of hardware, paints and glass in specialized stores", 
+      "num_emp": 4639826, 
+      "keywords": "glass, paints, wood", 
+      "id": "g4752"
+    }, 
+    {
+      "available": true, 
+      "name": "Carpet Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of carpets, rugs, wall and floor coverings in specialized stores", 
+      "num_emp": 47907, 
+      "keywords": "rugs, wall, flooring, wallpaper", 
+      "id": "g4753"
+    }, 
+    {
+      "available": true, 
+      "name": "Textile Retail", 
+      "color": "#17becf", 
+      "num_emp": 991649, 
+      "desc": "Retail sale of textiles in specialized stores", 
+      "id": "g4751"
+    }, 
+    {
+      "available": true, 
+      "name": "Magnetic and Optical Media", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of magnetic and optical media", 
+      "num_emp": 1383, 
+      "keywords": "CDs, DVDs, Blu-Ray, Hard Drives", 
+      "id": "c2680"
+    }, 
+    {
+      "available": true, 
+      "name": "Hazardous Waste Disposal", 
+      "color": "#2F2F6D", 
+      "desc": "Treatment and disposal of hazardous waste", 
+      "num_emp": 8538, 
+      "keywords": "treatment", 
+      "id": "e3822"
+    }, 
+    {
+      "available": true, 
+      "name": "Non-Hazardous Waste Disposal", 
+      "color": "#2F2F6D", 
+      "desc": "Treatment and disposal of non-hazardous waste", 
+      "num_emp": 108926, 
+      "keywords": "treatment", 
+      "id": "e3821"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Passenger Land Transport", 
+      "color": "#9edae5", 
+      "desc": "Other passenger land transport", 
+      "num_emp": 1612615, 
+      "keywords": "taxi, cab, limo, charter bus, carpool, bussing", 
+      "id": "h4922"
+    }, 
+    {
+      "available": true, 
+      "name": "Road Freight Transport", 
+      "color": "#9edae5", 
+      "num_emp": 4746375, 
+      "desc": "Freight transport by road", 
+      "id": "h4923"
+    }, 
+    {
+      "available": true, 
+      "name": "Restaurant", 
+      "color": "#FFC41C", 
+      "num_emp": 6534908, 
+      "desc": "Restaurants and mobile food service activities", 
+      "id": "i5610"
+    }, 
+    {
+      "available": true, 
+      "name": "Passenger Land Transport", 
+      "color": "#9edae5", 
+      "num_emp": 3847789, 
+      "desc": "Urban and suburban passenger land transport", 
+      "id": "h4921"
+    }, 
+    {
+      "available": true, 
+      "name": "Communications Repair", 
+      "color": "#c7c7c7", 
+      "num_emp": 138219, 
+      "desc": "Repair of communication equipment", 
+      "id": "s9512"
+    }, 
+    {
+      "available": true, 
+      "name": "Land Transport", 
+      "color": "#9edae5", 
+      "num_emp": 10642292, 
+      "desc": "Land transport and transport via pipelines", 
+      "id": "h49"
+    }, 
+    {
+      "available": true, 
+      "name": "Metal Container Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 86619, 
+      "desc": "Manufacture of tanks, reservoirs and containers of metal", 
+      "id": "c2512"
+    }, 
+    {
+      "available": true, 
+      "name": "Steam Generator Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 25852, 
+      "desc": "Manufacture of steam generators, except central heating hot water boilers", 
+      "id": "c2513"
+    }, 
+    {
+      "available": true, 
+      "name": "Structural Metal Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of structural metal products", 
+      "num_emp": 851733, 
+      "keywords": "prefabricated, doors, windows, ornamental", 
+      "id": "c2511"
+    }, 
+    {
+      "name": "Animal Raising", 
+      "color": "#105B10", 
+      "desc": "Animal production", 
+      "id": "a014"
+    }, 
+    {
+      "name": "Mixed farming", 
+      "color": "#105B10", 
+      "desc": "Mixed farming", 
+      "id": "a015"
+    }, 
+    {
+      "name": "Agriculture Support", 
+      "color": "#105B10", 
+      "desc": "Support activities to agriculture and post-harvest crop activities", 
+      "id": "a016"
+    }, 
+    {
+      "available": true, 
+      "name": "Motor Vehicle Body Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 375684, 
+      "desc": "Manufacture of bodies (coachwork) for motor vehicles; manufacture of trailers and semi-trailers", 
+      "id": "c2920"
+    }, 
+    {
+      "name": "Non-perennial crops", 
+      "color": "#105B10", 
+      "desc": "Growing of non-perennial crops", 
+      "id": "a011"
+    }, 
+    {
+      "name": "Perennial crops", 
+      "color": "#105B10", 
+      "desc": "Growing of perennial crops", 
+      "id": "a012"
+    }, 
+    {
+      "name": "Plant propagation", 
+      "color": "#105B10", 
+      "desc": "Plant propagation", 
+      "keywords": "reproduction, dispersal", 
+      "id": "a013"
+    }, 
+    {
+      "available": true, 
+      "name": "Lignite Mining", 
+      "color": "#330000", 
+      "num_emp": 1354, 
+      "desc": "Mining of lignite", 
+      "id": "b0520"
+    }, 
+    {
+      "available": true, 
+      "name": "Agricultural Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of agricultural raw materials and live animals", 
+      "num_emp": 396158, 
+      "keywords": "livestock, live animals, raw materials, produce", 
+      "id": "g4620"
+    }, 
+    {
+      "name": "Other Services", 
+      "color": "#c7c7c7", 
+      "desc": "Other personal service activities", 
+      "id": "s960"
+    }, 
+    {
+      "name": "Seed processing", 
+      "color": "#105B10", 
+      "desc": "Seed processing for propagation", 
+      "id": "a0164"
+    }, 
+    {
+      "available": true, 
+      "name": "Post-harvest Activities", 
+      "color": "#105B10", 
+      "num_emp": 15008, 
+      "desc": "Post-harvest crop activities", 
+      "id": "a0163"
+    }, 
+    {
+      "available": true, 
+      "name": "Animal Production Support", 
+      "color": "#105B10", 
+      "num_emp": 285824, 
+      "desc": "Support activities for animal production", 
+      "id": "a0162"
+    }, 
+    {
+      "available": true, 
+      "name": "Crop Production Support", 
+      "color": "#105B10", 
+      "num_emp": 1007410, 
+      "desc": "Support activities for crop production", 
+      "id": "a0161"
+    }, 
+    {
+      "available": true, 
+      "name": "Forestry", 
+      "color": "#105B10", 
+      "num_emp": 221103, 
+      "desc": "Silviculture and other forestry activities", 
+      "id": "a0210"
+    }, 
+    {
+      "name": "Reinsurance", 
+      "color": "#A4BD99", 
+      "desc": "Reinsurance", 
+      "id": "k652"
+    }, 
+    {
+      "name": "Pension Funding", 
+      "color": "#A4BD99", 
+      "desc": "Pension funding", 
+      "id": "k653"
+    }, 
+    {
+      "name": "Paper Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of paper and paper products", 
+      "id": "c170"
+    }, 
+    {
+      "name": "Electricity Supply", 
+      "color": "#E6F5FF", 
+      "desc": "Electric power generation, transmission and distribution", 
+      "keywords": "hydro-electric, fossil-fuel, nuclear, power, generation, transmission, distribution", 
+      "id": "d351"
+    }, 
+    {
+      "name": "Gas Supply", 
+      "color": "#E6F5FF", 
+      "desc": "Manufacture of gas; distribution of gaseous fuels through mains", 
+      "id": "d352"
+    }, 
+    {
+      "name": "Steam and Air Supply", 
+      "color": "#E6F5FF", 
+      "desc": "Steam and air conditioning supply", 
+      "id": "d353"
+    }, 
+    {
+      "available": true, 
+      "name": "Media Reproduction", 
+      "color": "#5E1F05", 
+      "desc": "Reproduction of recorded media", 
+      "num_emp": 40182, 
+      "keywords": "CD, records, vinyl, DVDs, film, VHS", 
+      "id": "c1820"
+    }, 
+    {
+      "available": true, 
+      "name": "Liquor Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 114597, 
+      "desc": "Distilling, rectifying and blending of spirits", 
+      "id": "c1101"
+    }, 
+    {
+      "name": "Other Hospitality", 
+      "color": "#FFC41C", 
+      "desc": "Other accommodation", 
+      "keywords": "Rooming, boarding houses", 
+      "id": "i559"
+    }, 
+    {
+      "name": "Hospital", 
+      "color": "#FF0000", 
+      "desc": "Hospital activities", 
+      "keywords": "paediatric", 
+      "id": "q861"
+    }, 
+    {
+      "available": true, 
+      "name": "Property Maintenance", 
+      "color": "#93789E", 
+      "num_emp": 9347630, 
+      "desc": "Services to buildings and landscape activities", 
+      "id": "n81"
+    }, 
+    {
+      "available": true, 
+      "name": "Security and Investigation", 
+      "color": "#93789E", 
+      "num_emp": 3853058, 
+      "desc": "Security and investigation activities", 
+      "id": "n80"
+    }, 
+    {
+      "available": true, 
+      "name": "Communication Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 194763, 
+      "desc": "Manufacture of communication equipment", 
+      "id": "c2630"
+    }, 
+    {
+      "name": "Hotel", 
+      "color": "#FFC41C", 
+      "desc": "Short term accommodation activities", 
+      "id": "i551"
+    }, 
+    {
+      "available": true, 
+      "name": "Gambling", 
+      "color": "#AA1F61", 
+      "desc": "Gambling and betting activities", 
+      "num_emp": 23235, 
+      "keywords": "casino, lottery, betting", 
+      "id": "r92"
+    }, 
+    {
+      "name": "Campground", 
+      "color": "#FFC41C", 
+      "desc": "Camping grounds, recreational vehicle parks and trailer parks", 
+      "id": "i552"
+    }, 
+    {
+      "available": true, 
+      "name": "Recreation and Amusement", 
+      "color": "#AA1F61", 
+      "num_emp": 792550, 
+      "desc": "Sports activities and amusement and recreation activities", 
+      "id": "r93"
+    }, 
+    {
+      "available": true, 
+      "name": "Education", 
+      "color": "#B00000", 
+      "num_emp": 10619274, 
+      "desc": "Education", 
+      "id": "p"
+    }, 
+    {
+      "name": "Medical and Dental", 
+      "color": "#FF0000", 
+      "desc": "Medical and dental practice activities", 
+      "id": "q862"
+    }, 
+    {
+      "available": true, 
+      "name": "Arts and Entertainment", 
+      "color": "#AA1F61", 
+      "desc": "Creative, arts and entertainment activities", 
+      "num_emp": 146137, 
+      "keywords": "theater, dance, musical, performing arts, festivals, festivals, comedy, acting, writing", 
+      "id": "r90"
+    }, 
+    {
+      "available": true, 
+      "name": "Imitation Jewellery Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 77266, 
+      "desc": "Manufacture of imitation jewellery and related articles", 
+      "id": "c3212"
+    }, 
+    {
+      "available": true, 
+      "name": "Jewellery Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 54076, 
+      "desc": "Manufacture of jewellery and related articles", 
+      "id": "c3211"
+    }, 
+    {
+      "name": "Event Coordination", 
+      "color": "#93789E", 
+      "desc": "Organization of conventions and trade shows", 
+      "keywords": "conventions, trade shows, planning, organization", 
+      "id": "n823"
+    }, 
+    {
+      "available": true, 
+      "name": "Paint Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of paints, varnishes and similar coatings, printing ink and mastics", 
+      "num_emp": 240515, 
+      "keywords": "varnish, ink, mastics", 
+      "id": "c2022"
+    }, 
+    {
+      "available": true, 
+      "name": "Cleaning Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of soap and detergents, cleaning and polishing preparations, perfumes and toilet preparations", 
+      "num_emp": 609818, 
+      "keywords": "perfumes, deoderizers, detergents, soaps, colognes, after-shave, toilettries", 
+      "id": "c2023"
+    }, 
+    {
+      "available": true, 
+      "name": "Agrochemical Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of pesticides and other agrochemical products", 
+      "num_emp": 60380, 
+      "keywords": "pesticides", 
+      "id": "c2021"
+    }, 
+    {
+      "name": "Motor Vehicle Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of motor vehicles", 
+      "id": "c291"
+    }, 
+    {
+      "name": "Motor Vehicle Body Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of bodies (coachwork) for motor vehicles; manufacture of trailers and semi-trailers", 
+      "id": "c292"
+    }, 
+    {
+      "name": "Auto Parts Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of parts and accessories for motor vehicles", 
+      "id": "c293"
+    }, 
+    {
+      "available": true, 
+      "name": "Postal Activities", 
+      "color": "#9edae5", 
+      "desc": "Postal activities", 
+      "num_emp": 1040336, 
+      "keywords": "mail", 
+      "id": "h5310"
+    }, 
+    {
+      "name": "Animal Feed Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of prepared animal feeds", 
+      "id": "c108"
+    }, 
+    {
+      "name": "Construction Installation", 
+      "color": "#E87600", 
+      "desc": "Electrical, plumbing and other construction installation activities", 
+      "keywords": "electrical, plumbing", 
+      "id": "f432"
+    }, 
+    {
+      "name": "Demolition and Site Preparation", 
+      "color": "#E87600", 
+      "desc": "Demolition and site preparation", 
+      "id": "f431"
+    }, 
+    {
+      "name": "Food Oil and Fat Processing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of vegetable and animal oils and fats", 
+      "id": "c104"
+    }, 
+    {
+      "name": "Dairy Processing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of dairy products", 
+      "id": "c105"
+    }, 
+    {
+      "name": "Grain Mill Processing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of grain mill products, starches and starch products", 
+      "keywords": "flour, starch, wheat", 
+      "id": "c106"
+    }, 
+    {
+      "name": "Other Food Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other food products", 
+      "id": "c107"
+    }, 
+    {
+      "name": "Meat processing", 
+      "color": "#5E1F05", 
+      "desc": "Processing and preserving of meat", 
+      "id": "c101"
+    }, 
+    {
+      "name": "Fish processing", 
+      "color": "#5E1F05", 
+      "desc": "Processing and preserving of fish, crustaceans and molluscs", 
+      "id": "c102"
+    }, 
+    {
+      "name": "Fruit and vegetable processing", 
+      "color": "#5E1F05", 
+      "desc": "Processing and preserving of fruit and vegetables", 
+      "id": "c103"
+    }, 
+    {
+      "name": "Freight Air Transport", 
+      "color": "#9edae5", 
+      "desc": "Freight air transport", 
+      "id": "h512"
+    }, 
+    {
+      "available": true, 
+      "name": "Computer Repair", 
+      "color": "#c7c7c7", 
+      "num_emp": 167364, 
+      "desc": "Repair of computers and peripheral equipment", 
+      "id": "s9511"
+    }, 
+    {
+      "name": "Passenger Air Transport", 
+      "color": "#9edae5", 
+      "desc": "Passenger air transport", 
+      "keywords": "plane travel, flying", 
+      "id": "h511"
+    }, 
+    {
+      "available": true, 
+      "name": "Health", 
+      "color": "#FF0000", 
+      "num_emp": 10568773, 
+      "desc": "Human health activities", 
+      "id": "q86"
+    }, 
+    {
+      "name": "Facilities Support", 
+      "color": "#93789E", 
+      "desc": "Combined facilities support activities", 
+      "id": "n811"
+    }, 
+    {
+      "name": "Landscaping", 
+      "color": "#93789E", 
+      "desc": "Landscape care and maintenance service activities", 
+      "id": "n813"
+    }, 
+    {
+      "name": "Cleaning", 
+      "color": "#93789E", 
+      "desc": "Cleaning activities", 
+      "id": "n812"
+    }, 
+    {
+      "available": true, 
+      "name": "Metal Wholesale", 
+      "color": "#17becf", 
+      "num_emp": 257751, 
+      "desc": "Wholesale of metals and metal ores", 
+      "id": "g4662"
+    }, 
+    {
+      "name": "Radio Broadcasting", 
+      "color": "#57D200", 
+      "desc": "Radio broadcasting", 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j601"
+    }, 
+    {
+      "name": "TV Broadcasting", 
+      "color": "#57D200", 
+      "desc": "Television programming and broadcasting activities", 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j602"
+    }, 
+    {
+      "available": true, 
+      "name": "Construction Material Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of construction materials, hardware, plumbing and heating equipment and supplies", 
+      "num_emp": 613346, 
+      "keywords": "hardware, plumbing, hearting", 
+      "id": "g4663"
+    }, 
+    {
+      "available": true, 
+      "name": "Social Work for the Elderly and Disabled", 
+      "color": "#FF0000", 
+      "num_emp": 211323, 
+      "desc": "Social work activities without accommodation for the elderly and disabled", 
+      "id": "q8810"
+    }, 
+    {
+      "name": "Synthetic Fiber Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of man-made fibres", 
+      "id": "c203"
+    }, 
+    {
+      "name": "Other Chemical Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other chemical products", 
+      "id": "c202"
+    }, 
+    {
+      "name": "General Chemical Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of basic chemicals, fertilizers and nitrogen compounds, plastics and synthetic rubber in primary forms", 
+      "keywords": "fertilizer, nitrogen, rubber", 
+      "id": "c201"
+    }, 
+    {
+      "available": true, 
+      "name": "Fuel Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of solid, liquid and gaseous fuels and related products", 
+      "num_emp": 322143, 
+      "keywords": "gas, oil", 
+      "id": "g4661"
+    }, 
+    {
+      "available": true, 
+      "name": "Hospitality", 
+      "color": "#FFC41C", 
+      "num_emp": 2190845, 
+      "desc": "Accommodation", 
+      "id": "i55"
+    }, 
+    {
+      "name": "Insurance", 
+      "color": "#A4BD99", 
+      "desc": "Insurance", 
+      "id": "k651"
+    }, 
+    {
+      "available": true, 
+      "name": "Food Service", 
+      "color": "#FFC41C", 
+      "num_emp": 8206624, 
+      "desc": "Food and beverage service activities", 
+      "id": "i56"
+    }, 
+    {
+      "available": true, 
+      "name": "Food Oil and Fat Processing", 
+      "color": "#5E1F05", 
+      "num_emp": 255588, 
+      "desc": "Manufacture of vegetable and animal oils and fats", 
+      "id": "c1040"
+    }, 
+    {
+      "name": "Other Wholesale", 
+      "color": "#17becf", 
+      "desc": "Non-specialized wholesale trade", 
+      "id": "g469"
+    }, 
+    {
+      "available": true, 
+      "name": "Leather Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of luggage, handbags and the like, saddlery and harness", 
+      "num_emp": 303019, 
+      "keywords": "luggage, baggage, handbags, saddles, harnesses", 
+      "id": "c1512"
+    }, 
+    {
+      "available": true, 
+      "name": "Leather Processing", 
+      "color": "#5E1F05", 
+      "desc": "Tanning and dressing of leather; dressing and dyeing of fur", 
+      "num_emp": 367106, 
+      "keywords": "tanning, dressing, dyeing, fur", 
+      "id": "c1511"
+    }, 
+    {
+      "name": "Food Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of food, beverages and tobacco", 
+      "keywords": "beverage, tobacco", 
+      "id": "g463"
+    }, 
+    {
+      "name": "Agricultural Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of agricultural raw materials and live animals", 
+      "keywords": "livestock, live animals, raw materials, produce", 
+      "id": "g462"
+    }, 
+    {
+      "name": "Contract Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale on a fee or contract basis", 
+      "id": "g461"
+    }, 
+    {
+      "name": "TV Programming", 
+      "color": "#57D200", 
+      "desc": "Television programming and broadcasting activities", 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j6020"
+    }, 
+    {
+      "name": "Specialized Wholesale", 
+      "color": "#17becf", 
+      "desc": "Other specialized wholesale", 
+      "id": "g466"
+    }, 
+    {
+      "name": "Machinery Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of machinery, equipment and supplies", 
+      "keywords": "equipment, supplies", 
+      "id": "g465"
+    }, 
+    {
+      "name": "Household Goods Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of household goods", 
+      "id": "g464"
+    }, 
+    {
+      "name": "Household Goods", 
+      "color": "#FFAEAE", 
+      "desc": "Undifferentiated goods-producing activities of private households for own use", 
+      "id": "t981"
+    }, 
+    {
+      "available": true, 
+      "name": "Event Coordination", 
+      "color": "#93789E", 
+      "desc": "Organization of conventions and trade shows", 
+      "num_emp": 96691, 
+      "keywords": "conventions, trade shows, planning, organization", 
+      "id": "n8230"
+    }, 
+    {
+      "available": true, 
+      "name": "Insurance", 
+      "color": "#A4BD99", 
+      "num_emp": 848610, 
+      "desc": "Insurance, reinsurance and pension funding, except compulsory social security", 
+      "id": "k65"
+    }, 
+    {
+      "name": "Career Placement", 
+      "color": "#93789E", 
+      "desc": "Activities of employment placement agencies", 
+      "keywords": "headhunters", 
+      "id": "n781"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Machinery Wholesale", 
+      "color": "#17becf", 
+      "num_emp": 505306, 
+      "desc": "Wholesale of other machinery and equipment", 
+      "id": "g4659"
+    }, 
+    {
+      "name": "Hunting", 
+      "color": "#105B10", 
+      "desc": "Hunting, trapping and related service activities", 
+      "id": "a017"
+    }, 
+    {
+      "name": "Management Consultancy", 
+      "color": "#e377c2", 
+      "desc": "Management consultancy activities", 
+      "id": "m702"
+    }, 
+    {
+      "available": true, 
+      "name": "Road and Railway Construction", 
+      "color": "#E87600", 
+      "num_emp": 1807132, 
+      "desc": "Construction of roads and railways", 
+      "id": "f4210"
+    }, 
+    {
+      "available": true, 
+      "name": "Agricultural Machinery Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of agricultural machinery, equipment and supplies", 
+      "num_emp": 101565, 
+      "keywords": "equipment, supplies", 
+      "id": "g4653"
+    }, 
+    {
+      "available": true, 
+      "name": "Hard Coal Mining", 
+      "color": "#330000", 
+      "num_emp": 45065, 
+      "desc": "Mining of hard coal", 
+      "id": "b0510"
+    }, 
+    {
+      "available": true, 
+      "name": "Computer Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of computers, computer peripheral equipment and software", 
+      "num_emp": 117955, 
+      "keywords": "software", 
+      "id": "g4651"
+    }, 
+    {
+      "available": true, 
+      "name": "General Secondary Education", 
+      "color": "#B00000", 
+      "desc": "General secondary education", 
+      "num_emp": 1185011, 
+      "keywords": "high school", 
+      "id": "p8521"
+    }, 
+    {
+      "available": true, 
+      "name": "Employment Services", 
+      "color": "#93789E", 
+      "num_emp": 4211318, 
+      "desc": "Employment activities", 
+      "id": "n78"
+    }, 
+    {
+      "available": true, 
+      "name": "Tourism Services", 
+      "color": "#93789E", 
+      "num_emp": 435489, 
+      "desc": "Travel agency, tour operator, reservation service and related activities", 
+      "id": "n79"
+    }, 
+    {
+      "name": "Social Work for the Elderly and Disabled", 
+      "color": "#FF0000", 
+      "desc": "Social work activities without accommodation for the elderly and disabled", 
+      "id": "q881"
+    }, 
+    {
+      "available": true, 
+      "name": "Remediation Activities", 
+      "color": "#2F2F6D", 
+      "num_emp": 6810, 
+      "desc": "Remediation activities and other waste management services", 
+      "id": "e3900"
+    }, 
+    {
+      "name": "Machinery Rental", 
+      "color": "#93789E", 
+      "desc": "Renting and leasing of other machinery, equipment and tangible goods", 
+      "id": "n773"
+    }, 
+    {
+      "name": "Technical Testing and Analysis", 
+      "color": "#e377c2", 
+      "desc": "Technical testing and analysis", 
+      "id": "m712"
+    }, 
+    {
+      "name": "Architecture and Engineering", 
+      "color": "#e377c2", 
+      "desc": "Architectural and engineering activities and related technical consultancy", 
+      "id": "m711"
+    }, 
+    {
+      "available": true, 
+      "name": "Building Completion", 
+      "color": "#E87600", 
+      "desc": "Building completion and finishing", 
+      "num_emp": 644441, 
+      "keywords": "stucco, drywall, glass", 
+      "id": "f4330"
+    }, 
+    {
+      "available": true, 
+      "name": "Funeral Services", 
+      "color": "#c7c7c7", 
+      "num_emp": 180900, 
+      "desc": "Funeral and related activities", 
+      "id": "s9603"
+    }, 
+    {
+      "available": true, 
+      "name": "Medical and Dental", 
+      "color": "#FF0000", 
+      "num_emp": 1345110, 
+      "desc": "Medical and dental practice activities", 
+      "id": "q8620"
+    }, 
+    {
+      "available": true, 
+      "name": "Washing and Dry Cleaning", 
+      "color": "#c7c7c7", 
+      "desc": "Washing and (dry-) cleaning of textile and fur products", 
+      "num_emp": 377417, 
+      "keywords": "textile, fur", 
+      "id": "s9601"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Services", 
+      "color": "#c7c7c7", 
+      "num_emp": 341723, 
+      "desc": "Other personal service activities n.e.c.", 
+      "id": "s9609"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Mining and Quarrying Support", 
+      "color": "#330000", 
+      "num_emp": 15468, 
+      "desc": "Support activities for other mining and quarrying", 
+      "id": "b0990"
+    }, 
+    {
+      "available": true, 
+      "name": "Residential Nursing", 
+      "color": "#FF0000", 
+      "desc": "Residential nursing care facilities", 
+      "num_emp": 15599, 
+      "keywords": "nursing homes", 
+      "id": "q8710"
+    }, 
+    {
+      "available": true, 
+      "name": "Iron and Steel Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 984129, 
+      "desc": "Manufacture of basic iron and steel", 
+      "id": "c2410"
+    }, 
+    {
+      "available": true, 
+      "name": "Salt water aquaculture", 
+      "color": "#105B10", 
+      "desc": "Marine aquaculture", 
+      "num_emp": 78406, 
+      "keywords": "marine", 
+      "id": "a0321"
+    }, 
+    {
+      "available": true, 
+      "name": "Fresh water aquaculture", 
+      "color": "#105B10", 
+      "num_emp": 16016, 
+      "desc": "Freshwater aquaculture", 
+      "id": "a0322"
+    }, 
+    {
+      "name": "Other Human Resources", 
+      "color": "#93789E", 
+      "desc": "Other human resources provision", 
+      "id": "n783"
+    }, 
+    {
+      "available": true, 
+      "name": "Courier Activities", 
+      "color": "#9edae5", 
+      "desc": "Courier activities", 
+      "num_emp": 221310, 
+      "keywords": "messengers, motoboys, bike messengers", 
+      "id": "h5320"
+    }, 
+    {
+      "name": "Movie and TV", 
+      "color": "#57D200", 
+      "desc": "Motion picture, video and television programme activities", 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j591"
+    }, 
+    {
+      "available": true, 
+      "name": "Sewerage", 
+      "color": "#2F2F6D", 
+      "num_emp": 611034, 
+      "desc": "Sewerage", 
+      "id": "e3700"
+    }, 
+    {
+      "name": "Machinery Installation", 
+      "color": "#5E1F05", 
+      "desc": "Installation of industrial machinery and equipment", 
+      "id": "c332"
+    }, 
+    {
+      "name": "Machinery Repair", 
+      "color": "#5E1F05", 
+      "desc": "Repair of fabricated metal products, machinery and equipment", 
+      "keywords": "machinery, equipment", 
+      "id": "c331"
+    }, 
+    {
+      "name": "Arts and Entertainment", 
+      "color": "#AA1F61", 
+      "desc": "Creative, arts and entertainment activities", 
+      "keywords": "theater, dance, musical, performing arts, festivals, festivals, comedy, acting, writing", 
+      "id": "r900"
+    }, 
+    {
+      "available": true, 
+      "name": "Residential Mental Care", 
+      "color": "#FF0000", 
+      "num_emp": 331355, 
+      "desc": "Residential care activities for mental retardation, mental health and substance abuse", 
+      "id": "q8720"
+    }, 
+    {
+      "available": true, 
+      "name": "Technical Testing and Analysis", 
+      "color": "#e377c2", 
+      "num_emp": 96512, 
+      "desc": "Technical testing and analysis", 
+      "id": "m7120"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Metal Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 337133, 
+      "desc": "Manufacture of basic precious and other non-ferrous metals", 
+      "id": "c2420"
+    }, 
+    {
+      "available": true, 
+      "name": "Trade Unions", 
+      "color": "#c7c7c7", 
+      "num_emp": 1070313, 
+      "desc": "Activities of trade unions", 
+      "id": "s9420"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Transport Equipment Repair", 
+      "color": "#5E1F05", 
+      "desc": "Repair of transport equipment, except motor vehicles", 
+      "num_emp": 212647, 
+      "keywords": "canoe, kayak, watercraft", 
+      "id": "c3315"
+    }, 
+    {
+      "available": true, 
+      "name": "Electrical Equipment Repair", 
+      "color": "#5E1F05", 
+      "num_emp": 42367, 
+      "desc": "Repair of electrical equipment", 
+      "id": "c3314"
+    }, 
+    {
+      "available": true, 
+      "name": "Electronic and Optical Equipment Repair", 
+      "color": "#5E1F05", 
+      "num_emp": 23031, 
+      "desc": "Repair of electronic and optical equipment", 
+      "id": "c3313"
+    }, 
+    {
+      "available": true, 
+      "name": "Machinery Repair and Installation", 
+      "color": "#5E1F05", 
+      "num_emp": 410714, 
+      "desc": "Repair of machinery", 
+      "id": "c3312"
+    }, 
+    {
+      "available": true, 
+      "name": "Metal Product Repair", 
+      "color": "#5E1F05", 
+      "num_emp": 17119, 
+      "desc": "Repair of fabricated metal products", 
+      "id": "c3311"
+    }, 
+    {
+      "available": true, 
+      "name": "Construction", 
+      "color": "#E87600", 
+      "num_emp": 14240036, 
+      "desc": "Construction", 
+      "id": "f"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Machinery Repair", 
+      "color": "#5E1F05", 
+      "desc": "Repair of other equipment", 
+      "num_emp": 24378, 
+      "keywords": "miscellaneous, commercial, chemical storage, fish nets, parking meter", 
+      "id": "c3319"
+    }, 
+    {
+      "available": true, 
+      "name": "General Food Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale in non-specialized stores with food, beverages or tobacco predominating", 
+      "num_emp": 9048182, 
+      "keywords": "supermarkets, grocery, convenience stores, merchandise", 
+      "id": "g4711"
+    }, 
+    {
+      "available": true, 
+      "name": "Plant propagation", 
+      "color": "#105B10", 
+      "desc": "Plant propagation", 
+      "num_emp": 19585, 
+      "keywords": "reproduction, dispersal", 
+      "id": "a0130"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Transport Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 53766, 
+      "desc": "Manufacture of other transport equipment n.e.c.", 
+      "id": "c3099"
+    }, 
+    {
+      "available": true, 
+      "name": "Other General Retail", 
+      "color": "#17becf", 
+      "desc": "Other retail sale in non-specialized stores", 
+      "num_emp": 1035632, 
+      "keywords": "department stores, general merchandise", 
+      "id": "g4719"
+    }, 
+    {
+      "available": true, 
+      "name": "Motorcycle Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of motorcycles", 
+      "num_emp": 106742, 
+      "keywords": "choppers", 
+      "id": "c3091"
+    }, 
+    {
+      "available": true, 
+      "name": "Bike and Wheelchair Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of bicycles and invalid carriages", 
+      "num_emp": 48936, 
+      "keywords": "baby strollers, bicycles, cycles", 
+      "id": "c3092"
+    }, 
+    {
+      "name": "Clothing Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of wearing apparel, except fur apparel", 
+      "keywords": "apparel", 
+      "id": "c141"
+    }, 
+    {
+      "name": "Fur Clothing Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of articles of fur", 
+      "keywords": "articles", 
+      "id": "c142"
+    }, 
+    {
+      "name": "Knitted Clothing Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of knitted and crocheted apparel", 
+      "keywords": "apparel, crocheted", 
+      "id": "c143"
+    }, 
+    {
+      "name": "Household Services", 
+      "color": "#FFAEAE", 
+      "desc": "Undifferentiated service-producing activities of private households for own use", 
+      "id": "t982"
+    }, 
+    {
+      "available": true, 
+      "name": "Steam and Air Supply", 
+      "color": "#E6F5FF", 
+      "num_emp": 1368, 
+      "desc": "Steam and air conditioning supply", 
+      "id": "d3530"
+    }, 
+    {
+      "available": true, 
+      "name": "Aircraft Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of air and spacecraft and related machinery", 
+      "num_emp": 153174, 
+      "keywords": "planes, spacecraft", 
+      "id": "c3030"
+    }, 
+    {
+      "available": true, 
+      "name": "Storage", 
+      "color": "#9edae5", 
+      "desc": "Warehousing and storage", 
+      "num_emp": 494001, 
+      "keywords": "warehousing", 
+      "id": "h5210"
+    }, 
+    {
+      "name": "Pipeline Transport", 
+      "color": "#9edae5", 
+      "desc": "Transport via pipeline", 
+      "id": "h493"
+    }, 
+    {
+      "name": "Other Land Transport", 
+      "color": "#9edae5", 
+      "desc": "Other land transport", 
+      "id": "h492"
+    }, 
+    {
+      "name": "Rail Transport", 
+      "color": "#9edae5", 
+      "desc": "Transport via railways", 
+      "keywords": "train", 
+      "id": "h491"
+    }, 
+    {
+      "name": "Beverage Serving", 
+      "color": "#FFC41C", 
+      "desc": "Beverage serving activities", 
+      "id": "i563"
+    }, 
+    {
+      "available": true, 
+      "name": "Electric Lighting Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 109820, 
+      "desc": "Manufacture of electric lighting equipment", 
+      "id": "c2740"
+    }, 
+    {
+      "name": "Market Research", 
+      "color": "#e377c2", 
+      "desc": "Market research and public opinion polling", 
+      "id": "m732"
+    }, 
+    {
+      "available": true, 
+      "name": "Electromedical Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of irradiation, electromedical and electrotherapeutic equipment", 
+      "num_emp": 88968, 
+      "keywords": "MRI, CAT scan, radiation", 
+      "id": "c2660"
+    }, 
+    {
+      "available": true, 
+      "name": "Head Offices", 
+      "color": "#e377c2", 
+      "num_emp": 414195, 
+      "desc": "Activities of head offices", 
+      "id": "m7010"
+    }, 
+    {
+      "available": true, 
+      "name": "Renting and Leasing", 
+      "color": "#93789E", 
+      "num_emp": 981708, 
+      "desc": "Rental and leasing activities", 
+      "id": "n77"
+    }, 
+    {
+      "name": "Plastic Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of plastics products", 
+      "id": "c222"
+    }, 
+    {
+      "name": "Restaurant", 
+      "color": "#FFC41C", 
+      "desc": "Restaurants and mobile food service activities", 
+      "id": "i561"
+    }, 
+    {
+      "available": true, 
+      "name": "Motorcycle Sales and Repair", 
+      "color": "#17becf", 
+      "num_emp": 478120, 
+      "desc": "Sale, maintenance and repair of motorcycles and related parts and accessories", 
+      "id": "g4540"
+    }, 
+    {
+      "name": "Catering and Other Food Service", 
+      "color": "#FFC41C", 
+      "desc": "Event catering and other food service activities", 
+      "id": "i562"
+    }, 
+    {
+      "name": "Residential Mental Care", 
+      "color": "#FF0000", 
+      "desc": "Residential care activities for mental retardation, mental health and substance abuse", 
+      "id": "q872"
+    }, 
+    {
+      "available": true, 
+      "name": "Wireless Telecom", 
+      "color": "#57D200", 
+      "num_emp": 185300, 
+      "desc": "Wireless telecommunications activities", 
+      "id": "j6120"
+    }, 
+    {
+      "name": "Residential Nursing", 
+      "color": "#FF0000", 
+      "desc": "Residential nursing care facilities", 
+      "keywords": "nursing homes", 
+      "id": "q871"
+    }, 
+    {
+      "name": "Metal Casting", 
+      "color": "#5E1F05", 
+      "desc": "Casting of metals", 
+      "id": "c243"
+    }, 
+    {
+      "name": "Other Metal Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of basic precious and other non-ferrous metals", 
+      "id": "c242"
+    }, 
+    {
+      "name": "Iron and Steel Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of basic iron and steel", 
+      "id": "c241"
+    }, 
+    {
+      "name": "Other Residential Care", 
+      "color": "#FF0000", 
+      "desc": "Other residential care activities", 
+      "keywords": "orphanages, halfway houses", 
+      "id": "q879"
+    }, 
+    {
+      "available": true, 
+      "name": "Agriculture", 
+      "color": "#105B10", 
+      "num_emp": 12380796, 
+      "desc": "Agriculture, forestry and fishing", 
+      "id": "a"
+    }, 
+    {
+      "available": true, 
+      "name": "Legal and Accounting", 
+      "color": "#e377c2", 
+      "num_emp": 1793282, 
+      "desc": "Legal and accounting activities", 
+      "id": "m69"
+    }, 
+    {
+      "available": true, 
+      "name": "Beauty and Hairdressing", 
+      "color": "#c7c7c7", 
+      "desc": "Hairdressing and other beauty treatment", 
+      "num_emp": 486676, 
+      "keywords": "cosmetics", 
+      "id": "s9602"
+    }, 
+    {
+      "available": true, 
+      "name": "Call Centers", 
+      "color": "#93789E", 
+      "num_emp": 1450621, 
+      "desc": "Activities of call centres", 
+      "id": "n8220"
+    }, 
+    {
+      "available": true, 
+      "name": "Health and Social Work", 
+      "color": "#FF0000", 
+      "num_emp": 12278961, 
+      "desc": "Human health and social work activities", 
+      "id": "q"
+    }, 
+    {
+      "available": true, 
+      "name": "Cultural Recreation", 
+      "color": "#AA1F61", 
+      "desc": "Libraries, archives, museums and other cultural activities", 
+      "num_emp": 50217, 
+      "keywords": "libraries, archives, museums", 
+      "id": "r91"
+    }, 
+    {
+      "available": true, 
+      "name": "Holding Companies", 
+      "color": "#A4BD99", 
+      "num_emp": 12104, 
+      "desc": "Activities of holding companies", 
+      "id": "k6420"
+    }, 
+    {
+      "available": true, 
+      "name": "Site Preparation", 
+      "color": "#E87600", 
+      "num_emp": 464779, 
+      "desc": "Site preparation", 
+      "id": "f4312"
+    }, 
+    {
+      "available": true, 
+      "name": "Demolition", 
+      "color": "#E87600", 
+      "num_emp": 32672, 
+      "desc": "Demolition", 
+      "id": "f4311"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Social Work", 
+      "color": "#FF0000", 
+      "num_emp": 697581, 
+      "desc": "Other social work activities without accommodation", 
+      "id": "q8890"
+    }, 
+    {
+      "available": true, 
+      "name": "Forestry", 
+      "color": "#105B10", 
+      "num_emp": 997364, 
+      "desc": "Forestry and logging", 
+      "id": "a02"
+    }, 
+    {
+      "available": true, 
+      "name": "Fishing", 
+      "color": "#105B10", 
+      "num_emp": 183592, 
+      "desc": "Fishing and aquaculture", 
+      "id": "a03"
+    }, 
+    {
+      "available": true, 
+      "name": "Agriculture", 
+      "color": "#105B10", 
+      "num_emp": 11199840, 
+      "desc": "Crop and animal production, hunting and related service activities", 
+      "id": "a01"
+    }, 
+    {
+      "available": true, 
+      "name": "Document Preparation", 
+      "color": "#93789E", 
+      "desc": "Photocopying, document preparation and other specialized office support activities", 
+      "num_emp": 212636, 
+      "keywords": "photocopying, copy center, fax, mail, print, office assistance", 
+      "id": "n8219"
+    }, 
+    {
+      "available": true, 
+      "name": "Education", 
+      "color": "#B00000", 
+      "num_emp": 10619274, 
+      "desc": "Education", 
+      "id": "p85"
+    }, 
+    {
+      "name": "Other Business Support", 
+      "color": "#93789E", 
+      "desc": "Business support service activities n.e.c.", 
+      "id": "n829"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Hospitality", 
+      "color": "#FFC41C", 
+      "desc": "Other accommodation", 
+      "num_emp": 66149, 
+      "keywords": "Rooming, boarding houses", 
+      "id": "i5590"
+    }, 
+    {
+      "name": "Call Centers", 
+      "color": "#93789E", 
+      "desc": "Activities of call centres", 
+      "id": "n822"
+    }, 
+    {
+      "name": "Veterinary", 
+      "color": "#e377c2", 
+      "desc": "Veterinary activities", 
+      "id": "m750"
+    }, 
+    {
+      "name": "Military Vehicle Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of military fighting vehicles", 
+      "id": "c3040"
+    }, 
+    {
+      "available": true, 
+      "name": "Building Construction", 
+      "color": "#E87600", 
+      "num_emp": 6449033, 
+      "desc": "Construction of buildings", 
+      "id": "f41"
+    }, 
+    {
+      "available": true, 
+      "name": "Video Rental", 
+      "color": "#93789E", 
+      "desc": "Renting of video tapes and disks", 
+      "num_emp": 48584, 
+      "keywords": "movies, films", 
+      "id": "n7722"
+    }, 
+    {
+      "available": true, 
+      "name": "Specialized Construction", 
+      "color": "#E87600", 
+      "num_emp": 2854753, 
+      "desc": "Specialized construction activities", 
+      "id": "f43"
+    }, 
+    {
+      "available": true, 
+      "name": "Civil Engineering", 
+      "color": "#E87600", 
+      "num_emp": 4936250, 
+      "desc": "Civil engineering", 
+      "id": "f42"
+    }, 
+    {
+      "name": "Fur Clothing Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of articles of fur", 
+      "keywords": "articles", 
+      "id": "c1420"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Cleaning", 
+      "color": "#93789E", 
+      "desc": "Other building and industrial cleaning activities", 
+      "num_emp": 283182, 
+      "keywords": "Exterminating, window, carpet, upholstry, duct, chimney", 
+      "id": "n8129"
+    }, 
+    {
+      "available": true, 
+      "name": "Houseware Rental", 
+      "color": "#93789E", 
+      "num_emp": 142362, 
+      "desc": "Renting and leasing of other personal and household goods", 
+      "id": "n7729"
+    }, 
+    {
+      "available": true, 
+      "name": "Utility Supply", 
+      "color": "#E6F5FF", 
+      "desc": "Electricity, gas, steam and air conditioning supply", 
+      "num_emp": 1006267, 
+      "keywords": "electricity, gas, steam, air conditioning", 
+      "id": "d35"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Human Resources", 
+      "color": "#93789E", 
+      "num_emp": 260528, 
+      "desc": "Other human resources provision", 
+      "id": "n7830"
+    }, 
+    {
+      "name": "Waste Collection", 
+      "color": "#2F2F6D", 
+      "desc": "Waste collection", 
+      "id": "e381"
+    }, 
+    {
+      "name": "Waste Disposal", 
+      "color": "#2F2F6D", 
+      "desc": "Waste treatment and disposal", 
+      "keywords": "treatment", 
+      "id": "e382"
+    }, 
+    {
+      "name": "Materials Recovery", 
+      "color": "#2F2F6D", 
+      "desc": "Materials recovery", 
+      "keywords": "recycling, sorting, dismantling, scrap", 
+      "id": "e383"
+    }, 
+    {
+      "available": true, 
+      "name": "Meat processing", 
+      "color": "#5E1F05", 
+      "num_emp": 2988467, 
+      "desc": "Processing and preserving of meat", 
+      "id": "c1010"
+    }, 
+    {
+      "available": true, 
+      "name": "Educational Support", 
+      "color": "#B00000", 
+      "num_emp": 157447, 
+      "desc": "Educational support activities", 
+      "id": "p8550"
+    }, 
+    {
+      "available": true, 
+      "name": "Freight Rail Transport", 
+      "color": "#9edae5", 
+      "desc": "Freight rail transport", 
+      "num_emp": 170970, 
+      "keywords": "train", 
+      "id": "h4912"
+    }, 
+    {
+      "available": true, 
+      "name": "Passenger Rail Transport", 
+      "color": "#9edae5", 
+      "desc": "Passenger rail transport, interurban", 
+      "num_emp": 240112, 
+      "keywords": "subway, commuter rail, train", 
+      "id": "h4911"
+    }, 
+    {
+      "available": true, 
+      "name": "Sporting Goods Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of sporting equipment in specialized stores", 
+      "num_emp": 200581, 
+      "keywords": "boating, water sports", 
+      "id": "g4763"
+    }, 
+    {
+      "available": true, 
+      "name": "Music and Video Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of music and video recordings in specialized stores", 
+      "num_emp": 30947, 
+      "keywords": "entertainment, film", 
+      "id": "g4762"
+    }, 
+    {
+      "available": true, 
+      "name": "Paper Goods Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of books, newspapers and stationary in specialized stores", 
+      "num_emp": 983405, 
+      "keywords": "office supplies, stationary, newspapers, bookstore", 
+      "id": "g4761"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Reservation Services", 
+      "color": "#93789E", 
+      "desc": "Other reservation service and related activities", 
+      "num_emp": 12684, 
+      "keywords": "tourism promotion, tourist bureau, information kiosks, development programs", 
+      "id": "n7990"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Food Service", 
+      "color": "#FFC41C", 
+      "num_emp": 214849, 
+      "desc": "Other food service activities", 
+      "id": "i5629"
+    }, 
+    {
+      "available": true, 
+      "name": "Toy Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of games and toys in specialized stores", 
+      "num_emp": 92958, 
+      "keywords": "games, toy store", 
+      "id": "g4764"
+    }, 
+    {
+      "available": true, 
+      "name": "Materials Recovery", 
+      "color": "#2F2F6D", 
+      "desc": "Materials recovery", 
+      "num_emp": 199837, 
+      "keywords": "recycling, sorting, dismantling, scrap", 
+      "id": "e3830"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 296601, 
+      "desc": "Other manufacturing n.e.c.", 
+      "id": "c3290"
+    }, 
+    {
+      "available": true, 
+      "name": "Auto Parts Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of parts and accessories for motor vehicles", 
+      "num_emp": 2221946, 
+      "keywords": "engine parts, brakes, transmission, power train", 
+      "id": "c2930"
+    }, 
+    {
+      "available": true, 
+      "name": "Air Transport", 
+      "color": "#9edae5", 
+      "desc": "Air transport", 
+      "num_emp": 423234, 
+      "keywords": "plane travel, flying, freight", 
+      "id": "h51"
+    }, 
+    {
+      "available": true, 
+      "name": "Storage and Transportation Support", 
+      "color": "#9edae5", 
+      "desc": "Warehousing and support activities for transportation", 
+      "num_emp": 2000273, 
+      "keywords": "warehousing", 
+      "id": "h52"
+    }, 
+    {
+      "available": true, 
+      "name": "Postal and Courier Activities", 
+      "color": "#9edae5", 
+      "desc": "Postal and courier activities", 
+      "num_emp": 1261646, 
+      "keywords": "mail", 
+      "id": "h53"
+    }, 
+    {
+      "available": true, 
+      "name": "Music Production", 
+      "color": "#57D200", 
+      "desc": "Sound recording and music publishing activities", 
+      "num_emp": 25081, 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j5920"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Residential Care", 
+      "color": "#FF0000", 
+      "desc": "Other residential care activities", 
+      "num_emp": 31983, 
+      "keywords": "orphanages, halfway houses", 
+      "id": "q8790"
+    }, 
+    {
+      "name": "Financial Support", 
+      "color": "#A4BD99", 
+      "desc": "Activities auxiliary to financial service activities, except insurance and pension funding", 
+      "id": "k661"
+    }, 
+    {
+      "available": true, 
+      "name": "Office Adminstration", 
+      "color": "#93789E", 
+      "num_emp": 5051681, 
+      "desc": "Office administrative, office support and other business support activities", 
+      "id": "n82"
+    }, 
+    {
+      "available": true, 
+      "name": "Real Estate", 
+      "color": "#408E60", 
+      "num_emp": 657137, 
+      "desc": "Real estate activities", 
+      "id": "l"
+    }, 
+    {
+      "available": true, 
+      "name": "Weapons and Ammo Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of weapons and ammunition", 
+      "num_emp": 58056, 
+      "keywords": "ammunition, bullets", 
+      "id": "c2520"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Retail", 
+      "color": "#17becf", 
+      "num_emp": 148400, 
+      "desc": "Other retail sale not in stores, stalls or markets", 
+      "id": "g4799"
+    }, 
+    {
+      "available": true, 
+      "name": "Hunting", 
+      "color": "#105B10", 
+      "num_emp": 159, 
+      "desc": "Hunting, trapping and related service activities", 
+      "id": "a0170"
+    }, 
+    {
+      "available": true, 
+      "name": "Private Security", 
+      "color": "#93789E", 
+      "desc": "Private security activities", 
+      "num_emp": 3726806, 
+      "keywords": "guards", 
+      "id": "n8010"
+    }, 
+    {
+      "available": true, 
+      "name": "Contract Wholesale", 
+      "color": "#17becf", 
+      "num_emp": 590331, 
+      "desc": "Wholesale on a fee or contract basis", 
+      "id": "g4610"
+    }, 
+    {
+      "name": "Financial Entities", 
+      "color": "#A4BD99", 
+      "desc": "Trusts, funds and similar financial entities", 
+      "keywords": "money maket, funds, trusts, bonds", 
+      "id": "k643"
+    }, 
+    {
+      "name": "Holding Companies", 
+      "color": "#A4BD99", 
+      "desc": "Activities of holding companies", 
+      "id": "k642"
+    }, 
+    {
+      "name": "Banking", 
+      "color": "#A4BD99", 
+      "desc": "Monetary intermediation", 
+      "id": "k641"
+    }, 
+    {
+      "name": "Other Financial", 
+      "color": "#A4BD99", 
+      "desc": "Other financial service activities, except insurance and pension funding activities", 
+      "id": "k649"
+    }, 
+    {
+      "available": true, 
+      "name": "Computer Programming", 
+      "color": "#57D200", 
+      "num_emp": 1323504, 
+      "desc": "Computer programming, consultancy and related activities", 
+      "id": "j62"
+    }, 
+    {
+      "name": "Other Reservation Services", 
+      "color": "#93789E", 
+      "desc": "Other reservation service and related activities", 
+      "keywords": "tourism promotion, tourist bureau, information kiosks, development programs", 
+      "id": "n799"
+    }, 
+    {
+      "available": true, 
+      "name": "Software Publishing", 
+      "color": "#57D200", 
+      "num_emp": 79179, 
+      "desc": "Software publishing", 
+      "id": "j5820"
+    }, 
+    {
+      "name": "Travel Agency and Tour Operator", 
+      "color": "#93789E", 
+      "desc": "Travel agency and tour operator activities", 
+      "id": "n791"
+    }, 
+    {
+      "available": true, 
+      "name": "Computer Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 288478, 
+      "desc": "Manufacture of computers and peripheral equipment", 
+      "id": "c2620"
+    }, 
+    {
+      "available": true, 
+      "name": "Musical Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 20125, 
+      "desc": "Manufacture of musical instruments", 
+      "id": "c3220"
+    }, 
+    {
+      "available": true, 
+      "name": "Telecom", 
+      "color": "#57D200", 
+      "num_emp": 1064462, 
+      "desc": "Telecommunications", 
+      "id": "j61"
+    }, 
+    {
+      "available": true, 
+      "name": "Uranium and Thorium Ore Mining", 
+      "color": "#330000", 
+      "num_emp": 33744, 
+      "desc": "Mining of uranium and thorium ores", 
+      "id": "b0721"
+    }, 
+    {
+      "available": true, 
+      "name": "Hand Tools and Hardware Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of cutlery, hand tools and general hardware", 
+      "num_emp": 440174, 
+      "keywords": "cutlery, knives", 
+      "id": "c2593"
+    }, 
+    {
+      "available": true, 
+      "name": "Furniture Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 1955755, 
+      "desc": "Manufacture of furniture", 
+      "id": "c31"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Transport Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 609498, 
+      "desc": "Manufacture of other transport equipment", 
+      "id": "c30"
+    }, 
+    {
+      "available": true, 
+      "name": "Machinery Repair and Installation", 
+      "color": "#5E1F05", 
+      "desc": "Repair and installation of machinery and equipment", 
+      "num_emp": 821134, 
+      "keywords": "machinery, equipment", 
+      "id": "c33"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 772952, 
+      "desc": "Other manufacturing", 
+      "id": "c32"
+    }, 
+    {
+      "available": true, 
+      "name": "Plastic and Rubber Chemical Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 96785, 
+      "desc": "Manufacture of plastics and synthetic rubber in primary forms", 
+      "id": "c2013"
+    }, 
+    {
+      "available": true, 
+      "name": "Nitrogen Compound Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of fertilizers and nitrogen compounds", 
+      "num_emp": 179792, 
+      "keywords": "fertilizer", 
+      "id": "c2012"
+    }, 
+    {
+      "available": true, 
+      "name": "Basic Chemical Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 998703, 
+      "desc": "Manufacture of basic chemicals", 
+      "id": "c2011"
+    }, 
+    {
+      "available": true, 
+      "name": "Extraterritorial Activities", 
+      "color": "#4C4C4C", 
+      "num_emp": 38272, 
+      "desc": "Activities of extraterritorial organizations and bodies", 
+      "id": "u99"
+    }, 
+    {
+      "name": "Specialized Machine Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of special-purpose machinery", 
+      "id": "c282"
+    }, 
+    {
+      "name": "General Machine Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of general-purpose machinery", 
+      "keywords": "machinery", 
+      "id": "c281"
+    }, 
+    {
+      "available": true, 
+      "name": "Libraries and Museums", 
+      "color": "#AA1F61", 
+      "desc": "Library and archives activities", 
+      "num_emp": 15992, 
+      "keywords": "libraries, archives", 
+      "id": "r9101"
+    }, 
+    {
+      "name": "Other Mining and quarrying", 
+      "color": "#330000", 
+      "desc": "Mining and quarrying n.e.c.", 
+      "id": "b089"
+    }, 
+    {
+      "available": true, 
+      "name": "Sawmilling", 
+      "color": "#5E1F05", 
+      "desc": "Sawmilling and planing of wood", 
+      "num_emp": 861767, 
+      "keywords": "planing, wood, decking, edging", 
+      "id": "c1610"
+    }, 
+    {
+      "name": "Quarrying", 
+      "color": "#330000", 
+      "desc": "Quarrying of stone, sand and clay", 
+      "keywords": "stone, sand, clay", 
+      "id": "b081"
+    }, 
+    {
+      "name": "Beverage Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of beverages", 
+      "id": "c110"
+    }, 
+    {
+      "available": true, 
+      "name": "Fish processing", 
+      "color": "#5E1F05", 
+      "num_emp": 113253, 
+      "desc": "Processing and preserving of fish, crustaceans and molluscs", 
+      "id": "c1020"
+    }, 
+    {
+      "available": true, 
+      "name": "Wholesale and Retail", 
+      "color": "#17becf", 
+      "desc": "Wholesale and retail trade; repair of motor vehicles and motorcycles", 
+      "num_emp": 57760725, 
+      "keywords": "selling", 
+      "id": "g"
+    }, 
+    {
+      "name": "Gambling", 
+      "color": "#AA1F61", 
+      "desc": "Gambling and betting activities", 
+      "keywords": "casino, lottery, betting", 
+      "id": "r920"
+    }, 
+    {
+      "available": true, 
+      "name": "Tobacco Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of tobacco products", 
+      "num_emp": 138563, 
+      "keywords": "cigarettes, cigars", 
+      "id": "c1200"
+    }, 
+    {
+      "name": "Ocean Transport", 
+      "color": "#9edae5", 
+      "desc": "Sea and coastal water transport", 
+      "id": "h501"
+    }, 
+    {
+      "name": "Inland Water Transport", 
+      "color": "#9edae5", 
+      "desc": "Inland water transport", 
+      "keywords": "ferries", 
+      "id": "h502"
+    }, 
+    {
+      "available": true, 
+      "name": "Precision Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of measuring, testing, navigating and control equipment", 
+      "num_emp": 152593, 
+      "keywords": "gps, multimeter, navigation, guidance instruments", 
+      "id": "c2651"
+    }, 
+    {
+      "available": true, 
+      "name": "Time-based Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of watches and clocks", 
+      "num_emp": 20668, 
+      "keywords": "clocks", 
+      "id": "c2652"
+    }, 
+    {
+      "available": true, 
+      "name": "Electrical Power Device Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 431132, 
+      "desc": "Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus", 
+      "id": "c2710"
+    }, 
+    {
+      "name": "Residential Elderly Care", 
+      "color": "#FF0000", 
+      "desc": "Residential care activities for the elderly and disabled", 
+      "keywords": "hospice", 
+      "id": "q873"
+    }, 
+    {
+      "available": true, 
+      "name": "Lease and Sale Real Estate", 
+      "color": "#408E60", 
+      "num_emp": 296979, 
+      "desc": "Real estate activities with own or leased property", 
+      "id": "l6810"
+    }, 
+    {
+      "available": true, 
+      "name": "Home Furnishing Repair", 
+      "color": "#c7c7c7", 
+      "desc": "Repair of furniture and home furnishings", 
+      "num_emp": 14452, 
+      "keywords": "home furnishings", 
+      "id": "s9524"
+    }, 
+    {
+      "name": "Other Telecom", 
+      "color": "#57D200", 
+      "desc": "Other telecommunications activities", 
+      "keywords": "satellite tracking, telemetry, VoIP services", 
+      "id": "j619"
+    }, 
+    {
+      "available": true, 
+      "name": "Financial Market Administration", 
+      "color": "#A4BD99", 
+      "num_emp": 11516, 
+      "desc": "Administration of financial markets", 
+      "id": "k6611"
+    }, 
+    {
+      "name": "Satellite Telecom", 
+      "color": "#57D200", 
+      "desc": "Satellite telecommunications activities", 
+      "id": "j613"
+    }, 
+    {
+      "name": "Wireless Telecom", 
+      "color": "#57D200", 
+      "desc": "Wireless telecommunications activities", 
+      "id": "j612"
+    }, 
+    {
+      "name": "Other Specialized Construction", 
+      "color": "#E87600", 
+      "desc": "Other specialized construction activities", 
+      "id": "f439"
+    }, 
+    {
+      "name": "Motorcycle Sales and Repair", 
+      "color": "#17becf", 
+      "desc": "Sale, maintenance and repair of motorcycles and related parts and accessories", 
+      "id": "g454"
+    }, 
+    {
+      "name": "Glass Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of glass and glass products", 
+      "id": "c231"
+    }, 
+    {
+      "name": "Auto Repair", 
+      "color": "#17becf", 
+      "desc": "Maintenance and repair of motor vehicles", 
+      "keywords": "cars, motor vehicles, maintenance", 
+      "id": "g452"
+    }, 
+    {
+      "name": "Auto Parts Sales", 
+      "color": "#17becf", 
+      "desc": "Sale of motor vehicle parts and accessories", 
+      "keywords": "cars, motor vehicles", 
+      "id": "g453"
+    }, 
+    {
+      "name": "Auto Sales", 
+      "color": "#17becf", 
+      "desc": "Sale of motor vehicles", 
+      "keywords": "cars, trucks, dealers, dealerships, motor vehicles", 
+      "id": "g451"
+    }, 
+    {
+      "name": "Other Non-metal Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of non-metallic mineral products n.e.c.", 
+      "id": "c239"
+    }, 
+    {
+      "available": true, 
+      "name": "Dairy Processing", 
+      "color": "#5E1F05", 
+      "num_emp": 798942, 
+      "desc": "Manufacture of dairy products", 
+      "id": "c1050"
+    }, 
+    {
+      "available": true, 
+      "name": "Satellite Telecom", 
+      "color": "#57D200", 
+      "num_emp": 16268, 
+      "desc": "Satellite telecommunications activities", 
+      "id": "j6130"
+    }, 
+    {
+      "available": true, 
+      "name": "Photography", 
+      "color": "#e377c2", 
+      "desc": "Photographic activities", 
+      "num_emp": 104747, 
+      "keywords": "journalists, labs, one-hour, microfilm", 
+      "id": "m7420"
+    }, 
+    {
+      "name": "IP Leasing", 
+      "color": "#93789E", 
+      "desc": "Leasing of intellectual property and similar products, except copyrighted works", 
+      "id": "n774"
+    }, 
+    {
+      "available": true, 
+      "name": "Non-life Insurance", 
+      "color": "#A4BD99", 
+      "num_emp": 637698, 
+      "desc": "Non-life insurance", 
+      "id": "k6512"
+    }, 
+    {
+      "available": true, 
+      "name": "Motor Vehicle Sales and Repair", 
+      "color": "#17becf", 
+      "desc": "Wholesale and retail trade and repair of motor vehicles and motorcycles", 
+      "num_emp": 6275402, 
+      "keywords": "auto", 
+      "id": "g45"
+    }, 
+    {
+      "available": true, 
+      "name": "Wholesale", 
+      "color": "#17becf", 
+      "num_emp": 9386996, 
+      "desc": "Wholesale trade, except of motor vehicles and motorcycles", 
+      "id": "g46"
+    }, 
+    {
+      "available": true, 
+      "name": "Retail", 
+      "color": "#17becf", 
+      "num_emp": 42098327, 
+      "desc": "Retail trade, except of motor vehicles and motorcycles", 
+      "id": "g47"
+    }, 
+    {
+      "available": true, 
+      "name": "Campground", 
+      "color": "#FFC41C", 
+      "num_emp": 3168, 
+      "desc": "Camping grounds, recreational vehicle parks and trailer parks", 
+      "id": "i5520"
+    }, 
+    {
+      "name": "State Administration", 
+      "color": "#752277", 
+      "desc": "Administration of the State and the economic and social policy of the community", 
+      "id": "o841"
+    }, 
+    {
+      "name": "Household Employment", 
+      "color": "#FFAEAE", 
+      "desc": "Activities of households as employers of domestic personnel", 
+      "keywords": "maids, babysitters, caretakers", 
+      "id": "t970"
+    }, 
+    {
+      "name": "Car Rental", 
+      "color": "#93789E", 
+      "desc": "Renting and leasing of motor vehicles", 
+      "id": "n771"
+    }, 
+    {
+      "name": "Other Membership Organizations", 
+      "color": "#c7c7c7", 
+      "desc": "Activities of other membership organizations", 
+      "id": "s949"
+    }, 
+    {
+      "available": true, 
+      "name": "Utility Construction", 
+      "color": "#E87600", 
+      "num_emp": 1616889, 
+      "desc": "Construction of utility projects", 
+      "id": "f4220"
+    }, 
+    {
+      "name": "Sporting and Houseware Rental", 
+      "color": "#93789E", 
+      "desc": "Renting and leasing of personal and household goods", 
+      "id": "n772"
+    }, 
+    {
+      "name": "Professional Membership Organizations", 
+      "color": "#c7c7c7", 
+      "desc": "Activities of business, employers and professional membership organizations", 
+      "keywords": "business, employers", 
+      "id": "s941"
+    }, 
+    {
+      "name": "Trade Unions", 
+      "color": "#c7c7c7", 
+      "desc": "Activities of trade unions", 
+      "id": "s942"
+    }, 
+    {
+      "available": true, 
+      "name": "Life Insurance", 
+      "color": "#A4BD99", 
+      "num_emp": 84186, 
+      "desc": "Life insurance", 
+      "id": "k6511"
+    }, 
+    {
+      "available": true, 
+      "name": "Sports Education", 
+      "color": "#B00000", 
+      "desc": "Sports and recreation education", 
+      "num_emp": 352150, 
+      "keywords": "recreation", 
+      "id": "p8541"
+    }, 
+    {
+      "name": "Social Sciences R&D", 
+      "color": "#e377c2", 
+      "desc": "Research and experimental development on social sciences and humanities", 
+      "keywords": "humanities", 
+      "id": "m722"
+    }, 
+    {
+      "name": "Secondary Education", 
+      "color": "#B00000", 
+      "desc": "Secondary education", 
+      "keywords": "high school, technical, vocational", 
+      "id": "p852"
+    }, 
+    {
+      "name": "Water Supply", 
+      "color": "#2F2F6D", 
+      "desc": "Water collection, treatment and supply", 
+      "id": "e360"
+    }, 
+    {
+      "name": "Natural Sciences R&D", 
+      "color": "#e377c2", 
+      "desc": "Research and experimental development on natural sciences and engineering", 
+      "id": "m721"
+    }, 
+    {
+      "available": true, 
+      "name": "Ship Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Building of ships and floating structures", 
+      "num_emp": 194115, 
+      "keywords": "floating structures", 
+      "id": "c3011"
+    }, 
+    {
+      "available": true, 
+      "name": "Sport Boat Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 19074, 
+      "desc": "Building of pleasure and sporting boats", 
+      "id": "c3012"
+    }, 
+    {
+      "name": "Other Education", 
+      "color": "#B00000", 
+      "desc": "Other education", 
+      "id": "p854"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Chemical Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other chemical products n.e.c.", 
+      "num_emp": 786166, 
+      "keywords": "Fatty acids, synthetic essential oils", 
+      "id": "c2029"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Sports Activities", 
+      "color": "#AA1F61", 
+      "desc": "Other sports activities", 
+      "num_emp": 44022, 
+      "keywords": "driving ranges, skeet shooting facilities, billiard rooms", 
+      "id": "r9319"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Health", 
+      "color": "#FF0000", 
+      "num_emp": 3494178, 
+      "desc": "Other human health activities", 
+      "id": "q8690"
+    }, 
+    {
+      "available": true, 
+      "name": "Mining and quarrying", 
+      "color": "#330000", 
+      "num_emp": 1520987, 
+      "desc": "Mining and quarrying", 
+      "id": "b"
+    }, 
+    {
+      "available": true, 
+      "name": "Public Sector", 
+      "color": "#752277", 
+      "desc": "Public administration and defense; compulsory social security", 
+      "num_emp": 67308316, 
+      "keywords": "administration, defense, social security", 
+      "id": "o84"
+    }, 
+    {
+      "available": true, 
+      "name": "Radio Broadcasting", 
+      "color": "#57D200", 
+      "desc": "Radio broadcasting", 
+      "num_emp": 290327, 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j6010"
+    }, 
+    {
+      "available": true, 
+      "name": "Passenger Ocean Transport", 
+      "color": "#9edae5", 
+      "desc": "Sea and coastal passenger water transport", 
+      "num_emp": 2991, 
+      "keywords": "cruises", 
+      "id": "h5011"
+    }, 
+    {
+      "available": true, 
+      "name": "Arts, Entertainment and Recreation", 
+      "color": "#AA1F61", 
+      "num_emp": 1012139, 
+      "desc": "Arts, entertainment and recreation", 
+      "id": "r"
+    }, 
+    {
+      "name": "Building Completion", 
+      "color": "#E87600", 
+      "desc": "Building completion and finishing", 
+      "keywords": "stucco, drywall, glass", 
+      "id": "f433"
+    }, 
+    {
+      "name": "Software Publishing", 
+      "color": "#57D200", 
+      "desc": "Software publishing", 
+      "id": "j582"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Civil Engineering Construction", 
+      "color": "#E87600", 
+      "num_emp": 1512229, 
+      "desc": "Construction of other civil engineering projects", 
+      "id": "f4290"
+    }, 
+    {
+      "available": true, 
+      "name": "Tire Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 316877, 
+      "desc": "Manufacture of rubber tyres and tubes; retreading and rebuilding of rubber tyres", 
+      "id": "c2211"
+    }, 
+    {
+      "available": true, 
+      "name": "Freight Ocean Transport", 
+      "color": "#9edae5", 
+      "num_emp": 173443, 
+      "desc": "Sea and coastal freight water transport", 
+      "id": "h5012"
+    }, 
+    {
+      "name": "Other Social Work", 
+      "color": "#FF0000", 
+      "desc": "Other social work activities without accommodation", 
+      "id": "q889"
+    }, 
+    {
+      "available": true, 
+      "name": "Residential Elderly Care", 
+      "color": "#FF0000", 
+      "desc": "Residential care activities for the elderly and disabled", 
+      "num_emp": 422347, 
+      "keywords": "hospice", 
+      "id": "q8730"
+    }, 
+    {
+      "name": "Other Transport Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of transport equipment n.e.c.", 
+      "id": "c309"
+    }, 
+    {
+      "name": "Military Vehicle Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of military fighting vehicles", 
+      "id": "c304"
+    }, 
+    {
+      "name": "Train Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of railway locomotives and rolling stock", 
+      "keywords": "rail, locomotive", 
+      "id": "c302"
+    }, 
+    {
+      "name": "Aircraft Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of air and spacecraft and related machinery", 
+      "keywords": "planes, spacecraft", 
+      "id": "c303"
+    }, 
+    {
+      "name": "Watercraft Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Building of ships and boats", 
+      "keywords": "boats, ships", 
+      "id": "c301"
+    }, 
+    {
+      "available": true, 
+      "name": "Arts and Entertainment", 
+      "color": "#AA1F61", 
+      "desc": "Creative, arts and entertainment activities", 
+      "num_emp": 146137, 
+      "keywords": "theater, dance, musical, performing arts, festivals, festivals, comedy, acting, writing", 
+      "id": "r9000"
+    }, 
+    {
+      "available": true, 
+      "name": "Fund Management", 
+      "color": "#A4BD99", 
+      "num_emp": 20523, 
+      "desc": "Fund management activities", 
+      "id": "k6630"
+    }, 
+    {
+      "available": true, 
+      "name": "Cattle and buffaloes", 
+      "color": "#105B10", 
+      "num_emp": 2638562, 
+      "desc": "Raising of cattle and buffaloes", 
+      "id": "a0141"
+    }, 
+    {
+      "name": "Camels", 
+      "color": "#105B10", 
+      "desc": "Raising of camels and camelids", 
+      "id": "a0143"
+    }, 
+    {
+      "available": true, 
+      "name": "Horses", 
+      "color": "#105B10", 
+      "num_emp": 29475, 
+      "desc": "Raising of horses and other equines", 
+      "id": "a0142"
+    }, 
+    {
+      "available": true, 
+      "name": "Pigs", 
+      "color": "#105B10", 
+      "num_emp": 162925, 
+      "desc": "Raising of swine/pigs", 
+      "id": "a0145"
+    }, 
+    {
+      "available": true, 
+      "name": "Sheep and goats", 
+      "color": "#105B10", 
+      "num_emp": 32289, 
+      "desc": "Raising of sheep and goats", 
+      "id": "a0144"
+    }, 
+    {
+      "available": true, 
+      "name": "Water Supply", 
+      "color": "#2F2F6D", 
+      "num_emp": 1044822, 
+      "desc": "Water collection, treatment and supply", 
+      "id": "e3600"
+    }, 
+    {
+      "available": true, 
+      "name": "Other animals", 
+      "color": "#105B10", 
+      "num_emp": 213412, 
+      "desc": "Raising of other animals", 
+      "id": "a0149"
+    }, 
+    {
+      "available": true, 
+      "name": "Tobacco Retail", 
+      "color": "#17becf", 
+      "num_emp": 15076, 
+      "desc": "Retail sale of tobacco products in specialized stores", 
+      "id": "g4723"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Household Goods Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of other household goods", 
+      "num_emp": 1731420, 
+      "keywords": "china, glassware, appliance, umbrellas, home entertainment", 
+      "id": "g4649"
+    }, 
+    {
+      "available": true, 
+      "name": "Specialized Food Retail", 
+      "color": "#17becf", 
+      "num_emp": 3496897, 
+      "desc": "Retail sale of food in specialized stores", 
+      "id": "g4721"
+    }, 
+    {
+      "name": "Leather Footwear Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of footwear", 
+      "id": "c152"
+    }, 
+    {
+      "name": "Leather Processing and Production", 
+      "color": "#5E1F05", 
+      "desc": "Tanning and dressing of leather; manufacture of luggage, handbags, saddlery and harness; dressing and dyeing of fur", 
+      "id": "c151"
+    }, 
+    {
+      "name": "Community Services", 
+      "color": "#752277", 
+      "desc": "Provision of services to the community as a whole", 
+      "id": "o842"
+    }, 
+    {
+      "available": true, 
+      "name": "Investigation", 
+      "color": "#93789E", 
+      "desc": "Investigation activities", 
+      "num_emp": 10199, 
+      "keywords": "PI, detective", 
+      "id": "n8030"
+    }, 
+    {
+      "name": "Postal Activities", 
+      "color": "#9edae5", 
+      "desc": "Postal activities", 
+      "keywords": "mail", 
+      "id": "h531"
+    }, 
+    {
+      "name": "Courier Activities", 
+      "color": "#9edae5", 
+      "desc": "Courier activities", 
+      "keywords": "messengers, motoboys, bike messengers", 
+      "id": "h532"
+    }, 
+    {
+      "available": true, 
+      "name": "Auto Sales", 
+      "color": "#17becf", 
+      "desc": "Sale of motor vehicles", 
+      "num_emp": 1753805, 
+      "keywords": "cars, trucks, dealers, dealerships, motor vehicles", 
+      "id": "g4510"
+    }, 
+    {
+      "available": true, 
+      "name": "Movie Projection", 
+      "color": "#57D200", 
+      "desc": "Motion picture projection activities", 
+      "num_emp": 79535, 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j5914"
+    }, 
+    {
+      "available": true, 
+      "name": "Movie and TV Post-Production", 
+      "color": "#57D200", 
+      "desc": "Motion picture, video and television programme post-production activities", 
+      "num_emp": 6855, 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j5912"
+    }, 
+    {
+      "available": true, 
+      "name": "Movie and TV Distribution", 
+      "color": "#57D200", 
+      "desc": "Motion picture, video and television programme distribution activities", 
+      "num_emp": 21118, 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j5913"
+    }, 
+    {
+      "available": true, 
+      "name": "Movie and TV Production", 
+      "color": "#57D200", 
+      "desc": "Motion picture, video and television programme production activities", 
+      "num_emp": 49237, 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j5911"
+    }, 
+    {
+      "available": true, 
+      "name": "Domestic Applicance Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of domestic appliances", 
+      "num_emp": 304302, 
+      "keywords": "household, kitchen", 
+      "id": "c2750"
+    }, 
+    {
+      "name": "Higher Education", 
+      "color": "#B00000", 
+      "desc": "Higher education", 
+      "keywords": "college, university", 
+      "id": "p853"
+    }, 
+    {
+      "available": true, 
+      "name": "Web Hosting", 
+      "color": "#57D200", 
+      "num_emp": 616065, 
+      "desc": "Data processing, hosting and related activities", 
+      "id": "j6311"
+    }, 
+    {
+      "available": true, 
+      "name": "Websites", 
+      "color": "#57D200", 
+      "num_emp": 33936, 
+      "desc": "Web portals", 
+      "id": "j6312"
+    }, 
+    {
+      "available": true, 
+      "name": "Professional, Scientific and Technical", 
+      "color": "#e377c2", 
+      "num_emp": 5699715, 
+      "desc": "Professional, scientific and technical activities", 
+      "id": "m"
+    }, 
+    {
+      "name": "Primary Education", 
+      "color": "#B00000", 
+      "desc": "Pre-primary and primary education", 
+      "keywords": "k-8, elementary, middle, school, kindergarden, pre-school", 
+      "id": "p851"
+    }, 
+    {
+      "available": true, 
+      "name": "Clothing Production Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of machinery for textile, apparel and leather production", 
+      "num_emp": 56993, 
+      "keywords": "dry cleaning, laundry, looms", 
+      "id": "c2826"
+    }, 
+    {
+      "name": "Educational Support", 
+      "color": "#B00000", 
+      "desc": "Educational support activities", 
+      "id": "p855"
+    }, 
+    {
+      "available": true, 
+      "name": "Electronic Components Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 329259, 
+      "desc": "Manufacture of electronic components and boards", 
+      "id": "c2610"
+    }, 
+    {
+      "available": true, 
+      "name": "Sports Facilities", 
+      "color": "#AA1F61", 
+      "num_emp": 175486, 
+      "desc": "Operation of sports facilities", 
+      "id": "r9311"
+    }, 
+    {
+      "name": "Electric Lighting Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of electric lighting equipment", 
+      "id": "c274"
+    }, 
+    {
+      "name": "Domestic Applicance Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of domestic appliances", 
+      "keywords": "household, kitchen", 
+      "id": "c275"
+    }, 
+    {
+      "name": "Battery Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of batteries and accumulators", 
+      "keywords": "accumulators", 
+      "id": "c272"
+    }, 
+    {
+      "name": "Wire Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of wiring and wiring devices", 
+      "id": "c273"
+    }, 
+    {
+      "name": "Electrical Power Device Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of electric motors, generators, transformers and electricity distribution and control apparatus", 
+      "id": "c271"
+    }, 
+    {
+      "name": "Accounting", 
+      "color": "#e377c2", 
+      "desc": "Accounting, bookkeeping and auditing activities; tax consultancy", 
+      "id": "m692"
+    }, 
+    {
+      "available": true, 
+      "name": "Amusement Parks", 
+      "color": "#AA1F61", 
+      "desc": "Activities of amusement parks and theme parks", 
+      "num_emp": 36295, 
+      "keywords": "theme parks, carnivals", 
+      "id": "r9321"
+    }, 
+    {
+      "name": "Law Offices", 
+      "color": "#e377c2", 
+      "desc": "Legal activities", 
+      "id": "m691"
+    }, 
+    {
+      "name": "Other Electrical Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other electrical equipment", 
+      "id": "c279"
+    }, 
+    {
+      "name": "Hard Coal Mining", 
+      "color": "#330000", 
+      "desc": "Mining of hard coal", 
+      "id": "b051"
+    }, 
+    {
+      "name": "Lignite Mining", 
+      "color": "#330000", 
+      "desc": "Mining of lignite", 
+      "id": "b052"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Computer Services", 
+      "color": "#57D200", 
+      "num_emp": 509574, 
+      "desc": "Other information technology and computer service activities", 
+      "id": "j6209"
+    }, 
+    {
+      "name": "Other Health", 
+      "color": "#FF0000", 
+      "desc": "Other human health activities", 
+      "id": "q869"
+    }, 
+    {
+      "available": true, 
+      "name": "Public Sector", 
+      "color": "#752277", 
+      "desc": "Public administration and defense; compulsory social security", 
+      "num_emp": 67308316, 
+      "keywords": "administration, defense, social security", 
+      "id": "o"
+    }, 
+    {
+      "name": "Remediation Activities", 
+      "color": "#2F2F6D", 
+      "desc": "Remediation activities and other waste management services", 
+      "id": "e390"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Wood Product Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 334897, 
+      "desc": "Manufacture of other products of wood; manufacture of articles of cork, straw and plaiting materials", 
+      "id": "c1629"
+    }, 
+    {
+      "available": true, 
+      "name": "Veterinary", 
+      "color": "#e377c2", 
+      "num_emp": 37632, 
+      "desc": "Veterinary activities", 
+      "id": "m7500"
+    }, 
+    {
+      "available": true, 
+      "name": "Wood Panel Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of veneer sheets and wood-based panels", 
+      "num_emp": 615491, 
+      "keywords": "veneer", 
+      "id": "c1621"
+    }, 
+    {
+      "available": true, 
+      "name": "Wooden Container Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 108641, 
+      "desc": "Manufacture of wooden containers", 
+      "id": "c1623"
+    }, 
+    {
+      "available": true, 
+      "name": "Lumber Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 152403, 
+      "desc": "Manufacture of builders' carpentry and joinery", 
+      "id": "c1622"
+    }, 
+    {
+      "available": true, 
+      "name": "Central Banking", 
+      "color": "#A4BD99", 
+      "num_emp": 33168, 
+      "desc": "Central banking", 
+      "id": "k6411"
+    }, 
+    {
+      "available": true, 
+      "name": "Battery Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of batteries and accumulators", 
+      "num_emp": 74703, 
+      "keywords": "accumulators", 
+      "id": "c2720"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Banking", 
+      "color": "#A4BD99", 
+      "num_emp": 4046567, 
+      "desc": "Other monetary intermediation", 
+      "id": "k6419"
+    }, 
+    {
+      "name": "Household Goods and Services", 
+      "color": "#FFAEAE", 
+      "desc": "Undifferentiated goods- and services-producing activities of private households for own use", 
+      "id": "t98"
+    }, 
+    {
+      "available": true, 
+      "name": "Household Employment", 
+      "color": "#FFAEAE", 
+      "desc": "Activities of households as employers of domestic personnel", 
+      "num_emp": 91142, 
+      "keywords": "maids, babysitters, caretakers", 
+      "id": "t97"
+    }, 
+    {
+      "available": true, 
+      "name": "Fee-based Real Estate", 
+      "color": "#408E60", 
+      "num_emp": 360158, 
+      "desc": "Real estate activities on a fee or contract basis", 
+      "id": "l6820"
+    }, 
+    {
+      "available": true, 
+      "name": "Knitted Clothing Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of knitted and crocheted apparel", 
+      "num_emp": 256631, 
+      "keywords": "apparel, crocheted", 
+      "id": "c1430"
+    }, 
+    {
+      "available": true, 
+      "name": "Temp Agency", 
+      "color": "#93789E", 
+      "desc": "Temporary employment agency activities", 
+      "num_emp": 1637849, 
+      "keywords": "headhunters", 
+      "id": "n7820"
+    }, 
+    {
+      "available": true, 
+      "name": "Transportation and Storage", 
+      "color": "#9edae5", 
+      "num_emp": 14609290, 
+      "desc": "Transportation and storage", 
+      "id": "h"
+    }, 
+    {
+      "available": true, 
+      "name": "Machinery Rental", 
+      "color": "#93789E", 
+      "num_emp": 444910, 
+      "desc": "Renting and leasing of other machinery, equipment and tangible goods", 
+      "id": "n7730"
+    }, 
+    {
+      "available": true, 
+      "name": "Foreign Affairs", 
+      "color": "#752277", 
+      "desc": "Foreign affairs", 
+      "num_emp": 21636, 
+      "keywords": "immigration services, international assistance", 
+      "id": "o8421"
+    }, 
+    {
+      "available": true, 
+      "name": "Defense", 
+      "color": "#752277", 
+      "desc": "Defense activities", 
+      "num_emp": 1530807, 
+      "keywords": "military", 
+      "id": "o8422"
+    }, 
+    {
+      "available": true, 
+      "name": "Public Safety", 
+      "color": "#752277", 
+      "desc": "Public order and safety activities", 
+      "num_emp": 5410309, 
+      "keywords": "firefighters, police, animal control, attorney-general, immigration, coast guard, correctional, cour", 
+      "id": "o8423"
+    }, 
+    {
+      "available": true, 
+      "name": "Chemical Mineral Mining", 
+      "color": "#330000", 
+      "desc": "Mining of chemical and fertilizer minerals", 
+      "num_emp": 35737, 
+      "keywords": "fertilizer", 
+      "id": "b0891"
+    }, 
+    {
+      "available": true, 
+      "name": "Peat Extraction", 
+      "color": "#330000", 
+      "num_emp": 64226, 
+      "desc": "Extraction of peat", 
+      "id": "b0892"
+    }, 
+    {
+      "available": true, 
+      "name": "Salt Extraction", 
+      "color": "#330000", 
+      "num_emp": 41850, 
+      "desc": "Extraction of salt", 
+      "id": "b0893"
+    }, 
+    {
+      "available": true, 
+      "name": "Other mining and quarrying", 
+      "color": "#330000", 
+      "num_emp": 84365, 
+      "desc": "Other mining and quarrying n.e.c.", 
+      "id": "b0899"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Metal Ore Mining", 
+      "color": "#330000", 
+      "desc": "Mining of other non-ferrous metal ores", 
+      "num_emp": 137426, 
+      "keywords": "non-ferrous", 
+      "id": "b0729"
+    }, 
+    {
+      "available": true, 
+      "name": "Beverage Serving", 
+      "color": "#FFC41C", 
+      "num_emp": 181657, 
+      "desc": "Beverage serving activities", 
+      "id": "i5630"
+    }, 
+    {
+      "available": true, 
+      "name": "Information and Communication", 
+      "color": "#57D200", 
+      "num_emp": 8399896, 
+      "desc": "Information and communication", 
+      "id": "j"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Education", 
+      "color": "#B00000", 
+      "num_emp": 1053972, 
+      "desc": "Other education n.e.c.", 
+      "id": "p8549"
+    }, 
+    {
+      "available": true, 
+      "name": "Other non-perennial crops", 
+      "color": "#105B10", 
+      "num_emp": 154490, 
+      "desc": "Growing of other non-perennial crops", 
+      "id": "a0119"
+    }, 
+    {
+      "available": true, 
+      "name": "Fiber crops", 
+      "color": "#105B10", 
+      "num_emp": 211805, 
+      "desc": "Growing of fibre crops", 
+      "id": "a0116"
+    }, 
+    {
+      "available": true, 
+      "name": "Sugar cane", 
+      "color": "#105B10", 
+      "num_emp": 1504633, 
+      "desc": "Growing of sugar cane", 
+      "id": "a0114"
+    }, 
+    {
+      "available": true, 
+      "name": "Tobacco", 
+      "color": "#105B10", 
+      "num_emp": 25764, 
+      "desc": "Growing of tobacco", 
+      "id": "a0115"
+    }, 
+    {
+      "available": true, 
+      "name": "Rice", 
+      "color": "#105B10", 
+      "num_emp": 428193, 
+      "desc": "Growing of rice", 
+      "id": "a0112"
+    }, 
+    {
+      "available": true, 
+      "name": "Vegetables", 
+      "color": "#105B10", 
+      "num_emp": 274550, 
+      "desc": "Growing of vegetables and melons, roots and tubers", 
+      "id": "a0113"
+    }, 
+    {
+      "available": true, 
+      "name": "Cultural Education", 
+      "color": "#B00000", 
+      "desc": "Cultural education", 
+      "num_emp": 583025, 
+      "keywords": "art, music", 
+      "id": "p8542"
+    }, 
+    {
+      "available": true, 
+      "name": "Cereals", 
+      "color": "#105B10", 
+      "num_emp": 775993, 
+      "desc": "Growing of cereals (except rice), leguminous crops and oil seeds", 
+      "id": "a0111"
+    }, 
+    {
+      "available": true, 
+      "name": "Passenger Inland Water Transport", 
+      "color": "#9edae5", 
+      "desc": "Inland passenger water transport", 
+      "num_emp": 40099, 
+      "keywords": "ferries", 
+      "id": "h5021"
+    }, 
+    {
+      "available": true, 
+      "name": "Freight Inland Water Transport", 
+      "color": "#9edae5", 
+      "num_emp": 65312, 
+      "desc": "Inland freight water transport", 
+      "id": "h5022"
+    }, 
+    {
+      "available": true, 
+      "name": "Management Consultancy", 
+      "color": "#e377c2", 
+      "num_emp": 676997, 
+      "desc": "Management consultancy activities", 
+      "id": "m7020"
+    }, 
+    {
+      "name": "Office Adminstration", 
+      "color": "#93789E", 
+      "desc": "Office administrative and support activities", 
+      "id": "n821"
+    }, 
+    {
+      "available": true, 
+      "name": "Security Systems", 
+      "color": "#93789E", 
+      "num_emp": 116053, 
+      "desc": "Security systems service activities", 
+      "id": "n8020"
+    }, 
+    {
+      "available": true, 
+      "name": "Iron and Steel Casting", 
+      "color": "#5E1F05", 
+      "num_emp": 548002, 
+      "desc": "Casting of iron and steel", 
+      "id": "c2431"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Metal Casting", 
+      "color": "#5E1F05", 
+      "desc": "Casting of non-ferrous metals", 
+      "num_emp": 165736, 
+      "keywords": "nonferrous metal", 
+      "id": "c2432"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Recreation", 
+      "color": "#AA1F61", 
+      "desc": "Other amusement and recreation activities n.e.c.", 
+      "num_emp": 165642, 
+      "keywords": "arcades, skiing, marina", 
+      "id": "r9329"
+    }, 
+    {
+      "available": true, 
+      "name": "Travel Agency", 
+      "color": "#93789E", 
+      "num_emp": 414157, 
+      "desc": "Travel agency activities", 
+      "id": "n7911"
+    }, 
+    {
+      "available": true, 
+      "name": "Tour Operator", 
+      "color": "#93789E", 
+      "num_emp": 8648, 
+      "desc": "Tour operator activities", 
+      "id": "n7912"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Specialized Machine Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 407339, 
+      "desc": "Manufacture of other special-purpose machinery", 
+      "id": "c2829"
+    }, 
+    {
+      "name": "Aquaculture", 
+      "color": "#105B10", 
+      "desc": "Aquaculture", 
+      "keywords": "farming", 
+      "id": "a032"
+    }, 
+    {
+      "available": true, 
+      "name": "Mining and Construction Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of machinery for mining, quarrying and construction", 
+      "num_emp": 152071, 
+      "keywords": "shovel, jackhammer", 
+      "id": "c2824"
+    }, 
+    {
+      "name": "Fishing", 
+      "color": "#105B10", 
+      "desc": "Fishing", 
+      "id": "a031"
+    }, 
+    {
+      "name": "Metal Processing Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of metal-forming machinery and machine tools", 
+      "id": "c2822"
+    }, 
+    {
+      "available": true, 
+      "name": "Metallurgy Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 70889, 
+      "desc": "Manufacture of machinery for metallurgy", 
+      "id": "c2823"
+    }, 
+    {
+      "available": true, 
+      "name": "Agricultural Mahinery Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of agricultural and forestry machinery", 
+      "num_emp": 415594, 
+      "keywords": "ploughing, planting, harvesting, threshing, machinery, lawn, garden, hoe", 
+      "id": "c2821"
+    }, 
+    {
+      "available": true, 
+      "name": "Special Fabric Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 461850, 
+      "desc": "Manufacture of special fabrics, including artefacts", 
+      "id": "c1329"
+    }, 
+    {
+      "available": true, 
+      "name": "Rope Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of cordage artifacts", 
+      "num_emp": 29476, 
+      "keywords": "artifacts, cordage, hand-made, twine, netting", 
+      "id": "c1324"
+    }, 
+    {
+      "available": true, 
+      "name": "Fabric Knitting", 
+      "color": "#5E1F05", 
+      "num_emp": 194193, 
+      "desc": "Manufacture of knitted fabrics", 
+      "id": "c1321"
+    }, 
+    {
+      "available": true, 
+      "name": "Non-Apparel Textile Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 339141, 
+      "desc": "Manufacture of textile materials, except apparel", 
+      "id": "c1322"
+    }, 
+    {
+      "available": true, 
+      "name": "Tapestry Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of artifacts tapestry", 
+      "num_emp": 53486, 
+      "keywords": "artifacts, hand-made", 
+      "id": "c1323"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Forest Gathering", 
+      "color": "#105B10", 
+      "num_emp": 85965, 
+      "desc": "Gathering of non-wood forest products", 
+      "id": "a0230"
+    }, 
+    {
+      "available": true, 
+      "name": "General Cleaning", 
+      "color": "#93789E", 
+      "desc": "General cleaning of buildings", 
+      "num_emp": 4547255, 
+      "keywords": "janitorial", 
+      "id": "n8121"
+    }, 
+    {
+      "available": true, 
+      "name": "Sporting Goods Rental", 
+      "color": "#93789E", 
+      "num_emp": 65834, 
+      "desc": "Renting and leasing of recreational and sports goods", 
+      "id": "n7721"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Stall Retail", 
+      "color": "#17becf", 
+      "num_emp": 1699353, 
+      "desc": "Retail sale via stalls and markets of other goods", 
+      "id": "g4789"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Publishing", 
+      "color": "#57D200", 
+      "num_emp": 160249, 
+      "desc": "Other publishing activities", 
+      "id": "j5819"
+    }, 
+    {
+      "available": true, 
+      "name": "Social Security", 
+      "color": "#752277", 
+      "desc": "Compulsory social security activities", 
+      "num_emp": 201400, 
+      "keywords": "medicare, medical insurance plans", 
+      "id": "o8430"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Electrical Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 323681, 
+      "desc": "Manufacture of other electrical equipment", 
+      "id": "c2790"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Services", 
+      "color": "#c7c7c7", 
+      "num_emp": 1386716, 
+      "desc": "Other personal service activities", 
+      "id": "s96"
+    }, 
+    {
+      "available": true, 
+      "name": "Oil Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of refined petroleum products", 
+      "num_emp": 171999, 
+      "keywords": "furnaces, burners", 
+      "id": "c1920"
+    }, 
+    {
+      "available": true, 
+      "name": "Facilities Support", 
+      "color": "#93789E", 
+      "num_emp": 4469852, 
+      "desc": "Combined facilities support activities", 
+      "id": "n8110"
+    }, 
+    {
+      "available": true, 
+      "name": "Food Stall Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale via stalls and markets of food, beverages and tobacco products", 
+      "num_emp": 116145, 
+      "keywords": "road-side, fruit, vegetable", 
+      "id": "g4781"
+    }, 
+    {
+      "available": true, 
+      "name": "Directory Publishing", 
+      "color": "#57D200", 
+      "desc": "Publishing of directories and mailing lists", 
+      "num_emp": 205365, 
+      "keywords": "mailing lists, phonebooks", 
+      "id": "j5812"
+    }, 
+    {
+      "available": true, 
+      "name": "Book Publishing", 
+      "color": "#57D200", 
+      "num_emp": 194898, 
+      "desc": "Book publishing", 
+      "id": "j5811"
+    }, 
+    {
+      "available": true, 
+      "name": "Apparel Stall Retail", 
+      "color": "#17becf", 
+      "num_emp": 241589, 
+      "desc": "Retail sale via stalls and markets of textiles, clothing and footwear", 
+      "id": "g4782"
+    }, 
+    {
+      "available": true, 
+      "name": "Rubber and Plastic Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 3279391, 
+      "desc": "Manufacture of rubber and plastics products", 
+      "id": "c22"
+    }, 
+    {
+      "available": true, 
+      "name": "Non-metal Mineral Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 2964793, 
+      "desc": "Manufacture of other non-metallic mineral products", 
+      "id": "c23"
+    }, 
+    {
+      "available": true, 
+      "name": "Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 56041657, 
+      "desc": "Manufacturing", 
+      "id": "c"
+    }, 
+    {
+      "available": true, 
+      "name": "Pharmaceutical Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of basic pharmaceutical products and pharmaceutical preparations", 
+      "num_emp": 768816, 
+      "keywords": "botanical, drugs", 
+      "id": "c21"
+    }, 
+    {
+      "available": true, 
+      "name": "Plastic Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 2512914, 
+      "desc": "Manufacture of plastics products", 
+      "id": "c2220"
+    }, 
+    {
+      "available": true, 
+      "name": "Electrical Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 1531809, 
+      "desc": "Manufacture of electrical equipment", 
+      "id": "c27"
+    }, 
+    {
+      "available": true, 
+      "name": "Metal Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 2035000, 
+      "desc": "Manufacture of basic metals", 
+      "id": "c24"
+    }, 
+    {
+      "available": true, 
+      "name": "Metal Product Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 3749847, 
+      "desc": "Manufacture of fabricated metal products, except machinery and equipment", 
+      "id": "c25"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Machine Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of machinery and equipment n.e.c.", 
+      "num_emp": 2703560, 
+      "keywords": "equipment, machinery", 
+      "id": "c28"
+    }, 
+    {
+      "available": true, 
+      "name": "Motor Vehicle Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of motor vehicles, trailers and semi-trailers", 
+      "num_emp": 3522526, 
+      "keywords": "trailers, semi-trailers, trucks, bus", 
+      "id": "c29"
+    }, 
+    {
+      "available": true, 
+      "name": "Passenger Air Transport", 
+      "color": "#9edae5", 
+      "desc": "Passenger air transport", 
+      "num_emp": 408551, 
+      "keywords": "plane travel, flying", 
+      "id": "h5110"
+    }, 
+    {
+      "available": true, 
+      "name": "Used Goods Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of second-hand goods", 
+      "num_emp": 51325, 
+      "keywords": "second-hand, thrift", 
+      "id": "g4774"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Services", 
+      "color": "#c7c7c7", 
+      "num_emp": 9272178, 
+      "desc": "Other service activities", 
+      "id": "s"
+    }, 
+    {
+      "available": true, 
+      "name": "Apparel Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of clothing, footwear and leather articles in specialized stores", 
+      "num_emp": 5987333, 
+      "keywords": "clothing, footwear, leather", 
+      "id": "g4771"
+    }, 
+    {
+      "available": true, 
+      "name": "Pharmacy", 
+      "color": "#17becf", 
+      "desc": "Retail sale of pharmaceutical and medical goods, cosmetic and toilet articles in specialized stores", 
+      "num_emp": 3219155, 
+      "keywords": "medicine, cosmetics, toiletries", 
+      "id": "g4772"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Specialized Retail", 
+      "color": "#17becf", 
+      "num_emp": 773547, 
+      "desc": "Other retail sale of new goods in specialized stores", 
+      "id": "g4773"
+    }, 
+    {
+      "name": "petroleum and natural gas extraction support", 
+      "color": "#330000", 
+      "desc": "Support activities for petroleum and natural gas extraction", 
+      "id": "b091"
+    }, 
+    {
+      "available": true, 
+      "name": "Auto Repair", 
+      "color": "#17becf", 
+      "desc": "Maintenance and repair of motor vehicles", 
+      "num_emp": 1273785, 
+      "keywords": "cars, motor vehicles, maintenance", 
+      "id": "g4520"
+    }, 
+    {
+      "available": true, 
+      "name": "Specialized Design", 
+      "color": "#e377c2", 
+      "desc": "Specialized design activities", 
+      "num_emp": 9366, 
+      "keywords": "interior, industrial, graphic, clothing, jewellery, textile", 
+      "id": "m7410"
+    }, 
+    {
+      "available": true, 
+      "name": "Membership Organizations", 
+      "color": "#c7c7c7", 
+      "num_emp": 7255190, 
+      "desc": "Activities of membership organizations", 
+      "id": "s94"
+    }, 
+    {
+      "name": "Other Mining and Quarrying Support", 
+      "color": "#330000", 
+      "desc": "Support activities for other mining and quarrying", 
+      "id": "b099"
+    }, 
+    {
+      "available": true, 
+      "name": "Newspaper Publishing", 
+      "color": "#57D200", 
+      "desc": "Publishing of newspapers, journals and periodicals", 
+      "num_emp": 426632, 
+      "keywords": "Journals, periodicals, magazines", 
+      "id": "j5813"
+    }, 
+    {
+      "available": true, 
+      "name": "Architecture and Engineering", 
+      "color": "#e377c2", 
+      "num_emp": 1416726, 
+      "desc": "Architectural and engineering activities and related technical consultancy", 
+      "id": "m7110"
+    }, 
+    {
+      "name": "Tobacco Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of tobacco products", 
+      "keywords": "cigarettes, cigars", 
+      "id": "c120"
+    }, 
+    {
+      "name": "Building Construction", 
+      "color": "#E87600", 
+      "desc": "Construction of buildings", 
+      "id": "f410"
+    }, 
+    {
+      "name": "Temp Agency", 
+      "color": "#93789E", 
+      "desc": "Temporary employment agency activities", 
+      "keywords": "headhunters", 
+      "id": "n782"
+    }, 
+    {
+      "available": true, 
+      "name": "Hotel", 
+      "color": "#FFC41C", 
+      "num_emp": 2121528, 
+      "desc": "Short term accommodation activities", 
+      "id": "i5510"
+    }, 
+    {
+      "available": true, 
+      "name": "Electricity Supply", 
+      "color": "#E6F5FF", 
+      "desc": "Electric power generation, transmission and distribution", 
+      "num_emp": 985232, 
+      "keywords": "hydro-electric, fossil-fuel, nuclear, power, generation, transmission, distribution", 
+      "id": "d3510"
+    }, 
+    {
+      "available": true, 
+      "name": "Glass Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 270791, 
+      "desc": "Manufacture of glass and glass products", 
+      "id": "c2310"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Membership Organizations", 
+      "color": "#c7c7c7", 
+      "num_emp": 4473554, 
+      "desc": "Activities of other membership organizations n.e.c.", 
+      "id": "s9499"
+    }, 
+    {
+      "available": true, 
+      "name": "Toy Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of games and toys", 
+      "num_emp": 93866, 
+      "keywords": "games, billiards, dolls", 
+      "id": "c3240"
+    }, 
+    {
+      "available": true, 
+      "name": "Consumer Electronics Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of consumer electronics", 
+      "num_emp": 164508, 
+      "keywords": "audio, video", 
+      "id": "c2640"
+    }, 
+    {
+      "available": true, 
+      "name": "Political Organizations", 
+      "color": "#c7c7c7", 
+      "num_emp": 17697, 
+      "desc": "Activities of political organizations", 
+      "id": "s9492"
+    }, 
+    {
+      "available": true, 
+      "name": "Religious Organizations", 
+      "color": "#c7c7c7", 
+      "num_emp": 1110708, 
+      "desc": "Activities of religious organizations", 
+      "id": "s9491"
+    }, 
+    {
+      "available": true, 
+      "name": "Forestry support", 
+      "color": "#105B10", 
+      "num_emp": 505952, 
+      "desc": "Support services to forestry", 
+      "id": "a0240"
+    }, 
+    {
+      "available": true, 
+      "name": "Sporting Good Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 24866, 
+      "desc": "Manufacture of sports goods", 
+      "id": "c3230"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Business Support", 
+      "color": "#93789E", 
+      "desc": "Other business support service activities n.e.c.", 
+      "num_emp": 2512387, 
+      "keywords": "automobile repossession, fund-raising organization, court reporting services", 
+      "id": "n8299"
+    }, 
+    {
+      "available": true, 
+      "name": "Packaging", 
+      "color": "#93789E", 
+      "num_emp": 78463, 
+      "desc": "Packaging activities", 
+      "id": "n8292"
+    }, 
+    {
+      "name": "Other Recreation", 
+      "color": "#AA1F61", 
+      "desc": "Other amusement and recreation activities", 
+      "id": "r932"
+    }, 
+    {
+      "name": "Computer Programming", 
+      "color": "#57D200", 
+      "desc": "Computer programming, consultancy and related activities", 
+      "id": "j620"
+    }, 
+    {
+      "available": true, 
+      "name": "Collection Agency", 
+      "color": "#93789E", 
+      "desc": "Activities of collection agencies and credit bureaus", 
+      "num_emp": 305277, 
+      "keywords": "debt collection, credit bureaus", 
+      "id": "n8291"
+    }, 
+    {
+      "available": true, 
+      "name": "Chemical Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 3009631, 
+      "desc": "Manufacture of chemicals and chemical products", 
+      "id": "c20"
+    }, 
+    {
+      "available": true, 
+      "name": "Baked Goods Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 1095072, 
+      "desc": "Manufacture of bakery products", 
+      "id": "c1071"
+    }, 
+    {
+      "available": true, 
+      "name": "Electronics Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of computer, electronic and optical products", 
+      "num_emp": 1292898, 
+      "keywords": "computers, optical products", 
+      "id": "c26"
+    }, 
+    {
+      "name": "Sports Activities", 
+      "color": "#AA1F61", 
+      "desc": "Sports activities", 
+      "id": "r931"
+    }, 
+    {
+      "name": "Rubber Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of rubber products", 
+      "id": "c221"
+    }, 
+    {
+      "available": true, 
+      "name": "Nature Reserves", 
+      "color": "#AA1F61", 
+      "desc": "Botanical and zoological gardens and nature reserves activities", 
+      "num_emp": 20552, 
+      "keywords": "botanical, zoological, zoo, garden", 
+      "id": "r9103"
+    }, 
+    {
+      "name": "Oil Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of refined petroleum products", 
+      "keywords": "furnaces, burners", 
+      "id": "c192"
+    }, 
+    {
+      "available": true, 
+      "name": "Non-alcoholic Beverage Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of soft drinks; production of mineral waters and other bottled waters", 
+      "num_emp": 528797, 
+      "keywords": "soft drinks, soda, cola, water, mineral water", 
+      "id": "c1104"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Cultural Operations", 
+      "color": "#AA1F61", 
+      "desc": "Museums activities and operation of historical sites and buildings", 
+      "num_emp": 13673, 
+      "keywords": "historical sites, museums", 
+      "id": "r9102"
+    }, 
+    {
+      "name": "Coke Oven Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of coke oven products", 
+      "keywords": "furnaces, burners", 
+      "id": "c191"
+    }, 
+    {
+      "available": true, 
+      "name": "Wine Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 45747, 
+      "desc": "Manufacture of wines", 
+      "id": "c1102"
+    }, 
+    {
+      "available": true, 
+      "name": "Malt Liquor Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of malt liquors and malt", 
+      "num_emp": 251992, 
+      "keywords": "beer, ale, cider", 
+      "id": "c1103"
+    }, 
+    {
+      "name": "Oil extraction", 
+      "color": "#330000", 
+      "desc": "Extraction of crude petroleum", 
+      "keywords": "crude,petroleum", 
+      "id": "b061"
+    }, 
+    {
+      "name": "Gas extraction", 
+      "color": "#330000", 
+      "desc": "Extraction of natural gas", 
+      "keywords": "natural", 
+      "id": "b062"
+    }, 
+    {
+      "available": true, 
+      "name": "Starch Processing", 
+      "color": "#5E1F05", 
+      "num_emp": 49996, 
+      "desc": "Manufacture of starches and starch products", 
+      "id": "c1062"
+    }, 
+    {
+      "available": true, 
+      "name": "Grain Processing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of grain mill products", 
+      "num_emp": 582612, 
+      "keywords": "flour, wheat", 
+      "id": "c1061"
+    }, 
+    {
+      "available": true, 
+      "name": "Business Administration and Support", 
+      "color": "#93789E", 
+      "num_emp": 23880884, 
+      "desc": "Administrative and support service activities", 
+      "id": "n"
+    }, 
+    {
+      "available": true, 
+      "name": "Reinsurance", 
+      "color": "#A4BD99", 
+      "num_emp": 5639, 
+      "desc": "Reinsurance", 
+      "id": "k6520"
+    }, 
+    {
+      "available": true, 
+      "name": "Coal Mining", 
+      "color": "#330000", 
+      "num_emp": 46419, 
+      "desc": "Mining of coal and lignite", 
+      "id": "b05"
+    }, 
+    {
+      "available": true, 
+      "name": "Residential Care", 
+      "color": "#FF0000", 
+      "num_emp": 801284, 
+      "desc": "Residential care activities", 
+      "id": "q87"
+    }, 
+    {
+      "available": true, 
+      "name": "Metal Ore Mining", 
+      "color": "#330000", 
+      "num_emp": 408812, 
+      "desc": "Mining of metal ores", 
+      "id": "b07"
+    }, 
+    {
+      "available": true, 
+      "name": "Oil and Gas Extraction", 
+      "color": "#330000", 
+      "desc": "Extraction of crude petroleum and natural gas", 
+      "num_emp": 192908, 
+      "keywords": "crude,petroleum,natural", 
+      "id": "b06"
+    }, 
+    {
+      "available": true, 
+      "name": "Mining support", 
+      "color": "#330000", 
+      "num_emp": 199844, 
+      "desc": "Mining support service activities", 
+      "id": "b09"
+    }, 
+    {
+      "available": true, 
+      "name": "Other mining and quarrying", 
+      "color": "#330000", 
+      "num_emp": 673004, 
+      "desc": "Other mining and quarrying", 
+      "id": "b08"
+    }, 
+    {
+      "available": true, 
+      "name": "Social Work", 
+      "color": "#FF0000", 
+      "num_emp": 908904, 
+      "desc": "Social work activities without accommodation", 
+      "id": "q88"
+    }, 
+    {
+      "available": true, 
+      "name": "TV Broadcasting", 
+      "color": "#57D200", 
+      "desc": "Television broadcasting", 
+      "num_emp": 374758, 
+      "keywords": "motion pictures, video, television, music, film, movies", 
+      "id": "j6021"
+    }, 
+    {
+      "available": true, 
+      "name": "Animal Feed Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 269693, 
+      "desc": "Manufacture of prepared animal feeds", 
+      "id": "c1080"
+    }, 
+    {
+      "name": "Houseware Repair", 
+      "color": "#c7c7c7", 
+      "desc": "Repair of personal and household goods", 
+      "keywords": "personal, household goods", 
+      "id": "s952"
+    }, 
+    {
+      "name": "Computer Repair", 
+      "color": "#c7c7c7", 
+      "desc": "Repair of computers and communication equipment", 
+      "id": "s951"
+    }, 
+    {
+      "available": true, 
+      "name": "Consumer Electronics Repair", 
+      "color": "#c7c7c7", 
+      "num_emp": 152603, 
+      "desc": "Repair of consumer electronics", 
+      "id": "s9521"
+    }, 
+    {
+      "available": true, 
+      "name": "Household Services", 
+      "color": "#FFAEAE", 
+      "desc": "Activities of households as employers; undifferentiated goods- and services-producing activities of households for own use", 
+      "num_emp": 91142, 
+      "keywords": "maids, babysitters, caretakers", 
+      "id": "t"
+    }, 
+    {
+      "available": true, 
+      "name": "Subscription TV Programming", 
+      "color": "#57D200", 
+      "desc": "Cable TV, satellite and other subscription programming", 
+      "num_emp": 24051, 
+      "keywords": "satellite, cable, pay-per-view, television", 
+      "id": "j6022"
+    }, 
+    {
+      "name": "Advertising", 
+      "color": "#e377c2", 
+      "desc": "Advertising", 
+      "id": "m731"
+    }, 
+    {
+      "name": "Sewerage", 
+      "color": "#2F2F6D", 
+      "desc": "Sewerage", 
+      "id": "e370"
+    }, 
+    {
+      "name": "Consumer Electronics Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of consumer electronics", 
+      "id": "c264"
+    }, 
+    {
+      "available": true, 
+      "name": "Career Placement", 
+      "color": "#93789E", 
+      "desc": "Activities of employment placement agencies", 
+      "num_emp": 2312941, 
+      "keywords": "headhunters", 
+      "id": "n7810"
+    }, 
+    {
+      "available": true, 
+      "name": "Market Research", 
+      "color": "#e377c2", 
+      "num_emp": 51215, 
+      "desc": "Market research and public opinion polling", 
+      "id": "m7320"
+    }, 
+    {
+      "available": true, 
+      "name": "Catering", 
+      "color": "#FFC41C", 
+      "num_emp": 1275210, 
+      "desc": "Event catering", 
+      "id": "i5621"
+    }, 
+    {
+      "available": true, 
+      "name": "Business Regulation", 
+      "color": "#752277", 
+      "num_emp": 126948, 
+      "desc": "Regulation of and contribution to more efficient operation of businesses", 
+      "id": "o8413"
+    }, 
+    {
+      "available": true, 
+      "name": "Health, Education, and Social Service Regulation", 
+      "color": "#752277", 
+      "num_emp": 1003006, 
+      "desc": "Regulation of the activities of providing health care, education, cultural services and other social services, excluding social security", 
+      "id": "o8412"
+    }, 
+    {
+      "available": true, 
+      "name": "Oil extraction", 
+      "color": "#330000", 
+      "desc": "Extraction of crude petroleum", 
+      "num_emp": 192908, 
+      "keywords": "crude,petroleum", 
+      "id": "b0610"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Telecom", 
+      "color": "#57D200", 
+      "desc": "Other telecommunications activities", 
+      "num_emp": 198596, 
+      "keywords": "satellite tracking, telemetry, VoIP services", 
+      "id": "j6190"
+    }, 
+    {
+      "available": true, 
+      "name": "Sports Clubs", 
+      "color": "#AA1F61", 
+      "desc": "Activities of sports clubs", 
+      "num_emp": 371105, 
+      "keywords": "little league, team sports", 
+      "id": "r9312"
+    }, 
+    {
+      "available": true, 
+      "name": "Food Processing Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of machinery for food, beverage and tobacco processing", 
+      "num_emp": 114765, 
+      "keywords": "beverage, tobacco", 
+      "id": "c2825"
+    }, 
+    {
+      "available": true, 
+      "name": "Business Membership Organizations", 
+      "color": "#c7c7c7", 
+      "desc": "Activities of business and employers membership organizations", 
+      "num_emp": 205323, 
+      "keywords": "employers", 
+      "id": "s9411"
+    }, 
+    {
+      "available": true, 
+      "name": "Advertising", 
+      "color": "#e377c2", 
+      "num_emp": 523254, 
+      "desc": "Advertising and market research", 
+      "id": "m73"
+    }, 
+    {
+      "name": "Wired Telecom", 
+      "color": "#57D200", 
+      "desc": "Wired telecommunications activities", 
+      "id": "j611"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Metal Product Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 1383414, 
+      "desc": "Manufacture of other fabricated metal products n.e.c.", 
+      "id": "c2599"
+    }, 
+    {
+      "available": true, 
+      "name": "Water Supply", 
+      "color": "#2F2F6D", 
+      "num_emp": 1044822, 
+      "desc": "Water collection, treatment and supply", 
+      "id": "e36"
+    }, 
+    {
+      "available": true, 
+      "name": "Metal Treatment and Coating", 
+      "color": "#5E1F05", 
+      "num_emp": 385786, 
+      "desc": "Treatment and coating of metals; machining", 
+      "id": "c2592"
+    }, 
+    {
+      "name": "Furniture Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of furniture", 
+      "id": "c310"
+    }, 
+    {
+      "available": true, 
+      "name": "Metal Processing", 
+      "color": "#5E1F05", 
+      "desc": "Forging, pressing, stamping and roll-forming of metal; powder metallurgy", 
+      "num_emp": 518213, 
+      "keywords": "forging, pressing, stamping, roll-forming, powder metallurgy", 
+      "id": "c2591"
+    }, 
+    {
+      "available": true, 
+      "name": "Computer Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of computers, peripheral units, software and telecommunications equipment in specialized stores", 
+      "num_emp": 1471215, 
+      "keywords": "software, telecom", 
+      "id": "g4741"
+    }, 
+    {
+      "available": true, 
+      "name": "A/V Equipment Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of audio and video equipment in specialized stores", 
+      "num_emp": 3213840, 
+      "keywords": "audio, video", 
+      "id": "g4742"
+    }, 
+    {
+      "available": true, 
+      "name": "Appliance Repair", 
+      "color": "#c7c7c7", 
+      "desc": "Repair of household appliances and home and garden equipment", 
+      "num_emp": 81490, 
+      "keywords": "home, garden", 
+      "id": "s9522"
+    }, 
+    {
+      "available": true, 
+      "name": "Footwear Repair", 
+      "color": "#c7c7c7", 
+      "desc": "Repair of footwear and leather goods", 
+      "num_emp": 15606, 
+      "keywords": "leather, cobble", 
+      "id": "s9523"
+    }, 
+    {
+      "available": true, 
+      "name": "Office Adminstration", 
+      "color": "#93789E", 
+      "num_emp": 395606, 
+      "desc": "Combined office administrative service activities", 
+      "id": "n8211"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Information Services", 
+      "color": "#57D200", 
+      "num_emp": 3408864, 
+      "desc": "Other information service activities n.e.c.", 
+      "id": "j6399"
+    }, 
+    {
+      "available": true, 
+      "name": "Risk and Damage Evaluation", 
+      "color": "#A4BD99", 
+      "num_emp": 97887, 
+      "desc": "Risk and damage evaluation", 
+      "id": "k6621"
+    }, 
+    {
+      "available": true, 
+      "name": "Insurance Agent Activities", 
+      "color": "#A4BD99", 
+      "num_emp": 127208, 
+      "desc": "Activities of insurance agents and brokers", 
+      "id": "k6622"
+    }, 
+    {
+      "available": true, 
+      "name": "Law Offices", 
+      "color": "#e377c2", 
+      "num_emp": 814430, 
+      "desc": "Legal activities", 
+      "id": "m6910"
+    }, 
+    {
+      "available": true, 
+      "name": "Pipeline Transport", 
+      "color": "#9edae5", 
+      "num_emp": 24431, 
+      "desc": "Transport via pipeline", 
+      "id": "h4930"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Houseware Repair", 
+      "color": "#c7c7c7", 
+      "num_emp": 60538, 
+      "desc": "Repair of other personal and household goods", 
+      "id": "s9529"
+    }, 
+    {
+      "available": true, 
+      "name": "News Syndicates", 
+      "color": "#57D200", 
+      "desc": "News agency activities", 
+      "num_emp": 15780, 
+      "keywords": "agencies", 
+      "id": "j6391"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Insurance Support", 
+      "color": "#A4BD99", 
+      "num_emp": 37151, 
+      "desc": "Other activities auxiliary to insurance and pension funding", 
+      "id": "k6629"
+    }, 
+    {
+      "name": "Publishing", 
+      "color": "#57D200", 
+      "desc": "Publishing of books, periodicals and other publishing activities", 
+      "id": "j581"
+    }, 
+    {
+      "available": true, 
+      "name": "Hazardous Waste Collection", 
+      "color": "#2F2F6D", 
+      "num_emp": 6307, 
+      "desc": "Collection of hazardous waste", 
+      "id": "e3812"
+    }, 
+    {
+      "available": true, 
+      "name": "Non-Hazardous Waste Collection", 
+      "color": "#2F2F6D", 
+      "num_emp": 393502, 
+      "desc": "Collection of non-hazardous waste", 
+      "id": "e3811"
+    }, 
+    {
+      "available": true, 
+      "name": "Motor Vehicle Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 924896, 
+      "desc": "Manufacture of motor vehicles", 
+      "id": "c2910"
+    }, 
+    {
+      "available": true, 
+      "name": "Natural Sciences R&D", 
+      "color": "#e377c2", 
+      "num_emp": 281963, 
+      "desc": "Research and experimental development on natural sciences and engineering", 
+      "id": "m7210"
+    }, 
+    {
+      "available": true, 
+      "name": "Food Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of food, beverages and tobacco", 
+      "num_emp": 2855564, 
+      "keywords": "beverage, tobacco", 
+      "id": "g4630"
+    }, 
+    {
+      "name": "Mixed farming", 
+      "color": "#105B10", 
+      "desc": "Mixed farming", 
+      "id": "a0150"
+    }, 
+    {
+      "available": true, 
+      "name": "Textile Spinning", 
+      "color": "#5E1F05", 
+      "num_emp": 575895, 
+      "desc": "Preparation and spinning of textile fibres", 
+      "id": "c1311"
+    }, 
+    {
+      "available": true, 
+      "name": "Textile Finishing", 
+      "color": "#5E1F05", 
+      "num_emp": 437681, 
+      "desc": "Finishing of textiles", 
+      "id": "c1313"
+    }, 
+    {
+      "available": true, 
+      "name": "Textile Weaving", 
+      "color": "#5E1F05", 
+      "num_emp": 492479, 
+      "desc": "Weaving of textiles", 
+      "id": "c1312"
+    }, 
+    {
+      "available": true, 
+      "name": "Gas Station", 
+      "color": "#17becf", 
+      "desc": "Retail sale of automotive fuel in specialized stores", 
+      "num_emp": 2316327, 
+      "keywords": "fuel retail, gasoline", 
+      "id": "g4730"
+    }, 
+    {
+      "available": true, 
+      "name": "Water Transport", 
+      "color": "#9edae5", 
+      "num_emp": 281845, 
+      "desc": "Water transport", 
+      "id": "h50"
+    }, 
+    {
+      "available": true, 
+      "name": "Sugar Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 2317229, 
+      "desc": "Manufacture of sugar", 
+      "id": "c1072"
+    }, 
+    {
+      "available": true, 
+      "name": "Apparel Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of textiles, clothing and footwear", 
+      "num_emp": 457854, 
+      "keywords": "textiles, clothing, footwear", 
+      "id": "g4641"
+    }, 
+    {
+      "available": true, 
+      "name": "Broadcasting", 
+      "color": "#57D200", 
+      "desc": "Programming and broadcasting activities", 
+      "num_emp": 689136, 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j60"
+    }, 
+    {
+      "available": true, 
+      "name": "Public Sector Administration", 
+      "color": "#752277", 
+      "num_emp": 59014210, 
+      "desc": "General public administration activities", 
+      "id": "o8411"
+    }, 
+    {
+      "name": "Transportation Support", 
+      "color": "#9edae5", 
+      "desc": "Support activities for transportation", 
+      "id": "h522"
+    }, 
+    {
+      "name": "Storage", 
+      "color": "#9edae5", 
+      "desc": "Warehousing and storage", 
+      "keywords": "warehousing", 
+      "id": "h521"
+    }, 
+    {
+      "name": "Wood Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of products of wood, cork, straw and plaiting materials", 
+      "id": "c162"
+    }, 
+    {
+      "name": "Sawmilling", 
+      "color": "#5E1F05", 
+      "desc": "Sawmilling and planing of wood", 
+      "keywords": "planing, wood, decking, edging", 
+      "id": "c161"
+    }, 
+    {
+      "available": true, 
+      "name": "Paper By-Product Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 462506, 
+      "desc": "Manufacture of corrugated paper and paperboard and of containers of paper and paperboard", 
+      "id": "c1702"
+    }, 
+    {
+      "available": true, 
+      "name": "Paper Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 458683, 
+      "desc": "Manufacture of pulp, paper and paperboard", 
+      "id": "c1701"
+    }, 
+    {
+      "available": true, 
+      "name": "Media Packaging Services", 
+      "color": "#5E1F05", 
+      "num_emp": 311265, 
+      "desc": "Service activities related to printing", 
+      "id": "c1812"
+    }, 
+    {
+      "available": true, 
+      "name": "Media Packaging Printing", 
+      "color": "#5E1F05", 
+      "num_emp": 547294, 
+      "desc": "Printing", 
+      "id": "c1811"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Paper Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 409196, 
+      "desc": "Manufacture of other articles of paper and paperboard", 
+      "id": "c1709"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Financial", 
+      "color": "#A4BD99", 
+      "num_emp": 133852, 
+      "desc": "Other financial service activities, except insurance and pension funding activities, n.e.c.", 
+      "id": "k6499"
+    }, 
+    {
+      "available": true, 
+      "name": "Freight Air Transport", 
+      "color": "#9edae5", 
+      "num_emp": 14683, 
+      "desc": "Freight air transport", 
+      "id": "h5120"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Credit Granting", 
+      "color": "#A4BD99", 
+      "num_emp": 264218, 
+      "desc": "Other credit granting", 
+      "id": "k6492"
+    }, 
+    {
+      "available": true, 
+      "name": "Financial Leasing", 
+      "color": "#A4BD99", 
+      "num_emp": 4891, 
+      "desc": "Financial leasing", 
+      "id": "k6491"
+    }, 
+    {
+      "available": true, 
+      "name": "Vocational Education", 
+      "color": "#B00000", 
+      "desc": "Technical and vocational secondary education", 
+      "num_emp": 229818, 
+      "keywords": "high school, technical, vocational", 
+      "id": "p8522"
+    }, 
+    {
+      "available": true, 
+      "name": "Fossil Fuel Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of coke and refined petroleum products", 
+      "num_emp": 174389, 
+      "keywords": "generators, furnaces, burners", 
+      "id": "c19"
+    }, 
+    {
+      "available": true, 
+      "name": "Media Reproduction", 
+      "color": "#5E1F05", 
+      "desc": "Printing and reproduction of recorded media", 
+      "num_emp": 898741, 
+      "keywords": "CD, records, vinyl, DVDs, film, VHS", 
+      "id": "c18"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Rubber Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 449600, 
+      "desc": "Manufacture of other rubber products", 
+      "id": "c2219"
+    }, 
+    {
+      "available": true, 
+      "name": "Electronics Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of electronic and telecommunications equipment and parts", 
+      "num_emp": 28862, 
+      "keywords": "components", 
+      "id": "g4652"
+    }, 
+    {
+      "available": true, 
+      "name": "Textile Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 2584201, 
+      "desc": "Manufacture of textiles", 
+      "id": "c13"
+    }, 
+    {
+      "available": true, 
+      "name": "Tobacco Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of tobacco products", 
+      "num_emp": 138563, 
+      "keywords": "cigarettes, cigars", 
+      "id": "c12"
+    }, 
+    {
+      "available": true, 
+      "name": "Beverage Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 941133, 
+      "desc": "Manufacture of beverages", 
+      "id": "c11"
+    }, 
+    {
+      "available": true, 
+      "name": "Food Processing and Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 10400298, 
+      "desc": "Manufacture of food products", 
+      "id": "c10"
+    }, 
+    {
+      "available": true, 
+      "name": "Paper Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 1330385, 
+      "desc": "Manufacture of paper and paper products", 
+      "id": "c17"
+    }, 
+    {
+      "available": true, 
+      "name": "Wood Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of wood and of products of wood and cork, except furniture; manufacture of articles of straw and plaiting materials", 
+      "num_emp": 2073199, 
+      "keywords": "straw, cork", 
+      "id": "c16"
+    }, 
+    {
+      "available": true, 
+      "name": "Leather Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 3330039, 
+      "desc": "Manufacture of leather and related products", 
+      "id": "c15"
+    }, 
+    {
+      "available": true, 
+      "name": "Clothing Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of wearing apparel", 
+      "num_emp": 5153099, 
+      "keywords": "apparel", 
+      "id": "c14"
+    }, 
+    {
+      "name": "Electronic Components Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of electronic components and boards", 
+      "keywords": "boards, motherboards, chips", 
+      "id": "c261"
+    }, 
+    {
+      "name": "Communication Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of communication equipment", 
+      "id": "c263"
+    }, 
+    {
+      "name": "Computer Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of computers and peripheral equipment", 
+      "id": "c262"
+    }, 
+    {
+      "name": "Electronic Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of measuring, testing, navigating and control equipment; watches and clocks", 
+      "keywords": "gps, multimeter, navigation, guidance instruments", 
+      "id": "c265"
+    }, 
+    {
+      "available": true, 
+      "name": "Synthetic Fiber Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 37472, 
+      "desc": "Manufacture of man-made fibres", 
+      "id": "c2030"
+    }, 
+    {
+      "name": "Optical Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of optical instruments and photographic equipment", 
+      "keywords": "cameras, light meters", 
+      "id": "c267"
+    }, 
+    {
+      "name": "Electromedical Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of irradiation, electromedical and electrotherapeutic equipment", 
+      "keywords": "MRI, CAT scan, radiation", 
+      "id": "c266"
+    }, 
+    {
+      "name": "Magnetic and Optical Media", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of magnetic and optical media", 
+      "keywords": "CDs, DVDs, Blu-Ray, Hard Drives", 
+      "id": "c268"
+    }, 
+    {
+      "available": true, 
+      "name": "Poultry", 
+      "color": "#105B10", 
+      "num_emp": 550501, 
+      "desc": "Raising of poultry", 
+      "id": "a0146"
+    }, 
+    {
+      "name": "Road and Railway Construction", 
+      "color": "#E87600", 
+      "desc": "Construction of roads and railways", 
+      "id": "f421"
+    }, 
+    {
+      "name": "Utility Construction", 
+      "color": "#E87600", 
+      "desc": "Construction of utility projects", 
+      "id": "f422"
+    }, 
+    {
+      "available": true, 
+      "name": "Appliance Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of electrical household appliances, furniture, lighting equipment and other household articles in specialized stores", 
+      "num_emp": 1915175, 
+      "keywords": "washers, dryers, lamps, couches", 
+      "id": "g4759"
+    }, 
+    {
+      "available": true, 
+      "name": "Publishing", 
+      "color": "#57D200", 
+      "num_emp": 1066323, 
+      "desc": "Publishing activities", 
+      "id": "j58"
+    }, 
+    {
+      "available": true, 
+      "name": "Entertainment", 
+      "color": "#57D200", 
+      "desc": "Motion picture, video and television programme production, sound recording and music publishing activities", 
+      "num_emp": 181826, 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j59"
+    }, 
+    {
+      "name": "Other Civil Engineering Construction", 
+      "color": "#E87600", 
+      "desc": "Construction of other civil engineering projects", 
+      "id": "f429"
+    }, 
+    {
+      "available": true, 
+      "name": "Utility Supply", 
+      "color": "#E6F5FF", 
+      "desc": "Electricity, gas, steam and air conditioning supply", 
+      "num_emp": 1006267, 
+      "keywords": "electricity, gas, steam, air conditioning", 
+      "id": "d"
+    }, 
+    {
+      "available": true, 
+      "name": "Quarrying", 
+      "color": "#330000", 
+      "desc": "Quarrying of stone, sand and clay", 
+      "num_emp": 446826, 
+      "keywords": "stone, sand, clay", 
+      "id": "b0810"
+    }, 
+    {
+      "available": true, 
+      "name": "Beverage Retail", 
+      "color": "#17becf", 
+      "num_emp": 361863, 
+      "desc": "Retail sale of beverages in specialized stores", 
+      "id": "g4722"
+    }, 
+    {
+      "name": "Other Wire Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other electronic and electric wires and cables", 
+      "id": "c2732"
+    }, 
+    {
+      "available": true, 
+      "name": "Wiring Device Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 104269, 
+      "desc": "Manufacture of wiring devices", 
+      "id": "c2733"
+    }, 
+    {
+      "available": true, 
+      "name": "Fiber Optic Cable Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 183902, 
+      "desc": "Manufacture of fibre optic cables", 
+      "id": "c2731"
+    }, 
+    {
+      "name": "Extraterritorial Activities", 
+      "color": "#4C4C4C", 
+      "desc": "Activities of extraterritorial organizations and bodies", 
+      "id": "u990"
+    }, 
+    {
+      "name": "Security Systems", 
+      "color": "#93789E", 
+      "desc": "Security systems service activities", 
+      "id": "n802"
+    }, 
+    {
+      "name": "Investigation", 
+      "color": "#93789E", 
+      "desc": "Investigation activities", 
+      "keywords": "PI, detective", 
+      "id": "n803"
+    }, 
+    {
+      "name": "Private Security", 
+      "color": "#93789E", 
+      "desc": "Private security activities", 
+      "keywords": "guards", 
+      "id": "n801"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Professional, Scientific and Technical", 
+      "color": "#e377c2", 
+      "num_emp": 269637, 
+      "desc": "Other professional, scientific and technical activities n.e.c.", 
+      "id": "m7490"
+    }, 
+    {
+      "name": "Household Services", 
+      "color": "#FFAEAE", 
+      "desc": "Undifferentiated service-producing activities of private households for own use", 
+      "id": "t9820"
+    }, 
+    {
+      "available": true, 
+      "name": "Furniture Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 1955755, 
+      "desc": "Manufacture of furniture", 
+      "id": "c3100"
+    }, 
+    {
+      "name": "Pharmaceutical Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of pharmaceuticals, medicinal chemical and botanical products", 
+      "keywords": "botanical, drugs", 
+      "id": "c210"
+    }, 
+    {
+      "name": "Stall and Market Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale via stalls and markets", 
+      "keywords": "road-side, fruit, vegetable, clothing, apparel, kiosk, stand, booth", 
+      "id": "g478"
+    }, 
+    {
+      "name": "Other Retail", 
+      "color": "#17becf", 
+      "desc": "Retail trade not in stores, stalls or markets", 
+      "id": "g479"
+    }, 
+    {
+      "available": true, 
+      "name": "Fruit and vegetable processing", 
+      "color": "#5E1F05", 
+      "num_emp": 347807, 
+      "desc": "Processing and preserving of fruit and vegetables", 
+      "id": "c1030"
+    }, 
+    {
+      "name": "Media Packaging Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Printing and service activities related to printing", 
+      "id": "c181"
+    }, 
+    {
+      "name": "Media Reproduction", 
+      "color": "#5E1F05", 
+      "desc": "Reproduction of recorded media", 
+      "keywords": "CD, records, vinyl, DVDs, film, VHS", 
+      "id": "c182"
+    }, 
+    {
+      "name": "General Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale in non-specialized stores", 
+      "id": "g471"
+    }, 
+    {
+      "name": "Specialized Food Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of food, beverages and tobacco in specialized stores", 
+      "id": "g472"
+    }, 
+    {
+      "name": "Gas Station", 
+      "color": "#17becf", 
+      "desc": "Retail sale of automotive fuel in specialized stores", 
+      "keywords": "fuel retail, gasoline", 
+      "id": "g473"
+    }, 
+    {
+      "name": "Electronics Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of information and communications equipment in specialized stores", 
+      "id": "g474"
+    }, 
+    {
+      "name": "Specialized Household Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of other household equipment in specialized stores", 
+      "id": "g475"
+    }, 
+    {
+      "name": "Recreational Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of cultural and recreation goods in specialized stores", 
+      "id": "g476"
+    }, 
+    {
+      "name": "Other Specialized Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale of other goods in specialized stores", 
+      "id": "g477"
+    }, 
+    {
+      "available": true, 
+      "name": "Leather Footwear Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 2659914, 
+      "desc": "Manufacture of footwear", 
+      "id": "c1520"
+    }, 
+    {
+      "available": true, 
+      "name": "Iron ore Mining", 
+      "color": "#330000", 
+      "num_emp": 237642, 
+      "desc": "Mining of iron ores", 
+      "id": "b0710"
+    }, 
+    {
+      "available": true, 
+      "name": "Other perennial crops", 
+      "color": "#105B10", 
+      "num_emp": 699326, 
+      "desc": "Growing of other perennial crops", 
+      "id": "a0129"
+    }, 
+    {
+      "available": true, 
+      "name": "Spices and drug crops", 
+      "color": "#105B10", 
+      "desc": "Growing of spices, aromatic, drug and pharmaceutical crops", 
+      "num_emp": 110614, 
+      "keywords": "herbs", 
+      "id": "a0128"
+    }, 
+    {
+      "available": true, 
+      "name": "Waste Materials Wholesale", 
+      "color": "#17becf", 
+      "desc": "Wholesale of waste and scrap and other products n.e.c.", 
+      "num_emp": 691189, 
+      "keywords": "scrap", 
+      "id": "g4669"
+    }, 
+    {
+      "available": true, 
+      "name": "Citrus fruits", 
+      "color": "#105B10", 
+      "num_emp": 574778, 
+      "desc": "Growing of citrus fruits", 
+      "id": "a0123"
+    }, 
+    {
+      "available": true, 
+      "name": "Tropical fruits", 
+      "color": "#105B10", 
+      "num_emp": 311335, 
+      "desc": "Growing of tropical and subtropical fruits", 
+      "id": "a0122"
+    }, 
+    {
+      "available": true, 
+      "name": "Grapes", 
+      "color": "#105B10", 
+      "num_emp": 146615, 
+      "desc": "Growing of grapes", 
+      "id": "a0121"
+    }, 
+    {
+      "available": true, 
+      "name": "Beverage crops", 
+      "color": "#105B10", 
+      "num_emp": 833606, 
+      "desc": "Growing of beverage crops", 
+      "id": "a0127"
+    }, 
+    {
+      "available": true, 
+      "name": "Oil producing fruits", 
+      "color": "#105B10", 
+      "num_emp": 8559, 
+      "desc": "Growing of oleaginous fruits", 
+      "id": "a0126"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Fruits and Nuts", 
+      "color": "#105B10", 
+      "num_emp": 58639, 
+      "desc": "Growing of other tree and bush fruits and nuts", 
+      "id": "a0125"
+    }, 
+    {
+      "available": true, 
+      "name": "Pome and stone fruits", 
+      "color": "#105B10", 
+      "num_emp": 125790, 
+      "desc": "Growing of pome fruits and stone fruits", 
+      "id": "a0124"
+    }, 
+    {
+      "available": true, 
+      "name": "Financial and Insurance Support", 
+      "color": "#A4BD99", 
+      "num_emp": 580779, 
+      "desc": "Activities auxiliary to financial service and insurance activities", 
+      "id": "k66"
+    }, 
+    {
+      "name": "Forestry support", 
+      "color": "#105B10", 
+      "desc": "Support services to forestry", 
+      "id": "a024"
+    }, 
+    {
+      "available": true, 
+      "name": "Financial", 
+      "color": "#A4BD99", 
+      "num_emp": 4510425, 
+      "desc": "Financial service activities, except insurance and pension funding", 
+      "id": "k64"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Specialized Construction", 
+      "color": "#E87600", 
+      "num_emp": 541486, 
+      "desc": "Other specialized construction activities", 
+      "id": "f4390"
+    }, 
+    {
+      "name": "Forestry", 
+      "color": "#105B10", 
+      "desc": "Silviculture and other forestry activities", 
+      "id": "a021"
+    }, 
+    {
+      "name": "Head Offices", 
+      "color": "#e377c2", 
+      "desc": "Activities of head offices", 
+      "id": "m701"
+    }, 
+    {
+      "name": "Other Forest Gathering", 
+      "color": "#105B10", 
+      "desc": "Gathering of non-wood forest products", 
+      "id": "a023"
+    }, 
+    {
+      "name": "Logging", 
+      "color": "#105B10", 
+      "desc": "Logging", 
+      "id": "a022"
+    }, 
+    {
+      "available": true, 
+      "name": "Other General Machine Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 681791, 
+      "desc": "Manufacture of other general-purpose machinery", 
+      "id": "c2819"
+    }, 
+    {
+      "available": true, 
+      "name": "Power Tool Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of power-driven hand tools", 
+      "num_emp": 148234, 
+      "keywords": "buffers, chain saws, drills, lawn tools, landscaping", 
+      "id": "c2818"
+    }, 
+    {
+      "available": true, 
+      "name": "Pump Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other pumps, compressors, taps and valves", 
+      "num_emp": 236440, 
+      "keywords": "power steering, windshield wiper", 
+      "id": "c2813"
+    }, 
+    {
+      "available": true, 
+      "name": "Fluid Power Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of fluid power equipment", 
+      "num_emp": 67623, 
+      "keywords": "hydraulic, pumps", 
+      "id": "c2812"
+    }, 
+    {
+      "available": true, 
+      "name": "Non-Vehicle Engine Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of engines and turbines, except aircraft, vehicle and cycle engines", 
+      "num_emp": 44015, 
+      "keywords": "carburetors, pistons, valves", 
+      "id": "c2811"
+    }, 
+    {
+      "available": true, 
+      "name": "Office Machinery Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 19386, 
+      "desc": "Manufacture of office machinery and equipment (except computers and peripheral equipment)", 
+      "id": "c2817"
+    }, 
+    {
+      "available": true, 
+      "name": "Lifting Equipment Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of lifting and handling equipment", 
+      "num_emp": 167246, 
+      "keywords": "forklifts, cranes", 
+      "id": "c2816"
+    }, 
+    {
+      "available": true, 
+      "name": "Oven Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of ovens, furnaces and furnace burners", 
+      "num_emp": 35341, 
+      "keywords": "heating, kiln, furnace", 
+      "id": "c2815"
+    }, 
+    {
+      "available": true, 
+      "name": "Gear Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 85833, 
+      "desc": "Manufacture of bearings, gears, gearing and driving elements", 
+      "id": "c2814"
+    }, 
+    {
+      "available": true, 
+      "name": "Advertising", 
+      "color": "#e377c2", 
+      "num_emp": 472039, 
+      "desc": "Advertising", 
+      "id": "m7310"
+    }, 
+    {
+      "name": "Cultural Recreation", 
+      "color": "#AA1F61", 
+      "desc": "Libraries, archives, museums and other cultural activities", 
+      "keywords": "libraries, archives, museums", 
+      "id": "r910"
+    }, 
+    {
+      "name": "Jewellery Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of jewellery, bijouterie and related articles", 
+      "keywords": "bijouterie", 
+      "id": "c321"
+    }, 
+    {
+      "name": "Musical Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of musical instruments", 
+      "id": "c322"
+    }, 
+    {
+      "name": "Sporting Good Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of sports goods", 
+      "id": "c323"
+    }, 
+    {
+      "name": "Toy Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of games and toys", 
+      "keywords": "games, billiards, dolls", 
+      "id": "c324"
+    }, 
+    {
+      "name": "Medical Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of medical and dental instruments and supplies", 
+      "keywords": "laboratory, lab", 
+      "id": "c325"
+    }, 
+    {
+      "name": "Other Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Other manufacturing n.e.c.", 
+      "id": "c329"
+    }, 
+    {
+      "available": true, 
+      "name": "Higher Education", 
+      "color": "#B00000", 
+      "desc": "Higher education", 
+      "num_emp": 4232716, 
+      "keywords": "college, university", 
+      "id": "p8530"
+    }, 
+    {
+      "available": true, 
+      "name": "Logging", 
+      "color": "#105B10", 
+      "num_emp": 184344, 
+      "desc": "Logging", 
+      "id": "a0220"
+    }, 
+    {
+      "available": true, 
+      "name": "Wired Telecom", 
+      "color": "#57D200", 
+      "num_emp": 664298, 
+      "desc": "Wired telecommunications activities", 
+      "id": "j6110"
+    }, 
+    {
+      "name": "Fund Management", 
+      "color": "#A4BD99", 
+      "desc": "Fund management activities", 
+      "id": "k663"
+    }, 
+    {
+      "name": "Insurance Support", 
+      "color": "#A4BD99", 
+      "desc": "Activities auxiliary to insurance and pension funding", 
+      "id": "k662"
+    }, 
+    {
+      "available": true, 
+      "name": "Professional Membership Organizations", 
+      "color": "#c7c7c7", 
+      "num_emp": 377595, 
+      "desc": "Activities of professional membership organizations", 
+      "id": "s9412"
+    }, 
+    {
+      "available": true, 
+      "name": "Accounting", 
+      "color": "#e377c2", 
+      "num_emp": 978852, 
+      "desc": "Accounting, bookkeeping and auditing activities; tax consultancy", 
+      "id": "m6920"
+    }, 
+    {
+      "available": true, 
+      "name": "Coke Oven Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of coke oven products", 
+      "num_emp": 2390, 
+      "keywords": "furnaces, burners", 
+      "id": "c1910"
+    }, 
+    {
+      "available": true, 
+      "name": "Primary Education", 
+      "color": "#B00000", 
+      "desc": "Pre-primary and primary education", 
+      "num_emp": 2825135, 
+      "keywords": "k-8, elementary, middle, school, kindergarden, pre-school", 
+      "id": "p8510"
+    }, 
+    {
+      "name": "Mail and Internet Retail", 
+      "color": "#17becf", 
+      "desc": "Retail sale via mail order houses or via Internet", 
+      "keywords": "internet, online, websites, delivery, telephone, mail order", 
+      "id": "g4791"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Non-metal Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 196500, 
+      "desc": "Manufacture of other non-metallic mineral products n.e.c.", 
+      "id": "c2399"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Financial Services", 
+      "color": "#A4BD99", 
+      "num_emp": 208982, 
+      "desc": "Other activities auxiliary to financial service activities", 
+      "id": "k6619"
+    }, 
+    {
+      "available": true, 
+      "name": "Food Service and Hospitality", 
+      "color": "#FFC41C", 
+      "num_emp": 10397469, 
+      "desc": "Accommodation and food service activities", 
+      "id": "i"
+    }, 
+    {
+      "available": true, 
+      "name": "Refractory Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 101833, 
+      "desc": "Manufacture of refractory products", 
+      "id": "c2391"
+    }, 
+    {
+      "available": true, 
+      "name": "Clay Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of clay building materials", 
+      "num_emp": 1099536, 
+      "keywords": "pottery", 
+      "id": "c2392"
+    }, 
+    {
+      "available": true, 
+      "name": "Porcelain Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other porcelain and ceramic products", 
+      "num_emp": 109832, 
+      "keywords": "ceramic", 
+      "id": "c2393"
+    }, 
+    {
+      "available": true, 
+      "name": "Cement Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of cement, lime and plaster", 
+      "num_emp": 185474, 
+      "keywords": "lime, plaster", 
+      "id": "c2394"
+    }, 
+    {
+      "available": true, 
+      "name": "Cement Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of articles of concrete, cement and plaster", 
+      "num_emp": 708104, 
+      "keywords": "concrete, plaster", 
+      "id": "c2395"
+    }, 
+    {
+      "available": true, 
+      "name": "Stone Finishing", 
+      "color": "#5E1F05", 
+      "desc": "Cutting, shaping and finishing of stone", 
+      "num_emp": 292723, 
+      "keywords": "cutting, shaping", 
+      "id": "c2396"
+    }, 
+    {
+      "available": true, 
+      "name": "Security and Commodity Brokerage", 
+      "color": "#A4BD99", 
+      "num_emp": 77512, 
+      "desc": "Security and commodity contracts brokerage", 
+      "id": "k6612"
+    }, 
+    {
+      "name": "Social Security", 
+      "color": "#752277", 
+      "desc": "Compulsory social security activities", 
+      "keywords": "medicare, medical insurance plans", 
+      "id": "o843"
+    }, 
+    {
+      "available": true, 
+      "name": "petroleum and natural gas extraction support", 
+      "color": "#330000", 
+      "num_emp": 184376, 
+      "desc": "Support activities for petroleum and natural gas extraction", 
+      "id": "b0910"
+    }, 
+    {
+      "available": true, 
+      "name": "Machinery Installation", 
+      "color": "#5E1F05", 
+      "num_emp": 90878, 
+      "desc": "Installation of industrial machinery and equipment", 
+      "id": "c3320"
+    }, 
+    {
+      "available": true, 
+      "name": "Computer and Houseware Repair", 
+      "color": "#c7c7c7", 
+      "num_emp": 630272, 
+      "desc": "Repair of computers and personal and household goods", 
+      "id": "s95"
+    }, 
+    {
+      "name": "Textile Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Spinning, weaving and finishing of textiles", 
+      "id": "c131"
+    }, 
+    {
+      "available": true, 
+      "name": "Auto Parts Sales", 
+      "color": "#17becf", 
+      "desc": "Sale of motor vehicle parts and accessories", 
+      "num_emp": 2769692, 
+      "keywords": "cars, motor vehicles", 
+      "id": "g4530"
+    }, 
+    {
+      "name": "Other Textile Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other textiles", 
+      "id": "c139"
+    }, 
+    {
+      "available": true, 
+      "name": "Water Transport Support", 
+      "color": "#9edae5", 
+      "num_emp": 114945, 
+      "desc": "Service activities incidental to water transportation", 
+      "id": "h5222"
+    }, 
+    {
+      "available": true, 
+      "name": "Air Transport Support", 
+      "color": "#9edae5", 
+      "num_emp": 163039, 
+      "desc": "Service activities incidental to air transportation", 
+      "id": "h5223"
+    }, 
+    {
+      "available": true, 
+      "name": "Land Transport Support", 
+      "color": "#9edae5", 
+      "num_emp": 639381, 
+      "desc": "Service activities incidental to land transportation", 
+      "id": "h5221"
+    }, 
+    {
+      "available": true, 
+      "name": "Cargo Handling", 
+      "color": "#9edae5", 
+      "num_emp": 203810, 
+      "desc": "Cargo handling", 
+      "id": "h5224"
+    }, 
+    {
+      "name": "Other Textile Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other textiles n.e.c.", 
+      "id": "c1399"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Transportation Support", 
+      "color": "#9edae5", 
+      "num_emp": 385097, 
+      "desc": "Other transportation support activities", 
+      "id": "h5229"
+    }, 
+    {
+      "available": true, 
+      "name": "Computer Consultancy", 
+      "color": "#57D200", 
+      "num_emp": 389244, 
+      "desc": "Computer consultancy and computer facilities management activities", 
+      "id": "j6202"
+    }, 
+    {
+      "available": true, 
+      "name": "Computer Programming", 
+      "color": "#57D200", 
+      "num_emp": 424686, 
+      "desc": "Computer programming activities", 
+      "id": "j6201"
+    }, 
+    {
+      "available": true, 
+      "name": "Scientific R&D", 
+      "color": "#e377c2", 
+      "num_emp": 357367, 
+      "desc": "Scientific research and development", 
+      "id": "m72"
+    }, 
+    {
+      "available": true, 
+      "name": "Gas Pipeline Supply", 
+      "color": "#E6F5FF", 
+      "num_emp": 2952, 
+      "desc": "Manufacture of gas, distribution of gaseous fuels through pipelines", 
+      "id": "d3521"
+    }, 
+    {
+      "available": true, 
+      "name": "Gas Main Supply", 
+      "color": "#E6F5FF", 
+      "num_emp": 16715, 
+      "desc": "Manufacture of gas; distribution of gaseous fuels through mains", 
+      "id": "d3520"
+    }, 
+    {
+      "available": true, 
+      "name": "Gambling", 
+      "color": "#AA1F61", 
+      "desc": "Gambling and betting activities", 
+      "num_emp": 23235, 
+      "keywords": "casino, lottery, betting", 
+      "id": "r9200"
+    }, 
+    {
+      "available": true, 
+      "name": "Optical Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 52278, 
+      "desc": "Manufacture of optical instruments and photographic equipment", 
+      "id": "c2670"
+    }, 
+    {
+      "name": "Music Production", 
+      "color": "#57D200", 
+      "desc": "Sound recording and music publishing activities", 
+      "keywords": "motion pictures, video, television, TV, music, film, movies", 
+      "id": "j592"
+    }, 
+    {
+      "available": true, 
+      "name": "Medical Instrument Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of medical and dental instruments and supplies", 
+      "num_emp": 206152, 
+      "keywords": "laboratory, lab", 
+      "id": "c3250"
+    }, 
+    {
+      "name": "Household Goods", 
+      "color": "#FFAEAE", 
+      "desc": "Undifferentiated goods-producing activities of private households for own use", 
+      "id": "t9810"
+    }, 
+    {
+      "name": "Fee-based Real Estate", 
+      "color": "#408E60", 
+      "desc": "Real estate activities on a fee or contract basis", 
+      "id": "l682"
+    }, 
+    {
+      "name": "Lease and Sale Real Estate", 
+      "color": "#408E60", 
+      "desc": "Real estate activities with own or leased property", 
+      "id": "l681"
+    }, 
+    {
+      "available": true, 
+      "name": "Pharmaceutical Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of pharmaceuticals, medicinal chemical and botanical products", 
+      "num_emp": 768816, 
+      "keywords": "botanical, drugs", 
+      "id": "c2100"
+    }, 
+    {
+      "name": "Other Metal Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of other fabricated metal products; metalworking service activities", 
+      "keywords": "metalworking service", 
+      "id": "c259"
+    }, 
+    {
+      "name": "Structural Metal Product Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of structural metal products, tanks, reservoirs and steam generators", 
+      "id": "c251"
+    }, 
+    {
+      "name": "Weapons and Ammo Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of weapons and ammunition", 
+      "keywords": "ammunition, bullets", 
+      "id": "c252"
+    }, 
+    {
+      "available": true, 
+      "name": "Hospital", 
+      "color": "#FF0000", 
+      "desc": "Hospital activities", 
+      "num_emp": 5729485, 
+      "keywords": "paediatric", 
+      "id": "q8610"
+    }, 
+    {
+      "available": true, 
+      "name": "Household Employment", 
+      "color": "#FFAEAE", 
+      "desc": "Activities of households as employers of domestic personnel", 
+      "num_emp": 91142, 
+      "keywords": "maids, babysitters, caretakers", 
+      "id": "t9700"
+    }, 
+    {
+      "available": true, 
+      "name": "Financial and Insurance", 
+      "color": "#A4BD99", 
+      "num_emp": 5939814, 
+      "desc": "Financial and insurance activities", 
+      "id": "k"
+    }, 
+    {
+      "available": true, 
+      "name": "Sewerage", 
+      "color": "#2F2F6D", 
+      "num_emp": 611034, 
+      "desc": "Sewerage", 
+      "id": "e37"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Food Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 723456, 
+      "desc": "Manufacture of other food products n.e.c.", 
+      "id": "c1079"
+    }, 
+    {
+      "available": true, 
+      "name": "Architecture and Engineering", 
+      "color": "#e377c2", 
+      "num_emp": 1513238, 
+      "desc": "Architectural and engineering activities; technical testing and analysis", 
+      "id": "m71"
+    }, 
+    {
+      "available": true, 
+      "name": "Head Offices and Consultancy", 
+      "color": "#e377c2", 
+      "num_emp": 1091192, 
+      "desc": "Activities of head offices; management consultancy activities", 
+      "id": "m70"
+    }, 
+    {
+      "available": true, 
+      "name": "Extraterritorial Activities", 
+      "color": "#4C4C4C", 
+      "num_emp": 38272, 
+      "desc": "Activities of extraterritorial organizations and bodies", 
+      "id": "u9900"
+    }, 
+    {
+      "available": true, 
+      "name": "Veterinary", 
+      "color": "#e377c2", 
+      "num_emp": 37632, 
+      "desc": "Veterinary activities", 
+      "id": "m75"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Professional, Scientific and Technical", 
+      "color": "#e377c2", 
+      "num_emp": 383750, 
+      "desc": "Other professional, scientific and technical activities", 
+      "id": "m74"
+    }, 
+    {
+      "available": true, 
+      "name": "Web and Information Services", 
+      "color": "#57D200", 
+      "num_emp": 4074645, 
+      "desc": "Information service activities", 
+      "id": "j63"
+    }, 
+    {
+      "name": "Other Metal Ore Mining", 
+      "color": "#330000", 
+      "desc": "Mining of non-ferrous metal ores", 
+      "keywords": "non-ferrous", 
+      "id": "b072"
+    }, 
+    {
+      "name": "Iron ore Mining", 
+      "color": "#330000", 
+      "desc": "Mining of iron ores", 
+      "id": "b071"
+    }, 
+    {
+      "available": true, 
+      "name": "Cocoa Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of cocoa, chocolate and sugar confectionery", 
+      "num_emp": 195864, 
+      "keywords": "chocolate, confectionary sugar", 
+      "id": "c1073"
+    }, 
+    {
+      "available": true, 
+      "name": "Pasta Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 350032, 
+      "desc": "Manufacture of macaroni, noodles, couscous and similar farinaceous products", 
+      "id": "c1074"
+    }, 
+    {
+      "available": true, 
+      "name": "Prepared Meals Manufacturing", 
+      "color": "#5E1F05", 
+      "num_emp": 312287, 
+      "desc": "Manufacture of prepared meals and dishes", 
+      "id": "c1075"
+    }, 
+    {
+      "available": true, 
+      "name": "Remediation Activities", 
+      "color": "#2F2F6D", 
+      "num_emp": 6810, 
+      "desc": "Remediation activities and other waste management services", 
+      "id": "e39"
+    }, 
+    {
+      "available": true, 
+      "name": "Waste", 
+      "color": "#2F2F6D", 
+      "num_emp": 717110, 
+      "desc": "Waste collection, treatment and disposal activities; materials recovery", 
+      "id": "e38"
+    }, 
+    {
+      "available": true, 
+      "name": "Train Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of railway locomotives and rolling stock", 
+      "num_emp": 33691, 
+      "keywords": "rail, locomotive", 
+      "id": "c3020"
+    }, 
+    {
+      "available": true, 
+      "name": "Financial Entities", 
+      "color": "#A4BD99", 
+      "num_emp": 15625, 
+      "desc": "Trusts, funds and similar financial entities", 
+      "id": "k6430"
+    }, 
+    {
+      "available": true, 
+      "name": "Extraterritorial Activities", 
+      "color": "#4C4C4C", 
+      "num_emp": 38272, 
+      "desc": "Activities of extraterritorial organizations and bodies", 
+      "id": "u"
+    }, 
+    {
+      "available": true, 
+      "name": "Pension Funding", 
+      "color": "#A4BD99", 
+      "num_emp": 121087, 
+      "desc": "Pension funding", 
+      "id": "k6530"
+    }, 
+    {
+      "available": true, 
+      "name": "Building Construction", 
+      "color": "#E87600", 
+      "num_emp": 6449033, 
+      "desc": "Construction of buildings", 
+      "id": "f4100"
+    }, 
+    {
+      "available": true, 
+      "name": "Utility Installation", 
+      "color": "#E87600", 
+      "desc": "Plumbing, heat and air-conditioning installation", 
+      "num_emp": 273855, 
+      "keywords": "HVAC, heading", 
+      "id": "f4322"
+    }, 
+    {
+      "available": true, 
+      "name": "Electrical Installation", 
+      "color": "#E87600", 
+      "num_emp": 515652, 
+      "desc": "Electrical installation", 
+      "id": "f4321"
+    }, 
+    {
+      "available": true, 
+      "name": "Other Construction Installation", 
+      "color": "#E87600", 
+      "num_emp": 381868, 
+      "desc": "Other construction installation", 
+      "id": "f4329"
+    }, 
+    {
+      "name": "Other Professional, Scientific and Technical", 
+      "color": "#e377c2", 
+      "desc": "Other professional, scientific and technical activities n.e.c.", 
+      "id": "m749"
+    }, 
+    {
+      "name": "Specialized Design", 
+      "color": "#e377c2", 
+      "desc": "Specialized design activities", 
+      "keywords": "interior, industrial, graphic, clothing, jewellery, textile", 
+      "id": "m741"
+    }, 
+    {
+      "name": "Photography", 
+      "color": "#e377c2", 
+      "desc": "Photographic activities", 
+      "keywords": "journalists, labs, one-hour, microfilm", 
+      "id": "m742"
+    }, 
+    {
+      "available": true, 
+      "name": "Fresh water fishing", 
+      "color": "#105B10", 
+      "num_emp": 2210, 
+      "desc": "Freshwater fishing", 
+      "id": "a0312"
+    }, 
+    {
+      "available": true, 
+      "name": "Water, Sewerage, and Waste", 
+      "color": "#2F2F6D", 
+      "desc": "Water supply; sewerage, waste management and remediation activities", 
+      "num_emp": 2379776, 
+      "keywords": "cleaning", 
+      "id": "e"
+    }, 
+    {
+      "available": true, 
+      "name": "Car Rental", 
+      "color": "#93789E", 
+      "num_emp": 272309, 
+      "desc": "Renting and leasing of motor vehicles", 
+      "id": "n7710"
+    }, 
+    {
+      "available": true, 
+      "name": "Landscaping", 
+      "color": "#93789E", 
+      "num_emp": 47341, 
+      "desc": "Landscape care and maintenance service activities", 
+      "id": "n8130"
+    }, 
+    {
+      "name": "Rope Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of cordage, rope, twine and netting", 
+      "keywords": "rope, cordage, twine, netting, string", 
+      "id": "c1394"
+    }, 
+    {
+      "name": "Knitted Fabric Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of knitted and crocheted fabrics", 
+      "keywords": "crocheted", 
+      "id": "c1391"
+    }, 
+    {
+      "available": true, 
+      "name": "Real Estate", 
+      "color": "#408E60", 
+      "num_emp": 657137, 
+      "desc": "Real estate activities", 
+      "id": "l68"
+    }, 
+    {
+      "name": "Carpet Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of carpets and rugs", 
+      "keywords": "rugs", 
+      "id": "c1393"
+    }, 
+    {
+      "name": "Non-Apparel Textile Fabrications", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of made-up textile articles, except apparel", 
+      "id": "c1392"
+    }, 
+    {
+      "name": "Websites and Hosting", 
+      "color": "#57D200", 
+      "desc": "Data processing, hosting and related activities; web portals", 
+      "id": "j631"
+    }, 
+    {
+      "available": true, 
+      "name": "IP Leasing", 
+      "color": "#93789E", 
+      "num_emp": 7709, 
+      "desc": "Leasing of intellectual property and similar products, except copyrighted works", 
+      "id": "n7740"
+    }, 
+    {
+      "available": true, 
+      "name": "Salt water fishing", 
+      "color": "#105B10", 
+      "desc": "Marine fishing", 
+      "num_emp": 86960, 
+      "keywords": "marine", 
+      "id": "a0311"
+    }, 
+    {
+      "available": true, 
+      "name": "Clothing Manufacturing", 
+      "color": "#5E1F05", 
+      "desc": "Manufacture of wearing apparel, except fur apparel", 
+      "num_emp": 4896468, 
+      "keywords": "apparel", 
+      "id": "c1410"
+    }, 
+    {
+      "name": "Information Services", 
+      "color": "#57D200", 
+      "desc": "Other information service activities", 
+      "id": "j639"
+    }, 
+    {
+      "name": "Gas extraction", 
+      "color": "#330000", 
+      "desc": "Extraction of natural gas", 
+      "keywords": "natural", 
+      "id": "b0620"
+    }
+  ]
+}
