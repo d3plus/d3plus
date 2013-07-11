@@ -5457,7 +5457,7 @@ vizwhiz.rings = function(vars) {
       tooltip_appends += "</div>"
     })
     
-    var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight]) : ""
+    var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight],tree_nodes) : ""
     
     var tooltip_data = get_tooltip_data(vars.highlight)
 
