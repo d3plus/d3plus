@@ -360,7 +360,7 @@ vizwhiz.viz = function() {
       }
       else {
         if (vizwhiz.dev) console.log("[viz-whiz] Calculating Total Value")
-        console.log(vars.data)
+        
         if (vars.type == "tree_map") {
           var total_val = check_child(vars.data)
           
@@ -371,13 +371,19 @@ vizwhiz.viz = function() {
             })
           }
         }
-        else {
-          var total_val = d3.sum(data_obj.clean, function(d){ 
-            if (vars.type == "stacked") return d[vars.value_var]
-            else if (vars.year == d[vars.year_var]) return d[vars.value_var]
+        else if (vars.data instanceof Array) {
+          var total_val = d3.sum(vars.data,function(d){
+            return d[vars.value_var]
           })
         }
-        console.log(total_val)
+        else if (vars.type == "rings") {
+          var total_val = vars.data[vars.highlight][vars.value_var]
+        }
+        else {
+          var total_val = d3.sum(d3.values(vars.data),function(d){
+            return d[vars.value_var]
+          })
+        }
       }
       
       vars.svg_enter.append("g")
@@ -588,17 +594,17 @@ vizwhiz.viz = function() {
         }
     
     if (type == "total_bar" && t) {
-      title = vars.number_format(t)
+      title = vars.number_format({"value": t, "name": vars.value_var})
       vars.total_bar.prefix ? title = vars.total_bar.prefix + title : null;
       vars.total_bar.suffix ? title = title + vars.total_bar.suffix : null;
       
-      var overall_total = d3.sum(data_obj.clean, function(d){ 
-        if (vars.type == "stacked") return d[vars.value_var]
-        else if (vars.year == d[vars.year_var]) return d[vars.value_var]
-      })
-      var pct = (t/overall_total)*100
-      if (pct < 100) {
-        ot = vars.number_format(overall_total)
+      if (vars.filter.length || vars.solo.length && vars.type != "rings") {
+        var overall_total = d3.sum(data_obj.clean, function(d){ 
+          if (vars.type == "stacked") return d[vars.value_var]
+          else if (vars.year == d[vars.year_var]) return d[vars.value_var]
+        })
+        var pct = (t/overall_total)*100
+        ot = vars.number_format({"value": overall_total, "name": vars.value_var})
         title += " ("+vars.number_format(pct)+"% of "+ot+")"
       }
       
