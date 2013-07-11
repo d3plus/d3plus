@@ -219,7 +219,8 @@ vizwhiz.network = function(vars) {
             "width": info_width,
             "html": tooltip_appends+html,
             "fixed": true,
-            "mouseevents": true
+            "mouseevents": true,
+            "parent": vars.parent
           })
           
         }

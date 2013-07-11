@@ -336,6 +336,10 @@ vizwhiz.viz = function() {
         vars.connections = get_connections(vars.links)
       }
       
+      vars.parent
+        .style("width",vars.svg_width+"px")
+        .style("height",vars.svg_height+"px")
+      
       vars.width = vars.svg_width;
       
       if (vars.type == "pie_scatter") {

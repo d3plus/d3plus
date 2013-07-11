@@ -437,7 +437,8 @@ vizwhiz.bubbles = function(vars) {
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this
+          "mouseevents": this,
+          "parent": vars.parent
         })
         
       }

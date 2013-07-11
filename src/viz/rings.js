@@ -257,7 +257,8 @@ vizwhiz.rings = function(vars) {
       "y": vars.parent.node().offsetTop+vars.margin.top+5,
       "fixed": true,
       "width": tooltip_width,
-      "mouseevents": true
+      "mouseevents": true,
+      "parent": vars.parent
     })
     
   }

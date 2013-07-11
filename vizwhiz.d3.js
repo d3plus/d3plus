@@ -280,13 +280,14 @@ vizwhiz.tooltip.create = function(params) {
   params.x = params.x ? params.x : 0
   params.y = params.y ? params.y : 0
   params.color = params.color ? params.color : "#333"
+  params.parent = params.parent ? params.parent : d3.select("body")
   
   params.anchor = {}
   if (params.fullscreen) {
     params.anchor.x = "center"
     params.anchor.y = "center"
-    params.x = window.innerWidth/2
-    params.y = window.innerHeight/2
+    params.x = params.parent ? params.parent.node().offsetWidth/2 : window.innerWidth/2
+    params.y = params.parent ? params.parent.node().offsetHeight/2 : window.innerHeight/2
   }
   else if (params.align) {
     var a = params.align.split(" ")
@@ -302,14 +303,14 @@ vizwhiz.tooltip.create = function(params) {
   var title_width = params.width - 30
   
   if (params.fullscreen) {
-    var curtain = d3.select("body").append("div")
+    var curtain = params.parent.append("div")
       .attr("class","vizwhiz_tooltip_curtain")
       .on(vizwhiz.evt.click,function(){
         vizwhiz.tooltip.remove(params.id)
       })
   }
   
-  var tooltip = d3.select("body").append("div")
+  var tooltip = params.parent.append("div")
     .datum(params)
     .attr("id","vizwhiz_tooltip_id_"+params.id)
     .attr("class","vizwhiz_tooltip vizwhiz_tooltip_"+params.size)
@@ -320,9 +321,13 @@ vizwhiz.tooltip.create = function(params) {
   
   if (params.fullscreen && params.html) {
     
+
+    w = params.parent ? params.parent.node().offsetWidth*0.75 : window.innerWidth*0.75
+    h = params.parent ? params.parent.node().offsetHeight*0.75 : window.innerHeight*0.75
+    
     container
-      .style("height",(window.innerHeight*0.75)+"px")
-      .style("width",(window.innerWidth*0.75)+"px")
+      .style("width",w+"px")
+      .style("height",h+"px")
       
     var body = container.append("div")
       .attr("class","vizwhiz_tooltip_body")
@@ -1044,6 +1049,10 @@ vizwhiz.viz = function() {
         }
         vars.connections = get_connections(vars.links)
       }
+      
+      vars.parent
+        .style("width",vars.svg_width+"px")
+        .style("height",vars.svg_height+"px")
       
       vars.width = vars.svg_width;
       
@@ -2426,7 +2435,8 @@ vizwhiz.network = function(vars) {
             "width": info_width,
             "html": tooltip_appends+html,
             "fixed": true,
-            "mouseevents": true
+            "mouseevents": true,
+            "parent": vars.parent
           })
           
         }
@@ -3147,7 +3157,8 @@ vizwhiz.stacked = function(vars) {
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this
+          "mouseevents": this,
+          "parent": vars.parent
         })
         
       }
@@ -3592,7 +3603,8 @@ vizwhiz.tree_map = function(vars) {
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this
+          "mouseevents": this,
+          "parent": vars.parent
         })
         
       }
@@ -3850,7 +3862,8 @@ vizwhiz.geo_map = function(vars) {
         "y": vars.margin.top+vars.parent.node().offsetTop+5,
         "fixed": true,
         "width": info_width,
-        "html": html
+        "html": html,
+        "parent": vars.parent
       })
       
     }
@@ -4435,7 +4448,8 @@ vizwhiz.pie_scatter = function(vars) {
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this
+          "mouseevents": this,
+          "parent": vars.parent
         })
         
       }
@@ -5113,7 +5127,8 @@ vizwhiz.bubbles = function(vars) {
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this
+          "mouseevents": this,
+          "parent": vars.parent
         })
         
       }
@@ -5507,7 +5522,8 @@ vizwhiz.rings = function(vars) {
       "y": vars.parent.node().offsetTop+vars.margin.top+5,
       "fixed": true,
       "width": tooltip_width,
-      "mouseevents": true
+      "mouseevents": true,
+      "parent": vars.parent
     })
     
   }

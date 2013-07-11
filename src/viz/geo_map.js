@@ -153,7 +153,8 @@ vizwhiz.geo_map = function(vars) {
         "y": vars.margin.top+vars.parent.node().offsetTop+5,
         "fixed": true,
         "width": info_width,
-        "html": html
+        "html": html,
+        "parent": vars.parent
       })
       
     }
