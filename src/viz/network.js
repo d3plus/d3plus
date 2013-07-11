@@ -220,7 +220,8 @@ vizwhiz.network = function(vars) {
             "html": tooltip_appends+html,
             "fixed": true,
             "mouseevents": true,
-            "parent": vars.parent
+            "parent": vars.parent,
+            "background": vars.background
           })
           
         }

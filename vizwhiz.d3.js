@@ -281,6 +281,7 @@ vizwhiz.tooltip.create = function(params) {
   params.y = params.y ? params.y : 0
   params.color = params.color ? params.color : "#333"
   params.parent = params.parent ? params.parent : d3.select("body")
+  params.background = params.background ? params.background : "#ffffff"
   
   params.anchor = {}
   if (params.fullscreen) {
@@ -305,6 +306,7 @@ vizwhiz.tooltip.create = function(params) {
   if (params.fullscreen) {
     var curtain = params.parent.append("div")
       .attr("class","vizwhiz_tooltip_curtain")
+      .style("background-color",params.background)
       .on(vizwhiz.evt.click,function(){
         vizwhiz.tooltip.remove(params.id)
       })
@@ -2436,7 +2438,8 @@ vizwhiz.network = function(vars) {
             "html": tooltip_appends+html,
             "fixed": true,
             "mouseevents": true,
-            "parent": vars.parent
+            "parent": vars.parent,
+            "background": vars.background
           })
           
         }
@@ -3158,7 +3161,8 @@ vizwhiz.stacked = function(vars) {
           "footer": vars.data_source,
           "data": tooltip_data,
           "mouseevents": this,
-          "parent": vars.parent
+          "parent": vars.parent,
+          "background": vars.background
         })
         
       }
@@ -3604,7 +3608,8 @@ vizwhiz.tree_map = function(vars) {
           "footer": vars.data_source,
           "data": tooltip_data,
           "mouseevents": this,
-          "parent": vars.parent
+          "parent": vars.parent,
+          "background": vars.background
         })
         
       }
@@ -3863,7 +3868,8 @@ vizwhiz.geo_map = function(vars) {
         "fixed": true,
         "width": info_width,
         "html": html,
-        "parent": vars.parent
+        "parent": vars.parent,
+        "background": vars.background
       })
       
     }
@@ -4449,7 +4455,8 @@ vizwhiz.pie_scatter = function(vars) {
           "footer": vars.data_source,
           "data": tooltip_data,
           "mouseevents": this,
-          "parent": vars.parent
+          "parent": vars.parent,
+          "background": vars.background
         })
         
       }
@@ -5128,7 +5135,8 @@ vizwhiz.bubbles = function(vars) {
           "footer": vars.data_source,
           "data": tooltip_data,
           "mouseevents": this,
-          "parent": vars.parent
+          "parent": vars.parent,
+          "background": vars.background
         })
         
       }
@@ -5523,7 +5531,8 @@ vizwhiz.rings = function(vars) {
       "fixed": true,
       "width": tooltip_width,
       "mouseevents": true,
-      "parent": vars.parent
+      "parent": vars.parent,
+      "background": vars.background
     })
     
   }

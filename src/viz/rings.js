@@ -258,7 +258,8 @@ vizwhiz.rings = function(vars) {
       "fixed": true,
       "width": tooltip_width,
       "mouseevents": true,
-      "parent": vars.parent
+      "parent": vars.parent,
+      "background": vars.background
     })
     
   }

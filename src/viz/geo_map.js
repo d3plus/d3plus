@@ -154,7 +154,8 @@ vizwhiz.geo_map = function(vars) {
         "fixed": true,
         "width": info_width,
         "html": html,
-        "parent": vars.parent
+        "parent": vars.parent,
+        "background": vars.background
       })
       
     }

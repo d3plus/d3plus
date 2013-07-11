@@ -16,6 +16,7 @@ vizwhiz.tooltip.create = function(params) {
   params.y = params.y ? params.y : 0
   params.color = params.color ? params.color : "#333"
   params.parent = params.parent ? params.parent : d3.select("body")
+  params.background = params.background ? params.background : "#ffffff"
   
   params.anchor = {}
   if (params.fullscreen) {
@@ -40,6 +41,7 @@ vizwhiz.tooltip.create = function(params) {
   if (params.fullscreen) {
     var curtain = params.parent.append("div")
       .attr("class","vizwhiz_tooltip_curtain")
+      .style("background-color",params.background)
       .on(vizwhiz.evt.click,function(){
         vizwhiz.tooltip.remove(params.id)
       })

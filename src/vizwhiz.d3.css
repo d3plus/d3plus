@@ -40,8 +40,7 @@ div.vizwhiz_tooltip_curtain {
   right: 0px;
   bottom: 0px;
   left: 0px;
-  background-color: white;
-  opacity: 0.75;
+  opacity: 0.8;
   z-index: 10000;
 }
 
