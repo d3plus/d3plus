@@ -487,7 +487,7 @@ vizwhiz.tooltip.create = function(params) {
   if (params.data || (!params.fullscreen && params.html)) {
     
     if (!params.fullscreen && params.html) {
-      var limit = window.innerHeight-params.y-5
+      var limit = params.fixed ? window.innerHeight-params.y-5 : window.innerHeight-10
       var h = params.height < limit ? params.height : limit
     }
     else {
@@ -1075,9 +1075,11 @@ vizwhiz.viz = function() {
           
           function check_child(c) {
             if (c[vars.value_var]) return c[vars.value_var]
-            else return d3.sum(c.children,function(c2){
-              return check_child(c2)
-            })
+            else if (c.children) {
+              return d3.sum(c.children,function(c2){
+                return check_child(c2)
+              })
+          }
           }
         }
         else if (vars.data instanceof Array) {

@@ -222,7 +222,7 @@ vizwhiz.tooltip.create = function(params) {
   if (params.data || (!params.fullscreen && params.html)) {
     
     if (!params.fullscreen && params.html) {
-      var limit = window.innerHeight-params.y-5
+      var limit = params.fixed ? window.innerHeight-params.y-5 : window.innerHeight-10
       var h = params.height < limit ? params.height : limit
     }
     else {

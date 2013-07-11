@@ -14,6 +14,13 @@ div.tester {
   margin-bottom: -3px;
 }
 
+div.test_button {
+  display: inline-block;
+  width: 75px;
+  height: 20px;
+  border: 1px solid black;
+}
+
 </style>
 <body>
 
@@ -229,7 +236,11 @@ div.tester {
         "mouseevents": this,
         "footer": "Click box for more info",
         "data": [{"name":"Trade Value","value":"4000000","format":",f","highlight":true},
-                 {"name":"Complexity","value":"0.89","format":format_test}]
+                 {"name":"Complexity","value":"0.89","format":format_test}],
+        "html": "<div class='filter_buttons'>\
+                <div onclick='key_filter()' class='test_button'>Hide Group</div>\
+                <div onclick='key_solo()' class='test_button'>Solo Group</div>\
+              </div>"
       })
       
     })

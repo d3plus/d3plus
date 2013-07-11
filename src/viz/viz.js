@@ -366,9 +366,11 @@ vizwhiz.viz = function() {
           
           function check_child(c) {
             if (c[vars.value_var]) return c[vars.value_var]
-            else return d3.sum(c.children,function(c2){
-              return check_child(c2)
-            })
+            else if (c.children) {
+              return d3.sum(c.children,function(c2){
+                return check_child(c2)
+              })
+          }
           }
         }
         else if (vars.data instanceof Array) {

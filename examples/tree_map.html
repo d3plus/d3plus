@@ -25,14 +25,20 @@ body {
 var viz = vizwhiz.viz()
 
 d3.json("data/products_mg.json", function(raw_data){
-  d3.json("data/atlas/region_attrs.json", function(attrs){
-    d3.json("data/atlas/flat_data.json", function(data){
-    
-      // raw_data.forEach(function(d, i){
-      //   d.nesting_0 = {"name":attrs[d.id.slice(0, 2)].name, "id":d.id.slice(0, 2)};
-      //   d.nesting_1 = {"name":attrs[d.id.slice(0, 4)].name, "id":d.id.slice(0, 4)};
-      //   d.nesting_2 = {"name":attrs[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
-      // })
+  d3.json("data/attr_isic.json", function(attr){
+    d3.json("data/isic_mg.json", function(data){
+      
+      var attrs = {}
+      attr.data.forEach(function(a){
+        attrs[a.id] = a
+      })
+      
+      data.data.forEach(function(d, i){
+        d.id = d.isic_id
+        d.nesting_0 = {"name":attrs[d.id.slice(0, 1)].name, "id":d.id.slice(0, 1)};
+        d.nesting_1 = {"name":attrs[d.id.slice(0, 3)].name, "id":d.id.slice(0, 3)};
+        d.nesting_2 = {"name":attrs[d.id.slice(0, 5)].name, "id":d.id.slice(0, 5)};
+      })
       
       inner_html = function(obj) {
         console.log(obj)
@@ -68,8 +74,8 @@ d3.json("data/products_mg.json", function(raw_data){
         .id_var("id")
         .attrs(attrs)
         .text_var("name")
-        .value_var("value")
-        .tooltip_info({"short": ["value"],"long": ["distance", "complexity", "value"]})
+        .value_var("wage")
+        .tooltip_info({"short": ["wage"],"long": ["distance", "complexity", "wage"]})
         // .tooltip_info(["distance", "complexity", "val_usd"])
         .name_array(["name","id"])
         .title("Product Exports of Minas Gerais")
@@ -82,7 +88,7 @@ d3.json("data/products_mg.json", function(raw_data){
         .data_source("Data provided by SECEX")
         
       d3.select("#viz")
-        .datum(data)
+        .datum(data.data)
         .call(viz)
     
       // setTimeout(function(){
