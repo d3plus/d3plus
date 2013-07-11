@@ -715,7 +715,7 @@ vizwhiz.viz = function() {
     "donut": true,
     "filter": [],
     "filtered_data": null,
-    "graph": {},
+    "graph": {"timing": 0},
     "group_bgs": true,
     "grouping": "name",
     "highlight": null,
@@ -2049,14 +2049,15 @@ vizwhiz.viz = function() {
     var labelx = vars.width/2
     if (!vars.title_center) labelx += vars.graph.margin.left
       
-    // create X axis label
+    // Create X axis label
     axes.append('text')
       .attr('class', 'x_axis_label')
       .attr('x', labelx)
       .attr('y', vars.height-10)
       .text(vars.text_format(vars.xaxis_var))
       .attr(label_style)
-    // create Y axis label
+      
+    // Create Y axis label
     axes.append('text')
       .attr('class', 'y_axis_label')
       .attr('y', 15)
@@ -2065,47 +2066,47 @@ vizwhiz.viz = function() {
       .attr("transform","rotate(-90)")
       .attr(label_style)
 
-    // Update Y axis
+    // Set Y axis
     vars.graph.offset = 0
-    d3.select("g.yaxis").transition().duration(vizwhiz.timing)
+    d3.select("g.yaxis")
       .call(vars.y_axis.scale(vars.y_scale))
       
     vars.graph.margin.left += vars.graph.offset
     vars.graph.width -= vars.graph.offset
+    vars.x_scale.range([0,vars.graph.width])
     
+    // Set X axis
     vars.graph.yoffset = 0
-    d3.select("g.xaxis").transition().duration(vizwhiz.timing)
+    d3.select("g.xaxis")
       .call(vars.x_axis.scale(vars.x_scale))
       
     vars.graph.height -= vars.graph.yoffset
     
     // Update Graph
-    d3.select(".chart").transition().duration(vizwhiz.timing)
+    d3.select(".chart").transition().duration(vars.graph.timing)
       .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
       .select("rect#background")
         .attr('width', vars.graph.width)
         .attr('height', vars.graph.height)
       
-    d3.select("rect#border").transition().duration(vizwhiz.timing)
+    d3.select("rect#border").transition().duration(vars.graph.timing)
       .attr('x', vars.graph.margin.left)
       .attr('y', vars.graph.margin.top)
       .attr('width', vars.graph.width)
       .attr('height', vars.graph.height)
 
     // Update X axis
-    vars.x_scale.range([0, vars.graph.width]);
     if (vars.type == "stacked") {
-    vars.y_scale.range([vars.graph.height,0]);
+      vars.y_scale.range([vars.graph.height,0]);
     }
     else {
       vars.y_scale.range([0, vars.graph.height]);
     }
-
     
-    d3.select("g.yaxis").transition().duration(vizwhiz.timing)
+    d3.select("g.yaxis")
       .call(vars.y_axis.scale(vars.y_scale))
     
-    d3.select("g.xaxis").transition().duration(vizwhiz.timing)
+    d3.select("g.xaxis")
       .attr("transform", "translate(0," + vars.graph.height + ")")
       .call(vars.x_axis.scale(vars.x_scale))
     
@@ -2113,23 +2114,21 @@ vizwhiz.viz = function() {
       .style("text-anchor","end")
 
     // Update X axis label
-    d3.select(".x_axis_label").transition().duration(vizwhiz.timing)
+    d3.select(".x_axis_label")
       .attr('x', labelx)
       .attr('y', vars.height-10)
       .text(vars.text_format(vars.xaxis_var))
 
-    // Update Y axis
-    d3.select("g.yaxis").transition().duration(vizwhiz.timing)
-      .call(vars.y_axis.scale(vars.y_scale))
-
     // Update Y axis label
-    d3.select(".y_axis_label").transition().duration(vizwhiz.timing)
+    d3.select(".y_axis_label")
       .attr('y', 15)
       .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
       .text(vars.text_format(vars.yaxis_var))
       
     // Move titles
     update_titles()
+    
+    vars.graph.timing = vizwhiz.timing
       
   }
 
@@ -2862,7 +2861,6 @@ vizwhiz.stacked = function(vars) {
   //-------------------------------------------------------------------
   
   var stack = d3.layout.stack()
-    .offset("zero")
     .values(function(d) { return d.values; })
     .x(function(d) { return d[vars.year_var]; })
     .y(function(d) { return d[vars.yaxis_var]; });
