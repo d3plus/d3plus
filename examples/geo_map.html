@@ -57,6 +57,7 @@
             // .highlight("ap000000")
             .year(2010)
             // .text_format(function(d){return d.toUpperCase()})
+            .number_format(function(d){return "$"+Math.round(d)+" USD"})
           
           d3.select("#viz")
             .datum(data)

@@ -45,10 +45,7 @@ vizwhiz.viz = function() {
     "nesting": [],
     "nesting_aggs": {},
     "nodes": null,
-    "number_format": function(obj) { 
-      if (typeof obj === "number") var value = obj, name = ""
-      else var value = obj.value, name = obj.name
-      
+    "number_format": function(value,name) { 
       if (["year",vars.id_var].indexOf(name) >= 0 || typeof value === "string") {
         return value
       }
@@ -81,7 +78,9 @@ vizwhiz.viz = function() {
     "sub_title": null,
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
-    "text_format": function(d) { return d },
+    "text_format": function(text,name) { 
+      return text 
+    },
     "text_var": "name",
     "tiles": true,
     "title": null,
@@ -600,7 +599,7 @@ vizwhiz.viz = function() {
         }
     
     if (type == "total_bar" && t) {
-      title = vars.number_format({"value": t, "name": vars.value_var})
+      title = vars.number_format(t,vars.value_var)
       vars.total_bar.prefix ? title = vars.total_bar.prefix + title : null;
       vars.total_bar.suffix ? title = title + vars.total_bar.suffix : null;
       
@@ -610,8 +609,8 @@ vizwhiz.viz = function() {
           else if (vars.year == d[vars.year_var]) return d[vars.value_var]
         })
         var pct = (t/overall_total)*100
-        ot = vars.number_format({"value": overall_total, "name": vars.value_var})
-        title += " ("+vars.number_format(pct)+"% of "+ot+")"
+        ot = vars.number_format(overall_total,vars.value_var)
+        title += " ("+vars.number_format(pct,"share")+"% of "+ot+")"
       }
       
     }
@@ -741,9 +740,16 @@ vizwhiz.viz = function() {
       var value = find_variable(id,t)
       if (value) {
         var name = vars.text_format(t),
-            h = t == tooltip_highlight,
-            val = vars.number_format({"name": t, "value": value})
-        tooltip_data.push({"name": name, "value": val, "highlight": h})
+            h = t == tooltip_highlight
+            
+        if (typeof value == "string") {
+          var val = vars.text_format(value,t)
+        }
+        else if (typeof value == "number") {
+          var val = vars.number_format(value,t)
+        }
+        
+        if (val) tooltip_data.push({"name": name, "value": val, "highlight": h})
       }
     })
     
@@ -1273,8 +1279,7 @@ vizwhiz.viz = function() {
       
         if (vars.xaxis_var == vars.year_var) var text = d;
         else {
-          var obj = {"name": vars.xaxis_var, "value": d}
-          var text = vars.number_format(obj);
+          var text = vars.number_format(d,vars.xaxis_var);
         }
       
         d3.select(this)
@@ -1329,8 +1334,7 @@ vizwhiz.viz = function() {
           var text = d*100+"%"
         }
         else {
-          var obj = {"name": vars.yaxis_var, "value": d}
-          var text = vars.number_format(obj);
+          var text = vars.number_format(d,vars.yaxis_var);
         }
       
         d3.select(this)

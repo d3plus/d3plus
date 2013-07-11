@@ -397,6 +397,8 @@ vizwhiz.bubbles = function(vars) {
   bubble
     .on(vizwhiz.evt.over, function(d){
       
+      d3.select(this).style("cursor","pointer")
+      
       var tooltip_data = get_tooltip_data(d,"short")
       
       vizwhiz.tooltip.create({

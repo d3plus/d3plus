@@ -333,10 +333,8 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("stroke-width", 1)
           .attr("shape-rendering","crispEdges")
       
-        var xtext = vars.number_format({
-          "value": d[vars.xaxis_var],
-          "name": vars.xaxis_var
-        })
+        var xtext = vars.number_format(d[vars.xaxis_var],vars.xaxis_var)
+        
         // xvalue text element
         viz.append("text")
           .attr("class", "axis_hover")
@@ -361,11 +359,9 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("stroke", color)
           .attr("stroke-width", 1)
           .attr("shape-rendering","crispEdges")
-      
-        var ytext = vars.number_format({
-          "value": d[vars.yaxis_var],
-          "name": vars.yaxis_var
-        })
+        
+        var ytext = vars.number_format(d[vars.yaxis_var],vars.yaxis_var)
+        
         // xvalue text element
         viz.append("text")
           .attr("class", "axis_hover")

@@ -149,8 +149,8 @@ vizwhiz.geo_map = function(vars) {
         "icon": find_variable(id,"icon"),
         "color": color,
         "footer": footer,
-        "x": vars.width-info_width-5+vars.margin.left+vars.parent.node().offsetLeft,
-        "y": vars.margin.top+vars.parent.node().offsetTop+5,
+        "x": vars.width-info_width-5+vars.margin.left,
+        "y": vars.margin.top+5,
         "fixed": true,
         "width": info_width,
         "html": html,
@@ -205,7 +205,7 @@ vizwhiz.geo_map = function(vars) {
         step = 0.0
     while(step <= 1) {
       data_range.push((data_extent[0]*Math.pow((data_extent[1]/data_extent[0]),step)))
-      step += 0.2
+      step += 0.25
     }
     var value_color = d3.scale.log()
       .domain(data_range)
@@ -292,7 +292,7 @@ vizwhiz.geo_map = function(vars) {
     
   viz_enter.append('g')
     .attr('class','paths');
-    
+  
   // add scale
   var gradient = defs
     .append("linearGradient")
@@ -345,6 +345,7 @@ vizwhiz.geo_map = function(vars) {
     .attr("mode","normal")
   
   scale.append("rect")
+    .attr("id","scalebg")
     .attr("width", scale_width+"px")
     .attr("height", "45px")
     .attr("fill","#ffffff")
@@ -361,6 +362,14 @@ vizwhiz.geo_map = function(vars) {
     .attr("fill","#333")
     .attr("font-size","10px")
     .attr("font-family","Helvetica")
+  
+  scale.append("rect")
+    .attr("id","scalecolor")
+    .attr("x",scale_padding+"px")
+    .attr("y",(scale_height*1.75)+"px")
+    .attr("width", (scale_width-(scale_padding*2))+"px")
+    .attr("height", scale_height*0.75+"px")
+    .style("fill", "url(#gradient)")
      
   data_range.forEach(function(v,i){
     if (i == data_range.length-1) {
@@ -371,19 +380,13 @@ vizwhiz.geo_map = function(vars) {
       var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))
     }
     scale.append("rect")
+      .attr("id","scaletick_"+i)
       .attr("x", x+"px")
       .attr("y", (scale_height*1.75)+"px")
       .attr("width", 1)
       .attr("height", ((scale_height*0.75)+3)+"px")
       .style("fill", "#333")
       .attr("opacity",0.25)
-  
-    scale.append("rect")
-      .attr("x",scale_padding+"px")
-      .attr("y",(scale_height*1.75)+"px")
-      .attr("width", (scale_width-(scale_padding*2))+"px")
-      .attr("height", scale_height*0.75+"px")
-      .style("fill", "url(#gradient)")
       
     scale.append("text")
       .attr("id","scale_"+i)
@@ -402,12 +405,49 @@ vizwhiz.geo_map = function(vars) {
       .style("opacity",0)
   }
   else {
+    var max = 0
     data_range.forEach(function(v,i){
-      d3.select("g.scale").select("text#scale_"+i).text(vars.number_format(v))
+      var elem = d3.select("g.scale").select("text#scale_"+i)
+      elem.text(vars.number_format(v,vars.value_var))
+      var w = elem.node().offsetWidth
+      if (w > max) max = w
     })
-    d3.select("g.scale").select("text#scale_title").text(vars.text_format(vars.value_var))
+    
+    max += 10
+      
     d3.select("g.scale").transition().duration(vizwhiz.timing)
       .style("opacity",1)
+      
+    d3.select("g.scale").select("rect#scalebg").transition().duration(vizwhiz.timing)
+      .attr("width",max*data_range.length+"px")
+      
+    d3.select("g.scale").select("rect#scalecolor").transition().duration(vizwhiz.timing)
+      .attr("x",max/2+"px")
+      .attr("width",max*(data_range.length-1)+"px")
+      
+    d3.select("g.scale").select("text#scale_title").transition().duration(vizwhiz.timing)
+      .attr("x",(max*data_range.length)/2+"px")
+      .text(vars.text_format(vars.value_var))
+      
+    data_range.forEach(function(v,i){
+      
+      if (i == data_range.length-1) {
+        var x = (max/2)+Math.round((i/(data_range.length-1))*(max*data_range.length-(max)))-1
+      } 
+      else if (i != 0) {
+        var x = (max/2)+Math.round((i/(data_range.length-1))*(max*data_range.length-(max)))-1
+      } 
+      else {
+        var x = (max/2)+Math.round((i/(data_range.length-1))*(max*data_range.length-(max)))
+      }
+      
+      d3.select("g.scale").select("rect#scaletick_"+i).transition().duration(vizwhiz.timing)
+        .attr("x",x+"px")
+      
+      d3.select("g.scale").select("text#scale_"+i).transition().duration(vizwhiz.timing)
+        .attr("x",x+"px")
+    })
+    
   }
   
   zoom_controls();
