@@ -2,7 +2,6 @@
 var vizwhiz = window.vizwhiz || {};
 
 vizwhiz.version = '0.0.1';
-vizwhiz.dev = true //set false when in production
 
 window.vizwhiz = vizwhiz;
 
@@ -737,6 +736,7 @@ vizwhiz.viz = function() {
     "data": null,
     "data_source": null,
     "depth": null,
+    "dev": false,
     "donut": true,
     "filter": [],
     "filtered_data": null,
@@ -847,18 +847,18 @@ vizwhiz.viz = function() {
   chart = function(selection) {
     selection.each(function(data_passed) {
 
-      if (vizwhiz.dev) console.log("[viz-whiz] *** Start Chart ***")
+      if (vars.dev) console.log("[viz-whiz] *** Start Chart ***")
       
       // Things to do ONLY when the data has changed
       if (data_passed != data_obj.raw) {
         
-        if (vizwhiz.dev) console.log("[viz-whiz] New Data Detected")
+        if (vars.dev) console.log("[viz-whiz] New Data Detected")
         // Copy data to "raw_data" variable
         data_obj = {}
         data_obj.raw = data_passed
         vars.parent = d3.select(this)
         
-        if (vizwhiz.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
+        if (vars.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
         // Find available years
         vars.years = vizwhiz.utils.uniques(data_obj.raw,vars.year_var)
         vars.years.sort()
@@ -868,7 +868,7 @@ vizwhiz.viz = function() {
           else vars.year = "all"
         }
         
-        if (vizwhiz.dev) console.log("[viz-whiz] Cleaning Data")
+        if (vars.dev) console.log("[viz-whiz] Cleaning Data")
         vars.keys = {}
         data_obj.clean = data_obj.raw.filter(function(d){
           for (k in d) {
@@ -905,7 +905,7 @@ vizwhiz.viz = function() {
         
         if (nested_apps.indexOf(vars.type) >= 0) {
           
-          if (vizwhiz.dev) console.log("[viz-whiz] Nesting Data")
+          if (vars.dev) console.log("[viz-whiz] Nesting Data")
           
           vars.nesting.forEach(function(depth){
             
@@ -1025,7 +1025,7 @@ vizwhiz.viz = function() {
       
       if (["network","rings"].indexOf(vars.type) >= 0) {
         if (filter_change) {
-          if (vizwhiz.dev) console.log("[viz-whiz] Filtering Nodes and Edges")
+          if (vars.dev) console.log("[viz-whiz] Filtering Nodes and Edges")
           vars.nodes = nodes.filter(function(n){
             if (removed_ids.indexOf(n[vars.id_var]) >= 0) {
               return false;
@@ -1058,7 +1058,7 @@ vizwhiz.viz = function() {
       vars.width = vars.svg_width;
       
       if (vars.type == "pie_scatter") {
-        if (vizwhiz.dev) console.log("[viz-whiz] Setting Axes Domains")
+        if (vars.dev) console.log("[viz-whiz] Setting Axes Domains")
         if (xaxis_domain) vars.xaxis_domain = xaxis_domain
         else {
           vars.xaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight].all,function(d){
@@ -1078,7 +1078,7 @@ vizwhiz.viz = function() {
         var total_val = null
       }
       else {
-        if (vizwhiz.dev) console.log("[viz-whiz] Calculating Total Value")
+        if (vars.dev) console.log("[viz-whiz] Calculating Total Value")
         
         if (vars.type == "tree_map") {
           var total_val = check_child(vars.data)
@@ -1121,7 +1121,7 @@ vizwhiz.viz = function() {
         make_title(null,"total_bar");
       }
       else {
-        if (vizwhiz.dev) console.log("[viz-whiz] Creating/Updating Titles")
+        if (vars.dev) console.log("[viz-whiz] Creating/Updating Titles")
         vars.small = false;
         vars.graph.margin = {"top": 5, "right": 10, "bottom": 40, "left": 40}
         vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
@@ -1159,9 +1159,9 @@ vizwhiz.viz = function() {
         
       filter_change = false
       axis_change = false
-      if (vizwhiz.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
+      if (vars.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
       vizwhiz[vars.type](vars);
-      if (vizwhiz.dev) console.log("[viz-whiz] *** End Chart ***")
+      if (vars.dev) console.log("[viz-whiz] *** End Chart ***")
       
     });
     
@@ -1177,7 +1177,7 @@ vizwhiz.viz = function() {
     if (filter_change || 
         (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
       
-      if (vizwhiz.dev) console.log("[viz-whiz] Removing Solo/Filters")
+      if (vars.dev) console.log("[viz-whiz] Removing Solo/Filters")
       removed_ids = []
       return check_data.filter(function(d){
         
@@ -1618,6 +1618,12 @@ vizwhiz.viz = function() {
     vars.depth = x;
     return chart;
   };
+  
+  chart.dev = function(x) {
+    if (!arguments.length) return vars.dev;
+    vars.dev = x;
+    return chart;
+  };
 
   chart.donut = function(x) {
     if (!arguments.length) return vars.donut;
@@ -2006,18 +2012,20 @@ vizwhiz.viz = function() {
         var height = (Math.cos(25)*this.getBBox().width)
         if (height > vars.graph.yoffset && !vars.small) vars.graph.yoffset = height
         
-        tick_offset = 10
+        var tick_offset = 10
+        var tick_opacity = 1
       }
       else {
-        text = null
-        tick_offset = 5
+        var text = null
+        var tick_offset = 5
+        var tick_opacity = 0.25
       }
       
       if (!(tick_offset == 5 && vars.xaxis_var == vars.year_var)) {
       
         var bgtick = d3.select(this.parentNode).selectAll("line.tick")
           .data([i])
-        
+          console.log(i,tick_opacity)
         bgtick.enter().append("line")
           .attr("class","tick")
           .attr("x1", 0)
@@ -2025,6 +2033,7 @@ vizwhiz.viz = function() {
           .attr("y1", tick_offset)
           .attr("y2", -vars.graph.height)
           .attr(tick_style)
+          .attr("opacity",tick_opacity)
         
         bgtick.transition().duration(vizwhiz.timing) 
           .attr("y2", -vars.graph.height)
