@@ -2025,7 +2025,7 @@ vizwhiz.viz = function() {
       
         var bgtick = d3.select(this.parentNode).selectAll("line.tick")
           .data([i])
-          console.log(i,tick_opacity)
+          
         bgtick.enter().append("line")
           .attr("class","tick")
           .attr("x1", 0)
@@ -2069,11 +2069,13 @@ vizwhiz.viz = function() {
         var width = this.getBBox().width
         if (width > vars.graph.offset && !vars.small) vars.graph.offset = width
         
-        tick_offset = -10
+        var tick_offset = -10
+        var tick_opacity = 1
       }
       else {
-        text = null
-        tick_offset = -5
+        var text = null
+        var tick_offset = -5
+        var tick_opacity = 0.25
       }
       
       if (!(tick_offset == -5 && vars.yaxis_var == vars.year_var)) {
@@ -2088,6 +2090,7 @@ vizwhiz.viz = function() {
           .attr("y1", 0)
           .attr("y2", 0)
           .attr(tick_style)
+          .attr("opacity",tick_opacity)
         
         bgtick.transition().duration(vizwhiz.timing) 
           .attr("x2", vars.graph.width)
