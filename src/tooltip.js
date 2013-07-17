@@ -8,7 +8,7 @@ vizwhiz.tooltip.create = function(params) {
   params.max_width = params.max_width ? params.max_width : 386
   params.id = params.id ? params.id : "default"
   params.html = params.html ? params.html : null
-  params.size = params.fullscreen ? "large" : "small"
+  params.size = params.fullscreen || params.html ? "large" : "small"
   params.offset = params.offset ? params.offset : 0
   params.arrow_offset = params.arrow ? 8 : 0
   params.mouseevents = params.mouseevents ? params.mouseevents : false
@@ -178,7 +178,6 @@ vizwhiz.tooltip.create = function(params) {
         .text(d.name)
       if (d.highlight) {
         block
-          .style("font-weight","bold")
           .style("color",vizwhiz.utils.darker_color(params.color))
       }
       

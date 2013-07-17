@@ -25,6 +25,8 @@ vizwhiz.viz = function() {
     "donut": true,
     "filter": [],
     "filtered_data": null,
+    "font": "sans-serif",
+    "font_weight": "lighter",
     "graph": {"timing": 0},
     "group_bgs": true,
     "grouping": "name",
@@ -284,7 +286,7 @@ vizwhiz.viz = function() {
         vars.data = data_obj[data_type[vars.type]][vars.year];
       }
 
-      vizwhiz.tooltip.remove();
+      vizwhiz.tooltip.remove(vars.type);
       
       vars.svg = vars.parent.selectAll("svg").data([vars.data]);
       
@@ -645,8 +647,8 @@ vizwhiz.viz = function() {
         .attr("font-size",font_size)
         .attr("fill","#333")
         .attr("text-anchor", "middle")
-        .attr("font-family", "Helvetica")
-        .style("font-weight", "normal")
+        .attr("font-family", vars.font)
+        .style("font-weight", vars.font_weight)
         .each(function(d){
           var width = vars.title_width ? vars.title_width : vars.svg_width
           width -= offset*2
@@ -941,6 +943,18 @@ vizwhiz.viz = function() {
       }
     }
     filter_change = true;
+    return chart;
+  };
+  
+  chart.font = function(x) {
+    if (!arguments.length) return vars.font;
+    vars.font = x;
+    return chart;
+  };
+  
+  chart.font_weight = function(x) {
+    if (!arguments.length) return vars.font_weight;
+    vars.font_weight = x;
     return chart;
   };
 
@@ -1260,16 +1274,16 @@ vizwhiz.viz = function() {
   }
   
   var axis_style = {
-    "font-family": "Helvetica",
+    "font-family": vars.font,
     "font-size": "12px",
-    "font-weight": "normal",
+    "font-weight": vars.font_weight,
     "fill": "#888"
   }
   
   var label_style = {
-    "font-family": "Helvetica",
+    "font-family": vars.font,
     "font-size": "14px",
-    "font-weight": "normal",
+    "font-weight": vars.font_weight,
     "fill": "#333",
     "text-anchor": "middle"
   }
@@ -1404,14 +1418,6 @@ vizwhiz.viz = function() {
       .attr('y',0)
       .attr('width', vars.graph.width)
       .attr('height', vars.graph.height)
-      
-    vars.parent_enter.append("rect")
-      .attr("id", "border")
-      .attr("fill","none")
-      .attr('x', vars.graph.margin.left)
-      .attr('y', vars.graph.margin.top)
-      .attr('width', vars.graph.width)
-      .attr('height', vars.graph.height)
       .attr("stroke-width",1)
       .attr("stroke","#ccc")
       .attr("shape-rendering","crispEdges")
@@ -1469,12 +1475,6 @@ vizwhiz.viz = function() {
       .select("rect#background")
         .attr('width', vars.graph.width)
         .attr('height', vars.graph.height)
-      
-    d3.select("rect#border").transition().duration(vars.graph.timing)
-      .attr('x', vars.graph.margin.left)
-      .attr('y', vars.graph.margin.top)
-      .attr('width', vars.graph.width)
-      .attr('height', vars.graph.height)
 
     // Update X axis
     if (vars.type == "stacked") {

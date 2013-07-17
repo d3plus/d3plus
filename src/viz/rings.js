@@ -112,9 +112,9 @@ vizwhiz.rings = function(vars) {
           
   if (!vars.small) {
     node_enter.append("text")
-      .attr("font-weight","bold")
+      .attr("font-weight",vars.font_weight)
       .attr("font-size", "10px")
-      .attr("font-family","Helvetica")
+      .attr("font-family",vars.font)
       .call(text_styles);
   }
       
@@ -219,9 +219,11 @@ vizwhiz.rings = function(vars) {
   
   if (!vars.small) {
 
-    vizwhiz.tooltip.remove();
+    vizwhiz.tooltip.remove(vars.type)
     
     make_tooltip = function(html) {
+        
+      if (typeof html == "string") html = "<br>"+html
 
       var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
 
@@ -244,12 +246,12 @@ vizwhiz.rings = function(vars) {
     
       var tooltip_data = get_tooltip_data(vars.highlight)
 
-      vizwhiz.tooltip.remove()
+      vizwhiz.tooltip.remove(vars.type)
       vizwhiz.tooltip.create({
         "title": find_variable(vars.highlight,vars.text_var),
         "color": find_variable(vars.highlight,vars.color_var),
         "icon": find_variable(vars.highlight,"icon"),
-        "id": vars.highlight,
+        "id": vars.type,
         "html": tooltip_appends+html,
         "footer": vars.data_source,
         "data": tooltip_data,

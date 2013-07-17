@@ -1,23 +1,12 @@
 /********************
- * SVG CSS
- ********************/
- 
-div#viz {
- position: relative;
-}
-
-svg {
-  display: block;
-}
-
-/********************
  * Tooltip Styling
  ********************/
 
 div.vizwhiz_tooltip {
   color: #333;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
+  font-weight: lighter;
   position: absolute;
   z-index: 10001;
 }
@@ -51,10 +40,6 @@ div.vizwhiz_tooltip_body {
 }
 
 div.vizwhiz_tooltip_header {
-/*  -webkit-box-shadow: 0 3px 3px white;
-     -moz-box-shadow: 0 3px 3px white;
-          box-shadow: 0 3px 3px white;*/
-/*  padding-bottom: 6px;*/
   position: relative;
   z-index: 1;
 }
@@ -67,13 +52,13 @@ div.vizwhiz_tooltip_header > div {
 div.vizwhiz_tooltip_small div.vizwhiz_tooltip_title {
   font-size: 16px;
   line-height: 17px;
-  padding: 3px;
+  padding: 3px 6px;
 }
 
 div.vizwhiz_tooltip_large div.vizwhiz_tooltip_title {
   font-size: 18px;
   line-height: 20px;
-  padding: 6px;
+  padding: 3px 6px;
 }
 
 div.vizwhiz_tooltip_icon {
@@ -103,10 +88,9 @@ div.vizwhiz_tooltip_close {
      -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   color: white;
-  font-size: 16px;
-  font-weight: bold;
+  font-size: 20px;
   height: 18px;
-  line-height: 15px;
+  line-height: 14px;
   position: absolute;
   right: 16px;
   text-align: center;
@@ -138,8 +122,7 @@ div.vizwhiz_tooltip_arrow {
 
 div.vizwhiz_tooltip_description {
   font-size: 12px;
-  font-weight: normal;
-/*  padding-bottom: 6px;*/
+  padding: 6px;
 }
 
 div.vizwhiz_tooltip_data_container {
@@ -151,6 +134,7 @@ div.vizwhiz_tooltip_data_seperator {
   background-color: #ddd;
   display: block;
   height: 1px;
+  margin: 0px 3px;
 }
 
 div.vizwhiz_tooltip_data_block {
@@ -166,9 +150,6 @@ div.vizwhiz_tooltip_data_value {
 }
 
 div.vizwhiz_tooltip_footer {
-/*  -webkit-box-shadow: 0 -3px 3px white;
-     -moz-box-shadow: 0 -3px 3px white;
-          box-shadow: 0 -3px 3px white;*/
   color: #aaa;
   font-size: 10px;
 /*  padding-top: 6px;*/
@@ -198,9 +179,7 @@ div.vizwhiz_tooltip_html {
 
 
 div.vizwhiz_network_title {
-  font-weight: bold;
-  margin-bottom: 6px;
-  padding-left: 3px;
+  padding: 6px 3px;
 }
 
 div.vizwhiz_network_connection {

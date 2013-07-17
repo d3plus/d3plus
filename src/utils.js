@@ -78,7 +78,7 @@ vizwhiz.utils.wordwrap = function(params) {
       height = params.height ? params.height : 20000,
       resize = params.resize,
       font_max = params.font_max ? params.font_max : 40,
-      font_min = params.font_min ? params.font_min : 8;
+      font_min = params.font_min ? params.font_min : 10;
       
   if (params.text instanceof Array) wrap(String(params.text.shift()).split(/[\s-]/))
   else wrap(String(params.text).split(/[\s-]/))
@@ -89,6 +89,7 @@ vizwhiz.utils.wordwrap = function(params) {
     
       // Start by trying the largest font size
       var size = font_max
+      size = Math.floor(size)
       d3.select(parent).attr('font-size',size)
     
       // Add each word to it's own line (to test for longest word)
@@ -109,9 +110,10 @@ vizwhiz.utils.wordwrap = function(params) {
         else wrap(String(params.text.shift()).split(/[\s-]/))
         return;
       }
-    
+
       // Use new text size
-      d3.select(parent).attr('font-size',size);
+      size = Math.floor(size)
+      d3.select(parent).attr("font-size",size);
     
       // Flow text into box
       flow();
@@ -121,6 +123,7 @@ vizwhiz.utils.wordwrap = function(params) {
         var temp_size = size*(height/(parent.childNodes.length*parent.getBBox().height))
         if (temp_size < font_min) size = font_min
         else size = temp_size
+        size = Math.floor(size)
         d3.select(parent).attr('font-size',size)
       } else finish();
     

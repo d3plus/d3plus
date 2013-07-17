@@ -111,7 +111,7 @@ vizwhiz.network = function(vars) {
     if (last_highlight != vars.highlight) {
       
       // Remove all tooltips on page
-      vizwhiz.tooltip.remove()
+      vizwhiz.tooltip.remove(vars.type)
       d3.select("g.highlight").selectAll("*").remove()
       d3.select("g.hover").selectAll("*").remove()
       
@@ -176,8 +176,9 @@ vizwhiz.network = function(vars) {
           vars.zoom(c);
           
           make_tooltip = function(html) {
+        
+            if (typeof html == "string") html = "<br>"+html
 
-            // Draw Info Panel
             if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) {
               var x_pos = 30
             }
@@ -220,7 +221,8 @@ vizwhiz.network = function(vars) {
               "fixed": true,
               "mouseevents": true,
               "parent": vars.parent,
-              "background": vars.background
+              "background": vars.background,
+              "id": vars.type
             })
             
           }
@@ -671,8 +673,8 @@ vizwhiz.network = function(vars) {
             .attr("fill",vizwhiz.utils.text_color(fill_color(d)))
             .attr("font-size",font_size+"px")
             .attr("text-anchor","middle")
-            .attr("font-family","Helvetica")
-            .attr("font-weight","bold")
+            .attr("font-family",vars.font)
+            .attr("font-weight",vars.font_weight)
             .each(function(e){
               var th = size < font_size+padding*2 ? font_size+padding*2 : size,
                   tw = ((font_size*5)/th)*(font_size*5)

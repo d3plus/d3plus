@@ -40,10 +40,17 @@ d3.json("data/products_mg.json", function(raw_data){
         d.nesting_2 = {"name":attrs[d.id.slice(0, 5)].name, "id":d.id.slice(0, 5)};
       })
       
-      inner_html = function(obj) {
-        console.log(obj)
-        return "This is some test HTML"
+
+      
+      format_test = function(data) {
+        console.log(data)
+        return "Test JSON: "+data[10].name
       }
+        
+      clicker = function(obj) {
+        return {"url": "data/attr_hs.json", "callback": format_test}
+      }
+      
     
       // viz
       //   .type("tree_map")
@@ -82,10 +89,12 @@ d3.json("data/products_mg.json", function(raw_data){
         .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
         .nesting(["nesting_0","nesting_1","nesting_2"])
         .nesting_aggs({"distance":"mean","complexity":"mean"})
-        .click_function(inner_html)
+        .click_function(clicker)
         .depth("nesting_0")
         .year(2010)
         .data_source("Data provided by SECEX")
+        .font("Helvetica Neue")
+        .font_weight("lighter")
         
       d3.select("#viz")
         .datum(data.data)

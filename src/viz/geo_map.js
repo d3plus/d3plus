@@ -113,7 +113,7 @@ vizwhiz.geo_map = function(vars) {
 
   vars.update = function() {
     
-    vizwhiz.tooltip.remove("geo_map");
+    vizwhiz.tooltip.remove(vars.type);
     
     if (!vars.small && (hover || vars.highlight)) {
       
@@ -129,11 +129,13 @@ vizwhiz.geo_map = function(vars) {
       }
       
       make_tooltip = function(html) {
+        
+        if (typeof html == "string") html = "<br>"+html
 
         vizwhiz.tooltip.create({
           "data": tooltip_data,
           "title": find_variable(id,vars.text_var),
-          "id": "geo_map",
+          "id": vars.type,
           "icon": find_variable(id,"icon"),
           "color": color,
           "footer": footer,
@@ -143,6 +145,7 @@ vizwhiz.geo_map = function(vars) {
           "width": info_width,
           "html": html,
           "parent": vars.parent,
+          "mouseevents": true,
           "background": vars.background
         })
         
@@ -376,7 +379,8 @@ vizwhiz.geo_map = function(vars) {
     .attr("text-anchor","middle")
     .attr("fill","#333")
     .attr("font-size","10px")
-    .attr("font-family","Helvetica")
+    .attr("font-family",vars.font)
+    .style("font-weight",vars.font_weight)
   
   scale.append("rect")
     .attr("id","scalecolor")
@@ -410,9 +414,9 @@ vizwhiz.geo_map = function(vars) {
       .attr("dy","1em")
       .attr("text-anchor","middle")
       .attr("fill","#333")
-      .style("font-weight","normal")
+      .attr("font-family",vars.font)
+      .style("font-weight",vars.font_weight)
       .attr("font-size","10px")
-      .attr("font-family","Helvetica")
   })
 
   if (!data_extent[0] || Object.keys(vars.data).length < 2 || vars.small) {

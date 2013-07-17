@@ -115,7 +115,7 @@ vizwhiz.utils.wordwrap = function(params) {
       height = params.height ? params.height : 20000,
       resize = params.resize,
       font_max = params.font_max ? params.font_max : 40,
-      font_min = params.font_min ? params.font_min : 8;
+      font_min = params.font_min ? params.font_min : 10;
       
   if (params.text instanceof Array) wrap(String(params.text.shift()).split(/[\s-]/))
   else wrap(String(params.text).split(/[\s-]/))
@@ -126,6 +126,7 @@ vizwhiz.utils.wordwrap = function(params) {
     
       // Start by trying the largest font size
       var size = font_max
+      size = Math.floor(size)
       d3.select(parent).attr('font-size',size)
     
       // Add each word to it's own line (to test for longest word)
@@ -146,9 +147,10 @@ vizwhiz.utils.wordwrap = function(params) {
         else wrap(String(params.text.shift()).split(/[\s-]/))
         return;
       }
-    
+
       // Use new text size
-      d3.select(parent).attr('font-size',size);
+      size = Math.floor(size)
+      d3.select(parent).attr("font-size",size);
     
       // Flow text into box
       flow();
@@ -158,6 +160,7 @@ vizwhiz.utils.wordwrap = function(params) {
         var temp_size = size*(height/(parent.childNodes.length*parent.getBBox().height))
         if (temp_size < font_min) size = font_min
         else size = temp_size
+        size = Math.floor(size)
         d3.select(parent).attr('font-size',size)
       } else finish();
     
@@ -272,7 +275,7 @@ vizwhiz.tooltip.create = function(params) {
   params.max_width = params.max_width ? params.max_width : 386
   params.id = params.id ? params.id : "default"
   params.html = params.html ? params.html : null
-  params.size = params.fullscreen ? "large" : "small"
+  params.size = params.fullscreen || params.html ? "large" : "small"
   params.offset = params.offset ? params.offset : 0
   params.arrow_offset = params.arrow ? 8 : 0
   params.mouseevents = params.mouseevents ? params.mouseevents : false
@@ -442,7 +445,6 @@ vizwhiz.tooltip.create = function(params) {
         .text(d.name)
       if (d.highlight) {
         block
-          .style("font-weight","bold")
           .style("color",vizwhiz.utils.darker_color(params.color))
       }
       
@@ -741,6 +743,8 @@ vizwhiz.viz = function() {
     "donut": true,
     "filter": [],
     "filtered_data": null,
+    "font": "sans-serif",
+    "font_weight": "lighter",
     "graph": {"timing": 0},
     "group_bgs": true,
     "grouping": "name",
@@ -1000,7 +1004,7 @@ vizwhiz.viz = function() {
         vars.data = data_obj[data_type[vars.type]][vars.year];
       }
 
-      vizwhiz.tooltip.remove();
+      vizwhiz.tooltip.remove(vars.type);
       
       vars.svg = vars.parent.selectAll("svg").data([vars.data]);
       
@@ -1361,8 +1365,8 @@ vizwhiz.viz = function() {
         .attr("font-size",font_size)
         .attr("fill","#333")
         .attr("text-anchor", "middle")
-        .attr("font-family", "Helvetica")
-        .style("font-weight", "normal")
+        .attr("font-family", vars.font)
+        .style("font-weight", vars.font_weight)
         .each(function(d){
           var width = vars.title_width ? vars.title_width : vars.svg_width
           width -= offset*2
@@ -1657,6 +1661,18 @@ vizwhiz.viz = function() {
       }
     }
     filter_change = true;
+    return chart;
+  };
+  
+  chart.font = function(x) {
+    if (!arguments.length) return vars.font;
+    vars.font = x;
+    return chart;
+  };
+  
+  chart.font_weight = function(x) {
+    if (!arguments.length) return vars.font_weight;
+    vars.font_weight = x;
     return chart;
   };
 
@@ -1976,16 +1992,16 @@ vizwhiz.viz = function() {
   }
   
   var axis_style = {
-    "font-family": "Helvetica",
+    "font-family": vars.font,
     "font-size": "12px",
-    "font-weight": "normal",
+    "font-weight": vars.font_weight,
     "fill": "#888"
   }
   
   var label_style = {
-    "font-family": "Helvetica",
+    "font-family": vars.font,
     "font-size": "14px",
-    "font-weight": "normal",
+    "font-weight": vars.font_weight,
     "fill": "#333",
     "text-anchor": "middle"
   }
@@ -2120,14 +2136,6 @@ vizwhiz.viz = function() {
       .attr('y',0)
       .attr('width', vars.graph.width)
       .attr('height', vars.graph.height)
-      
-    vars.parent_enter.append("rect")
-      .attr("id", "border")
-      .attr("fill","none")
-      .attr('x', vars.graph.margin.left)
-      .attr('y', vars.graph.margin.top)
-      .attr('width', vars.graph.width)
-      .attr('height', vars.graph.height)
       .attr("stroke-width",1)
       .attr("stroke","#ccc")
       .attr("shape-rendering","crispEdges")
@@ -2185,12 +2193,6 @@ vizwhiz.viz = function() {
       .select("rect#background")
         .attr('width', vars.graph.width)
         .attr('height', vars.graph.height)
-      
-    d3.select("rect#border").transition().duration(vars.graph.timing)
-      .attr('x', vars.graph.margin.left)
-      .attr('y', vars.graph.margin.top)
-      .attr('width', vars.graph.width)
-      .attr('height', vars.graph.height)
 
     // Update X axis
     if (vars.type == "stacked") {
@@ -2346,7 +2348,7 @@ vizwhiz.network = function(vars) {
     if (last_highlight != vars.highlight) {
       
       // Remove all tooltips on page
-      vizwhiz.tooltip.remove()
+      vizwhiz.tooltip.remove(vars.type)
       d3.select("g.highlight").selectAll("*").remove()
       d3.select("g.hover").selectAll("*").remove()
       
@@ -2411,8 +2413,9 @@ vizwhiz.network = function(vars) {
           vars.zoom(c);
           
           make_tooltip = function(html) {
+        
+            if (typeof html == "string") html = "<br>"+html
 
-            // Draw Info Panel
             if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) {
               var x_pos = 30
             }
@@ -2455,7 +2458,8 @@ vizwhiz.network = function(vars) {
               "fixed": true,
               "mouseevents": true,
               "parent": vars.parent,
-              "background": vars.background
+              "background": vars.background,
+              "id": vars.type
             })
             
           }
@@ -2906,8 +2910,8 @@ vizwhiz.network = function(vars) {
             .attr("fill",vizwhiz.utils.text_color(fill_color(d)))
             .attr("font-size",font_size+"px")
             .attr("text-anchor","middle")
-            .attr("font-family","Helvetica")
-            .attr("font-weight","bold")
+            .attr("font-family",vars.font)
+            .attr("font-weight",vars.font_weight)
             .each(function(e){
               var th = size < font_size+padding*2 ? font_size+padding*2 : size,
                   tw = ((font_size*5)/th)*(font_size*5)
@@ -3105,7 +3109,7 @@ vizwhiz.stacked = function(vars) {
       vizwhiz.tooltip.create({
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
-        "id": "stacked",
+        "id": vars.type,
         "icon": find_variable(d[vars.id_var],"icon"),
         "color": find_variable(d[vars.id_var],vars.color_var),
         "x": tooltip_x,
@@ -3139,11 +3143,11 @@ vizwhiz.stacked = function(vars) {
           tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
           tooltip_y = vars.y_scale(this_value.y + this_value.y0)+(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
 
-      vizwhiz.tooltip.remove("stacked")
+      vizwhiz.tooltip.remove(vars.type)
       vizwhiz.tooltip.create({
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
-        "id": "stacked",
+        "id": vars.type,
         "icon": find_variable(d[vars.id_var],"icon"),
         "color": find_variable(d[vars.id_var],vars.color_var),
         "x": tooltip_x,
@@ -3161,7 +3165,7 @@ vizwhiz.stacked = function(vars) {
           self = d3.select("#path_"+id).node()
       
       d3.selectAll("line.rule").remove()
-      vizwhiz.tooltip.remove("stacked")
+      vizwhiz.tooltip.remove(vars.type)
       d3.select(self).attr("stroke-width",0)
       
     })
@@ -3173,7 +3177,7 @@ vizwhiz.stacked = function(vars) {
       make_tooltip = function(html) {
       
         d3.selectAll("line.rule").remove()
-        vizwhiz.tooltip.remove("stacked")
+        vizwhiz.tooltip.remove(vars.type)
         d3.select(self).attr("stroke-width",0)
         
         var tooltip_data = get_tooltip_data(d,"long")
@@ -3182,7 +3186,7 @@ vizwhiz.stacked = function(vars) {
           "title": find_variable(d[vars.id_var],vars.text_var),
           "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
-          "id": "stacked",
+          "id": vars.type,
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
@@ -3195,13 +3199,16 @@ vizwhiz.stacked = function(vars) {
       }
       
       var html = vars.click_function ? vars.click_function(id) : null
-
-      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
-      else if (html.url && html.callback) {
+      
+      if (typeof html == "string") make_tooltip(html)
+      else if (html && html.url && html.callback) {
         d3.json(html.url,function(data){
           html = html.callback(data)
           make_tooltip(html)
         })
+      }
+      else if (vars.tooltip_info.long) {
+        make_tooltip(html)
       }
       
     })
@@ -3327,9 +3334,9 @@ vizwhiz.stacked = function(vars) {
   texts.enter().append("text")
     // .attr('filter', 'url(#dropShadow)')
     .attr("class", "label")
-    .style("font-weight","bold")
-    .attr("font-size","14px")
-    .attr("font-family","Helvetica")
+    .style("font-weight",vars.font_weight)
+    .attr("font-size","18px")
+    .attr("font-family",vars.font)
     .attr("dy", 6)
     .attr("opacity",0)
     .attr("pointer-events","none")
@@ -3519,8 +3526,8 @@ vizwhiz.tree_map = function(vars) {
   cell_enter.append("text")
     .attr("opacity", 1)
     .attr("text-anchor","start")
-    .style("font-weight","bold")
-    .attr("font-family","Helvetica")
+    .style("font-weight",vars.font_weight)
+    .attr("font-family",vars.font)
     .attr('class','name')
     .attr('x','0.2em')
     .attr('y','0em')
@@ -3535,8 +3542,8 @@ vizwhiz.tree_map = function(vars) {
   cell_enter.append("text")
     .attr('class','share')
     .attr("text-anchor","middle")
-    .style("font-weight","bold")
-    .attr("font-family","Helvetica")
+    .style("font-weight",vars.font_weight)
+    .attr("font-family",vars.font)
     .attr("fill", function(d){
       var color = find_variable(d,vars.color_var)
       return vizwhiz.utils.text_color(color); 
@@ -3595,7 +3602,7 @@ vizwhiz.tree_map = function(vars) {
         "title": find_variable(d,vars.text_var),
         "color": find_variable(d,vars.color_var),
         "icon": find_variable(d,"icon"),
-        "id": "tree_map",
+        "id": vars.type,
         "x": d3.event.pageX,
         "y": d3.event.pageY,
         "offset": 3,
@@ -3613,7 +3620,7 @@ vizwhiz.tree_map = function(vars) {
       d3.select("#cell_"+id).select("rect")
         .attr("stroke-width",1)
       
-      vizwhiz.tooltip.remove("tree_map")
+      vizwhiz.tooltip.remove(vars.type)
       
     })
     .on(vizwhiz.evt.click,function(d){
@@ -3626,7 +3633,7 @@ vizwhiz.tree_map = function(vars) {
         d3.select("#cell_"+id).select("rect")
           .attr("stroke-width",1)
         
-        vizwhiz.tooltip.remove("tree_map")
+        vizwhiz.tooltip.remove(vars.type)
         
         var tooltip_data = get_tooltip_data(d,"long")
         tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
@@ -3635,7 +3642,7 @@ vizwhiz.tree_map = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_variable(d,vars.color_var),
           "icon": find_variable(d,"icon"),
-          "id": "tree_map",
+          "id": vars.type,
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
@@ -3648,18 +3655,21 @@ vizwhiz.tree_map = function(vars) {
       }
       
       var html = vars.click_function ? vars.click_function(id) : null
-
-      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
-      else if (html.url && html.callback) {
+      
+      if (typeof html == "string") make_tooltip(html)
+      else if (html && html.url && html.callback) {
         d3.json(html.url,function(data){
           html = html.callback(data)
           make_tooltip(html)
         })
       }
+      else if (vars.tooltip_info.long) {
+        make_tooltip(html)
+      }
       
     })
     .on(vizwhiz.evt.move,function(d){
-      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,"tree_map")
+      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,vars.type)
     })
   
   cell.transition().duration(vizwhiz.timing)
@@ -3869,7 +3879,7 @@ vizwhiz.geo_map = function(vars) {
 
   vars.update = function() {
     
-    vizwhiz.tooltip.remove("geo_map");
+    vizwhiz.tooltip.remove(vars.type);
     
     if (!vars.small && (hover || vars.highlight)) {
       
@@ -3885,11 +3895,13 @@ vizwhiz.geo_map = function(vars) {
       }
       
       make_tooltip = function(html) {
+        
+        if (typeof html == "string") html = "<br>"+html
 
         vizwhiz.tooltip.create({
           "data": tooltip_data,
           "title": find_variable(id,vars.text_var),
-          "id": "geo_map",
+          "id": vars.type,
           "icon": find_variable(id,"icon"),
           "color": color,
           "footer": footer,
@@ -3899,6 +3911,7 @@ vizwhiz.geo_map = function(vars) {
           "width": info_width,
           "html": html,
           "parent": vars.parent,
+          "mouseevents": true,
           "background": vars.background
         })
         
@@ -4132,7 +4145,8 @@ vizwhiz.geo_map = function(vars) {
     .attr("text-anchor","middle")
     .attr("fill","#333")
     .attr("font-size","10px")
-    .attr("font-family","Helvetica")
+    .attr("font-family",vars.font)
+    .style("font-weight",vars.font_weight)
   
   scale.append("rect")
     .attr("id","scalecolor")
@@ -4166,9 +4180,9 @@ vizwhiz.geo_map = function(vars) {
       .attr("dy","1em")
       .attr("text-anchor","middle")
       .attr("fill","#333")
-      .style("font-weight","normal")
+      .attr("font-family",vars.font)
+      .style("font-weight",vars.font_weight)
       .attr("font-size","10px")
-      .attr("font-family","Helvetica")
   })
 
   if (!data_extent[0] || Object.keys(vars.data).length < 2 || vars.small) {
@@ -4520,7 +4534,7 @@ vizwhiz.pie_scatter = function(vars) {
   nodes
     .on(vizwhiz.evt.over, hover())
     .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove("pie_scatter")
+      vizwhiz.tooltip.remove(vars.type)
       d3.selectAll(".axis_hover").remove()
     })
     .on(vizwhiz.evt.click, function(d){
@@ -4530,7 +4544,7 @@ vizwhiz.pie_scatter = function(vars) {
       
       make_tooltip = function(html) {
         
-        vizwhiz.tooltip.remove("pie_scatter")
+        vizwhiz.tooltip.remove(vars.type)
         d3.selectAll(".axis_hover").remove()
         
         var tooltip_data = get_tooltip_data(d,"long")
@@ -4546,7 +4560,7 @@ vizwhiz.pie_scatter = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_variable(d,vars.color_var),
           "icon": find_variable(d,"icon"),
-          "id": "pie_scatter",
+          "id": vars.type,
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
@@ -4557,15 +4571,18 @@ vizwhiz.pie_scatter = function(vars) {
         })
         
       }
-
+      
       var html = vars.click_function ? vars.click_function(id) : null
-
-      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
-      else if (html.url && html.callback) {
+      
+      if (typeof html == "string") make_tooltip(html)
+      else if (html && html.url && html.callback) {
         d3.json(html.url,function(data){
           html = html.callback(data)
           make_tooltip(html)
         })
+      }
+      else if (vars.tooltip_info.long) {
+        make_tooltip(html)
       }
       
     })
@@ -4737,9 +4754,9 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("y", vars.graph.height)
           .attr("dy", 14)
           .attr("text-anchor","middle")
-          .style("font-weight","bold")
+          .style("font-weight",vars.font_weight)
           .attr("font-size","12px")
-          .attr("font-family","Helvetica")
+          .attr("font-family",vars.font)
           .attr("fill","#4c4c4c")
           .text(xtext)
       
@@ -4764,9 +4781,9 @@ vizwhiz.pie_scatter = function(vars) {
           .attr("y", y-10)
           .attr("dy", 14)
           .attr("text-anchor","middle")
-          .style("font-weight","bold")
+          .style("font-weight",vars.font_weight)
           .attr("font-size","12px")
-          .attr("font-family","Helvetica")
+          .attr("font-family",vars.font)
           .attr("fill","#4c4c4c")
           .text(ytext)
           
@@ -4780,7 +4797,7 @@ vizwhiz.pie_scatter = function(vars) {
         }
       
         vizwhiz.tooltip.create({
-          "id": "pie_scatter",
+          "id": vars.type,
           "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
           "data": tooltip_data,
@@ -4990,10 +5007,10 @@ vizwhiz.bubbles = function(vars) {
       d3.select(this).append("text")
         .attr("opacity",0)
         .attr("text-anchor","middle")
-        .attr("font-weight","bold")
+        .attr("font-weight",vars.font_weight)
         .attr("font-size","12px")
-        .attr("font-family","Helvetica")
-        .attr("fill",d[vars.color_var])
+        .attr("font-family",vars.font)
+        .attr("fill",vizwhiz.utils.darker_color(d[vars.color_var]))
         .attr('x',0)
         .attr('y',function(dd) {
           return -(d.height/2)-title_height/4;
@@ -5202,7 +5219,7 @@ vizwhiz.bubbles = function(vars) {
       var tooltip_data = get_tooltip_data(d,"short")
       
       vizwhiz.tooltip.create({
-        "id": "bubbles",
+        "id": vars.type,
         "color": find_variable(d[vars.id_var],vars.color_var),
         "icon": find_variable(d[vars.id_var],"icon"),
         "data": tooltip_data,
@@ -5225,7 +5242,7 @@ vizwhiz.bubbles = function(vars) {
       var self = this
       
       make_tooltip = function(html) {
-        vizwhiz.tooltip.remove("bubbles")
+        vizwhiz.tooltip.remove(vars.type)
         d3.selectAll(".axis_hover").remove()
         
         var tooltip_data = get_tooltip_data(d,"long")
@@ -5234,7 +5251,7 @@ vizwhiz.bubbles = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_variable(d,vars.color_var),
           "icon": find_variable(d,"icon"),
-          "id": "bubbles",
+          "id": vars.type,
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
@@ -5247,13 +5264,16 @@ vizwhiz.bubbles = function(vars) {
       }
       
       var html = vars.click_function ? vars.click_function(id) : null
-
-      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
-      else if (html.url && html.callback) {
+      
+      if (typeof html == "string") make_tooltip(html)
+      else if (html && html.url && html.callback) {
         d3.json(html.url,function(data){
           html = html.callback(data)
           make_tooltip(html)
         })
+      }
+      else if (vars.tooltip_info.long) {
+        make_tooltip(html)
       }
       
     })
@@ -5500,9 +5520,9 @@ vizwhiz.rings = function(vars) {
           
   if (!vars.small) {
     node_enter.append("text")
-      .attr("font-weight","bold")
+      .attr("font-weight",vars.font_weight)
       .attr("font-size", "10px")
-      .attr("font-family","Helvetica")
+      .attr("font-family",vars.font)
       .call(text_styles);
   }
       
@@ -5607,9 +5627,11 @@ vizwhiz.rings = function(vars) {
   
   if (!vars.small) {
 
-    vizwhiz.tooltip.remove();
+    vizwhiz.tooltip.remove(vars.type)
     
     make_tooltip = function(html) {
+        
+      if (typeof html == "string") html = "<br>"+html
 
       var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
 
@@ -5632,12 +5654,12 @@ vizwhiz.rings = function(vars) {
     
       var tooltip_data = get_tooltip_data(vars.highlight)
 
-      vizwhiz.tooltip.remove()
+      vizwhiz.tooltip.remove(vars.type)
       vizwhiz.tooltip.create({
         "title": find_variable(vars.highlight,vars.text_var),
         "color": find_variable(vars.highlight,vars.color_var),
         "icon": find_variable(vars.highlight,"icon"),
-        "id": vars.highlight,
+        "id": vars.type,
         "html": tooltip_appends+html,
         "footer": vars.data_source,
         "data": tooltip_data,
