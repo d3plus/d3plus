@@ -1453,7 +1453,7 @@ vizwhiz.viz = function() {
     if (a.indexOf(vars.value_var) < 0) a.unshift(vars.value_var)
     if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
          && a.indexOf(vars.xaxis_var) < 0) a.unshift(vars.xaxis_var)
-    if (["stacked"].indexOf(vars.type) >= 0
+    if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
          && a.indexOf(vars.yaxis_var) < 0) a.unshift(vars.yaxis_var)
     
     var tooltip_data = []
