@@ -221,46 +221,58 @@ vizwhiz.rings = function(vars) {
 
     vizwhiz.tooltip.remove();
     
-    var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
+    make_tooltip = function(html) {
 
-    vars.connections[vars.highlight].forEach(function(n){
-      
-      var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
-      
-      tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
-      tooltip_appends += "<div class='vizwhiz_network_connection_node'"
-      tooltip_appends += " style='"
-      tooltip_appends += "background-color:"+fill_color(n)+";"
-      tooltip_appends += "border-color:"+stroke_color(n)+";"
-      tooltip_appends += "'"
-      tooltip_appends += "></div>"
-      tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
-      tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
-      tooltip_appends += "</div>"
-      tooltip_appends += "</div>"
-    })
-    
-    var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight],tree_nodes) : ""
-    
-    var tooltip_data = get_tooltip_data(vars.highlight)
+      var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
 
-    vizwhiz.tooltip.remove()
-    vizwhiz.tooltip.create({
-      "title": find_variable(vars.highlight,vars.text_var),
-      "color": find_variable(vars.highlight,vars.color_var),
-      "icon": find_variable(vars.highlight,"icon"),
-      "id": vars.highlight,
-      "html": tooltip_appends+html,
-      "footer": vars.data_source,
-      "data": tooltip_data,
-      "x": vars.width-tooltip_width-5,
-      "y": vars.margin.top+5,
-      "fixed": true,
-      "width": tooltip_width,
-      "mouseevents": true,
-      "parent": vars.parent,
-      "background": vars.background
-    })
+      vars.connections[vars.highlight].forEach(function(n){
+      
+        var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
+      
+        tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+        tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+        tooltip_appends += " style='"
+        tooltip_appends += "background-color:"+fill_color(n)+";"
+        tooltip_appends += "border-color:"+stroke_color(n)+";"
+        tooltip_appends += "'"
+        tooltip_appends += "></div>"
+        tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+        tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
+        tooltip_appends += "</div>"
+        tooltip_appends += "</div>"
+      })
+    
+      var tooltip_data = get_tooltip_data(vars.highlight)
+
+      vizwhiz.tooltip.remove()
+      vizwhiz.tooltip.create({
+        "title": find_variable(vars.highlight,vars.text_var),
+        "color": find_variable(vars.highlight,vars.color_var),
+        "icon": find_variable(vars.highlight,"icon"),
+        "id": vars.highlight,
+        "html": tooltip_appends+html,
+        "footer": vars.data_source,
+        "data": tooltip_data,
+        "x": vars.width-tooltip_width-5,
+        "y": vars.margin.top+5,
+        "fixed": true,
+        "width": tooltip_width,
+        "mouseevents": true,
+        "parent": vars.parent,
+        "background": vars.background
+      })
+      
+    }
+    
+    var html = vars.click_function ? vars.click_function(vars.highlight,tree_nodes) : ""
+    
+    if (typeof html == "string") make_tooltip(html)
+    else {
+      d3.json(html.url,function(data){
+        html = html.callback(data)
+        make_tooltip(html)
+      })
+    }
     
   }
   

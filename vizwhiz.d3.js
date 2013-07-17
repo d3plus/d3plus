@@ -351,13 +351,6 @@ vizwhiz.tooltip.create = function(params) {
   if (params.title || params.icon) {
     var header = body.append("div")
       .attr("class","vizwhiz_tooltip_header")
-      
-    if (params.id != "default") {
-      var title_id = header.append("div")
-        .attr("class","vizwhiz_tooltip_id")
-        .text(params.id)
-      title_width -= title_id.node().offsetWidth+6
-    }
   }
   
   if (params.fullscreen) {
@@ -380,7 +373,14 @@ vizwhiz.tooltip.create = function(params) {
     
     var newout = function() {
       var target = d3.event.toElement
-      if (!target || (!ischild(tooltip.node(),target) && target.className != "vizwhiz_tooltip_curtain")) {
+      if (target) {
+        var c = typeof target.className == "string" ? target.className : target.className.baseVal
+        var istooltip = c.indexOf("vizwhiz_tooltip") == 0
+      }
+      else {
+        var istooltip = false
+      }
+      if (!target || (!ischild(tooltip.node(),target) && !istooltip)) {
         oldout()
         d3.select(params.mouseevents).on(vizwhiz.evt.out,oldout)
       }
@@ -2409,54 +2409,65 @@ vizwhiz.network = function(vars) {
         if (group == "highlight") {
           vars.zoom(c);
           
-          // Draw Info Panel
-          if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) {
-            var x_pos = 30
-          }
-          else {
-            var x_pos = vars.width-info_width-5
-          }
+          make_tooltip = function(html) {
+
+            // Draw Info Panel
+            if (scale.x(highlight_extent.x[1]) > (vars.width-info_width-10)) {
+              var x_pos = 30
+            }
+            else {
+              var x_pos = vars.width-info_width-5
+            }
          
-          var prod = vars.nodes.filter(function(n){return n[vars.id_var] == vars.highlight})[0]
+            var prod = vars.nodes.filter(function(n){return n[vars.id_var] == vars.highlight})[0]
           
-          var tooltip_data = get_tooltip_data(vars.highlight)
+            var tooltip_data = get_tooltip_data(vars.highlight)
           
-          var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
+            var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
       
-          prim_nodes.forEach(function(n){
+            prim_nodes.forEach(function(n){
             
-            var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
+              var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
             
-            tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
-            tooltip_appends += "<div class='vizwhiz_network_connection_node'"
-            tooltip_appends += " style='"
-            tooltip_appends += "background-color:"+fill_color(n)+";"
-            tooltip_appends += "border-color:"+stroke_color(n)+";"
-            tooltip_appends += "'"
-            tooltip_appends += "></div>"
-            tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
-            tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
-            tooltip_appends += "</div>"
-            tooltip_appends += "</div>"
-          })
+              tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+              tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+              tooltip_appends += " style='"
+              tooltip_appends += "background-color:"+fill_color(n)+";"
+              tooltip_appends += "border-color:"+stroke_color(n)+";"
+              tooltip_appends += "'"
+              tooltip_appends += "></div>"
+              tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+              tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
+              tooltip_appends += "</div>"
+              tooltip_appends += "</div>"
+            })
           
+            vizwhiz.tooltip.create({
+              "data": tooltip_data,
+              "title": find_variable(vars.highlight,vars.text_var),
+              "color": find_variable(vars.highlight,vars.color_var),
+              "icon": find_variable(vars.highlight,"icon"),
+              "x": x_pos,
+              "y": vars.margin.top+5,
+              "width": info_width,
+              "html": tooltip_appends+html,
+              "fixed": true,
+              "mouseevents": true,
+              "parent": vars.parent,
+              "background": vars.background
+            })
+            
+          }
+          
+          var html = vars.click_function ? vars.click_function(vars.highlight) : ""
     
-          var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight]) : ""
-          
-          vizwhiz.tooltip.create({
-            "data": tooltip_data,
-            "title": find_variable(vars.highlight,vars.text_var),
-            "color": find_variable(vars.highlight,vars.color_var),
-            "icon": find_variable(vars.highlight,"icon"),
-            "x": x_pos,
-            "y": vars.margin.top+5,
-            "width": info_width,
-            "html": tooltip_appends+html,
-            "fixed": true,
-            "mouseevents": true,
-            "parent": vars.parent,
-            "background": vars.background
-          })
+          if (typeof html == "string") make_tooltip(html)
+          else {
+            d3.json(html.url,function(data){
+              html = html.callback(data)
+              make_tooltip(html)
+            })
+          }
           
         }
         
@@ -3093,7 +3104,7 @@ vizwhiz.stacked = function(vars) {
       vizwhiz.tooltip.create({
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
-        "id": id,
+        "id": "stacked",
         "icon": find_variable(d[vars.id_var],"icon"),
         "color": find_variable(d[vars.id_var],vars.color_var),
         "x": tooltip_x,
@@ -3127,11 +3138,11 @@ vizwhiz.stacked = function(vars) {
           tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
           tooltip_y = vars.y_scale(this_value.y + this_value.y0)+(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
 
-      vizwhiz.tooltip.remove(id)
+      vizwhiz.tooltip.remove("stacked")
       vizwhiz.tooltip.create({
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
-        "id": id,
+        "id": "stacked",
         "icon": find_variable(d[vars.id_var],"icon"),
         "color": find_variable(d[vars.id_var],vars.color_var),
         "x": tooltip_x,
@@ -3149,21 +3160,20 @@ vizwhiz.stacked = function(vars) {
           self = d3.select("#path_"+id).node()
       
       d3.selectAll("line.rule").remove()
-      vizwhiz.tooltip.remove(id)
+      vizwhiz.tooltip.remove("stacked")
       d3.select(self).attr("stroke-width",0)
       
     })
     .on(vizwhiz.evt.click, function(d){
-      
-      var html = null
-      if (vars.click_function) html = vars.click_function(d)
-      if (html || vars.tooltip_info.long) {
         
-        var id = find_variable(d,vars.id_var)
+      var id = find_variable(d,vars.id_var)
+      var self = this
+      
+      make_tooltip = function(html) {
       
         d3.selectAll("line.rule").remove()
-        vizwhiz.tooltip.remove(id)
-        d3.select(this).attr("stroke-width",0)
+        vizwhiz.tooltip.remove("stacked")
+        d3.select(self).attr("stroke-width",0)
         
         var tooltip_data = get_tooltip_data(d,"long")
         
@@ -3171,16 +3181,26 @@ vizwhiz.stacked = function(vars) {
           "title": find_variable(d[vars.id_var],vars.text_var),
           "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
-          "id": id,
+          "id": "stacked",
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this,
+          "mouseevents": self,
           "parent": vars.parent,
           "background": vars.background
         })
         
+      }
+      
+      var html = vars.click_function ? vars.click_function(id) : null
+
+      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
+      else if (html.url && html.callback) {
+        d3.json(html.url,function(data){
+          html = html.callback(data)
+          make_tooltip(html)
+        })
       }
       
     })
@@ -3565,8 +3585,7 @@ vizwhiz.tree_map = function(vars) {
       
       d3.select("#cell_"+id).select("rect")
         .style("cursor","pointer")
-        .attr("stroke",vars.highlight_color)
-        .attr("stroke-width",2)
+        .attr("stroke-width",3)
 
       var tooltip_data = get_tooltip_data(d,"short")
       tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
@@ -3575,7 +3594,7 @@ vizwhiz.tree_map = function(vars) {
         "title": find_variable(d,vars.text_var),
         "color": find_variable(d,vars.color_var),
         "icon": find_variable(d,"icon"),
-        "id": id,
+        "id": "tree_map",
         "x": d3.event.pageX,
         "y": d3.event.pageY,
         "offset": 3,
@@ -3591,25 +3610,22 @@ vizwhiz.tree_map = function(vars) {
       var id = find_variable(d,vars.id_var)
       
       d3.select("#cell_"+id).select("rect")
-        .attr("stroke",vars.background)
         .attr("stroke-width",1)
       
-      vizwhiz.tooltip.remove(id)
+      vizwhiz.tooltip.remove("tree_map")
       
     })
     .on(vizwhiz.evt.click,function(d){
-      
-      var html = null
-      if (vars.click_function) html = vars.click_function(d)
-      if (html || vars.tooltip_info.long) {
         
-        var id = find_variable(d,vars.id_var)
+      var id = find_variable(d,vars.id_var)
+      var self = this
+      
+      make_tooltip = function(html) {
       
         d3.select("#cell_"+id).select("rect")
-          .attr("stroke",vars.background)
           .attr("stroke-width",1)
         
-        vizwhiz.tooltip.remove(id)
+        vizwhiz.tooltip.remove("tree_map")
         
         var tooltip_data = get_tooltip_data(d,"long")
         tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
@@ -3618,22 +3634,31 @@ vizwhiz.tree_map = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_variable(d,vars.color_var),
           "icon": find_variable(d,"icon"),
-          "id": id,
+          "id": "tree_map",
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this,
+          "mouseevents": self,
           "parent": vars.parent,
           "background": vars.background
         })
         
       }
       
+      var html = vars.click_function ? vars.click_function(id) : null
+
+      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
+      else if (html.url && html.callback) {
+        d3.json(html.url,function(data){
+          html = html.callback(data)
+          make_tooltip(html)
+        })
+      }
+      
     })
     .on(vizwhiz.evt.move,function(d){
-      var id = find_variable(d,vars.id_var)
-      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,id)
+      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,"tree_map")
     })
   
   cell.transition().duration(vizwhiz.timing)
@@ -3843,7 +3868,7 @@ vizwhiz.geo_map = function(vars) {
 
   vars.update = function() {
     
-    vizwhiz.tooltip.remove();
+    vizwhiz.tooltip.remove("geo_map");
     
     if (!vars.small && (hover || vars.highlight)) {
       
@@ -3858,35 +3883,50 @@ vizwhiz.geo_map = function(vars) {
         var color = "#888"
       }
       
+      make_tooltip = function(html) {
+
+        vizwhiz.tooltip.create({
+          "data": tooltip_data,
+          "title": find_variable(id,vars.text_var),
+          "id": "geo_map",
+          "icon": find_variable(id,"icon"),
+          "color": color,
+          "footer": footer,
+          "x": vars.width-info_width-5+vars.margin.left,
+          "y": vars.margin.top+5,
+          "fixed": true,
+          "width": info_width,
+          "html": html,
+          "parent": vars.parent,
+          "background": vars.background
+        })
+        
+      }
+      
       if (!data || !data[vars.value_var]) {
         var footer = vars.text_format("No Data Available")
+        make_tooltip(null)
       }
       else if (!vars.highlight) {
         var tooltip_data = get_tooltip_data(id,"short"),
-            footer = footer_text(),
-            html = null
+            footer = footer_text()
+        make_tooltip(null)
       }
       else {
         var tooltip_data = get_tooltip_data(id,"long"),
-            footer = vars.data_source,
-            html = vars.click_function ? vars.click_function(id) : null
+            footer = vars.data_source
+
+        var html = vars.click_function ? vars.click_function(id) : null
+
+        if (typeof html == "string") make_tooltip(html)
+        else if (html.url && html.callback) {
+          d3.json(html.url,function(data){
+            html = html.callback(data)
+            make_tooltip(html)
+          })
+        }
+            
       }
-      
-      vizwhiz.tooltip.create({
-        "data": tooltip_data,
-        "title": find_variable(id,vars.text_var),
-        "id": find_variable(id,vars.id_var),
-        "icon": find_variable(id,"icon"),
-        "color": color,
-        "footer": footer,
-        "x": vars.width-info_width-5+vars.margin.left,
-        "y": vars.margin.top+5,
-        "fixed": true,
-        "width": info_width,
-        "html": html,
-        "parent": vars.parent,
-        "background": vars.background
-      })
       
     }
     
@@ -4479,17 +4519,17 @@ vizwhiz.pie_scatter = function(vars) {
   nodes
     .on(vizwhiz.evt.over, hover())
     .on(vizwhiz.evt.out, function(d){
-      var id = find_variable(d,vars.id_var)
-      vizwhiz.tooltip.remove(id)
+      vizwhiz.tooltip.remove("pie_scatter")
       d3.selectAll(".axis_hover").remove()
     })
     .on(vizwhiz.evt.click, function(d){
-      
-      var html = vars.click_function ? vars.click_function(d) : null
-      if (html || vars.tooltip_info.long) {
 
-        var id = find_variable(d,vars.id_var)
-        vizwhiz.tooltip.remove(id)
+      var id = find_variable(d,vars.id_var)
+      var self = this
+      
+      make_tooltip = function(html) {
+        
+        vizwhiz.tooltip.remove("pie_scatter")
         d3.selectAll(".axis_hover").remove()
         
         var tooltip_data = get_tooltip_data(d,"long")
@@ -4505,16 +4545,26 @@ vizwhiz.pie_scatter = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_variable(d,vars.color_var),
           "icon": find_variable(d,"icon"),
-          "id": id,
+          "id": "pie_scatter",
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this,
+          "mouseevents": self,
           "parent": vars.parent,
           "background": vars.background
         })
         
+      }
+
+      var html = vars.click_function ? vars.click_function(id) : null
+
+      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
+      else if (html.url && html.callback) {
+        d3.json(html.url,function(data){
+          html = html.callback(data)
+          make_tooltip(html)
+        })
       }
       
     })
@@ -4729,7 +4779,7 @@ vizwhiz.pie_scatter = function(vars) {
         }
       
         vizwhiz.tooltip.create({
-          "id": d[vars.id_var],
+          "id": "pie_scatter",
           "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
           "data": tooltip_data,
@@ -5151,7 +5201,7 @@ vizwhiz.bubbles = function(vars) {
       var tooltip_data = get_tooltip_data(d,"short")
       
       vizwhiz.tooltip.create({
-        "id": d[vars.id_var],
+        "id": "bubbles",
         "color": find_variable(d[vars.id_var],vars.color_var),
         "icon": find_variable(d[vars.id_var],"icon"),
         "data": tooltip_data,
@@ -5166,15 +5216,15 @@ vizwhiz.bubbles = function(vars) {
       
     })
     .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove(d[vars.id_var])
+      vizwhiz.tooltip.remove("bubbles")
     })
     .on(vizwhiz.evt.click, function(d){
-      
-      var html = vars.click_function ? vars.click_function(d) : null
-      if (html || vars.tooltip_info.long) {
 
-        var id = find_variable(d,vars.id_var)
-        vizwhiz.tooltip.remove(id)
+      var id = find_variable(d,vars.id_var)
+      var self = this
+      
+      make_tooltip = function(html) {
+        vizwhiz.tooltip.remove("bubbles")
         d3.selectAll(".axis_hover").remove()
         
         var tooltip_data = get_tooltip_data(d,"long")
@@ -5183,16 +5233,26 @@ vizwhiz.bubbles = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_variable(d,vars.color_var),
           "icon": find_variable(d,"icon"),
-          "id": id,
+          "id": "bubbles",
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this,
+          "mouseevents": self,
           "parent": vars.parent,
           "background": vars.background
         })
         
+      }
+      
+      var html = vars.click_function ? vars.click_function(id) : null
+
+      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
+      else if (html.url && html.callback) {
+        d3.json(html.url,function(data){
+          html = html.callback(data)
+          make_tooltip(html)
+        })
       }
       
     })
@@ -5548,46 +5608,58 @@ vizwhiz.rings = function(vars) {
 
     vizwhiz.tooltip.remove();
     
-    var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
+    make_tooltip = function(html) {
 
-    vars.connections[vars.highlight].forEach(function(n){
-      
-      var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
-      
-      tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
-      tooltip_appends += "<div class='vizwhiz_network_connection_node'"
-      tooltip_appends += " style='"
-      tooltip_appends += "background-color:"+fill_color(n)+";"
-      tooltip_appends += "border-color:"+stroke_color(n)+";"
-      tooltip_appends += "'"
-      tooltip_appends += "></div>"
-      tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
-      tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
-      tooltip_appends += "</div>"
-      tooltip_appends += "</div>"
-    })
-    
-    var html = vars.click_function ? "<br>"+vars.click_function(vars.data[vars.highlight],tree_nodes) : ""
-    
-    var tooltip_data = get_tooltip_data(vars.highlight)
+      var tooltip_appends = "<div class='vizwhiz_network_title'>Primary Connections</div>"
 
-    vizwhiz.tooltip.remove()
-    vizwhiz.tooltip.create({
-      "title": find_variable(vars.highlight,vars.text_var),
-      "color": find_variable(vars.highlight,vars.color_var),
-      "icon": find_variable(vars.highlight,"icon"),
-      "id": vars.highlight,
-      "html": tooltip_appends+html,
-      "footer": vars.data_source,
-      "data": tooltip_data,
-      "x": vars.width-tooltip_width-5,
-      "y": vars.margin.top+5,
-      "fixed": true,
-      "width": tooltip_width,
-      "mouseevents": true,
-      "parent": vars.parent,
-      "background": vars.background
-    })
+      vars.connections[vars.highlight].forEach(function(n){
+      
+        var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
+      
+        tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+        tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+        tooltip_appends += " style='"
+        tooltip_appends += "background-color:"+fill_color(n)+";"
+        tooltip_appends += "border-color:"+stroke_color(n)+";"
+        tooltip_appends += "'"
+        tooltip_appends += "></div>"
+        tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+        tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
+        tooltip_appends += "</div>"
+        tooltip_appends += "</div>"
+      })
+    
+      var tooltip_data = get_tooltip_data(vars.highlight)
+
+      vizwhiz.tooltip.remove()
+      vizwhiz.tooltip.create({
+        "title": find_variable(vars.highlight,vars.text_var),
+        "color": find_variable(vars.highlight,vars.color_var),
+        "icon": find_variable(vars.highlight,"icon"),
+        "id": vars.highlight,
+        "html": tooltip_appends+html,
+        "footer": vars.data_source,
+        "data": tooltip_data,
+        "x": vars.width-tooltip_width-5,
+        "y": vars.margin.top+5,
+        "fixed": true,
+        "width": tooltip_width,
+        "mouseevents": true,
+        "parent": vars.parent,
+        "background": vars.background
+      })
+      
+    }
+    
+    var html = vars.click_function ? vars.click_function(vars.highlight,tree_nodes) : ""
+    
+    if (typeof html == "string") make_tooltip(html)
+    else {
+      d3.json(html.url,function(data){
+        html = html.callback(data)
+        make_tooltip(html)
+      })
+    }
     
   }
   

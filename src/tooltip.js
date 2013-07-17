@@ -87,13 +87,6 @@ vizwhiz.tooltip.create = function(params) {
   if (params.title || params.icon) {
     var header = body.append("div")
       .attr("class","vizwhiz_tooltip_header")
-      
-    if (params.id != "default") {
-      var title_id = header.append("div")
-        .attr("class","vizwhiz_tooltip_id")
-        .text(params.id)
-      title_width -= title_id.node().offsetWidth+6
-    }
   }
   
   if (params.fullscreen) {
@@ -116,7 +109,14 @@ vizwhiz.tooltip.create = function(params) {
     
     var newout = function() {
       var target = d3.event.toElement
-      if (!target || (!ischild(tooltip.node(),target) && target.className != "vizwhiz_tooltip_curtain")) {
+      if (target) {
+        var c = typeof target.className == "string" ? target.className : target.className.baseVal
+        var istooltip = c.indexOf("vizwhiz_tooltip") == 0
+      }
+      else {
+        var istooltip = false
+      }
+      if (!target || (!ischild(tooltip.node(),target) && !istooltip)) {
         oldout()
         d3.select(params.mouseevents).on(vizwhiz.evt.out,oldout)
       }

@@ -97,15 +97,6 @@ div.vizwhiz_tooltip_title {
   vertical-align: top;
 }
 
-div.vizwhiz_tooltip_id {
-  font-size: 11px;
-  opacity: 0.5;
-  position: absolute;
-  right: 6px;
-  top: 5px;
-  vertical-align: top;
-}
-
 div.vizwhiz_tooltip_close {
   background-color: #fff;
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);

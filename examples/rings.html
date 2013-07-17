@@ -42,10 +42,15 @@ d3.json("data/attr_hs.json", function(attr) {
         d.nesting_2 = {"name":attr[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
         d.active = Math.floor(Math.random()*2);
       })
+      
+      format_test = function(data) {
+        console.log(data)
+        return "Test JSON: "+data[10].name
+      }
         
       clicker = function(obj) {
         console.log(obj);
-        return "Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML Some test HTML"
+        return {"url": "data/attr_hs.json", "callback": format_test}
       }
       
       viz

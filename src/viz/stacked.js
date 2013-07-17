@@ -134,7 +134,7 @@ vizwhiz.stacked = function(vars) {
       vizwhiz.tooltip.create({
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
-        "id": id,
+        "id": "stacked",
         "icon": find_variable(d[vars.id_var],"icon"),
         "color": find_variable(d[vars.id_var],vars.color_var),
         "x": tooltip_x,
@@ -168,11 +168,11 @@ vizwhiz.stacked = function(vars) {
           tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
           tooltip_y = vars.y_scale(this_value.y + this_value.y0)+(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
 
-      vizwhiz.tooltip.remove(id)
+      vizwhiz.tooltip.remove("stacked")
       vizwhiz.tooltip.create({
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
-        "id": id,
+        "id": "stacked",
         "icon": find_variable(d[vars.id_var],"icon"),
         "color": find_variable(d[vars.id_var],vars.color_var),
         "x": tooltip_x,
@@ -190,21 +190,20 @@ vizwhiz.stacked = function(vars) {
           self = d3.select("#path_"+id).node()
       
       d3.selectAll("line.rule").remove()
-      vizwhiz.tooltip.remove(id)
+      vizwhiz.tooltip.remove("stacked")
       d3.select(self).attr("stroke-width",0)
       
     })
     .on(vizwhiz.evt.click, function(d){
-      
-      var html = null
-      if (vars.click_function) html = vars.click_function(d)
-      if (html || vars.tooltip_info.long) {
         
-        var id = find_variable(d,vars.id_var)
+      var id = find_variable(d,vars.id_var)
+      var self = this
+      
+      make_tooltip = function(html) {
       
         d3.selectAll("line.rule").remove()
-        vizwhiz.tooltip.remove(id)
-        d3.select(this).attr("stroke-width",0)
+        vizwhiz.tooltip.remove("stacked")
+        d3.select(self).attr("stroke-width",0)
         
         var tooltip_data = get_tooltip_data(d,"long")
         
@@ -212,16 +211,26 @@ vizwhiz.stacked = function(vars) {
           "title": find_variable(d[vars.id_var],vars.text_var),
           "color": find_variable(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
-          "id": id,
+          "id": "stacked",
           "fullscreen": true,
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": this,
+          "mouseevents": self,
           "parent": vars.parent,
           "background": vars.background
         })
         
+      }
+      
+      var html = vars.click_function ? vars.click_function(id) : null
+
+      if (typeof html == "string" || vars.tooltip_info.long) make_tooltip(html)
+      else if (html.url && html.callback) {
+        d3.json(html.url,function(data){
+          html = html.callback(data)
+          make_tooltip(html)
+        })
       }
       
     })
