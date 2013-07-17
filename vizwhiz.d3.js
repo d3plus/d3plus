@@ -493,7 +493,8 @@ vizwhiz.tooltip.create = function(params) {
   if (params.data || (!params.fullscreen && params.html)) {
     
     if (!params.fullscreen && params.html) {
-      var limit = params.fixed ? window.innerHeight-params.y-5 : window.innerHeight-10
+      var parent_height = params.parent.node().offsetHeight
+      var limit = params.fixed ? parent_height-params.y-5 : parent_height-10
       var h = params.height < limit ? params.height : limit
     }
     else {
