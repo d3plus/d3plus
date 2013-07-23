@@ -68,35 +68,8 @@ d3.json("data/mg_test_data.json", function(flat_data){
 
     d3.select("#viz")
       .datum(data)
-      .call(viz)   
-    
-    // setTimeout(function(){
-    //   
-    //   d3.select("#viz")
-    //     .call(viz.year(2005))
-    //     
-    //   setTimeout(function(){
-    //     
-    //     var data = []
-    //     flat_data.data.forEach(function(d, i){
-    //       if (d.hs_id.length == 6) {
-    //         var obj = d
-    //         obj.id = obj.hs_id
-    //         obj.active = obj.rca >= 1 ? true : false
-    //         obj.nesting_0 = {"name":attrs[obj.id.slice(0, 2)].name, "id":obj.id.slice(0, 2)};
-    //         obj.nesting_1 = {"name":attrs[obj.id.slice(0, 4)].name, "id":obj.id.slice(0, 4)};
-    //         obj.nesting_2 = {"name":attrs[obj.id.slice(0, 6)].name, "id":obj.id.slice(0, 6)};
-    //         data.push(obj)
-    //       }
-    //     })
-    //   
-    //     d3.select("#viz")
-    //       .datum(data)
-    //       .call(viz)
-    //   
-    //   },2000)
-    //   
-    // },2000)
+      .call(viz)
+      
   })
 })
 
