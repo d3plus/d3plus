@@ -204,8 +204,15 @@ vizwhiz.stacked = function(vars) {
         d3.selectAll("line.rule").remove()
         vizwhiz.tooltip.remove(vars.type)
         d3.select(self).attr("stroke-width",0)
+
+        var mouse_x = d3.event.layerX-vars.graph.margin.left;
+        var rev_x_scale = d3.scale.linear()
+          .domain(vars.x_scale.range()).range(vars.x_scale.domain());
+        var this_x = Math.round(rev_x_scale(mouse_x));
+        var this_x_index = vars.years.indexOf(this_x)
+        var this_value = d.values[this_x_index]
         
-        var tooltip_data = get_tooltip_data(d,"long")
+        var tooltip_data = get_tooltip_data(this_value,"long")
         
         vizwhiz.tooltip.create({
           "title": find_variable(d[vars.id_var],vars.text_var),
