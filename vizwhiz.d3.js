@@ -2822,7 +2822,8 @@ vizwhiz.network = function(vars) {
           return "#efefef"
         }
         else {
-          this.parentNode.appendChild(this)
+          var active = find_variable(d[vars.id_var],vars.active_var)
+          if (active) this.parentNode.appendChild(this)
           return fill_color(d)
         }
         
