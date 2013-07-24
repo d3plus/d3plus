@@ -53,8 +53,8 @@ vizwhiz.utils.rand_color = function() {
 
 vizwhiz.utils.text_color = function(color) {
   var hsl = d3.hsl(color),
-      light = "#fff", 
-      dark = "#333";
+      light = "#ffffff", 
+      dark = "#333333";
   if (hsl.l > 0.65) return dark;
   else if (hsl.l < 0.48) return light;
   return hsl.h > 35 && hsl.s >= 0.3 && hsl.l >= 0.41 ? dark : light;
@@ -3047,7 +3047,7 @@ vizwhiz.stacked = function(vars) {
   
   // Helper function unsed to convert stack values to X, Y coords 
   var area = d3.svg.area()
-    .interpolate("monotone")
+    .interpolate("linear")
     .x(function(d) { return vars.x_scale(d[vars.year_var]); })
     .y0(function(d) { return vars.y_scale(d.y0); })
     .y1(function(d) { return vars.y_scale(d.y0 + d.y)+1; });
@@ -3067,6 +3067,8 @@ vizwhiz.stacked = function(vars) {
   d3.select("#path_clipping rect").transition().duration(vizwhiz.timing)
     .attr("width",vars.graph.width)
     .attr("height",vars.graph.height)
+    .attr("x",1)
+    .attr("y",1)
   
   // Get layers from d3.stack function (gives x, y, y0 values)
   var offset = vars.layout == "value" ? "zero" : "expand";
@@ -3088,8 +3090,6 @@ vizwhiz.stacked = function(vars) {
       return "path_"+d[vars.id_var]
     })
     .attr("class", "layer")
-    .attr("stroke",vars.highlight_color)
-    .attr("stroke-width",0)
     .attr("fill", function(d){
       return find_variable(d.key,vars.color_var)
     })
@@ -3104,7 +3104,7 @@ vizwhiz.stacked = function(vars) {
       var id = find_variable(d,vars.id_var),
           self = d3.select("#path_"+id).node()
       
-      d3.select(self).attr("stroke-width",3)
+      d3.select(self).attr("opacity",1)
 
       d3.selectAll("line.rule").remove();
       
@@ -3194,7 +3194,7 @@ vizwhiz.stacked = function(vars) {
       
       d3.selectAll("line.rule").remove()
       vizwhiz.tooltip.remove(vars.type)
-      d3.select(self).attr("stroke-width",0)
+      d3.select(self).attr("opacity",0.85)
       
     })
     .on(vizwhiz.evt.click, function(d){
@@ -3249,7 +3249,7 @@ vizwhiz.stacked = function(vars) {
     })
   
   paths.transition().duration(vizwhiz.timing)
-    .attr("opacity", 1)
+    .attr("opacity", 0.85)
     .attr("fill", function(d){
       return find_variable(d.key,vars.color_var)
     })
@@ -3268,9 +3268,6 @@ vizwhiz.stacked = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // TEXT LAYERS
   //-------------------------------------------------------------------
-
-  var defs = vars.chart_enter.append('svg:defs')
-  vizwhiz.utils.drop_shadow(defs)
 
   // filter layers to only the ones with a height larger than 6% of viz
   var text_layers = [];

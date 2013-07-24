@@ -16,8 +16,8 @@ vizwhiz.utils.rand_color = function() {
 
 vizwhiz.utils.text_color = function(color) {
   var hsl = d3.hsl(color),
-      light = "#fff", 
-      dark = "#333";
+      light = "#ffffff", 
+      dark = "#333333";
   if (hsl.l > 0.65) return dark;
   else if (hsl.l < 0.48) return light;
   return hsl.h > 35 && hsl.s >= 0.3 && hsl.l >= 0.41 ? dark : light;
