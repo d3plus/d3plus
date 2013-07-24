@@ -549,7 +549,13 @@ vizwhiz.network = function(vars) {
         var hidden = vars.spotlight && !active
         // Grey out nodes that are in the background or hidden by spotlight,
         // otherwise, use the active_color function
-        return (background_node || hidden) && !highlighted ? "#efefef" : fill_color(d);
+        if ((background_node || hidden) && !highlighted) {
+          return "#efefef"
+        }
+        else {
+          this.parentNode.appendChild(this)
+          return fill_color(d)
+        }
         
       })
       .attr("stroke", function(d){
