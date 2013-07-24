@@ -401,7 +401,11 @@ vizwhiz.viz = function() {
           })
         }
         else if (vars.type == "rings") {
-          var total_val = vars.data[vars.highlight][vars.value_var]
+          if (vars.data[vars.highlight])
+            var total_val = vars.data[vars.highlight][vars.value_var]
+          else {
+            var total_val = null
+          }
         }
         else {
           var total_val = d3.sum(d3.values(vars.data),function(d){

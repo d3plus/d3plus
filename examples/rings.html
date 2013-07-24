@@ -44,13 +44,14 @@ d3.json("data/attr_hs.json", function(attr) {
       })
       
       format_test = function(data) {
-        console.log(data)
+        // console.log(data)
         return "Test JSON: "+data[10].name
       }
         
       clicker = function(obj) {
-        console.log(obj);
-        return {"url": "data/attr_hs.json", "callback": format_test}
+        // console.log(obj);
+        return "Text"
+        // return {"url": "data/attr_hs.json", "callback": format_test}
       }
       
       viz

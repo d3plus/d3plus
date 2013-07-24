@@ -186,7 +186,12 @@ vizwhiz.rings = function(vars) {
       }
     })
     .each(function(d) {
-      if (d.depth == 0) var s = Math.sqrt((ring_width*ring_width)/2), w = s*1.5, h = s/1.5, resize = true;
+      if (d.depth == 0) {
+        var s = Math.sqrt((ring_width*ring_width)/2), 
+            w = s*1.4, 
+            h = s/1.4, 
+            resize = true
+      }
       else {
         var w = ring_width-d.radius*2, resize = false
         if (d.depth == 1) var h = (Math.PI*((tree_radius-(ring_width*2))*2))*(d.size/360);
@@ -201,7 +206,7 @@ vizwhiz.rings = function(vars) {
         "width": w,
         "height": h,
         "resize": resize,
-        "font_min": 6
+        "font_min": 10
       })
 
       d3.select(this).attr("y",(-d3.select(this).node().getBBox().height/2)+"px")
@@ -307,10 +312,21 @@ vizwhiz.rings = function(vars) {
             return vars.highlight_color;
           } else if (hover.depth == 1 && hover.children_total.indexOf(d.target) >= 0) {
             return vars.secondary_color;
-          } else return "#ddd";
-        } else return "#ddd";
+          }
+          else {
+            return "transparent"
+          }
+        }
+        if (d.source[vars.id_var] == vars.highlight) {
+          this.parentNode.appendChild(this)
+          return "#888"
+        }
+        else return "#ccc"
       })
-      .attr("stroke-width", "1.5")
+      .attr("stroke-width", function(d){
+        if (d.source[vars.id_var] == vars.highlight) return 2
+        else return 1
+      })
       .attr("opacity",function(d) {
         if (hover && d3.select(this).attr("stroke") == "#ddd") {
            return 0.25
