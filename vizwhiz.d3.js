@@ -832,7 +832,8 @@ vizwhiz.viz = function() {
       nodes,
       links,
       removed_ids = [],
-      static_axis = false,
+      mirror_axis = false,
+      static_axis = true,
       xaxis_domain = null,
       yaxis_domain = null;
       
@@ -1066,20 +1067,18 @@ vizwhiz.viz = function() {
       if (vars.type == "pie_scatter") {
         if (vars.dev) console.log("[viz-whiz] Setting Axes Domains")
         if (xaxis_domain instanceof Array) vars.xaxis_domain = xaxis_domain
-        else if (static_axis) {
-          console.log("static")
+        else if (!static_axis) {
           vars.xaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year],function(d){
             return d[vars.xaxis_var]
           })
         }
         else {
-          console.log("dynamic")
           vars.xaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight].all,function(d){
             return d[vars.xaxis_var]
           })
         }
         if (yaxis_domain instanceof Array) vars.yaxis_domain = yaxis_domain
-        else if (static_axis) {
+        else if (!static_axis) {
           vars.yaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year],function(d){
             return d[vars.yaxis_var]
           }).reverse()
@@ -1089,8 +1088,12 @@ vizwhiz.viz = function() {
             return d[vars.yaxis_var]
           }).reverse()
         }
+        if (mirror_axis) {
+          var domains = vars.yaxis_domain.concat(vars.xaxis_domain)
+          vars.xaxis_domain = d3.extent(domains)
+          vars.yaxis_domain = d3.extent(domains).reverse()
+        }
       }
-      console.log(vars.xaxis_domain)
       // Calculate total_bar value
       if (!vars.total_bar || vars.type == "stacked") {
         var total_val = null
@@ -1746,6 +1749,12 @@ vizwhiz.viz = function() {
       vars.map.style.land = style.land ? style.land : map.style.land;
       vars.map.style.water = style.water ? style.water : map.style.water;
     }
+    return chart;
+  };
+
+  chart.mirror_axis = function(x) {
+    if (!arguments.length) return mirror_axis;
+    mirror_axis = x;
     return chart;
   };
   
