@@ -78,6 +78,7 @@ vizwhiz.viz = function() {
     "sort": "total",
     "source_text": null,
     "spotlight": true,
+    "stack_type": "linear",
     "sub_title": null,
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
@@ -1129,6 +1130,12 @@ vizwhiz.viz = function() {
     if (typeof x == "boolean")  vars.spotlight = x;
     else if (x === "false") vars.spotlight = false;
     else vars.spotlight = true;
+    return chart;
+  };
+
+  chart.stack_type = function(x) {
+    if (!arguments.length) return vars.stack_type;
+    vars.stack_type = x;
     return chart;
   };
 

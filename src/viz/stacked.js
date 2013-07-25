@@ -44,7 +44,7 @@ vizwhiz.stacked = function(vars) {
   
   // Helper function unsed to convert stack values to X, Y coords 
   var area = d3.svg.area()
-    .interpolate("linear")
+    .interpolate(vars.stack_type)
     .x(function(d) { return vars.x_scale(d[vars.year_var]); })
     .y0(function(d) { return vars.y_scale(d.y0); })
     .y1(function(d) { return vars.y_scale(d.y0 + d.y)+1; });
@@ -198,19 +198,19 @@ vizwhiz.stacked = function(vars) {
         
       var id = find_variable(d,vars.id_var)
       var self = this
+
+      var mouse_x = d3.event.layerX-vars.graph.margin.left;
+      var rev_x_scale = d3.scale.linear()
+        .domain(vars.x_scale.range()).range(vars.x_scale.domain());
+      var this_x = Math.round(rev_x_scale(mouse_x));
+      var this_x_index = vars.years.indexOf(this_x)
+      var this_value = d.values[this_x_index]
       
       make_tooltip = function(html) {
       
         d3.selectAll("line.rule").remove()
         vizwhiz.tooltip.remove(vars.type)
         d3.select(self).attr("stroke-width",0)
-
-        var mouse_x = d3.event.layerX-vars.graph.margin.left;
-        var rev_x_scale = d3.scale.linear()
-          .domain(vars.x_scale.range()).range(vars.x_scale.domain());
-        var this_x = Math.round(rev_x_scale(mouse_x));
-        var this_x_index = vars.years.indexOf(this_x)
-        var this_value = d.values[this_x_index]
         
         var tooltip_data = get_tooltip_data(this_value,"long")
         
