@@ -318,6 +318,13 @@ vizwhiz.tooltip.create = function(params) {
     .datum(params)
     .attr("id","vizwhiz_tooltip_id_"+params.id)
     .attr("class","vizwhiz_tooltip vizwhiz_tooltip_"+params.size)
+    
+  if (params.fixed) {
+    tooltip.style("z-index",500)
+  }
+  else {
+    tooltip.style("z-index",2000)
+  }
   
   var container = tooltip.append("div")
     .datum(params)
@@ -489,7 +496,7 @@ vizwhiz.tooltip.create = function(params) {
   params.height = tooltip.node().offsetHeight
   
   if (params.html && params.fullscreen) {
-    var h = params.height-38
+    var h = params.height-12
     var w = tooltip.node().offsetWidth-params.width-44
     container.append("div")
       .attr("class","vizwhiz_tooltip_html")
@@ -1115,7 +1122,6 @@ vizwhiz.viz = function() {
         if (vars.dev) console.log("[viz-whiz] Calculating Total Value")
         
         if (vars.type == "tree_map") {
-          var total_val = check_child(vars.data)
           
           function check_child(c) {
             if (c[vars.value_var]) return c[vars.value_var]
@@ -1123,8 +1129,10 @@ vizwhiz.viz = function() {
               return d3.sum(c.children,function(c2){
                 return check_child(c2)
               })
+            }
           }
-          }
+          
+          var total_val = check_child(vars.data)
         }
         else if (vars.data instanceof Array) {
           var total_val = d3.sum(vars.data,function(d){

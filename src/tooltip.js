@@ -51,6 +51,13 @@ vizwhiz.tooltip.create = function(params) {
     .datum(params)
     .attr("id","vizwhiz_tooltip_id_"+params.id)
     .attr("class","vizwhiz_tooltip vizwhiz_tooltip_"+params.size)
+    
+  if (params.fixed) {
+    tooltip.style("z-index",500)
+  }
+  else {
+    tooltip.style("z-index",2000)
+  }
   
   var container = tooltip.append("div")
     .datum(params)
@@ -222,7 +229,7 @@ vizwhiz.tooltip.create = function(params) {
   params.height = tooltip.node().offsetHeight
   
   if (params.html && params.fullscreen) {
-    var h = params.height-38
+    var h = params.height-12
     var w = tooltip.node().offsetWidth-params.width-44
     container.append("div")
       .attr("class","vizwhiz_tooltip_html")

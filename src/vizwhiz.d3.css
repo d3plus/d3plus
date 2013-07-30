@@ -133,7 +133,7 @@ div.vizwhiz_tooltip_description {
 }
 
 div.vizwhiz_tooltip_data_container {
-  overflow: scroll;
+  overflow-y: auto;
   z-index: -1;
 }
 
@@ -175,8 +175,8 @@ div.vizwhiz_tooltip_footer a:hover {
 div.vizwhiz_tooltip_html {
   display: inline-block;
   vertical-align: top;
-  overflow: scroll;
-  padding: 12px;
+  overflow-y: auto;
+  padding: 0px 12px;
   position: absolute;
 }
 
