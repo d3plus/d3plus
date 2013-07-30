@@ -34,14 +34,13 @@ d3.json("data/products_mg.json", function(raw_data){
       })
       
       data.data.forEach(function(d, i){
-        d.id = d.isic_id
-        d.nesting_0 = {"name":attrs[d.id.slice(0, 1)].name, "id":d.id.slice(0, 1)};
-        d.nesting_1 = {"name":attrs[d.id.slice(0, 3)].name, "id":d.id.slice(0, 3)};
-        d.nesting_2 = {"name":attrs[d.id.slice(0, 5)].name, "id":d.id.slice(0, 5)};
+        // d.id = d.isic_id
+        d.nesting_0 = {"name":attrs[d.isic_id.slice(0, 1)].name, "isic_id":d.isic_id.slice(0, 1)};
+        d.nesting_1 = {"name":attrs[d.isic_id.slice(0, 3)].name, "isic_id":d.isic_id.slice(0, 3)};
+        d.nesting_2 = {"name":attrs[d.isic_id.slice(0, 5)].name, "isic_id":d.isic_id.slice(0, 5)};
       })
       
 
-      
       format_test = function(data) {
         console.log(data)
         return "Test JSON: "+data[10].name
@@ -78,7 +77,7 @@ d3.json("data/products_mg.json", function(raw_data){
     
       viz
         .type("tree_map")
-        .id_var("id")
+        .id_var("isic_id")
         .attrs(attrs)
         .text_var("name")
         .value_var("wage")

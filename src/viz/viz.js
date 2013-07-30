@@ -473,6 +473,7 @@ vizwhiz.viz = function() {
         
       filter_change = false
       axis_change = false
+      
       if (vars.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
       vizwhiz[vars.type](vars);
       if (vars.dev) console.log("[viz-whiz] *** End Chart ***")
@@ -759,11 +760,11 @@ vizwhiz.viz = function() {
     if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
     else var a = vars.tooltip_info[length]
     
-    if (a.indexOf(vars.value_var) < 0) a.unshift(vars.value_var)
+    if (a.indexOf(vars.value_var) < 0) a.push(vars.value_var)
     if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
-         && a.indexOf(vars.xaxis_var) < 0) a.unshift(vars.xaxis_var)
+         && a.indexOf(vars.xaxis_var) < 0) a.push(vars.xaxis_var)
     if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
-         && a.indexOf(vars.yaxis_var) < 0) a.unshift(vars.yaxis_var)
+         && a.indexOf(vars.yaxis_var) < 0) a.push(vars.yaxis_var)
     
     var tooltip_data = []
     a.forEach(function(t){
