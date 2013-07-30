@@ -89,6 +89,7 @@ vizwhiz.viz = function() {
     "tiles": true,
     "title": null,
     "title_center": true,
+    "title_height": 0,
     "title_width": null,
     "tooltip_info": [],
     "total_bar": false,
@@ -436,7 +437,12 @@ vizwhiz.viz = function() {
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
         make_title(total_val,"total_bar");
-        if (vars.margin.top > 0) vars.margin.top += 3
+        if (vars.margin.top > 0) {
+          vars.margin.top += 3
+          if (vars.margin.top < vars.title_height) {
+            vars.margin.top = vars.title_height
+          }
+        }
       }
       
       vars.height = vars.svg_height - vars.margin.top;
@@ -1180,6 +1186,12 @@ vizwhiz.viz = function() {
   chart.title_center = function(x) {
     if (!arguments.length) return vars.title_center;
     vars.title_center = x;
+    return chart;
+  };
+  
+  chart.title_height = function(x) {
+    if (!arguments.length) return vars.title_height;
+    vars.title_height = x;
     return chart;
   };
   

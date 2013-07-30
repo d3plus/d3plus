@@ -818,6 +818,7 @@ vizwhiz.viz = function() {
     "tiles": true,
     "title": null,
     "title_center": true,
+    "title_height": 0,
     "title_width": null,
     "tooltip_info": [],
     "total_bar": false,
@@ -1165,7 +1166,12 @@ vizwhiz.viz = function() {
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
         make_title(total_val,"total_bar");
-        if (vars.margin.top > 0) vars.margin.top += 3
+        if (vars.margin.top > 0) {
+          vars.margin.top += 3
+          if (vars.margin.top < vars.title_height) {
+            vars.margin.top = vars.title_height
+          }
+        }
       }
       
       vars.height = vars.svg_height - vars.margin.top;
@@ -1909,6 +1915,12 @@ vizwhiz.viz = function() {
   chart.title_center = function(x) {
     if (!arguments.length) return vars.title_center;
     vars.title_center = x;
+    return chart;
+  };
+  
+  chart.title_height = function(x) {
+    if (!arguments.length) return vars.title_height;
+    vars.title_height = x;
     return chart;
   };
   
@@ -4557,7 +4569,7 @@ vizwhiz.pie_scatter = function(vars) {
       d3.select(this)
         .append("circle")
         .style("stroke", function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) {
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) {
             return "#333";
           }
           else {
@@ -4566,7 +4578,7 @@ vizwhiz.pie_scatter = function(vars) {
         })
         .style('stroke-width', 1)
         .style('fill', function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) {
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) {
             return find_variable(d[vars.id_var],vars.color_var);
           }
           else {
@@ -4659,11 +4671,11 @@ vizwhiz.pie_scatter = function(vars) {
       
       d3.select(this).select("circle").transition().duration(vizwhiz.timing)
         .style("stroke", function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return "#333";
           else return find_variable(d[vars.id_var],vars.color_var);
         })
         .style('fill', function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return find_variable(d[vars.id_var],vars.color_var);
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return find_variable(d[vars.id_var],vars.color_var);
           else {
             var c = d3.hsl(find_variable(d[vars.id_var],vars.color_var));
             c.l = 0.95;
@@ -4769,7 +4781,7 @@ vizwhiz.pie_scatter = function(vars) {
         var radius = vars.size_scale(val),
             x = vars.x_scale(d[vars.xaxis_var]),
             y = vars.y_scale(d[vars.yaxis_var]),
-            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],vars.color_var),
+            color = d[vars.active_var] || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],vars.color_var),
             viz = d3.select("g.chart");
             
         // vertical line to x-axis

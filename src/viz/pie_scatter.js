@@ -97,7 +97,7 @@ vizwhiz.pie_scatter = function(vars) {
       d3.select(this)
         .append("circle")
         .style("stroke", function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) {
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) {
             return "#333";
           }
           else {
@@ -106,7 +106,7 @@ vizwhiz.pie_scatter = function(vars) {
         })
         .style('stroke-width', 1)
         .style('fill', function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) {
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) {
             return find_variable(d[vars.id_var],vars.color_var);
           }
           else {
@@ -199,11 +199,11 @@ vizwhiz.pie_scatter = function(vars) {
       
       d3.select(this).select("circle").transition().duration(vizwhiz.timing)
         .style("stroke", function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return "#333";
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return "#333";
           else return find_variable(d[vars.id_var],vars.color_var);
         })
         .style('fill', function(dd){
-          if (d.active || (d.num_children_active == d.num_children && d.active != false)) return find_variable(d[vars.id_var],vars.color_var);
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return find_variable(d[vars.id_var],vars.color_var);
           else {
             var c = d3.hsl(find_variable(d[vars.id_var],vars.color_var));
             c.l = 0.95;
@@ -309,7 +309,7 @@ vizwhiz.pie_scatter = function(vars) {
         var radius = vars.size_scale(val),
             x = vars.x_scale(d[vars.xaxis_var]),
             y = vars.y_scale(d[vars.yaxis_var]),
-            color = d.active || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],vars.color_var),
+            color = d[vars.active_var] || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],vars.color_var),
             viz = d3.select("g.chart");
             
         // vertical line to x-axis
