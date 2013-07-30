@@ -17,18 +17,20 @@ vizwhiz.stacked = function(vars) {
   //-------------------------------------------------------------------
   
   // get max total for sums of each xaxis
+  if (!vars.data) vars.data = []
+  
   var xaxis_sums = d3.nest()
     .key(function(d){return d[vars.xaxis_var] })
     .rollup(function(leaves){
       return d3.sum(leaves, function(d){return d[vars.yaxis_var];})
     })
     .entries(vars.data)
-  
-  var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
-  
+
   // nest data properly according to nesting array
-  nested_data = nest_data();
-  
+  var nested_data = nest_data();
+
+  var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
+
   // scales for both X and Y values
   var year_extent = vars.year instanceof Array ? vars.year : d3.extent(vars.years)
   
@@ -69,12 +71,18 @@ vizwhiz.stacked = function(vars) {
   
   // Get layers from d3.stack function (gives x, y, y0 values)
   var offset = vars.layout == "value" ? "zero" : "expand";
-  var layers = stack.offset(offset)(nested_data)
+  
+  if (nested_data.length) {
+    var layers = stack.offset(offset)(nested_data)
+  }
+  else {
+    var layers = []
+  }
   
   // container for layers
   vars.chart_enter.append("g").attr("class", "layers")
     .attr("clip-path","url(#path_clipping)")
-  
+    
   // give data with key function to variables to draw
   var paths = d3.select("g.layers").selectAll(".layer")
     .data(layers, function(d){ return d.key; })

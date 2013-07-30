@@ -4,7 +4,7 @@ vizwhiz.pie_scatter = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scaling
   //-------------------------------------------------------------------
-    
+  if (!vars.data) vars.data = []
   var size_domain = d3.extent(vars.data, function(d){ 
     return d[vars.value_var] == 0 ? null : d[vars.value_var] 
   })

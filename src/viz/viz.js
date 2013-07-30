@@ -23,6 +23,7 @@ vizwhiz.viz = function() {
     "depth": null,
     "dev": false,
     "donut": true,
+    "error": "",
     "filter": [],
     "filtered_data": null,
     "font": "sans-serif",
@@ -112,10 +113,10 @@ vizwhiz.viz = function() {
   }
   
   var data_obj = {"raw": null},
+      error = false,
       filter_change = false,
       nodes,
       links,
-      removed_ids = [],
       mirror_axis = false,
       static_axis = true,
       xaxis_domain = null,
@@ -263,7 +264,7 @@ vizwhiz.viz = function() {
         }
         
       }
-      
+
       if (nested_apps.indexOf(vars.type) >= 0) {
         
         if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
@@ -288,6 +289,10 @@ vizwhiz.viz = function() {
       }
       else {
         vars.data = data_obj[data_type[vars.type]][vars.year];
+      }
+      
+      if ((vars.type == "tree_map" && !vars.data.children.length) || (vars.data && vars.data.length == 0)) {
+        vars.data = null
       }
 
       vizwhiz.tooltip.remove(vars.type);
@@ -317,22 +322,13 @@ vizwhiz.viz = function() {
       if (["network","rings"].indexOf(vars.type) >= 0) {
         if (filter_change) {
           if (vars.dev) console.log("[viz-whiz] Filtering Nodes and Edges")
-          vars.nodes = nodes.filter(function(n){
-            if (removed_ids.indexOf(n[vars.id_var]) >= 0) {
-              return false;
-            }
-            else {
-              return true;
-            }
+          vars.nodes = nodes.filter(function(d){
+            return true_filter(d)
           })
-          vars.links = links.filter(function(l){
-            if (removed_ids.indexOf(l.source[vars.id_var]) >= 0
-             || removed_ids.indexOf(l.target[vars.id_var]) >= 0) {
-              return false;
-            }
-            else {
-              return true;
-            }
+          vars.links = links.filter(function(d){
+            var first_match = true_filter(d.source),
+                second_match = true_filter(d.source)
+            return first_match && second_match
           })
         }
         else {
@@ -347,8 +343,8 @@ vizwhiz.viz = function() {
         .style("height",vars.svg_height+"px")
       
       vars.width = vars.svg_width;
-      
-      if (vars.type == "pie_scatter") {
+
+      if (vars.type == "pie_scatter" && vars.data) {
         if (vars.dev) console.log("[viz-whiz] Setting Axes Domains")
         if (xaxis_domain instanceof Array) vars.xaxis_domain = xaxis_domain
         else if (!static_axis) {
@@ -379,7 +375,7 @@ vizwhiz.viz = function() {
         }
       }
       // Calculate total_bar value
-      if (!vars.total_bar || vars.type == "stacked") {
+      if (!vars.data || !vars.total_bar || vars.type == "stacked") {
         var total_val = null
       }
       else {
@@ -422,7 +418,7 @@ vizwhiz.viz = function() {
 
       // Create titles
       vars.margin.top = 0;
-      if (vars.svg_width < 300 || vars.svg_height < 200) {
+      if ((vars.type == "rings" && !vars.connections[vars.highlight]) || !vars.data || error || vars.svg_width < 300 || vars.svg_height < 200) {
         vars.small = true;
         vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
         vars.graph.width = vars.width
@@ -475,9 +471,31 @@ vizwhiz.viz = function() {
       filter_change = false
       axis_change = false
       
+      if (!error && !vars.data) {
+        vars.error = vars.text_format("No Data Available","error")
+      }
+      else if (vars.type == "rings" && !vars.connections[vars.highlight]) {
+        vars.data = null
+        vars.error = vars.text_format("No Connections Available","error")
+      }
+      else if (error) {
+        vars.data = null
+        if (error === true) {
+          vars.error = vars.text_format("Error","error")
+        }
+        else {
+          vars.error = vars.text_format(error,"error")
+        }
+      }
+      else {
+        vars.error = ""
+      }
+      
       if (vars.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
-      vizwhiz[vars.type](vars);
+      vizwhiz[vars.type](vars)
       if (vars.dev) console.log("[viz-whiz] *** End Chart ***")
+      
+      vizwhiz.error(vars)
       
     });
     
@@ -494,7 +512,7 @@ vizwhiz.viz = function() {
         (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
       
       if (vars.dev) console.log("[viz-whiz] Removing Solo/Filters")
-      removed_ids = []
+      
       return check_data.filter(function(d){
         
         if (vars.xaxis_var) {
@@ -503,42 +521,41 @@ vizwhiz.viz = function() {
         if (vars.yaxis_var) {
           if (typeof d[vars.yaxis_var] == "undefined") return false
         }
-        
-        var check = [d[vars.id_var],d[vars.text_var]]
-        vars.nesting.forEach(function(key){
-          for (x in d[key]) {
-            check.push(d[key][x])
-          }
-        })
-        var match = false
-        if (d[vars.id_var] != vars.highlight || vars.type != "rings") {
-          if (vars.solo.length) {
-            check.forEach(function(c){
-              if (vars.solo.indexOf(c) >= 0) match = true;
-            })
-            if (match) return true
-            removed_ids.push(d[vars.id_var])
-            return false
-          }
-          else {
-            check.forEach(function(c){
-              if (vars.filter.indexOf(c) >= 0) match = true;
-            })
-            if (match) {
-              removed_ids.push(d[vars.id_var])
-              return false
-            }
-            return true
-          }
-        }
-        else {
-          return true
-        }
+        return true_filter(d)
       })
       
     }
     else {
       return check_data
+    }
+  }
+  
+  true_filter = function(d) {
+    var check = [d[vars.id_var],d[vars.text_var]]
+    vars.nesting.forEach(function(key){
+      if (d[key]) {
+        for (x in d[key]) {
+          check.push(d[key][x])
+        }
+      }
+    })
+    var match = false
+    if (d[vars.id_var] != vars.highlight || vars.type != "rings") {
+      if (vars.solo.length) {
+        check.forEach(function(c){
+          if (vars.solo.indexOf(c) >= 0) return true
+        })
+        return false
+      }
+      else {
+        check.forEach(function(c){
+          if (vars.filter.indexOf(c) >= 0) return false
+        })
+        return true
+      }
+    }
+    else {
+      return true
     }
   }
 
@@ -948,6 +965,12 @@ vizwhiz.viz = function() {
     else if (x === "false") vars.donut = false;
     else vars.donut = true;
     return chart;
+  };
+
+  chart.error = function(x) {
+    if (!arguments.length) return error
+    error = x
+    return chart
   };
 
   chart.filter = function(x) {
@@ -1526,6 +1549,10 @@ vizwhiz.viz = function() {
     // Update Graph
     d3.select(".chart").transition().duration(vars.graph.timing)
       .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
+      .attr("opacity",function(){
+        if (vars.data.length == 0) return 0
+        else return 1
+      })
       .select("rect#background")
         .attr('width', vars.graph.width)
         .attr('height', vars.graph.height)
@@ -1552,12 +1579,20 @@ vizwhiz.viz = function() {
     d3.select(".x_axis_label")
       .attr('x', labelx)
       .attr('y', vars.height-10)
+      .attr("opacity",function(){
+        if (vars.data.length == 0) return 0
+        else return 1
+      })
       .text(vars.text_format(vars.xaxis_var))
 
     // Update Y axis label
     d3.select(".y_axis_label")
       .attr('y', 15)
       .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
+      .attr("opacity",function(){
+        if (vars.data.length == 0) return 0
+        else return 1
+      })
       .text(vars.text_format(vars.yaxis_var))
       
     // Move titles

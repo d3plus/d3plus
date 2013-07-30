@@ -34,12 +34,14 @@ vizwhiz.bubbles = function(vars) {
   // Calculate positioning for each bubble
   //-------------------------------------------------------------------
   
+  if (!vars.data) vars.data = []
+  
   var data_nested = {}
   data_nested.key = "root";
   data_nested.values = d3.nest()
     .key(function(d){ return find_variable(d[vars.id_var],vars.grouping) })
     .entries(vars.data)
-
+    
   var pack = d3.layout.pack()
     .size([vars.width,vars.height])
     .children(function(d) { return d.values; })
@@ -92,8 +94,10 @@ vizwhiz.bubbles = function(vars) {
     var rows = Math.ceil(Math.sqrt(data_packed.length/(vars.width/vars.height))),
         columns = Math.ceil(Math.sqrt(data_packed.length*(vars.width/vars.height)));
   }
-  
-  while ((rows-1)*columns >= data_packed.length) rows--
+
+  if (vars.data.length > 0) {
+    while ((rows-1)*columns >= data_packed.length) rows--
+  }
   
 
   

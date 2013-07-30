@@ -405,9 +405,10 @@ vizwhiz.network = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // New nodes and links enter, initialize them here
   //-------------------------------------------------------------------
-  
+  if (!vars.data) var nodes = []
+  else var nodes = vars.nodes
   var node = d3.select("g.nodes").selectAll("circle.node")
-    .data(vars.nodes, function(d) { return d[vars.id_var]; })
+    .data(nodes, function(d) { return d[vars.id_var]; })
   
   node.enter().append("circle")
     .attr("class","node")
@@ -415,9 +416,11 @@ vizwhiz.network = function(vars) {
     .call(node_position)
     .call(node_color)
     .call(node_stroke);
-  
+    
+  if (!vars.data) var links = []
+  else var links = vars.links
   var link = d3.select("g.links").selectAll("line.link")
-    .data(vars.links, function(d) { return d.source[vars.id_var] + "-" + d.target[vars.id_var]; })
+    .data(links, function(d) { return d.source[vars.id_var] + "-" + d.target[vars.id_var]; })
     
   link.enter().append("line")
     .attr("class","link")

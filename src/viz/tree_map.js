@@ -3,17 +3,22 @@ vizwhiz.tree_map = function(vars) {
   // Ok, to get started, lets run our heirarchically nested
   // data object through the d3 treemap function to get a
   // flat array of data with X, Y, width and height vars
-  var tmap_data = d3.layout.treemap()
-    .round(false)
-    .size([vars.width, vars.height])
-    .children(function(d) { return d.children; })
-    .sort(function(a, b) { return a.value - b.value; })
-    .value(function(d) { return d[vars.value_var]; })
-    .nodes(vars.data)
-    .filter(function(d) {
-      return !d.children;
-    })
-    
+  if (vars.data) {
+    var tmap_data = d3.layout.treemap()
+      .round(false)
+      .size([vars.width, vars.height])
+      .children(function(d) { return d.children; })
+      .sort(function(a, b) { return a.value - b.value; })
+      .value(function(d) { return d[vars.value_var]; })
+      .nodes(vars.data)
+      .filter(function(d) {
+        return !d.children;
+      })
+  }
+  else {
+    var tmap_data = []
+  }
+  
   var cell = d3.select("g.parent").selectAll("g")
     .data(tmap_data, function(d){ return d[vars.id_var]; })
   

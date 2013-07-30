@@ -36,11 +36,13 @@ vizwhiz.rings = function(vars) {
       .x(function(d) { return d.x; })
       .y(function(d) { return d.y; })
       .interpolate("basis");
-  
-  var root = get_root();
-  
-  var tree_nodes = root.nodes,
-      tree_links = root.links;
+      
+  if (vars.data) {
+    var root = get_root()
+  }
+  else {
+    var root = {"links": [], "nodes": []}
+  }
       
   //===================================================================
   
@@ -49,35 +51,22 @@ vizwhiz.rings = function(vars) {
   //-------------------------------------------------------------------
   
   var link = d3.select(".links").selectAll(".link")
-    .data([]);
-    
-  link.exit().remove();
-  
-  var link = d3.select(".links").selectAll(".link")
-    .data(tree_links)
+    .data(root.links)
       
   link.enter().append("path")
     .attr("fill", "none")
     .attr("class", "link")
-    .attr("opacity",0)
-    .call(line_styles);
+    .attr("opacity",0);
       
-  link.transition().duration(vizwhiz.timing)
-    .attr("opacity",1)
-    .attr("d", function(d) {
-      if (d.source[vars.id_var] == vars.highlight) {
-        var x = d.target.ring_y * Math.cos((d.target.ring_x-90)*(Math.PI/180)),
-            y = d.target.ring_y * Math.sin((d.target.ring_x-90)*(Math.PI/180))
-        return line([{"x":0,"y":0},{"x":x,"y":y}]);
-      } else {
-        var x1 = d.source.ring_x,
-            y1 = d.source.ring_y,
-            x2 = d.target.ring_x,
-            y2 = d.target.ring_y
-        return diagonal({"source":{"x":x1,"y":y1},"target":{"x":x2,"y":y2}});
-      }
+  link.transition().duration(vizwhiz.timing/2)
+    .attr("opacity",0)
+    .transition().call(line_styles)
+    .transition().duration(vizwhiz.timing/2)
+    .attr("opacity",function(d) {
+      if (hover && d3.select(this).attr("stroke") == "#ddd") {
+         return 0.25
+      } return 0.75;
     })
-    .call(line_styles);
       
   link.exit().transition().duration(vizwhiz.timing)
     .attr("opacity",0)
@@ -88,35 +77,29 @@ vizwhiz.rings = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // NODES
   //-------------------------------------------------------------------
-
-  var node = d3.select(".nodes").selectAll(".node")
-    .data([]);
-    
-  node.exit().remove();
-
-  var node = d3.select(".nodes").selectAll(".node")
-    .data(tree_nodes)
+  
+  var node = d3.select(".nodes").selectAll("g.node")
+    .data(root.nodes,function(d){return d[vars.id_var]})
       
   var node_enter = node.enter().append("g")
       .attr("class", "node")
       .attr("opacity",0)
       .attr("transform", function(d) {
         if (d.depth == 0) return "none"
-        else return "rotate(" + (d.ring_x - 90) + ")translate(" + 0 + ")"; 
+        else return "rotate(" + (d.ring_x - 90) + ")translate(" + d.ring_y + ")"; 
       })
       
   node_enter.append("circle")
     .attr("id",function(d) { return "node_"+d[vars.id_var]; })
-    .attr("r", 0)
     .call(circle_styles)
-          
-  if (!vars.small) {
-    node_enter.append("text")
-      .attr("font-weight",vars.font_weight)
-      .attr("font-size", "10px")
-      .attr("font-family",vars.font)
-      .call(text_styles);
-  }
+    .attr("r",0)
+    
+  node_enter.append("text")
+    .attr("font-weight",vars.font_weight)
+    .attr("x",0)
+    .attr("font-family",vars.font)
+    .attr("opacity",0)
+    .call(text_styles);
       
   node
     .on(vizwhiz.evt.over,function(d){
@@ -154,36 +137,12 @@ vizwhiz.rings = function(vars) {
       })
   
   node.select("circle").transition().duration(vizwhiz.timing)
-    .attr("r", function(d){ 
-      if (d.depth == 0) return ring_width/2;
-      var s = node_size(d.depth); 
-      if (d.depth == 1) var limit = (Math.PI*((tree_radius-(ring_width*2))*2))/total_children;
-      if (d.depth == 2) var limit = (Math.PI*((tree_radius-ring_width)*2))/total_children;
-      if (s > limit/2) s = limit/2;
-      if (s < 2) s = 2;
-      d.radius = s;
-      return d.radius;
-    })
     .call(circle_styles)
     
-  node.select("text")
-    .attr("text-anchor", function(d) { 
-      if (d.depth == 0) return "middle"
-      else return d.ring_x%360 < 180 ? "start" : "end"; 
-    })
-    .attr("transform", function(d) { 
-      if (d.depth == 0) return "none"
-      else {
-        var offset = d.radius*2
-        return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
-      }
-    })
-    .attr("transform", function(d) { 
-      if (d.depth == 0) return "none"
-      else {
-        var offset = d.radius*2
-        return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
-      }
+  node.select("text").transition().duration(vizwhiz.timing)
+    .attr("opacity",function(d){
+      if (vars.small) return 0
+      else return 1
     })
     .each(function(d) {
       if (d.depth == 0) {
@@ -193,6 +152,7 @@ vizwhiz.rings = function(vars) {
             resize = true
       }
       else {
+        d3.select(this).attr("font-size","10px")
         var w = ring_width-d.radius*2, resize = false
         if (d.depth == 1) var h = (Math.PI*((tree_radius-(ring_width*2))*2))*(d.size/360);
         if (d.depth == 2) var h = (Math.PI*((tree_radius-ring_width)*2))/total_children;
@@ -210,19 +170,19 @@ vizwhiz.rings = function(vars) {
       })
 
       d3.select(this).attr("y",(-d3.select(this).node().getBBox().height/2)+"px")
-      d3.select(this).selectAll("tspan").attr("x",0)
+      
     })
     .call(text_styles);
       
   node.exit().transition().duration(vizwhiz.timing)
       .attr("opacity",0)
       .remove()
-  
+      
   //===================================================================
   
   hover = null;
   
-  if (!vars.small) {
+  if (!vars.small && vars.data) {
 
     vizwhiz.tooltip.remove(vars.type)
     
@@ -271,7 +231,7 @@ vizwhiz.rings = function(vars) {
       
     }
     
-    var html = vars.click_function ? vars.click_function(vars.highlight,tree_nodes) : ""
+    var html = vars.click_function ? vars.click_function(vars.highlight,root.nodes) : ""
     
     if (typeof html == "string") make_tooltip(html)
     else {
@@ -327,10 +287,18 @@ vizwhiz.rings = function(vars) {
         if (d.source[vars.id_var] == vars.highlight) return 2
         else return 1
       })
-      .attr("opacity",function(d) {
-        if (hover && d3.select(this).attr("stroke") == "#ddd") {
-           return 0.25
-        } return 0.75;
+      .attr("d", function(d) {
+        if (d.source[vars.id_var] == vars.highlight) {
+          var x = d.target.ring_y * Math.cos((d.target.ring_x-90)*(Math.PI/180)),
+              y = d.target.ring_y * Math.sin((d.target.ring_x-90)*(Math.PI/180))
+          return line([{"x":0,"y":0},{"x":x,"y":y}]);
+        } else {
+          var x1 = d.source.ring_x,
+              y1 = d.source.ring_y,
+              x2 = d.target.ring_x,
+              y2 = d.target.ring_y
+          return diagonal({"source":{"x":x1,"y":y1},"target":{"x":x2,"y":y2}});
+        }
       })
   }
   
@@ -355,6 +323,16 @@ vizwhiz.rings = function(vars) {
       
       })
       .attr("stroke-width", "1")
+      .attr("r", function(d){ 
+        if (d.depth == 0) return ring_width/2;
+        var s = node_size(d.depth); 
+        if (d.depth == 1) var limit = (Math.PI*((tree_radius-(ring_width*2))*2))/total_children;
+        if (d.depth == 2) var limit = (Math.PI*((tree_radius-ring_width)*2))/total_children;
+        if (s > limit/2) s = limit/2;
+        if (s < 2) s = 2;
+        d.radius = s;
+        return d.radius;
+      })
   }
   
   function text_styles(t) {
@@ -371,6 +349,17 @@ vizwhiz.rings = function(vars) {
         else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
         else if (d.depth == 2 && (!hover || d == hover || d.parents.indexOf(hover) >= 0)) return color;
         else return "lightgrey"
+      })
+      .attr("text-anchor", function(d) { 
+        if (d.depth == 0) return "middle"
+        else return d.ring_x%360 < 180 ? "start" : "end"; 
+      })
+      .attr("transform", function(d) { 
+        if (d.depth == 0) return "none"
+        else {
+          var offset = d.radius*2
+          return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
+        }
       })
   }
   

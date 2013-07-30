@@ -17,6 +17,7 @@ body {
 <script src="../src/general.js"></script>
 <script src="../src/utils.js"></script>
 <script src="../src/tooltip.js"></script>
+<script src="../src/error.js"></script>
 <script src="../src/viz/viz.js"></script>
 <script src="../src/viz/rings.js"></script>
 
@@ -63,8 +64,8 @@ d3.json("data/attr_hs.json", function(attr) {
         .attrs(attr)
         .value_var("val_usd")
         // .highlight("116108") // women's undergarments
-        .highlight("020910") // ginger
-        // .highlight("157202") // ferroalloys
+        // .highlight("020910") // ginger
+        .highlight("157202") // ferroalloys
         // .highlight("178703") // cars
         // .highlight("168480") // molding boxes
         .tooltip_info(["distance", "complexity", "value"])

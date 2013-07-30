@@ -214,13 +214,12 @@ vizwhiz.geo_map = function(vars) {
       hover = null;
 
   //===================================================================
-  
+  var data_range = [], data_extent = [0,0]
   if (vars.data) {
     data_extent = d3.extent(d3.values(vars.data),function(d){
       return d[vars.value_var] && d[vars.value_var] != 0 ? d[vars.value_var] : null
     })
-    var data_range = [],
-        step = 0.0
+    var step = 0.0
     while(step <= 1) {
       data_range.push((data_extent[0]*Math.pow((data_extent[1]/data_extent[0]),step)))
       step += 0.25
@@ -229,6 +228,9 @@ vizwhiz.geo_map = function(vars) {
       .domain(data_range)
       .interpolate(d3.interpolateRgb)
       .range(color_gradient)
+  }
+  else {
+    vars.data = []
   }
 
   //===================================================================
