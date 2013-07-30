@@ -1284,7 +1284,7 @@ vizwhiz.viz = function() {
           
           to_return = {
             "num_children": leaves.length,
-            "num_children_active": d3.sum(leaves, function(d){ return d.active; })
+            "num_children_active": d3.sum(leaves, function(d){ return d[vars.active_var]; })
           }
           
           to_return[vars.id_var] = leaves[0][nest_key][vars.id_var]
@@ -1573,6 +1573,7 @@ vizwhiz.viz = function() {
   
   chart.active_var = function(x) {
     if (!arguments.length) return vars.active_var;
+    filter_change = true
     vars.active_var = x;
     return chart;
   };
@@ -4484,7 +4485,7 @@ vizwhiz.pie_scatter = function(vars) {
   if (!size_domain[1]) size_domain = [0,0]
   
   var max_size = d3.max([d3.min([vars.graph.width,vars.graph.height])/25,10]),
-      min_size = 3
+      min_size = 5
       
   if (size_domain[0] == size_domain[1]) var min_size = max_size
   

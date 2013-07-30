@@ -555,7 +555,7 @@ vizwhiz.viz = function() {
           
           to_return = {
             "num_children": leaves.length,
-            "num_children_active": d3.sum(leaves, function(d){ return d.active; })
+            "num_children_active": d3.sum(leaves, function(d){ return d[vars.active_var]; })
           }
           
           to_return[vars.id_var] = leaves[0][nest_key][vars.id_var]
@@ -844,6 +844,7 @@ vizwhiz.viz = function() {
   
   chart.active_var = function(x) {
     if (!arguments.length) return vars.active_var;
+    filter_change = true
     vars.active_var = x;
     return chart;
   };

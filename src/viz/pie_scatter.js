@@ -12,7 +12,7 @@ vizwhiz.pie_scatter = function(vars) {
   if (!size_domain[1]) size_domain = [0,0]
   
   var max_size = d3.max([d3.min([vars.graph.width,vars.graph.height])/25,10]),
-      min_size = 3
+      min_size = 5
       
   if (size_domain[0] == size_domain[1]) var min_size = max_size
   
