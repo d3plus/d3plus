@@ -8,7 +8,6 @@ div.vizwhiz_tooltip {
   font-size: 12px;
   font-weight: lighter;
   position: absolute;
-  z-index: 10001;
 }
 
 div.vizwhiz_tooltip_container {
@@ -30,7 +29,7 @@ div.vizwhiz_tooltip_curtain {
   bottom: 0px;
   left: 0px;
   opacity: 0.8;
-  z-index: 10000;
+  z-index: 499;
 }
 
 div.vizwhiz_tooltip_body {
@@ -47,6 +46,14 @@ div.vizwhiz_tooltip_header {
 div.vizwhiz_tooltip_header > div {
   display: inline-block;
   z-index: 1;
+}
+
+div.vizwhiz_tooltip_small {
+  z-index: 2000;
+}
+
+div.vizwhiz_tooltip_large {
+  z-index: 500;
 }
 
 div.vizwhiz_tooltip_small div.vizwhiz_tooltip_title {
