@@ -157,7 +157,7 @@ div.vizwhiz_tooltip_data_value {
 }
 
 div.vizwhiz_tooltip_footer {
-  color: #aaa;
+  color: #333;
   font-size: 10px;
 /*  padding-top: 6px;*/
   position: relative;
@@ -165,11 +165,13 @@ div.vizwhiz_tooltip_footer {
 }
 
 div.vizwhiz_tooltip_footer a {
-  color: #aaa;
+  color: #333;
+  text-decoration: none;
 }
 
 div.vizwhiz_tooltip_footer a:hover {
-  color: #888;
+  color: #000;
+  text-decoration: underline;
 }
 
 div.vizwhiz_tooltip_html {

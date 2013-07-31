@@ -932,6 +932,7 @@ vizwhiz.viz = function() {
   var data_obj = {"raw": null},
       error = false,
       filter_change = false,
+      footer = true,
       nodes,
       links,
       mirror_axis = false,
@@ -1232,6 +1233,9 @@ vizwhiz.viz = function() {
       
       vars.svg_enter.append("g")
         .attr("class","titles")
+      
+      vars.svg_enter.append("g")
+        .attr("class","footer")
 
       // Create titles
       vars.margin.top = 0;
@@ -1259,7 +1263,9 @@ vizwhiz.viz = function() {
         }
       }
       
-      vars.height = vars.svg_height - vars.margin.top;
+      update_footer()
+      
+      vars.height = vars.svg_height - vars.margin.top - vars.margin.bottom;
       
       vars.graph.height = vars.height-vars.graph.margin.top-vars.graph.margin.bottom
       
@@ -1539,6 +1545,103 @@ vizwhiz.viz = function() {
 
   }
   
+  update_footer = function() {
+    
+    if (footer && vars.data_source) {
+      if (vars.data_source.indexOf("<a href=") == 0) {
+        var div = document.createElement("div")
+        div.innerHTML = vars.data_source
+        var t = vars.data_source.split("href=")[1]
+        var link = t.split(t.charAt(0))[1]
+        if (link.charAt(0) != "h" && link.charAt(0) != "/") {
+          link = "http://"+link
+        }
+        var d = [div.innerText]
+      }
+      else {
+        var d = [vars.data_source]
+      }
+    }
+    else var d = []
+    
+    var source = d3.select("g.footer").selectAll("text.source").data(d)
+    var padding = 3
+    
+    source.enter().append("text")
+      .attr("class","source")
+      .attr("opacity",0)
+      .attr("x",vars.svg_width/2)
+      .attr("y",padding-1)
+      .attr("font-size","10px")
+      .attr("fill","#333")
+      .attr("text-anchor", "middle")
+      .attr("font-family", vars.font)
+      .style("font-weight", vars.font_weight)
+      .each(function(d){
+        vizwhiz.utils.wordwrap({
+          "text": d,
+          "parent": this,
+          "width": vars.svg_width-20,
+          "height": vars.svg_height/8,
+          "resize": false
+        })
+      })
+      .on(vizwhiz.evt.over,function(){
+        if (link) {
+          d3.select(this)
+            .attr("text-decoration","underline")
+            .style("cursor","pointer")
+            .style("fill","#000")
+        }
+      })
+      .on(vizwhiz.evt.out,function(){
+        if (link) {
+          d3.select(this)
+            .attr("text-decoration","none")
+            .style("cursor","auto")
+            .style("fill","#333")
+        }
+      })
+      .on(vizwhiz.evt.click,function(){
+        if (link) {
+          if (link.charAt(0) != "/") var target = "_blank"
+          else var target = "_self"
+          window.open(link,target)
+        }
+      })
+    
+    source.transition().duration(vizwhiz.evt.timing)
+      .attr("opacity",1)
+      .attr("x",vars.svg_width/2)
+      .attr("font-family", vars.font)
+      .style("font-weight", vars.font_weight)
+      .each(function(d){
+        vizwhiz.utils.wordwrap({
+          "text": d,
+          "parent": this,
+          "width": vars.svg_width-20,
+          "height": vars.svg_height/8,
+          "resize": false
+        })
+      })
+      
+    source.exit().transition().duration(vizwhiz.evt.timing)
+      .attr("opacity",0)
+      .remove()
+      
+    if (d.length) {
+      var height = d3.select("g.footer > text").node().offsetHeight
+      vars.margin.bottom = height+padding*2
+    }
+    else {
+      vars.margin.bottom = 0
+    }
+    
+    d3.select("g.footer").transition().duration(vizwhiz.evt.timing)
+      .attr("transform","translate(0,"+(vars.svg_height-vars.margin.bottom)+")")
+    
+  }
+  
   update_titles = function() {
     
     var offset = 0
@@ -1813,6 +1916,12 @@ vizwhiz.viz = function() {
       }
     }
     filter_change = true;
+    return chart;
+  };
+  
+  chart.footer = function(x) {
+    if (!arguments.length) return footer;
+    footer = x;
     return chart;
   };
   
