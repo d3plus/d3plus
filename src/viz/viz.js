@@ -441,7 +441,7 @@ vizwhiz.viz = function() {
             })
           }
           else {
-            var color = find_color(c,vars.color_var)
+            var color = find_variable(c,vars.color_var)
             if (typeof color == "number") {
               if (color < vars.color_domain[0]) vars.color_domain[0] = color
               if (color > vars.color_domain[1]) vars.color_domain[1] = color
@@ -480,7 +480,6 @@ vizwhiz.viz = function() {
           vars.color_domain[1] = 0
           var cr = [vars.color_range[0],vars.color_range[1]]
         }
-          
         vars.color_scale
           .domain(vars.color_domain)
           .range(cr)
@@ -1029,11 +1028,9 @@ vizwhiz.viz = function() {
   
   find_color = function(id,variable) {
     var color = find_variable(id,variable)
-    if (!color) value = vizwhiz.utils.rand_color()
+    if (!color) return "#ccc"
     else if (typeof color == "string") return color
-    else {
-      return vars.color_scale(color)
-    }
+    else return vars.color_scale(color)
   }
   
   footer_text = function() {
