@@ -31,20 +31,24 @@ d3.json("data/products_mg.json", function(raw_data){
       
       var attrs = {}
       attr.data.forEach(function(a){
+        a.isic_id = a.id
         attrs[a.id] = a
       })
       
-      data.data.forEach(function(d, i){
-        // d.id = d.isic_id
-        d.nesting_0 = {"name":attrs[d.isic_id.slice(0, 1)].name, "isic_id":d.isic_id.slice(0, 1)};
-        d.nesting_1 = {"name":attrs[d.isic_id.slice(0, 3)].name, "isic_id":d.isic_id.slice(0, 3)};
-        d.nesting_2 = {"name":attrs[d.isic_id.slice(0, 5)].name, "isic_id":d.isic_id.slice(0, 5)};
-      })
+      depths = [1,3,5]
       
-
-      format_test = function(data) {
-        console.log(data)
-        return "Test JSON: "+data[10].name
+      for (id in attrs) {
+        obj = attrs[id]
+        depths.forEach(function(d){
+          if (d <= obj.id.length) {
+            obj["nesting_"+d] = {"name":attrs[obj.id.slice(0, d)].name, "isic_id":obj.id.slice(0, d)}
+          }
+        })
+      }
+      
+      format_test = function(d) {
+        // console.log(d)
+        return "Test JSON: "+d[10].name
       }
         
       clicker = function(obj) {
@@ -87,10 +91,10 @@ d3.json("data/products_mg.json", function(raw_data){
         .name_array(["name","id"])
         .title("Product Exports of Minas Gerais")
         .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
-        .nesting(["nesting_0","nesting_1","nesting_2"])
+        .nesting(["nesting_1","nesting_3","nesting_5"])
         .nesting_aggs({"distance":"mean","complexity":"mean"})
         .click_function(clicker)
-        .depth("nesting_0")
+        .depth("nesting_1")
         .year(2010)
         .data_source("Data provided by SECEX")
         .font("Helvetica Neue")

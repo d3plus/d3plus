@@ -218,7 +218,7 @@ vizwhiz.stacked = function(vars) {
       
         d3.selectAll("line.rule").remove()
         vizwhiz.tooltip.remove(vars.type)
-        d3.select(self).attr("stroke-width",0)
+        d3.select(self).attr("opacity",0.85)
         
         var tooltip_data = get_tooltip_data(this_value,"long")
         

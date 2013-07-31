@@ -883,7 +883,7 @@ vizwhiz.viz = function() {
         return value + symbol;
       }
       else {
-        return d3.format(",f")(value)
+        return d3.format(".2")(value)
       }
       
     },
@@ -1008,7 +1008,7 @@ vizwhiz.viz = function() {
           (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
         delete data_obj[data_type[vars.type]]
       }
-      
+
       if (!data_obj[data_type[vars.type]]) {
         
         data_obj[data_type[vars.type]] = {}
@@ -1138,14 +1138,14 @@ vizwhiz.viz = function() {
         .attr('height',vars.svg_height)
       
       if (["network","rings"].indexOf(vars.type) >= 0) {
-        if (filter_change) {
+        if (vars.solo.length || vars.filter.length) {
           if (vars.dev) console.log("[viz-whiz] Filtering Nodes and Edges")
           vars.nodes = nodes.filter(function(d){
             return true_filter(d)
           })
           vars.links = links.filter(function(d){
             var first_match = true_filter(d.source),
-                second_match = true_filter(d.source)
+                second_match = true_filter(d.target)
             return first_match && second_match
           })
         }
@@ -1190,6 +1190,14 @@ vizwhiz.viz = function() {
           var domains = vars.yaxis_domain.concat(vars.xaxis_domain)
           vars.xaxis_domain = d3.extent(domains)
           vars.yaxis_domain = d3.extent(domains).reverse()
+        }
+        if (vars.xaxis_domain[0] == vars.xaxis_domain[1]) {
+          vars.xaxis_domain[0] -= 1
+          vars.xaxis_domain[1] += 1
+        }
+        if (vars.yaxis_domain[0] == vars.yaxis_domain[1]) {
+          vars.yaxis_domain[0] -= 1
+          vars.yaxis_domain[1] += 1
         }
       }
       // Calculate total_bar value
@@ -1298,7 +1306,7 @@ vizwhiz.viz = function() {
         
       filter_change = false
       axis_change = false
-      
+
       if (!error && !vars.data) {
         vars.error = vars.text_format("No Data Available","error")
       }
@@ -1336,55 +1344,52 @@ vizwhiz.viz = function() {
 
   filter_check = function(check_data) {
     
-    if (filter_change || 
-        (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
+    if (vars.dev) console.log("[viz-whiz] Removing Solo/Filters")
+    
+    var graph_type = ["stacked","pie_scatter"].indexOf(vars.type) >= 0
       
-      if (vars.dev) console.log("[viz-whiz] Removing Solo/Filters")
+    return check_data.filter(function(d){
       
-      return check_data.filter(function(d){
-        
-        if (vars.xaxis_var) {
-          if (typeof d[vars.xaxis_var] == "undefined") return false
-        }
-        if (vars.yaxis_var) {
-          if (typeof d[vars.yaxis_var] == "undefined") return false
-        }
-        return true_filter(d)
-      })
+      if (vars.xaxis_var && graph_type) {
+        if (typeof d[vars.xaxis_var] == "undefined") return false
+      }
+      if (vars.yaxis_var && graph_type) {
+        if (typeof d[vars.yaxis_var] == "undefined") return false
+      }
+      return true_filter(d)
+    })
       
-    }
-    else {
-      return check_data
-    }
   }
   
   true_filter = function(d) {
-    var check = [d[vars.id_var],d[vars.text_var]]
+    var id = d[vars.id_var],
+        name = find_variable(id,vars.text_var)
+    var check = [id,name]
     vars.nesting.forEach(function(key){
-      if (d[key]) {
-        for (x in d[key]) {
-          check.push(d[key][x])
+      var obj = find_variable(id,key)
+      if (obj) {
+        for (k in obj) {
+          check.push(obj[k])
         }
       }
     })
-    var match = false
-    if (d[vars.id_var] != vars.highlight || vars.type != "rings") {
+    
+    var match = true
+    if (id != vars.highlight || vars.type != "rings") {
       if (vars.solo.length) {
+        match = false
         check.forEach(function(c){
-          if (vars.solo.indexOf(c) >= 0) return true
+          if (vars.solo.indexOf(c) >= 0) match = true
         })
-        return false
       }
-      else {
+      else if (vars.filter.length) {
+        match = true
         check.forEach(function(c){
-          if (vars.filter.indexOf(c) >= 0) return false
+          if (vars.filter.indexOf(c) >= 0) match = false
         })
-        return true
       }
     }
-    else {
-      return true
-    }
+    return match
   }
 
   nest = function(flat_data,levels) {
@@ -1395,7 +1400,7 @@ vizwhiz.viz = function() {
     levels.forEach(function(nest_key, i){
     
       nested_data
-        .key(function(d){ return d[nest_key][vars.id_var]; })
+        .key(function(d){ return find_variable(d,nest_key)[vars.id_var] })
       
       if (i == levels.length-1) {
         nested_data.rollup(function(leaves){
@@ -1405,9 +1410,11 @@ vizwhiz.viz = function() {
             "num_children_active": d3.sum(leaves, function(d){ return d[vars.active_var]; })
           }
           
-          to_return[vars.id_var] = leaves[0][nest_key][vars.id_var]
+          var nest_obj = find_variable(leaves[0],nest_key)
           
-          if (leaves[0][nest_key].display_id) to_return.display_id = leaves[0][nest_key].display_id;
+          to_return[vars.id_var] = nest_obj[vars.id_var]
+          
+          if (nest_obj.display_id) to_return.display_id = nest_obj.display_id;
           
           for (key in vars.keys) {
             if (vars.nesting_aggs[key]) {
@@ -1461,7 +1468,7 @@ vizwhiz.viz = function() {
     if(vars.type != "tree_map"){
       return flattened;
     }
-
+    
     return {"name":"root", "children": nested_data};
 
   }
@@ -1743,7 +1750,7 @@ vizwhiz.viz = function() {
           return d[vars.id_var] == id
         })[0]
       }
-      else {
+      else if (vars.data) {
         var dat = vars.data[id]
       }
     }
@@ -2062,17 +2069,12 @@ vizwhiz.viz = function() {
       if(vars.solo.indexOf(x) > -1){
         vars.solo.splice(vars.solo.indexOf(x), 1)
       }
-      // if element is in the filter array remove it and add to this one
-      else if(vars.filter.indexOf(x) > -1){
-        vars.filter.splice(vars.filter.indexOf(x), 1)
-        vars.solo.push(x)
-      }
-      // element not in current filter so add it
+      // else, add it
       else {
         vars.solo.push(x)
       }
     }
-    filter_change = true;
+    filter_change = true
     return chart;
   };
   
@@ -3505,7 +3507,7 @@ vizwhiz.stacked = function(vars) {
       
         d3.selectAll("line.rule").remove()
         vizwhiz.tooltip.remove(vars.type)
-        d3.select(self).attr("stroke-width",0)
+        d3.select(self).attr("opacity",0.85)
         
         var tooltip_data = get_tooltip_data(this_value,"long")
         
@@ -4764,7 +4766,7 @@ vizwhiz.pie_scatter = function(vars) {
     .domain(vars.xaxis_domain)
     .range([0, vars.graph.width])
     .nice()
-
+  
   vars.y_scale = d3.scale[vars.yscale_type]()
     .domain(vars.yaxis_domain)
     .range([0, vars.graph.height])

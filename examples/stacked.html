@@ -27,21 +27,26 @@ body {
 <script src="../src/viz/stacked.js"></script>
 <script>
 
-  d3.json("data/attr_isic.json", function(raw_attrs){
+  d3.json("data/attr_isic.json", function(attr){
     d3.json("data/isic_mg.json", function(flat_data){
       
       var attrs = {}
-      raw_attrs.data.forEach(function(a){
+      attr.data.forEach(function(a){
+        a.isic_id = a.id
         attrs[a.id] = a
       })
-
-      flat_data.data.forEach(function(d){
-        d.id = d.isic_id
-        d.nesting_0 = {"name":attrs[d.id.slice(0, 1)].name, "id":d.id.slice(0, 1)};
-        d.nesting_1 = {"name":attrs[d.id.slice(0, 3)].name, "id":d.id.slice(0, 3)};
-        d.nesting_2 = {"name":attrs[d.id.slice(0, 5)].name, "id":d.id.slice(0, 5)};
-        d.wage_avg = d.wage/d.num_emp
-      })
+      
+      depths = [1,3,5]
+      
+      for (id in attrs) {
+        obj = attrs[id]
+        depths.forEach(function(d){
+          if (d <= obj.id.length) {
+            obj["nesting_"+d] = {"name":attrs[obj.id.slice(0, d)].name, "isic_id":obj.id.slice(0, d)}
+          }
+        })
+      }
+      
       inner_html = function(obj) {
         console.log(obj)
         return "This is some test HTML"
@@ -54,12 +59,12 @@ body {
         .value_var("wage")
         .tooltip_info(["id", "wage", "num_emp", "wage_avg"])
         .text_var("name")
-        .id_var("id")
+        .id_var("isic_id")
         .title("This is the Title of the Visualization")
         // .sub_title("Cool Sub-title")
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
-        .nesting(["nesting_0","nesting_1","nesting_2"])
-        .depth("nesting_0")
+        .nesting(["nesting_1","nesting_3","nesting_5"])
+        .depth("nesting_1")
         .sort("color")
         .click_function(inner_html)
         // .layout("share")

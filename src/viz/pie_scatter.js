@@ -33,7 +33,7 @@ vizwhiz.pie_scatter = function(vars) {
     .domain(vars.xaxis_domain)
     .range([0, vars.graph.width])
     .nice()
-
+  
   vars.y_scale = d3.scale[vars.yscale_type]()
     .domain(vars.yaxis_domain)
     .range([0, vars.graph.height])
