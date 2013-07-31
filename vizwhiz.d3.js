@@ -2189,9 +2189,8 @@ vizwhiz.viz = function() {
     .tickFormat(function(d, i) {
       
       if ((vars.xscale_type == "log" && d.toString().charAt(0) == "1")
-          || (vars.xaxis_var == vars.year_var && d % 1 == 0)
-          || (vars.xscale_type != "log" && vars.xaxis_var != vars.year_var)) {
-      
+          || vars.xscale_type != "log") {
+            
         if (vars.xaxis_var == vars.year_var) var text = d;
         else {
           var text = vars.number_format(d,vars.xaxis_var);
@@ -2229,7 +2228,9 @@ vizwhiz.viz = function() {
           .attr("opacity",tick_opacity)
         
         bgtick.transition().duration(vizwhiz.timing) 
+          .attr("y1", tick_offset)
           .attr("y2", -vars.graph.height)
+          .attr("opacity",tick_opacity)
         
       }
       
@@ -2244,8 +2245,7 @@ vizwhiz.viz = function() {
     .tickFormat(function(d, i) {
       
       if ((vars.yscale_type == "log" && d.toString().charAt(0) == "1")
-          || (vars.yaxis_var == vars.year_var && d % 1 == 0)
-          || (vars.yscale_type != "log" && vars.yaxis_var != vars.year_var)) {
+          || vars.yscale_type != "log") {
             
         if (vars.yaxis_var == vars.year_var) var text = d;
         else if (vars.layout == "share" && vars.type == "stacked") {
@@ -2280,13 +2280,13 @@ vizwhiz.viz = function() {
           .attr("class","tick")
           .attr("x1", tick_offset)
           .attr("x2", vars.graph.width)
-          .attr("y1", 0)
-          .attr("y2", 0)
           .attr(tick_style)
           .attr("opacity",tick_opacity)
         
         bgtick.transition().duration(vizwhiz.timing) 
+          .attr("x1", tick_offset)
           .attr("x2", vars.graph.width)
+          .attr("opacity",tick_opacity)
         
       }
       
