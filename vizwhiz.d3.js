@@ -882,8 +882,11 @@ vizwhiz.viz = function() {
         value = parseFloat(d3.format(".3g")(value))
         return value + symbol;
       }
+      else if (name == "share") {
+        return d3.format(".2f")(value)
+      }
       else {
-        return d3.format(".2")(value)
+        return d3.format(",f")(value)
       }
       
     },
@@ -3423,6 +3426,10 @@ vizwhiz.stacked = function(vars) {
       
       // tooltip
       var tooltip_data = get_tooltip_data(this_value,"short")
+      if (vars.layout == "share") {
+        var share = vars.number_format(this_value.y*100,"share")+"%"
+        tooltip_data.push({"name": vars.text_format("share"), "value": share})
+      }
     
       var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
           tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
@@ -3460,6 +3467,10 @@ vizwhiz.stacked = function(vars) {
         .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
         
       var tooltip_data = get_tooltip_data(this_value,"short")
+      if (vars.layout == "share") {
+        var share = vars.number_format(this_value.y*100,"share")+"%"
+        tooltip_data.push({"name": vars.text_format("share"), "value": share})
+      }
     
       var path_height = vars.y_scale(this_value.y0)-vars.y_scale(this_value.y + this_value.y0),
           tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
@@ -3510,6 +3521,10 @@ vizwhiz.stacked = function(vars) {
         d3.select(self).attr("opacity",0.85)
         
         var tooltip_data = get_tooltip_data(this_value,"long")
+        if (vars.layout == "share") {
+          var share = vars.number_format(this_value.y*100,"share")+"%"
+          tooltip_data.push({"name": vars.text_format("share"), "value": share})
+        }
         
         vizwhiz.tooltip.create({
           "title": find_variable(d[vars.id_var],vars.text_var),
@@ -3968,7 +3983,7 @@ vizwhiz.tree_map = function(vars) {
         vizwhiz.tooltip.remove(vars.type)
         
         var tooltip_data = get_tooltip_data(d,"long")
-        tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
+        tooltip_data.push({"name": vars.text_format("share"), "value": d.share})
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),

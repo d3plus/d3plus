@@ -65,8 +65,11 @@ vizwhiz.viz = function() {
         value = parseFloat(d3.format(".3g")(value))
         return value + symbol;
       }
+      else if (name == "share") {
+        return d3.format(".2f")(value)
+      }
       else {
-        return d3.format(".2")(value)
+        return d3.format(",f")(value)
       }
       
     },

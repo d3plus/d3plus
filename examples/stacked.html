@@ -57,7 +57,7 @@ body {
         .xaxis_var("year")
         .attrs(attrs)
         .value_var("wage")
-        .tooltip_info(["id", "wage", "num_emp", "wage_avg"])
+        .tooltip_info(["share","id", "wage", "num_emp", "wage_avg"])
         .text_var("name")
         .id_var("isic_id")
         .title("This is the Title of the Visualization")
@@ -72,6 +72,7 @@ body {
         // .year([2000,2003])
         // .solo("i")
         .stack_type("monotone")
+        .layout("share")
         
       d3.select("#viz")
         .datum(flat_data.data)

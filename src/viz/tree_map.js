@@ -166,7 +166,7 @@ vizwhiz.tree_map = function(vars) {
         vizwhiz.tooltip.remove(vars.type)
         
         var tooltip_data = get_tooltip_data(d,"long")
-        tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
+        tooltip_data.push({"name": vars.text_format("share"), "value": d.share})
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),
