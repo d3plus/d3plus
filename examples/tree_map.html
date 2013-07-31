@@ -46,6 +46,10 @@ d3.json("data/products_mg.json", function(raw_data){
         })
       }
       
+      data.data.forEach(function(d,i){
+        if (i % 2 != 0) d.complexity = -d.complexity
+      })
+      
       format_test = function(d) {
         // console.log(d)
         return "Test JSON: "+d[10].name
@@ -85,7 +89,7 @@ d3.json("data/products_mg.json", function(raw_data){
         .id_var("isic_id")
         .attrs(attrs)
         .text_var("name")
-        .value_var("wage")
+        .value_var("num_est")
         .tooltip_info({"short": ["wage"],"long": ["distance", "complexity", "wage"]})
         // .tooltip_info(["distance", "complexity", "val_usd"])
         .name_array(["name","id"])
@@ -99,7 +103,7 @@ d3.json("data/products_mg.json", function(raw_data){
         .data_source("Data provided by SECEX")
         .font("Helvetica Neue")
         .font_weight("lighter")
-        .title_height(100)
+        .color_var("complexity")
         
       d3.select("#viz")
         .datum(data.data)

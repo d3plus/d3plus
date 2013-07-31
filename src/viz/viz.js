@@ -15,6 +15,9 @@ vizwhiz.viz = function() {
     "boundries": null,
     "click_function": null,
     "color_var": "color",
+    "color_domain": [],
+    "color_range": ["#ff0000","#333333","#00ff00"],
+    "color_scale": d3.scale.linear().interpolate(d3.interpolateRgb),
     "connections": null,
     "coords": null,
     "csv_columns": null,
@@ -425,6 +428,64 @@ vizwhiz.viz = function() {
         }
       }
       
+      if (vars.dev) console.log("[viz-whiz] Calculating Color Range")
+      
+      if (vars.type == "tree_map") {
+        
+        vars.color_domain = [0,0]
+        
+        function check_child_colors(c) {
+          if (c.children) {
+            c.children.forEach(function(c2){
+              check_child_colors(c2)
+            })
+          }
+          else {
+            var color = find_color(c,vars.color_var)
+            if (typeof color == "number") {
+              if (color < vars.color_domain[0]) vars.color_domain[0] = color
+              if (color > vars.color_domain[1]) vars.color_domain[1] = color
+            }
+            else {
+              vars.color_domain[0] = color
+              vars.color_domain[1] = color
+            }
+          }
+        }
+        
+        check_child_colors(vars.data)
+      }
+      else if (vars.data instanceof Array) {
+        vars.color_domain = d3.extent(vars.data,function(d){
+          return d[vars.color_var]
+        })
+      }
+      else {
+        vars.color_domain = d3.extent(d3.values(vars.data),function(d){
+          return d[vars.color_var]
+        })
+      }
+      
+      if (typeof vars.color_domain[0] == "number") {
+        if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
+          vars.color_domain[2] = vars.color_domain[1]
+          vars.color_domain[1] = 0
+          var cr = vars.color_range
+        }
+        else if (vars.color_domain[1] > 0) {
+          vars.color_domain[0] = 0
+          var cr = [vars.color_range[1],vars.color_range[2]]
+        }
+        else if (vars.color_domain[0] < 0) {
+          vars.color_domain[1] = 0
+          var cr = [vars.color_range[0],vars.color_range[1]]
+        }
+          
+        vars.color_scale
+          .domain(vars.color_domain)
+          .range(cr)
+      }
+      
       vars.svg_enter.append("g")
         .attr("class","titles")
       
@@ -607,11 +668,14 @@ vizwhiz.viz = function() {
               to_return[key] = d3[vars.nesting_aggs[key]](leaves, function(d){ return d[key]; })
             }
             else {
-              if ([vars.color_var,vars.year_var,"icon"].indexOf(key) >= 0) {
+              if ([vars.year_var,"icon"].indexOf(key) >= 0) {
                 to_return[key] = leaves[0][key];
               }
               else if (vars.keys[key] === "number") {
                 to_return[key] = d3.sum(leaves, function(d){ return d[key]; })
+              }
+              else if (key == vars.color_var) {
+                to_return[key] = leaves[0][key]
               }
             }
           }
@@ -954,7 +1018,6 @@ vizwhiz.viz = function() {
     if (!value) {
       if (dat && dat[variable]) value = dat[variable]
       else if (attr && attr[variable]) value = attr[variable]
-      else if (variable == "color") value = vizwhiz.utils.rand_color()
     }
     
     if (variable == vars.text_var && value) {
@@ -962,6 +1025,15 @@ vizwhiz.viz = function() {
     }
     else return value
     
+  }
+  
+  find_color = function(id,variable) {
+    var color = find_variable(id,variable)
+    if (!color) value = vizwhiz.utils.rand_color()
+    else if (typeof color == "string") return color
+    else {
+      return vars.color_scale(color)
+    }
   }
   
   footer_text = function() {
@@ -1004,6 +1076,18 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.color_domain = function(x) {
+    if (!arguments.length) return vars.color_domain;
+    vars.color_domain = x;
+    return chart;
+  };
+  
+  chart.color_var = function(x) {
+    if (!arguments.length) return vars.color_var;
+    vars.color_var = x;
+    return chart;
+  };
+  
   chart.csv_data = function(x) {
     if (!arguments.length) {
       var csv_to_return = []
@@ -1031,12 +1115,6 @@ vizwhiz.viz = function() {
   chart.csv_columns = function(x) {
     if (!arguments.length) return vars.csv_columns;
     vars.csv_columns = x;
-    return chart;
-  };
-  
-  chart.color_var = function(x) {
-    if (!arguments.length) return vars.color_var;
-    vars.color_var = x;
     return chart;
   };
   

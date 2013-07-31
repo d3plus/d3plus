@@ -101,16 +101,16 @@ vizwhiz.pie_scatter = function(vars) {
             return "#333";
           }
           else {
-            return find_variable(d[vars.id_var],vars.color_var);
+            return find_color(d[vars.id_var],vars.color_var);
           }
         })
         .style('stroke-width', 1)
         .style('fill', function(dd){
           if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) {
-            return find_variable(d[vars.id_var],vars.color_var);
+            return find_color(d[vars.id_var],vars.color_var);
           }
           else {
-            var c = d3.hsl(find_variable(d[vars.id_var],vars.color_var));
+            var c = d3.hsl(find_color(d[vars.id_var],vars.color_var));
             c.l = 0.95;
             return c.toString();
           }
@@ -122,7 +122,7 @@ vizwhiz.pie_scatter = function(vars) {
         
       d3.select(this)
         .append("path")
-        .style('fill', find_variable(d[vars.id_var],vars.color_var) )
+        .style('fill', find_color(d[vars.id_var],vars.color_var) )
         .style("fill-opacity", 1)
         
       d3.select(this).select("path").transition().duration(vizwhiz.timing)
@@ -159,7 +159,7 @@ vizwhiz.pie_scatter = function(vars) {
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),
-          "color": find_variable(d,vars.color_var),
+          "color": find_color(d,vars.color_var),
           "icon": find_variable(d,"icon"),
           "id": vars.type,
           "fullscreen": true,
@@ -200,12 +200,12 @@ vizwhiz.pie_scatter = function(vars) {
       d3.select(this).select("circle").transition().duration(vizwhiz.timing)
         .style("stroke", function(dd){
           if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return "#333";
-          else return find_variable(d[vars.id_var],vars.color_var);
+          else return find_color(d[vars.id_var],vars.color_var);
         })
         .style('fill', function(dd){
-          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return find_variable(d[vars.id_var],vars.color_var);
+          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return find_color(d[vars.id_var],vars.color_var);
           else {
-            var c = d3.hsl(find_variable(d[vars.id_var],vars.color_var));
+            var c = d3.hsl(find_color(d[vars.id_var],vars.color_var));
             c.l = 0.95;
             return c.toString();
           }
@@ -216,6 +216,7 @@ vizwhiz.pie_scatter = function(vars) {
       if (d.num_children) {
         d.arc_angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
         d3.select(this).select("path").transition().duration(vizwhiz.timing)
+          .style('fill', find_color(d[vars.id_var],vars.color_var) )
           .attrTween("d",arcTween)
           .each("end", function(dd) {
             vars.arc_angles[d.id] = d.arc_angle
@@ -255,7 +256,7 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("x2", 0)
     .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
     .attr("y2", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
-    .attr("stroke", function(d){ return find_variable(d[vars.id_var],vars.color_var); })
+    .attr("stroke", function(d){ return find_color(d[vars.id_var],vars.color_var); })
     .attr("stroke-width", 1)
     .attr("shape-rendering","crispEdges")
   
@@ -274,7 +275,7 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("y2", vars.graph.height + 10)      
     .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
     .attr("x2", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
-    .attr("stroke", function(d){ return find_variable(d[vars.id_var],vars.color_var); })
+    .attr("stroke", function(d){ return find_color(d[vars.id_var],vars.color_var); })
     .attr("stroke-width", 1)
     .attr("shape-rendering","crispEdges")
   
@@ -309,7 +310,7 @@ vizwhiz.pie_scatter = function(vars) {
         var radius = vars.size_scale(val),
             x = vars.x_scale(d[vars.xaxis_var]),
             y = vars.y_scale(d[vars.yaxis_var]),
-            color = d[vars.active_var] || d.num_children_active/d.num_children == 1 ? "#333" : find_variable(d[vars.id_var],vars.color_var),
+            color = d[vars.active_var] || d.num_children_active/d.num_children == 1 ? "#333" : find_color(d[vars.id_var],vars.color_var),
             viz = d3.select("g.chart");
             
         // vertical line to x-axis
@@ -399,7 +400,7 @@ vizwhiz.pie_scatter = function(vars) {
       
         vizwhiz.tooltip.create({
           "id": vars.type,
-          "color": find_variable(d[vars.id_var],vars.color_var),
+          "color": find_color(d[vars.id_var],vars.color_var),
           "icon": find_variable(d[vars.id_var],"icon"),
           "data": tooltip_data,
           "title": find_variable(d[vars.id_var],vars.text_var),

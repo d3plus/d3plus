@@ -110,7 +110,7 @@ vizwhiz.bubbles = function(vars) {
     if (d.depth == 1) {
       
       if (vars.grouping != "active") {
-        var color = find_variable(d.children[0][vars.id_var],vars.color_var);
+        var color = find_color(d.children[0][vars.id_var],vars.color_var);
       }
       else {
         var color = "#cccccc";
@@ -286,7 +286,7 @@ vizwhiz.bubbles = function(vars) {
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
-      var color = find_variable(d[vars.id_var],vars.color_var)
+      var color = find_color(d[vars.id_var],vars.color_var)
       
       var bg_color = d3.hsl(color)
       bg_color.l = 0.95
@@ -407,7 +407,7 @@ vizwhiz.bubbles = function(vars) {
       
       vizwhiz.tooltip.create({
         "id": vars.type,
-        "color": find_variable(d[vars.id_var],vars.color_var),
+        "color": find_color(d[vars.id_var],vars.color_var),
         "icon": find_variable(d[vars.id_var],"icon"),
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
@@ -436,7 +436,7 @@ vizwhiz.bubbles = function(vars) {
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),
-          "color": find_variable(d,vars.color_var),
+          "color": find_color(d,vars.color_var),
           "icon": find_variable(d,"icon"),
           "id": vars.type,
           "fullscreen": true,
@@ -471,8 +471,16 @@ vizwhiz.bubbles = function(vars) {
       if (vars.donut) d.arc_inner_bg = d.r*arc_offset;
       else d.arc_inner_bg = 0;
       d.arc_radius_bg = d.r;
+      
+      var color = find_color(d[vars.id_var],vars.color_var)
+      
+      var bg_color = d3.hsl(color)
+      bg_color.l = 0.95
+      bg_color = bg_color.toString()
     
       d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
+        .attr("fill", bg_color )
+        .attr("stroke", color)
         .attrTween("d",arcTween_bg)
         .each("end", function() {
           vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
@@ -491,6 +499,7 @@ vizwhiz.bubbles = function(vars) {
       d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
 
       d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
+        .style('fill', color)
         .attrTween("d",arcTween)
         .each("end", function() {
           vars.arc_sizes[d[vars.id_var]] = d.arc_radius
@@ -507,6 +516,7 @@ vizwhiz.bubbles = function(vars) {
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
     
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+          .style('fill', color)
           .attrTween("d",arcTween_else)
           .each("end", function() {
             vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
