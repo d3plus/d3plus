@@ -3840,6 +3840,7 @@ vizwhiz.tree_map = function(vars) {
   cell_enter.append("rect")
     .attr("stroke",vars.background)
     .attr("stroke-width",1)
+    .attr("opacity",0.85)
     .attr('width', function(d) {
       return d.dx+'px'
     })
@@ -3922,7 +3923,7 @@ vizwhiz.tree_map = function(vars) {
       
       d3.select("#cell_"+id).select("rect")
         .style("cursor","pointer")
-        .attr("stroke-width",3)
+        .attr("opacity",1)
 
       var tooltip_data = get_tooltip_data(d,"short")
       tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
@@ -3947,7 +3948,7 @@ vizwhiz.tree_map = function(vars) {
       var id = find_variable(d,vars.id_var)
       
       d3.select("#cell_"+id).select("rect")
-        .attr("stroke-width",1)
+        .attr("opacity",0.85)
       
       vizwhiz.tooltip.remove(vars.type)
       
@@ -3960,7 +3961,7 @@ vizwhiz.tree_map = function(vars) {
       make_tooltip = function(html) {
       
         d3.select("#cell_"+id).select("rect")
-          .attr("stroke-width",1)
+          .attr("opacity",0.85)
         
         vizwhiz.tooltip.remove(vars.type)
         
