@@ -4642,8 +4642,8 @@ vizwhiz.geo_map = function(vars) {
     
     var scale_enter = scale_svg.enter().append("svg")
       .attr("id","scale")
-      .style("left","30px")
-      .style("top","5px")
+      .style("left",(30+vars.margin.left)+"px")
+      .style("top",(5+vars.margin.top)+"px")
       .attr("width", scale_width+"px")
       .attr("height", "45px")
       
@@ -4778,6 +4778,8 @@ vizwhiz.geo_map = function(vars) {
       
       d3.select("svg#scale").transition().duration(vizwhiz.timing)
         .attr("width",max*vars.data_range.length+"px")
+        .style("left",(30+vars.margin.left)+"px")
+        .style("top",(5+vars.margin.top)+"px")
       
       d3.select("g.scale").select("rect#scalebg").transition().duration(vizwhiz.timing)
         .attr("width",max*vars.data_range.length+"px")
