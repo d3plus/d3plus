@@ -829,7 +829,7 @@ vizwhiz.viz = function() {
     "axis_change": true,
     "attrs": null,
     "background": "#ffffff",
-    "boundries": null,
+    "boundaries": null,
     "click_function": null,
     "color_var": "color",
     "color_domain": [],
@@ -837,6 +837,7 @@ vizwhiz.viz = function() {
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
     "connections": null,
     "coords": null,
+    "coord_change": false,
     "csv_columns": null,
     "data": null,
     "data_source": null,
@@ -859,11 +860,6 @@ vizwhiz.viz = function() {
     "labels": true,
     "layout": "value",
     "links": null,
-    "map": {"coords": null, 
-            "style": {"land": {"fill": "#f9f4e8"}, 
-                      "water": {"fill": "#bfd1df"}
-                     }
-           },
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "name_array": null,
     "nesting": [],
@@ -907,10 +903,9 @@ vizwhiz.viz = function() {
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
     "text_format": function(text,name) { 
-      return text 
+      return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase() 
     },
     "text_var": "name",
-    "tiles": true,
     "title": null,
     "title_center": true,
     "title_height": 0,
@@ -1130,8 +1125,6 @@ vizwhiz.viz = function() {
       vars.svg_enter = vars.svg.enter().append("svg")
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
-        .style("z-index", 10)
-        .style("position","absolute")
         
       vars.svg_enter.append("rect")
         .attr("id","svgbg")
@@ -1370,6 +1363,25 @@ vizwhiz.viz = function() {
         .attr("width",vars.width)
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+      
+      vars.parent_enter.append("defs")
+      vars.defs = d3.select("g.parent").select("defs")
+      
+      
+      vars.loader = vars.parent.selectAll("div#vizwhiz_loader").data([vars.data]);
+      
+      vars.loader.enter().append("div")
+        .attr("id","vizwhiz_loader")
+        .style("background-color",vars.background)
+        .style("display","none")
+        .append("div")
+          .attr("id","vizwhiz_loader_text")
+          .style("font-family",vars.font)
+          .style("font-weight",vars.font_weight)
+          .text(vars.text_format("Loading..."))
+      
+      // vars.loader.select("div#vizwhiz_loader_text").transition().duration(vizwhiz.timing)
+      
         
       filter_change = false
       axis_change = false
@@ -1939,15 +1951,16 @@ vizwhiz.viz = function() {
   
   chart.coords = function(x) {
     if (!arguments.length) return vars.coords;
+    vars.coord_change = true
     vars.coords = topojson.object(x, x.objects[Object.keys(x.objects)[0]]).geometries;
-    vars.boundries = {"coordinates": [[]], "type": "Polygon"}
+    vars.boundaries = {"coordinates": [[]], "type": "Polygon"}
     vars.coords.forEach(function(v,i){
       v.coordinates.forEach(function(c){
         c.forEach(function(a){
-          if (a.length == 2) vars.boundries.coordinates[0].push(a)
+          if (a.length == 2) vars.boundaries.coordinates[0].push(a)
           else {
             a.forEach(function(aa){
-              vars.boundries.coordinates[0].push(aa)
+              vars.boundaries.coordinates[0].push(aa)
             })
           }
         })
@@ -2081,16 +2094,6 @@ vizwhiz.viz = function() {
     links = x;
     return chart;
   };
-  
-  chart.map = function(x,style) {
-    if (!arguments.length) return vars.map;
-    vars.map.coords = x;
-    if (style) {
-      vars.map.style.land = style.land ? style.land : map.style.land;
-      vars.map.style.water = style.water ? style.water : map.style.water;
-    }
-    return chart;
-  };
 
   chart.mirror_axis = function(x) {
     if (!arguments.length) return mirror_axis;
@@ -2208,14 +2211,6 @@ vizwhiz.viz = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return vars.text_var;
     vars.text_var = x;
-    return chart;
-  };
-  
-  chart.tiles = function(x) {
-    if (!arguments.length) return vars.tiles;
-    if (typeof x == "boolean")  vars.tiles = x;
-    else if (x === "false") vars.tiles = false;
-    else vars.tiles = true;
     return chart;
   };
   
@@ -4204,118 +4199,375 @@ vizwhiz.tree_map = function(vars) {
 }
 vizwhiz.geo_map = function(vars) { 
   
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Zoom Function
-  //-------------------------------------------------------------------
+  var default_opacity = 0.50,
+      select_opacity = 0.75,
+      stroke_width = 1,
+      color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
+      projection = null
+      gmap_projection = null,
+      path = null,
+      hover = null,
+      dragging = false,
+      scale_height = 10,
+      scale_padding = 20,
+      scale_width = 250,
+      info_width = vars.small ? 0 : 300,
+      redraw = false
+      
+  vars.loading_text = vars.text_format("Loading Geography")
+      
+  /**********************/
+  /* Define Color Scale */
+  /**********************/
+  vars.data_range = []
+  vars.data_extent = [0,0]
+  if (vars.data) {
+    vars.data_extent = d3.extent(d3.values(vars.data),function(d){
+      return d[vars.value_var] && d[vars.value_var] != 0 ? d[vars.value_var] : null
+    })
+    var step = 0.0
+    while(step <= 1) {
+      vars.data_range.push((vars.data_extent[0]*Math.pow((vars.data_extent[1]/vars.data_extent[0]),step)))
+      step += 0.25
+    }
+    var value_color = d3.scale.log()
+      .domain(vars.data_range)
+      .interpolate(d3.interpolateRgb)
+      .range(color_gradient)
+  }
+  else {
+    vars.data = []
+  }
+      
+  /*******************/
+  /* Create Init Map */
+  /*******************/
+  var map_div = vars.parent.selectAll("div#map").data([vars.data])
   
-  vars.zoom = function(param,custom_timing) {
-    
-    var translate = vars.zoom_behavior.translate(),
-        zoom_extent = vars.zoom_behavior.scaleExtent()
+  map_div.enter().append("div")
+    .attr("id","map")
+    .style("width",vars.width+"px")
+    .style("height",vars.height+"px")
+    .style("margin-left",vars.margin.left+"px")
+    .style("margin-top",vars.margin.top+"px")
+    .each(function(){
+      
+      /************************/
+      /* Initial Map Creation */
+      /************************/
+      google.maps.visualRefresh = true;
+      vars.map = new google.maps.Map(this, {
+        zoom: 5,
+        center: new google.maps.LatLng(-13.544541, -52.734375),
+        mapTypeControl: false,
+        panControl: false,
+        streetViewControl: false,
+        zoomControl: false,
+        mapTypeId: google.maps.MapTypeId.TERRAIN
+      })
+  
+      google.maps.event.addListener(vars.map,"drag", function(){
+        dragging = true
+      })
+
+      google.maps.event.addListener(vars.map,"dragend", function(){
+        dragging = false
+      })
+      
+      var zoomControl = document.createElement('div')
+      zoomControl.style.marginLeft = "5px"
+      zoomControl.style.marginTop = "5px"
+      
+      var zoomIn = document.createElement('div')
+      zoomIn.id = "zoom_in"
+      zoomIn.innerHTML = "+"
+      zoomControl.appendChild(zoomIn)
+      
+      var zoomOut = document.createElement('div')
+      zoomOut.id = "zoom_out"
+      zoomOut.innerHTML = "-"
+      zoomControl.appendChild(zoomOut)
+      
+      vars.map.controls[google.maps.ControlPosition.LEFT_TOP].push(zoomControl)
+      
+      //zoom in control click event
+      google.maps.event.addDomListener(zoomIn, 'click', function() {
+        vars.loading_text = vars.text_format("Zooming In")
+         var currentZoomLevel = vars.map.getZoom();
+         if(currentZoomLevel != 21){
+           vars.map.setZoom(currentZoomLevel + 1);
+          }
+       });
+
+      //zoom out control click event
+      google.maps.event.addDomListener(zoomOut, 'click', function() {
+        vars.loading_text = vars.text_format("Zooming Out")
+         var currentZoomLevel = vars.map.getZoom();
+         if(currentZoomLevel != 0){
+           vars.map.setZoom(currentZoomLevel - 1);
+         }
+       });
+      
+      var tileControl = document.createElement('div')
+      tileControl.style.marginRight = "5px"
+      
+      var roadMap = document.createElement('div')
+      roadMap.className = "tile_toggle"
+      roadMap.innerHTML = vars.text_format("roads")
+      tileControl.appendChild(roadMap)
+      
+      var terrain = document.createElement('div')
+      terrain.className = "tile_toggle active"
+      terrain.innerHTML = vars.text_format("terrain")
+      tileControl.appendChild(terrain)
+      
+      var satellite = document.createElement('div')
+      satellite.className = "tile_toggle"
+      satellite.innerHTML = vars.text_format("satellite")
+      tileControl.appendChild(satellite)
+      
+      var hybrid = document.createElement('div')
+      hybrid.className = "tile_toggle"
+      hybrid.innerHTML = vars.text_format("hybrid")
+      tileControl.appendChild(hybrid)
+      
+      vars.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(tileControl)
+
+      google.maps.event.addDomListener(roadMap, 'click', function() {
+        d3.selectAll(".tile_toggle").attr("class","tile_toggle")
+        this.className = "tile_toggle active"
+        vars.map.setMapTypeId(google.maps.MapTypeId.ROADMAP)
+      });
+      
+      google.maps.event.addDomListener(terrain, 'click', function() {
+        d3.selectAll(".tile_toggle").attr("class","tile_toggle")
+        this.className = "tile_toggle active"
+        vars.map.setMapTypeId(google.maps.MapTypeId.TERRAIN)
+      });
+      
+      google.maps.event.addDomListener(satellite, 'click', function() {
+        d3.selectAll(".tile_toggle").attr("class","tile_toggle")
+        this.className = "tile_toggle active"
+        vars.map.setMapTypeId(google.maps.MapTypeId.SATELLITE)
+      });
+      
+      google.maps.event.addDomListener(hybrid, 'click', function() {
+        d3.selectAll(".tile_toggle").attr("class","tile_toggle")
+        this.className = "tile_toggle active"
+        vars.map.setMapTypeId(google.maps.MapTypeId.HYBRID)
+      });
+  
+      scale()
+  
+      vars.overlay = new google.maps.OverlayView();
+  
+      // Add the container when the overlay is added to the map.
+      vars.overlay.onAdd = function() {
         
-    var scale = vars.zoom_behavior.scale()
+        vars.zoom = vars.map.zoom
     
-    if (param == "in") var scale = scale*2
-    else if (param == "out") var scale = scale*0.5
-    else if (param == "reset") {
-      var param = vars.boundries
+        var layer = d3.select(this.getPanes().overlayMouseTarget).append("div")
+
+        var path_group = layer.append("svg")
+            .attr("id","gmap_overlay")
+            .append("g")
+        
+        path_group.append("rect")
+          .attr("class","overlay")
+          .attr("width",20000)
+          .attr("height",20000)
+          .attr("fill","transparent")
+          .on(vizwhiz.evt.move, function(d) {
+            if (vars.highlight && !dragging) {
+              d3.select(this).style("cursor","-moz-zoom-out")
+              d3.select(this).style("cursor","-webkit-zoom-out")
+            }
+          })
+          .on(vizwhiz.evt.up, function(d) {
+            if (vars.highlight && !dragging) zoom("reset")
+          })
+
+        vars.overlay.draw = function() {
+          
+          redraw = true
+          
+          vars.loader.select("div").text(vars.loading_text)
+          vars.loader.style("display","block")
+          
+          var self = this
+          
+          setTimeout(function(){
+            
+            projection = self.getProjection()
+          
+            gmap_projection = function (coordinates) {
+              var googleCoordinates = new google.maps.LatLng(coordinates[1], coordinates[0]);
+              var pixelCoordinates = projection.fromLatLngToDivPixel(googleCoordinates);
+              return [pixelCoordinates.x + 10000, pixelCoordinates.y + 10000];
+            }
+      
+            path = d3.geo.path().projection(gmap_projection);
+
+            var paths = path_group.selectAll("path")
+              .data(vars.coords)
+        
+            paths.enter().append("path")
+                .attr("id",function(d) { return "path"+d.id } )
+                .attr("d", path)
+                .attr("opacity",default_opacity)
+                .call(color_paths)
+                .attr("vector-effect","non-scaling-stroke")
+          
+            if (vars.map.zoom != vars.zoom) {
+              paths.attr("d",path)
+            }
+            
+            paths
+              .attr("opacity",default_opacity)
+              .call(color_paths)
+              .on(vizwhiz.evt.over, function(d){
+                if (!dragging) {
+                  hover = d[vars.id_var]
+                  if (vars.highlight != d[vars.id_var]) {
+                    d3.select(this).style("cursor","pointer")
+                    d3.select(this).style("cursor","-moz-zoom-in")
+                    d3.select(this).style("cursor","-webkit-zoom-in")
+                    d3.select(this).attr("opacity",select_opacity);
+                  }
+                  if (!vars.highlight) {
+                    update()
+                  }
+                }
+              })
+              .on(vizwhiz.evt.out, function(d){
+                hover = null
+                if (vars.highlight != d[vars.id_var]) {
+                  d3.select(this).attr("opacity",default_opacity)
+                }
+                if (!vars.highlight) {
+                  update()
+                }
+              })
+              .on(vizwhiz.evt.up, function(d) {
+                if (!dragging) {
+                  vars.loading_text = vars.text_format("Zooming to Selection")
+                  if (vars.highlight == d[vars.id_var]) {
+                    zoom("reset")
+                  } 
+                  else {
+                    if (vars.highlight) {
+                      var temp = vars.highlight
+                      vars.highlight = null
+                      d3.select("path#path"+temp).call(color_paths);
+                    }
+                    vars.highlight = d[vars.id_var];
+                    d3.select(this).call(color_paths);
+                    zoom(d3.select(this).datum());
+                  }
+                  update();
+                }
+              })
+              
+            vars.zoom = vars.map.zoom
+            scale_update()
+            
+            if (vars.coord_change) {
+              if (vars.highlight) var z = d3.select("path#path"+vars.highlight).datum()
+              else var z = "reset"
+              vars.loading_text = vars.text_format("Zooming to Selection")
+              zoom(z)
+              vars.coord_change = false
+            }
+          
+            vars.loader.style("display","none")
+            
+          },5)
+        
+        }
+      }
+
+      // Bind our overlay to the map…
+      vars.overlay.setMap(vars.map)
+  
+    })
+  
+  map_div
+    .style("width",vars.width+"px")
+    .style("height",vars.height+"px")
+    .style("margin-left",vars.margin.left+"px")
+    .style("margin-top",vars.margin.top+"px")
+  
+  setTimeout(function(){
+    var c = vars.map.getCenter()
+    google.maps.event.trigger(vars.map, "resize")
+    vars.map.panTo(c)
+  },vizwhiz.timing)
+  
+  if (!redraw && vars.overlay.draw) vars.overlay.draw()
+  
+  function zoom(d) {
+    
+    if (d == "reset") {
+      d = vars.boundaries
       if (vars.highlight) {
         var temp = vars.highlight;
         vars.highlight = null;
         d3.select("#path"+temp).call(color_paths);
-        vars.update();
+        update()
       }
     }
     
-    var svg_scale = scale/vars.width,
-        svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/vars.width)*vars.height)/2)]
+    var bounds = d3.geo.bounds(d),
+        gbounds = new google.maps.LatLngBounds()
         
-    old_scale = vars.projection.scale()*2*Math.PI
-    old_translate = vars.projection.translate()
-        
-    if (param.coordinates) {
-      
-      if (vars.highlight) { 
-        var left = 20, w_avail = vars.width-info_width-left
-      } else {
-        var left = 0, w_avail = vars.width
-      }
-      
-      var b = path.bounds(param),
-          w = (b[1][0] - b[0][0])*1.1,
-          h = (b[1][1] - b[0][1])*1.1,
-          s_width = (w_avail*(scale/vars.width))/w,
-          s_height = (vars.height*(scale/vars.width))/h
-          
-      if (s_width < s_height) {
-        var s = s_width*vars.width,
-            offset_left = ((w_avail-(((w/1.1)/svg_scale)*s/vars.width))/2)+left,
-            offset_top = (vars.height-((h/svg_scale)*s/vars.width))/2
-      } else {
-        var s = s_height*vars.width,
-            offset_left = ((w_avail-((w/svg_scale)*s/vars.width))/2)+left,
-            offset_top = (vars.height-(((h/1.1)/svg_scale)*s/vars.width))/2
-      }
-      
-      var t_x = ((-(b[0][0]-svg_translate[0])/svg_scale)*s/vars.width)+offset_left,
-          t_y = ((-(b[0][1]-svg_translate[1])/svg_scale)*s/vars.width)+offset_top
-          
-      var t = [t_x+(s/2),t_y+(((s/vars.width)*vars.height)/2)]
-      
-      translate = t
-      scale = s
-      
-    } else if (param == "in" || param == "out") {
-      
-      var b = vars.projection.translate()
-      
-      if (param == "in") translate = [b[0]+(b[0]-(vars.width/2)),b[1]+(b[1]-(vars.height/2))]
-      else if (param == "out") translate = [b[0]+(((vars.width/2)-b[0])/2),b[1]+(((vars.height/2)-b[1])/2)]
+    if (info_width > 0 && vars.highlight) {
+      bounds[1][0] =  bounds[1][0]+(bounds[1][0]-bounds[0][0])
     }
-    
-    // Scale Boundries
-    if (scale < zoom_extent[0]) scale = zoom_extent[0]
-    else if (scale > zoom_extent[1]) scale = zoom_extent[1]
-    // X Boundries
-    if (translate[0] > scale/2) translate[0] = scale/2
-    else if (translate[0] < vars.width-scale/2) translate[0] = vars.width-scale/2
-    // Y Boundries
-    if (translate[1] > scale/2) translate[1] = scale/2
-    else if (translate[1] < vars.height-scale/2) translate[1] = vars.height-scale/2
-
-    vars.projection.scale(scale/(2*Math.PI)).translate(translate);
-    vars.zoom_behavior.scale(scale).translate(translate);
-    svg_scale = scale/vars.width;
-    svg_translate = [translate[0]-(scale/2),translate[1]-(((scale/vars.width)*vars.height)/2)];
-    
-    if (typeof custom_timing != "number") {
-      if (d3.event) {
-        if (d3.event.scale) {
-          if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
-            var zoom_timing = 0
-          } else {
-            var zoom_timing = vizwhiz.timing
-          }
-        } else {
-          var zoom_timing = vizwhiz.timing
-        }
-      } else {
-        var zoom_timing = vizwhiz.timing*4
-      }
-    } else var zoom_timing = custom_timing
-
-    if (vars.tiles) update_tiles(zoom_timing);
-    
-    if (zoom_timing > 0) var viz_transition = d3.selectAll(".viz").transition().duration(zoom_timing)
-    else var viz_transition = d3.selectAll(".viz")
-    
-    viz_transition.attr("transform","translate(" + svg_translate + ")" + "scale(" + svg_scale + ")")
         
+    gbounds.extend(new google.maps.LatLng(bounds[0][1],bounds[0][0]))
+    gbounds.extend(new google.maps.LatLng(bounds[1][1],bounds[1][0]))
+    
+    vars.map.fitBounds(gbounds)
   }
-
-  //===================================================================
-
-  vars.update = function() {
+  
+  function color_paths(p) {
+    vars.defs.selectAll("#stroke_clip").remove();
+    p
+      .attr("fill",function(d){ 
+        if (d[vars.id_var] == vars.highlight) return "none";
+        else if (!vars.data[d[vars.id_var]]) return "#888888";
+        else return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888"
+      })
+      .attr("stroke-width",function(d) {
+        if (d[vars.id_var] == vars.highlight) return 10;
+        else return stroke_width;
+      })
+      .attr("stroke",function(d) {
+        if (d[vars.id_var] == vars.highlight) {
+          if (!vars.data[d[vars.id_var]]) return "#888"
+          return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888";
+        }
+        else return "white";
+      })
+      .attr("opacity",function(d){
+        if (d[vars.id_var] == vars.highlight) return select_opacity;
+        else return default_opacity;
+      })
+      .attr("clip-path",function(d){ 
+        if (d[vars.id_var] == vars.highlight) return "url(#stroke_clip)";
+        else return "none"
+      })
+      .each(function(d){
+        if (d[vars.id_var] == vars.highlight) {
+          vars.defs.append("clipPath")
+            .attr("id","stroke_clip")
+            .append("use")
+              .attr("xlink:href","#path"+vars.highlight)
+        }
+      });
+  }
+  
+  function update() {
     
     vizwhiz.tooltip.remove(vars.type);
     
@@ -4383,459 +4635,184 @@ vizwhiz.geo_map = function(vars) {
     }
     
   }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Private Variables with Default Settings
-  //-------------------------------------------------------------------
   
-  if (vars.init) {
+  function scale() {
     
-    vars.projection
-      .scale(vars.width/(2*Math.PI))
-      .translate([vars.width/2,vars.height/2]);
+    var scale_svg = vars.parent.selectAll("svg#scale").data(["scale"])
+    
+    var scale_enter = scale_svg.enter().append("svg")
+      .attr("id","scale")
+      .style("left","30px")
+      .style("top","5px")
+      .attr("width", scale_width+"px")
+      .attr("height", "45px")
       
-    vars.zoom_behavior
-      .scale(vars.projection.scale()*2*Math.PI)
-      .translate(vars.projection.translate())
-      .on("zoom",function(d){ vars.zoom(d); })
-      .scaleExtent([vars.width, 1 << 23]);
-      
-  }
-  
-  var default_opacity = 0.25,
-      select_opacity = 0.75,
-      stroke_width = 1,
-      color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
-      dragging = false,
-      info_width = vars.small ? 0 : 300,
-      scale_height = 10,
-      scale_padding = 20,
-      scale_width = 250,
-      path = d3.geo.path().projection(vars.projection),
-      tile = d3.geo.tile().size([vars.width, vars.height]),
-      old_scale = vars.projection.scale()*2*Math.PI,
-      old_translate = vars.projection.translate(),
-      hover = null;
-
-  //===================================================================
-  var data_range = [], data_extent = [0,0]
-  if (vars.data) {
-    data_extent = d3.extent(d3.values(vars.data),function(d){
-      return d[vars.value_var] && d[vars.value_var] != 0 ? d[vars.value_var] : null
-    })
-    var step = 0.0
-    while(step <= 1) {
-      data_range.push((data_extent[0]*Math.pow((data_extent[1]/data_extent[0]),step)))
-      step += 0.25
-    }
-    var value_color = d3.scale.log()
-      .domain(data_range)
-      .interpolate(d3.interpolateRgb)
-      .range(color_gradient)
-  }
-  else {
-    vars.data = []
-  }
-
-  //===================================================================
+    var scale_defs = scale_enter.append("defs")
     
-  var defs = vars.parent_enter.append("defs")
-    
-  if (vars.map.coords) {
-        
-    vars.parent_enter.append("rect")
-      .attr("id","water")
-      .attr("width",vars.width)
-      .attr("height",vars.height)
-      .attr(vars.map.style.water);
-      
-    d3.select("#water").transition().duration(vizwhiz.timing)
-      .attr("width",vars.width)
-      .attr("height",vars.height)
-      
-    vars.parent_enter.append("g")
-      .attr("id","land")
-      .attr("class","viz")
-          
-    var land = d3.select("g#land").selectAll("path")
-      .data(topojson.object(vars.map.coords, vars.map.coords.objects[Object.keys(vars.map.coords.objects)[0]]).geometries)
-    
-    land.enter().append("path")
-      .attr("d",path)
-      .attr(vars.map.style.land)
-        
-  }
-
-  vars.parent_enter.append('g')
-    .attr('class','tiles');
-    
-  if (vars.tiles) update_tiles(0);
-  else d3.selectAll("g.tiles *").remove()
-    
-  // Create viz group on vars.svg_enter
-  var viz_enter = vars.parent_enter.append('g')
-    .call(vars.zoom_behavior)
-    .on(vizwhiz.evt.down,function(d){
-      dragging = true
-    })
-    .on(vizwhiz.evt.up,function(d){
-      dragging = false
-    })
-    .append('g')
-      .attr('class','viz');
-    
-  viz_enter.append("rect")
-    .attr("class","overlay")
-    .attr("width",vars.width)
-    .attr("height",vars.height)
-    .attr("fill","transparent");
-    
-  d3.select("rect.overlay")
-    .on(vizwhiz.evt.move, function(d) {
-      if (vars.highlight) {
-        d3.select(this).style("cursor","-moz-zoom-out")
-        d3.select(this).style("cursor","-webkit-zoom-out")
-      }
-      else {
-        d3.select(this).style("cursor","move")
-        if (dragging) {
-          d3.select(this).style("cursor","-moz-grabbing")
-          d3.select(this).style("cursor","-webkit-grabbing")
-        }
-        else {
-          d3.select(this).style("cursor","-moz-grab")
-          d3.select(this).style("cursor","-webkit-grab")
-        }
-      }
-    })
-    .on(vizwhiz.evt.click, function(d) {
-      if (vars.highlight) {
-        vars.zoom("reset");
-      }
-    })
-    
-  viz_enter.append('g')
-    .attr('class','paths');
-  
-  // add scale
-  var gradient = defs
-    .append("linearGradient")
-    .attr("id", "gradient")
-    .attr("x1", "0%")
-    .attr("y1", "0%")
-    .attr("x2", "100%")
-    .attr("y2", "0%")
-    .attr("spreadMethod", "pad");
+    var gradient = scale_defs
+      .append("linearGradient")
+      .attr("id", "gradient")
+      .attr("x1", "0%")
+      .attr("y1", "0%")
+      .attr("x2", "100%")
+      .attr("y2", "0%")
+      .attr("spreadMethod", "pad");
      
-  data_range.forEach(function(v,i){
-    gradient.append("stop")
-      .attr("offset",Math.round((i/(data_range.length-1))*100)+"%")
-      .attr("stop-color", value_color(v))
-      .attr("stop-opacity", 1)
-  })
+    vars.data_range.forEach(function(v,i){
+      gradient.append("stop")
+        .attr("offset",Math.round((i/(vars.data_range.length-1))*100)+"%")
+        .attr("stop-color", value_color(v))
+        .attr("stop-opacity", 1)
+    })
   
-  var scale = vars.parent_enter.append('g')
-    .attr('class','scale')
-    .style("opacity",0)
-    .attr("transform","translate(30,5)");
+    var scale = scale_enter.append('g')
+      .attr('class','scale')
+      .style("opacity",0)
     
-  var shadow = defs.append("filter")
-    .attr("id", "shadow")
-    .attr("x", "-50%")
-    .attr("y", "0")
-    .attr("width", "200%")
-    .attr("height", "200%");
+    var shadow = scale_defs.append("filter")
+      .attr("id", "shadow")
+      .attr("x", "-50%")
+      .attr("y", "0")
+      .attr("width", "200%")
+      .attr("height", "200%");
     
-  shadow.append("feGaussianBlur")
-    .attr("in","SourceAlpha")
-    .attr("result","blurOut")
-    .attr("stdDeviation","3")
+    shadow.append("feGaussianBlur")
+      .attr("in","SourceAlpha")
+      .attr("result","blurOut")
+      .attr("stdDeviation","3")
     
-  shadow.append("feOffset")
-    .attr("in","blurOut")
-    .attr("result","the-shadow")
-    .attr("dx","0")
-    .attr("dy","1")
+    shadow.append("feOffset")
+      .attr("in","blurOut")
+      .attr("result","the-shadow")
+      .attr("dx","0")
+      .attr("dy","1")
     
-  shadow.append("feColorMatrix")
-    .attr("in","the-shadow")
-    .attr("result","colorOut")
-    .attr("type","matrix")
-    .attr("values","0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0")
+    shadow.append("feColorMatrix")
+      .attr("in","the-shadow")
+      .attr("result","colorOut")
+      .attr("type","matrix")
+      .attr("values","0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0")
     
-  shadow.append("feBlend")
-    .attr("in","SourceGraphic")
-    .attr("in2","colorOut")
-    .attr("mode","normal")
+    shadow.append("feBlend")
+      .attr("in","SourceGraphic")
+      .attr("in2","colorOut")
+      .attr("mode","normal")
   
-  scale.append("rect")
-    .attr("id","scalebg")
-    .attr("width", scale_width+"px")
-    .attr("height", "45px")
-    .attr("fill","#ffffff")
-    .attr("opacity",0.75)
-    .attr("filter","url(#shadow)")
-    .attr("shape-rendering","crispEdges")
-      
-  scale.append("text")
-    .attr("id","scale_title")
-    .attr("x",(scale_width/2)+"px")
-    .attr("y","0px")
-    .attr("dy","1.25em")
-    .attr("text-anchor","middle")
-    .attr("fill","#333")
-    .attr("font-size","10px")
-    .attr("font-family",vars.font)
-    .style("font-weight",vars.font_weight)
-  
-  scale.append("rect")
-    .attr("id","scalecolor")
-    .attr("x",scale_padding+"px")
-    .attr("y",(scale_height*1.75)+"px")
-    .attr("width", (scale_width-(scale_padding*2))+"px")
-    .attr("height", scale_height*0.75+"px")
-    .style("fill", "url(#gradient)")
-     
-  data_range.forEach(function(v,i){
-    if (i == data_range.length-1) {
-      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
-    } else if (i != 0) {
-      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))-1
-    } else {
-      var x = scale_padding+Math.round((i/(data_range.length-1))*(scale_width-(scale_padding*2)))
-    }
     scale.append("rect")
-      .attr("id","scaletick_"+i)
-      .attr("x", x+"px")
-      .attr("y", (scale_height*1.75)+"px")
-      .attr("width", 1)
-      .attr("height", ((scale_height*0.75)+3)+"px")
-      .style("fill", "#333")
-      .attr("opacity",0.25)
+      .attr("id","scalebg")
+      .attr("width", scale_width+"px")
+      .attr("height", "45px")
+      .attr("fill","#ffffff")
+      .attr("opacity",0.75)
+      .attr("filter","url(#shadow)")
+      .attr("shape-rendering","crispEdges")
       
     scale.append("text")
-      .attr("id","scale_"+i)
-      .attr("x",x+"px")
-      .attr("y", (scale_height*2.75)+"px")
-      .attr("dy","1em")
+      .attr("id","scale_title")
+      .attr("x",(scale_width/2)+"px")
+      .attr("y","0px")
+      .attr("dy","1.25em")
       .attr("text-anchor","middle")
       .attr("fill","#333")
+      .attr("font-size","10px")
       .attr("font-family",vars.font)
       .style("font-weight",vars.font_weight)
-      .attr("font-size","10px")
-  })
-
-  if (!data_extent[0] || Object.keys(vars.data).length < 2 || vars.small) {
-    d3.select("g.scale").transition().duration(vizwhiz.timing)
-      .style("opacity",0)
-  }
-  else {
-    var max = 0
-    data_range.forEach(function(v,i){
-      var elem = d3.select("g.scale").select("text#scale_"+i)
-      elem.text(vars.number_format(v,vars.value_var))
-      var w = elem.node().offsetWidth
-      if (w > max) max = w
-    })
-    
-    max += 10
-      
-    d3.select("g.scale").transition().duration(vizwhiz.timing)
-      .style("opacity",1)
-      
-    d3.select("g.scale").select("rect#scalebg").transition().duration(vizwhiz.timing)
-      .attr("width",max*data_range.length+"px")
-      
-    d3.select("g.scale").select("rect#scalecolor").transition().duration(vizwhiz.timing)
-      .attr("x",max/2+"px")
-      .attr("width",max*(data_range.length-1)+"px")
-      
-    d3.select("g.scale").select("text#scale_title").transition().duration(vizwhiz.timing)
-      .attr("x",(max*data_range.length)/2+"px")
-      .text(vars.text_format(vars.value_var))
-      
-    data_range.forEach(function(v,i){
-      
-      if (i == data_range.length-1) {
-        var x = (max/2)+Math.round((i/(data_range.length-1))*(max*data_range.length-(max)))-1
-      } 
-      else if (i != 0) {
-        var x = (max/2)+Math.round((i/(data_range.length-1))*(max*data_range.length-(max)))-1
-      } 
-      else {
-        var x = (max/2)+Math.round((i/(data_range.length-1))*(max*data_range.length-(max)))
+  
+    scale.append("rect")
+      .attr("id","scalecolor")
+      .attr("x",scale_padding+"px")
+      .attr("y",(scale_height*1.75)+"px")
+      .attr("width", (scale_width-(scale_padding*2))+"px")
+      .attr("height", scale_height*0.75+"px")
+      .style("fill", "url(#gradient)")
+     
+    vars.data_range.forEach(function(v,i){
+      if (i == vars.data_range.length-1) {
+        var x = scale_padding+Math.round((i/(vars.data_range.length-1))*(scale_width-(scale_padding*2)))-1
+      } else if (i != 0) {
+        var x = scale_padding+Math.round((i/(vars.data_range.length-1))*(scale_width-(scale_padding*2)))-1
+      } else {
+        var x = scale_padding+Math.round((i/(vars.data_range.length-1))*(scale_width-(scale_padding*2)))
       }
+      scale.append("rect")
+        .attr("id","scaletick_"+i)
+        .attr("x", x+"px")
+        .attr("y", (scale_height*1.75)+"px")
+        .attr("width", 1)
+        .attr("height", ((scale_height*0.75)+3)+"px")
+        .style("fill", "#333")
+        .attr("opacity",0.25)
       
-      d3.select("g.scale").select("rect#scaletick_"+i).transition().duration(vizwhiz.timing)
+      scale.append("text")
+        .attr("id","scale_"+i)
         .attr("x",x+"px")
-      
-      d3.select("g.scale").select("text#scale_"+i).transition().duration(vizwhiz.timing)
-        .attr("x",x+"px")
+        .attr("y", (scale_height*2.75)+"px")
+        .attr("dy","1em")
+        .attr("text-anchor","middle")
+        .attr("fill","#333")
+        .attr("font-family",vars.font)
+        .style("font-weight",vars.font_weight)
+        .attr("font-size","10px")
     })
     
   }
   
-  zoom_controls();
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // New nodes and links enter, initialize them here
-  //-------------------------------------------------------------------
-
-  var coord = d3.select("g.paths").selectAll("path")
-    .data(vars.coords)
+  function scale_update() {
+    if (!vars.data_extent[0] || Object.keys(vars.data).length < 2 || vars.small) {
+      d3.select("g.scale").transition().duration(vizwhiz.timing)
+        .style("opacity",0)
+    }
+    else {
+      var max = 0
+      vars.data_range.forEach(function(v,i){
+        var elem = d3.select("g.scale").select("text#scale_"+i)
+        elem.text(vars.number_format(v,vars.value_var))
+        var w = elem.node().offsetWidth
+        if (w > max) max = w
+      })
     
-  coord.enter().append("path")
-    .attr("id",function(d) { return "path"+d.id } )
-    .attr("d",path)
-    .attr("vector-effect","non-scaling-stroke")
-    .attr("opacity",0);
-  
-  //===================================================================
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Update, for things that are already in existance
-  //-------------------------------------------------------------------
-  
-  coord
-    .on(vizwhiz.evt.over, function(d){
-      if (!dragging) {
-        hover = d[vars.id_var]
-        if (vars.highlight != d[vars.id_var]) {
-          d3.select(this).style("cursor","pointer")
-          d3.select(this).style("cursor","-moz-zoom-in")
-          d3.select(this).style("cursor","-webkit-zoom-in")
-          d3.select(this).attr("opacity",select_opacity);
+      max += 10
+      
+      d3.select("g.scale").transition().duration(vizwhiz.timing)
+        .style("opacity",1)
+      
+      d3.select("svg#scale").transition().duration(vizwhiz.timing)
+        .attr("width",max*vars.data_range.length+"px")
+      
+      d3.select("g.scale").select("rect#scalebg").transition().duration(vizwhiz.timing)
+        .attr("width",max*vars.data_range.length+"px")
+      
+      d3.select("g.scale").select("rect#scalecolor").transition().duration(vizwhiz.timing)
+        .attr("x",max/2+"px")
+        .attr("width",max*(vars.data_range.length-1)+"px")
+      
+      d3.select("g.scale").select("text#scale_title").transition().duration(vizwhiz.timing)
+        .attr("x",(max*vars.data_range.length)/2+"px")
+        .text(vars.text_format(vars.value_var))
+      
+      vars.data_range.forEach(function(v,i){
+      
+        if (i == vars.data_range.length-1) {
+          var x = (max/2)+Math.round((i/(vars.data_range.length-1))*(max*vars.data_range.length-(max)))-1
+        } 
+        else if (i != 0) {
+          var x = (max/2)+Math.round((i/(vars.data_range.length-1))*(max*vars.data_range.length-(max)))-1
+        } 
+        else {
+          var x = (max/2)+Math.round((i/(vars.data_range.length-1))*(max*vars.data_range.length-(max)))
         }
-        if (!vars.highlight) {
-          vars.update();
-        }
-      }
-    })
-    .on(vizwhiz.evt.out, function(d){
-      hover = null
-      if (vars.highlight != d[vars.id_var]) {
-        d3.select(this).attr("opacity",default_opacity);
-      }
-      if (!vars.highlight) {
-        vars.update();
-      }
-    })
-    .on(vizwhiz.evt.click, function(d) {
-      if (vars.highlight == d[vars.id_var]) {
-        vars.zoom("reset");
-      } 
-      else {
-        if (vars.highlight) {
-          var temp = vars.highlight
-          vars.highlight = null
-          d3.select("path#path"+temp).call(color_paths);
-        }
-        vars.highlight = d[vars.id_var];
-        d3.select(this).call(color_paths);
-        vars.zoom(d3.select(this).datum());
-      }
-      vars.update();
-    })
-  
-  coord.transition().duration(vizwhiz.timing)
-    .attr("opacity",default_opacity)
-    .call(color_paths);
-  
-  vars.update();
-
-  //===================================================================
-  
-  if (vars.init) {
-    vars.zoom(vars.boundries,0);
-    vars.init = false;
-  }
-  if (vars.highlight) {
-    vars.zoom(d3.select("path#path"+vars.highlight).datum());
-  }
-  
-  function color_paths(p) {
-    defs.selectAll("#stroke_clip").remove();
-    p
-      .attr("fill",function(d){ 
-        if (d[vars.id_var] == vars.highlight) return "none";
-        else if (!vars.data[d[vars.id_var]]) return "#888888";
-        else return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888"
+      
+        d3.select("g.scale").select("rect#scaletick_"+i).transition().duration(vizwhiz.timing)
+          .attr("x",x+"px")
+      
+        d3.select("g.scale").select("text#scale_"+i).transition().duration(vizwhiz.timing)
+          .attr("x",x+"px")
       })
-      .attr("stroke-width",function(d) {
-        if (d[vars.id_var] == vars.highlight) return 10;
-        else return stroke_width;
-      })
-      .attr("stroke",function(d) {
-        if (d[vars.id_var] == vars.highlight) {
-          if (!vars.data[d[vars.id_var]]) return "#888"
-          return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888";
-        }
-        else return "white";
-      })
-      .attr("opacity",function(d){
-        if (d[vars.id_var] == vars.highlight) return select_opacity;
-        else return default_opacity;
-      })
-      .attr("clip-path",function(d){ 
-        if (d[vars.id_var] == vars.highlight) return "url(#stroke_clip)";
-        else return "none"
-      })
-      .each(function(d){
-        if (d[vars.id_var] == vars.highlight) {
-          d3.select("defs").append("clipPath")
-            .attr("id","stroke_clip")
-            .append("use")
-              .attr("xlink:href",function(dd) { return "#path"+vars.highlight } )
-        }
-      });
-  }
-
-  function tileUrl(d) {
-    // Standard OSM
-    // return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.openstreetmap.org/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
-    // Custom CloudMade
-    return "http://" + ["a", "b", "c"][Math.random() * 3 | 0] + ".tile.cloudmade.com/c3cf91e1455249adaef26d096785dc90/88261/256/" + d[2] + "/" + d[0] + "/" + d[1] + ".png";
-  }
-  
-  function update_tiles(image_timing) {
-
-    var t = vars.projection.translate(),
-        s = vars.projection.scale()*2*Math.PI;
-        
-    var tiles = tile.scale(s).translate(t)(),
-        old_tiles = tile.scale(old_scale).translate(old_translate)()
     
-    var image = d3.select("g.tiles").selectAll("image.tile")
-      .data(tiles, function(d) { return d; });
-      
-    image.enter().append('image')
-      .attr('class', 'tile')
-      .attr('xlink:href', tileUrl)
-      .attr("opacity",0)
-      .attr("width", Math.ceil(tiles.scale/(s/old_scale)))
-      .attr("height", Math.ceil(tiles.scale/(s/old_scale)))
-      .attr("x", function(d) { 
-        var test = -(t[0]-(s/(old_scale/old_translate[0])));
-        return Math.ceil(((d[0] + tiles.translate[0]) * tiles.scale)+test)/(s/old_scale); 
-      })
-      .attr("y", function(d) { 
-        var test = -(t[1]-(s/(old_scale/old_translate[1])));
-        return Math.ceil(((d[1] + tiles.translate[1]) * tiles.scale)+test)/(s/old_scale); 
-      });
-
-    if (image_timing > 0) var image_transition = image.transition().duration(image_timing)
-    else var image_transition = image
-
-    image_transition
-      .attr("opacity",1)
-      .attr("width", Math.ceil(tiles.scale))
-      .attr("height", Math.ceil(tiles.scale))
-      .attr("x", function(d) { return Math.ceil((d[0] + tiles.translate[0]) * tiles.scale); })
-      .attr("y", function(d) { return Math.ceil((d[1] + tiles.translate[1]) * tiles.scale); });
-    image.exit().remove();
-      
-      
+    }
+    
   }
+  
 };
 
 vizwhiz.pie_scatter = function(vars) {

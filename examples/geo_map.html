@@ -10,6 +10,10 @@
   }
 
   </style>
+
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+  
 </head>
 <body>
 
@@ -38,6 +42,7 @@
           })
           
           data[0].year = 2009
+          data[1].year = 2009
           
           clicker = function(obj) {
             return "Some HTML Content"
@@ -47,15 +52,12 @@
             .type("geo_map")
             .coords(shapes)
             .attrs(attr)
-            .map(land)
-            .tiles(false)
             .id_var("id")
             .value_var("wage")
             .text_var("name")
             .tooltip_info({"short": [],"long": ["wage", "id", "num_emp"]})
             .click_function(clicker)
-            .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
-            // .highlight("ap000000")
+            // .highlight("mg030000")
             .year(2010)
             // .text_format(function(d){return d.toUpperCase()})
             .number_format(function(d){return "$"+Math.round(d)+" USD"})

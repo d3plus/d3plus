@@ -12,7 +12,7 @@ vizwhiz.viz = function() {
     "axis_change": true,
     "attrs": null,
     "background": "#ffffff",
-    "boundries": null,
+    "boundaries": null,
     "click_function": null,
     "color_var": "color",
     "color_domain": [],
@@ -20,6 +20,7 @@ vizwhiz.viz = function() {
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
     "connections": null,
     "coords": null,
+    "coord_change": false,
     "csv_columns": null,
     "data": null,
     "data_source": null,
@@ -42,11 +43,6 @@ vizwhiz.viz = function() {
     "labels": true,
     "layout": "value",
     "links": null,
-    "map": {"coords": null, 
-            "style": {"land": {"fill": "#f9f4e8"}, 
-                      "water": {"fill": "#bfd1df"}
-                     }
-           },
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "name_array": null,
     "nesting": [],
@@ -90,10 +86,9 @@ vizwhiz.viz = function() {
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
     "text_format": function(text,name) { 
-      return text 
+      return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase() 
     },
     "text_var": "name",
-    "tiles": true,
     "title": null,
     "title_center": true,
     "title_height": 0,
@@ -313,8 +308,6 @@ vizwhiz.viz = function() {
       vars.svg_enter = vars.svg.enter().append("svg")
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
-        .style("z-index", 10)
-        .style("position","absolute")
         
       vars.svg_enter.append("rect")
         .attr("id","svgbg")
@@ -553,6 +546,25 @@ vizwhiz.viz = function() {
         .attr("width",vars.width)
         .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+      
+      vars.parent_enter.append("defs")
+      vars.defs = d3.select("g.parent").select("defs")
+      
+      
+      vars.loader = vars.parent.selectAll("div#vizwhiz_loader").data([vars.data]);
+      
+      vars.loader.enter().append("div")
+        .attr("id","vizwhiz_loader")
+        .style("background-color",vars.background)
+        .style("display","none")
+        .append("div")
+          .attr("id","vizwhiz_loader_text")
+          .style("font-family",vars.font)
+          .style("font-weight",vars.font_weight)
+          .text(vars.text_format("Loading..."))
+      
+      // vars.loader.select("div#vizwhiz_loader_text").transition().duration(vizwhiz.timing)
+      
         
       filter_change = false
       axis_change = false
@@ -1122,15 +1134,16 @@ vizwhiz.viz = function() {
   
   chart.coords = function(x) {
     if (!arguments.length) return vars.coords;
+    vars.coord_change = true
     vars.coords = topojson.object(x, x.objects[Object.keys(x.objects)[0]]).geometries;
-    vars.boundries = {"coordinates": [[]], "type": "Polygon"}
+    vars.boundaries = {"coordinates": [[]], "type": "Polygon"}
     vars.coords.forEach(function(v,i){
       v.coordinates.forEach(function(c){
         c.forEach(function(a){
-          if (a.length == 2) vars.boundries.coordinates[0].push(a)
+          if (a.length == 2) vars.boundaries.coordinates[0].push(a)
           else {
             a.forEach(function(aa){
-              vars.boundries.coordinates[0].push(aa)
+              vars.boundaries.coordinates[0].push(aa)
             })
           }
         })
@@ -1264,16 +1277,6 @@ vizwhiz.viz = function() {
     links = x;
     return chart;
   };
-  
-  chart.map = function(x,style) {
-    if (!arguments.length) return vars.map;
-    vars.map.coords = x;
-    if (style) {
-      vars.map.style.land = style.land ? style.land : map.style.land;
-      vars.map.style.water = style.water ? style.water : map.style.water;
-    }
-    return chart;
-  };
 
   chart.mirror_axis = function(x) {
     if (!arguments.length) return mirror_axis;
@@ -1391,14 +1394,6 @@ vizwhiz.viz = function() {
   chart.text_var = function(x) {
     if (!arguments.length) return vars.text_var;
     vars.text_var = x;
-    return chart;
-  };
-  
-  chart.tiles = function(x) {
-    if (!arguments.length) return vars.tiles;
-    if (typeof x == "boolean")  vars.tiles = x;
-    else if (x === "false") vars.tiles = false;
-    else vars.tiles = true;
     return chart;
   };
   
