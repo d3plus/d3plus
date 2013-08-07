@@ -971,7 +971,16 @@ vizwhiz.viz = function() {
         if (vars.dev) console.log("[viz-whiz] New Data Detected")
         // Copy data to "raw_data" variable
         data_obj = {}
-        data_obj.raw = data_passed
+        vars.keys = {}
+        data_obj.raw = data_passed.filter(function(d){
+          for (k in d) {
+            if (!vars.keys[k]) {
+              vars.keys[k] = typeof d[k]
+            }
+          }
+          return true;
+        })
+        data_obj.filtered = filter_check(data_obj.raw)
         vars.parent = d3.select(this)
         
         if (vars.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
@@ -984,21 +993,10 @@ vizwhiz.viz = function() {
           else vars.year = "all"
         }
         
-        if (vars.dev) console.log("[viz-whiz] Cleaning Data")
-        vars.keys = {}
-        data_obj.clean = data_obj.raw.filter(function(d){
-          for (k in d) {
-            if (!vars.keys[k]) {
-              vars.keys[k] = typeof d[k]
-            }
-          }
-          return true;
-        })
-        
         data_obj.year = {}
         if (vars.years.length) {
           vars.years.forEach(function(y){
-            data_obj.year[y] = data_obj.clean.filter(function(d){
+            data_obj.year[y] = data_obj.filtered.filter(function(d){
               return d[vars.year_var] == y;
             })
           })
@@ -1013,6 +1011,14 @@ vizwhiz.viz = function() {
       if (filter_change || 
           (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
         delete data_obj[data_type[vars.type]]
+        data_obj.filtered = filter_check(data_obj.raw)
+        if (vars.years.length) {
+          vars.years.forEach(function(y){
+            data_obj.year[y] = data_obj.filtered.filter(function(d){
+              return d[vars.year_var] == y;
+            })
+          })
+        }
       }
 
       if (!data_obj[data_type[vars.type]]) {
@@ -1030,8 +1036,7 @@ vizwhiz.viz = function() {
             if (vars.type == "stacked") {
               var temp_data = []
               for (y in data_obj.year) {
-                var filtered_data = filter_check(data_obj.year[y])
-                var yd = nest(filtered_data,level)
+                var yd = nest(data_obj.year[y],level)
                 temp_data = temp_data.concat(yd)
               }
               data_obj[data_type[vars.type]][depth] = temp_data
@@ -1044,11 +1049,13 @@ vizwhiz.viz = function() {
                 if (b == "true") var spotlight = true
                 else var spotlight = false
                 for (y in data_obj.year) {
-                  var filtered_data = filter_check(data_obj.year[y])
                   if (spotlight) {
-                    filtered_data = filtered_data.filter(function(d){
+                    var filtered_data = data_obj.year[y].filter(function(d){
                       return d[vars.active_var] != spotlight
                     })
+                  }
+                  else {
+                    var filtered_data = data_obj.year[y]
                   }
                   data_obj[data_type[vars.type]][depth][b][y] = nest(filtered_data,level)
                   all_array = all_array.concat(data_obj[data_type[vars.type]][depth][b][y])
@@ -1061,8 +1068,7 @@ vizwhiz.viz = function() {
               data_obj[data_type[vars.type]][depth] = {}
               var all_array = []
               for (y in data_obj.year) {
-                var filtered_data = filter_check(data_obj.year[y])
-                data_obj[data_type[vars.type]][depth][y] = nest(filtered_data,level)
+                data_obj[data_type[vars.type]][depth][y] = nest(data_obj.year[y],level)
                 all_array = all_array.concat(data_obj[data_type[vars.type]][depth][y])
               }
               data_obj[data_type[vars.type]][depth].all = all_array
@@ -1074,16 +1080,14 @@ vizwhiz.viz = function() {
         else if (data_type[vars.type] == "object") {
           for (y in data_obj.year) {
             data_obj[data_type[vars.type]][y] = {}
-            var filtered_data = filter_check(data_obj.year[y])
-            filtered_data.forEach(function(d){
+            data_obj.year[y].forEach(function(d){
               data_obj[data_type[vars.type]][y][d[vars.id_var]] = d;
             })
           }
         }
         else {
           for (y in data_obj.year) {
-            var filtered_data = filter_check(data_obj.year[y])
-            data_obj[data_type[vars.type]][y] = filtered_data
+            data_obj[data_type[vars.type]][y] = data_obj.year[y]
           }
         }
         
@@ -1425,17 +1429,17 @@ vizwhiz.viz = function() {
   }
   
   true_filter = function(d) {
+    
     var id = d[vars.id_var],
-        name = find_variable(id,vars.text_var)
-    var check = [id,name]
-    vars.nesting.forEach(function(key){
-      var obj = find_variable(id,key)
-      if (obj) {
-        for (k in obj) {
-          check.push(obj[k])
+        check = [id]
+        
+    if (vars.nesting.length) {
+      vars.nesting.forEach(function(key){
+        if (vars.attrs[id][key] && vars.attrs[id][key][vars.id_var]) {
+          check.push(vars.attrs[id][key][vars.id_var])
         }
-      }
-    })
+      })
+    }
     
     var match = true
     if (id != vars.highlight || vars.type != "rings") {
@@ -1463,7 +1467,7 @@ vizwhiz.viz = function() {
     levels.forEach(function(nest_key, i){
     
       nested_data
-        .key(function(d){ return find_variable(d,nest_key)[vars.id_var] })
+        .key(function(d){ return vars.attrs[d[vars.id_var]][nest_key][vars.id_var] })
       
       if (i == levels.length-1) {
         nested_data.rollup(function(leaves){
@@ -1474,6 +1478,7 @@ vizwhiz.viz = function() {
           }
           
           var nest_obj = find_variable(leaves[0],nest_key)
+          // var nest_obj = vars.attrs[leaves[0][vars.id_var]][nest_key]
           
           to_return[vars.id_var] = nest_obj[vars.id_var]
           
@@ -1554,7 +1559,7 @@ vizwhiz.viz = function() {
       vars.total_bar.suffix ? title = title + vars.total_bar.suffix : null;
       
       if (vars.filter.length || vars.solo.length && vars.type != "rings") {
-        var overall_total = d3.sum(data_obj.clean, function(d){ 
+        var overall_total = d3.sum(data_obj.raw, function(d){ 
           if (vars.type == "stacked") return d[vars.value_var]
           else if (vars.year == d[vars.year_var]) return d[vars.value_var]
         })
