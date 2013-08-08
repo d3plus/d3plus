@@ -1921,22 +1921,56 @@ vizwhiz.viz = function() {
   
   chart.csv_data = function(x) {
     if (!arguments.length) {
-      var csv_to_return = []
+      var csv_to_return = [],
+          column_init = vars.csv_columns,
+          columns = [], titles = []
+
+      if (column_init.indexOf(vars.text_var) < 0) column_init.unshift(vars.text_var)
+      if (column_init.indexOf(vars.id_var) < 0) column_init.unshift(vars.id_var)
+      if (column_init.indexOf(vars.year_var) < 0) column_init.unshift(vars.year_var)
       
       // filter out the columns (if specified)
-      if(vars.csv_columns){
-        vars.data.map(function(d){
-          d3.keys(d).forEach(function(d_key){
-            if(vars.csv_columns.indexOf(d_key) < 0){
-              delete d[d_key]
-            }
-          })
-        })
+      column_init.forEach(function(c){
+        if (vars.keys[c] || c == vars.text_var) {
+          columns.push(c)
+          titles.push(vars.text_format(c))
+        }
+      })
+      
+      csv_to_return.push(titles);
+      
+      if (vars.type == "tree_map") {
+        
+        var arr = []
+        
+        function flatted_children(c) {
+          if (c.children && !vars.depth || (c.children && vars.depth && vars.nesting.indexOf(vars.depth)+1 != vars.depth)) {
+            c.children.forEach(function(c2){
+              flatted_children(c2)
+            })
+          }
+          else {
+            arr.push(c)
+          }
+        }
+        
+        flatted_children(vars.data)
+        
+      }
+      else if (vars.data instanceof Array) {
+        var arr = vars.data
+      }
+      else {
+        var arr = d3.values(vars.data)
       }
       
-      csv_to_return.push(vars.keys);
-      vars.data.forEach(function(d){
-        csv_to_return.push(d3.values(d))
+      arr.forEach(function(d){
+        
+        var ret = []
+        columns.forEach(function(c){
+          ret.push(find_variable(d,c))
+        })
+        csv_to_return.push(ret)
       })
       return csv_to_return;
     }
@@ -4399,7 +4433,6 @@ vizwhiz.geo_map = function(vars) {
           setTimeout(function(){
             
             projection = self.getProjection()
-          
             gmap_projection = function (coordinates) {
               var googleCoordinates = new google.maps.LatLng(coordinates[1], coordinates[0]);
               var pixelCoordinates = projection.fromLatLngToDivPixel(googleCoordinates);
@@ -4450,7 +4483,7 @@ vizwhiz.geo_map = function(vars) {
               })
               .on(vizwhiz.evt.up, function(d) {
                 if (!dragging) {
-                  vars.loading_text = vars.text_format("Zooming to Selection")
+                  vars.loading_text = vars.text_format("Calculating Coordinates")
                   if (vars.highlight == d[vars.id_var]) {
                     zoom("reset")
                   } 
@@ -4474,7 +4507,7 @@ vizwhiz.geo_map = function(vars) {
             if (vars.coord_change) {
               if (vars.highlight) var z = d3.select("path#path"+vars.highlight).datum()
               else var z = "reset"
-              vars.loading_text = vars.text_format("Zooming to Selection")
+              vars.loading_text = vars.text_format("Calculating Coordinates")
               zoom(z)
               vars.coord_change = false
             }
