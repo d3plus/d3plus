@@ -530,21 +530,12 @@ vizwhiz.viz = function() {
         .append("rect")
           .attr("width",vars.width)
           .attr("height",vars.height)
-      
-      vars.svg.select("#clipping rect").transition().duration(vizwhiz.timing)
-        .attr("width",vars.width)
-        .attr("height",vars.height)
     
       vars.parent_enter = vars.svg_enter.append("g")
         .attr("class","parent")
-        .attr("width",vars.width)
-        .attr("height",vars.height)
-        .attr("clip-path","url(#clipping)")
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       vars.svg.select("g.parent").transition().duration(vizwhiz.timing)
-        .attr("width",vars.width)
-        .attr("height",vars.height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
       
       vars.parent_enter.append("defs")
@@ -1579,14 +1570,12 @@ vizwhiz.viz = function() {
   }
   
   var axis_style = {
-    "font-family": vars.font,
     "font-size": "12px",
     "font-weight": vars.font_weight,
     "fill": "#888"
   }
   
   var label_style = {
-    "font-family": vars.font,
     "font-size": "14px",
     "font-weight": vars.font_weight,
     "fill": "#333",
@@ -1610,6 +1599,7 @@ vizwhiz.viz = function() {
         d3.select(this)
           .style(axis_style)
           .attr("transform","translate(-22,3)rotate(-65)")
+          .attr("font-family",vars.font)
           .text(text)
         
         var height = (Math.cos(25)*this.getBBox().width)
@@ -1668,6 +1658,7 @@ vizwhiz.viz = function() {
       
         d3.select(this)
           .style(axis_style)
+          .attr("font-family",vars.font)
           .text(text)
         
         var width = this.getBBox().width
@@ -1747,6 +1738,7 @@ vizwhiz.viz = function() {
       .attr('x', labelx)
       .attr('y', vars.height-10)
       .text(vars.text_format(vars.xaxis_var))
+      .attr("font-family",vars.font)
       .attr(label_style)
       
     // Create Y axis label
@@ -1756,6 +1748,7 @@ vizwhiz.viz = function() {
       .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
       .text(vars.text_format(vars.yaxis_var))
       .attr("transform","rotate(-90)")
+      .attr("font-family",vars.font)
       .attr(label_style)
 
     // Set Y axis
