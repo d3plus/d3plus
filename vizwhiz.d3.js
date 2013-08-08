@@ -5931,15 +5931,17 @@ vizwhiz.rings = function(vars) {
     .attr("class", "link")
     .attr("opacity",0);
       
-  link.transition().duration(vizwhiz.timing/2)
-    .attr("opacity",0)
-    .transition().call(line_styles)
-    .transition().duration(vizwhiz.timing/2)
-    .attr("opacity",function(d) {
-      if (hover && d3.select(this).attr("stroke") == "#ddd") {
-         return 0.25
-      } return 0.75;
-    })
+  if (!vars.last_highlight || vars.last_highlight != vars.highlight) {
+    link.transition().duration(vizwhiz.timing/2)
+      .attr("opacity",0)
+      .transition().call(line_styles)
+      .transition().duration(vizwhiz.timing/2)
+      .attr("opacity",function(d) {
+        if (hover && d3.select(this).attr("stroke") == "#ddd") {
+           return 0.25
+        } return 0.75;
+      })
+  }
       
   link.exit().transition().duration(vizwhiz.timing)
     .attr("opacity",0)
@@ -6017,6 +6019,7 @@ vizwhiz.rings = function(vars) {
       if (vars.small) return 0
       else return 1
     })
+    .call(text_styles)
     .each(function(d) {
       if (d.depth == 0) {
         var s = Math.sqrt((ring_width*ring_width)/2), 
@@ -6045,7 +6048,6 @@ vizwhiz.rings = function(vars) {
       d3.select(this).attr("y",(-d3.select(this).node().getBBox().height/2)+"px")
       
     })
-    .call(text_styles);
       
   node.exit().transition().duration(vizwhiz.timing)
       .attr("opacity",0)
@@ -6054,6 +6056,8 @@ vizwhiz.rings = function(vars) {
   //===================================================================
   
   hover = null;
+  
+  vars.last_highlight = vars.highlight
   
   if (!vars.small && vars.data) {
 
@@ -6212,7 +6216,7 @@ vizwhiz.rings = function(vars) {
     t
       .attr("fill",function(d){
         if (d.depth == 0) {
-          var color = vizwhiz.utils.text_color(d3.select("circle#node_"+d[vars.id_var]).attr("fill"));
+          var color = vizwhiz.utils.text_color(fill_color(d));
         } 
         else {
           var color = vizwhiz.utils.darker_color(d[vars.color_var]);
