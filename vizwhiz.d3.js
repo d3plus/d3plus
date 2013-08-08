@@ -3987,7 +3987,7 @@ vizwhiz.tree_map = function(vars) {
     .attr('class','name')
     .attr('x','0.2em')
     .attr('y','0em')
-    .attr('dy','1em')
+    .attr('dy','0em')
     .attr("fill", function(d){ 
       var color = find_color(d,vars.color_var)
       return vizwhiz.utils.text_color(color); 
@@ -4023,7 +4023,7 @@ vizwhiz.tree_map = function(vars) {
       return d.dx/2
     })
     .attr('y',function(d){
-      return d.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
+      return d.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.25)
     })
     .each(function(d){
       var el = d3.select(this).node().getBBox()
@@ -4166,11 +4166,16 @@ vizwhiz.tree_map = function(vars) {
           if (name) text.push(vars.text_format(name))
         })
         
+        var size = (d.dx)/7
+        if(d.dx < d.dy) var size = d.dx/7
+        else var size = d.dy/7
+        if (size < 10) size = 10;
+        
         vizwhiz.utils.wordwrap({
           "text": text,
           "parent": this,
           "width": d.dx,
-          "height": d.dy,
+          "height": d.dy-size,
           "resize": true
         })
       }
@@ -4206,7 +4211,7 @@ vizwhiz.tree_map = function(vars) {
           return d.dx/2
         })
         .attr('y',function(d){
-          return d.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.10)
+          return d.dy-(parseInt(d3.select(this).attr('font-size'),10)*0.25)
         })
         .each(function(d){
           var el = d3.select(this).node().getBBox()
