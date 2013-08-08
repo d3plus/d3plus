@@ -200,7 +200,6 @@ vizwhiz.geo_map = function(vars) {
           setTimeout(function(){
             
             projection = self.getProjection()
-          
             gmap_projection = function (coordinates) {
               var googleCoordinates = new google.maps.LatLng(coordinates[1], coordinates[0]);
               var pixelCoordinates = projection.fromLatLngToDivPixel(googleCoordinates);
@@ -251,7 +250,7 @@ vizwhiz.geo_map = function(vars) {
               })
               .on(vizwhiz.evt.up, function(d) {
                 if (!dragging) {
-                  vars.loading_text = vars.text_format("Zooming to Selection")
+                  vars.loading_text = vars.text_format("Calculating Coordinates")
                   if (vars.highlight == d[vars.id_var]) {
                     zoom("reset")
                   } 
@@ -275,7 +274,7 @@ vizwhiz.geo_map = function(vars) {
             if (vars.coord_change) {
               if (vars.highlight) var z = d3.select("path#path"+vars.highlight).datum()
               else var z = "reset"
-              vars.loading_text = vars.text_format("Zooming to Selection")
+              vars.loading_text = vars.text_format("Calculating Coordinates")
               zoom(z)
               vars.coord_change = false
             }
