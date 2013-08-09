@@ -453,16 +453,14 @@ vizwhiz.viz = function() {
         })
       }
       else {
-        console.log("here")
         d3.values(vars.data).forEach(function(d){
           data_range.push(find_variable(d,vars.color_var))
         })
       }
-      console.log(data_range)
-      data_range.sort(function(a,b) {return a-b})
-      vars.color_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
       
-      if (typeof vars.color_domain[0] == "number") {
+      if (typeof data_range[0] == "number") {
+        data_range.sort(function(a,b) {return a-b})
+        vars.color_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
         if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
           vars.color_domain[2] = vars.color_domain[1]
           vars.color_domain[1] = 0
