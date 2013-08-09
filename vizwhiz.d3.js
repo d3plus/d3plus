@@ -1265,7 +1265,7 @@ vizwhiz.viz = function() {
         
       }
       else if (vars.data instanceof Array) {
-        data_range = vars.data.forEach(function(d){
+        vars.data.forEach(function(d){
           data_range.push(find_variable(d,vars.color_var))
         })
       }
@@ -1305,13 +1305,14 @@ vizwhiz.viz = function() {
       // Create titles
       vars.margin.top = 0
       var title_offset = 0
-      if ((vars.type == "rings" && !vars.connections[vars.highlight]) || !vars.data || error || vars.svg_width < 300 || vars.svg_height < 200) {
+      if ((vars.type == "rings" && !vars.connections[vars.highlight]) || !vars.data || error || vars.svg_width <= 400 || vars.svg_height <= 300) {
         vars.small = true;
         vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
         vars.graph.width = vars.width
         make_title(null,"title");
         make_title(null,"sub_title");
         make_title(null,"total_bar");
+        update_footer(null)
       }
       else {
         if (vars.dev) console.log("[viz-whiz] Creating/Updating Titles")
@@ -1328,12 +1329,12 @@ vizwhiz.viz = function() {
             vars.margin.top = vars.title_height
           }
         }
+        update_footer(vars.data_source)
       }
       
       d3.select("g.titles").transition().duration(vizwhiz.timing)
         .attr("transform","translate(0,"+title_offset+")")
       
-      update_footer()
       
       vars.height = vars.svg_height - vars.margin.top - vars.margin.bottom;
       
@@ -1630,13 +1631,13 @@ vizwhiz.viz = function() {
 
   }
   
-  update_footer = function() {
+  update_footer = function(footer_text) {
     
-    if (footer && vars.data_source) {
-      if (vars.data_source.indexOf("<a href=") == 0) {
+    if (footer && footer_text) {
+      if (footer_text.indexOf("<a href=") == 0) {
         var div = document.createElement("div")
-        div.innerHTML = vars.data_source
-        var t = vars.data_source.split("href=")[1]
+        div.innerHTML = footer_text
+        var t = footer_text.split("href=")[1]
         var link = t.split(t.charAt(0))[1]
         if (link.charAt(0) != "h" && link.charAt(0) != "/") {
           link = "http://"+link
@@ -1644,7 +1645,7 @@ vizwhiz.viz = function() {
         var d = [div.innerText]
       }
       else {
-        var d = [vars.data_source]
+        var d = [footer_text]
       }
     }
     else var d = []
