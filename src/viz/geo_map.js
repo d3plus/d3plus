@@ -31,7 +31,7 @@ vizwhiz.geo_map = function(vars) {
       vars.data_range.push((vars.data_extent[0]*Math.pow((vars.data_extent[1]/vars.data_extent[0]),step)))
       step += 0.25
     }
-    var value_color = d3.scale.log()
+    vars.value_color = d3.scale.log()
       .domain(vars.data_range)
       .interpolate(d3.interpolateRgb)
       .range(color_gradient)
@@ -336,7 +336,7 @@ vizwhiz.geo_map = function(vars) {
       .attr("fill",function(d){ 
         if (d[vars.id_var] == vars.highlight) return "none";
         else if (!vars.data[d[vars.id_var]]) return "#888888";
-        else return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888"
+        else return vars.data[d[vars.id_var]][vars.value_var] ? vars.value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888"
       })
       .attr("stroke-width",function(d) {
         if (d[vars.id_var] == vars.highlight) return 10;
@@ -345,7 +345,7 @@ vizwhiz.geo_map = function(vars) {
       .attr("stroke",function(d) {
         if (d[vars.id_var] == vars.highlight) {
           if (!vars.data[d[vars.id_var]]) return "#888"
-          return vars.data[d[vars.id_var]][vars.value_var] ? value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888";
+          return vars.data[d[vars.id_var]][vars.value_var] ? vars.value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888";
         }
         else return "white";
       })
@@ -378,7 +378,7 @@ vizwhiz.geo_map = function(vars) {
       var data = vars.data[id]
       
       if (data && data[vars.value_var]) {
-        var color = value_color(data[vars.value_var])
+        var color = vars.value_color(data[vars.value_var])
       }
       else {
         var color = "#888"
@@ -461,7 +461,7 @@ vizwhiz.geo_map = function(vars) {
     vars.data_range.forEach(function(v,i){
       gradient.append("stop")
         .attr("offset",Math.round((i/(vars.data_range.length-1))*100)+"%")
-        .attr("stop-color", value_color(v))
+        .attr("stop-color", vars.value_color(v))
         .attr("stop-opacity", 1)
     })
   
