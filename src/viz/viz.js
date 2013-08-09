@@ -152,7 +152,7 @@ vizwhiz.viz = function() {
         vars.keys = {}
         data_obj.raw = data_passed.filter(function(d){
           for (k in d) {
-            if (!vars.keys[k]) {
+            if (!vars.keys[k] && d[k]) {
               vars.keys[k] = typeof d[k]
             }
           }
@@ -426,6 +426,8 @@ vizwhiz.viz = function() {
       }
       
       if (vars.dev) console.log("[viz-whiz] Calculating Color Range")
+        
+      var data_range = []
       
       if (vars.type == "tree_map") {
         
@@ -438,30 +440,27 @@ vizwhiz.viz = function() {
             })
           }
           else {
-            var color = find_variable(c,vars.color_var)
-            if (typeof color == "number") {
-              if (color < vars.color_domain[0]) vars.color_domain[0] = color
-              if (color > vars.color_domain[1]) vars.color_domain[1] = color
-            }
-            else {
-              vars.color_domain[0] = color
-              vars.color_domain[1] = color
-            }
+            data_range.push(find_variable(c,vars.color_var))
           }
         }
         
         check_child_colors(vars.data)
+        
       }
       else if (vars.data instanceof Array) {
-        vars.color_domain = d3.extent(vars.data,function(d){
-          return d[vars.color_var]
+        data_range = vars.data.forEach(function(d){
+          data_range.push(find_variable(d,vars.color_var))
         })
       }
       else {
-        vars.color_domain = d3.extent(d3.values(vars.data),function(d){
-          return d[vars.color_var]
+        console.log("here")
+        d3.values(vars.data).forEach(function(d){
+          data_range.push(find_variable(d,vars.color_var))
         })
       }
+      console.log(data_range)
+      data_range.sort(function(a,b) {return a-b})
+      vars.color_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
       
       if (typeof vars.color_domain[0] == "number") {
         if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
@@ -604,11 +603,13 @@ vizwhiz.viz = function() {
     return check_data.filter(function(d){
       
       if (vars.xaxis_var && graph_type) {
-        if (typeof d[vars.xaxis_var] == "undefined") return false
+        if (typeof d[vars.xaxis_var] == "undefined" || !d[vars.xaxis_var]) return false
       }
       if (vars.yaxis_var && graph_type) {
-        if (typeof d[vars.yaxis_var] == "undefined") return false
+        if (typeof d[vars.yaxis_var] == "undefined" || !d[vars.yaxis_var]) return false
       }
+      if (typeof d[vars.value_var] == "undefined" || !d[vars.value_var]) return false
+      
       return true_filter(d)
     })
       
@@ -1060,6 +1061,7 @@ vizwhiz.viz = function() {
     if (!arguments.length) return vars.active_var;
     filter_change = true
     vars.active_var = x;
+    filter_change = true;
     return chart;
   };
   
@@ -1090,6 +1092,7 @@ vizwhiz.viz = function() {
   chart.color_var = function(x) {
     if (!arguments.length) return vars.color_var;
     vars.color_var = x;
+    filter_change = true;
     return chart;
   };
   
@@ -1264,6 +1267,7 @@ vizwhiz.viz = function() {
   chart.grouping = function(x) {
     if (!arguments.length) return vars.grouping;
     vars.grouping = x;
+    filter_change = true;
     return chart;
   };
 
@@ -1342,6 +1346,7 @@ vizwhiz.viz = function() {
   chart.order = function(x) {
     if (!arguments.length) return vars.order;
     vars.order = x;
+    filter_change = true;
     return chart;
   };
   
@@ -1375,6 +1380,7 @@ vizwhiz.viz = function() {
   chart.sort = function(x) {
     if (!arguments.length) return vars.sort;
     vars.sort = x;
+    filter_change = true;
     return chart;
   };
   
@@ -1467,6 +1473,7 @@ vizwhiz.viz = function() {
   chart.value_var = function(x) {
     if (!arguments.length) return vars.value_var;
     vars.value_var = x;
+    filter_change = true;
     return chart;
   };
 
