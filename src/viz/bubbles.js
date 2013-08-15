@@ -301,7 +301,7 @@ vizwhiz.bubbles = function(vars) {
       d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
         .attrTween("d",arcTween_bg)
     
-      if (d.elsewhere) {
+      if (d[vars.else_var]) {
     
         vars.arc_angles[d[vars.id_var]+"_else"] = 0
         vars.arc_sizes[d[vars.id_var]+"_else"] = 0
@@ -355,7 +355,7 @@ vizwhiz.bubbles = function(vars) {
           vars.arc_sizes[d[vars.id_var]] = d.arc_radius
           vars.arc_inners[d[vars.id_var]] = d.arc_inner
           
-          if (d.total) d.arc_angle = (((d[vars.active_var] / d.total)*360) * (Math.PI/180));
+          if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var] / d[vars.total_var])*360) * (Math.PI/180));
           else if (d.active) d.arc_angle = Math.PI; 
           
           d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -367,7 +367,7 @@ vizwhiz.bubbles = function(vars) {
             })
         })
     
-      if (d.elsewhere) {
+      if (d[vars.else_var]) {
       
         d.arc_inner_else = arc_start;
         d.arc_radius_else = d.r;
@@ -378,7 +378,7 @@ vizwhiz.bubbles = function(vars) {
             vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
             vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
       
-            d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
+            d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
 
             d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
             
@@ -493,7 +493,7 @@ vizwhiz.bubbles = function(vars) {
       d.arc_inner = arc_start;
       d.arc_radius = arc_start+(d.r-arc_start);
         
-      if (d.total) d.arc_angle = (((d[vars.active_var] / d.total)*360) * (Math.PI/180));
+      if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var]/d[vars.total_var])*360) * (Math.PI/180));
       else if (d.active) d.arc_angle = Math.PI; 
     
       d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -507,12 +507,12 @@ vizwhiz.bubbles = function(vars) {
           vars.arc_angles[d[vars.id_var]] = d.arc_angle
         })
   
-      if (d.elsewhere) {
+      if (d[vars.else_var]) {
     
         d.arc_inner_else = arc_start;
         d.arc_radius_else = d.r;
       
-        d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
+        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
     
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
@@ -557,7 +557,7 @@ vizwhiz.bubbles = function(vars) {
           vars.arc_inners[d[vars.id_var]] = d.arc_inner
         })
     
-      if (d.elsewhere) {
+      if (d[vars.else_var]) {
       
         d.arc_angle_else = 0;
         d.arc_radius_else = 0;

@@ -209,7 +209,8 @@ vizwhiz.tooltip.create = function(params) {
     
     data_container.selectAll(".vizwhiz_tooltip_data_name")
       .style("width",function(){
-        return (this.offsetWidth-val_width)+"px"
+        var w = parseFloat(d3.select(this.parentNode).style("width"),10)
+        return (w-val_width)+"px"
       })
     
     data_container.selectAll(".vizwhiz_tooltip_data_value")

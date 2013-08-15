@@ -476,7 +476,8 @@ vizwhiz.tooltip.create = function(params) {
     
     data_container.selectAll(".vizwhiz_tooltip_data_name")
       .style("width",function(){
-        return (this.offsetWidth-val_width)+"px"
+        var w = parseFloat(d3.select(this.parentNode).style("width"),10)
+        return (w-val_width)+"px"
       })
     
     data_container.selectAll(".vizwhiz_tooltip_data_value")
@@ -849,6 +850,7 @@ vizwhiz.viz = function() {
     "depth": null,
     "dev": false,
     "donut": true,
+    "else_var": "elsewhere",
     "error": "",
     "filter": [],
     "filtered_data": null,
@@ -917,6 +919,7 @@ vizwhiz.viz = function() {
     "title_width": null,
     "tooltip_info": [],
     "total_bar": false,
+    "total_var": "total",
     "type": "tree_map",
     "update_function": null,
     "value_var": "value",
@@ -1119,7 +1122,7 @@ vizwhiz.viz = function() {
         vars.data = data_obj[data_type[vars.type]][vars.year];
       }
       
-      if ((vars.type == "tree_map" && !vars.data.children.length) || (vars.data && vars.data.length == 0)) {
+      if (vars.data && (vars.type == "tree_map" && !vars.data.children.length) || (vars.data && vars.data.length == 0)) {
         vars.data = null
       }
 
@@ -1247,58 +1250,62 @@ vizwhiz.viz = function() {
         }
       }
       
-      if (vars.dev) console.log("[viz-whiz] Calculating Color Range")
+      if (vars.data) {
+
+        if (vars.dev) console.log("[viz-whiz] Calculating Color Range")
         
-      var data_range = []
-      
-      if (vars.type == "tree_map") {
+        var data_range = []
         
-        vars.color_domain = [0,0]
+        if (vars.type == "tree_map") {
         
-        function check_child_colors(c) {
-          if (c.children) {
-            c.children.forEach(function(c2){
-              check_child_colors(c2)
-            })
+          vars.color_domain = [0,0]
+        
+          function check_child_colors(c) {
+            if (c.children) {
+              c.children.forEach(function(c2){
+                check_child_colors(c2)
+              })
+            }
+            else {
+              data_range.push(find_variable(c,vars.color_var))
+            }
           }
-          else {
-            data_range.push(find_variable(c,vars.color_var))
-          }
+        
+          check_child_colors(vars.data)
+        
         }
-        
-        check_child_colors(vars.data)
-        
-      }
-      else if (vars.data instanceof Array) {
-        vars.data.forEach(function(d){
-          data_range.push(find_variable(d,vars.color_var))
-        })
-      }
-      else {
-        d3.values(vars.data).forEach(function(d){
-          data_range.push(find_variable(d,vars.color_var))
-        })
-      }
+        else if (vars.data instanceof Array) {
+          vars.data.forEach(function(d){
+            data_range.push(find_variable(d,vars.color_var))
+          })
+        }
+        else {
+          d3.values(vars.data).forEach(function(d){
+            data_range.push(find_variable(d,vars.color_var))
+          })
+        }
       
-      if (typeof data_range[0] == "number") {
-        data_range.sort(function(a,b) {return a-b})
-        vars.color_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
-        if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
-          vars.color_domain[2] = vars.color_domain[1]
-          vars.color_domain[1] = 0
-          var cr = vars.color_range
+        if (typeof data_range[0] == "number") {
+          data_range.sort(function(a,b) {return a-b})
+          vars.color_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
+          if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
+            vars.color_domain[2] = vars.color_domain[1]
+            vars.color_domain[1] = 0
+            var cr = vars.color_range
+          }
+          else if (vars.color_domain[1] > 0) {
+            vars.color_domain[0] = 0
+            var cr = [vars.color_range[1],vars.color_range[2]]
+          }
+          else if (vars.color_domain[0] < 0) {
+            vars.color_domain[1] = 0
+            var cr = [vars.color_range[0],vars.color_range[1]]
+          }
+          vars.color_scale
+            .domain(vars.color_domain)
+            .range(cr)
         }
-        else if (vars.color_domain[1] > 0) {
-          vars.color_domain[0] = 0
-          var cr = [vars.color_range[1],vars.color_range[2]]
-        }
-        else if (vars.color_domain[0] < 0) {
-          vars.color_domain[1] = 0
-          var cr = [vars.color_range[0],vars.color_range[1]]
-        }
-        vars.color_scale
-          .domain(vars.color_domain)
-          .range(cr)
+        
       }
       
       vars.svg_enter.append("g")
@@ -1429,7 +1436,7 @@ vizwhiz.viz = function() {
       if (vars.yaxis_var && graph_type) {
         if (typeof d[vars.yaxis_var] == "undefined" || !d[vars.yaxis_var]) return false
       }
-      if (typeof d[vars.value_var] == "undefined" || !d[vars.value_var]) return false
+      if (vars.type != "rings" && (typeof d[vars.value_var] == "undefined" || !d[vars.value_var])) return false
       
       return true_filter(d)
     })
@@ -1798,7 +1805,7 @@ vizwhiz.viz = function() {
     var tooltip_data = []
     a.forEach(function(t){
       var value = find_variable(id,t)
-      if (value) {
+      if (value !== false) {
         var name = vars.text_format(t),
             h = t == tooltip_highlight
             
@@ -1845,8 +1852,8 @@ vizwhiz.viz = function() {
     }
     
     if (!value) {
-      if (dat && dat[variable]) value = dat[variable]
-      else if (attr && attr[variable]) value = attr[variable]
+      if (dat && typeof dat[variable] != "undefined") value = dat[variable]
+      else if (attr && typeof attr[variable] != "undefined") value = attr[variable]
     }
     
     if (variable == vars.text_var && value) {
@@ -2024,6 +2031,12 @@ vizwhiz.viz = function() {
     if (typeof x == "boolean")  vars.donut = x;
     else if (x === "false") vars.donut = false;
     else vars.donut = true;
+    return chart;
+  };
+  
+  chart.else_var = function(x) {
+    if (!arguments.length) return vars.else_var;
+    vars.else_var = x;
     return chart;
   };
 
@@ -2282,6 +2295,12 @@ vizwhiz.viz = function() {
   chart.total_bar = function(x) {
     if (!arguments.length) return vars.total_bar;
     vars.total_bar = x;
+    return chart;
+  };
+  
+  chart.total_var = function(x) {
+    if (!arguments.length) return vars.total_var;
+    vars.total_var = x;
     return chart;
   };
   
@@ -5580,7 +5599,7 @@ vizwhiz.bubbles = function(vars) {
       d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
         .attrTween("d",arcTween_bg)
     
-      if (d.elsewhere) {
+      if (d[vars.else_var]) {
     
         vars.arc_angles[d[vars.id_var]+"_else"] = 0
         vars.arc_sizes[d[vars.id_var]+"_else"] = 0
@@ -5634,7 +5653,7 @@ vizwhiz.bubbles = function(vars) {
           vars.arc_sizes[d[vars.id_var]] = d.arc_radius
           vars.arc_inners[d[vars.id_var]] = d.arc_inner
           
-          if (d.total) d.arc_angle = (((d[vars.active_var] / d.total)*360) * (Math.PI/180));
+          if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var] / d[vars.total_var])*360) * (Math.PI/180));
           else if (d.active) d.arc_angle = Math.PI; 
           
           d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -5646,7 +5665,7 @@ vizwhiz.bubbles = function(vars) {
             })
         })
     
-      if (d.elsewhere) {
+      if (d[vars.else_var]) {
       
         d.arc_inner_else = arc_start;
         d.arc_radius_else = d.r;
@@ -5657,7 +5676,7 @@ vizwhiz.bubbles = function(vars) {
             vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
             vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
       
-            d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
+            d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
 
             d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
             
@@ -5772,7 +5791,7 @@ vizwhiz.bubbles = function(vars) {
       d.arc_inner = arc_start;
       d.arc_radius = arc_start+(d.r-arc_start);
         
-      if (d.total) d.arc_angle = (((d[vars.active_var] / d.total)*360) * (Math.PI/180));
+      if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var]/d[vars.total_var])*360) * (Math.PI/180));
       else if (d.active) d.arc_angle = Math.PI; 
     
       d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -5786,12 +5805,12 @@ vizwhiz.bubbles = function(vars) {
           vars.arc_angles[d[vars.id_var]] = d.arc_angle
         })
   
-      if (d.elsewhere) {
+      if (d[vars.else_var]) {
     
         d.arc_inner_else = arc_start;
         d.arc_radius_else = d.r;
       
-        d.arc_angle_else = d.arc_angle + (((d.elsewhere / d.total)*360) * (Math.PI/180));
+        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
     
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
@@ -5836,7 +5855,7 @@ vizwhiz.bubbles = function(vars) {
           vars.arc_inners[d[vars.id_var]] = d.arc_inner
         })
     
-      if (d.elsewhere) {
+      if (d[vars.else_var]) {
       
         d.arc_angle_else = 0;
         d.arc_radius_else = 0;
