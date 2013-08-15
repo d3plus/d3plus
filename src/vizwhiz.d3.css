@@ -194,10 +194,13 @@ div.vizwhiz_tooltip_data_block {
   position: relative;
 }
 
+div.vizwhiz_tooltip_data_name {
+  display: inline-block;
+}
+
 div.vizwhiz_tooltip_data_value {
-  position: absolute;
-  right: 6px;
-  top: 3px;
+  display: inline-block;
+  text-align: right;
 }
 
 div.vizwhiz_tooltip_footer {

@@ -475,7 +475,12 @@ vizwhiz.tooltip.create = function(params) {
     })
     
     data_container.selectAll(".vizwhiz_tooltip_data_name")
-      .style("padding-right",val_width+"px")
+      .style("width",function(){
+        return (this.offsetWidth-val_width)+"px"
+      })
+    
+    data_container.selectAll(".vizwhiz_tooltip_data_value")
+      .style("width",val_width+"px")
     
   }
     
