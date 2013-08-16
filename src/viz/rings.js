@@ -69,6 +69,14 @@ vizwhiz.rings = function(vars) {
         } return 0.75;
       })
   }
+  else {
+    link.call(line_styles)
+      .attr("opacity",function(d) {
+        if (hover && d3.select(this).attr("stroke") == "#ddd") {
+           return 0.25
+        } return 0.75;
+      })
+  }
       
   link.exit().transition().duration(vizwhiz.timing)
     .attr("opacity",0)
@@ -226,6 +234,7 @@ vizwhiz.rings = function(vars) {
         "data": tooltip_data,
         "x": vars.width-tooltip_width-5,
         "y": vars.margin.top+5,
+        "max_height": vars.height-10,
         "fixed": true,
         "width": tooltip_width,
         "mouseevents": true,

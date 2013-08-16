@@ -319,6 +319,10 @@ vizwhiz.tooltip.create = function(params) {
     .attr("id","vizwhiz_tooltip_id_"+params.id)
     .attr("class","vizwhiz_tooltip vizwhiz_tooltip_"+params.size)
     
+  if (params.max_height) {
+    tooltip.style("max-height",params.max_height+"px")
+  }
+    
   if (params.fixed) {
     tooltip.style("z-index",500)
   }
@@ -1355,15 +1359,21 @@ vizwhiz.viz = function() {
       vars.svg_enter.append("clipPath")
         .attr("id","clipping")
         .append("rect")
+          .attr("id","parent_clip")
           .attr("width",vars.width)
           .attr("height",vars.height)
     
       vars.parent_enter = vars.svg_enter.append("g")
         .attr("class","parent")
+        .attr("clip-path","url(#clipping)")
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       vars.svg.select("g.parent").transition().duration(vizwhiz.timing)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+    
+      vars.svg.select("rect#parent_clip").transition().duration(vizwhiz.timing)
+        .attr("width",vars.width)
+        .attr("height",vars.height)
       
       vars.parent_enter.append("defs")
       vars.defs = d3.select("g.parent").select("defs")
@@ -1707,7 +1717,7 @@ vizwhiz.viz = function() {
           window.open(link,target)
         }
       })
-    
+      
     source.transition().duration(vizwhiz.evt.timing)
       .attr("opacity",1)
       .attr("x",vars.svg_width/2)
@@ -1722,6 +1732,8 @@ vizwhiz.viz = function() {
           "resize": false
         })
       })
+      .selectAll("tspan")
+        .attr("x",vars.svg_width/2)
       
     source.exit().transition().duration(vizwhiz.evt.timing)
       .attr("opacity",0)
@@ -2894,6 +2906,7 @@ vizwhiz.network = function(vars) {
               "x": x_pos,
               "y": vars.margin.top+5,
               "width": info_width,
+              "max_height": vars.height-10,
               "html": tooltip_appends+html,
               "fixed": true,
               "mouseevents": true,
@@ -2965,7 +2978,7 @@ vizwhiz.network = function(vars) {
 
   //===================================================================
     
-
+  vizwhiz.tooltip.remove(vars.type)
   var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x})
   var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y})
   var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0])
@@ -4532,6 +4545,7 @@ vizwhiz.geo_map = function(vars) {
               
             vars.zoom = vars.map.zoom
             scale_update()
+            update()
             
             if (vars.coord_change) {
               if (vars.highlight) var z = d3.select("path#path"+vars.highlight).datum()
@@ -4664,7 +4678,8 @@ vizwhiz.geo_map = function(vars) {
           "html": html,
           "parent": vars.parent,
           "mouseevents": true,
-          "background": vars.background
+          "background": vars.background,
+          "max_height": vars.height-47
         })
         
       }
@@ -5997,6 +6012,14 @@ vizwhiz.rings = function(vars) {
         } return 0.75;
       })
   }
+  else {
+    link.call(line_styles)
+      .attr("opacity",function(d) {
+        if (hover && d3.select(this).attr("stroke") == "#ddd") {
+           return 0.25
+        } return 0.75;
+      })
+  }
       
   link.exit().transition().duration(vizwhiz.timing)
     .attr("opacity",0)
@@ -6154,6 +6177,7 @@ vizwhiz.rings = function(vars) {
         "data": tooltip_data,
         "x": vars.width-tooltip_width-5,
         "y": vars.margin.top+5,
+        "max_height": vars.height-10,
         "fixed": true,
         "width": tooltip_width,
         "mouseevents": true,

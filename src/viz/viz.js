@@ -532,15 +532,21 @@ vizwhiz.viz = function() {
       vars.svg_enter.append("clipPath")
         .attr("id","clipping")
         .append("rect")
+          .attr("id","parent_clip")
           .attr("width",vars.width)
           .attr("height",vars.height)
     
       vars.parent_enter = vars.svg_enter.append("g")
         .attr("class","parent")
+        .attr("clip-path","url(#clipping)")
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       vars.svg.select("g.parent").transition().duration(vizwhiz.timing)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+    
+      vars.svg.select("rect#parent_clip").transition().duration(vizwhiz.timing)
+        .attr("width",vars.width)
+        .attr("height",vars.height)
       
       vars.parent_enter.append("defs")
       vars.defs = d3.select("g.parent").select("defs")
@@ -884,7 +890,7 @@ vizwhiz.viz = function() {
           window.open(link,target)
         }
       })
-    
+      
     source.transition().duration(vizwhiz.evt.timing)
       .attr("opacity",1)
       .attr("x",vars.svg_width/2)
@@ -899,6 +905,8 @@ vizwhiz.viz = function() {
           "resize": false
         })
       })
+      .selectAll("tspan")
+        .attr("x",vars.svg_width/2)
       
     source.exit().transition().duration(vizwhiz.evt.timing)
       .attr("opacity",0)

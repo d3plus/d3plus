@@ -270,6 +270,7 @@ vizwhiz.geo_map = function(vars) {
               
             vars.zoom = vars.map.zoom
             scale_update()
+            update()
             
             if (vars.coord_change) {
               if (vars.highlight) var z = d3.select("path#path"+vars.highlight).datum()
@@ -402,7 +403,8 @@ vizwhiz.geo_map = function(vars) {
           "html": html,
           "parent": vars.parent,
           "mouseevents": true,
-          "background": vars.background
+          "background": vars.background,
+          "max_height": vars.height-47
         })
         
       }

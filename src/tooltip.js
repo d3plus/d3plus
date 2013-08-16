@@ -52,6 +52,10 @@ vizwhiz.tooltip.create = function(params) {
     .attr("id","vizwhiz_tooltip_id_"+params.id)
     .attr("class","vizwhiz_tooltip vizwhiz_tooltip_"+params.size)
     
+  if (params.max_height) {
+    tooltip.style("max-height",params.max_height+"px")
+  }
+    
   if (params.fixed) {
     tooltip.style("z-index",500)
   }

@@ -45,7 +45,7 @@
           data[1].year = 2009
           
           clicker = function(obj) {
-            return "Some HTML Content"
+            return "Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content"
           }
           
           viz = vizwhiz.viz()
@@ -57,7 +57,7 @@
             .text_var("name")
             .tooltip_info({"short": [],"long": ["wage", "id", "num_emp"]})
             .click_function(clicker)
-            // .highlight("mg030000")
+            .highlight("mg030000")
             .year(2010)
             // .text_format(function(d){return d.toUpperCase()})
             .number_format(function(d){return "$"+Math.round(d)+" USD"})

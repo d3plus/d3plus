@@ -217,6 +217,7 @@ vizwhiz.network = function(vars) {
               "x": x_pos,
               "y": vars.margin.top+5,
               "width": info_width,
+              "max_height": vars.height-10,
               "html": tooltip_appends+html,
               "fixed": true,
               "mouseevents": true,
@@ -288,7 +289,7 @@ vizwhiz.network = function(vars) {
 
   //===================================================================
     
-
+  vizwhiz.tooltip.remove(vars.type)
   var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x})
   var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y})
   var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0])
