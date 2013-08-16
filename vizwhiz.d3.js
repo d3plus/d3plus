@@ -1855,7 +1855,8 @@ vizwhiz.viz = function() {
       if (dat && typeof dat[variable] != "undefined") value = dat[variable]
       else if (attr && typeof attr[variable] != "undefined") value = attr[variable]
     }
-    
+
+    if (value === null) value = 0
     if (variable == vars.text_var && value) {
       return vars.text_format(value)
     }
