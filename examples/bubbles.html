@@ -39,12 +39,17 @@
         obj.nesting_2 = {"name":attr[d.id.slice(0, 6)].name, "id":d.id.slice(0, 6)};
         obj.importance = Math.floor(Math.random() * (10 - 2 + 1)) + 2;
         obj.total = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
-        obj.Employed = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
+        obj.employed = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
         obj.elsewhere = Math.floor(Math.random() * (20 - 2 + 1)) + 2;
         if (obj.Employed/obj.total >= 1) obj.active = true;
         else obj.active = false;
         data2010.push(obj)
       })
+      
+      // data2010 = [data2010.filter(function(d){return d.year == 2010})[5]]
+      // data2010[0].employed = 2
+      // data2010[0].elsewhere = 4
+      // data2010[0].total = 8
       
       viz = vizwhiz.viz()
         .type("bubbles")
@@ -52,7 +57,7 @@
         .attrs(attr)
         .value_var("importance")
         .text_var("name")
-        .active_var("Employed")
+        .active_var("employed")
         .tooltip_info({"short": [],"long": ["Employed","elsewhere","total","val_usd","val_quantity","val_kg"]})
         .grouping("id")
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})

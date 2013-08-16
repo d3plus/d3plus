@@ -5604,11 +5604,36 @@ vizwhiz.bubbles = function(vars) {
         vars.arc_angles[d[vars.id_var]+"_else"] = 0
         vars.arc_sizes[d[vars.id_var]+"_else"] = 0
         vars.arc_inners[d[vars.id_var]+"_else"] = 0
+        
+        vars.defs.select("pattern#hatch"+d[vars.id_var]).remove()
+        
+        var pattern = vars.defs.append("pattern")
+          .attr("id","hatch"+d[vars.id_var])
+          .attr("patternUnits","userSpaceOnUse")
+          .attr("x","0")
+          .attr("y","0")
+          .attr("width","10")
+          .attr("height","10")
+          .append("g")
+            
+        pattern.append("rect")
+          .attr("x","0")
+          .attr("y","0")
+          .attr("width","10")
+          .attr("height","10")
+            .style("fill",color)
+            .style("fill-opacity",0.25)
+            
+        pattern.append("path")
+          .attr("d","M0,0 l10,10")
+          .style("stroke",color)
+          .style("stroke-width",1)
       
         d3.select(this).append("path")
           .attr("class","elsewhere")
-          .style('fill', color)
-          .style('fill-opacity', 0.5 )
+          .style("fill", "url(#hatch"+d[vars.id_var]+")")
+          .style("stroke",color)
+          .style("stroke-width",1)
       
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
           .attrTween("d",arcTween_else)
@@ -5814,7 +5839,6 @@ vizwhiz.bubbles = function(vars) {
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
     
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
-          .style('fill', color)
           .attrTween("d",arcTween_else)
           .each("end", function() {
             vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
