@@ -208,6 +208,8 @@ vizwhiz.network = function(vars) {
               tooltip_appends += "</div>"
               tooltip_appends += "</div>"
             })
+            
+            vizwhiz.tooltip.remove(vars.type)
           
             vizwhiz.tooltip.create({
               "data": tooltip_data,

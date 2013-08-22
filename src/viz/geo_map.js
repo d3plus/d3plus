@@ -212,7 +212,7 @@ vizwhiz.geo_map = function(vars) {
               .data(vars.coords)
         
             paths.enter().append("path")
-                .attr("id",function(d) { return "path"+d.id } )
+                .attr("id",function(d) { return "path"+d[vars.id_var] } )
                 .attr("d", path)
                 .attr("opacity",default_opacity)
                 .call(color_paths)
@@ -386,6 +386,8 @@ vizwhiz.geo_map = function(vars) {
       }
       
       make_tooltip = function(html) {
+    
+        vizwhiz.tooltip.remove(vars.type);
         
         if (typeof html == "string") html = "<br>"+html
 
