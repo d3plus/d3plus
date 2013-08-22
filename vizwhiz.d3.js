@@ -1295,19 +1295,18 @@ vizwhiz.viz = function() {
           if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
             vars.color_domain[2] = vars.color_domain[1]
             vars.color_domain[1] = 0
-            var cr = vars.color_range
           }
           else if (vars.color_domain[1] > 0) {
             vars.color_domain[0] = 0
-            var cr = [vars.color_range[1],vars.color_range[2]]
+            vars.color_domain.unshift(0)
           }
           else if (vars.color_domain[0] < 0) {
             vars.color_domain[1] = 0
-            var cr = [vars.color_range[0],vars.color_range[1]]
+            vars.color_domain.push(0)
           }
           vars.color_scale
             .domain(vars.color_domain)
-            .range(cr)
+            .range(vars.color_range)
         }
         
       }
