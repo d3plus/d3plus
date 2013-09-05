@@ -1318,6 +1318,10 @@ vizwhiz.viz = function() {
             data_range.push(find_variable(d,vars.color_var))
           })
         }
+        
+        data_range = data_range.filter(function(d){
+          return d;
+        })
       
         if (typeof data_range[0] == "number") {
           data_range.sort(function(a,b) {return a-b})
