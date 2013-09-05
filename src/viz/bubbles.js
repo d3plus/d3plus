@@ -110,7 +110,7 @@ vizwhiz.bubbles = function(vars) {
     if (d.depth == 1) {
       
       if (vars.grouping != "active") {
-        var color = find_color(d.children[0][vars.id_var],vars.color_var);
+        var color = find_color(d.children[0][vars.id_var]);
       }
       else {
         var color = "#cccccc";
@@ -286,7 +286,7 @@ vizwhiz.bubbles = function(vars) {
       vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
       vars.arc_inners[d[vars.id_var]+"_bg"] = 0
       
-      var color = find_color(d[vars.id_var],vars.color_var)
+      var color = find_color(d[vars.id_var])
       
       var bg_color = d3.hsl(color)
       bg_color.l = 0.95
@@ -432,7 +432,7 @@ vizwhiz.bubbles = function(vars) {
       
       vizwhiz.tooltip.create({
         "id": vars.type,
-        "color": find_color(d[vars.id_var],vars.color_var),
+        "color": find_color(d[vars.id_var]),
         "icon": find_variable(d[vars.id_var],"icon"),
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
@@ -461,7 +461,7 @@ vizwhiz.bubbles = function(vars) {
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),
-          "color": find_color(d,vars.color_var),
+          "color": find_color(d),
           "icon": find_variable(d,"icon"),
           "id": vars.type,
           "fullscreen": true,
@@ -497,7 +497,7 @@ vizwhiz.bubbles = function(vars) {
       else d.arc_inner_bg = 0;
       d.arc_radius_bg = d.r;
       
-      var color = find_color(d[vars.id_var],vars.color_var)
+      var color = find_color(d[vars.id_var])
       
       var bg_color = d3.hsl(color)
       bg_color.l = 0.95
@@ -539,8 +539,15 @@ vizwhiz.bubbles = function(vars) {
       
         d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
+        
+        d3.select("pattern#hatch"+d[vars.id_var]).select("rect").transition().duration(vizwhiz.timing)
+          .style("fill",color)
+        
+        d3.select("pattern#hatch"+d[vars.id_var]).select("path").transition().duration(vizwhiz.timing)
+          .style("stroke",color)
     
         d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+          .style("stroke",color)
           .attrTween("d",arcTween_else)
           .each("end", function() {
             vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else

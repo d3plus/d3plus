@@ -226,7 +226,7 @@ vizwhiz.rings = function(vars) {
       vizwhiz.tooltip.remove(vars.type)
       vizwhiz.tooltip.create({
         "title": find_variable(vars.highlight,vars.text_var),
-        "color": find_color(vars.highlight,vars.color_var),
+        "color": find_color(vars.highlight),
         "icon": find_variable(vars.highlight,"icon"),
         "id": vars.type,
         "html": tooltip_appends+html,
@@ -386,7 +386,7 @@ vizwhiz.rings = function(vars) {
     root[vars.text_var] = find_variable(vars.highlight,vars.text_var)
     root[vars.id_var] = vars.highlight
     root.children = []
-    root[vars.color_var] = find_color(vars.highlight,vars.color_var)
+    root[vars.color_var] = find_color(vars.highlight)
     root[vars.active_var] = find_variable(vars.highlight,vars.active_var)
   
     nodes.push(root);
@@ -403,7 +403,7 @@ vizwhiz.rings = function(vars) {
         child[vars.text_var] = find_variable(child[vars.id_var],vars.text_var)
         child.children = []
         child.children_total = []
-        child[vars.color_var] = find_color(child[vars.id_var],vars.color_var)
+        child[vars.color_var] = find_color(child[vars.id_var])
         child[vars.active_var] = find_variable(child[vars.id_var],vars.active_var)
   
         // push first level child into nodes
@@ -436,7 +436,7 @@ vizwhiz.rings = function(vars) {
               grandchild.ring_y = ring_width*2;
               grandchild.depth = 2;
               grandchild[vars.text_var] = find_variable(grandchild[vars.id_var],vars.text_var)
-              grandchild[vars.color_var] = find_color(grandchild[vars.id_var],vars.color_var)
+              grandchild[vars.color_var] = find_color(grandchild[vars.id_var])
               grandchild[vars.active_var] = find_variable(grandchild[vars.id_var],vars.active_var)
               grandchild.parents = []
 

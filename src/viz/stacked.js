@@ -96,7 +96,7 @@ vizwhiz.stacked = function(vars) {
     })
     .attr("class", "layer")
     .attr("fill", function(d){
-      return find_color(d.key,vars.color_var)
+      return find_color(d.key)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -148,7 +148,7 @@ vizwhiz.stacked = function(vars) {
         "title": find_variable(d[vars.id_var],vars.text_var),
         "id": vars.type,
         "icon": find_variable(d[vars.id_var],"icon"),
-        "color": find_color(d[vars.id_var],vars.color_var),
+        "color": find_color(d[vars.id_var]),
         "x": tooltip_x,
         "y": tooltip_y,
         "offset": (path_height/2),
@@ -190,7 +190,7 @@ vizwhiz.stacked = function(vars) {
         "title": find_variable(d[vars.id_var],vars.text_var),
         "id": vars.type,
         "icon": find_variable(d[vars.id_var],"icon"),
-        "color": find_color(d[vars.id_var],vars.color_var),
+        "color": find_color(d[vars.id_var]),
         "x": tooltip_x,
         "y": tooltip_y,
         "offset": (path_height/2),
@@ -236,7 +236,7 @@ vizwhiz.stacked = function(vars) {
         
         vizwhiz.tooltip.create({
           "title": find_variable(d[vars.id_var],vars.text_var),
-          "color": find_color(d[vars.id_var],vars.color_var),
+          "color": find_color(d[vars.id_var]),
           "icon": find_variable(d[vars.id_var],"icon"),
           "id": vars.type,
           "fullscreen": true,
@@ -268,7 +268,7 @@ vizwhiz.stacked = function(vars) {
   paths.transition().duration(vizwhiz.timing)
     .attr("opacity", 0.85)
     .attr("fill", function(d){
-      return find_color(d.key,vars.color_var)
+      return find_color(d.key)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -398,7 +398,7 @@ vizwhiz.stacked = function(vars) {
       return "middle"
     })
     .attr("fill", function(d){
-      return vizwhiz.utils.text_color(find_color(d[vars.id_var],vars.color_var))
+      return vizwhiz.utils.text_color(find_color(d[vars.id_var]))
     })
     .attr("x", function(d){
       var pad = 0;

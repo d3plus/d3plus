@@ -48,7 +48,7 @@ vizwhiz.tree_map = function(vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      return find_color(d,vars.color_var);
+      return find_color(d);
     })
     .attr("shape-rendering","crispEdges")
     
@@ -63,7 +63,7 @@ vizwhiz.tree_map = function(vars) {
     .attr('y','0em')
     .attr('dy','0em')
     .attr("fill", function(d){ 
-      var color = find_color(d,vars.color_var)
+      var color = find_color(d)
       return vizwhiz.utils.text_color(color); 
     })
     .style("pointer-events","none")
@@ -75,7 +75,7 @@ vizwhiz.tree_map = function(vars) {
     .style("font-weight",vars.font_weight)
     .attr("font-family",vars.font)
     .attr("fill", function(d){
-      var color = find_color(d,vars.color_var)
+      var color = find_color(d)
       return vizwhiz.utils.text_color(color); 
     })
     .attr("fill-opacity",0.5)
@@ -130,7 +130,7 @@ vizwhiz.tree_map = function(vars) {
       
       vizwhiz.tooltip.create({
         "title": find_variable(d,vars.text_var),
-        "color": find_color(d,vars.color_var),
+        "color": find_color(d),
         "icon": find_variable(d,"icon"),
         "id": vars.type,
         "x": d3.event.pageX,
@@ -170,7 +170,7 @@ vizwhiz.tree_map = function(vars) {
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),
-          "color": find_color(d,vars.color_var),
+          "color": find_color(d),
           "icon": find_variable(d,"icon"),
           "id": vars.type,
           "fullscreen": true,
@@ -217,7 +217,7 @@ vizwhiz.tree_map = function(vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      return find_color(d,vars.color_var);
+      return find_color(d);
     })
 
   // text (name)
@@ -225,7 +225,7 @@ vizwhiz.tree_map = function(vars) {
     .duration(vizwhiz.timing/2)
     .attr("opacity", 0)
     .attr("fill", function(d){ 
-      var color = find_color(d,vars.color_var)
+      var color = find_color(d)
       return vizwhiz.utils.text_color(color); 
     })
     .transition().duration(vizwhiz.timing/2)
@@ -263,7 +263,7 @@ vizwhiz.tree_map = function(vars) {
   cell.select("text.share").transition().duration(vizwhiz.timing/2)
     .attr("opacity", 0)
     .attr("fill", function(d){ 
-      var color = find_color(d,vars.color_var)
+      var color = find_color(d)
       return vizwhiz.utils.text_color(color); 
     })
     .each("end",function(d){

@@ -214,7 +214,7 @@ vizwhiz.network = function(vars) {
             vizwhiz.tooltip.create({
               "data": tooltip_data,
               "title": find_variable(vars.highlight,vars.text_var),
-              "color": find_color(vars.highlight,vars.color_var),
+              "color": find_color(vars.highlight),
               "icon": find_variable(vars.highlight,"icon"),
               "x": x_pos,
               "y": vars.margin.top+5,
@@ -588,7 +588,7 @@ vizwhiz.network = function(vars) {
   function fill_color(d) {
     
     // Get elements' color
-    var color = find_color(d[vars.id_var],vars.color_var)
+    var color = find_color(d[vars.id_var])
     
     // If node is not active, lighten the color
     var active = find_variable(d[vars.id_var],vars.active_var)
@@ -605,7 +605,7 @@ vizwhiz.network = function(vars) {
   function stroke_color(d) {
     
     // Get elements' color
-    var color = find_color(d[vars.id_var],vars.color_var)
+    var color = find_color(d[vars.id_var])
     
     // If node is active, return a darker color, else, return the normal color
     var active = find_variable(d[vars.id_var],vars.active_var)

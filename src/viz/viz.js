@@ -9,7 +9,6 @@ vizwhiz.viz = function() {
     "arc_angles": {},
     "arc_inners": {},
     "arc_sizes": {},
-    "axis_change": true,
     "attrs": null,
     "background": "#ffffff",
     "boundaries": null,
@@ -118,6 +117,10 @@ vizwhiz.viz = function() {
   var data_obj = {"raw": null},
       error = false,
       filter_change = false,
+      solo_change = false,
+      value_change = false,
+      xaxis_change = false,
+      yaxis_change = false,
       footer = true,
       nodes,
       links,
@@ -152,16 +155,31 @@ vizwhiz.viz = function() {
         // Copy data to "raw_data" variable
         data_obj = {}
         vars.keys = {}
-        data_obj.raw = data_passed.filter(function(d){
+        data_obj.raw = data_passed
+        
+        data_passed.forEach(function(d){
           for (k in d) {
             if (!vars.keys[k] && d[k]) {
               vars.keys[k] = typeof d[k]
             }
           }
-          return true;
         })
-        data_obj.filtered = filter_check(data_obj.raw)
+        
+        var changed = []
+        if (filter_change) changed.push("filter")
+        if (solo_change) changed.push("solo")
+        if (value_change && vars.value_var) changed.push(vars.value_var)
+        if (xaxis_change && vars.xaxis_var) changed.push(vars.xaxis_var)
+        if (yaxis_change && vars.yaxis_var) changed.push(vars.yaxis_var)
+        
+        data_obj.filtered = filter_check(data_obj.raw,changed)
         vars.parent = d3.select(this)
+        
+        filter_change = false
+        solo_change = false
+        value_change = false
+        xaxis_change = false
+        yaxis_change = false
         
         if (vars.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
         // Find available years
@@ -188,10 +206,16 @@ vizwhiz.viz = function() {
         vars.yaxis_var = vars.value_var
       }
       
-      if (filter_change || 
-          (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && axis_change)) {
+      var changed = []
+      if (filter_change) changed.push("filter")
+      if (solo_change) changed.push("solo")
+      if (value_change && vars.value_var) changed.push(vars.value_var)
+      if (xaxis_change && vars.xaxis_var) changed.push(vars.xaxis_var)
+      if (yaxis_change && vars.yaxis_var) changed.push(vars.yaxis_var)
+      
+      if (changed.length) {
         delete data_obj[data_type[vars.type]]
-        data_obj.filtered = filter_check(data_obj.raw)
+        data_obj.filtered = filter_check(data_obj.raw,changed)
         if (vars.years.length) {
           vars.years.forEach(function(y){
             data_obj.year[y] = data_obj.filtered.filter(function(d){
@@ -200,6 +224,12 @@ vizwhiz.viz = function() {
           })
         }
       }
+      
+      filter_change = false
+      solo_change = false
+      value_change = false
+      xaxis_change = false
+      yaxis_change = false
 
       if (!data_obj[data_type[vars.type]]) {
         
@@ -461,6 +491,10 @@ vizwhiz.viz = function() {
             data_range.push(find_variable(d,vars.color_var))
           })
         }
+        
+        data_range = data_range.filter(function(d){
+          return d;
+        })
       
         if (typeof data_range[0] == "number") {
           data_range.sort(function(a,b) {return a-b})
@@ -564,10 +598,6 @@ vizwhiz.viz = function() {
           .text(vars.text_format("Loading..."))
       
       // vars.loader.select("div#vizwhiz_loader_text").transition().duration(vizwhiz.timing)
-      
-        
-      filter_change = false
-      axis_change = false
 
       if (!error && !vars.data) {
         vars.error = vars.text_format("No Data Available","error")
@@ -604,23 +634,26 @@ vizwhiz.viz = function() {
   // Helper Functions
   //-------------------------------------------------------------------
 
-  filter_check = function(check_data) {
+  filter_check = function(check_data,keys) {
     
-    if (vars.dev) console.log("[viz-whiz] Removing Solo/Filters")
+    if (vars.dev) console.log("[viz-whiz] Filtering Data")
     
-    var graph_type = ["stacked","pie_scatter"].indexOf(vars.type) >= 0
-      
     return check_data.filter(function(d){
       
-      if (vars.xaxis_var && graph_type) {
-        if (typeof d[vars.xaxis_var] == "undefined" || !d[vars.xaxis_var]) return false
-      }
-      if (vars.yaxis_var && graph_type) {
-        if (typeof d[vars.yaxis_var] == "undefined" || !d[vars.yaxis_var]) return false
-      }
-      if (vars.type != "rings" && (typeof d[vars.value_var] == "undefined" || !d[vars.value_var])) return false
+      var ret = true
+      keys.forEach(function(key){
+        if (ret) {
+          if (key == "filter" || key == "solo") {
+            ret = true_filter(d)
+          }
+          else if (key != vars.value_var || vars.type != "rings") {
+            var value = find_variable(d,key)
+            if (!value) ret = false
+          }
+        }
+      })
+      return ret
       
-      return true_filter(d)
     })
       
   }
@@ -1048,8 +1081,8 @@ vizwhiz.viz = function() {
     
   }
   
-  find_color = function(id,variable) {
-    var color = find_variable(id,variable)
+  find_color = function(id) {
+    var color = find_variable(id,vars.color_var)
     if (!color) return "#ccc"
     else if (typeof color == "string") return color
     else return vars.color_scale(color)
@@ -1071,11 +1104,9 @@ vizwhiz.viz = function() {
   //-------------------------------------------------------------------
   
   chart.active_var = function(x) {
-    if (!arguments.length) return vars.active_var;
-    filter_change = true
-    vars.active_var = x;
-    filter_change = true;
-    return chart;
+    if (!arguments.length) return vars.active_var
+    vars.active_var = x
+    return chart
   };
   
   chart.attrs = function(x) {
@@ -1105,7 +1136,6 @@ vizwhiz.viz = function() {
   chart.color_var = function(x) {
     if (!arguments.length) return vars.color_var;
     vars.color_var = x;
-    filter_change = true;
     return chart;
   };
   
@@ -1286,7 +1316,6 @@ vizwhiz.viz = function() {
   chart.grouping = function(x) {
     if (!arguments.length) return vars.grouping;
     vars.grouping = x;
-    filter_change = true;
     return chart;
   };
 
@@ -1365,7 +1394,6 @@ vizwhiz.viz = function() {
   chart.order = function(x) {
     if (!arguments.length) return vars.order;
     vars.order = x;
-    filter_change = true;
     return chart;
   };
   
@@ -1392,14 +1420,13 @@ vizwhiz.viz = function() {
         vars.solo.push(x)
       }
     }
-    filter_change = true
+    solo_change = true
     return chart;
   };
   
   chart.sort = function(x) {
     if (!arguments.length) return vars.sort;
     vars.sort = x;
-    filter_change = true;
     return chart;
   };
   
@@ -1498,7 +1525,7 @@ vizwhiz.viz = function() {
   chart.value_var = function(x) {
     if (!arguments.length) return vars.value_var;
     vars.value_var = x;
-    filter_change = true;
+    value_change = true;
     return chart;
   };
 
@@ -1517,7 +1544,7 @@ vizwhiz.viz = function() {
   chart.xaxis_var = function(x) {
     if (!arguments.length) return vars.xaxis_var;
     vars.xaxis_var = x;
-    axis_change = true;
+    xaxis_change = true;
     return chart;
   };
   
@@ -1536,7 +1563,7 @@ vizwhiz.viz = function() {
   chart.yaxis_var = function(x) {
     if (!arguments.length) return vars.yaxis_var;
     vars.yaxis_var = x;
-    axis_change = true;
+    yaxis_change = true;
     return chart;
   };
   
