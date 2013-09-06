@@ -1245,6 +1245,10 @@ vizwhiz.viz = function() {
           vars.yaxis_domain[1] += 1
         }
       }
+      
+      if (!vars.xaxis_domain) vars.xaxis_domain = [0,0]
+      if (!vars.yaxis_domain) vars.yaxis_domain = [0,0]
+      
       // Calculate total_bar value
       if (!vars.data || !vars.total_bar || vars.type == "stacked") {
         var total_val = null
@@ -4952,7 +4956,7 @@ vizwhiz.pie_scatter = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Graph setup
   //-------------------------------------------------------------------
-    
+  
   // Create Axes
   vars.x_scale = d3.scale[vars.xscale_type]()
     .domain(vars.xaxis_domain)

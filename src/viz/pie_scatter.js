@@ -27,7 +27,7 @@ vizwhiz.pie_scatter = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Graph setup
   //-------------------------------------------------------------------
-    
+  
   // Create Axes
   vars.x_scale = d3.scale[vars.xscale_type]()
     .domain(vars.xaxis_domain)
