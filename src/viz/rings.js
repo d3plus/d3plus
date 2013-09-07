@@ -228,6 +228,7 @@ vizwhiz.rings = function(vars) {
         "title": find_variable(vars.highlight,vars.text_var),
         "color": find_color(vars.highlight),
         "icon": find_variable(vars.highlight,"icon"),
+        "style": vars.icon_style,
         "id": vars.type,
         "html": tooltip_appends+html,
         "footer": vars.data_source,

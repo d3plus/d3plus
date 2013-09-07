@@ -397,6 +397,7 @@ vizwhiz.geo_map = function(vars) {
           "title": find_variable(id,vars.text_var),
           "id": vars.type,
           "icon": find_variable(id,"icon"),
+          "style": vars.icon_style,
           "color": color,
           "footer": footer,
           "x": vars.width-info_width-5+vars.margin.left,

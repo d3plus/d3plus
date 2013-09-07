@@ -1428,6 +1428,11 @@ vizwhiz.viz = function() {
           .style("font-weight",vars.font_weight)
           .text(vars.text_format("Loading..."))
       
+      if (vars.loader_style) {
+        vars.loader.select("#vizwhiz_loader_text")
+          .style(vars.loader_style)
+      }
+      
       // vars.loader.select("div#vizwhiz_loader_text").transition().duration(vizwhiz.timing)
 
       if (!error && !vars.data) {
@@ -2183,6 +2188,12 @@ vizwhiz.viz = function() {
   chart.links = function(x) {
     if (!arguments.length) return vars.links;
     links = x;
+    return chart;
+  };
+  
+  chart.loader_style = function(x) {
+    if (!arguments.length) return vars.loader_style;
+    vars.loader_style = x;
     return chart;
   };
 
@@ -4371,6 +4382,7 @@ vizwhiz.geo_map = function(vars) {
         panControl: false,
         streetViewControl: false,
         zoomControl: false,
+        scrollwheel: false,
         mapTypeId: google.maps.MapTypeId.TERRAIN
       })
   
@@ -4505,7 +4517,7 @@ vizwhiz.geo_map = function(vars) {
           var self = this
           
           setTimeout(function(){
-            
+
             projection = self.getProjection()
             gmap_projection = function (coordinates) {
               var googleCoordinates = new google.maps.LatLng(coordinates[1], coordinates[0]);
@@ -4524,7 +4536,7 @@ vizwhiz.geo_map = function(vars) {
                 .attr("opacity",default_opacity)
                 .call(color_paths)
                 .attr("vector-effect","non-scaling-stroke")
-          
+
             if (vars.map.zoom != vars.zoom) {
               paths.attr("d",path)
             }
@@ -4588,7 +4600,7 @@ vizwhiz.geo_map = function(vars) {
             }
           
             vars.loader.style("display","none")
-            
+
           },5)
         
         }

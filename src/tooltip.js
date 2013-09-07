@@ -17,6 +17,7 @@ vizwhiz.tooltip.create = function(params) {
   params.color = params.color ? params.color : "#333"
   params.parent = params.parent ? params.parent : d3.select("body")
   params.background = params.background ? params.background : "#ffffff"
+  params.style = params.style ? params.style : "default"
   
   params.anchor = {}
   if (params.fullscreen) {
@@ -158,7 +159,11 @@ vizwhiz.tooltip.create = function(params) {
     var title_icon = header.append("div")
       .attr("class","vizwhiz_tooltip_icon")
       .style("background-image","url("+params.icon+")")
-      .style("background-color",params.color)
+      
+    if (params.style == "knockout") {
+      title_icon.style("background-color",params.color)
+    }
+    
     title_width -= title_icon.node().offsetWidth
   }
   

@@ -37,6 +37,7 @@ vizwhiz.viz = function() {
     "grouping": "name",
     "highlight": null,
     "highlight_color": "#cc0000",
+    "icon_style": "default",
     "id_var": "id",
     "init": true,
     "keys": [],
@@ -1337,6 +1338,12 @@ vizwhiz.viz = function() {
   chart.highlight = function(value) {
     if (!arguments.length) return vars.highlight;
     vars.highlight = value;
+    return chart;
+  };
+  
+  chart.icon_style = function(x) {
+    if (!arguments.length) return vars.icon_style;
+    vars.icon_style = x;
     return chart;
   };
   
