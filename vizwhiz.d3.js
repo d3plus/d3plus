@@ -764,6 +764,7 @@ vizwhiz.error = function(vars) {
       .attr("text-anchor", "middle")
       .attr("font-family", vars.font)
       .style("font-weight", vars.font_weight)
+      .style(vars.info_style)
       .each(function(d){
         vizwhiz.utils.wordwrap({
           "text": d,
@@ -1432,12 +1433,8 @@ vizwhiz.viz = function() {
           .attr("id","vizwhiz_loader_text")
           .style("font-family",vars.font)
           .style("font-weight",vars.font_weight)
+          .style(vars.info_style)
           .text(vars.text_format("Loading..."))
-      
-      if (vars.loader_style) {
-        vars.loader.select("#vizwhiz_loader_text")
-          .style(vars.loader_style)
-      }
       
       // vars.loader.select("div#vizwhiz_loader_text").transition().duration(vizwhiz.timing)
 
@@ -2203,9 +2200,9 @@ vizwhiz.viz = function() {
     return chart;
   };
   
-  chart.loader_style = function(x) {
-    if (!arguments.length) return vars.loader_style;
-    vars.loader_style = x;
+  chart.info_style = function(x) {
+    if (!arguments.length) return vars.info_style;
+    vars.info_style = x;
     return chart;
   };
 

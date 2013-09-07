@@ -13,6 +13,7 @@ vizwhiz.error = function(vars) {
       .attr("text-anchor", "middle")
       .attr("font-family", vars.font)
       .style("font-weight", vars.font_weight)
+      .style(vars.info_style)
       .each(function(d){
         vizwhiz.utils.wordwrap({
           "text": d,
