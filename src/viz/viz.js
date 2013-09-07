@@ -601,6 +601,11 @@ vizwhiz.viz = function() {
           .style("font-weight",vars.font_weight)
           .text(vars.text_format("Loading..."))
       
+      if (vars.loader_style) {
+        vars.loader.select("#vizwhiz_loader_text")
+          .style(vars.loader_style)
+      }
+      
       // vars.loader.select("div#vizwhiz_loader_text").transition().duration(vizwhiz.timing)
 
       if (!error && !vars.data) {
@@ -1356,6 +1361,12 @@ vizwhiz.viz = function() {
   chart.links = function(x) {
     if (!arguments.length) return vars.links;
     links = x;
+    return chart;
+  };
+  
+  chart.loader_style = function(x) {
+    if (!arguments.length) return vars.loader_style;
+    vars.loader_style = x;
     return chart;
   };
 

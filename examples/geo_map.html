@@ -61,6 +61,7 @@
             .year(2010)
             // .text_format(function(d){return d.toUpperCase()})
             .number_format(function(d){return "$"+Math.round(d)+" USD"})
+            // .loader_style({"color":"black","font-size":"10px"})
           
           d3.select("#viz")
             .datum(data)
