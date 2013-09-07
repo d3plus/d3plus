@@ -64,6 +64,7 @@ vizwhiz.geo_map = function(vars) {
         panControl: false,
         streetViewControl: false,
         zoomControl: false,
+        scrollwheel: false,
         mapTypeId: google.maps.MapTypeId.TERRAIN
       })
   
@@ -198,7 +199,7 @@ vizwhiz.geo_map = function(vars) {
           var self = this
           
           setTimeout(function(){
-            
+
             projection = self.getProjection()
             gmap_projection = function (coordinates) {
               var googleCoordinates = new google.maps.LatLng(coordinates[1], coordinates[0]);
@@ -217,7 +218,7 @@ vizwhiz.geo_map = function(vars) {
                 .attr("opacity",default_opacity)
                 .call(color_paths)
                 .attr("vector-effect","non-scaling-stroke")
-          
+
             if (vars.map.zoom != vars.zoom) {
               paths.attr("d",path)
             }
@@ -281,7 +282,7 @@ vizwhiz.geo_map = function(vars) {
             }
           
             vars.loader.style("display","none")
-            
+
           },5)
         
         }

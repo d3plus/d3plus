@@ -21,7 +21,7 @@ svg#gmap_overlay {
 div#vizwhiz_loader {
   height: 100%;
   left: 0px;
-  opacity: 0.5;
+  opacity: 1;
   position: absolute;
   top: 0px;
   width: 100%;
