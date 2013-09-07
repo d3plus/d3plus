@@ -284,6 +284,7 @@ vizwhiz.tooltip.create = function(params) {
   params.color = params.color ? params.color : "#333"
   params.parent = params.parent ? params.parent : d3.select("body")
   params.background = params.background ? params.background : "#ffffff"
+  params.style = params.style ? params.style : "default"
   
   params.anchor = {}
   if (params.fullscreen) {
@@ -425,7 +426,11 @@ vizwhiz.tooltip.create = function(params) {
     var title_icon = header.append("div")
       .attr("class","vizwhiz_tooltip_icon")
       .style("background-image","url("+params.icon+")")
-      .style("background-color",params.color)
+      
+    if (params.style == "knockout") {
+      title_icon.style("background-color",params.color)
+    }
+    
     title_width -= title_icon.node().offsetWidth
   }
   
@@ -864,6 +869,7 @@ vizwhiz.viz = function() {
     "grouping": "name",
     "highlight": null,
     "highlight_color": "#cc0000",
+    "icon_style": "default",
     "id_var": "id",
     "init": true,
     "keys": [],
@@ -2167,6 +2173,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.icon_style = function(x) {
+    if (!arguments.length) return vars.icon_style;
+    vars.icon_style = x;
+    return chart;
+  };
+  
   chart.id_var = function(x) {
     if (!arguments.length) return vars.id_var;
     vars.id_var = x;
@@ -2946,6 +2958,7 @@ vizwhiz.network = function(vars) {
               "title": find_variable(vars.highlight,vars.text_var),
               "color": find_color(vars.highlight),
               "icon": find_variable(vars.highlight,"icon"),
+              "style": vars.icon_style,
               "x": x_pos,
               "y": vars.margin.top+5,
               "width": info_width,
@@ -3629,6 +3642,7 @@ vizwhiz.stacked = function(vars) {
         "title": find_variable(d[vars.id_var],vars.text_var),
         "id": vars.type,
         "icon": find_variable(d[vars.id_var],"icon"),
+        "style": vars.icon_style,
         "color": find_color(d[vars.id_var]),
         "x": tooltip_x,
         "y": tooltip_y,
@@ -3671,6 +3685,7 @@ vizwhiz.stacked = function(vars) {
         "title": find_variable(d[vars.id_var],vars.text_var),
         "id": vars.type,
         "icon": find_variable(d[vars.id_var],"icon"),
+        "style": vars.icon_style,
         "color": find_color(d[vars.id_var]),
         "x": tooltip_x,
         "y": tooltip_y,
@@ -3719,6 +3734,7 @@ vizwhiz.stacked = function(vars) {
           "title": find_variable(d[vars.id_var],vars.text_var),
           "color": find_color(d[vars.id_var]),
           "icon": find_variable(d[vars.id_var],"icon"),
+          "style": vars.icon_style,
           "id": vars.type,
           "fullscreen": true,
           "html": html,
@@ -4138,6 +4154,7 @@ vizwhiz.tree_map = function(vars) {
         "title": find_variable(d,vars.text_var),
         "color": find_color(d),
         "icon": find_variable(d,"icon"),
+        "style": vars.icon_style,
         "id": vars.type,
         "x": d3.event.pageX,
         "y": d3.event.pageY,
@@ -4178,6 +4195,7 @@ vizwhiz.tree_map = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_color(d),
           "icon": find_variable(d,"icon"),
+          "style": vars.icon_style,
           "id": vars.type,
           "fullscreen": true,
           "html": html,
@@ -4715,6 +4733,7 @@ vizwhiz.geo_map = function(vars) {
           "title": find_variable(id,vars.text_var),
           "id": vars.type,
           "icon": find_variable(id,"icon"),
+          "style": vars.icon_style,
           "color": color,
           "footer": footer,
           "x": vars.width-info_width-5+vars.margin.left,
@@ -5102,6 +5121,7 @@ vizwhiz.pie_scatter = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_color(d),
           "icon": find_variable(d,"icon"),
+          "style": vars.icon_style,
           "id": vars.type,
           "fullscreen": true,
           "html": html,
@@ -5343,6 +5363,7 @@ vizwhiz.pie_scatter = function(vars) {
           "id": vars.type,
           "color": find_color(d[vars.id_var]),
           "icon": find_variable(d[vars.id_var],"icon"),
+          "style": vars.icon_style,
           "data": tooltip_data,
           "title": find_variable(d[vars.id_var],vars.text_var),
           "x": x+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
@@ -5794,6 +5815,7 @@ vizwhiz.bubbles = function(vars) {
         "id": vars.type,
         "color": find_color(d[vars.id_var]),
         "icon": find_variable(d[vars.id_var],"icon"),
+        "style": vars.icon_style,
         "data": tooltip_data,
         "title": find_variable(d[vars.id_var],vars.text_var),
         "x": d.x+vars.margin.left+vars.parent.node().offsetLeft,
@@ -5823,6 +5845,7 @@ vizwhiz.bubbles = function(vars) {
           "title": find_variable(d,vars.text_var),
           "color": find_color(d),
           "icon": find_variable(d,"icon"),
+          "style": vars.icon_style,
           "id": vars.type,
           "fullscreen": true,
           "html": html,
@@ -6224,6 +6247,7 @@ vizwhiz.rings = function(vars) {
         "title": find_variable(vars.highlight,vars.text_var),
         "color": find_color(vars.highlight),
         "icon": find_variable(vars.highlight,"icon"),
+        "style": vars.icon_style,
         "id": vars.type,
         "html": tooltip_appends+html,
         "footer": vars.data_source,
