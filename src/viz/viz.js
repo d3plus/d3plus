@@ -45,6 +45,7 @@ vizwhiz.viz = function() {
     "layout": "value",
     "links": null,
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
+    "mirror_axis": false,
     "name_array": null,
     "nesting": [],
     "nesting_aggs": {},
@@ -125,7 +126,6 @@ vizwhiz.viz = function() {
       footer = true,
       nodes,
       links,
-      mirror_axis = false,
       static_axis = true,
       xaxis_domain = null,
       yaxis_domain = null;
@@ -405,7 +405,7 @@ vizwhiz.viz = function() {
             return d[vars.yaxis_var]
           }).reverse()
         }
-        if (mirror_axis) {
+        if (vars.mirror_axis) {
           var domains = vars.yaxis_domain.concat(vars.xaxis_domain)
           vars.xaxis_domain = d3.extent(domains)
           vars.yaxis_domain = d3.extent(domains).reverse()
@@ -1374,8 +1374,8 @@ vizwhiz.viz = function() {
   };
 
   chart.mirror_axis = function(x) {
-    if (!arguments.length) return mirror_axis;
-    mirror_axis = x;
+    if (!arguments.length) return vars.mirror_axis;
+    vars.mirror_axis = x;
     return chart;
   };
   
@@ -1794,6 +1794,15 @@ vizwhiz.viz = function() {
       .attr("stroke-width",1)
       .attr("stroke","#ccc")
       .attr("shape-rendering","crispEdges")
+      
+    vars.mirror = vars.chart_enter.append("path")
+      .attr("id","mirror")
+      .attr("fill","#000")
+      .attr("fill-opacity",0.03)
+      // .attr("stroke-width",1)
+      // .attr("stroke","#ccc")
+      // .attr("shape-rendering","crispEdges")
+      .attr("opacity",0)
 
     // Create X axis
     vars.chart_enter.append("g")
@@ -1854,6 +1863,14 @@ vizwhiz.viz = function() {
       .select("rect#background")
         .attr('width', vars.graph.width)
         .attr('height', vars.graph.height)
+        
+    vars.mirror.transition().duration(vars.graph.timing)
+      .attr("opacity",function(){
+        return vars.mirror_axis ? 1 : 0
+      })
+      .attr("d",function(){
+        return "M "+vars.graph.width+" "+vars.graph.height+" L 0 "+vars.graph.height+" L "+vars.graph.width+" 0 Z"
+      })
 
     // Update X axis
     if (vars.type == "stacked") {
