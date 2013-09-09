@@ -2632,9 +2632,9 @@ vizwhiz.viz = function() {
       .attr("id","mirror")
       .attr("fill","#000")
       .attr("fill-opacity",0.03)
-      // .attr("stroke-width",1)
-      // .attr("stroke","#ccc")
-      // .attr("shape-rendering","crispEdges")
+      .attr("stroke-width",1)
+      .attr("stroke","#ccc")
+      .attr("stroke-dasharray","10,10")
       .attr("opacity",0)
 
     // Create X axis
