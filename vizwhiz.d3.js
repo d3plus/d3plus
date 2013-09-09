@@ -2628,7 +2628,7 @@ vizwhiz.viz = function() {
       .attr("stroke","#ccc")
       .attr("shape-rendering","crispEdges")
       
-    vars.mirror = vars.chart_enter.append("path")
+    vars.chart_enter.append("path")
       .attr("id","mirror")
       .attr("fill","#000")
       .attr("fill-opacity",0.03)
@@ -2697,7 +2697,7 @@ vizwhiz.viz = function() {
         .attr('width', vars.graph.width)
         .attr('height', vars.graph.height)
         
-    vars.mirror.transition().duration(vars.graph.timing)
+    d3.select("#mirror").transition().duration(vars.graph.timing)
       .attr("opacity",function(){
         return vars.mirror_axis ? 1 : 0
       })
