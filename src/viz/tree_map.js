@@ -1,5 +1,7 @@
 vizwhiz.tree_map = function(vars) {
   
+  var covered = false
+  
   // Ok, to get started, lets run our heirarchically nested
   // data object through the d3 treemap function to get a
   // flat array of data with X, Y, width and height vars
@@ -113,6 +115,29 @@ vizwhiz.tree_map = function(vars) {
   // Update, for cells that are already in existance
   //-------------------------------------------------------------------
   
+  small_tooltip = function(d) {
+
+    vizwhiz.tooltip.remove(vars.type)
+    var tooltip_data = get_tooltip_data(d,"short")
+    tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
+    
+    vizwhiz.tooltip.create({
+      "title": find_variable(d,vars.text_var),
+      "color": find_color(d),
+      "icon": find_variable(d,"icon"),
+      "style": vars.icon_style,
+      "id": vars.type,
+      "x": d3.event.pageX,
+      "y": d3.event.pageY,
+      "offset": 3,
+      "arrow": true,
+      "mouseevents": false,
+      "footer": footer_text(),
+      "data": tooltip_data
+    })
+    
+  }
+  
   cell
     .on(vizwhiz.evt.over,function(d){
       
@@ -125,23 +150,7 @@ vizwhiz.tree_map = function(vars) {
         .style("cursor","pointer")
         .attr("opacity",1)
 
-      var tooltip_data = get_tooltip_data(d,"short")
-      tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
-      
-      vizwhiz.tooltip.create({
-        "title": find_variable(d,vars.text_var),
-        "color": find_color(d),
-        "icon": find_variable(d,"icon"),
-        "style": vars.icon_style,
-        "id": vars.type,
-        "x": d3.event.pageX,
-        "y": d3.event.pageY,
-        "offset": 3,
-        "arrow": true,
-        "mouseevents": false,
-        "footer": footer_text(),
-        "data": tooltip_data
-      })
+      small_tooltip(d);
       
     })
     .on(vizwhiz.evt.out,function(d){
@@ -150,11 +159,15 @@ vizwhiz.tree_map = function(vars) {
       
       d3.select("#cell_"+id).select("rect")
         .attr("opacity",0.85)
-      
-      vizwhiz.tooltip.remove(vars.type)
+        
+      if (!covered) {
+        vizwhiz.tooltip.remove(vars.type)
+      }
       
     })
     .on(vizwhiz.evt.click,function(d){
+      
+      covered = true
         
       var id = find_variable(d,vars.id_var)
       var self = this
@@ -179,7 +192,7 @@ vizwhiz.tree_map = function(vars) {
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": self,
+          "mouseevents": true,
           "parent": vars.parent,
           "background": vars.background
         })
@@ -201,6 +214,7 @@ vizwhiz.tree_map = function(vars) {
       
     })
     .on(vizwhiz.evt.move,function(d){
+      covered = false
       vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,vars.type)
     })
   

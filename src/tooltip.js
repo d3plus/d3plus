@@ -4,7 +4,8 @@
 
 vizwhiz.tooltip.create = function(params) {
   
-  params.width = params.width ? params.width : 200
+  var default_width = params.fullscreen ? 250 : 200
+  params.width = params.width ? params.width : default_width
   params.max_width = params.max_width ? params.max_width : 386
   params.id = params.id ? params.id : "default"
   params.html = params.html ? params.html : null
@@ -18,6 +19,8 @@ vizwhiz.tooltip.create = function(params) {
   params.parent = params.parent ? params.parent : d3.select("body")
   params.background = params.background ? params.background : "#ffffff"
   params.style = params.style ? params.style : "default"
+  
+  vizwhiz.tooltip.remove("vizwhiz_tooltip_id_"+params.id)
   
   params.anchor = {}
   if (params.fullscreen) {
@@ -70,7 +73,6 @@ vizwhiz.tooltip.create = function(params) {
   
   if (params.fullscreen && params.html) {
     
-
     w = params.parent ? params.parent.node().offsetWidth*0.75 : window.innerWidth*0.75
     h = params.parent ? params.parent.node().offsetHeight*0.75 : window.innerHeight*0.75
     
@@ -112,8 +114,7 @@ vizwhiz.tooltip.create = function(params) {
   }
   
   if (!params.mouseevents) {
-    tooltip
-      .style("pointer-events","none")
+    tooltip.style("pointer-events","none")
   }
   else if (params.mouseevents !== true) {
     

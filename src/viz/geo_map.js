@@ -13,7 +13,9 @@ vizwhiz.geo_map = function(vars) {
       scale_padding = 20,
       scale_width = 250,
       info_width = vars.small ? 0 : 300,
-      redraw = false
+      redraw = false,
+      path_group = null,
+      path_defs = null
       
   vars.loading_text = vars.text_format("Loading Geography")
       
@@ -64,10 +66,10 @@ vizwhiz.geo_map = function(vars) {
         panControl: false,
         streetViewControl: false,
         zoomControl: false,
-        scrollwheel: false,
+        scrollwheel: vars.scroll_zoom,
         mapTypeId: google.maps.MapTypeId.TERRAIN
       })
-  
+      
       google.maps.event.addListener(vars.map,"drag", function(){
         dragging = true
       })
@@ -170,9 +172,11 @@ vizwhiz.geo_map = function(vars) {
     
         var layer = d3.select(this.getPanes().overlayMouseTarget).append("div")
 
-        var path_group = layer.append("svg")
+        path_group = layer.append("svg")
             .attr("id","gmap_overlay")
             .append("g")
+            
+        path_defs = path_group.append("defs")
         
         path_group.append("rect")
           .attr("class","overlay")
@@ -321,7 +325,7 @@ vizwhiz.geo_map = function(vars) {
     
     var bounds = d3.geo.bounds(d),
         gbounds = new google.maps.LatLngBounds()
-        
+    
     if (info_width > 0 && vars.highlight) {
       bounds[1][0] =  bounds[1][0]+(bounds[1][0]-bounds[0][0])
     }
@@ -333,7 +337,9 @@ vizwhiz.geo_map = function(vars) {
   }
   
   function color_paths(p) {
-    vars.defs.selectAll("#stroke_clip").remove();
+    
+    path_defs.selectAll("#stroke_clip").remove();
+    
     p
       .attr("fill",function(d){ 
         if (d[vars.id_var] == vars.highlight) return "none";
@@ -355,18 +361,18 @@ vizwhiz.geo_map = function(vars) {
         if (d[vars.id_var] == vars.highlight) return select_opacity;
         else return default_opacity;
       })
-      .attr("clip-path",function(d){ 
-        if (d[vars.id_var] == vars.highlight) return "url(#stroke_clip)";
-        else return "none"
-      })
       .each(function(d){
         if (d[vars.id_var] == vars.highlight) {
-          vars.defs.append("clipPath")
+          path_defs.append("clipPath")
             .attr("id","stroke_clip")
             .append("use")
               .attr("xlink:href","#path"+vars.highlight)
+          d3.select(this).attr("clip-path","url(#stroke_clip)")
         }
-      });
+        else {
+          d3.select(this).attr("clip-path","none")
+        }
+      })
   }
   
   function update() {
@@ -573,7 +579,7 @@ vizwhiz.geo_map = function(vars) {
       vars.data_range.forEach(function(v,i){
         var elem = d3.select("g.scale").select("text#scale_"+i)
         elem.text(vars.number_format(v,vars.value_var))
-        var w = elem.node().offsetWidth
+        var w = elem.node().getBBox().width
         if (w > max) max = w
       })
     

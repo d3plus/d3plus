@@ -392,6 +392,13 @@ vizwhiz.network = function(vars) {
       }
     });
     
+  if (!vars.scroll_zoom) {
+    d3.select(d3.select("g.viz").node().parentNode)
+      .on("mousewheel.zoom", null)
+      .on("DOMMouseScroll.zoom", null)
+      .on("wheel.zoom", null)
+  }
+    
   viz_enter.append('g')
     .attr('class','links')
     

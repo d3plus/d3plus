@@ -76,6 +76,7 @@ vizwhiz.viz = function() {
     },
     "order": "asc",
     "projection": d3.geo.mercator(),
+    "scroll_zoom": false,
     "secondary_color": "#ffdddd",
     "size_scale": null,
     "size_scale_type": "log",
@@ -146,7 +147,7 @@ vizwhiz.viz = function() {
 
   chart = function(selection) {
     selection.each(function(data_passed) {
-
+      
       if (vars.dev) console.log("[viz-whiz] *** Start Chart ***")
       
       // Things to do ONLY when the data has changed
@@ -875,7 +876,7 @@ vizwhiz.viz = function() {
         if (link.charAt(0) != "h" && link.charAt(0) != "/") {
           link = "http://"+link
         }
-        var d = [div.innerText]
+        var d = [div.getElementsByTagName("a")[0].innerHTML]
       }
       else {
         var d = [footer_text]
@@ -908,7 +909,7 @@ vizwhiz.viz = function() {
       .on(vizwhiz.evt.over,function(){
         if (link) {
           d3.select(this)
-            .attr("text-decoration","underline")
+            .style("text-decoration","underline")
             .style("cursor","pointer")
             .style("fill","#000")
         }
@@ -916,7 +917,7 @@ vizwhiz.viz = function() {
       .on(vizwhiz.evt.out,function(){
         if (link) {
           d3.select(this)
-            .attr("text-decoration","none")
+            .style("text-decoration","none")
             .style("cursor","auto")
             .style("fill","#333")
         }
@@ -951,14 +952,14 @@ vizwhiz.viz = function() {
       .remove()
       
     if (d.length) {
-      var height = d3.select("g.footer > text").node().offsetHeight
+      var height = source.node().getBBox().height
       vars.margin.bottom = height+padding*2
     }
     else {
       vars.margin.bottom = 0
     }
     
-    d3.select("g.footer").transition().duration(vizwhiz.evt.timing)
+    d3.select("g.footer")
       .attr("transform","translate(0,"+(vars.svg_height-vars.margin.bottom)+")")
     
   }
@@ -1212,20 +1213,50 @@ vizwhiz.viz = function() {
   chart.coords = function(x) {
     if (!arguments.length) return vars.coords;
     vars.coord_change = true
-    vars.coords = topojson.object(x, x.objects[Object.keys(x.objects)[0]]).geometries;
-    vars.boundaries = {"coordinates": [[]], "type": "Polygon"}
-    vars.coords.forEach(function(v,i){
-      v.coordinates.forEach(function(c){
-        c.forEach(function(a){
-          if (a.length == 2) vars.boundaries.coordinates[0].push(a)
-          else {
-            a.forEach(function(aa){
-              vars.boundaries.coordinates[0].push(aa)
-            })
-          }
-        })
-      })
-    })
+    vars.coords = topojson.feature(x, x.objects[Object.keys(x.objects)[0]]).features;
+    // vars.boundaries = {"geometry": {"coordinates": [[[null,null],[],[null,null],[],[]]], "type": "Polygon"}, "type": "Feature"}
+    
+    function polygon(ring) {
+      var polygon = [ring];
+      ring.push(ring[0]); // add closing coordinate
+      if (d3.geo.area({type: "Polygon", coordinates: polygon}) > 2 * Math.PI) ring.reverse(); // fix winding order
+      return polygon;
+    }
+    
+    var selectedStates = {type: "GeometryCollection", geometries: x.objects[Object.keys(x.objects)[0]].geometries},
+        selectionBoundary = topojson.mesh(x, selectedStates, function(a, b) { return a === b; })
+        
+    vars.boundaries = {type: "MultiPolygon", coordinates: selectionBoundary.coordinates.map(polygon)};
+    
+    // vars.coords.forEach(function(v,i){
+    //   v.geometry.coordinates.forEach(function(c){
+    //     c.forEach(function(a){
+    //       if (a.length == 2) {
+    //         if (!vars.boundaries.geometry.coordinates[0][0][0] || a[0] < vars.boundaries.geometry.coordinates[0][0][0]) {
+    //           vars.boundaries.geometry.coordinates[0][0][0] = a[0]
+    //         }
+    //         if (!vars.boundaries.geometry.coordinates[0][2][0] || a[0] > vars.boundaries.geometry.coordinates[0][2][0]) {
+    //           vars.boundaries.geometry.coordinates[0][2][0] = a[0]
+    //         }
+    //         if (!vars.boundaries.geometry.coordinates[0][0][1] || a[1] < vars.boundaries.geometry.coordinates[0][0][1]) {
+    //           vars.boundaries.geometry.coordinates[0][0][1] = a[1]
+    //         }
+    //         if (!vars.boundaries.geometry.coordinates[0][2][1] || a[1] > vars.boundaries.geometry.coordinates[0][2][1]) {
+    //           vars.boundaries.geometry.coordinates[0][2][1] = a[1]
+    //         }
+    //       }
+    //     })
+    //   })
+    // })
+    // vars.boundaries.geometry.coordinates[0][1] = [
+    //   vars.boundaries.geometry.coordinates[0][2][0],
+    //   vars.boundaries.geometry.coordinates[0][0][1]
+    // ]
+    // vars.boundaries.geometry.coordinates[0][3] = [
+    //   vars.boundaries.geometry.coordinates[0][0][0],
+    //   vars.boundaries.geometry.coordinates[0][2][1]
+    // ]
+    // vars.boundaries.geometry.coordinates[0][4] = vars.boundaries.geometry.coordinates[0][0]
     return chart;
   };
   
@@ -1412,6 +1443,12 @@ vizwhiz.viz = function() {
   chart.order = function(x) {
     if (!arguments.length) return vars.order;
     vars.order = x;
+    return chart;
+  };
+
+  chart.scroll_zoom = function(x) {
+    if (!arguments.length) return vars.scroll_zoom;
+    vars.scroll_zoom = x;
     return chart;
   };
   

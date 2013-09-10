@@ -1,6 +1,8 @@
 
 vizwhiz.pie_scatter = function(vars) {
   
+  var covered = false
+  
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scaling
   //-------------------------------------------------------------------
@@ -133,13 +135,124 @@ vizwhiz.pie_scatter = function(vars) {
   // update
   
   nodes
-    .on(vizwhiz.evt.over, hover())
-    .on(vizwhiz.evt.out, function(d){
+    .on(vizwhiz.evt.over, function(d){
+      covered = false
+      
+      var val = d[vars.value_var] ? d[vars.value_var] : vars.size_scale.domain()[0]
+      var radius = vars.size_scale(val),
+          x = vars.x_scale(d[vars.xaxis_var]),
+          y = vars.y_scale(d[vars.yaxis_var]),
+          color = d[vars.active_var] || d.num_children_active/d.num_children == 1 ? "#333" : find_color(d[vars.id_var]),
+          viz = d3.select("g.chart");
+          
+      // vertical line to x-axis
+      viz.append("line")
+        .attr("class", "axis_hover")
+        .attr("x1", x)
+        .attr("x2", x)
+        .attr("y1", y+radius+1) // offset so hover doens't flicker
+        .attr("y2", vars.graph.height)
+        .attr("stroke", color)
+        .attr("stroke-width", 1)
+        .attr("shape-rendering","crispEdges")
+    
+      // horizontal line to y-axis
+      viz.append("line")
+        .attr("class", "axis_hover")
+        .attr("x1", 0)
+        .attr("x2", x-radius) // offset so hover doens't flicker
+        .attr("y1", y)
+        .attr("y2", y)
+        .attr("stroke", color)
+        .attr("stroke-width", 1)
+        .attr("shape-rendering","crispEdges")
+    
+      // x-axis value box
+      viz.append("rect")
+        .attr("class", "axis_hover")
+        .attr("x", x-25)
+        .attr("y", vars.graph.height)
+        .attr("width", 50)
+        .attr("height", 20)
+        .attr("fill", "white")
+        .attr("stroke", color)
+        .attr("stroke-width", 1)
+        .attr("shape-rendering","crispEdges")
+    
+      var xtext = vars.number_format(d[vars.xaxis_var],vars.xaxis_var)
+      
+      // xvalue text element
+      viz.append("text")
+        .attr("class", "axis_hover")
+        .attr("x", x)
+        .attr("y", vars.graph.height)
+        .attr("dy", 14)
+        .attr("text-anchor","middle")
+        .style("font-weight",vars.font_weight)
+        .attr("font-size","12px")
+        .attr("font-family",vars.font)
+        .attr("fill","#4c4c4c")
+        .text(xtext)
+    
+      // y-axis value box
+      viz.append("rect")
+        .attr("class", "axis_hover")
+        .attr("x", -50)
+        .attr("y", y-10)
+        .attr("width", 50)
+        .attr("height", 20)
+        .attr("fill", "white")
+        .attr("stroke", color)
+        .attr("stroke-width", 1)
+        .attr("shape-rendering","crispEdges")
+      
+      var ytext = vars.number_format(d[vars.yaxis_var],vars.yaxis_var)
+      
+      // xvalue text element
+      viz.append("text")
+        .attr("class", "axis_hover")
+        .attr("x", -25)
+        .attr("y", y-10)
+        .attr("dy", 14)
+        .attr("text-anchor","middle")
+        .style("font-weight",vars.font_weight)
+        .attr("font-size","12px")
+        .attr("font-family",vars.font)
+        .attr("fill","#4c4c4c")
+        .text(ytext)
+        
+      var tooltip_data = get_tooltip_data(d,"short")
+      if (d.num_children > 1 && !vars.spotlight) {
+        var a = d.num_children_active+"/"+d.num_children
+        tooltip_data.push({
+          "name": vars.text_format(vars.active_var), 
+          "value": a
+        });
+      }
+      
       vizwhiz.tooltip.remove(vars.type)
+      vizwhiz.tooltip.create({
+        "id": vars.type,
+        "color": find_color(d[vars.id_var]),
+        "icon": find_variable(d[vars.id_var],"icon"),
+        "style": vars.icon_style,
+        "data": tooltip_data,
+        "title": find_variable(d[vars.id_var],vars.text_var),
+        "x": x+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+        "y": y+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
+        "offset": radius,
+        "arrow": true,
+        "footer": footer_text(),
+        "mouseevents": false
+      })
+      
+    })
+    .on(vizwhiz.evt.out, function(d){
+      if (!covered) vizwhiz.tooltip.remove(vars.type)
       d3.selectAll(".axis_hover").remove()
     })
     .on(vizwhiz.evt.click, function(d){
-
+      covered = true
       var id = find_variable(d,vars.id_var)
       var self = this
       
@@ -298,124 +411,5 @@ vizwhiz.pie_scatter = function(vars) {
       return arc(i(t));
     };
   }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Hover over nodes
-  //-------------------------------------------------------------------
-  
-  function hover(){
-
-      return function(d){
-        
-        var val = d[vars.value_var] ? d[vars.value_var] : vars.size_scale.domain()[0]
-        var radius = vars.size_scale(val),
-            x = vars.x_scale(d[vars.xaxis_var]),
-            y = vars.y_scale(d[vars.yaxis_var]),
-            color = d[vars.active_var] || d.num_children_active/d.num_children == 1 ? "#333" : find_color(d[vars.id_var]),
-            viz = d3.select("g.chart");
-            
-        // vertical line to x-axis
-        viz.append("line")
-          .attr("class", "axis_hover")
-          .attr("x1", x)
-          .attr("x2", x)
-          .attr("y1", y+radius+1) // offset so hover doens't flicker
-          .attr("y2", vars.graph.height)
-          .attr("stroke", color)
-          .attr("stroke-width", 1)
-          .attr("shape-rendering","crispEdges")
-      
-        // horizontal line to y-axis
-        viz.append("line")
-          .attr("class", "axis_hover")
-          .attr("x1", 0)
-          .attr("x2", x-radius) // offset so hover doens't flicker
-          .attr("y1", y)
-          .attr("y2", y)
-          .attr("stroke", color)
-          .attr("stroke-width", 1)
-          .attr("shape-rendering","crispEdges")
-      
-        // x-axis value box
-        viz.append("rect")
-          .attr("class", "axis_hover")
-          .attr("x", x-25)
-          .attr("y", vars.graph.height)
-          .attr("width", 50)
-          .attr("height", 20)
-          .attr("fill", "white")
-          .attr("stroke", color)
-          .attr("stroke-width", 1)
-          .attr("shape-rendering","crispEdges")
-      
-        var xtext = vars.number_format(d[vars.xaxis_var],vars.xaxis_var)
-        
-        // xvalue text element
-        viz.append("text")
-          .attr("class", "axis_hover")
-          .attr("x", x)
-          .attr("y", vars.graph.height)
-          .attr("dy", 14)
-          .attr("text-anchor","middle")
-          .style("font-weight",vars.font_weight)
-          .attr("font-size","12px")
-          .attr("font-family",vars.font)
-          .attr("fill","#4c4c4c")
-          .text(xtext)
-      
-        // y-axis value box
-        viz.append("rect")
-          .attr("class", "axis_hover")
-          .attr("x", -50)
-          .attr("y", y-10)
-          .attr("width", 50)
-          .attr("height", 20)
-          .attr("fill", "white")
-          .attr("stroke", color)
-          .attr("stroke-width", 1)
-          .attr("shape-rendering","crispEdges")
-        
-        var ytext = vars.number_format(d[vars.yaxis_var],vars.yaxis_var)
-        
-        // xvalue text element
-        viz.append("text")
-          .attr("class", "axis_hover")
-          .attr("x", -25)
-          .attr("y", y-10)
-          .attr("dy", 14)
-          .attr("text-anchor","middle")
-          .style("font-weight",vars.font_weight)
-          .attr("font-size","12px")
-          .attr("font-family",vars.font)
-          .attr("fill","#4c4c4c")
-          .text(ytext)
-          
-        var tooltip_data = get_tooltip_data(d,"short")
-        if (d.num_children > 1 && !vars.spotlight) {
-          var a = d.num_children_active+"/"+d.num_children
-          tooltip_data.push({
-            "name": vars.text_format(vars.active_var), 
-            "value": a
-          });
-        }
-      
-        vizwhiz.tooltip.create({
-          "id": vars.type,
-          "color": find_color(d[vars.id_var]),
-          "icon": find_variable(d[vars.id_var],"icon"),
-          "style": vars.icon_style,
-          "data": tooltip_data,
-          "title": find_variable(d[vars.id_var],vars.text_var),
-          "x": x+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
-          "y": y+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
-          "offset": radius,
-          "arrow": true,
-          "footer": footer_text(),
-          "mouseevents": false
-        })
-      }
-  }
-  
-  //===================================================================
   
 };

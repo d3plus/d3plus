@@ -4,6 +4,8 @@ vizwhiz.bubbles = function(vars) {
   // Private Variables
   //-------------------------------------------------------------------
   
+  var covered = false
+  
   var groups = {},
       donut_size = 0.35,
       title_height = vars.small ? 0 : 30,
@@ -426,10 +428,12 @@ vizwhiz.bubbles = function(vars) {
   bubble
     .on(vizwhiz.evt.over, function(d){
       
+      covered = false
       d3.select(this).style("cursor","pointer")
       
       var tooltip_data = get_tooltip_data(d,"short")
-      
+
+      vizwhiz.tooltip.remove(vars.type)
       vizwhiz.tooltip.create({
         "id": vars.type,
         "color": find_color(d[vars.id_var]),
@@ -447,10 +451,11 @@ vizwhiz.bubbles = function(vars) {
       
     })
     .on(vizwhiz.evt.out, function(d){
-      vizwhiz.tooltip.remove("bubbles")
+      if (!covered) vizwhiz.tooltip.remove(vars.type)
     })
     .on(vizwhiz.evt.click, function(d){
 
+      covered = true
       var id = find_variable(d,vars.id_var)
       var self = this
       

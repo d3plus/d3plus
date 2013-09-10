@@ -24,7 +24,7 @@ vizwhiz.error = function(vars) {
         })
       })
       .attr("y",function(){
-        var height = d3.select(this).node().offsetHeight
+        var height = d3.select(this).node().getBBox().height
         return vars.svg_height/2-height/2
       })
       
@@ -43,7 +43,7 @@ vizwhiz.error = function(vars) {
       })
     })
     .attr("y",function(){
-      var height = d3.select(this).node().offsetHeight
+      var height = d3.select(this).node().getBBox().height
       return vars.svg_height/2-height/2
     })
       
