@@ -388,6 +388,7 @@ vizwhiz.tooltip.create = function(params) {
     var oldout = d3.select(params.mouseevents).on(vizwhiz.evt.out)
     
     var newout = function() {
+      
       var target = d3.event.toElement
       if (target) {
         var c = typeof target.className == "string" ? target.className : target.className.baseVal
@@ -396,8 +397,9 @@ vizwhiz.tooltip.create = function(params) {
       else {
         var istooltip = false
       }
-      if (!target || (!ischild(tooltip.node(),target) && !istooltip)) {
-        oldout()
+      // console.log(!ischild(tooltip.node(),target), !ischild(params.mouseevents,target), !istooltip)
+      if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
+        oldout(d3.select(params.mouseevents).datum())
         d3.select(params.mouseevents).on(vizwhiz.evt.out,oldout)
       }
     }
@@ -415,6 +417,11 @@ vizwhiz.tooltip.create = function(params) {
     
     d3.select(params.mouseevents).on(vizwhiz.evt.out,newout)
     tooltip.on(vizwhiz.evt.out,newout)
+    
+    var move_event = d3.select(params.mouseevents).on(vizwhiz.evt.move)
+    if (move_event) {
+      tooltip.on(vizwhiz.evt.move,move_event)
+    }
     
   }
     
@@ -1213,6 +1220,7 @@ vizwhiz.viz = function() {
       vars.parent
         .style("width",vars.svg_width+"px")
         .style("height",vars.svg_height+"px")
+        .style("overflow","hidden")
       
       vars.width = vars.svg_width;
 
@@ -3172,11 +3180,11 @@ vizwhiz.network = function(vars) {
     .on(vizwhiz.evt.move,function(d){
       if (zoom_behavior.scale() > 1) {
         d3.select(this).style("cursor","move")
-        if (dragging) {
+        if (dragging && !vizwhiz.ie) {
           d3.select(this).style("cursor","-moz-grabbing")
           d3.select(this).style("cursor","-webkit-grabbing")
         }
-        else {
+        else if (!vizwhiz.ie) {
           d3.select(this).style("cursor","-moz-grab")
           d3.select(this).style("cursor","-webkit-grab")
         }
@@ -3420,10 +3428,12 @@ vizwhiz.network = function(vars) {
       .on(vizwhiz.evt.over, function(d){
         
         d3.select(this).style("cursor","pointer")
-        d3.select(this).style("cursor","-moz-zoom-in")
-        d3.select(this).style("cursor","-webkit-zoom-in")
+        if (!vizwhiz.ie) {
+          d3.select(this).style("cursor","-moz-zoom-in")
+          d3.select(this).style("cursor","-webkit-zoom-in")
+        }
           
-        if (d[vars.id_var] == vars.highlight) {
+        if (d[vars.id_var] == vars.highlight && !vizwhiz.ie) {
           d3.select(this).style("cursor","-moz-zoom-out")
           d3.select(this).style("cursor","-webkit-zoom-out")
         }
@@ -3775,7 +3785,7 @@ vizwhiz.stacked = function(vars) {
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": self,
+          "mouseevents": true,
           "parent": vars.parent,
           "background": vars.background
         })
@@ -4176,7 +4186,8 @@ vizwhiz.tree_map = function(vars) {
 
     vizwhiz.tooltip.remove(vars.type)
     var tooltip_data = get_tooltip_data(d,"short")
-    tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
+    tooltip_data.push({"name": vars.text_format("share"), "value": d.share})
+    var id = find_variable(d,vars.id_var)
     
     vizwhiz.tooltip.create({
       "title": find_variable(d,vars.text_var),
@@ -4188,7 +4199,7 @@ vizwhiz.tree_map = function(vars) {
       "y": d3.event.pageY,
       "offset": 3,
       "arrow": true,
-      "mouseevents": false,
+      "mouseevents": d3.select("#cell_"+id).node(),
       "footer": footer_text(),
       "data": tooltip_data
     })
@@ -4222,12 +4233,12 @@ vizwhiz.tree_map = function(vars) {
       }
       
     })
-    .on(vizwhiz.evt.click,function(d){
+    .on(vizwhiz.evt.down,function(d){
       
       covered = true
         
-      var id = find_variable(d,vars.id_var)
-      var self = this
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#cell_"+id).node()
       
       make_tooltip = function(html) {
       
@@ -4455,13 +4466,13 @@ vizwhiz.geo_map = function(vars) {
         mapTypeId: google.maps.MapTypeId.TERRAIN
       })
       
-      google.maps.event.addListener(vars.map,"drag", function(){
+      google.maps.event.addListener(vars.map,"drag", function(e){
         dragging = true
       })
 
-      google.maps.event.addListener(vars.map,"dragend", function(){
-        dragging = false
-      })
+      // google.maps.event.addListener(vars.map,"dragend", function(){
+      //   dragging = false
+      // })
       
       var zoomControl = document.createElement('div')
       zoomControl.style.marginLeft = "5px"
@@ -4569,12 +4580,12 @@ vizwhiz.geo_map = function(vars) {
           .attr("height",20000)
           .attr("fill","transparent")
           .on(vizwhiz.evt.move, function(d) {
-            if (vars.highlight && !dragging) {
+            if (vars.highlight && !dragging && !vizwhiz.ie) {
               d3.select(this).style("cursor","-moz-zoom-out")
               d3.select(this).style("cursor","-webkit-zoom-out")
             }
           })
-          .on(vizwhiz.evt.up, function(d) {
+          .on(vizwhiz.evt.click, function(d) {
             if (vars.highlight && !dragging) zoom("reset")
           })
 
@@ -4616,17 +4627,19 @@ vizwhiz.geo_map = function(vars) {
               .attr("opacity",default_opacity)
               .call(color_paths)
               .on(vizwhiz.evt.over, function(d){
-                if (!dragging) {
-                  hover = d[vars.id_var]
-                  if (vars.highlight != d[vars.id_var]) {
-                    d3.select(this).style("cursor","pointer")
-                    d3.select(this).style("cursor","-moz-zoom-in")
-                    d3.select(this).style("cursor","-webkit-zoom-in")
-                    d3.select(this).attr("opacity",select_opacity);
+                hover = d[vars.id_var]
+                if (vars.highlight != d[vars.id_var]) {
+                  d3.select(this)
+                    .style("cursor","pointer")
+                    .attr("opacity",select_opacity)
+                  if (!vizwhiz.ie) {
+                    d3.select(this)
+                      .style("cursor","-moz-zoom-in")
+                      .style("cursor","-webkit-zoom-in")
                   }
-                  if (!vars.highlight) {
-                    update()
-                  }
+                }
+                if (!vars.highlight) {
+                  update()
                 }
               })
               .on(vizwhiz.evt.out, function(d){
@@ -4638,7 +4651,7 @@ vizwhiz.geo_map = function(vars) {
                   update()
                 }
               })
-              .on(vizwhiz.evt.up, function(d) {
+              .on(vizwhiz.evt.click, function(d) {
                 if (!dragging) {
                   vars.loading_text = vars.text_format("Calculating Coordinates")
                   if (vars.highlight == d[vars.id_var]) {
@@ -4656,6 +4669,7 @@ vizwhiz.geo_map = function(vars) {
                   }
                   update();
                 }
+                dragging = false
               })
               
             vars.zoom = vars.map.zoom
@@ -6188,8 +6202,10 @@ vizwhiz.rings = function(vars) {
     .on(vizwhiz.evt.over,function(d){
       if (d.depth != 0) {
         d3.select(this).style("cursor","pointer")
-        d3.select(this).style("cursor","-moz-zoom-in")
-        d3.select(this).style("cursor","-webkit-zoom-in")
+        if (!vizwhiz.ie) {
+          d3.select(this).style("cursor","-moz-zoom-in")
+          d3.select(this).style("cursor","-webkit-zoom-in")
+        }
         hover = d;
         if (!vars.small) {
           link.call(line_styles);

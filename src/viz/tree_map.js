@@ -119,7 +119,8 @@ vizwhiz.tree_map = function(vars) {
 
     vizwhiz.tooltip.remove(vars.type)
     var tooltip_data = get_tooltip_data(d,"short")
-    tooltip_data.push({"name": vars.text_format("share"), "value": d.share});
+    tooltip_data.push({"name": vars.text_format("share"), "value": d.share})
+    var id = find_variable(d,vars.id_var)
     
     vizwhiz.tooltip.create({
       "title": find_variable(d,vars.text_var),
@@ -131,7 +132,7 @@ vizwhiz.tree_map = function(vars) {
       "y": d3.event.pageY,
       "offset": 3,
       "arrow": true,
-      "mouseevents": false,
+      "mouseevents": d3.select("#cell_"+id).node(),
       "footer": footer_text(),
       "data": tooltip_data
     })
@@ -165,12 +166,12 @@ vizwhiz.tree_map = function(vars) {
       }
       
     })
-    .on(vizwhiz.evt.click,function(d){
+    .on(vizwhiz.evt.down,function(d){
       
       covered = true
         
-      var id = find_variable(d,vars.id_var)
-      var self = this
+      var id = find_variable(d,vars.id_var),
+          self = d3.select("#cell_"+id).node()
       
       make_tooltip = function(html) {
       

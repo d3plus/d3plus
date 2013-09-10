@@ -70,13 +70,13 @@ vizwhiz.geo_map = function(vars) {
         mapTypeId: google.maps.MapTypeId.TERRAIN
       })
       
-      google.maps.event.addListener(vars.map,"drag", function(){
+      google.maps.event.addListener(vars.map,"drag", function(e){
         dragging = true
       })
 
-      google.maps.event.addListener(vars.map,"dragend", function(){
-        dragging = false
-      })
+      // google.maps.event.addListener(vars.map,"dragend", function(){
+      //   dragging = false
+      // })
       
       var zoomControl = document.createElement('div')
       zoomControl.style.marginLeft = "5px"
@@ -184,12 +184,12 @@ vizwhiz.geo_map = function(vars) {
           .attr("height",20000)
           .attr("fill","transparent")
           .on(vizwhiz.evt.move, function(d) {
-            if (vars.highlight && !dragging) {
+            if (vars.highlight && !dragging && !vizwhiz.ie) {
               d3.select(this).style("cursor","-moz-zoom-out")
               d3.select(this).style("cursor","-webkit-zoom-out")
             }
           })
-          .on(vizwhiz.evt.up, function(d) {
+          .on(vizwhiz.evt.click, function(d) {
             if (vars.highlight && !dragging) zoom("reset")
           })
 
@@ -231,17 +231,19 @@ vizwhiz.geo_map = function(vars) {
               .attr("opacity",default_opacity)
               .call(color_paths)
               .on(vizwhiz.evt.over, function(d){
-                if (!dragging) {
-                  hover = d[vars.id_var]
-                  if (vars.highlight != d[vars.id_var]) {
-                    d3.select(this).style("cursor","pointer")
-                    d3.select(this).style("cursor","-moz-zoom-in")
-                    d3.select(this).style("cursor","-webkit-zoom-in")
-                    d3.select(this).attr("opacity",select_opacity);
+                hover = d[vars.id_var]
+                if (vars.highlight != d[vars.id_var]) {
+                  d3.select(this)
+                    .style("cursor","pointer")
+                    .attr("opacity",select_opacity)
+                  if (!vizwhiz.ie) {
+                    d3.select(this)
+                      .style("cursor","-moz-zoom-in")
+                      .style("cursor","-webkit-zoom-in")
                   }
-                  if (!vars.highlight) {
-                    update()
-                  }
+                }
+                if (!vars.highlight) {
+                  update()
                 }
               })
               .on(vizwhiz.evt.out, function(d){
@@ -253,7 +255,7 @@ vizwhiz.geo_map = function(vars) {
                   update()
                 }
               })
-              .on(vizwhiz.evt.up, function(d) {
+              .on(vizwhiz.evt.click, function(d) {
                 if (!dragging) {
                   vars.loading_text = vars.text_format("Calculating Coordinates")
                   if (vars.highlight == d[vars.id_var]) {
@@ -271,6 +273,7 @@ vizwhiz.geo_map = function(vars) {
                   }
                   update();
                 }
+                dragging = false
               })
               
             vars.zoom = vars.map.zoom

@@ -121,6 +121,7 @@ vizwhiz.tooltip.create = function(params) {
     var oldout = d3.select(params.mouseevents).on(vizwhiz.evt.out)
     
     var newout = function() {
+      
       var target = d3.event.toElement
       if (target) {
         var c = typeof target.className == "string" ? target.className : target.className.baseVal
@@ -129,8 +130,9 @@ vizwhiz.tooltip.create = function(params) {
       else {
         var istooltip = false
       }
-      if (!target || (!ischild(tooltip.node(),target) && !istooltip)) {
-        oldout()
+      // console.log(!ischild(tooltip.node(),target), !ischild(params.mouseevents,target), !istooltip)
+      if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
+        oldout(d3.select(params.mouseevents).datum())
         d3.select(params.mouseevents).on(vizwhiz.evt.out,oldout)
       }
     }
@@ -148,6 +150,11 @@ vizwhiz.tooltip.create = function(params) {
     
     d3.select(params.mouseevents).on(vizwhiz.evt.out,newout)
     tooltip.on(vizwhiz.evt.out,newout)
+    
+    var move_event = d3.select(params.mouseevents).on(vizwhiz.evt.move)
+    if (move_event) {
+      tooltip.on(vizwhiz.evt.move,move_event)
+    }
     
   }
     

@@ -115,8 +115,10 @@ vizwhiz.rings = function(vars) {
     .on(vizwhiz.evt.over,function(d){
       if (d.depth != 0) {
         d3.select(this).style("cursor","pointer")
-        d3.select(this).style("cursor","-moz-zoom-in")
-        d3.select(this).style("cursor","-webkit-zoom-in")
+        if (!vizwhiz.ie) {
+          d3.select(this).style("cursor","-moz-zoom-in")
+          d3.select(this).style("cursor","-webkit-zoom-in")
+        }
         hover = d;
         if (!vars.small) {
           link.call(line_styles);

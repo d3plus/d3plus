@@ -379,6 +379,7 @@ vizwhiz.viz = function() {
       vars.parent
         .style("width",vars.svg_width+"px")
         .style("height",vars.svg_height+"px")
+        .style("overflow","hidden")
       
       vars.width = vars.svg_width;
 

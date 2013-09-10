@@ -378,11 +378,11 @@ vizwhiz.network = function(vars) {
     .on(vizwhiz.evt.move,function(d){
       if (zoom_behavior.scale() > 1) {
         d3.select(this).style("cursor","move")
-        if (dragging) {
+        if (dragging && !vizwhiz.ie) {
           d3.select(this).style("cursor","-moz-grabbing")
           d3.select(this).style("cursor","-webkit-grabbing")
         }
-        else {
+        else if (!vizwhiz.ie) {
           d3.select(this).style("cursor","-moz-grab")
           d3.select(this).style("cursor","-webkit-grab")
         }
@@ -626,10 +626,12 @@ vizwhiz.network = function(vars) {
       .on(vizwhiz.evt.over, function(d){
         
         d3.select(this).style("cursor","pointer")
-        d3.select(this).style("cursor","-moz-zoom-in")
-        d3.select(this).style("cursor","-webkit-zoom-in")
+        if (!vizwhiz.ie) {
+          d3.select(this).style("cursor","-moz-zoom-in")
+          d3.select(this).style("cursor","-webkit-zoom-in")
+        }
           
-        if (d[vars.id_var] == vars.highlight) {
+        if (d[vars.id_var] == vars.highlight && !vizwhiz.ie) {
           d3.select(this).style("cursor","-moz-zoom-out")
           d3.select(this).style("cursor","-webkit-zoom-out")
         }

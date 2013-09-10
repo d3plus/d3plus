@@ -222,7 +222,7 @@ vizwhiz.stacked = function(vars) {
           "html": html,
           "footer": vars.data_source,
           "data": tooltip_data,
-          "mouseevents": self,
+          "mouseevents": true,
           "parent": vars.parent,
           "background": vars.background
         })
