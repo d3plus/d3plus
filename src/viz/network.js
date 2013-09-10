@@ -371,9 +371,9 @@ vizwhiz.network = function(vars) {
       }
     })
     .on(vizwhiz.evt.click,function(d){
-      vars.highlight = null;
-      vars.zoom("reset");
-      vars.update();
+      // vars.highlight = null;
+      // vars.zoom("reset");
+      // vars.update();
     })
     .on(vizwhiz.evt.move,function(d){
       if (zoom_behavior.scale() > 1) {
