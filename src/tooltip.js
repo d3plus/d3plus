@@ -198,7 +198,18 @@ vizwhiz.tooltip.create = function(params) {
       
     var val_width = 0
       
+    var last_group = null
     params.data.forEach(function(d,i){
+      
+      if (d.group) {
+        if (last_group != d.group) {
+          last_group = d.group
+          data_container.append("div")
+            .attr("class","vizwhiz_tooltip_data_title")
+            .text(d.group)
+        }
+      }
+      
       var block = data_container.append("div")
         .attr("class","vizwhiz_tooltip_data_block")
         
@@ -218,6 +229,7 @@ vizwhiz.tooltip.create = function(params) {
       if (w > val_width) val_width = w
           
       if (i != params.data.length-1) {
+        if ((d.group && d.group == params.data[i+1].group) || !d.group)
         data_container.append("div")
           .attr("class","vizwhiz_tooltip_data_seperator")
       }
@@ -237,8 +249,6 @@ vizwhiz.tooltip.create = function(params) {
     
   if (params.html && !params.fullscreen) {
     data_container.append("div")
-      .style("padding","3px")
-      .style("margin-bottom","3px")
       .html(params.html)
   }
   

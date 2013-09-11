@@ -181,6 +181,11 @@ div.vizwhiz_tooltip_data_container {
   z-index: -1;
 }
 
+div.vizwhiz_tooltip_data_title {
+  font-weight: bold;
+  padding: 6px 3px 0px 3px;
+}
+
 div.vizwhiz_tooltip_data_seperator {
   background-color: #ddd;
   display: block;
@@ -233,14 +238,9 @@ div.vizwhiz_tooltip_html {
  * Network Tooltip
  ********************/
 
-
-div.vizwhiz_network_title {
-  padding: 6px 3px;
-}
-
 div.vizwhiz_network_connection {
   opacity: 0.75;
-  padding: 0px 3px 3px;
+  padding: 3px 6px;
 }
 
 div.vizwhiz_network_connection:hover {
@@ -258,6 +258,7 @@ div.vizwhiz_network_connection_node {
   border-width: 1px;
   display: inline-block;
   height: 10px;
+  margin-bottom: -2px;
   margin-right: 3px;
   width: 10px;
 }

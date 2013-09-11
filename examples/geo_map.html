@@ -47,6 +47,8 @@
             return "Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content<br>Some HTML Content"
           }
           
+          var tooltips = {"short": [],"long": ["wage", "id", "num_emp"]}
+          
           viz = vizwhiz.viz()
             .type("geo_map")
             .id_var("bra_id")
@@ -54,7 +56,7 @@
             .attrs(attr)
             .value_var("wage")
             .text_var("name")
-            .tooltip_info({"short": [],"long": ["wage", "id", "num_emp"]})
+            .tooltip_info(tooltips)
             .click_function(clicker)
             // .highlight("mg030000")
             .year(2010)

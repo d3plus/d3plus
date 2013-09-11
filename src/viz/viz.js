@@ -89,6 +89,7 @@ vizwhiz.viz = function() {
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
     "text_format": function(text,name) { 
+      if (!text) return ""
       return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase() 
     },
     "text_var": "name",
@@ -1019,31 +1020,52 @@ vizwhiz.viz = function() {
     }
 
     if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-    else var a = vars.tooltip_info[length]
+    else if (vars.tooltip_info[length]) var a = vars.tooltip_info[length]
+    else var a = vars.tooltip_info
     
-    if (a.indexOf(vars.value_var) < 0) a.push(vars.value_var)
-    if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
-         && a.indexOf(vars.xaxis_var) < 0) a.push(vars.xaxis_var)
-    if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
-         && a.indexOf(vars.yaxis_var) < 0) a.push(vars.yaxis_var)
-    
-    var tooltip_data = []
-    a.forEach(function(t){
-      var value = find_variable(id,t)
+    function format_key(key,group) {
+      if (!group) var group = null
+      
+      var value = find_variable(id,key)
       if (value !== false) {
-        var name = vars.text_format(t),
-            h = t == tooltip_highlight
-            
+        var name = vars.text_format(key),
+            h = key == tooltip_highlight
+          
         if (typeof value == "string") {
-          var val = vars.text_format(value,t)
+          var val = vars.text_format(value,key)
         }
         else if (typeof value == "number") {
-          var val = vars.number_format(value,t)
+          var val = vars.number_format(value,key)
         }
-        
-        if (val) tooltip_data.push({"name": name, "value": val, "highlight": h})
+      
+        if (val) tooltip_data.push({"name": name, "value": val, "highlight": h, "group": vars.text_format(group)})
       }
-    })
+      
+    }
+       
+    var tooltip_data = []
+    if (a instanceof Array) {
+    
+      if (a.indexOf(vars.value_var) < 0) a.push(vars.value_var)
+      if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
+           && a.indexOf(vars.xaxis_var) < 0) a.push(vars.xaxis_var)
+      if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
+           && a.indexOf(vars.yaxis_var) < 0) a.push(vars.yaxis_var)
+         
+      a.forEach(function(t){
+        format_key(t)
+      })
+    
+    }
+    else {
+      
+      for (group in a) {
+        a[group].forEach(function(t){
+          format_key(t,group)
+        })
+      }
+      
+    }
     
     return tooltip_data
     
