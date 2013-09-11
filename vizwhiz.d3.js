@@ -940,7 +940,6 @@ vizwhiz.viz = function() {
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
     "text_format": function(text,name) { 
-      if (!text) return ""
       return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase() 
     },
     "text_var": "name",
@@ -1876,20 +1875,22 @@ vizwhiz.viz = function() {
     
     function format_key(key,group) {
       if (!group) var group = null
+      else var group = vars.text_format(group)
       
       var value = find_variable(id,key)
       if (value !== false) {
         var name = vars.text_format(key),
             h = key == tooltip_highlight
-          
+
         if (typeof value == "string") {
+          value = value.toString()
           var val = vars.text_format(value,key)
         }
         else if (typeof value == "number") {
           var val = vars.number_format(value,key)
         }
       
-        if (val) tooltip_data.push({"name": name, "value": val, "highlight": h, "group": vars.text_format(group)})
+        if (val) tooltip_data.push({"name": name, "value": val, "highlight": h, "group": group})
       }
       
     }
