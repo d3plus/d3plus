@@ -37,8 +37,7 @@
         d3.json("data/attr_munic.json", function(attr) {
           
           var data = geo_data.data.filter(function(d,i){
-            d.id = d.bra_id
-            return d.id.substr(0,2) == "mg"
+            return d.bra_id.substr(0,2) == "mg"
           })
           
           data[0].year = 2009
@@ -50,9 +49,9 @@
           
           viz = vizwhiz.viz()
             .type("geo_map")
+            .id_var("bra_id")
             .coords(shapes)
             .attrs(attr)
-            .id_var("id")
             .value_var("wage")
             .text_var("name")
             .tooltip_info({"short": [],"long": ["wage", "id", "num_emp"]})

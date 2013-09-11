@@ -1214,8 +1214,10 @@ vizwhiz.viz = function() {
   chart.coords = function(x) {
     if (!arguments.length) return vars.coords;
     vars.coord_change = true
-    vars.coords = topojson.feature(x, x.objects[Object.keys(x.objects)[0]]).features;
-    // vars.boundaries = {"geometry": {"coordinates": [[[null,null],[],[null,null],[],[]]], "type": "Polygon"}, "type": "Feature"}
+    x.objects[Object.keys(x.objects)[0]].geometries.forEach(function(f){
+      f.id = f[vars.id_var]
+    });
+    vars.coords = topojson.feature(x, x.objects[Object.keys(x.objects)[0]]).features
     
     function polygon(ring) {
       var polygon = [ring];
@@ -1229,35 +1231,6 @@ vizwhiz.viz = function() {
         
     vars.boundaries = {type: "MultiPolygon", coordinates: selectionBoundary.coordinates.map(polygon)};
     
-    // vars.coords.forEach(function(v,i){
-    //   v.geometry.coordinates.forEach(function(c){
-    //     c.forEach(function(a){
-    //       if (a.length == 2) {
-    //         if (!vars.boundaries.geometry.coordinates[0][0][0] || a[0] < vars.boundaries.geometry.coordinates[0][0][0]) {
-    //           vars.boundaries.geometry.coordinates[0][0][0] = a[0]
-    //         }
-    //         if (!vars.boundaries.geometry.coordinates[0][2][0] || a[0] > vars.boundaries.geometry.coordinates[0][2][0]) {
-    //           vars.boundaries.geometry.coordinates[0][2][0] = a[0]
-    //         }
-    //         if (!vars.boundaries.geometry.coordinates[0][0][1] || a[1] < vars.boundaries.geometry.coordinates[0][0][1]) {
-    //           vars.boundaries.geometry.coordinates[0][0][1] = a[1]
-    //         }
-    //         if (!vars.boundaries.geometry.coordinates[0][2][1] || a[1] > vars.boundaries.geometry.coordinates[0][2][1]) {
-    //           vars.boundaries.geometry.coordinates[0][2][1] = a[1]
-    //         }
-    //       }
-    //     })
-    //   })
-    // })
-    // vars.boundaries.geometry.coordinates[0][1] = [
-    //   vars.boundaries.geometry.coordinates[0][2][0],
-    //   vars.boundaries.geometry.coordinates[0][0][1]
-    // ]
-    // vars.boundaries.geometry.coordinates[0][3] = [
-    //   vars.boundaries.geometry.coordinates[0][0][0],
-    //   vars.boundaries.geometry.coordinates[0][2][1]
-    // ]
-    // vars.boundaries.geometry.coordinates[0][4] = vars.boundaries.geometry.coordinates[0][0]
     return chart;
   };
   

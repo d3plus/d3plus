@@ -2055,8 +2055,10 @@ vizwhiz.viz = function() {
   chart.coords = function(x) {
     if (!arguments.length) return vars.coords;
     vars.coord_change = true
-    vars.coords = topojson.feature(x, x.objects[Object.keys(x.objects)[0]]).features;
-    // vars.boundaries = {"geometry": {"coordinates": [[[null,null],[],[null,null],[],[]]], "type": "Polygon"}, "type": "Feature"}
+    x.objects[Object.keys(x.objects)[0]].geometries.forEach(function(f){
+      f.id = f[vars.id_var]
+    });
+    vars.coords = topojson.feature(x, x.objects[Object.keys(x.objects)[0]]).features
     
     function polygon(ring) {
       var polygon = [ring];
@@ -2070,35 +2072,6 @@ vizwhiz.viz = function() {
         
     vars.boundaries = {type: "MultiPolygon", coordinates: selectionBoundary.coordinates.map(polygon)};
     
-    // vars.coords.forEach(function(v,i){
-    //   v.geometry.coordinates.forEach(function(c){
-    //     c.forEach(function(a){
-    //       if (a.length == 2) {
-    //         if (!vars.boundaries.geometry.coordinates[0][0][0] || a[0] < vars.boundaries.geometry.coordinates[0][0][0]) {
-    //           vars.boundaries.geometry.coordinates[0][0][0] = a[0]
-    //         }
-    //         if (!vars.boundaries.geometry.coordinates[0][2][0] || a[0] > vars.boundaries.geometry.coordinates[0][2][0]) {
-    //           vars.boundaries.geometry.coordinates[0][2][0] = a[0]
-    //         }
-    //         if (!vars.boundaries.geometry.coordinates[0][0][1] || a[1] < vars.boundaries.geometry.coordinates[0][0][1]) {
-    //           vars.boundaries.geometry.coordinates[0][0][1] = a[1]
-    //         }
-    //         if (!vars.boundaries.geometry.coordinates[0][2][1] || a[1] > vars.boundaries.geometry.coordinates[0][2][1]) {
-    //           vars.boundaries.geometry.coordinates[0][2][1] = a[1]
-    //         }
-    //       }
-    //     })
-    //   })
-    // })
-    // vars.boundaries.geometry.coordinates[0][1] = [
-    //   vars.boundaries.geometry.coordinates[0][2][0],
-    //   vars.boundaries.geometry.coordinates[0][0][1]
-    // ]
-    // vars.boundaries.geometry.coordinates[0][3] = [
-    //   vars.boundaries.geometry.coordinates[0][0][0],
-    //   vars.boundaries.geometry.coordinates[0][2][1]
-    // ]
-    // vars.boundaries.geometry.coordinates[0][4] = vars.boundaries.geometry.coordinates[0][0]
     return chart;
   };
   
@@ -4409,9 +4382,7 @@ vizwhiz.geo_map = function(vars) {
       scale_padding = 20,
       scale_width = 250,
       info_width = vars.small ? 0 : 300,
-      redraw = false,
-      path_group = null,
-      path_defs = null
+      redraw = false
       
   vars.loading_text = vars.text_format("Loading Geography")
       
@@ -4613,7 +4584,9 @@ vizwhiz.geo_map = function(vars) {
               .data(vars.coords)
         
             paths.enter().append("path")
-                .attr("id",function(d) { return "path"+d[vars.id_var] } )
+                .attr("id",function(d) { 
+                  return "path"+d.id
+                } )
                 .attr("d", path)
                 .attr("opacity",default_opacity)
                 .call(color_paths)
@@ -4627,8 +4600,8 @@ vizwhiz.geo_map = function(vars) {
               .attr("opacity",default_opacity)
               .call(color_paths)
               .on(vizwhiz.evt.over, function(d){
-                hover = d[vars.id_var]
-                if (vars.highlight != d[vars.id_var]) {
+                hover = d.id
+                if (vars.highlight != d.id) {
                   d3.select(this)
                     .style("cursor","pointer")
                     .attr("opacity",select_opacity)
@@ -4644,7 +4617,7 @@ vizwhiz.geo_map = function(vars) {
               })
               .on(vizwhiz.evt.out, function(d){
                 hover = null
-                if (vars.highlight != d[vars.id_var]) {
+                if (vars.highlight != d.id) {
                   d3.select(this).attr("opacity",default_opacity)
                 }
                 if (!vars.highlight) {
@@ -4654,7 +4627,7 @@ vizwhiz.geo_map = function(vars) {
               .on(vizwhiz.evt.click, function(d) {
                 if (!dragging) {
                   vars.loading_text = vars.text_format("Calculating Coordinates")
-                  if (vars.highlight == d[vars.id_var]) {
+                  if (vars.highlight == d.id) {
                     zoom("reset")
                   } 
                   else {
@@ -4663,7 +4636,7 @@ vizwhiz.geo_map = function(vars) {
                       vars.highlight = null
                       d3.select("path#path"+temp).call(color_paths);
                     }
-                    vars.highlight = d[vars.id_var];
+                    vars.highlight = d.id;
                     d3.select(this).call(color_paths);
                     zoom(d3.select(this).datum());
                   }
@@ -4741,27 +4714,27 @@ vizwhiz.geo_map = function(vars) {
     
     p
       .attr("fill",function(d){ 
-        if (d[vars.id_var] == vars.highlight) return "none";
-        else if (!vars.data[d[vars.id_var]]) return "#888888";
-        else return vars.data[d[vars.id_var]][vars.value_var] ? vars.value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888"
+        if (d.id == vars.highlight) return "none";
+        else if (!vars.data[d.id]) return "#888888";
+        else return vars.data[d.id][vars.value_var] ? vars.value_color(vars.data[d.id][vars.value_var]) : "#888888"
       })
       .attr("stroke-width",function(d) {
-        if (d[vars.id_var] == vars.highlight) return 10;
+        if (d.id == vars.highlight) return 10;
         else return stroke_width;
       })
       .attr("stroke",function(d) {
-        if (d[vars.id_var] == vars.highlight) {
-          if (!vars.data[d[vars.id_var]]) return "#888"
-          return vars.data[d[vars.id_var]][vars.value_var] ? vars.value_color(vars.data[d[vars.id_var]][vars.value_var]) : "#888888";
+        if (d.id == vars.highlight) {
+          if (!vars.data[d.id]) return "#888"
+          return vars.data[d.id][vars.value_var] ? vars.value_color(vars.data[d.id][vars.value_var]) : "#888888";
         }
         else return "white";
       })
       .attr("opacity",function(d){
-        if (d[vars.id_var] == vars.highlight) return select_opacity;
+        if (d.id == vars.highlight) return select_opacity;
         else return default_opacity;
       })
       .each(function(d){
-        if (d[vars.id_var] == vars.highlight) {
+        if (d.id == vars.highlight) {
           path_defs.append("clipPath")
             .attr("id","stroke_clip")
             .append("use")
