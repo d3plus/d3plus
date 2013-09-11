@@ -496,7 +496,7 @@ vizwhiz.tooltip.create = function(params) {
       if (w > val_width) val_width = w
           
       if (i != params.data.length-1) {
-        if ((d.group && d.group == params.data[i+1].group) || !d.group)
+        if ((d.group && d.group == params.data[i+1].group) || !d.group && !params.data[i+1].group)
         data_container.append("div")
           .attr("class","vizwhiz_tooltip_data_seperator")
       }
