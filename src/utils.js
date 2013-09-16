@@ -80,8 +80,8 @@ vizwhiz.utils.wordwrap = function(params) {
       font_max = params.font_max ? params.font_max : 40,
       font_min = params.font_min ? params.font_min : 10;
       
-  if (params.text instanceof Array) wrap(String(params.text.shift()).split(/[\s-]/))
-  else wrap(String(params.text).split(/[\s-]/))
+  if (params.text instanceof Array) wrap(String(params.text.shift()).split(" "))
+  else wrap(String(params.text).split(" "))
   
   function wrap(words) {
     
