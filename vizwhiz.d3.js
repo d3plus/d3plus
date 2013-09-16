@@ -990,7 +990,7 @@ vizwhiz.viz = function() {
     "scroll_zoom": false,
     "secondary_color": "#ffdddd",
     "size_scale": null,
-    "size_scale_type": "log",
+    "size_scale_type": "sqrt",
     "solo": [],
     "sort": "total",
     "source_text": null,
@@ -5564,7 +5564,7 @@ vizwhiz.bubbles = function(vars) {
   
   vars.size_scale = d3.scale[vars.size_scale_type]()
     .domain(size_domain)
-    .range([1,2])
+    .range([1,4])
     
   //===================================================================
   

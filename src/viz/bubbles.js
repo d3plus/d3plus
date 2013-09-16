@@ -44,7 +44,7 @@ vizwhiz.bubbles = function(vars) {
   
   vars.size_scale = d3.scale[vars.size_scale_type]()
     .domain(size_domain)
-    .range([1,2])
+    .range([1,4])
     
   //===================================================================
   

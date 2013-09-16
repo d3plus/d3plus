@@ -80,7 +80,7 @@ vizwhiz.viz = function() {
     "scroll_zoom": false,
     "secondary_color": "#ffdddd",
     "size_scale": null,
-    "size_scale_type": "log",
+    "size_scale_type": "sqrt",
     "solo": [],
     "sort": "total",
     "source_text": null,
