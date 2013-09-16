@@ -182,6 +182,9 @@ div.vizwhiz_tooltip_data_container {
 }
 
 div.vizwhiz_tooltip_data_title {
+  color: #333;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12px;
   font-weight: bold;
   padding: 6px 3px 0px 3px;
 }
@@ -194,6 +197,8 @@ div.vizwhiz_tooltip_data_seperator {
 }
 
 div.vizwhiz_tooltip_data_block {
+  color: #333;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
   padding: 3px 6px;
   position: relative;
