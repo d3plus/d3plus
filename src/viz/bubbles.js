@@ -33,10 +33,24 @@ vizwhiz.bubbles = function(vars) {
   //===================================================================
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Define size scaling
+  //-------------------------------------------------------------------
+  if (!vars.data) vars.data = []
+  var size_domain = d3.extent(vars.data, function(d){ 
+    return d[vars.value_var] == 0 ? null : d[vars.value_var] 
+  })
+  
+  if (!size_domain[1]) size_domain = [0,0]
+  
+  vars.size_scale = d3.scale[vars.size_scale_type]()
+    .domain(size_domain)
+    .range([1,2])
+    
+  //===================================================================
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate positioning for each bubble
   //-------------------------------------------------------------------
-  
-  if (!vars.data) vars.data = []
   
   var data_nested = {}
   data_nested.key = "root";
@@ -48,7 +62,8 @@ vizwhiz.bubbles = function(vars) {
     .size([vars.width,vars.height])
     .children(function(d) { return d.values; })
     .padding(5)
-    .value(function(d) { return d[vars.value_var]; })
+    .value(function(d) { return d[vars.value_var] })
+    .radius(function(d){ return vars.size_scale(d) })
     .sort(function(a,b) { 
       if (a.values && b.values) return a.values.length - b.values.length;
       else return a[vars.value_var] - b[vars.value_var];
