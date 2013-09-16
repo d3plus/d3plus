@@ -1739,7 +1739,7 @@ vizwhiz.viz = function() {
       if (!(tick_offset == 5 && vars.xaxis_var == vars.year_var)) {
       
         var bgtick = d3.select(this.parentNode).selectAll("line.tick")
-          .data([i])
+          .data([d])
           
         bgtick.enter().append("line")
           .attr("class","tick")
@@ -1796,9 +1796,9 @@ vizwhiz.viz = function() {
       }
       
       if (!(tick_offset == -5 && vars.yaxis_var == vars.year_var)) {
-      
+        
         var bgtick = d3.select(this.parentNode).selectAll("line.tick")
-          .data([i])
+          .data([d])
         
         bgtick.enter().append("line")
           .attr("class","tick")

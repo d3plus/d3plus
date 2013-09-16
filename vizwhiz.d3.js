@@ -2649,7 +2649,7 @@ vizwhiz.viz = function() {
       if (!(tick_offset == 5 && vars.xaxis_var == vars.year_var)) {
       
         var bgtick = d3.select(this.parentNode).selectAll("line.tick")
-          .data([i])
+          .data([d])
           
         bgtick.enter().append("line")
           .attr("class","tick")
@@ -2706,9 +2706,9 @@ vizwhiz.viz = function() {
       }
       
       if (!(tick_offset == -5 && vars.yaxis_var == vars.year_var)) {
-      
+        
         var bgtick = d3.select(this.parentNode).selectAll("line.tick")
-          .data([i])
+          .data([d])
         
         bgtick.enter().append("line")
           .attr("class","tick")
@@ -5118,8 +5118,8 @@ vizwhiz.pie_scatter = function(vars) {
   
   if (!size_domain[1]) size_domain = [0,0]
   
-  var max_size = d3.max([d3.min([vars.graph.width,vars.graph.height])/25,10]),
-      min_size = 5
+  var max_size = d3.max([d3.min([vars.graph.width,vars.graph.height])/15,10]),
+      min_size = 10
       
   if (size_domain[0] == size_domain[1]) var min_size = max_size
   
