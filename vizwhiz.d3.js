@@ -1014,10 +1014,12 @@ vizwhiz.viz = function() {
     "update_function": null,
     "value_var": "value",
     "xaxis_domain": null,
+    "xaxis_val": null,
     "xaxis_var": null,
     "xscale": null,
     "xscale_type": "linear",
     "yaxis_domain": null,
+    "yaxis_val": null,
     "yaxis_var": null,
     "yscale": null,
     "yscale_type": "linear",
@@ -2514,6 +2516,12 @@ vizwhiz.viz = function() {
     return chart;
   };
   
+  chart.xaxis_val = function(x) {
+    if (!arguments.length) return vars.xaxis_val;
+    vars.xaxis_val = x;
+    return chart;
+  };
+  
   chart.xaxis_var = function(x) {
     if (!arguments.length) return vars.xaxis_var;
     vars.xaxis_var = x;
@@ -2530,6 +2538,12 @@ vizwhiz.viz = function() {
   chart.yaxis_domain = function(x) {
     if (!arguments.length) return vars.yaxis_domain;
     yaxis_domain = x.reverse();
+    return chart;
+  };
+  
+  chart.yaxis_val = function(x) {
+    if (!arguments.length) return vars.yaxis_val;
+    vars.yaxis_val = x;
     return chart;
   };
   
@@ -2864,6 +2878,98 @@ vizwhiz.viz = function() {
         else return 1
       })
       .text(vars.text_format(vars.yaxis_var))
+      
+    // Axis Dotted Lines
+    vars.chart_enter.append("line")
+      .attr("id","y_axis_val")
+      .attr("x1",0)
+      .attr("x2",vars.graph.width)
+      .attr("stroke","#ccc")
+      .attr("stroke-width",3)
+      .attr("stroke-dasharray","10,10")
+      
+    vars.chart_enter.append("text")
+      .attr("id","y_axis_val_text")
+      .style(axis_style)
+      .attr("text-align","start")
+      .attr("x","10px")
+      
+    if (vars.yaxis_val && typeof vars.yaxis_val == "object") {
+      var y_name = Object.keys(vars.yaxis_val)[0]
+      var y_val = vars.yaxis_val[y_name]
+    }
+    else if (vars.yaxis_val) {
+      var y_val = vars.yaxis_val, y_name = null
+    }
+    else {
+      var y_val = null, y_name = null
+    }
+    
+    if (typeof y_val == "string") y_val = parseFloat(y_val)
+      
+    d3.select("#y_axis_val").transition().duration(vars.graph.timing)
+      .attr("y1",vars.y_scale(y_val))
+      .attr("y2",vars.y_scale(y_val))
+      .attr("opacity",function(d){
+        var yes = y_val > vars.y_scale.domain()[1] && y_val < vars.y_scale.domain()[0]
+        return y_val != null && yes ? 1 : 0
+      })
+      
+    d3.select("#y_axis_val_text").transition().duration(vars.graph.timing)
+      .text(function(){
+        if (y_val != null) {
+          var v = vars.number_format(y_val,y_name)
+          return y_name ? vars.text_format(y_name) + ": " + v : v
+        }
+        else return null
+      })
+      .attr("y",(vars.y_scale(y_val)+20)+"px")
+      
+
+    vars.chart_enter.append("line")
+      .attr("id","x_axis_val")
+      .attr("y1",0)
+      .attr("y2",vars.graph.height)
+      .attr("stroke","#ccc")
+      .attr("stroke-width",3)
+      .attr("stroke-dasharray","10,10")
+    
+    vars.chart_enter.append("text")
+      .attr("id","x_axis_val_text")
+      .style(axis_style)
+      .attr("text-align","start")
+      .attr("y",(vars.graph.height-8)+"px")
+    
+    if (vars.xaxis_val && typeof vars.xaxis_val == "object") {
+      var x_name = Object.keys(vars.xaxis_val)[0]
+      var x_val = vars.xaxis_val[x_name]
+    }
+    else if (vars.xaxis_val) {
+      var x_val = vars.xaxis_val, x_name = null
+    }
+    else {
+      var x_val = null, x_name = null
+    }
+  
+    if (typeof x_val == "string") x_val = parseFloat(x_val)
+    
+    d3.select("#x_axis_val").transition().duration(vars.graph.timing)
+      .attr("x1",vars.x_scale(x_val))
+      .attr("x2",vars.x_scale(x_val))
+      .attr("opacity",function(d){
+        var yes = x_val > vars.x_scale.domain()[0] && x_val < vars.x_scale.domain()[1]
+        return x_val != null && yes ? 1 : 0
+      })
+    
+    d3.select("#x_axis_val_text").transition().duration(vars.graph.timing)
+      .text(function(){
+        if (x_val != null) {
+          var v = vars.number_format(x_val,x_name)
+          return x_name ? vars.text_format(x_name) + ": " + v : v
+        }
+        else return null
+      })
+      .attr("x",(vars.x_scale(x_val)+10)+"px")
       
     // Move titles
     update_titles()
