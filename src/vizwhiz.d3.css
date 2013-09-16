@@ -147,6 +147,7 @@ div.vizwhiz_tooltip_close {
   text-align: center;
   top: -10px;
   width: 18px;
+  z-index: 10;
 }
 
 div.vizwhiz_tooltip_close:hover {

@@ -261,6 +261,7 @@ vizwhiz.tooltip.create = function(params) {
         name
           .style("cursor","pointer")
           .on(vizwhiz.evt.over,function(){
+            vizwhiz.tooltip.close()
             var c = d3.select(this.parentNode).style("color")
             help.style("background-color",c)
             desc.style("height",dh+"px")
