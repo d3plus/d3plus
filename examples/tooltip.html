@@ -239,8 +239,8 @@ div.test_button {
         "arrow": true,
         "mouseevents": this,
         "footer": "Click box for more info",
-        "data": [{"name":"Trade Value","value":"4000000","format":",f","highlight":true},
-                 {"name":"Complexity","value":"0.89","format":format_test}],
+        "data": [{"name":"Trade Value","value":"4000000","highlight":true,"desc": "Trade Value is a thing."},
+                 {"name":"Complexity","value":"0.89","desc": "You know, that thing about the thing where everything is really complicated?."}],
         "html": "<div class='filter_buttons'>\
                 <div onclick='key_filter()' class='test_button'>Hide Group</div>\
                 <div onclick='key_solo()' class='test_button'>Solo Group</div>\
@@ -250,6 +250,24 @@ div.test_button {
     })
     .on(vizwhiz.evt.out,function(d){
         vizwhiz.tooltip.remove("tester")
+    })
+    
+
+    vizwhiz.tooltip.create({
+      "title": "Animal Products",
+      "description": "Including Horses and other cool creatures.",
+      "color": "#cc0000",
+      "icon": "data/hs_02.png",
+      "id": "desctest",
+      "x": 125,
+      "y": 625,
+      "width": "auto",
+      "align": "bottom center",
+      "arrow": false,
+      "fixed": true,
+      "mouseevents": this,
+      "data": [{"name":"Trade Value","value":"4000000","highlight":true,"desc": "Trade Value is a thing."},
+               {"name":"Complexity","value":"0.89","desc": "You know, that thing about the thing where everything is really complicated?."}]
     })
   
   // while (boxes > 0) {

@@ -9,7 +9,7 @@ vizwhiz.viz = function() {
     "arc_angles": {},
     "arc_inners": {},
     "arc_sizes": {},
-    "attrs": null,
+    "attrs": {},
     "background": "#ffffff",
     "boundaries": null,
     "click_function": null,
@@ -24,6 +24,7 @@ vizwhiz.viz = function() {
     "data": null,
     "data_source": null,
     "depth": null,
+    "descs": {},
     "dev": false,
     "donut": true,
     "else_var": "elsewhere",
@@ -1038,8 +1039,12 @@ vizwhiz.viz = function() {
         else if (typeof value == "number") {
           var val = vars.number_format(value,key)
         }
+        
+        var obj = {"name": name, "value": val, "highlight": h, "group": group}
+        
+        if (vars.descs[key]) obj.desc = vars.descs[key]
       
-        if (val) tooltip_data.push({"name": name, "value": val, "highlight": h, "group": group})
+        if (val) tooltip_data.push(obj)
       }
       
     }
@@ -1266,6 +1271,12 @@ vizwhiz.viz = function() {
   chart.depth = function(x) {
     if (!arguments.length) return vars.depth;
     vars.depth = x;
+    return chart;
+  };
+  
+  chart.descs = function(x) {
+    if (!arguments.length) return vars.descs;
+    vars.descs = x;
     return chart;
   };
   

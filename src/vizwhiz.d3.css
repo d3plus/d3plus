@@ -213,10 +213,35 @@ div.vizwhiz_tooltip_data_value {
   text-align: right;
 }
 
+div.vizwhiz_tooltip_data_help {
+  background-color: #ccc;
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  display: inline-block;
+  font-size: 8px;
+  font-weight: bold;
+  height: 10px;
+  margin: 3px 0px 0px 3px;
+  padding-right: 1px;
+  text-align: center;
+  width: 10px;
+  vertical-align: top;
+  -webkit-transition: background-color 0.5s;
+          transition: background-color 0.5s;
+}
+
+div.vizwhiz_tooltip_data_desc {
+  overflow: hidden;
+  -webkit-transition: height 0.5s;
+          transition: height 0.5s;
+}
+
 div.vizwhiz_tooltip_footer {
   color: #333;
   font-size: 10px;
-/*  padding-top: 6px;*/
   position: relative;
   text-align: center;
 }

@@ -8,11 +8,9 @@ vizwhiz.tooltip.create = function(params) {
   params.width = params.width ? params.width : default_width
   params.max_width = params.max_width ? params.max_width : 386
   params.id = params.id ? params.id : "default"
-  params.html = params.html ? params.html : null
   params.size = params.fullscreen || params.html ? "large" : "small"
   params.offset = params.offset ? params.offset : 0
   params.arrow_offset = params.arrow ? 8 : 0
-  params.mouseevents = params.mouseevents ? params.mouseevents : false
   params.x = params.x ? params.x : 0
   params.y = params.y ? params.y : 0
   params.color = params.color ? params.color : "#333"
@@ -55,6 +53,9 @@ vizwhiz.tooltip.create = function(params) {
     .datum(params)
     .attr("id","vizwhiz_tooltip_id_"+params.id)
     .attr("class","vizwhiz_tooltip vizwhiz_tooltip_"+params.size)
+    .on(vizwhiz.evt.out,function(){
+      vizwhiz.tooltip.close()
+    })
     
   if (params.max_height) {
     tooltip.style("max-height",params.max_height+"px")
@@ -62,6 +63,7 @@ vizwhiz.tooltip.create = function(params) {
     
   if (params.fixed) {
     tooltip.style("z-index",500)
+    params.mouseevents = true
   }
   else {
     tooltip.style("z-index",2000)
@@ -133,6 +135,7 @@ vizwhiz.tooltip.create = function(params) {
       // console.log(!ischild(tooltip.node(),target), !ischild(params.mouseevents,target), !istooltip)
       if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
         oldout(d3.select(params.mouseevents).datum())
+        vizwhiz.tooltip.close()
         d3.select(params.mouseevents).on(vizwhiz.evt.out,oldout)
       }
     }
@@ -214,17 +217,61 @@ vizwhiz.tooltip.create = function(params) {
         .attr("class","vizwhiz_tooltip_data_block")
         
       if (d.highlight) {
-        block
-          .style("color",vizwhiz.utils.darker_color(params.color))
+        block.style("color",vizwhiz.utils.darker_color(params.color))
       }
       
-      block.append("div")
+      var name = block.append("div")
           .attr("class","vizwhiz_tooltip_data_name")
-          .text(d.name)
+          .html(d.name)
+          .on(vizwhiz.evt.out,function(){
+            d3.event.stopPropagation()
+          })
       
       var val = block.append("div")
           .attr("class","vizwhiz_tooltip_data_value")
           .text(d.value)
+          .on(vizwhiz.evt.out,function(){
+            d3.event.stopPropagation()
+          })
+          
+      if (params.mouseevents && d.desc) {
+        var desc = block.append("div")
+          .attr("class","vizwhiz_tooltip_data_desc")
+          .text(d.desc)
+          .on(vizwhiz.evt.out,function(){
+            d3.event.stopPropagation()
+          })
+          
+        var dh = desc.node().offsetHeight
+        
+        desc.style("height","0px")
+          
+        var help = name.append("div")
+          .attr("class","vizwhiz_tooltip_data_help")
+          .text("?")
+          .on(vizwhiz.evt.over,function(){
+            var c = d3.select(this.parentNode.parentNode).style("color")
+            d3.select(this).style("background-color",c)
+            desc.style("height",dh+"px")
+          })
+          .on(vizwhiz.evt.out,function(){
+            d3.event.stopPropagation()
+          })
+          
+        name
+          .style("cursor","pointer")
+          .on(vizwhiz.evt.over,function(){
+            var c = d3.select(this.parentNode).style("color")
+            help.style("background-color",c)
+            desc.style("height",dh+"px")
+          })
+          
+        block.on(vizwhiz.evt.out,function(){
+          d3.event.stopPropagation()
+          vizwhiz.tooltip.close()
+        })
+      }
+          
       var w = parseFloat(val.style("width"),10)
       if (w > val_width) val_width = w
           
@@ -378,6 +425,17 @@ vizwhiz.tooltip.arrow = function(arrow) {
         return arrow_y+"px"
       }
     })
+}
+
+//===================================================================
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Close ALL Descriptions
+//-------------------------------------------------------------------
+
+vizwhiz.tooltip.close = function() {
+  d3.selectAll("div.vizwhiz_tooltip_data_desc").style("height","0px")
+  d3.selectAll("div.vizwhiz_tooltip_data_help").style("background-color","#ccc")
 }
 
 //===================================================================
