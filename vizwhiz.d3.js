@@ -5687,8 +5687,8 @@ vizwhiz.bubbles = function(vars) {
   var pack = d3.layout.pack()
     .size([vars.width,vars.height])
     .children(function(d) { return d.values; })
-    .padding(5)
     .value(function(d) { return d[vars.value_var] })
+    .padding(0)
     .radius(function(d){ return vars.size_scale(d) })
     .sort(function(a,b) { 
       if (a.values && b.values) return a.values.length - b.values.length;
@@ -5745,8 +5745,8 @@ vizwhiz.bubbles = function(vars) {
 
   
   var max_size = d3.max(data_packed,function(d){return d.r;})*2,
-      downscale = (d3.min([vars.width/columns,(vars.height/rows)-title_height])*0.9)/max_size;
-  
+      downscale = (d3.min([vars.width/columns,(vars.height/rows)-title_height])*0.90)/max_size;
+      
   var r = 0, c = 0;
   data_packed.forEach(function(d){
     
@@ -5914,6 +5914,81 @@ vizwhiz.bubbles = function(vars) {
   var bubble = d3.select("g.bubbles").selectAll("g.bubble")
     .data(vars.data,function(d){ return d[vars.id_var] })
     
+  update_function = function(obj,d) {
+  
+    
+  
+  }
+  
+  bubble.transition().duration(vizwhiz.timing)
+    .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
+    .each(function(d){
+      
+      if (vars.donut) d.arc_inner_bg = d.r*arc_offset;
+      else d.arc_inner_bg = 0;
+      d.arc_radius_bg = d.r;
+  
+      var color = find_color(d[vars.id_var])
+  
+      var bg_color = d3.hsl(color)
+      bg_color.l = 0.95
+      bg_color = bg_color.toString()
+
+      d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
+        .attr("fill", bg_color )
+        .attr("stroke", color)
+        .attrTween("d",arcTween_bg)
+        .each("end", function() {
+          vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
+          vars.arc_inners[d[vars.id_var]+"_bg"] = d.arc_inner_bg
+        })
+  
+  
+      var arc_start = d.r*arc_offset;
+
+      d.arc_inner = arc_start;
+      d.arc_radius = arc_start+(d.r-arc_start);
+    
+      if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var]/d[vars.total_var])*360) * (Math.PI/180));
+      else if (d.active) d.arc_angle = Math.PI; 
+
+      d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
+
+      d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
+        .style('fill', color)
+        .attrTween("d",arcTween)
+        .each("end", function() {
+          vars.arc_sizes[d[vars.id_var]] = d.arc_radius
+          vars.arc_inners[d[vars.id_var]] = d.arc_inner
+          vars.arc_angles[d[vars.id_var]] = d.arc_angle
+        })
+
+      if (d[vars.else_var]) {
+
+        d.arc_inner_else = arc_start;
+        d.arc_radius_else = d.r;
+  
+        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
+        d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
+    
+        d3.select("pattern#hatch"+d[vars.id_var]).select("rect").transition().duration(vizwhiz.timing)
+          .style("fill",color)
+    
+        d3.select("pattern#hatch"+d[vars.id_var]).select("path").transition().duration(vizwhiz.timing)
+          .style("stroke",color)
+
+        d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+          .style("stroke",color)
+          .attrTween("d",arcTween_else)
+          .each("end", function() {
+            vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
+            vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
+            vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
+          })
+      }
+      
+    })
+    
   bubble.enter().append("g")
     .attr("class", "bubble")
     .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
@@ -6058,7 +6133,74 @@ vizwhiz.bubbles = function(vars) {
           })
       }
       
-    });
+    })
+    .each("end",function(d){
+      
+      if (vars.donut) d.arc_inner_bg = d.r*arc_offset;
+      else d.arc_inner_bg = 0;
+      d.arc_radius_bg = d.r;
+  
+      var color = find_color(d[vars.id_var])
+  
+      var bg_color = d3.hsl(color)
+      bg_color.l = 0.95
+      bg_color = bg_color.toString()
+
+      d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
+        .attr("fill", bg_color )
+        .attr("stroke", color)
+        .attrTween("d",arcTween_bg)
+        .each("end", function() {
+          vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
+          vars.arc_inners[d[vars.id_var]+"_bg"] = d.arc_inner_bg
+        })
+  
+  
+      var arc_start = d.r*arc_offset;
+
+      d.arc_inner = arc_start;
+      d.arc_radius = arc_start+(d.r-arc_start);
+    
+      if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var]/d[vars.total_var])*360) * (Math.PI/180));
+      else if (d.active) d.arc_angle = Math.PI; 
+
+      d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
+
+      d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
+        .style('fill', color)
+        .attrTween("d",arcTween)
+        .each("end", function() {
+          vars.arc_sizes[d[vars.id_var]] = d.arc_radius
+          vars.arc_inners[d[vars.id_var]] = d.arc_inner
+          vars.arc_angles[d[vars.id_var]] = d.arc_angle
+        })
+
+      if (d[vars.else_var]) {
+
+        d.arc_inner_else = arc_start;
+        d.arc_radius_else = d.r;
+  
+        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
+        d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
+    
+        d3.select("pattern#hatch"+d[vars.id_var]).select("rect").transition().duration(vizwhiz.timing)
+          .style("fill",color)
+    
+        d3.select("pattern#hatch"+d[vars.id_var]).select("path").transition().duration(vizwhiz.timing)
+          .style("stroke",color)
+
+        d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+          .style("stroke",color)
+          .attrTween("d",arcTween_else)
+          .each("end", function() {
+            vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
+            vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
+            vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
+          })
+      }
+      
+    })
+    
   
   //===================================================================
   
@@ -6136,73 +6278,6 @@ vizwhiz.bubbles = function(vars) {
         make_tooltip(html)
       }
       
-    })
-  
-  bubble.transition().duration(vizwhiz.timing)
-    .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
-    .each("end",function(d){
-      if (vars.donut) d.arc_inner_bg = d.r*arc_offset;
-      else d.arc_inner_bg = 0;
-      d.arc_radius_bg = d.r;
-      
-      var color = find_color(d[vars.id_var])
-      
-      var bg_color = d3.hsl(color)
-      bg_color.l = 0.95
-      bg_color = bg_color.toString()
-    
-      d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
-        .attr("fill", bg_color )
-        .attr("stroke", color)
-        .attrTween("d",arcTween_bg)
-        .each("end", function() {
-          vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
-          vars.arc_inners[d[vars.id_var]+"_bg"] = d.arc_inner_bg
-        })
-      
-      
-      var arc_start = d.r*arc_offset;
-    
-      d.arc_inner = arc_start;
-      d.arc_radius = arc_start+(d.r-arc_start);
-        
-      if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var]/d[vars.total_var])*360) * (Math.PI/180));
-      else if (d.active) d.arc_angle = Math.PI; 
-    
-      d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
-
-      d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
-        .style('fill', color)
-        .attrTween("d",arcTween)
-        .each("end", function() {
-          vars.arc_sizes[d[vars.id_var]] = d.arc_radius
-          vars.arc_inners[d[vars.id_var]] = d.arc_inner
-          vars.arc_angles[d[vars.id_var]] = d.arc_angle
-        })
-  
-      if (d[vars.else_var]) {
-    
-        d.arc_inner_else = arc_start;
-        d.arc_radius_else = d.r;
-      
-        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
-        d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
-        
-        d3.select("pattern#hatch"+d[vars.id_var]).select("rect").transition().duration(vizwhiz.timing)
-          .style("fill",color)
-        
-        d3.select("pattern#hatch"+d[vars.id_var]).select("path").transition().duration(vizwhiz.timing)
-          .style("stroke",color)
-    
-        d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
-          .style("stroke",color)
-          .attrTween("d",arcTween_else)
-          .each("end", function() {
-            vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
-            vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
-            vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
-          })
-      }
     })
       
   //===================================================================
