@@ -3322,8 +3322,8 @@ vizwhiz.network = function(vars) {
     })
   })
   
-  var max_size = d3.min(distances)
-  var min_size = 2;
+  var max_size = d3.min(distances,function(d){return d*0.75})
+  var min_size = 4;
   // return
   // x scale
   scale.x.range([offset_left+(max_size*1.5), vars.width-(max_size*1.5)-offset_left])
