@@ -894,8 +894,8 @@ vizwhiz.viz = function() {
     source.enter().append("text")
       .attr("class","source")
       .attr("opacity",0)
-      .attr("x",vars.svg_width/2)
-      .attr("y",padding-1)
+      .attr("x",vars.svg_width/2+"px")
+      .attr("y",padding-1+"px")
       .attr("font-size","10px")
       .attr("fill","#333")
       .attr("text-anchor", "middle")
@@ -934,9 +934,9 @@ vizwhiz.viz = function() {
         }
       })
       
-    source.transition().duration(vizwhiz.evt.timing)
+    source
       .attr("opacity",1)
-      .attr("x",vars.svg_width/2)
+      .attr("x",(vars.svg_width/2)+"px")
       .attr("font-family", vars.font)
       .style("font-weight", vars.font_weight)
       .each(function(d){
@@ -948,8 +948,6 @@ vizwhiz.viz = function() {
           "resize": false
         })
       })
-      .selectAll("tspan")
-        .attr("x",vars.svg_width/2)
       
     source.exit().transition().duration(vizwhiz.evt.timing)
       .attr("opacity",0)

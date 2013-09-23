@@ -136,9 +136,11 @@ vizwhiz.utils.wordwrap = function(params) {
     function flow() {
     
       d3.select(parent).selectAll('tspan').remove()
-    
+      
+      var x_pos = parent.getAttribute('x')
+      
       var tspan = d3.select(parent).append('tspan')
-        .attr('x',parent.getAttribute('x'))
+        .attr('x',x_pos)
         .text(words[0])
 
       for (var i=1; i < words.length; i++) {
@@ -150,7 +152,7 @@ vizwhiz.utils.wordwrap = function(params) {
           tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(" ")))
     
           tspan = d3.select(parent).append('tspan')
-            .attr('x',parent.getAttribute('x'))
+            .attr('x',x_pos)
             .text(words[i])
             
         }

@@ -42,6 +42,7 @@ vizwhiz.tooltip.create = function(params) {
   
   if (params.fullscreen) {
     var curtain = params.parent.append("div")
+      .attr("id","vizwhiz_tooltip_curtain_"+params.id)
       .attr("class","vizwhiz_tooltip_curtain")
       .style("background-color",params.background)
       .on(vizwhiz.evt.click,function(){
@@ -446,11 +447,10 @@ vizwhiz.tooltip.close = function() {
 //-------------------------------------------------------------------
 
 vizwhiz.tooltip.remove = function(id) {
-  
-  if (id) d3.select("div#vizwhiz_tooltip_id_"+id).remove();
-  else d3.selectAll("div.vizwhiz_tooltip").remove();
-  
-  d3.selectAll("div.vizwhiz_tooltip_curtain").remove()
+
+  d3.selectAll("div#vizwhiz_tooltip_curtain_"+id).remove()
+  if (id) d3.select("div#vizwhiz_tooltip_id_"+id).remove()
+  else d3.selectAll("div.vizwhiz_tooltip").remove()
 
 }
 

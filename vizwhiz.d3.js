@@ -173,9 +173,11 @@ vizwhiz.utils.wordwrap = function(params) {
     function flow() {
     
       d3.select(parent).selectAll('tspan').remove()
-    
+      
+      var x_pos = parent.getAttribute('x')
+      
       var tspan = d3.select(parent).append('tspan')
-        .attr('x',parent.getAttribute('x'))
+        .attr('x',x_pos)
         .text(words[0])
 
       for (var i=1; i < words.length; i++) {
@@ -187,7 +189,7 @@ vizwhiz.utils.wordwrap = function(params) {
           tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(" ")))
     
           tspan = d3.select(parent).append('tspan')
-            .attr('x',parent.getAttribute('x'))
+            .attr('x',x_pos)
             .text(words[i])
             
         }
@@ -309,6 +311,7 @@ vizwhiz.tooltip.create = function(params) {
   
   if (params.fullscreen) {
     var curtain = params.parent.append("div")
+      .attr("id","vizwhiz_tooltip_curtain_"+params.id)
       .attr("class","vizwhiz_tooltip_curtain")
       .style("background-color",params.background)
       .on(vizwhiz.evt.click,function(){
@@ -713,11 +716,10 @@ vizwhiz.tooltip.close = function() {
 //-------------------------------------------------------------------
 
 vizwhiz.tooltip.remove = function(id) {
-  
-  if (id) d3.select("div#vizwhiz_tooltip_id_"+id).remove();
-  else d3.selectAll("div.vizwhiz_tooltip").remove();
-  
-  d3.selectAll("div.vizwhiz_tooltip_curtain").remove()
+
+  d3.selectAll("div#vizwhiz_tooltip_curtain_"+id).remove()
+  if (id) d3.select("div#vizwhiz_tooltip_id_"+id).remove()
+  else d3.selectAll("div.vizwhiz_tooltip").remove()
 
 }
 
@@ -1804,8 +1806,8 @@ vizwhiz.viz = function() {
     source.enter().append("text")
       .attr("class","source")
       .attr("opacity",0)
-      .attr("x",vars.svg_width/2)
-      .attr("y",padding-1)
+      .attr("x",vars.svg_width/2+"px")
+      .attr("y",padding-1+"px")
       .attr("font-size","10px")
       .attr("fill","#333")
       .attr("text-anchor", "middle")
@@ -1844,9 +1846,9 @@ vizwhiz.viz = function() {
         }
       })
       
-    source.transition().duration(vizwhiz.evt.timing)
+    source
       .attr("opacity",1)
-      .attr("x",vars.svg_width/2)
+      .attr("x",(vars.svg_width/2)+"px")
       .attr("font-family", vars.font)
       .style("font-weight", vars.font_weight)
       .each(function(d){
@@ -1858,8 +1860,6 @@ vizwhiz.viz = function() {
           "resize": false
         })
       })
-      .selectAll("tspan")
-        .attr("x",vars.svg_width/2)
       
     source.exit().transition().duration(vizwhiz.evt.timing)
       .attr("opacity",0)
