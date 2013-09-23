@@ -1037,8 +1037,7 @@ vizwhiz.viz = function() {
       filter_change = false,
       solo_change = false,
       value_change = false,
-      xaxis_change = false,
-      yaxis_change = false,
+      axis_change = false,
       footer = true,
       nodes,
       links,
@@ -1086,8 +1085,10 @@ vizwhiz.viz = function() {
         if (filter_change) changed.push("filter")
         if (solo_change) changed.push("solo")
         if (value_change && vars.value_var) changed.push(vars.value_var)
-        if (xaxis_change && vars.xaxis_var) changed.push(vars.xaxis_var)
-        if (yaxis_change && vars.yaxis_var) changed.push(vars.yaxis_var)
+        if (axis_change) {
+          if (vars.yaxis_var) changed.push(vars.yaxis_var)
+          if (vars.xaxis_var) changed.push(vars.xaxis_var)
+        }
         
         data_obj.filtered = filter_check(data_obj.raw,changed)
         vars.parent = d3.select(this)
@@ -1095,8 +1096,7 @@ vizwhiz.viz = function() {
         filter_change = false
         solo_change = false
         value_change = false
-        xaxis_change = false
-        yaxis_change = false
+        axis_change = false
         
         if (vars.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
         // Find available years
@@ -1127,8 +1127,10 @@ vizwhiz.viz = function() {
       if (filter_change) changed.push("filter")
       if (solo_change) changed.push("solo")
       if (value_change && vars.value_var) changed.push(vars.value_var)
-      if (xaxis_change && vars.xaxis_var) changed.push(vars.xaxis_var)
-      if (yaxis_change && vars.yaxis_var) changed.push(vars.yaxis_var)
+      if (axis_change) {
+        if (vars.yaxis_var) changed.push(vars.yaxis_var)
+        if (vars.xaxis_var) changed.push(vars.xaxis_var)
+      }
       
       if (changed.length) {
         delete data_obj[data_type[vars.type]]
@@ -1145,8 +1147,7 @@ vizwhiz.viz = function() {
       filter_change = false
       solo_change = false
       value_change = false
-      xaxis_change = false
-      yaxis_change = false
+      axis_change = false
 
       if (!data_obj[data_type[vars.type]]) {
         
@@ -2530,7 +2531,7 @@ vizwhiz.viz = function() {
   chart.xaxis_var = function(x) {
     if (!arguments.length) return vars.xaxis_var;
     vars.xaxis_var = x;
-    xaxis_change = true;
+    axis_change = true;
     return chart;
   };
   
@@ -2555,7 +2556,7 @@ vizwhiz.viz = function() {
   chart.yaxis_var = function(x) {
     if (!arguments.length) return vars.yaxis_var;
     vars.yaxis_var = x;
-    yaxis_change = true;
+    axis_change = true;
     return chart;
   };
   
