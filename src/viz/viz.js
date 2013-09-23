@@ -537,7 +537,7 @@ vizwhiz.viz = function() {
       // Create titles
       vars.margin.top = 0
       var title_offset = 0
-      if ((vars.type == "rings" && !vars.connections[vars.highlight]) || !vars.data || error || vars.svg_width <= 400 || vars.svg_height <= 300) {
+      if (vars.svg_width <= 400 || vars.svg_height <= 300) {
         vars.small = true;
         vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
         vars.graph.width = vars.width
@@ -553,7 +553,12 @@ vizwhiz.viz = function() {
         vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
-        make_title(total_val,"total_bar");
+        if (vars.data && !error && (vars.type == "rings" && !vars.connections[vars.highlight])) {
+          make_title(total_val,"total_bar");
+        }
+        else {
+          make_title(null,"total_bar");
+        }
         if (vars.margin.top > 0) {
           vars.margin.top += 3
           if (vars.margin.top < vars.title_height) {
