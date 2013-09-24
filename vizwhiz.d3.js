@@ -1466,7 +1466,7 @@ vizwhiz.viz = function() {
         vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
-        if (vars.data && !error && (vars.type == "rings" && !vars.connections[vars.highlight])) {
+        if (vars.data && !error && (vars.type != "rings" || (vars.type == "rings" && vars.connections[vars.highlight]))) {
           make_title(total_val,"total_bar");
         }
         else {
