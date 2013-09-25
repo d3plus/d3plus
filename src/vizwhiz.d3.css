@@ -235,6 +235,7 @@ div.vizwhiz_tooltip_data_help {
 }
 
 div.vizwhiz_tooltip_data_desc {
+  color: #888;
   overflow: hidden;
   -webkit-transition: height 0.5s;
           transition: height 0.5s;
