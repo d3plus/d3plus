@@ -285,8 +285,8 @@ div.test_button {
   //         "color": this.style.backgroundColor,
   //         "icon": "data/hs_02.png",
   //         "id": this.id,
-  //         "x": d3.event.pageX,
-  //         "y": d3.event.pageY,
+  //         "x": d3.event.clientX,
+  //         "y": d3.event.clientY,
   //         "width": "auto",
   //         "offset": 5,
   //         "arrow": true,
@@ -298,7 +298,7 @@ div.test_button {
   //       
   //     })
   //     .on(vizwhiz.evt.move,function(d){
-  //       // vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,this.id)
+  //       // vizwhiz.tooltip.move(d3.event.clientX,d3.event.clientY,this.id)
   //     })
   //     .on(vizwhiz.evt.out,function(d){
   //       var target = d3.event.toElement

@@ -4383,8 +4383,8 @@ vizwhiz.tree_map = function(vars) {
       "icon": find_variable(d,"icon"),
       "style": vars.icon_style,
       "id": vars.type,
-      "x": d3.event.pageX,
-      "y": d3.event.pageY,
+      "x": d3.event.clientX,
+      "y": d3.event.clientY,
       "offset": 3,
       "arrow": true,
       "mouseevents": d3.select("#cell_"+id).node(),
@@ -4471,7 +4471,7 @@ vizwhiz.tree_map = function(vars) {
     })
     .on(vizwhiz.evt.move,function(d){
       covered = false
-      vizwhiz.tooltip.move(d3.event.pageX,d3.event.pageY,vars.type)
+      vizwhiz.tooltip.move(d3.event.clientX,d3.event.clientY,vars.type)
     })
   
   cell.transition().duration(vizwhiz.timing)
