@@ -5470,11 +5470,9 @@ vizwhiz.pie_scatter = function(vars) {
         .attr("shape-rendering","crispEdges")
     
       // x-axis value box
-      viz.append("rect")
+      var xrect = viz.append("rect")
         .attr("class", "axis_hover")
-        .attr("x", x-25)
         .attr("y", vars.graph.height)
-        .attr("width", 50)
         .attr("height", 20)
         .attr("fill", "white")
         .attr("stroke", color)
@@ -5484,7 +5482,7 @@ vizwhiz.pie_scatter = function(vars) {
       var xtext = vars.number_format(d[vars.xaxis_var],vars.xaxis_var)
       
       // xvalue text element
-      viz.append("text")
+      var xtext = viz.append("text")
         .attr("class", "axis_hover")
         .attr("x", x)
         .attr("y", vars.graph.height)
@@ -5495,13 +5493,15 @@ vizwhiz.pie_scatter = function(vars) {
         .attr("font-family",vars.font)
         .attr("fill","#4c4c4c")
         .text(xtext)
+        
+      var xwidth = xtext.node().getBBox().width+10
+      xrect.attr("width",xwidth)
+        .attr("x",x-(xwidth/2))
     
       // y-axis value box
-      viz.append("rect")
+      var yrect = viz.append("rect")
         .attr("class", "axis_hover")
-        .attr("x", -50)
         .attr("y", y-10)
-        .attr("width", 50)
         .attr("height", 20)
         .attr("fill", "white")
         .attr("stroke", color)
@@ -5511,7 +5511,7 @@ vizwhiz.pie_scatter = function(vars) {
       var ytext = vars.number_format(d[vars.yaxis_var],vars.yaxis_var)
       
       // xvalue text element
-      viz.append("text")
+      var ytext = viz.append("text")
         .attr("class", "axis_hover")
         .attr("x", -25)
         .attr("y", y-10)
@@ -5522,9 +5522,14 @@ vizwhiz.pie_scatter = function(vars) {
         .attr("font-family",vars.font)
         .attr("fill","#4c4c4c")
         .text(ytext)
+
+      var ywidth = ytext.node().getBBox().width+10
+      ytext.attr("x",-ywidth/2)
+      yrect.attr("width",ywidth)
+        .attr("x",-ywidth)
         
       var ex = null
-      if (d.num_children > 1 && !vars.spotlight) {
+      if (d.num_children > 1 && !vars.spotlight && d.num_children_active != d.num_children) {
         var num = d.num_children_active,
             den = d.num_children
         ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
@@ -5563,7 +5568,7 @@ vizwhiz.pie_scatter = function(vars) {
         d3.selectAll(".axis_hover").remove()
         
         var ex = null
-        if (d.num_children > 1 && !vars.spotlight) {
+        if (d.num_children > 1 && !vars.spotlight && d.num_children_active != d.num_children) {
           var num = d.num_children_active,
               den = d.num_children
           ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
