@@ -221,14 +221,13 @@ vizwhiz.pie_scatter = function(vars) {
         .attr("fill","#4c4c4c")
         .text(ytext)
         
-      var tooltip_data = get_tooltip_data(d,"short")
+      var ex = null
       if (d.num_children > 1 && !vars.spotlight) {
-        var a = d.num_children_active+"/"+d.num_children
-        tooltip_data.push({
-          "name": vars.text_format(vars.active_var), 
-          "value": a
-        });
+        var num = d.num_children_active,
+            den = d.num_children
+        ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
       }
+      var tooltip_data = get_tooltip_data(d,"short",ex)
       
       vizwhiz.tooltip.remove(vars.type)
       vizwhiz.tooltip.create({
@@ -261,14 +260,13 @@ vizwhiz.pie_scatter = function(vars) {
         vizwhiz.tooltip.remove(vars.type)
         d3.selectAll(".axis_hover").remove()
         
-        var tooltip_data = get_tooltip_data(d,"long")
+        var ex = null
         if (d.num_children > 1 && !vars.spotlight) {
-          var a = d.num_children_active+"/"+d.num_children
-          tooltip_data.push({
-            "name": vars.text_format(vars.active_var), 
-            "value": a
-          });
+          var num = d.num_children_active,
+              den = d.num_children
+          ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
         }
+        var tooltip_data = get_tooltip_data(d,"long",ex)
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),

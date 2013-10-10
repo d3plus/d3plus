@@ -67,7 +67,7 @@ d3.json("data/mg_test_data.json", function(flat_data){
       .xaxis_var("distance")
       .yaxis_var("complexity")
       .value_var("val_usd")
-      .tooltip_info(["distance", "complexity", "val_usd", "rca"])
+      .tooltip_info({"short": {"":["val_usd"]}, "long": {"": ["val_usd"], "calcs": ["distance", "complexity", "rca"]}})
       .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
       .nesting(["nesting_2","nesting_4","nesting_6"])
       .nesting_aggs({"complexity":"mean","distance":"mean","rca":"mean"})

@@ -118,8 +118,9 @@ vizwhiz.tree_map = function(vars) {
   small_tooltip = function(d) {
 
     vizwhiz.tooltip.remove(vars.type)
-    var tooltip_data = get_tooltip_data(d,"short")
-    tooltip_data.push({"name": vars.text_format("share"), "value": d.share})
+    var ex = {}
+    ex[vars.text_format("share")] = d.share
+    var tooltip_data = get_tooltip_data(d,"short",ex)
     var id = find_variable(d,vars.id_var)
     
     vizwhiz.tooltip.create({
@@ -179,9 +180,10 @@ vizwhiz.tree_map = function(vars) {
           .attr("opacity",0.85)
         
         vizwhiz.tooltip.remove(vars.type)
-        
-        var tooltip_data = get_tooltip_data(d,"long")
-        tooltip_data.push({"name": vars.text_format("share"), "value": d.share})
+
+        var ex = {}
+        ex[vars.text_format("share")] = d.share
+        var tooltip_data = get_tooltip_data(d,"long",ex)
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),

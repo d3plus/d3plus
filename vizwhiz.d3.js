@@ -1926,30 +1926,60 @@ vizwhiz.viz = function() {
     return connections;
   }
   
-  get_tooltip_data = function(id,length) {
+  get_tooltip_data = function(id,length,extras) {
 
     if (!length) var length = "long"
     
+    var extra_data = {}
+    if (extras && typeof extras == "string") extras = [extras]
+    else if (extras && typeof extras == "object") {
+      extra_data = vizwhiz.utils.merge(extra_data,extras)
+      var extras = []
+      for (k in extra_data) {
+        extras.push(k)
+      }
+    }
+    else if (!extras) var extras = []
+    
+    var tooltip_highlights = []
+    extras.push(vars.value_var)
     if (["network","rings"].indexOf(vars.type) >= 0) {
-      var tooltip_highlight = vars.active_var
+      tooltip_highlights.push(vars.active_var)
+      extras.push(vars.active_var)
     }
-    else {
-      var tooltip_highlight = vars.value_var
+    else if (["bubbles"].indexOf(vars.type) >= 0) {
+      tooltip_highlights.push(vars.active_var)
+      extras.push(vars.active_var)
+      tooltip_highlights.push(vars.else_var)
+      extras.push(vars.else_var)
+      tooltip_highlights.push(vars.total_var)
+      extras.push(vars.total_var)
     }
-
+    else if (["stacked","pie_scatter"].indexOf(vars.type) >= 0) {
+      tooltip_highlights.push(vars.xaxis_var)
+      tooltip_highlights.push(vars.yaxis_var)
+      extras.push(vars.xaxis_var)
+      extras.push(vars.yaxis_var)
+    }
+    
+    if (["stacked","pie_scatter","bubbles"].indexOf(vars.type) < 0) {
+      tooltip_highlights.push(vars.value_var)
+    }
+    
     if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
-    else if (vars.tooltip_info[length]) var a = vars.tooltip_info[length]
+    else if (vars.tooltip_info[length] && vars.tooltip_info[length] instanceof Array) var a = vars.tooltip_info[length]
+    else if (vars.tooltip_info[length]) var a = vizwhiz.utils.merge({"":[]},vars.tooltip_info[length])
     else var a = vars.tooltip_info
     
     function format_key(key,group) {
       if (!group) var group = null
       else var group = vars.text_format(group)
       
-      var value = find_variable(id,key)
+      var value = extra_data[key] || find_variable(id,key)
       if (value !== false) {
         var name = vars.text_format(key),
-            h = key == tooltip_highlight
-
+            h = tooltip_highlights.indexOf(key) >= 0
+            
         if (typeof value == "string") {
           value = value.toString()
           var val = vars.text_format(value,key)
@@ -1968,13 +1998,12 @@ vizwhiz.viz = function() {
     }
        
     var tooltip_data = []
-    if (a instanceof Array) {
     
-      if (a.indexOf(vars.value_var) < 0) a.push(vars.value_var)
-      if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
-           && a.indexOf(vars.xaxis_var) < 0) a.push(vars.xaxis_var)
-      if (["stacked","pie_scatter"].indexOf(vars.type) >= 0
-           && a.indexOf(vars.yaxis_var) < 0) a.push(vars.yaxis_var)
+    if (a instanceof Array) {
+      
+      extras.forEach(function(e){
+        if (a.indexOf(e) < 0) a.push(e)
+      })
          
       a.forEach(function(t){
         format_key(t)
@@ -1983,10 +2012,62 @@ vizwhiz.viz = function() {
     }
     else {
       
-      for (group in a) {
-        a[group].forEach(function(t){
-          format_key(t,group)
+      if (vars.tooltip_info.long && typeof vars.tooltip_info.long == "object") {
+        var placed = []
+        for (group in vars.tooltip_info.long) {
+          extras.forEach(function(e){
+            if (vars.tooltip_info.long[group].indexOf(e) >= 0 && ((a[group] && a[group].indexOf(e) < 0) || !a[group])) {
+              if (!a[group]) a[group] = []
+              a[group].push(e)
+              placed.push(e)
+            }
+            else if (a[group] && a[group].indexOf(e) >= 0) {
+              placed.push(e)
+            }
+          })
+        }
+        extras.forEach(function(e){
+          if (placed.indexOf(e) < 0) {
+            if (!a[""]) a[""] = []
+            a[""].push(e)
+          }
         })
+      }
+      else {
+        var present = []
+        for (group in a) {
+          extras.forEach(function(e){
+            if (a[group].indexOf(e) >= 0) {
+              present.push(e)
+            }
+          })
+        }
+        if (present.length != extras.length) {
+          if (!a[""]) a[""] = []
+          extras.forEach(function(e){
+            if (present.indexOf(e) < 0) {
+              a[""].push(e)
+            }
+          })
+        }
+      }
+      
+      if (a[""]) {
+        a[""].forEach(function(t){
+          format_key(t,"")
+        })
+        delete a[""]
+      }
+      
+      for (group in a) {
+        if (a[group] instanceof Array) {
+          a[group].forEach(function(t){
+            format_key(t,group)
+          })
+        }
+        else if (typeof a[group] == "string") {
+          format_key(a[group],group)
+        }
       }
       
     }
@@ -2623,13 +2704,11 @@ vizwhiz.viz = function() {
   
   var axis_style = {
     "font-size": "12px",
-    "font-weight": vars.font_weight,
     "fill": "#888"
   }
   
   var label_style = {
     "font-size": "14px",
-    "font-weight": vars.font_weight,
     "fill": "#333",
     "text-anchor": "middle"
   }
@@ -2652,6 +2731,7 @@ vizwhiz.viz = function() {
           .style(axis_style)
           .attr("transform","translate(-22,3)rotate(-65)")
           .attr("font-family",vars.font)
+          .attr("font-weight",vars.font_weight)
           .text(text)
         
         var height = (Math.cos(25)*this.getBBox().width)
@@ -2711,6 +2791,7 @@ vizwhiz.viz = function() {
         d3.select(this)
           .style(axis_style)
           .attr("font-family",vars.font)
+          .attr("font-weight",vars.font_weight)
           .text(text)
         
         var width = this.getBBox().width
@@ -2800,6 +2881,7 @@ vizwhiz.viz = function() {
       .attr('y', vars.height-10)
       .text(vars.text_format(vars.xaxis_var))
       .attr("font-family",vars.font)
+      .attr("font-weight",vars.font_weight)
       .attr(label_style)
       
     // Create Y axis label
@@ -2810,6 +2892,7 @@ vizwhiz.viz = function() {
       .text(vars.text_format(vars.yaxis_var))
       .attr("transform","rotate(-90)")
       .attr("font-family",vars.font)
+      .attr("font-weight",vars.font_weight)
       .attr(label_style)
 
     // Set Y axis
@@ -4373,8 +4456,9 @@ vizwhiz.tree_map = function(vars) {
   small_tooltip = function(d) {
 
     vizwhiz.tooltip.remove(vars.type)
-    var tooltip_data = get_tooltip_data(d,"short")
-    tooltip_data.push({"name": vars.text_format("share"), "value": d.share})
+    var ex = {}
+    ex[vars.text_format("share")] = d.share
+    var tooltip_data = get_tooltip_data(d,"short",ex)
     var id = find_variable(d,vars.id_var)
     
     vizwhiz.tooltip.create({
@@ -4434,9 +4518,10 @@ vizwhiz.tree_map = function(vars) {
           .attr("opacity",0.85)
         
         vizwhiz.tooltip.remove(vars.type)
-        
-        var tooltip_data = get_tooltip_data(d,"long")
-        tooltip_data.push({"name": vars.text_format("share"), "value": d.share})
+
+        var ex = {}
+        ex[vars.text_format("share")] = d.share
+        var tooltip_data = get_tooltip_data(d,"long",ex)
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),
@@ -5438,14 +5523,13 @@ vizwhiz.pie_scatter = function(vars) {
         .attr("fill","#4c4c4c")
         .text(ytext)
         
-      var tooltip_data = get_tooltip_data(d,"short")
+      var ex = null
       if (d.num_children > 1 && !vars.spotlight) {
-        var a = d.num_children_active+"/"+d.num_children
-        tooltip_data.push({
-          "name": vars.text_format(vars.active_var), 
-          "value": a
-        });
+        var num = d.num_children_active,
+            den = d.num_children
+        ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
       }
+      var tooltip_data = get_tooltip_data(d,"short",ex)
       
       vizwhiz.tooltip.remove(vars.type)
       vizwhiz.tooltip.create({
@@ -5478,14 +5562,13 @@ vizwhiz.pie_scatter = function(vars) {
         vizwhiz.tooltip.remove(vars.type)
         d3.selectAll(".axis_hover").remove()
         
-        var tooltip_data = get_tooltip_data(d,"long")
+        var ex = null
         if (d.num_children > 1 && !vars.spotlight) {
-          var a = d.num_children_active+"/"+d.num_children
-          tooltip_data.push({
-            "name": vars.text_format(vars.active_var), 
-            "value": a
-          });
+          var num = d.num_children_active,
+              den = d.num_children
+          ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
         }
+        var tooltip_data = get_tooltip_data(d,"long",ex)
         
         vizwhiz.tooltip.create({
           "title": find_variable(d,vars.text_var),
