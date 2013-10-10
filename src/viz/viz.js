@@ -1031,11 +1031,7 @@ vizwhiz.viz = function() {
     
     var tooltip_highlights = []
     extras.push(vars.value_var)
-    if (["network","rings"].indexOf(vars.type) >= 0) {
-      tooltip_highlights.push(vars.active_var)
-      extras.push(vars.active_var)
-    }
-    else if (["bubbles"].indexOf(vars.type) >= 0) {
+    if (["bubbles"].indexOf(vars.type) >= 0) {
       tooltip_highlights.push(vars.active_var)
       extras.push(vars.active_var)
       tooltip_highlights.push(vars.else_var)
