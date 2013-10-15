@@ -308,8 +308,9 @@ vizwhiz.viz = function() {
         }
         
       }
-
-      if (nested_apps.indexOf(vars.type) >= 0) {
+      
+      vars.data == null
+      if (nested_apps.indexOf(vars.type) >= 0 && vars.nesting) {
         
         if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
         
@@ -323,15 +324,15 @@ vizwhiz.viz = function() {
             }
           })
         }
-        else if (vars.type == "pie_scatter") {
+        else if (vars.type == "pie_scatter" && vars.year) {
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
         }
-        else {
+        else if (vars.year) {
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
         }
         
       }
-      else {
+      else if (vars.year) {
         vars.data = data_obj[data_type[vars.type]][vars.year];
       }
       

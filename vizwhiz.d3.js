@@ -1220,8 +1220,9 @@ vizwhiz.viz = function() {
         }
         
       }
-
-      if (nested_apps.indexOf(vars.type) >= 0) {
+      
+      vars.data == null
+      if (nested_apps.indexOf(vars.type) >= 0 && vars.nesting) {
         
         if (!vars.depth) vars.depth = vars.nesting[vars.nesting.length-1]
         
@@ -1235,15 +1236,15 @@ vizwhiz.viz = function() {
             }
           })
         }
-        else if (vars.type == "pie_scatter") {
+        else if (vars.type == "pie_scatter" && vars.year) {
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
         }
-        else {
+        else if (vars.year) {
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
         }
         
       }
-      else {
+      else if (vars.year) {
         vars.data = data_obj[data_type[vars.type]][vars.year];
       }
       
@@ -3259,7 +3260,9 @@ vizwhiz.network = function(vars) {
           
             var tooltip_data = get_tooltip_data(vars.highlight)
           
-            var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>Primary Connections</div>"
+            var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>"
+            tooltip_appends += vars.text_format("Primary Connections")
+            tooltip_appends += "</div>"
       
             prim_nodes.forEach(function(n){
             
@@ -6605,8 +6608,10 @@ vizwhiz.rings = function(vars) {
     make_tooltip = function(html) {
         
       if (typeof html == "string") html = "<br>"+html
-
-      var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>Primary Connections</div>"
+    
+      var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>"
+      tooltip_appends += vars.text_format("Primary Connections")
+      tooltip_appends += "</div>"
 
       vars.connections[vars.highlight].forEach(function(n){
       

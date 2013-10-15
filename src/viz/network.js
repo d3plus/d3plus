@@ -190,7 +190,9 @@ vizwhiz.network = function(vars) {
           
             var tooltip_data = get_tooltip_data(vars.highlight)
           
-            var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>Primary Connections</div>"
+            var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>"
+            tooltip_appends += vars.text_format("Primary Connections")
+            tooltip_appends += "</div>"
       
             prim_nodes.forEach(function(n){
             

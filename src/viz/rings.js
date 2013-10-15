@@ -203,8 +203,10 @@ vizwhiz.rings = function(vars) {
     make_tooltip = function(html) {
         
       if (typeof html == "string") html = "<br>"+html
-
-      var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>Primary Connections</div>"
+    
+      var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>"
+      tooltip_appends += vars.text_format("Primary Connections")
+      tooltip_appends += "</div>"
 
       vars.connections[vars.highlight].forEach(function(n){
       
