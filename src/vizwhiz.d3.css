@@ -211,6 +211,7 @@ div.vizwhiz_tooltip_data_name {
 
 div.vizwhiz_tooltip_data_value {
   display: inline-block;
+  float: right;
   text-align: right;
 }
 
