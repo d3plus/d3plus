@@ -1,4 +1,4 @@
-viz-whiz
-========
+D3plus
+======
 
-Visualization utility
+Visualization utility built on the D3 library.
