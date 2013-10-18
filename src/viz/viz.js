@@ -150,12 +150,12 @@ d3plus.viz = function() {
   chart = function(selection) {
     selection.each(function(data_passed) {
       
-      if (vars.dev) console.log("[viz-whiz] *** Start Chart ***")
+      if (vars.dev) console.log("[d3plus] *** Start Chart ***")
       
       // Things to do ONLY when the data has changed
       if (data_passed != data_obj.raw) {
         
-        if (vars.dev) console.log("[viz-whiz] New Data Detected")
+        if (vars.dev) console.log("[d3plus] New Data Detected")
         // Copy data to "raw_data" variable
         data_obj = {}
         vars.keys = {}
@@ -186,7 +186,7 @@ d3plus.viz = function() {
         value_change = false
         axis_change = false
         
-        if (vars.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
+        if (vars.dev) console.log("[d3plus] Establishing Year Range and Current Year")
         // Find available years
         vars.years = d3plus.utils.uniques(data_obj.raw,vars.year_var)
         vars.years.sort()
@@ -243,7 +243,7 @@ d3plus.viz = function() {
         
         if (nested_apps.indexOf(vars.type) >= 0) {
           
-          if (vars.dev) console.log("[viz-whiz] Nesting Data")
+          if (vars.dev) console.log("[d3plus] Nesting Data")
           
           vars.nesting.forEach(function(depth){
             
@@ -364,7 +364,7 @@ d3plus.viz = function() {
       
       if (["network","rings"].indexOf(vars.type) >= 0) {
         if (vars.solo.length || vars.filter.length) {
-          if (vars.dev) console.log("[viz-whiz] Filtering Nodes and Edges")
+          if (vars.dev) console.log("[d3plus] Filtering Nodes and Edges")
           vars.nodes = nodes.filter(function(d){
             return true_filter(d)
           })
@@ -389,7 +389,7 @@ d3plus.viz = function() {
       vars.width = vars.svg_width;
 
       if (vars.type == "pie_scatter" && vars.data) {
-        if (vars.dev) console.log("[viz-whiz] Setting Axes Domains")
+        if (vars.dev) console.log("[d3plus] Setting Axes Domains")
         if (xaxis_domain instanceof Array) vars.xaxis_domain = xaxis_domain
         else if (!static_axis) {
           vars.xaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year],function(d){
@@ -435,7 +435,7 @@ d3plus.viz = function() {
         var total_val = null
       }
       else {
-        if (vars.dev) console.log("[viz-whiz] Calculating Total Value")
+        if (vars.dev) console.log("[d3plus] Calculating Total Value")
         
         if (vars.type == "tree_map") {
           
@@ -471,7 +471,7 @@ d3plus.viz = function() {
       
       if (vars.data) {
 
-        if (vars.dev) console.log("[viz-whiz] Calculating Color Range")
+        if (vars.dev) console.log("[d3plus] Calculating Color Range")
         
         var data_range = []
         
@@ -549,7 +549,7 @@ d3plus.viz = function() {
         update_footer(null)
       }
       else {
-        if (vars.dev) console.log("[viz-whiz] Creating/Updating Titles")
+        if (vars.dev) console.log("[d3plus] Creating/Updating Titles")
         vars.small = false;
         vars.graph.margin = {"top": 5, "right": 10, "bottom": 40, "left": 40}
         vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
@@ -637,9 +637,9 @@ d3plus.viz = function() {
         vars.error = ""
       }
       
-      if (vars.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
+      if (vars.dev) console.log("[d3plus] Building \"" + vars.type + "\"")
       d3plus[vars.type](vars)
-      if (vars.dev) console.log("[viz-whiz] *** End Chart ***")
+      if (vars.dev) console.log("[d3plus] *** End Chart ***")
       
       d3plus.error(vars)
       
@@ -654,7 +654,7 @@ d3plus.viz = function() {
 
   filter_check = function(check_data,keys) {
     
-    if (vars.dev) console.log("[viz-whiz] Filtering Data")
+    if (vars.dev) console.log("[d3plus] Filtering Data")
     
     return check_data.filter(function(d){
       

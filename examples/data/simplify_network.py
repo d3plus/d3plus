@@ -5,7 +5,7 @@ import csv, sys, json
 from collections import defaultdict
 
 edges = []
-file = open("/Users/Dave/Sites/viz-whiz/examples/data/network_hs.json")
+file = open("/Users/Dave/Sites/d3plus/examples/data/network_hs.json")
 data = json.load(file)
 total_nodes = 15
 exceptions = ["021205","168403","021101","020806","116109","020813"]
@@ -44,5 +44,5 @@ print "Unused: ",unused
 data["nodes"] = new_nodes
 data["edges"] = edges
 
-with open("/Users/Dave/Sites/viz-whiz/examples/data/network_hs_test.json", "w") as f:
+with open("/Users/Dave/Sites/d3plus/examples/data/network_hs_test.json", "w") as f:
   f.write(json.dumps(data))
