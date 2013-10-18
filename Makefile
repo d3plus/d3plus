@@ -16,19 +16,19 @@ JS_FILES = \
 
 JS_COMPILER = uglifyjs
 
-all: vizwhiz.d3.js vizwhiz.d3.min.js
-vizwhiz.d3.js: $(JS_FILES)
-vizwhiz.d3.min.js: $(JS_FILES)
+all: d3plus.js d3plus.min.js
+d3plus.js: $(JS_FILES)
+d3plus.min.js: $(JS_FILES)
 
-vizwhiz.d3.js: Makefile
+d3plus.js: Makefile
 	rm -f $@
 	cat $(filter %.js,$^) >> $@
 
-vizwhiz.d3.min.js: Makefile
+d3plus.min.js: Makefile
 	rm -f $@
-	$(JS_COMPILER) vizwhiz.d3.js --output $@
+	$(JS_COMPILER) d3plus.js --output $@
   # cat $(filter %.js,$^) | $(JS_COMPILER) >> $@
 
 clean:
-	rm -rf vizwhiz.d3.js vizwhiz.d3.min.js
+	rm -rf d3plus.js d3plus.min.js
 

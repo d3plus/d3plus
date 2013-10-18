@@ -1,5 +1,5 @@
 
-vizwhiz.stacked = function(vars) {
+d3plus.stacked = function(vars) {
   
   var covered = false
 
@@ -65,7 +65,7 @@ vizwhiz.stacked = function(vars) {
       .attr("width",vars.graph.width)
       .attr("height",vars.graph.height)
   
-  d3.select("#path_clipping rect").transition().duration(vizwhiz.timing)
+  d3.select("#path_clipping rect").transition().duration(d3plus.timing)
     .attr("width",vars.graph.width)
     .attr("height",vars.graph.height)
     .attr("x",1)
@@ -146,8 +146,8 @@ vizwhiz.stacked = function(vars) {
         tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
         tooltip_y = vars.y_scale(this_value.y0 + this_value.y)-(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
 
-    vizwhiz.tooltip.remove(vars.type)
-    vizwhiz.tooltip.create({
+    d3plus.tooltip.remove(vars.type)
+    d3plus.tooltip.create({
       "data": tooltip_data,
       "title": find_variable(d[vars.id_var],vars.text_var),
       "id": vars.type,
@@ -167,13 +167,13 @@ vizwhiz.stacked = function(vars) {
   
   // UPDATE
   paths
-    .on(vizwhiz.evt.over, function(d) {
+    .on(d3plus.evt.over, function(d) {
       small_tooltip(d) 
     })
-    .on(vizwhiz.evt.move, function(d) {
+    .on(d3plus.evt.move, function(d) {
       small_tooltip(d) 
     })
-    .on(vizwhiz.evt.out, function(d){
+    .on(d3plus.evt.out, function(d){
       
       var id = find_variable(d,vars.id_var),
           self = d3.select("#path_"+id).node()
@@ -182,11 +182,11 @@ vizwhiz.stacked = function(vars) {
       d3.select(self).attr("opacity",0.85)
       
       if (!covered) {
-        vizwhiz.tooltip.remove(vars.type)
+        d3plus.tooltip.remove(vars.type)
       }
       
     })
-    .on(vizwhiz.evt.click, function(d){
+    .on(d3plus.evt.click, function(d){
       
       covered = true
         
@@ -203,7 +203,7 @@ vizwhiz.stacked = function(vars) {
       make_tooltip = function(html) {
       
         d3.selectAll("line.rule").remove()
-        vizwhiz.tooltip.remove(vars.type)
+        d3plus.tooltip.remove(vars.type)
         d3.select(self).attr("opacity",0.85)
         
         var tooltip_data = get_tooltip_data(this_value,"long")
@@ -212,7 +212,7 @@ vizwhiz.stacked = function(vars) {
           tooltip_data.push({"name": vars.text_format("share"), "value": share})
         }
         
-        vizwhiz.tooltip.create({
+        d3plus.tooltip.create({
           "title": find_variable(d[vars.id_var],vars.text_var),
           "color": find_color(d[vars.id_var]),
           "icon": find_variable(d[vars.id_var],"icon"),
@@ -244,7 +244,7 @@ vizwhiz.stacked = function(vars) {
       
     })
   
-  paths.transition().duration(vizwhiz.timing)
+  paths.transition().duration(d3plus.timing)
     .attr("opacity", 0.85)
     .attr("fill", function(d){
       return find_color(d.key)
@@ -255,7 +255,7 @@ vizwhiz.stacked = function(vars) {
 
   // EXIT
   paths.exit()
-    .transition().duration(vizwhiz.timing)
+    .transition().duration(d3plus.timing)
     .attr("opacity", 0)
     .remove()
   
@@ -377,7 +377,7 @@ vizwhiz.stacked = function(vars) {
       return "middle"
     })
     .attr("fill", function(d){
-      return vizwhiz.utils.text_color(find_color(d[vars.id_var]))
+      return d3plus.utils.text_color(find_color(d[vars.id_var]))
     })
     .attr("x", function(d){
       var pad = 0;
@@ -404,9 +404,9 @@ vizwhiz.stacked = function(vars) {
         // figure out the usable height for this location along x-axis
         var height = vars.graph.height-vars.y_scale(d.tallest.y)
         // wrap text WITHOUT resizing
-        // vizwhiz.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
+        // d3plus.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
       
-        vizwhiz.utils.wordwrap({
+        d3plus.utils.wordwrap({
           "text": find_variable(d[vars.id_var],vars.text_var),
           "parent": this,
           "width": tick_width,
@@ -423,7 +423,7 @@ vizwhiz.stacked = function(vars) {
     })
     
   // UPDATE
-  texts.transition().duration(vizwhiz.timing)
+  texts.transition().duration(d3plus.timing)
     .attr("opacity",function(){
       if (vars.small || !vars.labels) return 0
       else return 1

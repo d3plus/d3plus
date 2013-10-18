@@ -18,7 +18,7 @@ svg#gmap_overlay {
   width: 20000px;
 }
 
-div#vizwhiz_loader {
+div#d3plus_loader {
   height: 100%;
   left: 0px;
   opacity: 1;
@@ -28,7 +28,7 @@ div#vizwhiz_loader {
   z-index: 9999;
 }
 
-div#vizwhiz_loader_text {
+div#d3plus_loader_text {
   color: #888;
   font-size: 30px;
   margin-top: -15px;
@@ -46,7 +46,7 @@ svg#scale {
  * Tooltip Styling
  ********************/
 
-div.vizwhiz_tooltip {
+div.d3plus_tooltip {
   color: #333;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
@@ -54,19 +54,19 @@ div.vizwhiz_tooltip {
   position: absolute;
 }
 
-div.vizwhiz_tooltip_container {
+div.d3plus_tooltip_container {
   background-color: #fff;
   padding: 6px;
 }
 
-div.vizwhiz_tooltip,
-div.vizwhiz_tooltip_arrow {
+div.d3plus_tooltip,
+div.d3plus_tooltip_arrow {
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
      -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
-div.vizwhiz_tooltip_curtain {
+div.d3plus_tooltip_curtain {
   position: absolute;
   top: 0px;
   right: 0px;
@@ -76,64 +76,64 @@ div.vizwhiz_tooltip_curtain {
   z-index: 499;
 }
 
-div.vizwhiz_tooltip_body {
+div.d3plus_tooltip_body {
   display: inline-block;
   padding-right: 6px;
   z-index: 1;
 }
 
-div.vizwhiz_tooltip_header {
+div.d3plus_tooltip_header {
   position: relative;
   z-index: 1;
 }
 
-div.vizwhiz_tooltip_header > div {
+div.d3plus_tooltip_header > div {
   display: inline-block;
   z-index: 1;
 }
 
-div.vizwhiz_tooltip_small {
+div.d3plus_tooltip_small {
   z-index: 2000;
 }
 
-div.vizwhiz_tooltip_large {
+div.d3plus_tooltip_large {
   z-index: 500;
 }
 
-div.vizwhiz_tooltip_small div.vizwhiz_tooltip_title {
+div.d3plus_tooltip_small div.d3plus_tooltip_title {
   font-size: 16px;
   line-height: 17px;
   padding: 3px 6px;
 }
 
-div.vizwhiz_tooltip_large div.vizwhiz_tooltip_title {
+div.d3plus_tooltip_large div.d3plus_tooltip_title {
   font-size: 18px;
   line-height: 20px;
   padding: 3px 6px;
 }
 
-div.vizwhiz_tooltip_icon {
+div.d3plus_tooltip_icon {
   background-position: 50%;
   background-size: 100%;
   margin: 0px 3px 3px 0px;
   z-index: 1;
 }
 
-div.vizwhiz_tooltip_small div.vizwhiz_tooltip_icon {
+div.d3plus_tooltip_small div.d3plus_tooltip_icon {
   height: 22px;
   width: 22px;
 }
 
-div.vizwhiz_tooltip_large div.vizwhiz_tooltip_icon {
+div.d3plus_tooltip_large div.d3plus_tooltip_icon {
   height: 50px;
   width: 50px;
 }
 
-div.vizwhiz_tooltip_title {
+div.d3plus_tooltip_title {
   vertical-align: top;
 }
 
-div.vizwhiz_tooltip_close {
+div.d3plus_tooltip_close {
   background-color: #fff;
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
      -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
@@ -150,14 +150,14 @@ div.vizwhiz_tooltip_close {
   z-index: 10;
 }
 
-div.vizwhiz_tooltip_close:hover {
+div.d3plus_tooltip_close:hover {
   cursor: pointer;
   -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
      -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 }
 
-div.vizwhiz_tooltip_arrow {
+div.d3plus_tooltip_arrow {
   background-color: #fff;
   bottom: -5px;
   height: 10px;
@@ -172,17 +172,17 @@ div.vizwhiz_tooltip_arrow {
   z-index: -1;
 }
 
-div.vizwhiz_tooltip_description {
+div.d3plus_tooltip_description {
   font-size: 12px;
   padding: 6px;
 }
 
-div.vizwhiz_tooltip_data_container {
+div.d3plus_tooltip_data_container {
   overflow-y: auto;
   z-index: -1;
 }
 
-div.vizwhiz_tooltip_data_title {
+div.d3plus_tooltip_data_title {
   color: #333;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
@@ -190,14 +190,14 @@ div.vizwhiz_tooltip_data_title {
   padding: 6px 3px 0px 3px;
 }
 
-div.vizwhiz_tooltip_data_seperator {
+div.d3plus_tooltip_data_seperator {
   background-color: #ddd;
   display: block;
   height: 1px;
   margin: 0px 3px;
 }
 
-div.vizwhiz_tooltip_data_block {
+div.d3plus_tooltip_data_block {
   color: #333;
   font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
@@ -205,17 +205,17 @@ div.vizwhiz_tooltip_data_block {
   position: relative;
 }
 
-div.vizwhiz_tooltip_data_name {
+div.d3plus_tooltip_data_name {
   display: inline-block;
 }
 
-div.vizwhiz_tooltip_data_value {
+div.d3plus_tooltip_data_value {
   display: inline-block;
   float: right;
   text-align: right;
 }
 
-div.vizwhiz_tooltip_data_help {
+div.d3plus_tooltip_data_help {
   background-color: #ccc;
   -webkit-border-radius: 5px;
      -moz-border-radius: 5px;
@@ -235,31 +235,31 @@ div.vizwhiz_tooltip_data_help {
           transition: background-color 0.5s;
 }
 
-div.vizwhiz_tooltip_data_desc {
+div.d3plus_tooltip_data_desc {
   color: #888;
   overflow: hidden;
   -webkit-transition: height 0.5s;
           transition: height 0.5s;
 }
 
-div.vizwhiz_tooltip_footer {
+div.d3plus_tooltip_footer {
   color: #333;
   font-size: 10px;
   position: relative;
   text-align: center;
 }
 
-div.vizwhiz_tooltip_footer a {
+div.d3plus_tooltip_footer a {
   color: #333;
   text-decoration: none;
 }
 
-div.vizwhiz_tooltip_footer a:hover {
+div.d3plus_tooltip_footer a:hover {
   color: #000;
   text-decoration: underline;
 }
 
-div.vizwhiz_tooltip_html {
+div.d3plus_tooltip_html {
   display: inline-block;
   vertical-align: top;
   overflow-y: auto;
@@ -271,19 +271,19 @@ div.vizwhiz_tooltip_html {
  * Network Tooltip
  ********************/
 
-div.vizwhiz_network_connection {
+div.d3plus_network_connection {
   opacity: 0.75;
   padding: 3px 6px;
 }
 
-div.vizwhiz_network_connection:hover {
+div.d3plus_network_connection:hover {
   cursor: pointer;
   cursor: -moz-zoom-in;
   cursor: -webkit-zoom-in;
   opacity: 1;
 }
 
-div.vizwhiz_network_connection_node {
+div.d3plus_network_connection_node {
   -webkit-border-radius: 6px;
      -moz-border-radius: 6px;
           border-radius: 6px;
@@ -296,7 +296,7 @@ div.vizwhiz_network_connection_node {
   width: 10px;
 }
 
-div.vizwhiz_network_connection_name {
+div.d3plus_network_connection_name {
   color: "#333";
   display: inline;
 }

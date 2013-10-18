@@ -1,5 +1,5 @@
 
-vizwhiz.rings = function(vars) {
+d3plus.rings = function(vars) {
       
   var tooltip_width = 300
       
@@ -18,7 +18,7 @@ vizwhiz.rings = function(vars) {
   viz_enter.append("g").attr("class","links")
   viz_enter.append("g").attr("class","nodes")
     
-  d3.select("g.viz").transition().duration(vizwhiz.timing)
+  d3.select("g.viz").transition().duration(d3plus.timing)
     .attr("transform", "translate(" + width / 2 + "," + vars.height / 2 + ")");
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -59,10 +59,10 @@ vizwhiz.rings = function(vars) {
     .attr("opacity",0);
       
   if (!vars.last_highlight || vars.last_highlight != vars.highlight) {
-    link.transition().duration(vizwhiz.timing/2)
+    link.transition().duration(d3plus.timing/2)
       .attr("opacity",0)
       .transition().call(line_styles)
-      .transition().duration(vizwhiz.timing/2)
+      .transition().duration(d3plus.timing/2)
       .attr("opacity",function(d) {
         if (hover && d3.select(this).attr("stroke") == "#ddd") {
            return 0.25
@@ -78,7 +78,7 @@ vizwhiz.rings = function(vars) {
       })
   }
       
-  link.exit().transition().duration(vizwhiz.timing)
+  link.exit().transition().duration(d3plus.timing)
     .attr("opacity",0)
     .remove();
 
@@ -112,10 +112,10 @@ vizwhiz.rings = function(vars) {
     .call(text_styles);
       
   node
-    .on(vizwhiz.evt.over,function(d){
+    .on(d3plus.evt.over,function(d){
       if (d.depth != 0) {
         d3.select(this).style("cursor","pointer")
-        if (!vizwhiz.ie) {
+        if (!d3plus.ie) {
           d3.select(this).style("cursor","-moz-zoom-in")
           d3.select(this).style("cursor","-webkit-zoom-in")
         }
@@ -127,7 +127,7 @@ vizwhiz.rings = function(vars) {
         }
       }
     })
-    .on(vizwhiz.evt.out,function(d){
+    .on(d3plus.evt.out,function(d){
       if (d.depth != 0) {
         hover = null;
         if (!vars.small) {
@@ -137,21 +137,21 @@ vizwhiz.rings = function(vars) {
         }
       }
     })
-    .on(vizwhiz.evt.click,function(d){
+    .on(d3plus.evt.click,function(d){
       if (d.depth != 0) vars.parent.call(chart.highlight(d[vars.id_var]));
     })
       
-  node.transition().duration(vizwhiz.timing)
+  node.transition().duration(d3plus.timing)
       .attr("opacity",1)
       .attr("transform", function(d) {
         if (d.depth == 0) return "none"
         else return "rotate(" + (d.ring_x - 90) + ")translate(" + d.ring_y + ")"; 
       })
   
-  node.select("circle").transition().duration(vizwhiz.timing)
+  node.select("circle").transition().duration(d3plus.timing)
     .call(circle_styles)
     
-  node.select("text").transition().duration(vizwhiz.timing)
+  node.select("text").transition().duration(d3plus.timing)
     .attr("opacity",function(d){
       if (vars.small) return 0
       else return 1
@@ -173,7 +173,7 @@ vizwhiz.rings = function(vars) {
 
       if (h < 15) h = 15;
 
-      vizwhiz.utils.wordwrap({
+      d3plus.utils.wordwrap({
         "text": d.name,
         "parent": this,
         "width": w,
@@ -186,7 +186,7 @@ vizwhiz.rings = function(vars) {
       
     })
       
-  node.exit().transition().duration(vizwhiz.timing)
+  node.exit().transition().duration(d3plus.timing)
       .attr("opacity",0)
       .remove()
       
@@ -198,13 +198,13 @@ vizwhiz.rings = function(vars) {
   
   if (!vars.small && vars.data) {
 
-    vizwhiz.tooltip.remove(vars.type)
+    d3plus.tooltip.remove(vars.type)
     
     make_tooltip = function(html) {
         
       if (typeof html == "string") html = "<br>"+html
     
-      var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>"
+      var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
       tooltip_appends += vars.text_format("Primary Connections")
       tooltip_appends += "</div>"
 
@@ -212,14 +212,14 @@ vizwhiz.rings = function(vars) {
       
         var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
       
-        tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
-        tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+        tooltip_appends += "<div class='d3plus_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+        tooltip_appends += "<div class='d3plus_network_connection_node'"
         tooltip_appends += " style='"
         tooltip_appends += "background-color:"+fill_color(n)+";"
         tooltip_appends += "border-color:"+stroke_color(n)+";"
         tooltip_appends += "'"
         tooltip_appends += "></div>"
-        tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+        tooltip_appends += "<div class='d3plus_network_connection_name'>"
         tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
         tooltip_appends += "</div>"
         tooltip_appends += "</div>"
@@ -227,8 +227,8 @@ vizwhiz.rings = function(vars) {
     
       var tooltip_data = get_tooltip_data(vars.highlight)
 
-      vizwhiz.tooltip.remove(vars.type)
-      vizwhiz.tooltip.create({
+      d3plus.tooltip.remove(vars.type)
+      d3plus.tooltip.create({
         "title": find_variable(vars.highlight,vars.text_var),
         "color": find_color(vars.highlight),
         "icon": find_variable(vars.highlight,"icon"),
@@ -276,7 +276,7 @@ vizwhiz.rings = function(vars) {
     if(find_variable(d[vars.id_var],vars.active_var)){
       return "#333";
     } else {
-      return vizwhiz.utils.darker_color(d[vars.color_var])
+      return d3plus.utils.darker_color(d[vars.color_var])
     }
   }
   
@@ -357,10 +357,10 @@ vizwhiz.rings = function(vars) {
     t
       .attr("fill",function(d){
         if (d.depth == 0) {
-          var color = vizwhiz.utils.text_color(fill_color(d));
+          var color = d3plus.utils.text_color(fill_color(d));
         } 
         else {
-          var color = vizwhiz.utils.darker_color(d[vars.color_var]);
+          var color = d3plus.utils.darker_color(d[vars.color_var]);
         }
 
         if (d.depth == 0) return color;

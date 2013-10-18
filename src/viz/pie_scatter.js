@@ -1,5 +1,5 @@
 
-vizwhiz.pie_scatter = function(vars) {
+d3plus.pie_scatter = function(vars) {
   
   var covered = false
   
@@ -127,7 +127,7 @@ vizwhiz.pie_scatter = function(vars) {
         .style('fill', find_color(d[vars.id_var]) )
         .style("fill-opacity", 1)
         
-      d3.select(this).select("path").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path").transition().duration(d3plus.timing)
         .attrTween("d",arcTween)
         
     })
@@ -135,7 +135,7 @@ vizwhiz.pie_scatter = function(vars) {
   // update
   
   nodes
-    .on(vizwhiz.evt.over, function(d){
+    .on(d3plus.evt.over, function(d){
       covered = false
       
       var val = d[vars.value_var] ? d[vars.value_var] : vars.size_scale.domain()[0]
@@ -234,8 +234,8 @@ vizwhiz.pie_scatter = function(vars) {
       }
       var tooltip_data = get_tooltip_data(d,"short",ex)
       
-      vizwhiz.tooltip.remove(vars.type)
-      vizwhiz.tooltip.create({
+      d3plus.tooltip.remove(vars.type)
+      d3plus.tooltip.create({
         "id": vars.type,
         "color": find_color(d[vars.id_var]),
         "icon": find_variable(d[vars.id_var],"icon"),
@@ -251,18 +251,18 @@ vizwhiz.pie_scatter = function(vars) {
       })
       
     })
-    .on(vizwhiz.evt.out, function(d){
-      if (!covered) vizwhiz.tooltip.remove(vars.type)
+    .on(d3plus.evt.out, function(d){
+      if (!covered) d3plus.tooltip.remove(vars.type)
       d3.selectAll(".axis_hover").remove()
     })
-    .on(vizwhiz.evt.click, function(d){
+    .on(d3plus.evt.click, function(d){
       covered = true
       var id = find_variable(d,vars.id_var)
       var self = this
       
       make_tooltip = function(html) {
         
-        vizwhiz.tooltip.remove(vars.type)
+        d3plus.tooltip.remove(vars.type)
         d3.selectAll(".axis_hover").remove()
         
         var ex = null
@@ -273,7 +273,7 @@ vizwhiz.pie_scatter = function(vars) {
         }
         var tooltip_data = get_tooltip_data(d,"long",ex)
         
-        vizwhiz.tooltip.create({
+        d3plus.tooltip.create({
           "title": find_variable(d,vars.text_var),
           "color": find_color(d),
           "icon": find_variable(d,"icon"),
@@ -305,7 +305,7 @@ vizwhiz.pie_scatter = function(vars) {
       
     })
     
-  nodes.transition().duration(vizwhiz.timing)
+  nodes.transition().duration(d3plus.timing)
     .attr("transform", function(d) { return "translate("+vars.x_scale(d[vars.xaxis_var])+","+vars.y_scale(d[vars.yaxis_var])+")" } )
     .attr("opacity", 1)
     .each(function(d){
@@ -314,7 +314,7 @@ vizwhiz.pie_scatter = function(vars) {
       val = val && val > 0 ? val : vars.size_scale.domain()[0]
       d.arc_radius = vars.size_scale(val);
       
-      d3.select(this).select("circle").transition().duration(vizwhiz.timing)
+      d3.select(this).select("circle").transition().duration(d3plus.timing)
         .style("stroke", function(dd){
           if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return "#333";
           else return find_color(d[vars.id_var]);
@@ -332,7 +332,7 @@ vizwhiz.pie_scatter = function(vars) {
       
       if (d.num_children) {
         d.arc_angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
-        d3.select(this).select("path").transition().duration(vizwhiz.timing)
+        d3.select(this).select("path").transition().duration(d3plus.timing)
           .style('fill', find_color(d[vars.id_var]) )
           .attrTween("d",arcTween)
           .each("end", function(dd) {
@@ -345,7 +345,7 @@ vizwhiz.pie_scatter = function(vars) {
   
   // exit
   nodes.exit()
-    .transition().duration(vizwhiz.timing)
+    .transition().duration(d3plus.timing)
     .attr("opacity", 0)
     .remove()
   
@@ -378,7 +378,7 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("shape-rendering","crispEdges")
   
   // UPDATE      
-  ticks.select(".ytick").transition().duration(vizwhiz.timing)
+  ticks.select(".ytick").transition().duration(d3plus.timing)
     .attr("x1", -10)
     .attr("x2", 0)
     .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
@@ -397,7 +397,7 @@ vizwhiz.pie_scatter = function(vars) {
     .attr("shape-rendering","crispEdges")
   
   // UPDATE
-  ticks.select(".xtick").transition().duration(vizwhiz.timing)
+  ticks.select(".xtick").transition().duration(d3plus.timing)
     .attr("y1", vars.graph.height)
     .attr("y2", vars.graph.height + 10)      
     .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis_var]) })

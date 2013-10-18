@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<link href="../src/vizwhiz.d3.css" rel="stylesheet" type="text/css">
+<link href="../d3plus.css" rel="stylesheet" type="text/css">
 <style>
 
 body {
@@ -45,7 +45,7 @@ div.test_button {
   var w = window.innerWidth/xn
   var h = window.innerHeight/yn
   
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 0,
   //   "y": 0,
   //   "fixed": true,
@@ -54,7 +54,7 @@ div.test_button {
   //   "id": "1"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 250,
   //   "y": 0,
   //   "fixed": true,
@@ -65,7 +65,7 @@ div.test_button {
   //   "id": "2"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 500,
   //   "y": 0,
   //   "fixed": true,
@@ -75,7 +75,7 @@ div.test_button {
   //   "id": "3"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 0,
   //   "y": 100,
   //   "fixed": true,
@@ -85,7 +85,7 @@ div.test_button {
   //   "id": "4"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 250,
   //   "y": 100,
   //   "fixed": true,
@@ -97,7 +97,7 @@ div.test_button {
   //   "id": "5"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 500,
   //   "y": 100,
   //   "fixed": true,
@@ -107,7 +107,7 @@ div.test_button {
   //   "id": "6"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 750,
   //   "y": 100,
   //   "fixed": true,
@@ -116,7 +116,7 @@ div.test_button {
   //   "id": "7"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 0,
   //   "y": 200,
   //   "fixed": true,
@@ -127,7 +127,7 @@ div.test_button {
   //   "id": "8"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 250,
   //   "y": 200,
   //   "fixed": true,
@@ -139,7 +139,7 @@ div.test_button {
   //   "id": "9"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 500,
   //   "y": 200,
   //   "fixed": true,
@@ -150,7 +150,7 @@ div.test_button {
   //   "id": "10"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 750,
   //   "y": 200,
   //   "fixed": true,
@@ -160,7 +160,7 @@ div.test_button {
   //   "id": "11"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 0,
   //   "y": 300,
   //   "fixed": true,
@@ -170,7 +170,7 @@ div.test_button {
   //   "id": "12"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 250,
   //   "y": 300,
   //   "fixed": true,
@@ -181,7 +181,7 @@ div.test_button {
   //   "id": "13"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 500,
   //   "y": 300,
   //   "fixed": true,
@@ -191,7 +191,7 @@ div.test_button {
   //   "id": "14"
   // })
   // 
-  // vizwhiz.tooltip.create({
+  // d3plus.tooltip.create({
   //   "x": 750,
   //   "y": 300,
   //   "fixed": true,
@@ -200,7 +200,7 @@ div.test_button {
   //   "id": "15"
   // })
   
-  vizwhiz.tooltip.create({
+  d3plus.tooltip.create({
     "title": "Animal Products",
     "icon": "data/hs_02.png",
     "style": "knockout",
@@ -228,8 +228,8 @@ div.test_button {
   //   .style("top","600px")
   //   .style("left","600px")
   //   .style("background-color","red")
-  //   .on(vizwhiz.evt.over,function(d){
-  //     vizwhiz.tooltip.create({
+  //   .on(d3plus.evt.over,function(d){
+  //     d3plus.tooltip.create({
   //       "title": "Animal Products",
   //       "description": "Including Horses and other cool creatures.",
   //       "color": this.style.backgroundColor,
@@ -252,12 +252,12 @@ div.test_button {
   //     })
   //     
   //   })
-  //   .on(vizwhiz.evt.out,function(d){
-  //       vizwhiz.tooltip.remove("tester")
+  //   .on(d3plus.evt.out,function(d){
+  //       d3plus.tooltip.remove("tester")
   //   })
   //   
   // 
-  //   vizwhiz.tooltip.create({
+  //   d3plus.tooltip.create({
   //     "title": "Animal Products",
   //     "description": "Including Horses and other cool creatures.",
   //     "color": "#cc0000",
@@ -280,10 +280,10 @@ div.test_button {
   //     .attr("class","tester")
   //     .style("width",w+"px")
   //     .style("height",h+"px")
-  //     .style("background-color",vizwhiz.utils.rand_color())
-  //     .on(vizwhiz.evt.over,function(d){
+  //     .style("background-color",d3plus.utils.rand_color())
+  //     .on(d3plus.evt.over,function(d){
   //       
-  //       vizwhiz.tooltip.create({
+  //       d3plus.tooltip.create({
   //         "title": "Animal Products",
   //         "description": "Including Horses and other cool creatures.",
   //         "color": this.style.backgroundColor,
@@ -301,21 +301,21 @@ div.test_button {
   //       })
   //       
   //     })
-  //     .on(vizwhiz.evt.move,function(d){
-  //       // vizwhiz.tooltip.move(d3.event.clientX,d3.event.clientY,this.id)
+  //     .on(d3plus.evt.move,function(d){
+  //       // d3plus.tooltip.move(d3.event.clientX,d3.event.clientY,this.id)
   //     })
-  //     .on(vizwhiz.evt.out,function(d){
+  //     .on(d3plus.evt.out,function(d){
   //       var target = d3.event.toElement
   //       var class_name = target ? target.className : ""
-  //       if (class_name.indexOf("vizwhiz_tooltip") < 0) {
-  //         vizwhiz.tooltip.remove(this.id)
+  //       if (class_name.indexOf("d3plus_tooltip") < 0) {
+  //         d3plus.tooltip.remove(this.id)
   //       }
   //     })
-  //     .on(vizwhiz.evt.click,function(d){
+  //     .on(d3plus.evt.click,function(d){
   // 
-  //       vizwhiz.tooltip.remove(this.id)
+  //       d3plus.tooltip.remove(this.id)
   //       
-  //       vizwhiz.tooltip.create({
+  //       d3plus.tooltip.create({
   //         "title": "Animal Products",
   //         "color": this.style.backgroundColor,
   //         "icon": "data/hs_02.png",

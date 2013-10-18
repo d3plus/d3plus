@@ -1,4 +1,4 @@
-vizwhiz.viz = function() {
+d3plus.viz = function() {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Public Variables with Default Settings
@@ -188,7 +188,7 @@ vizwhiz.viz = function() {
         
         if (vars.dev) console.log("[viz-whiz] Establishing Year Range and Current Year")
         // Find available years
-        vars.years = vizwhiz.utils.uniques(data_obj.raw,vars.year_var)
+        vars.years = d3plus.utils.uniques(data_obj.raw,vars.year_var)
         vars.years.sort()
         // Set initial year if it doesn't exist
         if (!vars.year) {
@@ -340,7 +340,7 @@ vizwhiz.viz = function() {
         vars.data = null
       }
 
-      vizwhiz.tooltip.remove(vars.type);
+      d3plus.tooltip.remove(vars.type);
       
       vars.svg = vars.parent.selectAll("svg").data([vars.data]);
       
@@ -354,11 +354,11 @@ vizwhiz.viz = function() {
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
     
-      vars.svg.transition().duration(vizwhiz.timing)
+      vars.svg.transition().duration(d3plus.timing)
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
     
-      vars.svg.select("rect#svgbg").transition().duration(vizwhiz.timing)
+      vars.svg.select("rect#svgbg").transition().duration(d3plus.timing)
         .attr('width',vars.svg_width)
         .attr('height',vars.svg_height)
       
@@ -571,7 +571,7 @@ vizwhiz.viz = function() {
         update_footer(vars.data_source)
       }
       
-      d3.select("g.titles").transition().duration(vizwhiz.timing)
+      d3.select("g.titles").transition().duration(d3plus.timing)
         .attr("transform","translate(0,"+title_offset+")")
       
       
@@ -591,10 +591,10 @@ vizwhiz.viz = function() {
         .attr("clip-path","url(#clipping)")
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
-      vars.svg.select("g.parent").transition().duration(vizwhiz.timing)
+      vars.svg.select("g.parent").transition().duration(d3plus.timing)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
-      vars.svg.select("rect#parent_clip").transition().duration(vizwhiz.timing)
+      vars.svg.select("rect#parent_clip").transition().duration(d3plus.timing)
         .attr("width",vars.width)
         .attr("height",vars.height)
       
@@ -602,20 +602,20 @@ vizwhiz.viz = function() {
       vars.defs = d3.select("g.parent").select("defs")
       
       
-      vars.loader = vars.parent.selectAll("div#vizwhiz_loader").data([vars.data]);
+      vars.loader = vars.parent.selectAll("div#d3plus_loader").data([vars.data]);
       
       vars.loader.enter().append("div")
-        .attr("id","vizwhiz_loader")
+        .attr("id","d3plus_loader")
         .style("background-color",vars.background)
         .style("display","none")
         .append("div")
-          .attr("id","vizwhiz_loader_text")
+          .attr("id","d3plus_loader_text")
           .style("font-family",vars.font)
           .style("font-weight",vars.font_weight)
           .style(vars.info_style)
           .text(vars.text_format("Loading..."))
       
-      // vars.loader.select("div#vizwhiz_loader_text").transition().duration(vizwhiz.timing)
+      // vars.loader.select("div#d3plus_loader_text").transition().duration(d3plus.timing)
 
       if (!error && !vars.data) {
         vars.error = vars.text_format("No Data Available","error")
@@ -638,10 +638,10 @@ vizwhiz.viz = function() {
       }
       
       if (vars.dev) console.log("[viz-whiz] Building \"" + vars.type + "\"")
-      vizwhiz[vars.type](vars)
+      d3plus[vars.type](vars)
       if (vars.dev) console.log("[viz-whiz] *** End Chart ***")
       
-      vizwhiz.error(vars)
+      d3plus.error(vars)
       
     });
     
@@ -852,7 +852,7 @@ vizwhiz.viz = function() {
         .each(function(d){
           var width = vars.title_width ? vars.title_width : vars.svg_width
           width -= offset*2
-          vizwhiz.utils.wordwrap({
+          d3plus.utils.wordwrap({
             "text": d.title,
             "parent": this,
             "width": width,
@@ -862,13 +862,13 @@ vizwhiz.viz = function() {
         })
     
     // Update
-    total.transition().duration(vizwhiz.timing)
+    total.transition().duration(d3plus.timing)
       .style("opacity",1)
       
     update_titles()
     
     // Exit
-    total.exit().transition().duration(vizwhiz.timing)
+    total.exit().transition().duration(d3plus.timing)
       .style("opacity",0)
       .remove();
 
@@ -909,7 +909,7 @@ vizwhiz.viz = function() {
       .attr("font-family", vars.font)
       .style("font-weight", vars.font_weight)
       .each(function(d){
-        vizwhiz.utils.wordwrap({
+        d3plus.utils.wordwrap({
           "text": d,
           "parent": this,
           "width": vars.svg_width-20,
@@ -917,7 +917,7 @@ vizwhiz.viz = function() {
           "resize": false
         })
       })
-      .on(vizwhiz.evt.over,function(){
+      .on(d3plus.evt.over,function(){
         if (link) {
           d3.select(this)
             .style("text-decoration","underline")
@@ -925,7 +925,7 @@ vizwhiz.viz = function() {
             .style("fill","#000")
         }
       })
-      .on(vizwhiz.evt.out,function(){
+      .on(d3plus.evt.out,function(){
         if (link) {
           d3.select(this)
             .style("text-decoration","none")
@@ -933,7 +933,7 @@ vizwhiz.viz = function() {
             .style("fill","#333")
         }
       })
-      .on(vizwhiz.evt.click,function(){
+      .on(d3plus.evt.click,function(){
         if (link) {
           if (link.charAt(0) != "/") var target = "_blank"
           else var target = "_self"
@@ -947,7 +947,7 @@ vizwhiz.viz = function() {
       .attr("font-family", vars.font)
       .style("font-weight", vars.font_weight)
       .each(function(d){
-        vizwhiz.utils.wordwrap({
+        d3plus.utils.wordwrap({
           "text": d,
           "parent": this,
           "width": vars.svg_width-20,
@@ -956,7 +956,7 @@ vizwhiz.viz = function() {
         })
       })
       
-    source.exit().transition().duration(vizwhiz.evt.timing)
+    source.exit().transition().duration(d3plus.evt.timing)
       .attr("opacity",0)
       .remove()
       
@@ -981,13 +981,13 @@ vizwhiz.viz = function() {
     }
 
     d3.select("g.titles").selectAll("g").select("text")
-      .transition().duration(vizwhiz.timing)
+      .transition().duration(d3plus.timing)
         .attr("x",function(d) { return d.x+offset; })
         .attr("y",function(d) { return d.y; })
         .each(function(d){
           var width = vars.title_width ? vars.title_width : vars.svg_width
           width -= offset*2
-          vizwhiz.utils.wordwrap({
+          d3plus.utils.wordwrap({
             "text": d.title,
             "parent": this,
             "width": width,
@@ -1022,7 +1022,7 @@ vizwhiz.viz = function() {
     var extra_data = {}
     if (extras && typeof extras == "string") extras = [extras]
     else if (extras && typeof extras == "object") {
-      extra_data = vizwhiz.utils.merge(extra_data,extras)
+      extra_data = d3plus.utils.merge(extra_data,extras)
       var extras = []
       for (k in extra_data) {
         extras.push(k)
@@ -1053,7 +1053,7 @@ vizwhiz.viz = function() {
     
     if (vars.tooltip_info instanceof Array) var a = vars.tooltip_info
     else if (vars.tooltip_info[length] && vars.tooltip_info[length] instanceof Array) var a = vars.tooltip_info[length]
-    else if (vars.tooltip_info[length]) var a = vizwhiz.utils.merge({"":[]},vars.tooltip_info[length])
+    else if (vars.tooltip_info[length]) var a = d3plus.utils.merge({"":[]},vars.tooltip_info[length])
     else var a = vars.tooltip_info
     
     function format_key(key,group) {
@@ -1757,19 +1757,19 @@ vizwhiz.viz = function() {
       zoom_enter.append("div")
         .attr("id","zoom_in")
         .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ vars.zoom("in") })
+        .on(d3plus.evt.click,function(){ vars.zoom("in") })
         .text("+")
     
       zoom_enter.append("div")
         .attr("id","zoom_out")
         .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ vars.zoom("out") })
+        .on(d3plus.evt.click,function(){ vars.zoom("out") })
         .text("-")
     
       zoom_enter.append("div")
         .attr("id","zoom_reset")
         .attr("unselectable","on")
-        .on(vizwhiz.evt.click,function(){ 
+        .on(d3plus.evt.click,function(){ 
           vars.zoom("reset") 
           vars.update()
         })
@@ -1845,7 +1845,7 @@ vizwhiz.viz = function() {
           .attr(tick_style)
           .attr("opacity",tick_opacity)
         
-        bgtick.transition().duration(vizwhiz.timing) 
+        bgtick.transition().duration(d3plus.timing) 
           .attr("y1", tick_offset)
           .attr("y2", -vars.graph.height)
           .attr("opacity",tick_opacity)
@@ -1903,7 +1903,7 @@ vizwhiz.viz = function() {
           .attr(tick_style)
           .attr("opacity",tick_opacity)
         
-        bgtick.transition().duration(vizwhiz.timing) 
+        bgtick.transition().duration(d3plus.timing) 
           .attr("x1", tick_offset)
           .attr("x2", vars.graph.width)
           .attr("opacity",tick_opacity)
@@ -2148,7 +2148,7 @@ vizwhiz.viz = function() {
     // Move titles
     update_titles()
     
-    vars.graph.timing = vizwhiz.timing
+    vars.graph.timing = d3plus.timing
       
   }
 

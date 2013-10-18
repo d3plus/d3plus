@@ -1,36 +1,34 @@
-var vizwhiz = window.vizwhiz || {};
+var d3plus = window.d3plus || {};
 
-vizwhiz.version = '0.0.1';
+d3plus.version = "0.1";
 
-window.vizwhiz = vizwhiz;
+window.d3plus = d3plus;
 
-vizwhiz.timing = 600; // milliseconds for animations
+d3plus.timing = 600; // milliseconds for animations
 
-vizwhiz.tooltip = {}; // For the tooltip system
-vizwhiz.utils = {}; // Utility subsystem
-vizwhiz.evt = {}; // stores all mouse events that could occur
+d3plus.evt = {}; // stores all mouse events that could occur
 
-vizwhiz.ie = /*@cc_on!@*/false;
+d3plus.ie = /*@cc_on!@*/false;
 
 // Modernizr touch events
 if (Modernizr.touch) {
-  vizwhiz.evt.click = 'touchend'
-  vizwhiz.evt.down = 'touchstart'
-  vizwhiz.evt.up = 'touchend'
-  vizwhiz.evt.over = 'touchstart'
-  vizwhiz.evt.out = 'touchend'
-  vizwhiz.evt.move = 'touchmove'
+  d3plus.evt.click = "touchend"
+  d3plus.evt.down = "touchstart"
+  d3plus.evt.up = "touchend"
+  d3plus.evt.over = "touchstart"
+  d3plus.evt.out = "touchend"
+  d3plus.evt.move = "touchmove"
 } else {
-  vizwhiz.evt.click = 'click'
-  vizwhiz.evt.down = 'mousedown'
-  vizwhiz.evt.up = 'mouseup'
-  if (vizwhiz.ie) {
-    vizwhiz.evt.over = 'mouseenter'
-    vizwhiz.evt.out = 'mouseleave'
+  d3plus.evt.click = "click"
+  d3plus.evt.down = "mousedown"
+  d3plus.evt.up = "mouseup"
+  if (d3plus.ie) {
+    d3plus.evt.over = "mouseenter"
+    d3plus.evt.out = "mouseleave"
   }
   else {
-    vizwhiz.evt.over = 'mouseover'
-    vizwhiz.evt.out = 'mouseout'
+    d3plus.evt.over = "mouseover"
+    d3plus.evt.out = "mouseout"
   }
-  vizwhiz.evt.move = 'mousemove'
+  d3plus.evt.move = "mousemove"
 }

@@ -1,11 +1,13 @@
+d3plus.utils = {};
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator (if no color is given)
 //-------------------------------------------------------------------
 
-vizwhiz.utils.color_scale = d3.scale.category20();
-vizwhiz.utils.rand_color = function() {
+d3plus.utils.color_scale = d3.scale.category20();
+d3plus.utils.rand_color = function() {
   var rand_int = Math.floor(Math.random()*20)
-  return vizwhiz.utils.color_scale(rand_int);
+  return d3plus.utils.color_scale(rand_int);
 }
 
 //===================================================================
@@ -14,7 +16,7 @@ vizwhiz.utils.rand_color = function() {
 // Returns appropriate text color based off of a given color
 //-------------------------------------------------------------------
 
-vizwhiz.utils.text_color = function(color) {
+d3plus.utils.text_color = function(color) {
   var hsl = d3.hsl(color),
       light = "#ffffff", 
       dark = "#333333";
@@ -29,7 +31,7 @@ vizwhiz.utils.text_color = function(color) {
 // Darkens a color if it's too light to appear on white
 //-------------------------------------------------------------------
 
-vizwhiz.utils.darker_color = function(color) {
+d3plus.utils.darker_color = function(color) {
   var hsl = d3.hsl(color)
   if (hsl.s > .9) hsl.s = .9
   if (hsl.l > .4) hsl.l = .4
@@ -42,7 +44,7 @@ vizwhiz.utils.darker_color = function(color) {
 // Returns list of unique values
 //-------------------------------------------------------------------
         
-vizwhiz.utils.uniques = function(data,value) {
+d3plus.utils.uniques = function(data,value) {
   return d3.nest().key(function(d) { 
     return d[value]
   }).entries(data).reduce(function(a,b,i,arr){ 
@@ -56,7 +58,7 @@ vizwhiz.utils.uniques = function(data,value) {
 // Merge two objects to create a new one with the properties of both
 //-------------------------------------------------------------------
 
-vizwhiz.utils.merge = function(obj1, obj2) {
+d3plus.utils.merge = function(obj1, obj2) {
   var obj3 = {};
   for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
   for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
@@ -70,7 +72,7 @@ vizwhiz.utils.merge = function(obj1, obj2) {
 // function ourselves
 //-------------------------------------------------------------------
 
-vizwhiz.utils.wordwrap = function(params) {
+d3plus.utils.wordwrap = function(params) {
   
   var parent = params.parent,
       padding = params.padding ? params.padding : 10,
@@ -200,7 +202,7 @@ vizwhiz.utils.wordwrap = function(params) {
 // used to the page
 //-------------------------------------------------------------------
 
-vizwhiz.utils.drop_shadow = function(defs) {
+d3plus.utils.drop_shadow = function(defs) {
   
   // add filter to svg defs
   var drop_shadow_filter = defs.append('filter')

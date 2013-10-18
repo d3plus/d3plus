@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<link href="../src/vizwhiz.d3.css" rel="stylesheet" type="text/css">
+<link href="../d3plus.css" rel="stylesheet" type="text/css">
 <style>
 
 body {
@@ -23,7 +23,7 @@ body {
 <script src="../src/viz/tree_map.js"></script>
 <script>
 
-var viz = vizwhiz.viz()
+var viz = d3plus.viz()
 
 d3.json("data/products_mg.json", function(raw_data){
   d3.json("data/attr_isic.json", function(attr){

@@ -1,4 +1,4 @@
-vizwhiz.bubbles = function(vars) {
+d3plus.bubbles = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables
@@ -214,13 +214,13 @@ vizwhiz.bubbles = function(vars) {
         .attr("font-weight",vars.font_weight)
         .attr("font-size","12px")
         .attr("font-family",vars.font)
-        .attr("fill",vizwhiz.utils.darker_color(d[vars.color_var]))
+        .attr("fill",d3plus.utils.darker_color(d[vars.color_var]))
         .attr('x',0)
         .attr('y',function(dd) {
           return -(d.height/2)-title_height/4;
         })
         .each(function(){
-          vizwhiz.utils.wordwrap({
+          d3plus.utils.wordwrap({
             "text": t,
             "parent": this,
             "width": d.width,
@@ -230,7 +230,7 @@ vizwhiz.bubbles = function(vars) {
       
     });
     
-  group.transition().duration(vizwhiz.timing)
+  group.transition().duration(d3plus.timing)
     .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
     .each(function(d){
       
@@ -247,17 +247,17 @@ vizwhiz.bubbles = function(vars) {
           .attr("opacity",0)
           .attr("r",d.r)
         
-        bg.transition().duration(vizwhiz.timing)
+        bg.transition().duration(d3plus.timing)
           .attr("opacity",1)
           .attr("r",d.r);
           
       } else {
-        d3.select(this).select("circle").transition().duration(vizwhiz.timing)
+        d3.select(this).select("circle").transition().duration(d3plus.timing)
           .attr("opacity",0)
           .remove();
       }
       
-      d3.select(this).select("text").transition().duration(vizwhiz.timing)
+      d3.select(this).select("text").transition().duration(d3plus.timing)
         .attr("opacity",1)
         .attr('y',function(dd) {
           return -(d.height/2)-title_height/4;
@@ -265,16 +265,16 @@ vizwhiz.bubbles = function(vars) {
       
     });
     
-  group.exit().transition().duration(vizwhiz.timing)
+  group.exit().transition().duration(d3plus.timing)
     .each(function(d){
       
       if (vars.group_bgs) {
-        d3.select(this).select("circle").transition().duration(vizwhiz.timing)
+        d3.select(this).select("circle").transition().duration(d3plus.timing)
           .attr("r",0)
           .attr("opacity",0);
       }
       
-      d3.select(this).selectAll("text").transition().duration(vizwhiz.timing)
+      d3.select(this).selectAll("text").transition().duration(d3plus.timing)
         .attr("opacity",0);
         
     }).remove();
@@ -294,7 +294,7 @@ vizwhiz.bubbles = function(vars) {
   
   }
   
-  bubble.transition().duration(vizwhiz.timing)
+  bubble.transition().duration(d3plus.timing)
     .attr("transform", function(d){ return "translate("+d.x+","+d.y+")"; })
     .each(function(d){
       
@@ -308,7 +308,7 @@ vizwhiz.bubbles = function(vars) {
       bg_color.l = 0.95
       bg_color = bg_color.toString()
 
-      d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path.bg").transition().duration(d3plus.timing)
         .attr("fill", bg_color )
         .attr("stroke", color)
         .attrTween("d",arcTween_bg)
@@ -328,7 +328,7 @@ vizwhiz.bubbles = function(vars) {
 
       d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
 
-      d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path.available").transition().duration(d3plus.timing)
         .style('fill', color)
         .attrTween("d",arcTween)
         .each("end", function() {
@@ -345,13 +345,13 @@ vizwhiz.bubbles = function(vars) {
         d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
     
-        d3.select("pattern#hatch"+d[vars.id_var]).select("rect").transition().duration(vizwhiz.timing)
+        d3.select("pattern#hatch"+d[vars.id_var]).select("rect").transition().duration(d3plus.timing)
           .style("fill",color)
     
-        d3.select("pattern#hatch"+d[vars.id_var]).select("path").transition().duration(vizwhiz.timing)
+        d3.select("pattern#hatch"+d[vars.id_var]).select("path").transition().duration(d3plus.timing)
           .style("stroke",color)
 
-        d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+        d3.select(this).select("path.elsewhere").transition().duration(d3plus.timing)
           .style("stroke",color)
           .attrTween("d",arcTween_else)
           .each("end", function() {
@@ -391,7 +391,7 @@ vizwhiz.bubbles = function(vars) {
         .attr("stroke", color)
         .attr("stroke-width",1)
       
-      d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path.bg").transition().duration(d3plus.timing)
         .attrTween("d",arcTween_bg)
     
       if (d[vars.else_var]) {
@@ -449,7 +449,7 @@ vizwhiz.bubbles = function(vars) {
           .attr("stroke",color)
           .attr("stroke-width",1)
       
-        d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+        d3.select(this).select("path.elsewhere").transition().duration(d3plus.timing)
           .attrTween("d",arcTween_else)
       }
       
@@ -462,7 +462,7 @@ vizwhiz.bubbles = function(vars) {
         .attr("class","available")
         .attr('fill', color)
       
-      d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path.available").transition().duration(d3plus.timing)
         .attrTween("d",arcTween)
         
     })
@@ -472,7 +472,7 @@ vizwhiz.bubbles = function(vars) {
       else d.arc_inner_bg = 0;
       d.arc_radius_bg = d.r;
       
-      d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path.bg").transition().duration(d3plus.timing)
         .attrTween("d",arcTween_bg)
         .each("end", function() {
           vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
@@ -485,7 +485,7 @@ vizwhiz.bubbles = function(vars) {
       d.arc_inner = arc_start;
       d.arc_radius = arc_start+(d.r-arc_start);
 
-      d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path.available").transition().duration(d3plus.timing)
         .attrTween("d",arcTween)
         .each("end", function() {
           vars.arc_sizes[d[vars.id_var]] = d.arc_radius
@@ -496,7 +496,7 @@ vizwhiz.bubbles = function(vars) {
           
           d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
           
-          d3.select(this).transition().duration(vizwhiz.timing*(d.arc_angle/2))
+          d3.select(this).transition().duration(d3plus.timing*(d.arc_angle/2))
             .attrTween("d",arcTween)
             .each("end", function() {
               vars.arc_angles[d[vars.id_var]] = d.arc_angle
@@ -508,7 +508,7 @@ vizwhiz.bubbles = function(vars) {
         d.arc_inner_else = arc_start;
         d.arc_radius_else = d.r;
       
-        d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+        d3.select(this).select("path.elsewhere").transition().duration(d3plus.timing)
           .attrTween("d",arcTween_else)
           .each("end", function() {
             vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
@@ -518,7 +518,7 @@ vizwhiz.bubbles = function(vars) {
 
             d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
             
-            d3.select(this).transition().duration(vizwhiz.timing*(d.arc_angle_else/2))
+            d3.select(this).transition().duration(d3plus.timing*(d.arc_angle_else/2))
               .attrTween("d",arcTween_else)
               .each("end", function() {
                 vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
@@ -536,15 +536,15 @@ vizwhiz.bubbles = function(vars) {
   //-------------------------------------------------------------------
     
   bubble
-    .on(vizwhiz.evt.over, function(d){
+    .on(d3plus.evt.over, function(d){
       
       covered = false
       d3.select(this).style("cursor","pointer")
       
       var tooltip_data = get_tooltip_data(d,"short")
 
-      vizwhiz.tooltip.remove(vars.type)
-      vizwhiz.tooltip.create({
+      d3plus.tooltip.remove(vars.type)
+      d3plus.tooltip.create({
         "id": vars.type,
         "color": find_color(d[vars.id_var]),
         "icon": find_variable(d[vars.id_var],"icon"),
@@ -560,22 +560,22 @@ vizwhiz.bubbles = function(vars) {
       })
       
     })
-    .on(vizwhiz.evt.out, function(d){
-      if (!covered) vizwhiz.tooltip.remove(vars.type)
+    .on(d3plus.evt.out, function(d){
+      if (!covered) d3plus.tooltip.remove(vars.type)
     })
-    .on(vizwhiz.evt.click, function(d){
+    .on(d3plus.evt.click, function(d){
 
       covered = true
       var id = find_variable(d,vars.id_var)
       var self = this
       
       make_tooltip = function(html) {
-        vizwhiz.tooltip.remove(vars.type)
+        d3plus.tooltip.remove(vars.type)
         d3.selectAll(".axis_hover").remove()
         
         var tooltip_data = get_tooltip_data(d,"long")
         
-        vizwhiz.tooltip.create({
+        d3plus.tooltip.create({
           "title": find_variable(d,vars.text_var),
           "color": find_color(d),
           "icon": find_variable(d,"icon"),
@@ -613,13 +613,13 @@ vizwhiz.bubbles = function(vars) {
   // Exit, for nodes and links that are being removed
   //-------------------------------------------------------------------
 
-  bubble.exit().transition().duration(vizwhiz.timing)
+  bubble.exit().transition().duration(d3plus.timing)
     .each(function(d){
     
       d.arc_radius_bg = 0;
       d.arc_inner_bg = 0;
       
-      d3.select(this).select("path.bg").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path.bg").transition().duration(d3plus.timing)
         .attrTween("d",arcTween_bg)
         .each("end", function() {
           vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
@@ -630,7 +630,7 @@ vizwhiz.bubbles = function(vars) {
       d.arc_angle = 0; 
       d.arc_inner = 0;
 
-      d3.select(this).select("path.available").transition().duration(vizwhiz.timing)
+      d3.select(this).select("path.available").transition().duration(d3plus.timing)
         .attrTween("d",arcTween)
         .each("end", function() {
           vars.arc_angles[d[vars.id_var]] = d.arc_angle
@@ -644,7 +644,7 @@ vizwhiz.bubbles = function(vars) {
         d.arc_radius_else = 0;
         d.arc_inner_else = 0;
       
-        d3.select(this).select("path.elsewhere").transition().duration(vizwhiz.timing)
+        d3.select(this).select("path.elsewhere").transition().duration(d3plus.timing)
           .attrTween("d",arcTween_else)
           .each("end", function(dd) {
             vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
@@ -653,7 +653,7 @@ vizwhiz.bubbles = function(vars) {
           })
       }
 
-      d3.select(this).select("circle.hole").transition().duration(vizwhiz.timing)
+      d3.select(this).select("circle.hole").transition().duration(d3plus.timing)
         .attr("r", 0)
       
     })

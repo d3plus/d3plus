@@ -1,4 +1,4 @@
-vizwhiz.geo_map = function(vars) { 
+d3plus.geo_map = function(vars) { 
   
   var default_opacity = 0.50,
       select_opacity = 0.75,
@@ -181,13 +181,13 @@ vizwhiz.geo_map = function(vars) {
           .attr("width",20000)
           .attr("height",20000)
           .attr("fill","transparent")
-          .on(vizwhiz.evt.move, function(d) {
-            if (vars.highlight && !dragging && !vizwhiz.ie) {
+          .on(d3plus.evt.move, function(d) {
+            if (vars.highlight && !dragging && !d3plus.ie) {
               d3.select(this).style("cursor","-moz-zoom-out")
               d3.select(this).style("cursor","-webkit-zoom-out")
             }
           })
-          .on(vizwhiz.evt.click, function(d) {
+          .on(d3plus.evt.click, function(d) {
             if (vars.highlight && !dragging) zoom("reset")
           })
 
@@ -230,13 +230,13 @@ vizwhiz.geo_map = function(vars) {
             paths
               .attr("opacity",default_opacity)
               .call(color_paths)
-              .on(vizwhiz.evt.over, function(d){
+              .on(d3plus.evt.over, function(d){
                 hover = d.id
                 if (vars.highlight != d.id) {
                   d3.select(this)
                     .style("cursor","pointer")
                     .attr("opacity",select_opacity)
-                  if (!vizwhiz.ie) {
+                  if (!d3plus.ie) {
                     d3.select(this)
                       .style("cursor","-moz-zoom-in")
                       .style("cursor","-webkit-zoom-in")
@@ -246,7 +246,7 @@ vizwhiz.geo_map = function(vars) {
                   update()
                 }
               })
-              .on(vizwhiz.evt.out, function(d){
+              .on(d3plus.evt.out, function(d){
                 hover = null
                 if (vars.highlight != d.id) {
                   d3.select(this).attr("opacity",default_opacity)
@@ -255,7 +255,7 @@ vizwhiz.geo_map = function(vars) {
                   update()
                 }
               })
-              .on(vizwhiz.evt.click, function(d) {
+              .on(d3plus.evt.click, function(d) {
                 if (!dragging) {
                   vars.loading_text = vars.text_format("Calculating Coordinates")
                   if (vars.highlight == d.id) {
@@ -310,7 +310,7 @@ vizwhiz.geo_map = function(vars) {
     var c = vars.map.getCenter()
     google.maps.event.trigger(vars.map, "resize")
     vars.map.panTo(c)
-  },vizwhiz.timing)
+  },d3plus.timing)
   
   if (!redraw && vars.overlay.draw) vars.overlay.draw()
   
@@ -380,7 +380,7 @@ vizwhiz.geo_map = function(vars) {
   
   function update() {
     
-    vizwhiz.tooltip.remove(vars.type);
+    d3plus.tooltip.remove(vars.type);
     
     if (!vars.small && (hover || vars.highlight)) {
       
@@ -397,11 +397,11 @@ vizwhiz.geo_map = function(vars) {
       
       make_tooltip = function(html) {
     
-        vizwhiz.tooltip.remove(vars.type);
+        d3plus.tooltip.remove(vars.type);
         
         if (typeof html == "string") html = "<br>"+html
 
-        vizwhiz.tooltip.create({
+        d3plus.tooltip.create({
           "data": tooltip_data,
           "title": find_variable(id,vars.text_var),
           "id": vars.type,
@@ -574,7 +574,7 @@ vizwhiz.geo_map = function(vars) {
   
   function scale_update() {
     if (!vars.data_extent[0] || Object.keys(vars.data).length < 2 || vars.small) {
-      d3.select("g.scale").transition().duration(vizwhiz.timing)
+      d3.select("g.scale").transition().duration(d3plus.timing)
         .style("opacity",0)
     }
     else {
@@ -588,22 +588,22 @@ vizwhiz.geo_map = function(vars) {
     
       max += 10
       
-      d3.select("g.scale").transition().duration(vizwhiz.timing)
+      d3.select("g.scale").transition().duration(d3plus.timing)
         .style("opacity",1)
       
-      d3.select("svg#scale").transition().duration(vizwhiz.timing)
+      d3.select("svg#scale").transition().duration(d3plus.timing)
         .attr("width",max*vars.data_range.length+"px")
         .style("left",(30+vars.margin.left)+"px")
         .style("top",(5+vars.margin.top)+"px")
       
-      d3.select("g.scale").select("rect#scalebg").transition().duration(vizwhiz.timing)
+      d3.select("g.scale").select("rect#scalebg").transition().duration(d3plus.timing)
         .attr("width",max*vars.data_range.length+"px")
       
-      d3.select("g.scale").select("rect#scalecolor").transition().duration(vizwhiz.timing)
+      d3.select("g.scale").select("rect#scalecolor").transition().duration(d3plus.timing)
         .attr("x",max/2+"px")
         .attr("width",max*(vars.data_range.length-1)+"px")
       
-      d3.select("g.scale").select("text#scale_title").transition().duration(vizwhiz.timing)
+      d3.select("g.scale").select("text#scale_title").transition().duration(d3plus.timing)
         .attr("x",(max*vars.data_range.length)/2+"px")
         .text(vars.text_format(vars.value_var))
       
@@ -619,10 +619,10 @@ vizwhiz.geo_map = function(vars) {
           var x = (max/2)+Math.round((i/(vars.data_range.length-1))*(max*vars.data_range.length-(max)))
         }
       
-        d3.select("g.scale").select("rect#scaletick_"+i).transition().duration(vizwhiz.timing)
+        d3.select("g.scale").select("rect#scaletick_"+i).transition().duration(d3plus.timing)
           .attr("x",x+"px")
       
-        d3.select("g.scale").select("text#scale_"+i).transition().duration(vizwhiz.timing)
+        d3.select("g.scale").select("text#scale_"+i).transition().duration(d3plus.timing)
           .attr("x",x+"px")
       })
     

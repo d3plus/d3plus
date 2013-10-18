@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<link href="../src/vizwhiz.d3.css" rel="stylesheet" type="text/css">
+<link href="../d3plus.css" rel="stylesheet" type="text/css">
 <style>
 
 body {
@@ -80,7 +80,7 @@ input {
         .attr("class","color")
         .style("background-color",color)
         .style("color",function(){
-          return vizwhiz.utils.text_color(color);
+          return d3plus.utils.text_color(color);
         })
         .html(string)
   })

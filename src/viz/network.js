@@ -1,4 +1,4 @@
-vizwhiz.network = function(vars) {
+d3plus.network = function(vars) {
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function that handles the zooming and panning of the visualization
@@ -95,10 +95,10 @@ vizwhiz.network = function(vars) {
       if (d3.event.sourceEvent.type == "mousewheel" || d3.event.sourceEvent.type == "mousemove") {
         var viz_timing = d3.select(".viz")
       } else {
-        var viz_timing = d3.select(".viz").transition().duration(vizwhiz.timing)
+        var viz_timing = d3.select(".viz").transition().duration(d3plus.timing)
       }
     } else {
-      var viz_timing = d3.select(".viz").transition().duration(vizwhiz.timing)
+      var viz_timing = d3.select(".viz").transition().duration(d3plus.timing)
     }
     viz_timing.attr("transform","translate(" + translate + ")" + "scale(" + evt_scale + ")")
     
@@ -111,7 +111,7 @@ vizwhiz.network = function(vars) {
     if (last_highlight != vars.highlight) {
       
       // Remove all tooltips on page
-      vizwhiz.tooltip.remove(vars.type)
+      d3plus.tooltip.remove(vars.type)
       d3.select("g.highlight").selectAll("*").remove()
       d3.select("g.hover").selectAll("*").remove()
       
@@ -190,7 +190,7 @@ vizwhiz.network = function(vars) {
           
             var tooltip_data = get_tooltip_data(vars.highlight)
           
-            var tooltip_appends = "<div class='vizwhiz_tooltip_data_title'>"
+            var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
             tooltip_appends += vars.text_format("Primary Connections")
             tooltip_appends += "</div>"
       
@@ -198,22 +198,22 @@ vizwhiz.network = function(vars) {
             
               var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
             
-              tooltip_appends += "<div class='vizwhiz_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
-              tooltip_appends += "<div class='vizwhiz_network_connection_node'"
+              tooltip_appends += "<div class='d3plus_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+              tooltip_appends += "<div class='d3plus_network_connection_node'"
               tooltip_appends += " style='"
               tooltip_appends += "background-color:"+fill_color(n)+";"
               tooltip_appends += "border-color:"+stroke_color(n)+";"
               tooltip_appends += "'"
               tooltip_appends += "></div>"
-              tooltip_appends += "<div class='vizwhiz_network_connection_name'>"
+              tooltip_appends += "<div class='d3plus_network_connection_name'>"
               tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
               tooltip_appends += "</div>"
               tooltip_appends += "</div>"
             })
             
-            vizwhiz.tooltip.remove(vars.type)
+            d3plus.tooltip.remove(vars.type)
           
-            vizwhiz.tooltip.create({
+            d3plus.tooltip.create({
               "data": tooltip_data,
               "title": find_variable(vars.highlight,vars.text_var),
               "color": find_color(vars.highlight),
@@ -294,7 +294,7 @@ vizwhiz.network = function(vars) {
 
   //===================================================================
     
-  vizwhiz.tooltip.remove(vars.type)
+  d3plus.tooltip.remove(vars.type)
   var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x})
   var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y})
   var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0])
@@ -350,10 +350,10 @@ vizwhiz.network = function(vars) {
   // Create viz group on vars.parent_enter
   var viz_enter = vars.parent_enter.append("g")
     .call(zoom_behavior.on("zoom",function(){ vars.zoom(); }))
-    .on(vizwhiz.evt.down,function(d){
+    .on(d3plus.evt.down,function(d){
       dragging = true
     })
-    .on(vizwhiz.evt.up,function(d){
+    .on(d3plus.evt.up,function(d){
       dragging = false
     })
     .append('g')
@@ -366,25 +366,25 @@ vizwhiz.network = function(vars) {
   d3.select("rect.overlay")
     .attr("width", vars.width)
     .attr("height", vars.height)
-    .on(vizwhiz.evt.over,function(d){
+    .on(d3plus.evt.over,function(d){
       if (!vars.highlight && hover) {
         hover = null;
         vars.update();
       }
     })
-    .on(vizwhiz.evt.click,function(d){
+    .on(d3plus.evt.click,function(d){
       // vars.highlight = null;
       // vars.zoom("reset");
       // vars.update();
     })
-    .on(vizwhiz.evt.move,function(d){
+    .on(d3plus.evt.move,function(d){
       if (zoom_behavior.scale() > 1) {
         d3.select(this).style("cursor","move")
-        if (dragging && !vizwhiz.ie) {
+        if (dragging && !d3plus.ie) {
           d3.select(this).style("cursor","-moz-grabbing")
           d3.select(this).style("cursor","-webkit-grabbing")
         }
-        else if (!vizwhiz.ie) {
+        else if (!d3plus.ie) {
           d3.select(this).style("cursor","-moz-grab")
           d3.select(this).style("cursor","-webkit-grab")
         }
@@ -449,14 +449,14 @@ vizwhiz.network = function(vars) {
   //-------------------------------------------------------------------
 
   node
-    .on(vizwhiz.evt.over, function(d){
+    .on(d3plus.evt.over, function(d){
       if (!dragging) {
         hover = d[vars.id_var];
         vars.update();
       }
     });
 
-  node.transition().duration(vizwhiz.timing)
+  node.transition().duration(d3plus.timing)
     .call(node_size)
     .call(node_stroke)
     .call(node_position)
@@ -465,7 +465,7 @@ vizwhiz.network = function(vars) {
   link
     .call(link_events);
     
-  link.transition().duration(vizwhiz.timing)
+  link.transition().duration(d3plus.timing)
     .attr("stroke", "#dedede")
     .call(link_position);
       
@@ -475,11 +475,11 @@ vizwhiz.network = function(vars) {
   // Exit, for nodes and links that are being removed
   //-------------------------------------------------------------------
 
-  node.exit().transition().duration(vizwhiz.timing)
+  node.exit().transition().duration(d3plus.timing)
     .attr("r",0)
     .remove()
     
-  link.exit().transition().duration(vizwhiz.timing)
+  link.exit().transition().duration(d3plus.timing)
     .attr("stroke", "white")
     .remove()
 
@@ -507,7 +507,7 @@ vizwhiz.network = function(vars) {
   
   function link_events(l) {
     l
-      .on(vizwhiz.evt.click,function(d){
+      .on(d3plus.evt.click,function(d){
         vars.highlight = null;
         vars.zoom("reset");
         vars.update();
@@ -625,15 +625,15 @@ vizwhiz.network = function(vars) {
   
   function node_events(n) {
     n
-      .on(vizwhiz.evt.over, function(d){
+      .on(d3plus.evt.over, function(d){
         
         d3.select(this).style("cursor","pointer")
-        if (!vizwhiz.ie) {
+        if (!d3plus.ie) {
           d3.select(this).style("cursor","-moz-zoom-in")
           d3.select(this).style("cursor","-webkit-zoom-in")
         }
           
-        if (d[vars.id_var] == vars.highlight && !vizwhiz.ie) {
+        if (d[vars.id_var] == vars.highlight && !d3plus.ie) {
           d3.select(this).style("cursor","-moz-zoom-out")
           d3.select(this).style("cursor","-webkit-zoom-out")
         }
@@ -644,7 +644,7 @@ vizwhiz.network = function(vars) {
         }
         
       })
-      .on(vizwhiz.evt.out, function(d){
+      .on(d3plus.evt.out, function(d){
         
         // Returns false if the mouse has moved into a child element.
         // This is used to catch when the mouse moves onto label text.
@@ -662,7 +662,7 @@ vizwhiz.network = function(vars) {
         }
         
       })
-      .on(vizwhiz.evt.click, function(d){
+      .on(d3plus.evt.click, function(d){
         
         d3.select(this).style("cursor","auto")
 
@@ -695,7 +695,7 @@ vizwhiz.network = function(vars) {
           d3.select(this.parentNode).append("text")
             .attr("pointer-events","none")
             .attr("x",scale.x(d.x))
-            .attr("fill",vizwhiz.utils.text_color(fill_color(d)))
+            .attr("fill",d3plus.utils.text_color(fill_color(d)))
             .attr("font-size",font_size+"px")
             .attr("text-anchor","middle")
             .attr("font-family",vars.font)
@@ -704,7 +704,7 @@ vizwhiz.network = function(vars) {
               var th = size < font_size+padding*2 ? font_size+padding*2 : size,
                   tw = ((font_size*5)/th)*(font_size*5)
               var text = find_variable(d[vars.id_var],vars.text_var)
-              vizwhiz.utils.wordwrap({
+              d3plus.utils.wordwrap({
                 "text": text,
                 "parent": this,
                 "width": tw,

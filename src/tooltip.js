@@ -1,8 +1,10 @@
+d3plus.tooltip = {};
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create a Tooltip
 //-------------------------------------------------------------------
 
-vizwhiz.tooltip.create = function(params) {
+d3plus.tooltip.create = function(params) {
   
   var default_width = params.fullscreen ? 250 : 200
   params.width = params.width ? params.width : default_width
@@ -18,7 +20,7 @@ vizwhiz.tooltip.create = function(params) {
   params.background = params.background ? params.background : "#ffffff"
   params.style = params.style ? params.style : "default"
   
-  vizwhiz.tooltip.remove("vizwhiz_tooltip_id_"+params.id)
+  d3plus.tooltip.remove("d3plus_tooltip_id_"+params.id)
   
   params.anchor = {}
   if (params.fullscreen) {
@@ -42,20 +44,20 @@ vizwhiz.tooltip.create = function(params) {
   
   if (params.fullscreen) {
     var curtain = params.parent.append("div")
-      .attr("id","vizwhiz_tooltip_curtain_"+params.id)
-      .attr("class","vizwhiz_tooltip_curtain")
+      .attr("id","d3plus_tooltip_curtain_"+params.id)
+      .attr("class","d3plus_tooltip_curtain")
       .style("background-color",params.background)
-      .on(vizwhiz.evt.click,function(){
-        vizwhiz.tooltip.remove(params.id)
+      .on(d3plus.evt.click,function(){
+        d3plus.tooltip.remove(params.id)
       })
   }
   
   var tooltip = params.parent.append("div")
     .datum(params)
-    .attr("id","vizwhiz_tooltip_id_"+params.id)
-    .attr("class","vizwhiz_tooltip vizwhiz_tooltip_"+params.size)
-    .on(vizwhiz.evt.out,function(){
-      vizwhiz.tooltip.close()
+    .attr("id","d3plus_tooltip_id_"+params.id)
+    .attr("class","d3plus_tooltip d3plus_tooltip_"+params.size)
+    .on(d3plus.evt.out,function(){
+      d3plus.tooltip.close()
     })
     
   if (params.max_height) {
@@ -72,7 +74,7 @@ vizwhiz.tooltip.create = function(params) {
   
   var container = tooltip.append("div")
     .datum(params)
-    .attr("class","vizwhiz_tooltip_container")
+    .attr("class","d3plus_tooltip_container")
   
   if (params.fullscreen && params.html) {
     
@@ -84,7 +86,7 @@ vizwhiz.tooltip.create = function(params) {
       .style("height",h+"px")
       
     var body = container.append("div")
-      .attr("class","vizwhiz_tooltip_body")
+      .attr("class","d3plus_tooltip_body")
       .style("width",params.width+"px")
       
   }
@@ -103,16 +105,16 @@ vizwhiz.tooltip.create = function(params) {
     
   if (params.title || params.icon) {
     var header = body.append("div")
-      .attr("class","vizwhiz_tooltip_header")
+      .attr("class","d3plus_tooltip_header")
   }
   
   if (params.fullscreen) {
     var close = tooltip.append("div")
-      .attr("class","vizwhiz_tooltip_close")
-      .style("background-color",vizwhiz.utils.darker_color(params.color))
+      .attr("class","d3plus_tooltip_close")
+      .style("background-color",d3plus.utils.darker_color(params.color))
       .html("\&times;")
-      .on(vizwhiz.evt.click,function(){
-        vizwhiz.tooltip.remove(params.id)
+      .on(d3plus.evt.click,function(){
+        d3plus.tooltip.remove(params.id)
       })
   }
   
@@ -121,14 +123,14 @@ vizwhiz.tooltip.create = function(params) {
   }
   else if (params.mouseevents !== true) {
     
-    var oldout = d3.select(params.mouseevents).on(vizwhiz.evt.out)
+    var oldout = d3.select(params.mouseevents).on(d3plus.evt.out)
     
     var newout = function() {
       
       var target = d3.event.toElement
       if (target) {
         var c = typeof target.className == "string" ? target.className : target.className.baseVal
-        var istooltip = c.indexOf("vizwhiz_tooltip") == 0
+        var istooltip = c.indexOf("d3plus_tooltip") == 0
       }
       else {
         var istooltip = false
@@ -136,8 +138,8 @@ vizwhiz.tooltip.create = function(params) {
       // console.log(!ischild(tooltip.node(),target), !ischild(params.mouseevents,target), !istooltip)
       if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
         oldout(d3.select(params.mouseevents).datum())
-        vizwhiz.tooltip.close()
-        d3.select(params.mouseevents).on(vizwhiz.evt.out,oldout)
+        d3plus.tooltip.close()
+        d3.select(params.mouseevents).on(d3plus.evt.out,oldout)
       }
     }
     
@@ -152,24 +154,24 @@ vizwhiz.tooltip.create = function(params) {
        return false;
     }
     
-    d3.select(params.mouseevents).on(vizwhiz.evt.out,newout)
-    tooltip.on(vizwhiz.evt.out,newout)
+    d3.select(params.mouseevents).on(d3plus.evt.out,newout)
+    tooltip.on(d3plus.evt.out,newout)
     
-    var move_event = d3.select(params.mouseevents).on(vizwhiz.evt.move)
+    var move_event = d3.select(params.mouseevents).on(d3plus.evt.move)
     if (move_event) {
-      tooltip.on(vizwhiz.evt.move,move_event)
+      tooltip.on(d3plus.evt.move,move_event)
     }
     
   }
     
   if (params.arrow) {
     var arrow = tooltip.append("div")
-      .attr("class","vizwhiz_tooltip_arrow")
+      .attr("class","d3plus_tooltip_arrow")
   }
   
   if (params.icon) {
     var title_icon = header.append("div")
-      .attr("class","vizwhiz_tooltip_icon")
+      .attr("class","d3plus_tooltip_icon")
       .style("background-image","url("+params.icon+")")
       
     if (params.style == "knockout") {
@@ -181,21 +183,21 @@ vizwhiz.tooltip.create = function(params) {
   
   if (params.title) {
     var title = header.append("div")
-      .attr("class","vizwhiz_tooltip_title")
+      .attr("class","d3plus_tooltip_title")
       .style("width",title_width+"px")
       .text(params.title)
   }
   
   if (params.description) {
     var description = body.append("div")
-      .attr("class","vizwhiz_tooltip_description")
+      .attr("class","d3plus_tooltip_description")
       .text(params.description)
   }
   
   if (params.data || params.html && !params.fullscreen) {
 
     var data_container = body.append("div")
-      .attr("class","vizwhiz_tooltip_data_container")
+      .attr("class","d3plus_tooltip_data_container")
   }
   
   if (params.data) {
@@ -209,37 +211,37 @@ vizwhiz.tooltip.create = function(params) {
         if (last_group != d.group) {
           last_group = d.group
           data_container.append("div")
-            .attr("class","vizwhiz_tooltip_data_title")
+            .attr("class","d3plus_tooltip_data_title")
             .text(d.group)
         }
       }
       
       var block = data_container.append("div")
-        .attr("class","vizwhiz_tooltip_data_block")
+        .attr("class","d3plus_tooltip_data_block")
         
       if (d.highlight) {
-        block.style("color",vizwhiz.utils.darker_color(params.color))
+        block.style("color",d3plus.utils.darker_color(params.color))
       }
       
       var name = block.append("div")
-          .attr("class","vizwhiz_tooltip_data_name")
+          .attr("class","d3plus_tooltip_data_name")
           .html(d.name)
-          .on(vizwhiz.evt.out,function(){
+          .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
           })
       
       var val = block.append("div")
-          .attr("class","vizwhiz_tooltip_data_value")
+          .attr("class","d3plus_tooltip_data_value")
           .text(d.value)
-          .on(vizwhiz.evt.out,function(){
+          .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
           })
           
       if (params.mouseevents && d.desc) {
         var desc = block.append("div")
-          .attr("class","vizwhiz_tooltip_data_desc")
+          .attr("class","d3plus_tooltip_data_desc")
           .text(d.desc)
-          .on(vizwhiz.evt.out,function(){
+          .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
           })
           
@@ -248,29 +250,29 @@ vizwhiz.tooltip.create = function(params) {
         desc.style("height","0px")
           
         var help = name.append("div")
-          .attr("class","vizwhiz_tooltip_data_help")
+          .attr("class","d3plus_tooltip_data_help")
           .text("?")
-          .on(vizwhiz.evt.over,function(){
+          .on(d3plus.evt.over,function(){
             var c = d3.select(this.parentNode.parentNode).style("color")
             d3.select(this).style("background-color",c)
             desc.style("height",dh+"px")
           })
-          .on(vizwhiz.evt.out,function(){
+          .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
           })
           
         name
           .style("cursor","pointer")
-          .on(vizwhiz.evt.over,function(){
-            vizwhiz.tooltip.close()
+          .on(d3plus.evt.over,function(){
+            d3plus.tooltip.close()
             var c = d3.select(this.parentNode).style("color")
             help.style("background-color",c)
             desc.style("height",dh+"px")
           })
           
-        block.on(vizwhiz.evt.out,function(){
+        block.on(d3plus.evt.out,function(){
           d3.event.stopPropagation()
-          vizwhiz.tooltip.close()
+          d3plus.tooltip.close()
         })
       }
           
@@ -280,18 +282,18 @@ vizwhiz.tooltip.create = function(params) {
       if (i != params.data.length-1) {
         if ((d.group && d.group == params.data[i+1].group) || !d.group && !params.data[i+1].group)
         data_container.append("div")
-          .attr("class","vizwhiz_tooltip_data_seperator")
+          .attr("class","d3plus_tooltip_data_seperator")
       }
           
     })
     
-    data_container.selectAll(".vizwhiz_tooltip_data_name")
+    data_container.selectAll(".d3plus_tooltip_data_name")
       .style("width",function(){
         var w = parseFloat(d3.select(this.parentNode).style("width"),10)
         return (w-val_width-25)+"px"
       })
     
-    data_container.selectAll(".vizwhiz_tooltip_data_value")
+    data_container.selectAll(".d3plus_tooltip_data_value")
       .style("width",val_width+"px")
     
   }
@@ -302,7 +304,7 @@ vizwhiz.tooltip.create = function(params) {
   }
   
   var footer = body.append("div")
-    .attr("class","vizwhiz_tooltip_footer")
+    .attr("class","d3plus_tooltip_footer")
   
   if (params.footer) {
     footer.html(params.footer)
@@ -314,7 +316,7 @@ vizwhiz.tooltip.create = function(params) {
     var h = params.height-12
     var w = tooltip.node().offsetWidth-params.width-44
     container.append("div")
-      .attr("class","vizwhiz_tooltip_html")
+      .attr("class","d3plus_tooltip_html")
       .style("width",w+"px")
       .style("height",h+"px")
       .html(params.html)
@@ -353,11 +355,11 @@ vizwhiz.tooltip.create = function(params) {
   
   params.height = tooltip.node().offsetHeight
   
-  vizwhiz.tooltip.move(params.x,params.y,params.id);
+  d3plus.tooltip.move(params.x,params.y,params.id);
     
 }
 
-vizwhiz.tooltip.arrow = function(arrow) {
+d3plus.tooltip.arrow = function(arrow) {
   arrow
     .style("bottom", function(d){
       if (d.anchor.y != "center" && !d.flip) return "-5px"
@@ -435,9 +437,9 @@ vizwhiz.tooltip.arrow = function(arrow) {
 // Close ALL Descriptions
 //-------------------------------------------------------------------
 
-vizwhiz.tooltip.close = function() {
-  d3.selectAll("div.vizwhiz_tooltip_data_desc").style("height","0px")
-  d3.selectAll("div.vizwhiz_tooltip_data_help").style("background-color","#ccc")
+d3plus.tooltip.close = function() {
+  d3.selectAll("div.d3plus_tooltip_data_desc").style("height","0px")
+  d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc")
 }
 
 //===================================================================
@@ -446,11 +448,11 @@ vizwhiz.tooltip.close = function() {
 // Destroy Tooltips
 //-------------------------------------------------------------------
 
-vizwhiz.tooltip.remove = function(id) {
+d3plus.tooltip.remove = function(id) {
 
-  d3.selectAll("div#vizwhiz_tooltip_curtain_"+id).remove()
-  if (id) d3.select("div#vizwhiz_tooltip_id_"+id).remove()
-  else d3.selectAll("div.vizwhiz_tooltip").remove()
+  d3.selectAll("div#d3plus_tooltip_curtain_"+id).remove()
+  if (id) d3.select("div#d3plus_tooltip_id_"+id).remove()
+  else d3.selectAll("div.d3plus_tooltip").remove()
 
 }
 
@@ -460,10 +462,10 @@ vizwhiz.tooltip.remove = function(id) {
 // Get X and Y position for Tooltip
 //-------------------------------------------------------------------
 
-vizwhiz.tooltip.move = function(x,y,id) {
+d3plus.tooltip.move = function(x,y,id) {
   
-  if (!id) var tooltip = d3.select("div#vizwhiz_tooltip_id_default")
-  else var tooltip = d3.select("div#vizwhiz_tooltip_id_"+id)
+  if (!id) var tooltip = d3.select("div#d3plus_tooltip_id_default")
+  else var tooltip = d3.select("div#d3plus_tooltip_id_"+id)
   
   if (tooltip.node()) {
     
@@ -550,8 +552,8 @@ vizwhiz.tooltip.move = function(x,y,id) {
       .style("left",d.x+"px")
   
     if (d.arrow) {
-      tooltip.selectAll(".vizwhiz_tooltip_arrow")
-        .call(vizwhiz.tooltip.arrow)
+      tooltip.selectAll(".d3plus_tooltip_arrow")
+        .call(d3plus.tooltip.arrow)
     }
     
   }
