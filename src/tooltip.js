@@ -7,18 +7,18 @@ d3plus.tooltip = {};
 d3plus.tooltip.create = function(params) {
   
   var default_width = params.fullscreen ? 250 : 200
-  params.width = params.width ? params.width : default_width
-  params.max_width = params.max_width ? params.max_width : 386
-  params.id = params.id ? params.id : "default"
+  params.width = params.width || default_width
+  params.max_width = params.max_width || 386
+  params.id = params.id || "default"
   params.size = params.fullscreen || params.html ? "large" : "small"
-  params.offset = params.offset ? params.offset : 0
+  params.offset = params.offset || 0
   params.arrow_offset = params.arrow ? 8 : 0
-  params.x = params.x ? params.x : 0
-  params.y = params.y ? params.y : 0
-  params.color = params.color ? params.color : "#333"
-  params.parent = params.parent ? params.parent : d3.select("body")
-  params.background = params.background ? params.background : "#ffffff"
-  params.style = params.style ? params.style : "default"
+  params.x = params.x || 0
+  params.y = params.y || 0
+  params.color = params.color || "#333"
+  params.parent = params.parent || d3.select("body")
+  params.background = params.background || "#ffffff"
+  params.style = params.style || "default"
   
   d3plus.tooltip.remove("d3plus_tooltip_id_"+params.id)
   
@@ -127,7 +127,7 @@ d3plus.tooltip.create = function(params) {
     
     var newout = function() {
       
-      var target = d3.event.toElement
+      var target = d3.event.toElement || d3.event.relatedTarget
       if (target) {
         var c = typeof target.className == "string" ? target.className : target.className.baseVal
         var istooltip = c.indexOf("d3plus_tooltip") == 0
@@ -135,7 +135,7 @@ d3plus.tooltip.create = function(params) {
       else {
         var istooltip = false
       }
-      // console.log(!ischild(tooltip.node(),target), !ischild(params.mouseevents,target), !istooltip)
+      console.log(!ischild(tooltip.node(),target), !ischild(params.mouseevents,target), !istooltip)
       if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
         oldout(d3.select(params.mouseevents).datum())
         d3plus.tooltip.close()

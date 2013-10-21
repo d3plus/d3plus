@@ -253,7 +253,6 @@ d3plus.tree_map = function(vars) {
       if(d.dx > 30 && d.dy > 30){
         var text = []
         var arr = vars.name_array ? vars.name_array : [vars.text_var,vars.id_var]
-        console.log(arr,d)
         arr.forEach(function(n){
           var name = find_variable(d,n)
           if (typeof name === "number") text.push(vars.number_format(name))
