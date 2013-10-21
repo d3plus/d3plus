@@ -1,18 +1,18 @@
 (function(){
 var d3plus = window.d3plus || {};
 
-d3plus.version = "0.1";
+d3plus.version = "0.1.0";
 
 window.d3plus = d3plus;
 
 d3plus.timing = 600; // milliseconds for animations
 
-d3plus.evt = {}; // stores all mouse events that could occur
-
 d3plus.ie = /*@cc_on!@*/false;
 
+d3plus.evt = {}; // stores all mouse events that could occur
+
 // Modernizr touch events
-if (Modernizr.touch) {
+if (Modernizr && Modernizr.touch) {
   d3plus.evt.click = "touchend"
   d3plus.evt.down = "touchstart"
   d3plus.evt.up = "touchend"
@@ -39,7 +39,7 @@ d3plus.utils = {};
 // Random color generator (if no color is given)
 //-------------------------------------------------------------------
 
-d3plus.utils.color_scale = d3.scale.category20();
+d3plus.utils.color_scale = d3.scale.category20()
 d3plus.utils.rand_color = function() {
   var rand_int = Math.floor(Math.random()*20)
   return d3plus.utils.color_scale(rand_int);
@@ -227,43 +227,6 @@ d3plus.utils.wordwrap = function(params) {
     return;
   }
   
-}
-
-//===================================================================
-
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Drop shadow function, adds the proper definition with th parameters
-// used to the page
-//-------------------------------------------------------------------
-
-d3plus.utils.drop_shadow = function(defs) {
-  
-  // add filter to svg defs
-  var drop_shadow_filter = defs.append('filter')
-    .attr('id', 'dropShadow')
-    .attr('filterUnits', "userSpaceOnUse")
-    .attr('width', '100%')
-    .attr('height', '100%');
-  
-  // shadow blue
-  drop_shadow_filter.append('feGaussianBlur')
-    .attr('in', 'SourceAlpha')
-    .attr('stdDeviation', 2);
-  
-  // shadow offset
-  drop_shadow_filter.append('feOffset')
-    .attr('dx', 1)
-    .attr('dy', 1)
-    .attr('result', 'offsetblur');
-  
-  var feMerge = drop_shadow_filter.append('feMerge');  
-  feMerge.append('feMergeNode');
-  
-  // put original on top of shadow
-  feMerge.append('feMergeNode')
-    .attr('in', "SourceGraphic");
-
 }
 
 //===================================================================
@@ -471,7 +434,7 @@ d3plus.tooltip.create = function(params) {
   
   if (params.data) {
       
-    var val_width = 0
+    var val_width = 0, val_heights = {}
       
     var last_group = null
     params.data.forEach(function(d,i){
@@ -487,6 +450,7 @@ d3plus.tooltip.create = function(params) {
       
       var block = data_container.append("div")
         .attr("class","d3plus_tooltip_data_block")
+        .datum(d)
         
       if (d.highlight) {
         block.style("color",d3plus.utils.darker_color(params.color))
@@ -546,6 +510,7 @@ d3plus.tooltip.create = function(params) {
       }
           
       var w = parseFloat(val.style("width"),10)
+      if (w > params.width/2) w = params.width/2
       if (w > val_width) val_width = w
           
       if (i != params.data.length-1) {
@@ -559,11 +524,20 @@ d3plus.tooltip.create = function(params) {
     data_container.selectAll(".d3plus_tooltip_data_name")
       .style("width",function(){
         var w = parseFloat(d3.select(this.parentNode).style("width"),10)
-        return (w-val_width-25)+"px"
+        return (w-val_width-30)+"px"
       })
     
     data_container.selectAll(".d3plus_tooltip_data_value")
       .style("width",val_width+"px")
+      .each(function(d){
+        var h = parseFloat(d3.select(this).style("height"),10)
+        val_heights[d.name] = h
+      })
+    
+    data_container.selectAll(".d3plus_tooltip_data_name")
+      .style("min-height",function(d){
+        return val_heights[d.name]+"px"
+      })
     
   }
     
@@ -908,7 +882,6 @@ d3plus.viz = function() {
     "coord_change": false,
     "csv_columns": null,
     "data": null,
-    "data_source": null,
     "depth": null,
     "descs": {},
     "dev": false,
@@ -919,6 +892,7 @@ d3plus.viz = function() {
     "filtered_data": null,
     "font": "sans-serif",
     "font_weight": "lighter",
+    "footer": false,
     "graph": {"timing": 0},
     "group_bgs": true,
     "grouping": "name",
@@ -934,7 +908,7 @@ d3plus.viz = function() {
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "mirror_axis": false,
     "name_array": null,
-    "nesting": [],
+    "nesting": null,
     "nesting_aggs": {},
     "nodes": null,
     "number_format": function(value,name) { 
@@ -975,7 +949,7 @@ d3plus.viz = function() {
     "sub_title": null,
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
-    "text_format": function(text,name) { 
+    "text_format": function(text,name) {
       return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase() 
     },
     "text_var": "name",
@@ -1012,7 +986,6 @@ d3plus.viz = function() {
       solo_change = false,
       value_change = false,
       axis_change = false,
-      footer = true,
       nodes,
       links,
       static_axis = true,
@@ -1131,6 +1104,9 @@ d3plus.viz = function() {
           
           if (vars.dev) console.log("[d3plus] Nesting Data")
           
+          if (!vars.nesting) vars.nesting = [vars.id_var]
+          if (!vars.depth || vars.nesting.indexOf(vars.depth) < 0) vars.depth = vars.nesting[0]
+          
           vars.nesting.forEach(function(depth){
             
             var level = vars.nesting.slice(0,vars.nesting.indexOf(depth)+1)
@@ -1214,6 +1190,7 @@ d3plus.viz = function() {
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
         }
         else if (vars.year) {
+          console.log(data_obj)
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
         }
         
@@ -1454,7 +1431,7 @@ d3plus.viz = function() {
             vars.margin.top = vars.title_height
           }
         }
-        update_footer(vars.data_source)
+        update_footer(vars.footer)
       }
       
       d3.select("g.titles").transition().duration(d3plus.timing)
@@ -1599,9 +1576,13 @@ d3plus.viz = function() {
     var nested_data = d3.nest();
     
     levels.forEach(function(nest_key, i){
-    
+      
       nested_data
-        .key(function(d){ return vars.attrs[d[vars.id_var]][nest_key][vars.id_var] })
+        .key(function(d){ 
+          var n = find_variable(d,nest_key)
+          if (typeof n === "object") return n[vars.id_var]
+          else return n
+        })
       
       if (i == levels.length-1) {
         nested_data.rollup(function(leaves){
@@ -1764,7 +1745,7 @@ d3plus.viz = function() {
   
   update_footer = function(footer_text) {
     
-    if (footer && footer_text) {
+    if (footer_text) {
       if (footer_text.indexOf("<a href=") == 0) {
         var div = document.createElement("div")
         div.innerHTML = footer_text
@@ -2089,8 +2070,9 @@ d3plus.viz = function() {
   
   find_color = function(id) {
     var color = find_variable(id,vars.color_var)
-    if (!color) return "#ccc"
-    else if (typeof color == "string") return color
+    if (!color && vars.color_domain == [0,0]) color = 0
+    else if (!color) color = d3plus.utils.rand_color()
+    if (typeof color == "string") return color
     else return vars.color_scale(color)
   }
   
@@ -2130,12 +2112,6 @@ d3plus.viz = function() {
   chart.click_function = function(x) {
     if (!arguments.length) return vars.click_function;
     vars.click_function = x;
-    return chart;
-  };
-  
-  chart.color_domain = function(x) {
-    if (!arguments.length) return vars.color_domain;
-    vars.color_domain = x;
     return chart;
   };
   
@@ -2232,12 +2208,6 @@ d3plus.viz = function() {
     return chart;
   };
   
-  chart.data_source = function(x) {
-    if (!arguments.length) return vars.data_source;
-    vars.data_source = x;
-    return chart;
-  };
-  
   chart.depth = function(x) {
     if (!arguments.length) return vars.depth;
     vars.depth = x;
@@ -2303,8 +2273,8 @@ d3plus.viz = function() {
   };
   
   chart.footer = function(x) {
-    if (!arguments.length) return footer;
-    footer = x;
+    if (!arguments.length) return vars.footer;
+    vars.footer = x;
     return chart;
   };
   
@@ -4027,7 +3997,7 @@ d3plus.stacked = function(vars) {
           "id": vars.type,
           "fullscreen": true,
           "html": html,
-          "footer": vars.data_source,
+          "footer": vars.footer,
           "data": tooltip_data,
           "mouseevents": true,
           "parent": vars.parent,
@@ -4504,7 +4474,7 @@ d3plus.tree_map = function(vars) {
           "id": vars.type,
           "fullscreen": true,
           "html": html,
-          "footer": vars.data_source,
+          "footer": vars.footer,
           "data": tooltip_data,
           "mouseevents": true,
           "parent": vars.parent,
@@ -4561,13 +4531,13 @@ d3plus.tree_map = function(vars) {
     .transition().duration(d3plus.timing/2)
     .each("end", function(d){
       d3.select(this).selectAll("tspan").remove();
-      var name = find_variable(d,vars.text_var)
-      if(name && d.dx > 30 && d.dy > 30){
+      if(d.dx > 30 && d.dy > 30){
         var text = []
         var arr = vars.name_array ? vars.name_array : [vars.text_var,vars.id_var]
         arr.forEach(function(n){
           var name = find_variable(d,n)
-          if (name) text.push(vars.text_format(name))
+          if (typeof name === "number") text.push(vars.number_format(name))
+          else if (typeof name === "string") text.push(vars.text_format(name))
         })
         
         var size = (d.dx)/7
@@ -5075,7 +5045,7 @@ d3plus.geo_map = function(vars) {
       }
       else {
         var tooltip_data = get_tooltip_data(id,"long"),
-            footer = vars.data_source
+            footer = vars.footer
 
         var html = vars.click_function ? vars.click_function(id) : null
 
@@ -5556,7 +5526,7 @@ d3plus.pie_scatter = function(vars) {
           "id": vars.type,
           "fullscreen": true,
           "html": html,
-          "footer": vars.data_source,
+          "footer": vars.footer,
           "data": tooltip_data,
           "mouseevents": self,
           "parent": vars.parent,
@@ -6276,7 +6246,7 @@ d3plus.bubbles = function(vars) {
           "id": vars.type,
           "fullscreen": true,
           "html": html,
-          "footer": vars.data_source,
+          "footer": vars.footer,
           "data": tooltip_data,
           "mouseevents": self,
           "parent": vars.parent,
@@ -6614,7 +6584,7 @@ d3plus.rings = function(vars) {
         "style": vars.icon_style,
         "id": vars.type,
         "html": tooltip_appends+html,
-        "footer": vars.data_source,
+        "footer": vars.footer,
         "data": tooltip_data,
         "x": vars.width-tooltip_width-5,
         "y": vars.margin.top+5,

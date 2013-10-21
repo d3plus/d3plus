@@ -202,7 +202,7 @@ d3plus.tooltip.create = function(params) {
   
   if (params.data) {
       
-    var val_width = 0
+    var val_width = 0, val_heights = {}
       
     var last_group = null
     params.data.forEach(function(d,i){
@@ -218,6 +218,7 @@ d3plus.tooltip.create = function(params) {
       
       var block = data_container.append("div")
         .attr("class","d3plus_tooltip_data_block")
+        .datum(d)
         
       if (d.highlight) {
         block.style("color",d3plus.utils.darker_color(params.color))
@@ -277,6 +278,7 @@ d3plus.tooltip.create = function(params) {
       }
           
       var w = parseFloat(val.style("width"),10)
+      if (w > params.width/2) w = params.width/2
       if (w > val_width) val_width = w
           
       if (i != params.data.length-1) {
@@ -290,11 +292,20 @@ d3plus.tooltip.create = function(params) {
     data_container.selectAll(".d3plus_tooltip_data_name")
       .style("width",function(){
         var w = parseFloat(d3.select(this.parentNode).style("width"),10)
-        return (w-val_width-25)+"px"
+        return (w-val_width-30)+"px"
       })
     
     data_container.selectAll(".d3plus_tooltip_data_value")
       .style("width",val_width+"px")
+      .each(function(d){
+        var h = parseFloat(d3.select(this).style("height"),10)
+        val_heights[d.name] = h
+      })
+    
+    data_container.selectAll(".d3plus_tooltip_data_name")
+      .style("min-height",function(d){
+        return val_heights[d.name]+"px"
+      })
     
   }
     

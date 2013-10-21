@@ -22,7 +22,6 @@ d3plus.viz = function() {
     "coord_change": false,
     "csv_columns": null,
     "data": null,
-    "data_source": null,
     "depth": null,
     "descs": {},
     "dev": false,
@@ -33,6 +32,7 @@ d3plus.viz = function() {
     "filtered_data": null,
     "font": "sans-serif",
     "font_weight": "lighter",
+    "footer": false,
     "graph": {"timing": 0},
     "group_bgs": true,
     "grouping": "name",
@@ -48,7 +48,7 @@ d3plus.viz = function() {
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "mirror_axis": false,
     "name_array": null,
-    "nesting": [],
+    "nesting": null,
     "nesting_aggs": {},
     "nodes": null,
     "number_format": function(value,name) { 
@@ -89,7 +89,7 @@ d3plus.viz = function() {
     "sub_title": null,
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
-    "text_format": function(text,name) { 
+    "text_format": function(text,name) {
       return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase() 
     },
     "text_var": "name",
@@ -126,7 +126,6 @@ d3plus.viz = function() {
       solo_change = false,
       value_change = false,
       axis_change = false,
-      footer = true,
       nodes,
       links,
       static_axis = true,
@@ -245,6 +244,9 @@ d3plus.viz = function() {
           
           if (vars.dev) console.log("[d3plus] Nesting Data")
           
+          if (!vars.nesting) vars.nesting = [vars.id_var]
+          if (!vars.depth || vars.nesting.indexOf(vars.depth) < 0) vars.depth = vars.nesting[0]
+          
           vars.nesting.forEach(function(depth){
             
             var level = vars.nesting.slice(0,vars.nesting.indexOf(depth)+1)
@@ -328,6 +330,7 @@ d3plus.viz = function() {
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
         }
         else if (vars.year) {
+          console.log(data_obj)
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
         }
         
@@ -568,7 +571,7 @@ d3plus.viz = function() {
             vars.margin.top = vars.title_height
           }
         }
-        update_footer(vars.data_source)
+        update_footer(vars.footer)
       }
       
       d3.select("g.titles").transition().duration(d3plus.timing)
@@ -713,9 +716,13 @@ d3plus.viz = function() {
     var nested_data = d3.nest();
     
     levels.forEach(function(nest_key, i){
-    
+      
       nested_data
-        .key(function(d){ return vars.attrs[d[vars.id_var]][nest_key][vars.id_var] })
+        .key(function(d){ 
+          var n = find_variable(d,nest_key)
+          if (typeof n === "object") return n[vars.id_var]
+          else return n
+        })
       
       if (i == levels.length-1) {
         nested_data.rollup(function(leaves){
@@ -878,7 +885,7 @@ d3plus.viz = function() {
   
   update_footer = function(footer_text) {
     
-    if (footer && footer_text) {
+    if (footer_text) {
       if (footer_text.indexOf("<a href=") == 0) {
         var div = document.createElement("div")
         div.innerHTML = footer_text
@@ -1203,8 +1210,9 @@ d3plus.viz = function() {
   
   find_color = function(id) {
     var color = find_variable(id,vars.color_var)
-    if (!color) return "#ccc"
-    else if (typeof color == "string") return color
+    if (!color && vars.color_domain == [0,0]) color = 0
+    else if (!color) color = d3plus.utils.rand_color()
+    if (typeof color == "string") return color
     else return vars.color_scale(color)
   }
   
@@ -1244,12 +1252,6 @@ d3plus.viz = function() {
   chart.click_function = function(x) {
     if (!arguments.length) return vars.click_function;
     vars.click_function = x;
-    return chart;
-  };
-  
-  chart.color_domain = function(x) {
-    if (!arguments.length) return vars.color_domain;
-    vars.color_domain = x;
     return chart;
   };
   
@@ -1346,12 +1348,6 @@ d3plus.viz = function() {
     return chart;
   };
   
-  chart.data_source = function(x) {
-    if (!arguments.length) return vars.data_source;
-    vars.data_source = x;
-    return chart;
-  };
-  
   chart.depth = function(x) {
     if (!arguments.length) return vars.depth;
     vars.depth = x;
@@ -1417,8 +1413,8 @@ d3plus.viz = function() {
   };
   
   chart.footer = function(x) {
-    if (!arguments.length) return footer;
-    footer = x;
+    if (!arguments.length) return vars.footer;
+    vars.footer = x;
     return chart;
   };
   

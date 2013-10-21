@@ -433,7 +433,7 @@ d3plus.geo_map = function(vars) {
       }
       else {
         var tooltip_data = get_tooltip_data(id,"long"),
-            footer = vars.data_source
+            footer = vars.footer
 
         var html = vars.click_function ? vars.click_function(id) : null
 

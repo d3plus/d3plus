@@ -25,97 +25,99 @@ body {
 
 var viz = d3plus.viz()
 
-d3.json("data/products_mg.json", function(raw_data){
-  d3.json("data/attr_isic.json", function(attr){
-    d3.json("data/isic_mg.json", function(data){
-      
-      var attrs = {}
-      attr.data.forEach(function(a){
-        a.isic_id = a.id
-        attrs[a.id] = a
-      })
-      
-      depths = [1,3,5]
-      
-      for (id in attrs) {
-        obj = attrs[id]
-        depths.forEach(function(d){
-          if (d <= obj.id.length) {
-            obj["nesting_"+d] = {"name":attrs[obj.id.slice(0, d)].name, "isic_id":obj.id.slice(0, d)}
-          }
-        })
-      }
-      
-      data.data.forEach(function(d,i){
-        if (i % 2 != 0) d.complexity = -d.complexity
-      })
-      
-      format_test = function(d) {
-        // console.log(d)
-        return "Test JSON: "+d[10].name
-      }
-        
-      clicker = function(obj) {
-        return {"url": "data/attr_hs.json", "callback": format_test}
-      }
-      
+// d3.json("data/attr_isic.json", function(attr){
+//   d3.json("data/isic_mg.json", function(data){
+//     
+//     var attrs = {}
+//     attr.data.forEach(function(a){
+//       a.isic_id = a.id
+//       attrs[a.id] = a
+//     })
+//     
+//     depths = [1,3,5]
+//     
+//     for (id in attrs) {
+//       obj = attrs[id]
+//       depths.forEach(function(d){
+//         if (d <= obj.id.length) {
+//           obj["nesting_"+d] = {"name":attrs[obj.id.slice(0, d)].name, "isic_id":obj.id.slice(0, d)}
+//         }
+//       })
+//     }
+//     
+//     data.data.forEach(function(d,i){
+//       if (i % 2 != 0) d.complexity = -d.complexity
+//     })
+//     
+//     format_test = function(d) {
+//       // console.log(d)
+//       return "Test JSON: "+d[10].name
+//     }
+//       
+//     clicker = function(obj) {
+//       return {"url": "data/attr_hs.json", "callback": format_test}
+//     }
+//   
+//     viz
+//       .type("tree_map")
+//       .id_var("isic_id")
+//       .attrs(attrs)
+//       .text_var("name")
+//       .value_var("num_est")
+//       .tooltip_info({"short": ["wage"],"long": ["distance", "complexity", "wage"]})
+//       // .tooltip_info(["distance", "complexity", "val_usd"])
+//       .name_array(["name","id"])
+//       .title("Product Exports of Minas Gerais")
+//       .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
+//       .nesting(["nesting_1","nesting_3","nesting_5"])
+//       .nesting_aggs({"distance":"mean","complexity":"mean"})
+//       .click_function(clicker)
+//       .depth("nesting_1")
+//       .year(2010)
+//       .footer("Data provided by SECEX")
+//       .font("Helvetica Neue")
+//       .font_weight("lighter")
+//       .color_var("color")
+//       
+//     d3.select("#viz")
+//       .datum(data.data)
+//       .call(viz)
+//   
+//     // setTimeout(function(){
+//     //   
+//     //   d3.select("#viz").call(viz.year(2005))
+//     //   
+//     // },4000)
+//   
+//   })
+// })
+
+d3.json("data/candidatura.json", function(attr){
+  d3.json("data/pontuacao.json", function(data){
     
-      // viz
-      //   .type("tree_map")
-      //   .id_var("id")
-      //   .attrs(attrs)
-      //   .text_var("name")
-      //   .value_var("val_usd")
-      //   .tooltip_info({"short": ["val_usd"],"long": ["distance", "complexity", "val_usd"]})
-      //   // .tooltip_info(["distance", "complexity", "val_usd"])
-      //   .name_array(["name","id"])
-      //   .title("Product Exports of Minas Gerais")
-      //   .sub_title("Excluding Mineral Products")
-      //   .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
-      //   .nesting(["nesting_0","nesting_1","nesting_2"])
-      //   .nesting_aggs({"distance":"mean","complexity":"mean"})
-      //   .click_function(inner_html)
-      //   .depth("nesting_0")
-      //   .filter("Mineral Products")
-      //   .year(2010)
-      //   .data_source("Data provided by SECEX")
-      // 
-      // d3.select("#viz")
-      //   .datum(raw_data)
-      //   .call(viz)
-    
-      viz
-        .type("tree_map")
-        .id_var("isic_id")
-        .attrs(attrs)
-        .text_var("name")
-        .value_var("num_est")
-        .tooltip_info({"short": ["wage"],"long": ["distance", "complexity", "wage"]})
-        // .tooltip_info(["distance", "complexity", "val_usd"])
-        .name_array(["name","id"])
-        .title("Product Exports of Minas Gerais")
-        .total_bar({"prefix": "Export Value: $", "suffix": " USD"})
-        .nesting(["nesting_1","nesting_3","nesting_5"])
-        .nesting_aggs({"distance":"mean","complexity":"mean"})
-        .click_function(clicker)
-        .depth("nesting_1")
-        .year(2010)
-        .data_source("Data provided by SECEX")
-        .font("Helvetica Neue")
-        .font_weight("lighter")
-        .color_var("color")
-        
-      d3.select("#viz")
-        .datum(data.data)
-        .call(viz)
-    
-      // setTimeout(function(){
-      //   
-      //   d3.select("#viz").call(viz.year(2005))
-      //   
-      // },4000)
-    
+    var attrs = {}
+    attr.candidaturas.forEach(function(a){
+      a.candidatura = a.id
+      attrs[a.id] = a
     })
+  
+    viz
+      .type("tree_map")
+      .id_var("candidatura")
+      .attrs(attrs)
+      .text_var("name_pt")
+      .value_var("pontos")
+      .tooltip_info(["candidatura", "name_pt", "partido", "politico", "pontos", "rodada"])
+      .name_array(["name_pt","id"])
+      .year(2)
+      .year_var("rodada")
+      .font("Helvetica Neue")
+      .font_weight("lighter")
+      
+    d3.select("#viz")
+      .datum(data.pontuacoes)
+      .call(viz)
+  
   })
 })
 

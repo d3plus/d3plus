@@ -1,17 +1,17 @@
 var d3plus = window.d3plus || {};
 
-d3plus.version = "0.1";
+d3plus.version = "0.1.0";
 
 window.d3plus = d3plus;
 
 d3plus.timing = 600; // milliseconds for animations
 
-d3plus.evt = {}; // stores all mouse events that could occur
-
 d3plus.ie = /*@cc_on!@*/false;
 
+d3plus.evt = {}; // stores all mouse events that could occur
+
 // Modernizr touch events
-if (Modernizr.touch) {
+if (Modernizr && Modernizr.touch) {
   d3plus.evt.click = "touchend"
   d3plus.evt.down = "touchstart"
   d3plus.evt.up = "touchend"

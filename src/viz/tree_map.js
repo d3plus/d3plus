@@ -193,7 +193,7 @@ d3plus.tree_map = function(vars) {
           "id": vars.type,
           "fullscreen": true,
           "html": html,
-          "footer": vars.data_source,
+          "footer": vars.footer,
           "data": tooltip_data,
           "mouseevents": true,
           "parent": vars.parent,
@@ -250,13 +250,13 @@ d3plus.tree_map = function(vars) {
     .transition().duration(d3plus.timing/2)
     .each("end", function(d){
       d3.select(this).selectAll("tspan").remove();
-      var name = find_variable(d,vars.text_var)
-      if(name && d.dx > 30 && d.dy > 30){
+      if(d.dx > 30 && d.dy > 30){
         var text = []
         var arr = vars.name_array ? vars.name_array : [vars.text_var,vars.id_var]
         arr.forEach(function(n){
           var name = find_variable(d,n)
-          if (name) text.push(vars.text_format(name))
+          if (typeof name === "number") text.push(vars.number_format(name))
+          else if (typeof name === "string") text.push(vars.text_format(name))
         })
         
         var size = (d.dx)/7

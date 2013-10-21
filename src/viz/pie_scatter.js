@@ -281,7 +281,7 @@ d3plus.pie_scatter = function(vars) {
           "id": vars.type,
           "fullscreen": true,
           "html": html,
-          "footer": vars.data_source,
+          "footer": vars.footer,
           "data": tooltip_data,
           "mouseevents": self,
           "parent": vars.parent,

@@ -210,9 +210,11 @@ div.d3plus_tooltip_data_name {
 }
 
 div.d3plus_tooltip_data_value {
-  display: inline-block;
-  float: right;
+  display: block;
+  position: absolute;
+  right: 6px;
   text-align: right;
+  top: 3px;
 }
 
 div.d3plus_tooltip_data_help {

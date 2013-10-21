@@ -220,7 +220,7 @@ d3plus.stacked = function(vars) {
           "id": vars.type,
           "fullscreen": true,
           "html": html,
-          "footer": vars.data_source,
+          "footer": vars.footer,
           "data": tooltip_data,
           "mouseevents": true,
           "parent": vars.parent,

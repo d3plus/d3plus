@@ -235,7 +235,7 @@ d3plus.rings = function(vars) {
         "style": vars.icon_style,
         "id": vars.type,
         "html": tooltip_appends+html,
-        "footer": vars.data_source,
+        "footer": vars.footer,
         "data": tooltip_data,
         "x": vars.width-tooltip_width-5,
         "y": vars.margin.top+5,

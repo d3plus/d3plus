@@ -87,8 +87,9 @@ d3.json("data/attr_hs.json", function(attr) {
         .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
         .click_function(clicker)
         .descs({"id": "This is the ID! It means what you would expect it to mean. Another really long setence with multiple random words.", "val_usd": "...value. duh."})
-        .data_source("<a href='www.google.com'>SECEX</a>")
-        // .text_format(function(d){return d.toUpperCase()})
+        .footer("<a href='www.google.com'>SECEX</a>")
+        // .text_format(function(d){return d+"longtext longtext longtext longtext longtext"})
+        // .number_format(function(d){return d+"longtext longtext longtext longtext longtext"})
 
       d3.select("#viz")
         .datum(ps_data)

@@ -1,0 +1,3315 @@
+{
+  "candidaturas": [
+    {
+      "id": 1, 
+      "name_en": "ANTONIA LUCILEIA CRUZ RAMOS CAMARA - LIBERDADE E PRODUZIR PARA EMPREGAR I", 
+      "name_pt": "ANTONIA LUCILEIA CRUZ RAMOS CAMARA", 
+      "partido": 19, 
+      "politico": 1
+    }, 
+    {
+      "id": 2, 
+      "name_en": "FLAVIANO FLAVIO BAPTISTA DE MELO - LIBERDADE E PRODUZIR PARA EMPREGAR I", 
+      "name_pt": "FLAVIANO FLAVIO BAPTISTA DE MELO", 
+      "partido": 21, 
+      "politico": 14
+    }, 
+    {
+      "id": 3, 
+      "name_en": "GLADSON DE LIMA CAMELI - FPA II", 
+      "name_pt": "GLADSON DE LIMA CAMELI", 
+      "partido": 9, 
+      "politico": 23
+    }, 
+    {
+      "id": 4, 
+      "name_en": "HENRIQUE AFONSO SOARES LIMA - FPA II", 
+      "name_pt": "HENRIQUE AFONSO SOARES LIMA", 
+      "partido": 8, 
+      "politico": 28
+    }, 
+    {
+      "id": 5, 
+      "name_en": "MARCIO MIGUEL BITTAR - LIBERDADE E PRODUZIR PARA EMPREGAR I", 
+      "name_pt": "MARCIO MIGUEL BITTAR", 
+      "partido": 17, 
+      "politico": 30
+    }, 
+    {
+      "id": 6, 
+      "name_en": "MARIA PERPETUA DE ALMEIDA - FPA II", 
+      "name_pt": "MARIA PERPETUA DE ALMEIDA", 
+      "partido": 12, 
+      "politico": 40
+    }, 
+    {
+      "id": 7, 
+      "name_en": "SEBASTIAO SIBA MACHADO OLIVEIRA - FPA II", 
+      "name_pt": "SEBASTIAO SIBA MACHADO OLIVEIRA", 
+      "partido": 14, 
+      "politico": 46
+    }, 
+    {
+      "id": 8, 
+      "name_en": "TAUMATURGO LIMA CORDEIRO - FPA II", 
+      "name_pt": "TAUMATURGO LIMA CORDEIRO", 
+      "partido": 14, 
+      "politico": 55
+    }, 
+    {
+      "id": 9, 
+      "name_en": "ALEXANDRE DE MELO TOLEDO - FRENTE PELO BEM DE ALAGOAS", 
+      "name_pt": "ALEXANDRE DE MELO TOLEDO", 
+      "partido": 17, 
+      "politico": 63
+    }, 
+    {
+      "id": 10, 
+      "name_en": "ARTHUR CESAR PEREIRA DE LIRA - FRENTE PELO BEM DE ALAGOAS", 
+      "name_pt": "ARTHUR CESAR PEREIRA DE LIRA", 
+      "partido": 9, 
+      "politico": 71
+    }, 
+    {
+      "id": 11, 
+      "name_en": "GIVALDO DE SA GOUVEIA - FRENTE PELO BEM DE ALAGOAS", 
+      "name_pt": "GIVALDO DE SA GOUVEIA", 
+      "partido": 3, 
+      "politico": 78
+    }, 
+    {
+      "id": 12, 
+      "name_en": "JOSE FRANCISCO CERQUEIRA TENORIO - PTB-PRB-PMN-PSL-PHS-PTC", 
+      "name_pt": "JOSE FRANCISCO CERQUEIRA TENORIO", 
+      "partido": 6, 
+      "politico": 84
+    }, 
+    {
+      "id": 13, 
+      "name_en": "JOSE RENAN VASCONCELOS CALHEIROS FILHO - FRENTE POPULAR POR ALAGOAS I", 
+      "name_pt": "JOSE RENAN VASCONCELOS CALHEIROS FILHO", 
+      "partido": 21, 
+      "politico": 92
+    }, 
+    {
+      "id": 14, 
+      "name_en": "JOAO JOSE PEREIRA DE LYRA - PTB-PRB-PMN-PSL-PHS-PTC", 
+      "name_pt": "JOAO JOSE PEREIRA DE LYRA", 
+      "partido": 27, 
+      "politico": 97
+    }, 
+    {
+      "id": 15, 
+      "name_en": "MAURICIO QUINTELLA MALTA LESSA - FRENTE POPULAR POR ALAGOAS I", 
+      "name_pt": "MAURICIO QUINTELLA MALTA LESSA", 
+      "partido": 16, 
+      "politico": 104
+    }, 
+    {
+      "id": 16, 
+      "name_en": "PAULO FERNANDO DOS SANTOS - FRENTE POPULAR POR ALAGOAS I", 
+      "name_pt": "PAULO FERNANDO DOS SANTOS", 
+      "partido": 14, 
+      "politico": 115
+    }, 
+    {
+      "id": 17, 
+      "name_en": "ROSEANE CAVALCANTE DE FREITAS - FRENTE POPULAR POR ALAGOAS I", 
+      "name_pt": "ROSEANE CAVALCANTE DE FREITAS", 
+      "partido": 1, 
+      "politico": 133
+    }, 
+    {
+      "id": 18, 
+      "name_en": "CARLOS ALBERTO CAVALCANTE DE SOUZA - AVAN\u00c3\u2021A AMAZONAS", 
+      "name_pt": "CARLOS ALBERTO CAVALCANTE DE SOUZA", 
+      "partido": 9, 
+      "politico": 146
+    }, 
+    {
+      "id": 19, 
+      "name_en": "FRANCISCO PLINIO VALERIO TOMAZ - AVAN\u00c3\u2021A AMAZONAS", 
+      "name_pt": "FRANCISCO PLINIO VALERIO TOMAZ", 
+      "partido": 25, 
+      "politico": 156
+    }, 
+    {
+      "id": 20, 
+      "name_en": "JOSE HENRIQUE OLIVEIRA - O AMAZONAS MELHOR PARA TODOS", 
+      "name_pt": "JOSE HENRIQUE OLIVEIRA", 
+      "partido": 16, 
+      "politico": 171
+    }, 
+    {
+      "id": 21, 
+      "name_en": "LUIZ FERNANDO SARMENTO NICOLAU - AVAN\u00c3\u2021A AMAZONAS", 
+      "name_pt": "LUIZ FERNANDO SARMENTO NICOLAU", 
+      "partido": 6, 
+      "politico": 182
+    }, 
+    {
+      "id": 22, 
+      "name_en": "RAIMUNDO SABINO CASTELO BRANCO MAUES - AVAN\u00c3\u2021A AMAZONAS", 
+      "name_pt": "RAIMUNDO SABINO CASTELO BRANCO MAUES", 
+      "partido": 27, 
+      "politico": 193
+    }, 
+    {
+      "id": 23, 
+      "name_en": "SILAS CAMARA - AVAN\u00c3\u2021A AMAZONAS", 
+      "name_pt": "SILAS CAMARA", 
+      "partido": 19, 
+      "politico": 201
+    }, 
+    {
+      "id": 24, 
+      "name_en": "DAVID SAMUEL ALCOLUMBRE TOBELEM - UNIAO PROGRESSISTA", 
+      "name_pt": "DAVID SAMUEL ALCOLUMBRE TOBELEM", 
+      "partido": 25, 
+      "politico": 212
+    }, 
+    {
+      "id": 25, 
+      "name_en": "FATIMA LUCIA PELAES - AMAPA MAIS FORTE", 
+      "name_pt": "FATIMA LUCIA PELAES", 
+      "partido": 21, 
+      "politico": 224
+    }, 
+    {
+      "id": 26, 
+      "name_en": "JANETE MARIA GOES CAPIBERIBE - FRENTE POPULAR", 
+      "name_pt": "JANETE MARIA GOES CAPIBERIBE", 
+      "partido": 3, 
+      "politico": 230
+    }, 
+    {
+      "id": 27, 
+      "name_en": "LUIZ CARLOS GOMES DOS SANTOS JUNIOR - AMAPA MAIS FORTE", 
+      "name_pt": "LUIZ CARLOS GOMES DOS SANTOS JUNIOR", 
+      "partido": 17, 
+      "politico": 240
+    }, 
+    {
+      "id": 28, 
+      "name_en": "MARIA DALVA DE SOUZA FIGUEIREDO - FRENTE POPULAR", 
+      "name_pt": "MARIA DALVA DE SOUZA FIGUEIREDO", 
+      "partido": 14, 
+      "politico": 249
+    }, 
+    {
+      "id": 29, 
+      "name_en": "SEBASTIAO FERREIRA DA ROCHA - UNIAO PROGRESSISTA", 
+      "name_pt": "SEBASTIAO FERREIRA DA ROCHA", 
+      "partido": 10, 
+      "politico": 257
+    }, 
+    {
+      "id": 30, 
+      "name_en": "VINICIUS DE AZEVEDO GURGEL - UNI\u00c3\u0192O POPULAR PELA MUDAN\u00c3\u2021A", 
+      "name_pt": "VINICIUS DE AZEVEDO GURGEL", 
+      "partido": 23, 
+      "politico": 268
+    }, 
+    {
+      "id": 31, 
+      "name_en": "ACELINO FREITAS - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "ACELINO FREITAS", 
+      "partido": 13, 
+      "politico": 281
+    }, 
+    {
+      "id": 32, 
+      "name_en": "AFONSO BANDEIRA FLORENCE - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "AFONSO BANDEIRA FLORENCE", 
+      "partido": 14, 
+      "politico": 291
+    }, 
+    {
+      "id": 33, 
+      "name_en": "ALICE MAZZUCO PORTUGAL - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "ALICE MAZZUCO PORTUGAL", 
+      "partido": 12, 
+      "politico": 300
+    }, 
+    {
+      "id": 34, 
+      "name_en": "AMAURI SANTOS TEIXEIRA - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "AMAURI SANTOS TEIXEIRA", 
+      "partido": 14, 
+      "politico": 310
+    }, 
+    {
+      "id": 35, 
+      "name_en": "ANTONIO JOSE IMBASSAHY DA SILVA - #NE#", 
+      "name_pt": "ANTONIO JOSE IMBASSAHY DA SILVA", 
+      "partido": 17, 
+      "politico": 325
+    }, 
+    {
+      "id": 36, 
+      "name_en": "ANTONIO LUIZ PARANHOS RIBEIRO LEITE DE BRITO - PARA FAZER ACONTECER", 
+      "name_pt": "ANTONIO LUIZ PARANHOS RIBEIRO LEITE DE BRITO", 
+      "partido": 27, 
+      "politico": 332
+    }, 
+    {
+      "id": 37, 
+      "name_en": "ARTHUR DE OLIVEIRA MAIA DA SILVA - PARA FAZER ACONTECER", 
+      "name_pt": "ARTHUR DE OLIVEIRA MAIA DA SILVA", 
+      "partido": 21, 
+      "politico": 339
+    }, 
+    {
+      "id": 38, 
+      "name_en": "CLAUDIO CAJADO SAMPAIO - #NE#", 
+      "name_pt": "CLAUDIO CAJADO SAMPAIO", 
+      "partido": 25, 
+      "politico": 346
+    }, 
+    {
+      "id": 39, 
+      "name_en": "COLBERT MARTINS DA SILVA FILHO - PARA FAZER ACONTECER", 
+      "name_pt": "COLBERT MARTINS DA SILVA FILHO", 
+      "partido": 21, 
+      "politico": 355
+    }, 
+    {
+      "id": 40, 
+      "name_en": "DANIEL GOMES DE ALMEIDA - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "DANIEL GOMES DE ALMEIDA", 
+      "partido": 12, 
+      "politico": 371
+    }, 
+    {
+      "id": 41, 
+      "name_en": "EDSON SAMPAIO PIMENTA - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "EDSON SAMPAIO PIMENTA", 
+      "partido": 12, 
+      "politico": 379
+    }, 
+    {
+      "id": 42, 
+      "name_en": "ERIVELTON LIMA SANTANA - PARA FAZER ACONTECER", 
+      "name_pt": "ERIVELTON LIMA SANTANA", 
+      "partido": 19, 
+      "politico": 387
+    }, 
+    {
+      "id": 43, 
+      "name_en": "FABIO LOUREIRO SOUTO - #NE#", 
+      "name_pt": "FABIO LOUREIRO SOUTO", 
+      "partido": 25, 
+      "politico": 394
+    }, 
+    {
+      "id": 44, 
+      "name_en": "FELIX DE ALMEIDA MENDONcA JUNIOR - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "FELIX DE ALMEIDA MENDONcA JUNIOR", 
+      "partido": 10, 
+      "politico": 402
+    }, 
+    {
+      "id": 45, 
+      "name_en": "FERNANDO DANTAS TORRES - #NE#", 
+      "name_pt": "FERNANDO DANTAS TORRES", 
+      "partido": 25, 
+      "politico": 410
+    }, 
+    {
+      "id": 46, 
+      "name_en": "GERALDO SIMOES DE OLIVEIRA - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "GERALDO SIMOES DE OLIVEIRA", 
+      "partido": 14, 
+      "politico": 418
+    }, 
+    {
+      "id": 47, 
+      "name_en": "JANIO NATAL ANDRADE BORGES - VITORIA DE UMA BAHIA QUE TEM PRESSA", 
+      "name_pt": "JANIO NATAL ANDRADE BORGES", 
+      "partido": 15, 
+      "politico": 428
+    }, 
+    {
+      "id": 48, 
+      "name_en": "JOAO CARLOS PAOLILO BACELAR FILHO - PARA FAZER ACONTECER", 
+      "name_pt": "JOAO CARLOS PAOLILO BACELAR FILHO", 
+      "partido": 16, 
+      "politico": 439
+    }, 
+    {
+      "id": 49, 
+      "name_en": "JOSE ALVES ROCHA - PARA FAZER ACONTECER", 
+      "name_pt": "JOSE ALVES ROCHA", 
+      "partido": 16, 
+      "politico": 445
+    }, 
+    {
+      "id": 50, 
+      "name_en": "JOSE CARLOS LEAO DE ARAUJO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "JOSE CARLOS LEAO DE ARAUJO", 
+      "partido": 10, 
+      "politico": 449
+    }, 
+    {
+      "id": 51, 
+      "name_en": "JOSIAS GOMES DA SILVA - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "JOSIAS GOMES DA SILVA", 
+      "partido": 14, 
+      "politico": 458
+    }, 
+    {
+      "id": 52, 
+      "name_en": "JOSE EDUARDO VIEIRA RIBEIRO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "JOSE EDUARDO VIEIRA RIBEIRO", 
+      "partido": 14, 
+      "politico": 464
+    }, 
+    {
+      "id": 53, 
+      "name_en": "JOSE NUNES SOARES - #NE#", 
+      "name_pt": "JOSE NUNES SOARES", 
+      "partido": 25, 
+      "politico": 470
+    }, 
+    {
+      "id": 54, 
+      "name_en": "JOAO FELIPE DE SOUZA LEAO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "JOAO FELIPE DE SOUZA LEAO", 
+      "partido": 9, 
+      "politico": 473
+    }, 
+    {
+      "id": 55, 
+      "name_en": "JOAO LUIZ CORREIA ARGOLO DOS SANTOS - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "JOAO LUIZ CORREIA ARGOLO DOS SANTOS", 
+      "partido": 9, 
+      "politico": 472
+    }, 
+    {
+      "id": 56, 
+      "name_en": "JUTAHY MAGALHAES JUNIOR - #NE#", 
+      "name_pt": "JUTAHY MAGALHAES JUNIOR", 
+      "partido": 17, 
+      "politico": 471
+    }, 
+    {
+      "id": 57, 
+      "name_en": "LUCIO QUADROS VIEIRA LIMA - PARA FAZER ACONTECER", 
+      "name_pt": "LUCIO QUADROS VIEIRA LIMA", 
+      "partido": 21, 
+      "politico": 469
+    }, 
+    {
+      "id": 58, 
+      "name_en": "LUIZ ALBERTO SILVA DOS SANTOS - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "LUIZ ALBERTO SILVA DOS SANTOS", 
+      "partido": 14, 
+      "politico": 468
+    }, 
+    {
+      "id": 59, 
+      "name_en": "LUIZ BARBOSA DE DEUS - #NE#", 
+      "name_pt": "LUIZ BARBOSA DE DEUS", 
+      "partido": 25, 
+      "politico": 467
+    }, 
+    {
+      "id": 60, 
+      "name_en": "MARCOS ANTONIO MEDRADO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "MARCOS ANTONIO MEDRADO", 
+      "partido": 10, 
+      "politico": 466
+    }, 
+    {
+      "id": 61, 
+      "name_en": "MARCIO CARLOS MARINHO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "MARCIO CARLOS MARINHO", 
+      "partido": 13, 
+      "politico": 465
+    }, 
+    {
+      "id": 62, 
+      "name_en": "MARIO SILVIO MENDES NEGROMONTE - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "MARIO SILVIO MENDES NEGROMONTE", 
+      "partido": 9, 
+      "politico": 463
+    }, 
+    {
+      "id": 63, 
+      "name_en": "NELSON VICENTE PORTELA PELLEGRINO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "NELSON VICENTE PORTELA PELLEGRINO", 
+      "partido": 14, 
+      "politico": 462
+    }, 
+    {
+      "id": 64, 
+      "name_en": "OZIEL ALVES DE OLIVEIRA - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "OZIEL ALVES DE OLIVEIRA", 
+      "partido": 10, 
+      "politico": 461
+    }, 
+    {
+      "id": 65, 
+      "name_en": "PAULO SERGIO PARANHOS DE MAGALHAES - #NE#", 
+      "name_pt": "PAULO SERGIO PARANHOS DE MAGALHAES", 
+      "partido": 25, 
+      "politico": 460
+    }, 
+    {
+      "id": 66, 
+      "name_en": "ROBERTO PEREIRA DE BRITTO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "ROBERTO PEREIRA DE BRITTO", 
+      "partido": 9, 
+      "politico": 459
+    }, 
+    {
+      "id": 67, 
+      "name_en": "VALMIR CARLOS DA ASSUNcAO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "VALMIR CARLOS DA ASSUNcAO", 
+      "partido": 14, 
+      "politico": 457
+    }, 
+    {
+      "id": 68, 
+      "name_en": "WALDENOR ALVES PEREIRA FILHO - PRA BAHIA SEGUIR MUDANDO", 
+      "name_pt": "WALDENOR ALVES PEREIRA FILHO", 
+      "partido": 14, 
+      "politico": 456
+    }, 
+    {
+      "id": 69, 
+      "name_en": "ANDRE PEIXOTO FIGUEIREDO LIMA - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "ANDRE PEIXOTO FIGUEIREDO LIMA", 
+      "partido": 10, 
+      "politico": 455
+    }, 
+    {
+      "id": 70, 
+      "name_en": "ANIBAL FERREIRA GOMES - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "ANIBAL FERREIRA GOMES", 
+      "partido": 21, 
+      "politico": 454
+    }, 
+    {
+      "id": 71, 
+      "name_en": "ANTONIO BALHMANN CARDOSO NUNES FILHO - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "ANTONIO BALHMANN CARDOSO NUNES FILHO", 
+      "partido": 3, 
+      "politico": 453
+    }, 
+    {
+      "id": 72, 
+      "name_en": "ANTONIO EUDES XAVIER - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "ANTONIO EUDES XAVIER", 
+      "partido": 14, 
+      "politico": 452
+    }, 
+    {
+      "id": 73, 
+      "name_en": "ARTUR JOSE VIEIRA BRUNO - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "ARTUR JOSE VIEIRA BRUNO", 
+      "partido": 14, 
+      "politico": 451
+    }, 
+    {
+      "id": 74, 
+      "name_en": "CARLOS MAURO CABRAL BENEVIDES - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "CARLOS MAURO CABRAL BENEVIDES", 
+      "partido": 21, 
+      "politico": 450
+    }, 
+    {
+      "id": 75, 
+      "name_en": "FRANCISCO ARIOSTO HOLANDA - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "FRANCISCO ARIOSTO HOLANDA", 
+      "partido": 3, 
+      "politico": 448
+    }, 
+    {
+      "id": 76, 
+      "name_en": "FRANCISCO DANILO BASTOS FORTE - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "FRANCISCO DANILO BASTOS FORTE", 
+      "partido": 21, 
+      "politico": 447
+    }, 
+    {
+      "id": 77, 
+      "name_en": "FRANCISCO LOPES DA SILVA - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "FRANCISCO LOPES DA SILVA", 
+      "partido": 12, 
+      "politico": 446
+    }, 
+    {
+      "id": 78, 
+      "name_en": "GENECIAS MATEUS NORONHA - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "GENECIAS MATEUS NORONHA", 
+      "partido": 21, 
+      "politico": 444
+    }, 
+    {
+      "id": 79, 
+      "name_en": "JOAO ANANIAS VASCONCELOS NETO - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "JOAO ANANIAS VASCONCELOS NETO", 
+      "partido": 12, 
+      "politico": 443
+    }, 
+    {
+      "id": 80, 
+      "name_en": "JOSE ARNON CRUZ BEZERRA DE MENEZES - PP/PTB/PSL/PTN/PRTB/PHS/PMN/PT DO B", 
+      "name_pt": "JOSE ARNON CRUZ BEZERRA DE MENEZES", 
+      "partido": 27, 
+      "politico": 442
+    }, 
+    {
+      "id": 81, 
+      "name_en": "JOSE LINHARES PONTE - PP/PTB/PSL/PTN/PRTB/PHS/PMN/PT DO B", 
+      "name_pt": "JOSE LINHARES PONTE", 
+      "partido": 9, 
+      "politico": 441
+    }, 
+    {
+      "id": 82, 
+      "name_en": "JOSE AIRTON FELIX CIRILO DA SILVA - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "JOSE AIRTON FELIX CIRILO DA SILVA", 
+      "partido": 14, 
+      "politico": 440
+    }, 
+    {
+      "id": 83, 
+      "name_en": "JOSE ILARIO GONcALVES MARQUES - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "JOSE ILARIO GONcALVES MARQUES", 
+      "partido": 14, 
+      "politico": 438
+    }, 
+    {
+      "id": 84, 
+      "name_en": "JOSE NOBRE GUIMARAES - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "JOSE NOBRE GUIMARAES", 
+      "partido": 14, 
+      "politico": 437
+    }, 
+    {
+      "id": 85, 
+      "name_en": "MANOEL SALVIANO SOBRINHO - COLIGA\u00c3\u2021\u00c3\u0192O POR UM CEAR\u00c3\u0081 MODERNO E FORTE", 
+      "name_pt": "MANOEL SALVIANO SOBRINHO", 
+      "partido": 17, 
+      "politico": 436
+    }, 
+    {
+      "id": 86, 
+      "name_en": "MARIA GORETE PEREIRA - PARA FAZER BRILHAR O CEARA - PR - PPS", 
+      "name_pt": "MARIA GORETE PEREIRA", 
+      "partido": 16, 
+      "politico": 435
+    }, 
+    {
+      "id": 87, 
+      "name_en": "MARIO FEITOZA DE CARVALHO FREITAS - PRB/PDT/PT/PMDB/PSC/PSB/PCDOB", 
+      "name_pt": "MARIO FEITOZA DE CARVALHO FREITAS", 
+      "partido": 21, 
+      "politico": 434
+    }, 
+    {
+      "id": 88, 
+      "name_en": "RAIMUNDO GOMES DE MATOS - COLIGA\u00c3\u2021\u00c3\u0192O POR UM CEAR\u00c3\u0081 MODERNO E FORTE", 
+      "name_pt": "RAIMUNDO GOMES DE MATOS", 
+      "partido": 17, 
+      "politico": 433
+    }, 
+    {
+      "id": 89, 
+      "name_en": "VICENTE FERREIRA DE ARRUDA COELHO - PARA FAZER BRILHAR O CEARA - PR - PPS", 
+      "name_pt": "VICENTE FERREIRA DE ARRUDA COELHO", 
+      "partido": 16, 
+      "politico": 432
+    }, 
+    {
+      "id": 90, 
+      "name_en": "AUGUSTO SILVEIRA DE CARVALHO - NOVO CAMINHO", 
+      "name_pt": "AUGUSTO SILVEIRA DE CARVALHO", 
+      "partido": 7, 
+      "politico": 431
+    }, 
+    {
+      "id": 91, 
+      "name_en": "ERIKA JUCA KOKAY - NOVO CAMINHO", 
+      "name_pt": "ERIKA JUCA KOKAY", 
+      "partido": 14, 
+      "politico": 430
+    }, 
+    {
+      "id": 92, 
+      "name_en": "IZALCI LUCAS FERREIRA - O DF PODE MAIS", 
+      "name_pt": "IZALCI LUCAS FERREIRA", 
+      "partido": 16, 
+      "politico": 429
+    }, 
+    {
+      "id": 93, 
+      "name_en": "JAQUELINE MARIA RORIZ - O DF PODE MAIS", 
+      "name_pt": "JAQUELINE MARIA RORIZ", 
+      "partido": 6, 
+      "politico": 427
+    }, 
+    {
+      "id": 94, 
+      "name_en": "JOSE ANTONIO MACHADO REGUFFE - NOVO CAMINHO", 
+      "name_pt": "JOSE ANTONIO MACHADO REGUFFE", 
+      "partido": 10, 
+      "politico": 426
+    }, 
+    {
+      "id": 95, 
+      "name_en": "LUIZ CARLOS PIETSCHMANN - NOVO CAMINHO PCDOB, PTB, PMDB, PRP, PRB", 
+      "name_pt": "LUIZ CARLOS PIETSCHMANN", 
+      "partido": 21, 
+      "politico": 425
+    }, 
+    {
+      "id": 96, 
+      "name_en": "ROBERTO POLICARPO FAGUNDES - NOVO CAMINHO", 
+      "name_pt": "ROBERTO POLICARPO FAGUNDES", 
+      "partido": 14, 
+      "politico": 424
+    }, 
+    {
+      "id": 97, 
+      "name_en": "RONALDO FONSECA DE SOUZA - O DF PODE MAIS", 
+      "name_pt": "RONALDO FONSECA DE SOUZA", 
+      "partido": 16, 
+      "politico": 423
+    }, 
+    {
+      "id": 98, 
+      "name_en": "CAMILO COLA - FRENTE JUNTOS PELO FUTURO", 
+      "name_pt": "CAMILO COLA", 
+      "partido": 21, 
+      "politico": 422
+    }, 
+    {
+      "id": 99, 
+      "name_en": "CARLOS HUMBERTO MANNATO - FRENTE POPULAR CAPIXABA", 
+      "name_pt": "CARLOS HUMBERTO MANNATO", 
+      "partido": 10, 
+      "politico": 421
+    }, 
+    {
+      "id": 100, 
+      "name_en": "CESAR ROBERTO COLNAGHI - O ESPIRITO SANTO QUER MAIS", 
+      "name_pt": "CESAR ROBERTO COLNAGHI", 
+      "partido": 17, 
+      "politico": 420
+    }, 
+    {
+      "id": 101, 
+      "name_en": "IRINY NICOLAU CORRES LOPES - FRENTE JUNTOS PELO FUTURO", 
+      "name_pt": "IRINY NICOLAU CORRES LOPES", 
+      "partido": 14, 
+      "politico": 419
+    }, 
+    {
+      "id": 102, 
+      "name_en": "JORGE SILVA - FRENTE POPULAR CAPIXABA", 
+      "name_pt": "JORGE SILVA", 
+      "partido": 10, 
+      "politico": 417
+    }, 
+    {
+      "id": 103, 
+      "name_en": "PAULO ROBERTO FOLETTO - FRENTE JUNTOS PELO FUTURO", 
+      "name_pt": "PAULO ROBERTO FOLETTO", 
+      "partido": 3, 
+      "politico": 416
+    }, 
+    {
+      "id": 104, 
+      "name_en": "ROSILDA DE FREITAS - FRENTE JUNTOS PELO FUTURO", 
+      "name_pt": "ROSILDA DE FREITAS", 
+      "partido": 21, 
+      "politico": 415
+    }, 
+    {
+      "id": 105, 
+      "name_en": "SUELI RANGEL SILVA VIDIGAL - FRENTE POPULAR CAPIXABA", 
+      "name_pt": "SUELI RANGEL SILVA VIDIGAL", 
+      "partido": 10, 
+      "politico": 414
+    }, 
+    {
+      "id": 106, 
+      "name_en": "WELINGTON COIMBRA - FRENTE JUNTOS PELO FUTURO", 
+      "name_pt": "WELINGTON COIMBRA", 
+      "partido": 21, 
+      "politico": 413
+    }, 
+    {
+      "id": 107, 
+      "name_en": "ARMANDO VERGILIO DOS SANTOS JUNIOR - AVAN\u00c3\u2021AR MAIS", 
+      "name_pt": "ARMANDO VERGILIO DOS SANTOS JUNIOR", 
+      "partido": 6, 
+      "politico": 412
+    }, 
+    {
+      "id": 108, 
+      "name_en": "CARLOS ALBERTO LEREIA DA SILVA - AVAN\u00c3\u2021AR MAIS", 
+      "name_pt": "CARLOS ALBERTO LEREIA DA SILVA", 
+      "partido": 17, 
+      "politico": 411
+    }, 
+    {
+      "id": 109, 
+      "name_en": "FLAVIA CARREIRO ALBUQUERQUE MORAIS - GOI\u00c3\u0081S NO RUMO CERTO", 
+      "name_pt": "FLAVIA CARREIRO ALBUQUERQUE MORAIS", 
+      "partido": 10, 
+      "politico": 409
+    }, 
+    {
+      "id": 110, 
+      "name_en": "HEULER ABREU CRUVINEL - AVAN\u00c3\u2021AR MAIS", 
+      "name_pt": "HEULER ABREU CRUVINEL", 
+      "partido": 25, 
+      "politico": 408
+    }, 
+    {
+      "id": 111, 
+      "name_en": "IRIS DE ARAUJO REZENDE MACHADO - GOIAS RUMO AO FUTURO", 
+      "name_pt": "IRIS DE ARAUJO REZENDE MACHADO", 
+      "partido": 21, 
+      "politico": 407
+    }, 
+    {
+      "id": 112, 
+      "name_en": "JOAO CAMPOS DE ARAUJO - AVAN\u00c3\u2021AR MAIS", 
+      "name_pt": "JOAO CAMPOS DE ARAUJO", 
+      "partido": 17, 
+      "politico": 406
+    }, 
+    {
+      "id": 113, 
+      "name_en": "JOAO SANDES JUNIOR - GOI\u00c3\u0081S NO RUMO CERTO", 
+      "name_pt": "JOAO SANDES JUNIOR", 
+      "partido": 9, 
+      "politico": 405
+    }, 
+    {
+      "id": 114, 
+      "name_en": "LEANDRO VILELA VELLOSO - GOIAS RUMO AO FUTURO", 
+      "name_pt": "LEANDRO VILELA VELLOSO", 
+      "partido": 21, 
+      "politico": 404
+    }, 
+    {
+      "id": 115, 
+      "name_en": "MAGDA MOFATTO HON - AVAN\u00c3\u2021AR MAIS", 
+      "name_pt": "MAGDA MOFATTO HON", 
+      "partido": 27, 
+      "politico": 403
+    }, 
+    {
+      "id": 116, 
+      "name_en": "PEDRO PINHEIRO CHAVES - GOIAS RUMO AO FUTURO", 
+      "name_pt": "PEDRO PINHEIRO CHAVES", 
+      "partido": 21, 
+      "politico": 401
+    }, 
+    {
+      "id": 117, 
+      "name_en": "ROBERTO EGIDIO BALESTRA - GOI\u00c3\u0081S NO RUMO CERTO", 
+      "name_pt": "ROBERTO EGIDIO BALESTRA", 
+      "partido": 9, 
+      "politico": 400
+    }, 
+    {
+      "id": 118, 
+      "name_en": "RONALDO RAMOS CAIADO - AVAN\u00c3\u2021AR MAIS", 
+      "name_pt": "RONALDO RAMOS CAIADO", 
+      "partido": 25, 
+      "politico": 399
+    }, 
+    {
+      "id": 119, 
+      "name_en": "RUBENS OTONI GOMIDE - GOIAS RUMO AO FUTURO", 
+      "name_pt": "RUBENS OTONI GOMIDE", 
+      "partido": 14, 
+      "politico": 398
+    }, 
+    {
+      "id": 120, 
+      "name_en": "VALDIVINO JOSE DE OLIVEIRA - AVAN\u00c3\u2021AR MAIS", 
+      "name_pt": "VALDIVINO JOSE DE OLIVEIRA", 
+      "partido": 17, 
+      "politico": 397
+    }, 
+    {
+      "id": 121, 
+      "name_en": "ANTONIO DA CONCEIcAO COSTA FERREIRA - O MARANH\u00c3\u0192O N\u00c3\u0192O PODE PARAR F1", 
+      "name_pt": "ANTONIO DA CONCEIcAO COSTA FERREIRA", 
+      "partido": 19, 
+      "politico": 396
+    }, 
+    {
+      "id": 122, 
+      "name_en": "ADEMIR CAMILO PRATES RODRIGUES - #NE#", 
+      "name_pt": "ADEMIR CAMILO PRATES RODRIGUES", 
+      "partido": 10, 
+      "politico": 395
+    }, 
+    {
+      "id": 123, 
+      "name_en": "AELTON JOSE DE FREITAS - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "AELTON JOSE DE FREITAS", 
+      "partido": 16, 
+      "politico": 393
+    }, 
+    {
+      "id": 124, 
+      "name_en": "ANTONIO PINHEIRO JUNIOR - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "ANTONIO PINHEIRO JUNIOR", 
+      "partido": 9, 
+      "politico": 392
+    }, 
+    {
+      "id": 125, 
+      "name_en": "ANTONIO ROBERTO SOARES - #NE#", 
+      "name_pt": "ANTONIO ROBERTO SOARES", 
+      "partido": 8, 
+      "politico": 391
+    }, 
+    {
+      "id": 126, 
+      "name_en": "ARACELY DE PAULA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "ARACELY DE PAULA", 
+      "partido": 16, 
+      "politico": 390
+    }, 
+    {
+      "id": 127, 
+      "name_en": "BERNARDO DE VASCONCELLOS MOREIRA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "BERNARDO DE VASCONCELLOS MOREIRA", 
+      "partido": 16, 
+      "politico": 389
+    }, 
+    {
+      "id": 128, 
+      "name_en": "BONIFACIO JOSE TAMM DE ANDRADA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "BONIFACIO JOSE TAMM DE ANDRADA", 
+      "partido": 17, 
+      "politico": 388
+    }, 
+    {
+      "id": 129, 
+      "name_en": "DIEGO LEONARDO DE ANDRADE CARVALHO - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "DIEGO LEONARDO DE ANDRADE CARVALHO", 
+      "partido": 16, 
+      "politico": 386
+    }, 
+    {
+      "id": 130, 
+      "name_en": "DIMAS FABIANO TOLEDO JUNIOR - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "DIMAS FABIANO TOLEDO JUNIOR", 
+      "partido": 9, 
+      "politico": 385
+    }, 
+    {
+      "id": 131, 
+      "name_en": "DOMINGOS SAVIO CAMPOS RESENDE - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "DOMINGOS SAVIO CAMPOS RESENDE", 
+      "partido": 17, 
+      "politico": 384
+    }, 
+    {
+      "id": 132, 
+      "name_en": "EDUARDO BRANDAO DE AZEREDO - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "EDUARDO BRANDAO DE AZEREDO", 
+      "partido": 17, 
+      "politico": 383
+    }, 
+    {
+      "id": 133, 
+      "name_en": "EDUARDO LUIZ BARROS BARBOSA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "EDUARDO LUIZ BARROS BARBOSA", 
+      "partido": 17, 
+      "politico": 382
+    }, 
+    {
+      "id": 134, 
+      "name_en": "FABIO AUGUSTO RAMALHO DOS SANTOS - #NE#", 
+      "name_pt": "FABIO AUGUSTO RAMALHO DOS SANTOS", 
+      "partido": 8, 
+      "politico": 381
+    }, 
+    {
+      "id": 135, 
+      "name_en": "GEORGE HILTON DOS SANTOS CECILIO - TODOS JUNTOS POR MINAS", 
+      "name_pt": "GEORGE HILTON DOS SANTOS CECILIO", 
+      "partido": 13, 
+      "politico": 380
+    }, 
+    {
+      "id": 136, 
+      "name_en": "GERALDO THADEU PEDREIRA DOS SANTOS - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "GERALDO THADEU PEDREIRA DOS SANTOS", 
+      "partido": 7, 
+      "politico": 378
+    }, 
+    {
+      "id": 137, 
+      "name_en": "HUMBERTO GUIMARAES SOUTO - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "HUMBERTO GUIMARAES SOUTO", 
+      "partido": 7, 
+      "politico": 377
+    }, 
+    {
+      "id": 138, 
+      "name_en": "ISAIAS SILVESTRE - JUSTI\u00c3\u2021A SOCIAL E TRABALHO", 
+      "name_pt": "ISAIAS SILVESTRE", 
+      "partido": 3, 
+      "politico": 376
+    }, 
+    {
+      "id": 139, 
+      "name_en": "JAIME MARTINS FILHO - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "JAIME MARTINS FILHO", 
+      "partido": 16, 
+      "politico": 375
+    }, 
+    {
+      "id": 140, 
+      "name_en": "JAIRO ATAIDE VIEIRA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "JAIRO ATAIDE VIEIRA", 
+      "partido": 25, 
+      "politico": 374
+    }, 
+    {
+      "id": 141, 
+      "name_en": "JOAO CARLOS SIQUEIRA - TODOS JUNTOS POR MINAS", 
+      "name_pt": "JOAO CARLOS SIQUEIRA", 
+      "partido": 14, 
+      "politico": 373
+    }, 
+    {
+      "id": 142, 
+      "name_en": "JOAO LUCIO MAGALHAES BIFANO - TODOS JUNTOS POR MINAS", 
+      "name_pt": "JOAO LUCIO MAGALHAES BIFANO", 
+      "partido": 21, 
+      "politico": 372
+    }, 
+    {
+      "id": 143, 
+      "name_en": "JOSE HUMBERTO SOARES - PHS/PTC", 
+      "name_pt": "JOSE HUMBERTO SOARES", 
+      "partido": 5, 
+      "politico": 370
+    }, 
+    {
+      "id": 144, 
+      "name_en": "JOSE LEONARDO COSTA MONTEIRO - TODOS JUNTOS POR MINAS", 
+      "name_pt": "JOSE LEONARDO COSTA MONTEIRO", 
+      "partido": 14, 
+      "politico": 369
+    }, 
+    {
+      "id": 145, 
+      "name_en": "JOSE SARAIVA FELIPE - TODOS JUNTOS POR MINAS", 
+      "name_pt": "JOSE SARAIVA FELIPE", 
+      "partido": 21, 
+      "politico": 368
+    }, 
+    {
+      "id": 146, 
+      "name_en": "JOAO BITTAR JUNIOR - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "JOAO BITTAR JUNIOR", 
+      "partido": 25, 
+      "politico": 367
+    }, 
+    {
+      "id": 147, 
+      "name_en": "JULIO CESAR DELGADO - JUSTI\u00c3\u2021A SOCIAL E TRABALHO", 
+      "name_pt": "JULIO CESAR DELGADO", 
+      "partido": 3, 
+      "politico": 366
+    }, 
+    {
+      "id": 148, 
+      "name_en": "LAEL VIEIRA VARELLA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "LAEL VIEIRA VARELLA", 
+      "partido": 25, 
+      "politico": 365
+    }, 
+    {
+      "id": 149, 
+      "name_en": "LEONARDO LEMOS BARROS QUINTAO - TODOS JUNTOS POR MINAS", 
+      "name_pt": "LEONARDO LEMOS BARROS QUINTAO", 
+      "partido": 21, 
+      "politico": 364
+    }, 
+    {
+      "id": 150, 
+      "name_en": "LINCOLN DINIZ PORTELA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "LINCOLN DINIZ PORTELA", 
+      "partido": 16, 
+      "politico": 363
+    }, 
+    {
+      "id": 151, 
+      "name_en": "LUIS HENRIQUE DE OLIVEIRA RESENDE - MINAS NO RUMO CERTO", 
+      "name_pt": "LUIS HENRIQUE DE OLIVEIRA RESENDE", 
+      "partido": 1, 
+      "politico": 362
+    }, 
+    {
+      "id": 152, 
+      "name_en": "LUIZ FERNANDO RAMOS FARIA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "LUIZ FERNANDO RAMOS FARIA", 
+      "partido": 9, 
+      "politico": 361
+    }, 
+    {
+      "id": 153, 
+      "name_en": "MARCOS MONTES CORDEIRO - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "MARCOS MONTES CORDEIRO", 
+      "partido": 25, 
+      "politico": 360
+    }, 
+    {
+      "id": 154, 
+      "name_en": "MARCUS VINICIUS CAETANO PESTANA DA SILVA - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "MARCUS VINICIUS CAETANO PESTANA DA SILVA", 
+      "partido": 17, 
+      "politico": 359
+    }, 
+    {
+      "id": 155, 
+      "name_en": "MARIA DO SOCORRO JO MORAES - TODOS JUNTOS POR MINAS", 
+      "name_pt": "MARIA DO SOCORRO JO MORAES", 
+      "partido": 12, 
+      "politico": 358
+    }, 
+    {
+      "id": 156, 
+      "name_en": "MARIA MARGARIDA MARTINS SALOMAO - TODOS JUNTOS POR MINAS", 
+      "name_pt": "MARIA MARGARIDA MARTINS SALOMAO", 
+      "partido": 14, 
+      "politico": 357
+    }, 
+    {
+      "id": 157, 
+      "name_en": "MAURO RIBEIRO LOPES - TODOS JUNTOS POR MINAS", 
+      "name_pt": "MAURO RIBEIRO LOPES", 
+      "partido": 21, 
+      "politico": 356
+    }, 
+    {
+      "id": 158, 
+      "name_en": "MIGUEL CORREA DA SILVA JUNIOR - TODOS JUNTOS POR MINAS", 
+      "name_pt": "MIGUEL CORREA DA SILVA JUNIOR", 
+      "partido": 14, 
+      "politico": 354
+    }, 
+    {
+      "id": 159, 
+      "name_en": "MARIO LUCIO HERINGER - #NE#", 
+      "name_pt": "MARIO LUCIO HERINGER", 
+      "partido": 10, 
+      "politico": 353
+    }, 
+    {
+      "id": 160, 
+      "name_en": "NEWTON CARDOSO - TODOS JUNTOS POR MINAS", 
+      "name_pt": "NEWTON CARDOSO", 
+      "partido": 21, 
+      "politico": 352
+    }, 
+    {
+      "id": 161, 
+      "name_en": "NILMARIO DE MIRANDA - TODOS JUNTOS POR MINAS", 
+      "name_pt": "NILMARIO DE MIRANDA", 
+      "partido": 14, 
+      "politico": 351
+    }, 
+    {
+      "id": 162, 
+      "name_en": "ODAIR JOSE DA CUNHA - TODOS JUNTOS POR MINAS", 
+      "name_pt": "ODAIR JOSE DA CUNHA", 
+      "partido": 14, 
+      "politico": 350
+    }, 
+    {
+      "id": 163, 
+      "name_en": "REGINALDO LAZARO DE OLIVEIRA LOPES - TODOS JUNTOS POR MINAS", 
+      "name_pt": "REGINALDO LAZARO DE OLIVEIRA LOPES", 
+      "partido": 14, 
+      "politico": 349
+    }, 
+    {
+      "id": 164, 
+      "name_en": "RENATO BARBOSA DE ANDRADE - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "RENATO BARBOSA DE ANDRADE", 
+      "partido": 9, 
+      "politico": 348
+    }, 
+    {
+      "id": 165, 
+      "name_en": "RENZO DO AMARAL BRAZ - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "RENZO DO AMARAL BRAZ", 
+      "partido": 9, 
+      "politico": 347
+    }, 
+    {
+      "id": 166, 
+      "name_en": "RODRIGO BATISTA DE CASTRO - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "RODRIGO BATISTA DE CASTRO", 
+      "partido": 17, 
+      "politico": 345
+    }, 
+    {
+      "id": 167, 
+      "name_en": "RODRIGO MOREIRA LADEIRA GRILO - UNIDOS POR MINAS", 
+      "name_pt": "RODRIGO MOREIRA LADEIRA GRILO", 
+      "partido": 20, 
+      "politico": 344
+    }, 
+    {
+      "id": 168, 
+      "name_en": "SILAS BRASILEIRO - TODOS JUNTOS POR MINAS", 
+      "name_pt": "SILAS BRASILEIRO", 
+      "partido": 21, 
+      "politico": 343
+    }, 
+    {
+      "id": 169, 
+      "name_en": "STEFANO AGUIAR DOS SANTOS - #NE#", 
+      "name_pt": "STEFANO AGUIAR DOS SANTOS", 
+      "partido": 19, 
+      "politico": 342
+    }, 
+    {
+      "id": 170, 
+      "name_en": "VITOR PENIDO DE BARROS - PSDB/DEM/PP/PR/PPS", 
+      "name_pt": "VITOR PENIDO DE BARROS", 
+      "partido": 25, 
+      "politico": 341
+    }, 
+    {
+      "id": 171, 
+      "name_en": "WALTER DA ROCHA TOSTA - UNIDOS POR MINAS", 
+      "name_pt": "WALTER DA ROCHA TOSTA", 
+      "partido": 6, 
+      "politico": 340
+    }, 
+    {
+      "id": 172, 
+      "name_en": "WELITON FERNANDES PRADO - TODOS JUNTOS POR MINAS", 
+      "name_pt": "WELITON FERNANDES PRADO", 
+      "partido": 14, 
+      "politico": 338
+    }, 
+    {
+      "id": 173, 
+      "name_en": "AKIRA OTSUBO - AMOR, TRABALHO E F\u00c3\u2030 I", 
+      "name_pt": "AKIRA OTSUBO", 
+      "partido": 21, 
+      "politico": 336
+    }, 
+    {
+      "id": 174, 
+      "name_en": "ANTONIO CARLOS BIFFI - A FOR\u00c3\u2021A DO POVO", 
+      "name_pt": "ANTONIO CARLOS BIFFI", 
+      "partido": 14, 
+      "politico": 335
+    }, 
+    {
+      "id": 175, 
+      "name_en": "FABIO RICARDO TRAD - AMOR, TRABALHO E F\u00c3\u2030 I", 
+      "name_pt": "FABIO RICARDO TRAD", 
+      "partido": 21, 
+      "politico": 334
+    }, 
+    {
+      "id": 176, 
+      "name_en": "GERALDO RESENDE PEREIRA - AMOR, TRABALHO E F\u00c3\u2030 I", 
+      "name_pt": "GERALDO RESENDE PEREIRA", 
+      "partido": 21, 
+      "politico": 333
+    }, 
+    {
+      "id": 177, 
+      "name_en": "LUIZ HENRIQUE MANDETTA - AMOR, TRABALHO E F\u00c3\u2030 I", 
+      "name_pt": "LUIZ HENRIQUE MANDETTA", 
+      "partido": 25, 
+      "politico": 331
+    }, 
+    {
+      "id": 178, 
+      "name_en": "MARcAL GONcALVES LEITE FILHO - AMOR, TRABALHO E F\u00c3\u2030 I", 
+      "name_pt": "MARcAL GONcALVES LEITE FILHO", 
+      "partido": 21, 
+      "politico": 330
+    }, 
+    {
+      "id": 179, 
+      "name_en": "REINALDO AZAMBUJA SILVA - AMOR, TRABALHO E F\u00c3\u2030 I", 
+      "name_pt": "REINALDO AZAMBUJA SILVA", 
+      "partido": 17, 
+      "politico": 329
+    }, 
+    {
+      "id": 180, 
+      "name_en": "VANDER LUIZ DOS SANTOS LOUBET - A FOR\u00c3\u2021A DO POVO", 
+      "name_pt": "VANDER LUIZ DOS SANTOS LOUBET", 
+      "partido": 14, 
+      "politico": 328
+    }, 
+    {
+      "id": 181, 
+      "name_en": "CARLOS GOMES BEZERRA - MATO GROSSO EM PRIMEIRO LUGAR II", 
+      "name_pt": "CARLOS GOMES BEZERRA", 
+      "partido": 21, 
+      "politico": 327
+    }, 
+    {
+      "id": 182, 
+      "name_en": "ELIENE JOSE DE LIMA - COLIGA\u00c3\u2021\u00c3\u0192O MATO GROSSO PROGRESSISTA", 
+      "name_pt": "ELIENE JOSE DE LIMA", 
+      "partido": 9, 
+      "politico": 326
+    }, 
+    {
+      "id": 183, 
+      "name_en": "HOMERO ALVES PEREIRA - MATO GROSSO EM PRIMEIRO LUGAR II", 
+      "name_pt": "HOMERO ALVES PEREIRA", 
+      "partido": 16, 
+      "politico": 324
+    }, 
+    {
+      "id": 184, 
+      "name_en": "JULIO JOSE DE CAMPOS - COLIGA\u00c3\u2021\u00c3\u0192O SENADOR JONAS PINHEIRO II", 
+      "name_pt": "JULIO JOSE DE CAMPOS", 
+      "partido": 25, 
+      "politico": 323
+    }, 
+    {
+      "id": 185, 
+      "name_en": "NILSON APARECIDO LEITAO - COLIGA\u00c3\u2021\u00c3\u0192O SENADOR JONAS PINHEIRO II", 
+      "name_pt": "NILSON APARECIDO LEITAO", 
+      "partido": 17, 
+      "politico": 322
+    }, 
+    {
+      "id": 186, 
+      "name_en": "PEDRO HENRY NETO - COLIGA\u00c3\u2021\u00c3\u0192O MATO GROSSO PROGRESSISTA", 
+      "name_pt": "PEDRO HENRY NETO", 
+      "partido": 9, 
+      "politico": 321
+    }, 
+    {
+      "id": 187, 
+      "name_en": "VALTENIR LUIZ PEREIRA - MATO GROSSO MELHOR PRA VOC\u00c3\u0160", 
+      "name_pt": "VALTENIR LUIZ PEREIRA", 
+      "partido": 3, 
+      "politico": 320
+    }, 
+    {
+      "id": 188, 
+      "name_en": "WELLINGTON ANTONIO FAGUNDES - MATO GROSSO EM PRIMEIRO LUGAR II", 
+      "name_pt": "WELLINGTON ANTONIO FAGUNDES", 
+      "partido": 16, 
+      "politico": 319
+    }, 
+    {
+      "id": 189, 
+      "name_en": "ARNALDO JORDY FIGUEIREDO - JUNTOS COM O POVO", 
+      "name_pt": "ARNALDO JORDY FIGUEIREDO", 
+      "partido": 7, 
+      "politico": 318
+    }, 
+    {
+      "id": 190, 
+      "name_en": "ASDRUBAL MENDES BENTES - #NE#", 
+      "name_pt": "ASDRUBAL MENDES BENTES", 
+      "partido": 21, 
+      "politico": 317
+    }, 
+    {
+      "id": 191, 
+      "name_en": "CLAUDIO ALBERTO CASTELO BRANCO PUTY - ACELERA PAR\u00c3\u0081", 
+      "name_pt": "CLAUDIO ALBERTO CASTELO BRANCO PUTY", 
+      "partido": 14, 
+      "politico": 316
+    }, 
+    {
+      "id": 192, 
+      "name_en": "ELCIONE THEREZINHA ZAHLUTH BARBALHO - #NE#", 
+      "name_pt": "ELCIONE THEREZINHA ZAHLUTH BARBALHO", 
+      "partido": 21, 
+      "politico": 315
+    }, 
+    {
+      "id": 193, 
+      "name_en": "ESMERINO NERI BATISTA FILHO - ACELERA PAR\u00c3\u0081", 
+      "name_pt": "ESMERINO NERI BATISTA FILHO", 
+      "partido": 14, 
+      "politico": 314
+    }, 
+    {
+      "id": 194, 
+      "name_en": "GIOVANNI CORREA QUEIROZ - CRESCE PAR\u00c3\u0081", 
+      "name_pt": "GIOVANNI CORREA QUEIROZ", 
+      "partido": 10, 
+      "politico": 313
+    }, 
+    {
+      "id": 195, 
+      "name_en": "JOAO DUDIMAR DE AZEVEDO PAXIUBA - JUNTOS COM O POVO", 
+      "name_pt": "JOAO DUDIMAR DE AZEVEDO PAXIUBA", 
+      "partido": 17, 
+      "politico": 312
+    }, 
+    {
+      "id": 196, 
+      "name_en": "JOAQUIM DE LIRA MAIA - JUNTOS COM O POVO", 
+      "name_pt": "JOAQUIM DE LIRA MAIA", 
+      "partido": 25, 
+      "politico": 311
+    }, 
+    {
+      "id": 197, 
+      "name_en": "JOSE BENITO PRIANTE JUNIOR - #NE#", 
+      "name_pt": "JOSE BENITO PRIANTE JUNIOR", 
+      "partido": 21, 
+      "politico": 309
+    }, 
+    {
+      "id": 198, 
+      "name_en": "JOSE DA CRUZ MARINHO - ACELERA PAR\u00c3\u0081", 
+      "name_pt": "JOSE DA CRUZ MARINHO", 
+      "partido": 19, 
+      "politico": 308
+    }, 
+    {
+      "id": 199, 
+      "name_en": "JOSE GERALDO TORRES DA SILVA - ACELERA PAR\u00c3\u0081", 
+      "name_pt": "JOSE GERALDO TORRES DA SILVA", 
+      "partido": 14, 
+      "politico": 307
+    }, 
+    {
+      "id": 200, 
+      "name_en": "JOSUE BENGTSON - ACELERA PAR\u00c3\u0081", 
+      "name_pt": "JOSUE BENGTSON", 
+      "partido": 27, 
+      "politico": 306
+    }, 
+    {
+      "id": 201, 
+      "name_en": "LUCIO DUTRA VALE - ACELERA PAR\u00c3\u0081", 
+      "name_pt": "LUCIO DUTRA VALE", 
+      "partido": 16, 
+      "politico": 305
+    }, 
+    {
+      "id": 202, 
+      "name_en": "NILSON PINTO DE OLIVEIRA - JUNTOS COM O POVO", 
+      "name_pt": "NILSON PINTO DE OLIVEIRA", 
+      "partido": 17, 
+      "politico": 304
+    }, 
+    {
+      "id": 203, 
+      "name_en": "WLADIMIR AFONSO DA COSTA RABELO - #NE#", 
+      "name_pt": "WLADIMIR AFONSO DA COSTA RABELO", 
+      "partido": 21, 
+      "politico": 303
+    }, 
+    {
+      "id": 204, 
+      "name_en": "DAMIAO FELICIANO DA SILVA - UMA NOVA PARA\u00c3\u008dBA I", 
+      "name_pt": "DAMIAO FELICIANO DA SILVA", 
+      "partido": 10, 
+      "politico": 302
+    }, 
+    {
+      "id": 205, 
+      "name_en": "EFRAIM DE ARAUJO MORAIS FILHO - UMA NOVA PARA\u00c3\u008dBA I", 
+      "name_pt": "EFRAIM DE ARAUJO MORAIS FILHO", 
+      "partido": 25, 
+      "politico": 301
+    }, 
+    {
+      "id": 206, 
+      "name_en": "FABIO RODRIGUES DE OLIVEIRA - UMA NOVA PARA\u00c3\u008dBA I", 
+      "name_pt": "FABIO RODRIGUES DE OLIVEIRA", 
+      "partido": 25, 
+      "politico": 299
+    }, 
+    {
+      "id": 207, 
+      "name_en": "HUGO MOTTA WANDERLEY DA NOBREGA - PARA\u00c3\u008dBA UNIDA 1", 
+      "name_pt": "HUGO MOTTA WANDERLEY DA NOBREGA", 
+      "partido": 21, 
+      "politico": 298
+    }, 
+    {
+      "id": 208, 
+      "name_en": "JOSE WILSON SANTIAGO FILHO - PARA\u00c3\u008dBA UNIDA 1", 
+      "name_pt": "JOSE WILSON SANTIAGO FILHO", 
+      "partido": 21, 
+      "politico": 297
+    }, 
+    {
+      "id": 209, 
+      "name_en": "JOSE WELLINGTON ROBERTO - PARA\u00c3\u008dBA UNIDA II", 
+      "name_pt": "JOSE WELLINGTON ROBERTO", 
+      "partido": 16, 
+      "politico": 296
+    }, 
+    {
+      "id": 210, 
+      "name_en": "LEONARDO DE MELO GADELHA - PARA\u00c3\u008dBA UNIDA 1", 
+      "name_pt": "LEONARDO DE MELO GADELHA", 
+      "partido": 19, 
+      "politico": 295
+    }, 
+    {
+      "id": 211, 
+      "name_en": "LUIZ ALBUQUERQUE COUTO - PARA\u00c3\u008dBA UNIDA II", 
+      "name_pt": "LUIZ ALBUQUERQUE COUTO", 
+      "partido": 14, 
+      "politico": 294
+    }, 
+    {
+      "id": 212, 
+      "name_en": "MANOEL ALVES DA SILVA JUNIOR - PARA\u00c3\u008dBA UNIDA 1", 
+      "name_pt": "MANOEL ALVES DA SILVA JUNIOR", 
+      "partido": 21, 
+      "politico": 293
+    }, 
+    {
+      "id": 213, 
+      "name_en": "OZANILDA GONDIM VITAL DO REGO - PARA\u00c3\u008dBA UNIDA 1", 
+      "name_pt": "OZANILDA GONDIM VITAL DO REGO", 
+      "partido": 21, 
+      "politico": 292
+    }, 
+    {
+      "id": 214, 
+      "name_en": "ANDERSON FERREIRA RODRIGUES - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "ANDERSON FERREIRA RODRIGUES", 
+      "partido": 16, 
+      "politico": 290
+    }, 
+    {
+      "id": 215, 
+      "name_en": "AUGUSTO RODRIGUES COUTINHO DE MELO - PERNAMBUCO PODE MAIS", 
+      "name_pt": "AUGUSTO RODRIGUES COUTINHO DE MELO", 
+      "partido": 25, 
+      "politico": 289
+    }, 
+    {
+      "id": 216, 
+      "name_en": "BRUNO CAVALCANTI DE ARAUJO - PERNAMBUCO PODE MAIS", 
+      "name_pt": "BRUNO CAVALCANTI DE ARAUJO", 
+      "partido": 17, 
+      "politico": 288
+    }, 
+    {
+      "id": 217, 
+      "name_en": "CARLOS EDUARDO CINTRA DA COSTA PEREIRA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "CARLOS EDUARDO CINTRA DA COSTA PEREIRA", 
+      "partido": 19, 
+      "politico": 287
+    }, 
+    {
+      "id": 218, 
+      "name_en": "EDUARDO HENRIQUE DA FONTE DE ALBUQUERQUE SILVA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "EDUARDO HENRIQUE DA FONTE DE ALBUQUERQUE SILVA", 
+      "partido": 9, 
+      "politico": 286
+    }, 
+    {
+      "id": 219, 
+      "name_en": "FERNANDO BEZERRA DE SOUZA COELHO FILHO - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "FERNANDO BEZERRA DE SOUZA COELHO FILHO", 
+      "partido": 3, 
+      "politico": 285
+    }, 
+    {
+      "id": 220, 
+      "name_en": "FERNANDO DANTAS FERRO - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "FERNANDO DANTAS FERRO", 
+      "partido": 14, 
+      "politico": 284
+    }, 
+    {
+      "id": 221, 
+      "name_en": "FRANCISCO EURICO DA SILVA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "FRANCISCO EURICO DA SILVA", 
+      "partido": 3, 
+      "politico": 283
+    }, 
+    {
+      "id": 222, 
+      "name_en": "INOCENCIO GOMES DE OLIVEIRA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "INOCENCIO GOMES DE OLIVEIRA", 
+      "partido": 16, 
+      "politico": 282
+    }, 
+    {
+      "id": 223, 
+      "name_en": "JOAO PAULO LIMA E SILVA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "JOAO PAULO LIMA E SILVA", 
+      "partido": 14, 
+      "politico": 280
+    }, 
+    {
+      "id": 224, 
+      "name_en": "JORGE WICKS CORTE REAL - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "JORGE WICKS CORTE REAL", 
+      "partido": 27, 
+      "politico": 279
+    }, 
+    {
+      "id": 225, 
+      "name_en": "JOSE AUGUSTO MAIA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "JOSE AUGUSTO MAIA", 
+      "partido": 27, 
+      "politico": 278
+    }, 
+    {
+      "id": 226, 
+      "name_en": "JOSE SEVERIANO CHAVES - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "JOSE SEVERIANO CHAVES", 
+      "partido": 27, 
+      "politico": 277
+    }, 
+    {
+      "id": 227, 
+      "name_en": "JOSE MENDONcA BEZERRA FILHO - PERNAMBUCO PODE MAIS", 
+      "name_pt": "JOSE MENDONcA BEZERRA FILHO", 
+      "partido": 25, 
+      "politico": 276
+    }, 
+    {
+      "id": 228, 
+      "name_en": "LUCIANA BARBOSA DE OLIVEIRA SANTOS - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "LUCIANA BARBOSA DE OLIVEIRA SANTOS", 
+      "partido": 12, 
+      "politico": 275
+    }, 
+    {
+      "id": 229, 
+      "name_en": "LUIZ GONZAGA PATRIOTA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "LUIZ GONZAGA PATRIOTA", 
+      "partido": 3, 
+      "politico": 274
+    }, 
+    {
+      "id": 230, 
+      "name_en": "PAULO RUBEM SANTIAGO FERREIRA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "PAULO RUBEM SANTIAGO FERREIRA", 
+      "partido": 10, 
+      "politico": 273
+    }, 
+    {
+      "id": 231, 
+      "name_en": "PEDRO EUGENIO DE CASTRO TOLEDO CABRAL - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "PEDRO EUGENIO DE CASTRO TOLEDO CABRAL", 
+      "partido": 14, 
+      "politico": 272
+    }, 
+    {
+      "id": 232, 
+      "name_en": "RAUL JEAN LOUIS HENRY JUNIOR - PERNAMBUCO PODE MAIS", 
+      "name_pt": "RAUL JEAN LOUIS HENRY JUNIOR", 
+      "partido": 21, 
+      "politico": 271
+    }, 
+    {
+      "id": 233, 
+      "name_en": "ROBERTO SERGIO RIBEIRO COUTINHO TEIXEIRA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "ROBERTO SERGIO RIBEIRO COUTINHO TEIXEIRA", 
+      "partido": 9, 
+      "politico": 270
+    }, 
+    {
+      "id": 234, 
+      "name_en": "SEVERINO DE SOUZA SILVA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "SEVERINO DE SOUZA SILVA", 
+      "partido": 3, 
+      "politico": 269
+    }, 
+    {
+      "id": 235, 
+      "name_en": "SEVERINO SERGIO ESTELITA GUERRA - PERNAMBUCO PODE MAIS", 
+      "name_pt": "SEVERINO SERGIO ESTELITA GUERRA", 
+      "partido": 17, 
+      "politico": 267
+    }, 
+    {
+      "id": 236, 
+      "name_en": "WOLNEY QUEIROZ MACIEL - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "WOLNEY QUEIROZ MACIEL", 
+      "partido": 10, 
+      "politico": 266
+    }, 
+    {
+      "id": 237, 
+      "name_en": "ZACARIAS VILHARBA - FRENTE POPULAR DE PERNAMBUCO PARA DEPUTADO FEDERAL E ESTADUAL", 
+      "name_pt": "ZACARIAS VILHARBA", 
+      "partido": 13, 
+      "politico": 265
+    }, 
+    {
+      "id": 238, 
+      "name_en": "FRANCISCO DE ASSIS CARVALHO GONcALVES - PARA O PIAU\u00c3\u008d SEGUIR MUDANDO", 
+      "name_pt": "FRANCISCO DE ASSIS CARVALHO GONcALVES", 
+      "partido": 14, 
+      "politico": 264
+    }, 
+    {
+      "id": 239, 
+      "name_en": "HUGO NAPOLEAO DO REGO NETO - A FOR\u00c3\u2021A DO POVO", 
+      "name_pt": "HUGO NAPOLEAO DO REGO NETO", 
+      "partido": 25, 
+      "politico": 263
+    }, 
+    {
+      "id": 240, 
+      "name_en": "JESUS RODRIGUES ALVES - PARA O PIAU\u00c3\u008d SEGUIR MUDANDO", 
+      "name_pt": "JESUS RODRIGUES ALVES", 
+      "partido": 14, 
+      "politico": 262
+    }, 
+    {
+      "id": 241, 
+      "name_en": "JOSE NAZARENO CARDEAL FONTELES - PARA O PIAU\u00c3\u008d SEGUIR MUDANDO", 
+      "name_pt": "JOSE NAZARENO CARDEAL FONTELES", 
+      "partido": 14, 
+      "politico": 261
+    }, 
+    {
+      "id": 242, 
+      "name_en": "JOSE FRANCISCO PAES LANDIM - POR UM PIAU\u00c3\u008d NOVO", 
+      "name_pt": "JOSE FRANCISCO PAES LANDIM", 
+      "partido": 27, 
+      "politico": 260
+    }, 
+    {
+      "id": 243, 
+      "name_en": "JULIO CESAR DE CARVALHO LIMA - A FOR\u00c3\u2021A DO POVO", 
+      "name_pt": "JULIO CESAR DE CARVALHO LIMA", 
+      "partido": 25, 
+      "politico": 259
+    }, 
+    {
+      "id": 244, 
+      "name_en": "MARCELO COSTA E CASTRO - PARA O PIAU\u00c3\u008d SEGUIR MUDANDO", 
+      "name_pt": "MARCELO COSTA E CASTRO", 
+      "partido": 21, 
+      "politico": 258
+    }, 
+    {
+      "id": 245, 
+      "name_en": "MARLLOS ROSSANO RIBEIRO GONcALVES DE SAMPAIO - PARA O PIAU\u00c3\u008d SEGUIR MUDANDO", 
+      "name_pt": "MARLLOS ROSSANO RIBEIRO GONcALVES DE SAMPAIO", 
+      "partido": 21, 
+      "politico": 256
+    }, 
+    {
+      "id": 246, 
+      "name_en": "OSMAR RIBEIRO DE ALMEIDA JUNIOR - PARA O PIAU\u00c3\u008d SEGUIR MUDANDO", 
+      "name_pt": "OSMAR RIBEIRO DE ALMEIDA JUNIOR", 
+      "partido": 12, 
+      "politico": 255
+    }, 
+    {
+      "id": 247, 
+      "name_en": "ABELARDO LUIZ LUPION MELLO - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "ABELARDO LUIZ LUPION MELLO", 
+      "partido": 25, 
+      "politico": 254
+    }, 
+    {
+      "id": 248, 
+      "name_en": "ALEX CANZIANI SILVEIRA - PACTO DA VIT\u00c3\u201cRIA", 
+      "name_pt": "ALEX CANZIANI SILVEIRA", 
+      "partido": 27, 
+      "politico": 253
+    }, 
+    {
+      "id": 249, 
+      "name_en": "ANDRE LUIZ VARGAS ILARIO - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "ANDRE LUIZ VARGAS ILARIO", 
+      "partido": 14, 
+      "politico": 252
+    }, 
+    {
+      "id": 250, 
+      "name_en": "ANDRE ZACHAROW - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "ANDRE ZACHAROW", 
+      "partido": 21, 
+      "politico": 251
+    }, 
+    {
+      "id": 251, 
+      "name_en": "ANGELO CARLOS VANHONI - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "ANGELO CARLOS VANHONI", 
+      "partido": 14, 
+      "politico": 250
+    }, 
+    {
+      "id": 252, 
+      "name_en": "ASSIS MIGUEL DO COUTO - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "ASSIS MIGUEL DO COUTO", 
+      "partido": 14, 
+      "politico": 248
+    }, 
+    {
+      "id": 253, 
+      "name_en": "BERNARDINO BARRETO DE OLIVEIRA - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "BERNARDINO BARRETO DE OLIVEIRA", 
+      "partido": 13, 
+      "politico": 247
+    }, 
+    {
+      "id": 254, 
+      "name_en": "CLEUSA ROSANE RIBAS FERREIRA - #NE#", 
+      "name_pt": "CLEUSA ROSANE RIBAS FERREIRA", 
+      "partido": 8, 
+      "politico": 246
+    }, 
+    {
+      "id": 255, 
+      "name_en": "DILCEU JOAO SPERAFICO - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "DILCEU JOAO SPERAFICO", 
+      "partido": 9, 
+      "politico": 245
+    }, 
+    {
+      "id": 256, 
+      "name_en": "EDUARDO FRANCISCO SCIARRA - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "EDUARDO FRANCISCO SCIARRA", 
+      "partido": 25, 
+      "politico": 244
+    }, 
+    {
+      "id": 257, 
+      "name_en": "FERNANDO DESTITO FRANCISCHINI - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "FERNANDO DESTITO FRANCISCHINI", 
+      "partido": 17, 
+      "politico": 243
+    }, 
+    {
+      "id": 258, 
+      "name_en": "FERNANDO LUCIO GIACOBO - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "FERNANDO LUCIO GIACOBO", 
+      "partido": 16, 
+      "politico": 242
+    }, 
+    {
+      "id": 259, 
+      "name_en": "FLORISVALDO FIER - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "FLORISVALDO FIER", 
+      "partido": 14, 
+      "politico": 241
+    }, 
+    {
+      "id": 260, 
+      "name_en": "HERMES PARCIANELLO - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "HERMES PARCIANELLO", 
+      "partido": 21, 
+      "politico": 239
+    }, 
+    {
+      "id": 261, 
+      "name_en": "HIDEKAZU TAKAYAMA - #NE#", 
+      "name_pt": "HIDEKAZU TAKAYAMA", 
+      "partido": 19, 
+      "politico": 238
+    }, 
+    {
+      "id": 262, 
+      "name_en": "JACOB ALFREDO STOFFELS KAEFER - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "JACOB ALFREDO STOFFELS KAEFER", 
+      "partido": 17, 
+      "politico": 237
+    }, 
+    {
+      "id": 263, 
+      "name_en": "JOSE CARLOS BECKER DE OLIVEIRA E SILVA - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "JOSE CARLOS BECKER DE OLIVEIRA E SILVA", 
+      "partido": 14, 
+      "politico": 236
+    }, 
+    {
+      "id": 264, 
+      "name_en": "JOAO JOSE DE ARRUDA JUNIOR - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "JOAO JOSE DE ARRUDA JUNIOR", 
+      "partido": 21, 
+      "politico": 235
+    }, 
+    {
+      "id": 265, 
+      "name_en": "LEOPOLDO COSTA MEYER - #NE#", 
+      "name_pt": "LEOPOLDO COSTA MEYER", 
+      "partido": 3, 
+      "politico": 234
+    }, 
+    {
+      "id": 266, 
+      "name_en": "LUIZ HILOSHI NISHIMORI - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "LUIZ HILOSHI NISHIMORI", 
+      "partido": 17, 
+      "politico": 233
+    }, 
+    {
+      "id": 267, 
+      "name_en": "MARCELO BELTRAO DE ALMEIDA - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "MARCELO BELTRAO DE ALMEIDA", 
+      "partido": 21, 
+      "politico": 232
+    }, 
+    {
+      "id": 268, 
+      "name_en": "NELSON MEURER - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "NELSON MEURER", 
+      "partido": 9, 
+      "politico": 231
+    }, 
+    {
+      "id": 269, 
+      "name_en": "NELSON PADOVANI - #NE#", 
+      "name_pt": "NELSON PADOVANI", 
+      "partido": 19, 
+      "politico": 229
+    }, 
+    {
+      "id": 270, 
+      "name_en": "ODILIO BALBINOTTI - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "ODILIO BALBINOTTI", 
+      "partido": 21, 
+      "politico": 228
+    }, 
+    {
+      "id": 271, 
+      "name_en": "OSMAR JOSE SERRAGLIO - UNI\u00c3\u0192O PELO PARAN\u00c3\u0081", 
+      "name_pt": "OSMAR JOSE SERRAGLIO", 
+      "partido": 21, 
+      "politico": 227
+    }, 
+    {
+      "id": 272, 
+      "name_en": "PEDRO DOS SANTOS LIMA GUERRA - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "PEDRO DOS SANTOS LIMA GUERRA", 
+      "partido": 25, 
+      "politico": 226
+    }, 
+    {
+      "id": 273, 
+      "name_en": "RICARDO ARRUDA NUNES - #NE#", 
+      "name_pt": "RICARDO ARRUDA NUNES", 
+      "partido": 19, 
+      "politico": 225
+    }, 
+    {
+      "id": 274, 
+      "name_en": "RUBENS BUENO - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "RUBENS BUENO", 
+      "partido": 7, 
+      "politico": 223
+    }, 
+    {
+      "id": 275, 
+      "name_en": "SANDRO ALEX CRUZ DE OLIVEIRA - PSDB - PP - DEM - PPS - PRB", 
+      "name_pt": "SANDRO ALEX CRUZ DE OLIVEIRA", 
+      "partido": 7, 
+      "politico": 222
+    }, 
+    {
+      "id": 276, 
+      "name_en": "SERGIO PAULO DE OLIVEIRA - #NE#", 
+      "name_pt": "SERGIO PAULO DE OLIVEIRA", 
+      "partido": 19, 
+      "politico": 221
+    }, 
+    {
+      "id": 277, 
+      "name_en": "ADILSON SOARES - #NE#", 
+      "name_pt": "ADILSON SOARES", 
+      "partido": 16, 
+      "politico": 220
+    }, 
+    {
+      "id": 278, 
+      "name_en": "ADRIAN MUSSI RAMOS - UNIDOS PELO RIO", 
+      "name_pt": "ADRIAN MUSSI RAMOS", 
+      "partido": 21, 
+      "politico": 219
+    }, 
+    {
+      "id": 279, 
+      "name_en": "ALESSANDRO LUCCIOLA MOLON - #NE#", 
+      "name_pt": "ALESSANDRO LUCCIOLA MOLON", 
+      "partido": 14, 
+      "politico": 218
+    }, 
+    {
+      "id": 280, 
+      "name_en": "ALEXANDRE JOSE DOS SANTOS - UNIDOS PELO RIO", 
+      "name_pt": "ALEXANDRE JOSE DOS SANTOS", 
+      "partido": 21, 
+      "politico": 217
+    }, 
+    {
+      "id": 281, 
+      "name_en": "ALFREDO HELIO SYRKIS - #NE#", 
+      "name_pt": "ALFREDO HELIO SYRKIS", 
+      "partido": 8, 
+      "politico": 216
+    }, 
+    {
+      "id": 282, 
+      "name_en": "ANDREIA ALMEIDA ZITO DOS SANTOS - O RIO DE JANEIRO PODE MAIS", 
+      "name_pt": "ANDREIA ALMEIDA ZITO DOS SANTOS", 
+      "partido": 17, 
+      "politico": 215
+    }, 
+    {
+      "id": 283, 
+      "name_en": "AROLDE DE OLIVEIRA - O RIO DE JANEIRO PODE MAIS", 
+      "name_pt": "AROLDE DE OLIVEIRA", 
+      "partido": 25, 
+      "politico": 214
+    }, 
+    {
+      "id": 284, 
+      "name_en": "AUREO LIDIO MOREIRA RIBEIRO - RENOVA RIO", 
+      "name_pt": "AUREO LIDIO MOREIRA RIBEIRO", 
+      "partido": 23, 
+      "politico": 213
+    }, 
+    {
+      "id": 285, 
+      "name_en": "BENEDITA SOUZA DA SILVA SAMPAIO - #NE#", 
+      "name_pt": "BENEDITA SOUZA DA SILVA SAMPAIO", 
+      "partido": 14, 
+      "politico": 211
+    }, 
+    {
+      "id": 286, 
+      "name_en": "CARLOS ALBERTO LOPES - FRENTE DE MOBILIZA\u00c3\u2021\u00c3\u0192O SOCIALISTA", 
+      "name_pt": "CARLOS ALBERTO LOPES", 
+      "partido": 6, 
+      "politico": 210
+    }, 
+    {
+      "id": 287, 
+      "name_en": "CELSO ALENCAR RAMOS JACOB - UNIDOS PELO RIO", 
+      "name_pt": "CELSO ALENCAR RAMOS JACOB", 
+      "partido": 21, 
+      "politico": 209
+    }, 
+    {
+      "id": 288, 
+      "name_en": "EDSON EZEQUIEL DE MATOS - UNIDOS PELO RIO", 
+      "name_pt": "EDSON EZEQUIEL DE MATOS", 
+      "partido": 21, 
+      "politico": 208
+    }, 
+    {
+      "id": 289, 
+      "name_en": "EDUARDO COSENTINO DA CUNHA - UNIDOS PELO RIO", 
+      "name_pt": "EDUARDO COSENTINO DA CUNHA", 
+      "partido": 21, 
+      "politico": 207
+    }, 
+    {
+      "id": 290, 
+      "name_en": "EURICO PINHEIRO BERNARDES JUNIOR - #NE#", 
+      "name_pt": "EURICO PINHEIRO BERNARDES JUNIOR", 
+      "partido": 8, 
+      "politico": 206
+    }, 
+    {
+      "id": 291, 
+      "name_en": "FELIPE LEONE BORNIER DE OLIVEIRA - SOLIDARIEDADE", 
+      "name_pt": "FELIPE LEONE BORNIER DE OLIVEIRA", 
+      "partido": 5, 
+      "politico": 205
+    }, 
+    {
+      "id": 292, 
+      "name_en": "FERNANDO ANTONIO CECILIANO JORDAO - UNIDOS PELO RIO", 
+      "name_pt": "FERNANDO ANTONIO CECILIANO JORDAO", 
+      "partido": 21, 
+      "politico": 204
+    }, 
+    {
+      "id": 293, 
+      "name_en": "FERNANDO LOPES DE ALMEIDA - UNIDOS PELO RIO", 
+      "name_pt": "FERNANDO LOPES DE ALMEIDA", 
+      "partido": 21, 
+      "politico": 203
+    }, 
+    {
+      "id": 294, 
+      "name_en": "FRANCISCO FLORIANO DE SOUSA SILVA - #NE#", 
+      "name_pt": "FRANCISCO FLORIANO DE SOUSA SILVA", 
+      "partido": 16, 
+      "politico": 202
+    }, 
+    {
+      "id": 295, 
+      "name_en": "FRANCISCO RODRIGUES DE ALENCAR FILHO - #NE#", 
+      "name_pt": "FRANCISCO RODRIGUES DE ALENCAR FILHO", 
+      "partido": 2, 
+      "politico": 200
+    }, 
+    {
+      "id": 296, 
+      "name_en": "GLAUBER DE MEDEIROS BRAGA - FRENTE DE MOBILIZA\u00c3\u2021\u00c3\u0192O SOCIALISTA", 
+      "name_pt": "GLAUBER DE MEDEIROS BRAGA", 
+      "partido": 3, 
+      "politico": 199
+    }, 
+    {
+      "id": 297, 
+      "name_en": "HUGO LEAL MELO DA SILVA - UNIDOS PELO RIO", 
+      "name_pt": "HUGO LEAL MELO DA SILVA", 
+      "partido": 19, 
+      "politico": 198
+    }, 
+    {
+      "id": 298, 
+      "name_en": "JAIR MESSIAS BOLSONARO - UNIDOS PELO RIO", 
+      "name_pt": "JAIR MESSIAS BOLSONARO", 
+      "partido": 9, 
+      "politico": 197
+    }, 
+    {
+      "id": 299, 
+      "name_en": "JANDIRA FEGHALI - #NE#", 
+      "name_pt": "JANDIRA FEGHALI", 
+      "partido": 12, 
+      "politico": 196
+    }, 
+    {
+      "id": 300, 
+      "name_en": "JEAN WYLLYS DE MATOS SANTOS - #NE#", 
+      "name_pt": "JEAN WYLLYS DE MATOS SANTOS", 
+      "partido": 2, 
+      "politico": 195
+    }, 
+    {
+      "id": 301, 
+      "name_en": "JORGE DE OLIVEIRA - #NE#", 
+      "name_pt": "JORGE DE OLIVEIRA", 
+      "partido": 16, 
+      "politico": 194
+    }, 
+    {
+      "id": 302, 
+      "name_en": "JORGE RICARDO BITTAR - #NE#", 
+      "name_pt": "JORGE RICARDO BITTAR", 
+      "partido": 14, 
+      "politico": 192
+    }, 
+    {
+      "id": 303, 
+      "name_en": "LEONARDO CARNEIRO MONTEIRO PICCIANI - UNIDOS PELO RIO", 
+      "name_pt": "LEONARDO CARNEIRO MONTEIRO PICCIANI", 
+      "partido": 21, 
+      "politico": 191
+    }, 
+    {
+      "id": 304, 
+      "name_en": "LILIAM SA DE PAULA - #NE#", 
+      "name_pt": "LILIAM SA DE PAULA", 
+      "partido": 16, 
+      "politico": 190
+    }, 
+    {
+      "id": 305, 
+      "name_en": "LUIZ SERGIO NOBREGA DE OLIVEIRA - #NE#", 
+      "name_pt": "LUIZ SERGIO NOBREGA DE OLIVEIRA", 
+      "partido": 14, 
+      "politico": 189
+    }, 
+    {
+      "id": 306, 
+      "name_en": "MANUEL ROSA DA SILVA - #NE#", 
+      "name_pt": "MANUEL ROSA DA SILVA", 
+      "partido": 16, 
+      "politico": 188
+    }, 
+    {
+      "id": 307, 
+      "name_en": "MIRO TEIXEIRA - #NE#", 
+      "name_pt": "MIRO TEIXEIRA", 
+      "partido": 10, 
+      "politico": 187
+    }, 
+    {
+      "id": 308, 
+      "name_en": "OTAVIO SANTOS SILVA LEITE - O RIO DE JANEIRO PODE MAIS", 
+      "name_pt": "OTAVIO SANTOS SILVA LEITE", 
+      "partido": 17, 
+      "politico": 186
+    }, 
+    {
+      "id": 309, 
+      "name_en": "PAULO CESAR DA GUIA ALMEIDA - #NE#", 
+      "name_pt": "PAULO CESAR DA GUIA ALMEIDA", 
+      "partido": 16, 
+      "politico": 185
+    }, 
+    {
+      "id": 310, 
+      "name_en": "PAULO FERNANDO FEIJO TORRES - #NE#", 
+      "name_pt": "PAULO FERNANDO FEIJO TORRES", 
+      "partido": 16, 
+      "politico": 184
+    }, 
+    {
+      "id": 311, 
+      "name_en": "RODRIGO FELINTO IBARRA EPITACIO MAIA - O RIO DE JANEIRO PODE MAIS", 
+      "name_pt": "RODRIGO FELINTO IBARRA EPITACIO MAIA", 
+      "partido": 25, 
+      "politico": 183
+    }, 
+    {
+      "id": 312, 
+      "name_en": "ROMARIO DE SOUZA FARIA - FRENTE DE MOBILIZA\u00c3\u2021\u00c3\u0192O SOCIALISTA", 
+      "name_pt": "ROMARIO DE SOUZA FARIA", 
+      "partido": 3, 
+      "politico": 181
+    }, 
+    {
+      "id": 313, 
+      "name_en": "SERGIO ZVEITER - #NE#", 
+      "name_pt": "SERGIO ZVEITER", 
+      "partido": 10, 
+      "politico": 180
+    }, 
+    {
+      "id": 314, 
+      "name_en": "SIMAO SESSIM - UNIDOS PELO RIO", 
+      "name_pt": "SIMAO SESSIM", 
+      "partido": 9, 
+      "politico": 179
+    }, 
+    {
+      "id": 315, 
+      "name_en": "STEPAN NERCESSIAN - O RIO DE JANEIRO PODE MAIS", 
+      "name_pt": "STEPAN NERCESSIAN", 
+      "partido": 7, 
+      "politico": 178
+    }, 
+    {
+      "id": 316, 
+      "name_en": "VITOR PAULO ARAUJO DOS SANTOS - #NE#", 
+      "name_pt": "VITOR PAULO ARAUJO DOS SANTOS", 
+      "partido": 13, 
+      "politico": 177
+    }, 
+    {
+      "id": 317, 
+      "name_en": "WALNEY DA ROCHA CARVALHO - SOLIDARIEDADE", 
+      "name_pt": "WALNEY DA ROCHA CARVALHO", 
+      "partido": 27, 
+      "politico": 176
+    }, 
+    {
+      "id": 318, 
+      "name_en": "WANDERLEY ALVES DE OLIVEIRA - UNIDOS PELO RIO", 
+      "name_pt": "WANDERLEY ALVES DE OLIVEIRA", 
+      "partido": 19, 
+      "politico": 175
+    }, 
+    {
+      "id": 319, 
+      "name_en": "WASHINGTON REIS DE OLIVEIRA - UNIDOS PELO RIO", 
+      "name_pt": "WASHINGTON REIS DE OLIVEIRA", 
+      "partido": 21, 
+      "politico": 174
+    }, 
+    {
+      "id": 320, 
+      "name_en": "CARLOS ALBERTO DE SOUSA ROSADO - FOR\u00c3\u2021A DA UNI\u00c3\u0192O", 
+      "name_pt": "CARLOS ALBERTO DE SOUSA ROSADO", 
+      "partido": 25, 
+      "politico": 173
+    }, 
+    {
+      "id": 321, 
+      "name_en": "FELIPE CATALAO MAIA - FOR\u00c3\u2021A DA UNI\u00c3\u0192O", 
+      "name_pt": "FELIPE CATALAO MAIA", 
+      "partido": 25, 
+      "politico": 172
+    }, 
+    {
+      "id": 322, 
+      "name_en": "FABIO SALUSTINO MESQUITA DE FARIA - FOR\u00c3\u2021A DA UNI\u00c3\u0192O", 
+      "name_pt": "FABIO SALUSTINO MESQUITA DE FARIA", 
+      "partido": 6, 
+      "politico": 170
+    }, 
+    {
+      "id": 323, 
+      "name_en": "HENRIQUE EDUARDO LYRA ALVES - POR UM RIO GRANDE DO NORTE MELHOR", 
+      "name_pt": "HENRIQUE EDUARDO LYRA ALVES", 
+      "partido": 21, 
+      "politico": 169
+    }, 
+    {
+      "id": 324, 
+      "name_en": "JOAO DA SILVA MAIA - POR UM RIO GRANDE DO NORTE MELHOR", 
+      "name_pt": "JOAO DA SILVA MAIA", 
+      "partido": 16, 
+      "politico": 168
+    }, 
+    {
+      "id": 325, 
+      "name_en": "MARIA DE FATIMA BEZERRA - VITORIA DO POVO", 
+      "name_pt": "MARIA DE FATIMA BEZERRA", 
+      "partido": 14, 
+      "politico": 167
+    }, 
+    {
+      "id": 326, 
+      "name_en": "PAULO WAGNER LEITE DANTAS - POR UM RIO GRANDE DO NORTE MELHOR", 
+      "name_pt": "PAULO WAGNER LEITE DANTAS", 
+      "partido": 8, 
+      "politico": 166
+    }, 
+    {
+      "id": 327, 
+      "name_en": "SANDRA MARIA DA ESCOSSIA ROSADO - VITORIA DO POVO", 
+      "name_pt": "SANDRA MARIA DA ESCOSSIA ROSADO", 
+      "partido": 3, 
+      "politico": 165
+    }, 
+    {
+      "id": 328, 
+      "name_en": "ANSELMO DE JESUS ABREU - ROND\u00c3\u201dNIA MELHOR PARA TODOS", 
+      "name_pt": "ANSELMO DE JESUS ABREU", 
+      "partido": 14, 
+      "politico": 164
+    }, 
+    {
+      "id": 329, 
+      "name_en": "CARLOS MAGNO RAMOS - AVAN\u00c3\u2021A RONDONIA - O PROGRESSO N\u00c3\u0192O PODE PARAR", 
+      "name_pt": "CARLOS MAGNO RAMOS", 
+      "partido": 9, 
+      "politico": 163
+    }, 
+    {
+      "id": 330, 
+      "name_en": "MARCOS ROGERIO DA SILVA BRITO - ALIAN\u00c3\u2021A POR UMA RONDONIA MELHOR PARA TODOS I", 
+      "name_pt": "MARCOS ROGERIO DA SILVA BRITO", 
+      "partido": 10, 
+      "politico": 162
+    }, 
+    {
+      "id": 331, 
+      "name_en": "MARINHA CELIA ROCHA RAUPP DE MATOS - ALIAN\u00c3\u2021A POR UMA RONDONIA MELHOR PARA TODOS I", 
+      "name_pt": "MARINHA CELIA ROCHA RAUPP DE MATOS", 
+      "partido": 21, 
+      "politico": 161
+    }, 
+    {
+      "id": 332, 
+      "name_en": "MARITON BENEDITO DE HOLANDA - ROND\u00c3\u201dNIA MELHOR PARA TODOS", 
+      "name_pt": "MARITON BENEDITO DE HOLANDA", 
+      "partido": 14, 
+      "politico": 160
+    }, 
+    {
+      "id": 333, 
+      "name_en": "NATAN DONADON - ALIAN\u00c3\u2021A POR UMA RONDONIA MELHOR PARA TODOS I", 
+      "name_pt": "NATAN DONADON", 
+      "partido": 21, 
+      "politico": 159
+    }, 
+    {
+      "id": 334, 
+      "name_en": "NILTON BALBINO - AVAN\u00c3\u2021A RONDONIA - O PROGRESSO N\u00c3\u0192O PODE PARAR", 
+      "name_pt": "NILTON BALBINO", 
+      "partido": 27, 
+      "politico": 158
+    }, 
+    {
+      "id": 335, 
+      "name_en": "RUBENS MOREIRA MENDES FILHO - AVAN\u00c3\u2021A RONDONIA - O PROGRESSO N\u00c3\u0192O PODE PARAR", 
+      "name_pt": "RUBENS MOREIRA MENDES FILHO", 
+      "partido": 7, 
+      "politico": 157
+    }, 
+    {
+      "id": 336, 
+      "name_en": "EDIO VIEIRA LOPES - UNI\u00c3\u0192O POR RORAIMA 1", 
+      "name_pt": "EDIO VIEIRA LOPES", 
+      "partido": 21, 
+      "politico": 155
+    }, 
+    {
+      "id": 337, 
+      "name_en": "FRANCISCO VIEIRA SAMPAIO - AGORA \u00c3\u2030 10", 
+      "name_pt": "FRANCISCO VIEIRA SAMPAIO", 
+      "partido": 15, 
+      "politico": 154
+    }, 
+    {
+      "id": 338, 
+      "name_en": "JOHNATHAN PEREIRA DE JESUS - AGORA \u00c3\u2030 10", 
+      "name_pt": "JOHNATHAN PEREIRA DE JESUS", 
+      "partido": 13, 
+      "politico": 153
+    }, 
+    {
+      "id": 339, 
+      "name_en": "LUCIANO DE SOUZA CASTRO - UNI\u00c3\u0192O POR RORAIMA 1", 
+      "name_pt": "LUCIANO DE SOUZA CASTRO", 
+      "partido": 16, 
+      "politico": 152
+    }, 
+    {
+      "id": 340, 
+      "name_en": "MARCIO HENRIQUE JUNQUEIRA PEREIRA - UNI\u00c3\u0192O POR RORAIMA 1", 
+      "name_pt": "MARCIO HENRIQUE JUNQUEIRA PEREIRA", 
+      "partido": 25, 
+      "politico": 151
+    }, 
+    {
+      "id": 341, 
+      "name_en": "PAULO CESAR JUSTO QUARTIERO - UNI\u00c3\u0192O POR RORAIMA 1", 
+      "name_pt": "PAULO CESAR JUSTO QUARTIERO", 
+      "partido": 25, 
+      "politico": 150
+    }, 
+    {
+      "id": 342, 
+      "name_en": "RAUL DA SILVA LIMA SOBRINHO - RORAIMA FELIZ", 
+      "name_pt": "RAUL DA SILVA LIMA SOBRINHO", 
+      "partido": 9, 
+      "politico": 149
+    }, 
+    {
+      "id": 343, 
+      "name_en": "URZENI DA ROCHA FREITAS FILHO - UNI\u00c3\u0192O POR RORAIMA 1", 
+      "name_pt": "URZENI DA ROCHA FREITAS FILHO", 
+      "partido": 17, 
+      "politico": 148
+    }, 
+    {
+      "id": 344, 
+      "name_en": "ALCEU MOREIRA DA SILVA - JUNTOS PELO RIO GRANDE I", 
+      "name_pt": "ALCEU MOREIRA DA SILVA", 
+      "partido": 21, 
+      "politico": 147
+    }, 
+    {
+      "id": 345, 
+      "name_en": "ALEXANDRE RUBIO ROSO - UNIDADE PELO RIO GRANDE", 
+      "name_pt": "ALEXANDRE RUBIO ROSO", 
+      "partido": 3, 
+      "politico": 145
+    }, 
+    {
+      "id": 346, 
+      "name_en": "ASSIS FLAVIO DA SILVA MELO - UNIDADE PELO RIO GRANDE", 
+      "name_pt": "ASSIS FLAVIO DA SILVA MELO", 
+      "partido": 12, 
+      "politico": 144
+    }, 
+    {
+      "id": 347, 
+      "name_en": "CARLOS EDUARDO VIEIRA DA CUNHA - PDT - PTN", 
+      "name_pt": "CARLOS EDUARDO VIEIRA DA CUNHA", 
+      "partido": 10, 
+      "politico": 143
+    }, 
+    {
+      "id": 348, 
+      "name_en": "DANRLEI DE DEUS HINTERHOLZ - ALIAN\u00c3\u2021A TRABALHISTA DEMOCR\u00c3\u0081TICA", 
+      "name_pt": "DANRLEI DE DEUS HINTERHOLZ", 
+      "partido": 27, 
+      "politico": 142
+    }, 
+    {
+      "id": 349, 
+      "name_en": "DARCISIO PAULO PERONDI - JUNTOS PELO RIO GRANDE I", 
+      "name_pt": "DARCISIO PAULO PERONDI", 
+      "partido": 21, 
+      "politico": 141
+    }, 
+    {
+      "id": 350, 
+      "name_en": "DIONILSO MATEUS MARCON - #NE#", 
+      "name_pt": "DIONILSO MATEUS MARCON", 
+      "partido": 14, 
+      "politico": 140
+    }, 
+    {
+      "id": 351, 
+      "name_en": "ELVINO JOSE BOHN GASS - #NE#", 
+      "name_pt": "ELVINO JOSE BOHN GASS", 
+      "partido": 14, 
+      "politico": 139
+    }, 
+    {
+      "id": 352, 
+      "name_en": "ENIO EGON BERGMANN BACCI - PDT - PTN", 
+      "name_pt": "ENIO EGON BERGMANN BACCI", 
+      "partido": 10, 
+      "politico": 138
+    }, 
+    {
+      "id": 353, 
+      "name_en": "FERNANDO STEPHAN MARRONI - #NE#", 
+      "name_pt": "FERNANDO STEPHAN MARRONI", 
+      "partido": 14, 
+      "politico": 137
+    }, 
+    {
+      "id": 354, 
+      "name_en": "GIOVANI CHERINI - PDT - PTN", 
+      "name_pt": "GIOVANI CHERINI", 
+      "partido": 10, 
+      "politico": 136
+    }, 
+    {
+      "id": 355, 
+      "name_en": "HENRIQUE FONTANA JUNIOR - #NE#", 
+      "name_pt": "HENRIQUE FONTANA JUNIOR", 
+      "partido": 14, 
+      "politico": 135
+    }, 
+    {
+      "id": 356, 
+      "name_en": "JERONIMO PIZZOLOTTO GOERGEN - RIO GRANDE AFIRMATIVO", 
+      "name_pt": "JERONIMO PIZZOLOTTO GOERGEN", 
+      "partido": 9, 
+      "politico": 134
+    }, 
+    {
+      "id": 357, 
+      "name_en": "JORGE ALBERTO PORTANOVA MENDES RIBEIRO FILHO - JUNTOS PELO RIO GRANDE I", 
+      "name_pt": "JORGE ALBERTO PORTANOVA MENDES RIBEIRO FILHO", 
+      "partido": 21, 
+      "politico": 132
+    }, 
+    {
+      "id": 358, 
+      "name_en": "JOSE ALFONSO EBERT HAMM - RIO GRANDE AFIRMATIVO", 
+      "name_pt": "JOSE ALFONSO EBERT HAMM", 
+      "partido": 9, 
+      "politico": 131
+    }, 
+    {
+      "id": 359, 
+      "name_en": "JOSE LUIZ STEDILE - UNIDADE PELO RIO GRANDE", 
+      "name_pt": "JOSE LUIZ STEDILE", 
+      "partido": 3, 
+      "politico": 130
+    }, 
+    {
+      "id": 360, 
+      "name_en": "JOSE OTAVIO GERMANO - RIO GRANDE AFIRMATIVO", 
+      "name_pt": "JOSE OTAVIO GERMANO", 
+      "partido": 9, 
+      "politico": 129
+    }, 
+    {
+      "id": 361, 
+      "name_en": "LUIS CARLOS HEINZE - RIO GRANDE AFIRMATIVO", 
+      "name_pt": "LUIS CARLOS HEINZE", 
+      "partido": 9, 
+      "politico": 128
+    }, 
+    {
+      "id": 362, 
+      "name_en": "LUIZ ROBERTO DE ALBUQUERQUE - UNIDADE PELO RIO GRANDE", 
+      "name_pt": "LUIZ ROBERTO DE ALBUQUERQUE", 
+      "partido": 3, 
+      "politico": 127
+    }, 
+    {
+      "id": 363, 
+      "name_en": "MARCO AURELIO SPALL MAIA - #NE#", 
+      "name_pt": "MARCO AURELIO SPALL MAIA", 
+      "partido": 14, 
+      "politico": 126
+    }, 
+    {
+      "id": 364, 
+      "name_en": "NELSON MARCHEZAN JUNIOR - RIO GRANDE AFIRMATIVO", 
+      "name_pt": "NELSON MARCHEZAN JUNIOR", 
+      "partido": 17, 
+      "politico": 125
+    }, 
+    {
+      "id": 365, 
+      "name_en": "ONYX DORNELLES LORENZONI - ALIAN\u00c3\u2021A TRABALHISTA DEMOCR\u00c3\u0081TICA", 
+      "name_pt": "ONYX DORNELLES LORENZONI", 
+      "partido": 25, 
+      "politico": 124
+    }, 
+    {
+      "id": 366, 
+      "name_en": "OSMAR GASPARINI TERRA - JUNTOS PELO RIO GRANDE I", 
+      "name_pt": "OSMAR GASPARINI TERRA", 
+      "partido": 21, 
+      "politico": 123
+    }, 
+    {
+      "id": 367, 
+      "name_en": "PAULO ADALBERTO ALVES FERREIRA - #NE#", 
+      "name_pt": "PAULO ADALBERTO ALVES FERREIRA", 
+      "partido": 14, 
+      "politico": 122
+    }, 
+    {
+      "id": 368, 
+      "name_en": "PAULO ROBERTO SEVERO PIMENTA - #NE#", 
+      "name_pt": "PAULO ROBERTO SEVERO PIMENTA", 
+      "partido": 14, 
+      "politico": 121
+    }, 
+    {
+      "id": 369, 
+      "name_en": "RENATO DELMAR MOLLING - RIO GRANDE AFIRMATIVO", 
+      "name_pt": "RENATO DELMAR MOLLING", 
+      "partido": 9, 
+      "politico": 120
+    }, 
+    {
+      "id": 370, 
+      "name_en": "RONALDO NOGUEIRA DE OLIVEIRA - ALIAN\u00c3\u2021A TRABALHISTA DEMOCR\u00c3\u0081TICA", 
+      "name_pt": "RONALDO NOGUEIRA DE OLIVEIRA", 
+      "partido": 27, 
+      "politico": 119
+    }, 
+    {
+      "id": 371, 
+      "name_en": "SERGIO IVAN MORAES - ALIAN\u00c3\u2021A TRABALHISTA DEMOCR\u00c3\u0081TICA", 
+      "name_pt": "SERGIO IVAN MORAES", 
+      "partido": 27, 
+      "politico": 118
+    }, 
+    {
+      "id": 372, 
+      "name_en": "VILSON LUIZ COVATTI - RIO GRANDE AFIRMATIVO", 
+      "name_pt": "VILSON LUIZ COVATTI", 
+      "partido": 9, 
+      "politico": 117
+    }, 
+    {
+      "id": 373, 
+      "name_en": "CARMEN EMILIA BONFA ZANOTTO - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "CARMEN EMILIA BONFA ZANOTTO", 
+      "partido": 7, 
+      "politico": 116
+    }, 
+    {
+      "id": 374, 
+      "name_en": "CELSO MALDANER - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "CELSO MALDANER", 
+      "partido": 21, 
+      "politico": 114
+    }, 
+    {
+      "id": 375, 
+      "name_en": "DECIO NERY DE LIMA - A FAVOR DE SANTA CATARINA", 
+      "name_pt": "DECIO NERY DE LIMA", 
+      "partido": 14, 
+      "politico": 113
+    }, 
+    {
+      "id": 376, 
+      "name_en": "EDSON BEZ DE OLIVEIRA - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "EDSON BEZ DE OLIVEIRA", 
+      "partido": 21, 
+      "politico": 112
+    }, 
+    {
+      "id": 377, 
+      "name_en": "ESPERIDIAO AMIN HELOU FILHO - ALIAN\u00c3\u2021A COM SANTA CATARINA", 
+      "name_pt": "ESPERIDIAO AMIN HELOU FILHO", 
+      "partido": 9, 
+      "politico": 111
+    }, 
+    {
+      "id": 378, 
+      "name_en": "JORGE CATARINO LEONARDELI BOEIRA - A FAVOR DE SANTA CATARINA", 
+      "name_pt": "JORGE CATARINO LEONARDELI BOEIRA", 
+      "partido": 14, 
+      "politico": 110
+    }, 
+    {
+      "id": 379, 
+      "name_en": "JORGINHO DOS SANTOS MELLO - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "JORGINHO DOS SANTOS MELLO", 
+      "partido": 17, 
+      "politico": 109
+    }, 
+    {
+      "id": 380, 
+      "name_en": "JOAO ALBERTO PIZZOLATTI JUNIOR - ALIAN\u00c3\u2021A COM SANTA CATARINA", 
+      "name_pt": "JOAO ALBERTO PIZZOLATTI JUNIOR", 
+      "partido": 9, 
+      "politico": 108
+    }, 
+    {
+      "id": 381, 
+      "name_en": "LUCI TERESINHA KOSWOSKI CHOINACKI - A FAVOR DE SANTA CATARINA", 
+      "name_pt": "LUCI TERESINHA KOSWOSKI CHOINACKI", 
+      "partido": 14, 
+      "politico": 107
+    }, 
+    {
+      "id": 382, 
+      "name_en": "MARCO ANTONIO TEBALDI - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "MARCO ANTONIO TEBALDI", 
+      "partido": 17, 
+      "politico": 106
+    }, 
+    {
+      "id": 383, 
+      "name_en": "MAURO MARIANI - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "MAURO MARIANI", 
+      "partido": 21, 
+      "politico": 105
+    }, 
+    {
+      "id": 384, 
+      "name_en": "PEDRO FRANCISCO UCZAI - A FAVOR DE SANTA CATARINA", 
+      "name_pt": "PEDRO FRANCISCO UCZAI", 
+      "partido": 14, 
+      "politico": 103
+    }, 
+    {
+      "id": 385, 
+      "name_en": "ROGERIO MENDONcA - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "ROGERIO MENDONcA", 
+      "partido": 21, 
+      "politico": 102
+    }, 
+    {
+      "id": 386, 
+      "name_en": "RONALDO JOSE BENEDET - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "RONALDO JOSE BENEDET", 
+      "partido": 21, 
+      "politico": 101
+    }, 
+    {
+      "id": 387, 
+      "name_en": "VALDIR COLATTO - COLIGA\u00c3\u2021\u00c3\u0192O DEM - PMDB - PSDB - PPS - PTC - PSL - PRP - PSC", 
+      "name_pt": "VALDIR COLATTO", 
+      "partido": 21, 
+      "politico": 100
+    }, 
+    {
+      "id": 388, 
+      "name_en": "ANDRE LUIS DANTAS FERREIRA - PARA SERGIPE CONTINUAR SEGUINDO EM FRENTE", 
+      "name_pt": "ANDRE LUIS DANTAS FERREIRA", 
+      "partido": 19, 
+      "politico": 99
+    }, 
+    {
+      "id": 389, 
+      "name_en": "ANTONIO CARLOS VALADARES FILHO - PARA SERGIPE CONTINUAR SEGUINDO EM FRENTE", 
+      "name_pt": "ANTONIO CARLOS VALADARES FILHO", 
+      "partido": 3, 
+      "politico": 98
+    }, 
+    {
+      "id": 390, 
+      "name_en": "FABIO DE ALMEIDA REIS - PARA SERGIPE CONTINUAR SEGUINDO EM FRENTE", 
+      "name_pt": "FABIO DE ALMEIDA REIS", 
+      "partido": 21, 
+      "politico": 96
+    }, 
+    {
+      "id": 391, 
+      "name_en": "JOSE ALMEIDA LIMA - PARA SERGIPE CONTINUAR SEGUINDO EM FRENTE", 
+      "name_pt": "JOSE ALMEIDA LIMA", 
+      "partido": 21, 
+      "politico": 95
+    }, 
+    {
+      "id": 392, 
+      "name_en": "JOSE DE ARAUJO MENDONcA SOBRINHO - VONTADE DO POVO", 
+      "name_pt": "JOSE DE ARAUJO MENDONcA SOBRINHO", 
+      "partido": 25, 
+      "politico": 94
+    }, 
+    {
+      "id": 393, 
+      "name_en": "LAERCIO JOSE DE OLIVEIRA - PARA SERGIPE CONTINUAR SEGUINDO EM FRENTE", 
+      "name_pt": "LAERCIO JOSE DE OLIVEIRA", 
+      "partido": 16, 
+      "politico": 93
+    }, 
+    {
+      "id": 394, 
+      "name_en": "MARCIO COSTA MACEDO - PARA SERGIPE CONTINUAR SEGUINDO EM FRENTE", 
+      "name_pt": "MARCIO COSTA MACEDO", 
+      "partido": 14, 
+      "politico": 91
+    }, 
+    {
+      "id": 395, 
+      "name_en": "ROGERIO CARVALHO SANTOS - PARA SERGIPE CONTINUAR SEGUINDO EM FRENTE", 
+      "name_pt": "ROGERIO CARVALHO SANTOS", 
+      "partido": 14, 
+      "politico": 90
+    }, 
+    {
+      "id": 396, 
+      "name_en": "ADRIANO ELI CORREA - PSDB/DEM/PPS", 
+      "name_pt": "ADRIANO ELI CORREA", 
+      "partido": 25, 
+      "politico": 89
+    }, 
+    {
+      "id": 397, 
+      "name_en": "ALEXANDRE LEITE DA SILVA - PSDB/DEM/PPS", 
+      "name_pt": "ALEXANDRE LEITE DA SILVA", 
+      "partido": 25, 
+      "politico": 88
+    }, 
+    {
+      "id": 398, 
+      "name_en": "ALINE LEMOS CORREA DE OLIVEIRA ANDRADE - #NE#", 
+      "name_pt": "ALINE LEMOS CORREA DE OLIVEIRA ANDRADE", 
+      "partido": 9, 
+      "politico": 87
+    }, 
+    {
+      "id": 399, 
+      "name_en": "ANTONIO CARLOS DE MENDES THAME - PSDB/DEM/PPS", 
+      "name_pt": "ANTONIO CARLOS DE MENDES THAME", 
+      "partido": 17, 
+      "politico": 86
+    }, 
+    {
+      "id": 400, 
+      "name_en": "ANTONIO CARLOS MARTINS DE BULHOES - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "ANTONIO CARLOS MARTINS DE BULHOES", 
+      "partido": 13, 
+      "politico": 85
+    }, 
+    {
+      "id": 401, 
+      "name_en": "ANTONIO DUARTE NOGUEIRA JUNIOR - PSDB/DEM/PPS", 
+      "name_pt": "ANTONIO DUARTE NOGUEIRA JUNIOR", 
+      "partido": 17, 
+      "politico": 83
+    }, 
+    {
+      "id": 402, 
+      "name_en": "ARLINDO CHIGNALIA JUNIOR - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "ARLINDO CHIGNALIA JUNIOR", 
+      "partido": 14, 
+      "politico": 82
+    }, 
+    {
+      "id": 403, 
+      "name_en": "ARNALDO CALIL PEREIRA JARDIM - PSDB/DEM/PPS", 
+      "name_pt": "ARNALDO CALIL PEREIRA JARDIM", 
+      "partido": 7, 
+      "politico": 81
+    }, 
+    {
+      "id": 404, 
+      "name_en": "ARNALDO FARIA DE SA - #NE#", 
+      "name_pt": "ARNALDO FARIA DE SA", 
+      "partido": 27, 
+      "politico": 80
+    }, 
+    {
+      "id": 405, 
+      "name_en": "BRUNA DIAS FURLAN - PSDB/DEM/PPS", 
+      "name_pt": "BRUNA DIAS FURLAN", 
+      "partido": 17, 
+      "politico": 79
+    }, 
+    {
+      "id": 406, 
+      "name_en": "CANDIDO ELPIDIO DE SOUZA VACCAREZZA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "CANDIDO ELPIDIO DE SOUZA VACCAREZZA", 
+      "partido": 14, 
+      "politico": 77
+    }, 
+    {
+      "id": 407, 
+      "name_en": "CARLOS ALBERTO ROLIM ZARATTINI - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "CARLOS ALBERTO ROLIM ZARATTINI", 
+      "partido": 14, 
+      "politico": 76
+    }, 
+    {
+      "id": 408, 
+      "name_en": "CARLOS HENRIQUE FOCESI SAMPAIO - PSDB/DEM/PPS", 
+      "name_pt": "CARLOS HENRIQUE FOCESI SAMPAIO", 
+      "partido": 17, 
+      "politico": 75
+    }, 
+    {
+      "id": 409, 
+      "name_en": "CARLOS ROBERTO DE CAMPOS - PSDB/DEM/PPS", 
+      "name_pt": "CARLOS ROBERTO DE CAMPOS", 
+      "partido": 17, 
+      "politico": 74
+    }, 
+    {
+      "id": 410, 
+      "name_en": "DEVANIR RIBEIRO - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "DEVANIR RIBEIRO", 
+      "partido": 14, 
+      "politico": 73
+    }, 
+    {
+      "id": 411, 
+      "name_en": "EDSON EDINHO COELHO ARAUJO - #NE#", 
+      "name_pt": "EDSON EDINHO COELHO ARAUJO", 
+      "partido": 21, 
+      "politico": 72
+    }, 
+    {
+      "id": 412, 
+      "name_en": "ELEUSES VIEIRA DE PAIVA - PSDB/DEM/PPS", 
+      "name_pt": "ELEUSES VIEIRA DE PAIVA", 
+      "partido": 25, 
+      "politico": 70
+    }, 
+    {
+      "id": 413, 
+      "name_en": "EMANUEL FERNANDES - PSDB/DEM/PPS", 
+      "name_pt": "EMANUEL FERNANDES", 
+      "partido": 17, 
+      "politico": 69
+    }, 
+    {
+      "id": 414, 
+      "name_en": "FRANCISCO DAS CHAGAS FRANCILINO - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "FRANCISCO DAS CHAGAS FRANCILINO", 
+      "partido": 14, 
+      "politico": 68
+    }, 
+    {
+      "id": 415, 
+      "name_en": "FRANCISCO EVERARDO OLIVEIRA SILVA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "FRANCISCO EVERARDO OLIVEIRA SILVA", 
+      "partido": 16, 
+      "politico": 67
+    }, 
+    {
+      "id": 416, 
+      "name_en": "GABRIEL BENEDITO ISSAAC CHALITA - PRESTE ATEN\u00c3\u2021\u00c3\u0192O S\u00c3\u0192O PAULO", 
+      "name_pt": "GABRIEL BENEDITO ISSAAC CHALITA", 
+      "partido": 3, 
+      "politico": 66
+    }, 
+    {
+      "id": 417, 
+      "name_en": "GUILHERME CAMPOS JUNIOR - PSDB/DEM/PPS", 
+      "name_pt": "GUILHERME CAMPOS JUNIOR", 
+      "partido": 25, 
+      "politico": 65
+    }, 
+    {
+      "id": 418, 
+      "name_en": "GUILHERME MUSSI FERREIRA - #NE#", 
+      "name_pt": "GUILHERME MUSSI FERREIRA", 
+      "partido": 8, 
+      "politico": 64
+    }, 
+    {
+      "id": 419, 
+      "name_en": "IARA BERNARDI - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "IARA BERNARDI", 
+      "partido": 14, 
+      "politico": 62
+    }, 
+    {
+      "id": 420, 
+      "name_en": "IOLANDA KEIKO MIASHIRO OTA - PRESTE ATEN\u00c3\u2021\u00c3\u0192O S\u00c3\u0192O PAULO", 
+      "name_pt": "IOLANDA KEIKO MIASHIRO OTA", 
+      "partido": 3, 
+      "politico": 61
+    }, 
+    {
+      "id": 421, 
+      "name_en": "IVAN VALENTE - #NE#", 
+      "name_pt": "IVAN VALENTE", 
+      "partido": 2, 
+      "politico": 60
+    }, 
+    {
+      "id": 422, 
+      "name_en": "JANETE ROCHA PIETA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "JANETE ROCHA PIETA", 
+      "partido": 14, 
+      "politico": 59
+    }, 
+    {
+      "id": 423, 
+      "name_en": "JEFFERSON ALVES DE CAMPOS - PRESTE ATEN\u00c3\u2021\u00c3\u0192O S\u00c3\u0192O PAULO", 
+      "name_pt": "JEFFERSON ALVES DE CAMPOS", 
+      "partido": 3, 
+      "politico": 58
+    }, 
+    {
+      "id": 424, 
+      "name_en": "JORGE TADEU MUDALEN - PSDB/DEM/PPS", 
+      "name_pt": "JORGE TADEU MUDALEN", 
+      "partido": 25, 
+      "politico": 57
+    }, 
+    {
+      "id": 425, 
+      "name_en": "JOSE ABELARDO GUIMARAES CAMARINHA - PRESTE ATEN\u00c3\u2021\u00c3\u0192O S\u00c3\u0192O PAULO", 
+      "name_pt": "JOSE ABELARDO GUIMARAES CAMARINHA", 
+      "partido": 3, 
+      "politico": 56
+    }, 
+    {
+      "id": 426, 
+      "name_en": "JOSE ROBERTO SANTIAGO GOMES - #NE#", 
+      "name_pt": "JOSE ROBERTO SANTIAGO GOMES", 
+      "partido": 8, 
+      "politico": 54
+    }, 
+    {
+      "id": 427, 
+      "name_en": "JOSE CARLOS VAZ DE LIMA - PSDB/DEM/PPS", 
+      "name_pt": "JOSE CARLOS VAZ DE LIMA", 
+      "partido": 17, 
+      "politico": 53
+    }, 
+    {
+      "id": 428, 
+      "name_en": "JOSE GENOINO NETO - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "JOSE GENOINO NETO", 
+      "partido": 14, 
+      "politico": 52
+    }, 
+    {
+      "id": 429, 
+      "name_en": "JOSE LUIZ DE FRANcA PENNA - #NE#", 
+      "name_pt": "JOSE LUIZ DE FRANcA PENNA", 
+      "partido": 8, 
+      "politico": 51
+    }, 
+    {
+      "id": 430, 
+      "name_en": "JOSE MENTOR GUILHERME DE MELLO NETTO - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "JOSE MENTOR GUILHERME DE MELLO NETTO", 
+      "partido": 14, 
+      "politico": 50
+    }, 
+    {
+      "id": 431, 
+      "name_en": "JOSE OLIMPIO SILVEIRA MORAES - #NE#", 
+      "name_pt": "JOSE OLIMPIO SILVEIRA MORAES", 
+      "partido": 9, 
+      "politico": 49
+    }, 
+    {
+      "id": 432, 
+      "name_en": "JOSE RICARDO ALVARENGA TRIPOLI - PSDB/DEM/PPS", 
+      "name_pt": "JOSE RICARDO ALVARENGA TRIPOLI", 
+      "partido": 17, 
+      "politico": 48
+    }, 
+    {
+      "id": 433, 
+      "name_en": "JOAO EDUARDO DADO LEITE DE CARVALHO - #NE#", 
+      "name_pt": "JOAO EDUARDO DADO LEITE DE CARVALHO", 
+      "partido": 10, 
+      "politico": 47
+    }, 
+    {
+      "id": 434, 
+      "name_en": "JOAO PAULO CUNHA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "JOAO PAULO CUNHA", 
+      "partido": 14, 
+      "politico": 45
+    }, 
+    {
+      "id": 435, 
+      "name_en": "JUNJI ABE - PSDB/DEM/PPS", 
+      "name_pt": "JUNJI ABE", 
+      "partido": 25, 
+      "politico": 44
+    }, 
+    {
+      "id": 436, 
+      "name_en": "LUIZ FERNANDO ARANTES MACHADO - PSDB/DEM/PPS", 
+      "name_pt": "LUIZ FERNANDO ARANTES MACHADO", 
+      "partido": 17, 
+      "politico": 43
+    }, 
+    {
+      "id": 437, 
+      "name_en": "LUIZ PAULO TEIXEIRA FERREIRA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "LUIZ PAULO TEIXEIRA FERREIRA", 
+      "partido": 14, 
+      "politico": 42
+    }, 
+    {
+      "id": 438, 
+      "name_en": "LUIZA ERUNDINA DE SOUSA - PRESTE ATEN\u00c3\u2021\u00c3\u0192O S\u00c3\u0192O PAULO", 
+      "name_pt": "LUIZA ERUNDINA DE SOUSA", 
+      "partido": 3, 
+      "politico": 41
+    }, 
+    {
+      "id": 439, 
+      "name_en": "MARA CRISTINA GABRILLI - PSDB/DEM/PPS", 
+      "name_pt": "MARA CRISTINA GABRILLI", 
+      "partido": 17, 
+      "politico": 39
+    }, 
+    {
+      "id": 440, 
+      "name_en": "MARCELO THEODORO DE AGUIAR - HUMANISTA CRIST\u00c3\u0192O", 
+      "name_pt": "MARCELO THEODORO DE AGUIAR", 
+      "partido": 19, 
+      "politico": 38
+    }, 
+    {
+      "id": 441, 
+      "name_en": "MARCO ANTONIO FELICIANO - HUMANISTA CRIST\u00c3\u0192O", 
+      "name_pt": "MARCO ANTONIO FELICIANO", 
+      "partido": 19, 
+      "politico": 37
+    }, 
+    {
+      "id": 442, 
+      "name_en": "MARCO AURELIO UBIALI - PRESTE ATEN\u00c3\u2021\u00c3\u0192O S\u00c3\u0192O PAULO", 
+      "name_pt": "MARCO AURELIO UBIALI", 
+      "partido": 3, 
+      "politico": 36
+    }, 
+    {
+      "id": 443, 
+      "name_en": "MILTON ANTONIO CASQUEL MONTI - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "MILTON ANTONIO CASQUEL MONTI", 
+      "partido": 16, 
+      "politico": 35
+    }, 
+    {
+      "id": 444, 
+      "name_en": "MARCIO LUIZ FRANcA GOMES - PRESTE ATEN\u00c3\u2021\u00c3\u0192O S\u00c3\u0192O PAULO", 
+      "name_pt": "MARCIO LUIZ FRANcA GOMES", 
+      "partido": 3, 
+      "politico": 34
+    }, 
+    {
+      "id": 445, 
+      "name_en": "NELSON MARQUEZELLI - #NE#", 
+      "name_pt": "NELSON MARQUEZELLI", 
+      "partido": 27, 
+      "politico": 33
+    }, 
+    {
+      "id": 446, 
+      "name_en": "NEWTON LIMA NETO - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "NEWTON LIMA NETO", 
+      "partido": 14, 
+      "politico": 32
+    }, 
+    {
+      "id": 447, 
+      "name_en": "OTONIEL CARLOS DE LIMA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "OTONIEL CARLOS DE LIMA", 
+      "partido": 13, 
+      "politico": 31
+    }, 
+    {
+      "id": 448, 
+      "name_en": "PAULO PEREIRA DA SILVA - #NE#", 
+      "name_pt": "PAULO PEREIRA DA SILVA", 
+      "partido": 10, 
+      "politico": 29
+    }, 
+    {
+      "id": 449, 
+      "name_en": "PAULO ROBERTO FREIRE DA COSTA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "PAULO ROBERTO FREIRE DA COSTA", 
+      "partido": 16, 
+      "politico": 27
+    }, 
+    {
+      "id": 450, 
+      "name_en": "PAULO ROBERTO GOMES MANSUR - #NE#", 
+      "name_pt": "PAULO ROBERTO GOMES MANSUR", 
+      "partido": 9, 
+      "politico": 26
+    }, 
+    {
+      "id": 451, 
+      "name_en": "PAULO SALIM MALUF - #NE#", 
+      "name_pt": "PAULO SALIM MALUF", 
+      "partido": 9, 
+      "politico": 25
+    }, 
+    {
+      "id": 452, 
+      "name_en": "PROTOGENES PINHEIRO DE QUEIROZ - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "PROTOGENES PINHEIRO DE QUEIROZ", 
+      "partido": 12, 
+      "politico": 24
+    }, 
+    {
+      "id": 453, 
+      "name_en": "RICARDO IZAR JUNIOR - #NE#", 
+      "name_pt": "RICARDO IZAR JUNIOR", 
+      "partido": 8, 
+      "politico": 22
+    }, 
+    {
+      "id": 454, 
+      "name_en": "RICARDO JOSE RIBEIRO BERZOINI - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "RICARDO JOSE RIBEIRO BERZOINI", 
+      "partido": 14, 
+      "politico": 21
+    }, 
+    {
+      "id": 455, 
+      "name_en": "ROBERTO ALVES DE LUCENA - #NE#", 
+      "name_pt": "ROBERTO ALVES DE LUCENA", 
+      "partido": 8, 
+      "politico": 20
+    }, 
+    {
+      "id": 456, 
+      "name_en": "ROBERTO JOAO PEREIRA FREIRE - PSDB/DEM/PPS", 
+      "name_pt": "ROBERTO JOAO PEREIRA FREIRE", 
+      "partido": 7, 
+      "politico": 19
+    }, 
+    {
+      "id": 457, 
+      "name_en": "SALVADOR ZIMBALDI FILHO - #NE#", 
+      "name_pt": "SALVADOR ZIMBALDI FILHO", 
+      "partido": 10, 
+      "politico": 18
+    }, 
+    {
+      "id": 458, 
+      "name_en": "VALDEMAR COSTA NETO - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "VALDEMAR COSTA NETO", 
+      "partido": 16, 
+      "politico": 17
+    }, 
+    {
+      "id": 459, 
+      "name_en": "VANDERLEI MACRIS - PSDB/DEM/PPS", 
+      "name_pt": "VANDERLEI MACRIS", 
+      "partido": 17, 
+      "politico": 16
+    }, 
+    {
+      "id": 460, 
+      "name_en": "VANDERLEI SIRAQUE - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "VANDERLEI SIRAQUE", 
+      "partido": 14, 
+      "politico": 15
+    }, 
+    {
+      "id": 461, 
+      "name_en": "VICENTE CANDIDO DA SILVA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "VICENTE CANDIDO DA SILVA", 
+      "partido": 14, 
+      "politico": 13
+    }, 
+    {
+      "id": 462, 
+      "name_en": "VICENTE PAULO DA SILVA - JUNTOS POR S\u00c3\u0192O PAULO", 
+      "name_pt": "VICENTE PAULO DA SILVA", 
+      "partido": 14, 
+      "politico": 337
+    }, 
+    {
+      "id": 463, 
+      "name_en": "WALTER MEYER FELDMAN - PSDB/DEM/PPS", 
+      "name_pt": "WALTER MEYER FELDMAN", 
+      "partido": 17, 
+      "politico": 12
+    }, 
+    {
+      "id": 464, 
+      "name_en": "WALTER SHINDI IIHOSHI - PSDB/DEM/PPS", 
+      "name_pt": "WALTER SHINDI IIHOSHI", 
+      "partido": 25, 
+      "politico": 11
+    }, 
+    {
+      "id": 465, 
+      "name_en": "WILLIAM DIB - PSDB/DEM/PPS", 
+      "name_pt": "WILLIAM DIB", 
+      "partido": 17, 
+      "politico": 10
+    }, 
+    {
+      "id": 466, 
+      "name_en": "CESAR HANNA HALUM - FOR\u00c3\u2021A DO POVO 1", 
+      "name_pt": "CESAR HANNA HALUM", 
+      "partido": 7, 
+      "politico": 9
+    }, 
+    {
+      "id": 467, 
+      "name_en": "GOIACIARA TAVARES CRUZ - NOVA UNI\u00c3\u0192O DO TOCANTINS", 
+      "name_pt": "GOIACIARA TAVARES CRUZ", 
+      "partido": 16, 
+      "politico": 8
+    }, 
+    {
+      "id": 468, 
+      "name_en": "JOSELI ANGELO AGNOLIN - FOR\u00c3\u2021A DO POVO 1", 
+      "name_pt": "JOSELI ANGELO AGNOLIN", 
+      "partido": 10, 
+      "politico": 7
+    }, 
+    {
+      "id": 469, 
+      "name_en": "LAZARO BOTELHO MARTINS - FOR\u00c3\u2021A DO POVO 1", 
+      "name_pt": "LAZARO BOTELHO MARTINS", 
+      "partido": 9, 
+      "politico": 6
+    }, 
+    {
+      "id": 470, 
+      "name_en": "MARIA AUXILIADORA SEABRA REZENDE - NOVA UNI\u00c3\u0192O DO TOCANTINS", 
+      "name_pt": "MARIA AUXILIADORA SEABRA REZENDE", 
+      "partido": 25, 
+      "politico": 5
+    }, 
+    {
+      "id": 471, 
+      "name_en": "NILMAR GAVINO RUIZ - NOVA UNI\u00c3\u0192O DO TOCANTINS", 
+      "name_pt": "NILMAR GAVINO RUIZ", 
+      "partido": 16, 
+      "politico": 4
+    }, 
+    {
+      "id": 472, 
+      "name_en": "OSVALDO DE SOUZA REIS - FOR\u00c3\u2021A DO POVO 1", 
+      "name_pt": "OSVALDO DE SOUZA REIS", 
+      "partido": 21, 
+      "politico": 3
+    }, 
+    {
+      "id": 473, 
+      "name_en": "RAIMUNDO COIMBRA JUNIOR - FOR\u00c3\u2021A DO POVO 1", 
+      "name_pt": "RAIMUNDO COIMBRA JUNIOR", 
+      "partido": 21, 
+      "politico": 2
+    }
+  ]
+}
