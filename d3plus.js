@@ -3654,10 +3654,10 @@ d3plus.network = function(vars) {
         
         // Returns false if the mouse has moved into a child element.
         // This is used to catch when the mouse moves onto label text.
-        var target = d3.event.toElement
+        var target = d3.event.toElement || d3.event.relatedTarget
         if (target) {
           var id_check = target.__data__[vars.id_var] == d[vars.id_var]
-          if (d3.event.toElement.parentNode != this && !id_check) {
+          if (target.parentNode != this && !id_check) {
             hover = null;
             vars.update();
           }
