@@ -92,34 +92,40 @@ var viz = d3plus.viz()
 //   })
 // })
 
-d3.json("data/candidatura.json", function(attr){
-  d3.json("data/pontuacao.json", function(data){
+d3.json("data/partido.json", function(partido){
+  d3.json("data/candidatura.json", function(attr){
+    d3.json("data/pontuacao.json", function(data){
     
-    var attrs = {}
-    attr.candidaturas.forEach(function(a){
-      a.candidatura = a.id
-      attrs[a.id] = a
-    })
+      var attrs = {}
+      attr.candidaturas.forEach(function(a){
+        a.candidatura = a.id
+        partido.partidos.forEach(function(p){
+          if(p.id == a.partido) a.partidoNome = p.name_pt;
+        });
+        attrs[a.id] = a
+      })
   
-    viz
-      .type("tree_map")
-      .id_var("candidatura")
-      .attrs(attrs)
-      .text_var("name_pt")
-      .value_var("pontos")
-      .tooltip_info(["candidatura", "name_pt", "partido", "politico", "pontos", "rodada"])
-      .name_array(["name_pt","id"])
-      .year(2)
-      .nesting(["partido","candidatura"])
-      .depth("candidatura")
-      .year_var("rodada")
-      .font("Helvetica Neue")
-      .font_weight("lighter")
+      viz
+        .type("tree_map")
+        .id_var("candidatura")
+        .attrs(attrs)
+        .text_var("name_pt")
+        .value_var("pontos")
+        .tooltip_info(["candidatura", "name_pt", "partido", "partidoNome", "politico", "pontos", "rodada"])
+        .name_array(["partidoNome","partido"])
+        .year(2)
+        .nesting(["partido","candidatura"])
+        .depth("partido")
+        .year_var("rodada")
+        .font("Helvetica Neue")
+        .font_weight("lighter")
+        // .nesting_aggs({"pontos":"mean"})
       
-    d3.select("#viz")
-      .datum(data.pontuacoes)
-      .call(viz)
+      d3.select("#viz")
+        .datum(data.pontuacoes)
+        .call(viz)
   
+    })
   })
 })
 

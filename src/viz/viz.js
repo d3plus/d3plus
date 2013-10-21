@@ -329,7 +329,6 @@ d3plus.viz = function() {
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year]
         }
         else if (vars.year) {
-          console.log(data_obj)
           vars.data = data_obj[data_type[vars.type]][vars.depth][vars.year]
         }
         
@@ -743,7 +742,7 @@ d3plus.viz = function() {
               to_return[key] = d3[vars.nesting_aggs[key]](leaves, function(d){ return d[key]; })
             }
             else {
-              if ([vars.year_var,"icon"].indexOf(key) >= 0) {
+              if ([vars.year_var,vars.id_var,"icon"].indexOf(key) >= 0) {
                 to_return[key] = leaves[0][key];
               }
               else if (vars.keys[key] === "number") {
