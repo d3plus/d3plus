@@ -110,6 +110,8 @@ d3.json("data/candidatura.json", function(attr){
       .tooltip_info(["candidatura", "name_pt", "partido", "politico", "pontos", "rodada"])
       .name_array(["name_pt","id"])
       .year(2)
+      .nesting(["partido","candidatura"])
+      .depth("candidatura")
       .year_var("rodada")
       .font("Helvetica Neue")
       .font_weight("lighter")

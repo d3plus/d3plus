@@ -83,7 +83,6 @@ d3plus.viz = function() {
     "size_scale_type": "sqrt",
     "solo": [],
     "sort": "total",
-    "source_text": null,
     "spotlight": true,
     "stack_type": "linear",
     "sub_title": null,
@@ -128,7 +127,7 @@ d3plus.viz = function() {
       axis_change = false,
       nodes,
       links,
-      static_axis = true,
+      static_axes = true,
       xaxis_domain = null,
       yaxis_domain = null;
       
@@ -394,7 +393,7 @@ d3plus.viz = function() {
       if (vars.type == "pie_scatter" && vars.data) {
         if (vars.dev) console.log("[d3plus] Setting Axes Domains")
         if (xaxis_domain instanceof Array) vars.xaxis_domain = xaxis_domain
-        else if (!static_axis) {
+        else if (!static_axes) {
           vars.xaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year],function(d){
             return d[vars.xaxis_var]
           })
@@ -405,7 +404,7 @@ d3plus.viz = function() {
           })
         }
         if (yaxis_domain instanceof Array) vars.yaxis_domain = yaxis_domain
-        else if (!static_axis) {
+        else if (!static_axes) {
           vars.yaxis_domain = d3.extent(data_obj[data_type[vars.type]][vars.depth][vars.spotlight][vars.year],function(d){
             return d[vars.yaxis_var]
           }).reverse()
@@ -1572,12 +1571,6 @@ d3plus.viz = function() {
     vars.sort = x;
     return chart;
   };
-  
-  chart.source_text = function(x) {
-    if (!arguments.length) return vars.source_text;
-    vars.source_text = x;
-    return chart;
-  };
 
   chart.spotlight = function(x) {
     if (!arguments.length) return vars.spotlight;
@@ -1593,9 +1586,9 @@ d3plus.viz = function() {
     return chart;
   };
 
-  chart.static_axis = function(x) {
-    if (!arguments.length) return static_axis;
-    static_axis = x;
+  chart.static_axes = function(x) {
+    if (!arguments.length) return static_axes;
+    static_axes = x;
     return chart;
   };
   

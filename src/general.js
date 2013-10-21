@@ -1,6 +1,6 @@
 var d3plus = window.d3plus || {};
 
-d3plus.version = "0.1.0";
+d3plus.version = "0.0.8";
 
 window.d3plus = d3plus;
 
