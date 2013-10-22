@@ -85,7 +85,7 @@ d3plus.tree_map = function(vars) {
     .text(function(d) {
       var root = d;
       while(root.parent){ root = root.parent; } // find top most parent node
-      d.share = vars.number_format((d.value/root.value)*100,"share")+"%";
+      d.share = vars.format((d.value/root.value)*100,"share")+"%";
       return d.share;
     })
     .attr('font-size',function(d){
@@ -119,7 +119,7 @@ d3plus.tree_map = function(vars) {
 
     d3plus.tooltip.remove(vars.type)
     var ex = {}
-    ex[vars.text_format("share")] = d.share
+    ex[vars.format("share")] = d.share
     var tooltip_data = get_tooltip_data(d,"short",ex)
     var id = find_variable(d,vars.id_var)
     
@@ -182,7 +182,7 @@ d3plus.tree_map = function(vars) {
         d3plus.tooltip.remove(vars.type)
 
         var ex = {}
-        ex[vars.text_format("share")] = d.share
+        ex[vars.format("share")] = d.share
         var tooltip_data = get_tooltip_data(d,"long",ex)
         
         d3plus.tooltip.create({
@@ -255,8 +255,7 @@ d3plus.tree_map = function(vars) {
         var arr = vars.name_array ? vars.name_array : [vars.text_var,vars.id_var]
         arr.forEach(function(n){
           var name = find_variable(d,n)
-          if (typeof name === "number") text.push(vars.number_format(name))
-          else if (typeof name === "string") text.push(vars.text_format(name))
+          text.push(vars.format(name))
         })
         
         var size = (d.dx)/7
@@ -290,7 +289,7 @@ d3plus.tree_map = function(vars) {
         .text(function(d){
           var root = d.parent;
           while(root.parent){ root = root.parent; } // find top most parent node
-          d.share = vars.number_format((d.value/root.value)*100,"share")+"%";
+          d.share = vars.format((d.value/root.value)*100,"share")+"%";
           return d.share;
         })
         .attr('font-size',function(d){

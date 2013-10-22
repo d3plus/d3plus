@@ -191,7 +191,7 @@ d3plus.network = function(vars) {
             var tooltip_data = get_tooltip_data(vars.highlight)
           
             var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
-            tooltip_appends += vars.text_format("Primary Connections")
+            tooltip_appends += vars.format("Primary Connections")
             tooltip_appends += "</div>"
       
             prim_nodes.forEach(function(n){

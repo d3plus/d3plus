@@ -177,7 +177,7 @@ d3plus.pie_scatter = function(vars) {
         .attr("stroke-width", 1)
         .attr("shape-rendering","crispEdges")
     
-      var xtext = vars.number_format(d[vars.xaxis_var],vars.xaxis_var)
+      var xtext = vars.format(d[vars.xaxis_var],vars.xaxis_var)
       
       // xvalue text element
       var xtext = viz.append("text")
@@ -206,7 +206,7 @@ d3plus.pie_scatter = function(vars) {
         .attr("stroke-width", 1)
         .attr("shape-rendering","crispEdges")
       
-      var ytext = vars.number_format(d[vars.yaxis_var],vars.yaxis_var)
+      var ytext = vars.format(d[vars.yaxis_var],vars.yaxis_var)
       
       // xvalue text element
       var ytext = viz.append("text")
@@ -230,7 +230,7 @@ d3plus.pie_scatter = function(vars) {
       if (d.num_children > 1 && !vars.spotlight && d.num_children_active != d.num_children) {
         var num = d.num_children_active,
             den = d.num_children
-        ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
+        ex = {"fill":num+"/"+den+" ("+vars.format((num/den)*100,"share")+"%)"}
       }
       var tooltip_data = get_tooltip_data(d,"short",ex)
       
@@ -269,7 +269,7 @@ d3plus.pie_scatter = function(vars) {
         if (d.num_children > 1 && !vars.spotlight && d.num_children_active != d.num_children) {
           var num = d.num_children_active,
               den = d.num_children
-          ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
+          ex = {"fill":num+"/"+den+" ("+vars.format((num/den)*100,"share")+"%)"}
         }
         var tooltip_data = get_tooltip_data(d,"long",ex)
         

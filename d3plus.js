@@ -367,7 +367,6 @@ d3plus.tooltip.create = function(params) {
       else {
         var istooltip = false
       }
-      console.log(!ischild(tooltip.node(),target), !ischild(params.mouseevents,target), !istooltip)
       if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
         oldout(d3.select(params.mouseevents).datum())
         d3plus.tooltip.close()
@@ -893,6 +892,11 @@ d3plus.viz = function() {
     "font": "sans-serif",
     "font_weight": "lighter",
     "footer": false,
+    "format": function(value,name) {
+      if (typeof value === "number") return vars.number_format(value,name)
+      if (typeof value === "string") return vars.text_format(value,name)
+      else return value
+    },
     "graph": {"timing": 0},
     "group_bgs": true,
     "grouping": "name",
@@ -1335,11 +1339,10 @@ d3plus.viz = function() {
         if (vars.dev) console.log("[d3plus] Calculating Color Range")
         
         var data_range = []
+        vars.color_domain = null
         
         if (vars.type == "tree_map") {
-        
-          vars.color_domain = [0,0]
-        
+          
           function check_child_colors(c) {
             if (c.children) {
               c.children.forEach(function(c2){
@@ -1372,21 +1375,22 @@ d3plus.viz = function() {
         if (typeof data_range[0] == "number") {
           data_range.sort(function(a,b) {return a-b})
           vars.color_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
+          var new_range = vars.color_range.slice(0)
           if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
-            vars.color_domain[2] = vars.color_domain[1]
+            vars.color_domain.push(vars.color_domain[1])
             vars.color_domain[1] = 0
           }
           else if (vars.color_domain[1] > 0) {
             vars.color_domain[0] = 0
-            vars.color_domain.unshift(0)
+            new_range.splice(0,1)
           }
           else if (vars.color_domain[0] < 0) {
             vars.color_domain[1] = 0
-            vars.color_domain.push(0)
+            new_range.pop()
           }
           vars.color_scale
             .domain(vars.color_domain)
-            .range(vars.color_range)
+            .range(new_range)
         }
         
       }
@@ -1396,6 +1400,7 @@ d3plus.viz = function() {
       
       vars.svg_enter.append("g")
         .attr("class","footer")
+        .attr("transform","translate(0,"+vars.svg_height+")")
 
       // Create titles
       vars.margin.top = 0
@@ -1474,24 +1479,24 @@ d3plus.viz = function() {
           .style("font-family",vars.font)
           .style("font-weight",vars.font_weight)
           .style(vars.info_style)
-          .text(vars.text_format("Loading..."))
+          .text(vars.format("Loading..."))
       
       // vars.loader.select("div#d3plus_loader_text").transition().duration(d3plus.timing)
-
+      
       if (!error && !vars.data) {
-        vars.error = vars.text_format("No Data Available","error")
+        vars.error = vars.format("No Data Available","error")
       }
       else if (vars.type == "rings" && !vars.connections[vars.highlight]) {
         vars.data = null
-        vars.error = vars.text_format("No Connections Available","error")
+        vars.error = vars.format("No Connections Available","error")
       }
       else if (error) {
         vars.data = null
         if (error === true) {
-          vars.error = vars.text_format("Error","error")
+          vars.error = vars.format("Error","error")
         }
         else {
-          vars.error = vars.text_format(error,"error")
+          vars.error = vars.format(error,"error")
         }
       }
       else {
@@ -1569,7 +1574,7 @@ d3plus.viz = function() {
   }
 
   nest = function(flat_data,levels) {
-  
+    
     var flattened = [];
     var nested_data = d3.nest();
     
@@ -1591,9 +1596,8 @@ d3plus.viz = function() {
           }
           
           var nest_obj = find_variable(leaves[0],nest_key)
-          // var nest_obj = vars.attrs[leaves[0][vars.id_var]][nest_key]
-          
-          to_return[vars.id_var] = nest_obj[vars.id_var]
+          if (typeof nest_obj === "object") to_return[vars.id_var] = nest_obj[vars.id_var]
+          else to_return[vars.id_var] = nest_obj
           
           if (nest_obj.display_id) to_return.display_id = nest_obj.display_id;
           
@@ -1602,10 +1606,10 @@ d3plus.viz = function() {
               to_return[key] = d3[vars.nesting_aggs[key]](leaves, function(d){ return d[key]; })
             }
             else {
-              if ([vars.year_var,vars.id_var,"icon"].indexOf(key) >= 0) {
+              if ([vars.year_var,"icon"].indexOf(key) >= 0 || (key == vars.id_var && !to_return[vars.id_var])) {
                 to_return[key] = leaves[0][key];
               }
-              else if (vars.keys[key] === "number") {
+              else if (vars.keys[key] === "number" && key != vars.id_var) {
                 to_return[key] = d3.sum(leaves, function(d){ return d[key]; })
               }
               else if (key == vars.color_var) {
@@ -1667,7 +1671,7 @@ d3plus.viz = function() {
         }
     
     if (type == "total_bar" && t) {
-      title = vars.number_format(t,vars.value_var)
+      titvars.formatormat(t,vars.value_var)
       vars.total_bar.prefix ? title = vars.total_bar.prefix + title : null;
       vars.total_bar.suffix ? title = title + vars.total_bar.suffix : null;
       
@@ -1677,8 +1681,8 @@ d3plus.viz = function() {
           else if (vars.year == d[vars.year_var]) return d[vars.value_var]
         })
         var pct = (t/overall_total)*100
-        ot = vars.number_format(overall_total,vars.value_var)
-        title += " ("+vars.number_format(pct,"share")+"% of "+ot+")"
+        vars.formatormat(overall_total,vars.value_var)
+        title += vars.formatormat(pct,"share")+"% of "+ot+")"
       }
       
     }
@@ -1821,7 +1825,7 @@ d3plus.viz = function() {
         })
       })
       
-    source.exit().transition().duration(d3plus.evt.timing)
+    source.exit().transition().duration(d3plus.timing)
       .attr("opacity",0)
       .remove()
       
@@ -1833,7 +1837,7 @@ d3plus.viz = function() {
       vars.margin.bottom = 0
     }
     
-    d3.select("g.footer")
+    d3.select("g.footer").transition().duration(d3plus.timing)
       .attr("transform","translate(0,"+(vars.svg_height-vars.margin.bottom)+")")
     
   }
@@ -1923,20 +1927,14 @@ d3plus.viz = function() {
     
     function format_key(key,group) {
       if (!group) var group = null
-      else var group = vars.text_format(group)
+      else var group = vars.format(group)
       
       var value = extra_data[key] || find_variable(id,key)
       if (value !== false) {
-        var name = vars.text_format(key),
+        var name = vars.format(key),
             h = tooltip_highlights.indexOf(key) >= 0
             
-        if (typeof value == "string") {
-          value = value.toString()
-          var val = vars.text_format(value,key)
-        }
-        else if (typeof value == "number") {
-          var val = vars.number_format(value,key)
-        }
+        var val = vars.format(value,key)
         
         var obj = {"name": name, "value": val, "highlight": h, "group": group}
         
@@ -2060,7 +2058,7 @@ d3plus.viz = function() {
 
     if (value === null) value = 0
     if (variable == vars.text_var && value) {
-      return vars.text_format(value)
+      return vars.format(value)
     }
     else return value
     
@@ -2068,7 +2066,7 @@ d3plus.viz = function() {
   
   find_color = function(id) {
     var color = find_variable(id,vars.color_var)
-    if (!color && vars.color_domain == [0,0]) color = 0
+    if (!color && vars.color_domain instanceof Array) color = 0
     else if (!color) color = d3plus.utils.rand_color()
     if (typeof color == "string") return color
     else return vars.color_scale(color)
@@ -2076,9 +2074,9 @@ d3plus.viz = function() {
   
   footer_text = function() {
 
-    var text = vars.click_function || vars.tooltip_info.long ? vars.text_format("Click for More Info") : null
+    var text = vars.click_function || vars.tooltip_info.long ? vars.format("Click for More Info") : null
     
-    if (!text && vars.type == "geo_map") return vars.text_format("Click to Zoom")
+    if (!text && vars.type == "geo_map") return vars.format("Click to Zoom")
     else return text
     
   }
@@ -2133,7 +2131,7 @@ d3plus.viz = function() {
       column_init.forEach(function(c){
         if (vars.keys[c] || c == vars.text_var) {
           columns.push(c)
-          titles.push(vars.text_format(c))
+          titles.push(vars.format(c))
         }
       })
       
@@ -2657,7 +2655,7 @@ d3plus.viz = function() {
             
         if (vars.xaxis_var == vars.year_var) var text = d;
         else {
-          var text = vars.number_format(d,vars.xaxis_var);
+          var text = vars.format(d,vars.xaxis_var);
         }
       
         d3.select(this)
@@ -2718,7 +2716,7 @@ d3plus.viz = function() {
           var text = d*100+"%"
         }
         else {
-          var text = vars.number_format(d,vars.yaxis_var);
+          var text = vars.format(d,vars.yaxis_var);
         }
       
         d3.select(this)
@@ -2812,7 +2810,7 @@ d3plus.viz = function() {
       .attr('class', 'x_axis_label')
       .attr('x', labelx)
       .attr('y', vars.height-10)
-      .text(vars.text_format(vars.xaxis_var))
+      .text(vars.format(vars.xaxis_var))
       .attr("font-family",vars.font)
       .attr("font-weight",vars.font_weight)
       .attr(label_style)
@@ -2822,7 +2820,7 @@ d3plus.viz = function() {
       .attr('class', 'y_axis_label')
       .attr('y', 15)
       .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
-      .text(vars.text_format(vars.yaxis_var))
+      .text(vars.format(vars.yaxis_var))
       .attr("transform","rotate(-90)")
       .attr("font-family",vars.font)
       .attr("font-weight",vars.font_weight)
@@ -2889,7 +2887,7 @@ d3plus.viz = function() {
         if (vars.data.length == 0) return 0
         else return 1
       })
-      .text(vars.text_format(vars.xaxis_var))
+      .text(vars.format(vars.xaxis_var))
 
     // Update Y axis label
     d3.select(".y_axis_label")
@@ -2899,7 +2897,7 @@ d3plus.viz = function() {
         if (vars.data.length == 0) return 0
         else return 1
       })
-      .text(vars.text_format(vars.yaxis_var))
+      .text(vars.format(vars.yaxis_var))
       
     // Axis Dotted Lines
     vars.chart_enter.append("line")
@@ -2940,8 +2938,8 @@ d3plus.viz = function() {
     d3.select("#y_axis_val_text").transition().duration(vars.graph.timing)
       .text(function(){
         if (y_val != null) {
-          var v = vars.number_format(y_val,y_name)
-          return y_name ? vars.text_format(y_name) + ": " + v : v
+          varvars.formatormat(y_val,y_name)
+          return y_name ? vars.format(y_name) + ": " + v : v
         }
         else return null
       })
@@ -2986,8 +2984,8 @@ d3plus.viz = function() {
     d3.select("#x_axis_val_text").transition().duration(vars.graph.timing)
       .text(function(){
         if (x_val != null) {
-          var v = vars.number_format(x_val,x_name)
-          return x_name ? vars.text_format(x_name) + ": " + v : v
+          varvars.formatormat(x_val,x_name)
+          return x_name ? vars.format(x_name) + ": " + v : v
         }
         else return null
       })
@@ -3197,7 +3195,7 @@ d3plus.network = function(vars) {
             var tooltip_data = get_tooltip_data(vars.highlight)
           
             var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
-            tooltip_appends += vars.text_format("Primary Connections")
+            tooltip_appends += vars.format("Primary Connections")
             tooltip_appends += "</div>"
       
             prim_nodes.forEach(function(n){
@@ -3907,8 +3905,8 @@ d3plus.stacked = function(vars) {
     // tooltip
     var tooltip_data = get_tooltip_data(this_value,"short")
     if (vars.layout == "share") {
-      var share = vars.number_format(this_value.y*100,"share")+"%"
-      tooltip_data.push({"name": vars.text_format("share"), "value": share})
+      var share = vars.format(this_value.y*100,"share")+"%"
+      tooltip_data.push({"name": vars.format("share"), "value": share})
     }
   
     var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
@@ -3977,8 +3975,8 @@ d3plus.stacked = function(vars) {
         
         var tooltip_data = get_tooltip_data(this_value,"long")
         if (vars.layout == "share") {
-          var share = vars.number_format(this_value.y*100,"share")+"%"
-          tooltip_data.push({"name": vars.text_format("share"), "value": share})
+          var share = vars.format(this_value.y*100,"share")+"%"
+          tooltip_data.push({"name": vars.format("share"), "value": share})
         }
         
         d3plus.tooltip.create({
@@ -4358,7 +4356,7 @@ d3plus.tree_map = function(vars) {
     .text(function(d) {
       var root = d;
       while(root.parent){ root = root.parent; } // find top most parent node
-      d.share = vars.number_format((d.value/root.value)*100,"share")+"%";
+      d.share = vars.format((d.value/root.value)*100,"share")+"%";
       return d.share;
     })
     .attr('font-size',function(d){
@@ -4392,7 +4390,7 @@ d3plus.tree_map = function(vars) {
 
     d3plus.tooltip.remove(vars.type)
     var ex = {}
-    ex[vars.text_format("share")] = d.share
+    ex[vars.format("share")] = d.share
     var tooltip_data = get_tooltip_data(d,"short",ex)
     var id = find_variable(d,vars.id_var)
     
@@ -4455,7 +4453,7 @@ d3plus.tree_map = function(vars) {
         d3plus.tooltip.remove(vars.type)
 
         var ex = {}
-        ex[vars.text_format("share")] = d.share
+        ex[vars.format("share")] = d.share
         var tooltip_data = get_tooltip_data(d,"long",ex)
         
         d3plus.tooltip.create({
@@ -4528,8 +4526,7 @@ d3plus.tree_map = function(vars) {
         var arr = vars.name_array ? vars.name_array : [vars.text_var,vars.id_var]
         arr.forEach(function(n){
           var name = find_variable(d,n)
-          if (typeof name === "number") text.push(vars.number_format(name))
-          else if (typeof name === "string") text.push(vars.text_format(name))
+          text.push(vars.format(name))
         })
         
         var size = (d.dx)/7
@@ -4563,7 +4560,7 @@ d3plus.tree_map = function(vars) {
         .text(function(d){
           var root = d.parent;
           while(root.parent){ root = root.parent; } // find top most parent node
-          d.share = vars.number_format((d.value/root.value)*100,"share")+"%";
+          d.share = vars.format((d.value/root.value)*100,"share")+"%";
           return d.share;
         })
         .attr('font-size',function(d){
@@ -4619,7 +4616,7 @@ d3plus.geo_map = function(vars) {
       info_width = vars.small ? 0 : 300,
       redraw = false
       
-  vars.loading_text = vars.text_format("Loading Geography")
+  vars.loading_text = vars.format("Loading Geography")
       
   /**********************/
   /* Define Color Scale */
@@ -4698,7 +4695,7 @@ d3plus.geo_map = function(vars) {
       
       //zoom in control click event
       google.maps.event.addDomListener(zoomIn, 'click', function() {
-        vars.loading_text = vars.text_format("Zooming In")
+        vars.loading_text = vars.format("Zooming In")
          var currentZoomLevel = vars.map.getZoom();
          if(currentZoomLevel != 21){
            vars.map.setZoom(currentZoomLevel + 1);
@@ -4707,7 +4704,7 @@ d3plus.geo_map = function(vars) {
 
       //zoom out control click event
       google.maps.event.addDomListener(zoomOut, 'click', function() {
-        vars.loading_text = vars.text_format("Zooming Out")
+        vars.loading_text = vars.format("Zooming Out")
          var currentZoomLevel = vars.map.getZoom();
          if(currentZoomLevel != 0){
            vars.map.setZoom(currentZoomLevel - 1);
@@ -4719,22 +4716,22 @@ d3plus.geo_map = function(vars) {
       
       var roadMap = document.createElement('div')
       roadMap.className = "tile_toggle"
-      roadMap.innerHTML = vars.text_format("roads")
+      roadMap.innerHTML = vars.format("roads")
       tileControl.appendChild(roadMap)
       
       var terrain = document.createElement('div')
       terrain.className = "tile_toggle active"
-      terrain.innerHTML = vars.text_format("terrain")
+      terrain.innerHTML = vars.format("terrain")
       tileControl.appendChild(terrain)
       
       var satellite = document.createElement('div')
       satellite.className = "tile_toggle"
-      satellite.innerHTML = vars.text_format("satellite")
+      satellite.innerHTML = vars.format("satellite")
       tileControl.appendChild(satellite)
       
       var hybrid = document.createElement('div')
       hybrid.className = "tile_toggle"
-      hybrid.innerHTML = vars.text_format("hybrid")
+      hybrid.innerHTML = vars.format("hybrid")
       tileControl.appendChild(hybrid)
       
       vars.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(tileControl)
@@ -4861,7 +4858,7 @@ d3plus.geo_map = function(vars) {
               })
               .on(d3plus.evt.click, function(d) {
                 if (!dragging) {
-                  vars.loading_text = vars.text_format("Calculating Coordinates")
+                  vars.loading_text = vars.format("Calculating Coordinates")
                   if (vars.highlight == d.id) {
                     zoom("reset")
                   } 
@@ -4887,7 +4884,7 @@ d3plus.geo_map = function(vars) {
             if (vars.coord_change) {
               if (vars.highlight) var z = d3.select("path#path"+vars.highlight).datum()
               else var z = "reset"
-              vars.loading_text = vars.text_format("Calculating Coordinates")
+              vars.loading_text = vars.format("Calculating Coordinates")
               zoom(z)
               vars.coord_change = false
             }
@@ -5027,7 +5024,7 @@ d3plus.geo_map = function(vars) {
       }
       
       if (!data || !data[vars.value_var]) {
-        var footer = vars.text_format("No Data Available")
+        var footer = vars.format("No Data Available")
         make_tooltip(null)
       }
       else if (!vars.highlight) {
@@ -5185,7 +5182,7 @@ d3plus.geo_map = function(vars) {
       var max = 0
       vars.data_range.forEach(function(v,i){
         var elem = d3.select("g.scale").select("text#scale_"+i)
-        elem.text(vars.number_format(v,vars.value_var))
+        elem.text(vars.format(v,vars.value_var))
         var w = elem.node().getBBox().width
         if (w > max) max = w
       })
@@ -5209,7 +5206,7 @@ d3plus.geo_map = function(vars) {
       
       d3.select("g.scale").select("text#scale_title").transition().duration(d3plus.timing)
         .attr("x",(max*vars.data_range.length)/2+"px")
-        .text(vars.text_format(vars.value_var))
+        .text(vars.format(vars.value_var))
       
       vars.data_range.forEach(function(v,i){
       
@@ -5414,7 +5411,7 @@ d3plus.pie_scatter = function(vars) {
         .attr("stroke-width", 1)
         .attr("shape-rendering","crispEdges")
     
-      var xtext = vars.number_format(d[vars.xaxis_var],vars.xaxis_var)
+      var xtext = vars.format(d[vars.xaxis_var],vars.xaxis_var)
       
       // xvalue text element
       var xtext = viz.append("text")
@@ -5443,7 +5440,7 @@ d3plus.pie_scatter = function(vars) {
         .attr("stroke-width", 1)
         .attr("shape-rendering","crispEdges")
       
-      var ytext = vars.number_format(d[vars.yaxis_var],vars.yaxis_var)
+      var ytext = vars.format(d[vars.yaxis_var],vars.yaxis_var)
       
       // xvalue text element
       var ytext = viz.append("text")
@@ -5467,7 +5464,7 @@ d3plus.pie_scatter = function(vars) {
       if (d.num_children > 1 && !vars.spotlight && d.num_children_active != d.num_children) {
         var num = d.num_children_active,
             den = d.num_children
-        ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
+        ex = {"fill":num+"/"+den+" ("+vars.format((num/den)*100,"share")+"%)"}
       }
       var tooltip_data = get_tooltip_data(d,"short",ex)
       
@@ -5506,7 +5503,7 @@ d3plus.pie_scatter = function(vars) {
         if (d.num_children > 1 && !vars.spotlight && d.num_children_active != d.num_children) {
           var num = d.num_children_active,
               den = d.num_children
-          ex = {"fill":num+"/"+den+" ("+vars.number_format((num/den)*100,"share")+"%)"}
+          ex = {"fill":num+"/"+den+" ("+vars.format((num/den)*100,"share")+"%)"}
         }
         var tooltip_data = get_tooltip_data(d,"long",ex)
         
@@ -6546,7 +6543,7 @@ d3plus.rings = function(vars) {
       if (typeof html == "string") html = "<br>"+html
     
       var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
-      tooltip_appends += vars.text_format("Primary Connections")
+      tooltip_appends += vars.format("Primary Connections")
       tooltip_appends += "</div>"
 
       vars.connections[vars.highlight].forEach(function(n){

@@ -135,7 +135,6 @@ d3plus.tooltip.create = function(params) {
       else {
         var istooltip = false
       }
-      console.log(!ischild(tooltip.node(),target), !ischild(params.mouseevents,target), !istooltip)
       if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
         oldout(d3.select(params.mouseevents).datum())
         d3plus.tooltip.close()

@@ -138,8 +138,8 @@ d3plus.stacked = function(vars) {
     // tooltip
     var tooltip_data = get_tooltip_data(this_value,"short")
     if (vars.layout == "share") {
-      var share = vars.number_format(this_value.y*100,"share")+"%"
-      tooltip_data.push({"name": vars.text_format("share"), "value": share})
+      var share = vars.format(this_value.y*100,"share")+"%"
+      tooltip_data.push({"name": vars.format("share"), "value": share})
     }
   
     var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
@@ -208,8 +208,8 @@ d3plus.stacked = function(vars) {
         
         var tooltip_data = get_tooltip_data(this_value,"long")
         if (vars.layout == "share") {
-          var share = vars.number_format(this_value.y*100,"share")+"%"
-          tooltip_data.push({"name": vars.text_format("share"), "value": share})
+          var share = vars.format(this_value.y*100,"share")+"%"
+          tooltip_data.push({"name": vars.format("share"), "value": share})
         }
         
         d3plus.tooltip.create({

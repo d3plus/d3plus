@@ -15,7 +15,7 @@ d3plus.geo_map = function(vars) {
       info_width = vars.small ? 0 : 300,
       redraw = false
       
-  vars.loading_text = vars.text_format("Loading Geography")
+  vars.loading_text = vars.format("Loading Geography")
       
   /**********************/
   /* Define Color Scale */
@@ -94,7 +94,7 @@ d3plus.geo_map = function(vars) {
       
       //zoom in control click event
       google.maps.event.addDomListener(zoomIn, 'click', function() {
-        vars.loading_text = vars.text_format("Zooming In")
+        vars.loading_text = vars.format("Zooming In")
          var currentZoomLevel = vars.map.getZoom();
          if(currentZoomLevel != 21){
            vars.map.setZoom(currentZoomLevel + 1);
@@ -103,7 +103,7 @@ d3plus.geo_map = function(vars) {
 
       //zoom out control click event
       google.maps.event.addDomListener(zoomOut, 'click', function() {
-        vars.loading_text = vars.text_format("Zooming Out")
+        vars.loading_text = vars.format("Zooming Out")
          var currentZoomLevel = vars.map.getZoom();
          if(currentZoomLevel != 0){
            vars.map.setZoom(currentZoomLevel - 1);
@@ -115,22 +115,22 @@ d3plus.geo_map = function(vars) {
       
       var roadMap = document.createElement('div')
       roadMap.className = "tile_toggle"
-      roadMap.innerHTML = vars.text_format("roads")
+      roadMap.innerHTML = vars.format("roads")
       tileControl.appendChild(roadMap)
       
       var terrain = document.createElement('div')
       terrain.className = "tile_toggle active"
-      terrain.innerHTML = vars.text_format("terrain")
+      terrain.innerHTML = vars.format("terrain")
       tileControl.appendChild(terrain)
       
       var satellite = document.createElement('div')
       satellite.className = "tile_toggle"
-      satellite.innerHTML = vars.text_format("satellite")
+      satellite.innerHTML = vars.format("satellite")
       tileControl.appendChild(satellite)
       
       var hybrid = document.createElement('div')
       hybrid.className = "tile_toggle"
-      hybrid.innerHTML = vars.text_format("hybrid")
+      hybrid.innerHTML = vars.format("hybrid")
       tileControl.appendChild(hybrid)
       
       vars.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(tileControl)
@@ -257,7 +257,7 @@ d3plus.geo_map = function(vars) {
               })
               .on(d3plus.evt.click, function(d) {
                 if (!dragging) {
-                  vars.loading_text = vars.text_format("Calculating Coordinates")
+                  vars.loading_text = vars.format("Calculating Coordinates")
                   if (vars.highlight == d.id) {
                     zoom("reset")
                   } 
@@ -283,7 +283,7 @@ d3plus.geo_map = function(vars) {
             if (vars.coord_change) {
               if (vars.highlight) var z = d3.select("path#path"+vars.highlight).datum()
               else var z = "reset"
-              vars.loading_text = vars.text_format("Calculating Coordinates")
+              vars.loading_text = vars.format("Calculating Coordinates")
               zoom(z)
               vars.coord_change = false
             }
@@ -423,7 +423,7 @@ d3plus.geo_map = function(vars) {
       }
       
       if (!data || !data[vars.value_var]) {
-        var footer = vars.text_format("No Data Available")
+        var footer = vars.format("No Data Available")
         make_tooltip(null)
       }
       else if (!vars.highlight) {
@@ -581,7 +581,7 @@ d3plus.geo_map = function(vars) {
       var max = 0
       vars.data_range.forEach(function(v,i){
         var elem = d3.select("g.scale").select("text#scale_"+i)
-        elem.text(vars.number_format(v,vars.value_var))
+        elem.text(vars.format(v,vars.value_var))
         var w = elem.node().getBBox().width
         if (w > max) max = w
       })
@@ -605,7 +605,7 @@ d3plus.geo_map = function(vars) {
       
       d3.select("g.scale").select("text#scale_title").transition().duration(d3plus.timing)
         .attr("x",(max*vars.data_range.length)/2+"px")
-        .text(vars.text_format(vars.value_var))
+        .text(vars.format(vars.value_var))
       
       vars.data_range.forEach(function(v,i){
       

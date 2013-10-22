@@ -205,7 +205,7 @@ d3plus.rings = function(vars) {
       if (typeof html == "string") html = "<br>"+html
     
       var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
-      tooltip_appends += vars.text_format("Primary Connections")
+      tooltip_appends += vars.format("Primary Connections")
       tooltip_appends += "</div>"
 
       vars.connections[vars.highlight].forEach(function(n){
