@@ -1671,7 +1671,7 @@ d3plus.viz = function() {
         }
     
     if (type == "total_bar" && t) {
-      titvars.formatormat(t,vars.value_var)
+      title = vars.format(t,vars.value_var)
       vars.total_bar.prefix ? title = vars.total_bar.prefix + title : null;
       vars.total_bar.suffix ? title = title + vars.total_bar.suffix : null;
       
@@ -1681,8 +1681,8 @@ d3plus.viz = function() {
           else if (vars.year == d[vars.year_var]) return d[vars.value_var]
         })
         var pct = (t/overall_total)*100
-        vars.formatormat(overall_total,vars.value_var)
-        title += vars.formatormat(pct,"share")+"% of "+ot+")"
+        ot = vars.format(overall_total,vars.value_var)
+        title += " ("+vars.format(pct,"share")+"% of "+ot+")"
       }
       
     }
@@ -2938,7 +2938,7 @@ d3plus.viz = function() {
     d3.select("#y_axis_val_text").transition().duration(vars.graph.timing)
       .text(function(){
         if (y_val != null) {
-          varvars.formatormat(y_val,y_name)
+          var v = vars.format(y_val,y_name)
           return y_name ? vars.format(y_name) + ": " + v : v
         }
         else return null
@@ -2984,7 +2984,7 @@ d3plus.viz = function() {
     d3.select("#x_axis_val_text").transition().duration(vars.graph.timing)
       .text(function(){
         if (x_val != null) {
-          varvars.formatormat(x_val,x_name)
+          var v = vars.format(x_val,x_name)
           return x_name ? vars.format(x_name) + ": " + v : v
         }
         else return null
