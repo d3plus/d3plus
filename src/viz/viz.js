@@ -1177,7 +1177,7 @@ d3plus.viz = function() {
     if (typeof id == "object") {
       if (typeof id[variable] != "undefined") return id[variable]
       else if (id.values) {
-        dat.values.forEach(function(d){
+        id.values.forEach(function(d){
           if (typeof d[variable] != "undefined") return d[variable]
         })
       }
