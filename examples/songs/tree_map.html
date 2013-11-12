@@ -33,13 +33,13 @@ d3.json("data/artists_indented.json", function(artists){
   
       viz
         .type("tree_map")
-        .id_var("artist_id")
+        .id_var("song_id")
         .attrs(attrs)
-        .text_var("names")
+        .text_var("song_title")
         .value_var("hotttnesss")
         .nesting(["artist_id","album_id","song_id"])
-        .depth("artist_id")
-        .year(2010)
+        .depth("song_id")
+        .year(1963)
       
       d3.select("#viz")
         .datum(songs)
