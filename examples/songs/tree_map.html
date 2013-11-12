@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="../../d3plus.css" rel="stylesheet" type="text/css">
+<style>
+
+body {
+  margin: 0px; padding:0;
+}
+
+
+</style>
+<body style="overflow:hidden">
+
+<div id="viz"></div>
+
+<script src="../../lib/d3.js"></script>
+<script src="../../lib/modernizr.custom.js"></script>
+<script src="../../src/general.js"></script>
+<script src="../../src/utils.js"></script>
+<script src="../../src/tooltip.js"></script>
+<script src="../../src/error.js"></script>
+<script src="../../src/viz/viz.js"></script>
+<script src="../../src/viz/tree_map.js"></script>
+<script>
+
+var viz = d3plus.viz()
+
+d3.json("data/artists_indented.json", function(artists){
+  d3.json("data/albums_indented.json", function(albums){
+    d3.json("data/songs_indented.json", function(songs){
+    
+      var attrs = {"artist_id": artists, "album_id": albums, "song_id": songs}
+  
+      viz
+        .type("tree_map")
+        .id_var("artist_id")
+        .attrs(attrs)
+        .text_var("names")
+        .value_var("hotttnesss")
+        .nesting(["artist_id","album_id","song_id"])
+        .depth("artist_id")
+        .year(2010)
+      
+      d3.select("#viz")
+        .datum(songs)
+        .call(viz)
+  
+    })
+  })
+})
+
+</script>

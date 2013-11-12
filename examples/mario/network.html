@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link href="../../d3plus.css" rel="stylesheet" type="text/css">
+  <style>
+
+  body {
+    margin: 0px;
+  }
+
+  </style>
+</head>
+<body>
+
+<div id="viz"></div>
+
+<script src="../../lib/d3.js"></script>
+<script src="../../lib/modernizr.custom.js"></script>
+<script src="../../src/general.js"></script>
+<script src="../../src/utils.js"></script>
+<script src="../../src/tooltip.js"></script>
+<script src="../../src/error.js"></script>
+<script src="../../src/viz/viz.js"></script>
+<script src="../../src/viz/network.js"></script>
+<script>
+
+  var viz = d3plus.viz(),
+      data_values = {
+        "020910": 1,
+        "116103": 22,
+        "116106": 12, 
+        "116108": 1,
+        "020811": 36,
+        "136910": 12,
+        "052523": 2,
+        "021211": 20,
+        "116204": 12,
+        "116209": 9
+      },
+      data_rcas = {
+        "020910": .2,
+        "116103": 1.9,
+        "116106": .9, 
+        "116108": .15,
+        "020811": 1.8,
+        "136910": .9,
+        "052523": .2,
+        "021211": .89,
+        "116204": .73,
+        "116209": .72
+      }
+    
+  d3.json("data/attr_hs.json", function(attr) {
+    d3.json("data/network_hs.json", function(hs) {
+      
+      viz_nodes = hs.nodes
+      viz_links = hs.edges
+      viz_links.forEach(function(link){
+        link.source = viz_nodes[link.source]
+        link.target = viz_nodes[link.target]
+      })
+      
+      d3.json("data/products_mg.json", function(ps_data) {
+        
+        depths = [2,4,6]
+      
+        for (id in attr) {
+          obj = attr[id]
+          depths.forEach(function(d){
+            if (d <= obj.id.length) {
+              obj["nesting_"+d] = {"name":attr[obj.id.slice(0, d)].name, "id":obj.id.slice(0, d)}
+            }
+          })
+        }
+        
+        ps_data.forEach(function(d){
+          d.active = Math.floor(Math.random()*2);
+        })
+        
+        inner_html = function(obj) {
+          console.log(obj)
+          return "This is some test HTML"
+        }
+        
+        viz
+          .type("network")
+          .links(viz_links)
+          .nodes(viz_nodes)
+          .attrs(attr)
+          .value_var("val_usd")
+          .name_array(["name"])
+          .title("Product Space for Minas Gerais")
+          // .sub_title("Cool example of a sub-title")
+          .nesting(["nesting_2","nesting_4","nesting_6"])
+          .tooltip_info(["id","val_usd","val_quantity","val_kg","complexity","distance","rca"])
+          .total_bar({"prefix": "Export Value: $", "suffix": " USD", "format": ",f"})
+          .click_function(inner_html)
+          .year(2010)
+          // .text_format(function(d){return d.toUpperCase()})
+          
+        d3.select("#viz")
+          .datum(ps_data)
+          .call(viz);
+          
+        // setTimeout(function(){
+        //   
+        //   d3.select("#viz")
+        //     .datum(data2)
+        //     .call(viz);
+        //     
+        // },2000)
+        
+        function get_rca(item){
+
+          var rca_name = "val_usd", rca_denom = "bra"
+
+          if (!item || !item[rca_name]) return 0
+
+          var numerator = item[rca_name] / d3.sum(ps_data,function(d){return d[rca_name]});
+          if(rca_denom == "bra"){
+            var denominator = item["bra_"+rca_name] / d3.sum(ps_data,function(d){return d["bra_"+rca_name]});
+          }
+          else {
+            var denominator = item["wld_"+rca_name] / d3.sum(ps_data,function(d){return d["wld_"+rca_name]});
+          }
+        
+          if(denominator != 0){
+            return numerator / denominator;
+          }
+          return 0;
+        }
+          
+      })
+    })
+  });
+  
+
+</script>
+</body>
+</html>

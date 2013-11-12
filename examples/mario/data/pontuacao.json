@@ -1,0 +1,11595 @@
+{
+  "pontuacoes": [
+    {
+      "candidatura": 1, 
+      "pontos": 6.31, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 1, 
+      "pontos": 6.31, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 1, 
+      "pontos": 6.31, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 1, 
+      "pontos": 6.31, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 1, 
+      "pontos": 6.31, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 1, 
+      "pontos": 6.31, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 2, 
+      "pontos": 2.3, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 2, 
+      "pontos": 2.3, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 2, 
+      "pontos": 2.3, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 2, 
+      "pontos": 2.3, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 2, 
+      "pontos": 2.3, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 2, 
+      "pontos": 2.3, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 2, 
+      "pontos": 2.3, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 3, 
+      "pontos": 2.14, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 3, 
+      "pontos": 2.14, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 3, 
+      "pontos": 2.14, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 3, 
+      "pontos": 2.14, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 3, 
+      "pontos": 2.14, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 3, 
+      "pontos": 2.14, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 4, 
+      "pontos": 2.62, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 4, 
+      "pontos": 2.62, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 4, 
+      "pontos": 2.62, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 4, 
+      "pontos": 2.62, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 4, 
+      "pontos": 2.62, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 4, 
+      "pontos": 2.62, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 4, 
+      "pontos": 2.62, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 5, 
+      "pontos": 1.48, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 5, 
+      "pontos": 1.48, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 5, 
+      "pontos": 1.48, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 5, 
+      "pontos": 1.48, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 5, 
+      "pontos": 1.48, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 5, 
+      "pontos": 1.48, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 7, 
+      "pontos": 3.02, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 7, 
+      "pontos": 3.02, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 7, 
+      "pontos": 3.02, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 7, 
+      "pontos": 3.02, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 7, 
+      "pontos": 3.02, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 7, 
+      "pontos": 3.02, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 7, 
+      "pontos": 3.02, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 7, 
+      "pontos": 3.02, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 10, 
+      "pontos": 2.34, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 10, 
+      "pontos": 2.34, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 10, 
+      "pontos": 2.34, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 10, 
+      "pontos": 2.34, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 10, 
+      "pontos": 2.34, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 10, 
+      "pontos": 2.34, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 10, 
+      "pontos": 2.34, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 10, 
+      "pontos": 2.34, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 11, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 11, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 11, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 11, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 11, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 11, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 11, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 13, 
+      "pontos": 2.03, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 13, 
+      "pontos": 2.03, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 13, 
+      "pontos": 2.03, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 13, 
+      "pontos": 2.03, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 13, 
+      "pontos": 2.03, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 13, 
+      "pontos": 2.03, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 13, 
+      "pontos": 2.03, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 13, 
+      "pontos": 2.03, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 14, 
+      "pontos": 1.21, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 14, 
+      "pontos": 1.21, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 14, 
+      "pontos": 1.21, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 14, 
+      "pontos": 1.21, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 18, 
+      "pontos": 2.93, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 18, 
+      "pontos": 2.93, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 18, 
+      "pontos": 2.93, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 18, 
+      "pontos": 2.93, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 18, 
+      "pontos": 2.93, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 18, 
+      "pontos": 2.93, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 20, 
+      "pontos": 3.4, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 20, 
+      "pontos": 3.4, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 20, 
+      "pontos": 3.4, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 20, 
+      "pontos": 3.4, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 20, 
+      "pontos": 3.4, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 20, 
+      "pontos": 3.4, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 20, 
+      "pontos": 3.4, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 23, 
+      "pontos": 9.22, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 23, 
+      "pontos": 9.22, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 23, 
+      "pontos": 9.22, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 23, 
+      "pontos": 9.22, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 23, 
+      "pontos": 9.22, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 23, 
+      "pontos": 9.22, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 24, 
+      "pontos": 2.03, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 24, 
+      "pontos": 2.03, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 24, 
+      "pontos": 2.03, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 24, 
+      "pontos": 2.03, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 24, 
+      "pontos": 2.03, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 24, 
+      "pontos": 2.03, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 24, 
+      "pontos": 2.03, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 25, 
+      "pontos": 2.33, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 25, 
+      "pontos": 2.33, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 25, 
+      "pontos": 2.33, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 25, 
+      "pontos": 2.33, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 25, 
+      "pontos": 2.33, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 25, 
+      "pontos": 2.33, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 25, 
+      "pontos": 2.33, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 25, 
+      "pontos": 2.33, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 26, 
+      "pontos": 2.95, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 26, 
+      "pontos": 2.95, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 26, 
+      "pontos": 2.95, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 26, 
+      "pontos": 2.95, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 26, 
+      "pontos": 2.95, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 26, 
+      "pontos": 2.95, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 26, 
+      "pontos": 2.95, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 26, 
+      "pontos": 2.95, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 28, 
+      "pontos": 1.96, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 28, 
+      "pontos": 1.96, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 28, 
+      "pontos": 1.96, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 28, 
+      "pontos": 1.96, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 28, 
+      "pontos": 1.96, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 28, 
+      "pontos": 1.96, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 28, 
+      "pontos": 1.96, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 30, 
+      "pontos": 2.06, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 30, 
+      "pontos": 2.06, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 30, 
+      "pontos": 2.06, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 30, 
+      "pontos": 2.06, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 30, 
+      "pontos": 2.06, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 30, 
+      "pontos": 2.06, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 30, 
+      "pontos": 2.06, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 32, 
+      "pontos": 2.46, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 32, 
+      "pontos": 2.46, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 32, 
+      "pontos": 2.46, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 32, 
+      "pontos": 2.46, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 32, 
+      "pontos": 2.46, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 32, 
+      "pontos": 2.46, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 32, 
+      "pontos": 2.46, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 32, 
+      "pontos": 2.46, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 35, 
+      "pontos": 2.75, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 35, 
+      "pontos": 2.75, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 35, 
+      "pontos": 2.75, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 35, 
+      "pontos": 2.75, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 35, 
+      "pontos": 2.75, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 35, 
+      "pontos": 2.75, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 35, 
+      "pontos": 2.75, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 35, 
+      "pontos": 2.75, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 36, 
+      "pontos": 2.9, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 36, 
+      "pontos": 2.9, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 36, 
+      "pontos": 2.9, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 36, 
+      "pontos": 2.9, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 36, 
+      "pontos": 2.9, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 36, 
+      "pontos": 2.9, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 36, 
+      "pontos": 2.9, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 36, 
+      "pontos": 2.9, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 37, 
+      "pontos": 2.48, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 37, 
+      "pontos": 2.48, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 37, 
+      "pontos": 2.48, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 37, 
+      "pontos": 2.48, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 37, 
+      "pontos": 2.48, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 37, 
+      "pontos": 2.48, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 37, 
+      "pontos": 2.48, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 37, 
+      "pontos": 2.48, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 38, 
+      "pontos": 2.34, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 38, 
+      "pontos": 2.34, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 38, 
+      "pontos": 2.34, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 38, 
+      "pontos": 2.34, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 38, 
+      "pontos": 2.34, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 38, 
+      "pontos": 2.34, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 38, 
+      "pontos": 2.34, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 41, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 41, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 41, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 41, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 41, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 41, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 41, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 43, 
+      "pontos": 3.06, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 43, 
+      "pontos": 3.06, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 43, 
+      "pontos": 3.06, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 43, 
+      "pontos": 3.06, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 43, 
+      "pontos": 3.06, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 43, 
+      "pontos": 3.06, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 43, 
+      "pontos": 3.06, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 43, 
+      "pontos": 3.06, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 44, 
+      "pontos": 3.11, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 44, 
+      "pontos": 3.11, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 44, 
+      "pontos": 3.11, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 44, 
+      "pontos": 3.11, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 44, 
+      "pontos": 3.11, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 44, 
+      "pontos": 3.11, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 44, 
+      "pontos": 3.11, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 44, 
+      "pontos": 3.11, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 45, 
+      "pontos": 2.39, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 45, 
+      "pontos": 2.39, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 45, 
+      "pontos": 2.39, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 45, 
+      "pontos": 2.39, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 45, 
+      "pontos": 2.39, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 45, 
+      "pontos": 2.39, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 45, 
+      "pontos": 2.39, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 45, 
+      "pontos": 2.39, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 46, 
+      "pontos": 2.96, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 46, 
+      "pontos": 2.96, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 46, 
+      "pontos": 2.96, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 46, 
+      "pontos": 2.96, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 46, 
+      "pontos": 2.96, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 46, 
+      "pontos": 2.96, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 46, 
+      "pontos": 2.96, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 47, 
+      "pontos": 1.54, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 47, 
+      "pontos": 1.54, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 47, 
+      "pontos": 1.54, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 47, 
+      "pontos": 1.54, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 47, 
+      "pontos": 1.54, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 47, 
+      "pontos": 1.54, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 48, 
+      "pontos": 2.57, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 48, 
+      "pontos": 2.57, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 48, 
+      "pontos": 2.57, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 48, 
+      "pontos": 2.57, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 48, 
+      "pontos": 2.57, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 48, 
+      "pontos": 2.57, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 48, 
+      "pontos": 2.57, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 48, 
+      "pontos": 2.57, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 49, 
+      "pontos": 2.63, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 49, 
+      "pontos": 2.63, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 49, 
+      "pontos": 2.63, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 49, 
+      "pontos": 2.63, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 49, 
+      "pontos": 2.63, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 49, 
+      "pontos": 2.63, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 49, 
+      "pontos": 2.63, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 49, 
+      "pontos": 2.63, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 50, 
+      "pontos": 2.99, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 50, 
+      "pontos": 2.99, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 50, 
+      "pontos": 2.99, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 50, 
+      "pontos": 2.99, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 50, 
+      "pontos": 2.99, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 50, 
+      "pontos": 2.99, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 50, 
+      "pontos": 2.99, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 50, 
+      "pontos": 2.99, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 51, 
+      "pontos": 3.04, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 51, 
+      "pontos": 3.04, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 51, 
+      "pontos": 3.04, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 51, 
+      "pontos": 3.04, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 51, 
+      "pontos": 3.04, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 51, 
+      "pontos": 3.04, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 51, 
+      "pontos": 3.04, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 51, 
+      "pontos": 3.04, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 52, 
+      "pontos": 1.96, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 52, 
+      "pontos": 1.96, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 52, 
+      "pontos": 1.96, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 52, 
+      "pontos": 1.96, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 52, 
+      "pontos": 1.96, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 52, 
+      "pontos": 1.96, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 53, 
+      "pontos": 2.48, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 53, 
+      "pontos": 2.48, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 53, 
+      "pontos": 2.48, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 53, 
+      "pontos": 2.48, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 53, 
+      "pontos": 2.48, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 53, 
+      "pontos": 2.48, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 53, 
+      "pontos": 2.48, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 53, 
+      "pontos": 2.48, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 54, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 54, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 54, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 54, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 54, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 54, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 54, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 54, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 55, 
+      "pontos": 1.77, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 55, 
+      "pontos": 1.77, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 55, 
+      "pontos": 1.77, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 55, 
+      "pontos": 1.77, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 55, 
+      "pontos": 1.77, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 55, 
+      "pontos": 1.77, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 55, 
+      "pontos": 1.77, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 56, 
+      "pontos": 2.66, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 56, 
+      "pontos": 2.66, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 56, 
+      "pontos": 2.66, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 56, 
+      "pontos": 2.66, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 56, 
+      "pontos": 2.66, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 56, 
+      "pontos": 2.66, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 56, 
+      "pontos": 2.66, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 56, 
+      "pontos": 2.66, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 57, 
+      "pontos": 2.55, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 57, 
+      "pontos": 2.55, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 57, 
+      "pontos": 2.55, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 57, 
+      "pontos": 2.55, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 57, 
+      "pontos": 2.55, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 57, 
+      "pontos": 2.55, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 57, 
+      "pontos": 2.55, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 57, 
+      "pontos": 2.55, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 60, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 60, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 60, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 60, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 60, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 60, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 61, 
+      "pontos": 3.13, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 61, 
+      "pontos": 3.13, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 61, 
+      "pontos": 3.13, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 61, 
+      "pontos": 3.13, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 61, 
+      "pontos": 3.13, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 61, 
+      "pontos": 3.13, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 61, 
+      "pontos": 3.13, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 61, 
+      "pontos": 3.13, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 62, 
+      "pontos": 2.26, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 62, 
+      "pontos": 2.26, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 62, 
+      "pontos": 2.26, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 62, 
+      "pontos": 2.26, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 62, 
+      "pontos": 2.26, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 62, 
+      "pontos": 2.26, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 62, 
+      "pontos": 2.26, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 62, 
+      "pontos": 2.26, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 63, 
+      "pontos": 3.0, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 63, 
+      "pontos": 3.0, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 63, 
+      "pontos": 3.0, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 63, 
+      "pontos": 3.0, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 63, 
+      "pontos": 3.0, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 63, 
+      "pontos": 3.0, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 63, 
+      "pontos": 3.0, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 64, 
+      "pontos": 2.91, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 64, 
+      "pontos": 2.91, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 64, 
+      "pontos": 2.91, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 64, 
+      "pontos": 2.91, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 64, 
+      "pontos": 2.91, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 64, 
+      "pontos": 2.91, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 64, 
+      "pontos": 2.91, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 64, 
+      "pontos": 2.91, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 66, 
+      "pontos": 2.71, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 66, 
+      "pontos": 2.71, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 66, 
+      "pontos": 2.71, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 66, 
+      "pontos": 2.71, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 66, 
+      "pontos": 2.71, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 66, 
+      "pontos": 2.71, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 66, 
+      "pontos": 2.71, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 66, 
+      "pontos": 2.71, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 67, 
+      "pontos": 6.55, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 67, 
+      "pontos": 6.55, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 67, 
+      "pontos": 6.55, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 67, 
+      "pontos": 6.55, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 67, 
+      "pontos": 6.55, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 67, 
+      "pontos": 6.55, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 67, 
+      "pontos": 6.55, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 67, 
+      "pontos": 6.55, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 68, 
+      "pontos": 2.37, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 68, 
+      "pontos": 2.37, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 68, 
+      "pontos": 2.37, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 68, 
+      "pontos": 2.37, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 68, 
+      "pontos": 2.37, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 68, 
+      "pontos": 2.37, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 68, 
+      "pontos": 2.37, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 69, 
+      "pontos": 2.59, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 69, 
+      "pontos": 2.59, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 69, 
+      "pontos": 2.59, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 69, 
+      "pontos": 2.59, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 69, 
+      "pontos": 2.59, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 69, 
+      "pontos": 2.59, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 69, 
+      "pontos": 2.59, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 70, 
+      "pontos": 1.85, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 70, 
+      "pontos": 1.85, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 70, 
+      "pontos": 1.85, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 70, 
+      "pontos": 1.85, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 70, 
+      "pontos": 1.85, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 70, 
+      "pontos": 1.85, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 70, 
+      "pontos": 1.85, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 72, 
+      "pontos": 2.53, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 72, 
+      "pontos": 2.53, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 72, 
+      "pontos": 2.53, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 72, 
+      "pontos": 2.53, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 72, 
+      "pontos": 2.53, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 72, 
+      "pontos": 2.53, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 72, 
+      "pontos": 2.53, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 73, 
+      "pontos": 2.69, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 73, 
+      "pontos": 2.69, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 73, 
+      "pontos": 2.69, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 73, 
+      "pontos": 2.69, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 73, 
+      "pontos": 2.69, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 73, 
+      "pontos": 2.69, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 74, 
+      "pontos": 10.0, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 74, 
+      "pontos": 10.0, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 74, 
+      "pontos": 10.0, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 74, 
+      "pontos": 10.0, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 74, 
+      "pontos": 10.0, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 74, 
+      "pontos": 10.0, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 74, 
+      "pontos": 10.0, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 74, 
+      "pontos": 10.0, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 76, 
+      "pontos": 2.98, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 76, 
+      "pontos": 2.98, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 76, 
+      "pontos": 2.98, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 76, 
+      "pontos": 2.98, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 76, 
+      "pontos": 2.98, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 76, 
+      "pontos": 2.98, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 76, 
+      "pontos": 2.98, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 76, 
+      "pontos": 2.98, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 78, 
+      "pontos": 2.01, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 78, 
+      "pontos": 2.01, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 78, 
+      "pontos": 2.01, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 78, 
+      "pontos": 2.01, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 78, 
+      "pontos": 2.01, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 78, 
+      "pontos": 2.01, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 78, 
+      "pontos": 2.01, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 80, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 80, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 80, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 80, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 80, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 80, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 80, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 81, 
+      "pontos": 2.73, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 81, 
+      "pontos": 2.73, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 81, 
+      "pontos": 2.73, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 81, 
+      "pontos": 2.73, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 81, 
+      "pontos": 2.73, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 81, 
+      "pontos": 2.73, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 81, 
+      "pontos": 2.73, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 81, 
+      "pontos": 2.73, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 82, 
+      "pontos": 2.95, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 82, 
+      "pontos": 2.95, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 82, 
+      "pontos": 2.95, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 82, 
+      "pontos": 2.95, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 82, 
+      "pontos": 2.95, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 82, 
+      "pontos": 2.95, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 82, 
+      "pontos": 2.95, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 82, 
+      "pontos": 2.95, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 84, 
+      "pontos": 2.77, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 84, 
+      "pontos": 2.77, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 84, 
+      "pontos": 2.77, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 84, 
+      "pontos": 2.77, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 84, 
+      "pontos": 2.77, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 84, 
+      "pontos": 2.77, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 84, 
+      "pontos": 2.77, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 84, 
+      "pontos": 2.77, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 86, 
+      "pontos": 3.16, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 86, 
+      "pontos": 3.16, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 86, 
+      "pontos": 3.16, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 86, 
+      "pontos": 3.16, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 86, 
+      "pontos": 3.16, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 86, 
+      "pontos": 3.16, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 86, 
+      "pontos": 3.16, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 88, 
+      "pontos": 3.07, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 88, 
+      "pontos": 3.07, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 88, 
+      "pontos": 3.07, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 88, 
+      "pontos": 3.07, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 88, 
+      "pontos": 3.07, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 88, 
+      "pontos": 3.07, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 88, 
+      "pontos": 3.07, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 88, 
+      "pontos": 3.07, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 89, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 89, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 89, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 89, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 89, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 89, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 89, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 89, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 92, 
+      "pontos": 3.85, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 92, 
+      "pontos": 3.85, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 92, 
+      "pontos": 3.85, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 92, 
+      "pontos": 3.85, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 92, 
+      "pontos": 3.85, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 92, 
+      "pontos": 3.85, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 92, 
+      "pontos": 3.85, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 92, 
+      "pontos": 3.85, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 93, 
+      "pontos": 2.66, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 93, 
+      "pontos": 2.66, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 93, 
+      "pontos": 2.66, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 93, 
+      "pontos": 2.66, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 93, 
+      "pontos": 2.66, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 93, 
+      "pontos": 2.66, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 93, 
+      "pontos": 2.66, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 94, 
+      "pontos": 2.61, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 94, 
+      "pontos": 2.61, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 94, 
+      "pontos": 2.61, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 94, 
+      "pontos": 2.61, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 94, 
+      "pontos": 2.61, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 94, 
+      "pontos": 2.61, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 94, 
+      "pontos": 2.61, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 94, 
+      "pontos": 2.61, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 95, 
+      "pontos": 2.64, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 95, 
+      "pontos": 2.64, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 95, 
+      "pontos": 2.64, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 95, 
+      "pontos": 2.64, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 95, 
+      "pontos": 2.64, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 95, 
+      "pontos": 2.64, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 95, 
+      "pontos": 2.64, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 95, 
+      "pontos": 2.64, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 100, 
+      "pontos": 2.88, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 100, 
+      "pontos": 2.88, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 100, 
+      "pontos": 2.88, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 100, 
+      "pontos": 2.88, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 100, 
+      "pontos": 2.88, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 100, 
+      "pontos": 2.88, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 100, 
+      "pontos": 2.88, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 102, 
+      "pontos": 5.2, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 102, 
+      "pontos": 5.2, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 102, 
+      "pontos": 5.2, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 102, 
+      "pontos": 5.2, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 102, 
+      "pontos": 5.2, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 102, 
+      "pontos": 5.2, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 102, 
+      "pontos": 5.2, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 102, 
+      "pontos": 5.2, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 103, 
+      "pontos": 2.52, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 103, 
+      "pontos": 2.52, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 103, 
+      "pontos": 2.52, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 103, 
+      "pontos": 2.52, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 103, 
+      "pontos": 2.52, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 103, 
+      "pontos": 2.52, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 103, 
+      "pontos": 2.52, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 103, 
+      "pontos": 2.52, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 104, 
+      "pontos": 1.73, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 104, 
+      "pontos": 1.73, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 104, 
+      "pontos": 1.73, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 104, 
+      "pontos": 1.73, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 105, 
+      "pontos": 2.55, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 105, 
+      "pontos": 2.55, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 105, 
+      "pontos": 2.55, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 105, 
+      "pontos": 2.55, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 105, 
+      "pontos": 2.55, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 105, 
+      "pontos": 2.55, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 105, 
+      "pontos": 2.55, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 105, 
+      "pontos": 2.55, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 106, 
+      "pontos": 2.93, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 106, 
+      "pontos": 2.93, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 106, 
+      "pontos": 2.93, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 106, 
+      "pontos": 2.93, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 106, 
+      "pontos": 2.93, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 106, 
+      "pontos": 2.93, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 106, 
+      "pontos": 2.93, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 106, 
+      "pontos": 2.93, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 107, 
+      "pontos": 2.63, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 107, 
+      "pontos": 2.63, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 107, 
+      "pontos": 2.63, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 107, 
+      "pontos": 2.63, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 107, 
+      "pontos": 2.63, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 107, 
+      "pontos": 2.63, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 107, 
+      "pontos": 2.63, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 107, 
+      "pontos": 2.63, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 108, 
+      "pontos": 1.77, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 108, 
+      "pontos": 1.77, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 108, 
+      "pontos": 1.77, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 108, 
+      "pontos": 1.77, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 108, 
+      "pontos": 1.77, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 108, 
+      "pontos": 1.77, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 109, 
+      "pontos": 2.62, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 109, 
+      "pontos": 2.62, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 109, 
+      "pontos": 2.62, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 109, 
+      "pontos": 2.62, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 109, 
+      "pontos": 2.62, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 109, 
+      "pontos": 2.62, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 109, 
+      "pontos": 2.62, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 111, 
+      "pontos": 2.61, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 111, 
+      "pontos": 2.61, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 111, 
+      "pontos": 2.61, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 111, 
+      "pontos": 2.61, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 111, 
+      "pontos": 2.61, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 111, 
+      "pontos": 2.61, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 111, 
+      "pontos": 2.61, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 112, 
+      "pontos": 3.2, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 112, 
+      "pontos": 3.2, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 112, 
+      "pontos": 3.2, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 112, 
+      "pontos": 3.2, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 112, 
+      "pontos": 3.2, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 112, 
+      "pontos": 3.2, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 112, 
+      "pontos": 3.2, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 112, 
+      "pontos": 3.2, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 114, 
+      "pontos": 2.28, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 114, 
+      "pontos": 2.28, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 114, 
+      "pontos": 2.28, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 114, 
+      "pontos": 2.28, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 114, 
+      "pontos": 2.28, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 114, 
+      "pontos": 2.28, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 114, 
+      "pontos": 2.28, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 114, 
+      "pontos": 2.28, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 116, 
+      "pontos": 2.52, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 116, 
+      "pontos": 2.52, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 116, 
+      "pontos": 2.52, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 116, 
+      "pontos": 2.52, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 116, 
+      "pontos": 2.52, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 116, 
+      "pontos": 2.52, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 116, 
+      "pontos": 2.52, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 116, 
+      "pontos": 2.52, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 117, 
+      "pontos": 1.88, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 117, 
+      "pontos": 1.88, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 117, 
+      "pontos": 1.88, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 117, 
+      "pontos": 1.88, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 117, 
+      "pontos": 1.88, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 117, 
+      "pontos": 1.88, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 117, 
+      "pontos": 1.88, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 117, 
+      "pontos": 1.88, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 118, 
+      "pontos": 3.85, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 118, 
+      "pontos": 3.85, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 118, 
+      "pontos": 3.85, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 118, 
+      "pontos": 3.85, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 118, 
+      "pontos": 3.85, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 118, 
+      "pontos": 3.85, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 118, 
+      "pontos": 3.85, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 119, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 119, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 119, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 119, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 119, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 119, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 119, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 119, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 122, 
+      "pontos": 2.55, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 122, 
+      "pontos": 2.55, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 122, 
+      "pontos": 2.55, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 122, 
+      "pontos": 2.55, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 122, 
+      "pontos": 2.55, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 122, 
+      "pontos": 2.55, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 122, 
+      "pontos": 2.55, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 122, 
+      "pontos": 2.55, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 123, 
+      "pontos": 2.03, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 123, 
+      "pontos": 2.03, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 123, 
+      "pontos": 2.03, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 123, 
+      "pontos": 2.03, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 123, 
+      "pontos": 2.03, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 124, 
+      "pontos": 2.21, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 124, 
+      "pontos": 2.21, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 124, 
+      "pontos": 2.21, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 124, 
+      "pontos": 2.21, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 124, 
+      "pontos": 2.21, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 124, 
+      "pontos": 2.21, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 124, 
+      "pontos": 2.21, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 125, 
+      "pontos": 2.55, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 125, 
+      "pontos": 2.55, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 125, 
+      "pontos": 2.55, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 125, 
+      "pontos": 2.55, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 125, 
+      "pontos": 2.55, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 125, 
+      "pontos": 2.55, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 127, 
+      "pontos": 4.37, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 127, 
+      "pontos": 4.37, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 127, 
+      "pontos": 4.37, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 127, 
+      "pontos": 4.37, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 127, 
+      "pontos": 4.37, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 127, 
+      "pontos": 4.37, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 127, 
+      "pontos": 4.37, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 130, 
+      "pontos": 2.12, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 130, 
+      "pontos": 2.12, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 130, 
+      "pontos": 2.12, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 130, 
+      "pontos": 2.12, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 130, 
+      "pontos": 2.12, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 130, 
+      "pontos": 2.12, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 130, 
+      "pontos": 2.12, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 131, 
+      "pontos": 2.8, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 131, 
+      "pontos": 2.8, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 131, 
+      "pontos": 2.8, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 131, 
+      "pontos": 2.8, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 131, 
+      "pontos": 2.8, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 131, 
+      "pontos": 2.8, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 131, 
+      "pontos": 2.8, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 131, 
+      "pontos": 2.8, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 132, 
+      "pontos": 2.69, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 132, 
+      "pontos": 2.69, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 132, 
+      "pontos": 2.69, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 132, 
+      "pontos": 2.69, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 132, 
+      "pontos": 2.69, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 132, 
+      "pontos": 2.69, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 132, 
+      "pontos": 2.69, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 133, 
+      "pontos": 2.59, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 133, 
+      "pontos": 2.59, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 133, 
+      "pontos": 2.59, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 133, 
+      "pontos": 2.59, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 133, 
+      "pontos": 2.59, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 133, 
+      "pontos": 2.59, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 133, 
+      "pontos": 2.59, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 133, 
+      "pontos": 2.59, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 134, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 134, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 134, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 134, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 134, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 134, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 135, 
+      "pontos": 2.42, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 135, 
+      "pontos": 2.42, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 135, 
+      "pontos": 2.42, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 135, 
+      "pontos": 2.42, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 135, 
+      "pontos": 2.42, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 135, 
+      "pontos": 2.42, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 135, 
+      "pontos": 2.42, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 139, 
+      "pontos": 2.62, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 139, 
+      "pontos": 2.62, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 139, 
+      "pontos": 2.62, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 139, 
+      "pontos": 2.62, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 139, 
+      "pontos": 2.62, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 139, 
+      "pontos": 2.62, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 139, 
+      "pontos": 2.62, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 141, 
+      "pontos": 3.96, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 141, 
+      "pontos": 3.96, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 141, 
+      "pontos": 3.96, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 141, 
+      "pontos": 3.96, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 141, 
+      "pontos": 3.96, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 141, 
+      "pontos": 3.96, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 141, 
+      "pontos": 3.96, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 141, 
+      "pontos": 3.96, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 142, 
+      "pontos": 2.77, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 142, 
+      "pontos": 2.77, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 142, 
+      "pontos": 2.77, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 142, 
+      "pontos": 2.77, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 142, 
+      "pontos": 2.77, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 142, 
+      "pontos": 2.77, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 142, 
+      "pontos": 2.77, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 142, 
+      "pontos": 2.77, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 143, 
+      "pontos": 2.59, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 143, 
+      "pontos": 2.59, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 143, 
+      "pontos": 2.59, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 143, 
+      "pontos": 2.59, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 143, 
+      "pontos": 2.59, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 143, 
+      "pontos": 2.59, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 143, 
+      "pontos": 2.59, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 143, 
+      "pontos": 2.59, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 145, 
+      "pontos": 1.87, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 145, 
+      "pontos": 1.87, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 145, 
+      "pontos": 1.87, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 145, 
+      "pontos": 1.87, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 145, 
+      "pontos": 1.87, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 145, 
+      "pontos": 1.87, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 145, 
+      "pontos": 1.87, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 145, 
+      "pontos": 1.87, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 147, 
+      "pontos": 2.57, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 147, 
+      "pontos": 2.57, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 147, 
+      "pontos": 2.57, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 147, 
+      "pontos": 2.57, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 147, 
+      "pontos": 2.57, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 147, 
+      "pontos": 2.57, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 147, 
+      "pontos": 2.57, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 148, 
+      "pontos": 1.97, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 148, 
+      "pontos": 1.97, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 148, 
+      "pontos": 1.97, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 148, 
+      "pontos": 1.97, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 148, 
+      "pontos": 1.97, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 149, 
+      "pontos": 3.04, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 149, 
+      "pontos": 3.04, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 149, 
+      "pontos": 3.04, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 149, 
+      "pontos": 3.04, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 149, 
+      "pontos": 3.04, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 149, 
+      "pontos": 3.04, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 149, 
+      "pontos": 3.04, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 150, 
+      "pontos": 3.36, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 150, 
+      "pontos": 3.36, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 150, 
+      "pontos": 3.36, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 150, 
+      "pontos": 3.36, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 150, 
+      "pontos": 3.36, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 150, 
+      "pontos": 3.36, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 150, 
+      "pontos": 3.36, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 150, 
+      "pontos": 3.36, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 152, 
+      "pontos": 2.21, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 152, 
+      "pontos": 2.21, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 152, 
+      "pontos": 2.21, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 152, 
+      "pontos": 2.21, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 152, 
+      "pontos": 2.21, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 152, 
+      "pontos": 2.21, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 152, 
+      "pontos": 2.21, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 153, 
+      "pontos": 3.47, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 153, 
+      "pontos": 3.47, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 153, 
+      "pontos": 3.47, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 153, 
+      "pontos": 3.47, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 153, 
+      "pontos": 3.47, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 153, 
+      "pontos": 3.47, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 153, 
+      "pontos": 3.47, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 154, 
+      "pontos": 3.47, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 154, 
+      "pontos": 3.47, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 154, 
+      "pontos": 3.47, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 154, 
+      "pontos": 3.47, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 154, 
+      "pontos": 3.47, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 154, 
+      "pontos": 3.47, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 154, 
+      "pontos": 3.47, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 157, 
+      "pontos": 2.1, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 157, 
+      "pontos": 2.1, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 157, 
+      "pontos": 2.1, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 157, 
+      "pontos": 2.1, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 157, 
+      "pontos": 2.1, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 157, 
+      "pontos": 2.1, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 157, 
+      "pontos": 2.1, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 157, 
+      "pontos": 2.1, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 158, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 158, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 158, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 158, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 158, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 158, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 158, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 160, 
+      "pontos": 0.76, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 160, 
+      "pontos": 0.76, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 160, 
+      "pontos": 0.76, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 162, 
+      "pontos": 2.61, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 162, 
+      "pontos": 2.61, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 162, 
+      "pontos": 2.61, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 162, 
+      "pontos": 2.61, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 162, 
+      "pontos": 2.61, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 162, 
+      "pontos": 2.61, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 162, 
+      "pontos": 2.61, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 162, 
+      "pontos": 2.61, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 163, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 163, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 163, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 163, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 163, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 163, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 163, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 163, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 165, 
+      "pontos": 1.59, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 165, 
+      "pontos": 1.59, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 165, 
+      "pontos": 1.59, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 165, 
+      "pontos": 1.59, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 165, 
+      "pontos": 1.59, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 166, 
+      "pontos": 2.89, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 166, 
+      "pontos": 2.89, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 166, 
+      "pontos": 2.89, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 166, 
+      "pontos": 2.89, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 166, 
+      "pontos": 2.89, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 166, 
+      "pontos": 2.89, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 166, 
+      "pontos": 2.89, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 166, 
+      "pontos": 2.89, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 167, 
+      "pontos": 2.19, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 167, 
+      "pontos": 2.19, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 167, 
+      "pontos": 2.19, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 167, 
+      "pontos": 2.19, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 167, 
+      "pontos": 2.19, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 167, 
+      "pontos": 2.19, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 171, 
+      "pontos": 2.37, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 171, 
+      "pontos": 2.37, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 171, 
+      "pontos": 2.37, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 171, 
+      "pontos": 2.37, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 171, 
+      "pontos": 2.37, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 171, 
+      "pontos": 2.37, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 171, 
+      "pontos": 2.37, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 172, 
+      "pontos": 3.36, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 172, 
+      "pontos": 3.36, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 172, 
+      "pontos": 3.36, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 172, 
+      "pontos": 3.36, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 172, 
+      "pontos": 3.36, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 172, 
+      "pontos": 3.36, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 172, 
+      "pontos": 3.36, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 172, 
+      "pontos": 3.36, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 174, 
+      "pontos": 3.45, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 174, 
+      "pontos": 3.45, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 174, 
+      "pontos": 3.45, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 174, 
+      "pontos": 3.45, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 174, 
+      "pontos": 3.45, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 174, 
+      "pontos": 3.45, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 174, 
+      "pontos": 3.45, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 174, 
+      "pontos": 3.45, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 175, 
+      "pontos": 3.76, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 175, 
+      "pontos": 3.76, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 175, 
+      "pontos": 3.76, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 175, 
+      "pontos": 3.76, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 175, 
+      "pontos": 3.76, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 175, 
+      "pontos": 3.76, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 175, 
+      "pontos": 3.76, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 175, 
+      "pontos": 3.76, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 176, 
+      "pontos": 3.85, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 176, 
+      "pontos": 3.85, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 176, 
+      "pontos": 3.85, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 176, 
+      "pontos": 3.85, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 176, 
+      "pontos": 3.85, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 176, 
+      "pontos": 3.85, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 176, 
+      "pontos": 3.85, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 176, 
+      "pontos": 3.85, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 177, 
+      "pontos": 2.98, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 177, 
+      "pontos": 2.98, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 177, 
+      "pontos": 2.98, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 177, 
+      "pontos": 2.98, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 177, 
+      "pontos": 2.98, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 177, 
+      "pontos": 2.98, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 177, 
+      "pontos": 2.98, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 177, 
+      "pontos": 2.98, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 179, 
+      "pontos": 2.12, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 179, 
+      "pontos": 2.12, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 179, 
+      "pontos": 2.12, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 179, 
+      "pontos": 2.12, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 179, 
+      "pontos": 2.12, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 179, 
+      "pontos": 2.12, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 180, 
+      "pontos": 2.66, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 180, 
+      "pontos": 2.66, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 180, 
+      "pontos": 2.66, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 180, 
+      "pontos": 2.66, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 180, 
+      "pontos": 2.66, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 180, 
+      "pontos": 2.66, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 180, 
+      "pontos": 2.66, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 180, 
+      "pontos": 2.66, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 181, 
+      "pontos": 3.09, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 181, 
+      "pontos": 3.09, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 181, 
+      "pontos": 3.09, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 181, 
+      "pontos": 3.09, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 181, 
+      "pontos": 3.09, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 181, 
+      "pontos": 3.09, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 184, 
+      "pontos": 2.17, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 184, 
+      "pontos": 2.17, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 184, 
+      "pontos": 2.17, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 184, 
+      "pontos": 2.17, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 184, 
+      "pontos": 2.17, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 186, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 186, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 186, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 186, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 186, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 186, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 186, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 187, 
+      "pontos": 3.2, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 187, 
+      "pontos": 3.2, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 187, 
+      "pontos": 3.2, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 187, 
+      "pontos": 3.2, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 187, 
+      "pontos": 3.2, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 187, 
+      "pontos": 3.2, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 187, 
+      "pontos": 3.2, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 187, 
+      "pontos": 3.2, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 188, 
+      "pontos": 2.82, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 188, 
+      "pontos": 2.82, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 188, 
+      "pontos": 2.82, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 188, 
+      "pontos": 2.82, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 188, 
+      "pontos": 2.82, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 188, 
+      "pontos": 2.82, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 188, 
+      "pontos": 2.82, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 189, 
+      "pontos": 6.31, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 189, 
+      "pontos": 6.31, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 189, 
+      "pontos": 6.31, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 189, 
+      "pontos": 6.31, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 189, 
+      "pontos": 6.31, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 189, 
+      "pontos": 6.31, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 189, 
+      "pontos": 6.31, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 189, 
+      "pontos": 6.31, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 190, 
+      "pontos": 2.44, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 190, 
+      "pontos": 2.44, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 190, 
+      "pontos": 2.44, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 190, 
+      "pontos": 2.44, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 190, 
+      "pontos": 2.44, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 190, 
+      "pontos": 2.44, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 190, 
+      "pontos": 2.44, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 190, 
+      "pontos": 2.44, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 191, 
+      "pontos": 2.84, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 191, 
+      "pontos": 2.84, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 191, 
+      "pontos": 2.84, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 191, 
+      "pontos": 2.84, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 191, 
+      "pontos": 2.84, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 191, 
+      "pontos": 2.84, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 191, 
+      "pontos": 2.84, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 191, 
+      "pontos": 2.84, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 192, 
+      "pontos": 1.59, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 192, 
+      "pontos": 1.59, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 192, 
+      "pontos": 1.59, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 192, 
+      "pontos": 1.59, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 192, 
+      "pontos": 1.59, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 193, 
+      "pontos": 2.78, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 193, 
+      "pontos": 2.78, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 193, 
+      "pontos": 2.78, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 193, 
+      "pontos": 2.78, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 193, 
+      "pontos": 2.78, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 193, 
+      "pontos": 2.78, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 193, 
+      "pontos": 2.78, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 194, 
+      "pontos": 2.62, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 194, 
+      "pontos": 2.62, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 194, 
+      "pontos": 2.62, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 194, 
+      "pontos": 2.62, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 194, 
+      "pontos": 2.62, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 194, 
+      "pontos": 2.62, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 194, 
+      "pontos": 2.62, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 196, 
+      "pontos": 1.61, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 196, 
+      "pontos": 1.61, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 196, 
+      "pontos": 1.61, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 196, 
+      "pontos": 1.61, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 196, 
+      "pontos": 1.61, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 197, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 197, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 197, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 197, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 197, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 197, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 197, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 197, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 198, 
+      "pontos": 1.38, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 198, 
+      "pontos": 1.38, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 198, 
+      "pontos": 1.38, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 198, 
+      "pontos": 1.38, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 198, 
+      "pontos": 1.38, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 198, 
+      "pontos": 1.38, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 198, 
+      "pontos": 1.38, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 199, 
+      "pontos": 4.3, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 199, 
+      "pontos": 4.3, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 199, 
+      "pontos": 4.3, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 199, 
+      "pontos": 4.3, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 199, 
+      "pontos": 4.3, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 199, 
+      "pontos": 4.3, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 199, 
+      "pontos": 4.3, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 199, 
+      "pontos": 4.3, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 201, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 201, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 201, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 201, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 201, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 201, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 201, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 201, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 202, 
+      "pontos": 2.25, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 202, 
+      "pontos": 2.25, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 202, 
+      "pontos": 2.25, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 202, 
+      "pontos": 2.25, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 202, 
+      "pontos": 2.25, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 202, 
+      "pontos": 2.25, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 202, 
+      "pontos": 2.25, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 203, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 203, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 203, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 204, 
+      "pontos": 2.34, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 204, 
+      "pontos": 2.34, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 204, 
+      "pontos": 2.34, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 204, 
+      "pontos": 2.34, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 204, 
+      "pontos": 2.34, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 204, 
+      "pontos": 2.34, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 204, 
+      "pontos": 2.34, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 204, 
+      "pontos": 2.34, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 205, 
+      "pontos": 2.53, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 205, 
+      "pontos": 2.53, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 205, 
+      "pontos": 2.53, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 205, 
+      "pontos": 2.53, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 205, 
+      "pontos": 2.53, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 205, 
+      "pontos": 2.53, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 205, 
+      "pontos": 2.53, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 205, 
+      "pontos": 2.53, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 207, 
+      "pontos": 1.12, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 207, 
+      "pontos": 1.12, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 207, 
+      "pontos": 1.12, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 207, 
+      "pontos": 1.12, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 207, 
+      "pontos": 1.12, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 208, 
+      "pontos": 8.95, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 208, 
+      "pontos": 8.95, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 208, 
+      "pontos": 8.95, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 208, 
+      "pontos": 8.95, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 208, 
+      "pontos": 8.95, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 208, 
+      "pontos": 8.95, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 208, 
+      "pontos": 8.95, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 209, 
+      "pontos": 1.7, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 209, 
+      "pontos": 1.7, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 209, 
+      "pontos": 1.7, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 209, 
+      "pontos": 1.7, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 209, 
+      "pontos": 1.7, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 211, 
+      "pontos": 6.02, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 211, 
+      "pontos": 6.02, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 211, 
+      "pontos": 6.02, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 211, 
+      "pontos": 6.02, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 211, 
+      "pontos": 6.02, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 211, 
+      "pontos": 6.02, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 211, 
+      "pontos": 6.02, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 211, 
+      "pontos": 6.02, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 212, 
+      "pontos": 2.95, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 212, 
+      "pontos": 2.95, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 212, 
+      "pontos": 2.95, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 212, 
+      "pontos": 2.95, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 212, 
+      "pontos": 2.95, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 212, 
+      "pontos": 2.95, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 212, 
+      "pontos": 2.95, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 212, 
+      "pontos": 2.95, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 216, 
+      "pontos": 2.34, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 216, 
+      "pontos": 2.34, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 216, 
+      "pontos": 2.34, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 216, 
+      "pontos": 2.34, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 216, 
+      "pontos": 2.34, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 216, 
+      "pontos": 2.34, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 216, 
+      "pontos": 2.34, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 217, 
+      "pontos": 2.79, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 217, 
+      "pontos": 2.79, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 217, 
+      "pontos": 2.79, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 217, 
+      "pontos": 2.79, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 217, 
+      "pontos": 2.79, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 217, 
+      "pontos": 2.79, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 217, 
+      "pontos": 2.79, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 217, 
+      "pontos": 2.79, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 218, 
+      "pontos": 3.68, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 218, 
+      "pontos": 3.68, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 218, 
+      "pontos": 3.68, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 218, 
+      "pontos": 3.68, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 218, 
+      "pontos": 3.68, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 218, 
+      "pontos": 3.68, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 218, 
+      "pontos": 3.68, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 219, 
+      "pontos": 2.28, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 219, 
+      "pontos": 2.28, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 219, 
+      "pontos": 2.28, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 219, 
+      "pontos": 2.28, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 219, 
+      "pontos": 2.28, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 219, 
+      "pontos": 2.28, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 219, 
+      "pontos": 2.28, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 219, 
+      "pontos": 2.28, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 220, 
+      "pontos": 3.72, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 220, 
+      "pontos": 3.72, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 220, 
+      "pontos": 3.72, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 220, 
+      "pontos": 3.72, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 220, 
+      "pontos": 3.72, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 220, 
+      "pontos": 3.72, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 220, 
+      "pontos": 3.72, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 220, 
+      "pontos": 3.72, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 221, 
+      "pontos": 2.73, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 221, 
+      "pontos": 2.73, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 221, 
+      "pontos": 2.73, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 221, 
+      "pontos": 2.73, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 221, 
+      "pontos": 2.73, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 221, 
+      "pontos": 2.73, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 221, 
+      "pontos": 2.73, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 221, 
+      "pontos": 2.73, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 222, 
+      "pontos": 0.81, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 222, 
+      "pontos": 0.81, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 223, 
+      "pontos": 1.99, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 223, 
+      "pontos": 1.99, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 223, 
+      "pontos": 1.99, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 223, 
+      "pontos": 1.99, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 223, 
+      "pontos": 1.99, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 223, 
+      "pontos": 1.99, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 224, 
+      "pontos": 2.1, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 224, 
+      "pontos": 2.1, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 224, 
+      "pontos": 2.1, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 224, 
+      "pontos": 2.1, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 224, 
+      "pontos": 2.1, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 224, 
+      "pontos": 2.1, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 226, 
+      "pontos": 2.58, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 226, 
+      "pontos": 2.58, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 226, 
+      "pontos": 2.58, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 226, 
+      "pontos": 2.58, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 226, 
+      "pontos": 2.58, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 226, 
+      "pontos": 2.58, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 226, 
+      "pontos": 2.58, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 227, 
+      "pontos": 3.09, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 227, 
+      "pontos": 3.09, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 227, 
+      "pontos": 3.09, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 227, 
+      "pontos": 3.09, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 227, 
+      "pontos": 3.09, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 227, 
+      "pontos": 3.09, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 227, 
+      "pontos": 3.09, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 227, 
+      "pontos": 3.09, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 229, 
+      "pontos": 5.1, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 229, 
+      "pontos": 5.1, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 229, 
+      "pontos": 5.1, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 229, 
+      "pontos": 5.1, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 229, 
+      "pontos": 5.1, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 229, 
+      "pontos": 5.1, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 229, 
+      "pontos": 5.1, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 231, 
+      "pontos": 2.14, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 231, 
+      "pontos": 2.14, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 231, 
+      "pontos": 2.14, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 231, 
+      "pontos": 2.14, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 231, 
+      "pontos": 2.14, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 231, 
+      "pontos": 2.14, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 231, 
+      "pontos": 2.14, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 231, 
+      "pontos": 2.14, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 232, 
+      "pontos": 3.14, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 232, 
+      "pontos": 3.14, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 232, 
+      "pontos": 3.14, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 232, 
+      "pontos": 3.14, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 232, 
+      "pontos": 3.14, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 232, 
+      "pontos": 3.14, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 232, 
+      "pontos": 3.14, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 233, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 233, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 233, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 233, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 233, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 233, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 233, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 233, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 235, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 235, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 235, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 235, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 235, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 235, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 236, 
+      "pontos": 1.99, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 236, 
+      "pontos": 1.99, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 236, 
+      "pontos": 1.99, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 236, 
+      "pontos": 1.99, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 236, 
+      "pontos": 1.99, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 236, 
+      "pontos": 1.99, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 236, 
+      "pontos": 1.99, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 238, 
+      "pontos": 5.04, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 238, 
+      "pontos": 5.04, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 238, 
+      "pontos": 5.04, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 238, 
+      "pontos": 5.04, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 238, 
+      "pontos": 5.04, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 238, 
+      "pontos": 5.04, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 238, 
+      "pontos": 5.04, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 238, 
+      "pontos": 5.04, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 239, 
+      "pontos": 2.39, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 239, 
+      "pontos": 2.39, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 239, 
+      "pontos": 2.39, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 239, 
+      "pontos": 2.39, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 239, 
+      "pontos": 2.39, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 239, 
+      "pontos": 2.39, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 239, 
+      "pontos": 2.39, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 243, 
+      "pontos": 2.68, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 243, 
+      "pontos": 2.68, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 243, 
+      "pontos": 2.68, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 243, 
+      "pontos": 2.68, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 243, 
+      "pontos": 2.68, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 243, 
+      "pontos": 2.68, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 243, 
+      "pontos": 2.68, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 243, 
+      "pontos": 2.68, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 244, 
+      "pontos": 2.64, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 244, 
+      "pontos": 2.64, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 244, 
+      "pontos": 2.64, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 244, 
+      "pontos": 2.64, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 244, 
+      "pontos": 2.64, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 244, 
+      "pontos": 2.64, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 244, 
+      "pontos": 2.64, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 244, 
+      "pontos": 2.64, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 245, 
+      "pontos": 3.02, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 245, 
+      "pontos": 3.02, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 245, 
+      "pontos": 3.02, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 245, 
+      "pontos": 3.02, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 245, 
+      "pontos": 3.02, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 245, 
+      "pontos": 3.02, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 245, 
+      "pontos": 3.02, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 248, 
+      "pontos": 2.87, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 248, 
+      "pontos": 2.87, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 248, 
+      "pontos": 2.87, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 248, 
+      "pontos": 2.87, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 248, 
+      "pontos": 2.87, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 248, 
+      "pontos": 2.87, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 248, 
+      "pontos": 2.87, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 249, 
+      "pontos": 2.53, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 249, 
+      "pontos": 2.53, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 249, 
+      "pontos": 2.53, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 249, 
+      "pontos": 2.53, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 249, 
+      "pontos": 2.53, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 249, 
+      "pontos": 2.53, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 249, 
+      "pontos": 2.53, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 249, 
+      "pontos": 2.53, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 250, 
+      "pontos": 3.09, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 250, 
+      "pontos": 3.09, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 250, 
+      "pontos": 3.09, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 250, 
+      "pontos": 3.09, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 250, 
+      "pontos": 3.09, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 250, 
+      "pontos": 3.09, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 250, 
+      "pontos": 3.09, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 250, 
+      "pontos": 3.09, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 251, 
+      "pontos": 1.54, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 251, 
+      "pontos": 1.54, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 251, 
+      "pontos": 1.54, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 251, 
+      "pontos": 1.54, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 251, 
+      "pontos": 1.54, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 252, 
+      "pontos": 3.18, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 252, 
+      "pontos": 3.18, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 252, 
+      "pontos": 3.18, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 252, 
+      "pontos": 3.18, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 252, 
+      "pontos": 3.18, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 252, 
+      "pontos": 3.18, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 252, 
+      "pontos": 3.18, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 252, 
+      "pontos": 3.18, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 254, 
+      "pontos": 3.54, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 254, 
+      "pontos": 3.54, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 254, 
+      "pontos": 3.54, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 254, 
+      "pontos": 3.54, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 254, 
+      "pontos": 3.54, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 254, 
+      "pontos": 3.54, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 254, 
+      "pontos": 3.54, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 254, 
+      "pontos": 3.54, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 255, 
+      "pontos": 2.57, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 255, 
+      "pontos": 2.57, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 255, 
+      "pontos": 2.57, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 255, 
+      "pontos": 2.57, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 255, 
+      "pontos": 2.57, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 255, 
+      "pontos": 2.57, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 255, 
+      "pontos": 2.57, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 255, 
+      "pontos": 2.57, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 256, 
+      "pontos": 3.94, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 256, 
+      "pontos": 3.94, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 256, 
+      "pontos": 3.94, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 256, 
+      "pontos": 3.94, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 256, 
+      "pontos": 3.94, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 256, 
+      "pontos": 3.94, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 256, 
+      "pontos": 3.94, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 256, 
+      "pontos": 3.94, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 257, 
+      "pontos": 3.23, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 257, 
+      "pontos": 3.23, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 257, 
+      "pontos": 3.23, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 257, 
+      "pontos": 3.23, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 257, 
+      "pontos": 3.23, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 257, 
+      "pontos": 3.23, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 257, 
+      "pontos": 3.23, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 257, 
+      "pontos": 3.23, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 258, 
+      "pontos": 2.06, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 258, 
+      "pontos": 2.06, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 258, 
+      "pontos": 2.06, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 258, 
+      "pontos": 2.06, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 258, 
+      "pontos": 2.06, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 258, 
+      "pontos": 2.06, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 258, 
+      "pontos": 2.06, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 260, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 260, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 260, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 260, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 260, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 260, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 260, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 260, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 261, 
+      "pontos": 2.68, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 261, 
+      "pontos": 2.68, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 261, 
+      "pontos": 2.68, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 261, 
+      "pontos": 2.68, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 261, 
+      "pontos": 2.68, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 261, 
+      "pontos": 2.68, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 261, 
+      "pontos": 2.68, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 261, 
+      "pontos": 2.68, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 262, 
+      "pontos": 3.31, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 262, 
+      "pontos": 3.31, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 262, 
+      "pontos": 3.31, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 262, 
+      "pontos": 3.31, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 262, 
+      "pontos": 3.31, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 262, 
+      "pontos": 3.31, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 262, 
+      "pontos": 3.31, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 262, 
+      "pontos": 3.31, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 263, 
+      "pontos": 2.26, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 263, 
+      "pontos": 2.26, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 263, 
+      "pontos": 2.26, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 263, 
+      "pontos": 2.26, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 263, 
+      "pontos": 2.26, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 263, 
+      "pontos": 2.26, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 263, 
+      "pontos": 2.26, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 263, 
+      "pontos": 2.26, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 264, 
+      "pontos": 2.44, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 264, 
+      "pontos": 2.44, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 264, 
+      "pontos": 2.44, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 264, 
+      "pontos": 2.44, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 264, 
+      "pontos": 2.44, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 264, 
+      "pontos": 2.44, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 264, 
+      "pontos": 2.44, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 264, 
+      "pontos": 2.44, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 265, 
+      "pontos": 2.66, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 265, 
+      "pontos": 2.66, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 265, 
+      "pontos": 2.66, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 265, 
+      "pontos": 2.66, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 265, 
+      "pontos": 2.66, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 265, 
+      "pontos": 2.66, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 265, 
+      "pontos": 2.66, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 265, 
+      "pontos": 2.66, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 268, 
+      "pontos": 2.5, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 268, 
+      "pontos": 2.5, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 268, 
+      "pontos": 2.5, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 268, 
+      "pontos": 2.5, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 268, 
+      "pontos": 2.5, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 268, 
+      "pontos": 2.5, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 268, 
+      "pontos": 2.5, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 268, 
+      "pontos": 2.5, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 269, 
+      "pontos": 2.12, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 269, 
+      "pontos": 2.12, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 269, 
+      "pontos": 2.12, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 269, 
+      "pontos": 2.12, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 269, 
+      "pontos": 2.12, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 269, 
+      "pontos": 2.12, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 269, 
+      "pontos": 2.12, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 271, 
+      "pontos": 2.71, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 271, 
+      "pontos": 2.71, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 271, 
+      "pontos": 2.71, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 271, 
+      "pontos": 2.71, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 271, 
+      "pontos": 2.71, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 271, 
+      "pontos": 2.71, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 271, 
+      "pontos": 2.71, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 271, 
+      "pontos": 2.71, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 274, 
+      "pontos": 4.03, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 274, 
+      "pontos": 4.03, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 274, 
+      "pontos": 4.03, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 274, 
+      "pontos": 4.03, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 274, 
+      "pontos": 4.03, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 274, 
+      "pontos": 4.03, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 274, 
+      "pontos": 4.03, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 275, 
+      "pontos": 2.8, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 275, 
+      "pontos": 2.8, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 275, 
+      "pontos": 2.8, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 275, 
+      "pontos": 2.8, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 275, 
+      "pontos": 2.8, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 275, 
+      "pontos": 2.8, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 275, 
+      "pontos": 2.8, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 275, 
+      "pontos": 2.8, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 277, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 277, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 277, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 277, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 278, 
+      "pontos": 1.34, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 278, 
+      "pontos": 1.34, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 278, 
+      "pontos": 1.34, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 278, 
+      "pontos": 1.34, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 278, 
+      "pontos": 1.34, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 278, 
+      "pontos": 1.34, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 279, 
+      "pontos": 2.17, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 279, 
+      "pontos": 2.17, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 279, 
+      "pontos": 2.17, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 279, 
+      "pontos": 2.17, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 279, 
+      "pontos": 2.17, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 279, 
+      "pontos": 2.17, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 280, 
+      "pontos": 2.72, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 280, 
+      "pontos": 2.72, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 280, 
+      "pontos": 2.72, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 280, 
+      "pontos": 2.72, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 280, 
+      "pontos": 2.72, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 280, 
+      "pontos": 2.72, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 280, 
+      "pontos": 2.72, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 280, 
+      "pontos": 2.72, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 282, 
+      "pontos": 3.0, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 282, 
+      "pontos": 3.0, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 282, 
+      "pontos": 3.0, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 282, 
+      "pontos": 3.0, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 282, 
+      "pontos": 3.0, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 282, 
+      "pontos": 3.0, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 282, 
+      "pontos": 3.0, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 283, 
+      "pontos": 2.91, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 283, 
+      "pontos": 2.91, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 283, 
+      "pontos": 2.91, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 283, 
+      "pontos": 2.91, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 283, 
+      "pontos": 2.91, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 283, 
+      "pontos": 2.91, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 283, 
+      "pontos": 2.91, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 283, 
+      "pontos": 2.91, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 284, 
+      "pontos": 2.41, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 284, 
+      "pontos": 2.41, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 284, 
+      "pontos": 2.41, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 284, 
+      "pontos": 2.41, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 284, 
+      "pontos": 2.41, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 284, 
+      "pontos": 2.41, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 284, 
+      "pontos": 2.41, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 284, 
+      "pontos": 2.41, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 285, 
+      "pontos": 6.62, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 285, 
+      "pontos": 6.62, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 285, 
+      "pontos": 6.62, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 285, 
+      "pontos": 6.62, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 285, 
+      "pontos": 6.62, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 285, 
+      "pontos": 6.62, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 285, 
+      "pontos": 6.62, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 285, 
+      "pontos": 6.62, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 289, 
+      "pontos": 8.06, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 289, 
+      "pontos": 8.06, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 289, 
+      "pontos": 8.06, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 289, 
+      "pontos": 8.06, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 289, 
+      "pontos": 8.06, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 289, 
+      "pontos": 8.06, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 289, 
+      "pontos": 8.06, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 291, 
+      "pontos": 2.59, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 291, 
+      "pontos": 2.59, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 291, 
+      "pontos": 2.59, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 291, 
+      "pontos": 2.59, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 291, 
+      "pontos": 2.59, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 291, 
+      "pontos": 2.59, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 291, 
+      "pontos": 2.59, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 291, 
+      "pontos": 2.59, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 294, 
+      "pontos": 2.61, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 294, 
+      "pontos": 2.61, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 294, 
+      "pontos": 2.61, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 294, 
+      "pontos": 2.61, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 294, 
+      "pontos": 2.61, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 294, 
+      "pontos": 2.61, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 294, 
+      "pontos": 2.61, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 294, 
+      "pontos": 2.61, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 295, 
+      "pontos": 5.72, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 295, 
+      "pontos": 5.72, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 295, 
+      "pontos": 5.72, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 295, 
+      "pontos": 5.72, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 295, 
+      "pontos": 5.72, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 295, 
+      "pontos": 5.72, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 295, 
+      "pontos": 5.72, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 295, 
+      "pontos": 5.72, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 296, 
+      "pontos": 3.09, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 296, 
+      "pontos": 3.09, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 296, 
+      "pontos": 3.09, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 296, 
+      "pontos": 3.09, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 296, 
+      "pontos": 3.09, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 296, 
+      "pontos": 3.09, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 296, 
+      "pontos": 3.09, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 297, 
+      "pontos": 3.6, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 297, 
+      "pontos": 3.6, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 297, 
+      "pontos": 3.6, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 297, 
+      "pontos": 3.6, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 297, 
+      "pontos": 3.6, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 297, 
+      "pontos": 3.6, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 297, 
+      "pontos": 3.6, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 297, 
+      "pontos": 3.6, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 298, 
+      "pontos": 2.84, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 298, 
+      "pontos": 2.84, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 298, 
+      "pontos": 2.84, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 298, 
+      "pontos": 2.84, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 298, 
+      "pontos": 2.84, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 298, 
+      "pontos": 2.84, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 298, 
+      "pontos": 2.84, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 298, 
+      "pontos": 2.84, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 301, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 301, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 301, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 301, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 301, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 301, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 301, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 301, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 303, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 303, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 303, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 303, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 303, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 303, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 303, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 305, 
+      "pontos": 2.54, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 305, 
+      "pontos": 2.54, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 305, 
+      "pontos": 2.54, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 305, 
+      "pontos": 2.54, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 305, 
+      "pontos": 2.54, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 305, 
+      "pontos": 2.54, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 305, 
+      "pontos": 2.54, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 305, 
+      "pontos": 2.54, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 308, 
+      "pontos": 3.81, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 308, 
+      "pontos": 3.81, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 308, 
+      "pontos": 3.81, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 308, 
+      "pontos": 3.81, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 308, 
+      "pontos": 3.81, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 308, 
+      "pontos": 3.81, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 308, 
+      "pontos": 3.81, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 309, 
+      "pontos": 2.34, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 309, 
+      "pontos": 2.34, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 309, 
+      "pontos": 2.34, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 309, 
+      "pontos": 2.34, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 309, 
+      "pontos": 2.34, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 309, 
+      "pontos": 2.34, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 309, 
+      "pontos": 2.34, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 311, 
+      "pontos": 3.83, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 311, 
+      "pontos": 3.83, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 311, 
+      "pontos": 3.83, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 311, 
+      "pontos": 3.83, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 311, 
+      "pontos": 3.83, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 311, 
+      "pontos": 3.83, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 311, 
+      "pontos": 3.83, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 311, 
+      "pontos": 3.83, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 312, 
+      "pontos": 2.91, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 312, 
+      "pontos": 2.91, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 312, 
+      "pontos": 2.91, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 312, 
+      "pontos": 2.91, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 312, 
+      "pontos": 2.91, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 312, 
+      "pontos": 2.91, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 312, 
+      "pontos": 2.91, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 312, 
+      "pontos": 2.91, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 313, 
+      "pontos": 2.33, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 313, 
+      "pontos": 2.33, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 313, 
+      "pontos": 2.33, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 313, 
+      "pontos": 2.33, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 313, 
+      "pontos": 2.33, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 313, 
+      "pontos": 2.33, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 314, 
+      "pontos": 3.22, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 314, 
+      "pontos": 3.22, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 314, 
+      "pontos": 3.22, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 314, 
+      "pontos": 3.22, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 314, 
+      "pontos": 3.22, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 314, 
+      "pontos": 3.22, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 315, 
+      "pontos": 2.35, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 315, 
+      "pontos": 2.35, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 315, 
+      "pontos": 2.35, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 315, 
+      "pontos": 2.35, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 315, 
+      "pontos": 2.35, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 315, 
+      "pontos": 2.35, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 315, 
+      "pontos": 2.35, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 316, 
+      "pontos": 3.29, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 316, 
+      "pontos": 3.29, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 316, 
+      "pontos": 3.29, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 316, 
+      "pontos": 3.29, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 316, 
+      "pontos": 3.29, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 316, 
+      "pontos": 3.29, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 316, 
+      "pontos": 3.29, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 316, 
+      "pontos": 3.29, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 317, 
+      "pontos": 2.57, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 317, 
+      "pontos": 2.57, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 317, 
+      "pontos": 2.57, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 317, 
+      "pontos": 2.57, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 317, 
+      "pontos": 2.57, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 317, 
+      "pontos": 2.57, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 317, 
+      "pontos": 2.57, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 319, 
+      "pontos": 2.68, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 319, 
+      "pontos": 2.68, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 319, 
+      "pontos": 2.68, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 319, 
+      "pontos": 2.68, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 319, 
+      "pontos": 2.68, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 319, 
+      "pontos": 2.68, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 319, 
+      "pontos": 2.68, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 319, 
+      "pontos": 2.68, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 321, 
+      "pontos": 2.53, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 321, 
+      "pontos": 2.53, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 321, 
+      "pontos": 2.53, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 321, 
+      "pontos": 2.53, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 321, 
+      "pontos": 2.53, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 321, 
+      "pontos": 2.53, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 321, 
+      "pontos": 2.53, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 322, 
+      "pontos": 2.08, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 322, 
+      "pontos": 2.08, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 322, 
+      "pontos": 2.08, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 322, 
+      "pontos": 2.08, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 322, 
+      "pontos": 2.08, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 322, 
+      "pontos": 2.08, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 322, 
+      "pontos": 2.08, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 323, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 323, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 323, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 323, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 323, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 323, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 323, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 324, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 324, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 324, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 324, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 324, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 324, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 324, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 325, 
+      "pontos": 2.68, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 325, 
+      "pontos": 2.68, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 325, 
+      "pontos": 2.68, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 325, 
+      "pontos": 2.68, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 325, 
+      "pontos": 2.68, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 325, 
+      "pontos": 2.68, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 325, 
+      "pontos": 2.68, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 327, 
+      "pontos": 3.61, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 327, 
+      "pontos": 3.61, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 327, 
+      "pontos": 3.61, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 327, 
+      "pontos": 3.61, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 327, 
+      "pontos": 3.61, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 327, 
+      "pontos": 3.61, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 327, 
+      "pontos": 3.61, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 327, 
+      "pontos": 3.61, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 329, 
+      "pontos": 1.66, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 329, 
+      "pontos": 1.66, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 329, 
+      "pontos": 1.66, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 329, 
+      "pontos": 1.66, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 329, 
+      "pontos": 1.66, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 331, 
+      "pontos": 2.34, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 331, 
+      "pontos": 2.34, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 331, 
+      "pontos": 2.34, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 331, 
+      "pontos": 2.34, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 331, 
+      "pontos": 2.34, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 331, 
+      "pontos": 2.34, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 331, 
+      "pontos": 2.34, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 331, 
+      "pontos": 2.34, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 333, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 333, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 333, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 333, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 334, 
+      "pontos": 2.46, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 334, 
+      "pontos": 2.46, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 334, 
+      "pontos": 2.46, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 334, 
+      "pontos": 2.46, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 334, 
+      "pontos": 2.46, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 334, 
+      "pontos": 2.46, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 334, 
+      "pontos": 2.46, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 335, 
+      "pontos": 2.57, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 335, 
+      "pontos": 2.57, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 335, 
+      "pontos": 2.57, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 335, 
+      "pontos": 2.57, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 335, 
+      "pontos": 2.57, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 335, 
+      "pontos": 2.57, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 335, 
+      "pontos": 2.57, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 335, 
+      "pontos": 2.57, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 336, 
+      "pontos": 2.44, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 336, 
+      "pontos": 2.44, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 336, 
+      "pontos": 2.44, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 336, 
+      "pontos": 2.44, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 336, 
+      "pontos": 2.44, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 336, 
+      "pontos": 2.44, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 336, 
+      "pontos": 2.44, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 338, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 338, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 338, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 338, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 338, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 338, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 338, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 339, 
+      "pontos": 2.14, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 339, 
+      "pontos": 2.14, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 339, 
+      "pontos": 2.14, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 339, 
+      "pontos": 2.14, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 339, 
+      "pontos": 2.14, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 339, 
+      "pontos": 2.14, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 339, 
+      "pontos": 2.14, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 341, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 341, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 341, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 341, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 341, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 341, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 341, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 342, 
+      "pontos": 2.12, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 342, 
+      "pontos": 2.12, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 342, 
+      "pontos": 2.12, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 342, 
+      "pontos": 2.12, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 342, 
+      "pontos": 2.12, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 342, 
+      "pontos": 2.12, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 342, 
+      "pontos": 2.12, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 342, 
+      "pontos": 2.12, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 348, 
+      "pontos": 2.21, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 348, 
+      "pontos": 2.21, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 348, 
+      "pontos": 2.21, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 348, 
+      "pontos": 2.21, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 348, 
+      "pontos": 2.21, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 348, 
+      "pontos": 2.21, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 348, 
+      "pontos": 2.21, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 349, 
+      "pontos": 3.25, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 349, 
+      "pontos": 3.25, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 349, 
+      "pontos": 3.25, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 349, 
+      "pontos": 3.25, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 349, 
+      "pontos": 3.25, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 349, 
+      "pontos": 3.25, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 349, 
+      "pontos": 3.25, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 349, 
+      "pontos": 3.25, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 350, 
+      "pontos": 4.04, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 350, 
+      "pontos": 4.04, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 350, 
+      "pontos": 4.04, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 350, 
+      "pontos": 4.04, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 350, 
+      "pontos": 4.04, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 350, 
+      "pontos": 4.04, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 350, 
+      "pontos": 4.04, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 350, 
+      "pontos": 4.04, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 352, 
+      "pontos": 2.14, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 352, 
+      "pontos": 2.14, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 352, 
+      "pontos": 2.14, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 352, 
+      "pontos": 2.14, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 352, 
+      "pontos": 2.14, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 352, 
+      "pontos": 2.14, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 352, 
+      "pontos": 2.14, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 354, 
+      "pontos": 2.8, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 354, 
+      "pontos": 2.8, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 354, 
+      "pontos": 2.8, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 354, 
+      "pontos": 2.8, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 354, 
+      "pontos": 2.8, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 354, 
+      "pontos": 2.8, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 354, 
+      "pontos": 2.8, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 355, 
+      "pontos": 2.54, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 355, 
+      "pontos": 2.54, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 355, 
+      "pontos": 2.54, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 355, 
+      "pontos": 2.54, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 355, 
+      "pontos": 2.54, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 355, 
+      "pontos": 2.54, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 355, 
+      "pontos": 2.54, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 355, 
+      "pontos": 2.54, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 357, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 357, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 357, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 358, 
+      "pontos": 3.41, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 358, 
+      "pontos": 3.41, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 358, 
+      "pontos": 3.41, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 358, 
+      "pontos": 3.41, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 358, 
+      "pontos": 3.41, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 358, 
+      "pontos": 3.41, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 358, 
+      "pontos": 3.41, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 359, 
+      "pontos": 3.94, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 359, 
+      "pontos": 3.94, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 359, 
+      "pontos": 3.94, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 359, 
+      "pontos": 3.94, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 359, 
+      "pontos": 3.94, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 359, 
+      "pontos": 3.94, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 359, 
+      "pontos": 3.94, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 359, 
+      "pontos": 3.94, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 360, 
+      "pontos": 1.63, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 360, 
+      "pontos": 1.63, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 360, 
+      "pontos": 1.63, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 360, 
+      "pontos": 1.63, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 360, 
+      "pontos": 1.63, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 360, 
+      "pontos": 1.63, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 360, 
+      "pontos": 1.63, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 361, 
+      "pontos": 3.36, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 361, 
+      "pontos": 3.36, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 361, 
+      "pontos": 3.36, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 361, 
+      "pontos": 3.36, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 361, 
+      "pontos": 3.36, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 361, 
+      "pontos": 3.36, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 361, 
+      "pontos": 3.36, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 362, 
+      "pontos": 3.38, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 362, 
+      "pontos": 3.38, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 362, 
+      "pontos": 3.38, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 362, 
+      "pontos": 3.38, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 362, 
+      "pontos": 3.38, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 362, 
+      "pontos": 3.38, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 362, 
+      "pontos": 3.38, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 362, 
+      "pontos": 3.38, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 363, 
+      "pontos": 1.36, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 363, 
+      "pontos": 1.36, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 363, 
+      "pontos": 1.36, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 363, 
+      "pontos": 1.36, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 363, 
+      "pontos": 1.36, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 363, 
+      "pontos": 1.36, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 363, 
+      "pontos": 1.36, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 364, 
+      "pontos": 2.43, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 364, 
+      "pontos": 2.43, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 364, 
+      "pontos": 2.43, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 364, 
+      "pontos": 2.43, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 364, 
+      "pontos": 2.43, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 364, 
+      "pontos": 2.43, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 364, 
+      "pontos": 2.43, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 364, 
+      "pontos": 2.43, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 365, 
+      "pontos": 3.03, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 365, 
+      "pontos": 3.03, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 365, 
+      "pontos": 3.03, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 365, 
+      "pontos": 3.03, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 365, 
+      "pontos": 3.03, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 365, 
+      "pontos": 3.03, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 365, 
+      "pontos": 3.03, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 366, 
+      "pontos": 1.87, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 366, 
+      "pontos": 1.87, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 366, 
+      "pontos": 1.87, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 366, 
+      "pontos": 1.87, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 366, 
+      "pontos": 1.87, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 366, 
+      "pontos": 1.87, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 366, 
+      "pontos": 1.87, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 366, 
+      "pontos": 1.87, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 368, 
+      "pontos": 1.83, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 368, 
+      "pontos": 1.83, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 368, 
+      "pontos": 1.83, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 368, 
+      "pontos": 1.83, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 368, 
+      "pontos": 1.83, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 368, 
+      "pontos": 1.83, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 368, 
+      "pontos": 1.83, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 369, 
+      "pontos": 1.64, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 369, 
+      "pontos": 1.64, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 369, 
+      "pontos": 1.64, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 369, 
+      "pontos": 1.64, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 369, 
+      "pontos": 1.64, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 371, 
+      "pontos": 2.14, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 371, 
+      "pontos": 2.14, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 371, 
+      "pontos": 2.14, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 371, 
+      "pontos": 2.14, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 371, 
+      "pontos": 2.14, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 371, 
+      "pontos": 2.14, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 371, 
+      "pontos": 2.14, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 372, 
+      "pontos": 1.27, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 372, 
+      "pontos": 1.27, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 372, 
+      "pontos": 1.27, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 372, 
+      "pontos": 1.27, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 372, 
+      "pontos": 1.27, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 374, 
+      "pontos": 4.91, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 374, 
+      "pontos": 4.91, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 374, 
+      "pontos": 4.91, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 374, 
+      "pontos": 4.91, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 374, 
+      "pontos": 4.91, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 374, 
+      "pontos": 4.91, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 374, 
+      "pontos": 4.91, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 374, 
+      "pontos": 4.91, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 375, 
+      "pontos": 3.92, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 375, 
+      "pontos": 3.92, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 375, 
+      "pontos": 3.92, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 375, 
+      "pontos": 3.92, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 375, 
+      "pontos": 3.92, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 375, 
+      "pontos": 3.92, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 375, 
+      "pontos": 3.92, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 375, 
+      "pontos": 3.92, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 376, 
+      "pontos": 7.57, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 376, 
+      "pontos": 7.57, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 376, 
+      "pontos": 7.57, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 376, 
+      "pontos": 7.57, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 376, 
+      "pontos": 7.57, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 376, 
+      "pontos": 7.57, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 376, 
+      "pontos": 7.57, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 376, 
+      "pontos": 7.57, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 377, 
+      "pontos": 2.79, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 377, 
+      "pontos": 2.79, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 377, 
+      "pontos": 2.79, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 377, 
+      "pontos": 2.79, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 377, 
+      "pontos": 2.79, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 377, 
+      "pontos": 2.79, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 377, 
+      "pontos": 2.79, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 377, 
+      "pontos": 2.79, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 378, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 378, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 378, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 378, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 378, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 378, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 378, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 378, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 379, 
+      "pontos": 2.46, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 379, 
+      "pontos": 2.46, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 379, 
+      "pontos": 2.46, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 379, 
+      "pontos": 2.46, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 379, 
+      "pontos": 2.46, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 379, 
+      "pontos": 2.46, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 379, 
+      "pontos": 2.46, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 380, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 380, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 380, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 380, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 380, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 380, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 380, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 380, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 382, 
+      "pontos": 3.27, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 382, 
+      "pontos": 3.27, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 382, 
+      "pontos": 3.27, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 382, 
+      "pontos": 3.27, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 382, 
+      "pontos": 3.27, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 382, 
+      "pontos": 3.27, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 382, 
+      "pontos": 3.27, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 383, 
+      "pontos": 1.43, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 383, 
+      "pontos": 1.43, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 383, 
+      "pontos": 1.43, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 383, 
+      "pontos": 1.43, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 383, 
+      "pontos": 1.43, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 384, 
+      "pontos": 3.81, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 384, 
+      "pontos": 3.81, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 384, 
+      "pontos": 3.81, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 384, 
+      "pontos": 3.81, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 384, 
+      "pontos": 3.81, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 384, 
+      "pontos": 3.81, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 384, 
+      "pontos": 3.81, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 385, 
+      "pontos": 2.75, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 385, 
+      "pontos": 2.75, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 385, 
+      "pontos": 2.75, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 385, 
+      "pontos": 2.75, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 385, 
+      "pontos": 2.75, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 385, 
+      "pontos": 2.75, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 385, 
+      "pontos": 2.75, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 388, 
+      "pontos": 3.42, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 388, 
+      "pontos": 3.42, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 388, 
+      "pontos": 3.42, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 388, 
+      "pontos": 3.42, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 388, 
+      "pontos": 3.42, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 388, 
+      "pontos": 3.42, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 388, 
+      "pontos": 3.42, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 388, 
+      "pontos": 3.42, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 389, 
+      "pontos": 3.2, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 389, 
+      "pontos": 3.2, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 389, 
+      "pontos": 3.2, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 389, 
+      "pontos": 3.2, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 389, 
+      "pontos": 3.2, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 389, 
+      "pontos": 3.2, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 389, 
+      "pontos": 3.2, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 391, 
+      "pontos": 1.74, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 391, 
+      "pontos": 1.74, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 391, 
+      "pontos": 1.74, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 391, 
+      "pontos": 1.74, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 391, 
+      "pontos": 1.74, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 391, 
+      "pontos": 1.74, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 391, 
+      "pontos": 1.74, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 392, 
+      "pontos": 3.85, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 392, 
+      "pontos": 3.85, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 392, 
+      "pontos": 3.85, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 392, 
+      "pontos": 3.85, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 392, 
+      "pontos": 3.85, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 392, 
+      "pontos": 3.85, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 392, 
+      "pontos": 3.85, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 392, 
+      "pontos": 3.85, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 393, 
+      "pontos": 2.4, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 393, 
+      "pontos": 2.4, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 393, 
+      "pontos": 2.4, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 393, 
+      "pontos": 2.4, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 393, 
+      "pontos": 2.4, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 393, 
+      "pontos": 2.4, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 395, 
+      "pontos": 2.37, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 395, 
+      "pontos": 2.37, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 395, 
+      "pontos": 2.37, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 395, 
+      "pontos": 2.37, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 395, 
+      "pontos": 2.37, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 395, 
+      "pontos": 2.37, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 395, 
+      "pontos": 2.37, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 395, 
+      "pontos": 2.37, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 396, 
+      "pontos": 2.43, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 396, 
+      "pontos": 2.43, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 396, 
+      "pontos": 2.43, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 396, 
+      "pontos": 2.43, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 396, 
+      "pontos": 2.43, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 396, 
+      "pontos": 2.43, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 396, 
+      "pontos": 2.43, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 398, 
+      "pontos": 1.75, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 398, 
+      "pontos": 1.75, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 398, 
+      "pontos": 1.75, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 398, 
+      "pontos": 1.75, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 398, 
+      "pontos": 1.75, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 399, 
+      "pontos": 6.49, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 399, 
+      "pontos": 6.49, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 399, 
+      "pontos": 6.49, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 399, 
+      "pontos": 6.49, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 399, 
+      "pontos": 6.49, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 399, 
+      "pontos": 6.49, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 399, 
+      "pontos": 6.49, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 399, 
+      "pontos": 6.49, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 400, 
+      "pontos": 3.18, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 400, 
+      "pontos": 3.18, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 400, 
+      "pontos": 3.18, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 400, 
+      "pontos": 3.18, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 400, 
+      "pontos": 3.18, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 400, 
+      "pontos": 3.18, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 400, 
+      "pontos": 3.18, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 400, 
+      "pontos": 3.18, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 401, 
+      "pontos": 2.32, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 401, 
+      "pontos": 2.32, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 401, 
+      "pontos": 2.32, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 401, 
+      "pontos": 2.32, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 401, 
+      "pontos": 2.32, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 401, 
+      "pontos": 2.32, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 401, 
+      "pontos": 2.32, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 402, 
+      "pontos": 1.92, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 402, 
+      "pontos": 1.92, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 402, 
+      "pontos": 1.92, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 402, 
+      "pontos": 1.92, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 402, 
+      "pontos": 1.92, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 402, 
+      "pontos": 1.92, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 403, 
+      "pontos": 4.02, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 403, 
+      "pontos": 4.02, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 403, 
+      "pontos": 4.02, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 403, 
+      "pontos": 4.02, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 403, 
+      "pontos": 4.02, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 403, 
+      "pontos": 4.02, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 404, 
+      "pontos": 3.12, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 404, 
+      "pontos": 3.12, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 404, 
+      "pontos": 3.12, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 404, 
+      "pontos": 3.12, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 404, 
+      "pontos": 3.12, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 404, 
+      "pontos": 3.12, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 405, 
+      "pontos": 2.48, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 405, 
+      "pontos": 2.48, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 405, 
+      "pontos": 2.48, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 405, 
+      "pontos": 2.48, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 405, 
+      "pontos": 2.48, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 405, 
+      "pontos": 2.48, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 405, 
+      "pontos": 2.48, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 405, 
+      "pontos": 2.48, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 406, 
+      "pontos": 2.5, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 406, 
+      "pontos": 2.5, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 406, 
+      "pontos": 2.5, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 406, 
+      "pontos": 2.5, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 406, 
+      "pontos": 2.5, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 406, 
+      "pontos": 2.5, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 406, 
+      "pontos": 2.5, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 406, 
+      "pontos": 2.5, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 407, 
+      "pontos": 2.52, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 407, 
+      "pontos": 2.52, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 407, 
+      "pontos": 2.52, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 407, 
+      "pontos": 2.52, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 407, 
+      "pontos": 2.52, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 407, 
+      "pontos": 2.52, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 407, 
+      "pontos": 2.52, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 407, 
+      "pontos": 2.52, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 408, 
+      "pontos": 2.86, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 408, 
+      "pontos": 2.86, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 408, 
+      "pontos": 2.86, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 408, 
+      "pontos": 2.86, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 408, 
+      "pontos": 2.86, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 408, 
+      "pontos": 2.86, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 408, 
+      "pontos": 2.86, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 408, 
+      "pontos": 2.86, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 410, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 410, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 410, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 410, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 410, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 410, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 410, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 410, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 411, 
+      "pontos": 4.24, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 411, 
+      "pontos": 4.24, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 411, 
+      "pontos": 4.24, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 411, 
+      "pontos": 4.24, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 411, 
+      "pontos": 4.24, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 411, 
+      "pontos": 4.24, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 411, 
+      "pontos": 4.24, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 411, 
+      "pontos": 4.24, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 413, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 413, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 413, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 413, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 413, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 413, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 413, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 413, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 415, 
+      "pontos": 2.45, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 415, 
+      "pontos": 2.45, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 415, 
+      "pontos": 2.45, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 415, 
+      "pontos": 2.45, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 415, 
+      "pontos": 2.45, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 415, 
+      "pontos": 2.45, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 415, 
+      "pontos": 2.45, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 415, 
+      "pontos": 2.45, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 416, 
+      "pontos": 2.12, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 416, 
+      "pontos": 2.12, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 416, 
+      "pontos": 2.12, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 416, 
+      "pontos": 2.12, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 416, 
+      "pontos": 2.12, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 416, 
+      "pontos": 2.12, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 416, 
+      "pontos": 2.12, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 418, 
+      "pontos": 1.77, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 418, 
+      "pontos": 1.77, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 418, 
+      "pontos": 1.77, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 418, 
+      "pontos": 1.19, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 418, 
+      "pontos": 1.77, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 420, 
+      "pontos": 3.36, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 420, 
+      "pontos": 3.36, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 420, 
+      "pontos": 3.36, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 420, 
+      "pontos": 3.36, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 420, 
+      "pontos": 3.36, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 420, 
+      "pontos": 3.36, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 420, 
+      "pontos": 3.36, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 420, 
+      "pontos": 3.36, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 421, 
+      "pontos": 4.64, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 421, 
+      "pontos": 4.64, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 421, 
+      "pontos": 4.64, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 421, 
+      "pontos": 4.64, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 421, 
+      "pontos": 4.64, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 421, 
+      "pontos": 4.64, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 421, 
+      "pontos": 4.64, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 421, 
+      "pontos": 4.64, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 422, 
+      "pontos": 3.96, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 422, 
+      "pontos": 3.96, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 422, 
+      "pontos": 3.96, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 422, 
+      "pontos": 3.96, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 422, 
+      "pontos": 3.96, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 422, 
+      "pontos": 3.96, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 422, 
+      "pontos": 3.96, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 422, 
+      "pontos": 3.96, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 423, 
+      "pontos": 3.47, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 423, 
+      "pontos": 3.47, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 423, 
+      "pontos": 3.47, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 423, 
+      "pontos": 3.47, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 423, 
+      "pontos": 3.47, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 423, 
+      "pontos": 3.47, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 423, 
+      "pontos": 3.47, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 424, 
+      "pontos": 2.86, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 424, 
+      "pontos": 2.86, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 424, 
+      "pontos": 2.86, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 424, 
+      "pontos": 2.86, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 424, 
+      "pontos": 2.86, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 424, 
+      "pontos": 2.86, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 424, 
+      "pontos": 2.86, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 424, 
+      "pontos": 2.86, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 426, 
+      "pontos": 2.89, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 426, 
+      "pontos": 2.89, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 426, 
+      "pontos": 2.89, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 426, 
+      "pontos": 2.89, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 426, 
+      "pontos": 2.89, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 426, 
+      "pontos": 2.89, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 426, 
+      "pontos": 2.89, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 427, 
+      "pontos": 2.64, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 427, 
+      "pontos": 2.64, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 427, 
+      "pontos": 2.64, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 427, 
+      "pontos": 2.64, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 427, 
+      "pontos": 2.64, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 427, 
+      "pontos": 2.64, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 427, 
+      "pontos": 2.64, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 427, 
+      "pontos": 2.64, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 429, 
+      "pontos": 2.9, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 429, 
+      "pontos": 2.9, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 429, 
+      "pontos": 2.9, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 429, 
+      "pontos": 2.9, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 429, 
+      "pontos": 2.9, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 429, 
+      "pontos": 2.9, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 429, 
+      "pontos": 2.9, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 429, 
+      "pontos": 2.9, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 430, 
+      "pontos": 2.08, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 430, 
+      "pontos": 2.08, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 430, 
+      "pontos": 2.08, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 430, 
+      "pontos": 2.08, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 430, 
+      "pontos": 2.08, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 430, 
+      "pontos": 2.08, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 430, 
+      "pontos": 2.08, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 430, 
+      "pontos": 2.08, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 431, 
+      "pontos": 1.94, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 431, 
+      "pontos": 1.94, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 431, 
+      "pontos": 1.94, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 431, 
+      "pontos": 1.94, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 431, 
+      "pontos": 1.94, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 431, 
+      "pontos": 1.94, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 432, 
+      "pontos": 1.72, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 432, 
+      "pontos": 1.72, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 432, 
+      "pontos": 1.72, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 432, 
+      "pontos": 1.72, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 432, 
+      "pontos": 1.72, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 433, 
+      "pontos": 3.07, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 433, 
+      "pontos": 3.07, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 433, 
+      "pontos": 3.07, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 433, 
+      "pontos": 3.07, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 433, 
+      "pontos": 3.07, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 433, 
+      "pontos": 3.07, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 433, 
+      "pontos": 3.07, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 433, 
+      "pontos": 3.07, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 434, 
+      "pontos": 1.32, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 434, 
+      "pontos": 1.32, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 434, 
+      "pontos": 1.32, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 434, 
+      "pontos": 1.32, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 434, 
+      "pontos": 1.32, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 435, 
+      "pontos": 3.4, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 435, 
+      "pontos": 3.4, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 435, 
+      "pontos": 3.4, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 435, 
+      "pontos": 3.4, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 435, 
+      "pontos": 3.4, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 435, 
+      "pontos": 3.4, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 435, 
+      "pontos": 3.4, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 435, 
+      "pontos": 3.4, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 436, 
+      "pontos": 2.46, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 436, 
+      "pontos": 2.46, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 436, 
+      "pontos": 2.46, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 436, 
+      "pontos": 2.46, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 436, 
+      "pontos": 2.46, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 436, 
+      "pontos": 2.46, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 436, 
+      "pontos": 2.46, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 437, 
+      "pontos": 2.48, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 437, 
+      "pontos": 2.48, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 437, 
+      "pontos": 2.48, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 437, 
+      "pontos": 2.48, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 437, 
+      "pontos": 2.48, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 437, 
+      "pontos": 2.48, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 437, 
+      "pontos": 2.48, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 437, 
+      "pontos": 2.48, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 438, 
+      "pontos": 3.27, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 438, 
+      "pontos": 3.27, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 438, 
+      "pontos": 3.27, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 438, 
+      "pontos": 3.27, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 438, 
+      "pontos": 3.27, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 438, 
+      "pontos": 3.27, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 438, 
+      "pontos": 3.27, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 438, 
+      "pontos": 3.27, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 439, 
+      "pontos": 3.11, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 439, 
+      "pontos": 3.11, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 439, 
+      "pontos": 3.11, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 439, 
+      "pontos": 3.11, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 439, 
+      "pontos": 3.11, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 439, 
+      "pontos": 3.11, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 439, 
+      "pontos": 3.11, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 439, 
+      "pontos": 3.11, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 440, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 440, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 440, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 441, 
+      "pontos": 3.34, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 441, 
+      "pontos": 3.34, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 441, 
+      "pontos": 3.34, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 441, 
+      "pontos": 3.34, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 441, 
+      "pontos": 3.34, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 441, 
+      "pontos": 3.34, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 441, 
+      "pontos": 3.34, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 441, 
+      "pontos": 3.34, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 443, 
+      "pontos": 2.52, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 443, 
+      "pontos": 2.52, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 443, 
+      "pontos": 2.52, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 443, 
+      "pontos": 2.52, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 443, 
+      "pontos": 2.52, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 443, 
+      "pontos": 2.52, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 443, 
+      "pontos": 2.52, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 443, 
+      "pontos": 2.52, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 444, 
+      "pontos": 2.23, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 444, 
+      "pontos": 2.23, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 444, 
+      "pontos": 2.23, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 444, 
+      "pontos": 2.23, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 444, 
+      "pontos": 2.23, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 444, 
+      "pontos": 2.23, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 444, 
+      "pontos": 2.23, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 445, 
+      "pontos": 2.32, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 445, 
+      "pontos": 2.32, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 445, 
+      "pontos": 2.32, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 445, 
+      "pontos": 2.32, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 445, 
+      "pontos": 2.32, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 445, 
+      "pontos": 2.32, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 446, 
+      "pontos": 2.73, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 446, 
+      "pontos": 2.73, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 446, 
+      "pontos": 2.73, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 446, 
+      "pontos": 2.73, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 446, 
+      "pontos": 2.73, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 446, 
+      "pontos": 2.73, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 446, 
+      "pontos": 2.73, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 446, 
+      "pontos": 2.73, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 448, 
+      "pontos": 1.9, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 448, 
+      "pontos": 1.9, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 448, 
+      "pontos": 1.9, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 448, 
+      "pontos": 1.9, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 448, 
+      "pontos": 1.9, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 448, 
+      "pontos": 1.9, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 449, 
+      "pontos": 1.99, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 449, 
+      "pontos": 1.99, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 449, 
+      "pontos": 1.99, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 449, 
+      "pontos": 1.99, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 449, 
+      "pontos": 1.99, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 449, 
+      "pontos": 1.99, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 450, 
+      "pontos": 1.92, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 450, 
+      "pontos": 1.92, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 450, 
+      "pontos": 1.92, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 450, 
+      "pontos": 1.92, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 450, 
+      "pontos": 1.92, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 450, 
+      "pontos": 1.92, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 450, 
+      "pontos": 1.92, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 451, 
+      "pontos": 0.81, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 451, 
+      "pontos": 0.81, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 451, 
+      "pontos": 0.81, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 453, 
+      "pontos": 2.86, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 453, 
+      "pontos": 2.86, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 453, 
+      "pontos": 2.86, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 453, 
+      "pontos": 2.86, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 453, 
+      "pontos": 2.86, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 453, 
+      "pontos": 2.86, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 453, 
+      "pontos": 2.86, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 453, 
+      "pontos": 2.86, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 454, 
+      "pontos": 2.59, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 454, 
+      "pontos": 2.59, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 454, 
+      "pontos": 2.59, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 454, 
+      "pontos": 2.59, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 454, 
+      "pontos": 2.59, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 454, 
+      "pontos": 2.59, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 454, 
+      "pontos": 2.59, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 454, 
+      "pontos": 2.59, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 455, 
+      "pontos": 3.22, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 455, 
+      "pontos": 3.22, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 455, 
+      "pontos": 3.22, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 455, 
+      "pontos": 3.22, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 455, 
+      "pontos": 3.22, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 455, 
+      "pontos": 3.22, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 455, 
+      "pontos": 3.22, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 455, 
+      "pontos": 3.22, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 456, 
+      "pontos": 1.86, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 456, 
+      "pontos": 1.86, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 456, 
+      "pontos": 1.86, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 456, 
+      "pontos": 1.86, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 456, 
+      "pontos": 1.86, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 456, 
+      "pontos": 1.86, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 456, 
+      "pontos": 1.86, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 458, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 458, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 458, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 458, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 458, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 458, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 458, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 461, 
+      "pontos": 2.3, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 461, 
+      "pontos": 2.3, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 461, 
+      "pontos": 2.3, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 461, 
+      "pontos": 2.3, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 461, 
+      "pontos": 2.3, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 461, 
+      "pontos": 2.3, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 461, 
+      "pontos": 2.3, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 461, 
+      "pontos": 2.3, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 462, 
+      "pontos": 3.02, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 462, 
+      "pontos": 3.02, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 462, 
+      "pontos": 3.02, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 462, 
+      "pontos": 3.02, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 462, 
+      "pontos": 3.02, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 462, 
+      "pontos": 3.02, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 462, 
+      "pontos": 3.02, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 462, 
+      "pontos": 3.02, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 465, 
+      "pontos": 2.5, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 465, 
+      "pontos": 2.5, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 465, 
+      "pontos": 2.5, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 465, 
+      "pontos": 2.5, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 465, 
+      "pontos": 2.5, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 465, 
+      "pontos": 2.5, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 465, 
+      "pontos": 2.5, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 465, 
+      "pontos": 2.5, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 466, 
+      "pontos": 2.3, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 466, 
+      "pontos": 2.3, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 466, 
+      "pontos": 2.3, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 466, 
+      "pontos": 2.3, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 466, 
+      "pontos": 2.3, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 466, 
+      "pontos": 2.3, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 466, 
+      "pontos": 2.3, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 468, 
+      "pontos": 2.52, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 468, 
+      "pontos": 2.52, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 468, 
+      "pontos": 2.52, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 468, 
+      "pontos": 2.52, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 468, 
+      "pontos": 2.52, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 468, 
+      "pontos": 2.52, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 468, 
+      "pontos": 2.52, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 469, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 469, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 469, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 469, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 469, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 469, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 469, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 469, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 470, 
+      "pontos": 2.75, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 470, 
+      "pontos": 2.75, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 470, 
+      "pontos": 2.75, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 470, 
+      "pontos": 2.75, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 470, 
+      "pontos": 2.75, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 470, 
+      "pontos": 2.75, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 470, 
+      "pontos": 2.75, 
+      "rodada": 8
+    }, 
+    {
+      "candidatura": 473, 
+      "pontos": 2.35, 
+      "rodada": 1
+    }, 
+    {
+      "candidatura": 473, 
+      "pontos": 2.35, 
+      "rodada": 2
+    }, 
+    {
+      "candidatura": 473, 
+      "pontos": 2.35, 
+      "rodada": 3
+    }, 
+    {
+      "candidatura": 473, 
+      "pontos": 2.35, 
+      "rodada": 4
+    }, 
+    {
+      "candidatura": 473, 
+      "pontos": 2.35, 
+      "rodada": 5
+    }, 
+    {
+      "candidatura": 473, 
+      "pontos": 2.35, 
+      "rodada": 6
+    }, 
+    {
+      "candidatura": 473, 
+      "pontos": 2.35, 
+      "rodada": 7
+    }, 
+    {
+      "candidatura": 473, 
+      "pontos": 2.35, 
+      "rodada": 8
+    }
+  ]
+}

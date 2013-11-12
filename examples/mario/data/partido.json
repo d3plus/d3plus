@@ -1,0 +1,139 @@
+{
+  "partidos": [
+    {
+      "id": 1, 
+      "name_en": "PARTIDO TRABALHISTA DO BRASIL", 
+      "name_pt": "PARTIDO TRABALHISTA DO BRASIL"
+    }, 
+    {
+      "id": 2, 
+      "name_en": "PARTIDO SOCIALISMO E LIBERDADE", 
+      "name_pt": "PARTIDO SOCIALISMO E LIBERDADE"
+    }, 
+    {
+      "id": 3, 
+      "name_en": "PARTIDO SOCIALISTA BRASILEIRO", 
+      "name_pt": "PARTIDO SOCIALISTA BRASILEIRO"
+    }, 
+    {
+      "id": 4, 
+      "name_en": "PARTIDO TRABALHISTA NACIONAL", 
+      "name_pt": "PARTIDO TRABALHISTA NACIONAL"
+    }, 
+    {
+      "id": 5, 
+      "name_en": "PARTIDO HUMANISTA DA SOLIDARIEDADE", 
+      "name_pt": "PARTIDO HUMANISTA DA SOLIDARIEDADE"
+    }, 
+    {
+      "id": 6, 
+      "name_en": "PARTIDO DA MOBILIZA\u00c3\u2021\u00c3\u0192O NACIONAL", 
+      "name_pt": "PARTIDO DA MOBILIZA\u00c3\u2021\u00c3\u0192O NACIONAL"
+    }, 
+    {
+      "id": 7, 
+      "name_en": "PARTIDO POPULAR SOCIALISTA", 
+      "name_pt": "PARTIDO POPULAR SOCIALISTA"
+    }, 
+    {
+      "id": 8, 
+      "name_en": "PARTIDO VERDE", 
+      "name_pt": "PARTIDO VERDE"
+    }, 
+    {
+      "id": 9, 
+      "name_en": "PARTIDO PROGRESSISTA", 
+      "name_pt": "PARTIDO PROGRESSISTA"
+    }, 
+    {
+      "id": 10, 
+      "name_en": "PARTIDO DEMOCR\u00c3\u0081TICO TRABALHISTA", 
+      "name_pt": "PARTIDO DEMOCR\u00c3\u0081TICO TRABALHISTA"
+    }, 
+    {
+      "id": 11, 
+      "name_en": "PARTIDO COMUNISTA BRASILEIRO", 
+      "name_pt": "PARTIDO COMUNISTA BRASILEIRO"
+    }, 
+    {
+      "id": 12, 
+      "name_en": "PARTIDO COMUNISTA DO BRASIL", 
+      "name_pt": "PARTIDO COMUNISTA DO BRASIL"
+    }, 
+    {
+      "id": 13, 
+      "name_en": "PARTIDO REPUBLICANO BRASILEIRO", 
+      "name_pt": "PARTIDO REPUBLICANO BRASILEIRO"
+    }, 
+    {
+      "id": 14, 
+      "name_en": "PARTIDO DOS TRABALHADORES", 
+      "name_pt": "PARTIDO DOS TRABALHADORES"
+    }, 
+    {
+      "id": 15, 
+      "name_en": "PARTIDO REPUBLICANO PROGRESSISTA", 
+      "name_pt": "PARTIDO REPUBLICANO PROGRESSISTA"
+    }, 
+    {
+      "id": 16, 
+      "name_en": "PARTIDO DA REP\u00c3\u0161BLICA", 
+      "name_pt": "PARTIDO DA REP\u00c3\u0161BLICA"
+    }, 
+    {
+      "id": 17, 
+      "name_en": "PARTIDO DA SOCIAL DEMOCRACIA BRASILEIRA", 
+      "name_pt": "PARTIDO DA SOCIAL DEMOCRACIA BRASILEIRA"
+    }, 
+    {
+      "id": 18, 
+      "name_en": "PARTIDO SOCIALISTA DOS TRABALHADORES UNIFICADO", 
+      "name_pt": "PARTIDO SOCIALISTA DOS TRABALHADORES UNIFICADO"
+    }, 
+    {
+      "id": 19, 
+      "name_en": "PARTIDO SOCIAL CRIST\u00c3\u0192O", 
+      "name_pt": "PARTIDO SOCIAL CRIST\u00c3\u0192O"
+    }, 
+    {
+      "id": 20, 
+      "name_en": "PARTIDO SOCIAL LIBERAL", 
+      "name_pt": "PARTIDO SOCIAL LIBERAL"
+    }, 
+    {
+      "id": 21, 
+      "name_en": "PARTIDO DO MOVIMENTO DEMOCR\u00c3\u0081TICO BRASILEIRO", 
+      "name_pt": "PARTIDO DO MOVIMENTO DEMOCR\u00c3\u0081TICO BRASILEIRO"
+    }, 
+    {
+      "id": 22, 
+      "name_en": "PARTIDO TRABALHISTA CRIST\u00c3\u0192O", 
+      "name_pt": "PARTIDO TRABALHISTA CRIST\u00c3\u0192O"
+    }, 
+    {
+      "id": 23, 
+      "name_en": "PARTIDO RENOVADOR TRABALHISTA BRASILEIRO", 
+      "name_pt": "PARTIDO RENOVADOR TRABALHISTA BRASILEIRO"
+    }, 
+    {
+      "id": 24, 
+      "name_en": "PARTIDO DA CAUSA OPER\u00c3\u0081RIA", 
+      "name_pt": "PARTIDO DA CAUSA OPER\u00c3\u0081RIA"
+    }, 
+    {
+      "id": 25, 
+      "name_en": "DEMOCRATAS", 
+      "name_pt": "DEMOCRATAS"
+    }, 
+    {
+      "id": 26, 
+      "name_en": "PARTIDO SOCIAL DEMOCRATA CRIST\u00c3\u0192O", 
+      "name_pt": "PARTIDO SOCIAL DEMOCRATA CRIST\u00c3\u0192O"
+    }, 
+    {
+      "id": 27, 
+      "name_en": "PARTIDO TRABALHISTA BRASILEIRO", 
+      "name_pt": "PARTIDO TRABALHISTA BRASILEIRO"
+    }
+  ]
+}
