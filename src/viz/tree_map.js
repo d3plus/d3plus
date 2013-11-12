@@ -257,7 +257,6 @@ d3plus.tree_map = function(vars) {
           var name = find_variable(d,n)
           text.push(vars.format(name))
         })
-        
         var size = (d.dx)/7
         if(d.dx < d.dy) var size = d.dx/7
         else var size = d.dy/7

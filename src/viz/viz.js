@@ -13,7 +13,7 @@ d3plus.viz = function() {
     "background": "#ffffff",
     "boundaries": null,
     "click_function": null,
-    "color_var": "color",
+    "color_var": null,
     "color_domain": [],
     "color_range": ["#ff0000","#888888","#00ff00"],
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
@@ -491,7 +491,7 @@ d3plus.viz = function() {
               })
             }
             else {
-              data_range.push(find_variable(c,vars.color_var))
+              data_range.push(find_color(c,vars.color_var))
             }
           }
         
@@ -500,12 +500,12 @@ d3plus.viz = function() {
         }
         else if (vars.data instanceof Array) {
           vars.data.forEach(function(d){
-            data_range.push(find_variable(d,vars.color_var))
+            data_range.push(find_color(d,vars.color_var))
           })
         }
         else {
           d3.values(vars.data).forEach(function(d){
-            data_range.push(find_variable(d,vars.color_var))
+            data_range.push(find_color(d,vars.color_var))
           })
         }
         
@@ -690,8 +690,9 @@ d3plus.viz = function() {
         
     if (vars.nesting.length) {
       vars.nesting.forEach(function(key){
-        if (vars.attrs[id][key] && vars.attrs[id][key][vars.id_var]) {
-          check.push(vars.attrs[id][key][vars.id_var])
+        var obj = find_variable(id,key)
+        if (obj[vars.id_var]) {
+          check.push(obj[vars.id_var])
         }
       })
     }
@@ -1167,50 +1168,63 @@ d3plus.viz = function() {
   
   find_variable = function(id,variable) {
     
+    function filter_array(arr) {
+      return arr.filter(function(d){
+        return d[vars.id_var] == id
+      })[0]
+    }
+    
     if (typeof id == "object") {
+      if (typeof id[variable] != "undefined") return id[variable]
+      else if (id.values) {
+        dat.values.forEach(function(d){
+          if (typeof d[variable] != "undefined") return d[variable]
+        })
+      }
       var dat = id
       id = dat[vars.id_var]
     }
     else {
       if (vars.data instanceof Array) {
-        var dat = vars.data.filter(function(d){
-          return d[vars.id_var] == id
-        })[0]
+        var dat = filter_array(vars.data)
+        if (dat && typeof dat[variable] != "undefined") return dat[variable]
       }
       else if (vars.data) {
         var dat = vars.data[id]
+        if (dat && typeof dat[variable] != "undefined") return dat[variable]
       }
     }
     
-    var attr = vars.attrs[id]
-    
-    var value = false
-    
-    if (dat && dat.values) {
-      dat.values.forEach(function(d){
-        if (d[variable] && !value) value = d[variable]
-      })
+    if (vars.attrs instanceof Array) {
+      var attr = filter_array(vars.attrs)
+    }
+    else if (vars.attrs[vars.id_var]) {
+      if (vars.attrs[vars.id_var] instanceof Array) {
+        var attr = filter_array(vars.attrs[vars.id_var])
+      }
+      else {
+        var attr = vars.attrs[vars.id_var][id]
+      }
+    }
+    else {
+      var attr = vars.attrs[id]
     }
     
-    if (!value) {
-      if (dat && typeof dat[variable] != "undefined") value = dat[variable]
-      else if (attr && typeof attr[variable] != "undefined") value = attr[variable]
-    }
+    if (attr && typeof attr[variable] != "undefined") return attr[variable]
 
-    if (value === null) value = 0
-    if (variable == vars.text_var && value) {
-      return vars.format(value)
-    }
-    else return value
+    return null
     
   }
   
   find_color = function(id) {
-    var color = find_variable(id,vars.color_var)
-    if (!color && vars.color_domain instanceof Array) color = 0
-    else if (!color) color = d3plus.utils.rand_color()
-    if (typeof color == "string") return color
-    else return vars.color_scale(color)
+    if (!vars.color_var) return d3plus.utils.rand_color()
+    else {
+      var color = find_variable(id,vars.color_var)
+      if (!color && vars.color_domain instanceof Array) color = 0
+      else if (!color) color = d3plus.utils.rand_color()
+      if (typeof color == "string") return color
+      else return vars.color_scale(color)
+    }
   }
   
   footer_text = function() {
