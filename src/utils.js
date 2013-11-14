@@ -4,7 +4,7 @@ d3plus.utils = {};
 // Random color generator (if no color is given)
 //-------------------------------------------------------------------
 
-d3plus.utils.color_scale = d3.scale.category20()
+d3plus.utils.color_scale = d3.scale.category20b()
 d3plus.utils.rand_color = function() {
   var rand_int = Math.floor(Math.random()*20)
   return d3plus.utils.color_scale(rand_int);
