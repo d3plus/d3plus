@@ -1,5 +1,4 @@
-
-d3plus.rings = function(vars) {
+d3plus.apps.rings = function(vars) {
       
   var tooltip_width = 300
       
@@ -37,7 +36,7 @@ d3plus.rings = function(vars) {
       .y(function(d) { return d.y; })
       .interpolate("basis");
       
-  if (vars.data) {
+  if (vars.app_data) {
     var root = get_root()
   }
   else {
@@ -89,7 +88,7 @@ d3plus.rings = function(vars) {
   //-------------------------------------------------------------------
   
   var node = d3.select(".nodes").selectAll("g.node")
-    .data(root.nodes,function(d){return d[vars.id_var]})
+    .data(root.nodes,function(d){return d[vars.id]})
       
   var node_enter = node.enter().append("g")
       .attr("class", "node")
@@ -100,7 +99,7 @@ d3plus.rings = function(vars) {
       })
       
   node_enter.append("circle")
-    .attr("id",function(d) { return "node_"+d[vars.id_var]; })
+    .attr("id",function(d) { return "node_"+d[vars.id]; })
     .call(circle_styles)
     .attr("r",0)
     
@@ -138,7 +137,7 @@ d3plus.rings = function(vars) {
       }
     })
     .on(d3plus.evt.click,function(d){
-      if (d.depth != 0) vars.parent.call(chart.highlight(d[vars.id_var]));
+      if (d.depth != 0) vars.parent.call(chart.highlight(d[vars.id]));
     })
       
   node.transition().duration(d3plus.timing)
@@ -172,9 +171,9 @@ d3plus.rings = function(vars) {
       }
 
       if (h < 15) h = 15;
-
+      
       d3plus.utils.wordwrap({
-        "text": d.name,
+        "text": d3plus.utils.variable(vars,d,vars.text),
         "parent": this,
         "width": w,
         "height": h,
@@ -196,9 +195,9 @@ d3plus.rings = function(vars) {
   
   vars.last_highlight = vars.highlight
   
-  if (!vars.small && vars.data) {
+  if (!vars.small && vars.app_data) {
 
-    d3plus.tooltip.remove(vars.type)
+    d3plus.ui.tooltip.remove(vars.type)
     
     make_tooltip = function(html) {
         
@@ -212,7 +211,7 @@ d3plus.rings = function(vars) {
       
         var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
       
-        tooltip_appends += "<div class='d3plus_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+        tooltip_appends += "<div class='d3plus_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id]+"&quot;))'>"
         tooltip_appends += "<div class='d3plus_network_connection_node'"
         tooltip_appends += " style='"
         tooltip_appends += "background-color:"+fill_color(n)+";"
@@ -220,18 +219,18 @@ d3plus.rings = function(vars) {
         tooltip_appends += "'"
         tooltip_appends += "></div>"
         tooltip_appends += "<div class='d3plus_network_connection_name'>"
-        tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
+        tooltip_appends += d3plus.utils.variable(vars,n[vars.id],vars.text)
         tooltip_appends += "</div>"
         tooltip_appends += "</div>"
       })
     
-      var tooltip_data = get_tooltip_data(vars.highlight)
+      var tooltip_data = d3plus.utils.tooltip(vars,vars.highlight)
 
-      d3plus.tooltip.remove(vars.type)
-      d3plus.tooltip.create({
-        "title": find_variable(vars.highlight,vars.text_var),
-        "color": find_color(vars.highlight),
-        "icon": find_variable(vars.highlight,"icon"),
+      d3plus.ui.tooltip.remove(vars.type)
+      d3plus.ui.tooltip.create({
+        "title": d3plus.utils.variable(vars,vars.highlight,vars.text),
+        "color": d3plus.utils.color(vars,vars.highlight),
+        "icon": d3plus.utils.variable(vars,vars.highlight,"icon"),
         "style": vars.icon_style,
         "id": vars.type,
         "html": tooltip_appends+html,
@@ -262,21 +261,21 @@ d3plus.rings = function(vars) {
   }
   
   function fill_color(d) {
-    if(find_variable(d[vars.id_var],vars.active_var)){
-      return d[vars.color_var];
+    if(!vars.active || d3plus.utils.variable(vars,d[vars.id],vars.active)){
+      return d[vars.color];
     } 
     else {
-      var lighter_col = d3.hsl(d[vars.color_var]);
+      var lighter_col = d3.hsl(d[vars.color]);
       lighter_col.l = 0.95;
       return lighter_col.toString()
     }
   }
   
   function stroke_color(d) {
-    if(find_variable(d[vars.id_var],vars.active_var)){
+    if(!vars.active || d3plus.utils.variable(vars,d[vars.id],vars.active)){
       return "#333";
     } else {
-      return d3plus.utils.darker_color(d[vars.color_var])
+      return d3plus.utils.darker_color(d[vars.color])
     }
   }
   
@@ -295,18 +294,18 @@ d3plus.rings = function(vars) {
             return "transparent"
           }
         }
-        if (d.source[vars.id_var] == vars.highlight) {
+        if (d.source[vars.id] == vars.highlight) {
           this.parentNode.appendChild(this)
           return "#888"
         }
         else return "#ccc"
       })
       .attr("stroke-width", function(d){
-        if (d.source[vars.id_var] == vars.highlight) return 2
+        if (d.source[vars.id] == vars.highlight) return 2
         else return 1
       })
       .attr("d", function(d) {
-        if (d.source[vars.id_var] == vars.highlight) {
+        if (d.source[vars.id] == vars.highlight) {
           var x = d.target.ring_y * Math.cos((d.target.ring_x-90)*(Math.PI/180)),
               y = d.target.ring_y * Math.sin((d.target.ring_x-90)*(Math.PI/180))
           return line([{"x":0,"y":0},{"x":x,"y":y}]);
@@ -360,7 +359,7 @@ d3plus.rings = function(vars) {
           var color = d3plus.utils.text_color(fill_color(d));
         } 
         else {
-          var color = d3plus.utils.darker_color(d[vars.color_var]);
+          var color = d3plus.utils.darker_color(d[vars.color]);
         }
 
         if (d.depth == 0) return color;
@@ -388,11 +387,11 @@ d3plus.rings = function(vars) {
     root.ring_x = 0;
     root.ring_y = 0;
     root.depth = 0;
-    root[vars.text_var] = find_variable(vars.highlight,vars.text_var)
-    root[vars.id_var] = vars.highlight
+    root[vars.text] = d3plus.utils.variable(vars,vars.highlight,vars.text)
+    root[vars.id] = vars.highlight
     root.children = []
-    root[vars.color_var] = find_color(vars.highlight)
-    root[vars.active_var] = find_variable(vars.highlight,vars.active_var)
+    root[vars.color] = d3plus.utils.color(vars,vars.highlight)
+    root[vars.active] = d3plus.utils.variable(vars,vars.highlight,vars.active)
   
     nodes.push(root);
     
@@ -405,11 +404,11 @@ d3plus.rings = function(vars) {
         child.ring_x = 0;
         child.ring_y = ring_width;
         child.depth = 1;
-        child[vars.text_var] = find_variable(child[vars.id_var],vars.text_var)
+        child[vars.text] = d3plus.utils.variable(vars,child[vars.id],vars.text)
         child.children = []
         child.children_total = []
-        child[vars.color_var] = find_color(child[vars.id_var])
-        child[vars.active_var] = find_variable(child[vars.id_var],vars.active_var)
+        child[vars.color] = d3plus.utils.color(vars,child[vars.id])
+        child[vars.active] = d3plus.utils.variable(vars,child[vars.id],vars.active)
   
         // push first level child into nodes
         nodes.push(child);
@@ -418,7 +417,7 @@ d3plus.rings = function(vars) {
         // create link from center to first level child
         links.push({"source": nodes[nodes.indexOf(root)], "target": nodes[nodes.indexOf(child)]})
       
-        vars.connections[child[vars.id_var]].forEach(function(grandchild){ 
+        vars.connections[child[vars.id]].forEach(function(grandchild){ 
           child.children_total.push(grandchild);
         })
       
@@ -430,37 +429,37 @@ d3plus.rings = function(vars) {
         
       while(len--) {
 
-        var sec_links = vars.connections[nodes[len][vars.id_var]]
+        var sec_links = vars.connections[nodes[len][vars.id]]
         if (sec_links) {
           sec_links.forEach(function(grandchild){
     
             // if grandchild isn't already a first level child or the center node
-            if (prim_links.indexOf(grandchild) < 0 && grandchild[vars.id_var] != vars.highlight) {
+            if (prim_links.indexOf(grandchild) < 0 && grandchild[vars.id] != vars.highlight) {
           
               grandchild.ring_x = 0;
               grandchild.ring_y = ring_width*2;
               grandchild.depth = 2;
-              grandchild[vars.text_var] = find_variable(grandchild[vars.id_var],vars.text_var)
-              grandchild[vars.color_var] = find_color(grandchild[vars.id_var])
-              grandchild[vars.active_var] = find_variable(grandchild[vars.id_var],vars.active_var)
+              grandchild[vars.text] = d3plus.utils.variable(vars,grandchild[vars.id],vars.text)
+              grandchild[vars.color] = d3plus.utils.color(vars,grandchild[vars.id])
+              grandchild[vars.active] = d3plus.utils.variable(vars,grandchild[vars.id],vars.active)
               grandchild.parents = []
 
               var s = 10000, node_id = 0;
               prim_links.forEach(function(node){
-                var temp_links = vars.connections[node[vars.id_var]]
+                var temp_links = vars.connections[node[vars.id]]
                 temp_links.forEach(function(node2){
-                  if (node2[vars.id_var] == grandchild[vars.id_var]) {
+                  if (node2[vars.id] == grandchild[vars.id]) {
                     grandchild.parents.push(node);
                     if (temp_links.length < s) {
                       s = temp_links.length
-                      node_id = node[vars.id_var]
+                      node_id = node[vars.id]
                     }
                   }
                 })
               })
               var len3 = len2;
               while(len3--) {
-                if (nodes[len3][vars.id_var] == node_id && nodes[len3].children.indexOf(grandchild) < 0) {
+                if (nodes[len3][vars.id] == node_id && nodes[len3].children.indexOf(grandchild) < 0) {
                   nodes[len3].children.push(grandchild);
                 }
               }
@@ -493,10 +492,10 @@ d3plus.rings = function(vars) {
 
     // sort first level vars.connections by color
     nodes[0].children.sort(function(a, b){
-      var a_color = d3.rgb(a[vars.color_var]).hsl().h
-      var b_color = d3.rgb(b[vars.color_var]).hsl().h
-      if (d3.rgb(a[vars.color_var]).hsl().s == 0) a_color = 361
-      if (d3.rgb(b[vars.color_var]).hsl().s == 0) b_color = 361
+      var a_color = d3.rgb(a[vars.color]).hsl().h
+      var b_color = d3.rgb(b[vars.color]).hsl().h
+      if (d3.rgb(a[vars.color]).hsl().s == 0) a_color = 361
+      if (d3.rgb(b[vars.color]).hsl().s == 0) b_color = 361
       if (a_color < b_color) return -1;
       if (a_color > b_color) return 1;
       return 0;
@@ -513,10 +512,10 @@ d3plus.rings = function(vars) {
       
       // sort children by color
       d.children.sort(function(a, b){
-        var a_color = d3.rgb(a[vars.color_var]).hsl().h
-        var b_color = d3.rgb(b[vars.color_var]).hsl().h
-        if (d3.rgb(a[vars.color_var]).hsl().s == 0) a_color = 361
-        if (d3.rgb(b[vars.color_var]).hsl().s == 0) b_color = 361
+        var a_color = d3.rgb(a[vars.color]).hsl().h
+        var b_color = d3.rgb(b[vars.color]).hsl().h
+        if (d3.rgb(a[vars.color]).hsl().s == 0) a_color = 361
+        if (d3.rgb(b[vars.color]).hsl().s == 0) b_color = 361
         if (a_color < b_color) return -1;
         if (a_color > b_color) return 1;
         return 0;

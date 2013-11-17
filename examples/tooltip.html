@@ -45,7 +45,7 @@ div.test_button {
   var w = window.innerWidth/xn
   var h = window.innerHeight/yn
   
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 0,
   //   "y": 0,
   //   "fixed": true,
@@ -54,7 +54,7 @@ div.test_button {
   //   "id": "1"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 250,
   //   "y": 0,
   //   "fixed": true,
@@ -65,7 +65,7 @@ div.test_button {
   //   "id": "2"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 500,
   //   "y": 0,
   //   "fixed": true,
@@ -75,7 +75,7 @@ div.test_button {
   //   "id": "3"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 0,
   //   "y": 100,
   //   "fixed": true,
@@ -85,7 +85,7 @@ div.test_button {
   //   "id": "4"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 250,
   //   "y": 100,
   //   "fixed": true,
@@ -97,7 +97,7 @@ div.test_button {
   //   "id": "5"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 500,
   //   "y": 100,
   //   "fixed": true,
@@ -107,7 +107,7 @@ div.test_button {
   //   "id": "6"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 750,
   //   "y": 100,
   //   "fixed": true,
@@ -116,7 +116,7 @@ div.test_button {
   //   "id": "7"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 0,
   //   "y": 200,
   //   "fixed": true,
@@ -127,7 +127,7 @@ div.test_button {
   //   "id": "8"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 250,
   //   "y": 200,
   //   "fixed": true,
@@ -139,7 +139,7 @@ div.test_button {
   //   "id": "9"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 500,
   //   "y": 200,
   //   "fixed": true,
@@ -150,7 +150,7 @@ div.test_button {
   //   "id": "10"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 750,
   //   "y": 200,
   //   "fixed": true,
@@ -160,7 +160,7 @@ div.test_button {
   //   "id": "11"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 0,
   //   "y": 300,
   //   "fixed": true,
@@ -170,7 +170,7 @@ div.test_button {
   //   "id": "12"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 250,
   //   "y": 300,
   //   "fixed": true,
@@ -181,7 +181,7 @@ div.test_button {
   //   "id": "13"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 500,
   //   "y": 300,
   //   "fixed": true,
@@ -191,7 +191,7 @@ div.test_button {
   //   "id": "14"
   // })
   // 
-  // d3plus.tooltip.create({
+  // d3plus.ui.tooltip.create({
   //   "x": 750,
   //   "y": 300,
   //   "fixed": true,
@@ -200,7 +200,7 @@ div.test_button {
   //   "id": "15"
   // })
   
-  d3plus.tooltip.create({
+  d3plus.ui.tooltip.create({
     "title": "Animal Products",
     "icon": "tooltip_icon.png",
     "style": "knockout",
@@ -229,7 +229,7 @@ div.test_button {
     .style("left","600px")
     .style("background-color","red")
     .on(d3plus.evt.over,function(d){
-      d3plus.tooltip.create({
+      d3plus.ui.tooltip.create({
         "title": "Animal Products",
         "description": "Including Horses and other cool creatures.",
         "color": this.style.backgroundColor,
@@ -254,11 +254,11 @@ div.test_button {
       
     })
     .on(d3plus.evt.out,function(d){
-        d3plus.tooltip.remove("tester")
+        d3plus.ui.tooltip.remove("tester")
     })
     
   
-    // d3plus.tooltip.create({
+    // d3plus.ui.tooltip.create({
     //   "title": "Animal Products",
     //   "description": "Including Horses and other cool creatures.",
     //   "color": "#cc0000",
@@ -284,7 +284,7 @@ div.test_button {
   //     .style("background-color",d3plus.utils.rand_color())
   //     .on(d3plus.evt.over,function(d){
   //       
-  //       d3plus.tooltip.create({
+  //       d3plus.ui.tooltip.create({
   //         "title": "Animal Products",
   //         "description": "Including Horses and other cool creatures.",
   //         "color": this.style.backgroundColor,
@@ -303,20 +303,20 @@ div.test_button {
   //       
   //     })
   //     .on(d3plus.evt.move,function(d){
-  //       // d3plus.tooltip.move(d3.event.clientX,d3.event.clientY,this.id)
+  //       // d3plus.ui.tooltip.move(d3.event.clientX,d3.event.clientY,this.id)
   //     })
   //     .on(d3plus.evt.out,function(d){
   //       var target = d3.event.toElement
   //       var class_name = target ? target.className : ""
   //       if (class_name.indexOf("d3plus_tooltip") < 0) {
-  //         d3plus.tooltip.remove(this.id)
+  //         d3plus.ui.tooltip.remove(this.id)
   //       }
   //     })
   //     .on(d3plus.evt.click,function(d){
   // 
-  //       d3plus.tooltip.remove(this.id)
+  //       d3plus.ui.tooltip.remove(this.id)
   //       
-  //       d3plus.tooltip.create({
+  //       d3plus.ui.tooltip.create({
   //         "title": "Animal Products",
   //         "color": this.style.backgroundColor,
   //         "icon": "tooltip_icon.png",

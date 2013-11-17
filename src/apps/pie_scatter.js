@@ -1,14 +1,13 @@
-
-d3plus.pie_scatter = function(vars) {
+d3plus.apps.pie_scatter = function(vars) {
   
   var covered = false
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scaling
   //-------------------------------------------------------------------
-  if (!vars.data) vars.data = []
-  var size_domain = d3.extent(vars.data, function(d){ 
-    return d[vars.value_var] == 0 ? null : d[vars.value_var] 
+  if (!vars.app_data) vars.app_data = []
+  var size_domain = d3.extent(vars.app_data, function(d){ 
+    return d[vars.value] == 0 ? null : d[vars.value] 
   })
   
   if (!size_domain[1]) size_domain = [0,0]
@@ -81,38 +80,38 @@ d3plus.pie_scatter = function(vars) {
     .endAngle(function(d) { return d.arc_angle })
   
   // sort nodes so that smallest are always on top
-  vars.data.sort(function(node_a, node_b){
-    return node_b[vars.value_var] - node_a[vars.value_var];
+  vars.app_data.sort(function(node_a, node_b){
+    return node_b[vars.value] - node_a[vars.value];
   })
   
   vars.chart_enter.append("g").attr("class","circles")
   
   var nodes = d3.select("g.circles").selectAll("g.circle")
-    .data(vars.data,function(d){ return d[vars.id_var] })
+    .data(vars.app_data,function(d){ return d[vars.id] })
   
   nodes.enter().append("g")
     .attr("opacity", 0)
     .attr("class", "circle")
-    .attr("transform", function(d) { return "translate("+vars.x_scale(d[vars.xaxis_var])+","+vars.y_scale(d[vars.yaxis_var])+")" } )
+    .attr("transform", function(d) { return "translate("+vars.x_scale(d[vars.xaxis])+","+vars.y_scale(d[vars.yaxis])+")" } )
     .each(function(d){
       
       d3.select(this)
         .append("circle")
         .style("stroke", function(dd){
-          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) {
+          if (d[vars.active] || (d.num_children_active == d.num_children && d[vars.active] != false)) {
             return "#333";
           }
           else {
-            return find_color(d[vars.id_var]);
+            return d3plus.utils.color(vars,d);
           }
         })
         .style('stroke-width', 1)
         .style('fill', function(dd){
-          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) {
-            return find_color(d[vars.id_var]);
+          if (d[vars.active] || (d.num_children_active == d.num_children && d[vars.active] != false)) {
+            return d3plus.utils.color(vars,d);
           }
           else {
-            var c = d3.hsl(find_color(d[vars.id_var]));
+            var c = d3.hsl(d3plus.utils.color(vars,d));
             c.l = 0.95;
             return c.toString();
           }
@@ -124,7 +123,7 @@ d3plus.pie_scatter = function(vars) {
         
       d3.select(this)
         .append("path")
-        .style('fill', find_color(d[vars.id_var]) )
+        .style('fill', d3plus.utils.color(vars,d) )
         .style("fill-opacity", 1)
         
       d3.select(this).select("path").transition().duration(d3plus.timing)
@@ -138,11 +137,11 @@ d3plus.pie_scatter = function(vars) {
     .on(d3plus.evt.over, function(d){
       covered = false
       
-      var val = d[vars.value_var] ? d[vars.value_var] : vars.size_scale.domain()[0]
+      var val = d[vars.value] ? d[vars.value] : vars.size_scale.domain()[0]
       var radius = vars.size_scale(val),
-          x = vars.x_scale(d[vars.xaxis_var]),
-          y = vars.y_scale(d[vars.yaxis_var]),
-          color = d[vars.active_var] || d.num_children_active/d.num_children == 1 ? "#333" : find_color(d[vars.id_var]),
+          x = vars.x_scale(d[vars.xaxis]),
+          y = vars.y_scale(d[vars.yaxis]),
+          color = d[vars.active] || d.num_children_active/d.num_children == 1 ? "#333" : d3plus.utils.color(vars,d),
           viz = d3.select("g.chart");
           
       // vertical line to x-axis
@@ -177,7 +176,7 @@ d3plus.pie_scatter = function(vars) {
         .attr("stroke-width", 1)
         .attr("shape-rendering","crispEdges")
     
-      var xtext = vars.format(d[vars.xaxis_var],vars.xaxis_var)
+      var xtext = vars.format(d[vars.xaxis],vars.xaxis)
       
       // xvalue text element
       var xtext = viz.append("text")
@@ -206,7 +205,7 @@ d3plus.pie_scatter = function(vars) {
         .attr("stroke-width", 1)
         .attr("shape-rendering","crispEdges")
       
-      var ytext = vars.format(d[vars.yaxis_var],vars.yaxis_var)
+      var ytext = vars.format(d[vars.yaxis],vars.yaxis)
       
       // xvalue text element
       var ytext = viz.append("text")
@@ -232,16 +231,16 @@ d3plus.pie_scatter = function(vars) {
             den = d.num_children
         ex = {"fill":num+"/"+den+" ("+vars.format((num/den)*100,"share")+"%)"}
       }
-      var tooltip_data = get_tooltip_data(d,"short",ex)
+      var tooltip_data = d3plus.utils.tooltip(vars,d,"short",ex)
       
-      d3plus.tooltip.remove(vars.type)
-      d3plus.tooltip.create({
+      d3plus.ui.tooltip.remove(vars.type)
+      d3plus.ui.tooltip.create({
         "id": vars.type,
-        "color": find_color(d[vars.id_var]),
-        "icon": find_variable(d[vars.id_var],"icon"),
+        "color": d3plus.utils.color(vars,d),
+        "icon": d3plus.utils.variable(vars,d[vars.id],"icon"),
         "style": vars.icon_style,
         "data": tooltip_data,
-        "title": find_variable(d[vars.id_var],vars.text_var),
+        "title": d3plus.utils.variable(vars,d[vars.id],vars.text),
         "x": x+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
         "y": y+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
         "offset": radius,
@@ -252,17 +251,17 @@ d3plus.pie_scatter = function(vars) {
       
     })
     .on(d3plus.evt.out, function(d){
-      if (!covered) d3plus.tooltip.remove(vars.type)
+      if (!covered) d3plus.ui.tooltip.remove(vars.type)
       d3.selectAll(".axis_hover").remove()
     })
     .on(d3plus.evt.click, function(d){
       covered = true
-      var id = find_variable(d,vars.id_var)
+      var id = d3plus.utils.variable(vars,d,vars.id)
       var self = this
       
       make_tooltip = function(html) {
         
-        d3plus.tooltip.remove(vars.type)
+        d3plus.ui.tooltip.remove(vars.type)
         d3.selectAll(".axis_hover").remove()
         
         var ex = null
@@ -271,12 +270,12 @@ d3plus.pie_scatter = function(vars) {
               den = d.num_children
           ex = {"fill":num+"/"+den+" ("+vars.format((num/den)*100,"share")+"%)"}
         }
-        var tooltip_data = get_tooltip_data(d,"long",ex)
+        var tooltip_data = d3plus.utils.tooltip(vars,d,"long",ex)
         
-        d3plus.tooltip.create({
-          "title": find_variable(d,vars.text_var),
-          "color": find_color(d),
-          "icon": find_variable(d,"icon"),
+        d3plus.ui.tooltip.create({
+          "title": d3plus.utils.variable(vars,d,vars.text),
+          "color": d3plus.utils.color(vars,d),
+          "icon": d3plus.utils.variable(vars,d,"icon"),
           "style": vars.icon_style,
           "id": vars.type,
           "fullscreen": true,
@@ -299,30 +298,30 @@ d3plus.pie_scatter = function(vars) {
           make_tooltip(html)
         })
       }
-      else if (vars.tooltip_info.long) {
+      else if (vars.tooltip.long) {
         make_tooltip(html)
       }
       
     })
     
   nodes.transition().duration(d3plus.timing)
-    .attr("transform", function(d) { return "translate("+vars.x_scale(d[vars.xaxis_var])+","+vars.y_scale(d[vars.yaxis_var])+")" } )
+    .attr("transform", function(d) { return "translate("+vars.x_scale(d[vars.xaxis])+","+vars.y_scale(d[vars.yaxis])+")" } )
     .attr("opacity", 1)
     .each(function(d){
 
-      var val = d[vars.value_var]
-      val = val && val > 0 ? val : vars.size_scale.domain()[0]
+      var val = d3plus.utils.variable(vars,d,vars.value)
+      val = val || vars.size_scale.domain()[0]
       d.arc_radius = vars.size_scale(val);
       
       d3.select(this).select("circle").transition().duration(d3plus.timing)
         .style("stroke", function(dd){
-          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return "#333";
-          else return find_color(d[vars.id_var]);
+          if (d[vars.active] || (d.num_children_active == d.num_children && d[vars.active] != false)) return "#333";
+          else return d3plus.utils.color(vars,d);
         })
         .style('fill', function(dd){
-          if (d[vars.active_var] || (d.num_children_active == d.num_children && d[vars.active_var] != false)) return find_color(d[vars.id_var]);
+          if (d[vars.active] || (d.num_children_active == d.num_children && d[vars.active] != false)) return d3plus.utils.color(vars,d);
           else {
-            var c = d3.hsl(find_color(d[vars.id_var]));
+            var c = d3.hsl(d3plus.utils.color(vars,d));
             c.l = 0.95;
             return c.toString();
           }
@@ -333,7 +332,7 @@ d3plus.pie_scatter = function(vars) {
       if (d.num_children) {
         d.arc_angle = (((d.num_children_active / d.num_children)*360) * (Math.PI/180));
         d3.select(this).select("path").transition().duration(d3plus.timing)
-          .style('fill', find_color(d[vars.id_var]) )
+          .style('fill', d3plus.utils.color(vars,d) )
           .attrTween("d",arcTween)
           .each("end", function(dd) {
             vars.arc_angles[d.id] = d.arc_angle
@@ -360,7 +359,7 @@ d3plus.pie_scatter = function(vars) {
   
   var ticks = d3.select("g#data_ticks")
     .selectAll("g.data_tick")
-    .data(vars.data, function(d){ return d[vars.id_var]; })
+    .data(vars.app_data, function(d){ return d[vars.id]; })
   
   var ticks_enter = ticks.enter().append("g")
     .attr("class", "data_tick")
@@ -371,9 +370,9 @@ d3plus.pie_scatter = function(vars) {
     .attr("class", "ytick")
     .attr("x1", -10)
     .attr("x2", 0)
-    .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
-    .attr("y2", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
-    .attr("stroke", function(d){ return find_color(d[vars.id_var]); })
+    .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis]) })
+    .attr("y2", function(d){ return vars.y_scale(d[vars.yaxis]) })
+    .attr("stroke", function(d){ return d3plus.utils.color(vars,d); })
     .attr("stroke-width", 1)
     .attr("shape-rendering","crispEdges")
   
@@ -381,8 +380,8 @@ d3plus.pie_scatter = function(vars) {
   ticks.select(".ytick").transition().duration(d3plus.timing)
     .attr("x1", -10)
     .attr("x2", 0)
-    .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
-    .attr("y2", function(d){ return vars.y_scale(d[vars.yaxis_var]) })
+    .attr("y1", function(d){ return vars.y_scale(d[vars.yaxis]) })
+    .attr("y2", function(d){ return vars.y_scale(d[vars.yaxis]) })
   
   // x ticks
   // ENTER
@@ -390,9 +389,9 @@ d3plus.pie_scatter = function(vars) {
     .attr("class", "xtick")
     .attr("y1", vars.graph.height)
     .attr("y2", vars.graph.height + 10)      
-    .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
-    .attr("x2", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
-    .attr("stroke", function(d){ return find_color(d[vars.id_var]); })
+    .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis]) })
+    .attr("x2", function(d){ return vars.x_scale(d[vars.xaxis]) })
+    .attr("stroke", function(d){ return d3plus.utils.color(vars,d); })
     .attr("stroke-width", 1)
     .attr("shape-rendering","crispEdges")
   
@@ -400,8 +399,8 @@ d3plus.pie_scatter = function(vars) {
   ticks.select(".xtick").transition().duration(d3plus.timing)
     .attr("y1", vars.graph.height)
     .attr("y2", vars.graph.height + 10)      
-    .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
-    .attr("x2", function(d){ return vars.x_scale(d[vars.xaxis_var]) })
+    .attr("x1", function(d){ return vars.x_scale(d[vars.xaxis]) })
+    .attr("x2", function(d){ return vars.x_scale(d[vars.xaxis]) })
   
   // EXIT (needed for when things are filtered/soloed)
   ticks.exit().remove()

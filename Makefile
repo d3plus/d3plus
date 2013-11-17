@@ -1,17 +1,23 @@
 JS_FILES = \
 	src/begin.js \
 	src/general.js \
-	src/utils.js \
-	src/tooltip.js \
-	src/error.js \
-	src/viz/viz.js \
-	src/viz/network.js \
-	src/viz/stacked.js \
-	src/viz/tree_map.js \
-	src/viz/geo_map.js \
-	src/viz/pie_scatter.js \
-	src/viz/bubbles.js \
-	src/viz/rings.js \
+	src/viz.js \
+	src/apps/network.js \
+	src/apps/stacked.js \
+	src/apps/tree_map.js \
+	src/apps/geo_map.js \
+	src/apps/pie_scatter.js \
+	src/apps/bubbles.js \
+	src/apps/rings.js \
+	src/ui/tooltip.js \
+	src/utils/data.js \
+	src/utils/error.js \
+	src/utils/filters.js \
+	src/utils/nesting.js \
+	src/utils/tooltip.js \
+	src/utils/utils.js \
+	src/utils/variables.js \
+	src/utils/wordwrap.js \
 	src/end.js \
 
 JS_COMPILER = uglifyjs

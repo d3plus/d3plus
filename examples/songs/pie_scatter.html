@@ -30,7 +30,7 @@ body {
 <script src="../../src/utils/variables.js"></script>
 <script src="../../src/utils/wordwrap.js"></script>
 
-<script src="../../src/apps/tree_map.js"></script>
+<script src="../../src/apps/pie_scatter.js"></script>
 
 <script>
 
@@ -43,17 +43,18 @@ d3.json("data/artists_indented.json", function(artists){
       var attrs = {"artist_id": artists, "album_id": albums, "song_id": songs}
   
       viz
-        .type("tree_map")
+        .type("pie_scatter")
         .attrs(attrs)
-        .aggs({"hotttnesss":"mean"})
         .dev(true)
-        .value("hotttnesss")
+        .value("loudness")
         .id(["artist_id","album_id","song_id"])
         .text({"artist_id":"names","album_id":"name","song_id":["song_title","song_id","loudness"]})
         .tooltip({"artist_id":["names"],"album_id":["name"],"song_id":["song_title"]})
-        .depth(0)
+        .depth(2)
         .year(2010)
         .year_var("year")
+        .xaxis("duration")
+        .yaxis("hotttnesss")
       
       d3.select("#viz")
         .datum(songs)

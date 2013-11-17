@@ -1,8 +1,7 @@
 var d3plus = window.d3plus || {};
-
-d3plus.version = "0.0.8";
-
 window.d3plus = d3plus;
+
+d3plus.version = "0.9";
 
 d3plus.timing = 600; // milliseconds for animations
 
@@ -32,3 +31,7 @@ if (Modernizr && Modernizr.touch) {
   }
   d3plus.evt.move = "mousemove"
 }
+
+d3plus.apps = {};
+d3plus.ui = {};
+d3plus.utils = {};

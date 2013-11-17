@@ -21,7 +21,6 @@ body {
 
 <script src="../../src/ui/tooltip.js"></script>
 
-<script src="../../src/utils/data.js"></script>
 <script src="../../src/utils/error.js"></script>
 <script src="../../src/utils/filters.js"></script>
 <script src="../../src/utils/nesting.js"></script>
@@ -30,7 +29,7 @@ body {
 <script src="../../src/utils/variables.js"></script>
 <script src="../../src/utils/wordwrap.js"></script>
 
-<script src="../../src/apps/tree_map.js"></script>
+<script src="../../src/apps/rings.js"></script>
 
 <script>
 
@@ -39,26 +38,30 @@ var viz = d3plus.viz()
 d3.json("data/artists_indented.json", function(artists){
   d3.json("data/albums_indented.json", function(albums){
     d3.json("data/songs_indented.json", function(songs){
+      d3.json("data/artist_similarity.json", function(network){
     
-      var attrs = {"artist_id": artists, "album_id": albums, "song_id": songs}
+        var attrs = {"artist_id": artists, "album_id": albums, "song_id": songs}
   
-      viz
-        .type("tree_map")
-        .attrs(attrs)
-        .aggs({"hotttnesss":"mean"})
-        .dev(true)
-        .value("hotttnesss")
-        .id(["artist_id","album_id","song_id"])
-        .text({"artist_id":"names","album_id":"name","song_id":["song_title","song_id","loudness"]})
-        .tooltip({"artist_id":["names"],"album_id":["name"],"song_id":["song_title"]})
-        .depth(0)
-        .year(2010)
-        .year_var("year")
+        viz
+          .type("rings")
+          .attrs(attrs)
+          .aggs({"hotttnesss":"mean"})
+          .dev(true)
+          .value_var("hotttnesss")
+          .id_var("artist_id")
+          .text("names")
+          .tooltip(["names","location"])
+          .highlight("ARJ7KF01187B98D717")
+          .year(2010)
+          .nodes(network.nodes)
+          .links(network.edges)
+          .color("hotttnesss")
       
-      d3.select("#viz")
-        .datum(songs)
-        .call(viz)
+        d3.select("#viz")
+          .datum(songs)
+          .call(viz)
   
+      })
     })
   })
 })

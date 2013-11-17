@@ -1,4 +1,4 @@
-d3plus.bubbles = function(vars) {
+d3plus.apps.bubbles = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables
@@ -10,7 +10,7 @@ d3plus.bubbles = function(vars) {
       donut_size = 0.35,
       title_height = vars.small ? 0 : 30,
       arc_offset = vars.donut ? donut_size : 0,
-      sort_order = vars.sort == "value" ? vars.value_var : vars.sort;
+      sort_order = vars.sort == "value" ? vars.value : vars.sort;
       
   var arc = d3.svg.arc()
     .startAngle(0)
@@ -35,9 +35,9 @@ d3plus.bubbles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scaling
   //-------------------------------------------------------------------
-  if (!vars.data) vars.data = []
-  var size_domain = d3.extent(vars.data, function(d){ 
-    return d[vars.value_var] == 0 ? null : d[vars.value_var] 
+  if (!vars.app_data) vars.app_data = []
+  var size_domain = d3.extent(vars.app_data, function(d){ 
+    return d[vars.value] == 0 ? null : d[vars.value] 
   })
   
   if (!size_domain[1]) size_domain = [0,0]
@@ -55,39 +55,39 @@ d3plus.bubbles = function(vars) {
   var data_nested = {}
   data_nested.key = "root";
   data_nested.values = d3.nest()
-    .key(function(d){ return find_variable(d[vars.id_var],vars.grouping) })
-    .entries(vars.data)
+    .key(function(d){ return d3plus.utils.variable(vars,d[vars.id],vars.grouping) })
+    .entries(vars.app_data)
     
   var pack = d3.layout.pack()
     .size([vars.width,vars.height])
     .children(function(d) { return d.values; })
-    .value(function(d) { return d[vars.value_var] })
+    .value(function(d) { return d[vars.value] })
     .padding(0)
     .radius(function(d){ return vars.size_scale(d) })
     .sort(function(a,b) { 
       if (a.values && b.values) return a.values.length - b.values.length;
-      else return a[vars.value_var] - b[vars.value_var];
+      else return a[vars.value] - b[vars.value];
     })
   
   var data_packed = pack.nodes(data_nested)
     .filter(function(d){
       if (d.depth == 1) {
         if (d.children.length == 1 ) {
-          d[vars.text_var] = find_variable(d.children[0][vars.id_var],vars.text_var);
+          d[vars.text] = d3plus.utils.variable(vars,d.children[0][vars.id],vars.text);
           d.category = d.children[0].category;
         }
         else {
-          d[vars.text_var] = d.key;
+          d[vars.text] = d.key;
           d.category = d.key;
         }
-        d[vars.value_var] = d.value;
+        d[vars.value] = d.value;
       }
       return d.depth == 1;
     })
     .sort(function(a,b){
-      var s = sort_order == vars.color_var ? "category" : sort_order
-      var a_val = find_variable(a,s)
-      var b_val = find_variable(b,s)
+      var s = sort_order == vars.color ? "category" : sort_order
+      var a_val = d3plus.utils.variable(vars,a,s)
+      var b_val = d3plus.utils.variable(vars,b,s)
       if (typeof a_val == "number") {
         if(a[sort_order] < b[sort_order]) return 1;
         if(a[sort_order] > b[sort_order]) return -1;
@@ -112,7 +112,7 @@ d3plus.bubbles = function(vars) {
         columns = Math.ceil(Math.sqrt(data_packed.length*(vars.width/vars.height)));
   }
 
-  if (vars.data.length > 0) {
+  if (vars.app_data.length > 0) {
     while ((rows-1)*columns >= data_packed.length) rows--
   }
   
@@ -127,7 +127,7 @@ d3plus.bubbles = function(vars) {
     if (d.depth == 1) {
       
       if (vars.grouping != "active") {
-        var color = find_color(d.children[0][vars.id_var]);
+        var color = d3plus.utils.color(vars,d.children[0]);
       }
       else {
         var color = "#cccccc";
@@ -139,10 +139,10 @@ d3plus.bubbles = function(vars) {
       color = color.rgb()
       
       groups[d.key] = {};
-      groups[d.key][vars.color_var] = color;
+      groups[d.key][vars.color] = color;
       groups[d.key].children = d.children.length;
       groups[d.key].key = d.key;
-      groups[d.key][vars.text_var] = d[vars.text_var];
+      groups[d.key][vars.text] = d[vars.text];
       groups[d.key].x = ((vars.width/columns)*c)+((vars.width/columns)/2);
       groups[d.key].y = ((vars.height/rows)*r)+((vars.height/rows)/2)+(title_height/2);
       groups[d.key].width = (vars.width/columns);
@@ -159,11 +159,11 @@ d3plus.bubbles = function(vars) {
     
   })
   
-  vars.data.forEach(function(d){
+  vars.app_data.forEach(function(d){
     var parent = data_packed.filter(function(p){ 
-      if (find_variable(d[vars.id_var],vars.grouping) === false) var key = "false";
-      else if (find_variable(d[vars.id_var],vars.grouping) === true) var key = "true";
-      else var key = find_variable(d[vars.id_var],vars.grouping)
+      if (d3plus.utils.variable(vars,d[vars.id],vars.grouping) === false) var key = "false";
+      else if (d3plus.utils.variable(vars,d[vars.id],vars.grouping) === true) var key = "true";
+      else var key = d3plus.utils.variable(vars,d[vars.id],vars.grouping)
       return key == p.key 
     })[0]
     d.x = (downscale*(d.x-parent.x))+groups[parent.key].x;
@@ -203,9 +203,9 @@ d3plus.bubbles = function(vars) {
     .each(function(d){
       
       if (vars.grouping == "active") {
-        var t = d[vars.text_var] == "true" ? "Fully "+vars.active_var : "Not Fully "+vars.active_var
+        var t = d[vars.text] == "true" ? "Fully "+vars.active : "Not Fully "+vars.active
       } else {
-        var t = d[vars.text_var]
+        var t = d[vars.text]
       }
         
       d3.select(this).append("text")
@@ -214,7 +214,7 @@ d3plus.bubbles = function(vars) {
         .attr("font-weight",vars.font_weight)
         .attr("font-size","12px")
         .attr("font-family",vars.font)
-        .attr("fill",d3plus.utils.darker_color(d[vars.color_var]))
+        .attr("fill",d3plus.utils.darker_color(d[vars.color]))
         .attr('x',0)
         .attr('y',function(dd) {
           return -(d.height/2)-title_height/4;
@@ -240,8 +240,8 @@ d3plus.bubbles = function(vars) {
           .data([d]);
         
         bg.enter().append("circle")
-          .attr("fill", d[vars.color_var])
-          .attr("stroke", d[vars.color_var])
+          .attr("fill", d[vars.color])
+          .attr("stroke", d[vars.color])
           .attr("stroke-width",1)
           .style('fill-opacity', 0.1 )
           .attr("opacity",0)
@@ -286,7 +286,7 @@ d3plus.bubbles = function(vars) {
   //-------------------------------------------------------------------
 
   var bubble = d3.select("g.bubbles").selectAll("g.bubble")
-    .data(vars.data,function(d){ return d[vars.id_var] })
+    .data(vars.app_data,function(d){ return d[vars.id] })
     
   update_function = function(obj,d) {
   
@@ -302,7 +302,7 @@ d3plus.bubbles = function(vars) {
       else d.arc_inner_bg = 0;
       d.arc_radius_bg = d.r;
   
-      var color = find_color(d[vars.id_var])
+      var color = d3plus.utils.color(vars,d)
   
       var bg_color = d3.hsl(color)
       bg_color.l = 0.95
@@ -313,8 +313,8 @@ d3plus.bubbles = function(vars) {
         .attr("stroke", color)
         .attrTween("d",arcTween_bg)
         .each("end", function() {
-          vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
-          vars.arc_inners[d[vars.id_var]+"_bg"] = d.arc_inner_bg
+          vars.arc_sizes[d[vars.id]+"_bg"] = d.arc_radius_bg
+          vars.arc_inners[d[vars.id]+"_bg"] = d.arc_inner_bg
         })
   
   
@@ -323,7 +323,7 @@ d3plus.bubbles = function(vars) {
       d.arc_inner = arc_start;
       d.arc_radius = arc_start+(d.r-arc_start);
     
-      if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var]/d[vars.total_var])*360) * (Math.PI/180));
+      if (d[vars.total_var]) d.arc_angle = (((d[vars.active]/d[vars.total_var])*360) * (Math.PI/180));
       else if (d.active) d.arc_angle = Math.PI; 
 
       d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -332,9 +332,9 @@ d3plus.bubbles = function(vars) {
         .style('fill', color)
         .attrTween("d",arcTween)
         .each("end", function() {
-          vars.arc_sizes[d[vars.id_var]] = d.arc_radius
-          vars.arc_inners[d[vars.id_var]] = d.arc_inner
-          vars.arc_angles[d[vars.id_var]] = d.arc_angle
+          vars.arc_sizes[d[vars.id]] = d.arc_radius
+          vars.arc_inners[d[vars.id]] = d.arc_inner
+          vars.arc_angles[d[vars.id]] = d.arc_angle
         })
 
       if (d[vars.else_var]) {
@@ -345,19 +345,19 @@ d3plus.bubbles = function(vars) {
         d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
     
-        d3.select("pattern#hatch"+d[vars.id_var]).select("rect").transition().duration(d3plus.timing)
+        d3.select("pattern#hatch"+d[vars.id]).select("rect").transition().duration(d3plus.timing)
           .style("fill",color)
     
-        d3.select("pattern#hatch"+d[vars.id_var]).select("path").transition().duration(d3plus.timing)
+        d3.select("pattern#hatch"+d[vars.id]).select("path").transition().duration(d3plus.timing)
           .style("stroke",color)
 
         d3.select(this).select("path.elsewhere").transition().duration(d3plus.timing)
           .style("stroke",color)
           .attrTween("d",arcTween_else)
           .each("end", function() {
-            vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
-            vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
-            vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
+            vars.arc_sizes[d[vars.id]+"_else"] = d.arc_radius_else
+            vars.arc_inners[d[vars.id]+"_else"] = d.arc_inner_else
+            vars.arc_angles[d[vars.id]+"_else"] = d.arc_angle_else
           })
       }
       
@@ -376,10 +376,10 @@ d3plus.bubbles = function(vars) {
         .attr("width",d.r*2)
         .attr("height",d.r*2)
       
-      vars.arc_sizes[d[vars.id_var]+"_bg"] = 0
-      vars.arc_inners[d[vars.id_var]+"_bg"] = 0
+      vars.arc_sizes[d[vars.id]+"_bg"] = 0
+      vars.arc_inners[d[vars.id]+"_bg"] = 0
       
-      var color = find_color(d[vars.id_var])
+      var color = d3plus.utils.color(vars,d)
       
       var bg_color = d3.hsl(color)
       bg_color.l = 0.95
@@ -396,14 +396,14 @@ d3plus.bubbles = function(vars) {
     
       if (d[vars.else_var]) {
     
-        vars.arc_angles[d[vars.id_var]+"_else"] = 0
-        vars.arc_sizes[d[vars.id_var]+"_else"] = 0
-        vars.arc_inners[d[vars.id_var]+"_else"] = 0
+        vars.arc_angles[d[vars.id]+"_else"] = 0
+        vars.arc_sizes[d[vars.id]+"_else"] = 0
+        vars.arc_inners[d[vars.id]+"_else"] = 0
         
-        vars.defs.select("pattern#hatch"+d[vars.id_var]).remove()
+        vars.defs.select("pattern#hatch"+d[vars.id]).remove()
         
         var pattern = vars.defs.append("pattern")
-          .attr("id","hatch"+d[vars.id_var])
+          .attr("id","hatch"+d[vars.id])
           .attr("patternUnits","userSpaceOnUse")
           .attr("x","0")
           .attr("y","0")
@@ -445,7 +445,7 @@ d3plus.bubbles = function(vars) {
       
         d3.select(this).append("path")
           .attr("class","elsewhere")
-          .attr("fill", "url(#hatch"+d[vars.id_var]+")")
+          .attr("fill", "url(#hatch"+d[vars.id]+")")
           .attr("stroke",color)
           .attr("stroke-width",1)
       
@@ -453,12 +453,12 @@ d3plus.bubbles = function(vars) {
           .attrTween("d",arcTween_else)
       }
       
-      vars.arc_angles[d[vars.id_var]] = 0
-      vars.arc_sizes[d[vars.id_var]] = 0
-      vars.arc_inners[d[vars.id_var]] = 0
+      vars.arc_angles[d[vars.id]] = 0
+      vars.arc_sizes[d[vars.id]] = 0
+      vars.arc_inners[d[vars.id]] = 0
       
       d3.select(this).append("path")
-        .each(function(dd) { dd.arc_id = dd[vars.id_var]; })
+        .each(function(dd) { dd.arc_id = dd[vars.id]; })
         .attr("class","available")
         .attr('fill', color)
       
@@ -475,8 +475,8 @@ d3plus.bubbles = function(vars) {
       d3.select(this).select("path.bg").transition().duration(d3plus.timing)
         .attrTween("d",arcTween_bg)
         .each("end", function() {
-          vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
-          vars.arc_inners[d[vars.id_var]+"_bg"] = d.arc_inner_bg
+          vars.arc_sizes[d[vars.id]+"_bg"] = d.arc_radius_bg
+          vars.arc_inners[d[vars.id]+"_bg"] = d.arc_inner_bg
         })
         
         
@@ -488,10 +488,10 @@ d3plus.bubbles = function(vars) {
       d3.select(this).select("path.available").transition().duration(d3plus.timing)
         .attrTween("d",arcTween)
         .each("end", function() {
-          vars.arc_sizes[d[vars.id_var]] = d.arc_radius
-          vars.arc_inners[d[vars.id_var]] = d.arc_inner
+          vars.arc_sizes[d[vars.id]] = d.arc_radius
+          vars.arc_inners[d[vars.id]] = d.arc_inner
           
-          if (d[vars.total_var]) d.arc_angle = (((d[vars.active_var] / d[vars.total_var])*360) * (Math.PI/180));
+          if (d[vars.total_var]) d.arc_angle = (((d[vars.active] / d[vars.total_var])*360) * (Math.PI/180));
           else if (d.active) d.arc_angle = Math.PI; 
           
           d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -499,7 +499,7 @@ d3plus.bubbles = function(vars) {
           d3.select(this).transition().duration(d3plus.timing*(d.arc_angle/2))
             .attrTween("d",arcTween)
             .each("end", function() {
-              vars.arc_angles[d[vars.id_var]] = d.arc_angle
+              vars.arc_angles[d[vars.id]] = d.arc_angle
             })
         })
     
@@ -511,8 +511,8 @@ d3plus.bubbles = function(vars) {
         d3.select(this).select("path.elsewhere").transition().duration(d3plus.timing)
           .attrTween("d",arcTween_else)
           .each("end", function() {
-            vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
-            vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
+            vars.arc_sizes[d[vars.id]+"_else"] = d.arc_radius_else
+            vars.arc_inners[d[vars.id]+"_else"] = d.arc_inner_else
       
             d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
 
@@ -521,7 +521,7 @@ d3plus.bubbles = function(vars) {
             d3.select(this).transition().duration(d3plus.timing*(d.arc_angle_else/2))
               .attrTween("d",arcTween_else)
               .each("end", function() {
-                vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
+                vars.arc_angles[d[vars.id]+"_else"] = d.arc_angle_else
               })
           })
       }
@@ -541,16 +541,16 @@ d3plus.bubbles = function(vars) {
       covered = false
       d3.select(this).style("cursor","pointer")
       
-      var tooltip_data = get_tooltip_data(d,"short")
+      var tooltip_data = d3plus.utils.tooltip(vars,d,"short")
 
-      d3plus.tooltip.remove(vars.type)
-      d3plus.tooltip.create({
+      d3plus.ui.tooltip.remove(vars.type)
+      d3plus.ui.tooltip.create({
         "id": vars.type,
-        "color": find_color(d[vars.id_var]),
-        "icon": find_variable(d[vars.id_var],"icon"),
+        "color": d3plus.utils.color(vars,d),
+        "icon": d3plus.utils.variable(vars,d[vars.id],"icon"),
         "style": vars.icon_style,
         "data": tooltip_data,
-        "title": find_variable(d[vars.id_var],vars.text_var),
+        "title": d3plus.utils.variable(vars,d[vars.id],vars.text),
         "x": d.x+vars.margin.left+vars.parent.node().offsetLeft,
         "y": d.y+vars.margin.top+vars.parent.node().offsetTop,
         "offset": d.r-5,
@@ -561,24 +561,24 @@ d3plus.bubbles = function(vars) {
       
     })
     .on(d3plus.evt.out, function(d){
-      if (!covered) d3plus.tooltip.remove(vars.type)
+      if (!covered) d3plus.ui.tooltip.remove(vars.type)
     })
     .on(d3plus.evt.click, function(d){
 
       covered = true
-      var id = find_variable(d,vars.id_var)
+      var id = d3plus.utils.variable(vars,d,vars.id)
       var self = this
       
       make_tooltip = function(html) {
-        d3plus.tooltip.remove(vars.type)
+        d3plus.ui.tooltip.remove(vars.type)
         d3.selectAll(".axis_hover").remove()
         
-        var tooltip_data = get_tooltip_data(d,"long")
+        var tooltip_data = d3plus.utils.tooltip(vars,d,"long")
         
-        d3plus.tooltip.create({
-          "title": find_variable(d,vars.text_var),
-          "color": find_color(d),
-          "icon": find_variable(d,"icon"),
+        d3plus.ui.tooltip.create({
+          "title": d3plus.utils.variable(vars,d,vars.text),
+          "color": d3plus.utils.color(vars,d),
+          "icon": d3plus.utils.variable(vars,d,"icon"),
           "style": vars.icon_style,
           "id": vars.type,
           "fullscreen": true,
@@ -601,7 +601,7 @@ d3plus.bubbles = function(vars) {
           make_tooltip(html)
         })
       }
-      else if (vars.tooltip_info.long) {
+      else if (vars.tooltip.long) {
         make_tooltip(html)
       }
       
@@ -622,8 +622,8 @@ d3plus.bubbles = function(vars) {
       d3.select(this).select("path.bg").transition().duration(d3plus.timing)
         .attrTween("d",arcTween_bg)
         .each("end", function() {
-          vars.arc_sizes[d[vars.id_var]+"_bg"] = d.arc_radius_bg
-          vars.arc_inners[d[vars.id_var]+"_bg"] = d.arc_inner_bg
+          vars.arc_sizes[d[vars.id]+"_bg"] = d.arc_radius_bg
+          vars.arc_inners[d[vars.id]+"_bg"] = d.arc_inner_bg
         })
     
       d.arc_radius = 0;
@@ -633,9 +633,9 @@ d3plus.bubbles = function(vars) {
       d3.select(this).select("path.available").transition().duration(d3plus.timing)
         .attrTween("d",arcTween)
         .each("end", function() {
-          vars.arc_angles[d[vars.id_var]] = d.arc_angle
-          vars.arc_sizes[d[vars.id_var]] = d.arc_radius
-          vars.arc_inners[d[vars.id_var]] = d.arc_inner
+          vars.arc_angles[d[vars.id]] = d.arc_angle
+          vars.arc_sizes[d[vars.id]] = d.arc_radius
+          vars.arc_inners[d[vars.id]] = d.arc_inner
         })
     
       if (d[vars.else_var]) {
@@ -647,9 +647,9 @@ d3plus.bubbles = function(vars) {
         d3.select(this).select("path.elsewhere").transition().duration(d3plus.timing)
           .attrTween("d",arcTween_else)
           .each("end", function(dd) {
-            vars.arc_angles[d[vars.id_var]+"_else"] = d.arc_angle_else
-            vars.arc_sizes[d[vars.id_var]+"_else"] = d.arc_radius_else
-            vars.arc_inners[d[vars.id_var]+"_else"] = d.arc_inner_else
+            vars.arc_angles[d[vars.id]+"_else"] = d.arc_angle_else
+            vars.arc_sizes[d[vars.id]+"_else"] = d.arc_radius_else
+            vars.arc_inners[d[vars.id]+"_else"] = d.arc_inner_else
           })
       }
 
@@ -662,21 +662,21 @@ d3plus.bubbles = function(vars) {
   //===================================================================
   
   function arcTween(b) {
-    var i = d3.interpolate({arc_angle: vars.arc_angles[b[vars.id_var]], arc_radius: vars.arc_sizes[b[vars.id_var]], arc_inner: vars.arc_inners[b[vars.id_var]]}, b);
+    var i = d3.interpolate({arc_angle: vars.arc_angles[b[vars.id]], arc_radius: vars.arc_sizes[b[vars.id]], arc_inner: vars.arc_inners[b[vars.id]]}, b);
     return function(t) {
       return arc(i(t));
     };
   }
   
   function arcTween_else(b) {
-    var i = d3.interpolate({arc_angle_else: vars.arc_angles[b[vars.id_var]+"_else"], arc_radius_else: vars.arc_sizes[b[vars.id_var]+"_else"], arc_inner_else: vars.arc_inners[b[vars.id_var]+"_else"]}, b);
+    var i = d3.interpolate({arc_angle_else: vars.arc_angles[b[vars.id]+"_else"], arc_radius_else: vars.arc_sizes[b[vars.id]+"_else"], arc_inner_else: vars.arc_inners[b[vars.id]+"_else"]}, b);
     return function(t) {
       return arc_else(i(t));
     };
   }
   
   function arcTween_bg(b) {
-    var i = d3.interpolate({arc_radius_bg: vars.arc_sizes[b[vars.id_var]+"_bg"], arc_inner_bg: vars.arc_inners[b[vars.id_var]+"_bg"]}, b);
+    var i = d3.interpolate({arc_radius_bg: vars.arc_sizes[b[vars.id]+"_bg"], arc_inner_bg: vars.arc_inners[b[vars.id]+"_bg"]}, b);
     return function(t) {
       return arc_bg(i(t));
     };

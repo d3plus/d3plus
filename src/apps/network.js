@@ -1,4 +1,10 @@
-d3plus.network = function(vars) {
+d3plus.apps.network = function(vars) {
+  
+  if (!vars.app_data) var nodes = []
+  else var nodes = vars.nodes_filtered || vars.nodes
+    
+  if (!vars.app_data) var links = []
+  else var links = vars.links_filtered || vars.links
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function that handles the zooming and panning of the visualization
@@ -111,7 +117,7 @@ d3plus.network = function(vars) {
     if (last_highlight != vars.highlight) {
       
       // Remove all tooltips on page
-      d3plus.tooltip.remove(vars.type)
+      d3plus.ui.tooltip.remove(vars.type)
       d3.select("g.highlight").selectAll("*").remove()
       d3.select("g.hover").selectAll("*").remove()
       
@@ -152,7 +158,7 @@ d3plus.network = function(vars) {
         var c = hover
       }
       
-      var node_data = vars.nodes.filter(function(x){return x[vars.id_var] == c})
+      var node_data = nodes.filter(function(x){return x[vars.id] == c})
       
       if (group == "highlight" || !vars.highlight) {
 
@@ -161,7 +167,7 @@ d3plus.network = function(vars) {
             
         if (vars.connections[c]) {
           vars.connections[c].forEach(function(n){
-            prim_nodes.push(vars.nodes.filter(function(x){return x[vars.id_var] == n[vars.id_var]})[0])
+            prim_nodes.push(nodes.filter(function(x){return x[vars.id] == n[vars.id]})[0])
           })
           prim_nodes.forEach(function(n){
             prim_links.push({"source": node_data[0], "target": n})
@@ -186,9 +192,9 @@ d3plus.network = function(vars) {
               var x_pos = vars.width-info_width-5
             }
          
-            var prod = vars.nodes.filter(function(n){return n[vars.id_var] == vars.highlight})[0]
+            var prod = nodes.filter(function(n){return n[vars.id] == vars.highlight})[0]
           
-            var tooltip_data = get_tooltip_data(vars.highlight)
+            var tooltip_data = d3plus.utils.tooltip(vars,vars.highlight)
           
             var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
             tooltip_appends += vars.format("Primary Connections")
@@ -198,7 +204,7 @@ d3plus.network = function(vars) {
             
               var parent = "d3.select(&quot;#"+vars.parent.node().id+"&quot;)"
             
-              tooltip_appends += "<div class='d3plus_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id_var]+"&quot;))'>"
+              tooltip_appends += "<div class='d3plus_network_connection' onclick='"+parent+".call(chart.highlight(&quot;"+n[vars.id]+"&quot;))'>"
               tooltip_appends += "<div class='d3plus_network_connection_node'"
               tooltip_appends += " style='"
               tooltip_appends += "background-color:"+fill_color(n)+";"
@@ -206,18 +212,18 @@ d3plus.network = function(vars) {
               tooltip_appends += "'"
               tooltip_appends += "></div>"
               tooltip_appends += "<div class='d3plus_network_connection_name'>"
-              tooltip_appends += find_variable(n[vars.id_var],vars.text_var)
+              tooltip_appends += d3plus.utils.variable(vars,n[vars.id],vars.text)
               tooltip_appends += "</div>"
               tooltip_appends += "</div>"
             })
             
-            d3plus.tooltip.remove(vars.type)
+            d3plus.ui.tooltip.remove(vars.type)
           
-            d3plus.tooltip.create({
+            d3plus.ui.tooltip.create({
               "data": tooltip_data,
-              "title": find_variable(vars.highlight,vars.text_var),
-              "color": find_color(vars.highlight),
-              "icon": find_variable(vars.highlight,"icon"),
+              "title": d3plus.utils.variable(vars,vars.highlight,vars.text),
+              "color": d3plus.utils.color(vars,vars.highlight),
+              "icon": d3plus.utils.variable(vars,vars.highlight,"icon"),
               "style": vars.icon_style,
               "x": x_pos,
               "y": vars.margin.top+5,
@@ -294,9 +300,9 @@ d3plus.network = function(vars) {
 
   //===================================================================
     
-  d3plus.tooltip.remove(vars.type)
-  var x_range = d3.extent(d3.values(vars.nodes), function(d){return d.x})
-  var y_range = d3.extent(d3.values(vars.nodes), function(d){return d.y})
+  d3plus.ui.tooltip.remove(vars.type)
+  var x_range = d3.extent(d3.values(nodes), function(d){return d.x})
+  var y_range = d3.extent(d3.values(nodes), function(d){return d.y})
   var aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0])
     
   // Define Scale
@@ -317,15 +323,15 @@ d3plus.network = function(vars) {
     .domain(y_range)
     .range([offset_top, vars.height-offset_top])
     
-  var val_range = d3.extent(d3.values(vars.data), function(d){
-    return d[vars.value_var] ? d[vars.value_var] : null
+  var val_range = d3.extent(d3.values(vars.app_data), function(d){
+    return d[vars.value] ? d[vars.value] : null
   });
   
   if (typeof val_range[0] == "undefined") val_range = [1,1]
   
   var distances = []
-  vars.nodes.forEach(function(n1){
-    vars.nodes.forEach(function(n2){
+  nodes.forEach(function(n1){
+    nodes.forEach(function(n2){
       if (n1 != n2) {
         var xx = Math.abs(scale.x(n1.x)-scale.x(n2.x));
         var yy = Math.abs(scale.y(n1.y)-scale.y(n2.y));
@@ -418,10 +424,9 @@ d3plus.network = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // New nodes and links enter, initialize them here
   //-------------------------------------------------------------------
-  if (!vars.data) var nodes = []
-  else var nodes = vars.nodes
+  
   var node = d3.select("g.nodes").selectAll("circle.node")
-    .data(nodes, function(d) { return d[vars.id_var]; })
+    .data(nodes, function(d) { return d[vars.id]; })
   
   node.enter().append("circle")
     .attr("class","node")
@@ -430,10 +435,8 @@ d3plus.network = function(vars) {
     .call(node_color)
     .call(node_stroke);
     
-  if (!vars.data) var links = []
-  else var links = vars.links
   var link = d3.select("g.links").selectAll("line.link")
-    .data(links, function(d) { return d.source[vars.id_var] + "-" + d.target[vars.id_var]; })
+    .data(links, function(d) { return d.source[vars.id] + "-" + d.target[vars.id]; })
     
   link.enter().append("line")
     .attr("class","link")
@@ -451,7 +454,7 @@ d3plus.network = function(vars) {
   node
     .on(d3plus.evt.over, function(d){
       if (!dragging) {
-        hover = d[vars.id_var];
+        hover = d[vars.id];
         vars.update();
       }
     });
@@ -487,8 +490,8 @@ d3plus.network = function(vars) {
   
   if (vars.highlight) {
     var present = false;
-    vars.nodes.forEach(function(d){
-      if (d[vars.id_var] == vars.highlight) present = true;
+    nodes.forEach(function(d){
+      if (d[vars.id] == vars.highlight) present = true;
     })
     if (!present) {
       vars.highlight = null;
@@ -523,7 +526,7 @@ d3plus.network = function(vars) {
   function node_size(n) {
     n
       .attr("r", function(d) { 
-        var value = find_variable(d[vars.id_var],vars.value_var)
+        var value = d3plus.utils.variable(vars,d[vars.id],vars.value)
         return value > 0 ? scale.size(value) : scale.size(val_range[0])
       })
   }
@@ -540,7 +543,7 @@ d3plus.network = function(vars) {
         var bg = class_name == "bg"
         
         if (bg) {
-          if (vars.highlight == d[vars.id_var]) return 6;
+          if (vars.highlight == d[vars.id]) return 6;
           else return 4;
         }
         else if (highlighted) return 0;
@@ -560,8 +563,8 @@ d3plus.network = function(vars) {
         var background_node = vars.highlight && parent_group == "nodes"
         // "True" if node is in the highlight or hover groups
         var highlighted = parent_group == "hover_node"
-        // "True" if vars.spotlight is true and node vars.active_var is false
-        var active = find_variable(d[vars.id_var],vars.active_var)
+        // "True" if vars.spotlight is true and node vars.active is false
+        var active = vars.active ? d3plus.utils.variable(vars,d[vars.id],vars.active) : true
         var hidden = vars.spotlight && !active
         // Grey out nodes that are in the background or hidden by spotlight,
         // otherwise, use the active_color function
@@ -569,7 +572,7 @@ d3plus.network = function(vars) {
           return "#efefef"
         }
         else {
-          var active = find_variable(d[vars.id_var],vars.active_var)
+          var active = d3plus.utils.variable(vars,d[vars.id],vars.active)
           if (active) this.parentNode.appendChild(this)
           return fill_color(d)
         }
@@ -584,8 +587,8 @@ d3plus.network = function(vars) {
         var background_node = vars.highlight && parent_group == "nodes";
         // "True" if node is in the highlight or hover groups
         var highlighted = parent_group == "hover_node"
-        // "True" if vars.spotlight is true and node vars.active_var is false
-        var active = find_variable(d[vars.id_var],vars.active_var)
+        // "True" if vars.spotlight is true and node vars.active is false
+        var active = vars.active ? d3plus.utils.variable(vars,d[vars.id],vars.active) : true
         var hidden = vars.spotlight && !active
         
         if (highlighted) return fill_color(d);
@@ -598,10 +601,10 @@ d3plus.network = function(vars) {
   function fill_color(d) {
     
     // Get elements' color
-    var color = find_color(d[vars.id_var])
+    var color = d3plus.utils.color(vars,d)
     
     // If node is not active, lighten the color
-    var active = find_variable(d[vars.id_var],vars.active_var)
+    var active = vars.active ? d3plus.utils.variable(vars,d[vars.id],vars.active) : true
     if (!active) {
       var color = d3.hsl(color);
       color.l = 0.95;
@@ -615,10 +618,10 @@ d3plus.network = function(vars) {
   function stroke_color(d) {
     
     // Get elements' color
-    var color = find_color(d[vars.id_var])
+    var color = d3plus.utils.color(vars,d)
     
     // If node is active, return a darker color, else, return the normal color
-    var active = find_variable(d[vars.id_var],vars.active_var)
+    var active = vars.active ? d3plus.utils.variable(vars,d[vars.id],vars.active) : true
     return active ? "#333" : color;
     
   }
@@ -633,13 +636,13 @@ d3plus.network = function(vars) {
           d3.select(this).style("cursor","-webkit-zoom-in")
         }
           
-        if (d[vars.id_var] == vars.highlight && !d3plus.ie) {
+        if (d[vars.id] == vars.highlight && !d3plus.ie) {
           d3.select(this).style("cursor","-moz-zoom-out")
           d3.select(this).style("cursor","-webkit-zoom-out")
         }
         
-        if (d[vars.id_var] != hover) {
-          hover = d[vars.id_var];
+        if (d[vars.id] != hover) {
+          hover = d[vars.id];
           vars.update();
         }
         
@@ -650,7 +653,7 @@ d3plus.network = function(vars) {
         // This is used to catch when the mouse moves onto label text.
         var target = d3.event.toElement || d3.event.relatedTarget
         if (target) {
-          var id_check = target.__data__[vars.id_var] == d[vars.id_var]
+          var id_check = target.__data__[vars.id] == d[vars.id]
           if (target.parentNode != this && !id_check) {
             hover = null;
             vars.update();
@@ -668,8 +671,8 @@ d3plus.network = function(vars) {
 
         // If there is no highlighted node, 
         // or the hover node is not the highlighted node
-        if (!vars.highlight || vars.highlight != d[vars.id_var]) {
-          vars.highlight = d[vars.id_var];
+        if (!vars.highlight || vars.highlight != d[vars.id]) {
+          vars.highlight = d[vars.id];
         } 
         
         // Else, the user is clicking on the highlighted node.
@@ -689,9 +692,9 @@ d3plus.network = function(vars) {
         var font_size = Math.ceil(10/zoom_behavior.scale()),
             padding = font_size/4,
             corner = Math.ceil(3/zoom_behavior.scale())
-            value = find_variable(d[vars.id_var],vars.value_var),
+            value = d3plus.utils.variable(vars,d[vars.id],vars.value),
             size = value > 0 ? scale.size(value) : scale.size(val_range[0])
-        if (font_size < size || d[vars.id_var] == hover || d[vars.id_var] == vars.highlight) {
+        if (font_size < size || d[vars.id] == hover || d[vars.id] == vars.highlight) {
           d3.select(this.parentNode).append("text")
             .attr("pointer-events","none")
             .attr("x",scale.x(d.x))
@@ -703,7 +706,7 @@ d3plus.network = function(vars) {
             .each(function(e){
               var th = size < font_size+padding*2 ? font_size+padding*2 : size,
                   tw = ((font_size*5)/th)*(font_size*5)
-              var text = find_variable(d[vars.id_var],vars.text_var)
+              var text = d3plus.utils.variable(vars,d[vars.id],vars.text)
               d3plus.utils.wordwrap({
                 "text": text,
                 "parent": this,

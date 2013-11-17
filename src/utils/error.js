@@ -1,6 +1,10 @@
-d3plus.error = function(vars) {
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates Error Message
+//-------------------------------------------------------------------
+
+d3plus.utils.error = function(vars) {
   
-  var error = d3.select("g.parent").selectAll("g.d3plus-error")
+  var error = vars.parent.select("g.parent").selectAll("g.d3plus-error")
     .data([vars.error])
     
   error.enter().append("g")

@@ -1,18 +1,18 @@
-d3plus.tree_map = function(vars) {
+d3plus.apps.tree_map = function(vars) {
   
   var covered = false
   
   // Ok, to get started, lets run our heirarchically nested
   // data object through the d3 treemap function to get a
   // flat array of data with X, Y, width and height vars
-  if (vars.data) {
+  if (vars.app_data) {
     var tmap_data = d3.layout.treemap()
       .round(false)
       .size([vars.width, vars.height])
       .children(function(d) { return d.children; })
       .sort(function(a, b) { return a.value - b.value; })
-      .value(function(d) { return d[vars.value_var]; })
-      .nodes(vars.data)
+      .value(function(d) { return d[vars.value]; })
+      .nodes({"name":"root", "children": vars.app_data})
       .filter(function(d) {
         return !d.children;
       })
@@ -22,7 +22,7 @@ d3plus.tree_map = function(vars) {
   }
   
   var cell = d3.select("g.parent").selectAll("g")
-    .data(tmap_data, function(d){ return d[vars.id_var]; })
+    .data(tmap_data, function(d){ return d[vars.id]+d.depth; })
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // New cells enter, initialize them here
@@ -31,7 +31,7 @@ d3plus.tree_map = function(vars) {
   // cell aka container
   var cell_enter = cell.enter().append("g")
     .attr("id",function(d){
-      return "cell_"+d[vars.id_var]
+      return "cell_"+d[vars.id]
     })
     .attr("opacity", 0)
     .attr("transform", function(d) {
@@ -50,7 +50,7 @@ d3plus.tree_map = function(vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      return find_color(d);
+      return d3plus.utils.color(vars,d);
     })
     .attr("shape-rendering","crispEdges")
     
@@ -65,7 +65,7 @@ d3plus.tree_map = function(vars) {
     .attr('y','0em')
     .attr('dy','0em')
     .attr("fill", function(d){ 
-      var color = find_color(d)
+      var color = d3plus.utils.color(vars,d)
       return d3plus.utils.text_color(color); 
     })
     .style("pointer-events","none")
@@ -77,7 +77,7 @@ d3plus.tree_map = function(vars) {
     .style("font-weight",vars.font_weight)
     .attr("font-family",vars.font)
     .attr("fill", function(d){
-      var color = find_color(d)
+      var color = d3plus.utils.color(vars,d)
       return d3plus.utils.text_color(color); 
     })
     .attr("fill-opacity",0.5)
@@ -117,16 +117,16 @@ d3plus.tree_map = function(vars) {
   
   small_tooltip = function(d) {
 
-    d3plus.tooltip.remove(vars.type)
+    d3plus.ui.tooltip.remove(vars.type)
     var ex = {}
     ex[vars.format("share")] = d.share
-    var tooltip_data = get_tooltip_data(d,"short",ex)
-    var id = find_variable(d,vars.id_var)
+    var tooltip_data = d3plus.utils.tooltip(vars,d,"short",ex)
+    var id = d3plus.utils.variable(vars,d,vars.id)
     
-    d3plus.tooltip.create({
-      "title": find_variable(d,vars.text_var),
-      "color": find_color(d),
-      "icon": find_variable(d,"icon"),
+    d3plus.ui.tooltip.create({
+      "title": d3plus.utils.variable(vars,d,vars.text),
+      "color": d3plus.utils.color(vars,d),
+      "icon": d3plus.utils.variable(vars,d,"icon"),
       "style": vars.icon_style,
       "id": vars.type,
       "x": d3.event.clientX,
@@ -142,11 +142,9 @@ d3plus.tree_map = function(vars) {
   
   cell
     .on(d3plus.evt.over,function(d){
-      
-      var id = find_variable(d,vars.id_var),
+
+      var id = d3plus.utils.variable(vars,d,vars.id),
           self = d3.select("#cell_"+id).node()
-      
-      self.parentNode.appendChild(self)
       
       d3.select("#cell_"+id).select("rect")
         .style("cursor","pointer")
@@ -157,13 +155,13 @@ d3plus.tree_map = function(vars) {
     })
     .on(d3plus.evt.out,function(d){
       
-      var id = find_variable(d,vars.id_var)
+      var id = d3plus.utils.variable(vars,d,vars.id)
       
       d3.select("#cell_"+id).select("rect")
         .attr("opacity",0.85)
         
       if (!covered) {
-        d3plus.tooltip.remove(vars.type)
+        d3plus.ui.tooltip.remove(vars.type)
       }
       
     })
@@ -171,7 +169,7 @@ d3plus.tree_map = function(vars) {
       
       covered = true
         
-      var id = find_variable(d,vars.id_var),
+      var id = d3plus.utils.variable(vars,d,vars.id),
           self = d3.select("#cell_"+id).node()
       
       make_tooltip = function(html) {
@@ -179,16 +177,16 @@ d3plus.tree_map = function(vars) {
         d3.select("#cell_"+id).select("rect")
           .attr("opacity",0.85)
         
-        d3plus.tooltip.remove(vars.type)
+        d3plus.ui.tooltip.remove(vars.type)
 
         var ex = {}
         ex[vars.format("share")] = d.share
-        var tooltip_data = get_tooltip_data(d,"long",ex)
+        var tooltip_data = d3plus.utils.tooltip(vars,d,"long",ex)
         
-        d3plus.tooltip.create({
-          "title": find_variable(d,vars.text_var),
-          "color": find_color(d),
-          "icon": find_variable(d,"icon"),
+        d3plus.ui.tooltip.create({
+          "title": d3plus.utils.variable(vars,d,vars.text),
+          "color": d3plus.utils.color(vars,d),
+          "icon": d3plus.utils.variable(vars,d,"icon"),
           "style": vars.icon_style,
           "id": vars.type,
           "fullscreen": true,
@@ -211,14 +209,14 @@ d3plus.tree_map = function(vars) {
           make_tooltip(html)
         })
       }
-      else if (vars.tooltip_info.long) {
+      else if (vars.tooltip.long) {
         make_tooltip(html)
       }
       
     })
     .on(d3plus.evt.move,function(d){
       covered = false
-      d3plus.tooltip.move(d3.event.clientX,d3.event.clientY,vars.type)
+      d3plus.ui.tooltip.move(d3.event.clientX,d3.event.clientY,vars.type)
     })
   
   cell.transition().duration(d3plus.timing)
@@ -236,7 +234,7 @@ d3plus.tree_map = function(vars) {
       return d.dy+'px'
     })
     .attr("fill", function(d){
-      return find_color(d);
+      return d3plus.utils.color(vars,d);
     })
 
   // text (name)
@@ -244,7 +242,7 @@ d3plus.tree_map = function(vars) {
     .duration(d3plus.timing/2)
     .attr("opacity", 0)
     .attr("fill", function(d){ 
-      var color = find_color(d)
+      var color = d3plus.utils.color(vars,d)
       return d3plus.utils.text_color(color); 
     })
     .transition().duration(d3plus.timing/2)
@@ -252,9 +250,9 @@ d3plus.tree_map = function(vars) {
       d3.select(this).selectAll("tspan").remove();
       if(d.dx > 30 && d.dy > 30){
         var text = []
-        var arr = vars.name_array ? vars.name_array : [vars.text_var,vars.id_var]
+        var arr = vars.name_array ? vars.name_array : [vars.text,vars.id]
         arr.forEach(function(n){
-          var name = find_variable(d,n)
+          var name = d3plus.utils.variable(vars,d,n)
           text.push(vars.format(name))
         })
         var size = (d.dx)/7
@@ -280,7 +278,7 @@ d3plus.tree_map = function(vars) {
   cell.select("text.share").transition().duration(d3plus.timing/2)
     .attr("opacity", 0)
     .attr("fill", function(d){ 
-      var color = find_color(d)
+      var color = d3plus.utils.color(vars,d)
       return d3plus.utils.text_color(color); 
     })
     .each("end",function(d){
@@ -317,7 +315,7 @@ d3plus.tree_map = function(vars) {
   //===================================================================
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Exis, get rid of old cells
+  // Exits, get rid of old cells
   //-------------------------------------------------------------------
   
   cell.exit().transition().duration(d3plus.timing)

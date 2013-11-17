@@ -1,10 +1,10 @@
-d3plus.tooltip = {};
+d3plus.ui.tooltip = {};
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create a Tooltip
 //-------------------------------------------------------------------
 
-d3plus.tooltip.create = function(params) {
+d3plus.ui.tooltip.create = function(params) {
   
   var default_width = params.fullscreen ? 250 : 200
   params.width = params.width || default_width
@@ -20,7 +20,7 @@ d3plus.tooltip.create = function(params) {
   params.background = params.background || "#ffffff"
   params.style = params.style || "default"
   
-  d3plus.tooltip.remove("d3plus_tooltip_id_"+params.id)
+  d3plus.ui.tooltip.remove("d3plus_tooltip_id_"+params.id)
   
   params.anchor = {}
   if (params.fullscreen) {
@@ -48,7 +48,7 @@ d3plus.tooltip.create = function(params) {
       .attr("class","d3plus_tooltip_curtain")
       .style("background-color",params.background)
       .on(d3plus.evt.click,function(){
-        d3plus.tooltip.remove(params.id)
+        d3plus.ui.tooltip.remove(params.id)
       })
   }
   
@@ -57,7 +57,7 @@ d3plus.tooltip.create = function(params) {
     .attr("id","d3plus_tooltip_id_"+params.id)
     .attr("class","d3plus_tooltip d3plus_tooltip_"+params.size)
     .on(d3plus.evt.out,function(){
-      d3plus.tooltip.close()
+      d3plus.ui.tooltip.close()
     })
     
   if (params.max_height) {
@@ -114,7 +114,7 @@ d3plus.tooltip.create = function(params) {
       .style("background-color",d3plus.utils.darker_color(params.color))
       .html("\&times;")
       .on(d3plus.evt.click,function(){
-        d3plus.tooltip.remove(params.id)
+        d3plus.ui.tooltip.remove(params.id)
       })
   }
   
@@ -137,7 +137,7 @@ d3plus.tooltip.create = function(params) {
       }
       if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
         oldout(d3.select(params.mouseevents).datum())
-        d3plus.tooltip.close()
+        d3plus.ui.tooltip.close()
         d3.select(params.mouseevents).on(d3plus.evt.out,oldout)
       }
     }
@@ -264,7 +264,7 @@ d3plus.tooltip.create = function(params) {
         name
           .style("cursor","pointer")
           .on(d3plus.evt.over,function(){
-            d3plus.tooltip.close()
+            d3plus.ui.tooltip.close()
             var c = d3.select(this.parentNode).style("color")
             help.style("background-color",c)
             desc.style("height",dh+"px")
@@ -272,7 +272,7 @@ d3plus.tooltip.create = function(params) {
           
         block.on(d3plus.evt.out,function(){
           d3.event.stopPropagation()
-          d3plus.tooltip.close()
+          d3plus.ui.tooltip.close()
         })
       }
           
@@ -365,11 +365,11 @@ d3plus.tooltip.create = function(params) {
   
   params.height = tooltip.node().offsetHeight
   
-  d3plus.tooltip.move(params.x,params.y,params.id);
+  d3plus.ui.tooltip.move(params.x,params.y,params.id);
     
 }
 
-d3plus.tooltip.arrow = function(arrow) {
+d3plus.ui.tooltip.arrow = function(arrow) {
   arrow
     .style("bottom", function(d){
       if (d.anchor.y != "center" && !d.flip) return "-5px"
@@ -447,7 +447,7 @@ d3plus.tooltip.arrow = function(arrow) {
 // Close ALL Descriptions
 //-------------------------------------------------------------------
 
-d3plus.tooltip.close = function() {
+d3plus.ui.tooltip.close = function() {
   d3.selectAll("div.d3plus_tooltip_data_desc").style("height","0px")
   d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc")
 }
@@ -458,7 +458,7 @@ d3plus.tooltip.close = function() {
 // Destroy Tooltips
 //-------------------------------------------------------------------
 
-d3plus.tooltip.remove = function(id) {
+d3plus.ui.tooltip.remove = function(id) {
 
   d3.selectAll("div#d3plus_tooltip_curtain_"+id).remove()
   if (id) d3.select("div#d3plus_tooltip_id_"+id).remove()
@@ -472,7 +472,7 @@ d3plus.tooltip.remove = function(id) {
 // Get X and Y position for Tooltip
 //-------------------------------------------------------------------
 
-d3plus.tooltip.move = function(x,y,id) {
+d3plus.ui.tooltip.move = function(x,y,id) {
   
   if (!id) var tooltip = d3.select("div#d3plus_tooltip_id_default")
   else var tooltip = d3.select("div#d3plus_tooltip_id_"+id)
@@ -563,7 +563,7 @@ d3plus.tooltip.move = function(x,y,id) {
   
     if (d.arrow) {
       tooltip.selectAll(".d3plus_tooltip_arrow")
-        .call(d3plus.tooltip.arrow)
+        .call(d3plus.ui.tooltip.arrow)
     }
     
   }

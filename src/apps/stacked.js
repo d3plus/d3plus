@@ -1,5 +1,4 @@
-
-d3plus.stacked = function(vars) {
+d3plus.apps.stacked = function(vars) {
   
   var covered = false
 
@@ -10,7 +9,7 @@ d3plus.stacked = function(vars) {
   var stack = d3.layout.stack()
     .values(function(d) { return d.values; })
     .x(function(d) { return d[vars.year_var]; })
-    .y(function(d) { return d[vars.yaxis_var]; });
+    .y(function(d) { return d[vars.yaxis]; });
   
   //===================================================================
       
@@ -19,14 +18,14 @@ d3plus.stacked = function(vars) {
   //-------------------------------------------------------------------
   
   // get max total for sums of each xaxis
-  if (!vars.data) vars.data = []
+  if (!vars.app_data) vars.app_data = []
   
   var xaxis_sums = d3.nest()
-    .key(function(d){return d[vars.xaxis_var] })
+    .key(function(d){return d[vars.xaxis] })
     .rollup(function(leaves){
-      return d3.sum(leaves, function(d){return d[vars.yaxis_var];})
+      return d3.sum(leaves, function(d){return d[vars.yaxis];})
     })
-    .entries(vars.data)
+    .entries(vars.app_data)
 
   // nest data properly according to nesting array
   var nested_data = nest_data();
@@ -94,11 +93,11 @@ d3plus.stacked = function(vars) {
   paths.enter().append("path")
     .attr("opacity", 0)
     .attr("id", function(d){
-      return "path_"+d[vars.id_var]
+      return "path_"+d[vars.id]
     })
     .attr("class", "layer")
     .attr("fill", function(d){
-      return find_color(d.key)
+      return d3plus.utils.color(vars,d.key)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -108,7 +107,7 @@ d3plus.stacked = function(vars) {
     
     covered = false
     
-    var id = find_variable(d,vars.id_var),
+    var id = d3plus.utils.variable(vars,d,vars.id),
         self = d3.select("#path_"+id).node()
     
     d3.select(self).attr("opacity",1)
@@ -136,7 +135,7 @@ d3plus.stacked = function(vars) {
       .attr("pointer-events","none")
     
     // tooltip
-    var tooltip_data = get_tooltip_data(this_value,"short")
+    var tooltip_data = d3plus.utils.tooltip(vars,this_value,"short")
     if (vars.layout == "share") {
       var share = vars.format(this_value.y*100,"share")+"%"
       tooltip_data.push({"name": vars.format("share"), "value": share})
@@ -146,14 +145,14 @@ d3plus.stacked = function(vars) {
         tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
         tooltip_y = vars.y_scale(this_value.y0 + this_value.y)-(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
 
-    d3plus.tooltip.remove(vars.type)
-    d3plus.tooltip.create({
+    d3plus.ui.tooltip.remove(vars.type)
+    d3plus.ui.tooltip.create({
       "data": tooltip_data,
-      "title": find_variable(d[vars.id_var],vars.text_var),
+      "title": d3plus.utils.variable(vars,d[vars.id],vars.text),
       "id": vars.type,
-      "icon": find_variable(d[vars.id_var],"icon"),
+      "icon": d3plus.utils.variable(vars,d[vars.id],"icon"),
       "style": vars.icon_style,
-      "color": find_color(d[vars.id_var]),
+      "color": d3plus.utils.color(vars,d),
       "x": tooltip_x,
       "y": tooltip_y,
       "offset": -(path_height/2),
@@ -175,14 +174,14 @@ d3plus.stacked = function(vars) {
     })
     .on(d3plus.evt.out, function(d){
       
-      var id = find_variable(d,vars.id_var),
+      var id = d3plus.utils.variable(vars,d,vars.id),
           self = d3.select("#path_"+id).node()
       
       d3.selectAll("line.rule").remove()
       d3.select(self).attr("opacity",0.85)
       
       if (!covered) {
-        d3plus.tooltip.remove(vars.type)
+        d3plus.ui.tooltip.remove(vars.type)
       }
       
     })
@@ -190,7 +189,7 @@ d3plus.stacked = function(vars) {
       
       covered = true
         
-      var id = find_variable(d,vars.id_var)
+      var id = d3plus.utils.variable(vars,d,vars.id)
       var self = this
 
       var mouse_x = d3.event.layerX-vars.graph.margin.left;
@@ -203,19 +202,19 @@ d3plus.stacked = function(vars) {
       make_tooltip = function(html) {
       
         d3.selectAll("line.rule").remove()
-        d3plus.tooltip.remove(vars.type)
+        d3plus.ui.tooltip.remove(vars.type)
         d3.select(self).attr("opacity",0.85)
         
-        var tooltip_data = get_tooltip_data(this_value,"long")
+        var tooltip_data = d3plus.utils.tooltip(vars,this_value,"long")
         if (vars.layout == "share") {
           var share = vars.format(this_value.y*100,"share")+"%"
           tooltip_data.push({"name": vars.format("share"), "value": share})
         }
         
-        d3plus.tooltip.create({
-          "title": find_variable(d[vars.id_var],vars.text_var),
-          "color": find_color(d[vars.id_var]),
-          "icon": find_variable(d[vars.id_var],"icon"),
+        d3plus.ui.tooltip.create({
+          "title": d3plus.utils.variable(vars,d[vars.id],vars.text),
+          "color": d3plus.utils.color(vars,d),
+          "icon": d3plus.utils.variable(vars,d[vars.id],"icon"),
           "style": vars.icon_style,
           "id": vars.type,
           "fullscreen": true,
@@ -238,7 +237,7 @@ d3plus.stacked = function(vars) {
           make_tooltip(html)
         })
       }
-      else if (vars.tooltip_info.long) {
+      else if (vars.tooltip.long) {
         make_tooltip(html)
       }
       
@@ -247,7 +246,7 @@ d3plus.stacked = function(vars) {
   paths.transition().duration(d3plus.timing)
     .attr("opacity", 0.85)
     .attr("fill", function(d){
-      return find_color(d.key)
+      return d3plus.utils.color(vars,d.key)
     })
     .attr("d", function(d) {
       return area(d.values);
@@ -377,7 +376,7 @@ d3plus.stacked = function(vars) {
       return "middle"
     })
     .attr("fill", function(d){
-      return d3plus.utils.text_color(find_color(d[vars.id_var]))
+      return d3plus.utils.text_color(d3plus.utils.color(vars,d))
     })
     .attr("x", function(d){
       var pad = 0;
@@ -392,7 +391,7 @@ d3plus.stacked = function(vars) {
       return vars.y_scale(d.tallest.y0 + d.tallest.y) + (height/2);
     })
     .text(function(d) {
-      return find_variable(d[vars.id_var],vars.text_var)
+      return d3plus.utils.variable(vars,d[vars.id],vars.text)
     })
     .each(function(d){
       // set usable width to 2x the width of each x-axis tick
@@ -407,7 +406,7 @@ d3plus.stacked = function(vars) {
         // d3plus.utils.wordwrap(d[nesting[nesting.length-1]], this, tick_width, height, false)
       
         d3plus.utils.wordwrap({
-          "text": find_variable(d[vars.id_var],vars.text_var),
+          "text": d3plus.utils.variable(vars,d[vars.id],vars.text),
           "parent": this,
           "width": tick_width,
           "height": height,
@@ -438,37 +437,37 @@ d3plus.stacked = function(vars) {
   function nest_data(){
     
     var nested = d3.nest()
-      .key(function(d){ return d[vars.id_var]; })
+      .key(function(d){ return d[vars.id]; })
       .rollup(function(leaves){
           
         // Make sure all xaxis_vars at least have 0 values
         var years_available = leaves
-          .reduce(function(a, b){ return a.concat(b[vars.xaxis_var])}, [])
+          .reduce(function(a, b){ return a.concat(b[vars.xaxis])}, [])
           .filter(function(y, i, arr) { return arr.indexOf(y) == i })
           
         vars.years.forEach(function(y){
           if(years_available.indexOf(y) < 0){
             var obj = {}
-            obj[vars.xaxis_var] = y
-            obj[vars.yaxis_var] = 0
-            if (leaves[0][vars.id_var]) obj[vars.id_var] = leaves[0][vars.id_var]
-            if (leaves[0][vars.text_var]) obj[vars.text_var] = leaves[0][vars.text_var]
-            if (leaves[0][vars.color_var]) obj[vars.color_var] = leaves[0][vars.color_var]
+            obj[vars.xaxis] = y
+            obj[vars.yaxis] = 0
+            if (leaves[0][vars.id]) obj[vars.id] = leaves[0][vars.id]
+            if (leaves[0][vars.text]) obj[vars.text] = leaves[0][vars.text]
+            if (leaves[0][vars.color]) obj[vars.color] = leaves[0][vars.color]
             leaves.push(obj)
           }
         })
         
         return leaves.sort(function(a,b){
-          return a[vars.xaxis_var]-b[vars.xaxis_var];
+          return a[vars.xaxis]-b[vars.xaxis];
         });
         
       })
-      .entries(vars.data)
+      .entries(vars.app_data)
     
     nested.forEach(function(d, i){
-      d.total = d3.sum(d.values, function(dd){ return dd[vars.yaxis_var]; })
-      d[vars.text_var] = d.values[0][vars.text_var]
-      d[vars.id_var] = d.values[0][vars.id_var]
+      d.total = d3.sum(d.values, function(dd){ return dd[vars.yaxis]; })
+      d[vars.text] = d.values[0][vars.text]
+      d[vars.id] = d.values[0][vars.id]
     })
     // return nested
     
@@ -476,10 +475,10 @@ d3plus.stacked = function(vars) {
           
       var s = vars.sort == "value" ? "total" : vars.sort
       
-      a_value = find_variable(a,s)
-      b_value = find_variable(b,s)
+      a_value = d3plus.utils.variable(vars,a,s)
+      b_value = d3plus.utils.variable(vars,b,s)
       
-      if (s == vars.color_var) {
+      if (s == vars.color) {
       
         a_value = d3.rgb(a_value).hsl()
         b_value = d3.rgb(b_value).hsl()

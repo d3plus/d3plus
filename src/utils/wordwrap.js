@@ -1,75 +1,5 @@
-d3plus.utils = {};
-
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Random color generator (if no color is given)
-//-------------------------------------------------------------------
-
-d3plus.utils.color_scale = d3.scale.category20b()
-d3plus.utils.rand_color = function() {
-  var rand_int = Math.floor(Math.random()*20)
-  return d3plus.utils.color_scale(rand_int);
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Returns appropriate text color based off of a given color
-//-------------------------------------------------------------------
-
-d3plus.utils.text_color = function(color) {
-  var hsl = d3.hsl(color),
-      light = "#ffffff", 
-      dark = "#333333";
-  if (hsl.l > 0.65) return dark;
-  else if (hsl.l < 0.48) return light;
-  return hsl.h > 35 && hsl.s >= 0.3 && hsl.l >= 0.41 ? dark : light;
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Darkens a color if it's too light to appear on white
-//-------------------------------------------------------------------
-
-d3plus.utils.darker_color = function(color) {
-  var hsl = d3.hsl(color)
-  if (hsl.s > .9) hsl.s = .9
-  if (hsl.l > .4) hsl.l = .4
-  return hsl.toString();
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Returns list of unique values
-//-------------------------------------------------------------------
-        
-d3plus.utils.uniques = function(data,value) {
-  return d3.nest().key(function(d) { 
-    return d[value]
-  }).entries(data).reduce(function(a,b,i,arr){ 
-    return a.concat(parseInt(b['key'])) 
-  },[])
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Merge two objects to create a new one with the properties of both
-//-------------------------------------------------------------------
-
-d3plus.utils.merge = function(obj1, obj2) {
-  var obj3 = {};
-  for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-  for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
-  return obj3;
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// for SVGs word wrapping is not built in, so here we must creat this
-// function ourselves
+// function that will wrap and resize SVG text
 //-------------------------------------------------------------------
 
 d3plus.utils.wordwrap = function(params) {
@@ -193,5 +123,3 @@ d3plus.utils.wordwrap = function(params) {
   }
   
 }
-
-//===================================================================

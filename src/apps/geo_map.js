@@ -1,9 +1,8 @@
-d3plus.geo_map = function(vars) { 
+d3plus.apps.geo_map = function(vars) { 
   
   var default_opacity = 0.50,
       select_opacity = 0.75,
       stroke_width = 1,
-      color_gradient = ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
       projection = null
       gmap_projection = null,
       path = null,
@@ -20,30 +19,26 @@ d3plus.geo_map = function(vars) {
   /**********************/
   /* Define Color Scale */
   /**********************/
-  vars.data_range = []
-  vars.data_extent = [0,0]
-  if (vars.data) {
-    vars.data_extent = d3.extent(d3.values(vars.data),function(d){
-      return d[vars.value_var] && d[vars.value_var] != 0 ? d[vars.value_var] : null
+  vars.app_data_range = []
+  vars.app_data_extent = [0,0]
+  if (vars.app_data) {
+    vars.app_data_extent = d3.extent(d3.values(vars.app_data),function(d){
+      return d[vars.value] && d[vars.value] != 0 ? d[vars.value] : null
     })
-    var step = 0.0
-    while(step <= 1) {
-      vars.data_range.push((vars.data_extent[0]*Math.pow((vars.data_extent[1]/vars.data_extent[0]),step)))
-      step += 0.25
-    }
+    vars.app_data_range = d3plus.utils.buckets(vars.app_data_extent,vars.heat_map.length)
     vars.value_color = d3.scale.log()
-      .domain(vars.data_range)
+      .domain(vars.app_data_range)
       .interpolate(d3.interpolateRgb)
-      .range(color_gradient)
+      .range(vars.heat_map)
   }
   else {
-    vars.data = []
+    vars.app_data = []
   }
       
   /*******************/
   /* Create Init Map */
   /*******************/
-  var map_div = vars.parent.selectAll("div#map").data([vars.data])
+  var map_div = vars.parent.selectAll("div#map").data([vars.app_data])
   
   map_div.enter().append("div")
     .attr("id","map")
@@ -346,8 +341,8 @@ d3plus.geo_map = function(vars) {
     p
       .attr("fill",function(d){ 
         if (d.id == vars.highlight) return "none";
-        else if (!vars.data[d.id]) return "#888888";
-        else return vars.data[d.id][vars.value_var] ? vars.value_color(vars.data[d.id][vars.value_var]) : "#888888"
+        else if (!vars.app_data[d.id]) return "#888888";
+        else return vars.app_data[d.id][vars.value] ? vars.value_color(vars.app_data[d.id][vars.value]) : "#888888"
       })
       .attr("stroke-width",function(d) {
         if (d.id == vars.highlight) return 10;
@@ -355,8 +350,8 @@ d3plus.geo_map = function(vars) {
       })
       .attr("stroke",function(d) {
         if (d.id == vars.highlight) {
-          if (!vars.data[d.id]) return "#888"
-          return vars.data[d.id][vars.value_var] ? vars.value_color(vars.data[d.id][vars.value_var]) : "#888888";
+          if (!vars.app_data[d.id]) return "#888"
+          return vars.app_data[d.id][vars.value] ? vars.value_color(vars.app_data[d.id][vars.value]) : "#888888";
         }
         else return "white";
       })
@@ -380,16 +375,16 @@ d3plus.geo_map = function(vars) {
   
   function update() {
     
-    d3plus.tooltip.remove(vars.type);
+    d3plus.ui.tooltip.remove(vars.type);
     
     if (!vars.small && (hover || vars.highlight)) {
       
       var id = vars.highlight ? vars.highlight : hover
       
-      var data = vars.data[id]
+      var data = vars.app_data[id]
       
-      if (data && data[vars.value_var]) {
-        var color = vars.value_color(data[vars.value_var])
+      if (data && data[vars.value]) {
+        var color = vars.value_color(data[vars.value])
       }
       else {
         var color = "#888"
@@ -397,15 +392,15 @@ d3plus.geo_map = function(vars) {
       
       make_tooltip = function(html) {
     
-        d3plus.tooltip.remove(vars.type);
+        d3plus.ui.tooltip.remove(vars.type);
         
         if (typeof html == "string") html = "<br>"+html
 
-        d3plus.tooltip.create({
+        d3plus.ui.tooltip.create({
           "data": tooltip_data,
-          "title": find_variable(id,vars.text_var),
+          "title": d3plus.utils.variable(vars,id,vars.text),
           "id": vars.type,
-          "icon": find_variable(id,"icon"),
+          "icon": d3plus.utils.variable(vars,id,"icon"),
           "style": vars.icon_style,
           "color": color,
           "footer": footer,
@@ -422,17 +417,17 @@ d3plus.geo_map = function(vars) {
         
       }
       
-      if (!data || !data[vars.value_var]) {
+      if (!data || !data[vars.value]) {
         var footer = vars.format("No Data Available")
         make_tooltip(null)
       }
       else if (!vars.highlight) {
-        var tooltip_data = get_tooltip_data(id,"short"),
+        var tooltip_data = d3plus.utils.tooltip(vars,id,"short"),
             footer = footer_text()
         make_tooltip(null)
       }
       else {
-        var tooltip_data = get_tooltip_data(id,"long"),
+        var tooltip_data = d3plus.utils.tooltip(vars,id,"long"),
             footer = vars.footer
 
         var html = vars.click_function ? vars.click_function(id) : null
@@ -473,9 +468,9 @@ d3plus.geo_map = function(vars) {
       .attr("y2", "0%")
       .attr("spreadMethod", "pad");
      
-    vars.data_range.forEach(function(v,i){
+    vars.app_data_range.forEach(function(v,i){
       gradient.append("stop")
-        .attr("offset",Math.round((i/(vars.data_range.length-1))*100)+"%")
+        .attr("offset",Math.round((i/(vars.app_data_range.length-1))*100)+"%")
         .attr("stop-color", vars.value_color(v))
         .attr("stop-opacity", 1)
     })
@@ -541,13 +536,13 @@ d3plus.geo_map = function(vars) {
       .attr("height", scale_height*0.75+"px")
       .style("fill", "url(#gradient)")
      
-    vars.data_range.forEach(function(v,i){
-      if (i == vars.data_range.length-1) {
-        var x = scale_padding+Math.round((i/(vars.data_range.length-1))*(scale_width-(scale_padding*2)))-1
+    vars.app_data_range.forEach(function(v,i){
+      if (i == vars.app_data_range.length-1) {
+        var x = scale_padding+Math.round((i/(vars.app_data_range.length-1))*(scale_width-(scale_padding*2)))-1
       } else if (i != 0) {
-        var x = scale_padding+Math.round((i/(vars.data_range.length-1))*(scale_width-(scale_padding*2)))-1
+        var x = scale_padding+Math.round((i/(vars.app_data_range.length-1))*(scale_width-(scale_padding*2)))-1
       } else {
-        var x = scale_padding+Math.round((i/(vars.data_range.length-1))*(scale_width-(scale_padding*2)))
+        var x = scale_padding+Math.round((i/(vars.app_data_range.length-1))*(scale_width-(scale_padding*2)))
       }
       scale.append("rect")
         .attr("id","scaletick_"+i)
@@ -573,15 +568,15 @@ d3plus.geo_map = function(vars) {
   }
   
   function scale_update() {
-    if (!vars.data_extent[0] || Object.keys(vars.data).length < 2 || vars.small) {
+    if (!vars.app_data_extent[0] || Object.keys(vars.app_data).length < 2 || vars.small) {
       d3.select("g.scale").transition().duration(d3plus.timing)
         .style("opacity",0)
     }
     else {
       var max = 0
-      vars.data_range.forEach(function(v,i){
+      vars.app_data_range.forEach(function(v,i){
         var elem = d3.select("g.scale").select("text#scale_"+i)
-        elem.text(vars.format(v,vars.value_var))
+        elem.text(vars.format(v,vars.value))
         var w = elem.node().getBBox().width
         if (w > max) max = w
       })
@@ -592,31 +587,31 @@ d3plus.geo_map = function(vars) {
         .style("opacity",1)
       
       d3.select("svg#scale").transition().duration(d3plus.timing)
-        .attr("width",max*vars.data_range.length+"px")
+        .attr("width",max*vars.app_data_range.length+"px")
         .style("left",(30+vars.margin.left)+"px")
         .style("top",(5+vars.margin.top)+"px")
       
       d3.select("g.scale").select("rect#scalebg").transition().duration(d3plus.timing)
-        .attr("width",max*vars.data_range.length+"px")
+        .attr("width",max*vars.app_data_range.length+"px")
       
       d3.select("g.scale").select("rect#scalecolor").transition().duration(d3plus.timing)
         .attr("x",max/2+"px")
-        .attr("width",max*(vars.data_range.length-1)+"px")
+        .attr("width",max*(vars.app_data_range.length-1)+"px")
       
       d3.select("g.scale").select("text#scale_title").transition().duration(d3plus.timing)
-        .attr("x",(max*vars.data_range.length)/2+"px")
-        .text(vars.format(vars.value_var))
+        .attr("x",(max*vars.app_data_range.length)/2+"px")
+        .text(vars.format(vars.value))
       
-      vars.data_range.forEach(function(v,i){
+      vars.app_data_range.forEach(function(v,i){
       
-        if (i == vars.data_range.length-1) {
-          var x = (max/2)+Math.round((i/(vars.data_range.length-1))*(max*vars.data_range.length-(max)))-1
+        if (i == vars.app_data_range.length-1) {
+          var x = (max/2)+Math.round((i/(vars.app_data_range.length-1))*(max*vars.app_data_range.length-(max)))-1
         } 
         else if (i != 0) {
-          var x = (max/2)+Math.round((i/(vars.data_range.length-1))*(max*vars.data_range.length-(max)))-1
+          var x = (max/2)+Math.round((i/(vars.app_data_range.length-1))*(max*vars.app_data_range.length-(max)))-1
         } 
         else {
-          var x = (max/2)+Math.round((i/(vars.data_range.length-1))*(max*vars.data_range.length-(max)))
+          var x = (max/2)+Math.round((i/(vars.app_data_range.length-1))*(max*vars.app_data_range.length-(max)))
         }
       
         d3.select("g.scale").select("rect#scaletick_"+i).transition().duration(d3plus.timing)
