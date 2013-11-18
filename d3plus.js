@@ -33,7 +33,8 @@ if (Modernizr && Modernizr.touch) {
   d3plus.evt.move = "mousemove"
 }
 
-d3plus.apps = {"data_types": {}};
+d3plus.apps = {};
+d3plus.data = {};
 d3plus.ui = {};
 d3plus.utils = {};d3plus.viz = function() {
 
@@ -1379,7 +1380,7 @@ d3plus.utils = {};d3plus.viz = function() {
 
   return chart;
 };
-d3plus.apps.data_types.network = "object";
+d3plus.data.network = "object";
 
 d3plus.apps.network = function(vars) {
   
@@ -2147,7 +2148,7 @@ d3plus.apps.network = function(vars) {
   }
       
 };
-d3plus.apps.data_types.stacked = "grouped";
+d3plus.data.stacked = "grouped";
 
 d3plus.apps.stacked = function(vars) {
   
@@ -2655,7 +2656,7 @@ d3plus.apps.stacked = function(vars) {
   //===================================================================
     
 };
-d3plus.apps.data_types.tree_map = "nested";
+d3plus.data.tree_map = "nested";
 
 d3plus.apps.tree_map = function(vars) {
   
@@ -2984,7 +2985,7 @@ d3plus.apps.tree_map = function(vars) {
   //===================================================================
   
 }
-d3plus.apps.data_types.geo_map = "object";
+d3plus.data.geo_map = "object";
 
 d3plus.apps.geo_map = function(vars) { 
   
@@ -3614,7 +3615,7 @@ d3plus.apps.geo_map = function(vars) {
   }
   
 };
-d3plus.apps.data_types.pie_scatter = "grouped";
+d3plus.data.pie_scatter = "grouped";
 
 d3plus.apps.pie_scatter = function(vars) {
   
@@ -4033,7 +4034,7 @@ d3plus.apps.pie_scatter = function(vars) {
   }
   
 };
-d3plus.apps.data_types.bubbles = "array";
+d3plus.data.bubbles = "array";
 
 d3plus.apps.bubbles = function(vars) {
 
@@ -4721,7 +4722,7 @@ d3plus.apps.bubbles = function(vars) {
 
   //===================================================================
 };
-d3plus.apps.data_types.rings = "object";
+d3plus.data.rings = "object";
 
 d3plus.apps.rings = function(vars) {
       
@@ -5860,7 +5861,7 @@ d3plus.utils.data = function(vars,datum) {
     
   }
   
-  vars.data.type = d3plus.apps.data_types[vars.type]
+  vars.data.type = d3plus.data[vars.type]
   
   // Filter data if it hasn't been filtered or variables have changed
   if (!vars.data.filtered || vars.check.length) {
