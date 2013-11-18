@@ -139,8 +139,8 @@ d3plus.utils = {};d3plus.viz = function() {
     "total_bar": false,
     "type": "tree_map",
     "value": "value",
-    "xscale_type": "linear",
-    "yscale_type": "linear",
+    "xaxis_scale": "linear",
+    "yaxis_scale": "linear",
     "year": "all",
     "zoom_behavior": d3.behavior.zoom()
   }
@@ -665,8 +665,8 @@ d3plus.utils = {};d3plus.viz = function() {
     .orient('bottom')
     .tickFormat(function(d, i) {
       
-      if ((vars.xscale_type == "log" && d.toString().charAt(0) == "1")
-          || vars.xscale_type != "log") {
+      if ((vars.xaxis_scale == "log" && d.toString().charAt(0) == "1")
+          || vars.xaxis_scale != "log") {
             
         if (vars.xaxis == vars.year_var) var text = d;
         else {
@@ -723,8 +723,8 @@ d3plus.utils = {};d3plus.viz = function() {
     .orient('left')
     .tickFormat(function(d, i) {
       
-      if ((vars.yscale_type == "log" && d.toString().charAt(0) == "1")
-          || vars.yscale_type != "log") {
+      if ((vars.yaxis_scale == "log" && d.toString().charAt(0) == "1")
+          || vars.yaxis_scale != "log") {
             
         if (vars.yaxis == vars.year_var) var text = d;
         else if (vars.layout == "share" && vars.type == "stacked") {
@@ -1829,11 +1829,11 @@ d3plus.apps.stacked = function(vars) {
   var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
 
   // scales for both X and Y values
-  vars.x_scale = d3.scale[vars.xscale_type]()
+  vars.x_scale = d3.scale[vars.xaxis_scale]()
     .domain(d3.extent(xaxis_vals))
     .range([0, vars.graph.width]);
   // **WARNING reverse scale from 0 - max converts from height to 0 (inverse)
-  vars.y_scale = d3.scale[vars.yscale_type]()
+  vars.y_scale = d3.scale[vars.yaxis_scale]()
     .domain([0, data_max])
     .range([vars.graph.height, 0]);
     
@@ -3291,24 +3291,24 @@ d3plus.apps.pie_scatter = function(vars) {
   //-------------------------------------------------------------------
   
   // Create Axes
-  vars.x_scale = d3.scale[vars.xscale_type]()
+  vars.x_scale = d3.scale[vars.xaxis_scale]()
     .domain(vars.xaxis_range)
     .range([0, vars.graph.width])
     .nice()
   
-  vars.y_scale = d3.scale[vars.yscale_type]()
+  vars.y_scale = d3.scale[vars.yaxis_scale]()
     .domain(vars.yaxis_range)
     .range([0, vars.graph.height])
     .nice()
 
-  if (vars.xscale_type != "log") set_buffer("x")
-  if (vars.yscale_type != "log") set_buffer("y")
+  if (vars.xaxis_scale != "log") set_buffer("x")
+  if (vars.yaxis_scale != "log") set_buffer("y")
   
   // set buffer room (take into account largest size var)
   function set_buffer(axis) {
     
     var scale = vars[axis+"_scale"]
-    var inverse_scale = d3.scale[vars[axis+"scale_type"]]()
+    var inverse_scale = d3.scale[vars[axis+"axis_scale"]]()
       .domain(scale.range())
       .range(scale.domain())
       

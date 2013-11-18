@@ -41,11 +41,11 @@ d3plus.apps.stacked = function(vars) {
   var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
 
   // scales for both X and Y values
-  vars.x_scale = d3.scale[vars.xscale_type]()
+  vars.x_scale = d3.scale[vars.xaxis_scale]()
     .domain(d3.extent(xaxis_vals))
     .range([0, vars.graph.width]);
   // **WARNING reverse scale from 0 - max converts from height to 0 (inverse)
-  vars.y_scale = d3.scale[vars.yscale_type]()
+  vars.y_scale = d3.scale[vars.yaxis_scale]()
     .domain([0, data_max])
     .range([vars.graph.height, 0]);
     

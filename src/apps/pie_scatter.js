@@ -33,24 +33,24 @@ d3plus.apps.pie_scatter = function(vars) {
   //-------------------------------------------------------------------
   
   // Create Axes
-  vars.x_scale = d3.scale[vars.xscale_type]()
+  vars.x_scale = d3.scale[vars.xaxis_scale]()
     .domain(vars.xaxis_range)
     .range([0, vars.graph.width])
     .nice()
   
-  vars.y_scale = d3.scale[vars.yscale_type]()
+  vars.y_scale = d3.scale[vars.yaxis_scale]()
     .domain(vars.yaxis_range)
     .range([0, vars.graph.height])
     .nice()
 
-  if (vars.xscale_type != "log") set_buffer("x")
-  if (vars.yscale_type != "log") set_buffer("y")
+  if (vars.xaxis_scale != "log") set_buffer("x")
+  if (vars.yaxis_scale != "log") set_buffer("y")
   
   // set buffer room (take into account largest size var)
   function set_buffer(axis) {
     
     var scale = vars[axis+"_scale"]
-    var inverse_scale = d3.scale[vars[axis+"scale_type"]]()
+    var inverse_scale = d3.scale[vars[axis+"axis_scale"]]()
       .domain(scale.range())
       .range(scale.domain())
       

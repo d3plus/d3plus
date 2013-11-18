@@ -100,8 +100,8 @@ d3plus.viz = function() {
     "total_bar": false,
     "type": "tree_map",
     "value": "value",
-    "xscale_type": "linear",
-    "yscale_type": "linear",
+    "xaxis_scale": "linear",
+    "yaxis_scale": "linear",
     "year": "all",
     "zoom_behavior": d3.behavior.zoom()
   }
@@ -626,8 +626,8 @@ d3plus.viz = function() {
     .orient('bottom')
     .tickFormat(function(d, i) {
       
-      if ((vars.xscale_type == "log" && d.toString().charAt(0) == "1")
-          || vars.xscale_type != "log") {
+      if ((vars.xaxis_scale == "log" && d.toString().charAt(0) == "1")
+          || vars.xaxis_scale != "log") {
             
         if (vars.xaxis == vars.year_var) var text = d;
         else {
@@ -684,8 +684,8 @@ d3plus.viz = function() {
     .orient('left')
     .tickFormat(function(d, i) {
       
-      if ((vars.yscale_type == "log" && d.toString().charAt(0) == "1")
-          || vars.yscale_type != "log") {
+      if ((vars.yaxis_scale == "log" && d.toString().charAt(0) == "1")
+          || vars.yaxis_scale != "log") {
             
         if (vars.yaxis == vars.year_var) var text = d;
         else if (vars.layout == "share" && vars.type == "stacked") {
