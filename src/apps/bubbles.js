@@ -1,4 +1,4 @@
-d3plus.apps.data_types.bubbles = "array";
+d3plus.data.bubbles = "array";
 
 d3plus.apps.bubbles = function(vars) {
 

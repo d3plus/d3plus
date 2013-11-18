@@ -1,4 +1,4 @@
-d3plus.apps.data_types.stacked = "grouped";
+d3plus.data.stacked = "grouped";
 
 d3plus.apps.stacked = function(vars) {
   

@@ -1,4 +1,4 @@
-d3plus.apps.data_types.pie_scatter = "grouped";
+d3plus.data.pie_scatter = "grouped";
 
 d3plus.apps.pie_scatter = function(vars) {
   

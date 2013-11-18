@@ -32,6 +32,7 @@ if (Modernizr && Modernizr.touch) {
   d3plus.evt.move = "mousemove"
 }
 
-d3plus.apps = {"data_types": {}};
+d3plus.apps = {};
+d3plus.data = {};
 d3plus.ui = {};
 d3plus.utils = {};

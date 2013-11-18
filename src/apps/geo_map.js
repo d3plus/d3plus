@@ -1,4 +1,4 @@
-d3plus.apps.data_types.geo_map = "object";
+d3plus.data.geo_map = "object";
 
 d3plus.apps.geo_map = function(vars) { 
   

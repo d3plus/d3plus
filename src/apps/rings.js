@@ -1,4 +1,4 @@
-d3plus.apps.data_types.rings = "object";
+d3plus.data.rings = "object";
 
 d3plus.apps.rings = function(vars) {
       

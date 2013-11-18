@@ -28,7 +28,7 @@ d3plus.utils.data = function(vars,datum) {
     
   }
   
-  vars.data.type = d3plus.apps.data_types[vars.type]
+  vars.data.type = d3plus.data[vars.type]
   
   // Filter data if it hasn't been filtered or variables have changed
   if (!vars.data.filtered || vars.check.length) {
