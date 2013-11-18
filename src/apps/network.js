@@ -1,3 +1,5 @@
+d3plus.apps.data_types.network = "object";
+
 d3plus.apps.network = function(vars) {
   
   if (!vars.app_data) var nodes = []

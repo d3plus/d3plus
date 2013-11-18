@@ -1,6 +1,13 @@
+d3plus.apps.data_types.stacked = "grouped";
+
 d3plus.apps.stacked = function(vars) {
   
   var covered = false
+  
+  var xaxis_vals = [vars.xaxis_range[0]]
+  while (xaxis_vals[xaxis_vals.length-1] < vars.xaxis_range[1]) {
+    xaxis_vals.push(xaxis_vals[xaxis_vals.length-1]+1)
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Helper function used to create stack polygon
@@ -8,7 +15,7 @@ d3plus.apps.stacked = function(vars) {
   
   var stack = d3.layout.stack()
     .values(function(d) { return d.values; })
-    .x(function(d) { return d[vars.year_var]; })
+    .x(function(d) { return d[vars.xaxis]; })
     .y(function(d) { return d[vars.yaxis]; });
   
   //===================================================================
@@ -29,14 +36,12 @@ d3plus.apps.stacked = function(vars) {
 
   // nest data properly according to nesting array
   var nested_data = nest_data();
-
+  
   var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
 
   // scales for both X and Y values
-  var year_extent = vars.year instanceof Array ? vars.year : d3.extent(vars.years)
-  
   vars.x_scale = d3.scale[vars.xscale_type]()
-    .domain(year_extent)
+    .domain(d3.extent(xaxis_vals))
     .range([0, vars.graph.width]);
   // **WARNING reverse scale from 0 - max converts from height to 0 (inverse)
   vars.y_scale = d3.scale[vars.yscale_type]()
@@ -48,7 +53,7 @@ d3plus.apps.stacked = function(vars) {
   // Helper function unsed to convert stack values to X, Y coords 
   var area = d3.svg.area()
     .interpolate(vars.stack_type)
-    .x(function(d) { return vars.x_scale(d[vars.year_var]); })
+    .x(function(d) { return vars.x_scale(d[vars.xaxis]); })
     .y0(function(d) { return vars.y_scale(d.y0); })
     .y1(function(d) { return vars.y_scale(d.y0 + d.y)+1; });
   
@@ -105,62 +110,66 @@ d3plus.apps.stacked = function(vars) {
     
   small_tooltip = function(d) {
     
-    covered = false
-    
-    var id = d3plus.utils.variable(vars,d,vars.id),
-        self = d3.select("#path_"+id).node()
-    
-    d3.select(self).attr("opacity",1)
-
-    d3.selectAll("line.rule").remove();
-    
     var mouse_x = d3.event.layerX-vars.graph.margin.left;
     var rev_x_scale = d3.scale.linear()
       .domain(vars.x_scale.range()).range(vars.x_scale.domain());
     var this_x = Math.round(rev_x_scale(mouse_x));
-    var this_x_index = vars.years.indexOf(this_x)
+    var this_x_index = xaxis_vals.indexOf(this_x)
     var this_value = d.values[this_x_index]
     
-    // add dashed line at closest X position to mouse location
-    d3.selectAll("line.rule").remove()
-    d3.select("g.chart").append("line")
-      .datum(d)
-      .attr("class", "rule")
-      .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
-      .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
-      .attr("stroke", "white")
-      .attr("stroke-width", 1)
-      .attr("stroke-opacity", 0.5)
-      .attr("stroke-dasharray", "5,3")
-      .attr("pointer-events","none")
-    
-    // tooltip
-    var tooltip_data = d3plus.utils.tooltip(vars,this_value,"short")
-    if (vars.layout == "share") {
-      var share = vars.format(this_value.y*100,"share")+"%"
-      tooltip_data.push({"name": vars.format("share"), "value": share})
-    }
-  
-    var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
-        tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
-        tooltip_y = vars.y_scale(this_value.y0 + this_value.y)-(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
+    if (this_value[vars.yaxis] != 0) {
 
-    d3plus.ui.tooltip.remove(vars.type)
-    d3plus.ui.tooltip.create({
-      "data": tooltip_data,
-      "title": d3plus.utils.variable(vars,d[vars.id],vars.text),
-      "id": vars.type,
-      "icon": d3plus.utils.variable(vars,d[vars.id],"icon"),
-      "style": vars.icon_style,
-      "color": d3plus.utils.color(vars,d),
-      "x": tooltip_x,
-      "y": tooltip_y,
-      "offset": -(path_height/2),
-      "align": "top center",
-      "arrow": true,
-      "footer": footer_text(),
-      "mouseevents": false
-    })
+      covered = false
+    
+      var id = d3plus.utils.variable(vars,d,vars.id),
+          self = d3.select("#path_"+id).node()
+    
+      d3.select(self).attr("opacity",1)
+
+      d3.selectAll("line.rule").remove();
+    
+      // add dashed line at closest X position to mouse location
+      d3.selectAll("line.rule").remove()
+      d3.select("g.chart").append("line")
+        .datum(d)
+        .attr("class", "rule")
+        .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
+        .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .attr("stroke-opacity", 0.5)
+        .attr("stroke-dasharray", "5,3")
+        .attr("pointer-events","none")
+    
+      // tooltip
+      var tooltip_data = d3plus.utils.tooltip(vars,this_value,"short")
+      if (vars.layout == "share") {
+        var share = vars.format(this_value.y*100,"share")+"%"
+        tooltip_data.push({"name": vars.format("share"), "value": share})
+      }
+  
+      var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
+          tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+          tooltip_y = vars.y_scale(this_value.y0 + this_value.y)-(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
+
+      d3plus.ui.tooltip.remove(vars.type)
+      d3plus.ui.tooltip.create({
+        "data": tooltip_data,
+        "title": d3plus.utils.variable(vars,d[vars.id],vars.text),
+        "id": vars.type,
+        "icon": d3plus.utils.variable(vars,d[vars.id],"icon"),
+        "style": vars.icon_style,
+        "color": d3plus.utils.color(vars,d),
+        "x": tooltip_x,
+        "y": tooltip_y,
+        "offset": -(path_height/2),
+        "align": "top center",
+        "arrow": true,
+        "footer": footer_text(),
+        "mouseevents": false
+      })
+      
+    }
     
   }
   
@@ -196,7 +205,7 @@ d3plus.apps.stacked = function(vars) {
       var rev_x_scale = d3.scale.linear()
         .domain(vars.x_scale.range()).range(vars.x_scale.domain());
       var this_x = Math.round(rev_x_scale(mouse_x));
-      var this_x_index = vars.years.indexOf(this_x)
+      var this_x_index = xaxis_vals.indexOf(this_x)
       var this_value = d.values[this_x_index]
       
       make_tooltip = function(html) {
@@ -369,9 +378,9 @@ d3plus.apps.stacked = function(vars) {
     .attr("pointer-events","none")
     .attr("text-anchor", function(d){
       // if first, left-align text
-      if(d.tallest[vars.year_var] == vars.x_scale.domain()[0]) return "start";
+      if(d.tallest[vars.xaxis] == vars.x_scale.domain()[0]) return "start";
       // if last, right-align text
-      if(d.tallest[vars.year_var] == vars.x_scale.domain()[1]) return "end";
+      if(d.tallest[vars.xaxis] == vars.x_scale.domain()[1]) return "end";
       // otherwise go with middle
       return "middle"
     })
@@ -381,10 +390,10 @@ d3plus.apps.stacked = function(vars) {
     .attr("x", function(d){
       var pad = 0;
       // if first, push it off 10 pixels from left side
-      if(d.tallest[vars.year_var] == vars.x_scale.domain()[0]) pad += 10;
+      if(d.tallest[vars.xaxis] == vars.x_scale.domain()[0]) pad += 10;
       // if last, push it off 10 pixels from right side
-      if(d.tallest[vars.year_var] == vars.x_scale.domain()[1]) pad -= 10;
-      return vars.x_scale(d.tallest[vars.year_var]) + pad;
+      if(d.tallest[vars.xaxis] == vars.x_scale.domain()[1]) pad -= 10;
+      return vars.x_scale(d.tallest[vars.xaxis]) + pad;
     })
     .attr("y", function(d){
       var height = vars.graph.height - vars.y_scale(d.tallest.y);
@@ -395,7 +404,7 @@ d3plus.apps.stacked = function(vars) {
     })
     .each(function(d){
       // set usable width to 2x the width of each x-axis tick
-      var tick_width = (vars.graph.width / vars.years.length) * 2;
+      var tick_width = (vars.graph.width / xaxis_vals.length) * 2;
       // if the text box's width is larger than the tick width wrap text
       if(this.getBBox().width > tick_width){
         // first remove the current text
@@ -441,18 +450,14 @@ d3plus.apps.stacked = function(vars) {
       .rollup(function(leaves){
           
         // Make sure all xaxis_vars at least have 0 values
-        var years_available = leaves
-          .reduce(function(a, b){ return a.concat(b[vars.xaxis])}, [])
-          .filter(function(y, i, arr) { return arr.indexOf(y) == i })
-          
-        vars.years.forEach(function(y){
+        var years_available = d3plus.utils.uniques(leaves,vars.xaxis)
+        
+        xaxis_vals.forEach(function(y){
           if(years_available.indexOf(y) < 0){
             var obj = {}
             obj[vars.xaxis] = y
             obj[vars.yaxis] = 0
-            if (leaves[0][vars.id]) obj[vars.id] = leaves[0][vars.id]
-            if (leaves[0][vars.text]) obj[vars.text] = leaves[0][vars.text]
-            if (leaves[0][vars.color]) obj[vars.color] = leaves[0][vars.color]
+            obj[vars.id] = leaves[0][vars.id]
             leaves.push(obj)
           }
         })
@@ -466,12 +471,10 @@ d3plus.apps.stacked = function(vars) {
     
     nested.forEach(function(d, i){
       d.total = d3.sum(d.values, function(dd){ return dd[vars.yaxis]; })
-      d[vars.text] = d.values[0][vars.text]
       d[vars.id] = d.values[0][vars.id]
     })
-    // return nested
     
-    return nested.sort(function(a,b){
+    nested.sort(function(a,b){
           
       var s = vars.sort == "value" ? "total" : vars.sort
       
@@ -495,6 +498,8 @@ d3plus.apps.stacked = function(vars) {
       return 0;
       
     });
+    
+    return nested
     
   }
 

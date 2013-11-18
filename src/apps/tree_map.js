@@ -1,3 +1,5 @@
+d3plus.apps.data_types.tree_map = "nested";
+
 d3plus.apps.tree_map = function(vars) {
   
   var covered = false

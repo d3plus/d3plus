@@ -23,7 +23,6 @@ body {
 
 <script src="../../src/utils/data.js"></script>
 <script src="../../src/utils/error.js"></script>
-<script src="../../src/utils/filters.js"></script>
 <script src="../../src/utils/nesting.js"></script>
 <script src="../../src/utils/tooltip.js"></script>
 <script src="../../src/utils/utils.js"></script>
@@ -45,13 +44,13 @@ d3.json("data/artists_indented.json", function(artists){
       viz
         .type("tree_map")
         .attrs(attrs)
-        .aggs({"hotttnesss":"mean"})
         .dev(true)
         .value("hotttnesss")
+        // .id("song_id")
         .id(["artist_id","album_id","song_id"])
         .text({"artist_id":"names","album_id":"name","song_id":["song_title","song_id","loudness"]})
         .tooltip({"artist_id":["names"],"album_id":["name"],"song_id":["song_title"]})
-        .depth(0)
+        .depth(2)
         .year(2010)
         .year_var("year")
       

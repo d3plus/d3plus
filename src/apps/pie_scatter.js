@@ -1,3 +1,5 @@
+d3plus.apps.data_types.pie_scatter = "grouped";
+
 d3plus.apps.pie_scatter = function(vars) {
   
   var covered = false
@@ -31,12 +33,12 @@ d3plus.apps.pie_scatter = function(vars) {
   
   // Create Axes
   vars.x_scale = d3.scale[vars.xscale_type]()
-    .domain(vars.xaxis_domain)
+    .domain(vars.xaxis_range)
     .range([0, vars.graph.width])
     .nice()
   
   vars.y_scale = d3.scale[vars.yscale_type]()
-    .domain(vars.yaxis_domain)
+    .domain(vars.yaxis_range)
     .range([0, vars.graph.height])
     .nice()
 

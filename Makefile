@@ -12,7 +12,6 @@ JS_FILES = \
 	src/ui/tooltip.js \
 	src/utils/data.js \
 	src/utils/error.js \
-	src/utils/filters.js \
 	src/utils/nesting.js \
 	src/utils/tooltip.js \
 	src/utils/utils.js \

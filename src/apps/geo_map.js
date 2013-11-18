@@ -1,3 +1,5 @@
+d3plus.apps.data_types.geo_map = "object";
+
 d3plus.apps.geo_map = function(vars) { 
   
   var default_opacity = 0.50,

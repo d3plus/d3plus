@@ -33,7 +33,7 @@ if (Modernizr && Modernizr.touch) {
   d3plus.evt.move = "mousemove"
 }
 
-d3plus.apps = {};
+d3plus.apps = {"data_types": {}};
 d3plus.ui = {};
 d3plus.utils = {};d3plus.viz = function() {
 
@@ -42,26 +42,18 @@ d3plus.utils = {};d3plus.viz = function() {
   //-------------------------------------------------------------------
   
   var vars = {
-    "active": null,
     "arc_angles": {},
     "arc_inners": {},
     "arc_sizes": {},
     "aggs": {},
     "attrs": {},
     "background": "#ffffff",
-    "boundaries": null,
     "check": [],
-    "check_vars": ["filter","solo","value","xaxis","yaxis","year_var","active"],
-    "click_function": null,
-    "color": null,
+    "check_vars": ["filter","solo","value","xaxis","yaxis","year_var","active","unique_axis"],
     "color_domain": [],
     "color_range": ["#ff0000","#888888","#00ff00"],
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
-    "connections": null,
-    "coords": null,
     "coord_change": false,
-    "csv_columns": null,
-    "data": {"raw": null},
     "depth": 0,
     "descs": {},
     "dev": false,
@@ -69,7 +61,6 @@ d3plus.utils = {};d3plus.viz = function() {
     "else_var": "elsewhere",
     "error": "",
     "filter": [],
-    "filtered_data": null,
     "font": "sans-serif",
     "font_weight": "normal",
     "footer": false,
@@ -82,23 +73,15 @@ d3plus.utils = {};d3plus.viz = function() {
     "group_bgs": true,
     "grouping": "name",
     "heat_map": ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
-    "highlight": null,
     "highlight_color": "#cc0000",
     "icon": "icon",
     "icon_style": "default",
     "id": "id",
     "init": true,
-    "keys": [],
     "labels": true,
     "layout": "value",
-    "links": null,
-    "links_filtered": null,
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "mirror_axis": false,
-    "name_array": null,
-    "nesting": null,
-    "nodes": null,
-    "nodes_filtered": null,
     "number_format": function(value,name) { 
       if (["year",vars.id].indexOf(name) >= 0 || typeof value === "string") {
         return value
@@ -127,14 +110,12 @@ d3plus.utils = {};d3plus.viz = function() {
     "projection": d3.geo.mercator(),
     "scroll_zoom": false,
     "secondary_color": "#ffdddd",
-    "size_scale": null,
     "size_scale_type": "sqrt",
     "solo": [],
     "sort": "total",
     "spotlight": true,
     "stack_type": "linear",
     "static_axes": true,
-    "sub_title": null,
     "svg_height": window.innerHeight,
     "svg_width": window.innerWidth,
     "text_format": function(text,name) {
@@ -142,30 +123,16 @@ d3plus.utils = {};d3plus.viz = function() {
     },
     "text": "name",
     "text_obj": {},
-    "title": null,
     "title_center": true,
     "title_height": 0,
-    "title_width": null,
     "tooltip": [],
     "total_bar": false,
-    "total_var": "total",
     "type": "tree_map",
-    "update_function": null,
     "value": "value",
-    "xaxis_domain": null,
-    "xaxis_val": null,
-    "xaxis_var": null,
-    "xscale": null,
     "xscale_type": "linear",
-    "yaxis_domain": null,
-    "yaxis_val": null,
-    "yaxis_var": null,
-    "yscale": null,
     "yscale_type": "linear",
     "year": "all",
-    "year_var": null,
-    "zoom_behavior": d3.behavior.zoom(),
-    "zoom_function": null
+    "zoom_behavior": d3.behavior.zoom()
   }
   
   var error = false;
@@ -175,24 +142,11 @@ d3plus.utils = {};d3plus.viz = function() {
   chart = function(selection) {
     selection.each(function(datum) {
       
-      if (vars.dev) console.log("%c[d3plus]%c *** Start Visualization ***","font-weight:bold","font-weight: normal")
-      
+      // Set vars.parent to the container <div> element
       if (!vars.parent) vars.parent = d3.select(this)
       
+      // All of the data-munging
       d3plus.utils.data(vars,datum)
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
       
       
       
@@ -207,97 +161,32 @@ d3plus.utils = {};d3plus.viz = function() {
         var links = vars.links_filtered || vars.links
         vars.connections = d3plus.utils.connections(vars,links)
       }
-
-
-      var data_type = {
-        "bubbles": "array",
-        "geo_map": "object",
-        "network": "object",
-        "pie_scatter": "nested",
-        "rings": "object",
-        "stacked": "nested",
-        "tree_map": "nested"
-      }
-      var dtype = vars.active && vars.spotlight ? "active" : "filtered"
-      // Set up axes
-      if (vars.type == "pie_scatter" && vars.app_data) {
-        if (vars.dev) console.log("%c[d3plus]%c Setting Axes Domains","font-weight:bold","font-weight: normal")
-        if (vars.xaxis_domain instanceof Array) vars.xaxis_domain = vars.xaxis_domain
-        else if (!vars.static_axes) {
-          vars.xaxis_domain = d3.extent(vars.data[data_type[vars.type]][vars.nesting[vars.depth]][dtype][vars.year],function(d){
-            return d3plus.utils.variable(vars,d,vars.xaxis)
-          })
-        }
-        else {
-          vars.xaxis_domain = d3.extent(vars.data[data_type[vars.type]][vars.nesting[vars.depth]][dtype].all,function(d){
-            return d3plus.utils.variable(vars,d,vars.xaxis)
-          })
-        }
-        if (vars.yaxis_domain instanceof Array) vars.yaxis_domain = vars.yaxis_domain
-        else if (!vars.static_axes) {
-          vars.yaxis_domain = d3.extent(vars.data[data_type[vars.type]][vars.nesting[vars.depth]][dtype][vars.year],function(d){
-            return d3plus.utils.variable(vars,d,vars.yaxis)
-          }).reverse()
-        }
-        else {
-          vars.yaxis_domain = d3.extent(vars.data[data_type[vars.type]][vars.nesting[vars.depth]][dtype].all,function(d){
-            return d3plus.utils.variable(vars,d,vars.yaxis)
-          }).reverse()
-        }
-        if (vars.mirror_axis) {
-          var domains = vars.yaxis_domain.concat(vars.xaxis_domain)
-          vars.xaxis_domain = d3.extent(domains)
-          vars.yaxis_domain = d3.extent(domains).reverse()
-        }
-        if (vars.xaxis_domain[0] == vars.xaxis_domain[1]) {
-          vars.xaxis_domain[0] -= 1
-          vars.xaxis_domain[1] += 1
-        }
-        if (vars.yaxis_domain[0] == vars.yaxis_domain[1]) {
-          vars.yaxis_domain[0] -= 1
-          vars.yaxis_domain[1] += 1
-        }
-      }
       
-      if (!vars.xaxis_domain) vars.xaxis_domain = [0,0]
-      if (!vars.yaxis_domain) vars.yaxis_domain = [0,0]
+      
       
       
       
       // Calculate total_bar value
       if (!vars.app_data || !vars.total_bar || vars.type == "stacked") {
-        var total_val = null
+        vars.data.total = null
       }
       else {
         if (vars.dev) console.log("%c[d3plus]%c Calculating Total Value","font-weight:bold","font-weight: normal")
         
-        if (vars.type == "tree_map") {
-          
-          function check_child(c) {
-            if (c[vars.value]) return c[vars.value]
-            else if (c.children) {
-              return d3.sum(c.children,function(c2){
-                return check_child(c2)
-              })
-            }
-          }
-          
-          var total_val = check_child(vars.app_data)
-        }
-        else if (vars.app_data instanceof Array) {
-          var total_val = d3.sum(vars.app_data,function(d){
+        if (vars.app_data instanceof Array) {
+          vars.data.total = d3.sum(vars.app_data,function(d){
             return d[vars.value]
           })
         }
         else if (vars.type == "rings") {
           if (vars.app_data[vars.highlight])
-            var total_val = vars.app_data[vars.highlight][vars.value]
+            vars.data.total = vars.app_data[vars.highlight][vars.value]
           else {
-            var total_val = null
+            vars.data.total = null
           }
         }
         else {
-          var total_val = d3.sum(d3.values(vars.app_data),function(d){
+          vars.data.total = d3.sum(d3.values(vars.app_data),function(d){
             return d[vars.value]
           })
         }
@@ -308,28 +197,14 @@ d3plus.utils = {};d3plus.viz = function() {
       // Setting up color range
       if (vars.app_data && vars.color) {
 
-        if (vars.dev) console.log("%c[d3plus]%c Calculating Color Range","font-weight:bold","font-weight: normal")
+        if (vars.dev) console.group("%c[d3plus]%c Calculating Color Range","font-weight:bold","font-weight: normal")
         
         var data_range = []
         vars.color_domain = null
         
-        if (vars.type == "tree_map") {
-          
-          function check_child_colors(c) {
-            if (c.children) {
-              c.children.forEach(function(c2){
-                check_child_colors(c2)
-              })
-            }
-            else {
-              data_range.push(d3plus.utils.variable(vars,c,vars.color))
-            }
-          }
+        if (vars.dev) console.time("get data range")
         
-          check_child_colors(vars.app_data)
-        
-        }
-        else if (vars.app_data instanceof Array) {
+        if (vars.app_data instanceof Array) {
           vars.app_data.forEach(function(d){
             data_range.push(d3plus.utils.variable(vars,d,vars.color))
           })
@@ -343,6 +218,10 @@ d3plus.utils = {};d3plus.viz = function() {
         data_range = data_range.filter(function(d){
           return d;
         })
+        
+        if (vars.dev) console.timeEnd("get data range")
+        
+        if (vars.dev) console.time("create color scale")
         
         if (typeof data_range[0] == "number") {
           data_range.sort(function(a,b) {return a-b})
@@ -360,7 +239,12 @@ d3plus.utils = {};d3plus.viz = function() {
           vars.color_scale
             .domain(vars.color_domain)
             .range(new_range)
+        
+          if (vars.dev) console.timeEnd("create color scale")
+          
         }
+        
+        if (vars.dev) console.groupEnd();
         
       }
       
@@ -423,7 +307,7 @@ d3plus.utils = {};d3plus.viz = function() {
         make_title(vars.title,"title");
         make_title(vars.sub_title,"sub_title");
         if (vars.app_data && !error && (vars.type != "rings" || (vars.type == "rings" && vars.connections[vars.highlight]))) {
-          make_title(total_val,"total_bar");
+          make_title(vars.data.total,"total_bar");
         }
         else {
           make_title(null,"total_bar");
@@ -482,8 +366,6 @@ d3plus.utils = {};d3plus.viz = function() {
           .style(vars.info_style)
           .text(vars.format("Loading..."))
       
-      // vars.loader.select("div#d3plus_loader_text").transition().duration(d3plus.timing)
-      
       if (!error && !vars.app_data) {
         vars.error = vars.format("No Data Available","error")
       }
@@ -504,9 +386,10 @@ d3plus.utils = {};d3plus.viz = function() {
         vars.error = ""
       }
       
-      if (vars.dev) console.log("%c[d3plus]%c Building \"" + vars.type + "\"","font-weight:bold","font-weight: normal")
+      // Finally, call the specific App to draw
+      if (vars.dev) console.group("%c[d3plus]%c Building \"" + vars.type + "\"","font-weight:bold","font-weight: normal")
       d3plus.apps[vars.type](vars)
-      if (vars.dev) console.log("%c[d3plus]%c *** End Visualization ***","font-weight:bold","font-weight: normal")
+      if (vars.dev) console.groupEnd();
       
       d3plus.utils.error(vars)
       
@@ -994,8 +877,8 @@ d3plus.utils = {};d3plus.viz = function() {
   };
   
   chart.yaxis_domain = function(x) {
-    if (!arguments.length) return vars.yaxis_domain;
-    vars.yaxis_domain = x.reverse();
+    if (!arguments.length) return vars.yaxis_range;
+    vars.yaxis_range = x.reverse();
     return chart;
   };
   
@@ -1033,8 +916,9 @@ d3plus.utils = {};d3plus.viz = function() {
     "text_format",
     "tooltip",
     "total_bar",
-    "total_var",
+    "total",
     "type",
+    "unique_axis",
     "value",
     "xaxis",
     "xaxis_domain",
@@ -1067,6 +951,7 @@ d3plus.utils = {};d3plus.viz = function() {
     "nesting_aggs": "aggs",
     "text_var": "text",
     "tooltip_info": "tooltip",
+    "total_var": "total",
     "value_var": "value",
     "xaxis_var": "xaxis",
     "yaxis_var": "yaxis"
@@ -1494,6 +1379,8 @@ d3plus.utils = {};d3plus.viz = function() {
 
   return chart;
 };
+d3plus.apps.data_types.network = "object";
+
 d3plus.apps.network = function(vars) {
   
   if (!vars.app_data) var nodes = []
@@ -2260,9 +2147,16 @@ d3plus.apps.network = function(vars) {
   }
       
 };
+d3plus.apps.data_types.stacked = "grouped";
+
 d3plus.apps.stacked = function(vars) {
   
   var covered = false
+  
+  var xaxis_vals = [vars.xaxis_range[0]]
+  while (xaxis_vals[xaxis_vals.length-1] < vars.xaxis_range[1]) {
+    xaxis_vals.push(xaxis_vals[xaxis_vals.length-1]+1)
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Helper function used to create stack polygon
@@ -2270,7 +2164,7 @@ d3plus.apps.stacked = function(vars) {
   
   var stack = d3.layout.stack()
     .values(function(d) { return d.values; })
-    .x(function(d) { return d[vars.year_var]; })
+    .x(function(d) { return d[vars.xaxis]; })
     .y(function(d) { return d[vars.yaxis]; });
   
   //===================================================================
@@ -2291,14 +2185,12 @@ d3plus.apps.stacked = function(vars) {
 
   // nest data properly according to nesting array
   var nested_data = nest_data();
-
+  
   var data_max = vars.layout == "share" ? 1 : d3.max(xaxis_sums, function(d){ return d.values; });
 
   // scales for both X and Y values
-  var year_extent = vars.year instanceof Array ? vars.year : d3.extent(vars.years)
-  
   vars.x_scale = d3.scale[vars.xscale_type]()
-    .domain(year_extent)
+    .domain(d3.extent(xaxis_vals))
     .range([0, vars.graph.width]);
   // **WARNING reverse scale from 0 - max converts from height to 0 (inverse)
   vars.y_scale = d3.scale[vars.yscale_type]()
@@ -2310,7 +2202,7 @@ d3plus.apps.stacked = function(vars) {
   // Helper function unsed to convert stack values to X, Y coords 
   var area = d3.svg.area()
     .interpolate(vars.stack_type)
-    .x(function(d) { return vars.x_scale(d[vars.year_var]); })
+    .x(function(d) { return vars.x_scale(d[vars.xaxis]); })
     .y0(function(d) { return vars.y_scale(d.y0); })
     .y1(function(d) { return vars.y_scale(d.y0 + d.y)+1; });
   
@@ -2367,62 +2259,66 @@ d3plus.apps.stacked = function(vars) {
     
   small_tooltip = function(d) {
     
-    covered = false
-    
-    var id = d3plus.utils.variable(vars,d,vars.id),
-        self = d3.select("#path_"+id).node()
-    
-    d3.select(self).attr("opacity",1)
-
-    d3.selectAll("line.rule").remove();
-    
     var mouse_x = d3.event.layerX-vars.graph.margin.left;
     var rev_x_scale = d3.scale.linear()
       .domain(vars.x_scale.range()).range(vars.x_scale.domain());
     var this_x = Math.round(rev_x_scale(mouse_x));
-    var this_x_index = vars.years.indexOf(this_x)
+    var this_x_index = xaxis_vals.indexOf(this_x)
     var this_value = d.values[this_x_index]
     
-    // add dashed line at closest X position to mouse location
-    d3.selectAll("line.rule").remove()
-    d3.select("g.chart").append("line")
-      .datum(d)
-      .attr("class", "rule")
-      .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
-      .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
-      .attr("stroke", "white")
-      .attr("stroke-width", 1)
-      .attr("stroke-opacity", 0.5)
-      .attr("stroke-dasharray", "5,3")
-      .attr("pointer-events","none")
-    
-    // tooltip
-    var tooltip_data = d3plus.utils.tooltip(vars,this_value,"short")
-    if (vars.layout == "share") {
-      var share = vars.format(this_value.y*100,"share")+"%"
-      tooltip_data.push({"name": vars.format("share"), "value": share})
-    }
-  
-    var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
-        tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
-        tooltip_y = vars.y_scale(this_value.y0 + this_value.y)-(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
+    if (this_value[vars.yaxis] != 0) {
 
-    d3plus.ui.tooltip.remove(vars.type)
-    d3plus.ui.tooltip.create({
-      "data": tooltip_data,
-      "title": d3plus.utils.variable(vars,d[vars.id],vars.text),
-      "id": vars.type,
-      "icon": d3plus.utils.variable(vars,d[vars.id],"icon"),
-      "style": vars.icon_style,
-      "color": d3plus.utils.color(vars,d),
-      "x": tooltip_x,
-      "y": tooltip_y,
-      "offset": -(path_height/2),
-      "align": "top center",
-      "arrow": true,
-      "footer": footer_text(),
-      "mouseevents": false
-    })
+      covered = false
+    
+      var id = d3plus.utils.variable(vars,d,vars.id),
+          self = d3.select("#path_"+id).node()
+    
+      d3.select(self).attr("opacity",1)
+
+      d3.selectAll("line.rule").remove();
+    
+      // add dashed line at closest X position to mouse location
+      d3.selectAll("line.rule").remove()
+      d3.select("g.chart").append("line")
+        .datum(d)
+        .attr("class", "rule")
+        .attr({"x1": vars.x_scale(this_x), "x2": vars.x_scale(this_x)})
+        .attr({"y1": vars.y_scale(this_value.y0), "y2": vars.y_scale(this_value.y + this_value.y0)})
+        .attr("stroke", "white")
+        .attr("stroke-width", 1)
+        .attr("stroke-opacity", 0.5)
+        .attr("stroke-dasharray", "5,3")
+        .attr("pointer-events","none")
+    
+      // tooltip
+      var tooltip_data = d3plus.utils.tooltip(vars,this_value,"short")
+      if (vars.layout == "share") {
+        var share = vars.format(this_value.y*100,"share")+"%"
+        tooltip_data.push({"name": vars.format("share"), "value": share})
+      }
+  
+      var path_height = vars.y_scale(this_value.y + this_value.y0)-vars.y_scale(this_value.y0),
+          tooltip_x = vars.x_scale(this_x)+vars.graph.margin.left+vars.margin.left+vars.parent.node().offsetLeft,
+          tooltip_y = vars.y_scale(this_value.y0 + this_value.y)-(path_height/2)+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop
+
+      d3plus.ui.tooltip.remove(vars.type)
+      d3plus.ui.tooltip.create({
+        "data": tooltip_data,
+        "title": d3plus.utils.variable(vars,d[vars.id],vars.text),
+        "id": vars.type,
+        "icon": d3plus.utils.variable(vars,d[vars.id],"icon"),
+        "style": vars.icon_style,
+        "color": d3plus.utils.color(vars,d),
+        "x": tooltip_x,
+        "y": tooltip_y,
+        "offset": -(path_height/2),
+        "align": "top center",
+        "arrow": true,
+        "footer": footer_text(),
+        "mouseevents": false
+      })
+      
+    }
     
   }
   
@@ -2458,7 +2354,7 @@ d3plus.apps.stacked = function(vars) {
       var rev_x_scale = d3.scale.linear()
         .domain(vars.x_scale.range()).range(vars.x_scale.domain());
       var this_x = Math.round(rev_x_scale(mouse_x));
-      var this_x_index = vars.years.indexOf(this_x)
+      var this_x_index = xaxis_vals.indexOf(this_x)
       var this_value = d.values[this_x_index]
       
       make_tooltip = function(html) {
@@ -2631,9 +2527,9 @@ d3plus.apps.stacked = function(vars) {
     .attr("pointer-events","none")
     .attr("text-anchor", function(d){
       // if first, left-align text
-      if(d.tallest[vars.year_var] == vars.x_scale.domain()[0]) return "start";
+      if(d.tallest[vars.xaxis] == vars.x_scale.domain()[0]) return "start";
       // if last, right-align text
-      if(d.tallest[vars.year_var] == vars.x_scale.domain()[1]) return "end";
+      if(d.tallest[vars.xaxis] == vars.x_scale.domain()[1]) return "end";
       // otherwise go with middle
       return "middle"
     })
@@ -2643,10 +2539,10 @@ d3plus.apps.stacked = function(vars) {
     .attr("x", function(d){
       var pad = 0;
       // if first, push it off 10 pixels from left side
-      if(d.tallest[vars.year_var] == vars.x_scale.domain()[0]) pad += 10;
+      if(d.tallest[vars.xaxis] == vars.x_scale.domain()[0]) pad += 10;
       // if last, push it off 10 pixels from right side
-      if(d.tallest[vars.year_var] == vars.x_scale.domain()[1]) pad -= 10;
-      return vars.x_scale(d.tallest[vars.year_var]) + pad;
+      if(d.tallest[vars.xaxis] == vars.x_scale.domain()[1]) pad -= 10;
+      return vars.x_scale(d.tallest[vars.xaxis]) + pad;
     })
     .attr("y", function(d){
       var height = vars.graph.height - vars.y_scale(d.tallest.y);
@@ -2657,7 +2553,7 @@ d3plus.apps.stacked = function(vars) {
     })
     .each(function(d){
       // set usable width to 2x the width of each x-axis tick
-      var tick_width = (vars.graph.width / vars.years.length) * 2;
+      var tick_width = (vars.graph.width / xaxis_vals.length) * 2;
       // if the text box's width is larger than the tick width wrap text
       if(this.getBBox().width > tick_width){
         // first remove the current text
@@ -2703,18 +2599,14 @@ d3plus.apps.stacked = function(vars) {
       .rollup(function(leaves){
           
         // Make sure all xaxis_vars at least have 0 values
-        var years_available = leaves
-          .reduce(function(a, b){ return a.concat(b[vars.xaxis])}, [])
-          .filter(function(y, i, arr) { return arr.indexOf(y) == i })
-          
-        vars.years.forEach(function(y){
+        var years_available = d3plus.utils.uniques(leaves,vars.xaxis)
+        
+        xaxis_vals.forEach(function(y){
           if(years_available.indexOf(y) < 0){
             var obj = {}
             obj[vars.xaxis] = y
             obj[vars.yaxis] = 0
-            if (leaves[0][vars.id]) obj[vars.id] = leaves[0][vars.id]
-            if (leaves[0][vars.text]) obj[vars.text] = leaves[0][vars.text]
-            if (leaves[0][vars.color]) obj[vars.color] = leaves[0][vars.color]
+            obj[vars.id] = leaves[0][vars.id]
             leaves.push(obj)
           }
         })
@@ -2728,12 +2620,10 @@ d3plus.apps.stacked = function(vars) {
     
     nested.forEach(function(d, i){
       d.total = d3.sum(d.values, function(dd){ return dd[vars.yaxis]; })
-      d[vars.text] = d.values[0][vars.text]
       d[vars.id] = d.values[0][vars.id]
     })
-    // return nested
     
-    return nested.sort(function(a,b){
+    nested.sort(function(a,b){
           
       var s = vars.sort == "value" ? "total" : vars.sort
       
@@ -2758,11 +2648,15 @@ d3plus.apps.stacked = function(vars) {
       
     });
     
+    return nested
+    
   }
 
   //===================================================================
     
 };
+d3plus.apps.data_types.tree_map = "nested";
+
 d3plus.apps.tree_map = function(vars) {
   
   var covered = false
@@ -3090,6 +2984,8 @@ d3plus.apps.tree_map = function(vars) {
   //===================================================================
   
 }
+d3plus.apps.data_types.geo_map = "object";
+
 d3plus.apps.geo_map = function(vars) { 
   
   var default_opacity = 0.50,
@@ -3718,6 +3614,8 @@ d3plus.apps.geo_map = function(vars) {
   }
   
 };
+d3plus.apps.data_types.pie_scatter = "grouped";
+
 d3plus.apps.pie_scatter = function(vars) {
   
   var covered = false
@@ -3751,12 +3649,12 @@ d3plus.apps.pie_scatter = function(vars) {
   
   // Create Axes
   vars.x_scale = d3.scale[vars.xscale_type]()
-    .domain(vars.xaxis_domain)
+    .domain(vars.xaxis_range)
     .range([0, vars.graph.width])
     .nice()
   
   vars.y_scale = d3.scale[vars.yscale_type]()
-    .domain(vars.yaxis_domain)
+    .domain(vars.yaxis_range)
     .range([0, vars.graph.height])
     .nice()
 
@@ -4135,6 +4033,8 @@ d3plus.apps.pie_scatter = function(vars) {
   }
   
 };
+d3plus.apps.data_types.bubbles = "array";
+
 d3plus.apps.bubbles = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4460,7 +4360,7 @@ d3plus.apps.bubbles = function(vars) {
       d.arc_inner = arc_start;
       d.arc_radius = arc_start+(d.r-arc_start);
     
-      if (d[vars.total_var]) d.arc_angle = (((d[vars.active]/d[vars.total_var])*360) * (Math.PI/180));
+      if (d[vars.total]) d.arc_angle = (((d[vars.active]/d[vars.total])*360) * (Math.PI/180));
       else if (d.active) d.arc_angle = Math.PI; 
 
       d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -4479,7 +4379,7 @@ d3plus.apps.bubbles = function(vars) {
         d.arc_inner_else = arc_start;
         d.arc_radius_else = d.r;
   
-        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
+        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total])*360) * (Math.PI/180));
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
     
         d3.select("pattern#hatch"+d[vars.id]).select("rect").transition().duration(d3plus.timing)
@@ -4628,7 +4528,7 @@ d3plus.apps.bubbles = function(vars) {
           vars.arc_sizes[d[vars.id]] = d.arc_radius
           vars.arc_inners[d[vars.id]] = d.arc_inner
           
-          if (d[vars.total_var]) d.arc_angle = (((d[vars.active] / d[vars.total_var])*360) * (Math.PI/180));
+          if (d[vars.total]) d.arc_angle = (((d[vars.active] / d[vars.total])*360) * (Math.PI/180));
           else if (d.active) d.arc_angle = Math.PI; 
           
           d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -4651,7 +4551,7 @@ d3plus.apps.bubbles = function(vars) {
             vars.arc_sizes[d[vars.id]+"_else"] = d.arc_radius_else
             vars.arc_inners[d[vars.id]+"_else"] = d.arc_inner_else
       
-            d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
+            d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total])*360) * (Math.PI/180));
 
             d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
             
@@ -4821,6 +4721,8 @@ d3plus.apps.bubbles = function(vars) {
 
   //===================================================================
 };
+d3plus.apps.data_types.rings = "object";
+
 d3plus.apps.rings = function(vars) {
       
   var tooltip_width = 300
@@ -5934,25 +5836,16 @@ d3plus.ui.tooltip.move = function(x,y,id) {
 
 d3plus.utils.data = function(vars,datum) {
   
-  var data_type = {
-    "bubbles": "array",
-    "geo_map": "object",
-    "network": "object",
-    "pie_scatter": "nested",
-    "rings": "object",
-    "stacked": "nested",
-    "tree_map": "nested"
-  }
-  
   // Initial data setup when the raw data has changed
-  if (datum != vars.data.raw) {
+  if (!vars.data || datum != vars.data.raw) {
     
-    if (vars.dev) console.log("%c[d3plus]%c New Data Detected","font-weight:bold","font-weight: normal")
+    if (vars.dev) console.group("%c[d3plus]%c New Data Detected","font-weight:bold","font-weight: normal")
     
     vars.data = {}
     vars.data.raw = datum
     vars.data.filtered = null
 
+    console.time("key analysis")
     vars.keys = {}
     datum.forEach(function(d){
       for (k in d) {
@@ -5961,55 +5854,75 @@ d3plus.utils.data = function(vars,datum) {
         }
       }
     })
+    console.timeEnd("key analysis")
+    
+    if (vars.dev) console.groupEnd();
     
   }
-
+  
+  vars.data.type = d3plus.apps.data_types[vars.type]
+  
   // Filter data if it hasn't been filtered or variables have changed
   if (!vars.data.filtered || vars.check.length) {
-    vars.data[data_type[vars.type]] = null
-    d3plus.utils.data_filter(vars,vars.data.raw)
+    vars.data[vars.data.type] = null
+
+    if (vars.check.indexOf(vars.unique_axis) >= 0) {
+      vars.check.splice(vars.check.indexOf(vars.unique_axis),1)
+    }
+    
+    d3plus.utils.data_filter(vars)
   }
   
   
   // create data for app type if it does not exist
-  if (!vars.data[data_type[vars.type]]) {
+  if (!vars.data[vars.data.type]) {
     
-    vars.data[data_type[vars.type]] = {}
-      
-    if (vars.dev && data_type[vars.type] == "nested") {
-      console.log("%c[d3plus]%c Nesting Data","font-weight:bold","font-weight: normal")
-    } 
+    vars.data[vars.data.type] = {}
+    console.group("%c[d3plus]%c Formatting Data","font-weight:bold","font-weight: normal")
     
     vars.nesting.forEach(function(depth){
       
+      console.time(depth)
+      
       var level = vars.nesting.slice(0,vars.nesting.indexOf(depth)+1)
       
-      vars.data[data_type[vars.type]][depth] = {
-        "filtered": {}, 
-        "active": {}, 
-        "inactive": {}
-      }
+      vars.data[vars.data.type][depth] = {}
       
-      for (b in vars.data[data_type[vars.type]][depth]) {
+      var check_types = ["filtered","active","inactive"]
+      
+      check_types.forEach(function(b){
+
+        if (b in vars.data) {
+
+          vars.data[vars.data.type][depth][b] = {}
         
-        for (y in vars.data[b]) {
-          if (data_type[vars.type] == "nested") {
-            vars.data[data_type[vars.type]][depth][b][y] = d3plus.utils.nesting(vars,vars.data[b][y],level)
+          for (y in vars.data[b]) {
+            if (vars.data.type == "nested") {
+              vars.data[vars.data.type][depth][b][y] = d3plus.utils.nesting(vars,vars.data[b][y],level)
+            }
+            else if (vars.data.type == "grouped") {
+              vars.data[vars.data.type][depth][b][y] = d3plus.utils.nesting(vars,vars.data[b][y],level,true)
+            }
+            else if (vars.data.type == "object") {
+              vars.data[vars.data.type][depth][b][y] = {}
+              vars.data[b][y].forEach(function(d){
+                vars.data[vars.data.type][depth][b][y][d[vars.id]] = d;
+              })
+            }
+            else {
+              vars.data[vars.data.type][depth][b][y] = vars.data[b][y]
+            }
           }
-          else if (data_type[vars.type] == "object") {
-            vars.data[data_type[vars.type]][depth][b][y] = {}
-            vars.data[b][y].forEach(function(d){
-              vars.data[data_type[vars.type]][depth][b][y][d[vars.id]] = d;
-            })
-          }
-          else {
-            vars.data[data_type[vars.type]][depth][b][y] = vars.data[b][y]
-          }
+          
         }
         
-      }
+      })
+      
+      console.timeEnd(depth)
       
     })
+    
+    console.groupEnd()
     
   }
   
@@ -6018,17 +5931,232 @@ d3plus.utils.data = function(vars,datum) {
   var dtype = vars.active && vars.spotlight ? "active" : "filtered"
   
   if (vars.year instanceof Array) {
-    // Need to implement multi-year aggregation
-    vars.app_data = vars.data[data_type[vars.type]][vars.nesting[vars.depth]][dtype][vars.year]
+    var temp_data = []
+    vars.year.forEach(function(y){
+      temp_data = temp_data.concat(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype][y])
+    })
+    vars.app_data = temp_data
   }
   else {
-    vars.app_data = vars.data[data_type[vars.type]][vars.nesting[vars.depth]][dtype][vars.year]
+    vars.app_data = vars.data[vars.data.type][vars.nesting[vars.depth]][dtype][vars.year]
   }
   
   if (vars.app_data.length == 0) {
     vars.app_data = null
   }
   
+  // Set up axes
+  if (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && vars.app_data) {
+    
+    if (!vars.xaxis_range || !vars.static_axes) {
+      if (vars.dev) console.log("%c[d3plus]%c Determining X Axis Domain","font-weight:bold","font-weight: normal")
+      if (vars.xaxis_domain instanceof Array) {
+        vars.xaxis_range = vars.xaxis_domain
+        vars.app_data = vars.app_data.filter(function(d){
+          var val = d3plus.utils.variable(vars,d,vars.xaxis)
+          return val >= vars.xaxis_domain[0] && val <= vars.xaxis_domain[1]
+        })
+      }
+      else if (!vars.static_axes) {
+        vars.xaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype][vars.year],function(d){
+          return d3plus.utils.variable(vars,d,vars.xaxis)
+        })
+      }
+      else {
+        vars.xaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype].all,function(d){
+          return d3plus.utils.variable(vars,d,vars.xaxis)
+        })
+      }
+    }
+    
+    if (!vars.yaxis_range || !vars.static_axes) {
+      if (vars.dev) console.log("%c[d3plus]%c Determining Y Axis Domain","font-weight:bold","font-weight: normal")
+      if (vars.yaxis_domain instanceof Array) {
+        vars.yaxis_range = vars.yaxis_domain
+      }
+      else if (!vars.static_axes) {
+        vars.yaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype][vars.year],function(d){
+          return d3plus.utils.variable(vars,d,vars.yaxis)
+        }).reverse()
+      }
+      else {
+        vars.yaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype].all,function(d){
+          return d3plus.utils.variable(vars,d,vars.yaxis)
+        }).reverse()
+      }
+    }
+    
+    if (vars.mirror_axis) {
+      var domains = vars.yaxis_range.concat(vars.xaxis_range)
+      vars.xaxis_range = d3.extent(domains)
+      vars.yaxis_range = d3.extent(domains).reverse()
+    }
+    
+    if (vars.xaxis_range[0] == vars.xaxis_range[1]) {
+      vars.xaxis_range[0] -= 1
+      vars.xaxis_range[1] += 1
+    }
+    if (vars.yaxis_range[0] == vars.yaxis_range[1]) {
+      vars.yaxis_range[0] -= 1
+      vars.yaxis_range[1] += 1
+    }
+  }
+  else {
+    vars.xaxis_range = [0,0]
+    vars.yaxis_range = [0,0]
+  }
+  
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Filters the data based on vars.check
+//-------------------------------------------------------------------
+
+d3plus.utils.data_filter = function(vars) {
+  
+  // If both filter and solo exist, only check for solo
+  if (vars.check.indexOf("filter") >= 0 && vars.check.indexOf("solo") >= 0) {
+    vars.check.splice(vars.check.indexOf("filter"),1)
+  }
+  
+  if (vars.check.indexOf("filter") >= 0 || vars.check.indexOf("solo") >= 0) {
+    
+    if (vars.nodes) {
+      if (vars.dev) console.log("%c[d3plus]%c Filtering Nodes","font-weight:bold","font-weight: normal")
+      vars.nodes_filtered = vars.nodes.filter(function(d){
+        return d3plus.utils.deep_filter(vars,d[vars.id])
+      })
+    }
+    
+    if (vars.links) {
+      if (vars.dev) console.log("%c[d3plus]%c Filtering Connections","font-weight:bold","font-weight: normal")
+      vars.links_filtered = vars.links.filter(function(d){
+        var first_match = d3plus.utils.deep_filter(vars,d.source),
+            second_match = d3plus.utils.deep_filter(vars,d.target)
+        return first_match && second_match
+      })
+      vars.connections = d3plus.utils.connections(vars,links)
+    }
+    
+  }
+  
+  if (vars.check.indexOf(vars.year_var) >= 0) {
+    vars.check.splice(vars.check.indexOf(vars.year_var),1)
+    if (vars.data.filtered) vars.data.filtered = {"all": vars.data.filtered.all}
+  }
+  
+  if (vars.check.indexOf(vars.active) >= 0) {
+    vars.check.splice(vars.check.indexOf(vars.active),1)
+    vars.data.active.all = null
+    vars.data.inactive.all = null
+  }
+  
+  if (vars.check.length) {
+    if (vars.dev) console.group("%c[d3plus]%c Filtering Data","font-weight:bold","font-weight: normal");
+    vars.data.filtered = {}
+    var checking = vars.check.join(", ")
+    if (vars.dev) console.time(checking)
+    vars.data.filtered.all = vars.data.raw.filter(function(d){
+      var ret = true
+      vars.check.forEach(function(key){
+        if (ret) {
+          if (key == "filter" || key == "solo") {
+            ret = d3plus.utils.deep_filter(vars,d)
+          }
+          else {
+            if (key == "xaxis") vars.xaxis_range = null
+            else if (key == "yaxis") vars.yaxis_range = null
+            var value = d3plus.utils.variable(vars,d,key)
+            if (!value) ret = false
+          }
+        }
+      })
+      return ret
+    
+    })
+
+    if (vars.dev) console.timeEnd(checking)
+    vars.check = []
+    if (vars.dev) console.groupEnd();
+  }
+  
+  if (vars.active && !vars.data.active) {
+    if (!vars.data.active) {
+      vars.data.active = {}
+      vars.data.inactive = {}
+    }
+    if (!vars.data.active.all) {
+      vars.data.active.all = vars.data.filtered.all.filter(function(d){
+        return d3plus.utils.variable(vars,d,vars.active)
+      })
+      vars.data.inactive.all = vars.data.filtered.all.filter(function(d){
+        return d3plus.utils.variable(vars,d,vars.active)
+      })
+    }
+  }
+  
+  if (vars.year_var && Object.keys(vars.data.filtered).length == 1) {
+    
+    if (vars.dev) console.log("%c[d3plus]%c Aggregating Years","font-weight:bold","font-weight: normal")
+
+    // Find available years
+    vars.data.years = d3plus.utils.uniques(vars.data.raw,vars.year_var)
+    vars.data.years.sort()
+    
+    if (vars.data.years.length) {
+      vars.data.years.forEach(function(y){
+        vars.data.filtered[y] = vars.data.filtered.all.filter(function(d){
+          return d3plus.utils.variable(vars,d,vars.year_var) == y;
+        })
+        if (vars.active) {
+          vars.data.active[y] = vars.data.filtered[y].filter(function(d){
+            return d3plus.utils.variable(vars,d,vars.active)
+          })
+          vars.data.inactive[y] = vars.data.filtered[y].filter(function(d){
+            return d3plus.utils.variable(vars,d,vars.active)
+          })
+        }
+      })
+    }
+    
+  }
+    
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Performs a deep filter based on filter/solo and nesting levels
+//-------------------------------------------------------------------
+
+d3plus.utils.deep_filter = function(vars,d) {
+  
+  var id = d[vars.id],
+      check = [id]
+      
+  if (vars.nesting.length) {
+    vars.nesting.forEach(function(key){
+      var obj = d3plus.utils.variable(vars,id,key)
+      if (obj) {
+        check.push(obj)
+      }
+    })
+  }
+  
+  var match = true
+  if (id != vars.highlight || vars.type != "rings") {
+    if (vars.solo.length) {
+      match = false
+      check.forEach(function(c){
+        if (vars.solo.indexOf(c) >= 0) match = true
+      })
+    }
+    else if (vars.filter.length) {
+      match = true
+      check.forEach(function(c){
+        if (vars.filter.indexOf(c) >= 0) match = false
+      })
+    }
+  }
+  return match
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Error Message
@@ -6089,147 +6217,12 @@ d3plus.utils.error = function(vars) {
   
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Filters the data based on vars.check
-//-------------------------------------------------------------------
-
-d3plus.utils.data_filter = function(vars,check_data) {
-  
-  // If both filter and solo exist, only check for solo
-  if (vars.check.indexOf("filter") >= 0 && vars.check.indexOf("solo") >= 0) {
-    vars.check.splice(vars.check.indexOf("filter"),1)
-  }
-  
-  if (vars.check.indexOf(vars.year_var) >= 0) {
-    vars.check.splice(vars.check.indexOf(vars.year_var),1)
-    if (vars.data.filtered) vars.data.filtered = {"all": vars.data.filtered.all}
-  }
-  
-  if (vars.check.indexOf(vars.active) >= 0) {
-    vars.check.splice(vars.check.indexOf(vars.active),1)
-    vars.data.active.all = null
-    vars.data.inactive.all = null
-  }
-  
-  if (vars.check.length) {
-    if (vars.dev) console.log("%c[d3plus]%c Filtering Data","font-weight:bold","font-weight: normal")
-    vars.data.filtered = {}
-    vars.data.filtered.all = check_data.filter(function(d){
-    
-      var ret = true
-      vars.check.forEach(function(key){
-        if (ret) {
-          if (key == "filter" || key == "solo") {
-            ret = d3plus.utils.deep_filter(d)
-            if (vars.nodes) {
-              if (vars.dev) console.log("%c[d3plus]%c Filtering Nodes","font-weight:bold","font-weight: normal")
-              vars.nodes_filtered = vars.nodes.filter(function(d){
-                return d3plus.utils.deep_filter(d[vars.id])
-              })
-            }
-            if (vars.links) {
-              if (vars.dev) console.log("%c[d3plus]%c Filtering Connections","font-weight:bold","font-weight: normal")
-              vars.links_filtered = vars.links.filter(function(d){
-                var first_match = d3plus.utils.deep_filter(d.source),
-                    second_match = d3plus.utils.deep_filter(d.target)
-                return first_match && second_match
-              })
-              vars.connections = d3plus.utils.connections(vars,links)
-            }
-          }
-          else if (key != vars.value || vars.type != "rings") {
-            var value = d3plus.utils.variable(vars,d,key)
-            if (!value) ret = false
-          }
-        }
-      })
-      vars.check = []
-      return ret
-    
-    })
-  }
-  
-  if (!vars.data.active) {
-    vars.data.active = {}
-    vars.data.inactive = {}
-  }
-  
-  if (!vars.data.active.all) {
-    vars.data.active.all = vars.data.filtered.all.filter(function(d){
-      return vars.active ? d3plus.utils.variable(vars,d,vars.active) : true;
-    })
-    vars.data.inactive.all = vars.data.filtered.all.filter(function(d){
-      return vars.active ? !d3plus.utils.variable(vars,d,vars.active) : false;
-    })
-  }
-  
-  if (vars.year_var && Object.keys(vars.data.filtered).length == 1) {
-    
-    if (vars.dev) console.log("%c[d3plus]%c Aggregating Years","font-weight:bold","font-weight: normal")
-
-    // Find available years
-    vars.data.years = d3plus.utils.uniques(vars.data.raw,vars.year_var)
-    vars.data.years.sort()
-    
-    if (vars.data.years.length) {
-      vars.data.years.forEach(function(y){
-        vars.data.filtered[y] = vars.data.filtered.all.filter(function(d){
-          return d3plus.utils.variable(vars,d,vars.year_var) == y;
-        })
-        vars.data.active[y] = vars.data.filtered[y].filter(function(d){
-          return vars.active ? d3plus.utils.variable(vars,d,vars.active) : true;
-        })
-        vars.data.inactive[y] = vars.data.filtered[y].filter(function(d){
-          return vars.active ? !d3plus.utils.variable(vars,d,vars.active) : false;
-        })
-      })
-    }
-    
-  }
-    
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Performs a deep filter based on filter/solo and nesting levels
-//-------------------------------------------------------------------
-
-d3plus.utils.deep_filter = function(d) {
-  
-  var id = d[vars.id],
-      check = [id]
-      
-  if (vars.nesting.length) {
-    vars.nesting.forEach(function(key){
-      var obj = d3plus.utils.variable(vars,id,key)
-      if (obj[vars.id]) {
-        check.push(obj[vars.id])
-      }
-    })
-  }
-  
-  var match = true
-  if (id != vars.highlight || vars.type != "rings") {
-    if (vars.solo.length) {
-      match = false
-      check.forEach(function(c){
-        if (vars.solo.indexOf(c) >= 0) match = true
-      })
-    }
-    else if (vars.filter.length) {
-      match = true
-      check.forEach(function(c){
-        if (vars.filter.indexOf(c) >= 0) match = false
-      })
-    }
-  }
-  return match
-}
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests data...
 //-------------------------------------------------------------------
 
-d3plus.utils.nesting = function(vars,flat_data,levels) {
+d3plus.utils.nesting = function(vars,flat_data,levels,grouped) {
   
-  var nested_data = d3.nest();
+  var nested_data = d3.nest(), group_data = [];
   
   levels.forEach(function(nest_key, i){
     
@@ -6237,6 +6230,13 @@ d3plus.utils.nesting = function(vars,flat_data,levels) {
       .key(function(d){ 
         return d3plus.utils.variable(vars,d,nest_key)
       })
+      
+    if (vars.unique_axis) {
+      nested_data
+        .key(function(d){ 
+          return d3plus.utils.variable(vars,d,vars[vars.unique_axis+"axis"])
+        })
+    }
     
     if (i == levels.length-1) {
       nested_data.rollup(function(leaves){
@@ -6268,6 +6268,13 @@ d3plus.utils.nesting = function(vars,flat_data,levels) {
           }
         }
         
+        if (grouped) {
+          levels.forEach(function(nk){
+            to_return[nk] = leaves[0][nk]
+          })
+          group_data.push(to_return)
+        }
+        
         return to_return
         
       })
@@ -6294,7 +6301,9 @@ d3plus.utils.nesting = function(vars,flat_data,levels) {
   nested_data = nested_data
     .entries(flat_data)
     .map(rename_key_value)
-    
+
+  if (grouped) return group_data
+  
   return nested_data;
 
 }
@@ -6324,8 +6333,8 @@ d3plus.utils.tooltip = function(vars,id,length,extras) {
     extras.push(vars.active)
     tooltip_highlights.push(vars.else_var)
     extras.push(vars.else_var)
-    tooltip_highlights.push(vars.total_var)
-    extras.push(vars.total_var)
+    tooltip_highlights.push(vars.total)
+    extras.push(vars.total)
   }
   else if (["stacked","pie_scatter"].indexOf(vars.type) >= 0) {
     tooltip_highlights.push(vars.xaxis)

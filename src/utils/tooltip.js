@@ -24,8 +24,8 @@ d3plus.utils.tooltip = function(vars,id,length,extras) {
     extras.push(vars.active)
     tooltip_highlights.push(vars.else_var)
     extras.push(vars.else_var)
-    tooltip_highlights.push(vars.total_var)
-    extras.push(vars.total_var)
+    tooltip_highlights.push(vars.total)
+    extras.push(vars.total)
   }
   else if (["stacked","pie_scatter"].indexOf(vars.type) >= 0) {
     tooltip_highlights.push(vars.xaxis)

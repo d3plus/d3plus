@@ -1,3 +1,5 @@
+d3plus.apps.data_types.bubbles = "array";
+
 d3plus.apps.bubbles = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -323,7 +325,7 @@ d3plus.apps.bubbles = function(vars) {
       d.arc_inner = arc_start;
       d.arc_radius = arc_start+(d.r-arc_start);
     
-      if (d[vars.total_var]) d.arc_angle = (((d[vars.active]/d[vars.total_var])*360) * (Math.PI/180));
+      if (d[vars.total]) d.arc_angle = (((d[vars.active]/d[vars.total])*360) * (Math.PI/180));
       else if (d.active) d.arc_angle = Math.PI; 
 
       d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -342,7 +344,7 @@ d3plus.apps.bubbles = function(vars) {
         d.arc_inner_else = arc_start;
         d.arc_radius_else = d.r;
   
-        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
+        d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total])*360) * (Math.PI/180));
         d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
     
         d3.select("pattern#hatch"+d[vars.id]).select("rect").transition().duration(d3plus.timing)
@@ -491,7 +493,7 @@ d3plus.apps.bubbles = function(vars) {
           vars.arc_sizes[d[vars.id]] = d.arc_radius
           vars.arc_inners[d[vars.id]] = d.arc_inner
           
-          if (d[vars.total_var]) d.arc_angle = (((d[vars.active] / d[vars.total_var])*360) * (Math.PI/180));
+          if (d[vars.total]) d.arc_angle = (((d[vars.active] / d[vars.total])*360) * (Math.PI/180));
           else if (d.active) d.arc_angle = Math.PI; 
           
           d.arc_angle = d.arc_angle < Math.PI*2 ? d.arc_angle : Math.PI*2
@@ -514,7 +516,7 @@ d3plus.apps.bubbles = function(vars) {
             vars.arc_sizes[d[vars.id]+"_else"] = d.arc_radius_else
             vars.arc_inners[d[vars.id]+"_else"] = d.arc_inner_else
       
-            d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total_var])*360) * (Math.PI/180));
+            d.arc_angle_else = d.arc_angle + (((d[vars.else_var] / d[vars.total])*360) * (Math.PI/180));
 
             d.arc_angle_else = d.arc_angle_else < Math.PI*2 ? d.arc_angle_else : Math.PI*2
             

@@ -21,8 +21,8 @@ body {
 
 <script src="../../src/ui/tooltip.js"></script>
 
+<script src="../../src/utils/data.js"></script>
 <script src="../../src/utils/error.js"></script>
-<script src="../../src/utils/filters.js"></script>
 <script src="../../src/utils/nesting.js"></script>
 <script src="../../src/utils/tooltip.js"></script>
 <script src="../../src/utils/utils.js"></script>
@@ -47,12 +47,13 @@ d3.json("data/artists_indented.json", function(artists){
           .attrs(attrs)
           .aggs({"hotttnesss":"mean"})
           .dev(true)
-          .value_var("hotttnesss")
-          .id_var("artist_id")
+          .value("hotttnesss")
+          .id("artist_id")
           .text("names")
           .tooltip(["names","location"])
           .highlight("ARJ7KF01187B98D717")
-          .year(2010)
+          // .year(2010)
+          // .year_var("year")
           .nodes(network.nodes)
           .links(network.edges)
           .color("hotttnesss")

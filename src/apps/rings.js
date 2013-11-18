@@ -1,3 +1,5 @@
+d3plus.apps.data_types.rings = "object";
+
 d3plus.apps.rings = function(vars) {
       
   var tooltip_width = 300

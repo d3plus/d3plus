@@ -2,9 +2,9 @@
 // Nests data...
 //-------------------------------------------------------------------
 
-d3plus.utils.nesting = function(vars,flat_data,levels) {
+d3plus.utils.nesting = function(vars,flat_data,levels,grouped) {
   
-  var nested_data = d3.nest();
+  var nested_data = d3.nest(), group_data = [];
   
   levels.forEach(function(nest_key, i){
     
@@ -12,6 +12,13 @@ d3plus.utils.nesting = function(vars,flat_data,levels) {
       .key(function(d){ 
         return d3plus.utils.variable(vars,d,nest_key)
       })
+      
+    if (vars.unique_axis) {
+      nested_data
+        .key(function(d){ 
+          return d3plus.utils.variable(vars,d,vars[vars.unique_axis+"axis"])
+        })
+    }
     
     if (i == levels.length-1) {
       nested_data.rollup(function(leaves){
@@ -43,6 +50,13 @@ d3plus.utils.nesting = function(vars,flat_data,levels) {
           }
         }
         
+        if (grouped) {
+          levels.forEach(function(nk){
+            to_return[nk] = leaves[0][nk]
+          })
+          group_data.push(to_return)
+        }
+        
         return to_return
         
       })
@@ -69,7 +83,9 @@ d3plus.utils.nesting = function(vars,flat_data,levels) {
   nested_data = nested_data
     .entries(flat_data)
     .map(rename_key_value)
-    
+
+  if (grouped) return group_data
+  
   return nested_data;
 
 }
