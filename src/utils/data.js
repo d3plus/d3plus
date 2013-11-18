@@ -41,7 +41,6 @@ d3plus.utils.data = function(vars,datum) {
     d3plus.utils.data_filter(vars)
   }
   
-  
   // create data for app type if it does not exist
   if (!vars.data[vars.data.type]) {
     
@@ -111,6 +110,12 @@ d3plus.utils.data = function(vars,datum) {
   
   if (vars.app_data.length == 0) {
     vars.app_data = null
+  }
+  
+  // Get link connections if they have not been previously set
+  if (!vars.connections && vars.links) {
+    var links = vars.links_filtered || vars.links
+    vars.connections = d3plus.utils.connections(vars,links)
   }
   
   // Set up axes

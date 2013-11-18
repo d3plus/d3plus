@@ -165,7 +165,7 @@ d3plus.apps.stacked = function(vars) {
         "offset": -(path_height/2),
         "align": "top center",
         "arrow": true,
-        "footer": footer_text(),
+        "footer": vars.footer_text(),
         "mouseevents": false
       })
       

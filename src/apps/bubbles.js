@@ -558,7 +558,7 @@ d3plus.apps.bubbles = function(vars) {
         "offset": d.r-5,
         "arrow": true,
         "mouseevents": false,
-        "footer": footer_text()
+        "footer": vars.footer_text()
       })
       
     })

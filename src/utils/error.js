@@ -5,7 +5,7 @@
 d3plus.utils.error = function(vars) {
   
   var error = vars.parent.select("g.parent").selectAll("g.d3plus-error")
-    .data([vars.error])
+    .data([vars.internal_error])
     
   error.enter().append("g")
     .attr("class","d3plus-error")

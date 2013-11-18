@@ -72,7 +72,61 @@ d3plus.utils.color = function(vars,id) {
     else return false
   }
   
-  if (!vars.color) return get_random(id)
+  if (!id) {
+    if (vars.app_data && vars.color) {
+
+      if (vars.dev) console.group("%c[d3plus]%c Calculating Color Range","font-weight:bold","font-weight: normal")
+      
+      var data_range = []
+      vars.color_domain = null
+      
+      if (vars.dev) console.time("get data range")
+      
+      if (vars.app_data instanceof Array) {
+        vars.app_data.forEach(function(d){
+          data_range.push(d3plus.utils.variable(vars,d,vars.color))
+        })
+      }
+      else {
+        d3.values(vars.app_data).forEach(function(d){
+          data_range.push(d3plus.utils.variable(vars,d,vars.color))
+        })
+      }
+      
+      data_range = data_range.filter(function(d){
+        return d;
+      })
+      
+      if (vars.dev) console.timeEnd("get data range")
+      
+      if (vars.dev) console.time("create color scale")
+      
+      if (typeof data_range[0] == "number") {
+        data_range.sort(function(a,b) {return a-b})
+        vars.color_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
+        var new_range = vars.color_range.slice(0)
+        if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
+          vars.color_domain.push(vars.color_domain[1])
+          vars.color_domain[1] = 0
+        }
+        else if (vars.color_domain[1] > 0 || vars.color_domain[0] < 0) {
+          new_range = vars.heat_map
+          vars.color_domain = d3plus.utils.buckets(d3.extent(data_range),new_range.length)
+        }
+        
+        vars.color_scale
+          .domain(vars.color_domain)
+          .range(new_range)
+      
+        if (vars.dev) console.timeEnd("create color scale")
+        
+      }
+      
+      if (vars.dev) console.groupEnd();
+      
+    }
+  }
+  else if (!vars.color) return get_random(id)
   else {
     var color = d3plus.utils.variable(vars,id,vars.color)
     

@@ -247,7 +247,7 @@ d3plus.apps.pie_scatter = function(vars) {
         "y": y+vars.graph.margin.top+vars.margin.top+vars.parent.node().offsetTop,
         "offset": radius,
         "arrow": true,
-        "footer": footer_text(),
+        "footer": vars.footer_text(),
         "mouseevents": false
       })
       

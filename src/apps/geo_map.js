@@ -425,7 +425,7 @@ d3plus.apps.geo_map = function(vars) {
       }
       else if (!vars.highlight) {
         var tooltip_data = d3plus.utils.tooltip(vars,id,"short"),
-            footer = footer_text()
+            footer = vars.footer_text()
         make_tooltip(null)
       }
       else {

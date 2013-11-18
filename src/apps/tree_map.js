@@ -136,7 +136,7 @@ d3plus.apps.tree_map = function(vars) {
       "offset": 3,
       "arrow": true,
       "mouseevents": d3.select("#cell_"+id).node(),
-      "footer": footer_text(),
+      "footer": vars.footer_text(),
       "data": tooltip_data
     })
     

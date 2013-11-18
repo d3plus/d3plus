@@ -13,6 +13,7 @@ JS_FILES = \
 	src/utils/data.js \
 	src/utils/error.js \
 	src/utils/nesting.js \
+	src/utils/titles.js \
 	src/utils/tooltip.js \
 	src/utils/utils.js \
 	src/utils/variables.js \
