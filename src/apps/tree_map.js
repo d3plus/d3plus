@@ -1,4 +1,5 @@
 d3plus.data.tree_map = "nested";
+d3plus.vars.tree_map = ["value"];
 
 d3plus.apps.tree_map = function(vars) {
   

@@ -1,4 +1,5 @@
 d3plus.data.stacked = "grouped";
+d3plus.vars.stacked = ["xaxis","yaxis"];
 
 d3plus.apps.stacked = function(vars) {
   
@@ -77,18 +78,18 @@ d3plus.apps.stacked = function(vars) {
   
   // Get layers from d3.stack function (gives x, y, y0 values)
   var offset = vars.layout == "value" ? "zero" : "expand";
-  
+
   if (nested_data.length) {
     var layers = stack.offset(offset)(nested_data)
   }
   else {
     var layers = []
   }
-  
+
   // container for layers
   vars.chart_enter.append("g").attr("class", "layers")
     .attr("clip-path","url(#path_clipping)")
-    
+
   // give data with key function to variables to draw
   var paths = d3.select("g.layers").selectAll(".layer")
     .data(layers, function(d){ return d.key; })

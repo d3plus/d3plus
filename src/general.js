@@ -34,5 +34,6 @@ if (Modernizr && Modernizr.touch) {
 
 d3plus.apps = {};
 d3plus.data = {};
+d3plus.vars = {};
 d3plus.ui = {};
 d3plus.utils = {};

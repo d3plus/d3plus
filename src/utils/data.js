@@ -187,6 +187,13 @@ d3plus.utils.data = function(vars,datum) {
 
 d3plus.utils.data_filter = function(vars) {
   
+  if (vars.check.indexOf("filter") >= 0 && !vars.filter.length) {
+    vars.check.splice(vars.check.indexOf("filter"),1)
+  }
+  if (vars.check.indexOf("solo") >= 0 && !vars.solo.length) {
+    vars.check.splice(vars.check.indexOf("solo"),1)
+  }
+  
   // If both filter and solo exist, only check for solo
   if (vars.check.indexOf("filter") >= 0 && vars.check.indexOf("solo") >= 0) {
     vars.check.splice(vars.check.indexOf("filter"),1)
@@ -224,6 +231,10 @@ d3plus.utils.data_filter = function(vars) {
     vars.data.inactive.all = null
   }
   
+  d3plus.vars[vars.type].forEach(function(v){
+    if (vars.check.indexOf(vars[v]) < 0) vars.check.unshift(vars[v])
+  })
+  
   if (vars.check.length) {
     if (vars.dev) console.group("%c[d3plus]%c Filtering Data","font-weight:bold","font-weight: normal");
     vars.data.filtered = {}
@@ -237,8 +248,8 @@ d3plus.utils.data_filter = function(vars) {
             ret = d3plus.utils.deep_filter(vars,d)
           }
           else {
-            if (key == "xaxis") vars.xaxis_range = null
-            else if (key == "yaxis") vars.yaxis_range = null
+            if (key == vars["xaxis"]) vars.xaxis_range = null
+            else if (key == vars["yaxis"]) vars.yaxis_range = null
             var value = d3plus.utils.variable(vars,d,key)
             if (value === null) ret = false
           }

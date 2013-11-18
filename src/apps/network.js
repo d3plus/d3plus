@@ -1,4 +1,5 @@
 d3plus.data.network = "object";
+d3plus.vars.network = [""];
 
 d3plus.apps.network = function(vars) {
   

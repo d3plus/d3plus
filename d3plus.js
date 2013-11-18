@@ -35,6 +35,7 @@ if (Modernizr && Modernizr.touch) {
 
 d3plus.apps = {};
 d3plus.data = {};
+d3plus.vars = {};
 d3plus.ui = {};
 d3plus.utils = {};d3plus.viz = function() {
 
@@ -50,7 +51,7 @@ d3plus.utils = {};d3plus.viz = function() {
     "attrs": {},
     "background": "#ffffff",
     "check": [],
-    "check_vars": ["filter","solo","value","xaxis","yaxis","year_var","active","unique_axis"],
+    "check_vars": ["value","xaxis","yaxis","year_var","active","unique_axis"],
     "color_domain": [],
     "color_range": ["#ff0000","#888888","#00ff00"],
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
@@ -1017,6 +1018,7 @@ d3plus.utils = {};d3plus.viz = function() {
   return chart;
 };
 d3plus.data.network = "object";
+d3plus.vars.network = [""];
 
 d3plus.apps.network = function(vars) {
   
@@ -1785,6 +1787,7 @@ d3plus.apps.network = function(vars) {
       
 };
 d3plus.data.stacked = "grouped";
+d3plus.vars.stacked = ["xaxis","yaxis"];
 
 d3plus.apps.stacked = function(vars) {
   
@@ -1863,18 +1866,18 @@ d3plus.apps.stacked = function(vars) {
   
   // Get layers from d3.stack function (gives x, y, y0 values)
   var offset = vars.layout == "value" ? "zero" : "expand";
-  
+
   if (nested_data.length) {
     var layers = stack.offset(offset)(nested_data)
   }
   else {
     var layers = []
   }
-  
+
   // container for layers
   vars.chart_enter.append("g").attr("class", "layers")
     .attr("clip-path","url(#path_clipping)")
-    
+
   // give data with key function to variables to draw
   var paths = d3.select("g.layers").selectAll(".layer")
     .data(layers, function(d){ return d.key; })
@@ -2293,6 +2296,7 @@ d3plus.apps.stacked = function(vars) {
     
 };
 d3plus.data.tree_map = "nested";
+d3plus.vars.tree_map = ["value"];
 
 d3plus.apps.tree_map = function(vars) {
   
@@ -2622,6 +2626,7 @@ d3plus.apps.tree_map = function(vars) {
   
 }
 d3plus.data.geo_map = "object";
+d3plus.vars.geo_map = [""];
 
 d3plus.apps.geo_map = function(vars) { 
   
@@ -3252,6 +3257,7 @@ d3plus.apps.geo_map = function(vars) {
   
 };
 d3plus.data.pie_scatter = "grouped";
+d3plus.vars.pie_scatter = ["xaxis","yaxis"];
 
 d3plus.apps.pie_scatter = function(vars) {
   
@@ -3671,6 +3677,7 @@ d3plus.apps.pie_scatter = function(vars) {
   
 };
 d3plus.data.bubbles = "array";
+d3plus.vars.bubbles = ["value"];
 
 d3plus.apps.bubbles = function(vars) {
 
@@ -4360,6 +4367,7 @@ d3plus.apps.bubbles = function(vars) {
   //===================================================================
 };
 d3plus.data.rings = "object";
+d3plus.vars.rings = [];
 
 d3plus.apps.rings = function(vars) {
       
@@ -5657,6 +5665,13 @@ d3plus.utils.data = function(vars,datum) {
 
 d3plus.utils.data_filter = function(vars) {
   
+  if (vars.check.indexOf("filter") >= 0 && !vars.filter.length) {
+    vars.check.splice(vars.check.indexOf("filter"),1)
+  }
+  if (vars.check.indexOf("solo") >= 0 && !vars.solo.length) {
+    vars.check.splice(vars.check.indexOf("solo"),1)
+  }
+  
   // If both filter and solo exist, only check for solo
   if (vars.check.indexOf("filter") >= 0 && vars.check.indexOf("solo") >= 0) {
     vars.check.splice(vars.check.indexOf("filter"),1)
@@ -5694,6 +5709,10 @@ d3plus.utils.data_filter = function(vars) {
     vars.data.inactive.all = null
   }
   
+  d3plus.vars[vars.type].forEach(function(v){
+    if (vars.check.indexOf(vars[v]) < 0) vars.check.unshift(vars[v])
+  })
+  
   if (vars.check.length) {
     if (vars.dev) console.group("%c[d3plus]%c Filtering Data","font-weight:bold","font-weight: normal");
     vars.data.filtered = {}
@@ -5707,8 +5726,8 @@ d3plus.utils.data_filter = function(vars) {
             ret = d3plus.utils.deep_filter(vars,d)
           }
           else {
-            if (key == "xaxis") vars.xaxis_range = null
-            else if (key == "yaxis") vars.yaxis_range = null
+            if (key == vars["xaxis"]) vars.xaxis_range = null
+            else if (key == vars["yaxis"]) vars.yaxis_range = null
             var value = d3plus.utils.variable(vars,d,key)
             if (value === null) ret = false
           }

@@ -1,4 +1,5 @@
 d3plus.data.pie_scatter = "grouped";
+d3plus.vars.pie_scatter = ["xaxis","yaxis"];
 
 d3plus.apps.pie_scatter = function(vars) {
   

@@ -12,7 +12,7 @@ d3plus.viz = function() {
     "attrs": {},
     "background": "#ffffff",
     "check": [],
-    "check_vars": ["filter","solo","value","xaxis","yaxis","year_var","active","unique_axis"],
+    "check_vars": ["value","xaxis","yaxis","year_var","active","unique_axis"],
     "color_domain": [],
     "color_range": ["#ff0000","#888888","#00ff00"],
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),

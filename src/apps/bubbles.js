@@ -1,4 +1,5 @@
 d3plus.data.bubbles = "array";
+d3plus.vars.bubbles = ["value"];
 
 d3plus.apps.bubbles = function(vars) {
 

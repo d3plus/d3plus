@@ -1,4 +1,5 @@
 d3plus.data.rings = "object";
+d3plus.vars.rings = [];
 
 d3plus.apps.rings = function(vars) {
       
