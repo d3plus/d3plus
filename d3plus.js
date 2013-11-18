@@ -943,8 +943,12 @@ d3plus.utils = {};d3plus.viz = function() {
     if (typeof y_val == "string") y_val = parseFloat(y_val)
       
     d3.select("#y_axis_val").transition().duration(vars.graph.timing)
-      .attr("y1",vars.y_scale(y_val))
-      .attr("y2",vars.y_scale(y_val))
+      .attr("y1",function(d){
+        return y_val ? vars.y_scale(y_val) : 0
+      })
+      .attr("y2",function(d){
+        return y_val ? vars.y_scale(y_val) : 0
+      })
       .attr("opacity",function(d){
         var yes = y_val > vars.y_scale.domain()[1] && y_val < vars.y_scale.domain()[0]
         return y_val != null && yes ? 1 : 0
@@ -989,8 +993,12 @@ d3plus.utils = {};d3plus.viz = function() {
     if (typeof x_val == "string") x_val = parseFloat(x_val)
     
     d3.select("#x_axis_val").transition().duration(vars.graph.timing)
-      .attr("x1",vars.x_scale(x_val))
-      .attr("x2",vars.x_scale(x_val))
+      .attr("x1",function(d){
+        return x_val ? vars.x_scale(x_val) : 0
+      })
+      .attr("x2",function(d){
+        return x_val ? vars.x_scale(x_val) : 0
+      })
       .attr("opacity",function(d){
         var yes = x_val > vars.x_scale.domain()[0] && x_val < vars.x_scale.domain()[1]
         return x_val != null && yes ? 1 : 0
