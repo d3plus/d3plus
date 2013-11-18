@@ -240,7 +240,7 @@ d3plus.utils.data_filter = function(vars) {
             if (key == "xaxis") vars.xaxis_range = null
             else if (key == "yaxis") vars.yaxis_range = null
             var value = d3plus.utils.variable(vars,d,key)
-            if (!value) ret = false
+            if (value === null) ret = false
           }
         }
       })

@@ -3715,6 +3715,7 @@ d3plus.apps.bubbles = function(vars) {
   })
   
   if (!size_domain[1]) size_domain = [0,0]
+  if (size_domain[1] == size_domain[0]) size_domain[0] = 0
   
   vars.size_scale = d3.scale[vars.size_scale_type]()
     .domain(size_domain)
@@ -5709,7 +5710,7 @@ d3plus.utils.data_filter = function(vars) {
             if (key == "xaxis") vars.xaxis_range = null
             else if (key == "yaxis") vars.yaxis_range = null
             var value = d3plus.utils.variable(vars,d,key)
-            if (!value) ret = false
+            if (value === null) ret = false
           }
         }
       })
