@@ -968,7 +968,7 @@ d3plus.viz = function() {
       .attr("x",(vars.x_scale(x_val)+10)+"px")
       
     // Move titles
-    update_titles()
+    d3plus.utils.title_update(vars)
     
     vars.graph.timing = d3plus.timing
       

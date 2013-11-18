@@ -1006,7 +1006,7 @@ d3plus.utils = {};d3plus.viz = function() {
       .attr("x",(vars.x_scale(x_val)+10)+"px")
       
     // Move titles
-    update_titles()
+    d3plus.utils.title_update(vars)
     
     vars.graph.timing = d3plus.timing
       
@@ -6098,7 +6098,7 @@ d3plus.utils.titles = function(vars) {
     total.transition().duration(d3plus.timing)
       .style("opacity",1)
     
-    update_titles()
+    d3plus.utils.title_update(vars)
   
     // Exit
     total.exit().transition().duration(d3plus.timing)
@@ -6205,33 +6205,33 @@ d3plus.utils.titles = function(vars) {
       .attr("transform","translate(0,"+(vars.svg_height-vars.margin.bottom)+")")
   
   }
+}
 
-  function update_titles() {
+d3plus.utils.title_update = function(vars) {
   
-    var offset = 0
-    if (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && !vars.title_center) {
-      offset = vars.graph.margin.left
-    }
-
-    d3.select("g.titles").selectAll("g").select("text")
-      .transition().duration(d3plus.timing)
-        .attr("x",function(d) { return d.x+offset; })
-        .attr("y",function(d) { return d.y; })
-        .each(function(d){
-          var width = vars.title_width ? vars.title_width : vars.svg_width
-          width -= offset*2
-          d3plus.utils.wordwrap({
-            "text": d.title,
-            "parent": this,
-            "width": width,
-            "height": vars.svg_height/8,
-            "resize": false
-          })
-        })
-        .selectAll("tspan")
-          .attr("x",function(d) { return d.x+offset; })
-      
+  var offset = 0
+  if (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && !vars.title_center) {
+    offset = vars.graph.margin.left
   }
+
+  d3.select("g.titles").selectAll("g").select("text")
+    .transition().duration(d3plus.timing)
+      .attr("x",function(d) { return d.x+offset; })
+      .attr("y",function(d) { return d.y; })
+      .each(function(d){
+        var width = vars.title_width ? vars.title_width : vars.svg_width
+        width -= offset*2
+        d3plus.utils.wordwrap({
+          "text": d.title,
+          "parent": this,
+          "width": width,
+          "height": vars.svg_height/8,
+          "resize": false
+        })
+      })
+      .selectAll("tspan")
+        .attr("x",function(d) { return d.x+offset; })
+    
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the UI tooltip
