@@ -1,5 +1,5 @@
 d3plus.data.geo_map = "object";
-d3plus.vars.geo_map = [""];
+d3plus.vars.geo_map = [];
 
 d3plus.apps.geo_map = function(vars) { 
   

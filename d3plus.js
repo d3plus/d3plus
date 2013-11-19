@@ -1026,7 +1026,7 @@ d3plus.utils = {};d3plus.viz = function() {
   return chart;
 };
 d3plus.data.network = "object";
-d3plus.vars.network = [""];
+d3plus.vars.network = [];
 
 d3plus.apps.network = function(vars) {
   
@@ -2634,7 +2634,7 @@ d3plus.apps.tree_map = function(vars) {
   
 }
 d3plus.data.geo_map = "object";
-d3plus.vars.geo_map = [""];
+d3plus.vars.geo_map = [];
 
 d3plus.apps.geo_map = function(vars) { 
   
@@ -6598,6 +6598,7 @@ d3plus.utils.color = function(vars,id) {
   }
   
   if (!id) {
+    
     if (vars.app_data && vars.color) {
 
       if (vars.dev) console.group("%c[d3plus]%c Calculating Color Range","font-weight:bold","font-weight: normal")
@@ -6658,7 +6659,6 @@ d3plus.utils.color = function(vars,id) {
     if (!color && vars.color_domain instanceof Array) color = 0
     else if (!color) return get_random(id)
     
-    var true_color 
     if (typeof color == "string") {
       var true_color = validate_color(color)
       return true_color ? color : get_random(color)
