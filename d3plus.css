@@ -242,6 +242,7 @@ div.d3plus_tooltip_data_desc {
   overflow: hidden;
   -webkit-transition: height 0.5s;
           transition: height 0.5s;
+  width: 90%;
 }
 
 div.d3plus_tooltip_footer {
