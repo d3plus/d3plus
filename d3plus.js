@@ -33,11 +33,46 @@ if (Modernizr && Modernizr.touch) {
   d3plus.evt.move = "mousemove"
 }
 
+// Modernizr SVG Capable Detect
+d3plus.svg = true
+if (Modernizr && Modernizr.svg === false) {
+  d3plus.svg = false
+}
+
 d3plus.apps = {};
 d3plus.data = {};
 d3plus.vars = {};
 d3plus.ui = {};
-d3plus.utils = {};d3plus.viz = function() {
+d3plus.utils = {};
+
+d3plus.console = {}
+d3plus.console.print = function(type,message,style) {
+  if (d3plus.ie) console.log("[d3plus] "+message)
+  else console[type]("%c[d3plus]%c "+message,"font-weight:bold;",style)
+}
+d3plus.console.log = function(message,style) {
+  if (!style) var style = "font-weight:normal;"
+  d3plus.console.print("log",message,style)
+}
+d3plus.console.group = function(message,style) {
+  if (!style) var style = "font-weight:bold;"
+  d3plus.console.print("group",message,style)
+}
+d3plus.console.warning = function(message,style) {
+  if (!style) var style = "font-weight:bold;color:red;"
+  message = "WARNING: "+message
+  d3plus.console.print("log",message,style)
+}
+d3plus.console.groupEnd = function() {
+  if (!d3plus.ie) console.groupEnd()
+}
+d3plus.console.time = function(message) {
+  if (!d3plus.ie) console.time(message)
+}
+d3plus.console.timeEnd = function(message) {
+  if (!d3plus.ie) console.timeEnd(message)
+}
+d3plus.viz = function() {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Public Variables with Default Settings
@@ -52,6 +87,7 @@ d3plus.utils = {};d3plus.viz = function() {
     "background": "#ffffff",
     "check": [],
     "check_vars": ["value","xaxis","yaxis","year_var","active","unique_axis"],
+    "color_change": false,
     "color_domain": [],
     "color_range": ["#ff0000","#888888","#00ff00"],
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
@@ -260,9 +296,9 @@ d3plus.utils = {};d3plus.viz = function() {
       }
       
       // Finally, call the specific App to draw
-      if (vars.dev) console.group("%c[d3plus]%c Drawing \"" + vars.type + "\"","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.group("Drawing \"" + vars.type + "\"")
       d3plus.apps[vars.type](vars)
-      if (vars.dev) console.groupEnd();
+      if (vars.dev) d3plus.console.groupEnd();
       
       d3plus.utils.error(vars)
       
@@ -274,6 +310,27 @@ d3plus.utils = {};d3plus.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Expose Public Variables
   //-------------------------------------------------------------------
+  
+  chart.aggs = function(x) {
+    if (!arguments.length) return vars.aggs;
+    if (!x) vars.aggs = {}
+    else {
+      for (a in x) {
+        if (!vars.aggs[a] || vars.aggs[a] != x[a]) {
+          vars.aggs[a] = x[a]
+          if (a == vars.value) vars.check.push(a)
+        }
+      }
+    }
+    return chart;
+  };
+  
+  chart.color = function(x) {
+    if (!arguments.length) return vars.color;
+    vars.color = x;
+    vars.color_change = true;
+    return chart;
+  };
   
   chart.csv = function(x) {
     
@@ -512,15 +569,44 @@ d3plus.utils = {};d3plus.viz = function() {
     return chart;
   };
   
+  chart.xaxis_domain = function(x) {
+    if (!arguments.length) return vars.xaxis_domain;
+    if (!x || Object.keys(x).length == 0) {
+      x = null
+      if (x != vars.xaxis_domain) vars.xaxis_range = null;
+      vars.xaxis_domain = null;
+    }
+    else if (x instanceof Array && x.length == 2) {
+      change = vars.xaxis_range && !(x[0] == vars.xaxis_range[0] && x[1] == vars.xaxis_range[1])
+      if (change) vars.xaxis_range = null;
+      vars.xaxis_domain = x;
+    }
+    else {
+      d3plus.console.warning(".xaxis_domain() only accepts a min/max array")
+    }
+    return chart;
+  };
+  
   chart.yaxis_domain = function(x) {
-    if (!arguments.length) return vars.yaxis_range;
-    vars.yaxis_range = x.reverse();
+    if (!arguments.length) return vars.yaxis_domain;
+    if (!x || Object.keys(x).length == 0) {
+      x = null
+      if (x != vars.yaxis_domain) vars.yaxis_range = null;
+      vars.yaxis_domain = null;
+    }
+    else if (x instanceof Array && x.length == 2) {
+      change = vars.yaxis_range && !(x[1] == vars.yaxis_range[0] && x[0] == vars.yaxis_range[1])
+      if (change) vars.yaxis_range = null;
+      vars.yaxis_domain = x.reverse();
+    }
+    else {
+      d3plus.console.warning(".yaxis_domain() only accepts a min/max array")
+    }
     return chart;
   };
   
   var simple_vars = [
     "active",
-    "aggs",
     "attrs",
     "background",
     "click_function",
@@ -559,7 +645,6 @@ d3plus.utils = {};d3plus.viz = function() {
     "unique_axis",
     "value",
     "xaxis",
-    "xaxis_domain",
     "xaxis_val",
     "xaxis_scale",
     "yaxis",
@@ -598,7 +683,7 @@ d3plus.utils = {};d3plus.viz = function() {
   for (d in deprecated) {
     chart[d] = (function(dep) {
       return function(x) {
-        console.log("%c[d3plus]%c WARNING: \""+dep+"\" has been deprecated, please use \""+deprecated[dep]+"\"","font-weight:bold","color:red;font-weight:bold")
+        d3plus.console.warning("\""+dep+"\" has been deprecated, please use \""+deprecated[dep]+"\"")
         chart[deprecated[dep]](x)
         return chart;
       }
@@ -5493,13 +5578,14 @@ d3plus.utils.data = function(vars,datum) {
   // Initial data setup when the raw data has changed
   if (!vars.data || datum != vars.data.raw) {
     
-    if (vars.dev) console.group("%c[d3plus]%c New Data Detected","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.group("New Data Detected")
     
     vars.data = {}
     vars.data.raw = datum
+    vars.color_change = true
     vars.data.filtered = null
 
-    console.time("key analysis")
+    if (vars.dev) d3plus.console.time("key analysis")
     vars.keys = {}
     datum.forEach(function(d){
       for (k in d) {
@@ -5508,9 +5594,9 @@ d3plus.utils.data = function(vars,datum) {
         }
       }
     })
-    console.timeEnd("key analysis")
+    if (vars.dev) d3plus.console.timeEnd("key analysis")
     
-    if (vars.dev) console.groupEnd();
+    if (vars.dev) d3plus.console.groupEnd();
     
   }
   
@@ -5531,11 +5617,11 @@ d3plus.utils.data = function(vars,datum) {
   if (!vars.data[vars.data.type]) {
     
     vars.data[vars.data.type] = {}
-    console.group("%c[d3plus]%c Formatting Data","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.group("Formatting Data")
     
     vars.nesting.forEach(function(depth){
       
-      console.time(depth)
+      if (vars.dev) d3plus.console.time(depth)
       
       var level = vars.nesting.slice(0,vars.nesting.indexOf(depth)+1)
       
@@ -5571,16 +5657,16 @@ d3plus.utils.data = function(vars,datum) {
         
       })
       
-      console.timeEnd(depth)
+      if (vars.dev) d3plus.console.timeEnd(depth)
       
     })
     
-    console.groupEnd()
+    if (vars.dev) d3plus.console.groupEnd()
     
   }
   
   // get correct data for app
-  vars.app_data == null
+  vars.app_data = null
   var dtype = vars.active && vars.spotlight ? "active" : "filtered"
   
   if (vars.year instanceof Array) {
@@ -5608,39 +5694,38 @@ d3plus.utils.data = function(vars,datum) {
   if (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && vars.app_data) {
     
     if (!vars.xaxis_range || !vars.static_axes) {
-      if (vars.dev) console.log("%c[d3plus]%c Determining X Axis Domain","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.log("Determining X Axis Domain")
       if (vars.xaxis_domain instanceof Array) {
         vars.xaxis_range = vars.xaxis_domain
-        vars.app_data = vars.app_data.filter(function(d){
-          var val = d3plus.utils.variable(vars,d,vars.xaxis)
-          return val >= vars.xaxis_domain[0] && val <= vars.xaxis_domain[1]
-        })
       }
       else if (!vars.static_axes) {
         vars.xaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype][vars.year],function(d){
-          return d3plus.utils.variable(vars,d,vars.xaxis)
+          return parseFloat(d3plus.utils.variable(vars,d,vars.xaxis))
         })
       }
       else {
         vars.xaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype].all,function(d){
-          return d3plus.utils.variable(vars,d,vars.xaxis)
+          return parseFloat(d3plus.utils.variable(vars,d,vars.xaxis))
         })
       }
     }
     
     if (!vars.yaxis_range || !vars.static_axes) {
-      if (vars.dev) console.log("%c[d3plus]%c Determining Y Axis Domain","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.log("Determining Y Axis Domain")
       if (vars.yaxis_domain instanceof Array) {
-        vars.yaxis_range = vars.yaxis_domain
+        vars.app_data = vars.app_data.filter(function(d){
+          var val = parseFloat(d3plus.utils.variable(vars,d,vars.yaxis))
+          return val >= vars.yaxis_domain[0] && val <= vars.yaxis_domain[1]
+        })
       }
       else if (!vars.static_axes) {
         vars.yaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype][vars.year],function(d){
-          return d3plus.utils.variable(vars,d,vars.yaxis)
+          return parseFloat(d3plus.utils.variable(vars,d,vars.yaxis))
         }).reverse()
       }
       else {
         vars.yaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype].all,function(d){
-          return d3plus.utils.variable(vars,d,vars.yaxis)
+          return parseFloat(d3plus.utils.variable(vars,d,vars.yaxis))
         }).reverse()
       }
     }
@@ -5663,6 +5748,13 @@ d3plus.utils.data = function(vars,datum) {
   else {
     vars.xaxis_range = [0,0]
     vars.yaxis_range = [0,0]
+  }
+  
+  if (vars.type == "stacked") {
+    vars.app_data = vars.app_data.filter(function(d){
+      var val = parseFloat(d3plus.utils.variable(vars,d,vars.xaxis))
+      return val >= vars.xaxis_range[0] && val <= vars.xaxis_range[1]
+    })
   }
   
 }
@@ -5688,14 +5780,14 @@ d3plus.utils.data_filter = function(vars) {
   if (vars.check.indexOf("filter") >= 0 || vars.check.indexOf("solo") >= 0) {
     
     if (vars.nodes) {
-      if (vars.dev) console.log("%c[d3plus]%c Filtering Nodes","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.log("Filtering Nodes")
       vars.nodes_filtered = vars.nodes.filter(function(d){
         return d3plus.utils.deep_filter(vars,d[vars.id])
       })
     }
     
     if (vars.links) {
-      if (vars.dev) console.log("%c[d3plus]%c Filtering Connections","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.log("Filtering Connections")
       vars.links_filtered = vars.links.filter(function(d){
         var first_match = d3plus.utils.deep_filter(vars,d.source),
             second_match = d3plus.utils.deep_filter(vars,d.target)
@@ -5722,10 +5814,10 @@ d3plus.utils.data_filter = function(vars) {
   })
   
   if (vars.check.length) {
-    if (vars.dev) console.group("%c[d3plus]%c Filtering Data","font-weight:bold","font-weight: normal");
+    if (vars.dev) d3plus.console.group("Filtering Data");
     vars.data.filtered = {}
     var checking = vars.check.join(", ")
-    if (vars.dev) console.time(checking)
+    if (vars.dev) d3plus.console.time(checking)
     vars.data.filtered.all = vars.data.raw.filter(function(d){
       var ret = true
       vars.check.forEach(function(key){
@@ -5745,9 +5837,9 @@ d3plus.utils.data_filter = function(vars) {
     
     })
 
-    if (vars.dev) console.timeEnd(checking)
+    if (vars.dev) d3plus.console.timeEnd(checking)
     vars.check = []
-    if (vars.dev) console.groupEnd();
+    if (vars.dev) d3plus.console.groupEnd();
   }
   
   if (vars.active && !vars.data.active) {
@@ -5767,7 +5859,7 @@ d3plus.utils.data_filter = function(vars) {
   
   if (vars.year_var && Object.keys(vars.data.filtered).length == 1) {
     
-    if (vars.dev) console.log("%c[d3plus]%c Aggregating Years","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.log("Aggregating Years")
 
     // Find available years
     vars.data.years = d3plus.utils.uniques(vars.data.raw,vars.year_var)
@@ -5988,9 +6080,9 @@ d3plus.utils.titles = function(vars) {
     vars.data.total = null
   }
   else {
-    if (vars.dev) console.group("%c[d3plus]%c Calculating Total Value","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.group("Calculating Total Value")
     
-    if (vars.dev) console.time(vars.value)
+    if (vars.dev) d3plus.console.time(vars.value)
     
     if (vars.app_data instanceof Array) {
       vars.data.total = d3.sum(vars.app_data,function(d){
@@ -6010,8 +6102,8 @@ d3plus.utils.titles = function(vars) {
       })
     }
     
-    if (vars.dev) console.timeEnd(vars.value)
-    if (vars.dev) console.groupEnd()
+    if (vars.dev) d3plus.console.timeEnd(vars.value)
+    if (vars.dev) d3plus.console.groupEnd()
     
   }
   
@@ -6027,7 +6119,7 @@ d3plus.utils.titles = function(vars) {
     update_footer(null)
   }
   else {
-    if (vars.dev) console.log("%c[d3plus]%c Creating/Updating Titles","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.log("Creating/Updating Titles")
     vars.small = false;
     vars.graph.margin = {"top": 5, "right": 10, "bottom": 40, "left": 40}
     vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right
@@ -6599,33 +6691,23 @@ d3plus.utils.color = function(vars,id) {
   
   if (!id) {
     
-    if (vars.app_data && vars.color) {
+    if (vars.data.raw && vars.color && vars.color_change) {
 
-      if (vars.dev) console.group("%c[d3plus]%c Calculating Color Range","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.group("Calculating Color Range")
       
       var data_range = []
       vars.color_domain = null
       
-      if (vars.dev) console.time("get data range")
+      if (vars.dev) d3plus.console.time("get data range")
       
-      if (vars.app_data instanceof Array) {
-        vars.app_data.forEach(function(d){
-          data_range.push(d3plus.utils.variable(vars,d,vars.color))
-        })
-      }
-      else {
-        d3.values(vars.app_data).forEach(function(d){
-          data_range.push(d3plus.utils.variable(vars,d,vars.color))
-        })
-      }
-      
-      data_range = data_range.filter(function(d){
-        return d;
+      vars.data.raw.forEach(function(d){
+        var val = parseFloat(d3plus.utils.variable(vars,d,vars.color))
+        if (val) data_range.push(val)
       })
       
-      if (vars.dev) console.timeEnd("get data range")
+      if (vars.dev) d3plus.console.timeEnd("get data range")
       
-      if (vars.dev) console.time("create color scale")
+      if (vars.dev) d3plus.console.time("create color scale")
       
       if (typeof data_range[0] == "number") {
         data_range.sort(function(a,b) {return a-b})
@@ -6644,11 +6726,13 @@ d3plus.utils.color = function(vars,id) {
           .domain(vars.color_domain)
           .range(new_range)
       
-        if (vars.dev) console.timeEnd("create color scale")
+        if (vars.dev) d3plus.console.timeEnd("create color scale")
         
       }
       
-      if (vars.dev) console.groupEnd();
+      if (vars.dev) d3plus.console.groupEnd();
+      
+      vars.color_change = false
       
     }
   }
