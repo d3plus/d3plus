@@ -9,9 +9,9 @@ d3plus.utils.titles = function(vars) {
     vars.data.total = null
   }
   else {
-    if (vars.dev) console.group("%c[d3plus]%c Calculating Total Value","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.group("Calculating Total Value")
     
-    if (vars.dev) console.time(vars.value)
+    if (vars.dev) d3plus.console.time(vars.value)
     
     if (vars.app_data instanceof Array) {
       vars.data.total = d3.sum(vars.app_data,function(d){
@@ -31,8 +31,8 @@ d3plus.utils.titles = function(vars) {
       })
     }
     
-    if (vars.dev) console.timeEnd(vars.value)
-    if (vars.dev) console.groupEnd()
+    if (vars.dev) d3plus.console.timeEnd(vars.value)
+    if (vars.dev) d3plus.console.groupEnd()
     
   }
   
@@ -48,7 +48,7 @@ d3plus.utils.titles = function(vars) {
     update_footer(null)
   }
   else {
-    if (vars.dev) console.log("%c[d3plus]%c Creating/Updating Titles","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.log("Creating/Updating Titles")
     vars.small = false;
     vars.graph.margin = {"top": 5, "right": 10, "bottom": 40, "left": 40}
     vars.graph.width = vars.width-vars.graph.margin.left-vars.graph.margin.right

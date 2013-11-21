@@ -7,13 +7,14 @@ d3plus.utils.data = function(vars,datum) {
   // Initial data setup when the raw data has changed
   if (!vars.data || datum != vars.data.raw) {
     
-    if (vars.dev) console.group("%c[d3plus]%c New Data Detected","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.group("New Data Detected")
     
     vars.data = {}
     vars.data.raw = datum
+    vars.color_change = true
     vars.data.filtered = null
 
-    console.time("key analysis")
+    if (vars.dev) d3plus.console.time("key analysis")
     vars.keys = {}
     datum.forEach(function(d){
       for (k in d) {
@@ -22,9 +23,9 @@ d3plus.utils.data = function(vars,datum) {
         }
       }
     })
-    console.timeEnd("key analysis")
+    if (vars.dev) d3plus.console.timeEnd("key analysis")
     
-    if (vars.dev) console.groupEnd();
+    if (vars.dev) d3plus.console.groupEnd();
     
   }
   
@@ -45,11 +46,11 @@ d3plus.utils.data = function(vars,datum) {
   if (!vars.data[vars.data.type]) {
     
     vars.data[vars.data.type] = {}
-    console.group("%c[d3plus]%c Formatting Data","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.group("Formatting Data")
     
     vars.nesting.forEach(function(depth){
       
-      console.time(depth)
+      if (vars.dev) d3plus.console.time(depth)
       
       var level = vars.nesting.slice(0,vars.nesting.indexOf(depth)+1)
       
@@ -85,16 +86,16 @@ d3plus.utils.data = function(vars,datum) {
         
       })
       
-      console.timeEnd(depth)
+      if (vars.dev) d3plus.console.timeEnd(depth)
       
     })
     
-    console.groupEnd()
+    if (vars.dev) d3plus.console.groupEnd()
     
   }
   
   // get correct data for app
-  vars.app_data == null
+  vars.app_data = null
   var dtype = vars.active && vars.spotlight ? "active" : "filtered"
   
   if (vars.year instanceof Array) {
@@ -122,39 +123,38 @@ d3plus.utils.data = function(vars,datum) {
   if (["pie_scatter","stacked"].indexOf(vars.type) >= 0 && vars.app_data) {
     
     if (!vars.xaxis_range || !vars.static_axes) {
-      if (vars.dev) console.log("%c[d3plus]%c Determining X Axis Domain","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.log("Determining X Axis Domain")
       if (vars.xaxis_domain instanceof Array) {
         vars.xaxis_range = vars.xaxis_domain
-        vars.app_data = vars.app_data.filter(function(d){
-          var val = d3plus.utils.variable(vars,d,vars.xaxis)
-          return val >= vars.xaxis_domain[0] && val <= vars.xaxis_domain[1]
-        })
       }
       else if (!vars.static_axes) {
         vars.xaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype][vars.year],function(d){
-          return d3plus.utils.variable(vars,d,vars.xaxis)
+          return parseFloat(d3plus.utils.variable(vars,d,vars.xaxis))
         })
       }
       else {
         vars.xaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype].all,function(d){
-          return d3plus.utils.variable(vars,d,vars.xaxis)
+          return parseFloat(d3plus.utils.variable(vars,d,vars.xaxis))
         })
       }
     }
     
     if (!vars.yaxis_range || !vars.static_axes) {
-      if (vars.dev) console.log("%c[d3plus]%c Determining Y Axis Domain","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.log("Determining Y Axis Domain")
       if (vars.yaxis_domain instanceof Array) {
-        vars.yaxis_range = vars.yaxis_domain
+        vars.app_data = vars.app_data.filter(function(d){
+          var val = parseFloat(d3plus.utils.variable(vars,d,vars.yaxis))
+          return val >= vars.yaxis_domain[0] && val <= vars.yaxis_domain[1]
+        })
       }
       else if (!vars.static_axes) {
         vars.yaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype][vars.year],function(d){
-          return d3plus.utils.variable(vars,d,vars.yaxis)
+          return parseFloat(d3plus.utils.variable(vars,d,vars.yaxis))
         }).reverse()
       }
       else {
         vars.yaxis_range = d3.extent(vars.data[vars.data.type][vars.nesting[vars.depth]][dtype].all,function(d){
-          return d3plus.utils.variable(vars,d,vars.yaxis)
+          return parseFloat(d3plus.utils.variable(vars,d,vars.yaxis))
         }).reverse()
       }
     }
@@ -177,6 +177,13 @@ d3plus.utils.data = function(vars,datum) {
   else {
     vars.xaxis_range = [0,0]
     vars.yaxis_range = [0,0]
+  }
+  
+  if (vars.type == "stacked") {
+    vars.app_data = vars.app_data.filter(function(d){
+      var val = parseFloat(d3plus.utils.variable(vars,d,vars.xaxis))
+      return val >= vars.xaxis_range[0] && val <= vars.xaxis_range[1]
+    })
   }
   
 }
@@ -202,14 +209,14 @@ d3plus.utils.data_filter = function(vars) {
   if (vars.check.indexOf("filter") >= 0 || vars.check.indexOf("solo") >= 0) {
     
     if (vars.nodes) {
-      if (vars.dev) console.log("%c[d3plus]%c Filtering Nodes","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.log("Filtering Nodes")
       vars.nodes_filtered = vars.nodes.filter(function(d){
         return d3plus.utils.deep_filter(vars,d[vars.id])
       })
     }
     
     if (vars.links) {
-      if (vars.dev) console.log("%c[d3plus]%c Filtering Connections","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.log("Filtering Connections")
       vars.links_filtered = vars.links.filter(function(d){
         var first_match = d3plus.utils.deep_filter(vars,d.source),
             second_match = d3plus.utils.deep_filter(vars,d.target)
@@ -236,10 +243,10 @@ d3plus.utils.data_filter = function(vars) {
   })
   
   if (vars.check.length) {
-    if (vars.dev) console.group("%c[d3plus]%c Filtering Data","font-weight:bold","font-weight: normal");
+    if (vars.dev) d3plus.console.group("Filtering Data");
     vars.data.filtered = {}
     var checking = vars.check.join(", ")
-    if (vars.dev) console.time(checking)
+    if (vars.dev) d3plus.console.time(checking)
     vars.data.filtered.all = vars.data.raw.filter(function(d){
       var ret = true
       vars.check.forEach(function(key){
@@ -259,9 +266,9 @@ d3plus.utils.data_filter = function(vars) {
     
     })
 
-    if (vars.dev) console.timeEnd(checking)
+    if (vars.dev) d3plus.console.timeEnd(checking)
     vars.check = []
-    if (vars.dev) console.groupEnd();
+    if (vars.dev) d3plus.console.groupEnd();
   }
   
   if (vars.active && !vars.data.active) {
@@ -281,7 +288,7 @@ d3plus.utils.data_filter = function(vars) {
   
   if (vars.year_var && Object.keys(vars.data.filtered).length == 1) {
     
-    if (vars.dev) console.log("%c[d3plus]%c Aggregating Years","font-weight:bold","font-weight: normal")
+    if (vars.dev) d3plus.console.log("Aggregating Years")
 
     // Find available years
     vars.data.years = d3plus.utils.uniques(vars.data.raw,vars.year_var)

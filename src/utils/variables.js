@@ -74,33 +74,23 @@ d3plus.utils.color = function(vars,id) {
   
   if (!id) {
     
-    if (vars.app_data && vars.color) {
+    if (vars.data.raw && vars.color && vars.color_change) {
 
-      if (vars.dev) console.group("%c[d3plus]%c Calculating Color Range","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.group("Calculating Color Range")
       
       var data_range = []
       vars.color_domain = null
       
-      if (vars.dev) console.time("get data range")
+      if (vars.dev) d3plus.console.time("get data range")
       
-      if (vars.app_data instanceof Array) {
-        vars.app_data.forEach(function(d){
-          data_range.push(d3plus.utils.variable(vars,d,vars.color))
-        })
-      }
-      else {
-        d3.values(vars.app_data).forEach(function(d){
-          data_range.push(d3plus.utils.variable(vars,d,vars.color))
-        })
-      }
-      
-      data_range = data_range.filter(function(d){
-        return d;
+      vars.data.raw.forEach(function(d){
+        var val = parseFloat(d3plus.utils.variable(vars,d,vars.color))
+        if (val) data_range.push(val)
       })
       
-      if (vars.dev) console.timeEnd("get data range")
+      if (vars.dev) d3plus.console.timeEnd("get data range")
       
-      if (vars.dev) console.time("create color scale")
+      if (vars.dev) d3plus.console.time("create color scale")
       
       if (typeof data_range[0] == "number") {
         data_range.sort(function(a,b) {return a-b})
@@ -119,11 +109,13 @@ d3plus.utils.color = function(vars,id) {
           .domain(vars.color_domain)
           .range(new_range)
       
-        if (vars.dev) console.timeEnd("create color scale")
+        if (vars.dev) d3plus.console.timeEnd("create color scale")
         
       }
       
-      if (vars.dev) console.groupEnd();
+      if (vars.dev) d3plus.console.groupEnd();
+      
+      vars.color_change = false
       
     }
   }

@@ -13,6 +13,7 @@ d3plus.viz = function() {
     "background": "#ffffff",
     "check": [],
     "check_vars": ["value","xaxis","yaxis","year_var","active","unique_axis"],
+    "color_change": false,
     "color_domain": [],
     "color_range": ["#ff0000","#888888","#00ff00"],
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
@@ -221,9 +222,9 @@ d3plus.viz = function() {
       }
       
       // Finally, call the specific App to draw
-      if (vars.dev) console.group("%c[d3plus]%c Drawing \"" + vars.type + "\"","font-weight:bold","font-weight: normal")
+      if (vars.dev) d3plus.console.group("Drawing \"" + vars.type + "\"")
       d3plus.apps[vars.type](vars)
-      if (vars.dev) console.groupEnd();
+      if (vars.dev) d3plus.console.groupEnd();
       
       d3plus.utils.error(vars)
       
@@ -235,6 +236,13 @@ d3plus.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Expose Public Variables
   //-------------------------------------------------------------------
+  
+  chart.color = function(x) {
+    if (!arguments.length) return vars.color;
+    vars.color = x;
+    vars.color_change = true;
+    return chart;
+  };
   
   chart.csv = function(x) {
     
@@ -473,9 +481,39 @@ d3plus.viz = function() {
     return chart;
   };
   
+  chart.xaxis_domain = function(x) {
+    if (!arguments.length) return vars.xaxis_domain;
+    if (!x || Object.keys(x).length == 0) {
+      x = null
+      if (x != vars.xaxis_domain) vars.xaxis_range = null;
+      vars.xaxis_domain = null;
+    }
+    else if (x instanceof Array && x.length == 2) {
+      change = vars.xaxis_range && !(x[0] == vars.xaxis_range[0] && x[1] == vars.xaxis_range[1])
+      if (change) vars.xaxis_range = null;
+      vars.xaxis_domain = x;
+    }
+    else {
+      d3plus.console.warning(".xaxis_domain() only accepts a min/max array")
+    }
+    return chart;
+  };
+  
   chart.yaxis_domain = function(x) {
-    if (!arguments.length) return vars.yaxis_range;
-    vars.yaxis_range = x.reverse();
+    if (!arguments.length) return vars.yaxis_domain;
+    if (!x || Object.keys(x).length == 0) {
+      x = null
+      if (x != vars.yaxis_domain) vars.yaxis_range = null;
+      vars.yaxis_domain = null;
+    }
+    else if (x instanceof Array && x.length == 2) {
+      change = vars.yaxis_range && !(x[1] == vars.yaxis_range[0] && x[0] == vars.yaxis_range[1])
+      if (change) vars.yaxis_range = null;
+      vars.yaxis_domain = x.reverse();
+    }
+    else {
+      d3plus.console.warning(".yaxis_domain() only accepts a min/max array")
+    }
     return chart;
   };
   
@@ -520,7 +558,6 @@ d3plus.viz = function() {
     "unique_axis",
     "value",
     "xaxis",
-    "xaxis_domain",
     "xaxis_val",
     "xaxis_scale",
     "yaxis",
@@ -559,7 +596,7 @@ d3plus.viz = function() {
   for (d in deprecated) {
     chart[d] = (function(dep) {
       return function(x) {
-        console.log("%c[d3plus]%c WARNING: \""+dep+"\" has been deprecated, please use \""+deprecated[dep]+"\"","font-weight:bold","color:red;font-weight:bold")
+        d3plus.console.warning("\""+dep+"\" has been deprecated, please use \""+deprecated[dep]+"\"")
         chart[deprecated[dep]](x)
         return chart;
       }

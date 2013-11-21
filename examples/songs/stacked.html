@@ -39,7 +39,9 @@ var viz = d3plus.viz()
 d3.json("data/artists_indented.json", function(artists){
   d3.json("data/albums_indented.json", function(albums){
     d3.json("data/songs_indented.json", function(songs){
-    
+      
+      songs = songs.filter(function(d){return d.year && d.year >= 1990 && ["ARJ7KF01187B98D717","AR6XPWV1187B9ADAEB"].indexOf(d["artist_id"]) >= 0})
+      // console.log(songs.length)
       var attrs = {"artist_id": artists, "album_id": albums, "song_id": songs}
   
       viz
@@ -48,9 +50,9 @@ d3.json("data/artists_indented.json", function(artists){
         .dev(true)
         .yaxis("duration")
         .xaxis("year")
-        .xaxis_domain([1994,2008])
+        // .xaxis_domain([1994,2008])
         .id(["artist_id","album_id","song_id"])
-        .solo(["ARJ7KF01187B98D717","AR6XPWV1187B9ADAEB"])
+        // .solo(["ARJ7KF01187B98D717","AR6XPWV1187B9ADAEB"])
         .text({"artist_id":"names","album_id":"name","song_id":["song_title","song_id","loudness"]})
         .tooltip({"artist_id":["names"],"album_id":["name"],"song_id":["song_title"]})
         .depth(0)
