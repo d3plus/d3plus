@@ -237,6 +237,20 @@ d3plus.viz = function() {
   // Expose Public Variables
   //-------------------------------------------------------------------
   
+  chart.aggs = function(x) {
+    if (!arguments.length) return vars.aggs;
+    if (!x) vars.aggs = {}
+    else {
+      for (a in x) {
+        if (!vars.aggs[a] || vars.aggs[a] != x[a]) {
+          vars.aggs[a] = x[a]
+          if (a == vars.value) vars.check.push(a)
+        }
+      }
+    }
+    return chart;
+  };
+  
   chart.color = function(x) {
     if (!arguments.length) return vars.color;
     vars.color = x;
@@ -519,7 +533,6 @@ d3plus.viz = function() {
   
   var simple_vars = [
     "active",
-    "aggs",
     "attrs",
     "background",
     "click_function",
