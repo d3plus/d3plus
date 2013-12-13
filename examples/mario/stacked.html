@@ -56,15 +56,17 @@ d3.json("/examples/mario/data/despesatipo.json", function(despesatipo){
           .type("stacked")
           .id("categoria")
           .attrs(attrsNovo) 
-          .text("categoria") //nome_despesatipo
+          .text("nome_despesatipo") //nome_despesatipo
           .value("valor")
           //.tooltip_info([ "nome_despesatipo", "valor", "rodada"])
+          .yaxis("valor")
           .xaxis("rodada")//nome_rodada
-          //.year_var("rodada")
+           .unique_axis("x")
          //.color_var("cor_despesatipo")
           //.stack_type("monotone")
           // .click_function(inner_html)
-          .layout("share")
+         // .layout("share")
+        .dev(true)
         
         d3.select("#viz")
           .datum(data.despesas)
