@@ -18,12 +18,10 @@ body {
 <div id="viz"></div>
 
 <script src="../../lib/d3.js"></script>
+
 <script src="../../lib/modernizr.custom.js"></script>
-<script src="../../src/general.js"></script>
-<script src="../../src/utils/utils.js"></script>
-<script src="../../src/utils/tooltip.js"></script>
-<script src="../../src/utils/error.js"></script>
-<script src="../../src/viz.js"></script>
+<script src="../../lib/topojson.js"></script>
+<script src="../../d3plus.js"></script>
 <script src="../../src/apps/stacked.js"></script>
 <script src="/examples/mario/util.js"></script>
 <script>
@@ -66,7 +64,7 @@ d3.json("/examples/mario/data/despesatipo.json", function(despesatipo){
          //.color_var("cor_despesatipo")
           //.stack_type("monotone")
           // .click_function(inner_html)
-          //.layout("share")
+          .layout("share")
         
         d3.select("#viz")
           .datum(data.despesas)
