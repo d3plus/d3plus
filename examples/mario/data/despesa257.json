@@ -1,0 +1,193 @@
+{
+  "despesas": [
+    {
+      "candidatura": 257, 
+      "categoria": 5, 
+      "idcategoria": "e4da3b7fbbce2345d7772b0674a318d5", 
+      "rodada": 4, 
+      "valor": 3908.62
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 5, 
+      "idcategoria": "e4da3b7fbbce2345d7772b0674a318d5", 
+      "rodada": 11, 
+      "valor": 4153.2
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 5, 
+      "idcategoria": "e4da3b7fbbce2345d7772b0674a318d5", 
+      "rodada": 231, 
+      "valor": 3892.78
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 10, 
+      "idcategoria": "d3d9446802a44259755d38e6d163e820", 
+      "rodada": 16, 
+      "valor": 930.0
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 4, 
+      "idcategoria": "a87ff679a2f3e71d9181a67b7542122c", 
+      "rodada": 4, 
+      "valor": 1441.0
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 4, 
+      "idcategoria": "a87ff679a2f3e71d9181a67b7542122c", 
+      "rodada": 11, 
+      "valor": 7592.0
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 4, 
+      "idcategoria": "a87ff679a2f3e71d9181a67b7542122c", 
+      "rodada": 231, 
+      "valor": 1116.0
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 7, 
+      "idcategoria": "8f14e45fceea167a5a36dedd4bea2543", 
+      "rodada": 231, 
+      "valor": 711.47
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 7, 
+      "idcategoria": "8f14e45fceea167a5a36dedd4bea2543", 
+      "rodada": 4, 
+      "valor": 1030.06
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 9, 
+      "idcategoria": "45c48cce2e2d7fbdea1afc51c7c6ad26", 
+      "rodada": 11, 
+      "valor": 456.55
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 9, 
+      "idcategoria": "45c48cce2e2d7fbdea1afc51c7c6ad26", 
+      "rodada": 231, 
+      "valor": 793.0
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 9, 
+      "idcategoria": "45c48cce2e2d7fbdea1afc51c7c6ad26", 
+      "rodada": 4, 
+      "valor": 691.42
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 10, 
+      "idcategoria": "d3d9446802a44259755d38e6d163e820", 
+      "rodada": 231, 
+      "valor": 8711.0
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 10, 
+      "idcategoria": "d3d9446802a44259755d38e6d163e820", 
+      "rodada": 11, 
+      "valor": 1041.0
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 10, 
+      "idcategoria": "d3d9446802a44259755d38e6d163e820", 
+      "rodada": 4, 
+      "valor": 15115.65
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 11, 
+      "idcategoria": "6512bd43d9caa6e02c990b0a82652dca", 
+      "rodada": 231, 
+      "valor": 6711.31
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 11, 
+      "idcategoria": "6512bd43d9caa6e02c990b0a82652dca", 
+      "rodada": 4, 
+      "valor": 6112.77
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 11, 
+      "idcategoria": "6512bd43d9caa6e02c990b0a82652dca", 
+      "rodada": 11, 
+      "valor": 2167.1
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 11, 
+      "idcategoria": "6512bd43d9caa6e02c990b0a82652dca", 
+      "rodada": 16, 
+      "valor": 376.0
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 14, 
+      "idcategoria": "aab3238922bcc25a6f606eb525ffdc56", 
+      "rodada": 231, 
+      "valor": 643.6
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 14, 
+      "idcategoria": "aab3238922bcc25a6f606eb525ffdc56", 
+      "rodada": 4, 
+      "valor": 634.73
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 14, 
+      "idcategoria": "aab3238922bcc25a6f606eb525ffdc56", 
+      "rodada": 11, 
+      "valor": 634.21
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 14, 
+      "idcategoria": "aab3238922bcc25a6f606eb525ffdc56", 
+      "rodada": 16, 
+      "valor": 562.02
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 15, 
+      "idcategoria": "9bf31c7ff062936a96d3c8bd1f8f2ff3", 
+      "rodada": 4, 
+      "valor": 2841.66
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 15, 
+      "idcategoria": "9bf31c7ff062936a96d3c8bd1f8f2ff3", 
+      "rodada": 11, 
+      "valor": 676.57
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 15, 
+      "idcategoria": "9bf31c7ff062936a96d3c8bd1f8f2ff3", 
+      "rodada": 231, 
+      "valor": 1758.83
+    }, 
+    {
+      "candidatura": 257, 
+      "categoria": 15, 
+      "idcategoria": "9bf31c7ff062936a96d3c8bd1f8f2ff3", 
+      "rodada": 16, 
+      "valor": 158.41
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "despesatipo": [
+    {
+      "cor_despesatipo": "#55c768", 
+      "id_despesatipo": 1, 
+      "nome_despesatipo": "ASSINATURA DE PUBLICACOES"
+    }, 
+    {
+      "cor_despesatipo": "#DBDB8D", 
+      "id_despesatipo": 2, 
+      "nome_despesatipo": "COMBUST\u00d6VEIS E LUBRIFICANTES."
+    }, 
+    {
+      "cor_despesatipo": "#acdb0a", 
+      "id_despesatipo": 3, 
+      "nome_despesatipo": "CONSULTORIAS, PESQUISAS E TRABALHOS T\u0090CNICOS."
+    }, 
+    {
+      "cor_despesatipo": "#389731", 
+      "id_despesatipo": 4, 
+      "nome_despesatipo": "DIVULGACAO DA ATIVIDADE PARLAMENTAR"
+    }, 
+    {
+      "cor_despesatipo": "#ff0606", 
+      "id_despesatipo": 5, 
+      "nome_despesatipo": "COMBUSTIVEIS E LUBRIFICANTES"
+    }, 
+    {
+      "cor_despesatipo": "#ae0606", 
+      "id_despesatipo": 6, 
+      "nome_despesatipo": "CONSULTORIAS"
+    }, 
+    {
+      "cor_despesatipo": "#318c97", 
+      "id_despesatipo": 7, 
+      "nome_despesatipo": "EMISSAO BILHETE AEREO"
+    }, 
+    {
+      "cor_despesatipo": "#6d6161", 
+      "id_despesatipo": 8, 
+      "nome_despesatipo": "FORNECIMENTO DE ALIMENTACAO DO PARLAMENTAR"
+    }, 
+    {
+      "cor_despesatipo": "#fb51f1", 
+      "id_despesatipo": 9, 
+      "nome_despesatipo": "HOSPEDAGEM ,EXCETO DO PARLAMENTAR NO DISTRITO FEDERAL."
+    }, 
+    {
+      "cor_despesatipo": "#de0505", 
+      "id_despesatipo": 10, 
+      "nome_despesatipo": "LOCACAO DE VEICULOS AUTOMOTORES OU FRETAMENTO"
+    }, 
+    {
+      "cor_despesatipo": "#5282fb", 
+      "id_despesatipo": 11, 
+      "nome_despesatipo": "MANUTENCAO DE ESCRITORIO DE APOIO A ATIVIDADE"
+    }, 
+    {
+      "cor_despesatipo": "#dbca0a", 
+      "id_despesatipo": 12, 
+      "nome_despesatipo": "PASSAGENS AEREAS E FRETAMENTO DE AERONAVES"
+    }, 
+    {
+      "cor_despesatipo": "#76e44b", 
+      "id_despesatipo": 13, 
+      "nome_despesatipo": "SERVICO DE SEGURANCA PRESTADO POR EMPRESA ESPECIALIZADA"
+    }, 
+    {
+      "cor_despesatipo": "#97313d", 
+      "id_despesatipo": 14, 
+      "nome_despesatipo": "SERVICOS POSTAIS"
+    }, 
+    {
+      "cor_despesatipo": "#546b05", 
+      "id_despesatipo": 15, 
+      "nome_despesatipo": "TELEFONIA"
+    }
+  ]
+}
