@@ -1,139 +1,200 @@
 {
   "partidos": [
     {
+      "color": "#DBDB8D", 
       "id": 1, 
-      "name_en": "PARTIDO TRABALHISTA DO BRASIL", 
-      "name_pt": "PARTIDO TRABALHISTA DO BRASIL"
+      "name_en": "SDD", 
+      "name_pt": "SDD", 
+      "sigla": "PSD"
     }, 
     {
-      "id": 2, 
-      "name_en": "PARTIDO SOCIALISMO E LIBERDADE", 
-      "name_pt": "PARTIDO SOCIALISMO E LIBERDADE"
-    }, 
-    {
-      "id": 3, 
-      "name_en": "PARTIDO SOCIALISTA BRASILEIRO", 
-      "name_pt": "PARTIDO SOCIALISTA BRASILEIRO"
-    }, 
-    {
-      "id": 4, 
-      "name_en": "PARTIDO TRABALHISTA NACIONAL", 
-      "name_pt": "PARTIDO TRABALHISTA NACIONAL"
-    }, 
-    {
-      "id": 5, 
-      "name_en": "PARTIDO HUMANISTA DA SOLIDARIEDADE", 
-      "name_pt": "PARTIDO HUMANISTA DA SOLIDARIEDADE"
-    }, 
-    {
-      "id": 6, 
-      "name_en": "PARTIDO DA MOBILIZA\u00c3\u2021\u00c3\u0192O NACIONAL", 
-      "name_pt": "PARTIDO DA MOBILIZA\u00c3\u2021\u00c3\u0192O NACIONAL"
-    }, 
-    {
-      "id": 7, 
-      "name_en": "PARTIDO POPULAR SOCIALISTA", 
-      "name_pt": "PARTIDO POPULAR SOCIALISTA"
-    }, 
-    {
-      "id": 8, 
-      "name_en": "PARTIDO VERDE", 
-      "name_pt": "PARTIDO VERDE"
-    }, 
-    {
-      "id": 9, 
-      "name_en": "PARTIDO PROGRESSISTA", 
-      "name_pt": "PARTIDO PROGRESSISTA"
-    }, 
-    {
+      "color": "#55c768", 
       "id": 10, 
-      "name_en": "PARTIDO DEMOCR\u00c3\u0081TICO TRABALHISTA", 
-      "name_pt": "PARTIDO DEMOCR\u00c3\u0081TICO TRABALHISTA"
-    }, 
-    {
-      "id": 11, 
-      "name_en": "PARTIDO COMUNISTA BRASILEIRO", 
-      "name_pt": "PARTIDO COMUNISTA BRASILEIRO"
-    }, 
-    {
-      "id": 12, 
-      "name_en": "PARTIDO COMUNISTA DO BRASIL", 
-      "name_pt": "PARTIDO COMUNISTA DO BRASIL"
-    }, 
-    {
-      "id": 13, 
       "name_en": "PARTIDO REPUBLICANO BRASILEIRO", 
-      "name_pt": "PARTIDO REPUBLICANO BRASILEIRO"
+      "name_pt": "PARTIDO REPUBLICANO BRASILEIRO", 
+      "sigla": "PRB"
     }, 
     {
-      "id": 14, 
+      "color": "#f6660e", 
+      "id": 11, 
+      "name_en": "PARTIDO PROGRESSISTA", 
+      "name_pt": "PARTIDO PROGRESSISTA", 
+      "sigla": "PP"
+    }, 
+    {
+      "color": "#acdb0a", 
+      "id": 12, 
+      "name_en": "PARTIDO DEMOCR\u00c1TICO TRABALHISTA", 
+      "name_pt": "PARTIDO DEMOCR\u00c1TICO TRABALHISTA", 
+      "sigla": "PDT"
+    }, 
+    {
+      "color": "#ff0606", 
+      "id": 13, 
       "name_en": "PARTIDO DOS TRABALHADORES", 
-      "name_pt": "PARTIDO DOS TRABALHADORES"
+      "name_pt": "PARTIDO DOS TRABALHADORES", 
+      "sigla": "PT"
     }, 
     {
+      "color": "#389731", 
+      "id": 14, 
+      "name_en": "PARTIDO TRABALHISTA BRASILEIRO", 
+      "name_pt": "PARTIDO TRABALHISTA BRASILEIRO", 
+      "sigla": "PTB"
+    }, 
+    {
+      "color": "#318c97", 
       "id": 15, 
-      "name_en": "PARTIDO REPUBLICANO PROGRESSISTA", 
-      "name_pt": "PARTIDO REPUBLICANO PROGRESSISTA"
+      "name_en": "PARTIDO DO MOVIMENTO DEMOCR\u00c1TICO BRASILEIRO", 
+      "name_pt": "PARTIDO DO MOVIMENTO DEMOCR\u00c1TICO BRASILEIRO", 
+      "sigla": "PMDB"
     }, 
     {
+      "color": "#ae0606", 
       "id": 16, 
-      "name_en": "PARTIDO DA REP\u00c3\u0161BLICA", 
-      "name_pt": "PARTIDO DA REP\u00c3\u0161BLICA"
-    }, 
-    {
-      "id": 17, 
-      "name_en": "PARTIDO DA SOCIAL DEMOCRACIA BRASILEIRA", 
-      "name_pt": "PARTIDO DA SOCIAL DEMOCRACIA BRASILEIRA"
-    }, 
-    {
-      "id": 18, 
       "name_en": "PARTIDO SOCIALISTA DOS TRABALHADORES UNIFICADO", 
-      "name_pt": "PARTIDO SOCIALISTA DOS TRABALHADORES UNIFICADO"
+      "name_pt": "PARTIDO SOCIALISTA DOS TRABALHADORES UNIFICADO", 
+      "sigla": "PSTU"
     }, 
     {
-      "id": 19, 
-      "name_en": "PARTIDO SOCIAL CRIST\u00c3\u0192O", 
-      "name_pt": "PARTIDO SOCIAL CRIST\u00c3\u0192O"
-    }, 
-    {
-      "id": 20, 
+      "color": "#76e44b", 
+      "id": 17, 
       "name_en": "PARTIDO SOCIAL LIBERAL", 
-      "name_pt": "PARTIDO SOCIAL LIBERAL"
+      "name_pt": "PARTIDO SOCIAL LIBERAL", 
+      "sigla": "PSL"
     }, 
     {
+      "color": "#6d6161", 
+      "id": 19, 
+      "name_en": "PARTIDO TRABALHISTA NACIONAL", 
+      "name_pt": "PARTIDO TRABALHISTA NACIONAL", 
+      "sigla": "PTN"
+    }, 
+    {
+      "color": "#fb51f1", 
+      "id": 20, 
+      "name_en": "PARTIDO SOCIAL CRIST\u00c3O", 
+      "name_pt": "PARTIDO SOCIAL CRIST\u00c3O", 
+      "sigla": "PSC"
+    }, 
+    {
+      "color": "#de0505", 
       "id": 21, 
-      "name_en": "PARTIDO DO MOVIMENTO DEMOCR\u00c3\u0081TICO BRASILEIRO", 
-      "name_pt": "PARTIDO DO MOVIMENTO DEMOCR\u00c3\u0081TICO BRASILEIRO"
+      "name_en": "PARTIDO COMUNISTA BRASILEIRO", 
+      "name_pt": "PARTIDO COMUNISTA BRASILEIRO", 
+      "sigla": "PCB"
     }, 
     {
+      "color": "#546b05", 
       "id": 22, 
-      "name_en": "PARTIDO TRABALHISTA CRIST\u00c3\u0192O", 
-      "name_pt": "PARTIDO TRABALHISTA CRIST\u00c3\u0192O"
+      "name_en": "PARTIDO DA REP\u00daBLICA", 
+      "name_pt": "PARTIDO DA REP\u00daBLICA", 
+      "sigla": "PR"
     }, 
     {
+      "color": "#97313d", 
       "id": 23, 
-      "name_en": "PARTIDO RENOVADOR TRABALHISTA BRASILEIRO", 
-      "name_pt": "PARTIDO RENOVADOR TRABALHISTA BRASILEIRO"
+      "name_en": "PARTIDO POPULAR SOCIALISTA", 
+      "name_pt": "PARTIDO POPULAR SOCIALISTA", 
+      "sigla": "PPS"
     }, 
     {
-      "id": 24, 
-      "name_en": "PARTIDO DA CAUSA OPER\u00c3\u0081RIA", 
-      "name_pt": "PARTIDO DA CAUSA OPER\u00c3\u0081RIA"
-    }, 
-    {
+      "color": "#978c31", 
       "id": 25, 
       "name_en": "DEMOCRATAS", 
-      "name_pt": "DEMOCRATAS"
+      "name_pt": "DEMOCRATAS", 
+      "sigla": "DEM"
     }, 
     {
-      "id": 26, 
-      "name_en": "PARTIDO SOCIAL DEMOCRATA CRIST\u00c3\u0192O", 
-      "name_pt": "PARTIDO SOCIAL DEMOCRATA CRIST\u00c3\u0192O"
-    }, 
-    {
+      "color": "#fbf665", 
       "id": 27, 
-      "name_en": "PARTIDO TRABALHISTA BRASILEIRO", 
-      "name_pt": "PARTIDO TRABALHISTA BRASILEIRO"
+      "name_en": "PARTIDO SOCIAL DEMOCRATA CRIST\u00c3O", 
+      "name_pt": "PARTIDO SOCIAL DEMOCRATA CRIST\u00c3O", 
+      "sigla": "PSDC"
+    }, 
+    {
+      "color": "#1c6d06", 
+      "id": 28, 
+      "name_en": "PARTIDO RENOVADOR TRABALHISTA BRASILEIRO", 
+      "name_pt": "PARTIDO RENOVADOR TRABALHISTA BRASILEIRO", 
+      "sigla": "PRTB"
+    }, 
+    {
+      "color": "#4c0b11", 
+      "id": 29, 
+      "name_en": "PARTIDO DA CAUSA OPER\u00c1RIA", 
+      "name_pt": "PARTIDO DA CAUSA OPER\u00c1RIA", 
+      "sigla": "PCO"
+    }, 
+    {
+      "color": "#7dc7c7", 
+      "id": 31, 
+      "name_en": "PARTIDO HUMANISTA DA SOLIDARIEDADE", 
+      "name_pt": "PARTIDO HUMANISTA DA SOLIDARIEDADE", 
+      "sigla": "PHS"
+    }, 
+    {
+      "color": "#f6a778", 
+      "id": 33, 
+      "name_en": "PARTIDO DA MOBILIZA\u00c7\u00c3O NACIONAL", 
+      "name_pt": "PARTIDO DA MOBILIZA\u00c7\u00c3O NACIONAL", 
+      "sigla": "PMN"
+    }, 
+    {
+      "color": "#fbf202", 
+      "id": 36, 
+      "name_en": "PARTIDO TRABALHISTA CRIST\u00c3O", 
+      "name_pt": "PARTIDO TRABALHISTA CRIST\u00c3O", 
+      "sigla": "PTC"
+    }, 
+    {
+      "color": "#4646e4", 
+      "id": 40, 
+      "name_en": "PARTIDO SOCIALISTA BRASILEIRO", 
+      "name_pt": "PARTIDO SOCIALISTA BRASILEIRO", 
+      "sigla": "PSB"
+    }, 
+    {
+      "color": "#00c721", 
+      "id": 43, 
+      "name_en": "PARTIDO VERDE", 
+      "name_pt": "PARTIDO VERDE", 
+      "sigla": "PV"
+    }, 
+    {
+      "color": "#5579bc", 
+      "id": 44, 
+      "name_en": "PARTIDO REPUBLICANO PROGRESSISTA", 
+      "name_pt": "PARTIDO REPUBLICANO PROGRESSISTA", 
+      "sigla": "PRP"
+    }, 
+    {
+      "color": "#0c0ce4", 
+      "id": 45, 
+      "name_en": "PARTIDO DA SOCIAL DEMOCRACIA BRASILEIRA", 
+      "name_pt": "PARTIDO DA SOCIAL DEMOCRACIA BRASILEIRA", 
+      "sigla": "PSDB"
+    }, 
+    {
+      "color": "#5282fb", 
+      "id": 50, 
+      "name_en": "PARTIDO SOCIALISMO E LIBERDADE", 
+      "name_pt": "PARTIDO SOCIALISMO E LIBERDADE", 
+      "sigla": "PSOL"
+    }, 
+    {
+      "color": "#6b0505", 
+      "id": 65, 
+      "name_en": "PARTIDO COMUNISTA DO BRASIL", 
+      "name_pt": "PARTIDO COMUNISTA DO BRASIL", 
+      "sigla": "PC do B"
+    }, 
+    {
+      "color": "#dbca0a", 
+      "id": 70, 
+      "name_en": "PARTIDO TRABALHISTA DO BRASIL", 
+      "name_pt": "PARTIDO TRABALHISTA DO BRASIL", 
+      "sigla": "PT do B"
     }
   ]
 }
