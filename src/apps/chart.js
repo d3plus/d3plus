@@ -1,0 +1,1043 @@
+d3plus.apps.chart = {}
+d3plus.apps.chart.data = "grouped";
+d3plus.apps.chart.fill = true;
+d3plus.apps.chart.deprecates = ["pie_scatter","scatter"];
+d3plus.apps.chart.requirements = ["x","y"];
+d3plus.apps.chart.tooltip = "static";
+d3plus.apps.chart.shapes = ["circle","donut","line","square","area"];
+d3plus.apps.chart.scale = {
+    "circle": 1.1,
+    "donut": 1.1,
+    "square": 1.1
+  };
+
+d3plus.apps.chart.draw = function(vars) {
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // If there is data, run the needed calculations
+  //-------------------------------------------------------------------
+  if (vars.app_data.length) {
+    
+    if (!vars.tickValues) vars.tickValues = {}
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Determine X and Y axis
+    //-------------------------------------------------------------------
+    vars.continuous_axis = null
+    vars.opp_axis = null
+    vars.stacked_axis = null
+    
+    vars.axes.values.forEach(function(axis){
+      
+      if (vars[axis].stacked.default) {
+        vars.stacked_axis = axis
+      }
+      if (!vars.continuous_axis && vars[axis].scale.default == "continuous") {
+        vars.continuous_axis = axis
+        vars.opp_axis = axis == "x" ? "y" : "x"
+      }
+      
+      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || !vars.axes.static.default) {
+
+        if (vars.dev.default) d3plus.console.time("determining "+axis+"-axis")
+        if (vars[axis].scale.default == "share") {
+          vars[axis+"_range"] = [0,1]
+          vars.tickValues[axis] = d3plus.utils.buckets([0,1],11)
+          vars.stacked_axis = axis
+        }
+        else if (vars[axis].stacked.default) {
+          if (!vars.axes.static.default) {
+            var range_data = vars.app_data
+          }
+          else {
+            var range_data = vars.data.restricted.all
+          }
+          var xaxis_sums = d3.nest()
+            .key(function(d){return d[vars.x.key] })
+            .rollup(function(leaves){
+              return d3.sum(leaves, function(d){
+                return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
+              })
+            })
+            .entries(range_data)
+            
+          vars[axis+"_range"] = [0,d3.max(xaxis_sums, function(d){ return d.values; })]
+        }
+        else if (vars[axis].domain instanceof Array) {
+          vars[axis+"_range"] = vars[axis].domain
+          vars.tickValues[axis] = d3plus.utils.uniques(vars.app_data,vars[axis].key)
+          vars.tickValues[axis] = vars.tickValues[axis].filter(function(t){
+            return t >= vars[axis+"_range"][0] && t <= vars[axis+"_range"][1]
+          })
+        }
+        else if (!vars.axes.static.default) {
+          vars[axis+"_range"] = d3.extent(vars.app_data,function(d){
+            return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
+          })
+          vars.tickValues[axis] = d3plus.utils.uniques(vars.app_data,vars[axis].key)
+        }
+        else {
+          var all_depths = []
+          for (id in vars.id.nesting) {
+            all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
+          }
+          vars[axis+"_range"] = d3.extent(all_depths,function(d){
+            return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
+          })
+          vars.tickValues[axis] = d3plus.utils.uniques(vars.data.restricted.all,vars[axis].key)
+        }
+
+        // add padding to axis if there is only 1 value
+        if (vars[axis+"_range"][0] == vars[axis+"_range"][1]) {
+          vars[axis+"_range"][0] -= 1
+          vars[axis+"_range"][1] += 1
+        }
+        
+        // reverse Y axis
+        if (axis == "y") vars.y_range = vars.y_range.reverse()
+      
+        if (vars.dev.default) d3plus.console.timeEnd("determining "+axis+"-axis")
+      }
+      else if (!vars[axis+"_range"]) {
+        vars[axis+"_range"] = [-1,1]
+      }
+    
+    })
+    
+    //===================================================================
+  
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Mirror axes, if applicable
+    //-------------------------------------------------------------------
+    if (vars.axes.mirror.default) {
+      var domains = vars.y_range.concat(vars.x_range)
+      vars.x_range = d3.extent(domains)
+      vars.y_range = d3.extent(domains).reverse()
+    }
+    
+    //===================================================================
+  
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Filter data to only include values within the axes
+    //-------------------------------------------------------------------
+    if (vars.dev.default) d3plus.console.time("removing data outside of axes")
+    var old_length = vars.app_data.length
+    var data = vars.app_data.filter(function(d){
+      var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
+      var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
+      if (y_include) {
+        var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
+        return val != null && val >= vars.x_range[0] && val <= vars.x_range[1]
+      }
+      else return false
+    })
+    if (vars.dev.default) d3plus.console.timeEnd("removing data outside of axes")
+    var removed = old_length - data.length
+    if (removed && vars.dev.default) d3plus.console.log("removed "+removed+" nodes")
+    
+    //===================================================================
+  
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Determine size of nodes
+    //-------------------------------------------------------------------
+  
+    if (data) {
+
+      if (vars.dev.default) d3plus.console.time("determining size scale")
+      if (vars.size.key) {
+        if (!vars.axes.static.default) {
+          var size_domain = d3.extent(vars.app_data,function(d){
+            var val = d3plus.variable.value(vars,d,vars.size.key)
+            return val == 0 ? null : val
+          })
+        }
+        else {
+          var all_depths = []
+          for (id in vars.id.nesting) {
+            all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
+          }
+          var size_domain = d3.extent(all_depths,function(d){
+            var val = d3plus.variable.value(vars,d,vars.size.key)
+            return val == 0 ? null : val
+          })
+        }
+        if (!size_domain[0] || !size_domain[1]) size_domain = [0,0]
+      }
+      else {
+        var size_domain = [0,0]
+      }
+  
+      var max_size = Math.floor(d3.max([d3.min([vars.graph.width,vars.graph.height])/15,10])),
+          min_size = 10
+      
+      if (size_domain[0] == size_domain[1]) var min_size = max_size
+  
+      var size_range = [min_size,max_size]
+    
+      var radius = d3.scale[vars.size.scale.default]()
+        .domain(size_domain)
+        .range(size_range)
+      
+      if (vars.dev.default) d3plus.console.timeEnd("determining size scale")
+      
+    }
+    
+    //===================================================================
+  
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Create axis scales and add buffer if necessary
+    //-------------------------------------------------------------------
+    
+    vars.axes.values.forEach(function(axis){
+
+      // Create Axes
+      var range_max = axis == "x" ? vars.graph.width : vars.graph.height
+      
+      if (["continuous","share"].indexOf(vars[axis].scale.default) >= 0) {
+        var s = "linear"
+      }
+      else {
+        var s = vars[axis].scale.default
+      }
+      
+      vars[axis+"_scale"] = d3.scale[s]()
+        .domain(vars[axis+"_range"])
+        .range([0,range_max])
+        
+      // set buffer room (take into account largest size var)
+      var continuous_buffer = ["continuous","share"].indexOf(vars[axis].scale.default) >= 0
+      if (["square","circle","donut"].indexOf(vars.shape.default) >= 0 && !continuous_buffer) {
+
+        if (vars[axis].scale.default != "log") {
+    
+          var scale = vars[axis+"_scale"]
+          var inverse_scale = d3.scale[s]()
+            .domain(scale.range())
+            .range(scale.domain())
+      
+          var largest_size = radius.range()[1]*2
+
+          // convert largest size to x scale domain
+          largest_size = inverse_scale(largest_size)
+        
+          // get radius of largest in pixels by subtracting this value from the x scale minimum
+          var buffer = largest_size - scale.domain()[0];
+          buffer = vars.stacked_axis ? 0 : buffer
+          // update x scale with new buffer offsets
+          vars[axis+"_scale"]
+            .domain([scale.domain()[0]-buffer,scale.domain()[1]+buffer])
+          
+        }
+        
+      }
+    
+      var orient = axis == "x" ? "bottom" : "left"
+      
+      vars[axis+"_axis"] = d3.svg.axis()
+        .tickSize(10)
+        .tickPadding(5)
+        .orient(orient)
+        .scale(vars[axis+"_scale"])
+        .tickFormat(function(d, i) {
+          
+          if ((vars[axis].scale.default == "log" && d.toString().charAt(0) == "1")
+              || vars[axis].scale.default != "log") {
+            
+            if (vars[axis].scale.default == "share") {
+              var text = d*100+"%"
+            }
+            else {
+              var text = vars.format(d,vars[axis].key);
+            }
+                  
+            d3.select(this)
+              .style("font-size",vars.style.ticks.font.size)
+              .style("fill",vars.style.ticks.font.color)
+              .attr("font-family",vars.style.font.family)
+              .attr("font-weight",vars.style.font.weight)
+              .text(text)
+            
+            if (axis == "x") {
+              d3.select(this).attr("transform","translate(-17,6)rotate(-65)");
+              var height = (Math.cos(25)*this.getBBox().width);
+              if (height > vars.graph.yoffset && !vars.small) {
+                vars.graph.yoffset = height;
+              }
+            }
+            else {
+              var width = this.getBBox().width;
+              if (width > vars.graph.offset && !vars.small) {
+                vars.graph.offset = width;
+              }
+            }
+          
+          }
+          else {
+            var text = null
+          }
+      
+          return text;
+      
+        });
+        
+      if (vars[axis].scale.default == "continuous" && vars.tickValues[axis]) {
+        vars[axis+"_axis"].tickValues(vars.tickValues[axis])
+      }
+    
+    })
+    
+  }
+  
+  if (!data) {
+    var data = []
+  }
+  
+  // Function for Tick Styling
+  function tick_style(t,axis) {
+    t
+      .attr("stroke",vars.style.ticks.color)
+      .attr("stroke-width",vars.style.ticks.width)
+      .attr("shape-rendering",vars.style.rendering)
+      .style("opacity",function(d){
+        var lighter = vars[axis].scale.default == "log" && d.toString().charAt(0) != "1"
+        return lighter ? 0.25 : 1
+      })
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Enter SVG Elements
+  //-------------------------------------------------------------------
+    
+  // Enter Background Plane
+  var plane = vars.group.selectAll("g#plane").data(["plane"])
+  plane.enter().append("g")
+    .attr("id","plane")
+    .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
+    
+  // Enter Background Rectangle
+  var bg = plane.selectAll("rect#background").data(["background"])
+  bg.enter().append("rect")
+    .attr("id","background")
+    .attr('x',0)
+    .attr('y',0)
+    .attr('width', vars.graph.width)
+    .attr('height', vars.graph.height)
+    .attr("stroke-width",1)
+    .attr("stroke","#ccc")
+      .attr("shape-rendering",vars.style.rendering)
+    .style('fill','#fafafa')
+    
+  // Enter Background Mirror
+  var mirror = plane.selectAll("path#mirror").data(["mirror"])
+  mirror.enter().append("path")
+    .attr("id","mirror")
+    .attr("fill","#000")
+    .attr("fill-opacity",0.03)
+    .attr("stroke-width",1)
+    .attr("stroke","#ccc")
+    .attr("stroke-dasharray","10,10")
+    .attr("opacity",0)
+    
+  // Enter Axes
+  var axes = vars.group.selectAll("g#axes").data(["axes"])
+  axes.enter().append("g")
+    .attr("id","axes")
+
+  // Enter X Axis Grid
+  var xgrid = plane.selectAll("g#xgrid").data(["xgrid"])
+  xgrid.enter().append("g")
+    .attr("id","xgrid")
+    .attr("transform", "translate(0," + vars.graph.height + ")")
+    
+  // Enter Y Axis Grid
+  var ygrid = plane.selectAll("g#ygrid").data(["ygrid"])
+  ygrid.enter().append("g")
+    .attr("id","ygrid")
+
+  // Enter X Axis Scale
+  var xaxis = plane.selectAll("g#xaxis").data(["xaxis"])
+  xaxis.enter().append("g")
+    .attr("id","xaxis")
+    .attr("transform", "translate(0," + vars.graph.height + ")")
+    
+  // Enter Y Axis Scale
+  var yaxis = plane.selectAll("g#yaxis").data(["yaxis"])
+  yaxis.enter().append("g")
+    .attr("id","yaxis")
+    
+  // Enter X Axis Label
+  var xlabel = axes.selectAll("text#xlabel").data(["xlabel"])
+  xlabel.enter().append("text")
+    .attr("id", "xlabel")
+    .attr("x", vars.app_width/2)
+    .attr("y", vars.app_height-10)
+    .text(vars.format(vars.x.key))
+    .attr("font-family",vars.style.font.family)
+    .attr("font-weight",vars.style.font.weight)
+    .attr("font-size",vars.style.labels.size)
+    .attr("fill",vars.style.labels.color)
+    .attr("text-anchor",vars.style.labels.align)
+    
+  // Enter Y Axis Label
+  var ylabel = axes.selectAll("text#ylabel").data(["ylabel"])
+  ylabel.enter().append("text")
+    .attr("id", "ylabel")
+    .attr("y", 15)
+    .attr("x", -(vars.graph.height/2+vars.graph.margin.top))
+    .text(vars.format(vars.y.key))
+    .attr("transform","rotate(-90)")
+    .attr("font-family",vars.style.font.family)
+    .attr("font-weight",vars.style.font.weight)
+    .attr("font-size",vars.style.labels.size)
+    .attr("fill",vars.style.labels.color)
+    .attr("text-anchor",vars.style.labels.align)
+    
+  // Enter Mouse Event Group
+  var mouseevents = vars.group.selectAll("g#mouseevents").data(["mouseevents"])
+  mouseevents.enter().append("g")
+    .attr("id","mouseevents")
+    
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Calculate Spacing Needed for Axes Labels
+  //-------------------------------------------------------------------
+  vars.graph.offset = 0
+  yaxis.call(vars.y_axis)
+    .selectAll("line")
+    .call(tick_style,"x")
+    
+  vars.graph.margin.left += vars.graph.offset
+  vars.graph.width -= vars.graph.offset
+  vars.x_scale.range([0,vars.graph.width])
+  
+  vars.graph.yoffset = 0
+  xaxis.call(vars.x_axis)
+    .selectAll("line")
+    .call(tick_style,"x")
+    
+  vars.graph.height -= vars.graph.yoffset
+  vars.y_scale.range([0,vars.graph.height])
+  yaxis.call(vars.y_axis)
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Update SVG Elements
+  //-------------------------------------------------------------------
+  
+  // Update Plane Group
+  plane.transition().duration(vars.style.timing.transitions)
+    .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
+    
+  // Update Plane Background
+  bg.attr('width', vars.graph.width)
+    .attr('height', vars.graph.height)
+      
+  // Update Mirror Triangle
+  mirror.transition().duration(vars.style.timing.transitions)
+    .attr("opacity",function(){
+      return vars.axes.mirror.default ? 1 : 0
+    })
+    .attr("d",function(){
+      var w = vars.graph.width, h = vars.graph.height
+      return "M "+w+" "+h+" L 0 "+h+" L "+w+" 0 Z"
+    })
+    
+  // Update Y Axis
+  yaxis.call(vars.y_axis)
+
+  yaxis.selectAll("line").transition().duration(vars.style.timing.transitions)
+      .call(tick_style,"y")
+  
+  yaxis.selectAll("path").style("fill","none")
+  
+  // Update X Axis
+  xaxis.transition().duration(vars.style.timing.transitions)
+    .attr("transform", "translate(0," + vars.graph.height + ")")
+    .call(vars.x_axis.scale(vars.x_scale))
+    .selectAll("g.tick").select("text")
+      .style("text-anchor","end")
+
+  xaxis.selectAll("line").transition().duration(vars.style.timing.transitions)
+      .call(tick_style,"x")
+  
+  xaxis.selectAll("path").style("fill","none")
+    
+  // Update Y Grid
+  ygrid.transition().duration(vars.style.timing.transitions)
+    .call(vars.y_axis
+      .tickFormat("")
+      .tickSize(-vars.graph.width)
+    )
+  
+  ygrid.selectAll("line").transition().duration(vars.style.timing.transitions)
+      .call(tick_style,"y")
+  
+  ygrid.selectAll("path").style("fill","none")
+    
+  // Update X Grid
+  xgrid.transition().duration(vars.style.timing.transitions)
+    .call(vars.x_axis
+      .tickFormat("")
+      .tickSize(-vars.graph.height)
+    )
+  
+  xgrid.selectAll("line").transition().duration(vars.style.timing.transitions)
+      .attr("transform", "translate(0,-"+vars.graph.yoffset+")")
+      .call(tick_style,"x")
+  
+  xgrid.selectAll("path").style("fill","none")
+
+  // Update X Axis Label
+  xlabel.text(vars.format(vars.x.key))
+    .attr('x', vars.app_width/2)
+    .attr('y', vars.app_height-10)
+    .attr("opacity",function(){
+      if (vars.app_data.length == 0) return 0
+      else return 1
+    })
+
+  // Update Y Axis Label
+  ylabel.text(vars.format(vars.y.key))
+    .attr('y', 15)
+    .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
+    .attr("opacity",function(){
+      if (vars.app_data.length == 0) return 0
+      else return 1
+    })
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Enter/Update User-Defined Axis Lines
+  //-------------------------------------------------------------------
+      
+  function get_name(d) {
+    if (typeof d == "number" || typeof d == "string") {
+      return null;
+    }
+    else {
+      return Object.keys(d)[0]
+    }
+  }
+    
+  function get_val(d) {
+    if (typeof d == "number") {
+      return d;
+    }
+    else if (typeof d == "string") {
+      return parseFloat(d);
+    }
+    else {
+      var v = d[Object.keys(d)[0]]
+      if (typeof v == "string") {
+        return parseFloat(v);
+      }
+      else {
+        return v;
+      }
+    }
+  }
+  
+  vars.axes.values.forEach(function(axis){
+    
+    var lines = plane.selectAll("g."+axis+"line")
+      .data(vars[axis].lines,function(l){
+        if (typeof l == "number" || typeof l == "string") {
+          return l
+        }
+        else {
+          return Object.keys(l)[0]
+        }
+      })
+      
+    var enter = lines.enter().append("g")
+      .attr("class",axis+"line")
+      
+    var max = axis == "x" ? "height" : "width",
+        pos = axis == "x" ? (vars.graph.height-8)+"px" : "10px",
+        padding = axis == "x" ? 10 : 20
+    
+    enter.append("line")
+      .attr(axis+"1",0)
+      .attr(axis+"2",vars.graph[max])
+      .attr("stroke","#ccc")
+      .attr("stroke-width",3)
+      .attr("stroke-dasharray","10,10")
+    
+    enter.append("text")
+      .style("font-size",vars.style.ticks.font.size)
+      .style("fill",vars.style.ticks.font.color)
+      .attr("text-align","start")
+      .attr(axis,pos)
+      
+    lines.selectAll("line").transition().duration(vars.style.timing.transitions)
+        .attr(axis+"1",function(d){
+          return get_val(d) ? vars[axis+"_scale"](get_val(d)) : 0
+        })
+        .attr(axis+"2",function(d){
+          return get_val(d) ? vars[axis+"_scale"](get_val(d)) : 0
+        })
+        .attr("opacity",function(d){
+          var yes = get_val(d) > vars[axis+"_scale"].domain()[1] && get_val(d) < vars[axis+"_scale"].domain()[0]
+          return get_val(d) != null && yes ? 1 : 0
+        })
+      
+      lines.selectAll("text").transition().duration(vars.style.timing.transitions)
+        .text(function(){
+          if (get_val(d) != null) {
+            var v = vars.format(get_val(d),y_name)
+            return get_name(d) ? vars.format(get_name(d)) + ": " + v : v
+          }
+          else return null
+        })
+        .attr(axis,function(d){
+          return (vars[axis+"_scale"](get_val(d))+padding)+"px"
+        })
+      
+  })
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Format Data for Plotting
+  //-------------------------------------------------------------------
+  
+  if (["line","area"].indexOf(vars.shape.default) >= 0) {
+    radius.range([2,2])
+  }
+    
+  vars.axis_offset = {
+    "x": vars.graph.margin.left+vars.margin.left,
+    "y": vars.graph.margin.top+vars.margin.top
+  }
+  
+  data.forEach(function(d){
+    d.d3plus.x = vars.x_scale(d3plus.variable.value(vars,d,vars.x.key))
+    d.d3plus.x += vars.axis_offset.x
+    
+    d.d3plus.r = radius(d3plus.variable.value(vars,d,vars.size.key))
+    
+    if (!vars.stacked_axis) {
+
+      d.d3plus.y = vars.y_scale(d3plus.variable.value(vars,d,vars.y.key))
+      d.d3plus.y += vars.axis_offset.y
+      
+      if (vars.shape.default == "area") {
+        d.d3plus[vars.opp_axis+"0"] = vars[vars.opp_axis+"_scale"].range()[1]
+        d.d3plus[vars.opp_axis+"0"] += vars.axis_offset[vars.opp_axis]
+      }
+      
+    }
+    
+  })
+  
+  if (["line","area"].indexOf(vars.shape.default) >= 0) {
+    
+    data = d3.nest()
+      .key(function(d){
+        var id = d3plus.variable.value(vars,d,vars.id.key),
+            depth = d.d3plus.depth ? d.d3plus.depth : 0
+        return id+"_"+depth+"_"+vars.shape.default
+      })
+      .rollup(function(leaves){
+        
+        var availables = d3plus.utils.uniques(leaves,vars[vars.continuous_axis].key),
+            previousMissing = false
+            
+        vars.tickValues[vars.continuous_axis].forEach(function(v,i,arr){
+          
+          if(availables.indexOf(v) < 0){
+            var obj = {}
+            obj[vars[vars.continuous_axis].key] = v
+            obj[vars.id.key] = leaves[0][vars.id.key]
+            obj[vars[vars.opp_axis].key] = vars[vars.opp_axis+"_scale"].domain()[1]
+            obj.d3plus = {}
+            obj.d3plus.r = radius(radius.domain()[0])
+            obj.d3plus[vars.continuous_axis] += vars.axis_offset[vars.continuous_axis]
+            
+            if (!vars.stacked_axis) {
+              obj.d3plus[vars.opp_axis] = vars[vars.opp_axis+"_scale"].range()[1]
+              obj.d3plus[vars.opp_axis] += vars.axis_offset[vars.opp_axis]
+              obj.d3plus[vars.opp_axis+"0"] = obj.d3plus[vars.opp_axis]
+            }
+            
+            if (vars[vars.continuous_axis].zerofill.default || vars[vars.opp_axis].stacked.default) {
+              var position = vars[vars.continuous_axis+"_scale"](v)
+              position += vars.axis_offset[vars.continuous_axis]
+              obj.d3plus[vars.continuous_axis] = position
+              leaves.push(obj)
+            }
+            else if (vars.shape.default != "line") {
+              if (!previousMissing && i > 0) {
+                var position = vars[vars.continuous_axis+"_scale"](arr[i-1])
+                position += vars.axis_offset[vars.continuous_axis]
+                obj.d3plus[vars.continuous_axis] = position
+                leaves.push(obj)
+              }
+              if (i < arr.length-1) {
+                var position = vars[vars.continuous_axis+"_scale"](arr[i+1])
+                position += vars.axis_offset[vars.continuous_axis]
+                var obj2 = d3plus.utils.copy(obj)
+                obj2.d3plus[vars.continuous_axis] = position
+                leaves.push(obj2)
+              }
+            }
+            previousMissing = true
+            
+          }
+          else {
+            previousMissing = false
+          }
+        })
+        
+        leaves.sort(function(a,b){
+          var xsort = a.d3plus[vars.continuous_axis] - b.d3plus[vars.continuous_axis]
+          if (xsort) return xsort
+          var ksort = a[vars[vars.continuous_axis].key] - b[vars[vars.continuous_axis].key]
+          return ksort
+        })
+        
+        return leaves
+      })
+      .entries(data)
+      
+    data.forEach(function(d,i){
+      vars.id.nesting.forEach(function(n,i){
+        if (i <= vars.depth.default && !d[n]) {
+          d[n] = d3plus.utils.uniques(d.values,n).filter(function(unique){
+            return unique && unique != "undefined"
+          })[0]
+        }
+      })
+    })
+    
+  }
+  
+  var sort = null
+  if (vars.order.key) {
+    sort = vars.order.key
+  }
+  else if (vars.continuous_axis) {
+    sort = vars[vars.opp_axis].key
+  }
+  else if (vars.size.key) {
+    sort = vars.size.key
+  }
+  
+  if (sort) {
+
+    data.sort(function(a,b){
+
+      if (a.values instanceof Array) {
+        a_value = 0
+        a.values.forEach(function(v){
+          var val = d3plus.variable.value(vars,v,sort)
+          if (val) {
+            if (typeof val == "number") {
+              a_value += val
+            }
+            else {
+              a_value = val
+            }
+          }
+        })
+      }
+      else {
+        a_value = d3plus.variable.value(vars,a,sort)
+      }
+    
+      if (b.values instanceof Array) {
+        b_value = 0
+        b.values.forEach(function(v){
+          var val = d3plus.variable.value(vars,v,sort)
+          if (val) {
+            if (typeof val == "number") {
+              b_value += val
+            }
+            else {
+              b_value = val
+            }
+          }
+        })
+      }
+      else {
+        b_value = d3plus.variable.value(vars,b,sort)
+      }
+      
+      if (vars.color.key && sort == vars.color.key) {
+          
+        a_value = d3plus.variable.color(vars,a)
+        b_value = d3plus.variable.color(vars,b)
+
+        a_value = d3.rgb(a_value).hsl()
+        b_value = d3.rgb(b_value).hsl()
+  
+        if (a_value.s == 0) a_value = 361
+        else a_value = a_value.h
+        if (b_value.s == 0) b_value = 361
+        else b_value = b_value.h
+  
+      }
+      
+      if(a_value<b_value) return vars.order.sort.default == "desc" ? -1 : 1;
+      if(a_value>b_value) return vars.order.sort.default == "desc" ? 1 : -1;
+  
+      return 0;
+
+    });
+  }
+  
+  if (vars.stacked_axis) {
+    
+    var stack = d3.layout.stack()
+      .values(function(d) { return d.values; })
+      .x(function(d) { return d.d3plus.x; })
+      .x(function(d) { return d.d3plus.y; })
+      .y(function(d) { 
+        var flip = vars.graph.height,
+            val = d3plus.variable.value(vars,d,vars.y.key)
+        return flip-vars.y_scale(val); 
+      })
+      .out(function(d,y0,y){
+        var flip = vars.graph.height
+        
+        if (vars[vars.stacked_axis].scale.default == "share") {
+          d.d3plus.y0 = (1-y0)*flip
+          d.d3plus.y = d.d3plus.y0-(y*flip)
+        }
+        else {
+          d.d3plus.y0 = flip-y0
+          d.d3plus.y = d.d3plus.y0-y
+        }
+        d.d3plus.y += (vars.margin.top+vars.graph.margin.top)
+        d.d3plus.y0 += (vars.margin.top+vars.graph.margin.top)
+      })
+      
+    var offset = vars[vars.stacked_axis].scale.default == "share" ? "expand" : "zero";
+
+    var data = stack.offset(offset)(data)
+      
+  }
+  else if (["area","line"].indexOf(vars.shape.default) < 0) {
+    
+    function data_tick(l,axis) {
+      l
+        .attr("x1",function(d){
+          return axis == "y" ? 0 : d.d3plus.x-vars.graph.margin.left-vars.margin.left
+        })
+        .attr("x2",function(d){
+          return axis == "y" ? -5 : d.d3plus.x-vars.graph.margin.left-vars.margin.left
+        })
+        .attr("y1",function(d){
+          return axis == "x" ? vars.graph.height : d.d3plus.y-vars.graph.margin.top-vars.margin.top
+        })
+        .attr("y2",function(d){
+          return axis == "x" ? vars.graph.height+5 : d.d3plus.y-vars.graph.margin.top-vars.margin.top
+        })
+        .style("stroke",function(d){
+          var c = d3.hsl(d3plus.variable.color(vars,d));
+          c.l = c.l < .2 ? 0 : c.l-.2;
+          return c.toString();
+        })
+        .style("stroke-width",vars.style.data.stroke.width)
+        .attr("shape-rendering",vars.style.rendering)
+    }
+    
+    var data_ticks = plane.selectAll("g.data_ticks")
+      .data(data,function(d){ 
+        return d[vars.id.key]+"_"+d.d3plus.depth
+      })
+    
+    var tick_enter = data_ticks.enter().append("g")
+      .attr("class","data_ticks")
+      .attr("opacity",0)
+      
+    tick_enter.append("line")
+      .attr("class","data_y")
+      .call(data_tick,"y")
+      
+    data_ticks.selectAll("line.data_y")
+      .call(data_tick,"y")
+      
+    tick_enter.append("line")
+      .attr("class","data_x")
+      .call(data_tick,"x")
+      
+    data_ticks.selectAll("line.data_x")
+      .call(data_tick,"x")
+      
+    data_ticks.transition().duration(vars.style.timing.transitions)
+      .attr("opacity",1)
+      
+    data_ticks.exit().transition().duration(vars.style.timing.transitions)
+      .attr("opacity",0)
+      .remove()
+    
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Plot data on chart!
+  //-------------------------------------------------------------------
+  
+  function axis_lines(node) {
+    
+    var click_remove = d3.event.type == "click" && (vars.tooltip.default.long || vars.tooltip.html),
+        create = ["mouseover","mousemove"].indexOf(d3.event.type) >= 0
+    
+    if (!click_remove && create && vars.shape.default != "area") {
+    
+      if (node.data) var node = node.data
+      
+      var line_data = [
+        d3plus.utils.copy(node.d3plus),
+        d3plus.utils.copy(node.d3plus)
+      ]
+      line_data[0].axis = "x"
+      line_data[1].axis = "y"
+      
+    }
+    else {
+      var line_data = []
+    }
+      
+    function line_init(l) {
+      l
+        .attr("x2",function(d){
+          var ret = d.axis == "x" ? d.x : d.x-d.r
+          return ret
+        })
+        .attr("y2",function(d){
+          var ret = d.axis == "y" ? d.y : d.y+d.r
+          return ret
+        })
+        .style("stroke-width",0)
+        .attr("opacity",0)
+    }
+    
+    var lines = mouseevents.selectAll("line.axis_label")
+      .data(line_data,function(d){
+        return d.axis+"_"+d.id
+      })
+      
+    lines.enter().append("line")
+      .attr("class","axis_label")
+      .call(line_init)
+      .attr("x1",function(d){
+        return d.axis == "x" ? d.x : d.x-d.r
+      })
+      .attr("y1",function(d){
+        return d.axis == "y" ? d.y : d.y+d.r
+      })
+      .style("stroke",function(d){
+        return d3plus.variable.color(vars,node)
+      })
+      .attr("shape-rendering",vars.style.rendering)
+      
+    lines.transition().duration(vars.style.timing.mouseevents)
+      .attr("class","axis_label")
+      .attr("x2",function(d){
+        return d.axis == "x" ? d.x : vars.margin.left+vars.graph.margin.left
+      })
+      .attr("y2",function(d){
+        return d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top+vars.margin.top
+      })
+      .style("stroke",function(d){
+        var c = d3.hsl(d3plus.variable.color(vars,node));
+        c.l = c.l < .2 ? 0 : c.l-.2;
+        return c.toString();
+      })
+      .style("stroke-width",vars.style.data.stroke.width)
+      .attr("opacity",1)
+      
+    lines.exit().transition().duration(vars.style.timing.mouseevents)
+      .call(line_init)
+      .remove()
+      
+    var texts = mouseevents.selectAll("text.axis_label")
+      .data(line_data,function(d){
+        return d.axis+"_"+d.id
+      })
+
+    texts.enter().append("text")
+      .attr("class","axis_label")
+      .attr("id",function(d){
+        return d.axis+"_"+d.id
+      })
+      .text(function(d){
+        var val = d3plus.variable.value(vars,node,vars[d.axis].key)
+        return vars.format(val,vars[d.axis].key)
+      })
+      .attr("x",function(d){
+        return d.axis == "x" ? d.x : vars.margin.left+vars.graph.margin.left-5
+      })
+      .attr("y",function(d){
+        return d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top+vars.margin.top+5
+      })
+      .attr("dy",function(d){
+        return d.axis == "y" ? (vars.style.ticks.font.size*.35) : vars.style.ticks.font.size
+      })
+      .attr("text-anchor",function(d){
+        return d.axis == "y" ? "end": "middle"
+      })
+      .style("fill",function(d){
+        var c = d3.hsl(d3plus.variable.color(vars,node));
+        c.l = c.l < .2 ? 0 : c.l-.2;
+        return c.toString();
+      })
+      .style("font-size",vars.style.ticks.font.size)
+      .attr("font-family",vars.style.font.family)
+      .attr("font-weight",vars.style.font.weight)
+      .attr("opacity",0)
+      
+    texts.transition().duration(vars.style.timing.mouseevents)
+      .delay(vars.style.timing.mouseevents)
+      .attr("opacity",1)
+      
+    texts.exit().transition().duration(vars.style.timing.mouseevents)
+      .attr("opacity",0)
+      .remove()
+      
+    var rects = mouseevents.selectAll("rect.axis_label")
+      .data(line_data,function(d){
+        return d.axis+"_"+d.id
+      })
+
+    rects.enter().insert("rect","text")
+      .attr("class","axis_label")
+      .attr("x",function(d){
+        var width = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().width
+        var ret = d.axis == "x" ? d.x : vars.margin.left+vars.graph.margin.left
+        return d.axis == "x" ? ret-width/2-5 : ret-width-10
+      })
+      .attr("y",function(d){
+        var height = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().height
+        var ret = d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top+vars.margin.top
+        return d.axis == "x" ? ret : ret-height/2-5
+      })
+      .attr("width",function(d){
+        var text = d3.select("text#"+d.axis+"_"+d.id).node().getBBox()
+        return text.width + 10
+      })
+      .attr("height",function(d){
+        var text = d3.select("text#"+d.axis+"_"+d.id).node().getBBox()
+        return text.height + 10
+      })
+      .style("stroke",function(d){
+        var c = d3.hsl(d3plus.variable.color(vars,node));
+        c.l = c.l < .2 ? 0 : c.l-.2;
+        return c.toString();
+      })
+      .style("fill","white")
+      .style("stroke-width",vars.style.data.stroke.width)
+      .attr("shape-rendering",vars.style.rendering)
+      .attr("opacity",0)
+      
+    rects.transition().duration(vars.style.timing.mouseevents)
+      .delay(vars.style.timing.mouseevents)
+      .attr("opacity",1)
+      
+    rects.exit().transition().duration(vars.style.timing.mouseevents)
+      .attr("opacity",0)
+      .remove()
+    
+  }
+
+  vars.mouse = axis_lines
+  
+  return data
+  
+};

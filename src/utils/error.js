@@ -4,55 +4,47 @@
 
 d3plus.utils.error = function(vars) {
   
-  var error = vars.parent.select("g.parent").selectAll("g.d3plus-error")
-    .data([vars.internal_error])
+  var error = vars.svg.selectAll("g#error")
+    .data(["error"])
     
   error.enter().append("g")
-    .attr("class","d3plus-error")
+    .attr("id","error")
     .attr("opacity",0)
     .append("text")
-      .attr("x",vars.svg_width/2)
+      .attr("x",vars.width.default/2)
       .attr("font-size","30px")
       .attr("fill","#888")
       .attr("text-anchor", "middle")
-      .attr("font-family", vars.font)
-      .style("font-weight", vars.font_weight)
-      .style(vars.info_style)
-      .each(function(d){
-        d3plus.utils.wordwrap({
-          "text": d,
-          "parent": this,
-          "width": vars.svg_width-20,
-          "height": vars.svg_height-20,
-          "resize": false
-        })
-      })
+      .attr("font-family", vars.style.font.family)
+      .style("font-weight", vars.style.font.weight)
+      .style(vars.style.info)
       .attr("y",function(){
         var height = d3.select(this).node().getBBox().height
-        return vars.svg_height/2-height/2
+        return vars.height.default/2-height/2
       })
       
-  error.transition().duration(d3plus.timing)
+  error.transition().duration(vars.style.timing.transitions)
     .attr("opacity",1)
       
-  error.select("text").transition().duration(d3plus.timing)
-    .attr("x",vars.svg_width/2)
+  error.select("text").transition().duration(vars.style.timing.transitions)
+    .attr("x",vars.width.default/2)
     .each(function(d){
-      d3plus.utils.wordwrap({
-        "text": d,
-        "parent": this,
-        "width": vars.svg_width-20,
-        "height": vars.svg_height-20,
-        "resize": false
-      })
+      if (vars.internal_error) {
+        d3plus.utils.wordwrap({
+          "text": vars.format(vars.internal_error,"error"),
+          "parent": this,
+          "width": vars.width.default-20,
+          "height": vars.height.default-20,
+          "resize": false
+        })
+      }
     })
     .attr("y",function(){
       var height = d3.select(this).node().getBBox().height
-      return vars.svg_height/2-height/2
+      return vars.height.default/2-height/2
     })
-      
-  error.exit().transition().duration(d3plus.timing)
-    .attr("opacity",0)
-    .remove()
+    .attr("opacity",function(){
+      return vars.internal_error ? 1 : 0
+    })
   
 }

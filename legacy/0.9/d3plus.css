@@ -47,11 +47,15 @@ svg#scale {
  ********************/
 
 div.d3plus_tooltip {
+  color: #333;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
+  font-weight: lighter;
   position: absolute;
 }
 
 div.d3plus_tooltip_container {
+  background-color: #fff;
   padding: 6px;
 }
 
@@ -154,6 +158,7 @@ div.d3plus_tooltip_close:hover {
 }
 
 div.d3plus_tooltip_arrow {
+  background-color: #fff;
   bottom: -5px;
   height: 10px;
   left: 50%;
@@ -178,6 +183,8 @@ div.d3plus_tooltip_data_container {
 }
 
 div.d3plus_tooltip_data_title {
+  color: #333;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
   font-weight: bold;
   padding: 6px 3px 0px 3px;
@@ -191,6 +198,8 @@ div.d3plus_tooltip_data_seperator {
 }
 
 div.d3plus_tooltip_data_block {
+  color: #333;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;
   padding: 3px 6px;
   position: relative;
@@ -233,20 +242,23 @@ div.d3plus_tooltip_data_desc {
   overflow: hidden;
   -webkit-transition: height 0.5s;
           transition: height 0.5s;
-  width: 85%;
+  width: 90%;
 }
 
 div.d3plus_tooltip_footer {
+  color: #333;
   font-size: 10px;
   position: relative;
   text-align: center;
 }
 
 div.d3plus_tooltip_footer a {
+  color: #333;
   text-decoration: none;
 }
 
 div.d3plus_tooltip_footer a:hover {
+  color: #000;
   text-decoration: underline;
 }
 

@@ -1,113 +1,116 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Random color generator (if no color is given)
-//-------------------------------------------------------------------
-
-d3plus.utils.color_scale = d3.scale.category20b()
-d3plus.utils.rand_color = function(x) {
-  var rand_int = x || Math.floor(Math.random()*20)
-  return d3plus.utils.color_scale(rand_int);
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Returns appropriate text color based off of a given color
-//-------------------------------------------------------------------
-
-d3plus.utils.text_color = function(color) {
-  var hsl = d3.hsl(color),
-      light = "#ffffff", 
-      dark = "#333333";
-  if (hsl.l > 0.65) return dark;
-  else if (hsl.l < 0.48) return light;
-  return hsl.h > 35 && hsl.s >= 0.3 && hsl.l >= 0.41 ? dark : light;
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Darkens a color if it's too light to appear on white
-//-------------------------------------------------------------------
-
-d3plus.utils.darker_color = function(color) {
-  var hsl = d3.hsl(color)
-  if (hsl.s > .9) hsl.s = .9
-  if (hsl.l > .4) hsl.l = .4
-  return hsl.toString();
-}
-
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns list of unique values
-//-------------------------------------------------------------------
-        
+//------------------------------------------------------------------------------
 d3plus.utils.uniques = function(data,value) {
+  var type = null
   return d3.nest().key(function(d) { 
-    return d[value]
-  }).entries(data).reduce(function(a,b,i,arr){ 
-    return a.concat(parseInt(b['key']))
-  },[])
+      if (typeof value == "string") {
+        if (!type) type = typeof d[value]
+        return d[value]
+      }
+      else if (typeof value == "function") {
+        if (!type) type = typeof value(d)
+        return value(d)
+      }
+      else {
+        return d
+      }
+    })
+    .entries(data)
+    .reduce(function(a,b){ 
+      var val = b.key
+      if (type == "number") val = parseFloat(val)
+      return a.concat(val)
+    },[]).sort(function(a,b){
+      return a - b
+    })
 }
 
-//===================================================================
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Finds closest numeric value in array
+//------------------------------------------------------------------------------
+d3plus.utils.closest = function(arr,value) {
+  var closest = arr[0]
+  arr.forEach(function(p){
+    if (Math.abs(value-p) < Math.abs(value-closest)) {
+      closest = p
+    }
+  })
+  return closest
+}
 
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merge two objects to create a new one with the properties of both
-//-------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
 d3plus.utils.merge = function(obj1, obj2) {
   var obj3 = {};
-  for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-  for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
+  function copy_object(obj,ret) {
+    for (var a in obj) {
+      if (typeof obj[a] != "undefined") {
+        if (obj[a] instanceof Array) {
+          ret[a] = obj[a]
+        }
+        else if (typeof obj[a] == "object") {
+          if (!ret[a]) ret[a] = {}
+          copy_object(obj[a],ret[a])
+        }
+        else {
+          ret[a] = obj[a]
+        }
+      }
+    }
+  }
+  if (obj1) copy_object(obj1,obj3)
+  if (obj2) copy_object(obj2,obj3)
+  // for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
+  // for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
   return obj3;
 }
+d3plus.utils.copy = function(obj) {
+  return d3plus.utils.merge(obj)
+}
 
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Expands a min/max into a certain number of buckets
-//-------------------------------------------------------------------
-
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Expands a min/max into a specified number of buckets
+//------------------------------------------------------------------------------
 d3plus.utils.buckets = function(arr, buckets) {
-  var i = 0.0, return_arr = [], step = 1/(buckets-1)
-  while(i <= 1) {
-    return_arr.push((arr[0]*Math.pow((arr[1]/arr[0]),i)))
-    i += step
+  var return_arr = [], step = 1/(buckets-1)*(arr[1]-arr[0]), i = step
+  
+  for (var i = arr[0]; i <= arr[1]; i = i + step) {
+    return_arr.push(i)
   }
-  if (return_arr[0] > arr[0]) return_arr[0] = arr[0]
-  if (return_arr[1] < arr[1]) return_arr[1] = arr[1]
+  if (return_arr.length < buckets) {
+    return_arr[buckets-1] = arr[1]
+  }
+  if (return_arr[return_arr.length-1] < arr[1]) {
+    return_arr[return_arr.length-1] = arr[1]
+  }
   return return_arr
 }
 
-//===================================================================
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get connection dictionary for specified links
-//-------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
 d3plus.utils.connections = function(vars,links) {
   var connections = {};
   links.forEach(function(d) {
     
     if (typeof d.source != "object") {
-      d.source = vars.nodes.filter(function(n){return n[vars.id] == d.source})[0]
+      d.source = vars.nodes.default.filter(function(n){return n[vars.id.key] == d.source})[0]
     }
 
     if (typeof d.target != "object") {
-      d.target = vars.nodes.filter(function(n){return n[vars.id] == d.target})[0]
+      d.target = vars.nodes.default.filter(function(n){return n[vars.id.key] == d.target})[0]
     }
     
-    if (!connections[d.source[vars.id]]) {
-      connections[d.source[vars.id]] = []
+    if (!connections[d.source[vars.id.key]]) {
+      connections[d.source[vars.id.key]] = []
     }
-    connections[d.source[vars.id]].push(d.target)
-    if (!connections[d.target[vars.id]]) {
-      connections[d.target[vars.id]] = []
+    connections[d.source[vars.id.key]].push(d.target)
+    if (!connections[d.target[vars.id.key]]) {
+      connections[d.target[vars.id.key]] = []
     }
-    connections[d.target[vars.id]].push(d.source)
+    connections[d.target[vars.id.key]].push(d.source)
   })
   return connections;
 }
-
-//===================================================================

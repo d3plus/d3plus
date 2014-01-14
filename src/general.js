@@ -1,9 +1,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "0.9";
-
-d3plus.timing = 600; // milliseconds for animations
+d3plus.version = "1.0.0";
 
 d3plus.ie = /*@cc_on!@*/false;
 
@@ -39,18 +37,22 @@ if (Modernizr && Modernizr.svg === false) {
 }
 
 d3plus.apps = {};
+d3plus.color = {};
+d3plus.console = {};
 d3plus.data = {};
-d3plus.vars = {};
-d3plus.ui = {};
+d3plus.shape = {};
+d3plus.styles = {};
+d3plus.tooltip = {};
 d3plus.utils = {};
+d3plus.variable = {};
+d3plus.zoom = {};
 
-d3plus.console = {}
 d3plus.console.print = function(type,message,style) {
   if (d3plus.ie) console.log("[d3plus] "+message)
   else console[type]("%c[d3plus]%c "+message,"font-weight:bold;",style)
 }
 d3plus.console.log = function(message,style) {
-  if (!style) var style = "font-weight:normal;"
+  if (!style) var style = "font-weight:bold;"
   d3plus.console.print("log",message,style)
 }
 d3plus.console.group = function(message,style) {

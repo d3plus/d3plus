@@ -5,228 +5,348 @@ d3plus.viz = function() {
   //-------------------------------------------------------------------
   
   var vars = {
-    "arc_angles": {},
-    "arc_inners": {},
-    "arc_sizes": {},
-    "aggs": {},
-    "attrs": {},
-    "background": "#ffffff",
-    "check": [],
-    "check_vars": ["value","xaxis","yaxis","year_var","active","unique_axis"],
-    "color_change": false,
+    "autodraw": false,
     "color_domain": [],
-    "color_range": ["#ff0000","#888888","#00ff00"],
     "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
-    "coord_change": false,
-    "depth": 0,
-    "descs": {},
-    "dev": false,
-    "donut": true,
-    "else_var": "elsewhere",
-    "error": "",
-    "filter": [],
-    "font": "sans-serif",
-    "font_weight": "normal",
-    "footer": false,
     "footer_text": function() {
-
-      var text = vars.click_function || vars.tooltip.long ? vars.format("Click for More Info") : null
-    
-      if (!text && vars.type == "geo_map") return vars.format("Click to Zoom")
-      else return text
-    
+      var text = vars.tooltip.html || vars.tooltip.default.long ? "Click for More Info" : null
+      return vars.text_format(text)
     },
-    "format": function(value,name) {
-      if (typeof value === "number") return vars.number_format(value,name)
-      if (typeof value === "string") return vars.text_format(value,name)
-      else return value
+    "format": function(value,key) {
+      if (typeof value === "number") return vars.number_format(value,key,vars)
+      if (typeof value === "string") return vars.text_format(value,key,vars)
+      else return JSON.stringify(value)
     },
-    "graph": {"timing": 0},
-    "group_bgs": true,
-    "grouping": "name",
-    "heat_map": ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
-    "highlight_color": "#cc0000",
-    "icon": "icon",
-    "icon_style": "default",
-    "id": "id",
-    "init": true,
-    "labels": true,
-    "layout": "value",
+    "g": {"apps":{}},
+    "graph": {},
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
-    "mirror_axis": false,
-    "number_format": function(value,name) { 
-      if (["year",vars.id].indexOf(name) >= 0 || typeof value === "string") {
-        return value
-      }
-      else if (value < 1) {
-        return d3.round(value,2)
-      }
-      else if (value.toString().split(".")[0].length > 4) {
-        var symbol = d3.formatPrefix(value).symbol
-        symbol = symbol.replace("G", "B") // d3 uses G for giga
-        
-        // Format number to precision level using proper scale
-        value = d3.formatPrefix(value).scale(value)
-        value = parseFloat(d3.format(".3g")(value))
-        return value + symbol;
-      }
-      else if (name == "share") {
-        return d3.format(".2f")(value)
-      }
-      else {
-        return d3.format(",f")(value)
-      }
-      
-    },
-    "order": "asc",
-    "projection": d3.geo.mercator(),
-    "scroll_zoom": false,
-    "secondary_color": "#ffdddd",
-    "size_scale_type": "sqrt",
+    "mute": [],
     "solo": [],
-    "sort": "total",
-    "spotlight": true,
-    "stack_type": "linear",
-    "static_axes": true,
-    "svg_height": window.innerHeight,
-    "svg_width": window.innerWidth,
-    "text_format": function(text,name) {
-      return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase() 
-    },
-    "text": "name",
-    "text_obj": {},
-    "title_center": true,
-    "title_height": 0,
-    "tooltip": [],
-    "total_bar": false,
-    "type": "tree_map",
-    "value": "value",
-    "xaxis_scale": "linear",
-    "yaxis_scale": "linear",
-    "year": "all",
-    "zoom_behavior": d3.behavior.zoom()
+    "style": d3plus.styles.default
   }
   
-  //===================================================================
-
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Main drawing function
+  //-------------------------------------------------------------------
   chart = function(selection) {
-    selection.each(function(datum) {
-      
-      // Set vars.parent to the container <div> element
-      if (!vars.parent) vars.parent = d3.select(this)
-      
-      // All of the data-munging
-      d3plus.utils.data(vars,datum);
-      
-      // Set up the color range, if necessary
-      d3plus.utils.color(vars);
-      
-      // remove all tooltip for app type
-      d3plus.ui.tooltip.remove(vars.type);
-      
-      vars.svg = vars.parent.selectAll("svg").data([vars.app_data]);
-      
-      vars.svg_enter = vars.svg.enter().append("svg")
-        .attr('width',vars.svg_width)
-        .attr('height',vars.svg_height)
-        
-      vars.svg_enter.append("rect")
-        .attr("id","svgbg")
-        .attr("fill",vars.background)
-        .attr('width',vars.svg_width)
-        .attr('height',vars.svg_height)
-    
-      vars.svg.transition().duration(d3plus.timing)
-        .attr('width',vars.svg_width)
-        .attr('height',vars.svg_height)
-    
-      vars.svg.select("rect#svgbg").transition().duration(d3plus.timing)
-        .attr('width',vars.svg_width)
-        .attr('height',vars.svg_height)
-      
-      vars.parent
-        .style("width",vars.svg_width+"px")
-        .style("height",vars.svg_height+"px")
-        .style("overflow","hidden")
-      
-      vars.width = vars.svg_width;
-      
-      vars.svg_enter.append("g")
-        .attr("class","titles")
-      
-      vars.svg_enter.append("g")
-        .attr("class","footer")
-        .attr("transform","translate(0,"+vars.svg_height+")")
+    selection.each(function() {
 
-      // Update Titles
-      d3plus.utils.titles(vars);
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // If placing into a new container, remove it's contents.
+      //-------------------------------------------------------------------
+      if (vars.container.changed) {
+        d3.select(vars.container.default).html("")
+      }
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Run setup function if app has it
+      //-------------------------------------------------------------------
+      if (d3plus.apps[vars.type.default].setup) {
+        d3plus.apps[vars.type.default].setup(vars)
+      }
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Set container element to vars.parent
+      //-------------------------------------------------------------------
+      if (!vars.parent) vars.parent = d3.select(this)
+      var sizes = ["width","height"]
+      sizes.forEach(function(s){
+        if (!vars[s].default) {
+          var p = parseFloat(vars.parent.style(s),10)
+          vars[s].default = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
+        }
+      })
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Format Data as Necessary
+      //-------------------------------------------------------------------
+      d3plus.data.format(vars);
       
-      vars.height = vars.svg_height - vars.margin.top - vars.margin.bottom;
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Determine Color Range if Necessary
+      //-------------------------------------------------------------------
+      d3plus.data.color(vars);
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Remove All Tooltips associated with App (and previous app)
+      //-------------------------------------------------------------------
+      if (vars.type.previous && vars.type.default != vars.type.previous) {
+        d3plus.tooltip.remove(vars.type.previous);
+      }
+      d3plus.tooltip.remove(vars.type.default);
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Enter Elements
+      //-------------------------------------------------------------------
       
-      vars.graph.height = vars.height-vars.graph.margin.top-vars.graph.margin.bottom
-      
-      vars.svg_enter.append("clipPath")
+      // Enter SVG
+      vars.svg = vars.parent.selectAll("svg#d3plus").data(["d3plus"]);
+      vars.svg.enter().append("svg")
+        .attr("id","d3plus")
+        .attr('width',vars.width.default)
+        .attr('height',vars.height.default)
+
+      // Enter BG Rectangle
+      vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
+      vars.g.bg.enter().append("rect")
+        .attr("id","bg")
+        .attr("fill",vars.style.background)
+        .attr('width',vars.width.default)
+        .attr('height',vars.height.default)
+    
+      // Enter Title Group
+      vars.g.titles = vars.svg.selectAll("g#titles").data(["titles"])
+      vars.g.titles.enter().append("g")
+        .attr("id","titles")
+    
+      // Enter Footer Group
+      vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"])
+      vars.g.footer.enter().append("g")
+        .attr("id","footer")
+        .attr("transform","translate(0,"+vars.height.default+")")
+
+      // Enter App Clipping Mask
+      vars.g.clipping = vars.svg.selectAll("clippath#clipping").data(["clipping"])
+      vars.g.clipping.enter().append("clippath")
         .attr("id","clipping")
         .append("rect")
-          .attr("id","parent_clip")
-          .attr("width",vars.width)
-          .attr("height",vars.height)
+          .attr("width",vars.app_width)
+          .attr("height",vars.app_height)
+          .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
-      vars.parent_enter = vars.svg_enter.append("g")
-        .attr("class","parent")
+      // Enter Container Group
+      vars.g.container = vars.svg.selectAll("g#container").data(["container"])
+      vars.g.container.enter().append("g")
+        .attr("id","container")
         .attr("clip-path","url(#clipping)")
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
-      vars.svg.select("g.parent").transition().duration(d3plus.timing)
+      // Enter Zoom Group
+      vars.g.zoom = vars.g.container.selectAll("g#zoom").data(["zoom"])
+      vars.g.zoom.enter().append("g")
+        .attr("id","zoom")
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
-      vars.svg.select("rect#parent_clip").transition().duration(d3plus.timing)
-        .attr("width",vars.width)
-        .attr("height",vars.height)
+      // Enter App Background Group
+      vars.g.app = vars.g.zoom.selectAll("g#app").data(["app"])
+      vars.g.app.enter().append("g")
+        .attr("id","app")
+        
+      // Enter App Group
+      vars.g.apps[vars.type.default] = vars.g.app.selectAll("g#"+vars.type.default).data([vars.type.default])
+      vars.g.apps[vars.type.default].enter().append("g")
+        .attr("id",vars.type.default)
+        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+    
+      // Enter Links Group
+      vars.g.links = vars.g.zoom.selectAll("g#links").data(["links"])
+      vars.g.links.enter().append("g")
+        .attr("id","links")
+        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+    
+      // Enter App Data Group
+      vars.g.data = vars.g.zoom.selectAll("g#data").data(["data"])
+      vars.g.data.enter().append("g")
+        .attr("id","data")
+        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+        
+      vars.defs = vars.svg.selectAll("defs").data(["defs"])
+      vars.defs.enter().append("defs")
       
-      vars.parent_enter.append("defs")
-      vars.defs = d3.select("g.parent").select("defs")
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Title and Size Calculations
+      //-------------------------------------------------------------------
+      vars.app_width = vars.width.default;
+      d3plus.utils.titles(vars);
+      vars.app_height = vars.height.default - vars.margin.top - vars.margin.bottom;
+      vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Update Elements
+      //-------------------------------------------------------------------
       
-      
-      vars.loader = vars.parent.selectAll("div#d3plus_loader").data([vars.app_data]);
-      
-      vars.loader.enter().append("div")
-        .attr("id","d3plus_loader")
-        .style("background-color",vars.background)
-        .style("display","none")
-        .append("div")
-          .attr("id","d3plus_loader_text")
-          .style("font-family",vars.font)
-          .style("font-weight",vars.font_weight)
-          .style(vars.info_style)
-          .text(vars.format("Loading..."))
+      // Update Parent Element
+      vars.parent
+        .style("width",vars.width.default+"px")
+        .style("height",vars.height.default+"px")
+        .style("overflow","hidden")
+        
+      // Update SVG
+      vars.svg.transition().duration(vars.style.timing.transitions)
+          .attr('width',vars.width.default)
+          .attr('height',vars.height.default)
+    
+      // Update Background Rectangle
+      vars.g.bg.transition().duration(vars.style.timing.transitions)
+          .attr('width',vars.width.default)
+          .attr('height',vars.height.default)
           
-      if (!vars.error && !vars.app_data) {
-        vars.internal_error = vars.format("No Data Available","error")
+      // Update App Clipping Rectangle
+      vars.g.clipping.select("rect").transition().duration(vars.style.timing.transitions)
+        .attr("width",vars.app_width)
+        .attr("height",vars.app_height)
+        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+        
+      // Update App Background Groups
+      vars.g.app.selectAll("g").transition().duration(vars.style.timing.transitions)
+        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+        
+      // Update Links Group
+      vars.g.links.selectAll("g").transition().duration(vars.style.timing.transitions)
+        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+    
+      // Update Data Group
+      vars.g.data.transition().duration(vars.style.timing.transitions)
+        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Check to see if we have all required variables set
+      //-------------------------------------------------------------------
+      var reqs = ["id"]
+      if (d3plus.apps[vars.type.default].requirements) {
+        reqs = reqs.concat(d3plus.apps[vars.type.default].requirements)
       }
-      else if (vars.type == "rings" && !vars.connections[vars.highlight]) {
-        vars.app_data = null
-        vars.internal_error = vars.format("No Connections Available","error")
+      var missing = []
+      reqs.forEach(function(r){
+        var key = "key" in vars[r] ? "key" : "default"
+        if (!vars[r][key]) missing.push(r)
+      })
+      if (missing.length) {
+        vars.internal_error = "The following variables need to be set: "+missing.join(", ")
       }
-      else if (vars.error) {
-        vars.app_data = null
-        if (error === true) {
-          vars.internal_error = vars.format("Error","error")
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Check to see if we have all required libraries
+      //-------------------------------------------------------------------
+      var reqs = ["d3"]
+      if (d3plus.apps[vars.type.default].libs) {
+        reqs = reqs.concat(d3plus.apps[vars.type.default].libs)
+      }
+      var missing = []
+      reqs.forEach(function(r){
+        if (!window[r]) missing.push(r)
+      })
+      if (missing.length) {
+        vars.internal_error = "The following libraries need to be loaded: "+missing.join(", ")
+      }
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Check to see if the requested app supports the set shape
+      //-------------------------------------------------------------------
+      if (!vars.shape.default) {
+        vars.shape.default = d3plus.apps[vars.type.default].shapes[0]
+      }
+      else if (d3plus.apps[vars.type.default].shapes.indexOf(vars.shape.default) < 0) {
+        d3plus.console.warning("\""+vars.shape.default+"\" is not an accepted shape for the \""+vars.type.default+"\" app, please use one of the following: \""+d3plus.apps[vars.type.default].shapes.join("\", \"")+"\"")
+        vars.shape.previous = vars.shape.default
+        vars.shape.default = d3plus.apps[vars.type.default].shapes[0]
+        d3plus.console.log("Defaulting shape to \""+vars.shape.default+"\"")
+      }
+  
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Hide the previous app, if applicable
+      //-------------------------------------------------------------------
+      if (vars.type.previous && vars.type.default != vars.type.previous && vars.g.apps[vars.type.previous]) {
+        if (vars.dev.default) d3plus.console.group("Hiding \"" + vars.type.previous + "\"")
+        vars.g.apps[vars.type.previous].transition().duration(vars.style.timing.transitions)
+          .attr("opacity",0)
+        if (vars.dev.default) d3plus.console.groupEnd();
+      }
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Draw the specified app
+      //-------------------------------------------------------------------
+      if (vars.dev.default) d3plus.console.group("Drawing \"" + vars.type.default + "\"")
+      // Set vars.group to the app's specific group element
+      vars.group = vars.g.apps[vars.type.default]
+      // Make the group visible if there is data
+      vars.group.transition().duration(vars.style.timing.transitions)
+        .attr("opacity",function(){
+          if (vars.app_data.length == 0 || vars.internal_error) return 0
+          else return 1
+        })
+      // Reset mouse events for the app to use
+      vars.mouse = {}
+      // Call the app's draw function, returning formatted data
+      var returned = null
+      
+      vars.returned = {
+          "nodes": null,
+          "links": null
+        }
+          
+      if (!vars.internal_error) {
+        returned = d3plus.apps[vars.type.default].draw(vars)
+      }
+          
+      if (returned instanceof Array) {
+        vars.returned.nodes = returned
+      }
+      else if (returned) {
+        if (returned.nodes) {
+          vars.returned.nodes = returned.nodes
+        }
+        if (returned.links) {
+          vars.returned.links = returned.links
+        }
+      }
+      
+      if (!vars.returned.nodes || !(vars.returned.nodes instanceof Array) || !vars.returned.nodes.length) {
+        if (vars.dev.default) d3plus.console.log("No data returned by app.")
+        vars.returned.nodes = [] 
+      }
+      
+      // Draw links based on the data
+      d3plus.shape.links(vars,vars.returned.links)
+      
+      // Draw nodes based on the data
+      d3plus.shape.draw(vars,vars.returned.nodes)
+        
+      if (vars.dev.default) d3plus.console.groupEnd();
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Check for Errors
+      //-------------------------------------------------------------------
+      if (!vars.internal_error) {
+        if ((!vars.error.default && !vars.app_data) || !vars.returned.nodes.length) {
+          vars.internal_error = "No Data Available"
+        }
+        else if (vars.type.default == "rings" && !vars.connections[vars.focus.default]) {
+          vars.app_data = null
+          vars.internal_error = "No Connections Available"
+        }
+        else if (vars.error.default) {
+          vars.app_data = null
+          if (vars.error.default === true) {
+            vars.internal_error = "Error"
+          }
+          else {
+            vars.internal_error = vars.error.default
+          }
         }
         else {
-          vars.internal_error = vars.format(error,"error")
+          vars.internal_error = null
         }
       }
-      else {
-        vars.internal_error = ""
-      }
-      
-      // Finally, call the specific App to draw
-      if (vars.dev) d3plus.console.group("Drawing \"" + vars.type + "\"")
-      d3plus.apps[vars.type](vars)
-      if (vars.dev) d3plus.console.groupEnd();
-      
       d3plus.utils.error(vars)
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Reset all "change" values to false
+      //-------------------------------------------------------------------
+      function reset_change(obj) {
+        if (obj.changed) obj.changed = false
+        else {
+          for (o in obj) {
+            if (Object.keys(d3plus.public).indexOf(o) >= 0) {
+              if (o == "changed" && obj[o]) obj[o] = false
+              else if (obj[o] != null && typeof obj[o] == "object") {
+                reset_change(obj[o])
+              }
+            }
+          }
+        }
+      }
+      reset_change(vars)
       
     });
     
@@ -237,802 +357,383 @@ d3plus.viz = function() {
   // Expose Public Variables
   //-------------------------------------------------------------------
   
-  chart.aggs = function(x) {
-    if (!arguments.length) return vars.aggs;
-    if (!x) vars.aggs = {}
-    else {
-      for (a in x) {
-        if (!vars.aggs[a] || vars.aggs[a] != x[a]) {
-          vars.aggs[a] = x[a]
-          if (a == vars.value) vars.check.push(a)
-        }
-      }
-    }
-    return chart;
-  };
-  
-  chart.color = function(x) {
-    if (!arguments.length) return vars.color;
-    vars.color = x;
-    vars.color_change = true;
-    return chart;
-  };
-  
   chart.csv = function(x) {
     
-    if (x instanceof Array) vars.csv_columns = x
+    if (x instanceof Array) var columns = x
     
     var csv_to_return = [],
-        column_init = vars.csv_columns,
-        columns = [], titles = []
+        titles = [],
+        title = vars.title.default || "My D3plus App Data"
+        
+    title = title.replace(/\ /g,'-')
 
-    if (column_init.indexOf(vars.id) < 0) column_init.unshift(vars.id)
-    if (column_init.indexOf(vars.year_var) < 0) column_init.unshift(vars.year_var)
-    if (column_init.indexOf(vars.text) < 0) column_init.unshift(vars.text)
-    if (column_init.indexOf(vars.value) < 0) column_init.unshift(vars.value)
+    if (!columns) {
+      var columns = [vars.id.key]
+      if (vars.time.key) columns.push(vars.time.key)
+      if (vars.size.key) columns.push(vars.size.key)
+      if (vars.text.key) columns.push(vars.text.key)
+    }
     
-    // filter out the columns (if specified)
-    column_init.forEach(function(c){
-      if (vars.keys[c] || c == vars.text) {
-        columns.push(c)
-        titles.push(vars.format(c))
-      }
+    columns.forEach(function(c){
+      titles.push(vars.format(c))
     })
     
     csv_to_return.push(titles);
     
-    if (vars.type == "tree_map") {
-      
+    vars.returned.nodes.forEach(function(n){
       var arr = []
-      
-      function flatted_children(c) {
-        if (c.children) {
-          c.children.forEach(function(c2){
-            flatted_children(c2)
+      columns.forEach(function(c){
+        arr.push(d3plus.variable.value(vars,n,c))
+      })
+      csv_to_return.push(arr)
+    })
+    
+    var csv_data = "data:text/csv;charset=utf-8,"
+    csv_to_return.forEach(function(c,i){
+      dataString = c.join(",");
+      csv_data += i < csv_to_return.length ? dataString + "\n" : dataString;
+    })
+    
+    if (d3plus.ie) {
+      var blob = new Blob([csv_data],{
+        type: "text/csv;charset=utf-8;",
+      })
+      navigator.msSaveBlob(blob,title+".csv")
+    }
+    else {
+      var encodedUri = encodeURI(csv_data);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download",title+".csv");
+      link.click();
+    }
+    
+    return csv_to_return;
+    
+  };
+  
+  chart.draw = function(x) {
+    if (x) {
+      if (typeof x == "boolean") {
+        vars.autodraw = x
+      }
+      else {
+        d3plus.console.warning(".draw() only accepts booleans to change the \"autodraw\" functionality.")
+      }
+    }
+    if (!vars.container.default) {
+      d3plus.console.warning("Please define a container div using .container()")
+    }
+    else if (d3.select(vars.container.default).empty()) {
+      d3plus.console.warning("Cannot find <div> on page matching: \""+vars.container+"\"")
+    }
+    else {
+      d3.select(vars.container.default).call(chart)
+    }
+    return chart;
+  }
+
+  chart.style = function(x) {
+    if (!arguments.length) return vars.style;
+    
+    function check_depth(object,property,depth) {
+      if (typeof depth == "object") {
+        for (d in depth) {
+          if (object[property] === undefined) {
+            d3plus.console.warning("\""+property+"\" cannot be set");
+          }
+          else {
+            check_depth(object[property],d,depth[d]);
+          }
+        }
+      }
+      else {
+        if (object[property] === undefined) {
+          d3plus.console.warning("\""+property+"\" cannot be set");
+        }
+        else {
+          object[property] = depth;
+        }
+      }
+    }
+    
+    if (typeof x == "object") {
+      check_depth(vars,"style",x)
+    }
+    else if (typeof x == "string") {
+      if (d3plus.styles[x]) {
+        vars.style = plus.styles[x]
+      }
+      else {
+        d3plus.console.warning("Style \""+x+"\" does not exist. Installed styles are: \""+Object.keys(d3plus.styles).join("\", \"")+"\"");
+      }
+    }
+    else {
+      d3plus.console.warning(".style() only accepts strings or keyed objects.");
+    }
+    
+    return chart;
+  };
+  
+  Object.keys(d3plus.public).forEach(function(p){
+    
+    // give default values to this .viz()
+    vars[p] = d3plus.public[p]
+    
+    // detect available app types
+    if (p == "type") {
+      vars[p].accepted = Object.keys(d3plus.apps)
+    }
+    
+    // create error messages for deprecated methods
+    if (vars[p]) {
+      function deprecate(obj) {
+        for (o in obj) {
+          if (o == "deprecates") {
+            obj[o].forEach(function(d){
+              chart[d] = (function(dep,n) {
+                return function(x) {
+                  d3plus.console.warning("\."+dep+"() method has been deprecated, please use the new \."+n+"() method.")
+                  return chart;
+                }
+              })(d,p)
+            })
+          }
+          else if (typeof obj[o] == "object") {
+            deprecate(obj[o])
+          }
+        }
+      }
+      deprecate(vars[p])
+    }
+    
+    // create method for variable
+    
+    chart[p] = (function(key) {
+      return function(user) {
+
+        if (!arguments.length) return vars[key];
+        
+        if (vars[key].reset) {
+          vars[key].reset.forEach(function(r){
+            vars[r] = null
           })
         }
-        else {
-          arr.push(c)
+        
+        // determine default key type, if available
+        if (vars[key].key !== undefined) var key_type = "key"
+        else if (vars[key].default !== undefined) var key_type = "default"
+        else var key_type = null
+        
+        if ((typeof user == "object" && key_type && !user[key_type] && !(Object.keys(user)[0] in vars[key]))
+              || typeof user != "object") {
+          set_value(vars[key],key_type,user)
         }
-      }
-      
-      flatted_children(vars.app_data)
-      
-    }
-    else if (vars.app_data instanceof Array) {
-      var arr = vars.app_data
-    }
-    else {
-      var arr = d3.values(vars.app_data)
-    }
-    
-    arr.forEach(function(d){
-      
-      var ret = []
-      columns.forEach(function(c){
-        ret.push(d3plus.utils.variable(vars,d,c))
-      })
-      csv_to_return.push(ret)
-    })
-    return csv_to_return;
-  };
-  
-  chart.coords = function(x) {
-    if (!arguments.length) return vars.coords;
-    vars.coord_change = true
-    x.objects[Object.keys(x.objects)[0]].geometries.forEach(function(f){
-      f.id = f[vars.id]
-    });
-    vars.coords = topojson.feature(x, x.objects[Object.keys(x.objects)[0]]).features
-    
-    function polygon(ring) {
-      var polygon = [ring];
-      ring.push(ring[0]); // add closing coordinate
-      if (d3.geo.area({type: "Polygon", coordinates: polygon}) > 2 * Math.PI) ring.reverse(); // fix winding order
-      return polygon;
-    }
-    
-    var selectedStates = {type: "GeometryCollection", geometries: x.objects[Object.keys(x.objects)[0]].geometries},
-        selectionBoundary = topojson.mesh(x, selectedStates, function(a, b) { return a === b; })
-        
-    vars.boundaries = {type: "MultiPolygon", coordinates: selectionBoundary.coordinates.map(polygon)};
-    
-    return chart;
-  };
-  
-  chart.depth = function(x) {
-    if (!arguments.length) return vars.depth;
-    
-    // Set appropriate depth and id
-    if (x >= vars.nesting.length) vars.depth = vars.nesting.length-1
-    else if (x < 0) vars.depth = 0
-    else vars.depth = x;
-    vars.id = vars.nesting[vars.depth]
-    
-    // Set appropriate name_array and text
-    var n = vars.text_obj[vars.id]
-    if (n) {
-      vars.name_array = typeof n == "string" ? [n] : n
-      vars.text = vars.name_array[0]
-    }
-    
-    return chart;
-  };
-
-  chart.filter = function(x) {
-    if (!arguments.length) return vars.filter;
-    // if we're given an array then overwrite the current filter var
-    if(x instanceof Array){
-      vars.filter = x;
-    }
-    // otherwise add/remove it from array
-    else {
-      // if element is in the array remove it
-      if(vars.filter.indexOf(x) > -1){
-        vars.filter.splice(vars.filter.indexOf(x), 1)
-      }
-      // if element is in the solo array remove it and add to this one
-      else if(vars.solo.indexOf(x) > -1){
-        vars.solo.splice(vars.solo.indexOf(x), 1)
-        vars.filter.push(x)
-      }
-      // element not in current filter so add it
-      else {
-        vars.filter.push(x)
-      }
-    }
-    vars.check.push("filter")
-    return chart;
-  };
-  
-  chart.font = function(x) {
-    if (!arguments.length) return vars.font;
-    vars.font = x;
-    return chart;
-  };
-  
-  chart.font_weight = function(x) {
-    if (!arguments.length) return vars.font_weight;
-    vars.font_weight = x;
-    return chart;
-  };
-
-  chart.height = function(x) {
-    if (!arguments.length) return vars.svg_height;
-    vars.svg_height = x;
-    return chart;
-  };
-  
-  chart.id = function(x) {
-    if (!arguments.length) return vars.id;
-    if (x instanceof Array) {
-      vars.nesting = x
-      if (vars.depth < x.length) vars.id = x[vars.depth]
-      else {
-        vars.id = x[0]
-        vars.depth = 0
-      }
-    }
-    else {
-      vars.id = x
-      vars.nesting = [x]
-      vars.depth = 0
-    }
-    return chart;
-  };
-  
-  chart.size_scale = function(x) {
-    if (!arguments.length) return vars.size_scale_type;
-    vars.size_scale_type = x;
-    return chart;
-  };
-    
-  chart.solo = function(x) {
-    if (!arguments.length) return vars.solo;
-    // if we're given an array then overwrite the current filter var
-    if(x instanceof Array){
-      vars.solo = x;
-    }
-    // otherwise add/remove it from array
-    else {
-      // if element is in the array remove it
-      if(vars.solo.indexOf(x) > -1){
-        vars.solo.splice(vars.solo.indexOf(x), 1)
-      }
-      // else, add it
-      else {
-        vars.solo.push(x)
-      }
-    }
-    vars.check.push("solo")
-    return chart;
-  };
-  
-  chart.text = function(x) {
-    if (!arguments.length) return vars.text;
-    if (typeof x == "string") {
-      vars.name_array = [x]
-    }
-    else if (x instanceof Array) {
-      vars.name_array = x
-    }
-    else {
-      vars.text_obj = x
-      var n = x[vars.id] ? x[vars.id] : x[Object.keys(x)[0]]
-      vars.name_array = typeof n == "string" ? [n] : n
-    }
-    vars.text = vars.name_array[0]
-    return chart;
-  };
-  
-  chart.title = function(x) {
-    if (!arguments.length) return vars.title;
-    vars.title = x;
-    return chart;
-  };
-  
-  chart.title_center = function(x) {
-    if (!arguments.length) return vars.title_center;
-    vars.title_center = x;
-    return chart;
-  };
-  
-  chart.title_height = function(x) {
-    if (!arguments.length) return vars.title_height;
-    vars.title_height = x;
-    return chart;
-  };
-  
-  chart.title_width = function(x) {
-    if (!arguments.length) return vars.title_width;
-    vars.title_width = x;
-    return chart;
-  };
-
-  chart.width = function(x) {
-    if (!arguments.length) return vars.svg_width;
-    vars.svg_width = x;
-    return chart;
-  };
-  
-  chart.xaxis_domain = function(x) {
-    if (!arguments.length) return vars.xaxis_domain;
-    if (!x || Object.keys(x).length == 0) {
-      x = null
-      if (x != vars.xaxis_domain) vars.xaxis_range = null;
-      vars.xaxis_domain = null;
-    }
-    else if (x instanceof Array && x.length == 2) {
-      change = vars.xaxis_range && !(x[0] == vars.xaxis_range[0] && x[1] == vars.xaxis_range[1])
-      if (change) vars.xaxis_range = null;
-      vars.xaxis_domain = x;
-    }
-    else {
-      d3plus.console.warning(".xaxis_domain() only accepts a min/max array")
-    }
-    return chart;
-  };
-  
-  chart.yaxis_domain = function(x) {
-    if (!arguments.length) return vars.yaxis_domain;
-    if (!x || Object.keys(x).length == 0) {
-      x = null
-      if (x != vars.yaxis_domain) vars.yaxis_range = null;
-      vars.yaxis_domain = null;
-    }
-    else if (x instanceof Array && x.length == 2) {
-      change = vars.yaxis_range && !(x[1] == vars.yaxis_range[0] && x[0] == vars.yaxis_range[1])
-      if (change) vars.yaxis_range = null;
-      vars.yaxis_domain = x.reverse();
-    }
-    else {
-      d3plus.console.warning(".yaxis_domain() only accepts a min/max array")
-    }
-    return chart;
-  };
-  
-  var simple_vars = [
-    "active",
-    "attrs",
-    "background",
-    "click_function",
-    "color",
-    "descs",
-    "dev",
-    "donut",
-    "else",
-    "error",
-    "footer",
-    "group_bgs",
-    "grouping",
-    "heat_map",
-    "highlight",
-    "icon",
-    "icon_style",
-    "info_style",
-    "labels",
-    "layout",
-    "links",
-    "mirror_axis",
-    "nodes",
-    "number_format",
-    "order",
-    "scroll_zoom",
-    "sort",
-    "spotlight",
-    "stack_type",
-    "static_axes",
-    "sub_title",
-    "text_format",
-    "tooltip",
-    "total_bar",
-    "total",
-    "type",
-    "unique_axis",
-    "value",
-    "xaxis",
-    "xaxis_val",
-    "xaxis_scale",
-    "yaxis",
-    "yaxis_val",
-    "yaxis_scale",
-    "year",
-    "year_var"
-  ]
-  
-  simple_vars.forEach(function(v){
-    chart[v] = function(x) {
-      if (!arguments.length) return vars[v];
-      vars[v] = x;
-      if (vars.check_vars.indexOf(v) >= 0) vars.check.push(x)
-      return chart;
-    }
-  })
-  
-  var deprecated = {
-    "active_var": "active",
-    "color_var": "color",
-    "csv_data": "csv",
-    "csv_columns": "csv",
-    "else_var": "else",
-    "id_var": "id",
-    "nesting": "id",
-    "nesting_aggs": "aggs",
-    "text_var": "text",
-    "tooltip_info": "tooltip",
-    "total_var": "total",
-    "value_var": "value",
-    "xaxis_var": "xaxis",
-    "yaxis_var": "yaxis"
-  }
-  
-  for (d in deprecated) {
-    chart[d] = (function(dep) {
-      return function(x) {
-        d3plus.console.warning("\""+dep+"\" has been deprecated, please use \""+deprecated[dep]+"\"")
-        chart[deprecated[dep]](x)
-        return chart;
-      }
-    })(d)
-  }
-  
-  //===================================================================
-  
-  zoom_controls = function() {
-    d3.select("#zoom_controls").remove()
-    if (!vars.small) {
-      // Create Zoom Controls
-      var zoom_enter = vars.parent.append("div")
-        .attr("id","zoom_controls")
-        .style("top",(vars.margin.top+5)+"px")
-    
-      zoom_enter.append("div")
-        .attr("id","zoom_in")
-        .attr("unselectable","on")
-        .on(d3plus.evt.click,function(){ vars.zoom("in") })
-        .text("+")
-    
-      zoom_enter.append("div")
-        .attr("id","zoom_out")
-        .attr("unselectable","on")
-        .on(d3plus.evt.click,function(){ vars.zoom("out") })
-        .text("-")
-    
-      zoom_enter.append("div")
-        .attr("id","zoom_reset")
-        .attr("unselectable","on")
-        .on(d3plus.evt.click,function(){ 
-          vars.zoom("reset") 
-          vars.update()
-        })
-        .html("\&#8634;")
-    }
-  }
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // X/Y Graph System
-  //-------------------------------------------------------------------
-  
-  var tick_style = {
-    "stroke": "#ccc",
-    "stroke-width": 1,
-    "shape-rendering": "crispEdges"
-  }
-  
-  var axis_style = {
-    "font-size": "12px",
-    "fill": "#888"
-  }
-  
-  var label_style = {
-    "font-size": "14px",
-    "fill": "#333",
-    "text-anchor": "middle"
-  }
-  
-  vars.x_axis = d3.svg.axis()
-    .tickSize(0)
-    .tickPadding(20)
-    .orient('bottom')
-    .tickFormat(function(d, i) {
-      
-      if ((vars.xaxis_scale == "log" && d.toString().charAt(0) == "1")
-          || vars.xaxis_scale != "log") {
-            
-        if (vars.xaxis == vars.year_var) var text = d;
-        else {
-          var text = vars.format(d,vars.xaxis);
+        else if (typeof user == "object") {
+          check_object(vars,key,user)
         }
-      
-        d3.select(this)
-          .style(axis_style)
-          .attr("transform","translate(-22,3)rotate(-65)")
-          .attr("font-family",vars.font)
-          .attr("font-weight",vars.font_weight)
-          .text(text)
+        else {
+          d3plus.console.warning("Incompatible format for ."+key+"() method.")
+        }
         
-        var height = (Math.cos(25)*this.getBBox().width)
-        if (height > vars.graph.yoffset && !vars.small) vars.graph.yoffset = height
+        function check_object(object,property,depth) {
+          if (object[property] === undefined) {
+            d3plus.console.warning("\""+property+"\" cannot be set.");
+          }
+          else {
+            if (typeof depth == "object" && !(depth instanceof Array)) {
+              if (object[property].object) {
+                set_value(object[property],key_type,depth)
+              }
+              else {
+
+                for (d in depth) {
+                  check_object(object[property],d,depth[d]);
+                }
+                
+              }
+            }
+            else {
+              if (["solo","mute"].indexOf(property) >= 0) {
+                object.changed = true
+              }
+              set_value(object,property,depth);
+            }
+          }
+        }
         
-        var tick_offset = 10
-        var tick_opacity = 1
-      }
-      else {
-        var text = null
-        var tick_offset = 5
-        var tick_opacity = 0.25
-      }
-      
-      if (!(tick_offset == 5 && vars.xaxis == vars.year_var)) {
-      
-        var bgtick = d3.select(this.parentNode).selectAll("line.tick")
-          .data([d])
+        function update_array(arr,x) {
+          // if the user has passed an array, use that
+          if(x instanceof Array){
+            arr = x;
+          }
+          // otherwise add/remove it from the array
+          else if(arr.indexOf(x) >= 0){
+            arr.splice(arr.indexOf(x), 1)
+          }
+          // element not in current filter so add it
+          else {
+            arr.push(x)
+          }
           
-        bgtick.enter().append("line")
-          .attr("class","tick")
-          .attr("x1", 0)
-          .attr("x2", 0)
-          .attr("y1", tick_offset)
-          .attr("y2", -vars.graph.height)
-          .attr(tick_style)
-          .attr("opacity",tick_opacity)
+          return arr
+          
+        }
         
-        bgtick.transition().duration(d3plus.timing) 
-          .attr("y1", tick_offset)
-          .attr("y2", -vars.graph.height)
-          .attr("opacity",tick_opacity)
-        
-      }
-      
-      return text;
-      
-    });
-  
-  vars.y_axis = d3.svg.axis()
-    .tickSize(0)
-    .tickPadding(15)
-    .orient('left')
-    .tickFormat(function(d, i) {
-      
-      if ((vars.yaxis_scale == "log" && d.toString().charAt(0) == "1")
-          || vars.yaxis_scale != "log") {
+        function set_value(a,b,c) {
+          
+          if (key == "type") {
+            if (!a.accepted) {
+              a.accepted = Object.keys(d3plus.apps)
+            }
             
-        if (vars.yaxis == vars.year_var) var text = d;
-        else if (vars.layout == "share" && vars.type == "stacked") {
-          var text = d*100+"%"
+            if (a.accepted.indexOf(c) < 0) {
+              for (app in d3plus.apps) {
+                if (d3plus.apps[app].deprecates && d3plus.apps[app].deprecates.indexOf(c) >= 0) {
+                  d3plus.console.warning(JSON.stringify(c)+" has been deprecated by "+JSON.stringify(app)+", please update your code.")
+                  c = app
+                }
+              }
+            }
+            
+          }
+          
+          if (vars.dev.default || key == "dev") {
+            if (b == "default" || b == "key" || !b) {
+              var text = "\."+key+"()"
+            }
+            else {
+              var text = "\""+b+"\" of \."+key+"()"
+            }
+          }
+          
+          if (a.accepted && a.accepted.indexOf(c) < 0) {
+            d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+a.accepted.join("\", \"")+"\"")
+            a.changed = false
+          }
+          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].default == c))) {
+            if (vars.dev.default) d3plus.console.log(text+" was not updated because it did not change.")
+            a.changed = false
+          }
+          else {
+            if (b == "solo" || b == "mute") {
+              if (a[b] instanceof Array) {
+                a[b] = update_array(a[b],c)
+                var arr = a[b]
+              }
+              else {
+                a[b].default = update_array(a[b].default,c)
+                var arr = a[b].default
+              }
+              if (key != "time") {
+                if (arr.length && vars[b].indexOf(key) < 0) {
+                  vars[b].push(key)
+                }
+                else if (!arr.length && vars[b].indexOf(key) >= 0) {
+                  vars[b].splice(vars[b].indexOf(key), 1)
+                }
+              }
+            }
+            else if (key == "id" && b == "key") {
+
+              if (c instanceof Array) {
+                vars.id.nesting = c
+                if (vars.depth.default < c.length) vars.id.key = c[vars.depth.default]
+                else {
+                  vars.id.key = c[0]
+                  vars.depth.default = 0
+                }
+              }
+              else {
+                vars.id.key = c
+                vars.id.nesting = [c]
+                vars.depth.default = 0
+              }
+              a.changed = true
+                
+            }
+            else if (key == "text" && b == "key") {
+
+              if (!vars.text.array) vars.text.array = {}
+              if (typeof c == "string") {
+                vars.text.array[vars.id.key] = [c]
+              }
+              else if (c instanceof Array) {
+                vars.text.array[vars.id.key] = c
+              }
+              else {
+                vars.text.array = c
+                var n = c[vars.id.key] ? c[vars.id.key] : c[Object.keys(c)[0]]
+                vars.text.array[vars.id.key] = typeof n == "string" ? [n] : n
+              }
+              vars.text.key = vars.text.array[vars.id.key][0]
+              a.changed = true
+              
+            }
+            else if (key == "depth") {
+              // Set appropriate depth and id
+              if (c >= vars.id.nesting.length) vars.depth.default = vars.id.nesting.length-1
+              else if (c < 0) vars.depth.default = 0
+              else vars.depth.default = c;
+              vars.id.key = vars.id.nesting[vars.depth.default]
+              
+              if (vars.text.array) {
+
+                // Set appropriate name_array and text
+                var n = vars.text.array[vars.id.key]
+                if (n) {
+                  vars.text.array[vars.id.key] = typeof n == "string" ? [n] : n
+                  vars.text.key = vars.text.array[vars.id.key][0]
+                }
+                
+              }
+              
+              a.changed = true
+            }
+            else if (key == "aggs") {
+              for (agg in c) {
+                if (a[b][agg] && a[b][agg] == c[agg]) {
+                  if (vars.dev.default) d3plus.console.log("Aggregation for \""+agg+"\" is already set to \""+c[agg]+"\"")
+                }
+                else {
+                  a[b][agg] = c[agg]
+                  a.changed = true
+                }
+              }
+            }
+            else {
+              if (typeof a[b] == "object" && a[b] != null && (a[b].key !== undefined || a[b].default !== undefined)) {
+                var k = a[b].key !== undefined ? "key" : "default";
+                a = a[b]
+                b = k
+              }
+              a.previous = a[b]
+              a[b] = c
+              a.changed = true
+            }
+            
+            if ((vars.dev.default || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
+              if (JSON.stringify(a[b]).length < 260) {
+                d3plus.console.log(text+" has been set to "+JSON.stringify(a[b])+".")
+              }
+              else {
+                d3plus.console.log(text+" has been set.")
+              }
+            }
+          }
+          
+        }
+        
+        if (vars.autodraw) {
+          return chart.draw()
         }
         else {
-          var text = vars.format(d,vars.yaxis);
+          return chart
         }
-      
-        d3.select(this)
-          .style(axis_style)
-          .attr("font-family",vars.font)
-          .attr("font-weight",vars.font_weight)
-          .text(text)
-        
-        var width = this.getBBox().width
-        if (width > vars.graph.offset && !vars.small) vars.graph.offset = width
-        
-        var tick_offset = -10
-        var tick_opacity = 1
-      }
-      else {
-        var text = null
-        var tick_offset = -5
-        var tick_opacity = 0.25
-      }
-      
-      if (!(tick_offset == -5 && vars.yaxis == vars.year_var)) {
-        
-        var bgtick = d3.select(this.parentNode).selectAll("line.tick")
-          .data([d])
-        
-        bgtick.enter().append("line")
-          .attr("class","tick")
-          .attr("x1", tick_offset)
-          .attr("x2", vars.graph.width)
-          .attr(tick_style)
-          .attr("opacity",tick_opacity)
-        
-        bgtick.transition().duration(d3plus.timing) 
-          .attr("x1", tick_offset)
-          .attr("x2", vars.graph.width)
-          .attr("opacity",tick_opacity)
         
       }
-      
-      return text;
-      
-    });
-    
-  graph_update = function() {
-
-    // create label group
-    var axes = vars.parent_enter.append("g")
-      .attr("class","axes_labels")
-    
-    // Enter Graph
-    vars.chart_enter = vars.parent_enter.append("g")
-      .attr("class", "chart")
-      .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
-
-    vars.chart_enter.append("rect")
-      .style('fill','#fafafa')
-      .attr("id","background")
-      .attr('x',0)
-      .attr('y',0)
-      .attr('width', vars.graph.width)
-      .attr('height', vars.graph.height)
-      .attr("stroke-width",1)
-      .attr("stroke","#ccc")
-      .attr("shape-rendering","crispEdges")
-      
-    vars.chart_enter.append("path")
-      .attr("id","mirror")
-      .attr("fill","#000")
-      .attr("fill-opacity",0.03)
-      .attr("stroke-width",1)
-      .attr("stroke","#ccc")
-      .attr("stroke-dasharray","10,10")
-      .attr("opacity",0)
-
-    // Create X axis
-    vars.chart_enter.append("g")
-      .attr("transform", "translate(0," + vars.graph.height + ")")
-      .attr("class", "xaxis")
-      .call(vars.x_axis.scale(vars.x_scale))
-
-    // Create Y axis
-    vars.chart_enter.append("g")
-      .attr("class", "yaxis")
-      .call(vars.y_axis.scale(vars.y_scale))
-      
-    var labelx = vars.width/2
-    if (!vars.title_center) labelx += vars.graph.margin.left
-      
-    // Create X axis label
-    axes.append('text')
-      .attr('class', 'x_axis_label')
-      .attr('x', labelx)
-      .attr('y', vars.height-10)
-      .text(vars.format(vars.xaxis))
-      .attr("font-family",vars.font)
-      .attr("font-weight",vars.font_weight)
-      .attr(label_style)
-      
-    // Create Y axis label
-    axes.append('text')
-      .attr('class', 'y_axis_label')
-      .attr('y', 15)
-      .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
-      .text(vars.format(vars.yaxis))
-      .attr("transform","rotate(-90)")
-      .attr("font-family",vars.font)
-      .attr("font-weight",vars.font_weight)
-      .attr(label_style)
-
-    // Set Y axis
-    vars.graph.offset = 0
-    d3.select("g.yaxis")
-      .call(vars.y_axis.scale(vars.y_scale))
-      
-    vars.graph.margin.left += vars.graph.offset
-    vars.graph.width -= vars.graph.offset
-    vars.x_scale.range([0,vars.graph.width])
-    
-    // Set X axis
-    vars.graph.yoffset = 0
-    d3.select("g.xaxis")
-      .call(vars.x_axis.scale(vars.x_scale))
-      
-    vars.graph.height -= vars.graph.yoffset
-    
-    // Update Graph
-    d3.select(".chart").transition().duration(vars.graph.timing)
-      .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
-      .attr("opacity",function(){
-        if (vars.app_data.length == 0) return 0
-        else return 1
-      })
-      .select("rect#background")
-        .attr('width', vars.graph.width)
-        .attr('height', vars.graph.height)
-        
-    d3.select("#mirror").transition().duration(vars.graph.timing)
-      .attr("opacity",function(){
-        return vars.mirror_axis ? 1 : 0
-      })
-      .attr("d",function(){
-        return "M "+vars.graph.width+" "+vars.graph.height+" L 0 "+vars.graph.height+" L "+vars.graph.width+" 0 Z"
-      })
-
-    // Update X axis
-    if (vars.type == "stacked") {
-      vars.y_scale.range([vars.graph.height,0]);
-    }
-    else {
-      vars.y_scale.range([0, vars.graph.height]);
-    }
-    
-    d3.select("g.yaxis")
-      .call(vars.y_axis.scale(vars.y_scale))
-    
-    d3.select("g.xaxis")
-      .attr("transform", "translate(0," + vars.graph.height + ")")
-      .call(vars.x_axis.scale(vars.x_scale))
-    
-    d3.select("g.xaxis").selectAll("g.tick").select("text")
-      .style("text-anchor","end")
-
-    // Update X axis label
-    d3.select(".x_axis_label")
-      .attr('x', labelx)
-      .attr('y', vars.height-10)
-      .attr("opacity",function(){
-        if (vars.app_data.length == 0) return 0
-        else return 1
-      })
-      .text(vars.format(vars.xaxis))
-
-    // Update Y axis label
-    d3.select(".y_axis_label")
-      .attr('y', 15)
-      .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
-      .attr("opacity",function(){
-        if (vars.app_data.length == 0) return 0
-        else return 1
-      })
-      .text(vars.format(vars.yaxis))
-      
-    // Axis Dotted Lines
-    vars.chart_enter.append("line")
-      .attr("id","y_axis_val")
-      .attr("x1",0)
-      .attr("x2",vars.graph.width)
-      .attr("stroke","#ccc")
-      .attr("stroke-width",3)
-      .attr("stroke-dasharray","10,10")
-      
-    vars.chart_enter.append("text")
-      .attr("id","y_axis_val_text")
-      .style(axis_style)
-      .attr("text-align","start")
-      .attr("x","10px")
-      
-    if (vars.yaxis_val && typeof vars.yaxis_val == "object") {
-      var y_name = Object.keys(vars.yaxis_val)[0]
-      var y_val = vars.yaxis_val[y_name]
-    }
-    else if (vars.yaxis_val) {
-      var y_val = vars.yaxis_val, y_name = null
-    }
-    else {
-      var y_val = null, y_name = null
-    }
-    
-    if (typeof y_val == "string") y_val = parseFloat(y_val)
-      
-    d3.select("#y_axis_val").transition().duration(vars.graph.timing)
-      .attr("y1",function(d){
-        return y_val ? vars.y_scale(y_val) : 0
-      })
-      .attr("y2",function(d){
-        return y_val ? vars.y_scale(y_val) : 0
-      })
-      .attr("opacity",function(d){
-        var yes = y_val > vars.y_scale.domain()[1] && y_val < vars.y_scale.domain()[0]
-        return y_val != null && yes ? 1 : 0
-      })
-      
-    d3.select("#y_axis_val_text").transition().duration(vars.graph.timing)
-      .text(function(){
-        if (y_val != null) {
-          var v = vars.format(y_val,y_name)
-          return y_name ? vars.format(y_name) + ": " + v : v
-        }
-        else return null
-      })
-      .attr("y",(vars.y_scale(y_val)+20)+"px")
-      
-
-    vars.chart_enter.append("line")
-      .attr("id","x_axis_val")
-      .attr("y1",0)
-      .attr("y2",vars.graph.height)
-      .attr("stroke","#ccc")
-      .attr("stroke-width",3)
-      .attr("stroke-dasharray","10,10")
-    
-    vars.chart_enter.append("text")
-      .attr("id","x_axis_val_text")
-      .style(axis_style)
-      .attr("text-align","start")
-      .attr("y",(vars.graph.height-8)+"px")
-    
-    if (vars.xaxis_val && typeof vars.xaxis_val == "object") {
-      var x_name = Object.keys(vars.xaxis_val)[0]
-      var x_val = vars.xaxis_val[x_name]
-    }
-    else if (vars.xaxis_val) {
-      var x_val = vars.xaxis_val, x_name = null
-    }
-    else {
-      var x_val = null, x_name = null
-    }
-  
-    if (typeof x_val == "string") x_val = parseFloat(x_val)
-    
-    d3.select("#x_axis_val").transition().duration(vars.graph.timing)
-      .attr("x1",function(d){
-        return x_val ? vars.x_scale(x_val) : 0
-      })
-      .attr("x2",function(d){
-        return x_val ? vars.x_scale(x_val) : 0
-      })
-      .attr("opacity",function(d){
-        var yes = x_val > vars.x_scale.domain()[0] && x_val < vars.x_scale.domain()[1]
-        return x_val != null && yes ? 1 : 0
-      })
-    
-    d3.select("#x_axis_val_text").transition().duration(vars.graph.timing)
-      .text(function(){
-        if (x_val != null) {
-          var v = vars.format(x_val,x_name)
-          return x_name ? vars.format(x_name) + ": " + v : v
-        }
-        else return null
-      })
-      .attr("x",(vars.x_scale(x_val)+10)+"px")
-      
-    // Move titles
-    d3plus.utils.title_update(vars)
-    
-    vars.graph.timing = d3plus.timing
-      
-  }
-
-  //===================================================================
+    })(p)
+  })
 
   return chart;
 };

@@ -5,20 +5,20 @@
 d3plus.utils.wordwrap = function(params) {
   
   var parent = params.parent,
-      padding = params.padding ? params.padding : 10,
-      width = params.width ? params.width-(padding*2) : 20000,
+      width = params.width ? params.width : 20000,
       height = params.height ? params.height : 20000,
       resize = params.resize,
       font_max = params.font_max ? params.font_max : 40,
-      font_min = params.font_min ? params.font_min : 10;
+      font_min = params.font_min ? params.font_min : 9,
+      text_array = params.text.slice(0)
       
-  if (params.text instanceof Array) wrap(String(params.text.shift()).split(" "))
-  else wrap(String(params.text).split(" "))
+  if (text_array instanceof Array) wrap(String(text_array.shift()).split(" "))
+  else wrap(String(text_array).split(" "))
   
   function wrap(words) {
     
     if (resize) {
-    
+      
       // Start by trying the largest font size
       var size = font_max
       size = Math.floor(size)
@@ -29,17 +29,17 @@ d3plus.utils.wordwrap = function(params) {
       for(var i=0; i<words.length; i++) {
         if (words.length == 1) var t = words[i]
         else var t = words[i]+"..."
-        d3.select(parent).append('tspan').attr('x',0).text(t)
+        d3.select(parent).append('tspan').attr("x",0).text(t)
       }
     
       // If the longest word is too wide, make the text proportionately smaller
       if (parent.getBBox().width > width) size = size*(width/parent.getBBox().width)
-  
+      
       // If the new size is too small, return NOTHING
       if (size < font_min) {
         d3.select(parent).selectAll('tspan').remove();
-        if (typeof params.text == "string" || params.text.length == 0) return;
-        else wrap(String(params.text.shift()).split(/[\s-]/))
+        if (typeof text_array == "string" || text_array.length == 0) return;
+        else wrap(String(text_array.shift()).split(/[\s-]/))
         return;
       }
 
@@ -49,7 +49,7 @@ d3plus.utils.wordwrap = function(params) {
     
       // Flow text into box
       flow();
-    
+      
       // If text doesn't fit height-wise, shrink it!
       if (parent.childNodes.length*parent.getBBox().height > height) {
         var temp_size = size*(height/(parent.childNodes.length*parent.getBBox().height))
@@ -69,10 +69,10 @@ d3plus.utils.wordwrap = function(params) {
     
       d3.select(parent).selectAll('tspan').remove()
       
-      var x_pos = parent.getAttribute('x')
+      var x_pos = parent.getAttribute("x")
       
       var tspan = d3.select(parent).append('tspan')
-        .attr('x',x_pos)
+        .attr("x",x_pos)
         .text(words[0])
 
       for (var i=1; i < words.length; i++) {
@@ -84,7 +84,7 @@ d3plus.utils.wordwrap = function(params) {
           tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(" ")))
     
           tspan = d3.select(parent).append('tspan')
-            .attr('x',x_pos)
+            .attr("x",x_pos)
             .text(words[i])
             
         }

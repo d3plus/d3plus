@@ -1,23 +1,55 @@
 JS_FILES = \
 	src/begin.js \
 	src/general.js \
+	src/public.js \
 	src/viz.js \
+	\
+	src/apps/bubbles.js \
+	src/apps/chart.js \
+	src/apps/geo_map.js \
+	src/apps/line.js \
 	src/apps/network.js \
+	src/apps/rings.js \
 	src/apps/stacked.js \
 	src/apps/tree_map.js \
-	src/apps/geo_map.js \
-	src/apps/pie_scatter.js \
-	src/apps/bubbles.js \
-	src/apps/rings.js \
-	src/ui/tooltip.js \
-	src/utils/data.js \
+	\
+	src/data/color.js \
+	src/data/filter.js \
+	src/data/format.js \
+	src/data/nest.js \
+	\
+	src/shapes/area.js \
+	src/shapes/color.js \
+	src/shapes/coordinates.js \
+	src/shapes/donut.js \
+	src/shapes/draw.js \
+	src/shapes/fill.js \
+	src/shapes/labels.js \
+	src/shapes/line.js \
+	src/shapes/links.js \
+	src/shapes/rect.js \
+	src/shapes/style.js \
+	\
+	src/styles/default.js \
+	\
+	src/tooltip/app.js \
+	src/tooltip/arrow.js \
+	src/tooltip/create.js \
+	src/tooltip/data.js \
+	src/tooltip/move.js \
+	src/tooltip/remove.js \
+	\
+	src/utils/color.js \
 	src/utils/error.js \
-	src/utils/nesting.js \
 	src/utils/titles.js \
-	src/utils/tooltip.js \
 	src/utils/utils.js \
 	src/utils/variables.js \
 	src/utils/wordwrap.js \
+	\
+	src/zoom/bounds.js \
+	src/zoom/controls.js \
+	src/zoom/reset.js \
+	\
 	src/end.js \
 
 JS_COMPILER = uglifyjs
