@@ -69,7 +69,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         return 0
       }
       else {
-
+        
         var align = vars.style.labels.align,
             height = d3.select(this).node().getBBox().height,
             diff = parseFloat(d3.select(this).style("font-size"),10)/5
@@ -96,7 +96,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           }
         
         }
-      
+
         return y
         
       }
@@ -128,7 +128,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           
           }
           else {
-            
+            console.log(t.names[0])
             if (vars.style.labels.align != "middle") {
               var height = t.h-t.share
             }
@@ -149,6 +149,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         }
         
       })
+      .attr("x",x_pos)
       .attr("y",y_pos)
       .selectAll("tspan")
         .attr("x",x_pos)
@@ -192,15 +193,18 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
               return t.w+""+t.h+""+t.text
             })
     
+          text
+            .transition().duration(vars.style.timing.transitions/2)
+            .call(style,true)
+    
           text.enter().insert("text",".mouse")
             .attr("class","share")
             .attr("opacity",0)
-            .call(style)
+            .call(style,true)
     
           text
             .transition().duration(vars.style.timing.transitions/2)
             .delay(vars.style.timing.transitions/2)
-            .call(style,true)
             .attr("opacity",0.5)
       
           share_size = text.node().getBBox().height
@@ -224,17 +228,20 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             .data([label],function(t){
               return t.w+""+t.h+""+t.names.join("")
             })
+        
+          text
+            .transition().duration(vars.style.timing.transitions/2)
+            .call(style,true)
       
           text.enter().insert("text",".mouse")
             .attr("class","label")
             .attr("opacity",0)
-            .call(style)
+            .call(style,true)
         
           text
             .transition().duration(vars.style.timing.transitions/2)
             .delay(vars.style.timing.transitions/2)
               .attr("opacity",1)
-              .call(style,true)
     
           text.exit()
             .call(remove)
