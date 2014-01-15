@@ -20,6 +20,7 @@ d3plus.tooltip.create = function(params) {
   params.fontfamily = params.fontfamily || "sans-serif"
   params.fontweight = params.fontweight || "normal"
   params.style = params.style || "default"
+  params.rtl = params.rtl || false
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function that closes ALL Descriptions
@@ -250,6 +251,13 @@ d3plus.tooltip.create = function(params) {
           .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
           })
+          
+      if (params.rtl) {
+        val.style("left","6px")
+      }
+      else {
+        val.style("right","6px")
+      }
           
       if (params.mouseevents && d.desc) {
         var desc = block.append("div")
