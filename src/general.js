@@ -8,7 +8,7 @@ d3plus.ie = /*@cc_on!@*/false;
 d3plus.evt = {}; // stores all mouse events that could occur
 
 // Modernizr touch events
-if (Modernizr && Modernizr.touch) {
+if (window.Modernizr && Modernizr.touch) {
   d3plus.evt.click = "touchend"
   d3plus.evt.down = "touchstart"
   d3plus.evt.up = "touchend"
@@ -32,7 +32,7 @@ if (Modernizr && Modernizr.touch) {
 
 // Modernizr SVG Capable Detect
 d3plus.svg = true
-if (Modernizr && Modernizr.svg === false) {
+if (window.Modernizr && Modernizr.svg === false) {
   d3plus.svg = false
 }
 
