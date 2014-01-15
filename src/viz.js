@@ -609,11 +609,9 @@ d3plus.viz = function() {
           
           if (a.accepted && a.accepted.indexOf(c) < 0) {
             d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+a.accepted.join("\", \"")+"\"")
-            a.changed = false
           }
           else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].default == c))) {
             if (vars.dev.default) d3plus.console.log(text+" was not updated because it did not change.")
-            a.changed = false
           }
           else {
             if (b == "solo" || b == "mute") {
