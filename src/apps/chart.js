@@ -258,10 +258,16 @@ d3plus.apps.chart.draw = function(vars) {
               .text(text)
             
             if (axis == "x") {
-              d3.select(this).attr("transform","translate(-17,6)rotate(-65)");
-              var height = (Math.cos(25)*this.getBBox().width);
+              var w = this.getBBox().width,
+                  h = this.getBBox().height
+              d3.select(this).attr("transform","translate(18,8)rotate(70)");
+              var height = (Math.cos(25)*w)+5;
               if (height > vars.graph.yoffset && !vars.small) {
                 vars.graph.yoffset = height;
+              }
+              var width = (Math.cos(25)*h)+5;
+              if (width > vars.graph.rightoffset && !vars.small) {
+                vars.graph.rightoffset = width;
               }
             }
             else {
@@ -410,13 +416,17 @@ d3plus.apps.chart.draw = function(vars) {
   vars.x_scale.range([0,vars.graph.width])
   
   vars.graph.yoffset = 0
+  vars.graph.rightoffset = 0
   xaxis.call(vars.x_axis)
     .selectAll("line")
     .call(tick_style,"x")
     
   vars.graph.height -= vars.graph.yoffset
+  vars.graph.width -= vars.graph.rightoffset
+  vars.x_scale.range([0,vars.graph.width])
   vars.y_scale.range([0,vars.graph.height])
   yaxis.call(vars.y_axis)
+  xaxis.call(vars.x_axis)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update SVG Elements
@@ -453,7 +463,7 @@ d3plus.apps.chart.draw = function(vars) {
     .attr("transform", "translate(0," + vars.graph.height + ")")
     .call(vars.x_axis.scale(vars.x_scale))
     .selectAll("g.tick").select("text")
-      .style("text-anchor","end")
+      .style("text-anchor","start")
 
   xaxis.selectAll("line").transition().duration(vars.style.timing.transitions)
       .call(tick_style,"x")
