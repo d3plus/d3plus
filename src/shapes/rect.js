@@ -81,7 +81,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         
         d.d3plus_share = {
           "w": w,
-          "h": h,
+          "h": h/4,
           "x": 0,
           "y": 0
         }

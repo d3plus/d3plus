@@ -75,11 +75,12 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             diff = parseFloat(d3.select(this).style("font-size"),10)/5
             
         if (this.className.baseVal == "share") {
+          var pheight = d3.select(this.parentNode).datum().d3plus.height
           if (align == "end") {
-            var y = t.y-t.h/2-diff
+            var y = t.y-pheight/2+diff/2
           }
           else {
-            var y = t.y+t.h/2-height
+            var y = t.y+pheight/2-height-diff/2
           }
         }
         else {
@@ -122,7 +123,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
               "width": t.w,
               "height": t.h,
               "resize": true,
-              "font_max": 20
+              "font_max": 70
             })
           
           }
