@@ -23,17 +23,43 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       var align = vars.style.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "share" : this.className.baseVal == "share",
-          width = d3.select(this).node().getBBox().width
+          width = d3.select(this).node().getBBox().width,
+          rtl = vars.style.labels.dir == "rtl"
           
       if (align == "middle" || share) {
-        return t.x-width/2
+        var pos = t.x-width/2
       }
-      else if (align == "end") {
-        return t.x+t.w/2-width
+      else if ((align == "end" && !rtl) || (align == "start" && rtl)) {
+        var pos = t.x+t.w/2-width
       }
       else {
-        return t.x-t.w/2
+        var pos = t.x-t.w/2
       }
+      
+      if (tspan) {
+        if (align == "middle") {
+          if (vars.style.labels.dir == "rtl") {
+            pos -= (width-this.offsetWidth)/2
+          }
+          else {
+            pos += (width-this.offsetWidth)/2
+          }
+        }
+        else if (align == "end") {
+          if (vars.style.labels.dir == "rtl") {
+            pos -= (width-this.offsetWidth)
+          }
+          else {
+            pos += (width-this.offsetWidth)
+          }
+        }
+      }
+      
+      if (vars.style.labels.dir == "rtl") {
+        pos += width
+      }
+      
+      return pos
       
     }
     

@@ -32,10 +32,18 @@ d3plus.viz = function() {
     selection.each(function() {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // If placing into a new container, remove it's contents.
+      // If placing into a new container, remove it's contents
+      // and check text direction.
       //-------------------------------------------------------------------
       if (vars.container.changed) {
         d3.select(vars.container.default).html("")
+        var dir = d3.select("html").attr("dir")
+        if (dir) {
+          vars.style.labels.dir = dir
+        }
+        else {
+          vars.style.labels.dir = "ltr"
+        }
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
