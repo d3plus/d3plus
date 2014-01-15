@@ -249,7 +249,7 @@ d3plus.apps.chart.draw = function(vars) {
             else {
               var text = vars.format(d,vars[axis].key);
             }
-                  
+            
             d3.select(this)
               .style("font-size",vars.style.ticks.font.size)
               .style("fill",vars.style.ticks.font.color)
@@ -409,7 +409,7 @@ d3plus.apps.chart.draw = function(vars) {
   vars.graph.offset = 0
   yaxis.call(vars.y_axis)
     .selectAll("line")
-    .call(tick_style,"x")
+    .call(tick_style,"y")
     
   vars.graph.margin.left += vars.graph.offset
   vars.graph.width -= vars.graph.offset
@@ -451,7 +451,8 @@ d3plus.apps.chart.draw = function(vars) {
     })
     
   // Update Y Axis
-  yaxis.call(vars.y_axis)
+  yaxis.transition().duration(vars.style.timing.transitions)
+    .call(vars.y_axis.scale(vars.y_scale))
 
   yaxis.selectAll("line").transition().duration(vars.style.timing.transitions)
       .call(tick_style,"y")
