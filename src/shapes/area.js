@@ -49,7 +49,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
             size_old = label.w*label.h,
             aspect_new = obj.w/obj.h,
             size_new = obj.w*obj.h
-
+            
         if ((!toosmall && size_old < size_new) || !label.w) {
           label = {
             "w": obj.w-(vars.style.labels.padding*2),
@@ -58,7 +58,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
             "y": obj.y+(obj.h/2)
           }
         }
-        if (toosmall) {
+        if (obj.h < 10) {
           obj = d3plus.utils.copy(area)
         }
     
