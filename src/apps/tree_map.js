@@ -15,7 +15,7 @@ d3plus.apps.tree_map.draw = function(vars) {
     .value(function(d) { return d3plus.variable.value(vars,d,vars.size.key); })
     .nodes({"name":"root", "children": vars.app_data})
     .filter(function(d) {
-      return !d.children;
+      return !d.children && d.area;
     })
   
   if (data.length) {
