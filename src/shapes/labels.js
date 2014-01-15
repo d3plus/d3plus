@@ -128,7 +128,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           
           }
           else {
-            console.log(t.names[0])
+            
             if (vars.style.labels.align != "middle") {
               var height = t.h-t.share
             }
