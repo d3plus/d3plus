@@ -240,28 +240,9 @@ d3plus.data.format = function(vars) {
       vars.app_data = [];
     }
     
-    function sum_objects(obj) {
-      if (!vars.app_data[obj[vars.id.key]]) {
-        vars.app_data[obj[vars.id.key]] = obj
-      }
-      else {
-        for (k in obj) {
-          if (!vars.app_data[obj[vars.id.key]][k]) {
-            vars.app_data[obj[vars.id.key]][k] = obj[k]
-          }
-          else {
-            vars.app_data[obj[vars.id.key]][k] = obj[k]
-          }
-        }
-      }
-    }
-    
-    if (vars.time.solo.length > 0) {
-      var data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]],
-          missing = []
-          
+    if (vars.time.solo.length) {
+      var years = []
       vars.time.solo.forEach(function(y){
-        years = []
         if (typeof y == "function") {
           vars.data.time.forEach(function(t){
             if (y(t)) {
@@ -272,23 +253,58 @@ d3plus.data.format = function(vars) {
         else {
           years.push(y)
         }
-        years.forEach(function(t){
-
-          if (data[t]) {
-            if (vars.data.type == "object") {
-              for (k in data[t]) {
-                sum_objects(data[t][k])
-              }
+      })
+    }
+    else if (vars.time.mute.length) {
+      var muted = []
+      vars.time.mute.forEach(function(y){
+        if (typeof y == "function") {
+          vars.data.time.forEach(function(t){
+            if (y(t)) {
+              muted.push(t)
             }
-            else {
-              vars.app_data = vars.app_data.concat(data[t])
+          })
+        }
+        else {
+          muted.push(y)
+        }
+      })
+      var years = vars.data.time.filter(function(t){
+        return muted.indexOf(t) < 0
+      })
+    }
+    else {
+      var years = ["all"]
+    }
+    
+    if (years.length == 1) {
+      vars.app_data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]][years[0]]
+    }
+    else {
+      
+      var data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]],
+          missing = []
+          
+      years.forEach(function(y){
+
+        if (data[y]) {
+          
+          if (vars.data.type == "object") {
+            for (k in data[y]) {
+              if (!vars.app_data[data[y][k][vars.id.key]]) {
+                vars.app_data[data[y][k][vars.id.key]] = []
+              }
+              vars.app_data[data[y][k][vars.id.key]].push(data[y][k])
             }
           }
           else {
-            missing.push(t)
+            vars.app_data = vars.app_data.concat(data[y])
           }
+        }
+        else {
+          missing.push(y)
+        }
           
-        })
       })
       
       if (vars.app_data.length == 0 && missing.length) {
@@ -296,26 +312,25 @@ d3plus.data.format = function(vars) {
         d3plus.console.warning(vars.internal_error)
       }
       else {
-        vars.internal_error = null
-      }
-    }
-    else if (vars.time.mute.length > 0) {
-      var data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]]
-      for (y in data) {
-        if (y != "all" && vars.time.mute.indexOf(y) < 0) {
-          if (vars.data.type == "object") {
-            for (k in data[y]) {
-              sum_objects(data[y][k])
+        if (vars.app_data instanceof Array) {
+          var separated = false
+          vars.axes.values.forEach(function(a){
+            if (vars[a].key == vars.time.key && vars[a].scale.default == "continuous") {
+              separated = true
             }
-          }
-          else {
-            vars.app_data = vars.app_data.concat(data[y])
+          })
+          if (!separated) {
+            vars.app_data = d3plus.data.nest(vars,vars.app_data,[vars.id.key])
           }
         }
+        else if (typeof vars.app_data == "object") {
+          for (k in vars.app_data) {
+            vars.app_data[k] = d3plus.data.nest(vars,vars.app_data[k],[vars.id.key])[0]
+          }
+        }
+        vars.internal_error = null
       }
-    }
-    else {
-      vars.app_data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]].all
+      
     }
     
   }
