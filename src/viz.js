@@ -144,19 +144,16 @@ d3plus.viz = function() {
       vars.g.apps[vars.type.default] = vars.g.app.selectAll("g#"+vars.type.default).data([vars.type.default])
       vars.g.apps[vars.type.default].enter().append("g")
         .attr("id",vars.type.default)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       // Enter Links Group
       vars.g.links = vars.g.zoom.selectAll("g#links").data(["links"])
       vars.g.links.enter().append("g")
         .attr("id","links")
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       // Enter App Data Group
       vars.g.data = vars.g.zoom.selectAll("g#data").data(["data"])
       vars.g.data.enter().append("g")
         .attr("id","data")
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
       vars.defs = vars.svg.selectAll("defs").data(["defs"])
       vars.defs.enter().append("defs")
@@ -195,16 +192,8 @@ d3plus.viz = function() {
         .attr("height",vars.app_height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
-      // Update App Background Groups
-      vars.g.app.selectAll("g").transition().duration(vars.style.timing.transitions)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-        
-      // Update Links Group
-      vars.g.links.selectAll("g").transition().duration(vars.style.timing.transitions)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-    
-      // Update Data Group
-      vars.g.data.transition().duration(vars.style.timing.transitions)
+      // Update Container Groups
+      vars.g.container.transition().duration(vars.style.timing.transitions)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
