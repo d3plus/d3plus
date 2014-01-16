@@ -2,14 +2,14 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.0.0";
+d3plus.version = "1.0.1 - Blue";
 
 d3plus.ie = /*@cc_on!@*/false;
 
 d3plus.evt = {}; // stores all mouse events that could occur
 
 // Modernizr touch events
-if (Modernizr && Modernizr.touch) {
+if (window.Modernizr && Modernizr.touch) {
   d3plus.evt.click = "touchend"
   d3plus.evt.down = "touchstart"
   d3plus.evt.up = "touchend"
@@ -33,7 +33,7 @@ if (Modernizr && Modernizr.touch) {
 
 // Modernizr SVG Capable Detect
 d3plus.svg = true
-if (Modernizr && Modernizr.svg === false) {
+if (window.Modernizr && Modernizr.svg === false) {
   d3plus.svg = false
 }
 
@@ -402,10 +402,18 @@ d3plus.viz = function() {
     selection.each(function() {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // If placing into a new container, remove it's contents.
+      // If placing into a new container, remove it's contents
+      // and check text direction.
       //-------------------------------------------------------------------
       if (vars.container.changed) {
         d3.select(vars.container.default).html("")
+        var dir = d3.select("html").attr("dir")
+        if (dir) {
+          vars.style.labels.dir = dir
+        }
+        else {
+          vars.style.labels.dir = "ltr"
+        }
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -979,11 +987,9 @@ d3plus.viz = function() {
           
           if (a.accepted && a.accepted.indexOf(c) < 0) {
             d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+a.accepted.join("\", \"")+"\"")
-            a.changed = false
           }
           else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].default == c))) {
             if (vars.dev.default) d3plus.console.log(text+" was not updated because it did not change.")
-            a.changed = false
           }
           else {
             if (b == "solo" || b == "mute") {
@@ -1724,7 +1730,7 @@ d3plus.apps.chart.draw = function(vars) {
             else {
               var text = vars.format(d,vars[axis].key);
             }
-                  
+            
             d3.select(this)
               .style("font-size",vars.style.ticks.font.size)
               .style("fill",vars.style.ticks.font.color)
@@ -1733,10 +1739,16 @@ d3plus.apps.chart.draw = function(vars) {
               .text(text)
             
             if (axis == "x") {
-              d3.select(this).attr("transform","translate(-17,6)rotate(-65)");
-              var height = (Math.cos(25)*this.getBBox().width);
+              var w = this.getBBox().width,
+                  h = this.getBBox().height
+              d3.select(this).attr("transform","translate(18,8)rotate(70)");
+              var height = (Math.cos(25)*w)+5;
               if (height > vars.graph.yoffset && !vars.small) {
                 vars.graph.yoffset = height;
+              }
+              var width = (Math.cos(25)*h)+5;
+              if (width > vars.graph.rightoffset && !vars.small) {
+                vars.graph.rightoffset = width;
               }
             }
             else {
@@ -1878,20 +1890,24 @@ d3plus.apps.chart.draw = function(vars) {
   vars.graph.offset = 0
   yaxis.call(vars.y_axis)
     .selectAll("line")
-    .call(tick_style,"x")
+    .call(tick_style,"y")
     
   vars.graph.margin.left += vars.graph.offset
   vars.graph.width -= vars.graph.offset
   vars.x_scale.range([0,vars.graph.width])
   
   vars.graph.yoffset = 0
+  vars.graph.rightoffset = 0
   xaxis.call(vars.x_axis)
     .selectAll("line")
     .call(tick_style,"x")
     
   vars.graph.height -= vars.graph.yoffset
+  vars.graph.width -= vars.graph.rightoffset
+  vars.x_scale.range([0,vars.graph.width])
   vars.y_scale.range([0,vars.graph.height])
   yaxis.call(vars.y_axis)
+  xaxis.call(vars.x_axis)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update SVG Elements
@@ -1916,7 +1932,8 @@ d3plus.apps.chart.draw = function(vars) {
     })
     
   // Update Y Axis
-  yaxis.call(vars.y_axis)
+  yaxis.transition().duration(vars.style.timing.transitions)
+    .call(vars.y_axis.scale(vars.y_scale))
 
   yaxis.selectAll("line").transition().duration(vars.style.timing.transitions)
       .call(tick_style,"y")
@@ -1928,7 +1945,7 @@ d3plus.apps.chart.draw = function(vars) {
     .attr("transform", "translate(0," + vars.graph.height + ")")
     .call(vars.x_axis.scale(vars.x_scale))
     .selectAll("g.tick").select("text")
-      .style("text-anchor","end")
+      .style("text-anchor","start")
 
   xaxis.selectAll("line").transition().duration(vars.style.timing.transitions)
       .call(tick_style,"x")
@@ -3550,7 +3567,7 @@ d3plus.apps.tree_map.draw = function(vars) {
     .value(function(d) { return d3plus.variable.value(vars,d,vars.size.key); })
     .nodes({"name":"root", "children": vars.app_data})
     .filter(function(d) {
-      return !d.children;
+      return !d.children && d.area;
     })
   
   if (data.length) {
@@ -3936,28 +3953,9 @@ d3plus.data.format = function(vars) {
       vars.app_data = [];
     }
     
-    function sum_objects(obj) {
-      if (!vars.app_data[obj[vars.id.key]]) {
-        vars.app_data[obj[vars.id.key]] = obj
-      }
-      else {
-        for (k in obj) {
-          if (!vars.app_data[obj[vars.id.key]][k]) {
-            vars.app_data[obj[vars.id.key]][k] = obj[k]
-          }
-          else {
-            vars.app_data[obj[vars.id.key]][k] = obj[k]
-          }
-        }
-      }
-    }
-    
-    if (vars.time.solo.length > 0) {
-      var data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]],
-          missing = []
-          
+    if (vars.time.solo.length) {
+      var years = []
       vars.time.solo.forEach(function(y){
-        years = []
         if (typeof y == "function") {
           vars.data.time.forEach(function(t){
             if (y(t)) {
@@ -3968,23 +3966,58 @@ d3plus.data.format = function(vars) {
         else {
           years.push(y)
         }
-        years.forEach(function(t){
-
-          if (data[t]) {
-            if (vars.data.type == "object") {
-              for (k in data[t]) {
-                sum_objects(data[t][k])
-              }
+      })
+    }
+    else if (vars.time.mute.length) {
+      var muted = []
+      vars.time.mute.forEach(function(y){
+        if (typeof y == "function") {
+          vars.data.time.forEach(function(t){
+            if (y(t)) {
+              muted.push(t)
             }
-            else {
-              vars.app_data = vars.app_data.concat(data[t])
+          })
+        }
+        else {
+          muted.push(y)
+        }
+      })
+      var years = vars.data.time.filter(function(t){
+        return muted.indexOf(t) < 0
+      })
+    }
+    else {
+      var years = ["all"]
+    }
+    
+    if (years.length == 1) {
+      vars.app_data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]][years[0]]
+    }
+    else {
+      
+      var data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]],
+          missing = []
+          
+      years.forEach(function(y){
+
+        if (data[y]) {
+          
+          if (vars.data.type == "object") {
+            for (k in data[y]) {
+              if (!vars.app_data[data[y][k][vars.id.key]]) {
+                vars.app_data[data[y][k][vars.id.key]] = []
+              }
+              vars.app_data[data[y][k][vars.id.key]].push(data[y][k])
             }
           }
           else {
-            missing.push(t)
+            vars.app_data = vars.app_data.concat(data[y])
           }
+        }
+        else {
+          missing.push(y)
+        }
           
-        })
       })
       
       if (vars.app_data.length == 0 && missing.length) {
@@ -3992,26 +4025,25 @@ d3plus.data.format = function(vars) {
         d3plus.console.warning(vars.internal_error)
       }
       else {
-        vars.internal_error = null
-      }
-    }
-    else if (vars.time.mute.length > 0) {
-      var data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]]
-      for (y in data) {
-        if (y != "all" && vars.time.mute.indexOf(y) < 0) {
-          if (vars.data.type == "object") {
-            for (k in data[y]) {
-              sum_objects(data[y][k])
+        if (vars.app_data instanceof Array) {
+          var separated = false
+          vars.axes.values.forEach(function(a){
+            if (vars[a].key == vars.time.key && vars[a].scale.default == "continuous") {
+              separated = true
             }
-          }
-          else {
-            vars.app_data = vars.app_data.concat(data[y])
+          })
+          if (!separated) {
+            vars.app_data = d3plus.data.nest(vars,vars.app_data,[vars.id.key])
           }
         }
+        else if (typeof vars.app_data == "object") {
+          for (k in vars.app_data) {
+            vars.app_data[k] = d3plus.data.nest(vars,vars.app_data[k],[vars.id.key])[0]
+          }
+        }
+        vars.internal_error = null
       }
-    }
-    else {
-      vars.app_data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]].all
+      
     }
     
   }
@@ -4095,7 +4127,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
         to_return[nest_key] = nest_obj
         
         for (key in vars.data.keys) {
-          if (vars.id.nesting.indexOf(key) <= vars.id.nesting.indexOf(nest_key) && leaves[0][key]
+          if (vars.id.nesting.indexOf(key) <= vars.id.nesting.indexOf(nest_key) && key in leaves[0]
             && (!vars.active.key || key != vars.active.key) && key != "d3plus") {
             if (typeof vars.aggs.default[key] == "function") {
               to_return[key] = vars.aggs.default[key](leaves)
@@ -4225,7 +4257,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
             size_old = label.w*label.h,
             aspect_new = obj.w/obj.h,
             size_new = obj.w*obj.h
-
+            
         if ((!toosmall && size_old < size_new) || !label.w) {
           label = {
             "w": obj.w-(vars.style.labels.padding*2),
@@ -4234,7 +4266,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
             "y": obj.y+(obj.h/2)
           }
         }
-        if (toosmall) {
+        if (obj.h < 10) {
           obj = d3plus.utils.copy(area)
         }
     
@@ -5339,17 +5371,43 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       var align = vars.style.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "share" : this.className.baseVal == "share",
-          width = d3.select(this).node().getBBox().width
+          width = d3.select(this).node().getBBox().width,
+          rtl = vars.style.labels.dir == "rtl"
           
       if (align == "middle" || share) {
-        return t.x-width/2
+        var pos = t.x-width/2
       }
-      else if (align == "end") {
-        return t.x+t.w/2-width
+      else if ((align == "end" && !rtl) || (align == "start" && rtl)) {
+        var pos = t.x+t.w/2-width
       }
       else {
-        return t.x-t.w/2
+        var pos = t.x-t.w/2
       }
+      
+      if (tspan) {
+        if (align == "middle") {
+          if (vars.style.labels.dir == "rtl") {
+            pos -= (width-this.offsetWidth)/2
+          }
+          else {
+            pos += (width-this.offsetWidth)/2
+          }
+        }
+        else if (align == "end") {
+          if (vars.style.labels.dir == "rtl") {
+            pos -= (width-this.offsetWidth)
+          }
+          else {
+            pos += (width-this.offsetWidth)
+          }
+        }
+      }
+      
+      if (vars.style.labels.dir == "rtl") {
+        pos += width
+      }
+      
+      return pos
       
     }
     
@@ -5359,17 +5417,18 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         return 0
       }
       else {
-
+        
         var align = vars.style.labels.align,
             height = d3.select(this).node().getBBox().height,
             diff = parseFloat(d3.select(this).style("font-size"),10)/5
             
         if (this.className.baseVal == "share") {
+          var pheight = d3.select(this.parentNode).datum().d3plus.height
           if (align == "end") {
-            var y = t.y-t.h/2-diff
+            var y = t.y-pheight/2+diff/2
           }
           else {
-            var y = t.y+t.h/2-height
+            var y = t.y+pheight/2-height-diff/2
           }
         }
         else {
@@ -5385,7 +5444,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           }
         
         }
-      
+
         return y
         
       }
@@ -5412,7 +5471,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
               "width": t.w,
               "height": t.h,
               "resize": true,
-              "font_max": 20
+              "font_max": 70
             })
           
           }
@@ -5438,6 +5497,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         }
         
       })
+      .attr("x",x_pos)
       .attr("y",y_pos)
       .selectAll("tspan")
         .attr("x",x_pos)
@@ -5481,15 +5541,18 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
               return t.w+""+t.h+""+t.text
             })
     
+          text
+            .transition().duration(vars.style.timing.transitions/2)
+            .call(style,true)
+    
           text.enter().insert("text",".mouse")
             .attr("class","share")
             .attr("opacity",0)
-            .call(style)
+            .call(style,true)
     
           text
             .transition().duration(vars.style.timing.transitions/2)
             .delay(vars.style.timing.transitions/2)
-            .call(style,true)
             .attr("opacity",0.5)
       
           share_size = text.node().getBBox().height
@@ -5513,17 +5576,20 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             .data([label],function(t){
               return t.w+""+t.h+""+t.names.join("")
             })
+        
+          text
+            .transition().duration(vars.style.timing.transitions/2)
+            .call(style,true)
       
           text.enter().insert("text",".mouse")
             .attr("class","label")
             .attr("opacity",0)
-            .call(style)
+            .call(style,true)
         
           text
             .transition().duration(vars.style.timing.transitions/2)
             .delay(vars.style.timing.transitions/2)
               .attr("opacity",1)
-              .call(style,true)
     
           text.exit()
             .call(remove)
@@ -6021,7 +6087,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         
         d.d3plus_share = {
           "w": w,
-          "h": h,
+          "h": h/4,
           "x": 0,
           "y": 0
         }
@@ -6292,7 +6358,8 @@ d3plus.tooltip.app = function(params) {
       "style": vars.style.icon,
       "title": title,
       "x": x,
-      "y": y
+      "y": y,
+      "rtl": vars.style.labels.dir == "rtl"
     })
     
   }
@@ -6416,6 +6483,7 @@ d3plus.tooltip.create = function(params) {
   params.fontfamily = params.fontfamily || "sans-serif"
   params.fontweight = params.fontweight || "normal"
   params.style = params.style || "default"
+  params.rtl = params.rtl || false
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function that closes ALL Descriptions
@@ -6646,6 +6714,13 @@ d3plus.tooltip.create = function(params) {
           .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
           })
+          
+      if (params.rtl) {
+        val.style("left","6px")
+      }
+      else {
+        val.style("right","6px")
+      }
           
       if (params.mouseevents && d.desc) {
         var desc = block.append("div")
