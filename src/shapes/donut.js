@@ -125,27 +125,35 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
       return !d.d3plus.static ? [d] : [];
     })
     .on(d3plus.evt.over,function(d){
+      
+      if (!vars.frozen) {
+
+        d3.select(this).style("cursor","pointer")
   
-      d3.select(this).style("cursor","pointer")
+        d3.select(this.parentNode).selectAll("path.data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",1)
   
-      d3.select(this.parentNode).selectAll("path.data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",1)
-  
-      d3.select(this.parentNode)
-        .transition().duration(vars.style.timing.mouseevents)
-        .call(transform,true)
+        d3.select(this.parentNode)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform,true)
+          
+      }
     
     })
     .on(d3plus.evt.out,function(d){
-  
-      d3.select(this.parentNode).selectAll("path.data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",vars.style.data.opacity)
       
-      d3.select(this.parentNode)
-        .transition().duration(vars.style.timing.mouseevents)
-        .call(transform)
+      if (!vars.frozen) {
+
+        d3.select(this.parentNode).selectAll("path.data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",vars.style.data.opacity)
+      
+        d3.select(this.parentNode)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform)
+          
+      }
     
     })
     .transition().duration(vars.style.timing.transitions)

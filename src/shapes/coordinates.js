@@ -41,10 +41,20 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     
   selection.selectAll("path.data")
     .on(d3plus.evt.over,function(d){
-      d3.select(this).attr("opacity",1)
+      
+      if (!vars.frozen) {
+
+        d3.select(this).attr("opacity",1)
+        
+      }
     })
     .on(d3plus.evt.out,function(d){
-      d3.select(this).attr("opacity",vars.style.data.opacity)
+      
+      if (!vars.frozen) {
+
+        d3.select(this).attr("opacity",vars.style.data.opacity)
+        
+      }
     })
     .transition().duration(vars.style.timing.transitions)
       .call(d3plus.shape.style,vars)

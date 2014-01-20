@@ -134,26 +134,34 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
     })
     .on(d3plus.evt.over,function(d){
       
-      d3.select(this).style("cursor","pointer")
+      if (!vars.frozen) {
+
+        d3.select(this).style("cursor","pointer")
       
-      d3.select(this.parentNode).selectAll(".data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",1)
+        d3.select(this.parentNode).selectAll(".data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",1)
       
-      d3.select(this.parentNode)
-        .transition().duration(vars.style.timing.mouseevents)
-        .call(transform,true)
+        d3.select(this.parentNode)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform,true)
+          
+      }
         
     })
     .on(d3plus.evt.out,function(d){
       
-      d3.select(this.parentNode).selectAll(".data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",vars.style.data.opacity)
+      if (!vars.frozen) {
+      
+        d3.select(this.parentNode).selectAll(".data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",vars.style.data.opacity)
           
-      d3.select(this.parentNode)
-        .transition().duration(vars.style.timing.mouseevents)
-        .call(transform)
+        d3.select(this.parentNode)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform)
+          
+      }
         
     })
     .transition().duration(vars.style.timing.transitions)

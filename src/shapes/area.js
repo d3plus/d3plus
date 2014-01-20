@@ -114,38 +114,50 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   mouses
     .data(function(d) {return [d];})
     .on(d3plus.evt.over,function(d){
+      
+      if (!vars.frozen) {
     
-      d3.select(this).style("cursor","pointer")
+        d3.select(this).style("cursor","pointer")
     
-      var mouse = d3.event[vars.continuous_axis]
-          positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-          closest = d3plus.utils.closest(positions,mouse)
+        var mouse = d3.event[vars.continuous_axis]
+            positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+            closest = d3plus.utils.closest(positions,mouse)
     
-      d.data = d.values[positions.indexOf(closest)]
-      d.d3plus = d.values[positions.indexOf(closest)].d3plus
+        d.data = d.values[positions.indexOf(closest)]
+        d.d3plus = d.values[positions.indexOf(closest)].d3plus
 
-      d3.select(this.parentNode).selectAll("path.data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .style("opacity",1)
+        d3.select(this.parentNode).selectAll("path.data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .style("opacity",1)
+          
+      }
     
     })
     .on(d3plus.evt.move,function(d){
-    
-      var mouse = d3.event.x,
-          positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
-          closest = d3plus.utils.closest(positions,mouse)
+      
+      if (!vars.frozen) {
+
+        var mouse = d3.event.x,
+            positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
+            closest = d3plus.utils.closest(positions,mouse)
         
-      d.data = d.values[positions.indexOf(closest)]
-      d.d3plus = d.values[positions.indexOf(closest)].d3plus
+        d.data = d.values[positions.indexOf(closest)]
+        d.d3plus = d.values[positions.indexOf(closest)].d3plus
+        
+      }
     
     })
     .on(d3plus.evt.out,function(d){
-
-      d3.select(this.parentNode).selectAll("path.data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .style("opacity",vars.style.data.opacity)
       
-      delete d.d3plus
+      if (!vars.frozen) {
+
+        d3.select(this.parentNode).selectAll("path.data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .style("opacity",vars.style.data.opacity)
+      
+        delete d.d3plus
+        
+      }
     
     })
     .transition().duration(vars.style.timing.transitions)

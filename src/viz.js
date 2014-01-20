@@ -17,6 +17,7 @@ d3plus.viz = function() {
       if (typeof value === "string") return vars.text_format(value,key,vars)
       else return JSON.stringify(value)
     },
+    "frozen": false,
     "g": {"apps":{}},
     "graph": {},
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
@@ -30,6 +31,8 @@ d3plus.viz = function() {
   //-------------------------------------------------------------------
   chart = function(selection) {
     selection.each(function() {
+      
+      vars.frozen = true
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If placing into a new container, remove it's contents
@@ -97,19 +100,6 @@ d3plus.viz = function() {
         .attr("id","d3plus")
         .attr('width',vars.width.default)
         .attr('height',vars.height.default)
-      
-      // Enter DIV to cover mouseevents
-      vars.g.cover = vars.parent.selectAll("div#d3plus_cover")
-        .data(["cover"])
-      vars.g.cover.enter().append("div")
-        .attr("id","d3plus_cover")
-        .style("position","absolute")
-        .style("top","0px")
-        .style("left","0px")
-        .style('width',vars.width.default+"px")
-        .style('height',vars.height.default+"px")
-        .style("opacity","0")
-        .style("z-index","10")
 
       // Enter BG Rectangle
       vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
@@ -191,8 +181,6 @@ d3plus.viz = function() {
       vars.parent
         .style("width",vars.width.default+"px")
         .style("height",vars.height.default+"px")
-        
-      vars.g.cover.style("visibility","visible")
         
       // Update SVG
       vars.svg.transition().duration(vars.style.timing.transitions)
@@ -363,13 +351,9 @@ d3plus.viz = function() {
       }
       reset_change(vars)
       
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Hide cover DIV that disables mouseevents while transitioning
-      //-------------------------------------------------------------------
-      vars.g.cover.transition().duration(0).delay(vars.style.timing.transitions)
-        .style("visibility","hidden")
-        .style("width",vars.width.default+"px")
-        .style("height",vars.height.default+"px")
+      setTimeout(function(){
+        vars.frozen = false
+      },vars.style.timing.transitions)
       
     });
     
@@ -453,7 +437,7 @@ d3plus.viz = function() {
     else {
       d3.select(vars.container.default).call(chart)
     }
-    return chart;
+    // return chart;
   }
 
   chart.style = function(x) {

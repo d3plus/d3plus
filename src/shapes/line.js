@@ -144,51 +144,63 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     mouse
       .on(d3plus.evt.over,function(m){
     
-        d3.select(this).style("cursor","pointer")
+        if (!vars.frozen) {
+
+          d3.select(this).style("cursor","pointer")
     
-        var mouse = d3.event[vars.continuous_axis]
-            positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-            closest = d3plus.utils.closest(positions,mouse)
+          var mouse = d3.event[vars.continuous_axis]
+              positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+              closest = d3plus.utils.closest(positions,mouse)
             
-        var parent_data = d3.select(this.parentNode).datum()
-        parent_data.data = d.values[positions.indexOf(closest)]
-        parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
+          var parent_data = d3.select(this.parentNode).datum()
+          parent_data.data = d.values[positions.indexOf(closest)]
+          parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
         
-        d3.select(this.parentNode).selectAll("path.line")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("stroke-width",vars.style.data.stroke.width*2)
+          d3.select(this.parentNode).selectAll("path.line")
+            .transition().duration(vars.style.timing.mouseevents)
+            .style("stroke-width",vars.style.data.stroke.width*2)
     
-        d3.select(this.parentNode).selectAll("rect")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("stroke-width",vars.style.data.stroke.width*2)
-          .call(update,2)
+          d3.select(this.parentNode).selectAll("rect")
+            .transition().duration(vars.style.timing.mouseevents)
+            .style("stroke-width",vars.style.data.stroke.width*2)
+            .call(update,2)
+            
+        }
     
       })
       .on(d3plus.evt.move,function(d){
+        
+        if (!vars.frozen) {
     
-        var mouse = d3.event.x,
-            positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
-            closest = d3plus.utils.closest(positions,mouse)
+          var mouse = d3.event.x,
+              positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
+              closest = d3plus.utils.closest(positions,mouse)
             
-        var parent_data = d3.select(this.parentNode).datum()
-        parent_data.data = d.values[positions.indexOf(closest)]
-        parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
+          var parent_data = d3.select(this.parentNode).datum()
+          parent_data.data = d.values[positions.indexOf(closest)]
+          parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
+          
+        }
     
       })
       .on(d3plus.evt.out,function(d){
+        
+        if (!vars.frozen) {
+
+          d3.select(this.parentNode).selectAll("path.line")
+            .transition().duration(vars.style.timing.mouseevents)
+            .style("stroke-width",vars.style.data.stroke.width)
     
-        d3.select(this.parentNode).selectAll("path.line")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("stroke-width",vars.style.data.stroke.width)
-    
-        d3.select(this.parentNode).selectAll("rect")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("stroke-width",vars.style.data.stroke.width)
-          .call(update)
+          d3.select(this.parentNode).selectAll("rect")
+            .transition().duration(vars.style.timing.mouseevents)
+            .style("stroke-width",vars.style.data.stroke.width)
+            .call(update)
             
-        var parent_data = d3.select(this.parentNode).datum()
-        delete parent_data.data
-        delete parent_data.d3plus
+          var parent_data = d3.select(this.parentNode).datum()
+          delete parent_data.data
+          delete parent_data.d3plus
+          
+        }
     
       })
       .transition().duration(vars.style.timing.transitions)

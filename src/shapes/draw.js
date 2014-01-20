@@ -301,7 +301,7 @@ d3plus.shape.draw = function(vars,data) {
   vars.g.data.selectAll("g")
     .on(d3plus.evt.over,function(d){
       
-      if (!d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
         
         if (!vars.small) {
 
@@ -329,7 +329,7 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.move,function(d){
 
-      if (!d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
         
         if (!vars.small) {
 
@@ -361,7 +361,7 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.out,function(d){
       
-      if (!d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
         
         if (!vars.small) {
 
@@ -385,7 +385,7 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.click,function(d){
       
-      if (!d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
         
         if (!vars.small) {
 
