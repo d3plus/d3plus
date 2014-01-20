@@ -40,8 +40,8 @@ JS_FILES = \
 	src/tooltip/remove.js \
 	\
 	src/utils/color.js \
-	src/utils/error.js \
-	src/utils/titles.js \
+	src/ui/error.js \
+	src/ui/titles.js \
 	src/utils/utils.js \
 	src/utils/variables.js \
 	src/utils/wordwrap.js \

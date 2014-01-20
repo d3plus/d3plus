@@ -169,7 +169,7 @@ d3plus.viz = function() {
       // Title and Size Calculations
       //-------------------------------------------------------------------
       vars.app_width = vars.width.default;
-      d3plus.utils.titles(vars);
+      d3plus.ui.titles(vars);
       vars.app_height = vars.height.default - vars.margin.top - vars.margin.bottom;
       vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;
 
@@ -331,7 +331,7 @@ d3plus.viz = function() {
           vars.internal_error = null
         }
       }
-      d3plus.utils.error(vars)
+      d3plus.ui.error(vars)
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Reset all "change" values to false

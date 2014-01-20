@@ -2,7 +2,7 @@
 // Formats Raw Data
 //-------------------------------------------------------------------
 
-d3plus.utils.titles = function(vars) {
+d3plus.ui.titles = function(vars) {
   
   // Calculate total_bar value
   if (!vars.app_data || !vars.title.total.default || vars.type.default == "stacked") {
@@ -140,7 +140,7 @@ d3plus.utils.titles = function(vars) {
     total.transition().duration(vars.style.timing.transitions)
       .style("opacity",1)
     
-    d3plus.utils.title_update(vars)
+    d3plus.ui.title_update(vars)
   
     // Exit
     total.exit().transition().duration(vars.style.timing.transitions)
@@ -249,7 +249,7 @@ d3plus.utils.titles = function(vars) {
   }
 }
 
-d3plus.utils.title_update = function(vars) {
+d3plus.ui.title_update = function(vars) {
   
   vars.g.titles.selectAll("g").select("text")
     .transition().duration(vars.style.timing.transitions)

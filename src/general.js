@@ -44,6 +44,7 @@ d3plus.shape = {};
 d3plus.styles = {};
 d3plus.tooltip = {};
 d3plus.utils = {};
+d3plus.ui = {};
 d3plus.variable = {};
 d3plus.zoom = {};
 

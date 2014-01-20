@@ -2,7 +2,7 @@
 // Creates Error Message
 //-------------------------------------------------------------------
 
-d3plus.utils.error = function(vars) {
+d3plus.ui.error = function(vars) {
   
   var error = vars.svg.selectAll("g#error")
     .data(["error"])
