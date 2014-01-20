@@ -8,7 +8,7 @@ d3plus.apps.rings.scale = 1.05
 d3plus.apps.rings.draw = function(vars) {
       
   var radius = d3.min([vars.app_height,vars.app_width])/2,
-      ring_width = vars.small ? radius/2.25 : radius/3,
+      ring_width = vars.small || !vars.labels.default ? radius/2.25 : radius/3,
       links = [],
       nodes = []
   
