@@ -36,7 +36,12 @@ d3plus.viz = function() {
       // and check text direction.
       //-------------------------------------------------------------------
       if (vars.container.changed) {
-        d3.select(vars.container.default).html("")
+        vars.parent = d3.select(vars.container.default)
+        
+        vars.parent
+          .style("overflow","hidden")
+          .html("")
+          
         var dir = d3.select("html").attr("dir")
         if (dir) {
           vars.style.labels.dir = dir
@@ -47,16 +52,8 @@ d3plus.viz = function() {
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Run setup function if app has it
+      // Get overall width and height, if not defined
       //-------------------------------------------------------------------
-      if (d3plus.apps[vars.type.default].setup) {
-        d3plus.apps[vars.type.default].setup(vars)
-      }
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Set container element to vars.parent
-      //-------------------------------------------------------------------
-      if (!vars.parent) vars.parent = d3.select(this)
       var sizes = ["width","height"]
       sizes.forEach(function(s){
         if (!vars[s].default) {
@@ -64,6 +61,13 @@ d3plus.viz = function() {
           vars[s].default = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
         }
       })
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Run setup function if app has it
+      //-------------------------------------------------------------------
+      if (d3plus.apps[vars.type.default].setup) {
+        d3plus.apps[vars.type.default].setup(vars)
+      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Format Data as Necessary
@@ -93,6 +97,19 @@ d3plus.viz = function() {
         .attr("id","d3plus")
         .attr('width',vars.width.default)
         .attr('height',vars.height.default)
+      
+      // Enter DIV to cover mouseevents
+      vars.g.cover = vars.parent.selectAll("div#d3plus_cover")
+        .data(["cover"])
+      vars.g.cover.enter().append("div")
+        .attr("id","d3plus_cover")
+        .style("position","absolute")
+        .style("top","0px")
+        .style("left","0px")
+        .style('width',vars.width.default+"px")
+        .style('height',vars.height.default+"px")
+        .style("opacity","0")
+        .style("z-index","10")
 
       // Enter BG Rectangle
       vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
@@ -174,7 +191,8 @@ d3plus.viz = function() {
       vars.parent
         .style("width",vars.width.default+"px")
         .style("height",vars.height.default+"px")
-        .style("overflow","hidden")
+        
+      vars.g.cover.style("visibility","visible")
         
       // Update SVG
       vars.svg.transition().duration(vars.style.timing.transitions)
@@ -344,6 +362,14 @@ d3plus.viz = function() {
         }
       }
       reset_change(vars)
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Hide cover DIV that disables mouseevents while transitioning
+      //-------------------------------------------------------------------
+      vars.g.cover.transition().duration(0).delay(vars.style.timing.transitions)
+        .style("visibility","hidden")
+        .style("width",vars.width.default+"px")
+        .style("height",vars.height.default+"px")
       
     });
     
