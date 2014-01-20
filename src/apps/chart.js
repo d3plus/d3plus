@@ -37,7 +37,7 @@ d3plus.apps.chart.draw = function(vars) {
         vars.opp_axis = axis == "x" ? "y" : "x"
       }
       
-      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || !vars.axes.static.default) {
+      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || !vars.time.static.default) {
 
         if (vars.dev.default) d3plus.console.time("determining "+axis+"-axis")
         if (vars[axis].scale.default == "share") {
@@ -46,7 +46,7 @@ d3plus.apps.chart.draw = function(vars) {
           vars.stacked_axis = axis
         }
         else if (vars[axis].stacked.default) {
-          if (!vars.axes.static.default) {
+          if (!vars.time.static.default) {
             var range_data = vars.app_data
           }
           else {
@@ -70,7 +70,7 @@ d3plus.apps.chart.draw = function(vars) {
             return t >= vars[axis+"_range"][0] && t <= vars[axis+"_range"][1]
           })
         }
-        else if (!vars.axes.static.default) {
+        else if (!vars.time.static.default) {
           vars[axis+"_range"] = d3.extent(vars.app_data,function(d){
             return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
           })
@@ -145,7 +145,7 @@ d3plus.apps.chart.draw = function(vars) {
 
       if (vars.dev.default) d3plus.console.time("determining size scale")
       if (vars.size.key) {
-        if (!vars.axes.static.default) {
+        if (!vars.time.static.default) {
           var size_domain = d3.extent(vars.app_data,function(d){
             var val = d3plus.variable.value(vars,d,vars.size.key)
             return val == 0 ? null : val

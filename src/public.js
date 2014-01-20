@@ -22,11 +22,6 @@ d3plus.public.axes = {
     "default": false,
     "deprecates": ["mirror_axis","mirror_axes"]
   },
-  "static": {
-    "accepted": [true,false],
-    "default": true,
-    "deprecates": ["static_axis","static_axes"]
-  },
   "values": ["x","y"]
 }
 
@@ -101,6 +96,12 @@ d3plus.public.id = {
     "default": [],
     "deprecates": ["solo"]
   }
+}
+
+d3plus.public.key = {
+  "accepted": [true,false],
+  "default": true,
+  "label": null
 }
 
 d3plus.public.labels = {
@@ -200,7 +201,12 @@ d3plus.public.time = {
   "deprecates": ["year","year_var"],
   "key": null,
   "mute": [],
-  "solo": []
+  "solo": [],
+  "static": {
+    "accepted": [true,false],
+    "default": true,
+    "deprecates": ["static_axis","static_axes"]
+  }
 }
 
 d3plus.public.title = {
