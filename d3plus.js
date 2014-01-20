@@ -2,7 +2,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.0.1 - Blue";
+d3plus.version = "1.0.2 - Blue";
 
 d3plus.ie = /*@cc_on!@*/false;
 
@@ -387,6 +387,7 @@ d3plus.viz = function() {
       if (typeof value === "string") return vars.text_format(value,key,vars)
       else return JSON.stringify(value)
     },
+    "frozen": false,
     "g": {"apps":{}},
     "graph": {},
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
@@ -400,13 +401,20 @@ d3plus.viz = function() {
   //-------------------------------------------------------------------
   chart = function(selection) {
     selection.each(function() {
+      
+      vars.frozen = true
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If placing into a new container, remove it's contents
       // and check text direction.
       //-------------------------------------------------------------------
       if (vars.container.changed) {
-        d3.select(vars.container.default).html("")
+        vars.parent = d3.select(vars.container.default)
+        
+        vars.parent
+          .style("overflow","hidden")
+          .html("")
+          
         var dir = d3.select("html").attr("dir")
         if (dir) {
           vars.style.labels.dir = dir
@@ -417,16 +425,8 @@ d3plus.viz = function() {
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Run setup function if app has it
+      // Get overall width and height, if not defined
       //-------------------------------------------------------------------
-      if (d3plus.apps[vars.type.default].setup) {
-        d3plus.apps[vars.type.default].setup(vars)
-      }
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Set container element to vars.parent
-      //-------------------------------------------------------------------
-      if (!vars.parent) vars.parent = d3.select(this)
       var sizes = ["width","height"]
       sizes.forEach(function(s){
         if (!vars[s].default) {
@@ -434,6 +434,13 @@ d3plus.viz = function() {
           vars[s].default = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
         }
       })
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Run setup function if app has it
+      //-------------------------------------------------------------------
+      if (d3plus.apps[vars.type.default].setup) {
+        d3plus.apps[vars.type.default].setup(vars)
+      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Format Data as Necessary
@@ -514,19 +521,16 @@ d3plus.viz = function() {
       vars.g.apps[vars.type.default] = vars.g.app.selectAll("g#"+vars.type.default).data([vars.type.default])
       vars.g.apps[vars.type.default].enter().append("g")
         .attr("id",vars.type.default)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       // Enter Links Group
       vars.g.links = vars.g.zoom.selectAll("g#links").data(["links"])
       vars.g.links.enter().append("g")
         .attr("id","links")
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       // Enter App Data Group
       vars.g.data = vars.g.zoom.selectAll("g#data").data(["data"])
       vars.g.data.enter().append("g")
         .attr("id","data")
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
       vars.defs = vars.svg.selectAll("defs").data(["defs"])
       vars.defs.enter().append("defs")
@@ -547,7 +551,6 @@ d3plus.viz = function() {
       vars.parent
         .style("width",vars.width.default+"px")
         .style("height",vars.height.default+"px")
-        .style("overflow","hidden")
         
       // Update SVG
       vars.svg.transition().duration(vars.style.timing.transitions)
@@ -565,16 +568,8 @@ d3plus.viz = function() {
         .attr("height",vars.app_height)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
-      // Update App Background Groups
-      vars.g.app.selectAll("g").transition().duration(vars.style.timing.transitions)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-        
-      // Update Links Group
-      vars.g.links.selectAll("g").transition().duration(vars.style.timing.transitions)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-    
-      // Update Data Group
-      vars.g.data.transition().duration(vars.style.timing.transitions)
+      // Update Container Groups
+      vars.g.container.transition().duration(vars.style.timing.transitions)
         .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -725,6 +720,10 @@ d3plus.viz = function() {
         }
       }
       reset_change(vars)
+      
+      setTimeout(function(){
+        vars.frozen = false
+      },vars.style.timing.transitions)
       
     });
     
@@ -3291,8 +3290,7 @@ d3plus.apps.rings.scale = 1.05
 d3plus.apps.rings.draw = function(vars) {
       
   var radius = d3.min([vars.app_height,vars.app_width])/2,
-      // ring_width = vars.small ? radius/2.25 : radius/3,
-      ring_width = radius/2.25,
+      ring_width = vars.small || !vars.labels.default ? radius/2.25 : radius/3,
       links = [],
       nodes = []
   
@@ -3335,7 +3333,7 @@ d3plus.apps.rings.draw = function(vars) {
       sort = vars.id.key
     }
     
-    function sort(a,b){
+    function sort_function(a,b){
         
       a_value = d3plus.variable.value(vars,a,sort)
       b_value = d3plus.variable.value(vars,b,sort)
@@ -3375,7 +3373,7 @@ d3plus.apps.rings.draw = function(vars) {
       }
       else {
         
-        return sort(a,b)
+        return sort_function(a,b)
       
       }
       
@@ -3453,6 +3451,7 @@ d3plus.apps.rings.draw = function(vars) {
       })
       
     })
+    
     primaries.forEach(function(p,i){
 
       vars.connections[p[vars.id.key]].forEach(function(c){
@@ -3495,8 +3494,43 @@ d3plus.apps.rings.draw = function(vars) {
       })
       
     })
-    
+
     nodes = [center].concat(primaries).concat(secondaries)
+    
+    nodes.forEach(function(n) {
+      
+      if (n[vars.id.key] != vars.focus.default) {
+        
+        if (vars.labels.default) {
+          var angle = n.d3plus.radians*(180/Math.PI),
+              width = ring_width-(vars.style.labels.padding*2)
+          if (angle < -90 || angle > 90) {
+            angle = angle-180
+            var buffer = -(n.d3plus.r+width/2+vars.style.labels.padding),
+                anchor = "end"
+          }
+          else {
+            var buffer = n.d3plus.r+width/2+vars.style.labels.padding,
+                anchor = "start"
+          }
+          
+          n.d3plus_label = {
+            "x": buffer,
+            "y": 0,
+            "w": width,
+            "h": 30,
+            "angle": angle,
+            "anchor": anchor,
+            "valign": "center",
+            "color": d3plus.color.legible(d3plus.variable.color(vars,n[vars.id.key])),
+            "resize": false
+          }
+          
+        }
+        
+      }
+      
+    })
     
   }
   
@@ -4233,72 +4267,76 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   selection.selectAll("path.data")
     .data(function(d) {
       
-      var areas = [],
-          obj = null,
-          obj2 = null,
-          label = {
-            "w": 0,
-            "h": 0,
-            "x": 0,
-            "y": 0
-          }
-  
-      function check_area(area) {
-
-        obj.y = d3.max([obj.y,area.y])
-        obj.y0 = d3.min([obj.y0,area.y0])
-        obj.x0 = area.x
-    
-        obj.h = (obj.y0 - obj.y)
-        obj.w = (obj.x0 - obj.x)
-    
-        var toosmall = obj.h < 10 || obj.w < 30,
-            aspect_old = label.w/label.h,
-            size_old = label.w*label.h,
-            aspect_new = obj.w/obj.h,
-            size_new = obj.w*obj.h
-            
-        if ((!toosmall && size_old < size_new) || !label.w) {
-          label = {
-            "w": obj.w-(vars.style.labels.padding*2),
-            "h": obj.h-(vars.style.labels.padding*2),
-            "x": obj.x+(obj.w/2),
-            "y": obj.y+(obj.h/2)
-          }
-        }
-        if (obj.h < 10) {
-          obj = d3plus.utils.copy(area)
-        }
-    
-      }
-  
-      d.values.forEach(function(v,i){
-    
-        if (!obj) {
-          obj = d3plus.utils.copy(v.d3plus)
-        }
-        else {
-          var arr = d3plus.utils.buckets([0,1],vars.style.labels.segments+1)
-          arr.shift()
-          arr.pop()
-          arr.forEach(function(n){
-
-            var test = d3plus.utils.copy(v.d3plus),
-                last = d.values[i-1].d3plus
-                
-            test.x = last.x + (test.x-last.x) * n
-            test.y = last.y + (test.y-last.y) * n
-            test.y0 = last.y0 + (test.y0-last.y0) * n
-
-            check_area(test)
+      if (vars.labels.default && !d.d3plus_label) {
         
-          })
-          check_area(d3plus.utils.copy(v.d3plus))
+        var areas = [],
+            obj = null,
+            obj2 = null,
+            label = {
+              "w": 0,
+              "h": 0,
+              "x": 0,
+              "y": 0
+            }
+  
+        function check_area(area) {
+
+          obj.y = d3.max([obj.y,area.y])
+          obj.y0 = d3.min([obj.y0,area.y0])
+          obj.x0 = area.x
+    
+          obj.h = (obj.y0 - obj.y)
+          obj.w = (obj.x0 - obj.x)
+    
+          var toosmall = obj.h < 10 || obj.w < 30,
+              aspect_old = label.w/label.h,
+              size_old = label.w*label.h,
+              aspect_new = obj.w/obj.h,
+              size_new = obj.w*obj.h
+            
+          if ((!toosmall && size_old < size_new) || !label.w) {
+            label = {
+              "w": obj.w-(vars.style.labels.padding*2),
+              "h": obj.h-(vars.style.labels.padding*2),
+              "x": obj.x+(obj.w/2),
+              "y": obj.y+(obj.h/2)
+            }
+          }
+          if (obj.h < 10) {
+            obj = d3plus.utils.copy(area)
+          }
+    
         }
-      })
+  
+        d.values.forEach(function(v,i){
+    
+          if (!obj) {
+            obj = d3plus.utils.copy(v.d3plus)
+          }
+          else {
+            var arr = d3plus.utils.buckets([0,1],vars.style.labels.segments+1)
+            arr.shift()
+            arr.pop()
+            arr.forEach(function(n){
+
+              var test = d3plus.utils.copy(v.d3plus),
+                  last = d.values[i-1].d3plus
+                
+              test.x = last.x + (test.x-last.x) * n
+              test.y = last.y + (test.y-last.y) * n
+              test.y0 = last.y0 + (test.y0-last.y0) * n
+
+              check_area(test)
+        
+            })
+            check_area(d3plus.utils.copy(v.d3plus))
+          }
+        })
       
-      if (label.w) {
-        d.d3plus_label = label
+        if (label.w) {
+          d.d3plus_label = label
+        }
+        
       }
       
       return [d];
@@ -4322,38 +4360,50 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   mouses
     .data(function(d) {return [d];})
     .on(d3plus.evt.over,function(d){
+      
+      if (!vars.frozen) {
     
-      d3.select(this).style("cursor","pointer")
+        d3.select(this).style("cursor","pointer")
     
-      var mouse = d3.event[vars.continuous_axis]
-          positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-          closest = d3plus.utils.closest(positions,mouse)
+        var mouse = d3.event[vars.continuous_axis]
+            positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+            closest = d3plus.utils.closest(positions,mouse)
     
-      d.data = d.values[positions.indexOf(closest)]
-      d.d3plus = d.values[positions.indexOf(closest)].d3plus
+        d.data = d.values[positions.indexOf(closest)]
+        d.d3plus = d.values[positions.indexOf(closest)].d3plus
 
-      d3.select(this.parentNode).selectAll("path.data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .style("opacity",1)
+        d3.select(this.parentNode).selectAll("path.data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .style("opacity",1)
+          
+      }
     
     })
     .on(d3plus.evt.move,function(d){
-    
-      var mouse = d3.event.x,
-          positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
-          closest = d3plus.utils.closest(positions,mouse)
+      
+      if (!vars.frozen) {
+
+        var mouse = d3.event.x,
+            positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
+            closest = d3plus.utils.closest(positions,mouse)
         
-      d.data = d.values[positions.indexOf(closest)]
-      d.d3plus = d.values[positions.indexOf(closest)].d3plus
+        d.data = d.values[positions.indexOf(closest)]
+        d.d3plus = d.values[positions.indexOf(closest)].d3plus
+        
+      }
     
     })
     .on(d3plus.evt.out,function(d){
-
-      d3.select(this.parentNode).selectAll("path.data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .style("opacity",vars.style.data.opacity)
       
-      delete d.d3plus
+      if (!vars.frozen) {
+
+        d3.select(this.parentNode).selectAll("path.data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .style("opacity",vars.style.data.opacity)
+      
+        delete d.d3plus
+        
+      }
     
     })
     .transition().duration(vars.style.timing.transitions)
@@ -4444,10 +4494,20 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     
   selection.selectAll("path.data")
     .on(d3plus.evt.over,function(d){
-      d3.select(this).attr("opacity",1)
+      
+      if (!vars.frozen) {
+
+        d3.select(this).attr("opacity",1)
+        
+      }
     })
     .on(d3plus.evt.out,function(d){
-      d3.select(this).attr("opacity",vars.style.data.opacity)
+      
+      if (!vars.frozen) {
+
+        d3.select(this).attr("opacity",vars.style.data.opacity)
+        
+      }
     })
     .transition().duration(vars.style.timing.transitions)
       .call(d3plus.shape.style,vars)
@@ -4607,27 +4667,35 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
       return !d.d3plus.static ? [d] : [];
     })
     .on(d3plus.evt.over,function(d){
+      
+      if (!vars.frozen) {
+
+        d3.select(this).style("cursor","pointer")
   
-      d3.select(this).style("cursor","pointer")
+        d3.select(this.parentNode).selectAll("path.data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",1)
   
-      d3.select(this.parentNode).selectAll("path.data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",1)
-  
-      d3.select(this.parentNode)
-        .transition().duration(vars.style.timing.mouseevents)
-        .call(transform,true)
+        d3.select(this.parentNode)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform,true)
+          
+      }
     
     })
     .on(d3plus.evt.out,function(d){
-  
-      d3.select(this.parentNode).selectAll("path.data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",vars.style.data.opacity)
       
-      d3.select(this.parentNode)
-        .transition().duration(vars.style.timing.mouseevents)
-        .call(transform)
+      if (!vars.frozen) {
+
+        d3.select(this.parentNode).selectAll("path.data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",vars.style.data.opacity)
+      
+        d3.select(this.parentNode)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform)
+          
+      }
     
     })
     .transition().duration(vars.style.timing.transitions)
@@ -4955,7 +5023,7 @@ d3plus.shape.draw = function(vars,data) {
   vars.g.data.selectAll("g")
     .on(d3plus.evt.over,function(d){
       
-      if (!d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
         
         if (!vars.small) {
 
@@ -4983,7 +5051,7 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.move,function(d){
 
-      if (!d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
         
         if (!vars.small) {
 
@@ -5015,7 +5083,7 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.out,function(d){
       
-      if (!d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
         
         if (!vars.small) {
 
@@ -5039,7 +5107,7 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.click,function(d){
       
-      if (!d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
         
         if (!vars.small) {
 
@@ -5368,7 +5436,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
     
     function x_pos(t) {
       
-      var align = vars.style.labels.align,
+      var align = t.anchor || vars.style.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "share" : this.className.baseVal == "share",
           width = d3.select(this).node().getBBox().width,
@@ -5433,7 +5501,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         }
         else {
           
-          if (align == "middle") {
+          if (align == "middle" || t.valign == "center") {
             var y = t.y-height/2-diff/2
           }
           else if (align == "end") {
@@ -5455,10 +5523,14 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       .attr("font-family",vars.style.font.family)
       .attr("text-anchor","start")
       .attr("fill", function(t){ 
-        return d3plus.color.text(t.color); 
+        return t.color; 
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
+      .attr("transform",function(t){
+        var a = t.angle || 0
+        return "rotate("+a+",0,0)"
+      })
       .each(function(t){
         
         if (wrap) {
@@ -5470,7 +5542,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
               "parent": this,
               "width": t.w,
               "height": t.h,
-              "resize": true,
+              "resize": t.resize,
               "font_max": 70
             })
           
@@ -5489,7 +5561,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
               "parent": this,
               "width": t.w,
               "height": height,
-              "resize": true
+              "resize": t.resize
             })
           
           }
@@ -5499,6 +5571,10 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
+      .attr("transform",function(t){
+        var a = t.angle || 0
+        return "rotate("+a+",0,0)"
+      })
       .selectAll("tspan")
         .attr("x",x_pos)
   }
@@ -5534,7 +5610,12 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         if (share && share.w >= 20 && share.h >= 10 && d.d3plus.share && vars.style.labels.align != "middle") {
           
           share.text = d.d3plus.share
-          share.color = d3plus.shape.color(d,vars)
+          if (!share.color) {
+            share.color = d3plus.color.text(d3plus.shape.color(d,vars))
+          }
+          if (!("resize" in share)) {
+            share.resize = true
+          }
     
           var text = group.selectAll("text.share")
             .data([share],function(t){
@@ -5569,9 +5650,14 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         if (label && label.w >= 20 && label.h >= 10 && names.length) {
 
           label.names = names
-          label.color = d3plus.shape.color(d,vars)
+          if (!label.color) {
+            label.color = d3plus.color.text(d3plus.shape.color(d,vars))
+          }
+          if (!("resize" in label)) {
+            label.resize = true
+          }
           label.share = share_size
-      
+          
           var text = group.selectAll("text.label")
             .data([label],function(t){
               return t.w+""+t.h+""+t.names.join("")
@@ -5582,6 +5668,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             .call(style,true)
       
           text.enter().insert("text",".mouse")
+            .attr("font-size",vars.style.labels.font.size)
             .attr("class","label")
             .attr("opacity",0)
             .call(style,true)
@@ -5762,51 +5849,63 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     mouse
       .on(d3plus.evt.over,function(m){
     
-        d3.select(this).style("cursor","pointer")
+        if (!vars.frozen) {
+
+          d3.select(this).style("cursor","pointer")
     
-        var mouse = d3.event[vars.continuous_axis]
-            positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-            closest = d3plus.utils.closest(positions,mouse)
+          var mouse = d3.event[vars.continuous_axis]
+              positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+              closest = d3plus.utils.closest(positions,mouse)
             
-        var parent_data = d3.select(this.parentNode).datum()
-        parent_data.data = d.values[positions.indexOf(closest)]
-        parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
+          var parent_data = d3.select(this.parentNode).datum()
+          parent_data.data = d.values[positions.indexOf(closest)]
+          parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
         
-        d3.select(this.parentNode).selectAll("path.line")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("stroke-width",vars.style.data.stroke.width*2)
+          d3.select(this.parentNode).selectAll("path.line")
+            .transition().duration(vars.style.timing.mouseevents)
+            .style("stroke-width",vars.style.data.stroke.width*2)
     
-        d3.select(this.parentNode).selectAll("rect")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("stroke-width",vars.style.data.stroke.width*2)
-          .call(update,2)
+          d3.select(this.parentNode).selectAll("rect")
+            .transition().duration(vars.style.timing.mouseevents)
+            .style("stroke-width",vars.style.data.stroke.width*2)
+            .call(update,2)
+            
+        }
     
       })
       .on(d3plus.evt.move,function(d){
+        
+        if (!vars.frozen) {
     
-        var mouse = d3.event.x,
-            positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
-            closest = d3plus.utils.closest(positions,mouse)
+          var mouse = d3.event.x,
+              positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
+              closest = d3plus.utils.closest(positions,mouse)
             
-        var parent_data = d3.select(this.parentNode).datum()
-        parent_data.data = d.values[positions.indexOf(closest)]
-        parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
+          var parent_data = d3.select(this.parentNode).datum()
+          parent_data.data = d.values[positions.indexOf(closest)]
+          parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
+          
+        }
     
       })
       .on(d3plus.evt.out,function(d){
+        
+        if (!vars.frozen) {
+
+          d3.select(this.parentNode).selectAll("path.line")
+            .transition().duration(vars.style.timing.mouseevents)
+            .style("stroke-width",vars.style.data.stroke.width)
     
-        d3.select(this.parentNode).selectAll("path.line")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("stroke-width",vars.style.data.stroke.width)
-    
-        d3.select(this.parentNode).selectAll("rect")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("stroke-width",vars.style.data.stroke.width)
-          .call(update)
+          d3.select(this.parentNode).selectAll("rect")
+            .transition().duration(vars.style.timing.mouseevents)
+            .style("stroke-width",vars.style.data.stroke.width)
+            .call(update)
             
-        var parent_data = d3.select(this.parentNode).datum()
-        delete parent_data.data
-        delete parent_data.d3plus
+          var parent_data = d3.select(this.parentNode).datum()
+          delete parent_data.data
+          delete parent_data.d3plus
+          
+        }
     
       })
       .transition().duration(vars.style.timing.transitions)
@@ -6072,34 +6171,38 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   selection.selectAll("rect.data")
     .data(function(d) { 
       
-      d.d3plus_label = {
-        "w": 0,
-        "h": 0,
-        "x": 0,
-        "y": 0
-      }
-    
-      // Square bounds
-      if (vars.shape.default == "square") {
-
-        var w = d.d3plus.width-(vars.style.labels.padding*2),
-            h = d.d3plus.height-(vars.style.labels.padding*2)
+      if (vars.labels.default && !d.d3plus_label) {
         
-        d.d3plus_share = {
-          "w": w,
-          "h": h/4,
+        d.d3plus_label = {
+          "w": 0,
+          "h": 0,
           "x": 0,
           "y": 0
         }
+    
+        // Square bounds
+        if (vars.shape.default == "square") {
+
+          var w = d.d3plus.width-(vars.style.labels.padding*2),
+              h = d.d3plus.height-(vars.style.labels.padding*2)
         
-        d.d3plus_label.w = w
-        d.d3plus_label.h = h
+          d.d3plus_share = {
+            "w": w,
+            "h": h/4,
+            "x": 0,
+            "y": 0
+          }
         
-      }
-      // Circle bounds
-      else {
-        d.d3plus_label.w = Math.sqrt(Math.pow(d.d3plus.width,2)/2)-(vars.style.labels.padding)
-        d.d3plus_label.h = Math.sqrt(Math.pow(d.d3plus.height,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.w = w
+          d.d3plus_label.h = h
+        
+        }
+        // Circle bounds
+        else {
+          d.d3plus_label.w = Math.sqrt(Math.pow(d.d3plus.width,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.h = Math.sqrt(Math.pow(d.d3plus.height,2)/2)-(vars.style.labels.padding)
+        }
+        
       }
       
       return [d];
@@ -6140,26 +6243,34 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
     })
     .on(d3plus.evt.over,function(d){
       
-      d3.select(this).style("cursor","pointer")
+      if (!vars.frozen) {
+
+        d3.select(this).style("cursor","pointer")
       
-      d3.select(this.parentNode).selectAll(".data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",1)
+        d3.select(this.parentNode).selectAll(".data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",1)
       
-      d3.select(this.parentNode)
-        .transition().duration(vars.style.timing.mouseevents)
-        .call(transform,true)
+        d3.select(this.parentNode)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform,true)
+          
+      }
         
     })
     .on(d3plus.evt.out,function(d){
       
-      d3.select(this.parentNode).selectAll(".data")
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",vars.style.data.opacity)
+      if (!vars.frozen) {
+      
+        d3.select(this.parentNode).selectAll(".data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",vars.style.data.opacity)
           
-      d3.select(this.parentNode)
-        .transition().duration(vars.style.timing.mouseevents)
-        .call(transform)
+        d3.select(this.parentNode)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform)
+          
+      }
         
     })
     .transition().duration(vars.style.timing.transitions)
@@ -6219,7 +6330,12 @@ d3plus.styles.default = {
   "labels": {
     "align": "middle",
     "padding": 7,
-    "segments": 4
+    "segments": 4,
+    "font": {
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 10
+    }
   },
   "links": {
     "color": "#dedede",
