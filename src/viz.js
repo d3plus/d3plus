@@ -437,7 +437,7 @@ d3plus.viz = function() {
     else {
       d3.select(vars.container.default).call(chart)
     }
-    // return chart;
+    return chart;
   }
 
   chart.style = function(x) {
