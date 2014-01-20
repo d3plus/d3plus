@@ -27,7 +27,12 @@ d3plus.styles.default = {
   "labels": {
     "align": "middle",
     "padding": 7,
-    "segments": 4
+    "segments": 4,
+    "font": {
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 10
+    }
   },
   "links": {
     "color": "#dedede",
