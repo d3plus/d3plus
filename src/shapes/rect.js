@@ -66,34 +66,38 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   selection.selectAll("rect.data")
     .data(function(d) { 
       
-      d.d3plus_label = {
-        "w": 0,
-        "h": 0,
-        "x": 0,
-        "y": 0
-      }
-    
-      // Square bounds
-      if (vars.shape.default == "square") {
-
-        var w = d.d3plus.width-(vars.style.labels.padding*2),
-            h = d.d3plus.height-(vars.style.labels.padding*2)
+      if (vars.labels.default && !d.d3plus_label) {
         
-        d.d3plus_share = {
-          "w": w,
-          "h": h/4,
+        d.d3plus_label = {
+          "w": 0,
+          "h": 0,
           "x": 0,
           "y": 0
         }
+    
+        // Square bounds
+        if (vars.shape.default == "square") {
+
+          var w = d.d3plus.width-(vars.style.labels.padding*2),
+              h = d.d3plus.height-(vars.style.labels.padding*2)
         
-        d.d3plus_label.w = w
-        d.d3plus_label.h = h
+          d.d3plus_share = {
+            "w": w,
+            "h": h/4,
+            "x": 0,
+            "y": 0
+          }
         
-      }
-      // Circle bounds
-      else {
-        d.d3plus_label.w = Math.sqrt(Math.pow(d.d3plus.width,2)/2)-(vars.style.labels.padding)
-        d.d3plus_label.h = Math.sqrt(Math.pow(d.d3plus.height,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.w = w
+          d.d3plus_label.h = h
+        
+        }
+        // Circle bounds
+        else {
+          d.d3plus_label.w = Math.sqrt(Math.pow(d.d3plus.width,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.h = Math.sqrt(Math.pow(d.d3plus.height,2)/2)-(vars.style.labels.padding)
+        }
+        
       }
       
       return [d];

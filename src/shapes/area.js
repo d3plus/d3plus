@@ -25,72 +25,76 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   selection.selectAll("path.data")
     .data(function(d) {
       
-      var areas = [],
-          obj = null,
-          obj2 = null,
-          label = {
-            "w": 0,
-            "h": 0,
-            "x": 0,
-            "y": 0
-          }
-  
-      function check_area(area) {
-
-        obj.y = d3.max([obj.y,area.y])
-        obj.y0 = d3.min([obj.y0,area.y0])
-        obj.x0 = area.x
-    
-        obj.h = (obj.y0 - obj.y)
-        obj.w = (obj.x0 - obj.x)
-    
-        var toosmall = obj.h < 10 || obj.w < 30,
-            aspect_old = label.w/label.h,
-            size_old = label.w*label.h,
-            aspect_new = obj.w/obj.h,
-            size_new = obj.w*obj.h
-            
-        if ((!toosmall && size_old < size_new) || !label.w) {
-          label = {
-            "w": obj.w-(vars.style.labels.padding*2),
-            "h": obj.h-(vars.style.labels.padding*2),
-            "x": obj.x+(obj.w/2),
-            "y": obj.y+(obj.h/2)
-          }
-        }
-        if (obj.h < 10) {
-          obj = d3plus.utils.copy(area)
-        }
-    
-      }
-  
-      d.values.forEach(function(v,i){
-    
-        if (!obj) {
-          obj = d3plus.utils.copy(v.d3plus)
-        }
-        else {
-          var arr = d3plus.utils.buckets([0,1],vars.style.labels.segments+1)
-          arr.shift()
-          arr.pop()
-          arr.forEach(function(n){
-
-            var test = d3plus.utils.copy(v.d3plus),
-                last = d.values[i-1].d3plus
-                
-            test.x = last.x + (test.x-last.x) * n
-            test.y = last.y + (test.y-last.y) * n
-            test.y0 = last.y0 + (test.y0-last.y0) * n
-
-            check_area(test)
+      if (vars.labels.default && !d.d3plus_label) {
         
-          })
-          check_area(d3plus.utils.copy(v.d3plus))
+        var areas = [],
+            obj = null,
+            obj2 = null,
+            label = {
+              "w": 0,
+              "h": 0,
+              "x": 0,
+              "y": 0
+            }
+  
+        function check_area(area) {
+
+          obj.y = d3.max([obj.y,area.y])
+          obj.y0 = d3.min([obj.y0,area.y0])
+          obj.x0 = area.x
+    
+          obj.h = (obj.y0 - obj.y)
+          obj.w = (obj.x0 - obj.x)
+    
+          var toosmall = obj.h < 10 || obj.w < 30,
+              aspect_old = label.w/label.h,
+              size_old = label.w*label.h,
+              aspect_new = obj.w/obj.h,
+              size_new = obj.w*obj.h
+            
+          if ((!toosmall && size_old < size_new) || !label.w) {
+            label = {
+              "w": obj.w-(vars.style.labels.padding*2),
+              "h": obj.h-(vars.style.labels.padding*2),
+              "x": obj.x+(obj.w/2),
+              "y": obj.y+(obj.h/2)
+            }
+          }
+          if (obj.h < 10) {
+            obj = d3plus.utils.copy(area)
+          }
+    
         }
-      })
+  
+        d.values.forEach(function(v,i){
+    
+          if (!obj) {
+            obj = d3plus.utils.copy(v.d3plus)
+          }
+          else {
+            var arr = d3plus.utils.buckets([0,1],vars.style.labels.segments+1)
+            arr.shift()
+            arr.pop()
+            arr.forEach(function(n){
+
+              var test = d3plus.utils.copy(v.d3plus),
+                  last = d.values[i-1].d3plus
+                
+              test.x = last.x + (test.x-last.x) * n
+              test.y = last.y + (test.y-last.y) * n
+              test.y0 = last.y0 + (test.y0-last.y0) * n
+
+              check_area(test)
+        
+            })
+            check_area(d3plus.utils.copy(v.d3plus))
+          }
+        })
       
-      if (label.w) {
-        d.d3plus_label = label
+        if (label.w) {
+          d.d3plus_label = label
+        }
+        
       }
       
       return [d];
