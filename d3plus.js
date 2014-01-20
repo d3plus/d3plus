@@ -3536,34 +3536,6 @@ d3plus.apps.rings.draw = function(vars) {
   
   return {"links": links, "nodes": nodes}
   
-  // function text_styles(t) {
-  //   t
-  //     .attr("fill",function(d){
-  //       if (d.depth == 0) {
-  //         var color = d3plus.color.text(fill_color(d));
-  //       } 
-  //       else {
-  //         var color = d3plus.color.legible(d[vars.color]);
-  //       }
-  // 
-  //       if (d.depth == 0) return color;
-  //       else if (d.depth == 1 && (!hover || d == hover || d.children_total.indexOf(hover) >= 0)) return color;
-  //       else if (d.depth == 2 && (!hover || d == hover || d.parents.indexOf(hover) >= 0)) return color;
-  //       else return "lightgrey"
-  //     })
-  //     .attr("text-anchor", function(d) { 
-  //       if (d.depth == 0) return "middle"
-  //       else return d.ring_x%360 < 180 ? "start" : "end"; 
-  //     })
-  //     .attr("transform", function(d) { 
-  //       if (d.depth == 0) return "none"
-  //       else {
-  //         var offset = d.radius*2
-  //         return d.ring_x%360 < 180 ? "translate("+offset+")" : "rotate(180)translate(-"+offset+")";
-  //       }
-  //     })
-  // }
-  
 };
 d3plus.apps.stacked = {}
 d3plus.apps.stacked.data = "grouped";
