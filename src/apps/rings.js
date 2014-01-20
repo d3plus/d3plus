@@ -8,8 +8,7 @@ d3plus.apps.rings.scale = 1.05
 d3plus.apps.rings.draw = function(vars) {
       
   var radius = d3.min([vars.app_height,vars.app_width])/2,
-      // ring_width = vars.small ? radius/2.25 : radius/3,
-      ring_width = radius/2.25,
+      ring_width = vars.small ? radius/2.25 : radius/3,
       links = [],
       nodes = []
   
@@ -52,7 +51,7 @@ d3plus.apps.rings.draw = function(vars) {
       sort = vars.id.key
     }
     
-    function sort(a,b){
+    function sort_function(a,b){
         
       a_value = d3plus.variable.value(vars,a,sort)
       b_value = d3plus.variable.value(vars,b,sort)
@@ -92,7 +91,7 @@ d3plus.apps.rings.draw = function(vars) {
       }
       else {
         
-        return sort(a,b)
+        return sort_function(a,b)
       
       }
       
@@ -170,6 +169,7 @@ d3plus.apps.rings.draw = function(vars) {
       })
       
     })
+    
     primaries.forEach(function(p,i){
 
       vars.connections[p[vars.id.key]].forEach(function(c){
@@ -212,8 +212,43 @@ d3plus.apps.rings.draw = function(vars) {
       })
       
     })
-    
+
     nodes = [center].concat(primaries).concat(secondaries)
+    
+    nodes.forEach(function(n) {
+      
+      if (n[vars.id.key] != vars.focus.default) {
+        
+        if (vars.labels.default) {
+          var angle = n.d3plus.radians*(180/Math.PI),
+              width = ring_width-(vars.style.labels.padding*2)
+          if (angle < -90 || angle > 90) {
+            angle = angle-180
+            var buffer = -(n.d3plus.r+width/2+vars.style.labels.padding),
+                anchor = "end"
+          }
+          else {
+            var buffer = n.d3plus.r+width/2+vars.style.labels.padding,
+                anchor = "start"
+          }
+          
+          n.d3plus_label = {
+            "x": buffer,
+            "y": 0,
+            "w": width,
+            "h": 30,
+            "angle": angle,
+            "anchor": anchor,
+            "valign": "center",
+            "color": d3plus.color.legible(d3plus.variable.color(vars,n[vars.id.key])),
+            "resize": false
+          }
+          
+        }
+        
+      }
+      
+    })
     
   }
   
