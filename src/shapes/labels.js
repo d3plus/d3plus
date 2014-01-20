@@ -20,7 +20,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
     
     function x_pos(t) {
       
-      var align = vars.style.labels.align,
+      var align = t.anchor || vars.style.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "share" : this.className.baseVal == "share",
           width = d3.select(this).node().getBBox().width,
@@ -85,7 +85,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         }
         else {
           
-          if (align == "middle") {
+          if (align == "middle" || t.valign == "center") {
             var y = t.y-height/2-diff/2
           }
           else if (align == "end") {
@@ -107,10 +107,14 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       .attr("font-family",vars.style.font.family)
       .attr("text-anchor","start")
       .attr("fill", function(t){ 
-        return d3plus.color.text(t.color); 
+        return t.color; 
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
+      .attr("transform",function(t){
+        var a = t.angle || 0
+        return "rotate("+a+",0,0)"
+      })
       .each(function(t){
         
         if (wrap) {
@@ -122,7 +126,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
               "parent": this,
               "width": t.w,
               "height": t.h,
-              "resize": true,
+              "resize": t.resize,
               "font_max": 70
             })
           
@@ -141,7 +145,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
               "parent": this,
               "width": t.w,
               "height": height,
-              "resize": true
+              "resize": t.resize
             })
           
           }
@@ -151,6 +155,10 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
+      .attr("transform",function(t){
+        var a = t.angle || 0
+        return "rotate("+a+",0,0)"
+      })
       .selectAll("tspan")
         .attr("x",x_pos)
   }
@@ -186,7 +194,12 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         if (share && share.w >= 20 && share.h >= 10 && d.d3plus.share && vars.style.labels.align != "middle") {
           
           share.text = d.d3plus.share
-          share.color = d3plus.shape.color(d,vars)
+          if (!share.color) {
+            share.color = d3plus.color.text(d3plus.shape.color(d,vars))
+          }
+          if (!("resize" in share)) {
+            share.resize = true
+          }
     
           var text = group.selectAll("text.share")
             .data([share],function(t){
@@ -221,9 +234,14 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         if (label && label.w >= 20 && label.h >= 10 && names.length) {
 
           label.names = names
-          label.color = d3plus.shape.color(d,vars)
+          if (!label.color) {
+            label.color = d3plus.color.text(d3plus.shape.color(d,vars))
+          }
+          if (!("resize" in label)) {
+            label.resize = true
+          }
           label.share = share_size
-      
+          
           var text = group.selectAll("text.label")
             .data([label],function(t){
               return t.w+""+t.h+""+t.names.join("")
@@ -234,6 +252,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             .call(style,true)
       
           text.enter().insert("text",".mouse")
+            .attr("font-size",vars.style.labels.font.size)
             .attr("class","label")
             .attr("opacity",0)
             .call(style,true)
