@@ -42,7 +42,7 @@ d3plus.apps.network.draw = function(vars) {
     .domain(y_range)
     .range([offset_top, vars.app_height-offset_top])
     
-  var val_range = d3.extent(d3.values(vars.app_data), function(d){
+  var val_range = d3.extent(d3.values(vars.data.app), function(d){
     var val = d3plus.variable.value(vars,d,vars.size.key)
     return val == 0 ? null : val
   });
@@ -80,8 +80,8 @@ d3plus.apps.network.draw = function(vars) {
   //-------------------------------------------------------------------
   var data = [], lookup = {}
   nodes.forEach(function(n){
-    if (vars.app_data[n[vars.id.key]]) {
-      var obj = d3plus.utils.merge(n,vars.app_data[n[vars.id.key]])
+    if (vars.data.app[n[vars.id.key]]) {
+      var obj = d3plus.utils.merge(n,vars.data.app[n[vars.id.key]])
     }
     else {
       var obj = d3plus.utils.copy(n)

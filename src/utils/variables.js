@@ -72,12 +72,12 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     if (typeof id == "object") {
       id = id[id_var]
     }
-    if (vars.app_data instanceof Array) {
-      var dat = filter_array(vars.app_data)
+    if (vars.data.app instanceof Array) {
+      var dat = filter_array(vars.data.app)
       if (dat && typeof dat[variable] != "undefined") return dat[variable]
     }
-    else if (vars.app_data) {
-      var dat = vars.app_data[id]
+    else if (vars.data.app) {
+      var dat = vars.data.app[id]
       if (dat && typeof dat[variable] != "undefined") return dat[variable]
     }
   }
@@ -126,7 +126,7 @@ d3plus.variable.color = function(vars,id) {
   else {
     var color = d3plus.variable.value(vars,id,vars.color.key)
     
-    if (!color && vars.color_domain instanceof Array) color = "#eee"
+    if (!color && vars.color_scale instanceof Array) color = "#eee"
     else if (!color) return get_random(id)
     
     if (typeof color == "string") {

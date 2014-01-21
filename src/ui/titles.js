@@ -5,7 +5,7 @@
 d3plus.ui.titles = function(vars) {
   
   // Calculate total_bar value
-  if (!vars.app_data || !vars.title.total.default || vars.type.default == "stacked") {
+  if (!vars.data.app || !vars.title.total.default || vars.type.default == "stacked") {
     vars.data.total = null
   }
   else {
@@ -13,20 +13,20 @@ d3plus.ui.titles = function(vars) {
     
     if (vars.dev.default) d3plus.console.time(vars.size.key)
     
-    if (vars.app_data instanceof Array) {
-      vars.data.total = d3.sum(vars.app_data,function(d){
+    if (vars.data.app instanceof Array) {
+      vars.data.total = d3.sum(vars.data.app,function(d){
         return d3plus.variable.value(vars,d,vars.size.key)
       })
     }
     else if (vars.type.default == "rings") {
-      if (vars.app_data[vars.focus.default])
-        vars.data.total = vars.app_data[vars.focus.default][vars.size.key]
+      if (vars.data.app[vars.focus.default])
+        vars.data.total = vars.data.app[vars.focus.default][vars.size.key]
       else {
         vars.data.total = null
       }
     }
     else {
-      vars.data.total = d3.sum(d3.values(vars.app_data),function(d){
+      vars.data.total = d3.sum(d3.values(vars.data.app),function(d){
         return d[vars.size.key]
       })
     }
@@ -54,7 +54,7 @@ d3plus.ui.titles = function(vars) {
     vars.graph.width = vars.app_width-vars.graph.margin.left-vars.graph.margin.right
     make_title(vars.title.default,"title");
     make_title(vars.title.sub.default,"sub_title");
-    if (vars.app_data && !vars.error.default && (vars.type.default != "rings" || (vars.type.default == "rings" && vars.connections[vars.focus.default]))) {
+    if (vars.data.app && !vars.error.default && (vars.type.default != "rings" || (vars.type.default == "rings" && vars.connections[vars.focus.default]))) {
       make_title(vars.data.total,"total_bar");
     }
     else {

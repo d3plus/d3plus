@@ -12,16 +12,16 @@ d3plus.apps.rings.draw = function(vars) {
       links = [],
       nodes = []
   
-  if (vars.app_data) {
+  if (vars.data.app) {
     
-    var center = vars.app_data[vars.focus.default]
+    var center = vars.data.app[vars.focus.default]
     center.d3plus.x = vars.app_width/2
     center.d3plus.y = vars.app_height/2
     center.d3plus.r = ring_width/2
     
     var primaries = [], claimed = []
     vars.connections[vars.focus.default].forEach(function(c){
-      var n = vars.app_data[c[vars.id.key]]
+      var n = vars.data.app[c[vars.id.key]]
       if (!n) {
         n = {"d3plus": {}}
         n[vars.id.key] = c[vars.id.key]
@@ -152,7 +152,7 @@ d3plus.apps.rings.draw = function(vars) {
       p.d3plus.children.sort(sort)
       
       p.d3plus.children.forEach(function(c,i){
-        var d = vars.app_data[c[vars.id.key]],
+        var d = vars.data.app[c[vars.id.key]],
             s = radian/total
             
         if (!d) {

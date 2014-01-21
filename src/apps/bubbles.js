@@ -16,7 +16,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   // Sort Data
   //-------------------------------------------------------------------
   var order = vars.order.key || vars.size.key
-  vars.app_data.sort(function(a,b){
+  vars.data.app.sort(function(a,b){
     var a_value = d3plus.variable.value(vars,a,order)
     var b_value = d3plus.variable.value(vars,b,order)
     return vars.order.sort.default == "asc" ? a_value-b_value : b_value-a_value
@@ -25,21 +25,21 @@ d3plus.apps.bubbles.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate rows and columns
   //-------------------------------------------------------------------
-  if(vars.app_data.length == 1) {
+  if(vars.data.app.length == 1) {
     var columns = 1,
         rows = 1;
   }
-  else if (vars.app_data.length < 4) {
-    var columns = vars.app_data.length,
+  else if (vars.data.app.length < 4) {
+    var columns = vars.data.app.length,
         rows = 1;
   } 
   else {
-    var rows = Math.ceil(Math.sqrt(vars.app_data.length/(vars.app_width/vars.app_height))),
-        columns = Math.ceil(Math.sqrt(vars.app_data.length*(vars.app_width/vars.app_height)));
+    var rows = Math.ceil(Math.sqrt(vars.data.app.length/(vars.app_width/vars.app_height))),
+        columns = Math.ceil(Math.sqrt(vars.data.app.length*(vars.app_width/vars.app_height)));
   }
 
-  if (vars.app_data.length > 0) {
-    while ((rows-1)*columns >= vars.app_data.length) rows--
+  if (vars.data.app.length > 0) {
+    while ((rows-1)*columns >= vars.data.app.length) rows--
   }
   
   var column_width = vars.app_width/columns,
@@ -48,14 +48,14 @@ d3plus.apps.bubbles.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scale
   //-------------------------------------------------------------------
-  if (!vars.app_data) vars.app_data = []
+  if (!vars.data.app) vars.data.app = []
   
-  var domain_min = d3.min(vars.app_data, function(d){ 
+  var domain_min = d3.min(vars.data.app, function(d){ 
     if (!vars.size.key) return 0
     return d3plus.variable.value(vars,d,vars.size.key,null,"min")
   })
   
-  var domain_max = d3.max(vars.app_data, function(d){ 
+  var domain_max = d3.max(vars.data.app, function(d){ 
     if (!vars.size.key) return 0
     return d3plus.variable.value(vars,d,vars.size.key)
   })
@@ -87,7 +87,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   var data = []
   
   var row = 0
-  vars.app_data.forEach(function(d,i){
+  vars.data.app.forEach(function(d,i){
     
     var temp = pack.nodes(d)
     
@@ -241,7 +241,7 @@ d3plus.apps.bubbles.draw = function(vars) {
 //     
 //   })
 //   
-//   vars.app_data.forEach(function(d){
+//   vars.data.app.forEach(function(d){
 //     var parent = data_packed.filter(function(p){ 
 //       if (d3plus.variable.value(vars,d[vars.id],vars.grouping) === false) var key = "false";
 //       else if (d3plus.variable.value(vars,d[vars.id],vars.grouping) === true) var key = "true";
