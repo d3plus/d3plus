@@ -6,8 +6,6 @@ d3plus.viz = function() {
   
   var vars = {
     "autodraw": false,
-    "color_domain": [],
-    "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
     "footer_text": function() {
       var text = vars.tooltip.html || vars.tooltip.default.long ? "Click for More Info" : null
       return vars.text_format(text)
@@ -75,7 +73,7 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Format Data as Necessary
       //-------------------------------------------------------------------
-      d3plus.data.format(vars);
+      d3plus.data.analyze(vars);
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Determine Color Range if Necessary
@@ -113,6 +111,12 @@ d3plus.viz = function() {
       vars.g.titles = vars.svg.selectAll("g#titles").data(["titles"])
       vars.g.titles.enter().append("g")
         .attr("id","titles")
+    
+      // Enter Key Group
+      vars.g.key = vars.svg.selectAll("g#key").data(["key"])
+      vars.g.key.enter().append("g")
+        .attr("id","key")
+        .attr("transform","translate(0,"+vars.height.default+")")
     
       // Enter Footer Group
       vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"])
@@ -170,6 +174,7 @@ d3plus.viz = function() {
       //-------------------------------------------------------------------
       vars.app_width = vars.width.default;
       d3plus.ui.titles(vars);
+      d3plus.ui.key(vars);
       vars.app_height = vars.height.default - vars.margin.top - vars.margin.bottom;
       vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;
 
@@ -265,7 +270,7 @@ d3plus.viz = function() {
       // Make the group visible if there is data
       vars.group.transition().duration(vars.style.timing.transitions)
         .attr("opacity",function(){
-          if (vars.app_data.length == 0 || vars.internal_error) return 0
+          if (vars.data.app.length == 0 || vars.internal_error) return 0
           else return 1
         })
       // Reset mouse events for the app to use
@@ -311,15 +316,15 @@ d3plus.viz = function() {
       // Check for Errors
       //-------------------------------------------------------------------
       if (!vars.internal_error) {
-        if ((!vars.error.default && !vars.app_data) || !vars.returned.nodes.length) {
+        if ((!vars.error.default && !vars.data.app) || !vars.returned.nodes.length) {
           vars.internal_error = "No Data Available"
         }
         else if (vars.type.default == "rings" && !vars.connections[vars.focus.default]) {
-          vars.app_data = null
+          vars.data.app = null
           vars.internal_error = "No Connections Available"
         }
         else if (vars.error.default) {
-          vars.app_data = null
+          vars.data.app = null
           if (vars.error.default === true) {
             vars.internal_error = "Error"
           }
