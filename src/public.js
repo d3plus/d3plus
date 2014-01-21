@@ -84,7 +84,7 @@ d3plus.public.icon = {
 }
 
 d3plus.public.id = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["id_var","nesting"],
   "key": "id",
   "mute": {
@@ -164,7 +164,7 @@ d3plus.public.shape = {
 }
 
 d3plus.public.size = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["value"],
   "key": null,
   "mute": [],
@@ -197,16 +197,16 @@ d3plus.public.text_format = function(text,key,vars) {
 }
 
 d3plus.public.time = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["year","year_var"],
-  "key": null,
-  "mute": [],
-  "solo": [],
-  "static": {
+  "fixed": {
     "accepted": [true,false],
     "default": true,
     "deprecates": ["static_axis","static_axes"]
-  }
+  },
+  "key": null,
+  "mute": [],
+  "solo": []
 }
 
 d3plus.public.title = {
@@ -244,7 +244,7 @@ d3plus.public.width = {
 }
 
 d3plus.public.x = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["xaxis","xaxis_val","xaxis_var"],
   "domain": null,
   "key": null,
@@ -268,7 +268,7 @@ d3plus.public.x = {
 }
 
 d3plus.public.y = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["yaxis","yaxis_val","yaxis_var"],
   "domain": null,
   "key": null,
