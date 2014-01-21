@@ -16,7 +16,7 @@ d3plus.apps.chart.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If there is data, run the needed calculations
   //-------------------------------------------------------------------
-  if (vars.app_data.length) {
+  if (vars.data.app.length) {
     
     if (!vars.tickValues) vars.tickValues = {}
 
@@ -37,7 +37,7 @@ d3plus.apps.chart.draw = function(vars) {
         vars.opp_axis = axis == "x" ? "y" : "x"
       }
       
-      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || !vars.time.static.default) {
+      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || vars.time.fixed.default) {
 
         if (vars.dev.default) d3plus.console.time("determining "+axis+"-axis")
         if (vars[axis].scale.default == "share") {
@@ -46,8 +46,8 @@ d3plus.apps.chart.draw = function(vars) {
           vars.stacked_axis = axis
         }
         else if (vars[axis].stacked.default) {
-          if (!vars.time.static.default) {
-            var range_data = vars.app_data
+          if (vars.time.fixed.default) {
+            var range_data = vars.data.app
           }
           else {
             var range_data = vars.data.restricted.all
@@ -65,16 +65,16 @@ d3plus.apps.chart.draw = function(vars) {
         }
         else if (vars[axis].domain instanceof Array) {
           vars[axis+"_range"] = vars[axis].domain
-          vars.tickValues[axis] = d3plus.utils.uniques(vars.app_data,vars[axis].key)
+          vars.tickValues[axis] = d3plus.utils.uniques(vars.data.app,vars[axis].key)
           vars.tickValues[axis] = vars.tickValues[axis].filter(function(t){
             return t >= vars[axis+"_range"][0] && t <= vars[axis+"_range"][1]
           })
         }
-        else if (!vars.time.static.default) {
-          vars[axis+"_range"] = d3.extent(vars.app_data,function(d){
+        else if (vars.time.fixed.default) {
+          vars[axis+"_range"] = d3.extent(vars.data.app,function(d){
             return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
           })
-          vars.tickValues[axis] = d3plus.utils.uniques(vars.app_data,vars[axis].key)
+          vars.tickValues[axis] = d3plus.utils.uniques(vars.data.app,vars[axis].key)
         }
         else {
           var all_depths = []
@@ -121,8 +121,8 @@ d3plus.apps.chart.draw = function(vars) {
     // Filter data to only include values within the axes
     //-------------------------------------------------------------------
     if (vars.dev.default) d3plus.console.time("removing data outside of axes")
-    var old_length = vars.app_data.length
-    var data = vars.app_data.filter(function(d){
+    var old_length = vars.data.app.length
+    var data = vars.data.app.filter(function(d){
       var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
       var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
       if (y_include) {
@@ -145,8 +145,8 @@ d3plus.apps.chart.draw = function(vars) {
 
       if (vars.dev.default) d3plus.console.time("determining size scale")
       if (vars.size.key) {
-        if (!vars.time.static.default) {
-          var size_domain = d3.extent(vars.app_data,function(d){
+        if (vars.time.fixed.default) {
+          var size_domain = d3.extent(vars.data.app,function(d){
             var val = d3plus.variable.value(vars,d,vars.size.key)
             return val == 0 ? null : val
           })
@@ -501,7 +501,7 @@ d3plus.apps.chart.draw = function(vars) {
     .attr('x', vars.app_width/2)
     .attr('y', vars.app_height-10)
     .attr("opacity",function(){
-      if (vars.app_data.length == 0) return 0
+      if (vars.data.app.length == 0) return 0
       else return 1
     })
 
@@ -510,7 +510,7 @@ d3plus.apps.chart.draw = function(vars) {
     .attr('y', 15)
     .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
     .attr("opacity",function(){
-      if (vars.app_data.length == 0) return 0
+      if (vars.data.app.length == 0) return 0
       else return 1
     })
 
