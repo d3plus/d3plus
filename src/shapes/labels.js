@@ -107,7 +107,13 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       .attr("font-family",vars.style.font.family)
       .attr("text-anchor","start")
       .attr("fill", function(t){ 
-        return t.color; 
+        if (t.color) {
+          return t.color
+        }
+        else {
+          var d = d3.select(this.parentNode).datum()
+          return d3plus.color.text(d3plus.shape.color(d,vars))
+        }
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
@@ -194,9 +200,6 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         if (share && share.w >= 20 && share.h >= 10 && d.d3plus.share && vars.style.labels.align != "middle") {
           
           share.text = d.d3plus.share
-          if (!share.color) {
-            share.color = d3plus.color.text(d3plus.shape.color(d,vars))
-          }
           if (!("resize" in share)) {
             share.resize = true
           }
@@ -234,9 +237,6 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         if (label && label.w >= 20 && label.h >= 10 && names.length) {
 
           label.names = names
-          if (!label.color) {
-            label.color = d3plus.color.text(d3plus.shape.color(d,vars))
-          }
           if (!("resize" in label)) {
             label.resize = true
           }
@@ -261,6 +261,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             .transition().duration(vars.style.timing.transitions/2)
             .delay(vars.style.timing.transitions/2)
               .attr("opacity",1)
+              .call(style,false)
     
           text.exit()
             .call(remove)
