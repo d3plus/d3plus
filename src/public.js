@@ -209,6 +209,12 @@ d3plus.public.time = {
   "solo": []
 }
 
+d3plus.public.timeline = {
+  "accepted": [true,false],
+  "default": true,
+  "label": null
+}
+
 d3plus.public.title = {
   "default": null,
   "sub": {
