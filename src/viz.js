@@ -112,6 +112,12 @@ d3plus.viz = function() {
       vars.g.titles.enter().append("g")
         .attr("id","titles")
     
+      // Enter Timeline Group
+      vars.g.timeline = vars.svg.selectAll("g#timeline").data(["timeline"])
+      vars.g.timeline.enter().append("g")
+        .attr("id","timeline")
+        .attr("transform","translate(0,"+vars.height.default+")")
+    
       // Enter Key Group
       vars.g.key = vars.svg.selectAll("g#key").data(["key"])
       vars.g.key.enter().append("g")
@@ -175,6 +181,7 @@ d3plus.viz = function() {
       vars.app_width = vars.width.default;
       d3plus.ui.titles(vars);
       d3plus.ui.key(vars);
+      d3plus.ui.timeline(vars);
       vars.app_height = vars.height.default - vars.margin.top - vars.margin.bottom;
       vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;
 
