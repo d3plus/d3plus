@@ -66,7 +66,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   selection.selectAll("rect.data")
     .data(function(d) { 
       
-      if (vars.labels.default && !d.d3plus_label) {
+      if (vars.labels.default && !d.d3plus.label) {
         
         d.d3plus_label = {
           "w": 0,
@@ -99,7 +99,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
         
       }
-      
+      console.log(d.two,d.d3plus_label.h)
       return [d];
     })
     .transition().duration(vars.style.timing.transitions)
