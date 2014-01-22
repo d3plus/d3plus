@@ -99,7 +99,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
         
       }
-      console.log(d.two,d.d3plus_label.h)
+      
       return [d];
     })
     .transition().duration(vars.style.timing.transitions)
