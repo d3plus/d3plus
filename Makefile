@@ -13,7 +13,9 @@ JS_FILES = \
 	src/apps/stacked.js \
 	src/apps/tree_map.js \
 	\
+	src/data/analyze.js \
 	src/data/color.js \
+	src/data/fetch.js \
 	src/data/filter.js \
 	src/data/format.js \
 	src/data/nest.js \
@@ -39,9 +41,11 @@ JS_FILES = \
 	src/tooltip/move.js \
 	src/tooltip/remove.js \
 	\
-	src/utils/color.js \
 	src/ui/error.js \
+	src/ui/key.js \
 	src/ui/titles.js \
+	\
+	src/utils/color.js \
 	src/utils/utils.js \
 	src/utils/variables.js \
 	src/utils/wordwrap.js \
