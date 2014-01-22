@@ -39,6 +39,7 @@ d3plus.data.analyze = function(vars) {
     if (vars.dev.default) d3plus.console.group("New Data Detected")
     
     vars.data.filtered = null
+    vars.data.grouped = null
     vars.data.app = null
 
     if (vars.dev.default) d3plus.console.time("key analysis")
@@ -80,6 +81,7 @@ d3plus.data.analyze = function(vars) {
   }
   if (!vars.data.filtered || vars.check.length || vars.active.changed || vars.temp.changed || vars.total.changed) {
     vars.data[vars.data.type] = null
+    vars.data.grouped = null
     vars.data.app = null;
     d3plus.data.filter(vars)
   }
@@ -187,14 +189,22 @@ d3plus.data.analyze = function(vars) {
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Formats Data to type "group", if it does not exist.
+  //----------------------------------------------------------------------------
+  if (!vars.data.grouped) {
+    vars.data.grouped = d3plus.data.format(vars,"grouped")
+  }
+  
+  var year = !vars.time.fixed.default ? ["all"] : null
+  
+  vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Formats Data to type specified by App, if it does not exist.
   //----------------------------------------------------------------------------
   if (!vars.data[vars.data.type]) {
     vars.data[vars.data.type] = d3plus.data.format(vars,vars.data.type)
   }
-  
-  var year = !vars.time.fixed.default ? ["all"] : null
-  vars.data.pool = d3plus.data.fetch(vars,"restricted",year)
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Fetch the correct Data for the App
