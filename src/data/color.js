@@ -16,7 +16,7 @@ d3plus.data.color = function(vars) {
     var color_id = vars.color.key
   }
   
-  if (vars.data.default && vars.color.key && (vars.color.changed || vars.time.changed)) {
+  if (vars.data.default && vars.color.key && (vars.color.changed || vars.time.changed || vars.depth.changed)) {
     
     if (vars.data.keys[color_id] == "number") {
       
@@ -26,6 +26,7 @@ d3plus.data.color = function(vars) {
       var data_domain = null
     
       if (vars.dev.default) d3plus.console.time("get data range")
+      
       vars.data.pool.forEach(function(d){
         var val = parseFloat(d3plus.variable.value(vars,d,vars.color.key))
         if (val) data_range.push(val)
