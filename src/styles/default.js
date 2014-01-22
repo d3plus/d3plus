@@ -24,6 +24,27 @@ d3plus.styles.default = {
   "info": {
     "font-size": 20
   },
+  "key": {
+    "align": "middle",
+    "padding": 5,
+    "gradient": {
+      "height": 10
+    },
+    "label": {
+      "color": "#333",
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 12
+    },
+    "tick": {
+      "align": "middle",
+      "color": "#333",
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 10
+    },
+    "size": 30
+  },
   "labels": {
     "align": "middle",
     "padding": 7,
