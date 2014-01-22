@@ -232,7 +232,7 @@ d3plus.apps.rings.draw = function(vars) {
                 anchor = "start"
           }
           
-          n.d3plus_label = {
+          n.d3plus.label = {
             "x": buffer,
             "y": 0,
             "w": width,
