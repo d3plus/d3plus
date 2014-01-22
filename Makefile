@@ -43,6 +43,7 @@ JS_FILES = \
 	\
 	src/ui/error.js \
 	src/ui/key.js \
+	src/ui/timeline.js \
 	src/ui/titles.js \
 	\
 	src/utils/color.js \
