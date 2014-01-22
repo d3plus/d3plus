@@ -6,7 +6,7 @@ d3plus.ui.key = function(vars) {
   
   var key_display = true
   
-  if (vars.key.default) {
+  if (vars.key.default && vars.color.key) {
     
     if (!vars.color_scale) {
     
@@ -479,7 +479,7 @@ d3plus.ui.key = function(vars) {
     
   }
   
-  if (vars.key.default && key_display) {
+  if (vars.key.default && vars.color.key && key_display) {
     
     var key_box = vars.g.key.node().getBBox()
     var key_height = key_box.height+key_box.y
