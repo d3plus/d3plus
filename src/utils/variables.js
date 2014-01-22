@@ -124,9 +124,10 @@ d3plus.variable.color = function(vars,id) {
     return get_random(id);
   }
   else {
+    
     var color = d3plus.variable.value(vars,id,vars.color.key)
     
-    if (!color && vars.color_scale instanceof Array) color = "#eee"
+    if (!color && typeof vars.color_scale == "function") color = "#eee"
     else if (!color) return get_random(id)
     
     if (typeof color == "string") {
