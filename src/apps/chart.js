@@ -886,7 +886,7 @@ d3plus.apps.chart.draw = function(vars) {
   
   function axis_lines(node) {
     
-    var click_remove = d3.event.type == "click" && (vars.tooltip.value.long || vars.tooltip.html),
+    var click_remove = d3.event.type == "click" && (vars.tooltip.value.long || vars.html.value),
         create = ["mouseover","mousemove"].indexOf(d3.event.type) >= 0
     
     if (!click_remove && create && vars.shape.value != "area") {
