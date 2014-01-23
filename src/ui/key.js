@@ -87,8 +87,8 @@ d3plus.ui.key = function(vars) {
         
         colors.sort(function(a,b){
           
-          a_value = d3plus.variable.color(vars,a)
-          b_value = d3plus.variable.color(vars,b)
+          a_value = a.color
+          b_value = b.color
 
           a_value = d3.rgb(a_value).hsl()
           b_value = d3.rgb(b_value).hsl()
