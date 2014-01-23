@@ -86,6 +86,11 @@ d3plus.public.height = {
   "value": null
 }
 
+d3plus.public.html = {
+  "deprecates": ["click_function"],
+  "value": null
+}
+
 d3plus.public.icon = {
   "deprecates": ["icon_var"],
   "key": "icon"
@@ -258,7 +263,7 @@ d3plus.public.title = {
 d3plus.public.tooltip = {
   "deprecates": ["tooltip_info"],
   "value": [],
-  "html": null
+  "object": true
 }
 
 d3plus.public.total = {
