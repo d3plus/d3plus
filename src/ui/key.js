@@ -202,7 +202,7 @@ d3plus.ui.key = function(vars) {
                   })
                   .selectAll("tspan")
                     .attr("x",function(t){
-                      var w = this.getBBox().width
+                      var w = this.getComputedTextLength()
                       return vars.style.key.size/2 - w/2
                     })
                 
