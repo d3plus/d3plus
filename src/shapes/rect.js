@@ -99,6 +99,9 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
         
       }
+      else if (d.d3plus.label) {
+        d.d3plus_label = d.d3plus.label
+      }
       
       return [d];
     })
