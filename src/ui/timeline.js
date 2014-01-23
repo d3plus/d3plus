@@ -22,40 +22,25 @@ d3plus.ui.timeline = function(vars) {
         start = init[0],
         end = init[1]
 
-    // var brushed = function() {
-    //   var extent0 = brush.extent(),
-    //       extent1;
-    // 
-    //   extent1 = extent0.map(d3.time.year.round);
-    // 
-    //   var min_req_sec = 31536000000 * min_required;
-    //   var time_diff = extent1[1] - extent1[0];
-    //   
-    //   if (time_diff < min_req_sec) {
-    //   
-    //     if(min_required > 1){
-    //       extent1[0] = d3.time.year.round(d3.time.year.offset(extent0[0], -min_required/2));
-    //       extent1[1] = d3.time.year.round(d3.time.year.offset(extent0[1], min_required/2));
-    //     }
-    //     else {
-    //       extent1[0] = d3.time.year.floor(extent0[0]);
-    //       extent1[1] = d3.time.year.ceil(extent0[1]);
-    //     }
-    //   
-    //   }
-    // 
-    //   d3.select(this).call(brush.extent(extent1));
-    // }
-
     var brushend = function() {
       if (!d3.event.sourceEvent) return;
       var extent0 = brush.extent(),
           extent1 = extent0.map(d3.time.year.round);
-          
-      // if empty when rounded, use floor & ceil instead
-      if (extent1[0] >= extent1[1]) {
-        extent1[0] = d3.time.year.floor(extent0[0]);
-        extent1[1] = d3.time.year.ceil(extent0[1]);
+    
+      var min_req_sec = 31536000000 * min_required;
+      var time_diff = extent1[1] - extent1[0];
+      
+      if (time_diff < min_req_sec) {
+      
+        if(min_required > 1){
+          extent1[0] = d3.time.year.round(d3.time.year.offset(extent0[0], -min_required/2));
+          extent1[1] = d3.time.year.round(d3.time.year.offset(extent0[1], min_required/2));
+        }
+        else {
+          extent1[0] = d3.time.year.floor(extent0[0]);
+          extent1[1] = d3.time.year.ceil(extent0[1]);
+        }
+      
       }
       
       d3.select(this).transition()
@@ -172,7 +157,6 @@ d3plus.ui.timeline = function(vars) {
     var brush = d3.svg.brush()
       .x(x)
       .extent([new Date(start, 0, 1), new Date(end+1, 0, 1)])
-      // .on("brush", brushed)
       .on("brushend", brushend)
       
     var ticks = vars.g.timeline.selectAll("g#ticks")
