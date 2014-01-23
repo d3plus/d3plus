@@ -8,11 +8,11 @@ d3plus.viz = function() {
     "autodraw": false,
     "footer_text": function() {
       var text = vars.tooltip.html || vars.tooltip.default.long ? "Click for More Info" : null
-      return vars.text_format(text)
+      return vars.text_format.default(text)
     },
     "format": function(value,key) {
-      if (typeof value === "number") return vars.number_format(value,key,vars)
-      if (typeof value === "string") return vars.text_format(value,key,vars)
+      if (typeof value === "number") return vars.number_format.default(value,key,vars)
+      if (typeof value === "string") return vars.text_format.default(value,key,vars)
       else return JSON.stringify(value)
     },
     "frozen": false,
@@ -731,7 +731,7 @@ d3plus.viz = function() {
             }
             
             if ((vars.dev.default || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
-              if (JSON.stringify(a[b]).length < 260) {
+              if (typeof a[b] != "function" && JSON.stringify(a[b]).length < 260) {
                 d3plus.console.log(text+" has been set to "+JSON.stringify(a[b])+".")
               }
               else {

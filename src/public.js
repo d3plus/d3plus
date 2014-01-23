@@ -118,30 +118,32 @@ d3plus.public.nodes = {
   "default": null
 }
 
-d3plus.public.number_format = function(number,key,vars) {
+d3plus.public.number_format = {
+  "default": function(number,key,vars) {
   
-  if (key == vars.time.key) {
-    return number
-  }
-  else if (number < 10) {
-    return d3.round(number,2)
-  }
-  else if (number.toString().split(".")[0].length > 4) {
-    var symbol = d3.formatPrefix(number).symbol
-    symbol = symbol.replace("G", "B") // d3 uses G for giga
+    if (key == vars.time.key) {
+      return number
+    }
+    else if (number < 10) {
+      return d3.round(number,2)
+    }
+    else if (number.toString().split(".")[0].length > 4) {
+      var symbol = d3.formatPrefix(number).symbol
+      symbol = symbol.replace("G", "B") // d3 uses G for giga
     
-    // Format number to precision level using proper scale
-    number = d3.formatPrefix(number).scale(number)
-    number = parseFloat(d3.format(".3g")(number))
-    return number + symbol;
-  }
-  else if (key == "share") {
-    return d3.format(".2f")(number)
-  }
-  else {
-    return d3.format(",f")(number)
-  }
+      // Format number to precision level using proper scale
+      number = d3.formatPrefix(number).scale(number)
+      number = parseFloat(d3.format(".3g")(number))
+      return number + symbol;
+    }
+    else if (key == "share") {
+      return d3.format(".2f")(number)
+    }
+    else {
+      return d3.format(",f")(number)
+    }
   
+  }
 }
 
 d3plus.public.order = {
@@ -190,10 +192,11 @@ d3plus.public.text = {
   "solo": []
 }
 
-d3plus.public.text_format = function(text,key,vars) {
-  if (!text) return ""
-  return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase()
-  
+d3plus.public.text_format = {
+  "default": function(text,key,vars) {
+    if (!text) return ""
+    return text.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  }
 }
 
 d3plus.public.time = {
