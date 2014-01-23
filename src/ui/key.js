@@ -365,6 +365,7 @@ d3plus.ui.key = function(vars) {
       var label_width = 0
       
       text
+        .order()
         .style("font-weight",vars.style.key.tick.weight)
         .attr("font-family",vars.style.key.tick.family)
         .attr("font-size",vars.style.key.tick.size)

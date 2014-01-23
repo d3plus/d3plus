@@ -88,6 +88,7 @@ d3plus.ui.timeline = function(vars) {
         height = vars.style.timeline.height+vars.style.key.padding*2
     
     text
+      .order()
       .style("font-weight",vars.style.timeline.tick.weight)
       .attr("font-family",vars.style.timeline.tick.family)
       .attr("font-size",vars.style.timeline.tick.size)
