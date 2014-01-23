@@ -7,7 +7,7 @@ d3plus.viz = function() {
   var vars = {
     "autodraw": false,
     "footer_text": function() {
-      var text = vars.tooltip.html || vars.tooltip.value.long ? "Click for More Info" : null
+      var text = vars.html.value || vars.tooltip.value.long ? "Click for More Info" : null
       return vars.text_format.value(text)
     },
     "format": function(value,key) {
@@ -560,6 +560,7 @@ d3plus.viz = function() {
           }
           else {
             if (typeof depth == "object" && !(depth instanceof Array)) {
+              
               if (object[property].object) {
                 set_value(object[property],key_type,depth)
               }
