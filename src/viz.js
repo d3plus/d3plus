@@ -27,11 +27,12 @@ d3plus.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Main drawing function
   //-------------------------------------------------------------------
-  chart = function(selection) {
+  var chart = function(selection) {
     selection.each(function() {
       
       vars.frozen = true
-
+      vars.chart = chart
+      
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If placing into a new container, remove it's contents
       // and check text direction.
