@@ -79,13 +79,13 @@ d3plus.ui.timeline = function(vars) {
       })
       .attr("y",function(d){
         var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
-        var y = vars.style.key.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
+        var y = vars.style.timeline.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
         return y
       })
     
     var year_width = 0,
         year_height = 0,
-        height = vars.style.timeline.height+vars.style.key.padding*2
+        height = vars.style.timeline.height+vars.style.timeline.padding*2
     
     text
       .order()
@@ -104,9 +104,9 @@ d3plus.ui.timeline = function(vars) {
         if (h > year_height) year_height = h
       })
       
-    var label_width = year_width+vars.style.key.padding*2,
+    var label_width = year_width+vars.style.timeline.padding*2,
         timeline_width = label_width*years.length,
-        available_width = vars.width.value-vars.style.key.padding*2,
+        available_width = vars.width.value-vars.style.timeline.padding*2,
         step = 1
     
     if (timeline_width > available_width) {
@@ -140,9 +140,9 @@ d3plus.ui.timeline = function(vars) {
       })
       .attr("y",function(d){
         var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
-        var y = vars.style.key.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
+        var y = vars.style.timeline.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
         if (step > 1) {
-          y += year_height+vars.style.key.padding
+          y += year_height+vars.style.timeline.padding
         }
         return y
       })
