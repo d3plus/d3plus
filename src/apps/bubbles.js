@@ -10,7 +10,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Test for labels
   //-------------------------------------------------------------------
-  var label_height = vars.labels.default && !vars.small ? 50 : 0
+  var label_height = vars.labels.value && !vars.small ? 50 : 0
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sort Data
@@ -19,7 +19,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   vars.data.app.sort(function(a,b){
     var a_value = d3plus.variable.value(vars,a,order)
     var b_value = d3plus.variable.value(vars,b,order)
-    return vars.order.sort.default == "asc" ? a_value-b_value : b_value-a_value
+    return vars.order.sort.value == "asc" ? a_value-b_value : b_value-a_value
   })
     
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -66,7 +66,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   var size_max = (d3.min([column_width,column_height])/2)-(padding*2)
   size_max -= label_height
   
-  var size = d3.scale[vars.size.scale.default]()
+  var size = d3.scale[vars.size.scale.value]()
     .domain([domain_min,domain_max])
     .range([size_min,size_max])
   
@@ -99,7 +99,7 @@ d3plus.apps.bubbles.draw = function(vars) {
       if (!t.d3plus.depth) t.d3plus.depth = t.depth
       t.xoffset = xoffset
       t.yoffset = yoffset+label_height
-      if (t.depth < vars.depth.default) {
+      if (t.depth < vars.depth.value) {
         t.d3plus.static = true
       }
       else {

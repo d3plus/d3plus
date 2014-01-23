@@ -35,15 +35,15 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         return d.d3plus.height+mod
       })
       .attr("rx",function(d){
-        var rounded = ["circle","donut"].indexOf(vars.shape.default) >= 0
+        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
         return rounded ? (d.d3plus.width+mod)/2 : 0
       })
       .attr("ry",function(d){
-        var rounded = ["circle","donut"].indexOf(vars.shape.default) >= 0
+        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
         return rounded ? (d.d3plus.height+mod)/2 : 0
       })
       .attr("shape-rendering",function(d){
-        if (["square"].indexOf(vars.shape.default) >= 0) {
+        if (["square"].indexOf(vars.shape.value) >= 0) {
           return vars.style.rendering
         }
         else {
@@ -244,7 +244,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         
     }
       
-    if (total && d3plus.apps[vars.type.default].fill) {
+    if (total && d3plus.apps[vars.type.value].fill) {
       
       if (active && active < total) {
         create("active")

@@ -10,8 +10,8 @@ d3plus.apps.network.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Use filtered lists if they are available
   //-------------------------------------------------------------------
-  var nodes = vars.nodes.restricted || vars.nodes.default,
-      links = vars.links.restricted || vars.links.default
+  var nodes = vars.nodes.restricted || vars.nodes.value,
+      links = vars.links.restricted || vars.links.value
       
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Determine Size Scale
@@ -71,7 +71,7 @@ d3plus.apps.network.draw = function(vars) {
   scale.y.range([offset_top+(max_size*1.5), vars.app_height-(max_size*1.5)-offset_top])
   
   // Create size scale
-  scale.r = d3.scale[vars.size.scale.default]()
+  scale.r = d3.scale[vars.size.scale.value]()
     .domain(val_range)
     .range([min_size, max_size])
   
@@ -146,7 +146,7 @@ d3plus.apps.network.draw = function(vars) {
   //       if (zoom_behavior.scale() < zoom_extent[0]*2) multiplier = zoom_extent[0]/zoom_behavior.scale()
   //       else multiplier = 0.5
   //     } 
-  //     else if (direction == vars.focus.default) {
+  //     else if (direction == vars.focus.value) {
   //       var x_bounds = [scale.x(highlight_extent.x[0]),scale.x(highlight_extent.x[1])],
   //           y_bounds = [scale.y(highlight_extent.y[0]),scale.y(highlight_extent.y[1])]
   //           
@@ -173,7 +173,7 @@ d3plus.apps.network.draw = function(vars) {
   //       translate = [offset_x+offset_left,offset_y]
   //     } 
   //     else if (direction == "reset") {
-  //       vars.focus.default = null
+  //       vars.focus.value = null
   //       translate = [0,0]
   //       evt_scale = 1
   //     }
@@ -233,14 +233,14 @@ d3plus.apps.network.draw = function(vars) {
   // 
   // vars.update = function() {
   //   // If highlight variable has ACTUALLY changed, do this stuff
-  //   if (last_highlight != vars.focus.default) {
+  //   if (last_highlight != vars.focus.value) {
   //     
   //     // Remove all tooltips on page
-  //     d3plus.tooltip.remove(vars.type.default)
+  //     d3plus.tooltip.remove(vars.type.value)
   //     d3.select("g.highlight").selectAll("*").remove()
   //     d3.select("g.hover").selectAll("*").remove()
   //     
-  //     if (vars.focus.default) {
+  //     if (vars.focus.value) {
   //                         
   //       create_nodes("highlight")
   //       
@@ -251,7 +251,7 @@ d3plus.apps.network.draw = function(vars) {
   //     
   //     node.call(node_color)
   //     
-  //     last_highlight = vars.focus.default
+  //     last_highlight = vars.focus.value
   //   }
   // 
   //   // If hover variable has ACTUALLY changed, do this stuff
@@ -260,7 +260,7 @@ d3plus.apps.network.draw = function(vars) {
   //     d3.select("g.hover").selectAll("*").remove()
   //     
   //     // If a new hover element exists, create it
-  //     if (hover && hover != vars.focus.default) {
+  //     if (hover && hover != vars.focus.value) {
   //       create_nodes("hover")
   //     }
   //     
@@ -271,7 +271,7 @@ d3plus.apps.network.draw = function(vars) {
   //   function create_nodes(group) {
   //     
   //     if (group == "highlight") {
-  //       var c = vars.focus.default
+  //       var c = vars.focus.value
   //     }
   //     else {
   //       var c = hover
@@ -279,7 +279,7 @@ d3plus.apps.network.draw = function(vars) {
   //     
   //     var node_data = nodes.filter(function(x){return x[vars.id] == c})
   //     
-  //     if (group == "highlight" || !vars.focus.default) {
+  //     if (group == "highlight" || !vars.focus.value) {
   // 
   //       var prim_nodes = [],
   //           prim_links = [];
@@ -311,9 +311,9 @@ d3plus.apps.network.draw = function(vars) {
   //             var x_pos = vars.app_width-info_width-5
   //           }
   //        
-  //           var prod = nodes.filter(function(n){return n[vars.id] == vars.focus.default})[0]
+  //           var prod = nodes.filter(function(n){return n[vars.id] == vars.focus.value})[0]
   //         
-  //           var tooltip_data = d3plus.tooltip.data(vars,vars.focus.default)
+  //           var tooltip_data = d3plus.tooltip.data(vars,vars.focus.value)
   //         
   //           var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
   //           tooltip_appends += vars.format("Primary Connections")
@@ -336,13 +336,13 @@ d3plus.apps.network.draw = function(vars) {
   //             tooltip_appends += "</div>"
   //           })
   //           
-  //           d3plus.tooltip.remove(vars.type.default)
+  //           d3plus.tooltip.remove(vars.type.value)
   //         
   //           d3plus.tooltip.create({
   //             "data": tooltip_data,
-  //             "title": d3plus.variable.value(vars,vars.focus.default,vars.text.key),
-  //             "color": d3plus.variable.color(vars,vars.focus.default),
-  //             "icon": d3plus.variable.value(vars,vars.focus.default,"icon"),
+  //             "title": d3plus.variable.value(vars,vars.focus.value,vars.text.key),
+  //             "color": d3plus.variable.color(vars,vars.focus.value),
+  //             "icon": d3plus.variable.value(vars,vars.focus.value,"icon"),
   //             "style": vars.style.icon,
   //             "x": x_pos,
   //             "y": vars.margin.top+5,
@@ -353,12 +353,12 @@ d3plus.apps.network.draw = function(vars) {
   //             "mouseevents": true,
   //             "parent": vars.parent,
   //             "background": vars.style.background,
-  //             "id": vars.type.default
+  //             "id": vars.type.value
   //           })
   //           
   //         }
   //         
-  //         var html = vars.click.default ? vars.click.default(vars.focus.default) : ""
+  //         var html = vars.click.value ? vars.click.value(vars.focus.value) : ""
   //   
   //         if (typeof html == "string") make_tooltip(html)
   //         else {
@@ -424,13 +424,13 @@ d3plus.apps.network.draw = function(vars) {
 //     .attr("width", vars.app_width)
 //     .attr("height", vars.app_height)
 //     .on(d3plus.evt.over,function(d){
-//       if (!vars.focus.default && hover) {
+//       if (!vars.focus.value && hover) {
 //         hover = null;
 //         vars.update();
 //       }
 //     })
 //     .on(d3plus.evt.click,function(d){
-//       // vars.focus.default = null;
+//       // vars.focus.value = null;
 //       // vars.zoom("reset");
 //       // vars.update();
 //     })
@@ -451,7 +451,7 @@ d3plus.apps.network.draw = function(vars) {
 //       }
 //     });
 //     
-//   if (!vars.zoom.scroll.default) {
+//   if (!vars.zoom.scroll.value) {
 //     d3.select(d3.select("g.viz").node().parentNode)
 //       .on("mousewheel.zoom", null)
 //       .on("DOMMouseScroll.zoom", null)
@@ -527,13 +527,13 @@ d3plus.apps.network.draw = function(vars) {
 // 
 //   //===================================================================
 //   
-//   if (vars.focus.default) {
+//   if (vars.focus.value) {
 //     var present = false;
 //     nodes.forEach(function(d){
-//       if (d[vars.id] == vars.focus.default) present = true;
+//       if (d[vars.id] == vars.focus.value) present = true;
 //     })
 //     if (!present) {
-//       vars.focus.default = null;
+//       vars.focus.value = null;
 //     }
 //   }
 //   vars.update();
@@ -550,7 +550,7 @@ d3plus.apps.network.draw = function(vars) {
 //   function link_events(l) {
 //     l
 //       .on(d3plus.evt.click,function(d){
-//         vars.focus.default = null;
+//         vars.focus.value = null;
 //         vars.zoom("reset");
 //         vars.update();
 //       })
@@ -577,7 +577,7 @@ d3plus.apps.network.draw = function(vars) {
 //           d3.select(this).style("cursor","-webkit-zoom-in")
 //         }
 //           
-//         if (d[vars.id] == vars.focus.default && !d3plus.ie) {
+//         if (d[vars.id] == vars.focus.value && !d3plus.ie) {
 //           d3.select(this).style("cursor","-moz-zoom-out")
 //           d3.select(this).style("cursor","-webkit-zoom-out")
 //         }
@@ -612,13 +612,13 @@ d3plus.apps.network.draw = function(vars) {
 // 
 //         // If there is no highlighted node, 
 //         // or the hover node is not the highlighted node
-//         if (!vars.focus.default || vars.focus.default != d[vars.id]) {
-//           vars.focus.default = d[vars.id];
+//         if (!vars.focus.value || vars.focus.value != d[vars.id]) {
+//           vars.focus.value = d[vars.id];
 //         } 
 //         
 //         // Else, the user is clicking on the highlighted node.
 //         else {
-//           vars.focus.default = null;
+//           vars.focus.value = null;
 //         }
 //         
 //         vars.update();
@@ -635,7 +635,7 @@ d3plus.apps.network.draw = function(vars) {
 //             corner = Math.ceil(3/zoom_behavior.scale())
 //             value = d3plus.variable.value(vars,d[vars.id],vars.size.key),
 //             size = value > 0 ? scale.r(value) : scale.r(val_range[0])
-//         if (font_size < size || d[vars.id] == hover || d[vars.id] == vars.focus.default) {
+//         if (font_size < size || d[vars.id] == hover || d[vars.id] == vars.focus.value) {
 //           d3.select(this.parentNode).append("text")
 //             .attr("pointer-events","none")
 //             .attr("x",scale.x(d.x))

@@ -6,7 +6,7 @@ d3plus.apps.line.shapes = ["line"];
 
 d3plus.apps.line.setup = function(vars) {
 
-  vars.x.scale.default = "continuous"
+  vars.x.scale.value = "continuous"
   
 }
 

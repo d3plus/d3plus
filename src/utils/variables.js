@@ -47,11 +47,11 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     
     if (!agg) {
       var agg = "sum"
-      if (typeof vars.aggs.default == "string") {
-        agg = vars.aggs.default
+      if (typeof vars.aggs.value == "string") {
+        agg = vars.aggs.value
       }
-      else if (vars.aggs.default[variable]) {
-        agg = vars.aggs.default[variable]
+      else if (vars.aggs.value[variable]) {
+        agg = vars.aggs.value[variable]
       }
     }
     check_children(id)
@@ -82,19 +82,19 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     }
   }
   
-  if (vars.attrs.default instanceof Array) {
-    var attr = filter_array(vars.attrs.default)
+  if (vars.attrs.value instanceof Array) {
+    var attr = filter_array(vars.attrs.value)
   }
-  else if (vars.attrs.default[id_var]) {
-    if (vars.attrs.default[id_var] instanceof Array) {
-      var attr = filter_array(vars.attrs.default[id_var])
+  else if (vars.attrs.value[id_var]) {
+    if (vars.attrs.value[id_var] instanceof Array) {
+      var attr = filter_array(vars.attrs.value[id_var])
     }
     else {
-      var attr = vars.attrs.default[id_var][id]
+      var attr = vars.attrs.value[id_var][id]
     }
   }
   else {
-    var attr = vars.attrs.default[id]
+    var attr = vars.attrs.value[id]
   }
   
   if (attr && typeof attr[variable] != "undefined") return attr[variable]
@@ -143,7 +143,7 @@ d3plus.variable.color = function(vars,id) {
 //------------------------------------------------------------------------------
 d3plus.variable.text = function(vars,obj,depth) {
   
-  if (typeof depth != "number") var depth = vars.depth.default
+  if (typeof depth != "number") var depth = vars.depth.value
   
   if (vars.text.array && typeof vars.text.array == "object") {
     if (vars.text.array[vars.id.nesting[depth]]) {

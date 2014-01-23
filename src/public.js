@@ -6,27 +6,27 @@ d3plus.public.active = {
   "solo": [],
   "spotlight": {
     "accepted": [true,false],
-    "default": false,
+    "value": false,
     "deprecates": ["spotlight"]
   }
 }
 
 d3plus.public.aggs = {
-  "default": {},
+  "value": {},
   "deprecated": ["nesting_aggs"]
 }
 
 d3plus.public.axes = {
   "mirror": {
     "accepted": [true,false],
-    "default": false,
+    "value": false,
     "deprecates": ["mirror_axis","mirror_axes"]
   },
   "values": ["x","y"]
 }
 
 d3plus.public.attrs = {
-  "default": {}
+  "value": {}
 }
 
 d3plus.public.color = {
@@ -37,45 +37,45 @@ d3plus.public.color = {
 }
 
 d3plus.public.container = {
-  "default": null
+  "value": null
 }
 
 d3plus.public.coords = {
-  "default": null
+  "value": null
 }
 
 d3plus.public.data = {
-  "default": []
+  "value": []
 }
 
 d3plus.public.depth = {
-  "default": 0
+  "value": 0
 }
 
 d3plus.public.descs = {
-  "default": {}
+  "value": {}
 }
 
 d3plus.public.dev = {
   "accepted": [true,false],
-  "default": false
+  "value": false
 }
 
 d3plus.public.error = {
-  "default": false
+  "value": false
 }
 
 d3plus.public.focus = {
-  "default": null,
+  "value": null,
   "deprecates": ["highlight"]
 }
 
 d3plus.public.footer = {
-  "default": false
+  "value": false
 }
 
 d3plus.public.height = {
-  "default": null
+  "value": null
 }
 
 d3plus.public.icon = {
@@ -88,38 +88,38 @@ d3plus.public.id = {
   "deprecates": ["id_var","nesting"],
   "key": "id",
   "mute": {
-    "default": [],
+    "value": [],
     "deprecates": ["filter"]
   },
   "nesting": ["id"],
   "solo": {
-    "default": [],
+    "value": [],
     "deprecates": ["solo"]
   }
 }
 
 d3plus.public.key = {
   "accepted": [true,false],
-  "default": true,
+  "value": true,
   "label": null
 }
 
 d3plus.public.labels = {
   "accepted": [true,false],
-  "default": true
+  "value": true
 }
 
 d3plus.public.links = {
   "deprecates": ["edges"],
-  "default": null
+  "value": null
 }
 
 d3plus.public.nodes = {
-  "default": null
+  "value": null
 }
 
 d3plus.public.number_format = {
-  "default": function(number,key,vars) {
+  "value": function(number,key,vars) {
   
     if (key == vars.time.key) {
       return number
@@ -150,17 +150,17 @@ d3plus.public.order = {
   "key": null,
   "sort": {
     "accepted": ["asc","desc"],
-    "default": "asc",
+    "value": "asc",
     "deprecates": ["sort"]
   }
 }
 
 d3plus.public.shape = {
   "accepted": ["circle","donut","line","square","area","coordinates"],
-  "default": null,
+  "value": null,
   "interpolate": {
     "accepted": ["linear","step","step-before","step-after","basis","basis-open","cardinal","cardinal-open","monotone"],
-    "default": "linear",
+    "value": "linear",
     "deprecates": ["stack_type"]
   }
 }
@@ -173,7 +173,7 @@ d3plus.public.size = {
   "scale": {
     "accepted": ["sqrt","linear","log"],
     "deprecates": ["size_scale"],
-    "default": "sqrt"
+    "value": "sqrt"
   },
   "solo": []
 }
@@ -193,7 +193,7 @@ d3plus.public.text = {
 }
 
 d3plus.public.text_format = {
-  "default": function(text,key,vars) {
+  "value": function(text,key,vars) {
     if (!text) return ""
     return text.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
   }
@@ -204,7 +204,7 @@ d3plus.public.time = {
   "deprecates": ["year","year_var"],
   "fixed": {
     "accepted": [true,false],
-    "default": true,
+    "value": true,
     "deprecates": ["static_axis","static_axes"]
   },
   "key": null,
@@ -214,18 +214,18 @@ d3plus.public.time = {
 
 d3plus.public.timeline = {
   "accepted": [true,false],
-  "default": true,
+  "value": true,
   "label": null
 }
 
 d3plus.public.title = {
-  "default": null,
+  "value": null,
   "sub": {
-    "default": null,
+    "value": null,
     "deprecates": ["sub_title"]
   },
   "total": {
-    "default": false,
+    "value": false,
     "deprecates": ["total_bar"],
     "object": true
   }
@@ -233,7 +233,7 @@ d3plus.public.title = {
 
 d3plus.public.tooltip = {
   "deprecates": ["tooltip_info"],
-  "default": [],
+  "value": [],
   "html": null
 }
 
@@ -245,11 +245,11 @@ d3plus.public.total = {
 }
 
 d3plus.public.type = {
-  "default": "tree_map"
+  "value": "tree_map"
 }
 
 d3plus.public.width = {
-  "default": null
+  "value": null
 }
 
 d3plus.public.x = {
@@ -262,17 +262,17 @@ d3plus.public.x = {
   "reset": ["x_range"],
   "scale": {
     "accepted": ["linear","log","continuous","share"],
-    "default": "linear",
+    "value": "linear",
     "deprecates": ["layout","unique_axis","xaxis_scale"]
   },
   "stacked": {
     "accepted": [true,false],
-    "default": false
+    "value": false
   },
   "solo": [],
   "zerofill": {
     "accepted": [true,false],
-    "default": false
+    "value": false
   }
 }
 
@@ -286,24 +286,24 @@ d3plus.public.y = {
   "reset": ["y_range"],
   "scale": {
     "accepted": ["linear","log","continuous","share"],
-    "default": "linear",
+    "value": "linear",
     "deprecates": ["layout","unique_axis","yaxis_scale"]
   },
   "stacked": {
     "accepted": [true,false],
-    "default": false
+    "value": false
   },
   "solo": [],
   "zerofill": {
     "accepted": [true,false],
-    "default": false
+    "value": false
   }
 }
 
 d3plus.public.zoom = {
   "scroll": {
     "accepted": [true,false],
-    "default": false,
+    "value": false,
     "deprecates": ["scroll_zoom"]
   }
 }

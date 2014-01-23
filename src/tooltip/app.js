@@ -9,12 +9,12 @@ d3plus.tooltip.app = function(params) {
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = params.arrow ? params.arrow : true
       
-  if (d3.event.type == "click" && (vars.tooltip.html || vars.tooltip.default.long)) {
+  if (d3.event.type == "click" && (vars.tooltip.html || vars.tooltip.value.long)) {
     var fullscreen = true,
         arrow = false,
         mouse = true,
         length = "long",
-        footer = vars.footer.default
+        footer = vars.footer.value
       
     vars.covered = true
   }
@@ -28,7 +28,7 @@ d3plus.tooltip.app = function(params) {
   if (params.x) {
     var x = params.x
   }
-  else if (d3plus.apps[vars.type.default].tooltip == "follow") {
+  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
     var x = d3.event.clientX
   }
   else {
@@ -38,7 +38,7 @@ d3plus.tooltip.app = function(params) {
   if (params.y) {
     var y = params.y
   }
-  else if (d3plus.apps[vars.type.default].tooltip == "follow") {
+  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
     var y = d3.event.clientY
   }
   else {
@@ -48,7 +48,7 @@ d3plus.tooltip.app = function(params) {
   if (params.offset) {
     var offset = params.offset
   }
-  else if (d3plus.apps[vars.type.default].tooltip == "follow") {
+  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
     var offset = 3
   }
   else {
@@ -91,7 +91,7 @@ d3plus.tooltip.app = function(params) {
       "fullscreen": fullscreen,
       "html": html,
       "icon": icon,
-      "id": vars.type.default,
+      "id": vars.type.value,
       "mouseevents": mouse,
       "offset": offset,
       "parent": vars.parent,

@@ -29,24 +29,24 @@ d3plus.apps.chart.draw = function(vars) {
     
     vars.axes.values.forEach(function(axis){
       
-      if (vars[axis].stacked.default) {
+      if (vars[axis].stacked.value) {
         vars.stacked_axis = axis
       }
-      if (!vars.continuous_axis && vars[axis].scale.default == "continuous") {
+      if (!vars.continuous_axis && vars[axis].scale.value == "continuous") {
         vars.continuous_axis = axis
         vars.opp_axis = axis == "x" ? "y" : "x"
       }
       
-      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || vars.time.fixed.default) {
+      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || vars.time.fixed.value) {
 
-        if (vars.dev.default) d3plus.console.time("determining "+axis+"-axis")
-        if (vars[axis].scale.default == "share") {
+        if (vars.dev.value) d3plus.console.time("determining "+axis+"-axis")
+        if (vars[axis].scale.value == "share") {
           vars[axis+"_range"] = [0,1]
           vars.tickValues[axis] = d3plus.utils.buckets([0,1],11)
           vars.stacked_axis = axis
         }
-        else if (vars[axis].stacked.default) {
-          if (vars.time.fixed.default) {
+        else if (vars[axis].stacked.value) {
+          if (vars.time.fixed.value) {
             var range_data = vars.data.app
           }
           else {
@@ -70,7 +70,7 @@ d3plus.apps.chart.draw = function(vars) {
             return t >= vars[axis+"_range"][0] && t <= vars[axis+"_range"][1]
           })
         }
-        else if (vars.time.fixed.default) {
+        else if (vars.time.fixed.value) {
           vars[axis+"_range"] = d3.extent(vars.data.app,function(d){
             return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
           })
@@ -96,7 +96,7 @@ d3plus.apps.chart.draw = function(vars) {
         // reverse Y axis
         if (axis == "y") vars.y_range = vars.y_range.reverse()
       
-        if (vars.dev.default) d3plus.console.timeEnd("determining "+axis+"-axis")
+        if (vars.dev.value) d3plus.console.timeEnd("determining "+axis+"-axis")
       }
       else if (!vars[axis+"_range"]) {
         vars[axis+"_range"] = [-1,1]
@@ -109,7 +109,7 @@ d3plus.apps.chart.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mirror axes, if applicable
     //-------------------------------------------------------------------
-    if (vars.axes.mirror.default) {
+    if (vars.axes.mirror.value) {
       var domains = vars.y_range.concat(vars.x_range)
       vars.x_range = d3.extent(domains)
       vars.y_range = d3.extent(domains).reverse()
@@ -120,7 +120,7 @@ d3plus.apps.chart.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Filter data to only include values within the axes
     //-------------------------------------------------------------------
-    if (vars.dev.default) d3plus.console.time("removing data outside of axes")
+    if (vars.dev.value) d3plus.console.time("removing data outside of axes")
     var old_length = vars.data.app.length
     var data = vars.data.app.filter(function(d){
       var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
@@ -131,9 +131,9 @@ d3plus.apps.chart.draw = function(vars) {
       }
       else return false
     })
-    if (vars.dev.default) d3plus.console.timeEnd("removing data outside of axes")
+    if (vars.dev.value) d3plus.console.timeEnd("removing data outside of axes")
     var removed = old_length - data.length
-    if (removed && vars.dev.default) d3plus.console.log("removed "+removed+" nodes")
+    if (removed && vars.dev.value) d3plus.console.log("removed "+removed+" nodes")
     
     //===================================================================
   
@@ -143,9 +143,9 @@ d3plus.apps.chart.draw = function(vars) {
   
     if (data) {
 
-      if (vars.dev.default) d3plus.console.time("determining size scale")
+      if (vars.dev.value) d3plus.console.time("determining size scale")
       if (vars.size.key) {
-        if (vars.time.fixed.default) {
+        if (vars.time.fixed.value) {
           var size_domain = d3.extent(vars.data.app,function(d){
             var val = d3plus.variable.value(vars,d,vars.size.key)
             return val == 0 ? null : val
@@ -174,11 +174,11 @@ d3plus.apps.chart.draw = function(vars) {
   
       var size_range = [min_size,max_size]
     
-      var radius = d3.scale[vars.size.scale.default]()
+      var radius = d3.scale[vars.size.scale.value]()
         .domain(size_domain)
         .range(size_range)
       
-      if (vars.dev.default) d3plus.console.timeEnd("determining size scale")
+      if (vars.dev.value) d3plus.console.timeEnd("determining size scale")
       
     }
     
@@ -193,11 +193,11 @@ d3plus.apps.chart.draw = function(vars) {
       // Create Axes
       var range_max = axis == "x" ? vars.graph.width : vars.graph.height
       
-      if (["continuous","share"].indexOf(vars[axis].scale.default) >= 0) {
+      if (["continuous","share"].indexOf(vars[axis].scale.value) >= 0) {
         var s = "linear"
       }
       else {
-        var s = vars[axis].scale.default
+        var s = vars[axis].scale.value
       }
       
       vars[axis+"_scale"] = d3.scale[s]()
@@ -205,10 +205,10 @@ d3plus.apps.chart.draw = function(vars) {
         .range([0,range_max])
         
       // set buffer room (take into account largest size var)
-      var continuous_buffer = ["continuous","share"].indexOf(vars[axis].scale.default) >= 0
-      if (["square","circle","donut"].indexOf(vars.shape.default) >= 0 && !continuous_buffer) {
+      var continuous_buffer = ["continuous","share"].indexOf(vars[axis].scale.value) >= 0
+      if (["square","circle","donut"].indexOf(vars.shape.value) >= 0 && !continuous_buffer) {
 
-        if (vars[axis].scale.default != "log") {
+        if (vars[axis].scale.value != "log") {
     
           var scale = vars[axis+"_scale"]
           var inverse_scale = d3.scale[s]()
@@ -240,10 +240,10 @@ d3plus.apps.chart.draw = function(vars) {
         .scale(vars[axis+"_scale"])
         .tickFormat(function(d, i) {
           
-          if ((vars[axis].scale.default == "log" && d.toString().charAt(0) == "1")
-              || vars[axis].scale.default != "log") {
+          if ((vars[axis].scale.value == "log" && d.toString().charAt(0) == "1")
+              || vars[axis].scale.value != "log") {
             
-            if (vars[axis].scale.default == "share") {
+            if (vars[axis].scale.value == "share") {
               var text = d*100+"%"
             }
             else {
@@ -286,7 +286,7 @@ d3plus.apps.chart.draw = function(vars) {
       
         });
         
-      if (vars[axis].scale.default == "continuous" && vars.tickValues[axis]) {
+      if (vars[axis].scale.value == "continuous" && vars.tickValues[axis]) {
         vars[axis+"_axis"].tickValues(vars.tickValues[axis])
       }
     
@@ -305,7 +305,7 @@ d3plus.apps.chart.draw = function(vars) {
       .attr("stroke-width",vars.style.ticks.width)
       .attr("shape-rendering",vars.style.rendering)
       .style("opacity",function(d){
-        var lighter = vars[axis].scale.default == "log" && d.toString().charAt(0) != "1"
+        var lighter = vars[axis].scale.value == "log" && d.toString().charAt(0) != "1"
         return lighter ? 0.25 : 1
       })
   }
@@ -443,7 +443,7 @@ d3plus.apps.chart.draw = function(vars) {
   // Update Mirror Triangle
   mirror.transition().duration(vars.style.timing.transitions)
     .attr("opacity",function(){
-      return vars.axes.mirror.default ? 1 : 0
+      return vars.axes.mirror.value ? 1 : 0
     })
     .attr("d",function(){
       var w = vars.graph.width, h = vars.graph.height
@@ -607,7 +607,7 @@ d3plus.apps.chart.draw = function(vars) {
   // Format Data for Plotting
   //-------------------------------------------------------------------
   
-  if (["line","area"].indexOf(vars.shape.default) >= 0) {
+  if (["line","area"].indexOf(vars.shape.value) >= 0) {
     radius.range([2,2])
   }
     
@@ -627,7 +627,7 @@ d3plus.apps.chart.draw = function(vars) {
       d.d3plus.y = vars.y_scale(d3plus.variable.value(vars,d,vars.y.key))
       d.d3plus.y += vars.axis_offset.y
       
-      if (vars.shape.default == "area") {
+      if (vars.shape.value == "area") {
         d.d3plus[vars.opp_axis+"0"] = vars[vars.opp_axis+"_scale"].range()[1]
         d.d3plus[vars.opp_axis+"0"] += vars.axis_offset[vars.opp_axis]
       }
@@ -636,13 +636,13 @@ d3plus.apps.chart.draw = function(vars) {
     
   })
   
-  if (["line","area"].indexOf(vars.shape.default) >= 0) {
+  if (["line","area"].indexOf(vars.shape.value) >= 0) {
     
     data = d3.nest()
       .key(function(d){
         var id = d3plus.variable.value(vars,d,vars.id.key),
             depth = d.d3plus.depth ? d.d3plus.depth : 0
-        return id+"_"+depth+"_"+vars.shape.default
+        return id+"_"+depth+"_"+vars.shape.value
       })
       .rollup(function(leaves){
         
@@ -666,13 +666,13 @@ d3plus.apps.chart.draw = function(vars) {
               obj.d3plus[vars.opp_axis+"0"] = obj.d3plus[vars.opp_axis]
             }
             
-            if (vars[vars.continuous_axis].zerofill.default || vars[vars.opp_axis].stacked.default) {
+            if (vars[vars.continuous_axis].zerofill.value || vars[vars.opp_axis].stacked.value) {
               var position = vars[vars.continuous_axis+"_scale"](v)
               position += vars.axis_offset[vars.continuous_axis]
               obj.d3plus[vars.continuous_axis] = position
               leaves.push(obj)
             }
-            else if (vars.shape.default != "line") {
+            else if (vars.shape.value != "line") {
               if (!previousMissing && i > 0) {
                 var position = vars[vars.continuous_axis+"_scale"](arr[i-1])
                 position += vars.axis_offset[vars.continuous_axis]
@@ -708,7 +708,7 @@ d3plus.apps.chart.draw = function(vars) {
       
     data.forEach(function(d,i){
       vars.id.nesting.forEach(function(n,i){
-        if (i <= vars.depth.default && !d[n]) {
+        if (i <= vars.depth.value && !d[n]) {
           d[n] = d3plus.utils.uniques(d.values,n).filter(function(unique){
             return unique && unique != "undefined"
           })[0]
@@ -784,8 +784,8 @@ d3plus.apps.chart.draw = function(vars) {
   
       }
       
-      if(a_value<b_value) return vars.order.sort.default == "desc" ? -1 : 1;
-      if(a_value>b_value) return vars.order.sort.default == "desc" ? 1 : -1;
+      if(a_value<b_value) return vars.order.sort.value == "desc" ? -1 : 1;
+      if(a_value>b_value) return vars.order.sort.value == "desc" ? 1 : -1;
   
       return 0;
 
@@ -806,7 +806,7 @@ d3plus.apps.chart.draw = function(vars) {
       .out(function(d,y0,y){
         var flip = vars.graph.height
         
-        if (vars[vars.stacked_axis].scale.default == "share") {
+        if (vars[vars.stacked_axis].scale.value == "share") {
           d.d3plus.y0 = (1-y0)*flip
           d.d3plus.y = d.d3plus.y0-(y*flip)
         }
@@ -818,12 +818,12 @@ d3plus.apps.chart.draw = function(vars) {
         d.d3plus.y0 += (vars.margin.top+vars.graph.margin.top)
       })
       
-    var offset = vars[vars.stacked_axis].scale.default == "share" ? "expand" : "zero";
+    var offset = vars[vars.stacked_axis].scale.value == "share" ? "expand" : "zero";
 
     var data = stack.offset(offset)(data)
       
   }
-  else if (["area","line"].indexOf(vars.shape.default) < 0) {
+  else if (["area","line"].indexOf(vars.shape.value) < 0) {
     
     function data_tick(l,axis) {
       l
@@ -886,10 +886,10 @@ d3plus.apps.chart.draw = function(vars) {
   
   function axis_lines(node) {
     
-    var click_remove = d3.event.type == "click" && (vars.tooltip.default.long || vars.tooltip.html),
+    var click_remove = d3.event.type == "click" && (vars.tooltip.value.long || vars.tooltip.html),
         create = ["mouseover","mousemove"].indexOf(d3.event.type) >= 0
     
-    if (!click_remove && create && vars.shape.default != "area") {
+    if (!click_remove && create && vars.shape.value != "area") {
     
       if (node.data) var node = node.data
       

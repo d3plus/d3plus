@@ -6,9 +6,9 @@ d3plus.apps.stacked.shapes = ["area"];
 
 d3plus.apps.stacked.setup = function(vars) {
 
-  vars.x.scale.default = "continuous"
-  vars.x.zerofill.default = true
-  vars.y.stacked.default = true
+  vars.x.scale.value = "continuous"
+  vars.x.zerofill.value = true
+  vars.y.stacked.value = true
   
 }
 

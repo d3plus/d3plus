@@ -6,7 +6,7 @@ d3plus.ui.key = function(vars) {
   
   var key_display = true
   
-  if (vars.key.default && vars.color.key) {
+  if (vars.key.value && vars.color.key) {
     
     if (!vars.color_scale) {
     
@@ -26,9 +26,9 @@ d3plus.ui.key = function(vars) {
           "color": color
         }
         
-        if (vars.depth.default > 0) {
+        if (vars.depth.value > 0) {
         
-          for (var i = vars.depth.default-1; i >= 0; i--) {
+          for (var i = vars.depth.value-1; i >= 0; i--) {
             var parents = d3plus.utils.uniques(color_groups[color],vars.id.nesting[i])
             if (parents.length == 1) {
               if (!obj.name) {
@@ -54,7 +54,7 @@ d3plus.ui.key = function(vars) {
 
           for (d in color_groups[color]) {
             if (!obj.name) {
-              var name = d3plus.variable.text(vars,color_groups[color][d],vars.depth.default)
+              var name = d3plus.variable.text(vars,color_groups[color][d],vars.depth.value)
               if (name) {
                 obj.name = name
               }
@@ -76,7 +76,7 @@ d3plus.ui.key = function(vars) {
       
       }
         
-      var available_width = vars.width.default
+      var available_width = vars.width.value
       
       var key_width = vars.style.key.size*colors.length+vars.style.key.padding*(colors.length-1)
       
@@ -106,10 +106,10 @@ d3plus.ui.key = function(vars) {
           var start_x = vars.style.key.padding
         }
         else if (vars.style.key.align == "end") {
-          var start_x = vars.width.default - vars.style.key.padding - key_width
+          var start_x = vars.width.value - vars.style.key.padding - key_width
         }
         else {
-          var start_x = vars.width.default/2 - key_width/2
+          var start_x = vars.width.value/2 - key_width/2
         }
         
         vars.g.key.selectAll("g.scale")
@@ -328,10 +328,10 @@ d3plus.ui.key = function(vars) {
         .attr("id","gradient")
         .attr("x",function(d){
           if (vars.style.key.align == "middle") {
-            return vars.width.default/2
+            return vars.width.value/2
           }
           else if (vars.style.key.align == "end") {
-            return vars.width.default
+            return vars.width.value
           }
           else {
             return 0
@@ -352,10 +352,10 @@ d3plus.ui.key = function(vars) {
         .attr("y",0)
         .attr("x",function(d){
           if (vars.style.key.align == "middle") {
-            return vars.width.default/2
+            return vars.width.value/2
           }
           else if (vars.style.key.align == "end") {
-            return vars.width.default
+            return vars.width.value
           }
           else {
             return 0
@@ -385,10 +385,10 @@ d3plus.ui.key = function(vars) {
       
       var key_width = label_width * (values.length-1)
       
-      if (key_width+label_width < vars.width.default) {
+      if (key_width+label_width < vars.width.value) {
         
-        if (key_width+label_width < vars.width.default/2) {
-          key_width = vars.width.default/2
+        if (key_width+label_width < vars.width.value/2) {
+          key_width = vars.width.value/2
           label_width = key_width/values.length
           key_width -= label_width
         }
@@ -397,10 +397,10 @@ d3plus.ui.key = function(vars) {
           var start_x = vars.style.key.padding
         }
         else if (vars.style.key.align == "end") {
-          var start_x = vars.width.default - vars.style.key.padding - key_width
+          var start_x = vars.width.value - vars.style.key.padding - key_width
         }
         else {
-          var start_x = vars.width.default/2 - key_width/2
+          var start_x = vars.width.value/2 - key_width/2
         }
       
         text.transition().duration(vars.style.timing.transitions)
@@ -419,10 +419,10 @@ d3plus.ui.key = function(vars) {
           .attr("class","tick")
           .attr("x",function(d){
             if (vars.style.key.align == "middle") {
-              return vars.width.default/2
+              return vars.width.value/2
             }
             else if (vars.style.key.align == "end") {
-              return vars.width.default
+              return vars.width.value
             }
             else {
               return 0
@@ -450,10 +450,10 @@ d3plus.ui.key = function(vars) {
         gradient.transition().duration(vars.style.timing.transitions)
           .attr("x",function(d){
             if (vars.style.key.align == "middle") {
-              return vars.width.default/2 - key_width/2
+              return vars.width.value/2 - key_width/2
             }
             else if (vars.style.key.align == "end") {
-              return vars.width.default - key_width - vars.style.key.padding
+              return vars.width.value - key_width - vars.style.key.padding
             }
             else {
               return vars.style.key.padding
@@ -475,7 +475,7 @@ d3plus.ui.key = function(vars) {
     
   }
   
-  if (vars.key.default && vars.color.key && key_display) {
+  if (vars.key.value && vars.color.key && key_display) {
     
     var key_box = vars.g.key.node().getBBox()
     var key_height = key_box.height+key_box.y
@@ -483,13 +483,13 @@ d3plus.ui.key = function(vars) {
     vars.margin.bottom += key_height+vars.style.key.padding
     
     vars.g.key.transition().duration(vars.style.timing.transitions)
-      .attr("transform","translate(0,"+(vars.height.default-vars.margin.bottom)+")")
+      .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
       
   }
   else {
 
     vars.g.key.transition().duration(vars.style.timing.transitions)
-      .attr("transform","translate(0,"+vars.height.default+")")
+      .attr("transform","translate(0,"+vars.height.value+")")
       
   }
   

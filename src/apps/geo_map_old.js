@@ -81,7 +81,7 @@ d3plus.apps.geo_map.draw = function(vars) {
         panControl: false,
         streetViewControl: false,
         zoomControl: false,
-        scrollwheel: vars.zoom.scroll.default,
+        scrollwheel: vars.zoom.scroll.value,
         mapTypeId: google.maps.MapTypeId.TERRAIN
       })
       
@@ -199,13 +199,13 @@ d3plus.apps.geo_map.draw = function(vars) {
           .attr("height",20000)
           .attr("fill","transparent")
           .on(d3plus.evt.move, function(d) {
-            if (vars.focus.default && !dragging && !d3plus.ie) {
+            if (vars.focus.value && !dragging && !d3plus.ie) {
               d3.select(this).style("cursor","-moz-zoom-out")
               d3.select(this).style("cursor","-webkit-zoom-out")
             }
           })
           .on(d3plus.evt.click, function(d) {
-            if (vars.focus.default && !dragging) zoom("reset")
+            if (vars.focus.value && !dragging) zoom("reset")
           })
 
         vars.overlay.draw = function() {
@@ -249,7 +249,7 @@ d3plus.apps.geo_map.draw = function(vars) {
               .call(color_paths)
               .on(d3plus.evt.over, function(d){
                 hover = d.id
-                if (vars.focus.default != d.id) {
+                if (vars.focus.value != d.id) {
                   d3.select(this)
                     .style("cursor","pointer")
                     .attr("opacity",select_opacity)
@@ -259,32 +259,32 @@ d3plus.apps.geo_map.draw = function(vars) {
                       .style("cursor","-webkit-zoom-in")
                   }
                 }
-                if (!vars.focus.default) {
+                if (!vars.focus.value) {
                   update()
                 }
               })
               .on(d3plus.evt.out, function(d){
                 hover = null
-                if (vars.focus.default != d.id) {
+                if (vars.focus.value != d.id) {
                   d3.select(this).attr("opacity",default_opacity)
                 }
-                if (!vars.focus.default) {
+                if (!vars.focus.value) {
                   update()
                 }
               })
               .on(d3plus.evt.click, function(d) {
                 if (!dragging) {
                   vars.loading_text = vars.format("Calculating Coordinates")
-                  if (vars.focus.default == d.id) {
+                  if (vars.focus.value == d.id) {
                     zoom("reset")
                   } 
                   else {
-                    if (vars.focus.default) {
-                      var temp = vars.focus.default
-                      vars.focus.default = null
+                    if (vars.focus.value) {
+                      var temp = vars.focus.value
+                      vars.focus.value = null
                       d3.select("path#path"+temp).call(color_paths);
                     }
-                    vars.focus.default = d.id;
+                    vars.focus.value = d.id;
                     d3.select(this).call(color_paths);
                     zoom(d3.select(this).datum());
                   }
@@ -298,7 +298,7 @@ d3plus.apps.geo_map.draw = function(vars) {
             update()
             
             if (vars.coord_change) {
-              if (vars.focus.default) var z = d3.select("path#path"+vars.focus.default).datum()
+              if (vars.focus.value) var z = d3.select("path#path"+vars.focus.value).datum()
               else var z = "reset"
               vars.loading_text = vars.format("Calculating Coordinates")
               zoom(z)
@@ -335,9 +335,9 @@ d3plus.apps.geo_map.draw = function(vars) {
     
     if (d == "reset") {
       d = vars.boundaries
-      if (vars.focus.default) {
-        var temp = vars.focus.default;
-        vars.focus.default = null;
+      if (vars.focus.value) {
+        var temp = vars.focus.value;
+        vars.focus.value = null;
         d3.select("#path"+temp).call(color_paths);
         update()
       }
@@ -346,7 +346,7 @@ d3plus.apps.geo_map.draw = function(vars) {
     var bounds = d3.geo.bounds(d),
         gbounds = new google.maps.LatLngBounds()
     
-    if (info_width > 0 && vars.focus.default) {
+    if (info_width > 0 && vars.focus.value) {
       bounds[1][0] =  bounds[1][0]+(bounds[1][0]-bounds[0][0])
     }
         
@@ -362,31 +362,31 @@ d3plus.apps.geo_map.draw = function(vars) {
     
     p
       .attr("fill",function(d){ 
-        if (d.id == vars.focus.default) return "none";
+        if (d.id == vars.focus.value) return "none";
         else if (!vars.data.app[d.id]) return "#888888";
         else return vars.data.app[d.id][vars.size.key] ? vars.size.key_color(vars.data.app[d.id][vars.size.key]) : "#888888"
       })
       .attr("stroke-width",function(d) {
-        if (d.id == vars.focus.default) return 10;
+        if (d.id == vars.focus.value) return 10;
         else return stroke_width;
       })
       .attr("stroke",function(d) {
-        if (d.id == vars.focus.default) {
+        if (d.id == vars.focus.value) {
           if (!vars.data.app[d.id]) return "#888"
           return vars.data.app[d.id][vars.size.key] ? vars.size.key_color(vars.data.app[d.id][vars.size.key]) : "#888888";
         }
         else return "white";
       })
       .attr("opacity",function(d){
-        if (d.id == vars.focus.default) return select_opacity;
+        if (d.id == vars.focus.value) return select_opacity;
         else return default_opacity;
       })
       .each(function(d){
-        if (d.id == vars.focus.default) {
+        if (d.id == vars.focus.value) {
           path_defs.append("clipPath")
             .attr("id","stroke_clip")
             .append("use")
-              .attr("xlink:href","#path"+vars.focus.default)
+              .attr("xlink:href","#path"+vars.focus.value)
           d3.select(this).attr("clip-path","url(#stroke_clip)")
         }
         else {
@@ -397,11 +397,11 @@ d3plus.apps.geo_map.draw = function(vars) {
   
   function update() {
     
-    d3plus.tooltip.remove(vars.type.default);
+    d3plus.tooltip.remove(vars.type.value);
     
-    if (!vars.small && (hover || vars.focus.default)) {
+    if (!vars.small && (hover || vars.focus.value)) {
       
-      var id = vars.focus.default ? vars.focus.default : hover
+      var id = vars.focus.value ? vars.focus.value : hover
       
       var data = vars.data.app[id]
       
@@ -414,14 +414,14 @@ d3plus.apps.geo_map.draw = function(vars) {
       
       make_tooltip = function(html) {
     
-        d3plus.tooltip.remove(vars.type.default);
+        d3plus.tooltip.remove(vars.type.value);
         
         if (typeof html == "string") html = "<br>"+html
 
         d3plus.tooltip.create({
           "data": tooltip_data,
           "title": d3plus.variable.value(vars,id,vars.text.key),
-          "id": vars.type.default,
+          "id": vars.type.value,
           "icon": d3plus.variable.value(vars,id,"icon"),
           "style": vars.style.icon,
           "color": color,
@@ -443,7 +443,7 @@ d3plus.apps.geo_map.draw = function(vars) {
         var footer = vars.format("No Data Available")
         make_tooltip(null)
       }
-      else if (!vars.focus.default) {
+      else if (!vars.focus.value) {
         var tooltip_data = d3plus.tooltip.data(vars,id,"short"),
             footer = vars.footer_text()
         make_tooltip(null)
@@ -452,7 +452,7 @@ d3plus.apps.geo_map.draw = function(vars) {
         var tooltip_data = d3plus.tooltip.data(vars,id,"long"),
             footer = vars.footer
 
-        var html = vars.click.default ? vars.click.default(id) : null
+        var html = vars.click.value ? vars.click.value(id) : null
 
         if (typeof html == "string") make_tooltip(html)
         else if (html.url && html.callback) {

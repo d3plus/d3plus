@@ -172,7 +172,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Loop through each selection and analyze the labels
   //----------------------------------------------------------------------------
-  if (vars.labels.default) {
+  if (vars.labels.value) {
     
     selection.each(function(d){
     
@@ -183,9 +183,9 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           names = d3plus.variable.text(vars,d),
           group = d3.select(this),
           share_size = 0,
-          fill = d3plus.apps[vars.type.default].fill
+          fill = d3plus.apps[vars.type.value].fill
           
-      if (["line","area"].indexOf(vars.shape.default) >= 0) {
+      if (["line","area"].indexOf(vars.shape.value) >= 0) {
         var background = true
       }
       else {

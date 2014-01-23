@@ -4,13 +4,13 @@
 
 d3plus.data.format = function(vars,format) {
   
-  if (vars.dev.default) d3plus.console.group("Formatting Data")
+  if (vars.dev.value) d3plus.console.group("Formatting Data")
   if (!format) var format = "nested"
   return_data = {}
   
   vars.id.nesting.forEach(function(depth){
     
-    if (vars.dev.default) d3plus.console.time(depth)
+    if (vars.dev.value) d3plus.console.time(depth)
     
     var level = vars.id.nesting.slice(0,vars.id.nesting.indexOf(depth)+1)
     
@@ -36,11 +36,11 @@ d3plus.data.format = function(vars,format) {
       
     }
     
-    if (vars.dev.default) d3plus.console.timeEnd(depth)
+    if (vars.dev.value) d3plus.console.timeEnd(depth)
     
   })
   
-  if (vars.dev.default) d3plus.console.groupEnd()
+  if (vars.dev.value) d3plus.console.groupEnd()
   
   return return_data
   

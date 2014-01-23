@@ -15,7 +15,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
       })
       
     vars.axes.values.forEach(function(axis){
-      if (d3plus.apps[vars.type.default].requirements && d3plus.apps[vars.type.default].requirements.indexOf(axis) >= 0 && vars[axis].key && vars[axis].scale.default == "continuous") {
+      if (d3plus.apps[vars.type.value].requirements && d3plus.apps[vars.type.value].requirements.indexOf(axis) >= 0 && vars[axis].key && vars[axis].scale.value == "continuous") {
         nested_data
           .key(function(d){ 
             return d3plus.variable.value(vars,d,vars[axis].key)
@@ -59,11 +59,11 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
         for (key in vars.data.keys) {
           if (vars.id.nesting.indexOf(key) <= vars.id.nesting.indexOf(nest_key) && key in leaves[0]
             && (!vars.active.key || key != vars.active.key) && key != "d3plus") {
-            if (typeof vars.aggs.default[key] == "function") {
-              to_return[key] = vars.aggs.default[key](leaves)
+            if (typeof vars.aggs.value[key] == "function") {
+              to_return[key] = vars.aggs.value[key](leaves)
             }
-            else if (typeof vars.aggs.default[key] == "string") {
-              to_return[key] = d3[vars.aggs.default[key]](leaves, function(d){ return d[key]; })
+            else if (typeof vars.aggs.value[key] == "string") {
+              to_return[key] = d3[vars.aggs.value[key]](leaves, function(d){ return d[key]; })
             }
             else if ([vars.time.key,vars.icon].indexOf(key) >= 0 || (key == nest_key && !to_return[key])) {
               to_return[key] = leaves[0][key];

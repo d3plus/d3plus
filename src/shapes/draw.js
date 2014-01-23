@@ -23,10 +23,10 @@ d3plus.shape.draw = function(vars,data) {
   var shapes = {}
   data.forEach(function(d){
     if (!d.d3plus) {
-      var s = shape_lookup[vars.shape.default]
+      var s = shape_lookup[vars.shape.value]
     }
     else if (!d.d3plus.shape) {
-      var s = shape_lookup[vars.shape.default]
+      var s = shape_lookup[vars.shape.value]
       d.d3plus.shapeType = s
     }
     else {
@@ -44,7 +44,7 @@ d3plus.shape.draw = function(vars,data) {
   //----------------------------------------------------------------------------
   function id(d) {
     
-    var depth = d.d3plus.depth ? d.d3plus.depth : vars.depth.default
+    var depth = d.d3plus.depth ? d.d3plus.depth : vars.depth.value
     
     d.d3plus.id = ""
     
@@ -58,7 +58,7 @@ d3plus.shape.draw = function(vars,data) {
     d.d3plus.id += depth+"_"+shape
     
     vars.axes.values.forEach(function(axis){
-      if (vars[axis].scale.default == "continuous") {
+      if (vars[axis].scale.value == "continuous") {
         d.d3plus.id += "_"+d3plus.variable.value(vars,d,vars[axis].key)
       }
     })
@@ -81,11 +81,11 @@ d3plus.shape.draw = function(vars,data) {
       d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
     }
     
-    if (vars.shape.default != vars.shape.previous) {
-      if (vars.shape.default == "square" && ["circle","donut"].indexOf(vars.shape.previous) >= 0) {
+    if (vars.shape.value != vars.shape.previous) {
+      if (vars.shape.value == "square" && ["circle","donut"].indexOf(vars.shape.previous) >= 0) {
         d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
       }
-      else if (vars.shape.previous == "square" && ["circle","donut"].indexOf(vars.shape.default) >= 0) {
+      else if (vars.shape.previous == "square" && ["circle","donut"].indexOf(vars.shape.value) >= 0) {
         d.d3plus.width = d.d3plus.r*2
         d.d3plus.height = d.d3plus.r*2
       }
@@ -99,9 +99,9 @@ d3plus.shape.draw = function(vars,data) {
   //----------------------------------------------------------------------------
   function transform(g,grow) {
     
-    var scales = d3plus.apps[vars.type.default].scale
-    if (grow && scales && scales[vars.shape.default]) {
-       var scale = scales[vars.shape.default]
+    var scales = d3plus.apps[vars.type.value].scale
+    if (grow && scales && scales[vars.shape.value]) {
+       var scale = scales[vars.shape.value]
     }
     else if (grow && scales && typeof scales == "number") {
       var scale = scales
@@ -344,7 +344,7 @@ d3plus.shape.draw = function(vars,data) {
             vars.mouse.over(d)
           }
       
-          if (["area","line"].indexOf(vars.shape.default) >= 0 || d3plus.apps[vars.type.default].tooltip == "follow") {
+          if (["area","line"].indexOf(vars.shape.value) >= 0 || d3plus.apps[vars.type.value].tooltip == "follow") {
 
             var tooltip_data = d.data ? d.data : d
             d3plus.tooltip.app({
@@ -375,7 +375,7 @@ d3plus.shape.draw = function(vars,data) {
           }
       
           if (!vars.covered) {
-            d3plus.tooltip.remove(vars.type.default)
+            d3plus.tooltip.remove(vars.type.value)
           }
           
         }

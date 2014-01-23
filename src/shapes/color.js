@@ -3,9 +3,9 @@
 //-------------------------------------------------------------------
 d3plus.shape.color = function(d,vars) {
   
-  var shape = d.d3plus ? d.d3plus.shapeType : vars.shape.default
+  var shape = d.d3plus ? d.d3plus.shapeType : vars.shape.value
   
-  if (vars.shape.default == "line") {
+  if (vars.shape.value == "line") {
     if (d.d3plus && d.d3plus.shapeType == "circle") {
       return d3plus.variable.color(vars,d)
     }
@@ -13,7 +13,7 @@ d3plus.shape.color = function(d,vars) {
       return "none"
     }
   }
-  else if (vars.shape.default == "area" || shape == "active") {
+  else if (vars.shape.value == "area" || shape == "active") {
     return d3plus.variable.color(vars,d)
   }
   else if (shape == "temp") {
@@ -31,7 +31,7 @@ d3plus.shape.color = function(d,vars) {
   if ((!vars.active.key && !vars.temp.key) || (active && total && active == total) || (active && !total)) {
     return d3plus.variable.color(vars,d)
   }
-  else if (vars.active.spotlight.default) {
+  else if (vars.active.spotlight.value) {
     return "#eee"
   }
   else {

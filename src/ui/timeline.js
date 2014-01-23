@@ -6,9 +6,9 @@ d3plus.ui.timeline = function(vars) {
   
   var years = vars.data.time
  
-  if (years && years.length > 1 && vars.timeline.default) {
+  if (years && years.length > 1 && vars.timeline.value) {
     
-    if ((vars.time.key == vars.x.key && vars.x.scale.default == "continuous") || (vars.time.key == vars.y.key && vars.y.scale.default == "continuous")) {
+    if ((vars.time.key == vars.x.key && vars.x.scale.value == "continuous") || (vars.time.key == vars.y.key && vars.y.scale.value == "continuous")) {
       var min_required = 2
     }
     else {
@@ -68,10 +68,10 @@ d3plus.ui.timeline = function(vars) {
       .attr("dy",0)
       .attr("x",function(d){
         if (vars.style.timeline.align == "middle") {
-          return vars.width.default/2
+          return vars.width.value/2
         }
         else if (vars.style.timeline.align == "end") {
-          return vars.width.default
+          return vars.width.value
         }
         else {
           return 0
@@ -105,7 +105,7 @@ d3plus.ui.timeline = function(vars) {
       
     var label_width = year_width+vars.style.key.padding*2,
         timeline_width = label_width*years.length,
-        available_width = vars.width.default-vars.style.key.padding*2,
+        available_width = vars.width.value-vars.style.key.padding*2,
         step = 1
     
     if (timeline_width > available_width) {
@@ -124,10 +124,10 @@ d3plus.ui.timeline = function(vars) {
       var start_x = vars.style.timeline.padding
     }
     else if (vars.style.timeline.align == "end") {
-      var start_x = vars.width.default - vars.style.timeline.padding - timeline_width
+      var start_x = vars.width.value - vars.style.timeline.padding - timeline_width
     }
     else {
-      var start_x = vars.width.default/2 - timeline_width/2
+      var start_x = vars.width.value/2 - timeline_width/2
     }
   
     text.transition().duration(vars.style.timing.transitions)
@@ -218,13 +218,13 @@ d3plus.ui.timeline = function(vars) {
     vars.margin.bottom += height
     
     vars.g.timeline.transition().duration(vars.style.timing.transitions)
-      .attr("transform","translate(0,"+(vars.height.default-vars.margin.bottom)+")")
+      .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
     
   }
   else {
     
     vars.g.timeline.transition().duration(vars.style.timing.transitions)
-      .attr("transform","translate(0,"+vars.height.default+")")
+      .attr("transform","translate(0,"+vars.height.value+")")
     
   }
  

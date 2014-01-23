@@ -67,7 +67,7 @@ d3plus.data.fetch = function(vars,format,years) {
     var data = vars.data.restricted
   }
   else {
-    var data = vars.data[format][vars.id.nesting[vars.depth.default]]
+    var data = vars.data[format][vars.id.nesting[vars.depth.value]]
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -122,7 +122,7 @@ d3plus.data.fetch = function(vars,format,years) {
 
     var separated = false
     vars.axes.values.forEach(function(a){
-      if (vars[a].key == vars.time.key && vars[a].scale.default == "continuous") {
+      if (vars[a].key == vars.time.key && vars[a].scale.value == "continuous") {
         separated = true
       }
     })

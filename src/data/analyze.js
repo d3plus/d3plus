@@ -4,7 +4,7 @@
 
 d3plus.data.analyze = function(vars) {
   
-  vars.data.type = d3plus.apps[vars.type.default].data || "array"
+  vars.data.type = d3plus.apps[vars.type.value].data || "array"
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function to check key types
@@ -36,18 +36,18 @@ d3plus.data.analyze = function(vars) {
   //-------------------------------------------------------------------
   if (vars.data.changed) {
     
-    if (vars.dev.default) d3plus.console.group("New Data Detected")
+    if (vars.dev.value) d3plus.console.group("New Data Detected")
     
     vars.data.filtered = null
     vars.data.grouped = null
     vars.data.app = null
 
-    if (vars.dev.default) d3plus.console.time("key analysis")
+    if (vars.dev.value) d3plus.console.time("key analysis")
     vars.data.keys = {}
-    get_keys(vars.data.default,true)
-    if (vars.dev.default) d3plus.console.timeEnd("key analysis")
+    get_keys(vars.data.value,true)
+    if (vars.dev.value) d3plus.console.timeEnd("key analysis")
     
-    if (vars.dev.default) d3plus.console.groupEnd();
+    if (vars.dev.value) d3plus.console.groupEnd();
     
   }
   
@@ -56,18 +56,18 @@ d3plus.data.analyze = function(vars) {
   //-------------------------------------------------------------------
   if (vars.attrs.changed) {
     
-    if (vars.dev.default) d3plus.console.group("New Attributes Detected");
-    if (vars.dev.default) d3plus.console.time("key analysis");
-    if (typeof vars.attrs.default == "object") {
-      for (a in vars.attrs.default) {
-        get_keys(vars.attrs.default[a])
+    if (vars.dev.value) d3plus.console.group("New Attributes Detected");
+    if (vars.dev.value) d3plus.console.time("key analysis");
+    if (typeof vars.attrs.value == "object") {
+      for (a in vars.attrs.value) {
+        get_keys(vars.attrs.value[a])
       }
     }
     else {
-      get_keys(vars.attrs.default)
+      get_keys(vars.attrs.value)
     }
-    if (vars.dev.default) d3plus.console.timeEnd("key analysis");
-    if (vars.dev.default) d3plus.console.groupEnd();
+    if (vars.dev.value) d3plus.console.timeEnd("key analysis");
+    if (vars.dev.value) d3plus.console.groupEnd();
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -104,7 +104,7 @@ d3plus.data.analyze = function(vars) {
       function test_value(val) {
         
         if (!(vars[v][key] instanceof Array)) {
-          var arr = vars[v][key].default
+          var arr = vars[v][key].value
         }
         else {
           var arr = vars[v][key]
@@ -137,7 +137,7 @@ d3plus.data.analyze = function(vars) {
           })
         }
         else {
-          var k = vars[v].default ? vars[v].default : vars[v].key
+          var k = vars[v].value ? vars[v].value : vars[v].key
           match = test_value(d3plus.variable.value(vars,d,k))
         }
         
@@ -159,14 +159,14 @@ d3plus.data.analyze = function(vars) {
       
       if (v == "id") {
 
-        if (vars.nodes.default) {
-          if (vars.dev.default) d3plus.console.log("Filtering Nodes")
-          vars.nodes.restricted = vars.nodes.default.filter(nest_check)
+        if (vars.nodes.value) {
+          if (vars.dev.value) d3plus.console.log("Filtering Nodes")
+          vars.nodes.restricted = vars.nodes.value.filter(nest_check)
         }
     
-        if (vars.links.default) {
-          if (vars.dev.default) d3plus.console.log("Filtering Connections")
-          vars.links.restricted = vars.links.default.filter(function(d){
+        if (vars.links.value) {
+          if (vars.dev.value) d3plus.console.log("Filtering Connections")
+          vars.links.restricted = vars.links.value.filter(function(d){
             var first_match = nest_check(d.source),
                 second_match = nest_check(d.target)
             return first_match && second_match
@@ -195,7 +195,7 @@ d3plus.data.analyze = function(vars) {
     vars.data.grouped = d3plus.data.format(vars,"grouped")
   }
   
-  var year = !vars.time.fixed.default ? ["all"] : null
+  var year = !vars.time.fixed.value ? ["all"] : null
   
   vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
   
@@ -216,8 +216,8 @@ d3plus.data.analyze = function(vars) {
   }
   
   // Get link connections if they have not been previously set
-  if (!vars.connections && vars.links.default) {
-    var links = vars.links.restricted || vars.links.default
+  if (!vars.connections && vars.links.value) {
+    var links = vars.links.restricted || vars.links.value
     vars.connections = d3plus.utils.connections(vars,links)
   }
   

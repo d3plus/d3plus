@@ -10,7 +10,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
     .x(function(d) { return d.d3plus.x; })
     .y0(function(d) { return d.d3plus.y0; })
     .y1(function(d) { return d.d3plus.y; })
-    .interpolate(vars.shape.interpolate.default)
+    .interpolate(vars.shape.interpolate.value)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
@@ -25,7 +25,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   selection.selectAll("path.data")
     .data(function(d) {
       
-      if (vars.labels.default) {
+      if (vars.labels.value) {
         
         var areas = [],
             obj = null,

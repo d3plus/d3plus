@@ -16,25 +16,25 @@ d3plus.data.color = function(vars) {
     var color_id = vars.color.key
   }
   
-  if (vars.data.default && vars.color.key && (vars.color.changed || vars.time.changed || vars.depth.changed)) {
+  if (vars.data.value && vars.color.key && (vars.color.changed || vars.time.changed || vars.depth.changed)) {
     
     if (vars.data.keys[color_id] == "number") {
       
-      if (vars.dev.default) d3plus.console.group("Calculating Color Range")
+      if (vars.dev.value) d3plus.console.group("Calculating Color Range")
     
       var data_range = []
       var data_domain = null
     
-      if (vars.dev.default) d3plus.console.time("get data range")
+      if (vars.dev.value) d3plus.console.time("get data range")
       
       vars.data.pool.forEach(function(d){
         var val = parseFloat(d3plus.variable.value(vars,d,vars.color.key))
         if (val) data_range.push(val)
       })
     
-      if (vars.dev.default) d3plus.console.timeEnd("get data range")
+      if (vars.dev.value) d3plus.console.timeEnd("get data range")
     
-      if (vars.dev.default) d3plus.console.time("create color scale")
+      if (vars.dev.value) d3plus.console.time("create color scale")
       
       data_range.sort(function(a,b) {return a-b})
       data_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
@@ -54,9 +54,9 @@ d3plus.data.color = function(vars) {
         .range(new_range)
         .interpolate(d3.interpolateRgb)
   
-      if (vars.dev.default) d3plus.console.timeEnd("create color scale")
+      if (vars.dev.value) d3plus.console.timeEnd("create color scale")
     
-      if (vars.dev.default) d3plus.console.groupEnd();
+      if (vars.dev.value) d3plus.console.groupEnd();
       
     }
     else {

@@ -35,15 +35,15 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         return d.d3plus.height+mod
       })
       .attr("rx",function(d){
-        var rounded = vars.shape.default == "circle"
+        var rounded = vars.shape.value == "circle"
         return rounded ? (d.d3plus.width+mod)/2 : 0
       })
       .attr("ry",function(d){
-        var rounded = vars.shape.default == "circle"
+        var rounded = vars.shape.value == "circle"
         return rounded ? (d.d3plus.height+mod)/2 : 0
       })
       .attr("shape-rendering",function(d){
-        if (vars.shape.default == "square") {
+        if (vars.shape.value == "square") {
           return vars.style.rendering
         }
         else {
@@ -66,7 +66,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   selection.selectAll("rect.data")
     .data(function(d) { 
       
-      if (vars.labels.default && !d.d3plus.label) {
+      if (vars.labels.value && !d.d3plus.label) {
         
         d.d3plus_label = {
           "w": 0,
@@ -76,7 +76,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
     
         // Square bounds
-        if (vars.shape.default == "square") {
+        if (vars.shape.value == "square") {
 
           var w = d.d3plus.width-(vars.style.labels.padding*2),
               h = d.d3plus.height-(vars.style.labels.padding*2)

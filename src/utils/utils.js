@@ -96,11 +96,11 @@ d3plus.utils.connections = function(vars,links) {
   links.forEach(function(d) {
     
     if (typeof d.source != "object") {
-      d.source = vars.nodes.default.filter(function(n){return n[vars.id.key] == d.source})[0]
+      d.source = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.source})[0]
     }
 
     if (typeof d.target != "object") {
-      d.target = vars.nodes.default.filter(function(n){return n[vars.id.key] == d.target})[0]
+      d.target = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.target})[0]
     }
     
     if (!connections[d.source[vars.id.key]]) {

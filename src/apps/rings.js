@@ -8,26 +8,26 @@ d3plus.apps.rings.scale = 1.05
 d3plus.apps.rings.draw = function(vars) {
       
   var radius = d3.min([vars.app_height,vars.app_width])/2,
-      ring_width = vars.small || !vars.labels.default ? radius/2.25 : radius/3,
+      ring_width = vars.small || !vars.labels.value ? radius/2.25 : radius/3,
       links = [],
       nodes = []
   
   if (vars.data.app) {
     
-    var center = vars.data.app[vars.focus.default]
+    var center = vars.data.app[vars.focus.value]
     center.d3plus.x = vars.app_width/2
     center.d3plus.y = vars.app_height/2
     center.d3plus.r = ring_width/2
     
     var primaries = [], claimed = []
-    vars.connections[vars.focus.default].forEach(function(c){
+    vars.connections[vars.focus.value].forEach(function(c){
       var n = vars.data.app[c[vars.id.key]]
       if (!n) {
         n = {"d3plus": {}}
         n[vars.id.key] = c[vars.id.key]
       }
       n.d3plus.children = vars.connections[n[vars.id.key]].filter(function(c){
-        return c[vars.id.key] != vars.focus.default
+        return c[vars.id.key] != vars.focus.value
       })
       claimed.push(n[vars.id.key])
       primaries.push(n)
@@ -75,8 +75,8 @@ d3plus.apps.rings.draw = function(vars) {
         b_value = d3plus.variable.value(vars,b,sort)
       }
     
-      if(a_value<b_value) return vars.order.sort.default == "desc" ? -1 : 1;
-      if(a_value>b_value) return vars.order.sort.default == "desc" ? 1 : -1;
+      if(a_value<b_value) return vars.order.sort.value == "desc" ? -1 : 1;
+      if(a_value>b_value) return vars.order.sort.value == "desc" ? 1 : -1;
         
     }
     
@@ -217,9 +217,9 @@ d3plus.apps.rings.draw = function(vars) {
     
     nodes.forEach(function(n) {
       
-      if (n[vars.id.key] != vars.focus.default) {
+      if (n[vars.id.key] != vars.focus.value) {
         
-        if (vars.labels.default) {
+        if (vars.labels.value) {
           var angle = n.d3plus.radians*(180/Math.PI),
               width = ring_width-(vars.style.labels.padding*2)
           if (angle < -90 || angle > 90) {

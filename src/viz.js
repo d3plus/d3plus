@@ -7,12 +7,12 @@ d3plus.viz = function() {
   var vars = {
     "autodraw": false,
     "footer_text": function() {
-      var text = vars.tooltip.html || vars.tooltip.default.long ? "Click for More Info" : null
-      return vars.text_format.default(text)
+      var text = vars.tooltip.html || vars.tooltip.value.long ? "Click for More Info" : null
+      return vars.text_format.value(text)
     },
     "format": function(value,key) {
-      if (typeof value === "number") return vars.number_format.default(value,key,vars)
-      if (typeof value === "string") return vars.text_format.default(value,key,vars)
+      if (typeof value === "number") return vars.number_format.value(value,key,vars)
+      if (typeof value === "string") return vars.text_format.value(value,key,vars)
       else return JSON.stringify(value)
     },
     "frozen": false,
@@ -38,7 +38,7 @@ d3plus.viz = function() {
       // and check text direction.
       //-------------------------------------------------------------------
       if (vars.container.changed) {
-        vars.parent = d3.select(vars.container.default)
+        vars.parent = d3.select(vars.container.value)
         
         vars.parent
           .style("overflow","hidden")
@@ -58,17 +58,17 @@ d3plus.viz = function() {
       //-------------------------------------------------------------------
       var sizes = ["width","height"]
       sizes.forEach(function(s){
-        if (!vars[s].default) {
+        if (!vars[s].value) {
           var p = parseFloat(vars.parent.style(s),10)
-          vars[s].default = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
+          vars[s].value = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
         }
       })
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Run setup function if app has it
       //-------------------------------------------------------------------
-      if (d3plus.apps[vars.type.default].setup) {
-        d3plus.apps[vars.type.default].setup(vars)
+      if (d3plus.apps[vars.type.value].setup) {
+        d3plus.apps[vars.type.value].setup(vars)
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -84,10 +84,10 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Remove All Tooltips associated with App (and previous app)
       //-------------------------------------------------------------------
-      if (vars.type.previous && vars.type.default != vars.type.previous) {
+      if (vars.type.previous && vars.type.value != vars.type.previous) {
         d3plus.tooltip.remove(vars.type.previous);
       }
-      d3plus.tooltip.remove(vars.type.default);
+      d3plus.tooltip.remove(vars.type.value);
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Enter Elements
@@ -97,16 +97,16 @@ d3plus.viz = function() {
       vars.svg = vars.parent.selectAll("svg#d3plus").data(["d3plus"]);
       vars.svg.enter().append("svg")
         .attr("id","d3plus")
-        .attr('width',vars.width.default)
-        .attr('height',vars.height.default)
+        .attr('width',vars.width.value)
+        .attr('height',vars.height.value)
 
       // Enter BG Rectangle
       vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
       vars.g.bg.enter().append("rect")
         .attr("id","bg")
         .attr("fill",vars.style.background)
-        .attr('width',vars.width.default)
-        .attr('height',vars.height.default)
+        .attr('width',vars.width.value)
+        .attr('height',vars.height.value)
     
       // Enter Title Group
       vars.g.titles = vars.svg.selectAll("g#titles").data(["titles"])
@@ -117,19 +117,19 @@ d3plus.viz = function() {
       vars.g.timeline = vars.svg.selectAll("g#timeline").data(["timeline"])
       vars.g.timeline.enter().append("g")
         .attr("id","timeline")
-        .attr("transform","translate(0,"+vars.height.default+")")
+        .attr("transform","translate(0,"+vars.height.value+")")
     
       // Enter Key Group
       vars.g.key = vars.svg.selectAll("g#key").data(["key"])
       vars.g.key.enter().append("g")
         .attr("id","key")
-        .attr("transform","translate(0,"+vars.height.default+")")
+        .attr("transform","translate(0,"+vars.height.value+")")
     
       // Enter Footer Group
       vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"])
       vars.g.footer.enter().append("g")
         .attr("id","footer")
-        .attr("transform","translate(0,"+vars.height.default+")")
+        .attr("transform","translate(0,"+vars.height.value+")")
 
       // Enter App Clipping Mask
       vars.g.clipping = vars.svg.selectAll("clippath#clipping").data(["clipping"])
@@ -159,9 +159,9 @@ d3plus.viz = function() {
         .attr("id","app")
         
       // Enter App Group
-      vars.g.apps[vars.type.default] = vars.g.app.selectAll("g#"+vars.type.default).data([vars.type.default])
-      vars.g.apps[vars.type.default].enter().append("g")
-        .attr("id",vars.type.default)
+      vars.g.apps[vars.type.value] = vars.g.app.selectAll("g#"+vars.type.value).data([vars.type.value])
+      vars.g.apps[vars.type.value].enter().append("g")
+        .attr("id",vars.type.value)
     
       // Enter Links Group
       vars.g.links = vars.g.zoom.selectAll("g#links").data(["links"])
@@ -179,11 +179,11 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Title and Size Calculations
       //-------------------------------------------------------------------
-      vars.app_width = vars.width.default;
+      vars.app_width = vars.width.value;
       d3plus.ui.titles(vars);
       d3plus.ui.key(vars);
       d3plus.ui.timeline(vars);
-      vars.app_height = vars.height.default - vars.margin.top - vars.margin.bottom;
+      vars.app_height = vars.height.value - vars.margin.top - vars.margin.bottom;
       vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -192,18 +192,18 @@ d3plus.viz = function() {
       
       // Update Parent Element
       vars.parent
-        .style("width",vars.width.default+"px")
-        .style("height",vars.height.default+"px")
+        .style("width",vars.width.value+"px")
+        .style("height",vars.height.value+"px")
         
       // Update SVG
       vars.svg.transition().duration(vars.style.timing.transitions)
-          .attr('width',vars.width.default)
-          .attr('height',vars.height.default)
+          .attr('width',vars.width.value)
+          .attr('height',vars.height.value)
     
       // Update Background Rectangle
       vars.g.bg.transition().duration(vars.style.timing.transitions)
-          .attr('width',vars.width.default)
-          .attr('height',vars.height.default)
+          .attr('width',vars.width.value)
+          .attr('height',vars.height.value)
           
       // Update App Clipping Rectangle
       vars.g.clipping.select("rect").transition().duration(vars.style.timing.transitions)
@@ -219,12 +219,12 @@ d3plus.viz = function() {
       // Check to see if we have all required variables set
       //-------------------------------------------------------------------
       var reqs = ["id"]
-      if (d3plus.apps[vars.type.default].requirements) {
-        reqs = reqs.concat(d3plus.apps[vars.type.default].requirements)
+      if (d3plus.apps[vars.type.value].requirements) {
+        reqs = reqs.concat(d3plus.apps[vars.type.value].requirements)
       }
       var missing = []
       reqs.forEach(function(r){
-        var key = "key" in vars[r] ? "key" : "default"
+        var key = "key" in vars[r] ? "key" : "value"
         if (!vars[r][key]) missing.push(r)
       })
       if (missing.length) {
@@ -235,8 +235,8 @@ d3plus.viz = function() {
       // Check to see if we have all required libraries
       //-------------------------------------------------------------------
       var reqs = ["d3"]
-      if (d3plus.apps[vars.type.default].libs) {
-        reqs = reqs.concat(d3plus.apps[vars.type.default].libs)
+      if (d3plus.apps[vars.type.value].libs) {
+        reqs = reqs.concat(d3plus.apps[vars.type.value].libs)
       }
       var missing = []
       reqs.forEach(function(r){
@@ -249,32 +249,32 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Check to see if the requested app supports the set shape
       //-------------------------------------------------------------------
-      if (!vars.shape.default) {
-        vars.shape.default = d3plus.apps[vars.type.default].shapes[0]
+      if (!vars.shape.value) {
+        vars.shape.value = d3plus.apps[vars.type.value].shapes[0]
       }
-      else if (d3plus.apps[vars.type.default].shapes.indexOf(vars.shape.default) < 0) {
-        d3plus.console.warning("\""+vars.shape.default+"\" is not an accepted shape for the \""+vars.type.default+"\" app, please use one of the following: \""+d3plus.apps[vars.type.default].shapes.join("\", \"")+"\"")
-        vars.shape.previous = vars.shape.default
-        vars.shape.default = d3plus.apps[vars.type.default].shapes[0]
-        d3plus.console.log("Defaulting shape to \""+vars.shape.default+"\"")
+      else if (d3plus.apps[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
+        d3plus.console.warning("\""+vars.shape.value+"\" is not an accepted shape for the \""+vars.type.value+"\" app, please use one of the following: \""+d3plus.apps[vars.type.value].shapes.join("\", \"")+"\"")
+        vars.shape.previous = vars.shape.value
+        vars.shape.value = d3plus.apps[vars.type.value].shapes[0]
+        d3plus.console.log("Defaulting shape to \""+vars.shape.value+"\"")
       }
   
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Hide the previous app, if applicable
       //-------------------------------------------------------------------
-      if (vars.type.previous && vars.type.default != vars.type.previous && vars.g.apps[vars.type.previous]) {
-        if (vars.dev.default) d3plus.console.group("Hiding \"" + vars.type.previous + "\"")
+      if (vars.type.previous && vars.type.value != vars.type.previous && vars.g.apps[vars.type.previous]) {
+        if (vars.dev.value) d3plus.console.group("Hiding \"" + vars.type.previous + "\"")
         vars.g.apps[vars.type.previous].transition().duration(vars.style.timing.transitions)
           .attr("opacity",0)
-        if (vars.dev.default) d3plus.console.groupEnd();
+        if (vars.dev.value) d3plus.console.groupEnd();
       }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Draw the specified app
       //-------------------------------------------------------------------
-      if (vars.dev.default) d3plus.console.group("Drawing \"" + vars.type.default + "\"")
+      if (vars.dev.value) d3plus.console.group("Drawing \"" + vars.type.value + "\"")
       // Set vars.group to the app's specific group element
-      vars.group = vars.g.apps[vars.type.default]
+      vars.group = vars.g.apps[vars.type.value]
       // Make the group visible if there is data
       vars.group.transition().duration(vars.style.timing.transitions)
         .attr("opacity",function(){
@@ -292,7 +292,7 @@ d3plus.viz = function() {
         }
           
       if (!vars.internal_error) {
-        returned = d3plus.apps[vars.type.default].draw(vars)
+        returned = d3plus.apps[vars.type.value].draw(vars)
       }
           
       if (returned instanceof Array) {
@@ -308,7 +308,7 @@ d3plus.viz = function() {
       }
       
       if (!vars.returned.nodes || !(vars.returned.nodes instanceof Array) || !vars.returned.nodes.length) {
-        if (vars.dev.default) d3plus.console.log("No data returned by app.")
+        if (vars.dev.value) d3plus.console.log("No data returned by app.")
         vars.returned.nodes = [] 
       }
       
@@ -318,26 +318,26 @@ d3plus.viz = function() {
       // Draw nodes based on the data
       d3plus.shape.draw(vars,vars.returned.nodes)
         
-      if (vars.dev.default) d3plus.console.groupEnd();
+      if (vars.dev.value) d3plus.console.groupEnd();
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Check for Errors
       //-------------------------------------------------------------------
       if (!vars.internal_error) {
-        if ((!vars.error.default && !vars.data.app) || !vars.returned.nodes.length) {
+        if ((!vars.error.value && !vars.data.app) || !vars.returned.nodes.length) {
           vars.internal_error = "No Data Available"
         }
-        else if (vars.type.default == "rings" && !vars.connections[vars.focus.default]) {
+        else if (vars.type.value == "rings" && !vars.connections[vars.focus.value]) {
           vars.data.app = null
           vars.internal_error = "No Connections Available"
         }
-        else if (vars.error.default) {
+        else if (vars.error.value) {
           vars.data.app = null
-          if (vars.error.default === true) {
+          if (vars.error.value === true) {
             vars.internal_error = "Error"
           }
           else {
-            vars.internal_error = vars.error.default
+            vars.internal_error = vars.error.value
           }
         }
         else {
@@ -383,7 +383,7 @@ d3plus.viz = function() {
     
     var csv_to_return = [],
         titles = [],
-        title = vars.title.default || "My D3plus App Data"
+        title = vars.title.value || "My D3plus App Data"
         
     title = d3plus.utils.strip(title)
 
@@ -441,14 +441,14 @@ d3plus.viz = function() {
         d3plus.console.warning(".draw() only accepts booleans to change the \"autodraw\" functionality.")
       }
     }
-    if (!vars.container.default) {
+    if (!vars.container.value) {
       d3plus.console.warning("Please define a container div using .container()")
     }
-    else if (d3.select(vars.container.default).empty()) {
+    else if (d3.select(vars.container.value).empty()) {
       d3plus.console.warning("Cannot find <div> on page matching: \""+vars.container+"\"")
     }
     else {
-      d3.select(vars.container.default).call(chart)
+      d3.select(vars.container.value).call(chart)
     }
     return chart;
   }
@@ -542,7 +542,7 @@ d3plus.viz = function() {
         
         // determine default key type, if available
         if (vars[key].key !== undefined) var key_type = "key"
-        else if (vars[key].default !== undefined) var key_type = "default"
+        else if (vars[key].value !== undefined) var key_type = "value"
         else var key_type = null
         
         if ((typeof user == "object" && key_type && !user[key_type] && !(Object.keys(user)[0] in vars[key]))
@@ -618,8 +618,8 @@ d3plus.viz = function() {
             
           }
           
-          if (vars.dev.default || key == "dev") {
-            if (b == "default" || b == "key" || !b) {
+          if (vars.dev.value || key == "dev") {
+            if (b == "value" || b == "key" || !b) {
               var text = "\."+key+"()"
             }
             else {
@@ -630,8 +630,8 @@ d3plus.viz = function() {
           if (a.accepted && a.accepted.indexOf(c) < 0) {
             d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+a.accepted.join("\", \"")+"\"")
           }
-          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].default == c))) {
-            if (vars.dev.default) d3plus.console.log(text+" was not updated because it did not change.")
+          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].value == c))) {
+            if (vars.dev.value) d3plus.console.log(text+" was not updated because it did not change.")
           }
           else {
             if (b == "solo" || b == "mute") {
@@ -640,8 +640,8 @@ d3plus.viz = function() {
                 var arr = a[b]
               }
               else {
-                a[b].default = update_array(a[b].default,c)
-                var arr = a[b].default
+                a[b].value = update_array(a[b].value,c)
+                var arr = a[b].value
               }
               if (key != "time") {
                 if (arr.length && vars[b].indexOf(key) < 0) {
@@ -656,16 +656,16 @@ d3plus.viz = function() {
 
               if (c instanceof Array) {
                 vars.id.nesting = c
-                if (vars.depth.default < c.length) vars.id.key = c[vars.depth.default]
+                if (vars.depth.value < c.length) vars.id.key = c[vars.depth.value]
                 else {
                   vars.id.key = c[0]
-                  vars.depth.default = 0
+                  vars.depth.value = 0
                 }
               }
               else {
                 vars.id.key = c
                 vars.id.nesting = [c]
-                vars.depth.default = 0
+                vars.depth.value = 0
               }
               a.changed = true
                 
@@ -690,10 +690,10 @@ d3plus.viz = function() {
             }
             else if (key == "depth") {
               // Set appropriate depth and id
-              if (c >= vars.id.nesting.length) vars.depth.default = vars.id.nesting.length-1
-              else if (c < 0) vars.depth.default = 0
-              else vars.depth.default = c;
-              vars.id.key = vars.id.nesting[vars.depth.default]
+              if (c >= vars.id.nesting.length) vars.depth.value = vars.id.nesting.length-1
+              else if (c < 0) vars.depth.value = 0
+              else vars.depth.value = c;
+              vars.id.key = vars.id.nesting[vars.depth.value]
               
               if (vars.text.array) {
 
@@ -711,7 +711,7 @@ d3plus.viz = function() {
             else if (key == "aggs") {
               for (agg in c) {
                 if (a[b][agg] && a[b][agg] == c[agg]) {
-                  if (vars.dev.default) d3plus.console.log("Aggregation for \""+agg+"\" is already set to \""+c[agg]+"\"")
+                  if (vars.dev.value) d3plus.console.log("Aggregation for \""+agg+"\" is already set to \""+c[agg]+"\"")
                 }
                 else {
                   a[b][agg] = c[agg]
@@ -720,8 +720,8 @@ d3plus.viz = function() {
               }
             }
             else {
-              if (typeof a[b] == "object" && a[b] != null && (a[b].key !== undefined || a[b].default !== undefined)) {
-                var k = a[b].key !== undefined ? "key" : "default";
+              if (typeof a[b] == "object" && a[b] != null && (a[b].key !== undefined || a[b].value !== undefined)) {
+                var k = a[b].key !== undefined ? "key" : "value";
                 a = a[b]
                 b = k
               }
@@ -730,7 +730,7 @@ d3plus.viz = function() {
               a.changed = true
             }
             
-            if ((vars.dev.default || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
+            if ((vars.dev.value || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
               if (typeof a[b] != "function" && JSON.stringify(a[b]).length < 260) {
                 d3plus.console.log(text+" has been set to "+JSON.stringify(a[b])+".")
               }

@@ -10,7 +10,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
   var line = d3.svg.line()
     .x(function(d){ return d.d3plus.x; })
     .y(function(d){ return d.d3plus.y; })
-    .interpolate(vars.shape.interpolate.default)
+    .interpolate(vars.shape.interpolate.value)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Divide each line into it's segments. We do this so that there can be gaps 

@@ -19,13 +19,13 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
   
   var tooltip_highlights = []
   
-  if (vars.tooltip.default instanceof Array) var a = vars.tooltip.default
-  else if (vars.tooltip.default[length] && vars.tooltip.default[length] instanceof Array) var a = vars.tooltip.default[length]
-  else if (vars.tooltip.default[length]) var a = d3plus.utils.merge({"":[]},vars.tooltip.default[length])
-  else var a = vars.tooltip.default
+  if (vars.tooltip.value instanceof Array) var a = vars.tooltip.value
+  else if (vars.tooltip.value[length] && vars.tooltip.value[length] instanceof Array) var a = vars.tooltip.value[length]
+  else if (vars.tooltip.value[length]) var a = d3plus.utils.merge({"":[]},vars.tooltip.value[length])
+  else var a = vars.tooltip.value
   
   function format_key(key,group) {
-    if (vars.attrs.default[group]) var id_var = group
+    if (vars.attrs.value[group]) var id_var = group
     else var id_var = null
     
     if (group) group = vars.format(group)
@@ -61,19 +61,19 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
   }
   else {
     
-    if (vars.id.nesting.length && vars.depth.default < vars.id.nesting.length-1) {
+    if (vars.id.nesting.length && vars.depth.value < vars.id.nesting.length-1) {
       var a = d3plus.utils.copy(a)
       vars.id.nesting.forEach(function(n,i){
-        if (i > vars.depth.default && a[n]) delete a[n]
+        if (i > vars.depth.value && a[n]) delete a[n]
       })
     }
     
-    if (vars.tooltip.default.long && typeof vars.tooltip.default.long == "object") {
+    if (vars.tooltip.value.long && typeof vars.tooltip.value.long == "object") {
       var placed = []
-      for (group in vars.tooltip.default.long) {
+      for (group in vars.tooltip.value.long) {
         
         extras.forEach(function(e){
-          if (vars.tooltip.default.long[group].indexOf(e) >= 0 && ((a[group] && a[group].indexOf(e) < 0) || !a[group])) {
+          if (vars.tooltip.value.long[group].indexOf(e) >= 0 && ((a[group] && a[group].indexOf(e) < 0) || !a[group])) {
             if (!a[group]) a[group] = []
             a[group].push(e)
             placed.push(e)

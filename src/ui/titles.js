@@ -5,17 +5,17 @@
 d3plus.ui.titles = function(vars) {
   
   // Calculate total_bar value
-  if (!vars.data.app || !vars.title.total.default || vars.type.default == "stacked") {
+  if (!vars.data.app || !vars.title.total.value || vars.type.value == "stacked") {
     vars.data.total = null
   }
   else {
-    if (vars.dev.default) d3plus.console.group("Calculating Total Value")
+    if (vars.dev.value) d3plus.console.group("Calculating Total Value")
     
-    if (vars.dev.default) d3plus.console.time(vars.size.key)
+    if (vars.dev.value) d3plus.console.time(vars.size.key)
     
-    if (vars.focus.default && typeof vars.data.app == "object") {
-      if (vars.data.app[vars.focus.default])
-        vars.data.total = d3plus.variable.value(vars,vars.data.app[vars.focus.default],vars.size.key)
+    if (vars.focus.value && typeof vars.data.app == "object") {
+      if (vars.data.app[vars.focus.value])
+        vars.data.total = d3plus.variable.value(vars,vars.data.app[vars.focus.value],vars.size.key)
       else {
         vars.data.total = null
       }
@@ -26,14 +26,14 @@ d3plus.ui.titles = function(vars) {
       })
     }
     
-    if (vars.dev.default) d3plus.console.timeEnd(vars.size.key)
-    if (vars.dev.default) d3plus.console.groupEnd()
+    if (vars.dev.value) d3plus.console.timeEnd(vars.size.key)
+    if (vars.dev.value) d3plus.console.groupEnd()
     
   }
   
   vars.margin.top = 0
   var title_offset = 0
-  if (vars.width.default <= 400 || vars.height.default <= 300) {
+  if (vars.width.value <= 400 || vars.height.value <= 300) {
     vars.small = true;
     vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
     vars.graph.width = vars.app_width
@@ -43,13 +43,13 @@ d3plus.ui.titles = function(vars) {
     update_footer(null)
   }
   else {
-    if (vars.dev.default) d3plus.console.log("Updating Titles")
+    if (vars.dev.value) d3plus.console.log("Updating Titles")
     vars.small = false;
     vars.graph.margin = {"top": 10, "right": 10, "bottom": 40, "left": 40}
     vars.graph.width = vars.app_width-vars.graph.margin.left-vars.graph.margin.right
-    make_title(vars.title.default,"title");
-    make_title(vars.title.sub.default,"sub_title");
-    if (vars.data.app && !vars.error.default && (vars.type.default != "rings" || (vars.type.default == "rings" && vars.connections[vars.focus.default]))) {
+    make_title(vars.title.value,"title");
+    make_title(vars.title.sub.value,"sub_title");
+    if (vars.data.app && !vars.error.value && (vars.type.value != "rings" || (vars.type.value == "rings" && vars.connections[vars.focus.value]))) {
       make_title(vars.data.total,"total_bar");
     }
     else {
@@ -73,18 +73,18 @@ d3plus.ui.titles = function(vars) {
     // Set the total value as data for element.
     var font_size = type == "title" ? 18 : 13,
         title_position = {
-          "x": vars.width.default/2,
+          "x": vars.width.value/2,
           "y": vars.margin.top
         }
   
     if (type == "total_bar" && t) {
       title = vars.format(t,vars.size.key)
-      vars.title.total.default.prefix ? title = vars.title.total.default.prefix + title : null;
-      vars.title.total.default.suffix ? title = title + vars.title.total.default.suffix : null;
+      vars.title.total.value.prefix ? title = vars.title.total.value.prefix + title : null;
+      vars.title.total.value.suffix ? title = title + vars.title.total.value.suffix : null;
     
-      if (vars.mute.length || vars.solo.length && vars.type.default != "rings") {
-        var overall_total = d3.sum(vars.data.default, function(d){ 
-          if (vars.type.default == "stacked") return d[vars.size.key]
+      if (vars.mute.length || vars.solo.length && vars.type.value != "rings") {
+        var overall_total = d3.sum(vars.data.value, function(d){ 
+          if (vars.type.value == "stacked") return d[vars.size.key]
           else if (vars.time.solo == d[vars.time.key]) return d[vars.size.key]
         })
         var pct = (t/overall_total)*100
@@ -121,12 +121,12 @@ d3plus.ui.titles = function(vars) {
         .attr("font-family", vars.style.font.family)
         .style("font-weight", vars.style.font.weight)
         .each(function(d){
-          var width = vars.style.title.width || vars.width.default
+          var width = vars.style.title.width || vars.width.value
           d3plus.utils.wordwrap({
             "text": d.title,
             "parent": this,
             "width": width,
-            "height": vars.height.default/8,
+            "height": vars.height.value/8,
             "resize": false
           })
         })
@@ -148,11 +148,11 @@ d3plus.ui.titles = function(vars) {
 
   function update_footer(footer_text) {
     
-    if (footer_text && footer_text.default) {
-      if (footer_text.default.indexOf("<a href=") == 0) {
+    if (footer_text && footer_text.value) {
+      if (footer_text.value.indexOf("<a href=") == 0) {
         var div = document.createElement("div")
-        div.innerHTML = footer_text.default
-        var t = footer_text.default.split("href=")[1]
+        div.innerHTML = footer_text.value
+        var t = footer_text.value.split("href=")[1]
         var link = t.split(t.charAt(0))[1]
         if (link.charAt(0) != "h" && link.charAt(0) != "/") {
           link = "http://"+link
@@ -160,7 +160,7 @@ d3plus.ui.titles = function(vars) {
         var d = [div.getElementsByTagName("a")[0].innerHTML]
       }
       else {
-        var d = [footer_text.default]
+        var d = [footer_text.value]
       }
     }
     else var d = []
@@ -171,7 +171,7 @@ d3plus.ui.titles = function(vars) {
     source.enter().append("text")
       .attr("class","source")
       .attr("opacity",0)
-      .attr("x",vars.width.default/2+"px")
+      .attr("x",vars.width.value/2+"px")
       .attr("y",padding-1+"px")
       .attr("font-size","10px")
       .attr("fill","#333")
@@ -182,8 +182,8 @@ d3plus.ui.titles = function(vars) {
         d3plus.utils.wordwrap({
           "text": d,
           "parent": this,
-          "width": vars.width.default-20,
-          "height": vars.height.default/8,
+          "width": vars.width.value-20,
+          "height": vars.height.value/8,
           "resize": false
         })
       })
@@ -213,15 +213,15 @@ d3plus.ui.titles = function(vars) {
     
     source
       .attr("opacity",1)
-      .attr("x",(vars.width.default/2)+"px")
+      .attr("x",(vars.width.value/2)+"px")
       .attr("font-family", vars.style.font.family)
       .style("font-weight", vars.style.font.weight)
       .each(function(d){
         d3plus.utils.wordwrap({
           "text": d,
           "parent": this,
-          "width": vars.width.default-20,
-          "height": vars.height.default/8,
+          "width": vars.width.value-20,
+          "height": vars.height.value/8,
           "resize": false
         })
       })
@@ -239,7 +239,7 @@ d3plus.ui.titles = function(vars) {
     }
   
     vars.g.footer.transition().duration(vars.style.timing.transitions)
-      .attr("transform","translate(0,"+(vars.height.default-vars.margin.bottom)+")")
+      .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
   
   }
 }
@@ -251,12 +251,12 @@ d3plus.ui.title_update = function(vars) {
       .attr("x",function(d) { return d.x; })
       .attr("y",function(d) { return d.y; })
       .each(function(d){
-        var width = vars.style.title.width || vars.width.default
+        var width = vars.style.title.width || vars.width.value
         d3plus.utils.wordwrap({
           "text": d.title,
           "parent": this,
           "width": width,
-          "height": vars.height.default/8,
+          "height": vars.height.value/8,
           "resize": false
         })
       })
