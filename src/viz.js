@@ -132,13 +132,12 @@ d3plus.viz = function() {
         .attr("transform","translate(0,"+vars.height.value+")")
 
       // Enter App Clipping Mask
-      vars.g.clipping = vars.svg.selectAll("clippath#clipping").data(["clipping"])
-      vars.g.clipping.enter().append("clippath")
+      vars.g.clipping = vars.svg.selectAll("clipPath#clipping").data(["clipping"])
+      vars.g.clipping.enter().append("clipPath")
         .attr("id","clipping")
         .append("rect")
           .attr("width",vars.app_width)
           .attr("height",vars.app_height)
-          .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       // Enter Container Group
       vars.g.container = vars.svg.selectAll("g#container").data(["container"])
@@ -209,7 +208,6 @@ d3plus.viz = function() {
       vars.g.clipping.select("rect").transition().duration(vars.style.timing.transitions)
         .attr("width",vars.app_width)
         .attr("height",vars.app_height)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
       // Update Container Groups
       vars.g.container.transition().duration(vars.style.timing.transitions)
