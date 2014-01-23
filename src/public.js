@@ -111,15 +111,15 @@ d3plus.public.id = {
   }
 }
 
-d3plus.public.key = {
-  "accepted": [true,false],
-  "value": true,
-  "label": null
-}
-
 d3plus.public.labels = {
   "accepted": [true,false],
   "value": true
+}
+
+d3plus.public.legend = {
+  "accepted": [true,false],
+  "value": true,
+  "label": null
 }
 
 d3plus.public.links = {

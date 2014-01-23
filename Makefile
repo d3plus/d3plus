@@ -42,7 +42,7 @@ JS_FILES = \
 	src/tooltip/remove.js \
 	\
 	src/ui/error.js \
-	src/ui/key.js \
+	src/ui/legend.js \
 	src/ui/timeline.js \
 	src/ui/titles.js \
 	\

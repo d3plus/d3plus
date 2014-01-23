@@ -180,7 +180,7 @@ d3plus.viz = function() {
       //-------------------------------------------------------------------
       vars.app_width = vars.width.value;
       d3plus.ui.titles(vars);
-      d3plus.ui.key(vars);
+      d3plus.ui.legend(vars);
       d3plus.ui.timeline(vars);
       vars.app_height = vars.height.value - vars.margin.top - vars.margin.bottom;
       vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;

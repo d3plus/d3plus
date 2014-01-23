@@ -2,11 +2,11 @@
 // Creates color key
 //-------------------------------------------------------------------
 
-d3plus.ui.key = function(vars) {
+d3plus.ui.legend = function(vars) {
   
   var key_display = true
   
-  if (vars.key.value && vars.color.key) {
+  if (vars.legend.value && vars.color.key) {
     
     if (!vars.color_scale) {
     
@@ -476,7 +476,7 @@ d3plus.ui.key = function(vars) {
     
   }
   
-  if (vars.key.value && vars.color.key && key_display) {
+  if (vars.legend.value && vars.color.key && key_display) {
     
     var key_box = vars.g.key.node().getBBox()
     var key_height = key_box.height+key_box.y
