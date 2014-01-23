@@ -5,6 +5,12 @@
 d3plus.tooltip.data = function(vars,id,length,extras) {
 
   if (!length) var length = "long"
+  if (length == "long") {
+    var other_length = "short"
+  }
+  else {
+    var other_length = "long"
+  }
   
   var extra_data = {}
   if (extras && typeof extras == "string") extras = [extras]
@@ -19,10 +25,43 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
   
   var tooltip_highlights = []
   
-  if (vars.tooltip.value instanceof Array) var a = vars.tooltip.value
-  else if (vars.tooltip.value[length] && vars.tooltip.value[length] instanceof Array) var a = vars.tooltip.value[length]
-  else if (vars.tooltip.value[length]) var a = d3plus.utils.merge({"":[]},vars.tooltip.value[length])
-  else var a = vars.tooltip.value
+  if (vars.tooltip.value instanceof Array) {
+    var a = vars.tooltip.value
+  }
+  else if (typeof vars.tooltip.value == "string") {
+    var a = [vars.tooltip.value]
+  }
+  else {
+    
+    if (vars.tooltip.value[vars.id.nesting[vars.depth.value]]) {
+      var a = vars.tooltip.value[vars.id.nesting[vars.depth.value]]
+    }
+    else {
+      var a = vars.tooltip.value
+    }
+    
+    if (!(a instanceof Array)) {
+      
+      if (a[length]) {
+        a = a[length]
+      }
+      else if (a[other_length]) {
+        a = []
+      }
+      else {
+        a = d3plus.utils.merge({"":[]},a)
+      }
+      
+    }
+    
+    if (typeof a == "string") {
+      a = [a]
+    }
+    else if (!(a instanceof Array)) {
+      a = d3plus.utils.merge({"":[]},a)
+    }
+    
+  }
   
   function format_key(key,group) {
     if (vars.attrs.value[group]) var id_var = group
