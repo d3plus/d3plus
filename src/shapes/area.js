@@ -25,7 +25,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   selection.selectAll("path.data")
     .data(function(d) {
       
-      if (vars.labels.default && !d.d3plus.label) {
+      if (vars.labels.default) {
         
         var areas = [],
             obj = null,
@@ -95,9 +95,6 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
           d.d3plus_label = label
         }
         
-      }
-      else if (d.d3plus.label) {
-        d.d3plus_label = d.d3plus.label
       }
       
       return [d];
