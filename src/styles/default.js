@@ -24,7 +24,17 @@ d3plus.styles.default = {
   "info": {
     "font-size": 20
   },
-  "key": {
+  "labels": {
+    "align": "middle",
+    "padding": 7,
+    "segments": 4,
+    "font": {
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 10
+    }
+  },
+  "legend": {
     "align": "middle",
     "padding": 5,
     "gradient": {
@@ -44,16 +54,6 @@ d3plus.styles.default = {
       "size": 10
     },
     "size": 30
-  },
-  "labels": {
-    "align": "middle",
-    "padding": 7,
-    "segments": 4,
-    "font": {
-      "family": "sans-serif",
-      "weight": "normal",
-      "size": 10
-    }
   },
   "links": {
     "color": "#dedede",
