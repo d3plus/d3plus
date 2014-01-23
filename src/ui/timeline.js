@@ -183,7 +183,7 @@ d3plus.ui.timeline = function(vars) {
         
     ticks.selectAll("line").transition().duration(vars.style.timing.transitions)
       .attr("stroke",vars.style.timeline.tick.color)
-      .attr("shape-rendering","crispEdges")
+      .attr("shape-rendering",vars.style.rendering)
     
     var brush_group = vars.g.timeline.selectAll("g#brush")
       .data(["brush"])
@@ -209,7 +209,7 @@ d3plus.ui.timeline = function(vars) {
       .attr("stroke-width",1)
       .style("visibility","visible")
       .attr("fill","none")
-      .attr("shape-rendering","crispEdges")
+      .attr("shape-rendering",vars.style.rendering)
       
     brush_group.selectAll("rect.extent")
       .transition().duration(vars.style.timing.transitions)
