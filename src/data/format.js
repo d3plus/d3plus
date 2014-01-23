@@ -1,12 +1,13 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Analyzes Raw Data
+// Formats Raw Data
 //-------------------------------------------------------------------
 
 d3plus.data.format = function(vars,format) {
   
-  if (vars.dev.value) d3plus.console.group("Formatting Data")
   if (!format) var format = "nested"
   return_data = {}
+
+  if (vars.dev.value) d3plus.console.group("Formatting \""+format+"\" Data")
   
   vars.id.nesting.forEach(function(depth){
     

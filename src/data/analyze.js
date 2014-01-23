@@ -79,6 +79,7 @@ d3plus.data.analyze = function(vars) {
       vars.check.push(k)
     }
   }
+  
   if (!vars.data.filtered || vars.check.length || vars.active.changed || vars.temp.changed || vars.total.changed) {
     vars.data[vars.data.type] = null
     vars.data.grouped = null
@@ -209,7 +210,7 @@ d3plus.data.analyze = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Fetch the correct Data for the App
   //-------------------------------------------------------------------
-  if (!vars.data.app || vars.depth.changed || vars.time.changed || vars.type.changed) {
+  if (!vars.data.app || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed || vars.type.changed) {
     
     vars.data.app = d3plus.data.fetch(vars,vars.data.type)
     

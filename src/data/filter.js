@@ -44,10 +44,7 @@ d3plus.data.filter = function(vars) {
 
     // Find available years
     vars.data.time = d3plus.utils.uniques(vars.data.filtered.all,vars.time.key)
-    // for (var i = 0; i < vars.data.time.length; i++) {
-    //   vars.data.time[i] = Date.parse(vars.data.time[i])
-    // }
-    // vars.data.time = vars.data.time.filter(function(t){return t})
+    
     vars.data.time.sort()
     
     if (vars.data.time.length) {

@@ -85,7 +85,7 @@ d3plus.ui.titles = function(vars) {
       if (vars.mute.length || vars.solo.length && vars.type.value != "rings") {
         var overall_total = d3.sum(vars.data.value, function(d){ 
           if (vars.type.value == "stacked") return d[vars.size.key]
-          else if (vars.time.solo == d[vars.time.key]) return d[vars.size.key]
+          else if (vars.time.solo.value == d[vars.time.key]) return d[vars.size.key]
         })
         var pct = (t/overall_total)*100
         ot = vars.format(overall_total,vars.size.key)

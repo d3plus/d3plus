@@ -24,9 +24,9 @@ d3plus.data.fetch = function(vars,format,years) {
   //----------------------------------------------------------------------------
   if (!years) {
 
-    if (vars.time.solo.length) {
+    if (vars.time.solo.value.length) {
       var years = []
-      vars.time.solo.forEach(function(y){
+      vars.time.solo.value.forEach(function(y){
         if (typeof y == "function") {
           vars.data.time.forEach(function(t){
             if (y(t)) {
@@ -39,9 +39,9 @@ d3plus.data.fetch = function(vars,format,years) {
         }
       })
     }
-    else if (vars.time.mute.length) {
+    else if (vars.time.mute.value.length) {
       var muted = []
-      vars.time.mute.forEach(function(y){
+      vars.time.mute.value.forEach(function(y){
         if (typeof y == "function") {
           vars.data.time.forEach(function(t){
             if (y(t)) {

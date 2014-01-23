@@ -16,7 +16,7 @@ d3plus.data.color = function(vars) {
     var color_id = vars.color.key
   }
   
-  if (vars.data.value && vars.color.key && (vars.color.changed || vars.time.changed || vars.depth.changed)) {
+  if (vars.data.value && vars.color.key && (vars.color.changed || vars.data.changed || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed)) {
     
     if (vars.data.keys[color_id] == "number") {
       

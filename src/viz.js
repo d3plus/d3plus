@@ -572,9 +572,9 @@ d3plus.viz = function() {
               }
             }
             else {
-              if (["solo","mute"].indexOf(property) >= 0) {
-                object.changed = true
-              }
+              // if (["solo","mute"].indexOf(property) >= 0) {
+              //   object.changed = true
+              // }
               set_value(object,property,depth);
             }
           }
@@ -633,14 +633,11 @@ d3plus.viz = function() {
           }
           else {
             if (b == "solo" || b == "mute") {
-              if (a[b] instanceof Array) {
-                a[b] = update_array(a[b],c)
-                var arr = a[b]
-              }
-              else {
-                a[b].value = update_array(a[b].value,c)
-                var arr = a[b].value
-              }
+              
+              a[b].value = update_array(a[b].value,c)
+              a[b].changed = true
+              var arr = a[b].value
+                
               if (key != "time") {
                 if (arr.length && vars[b].indexOf(key) < 0) {
                   vars[b].push(key)
@@ -649,6 +646,7 @@ d3plus.viz = function() {
                   vars[b].splice(vars[b].indexOf(key), 1)
                 }
               }
+              
             }
             else if (key == "id" && b == "key") {
 

@@ -15,7 +15,7 @@ d3plus.ui.timeline = function(vars) {
       var min_required = 1
     }
     
-    var init = d3.extent(vars.time.solo)
+    var init = d3.extent(vars.time.solo.value)
     
     var min = years[0],
         max = years[years.length-1],

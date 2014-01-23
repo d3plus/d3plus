@@ -2,8 +2,12 @@ d3plus.public = {}
 
 d3plus.public.active = {
   "key": null,
-  "mute": [],
-  "solo": [],
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  },
   "spotlight": {
     "accepted": [true,false],
     "value": false,
@@ -32,8 +36,12 @@ d3plus.public.attrs = {
 d3plus.public.color = {
   "deprecates": ["color_var"],
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.container = {
@@ -169,27 +177,39 @@ d3plus.public.size = {
   "data_filter": true,
   "deprecates": ["value"],
   "key": null,
-  "mute": [],
+  "mute": {
+    "value": []
+  },
   "scale": {
     "accepted": ["sqrt","linear","log"],
     "deprecates": ["size_scale"],
     "value": "sqrt"
   },
-  "solo": []
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.temp = {
   "deprecates": ["else_var","else"],
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.text = {
   "deprecates": ["name_array","text_var"],
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.text_format = {
@@ -208,8 +228,12 @@ d3plus.public.time = {
     "deprecates": ["static_axis","static_axes"]
   },
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.timeline = {
@@ -240,8 +264,12 @@ d3plus.public.tooltip = {
 d3plus.public.total = {
   "deprecates": ["total_var"],
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.type = {
@@ -258,7 +286,9 @@ d3plus.public.x = {
   "domain": null,
   "key": null,
   "lines": [],
-  "mute": [],
+  "mute": {
+    "value": []
+  },
   "reset": ["x_range"],
   "scale": {
     "accepted": ["linear","log","continuous","share"],
@@ -269,7 +299,9 @@ d3plus.public.x = {
     "accepted": [true,false],
     "value": false
   },
-  "solo": [],
+  "solo": {
+    "value": []
+  },
   "zerofill": {
     "accepted": [true,false],
     "value": false
@@ -282,7 +314,9 @@ d3plus.public.y = {
   "domain": null,
   "key": null,
   "lines": [],
-  "mute": [],
+  "mute": {
+    "value": []
+  },
   "reset": ["y_range"],
   "scale": {
     "accepted": ["linear","log","continuous","share"],
@@ -293,7 +327,9 @@ d3plus.public.y = {
     "accepted": [true,false],
     "value": false
   },
-  "solo": [],
+  "solo": {
+    "value": []
+  },
   "zerofill": {
     "accepted": [true,false],
     "value": false
