@@ -2,7 +2,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.0.2 - Blue";
+d3plus.version = "1.1.0 - Navy";
 
 d3plus.ie = /*@cc_on!@*/false;
 
@@ -45,6 +45,7 @@ d3plus.shape = {};
 d3plus.styles = {};
 d3plus.tooltip = {};
 d3plus.utils = {};
+d3plus.ui = {};
 d3plus.variable = {};
 d3plus.zoom = {};
 
@@ -78,85 +79,93 @@ d3plus.public = {}
 
 d3plus.public.active = {
   "key": null,
-  "mute": [],
-  "solo": [],
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  },
   "spotlight": {
     "accepted": [true,false],
-    "default": false,
+    "value": false,
     "deprecates": ["spotlight"]
   }
 }
 
 d3plus.public.aggs = {
-  "default": {},
+  "value": {},
   "deprecated": ["nesting_aggs"]
 }
 
 d3plus.public.axes = {
   "mirror": {
     "accepted": [true,false],
-    "default": false,
+    "value": false,
     "deprecates": ["mirror_axis","mirror_axes"]
-  },
-  "static": {
-    "accepted": [true,false],
-    "default": true,
-    "deprecates": ["static_axis","static_axes"]
   },
   "values": ["x","y"]
 }
 
 d3plus.public.attrs = {
-  "default": {}
+  "value": {}
 }
 
 d3plus.public.color = {
   "deprecates": ["color_var"],
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.container = {
-  "default": null
+  "value": null
 }
 
 d3plus.public.coords = {
-  "default": null
+  "value": null
 }
 
 d3plus.public.data = {
-  "default": []
+  "value": []
 }
 
 d3plus.public.depth = {
-  "default": 0
+  "value": 0
 }
 
 d3plus.public.descs = {
-  "default": {}
+  "value": {}
 }
 
 d3plus.public.dev = {
   "accepted": [true,false],
-  "default": false
+  "value": false
 }
 
 d3plus.public.error = {
-  "default": false
+  "value": false
 }
 
 d3plus.public.focus = {
-  "default": null,
+  "value": null,
   "deprecates": ["highlight"]
 }
 
 d3plus.public.footer = {
-  "default": false
+  "value": false
 }
 
 d3plus.public.height = {
-  "default": null
+  "value": null
+}
+
+d3plus.public.html = {
+  "deprecates": ["click_function"],
+  "value": null
 }
 
 d3plus.public.icon = {
@@ -165,128 +174,164 @@ d3plus.public.icon = {
 }
 
 d3plus.public.id = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["id_var","nesting"],
   "key": "id",
   "mute": {
-    "default": [],
+    "value": [],
     "deprecates": ["filter"]
   },
   "nesting": ["id"],
   "solo": {
-    "default": [],
+    "value": [],
     "deprecates": ["solo"]
   }
 }
 
 d3plus.public.labels = {
   "accepted": [true,false],
-  "default": true
+  "value": true
+}
+
+d3plus.public.legend = {
+  "accepted": [true,false],
+  "value": true,
+  "label": null
 }
 
 d3plus.public.links = {
   "deprecates": ["edges"],
-  "default": null
+  "value": null
 }
 
 d3plus.public.nodes = {
-  "default": null
+  "value": null
 }
 
-d3plus.public.number_format = function(number,key,vars) {
+d3plus.public.number_format = {
+  "value": function(number,key,vars) {
   
-  if (key == vars.time.key) {
-    return number
-  }
-  else if (number < 10) {
-    return d3.round(number,2)
-  }
-  else if (number.toString().split(".")[0].length > 4) {
-    var symbol = d3.formatPrefix(number).symbol
-    symbol = symbol.replace("G", "B") // d3 uses G for giga
+    if (key == vars.time.key) {
+      return number
+    }
+    else if (number < 10) {
+      return d3.round(number,2)
+    }
+    else if (number.toString().split(".")[0].length > 4) {
+      var symbol = d3.formatPrefix(number).symbol
+      symbol = symbol.replace("G", "B") // d3 uses G for giga
     
-    // Format number to precision level using proper scale
-    number = d3.formatPrefix(number).scale(number)
-    number = parseFloat(d3.format(".3g")(number))
-    return number + symbol;
-  }
-  else if (key == "share") {
-    return d3.format(".2f")(number)
-  }
-  else {
-    return d3.format(",f")(number)
-  }
+      // Format number to precision level using proper scale
+      number = d3.formatPrefix(number).scale(number)
+      number = parseFloat(d3.format(".3g")(number))
+      return number + symbol;
+    }
+    else if (key == "share") {
+      return d3.format(".2f")(number)
+    }
+    else {
+      return d3.format(",f")(number)
+    }
   
+  }
 }
 
 d3plus.public.order = {
   "key": null,
   "sort": {
     "accepted": ["asc","desc"],
-    "default": "asc",
+    "value": "asc",
     "deprecates": ["sort"]
   }
 }
 
 d3plus.public.shape = {
   "accepted": ["circle","donut","line","square","area","coordinates"],
-  "default": null,
+  "value": null,
   "interpolate": {
     "accepted": ["linear","step","step-before","step-after","basis","basis-open","cardinal","cardinal-open","monotone"],
-    "default": "linear",
+    "value": "linear",
     "deprecates": ["stack_type"]
   }
 }
 
 d3plus.public.size = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["value"],
   "key": null,
-  "mute": [],
+  "mute": {
+    "value": []
+  },
   "scale": {
     "accepted": ["sqrt","linear","log"],
     "deprecates": ["size_scale"],
-    "default": "sqrt"
+    "value": "sqrt"
   },
-  "solo": []
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.temp = {
   "deprecates": ["else_var","else"],
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.text = {
   "deprecates": ["name_array","text_var"],
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
-d3plus.public.text_format = function(text,key,vars) {
-  if (!text) return ""
-  return text.charAt(0).toUpperCase() + text.substr(1).toLowerCase()
-  
+d3plus.public.text_format = {
+  "value": function(text,key,vars) {
+    if (!text) return ""
+    return text.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+  }
 }
 
 d3plus.public.time = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["year","year_var"],
+  "fixed": {
+    "accepted": [true,false],
+    "value": true,
+    "deprecates": ["static_axis","static_axes"]
+  },
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
+}
+
+d3plus.public.timeline = {
+  "accepted": [true,false],
+  "value": true,
+  "label": null
 }
 
 d3plus.public.title = {
-  "default": null,
+  "value": null,
   "sub": {
-    "default": null,
+    "value": null,
     "deprecates": ["sub_title"]
   },
   "total": {
-    "default": false,
+    "value": false,
     "deprecates": ["total_bar"],
     "object": true
   }
@@ -294,77 +339,89 @@ d3plus.public.title = {
 
 d3plus.public.tooltip = {
   "deprecates": ["tooltip_info"],
-  "default": [],
-  "html": null
+  "value": [],
+  "object": true
 }
 
 d3plus.public.total = {
   "deprecates": ["total_var"],
   "key": null,
-  "mute": [],
-  "solo": []
+  "mute": {
+    "value": []
+  },
+  "solo": {
+    "value": []
+  }
 }
 
 d3plus.public.type = {
-  "default": "tree_map"
+  "value": "tree_map"
 }
 
 d3plus.public.width = {
-  "default": null
+  "value": null
 }
 
 d3plus.public.x = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["xaxis","xaxis_val","xaxis_var"],
   "domain": null,
   "key": null,
   "lines": [],
-  "mute": [],
+  "mute": {
+    "value": []
+  },
   "reset": ["x_range"],
   "scale": {
     "accepted": ["linear","log","continuous","share"],
-    "default": "linear",
+    "value": "linear",
     "deprecates": ["layout","unique_axis","xaxis_scale"]
   },
   "stacked": {
     "accepted": [true,false],
-    "default": false
+    "value": false
   },
-  "solo": [],
+  "solo": {
+    "value": []
+  },
   "zerofill": {
     "accepted": [true,false],
-    "default": false
+    "value": false
   }
 }
 
 d3plus.public.y = {
-  "data_refresh": true,
+  "data_filter": true,
   "deprecates": ["yaxis","yaxis_val","yaxis_var"],
   "domain": null,
   "key": null,
   "lines": [],
-  "mute": [],
+  "mute": {
+    "value": []
+  },
   "reset": ["y_range"],
   "scale": {
     "accepted": ["linear","log","continuous","share"],
-    "default": "linear",
+    "value": "linear",
     "deprecates": ["layout","unique_axis","yaxis_scale"]
   },
   "stacked": {
     "accepted": [true,false],
-    "default": false
+    "value": false
   },
-  "solo": [],
+  "solo": {
+    "value": []
+  },
   "zerofill": {
     "accepted": [true,false],
-    "default": false
+    "value": false
   }
 }
 
 d3plus.public.zoom = {
   "scroll": {
     "accepted": [true,false],
-    "default": false,
+    "value": false,
     "deprecates": ["scroll_zoom"]
   }
 }
@@ -376,15 +433,13 @@ d3plus.viz = function() {
   
   var vars = {
     "autodraw": false,
-    "color_domain": [],
-    "color_scale": d3.scale.sqrt().interpolate(d3.interpolateRgb),
     "footer_text": function() {
-      var text = vars.tooltip.html || vars.tooltip.default.long ? "Click for More Info" : null
-      return vars.text_format(text)
+      var text = vars.html.value || vars.tooltip.value.long ? "Click for More Info" : null
+      return vars.text_format.value(text)
     },
     "format": function(value,key) {
-      if (typeof value === "number") return vars.number_format(value,key,vars)
-      if (typeof value === "string") return vars.text_format(value,key,vars)
+      if (typeof value === "number") return vars.number_format.value(value,key,vars)
+      if (typeof value === "string") return vars.text_format.value(value,key,vars)
       else return JSON.stringify(value)
     },
     "frozen": false,
@@ -399,17 +454,18 @@ d3plus.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Main drawing function
   //-------------------------------------------------------------------
-  chart = function(selection) {
+  var chart = function(selection) {
     selection.each(function() {
       
       vars.frozen = true
-
+      vars.chart = chart
+      
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If placing into a new container, remove it's contents
       // and check text direction.
       //-------------------------------------------------------------------
       if (vars.container.changed) {
-        vars.parent = d3.select(vars.container.default)
+        vars.parent = d3.select(vars.container.value)
         
         vars.parent
           .style("overflow","hidden")
@@ -429,23 +485,23 @@ d3plus.viz = function() {
       //-------------------------------------------------------------------
       var sizes = ["width","height"]
       sizes.forEach(function(s){
-        if (!vars[s].default) {
+        if (!vars[s].value) {
           var p = parseFloat(vars.parent.style(s),10)
-          vars[s].default = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
+          vars[s].value = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
         }
       })
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Run setup function if app has it
       //-------------------------------------------------------------------
-      if (d3plus.apps[vars.type.default].setup) {
-        d3plus.apps[vars.type.default].setup(vars)
+      if (d3plus.apps[vars.type.value].setup) {
+        d3plus.apps[vars.type.value].setup(vars)
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Format Data as Necessary
       //-------------------------------------------------------------------
-      d3plus.data.format(vars);
+      d3plus.data.analyze(vars);
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Determine Color Range if Necessary
@@ -455,10 +511,10 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Remove All Tooltips associated with App (and previous app)
       //-------------------------------------------------------------------
-      if (vars.type.previous && vars.type.default != vars.type.previous) {
+      if (vars.type.previous && vars.type.value != vars.type.previous) {
         d3plus.tooltip.remove(vars.type.previous);
       }
-      d3plus.tooltip.remove(vars.type.default);
+      d3plus.tooltip.remove(vars.type.value);
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Enter Elements
@@ -468,36 +524,47 @@ d3plus.viz = function() {
       vars.svg = vars.parent.selectAll("svg#d3plus").data(["d3plus"]);
       vars.svg.enter().append("svg")
         .attr("id","d3plus")
-        .attr('width',vars.width.default)
-        .attr('height',vars.height.default)
+        .attr('width',vars.width.value)
+        .attr('height',vars.height.value)
 
       // Enter BG Rectangle
       vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
       vars.g.bg.enter().append("rect")
         .attr("id","bg")
         .attr("fill",vars.style.background)
-        .attr('width',vars.width.default)
-        .attr('height',vars.height.default)
+        .attr('width',vars.width.value)
+        .attr('height',vars.height.value)
     
       // Enter Title Group
       vars.g.titles = vars.svg.selectAll("g#titles").data(["titles"])
       vars.g.titles.enter().append("g")
         .attr("id","titles")
     
+      // Enter Timeline Group
+      vars.g.timeline = vars.svg.selectAll("g#timeline").data(["timeline"])
+      vars.g.timeline.enter().append("g")
+        .attr("id","timeline")
+        .attr("transform","translate(0,"+vars.height.value+")")
+    
+      // Enter Key Group
+      vars.g.key = vars.svg.selectAll("g#key").data(["key"])
+      vars.g.key.enter().append("g")
+        .attr("id","key")
+        .attr("transform","translate(0,"+vars.height.value+")")
+    
       // Enter Footer Group
       vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"])
       vars.g.footer.enter().append("g")
         .attr("id","footer")
-        .attr("transform","translate(0,"+vars.height.default+")")
+        .attr("transform","translate(0,"+vars.height.value+")")
 
       // Enter App Clipping Mask
-      vars.g.clipping = vars.svg.selectAll("clippath#clipping").data(["clipping"])
-      vars.g.clipping.enter().append("clippath")
+      vars.g.clipping = vars.svg.selectAll("clipPath#clipping").data(["clipping"])
+      vars.g.clipping.enter().append("clipPath")
         .attr("id","clipping")
         .append("rect")
           .attr("width",vars.app_width)
           .attr("height",vars.app_height)
-          .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
     
       // Enter Container Group
       vars.g.container = vars.svg.selectAll("g#container").data(["container"])
@@ -518,9 +585,9 @@ d3plus.viz = function() {
         .attr("id","app")
         
       // Enter App Group
-      vars.g.apps[vars.type.default] = vars.g.app.selectAll("g#"+vars.type.default).data([vars.type.default])
-      vars.g.apps[vars.type.default].enter().append("g")
-        .attr("id",vars.type.default)
+      vars.g.apps[vars.type.value] = vars.g.app.selectAll("g#"+vars.type.value).data([vars.type.value])
+      vars.g.apps[vars.type.value].enter().append("g")
+        .attr("id",vars.type.value)
     
       // Enter Links Group
       vars.g.links = vars.g.zoom.selectAll("g#links").data(["links"])
@@ -538,9 +605,11 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Title and Size Calculations
       //-------------------------------------------------------------------
-      vars.app_width = vars.width.default;
-      d3plus.utils.titles(vars);
-      vars.app_height = vars.height.default - vars.margin.top - vars.margin.bottom;
+      vars.app_width = vars.width.value;
+      d3plus.ui.titles(vars);
+      d3plus.ui.legend(vars);
+      d3plus.ui.timeline(vars);
+      vars.app_height = vars.height.value - vars.margin.top - vars.margin.bottom;
       vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -549,24 +618,23 @@ d3plus.viz = function() {
       
       // Update Parent Element
       vars.parent
-        .style("width",vars.width.default+"px")
-        .style("height",vars.height.default+"px")
+        .style("width",vars.width.value+"px")
+        .style("height",vars.height.value+"px")
         
       // Update SVG
       vars.svg.transition().duration(vars.style.timing.transitions)
-          .attr('width',vars.width.default)
-          .attr('height',vars.height.default)
+          .attr('width',vars.width.value)
+          .attr('height',vars.height.value)
     
       // Update Background Rectangle
       vars.g.bg.transition().duration(vars.style.timing.transitions)
-          .attr('width',vars.width.default)
-          .attr('height',vars.height.default)
+          .attr('width',vars.width.value)
+          .attr('height',vars.height.value)
           
       // Update App Clipping Rectangle
       vars.g.clipping.select("rect").transition().duration(vars.style.timing.transitions)
         .attr("width",vars.app_width)
         .attr("height",vars.app_height)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
         
       // Update Container Groups
       vars.g.container.transition().duration(vars.style.timing.transitions)
@@ -576,12 +644,12 @@ d3plus.viz = function() {
       // Check to see if we have all required variables set
       //-------------------------------------------------------------------
       var reqs = ["id"]
-      if (d3plus.apps[vars.type.default].requirements) {
-        reqs = reqs.concat(d3plus.apps[vars.type.default].requirements)
+      if (d3plus.apps[vars.type.value].requirements) {
+        reqs = reqs.concat(d3plus.apps[vars.type.value].requirements)
       }
       var missing = []
       reqs.forEach(function(r){
-        var key = "key" in vars[r] ? "key" : "default"
+        var key = "key" in vars[r] ? "key" : "value"
         if (!vars[r][key]) missing.push(r)
       })
       if (missing.length) {
@@ -592,8 +660,8 @@ d3plus.viz = function() {
       // Check to see if we have all required libraries
       //-------------------------------------------------------------------
       var reqs = ["d3"]
-      if (d3plus.apps[vars.type.default].libs) {
-        reqs = reqs.concat(d3plus.apps[vars.type.default].libs)
+      if (d3plus.apps[vars.type.value].libs) {
+        reqs = reqs.concat(d3plus.apps[vars.type.value].libs)
       }
       var missing = []
       reqs.forEach(function(r){
@@ -606,36 +674,36 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Check to see if the requested app supports the set shape
       //-------------------------------------------------------------------
-      if (!vars.shape.default) {
-        vars.shape.default = d3plus.apps[vars.type.default].shapes[0]
+      if (!vars.shape.value) {
+        vars.shape.value = d3plus.apps[vars.type.value].shapes[0]
       }
-      else if (d3plus.apps[vars.type.default].shapes.indexOf(vars.shape.default) < 0) {
-        d3plus.console.warning("\""+vars.shape.default+"\" is not an accepted shape for the \""+vars.type.default+"\" app, please use one of the following: \""+d3plus.apps[vars.type.default].shapes.join("\", \"")+"\"")
-        vars.shape.previous = vars.shape.default
-        vars.shape.default = d3plus.apps[vars.type.default].shapes[0]
-        d3plus.console.log("Defaulting shape to \""+vars.shape.default+"\"")
+      else if (d3plus.apps[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
+        d3plus.console.warning("\""+vars.shape.value+"\" is not an accepted shape for the \""+vars.type.value+"\" app, please use one of the following: \""+d3plus.apps[vars.type.value].shapes.join("\", \"")+"\"")
+        vars.shape.previous = vars.shape.value
+        vars.shape.value = d3plus.apps[vars.type.value].shapes[0]
+        d3plus.console.log("Defaulting shape to \""+vars.shape.value+"\"")
       }
   
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Hide the previous app, if applicable
       //-------------------------------------------------------------------
-      if (vars.type.previous && vars.type.default != vars.type.previous && vars.g.apps[vars.type.previous]) {
-        if (vars.dev.default) d3plus.console.group("Hiding \"" + vars.type.previous + "\"")
+      if (vars.type.previous && vars.type.value != vars.type.previous && vars.g.apps[vars.type.previous]) {
+        if (vars.dev.value) d3plus.console.group("Hiding \"" + vars.type.previous + "\"")
         vars.g.apps[vars.type.previous].transition().duration(vars.style.timing.transitions)
           .attr("opacity",0)
-        if (vars.dev.default) d3plus.console.groupEnd();
+        if (vars.dev.value) d3plus.console.groupEnd();
       }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Draw the specified app
       //-------------------------------------------------------------------
-      if (vars.dev.default) d3plus.console.group("Drawing \"" + vars.type.default + "\"")
+      if (vars.dev.value) d3plus.console.group("Drawing \"" + vars.type.value + "\"")
       // Set vars.group to the app's specific group element
-      vars.group = vars.g.apps[vars.type.default]
+      vars.group = vars.g.apps[vars.type.value]
       // Make the group visible if there is data
       vars.group.transition().duration(vars.style.timing.transitions)
         .attr("opacity",function(){
-          if (vars.app_data.length == 0 || vars.internal_error) return 0
+          if (vars.data.app.length == 0 || vars.internal_error) return 0
           else return 1
         })
       // Reset mouse events for the app to use
@@ -649,7 +717,7 @@ d3plus.viz = function() {
         }
           
       if (!vars.internal_error) {
-        returned = d3plus.apps[vars.type.default].draw(vars)
+        returned = d3plus.apps[vars.type.value].draw(vars)
       }
           
       if (returned instanceof Array) {
@@ -665,7 +733,7 @@ d3plus.viz = function() {
       }
       
       if (!vars.returned.nodes || !(vars.returned.nodes instanceof Array) || !vars.returned.nodes.length) {
-        if (vars.dev.default) d3plus.console.log("No data returned by app.")
+        if (vars.dev.value) d3plus.console.log("No data returned by app.")
         vars.returned.nodes = [] 
       }
       
@@ -675,33 +743,33 @@ d3plus.viz = function() {
       // Draw nodes based on the data
       d3plus.shape.draw(vars,vars.returned.nodes)
         
-      if (vars.dev.default) d3plus.console.groupEnd();
+      if (vars.dev.value) d3plus.console.groupEnd();
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Check for Errors
       //-------------------------------------------------------------------
       if (!vars.internal_error) {
-        if ((!vars.error.default && !vars.app_data) || !vars.returned.nodes.length) {
+        if ((!vars.error.value && !vars.data.app) || !vars.returned.nodes.length) {
           vars.internal_error = "No Data Available"
         }
-        else if (vars.type.default == "rings" && !vars.connections[vars.focus.default]) {
-          vars.app_data = null
+        else if (vars.type.value == "rings" && !vars.connections[vars.focus.value]) {
+          vars.data.app = null
           vars.internal_error = "No Connections Available"
         }
-        else if (vars.error.default) {
-          vars.app_data = null
-          if (vars.error.default === true) {
+        else if (vars.error.value) {
+          vars.data.app = null
+          if (vars.error.value === true) {
             vars.internal_error = "Error"
           }
           else {
-            vars.internal_error = vars.error.default
+            vars.internal_error = vars.error.value
           }
         }
         else {
           vars.internal_error = null
         }
       }
-      d3plus.utils.error(vars)
+      d3plus.ui.error(vars)
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Reset all "change" values to false
@@ -740,9 +808,9 @@ d3plus.viz = function() {
     
     var csv_to_return = [],
         titles = [],
-        title = vars.title.default || "My D3plus App Data"
+        title = vars.title.value || "My D3plus App Data"
         
-    title = title.replace(/\ /g,'-')
+    title = d3plus.utils.strip(title)
 
     if (!columns) {
       var columns = [vars.id.key]
@@ -798,14 +866,14 @@ d3plus.viz = function() {
         d3plus.console.warning(".draw() only accepts booleans to change the \"autodraw\" functionality.")
       }
     }
-    if (!vars.container.default) {
+    if (!vars.container.value) {
       d3plus.console.warning("Please define a container div using .container()")
     }
-    else if (d3.select(vars.container.default).empty()) {
+    else if (d3.select(vars.container.value).empty()) {
       d3plus.console.warning("Cannot find <div> on page matching: \""+vars.container+"\"")
     }
     else {
-      d3.select(vars.container.default).call(chart)
+      d3.select(vars.container.value).call(chart)
     }
     return chart;
   }
@@ -899,7 +967,7 @@ d3plus.viz = function() {
         
         // determine default key type, if available
         if (vars[key].key !== undefined) var key_type = "key"
-        else if (vars[key].default !== undefined) var key_type = "default"
+        else if (vars[key].value !== undefined) var key_type = "value"
         else var key_type = null
         
         if ((typeof user == "object" && key_type && !user[key_type] && !(Object.keys(user)[0] in vars[key]))
@@ -919,6 +987,7 @@ d3plus.viz = function() {
           }
           else {
             if (typeof depth == "object" && !(depth instanceof Array)) {
+              
               if (object[property].object) {
                 set_value(object[property],key_type,depth)
               }
@@ -931,9 +1000,9 @@ d3plus.viz = function() {
               }
             }
             else {
-              if (["solo","mute"].indexOf(property) >= 0) {
-                object.changed = true
-              }
+              // if (["solo","mute"].indexOf(property) >= 0) {
+              //   object.changed = true
+              // }
               set_value(object,property,depth);
             }
           }
@@ -975,8 +1044,8 @@ d3plus.viz = function() {
             
           }
           
-          if (vars.dev.default || key == "dev") {
-            if (b == "default" || b == "key" || !b) {
+          if (vars.dev.value || key == "dev") {
+            if (b == "value" || b == "key" || !b) {
               var text = "\."+key+"()"
             }
             else {
@@ -987,19 +1056,16 @@ d3plus.viz = function() {
           if (a.accepted && a.accepted.indexOf(c) < 0) {
             d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+a.accepted.join("\", \"")+"\"")
           }
-          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].default == c))) {
-            if (vars.dev.default) d3plus.console.log(text+" was not updated because it did not change.")
+          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].value == c))) {
+            if (vars.dev.value) d3plus.console.log(text+" was not updated because it did not change.")
           }
           else {
             if (b == "solo" || b == "mute") {
-              if (a[b] instanceof Array) {
-                a[b] = update_array(a[b],c)
-                var arr = a[b]
-              }
-              else {
-                a[b].default = update_array(a[b].default,c)
-                var arr = a[b].default
-              }
+              
+              a[b].value = update_array(a[b].value,c)
+              a[b].changed = true
+              var arr = a[b].value
+                
               if (key != "time") {
                 if (arr.length && vars[b].indexOf(key) < 0) {
                   vars[b].push(key)
@@ -1008,21 +1074,22 @@ d3plus.viz = function() {
                   vars[b].splice(vars[b].indexOf(key), 1)
                 }
               }
+              
             }
             else if (key == "id" && b == "key") {
 
               if (c instanceof Array) {
                 vars.id.nesting = c
-                if (vars.depth.default < c.length) vars.id.key = c[vars.depth.default]
+                if (vars.depth.value < c.length) vars.id.key = c[vars.depth.value]
                 else {
                   vars.id.key = c[0]
-                  vars.depth.default = 0
+                  vars.depth.value = 0
                 }
               }
               else {
                 vars.id.key = c
                 vars.id.nesting = [c]
-                vars.depth.default = 0
+                vars.depth.value = 0
               }
               a.changed = true
                 
@@ -1047,10 +1114,10 @@ d3plus.viz = function() {
             }
             else if (key == "depth") {
               // Set appropriate depth and id
-              if (c >= vars.id.nesting.length) vars.depth.default = vars.id.nesting.length-1
-              else if (c < 0) vars.depth.default = 0
-              else vars.depth.default = c;
-              vars.id.key = vars.id.nesting[vars.depth.default]
+              if (c >= vars.id.nesting.length) vars.depth.value = vars.id.nesting.length-1
+              else if (c < 0) vars.depth.value = 0
+              else vars.depth.value = c;
+              vars.id.key = vars.id.nesting[vars.depth.value]
               
               if (vars.text.array) {
 
@@ -1068,7 +1135,7 @@ d3plus.viz = function() {
             else if (key == "aggs") {
               for (agg in c) {
                 if (a[b][agg] && a[b][agg] == c[agg]) {
-                  if (vars.dev.default) d3plus.console.log("Aggregation for \""+agg+"\" is already set to \""+c[agg]+"\"")
+                  if (vars.dev.value) d3plus.console.log("Aggregation for \""+agg+"\" is already set to \""+c[agg]+"\"")
                 }
                 else {
                   a[b][agg] = c[agg]
@@ -1077,8 +1144,8 @@ d3plus.viz = function() {
               }
             }
             else {
-              if (typeof a[b] == "object" && a[b] != null && (a[b].key !== undefined || a[b].default !== undefined)) {
-                var k = a[b].key !== undefined ? "key" : "default";
+              if (typeof a[b] == "object" && a[b] != null && (a[b].key !== undefined || a[b].value !== undefined)) {
+                var k = a[b].key !== undefined ? "key" : "value";
                 a = a[b]
                 b = k
               }
@@ -1087,8 +1154,8 @@ d3plus.viz = function() {
               a.changed = true
             }
             
-            if ((vars.dev.default || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
-              if (JSON.stringify(a[b]).length < 260) {
+            if ((vars.dev.value || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
+              if (typeof a[b] != "function" && JSON.stringify(a[b]).length < 260) {
                 d3plus.console.log(text+" has been set to "+JSON.stringify(a[b])+".")
               }
               else {
@@ -1124,36 +1191,36 @@ d3plus.apps.bubbles.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Test for labels
   //-------------------------------------------------------------------
-  var label_height = vars.labels.default && !vars.small ? 50 : 0
+  var label_height = vars.labels.value && !vars.small ? 50 : 0
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sort Data
   //-------------------------------------------------------------------
   var order = vars.order.key || vars.size.key
-  vars.app_data.sort(function(a,b){
+  vars.data.app.sort(function(a,b){
     var a_value = d3plus.variable.value(vars,a,order)
     var b_value = d3plus.variable.value(vars,b,order)
-    return vars.order.sort.default == "asc" ? a_value-b_value : b_value-a_value
+    return vars.order.sort.value == "asc" ? a_value-b_value : b_value-a_value
   })
     
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate rows and columns
   //-------------------------------------------------------------------
-  if(vars.app_data.length == 1) {
+  if(vars.data.app.length == 1) {
     var columns = 1,
         rows = 1;
   }
-  else if (vars.app_data.length < 4) {
-    var columns = vars.app_data.length,
+  else if (vars.data.app.length < 4) {
+    var columns = vars.data.app.length,
         rows = 1;
   } 
   else {
-    var rows = Math.ceil(Math.sqrt(vars.app_data.length/(vars.app_width/vars.app_height))),
-        columns = Math.ceil(Math.sqrt(vars.app_data.length*(vars.app_width/vars.app_height)));
+    var rows = Math.ceil(Math.sqrt(vars.data.app.length/(vars.app_width/vars.app_height))),
+        columns = Math.ceil(Math.sqrt(vars.data.app.length*(vars.app_width/vars.app_height)));
   }
 
-  if (vars.app_data.length > 0) {
-    while ((rows-1)*columns >= vars.app_data.length) rows--
+  if (vars.data.app.length > 0) {
+    while ((rows-1)*columns >= vars.data.app.length) rows--
   }
   
   var column_width = vars.app_width/columns,
@@ -1162,14 +1229,14 @@ d3plus.apps.bubbles.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scale
   //-------------------------------------------------------------------
-  if (!vars.app_data) vars.app_data = []
+  if (!vars.data.app) vars.data.app = []
   
-  var domain_min = d3.min(vars.app_data, function(d){ 
+  var domain_min = d3.min(vars.data.app, function(d){ 
     if (!vars.size.key) return 0
     return d3plus.variable.value(vars,d,vars.size.key,null,"min")
   })
   
-  var domain_max = d3.max(vars.app_data, function(d){ 
+  var domain_max = d3.max(vars.data.app, function(d){ 
     if (!vars.size.key) return 0
     return d3plus.variable.value(vars,d,vars.size.key)
   })
@@ -1180,7 +1247,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   var size_max = (d3.min([column_width,column_height])/2)-(padding*2)
   size_max -= label_height
   
-  var size = d3.scale[vars.size.scale.default]()
+  var size = d3.scale[vars.size.scale.value]()
     .domain([domain_min,domain_max])
     .range([size_min,size_max])
   
@@ -1201,7 +1268,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   var data = []
   
   var row = 0
-  vars.app_data.forEach(function(d,i){
+  vars.data.app.forEach(function(d,i){
     
     var temp = pack.nodes(d)
     
@@ -1213,7 +1280,7 @@ d3plus.apps.bubbles.draw = function(vars) {
       if (!t.d3plus.depth) t.d3plus.depth = t.depth
       t.xoffset = xoffset
       t.yoffset = yoffset+label_height
-      if (t.depth < vars.depth.default) {
+      if (t.depth < vars.depth.value) {
         t.d3plus.static = true
       }
       else {
@@ -1355,7 +1422,7 @@ d3plus.apps.bubbles.draw = function(vars) {
 //     
 //   })
 //   
-//   vars.app_data.forEach(function(d){
+//   vars.data.app.forEach(function(d){
 //     var parent = data_packed.filter(function(p){ 
 //       if (d3plus.variable.value(vars,d[vars.id],vars.grouping) === false) var key = "false";
 //       else if (d3plus.variable.value(vars,d[vars.id],vars.grouping) === true) var key = "true";
@@ -1496,7 +1563,7 @@ d3plus.apps.chart.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If there is data, run the needed calculations
   //-------------------------------------------------------------------
-  if (vars.app_data.length) {
+  if (vars.data.app.length) {
     
     if (!vars.tickValues) vars.tickValues = {}
 
@@ -1509,25 +1576,25 @@ d3plus.apps.chart.draw = function(vars) {
     
     vars.axes.values.forEach(function(axis){
       
-      if (vars[axis].stacked.default) {
+      if (vars[axis].stacked.value) {
         vars.stacked_axis = axis
       }
-      if (!vars.continuous_axis && vars[axis].scale.default == "continuous") {
+      if (!vars.continuous_axis && vars[axis].scale.value == "continuous") {
         vars.continuous_axis = axis
         vars.opp_axis = axis == "x" ? "y" : "x"
       }
       
-      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || !vars.axes.static.default) {
+      if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || vars.time.fixed.value) {
 
-        if (vars.dev.default) d3plus.console.time("determining "+axis+"-axis")
-        if (vars[axis].scale.default == "share") {
+        if (vars.dev.value) d3plus.console.time("determining "+axis+"-axis")
+        if (vars[axis].scale.value == "share") {
           vars[axis+"_range"] = [0,1]
           vars.tickValues[axis] = d3plus.utils.buckets([0,1],11)
           vars.stacked_axis = axis
         }
-        else if (vars[axis].stacked.default) {
-          if (!vars.axes.static.default) {
-            var range_data = vars.app_data
+        else if (vars[axis].stacked.value) {
+          if (vars.time.fixed.value) {
+            var range_data = vars.data.app
           }
           else {
             var range_data = vars.data.restricted.all
@@ -1545,16 +1612,16 @@ d3plus.apps.chart.draw = function(vars) {
         }
         else if (vars[axis].domain instanceof Array) {
           vars[axis+"_range"] = vars[axis].domain
-          vars.tickValues[axis] = d3plus.utils.uniques(vars.app_data,vars[axis].key)
+          vars.tickValues[axis] = d3plus.utils.uniques(vars.data.app,vars[axis].key)
           vars.tickValues[axis] = vars.tickValues[axis].filter(function(t){
             return t >= vars[axis+"_range"][0] && t <= vars[axis+"_range"][1]
           })
         }
-        else if (!vars.axes.static.default) {
-          vars[axis+"_range"] = d3.extent(vars.app_data,function(d){
+        else if (vars.time.fixed.value) {
+          vars[axis+"_range"] = d3.extent(vars.data.app,function(d){
             return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
           })
-          vars.tickValues[axis] = d3plus.utils.uniques(vars.app_data,vars[axis].key)
+          vars.tickValues[axis] = d3plus.utils.uniques(vars.data.app,vars[axis].key)
         }
         else {
           var all_depths = []
@@ -1576,7 +1643,7 @@ d3plus.apps.chart.draw = function(vars) {
         // reverse Y axis
         if (axis == "y") vars.y_range = vars.y_range.reverse()
       
-        if (vars.dev.default) d3plus.console.timeEnd("determining "+axis+"-axis")
+        if (vars.dev.value) d3plus.console.timeEnd("determining "+axis+"-axis")
       }
       else if (!vars[axis+"_range"]) {
         vars[axis+"_range"] = [-1,1]
@@ -1589,7 +1656,7 @@ d3plus.apps.chart.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mirror axes, if applicable
     //-------------------------------------------------------------------
-    if (vars.axes.mirror.default) {
+    if (vars.axes.mirror.value) {
       var domains = vars.y_range.concat(vars.x_range)
       vars.x_range = d3.extent(domains)
       vars.y_range = d3.extent(domains).reverse()
@@ -1600,9 +1667,9 @@ d3plus.apps.chart.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Filter data to only include values within the axes
     //-------------------------------------------------------------------
-    if (vars.dev.default) d3plus.console.time("removing data outside of axes")
-    var old_length = vars.app_data.length
-    var data = vars.app_data.filter(function(d){
+    if (vars.dev.value) d3plus.console.time("removing data outside of axes")
+    var old_length = vars.data.app.length
+    var data = vars.data.app.filter(function(d){
       var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
       var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
       if (y_include) {
@@ -1611,9 +1678,9 @@ d3plus.apps.chart.draw = function(vars) {
       }
       else return false
     })
-    if (vars.dev.default) d3plus.console.timeEnd("removing data outside of axes")
+    if (vars.dev.value) d3plus.console.timeEnd("removing data outside of axes")
     var removed = old_length - data.length
-    if (removed && vars.dev.default) d3plus.console.log("removed "+removed+" nodes")
+    if (removed && vars.dev.value) d3plus.console.log("removed "+removed+" nodes")
     
     //===================================================================
   
@@ -1623,10 +1690,10 @@ d3plus.apps.chart.draw = function(vars) {
   
     if (data) {
 
-      if (vars.dev.default) d3plus.console.time("determining size scale")
+      if (vars.dev.value) d3plus.console.time("determining size scale")
       if (vars.size.key) {
-        if (!vars.axes.static.default) {
-          var size_domain = d3.extent(vars.app_data,function(d){
+        if (vars.time.fixed.value) {
+          var size_domain = d3.extent(vars.data.app,function(d){
             var val = d3plus.variable.value(vars,d,vars.size.key)
             return val == 0 ? null : val
           })
@@ -1654,11 +1721,11 @@ d3plus.apps.chart.draw = function(vars) {
   
       var size_range = [min_size,max_size]
     
-      var radius = d3.scale[vars.size.scale.default]()
+      var radius = d3.scale[vars.size.scale.value]()
         .domain(size_domain)
         .range(size_range)
       
-      if (vars.dev.default) d3plus.console.timeEnd("determining size scale")
+      if (vars.dev.value) d3plus.console.timeEnd("determining size scale")
       
     }
     
@@ -1673,11 +1740,11 @@ d3plus.apps.chart.draw = function(vars) {
       // Create Axes
       var range_max = axis == "x" ? vars.graph.width : vars.graph.height
       
-      if (["continuous","share"].indexOf(vars[axis].scale.default) >= 0) {
+      if (["continuous","share"].indexOf(vars[axis].scale.value) >= 0) {
         var s = "linear"
       }
       else {
-        var s = vars[axis].scale.default
+        var s = vars[axis].scale.value
       }
       
       vars[axis+"_scale"] = d3.scale[s]()
@@ -1685,10 +1752,10 @@ d3plus.apps.chart.draw = function(vars) {
         .range([0,range_max])
         
       // set buffer room (take into account largest size var)
-      var continuous_buffer = ["continuous","share"].indexOf(vars[axis].scale.default) >= 0
-      if (["square","circle","donut"].indexOf(vars.shape.default) >= 0 && !continuous_buffer) {
+      var continuous_buffer = ["continuous","share"].indexOf(vars[axis].scale.value) >= 0
+      if (["square","circle","donut"].indexOf(vars.shape.value) >= 0 && !continuous_buffer) {
 
-        if (vars[axis].scale.default != "log") {
+        if (vars[axis].scale.value != "log") {
     
           var scale = vars[axis+"_scale"]
           var inverse_scale = d3.scale[s]()
@@ -1720,10 +1787,10 @@ d3plus.apps.chart.draw = function(vars) {
         .scale(vars[axis+"_scale"])
         .tickFormat(function(d, i) {
           
-          if ((vars[axis].scale.default == "log" && d.toString().charAt(0) == "1")
-              || vars[axis].scale.default != "log") {
+          if ((vars[axis].scale.value == "log" && d.toString().charAt(0) == "1")
+              || vars[axis].scale.value != "log") {
             
-            if (vars[axis].scale.default == "share") {
+            if (vars[axis].scale.value == "share") {
               var text = d*100+"%"
             }
             else {
@@ -1766,7 +1833,7 @@ d3plus.apps.chart.draw = function(vars) {
       
         });
         
-      if (vars[axis].scale.default == "continuous" && vars.tickValues[axis]) {
+      if (vars[axis].scale.value == "continuous" && vars.tickValues[axis]) {
         vars[axis+"_axis"].tickValues(vars.tickValues[axis])
       }
     
@@ -1785,7 +1852,7 @@ d3plus.apps.chart.draw = function(vars) {
       .attr("stroke-width",vars.style.ticks.width)
       .attr("shape-rendering",vars.style.rendering)
       .style("opacity",function(d){
-        var lighter = vars[axis].scale.default == "log" && d.toString().charAt(0) != "1"
+        var lighter = vars[axis].scale.value == "log" && d.toString().charAt(0) != "1"
         return lighter ? 0.25 : 1
       })
   }
@@ -1923,7 +1990,7 @@ d3plus.apps.chart.draw = function(vars) {
   // Update Mirror Triangle
   mirror.transition().duration(vars.style.timing.transitions)
     .attr("opacity",function(){
-      return vars.axes.mirror.default ? 1 : 0
+      return vars.axes.mirror.value ? 1 : 0
     })
     .attr("d",function(){
       var w = vars.graph.width, h = vars.graph.height
@@ -1981,7 +2048,7 @@ d3plus.apps.chart.draw = function(vars) {
     .attr('x', vars.app_width/2)
     .attr('y', vars.app_height-10)
     .attr("opacity",function(){
-      if (vars.app_data.length == 0) return 0
+      if (vars.data.app.length == 0) return 0
       else return 1
     })
 
@@ -1990,7 +2057,7 @@ d3plus.apps.chart.draw = function(vars) {
     .attr('y', 15)
     .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
     .attr("opacity",function(){
-      if (vars.app_data.length == 0) return 0
+      if (vars.data.app.length == 0) return 0
       else return 1
     })
 
@@ -2087,7 +2154,7 @@ d3plus.apps.chart.draw = function(vars) {
   // Format Data for Plotting
   //-------------------------------------------------------------------
   
-  if (["line","area"].indexOf(vars.shape.default) >= 0) {
+  if (["line","area"].indexOf(vars.shape.value) >= 0) {
     radius.range([2,2])
   }
     
@@ -2107,7 +2174,7 @@ d3plus.apps.chart.draw = function(vars) {
       d.d3plus.y = vars.y_scale(d3plus.variable.value(vars,d,vars.y.key))
       d.d3plus.y += vars.axis_offset.y
       
-      if (vars.shape.default == "area") {
+      if (vars.shape.value == "area") {
         d.d3plus[vars.opp_axis+"0"] = vars[vars.opp_axis+"_scale"].range()[1]
         d.d3plus[vars.opp_axis+"0"] += vars.axis_offset[vars.opp_axis]
       }
@@ -2116,13 +2183,13 @@ d3plus.apps.chart.draw = function(vars) {
     
   })
   
-  if (["line","area"].indexOf(vars.shape.default) >= 0) {
+  if (["line","area"].indexOf(vars.shape.value) >= 0) {
     
     data = d3.nest()
       .key(function(d){
         var id = d3plus.variable.value(vars,d,vars.id.key),
             depth = d.d3plus.depth ? d.d3plus.depth : 0
-        return id+"_"+depth+"_"+vars.shape.default
+        return id+"_"+depth+"_"+vars.shape.value
       })
       .rollup(function(leaves){
         
@@ -2146,13 +2213,13 @@ d3plus.apps.chart.draw = function(vars) {
               obj.d3plus[vars.opp_axis+"0"] = obj.d3plus[vars.opp_axis]
             }
             
-            if (vars[vars.continuous_axis].zerofill.default || vars[vars.opp_axis].stacked.default) {
+            if (vars[vars.continuous_axis].zerofill.value || vars[vars.opp_axis].stacked.value) {
               var position = vars[vars.continuous_axis+"_scale"](v)
               position += vars.axis_offset[vars.continuous_axis]
               obj.d3plus[vars.continuous_axis] = position
               leaves.push(obj)
             }
-            else if (vars.shape.default != "line") {
+            else if (vars.shape.value != "line") {
               if (!previousMissing && i > 0) {
                 var position = vars[vars.continuous_axis+"_scale"](arr[i-1])
                 position += vars.axis_offset[vars.continuous_axis]
@@ -2188,7 +2255,7 @@ d3plus.apps.chart.draw = function(vars) {
       
     data.forEach(function(d,i){
       vars.id.nesting.forEach(function(n,i){
-        if (i <= vars.depth.default && !d[n]) {
+        if (i <= vars.depth.value && !d[n]) {
           d[n] = d3plus.utils.uniques(d.values,n).filter(function(unique){
             return unique && unique != "undefined"
           })[0]
@@ -2264,8 +2331,8 @@ d3plus.apps.chart.draw = function(vars) {
   
       }
       
-      if(a_value<b_value) return vars.order.sort.default == "desc" ? -1 : 1;
-      if(a_value>b_value) return vars.order.sort.default == "desc" ? 1 : -1;
+      if(a_value<b_value) return vars.order.sort.value == "desc" ? -1 : 1;
+      if(a_value>b_value) return vars.order.sort.value == "desc" ? 1 : -1;
   
       return 0;
 
@@ -2286,7 +2353,7 @@ d3plus.apps.chart.draw = function(vars) {
       .out(function(d,y0,y){
         var flip = vars.graph.height
         
-        if (vars[vars.stacked_axis].scale.default == "share") {
+        if (vars[vars.stacked_axis].scale.value == "share") {
           d.d3plus.y0 = (1-y0)*flip
           d.d3plus.y = d.d3plus.y0-(y*flip)
         }
@@ -2298,12 +2365,12 @@ d3plus.apps.chart.draw = function(vars) {
         d.d3plus.y0 += (vars.margin.top+vars.graph.margin.top)
       })
       
-    var offset = vars[vars.stacked_axis].scale.default == "share" ? "expand" : "zero";
+    var offset = vars[vars.stacked_axis].scale.value == "share" ? "expand" : "zero";
 
     var data = stack.offset(offset)(data)
       
   }
-  else if (["area","line"].indexOf(vars.shape.default) < 0) {
+  else if (["area","line"].indexOf(vars.shape.value) < 0) {
     
     function data_tick(l,axis) {
       l
@@ -2366,10 +2433,10 @@ d3plus.apps.chart.draw = function(vars) {
   
   function axis_lines(node) {
     
-    var click_remove = d3.event.type == "click" && (vars.tooltip.default.long || vars.tooltip.html),
+    var click_remove = d3.event.type == "click" && (vars.tooltip.value.long || vars.html.value),
         create = ["mouseover","mousemove"].indexOf(d3.event.type) >= 0
     
-    if (!click_remove && create && vars.shape.default != "area") {
+    if (!click_remove && create && vars.shape.value != "area") {
     
       if (node.data) var node = node.data
       
@@ -2542,9 +2609,9 @@ d3plus.apps.geo_map.scale = 1
 
 d3plus.apps.geo_map.draw = function(vars) {
   
-  topojson.presimplify(vars.coords.default)
+  topojson.presimplify(vars.coords.value)
   
-  var coords = vars.coords.default,
+  var coords = vars.coords.value,
       key = Object.keys(coords.objects)[0]
       topo = topojson.feature(coords, coords.objects[key]),
       features = topo.features
@@ -2564,7 +2631,7 @@ d3plus.apps.line.shapes = ["line"];
 
 d3plus.apps.line.setup = function(vars) {
 
-  vars.x.scale.default = "continuous"
+  vars.x.scale.value = "continuous"
   
 }
 
@@ -2585,8 +2652,8 @@ d3plus.apps.network.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Use filtered lists if they are available
   //-------------------------------------------------------------------
-  var nodes = vars.nodes.restricted || vars.nodes.default,
-      links = vars.links.restricted || vars.links.default
+  var nodes = vars.nodes.restricted || vars.nodes.value,
+      links = vars.links.restricted || vars.links.value
       
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Determine Size Scale
@@ -2617,7 +2684,7 @@ d3plus.apps.network.draw = function(vars) {
     .domain(y_range)
     .range([offset_top, vars.app_height-offset_top])
     
-  var val_range = d3.extent(d3.values(vars.app_data), function(d){
+  var val_range = d3.extent(d3.values(vars.data.app), function(d){
     var val = d3plus.variable.value(vars,d,vars.size.key)
     return val == 0 ? null : val
   });
@@ -2646,7 +2713,7 @@ d3plus.apps.network.draw = function(vars) {
   scale.y.range([offset_top+(max_size*1.5), vars.app_height-(max_size*1.5)-offset_top])
   
   // Create size scale
-  scale.r = d3.scale[vars.size.scale.default]()
+  scale.r = d3.scale[vars.size.scale.value]()
     .domain(val_range)
     .range([min_size, max_size])
   
@@ -2655,8 +2722,8 @@ d3plus.apps.network.draw = function(vars) {
   //-------------------------------------------------------------------
   var data = [], lookup = {}
   nodes.forEach(function(n){
-    if (vars.app_data[n[vars.id.key]]) {
-      var obj = d3plus.utils.merge(n,vars.app_data[n[vars.id.key]])
+    if (vars.data.app[n[vars.id.key]]) {
+      var obj = d3plus.utils.merge(n,vars.data.app[n[vars.id.key]])
     }
     else {
       var obj = d3plus.utils.copy(n)
@@ -2721,7 +2788,7 @@ d3plus.apps.network.draw = function(vars) {
   //       if (zoom_behavior.scale() < zoom_extent[0]*2) multiplier = zoom_extent[0]/zoom_behavior.scale()
   //       else multiplier = 0.5
   //     } 
-  //     else if (direction == vars.focus.default) {
+  //     else if (direction == vars.focus.value) {
   //       var x_bounds = [scale.x(highlight_extent.x[0]),scale.x(highlight_extent.x[1])],
   //           y_bounds = [scale.y(highlight_extent.y[0]),scale.y(highlight_extent.y[1])]
   //           
@@ -2748,7 +2815,7 @@ d3plus.apps.network.draw = function(vars) {
   //       translate = [offset_x+offset_left,offset_y]
   //     } 
   //     else if (direction == "reset") {
-  //       vars.focus.default = null
+  //       vars.focus.value = null
   //       translate = [0,0]
   //       evt_scale = 1
   //     }
@@ -2808,14 +2875,14 @@ d3plus.apps.network.draw = function(vars) {
   // 
   // vars.update = function() {
   //   // If highlight variable has ACTUALLY changed, do this stuff
-  //   if (last_highlight != vars.focus.default) {
+  //   if (last_highlight != vars.focus.value) {
   //     
   //     // Remove all tooltips on page
-  //     d3plus.tooltip.remove(vars.type.default)
+  //     d3plus.tooltip.remove(vars.type.value)
   //     d3.select("g.highlight").selectAll("*").remove()
   //     d3.select("g.hover").selectAll("*").remove()
   //     
-  //     if (vars.focus.default) {
+  //     if (vars.focus.value) {
   //                         
   //       create_nodes("highlight")
   //       
@@ -2826,7 +2893,7 @@ d3plus.apps.network.draw = function(vars) {
   //     
   //     node.call(node_color)
   //     
-  //     last_highlight = vars.focus.default
+  //     last_highlight = vars.focus.value
   //   }
   // 
   //   // If hover variable has ACTUALLY changed, do this stuff
@@ -2835,7 +2902,7 @@ d3plus.apps.network.draw = function(vars) {
   //     d3.select("g.hover").selectAll("*").remove()
   //     
   //     // If a new hover element exists, create it
-  //     if (hover && hover != vars.focus.default) {
+  //     if (hover && hover != vars.focus.value) {
   //       create_nodes("hover")
   //     }
   //     
@@ -2846,7 +2913,7 @@ d3plus.apps.network.draw = function(vars) {
   //   function create_nodes(group) {
   //     
   //     if (group == "highlight") {
-  //       var c = vars.focus.default
+  //       var c = vars.focus.value
   //     }
   //     else {
   //       var c = hover
@@ -2854,7 +2921,7 @@ d3plus.apps.network.draw = function(vars) {
   //     
   //     var node_data = nodes.filter(function(x){return x[vars.id] == c})
   //     
-  //     if (group == "highlight" || !vars.focus.default) {
+  //     if (group == "highlight" || !vars.focus.value) {
   // 
   //       var prim_nodes = [],
   //           prim_links = [];
@@ -2886,9 +2953,9 @@ d3plus.apps.network.draw = function(vars) {
   //             var x_pos = vars.app_width-info_width-5
   //           }
   //        
-  //           var prod = nodes.filter(function(n){return n[vars.id] == vars.focus.default})[0]
+  //           var prod = nodes.filter(function(n){return n[vars.id] == vars.focus.value})[0]
   //         
-  //           var tooltip_data = d3plus.tooltip.data(vars,vars.focus.default)
+  //           var tooltip_data = d3plus.tooltip.data(vars,vars.focus.value)
   //         
   //           var tooltip_appends = "<div class='d3plus_tooltip_data_title'>"
   //           tooltip_appends += vars.format("Primary Connections")
@@ -2911,13 +2978,13 @@ d3plus.apps.network.draw = function(vars) {
   //             tooltip_appends += "</div>"
   //           })
   //           
-  //           d3plus.tooltip.remove(vars.type.default)
+  //           d3plus.tooltip.remove(vars.type.value)
   //         
   //           d3plus.tooltip.create({
   //             "data": tooltip_data,
-  //             "title": d3plus.variable.value(vars,vars.focus.default,vars.text.key),
-  //             "color": d3plus.variable.color(vars,vars.focus.default),
-  //             "icon": d3plus.variable.value(vars,vars.focus.default,"icon"),
+  //             "title": d3plus.variable.value(vars,vars.focus.value,vars.text.key),
+  //             "color": d3plus.variable.color(vars,vars.focus.value),
+  //             "icon": d3plus.variable.value(vars,vars.focus.value,"icon"),
   //             "style": vars.style.icon,
   //             "x": x_pos,
   //             "y": vars.margin.top+5,
@@ -2928,12 +2995,12 @@ d3plus.apps.network.draw = function(vars) {
   //             "mouseevents": true,
   //             "parent": vars.parent,
   //             "background": vars.style.background,
-  //             "id": vars.type.default
+  //             "id": vars.type.value
   //           })
   //           
   //         }
   //         
-  //         var html = vars.click.default ? vars.click.default(vars.focus.default) : ""
+  //         var html = vars.click.value ? vars.click.value(vars.focus.value) : ""
   //   
   //         if (typeof html == "string") make_tooltip(html)
   //         else {
@@ -2999,13 +3066,13 @@ d3plus.apps.network.draw = function(vars) {
 //     .attr("width", vars.app_width)
 //     .attr("height", vars.app_height)
 //     .on(d3plus.evt.over,function(d){
-//       if (!vars.focus.default && hover) {
+//       if (!vars.focus.value && hover) {
 //         hover = null;
 //         vars.update();
 //       }
 //     })
 //     .on(d3plus.evt.click,function(d){
-//       // vars.focus.default = null;
+//       // vars.focus.value = null;
 //       // vars.zoom("reset");
 //       // vars.update();
 //     })
@@ -3026,7 +3093,7 @@ d3plus.apps.network.draw = function(vars) {
 //       }
 //     });
 //     
-//   if (!vars.zoom.scroll.default) {
+//   if (!vars.zoom.scroll.value) {
 //     d3.select(d3.select("g.viz").node().parentNode)
 //       .on("mousewheel.zoom", null)
 //       .on("DOMMouseScroll.zoom", null)
@@ -3102,13 +3169,13 @@ d3plus.apps.network.draw = function(vars) {
 // 
 //   //===================================================================
 //   
-//   if (vars.focus.default) {
+//   if (vars.focus.value) {
 //     var present = false;
 //     nodes.forEach(function(d){
-//       if (d[vars.id] == vars.focus.default) present = true;
+//       if (d[vars.id] == vars.focus.value) present = true;
 //     })
 //     if (!present) {
-//       vars.focus.default = null;
+//       vars.focus.value = null;
 //     }
 //   }
 //   vars.update();
@@ -3125,7 +3192,7 @@ d3plus.apps.network.draw = function(vars) {
 //   function link_events(l) {
 //     l
 //       .on(d3plus.evt.click,function(d){
-//         vars.focus.default = null;
+//         vars.focus.value = null;
 //         vars.zoom("reset");
 //         vars.update();
 //       })
@@ -3152,7 +3219,7 @@ d3plus.apps.network.draw = function(vars) {
 //           d3.select(this).style("cursor","-webkit-zoom-in")
 //         }
 //           
-//         if (d[vars.id] == vars.focus.default && !d3plus.ie) {
+//         if (d[vars.id] == vars.focus.value && !d3plus.ie) {
 //           d3.select(this).style("cursor","-moz-zoom-out")
 //           d3.select(this).style("cursor","-webkit-zoom-out")
 //         }
@@ -3187,13 +3254,13 @@ d3plus.apps.network.draw = function(vars) {
 // 
 //         // If there is no highlighted node, 
 //         // or the hover node is not the highlighted node
-//         if (!vars.focus.default || vars.focus.default != d[vars.id]) {
-//           vars.focus.default = d[vars.id];
+//         if (!vars.focus.value || vars.focus.value != d[vars.id]) {
+//           vars.focus.value = d[vars.id];
 //         } 
 //         
 //         // Else, the user is clicking on the highlighted node.
 //         else {
-//           vars.focus.default = null;
+//           vars.focus.value = null;
 //         }
 //         
 //         vars.update();
@@ -3210,7 +3277,7 @@ d3plus.apps.network.draw = function(vars) {
 //             corner = Math.ceil(3/zoom_behavior.scale())
 //             value = d3plus.variable.value(vars,d[vars.id],vars.size.key),
 //             size = value > 0 ? scale.r(value) : scale.r(val_range[0])
-//         if (font_size < size || d[vars.id] == hover || d[vars.id] == vars.focus.default) {
+//         if (font_size < size || d[vars.id] == hover || d[vars.id] == vars.focus.value) {
 //           d3.select(this.parentNode).append("text")
 //             .attr("pointer-events","none")
 //             .attr("x",scale.x(d.x))
@@ -3290,26 +3357,26 @@ d3plus.apps.rings.scale = 1.05
 d3plus.apps.rings.draw = function(vars) {
       
   var radius = d3.min([vars.app_height,vars.app_width])/2,
-      ring_width = vars.small || !vars.labels.default ? radius/2.25 : radius/3,
+      ring_width = vars.small || !vars.labels.value ? radius/2.25 : radius/3,
       links = [],
       nodes = []
   
-  if (vars.app_data) {
+  if (vars.data.app) {
     
-    var center = vars.app_data[vars.focus.default]
+    var center = vars.data.app[vars.focus.value]
     center.d3plus.x = vars.app_width/2
     center.d3plus.y = vars.app_height/2
     center.d3plus.r = ring_width/2
     
     var primaries = [], claimed = []
-    vars.connections[vars.focus.default].forEach(function(c){
-      var n = vars.app_data[c[vars.id.key]]
+    vars.connections[vars.focus.value].forEach(function(c){
+      var n = vars.data.app[c[vars.id.key]]
       if (!n) {
         n = {"d3plus": {}}
         n[vars.id.key] = c[vars.id.key]
       }
       n.d3plus.children = vars.connections[n[vars.id.key]].filter(function(c){
-        return c[vars.id.key] != vars.focus.default
+        return c[vars.id.key] != vars.focus.value
       })
       claimed.push(n[vars.id.key])
       primaries.push(n)
@@ -3357,8 +3424,8 @@ d3plus.apps.rings.draw = function(vars) {
         b_value = d3plus.variable.value(vars,b,sort)
       }
     
-      if(a_value<b_value) return vars.order.sort.default == "desc" ? -1 : 1;
-      if(a_value>b_value) return vars.order.sort.default == "desc" ? 1 : -1;
+      if(a_value<b_value) return vars.order.sort.value == "desc" ? -1 : 1;
+      if(a_value>b_value) return vars.order.sort.value == "desc" ? 1 : -1;
         
     }
     
@@ -3434,7 +3501,7 @@ d3plus.apps.rings.draw = function(vars) {
       p.d3plus.children.sort(sort)
       
       p.d3plus.children.forEach(function(c,i){
-        var d = vars.app_data[c[vars.id.key]],
+        var d = vars.data.app[c[vars.id.key]],
             s = radian/total
             
         if (!d) {
@@ -3499,9 +3566,9 @@ d3plus.apps.rings.draw = function(vars) {
     
     nodes.forEach(function(n) {
       
-      if (n[vars.id.key] != vars.focus.default) {
+      if (n[vars.id.key] != vars.focus.value) {
         
-        if (vars.labels.default) {
+        if (vars.labels.value) {
           var angle = n.d3plus.radians*(180/Math.PI),
               width = ring_width-(vars.style.labels.padding*2)
           if (angle < -90 || angle > 90) {
@@ -3514,7 +3581,7 @@ d3plus.apps.rings.draw = function(vars) {
                 anchor = "start"
           }
           
-          n.d3plus_label = {
+          n.d3plus.label = {
             "x": buffer,
             "y": 0,
             "w": width,
@@ -3545,9 +3612,9 @@ d3plus.apps.stacked.shapes = ["area"];
 
 d3plus.apps.stacked.setup = function(vars) {
 
-  vars.x.scale.default = "continuous"
-  vars.x.zerofill.default = true
-  vars.y.stacked.default = true
+  vars.x.scale.value = "continuous"
+  vars.x.zerofill.value = true
+  vars.y.stacked.value = true
   
 }
 
@@ -3571,7 +3638,7 @@ d3plus.apps.tree_map.draw = function(vars) {
     .padding(1)
     .sort(function(a, b) { return a.value - b.value; })
     .value(function(d) { return d3plus.variable.value(vars,d,vars.size.key); })
-    .nodes({"name":"root", "children": vars.app_data})
+    .nodes({"name":"root", "children": vars.data.app})
     .filter(function(d) {
       return !d.children && d.area;
     })
@@ -3597,132 +3664,12 @@ d3plus.apps.tree_map.draw = function(vars) {
   
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Sets color range of data, if applicable
+// Analyzes Raw Data
 //-------------------------------------------------------------------
-d3plus.data.color = function(vars) {
-  
-  if (vars.color.key && typeof vars.color.key == "object") {
-    if (vars.color.key[vars.id.key]) {
-      var color_id = vars.color.key[vars.id.key]
-    }
-    else {
-      var color_id = vars.color.key[Object.keys(vars.color.key)[0]]
-    }
-  }
-  else {
-    var color_id = vars.color.key
-  }
-  
-  if (vars.data.default && vars.color.key && vars.color.changed && vars.data.keys[color_id] == "number") {
 
-    if (vars.dev.default) d3plus.console.group("Calculating Color Range")
-    
-    var data_range = []
-    vars.color_domain = null
-    
-    if (vars.dev.default) d3plus.console.time("get data range")
-    
-    vars.data.default.forEach(function(d){
-      var val = parseFloat(d3plus.variable.value(vars,d,vars.color.key))
-      if (val) data_range.push(val)
-    })
-    
-    if (vars.dev.default) d3plus.console.timeEnd("get data range")
-    
-    if (vars.dev.default) d3plus.console.time("create color scale")
-    
-    data_range.sort(function(a,b) {return a-b})
-    vars.color_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
-    
-    var new_range = vars.style.color.range.slice(0)
-    if (vars.color_domain[0] < 0 && vars.color_domain[1] > 0) {
-      vars.color_domain.push(vars.color_domain[1])
-      vars.color_domain[1] = 0
-    }
-    else if (vars.color_domain[1] > 0 || vars.color_domain[0] < 0) {
-      new_range = vars.style.color.heatmap
-      vars.color_domain = d3plus.utils.buckets(d3.extent(data_range),new_range.length)
-    }
-    
-    vars.color_scale
-      .domain(vars.color_domain)
-      .range(new_range)
+d3plus.data.analyze = function(vars) {
   
-    if (vars.dev.default) d3plus.console.timeEnd("create color scale")
-    
-    if (vars.dev.default) d3plus.console.groupEnd();
-    
-  }
-  
-}//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Filters the data based on vars.check
-//-------------------------------------------------------------------
-d3plus.data.filter = function(vars) {
-  
-  if (vars.check.indexOf("time") >= 0 && vars.data.filtered) {
-    vars.data.filtered = {"all": vars.data.filtered.all}
-  }
-  
-  if (vars.check.length > 1 || (vars.check.length == 1 && vars.check[0] != "time")) {
-    
-    if (vars.dev.default) d3plus.console.group("Filtering Data");
-    var checking = vars.check.join(", ")
-    if (vars.dev.default) d3plus.console.time(checking)
-    
-    var data = "default"
-    vars.check.forEach(function(key){
-      if (key != "time") {
-        
-        if (key == "xaxis") vars.x_range = null
-        else if (key == "yaxis") vars.y_range = null
-        
-        vars.data.filtered = vars.data[data].filter(function(d){
-          var variable = vars[key].default ? vars[key].default : vars[key].key
-          var val = d3plus.variable.value(vars,d,variable)
-          return val != null
-        })
-        data = "filtered"
-        
-      }
-    })
-    vars.data.filtered = {"all": vars.data.filtered}
-    
-    if (vars.dev.default) d3plus.console.timeEnd(checking)
-    if (vars.dev.default) d3plus.console.groupEnd();
-  }
-  else if (!vars.data.filtered) {
-    vars.data.filtered = {"all": vars.data.default}
-  }
-  
-  if (vars.time.key && Object.keys(vars.data.filtered).length == 1) {
-    
-    if (vars.dev.default) d3plus.console.log("Disaggregating by Year")
-
-    // Find available years
-    vars.data.time = d3plus.utils.uniques(vars.data.filtered.all,vars.time.key)
-    // for (var i = 0; i < vars.data.time.length; i++) {
-    //   vars.data.time[i] = Date.parse(vars.data.time[i])
-    // }
-    // vars.data.time = vars.data.time.filter(function(t){return t})
-    vars.data.time.sort()
-    
-    if (vars.data.time.length) {
-      vars.data.time.forEach(function(y){
-        vars.data.filtered[y] = vars.data.filtered.all.filter(function(d){
-          return d3plus.variable.value(vars,d,vars.time.key) == y;
-        })
-      })
-    }
-    
-  }
-    
-}
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Formats Raw Data
-//-------------------------------------------------------------------
-d3plus.data.format = function(vars) {
-  
-  vars.data.type = d3plus.apps[vars.type.default].data || "array"
+  vars.data.type = d3plus.apps[vars.type.value].data || "array"
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function to check key types
@@ -3754,16 +3701,18 @@ d3plus.data.format = function(vars) {
   //-------------------------------------------------------------------
   if (vars.data.changed) {
     
-    if (vars.dev.default) d3plus.console.group("New Data Detected")
+    if (vars.dev.value) d3plus.console.group("New Data Detected")
     
     vars.data.filtered = null
+    vars.data.grouped = null
+    vars.data.app = null
 
-    if (vars.dev.default) d3plus.console.time("key analysis")
+    if (vars.dev.value) d3plus.console.time("key analysis")
     vars.data.keys = {}
-    get_keys(vars.data.default,true)
-    if (vars.dev.default) d3plus.console.timeEnd("key analysis")
+    get_keys(vars.data.value,true)
+    if (vars.dev.value) d3plus.console.timeEnd("key analysis")
     
-    if (vars.dev.default) d3plus.console.groupEnd();
+    if (vars.dev.value) d3plus.console.groupEnd();
     
   }
   
@@ -3772,32 +3721,34 @@ d3plus.data.format = function(vars) {
   //-------------------------------------------------------------------
   if (vars.attrs.changed) {
     
-    if (vars.dev.default) d3plus.console.group("New Attributes Detected");
-    if (vars.dev.default) d3plus.console.time("key analysis");
-    if (typeof vars.attrs.default == "object") {
-      for (a in vars.attrs.default) {
-        get_keys(vars.attrs.default[a])
+    if (vars.dev.value) d3plus.console.group("New Attributes Detected");
+    if (vars.dev.value) d3plus.console.time("key analysis");
+    if (typeof vars.attrs.value == "object") {
+      for (a in vars.attrs.value) {
+        get_keys(vars.attrs.value[a])
       }
     }
     else {
-      get_keys(vars.attrs.default)
+      get_keys(vars.attrs.value)
     }
-    if (vars.dev.default) d3plus.console.timeEnd("key analysis");
-    if (vars.dev.default) d3plus.console.groupEnd();
+    if (vars.dev.value) d3plus.console.timeEnd("key analysis");
+    if (vars.dev.value) d3plus.console.groupEnd();
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Filters Data if variables with "data_refresh" have been changed
+  // Filters Data if variables with "data_filter" have been changed
   //-------------------------------------------------------------------
   vars.check = []
   for (k in vars) {
-    if (vars[k] && vars[k]["data_refresh"] && vars[k].changed) {
+    if (vars[k] && vars[k]["data_filter"] && vars[k].changed) {
       vars.check.push(k)
     }
   }
+  
   if (!vars.data.filtered || vars.check.length || vars.active.changed || vars.temp.changed || vars.total.changed) {
     vars.data[vars.data.type] = null
-    vars.app_data = [];
+    vars.data.grouped = null
+    vars.data.app = null;
     d3plus.data.filter(vars)
   }
   
@@ -3819,7 +3770,7 @@ d3plus.data.format = function(vars) {
       function test_value(val) {
         
         if (!(vars[v][key] instanceof Array)) {
-          var arr = vars[v][key].default
+          var arr = vars[v][key].value
         }
         else {
           var arr = vars[v][key]
@@ -3852,7 +3803,7 @@ d3plus.data.format = function(vars) {
           })
         }
         else {
-          var k = vars[v].default ? vars[v].default : vars[v].key
+          var k = vars[v].value ? vars[v].value : vars[v].key
           match = test_value(d3plus.variable.value(vars,d,k))
         }
         
@@ -3874,14 +3825,14 @@ d3plus.data.format = function(vars) {
       
       if (v == "id") {
 
-        if (vars.nodes.default) {
-          if (vars.dev.default) d3plus.console.log("Filtering Nodes")
-          vars.nodes.restricted = vars.nodes.default.filter(nest_check)
+        if (vars.nodes.value) {
+          if (vars.dev.value) d3plus.console.log("Filtering Nodes")
+          vars.nodes.restricted = vars.nodes.value.filter(nest_check)
         }
     
-        if (vars.links.default) {
-          if (vars.dev.default) d3plus.console.log("Filtering Connections")
-          vars.links.restricted = vars.links.default.filter(function(d){
+        if (vars.links.value) {
+          if (vars.dev.value) d3plus.console.log("Filtering Connections")
+          vars.links.restricted = vars.links.value.filter(function(d){
             var first_match = nest_check(d.source),
                 second_match = nest_check(d.target)
             return first_match && second_match
@@ -3903,65 +3854,146 @@ d3plus.data.format = function(vars) {
     vars.links.restricted = null
   }
   
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Formats Data to type "group", if it does not exist.
+  //----------------------------------------------------------------------------
+  if (!vars.data.grouped) {
+    vars.data.grouped = d3plus.data.format(vars,"grouped")
+  }
+  
+  var year = !vars.time.fixed.value ? ["all"] : null
+  
+  vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Formats Data to type specified by App, if it does not exist.
-  //-------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   if (!vars.data[vars.data.type]) {
-    
-    if (vars.dev.default) d3plus.console.group("Formatting Data")
-    vars.data[vars.data.type] = {}
-    
-    vars.id.nesting.forEach(function(depth){
-      
-      if (vars.dev.default) d3plus.console.time(depth)
-      
-      var level = vars.id.nesting.slice(0,vars.id.nesting.indexOf(depth)+1)
-      
-      vars.data[vars.data.type][depth] = {}
-      
-      for (y in vars.data.restricted) {
-        
-        if (vars.data.type == "nested") {
-          vars.data[vars.data.type][depth][y] = d3plus.data.nest(vars,vars.data.restricted[y],level)
-        }
-        else if (vars.data.type == "grouped") {
-          vars.data[vars.data.type][depth][y] = d3plus.data.nest(vars,vars.data.restricted[y],level,true)
-        }
-        else if (vars.data.type == "object") {
-          vars.data[vars.data.type][depth][y] = {}
-          vars.data.restricted[y].forEach(function(d){
-            vars.data[vars.data.type][depth][y][d[vars.id.key]] = d;
-          })
-        }
-        else {
-          vars.data[vars.data.type][depth][y] = vars.data.restricted[y]
-        }
-        
-      }
-      
-      if (vars.dev.default) d3plus.console.timeEnd(depth)
-      
-    })
-    
-    if (vars.dev.default) d3plus.console.groupEnd()
-    
+    vars.data[vars.data.type] = d3plus.data.format(vars,vars.data.type)
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Fetches the correct Data for the App
+  // Fetch the correct Data for the App
   //-------------------------------------------------------------------
-  if (!vars.app_data.length || vars.check.length || vars.data.changed || vars.depth.changed || vars.time.changed || vars.type.changed) {
+  if (!vars.data.app || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed || vars.type.changed) {
     
-    if (vars.data.type == "object") {
-      vars.app_data = {};
+    vars.data.app = d3plus.data.fetch(vars,vars.data.type)
+    
+  }
+  
+  // Get link connections if they have not been previously set
+  if (!vars.connections && vars.links.value) {
+    var links = vars.links.restricted || vars.links.value
+    vars.connections = d3plus.utils.connections(vars,links)
+  }
+  
+  if (vars.type == "stacked") {
+    vars.data.app = vars.data.app.filter(function(d){
+      var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
+      return val >= vars.x_range[0] && val <= vars.x_range[1]
+    })
+  }
+  
+  vars.check = []
+  
+}
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Sets color range of data, if applicable
+//-------------------------------------------------------------------
+
+d3plus.data.color = function(vars) {
+  
+  if (vars.color.key && typeof vars.color.key == "object") {
+    if (vars.color.key[vars.id.key]) {
+      var color_id = vars.color.key[vars.id.key]
     }
     else {
-      vars.app_data = [];
+      var color_id = vars.color.key[Object.keys(vars.color.key)[0]]
+    }
+  }
+  else {
+    var color_id = vars.color.key
+  }
+  
+  if (vars.data.value && vars.color.key && (vars.color.changed || vars.data.changed || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed)) {
+    
+    if (vars.data.keys[color_id] == "number") {
+      
+      if (vars.dev.value) d3plus.console.group("Calculating Color Range")
+    
+      var data_range = []
+      var data_domain = null
+    
+      if (vars.dev.value) d3plus.console.time("get data range")
+      
+      vars.data.pool.forEach(function(d){
+        var val = parseFloat(d3plus.variable.value(vars,d,vars.color.key))
+        if (val) data_range.push(val)
+      })
+    
+      if (vars.dev.value) d3plus.console.timeEnd("get data range")
+    
+      if (vars.dev.value) d3plus.console.time("create color scale")
+      
+      data_range.sort(function(a,b) {return a-b})
+      data_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
+    
+      var new_range = vars.style.color.range.slice(0)
+      if (data_domain[0] < 0 && data_domain[1] > 0) {
+        data_domain.push(data_domain[1])
+        data_domain[1] = 0
+      }
+      else if (data_domain[1] > 0 || data_domain[0] < 0) {
+        new_range = vars.style.color.heatmap
+        data_domain = d3plus.utils.buckets(d3.extent(data_range),new_range.length)
+      }
+    
+      vars.color_scale = d3.scale.sqrt()
+        .domain(data_domain)
+        .range(new_range)
+        .interpolate(d3.interpolateRgb)
+  
+      if (vars.dev.value) d3plus.console.timeEnd("create color scale")
+    
+      if (vars.dev.value) d3plus.console.groupEnd();
+      
+    }
+    else {
+      vars.color_scale = null
     }
     
-    if (vars.time.solo.length) {
+  }
+  
+}
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Fetches specific years of data
+//-------------------------------------------------------------------
+
+d3plus.data.fetch = function(vars,format,years) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // The "format" has not been specified, use the current data type
+  //----------------------------------------------------------------------------
+  if (!format) {
+    var format = vars.data.type
+  }
+
+  if (format == "object") {
+    return_data = {};
+  }
+  else {
+    return_data = [];
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // If "years" have not been requested, determine the years using .time() 
+  // solo and mute
+  //----------------------------------------------------------------------------
+  if (!years) {
+
+    if (vars.time.solo.value.length) {
       var years = []
-      vars.time.solo.forEach(function(y){
+      vars.time.solo.value.forEach(function(y){
         if (typeof y == "function") {
           vars.data.time.forEach(function(t){
             if (y(t)) {
@@ -3974,9 +4006,9 @@ d3plus.data.format = function(vars) {
         }
       })
     }
-    else if (vars.time.mute.length) {
+    else if (vars.time.mute.value.length) {
       var muted = []
-      vars.time.mute.forEach(function(y){
+      vars.time.mute.value.forEach(function(y){
         if (typeof y == "function") {
           vars.data.time.forEach(function(t){
             if (y(t)) {
@@ -3996,85 +4028,197 @@ d3plus.data.format = function(vars) {
       var years = ["all"]
     }
     
-    if (years.length == 1) {
-      vars.app_data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]][years[0]]
-    }
-    else {
-      
-      var data = vars.data[vars.data.type][vars.id.nesting[vars.depth.default]],
-          missing = []
-          
-      years.forEach(function(y){
+  }
+  
+  if (format == "restricted") {
+    var data = vars.data.restricted
+  }
+  else {
+    var data = vars.data[format][vars.id.nesting[vars.depth.value]]
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // If there is only 1 year needed, just grab it!
+  //----------------------------------------------------------------------------
+  if (years.length == 1) {
+    return_data = data[years[0]]
+  }
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Otherwise, we need to grab each year individually
+  //----------------------------------------------------------------------------
+  else {
+    
+    var missing = []
+        
+    years.forEach(function(y){
 
-        if (data[y]) {
-          
-          if (vars.data.type == "object") {
-            for (k in data[y]) {
-              if (!vars.app_data[data[y][k][vars.id.key]]) {
-                vars.app_data[data[y][k][vars.id.key]] = []
-              }
-              vars.app_data[data[y][k][vars.id.key]].push(data[y][k])
+      if (data[y]) {
+        
+        if (format == "object") {
+          for (k in data[y]) {
+            if (!return_data[data[y][k][vars.id.key]]) {
+              return_data[data[y][k][vars.id.key]] = []
             }
-          }
-          else {
-            vars.app_data = vars.app_data.concat(data[y])
+            return_data[data[y][k][vars.id.key]].push(data[y][k])
           }
         }
         else {
-          missing.push(y)
+          return_data = return_data.concat(data[y])
         }
-          
-      })
-      
-      if (vars.app_data.length == 0 && missing.length) {
-        vars.internal_error = "No Data Available for "+missing.join(", ")
-        d3plus.console.warning(vars.internal_error)
       }
       else {
-        if (vars.app_data instanceof Array) {
-          var separated = false
-          vars.axes.values.forEach(function(a){
-            if (vars[a].key == vars.time.key && vars[a].scale.default == "continuous") {
-              separated = true
-            }
-          })
-          if (!separated) {
-            vars.app_data = d3plus.data.nest(vars,vars.app_data,[vars.id.key])
-          }
-        }
-        else if (typeof vars.app_data == "object") {
-          for (k in vars.app_data) {
-            vars.app_data[k] = d3plus.data.nest(vars,vars.app_data[k],[vars.id.key])[0]
-          }
-        }
-        vars.internal_error = null
+        missing.push(y)
       }
+        
+    })
+    
+    if (return_data.length == 0 && missing.length) {
+      vars.internal_error = "No Data Available for "+missing.join(", ")
+      d3plus.console.warning(vars.internal_error)
+    }
+    else {
+      vars.internal_error = null
+    }
+    
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Finally, we need to determine if the data needs to be merged together
+  //----------------------------------------------------------------------------
+  if (years.length > 1) {
+
+    var separated = false
+    vars.axes.values.forEach(function(a){
+      if (vars[a].key == vars.time.key && vars[a].scale.value == "continuous") {
+        separated = true
+      }
+    })
+    
+    if (!separated) {
       
+      if (return_data instanceof Array) {
+        return_data = d3plus.data.nest(vars,return_data,[vars.id.key])
+      }
+      else if (typeof return_data == "object") {
+        for (k in return_data) {
+          return_data[k] = d3plus.data.nest(vars,return_data[k],[vars.id.key])[0]
+        }
+      }
+  
     }
     
   }
   
-  if (!vars.app_data) {
-    vars.app_data = []
+  return return_data
+  
+}//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Filters the data based on vars.check
+//-------------------------------------------------------------------
+d3plus.data.filter = function(vars) {
+  
+  if (vars.check.indexOf("time") >= 0 && vars.data.filtered) {
+    vars.data.filtered = {"all": vars.data.filtered.all}
   }
   
-  // Get link connections if they have not been previously set
-  if (!vars.connections && vars.links.default) {
-    var links = vars.links.restricted || vars.links.default
-    vars.connections = d3plus.utils.connections(vars,links)
-  }
-  
-  if (vars.type == "stacked") {
-    vars.app_data = vars.app_data.filter(function(d){
-      var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
-      return val >= vars.x_range[0] && val <= vars.x_range[1]
+  if (vars.check.length > 1 || (vars.check.length == 1 && vars.check[0] != "time")) {
+    
+    if (vars.dev.value) d3plus.console.group("Filtering Data");
+    var checking = vars.check.join(", ")
+    if (vars.dev.value) d3plus.console.time(checking)
+    
+    var data = "value"
+    vars.check.forEach(function(key){
+      if (key != "time") {
+        
+        if (key == "xaxis") vars.x_range = null
+        else if (key == "yaxis") vars.y_range = null
+        
+        vars.data.filtered = vars.data[data].filter(function(d){
+          var variable = vars[key].value ? vars[key].value : vars[key].key
+          var val = d3plus.variable.value(vars,d,variable)
+          return val != null
+        })
+        data = "filtered"
+        
+      }
     })
+    vars.data.filtered = {"all": vars.data.filtered}
+    
+    if (vars.dev.value) d3plus.console.timeEnd(checking)
+    if (vars.dev.value) d3plus.console.groupEnd();
+  }
+  else if (!vars.data.filtered) {
+    vars.data.filtered = {"all": vars.data.value}
   }
   
-  vars.check = []
-  
+  if (vars.time.key && Object.keys(vars.data.filtered).length == 1) {
+    
+    if (vars.dev.value) d3plus.console.log("Disaggregating by Year")
+
+    // Find available years
+    vars.data.time = d3plus.utils.uniques(vars.data.filtered.all,vars.time.key)
+    
+    vars.data.time.sort()
+    
+    if (vars.data.time.length) {
+      vars.data.time.forEach(function(y){
+        vars.data.filtered[y] = vars.data.filtered.all.filter(function(d){
+          return d3plus.variable.value(vars,d,vars.time.key) == y;
+        })
+      })
+    }
+    
+  }
+    
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Formats Raw Data
+//-------------------------------------------------------------------
+
+d3plus.data.format = function(vars,format) {
+  
+  if (!format) var format = "nested"
+  return_data = {}
+
+  if (vars.dev.value) d3plus.console.group("Formatting \""+format+"\" Data")
+  
+  vars.id.nesting.forEach(function(depth){
+    
+    if (vars.dev.value) d3plus.console.time(depth)
+    
+    var level = vars.id.nesting.slice(0,vars.id.nesting.indexOf(depth)+1)
+    
+    return_data[depth] = {}
+    
+    for (y in vars.data.restricted) {
+      
+      if (format == "nested") {
+        return_data[depth][y] = d3plus.data.nest(vars,vars.data.restricted[y],level)
+      }
+      else if (format == "grouped") {
+        return_data[depth][y] = d3plus.data.nest(vars,vars.data.restricted[y],level,true)
+      }
+      else if (format == "object") {
+        return_data[depth][y] = {}
+        vars.data.restricted[y].forEach(function(d){
+          return_data[depth][y][d[vars.id.key]] = d;
+        })
+      }
+      else {
+        return_data[depth][y] = vars.data.restricted[y]
+      }
+      
+    }
+    
+    if (vars.dev.value) d3plus.console.timeEnd(depth)
+    
+  })
+  
+  if (vars.dev.value) d3plus.console.groupEnd()
+  
+  return return_data
+  
+}//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests data...
 //-------------------------------------------------------------------
 d3plus.data.nest = function(vars,flat_data,levels,grouped) {
@@ -4091,7 +4235,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
       })
       
     vars.axes.values.forEach(function(axis){
-      if (d3plus.apps[vars.type.default].requirements && d3plus.apps[vars.type.default].requirements.indexOf(axis) >= 0 && vars[axis].key && vars[axis].scale.default == "continuous") {
+      if (d3plus.apps[vars.type.value].requirements && d3plus.apps[vars.type.value].requirements.indexOf(axis) >= 0 && vars[axis].key && vars[axis].scale.value == "continuous") {
         nested_data
           .key(function(d){ 
             return d3plus.variable.value(vars,d,vars[axis].key)
@@ -4135,11 +4279,11 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
         for (key in vars.data.keys) {
           if (vars.id.nesting.indexOf(key) <= vars.id.nesting.indexOf(nest_key) && key in leaves[0]
             && (!vars.active.key || key != vars.active.key) && key != "d3plus") {
-            if (typeof vars.aggs.default[key] == "function") {
-              to_return[key] = vars.aggs.default[key](leaves)
+            if (typeof vars.aggs.value[key] == "function") {
+              to_return[key] = vars.aggs.value[key](leaves)
             }
-            else if (typeof vars.aggs.default[key] == "string") {
-              to_return[key] = d3[vars.aggs.default[key]](leaves, function(d){ return d[key]; })
+            else if (typeof vars.aggs.value[key] == "string") {
+              to_return[key] = d3[vars.aggs.value[key]](leaves, function(d){ return d[key]; })
             }
             else if ([vars.time.key,vars.icon].indexOf(key) >= 0 || (key == nest_key && !to_return[key])) {
               to_return[key] = leaves[0][key];
@@ -4224,7 +4368,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
     .x(function(d) { return d.d3plus.x; })
     .y0(function(d) { return d.d3plus.y0; })
     .y1(function(d) { return d.d3plus.y; })
-    .interpolate(vars.shape.interpolate.default)
+    .interpolate(vars.shape.interpolate.value)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
@@ -4239,7 +4383,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   selection.selectAll("path.data")
     .data(function(d) {
       
-      if (vars.labels.default && !d.d3plus_label) {
+      if (vars.labels.value) {
         
         var areas = [],
             obj = null,
@@ -4387,9 +4531,9 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 //-------------------------------------------------------------------
 d3plus.shape.color = function(d,vars) {
   
-  var shape = d.d3plus ? d.d3plus.shapeType : vars.shape.default
+  var shape = d.d3plus ? d.d3plus.shapeType : vars.shape.value
   
-  if (vars.shape.default == "line") {
+  if (vars.shape.value == "line") {
     if (d.d3plus && d.d3plus.shapeType == "circle") {
       return d3plus.variable.color(vars,d)
     }
@@ -4397,7 +4541,7 @@ d3plus.shape.color = function(d,vars) {
       return "none"
     }
   }
-  else if (vars.shape.default == "area" || shape == "active") {
+  else if (vars.shape.value == "area" || shape == "active") {
     return d3plus.variable.color(vars,d)
   }
   else if (shape == "temp") {
@@ -4415,7 +4559,7 @@ d3plus.shape.color = function(d,vars) {
   if ((!vars.active.key && !vars.temp.key) || (active && total && active == total) || (active && !total)) {
     return d3plus.variable.color(vars,d)
   }
-  else if (vars.active.spotlight.default) {
+  else if (vars.active.spotlight.value) {
     return "#eee"
   }
   else {
@@ -4717,10 +4861,10 @@ d3plus.shape.draw = function(vars,data) {
   var shapes = {}
   data.forEach(function(d){
     if (!d.d3plus) {
-      var s = shape_lookup[vars.shape.default]
+      var s = shape_lookup[vars.shape.value]
     }
     else if (!d.d3plus.shape) {
-      var s = shape_lookup[vars.shape.default]
+      var s = shape_lookup[vars.shape.value]
       d.d3plus.shapeType = s
     }
     else {
@@ -4738,7 +4882,7 @@ d3plus.shape.draw = function(vars,data) {
   //----------------------------------------------------------------------------
   function id(d) {
     
-    var depth = d.d3plus.depth ? d.d3plus.depth : vars.depth.default
+    var depth = d.d3plus.depth ? d.d3plus.depth : vars.depth.value
     
     d.d3plus.id = ""
     
@@ -4752,10 +4896,12 @@ d3plus.shape.draw = function(vars,data) {
     d.d3plus.id += depth+"_"+shape
     
     vars.axes.values.forEach(function(axis){
-      if (vars[axis].scale.default == "continuous") {
+      if (vars[axis].scale.value == "continuous") {
         d.d3plus.id += "_"+d3plus.variable.value(vars,d,vars[axis].key)
       }
     })
+    
+    d.d3plus.id = d3plus.utils.strip(d.d3plus.id)
     
     return d
   }
@@ -4773,11 +4919,11 @@ d3plus.shape.draw = function(vars,data) {
       d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
     }
     
-    if (vars.shape.default != vars.shape.previous) {
-      if (vars.shape.default == "square" && ["circle","donut"].indexOf(vars.shape.previous) >= 0) {
+    if (vars.shape.value != vars.shape.previous) {
+      if (vars.shape.value == "square" && ["circle","donut"].indexOf(vars.shape.previous) >= 0) {
         d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
       }
-      else if (vars.shape.previous == "square" && ["circle","donut"].indexOf(vars.shape.default) >= 0) {
+      else if (vars.shape.previous == "square" && ["circle","donut"].indexOf(vars.shape.value) >= 0) {
         d.d3plus.width = d.d3plus.r*2
         d.d3plus.height = d.d3plus.r*2
       }
@@ -4791,9 +4937,9 @@ d3plus.shape.draw = function(vars,data) {
   //----------------------------------------------------------------------------
   function transform(g,grow) {
     
-    var scales = d3plus.apps[vars.type.default].scale
-    if (grow && scales && scales[vars.shape.default]) {
-       var scale = scales[vars.shape.default]
+    var scales = d3plus.apps[vars.type.value].scale
+    if (grow && scales && scales[vars.shape.value]) {
+       var scale = scales[vars.shape.value]
     }
     else if (grow && scales && typeof scales == "number") {
       var scale = scales
@@ -5036,7 +5182,7 @@ d3plus.shape.draw = function(vars,data) {
             vars.mouse.over(d)
           }
       
-          if (["area","line"].indexOf(vars.shape.default) >= 0 || d3plus.apps[vars.type.default].tooltip == "follow") {
+          if (["area","line"].indexOf(vars.shape.value) >= 0 || d3plus.apps[vars.type.value].tooltip == "follow") {
 
             var tooltip_data = d.data ? d.data : d
             d3plus.tooltip.app({
@@ -5067,7 +5213,7 @@ d3plus.shape.draw = function(vars,data) {
           }
       
           if (!vars.covered) {
-            d3plus.tooltip.remove(vars.type.default)
+            d3plus.tooltip.remove(vars.type.value)
           }
           
         }
@@ -5142,15 +5288,15 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         return d.d3plus.height+mod
       })
       .attr("rx",function(d){
-        var rounded = ["circle","donut"].indexOf(vars.shape.default) >= 0
+        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
         return rounded ? (d.d3plus.width+mod)/2 : 0
       })
       .attr("ry",function(d){
-        var rounded = ["circle","donut"].indexOf(vars.shape.default) >= 0
+        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
         return rounded ? (d.d3plus.height+mod)/2 : 0
       })
       .attr("shape-rendering",function(d){
-        if (["square"].indexOf(vars.shape.default) >= 0) {
+        if (["square"].indexOf(vars.shape.value) >= 0) {
           return vars.style.rendering
         }
         else {
@@ -5351,7 +5497,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         
     }
       
-    if (total && d3plus.apps[vars.type.default].fill) {
+    if (total && d3plus.apps[vars.type.value].fill) {
       
       if (active && active < total) {
         create("active")
@@ -5411,7 +5557,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       var align = t.anchor || vars.style.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "share" : this.className.baseVal == "share",
-          width = d3.select(this).node().getBBox().width,
+          width = d3.select(this).node().getComputedTextLength(),
           rtl = vars.style.labels.dir == "rtl"
           
       if (align == "middle" || share) {
@@ -5495,7 +5641,13 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       .attr("font-family",vars.style.font.family)
       .attr("text-anchor","start")
       .attr("fill", function(t){ 
-        return t.color; 
+        if (t.color) {
+          return t.color
+        }
+        else {
+          var d = d3.select(this.parentNode).datum()
+          return d3plus.color.text(d3plus.shape.color(d,vars))
+        }
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
@@ -5554,7 +5706,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Loop through each selection and analyze the labels
   //----------------------------------------------------------------------------
-  if (vars.labels.default) {
+  if (vars.labels.value) {
     
     selection.each(function(d){
     
@@ -5565,9 +5717,9 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           names = d3plus.variable.text(vars,d),
           group = d3.select(this),
           share_size = 0,
-          fill = d3plus.apps[vars.type.default].fill
+          fill = d3plus.apps[vars.type.value].fill
           
-      if (["line","area"].indexOf(vars.shape.default) >= 0) {
+      if (["line","area"].indexOf(vars.shape.value) >= 0) {
         var background = true
       }
       else {
@@ -5582,9 +5734,6 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         if (share && share.w >= 20 && share.h >= 10 && d.d3plus.share && vars.style.labels.align != "middle") {
           
           share.text = d.d3plus.share
-          if (!share.color) {
-            share.color = d3plus.color.text(d3plus.shape.color(d,vars))
-          }
           if (!("resize" in share)) {
             share.resize = true
           }
@@ -5622,9 +5771,6 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
         if (label && label.w >= 20 && label.h >= 10 && names.length) {
 
           label.names = names
-          if (!label.color) {
-            label.color = d3plus.color.text(d3plus.shape.color(d,vars))
-          }
           if (!("resize" in label)) {
             label.resize = true
           }
@@ -5649,6 +5795,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             .transition().duration(vars.style.timing.transitions/2)
             .delay(vars.style.timing.transitions/2)
               .attr("opacity",1)
+              .call(style,false)
     
           text.exit()
             .call(remove)
@@ -5687,7 +5834,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
   var line = d3.svg.line()
     .x(function(d){ return d.d3plus.x; })
     .y(function(d){ return d.d3plus.y; })
-    .interpolate(vars.shape.interpolate.default)
+    .interpolate(vars.shape.interpolate.value)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Divide each line into it's segments. We do this so that there can be gaps 
@@ -6112,15 +6259,15 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         return d.d3plus.height+mod
       })
       .attr("rx",function(d){
-        var rounded = vars.shape.default == "circle"
+        var rounded = vars.shape.value == "circle"
         return rounded ? (d.d3plus.width+mod)/2 : 0
       })
       .attr("ry",function(d){
-        var rounded = vars.shape.default == "circle"
+        var rounded = vars.shape.value == "circle"
         return rounded ? (d.d3plus.height+mod)/2 : 0
       })
       .attr("shape-rendering",function(d){
-        if (vars.shape.default == "square") {
+        if (vars.shape.value == "square") {
           return vars.style.rendering
         }
         else {
@@ -6143,7 +6290,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   selection.selectAll("rect.data")
     .data(function(d) { 
       
-      if (vars.labels.default && !d.d3plus_label) {
+      if (vars.labels.value && !d.d3plus.label) {
         
         d.d3plus_label = {
           "w": 0,
@@ -6153,7 +6300,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
     
         // Square bounds
-        if (vars.shape.default == "square") {
+        if (vars.shape.value == "square") {
 
           var w = d.d3plus.width-(vars.style.labels.padding*2),
               h = d.d3plus.height-(vars.style.labels.padding*2)
@@ -6175,6 +6322,9 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
           d.d3plus_label.h = Math.sqrt(Math.pow(d.d3plus.height,2)/2)-(vars.style.labels.padding)
         }
         
+      }
+      else if (d.d3plus.label) {
+        d.d3plus_label = d.d3plus.label
       }
       
       return [d];
@@ -6309,6 +6459,27 @@ d3plus.styles.default = {
       "size": 10
     }
   },
+  "legend": {
+    "align": "middle",
+    "padding": 5,
+    "gradient": {
+      "height": 10
+    },
+    "label": {
+      "color": "#444",
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 12
+    },
+    "tick": {
+      "align": "middle",
+      "color": "#444",
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 10
+    },
+    "size": 30
+  },
   "links": {
     "color": "#dedede",
     "opacity": 1,
@@ -6326,6 +6497,25 @@ d3plus.styles.default = {
       "size": 12
     },
     "width": 1
+  },
+  "timeline": {
+    "align": "middle",
+    "padding": 5,
+    "color": "#cccccc",
+    "height": 20,
+    "label": {
+      "color": "#444",
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 12
+    },
+    "tick": {
+      "align": "middle",
+      "color": "#444",
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 10
+    }
   },
   "timing": {
     "mouseevents": 60,
@@ -6357,12 +6547,12 @@ d3plus.tooltip.app = function(params) {
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = params.arrow ? params.arrow : true
       
-  if (d3.event.type == "click" && (vars.tooltip.html || vars.tooltip.default.long)) {
+  if (d3.event.type == "click" && (vars.html.value || vars.tooltip.value.long)) {
     var fullscreen = true,
         arrow = false,
         mouse = true,
         length = "long",
-        footer = vars.footer.default
+        footer = vars.footer.value
       
     vars.covered = true
   }
@@ -6376,7 +6566,7 @@ d3plus.tooltip.app = function(params) {
   if (params.x) {
     var x = params.x
   }
-  else if (d3plus.apps[vars.type.default].tooltip == "follow") {
+  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
     var x = d3.event.clientX
   }
   else {
@@ -6386,7 +6576,7 @@ d3plus.tooltip.app = function(params) {
   if (params.y) {
     var y = params.y
   }
-  else if (d3plus.apps[vars.type.default].tooltip == "follow") {
+  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
     var y = d3.event.clientY
   }
   else {
@@ -6396,7 +6586,7 @@ d3plus.tooltip.app = function(params) {
   if (params.offset) {
     var offset = params.offset
   }
-  else if (d3plus.apps[vars.type.default].tooltip == "follow") {
+  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
     var offset = 3
   }
   else {
@@ -6439,7 +6629,7 @@ d3plus.tooltip.app = function(params) {
       "fullscreen": fullscreen,
       "html": html,
       "icon": icon,
-      "id": vars.type.default,
+      "id": vars.type.value,
       "mouseevents": mouse,
       "offset": offset,
       "parent": vars.parent,
@@ -6454,15 +6644,15 @@ d3plus.tooltip.app = function(params) {
   
   if (fullscreen) {
 
-    if (typeof vars.tooltip.html == "string") {
-      make_tooltip(vars.tooltip.html)
+    if (typeof vars.html.value == "string") {
+      make_tooltip(vars.html.value)
     }
-    else if (typeof vars.tooltip.html == "function") {
-      make_tooltip(vars.tooltip.html(id))
+    else if (typeof vars.html.value == "function") {
+      make_tooltip(vars.html.value(id))
     }
-    else if (vars.tooltip.html && typeof vars.tooltip.html == "object" && vars.tooltip.html.url) {
-      d3.json(vars.tooltip.html.url,function(data){
-        var html = vars.tooltip.html.callback ? vars.tooltip.html.callback(data) : data
+    else if (vars.html.value && typeof vars.html.value == "object" && vars.html.value.url) {
+      d3.json(vars.html.value.url,function(data){
+        var html = vars.html.value.callback ? vars.html.value.callback(data) : data
         make_tooltip(html)
       })
     }
@@ -6948,6 +7138,12 @@ d3plus.tooltip.create = function(params) {
 d3plus.tooltip.data = function(vars,id,length,extras) {
 
   if (!length) var length = "long"
+  if (length == "long") {
+    var other_length = "short"
+  }
+  else {
+    var other_length = "long"
+  }
   
   var extra_data = {}
   if (extras && typeof extras == "string") extras = [extras]
@@ -6962,13 +7158,46 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
   
   var tooltip_highlights = []
   
-  if (vars.tooltip.default instanceof Array) var a = vars.tooltip.default
-  else if (vars.tooltip.default[length] && vars.tooltip.default[length] instanceof Array) var a = vars.tooltip.default[length]
-  else if (vars.tooltip.default[length]) var a = d3plus.utils.merge({"":[]},vars.tooltip.default[length])
-  else var a = vars.tooltip.default
+  if (vars.tooltip.value instanceof Array) {
+    var a = vars.tooltip.value
+  }
+  else if (typeof vars.tooltip.value == "string") {
+    var a = [vars.tooltip.value]
+  }
+  else {
+    
+    if (vars.tooltip.value[vars.id.nesting[vars.depth.value]]) {
+      var a = vars.tooltip.value[vars.id.nesting[vars.depth.value]]
+    }
+    else {
+      var a = vars.tooltip.value
+    }
+    
+    if (!(a instanceof Array)) {
+      
+      if (a[length]) {
+        a = a[length]
+      }
+      else if (a[other_length]) {
+        a = []
+      }
+      else {
+        a = d3plus.utils.merge({"":[]},a)
+      }
+      
+    }
+    
+    if (typeof a == "string") {
+      a = [a]
+    }
+    else if (!(a instanceof Array)) {
+      a = d3plus.utils.merge({"":[]},a)
+    }
+    
+  }
   
   function format_key(key,group) {
-    if (vars.attrs.default[group]) var id_var = group
+    if (vars.attrs.value[group]) var id_var = group
     else var id_var = null
     
     if (group) group = vars.format(group)
@@ -7004,19 +7233,19 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
   }
   else {
     
-    if (vars.id.nesting.length && vars.depth.default < vars.id.nesting.length-1) {
+    if (vars.id.nesting.length && vars.depth.value < vars.id.nesting.length-1) {
       var a = d3plus.utils.copy(a)
       vars.id.nesting.forEach(function(n,i){
-        if (i > vars.depth.default && a[n]) delete a[n]
+        if (i > vars.depth.value && a[n]) delete a[n]
       })
     }
     
-    if (vars.tooltip.default.long && typeof vars.tooltip.default.long == "object") {
+    if (vars.tooltip.value.long && typeof vars.tooltip.value.long == "object") {
       var placed = []
-      for (group in vars.tooltip.default.long) {
+      for (group in vars.tooltip.value.long) {
         
         extras.forEach(function(e){
-          if (vars.tooltip.default.long[group].indexOf(e) >= 0 && ((a[group] && a[group].indexOf(e) < 0) || !a[group])) {
+          if (vars.tooltip.value.long[group].indexOf(e) >= 0 && ((a[group] && a[group].indexOf(e) < 0) || !a[group])) {
             if (!a[group]) a[group] = []
             a[group].push(e)
             placed.push(e)
@@ -7205,6 +7434,1051 @@ d3plus.tooltip.remove = function(id) {
   }
 
 }
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates Error Message
+//-------------------------------------------------------------------
+
+d3plus.ui.error = function(vars) {
+  
+  var error = vars.svg.selectAll("g#error")
+    .data(["error"])
+    
+  error.enter().append("g")
+    .attr("id","error")
+    .attr("opacity",0)
+    .append("text")
+      .attr("x",vars.width.value/2)
+      .attr("font-size","30px")
+      .attr("fill","#888")
+      .attr("text-anchor", "middle")
+      .attr("font-family", vars.style.font.family)
+      .style("font-weight", vars.style.font.weight)
+      .style(vars.style.info)
+      .attr("y",function(){
+        var height = d3.select(this).node().getBBox().height
+        return vars.height.value/2-height/2
+      })
+      
+  error.transition().duration(vars.style.timing.transitions)
+    .attr("opacity",1)
+      
+  error.select("text").transition().duration(vars.style.timing.transitions)
+    .attr("x",vars.width.value/2)
+    .each(function(d){
+      if (vars.internal_error) {
+        d3plus.utils.wordwrap({
+          "text": vars.format(vars.internal_error,"error"),
+          "parent": this,
+          "width": vars.width.value-20,
+          "height": vars.height.value-20,
+          "resize": false
+        })
+      }
+    })
+    .attr("y",function(){
+      var height = d3.select(this).node().getBBox().height
+      return vars.height.value/2-height/2
+    })
+    .attr("opacity",function(){
+      return vars.internal_error ? 1 : 0
+    })
+  
+}
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates color key
+//-------------------------------------------------------------------
+
+d3plus.ui.legend = function(vars) {
+  
+  var key_display = true
+  
+  if (vars.legend.value && vars.color.key) {
+    
+    if (!vars.color_scale) {
+    
+      var color_groups = {}
+      vars.data.pool.forEach(function(d){
+        var color = d3plus.variable.color(vars,d[vars.id.key])
+        if (!color_groups[color]) {
+          color_groups[color] = []
+        }
+        color_groups[color].push(d)
+      })
+    
+      var colors = []
+      for (color in color_groups) {
+      
+        var obj = {
+          "color": color
+        }
+        
+        if (vars.depth.value > 0) {
+        
+          for (var i = vars.depth.value-1; i >= 0; i--) {
+            var parents = d3plus.utils.uniques(color_groups[color],vars.id.nesting[i])
+            if (parents.length == 1) {
+              if (!obj.name) {
+                var name = d3plus.variable.text(vars,parents[0],i)
+                if (name) {
+                  obj.name = name
+                }
+              }
+              if (!obj.icon) {
+                var icon = d3plus.variable.value(vars,parents[0],vars.icon.key,vars.id.nesting[i])
+                if (icon) {
+                  obj.icon = icon
+                }
+              }
+            }
+            if (obj.name && obj.icon) {
+              break;
+            }
+          }
+        
+        }
+        else {
+
+          for (d in color_groups[color]) {
+            if (!obj.name) {
+              var name = d3plus.variable.text(vars,color_groups[color][d],vars.depth.value)
+              if (name) {
+                obj.name = name
+              }
+            }
+            if (!obj.icon) {
+              var icon = d3plus.variable.value(vars,color_groups[color][d],vars.icon.key)
+              if (icon) {
+                obj.icon = icon
+              }
+            }
+            if (obj.name && obj.icon) {
+              break;
+            }
+          }
+        
+        }
+        
+        colors.push(obj)
+      
+      }
+        
+      var available_width = vars.width.value
+      
+      var key_width = vars.style.legend.size*colors.length+vars.style.legend.padding*(colors.length-1)
+      
+      if (available_width < key_width) {
+        key_display = false
+      }
+      else {
+        
+        colors.sort(function(a,b){
+          
+          a_value = a.color
+          b_value = b.color
+
+          a_value = d3.rgb(a_value).hsl()
+          b_value = d3.rgb(b_value).hsl()
+  
+          if (a_value.s == 0) a_value = 361
+          else a_value = a_value.h
+          if (b_value.s == 0) b_value = 361
+          else b_value = b_value.h
+          
+          return a_value - b_value
+          
+        })
+        
+        if (vars.style.legend.align == "start") {
+          var start_x = vars.style.legend.padding
+        }
+        else if (vars.style.legend.align == "end") {
+          var start_x = vars.width.value - vars.style.legend.padding - key_width
+        }
+        else {
+          var start_x = vars.width.value/2 - key_width/2
+        }
+        
+        vars.g.key.selectAll("g.scale")
+          .transition().duration(vars.style.timing.transitions)
+          .attr("opacity",0)
+          .remove()
+        
+        var keys = vars.g.key.selectAll("g.color")
+          .data(colors,function(d){
+            return d.url ? d.color+"_"+d.url : d.color
+          })
+          
+        function position(group) {
+          
+          group
+            .attr("transform",function(g,i){
+              var x = start_x + (i*(vars.style.legend.padding+vars.style.legend.size))
+              return "translate("+x+","+vars.style.legend.padding+")"
+            })
+          
+        }
+      
+        var key_enter = keys.enter().append("g")
+          .attr("class","color")
+          .attr("opacity",0)
+          .call(position)
+          
+        function style(rect) {
+          
+          rect
+            .attr("width",vars.style.legend.size)
+            .attr("height",vars.style.legend.size)
+            .attr("fill",function(g){
+                
+              d3.select(this.parentNode).selectAll("text")
+                .remove()
+                
+              if (g.url) {
+                
+                var short_url = d3plus.utils.strip(g.url+"_"+g.color)
+                
+                var pattern = vars.defs.selectAll("pattern#"+short_url)
+                  .data([short_url])
+                
+                var pattern_enter = pattern.enter().append("pattern")
+                  .attr("id",short_url)
+                  .attr("width",vars.style.legend.size)
+                  .attr("height",vars.style.legend.size)
+                  
+                pattern_enter.append("rect")
+                  .attr("fill",g.color)
+                  .attr("width",vars.style.legend.size)
+                  .attr("height",vars.style.legend.size)
+                  
+                pattern_enter.append("image")
+                  .attr("xlink:href",g.url)
+                  .attr("width",vars.style.legend.size)
+                  .attr("height",vars.style.legend.size)
+                    
+                return "url(#"+short_url+")"
+              }
+              else {
+                
+                d3.select(this.parentNode).append("text")
+                  .style("font-weight",vars.style.font.weight)
+                  .attr("font-family",vars.style.font.family)
+                  .attr("text-anchor","start")
+                  .attr("fill",d3plus.color.text(g.color))
+                  .attr("x",0)
+                  .attr("y",0)
+                  .each(function(t){
+        
+                    if (g.name) {
+
+                      d3plus.utils.wordwrap({
+                        "text": g.name,
+                        "parent": this,
+                        "width": vars.style.legend.size-vars.style.legend.padding*2,
+                        "height": vars.style.legend.size-vars.style.legend.padding*2,
+                        "resize": true
+                      })
+                      
+                    }
+        
+                  })
+                  .attr("y",function(t){
+                    var h = this.getBBox().height,
+                        diff = parseFloat(d3.select(this).style("font-size"),10)/5
+                    return vars.style.legend.size/2 - h/2 - diff/2
+                  })
+                  .selectAll("tspan")
+                    .attr("x",function(t){
+                      var w = this.getComputedTextLength()
+                      return vars.style.legend.size/2 - w/2
+                    })
+                
+                return g.color
+              }
+              
+            })
+          
+        }
+        
+        key_enter
+          .append("rect")
+            .attr("class","color")
+            .call(style)
+            
+        keys
+          .order()
+          .on(d3plus.evt.over,function(d,i){
+
+            d3.select(this).style("cursor","pointer")
+            
+            if (d.name) {
+
+              d3.select(this).style("cursor","pointer")
+            
+              var x = start_x + (i*(vars.style.legend.padding+vars.style.legend.size)),
+                  y = d3.transform(d3.select(this.parentNode).attr("transform")).translate[1]
+                
+              x += vars.style.legend.size/2
+              y += vars.style.legend.padding+vars.style.legend.size/2
+        
+              d3plus.tooltip.create({
+                "align": "top center",
+                "arrow": true,
+                "background": vars.style.tooltip.background,
+                "fontcolor": vars.style.tooltip.font.color,
+                "fontfamily": vars.style.tooltip.font.family,
+                "fontweight": vars.style.tooltip.font.weight,
+                // "data": tooltip_data,
+                "color": d.color,
+                "icon": d.icon,
+                "id": "key",
+                // "mouseevents": mouse,
+                "offset": vars.style.legend.size/2-vars.style.legend.padding,
+                "parent": vars.parent,
+                "style": vars.style.icon,
+                "title": d.name[0],
+                "x": x,
+                "y": y,
+                "rtl": vars.style.labels.dir == "rtl",
+                "width": "auto"
+              })
+              
+            }
+            
+          })
+          .on(d3plus.evt.out,function(d){
+            d3plus.tooltip.remove("key")
+          })
+          .transition().duration(vars.style.timing.transitions)
+          .attr("opacity",1)
+          .call(position)
+            
+        keys.selectAll("rect.color").transition().duration(vars.style.timing.transitions)
+          .call(style)
+            
+        keys.exit()
+          .transition().duration(vars.style.timing.transitions)
+          .attr("opacity",0)
+          .remove()
+            
+      }
+      
+    }
+    else {
+      
+      vars.g.key.selectAll("g.color")
+        .transition().duration(vars.style.timing.transitions)
+        .attr("opacity",0)
+        .remove()
+        
+      var values = vars.color_scale.domain(),
+          colors = vars.color_scale.range()
+      
+      var scale = vars.g.key.selectAll("g.scale")
+        .data(["scale"])
+        
+      scale.enter().append("g")
+        .attr("class","scale")
+        .attr("opacity",0)
+        
+      var heatmap = vars.defs.selectAll("linearGradient#heatmap")
+        .data(["heatmap"])
+        
+      heatmap.enter().append("linearGradient")
+        .attr("id", "heatmap")
+        .attr("x1", "0%")
+        .attr("y1", "0%")
+        .attr("x2", "100%")
+        .attr("y2", "0%")
+        .attr("spreadMethod", "pad");
+        
+      var stops = heatmap.selectAll("stop")
+        .data(d3.range(0,colors.length))
+        
+      stops.enter().append("stop")
+        .attr("stop-opacity",1)
+        
+      stops
+        .attr("offset",function(i){
+          return Math.round((i/(colors.length-1))*100)+"%"
+        })
+        .attr("stop-color",function(i){
+          return colors[i]
+        })
+        
+      stops.exit().remove()
+  
+      var gradient = scale.selectAll("rect#gradient")
+        .data(["gradient"])
+        
+      gradient.enter().append("rect")
+        .attr("id","gradient")
+        .attr("x",function(d){
+          if (vars.style.legend.align == "middle") {
+            return vars.width.value/2
+          }
+          else if (vars.style.legend.align == "end") {
+            return vars.width.value
+          }
+          else {
+            return 0
+          }
+        })
+        .attr("y",vars.style.legend.padding)
+        .attr("width", 0)
+        .attr("height", vars.style.legend.gradient.height)
+        .attr("stroke",vars.style.legend.tick.color)
+        .attr("stroke-width",1)
+        .style("fill", "url(#heatmap)")
+        
+      var text = scale.selectAll("text.tick")
+        .data(d3.range(0,values.length))
+        
+      text.enter().append("text")
+        .attr("class","tick")
+        .attr("y",0)
+        .attr("x",function(d){
+          if (vars.style.legend.align == "middle") {
+            return vars.width.value/2
+          }
+          else if (vars.style.legend.align == "end") {
+            return vars.width.value
+          }
+          else {
+            return 0
+          }
+        })
+      
+      var label_width = 0
+      
+      text
+        .order()
+        .style("font-weight",vars.style.legend.tick.weight)
+        .attr("font-family",vars.style.legend.tick.family)
+        .attr("font-size",vars.style.legend.tick.size)
+        .attr("text-anchor",vars.style.legend.tick.align)
+        .attr("fill",vars.style.legend.tick.color)
+        .text(function(d){
+          return vars.format(values[d],vars.color.key)
+        })
+        .attr("y",function(d){
+          return this.getBBox().height+vars.style.legend.gradient.height+vars.style.legend.padding*2
+        })
+        .each(function(d){
+          var w = this.offsetWidth
+          if (w > label_width) label_width = w
+        })
+        
+      label_width += vars.style.labels.padding*2
+      
+      var key_width = label_width * (values.length-1)
+      
+      if (key_width+label_width < vars.width.value) {
+        
+        if (key_width+label_width < vars.width.value/2) {
+          key_width = vars.width.value/2
+          label_width = key_width/values.length
+          key_width -= label_width
+        }
+        
+        if (vars.style.legend.align == "start") {
+          var start_x = vars.style.legend.padding
+        }
+        else if (vars.style.legend.align == "end") {
+          var start_x = vars.width.value - vars.style.legend.padding - key_width
+        }
+        else {
+          var start_x = vars.width.value/2 - key_width/2
+        }
+      
+        text.transition().duration(vars.style.timing.transitions)
+          .attr("x",function(d){
+            return start_x + (label_width*d)
+          })
+        
+        text.exit().transition().duration(vars.style.timing.transitions)
+          .attr("opacity",0)
+          .remove()
+        
+        var ticks = scale.selectAll("rect.tick")
+          .data(d3.range(0,values.length))
+        
+        ticks.enter().append("rect")
+          .attr("class","tick")
+          .attr("x",function(d){
+            if (vars.style.legend.align == "middle") {
+              return vars.width.value/2
+            }
+            else if (vars.style.legend.align == "end") {
+              return vars.width.value
+            }
+            else {
+              return 0
+            }
+          })
+          .attr("y",vars.style.legend.padding)
+          .attr("width",0)
+          .attr("height",vars.style.legend.padding+vars.style.legend.gradient.height)
+          .attr("fill",vars.style.legend.tick.color)
+        
+        ticks.transition().duration(vars.style.timing.transitions)
+          .attr("x",function(d){
+            var mod = d == 0 ? 1 : 0
+            return start_x + (label_width*d) - mod
+          })
+          .attr("y",vars.style.legend.padding)
+          .attr("width",1)
+          .attr("height",vars.style.legend.padding+vars.style.legend.gradient.height)
+          .attr("fill",vars.style.legend.tick.color)
+        
+        ticks.exit().transition().duration(vars.style.timing.transitions)
+          .attr("width",0)
+          .remove()
+      
+        gradient.transition().duration(vars.style.timing.transitions)
+          .attr("x",function(d){
+            if (vars.style.legend.align == "middle") {
+              return vars.width.value/2 - key_width/2
+            }
+            else if (vars.style.legend.align == "end") {
+              return vars.width.value - key_width - vars.style.legend.padding
+            }
+            else {
+              return vars.style.legend.padding
+            }
+          })
+          .attr("y",vars.style.legend.padding)
+          .attr("width", key_width)
+          .attr("height", vars.style.legend.gradient.height)
+        
+        scale.transition().duration(vars.style.timing.transitions)
+          .attr("opacity",1)
+          
+      }
+      else {
+        key_display = false
+      }
+        
+    }
+    
+  }
+  
+  if (vars.legend.value && vars.color.key && key_display) {
+    
+    var key_box = vars.g.key.node().getBBox()
+    var key_height = key_box.height+key_box.y
+
+    vars.margin.bottom += key_height+vars.style.legend.padding
+    
+    vars.g.key.transition().duration(vars.style.timing.transitions)
+      .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
+      
+  }
+  else {
+
+    vars.g.key.transition().duration(vars.style.timing.transitions)
+      .attr("transform","translate(0,"+vars.height.value+")")
+      
+  }
+  
+}
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates color key
+//-------------------------------------------------------------------
+
+d3plus.ui.timeline = function(vars) {
+  
+  var years = vars.data.time
+ 
+  if (years && years.length > 1 && vars.timeline.value) {
+    
+    if ((vars.time.key == vars.x.key && vars.x.scale.value == "continuous") || (vars.time.key == vars.y.key && vars.y.scale.value == "continuous")) {
+      var min_required = 2
+    }
+    else {
+      var min_required = 1
+    }
+    
+    var init = d3.extent(vars.time.solo.value)
+    
+    var min = years[0],
+        max = years[years.length-1],
+        start = init[0],
+        end = init[1]
+
+    var brushend = function() {
+      if (!d3.event.sourceEvent) return;
+      var extent0 = brush.extent(),
+          extent1 = extent0.map(d3.time.year.round);
+    
+      var min_req_sec = 31536000000 * min_required;
+      var time_diff = extent1[1] - extent1[0];
+      
+      if (time_diff < min_req_sec) {
+      
+        if(min_required > 1){
+          extent1[0] = d3.time.year.round(d3.time.year.offset(extent0[0], -min_required/2));
+          extent1[1] = d3.time.year.round(d3.time.year.offset(extent0[1], min_required/2));
+        }
+        else {
+          extent1[0] = d3.time.year.floor(extent0[0]);
+          extent1[1] = d3.time.year.ceil(extent0[1]);
+        }
+      
+      }
+      
+      d3.select(this).transition()
+          .call(brush.extent(extent1))
+          .call(brush.event)
+          .each("end",function(d){
+
+            var new_years = d3.range(extent1[0].getFullYear(),extent1[1].getFullYear())
+      
+            vars.chart
+              .time({"solo": new_years})
+              .draw()
+              
+          })
+        
+    }
+    
+    var text = vars.g.timeline.selectAll("text")
+      .data(years,function(d,i){
+        return i
+      })
+      
+    text.enter().append("text")
+      .attr("y",0)
+      .attr("dy",0)
+      .attr("x",function(d){
+        if (vars.style.timeline.align == "middle") {
+          return vars.width.value/2
+        }
+        else if (vars.style.timeline.align == "end") {
+          return vars.width.value
+        }
+        else {
+          return 0
+        }
+      })
+      .attr("y",function(d){
+        var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
+        var y = vars.style.timeline.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
+        return y
+      })
+    
+    var year_width = 0,
+        year_height = 0,
+        height = vars.style.timeline.height+vars.style.timeline.padding*2
+    
+    text
+      .order()
+      .style("font-weight",vars.style.timeline.tick.weight)
+      .attr("font-family",vars.style.timeline.tick.family)
+      .attr("font-size",vars.style.timeline.tick.size)
+      .attr("text-anchor",vars.style.timeline.tick.align)
+      .attr("fill",vars.style.timeline.tick.color)
+      .text(function(d){
+        return d
+      })
+      .each(function(d){
+        var w = this.getBBox().width,
+            h = this.getBBox().height
+        if (w > year_width) year_width = w
+        if (h > year_height) year_height = h
+      })
+      
+    var label_width = year_width+vars.style.timeline.padding*2,
+        timeline_width = label_width*years.length,
+        available_width = vars.width.value-vars.style.timeline.padding*2,
+        step = 1
+    
+    if (timeline_width > available_width) {
+      timeline_width = available_width
+      label_width = timeline_width/years.length
+      step = Math.ceil(year_width/label_width)
+      for (step; step < years.length-1; step++) {
+        if ((years.length-1)%step == 0) {
+          break;
+        }
+      }
+      height += vars.style.timeline.padding+year_height
+    }
+    
+    if (vars.style.timeline.align == "start") {
+      var start_x = vars.style.timeline.padding
+    }
+    else if (vars.style.timeline.align == "end") {
+      var start_x = vars.width.value - vars.style.timeline.padding - timeline_width
+    }
+    else {
+      var start_x = vars.width.value/2 - timeline_width/2
+    }
+  
+    text.transition().duration(vars.style.timing.transitions)
+      .attr("x",function(d,i){
+        return start_x + (label_width*i) + label_width/2
+      })
+      .text(function(d,i){
+        return i%step == 0 ? d : ""
+      })
+      .attr("y",function(d){
+        var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
+        var y = vars.style.timeline.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
+        if (step > 1) {
+          y += year_height+vars.style.timeline.padding
+        }
+        return y
+      })
+    
+    text.exit().transition().duration(vars.style.timing.transitions)
+      .attr("opacity",0)
+      .remove()
+    
+    var x = d3.time.scale()
+      .domain([new Date(parseInt(min), 0, 1), new Date(parseInt(max+1), 0, 1)])
+      .range([0,timeline_width])
+      
+    var brush = d3.svg.brush()
+      .x(x)
+      .extent([new Date(start, 0, 1), new Date(end+1, 0, 1)])
+      .on("brushend", brushend)
+      
+    var ticks = vars.g.timeline.selectAll("g#ticks")
+      .data(["ticks"])
+      
+    ticks.enter().append("g")
+      .attr("id","ticks")
+      .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
+      
+    ticks.transition().duration(vars.style.timing.transitions)
+      .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
+      .call(d3.svg.axis()
+        .scale(x)
+        .orient("top")
+        .ticks(function(start, end){
+          var interval = (start - end) > 20 ? 2 : 1;
+          return d3.time.years(start, end, interval)
+        })
+        .tickFormat("")
+        .tickSize(-vars.style.timeline.height)
+        .tickPadding(0))
+        .selectAll("path").attr("fill","none")
+        
+    ticks.selectAll("line").transition().duration(vars.style.timing.transitions)
+      .attr("stroke",vars.style.timeline.tick.color)
+      .attr("shape-rendering",vars.style.rendering)
+    
+    var brush_group = vars.g.timeline.selectAll("g#brush")
+      .data(["brush"])
+      
+    brush_group.enter().append("g")
+      .attr("id","brush")
+      .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
+      .attr("opacity",0)
+      
+    brush_group
+      .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
+      .attr("opacity",1)
+      .call(brush)
+      .call(brush.event)
+      
+    brush_group.selectAll("rect")
+      .transition().duration(vars.style.timing.transitions)
+      .attr("height",vars.style.timeline.height)
+      
+    brush_group.selectAll("rect.background")
+      .transition().duration(vars.style.timing.transitions)
+      .attr("stroke",vars.style.timeline.tick.color)
+      .attr("stroke-width",1)
+      .style("visibility","visible")
+      .attr("fill","none")
+      .attr("shape-rendering",vars.style.rendering)
+      
+    brush_group.selectAll("rect.extent")
+      .transition().duration(vars.style.timing.transitions)
+      .attr("fill",vars.style.timeline.tick.color)
+      .attr("fill-opacity",0.15)
+    
+    vars.margin.bottom += height
+    
+    vars.g.timeline.transition().duration(vars.style.timing.transitions)
+      .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
+    
+  }
+  else {
+    
+    vars.g.timeline.transition().duration(vars.style.timing.transitions)
+      .attr("transform","translate(0,"+vars.height.value+")")
+    
+  }
+ 
+}
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Formats Raw Data
+//-------------------------------------------------------------------
+
+d3plus.ui.titles = function(vars) {
+  
+  // Calculate total_bar value
+  if (!vars.data.app || !vars.title.total.value || vars.type.value == "stacked") {
+    vars.data.total = null
+  }
+  else {
+    if (vars.dev.value) d3plus.console.group("Calculating Total Value")
+    
+    if (vars.dev.value) d3plus.console.time(vars.size.key)
+    
+    if (vars.focus.value && typeof vars.data.app == "object") {
+      if (vars.data.app[vars.focus.value])
+        vars.data.total = d3plus.variable.value(vars,vars.data.app[vars.focus.value],vars.size.key)
+      else {
+        vars.data.total = null
+      }
+    }
+    else {
+      vars.data.total = d3.sum(vars.data.pool,function(d){
+        return d3plus.variable.value(vars,d,vars.size.key)
+      })
+    }
+    
+    if (vars.dev.value) d3plus.console.timeEnd(vars.size.key)
+    if (vars.dev.value) d3plus.console.groupEnd()
+    
+  }
+  
+  vars.margin.top = 0
+  var title_offset = 0
+  if (vars.width.value <= 400 || vars.height.value <= 300) {
+    vars.small = true;
+    vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
+    vars.graph.width = vars.app_width
+    make_title(null,"title");
+    make_title(null,"sub_title");
+    make_title(null,"total_bar");
+    update_footer(null)
+  }
+  else {
+    if (vars.dev.value) d3plus.console.log("Updating Titles")
+    vars.small = false;
+    vars.graph.margin = {"top": 10, "right": 10, "bottom": 40, "left": 40}
+    vars.graph.width = vars.app_width-vars.graph.margin.left-vars.graph.margin.right
+    make_title(vars.title.value,"title");
+    make_title(vars.title.sub.value,"sub_title");
+    if (vars.data.app && !vars.error.value && (vars.type.value != "rings" || (vars.type.value == "rings" && vars.connections[vars.focus.value]))) {
+      make_title(vars.data.total,"total_bar");
+    }
+    else {
+      make_title(null,"total_bar");
+    }
+    if (vars.margin.top > 0) {
+      vars.margin.top += 3
+      if (vars.style.title.height && vars.margin.top < vars.style.title.height) {
+        title_offset = (vars.style.title.height-vars.margin.top)/2
+        vars.margin.top = vars.style.title.height
+      }
+    }
+    update_footer(vars.footer)
+  }
+  
+  vars.g.titles.transition().duration(vars.style.timing.transitions)
+    .attr("transform","translate(0,"+title_offset+")")
+    
+  function make_title(t,type){
+
+    // Set the total value as data for element.
+    var font_size = type == "title" ? 18 : 13,
+        title_position = {
+          "x": vars.width.value/2,
+          "y": vars.margin.top
+        }
+  
+    if (type == "total_bar" && t) {
+      title = vars.format(t,vars.size.key)
+      vars.title.total.value.prefix ? title = vars.title.total.value.prefix + title : null;
+      vars.title.total.value.suffix ? title = title + vars.title.total.value.suffix : null;
+    
+      if (vars.mute.length || vars.solo.length && vars.type.value != "rings") {
+        var overall_total = d3.sum(vars.data.value, function(d){ 
+          if (vars.type.value == "stacked") return d[vars.size.key]
+          else if (vars.time.solo.value == d[vars.time.key]) return d[vars.size.key]
+        })
+        var pct = (t/overall_total)*100
+        ot = vars.format(overall_total,vars.size.key)
+        title += " ("+vars.format(pct,"share")+"% of "+ot+")"
+      }
+    
+    }
+    else {
+      title = t
+    }
+  
+    if (title) {
+      var title_data = title_position
+      title_data.title = title
+      title_data = [title_data]
+    }
+    else {
+      var title_data = []
+    }
+  
+    var total = vars.g.titles.selectAll("g."+type).data(title_data)
+  
+    // Enter
+    total.enter().append("g")
+      .attr("class",type)
+      .style("opacity",0)
+      .append("text")
+        .attr("x",function(d) { return d.x; })
+        .attr("y",function(d) { return d.y; })
+        .attr("font-size",font_size)
+        .attr("fill","#333")
+        .attr("text-anchor", vars.style.title.align)
+        .attr("font-family", vars.style.font.family)
+        .style("font-weight", vars.style.font.weight)
+        .each(function(d){
+          var width = vars.style.title.width || vars.width.value
+          d3plus.utils.wordwrap({
+            "text": d.title,
+            "parent": this,
+            "width": width,
+            "height": vars.height.value/8,
+            "resize": false
+          })
+        })
+  
+    // Update
+    total.transition().duration(vars.style.timing.transitions)
+      .style("opacity",1)
+    
+    d3plus.ui.title_update(vars)
+  
+    // Exit
+    total.exit().transition().duration(vars.style.timing.transitions)
+      .style("opacity",0)
+      .remove();
+
+    if (total.node()) vars.margin.top += total.select("text").node().getBBox().height
+
+  }
+
+  function update_footer(footer_text) {
+    
+    if (footer_text && footer_text.value) {
+      if (footer_text.value.indexOf("<a href=") == 0) {
+        var div = document.createElement("div")
+        div.innerHTML = footer_text.value
+        var t = footer_text.value.split("href=")[1]
+        var link = t.split(t.charAt(0))[1]
+        if (link.charAt(0) != "h" && link.charAt(0) != "/") {
+          link = "http://"+link
+        }
+        var d = [div.getElementsByTagName("a")[0].innerHTML]
+      }
+      else {
+        var d = [footer_text.value]
+      }
+    }
+    else var d = []
+  
+    var source = vars.g.footer.selectAll("text.source").data(d)
+    var padding = 3
+  
+    source.enter().append("text")
+      .attr("class","source")
+      .attr("opacity",0)
+      .attr("x",vars.width.value/2+"px")
+      .attr("y",padding-1+"px")
+      .attr("font-size","10px")
+      .attr("fill","#333")
+      .attr("text-anchor", "middle")
+      .attr("font-family", vars.style.font.family)
+      .style("font-weight", vars.style.font.weight)
+      .each(function(d){
+        d3plus.utils.wordwrap({
+          "text": d,
+          "parent": this,
+          "width": vars.width.value-20,
+          "height": vars.height.value/8,
+          "resize": false
+        })
+      })
+      .on(d3plus.evt.over,function(){
+        if (link) {
+          d3.select(this)
+            .style("text-decoration","underline")
+            .style("cursor","pointer")
+            .style("fill","#000")
+        }
+      })
+      .on(d3plus.evt.out,function(){
+        if (link) {
+          d3.select(this)
+            .style("text-decoration","none")
+            .style("cursor","auto")
+            .style("fill","#333")
+        }
+      })
+      .on(d3plus.evt.click,function(){
+        if (link) {
+          if (link.charAt(0) != "/") var target = "_blank"
+          else var target = "_self"
+          window.open(link,target)
+        }
+      })
+    
+    source
+      .attr("opacity",1)
+      .attr("x",(vars.width.value/2)+"px")
+      .attr("font-family", vars.style.font.family)
+      .style("font-weight", vars.style.font.weight)
+      .each(function(d){
+        d3plus.utils.wordwrap({
+          "text": d,
+          "parent": this,
+          "width": vars.width.value-20,
+          "height": vars.height.value/8,
+          "resize": false
+        })
+      })
+    
+    source.exit().transition().duration(vars.style.timing.transitions)
+      .attr("opacity",0)
+      .remove()
+    
+    if (d.length) {
+      var height = source.node().getBBox().height
+      vars.margin.bottom = height+padding*2
+    }
+    else {
+      vars.margin.bottom = 0
+    }
+  
+    vars.g.footer.transition().duration(vars.style.timing.transitions)
+      .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
+  
+  }
+}
+
+d3plus.ui.title_update = function(vars) {
+  
+  vars.g.titles.selectAll("g").select("text")
+    .transition().duration(vars.style.timing.transitions)
+      .attr("x",function(d) { return d.x; })
+      .attr("y",function(d) { return d.y; })
+      .each(function(d){
+        var width = vars.style.title.width || vars.width.value
+        d3plus.utils.wordwrap({
+          "text": d.title,
+          "parent": this,
+          "width": width,
+          "height": vars.height.value/8,
+          "resize": false
+        })
+      })
+      .selectAll("tspan")
+        .attr("x",function(d) { return d.x; })
+    
+}
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator
 //------------------------------------------------------------------------------
@@ -7252,328 +8526,7 @@ d3plus.color.lighter = function(color) {
   var c = d3.hsl(color);
   c.l = 0.95;
   return c.toString();
-}//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Creates Error Message
-//-------------------------------------------------------------------
-
-d3plus.utils.error = function(vars) {
-  
-  var error = vars.svg.selectAll("g#error")
-    .data(["error"])
-    
-  error.enter().append("g")
-    .attr("id","error")
-    .attr("opacity",0)
-    .append("text")
-      .attr("x",vars.width.default/2)
-      .attr("font-size","30px")
-      .attr("fill","#888")
-      .attr("text-anchor", "middle")
-      .attr("font-family", vars.style.font.family)
-      .style("font-weight", vars.style.font.weight)
-      .style(vars.style.info)
-      .attr("y",function(){
-        var height = d3.select(this).node().getBBox().height
-        return vars.height.default/2-height/2
-      })
-      
-  error.transition().duration(vars.style.timing.transitions)
-    .attr("opacity",1)
-      
-  error.select("text").transition().duration(vars.style.timing.transitions)
-    .attr("x",vars.width.default/2)
-    .each(function(d){
-      if (vars.internal_error) {
-        d3plus.utils.wordwrap({
-          "text": vars.format(vars.internal_error,"error"),
-          "parent": this,
-          "width": vars.width.default-20,
-          "height": vars.height.default-20,
-          "resize": false
-        })
-      }
-    })
-    .attr("y",function(){
-      var height = d3.select(this).node().getBBox().height
-      return vars.height.default/2-height/2
-    })
-    .attr("opacity",function(){
-      return vars.internal_error ? 1 : 0
-    })
-  
-}
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Formats Raw Data
-//-------------------------------------------------------------------
-
-d3plus.utils.titles = function(vars) {
-  
-  // Calculate total_bar value
-  if (!vars.app_data || !vars.title.total.default || vars.type.default == "stacked") {
-    vars.data.total = null
-  }
-  else {
-    if (vars.dev.default) d3plus.console.group("Calculating Total Value")
-    
-    if (vars.dev.default) d3plus.console.time(vars.size.key)
-    
-    if (vars.app_data instanceof Array) {
-      vars.data.total = d3.sum(vars.app_data,function(d){
-        return d3plus.variable.value(vars,d,vars.size.key)
-      })
-    }
-    else if (vars.type.default == "rings") {
-      if (vars.app_data[vars.focus.default])
-        vars.data.total = vars.app_data[vars.focus.default][vars.size.key]
-      else {
-        vars.data.total = null
-      }
-    }
-    else {
-      vars.data.total = d3.sum(d3.values(vars.app_data),function(d){
-        return d[vars.size.key]
-      })
-    }
-    
-    if (vars.dev.default) d3plus.console.timeEnd(vars.size.key)
-    if (vars.dev.default) d3plus.console.groupEnd()
-    
-  }
-  
-  vars.margin.top = 0
-  var title_offset = 0
-  if (vars.width.default <= 400 || vars.height.default <= 300) {
-    vars.small = true;
-    vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
-    vars.graph.width = vars.app_width
-    make_title(null,"title");
-    make_title(null,"sub_title");
-    make_title(null,"total_bar");
-    update_footer(null)
-  }
-  else {
-    if (vars.dev.default) d3plus.console.log("Updating Titles")
-    vars.small = false;
-    vars.graph.margin = {"top": 10, "right": 10, "bottom": 40, "left": 40}
-    vars.graph.width = vars.app_width-vars.graph.margin.left-vars.graph.margin.right
-    make_title(vars.title.default,"title");
-    make_title(vars.title.sub.default,"sub_title");
-    if (vars.app_data && !vars.error.default && (vars.type.default != "rings" || (vars.type.default == "rings" && vars.connections[vars.focus.default]))) {
-      make_title(vars.data.total,"total_bar");
-    }
-    else {
-      make_title(null,"total_bar");
-    }
-    if (vars.margin.top > 0) {
-      vars.margin.top += 3
-      if (vars.style.title.height && vars.margin.top < vars.style.title.height) {
-        title_offset = (vars.style.title.height-vars.margin.top)/2
-        vars.margin.top = vars.style.title.height
-      }
-    }
-    update_footer(vars.footer)
-  }
-  
-  vars.g.titles.transition().duration(vars.style.timing.transitions)
-    .attr("transform","translate(0,"+title_offset+")")
-    
-  function make_title(t,type){
-
-    // Set the total value as data for element.
-    var font_size = type == "title" ? 18 : 13,
-        title_position = {
-          "x": vars.width.default/2,
-          "y": vars.margin.top
-        }
-  
-    if (type == "total_bar" && t) {
-      title = vars.format(t,vars.size.key)
-      vars.title.total.default.prefix ? title = vars.title.total.default.prefix + title : null;
-      vars.title.total.default.suffix ? title = title + vars.title.total.default.suffix : null;
-    
-      if (vars.mute.length || vars.solo.length && vars.type.default != "rings") {
-        var overall_total = d3.sum(vars.data.default, function(d){ 
-          if (vars.type.default == "stacked") return d[vars.size.key]
-          else if (vars.time.solo == d[vars.time.key]) return d[vars.size.key]
-        })
-        var pct = (t/overall_total)*100
-        ot = vars.format(overall_total,vars.size.key)
-        title += " ("+vars.format(pct,"share")+"% of "+ot+")"
-      }
-    
-    }
-    else {
-      title = t
-    }
-  
-    if (title) {
-      var title_data = title_position
-      title_data.title = title
-      title_data = [title_data]
-    }
-    else {
-      var title_data = []
-    }
-  
-    var total = vars.g.titles.selectAll("g."+type).data(title_data)
-  
-    // Enter
-    total.enter().append("g")
-      .attr("class",type)
-      .style("opacity",0)
-      .append("text")
-        .attr("x",function(d) { return d.x; })
-        .attr("y",function(d) { return d.y; })
-        .attr("font-size",font_size)
-        .attr("fill","#333")
-        .attr("text-anchor", vars.style.title.align)
-        .attr("font-family", vars.style.font.family)
-        .style("font-weight", vars.style.font.weight)
-        .each(function(d){
-          var width = vars.style.title.width || vars.width.default
-          d3plus.utils.wordwrap({
-            "text": d.title,
-            "parent": this,
-            "width": width,
-            "height": vars.height.default/8,
-            "resize": false
-          })
-        })
-  
-    // Update
-    total.transition().duration(vars.style.timing.transitions)
-      .style("opacity",1)
-    
-    d3plus.utils.title_update(vars)
-  
-    // Exit
-    total.exit().transition().duration(vars.style.timing.transitions)
-      .style("opacity",0)
-      .remove();
-
-    if (total.node()) vars.margin.top += total.select("text").node().getBBox().height
-
-  }
-
-  function update_footer(footer_text) {
-    
-    if (footer_text && footer_text.default) {
-      if (footer_text.default.indexOf("<a href=") == 0) {
-        var div = document.createElement("div")
-        div.innerHTML = footer_text.default
-        var t = footer_text.default.split("href=")[1]
-        var link = t.split(t.charAt(0))[1]
-        if (link.charAt(0) != "h" && link.charAt(0) != "/") {
-          link = "http://"+link
-        }
-        var d = [div.getElementsByTagName("a")[0].innerHTML]
-      }
-      else {
-        var d = [footer_text.default]
-      }
-    }
-    else var d = []
-  
-    var source = vars.g.footer.selectAll("text.source").data(d)
-    var padding = 3
-  
-    source.enter().append("text")
-      .attr("class","source")
-      .attr("opacity",0)
-      .attr("x",vars.width.default/2+"px")
-      .attr("y",padding-1+"px")
-      .attr("font-size","10px")
-      .attr("fill","#333")
-      .attr("text-anchor", "middle")
-      .attr("font-family", vars.style.font.family)
-      .style("font-weight", vars.style.font.weight)
-      .each(function(d){
-        d3plus.utils.wordwrap({
-          "text": d,
-          "parent": this,
-          "width": vars.width.default-20,
-          "height": vars.height.default/8,
-          "resize": false
-        })
-      })
-      .on(d3plus.evt.over,function(){
-        if (link) {
-          d3.select(this)
-            .style("text-decoration","underline")
-            .style("cursor","pointer")
-            .style("fill","#000")
-        }
-      })
-      .on(d3plus.evt.out,function(){
-        if (link) {
-          d3.select(this)
-            .style("text-decoration","none")
-            .style("cursor","auto")
-            .style("fill","#333")
-        }
-      })
-      .on(d3plus.evt.click,function(){
-        if (link) {
-          if (link.charAt(0) != "/") var target = "_blank"
-          else var target = "_self"
-          window.open(link,target)
-        }
-      })
-    
-    source
-      .attr("opacity",1)
-      .attr("x",(vars.width.default/2)+"px")
-      .attr("font-family", vars.style.font.family)
-      .style("font-weight", vars.style.font.weight)
-      .each(function(d){
-        d3plus.utils.wordwrap({
-          "text": d,
-          "parent": this,
-          "width": vars.width.default-20,
-          "height": vars.height.default/8,
-          "resize": false
-        })
-      })
-    
-    source.exit().transition().duration(vars.style.timing.transitions)
-      .attr("opacity",0)
-      .remove()
-    
-    if (d.length) {
-      var height = source.node().getBBox().height
-      vars.margin.bottom = height+padding*2
-    }
-    else {
-      vars.margin.bottom = 0
-    }
-  
-    vars.g.footer.transition().duration(vars.style.timing.transitions)
-      .attr("transform","translate(0,"+(vars.height.default-vars.margin.bottom)+")")
-  
-  }
-}
-
-d3plus.utils.title_update = function(vars) {
-  
-  vars.g.titles.selectAll("g").select("text")
-    .transition().duration(vars.style.timing.transitions)
-      .attr("x",function(d) { return d.x; })
-      .attr("y",function(d) { return d.y; })
-      .each(function(d){
-        var width = vars.style.title.width || vars.width.default
-        d3plus.utils.wordwrap({
-          "text": d.title,
-          "parent": this,
-          "width": width,
-          "height": vars.height.default/8,
-          "resize": false
-        })
-      })
-      .selectAll("tspan")
-        .attr("x",function(d) { return d.x; })
-    
-}
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+}//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns list of unique values
 //------------------------------------------------------------------------------
 d3plus.utils.uniques = function(data,value) {
@@ -7671,11 +8624,11 @@ d3plus.utils.connections = function(vars,links) {
   links.forEach(function(d) {
     
     if (typeof d.source != "object") {
-      d.source = vars.nodes.default.filter(function(n){return n[vars.id.key] == d.source})[0]
+      d.source = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.source})[0]
     }
 
     if (typeof d.target != "object") {
-      d.target = vars.nodes.default.filter(function(n){return n[vars.id.key] == d.target})[0]
+      d.target = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.target})[0]
     }
     
     if (!connections[d.source[vars.id.key]]) {
@@ -7688,6 +8641,58 @@ d3plus.utils.connections = function(vars,links) {
     connections[d.target[vars.id.key]].push(d.source)
   })
   return connections;
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Removes all non ASCII characters
+//------------------------------------------------------------------------------
+d3plus.utils.strip = function(str) {
+    
+  var removed = [ "!","@","#","$","%","^","&","*","(",")",
+                  "[","]","{","}",".",",","/","\\","|",
+                  "'","\"",";",":","<",">","?","=","+"]
+  
+  return str.replace(/[^A-Za-z0-9\-_]/g, function(chr) {
+    
+    if (" " == chr) {
+      return "_"
+    }
+    else if (removed.indexOf(chr) >= 0) {
+      return ""
+    }
+    
+    var diacritics = [
+        [/[\300-\306]/g, 'A'],
+        [/[\340-\346]/g, 'a'],
+        [/[\310-\313]/g, 'E'],
+        [/[\350-\353]/g, 'e'],
+        [/[\314-\317]/g, 'I'],
+        [/[\354-\357]/g, 'i'],
+        [/[\322-\330]/g, 'O'],
+        [/[\362-\370]/g, 'o'],
+        [/[\331-\334]/g, 'U'],
+        [/[\371-\374]/g, 'u'],
+        [/[\321]/g, 'N'],
+        [/[\361]/g, 'n'],
+        [/[\307]/g, 'C'],
+        [/[\347]/g, 'c'],
+    ];
+    
+    var ret = ""
+    
+    for (d in diacritics) {
+
+      if (diacritics[d][0].test(chr)) {
+        ret = diacritics[d][1]
+        break;
+      }
+      
+    }
+    
+    return ret;
+      
+  });
+  
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
@@ -7738,11 +8743,11 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     
     if (!agg) {
       var agg = "sum"
-      if (typeof vars.aggs.default == "string") {
-        agg = vars.aggs.default
+      if (typeof vars.aggs.value == "string") {
+        agg = vars.aggs.value
       }
-      else if (vars.aggs.default[variable]) {
-        agg = vars.aggs.default[variable]
+      else if (vars.aggs.value[variable]) {
+        agg = vars.aggs.value[variable]
       }
     }
     check_children(id)
@@ -7763,29 +8768,29 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     if (typeof id == "object") {
       id = id[id_var]
     }
-    if (vars.app_data instanceof Array) {
-      var dat = filter_array(vars.app_data)
+    if (vars.data.app instanceof Array) {
+      var dat = filter_array(vars.data.app)
       if (dat && typeof dat[variable] != "undefined") return dat[variable]
     }
-    else if (vars.app_data) {
-      var dat = vars.app_data[id]
+    else if (vars.data.app) {
+      var dat = vars.data.app[id]
       if (dat && typeof dat[variable] != "undefined") return dat[variable]
     }
   }
   
-  if (vars.attrs.default instanceof Array) {
-    var attr = filter_array(vars.attrs.default)
+  if (vars.attrs.value instanceof Array) {
+    var attr = filter_array(vars.attrs.value)
   }
-  else if (vars.attrs.default[id_var]) {
-    if (vars.attrs.default[id_var] instanceof Array) {
-      var attr = filter_array(vars.attrs.default[id_var])
+  else if (vars.attrs.value[id_var]) {
+    if (vars.attrs.value[id_var] instanceof Array) {
+      var attr = filter_array(vars.attrs.value[id_var])
     }
     else {
-      var attr = vars.attrs.default[id_var][id]
+      var attr = vars.attrs.value[id_var][id]
     }
   }
   else {
-    var attr = vars.attrs.default[id]
+    var attr = vars.attrs.value[id]
   }
   
   if (attr && typeof attr[variable] != "undefined") return attr[variable]
@@ -7815,9 +8820,10 @@ d3plus.variable.color = function(vars,id) {
     return get_random(id);
   }
   else {
+    
     var color = d3plus.variable.value(vars,id,vars.color.key)
     
-    if (!color && vars.color_domain instanceof Array) color = "#eee"
+    if (!color && typeof vars.color_scale == "function") color = "#eee"
     else if (!color) return get_random(id)
     
     if (typeof color == "string") {
@@ -7833,7 +8839,7 @@ d3plus.variable.color = function(vars,id) {
 //------------------------------------------------------------------------------
 d3plus.variable.text = function(vars,obj,depth) {
   
-  if (typeof depth != "number") var depth = vars.depth.default
+  if (typeof depth != "number") var depth = vars.depth.value
   
   if (vars.text.array && typeof vars.text.array == "object") {
     if (vars.text.array[vars.id.nesting[depth]]) {
