@@ -13,21 +13,16 @@ d3plus.ui.titles = function(vars) {
     
     if (vars.dev.default) d3plus.console.time(vars.size.key)
     
-    if (vars.data.app instanceof Array) {
-      vars.data.total = d3.sum(vars.data.app,function(d){
-        return d3plus.variable.value(vars,d,vars.size.key)
-      })
-    }
-    else if (vars.type.default == "rings") {
+    if (vars.focus.default && typeof vars.data.app == "object") {
       if (vars.data.app[vars.focus.default])
-        vars.data.total = vars.data.app[vars.focus.default][vars.size.key]
+        vars.data.total = d3plus.variable.value(vars,vars.data.app[vars.focus.default],vars.size.key)
       else {
         vars.data.total = null
       }
     }
     else {
-      vars.data.total = d3.sum(d3.values(vars.data.app),function(d){
-        return d[vars.size.key]
+      vars.data.total = d3.sum(vars.data.pool,function(d){
+        return d3plus.variable.value(vars,d,vars.size.key)
       })
     }
     
