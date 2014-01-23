@@ -31,14 +31,14 @@ d3plus.styles.default = {
       "height": 10
     },
     "label": {
-      "color": "#333",
+      "color": "#444",
       "family": "sans-serif",
       "weight": "normal",
       "size": 12
     },
     "tick": {
       "align": "middle",
-      "color": "#333",
+      "color": "#444",
       "family": "sans-serif",
       "weight": "normal",
       "size": 10
@@ -72,6 +72,25 @@ d3plus.styles.default = {
       "size": 12
     },
     "width": 1
+  },
+  "timeline": {
+    "align": "middle",
+    "padding": 5,
+    "color": "#cccccc",
+    "height": 20,
+    "label": {
+      "color": "#444",
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 12
+    },
+    "tick": {
+      "align": "middle",
+      "color": "#444",
+      "family": "sans-serif",
+      "weight": "normal",
+      "size": 10
+    }
   },
   "timing": {
     "mouseevents": 60,
