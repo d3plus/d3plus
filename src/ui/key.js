@@ -353,10 +353,6 @@ d3plus.ui.key = function(vars) {
         
       text.enter().append("text")
         .attr("class","tick")
-      
-      var label_width = 0
-      
-      text
         .attr("y",0)
         .attr("x",function(d){
           if (vars.style.key.align == "middle") {
@@ -369,6 +365,10 @@ d3plus.ui.key = function(vars) {
             return 0
           }
         })
+      
+      var label_width = 0
+      
+      text
         .style("font-weight",vars.style.key.tick.weight)
         .attr("font-family",vars.style.key.tick.family)
         .attr("font-size",vars.style.key.tick.size)
