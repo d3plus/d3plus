@@ -36,7 +36,6 @@ d3plus.styles.default = {
   },
   "legend": {
     "align": "middle",
-    "padding": 5,
     "gradient": {
       "height": 10
     },
@@ -46,14 +45,15 @@ d3plus.styles.default = {
       "weight": "normal",
       "size": 12
     },
+    "padding": 5,
+    "size": 30,
     "tick": {
       "align": "middle",
       "color": "#444",
       "family": "sans-serif",
       "weight": "normal",
       "size": 10
-    },
-    "size": 30
+    }
   },
   "links": {
     "color": "#dedede",
@@ -75,8 +75,6 @@ d3plus.styles.default = {
   },
   "timeline": {
     "align": "middle",
-    "padding": 5,
-    "color": "#cccccc",
     "height": 20,
     "label": {
       "color": "#444",
@@ -84,6 +82,7 @@ d3plus.styles.default = {
       "weight": "normal",
       "size": 12
     },
+    "padding": 5,
     "tick": {
       "align": "middle",
       "color": "#444",
