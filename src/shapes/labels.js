@@ -23,7 +23,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       var align = t.anchor || vars.style.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "share" : this.className.baseVal == "share",
-          width = d3.select(this).node().getBBox().width,
+          width = d3.select(this).node().getComputedTextLength(),
           rtl = vars.style.labels.dir == "rtl"
           
       if (align == "middle" || share) {
