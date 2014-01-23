@@ -9,7 +9,7 @@ d3plus.tooltip.app = function(params) {
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = params.arrow ? params.arrow : true
       
-  if (d3.event.type == "click" && (vars.tooltip.html || vars.tooltip.value.long)) {
+  if (d3.event.type == "click" && (vars.html.value || vars.tooltip.value.long)) {
     var fullscreen = true,
         arrow = false,
         mouse = true,
@@ -106,15 +106,15 @@ d3plus.tooltip.app = function(params) {
   
   if (fullscreen) {
 
-    if (typeof vars.tooltip.html == "string") {
-      make_tooltip(vars.tooltip.html)
+    if (typeof vars.html.value == "string") {
+      make_tooltip(vars.html.value)
     }
-    else if (typeof vars.tooltip.html == "function") {
-      make_tooltip(vars.tooltip.html(id))
+    else if (typeof vars.html.value == "function") {
+      make_tooltip(vars.html.value(id))
     }
-    else if (vars.tooltip.html && typeof vars.tooltip.html == "object" && vars.tooltip.html.url) {
-      d3.json(vars.tooltip.html.url,function(data){
-        var html = vars.tooltip.html.callback ? vars.tooltip.html.callback(data) : data
+    else if (vars.html.value && typeof vars.html.value == "object" && vars.html.value.url) {
+      d3.json(vars.html.value.url,function(data){
+        var html = vars.html.value.callback ? vars.html.value.callback(data) : data
         make_tooltip(html)
       })
     }
