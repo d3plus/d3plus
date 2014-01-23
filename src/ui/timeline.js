@@ -208,7 +208,7 @@ d3plus.ui.timeline = function(vars) {
       .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
       .attr("opacity",0)
       
-    brush_group.transition().duration(vars.style.timing.transitions)
+    brush_group
       .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
       .attr("opacity",1)
       .call(brush)
