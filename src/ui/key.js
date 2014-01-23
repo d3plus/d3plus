@@ -149,11 +149,7 @@ d3plus.ui.key = function(vars) {
                 
               if (g.url) {
                 
-                short_url = g.url.replace(/\//g,'')
-                short_url += "_"+g.color
-                short_url = short_url.replace(/\:/g,'')
-                short_url = short_url.replace(/\./g,'')
-                short_url = short_url.replace(/\#/g,'')
+                var short_url = d3plus.utils.strip(g.url+"_"+g.color)
                 
                 var pattern = vars.defs.selectAll("pattern#"+short_url)
                   .data([short_url])

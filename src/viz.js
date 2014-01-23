@@ -385,7 +385,7 @@ d3plus.viz = function() {
         titles = [],
         title = vars.title.default || "My D3plus App Data"
         
-    title = title.replace(/\ /g,'-')
+    title = d3plus.utils.strip(title)
 
     if (!columns) {
       var columns = [vars.id.key]
