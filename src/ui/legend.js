@@ -147,9 +147,9 @@ d3plus.ui.legend = function(vars) {
               d3.select(this.parentNode).selectAll("text")
                 .remove()
                 
-              if (g.url) {
+              if (g.icon) {
                 
-                var short_url = d3plus.utils.strip(g.url+"_"+g.color)
+                var short_url = d3plus.utils.strip(g.icon+"_"+g.color)
                 
                 var pattern = vars.defs.selectAll("pattern#"+short_url)
                   .data([short_url])
@@ -165,7 +165,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("height",vars.style.legend.size)
                   
                 pattern_enter.append("image")
-                  .attr("xlink:href",g.url)
+                  .attr("xlink:href",g.icon)
                   .attr("width",vars.style.legend.size)
                   .attr("height",vars.style.legend.size)
                     
