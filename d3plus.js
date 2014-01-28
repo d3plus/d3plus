@@ -2,7 +2,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.1.0 - Navy";
+d3plus.version = "1.1.1 - Navy";
 
 d3plus.ie = /*@cc_on!@*/false;
 
@@ -559,7 +559,7 @@ d3plus.viz = function() {
         .attr("transform","translate(0,"+vars.height.value+")")
 
       // Enter App Clipping Mask
-      vars.g.clipping = vars.svg.selectAll("clipPath#clipping").data(["clipping"])
+      vars.g.clipping = vars.svg.selectAll("#clipping").data(["clipping"])
       vars.g.clipping.enter().append("clipPath")
         .attr("id","clipping")
         .append("rect")
@@ -6461,7 +6461,6 @@ d3plus.styles.default = {
   },
   "legend": {
     "align": "middle",
-    "padding": 5,
     "gradient": {
       "height": 10
     },
@@ -6471,14 +6470,15 @@ d3plus.styles.default = {
       "weight": "normal",
       "size": 12
     },
+    "padding": 5,
+    "size": 30,
     "tick": {
       "align": "middle",
       "color": "#444",
       "family": "sans-serif",
       "weight": "normal",
       "size": 10
-    },
-    "size": 30
+    }
   },
   "links": {
     "color": "#dedede",
@@ -6500,8 +6500,6 @@ d3plus.styles.default = {
   },
   "timeline": {
     "align": "middle",
-    "padding": 5,
-    "color": "#cccccc",
     "height": 20,
     "label": {
       "color": "#444",
@@ -6509,6 +6507,7 @@ d3plus.styles.default = {
       "weight": "normal",
       "size": 12
     },
+    "padding": 5,
     "tick": {
       "align": "middle",
       "color": "#444",
@@ -7633,9 +7632,9 @@ d3plus.ui.legend = function(vars) {
               d3.select(this.parentNode).selectAll("text")
                 .remove()
                 
-              if (g.url) {
+              if (g.icon) {
                 
-                var short_url = d3plus.utils.strip(g.url+"_"+g.color)
+                var short_url = d3plus.utils.strip(g.icon+"_"+g.color)
                 
                 var pattern = vars.defs.selectAll("pattern#"+short_url)
                   .data([short_url])
@@ -7651,7 +7650,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("height",vars.style.legend.size)
                   
                 pattern_enter.append("image")
-                  .attr("xlink:href",g.url)
+                  .attr("xlink:href",g.icon)
                   .attr("width",vars.style.legend.size)
                   .attr("height",vars.style.legend.size)
                     
