@@ -132,7 +132,7 @@ d3plus.viz = function() {
         .attr("transform","translate(0,"+vars.height.value+")")
 
       // Enter App Clipping Mask
-      vars.g.clipping = vars.svg.selectAll("clipPath#clipping").data(["clipping"])
+      vars.g.clipping = vars.svg.selectAll("#clipping").data(["clipping"])
       vars.g.clipping.enter().append("clipPath")
         .attr("id","clipping")
         .append("rect")
