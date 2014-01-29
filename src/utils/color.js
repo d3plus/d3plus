@@ -32,17 +32,33 @@ d3plus.color.legible = function(color) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Darkens a color
 //------------------------------------------------------------------------------
-d3plus.color.darker = function(color) {
+d3plus.color.darker = function(color,increment) {
   var c = d3.hsl(color)
-  c.l = c.l < .2 ? 0 : c.l-.2;
+  if (increment) {
+    c.l -= increment
+    if (c.l < 0) {
+      c.l = 0
+    }
+  }
+  else {
+    c.l = c.l < .2 ? 0 : c.l-.2;
+  }
   return c.toString();
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Lightens a color
 //------------------------------------------------------------------------------
-d3plus.color.lighter = function(color) {
+d3plus.color.lighter = function(color,increment) {
   var c = d3.hsl(color);
-  c.l = 0.95;
+  if (increment) {
+    c.l += increment
+    if (c.l > 1) {
+      c.l = 1
+    }
+  }
+  else {
+    c.l = c.l >= .75 ? 0.95 : c.l+.2;
+  }
   return c.toString();
 }
