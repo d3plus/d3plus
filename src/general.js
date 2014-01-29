@@ -5,6 +5,17 @@ d3plus.version = "1.1.1 - Navy";
 
 d3plus.ie = /*@cc_on!@*/false;
 
+d3plus.fontawesome = false
+
+var sheets = document.styleSheets
+    
+for (var s = 0; s < sheets.length; s++) {
+  if (sheets[s].href && sheets[s].href.indexOf("font-awesome") >= 0) {
+    d3plus.fontawesome = true
+    break;
+  }
+}
+
 d3plus.evt = {}; // stores all mouse events that could occur
 
 // Modernizr touch events
