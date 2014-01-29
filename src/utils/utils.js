@@ -1,75 +1,3 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Returns list of unique values
-//------------------------------------------------------------------------------
-d3plus.utils.uniques = function(data,value) {
-  var type = null
-  return d3.nest().key(function(d) { 
-      if (typeof value == "string") {
-        if (!type) type = typeof d[value]
-        return d[value]
-      }
-      else if (typeof value == "function") {
-        if (!type) type = typeof value(d)
-        return value(d)
-      }
-      else {
-        return d
-      }
-    })
-    .entries(data)
-    .reduce(function(a,b){ 
-      var val = b.key
-      if (type == "number") val = parseFloat(val)
-      return a.concat(val)
-    },[]).sort(function(a,b){
-      return a - b
-    })
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Finds closest numeric value in array
-//------------------------------------------------------------------------------
-d3plus.utils.closest = function(arr,value) {
-  var closest = arr[0]
-  arr.forEach(function(p){
-    if (Math.abs(value-p) < Math.abs(value-closest)) {
-      closest = p
-    }
-  })
-  return closest
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Merge two objects to create a new one with the properties of both
-//------------------------------------------------------------------------------
-d3plus.utils.merge = function(obj1, obj2) {
-  var obj3 = {};
-  function copy_object(obj,ret) {
-    for (var a in obj) {
-      if (typeof obj[a] != "undefined") {
-        if (obj[a] instanceof Array) {
-          ret[a] = obj[a]
-        }
-        else if (typeof obj[a] == "object") {
-          if (!ret[a]) ret[a] = {}
-          copy_object(obj[a],ret[a])
-        }
-        else {
-          ret[a] = obj[a]
-        }
-      }
-    }
-  }
-  if (obj1) copy_object(obj1,obj3)
-  if (obj2) copy_object(obj2,obj3)
-  // for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
-  // for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
-  return obj3;
-}
-d3plus.utils.copy = function(obj) {
-  return d3plus.utils.merge(obj)
-}
-
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Expands a min/max into a specified number of buckets
 //------------------------------------------------------------------------------
@@ -86,6 +14,19 @@ d3plus.utils.buckets = function(arr, buckets) {
     return_arr[return_arr.length-1] = arr[1]
   }
   return return_arr
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Finds closest numeric value in array
+//------------------------------------------------------------------------------
+d3plus.utils.closest = function(arr,value) {
+  var closest = arr[0]
+  arr.forEach(function(p){
+    if (Math.abs(value-p) < Math.abs(value-closest)) {
+      closest = p
+    }
+  })
+  return closest
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -113,6 +54,39 @@ d3plus.utils.connections = function(vars,links) {
     connections[d.target[vars.id.key]].push(d.source)
   })
   return connections;
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Clones an object, removing any links to the original
+//------------------------------------------------------------------------------
+d3plus.utils.copy = function(obj) {
+  return d3plus.utils.merge(obj)
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Merge two objects to create a new one with the properties of both
+//------------------------------------------------------------------------------
+d3plus.utils.merge = function(obj1, obj2) {
+  var obj3 = {};
+  function copy_object(obj,ret) {
+    for (var a in obj) {
+      if (typeof obj[a] != "undefined") {
+        if (obj[a] instanceof Array) {
+          ret[a] = obj[a]
+        }
+        else if (typeof obj[a] == "object") {
+          if (!ret[a]) ret[a] = {}
+          copy_object(obj[a],ret[a])
+        }
+        else {
+          ret[a] = obj[a]
+        }
+      }
+    }
+  }
+  if (obj1) copy_object(obj1,obj3)
+  if (obj2) copy_object(obj2,obj3)
+  return obj3;
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -165,4 +139,32 @@ d3plus.utils.strip = function(str) {
       
   });
   
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Returns list of unique values
+//------------------------------------------------------------------------------
+d3plus.utils.uniques = function(data,value) {
+  var type = null
+  return d3.nest().key(function(d) { 
+      if (typeof value == "string") {
+        if (!type) type = typeof d[value]
+        return d[value]
+      }
+      else if (typeof value == "function") {
+        if (!type) type = typeof value(d)
+        return value(d)
+      }
+      else {
+        return d
+      }
+    })
+    .entries(data)
+    .reduce(function(a,b){ 
+      var val = b.key
+      if (type == "number") val = parseFloat(val)
+      return a.concat(val)
+    },[]).sort(function(a,b){
+      return a - b
+    })
 }
