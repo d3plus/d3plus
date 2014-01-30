@@ -43,14 +43,6 @@ d3plus.viz = function() {
         vars.parent
           .style("overflow","hidden")
           .html("")
-          
-        var dir = d3.select("html").attr("dir")
-        if (dir) {
-          vars.style.labels.dir = dir
-        }
-        else {
-          vars.style.labels.dir = "ltr"
-        }
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

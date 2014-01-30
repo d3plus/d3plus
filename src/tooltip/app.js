@@ -98,8 +98,7 @@ d3plus.tooltip.app = function(params) {
       "style": vars.style.icon,
       "title": title,
       "x": x,
-      "y": y,
-      "rtl": vars.style.labels.dir == "rtl"
+      "y": y
     })
     
   }

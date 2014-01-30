@@ -16,6 +16,8 @@ for (var s = 0; s < sheets.length; s++) {
   }
 }
 
+d3plus.rtl = d3.select("html").attr("dir") == "rtl"
+
 d3plus.evt = {}; // stores all mouse events that could occur
 
 // Modernizr touch events

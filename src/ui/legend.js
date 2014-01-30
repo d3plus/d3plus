@@ -252,7 +252,6 @@ d3plus.ui.legend = function(vars) {
                 "title": d.name[0],
                 "x": x,
                 "y": y,
-                "rtl": vars.style.labels.dir == "rtl",
                 "width": "auto"
               })
               
