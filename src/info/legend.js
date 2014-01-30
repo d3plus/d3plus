@@ -2,7 +2,7 @@
 // Creates color key
 //-------------------------------------------------------------------
 
-d3plus.ui.legend = function(vars) {
+d3plus.info.legend = function(vars) {
   
   var key_display = true
   

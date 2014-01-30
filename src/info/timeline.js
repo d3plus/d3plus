@@ -2,7 +2,7 @@
 // Creates color key
 //-------------------------------------------------------------------
 
-d3plus.ui.timeline = function(vars) {
+d3plus.info.timeline = function(vars) {
   
   var years = vars.data.time
  
