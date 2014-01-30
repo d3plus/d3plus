@@ -488,7 +488,7 @@ d3plus.viz = function() {
   Object.keys(d3plus.public).forEach(function(p){
     
     // give default values to this .viz()
-    vars[p] = d3plus.public[p]
+    vars[p] = d3plus.utils.copy(d3plus.public[p])
     
     // detect available app types
     if (p == "type") {
