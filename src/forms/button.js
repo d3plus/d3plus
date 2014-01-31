@@ -79,7 +79,8 @@ d3plus.forms.button = function(vars,styles,timing) {
       .style("font-family",styles["font-family"])
       .style("font-size",styles["font-size"]+"px")
       .style("font-weight",styles["font-weight"])
-      .style("letter-spacing",styles["letter-spacing"])
+      .style("text-align",styles["font-align"])
+      .style("letter-spacing",styles["font-spacing"])
       .style("width",function(c){
         if (typeof styles.width == "object" && "button" in styles.width) {
           return styles.width.button+"px"
