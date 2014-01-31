@@ -8,23 +8,30 @@ d3plus.forms.drop = function(vars,styles,timing) {
         id = "d3plus_button_"+vars.id,
         child = id+"_"
         
-    if (element != id && element.indexOf(child) < 0) {
+    if (element != id && element.indexOf(child) < 0 && vars.enabled) {
       vars.ui.disable()
     }
     
   })
   
-  if (styles.icon.indexOf("fa-") == 0) {
-    var icon = {
-      "class": "d3plus_drop_icon fa "+styles.icon,
-      "content": ""
+  if (styles.icon) {
+
+    if (styles.icon.indexOf("fa-") == 0) {
+      var icon = {
+        "class": "d3plus_drop_icon fa "+styles.icon,
+        "content": ""
+      }
     }
+    else {
+      var icon = {
+        "class": "d3plus_drop_icon",
+        "content": styles.icon
+      }
+    }
+    
   }
   else {
-    var icon = {
-      "class": "d3plus_drop_icon",
-      "content": styles.icon
-    }
+    var icon = false
   }
   
   function check_value(obj,arr) {
@@ -62,10 +69,12 @@ d3plus.forms.drop = function(vars,styles,timing) {
       data.border = "none"
       data.width = false
       data.margin = 0
+      
       var text = check_value(vars.text,["drop","button"])
       if (!text) {
        text = "text"
       }
+      
       var button = d3plus.ui(data)
         .type("button")
         .text(text)
@@ -73,18 +82,28 @@ d3plus.forms.drop = function(vars,styles,timing) {
         .id("tester"+i)
         .timing(0)
         .draw()
+        
       var w = button.width()
       if (w > drop_width) drop_width = w
       button.remove()
     })
     
-    drop_width += d3plus.scrollbar()
+    if (icon) {
+      drop_width += styles.padding
+    }
     
   }
+  
+  drop_width -= (styles.padding*2+styles.stroke*2)
+  drop_width += d3plus.scrollbar()
   
   var button_width = check_value(styles.width,["button","drop"])
   if (!button_width || typeof button_width != "number") {
     button_width = drop_width
+  }
+  else {
+    button_width -= ((styles.padding*2)+(styles.stroke*2))
+    button_width += d3plus.scrollbar()
   }
   
   var data = d3plus.utils.merge(styles,vars.focus)
@@ -132,6 +151,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .style("overflow-y","auto")
     .style("overflow-x","hidden")
     .style("top","0px")
+    .style("padding","0px")
     .style("z-index","-1")
     .style("border-style","solid")
     
@@ -169,8 +189,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     selector.classed("d3plus_noscrollbar",true)
   }
   
-  var top_offset = vars.enabled ? 1 : 2
-  
 
   var max = window.innerHeight-position.top
   max -= vars.enabled ? button.height() : 0
@@ -181,6 +199,10 @@ d3plus.forms.drop = function(vars,styles,timing) {
   height = max < height ? max : height
     
   selector.transition().duration(timing)
+    .each("start",function(){
+      d3.select(this)
+        .style("display",vars.enabled ? "block" : "")
+    })
     .style("left",function(){
       if (styles.align == "left") {
         return "0px"
@@ -199,10 +221,12 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .style("border-width",styles.stroke+"px")
     .style("border-color",styles.color)
     .style("width",(drop_width+(styles.padding*2))+"px")
-    .style("top",(button.height()-top_offset)+"px")
+    .style("top",button.height()+"px")
+    .style("opacity",vars.enabled ? 1 : 0)
     .each("end",function(){
       d3.select(this).transition().duration(timing)
-        .style("top",(button.height()-top_offset)+"px")
+        .style("top",button.height()+"px")
+        .style("display",!vars.enabled ? "none" : "")
     })
   
 }

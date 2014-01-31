@@ -80,7 +80,6 @@ d3plus.forms.button = function(vars,styles,timing) {
       .style("font-size",styles["font-size"]+"px")
       .style("font-weight",styles["font-weight"])
       .style("text-align",styles["font-align"])
-      .style("letter-spacing",styles["font-spacing"])
       .style("width",function(c){
         if (typeof styles.width == "object" && "button" in styles.width) {
           return styles.width.button+"px"
@@ -130,6 +129,9 @@ d3plus.forms.button = function(vars,styles,timing) {
               return ""
             }
           })
+          .style("letter-spacing",function(c){
+            return c == "icon" ? "0px" : styles["font-spacing"]+"px"
+          })
           .style("margin",function(c,i) {
             if (i == 0) return "0px";
             return "0px "+styles.padding+"px"
@@ -149,7 +151,7 @@ d3plus.forms.button = function(vars,styles,timing) {
       
   }
   
-  var button = vars.parent.selectAll("div#d3plus_button_"+vars.id)
+  var button = vars.container.selectAll("div#d3plus_button_"+vars.id)
     .data(["button"])
     
   button.enter().append("div")

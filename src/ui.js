@@ -117,6 +117,7 @@ d3plus.ui = function(passed) {
         .style("display","inline-block")
         .style("position","relative")
         .style("overflow","visible")
+        .style("vertical-align","top")
         
       vars.container.transition().duration(timing)
         .each("start",function(){
@@ -144,8 +145,9 @@ d3plus.ui = function(passed) {
         .attr("class","d3plus_tester")
         .style("position","absolute")
         .style("left","-9999px")
-        .style("top","0px")
+        .style("top","-9999px")
         .style("visibility","hidden")
+        .style("display","block")
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Call specific UI element type
@@ -364,7 +366,7 @@ d3plus.ui = function(passed) {
   // Returns UI element's current width
   //----------------------------------------------------------------------------
   vars.ui.width = function(x) {
-    if (!arguments.length) return vars.container[0][0].offsetWidth
+    if (!arguments.length) return vars.container.node().offsetWidth
     styles.width = x
     return vars.ui
   }
