@@ -1,7 +1,10 @@
 JS_FILES = \
 	src/begin.js \
+	\
 	src/general.js \
+	\
 	src/public.js \
+	src/ui.js \
 	src/viz.js \
 	\
 	src/apps/bubbles.js \
@@ -19,6 +22,15 @@ JS_FILES = \
 	src/data/filter.js \
 	src/data/format.js \
 	src/data/nest.js \
+	\
+	src/forms/button.js \
+	src/forms/data.js \
+	src/forms/drop.js \
+	\
+	src/info/error.js \
+	src/info/legend.js \
+	src/info/timeline.js \
+	src/info/titles.js \
 	\
 	src/shapes/area.js \
 	src/shapes/color.js \
@@ -40,11 +52,6 @@ JS_FILES = \
 	src/tooltip/data.js \
 	src/tooltip/move.js \
 	src/tooltip/remove.js \
-	\
-	src/ui/error.js \
-	src/ui/legend.js \
-	src/ui/timeline.js \
-	src/ui/titles.js \
 	\
 	src/utils/color.js \
 	src/utils/utils.js \
