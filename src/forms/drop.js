@@ -61,9 +61,13 @@ d3plus.forms.drop = function(vars,styles,timing) {
       data.display = "inline-block"
       data.border = "none"
       data.width = false
+      var text = check_value(vars.text,["drop","button"])
+      if (!text) {
+       text = "text"
+      }
       var button = d3plus.ui(data)
         .type("button")
-        .text(check_value(vars.text,["drop","button"]))
+        .text(text)
         .parent(vars.tester)
         .id("tester"+i)
         .timing(0)
@@ -73,7 +77,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
       button.remove()
     })
     
-    drop_width += d3plus.scrollbar
+    drop_width += d3plus.scrollbar()
     
   }
   
@@ -85,9 +89,13 @@ d3plus.forms.drop = function(vars,styles,timing) {
   var data = d3plus.utils.merge(styles,vars.focus)
   data.icon = icon
   data.width = button_width
+  var text = check_value(vars.text,["button","drop"])
+  if (!text) {
+   text = "text"
+  }
   var button = d3plus.ui(data)
     .type("button")
-    .text(check_value(vars.text,["button","drop"]))
+    .text(text)
     .parent(vars.container)
     .id(vars.id)
     .timing(timing)
@@ -131,9 +139,13 @@ d3plus.forms.drop = function(vars,styles,timing) {
     data.display = "block"
     data.border = "none"
     data.width = drop_width - (styles.stroke*2)
+    var text = check_value(vars.text,["drop","button"])
+    if (!text) {
+     text = "text"
+    }
     var option = d3plus.ui(data)
       .type("button")
-      .text(check_value(vars.text,["drop","button"]))
+      .text(text)
       .parent(selector)
       .id(vars.id+"_option"+i)
       .timing(timing)
