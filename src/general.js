@@ -52,7 +52,7 @@ d3plus.scrollbar = function() {
   
 }
 
-d3.select(window).on("beforeprint.d3plus_scrollbar",function(){
+d3.select(window).on("load.d3plus_scrollbar",function(){
   d3plus.scrollbar()
 })
 
