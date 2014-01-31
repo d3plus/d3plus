@@ -119,7 +119,17 @@ d3plus.ui = function(passed) {
         .style("overflow","visible")
         
       vars.container.transition().duration(timing)
+        .each("start",function(){
+          if (vars.type == "drop" && vars.enabled) {
+            d3.select(this).style("z-index",9999)
+          }
+        })
         .style("margin",styles.margin+"px")
+        .each("end",function(){
+          if (vars.type == "drop" && !vars.enabled) {
+            d3.select(this).style("z-index","auto")
+          }
+        })
         
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Select testing DIV
