@@ -27,11 +27,12 @@ d3plus.ui = function(passed) {
     "border": "all",
     "color": "red",
     "display": "inline-block",
+    "font-align": "left",
     "font-color": false,
     "font-family": "sans-serif",
     "font-size": 12,
+    "font-spacing": 0,
     "font-weight": "normal",
-    "letter-spacing": 0,
     "margin": 0,
     "padding": 5,
     "stroke": 1,
@@ -116,6 +117,9 @@ d3plus.ui = function(passed) {
         .style("display","inline-block")
         .style("position","relative")
         .style("overflow","visible")
+        
+      vars.container.transition().duration(timing)
+        .style("margin",styles.margin+"px")
         
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Select testing DIV
