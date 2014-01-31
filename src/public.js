@@ -134,7 +134,7 @@ d3plus.public.nodes = {
 d3plus.public.number_format = {
   "value": function(number,key,vars) {
   
-    if (key == vars.time.key) {
+    if (vars && key == vars.time.key) {
       return number
     }
     else if (number < 10) {
