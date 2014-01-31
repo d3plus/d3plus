@@ -18,7 +18,7 @@ for (var s = 0; s < sheets.length; s++) {
 
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
-d3.select(window).on("load.d3plus_scrollbar",function(){
+d3plus.scrollbar = function() {
   
   var inner = document.createElement('p');
   inner.style.width = "100%";
@@ -41,9 +41,19 @@ d3.select(window).on("load.d3plus_scrollbar",function(){
   if (w1 == w2) w2 = outer.clientWidth;
 
   document.body.removeChild(outer);
+  
+  var val = (w1 - w2)
+  
+  d3plus.scrollbar = function(){
+    return val
+  }
+  
+  return val;
+  
+}
 
-  d3plus.scrollbar = (w1 - w2);
-
+d3.select(window).on("beforeprint.d3plus_scrollbar",function(){
+  d3plus.scrollbar()
 })
 
 d3plus.evt = {}; // stores all mouse events that could occur
