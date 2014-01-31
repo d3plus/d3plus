@@ -61,6 +61,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
       data.display = "inline-block"
       data.border = "none"
       data.width = false
+      data.margin = 0
       var text = check_value(vars.text,["drop","button"])
       if (!text) {
        text = "text"
@@ -89,6 +90,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   var data = d3plus.utils.merge(styles,vars.focus)
   data.icon = icon
   data.width = button_width
+  data.margin = 0
   var text = check_value(vars.text,["button","drop"])
   if (!text) {
    text = "text"
@@ -139,6 +141,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     data.display = "block"
     data.border = "none"
     data.width = drop_width - (styles.stroke*2)
+    data.margin = 0
     var text = check_value(vars.text,["drop","button"])
     if (!text) {
      text = "text"
