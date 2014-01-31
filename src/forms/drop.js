@@ -129,7 +129,8 @@ d3plus.forms.drop = function(vars,styles,timing) {
   selector.enter().append("div")
     .attr("class","d3plus_drop_selector")
     .style("position","absolute")
-    .style("overflow","scroll")
+    .style("overflow-y","auto")
+    .style("overflow-x","hidden")
     .style("top","0px")
     .style("z-index","-1")
     .style("border-style","solid")
@@ -167,13 +168,19 @@ d3plus.forms.drop = function(vars,styles,timing) {
   if (d3plus.scrollbar() == 0) {
     selector.classed("d3plus_noscrollbar",true)
   }
+  
+  var top_offset = vars.enabled ? 1 : 2
+  
+
+  var max = window.innerHeight-position.top
+  max -= vars.enabled ? button.height() : 0
+  max -= 10
+  max = max < vars["max-height"] ? max : vars["max-height"]
+  
+  var height = vars.enabled ? button.height()*vars.data.length : 0
+  height = max < height ? max : height
     
   selector.transition().duration(timing)
-    .each("start",function(){
-      if (vars.enabled) {
-        d3.select(this).style("display","block")
-      }
-    })
     .style("left",function(){
       if (styles.align == "left") {
         return "0px"
@@ -188,31 +195,14 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .style("right",function(){
       return styles.align == "right" ? "0px" : "auto"
     })
+    .style("height",height+"px")
     .style("border-width",styles.stroke+"px")
     .style("border-color",styles.color)
     .style("width",(drop_width+(styles.padding*2))+"px")
-    .style("max-height",function(){
-      var max = window.innerHeight-position.top
-      max -= vars.enabled ? button.height() : 0
-      max -= styles.padding
-      return max < vars["max-height"] ? max+"px" : vars["max-height"]+"px"
-    })
-    .style("top",function(){
-      return vars.enabled ? button.height()+"px" : "0px"
-    })
-    .style("opacity",function(){
-      return vars.enabled ? 1 : 0
-    })
+    .style("top",(button.height()-top_offset)+"px")
     .each("end",function(){
-      if (!vars.enabled) {
-        d3.select(this).style("display","none")
-      }
-      else {
-        d3.select(this).transition().duration(timing)
-          .style("top",function(){
-            return vars.enabled ? button.height()+"px" : "0px"
-          })
-      }
+      d3.select(this).transition().duration(timing)
+        .style("top",(button.height()-top_offset)+"px")
     })
   
 }
