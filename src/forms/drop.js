@@ -163,6 +163,10 @@ d3plus.forms.drop = function(vars,styles,timing) {
   })
   
   var position = vars.container.node().getBoundingClientRect()
+  
+  if (d3plus.scrollbar() == 0) {
+    selector.classed("d3plus_noscrollbar",true)
+  }
     
   selector.transition().duration(timing)
     .each("start",function(){
