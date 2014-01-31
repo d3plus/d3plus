@@ -23,6 +23,10 @@ div#d3plus_loader_text {
   width: 100%;
 }
 
+.d3plus_noscrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /********************
  * Tooltip Styling
  ********************/
