@@ -18,29 +18,33 @@ for (var s = 0; s < sheets.length; s++) {
 
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
-var inner = document.createElement('p');
-inner.style.width = "100%";
-inner.style.height = "200px";
+d3.select(window).on("load.d3plus_scrollbar",function(){
+  
+  var inner = document.createElement('p');
+  inner.style.width = "100%";
+  inner.style.height = "200px";
 
-var outer = document.createElement('div');
-outer.style.position = "absolute";
-outer.style.top = "0px";
-outer.style.left = "0px";
-outer.style.visibility = "hidden";
-outer.style.width = "200px";
-outer.style.height = "150px";
-outer.style.overflow = "hidden";
-outer.appendChild(inner);
+  var outer = document.createElement('div');
+  outer.style.position = "absolute";
+  outer.style.top = "0px";
+  outer.style.left = "0px";
+  outer.style.visibility = "hidden";
+  outer.style.width = "200px";
+  outer.style.height = "150px";
+  outer.style.overflow = "hidden";
+  outer.appendChild(inner);
 
-document.body.appendChild(outer);
-var w1 = inner.offsetWidth;
-outer.style.overflow = 'scroll';
-var w2 = inner.offsetWidth;
-if (w1 == w2) w2 = outer.clientWidth;
+  document.body.appendChild(outer);
+  var w1 = inner.offsetWidth;
+  outer.style.overflow = 'scroll';
+  var w2 = inner.offsetWidth;
+  if (w1 == w2) w2 = outer.clientWidth;
 
-document.body.removeChild(outer);
+  document.body.removeChild(outer);
 
-d3plus.scrollbar = (w1 - w2);
+  d3plus.scrollbar = (w1 - w2);
+
+})
 
 d3plus.evt = {}; // stores all mouse events that could occur
 
