@@ -7,6 +7,7 @@ d3plus.ui = function(passed) {
   // Create global ui variable object
   //----------------------------------------------------------------------------
   var vars = {
+    "callback": false,
     "data": [],
     "enabled": false,
     "highlight": false,
@@ -16,17 +17,20 @@ d3plus.ui = function(passed) {
     "max-height": 600,
     "max-width": 600,
     "parent": d3.select("body"),
+    "propagation": true,
+    "text": "text",
     "timing": 400
   }
   
   var styles = {
+    "align": "left",
     "border": "all",
     "color": "red",
     "display": "inline-block",
     "font-color": false,
     "font-family": "sans-serif",
-    "font-size": 10,
-    "font-weight": "lighter",
+    "font-size": 12,
+    "font-weight": "normal",
     "letter-spacing": 0,
     "margin": 0,
     "padding": 5,
@@ -35,9 +39,9 @@ d3plus.ui = function(passed) {
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Set default arrow based on whether or not font-awesome is present
+  // Set default icon based on whether or not font-awesome is present
   //----------------------------------------------------------------------------
-  styles.arrow = d3plus.fontawesome ? "fa-angle-down" : "^"
+  styles.icon = d3plus.fontawesome ? "fa-angle-down" : "^"
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Overwrite vars if vars have been passed
@@ -55,11 +59,18 @@ d3plus.ui = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is a string, extract data from the element associated with it
     //--------------------------------------------------------------------------
-    if (vars.data && typeof vars.data == "string" && !d3.select(vars.data).empty()) {
-      vars.element = d3.select(vars.data).style("display","none")
-      vars.data = []
-      vars.parent = d3.select(vars.element.node().parentNode)
-      d3plus.forms.data(vars)
+    if (vars.data) {
+      if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
+        vars.element = d3.select(vars.data).style("display","none")
+      }
+      else if (vars.data instanceof d3.selection) {
+        vars.element = vars.data.style("display","none")
+      }
+      if (vars.element) {
+        vars.data = []
+        vars.parent = d3.select(vars.element.node().parentNode)
+        d3plus.forms.data(vars)
+      }
     }
     
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -79,7 +90,7 @@ d3plus.ui = function(passed) {
     // Else, create/update the UI element
     //--------------------------------------------------------------------------
     else {
-
+      
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Select container DIV for UI element
       //------------------------------------------------------------------------
@@ -148,7 +159,9 @@ d3plus.ui = function(passed) {
     "highlight",
     "id",
     "parent",
+    "propagation",
     "timing",
+    "text",
     "type"
   ]
 
@@ -181,17 +194,14 @@ d3plus.ui = function(passed) {
   // List of simple style methods
   //----------------------------------------------------------------------------
   var style_variables = [
-    "arrow",
+    "align",
+    "icon",
     "border",
     "color",
     "display",
-    "font-color",
-    "font-family",
-    "font-size",
-    "font-weight",
+    "font",
     "margin",
-    "padding",
-    "width"
+    "padding"
   ]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -205,7 +215,22 @@ d3plus.ui = function(passed) {
 
         if (!arguments.length) return styles[key]
         
-        styles[key] = value
+        if (key == "font") {
+          if (typeof value == "string") {
+            styles["font-family"] = value
+          }
+          if (typeof value == "number") {
+            styles["font-size"] = value
+          }
+          else if (typeof value == "object") {
+            for (style in value) {
+              styles["font-"+style] = value[style]
+            }
+          }
+        }
+        else {
+          styles[key] = value
+        }
         
         if (vars.init) {
           vars.parent.call(vars.ui)
@@ -270,31 +295,41 @@ d3plus.ui = function(passed) {
   // Sets value of the UI element
   //----------------------------------------------------------------------------
   vars.ui.value = function(value) {
-    
+      
     if (typeof value == "string") {
       value = vars.data.filter(function(d){
         return d.value == value
       })[0]
     }
-
-    if (vars.tag == "select") {
-
-      var index = false
-      vars.data.forEach(function(d,i){
-        if (d.value == value.value) {
-          index = i
-        }
-      })
     
-      if (typeof index == "number") {
-        vars.element.node().selectedIndex = index
+    if (value.value != vars.focus.value) {
+
+      if (vars.tag == "select") {
+
+        var index = false
+        vars.data.forEach(function(d,i){
+          if (d.value == value.value) {
+            index = i
+          }
+        })
+    
+        if (typeof index == "number") {
+          vars.element.node().selectedIndex = index
+        }
+      
       }
+    
+      if (vars.callback) {
+        vars.callback(value.value)
+      }
+    
+      vars.focus = value
       
     }
     
-    vars.focus = value
     vars.enabled = false
     vars.parent.call(vars.ui)
+    
     return vars.ui
   }
   
@@ -316,7 +351,7 @@ d3plus.ui = function(passed) {
   //----------------------------------------------------------------------------
   vars.ui.width = function(x) {
     if (!arguments.length) return vars.container[0][0].offsetWidth
-    vars.width = x
+    styles.width = x
     return vars.ui
   }
 

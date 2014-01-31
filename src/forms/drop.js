@@ -3,42 +3,91 @@
 //------------------------------------------------------------------------------
 d3plus.forms.drop = function(vars,styles,timing) {
   
-  if (styles.arrow.indexOf("fa-") == 0) {
-    var arrow = {
-      "class": "d3plus_drop_arrow fa "+styles.arrow,
+  d3.select("html").on(d3plus.evt.click+"."+vars.id,function(){
+    var element = d3.event.toElement.id,
+        id = "d3plus_button_"+vars.id,
+        child = id+"_"
+        
+    if (element != id && element.indexOf(child) < 0) {
+      vars.ui.disable()
+    }
+    
+  })
+  
+  if (styles.icon.indexOf("fa-") == 0) {
+    var icon = {
+      "class": "d3plus_drop_icon fa "+styles.icon,
       "content": ""
     }
   }
   else {
-    var arrow = {
-      "class": "d3plus_drop_arrow",
-      "content": styles.arrow
+    var icon = {
+      "class": "d3plus_drop_icon",
+      "content": styles.icon
     }
   }
-    
-  var new_width = 0
-  vars.data.forEach(function(o,i){
-    var data = d3plus.utils.merge(styles,o)
-    data.arrow = arrow
-    data.display = "inline-block"
-    data.border = "none"
-    var button = d3plus.ui(data)
-      .type("button")
-      .parent(vars.tester)
-      .id("tester"+i)
-      .timing(0)
-      .draw()
-    var w = button.width()
-    if (w > new_width) new_width = w
-    button.remove()
-  })
   
-  styles.width = new_width + d3plus.scrollbar
+  function check_value(obj,arr) {
+    
+    if (typeof obj == "object" && arr) {
+      var ret = false
+      for (var i = 0; i < arr.length; i++) {
+        if (arr[i] in obj) {
+          ret = obj[arr[i]]
+          break;
+        }
+      }
+      if (ret) {
+        return ret
+      }
+    }
+    else if (typeof obj != "object") {
+      return obj
+    }
+    else {
+      return false
+    }
+    
+  }
+  
+  var drop_width = check_value(styles.width,["drop","button"])
+  if (!drop_width || typeof drop_width != "number") {
+    
+    drop_width = 0
+    
+    vars.data.forEach(function(o,i){
+      var data = d3plus.utils.merge(styles,o)
+      data.icon = icon
+      data.display = "inline-block"
+      data.border = "none"
+      data.width = false
+      var button = d3plus.ui(data)
+        .type("button")
+        .text(check_value(vars.text,["drop","button"]))
+        .parent(vars.tester)
+        .id("tester"+i)
+        .timing(0)
+        .draw()
+      var w = button.width()
+      if (w > drop_width) drop_width = w
+      button.remove()
+    })
+    
+    drop_width += d3plus.scrollbar
+    
+  }
+  
+  var button_width = check_value(styles.width,["button","drop"])
+  if (!button_width || typeof button_width != "number") {
+    button_width = drop_width
+  }
   
   var data = d3plus.utils.merge(styles,vars.focus)
-  data.arrow = arrow
+  data.icon = icon
+  data.width = button_width
   var button = d3plus.ui(data)
     .type("button")
+    .text(check_value(vars.text,["button","drop"]))
     .parent(vars.container)
     .id(vars.id)
     .timing(timing)
@@ -46,15 +95,15 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .enable()
     .draw()
     
-  var opposite = styles.arrow.content == "^"
+  var opposite = styles.icon.content == "^"
   if (vars.enabled != opposite) {
     var rotate = "rotate(-180deg)"
   }
   else {
     var rotate = "rotate(0deg)"
   }
-  button.select("div#d3plus_button_"+vars.id+"_arrow")
-    .data(["arrow"])
+  button.select("div#d3plus_button_"+vars.id+"_icon")
+    .data(["icon"])
     .style("transition",(timing/1000)+"s")
     .style("-webkit-transition",(timing/1000)+"s")
     .style("transform",rotate)
@@ -71,7 +120,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .attr("class","d3plus_drop_selector")
     .style("position","absolute")
     .style("overflow","scroll")
-    .style("left","0px")
     .style("top","0px")
     .style("z-index","-1")
     .style("border-style","solid")
@@ -79,16 +127,23 @@ d3plus.forms.drop = function(vars,styles,timing) {
   vars.data.forEach(function(o,i){
 
     var data = d3plus.utils.merge(styles,o)
-    data.arrow = false
+    data.icon = false
     data.display = "block"
     data.border = "none"
-    d3plus.ui(data)
+    data.width = drop_width - (styles.stroke*2)
+    var option = d3plus.ui(data)
       .type("button")
+      .text(check_value(vars.text,["drop","button"]))
       .parent(selector)
       .id(vars.id+"_option"+i)
       .timing(timing)
       .callback(vars.ui.value)
-      .draw()
+      
+    if (o.value == vars.focus.value) {
+      option.highlight(true)
+    }
+      
+    option.draw()
       
   })
   
@@ -100,8 +155,23 @@ d3plus.forms.drop = function(vars,styles,timing) {
         d3.select(this).style("display","block")
       }
     })
-    .style("border-width","0px "+styles.stroke+"px "+styles.stroke+"px "+styles.stroke+"px")
-    .style("width",(styles.width+(styles.padding*2))+"px")
+    .style("left",function(){
+      if (styles.align == "left") {
+        return "0px"
+      }
+      else if (styles.align == "center") {
+        return -((drop_width-button_width)/2)+"px"
+      }
+      else {
+        return "auto"
+      }
+    })
+    .style("right",function(){
+      return styles.align == "right" ? "0px" : "auto"
+    })
+    .style("border-width",styles.stroke+"px")
+    .style("border-color",styles.color)
+    .style("width",(drop_width+(styles.padding*2))+"px")
     .style("max-height",function(){
       var max = window.innerHeight-position.top
       max -= vars.enabled ? button.height() : 0

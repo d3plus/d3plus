@@ -77,23 +77,26 @@ d3plus.forms.button = function(vars,styles,timing) {
       .style("color",font_color)
       .style("background-color",background)
       .style("font-family",styles["font-family"])
-      .style("font-size",styles["font-size"])
+      .style("font-size",styles["font-size"]+"px")
       .style("font-weight",styles["font-weight"])
       .style("letter-spacing",styles["letter-spacing"])
       .style("width",function(c){
+        if (typeof styles.width == "object" && "button" in styles.width) {
+          return styles.width.button+"px"
+        }
         return typeof styles.width == "number" ? styles.width+"px" : "auto"
       })
       .each(function(){
         
         var children = []
-        if (styles.icon) {
-          children.push("icon")
+        if (styles.image) {
+          children.push("image")
         }
         if (styles.text) {
           children.push("text")
         }
-        if (styles.arrow) {
-          children.push("arrow")
+        if (styles.icon) {
+          children.push("icon")
         }
         
         var items = d3.select(this).selectAll("div.d3plus_button_element")
@@ -117,10 +120,10 @@ d3plus.forms.button = function(vars,styles,timing) {
         items.order()
           .text(function(c){
             if (c == "text") {
-              return styles.text
+              return styles[vars.text]
             }
-            else if (c == "arrow") {
-              return styles.arrow.content
+            else if (c == "icon") {
+              return styles.icon.content
             }
             else {
               return ""
@@ -132,10 +135,10 @@ d3plus.forms.button = function(vars,styles,timing) {
           })
           .style("float",function(c){
             if (d3plus.rtl) {
-              return c == "arrow" ? "left" : "none"
+              return c == "icon" ? "left" : "none"
             }
             else {
-              return c == "arrow" ? "right" : "none"
+              return c == "icon" ? "right" : "none"
             }
           })
     
@@ -173,10 +176,14 @@ d3plus.forms.button = function(vars,styles,timing) {
     })
     .on(d3plus.evt.click,function(){
       
+      if (!vars.propagation) {
+        d3.event.stopPropagation()
+      }
+      
       if (vars.callback) {
       
         vars.callback({
-          "icon": styles.icon,
+          "image": styles.image,
           "text": styles.text,
           "value": styles.value
         })
