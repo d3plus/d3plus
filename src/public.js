@@ -137,7 +137,7 @@ d3plus.public.number_format = {
     if (vars && key == vars.time.key) {
       return number
     }
-    else if (number < 10) {
+    else if (number < 10 && number > -10) {
       return d3.round(number,2)
     }
     else if (number.toString().split(".")[0].length > 4) {
