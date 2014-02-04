@@ -23,38 +23,47 @@ d3plus.info.timeline = function(vars) {
         end = init[1]
 
     var brushend = function() {
-      if (!d3.event.sourceEvent) return;
-      var extent0 = brush.extent(),
-          extent1 = extent0.map(d3.time.year.round);
+      
+      if (d3.event.sourceEvent !== null) {
+        
+        var extent0 = brush.extent(),
+            extent1 = extent0.map(d3.time.year.round);
     
-      var min_req_sec = 31536000000 * min_required;
-      var time_diff = extent1[1] - extent1[0];
+        var min_req_sec = 31536000000 * min_required;
+        var time_diff = extent1[1] - extent1[0];
       
-      if (time_diff < min_req_sec) {
+        if (time_diff < min_req_sec) {
       
-        if(min_required > 1){
-          extent1[0] = d3.time.year.round(d3.time.year.offset(extent0[0], -min_required/2));
-          extent1[1] = d3.time.year.round(d3.time.year.offset(extent0[1], min_required/2));
+          if(min_required > 1){
+            extent1[0] = d3.time.year.round(d3.time.year.offset(extent0[0], -min_required/2));
+            extent1[1] = d3.time.year.round(d3.time.year.offset(extent0[1], min_required/2));
+          }
+          else {
+            extent1[0] = d3.time.year.floor(extent0[0]);
+            extent1[1] = d3.time.year.ceil(extent0[1]);
+          }
+      
         }
-        else {
-          extent1[0] = d3.time.year.floor(extent0[0]);
-          extent1[1] = d3.time.year.ceil(extent0[1]);
-        }
       
-      }
-      
-      d3.select(this).transition()
+        d3.select(this).transition()
           .call(brush.extent(extent1))
-          .call(brush.event)
+          // .call(brush.event)
           .each("end",function(d){
 
             var new_years = d3.range(extent1[0].getFullYear(),extent1[1].getFullYear())
-      
-            vars.chart
-              .time({"solo": new_years})
-              .draw()
+            
+            vars.viz.time({"solo": new_years})
               
+            if (!vars.autodraw) {
+              vars.viz.draw()
+            }
+            
           })
+      
+      }
+      else {
+        return;
+      }
         
     }
       
@@ -203,7 +212,7 @@ d3plus.info.timeline = function(vars) {
       .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
       .attr("opacity",1)
       .call(brush)
-      .call(brush.event)
+      // .call(brush.event)
       
     brush_group.selectAll("rect")
       .transition().duration(vars.style.timing.transitions)
