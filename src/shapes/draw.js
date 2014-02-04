@@ -72,10 +72,10 @@ d3plus.shape.draw = function(vars,data) {
   // Calculates width, height, and radius for each data point.
   //----------------------------------------------------------------------------
   function size(d) {
-  
+    
     if (d.d3plus.r) {
-      if (!d.d3plus.width) d.d3plus.width = d.d3plus.r*2
-      if (!d.d3plus.height) d.d3plus.height = d.d3plus.r*2
+      d.d3plus.width = d.d3plus.r*2
+      d.d3plus.height = d.d3plus.r*2
     }
     else {
       d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
@@ -303,11 +303,19 @@ d3plus.shape.draw = function(vars,data) {
   vars.g.data.selectAll("g")
     .on(d3plus.evt.over,function(d){
       
-      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+        
+        d3.select(this).style("cursor","pointer")
         
         if (!vars.small) {
 
           vars.covered = false
+      
+          var tooltip_data = d.data ? d.data : d
+          d3plus.tooltip.app({
+            "vars": vars,
+            "data": tooltip_data
+          })
   
           if (typeof vars.mouse == "function") {
             vars.mouse(d)
@@ -315,12 +323,6 @@ d3plus.shape.draw = function(vars,data) {
           else if (vars.mouse.over) {
             vars.mouse.over(d)
           }
-      
-          var tooltip_data = d.data ? d.data : d
-          d3plus.tooltip.app({
-            "vars": vars,
-            "data": tooltip_data
-          })
         
         }
         
@@ -331,18 +333,11 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.move,function(d){
 
-      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
         
         if (!vars.small) {
 
           vars.covered = false
-  
-          if (typeof vars.mouse == "function") {
-            vars.mouse(d)
-          }
-          else if (vars.mouse.move) {
-            vars.mouse.over(d)
-          }
       
           if (["area","line"].indexOf(vars.shape.value) >= 0 || d3plus.apps[vars.type.value].tooltip == "follow") {
 
@@ -352,6 +347,13 @@ d3plus.shape.draw = function(vars,data) {
               "data": tooltip_data
             })
         
+          }
+  
+          if (typeof vars.mouse == "function") {
+            vars.mouse(d)
+          }
+          else if (vars.mouse.move) {
+            vars.mouse.move(d)
           }
           
         }
@@ -363,19 +365,19 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.out,function(d){
       
-      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
         
         if (!vars.small) {
+      
+          if (!vars.covered) {
+            d3plus.tooltip.remove(vars.type.value)
+          }
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d)
           }
           else if (vars.mouse.out) {
-            vars.mouse.over(d)
-          }
-      
-          if (!vars.covered) {
-            d3plus.tooltip.remove(vars.type.value)
+            vars.mouse.out(d)
           }
           
         }
@@ -387,22 +389,22 @@ d3plus.shape.draw = function(vars,data) {
     })
     .on(d3plus.evt.click,function(d){
       
-      if (!vars.frozen || !d.d3plus || !d.d3plus.static) {
+      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
         
         if (!vars.small) {
-
-          if (typeof vars.mouse == "function") {
-            vars.mouse(d)
-          }
-          else if (vars.mouse.click) {
-            vars.mouse.over(d)
-          }
       
           var tooltip_data = d.data ? d.data : d
           d3plus.tooltip.app({
             "vars": vars,
             "data": tooltip_data
           })
+
+          if (typeof vars.mouse == "function") {
+            vars.mouse(d)
+          }
+          else if (vars.mouse.click) {
+            vars.mouse.click(d)
+          }
         
         }
         
