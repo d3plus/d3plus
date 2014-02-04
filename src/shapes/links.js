@@ -130,7 +130,7 @@ d3plus.shape.links = function(vars,links) {
     .call(spline)
     .call(style)
   
-  splines.exit()
+  splines.exit().transition().duration(vars.style.timing.transitions)
     .call(init)
     .remove()
   
