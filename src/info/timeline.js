@@ -5,7 +5,7 @@
 d3plus.info.timeline = function(vars) {
   
   var years = vars.data.time
- 
+  
   if (years && years.length > 1 && vars.timeline.value) {
     
     if ((vars.time.key == vars.x.key && vars.x.scale.value == "continuous") || (vars.time.key == vars.y.key && vars.y.scale.value == "continuous")) {
@@ -20,37 +20,56 @@ d3plus.info.timeline = function(vars) {
     var min = years[0],
         max = years[years.length-1],
         start = init[0],
-        end = init[1]
-
+        end = init[1],
+        year_ticks = [],
+        steps = []
+        
+    years.forEach(function(y,i){
+      if (i != 0) steps.push(y-years[i-1])
+      year_ticks.push(d3.time.year(new Date(parseInt(y), 0, 1)))
+    })
+    year_ticks.push(d3.time.year(new Date(parseInt(max+d3.min(steps)), 0, 1)))
+    
     var brushend = function() {
       
       if (d3.event.sourceEvent !== null) {
         
         var extent0 = brush.extent(),
-            extent1 = extent0.map(d3.time.year.round);
-    
-        var min_req_sec = 31536000000 * min_required;
-        var time_diff = extent1[1] - extent1[0];
-      
-        if (time_diff < min_req_sec) {
-      
-          if(min_required > 1){
-            extent1[0] = d3.time.year.round(d3.time.year.offset(extent0[0], -min_required/2));
-            extent1[1] = d3.time.year.round(d3.time.year.offset(extent0[1], min_required/2));
-          }
-          else {
-            extent1[0] = d3.time.year.floor(extent0[0]);
-            extent1[1] = d3.time.year.ceil(extent0[1]);
-          }
-      
+            min_val = d3plus.utils.closest(year_ticks,d3.time.year.floor(extent0[0])),
+            max_val = d3plus.utils.closest(year_ticks,d3.time.year.ceil(extent0[1])),
+            min_index = years.indexOf(min_val.getFullYear()),
+            max_index = years.indexOf(max_val.getFullYear())
+            
+        if (max_index-min_index >= min_required) {
+          var extent = [min_val,max_val]
         }
-      
+        else if (min_index+min_required <= years.length) {
+          var extent = [min_val,year_ticks[min_index+min_required]]
+        }
+        else {
+          
+          var extent = [min_val]
+          for (var i = 1; i <= min_required; i++) {
+            if (min_index+i <= years.length) {
+              extent.push(year_ticks[min_index+i])
+            }
+            else {
+              extent.unshift(year_ticks[min_index-((min_index+i)-(years.length))])
+            }
+          }
+          extent = [extent[0],extent[extent.length-1]]
+        }
+        
         d3.select(this).transition()
-          .call(brush.extent(extent1))
+          .call(brush.extent(extent))
           // .call(brush.event)
           .each("end",function(d){
 
-            var new_years = d3.range(extent1[0].getFullYear(),extent1[1].getFullYear())
+            var new_years = d3.range(extent[0].getFullYear(),extent[1].getFullYear())
+            
+            new_years = new_years.filter(function(d){
+              return years.indexOf(d) >= 0
+            })
             
             vars.viz.time({"solo": new_years})
               
@@ -123,7 +142,7 @@ d3plus.info.timeline = function(vars) {
         timeline_width = label_width*years.length,
         available_width = vars.width.value-vars.style.timeline.padding*2,
         step = 1
-    
+        
     if (timeline_width > available_width) {
       timeline_width = available_width
       label_width = timeline_width/years.length
@@ -167,12 +186,12 @@ d3plus.info.timeline = function(vars) {
       .remove()
     
     var x = d3.time.scale()
-      .domain([new Date(parseInt(min), 0, 1), new Date(parseInt(max+1), 0, 1)])
+      .domain(d3.extent(year_ticks))
       .range([0,timeline_width])
       
     var brush = d3.svg.brush()
       .x(x)
-      .extent([new Date(start, 0, 1), new Date(end+1, 0, 1)])
+      .extent([year_ticks[years.indexOf(start)], year_ticks[years.indexOf(end)+1]])
       .on("brushend", brushend)
       
     var ticks = vars.g.timeline.selectAll("g#ticks")
@@ -187,9 +206,8 @@ d3plus.info.timeline = function(vars) {
       .call(d3.svg.axis()
         .scale(x)
         .orient("top")
-        .ticks(function(start, end){
-          var interval = (start - end) > 20 ? 2 : 1;
-          return d3.time.years(start, end, interval)
+        .ticks(function(){
+          return year_ticks
         })
         .tickFormat("")
         .tickSize(-vars.style.timeline.height)
