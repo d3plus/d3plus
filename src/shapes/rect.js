@@ -36,11 +36,11 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
       })
       .attr("rx",function(d){
         var rounded = vars.shape.value == "circle"
-        return rounded ? (d.d3plus.width+mod)/2 : 0
+        return rounded ? (d.d3plus.width+mod+2)/2 : 0
       })
       .attr("ry",function(d){
         var rounded = vars.shape.value == "circle"
-        return rounded ? (d.d3plus.height+mod)/2 : 0
+        return rounded ? (d.d3plus.height+mod+2)/2 : 0
       })
       .attr("shape-rendering",function(d){
         if (vars.shape.value == "square") {
