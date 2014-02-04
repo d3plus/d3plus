@@ -219,6 +219,13 @@ d3plus.viz = function() {
       if (missing.length) {
         vars.internal_error = "The following variables need to be set: "+missing.join(", ")
       }
+      
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Check to see if we have focus connections, if needed
+      //-------------------------------------------------------------------
+      if (!vars.internal_error && reqs.indexOf("links") >= 0 && reqs.indexOf("focus") >= 0 && !vars.connections[vars.focus.value]) {
+        vars.internal_error = "No Connections Available for \""+d3plus.variable.text(vars,vars.focus.value,vars.depth.value)+"\""
+      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Check to see if we have all required libraries
@@ -273,16 +280,18 @@ d3plus.viz = function() {
       // Reset mouse events for the app to use
       vars.mouse = {}
       // Call the app's draw function, returning formatted data
-      var returned = null
+          
+      if (!vars.internal_error) {
+        var returned = d3plus.apps[vars.type.value].draw(vars)
+      }
+      else {
+        var returned = null
+      }
       
       vars.returned = {
           "nodes": null,
           "links": null
         }
-          
-      if (!vars.internal_error) {
-        returned = d3plus.apps[vars.type.value].draw(vars)
-      }
           
       if (returned instanceof Array) {
         vars.returned.nodes = returned
@@ -315,10 +324,6 @@ d3plus.viz = function() {
       if (!vars.internal_error) {
         if ((!vars.error.value && !vars.data.app) || !vars.returned.nodes.length) {
           vars.internal_error = "No Data Available"
-        }
-        else if (vars.type.value == "rings" && !vars.connections[vars.focus.value]) {
-          vars.data.app = null
-          vars.internal_error = "No Connections Available"
         }
         else if (vars.error.value) {
           vars.data.app = null
