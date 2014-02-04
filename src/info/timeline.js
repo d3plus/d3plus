@@ -57,8 +57,14 @@ d3plus.info.timeline = function(vars) {
           })
         
     }
+      
+    var labels = vars.g.timeline.selectAll("g#labels")
+      .data(["labels"])
+      
+    labels.enter().append("g")
+      .attr("id","labels")
     
-    var text = vars.g.timeline.selectAll("text")
+    var text = labels.selectAll("text")
       .data(years,function(d,i){
         return i
       })
