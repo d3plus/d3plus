@@ -27,11 +27,10 @@ d3plus.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Main drawing function
   //-------------------------------------------------------------------
-  var chart = function(selection) {
+  vars.viz = function(selection) {
     selection.each(function() {
       
       vars.frozen = true
-      vars.chart = chart
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If placing into a new container, remove it's contents
@@ -360,14 +359,14 @@ d3plus.viz = function() {
       
     });
     
-    return chart;
+    return vars.viz;
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Expose Public Variables
   //-------------------------------------------------------------------
   
-  chart.csv = function(x) {
+  vars.viz.csv = function(x) {
     
     if (x instanceof Array) var columns = x
     
@@ -422,7 +421,7 @@ d3plus.viz = function() {
     
   };
   
-  chart.draw = function(x) {
+  vars.viz.draw = function(x) {
     if (x) {
       if (typeof x == "boolean") {
         vars.autodraw = x
@@ -438,12 +437,12 @@ d3plus.viz = function() {
       d3plus.console.warning("Cannot find <div> on page matching: \""+vars.container+"\"")
     }
     else {
-      d3.select(vars.container.value).call(chart)
+      d3.select(vars.container.value).call(vars.viz)
     }
-    return chart;
+    return vars.viz;
   }
 
-  chart.style = function(x) {
+  vars.viz.style = function(x) {
     if (!arguments.length) return vars.style;
     
     function check_depth(object,property,depth) {
@@ -482,7 +481,7 @@ d3plus.viz = function() {
       d3plus.console.warning(".style() only accepts strings or keyed objects.");
     }
     
-    return chart;
+    return vars.viz;
   };
   
   Object.keys(d3plus.public).forEach(function(p){
@@ -501,10 +500,10 @@ d3plus.viz = function() {
         for (o in obj) {
           if (o == "deprecates") {
             obj[o].forEach(function(d){
-              chart[d] = (function(dep,n) {
+              vars.viz[d] = (function(dep,n) {
                 return function(x) {
                   d3plus.console.warning("\."+dep+"() method has been deprecated, please use the new \."+n+"() method.")
-                  return chart;
+                  return vars.viz;
                 }
               })(d,p)
             })
@@ -519,7 +518,7 @@ d3plus.viz = function() {
     
     // create method for variable
     
-    chart[p] = (function(key) {
+    vars.viz[p] = (function(key) {
       return function(user) {
 
         if (!arguments.length) return vars[key];
@@ -732,15 +731,15 @@ d3plus.viz = function() {
         }
         
         if (vars.autodraw) {
-          return chart.draw()
+          return vars.viz.draw()
         }
         else {
-          return chart
+          return vars.viz
         }
         
       }
     })(p)
   })
 
-  return chart;
+  return vars.viz;
 };
