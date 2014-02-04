@@ -13,19 +13,16 @@ d3plus.data.analyze = function(vars) {
     if (arr instanceof Array) {
       arr.forEach(function(d){
         if (add) d.d3plus = {}
-        for (k in d) {
-          if (!vars.data.keys[k] && d[k]) {
-            vars.data.keys[k] = typeof d[k]
-          }
-        }
+        get_keys(d)
       })
     }
-    else {
+    else if (typeof arr == "object") {
       for (var d in arr) {
-        for (k in arr[d]) {
-          if (!vars.data.keys[k] && arr[d][k]) {
-            vars.data.keys[k] = typeof arr[d][k]
-          }
+        if (typeof arr[d] == "object") {
+          get_keys(arr[d],add)
+        }
+        else if (!vars.data.keys[d] && arr[d]) {
+          vars.data.keys[d] = typeof arr[d]
         }
       }
     }
