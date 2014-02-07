@@ -128,8 +128,10 @@ d3plus.forms.drop = function(vars,styles,timing) {
   })
   
   d3.select("html").on("click."+vars.id,function(){
-    var element = d3.event.toElement.id,
-        child = "_"+vars.id
+    
+    var element = d3.event.target || d3.event.toElement
+    element = element.id
+    var child = "_"+vars.id
         
     if (element.indexOf(child) < 0 && vars.enabled) {
       vars.ui.disable()
