@@ -31,10 +31,13 @@ d3plus.forms.data = function(vars) {
           "value": this.value
         }
         
-        var label = d3.select("label[for="+this.value+"]")
-        if (!label.empty()) {
-          data_obj.text = label.style("display","none").html()
+        if (this.id) {
+          var label = d3.select("label[for="+this.id+"]")
+          if (!label.empty()) {
+            data_obj.text = label.style("display","none").html()
+          }
         }
+        
         if (this.checked) {
           vars.focus = this.value
         }
