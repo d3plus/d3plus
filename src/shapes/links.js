@@ -109,7 +109,7 @@ d3plus.shape.links = function(vars,links) {
     .call(line)
     .call(style)
   
-  lines.exit()
+  lines.exit().transition().duration(vars.style.timing.transitions)
     .call(init)
     .remove()
     
@@ -121,7 +121,7 @@ d3plus.shape.links = function(vars,links) {
     .data(spline_data,function(d){
       return d.source[vars.id.key]+"_"+d.target[vars.id.key]
     })
-  
+    
   splines.enter().append("path")
     .call(spline)
     .call(init)
