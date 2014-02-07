@@ -4959,7 +4959,7 @@ d3plus.forms.button = function(vars,styles,timing) {
           d.icon = d3plus.utils.copy(styles.icon)
           children.push("icon")
         }
-        else if (d.value == vars.highlight) {
+        else if (d.value === vars.highlight) {
           if (d3plus.fontawesome) {
             d.icon = {
               "class": "fa fa-check",
@@ -5140,10 +5140,13 @@ d3plus.forms.data = function(vars) {
           "value": this.value
         }
         
-        var label = d3.select("label[for="+this.value+"]")
-        if (!label.empty()) {
-          data_obj.text = label.style("display","none").html()
+        if (this.id) {
+          var label = d3.select("label[for="+this.id+"]")
+          if (!label.empty()) {
+            data_obj.text = label.style("display","none").html()
+          }
         }
+        
         if (this.checked) {
           vars.focus = this.value
         }
@@ -7171,7 +7174,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
     if (typeof rad != "number") var rad = undefined
     if (typeof ang != "number") var ang = undefined
     path.attrTween("d", function(d){
-      if (rad == undefined) var r = d.d3plus.r
+      if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       else var r = rad
       if (ang == undefined) var a = d.d3plus.a[d.d3plus.shapeType]
       else var a = ang
@@ -7279,22 +7282,28 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
     })
     .transition().duration(vars.style.timing.transitions)
       .attr("x",function(d){
-        return (-d.d3plus.width/2)-3
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (-w/2)-3
       })
       .attr("y",function(d){
-        return (-d.d3plus.height/2)-3
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (-h/2)-3
       })
       .attr("width",function(d){
-        return d.d3plus.width+6
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return w+6
       })
       .attr("height",function(d){
-        return d.d3plus.height+6
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return h+6
       })
       .attr("rx",function(d){
-        return (d.d3plus.width+6)/2
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (w+6)/2
       })
       .attr("ry",function(d){
-        return (d.d3plus.height+6)/2
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (h+6)/2
       })
       .attr("shape-rendering","auto")
   
@@ -7370,32 +7379,6 @@ d3plus.shape.draw = function(vars,data) {
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Calculates width, height, and radius for each data point.
-  //----------------------------------------------------------------------------
-  function size(d) {
-    
-    if (d.d3plus.r) {
-      d.d3plus.width = d.d3plus.r*2
-      d.d3plus.height = d.d3plus.r*2
-    }
-    else {
-      d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
-    }
-    
-    if (vars.shape.value != vars.shape.previous) {
-      if (vars.shape.value == "square" && ["circle","donut"].indexOf(vars.shape.previous) >= 0) {
-        d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
-      }
-      else if (vars.shape.previous == "square" && ["circle","donut"].indexOf(vars.shape.value) >= 0) {
-        d.d3plus.width = d.d3plus.r*2
-        d.d3plus.height = d.d3plus.r*2
-      }
-    }
-    
-    return d
-  }
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Transforms the positions and scale of each group.
   //----------------------------------------------------------------------------
   function transform(g,grow) {
@@ -7462,15 +7445,12 @@ d3plus.shape.draw = function(vars,data) {
         if (d.values) {
           d.values.forEach(function(v){
             v = id(v)
-            v = size(v)
             v.d3plus.shapeType = "circle"
           })
         }
         else {
         
           d = id(d)
-      
-          d = size(d)
 
           if (!d.d3plus.a) {
           
@@ -7691,6 +7671,8 @@ d3plus.shape.draw = function(vars,data) {
     .on(d3plus.evt.click,function(d){
       
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+        links()
         
         if (!vars.small) {
       
@@ -7708,8 +7690,6 @@ d3plus.shape.draw = function(vars,data) {
           }
         
         }
-        
-        links()
         
       }
       
@@ -7741,24 +7721,30 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     if (!mod) var mod = 0
     nodes
       .attr("x",function(d){
-        return (-d.d3plus.width/2)-(mod/2)
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (-w/2)-(mod/2)
       })
       .attr("y",function(d){
-        return (-d.d3plus.height/2)-(mod/2)
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (-h/2)-(mod/2)
       })
       .attr("width",function(d){
-        return d.d3plus.width+mod
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return w+mod
       })
       .attr("height",function(d){
-        return d.d3plus.height+mod
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return h+mod
       })
       .attr("rx",function(d){
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
         var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
-        return rounded ? (d.d3plus.width+mod)/2 : 0
+        return rounded ? (w+mod)/2 : 0
       })
       .attr("ry",function(d){
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
         var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
-        return rounded ? (d.d3plus.height+mod)/2 : 0
+        return rounded ? (h+mod)/2 : 0
       })
       .attr("shape-rendering",function(d){
         if (["square"].indexOf(vars.shape.value) >= 0) {
@@ -7817,7 +7803,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     if (typeof rad != "number") var rad = undefined
     if (typeof ang != "number") var ang = undefined
     path.attrTween("d", function(d){
-      if (rad == undefined) var r = d.d3plus.r
+      if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       else var r = rad
       if (ang == undefined) var a = d.d3plus.a[d.d3plus.shapeType]
       else var a = ang
@@ -7846,10 +7832,12 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         group = d3.select(this)
         
     function destroy(type) {
+      
+      var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
     
       group.selectAll("path."+type)
         .transition().duration(vars.style.timing.transitions)
-        .call(size,0,d.d3plus.r,0)
+        .call(size,0,r,0)
         .remove()
     
     }
@@ -7924,12 +7912,14 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
                 .call(update)
         }
       
+        var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
+      
         group.insert("path","rect.mouse")
           .attr("class",type)
           .attr("clip-path","url(#clip_"+d.d3plus.id+")")
           .data([new_data])
           .transition().duration(0)
-            .call(size,0,d.d3plus.r,0)
+            .call(size,0,r,0)
             .call(d3plus.shape.style,vars)
             .transition().duration(delay)
               .call(size)
@@ -8073,7 +8063,8 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             diff = parseFloat(d3.select(this).style("font-size"),10)/5
             
         if (this.className.baseVal == "share") {
-          var pheight = d3.select(this.parentNode).datum().d3plus.height
+          var data = d3.select(this.parentNode).datum()
+          var pheight = data.d3plus.r ? data.d3plus.r*2 : data.d3plus.height
           if (align == "end") {
             var y = t.y-pheight/2+diff/2
           }
@@ -8528,22 +8519,28 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     
     n
       .attr("x",function(d){
-        return d.d3plus.x - ((d.d3plus.width/2)+(mod/2))
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return d.d3plus.x - ((w/2)+(mod/2))
       })
       .attr("y",function(d){
-        return d.d3plus.y - ((d.d3plus.height/2)+(mod/2))
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return d.d3plus.y - ((h/2)+(mod/2))
       })
       .attr("width",function(d){
-        return d.d3plus.width+mod
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return w+mod
       })
       .attr("height",function(d){
-        return d.d3plus.height+mod
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return h+mod
       })
       .attr("rx",function(d){
-        return (d.d3plus.width+mod)/2
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (w+mod)/2
       })
       .attr("ry",function(d){
-        return (d.d3plus.height+mod)/2
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (h+mod)/2
       })
       
   }
@@ -8660,7 +8657,7 @@ d3plus.shape.links = function(vars,links) {
     .call(line)
     .call(style)
   
-  lines.exit()
+  lines.exit().transition().duration(vars.style.timing.transitions)
     .call(init)
     .remove()
     
@@ -8672,7 +8669,7 @@ d3plus.shape.links = function(vars,links) {
     .data(spline_data,function(d){
       return d.source[vars.id.key]+"_"+d.target[vars.id.key]
     })
-  
+    
   splines.enter().append("path")
     .call(spline)
     .call(init)
@@ -8711,24 +8708,30 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
     if (!mod) var mod = 0
     nodes
       .attr("x",function(d){
-        return (-d.d3plus.width/2)-(mod/2)
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (-w/2)-(mod/2)
       })
       .attr("y",function(d){
-        return (-d.d3plus.height/2)-(mod/2)
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (-h/2)-(mod/2)
       })
       .attr("width",function(d){
-        return d.d3plus.width+mod
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return w+mod
       })
       .attr("height",function(d){
-        return d.d3plus.height+mod
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return h+mod
       })
       .attr("rx",function(d){
         var rounded = vars.shape.value == "circle"
-        return rounded ? (d.d3plus.width+mod+2)/2 : 0
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return rounded ? (w+mod+2)/2 : 0
       })
       .attr("ry",function(d){
         var rounded = vars.shape.value == "circle"
-        return rounded ? (d.d3plus.height+mod+2)/2 : 0
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return rounded ? (h+mod+2)/2 : 0
       })
       .attr("shape-rendering",function(d){
         if (vars.shape.value == "square") {
@@ -8762,13 +8765,16 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
           "x": 0,
           "y": 0
         }
+
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width,
+            h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
     
         // Square bounds
         if (vars.shape.value == "square") {
-
-          var w = d.d3plus.width-(vars.style.labels.padding*2),
-              h = d.d3plus.height-(vars.style.labels.padding*2)
-        
+              
+          w -= vars.style.labels.padding*2
+          h -= vars.style.labels.padding*2
+          
           d.d3plus_share = {
             "w": w,
             "h": h/4,
@@ -8782,8 +8788,8 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
         // Circle bounds
         else {
-          d.d3plus_label.w = Math.sqrt(Math.pow(d.d3plus.width,2)/2)-(vars.style.labels.padding)
-          d.d3plus_label.h = Math.sqrt(Math.pow(d.d3plus.height,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.w = Math.sqrt(Math.pow(w,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.h = Math.sqrt(Math.pow(h,2)/2)-(vars.style.labels.padding)
         }
         
       }
