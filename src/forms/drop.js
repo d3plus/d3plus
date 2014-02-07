@@ -132,7 +132,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     var element = d3.event.target || d3.event.toElement
     element = element.id
     var child = "_"+vars.id
-        
+    
     if (element.indexOf(child) < 0 && vars.enabled) {
       vars.ui.disable()
     }
@@ -241,28 +241,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     
   button
     .draw()
-    
-  var offset = icon.content == "&#x27A4;" ? 90 : 0
-  if (vars.enabled) {
-    var rotate = "rotate(-"+(180-offset)+"deg)"
-  }
-  else {
-    var rotate = "rotate("+offset+"deg)"
-  }
-  
-  button.select("div#d3plus_button_element_"+vars.id+"_icon")
-    .data(["icon"])
-    .style("transition",(timing/1000)+"s")
-    .style("-webkit-transition",(timing/1000)+"s")
-    .style("transform",rotate)
-    .style("-ms-transform",rotate)
-    .style("-webkit-transform",rotate)
-    .style("opacity",function(){
-      return vars.enabled ? 0.5 : 1
-    })
-    .style("top",function(){
-      return this.parentNode.offsetHeight/2 - this.offsetHeight/2 - 2 + "px"
-    })
   
   var selector = vars.container.selectAll("div.d3plus_drop_selector")
     .data(["selector"])
@@ -292,7 +270,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   search_width -= styles.stroke*2
   
   search.transition().duration(timing)
-    .style("padding","0px "+styles.padding+"px "+styles.padding+"px")
+    .style("padding",styles.padding+"px")
     .style("display","block")
     .style("background-color",styles.color)
     
@@ -399,9 +377,14 @@ d3plus.forms.drop = function(vars,styles,timing) {
     var height = 0
   }
   
-  var max = window.innerHeight-position.top
+  var max = window.innerHeight-position.top,
+      flipped = false
   max -= button.height()
   max -= 10
+  if (max < button.height()*2) {
+    max = position.top-10
+    flipped = true
+  }
   var scrolling = false
   if (max > vars["max-height"]) {
     max = vars["max-height"]
@@ -413,6 +396,28 @@ d3plus.forms.drop = function(vars,styles,timing) {
   }
   
   if (hidden) selector.style("display","none")
+  
+  var offset = icon.content == "&#x27A4;" ? 90 : 0
+  if (vars.enabled != flipped) {
+    var rotate = "rotate(-"+(180-offset)+"deg)"
+  }
+  else {
+    var rotate = "rotate("+offset+"deg)"
+  }
+  
+  button.select("div#d3plus_button_element_"+vars.id+"_icon")
+    .data(["icon"])
+    .style("transition",(timing/1000)+"s")
+    .style("-webkit-transition",(timing/1000)+"s")
+    .style("transform",rotate)
+    .style("-ms-transform",rotate)
+    .style("-webkit-transform",rotate)
+    .style("opacity",function(){
+      return vars.enabled ? 0.5 : 1
+    })
+    .style("top",function(){
+      return this.parentNode.offsetHeight/2 - this.offsetHeight/2 - 2 + "px"
+    })
   
   function scrollTopTween(scrollTop) { 
       return function() { 
@@ -490,11 +495,21 @@ d3plus.forms.drop = function(vars,styles,timing) {
       return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
     })
     .style("width",(drop_width+(styles.padding*2))+"px")
-    .style("top",button.height()+"px")
+    .style("top",function(){
+      return flipped ? "auto" : button.height()+"px"
+    })
+    .style("bottom",function(){
+      return flipped ? button.height()+"px" : "auto"
+    })
     .style("opacity",vars.enabled ? 1 : 0)
     .each("end",function(){
       d3.select(this).transition().duration(timing)
-        .style("top",button.height()+"px")
+        .style("top",function(){
+          return flipped ? "auto" : button.height()+"px"
+        })
+        .style("bottom",function(){
+          return flipped ? button.height()+"px" : "auto"
+        })
         .style("display",!vars.enabled ? "none" : "")
     })
     
