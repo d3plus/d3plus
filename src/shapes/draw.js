@@ -69,32 +69,6 @@ d3plus.shape.draw = function(vars,data) {
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Calculates width, height, and radius for each data point.
-  //----------------------------------------------------------------------------
-  function size(d) {
-    
-    if (d.d3plus.r) {
-      d.d3plus.width = d.d3plus.r*2
-      d.d3plus.height = d.d3plus.r*2
-    }
-    else {
-      d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
-    }
-    
-    if (vars.shape.value != vars.shape.previous) {
-      if (vars.shape.value == "square" && ["circle","donut"].indexOf(vars.shape.previous) >= 0) {
-        d.d3plus.r = d3.max([d.d3plus.width,d.d3plus.height])/2
-      }
-      else if (vars.shape.previous == "square" && ["circle","donut"].indexOf(vars.shape.value) >= 0) {
-        d.d3plus.width = d.d3plus.r*2
-        d.d3plus.height = d.d3plus.r*2
-      }
-    }
-    
-    return d
-  }
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Transforms the positions and scale of each group.
   //----------------------------------------------------------------------------
   function transform(g,grow) {
@@ -161,15 +135,12 @@ d3plus.shape.draw = function(vars,data) {
         if (d.values) {
           d.values.forEach(function(v){
             v = id(v)
-            v = size(v)
             v.d3plus.shapeType = "circle"
           })
         }
         else {
         
           d = id(d)
-      
-          d = size(d)
 
           if (!d.d3plus.a) {
           
@@ -390,6 +361,8 @@ d3plus.shape.draw = function(vars,data) {
     .on(d3plus.evt.click,function(d){
       
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+        links()
         
         if (!vars.small) {
       
@@ -407,8 +380,6 @@ d3plus.shape.draw = function(vars,data) {
           }
         
         }
-        
-        links()
         
       }
       
