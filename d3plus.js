@@ -5201,7 +5201,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     if (vars.enabled || vars.hover === true) {
   
       var key = d3.event.keyCode,
-          options = list.select("div").selectAll("div#d3plus_button_selector_option"),
+          options = list.select("div").selectAll("div.d3plus_node"),
           index = 0
           
       if (typeof vars.hover == "boolean") {
@@ -5595,7 +5595,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   if (scrolling) {
     
     var index = 0
-    var options = list.select("div").selectAll("div#d3plus_button_selector_option")
+    var options = list.select("div").selectAll("div.d3plus_node")
     if (typeof vars.hover == "boolean") {
       options.each(function(d,i){
         if (d.value == vars.focus) {
