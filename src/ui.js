@@ -7,9 +7,12 @@ d3plus.ui = function(passed) {
   // Create global ui variable object
   //----------------------------------------------------------------------------
   var vars = {
+    "before": null,
     "callback": false,
     "data": [],
     "enabled": false,
+    "filter": "",
+    "format": d3plus.public.text_format.value,
     "highlight": false,
     "hover": false,
     "id": "default",
@@ -26,8 +29,8 @@ d3plus.ui = function(passed) {
     "align": "left",
     "border": "all",
     "color": "red",
+    "corners": 0,
     "display": "inline-block",
-    "font-align": "left",
     "font-color": false,
     "font-family": "sans-serif",
     "font-size": 12,
@@ -35,14 +38,17 @@ d3plus.ui = function(passed) {
     "font-weight": "normal",
     "margin": 0,
     "padding": 5,
+    "shadow": 5,
     "stroke": 1,
     "width": false
   }
   
+  styles["font-align"] = d3plus.rtl ? "right" : "left"
+  
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Set default icon based on whether or not font-awesome is present
   //----------------------------------------------------------------------------
-  styles.icon = d3plus.fontawesome ? "fa-angle-down" : "^"
+  styles.icon = d3plus.fontawesome ? "fa-chevron-down" : "&#x27A4;"
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Overwrite vars if vars have been passed
@@ -50,35 +56,42 @@ d3plus.ui = function(passed) {
   if (passed) {
     styles = d3plus.utils.merge(styles,passed)
   }
-  vars.ui = function() {
+  vars.ui = function(selection,timing) {
     
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set timing to 0 if it's the first time running this function
     //--------------------------------------------------------------------------
-    var timing = vars.init ? vars.timing : 0
+    if (typeof timing != "number") {
+      var timing = vars.init ? vars.timing : 0
+    }
     
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is a string, extract data from the element associated with it
     //--------------------------------------------------------------------------
     if (vars.data) {
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
-        vars.element = d3.select(vars.data).style("display","none")
+        vars.before = vars.data
+        vars.element = d3.selectAll(vars.data)
       }
       else if (vars.data instanceof d3.selection) {
-        vars.element = vars.data.style("display","none")
+        vars.element = vars.data
       }
       if (vars.element) {
+        
+        vars.element
+          .style("position","absolute")
+          .style("overflow","hidden")
+          .style("clip","rect(0 0 0 0)")
+          .style("width","1px")
+          .style("height","1px")
+          .style("margin","-1px")
+          .style("padding","0")
+          .style("border","0")
+          
         vars.data = []
         vars.parent = d3.select(vars.element.node().parentNode)
         d3plus.forms.data(vars)
       }
-    }
-    
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Get ID from element, if available
-    //--------------------------------------------------------------------------
-    if (vars.element && vars.element.node().id && vars.id == "default") {
-      vars.id = vars.element.node().id
     }
     
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -97,22 +110,12 @@ d3plus.ui = function(passed) {
       //------------------------------------------------------------------------
       vars.container = vars.parent.selectAll("div#d3plus_"+vars.type+"_"+vars.id)
         .data(["container"])
-        
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Determine if container should be inserted before form element
-      //------------------------------------------------------------------------
-      if (vars.element && vars.element.node().id) {
-        var before = "#"+vars.id
-      }
-      else {
-        var before = null
-      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Create container DIV for UI element
       //------------------------------------------------------------------------
       vars.container.enter()
-        .insert("div",before)
+        .insert("div",vars.before)
         .attr("id","d3plus_"+vars.type+"_"+vars.id)
         .style("display","inline-block")
         .style("position","relative")
@@ -173,9 +176,11 @@ d3plus.ui = function(passed) {
     "data",
     "element",
     "highlight",
+    "hover",
     "id",
     "parent",
     "propagation",
+    "search",
     "timing",
     "text",
     "type"
@@ -194,10 +199,6 @@ d3plus.ui = function(passed) {
         
         vars[key] = value
         
-        if (vars.init) {
-          vars.parent.call(vars.ui)
-        }
-        
         return vars.ui
         
       }
@@ -214,10 +215,12 @@ d3plus.ui = function(passed) {
     "icon",
     "border",
     "color",
+    "corners",
     "display",
     "font",
     "margin",
-    "padding"
+    "padding",
+    "shadows"
   ]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -228,7 +231,7 @@ d3plus.ui = function(passed) {
     vars.ui[v] = (function(key) {
       
       return function(value) {
-
+        
         if (!arguments.length) return styles[key]
         
         if (key == "font") {
@@ -240,16 +243,20 @@ d3plus.ui = function(passed) {
           }
           else if (typeof value == "object") {
             for (style in value) {
+              if (style == "align" && d3plus.rtl) {
+                if (value[style] == "left") {
+                  value[style] = "right"
+                }
+                else if (value[style] == "right") {
+                  value[style] = "left"
+                }
+              }
               styles["font-"+style] = value[style]
             }
           }
         }
         else {
           styles[key] = value
-        }
-        
-        if (vars.init) {
-          vars.parent.call(vars.ui)
         }
         
         return vars.ui
@@ -265,7 +272,9 @@ d3plus.ui = function(passed) {
   //----------------------------------------------------------------------------
   vars.ui.disable = function() {
     vars.enabled = false
-    vars.parent.call(vars.ui)
+    if (vars.init) {
+      vars.parent.call(vars.ui)
+    }
     return vars.ui
   }
   
@@ -274,15 +283,17 @@ d3plus.ui = function(passed) {
   //----------------------------------------------------------------------------
   vars.ui.enable = function() {
     vars.enabled = true
-    vars.parent.call(vars.ui)
+    if (vars.init) {
+      vars.parent.call(vars.ui)
+    }
     return vars.ui
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Draws the UI element
   //----------------------------------------------------------------------------
-  vars.ui.draw = function() {
-    vars.parent.call(vars.ui)
+  vars.ui.draw = function(timing) {
+    vars.parent.call(vars.ui,timing)
     return vars.ui
   }
   
@@ -311,6 +322,8 @@ d3plus.ui = function(passed) {
   // Sets value of the UI element
   //----------------------------------------------------------------------------
   vars.ui.value = function(value) {
+    
+    if (!arguments.length) return vars.focus
       
     if (typeof value == "string") {
       value = vars.data.filter(function(d){
@@ -318,33 +331,46 @@ d3plus.ui = function(passed) {
       })[0]
     }
     
-    if (value.value != vars.focus.value) {
+    if (value.value != vars.focus) {
+
+      var index = false
+      vars.data.forEach(function(d,i){
+        if (d.value == value.value) {
+          index = i
+        }
+      })
 
       if (vars.tag == "select") {
-
-        var index = false
-        vars.data.forEach(function(d,i){
-          if (d.value == value.value) {
-            index = i
-          }
-        })
-    
-        if (typeof index == "number") {
-          vars.element.node().selectedIndex = index
-        }
+        
+        vars.element.node().selectedIndex = index
       
+      }
+      else if (vars.tag == "input" && vars.element.attr("type") == "radio") {
+        vars.element
+          .each(function(e,i){
+            if (index == i) {
+              this.checked = true
+            }
+            else {
+              this.checked = false
+            }
+          })
       }
     
       if (vars.callback) {
         vars.callback(value.value)
       }
     
-      vars.focus = value
+      vars.focus = value.value
       
     }
     
     vars.enabled = false
-    vars.parent.call(vars.ui)
+    vars.highlight = false
+    
+    if (vars.init) {
+      vars.parent.call(vars.ui)
+    }
     
     return vars.ui
   }
@@ -353,20 +379,37 @@ d3plus.ui = function(passed) {
   // Toggles the UI element menu open/close
   //----------------------------------------------------------------------------
   vars.ui.toggle = function() {
+    
     if (vars.enabled) {
       vars.ui.disable()
     }
     else {
       vars.ui.enable()
     }
+    
     return vars.ui
+    
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Returns UI element's current width
   //----------------------------------------------------------------------------
   vars.ui.width = function(x) {
-    if (!arguments.length) return vars.container.node().offsetWidth
+    if (!arguments.length) {
+      var vals = []
+      vars.container.selectAll("div.d3plus_node").each(function(o){
+        vals.push(this.offsetWidth)
+      })
+      if (vals.length > 1) {
+        return vals.sort()
+      }
+      else if (vals.length == 1) {
+        return vals[0]
+      }
+      else {
+        return vars.container.node().offsetWidth
+      }
+    }
     styles.width = x
     return vars.ui
   }

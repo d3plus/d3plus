@@ -4,7 +4,7 @@
 d3plus.forms.button = function(vars,styles,timing) {
   
   var style = function(elem) {
-    
+                      
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set font-color based on color, if it hasn't been specified
     //--------------------------------------------------------------------------
@@ -14,36 +14,7 @@ d3plus.forms.button = function(vars,styles,timing) {
     else {
       var font_color = styles["font-color"]
     }
-    
-    if (vars.enabled) {
-      if (vars.hover) {
-        var background = d3plus.color.lighter(styles.color,.1)
-      }
-      else {
-        var background = styles.color
-      }
-    }
-    else {
-      if (vars.hover) {
-        var background = d3plus.color.darker(font_color,.05)
-      }
-      else {
-        var background = font_color
-      }
-    }
-    
-    if (vars.enabled) {
-      var font_color = font_color
-    }
-    else if (vars.highlight) {
-      var font_color = styles.color
-    }
-    else {
-      var font_color = d3plus.color.text(font_color)
-    }
-    
-    var border_color = vars.enabled ? background : font_color
-    
+  
     if (styles.border == "all") {
       var border_width = styles.stroke+"px",
           padding = styles.padding+"px"
@@ -68,35 +39,90 @@ d3plus.forms.button = function(vars,styles,timing) {
     }
     
     elem
-      .style("border-style","solid")
-      .style("border-color",border_color)
-      .style("border-width",border_width)
+      .style("position","relative")
       .style("padding",padding)
       .style("margin",styles.margin+"px")
       .style("display",styles.display)
-      .style("color",font_color)
-      .style("background-color",background)
+      .style("box-shadow",function(){
+        return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
+      })
+      .style("color",function(d,i){
+        
+        if (vars.enabled) {
+          return font_color
+        }
+        else if (vars.highlight == d.value) {
+          return styles.color
+        }
+        else {
+          return d3plus.color.text(font_color)
+        }
+        
+      })
+      .style("background-color",function(d,i){
+        
+        if (vars.enabled) {
+          if (vars.hover == d.value) {
+            var background = d3plus.color.lighter(styles.color,.1)
+          }
+          else {
+            var background = styles.color
+          }
+        }
+        else {
+          if (vars.hover == d.value) {
+            var background = d3plus.color.darker(font_color,.05)
+          }
+          else {
+            var background = font_color
+          }
+        }
+        
+        styles.border_color = vars.enabled ? background : font_color
+        
+        return background
+        
+      })
+      .style("border-style","solid")
+      .style("border-color",styles.border_color)
+      .style("border-width",border_width)
       .style("font-family",styles["font-family"])
       .style("font-size",styles["font-size"]+"px")
       .style("font-weight",styles["font-weight"])
       .style("text-align",styles["font-align"])
-      .style("width",function(c){
+      .style("width",function(){
         if (typeof styles.width == "object" && "button" in styles.width) {
           return styles.width.button+"px"
         }
         return typeof styles.width == "number" ? styles.width+"px" : "auto"
       })
-      .each(function(){
+      .each(function(d,i){
         
         var children = []
-        if (styles.image) {
+        if (d.image) {
           children.push("image")
         }
-        if (styles.text) {
-          children.push("text")
-        }
         if (styles.icon) {
+          d.icon = d3plus.utils.copy(styles.icon)
           children.push("icon")
+        }
+        else if (d.value == vars.highlight) {
+          if (d3plus.fontawesome) {
+            d.icon = {
+              "class": "fa fa-check",
+              "content": ""
+            }
+          }
+          else {
+            d.icon = {
+              "class": "",
+              "content": "&#x2713;"
+            }
+          }
+          children.push("icon")
+        }
+        if (d.text) {
+          children.push("text")
         }
         
         var items = d3.select(this).selectAll("div.d3plus_button_element")
@@ -107,41 +133,69 @@ d3plus.forms.button = function(vars,styles,timing) {
         items.enter().append("div")
           .style("display","inline-block")
           .attr("id",function(c){
-            return "d3plus_button_"+vars.id+"_"+c
+            return "d3plus_button_element_"+vars.id+"_"+c
           })
           .attr("class",function(c){
             var extra = ""
-            if (styles[c] && typeof styles[c] == "object" && styles[c].class) {
-              extra = " "+styles[c].class
+            if (c == "icon" && d.icon.class) {
+              extra = " "+d[c].class
             }
             return "d3plus_button_element" + extra
           })
+          
+        var buffers = {
+          "icon": 0,
+          "image": 0
+        }
       
         items.order()
-          .text(function(c){
+          .html(function(c){
             if (c == "text") {
-              return styles[vars.text]
+              return d[vars.text]
             }
             else if (c == "icon") {
-              return styles.icon.content
+              return d.icon.content
             }
             else {
               return ""
             }
           })
           .style("letter-spacing",function(c){
-            return c == "icon" ? "0px" : styles["font-spacing"]+"px"
+            return c != "text" ? "0px" : styles["font-spacing"]+"px"
           })
-          .style("margin",function(c,i) {
-            if (i == 0) return "0px";
-            return "0px "+styles.padding+"px"
+          .style("position",function(c){
+            return c == "text" ? "static" : "absolute"
           })
-          .style("float",function(c){
-            if (d3plus.rtl) {
-              return c == "icon" ? "left" : "none"
+          .style("left",function(c){
+            if ((c == "image" && !d3plus.rtl) || (c == "icon" && d3plus.rtl)) {
+              return styles.padding+"px"
             }
-            else {
-              return c == "icon" ? "right" : "none"
+            return "auto"
+          })
+          .style("right",function(c){
+            if ((c == "image" && d3plus.rtl) || (c == "icon" && !d3plus.rtl)) {
+              return styles.padding+"px"
+            }
+            return "auto"
+          })
+          .each(function(c){
+            if (c != "text") {
+              buffers[c] = this.offsetWidth
+            }
+            else if (d3.max(d3.map(buffers).values()) > 0) {
+              var width = styles.width
+              if (styles["font-align"] == "center") {
+                width -= d3.max(d3.map(buffers).values())*2
+                width -= styles.padding*2
+              }
+              else {
+                d3.map(buffers).values().forEach(function(v){
+                  width -= v
+                width -= styles.padding
+                })
+              }
+              d3.select(this)
+                .style("width",width+"px")
             }
           })
     
@@ -151,50 +205,52 @@ d3plus.forms.button = function(vars,styles,timing) {
       
   }
   
-  var button = vars.container.selectAll("div#d3plus_button_"+vars.id)
-    .data(["button"])
+  var button = vars.container.selectAll("div.d3plus_node")
+    .data(vars.data,function(d){
+      return d.id || d.value
+    })
     
   button.enter().append("div")
     .attr("id","d3plus_button_"+vars.id)
+    .attr("class","d3plus_node")
     .call(style)
     
   button
-    .on(d3plus.evt.over,function(){
-    
-      vars.hover = true
-    
-      d3.select(this).style("cursor","pointer")
+    .order()
+    .on(d3plus.evt.over,function(d,i){
+        
+      vars.hover = d.value
+  
+      button.style("cursor","pointer")
         .transition().duration(60)
         .call(style)
       
     })
-    .on(d3plus.evt.out,function(){
+    .on(d3plus.evt.out,function(d){
     
       vars.hover = false
     
-      d3.select(this).style("cursor","auto")
+      button.style("cursor","auto")
         .transition().duration(60)
         .call(style)
       
     })
-    .on(d3plus.evt.click,function(){
+    .on("click",function(d){
       
       if (!vars.propagation) {
         d3.event.stopPropagation()
       }
       
-      if (vars.callback) {
+      if (vars.callback && d.value) {
       
-        vars.callback({
-          "image": styles.image,
-          "text": styles.text,
-          "value": styles.value
-        })
+        vars.callback(d)
       
       }
     
     })
     .transition().duration(vars.timing)
       .call(style)
+      
+  button.exit().remove()
   
 }
