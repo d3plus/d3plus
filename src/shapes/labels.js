@@ -74,7 +74,8 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             diff = parseFloat(d3.select(this).style("font-size"),10)/5
             
         if (this.className.baseVal == "share") {
-          var pheight = d3.select(this.parentNode).datum().d3plus.height
+          var data = d3.select(this.parentNode).datum()
+          var pheight = data.d3plus.r ? data.d3plus.r*2 : data.d3plus.height
           if (align == "end") {
             var y = t.y-pheight/2+diff/2
           }

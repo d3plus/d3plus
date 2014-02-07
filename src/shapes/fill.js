@@ -23,24 +23,30 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     if (!mod) var mod = 0
     nodes
       .attr("x",function(d){
-        return (-d.d3plus.width/2)-(mod/2)
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (-w/2)-(mod/2)
       })
       .attr("y",function(d){
-        return (-d.d3plus.height/2)-(mod/2)
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (-h/2)-(mod/2)
       })
       .attr("width",function(d){
-        return d.d3plus.width+mod
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return w+mod
       })
       .attr("height",function(d){
-        return d.d3plus.height+mod
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return h+mod
       })
       .attr("rx",function(d){
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
         var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
-        return rounded ? (d.d3plus.width+mod)/2 : 0
+        return rounded ? (w+mod)/2 : 0
       })
       .attr("ry",function(d){
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
         var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
-        return rounded ? (d.d3plus.height+mod)/2 : 0
+        return rounded ? (h+mod)/2 : 0
       })
       .attr("shape-rendering",function(d){
         if (["square"].indexOf(vars.shape.value) >= 0) {
@@ -99,7 +105,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     if (typeof rad != "number") var rad = undefined
     if (typeof ang != "number") var ang = undefined
     path.attrTween("d", function(d){
-      if (rad == undefined) var r = d.d3plus.r
+      if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       else var r = rad
       if (ang == undefined) var a = d.d3plus.a[d.d3plus.shapeType]
       else var a = ang
@@ -128,10 +134,12 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         group = d3.select(this)
         
     function destroy(type) {
+      
+      var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
     
       group.selectAll("path."+type)
         .transition().duration(vars.style.timing.transitions)
-        .call(size,0,d.d3plus.r,0)
+        .call(size,0,r,0)
         .remove()
     
     }
@@ -206,12 +214,14 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
                 .call(update)
         }
       
+        var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
+      
         group.insert("path","rect.mouse")
           .attr("class",type)
           .attr("clip-path","url(#clip_"+d.d3plus.id+")")
           .data([new_data])
           .transition().duration(0)
-            .call(size,0,d.d3plus.r,0)
+            .call(size,0,r,0)
             .call(d3plus.shape.style,vars)
             .transition().duration(delay)
               .call(size)

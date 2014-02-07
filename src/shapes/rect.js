@@ -23,24 +23,30 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
     if (!mod) var mod = 0
     nodes
       .attr("x",function(d){
-        return (-d.d3plus.width/2)-(mod/2)
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (-w/2)-(mod/2)
       })
       .attr("y",function(d){
-        return (-d.d3plus.height/2)-(mod/2)
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (-h/2)-(mod/2)
       })
       .attr("width",function(d){
-        return d.d3plus.width+mod
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return w+mod
       })
       .attr("height",function(d){
-        return d.d3plus.height+mod
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return h+mod
       })
       .attr("rx",function(d){
         var rounded = vars.shape.value == "circle"
-        return rounded ? (d.d3plus.width+mod+2)/2 : 0
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return rounded ? (w+mod+2)/2 : 0
       })
       .attr("ry",function(d){
         var rounded = vars.shape.value == "circle"
-        return rounded ? (d.d3plus.height+mod+2)/2 : 0
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return rounded ? (h+mod+2)/2 : 0
       })
       .attr("shape-rendering",function(d){
         if (vars.shape.value == "square") {
@@ -74,13 +80,16 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
           "x": 0,
           "y": 0
         }
+
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width,
+            h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
     
         // Square bounds
         if (vars.shape.value == "square") {
-
-          var w = d.d3plus.width-(vars.style.labels.padding*2),
-              h = d.d3plus.height-(vars.style.labels.padding*2)
-        
+              
+          w -= vars.style.labels.padding*2
+          h -= vars.style.labels.padding*2
+          
           d.d3plus_share = {
             "w": w,
             "h": h/4,
@@ -94,8 +103,8 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
         // Circle bounds
         else {
-          d.d3plus_label.w = Math.sqrt(Math.pow(d.d3plus.width,2)/2)-(vars.style.labels.padding)
-          d.d3plus_label.h = Math.sqrt(Math.pow(d.d3plus.height,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.w = Math.sqrt(Math.pow(w,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.h = Math.sqrt(Math.pow(h,2)/2)-(vars.style.labels.padding)
         }
         
       }

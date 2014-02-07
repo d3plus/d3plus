@@ -240,22 +240,28 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     
     n
       .attr("x",function(d){
-        return d.d3plus.x - ((d.d3plus.width/2)+(mod/2))
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return d.d3plus.x - ((w/2)+(mod/2))
       })
       .attr("y",function(d){
-        return d.d3plus.y - ((d.d3plus.height/2)+(mod/2))
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return d.d3plus.y - ((h/2)+(mod/2))
       })
       .attr("width",function(d){
-        return d.d3plus.width+mod
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return w+mod
       })
       .attr("height",function(d){
-        return d.d3plus.height+mod
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return h+mod
       })
       .attr("rx",function(d){
-        return (d.d3plus.width+mod)/2
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (w+mod)/2
       })
       .attr("ry",function(d){
-        return (d.d3plus.height+mod)/2
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (h+mod)/2
       })
       
   }

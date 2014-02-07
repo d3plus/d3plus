@@ -50,7 +50,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
     if (typeof rad != "number") var rad = undefined
     if (typeof ang != "number") var ang = undefined
     path.attrTween("d", function(d){
-      if (rad == undefined) var r = d.d3plus.r
+      if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       else var r = rad
       if (ang == undefined) var a = d.d3plus.a[d.d3plus.shapeType]
       else var a = ang
@@ -158,22 +158,28 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
     })
     .transition().duration(vars.style.timing.transitions)
       .attr("x",function(d){
-        return (-d.d3plus.width/2)-3
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (-w/2)-3
       })
       .attr("y",function(d){
-        return (-d.d3plus.height/2)-3
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (-h/2)-3
       })
       .attr("width",function(d){
-        return d.d3plus.width+6
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return w+6
       })
       .attr("height",function(d){
-        return d.d3plus.height+6
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return h+6
       })
       .attr("rx",function(d){
-        return (d.d3plus.width+6)/2
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+        return (w+6)/2
       })
       .attr("ry",function(d){
-        return (d.d3plus.height+6)/2
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+        return (h+6)/2
       })
       .attr("shape-rendering","auto")
   
