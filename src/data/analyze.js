@@ -196,6 +196,10 @@ d3plus.data.analyze = function(vars) {
   var year = !vars.time.fixed.value ? ["all"] : null
   
   vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
+
+  if (!vars.data.pool) {
+    vars.data.pool = []
+  }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Formats Data to type specified by App, if it does not exist.
@@ -211,6 +215,10 @@ d3plus.data.analyze = function(vars) {
     
     vars.data.app = d3plus.data.fetch(vars,vars.data.type)
     
+  }
+  
+  if (!vars.data.app) {
+    vars.data.app = []
   }
   
   // Get link connections if they have not been previously set
