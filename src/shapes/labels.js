@@ -36,20 +36,21 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       }
       
       if (tspan) {
+        var t_width = this.getComputedTextLength()
         if (align == "middle") {
           if (d3plus.rtl) {
-            pos -= (width-this.offsetWidth)/2
+            pos -= (width-t_width)/2
           }
           else {
-            pos += (width-this.offsetWidth)/2
+            pos += (width-t_width)/2
           }
         }
         else if (align == "end") {
           if (d3plus.rtl) {
-            pos -= (width-this.offsetWidth)
+            pos -= (width-t_width)
           }
           else {
-            pos += (width-this.offsetWidth)
+            pos += (width-t_width)
           }
         }
       }
