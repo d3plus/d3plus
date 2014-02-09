@@ -286,10 +286,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .attr("placeholder",vars.format("Search"))
     .style("outline","none")
     
-  if (vars.search && vars.enabled) {
-    search.select("input").node().focus()
-  }
-    
   search.select("input").on("keyup."+vars.id,function(d){
     if (vars.filter != this.value) {
       vars.filter = this.value
@@ -491,6 +487,9 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .style("height",height+"px")
     .style("border-width",styles.stroke+"px")
     .style("border-color",styles.color)
+    .style("z-index",function(){
+      return vars.enabled ? "9999" : "-1";
+    })
     .style("box-shadow",function(){
       return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
     })
@@ -511,6 +510,11 @@ d3plus.forms.drop = function(vars,styles,timing) {
           return flipped ? button.height()+"px" : "auto"
         })
         .style("display",!vars.enabled ? "none" : "")
+        
+      if (vars.search && vars.enabled) {
+        search.select("input").node().focus()
+      }
+        
     })
     
   list.transition().duration(timing)
