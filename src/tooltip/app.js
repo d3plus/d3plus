@@ -29,7 +29,7 @@ d3plus.tooltip.app = function(params) {
     var x = params.x
   }
   else if (d3plus.apps[vars.type.value].tooltip == "follow") {
-    var x = d3.event.clientX
+    var x = d3.mouse(vars.parent.node())[0]
   }
   else {
     var x = d.d3plus.x
@@ -39,7 +39,7 @@ d3plus.tooltip.app = function(params) {
     var y = params.y
   }
   else if (d3plus.apps[vars.type.value].tooltip == "follow") {
-    var y = d3.event.clientY
+    var y = d3.mouse(vars.parent.node())[1]
   }
   else {
     var y = d.d3plus.y

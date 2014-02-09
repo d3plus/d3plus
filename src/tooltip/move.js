@@ -31,7 +31,7 @@ d3plus.tooltip.move = function(x,y,id) {
 
         // Determine whether or not to flip the tooltip
         if (d.anchor.y == "bottom") {
-          d.flip = d.cy + d.height + d.offset <= window.innerHeight
+          d.flip = d.cy + d.height + d.offset <= d.limit[1]
         }
         else if (d.anchor.y == "top") {
           d.flip = d.cy - d.height - d.offset < 0
@@ -51,7 +51,7 @@ d3plus.tooltip.move = function(x,y,id) {
         
         // Determine whether or not to flip the tooltip
         if (d.anchor.x == "right") {
-          d.flip = d.cx + d.width + d.offset <= window.innerWidth
+          d.flip = d.cx + d.width + d.offset <= d.limit[0]
         }
         else if (d.anchor.x == "left") {
           d.flip = d.cx - d.width - d.offset < 0
@@ -73,16 +73,16 @@ d3plus.tooltip.move = function(x,y,id) {
       if (d.x < 0) {
         d.x = 0
       }
-      else if (d.x + d.width > window.innerWidth) {
-        d.x = window.innerWidth - d.width
+      else if (d.x + d.width > d.limit[0]) {
+        d.x = d.limit[0] - d.width
       }
   
       // Limit Y to the bounds of the screen
       if (d.y < 0) {
         d.y = 0
       }
-      else if (d.y + d.height > window.innerHeight) {
-        d.y = window.innerHeight - d.height
+      else if (d.y + d.height > d.limit[1]) {
+        d.y = d.limit[1] - d.height
       }
       
     }

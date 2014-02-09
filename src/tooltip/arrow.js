@@ -39,8 +39,8 @@ d3plus.tooltip.arrow = function(arrow) {
           arrow_x = d.cx-d.width/2-5
           if (arrow_x < 2-d.width/2) arrow_x = 2-d.width/2
         }
-        else if (-(window.innerWidth-d.cx-d.width/2+5) > arrow_x) {
-          var arrow_x = -(window.innerWidth-d.cx-d.width/2+5)
+        else if (-(d.limit[0]-d.cx-d.width/2+5) > arrow_x) {
+          var arrow_x = -(d.limit[0]-d.cx-d.width/2+5)
           if (arrow_x > d.width/2-11) arrow_x = d.width/2-11
         }
         return arrow_x+"px"
@@ -64,8 +64,8 @@ d3plus.tooltip.arrow = function(arrow) {
           arrow_y = d.cy-d.height/2-d.arrow_offset
           if (arrow_y < 4-d.height/2) arrow_y = 4-d.height/2
         }
-        else if (-(window.innerHeight-d.cy-d.height/2+d.arrow_offset) > arrow_y) {
-          var arrow_y = -(window.innerHeight-d.cy-d.height/2+d.arrow_offset)
+        else if (-(d.limit[1]-d.cy-d.height/2+d.arrow_offset) > arrow_y) {
+          var arrow_y = -(d.limit[1]-d.cy-d.height/2+d.arrow_offset)
           if (arrow_y > d.height/2-22) arrow_y = d.height/2-22
         }
         return arrow_y+"px"

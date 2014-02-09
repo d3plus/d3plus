@@ -21,6 +21,11 @@ d3plus.tooltip.create = function(params) {
   params.fontweight = params.fontweight || "normal"
   params.style = params.style || "default"
   
+  params.limit = [
+    parseFloat(params.parent.style("width"),10),
+    parseFloat(params.parent.style("height"),10)
+  ]
+  
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function that closes ALL Descriptions
   //-------------------------------------------------------------------
