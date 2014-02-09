@@ -35,9 +35,14 @@ d3plus.info.timeline = function(vars) {
       if (d3.event.sourceEvent !== null) {
         
         var extent0 = brush.extent(),
-            min_val = d3plus.utils.closest(year_ticks,d3.time.year.floor(extent0[0])),
-            max_val = d3plus.utils.closest(year_ticks,d3.time.year.ceil(extent0[1])),
-            min_index = years.indexOf(min_val.getFullYear()),
+            min_val = d3plus.utils.closest(year_ticks,d3.time.year.round(extent0[0])),
+            max_val = d3plus.utils.closest(year_ticks,d3.time.year.round(extent0[1]))
+            
+        if (min_val == max_val) {
+          min_val = d3plus.utils.closest(year_ticks,d3.time.year.floor(extent0[0]))
+        }
+            
+        var min_index = years.indexOf(min_val.getFullYear()),
             max_index = years.indexOf(max_val.getFullYear())
             
         if (max_index-min_index >= min_required) {
