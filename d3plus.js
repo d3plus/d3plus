@@ -2,7 +2,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.1.3 - Navy";
+d3plus.version = "1.1.4 - Navy";
 
 d3plus.ie = /*@cc_on!@*/false;
 
@@ -5468,10 +5468,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .attr("placeholder",vars.format("Search"))
     .style("outline","none")
     
-  if (vars.search && vars.enabled) {
-    search.select("input").node().focus()
-  }
-    
   search.select("input").on("keyup."+vars.id,function(d){
     if (vars.filter != this.value) {
       vars.filter = this.value
@@ -5673,6 +5669,9 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .style("height",height+"px")
     .style("border-width",styles.stroke+"px")
     .style("border-color",styles.color)
+    .style("z-index",function(){
+      return vars.enabled ? "9999" : "-1";
+    })
     .style("box-shadow",function(){
       return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
     })
@@ -5693,6 +5692,11 @@ d3plus.forms.drop = function(vars,styles,timing) {
           return flipped ? button.height()+"px" : "auto"
         })
         .style("display",!vars.enabled ? "none" : "")
+        
+      if (vars.search && vars.enabled) {
+        search.select("input").node().focus()
+      }
+        
     })
     
   list.transition().duration(timing)
@@ -6351,9 +6355,14 @@ d3plus.info.timeline = function(vars) {
       if (d3.event.sourceEvent !== null) {
         
         var extent0 = brush.extent(),
-            min_val = d3plus.utils.closest(year_ticks,d3.time.year.floor(extent0[0])),
-            max_val = d3plus.utils.closest(year_ticks,d3.time.year.ceil(extent0[1])),
-            min_index = years.indexOf(min_val.getFullYear()),
+            min_val = d3plus.utils.closest(year_ticks,d3.time.year.round(extent0[0])),
+            max_val = d3plus.utils.closest(year_ticks,d3.time.year.round(extent0[1]))
+            
+        if (min_val == max_val) {
+          min_val = d3plus.utils.closest(year_ticks,d3.time.year.floor(extent0[0]))
+        }
+            
+        var min_index = years.indexOf(min_val.getFullYear()),
             max_index = years.indexOf(max_val.getFullYear())
             
         if (max_index-min_index >= min_required) {
@@ -8048,20 +8057,21 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       }
       
       if (tspan) {
+        var t_width = this.getComputedTextLength()
         if (align == "middle") {
           if (d3plus.rtl) {
-            pos -= (width-this.offsetWidth)/2
+            pos -= (width-t_width)/2
           }
           else {
-            pos += (width-this.offsetWidth)/2
+            pos += (width-t_width)/2
           }
         }
         else if (align == "end") {
           if (d3plus.rtl) {
-            pos -= (width-this.offsetWidth)
+            pos -= (width-t_width)
           }
           else {
-            pos += (width-this.offsetWidth)
+            pos += (width-t_width)
           }
         }
       }
@@ -9059,7 +9069,7 @@ d3plus.tooltip.app = function(params) {
     var x = params.x
   }
   else if (d3plus.apps[vars.type.value].tooltip == "follow") {
-    var x = d3.event.clientX
+    var x = d3.mouse(vars.parent.node())[0]
   }
   else {
     var x = d.d3plus.x
@@ -9069,7 +9079,7 @@ d3plus.tooltip.app = function(params) {
     var y = params.y
   }
   else if (d3plus.apps[vars.type.value].tooltip == "follow") {
-    var y = d3.event.clientY
+    var y = d3.mouse(vars.parent.node())[1]
   }
   else {
     var y = d.d3plus.y
@@ -9198,8 +9208,8 @@ d3plus.tooltip.arrow = function(arrow) {
           arrow_x = d.cx-d.width/2-5
           if (arrow_x < 2-d.width/2) arrow_x = 2-d.width/2
         }
-        else if (-(window.innerWidth-d.cx-d.width/2+5) > arrow_x) {
-          var arrow_x = -(window.innerWidth-d.cx-d.width/2+5)
+        else if (-(d.limit[0]-d.cx-d.width/2+5) > arrow_x) {
+          var arrow_x = -(d.limit[0]-d.cx-d.width/2+5)
           if (arrow_x > d.width/2-11) arrow_x = d.width/2-11
         }
         return arrow_x+"px"
@@ -9223,8 +9233,8 @@ d3plus.tooltip.arrow = function(arrow) {
           arrow_y = d.cy-d.height/2-d.arrow_offset
           if (arrow_y < 4-d.height/2) arrow_y = 4-d.height/2
         }
-        else if (-(window.innerHeight-d.cy-d.height/2+d.arrow_offset) > arrow_y) {
-          var arrow_y = -(window.innerHeight-d.cy-d.height/2+d.arrow_offset)
+        else if (-(d.limit[1]-d.cy-d.height/2+d.arrow_offset) > arrow_y) {
+          var arrow_y = -(d.limit[1]-d.cy-d.height/2+d.arrow_offset)
           if (arrow_y > d.height/2-22) arrow_y = d.height/2-22
         }
         return arrow_y+"px"
@@ -9252,6 +9262,11 @@ d3plus.tooltip.create = function(params) {
   params.fontfamily = params.fontfamily || "sans-serif"
   params.fontweight = params.fontweight || "normal"
   params.style = params.style || "default"
+  
+  params.limit = [
+    parseFloat(params.parent.style("width"),10),
+    parseFloat(params.parent.style("height"),10)
+  ]
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function that closes ALL Descriptions
@@ -9830,7 +9845,7 @@ d3plus.tooltip.move = function(x,y,id) {
 
         // Determine whether or not to flip the tooltip
         if (d.anchor.y == "bottom") {
-          d.flip = d.cy + d.height + d.offset <= window.innerHeight
+          d.flip = d.cy + d.height + d.offset <= d.limit[1]
         }
         else if (d.anchor.y == "top") {
           d.flip = d.cy - d.height - d.offset < 0
@@ -9850,7 +9865,7 @@ d3plus.tooltip.move = function(x,y,id) {
         
         // Determine whether or not to flip the tooltip
         if (d.anchor.x == "right") {
-          d.flip = d.cx + d.width + d.offset <= window.innerWidth
+          d.flip = d.cx + d.width + d.offset <= d.limit[0]
         }
         else if (d.anchor.x == "left") {
           d.flip = d.cx - d.width - d.offset < 0
@@ -9872,16 +9887,16 @@ d3plus.tooltip.move = function(x,y,id) {
       if (d.x < 0) {
         d.x = 0
       }
-      else if (d.x + d.width > window.innerWidth) {
-        d.x = window.innerWidth - d.width
+      else if (d.x + d.width > d.limit[0]) {
+        d.x = d.limit[0] - d.width
       }
   
       // Limit Y to the bounds of the screen
       if (d.y < 0) {
         d.y = 0
       }
-      else if (d.y + d.height > window.innerHeight) {
-        d.y = window.innerHeight - d.height
+      else if (d.y + d.height > d.limit[1]) {
+        d.y = d.limit[1] - d.height
       }
       
     }
