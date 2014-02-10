@@ -451,7 +451,7 @@ d3plus.viz = function() {
     if (!arguments.length) return vars.style;
     
     function check_depth(object,property,depth) {
-      if (typeof depth == "object") {
+      if (typeof depth == "object" && !(depth instanceof Array)) {
         for (d in depth) {
           if (object[property] === undefined) {
             d3plus.console.warning("\""+property+"\" cannot be set");
