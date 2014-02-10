@@ -6,7 +6,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define the geographical projection
   //----------------------------------------------------------------------------
-  var projection = d3.geo.mercator()
+  var projection = d3.geo[vars.coords.projection.value]()
   
   var clip = d3.geo.clipExtent()
       .extent([[0, 0], [vars.app_width, vars.app_height]]);
@@ -19,12 +19,11 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
   
   // console.log(vars.zoom)
 
-  var simplify = d3.geo.transform({
-    point: function(x, y, z) {
-      // console.log(z,vars.zoom.area)
-      if (z >= vars.zoom.area) this.stream.point(x,y);
-    }
-  });
+  // var simplify = d3.geo.transform({
+  //   point: function(x, y, z) {
+  //     if (z >= vars.zoom.area) this.stream.point(x,y);
+  //   }
+  // });
   
   var path = d3.geo.path()
     .projection(projection)
