@@ -38,6 +38,8 @@ d3plus.forms.button = function(vars,styles,timing) {
       })
     }
     
+    var reversed = (styles["font-align"] == "right" && !d3plus.rtl) || (d3plus.rtl && styles["font-align"] == "right")
+    
     elem
       .style("position","relative")
       .style("padding",padding)
@@ -167,35 +169,76 @@ d3plus.forms.button = function(vars,styles,timing) {
             return c == "text" ? "static" : "absolute"
           })
           .style("left",function(c){
-            if ((c == "image" && !d3plus.rtl) || (c == "icon" && d3plus.rtl)) {
+            if ((c == "image" && !reversed) || (c == "icon" && reversed)) {
               return styles.padding+"px"
             }
             return "auto"
           })
           .style("right",function(c){
-            if ((c == "image" && d3plus.rtl) || (c == "icon" && !d3plus.rtl)) {
+            if ((c == "image" && reversed) || (c == "icon" && !reversed)) {
               return styles.padding+"px"
             }
             return "auto"
           })
           .each(function(c){
+            
             if (c != "text") {
               buffers[c] = this.offsetWidth
             }
             else if (d3.max(d3.map(buffers).values()) > 0) {
               var width = styles.width
-              if (styles["font-align"] == "center") {
-                width -= d3.max(d3.map(buffers).values())*2
-                width -= styles.padding*2
-              }
+              if (typeof width == "number") {
+
+                if (styles["font-align"] == "center") {
+                  width -= d3.max(d3.map(buffers).values())*2
+                  width -= styles.padding*2
+                }
+                else {
+                  d3.map(buffers).values().forEach(function(v){
+                    width -= v
+                    width -= styles.padding
+                  })
+                }
+                
+                if (width >= 0) {
+                  width += "px"
+                }
+                else {
+                  width = "0px"
+                }
+                
+                var padding = "0px"
+                
+              } 
               else {
-                d3.map(buffers).values().forEach(function(v){
-                  width -= v
-                width -= styles.padding
-                })
+                width = "auto"
+                var buffer = d3.max(d3.map(buffers).values())+styles.padding
+                
+                if (styles["font-align"] == "center") {
+                  var padding = "0px "+buffer+"px"
+                }
+                else {
+                  var padding = "0px"
+                
+                  if ((buffers.icon && !reversed) || (buffers.image && reversed)) {
+                    padding += " "+buffer+"px"
+                  }
+                  else {
+                    padding += " 0px"
+                  }
+                  padding += " 0px"
+                  if ((buffers.icon && reversed) || (buffers.image && !reversed)) {
+                    padding += " "+buffer+"px"
+                  }
+                  else {
+                    padding += " 0px"
+                  }
+                
+                }
               }
               d3.select(this)
                 .style("width",width+"px")
+                .style("padding",padding)
             }
           })
     
