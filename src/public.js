@@ -49,6 +49,21 @@ d3plus.public.container = {
 }
 
 d3plus.public.coords = {
+  "fit": {
+    "accepted": ["auto","height","width"],
+    "value": "auto"
+  },
+  "mute": {
+    "value": []
+  },
+  "padding": 20,
+  "projection": {
+    "accepted": ["mercator","equirectangular"],
+    "value": "mercator"
+  },
+  "solo": {
+    "value": []
+  },
   "value": null
 }
 
