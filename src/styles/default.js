@@ -46,7 +46,7 @@ d3plus.styles.default = {
       "size": 12
     },
     "padding": 5,
-    "size": 30,
+    "size": [10,30],
     "tick": {
       "align": "middle",
       "color": "#444",

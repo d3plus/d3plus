@@ -78,12 +78,29 @@ d3plus.info.legend = function(vars) {
         
       var available_width = vars.width.value
       
-      var key_width = vars.style.legend.size*colors.length+vars.style.legend.padding*(colors.length-1)
+      var square_size = vars.style.legend.size
+      
+      var key_width = square_size*colors.length+vars.style.legend.padding*(colors.length+1)
+      
+      if (square_size instanceof Array) {
+        for (var i = square_size[1]; i >= square_size[0]; i--) {
+          key_width = i*colors.length+vars.style.legend.padding*(colors.length+1)
+          if (available_width >= key_width) {
+            square_size = i
+            break;
+          }
+        }
+      }
+      else if (typeof square_size != "number" && square_size !== false) {
+        square_size = 30
+      }
       
       if (available_width < key_width) {
         key_display = false
       }
       else {
+        
+        key_width -= vars.style.legend.padding*2
         
         colors.sort(function(a,b){
           
@@ -106,10 +123,10 @@ d3plus.info.legend = function(vars) {
           var start_x = vars.style.legend.padding
         }
         else if (vars.style.legend.align == "end") {
-          var start_x = vars.width.value - vars.style.legend.padding - key_width
+          var start_x = available_width - vars.style.legend.padding - key_width
         }
         else {
-          var start_x = vars.width.value/2 - key_width/2
+          var start_x = available_width/2 - key_width/2
         }
         
         vars.g.key.selectAll("g.scale")
@@ -126,7 +143,7 @@ d3plus.info.legend = function(vars) {
           
           group
             .attr("transform",function(g,i){
-              var x = start_x + (i*(vars.style.legend.padding+vars.style.legend.size))
+              var x = start_x + (i*(vars.style.legend.padding+square_size))
               return "translate("+x+","+vars.style.legend.padding+")"
             })
           
@@ -140,8 +157,8 @@ d3plus.info.legend = function(vars) {
         function style(rect) {
           
           rect
-            .attr("width",vars.style.legend.size)
-            .attr("height",vars.style.legend.size)
+            .attr("width",square_size)
+            .attr("height",square_size)
             .attr("fill",function(g){
                 
               d3.select(this.parentNode).selectAll("text")
@@ -156,18 +173,18 @@ d3plus.info.legend = function(vars) {
                 
                 var pattern_enter = pattern.enter().append("pattern")
                   .attr("id",short_url)
-                  .attr("width",vars.style.legend.size)
-                  .attr("height",vars.style.legend.size)
+                  .attr("width",square_size)
+                  .attr("height",square_size)
                   
                 pattern_enter.append("rect")
                   .attr("fill",g.color)
-                  .attr("width",vars.style.legend.size)
-                  .attr("height",vars.style.legend.size)
+                  .attr("width",square_size)
+                  .attr("height",square_size)
                   
                 pattern_enter.append("image")
                   .attr("xlink:href",g.icon)
-                  .attr("width",vars.style.legend.size)
-                  .attr("height",vars.style.legend.size)
+                  .attr("width",square_size)
+                  .attr("height",square_size)
                     
                 return "url(#"+short_url+")"
               }
@@ -187,8 +204,8 @@ d3plus.info.legend = function(vars) {
                       d3plus.utils.wordwrap({
                         "text": g.name,
                         "parent": this,
-                        "width": vars.style.legend.size-vars.style.legend.padding*2,
-                        "height": vars.style.legend.size-vars.style.legend.padding*2,
+                        "width": square_size-vars.style.legend.padding*2,
+                        "height": square_size-vars.style.legend.padding*2,
                         "resize": true
                       })
                       
@@ -198,12 +215,12 @@ d3plus.info.legend = function(vars) {
                   .attr("y",function(t){
                     var h = this.getBBox().height,
                         diff = parseFloat(d3.select(this).style("font-size"),10)/5
-                    return vars.style.legend.size/2 - h/2 - diff/2
+                    return square_size/2 - h/2 - diff/2
                   })
                   .selectAll("tspan")
                     .attr("x",function(t){
                       var w = this.getComputedTextLength()
-                      return vars.style.legend.size/2 - w/2
+                      return square_size/2 - w/2
                     })
                 
                 return g.color
@@ -228,11 +245,11 @@ d3plus.info.legend = function(vars) {
 
               d3.select(this).style("cursor","pointer")
             
-              var x = start_x + (i*(vars.style.legend.padding+vars.style.legend.size)),
+              var x = start_x + (i*(vars.style.legend.padding+square_size)),
                   y = d3.transform(d3.select(this.parentNode).attr("transform")).translate[1]
                 
-              x += vars.style.legend.size/2
-              y += vars.style.legend.padding+vars.style.legend.size/2
+              x += square_size/2
+              y += vars.style.legend.padding+square_size/2
         
               d3plus.tooltip.create({
                 "align": "top center",
@@ -246,7 +263,7 @@ d3plus.info.legend = function(vars) {
                 "icon": d.icon,
                 "id": "key",
                 // "mouseevents": mouse,
-                "offset": vars.style.legend.size/2-vars.style.legend.padding,
+                "offset": square_size/2-vars.style.legend.padding,
                 "parent": vars.parent,
                 "style": vars.style.icon,
                 "title": d.name[0],
