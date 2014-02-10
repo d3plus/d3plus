@@ -124,7 +124,7 @@ d3plus.info.timeline = function(vars) {
     
     var year_width = 0,
         year_height = 0,
-        height = vars.style.timeline.height+vars.style.timeline.padding*2
+        height = vars.style.timeline.height+vars.style.timeline.padding
     
     text
       .order()
@@ -157,7 +157,7 @@ d3plus.info.timeline = function(vars) {
           break;
         }
       }
-      height += vars.style.timeline.padding+year_height
+      height += year_height
     }
     
     if (vars.style.timeline.align == "start") {
