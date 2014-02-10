@@ -285,6 +285,10 @@ d3plus.info.legend = function(vars) {
         
       var values = vars.color_scale.domain(),
           colors = vars.color_scale.range()
+          
+      if (values.length <= 2) {
+        values = d3plus.utils.buckets(values,6)
+      }
       
       var scale = vars.g.key.selectAll("g.scale")
         .data(["scale"])
