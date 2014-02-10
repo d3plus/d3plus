@@ -15,8 +15,15 @@ d3plus.apps.geo_map.draw = function(vars) {
       topo = topojson.feature(coords, coords.objects[key]),
       features = topo.features
       
-  features.forEach(function(f){
+  var features = features.filter(function(f){
     f[vars.id.key] = f.id
+    if (vars.coords.solo.value.length) {
+      return vars.coords.solo.value.indexOf(f.id) >= 0
+    }
+    else if (vars.coords.mute.value.length) {
+      return vars.coords.mute.value.indexOf(f.id) < 0
+    }
+    return true
   })
   
   return features
