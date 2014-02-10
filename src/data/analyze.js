@@ -181,7 +181,8 @@ d3plus.data.analyze = function(vars) {
     
   }
   else {
-    vars.data.restricted = vars.data.filtered
+    vars.data.restricted = d3plus.utils.copy(vars.data.filtered)
+    vars.data[vars.data.type] = null
     vars.nodes.restricted = null
     vars.links.restricted = null
   }
