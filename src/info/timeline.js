@@ -42,8 +42,8 @@ d3plus.info.timeline = function(vars) {
           min_val = d3plus.utils.closest(year_ticks,d3.time.year.floor(extent0[0]))
         }
             
-        var min_index = years.indexOf(min_val.getFullYear()),
-            max_index = years.indexOf(max_val.getFullYear())
+        var min_index = year_ticks.indexOf(min_val),
+            max_index = year_ticks.indexOf(max_val)
             
         if (max_index-min_index >= min_required) {
           var extent = [min_val,max_val]
