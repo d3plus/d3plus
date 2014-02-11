@@ -133,7 +133,7 @@ d3plus.apps.chart.draw = function(vars) {
     })
     if (vars.dev.value) d3plus.console.timeEnd("removing data outside of axes")
     var removed = old_length - data.length
-    if (removed && vars.dev.value) d3plus.console.log("removed "+removed+" nodes")
+    if (removed && vars.dev.value) console.log("removed "+removed+" nodes")
     
     //===================================================================
   
