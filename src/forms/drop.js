@@ -163,7 +163,27 @@ d3plus.forms.drop = function(vars,styles,timing) {
   if (!drop_width || typeof drop_width != "number") {
       
     var data = d3plus.utils.copy(styles)
-    data.icon = icon
+    
+    if (!icon) {
+
+      if (d3plus.fontawesome) {
+        data.icon = {
+          "class": "fa fa-check",
+          "content": ""
+        }
+      }
+      else {
+        data.icon = {
+          "class": "",
+          "content": "&#x2713;"
+        }
+      }
+      
+    }
+    else {
+      data.icon = icon
+    }
+    
     data.display = "inline-block"
     data.border = "none"
     data.width = false
@@ -223,9 +243,9 @@ d3plus.forms.drop = function(vars,styles,timing) {
   if (!text) {
    text = "text"
   }
-  var data = vars.data.filter(function(d){
+  var data = d3plus.utils.copy(vars.data.filter(function(d){
     return d.value == vars.focus
-  })[0]
+  })[0])
   data.id = "drop_button"
   var hover = vars.hover === true ? vars.focus : false
   var button = d3plus.ui(style)
