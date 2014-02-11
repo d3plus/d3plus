@@ -107,6 +107,10 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
           d.d3plus_label.h = Math.sqrt(Math.pow(h,2)/2)-(vars.style.labels.padding)
         }
         
+        if (d.d3plus_label.w < 20 && d.d3plus_label.h < 10) {
+          delete d.d3plus_label
+        }
+        
       }
       else if (d.d3plus.label) {
         d.d3plus_label = d.d3plus.label
