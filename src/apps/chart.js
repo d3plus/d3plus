@@ -122,15 +122,21 @@ d3plus.apps.chart.draw = function(vars) {
     //-------------------------------------------------------------------
     if (vars.dev.value) d3plus.console.time("removing data outside of axes")
     var old_length = vars.data.app.length
-    var data = vars.data.app.filter(function(d){
-      var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
-      var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
-      if (y_include) {
-        var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
-        return val != null && val >= vars.x_range[0] && val <= vars.x_range[1]
-      }
-      else return false
-    })
+    if (vars.y.scale.value == "share") {
+      var data = vars.data.app
+    }
+    else {
+      var data = vars.data.app.filter(function(d){
+        var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
+        var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
+        if (y_include) {
+          var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
+          return val != null && val >= vars.x_range[0] && val <= vars.x_range[1]
+        }
+        else return false
+      })
+    }
+    
     if (vars.dev.value) d3plus.console.timeEnd("removing data outside of axes")
     var removed = old_length - data.length
     if (removed && vars.dev.value) console.log("removed "+removed+" nodes")
@@ -495,7 +501,7 @@ d3plus.apps.chart.draw = function(vars) {
       .call(tick_style,"x")
   
   xgrid.selectAll("path").style("fill","none")
-
+  
   // Update X Axis Label
   xlabel.text(vars.format(vars.x.key))
     .attr('x', vars.app_width/2)
@@ -819,7 +825,7 @@ d3plus.apps.chart.draw = function(vars) {
       })
       
     var offset = vars[vars.stacked_axis].scale.value == "share" ? "expand" : "zero";
-
+    
     var data = stack.offset(offset)(data)
       
   }
