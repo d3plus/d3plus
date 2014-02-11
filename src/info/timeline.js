@@ -15,7 +15,12 @@ d3plus.info.timeline = function(vars) {
       var min_required = 1
     }
     
-    var init = d3.extent(vars.time.solo.value)
+    if (vars.time.solo.value.length) {
+      var init = d3.extent(vars.time.solo.value)
+    }
+    else {
+      var init = d3.extent(years)
+    }
     
     var min = years[0],
         max = years[years.length-1],
@@ -26,9 +31,15 @@ d3plus.info.timeline = function(vars) {
         
     years.forEach(function(y,i){
       if (i != 0) steps.push(y-years[i-1])
-      year_ticks.push(d3.time.year(new Date(parseInt(y), 0, 1)))
     })
-    year_ticks.push(d3.time.year(new Date(parseInt(max+d3.min(steps)), 0, 1)))
+    var step = d3.min(steps),
+        total = step*years.length
+    years = []
+    for (var i = min; i <= max; i += step) {
+      years.push(i)
+      year_ticks.push(d3.time.year(new Date(parseInt(i), 0, 1)))
+    }
+    year_ticks.push(d3.time.year(new Date(parseInt(max+step), 0, 1)))
     
     var brushend = function() {
       
