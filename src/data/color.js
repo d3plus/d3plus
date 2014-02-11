@@ -17,22 +17,22 @@ d3plus.data.color = function(vars) {
   }
   
   if (vars.data.value && vars.color.key && (vars.color.changed || vars.data.changed || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed)) {
+
+    if (vars.dev.value) d3plus.console.time("get data range")
+  
+    var data_range = []
+    vars.data.pool.forEach(function(d){
+      var val = parseFloat(d3plus.variable.value(vars,d,vars.color.key))
+      if (typeof val == "number" && !isNaN(val) && data_range.indexOf(val) < 0) data_range.push(val)
+    })
     
-    if (vars.data.keys[color_id] == "number") {
+    if (vars.dev.value) d3plus.console.timeEnd("get data range")
+    
+    if (vars.data.keys[color_id] == "number" && data_range.length > 1) {
       
       if (vars.dev.value) d3plus.console.group("Calculating Color Range")
     
-      var data_range = []
       var data_domain = null
-    
-      if (vars.dev.value) d3plus.console.time("get data range")
-      
-      vars.data.pool.forEach(function(d){
-        var val = parseFloat(d3plus.variable.value(vars,d,vars.color.key))
-        if (val) data_range.push(val)
-      })
-    
-      if (vars.dev.value) d3plus.console.timeEnd("get data range")
     
       if (vars.dev.value) d3plus.console.time("create color scale")
       
