@@ -90,8 +90,8 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
             check_area(d3plus.utils.copy(v.d3plus))
           }
         })
-      
-        if (label.w) {
+        
+        if (label.w >= 20 && label.h >= 10) {
           d.d3plus_label = label
         }
         
