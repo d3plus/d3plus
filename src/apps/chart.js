@@ -516,7 +516,7 @@ d3plus.apps.chart.draw = function(vars) {
   var tickData = vars.tickValues.x || vars.x_scale.ticks()
   var xlines = xgrid.selectAll("line")
     .data(tickData)
-    console.log(vars.x_scale.ticks(),vars)
+    
   xlines.enter().append("line")
     .style("opacity",0)
     .call(tick_position,"x")
