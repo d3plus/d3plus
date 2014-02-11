@@ -264,7 +264,12 @@ d3plus.apps.rings.draw = function(vars) {
         
       }
       else {
-        delete n.d3plus.label
+        n.d3plus.label = {
+          "w": n.d3plus.r*1.75,
+          "h": n.d3plus.r*1.75,
+          "x": 0,
+          "y": 0
+        }
       }
       
     })
