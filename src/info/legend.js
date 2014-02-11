@@ -95,7 +95,7 @@ d3plus.info.legend = function(vars) {
         square_size = 30
       }
       
-      if (available_width < key_width) {
+      if (available_width < key_width || colors.length == 1) {
         key_display = false
       }
       else {
