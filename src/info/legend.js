@@ -8,7 +8,7 @@ d3plus.info.legend = function(vars) {
   
   if (vars.legend.value && vars.color.key) {
     
-    if (!vars.color_scale) {
+    if (!vars.color_scale && vars.data.keys[vars.color.key] != "number") {
     
       var color_groups = {}
       vars.data.pool.forEach(function(d){
@@ -293,7 +293,7 @@ d3plus.info.legend = function(vars) {
       }
       
     }
-    else {
+    else if (vars.color_scale) {
       
       vars.g.key.selectAll("g.color")
         .transition().duration(vars.style.timing.transitions)
@@ -493,7 +493,9 @@ d3plus.info.legend = function(vars) {
       }
         
     }
-    
+    else {
+      key_display = false
+    }
   }
   
   if (vars.legend.value && vars.color.key && key_display) {
