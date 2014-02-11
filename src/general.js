@@ -1,7 +1,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.1.5 - Navy";
+d3plus.version = "1.1.6 - Navy";
 
 d3plus.ie = /*@cc_on!@*/false;
 

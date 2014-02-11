@@ -2,7 +2,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.1.5 - Navy";
+d3plus.version = "1.1.6 - Navy";
 
 d3plus.ie = /*@cc_on!@*/false;
 
@@ -563,7 +563,7 @@ d3plus.ui = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is a string, extract data from the element associated with it
     //--------------------------------------------------------------------------
-    if (vars.data) {
+    if (vars.data && !(vars.data instanceof Array)) {
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.before = vars.data
         vars.element = d3.selectAll(vars.data)
@@ -571,7 +571,10 @@ d3plus.ui = function(passed) {
       else if (vars.data instanceof d3.selection) {
         vars.element = vars.data
       }
+      
       if (vars.element) {
+
+        vars.data = []
         
         vars.element
           .style("position","absolute")
@@ -583,17 +586,17 @@ d3plus.ui = function(passed) {
           .style("padding","0")
           .style("border","0")
           
-        vars.data = []
         vars.parent = d3.select(vars.element.node().parentNode)
         d3plus.forms.data(vars)
       }
+      
     }
     
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there is no data, throw error message
     //--------------------------------------------------------------------------
-    if (!vars.data) {
-      d3plus.console.warning("Cannot create UI element, no data found.")
+    if (!(vars.data instanceof Array)) {
+      d3plus.console.warning("Cannot create UI element for \""+vars.data+"\", no data found.")
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Else, create/update the UI element
@@ -2161,18 +2164,24 @@ d3plus.apps.chart.draw = function(vars) {
     //-------------------------------------------------------------------
     if (vars.dev.value) d3plus.console.time("removing data outside of axes")
     var old_length = vars.data.app.length
-    var data = vars.data.app.filter(function(d){
-      var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
-      var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
-      if (y_include) {
-        var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
-        return val != null && val >= vars.x_range[0] && val <= vars.x_range[1]
-      }
-      else return false
-    })
+    if (vars.y.scale.value == "share") {
+      var data = vars.data.app
+    }
+    else {
+      var data = vars.data.app.filter(function(d){
+        var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
+        var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
+        if (y_include) {
+          var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
+          return val != null && val >= vars.x_range[0] && val <= vars.x_range[1]
+        }
+        else return false
+      })
+    }
+    
     if (vars.dev.value) d3plus.console.timeEnd("removing data outside of axes")
     var removed = old_length - data.length
-    if (removed && vars.dev.value) d3plus.console.log("removed "+removed+" nodes")
+    if (removed && vars.dev.value) console.log("removed "+removed+" nodes")
     
     //===================================================================
   
@@ -2349,6 +2358,23 @@ d3plus.apps.chart.draw = function(vars) {
       })
   }
   
+  // Function for Tick Styling
+  function tick_position(t,axis) {
+    t
+      .attr("x1",function(d){
+        return axis == "x" ? vars.x_scale(d) : 0
+      })
+      .attr("x2",function(d){
+        return axis == "x" ? vars.x_scale(d) : vars.graph.width
+      })
+      .attr("y1",function(d){
+        return axis == "y" ? vars.y_scale(d) : 0
+      })
+      .attr("y2",function(d){
+        return axis == "y" ? vars.y_scale(d) : vars.graph.height
+      })
+  }
+  
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter SVG Elements
   //-------------------------------------------------------------------
@@ -2392,7 +2418,6 @@ d3plus.apps.chart.draw = function(vars) {
   var xgrid = plane.selectAll("g#xgrid").data(["xgrid"])
   xgrid.enter().append("g")
     .attr("id","xgrid")
-    .attr("transform", "translate(0," + vars.graph.height + ")")
     
   // Enter Y Axis Grid
   var ygrid = plane.selectAll("g#ygrid").data(["ygrid"])
@@ -2511,30 +2536,41 @@ d3plus.apps.chart.draw = function(vars) {
   xaxis.selectAll("path").style("fill","none")
     
   // Update Y Grid
-  ygrid.transition().duration(vars.style.timing.transitions)
-    .call(vars.y_axis
-      .tickFormat("")
-      .tickSize(-vars.graph.width)
-    )
-  
-  ygrid.selectAll("line").transition().duration(vars.style.timing.transitions)
-      .call(tick_style,"y")
-  
-  ygrid.selectAll("path").style("fill","none")
+  var ylines = ygrid.selectAll("line")
+    .data(vars.y_scale.ticks())
+    
+  ylines.enter().append("line")
+    .style("opacity",0)
+    .call(tick_position,"y")
+    .call(tick_style,"y")
+    
+  ylines.transition().duration(vars.style.timing.transitions)
+    .style("opacity",1)
+    .call(tick_position,"y")
+    .call(tick_style,"y")
+    
+  ylines.exit().transition().duration(vars.style.timing.transitions)
+    .style("opacity",0)
+    .remove()
     
   // Update X Grid
-  xgrid.transition().duration(vars.style.timing.transitions)
-    .call(vars.x_axis
-      .tickFormat("")
-      .tickSize(-vars.graph.height)
-    )
+  var xlines = xgrid.selectAll("line")
+    .data(vars.x_scale.ticks())
+    
+  xlines.enter().append("line")
+    .style("opacity",0)
+    .call(tick_position,"x")
+    .call(tick_style,"x")
+    
+  xlines.transition().duration(vars.style.timing.transitions)
+    .style("opacity",1)
+    .call(tick_position,"x")
+    .call(tick_style,"x")
+    
+  xlines.exit().transition().duration(vars.style.timing.transitions)
+    .style("opacity",0)
+    .remove()
   
-  xgrid.selectAll("line").transition().duration(vars.style.timing.transitions)
-      .attr("transform", "translate(0,-"+vars.graph.yoffset+")")
-      .call(tick_style,"x")
-  
-  xgrid.selectAll("path").style("fill","none")
-
   // Update X Axis Label
   xlabel.text(vars.format(vars.x.key))
     .attr('x', vars.app_width/2)
@@ -2617,28 +2653,28 @@ d3plus.apps.chart.draw = function(vars) {
       .attr(axis,pos)
       
     lines.selectAll("line").transition().duration(vars.style.timing.transitions)
-        .attr(axis+"1",function(d){
-          return get_val(d) ? vars[axis+"_scale"](get_val(d)) : 0
-        })
-        .attr(axis+"2",function(d){
-          return get_val(d) ? vars[axis+"_scale"](get_val(d)) : 0
-        })
-        .attr("opacity",function(d){
-          var yes = get_val(d) > vars[axis+"_scale"].domain()[1] && get_val(d) < vars[axis+"_scale"].domain()[0]
-          return get_val(d) != null && yes ? 1 : 0
-        })
-      
-      lines.selectAll("text").transition().duration(vars.style.timing.transitions)
-        .text(function(){
-          if (get_val(d) != null) {
-            var v = vars.format(get_val(d),y_name)
-            return get_name(d) ? vars.format(get_name(d)) + ": " + v : v
-          }
-          else return null
-        })
-        .attr(axis,function(d){
-          return (vars[axis+"_scale"](get_val(d))+padding)+"px"
-        })
+      .attr(axis+"1",function(d){
+        return get_val(d) ? vars[axis+"_scale"](get_val(d)) : 0
+      })
+      .attr(axis+"2",function(d){
+        return get_val(d) ? vars[axis+"_scale"](get_val(d)) : 0
+      })
+      .attr("opacity",function(d){
+        var yes = get_val(d) > vars[axis+"_scale"].domain()[1] && get_val(d) < vars[axis+"_scale"].domain()[0]
+        return get_val(d) != null && yes ? 1 : 0
+      })
+    
+    lines.selectAll("text").transition().duration(vars.style.timing.transitions)
+      .text(function(){
+        if (get_val(d) != null) {
+          var v = vars.format(get_val(d),y_name)
+          return get_name(d) ? vars.format(get_name(d)) + ": " + v : v
+        }
+        else return null
+      })
+      .attr(axis,function(d){
+        return (vars[axis+"_scale"](get_val(d))+padding)+"px"
+      })
       
   })
 
@@ -2858,7 +2894,7 @@ d3plus.apps.chart.draw = function(vars) {
       })
       
     var offset = vars[vars.stacked_axis].scale.value == "share" ? "expand" : "zero";
-
+    
     var data = stack.offset(offset)(data)
       
   }
@@ -4112,7 +4148,12 @@ d3plus.apps.rings.draw = function(vars) {
         
       }
       else {
-        delete n.d3plus.label
+        n.d3plus.label = {
+          "w": n.d3plus.r*1.75,
+          "h": n.d3plus.r*1.75,
+          "x": 0,
+          "y": 0
+        }
       }
       
     })
@@ -4291,7 +4332,7 @@ d3plus.data.analyze = function(vars) {
     vars[key].forEach(function(v){
       
       function test_value(val) {
-        
+
         if (!(vars[v][key] instanceof Array)) {
           var arr = vars[v][key].value
         }
@@ -4403,7 +4444,7 @@ d3plus.data.analyze = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Fetch the correct Data for the App
   //-------------------------------------------------------------------
-  if (!vars.data.app || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed || vars.type.changed) {
+  if (!vars.data.app || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed || vars.type.changed || vars.solo.length || vars.mute.length) {
     
     vars.data.app = d3plus.data.fetch(vars,vars.data.type)
     
@@ -6435,7 +6476,12 @@ d3plus.info.timeline = function(vars) {
       var min_required = 1
     }
     
-    var init = d3.extent(vars.time.solo.value)
+    if (vars.time.solo.value.length) {
+      var init = d3.extent(vars.time.solo.value)
+    }
+    else {
+      var init = d3.extent(years)
+    }
     
     var min = years[0],
         max = years[years.length-1],
@@ -6446,9 +6492,15 @@ d3plus.info.timeline = function(vars) {
         
     years.forEach(function(y,i){
       if (i != 0) steps.push(y-years[i-1])
-      year_ticks.push(d3.time.year(new Date(parseInt(y), 0, 1)))
     })
-    year_ticks.push(d3.time.year(new Date(parseInt(max+d3.min(steps)), 0, 1)))
+    var step = d3.min(steps),
+        total = step*years.length
+    years = []
+    for (var i = min; i <= max; i += step) {
+      years.push(i)
+      year_ticks.push(d3.time.year(new Date(parseInt(i), 0, 1)))
+    }
+    year_ticks.push(d3.time.year(new Date(parseInt(max+step), 0, 1)))
     
     var brushend = function() {
       
@@ -8985,6 +9037,10 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
           d.d3plus_label.h = Math.sqrt(Math.pow(h,2)/2)-(vars.style.labels.padding)
         }
         
+        if (d.d3plus_label.w < 20 && d.d3plus_label.h < 10) {
+          delete d.d3plus_label
+        }
+        
       }
       else if (d.d3plus.label) {
         d.d3plus_label = d.d3plus.label
@@ -10522,8 +10578,8 @@ d3plus.utils.wordwrap = function(params) {
       font_min = params.font_min ? params.font_min : 9,
       text_array = params.text.slice(0)
       
-  if (text_array instanceof Array) wrap(String(text_array.shift()).split(" "))
-  else wrap(String(text_array).split(" "))
+  if (text_array instanceof Array) wrap(String(text_array.shift()).match(/[^\s-]+-?/g))
+  else wrap(String(text_array).match(/[^\s-]+-?/g))
   
   function wrap(words) {
     
@@ -10549,7 +10605,7 @@ d3plus.utils.wordwrap = function(params) {
       if (size < font_min) {
         d3.select(parent).selectAll('tspan').remove();
         if (typeof text_array == "string" || text_array.length == 0) return;
-        else wrap(String(text_array.shift()).split(/[\s-]/))
+        else wrap(String(text_array.shift()).match(/[^\s-]+-?/g))
         return;
       }
 
@@ -10587,11 +10643,16 @@ d3plus.utils.wordwrap = function(params) {
 
       for (var i=1; i < words.length; i++) {
         
-        tspan.text(tspan.text()+" "+words[i])
+        var joiner = tspan.text().slice(-1) == "-" ? "" : " "
+        
+        tspan.text(tspan.text()+joiner+words[i])
       
         if (tspan.node().getComputedTextLength() > width) {
+          
+          var splitter = joiner == "" ? "-": " ",
+              mod = splitter == "-" ? 1 : 0
             
-          tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(" ")))
+          tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(splitter)+mod))
     
           tspan = d3.select(parent).append('tspan')
             .attr("x",x_pos)
@@ -10610,7 +10671,7 @@ d3plus.utils.wordwrap = function(params) {
       }
       if (cut) {
         tspan = parent.lastChild
-        words = d3.select(tspan).text().split(/[\s-]/)
+        words = d3.select(tspan).text().match(/[^\s-]+-?/g)
       
         var last_char = words[words.length-1].charAt(words[words.length-1].length-1)
         if (last_char == ',' || last_char == ';' || last_char == ':') words[words.length-1] = words[words.length-1].substr(0,words[words.length-1].length-1)
