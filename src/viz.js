@@ -41,6 +41,11 @@ d3plus.viz = function() {
         
         vars.parent
           .style("overflow","hidden")
+          .style("position",function(){
+            var current = d3.select(this).style("position"),
+                remain = ["absolute","fixed"].indexOf(current) >= 0
+            return remain ? current : "relative";
+          })
           .html("")
       }
 
