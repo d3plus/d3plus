@@ -68,7 +68,7 @@ d3plus.ui = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is a string, extract data from the element associated with it
     //--------------------------------------------------------------------------
-    if (vars.data) {
+    if (vars.data && !(vars.data instanceof Array)) {
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.before = vars.data
         vars.element = d3.selectAll(vars.data)
@@ -76,7 +76,10 @@ d3plus.ui = function(passed) {
       else if (vars.data instanceof d3.selection) {
         vars.element = vars.data
       }
+      
       if (vars.element) {
+
+        vars.data = []
         
         vars.element
           .style("position","absolute")
@@ -88,17 +91,17 @@ d3plus.ui = function(passed) {
           .style("padding","0")
           .style("border","0")
           
-        vars.data = []
         vars.parent = d3.select(vars.element.node().parentNode)
         d3plus.forms.data(vars)
       }
+      
     }
     
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there is no data, throw error message
     //--------------------------------------------------------------------------
-    if (!vars.data) {
-      d3plus.console.warning("Cannot create UI element, no data found.")
+    if (!(vars.data instanceof Array)) {
+      d3plus.console.warning("Cannot create UI element for \""+vars.data+"\", no data found.")
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Else, create/update the UI element
