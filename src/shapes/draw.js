@@ -153,12 +153,14 @@ d3plus.shape.draw = function(vars,data) {
       }
       return true
     })
-    if (vars.dev.value) d3plus.console.timeEnd("filtering out small shapes")
+    
     if (vars.dev.value) {
+      d3plus.console.timeEnd("filtering out small shapes")
       var removed = shapes[shape].length-filtered_shapes.length,
           percent = d3.round(removed/shapes[shape].length,2)
-      d3plus.console.log("removed "+removed+" shapes ("+percent*100+"% reduction)")
+      console.log("removed "+removed+" out of "+shapes[shape].length+" shapes ("+percent*100+"% reduction)")
     }
+    
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind Data to Groups
     //--------------------------------------------------------------------------
