@@ -100,7 +100,7 @@ d3plus.data.analyze = function(vars) {
     vars[key].forEach(function(v){
       
       function test_value(val) {
-        
+
         if (!(vars[v][key] instanceof Array)) {
           var arr = vars[v][key].value
         }
@@ -212,7 +212,7 @@ d3plus.data.analyze = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Fetch the correct Data for the App
   //-------------------------------------------------------------------
-  if (!vars.data.app || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed || vars.type.changed) {
+  if (!vars.data.app || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed || vars.type.changed || vars.solo.length || vars.mute.length) {
     
     vars.data.app = d3plus.data.fetch(vars,vars.data.type)
     
