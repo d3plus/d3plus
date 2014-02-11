@@ -268,7 +268,6 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Draw the specified app
       //-------------------------------------------------------------------
-      if (vars.dev.value) d3plus.console.group("Drawing \"" + vars.type.value + "\"")
       // Set vars.group to the app's specific group element
       vars.group = vars.g.apps[vars.type.value]
       // Make the group visible if there is data
@@ -282,7 +281,9 @@ d3plus.viz = function() {
       // Call the app's draw function, returning formatted data
           
       if (!vars.internal_error) {
+        if (vars.dev.value) d3plus.console.group("Calculating \"" + vars.type.value + "\"")
         var returned = d3plus.apps[vars.type.value].draw(vars)
+        if (vars.dev.value) d3plus.console.groupEnd();
       }
       else {
         var returned = null
@@ -315,8 +316,6 @@ d3plus.viz = function() {
       
       // Draw nodes based on the data
       d3plus.shape.draw(vars,vars.returned.nodes)
-        
-      if (vars.dev.value) d3plus.console.groupEnd();
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Check for Errors
