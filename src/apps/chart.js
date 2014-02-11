@@ -494,8 +494,9 @@ d3plus.apps.chart.draw = function(vars) {
   xaxis.selectAll("path").style("fill","none")
     
   // Update Y Grid
+  var tickData = vars.tickValues.y || vars.y_scale.ticks()
   var ylines = ygrid.selectAll("line")
-    .data(vars.y_scale.ticks())
+    .data(tickData)
     
   ylines.enter().append("line")
     .style("opacity",0)
@@ -512,9 +513,10 @@ d3plus.apps.chart.draw = function(vars) {
     .remove()
     
   // Update X Grid
+  var tickData = vars.tickValues.x || vars.x_scale.ticks()
   var xlines = xgrid.selectAll("line")
-    .data(vars.x_scale.ticks())
-    
+    .data(tickData)
+    console.log(vars.x_scale.ticks(),vars)
   xlines.enter().append("line")
     .style("opacity",0)
     .call(tick_position,"x")
