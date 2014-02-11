@@ -254,6 +254,9 @@ d3plus.info.timeline = function(vars) {
       .attr("fill",vars.style.timeline.tick.color)
       .attr("fill-opacity",0.15)
     
+    if (vars.margin.bottom == 0) {
+      vars.margin.bottom += vars.style.timeline.padding
+    }
     vars.margin.bottom += height
     
     vars.g.timeline.transition().duration(vars.style.timing.transitions)
