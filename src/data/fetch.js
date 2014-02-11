@@ -66,6 +66,9 @@ d3plus.data.fetch = function(vars,format,years) {
   if (format == "restricted") {
     var data = vars.data.restricted
   }
+  else if (format == "nested" && years.length > 1) {
+    var data = vars.data.grouped[vars.id.nesting[vars.depth.value]]
+  }
   else {
     var data = vars.data[format][vars.id.nesting[vars.depth.value]]
   }
@@ -129,12 +132,14 @@ d3plus.data.fetch = function(vars,format,years) {
     
     if (!separated) {
       
+      var nested = vars.id.nesting.slice(0,vars.depth.value+1)
+      
       if (return_data instanceof Array) {
-        return_data = d3plus.data.nest(vars,return_data,[vars.id.key])
+        return_data = d3plus.data.nest(vars,return_data,nested,format == "grouped")
       }
       else if (typeof return_data == "object") {
         for (k in return_data) {
-          return_data[k] = d3plus.data.nest(vars,return_data[k],[vars.id.key])[0]
+          return_data[k] = d3plus.data.nest(vars,return_data[k],nested)[0]
         }
       }
   
