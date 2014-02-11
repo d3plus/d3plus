@@ -118,12 +118,52 @@ d3plus.shape.draw = function(vars,data) {
   // Create groups by shape, apply data, and call specific shape drawing class.
   //----------------------------------------------------------------------------
   for (shape in shapes) {
-    
+
+    if (vars.dev.value) d3plus.console.group("drawing \"" + shape + "\" groups")
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Filter out too small shapes
+    //--------------------------------------------------------------------------
+    if (vars.dev.value) d3plus.console.time("filtering out small shapes")
+    var filtered_shapes = shapes[shape].filter(function(s){
+      if (s.d3plus) {
+        if ("width" in s.d3plus && s.d3plus.width < 1) {
+          return false
+        }
+        if ("height" in s.d3plus && s.d3plus.height < 1) {
+          return false
+        }
+        if ("r" in s.d3plus && s.d3plus.r < 0.5) {
+          return false
+        }
+      }
+      else if (s.values) {
+        var small = true
+        s.values.forEach(function(v){
+          if (!("y0" in v.d3plus)) {
+            small = false
+          }
+          else if (small && "y0" in v.d3plus && v.d3plus.y0-v.d3plus.y >= 1) {
+            small = false
+          }
+        })
+        if (small) {
+          return false
+        }
+      }
+      return true
+    })
+    if (vars.dev.value) d3plus.console.timeEnd("filtering out small shapes")
+    if (vars.dev.value) {
+      var removed = shapes[shape].length-filtered_shapes.length,
+          percent = d3.round(removed/shapes[shape].length,2)
+      d3plus.console.log("removed "+removed+" shapes ("+percent*100+"% reduction)")
+    }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind Data to Groups
     //--------------------------------------------------------------------------
     var selection = vars.g.data.selectAll("g."+shape)
-      .data(shapes[shape],function(d){
+      .data(filtered_shapes,function(d){
         
         if (shape == "coordinates") {
           if (!d.d3plus) {
@@ -200,7 +240,9 @@ d3plus.shape.draw = function(vars,data) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Draw appropriate graphics inside of each group
     //--------------------------------------------------------------------------
+    if (vars.dev.value) d3plus.console.time("shapes")
     d3plus.shape[shape](vars,selection,enter,exit,transform)
+    if (vars.dev.value) d3plus.console.timeEnd("shapes")
   
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Check for active and temp fills for rects and donuts
@@ -212,7 +254,11 @@ d3plus.shape.draw = function(vars,data) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create labels
     //--------------------------------------------------------------------------
+    if (vars.dev.value) d3plus.console.time("labels")
     d3plus.shape.labels(vars,selection)
+    if (vars.dev.value) d3plus.console.timeEnd("labels")
+    
+    if (vars.dev.value) d3plus.console.groupEnd("drawing \"" + shape + "\" groups")
     
   }
   
