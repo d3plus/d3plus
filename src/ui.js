@@ -68,13 +68,16 @@ d3plus.ui = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is a string, extract data from the element associated with it
     //--------------------------------------------------------------------------
-    if (vars.data && !(vars.data instanceof Array)) {
+    if (vars.data && (!(vars.data instanceof Array) || vars.data instanceof d3.selection)) {
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.before = vars.data
         vars.element = d3.selectAll(vars.data)
       }
       else if (vars.data instanceof d3.selection) {
         vars.element = vars.data
+        if (vars.data.node().id) {
+          vars.before = "#"+vars.data.node().id
+        }
       }
       
       if (vars.element) {
@@ -96,7 +99,7 @@ d3plus.ui = function(passed) {
       }
       
     }
-    
+    console.log(vars.data)
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there is no data, throw error message
     //--------------------------------------------------------------------------
@@ -113,7 +116,7 @@ d3plus.ui = function(passed) {
       //------------------------------------------------------------------------
       vars.container = vars.parent.selectAll("div#d3plus_"+vars.type+"_"+vars.id)
         .data(["container"])
-
+        
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Create container DIV for UI element
       //------------------------------------------------------------------------
