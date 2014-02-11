@@ -82,10 +82,20 @@ d3plus.info.titles = function(vars) {
       vars.title.total.value.prefix ? title = vars.title.total.value.prefix + title : null;
       vars.title.total.value.suffix ? title = title + vars.title.total.value.suffix : null;
     
-      if (vars.mute.length || vars.solo.length && vars.type.value != "rings") {
-        var overall_total = d3.sum(vars.data.value, function(d){ 
-          if (vars.type.value == "stacked") return d[vars.size.key]
-          else if (vars.time.solo.value == d[vars.time.key]) return d[vars.size.key]
+      if ((vars.mute.length || vars.solo.length) && vars.type.value != "rings") {
+        var overall_total = d3.sum(vars.data.value, function(d){
+          if (vars.time.solo.value.length > 0) {
+            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.key)) >= 0
+          }
+          else if (vars.time.mute.value.length > 0) {
+            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.key)) < 0
+          }
+          else {
+            var match = true
+          }
+          if (vars.type.value == "stacked" || match) {
+            return d3plus.variable.value(vars,d,vars.size.key)
+          }
         })
         var pct = (t/overall_total)*100
         ot = vars.format(overall_total,vars.size.key)
