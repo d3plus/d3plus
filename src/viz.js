@@ -361,6 +361,8 @@ d3plus.viz = function() {
         vars.frozen = false
       },vars.style.timing.transitions)
       
+      vars.internal_error = null
+      
     });
     
     return vars.viz;
