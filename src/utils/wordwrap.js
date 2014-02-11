@@ -12,8 +12,8 @@ d3plus.utils.wordwrap = function(params) {
       font_min = params.font_min ? params.font_min : 9,
       text_array = params.text.slice(0)
       
-  if (text_array instanceof Array) wrap(String(text_array.shift()).split(" "))
-  else wrap(String(text_array).split(" "))
+  if (text_array instanceof Array) wrap(String(text_array.shift()).match(/[^\s-]+-?/g))
+  else wrap(String(text_array).match(/[^\s-]+-?/g))
   
   function wrap(words) {
     
@@ -39,7 +39,7 @@ d3plus.utils.wordwrap = function(params) {
       if (size < font_min) {
         d3.select(parent).selectAll('tspan').remove();
         if (typeof text_array == "string" || text_array.length == 0) return;
-        else wrap(String(text_array.shift()).split(/[\s-]/))
+        else wrap(String(text_array.shift()).match(/[^\s-]+-?/g))
         return;
       }
 
@@ -77,11 +77,16 @@ d3plus.utils.wordwrap = function(params) {
 
       for (var i=1; i < words.length; i++) {
         
-        tspan.text(tspan.text()+" "+words[i])
+        var joiner = tspan.text().slice(-1) == "-" ? "" : " "
+        
+        tspan.text(tspan.text()+joiner+words[i])
       
         if (tspan.node().getComputedTextLength() > width) {
+          
+          var splitter = joiner == "" ? "-": " ",
+              mod = splitter == "-" ? 1 : 0
             
-          tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(" ")))
+          tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(splitter)+mod))
     
           tspan = d3.select(parent).append('tspan')
             .attr("x",x_pos)
@@ -100,7 +105,7 @@ d3plus.utils.wordwrap = function(params) {
       }
       if (cut) {
         tspan = parent.lastChild
-        words = d3.select(tspan).text().split(/[\s-]/)
+        words = d3.select(tspan).text().match(/[^\s-]+-?/g)
       
         var last_char = words[words.length-1].charAt(words[words.length-1].length-1)
         if (last_char == ',' || last_char == ';' || last_char == ':') words[words.length-1] = words[words.length-1].substr(0,words[words.length-1].length-1)
