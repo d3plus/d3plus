@@ -106,7 +106,7 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
-d3plus.variable.color = function(vars,id) {
+d3plus.variable.color = function(vars,id,level) {
   
   function get_random(c) {
     if (typeof c == "object") {
@@ -125,10 +125,14 @@ d3plus.variable.color = function(vars,id) {
   }
   else {
     
-    var color = d3plus.variable.value(vars,id,vars.color.key)
+    var color = d3plus.variable.value(vars,id,vars.color.key,level)
     
-    if (!color && typeof vars.color_scale == "function") color = "#eee"
-    else if (!color) return get_random(id)
+    if (!color && typeof vars.color_scale == "function") {
+      color = vars.style.color.missing
+    }
+    else if (!color) {
+      return get_random(id)
+    }
     
     if (typeof color == "string") {
       var true_color = validate_color(color)
