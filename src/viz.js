@@ -557,13 +557,17 @@ d3plus.viz = function() {
         }
         
         function check_object(object,property,depth) {
+          
           if (object[property] === undefined) {
             d3plus.console.warning("\""+property+"\" cannot be set.");
           }
           else {
             if (typeof depth == "object" && !(depth instanceof Array)) {
               
-              if (object[property].object) {
+              if (property == key_type) {
+                set_value(object,key_type,depth)
+              }
+              else if (typeof object[property] == "object" && object[property] !== null && object[property].object === true) {
                 set_value(object[property],key_type,depth)
               }
               else {
@@ -575,9 +579,6 @@ d3plus.viz = function() {
               }
             }
             else {
-              // if (["solo","mute"].indexOf(property) >= 0) {
-              //   object.changed = true
-              // }
               set_value(object,property,depth);
             }
           }
