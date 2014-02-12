@@ -2,16 +2,17 @@ d3plus.styles.default = {
   "background": "#ffffff",
   "color": {
     "heatmap": ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
+    "missing": "#cccccc",
     "range": ["#ff0000","#888888","#00ff00"]
   },
   "data": {
     "donut": {
       "size": 0.35
     },
+    "opacity": 0.9,
     "stroke": {
       "width": 1
-    },
-    "opacity": 0.9
+    }
   },
   "font": {
     "family": "sans-serif",
@@ -27,7 +28,7 @@ d3plus.styles.default = {
   "labels": {
     "align": "middle",
     "padding": 7,
-    "segments": 4,
+    "segments": 2,
     "font": {
       "family": "sans-serif",
       "weight": "normal",
