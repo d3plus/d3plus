@@ -58,7 +58,11 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     .transition().duration(vars.style.timing.transitions)
       .call(d3plus.shape.style,vars)
       
-  if (vars.coords.changed) {
+  if (vars.coords.changed || vars.width.changed || vars.height.changed) {
+    if (vars.viewport == vars.bounds) {
+      vars.viewport = false
+    }
+    vars.bounds = false
     selection.each(function(d){
       var b = path.bounds(d)
       if (!vars.bounds) {
