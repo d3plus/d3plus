@@ -189,7 +189,6 @@ d3plus.data.analyze = function(vars) {
     
   }
   else if (vars.filtered || !vars.data.restricted) {
-    console.log("get new shit here!")
     vars.data.restricted = d3plus.utils.copy(vars.data.filtered)
     vars.data.grouped = null
     vars.data.app = null
