@@ -8,17 +8,29 @@ d3plus.info.legend = function(vars) {
   
   if (vars.legend.value && vars.color.key) {
     
+    if (vars.dev.value) d3plus.console.group("Calculating Legend")
+    
     if (!vars.color_scale && vars.data.keys[vars.color.key] != "number") {
     
-      var color_groups = {}
+      if (vars.dev.value) d3plus.console.time("determining color groups")
+    
+      var color_groups = {}, placed = []
       vars.data.pool.forEach(function(d){
-        var color = d3plus.variable.color(vars,d[vars.id.key])
-        if (!color_groups[color]) {
-          color_groups[color] = []
+        if (placed.indexOf(d[vars.id.key]) < 0) {
+
+          var color = d3plus.variable.color(vars,d[vars.id.key])
+          if (!color_groups[color]) {
+            color_groups[color] = []
+          }
+          color_groups[color].push(d)
+          placed.push(d[vars.id.key])
         }
-        color_groups[color].push(d)
       })
     
+      if (vars.dev.value) d3plus.console.timeEnd("determining color groups")
+
+      if (vars.dev.value) d3plus.console.time("grouping colors")
+      
       var colors = []
       for (color in color_groups) {
       
@@ -75,6 +87,8 @@ d3plus.info.legend = function(vars) {
         colors.push(obj)
       
       }
+    
+      if (vars.dev.value) d3plus.console.timeEnd("grouping colors")
         
       var available_width = vars.width.value
       
@@ -83,6 +97,9 @@ d3plus.info.legend = function(vars) {
       var key_width = square_size*colors.length+vars.style.legend.padding*(colors.length+1)
       
       if (square_size instanceof Array) {
+    
+        if (vars.dev.value) d3plus.console.time("calculating size")
+        
         for (var i = square_size[1]; i >= square_size[0]; i--) {
           key_width = i*colors.length+vars.style.legend.padding*(colors.length+1)
           if (available_width >= key_width) {
@@ -90,6 +107,9 @@ d3plus.info.legend = function(vars) {
             break;
           }
         }
+    
+        if (vars.dev.value) d3plus.console.timeEnd("calculating size")
+      
       }
       else if (typeof square_size != "number" && square_size !== false) {
         square_size = 30
@@ -101,6 +121,8 @@ d3plus.info.legend = function(vars) {
       else {
         
         key_width -= vars.style.legend.padding*2
+
+        if (vars.dev.value) d3plus.console.time("sorting colors")
         
         colors.sort(function(a,b){
           
@@ -118,6 +140,8 @@ d3plus.info.legend = function(vars) {
           return a_value - b_value
           
         })
+    
+        if (vars.dev.value) d3plus.console.timeEnd("sorting colors")
         
         if (vars.style.legend.align == "start") {
           var start_x = vars.style.legend.padding
@@ -294,6 +318,8 @@ d3plus.info.legend = function(vars) {
       
     }
     else if (vars.color_scale) {
+    
+      if (vars.dev.value) d3plus.console.time("drawing color scale")
       
       vars.g.key.selectAll("g.color")
         .transition().duration(vars.style.timing.transitions)
@@ -487,6 +513,8 @@ d3plus.info.legend = function(vars) {
         scale.transition().duration(vars.style.timing.transitions)
           .attr("opacity",1)
           
+        if (vars.dev.value) d3plus.console.timeEnd("drawing color scale")
+          
       }
       else {
         key_display = false
@@ -496,9 +524,12 @@ d3plus.info.legend = function(vars) {
     else {
       key_display = false
     }
+    
   }
   
   if (vars.legend.value && vars.color.key && key_display) {
+    
+    if (vars.dev.value) d3plus.console.time("positioning legend")
     
     var key_box = vars.g.key.node().getBBox()
     var key_height = key_box.height+key_box.y
@@ -507,13 +538,23 @@ d3plus.info.legend = function(vars) {
     
     vars.g.key.transition().duration(vars.style.timing.transitions)
       .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
+    
+    if (vars.dev.value) d3plus.console.timeEnd("positioning legend")
       
   }
   else {
+    
+    if (vars.dev.value) d3plus.console.time("hiding legend")
 
     vars.g.key.transition().duration(vars.style.timing.transitions)
       .attr("transform","translate(0,"+vars.height.value+")")
+    
+    if (vars.dev.value) d3plus.console.timeEnd("hiding legend")
       
+  }
+  
+  if (vars.legend.value && vars.color.key && vars.dev.value) {
+    d3plus.console.groupEnd()
   }
   
 }
