@@ -18,6 +18,8 @@ d3plus.data.fetch = function(vars,format,years) {
     return_data = [];
   }
   
+  if (vars.dev.value) d3plus.console.group("Fetching \""+format+"\" data")
+  
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time() 
   // solo and mute
@@ -62,6 +64,8 @@ d3plus.data.fetch = function(vars,format,years) {
     }
     
   }
+  
+  if (vars.dev.value) console.log("years: "+years.join(","))
   
   if (format == "restricted") {
     var data = vars.data.restricted
@@ -146,6 +150,17 @@ d3plus.data.fetch = function(vars,format,years) {
     }
     
   }
+  
+  if (!return_data) {
+    if (format == "object") {
+      return_data = {};
+    }
+    else {
+      return_data = [];
+    }
+  }
+  
+  if (vars.dev.value) d3plus.console.groupEnd()
   
   return return_data
   

@@ -89,15 +89,22 @@ d3plus.data.analyze = function(vars) {
   //-------------------------------------------------------------------
   if (vars.mute.length || vars.solo.length) {
     
+    vars.filtered = true
+    
     // if "solo", only check against "solo" (disregard "mute")
     var key = vars.solo.length ? "solo" : "mute"
     
+    if (vars.dev.value) d3plus.console.group("Filtering Data by \""+key+"\" values")
+    
     vars.data[vars.data.type] = null
+    vars.data.restricted = {}
     
     // start restricting based on "filtered" data
     var data = "filtered"
         
     vars[key].forEach(function(v){
+      
+      if (vars.dev.value) d3plus.console.time(v)
       
       function test_value(val) {
 
@@ -148,9 +155,6 @@ d3plus.data.analyze = function(vars) {
         
       }
       
-      if (!vars.data.restricted) {
-        vars.data.restricted = {}
-      }
       for (y in vars.data[data]) {
         vars.data.restricted[y] = vars.data[data][y].filter(nest_check)
       }
@@ -177,14 +181,22 @@ d3plus.data.analyze = function(vars) {
       // continue restricting on already "restricted" data
       data = "restricted"
       
+      if (vars.dev.value) d3plus.console.timeEnd(v)
+      
     })
     
+    if (vars.dev.value) d3plus.console.groupEnd()
+    
   }
-  else {
+  else if (vars.filtered || !vars.data.restricted) {
+    console.log("get new shit here!")
     vars.data.restricted = d3plus.utils.copy(vars.data.filtered)
+    vars.data.grouped = null
+    vars.data.app = null
     vars.data[vars.data.type] = null
     vars.nodes.restricted = null
     vars.links.restricted = null
+    vars.filtered = false
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -195,11 +207,8 @@ d3plus.data.analyze = function(vars) {
   }
   
   var year = !vars.time.fixed.value ? ["all"] : null
-  
-  vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
-
-  if (!vars.data.pool) {
-    vars.data.pool = []
+  if ((year === null && vars.time.solo.changed) || !vars.data.pool) {
+    vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -218,21 +227,14 @@ d3plus.data.analyze = function(vars) {
     
   }
   
-  if (!vars.data.app) {
-    vars.data.app = []
-  }
-  
   // Get link connections if they have not been previously set
   if (!vars.connections && vars.links.value) {
+    if (vars.dev.value) d3plus.console.group("Calculating primary and secondary link connections")
+    if (vars.dev.value) d3plus.console.time("time")
     var links = vars.links.restricted || vars.links.value
     vars.connections = d3plus.utils.connections(vars,links)
-  }
-  
-  if (vars.type == "stacked") {
-    vars.data.app = vars.data.app.filter(function(d){
-      var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
-      return val >= vars.x_range[0] && val <= vars.x_range[1]
-    })
+    if (vars.dev.value) d3plus.console.timeEnd("time")
+    if (vars.dev.value) d3plus.console.groupEnd()
   }
   
   vars.check = []
