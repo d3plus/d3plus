@@ -4,9 +4,10 @@
 
 d3plus.info.legend = function(vars) {
   
-  var key_display = true
+  var key_display = true,
+      square_size = 0
   
-  if (vars.legend.value && vars.color.key) {
+  if (vars.legend.value && vars.color.key && vars.data.pool.length) {
     
     if (vars.dev.value) d3plus.console.group("Calculating Legend")
     
@@ -92,7 +93,7 @@ d3plus.info.legend = function(vars) {
         
       var available_width = vars.width.value
       
-      var square_size = vars.style.legend.size
+      square_size = vars.style.legend.size
       
       var key_width = square_size*colors.length+vars.style.legend.padding*(colors.length+1)
       
@@ -536,7 +537,9 @@ d3plus.info.legend = function(vars) {
     }
     
   }
-  
+  else {
+    key_display = false
+  }
   if (vars.legend.value && vars.color.key && key_display) {
     
     if (vars.dev.value) d3plus.console.time("positioning legend")
