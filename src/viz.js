@@ -6,6 +6,7 @@ d3plus.viz = function() {
   
   var vars = {
     "autodraw": false,
+    "filtered": false,
     "footer_text": function() {
       var text = vars.html.value || vars.tooltip.value.long ? "Click for More Info" : null
       return vars.text_format.value(text)
@@ -37,6 +38,7 @@ d3plus.viz = function() {
       // and check text direction.
       //-------------------------------------------------------------------
       if (vars.container.changed) {
+        
         vars.parent = d3.select(vars.container.value)
         
         vars.parent
@@ -47,6 +49,7 @@ d3plus.viz = function() {
             return remain ? current : "relative";
           })
           .html("")
+          
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -64,7 +67,9 @@ d3plus.viz = function() {
       // Run setup function if app has it
       //-------------------------------------------------------------------
       if (d3plus.apps[vars.type.value].setup) {
+        if (vars.dev.value) d3plus.console.group("Running setup function for \""+vars.type.value+"\"")
         d3plus.apps[vars.type.value].setup(vars)
+        if (vars.dev.value) d3plus.console.groupEnd()
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -180,7 +185,7 @@ d3plus.viz = function() {
       d3plus.info.timeline(vars);
       vars.app_height = vars.height.value - vars.margin.top - vars.margin.bottom;
       vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;
-
+      
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Update Elements
       //-------------------------------------------------------------------
