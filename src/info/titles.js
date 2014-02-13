@@ -43,7 +43,7 @@ d3plus.info.titles = function(vars) {
     update_footer(null)
   }
   else {
-    if (vars.dev.value) d3plus.console.log("Updating Titles")
+    if (vars.dev.value) d3plus.console.log("Drawing Titles")
     vars.small = false;
     vars.graph.margin = {"top": 10, "right": 10, "bottom": 40, "left": 40}
     vars.graph.width = vars.app_width-vars.graph.margin.left-vars.graph.margin.right

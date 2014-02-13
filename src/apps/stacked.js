@@ -6,9 +6,14 @@ d3plus.apps.stacked.shapes = ["area"];
 
 d3plus.apps.stacked.setup = function(vars) {
 
+  if (vars.dev.value) d3plus.console.time("setting local variables")
   vars.x.scale.value = "continuous"
+  if (vars.dev.value) console.log("\"x\" scale set to \"continuous\"")
   vars.x.zerofill.value = true
+  if (vars.dev.value) console.log("\"x\" zerofill set to \"true\"")
   vars.y.stacked.value = true
+  if (vars.dev.value) console.log("\"y\" stacked set to \"true\"")
+  if (vars.dev.value) d3plus.console.timeEnd("setting local variables")
   
 }
 

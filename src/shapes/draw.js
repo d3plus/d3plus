@@ -119,7 +119,7 @@ d3plus.shape.draw = function(vars,data) {
   //----------------------------------------------------------------------------
   for (shape in shapes) {
 
-    if (vars.dev.value) d3plus.console.group("drawing \"" + shape + "\" groups")
+    if (vars.dev.value) d3plus.console.group("Drawing \"" + shape + "\" groups")
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Filter out too small shapes
@@ -260,7 +260,7 @@ d3plus.shape.draw = function(vars,data) {
     d3plus.shape.labels(vars,selection)
     if (vars.dev.value) d3plus.console.timeEnd("labels")
     
-    if (vars.dev.value) d3plus.console.groupEnd("drawing \"" + shape + "\" groups")
+    if (vars.dev.value) d3plus.console.groupEnd()
     
   }
   

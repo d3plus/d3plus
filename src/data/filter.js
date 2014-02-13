@@ -9,7 +9,7 @@ d3plus.data.filter = function(vars) {
   
   if (vars.check.length > 1 || (vars.check.length == 1 && vars.check[0] != "time")) {
     
-    if (vars.dev.value) d3plus.console.group("Filtering Data");
+    if (vars.dev.value) d3plus.console.group("Filtering Data by Required Variables");
     var checking = vars.check.join(", ")
     if (vars.dev.value) d3plus.console.time(checking)
     
@@ -40,7 +40,7 @@ d3plus.data.filter = function(vars) {
   
   if (vars.time.key && Object.keys(vars.data.filtered).length == 1) {
     
-    if (vars.dev.value) d3plus.console.log("Disaggregating by Year")
+    if (vars.dev.value) d3plus.console.group("Disaggregating by Year")
 
     // Find available years
     vars.data.time = d3plus.utils.uniques(vars.data.filtered.all,vars.time.key)
@@ -48,12 +48,16 @@ d3plus.data.filter = function(vars) {
     vars.data.time.sort()
     
     if (vars.data.time.length) {
+      if (vars.dev.value) d3plus.console.time(vars.data.time.length+" years")
       vars.data.time.forEach(function(y){
         vars.data.filtered[y] = vars.data.filtered.all.filter(function(d){
           return d3plus.variable.value(vars,d,vars.time.key) == y;
         })
       })
+      if (vars.dev.value) d3plus.console.timeEnd(vars.data.time.length+" years")
     }
+    
+    if (vars.dev.value) d3plus.console.groupEnd()
     
   }
     
