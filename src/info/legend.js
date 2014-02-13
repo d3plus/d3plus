@@ -194,6 +194,16 @@ d3plus.info.legend = function(vars) {
                 
                 var pattern = vars.defs.selectAll("pattern#"+short_url)
                   .data([short_url])
+                  
+                pattern.select("rect").transition().duration(vars.style.timing.transitions)
+                  .attr("fill",g.color)
+                  .attr("width",square_size)
+                  .attr("height",square_size)
+                  
+                pattern.select("image").transition().duration(vars.style.timing.transitions)
+                  .attr("xlink:href",g.icon)
+                  .attr("width",square_size)
+                  .attr("height",square_size)
                 
                 var pattern_enter = pattern.enter().append("pattern")
                   .attr("id",short_url)
@@ -532,8 +542,7 @@ d3plus.info.legend = function(vars) {
     if (vars.dev.value) d3plus.console.time("positioning legend")
     
     var key_box = vars.g.key.node().getBBox()
-    var key_height = key_box.height+key_box.y
-
+    var key_height = (square_size || key_box.height)+key_box.y
     vars.margin.bottom += key_height+vars.style.legend.padding
     
     vars.g.key.transition().duration(vars.style.timing.transitions)
