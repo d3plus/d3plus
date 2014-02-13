@@ -161,8 +161,8 @@ d3plus.info.timeline = function(vars) {
         
     if (timeline_width > available_width) {
       timeline_width = available_width
+      step = Math.ceil(label_width/(timeline_width/years.length))
       label_width = timeline_width/years.length
-      step = Math.ceil(year_width/label_width)
       for (step; step < years.length-1; step++) {
         if ((years.length-1)%step == 0) {
           break;
@@ -264,7 +264,7 @@ d3plus.info.timeline = function(vars) {
       .transition().duration(vars.style.timing.transitions)
       .attr("fill",vars.style.timeline.tick.color)
       .attr("fill-opacity",0.15)
-    
+      
     if (vars.margin.bottom == 0) {
       vars.margin.bottom += vars.style.timeline.padding
     }
