@@ -37,7 +37,11 @@ d3plus.data.analyze = function(vars) {
     
     vars.data.filtered = null
     vars.data.grouped = null
+    vars.data[vars.data.type] = null
     vars.data.app = null
+    vars.data.restricted = null
+    vars.nodes.restricted = null
+    vars.links.restricted = null
 
     if (vars.dev.value) d3plus.console.time("key analysis")
     vars.data.keys = {}
