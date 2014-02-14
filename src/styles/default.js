@@ -21,7 +21,6 @@ d3plus.styles.default = {
   "group": {
     "background": true,
   },
-  "icon": "default",
   "info": {
     "font-size": 20
   },

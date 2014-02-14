@@ -108,7 +108,12 @@ d3plus.public.html = {
 
 d3plus.public.icon = {
   "deprecates": ["icon_var"],
-  "key": "icon"
+  "key": "icon",
+  "style": {
+    "deprecates": ["icon_style"],
+    "object": true,
+    "value": "default"
+  }
 }
 
 d3plus.public.id = {
