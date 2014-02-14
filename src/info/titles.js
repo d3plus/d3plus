@@ -33,7 +33,7 @@ d3plus.info.titles = function(vars) {
   
   vars.margin.top = 0
   var title_offset = 0
-  if (vars.width.value <= 400 || vars.height.value <= 300) {
+  if (vars.width.value <= vars.width.small || vars.height.value <= vars.height.small) {
     vars.small = true;
     vars.graph.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
     vars.graph.width = vars.app_width
