@@ -216,7 +216,6 @@ d3plus.info.legend = function(vars) {
                   .attr("height",square_size)
                   
                 pattern.select("image").transition().duration(vars.style.timing.transitions)
-                  .attr("xlink:href",g.icon)
                   .attr("width",square_size)
                   .attr("height",square_size)
                 
@@ -234,6 +233,16 @@ d3plus.info.legend = function(vars) {
                   .attr("xlink:href",g.icon)
                   .attr("width",square_size)
                   .attr("height",square_size)
+                  .each(function(d){
+
+                    d3plus.utils.dataurl(g.icon,function(base64){
+                  
+                      pattern.select("image")
+                        .attr("xlink:href",base64)
+                    
+                    })
+                    
+                  })
                     
                 return "url(#"+short_url+")"
               }
