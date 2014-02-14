@@ -77,7 +77,19 @@ d3plus.tooltip.app = function(params) {
     if (!title) {
       title = id
     }
-        
+    
+    var depth = d.d3plus && "depth" in d.d3plus ? vars.id.nesting[d.d3plus.depth] : vars.id.key
+
+    if (typeof vars.icon.style.value == "string") {
+      var icon_style = vars.icon.style.value
+    }
+    else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[depth]) {
+      var icon_style = vars.icon.style.value[depth]
+    }
+    else {
+      var icon_style = "default"
+    }
+    
     d3plus.tooltip.create({
       "align": align,
       "arrow": arrow,
@@ -95,7 +107,7 @@ d3plus.tooltip.app = function(params) {
       "mouseevents": mouse,
       "offset": offset,
       "parent": vars.parent,
-      "style": vars.style.icon,
+      "style": icon_style,
       "title": title,
       "x": x,
       "y": y

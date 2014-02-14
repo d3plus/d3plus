@@ -36,7 +36,8 @@ d3plus.info.legend = function(vars) {
       for (color in color_groups) {
       
         var obj = {
-          "color": color
+          "color": color,
+          "icon_depth": vars.id.nesting[vars.depth.value]
         }
         
         if (vars.depth.value > 0) {
@@ -54,6 +55,7 @@ d3plus.info.legend = function(vars) {
                 var icon = d3plus.variable.value(vars,parents[0],vars.icon.key,vars.id.nesting[i])
                 if (icon) {
                   obj.icon = icon
+                  obj.icon_depth = vars.id.nesting[i]
                 }
               }
             }
@@ -195,9 +197,21 @@ d3plus.info.legend = function(vars) {
                 
                 var pattern = vars.defs.selectAll("pattern#"+short_url)
                   .data([short_url])
+              
+                if (typeof vars.icon.style.value == "string") {
+                  var icon_style = vars.icon.style.value
+                }
+                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[g.icon_depth]) {
+                  var icon_style = vars.icon.style.value[g.icon_depth]
+                }
+                else {
+                  var icon_style = "default"
+                }
+                
+                var color = icon_style == "knockout" ? g.color : "none"
                   
                 pattern.select("rect").transition().duration(vars.style.timing.transitions)
-                  .attr("fill",g.color)
+                  .attr("fill",color)
                   .attr("width",square_size)
                   .attr("height",square_size)
                   
@@ -212,7 +226,7 @@ d3plus.info.legend = function(vars) {
                   .attr("height",square_size)
                   
                 pattern_enter.append("rect")
-                  .attr("fill",g.color)
+                  .attr("fill",color)
                   .attr("width",square_size)
                   .attr("height",square_size)
                   
@@ -285,7 +299,17 @@ d3plus.info.legend = function(vars) {
                 
               x += square_size/2
               y += vars.style.legend.padding+square_size/2
-        
+              
+              if (typeof vars.icon.style.value == "string") {
+                var icon_style = vars.icon.style.value
+              }
+              else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[d.icon_depth]) {
+                var icon_style = vars.icon.style.value[d.icon_depth]
+              }
+              else {
+                var icon_style = "default"
+              }
+              
               d3plus.tooltip.create({
                 "align": "top center",
                 "arrow": true,
@@ -300,7 +324,7 @@ d3plus.info.legend = function(vars) {
                 // "mouseevents": mouse,
                 "offset": square_size/2-vars.style.legend.padding,
                 "parent": vars.parent,
-                "style": vars.style.icon,
+                "style": icon_style,
                 "title": d.name[0],
                 "x": x,
                 "y": y,
