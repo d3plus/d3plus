@@ -19,7 +19,7 @@ d3plus.apps.stacked.setup = function(vars) {
 
 d3plus.apps.stacked.draw = function(vars) {
     
-  if (vars.size.threshold > 0) {
+  if (typeof vars.size.threshold == "number" && vars.size.threshold > 0) {
     
     var allowed = [],
         cutoff = vars.depth.value == 0 ? 0 : {},
@@ -140,6 +140,7 @@ d3plus.apps.stacked.draw = function(vars) {
           m[vars.text.key] = name
           m[vars.text.key] += " < "+vars.format(cutoff[m[parent]],vars.y.key)
         }
+        m[vars.text.key] += " ("+vars.format(vars.size.threshold*100)+"%)"
       }
     
     })
