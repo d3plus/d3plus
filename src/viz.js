@@ -563,6 +563,10 @@ d3plus.viz = function() {
         
         function check_object(object,property,depth) {
           
+          if (object[property].key !== undefined) var key_type = "key"
+          else if (object[property].value !== undefined) var key_type = "value"
+          else var key_type = null
+          
           if (object[property] === undefined) {
             d3plus.console.warning("\""+property+"\" cannot be set.");
           }
@@ -608,7 +612,6 @@ d3plus.viz = function() {
         }
         
         function set_value(a,b,c) {
-          
           if (key == "type") {
             if (!a.accepted) {
               a.accepted = Object.keys(d3plus.apps)
