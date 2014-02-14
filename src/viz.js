@@ -104,6 +104,8 @@ d3plus.viz = function() {
         .attr("id","d3plus")
         .attr("width",vars.width.value)
         .attr("height",vars.height.value)
+        .attr("xmlns","http://www.w3.org/2000/svg")
+        .attr("xmlns:xmlns:xlink","http://www.w3.org/1999/xlink")
 
       // Enter BG Rectangle
       vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
