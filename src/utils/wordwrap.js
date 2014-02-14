@@ -22,14 +22,14 @@ d3plus.utils.wordwrap = function(params) {
       // Start by trying the largest font size
       var size = font_max
       size = Math.floor(size)
-      d3.select(parent).attr('font-size',size)
+      d3.select(parent).attr("font-size",size)
     
       // Add each word to it's own line (to test for longest word)
-      d3.select(parent).selectAll('tspan').remove()
+      d3.select(parent).selectAll("tspan").remove()
       for(var i=0; i<words.length; i++) {
         if (words.length == 1) var t = words[i]
         else var t = words[i]+"..."
-        d3.select(parent).append('tspan').attr("x",0).text(t)
+        d3.select(parent).append("tspan").attr("x",0).text(t)
       }
     
       // If the longest word is too wide, make the text proportionately smaller
@@ -37,7 +37,7 @@ d3plus.utils.wordwrap = function(params) {
       
       // If the new size is too small, return NOTHING
       if (size < font_min) {
-        d3.select(parent).selectAll('tspan').remove();
+        d3.select(parent).selectAll("tspan").remove();
         if (typeof text_array == "string" || text_array.length == 0) return;
         else wrap(String(text_array.shift()).match(/[^\s-]+-?/g))
         return;
@@ -56,7 +56,7 @@ d3plus.utils.wordwrap = function(params) {
         if (temp_size < font_min) size = font_min
         else size = temp_size
         size = Math.floor(size)
-        d3.select(parent).attr('font-size',size)
+        d3.select(parent).attr("font-size",size)
       } else finish();
     
     }
@@ -67,11 +67,11 @@ d3plus.utils.wordwrap = function(params) {
   
     function flow() {
     
-      d3.select(parent).selectAll('tspan').remove()
+      d3.select(parent).selectAll("tspan").remove()
       
       var x_pos = parent.getAttribute("x")
       
-      var tspan = d3.select(parent).append('tspan')
+      var tspan = d3.select(parent).append("tspan")
         .attr("x",x_pos)
         .text(words[0])
 
@@ -88,7 +88,7 @@ d3plus.utils.wordwrap = function(params) {
             
           tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(splitter)+mod))
     
-          tspan = d3.select(parent).append('tspan')
+          tspan = d3.select(parent).append("tspan")
             .attr("x",x_pos)
             .text(words[i])
             
@@ -108,22 +108,22 @@ d3plus.utils.wordwrap = function(params) {
         words = d3.select(tspan).text().match(/[^\s-]+-?/g)
       
         var last_char = words[words.length-1].charAt(words[words.length-1].length-1)
-        if (last_char == ',' || last_char == ';' || last_char == ':') words[words.length-1] = words[words.length-1].substr(0,words[words.length-1].length-1)
+        if (last_char == "," || last_char == ";" || last_char == ":") words[words.length-1] = words[words.length-1].substr(0,words[words.length-1].length-1)
       
-        d3.select(tspan).text(words.join(' ')+'...')
+        d3.select(tspan).text(words.join(" ")+"...")
       
         if (tspan.getComputedTextLength() > width) {
           if (words.length > 1) words.pop(words.length-1)
           last_char = words[words.length-1].charAt(words[words.length-1].length-1)
-          if (last_char == ',' || last_char == ';' || last_char == ':') words[words.length-1].substr(0,words[words.length-1].length-2)
-          d3.select(tspan).text(words.join(' ')+'...')
+          if (last_char == "," || last_char == ";" || last_char == ":") words[words.length-1].substr(0,words[words.length-1].length-2)
+          d3.select(tspan).text(words.join(" ")+"...")
         }
       }
     }
   }
   
   function finish() {
-    d3.select(parent).selectAll('tspan').attr("dy", d3.select(parent).style('font-size'));
+    d3.select(parent).selectAll("tspan").attr("dy", d3.select(parent).style("font-size"));
     return;
   }
   

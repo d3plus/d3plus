@@ -93,16 +93,16 @@ d3plus.apps.geo_map.draw = function(vars) {
       //   dragging = false
       // })
       
-      var zoomControl = document.createElement('div')
+      var zoomControl = document.createElement("div")
       zoomControl.style.marginLeft = "5px"
       zoomControl.style.marginTop = "5px"
       
-      var zoomIn = document.createElement('div')
+      var zoomIn = document.createElement("div")
       zoomIn.id = "zoom_in"
       zoomIn.innerHTML = "+"
       zoomControl.appendChild(zoomIn)
       
-      var zoomOut = document.createElement('div')
+      var zoomOut = document.createElement("div")
       zoomOut.id = "zoom_out"
       zoomOut.innerHTML = "-"
       zoomControl.appendChild(zoomOut)
@@ -110,7 +110,7 @@ d3plus.apps.geo_map.draw = function(vars) {
       vars.map.controls[google.maps.ControlPosition.LEFT_TOP].push(zoomControl)
       
       //zoom in control click event
-      google.maps.event.addDomListener(zoomIn, 'click', function() {
+      google.maps.event.addDomListener(zoomIn, "click", function() {
         vars.loading_text = vars.format("Zooming In")
          var currentZoomLevel = vars.map.getZoom();
          if(currentZoomLevel != 21){
@@ -119,7 +119,7 @@ d3plus.apps.geo_map.draw = function(vars) {
        });
 
       //zoom out control click event
-      google.maps.event.addDomListener(zoomOut, 'click', function() {
+      google.maps.event.addDomListener(zoomOut, "click", function() {
         vars.loading_text = vars.format("Zooming Out")
          var currentZoomLevel = vars.map.getZoom();
          if(currentZoomLevel != 0){
@@ -127,50 +127,50 @@ d3plus.apps.geo_map.draw = function(vars) {
          }
        });
       
-      var tileControl = document.createElement('div')
+      var tileControl = document.createElement("div")
       tileControl.style.marginRight = "5px"
       
-      var roadMap = document.createElement('div')
+      var roadMap = document.createElement("div")
       roadMap.className = "tile_toggle"
       roadMap.innerHTML = vars.format("roads")
       tileControl.appendChild(roadMap)
       
-      var terrain = document.createElement('div')
+      var terrain = document.createElement("div")
       terrain.className = "tile_toggle active"
       terrain.innerHTML = vars.format("terrain")
       tileControl.appendChild(terrain)
       
-      var satellite = document.createElement('div')
+      var satellite = document.createElement("div")
       satellite.className = "tile_toggle"
       satellite.innerHTML = vars.format("satellite")
       tileControl.appendChild(satellite)
       
-      var hybrid = document.createElement('div')
+      var hybrid = document.createElement("div")
       hybrid.className = "tile_toggle"
       hybrid.innerHTML = vars.format("hybrid")
       tileControl.appendChild(hybrid)
       
       vars.map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(tileControl)
 
-      google.maps.event.addDomListener(roadMap, 'click', function() {
+      google.maps.event.addDomListener(roadMap, "click", function() {
         d3.selectAll(".tile_toggle").attr("class","tile_toggle")
         this.className = "tile_toggle active"
         vars.map.setMapTypeId(google.maps.MapTypeId.ROADMAP)
       });
       
-      google.maps.event.addDomListener(terrain, 'click', function() {
+      google.maps.event.addDomListener(terrain, "click", function() {
         d3.selectAll(".tile_toggle").attr("class","tile_toggle")
         this.className = "tile_toggle active"
         vars.map.setMapTypeId(google.maps.MapTypeId.TERRAIN)
       });
       
-      google.maps.event.addDomListener(satellite, 'click', function() {
+      google.maps.event.addDomListener(satellite, "click", function() {
         d3.selectAll(".tile_toggle").attr("class","tile_toggle")
         this.className = "tile_toggle active"
         vars.map.setMapTypeId(google.maps.MapTypeId.SATELLITE)
       });
       
-      google.maps.event.addDomListener(hybrid, 'click', function() {
+      google.maps.event.addDomListener(hybrid, "click", function() {
         d3.selectAll(".tile_toggle").attr("class","tile_toggle")
         this.className = "tile_toggle active"
         vars.map.setMapTypeId(google.maps.MapTypeId.HYBRID)
@@ -497,8 +497,8 @@ d3plus.apps.geo_map.draw = function(vars) {
         .attr("stop-opacity", 1)
     })
   
-    var scale = scale_enter.append('g')
-      .attr('class','scale')
+    var scale = scale_enter.append("g")
+      .attr("class","scale")
       .style("opacity",0)
     
     var shadow = scale_defs.append("filter")

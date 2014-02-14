@@ -34,11 +34,11 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     .attr("id",function(d){
       return d.id
     })
-    .attr("class","data")
+    .attr("class","d3plus_data")
     .attr("d",path)
     .call(d3plus.shape.style,vars)
     
-  selection.selectAll("path.data")
+  selection.selectAll("path.d3plus_data")
     .on(d3plus.evt.over,function(d){
       
       if (!vars.frozen) {

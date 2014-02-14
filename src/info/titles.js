@@ -116,11 +116,11 @@ d3plus.info.titles = function(vars) {
       var title_data = []
     }
   
-    var total = vars.g.titles.selectAll("g."+type).data(title_data)
+    var total = vars.g.titles.selectAll("g.d3plus_"+type).data(title_data)
   
     // Enter
     total.enter().append("g")
-      .attr("class",type)
+      .attr("class","d3plus_"+type)
       .style("opacity",0)
       .append("text")
         .attr("x",function(d) { return d.x; })
@@ -175,11 +175,11 @@ d3plus.info.titles = function(vars) {
     }
     else var d = []
   
-    var source = vars.g.footer.selectAll("text.source").data(d)
+    var source = vars.g.footer.selectAll("text.d3plus_source").data(d)
     var padding = 3
   
     source.enter().append("text")
-      .attr("class","source")
+      .attr("class","d3plus_source")
       .attr("opacity",0)
       .attr("x",vars.width.value/2+"px")
       .attr("y",padding-1+"px")

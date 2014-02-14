@@ -347,14 +347,14 @@ d3plus.apps.chart.draw = function(vars) {
   var bg = plane.selectAll("rect#background").data(["background"])
   bg.enter().append("rect")
     .attr("id","background")
-    .attr('x',0)
-    .attr('y',0)
-    .attr('width', vars.graph.width)
-    .attr('height', vars.graph.height)
+    .attr("x",0)
+    .attr("y",0)
+    .attr("width", vars.graph.width)
+    .attr("height", vars.graph.height)
     .attr("stroke-width",1)
     .attr("stroke","#ccc")
       .attr("shape-rendering",vars.style.rendering)
-    .style('fill','#fafafa')
+    .style("fill","#fafafa")
     
   // Enter Background Mirror
   var mirror = plane.selectAll("path#mirror").data(["mirror"])
@@ -459,8 +459,8 @@ d3plus.apps.chart.draw = function(vars) {
     .attr("transform", "translate(" + vars.graph.margin.left + "," + vars.graph.margin.top + ")")
     
   // Update Plane Background
-  bg.attr('width', vars.graph.width)
-    .attr('height', vars.graph.height)
+  bg.attr("width", vars.graph.width)
+    .attr("height", vars.graph.height)
       
   // Update Mirror Triangle
   mirror.transition().duration(vars.style.timing.transitions)
@@ -533,8 +533,8 @@ d3plus.apps.chart.draw = function(vars) {
   
   // Update X Axis Label
   xlabel.text(vars.format(vars.x.key))
-    .attr('x', vars.app_width/2)
-    .attr('y', vars.app_height-10)
+    .attr("x", vars.app_width/2)
+    .attr("y", vars.app_height-10)
     .attr("opacity",function(){
       if (vars.data.app.length == 0) return 0
       else return 1
@@ -542,8 +542,8 @@ d3plus.apps.chart.draw = function(vars) {
 
   // Update Y Axis Label
   ylabel.text(vars.format(vars.y.key))
-    .attr('y', 15)
-    .attr('x', -(vars.graph.height/2+vars.graph.margin.top))
+    .attr("y", 15)
+    .attr("x", -(vars.graph.height/2+vars.graph.margin.top))
     .attr("opacity",function(){
       if (vars.data.app.length == 0) return 0
       else return 1
@@ -582,7 +582,7 @@ d3plus.apps.chart.draw = function(vars) {
   
   vars.axes.values.forEach(function(axis){
     
-    var lines = plane.selectAll("g."+axis+"line")
+    var lines = plane.selectAll("g.d3plus_"+axis+"line")
       .data(vars[axis].lines,function(l){
         if (typeof l == "number" || typeof l == "string") {
           return l
@@ -593,7 +593,7 @@ d3plus.apps.chart.draw = function(vars) {
       })
       
     var enter = lines.enter().append("g")
-      .attr("class",axis+"line")
+      .attr("class","d3plus_"+axis+"line")
       
     var max = axis == "x" ? "height" : "width",
         pos = axis == "x" ? (vars.graph.height-8)+"px" : "10px",
@@ -883,27 +883,27 @@ d3plus.apps.chart.draw = function(vars) {
         .attr("shape-rendering",vars.style.rendering)
     }
     
-    var data_ticks = plane.selectAll("g.data_ticks")
+    var data_ticks = plane.selectAll("g.d3plus_data_ticks")
       .data(data,function(d){ 
         return d[vars.id.key]+"_"+d.d3plus.depth
       })
     
     var tick_enter = data_ticks.enter().append("g")
-      .attr("class","data_ticks")
+      .attr("class","d3plus_data_ticks")
       .attr("opacity",0)
       
     tick_enter.append("line")
-      .attr("class","data_y")
+      .attr("class","d3plus_data_y")
       .call(data_tick,"y")
       
-    data_ticks.selectAll("line.data_y")
+    data_ticks.selectAll("line.d3plus_data_y")
       .call(data_tick,"y")
       
     tick_enter.append("line")
-      .attr("class","data_x")
+      .attr("class","d3plus_data_x")
       .call(data_tick,"x")
       
-    data_ticks.selectAll("line.data_x")
+    data_ticks.selectAll("line.d3plus_data_x")
       .call(data_tick,"x")
       
     data_ticks.transition().duration(vars.style.timing.transitions)
@@ -954,13 +954,13 @@ d3plus.apps.chart.draw = function(vars) {
         .attr("opacity",0)
     }
     
-    var lines = mouseevents.selectAll("line.axis_label")
+    var lines = mouseevents.selectAll("line.d3plus_axis_label")
       .data(line_data,function(d){
         return d.axis+"_"+d.id
       })
       
     lines.enter().append("line")
-      .attr("class","axis_label")
+      .attr("class","d3plus_axis_label")
       .call(line_init)
       .attr("x1",function(d){
         return d.axis == "x" ? d.x : d.x-d.r
@@ -974,7 +974,7 @@ d3plus.apps.chart.draw = function(vars) {
       .attr("shape-rendering",vars.style.rendering)
       
     lines.transition().duration(vars.style.timing.mouseevents)
-      .attr("class","axis_label")
+      .attr("class","d3plus_axis_label")
       .attr("x2",function(d){
         return d.axis == "x" ? d.x : vars.margin.left+vars.graph.margin.left
       })
@@ -993,13 +993,13 @@ d3plus.apps.chart.draw = function(vars) {
       .call(line_init)
       .remove()
       
-    var texts = mouseevents.selectAll("text.axis_label")
+    var texts = mouseevents.selectAll("text.d3plus_axis_label")
       .data(line_data,function(d){
         return d.axis+"_"+d.id
       })
 
     texts.enter().append("text")
-      .attr("class","axis_label")
+      .attr("class","d3plus_axis_label")
       .attr("id",function(d){
         return d.axis+"_"+d.id
       })
@@ -1037,13 +1037,13 @@ d3plus.apps.chart.draw = function(vars) {
       .attr("opacity",0)
       .remove()
       
-    var rects = mouseevents.selectAll("rect.axis_label")
+    var rects = mouseevents.selectAll("rect.d3plus_axis_label")
       .data(line_data,function(d){
         return d.axis+"_"+d.id
       })
 
     rects.enter().insert("rect","text")
-      .attr("class","axis_label")
+      .attr("class","d3plus_axis_label")
       .attr("x",function(d){
         var width = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().width
         var ret = d.axis == "x" ? d.x : vars.margin.left+vars.graph.margin.left

@@ -22,7 +22,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       
       var align = t.anchor || vars.style.labels.align,
           tspan = this.tagName == "tspan",
-          share = tspan ? this.parentNode.className.baseVal == "share" : this.className.baseVal == "share",
+          share = tspan ? this.parentNode.className.baseVal == "d3plus_share" : this.className.baseVal == "d3plus_share",
           width = d3.select(this).node().getComputedTextLength()
           
       if (align == "middle" || share) {
@@ -74,7 +74,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             height = d3.select(this).node().getBBox().height,
             diff = parseFloat(d3.select(this).style("font-size"),10)/5
             
-        if (this.className.baseVal == "share") {
+        if (this.className.baseVal == "d3plus_share") {
           var data = d3.select(this.parentNode).datum()
           var pheight = data.d3plus.r ? data.d3plus.r*2 : data.d3plus.height
           if (align == "end") {
@@ -205,7 +205,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             share.resize = true
           }
     
-          var text = group.selectAll("text.share")
+          var text = group.selectAll("text.d3plus_share")
             .data([share],function(t){
               return t.w+""+t.h+""+t.text
             })
@@ -214,8 +214,8 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             .transition().duration(vars.style.timing.transitions/2)
             .call(style,true)
     
-          text.enter().insert("text",".mouse")
-            .attr("class","share")
+          text.enter().insert("text",".d3plus_mouse")
+            .attr("class","d3plus_share")
             .attr("opacity",0)
             .call(style,true)
     
@@ -231,7 +231,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           
         }
         else {
-          group.selectAll("text.share")
+          group.selectAll("text.d3plus_share")
             .call(remove)
         }
         
@@ -243,7 +243,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           }
           label.share = share_size
           
-          var text = group.selectAll("text.label")
+          var text = group.selectAll("text.d3plus_label")
             .data([label],function(t){
               return t.w+""+t.h+""+t.names.join("")
             })
@@ -252,9 +252,9 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             .transition().duration(vars.style.timing.transitions/2)
             .call(style,true)
       
-          text.enter().insert("text",".mouse")
+          text.enter().insert("text",".d3plus_mouse")
             .attr("font-size",vars.style.labels.font.size)
-            .attr("class","label")
+            .attr("class","d3plus_label")
             .attr("opacity",0)
             .call(style,true)
         
@@ -269,7 +269,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
             
         }
         else {
-          group.selectAll("text.label")
+          group.selectAll("text.d3plus_label")
             .call(remove)
         }
         

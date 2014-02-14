@@ -179,12 +179,12 @@ d3plus.apps.network.draw = function(vars) {
   //     }
   //     
   //     if (direction == "in" || direction == "out") {
-  //       var trans = d3.select("g.viz")[0][0].getAttribute('transform')
+  //       var trans = d3.select("g.viz")[0][0].getAttribute("transform")
   //       if (trans) {
   //         trans = trans.split('(')
   //         var coords = trans[1].split(')')
   //         coords = coords[0].replace(' ',',')
-  //         coords = coords.substring(0,trans[1].length-6).split(',')
+  //         coords = coords.substring(0,trans[1].length-6).split(",")
   //         offset_x = parseFloat(coords[0])
   //         offset_y = coords.length == 2 ? parseFloat(coords[1]) : parseFloat(coords[0])
   //         zoom_var = parseFloat(trans[2].substring(0,trans[2].length-1))
@@ -413,11 +413,11 @@ d3plus.apps.network.draw = function(vars) {
 //     .on(d3plus.evt.up,function(d){
 //       dragging = false
 //     })
-//     .append('g')
-//       .attr('class','viz')
+//     .append("g")
+//       .attr("class","viz")
 //     
-//   viz_enter.append('rect')
-//     .attr('class','overlay')
+//   viz_enter.append("rect")
+//     .attr("class","overlay")
 //     .attr("fill","transparent");
 //     
 //   d3.select("rect.overlay")
@@ -458,17 +458,17 @@ d3plus.apps.network.draw = function(vars) {
 //       .on("wheel.zoom", null)
 //   }
 //     
-//   viz_enter.append('g')
-//     .attr('class','links')
+//   viz_enter.append("g")
+//     .attr("class","links")
 //     
-//   viz_enter.append('g')
-//     .attr('class','nodes')
+//   viz_enter.append("g")
+//     .attr("class","nodes")
 //     
-//   viz_enter.append('g')
-//     .attr('class','highlight')
+//   viz_enter.append("g")
+//     .attr("class","highlight")
 //     
-//   viz_enter.append('g')
-//     .attr('class','hover')
+//   viz_enter.append("g")
+//     .attr("class","hover")
 //     
 //   d3plus.utilsts.zoom_controls();
 //   

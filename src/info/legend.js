@@ -154,12 +154,12 @@ d3plus.info.legend = function(vars) {
           var start_x = available_width/2 - key_width/2
         }
         
-        vars.g.key.selectAll("g.scale")
+        vars.g.key.selectAll("g.d3plus_scale")
           .transition().duration(vars.style.timing.transitions)
           .attr("opacity",0)
           .remove()
         
-        var keys = vars.g.key.selectAll("g.color")
+        var keys = vars.g.key.selectAll("g.d3plus_color")
           .data(colors,function(d){
             return d.url ? d.color+"_"+d.url : d.color
           })
@@ -175,7 +175,7 @@ d3plus.info.legend = function(vars) {
         }
       
         var key_enter = keys.enter().append("g")
-          .attr("class","color")
+          .attr("class","d3plus_color")
           .attr("opacity",0)
           .call(position)
           
@@ -267,7 +267,7 @@ d3plus.info.legend = function(vars) {
         
         key_enter
           .append("rect")
-            .attr("class","color")
+            .attr("class","d3plus_color")
             .call(style)
             
         keys
@@ -317,7 +317,7 @@ d3plus.info.legend = function(vars) {
           .attr("opacity",1)
           .call(position)
             
-        keys.selectAll("rect.color").transition().duration(vars.style.timing.transitions)
+        keys.selectAll("rect.d3plus_color").transition().duration(vars.style.timing.transitions)
           .call(style)
             
         keys.exit()
@@ -332,7 +332,7 @@ d3plus.info.legend = function(vars) {
     
       if (vars.dev.value) d3plus.console.time("drawing color scale")
       
-      vars.g.key.selectAll("g.color")
+      vars.g.key.selectAll("g.d3plus_color")
         .transition().duration(vars.style.timing.transitions)
         .attr("opacity",0)
         .remove()
@@ -344,11 +344,11 @@ d3plus.info.legend = function(vars) {
         values = d3plus.utils.buckets(values,6)
       }
       
-      var scale = vars.g.key.selectAll("g.scale")
+      var scale = vars.g.key.selectAll("g.d3plus_scale")
         .data(["scale"])
         
       scale.enter().append("g")
-        .attr("class","scale")
+        .attr("class","d3plus_scale")
         .attr("opacity",0)
         
       var heatmap = vars.defs.selectAll("linearGradient#heatmap")
@@ -401,11 +401,11 @@ d3plus.info.legend = function(vars) {
         .attr("stroke-width",1)
         .style("fill", "url(#heatmap)")
         
-      var text = scale.selectAll("text.tick")
+      var text = scale.selectAll("text.d3plus_tick")
         .data(d3.range(0,values.length))
         
       text.enter().append("text")
-        .attr("class","tick")
+        .attr("class","d3plus_tick")
         .attr("y",0)
         .attr("x",function(d){
           if (vars.style.legend.align == "middle") {
@@ -470,11 +470,11 @@ d3plus.info.legend = function(vars) {
           .attr("opacity",0)
           .remove()
         
-        var ticks = scale.selectAll("rect.tick")
+        var ticks = scale.selectAll("rect.d3plus_tick")
           .data(d3.range(0,values.length))
         
         ticks.enter().append("rect")
-          .attr("class","tick")
+          .attr("class","d3plus_tick")
           .attr("x",function(d){
             if (vars.style.legend.align == "middle") {
               return vars.width.value/2

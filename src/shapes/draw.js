@@ -164,7 +164,7 @@ d3plus.shape.draw = function(vars,data) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind Data to Groups
     //--------------------------------------------------------------------------
-    var selection = vars.g.data.selectAll("g."+shape)
+    var selection = vars.g.data.selectAll("g.d3plus_"+shape)
       .data(filtered_shapes,function(d){
         
         if (shape == "coordinates") {
@@ -218,7 +218,7 @@ d3plus.shape.draw = function(vars,data) {
     // Groups Enter
     //--------------------------------------------------------------------------
     var enter = selection.enter().append("g")
-      .attr("class",shape)
+      .attr("class","d3plus_"+shape)
       .attr("opacity",0)
       .call(transform)
       

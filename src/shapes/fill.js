@@ -137,7 +137,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       
       var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
     
-      group.selectAll("path."+type)
+      group.selectAll("path.d3plus_"+type)
         .transition().duration(vars.style.timing.transitions)
         .call(size,0,r,0)
         .remove()
@@ -153,7 +153,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
 
       var color = d3plus.variable.color(vars,d)
     
-      if (group.selectAll("path."+type).empty()) {
+      if (group.selectAll("path.d3plus_"+type).empty()) {
           
         delay = vars.style.timing.transitions
       
@@ -205,10 +205,10 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         }
       
         if (group.selectAll("#clip_"+d.d3plus.id).empty()) {
-          group.insert("clipPath",".mouse")
+          group.insert("clipPath",".d3plus_mouse")
             .attr("id","clip_"+d.d3plus.id)
             .append("rect")
-              .attr("class","clipping")
+              .attr("class","d3plus_clipping")
               .call(init)
               .transition().duration(vars.style.timing.transitions)
                 .call(update)
@@ -216,8 +216,8 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       
         var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       
-        group.insert("path","rect.mouse")
-          .attr("class",type)
+        group.insert("path","rect.d3plus_mouse")
+          .attr("class","d3plus_"+type)
           .attr("clip-path","url(#clip_"+d.d3plus.id+")")
           .data([new_data])
           .transition().duration(0)
@@ -228,7 +228,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
             
       }
 
-      group.selectAll("path."+type)
+      group.selectAll("path.d3plus_"+type)
         .data([new_data])
         .transition().duration(vars.style.timing.transitions)
         .delay(delay)

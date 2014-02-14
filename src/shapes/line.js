@@ -61,7 +61,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind segment data to "paths"
     //--------------------------------------------------------------------------
-    var paths = group.selectAll("path.line")
+    var paths = group.selectAll("path.d3plus_line")
       .data(segments, function(d){
         return d.key
       })
@@ -70,7 +70,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     // "paths" Enter
     //--------------------------------------------------------------------------
     paths.enter().append("path")
-      .attr("class","line")
+      .attr("class","d3plus_line")
       .attr("d",function(d){ return line(d.values) })
       .call(d3plus.shape.style,vars)
 
@@ -86,7 +86,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind node data to "rects"
     //--------------------------------------------------------------------------
-    var rects = group.selectAll("rect.anchor")
+    var rects = group.selectAll("rect.d3plus_anchor")
       .data(nodes, function(d){
         return d.d3plus.id
       })
@@ -95,7 +95,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     // "rects" Enter
     //--------------------------------------------------------------------------
     rects.enter().append("rect")
-      .attr("class","anchor")
+      .attr("class","d3plus_anchor")
       .attr("id",function(d){
         return d.d3plus.id
       })
@@ -121,7 +121,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create mouse event lines
     //--------------------------------------------------------------------------
-    var mouse = group.selectAll("path.mouse")
+    var mouse = group.selectAll("path.d3plus_mouse")
       .data(segments, function(d){
         return d.key
       })
@@ -130,7 +130,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     // Mouse "paths" Enter
     //--------------------------------------------------------------------------
     mouse.enter().append("path")
-      .attr("class","mouse")
+      .attr("class","d3plus_mouse")
       .attr("d",function(l){ return line(l.values) })
       .style("stroke","black")
       .style("stroke-width",hitarea)
@@ -156,7 +156,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
           parent_data.data = d.values[positions.indexOf(closest)]
           parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
         
-          d3.select(this.parentNode).selectAll("path.line")
+          d3.select(this.parentNode).selectAll("path.d3plus_line")
             .transition().duration(vars.style.timing.mouseevents)
             .style("stroke-width",vars.style.data.stroke.width*2)
     
@@ -187,7 +187,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         
         if (!vars.frozen) {
 
-          d3.select(this.parentNode).selectAll("path.line")
+          d3.select(this.parentNode).selectAll("path.d3plus_line")
             .transition().duration(vars.style.timing.mouseevents)
             .style("stroke-width",vars.style.data.stroke.width)
     

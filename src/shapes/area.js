@@ -15,14 +15,14 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
   //----------------------------------------------------------------------------
-  enter.append("path").attr("class","data")
+  enter.append("path").attr("class","d3plus_data")
     .attr("d",function(d){ return area(d.values) })
     .call(d3plus.shape.style,vars)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Update
   //----------------------------------------------------------------------------
-  selection.selectAll("path.data")
+  selection.selectAll("path.d3plus_data")
     .data(function(d) {
       
       if (vars.labels.value) {
@@ -106,11 +106,11 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define mouse event area
   //----------------------------------------------------------------------------
-  var mouses = selection.selectAll("path.mouse")
+  var mouses = selection.selectAll("path.d3plus_mouse")
     .data(function(d) {return [d];})
 
   mouses.enter().append("path")
-    .attr("class","mouse")
+    .attr("class","d3plus_mouse")
     .attr("opacity",0)
     .attr("stroke",1)
     .attr("d",function(d){ return area(d.values) })
@@ -130,7 +130,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
         d.data = d.values[positions.indexOf(closest)]
         d.d3plus = d.values[positions.indexOf(closest)].d3plus
 
-        d3.select(this.parentNode).selectAll("path.data")
+        d3.select(this.parentNode).selectAll("path.d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .style("opacity",1)
           
@@ -155,7 +155,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
       
       if (!vars.frozen) {
 
-        d3.select(this.parentNode).selectAll("path.data")
+        d3.select(this.parentNode).selectAll("path.d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .style("opacity",vars.style.data.opacity)
       

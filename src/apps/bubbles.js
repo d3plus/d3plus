@@ -140,7 +140,7 @@ d3plus.apps.bubbles.draw = function(vars) {
     return d.depth == 0
   })
   
-  var labels = vars.group.selectAll("text.bubble_label")
+  var labels = vars.group.selectAll("text.d3plus_bubble_label")
     .data(label_data,function(d){
       if (!d.d3plus.label_height) d.d3plus.label_height = 0
       return d[vars.id.nesting[d.depth]]
@@ -184,7 +184,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   }
   
   labels.enter().append("text")
-    .attr("class","bubble_label")
+    .attr("class","d3plus_bubble_label")
     .call(label_style)
     .attr("opacity",0)
     

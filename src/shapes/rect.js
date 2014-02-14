@@ -62,14 +62,14 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   // "rects" Enter
   //----------------------------------------------------------------------------
   enter.append("rect")
-    .attr("class","data")
+    .attr("class","d3plus_data")
     .call(init)
     .call(d3plus.shape.style,vars)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Update
   //----------------------------------------------------------------------------
-  selection.selectAll("rect.data")
+  selection.selectAll("rect.d3plus_data")
     .data(function(d) { 
       
       if (vars.labels.value && !d.d3plus.label) {
@@ -125,14 +125,14 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Exit
   //----------------------------------------------------------------------------
-  exit.selectAll("rect.data")
+  exit.selectAll("rect.d3plus_data")
     .transition().duration(vars.style.timing.transitions)
     .call(init)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define mouse event shapes
   //----------------------------------------------------------------------------
-  var mouses = selection.selectAll("rect.mouse")
+  var mouses = selection.selectAll("rect.d3plus_mouse")
     .data(function(d) {
       return !d.d3plus.static ? [d] : [];
     })
@@ -141,7 +141,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   // Mouse "rect" enter
   //----------------------------------------------------------------------------
   mouses.enter().append("rect")
-    .attr("class","mouse")
+    .attr("class","d3plus_mouse")
     .call(init)
     .attr("opacity",0)
 
@@ -158,7 +158,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
 
         d3.select(this).style("cursor","pointer")
       
-        d3.select(this.parentNode).selectAll(".data")
+        d3.select(this.parentNode).selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
       
@@ -173,7 +173,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
       
       if (!vars.frozen) {
       
-        d3.select(this.parentNode).selectAll(".data")
+        d3.select(this.parentNode).selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",vars.style.data.opacity)
           

@@ -98,16 +98,16 @@ d3plus.viz = function() {
       vars.svg = vars.parent.selectAll("svg#d3plus").data(["d3plus"]);
       vars.svg.enter().append("svg")
         .attr("id","d3plus")
-        .attr('width',vars.width.value)
-        .attr('height',vars.height.value)
+        .attr("width",vars.width.value)
+        .attr("height",vars.height.value)
 
       // Enter BG Rectangle
       vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
       vars.g.bg.enter().append("rect")
         .attr("id","bg")
         .attr("fill",vars.style.background)
-        .attr('width',vars.width.value)
-        .attr('height',vars.height.value)
+        .attr("width",vars.width.value)
+        .attr("height",vars.height.value)
     
       // Enter Title Group
       vars.g.titles = vars.svg.selectAll("g#titles").data(["titles"])
@@ -197,13 +197,13 @@ d3plus.viz = function() {
         
       // Update SVG
       vars.svg.transition().duration(vars.style.timing.transitions)
-          .attr('width',vars.width.value)
-          .attr('height',vars.height.value)
+          .attr("width",vars.width.value)
+          .attr("height",vars.height.value)
     
       // Update Background Rectangle
       vars.g.bg.transition().duration(vars.style.timing.transitions)
-          .attr('width',vars.width.value)
-          .attr('height',vars.height.value)
+          .attr("width",vars.width.value)
+          .attr("height",vars.height.value)
           
       // Update App Clipping Rectangle
       vars.g.clipping.select("rect").transition().duration(vars.style.timing.transitions)

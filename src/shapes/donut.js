@@ -72,7 +72,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
   // "paths" Enter
   //----------------------------------------------------------------------------
   enter.append("path")
-    .attr("class","data")
+    .attr("class","d3plus_data")
     .transition().duration(0)
       .call(size,0,0)
       .call(d3plus.shape.style,vars)
@@ -80,7 +80,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Update
   //----------------------------------------------------------------------------
-  selection.selectAll("path.data")
+  selection.selectAll("path.d3plus_data")
     .data(function(d) {
       return [d];
     })
@@ -91,7 +91,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Exit
   //----------------------------------------------------------------------------
-  exit.selectAll("path.data")
+  exit.selectAll("path.d3plus_data")
     .transition().duration(vars.style.timing.transitions)
       .call(size,0,0)
       .each("end",function(d){
@@ -101,7 +101,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define mouse event shapes
   //----------------------------------------------------------------------------
-  var mouses = selection.selectAll("rect.mouse")
+  var mouses = selection.selectAll("rect.d3plus_mouse")
     .data(function(d) {
       return !d.d3plus.static ? [d] : [];
     })
@@ -110,7 +110,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
   // Mouse "rect" enter
   //----------------------------------------------------------------------------
   mouses.enter().append("rect")
-    .attr("class","mouse")
+    .attr("class","d3plus_mouse")
     .attr("x",0)
     .attr("y",0)
     .attr("width",0)
@@ -130,7 +130,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
 
         d3.select(this).style("cursor","pointer")
   
-        d3.select(this.parentNode).selectAll("path.data")
+        d3.select(this.parentNode).selectAll("path.d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
   
@@ -145,7 +145,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit,transform) {
       
       if (!vars.frozen) {
 
-        d3.select(this.parentNode).selectAll("path.data")
+        d3.select(this.parentNode).selectAll("path.d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",vars.style.data.opacity)
       
