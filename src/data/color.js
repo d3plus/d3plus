@@ -36,22 +36,24 @@ d3plus.data.color = function(vars) {
     
       if (vars.dev.value) d3plus.console.time("create color scale")
       
-      data_range.sort(function(a,b) {return a-b})
-      data_domain = [d3.quantile(data_range,0.1),d3.quantile(data_range,0.9)]
+      data_range = d3.extent(data_range)
     
-      var new_range = vars.style.color.range.slice(0)
-      if (data_domain[0] < 0 && data_domain[1] > 0) {
-        data_domain.push(data_domain[1])
-        data_domain[1] = 0
+      if (data_range[0] < 0 && data_range[1] > 0) {
+        var color_range = vars.style.color.range
+        data_range.push(data_range[1])
+        data_range[1] = 0
       }
-      else if (data_domain[1] > 0 || data_domain[0] < 0) {
-        new_range = vars.style.color.heatmap
-        data_domain = d3plus.utils.buckets(d3.extent(data_range),new_range.length)
+      else if (data_range[1] > 0 || data_range[0] < 0) {
+        var color_range = vars.style.color.heatmap
+        data_range = d3plus.utils.buckets(data_range,color_range.length)
       }
-    
+      else {
+        var color_range = vars.style.color.range.slice(0)
+      }
+      
       vars.color_scale = d3.scale.sqrt()
-        .domain(data_domain)
-        .range(new_range)
+        .domain(data_range)
+        .range(color_range)
         .interpolate(d3.interpolateRgb)
   
       if (vars.dev.value) d3plus.console.timeEnd("create color scale")

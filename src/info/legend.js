@@ -375,11 +375,11 @@ d3plus.info.legend = function(vars) {
         .attr("class","d3plus_scale")
         .attr("opacity",0)
         
-      var heatmap = vars.defs.selectAll("linearGradient#heatmap")
+      var heatmap = vars.defs.selectAll("#d3plus_legend_heatmap")
         .data(["heatmap"])
         
       heatmap.enter().append("linearGradient")
-        .attr("id", "heatmap")
+        .attr("id", "d3plus_legend_heatmap")
         .attr("x1", "0%")
         .attr("y1", "0%")
         .attr("x2", "100%")
@@ -423,14 +423,13 @@ d3plus.info.legend = function(vars) {
         .attr("height", vars.style.legend.gradient.height)
         .attr("stroke",vars.style.legend.tick.color)
         .attr("stroke-width",1)
-        .style("fill", "url(#heatmap)")
+        .style("fill", "url(#d3plus_legend_heatmap)")
         
       var text = scale.selectAll("text.d3plus_tick")
         .data(d3.range(0,values.length))
         
       text.enter().append("text")
         .attr("class","d3plus_tick")
-        .attr("y",0)
         .attr("x",function(d){
           if (vars.style.legend.align == "middle") {
             return vars.width.value/2
@@ -441,6 +440,9 @@ d3plus.info.legend = function(vars) {
           else {
             return 0
           }
+        })
+        .attr("y",function(d){
+          return this.getBBox().height+vars.style.legend.gradient.height+vars.style.legend.padding*2
         })
       
       var label_width = 0
@@ -568,7 +570,14 @@ d3plus.info.legend = function(vars) {
     
     if (vars.dev.value) d3plus.console.time("positioning legend")
     
-    var key_height = square_size || vars.g.key.node().getBBox().height
+    if (square_size) {
+      var key_height = square_size
+    }
+    else {
+      var key_box = vars.g.key.node().getBBox(),
+          key_height = key_box.height+key_box.y
+    }
+    
     vars.margin.bottom += key_height+(vars.style.legend.padding*2)
     
     vars.g.key.transition().duration(vars.style.timing.transitions)
