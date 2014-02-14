@@ -116,9 +116,13 @@ d3plus.apps.stacked.draw = function(vars) {
         }
         else {
           m[vars.color.key] = d3plus.variable.color(vars,m[parent],parent)
-          // console.log(m[vars.color.key],m)
         }
       }
+    
+      if (vars.icon.key && vars.depth.value != 0) {
+        m[vars.icon.key] = d3plus.variable.value(vars,m[parent],vars.icon.key,parent)
+      }
+      
       if (vars.text.key) {
         if (vars.depth.value == 0) {
 
