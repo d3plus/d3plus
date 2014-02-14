@@ -69,17 +69,22 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     
   }
   else {
+    
     if (typeof id == "object") {
+      var dat = id
       id = id[id_var]
     }
-    if (vars.data.app instanceof Array) {
-      var dat = filter_array(vars.data.app)
-      if (dat && typeof dat[variable] != "undefined") return dat[variable]
+    if (id_var == vars.id.key) {
+
+      if (vars.data.app instanceof Array) {
+        var dat = filter_array(vars.data.app)
+      }
+      else if (typeof vars.data.app == "object") {
+        var dat = vars.data.app[id]
+      }
+      
     }
-    else if (vars.data.app) {
-      var dat = vars.data.app[id]
-      if (dat && typeof dat[variable] != "undefined") return dat[variable]
-    }
+    if (dat && typeof dat[variable] != "undefined") return dat[variable]
   }
   
   if (vars.attrs.value instanceof Array) {
