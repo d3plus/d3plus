@@ -544,9 +544,8 @@ d3plus.info.legend = function(vars) {
     
     if (vars.dev.value) d3plus.console.time("positioning legend")
     
-    var key_box = vars.g.key.node().getBBox()
-    var key_height = (square_size || key_box.height)+key_box.y
-    vars.margin.bottom += key_height+vars.style.legend.padding
+    var key_height = square_size || vars.g.key.node().getBBox().height
+    vars.margin.bottom += key_height+(vars.style.legend.padding*2)
     
     vars.g.key.transition().duration(vars.style.timing.transitions)
       .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
