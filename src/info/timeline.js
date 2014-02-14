@@ -6,7 +6,7 @@ d3plus.info.timeline = function(vars) {
   
   var years = vars.data.time
   
-  if (years && years.length > 1 && vars.timeline.value) {
+  if (!vars.small && years && years.length > 1 && vars.timeline.value) {
     
     if ((vars.time.key == vars.x.key && vars.x.scale.value == "continuous") || (vars.time.key == vars.y.key && vars.y.scale.value == "continuous")) {
       var min_required = 2

@@ -7,7 +7,7 @@ d3plus.info.legend = function(vars) {
   var key_display = true,
       square_size = 0
   
-  if (vars.legend.value && vars.color.key && vars.data.pool.length) {
+  if (!vars.small && vars.legend.value && vars.color.key && vars.data.pool.length) {
     
     if (vars.dev.value) d3plus.console.group("Calculating Legend")
     
