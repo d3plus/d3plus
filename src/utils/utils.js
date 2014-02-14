@@ -64,6 +64,31 @@ d3plus.utils.copy = function(obj) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates a Base-64 Data URL from and Image URL
+//------------------------------------------------------------------------------
+d3plus.utils.dataurl = function(url,callback) {
+    
+  var img = new Image();
+  img.src = url;
+  img.crossOrigin = "Anonymous";
+  img.onload = function () {
+    
+    var canvas = document.createElement("canvas");
+    canvas.width = this.width;
+    canvas.height = this.height;
+
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(this, 0, 0);
+    
+    callback.call(this,canvas.toDataURL("image/png"))
+    
+    canvas = null
+
+  }
+  
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merge two objects to create a new one with the properties of both
 //------------------------------------------------------------------------------
 d3plus.utils.merge = function(obj1, obj2) {
