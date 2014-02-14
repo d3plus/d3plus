@@ -567,15 +567,15 @@ d3plus.viz = function() {
         
         function check_object(object,property,depth) {
           
-          if (object[property].key !== undefined) var key_type = "key"
-          else if (object[property].value !== undefined) var key_type = "value"
-          else var key_type = null
-          
           if (object[property] === undefined) {
             d3plus.console.warning("\""+property+"\" cannot be set.");
           }
           else {
             if (typeof depth == "object" && !(depth instanceof Array)) {
+              
+              if (object[property].key !== undefined) var key_type = "key"
+              else if (object[property].value !== undefined) var key_type = "value"
+              else var key_type = null
               
               if (property == key_type) {
                 set_value(object,key_type,depth)
