@@ -50,18 +50,22 @@ d3plus.viz = function() {
           })
           .html("")
           
-      }
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Get overall width and height, if not defined
+        //----------------------------------------------------------------------
+        var sizes = ["width","height"]
+        sizes.forEach(function(s){
+          if (!vars[s].value) {
+            var p = parseFloat(vars.parent.style(s),10)
+            vars[s].value = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
+          }
+        })
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Get overall width and height, if not defined
-      //-------------------------------------------------------------------
-      var sizes = ["width","height"]
-      sizes.forEach(function(s){
-        if (!vars[s].value) {
-          var p = parseFloat(vars.parent.style(s),10)
-          vars[s].value = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
-        }
-      })
+        vars.parent
+          .style("width",vars.width.value+"px")
+          .style("height",vars.height.value+"px")
+          
+      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Run setup function if app has it
@@ -191,7 +195,7 @@ d3plus.viz = function() {
       //-------------------------------------------------------------------
       
       // Update Parent Element
-      vars.parent
+      vars.parent.transition().duration(vars.style.timing.transitions)
         .style("width",vars.width.value+"px")
         .style("height",vars.height.value+"px")
         
