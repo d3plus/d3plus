@@ -94,6 +94,8 @@ d3plus.apps.stacked.draw = function(vars) {
       
       var parent = vars.id.nesting[vars.depth.value-1]
       
+      m.d3plus = {}
+      
       vars.id.nesting.forEach(function(d,i){
       
         if (vars.depth.value == i) {
@@ -121,6 +123,7 @@ d3plus.apps.stacked.draw = function(vars) {
     
       if (vars.icon.key && vars.depth.value != 0) {
         m[vars.icon.key] = d3plus.variable.value(vars,m[parent],vars.icon.key,parent)
+        m.d3plus.depth = vars.id.nesting.indexOf(parent)
       }
       
       if (vars.text.key) {
