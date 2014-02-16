@@ -8726,7 +8726,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
   
   selection.each(function(d){
 
-    var step = 0,
+    var step = false,
         segments = [],
         nodes = [],
         temp = d3plus.utils.copy(d),
@@ -8738,6 +8738,10 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       var k = v[vars[vars.continuous_axis].key],
           index = vars.tickValues[vars.continuous_axis].indexOf(k)
           
+      if (step === false) {
+        step = index
+      }
+      
       if (i+step == index) {
         temp.values.push(v)
         temp.key += "_"+segments.length
@@ -8756,7 +8760,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         segments.push(temp)
       }
     })
-
+    
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind segment data to "paths"
     //--------------------------------------------------------------------------
