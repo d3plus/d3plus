@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator
 //------------------------------------------------------------------------------
-d3plus.color.scale = d3.scale.category20b()
+d3plus.color.scale = d3.scale.category20()
 d3plus.color.random = function(x) {
   var rand_int = x || Math.floor(Math.random()*20)
   return d3plus.color.scale(rand_int);
