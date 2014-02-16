@@ -36,12 +36,24 @@ d3plus.utils.connections = function(vars,links) {
   var connections = {};
   links.forEach(function(d) {
     
-    if (typeof d.source != "object") {
+    if (vars.nodes.value && typeof d.source != "object") {
       d.source = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.source})[0]
     }
 
-    if (typeof d.target != "object") {
+    if (vars.nodes.value && typeof d.target != "object") {
       d.target = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.target})[0]
+    }
+    
+    if (typeof d.source != "object") {
+      var obj = {}
+      obj[vars.id.key] = d.source
+      d.source = obj
+    }
+
+    if (typeof d.target != "object") {
+      var obj = {}
+      obj[vars.id.key] = d.target
+      d.target = obj
     }
     
     if (!connections[d.source[vars.id.key]]) {
