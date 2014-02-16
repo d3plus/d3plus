@@ -136,7 +136,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       .style("stroke-width",hitarea)
       .style("fill","none")
       .style("stroke-linecap","round")
-      .attr("opacity",0.25)
+      .attr("opacity",0)
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mouse "paths" Update
