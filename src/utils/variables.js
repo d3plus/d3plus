@@ -79,7 +79,7 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
       if (vars.data.app instanceof Array) {
         var dat = filter_array(vars.data.app)
       }
-      else if (typeof vars.data.app == "object") {
+      else if (typeof vars.data.app == "object" && vars.data.app !== null) {
         var dat = vars.data.app[id]
       }
       
