@@ -5,13 +5,14 @@
 d3plus.info.legend = function(vars) {
   
   var key_display = true,
-      square_size = 0
+      square_size = 0,
+      key = vars.color.key || vars.id.key
   
-  if (!vars.small && vars.legend.value && vars.color.key && vars.data.pool.length) {
+  if (!vars.small && vars.legend.value && key && vars.data.pool.length) {
     
     if (vars.dev.value) d3plus.console.group("Calculating Legend")
     
-    if (!vars.color_scale && vars.data.keys[vars.color.key] != "number") {
+    if (!vars.color_scale && vars.data.keys[key] != "number") {
     
       if (vars.dev.value) d3plus.console.time("determining color groups")
     
@@ -464,7 +465,7 @@ d3plus.info.legend = function(vars) {
         .attr("text-anchor",vars.style.legend.tick.align)
         .attr("fill",vars.style.legend.tick.color)
         .text(function(d){
-          return vars.format(values[d],vars.color.key)
+          return vars.format(values[d],key)
         })
         .attr("y",function(d){
           return this.getBBox().height+vars.style.legend.gradient.height+vars.style.legend.padding*2
@@ -575,7 +576,7 @@ d3plus.info.legend = function(vars) {
   else {
     key_display = false
   }
-  if (vars.legend.value && vars.color.key && key_display) {
+  if (vars.legend.value && key && key_display) {
     
     if (vars.dev.value) d3plus.console.time("positioning legend")
     
@@ -606,7 +607,7 @@ d3plus.info.legend = function(vars) {
       
   }
   
-  if (vars.legend.value && vars.color.key && vars.dev.value) {
+  if (vars.legend.value && key && vars.dev.value) {
     d3plus.console.groupEnd()
   }
   
