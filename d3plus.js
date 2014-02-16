@@ -2,7 +2,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.1.7 - Navy";
+d3plus.version = "1.1.8 - Navy";
 
 d3plus.ie = /*@cc_on!@*/false;
 
@@ -987,8 +987,38 @@ d3plus.viz = function() {
         var sizes = ["width","height"]
         sizes.forEach(function(s){
           if (!vars[s].value) {
-            var p = parseFloat(vars.parent.style(s),10)
-            vars[s].value = p ? p : window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
+            function check_parent(element) {
+              
+              if (element.tagName == "BODY") {
+                var val = window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
+                if (s == "width") {
+                  val -= parseFloat(d3.select(element).style("margin-left"),10)
+                  val -= parseFloat(d3.select(element).style("margin-right"),10)
+                  val -= parseFloat(d3.select(element).style("padding-left"),10)
+                  val -= parseFloat(d3.select(element).style("padding-right"),10)
+                }
+                else if (s == "height") {
+                  val -= parseFloat(d3.select(element).style("margin-top"),10)
+                  val -= parseFloat(d3.select(element).style("margin-bottom"),10)
+                  val -= parseFloat(d3.select(element).style("padding-top"),10)
+                  val -= parseFloat(d3.select(element).style("padding-bottom"),10)
+                }
+                vars[s].value = val
+              }
+              else {
+              
+                var val = parseFloat(d3.select(element).style(s),10)
+                if (typeof val == "number" && val > 0) {
+                  vars[s].value = val
+                }
+                else if (element.tagName != "BODY") {
+                  check_parent(element.parentNode)
+                }
+                
+              }
+              
+            }
+            check_parent(vars.parent.node())
           }
         })
 
@@ -2397,9 +2427,8 @@ d3plus.apps.chart.draw = function(vars) {
   xaxis.selectAll("path").style("fill","none")
     
   // Update Y Grid
-  var tickData = vars.tickValues.y || vars.y_scale.ticks()
   var ylines = ygrid.selectAll("line")
-    .data(tickData)
+    .data(vars.y_scale.ticks())
     
   ylines.enter().append("line")
     .style("opacity",0)
@@ -2416,9 +2445,8 @@ d3plus.apps.chart.draw = function(vars) {
     .remove()
     
   // Update X Grid
-  var tickData = vars.tickValues.x || vars.x_scale.ticks()
   var xlines = xgrid.selectAll("line")
-    .data(tickData)
+    .data(vars.x_scale.ticks())
     
   xlines.enter().append("line")
     .style("opacity",0)
@@ -10655,7 +10683,7 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
       if (vars.data.app instanceof Array) {
         var dat = filter_array(vars.data.app)
       }
-      else if (typeof vars.data.app == "object") {
+      else if (typeof vars.data.app == "object" && vars.data.app !== null) {
         var dat = vars.data.app[id]
       }
       
