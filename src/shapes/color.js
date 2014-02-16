@@ -6,7 +6,7 @@ d3plus.shape.color = function(d,vars) {
   var shape = d.d3plus ? d.d3plus.shapeType : vars.shape.value
   
   if (vars.shape.value == "line") {
-    if (d.d3plus && d.d3plus.shapeType == "circle") {
+    if (shape == "circle") {
       return d3plus.variable.color(vars,d)
     }
     else {
