@@ -6023,13 +6023,14 @@ d3plus.info.error = function(vars) {
 d3plus.info.legend = function(vars) {
   
   var key_display = true,
-      square_size = 0
+      square_size = 0,
+      key = vars.color.key || vars.id.key
   
-  if (!vars.small && vars.legend.value && vars.color.key && vars.data.pool.length) {
+  if (!vars.small && vars.legend.value && key && vars.data.pool.length) {
     
     if (vars.dev.value) d3plus.console.group("Calculating Legend")
     
-    if (!vars.color_scale && vars.data.keys[vars.color.key] != "number") {
+    if (!vars.color_scale && vars.data.keys[key] != "number") {
     
       if (vars.dev.value) d3plus.console.time("determining color groups")
     
@@ -6482,7 +6483,7 @@ d3plus.info.legend = function(vars) {
         .attr("text-anchor",vars.style.legend.tick.align)
         .attr("fill",vars.style.legend.tick.color)
         .text(function(d){
-          return vars.format(values[d],vars.color.key)
+          return vars.format(values[d],key)
         })
         .attr("y",function(d){
           return this.getBBox().height+vars.style.legend.gradient.height+vars.style.legend.padding*2
@@ -6593,7 +6594,7 @@ d3plus.info.legend = function(vars) {
   else {
     key_display = false
   }
-  if (vars.legend.value && vars.color.key && key_display) {
+  if (vars.legend.value && key && key_display) {
     
     if (vars.dev.value) d3plus.console.time("positioning legend")
     
@@ -6624,7 +6625,7 @@ d3plus.info.legend = function(vars) {
       
   }
   
-  if (vars.legend.value && vars.color.key && vars.dev.value) {
+  if (vars.legend.value && key && vars.dev.value) {
     d3plus.console.groupEnd()
   }
   
@@ -7367,7 +7368,7 @@ d3plus.shape.color = function(d,vars) {
   var shape = d.d3plus ? d.d3plus.shapeType : vars.shape.value
   
   if (vars.shape.value == "line") {
-    if (d.d3plus && d.d3plus.shapeType == "circle") {
+    if (shape == "circle") {
       return d3plus.variable.color(vars,d)
     }
     else {
@@ -8834,7 +8835,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       .style("stroke-width",hitarea)
       .style("fill","none")
       .style("stroke-linecap","round")
-      .attr("opacity",0.25)
+      .attr("opacity",0)
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mouse "paths" Update
@@ -9309,6 +9310,9 @@ d3plus.shape.style = function(nodes,vars) {
       
     })
     .style("stroke", function(d){
+      if (d.values && d.key && d.key.indexOf("_line_") >= 0) {
+        return d3plus.color.darker(d3plus.variable.color(vars,d))
+      }
       return d3plus.color.darker(d3plus.shape.color(d,vars));
     })
     .style("stroke-width",vars.style.data.stroke.width)
@@ -10344,7 +10348,7 @@ d3plus.tooltip.remove = function(id) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator
 //------------------------------------------------------------------------------
-d3plus.color.scale = d3.scale.category20b()
+d3plus.color.scale = d3.scale.category20()
 d3plus.color.random = function(x) {
   var rand_int = x || Math.floor(Math.random()*20)
   return d3plus.color.scale(rand_int);
@@ -10442,12 +10446,24 @@ d3plus.utils.connections = function(vars,links) {
   var connections = {};
   links.forEach(function(d) {
     
-    if (typeof d.source != "object") {
+    if (vars.nodes.value && typeof d.source != "object") {
       d.source = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.source})[0]
     }
 
-    if (typeof d.target != "object") {
+    if (vars.nodes.value && typeof d.target != "object") {
       d.target = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.target})[0]
+    }
+    
+    if (typeof d.source != "object") {
+      var obj = {}
+      obj[vars.id.key] = d.source
+      d.source = obj
+    }
+
+    if (typeof d.target != "object") {
+      var obj = {}
+      obj[vars.id.key] = d.target
+      d.target = obj
     }
     
     if (!connections[d.source[vars.id.key]]) {
