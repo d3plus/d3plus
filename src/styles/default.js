@@ -75,6 +75,16 @@ d3plus.styles.default = {
   },
   "timeline": {
     "align": "middle",
+    "background": "#eeeeee",
+    "brush": {
+      "color": "#444",
+      "opacity": 0.2
+    },
+    "handles": {
+      "color": "#888",
+      "hover": "#aaa",
+      "size": 3
+    },
     "height": 20,
     "label": {
       "color": "#444",

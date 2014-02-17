@@ -102,6 +102,12 @@ d3plus.info.timeline = function(vars) {
         
     }
       
+    var background = vars.g.timeline.selectAll("rect.d3plus_timeline_background")
+      .data(["background"])
+      
+    background.enter().append("rect")
+      .attr("class","d3plus_timeline_background")
+      
     var labels = vars.g.timeline.selectAll("g#labels")
       .data(["labels"])
       
@@ -143,7 +149,6 @@ d3plus.info.timeline = function(vars) {
       .attr("font-family",vars.style.timeline.tick.family)
       .attr("font-size",vars.style.timeline.tick.size)
       .attr("text-anchor",vars.style.timeline.tick.align)
-      .attr("fill",vars.style.timeline.tick.color)
       .text(function(d){
         return d
       })
@@ -182,6 +187,18 @@ d3plus.info.timeline = function(vars) {
     }
   
     text.transition().duration(vars.style.timing.transitions)
+      .attr("fill",function(d){
+        
+        if (d >= init[0] && d <= init[1]) {
+          var color1 = vars.style.timeline.background,
+              color2 = vars.style.timeline.brush.color,
+              opacity = vars.style.timeline.brush.opacity
+              mixed = d3plus.color.mix(color2,color1,opacity)
+              
+          return d3plus.color.text(mixed)
+        }
+        return d3plus.color.text(vars.style.timeline.background)
+      })
       .attr("x",function(d,i){
         return start_x + (label_width*i) + label_width/2
       })
@@ -200,6 +217,13 @@ d3plus.info.timeline = function(vars) {
     text.exit().transition().duration(vars.style.timing.transitions)
       .attr("opacity",0)
       .remove()
+      
+    background.transition().duration(vars.style.timing.transitions)
+      .attr("width",timeline_width)
+      .attr("height",vars.style.timeline.height)
+      .attr("x",start_x)
+      .attr("y",vars.style.timeline.padding)
+      .attr("fill",vars.style.timeline.background)
     
     var x = d3.time.scale()
       .domain(d3.extent(year_ticks))
@@ -246,7 +270,6 @@ d3plus.info.timeline = function(vars) {
       .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
       .attr("opacity",1)
       .call(brush)
-      // .call(brush.event)
       
     brush_group.selectAll("rect")
       .transition().duration(vars.style.timing.transitions)
@@ -262,8 +285,30 @@ d3plus.info.timeline = function(vars) {
       
     brush_group.selectAll("rect.extent")
       .transition().duration(vars.style.timing.transitions)
-      .attr("fill",vars.style.timeline.tick.color)
-      .attr("fill-opacity",0.15)
+      .attr("fill",vars.style.timeline.brush.color)
+      .attr("fill-opacity",vars.style.timeline.brush.opacity)
+      
+    brush_group.selectAll("g.resize")
+      .on(d3plus.evt.over,function(){
+        d3.select(this).select("rect")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("fill",vars.style.timeline.handles.hover)
+      })
+      .on(d3plus.evt.out,function(){
+        d3.select(this).select("rect")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("fill",vars.style.timeline.handles.color)
+      })
+      .select("rect")
+      .transition().duration(vars.style.timing.transitions)
+      .attr("fill",vars.style.timeline.handles.color)
+      .attr("stroke",vars.style.timeline.tick.color)
+      .attr("stroke-width",1)
+      .attr("x",-vars.style.timeline.handles.size/2)
+      .attr("y",-1)
+      .attr("width",vars.style.timeline.handles.size)
+      .attr("height",vars.style.timeline.height+2)
+      .style("visibility","visible")
       
     if (vars.margin.bottom == 0) {
       vars.margin.bottom += vars.style.timeline.padding
