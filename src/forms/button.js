@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.forms.button = function(vars,styles,timing) {
   
-  var style = function(elem) {
+  var color = function(elem) {
                       
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set font-color based on color, if it hasn't been specified
@@ -14,40 +14,8 @@ d3plus.forms.button = function(vars,styles,timing) {
     else {
       var font_color = styles["font-color"]
     }
-  
-    if (styles.border == "all") {
-      var border_width = styles.stroke+"px",
-          padding = styles.padding+"px"
-    }
-    else {
-      var sides = ["top","right","bottom","left"]
-      var border_width = "", padding = ""
-      sides.forEach(function(s,i){
-        if (styles.border.indexOf(s) >= 0) {
-          border_width += styles.stroke+"px"
-          padding += styles.padding+"px"
-        }
-        else {
-          border_width += "0px"
-          padding += (styles.padding+styles.stroke)+"px"
-        }
-        if (i < sides.length-1) {
-          border_width += " "
-          padding += " "
-        }
-      })
-    }
-    
-    var reversed = (styles["font-align"] == "right" && !d3plus.rtl) || (d3plus.rtl && styles["font-align"] == "right")
     
     elem
-      .style("position","relative")
-      .style("padding",padding)
-      .style("margin",styles.margin+"px")
-      .style("display",styles.display)
-      .style("box-shadow",function(){
-        return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
-      })
       .style("color",function(d,i){
         
         if (vars.enabled) {
@@ -85,8 +53,46 @@ d3plus.forms.button = function(vars,styles,timing) {
         return background
         
       })
-      .style("border-style","solid")
       .style("border-color",styles.border_color)
+    
+  }
+  
+  var style = function(elem) {
+  
+    if (styles.border == "all") {
+      var border_width = styles.stroke+"px",
+          padding = styles.padding+"px"
+    }
+    else {
+      var sides = ["top","right","bottom","left"]
+      var border_width = "", padding = ""
+      sides.forEach(function(s,i){
+        if (styles.border.indexOf(s) >= 0) {
+          border_width += styles.stroke+"px"
+          padding += styles.padding+"px"
+        }
+        else {
+          border_width += "0px"
+          padding += (styles.padding+styles.stroke)+"px"
+        }
+        if (i < sides.length-1) {
+          border_width += " "
+          padding += " "
+        }
+      })
+    }
+    
+    var reversed = (styles["font-align"] == "right" && !d3plus.rtl) || (d3plus.rtl && styles["font-align"] == "right")
+    
+    elem
+      .style("position","relative")
+      .style("padding",padding)
+      .style("margin",styles.margin+"px")
+      .style("display",styles.display)
+      .style("box-shadow",function(){
+        return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
+      })
+      .style("border-style","solid")
       .style("border-width",border_width)
       .style("font-family",styles["font-family"])
       .style("font-size",styles["font-size"]+"px")
@@ -256,6 +262,7 @@ d3plus.forms.button = function(vars,styles,timing) {
   button.enter().append("div")
     .attr("id","d3plus_button_"+vars.id)
     .attr("class","d3plus_node")
+    .call(color)
     .call(style)
     
   button
@@ -265,8 +272,7 @@ d3plus.forms.button = function(vars,styles,timing) {
       vars.hover = d.value
   
       button.style("cursor","pointer")
-        .transition().duration(60)
-        .call(style)
+        .call(color)
       
     })
     .on(d3plus.evt.out,function(d){
@@ -274,8 +280,7 @@ d3plus.forms.button = function(vars,styles,timing) {
       vars.hover = false
     
       button.style("cursor","auto")
-        .transition().duration(60)
-        .call(style)
+        .call(color)
       
     })
     .on("click",function(d){
@@ -292,6 +297,7 @@ d3plus.forms.button = function(vars,styles,timing) {
     
     })
     .transition().duration(vars.timing)
+      .call(color)
       .call(style)
       
   button.exit().remove()
