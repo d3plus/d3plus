@@ -654,6 +654,7 @@ d3plus.viz = function() {
         }
         
         function set_value(a,b,c) {
+          
           if (key == "type") {
             if (!a.accepted) {
               a.accepted = Object.keys(d3plus.apps)
@@ -679,8 +680,18 @@ d3plus.viz = function() {
             }
           }
           
-          if (a.accepted && a.accepted.indexOf(c) < 0) {
-            d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+a.accepted.join("\", \"")+"\"")
+          if ((b == "value" || b == "key") && a.accepted) {
+            var accepted = a.accepted
+          }
+          else if (typeof a[b] == "object" && a[b] !== null && a[b].accepted) {
+            var accepted = a[b].accepted
+          }
+          else {
+            var accepted = false
+          }
+          
+          if (accepted && accepted.indexOf(c) < 0) {
+            d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+accepted.join("\", \"")+"\"")
           }
           else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].value == c))) {
             if (vars.dev.value) d3plus.console.log(text+" was not updated because it did not change.")
