@@ -204,6 +204,12 @@ d3plus.viz = function() {
       vars.g.links.enter().append("g")
         .attr("id","links")
     
+      // Enter Link Focus Group
+      vars.g.link_focus = vars.g.zoom.selectAll("g#link_focus").data(["link_focus"])
+      vars.g.link_focus.enter().append("g")
+        .attr("id","link_focus")
+        .attr("opacity",0)
+    
       // Enter App Data Group
       vars.g.data = vars.g.zoom.selectAll("g#data").data(["data"])
       vars.g.data.enter().append("g")

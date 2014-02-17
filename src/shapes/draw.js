@@ -268,54 +268,68 @@ d3plus.shape.draw = function(vars,data) {
   // Function to Update Links
   //----------------------------------------------------------------------------
   function links(d) {
-
-    vars.g.links.selectAll("line, path")
-      .sort(function(a,b){
-        if (d) {
-          
-          var id = d[vars.id.key],
-              a_source = a.source[vars.id.key],
-              a_target = a.target[vars.id.key],
-              a_sort = 0,
-              b_source = b.source[vars.id.key],
-              b_target = b.target[vars.id.key],
-              b_sort = 0
-              
-          if (a_source == id || a_target == id) {
-            a_sort = 1
-          }
-          if (b_source == id || b_target == id) {
-            b_sort = 1
-          }
-          
-          return a_sort - b_sort
-          
-        }
-        else {
-          return a - b
-        }
-      })
-      .transition().duration(vars.style.timing.mouseevents)
-      .style("stroke",function(l){
-        
-        if (d) {
     
+    if (d) {
+      vars.g.links.selectAll("line, path")
+        .each(function(l){
+        
           var id = d[vars.id.key],
               source = l.source[vars.id.key],
               target = l.target[vars.id.key]
-              
+          
           if (source == id || target == id) {
-            return vars.style.highlight.primary
+            vars.g.link_focus.node().appendChild(this.cloneNode(true))
           }
-          else {
-            return vars.style.background
-          }
-        }
-        else {
-          return vars.style.links.color
-        }
         
-      })
+        })
+
+      vars.g.link_focus.selectAll("line, path")
+        .style("stroke",vars.style.highlight.primary)
+      
+      vars.g.link_focus
+        // .transition().duration(vars.style.timing.mouseevents)
+        .attr("opacity",1)
+      
+      vars.g.links
+        // .transition().duration(vars.style.timing.mouseevents)
+        .attr("opacity",0)
+      
+    }
+    else {
+      vars.g.link_focus
+        // .transition().duration(vars.style.timing.mouseevents)
+        .attr("opacity",0)
+        .selectAll("*")
+        .remove()
+      
+      vars.g.links
+        // .transition().duration(vars.style.timing.mouseevents)
+        .attr("opacity",1)
+    }
+
+    // vars.g.links.selectAll("line, path")
+    //   .transition().duration(vars.style.timing.mouseevents)
+    //   .style("stroke",function(l){
+    //     
+    //     if (d) {
+    // 
+    //       var id = d[vars.id.key],
+    //           source = l.source[vars.id.key],
+    //           target = l.target[vars.id.key]
+    //         
+    //       if (source == id || target == id) {
+    //         this.parentNode.appendChild(this)
+    //         return vars.style.highlight.primary
+    //       }
+    //       else {
+    //         return vars.style.background
+    //       }
+    //       
+    //     }
+    //     
+    //     return vars.style.links.color
+    //     
+    //   })
       
   }
   
@@ -377,8 +391,6 @@ d3plus.shape.draw = function(vars,data) {
           
         }
         
-        links(d)
-        
       }
       
     })
@@ -409,12 +421,13 @@ d3plus.shape.draw = function(vars,data) {
     .on(d3plus.evt.click,function(d){
       
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
-
-        links()
         
         if (!vars.small) {
+
+          links()
       
           var tooltip_data = d.data ? d.data : d
+          
           d3plus.tooltip.app({
             "vars": vars,
             "data": tooltip_data
