@@ -268,8 +268,16 @@ d3plus.public.labels = {
 
 d3plus.public.legend = {
   "accepted": [true,false],
-  "value": true,
-  "label": null
+  "label": null,
+  "order": {
+    "accepted": ["alpha","color"],
+    "sort": {
+      "accepted": ["asc","desc"],
+      "value": "asc"
+    },
+    "value": "color"
+  },
+  "value": true
 }
 
 d3plus.public.links = {
@@ -1135,6 +1143,12 @@ d3plus.viz = function() {
       vars.g.links.enter().append("g")
         .attr("id","links")
     
+      // Enter Link Focus Group
+      vars.g.link_focus = vars.g.zoom.selectAll("g#link_focus").data(["link_focus"])
+      vars.g.link_focus.enter().append("g")
+        .attr("id","link_focus")
+        .attr("opacity",0)
+    
       // Enter App Data Group
       vars.g.data = vars.g.zoom.selectAll("g#data").data(["data"])
       vars.g.data.enter().append("g")
@@ -1579,6 +1593,7 @@ d3plus.viz = function() {
         }
         
         function set_value(a,b,c) {
+          
           if (key == "type") {
             if (!a.accepted) {
               a.accepted = Object.keys(d3plus.apps)
@@ -1604,8 +1619,18 @@ d3plus.viz = function() {
             }
           }
           
-          if (a.accepted && a.accepted.indexOf(c) < 0) {
-            d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+a.accepted.join("\", \"")+"\"")
+          if ((b == "value" || b == "key") && a.accepted) {
+            var accepted = a.accepted
+          }
+          else if (typeof a[b] == "object" && a[b] !== null && a[b].accepted) {
+            var accepted = a[b].accepted
+          }
+          else {
+            var accepted = false
+          }
+          
+          if (accepted && accepted.indexOf(c) < 0) {
+            d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+accepted.join("\", \"")+"\"")
           }
           else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].value == c))) {
             if (vars.dev.value) d3plus.console.log(text+" was not updated because it did not change.")
@@ -4995,7 +5020,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
 //------------------------------------------------------------------------------
 d3plus.forms.button = function(vars,styles,timing) {
   
-  var style = function(elem) {
+  var color = function(elem) {
                       
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set font-color based on color, if it hasn't been specified
@@ -5006,40 +5031,8 @@ d3plus.forms.button = function(vars,styles,timing) {
     else {
       var font_color = styles["font-color"]
     }
-  
-    if (styles.border == "all") {
-      var border_width = styles.stroke+"px",
-          padding = styles.padding+"px"
-    }
-    else {
-      var sides = ["top","right","bottom","left"]
-      var border_width = "", padding = ""
-      sides.forEach(function(s,i){
-        if (styles.border.indexOf(s) >= 0) {
-          border_width += styles.stroke+"px"
-          padding += styles.padding+"px"
-        }
-        else {
-          border_width += "0px"
-          padding += (styles.padding+styles.stroke)+"px"
-        }
-        if (i < sides.length-1) {
-          border_width += " "
-          padding += " "
-        }
-      })
-    }
-    
-    var reversed = (styles["font-align"] == "right" && !d3plus.rtl) || (d3plus.rtl && styles["font-align"] == "right")
     
     elem
-      .style("position","relative")
-      .style("padding",padding)
-      .style("margin",styles.margin+"px")
-      .style("display",styles.display)
-      .style("box-shadow",function(){
-        return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
-      })
       .style("color",function(d,i){
         
         if (vars.enabled) {
@@ -5077,8 +5070,46 @@ d3plus.forms.button = function(vars,styles,timing) {
         return background
         
       })
-      .style("border-style","solid")
       .style("border-color",styles.border_color)
+    
+  }
+  
+  var style = function(elem) {
+  
+    if (styles.border == "all") {
+      var border_width = styles.stroke+"px",
+          padding = styles.padding+"px"
+    }
+    else {
+      var sides = ["top","right","bottom","left"]
+      var border_width = "", padding = ""
+      sides.forEach(function(s,i){
+        if (styles.border.indexOf(s) >= 0) {
+          border_width += styles.stroke+"px"
+          padding += styles.padding+"px"
+        }
+        else {
+          border_width += "0px"
+          padding += (styles.padding+styles.stroke)+"px"
+        }
+        if (i < sides.length-1) {
+          border_width += " "
+          padding += " "
+        }
+      })
+    }
+    
+    var reversed = (styles["font-align"] == "right" && !d3plus.rtl) || (d3plus.rtl && styles["font-align"] == "right")
+    
+    elem
+      .style("position","relative")
+      .style("padding",padding)
+      .style("margin",styles.margin+"px")
+      .style("display",styles.display)
+      .style("box-shadow",function(){
+        return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
+      })
+      .style("border-style","solid")
       .style("border-width",border_width)
       .style("font-family",styles["font-family"])
       .style("font-size",styles["font-size"]+"px")
@@ -5248,6 +5279,7 @@ d3plus.forms.button = function(vars,styles,timing) {
   button.enter().append("div")
     .attr("id","d3plus_button_"+vars.id)
     .attr("class","d3plus_node")
+    .call(color)
     .call(style)
     
   button
@@ -5257,8 +5289,7 @@ d3plus.forms.button = function(vars,styles,timing) {
       vars.hover = d.value
   
       button.style("cursor","pointer")
-        .transition().duration(60)
-        .call(style)
+        .call(color)
       
     })
     .on(d3plus.evt.out,function(d){
@@ -5266,8 +5297,7 @@ d3plus.forms.button = function(vars,styles,timing) {
       vars.hover = false
     
       button.style("cursor","auto")
-        .transition().duration(60)
-        .call(style)
+        .call(color)
       
     })
     .on("click",function(d){
@@ -5284,6 +5314,7 @@ d3plus.forms.button = function(vars,styles,timing) {
     
     })
     .transition().duration(vars.timing)
+      .call(color)
       .call(style)
       
   button.exit().remove()
@@ -6146,20 +6177,33 @@ d3plus.info.legend = function(vars) {
 
         if (vars.dev.value) d3plus.console.time("sorting colors")
         
+        var sort = vars.legend.order.sort.value
+        
         colors.sort(function(a,b){
           
-          a_value = a.color
-          b_value = b.color
-
-          a_value = d3.rgb(a_value).hsl()
-          b_value = d3.rgb(b_value).hsl()
-  
-          if (a_value.s == 0) a_value = 361
-          else a_value = a_value.h
-          if (b_value.s == 0) b_value = 361
-          else b_value = b_value.h
+          if (vars.legend.order.value == "color") {
           
-          return a_value - b_value
+            var a_value = a.color,
+                b_value = b.color
+
+            a_value = d3.rgb(a_value).hsl()
+            b_value = d3.rgb(b_value).hsl()
+
+            if (a_value.s == 0) a_value = 361
+            else a_value = a_value.h
+            if (b_value.s == 0) b_value = 361
+            else b_value = b_value.h
+            
+          }
+          else if (vars.legend.order.value == "alpha") {
+            
+            var a_value = a.name[0],
+                b_value = b.name[0]
+            
+          }
+                
+          if(a_value < b_value) return sort == "asc" ? -1 : 1;
+          if(a_value > b_value) return sort == "asc" ? 1 : -1;
           
         })
     
@@ -6734,6 +6778,12 @@ d3plus.info.timeline = function(vars) {
         
     }
       
+    var background = vars.g.timeline.selectAll("rect.d3plus_timeline_background")
+      .data(["background"])
+      
+    background.enter().append("rect")
+      .attr("class","d3plus_timeline_background")
+      
     var labels = vars.g.timeline.selectAll("g#labels")
       .data(["labels"])
       
@@ -6775,7 +6825,6 @@ d3plus.info.timeline = function(vars) {
       .attr("font-family",vars.style.timeline.tick.family)
       .attr("font-size",vars.style.timeline.tick.size)
       .attr("text-anchor",vars.style.timeline.tick.align)
-      .attr("fill",vars.style.timeline.tick.color)
       .text(function(d){
         return d
       })
@@ -6814,6 +6863,18 @@ d3plus.info.timeline = function(vars) {
     }
   
     text.transition().duration(vars.style.timing.transitions)
+      .attr("fill",function(d){
+        
+        if (d >= init[0] && d <= init[1]) {
+          var color1 = vars.style.timeline.background,
+              color2 = vars.style.timeline.brush.color,
+              opacity = vars.style.timeline.brush.opacity
+              mixed = d3plus.color.mix(color2,color1,opacity)
+              
+          return d3plus.color.text(mixed)
+        }
+        return d3plus.color.text(vars.style.timeline.background)
+      })
       .attr("x",function(d,i){
         return start_x + (label_width*i) + label_width/2
       })
@@ -6832,6 +6893,13 @@ d3plus.info.timeline = function(vars) {
     text.exit().transition().duration(vars.style.timing.transitions)
       .attr("opacity",0)
       .remove()
+      
+    background.transition().duration(vars.style.timing.transitions)
+      .attr("width",timeline_width)
+      .attr("height",vars.style.timeline.height)
+      .attr("x",start_x)
+      .attr("y",vars.style.timeline.padding)
+      .attr("fill",vars.style.timeline.background)
     
     var x = d3.time.scale()
       .domain(d3.extent(year_ticks))
@@ -6878,7 +6946,6 @@ d3plus.info.timeline = function(vars) {
       .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
       .attr("opacity",1)
       .call(brush)
-      // .call(brush.event)
       
     brush_group.selectAll("rect")
       .transition().duration(vars.style.timing.transitions)
@@ -6894,8 +6961,30 @@ d3plus.info.timeline = function(vars) {
       
     brush_group.selectAll("rect.extent")
       .transition().duration(vars.style.timing.transitions)
-      .attr("fill",vars.style.timeline.tick.color)
-      .attr("fill-opacity",0.15)
+      .attr("fill",vars.style.timeline.brush.color)
+      .attr("fill-opacity",vars.style.timeline.brush.opacity)
+      
+    brush_group.selectAll("g.resize")
+      .on(d3plus.evt.over,function(){
+        d3.select(this).select("rect")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("fill",vars.style.timeline.handles.hover)
+      })
+      .on(d3plus.evt.out,function(){
+        d3.select(this).select("rect")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("fill",vars.style.timeline.handles.color)
+      })
+      .select("rect")
+      .transition().duration(vars.style.timing.transitions)
+      .attr("fill",vars.style.timeline.handles.color)
+      .attr("stroke",vars.style.timeline.tick.color)
+      .attr("stroke-width",1)
+      .attr("x",-vars.style.timeline.handles.size/2)
+      .attr("y",-1)
+      .attr("width",vars.style.timeline.handles.size)
+      .attr("height",vars.style.timeline.height+2)
+      .style("visibility","visible")
       
     if (vars.margin.bottom == 0) {
       vars.margin.bottom += vars.style.timeline.padding
@@ -7949,54 +8038,68 @@ d3plus.shape.draw = function(vars,data) {
   // Function to Update Links
   //----------------------------------------------------------------------------
   function links(d) {
-
-    vars.g.links.selectAll("line, path")
-      .sort(function(a,b){
-        if (d) {
-          
-          var id = d[vars.id.key],
-              a_source = a.source[vars.id.key],
-              a_target = a.target[vars.id.key],
-              a_sort = 0,
-              b_source = b.source[vars.id.key],
-              b_target = b.target[vars.id.key],
-              b_sort = 0
-              
-          if (a_source == id || a_target == id) {
-            a_sort = 1
-          }
-          if (b_source == id || b_target == id) {
-            b_sort = 1
-          }
-          
-          return a_sort - b_sort
-          
-        }
-        else {
-          return a - b
-        }
-      })
-      .transition().duration(vars.style.timing.mouseevents)
-      .style("stroke",function(l){
-        
-        if (d) {
     
+    if (d) {
+      vars.g.links.selectAll("line, path")
+        .each(function(l){
+        
           var id = d[vars.id.key],
               source = l.source[vars.id.key],
               target = l.target[vars.id.key]
-              
+          
           if (source == id || target == id) {
-            return vars.style.highlight.primary
+            vars.g.link_focus.node().appendChild(this.cloneNode(true))
           }
-          else {
-            return vars.style.background
-          }
-        }
-        else {
-          return vars.style.links.color
-        }
         
-      })
+        })
+
+      vars.g.link_focus.selectAll("line, path")
+        .style("stroke",vars.style.highlight.primary)
+      
+      vars.g.link_focus
+        // .transition().duration(vars.style.timing.mouseevents)
+        .attr("opacity",1)
+      
+      vars.g.links
+        // .transition().duration(vars.style.timing.mouseevents)
+        .attr("opacity",0)
+      
+    }
+    else {
+      vars.g.link_focus
+        // .transition().duration(vars.style.timing.mouseevents)
+        .attr("opacity",0)
+        .selectAll("*")
+        .remove()
+      
+      vars.g.links
+        // .transition().duration(vars.style.timing.mouseevents)
+        .attr("opacity",1)
+    }
+
+    // vars.g.links.selectAll("line, path")
+    //   .transition().duration(vars.style.timing.mouseevents)
+    //   .style("stroke",function(l){
+    //     
+    //     if (d) {
+    // 
+    //       var id = d[vars.id.key],
+    //           source = l.source[vars.id.key],
+    //           target = l.target[vars.id.key]
+    //         
+    //       if (source == id || target == id) {
+    //         this.parentNode.appendChild(this)
+    //         return vars.style.highlight.primary
+    //       }
+    //       else {
+    //         return vars.style.background
+    //       }
+    //       
+    //     }
+    //     
+    //     return vars.style.links.color
+    //     
+    //   })
       
   }
   
@@ -8058,8 +8161,6 @@ d3plus.shape.draw = function(vars,data) {
           
         }
         
-        links(d)
-        
       }
       
     })
@@ -8090,12 +8191,13 @@ d3plus.shape.draw = function(vars,data) {
     .on(d3plus.evt.click,function(d){
       
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
-
-        links()
         
         if (!vars.small) {
+
+          links()
       
           var tooltip_data = d.data ? d.data : d
+          
           d3plus.tooltip.app({
             "vars": vars,
             "data": tooltip_data
@@ -9401,6 +9503,16 @@ d3plus.styles.default = {
   },
   "timeline": {
     "align": "middle",
+    "background": "#eeeeee",
+    "brush": {
+      "color": "#444",
+      "opacity": 0.2
+    },
+    "handles": {
+      "color": "#888",
+      "hover": "#aaa",
+      "size": 3
+    },
     "height": 20,
     "label": {
       "color": "#444",
@@ -9470,7 +9582,7 @@ d3plus.tooltip.app = function(params) {
     var x = d3.mouse(vars.parent.node())[0]
   }
   else {
-    var x = d.d3plus.x
+    var x = d.d3plus.x+vars.margin.left
   }
   
   if (params.y) {
@@ -9480,7 +9592,7 @@ d3plus.tooltip.app = function(params) {
     var y = d3.mouse(vars.parent.node())[1]
   }
   else {
-    var y = d.d3plus.y
+    var y = d.d3plus.y+vars.margin.top
   }
   
   if (params.offset) {
@@ -10359,28 +10471,6 @@ d3plus.color.random = function(x) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Returns appropriate text color based off of a given color
-//------------------------------------------------------------------------------
-d3plus.color.text = function(color) {
-  var hsl = d3.hsl(color),
-      light = "#ffffff", 
-      dark = "#333333";
-  if (hsl.l > 0.65) return dark;
-  else if (hsl.l < 0.49) return light;
-  return hsl.h > 35 && hsl.s >= 0.3 ? dark : light;
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Darkens a color if it's too light to appear on white
-//------------------------------------------------------------------------------
-d3plus.color.legible = function(color) {
-  var hsl = d3.hsl(color)
-  if (hsl.s > .9) hsl.s = .9
-  if (hsl.l > .4) hsl.l = .4
-  return hsl.toString();
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Darkens a color
 //------------------------------------------------------------------------------
 d3plus.color.darker = function(color,increment) {
@@ -10398,6 +10488,16 @@ d3plus.color.darker = function(color,increment) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Darkens a color if it's too light to appear on white
+//------------------------------------------------------------------------------
+d3plus.color.legible = function(color) {
+  var hsl = d3.hsl(color)
+  if (hsl.s > .9) hsl.s = .9
+  if (hsl.l > .4) hsl.l = .4
+  return hsl.toString();
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Lightens a color
 //------------------------------------------------------------------------------
 d3plus.color.lighter = function(color,increment) {
@@ -10412,6 +10512,37 @@ d3plus.color.lighter = function(color,increment) {
     c.l = c.l >= .75 ? 0.95 : c.l+.2;
   }
   return c.toString();
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Mixes 2 hexidecimal colors
+//------------------------------------------------------------------------------
+d3plus.color.mix = function(c1,c2,o1,o2) {
+  
+  if (!o1) var o1 = 1
+  if (!o2) var o2 = 1
+  
+  c1 = d3.rgb(c1)
+  c2 = d3.rgb(c2)
+  
+  var r = (o1*c1.r + o2*c2.r - o1*o2*c2.r)/(o1+o2-o1*o2),
+      g = (o1*c1.g + o2*c2.g - o1*o2*c2.g)/(o1+o2-o1*o2),
+      b = (o1*c1.b + o2*c2.b - o1*o2*c2.b)/(o1+o2-o1*o2)
+      
+  return d3.rgb(r,g,b).toString()
+  
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Returns appropriate text color based off of a given color
+//------------------------------------------------------------------------------
+d3plus.color.text = function(color) {
+  var hsl = d3.hsl(color),
+      light = "#ffffff", 
+      dark = "#333333";
+  if (hsl.l > 0.65) return dark;
+  else if (hsl.l < 0.49) return light;
+  return hsl.h > 35 && hsl.s >= 0.3 ? dark : light;
 }//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Expands a min/max into a specified number of buckets
 //------------------------------------------------------------------------------
