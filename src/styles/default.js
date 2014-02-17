@@ -122,6 +122,7 @@ d3plus.styles.default = {
       "family": "sans-serif",
       "size": "12px",
       "weight": "normal"
-    }
+    },
+    "width": 200
   }
 }
