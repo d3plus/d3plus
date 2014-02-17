@@ -32,7 +32,7 @@ d3plus.tooltip.app = function(params) {
     var x = d3.mouse(vars.parent.node())[0]
   }
   else {
-    var x = d.d3plus.x
+    var x = d.d3plus.x+vars.margin.left
   }
   
   if (params.y) {
@@ -42,7 +42,7 @@ d3plus.tooltip.app = function(params) {
     var y = d3.mouse(vars.parent.node())[1]
   }
   else {
-    var y = d.d3plus.y
+    var y = d.d3plus.y+vars.margin.top
   }
   
   if (params.offset) {
