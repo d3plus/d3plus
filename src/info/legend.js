@@ -343,7 +343,7 @@ d3plus.info.legend = function(vars) {
                 // "data": tooltip_data,
                 "color": d.color,
                 "icon": d.icon,
-                "id": "key",
+                "id": "legend",
                 // "mouseevents": mouse,
                 "offset": square_size/2-vars.style.legend.padding,
                 "parent": vars.parent,
@@ -358,7 +358,7 @@ d3plus.info.legend = function(vars) {
             
           })
           .on(d3plus.evt.out,function(d){
-            d3plus.tooltip.remove("key")
+            d3plus.tooltip.remove("legend")
           })
           .transition().duration(vars.style.timing.transitions)
           .attr("opacity",1)
