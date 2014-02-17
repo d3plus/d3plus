@@ -10,10 +10,12 @@ d3plus.utils.wordwrap = function(params) {
       resize = params.resize,
       font_max = params.font_max ? params.font_max : 40,
       font_min = params.font_min ? params.font_min : 9,
-      text_array = params.text.slice(0)
+      text_array = params.text.slice(0),
+      split = ["-","/",";",":","%","&"],
+      regex = new RegExp("[^\\s\\"+split.join("\\")+"]+\\"+split.join("?\\")+"?","g")
       
-  if (text_array instanceof Array) wrap(String(text_array.shift()).match(/[^\s-]+-?/g))
-  else wrap(String(text_array).match(/[^\s-]+-?/g))
+  if (text_array instanceof Array) wrap(String(text_array.shift()).match(regex))
+  else wrap(String(text_array).match(regex))
   
   function wrap(words) {
     
@@ -39,7 +41,7 @@ d3plus.utils.wordwrap = function(params) {
       if (size < font_min) {
         d3.select(parent).selectAll("tspan").remove();
         if (typeof text_array == "string" || text_array.length == 0) return;
-        else wrap(String(text_array.shift()).match(/[^\s-]+-?/g))
+        else wrap(String(text_array.shift()).match(regex))
         return;
       }
 
@@ -77,16 +79,15 @@ d3plus.utils.wordwrap = function(params) {
 
       for (var i=1; i < words.length; i++) {
         
-        var joiner = tspan.text().slice(-1) == "-" ? "" : " "
+        var current = tspan.text(),
+            last_char = current.slice(-1),
+            joiner = split.indexOf(last_char) >= 0 ? "" : " "
         
-        tspan.text(tspan.text()+joiner+words[i])
+        tspan.text(current+joiner+words[i])
       
         if (tspan.node().getComputedTextLength() > width) {
-          
-          var splitter = joiner == "" ? "-": " ",
-              mod = splitter == "-" ? 1 : 0
             
-          tspan.text(tspan.text().substr(0,tspan.text().lastIndexOf(splitter)+mod))
+          tspan.text(current)
     
           tspan = d3.select(parent).append("tspan")
             .attr("x",x_pos)
