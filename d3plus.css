@@ -1,32 +1,3 @@
-svg {
-  position: absolute;
-  z-index: 10;
-}
-
-div#d3plus_loader {
-  height: 100%;
-  left: 0px;
-  opacity: 1;
-  position: absolute;
-  top: 0px;
-  width: 100%;
-  z-index: 9999;
-}
-
-div#d3plus_loader_text {
-  color: #888;
-  font-size: 30px;
-  margin-top: -15px;
-  position: absolute;
-  text-align: center;
-  top: 50%;
-  width: 100%;
-}
-
-.d3plus_noscrollbar::-webkit-scrollbar {
-  display: none;
-}
-
 /********************
  * Tooltip Styling
  ********************/
