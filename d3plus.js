@@ -9541,9 +9541,14 @@ d3plus.styles.default = {
   "tooltip": {
     "anchor": "top center",
     "background": "white",
+    "curtain": {
+      "color": "#ffffff",
+      "opacity": 0.8
+    },
     "font": {
       "color": "#333",
       "family": "sans-serif",
+      "size": "12px",
       "weight": "normal"
     }
   }
@@ -9644,8 +9649,11 @@ d3plus.tooltip.app = function(params) {
       "align": align,
       "arrow": arrow,
       "background": vars.style.tooltip.background,
+      "curtain": vars.style.tooltip.curtain.color,
+      "curtainopacity": vars.style.tooltip.curtain.opacity,
       "fontcolor": vars.style.tooltip.font.color,
       "fontfamily": vars.style.tooltip.font.family,
+      "fontsize": vars.style.tooltip.font.size,
       "fontweight": vars.style.tooltip.font.weight,
       "data": tooltip_data,
       "color": d3plus.variable.color(vars,d),
@@ -9779,11 +9787,17 @@ d3plus.tooltip.create = function(params) {
   params.color = params.color || "#333"
   params.parent = params.parent || d3.select("body")
   params.curtain = params.curtain || "#fff"
+  params.curtainopacity = params.curtainopacity || 0.8
   params.background = params.background || "#fff"
   params.fontcolor = params.fontcolor || "#333"
   params.fontfamily = params.fontfamily || "sans-serif"
   params.fontweight = params.fontweight || "normal"
+  params.fontsize = params.fontsize || "12px"
   params.style = params.style || "default"
+  params.zindex = params.size == "small" ? 2000 : 500
+  if (!params.iconsize) {
+    params.iconsize = params.size == "small" ? 22 : 50
+  }
   
   params.limit = [
     parseFloat(params.parent.style("width"),10),
@@ -9825,6 +9839,13 @@ d3plus.tooltip.create = function(params) {
       .attr("id","d3plus_tooltip_curtain_"+params.id)
       .attr("class","d3plus_tooltip_curtain")
       .style("background-color",params.curtain)
+      .style("opacity",params.curtainopacity)
+      .style("position","absolute")
+      .style("z-index",499)
+      .style("top","0px")
+      .style("right","0px")
+      .style("bottom","0px")
+      .style("left","0px")
       .on(d3plus.evt.click,function(){
         d3plus.tooltip.remove(params.id)
       })
@@ -9837,6 +9858,9 @@ d3plus.tooltip.create = function(params) {
     .style("color",params.fontcolor)
     .style("font-family",params.fontfamily)
     .style("font-weight",params.fontweight)
+    .style("font-size",params.fontsize)
+    .style("position","absolute")
+    .style("z-index",params.zindex)
     .on(d3plus.evt.out,function(){
       close_descriptions()
     })
@@ -9869,6 +9893,8 @@ d3plus.tooltip.create = function(params) {
       
     var body = container.append("div")
       .attr("class","d3plus_tooltip_body")
+      .style("display","inline-block")
+      .style("z-index",1)
       .style("width",params.width+"px")
       
   }
@@ -9888,12 +9914,16 @@ d3plus.tooltip.create = function(params) {
   if (params.title || params.icon) {
     var header = body.append("div")
       .attr("class","d3plus_tooltip_header")
+      .style("position","relative")
+      .style("z-index",1)
   }
   
   if (params.fullscreen) {
     var close = tooltip.append("div")
       .attr("class","d3plus_tooltip_close")
-      .style("background-color",d3plus.color.legible(params.color))
+      .style("background-color",params.color)
+      .style("color",d3plus.color.text(params.color))
+      .style("position","absolute")
       .html("\&times;")
       .on(d3plus.evt.click,function(){
         d3plus.tooltip.remove(params.id)
@@ -9949,12 +9979,19 @@ d3plus.tooltip.create = function(params) {
     var arrow = tooltip.append("div")
       .attr("class","d3plus_tooltip_arrow")
       .style("background-color",params.background)
+      .style("position","absolute")
   }
   
   if (params.icon) {
     var title_icon = header.append("div")
       .attr("class","d3plus_tooltip_icon")
+      .style("width",params.iconsize+"px")
+      .style("height",params.iconsize+"px")
+      .style("z-index",1)
+      .style("background-position","50%")
+      .style("background-size","100%")
       .style("background-image","url("+params.icon+")")
+      .style("display","inline-block")
       
     if (params.style == "knockout") {
       title_icon.style("background-color",params.color)
@@ -9966,7 +10003,10 @@ d3plus.tooltip.create = function(params) {
   if (params.title) {
     var title = header.append("div")
       .attr("class","d3plus_tooltip_title")
+      .style("vertical-align","top")
       .style("width",title_width+"px")
+      .style("display","inline-block")
+      .style("z-index",1)
       .text(params.title)
   }
   
