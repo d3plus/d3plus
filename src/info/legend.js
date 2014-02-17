@@ -128,20 +128,33 @@ d3plus.info.legend = function(vars) {
 
         if (vars.dev.value) d3plus.console.time("sorting colors")
         
+        var sort = vars.legend.order.sort.value
+        
         colors.sort(function(a,b){
           
-          a_value = a.color
-          b_value = b.color
-
-          a_value = d3.rgb(a_value).hsl()
-          b_value = d3.rgb(b_value).hsl()
-  
-          if (a_value.s == 0) a_value = 361
-          else a_value = a_value.h
-          if (b_value.s == 0) b_value = 361
-          else b_value = b_value.h
+          if (vars.legend.order.value == "color") {
           
-          return a_value - b_value
+            var a_value = a.color,
+                b_value = b.color
+
+            a_value = d3.rgb(a_value).hsl()
+            b_value = d3.rgb(b_value).hsl()
+
+            if (a_value.s == 0) a_value = 361
+            else a_value = a_value.h
+            if (b_value.s == 0) b_value = 361
+            else b_value = b_value.h
+            
+          }
+          else if (vars.legend.order.value == "alpha") {
+            
+            var a_value = a.name[0],
+                b_value = b.name[0]
+            
+          }
+                
+          if(a_value < b_value) return sort == "asc" ? -1 : 1;
+          if(a_value > b_value) return sort == "asc" ? 1 : -1;
           
         })
     

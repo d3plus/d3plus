@@ -139,8 +139,16 @@ d3plus.public.labels = {
 
 d3plus.public.legend = {
   "accepted": [true,false],
-  "value": true,
-  "label": null
+  "label": null,
+  "order": {
+    "accepted": ["alpha","color"],
+    "sort": {
+      "accepted": ["asc","desc"],
+      "value": "asc"
+    },
+    "value": "color"
+  },
+  "value": true
 }
 
 d3plus.public.links = {
