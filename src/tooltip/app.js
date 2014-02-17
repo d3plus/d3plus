@@ -90,6 +90,13 @@ d3plus.tooltip.app = function(params) {
       var icon_style = "default"
     }
     
+    if (!fullscreen && tooltip_data.length == 0) {
+      var width = "auto"
+    }
+    else {
+      var width = vars.style.tooltip.width
+    }
+    
     d3plus.tooltip.create({
       "align": align,
       "arrow": arrow,
@@ -107,11 +114,13 @@ d3plus.tooltip.app = function(params) {
       "html": html,
       "icon": icon,
       "id": vars.type.value,
+      "max_width": vars.style.tooltip.width,
       "mouseevents": mouse,
       "offset": offset,
       "parent": vars.parent,
       "style": icon_style,
       "title": title,
+      "width": width,
       "x": x,
       "y": y
     })
