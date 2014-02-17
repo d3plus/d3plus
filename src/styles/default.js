@@ -113,9 +113,14 @@ d3plus.styles.default = {
   "tooltip": {
     "anchor": "top center",
     "background": "white",
+    "curtain": {
+      "color": "#ffffff",
+      "opacity": 0.8
+    },
     "font": {
       "color": "#333",
       "family": "sans-serif",
+      "size": "12px",
       "weight": "normal"
     }
   }
