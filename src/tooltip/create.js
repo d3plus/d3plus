@@ -229,11 +229,18 @@ d3plus.tooltip.create = function(params) {
   }
   
   if (params.title) {
+    var mw = params.max_width-6
+    if (params.icon) mw -= (params.iconsize+6)
+    mw += "px"
     var title = header.append("div")
       .attr("class","d3plus_tooltip_title")
+      .style("max-width",mw)
       .style("vertical-align","top")
       .style("width",title_width+"px")
       .style("display","inline-block")
+      .style("overflow","hidden")
+      .style("text-overflow","ellipsis")
+      .style("word-wrap","break-word")
       .style("z-index",1)
       .text(params.title)
   }
