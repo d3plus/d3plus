@@ -127,17 +127,27 @@ d3plus.forms.drop = function(vars,styles,timing) {
     
   })
   
-  d3.select("html").on("click."+vars.id,function(){
+  function parent_click(elem) {
     
-    var element = d3.event.target || d3.event.toElement
-    element = element.id
-    var child = "_"+vars.id
+    d3.select(elem).on("click."+vars.id,function(){
     
-    if (element.indexOf(child) < 0 && vars.enabled) {
-      vars.ui.disable()
+      var element = d3.event.target || d3.event.toElement
+      element = element.id
+      var child = "_"+vars.id
+    
+      if (element.indexOf(child) < 0 && vars.enabled) {
+        vars.ui.disable()
+      }
+    
+    })
+    
+    if (elem.self !== window.top) {
+      parent_click(elem.parent)
     }
     
-  })
+  }
+  
+  parent_click(window)
   
   if (styles.icon) {
 
