@@ -5,7 +5,7 @@
 d3plus.info.titles = function(vars) {
   
   // Calculate total_bar value
-  if (!vars.data.app || !vars.title.total.value || vars.type.value == "stacked") {
+  if (!vars.data.app || !vars.title.total.value) {
     vars.data.total = null
   }
   else {
@@ -24,6 +24,7 @@ d3plus.info.titles = function(vars) {
       vars.data.total = d3.sum(vars.data.pool,function(d){
         return d3plus.variable.value(vars,d,vars.size.key)
       })
+      console.log(vars.data.total)
     }
     
     if (vars.dev.value) d3plus.console.timeEnd(vars.size.key)
@@ -49,7 +50,8 @@ d3plus.info.titles = function(vars) {
     vars.graph.width = vars.app_width-vars.graph.margin.left-vars.graph.margin.right
     make_title(vars.title.value,"title");
     make_title(vars.title.sub.value,"sub_title");
-    if (vars.data.app && !vars.error.value && (vars.type.value != "rings" || (vars.type.value == "rings" && vars.connections[vars.focus.value]))) {
+    
+    if (vars.data.app && !vars.error.value) {
       make_title(vars.data.total,"total_bar");
     }
     else {
@@ -76,7 +78,7 @@ d3plus.info.titles = function(vars) {
           "x": vars.width.value/2,
           "y": vars.margin.top
         }
-  
+        
     if (type == "total_bar" && t) {
       title = vars.format(t,vars.size.key)
       vars.title.total.value.prefix ? title = vars.title.total.value.prefix + title : null;
@@ -93,7 +95,7 @@ d3plus.info.titles = function(vars) {
           else {
             var match = true
           }
-          if (vars.type.value == "stacked" || match) {
+          if (match) {
             return d3plus.variable.value(vars,d,vars.size.key)
           }
         })

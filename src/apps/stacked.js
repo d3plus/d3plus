@@ -12,6 +12,7 @@ d3plus.apps.stacked.setup = function(vars) {
   vars.x.zerofill.value = true
   if (vars.dev.value) console.log("\"x\" zerofill set to \"true\"")
   vars.y.stacked.value = true
+  vars.size.key = vars.y.key
   if (vars.dev.value) console.log("\"y\" stacked set to \"true\"")
   if (vars.dev.value) d3plus.console.timeEnd("setting local variables")
   
