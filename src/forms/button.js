@@ -273,10 +273,14 @@ d3plus.forms.button = function(vars,styles,timing) {
         
       vars.hover = d.value
   
-      button
-        .style("cursor","pointer")
-        .transition().duration(100)
-        .call(color)
+      if (vars.data.length == 1 || d.value != vars.highlight) {
+
+        button
+          .style("cursor","pointer")
+          .transition().duration(100)
+          .call(color)
+          
+      }
       
     })
     .on(d3plus.evt.out,function(d){

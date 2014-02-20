@@ -257,6 +257,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .hover(hover)
     .data([data])
     .callback(vars.ui.toggle)
+    .enable()
     
   if (!vars.enabled) {
     button.highlight(vars.focus)
