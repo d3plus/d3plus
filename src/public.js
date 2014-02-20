@@ -154,6 +154,7 @@ d3plus.public.legend = {
 d3plus.public.links = {
   "deprecates": ["edges"],
   "large": 100,
+  "label": false,
   "limit": false,
   "value": null
 }
