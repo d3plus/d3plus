@@ -645,8 +645,8 @@ d3plus.apps.chart.draw = function(vars) {
   }
     
   vars.axis_offset = {
-    "x": vars.graph.margin.left+vars.margin.left,
-    "y": vars.graph.margin.top+vars.margin.top
+    "x": vars.graph.margin.left,
+    "y": vars.graph.margin.top
   }
   
   data.forEach(function(d){
@@ -847,8 +847,8 @@ d3plus.apps.chart.draw = function(vars) {
           d.d3plus.y0 = flip-y0
           d.d3plus.y = d.d3plus.y0-y
         }
-        d.d3plus.y += (vars.margin.top+vars.graph.margin.top)
-        d.d3plus.y0 += (vars.margin.top+vars.graph.margin.top)
+        d.d3plus.y += vars.graph.margin.top
+        d.d3plus.y0 += vars.graph.margin.top
       })
       
     var offset = vars[vars.stacked_axis].scale.value == "share" ? "expand" : "zero";
@@ -861,16 +861,16 @@ d3plus.apps.chart.draw = function(vars) {
     function data_tick(l,axis) {
       l
         .attr("x1",function(d){
-          return axis == "y" ? 0 : d.d3plus.x-vars.graph.margin.left-vars.margin.left
+          return axis == "y" ? 0 : d.d3plus.x-vars.graph.margin.left
         })
         .attr("x2",function(d){
-          return axis == "y" ? -5 : d.d3plus.x-vars.graph.margin.left-vars.margin.left
+          return axis == "y" ? -5 : d.d3plus.x-vars.graph.margin.left
         })
         .attr("y1",function(d){
-          return axis == "x" ? vars.graph.height : d.d3plus.y-vars.graph.margin.top-vars.margin.top
+          return axis == "x" ? vars.graph.height : d.d3plus.y-vars.graph.margin.top
         })
         .attr("y2",function(d){
-          return axis == "x" ? vars.graph.height+5 : d.d3plus.y-vars.graph.margin.top-vars.margin.top
+          return axis == "x" ? vars.graph.height+5 : d.d3plus.y-vars.graph.margin.top
         })
         .style("stroke",function(d){
           var c = d3.hsl(d3plus.variable.color(vars,d));
@@ -974,10 +974,10 @@ d3plus.apps.chart.draw = function(vars) {
     lines.transition().duration(vars.style.timing.mouseevents)
       .attr("class","d3plus_axis_label")
       .attr("x2",function(d){
-        return d.axis == "x" ? d.x : vars.margin.left+vars.graph.margin.left
+        return d.axis == "x" ? d.x : vars.graph.margin.left
       })
       .attr("y2",function(d){
-        return d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top+vars.margin.top
+        return d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top
       })
       .style("stroke",function(d){
         var c = d3.hsl(d3plus.variable.color(vars,node));
@@ -1006,10 +1006,10 @@ d3plus.apps.chart.draw = function(vars) {
         return vars.format(val,vars[d.axis].key)
       })
       .attr("x",function(d){
-        return d.axis == "x" ? d.x : vars.margin.left+vars.graph.margin.left-5
+        return d.axis == "x" ? d.x : vars.margin.left-5
       })
       .attr("y",function(d){
-        return d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top+vars.margin.top+5
+        return d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top+5
       })
       .attr("dy",function(d){
         return d.axis == "y" ? (vars.style.ticks.font.size*.35) : vars.style.ticks.font.size
@@ -1044,12 +1044,12 @@ d3plus.apps.chart.draw = function(vars) {
       .attr("class","d3plus_axis_label")
       .attr("x",function(d){
         var width = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().width
-        var ret = d.axis == "x" ? d.x : vars.margin.left+vars.graph.margin.left
+        var ret = d.axis == "x" ? d.x : vars.graph.margin.left
         return d.axis == "x" ? ret-width/2-5 : ret-width-10
       })
       .attr("y",function(d){
         var height = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().height
-        var ret = d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top+vars.margin.top
+        var ret = d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top
         return d.axis == "x" ? ret : ret-height/2-5
       })
       .attr("width",function(d){
