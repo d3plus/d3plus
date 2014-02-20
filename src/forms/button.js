@@ -3,6 +3,34 @@
 //------------------------------------------------------------------------------
 d3plus.forms.button = function(vars,styles,timing) {
   
+  var background_color = function(d) {
+
+    if (vars.highlight != d.value) {
+      if (vars.hover == d.value) {
+        if (vars.highlight) {
+          var background = d3plus.color.lighter(styles.secondary,.025)
+        }
+        else {
+          var background = d3plus.color.lighter(styles.secondary,.1)
+        }
+      }
+      else {
+        var background = styles.secondary
+      }
+    }
+    else {
+      if (vars.hover == d.value && vars.enabled) {
+        var background = d3plus.color.darker(styles.color,.025)
+      }
+      else {
+        var background = styles.color
+      }
+    }
+    
+    return background
+    
+  }
+  
   var color = function(elem) {
                       
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -13,55 +41,21 @@ d3plus.forms.button = function(vars,styles,timing) {
     elem
       .style("color",function(d,i){
         
-        if (vars.highlight != d.value) {
-          return font_color
-        }
-        else if (vars.selected == d.value) {
-          return styles.color
-        }
-        else {
-          return d3plus.color.text("#fff")
-        }
+        var background = background_color(d)
+        
+        return d3plus.color.text(background)
         
       })
       .style("background-color",function(d,i){
         
-        if (vars.highlight != d.value) {
-          if (vars.hover == d.value) {
-            if (vars.highlight) {
-              var background = d3plus.color.lighter(styles.secondary,.025)
-            }
-            else {
-              var background = d3plus.color.lighter(styles.secondary,.1)
-            }
-          }
-          else {
-            var background = styles.secondary
-          }
-        }
-        else {
-          if (vars.hover == d.value && vars.enabled) {
-            var background = d3plus.color.darker(styles.color,.025)
-          }
-          else {
-            var background = styles.color
-          }
-        }
+        var background = background_color(d)
         
         styles.border_color = vars.highlight == d.value ? background : font_color
         
-        return background
+        return background_color(d)
         
       })
       .style("border-color",styles.secondary)
-      .style("cursor",function(d){
-        if (vars.hover == d.value) {
-          return "pointer"
-        }
-        else {
-          return "auto"
-        }
-      })
     
   }
   
@@ -279,7 +273,9 @@ d3plus.forms.button = function(vars,styles,timing) {
         
       vars.hover = d.value
   
-      button.transition().duration(100)
+      button
+        .style("cursor","pointer")
+        .transition().duration(100)
         .call(color)
       
     })
@@ -287,7 +283,9 @@ d3plus.forms.button = function(vars,styles,timing) {
     
       vars.hover = false
     
-      button.transition().duration(100)
+      button
+        .style("cursor","auto")
+        .transition().duration(100)
         .call(color)
       
     })

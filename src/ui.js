@@ -264,6 +264,9 @@ d3plus.ui = function(passed) {
           }
         }
         else {
+          if (key == "color" && styles.secondary == d3plus.color.darker(styles.color,0.1)) {
+            styles.secondary = d3plus.color.darker(value,0.1)
+          }
           styles[key] = value
         }
         
