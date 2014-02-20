@@ -269,7 +269,10 @@ d3plus.shape.draw = function(vars,data) {
   //----------------------------------------------------------------------------
   function links(d) {
     
+    var link_count = vars.g.links.selectAll("line, path").size()
+    
     if (d) {
+      
       vars.g.links.selectAll("line, path")
         .each(function(l){
         
@@ -287,49 +290,31 @@ d3plus.shape.draw = function(vars,data) {
         .style("stroke",vars.style.highlight.primary)
       
       vars.g.link_focus
-        // .transition().duration(vars.style.timing.mouseevents)
+        .transition().duration(vars.style.timing.mouseevents)
         .attr("opacity",1)
       
-      vars.g.links
-        // .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",0)
+      if (link_count < vars.links.large) {
+        vars.g.links
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",0.5)
+      }
       
     }
     else {
+      
       vars.g.link_focus
-        // .transition().duration(vars.style.timing.mouseevents)
+        .transition().duration(vars.style.timing.mouseevents)
         .attr("opacity",0)
         .selectAll("*")
         .remove()
       
-      vars.g.links
-        // .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",1)
+      if (link_count < vars.links.large) {
+        vars.g.links
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",1)
+      }
+        
     }
-
-    // vars.g.links.selectAll("line, path")
-    //   .transition().duration(vars.style.timing.mouseevents)
-    //   .style("stroke",function(l){
-    //     
-    //     if (d) {
-    // 
-    //       var id = d[vars.id.key],
-    //           source = l.source[vars.id.key],
-    //           target = l.target[vars.id.key]
-    //         
-    //       if (source == id || target == id) {
-    //         this.parentNode.appendChild(this)
-    //         return vars.style.highlight.primary
-    //       }
-    //       else {
-    //         return vars.style.background
-    //       }
-    //       
-    //     }
-    //     
-    //     return vars.style.links.color
-    //     
-    //   })
       
   }
   
