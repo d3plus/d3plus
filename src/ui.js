@@ -21,6 +21,7 @@ d3plus.ui = function(passed) {
     "max-width": 600,
     "parent": d3.select("body"),
     "propagation": true,
+    "selected": false,
     "text": "text",
     "timing": 400
   }
@@ -28,16 +29,16 @@ d3plus.ui = function(passed) {
   var styles = {
     "align": "left",
     "border": "all",
-    "color": "red",
+    "color": "#ffffff",
     "corners": 0,
     "display": "inline-block",
-    "font-color": false,
-    "font-family": "sans-serif",
+    "font-family": "'HelveticaNeue-Light', 'Helvetica Neue Light', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'",
     "font-size": 12,
     "font-spacing": 0,
-    "font-weight": "normal",
+    "font-weight": "lighter",
     "margin": 0,
-    "padding": 5,
+    "padding": 4,
+    "secondary": d3plus.color.darker("#ffffff",.1),
     "shadow": 5,
     "stroke": 1,
     "width": false
@@ -48,7 +49,7 @@ d3plus.ui = function(passed) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Set default icon based on whether or not font-awesome is present
   //----------------------------------------------------------------------------
-  styles.icon = d3plus.fontawesome ? "fa-chevron-down" : "&#x27A4;"
+  styles.icon = d3plus.fontawesome ? "fa-angle-down" : "&#x27A4;"
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Overwrite vars if vars have been passed
@@ -187,6 +188,7 @@ d3plus.ui = function(passed) {
     "parent",
     "propagation",
     "search",
+    "selected",
     "timing",
     "text",
     "type"

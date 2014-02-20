@@ -256,8 +256,14 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .timing(timing)
     .hover(hover)
     .data([data])
-    .enable()
     .callback(vars.ui.toggle)
+    
+  if (!vars.enabled) {
+    button.highlight(vars.focus)
+  }
+  else {
+    button.highlight("some other thing")
+  }
     
   button
     .draw()
@@ -269,9 +275,8 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .attr("class","d3plus_drop_selector")
     .style("position","absolute")
     .style("top","0px")
-    .style("padding","0px")
+    .style("padding",styles.stroke+"px")
     .style("z-index","-1")
-    .style("border-style","solid")
     .style("overflow","hidden")
     
   var search_data = vars.search ? ["search"] : []
@@ -284,6 +289,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .attr("id","d3plus_drop_search_"+vars.id)
     .append("input")
       .attr("id","d3plus_drop_input_"+vars.id)
+      .style("-webkit-appearance","none")
     
   var search_width = styles.width.drop
   search_width -= styles.padding*4
@@ -292,7 +298,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   search.transition().duration(timing)
     .style("padding",styles.padding+"px")
     .style("display","block")
-    .style("background-color",styles.color)
+    .style("background-color",styles.secondary)
     
   search.select("input").transition().duration(timing)
     .style("padding",styles.padding+"px")
@@ -305,6 +311,8 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .style("text-align",styles["font-align"])
     .attr("placeholder",vars.format("Search"))
     .style("outline","none")
+    .style("-webkit-border-radius","0")
+    .style("border-radius","0")
     
   search.select("input").on("keyup."+vars.id,function(d){
     if (vars.filter != this.value) {
@@ -357,7 +365,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .id(vars.id+"_option")
     .timing(timing)
     .callback(vars.ui.value)
-    .highlight(vars.focus)
+    .selected(vars.focus)
     .hover(vars.hover)
     .draw()
   
@@ -505,14 +513,14 @@ d3plus.forms.drop = function(vars,styles,timing) {
       return styles.align == "right" ? "0px" : "auto"
     })
     .style("height",height+"px")
-    .style("border-width",styles.stroke+"px")
-    .style("border-color",styles.color)
+    .style("padding",styles.stroke+"px")
+    .style("background-color",styles.secondary)
     .style("z-index",function(){
       return vars.enabled ? "9999" : "-1";
     })
-    .style("box-shadow",function(){
-      return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
-    })
+    // .style("box-shadow",function(){
+    //   return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
+    // })
     .style("width",(drop_width+(styles.padding*2))+"px")
     .style("top",function(){
       return flipped ? "auto" : button.height()+"px"

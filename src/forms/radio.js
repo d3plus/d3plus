@@ -4,11 +4,8 @@
 d3plus.forms.radio = function(vars,styles,timing) {
   
   vars.container.transition().duration(timing)
-    .style("border-style","solid")
-    .style("border-width",styles.stroke+"px")
-    .style("border-color",styles.color)
-    // .style("background-color",styles.color)
-    // .style("padding",styles.padding+"px")
+    .style("background-color",d3plus.color.darker(styles.color,0.1))
+    .style("padding",styles.stroke+"px")
     
   var button_style = d3plus.utils.copy(styles)
   button_style.icon = false
@@ -22,26 +19,15 @@ d3plus.forms.radio = function(vars,styles,timing) {
    text = "text"
   }
   
-  var buttons = []
-  vars.data.forEach(function(d,i){
-
-    var button = d3plus.ui(button_style)
-      .type("button")
-      .text(text)
-      .data([d])
-      .parent(vars.container)
-      .id(vars.id+"_option"+i)
-      .callback(vars.ui.value)
-      
-    if (vars.focus == d.value) {
-      button.enable()
-    }
-      
-    button
-      .draw()
-      
-    buttons.push(button)
-      
-  })
+  var button = d3plus.ui(button_style)
+    .type("button")
+    .text(text)
+    .data(vars.data)
+    .parent(vars.container)
+    .id(vars.id+"_radios")
+    .callback(vars.ui.value)
+    .highlight(vars.focus)
+    .enable()
+    .draw()
   
 }

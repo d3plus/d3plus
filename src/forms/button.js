@@ -8,52 +8,60 @@ d3plus.forms.button = function(vars,styles,timing) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set font-color based on color, if it hasn't been specified
     //--------------------------------------------------------------------------
-    if (!vars["font-color"]) {
-      var font_color = d3plus.color.text(styles.color)
-    }
-    else {
-      var font_color = styles["font-color"]
-    }
+    var font_color = d3plus.color.text(styles.color)
     
     elem
       .style("color",function(d,i){
         
-        if (vars.enabled) {
+        if (vars.highlight != d.value) {
           return font_color
         }
-        else if (vars.highlight == d.value) {
+        else if (vars.selected == d.value) {
           return styles.color
         }
         else {
-          return d3plus.color.text(font_color)
+          return d3plus.color.text("#fff")
         }
         
       })
       .style("background-color",function(d,i){
         
-        if (vars.enabled) {
+        if (vars.highlight != d.value) {
           if (vars.hover == d.value) {
-            var background = d3plus.color.lighter(styles.color,.1)
+            if (vars.highlight) {
+              var background = d3plus.color.lighter(styles.secondary,.025)
+            }
+            else {
+              var background = d3plus.color.lighter(styles.secondary,.1)
+            }
+          }
+          else {
+            var background = styles.secondary
+          }
+        }
+        else {
+          if (vars.hover == d.value && vars.enabled) {
+            var background = d3plus.color.darker(styles.color,.025)
           }
           else {
             var background = styles.color
           }
         }
-        else {
-          if (vars.hover == d.value) {
-            var background = d3plus.color.darker(font_color,.05)
-          }
-          else {
-            var background = font_color
-          }
-        }
         
-        styles.border_color = vars.enabled ? background : font_color
+        styles.border_color = vars.highlight == d.value ? background : font_color
         
         return background
         
       })
-      .style("border-color",styles.border_color)
+      .style("border-color",styles.secondary)
+      .style("cursor",function(d){
+        if (vars.hover == d.value) {
+          return "pointer"
+        }
+        else {
+          return "auto"
+        }
+      })
     
   }
   
@@ -89,9 +97,9 @@ d3plus.forms.button = function(vars,styles,timing) {
       .style("padding",padding)
       .style("margin",styles.margin+"px")
       .style("display",styles.display)
-      .style("box-shadow",function(){
-        return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
-      })
+      // .style("box-shadow",function(d){
+      //   return vars.highlight == d.value ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
+      // })
       .style("border-style","solid")
       .style("border-width",border_width)
       .style("font-family",styles["font-family"])
@@ -114,7 +122,7 @@ d3plus.forms.button = function(vars,styles,timing) {
           d.icon = d3plus.utils.copy(styles.icon)
           children.push("icon")
         }
-        else if (d.value === vars.highlight) {
+        else if (d.value === vars.selected) {
           if (d3plus.fontawesome) {
             d.icon = {
               "class": "fa fa-check",
@@ -271,7 +279,7 @@ d3plus.forms.button = function(vars,styles,timing) {
         
       vars.hover = d.value
   
-      button.style("cursor","pointer")
+      button.transition().duration(100)
         .call(color)
       
     })
@@ -279,7 +287,7 @@ d3plus.forms.button = function(vars,styles,timing) {
     
       vars.hover = false
     
-      button.style("cursor","auto")
+      button.transition().duration(100)
         .call(color)
       
     })
