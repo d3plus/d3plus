@@ -286,7 +286,9 @@ d3plus.shape.draw = function(vars,data) {
         
         })
 
-      vars.g.link_focus.selectAll("line, path")
+      vars.g.link_focus
+        .attr("opacity",0)
+        .selectAll("line, path")
         .style("stroke",vars.style.highlight.primary)
       
       vars.g.link_focus
@@ -305,6 +307,7 @@ d3plus.shape.draw = function(vars,data) {
       vars.g.link_focus
         .transition().duration(vars.style.timing.mouseevents)
         .attr("opacity",0)
+        .transition()
         .selectAll("*")
         .remove()
       
