@@ -76,7 +76,7 @@ d3plus.color.mix = function(c1,c2,o1,o2) {
 d3plus.color.text = function(color) {
   var hsl = d3.hsl(color),
       light = "#ffffff", 
-      dark = "#333333";
+      dark = "#444444";
   if (hsl.l > 0.65) return dark;
   else if (hsl.l < 0.49) return light;
   return hsl.h > 35 && hsl.s >= 0.3 ? dark : light;
