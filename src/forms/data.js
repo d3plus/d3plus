@@ -1,5 +1,24 @@
 d3plus.forms.data = function(vars) {
 
+  function get_attributes(obj,elem) {
+    
+    var attributes = ["value","image","style","color"]
+    
+    var data = elem.dataset
+
+    attributes.forEach(function(a){
+
+      if (data && typeof data[a] !== "undefined") {
+        obj[a] = data[a]
+      }
+      else if (typeof elem[a] !== "undefined") {
+        obj[a] = elem[a]
+      }
+      
+    })
+    
+  }
+
   vars.tag = vars.element.node().tagName.toLowerCase()
   
   if (vars.tag == "select") {
@@ -12,9 +31,11 @@ d3plus.forms.data = function(vars) {
       .each(function(o,i){
         var data_obj = {
           "selected": this.selected,
-          "text": this.innerHTML,
-          "value": this.value
+          "text": this.innerHTML
         }
+        
+        get_attributes(data_obj,this)
+        
         if (this.selected) {
           vars.focus = this.value
         }
@@ -27,9 +48,10 @@ d3plus.forms.data = function(vars) {
     vars.element
       .each(function(o,i){
         var data_obj = {
-          "selected": this.checked,
-          "value": this.value
+          "selected": this.checked
         }
+        
+        get_attributes(data_obj,this)
         
         if (this.id) {
           var label = d3.select("label[for="+this.id+"]")

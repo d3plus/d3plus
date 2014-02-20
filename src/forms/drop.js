@@ -257,6 +257,8 @@ d3plus.forms.drop = function(vars,styles,timing) {
     return d.value == vars.focus
   })[0])
   data.id = "drop_button"
+  var test_data = d3plus.utils.copy(data)
+  test_data.text = "Test"
   var hover = vars.hover === true ? vars.focus : false
   var button = d3plus.ui(style)
     .type("button")
@@ -265,19 +267,15 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .id(vars.id)
     .timing(timing)
     .hover(hover)
-    .data([data])
+    .data([test_data])
     .callback(vars.ui.toggle)
+    .highlight(vars.focus)
     .enable()
-    
-  if (!vars.enabled) {
-    button.highlight(vars.focus)
-  }
-  else {
-    button.highlight("some other thing")
-  }
-    
-  button
     .draw()
+    
+  var line_height = button.height()
+    
+  button.data([data]).height(line_height).draw()
   
   var selector = vars.container.selectAll("div.d3plus_drop_selector")
     .data(["selector"])
@@ -372,6 +370,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .type("button")
     .text(text)
     .data(data)
+    .height(line_height)
     .parent(list)
     .id(vars.id+"_option")
     .timing(timing)

@@ -36,6 +36,7 @@ d3plus.ui = function(passed) {
     "font-size": 12,
     "font-spacing": 0,
     "font-weight": "lighter",
+    "height": false,
     "margin": 0,
     "padding": 4,
     "secondary": d3plus.color.darker("#ffffff",.1),
@@ -311,8 +312,13 @@ d3plus.ui = function(passed) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Returns UI element's current height
   //----------------------------------------------------------------------------
-  vars.ui.height = function() {
-    return vars.container[0][0].offsetHeight
+  vars.ui.height = function(value) {
+    
+    if (!arguments.length) return vars.container[0][0].offsetHeight
+    
+    styles.height = value
+    
+    return vars.ui
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

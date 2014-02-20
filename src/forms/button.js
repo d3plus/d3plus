@@ -41,9 +41,14 @@ d3plus.forms.button = function(vars,styles,timing) {
     elem
       .style("color",function(d,i){
         
-        var background = background_color(d)
+        var background = background_color(d),
+            text_color = d3plus.color.text(background)
         
-        return d3plus.color.text(background)
+        if (text_color != "#fff" && vars.selected == d.value && d.color && !d.icon) {
+          return d3plus.color.legible(d.color)
+        }
+        
+        return text_color
         
       })
       .style("background-color",function(d,i){
@@ -91,6 +96,12 @@ d3plus.forms.button = function(vars,styles,timing) {
       .style("padding",padding)
       .style("margin",styles.margin+"px")
       .style("display",styles.display)
+      .style("opacity",function(d){
+        if ([vars.selected,vars.highlight].indexOf(d.value) < 0) {
+          return 0.75
+        }
+        return 1
+      })
       // .style("box-shadow",function(d){
       //   return vars.highlight == d.value ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
       // })
@@ -109,9 +120,11 @@ d3plus.forms.button = function(vars,styles,timing) {
       .each(function(d,i){
         
         var children = []
+        
         if (d.image) {
           children.push("image")
         }
+        
         if (styles.icon) {
           d.icon = d3plus.utils.copy(styles.icon)
           children.push("icon")
@@ -131,6 +144,7 @@ d3plus.forms.button = function(vars,styles,timing) {
           }
           children.push("icon")
         }
+        
         if (d.text) {
           children.push("text")
         }
@@ -141,7 +155,7 @@ d3plus.forms.button = function(vars,styles,timing) {
           })
     
         items.enter().append("div")
-          .style("display","inline-block")
+          .style("display","block")
           .attr("id",function(c){
             return "d3plus_button_element_"+vars.id+"_"+c
           })
@@ -170,6 +184,19 @@ d3plus.forms.button = function(vars,styles,timing) {
               return ""
             }
           })
+          .style("background-image",function(c){
+            if (c == "image") {
+              return "url('"+d.image+"')"
+            }
+            return "none"
+          })
+          .style("background-color",function(c){
+            if (c == "image" && d.style == "knockout") {
+              return d.color || vars.color
+            }
+            return "transparent"
+          })
+          .style("background-size","100%")
           .style("letter-spacing",function(c){
             return c != "text" ? "0px" : styles["font-spacing"]+"px"
           })
@@ -188,24 +215,57 @@ d3plus.forms.button = function(vars,styles,timing) {
             }
             return "auto"
           })
+          .style("width",function(c){
+            if (c == "image") {
+              var s = styles.height || this.parentNode.offsetHeight
+              return (s-(styles.padding*2)-(styles.stroke*2))+"px"
+            }
+            return "auto"
+          })
+          .style("height",function(c){
+            if (c == "image") {
+              var s = styles.height || this.parentNode.offsetHeight
+              return (s-(styles.padding*2)-(styles.stroke*2))+"px"
+            }
+            return "auto"
+          })
           .each(function(c){
             
             if (c != "text") {
-              buffers[c] = this.offsetWidth
+              if (c == "image") {
+                buffers[c] = parseFloat(d3.select(this).style("width"),10)
+              }
+              else {
+                buffers[c] = this.offsetWidth
+              }
             }
             else if (d3.max(d3.map(buffers).values()) > 0) {
+              
               var width = styles.width
+              
               if (typeof width == "number") {
 
                 if (styles["font-align"] == "center") {
                   width -= d3.max(d3.map(buffers).values())*2
                   width -= styles.padding*2
+                  
+                  var padding = "0px"
+                  
                 }
                 else {
+                  
                   d3.map(buffers).values().forEach(function(v){
                     width -= v
                     width -= styles.padding
                   })
+                  
+                  if ((buffers.image && !reversed) || (buffers.icon && reversed)) {
+                    var padding = "0px "+ (d3.max(d3.map(buffers).values())+styles.padding)+"px"
+                  }
+                  else {
+                    var padding = "0px"
+                  }
+                  
                 }
                 
                 if (width >= 0) {
@@ -215,10 +275,9 @@ d3plus.forms.button = function(vars,styles,timing) {
                   width = "0px"
                 }
                 
-                var padding = "0px"
-                
               } 
               else {
+                
                 width = "auto"
                 var buffer = d3.max(d3.map(buffers).values())+styles.padding
                 
@@ -247,6 +306,11 @@ d3plus.forms.button = function(vars,styles,timing) {
               d3.select(this)
                 .style("width",width+"px")
                 .style("padding",padding)
+            }
+            else {
+              d3.select(this)
+                .style("width","auto")
+                .style("padding","0px")
             }
           })
     
