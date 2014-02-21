@@ -58,13 +58,22 @@ d3plus.tooltip.app = function(params) {
   function make_tooltip(html) {
 
     var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
+        temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
         total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
       
-    if (active > 0) {
+    if (typeof active == "number" && active > 0 && total) {
       if (!ex) ex = {}
-      ex.fill = active+"/"+total+" ("+vars.format((active/total)*100,"share")+"%)"
+      var label = vars.active.key || "active"
+      ex[label] = active+"/"+total+" ("+vars.format((active/total)*100,"share")+"%)"
     }
-    else if (d.d3plus.share) {
+    
+    if (typeof temp == "number" && temp > 0 && total) {
+      if (!ex) ex = {}
+      var label = vars.temp.key || "temp"
+      ex[label] = temp+"/"+total+" ("+vars.format((temp/total)*100,"share")+"%)"
+    }
+    
+    if (d.d3plus.share) {
       if (!ex) ex = {}
       ex.share = vars.format(d.d3plus.share*100,"share")+"%"
     }
