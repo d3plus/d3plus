@@ -6,6 +6,52 @@ d3plus.viz = function() {
   
   var vars = {
     "autodraw": false,
+    "connections": function(focus,objects) {
+      
+      var links = vars.links.restricted || vars.links.value,
+          targets = []
+      
+      if (!focus) {
+        return links
+      }
+      
+      var connections = links.filter(function(link){
+
+        var check = ["source","target"],
+            match = false
+          
+        if (typeof link.source != "object") {
+          var obj = {}
+          obj[vars.id.key] = link.source
+          link.source = obj
+        }
+          
+        if (typeof link.target != "object") {
+          var obj = {}
+          obj[vars.id.key] = link.target
+          link.target = obj
+        }
+        
+        if (link.source[vars.id.key] == focus) {
+          match = true
+          if (objects) {
+            targets.push(link.target)
+          }
+        }
+        else if (link.target[vars.id.key] == focus) {
+          match = true
+          if (objects) {
+            targets.push(link.source)
+          }
+        }
+        
+        return match
+        
+      })
+      
+      return objects ? targets : connections
+          
+    },
     "filtered": false,
     "footer_text": function() {
       var text = vars.html.value || vars.tooltip.value.long ? "Click for More Info" : null
@@ -275,8 +321,11 @@ d3plus.viz = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Check to see if we have focus connections, if needed
       //-------------------------------------------------------------------
-      if (!vars.internal_error && reqs.indexOf("links") >= 0 && reqs.indexOf("focus") >= 0 && !vars.connections[vars.focus.value]) {
-        vars.internal_error = "No Connections Available for \""+d3plus.variable.text(vars,vars.focus.value,vars.depth.value)+"\""
+      if (!vars.internal_error && reqs.indexOf("links") >= 0 && reqs.indexOf("focus") >= 0) {
+        var connections = vars.connections(vars.focus.value)
+        if (connections.length == 0) {
+          vars.internal_error = "No Connections Available for \""+d3plus.variable.text(vars,vars.focus.value,vars.depth.value)+"\""
+        }
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
