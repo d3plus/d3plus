@@ -60,7 +60,7 @@ d3plus.tooltip.app = function(params) {
     var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
         total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
       
-    if (active > 1 && active != total) {
+    if (active > 0) {
       if (!ex) ex = {}
       ex.fill = active+"/"+total+" ("+vars.format((active/total)*100,"share")+"%)"
     }
@@ -74,56 +74,60 @@ d3plus.tooltip.app = function(params) {
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex),
         id = d3plus.variable.value(vars,d,vars.id.key)
         
-    if (!title) {
-      title = id
-    }
+    if (tooltip_data.length > 0 || !d.d3plus_label) {
+        
+      if (!title) {
+        title = id
+      }
     
-    var depth = d.d3plus && "depth" in d.d3plus ? vars.id.nesting[d.d3plus.depth] : vars.id.key
+      var depth = d.d3plus && "depth" in d.d3plus ? vars.id.nesting[d.d3plus.depth] : vars.id.key
 
-    if (typeof vars.icon.style.value == "string") {
-      var icon_style = vars.icon.style.value
-    }
-    else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[depth]) {
-      var icon_style = vars.icon.style.value[depth]
-    }
-    else {
-      var icon_style = "default"
-    }
+      if (typeof vars.icon.style.value == "string") {
+        var icon_style = vars.icon.style.value
+      }
+      else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[depth]) {
+        var icon_style = vars.icon.style.value[depth]
+      }
+      else {
+        var icon_style = "default"
+      }
     
-    if (!fullscreen && tooltip_data.length == 0) {
-      var width = "auto"
-    }
-    else {
-      var width = vars.style.tooltip.width
-    }
+      if (!fullscreen && tooltip_data.length == 0) {
+        var width = "auto"
+      }
+      else {
+        var width = vars.style.tooltip.width
+      }
     
-    d3plus.tooltip.create({
-      "align": align,
-      "arrow": arrow,
-      "background": vars.style.tooltip.background,
-      "curtain": vars.style.tooltip.curtain.color,
-      "curtainopacity": vars.style.tooltip.curtain.opacity,
-      "fontcolor": vars.style.tooltip.font.color,
-      "fontfamily": vars.style.tooltip.font.family,
-      "fontsize": vars.style.tooltip.font.size,
-      "fontweight": vars.style.tooltip.font.weight,
-      "data": tooltip_data,
-      "color": d3plus.variable.color(vars,d),
-      "footer": footer,
-      "fullscreen": fullscreen,
-      "html": html,
-      "icon": icon,
-      "id": vars.type.value,
-      "max_width": vars.style.tooltip.width,
-      "mouseevents": mouse,
-      "offset": offset,
-      "parent": vars.parent,
-      "style": icon_style,
-      "title": title,
-      "width": width,
-      "x": x,
-      "y": y
-    })
+      d3plus.tooltip.create({
+        "align": align,
+        "arrow": arrow,
+        "background": vars.style.tooltip.background,
+        "curtain": vars.style.tooltip.curtain.color,
+        "curtainopacity": vars.style.tooltip.curtain.opacity,
+        "fontcolor": vars.style.tooltip.font.color,
+        "fontfamily": vars.style.tooltip.font.family,
+        "fontsize": vars.style.tooltip.font.size,
+        "fontweight": vars.style.tooltip.font.weight,
+        "data": tooltip_data,
+        "color": d3plus.variable.color(vars,d),
+        "footer": footer,
+        "fullscreen": fullscreen,
+        "html": html,
+        "icon": icon,
+        "id": vars.type.value,
+        "max_width": vars.style.tooltip.width,
+        "mouseevents": mouse,
+        "offset": offset,
+        "parent": vars.parent,
+        "style": icon_style,
+        "title": title,
+        "width": width,
+        "x": x,
+        "y": y
+      })
+    
+    }
     
   }
   
