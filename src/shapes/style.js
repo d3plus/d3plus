@@ -18,6 +18,9 @@ d3plus.shape.style = function(nodes,vars) {
       if (d.values && d.key && d.key.indexOf("_line_") >= 0) {
         return d3plus.color.darker(d3plus.variable.color(vars,d))
       }
+      else if (["active","temp"].indexOf(d.d3plus.shapeType) >= 0) {
+        return d3plus.variable.color(vars,d)
+      }
       return d3plus.color.darker(d3plus.shape.color(d,vars));
     })
     .style("stroke-width",vars.style.data.stroke.width)
