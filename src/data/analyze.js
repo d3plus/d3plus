@@ -177,7 +177,6 @@ d3plus.data.analyze = function(vars) {
                 second_match = nest_check(d.target)
             return first_match && second_match
           })
-          vars.connections = d3plus.utils.connections(vars,vars.links.restricted)
         }
         
       }
@@ -228,16 +227,6 @@ d3plus.data.analyze = function(vars) {
     
     vars.data.app = d3plus.data.fetch(vars,vars.data.type)
     
-  }
-  
-  // Get link connections if they have not been previously set
-  if (!vars.connections && vars.links.value) {
-    if (vars.dev.value) d3plus.console.group("Calculating primary and secondary link connections")
-    if (vars.dev.value) d3plus.console.time("time")
-    var links = vars.links.restricted || vars.links.value
-    vars.connections = d3plus.utils.connections(vars,links)
-    if (vars.dev.value) d3plus.console.timeEnd("time")
-    if (vars.dev.value) d3plus.console.groupEnd()
   }
   
   vars.check = []
