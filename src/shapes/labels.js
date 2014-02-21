@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.utils.wordwrap
 //------------------------------------------------------------------------------
-d3plus.shape.labels = function(vars,selection,enter,exit) {
+d3plus.shape.labels = function(vars,selection) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Label Exiting
@@ -119,8 +119,10 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       .attr("x",x_pos)
       .attr("y",y_pos)
       .attr("transform",function(t){
-        var a = t.angle || 0
-        return "rotate("+a+",0,0)"
+        var a = t.angle || 0,
+            x = t.translate && t.translate.x || 0,
+            y = t.translate && t.translate.y || 0
+        return "rotate("+a+","+x+","+y+")"
       })
       .each(function(t){
         
@@ -163,8 +165,10 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
       .attr("x",x_pos)
       .attr("y",y_pos)
       .attr("transform",function(t){
-        var a = t.angle || 0
-        return "rotate("+a+",0,0)"
+        var a = t.angle || 0,
+            x = t.translate && t.translate.x || 0,
+            y = t.translate && t.translate.y || 0
+        return "rotate("+a+","+x+","+y+")"
       })
       .selectAll("tspan")
         .attr("x",x_pos)
@@ -181,7 +185,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           stat = d.d3plus && "static" in d.d3plus && d.d3plus.static
           label = d.d3plus_label,
           share = d.d3plus_share,
-          names = d3plus.variable.text(vars,d),
+          names = label && label.names ? label.names : d3plus.variable.text(vars,d),
           group = d3.select(this),
           share_size = 0,
           fill = d3plus.apps[vars.type.value].fill
@@ -245,37 +249,95 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
           
           var text = group.selectAll("text.d3plus_label")
             .data([label],function(t){
-              return t.w+""+t.h+""+t.names.join("")
+              return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
-        
+            
           text
             .transition().duration(vars.style.timing.transitions/2)
             .call(style,true)
-      
+    
           text.enter().insert("text",".d3plus_mouse")
             .attr("font-size",vars.style.labels.font.size)
             .attr("class","d3plus_label")
             .attr("opacity",0)
             .call(style,true)
-        
+      
           text
             .transition().duration(vars.style.timing.transitions/2)
             .delay(vars.style.timing.transitions/2)
               .attr("opacity",1)
               .call(style,false)
-    
+              
           text.exit()
             .call(remove)
             
+          if (text.size() == 0 || text.html() == "") {
+            delete d.d3plus_label
+            text.remove()
+          }
+          else {
+            
+            if (label.background) {
+
+              var background_data = ["background"]
+            
+              var bounds = text.node().getBBox()
+            
+              bounds.width += vars.style.labels.padding
+              bounds.height += vars.style.labels.padding
+              bounds.x -= vars.style.labels.padding/2
+              bounds.y -= vars.style.labels.padding/2
+              
+            }
+            else {
+              var background_data = [],
+                  bounds = {}
+            }
+          
+            var bg = group.selectAll("rect.d3plus_label_bg")
+              .data(background_data)
+                
+            function bg_style(elem) {
+              
+              var color = vars.style.background == "transparent" ? "#ffffff" : vars.style.background,
+                  fill = label.background === true ? color : label.background,
+                  a = label.angle || 0,
+                  x = label.translate ? bounds.x+bounds.width/2 : 0,
+                  y = label.translate ? bounds.y+bounds.height/2 : 0,
+                  transform = "rotate("+a+","+x+","+y+")"
+                  
+              elem
+                .attr("fill",fill)
+                .attr(bounds)
+                .attr("transform",transform)
+                
+            }
+              
+            bg.enter().insert("rect",".d3plus_label")
+              .attr("class","d3plus_label_bg")
+              .attr("opacity",0)
+              .call(bg_style)
+              
+            bg.transition().duration(vars.style.timing.transitions)
+              .attr("opacity",0.5)
+              .call(bg_style)
+              
+            bg.exit().transition().duration(vars.style.timing.transitions)
+              .attr("opacity",0)
+              .remove()
+          }
+            
         }
         else {
-          group.selectAll("text.d3plus_label")
+          delete d.d3plus_label
+          group.selectAll("text.d3plus_label, rect.d3plus_label_bg")
             .call(remove)
         }
         
       }
       else {
-        group.selectAll("text")
+        delete d.d3plus_label
+        group.selectAll("text.d3plus_label, rect.d3plus_label_bg")
           .call(remove)
       }
     })
@@ -283,7 +345,7 @@ d3plus.shape.labels = function(vars,selection,enter,exit) {
   }
   else {
     
-    selection.selectAll("text")
+    selection.selectAll("text.d3plus_label, rect.d3plus_label_bg")
       .call(remove)
       
   }
