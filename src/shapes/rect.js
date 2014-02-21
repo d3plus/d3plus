@@ -103,8 +103,8 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
         // Circle bounds
         else {
-          d.d3plus_label.w = Math.sqrt(Math.pow(w,2)/2)-(vars.style.labels.padding)
-          d.d3plus_label.h = Math.sqrt(Math.pow(h,2)/2)-(vars.style.labels.padding)
+          d.d3plus_label.w = Math.sqrt(Math.pow(w,2)*.75)-(vars.style.labels.padding)
+          d.d3plus_label.h = Math.sqrt(Math.pow(h,2)*.75)-(vars.style.labels.padding)
         }
         
         if (d.d3plus_label.w < 20 && d.d3plus_label.h < 10) {
