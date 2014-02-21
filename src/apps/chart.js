@@ -246,8 +246,13 @@ d3plus.apps.chart.draw = function(vars) {
         .scale(vars[axis+"_scale"])
         .tickFormat(function(d, i) {
           
-          if ((vars[axis].scale.value == "log" && d.toString().charAt(0) == "1")
-              || vars[axis].scale.value != "log") {
+          var visible = true
+          if (vars[axis].key == vars.time.key && d % 1 != 0) {
+            visible = false
+          }
+          
+          if (((vars[axis].scale.value == "log" && d.toString().charAt(0) == "1")
+              || vars[axis].scale.value != "log") && visible) {
             
             if (vars[axis].scale.value == "share") {
               var text = d*100+"%"
@@ -873,9 +878,7 @@ d3plus.apps.chart.draw = function(vars) {
           return axis == "x" ? vars.graph.height+5 : d.d3plus.y-vars.graph.margin.top
         })
         .style("stroke",function(d){
-          var c = d3.hsl(d3plus.variable.color(vars,d));
-          c.l = c.l < .2 ? 0 : c.l-.2;
-          return c.toString();
+          return d3plus.color.legible(d3plus.variable.color(vars,d));
         })
         .style("stroke-width",vars.style.data.stroke.width)
         .attr("shape-rendering",vars.style.rendering)
@@ -980,9 +983,7 @@ d3plus.apps.chart.draw = function(vars) {
         return d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top
       })
       .style("stroke",function(d){
-        var c = d3.hsl(d3plus.variable.color(vars,node));
-        c.l = c.l < .2 ? 0 : c.l-.2;
-        return c.toString();
+        return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
       .style("stroke-width",vars.style.data.stroke.width)
       .attr("opacity",1)
@@ -1006,7 +1007,7 @@ d3plus.apps.chart.draw = function(vars) {
         return vars.format(val,vars[d.axis].key)
       })
       .attr("x",function(d){
-        return d.axis == "x" ? d.x : vars.margin.left-5
+        return d.axis == "x" ? d.x : vars.graph.margin.left-5
       })
       .attr("y",function(d){
         return d.axis == "y" ? d.y : vars.graph.height+vars.graph.margin.top+5
@@ -1018,9 +1019,7 @@ d3plus.apps.chart.draw = function(vars) {
         return d.axis == "y" ? "end": "middle"
       })
       .style("fill",function(d){
-        var c = d3.hsl(d3plus.variable.color(vars,node));
-        c.l = c.l < .2 ? 0 : c.l-.2;
-        return c.toString();
+        return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
       .style("font-size",vars.style.ticks.font.size)
       .attr("font-family",vars.style.font.family)
@@ -1061,9 +1060,7 @@ d3plus.apps.chart.draw = function(vars) {
         return text.height + 10
       })
       .style("stroke",function(d){
-        var c = d3.hsl(d3plus.variable.color(vars,node));
-        c.l = c.l < .2 ? 0 : c.l-.2;
-        return c.toString();
+        return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
       .style("fill","white")
       .style("stroke-width",vars.style.data.stroke.width)
