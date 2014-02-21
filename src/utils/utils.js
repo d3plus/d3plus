@@ -30,45 +30,6 @@ d3plus.utils.closest = function(arr,value) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Get connection dictionary for specified links
-//------------------------------------------------------------------------------
-d3plus.utils.connections = function(vars,links) {
-  var connections = {};
-  links.forEach(function(d) {
-    
-    if (vars.nodes.value && typeof d.source != "object") {
-      d.source = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.source})[0]
-    }
-
-    if (vars.nodes.value && typeof d.target != "object") {
-      d.target = vars.nodes.value.filter(function(n){return n[vars.id.key] == d.target})[0]
-    }
-    
-    if (typeof d.source != "object") {
-      var obj = {}
-      obj[vars.id.key] = d.source
-      d.source = obj
-    }
-
-    if (typeof d.target != "object") {
-      var obj = {}
-      obj[vars.id.key] = d.target
-      d.target = obj
-    }
-    
-    if (!connections[d.source[vars.id.key]]) {
-      connections[d.source[vars.id.key]] = []
-    }
-    connections[d.source[vars.id.key]].push(d.target)
-    if (!connections[d.target[vars.id.key]]) {
-      connections[d.target[vars.id.key]] = []
-    }
-    connections[d.target[vars.id.key]].push(d.source)
-  })
-  return connections;
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Clones an object, removing any links to the original
 //------------------------------------------------------------------------------
 d3plus.utils.copy = function(obj) {
