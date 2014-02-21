@@ -273,7 +273,7 @@ d3plus.shape.draw = function(vars,data) {
     
     if (d) {
       
-      vars.g.links.selectAll("line, path")
+      vars.g.links.selectAll("g")
         .each(function(l){
         
           var id = d[vars.id.key],
