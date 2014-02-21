@@ -6,7 +6,7 @@ d3plus.apps.rings.shapes = ["circle","square","donut"];
 d3plus.apps.rings.scale = 1
 
 d3plus.apps.rings.draw = function(vars) {
-      
+  
   var radius = d3.min([vars.app_height,vars.app_width])/2,
       ring_width = vars.small || !vars.labels.value ? radius/2.25 : radius/3,
       links = [],
@@ -24,19 +24,23 @@ d3plus.apps.rings.draw = function(vars) {
     center.d3plus.r = ring_width/2
     
     var primaries = [], claimed = []
-    vars.connections[vars.focus.value].forEach(function(c){
+    vars.connections(vars.focus.value).forEach(function(link){
+      
+      var c = link.source[vars.id.key] == vars.focus.value ? link.target : link.source
       var n = vars.data.app[c[vars.id.key]]
       if (!n) {
         n = {"d3plus": {}}
         n[vars.id.key] = c[vars.id.key]
       }
-      n.d3plus.children = vars.connections[n[vars.id.key]].filter(function(c){
-        return c[vars.id.key] != vars.focus.value
+      n.d3plus.children = vars.connections(n[vars.id.key]).filter(function(c){
+        return c.source[vars.id.key] != vars.focus.value && c.target[vars.id.key] != vars.focus.value
       })
+      n.d3plus.link = link
       claimed.push(n[vars.id.key])
       primaries.push(n)
+      
     })
-  
+    
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Sort primary nodes by children (smallest to largest) and then by sort 
     // order.
@@ -115,11 +119,13 @@ d3plus.apps.rings.draw = function(vars) {
     var secondaries = [], total = 0
     primaries.forEach(function(p){
       p.d3plus.children = p.d3plus.children.filter(function(c){
-        return claimed.indexOf(c[vars.id.key]) < 0
+        return (claimed.indexOf(c.source[vars.id.key]) < 0 && c.target[vars.id.key] == p[vars.id.key])
+            || (claimed.indexOf(c.target[vars.id.key]) < 0 && c.source[vars.id.key] == p[vars.id.key])
       })
       total += p.d3plus.children.length || 1
       p.d3plus.children.forEach(function(c){
-        claimed.push(c[vars.id.key])
+        var claim = c.target[vars.id.key] == p[vars.id.key] ? c.source : c.target
+        claimed.push(claim[vars.id.key])
       })
     })
     
@@ -146,23 +152,37 @@ d3plus.apps.rings.draw = function(vars) {
       p.d3plus.y = vars.app_height/2 + (ring_width * Math.sin(angle))
       p.d3plus.r = 8
       
-      var link = {"source": {}, "target": {}}
-      link.source[vars.id.key] = center[vars.id.key]
-      link.source.d3plus = {
-        "x": vars.app_width/2,
-        "y": vars.app_height/2
-      }
-      link.target[vars.id.key] = p[vars.id.key]
-      link.target.d3plus = {
-        "x": p.d3plus.x,
-        "y": p.d3plus.y
-      }
-      links.push(link)
+      var check = ["source","target"]
+      
+      check.forEach(function(node){
+        if (p.d3plus.link[node][vars.id.key] == center[vars.id.key]) {
+
+          p.d3plus.link[node].d3plus = {
+            "x": vars.app_width/2+(center.d3plus.r * Math.cos(angle)),
+            "y": vars.app_height/2+(center.d3plus.r * Math.sin(angle))
+          }
+          
+        }
+        else {
+          
+          p.d3plus.link[node].d3plus = {
+            "x": p.d3plus.x-(p.d3plus.r * Math.cos(angle)),
+            "y": p.d3plus.y-(p.d3plus.r * Math.sin(angle))
+          }
+      
+        }
+      })
+      
+      delete p.d3plus.link.d3plus
+      links.push(p.d3plus.link)
       
       offset += space
       p.d3plus.children.sort(sort)
       
-      p.d3plus.children.forEach(function(c,i){
+      p.d3plus.children.forEach(function(link,i){
+        
+        var c = link.source[vars.id.key] == p[vars.id.key] ? link.target : link.source
+        
         var d = vars.data.app[c[vars.id.key]],
             s = radian/total
             
@@ -183,7 +203,9 @@ d3plus.apps.rings.draw = function(vars) {
     
     primaries.forEach(function(p,i){
 
-      vars.connections[p[vars.id.key]].forEach(function(c){
+      vars.connections(p[vars.id.key]).forEach(function(link){
+        
+        var c = link.source[vars.id.key] == p[vars.id.key] ? link.target : link.source
         
         if (c[vars.id.key] != center[vars.id.key]) {
           
@@ -198,7 +220,6 @@ d3plus.apps.rings.draw = function(vars) {
           }
           if (target) {
 
-            var link = {"source": {}, "target": {}}
             link.d3plus = {
               "spline": true,
               "translate": {
@@ -206,18 +227,28 @@ d3plus.apps.rings.draw = function(vars) {
                 "y": vars.app_height/2
               }
             }
-            link.source[vars.id.key] = p[vars.id.key]
-            link.source.d3plus = {
-              "a": p.d3plus.radians,
-              "r": ring_width
-            }
-            var r = ring_width*2
             
-            link.target[vars.id.key] = c[vars.id.key]
-            link.target.d3plus = {
-              "a": target.d3plus.radians,
-              "r": r
-            }
+            var check = ["source","target"],
+                r = ring_width*2
+      
+            check.forEach(function(node){
+              if (link[node][vars.id.key] == p[vars.id.key]) {
+                
+                link[node].d3plus = {
+                  "a": p.d3plus.radians,
+                  "r": ring_width+p.d3plus.r
+                }
+          
+              }
+              else {
+          
+                link[node].d3plus = {
+                  "a": target.d3plus.radians,
+                  "r": r-target.d3plus.r
+                }
+      
+              }
+            })
           
             links.push(link)
             
@@ -238,6 +269,7 @@ d3plus.apps.rings.draw = function(vars) {
         if (vars.labels.value) {
           var angle = n.d3plus.radians*(180/Math.PI),
               width = ring_width-(vars.style.labels.padding*3)-n.d3plus.r
+              
           if (angle < -90 || angle > 90) {
             angle = angle-180
             var buffer = -(n.d3plus.r+width/2+vars.style.labels.padding),
@@ -248,6 +280,8 @@ d3plus.apps.rings.draw = function(vars) {
                 anchor = "start"
           }
           
+          var background = primaries.indexOf(n) >= 0 ? true : false
+          
           n.d3plus.label = {
             "x": buffer,
             "y": 0,
@@ -257,19 +291,15 @@ d3plus.apps.rings.draw = function(vars) {
             "anchor": anchor,
             "valign": "center",
             "color": d3plus.color.legible(d3plus.variable.color(vars,n[vars.id.key])),
-            "resize": false
+            "resize": false,
+            "background": background
           }
           
         }
         
       }
       else {
-        n.d3plus.label = {
-          "w": n.d3plus.r*1.75,
-          "h": n.d3plus.r*1.75,
-          "x": 0,
-          "y": 0
-        }
+        delete n.d3plus.label
       }
       
     })
@@ -283,7 +313,7 @@ d3plus.apps.rings.draw = function(vars) {
       vars.viz.draw()
     }
   }
-  
+
   return {"links": links, "nodes": nodes}
   
 };
