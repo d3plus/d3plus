@@ -17,7 +17,10 @@ d3plus.shape.color = function(d,vars) {
     return d3plus.variable.color(vars,d)
   }
   else if (shape == "temp") {
-    return "url(#hatch"+d.d3plus.id+")"
+    return "url(#d3plus_hatch_"+d.d3plus.id+")"
+  }
+  else if (shape == "active") {
+    return d3plus.variable.color(vars,d)
   }
 
   if (d.d3plus.static) {
@@ -25,10 +28,10 @@ d3plus.shape.color = function(d,vars) {
   }
   
   var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
-      temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.temp,
+      temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
       total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
-    
-  if ((!vars.active.key && !vars.temp.key) || (active && total && active == total) || (active && !total)) {
+      
+  if ((!vars.active.key && !vars.temp.key) || (active && total && active == total && !temp) || (active && !total)) {
     return d3plus.variable.color(vars,d)
   }
   else if (vars.active.spotlight.value) {
