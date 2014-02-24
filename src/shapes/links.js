@@ -23,10 +23,17 @@ d3plus.shape.links = function(vars,links) {
   // Styling of Lines
   //----------------------------------------------------------------------------
   function style(l) {
+    var marker = vars.links.arrows.value ? "url(#d3plus_link_marker_default)" : "none"
     l
       .style("stroke-width",vars.style.links.width)
       .style("stroke",vars.style.links.color)
       .attr("opacity",vars.style.links.opacity)
+      .attr("marker-start",function(){
+        return vars.links.arrows.direction.value == "source" ? marker : "none"
+      })
+      .attr("marker-end",function(){
+        return vars.links.arrows.direction.value == "target" ? marker : "none"
+      })
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -141,6 +148,11 @@ d3plus.shape.links = function(vars,links) {
             
       }
       
+      if (vars.links.arrows.value) {
+        var m = typeof vars.links.arrows.value == "number" ? typeof vars.links.arrows.value == "number" : 8
+        width -= m*2
+      }
+      
       if (angle < -90 || angle > 90) {
         angle -= 180
       }
@@ -165,6 +177,56 @@ d3plus.shape.links = function(vars,links) {
     d3plus.shape.labels(vars,d3.select(this.parentNode))
         
   }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Enter/update/exit the Arrow Marker
+  //----------------------------------------------------------------------------
+  var marker_data = vars.links.arrows.value ? ["default","highlight"] : []
+  var marker = vars.defs.selectAll(".d3plus_link_marker")
+    .data(marker_data)
+    
+  var m = typeof vars.links.arrows.value == "number" ? typeof vars.links.arrows.value == "number" : 8
+    
+  var marker_style = function(path) {
+    path
+      .attr("d",function(){
+        if (vars.links.arrows.direction.value == "target") {
+          return "M -"+m*0.75+",-"+m/2+" L 0,0 L -"+m*0.75+","+m/2+" L -"+m*0.75+",-"+m/2
+        }
+        else {
+          return "M "+m*0.75+",-"+m/2+" L 0,0 L "+m*0.75+","+m/2+" L "+m*0.75+",-"+m/2
+        }
+      })
+      .attr("fill",function(d){
+        if (d == "default") {
+          return vars.style.links.color
+        }
+        else {
+          return vars.style.highlight.primary
+        }
+      })
+  }
+    
+  marker.enter().append("marker")
+    .attr("id",function(d){
+      return "d3plus_link_marker_"+d
+    })
+    .attr("class","d3plus_link_marker")
+    .attr("orient","auto")
+    .attr("markerWidth",10)
+    .attr("markerHeight",10)
+    .style("overflow","visible")
+    .append("path")
+    .attr("opacity",0)
+    .call(marker_style)
+    
+  marker.select("path").transition().duration(vars.style.timing.transitions)
+    .attr("opacity",1)
+    .call(marker_style)
+    
+  marker.exit().transition().duration(vars.style.timing.transitions)
+    .attr("opacity",0)
+    .remove()
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Bind "links" data to lines in the "links" group
