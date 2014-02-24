@@ -103,12 +103,24 @@ d3plus.apps.network.draw = function(vars) {
   })
   
   links.forEach(function(l,i){
+    if (typeof l.source != "object") {
+      var obj = {}
+      obj[vars.id.key] = l.source
+      l.source = obj
+    }
     l.source.d3plus = {}
-    l.source.d3plus.x = lookup[l.source[vars.id.key]].x
-    l.source.d3plus.y = lookup[l.source[vars.id.key]].y
+    var id = l.source[vars.id.key]
+    l.source.d3plus.x = lookup[id].x
+    l.source.d3plus.y = lookup[id].y
+    if (typeof l.target != "object") {
+      var obj = {}
+      obj[vars.id.key] = l.target
+      l.target = obj
+    }
     l.target.d3plus = {}
-    l.target.d3plus.x = lookup[l.target[vars.id.key]].x
-    l.target.d3plus.y = lookup[l.target[vars.id.key]].y
+    var id = l.target[vars.id.key]
+    l.target.d3plus.x = lookup[id].x
+    l.target.d3plus.y = lookup[id].y
   })
   
   return {"nodes": data, "links": links}
