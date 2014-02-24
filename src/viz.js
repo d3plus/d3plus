@@ -660,12 +660,18 @@ d3plus.viz = function() {
           else {
             if (typeof depth == "object" && !(depth instanceof Array)) {
               
-              if (object[property].key !== undefined) var key_type = "key"
-              else if (object[property].value !== undefined) var key_type = "value"
+              if (typeof object[property] == "object" && object[property] !== null) {
+                if (object[property].key !== undefined) var key_type = "key"
+                else if (object[property].value !== undefined) var key_type = "value"
+                else var key_type = null
+              }
               else var key_type = null
               
               if (property == key_type) {
                 set_value(object,key_type,depth)
+              }
+              else if (["key","value"].indexOf(property) >= 0) {
+                set_value(object,property,depth)
               }
               else if (typeof object[property] == "object" && object[property] !== null && object[property].object === true) {
                 set_value(object[property],key_type,depth)
