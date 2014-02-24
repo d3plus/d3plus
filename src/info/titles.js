@@ -24,7 +24,6 @@ d3plus.info.titles = function(vars) {
       vars.data.total = d3.sum(vars.data.pool,function(d){
         return d3plus.variable.value(vars,d,vars.size.key)
       })
-      console.log(vars.data.total)
     }
     
     if (vars.dev.value) d3plus.console.timeEnd(vars.size.key)
