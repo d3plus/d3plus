@@ -285,11 +285,20 @@ d3plus.shape.draw = function(vars,data) {
           }
         
         })
+        
+
+      var marker = vars.links.arrows.value ? "url(#d3plus_link_marker_highlight)" : "none"
 
       vars.g.link_focus
         .attr("opacity",0)
         .selectAll("line, path")
         .style("stroke",vars.style.highlight.primary)
+        .attr("marker-start",function(){
+          return vars.links.arrows.direction.value == "source" ? marker : "none"
+        })
+        .attr("marker-end",function(){
+          return vars.links.arrows.direction.value == "target" ? marker : "none"
+        })
       
       vars.g.link_focus
         .transition().duration(vars.style.timing.mouseevents)
