@@ -152,6 +152,13 @@ d3plus.public.legend = {
 }
 
 d3plus.public.links = {
+  "arrows": {
+    "direction": {
+      "accepted": ["source","target"],
+      "value": "target"
+    },
+    "value": false
+  },
   "deprecates": ["edges"],
   "large": 100,
   "label": false,
