@@ -185,7 +185,7 @@ d3plus.shape.links = function(vars,links) {
   var marker = vars.defs.selectAll(".d3plus_link_marker")
     .data(marker_data)
     
-  var m = typeof vars.links.arrows.value == "number" ? typeof vars.links.arrows.value == "number" : 8
+  var m = typeof vars.links.arrows.value == "number" ? vars.links.arrows.value : 10
     
   var marker_style = function(path) {
     path
