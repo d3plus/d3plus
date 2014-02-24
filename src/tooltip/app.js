@@ -7,7 +7,8 @@ d3plus.tooltip.app = function(params) {
       d = params.data,
       ex = params.ex,
       mouse = params.mouseevents ? params.mouseevents : false,
-      arrow = params.arrow ? params.arrow : true
+      arrow = params.arrow ? params.arrow : true,
+      id = d3plus.variable.value(vars,d,vars.id.key)
       
   if (d3.event.type == "click" && (vars.html.value || vars.tooltip.value.long)) {
     var fullscreen = true,
@@ -80,8 +81,7 @@ d3plus.tooltip.app = function(params) {
     
     var icon = d3plus.variable.value(vars,d,vars.icon.key),
         title = d3plus.variable.value(vars,d,vars.text.key),
-        tooltip_data = d3plus.tooltip.data(vars,d,length,ex),
-        id = d3plus.variable.value(vars,d,vars.id.key)
+        tooltip_data = d3plus.tooltip.data(vars,d,length,ex)
         
     if (tooltip_data.length > 0 || !d.d3plus_label) {
         
