@@ -66,5 +66,8 @@ d3plus.data.color = function(vars) {
     if (vars.dev.value) d3plus.console.groupEnd()
     
   }
+  else {
+    vars.color_scale = null
+  }
   
 }
