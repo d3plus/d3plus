@@ -13,6 +13,7 @@ d3plus.forms.radio = function(vars,styles,timing) {
   button_style.border = "none"
   button_style.width = false
   button_style.margin = 0
+  button_style.stroke = 0
   
   var text = d3plus.forms.value(vars.text,["button"])
   if (!text) {
