@@ -353,9 +353,20 @@ d3plus.forms.drop = function(vars,styles,timing) {
   }
   
   var data = vars.data.filter(function(d){
-    var text = d3plus.utils.strip(d.text.toLowerCase()),
+    
+    var match = false,
+        tests = ["value","text","alt","keywords"],
         search = d3plus.utils.strip(vars.filter.toLowerCase())
-    return text.indexOf(search) >= 0
+    for (key in tests) {
+      if (tests[key] in d) {
+        var text = d3plus.utils.strip(d[tests[key]].toLowerCase())
+        if (text.indexOf(search) >= 0) {
+          match = true
+          break
+        }
+      }
+    }
+    return match
   })
   
   if (data.length == 0) {
