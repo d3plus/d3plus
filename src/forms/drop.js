@@ -352,22 +352,37 @@ d3plus.forms.drop = function(vars,styles,timing) {
    text = "text"
   }
   
-  var data = vars.data.filter(function(d){
+  var search_text = d3plus.utils.strip(vars.filter.toLowerCase()).split("_"),
+      tests = ["value","text","alt","keywords"],
+      search_text = search_text.filter(function(t){ return t != ""; })
+  
+  if (vars.filter == "") {
+    var data = vars.data
+  }
+  else {
+
+    var data = vars.data.filter(function(d){
     
-    var match = false,
-        tests = ["value","text","alt","keywords"],
-        search = d3plus.utils.strip(vars.filter.toLowerCase())
-    for (key in tests) {
-      if (tests[key] in d) {
-        var text = d3plus.utils.strip(d[tests[key]].toLowerCase())
-        if (text.indexOf(search) >= 0) {
-          match = true
-          break
+      var match = false
+        
+      for (key in tests) {
+        if (tests[key] in d) {
+          var text = d3plus.utils.strip(d[tests[key]].toLowerCase()).split("_")
+        
+          for (t in text) {
+            for (s in search_text) {
+              if (text[t].indexOf(search_text[s]) == 0) {
+                match = true
+                break
+              }
+            }
+          }
         }
       }
-    }
-    return match
-  })
+      return match
+    })
+    
+  }
   
   if (data.length == 0) {
     data = [
