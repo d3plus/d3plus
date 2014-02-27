@@ -516,12 +516,22 @@ d3plus.forms.drop = function(vars,styles,timing) {
         list_top = list.property("scrollTop")
         
     if (hidden) selector.style("display","none")
-    var scroll = list_top
-    if (button_top < list_top) {
+    if (hidden) {
+      
       var scroll = button_top
+      
     }
-    else if (button_top+button_height > list_top+max-search_height) {
-      var scroll = button_top - (max-button_height-search_height)
+    else {
+      
+      var scroll = list_top
+
+      if (button_top < list_top) {
+        var scroll = button_top
+      }
+      else if (button_top+button_height > list_top+max-search_height) {
+        var scroll = button_top - (max-button_height-search_height)
+      }
+      
     }
     
   }
