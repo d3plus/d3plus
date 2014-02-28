@@ -15,13 +15,8 @@ d3plus.shape.style = function(nodes,vars) {
       
     })
     .style("stroke", function(d){
-      if (d.values && d.key && d.key.indexOf("_line_") >= 0) {
-        return d3plus.color.darker(d3plus.variable.color(vars,d))
-      }
-      else if (d.d3plus && ["active","temp"].indexOf(d.d3plus.shapeType) >= 0) {
-        return d3plus.variable.color(vars,d)
-      }
-      return d3plus.color.darker(d3plus.shape.color(d,vars));
+      var color = d3plus.variable.color(vars,d)
+      return d3plus.color.legible(color)
     })
     .style("stroke-width",vars.style.data.stroke.width)
     .attr("opacity",vars.style.data.opacity)
