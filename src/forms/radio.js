@@ -4,7 +4,7 @@
 d3plus.forms.radio = function(vars,styles,timing) {
   
   vars.container.transition().duration(timing)
-    .style("background-color",style.secondary)
+    .style("background-color",styles.secondary)
     .style("padding",styles.stroke+"px")
     
   var button_style = d3plus.utils.copy(styles)

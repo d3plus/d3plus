@@ -94,13 +94,15 @@ d3plus.ui = function(passed) {
     //--------------------------------------------------------------------------
     else if (vars.data && typeof vars.data != "object") {
       
+      var d3selection = d3plus.ie ? typeof vars.data.array == "object" : vars.data.array instanceof d3.selection
+      
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.element = d3.selectAll(vars.data)
         if (vars.data.charAt(0) == "#") {
           vars.before = vars.data
         }
       }
-      else if (vars.data.array instanceof d3.selection) {
+      else if (d3selection) {
         vars.element = vars.data
         if (vars.data.array.node().id) {
           vars.before = "#"+vars.data.array.node().id
@@ -265,12 +267,12 @@ d3plus.ui = function(passed) {
         if (!arguments.length) return vars[key]
         
         if (["element","parent"].indexOf(key) >= 0) {
-          
+          var d3selection = d3plus.ie ? typeof value == "object" : value instanceof d3.selection
           if (typeof value == "string" && !d3.select(value).empty()) {
             if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
             vars[key] = d3.selectAll(value)
           }
-          else if (value instanceof d3.selection) {
+          else if (d3selection) {
             if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
             vars[key] = value
           }

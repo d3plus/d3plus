@@ -4,12 +4,10 @@ d3plus.forms.element = function(vars) {
     
     var attributes = ["value","alt","keywords","image","style","color"]
     
-    var data = elem.dataset
-    
     attributes.forEach(function(a){
-
-      if (data && typeof data[a] !== "undefined") {
-        obj[a] = data[a]
+      
+      if (elem.getAttribute("data-"+a) !== null) {
+        obj[a] = elem.getAttribute("data-"+a)
       }
       else if (elem.getAttribute(a) !== null) {
         obj[a] = elem.getAttribute(a)

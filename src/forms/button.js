@@ -339,10 +339,16 @@ d3plus.forms.button = function(vars,styles,timing) {
       vars.hover = d.value
   
       if (vars.data.array.length == 1 || d.value != vars.highlight) {
-
-        d3.select(this).style("cursor","pointer")
-          .transition().duration(100)
-          .call(color)
+        
+        if (d3plus.ie) {
+          d3.select(this).style("cursor","pointer")
+            .call(color)
+        }
+        else {
+          d3.select(this).style("cursor","pointer")
+            .transition().duration(100)
+            .call(color)
+        }
           
       }
       
@@ -352,10 +358,16 @@ d3plus.forms.button = function(vars,styles,timing) {
       vars.hover = false
   
       if (vars.data.array.length == 1 || d.value != vars.highlight) {
-
-        d3.select(this).style("cursor","auto")
-          .transition().duration(100)
-          .call(color)
+        
+        if (d3plus.ie) {
+          d3.select(this).style("cursor","auto")
+            .call(color)
+        }
+        else {
+          d3.select(this).style("cursor","auto")
+            .transition().duration(100)
+            .call(color)
+        }
           
       }
       

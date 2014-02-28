@@ -234,7 +234,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
   styles.width.drop = drop_width
   
   drop_width -= (styles.padding*2+styles.stroke*2)
-  drop_width += d3plus.scrollbar()
   
   var button_width = d3plus.forms.value(styles.width,["button","drop"])
   if (!button_width || typeof button_width != "number") {
@@ -244,9 +243,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   styles.width.button = button_width
   
   button_width -= ((styles.padding*2)+(styles.stroke*2))
-  button_width += d3plus.scrollbar()
   
-
   
   if (vars.dev) d3plus.console.time("creating main button")
   
@@ -471,6 +468,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .callback(vars.ui.value)
       .selected(vars.focus)
       .hover(vars.hover)
+      .width(drop_width-d3plus.scrollbar())
       .draw()
   
     if (vars.dev) d3plus.console.groupEnd()
