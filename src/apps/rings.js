@@ -58,7 +58,7 @@ d3plus.apps.rings.draw = function(vars) {
     else {
       sort = vars.id.key
     }
-    console.log(sort)
+    
     function sort_function(a,b){
       
       a_value = d3plus.variable.value(vars,a,sort)
