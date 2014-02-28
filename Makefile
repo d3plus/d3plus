@@ -26,6 +26,8 @@ JS_FILES = \
 	src/forms/button.js \
 	src/forms/data.js \
 	src/forms/drop.js \
+	src/forms/element.js \
+	src/forms/json.js \
 	src/forms/radio.js \
 	src/forms/value.js \
 	\
