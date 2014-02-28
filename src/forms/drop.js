@@ -456,7 +456,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
      text = "text"
     }
   
-    d3plus.ui(style)
+    var buttons = d3plus.ui(style)
       // .dev(vars.dev)
       .type("button")
       .text(text)
@@ -468,7 +468,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .callback(vars.ui.value)
       .selected(vars.focus)
       .hover(vars.hover)
-      .width(drop_width-d3plus.scrollbar())
       .draw()
   
     if (vars.dev) d3plus.console.groupEnd()
@@ -517,7 +516,10 @@ d3plus.forms.drop = function(vars,styles,timing) {
     if (vars.dev) d3plus.console.time("calculating scroll position")
   
     if (scrolling) {
-    
+
+      style.width -= d3plus.scrollbar()
+      buttons.width(style.width).draw()
+      
       var index = 0
       var options = list.select("div").selectAll("div.d3plus_node")
       if (typeof vars.hover == "boolean") {

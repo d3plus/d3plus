@@ -92,7 +92,7 @@ d3plus.ui = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is not an object, extract data from the element associated with it
     //--------------------------------------------------------------------------
-    else if (vars.data) {
+    else if (vars.data && (vars.data.changed || !vars.data.array)) {
       
       var d3selection = d3plus.ie ? typeof vars.data.select == "function" : vars.data instanceof d3.selection
       
