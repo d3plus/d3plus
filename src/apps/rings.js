@@ -58,9 +58,9 @@ d3plus.apps.rings.draw = function(vars) {
     else {
       sort = vars.id.key
     }
-    
+    console.log(sort)
     function sort_function(a,b){
-        
+      
       a_value = d3plus.variable.value(vars,a,sort)
       b_value = d3plus.variable.value(vars,b,sort)
     
@@ -129,7 +129,7 @@ d3plus.apps.rings.draw = function(vars) {
       })
     })
     
-    primaries.sort(sort)
+    primaries.sort(sort_function)
     
     var offset = 0, radian = Math.PI*2, start = 0
     primaries.forEach(function(p,i){
@@ -177,7 +177,14 @@ d3plus.apps.rings.draw = function(vars) {
       links.push(p.d3plus.link)
       
       offset += space
-      p.d3plus.children.sort(sort)
+      p.d3plus.children.sort(function(a,b){
+        
+        var a = a.source[vars.id.key] == p[vars.id.key] ? a.target : a.source,
+            b = b.source[vars.id.key] == p[vars.id.key] ? b.target : b.source
+        
+        return sort_function(a,b)
+        
+      })
       
       p.d3plus.children.forEach(function(link,i){
         
