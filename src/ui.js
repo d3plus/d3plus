@@ -72,7 +72,7 @@ d3plus.ui = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is an array, format it
     //--------------------------------------------------------------------------
-    if (vars.data instanceof Array) {
+    if (vars.data instanceof Array && typeof vars.data.select != "function") {
       vars.data = {
         "array": vars.data
       }
@@ -80,7 +80,7 @@ d3plus.ui = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is an object, format it
     //--------------------------------------------------------------------------
-    else if (typeof vars.data == "object" && !vars.data.array) {
+    else if (typeof vars.data == "object" && !vars.data.array && !(vars.data instanceof Array)) {
       
       if (!vars.data.array) {
         vars.data.array = []
@@ -92,9 +92,9 @@ d3plus.ui = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is not an object, extract data from the element associated with it
     //--------------------------------------------------------------------------
-    else if (vars.data && typeof vars.data != "object") {
+    else if (vars.data) {
       
-      var d3selection = d3plus.ie ? typeof vars.data.array == "object" : vars.data.array instanceof d3.selection
+      var d3selection = d3plus.ie ? typeof vars.data.select == "function" : vars.data instanceof d3.selection
       
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.element = d3.selectAll(vars.data)
@@ -104,8 +104,8 @@ d3plus.ui = function(passed) {
       }
       else if (d3selection) {
         vars.element = vars.data
-        if (vars.data.array.node().id) {
-          vars.before = "#"+vars.data.array.node().id
+        if (vars.data.node().id) {
+          vars.before = "#"+vars.data.node().id
         }
       }
       
@@ -267,7 +267,7 @@ d3plus.ui = function(passed) {
         if (!arguments.length) return vars[key]
         
         if (["element","parent"].indexOf(key) >= 0) {
-          var d3selection = d3plus.ie ? typeof value == "object" : value instanceof d3.selection
+          var d3selection = d3plus.ie ? typeof value == "object" && value instanceof Array : value instanceof d3.selection
           if (typeof value == "string" && !d3.select(value).empty()) {
             if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
             vars[key] = d3.selectAll(value)
