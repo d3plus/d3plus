@@ -86,14 +86,29 @@ d3plus.ui = function(passed) {
         vars.data.array = []
       }
       
+      if (vars.element) {
+        d3plus.forms.element(vars)
+      }
+      
       d3plus.forms.data(vars)
+      
+      var focus = vars.data.array.filter(function(d){
+        return d.value == vars.focus
+      })[0]
+      
+      if (!focus) {
+        vars.data.array[0].selected = true
+        vars.focus = vars.data.array[0].value
+      }
+      
+      vars.data.changed
       
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is not an object, extract data from the element associated with it
     //--------------------------------------------------------------------------
-    else if (vars.data && (vars.data.changed || !vars.data.array)) {
-      
+    else if (vars.data && !vars.data.array) {
+
       var d3selection = d3plus.ie ? typeof vars.data.select == "function" : vars.data instanceof d3.selection
       
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
@@ -116,16 +131,6 @@ d3plus.ui = function(passed) {
     }
     
     if (vars.data.array.length == 0 && vars.element) {
-
-      vars.element
-        .style("position","absolute")
-        .style("overflow","hidden")
-        .style("clip","rect(0 0 0 0)")
-        .style("width","1px")
-        .style("height","1px")
-        .style("margin","-1px")
-        .style("padding","0")
-        .style("border","0")
         
       vars.parent = d3.select(vars.element.node().parentNode)
       d3plus.forms.element(vars)
@@ -155,6 +160,42 @@ d3plus.ui = function(passed) {
       if (vars.data.array.length > 10 && !("search" in vars)) {
         vars.search = true
         if (vars.dev) d3plus.console.log("search enabled")
+      }
+    
+      if (vars.element) {
+
+        vars.element
+          .style("position","absolute")
+          .style("overflow","hidden")
+          .style("clip","rect(0 0 0 0)")
+          .style("width","1px")
+          .style("height","1px")
+          .style("margin","-1px")
+          .style("padding","0")
+          .style("border","0")
+          
+        if (vars.data.changed && vars.type == "drop") {
+          
+          options = vars.element.selectAll("option")
+            .data(vars.data.array,function(d){
+              return d ? d.value : false
+            })
+            
+          options.enter().append("option")
+            .attr("value",function(d){
+              return d.value
+            })
+            .text(function(d){
+              return d.text
+            })
+            .attr("selected",function(d){
+              return d.selected
+            })
+          
+          options.exit().remove()
+            
+        }
+        
       }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -280,8 +321,11 @@ d3plus.ui = function(passed) {
             d3plus.console.warning("Cannot set \""+key+"\" as \""+value.toString()+"\"")
           }
           
-          if (vars[key] && key == "element" && vars[key].node().id) {
-            vars.before = "#"+vars[key].node().id
+          if (vars[key] && key == "element") {
+            if (vars[key].node().id) {
+              vars.before = "#"+vars[key].node().id
+            }
+            vars.parent = d3.select(vars[key].node().parentNode)
           }
           
         }
