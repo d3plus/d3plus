@@ -10,8 +10,10 @@ d3plus.ui = function(passed) {
     "before": null,
     "callback": false,
     "data": [],
+    "dev": false,
     "enabled": false,
     "filter": "",
+    "flipped": false,
     "format": d3plus.public.text_format.value,
     "highlight": false,
     "hover": false,
@@ -39,7 +41,7 @@ d3plus.ui = function(passed) {
     "height": false,
     "margin": 0,
     "padding": 4,
-    "secondary": d3plus.color.darker("#ffffff",.1),
+    "secondary": d3plus.color.darker("#ffffff",0.05),
     "shadow": 5,
     "stroke": 1,
     "width": false
@@ -68,50 +70,90 @@ d3plus.ui = function(passed) {
     }
     
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If it data is a string, extract data from the element associated with it
+    // If it data is an array, format it
     //--------------------------------------------------------------------------
-    if (vars.data && (!(vars.data instanceof Array) || vars.data instanceof d3.selection)) {
-      if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
-        vars.before = vars.data
-        vars.element = d3.selectAll(vars.data)
+    if (vars.data instanceof Array) {
+      vars.data = {
+        "array": vars.data
       }
-      else if (vars.data instanceof d3.selection) {
+    }
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If it data is an object, format it
+    //--------------------------------------------------------------------------
+    else if (typeof vars.data == "object" && !vars.data.array) {
+      
+      if (!vars.data.array) {
+        vars.data.array = []
+      }
+      
+      d3plus.forms.data(vars)
+      
+    }
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If it data is not an object, extract data from the element associated with it
+    //--------------------------------------------------------------------------
+    else if (vars.data && typeof vars.data != "object") {
+      
+      if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
+        vars.element = d3.selectAll(vars.data)
+        if (vars.data.charAt(0) == "#") {
+          vars.before = vars.data
+        }
+      }
+      else if (vars.data.array instanceof d3.selection) {
         vars.element = vars.data
-        if (vars.data.node().id) {
-          vars.before = "#"+vars.data.node().id
+        if (vars.data.array.node().id) {
+          vars.before = "#"+vars.data.array.node().id
         }
       }
       
-      if (vars.element) {
-
-        vars.data = []
-        
-        vars.element
-          .style("position","absolute")
-          .style("overflow","hidden")
-          .style("clip","rect(0 0 0 0)")
-          .style("width","1px")
-          .style("height","1px")
-          .style("margin","-1px")
-          .style("padding","0")
-          .style("border","0")
-          
-        vars.parent = d3.select(vars.element.node().parentNode)
-        d3plus.forms.data(vars)
+      vars.data = {
+        "array": []
       }
+      
+    }
+    
+    if (vars.data.array.length == 0 && vars.element) {
+
+      vars.element
+        .style("position","absolute")
+        .style("overflow","hidden")
+        .style("clip","rect(0 0 0 0)")
+        .style("width","1px")
+        .style("height","1px")
+        .style("margin","-1px")
+        .style("padding","0")
+        .style("border","0")
+        
+      vars.parent = d3.select(vars.element.node().parentNode)
+      d3plus.forms.element(vars)
       
     }
     
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there is no data, throw error message
     //--------------------------------------------------------------------------
-    if (!(vars.data instanceof Array)) {
-      d3plus.console.warning("Cannot create UI element for \""+vars.data+"\", no data found.")
+    if (typeof vars.data.array == "string") {
+      d3plus.console.warning("Cannot create UI element for \""+vars.data.array+"\", no data found.")
+    }
+    else if (!(vars.data.array instanceof Array)) {
+      d3plus.console.warning("Cannot create UI element, no data found.")
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Else, create/update the UI element
     //--------------------------------------------------------------------------
     else {
+      
+      if (!vars.focus) {
+        vars.data.array[0].selected = true
+        vars.focus = vars.data.array[0].value
+        if (vars.dev) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+      }
+  
+      if (vars.data.array.length > 10 && !("search" in vars)) {
+        vars.search = true
+        if (vars.dev) d3plus.console.log("search enabled")
+      }
       
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Select container DIV for UI element
@@ -163,7 +205,9 @@ d3plus.ui = function(passed) {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Call specific UI element type
       //------------------------------------------------------------------------
+      if (vars.dev) d3plus.console.group("drawing \""+vars.type+"\"")
       d3plus.forms[vars.type](vars,styles,timing)
+      if (vars.dev) d3plus.console.groupEnd()
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Initialization complete
@@ -171,6 +215,7 @@ d3plus.ui = function(passed) {
       if (!vars.init) {
         vars.init = true
       }
+      vars.data.changed = false
       
     }
     
@@ -182,6 +227,7 @@ d3plus.ui = function(passed) {
   var variables = [
     "callback",
     "data",
+    "dev",
     "element",
     "highlight",
     "hover",
@@ -203,10 +249,44 @@ d3plus.ui = function(passed) {
     vars.ui[v] = (function(key) {
       
       return function(value) {
+        
+        if (vars.dev) {
+
+          var text = value.toString()
+          if (text.length > 50) {
+            var text = ""
+          }
+          else {
+            var text = " to \""+text+"\""
+          }
+          
+        }
 
         if (!arguments.length) return vars[key]
         
-        vars[key] = value
+        if (["element","parent"].indexOf(key) >= 0) {
+          
+          if (typeof value == "string" && !d3.select(value).empty()) {
+            if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
+            vars[key] = d3.selectAll(value)
+          }
+          else if (value instanceof d3.selection) {
+            if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
+            vars[key] = value
+          }
+          else {
+            d3plus.console.warning("Cannot set \""+key+"\" as \""+value.toString()+"\"")
+          }
+          
+          if (vars[key] && key == "element" && vars[key].node().id) {
+            vars.before = "#"+vars[key].node().id
+          }
+          
+        }
+        else {
+          if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
+          vars[key] = value
+        }
         
         return vars.ui
         
@@ -243,11 +323,25 @@ d3plus.ui = function(passed) {
         
         if (!arguments.length) return styles[key]
         
+        if (vars.dev) {
+
+          var text = value.toString()
+          if (text.length > 50) {
+            var text = ""
+          }
+          else {
+            var text = " to \""+text+"\""
+          }
+          
+        }
+        
         if (key == "font") {
           if (typeof value == "string") {
+            if (vars.dev) d3plus.console.log("\"font-family\" set"+text)
             styles["font-family"] = value
           }
           if (typeof value == "number") {
+            if (vars.dev) d3plus.console.log("\"font-size\" set"+text)
             styles["font-size"] = value
           }
           else if (typeof value == "object") {
@@ -260,14 +354,27 @@ d3plus.ui = function(passed) {
                   value[style] = "left"
                 }
               }
+              if (vars.dev) {
+
+                var text = value[style].toString()
+                if (text.length > 50) {
+                  var text = ""
+                }
+                else {
+                  var text = " to \""+text+"\""
+                }
+                
+                d3plus.console.log("\"font-"+style+"\" set"+text)
+              }
               styles["font-"+style] = value[style]
             }
           }
         }
         else {
-          if (key == "color" && styles.secondary == d3plus.color.darker(styles.color,0.1)) {
-            styles.secondary = d3plus.color.darker(value,0.1)
+          if (key == "color" && styles.secondary == d3plus.color.darker(styles.color,0.05)) {
+            styles.secondary = d3plus.color.darker(value,0.05)
           }
+          if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
           styles[key] = value
         }
         
@@ -283,6 +390,7 @@ d3plus.ui = function(passed) {
   // Disables the UI element
   //----------------------------------------------------------------------------
   vars.ui.disable = function() {
+    if (vars.dev) d3plus.console.log("disable")
     vars.enabled = false
     if (vars.init) {
       vars.parent.call(vars.ui)
@@ -294,7 +402,13 @@ d3plus.ui = function(passed) {
   // Enables the UI element
   //----------------------------------------------------------------------------
   vars.ui.enable = function() {
+    if (vars.dev) d3plus.console.log("enable")
     vars.enabled = true
+    
+    if (vars.data.fetch && (!vars.data.loaded || vars.data.continuous)) {
+      d3plus.forms.json(vars)
+    }
+    
     if (vars.init) {
       vars.parent.call(vars.ui)
     }
@@ -315,7 +429,8 @@ d3plus.ui = function(passed) {
   vars.ui.height = function(value) {
     
     if (!arguments.length) return vars.container[0][0].offsetHeight
-    
+
+    if (vars.dev) d3plus.console.log("\"height\" set to \""+value+"\"")
     styles.height = value
     
     return vars.ui
@@ -343,7 +458,7 @@ d3plus.ui = function(passed) {
     if (!arguments.length) return vars.focus
       
     if (typeof value == "string") {
-      value = vars.data.filter(function(d){
+      value = vars.data.array.filter(function(d){
         return d.value == value
       })[0]
     }
@@ -351,7 +466,7 @@ d3plus.ui = function(passed) {
     if (value.value != vars.focus) {
 
       var index = false
-      vars.data.forEach(function(d,i){
+      vars.data.array.forEach(function(d,i){
         if (d.value == value.value) {
           index = i
         }
@@ -377,6 +492,8 @@ d3plus.ui = function(passed) {
       if (vars.callback) {
         vars.callback(value.value)
       }
+
+      if (vars.dev) d3plus.console.log("\"value\" set to \""+value.value+"\"")
     
       vars.focus = value.value
       
@@ -396,6 +513,8 @@ d3plus.ui = function(passed) {
   // Toggles the UI element menu open/close
   //----------------------------------------------------------------------------
   vars.ui.toggle = function() {
+
+    if (vars.dev) d3plus.console.log("toggle")
     
     if (vars.enabled) {
       vars.ui.disable()
@@ -411,7 +530,7 @@ d3plus.ui = function(passed) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Returns UI element's current width
   //----------------------------------------------------------------------------
-  vars.ui.width = function(x) {
+  vars.ui.width = function(value) {
     if (!arguments.length) {
       var vals = []
       vars.container.selectAll("div.d3plus_node").each(function(o){
@@ -427,7 +546,8 @@ d3plus.ui = function(passed) {
         return vars.container.node().offsetWidth
       }
     }
-    styles.width = x
+    if (vars.dev) d3plus.console.log("\"width\" set to \""+value+"\"")
+    styles.width = value
     return vars.ui
   }
 
