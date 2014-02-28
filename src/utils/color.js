@@ -11,16 +11,17 @@ d3plus.color.random = function(x) {
 // Darkens a color
 //------------------------------------------------------------------------------
 d3plus.color.darker = function(color,increment) {
-  var c = d3.hsl(color)
-  if (increment) {
-    c.l -= increment
-    if (c.l < 0) {
-      c.l = 0
-    }
+  var c = d3.hsl(color);
+  
+  if (!increment) {
+    var increment = 0.2
   }
-  else {
-    c.l = c.l < .2 ? 0 : c.l-.2;
+  
+  c.l -= increment
+  if (c.l < 0) {
+    c.l = 0
   }
+  
   return c.toString();
 }
 
@@ -39,15 +40,20 @@ d3plus.color.legible = function(color) {
 //------------------------------------------------------------------------------
 d3plus.color.lighter = function(color,increment) {
   var c = d3.hsl(color);
-  if (increment) {
-    c.l += increment
-    if (c.l > 1) {
-      c.l = 1
-    }
+  
+  if (!increment) {
+    var increment = 0.1
   }
-  else {
-    c.l = c.l >= .75 ? 0.95 : c.l+.2;
+  
+  c.l += increment
+  c.s -= increment/2
+  if (c.l > 1) {
+    c.l = 1
   }
+  if (c.s < 0) {
+    c.s = 0
+  }
+  
   return c.toString();
 }
 
