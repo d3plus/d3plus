@@ -88,7 +88,6 @@ d3plus.forms.button = function(vars,styles,timing) {
     
     elem
       .style("position","relative")
-      .style("padding",padding)
       .style("margin",styles.margin+"px")
       .style("display",styles.display)
       .style("opacity",function(d){
@@ -103,11 +102,15 @@ d3plus.forms.button = function(vars,styles,timing) {
       .style("font-size",styles["font-size"]+"px")
       .style("font-weight",styles["font-weight"])
       .style("text-align",styles["font-align"])
-      .style("width",function(){
-        if (typeof styles.width == "object" && "button" in styles.width) {
-          return styles.width.button+"px"
-        }
-        return typeof styles.width == "number" ? styles.width+"px" : "auto"
+      .style("letter-spacing",styles["font-spacing"]+"px")
+      
+  }
+  
+  var icons = function(elem) {
+    
+    elem
+      .text(function(d){
+        return d[vars.text]
       })
       .each(function(d,i){
         
@@ -137,9 +140,7 @@ d3plus.forms.button = function(vars,styles,timing) {
           children.push("icon")
         }
         
-        if (d.text) {
-          children.push("text")
-        }
+        var buffer = 0
         
         var items = d3.select(this).selectAll("div.d3plus_button_element")
           .data(children,function(c,i){
@@ -147,7 +148,7 @@ d3plus.forms.button = function(vars,styles,timing) {
           })
     
         items.enter().append("div")
-          .style("display","block")
+          .style("display","absolute")
           .attr("id",function(c){
             return "d3plus_button_element_"+vars.id+"_"+c
           })
@@ -158,18 +159,10 @@ d3plus.forms.button = function(vars,styles,timing) {
             }
             return "d3plus_button_element" + extra
           })
-          
-        var buffers = {
-          "icon": 0,
-          "image": 0
-        }
       
         items.order()
           .html(function(c){
-            if (c == "text") {
-              return d[vars.text]
-            }
-            else if (c == "icon") {
+            if (c == "icon") {
               return d.icon.content
             }
             else {
@@ -189,12 +182,36 @@ d3plus.forms.button = function(vars,styles,timing) {
             return "transparent"
           })
           .style("background-size","100%")
-          .style("letter-spacing",function(c){
-            return c != "text" ? "0px" : styles["font-spacing"]+"px"
-          })
+          .style("text-align","center")
           .style("position",function(c){
             return c == "text" ? "static" : "absolute"
           })
+          .style("width",function(c){
+            if (styles.height) {
+              buffer = (styles.height-(styles.padding*2)-(styles.stroke*2))
+            }
+            else {
+              buffer = parseFloat(d3.select(this.parentNode).style("height"),10)
+            }
+            return buffer+"px"
+          })
+          .style("height",function(c){
+            if (c == "image") {
+              return buffer+"px"
+            }
+            return "auto"
+          })
+          .style("margin-top",function(c){
+            if (this.offsetHeight) {
+              var h = this.offsetHeight
+            }
+            else {
+              var h = buffer
+              if (c == "icon") h -= 3
+            }
+            return -h/2+"px"
+          })
+          .style("top","50%")
           .style("left",function(c){
             if ((c == "image" && !reversed) || (c == "icon" && reversed)) {
               return styles.padding+"px"
@@ -207,109 +224,47 @@ d3plus.forms.button = function(vars,styles,timing) {
             }
             return "auto"
           })
-          .style("width",function(c){
-            if (c == "image") {
-              var s = styles.height || this.parentNode.offsetHeight
-              return (s-(styles.padding*2)-(styles.stroke*2))+"px"
-            }
-            return "auto"
-          })
-          .style("height",function(c){
-            if (c == "image") {
-              var s = styles.height || this.parentNode.offsetHeight
-              return (s-(styles.padding*2)-(styles.stroke*2))+"px"
-            }
-            return "auto"
-          })
-          .each(function(c){
-            
-            if (c != "text") {
-              if (c == "image") {
-                buffers[c] = parseFloat(d3.select(this).style("width"),10)
-              }
-              else {
-                buffers[c] = this.offsetWidth
-              }
-            }
-            else if (d3.max(d3.map(buffers).values()) > 0) {
-              
-              var width = styles.width
-              
-              if (typeof width == "number") {
-
-                if (styles["font-align"] == "center") {
-                  width -= d3.max(d3.map(buffers).values())*2
-                  width -= styles.padding*2
-                  
-                  var padding = "0px"
-                  
-                }
-                else {
-                  
-                  d3.map(buffers).values().forEach(function(v){
-                    width -= v
-                    width -= styles.padding
-                  })
-                  
-                  if ((buffers.image && !reversed) || (buffers.icon && reversed)) {
-                    var padding = "0px "+ (d3.max(d3.map(buffers).values())+styles.padding)+"px"
-                  }
-                  else {
-                    var padding = "0px"
-                  }
-                  
-                }
-                
-                if (width >= 0) {
-                  width += "px"
-                }
-                else {
-                  width = "0px"
-                }
-                
-              } 
-              else {
-                
-                width = "auto"
-                var buffer = d3.max(d3.map(buffers).values())+styles.padding
-                
-                if (styles["font-align"] == "center") {
-                  var padding = "0px "+buffer+"px"
-                }
-                else {
-                  var padding = "0px"
-                
-                  if ((buffers.icon && !reversed) || (buffers.image && reversed)) {
-                    padding += " "+buffer+"px"
-                  }
-                  else {
-                    padding += " 0px"
-                  }
-                  padding += " 0px"
-                  if ((buffers.icon && reversed) || (buffers.image && !reversed)) {
-                    padding += " "+buffer+"px"
-                  }
-                  else {
-                    padding += " 0px"
-                  }
-                
-                }
-              }
-              d3.select(this)
-                .style("width",width+"px")
-                .style("padding",padding)
-            }
-            else {
-              d3.select(this)
-                .style("width","auto")
-                .style("padding","0px")
-            }
-          })
     
         items.exit().remove()
         
+        if (buffer > 0) {
+          
+          buffer += styles.padding*2
+          
+          var p = styles.padding
+          
+          if (children.length == 2) {
+            var padding = p+"px "+buffer+"px"
+          }
+          else if ((children[0] == "image" && !d3plus.rtl) || (children[0] == "icon" && d3plus.rtl)) {
+            var padding = p+"px "+p+"px "+p+"px "+buffer+"px"
+          }
+          else {
+            var padding = p+"px "+buffer+"px "+p+"px "+p+"px"
+          }
+          
+          d3.select(this).style("padding",padding)
+          
+        }
+        else {
+          d3.select(this).style("padding",styles.padding+"px")
+        }
+        
+        if (typeof styles.width == "number") {
+          var width = styles.width
+          width -= parseFloat(d3.select(this).style("padding-left"),10)
+          width -= parseFloat(d3.select(this).style("padding-right"),10)
+          width -= styles.stroke*2
+          width += "px"
+        }
+        else {
+          var width = "auto"
+        }
+        
+        d3.select(this).style("width",width)
+        
       })
-      
+    
   }
   
   var button = vars.container.selectAll("div.d3plus_node")
@@ -329,7 +284,29 @@ d3plus.forms.button = function(vars,styles,timing) {
     .attr("class","d3plus_node")
     .call(color)
     .call(style)
+    .call(icons)
   if (vars.dev) d3plus.console.timeEnd("enter")
+  
+  if (button.size() < 2) {
+    button.call(icons)
+  }
+  else {
+    
+    if (vars.previous) {
+      var previous = button.filter(function(b){
+        return b.value == vars.previous
+      })
+      previous.call(icons)
+    }
+    
+    if (vars.selected) {
+      var focus = button.filter(function(b){
+        return b.value == vars.selected
+      })
+      focus.call(icons)
+    }
+    
+  }
     
   if (vars.dev) d3plus.console.time("events")
   button

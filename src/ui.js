@@ -22,6 +22,7 @@ d3plus.ui = function(passed) {
     "max-height": 600,
     "max-width": 600,
     "parent": d3.select("body"),
+    "previous": false,
     "propagation": true,
     "selected": false,
     "text": "text",
@@ -276,6 +277,7 @@ d3plus.ui = function(passed) {
     "hover",
     "id",
     "parent",
+    "previous",
     "propagation",
     "search",
     "selected",
@@ -511,22 +513,19 @@ d3plus.ui = function(passed) {
     
     if (value.value != vars.focus) {
 
-      var index = false
-      vars.data.array.forEach(function(d,i){
-        if (d.value == value.value) {
-          index = i
-        }
-      })
-
       if (vars.tag == "select") {
         
-        vars.element.node().selectedIndex = index
+        vars.element.selectAll("option").each(function(d,i){
+          if (this.value == value.value) {
+            vars.element.node().selectedIndex = i
+          }
+        })
       
       }
       else if (vars.tag == "input" && vars.element.attr("type") == "radio") {
         vars.element
-          .each(function(e,i){
-            if (index == i) {
+          .each(function(){
+            if (this.value == value.value) {
               this.checked = true
             }
             else {
@@ -541,6 +540,7 @@ d3plus.ui = function(passed) {
 
       if (vars.dev) d3plus.console.log("\"value\" set to \""+value.value+"\"")
     
+      vars.previous = vars.focus
       vars.focus = value.value
       
     }

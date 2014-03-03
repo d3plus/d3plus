@@ -219,10 +219,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     drop_width = d3.max(w)
     button.remove()
     
-    if (icon) {
-      drop_width += styles.padding
-    }
-    
     if (vars.dev) d3plus.console.timeEnd("calculating width")
     
   }
@@ -233,17 +229,12 @@ d3plus.forms.drop = function(vars,styles,timing) {
   
   styles.width.drop = drop_width
   
-  drop_width -= (styles.padding*2+styles.stroke*2)
-  
   var button_width = d3plus.forms.value(styles.width,["button","drop"])
   if (!button_width || typeof button_width != "number") {
     button_width = drop_width
   }
   
   styles.width.button = button_width
-  
-  button_width -= ((styles.padding*2)+(styles.stroke*2))
-  
   
   if (vars.dev) d3plus.console.time("creating main button")
   
@@ -449,7 +440,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     style.icon = false
     style.display = "block"
     style.border = "none"
-    style.width = drop_width - (styles.stroke*2)
+    style.width = drop_width
     style.margin = 0
     var text = d3plus.forms.value(vars.text,["drop","button"])
     if (!text) {
@@ -466,6 +457,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .id(vars.id+"_option")
       .timing(timing)
       .callback(vars.ui.value)
+      .previous(vars.previous)
       .selected(vars.focus)
       .hover(vars.hover)
       .draw()
@@ -483,27 +475,23 @@ d3plus.forms.drop = function(vars,styles,timing) {
     if (hidden) selector.style("display","block")
   
     var search_height = vars.search ? search[0][0].offsetHeight : 0
-    if (vars.enabled) {
-      var old_height = selector.style("height"),
-          old_scroll = selector.property("scrollTop"),
-          list_height = list.style("max-height"),
-          list_scroll = list.property("scrollTop")
-        
-      selector.style("height","auto")
-      list.style("max-height","200000px")
     
-      var height = parseFloat(selector.style("height"),10)
+    var old_height = selector.style("height"),
+        old_scroll = selector.property("scrollTop"),
+        list_height = list.style("max-height"),
+        list_scroll = list.property("scrollTop")
+      
+    selector.style("height","auto")
+    list.style("max-height","200000px")
+  
+    var height = parseFloat(selector.style("height"),10)
 
-      list
-        .style("max-height",list_height)
-        .property("scrollTop",list_scroll)
-      selector
-        .style("height",old_height)
-        .property("scrollTop",old_scroll)
-    }
-    else {
-      var height = 0
-    }
+    list
+      .style("max-height",list_height)
+      .property("scrollTop",list_scroll)
+    selector
+      .style("height",old_height)
+      .property("scrollTop",old_scroll)
   
     if (height > max) {
       height = max
@@ -598,9 +586,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .style("opacity",function(){
       return vars.enabled ? 0.5 : 1
     })
-    .style("top",function(){
-      return this.parentNode.offsetHeight/2 - this.offsetHeight/2 - 2 + "px"
-    })
   
   if (vars.dev) d3plus.console.timeEnd("rotating arrow")
   
@@ -609,7 +594,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   selector.transition().duration(timing)
     .each("start",function(){
       d3.select(this)
-        .style("display",vars.enabled ? "block" : "")
+        .style("display",vars.enabled ? "block" : null)
     })
     .style("left",function(){
       if (styles.align == "left") {
@@ -631,10 +616,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .style("z-index",function(){
       return vars.enabled ? "9999" : "-1";
     })
-    // .style("box-shadow",function(){
-    //   return vars.enabled ? "0px "+styles.shadow/2+"px "+styles.shadow+"px rgba(0,0,0,0.25)" : "0px 0px 0px rgba(0,0,0,0)"
-    // })
-    .style("width",(drop_width+(styles.padding*2))+"px")
+    .style("width",(drop_width-(styles.stroke*2))+"px")
     .style("top",function(){
       return vars.flipped ? "auto" : button.height()+"px"
     })
@@ -651,7 +633,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
         .style("bottom",function(){
           return vars.flipped ? button.height()+"px" : "auto"
         })
-        .style("display",!vars.enabled ? "none" : "")
+        .style("display",!vars.enabled ? "none" : null)
         
       if (vars.search && vars.enabled) {
         selector.select("div.d3plus_drop_search input").node().focus()
