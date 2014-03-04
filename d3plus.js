@@ -7376,6 +7376,7 @@ d3plus.info.timeline = function(vars) {
       .attr("font-family",vars.style.timeline.tick.family)
       .attr("font-size",vars.style.timeline.tick.size)
       .attr("text-anchor",vars.style.timeline.tick.align)
+      .attr("opacity",0)
       .text(function(d){
         return d
       })
@@ -7412,6 +7413,12 @@ d3plus.info.timeline = function(vars) {
     else {
       var start_x = vars.width.value/2 - timeline_width/2
     }
+    
+    text
+      .text(function(d,i){
+        return i%step == 0 ? d : ""
+      })
+      .attr("opacity",1)
   
     text.transition().duration(vars.style.timing.transitions)
       .attr("fill",function(d){
@@ -7428,9 +7435,6 @@ d3plus.info.timeline = function(vars) {
       })
       .attr("x",function(d,i){
         return start_x + (label_width*i) + label_width/2
-      })
-      .text(function(d,i){
-        return i%step == 0 ? d : ""
       })
       .attr("y",function(d){
         var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
@@ -7498,8 +7502,7 @@ d3plus.info.timeline = function(vars) {
       .attr("opacity",1)
       .call(brush)
       
-    brush_group.selectAll("rect")
-      .transition().duration(vars.style.timing.transitions)
+    brush_group.selectAll("rect.background, rect.extent")
       .attr("height",vars.style.timeline.height)
       
     brush_group.selectAll("rect.background")
