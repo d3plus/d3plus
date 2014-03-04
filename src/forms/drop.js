@@ -141,8 +141,9 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
     })
 
-    if (elem.self !== window.top) {
-      if (window.parent.location.host == window.location.host) {
+    var same_origin = window.parent.location.host == window.location.host
+    if (same_origin) {
+      if (elem.self !== window.top) {
         parent_click(elem.parent)
       }
     }
