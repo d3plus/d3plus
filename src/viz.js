@@ -69,10 +69,10 @@ d3plus.viz = function() {
       var zoom = vars.zoom_direction()
 
       if (zoom === 1) {
-        var text = vars.format("Click to Zoom In")
+        var text = vars.format("Click to Expand")
       }
       else if (zoom === -1) {
-        var text = vars.format("Click to Zoom Out")
+        var text = vars.format("Click to Collapse")
       }
       else if (vars.html.value || vars.tooltip.value.long) {
         var text = "Click for More Info"
