@@ -4,6 +4,12 @@
 
 d3plus.tooltip.data = function(vars,id,length,extras,depth) {
 
+  if (vars.small) {
+
+    return []
+
+  }
+
   if (!length) var length = "long"
   if (length == "long") {
     var other_length = "short"
