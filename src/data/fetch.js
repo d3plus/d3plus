@@ -17,11 +17,11 @@ d3plus.data.fetch = function(vars,format,years) {
   else {
     return_data = [];
   }
-  
+
   if (vars.dev.value) d3plus.console.group("Fetching \""+format+"\" data")
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // If "years" have not been requested, determine the years using .time() 
+  // If "years" have not been requested, determine the years using .time()
   // solo and mute
   //----------------------------------------------------------------------------
   if (!years) {
@@ -62,21 +62,18 @@ d3plus.data.fetch = function(vars,format,years) {
     else {
       var years = ["all"]
     }
-    
+
   }
-  
+
   if (vars.dev.value) console.log("years: "+years.join(","))
-  
+
   if (format == "restricted") {
     var data = vars.data.restricted
-  }
-  else if (format == "nested" && years.length > 1) {
-    var data = vars.data.grouped[vars.id.nesting[vars.depth.value]]
   }
   else {
     var data = vars.data[format][vars.id.nesting[vars.depth.value]]
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If there is only 1 year needed, just grab it!
   //----------------------------------------------------------------------------
@@ -87,13 +84,13 @@ d3plus.data.fetch = function(vars,format,years) {
   // Otherwise, we need to grab each year individually
   //----------------------------------------------------------------------------
   else {
-    
+
     var missing = []
-        
+
     years.forEach(function(y){
 
       if (data[y]) {
-        
+
         if (format == "object") {
           for (k in data[y]) {
             if (!return_data[data[y][k][vars.id.key]]) {
@@ -109,9 +106,9 @@ d3plus.data.fetch = function(vars,format,years) {
       else {
         missing.push(y)
       }
-        
+
     })
-    
+
     if (return_data.length == 0 && missing.length) {
       vars.internal_error = "No Data Available for "+missing.join(", ")
       d3plus.console.warning(vars.internal_error)
@@ -119,7 +116,7 @@ d3plus.data.fetch = function(vars,format,years) {
     else {
       vars.internal_error = null
     }
-    
+
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -133,11 +130,11 @@ d3plus.data.fetch = function(vars,format,years) {
         separated = true
       }
     })
-    
+
     if (!separated) {
-      
+
       var nested = vars.id.nesting.slice(0,vars.depth.value+1)
-      
+
       if (return_data instanceof Array) {
         return_data = d3plus.data.nest(vars,return_data,nested,format == "grouped")
       }
@@ -146,11 +143,11 @@ d3plus.data.fetch = function(vars,format,years) {
           return_data[k] = d3plus.data.nest(vars,return_data[k],nested)[0]
         }
       }
-  
+
     }
-    
+
   }
-  
+
   if (!return_data) {
     if (format == "object") {
       return_data = {};
@@ -159,9 +156,9 @@ d3plus.data.fetch = function(vars,format,years) {
       return_data = [];
     }
   }
-  
+
   if (vars.dev.value) d3plus.console.groupEnd()
-  
+
   return return_data
-  
+
 }
