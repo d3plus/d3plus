@@ -7,25 +7,26 @@ d3plus.tooltip.app = function(params) {
       d = params.data,
       ex = params.ex,
       mouse = params.mouseevents ? params.mouseevents : false,
-      arrow = params.arrow ? params.arrow : true,
-      id = d3plus.variable.value(vars,d,vars.id.key)
-      
-  if (d3.event.type == "click" && (vars.html.value || vars.tooltip.value.long)) {
+      arrow = "arrow" in params ? params.arrow : true,
+      id = d3plus.variable.value(vars,d,vars.id.key),
+      tooltip_id = params.id || vars.type.value
+
+  if ((d3.event && d3.event.type == "click") && (vars.html.value || vars.tooltip.value.long) && !("fullscreen" in params)) {
     var fullscreen = true,
         arrow = false,
         mouse = true,
         length = "long",
         footer = vars.footer.value
-      
+
     vars.covered = true
   }
   else {
     var fullscreen = false,
-        align = vars.style.tooltip.anchor,
-        length = "short",
+        align = params.anchor || vars.style.tooltip.anchor,
+        length = params.length || "short",
         footer = vars.footer_text()
   }
-  
+
   if (params.x) {
     var x = params.x
   }
@@ -35,7 +36,7 @@ d3plus.tooltip.app = function(params) {
   else {
     var x = d.d3plus.x+vars.margin.left
   }
-  
+
   if (params.y) {
     var y = params.y
   }
@@ -45,7 +46,7 @@ d3plus.tooltip.app = function(params) {
   else {
     var y = d.d3plus.y+vars.margin.top
   }
-  
+
   if (params.offset) {
     var offset = params.offset
   }
@@ -55,40 +56,41 @@ d3plus.tooltip.app = function(params) {
   else {
     var offset = d.d3plus.r ? d.d3plus.r : d.d3plus.height/2
   }
-  
+
   function make_tooltip(html) {
 
     var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
         temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
         total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
-      
+
     if (typeof active == "number" && active > 0 && total) {
       if (!ex) ex = {}
       var label = vars.active.key || "active"
       ex[label] = active+"/"+total+" ("+vars.format((active/total)*100,"share")+"%)"
     }
-    
+
     if (typeof temp == "number" && temp > 0 && total) {
       if (!ex) ex = {}
       var label = vars.temp.key || "temp"
       ex[label] = temp+"/"+total+" ("+vars.format((temp/total)*100,"share")+"%)"
     }
-    
+
     if (d.d3plus.share) {
       if (!ex) ex = {}
       ex.share = vars.format(d.d3plus.share*100,"share")+"%"
     }
-    
-    var icon = d3plus.variable.value(vars,d,vars.icon.key),
-        title = d3plus.variable.value(vars,d,vars.text.key),
-        tooltip_data = d3plus.tooltip.data(vars,d,length,ex)
-        
-    if (tooltip_data.length > 0 || !d.d3plus_label) {
-        
+
+    var depth = "depth" in params ? params.depth : vars.depth.value,
+        title = d3plus.variable.value(vars,d,vars.text.key,vars.id.nesting[depth]),
+        icon = d3plus.variable.value(vars,d,vars.icon.key,vars.id.nesting[depth]),
+        tooltip_data = d3plus.tooltip.data(vars,d,length,ex,depth)
+
+    if ((tooltip_data.length > 0 || footer) || !d.d3plus_label) {
+
       if (!title) {
         title = id
       }
-    
+
       var depth = d.d3plus && "depth" in d.d3plus ? vars.id.nesting[d.d3plus.depth] : vars.id.key
 
       if (typeof vars.icon.style.value == "string") {
@@ -100,14 +102,17 @@ d3plus.tooltip.app = function(params) {
       else {
         var icon_style = "default"
       }
-    
+
+      if (params.width) {
+        var width = params.width
+      }
       if (!fullscreen && tooltip_data.length == 0) {
         var width = "auto"
       }
       else {
         var width = vars.style.tooltip.width
       }
-    
+
       d3plus.tooltip.create({
         "align": align,
         "arrow": arrow,
@@ -124,7 +129,7 @@ d3plus.tooltip.app = function(params) {
         "fullscreen": fullscreen,
         "html": html,
         "icon": icon,
-        "id": vars.type.value,
+        "id": tooltip_id,
         "max_width": vars.style.tooltip.width,
         "mouseevents": mouse,
         "offset": offset,
@@ -135,11 +140,11 @@ d3plus.tooltip.app = function(params) {
         "x": x,
         "y": y
       })
-    
+
     }
-    
+
   }
-  
+
   if (fullscreen) {
 
     if (typeof vars.html.value == "string") {
@@ -157,10 +162,10 @@ d3plus.tooltip.app = function(params) {
     else {
       make_tooltip("")
     }
-    
+
   }
   else {
     make_tooltip("")
   }
-  
+
 }
