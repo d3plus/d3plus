@@ -5,16 +5,16 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
   if (vars.element) {
     vars.element.on("focus."+vars.id,function(){
-      vars.ui.hover(true).draw()
+      vars.forms.hover(true).draw()
     })
     vars.element.on("blur."+vars.id,function(){
       var search = vars.search ? d3.event.relatedTarget != vars.container.select("input").node() : true
       if (search) {
-        vars.ui.hover(false).draw()
+        vars.forms.hover(false).draw()
       }
     })
     vars.element.on("change."+vars.id,function(){
-      vars.ui.value(vars.data.array[this.selectedIndex])
+      vars.forms.value(vars.data.array[this.selectedIndex])
     })
     vars.element.on("keydown.cancel_"+vars.id,function(){
       // Only let TAB work
@@ -50,7 +50,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
       // Tab
       if ([9].indexOf(key) >= 0 && (!vars.search || (vars.search && !d3.event.shiftKey))) {
-        vars.ui.disable()
+        vars.forms.disable()
       }
       // Down Arrow
       else if ([40].indexOf(key) >= 0) {
@@ -71,10 +71,10 @@ d3plus.forms.drop = function(vars,styles,timing) {
         }
 
         if (vars.enabled) {
-          vars.ui.hover(hover).draw(60)
+          vars.forms.hover(hover).draw(60)
         }
         else {
-          vars.ui.hover(hover).enable()
+          vars.forms.hover(hover).enable()
         }
 
       }
@@ -97,29 +97,29 @@ d3plus.forms.drop = function(vars,styles,timing) {
         }
 
         if (vars.enabled) {
-          vars.ui.hover(hover).draw(60)
+          vars.forms.hover(hover).draw(60)
         }
         else {
-          vars.ui.hover(hover).enable()
+          vars.forms.hover(hover).enable()
         }
 
       }
       // Enter/Return
       else if ([13].indexOf(key) >= 0) {
         if (typeof vars.hover != "boolean") {
-          vars.ui.value(vars.hover).hover(true).draw()
+          vars.forms.value(vars.hover).hover(true).draw()
         }
         else {
-          vars.ui.hover(vars.focus).toggle()
+          vars.forms.hover(vars.focus).toggle()
         }
       }
       // Esc
       else if ([27].indexOf(key) >= 0) {
         if (vars.enabled) {
-          vars.ui.hover(true).disable()
+          vars.forms.hover(true).disable()
         }
         else if (vars.hover === true) {
-          vars.ui.hover(false).draw()
+          vars.forms.hover(false).draw()
         }
       }
 
@@ -136,7 +136,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
       var child = "_"+vars.id
 
       if (element.indexOf(child) < 0 && vars.enabled) {
-        vars.ui.disable()
+        vars.forms.disable()
       }
 
     })
@@ -215,7 +215,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
      text = "text"
     }
 
-    var button = d3plus.ui(data)
+    var button = d3plus.forms(data)
       .type("button")
       .text(text)
       .data(vars.data.array)
@@ -267,7 +267,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   var hover = vars.hover === true ? vars.focus : false
 
   if (vars.dev) d3plus.console.group("main button")
-  var button = d3plus.ui(style)
+  var button = d3plus.forms(style)
     // .dev(vars.dev)
     .type("button")
     .text(text)
@@ -276,7 +276,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .timing(timing)
     .hover(hover)
     .data([test_data])
-    .callback(vars.ui.toggle)
+    .callback(vars.forms.toggle)
     .highlight(vars.focus)
     .enable()
     .draw()
@@ -353,7 +353,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   search.select("input").on("keyup."+vars.id,function(d){
     if (vars.filter != this.value) {
       vars.filter = this.value
-      vars.ui.draw()
+      vars.forms.draw()
     }
   })
 
@@ -456,7 +456,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
      text = "text"
     }
 
-    var buttons = d3plus.ui(style)
+    var buttons = d3plus.forms(style)
       // .dev(vars.dev)
       .type("button")
       .text(text)
@@ -465,7 +465,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .parent(list)
       .id(vars.id+"_option")
       .timing(timing)
-      .callback(vars.ui.value)
+      .callback(vars.forms.value)
       .previous(vars.previous)
       .selected(vars.focus)
       .hover(vars.hover)

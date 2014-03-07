@@ -21,13 +21,13 @@ d3plus.forms.radio = function(vars,styles,timing) {
    text = "text"
   }
 
-  var button = d3plus.ui(button_style)
+  var button = d3plus.forms(button_style)
     .type("button")
     .text(text)
     .data(vars.data.array)
     .parent(vars.container)
     .id(vars.id+"_radios")
-    .callback(vars.ui.value)
+    .callback(vars.forms.value)
     .highlight(vars.focus)
     .enable()
     .draw()

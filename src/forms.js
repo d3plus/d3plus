@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// UI Element shell
+// Form Element shell
 //------------------------------------------------------------------------------
-d3plus.ui = function(passed) {
+d3plus.forms = function(passed) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create global ui variable object
@@ -28,7 +28,7 @@ d3plus.ui = function(passed) {
     "text": "text",
     "timing": 400
   }
-  
+
   var styles = {
     "align": "left",
     "border": "all",
@@ -47,9 +47,9 @@ d3plus.ui = function(passed) {
     "stroke": 1,
     "width": false
   }
-  
+
   styles["font-align"] = d3plus.rtl ? "right" : "left"
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Set default icon based on whether or not font-awesome is present
   //----------------------------------------------------------------------------
@@ -61,15 +61,15 @@ d3plus.ui = function(passed) {
   if (passed) {
     styles = d3plus.utils.merge(styles,passed)
   }
-  vars.ui = function(selection,timing) {
-    
+  vars.forms = function(selection,timing) {
+
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set timing to 0 if it's the first time running this function
     //--------------------------------------------------------------------------
     if (typeof timing != "number") {
       var timing = vars.init ? vars.timing : 0
     }
-    
+
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is an array, format it
     //--------------------------------------------------------------------------
@@ -82,28 +82,28 @@ d3plus.ui = function(passed) {
     // If it data is an object, format it
     //--------------------------------------------------------------------------
     else if (typeof vars.data == "object" && !vars.data.array && !(vars.data instanceof Array)) {
-      
+
       if (!vars.data.array) {
         vars.data.array = []
       }
-      
+
       if (vars.element) {
         d3plus.forms.element(vars)
       }
-      
+
       d3plus.forms.data(vars)
-      
+
       var focus = vars.data.array.filter(function(d){
         return d.value == vars.focus
       })[0]
-      
+
       if (!focus) {
         vars.data.array[0].selected = true
         vars.focus = vars.data.array[0].value
       }
-      
+
       vars.data.changed
-      
+
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is not an object, extract data from the element associated with it
@@ -111,7 +111,7 @@ d3plus.ui = function(passed) {
     else if (vars.data && !vars.data.array) {
 
       var d3selection = d3plus.ie ? typeof vars.data.select == "function" : vars.data instanceof d3.selection
-      
+
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.element = d3.selectAll(vars.data)
         if (vars.data.charAt(0) == "#") {
@@ -124,20 +124,20 @@ d3plus.ui = function(passed) {
           vars.before = "#"+vars.data.node().id
         }
       }
-      
+
       vars.data = {
         "array": []
       }
-      
+
     }
-    
+
     if (vars.data.array.length == 0 && vars.element) {
-        
+
       vars.parent = d3.select(vars.element.node().parentNode)
       d3plus.forms.element(vars)
-      
+
     }
-    
+
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there is no data, throw error message
     //--------------------------------------------------------------------------
@@ -151,18 +151,18 @@ d3plus.ui = function(passed) {
     // Else, create/update the UI element
     //--------------------------------------------------------------------------
     else {
-      
+
       if (!vars.focus) {
         vars.data.array[0].selected = true
         vars.focus = vars.data.array[0].value
         if (vars.dev) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
       }
-  
+
       if (vars.data.array.length > 10 && !("search" in vars)) {
         vars.search = true
         if (vars.dev) d3plus.console.log("search enabled")
       }
-    
+
       if (vars.element) {
 
         vars.element
@@ -174,14 +174,14 @@ d3plus.ui = function(passed) {
           .style("margin","-1px")
           .style("padding","0")
           .style("border","0")
-          
+
         if (vars.data.changed && vars.type == "drop") {
-          
+
           options = vars.element.selectAll("option")
             .data(vars.data.array,function(d){
               return d ? d.value : false
             })
-            
+
           options.enter().append("option")
             .attr("value",function(d){
               return d.value
@@ -192,19 +192,19 @@ d3plus.ui = function(passed) {
             .attr("selected",function(d){
               return d.selected
             })
-          
+
           options.exit().remove()
-            
+
         }
-        
+
       }
-      
+
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Select container DIV for UI element
       //------------------------------------------------------------------------
       vars.container = vars.parent.selectAll("div#d3plus_"+vars.type+"_"+vars.id)
         .data(["container"])
-        
+
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Create container DIV for UI element
       //------------------------------------------------------------------------
@@ -215,7 +215,7 @@ d3plus.ui = function(passed) {
         .style("position","relative")
         .style("overflow","visible")
         .style("vertical-align","top")
-        
+
       vars.container.transition().duration(timing)
         .each("start",function(){
           if (vars.type == "drop" && vars.enabled) {
@@ -228,7 +228,7 @@ d3plus.ui = function(passed) {
             d3.select(this).style("z-index","auto")
           }
         })
-        
+
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Select testing DIV
       //------------------------------------------------------------------------
@@ -260,11 +260,11 @@ d3plus.ui = function(passed) {
         vars.init = true
       }
       vars.data.changed = false
-      
+
     }
-    
+
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // List of simple set/retrieve methods
   //----------------------------------------------------------------------------
@@ -290,11 +290,11 @@ d3plus.ui = function(passed) {
   // Create simple set/retrieve methods
   //----------------------------------------------------------------------------
   variables.forEach(function(v){
-    
-    vars.ui[v] = (function(key) {
-      
+
+    vars.forms[v] = (function(key) {
+
       return function(value) {
-        
+
         if (vars.dev) {
 
           var text = value.toString()
@@ -304,11 +304,11 @@ d3plus.ui = function(passed) {
           else {
             var text = " to \""+text+"\""
           }
-          
+
         }
 
         if (!arguments.length) return vars[key]
-        
+
         if (["element","parent"].indexOf(key) >= 0) {
           var d3selection = d3plus.ie ? typeof value == "object" && value instanceof Array : value instanceof d3.selection
           if (typeof value == "string" && !d3.select(value).empty()) {
@@ -322,28 +322,28 @@ d3plus.ui = function(passed) {
           else {
             d3plus.console.warning("Cannot set \""+key+"\" as \""+value.toString()+"\"")
           }
-          
+
           if (vars[key] && key == "element") {
             if (vars[key].node().id) {
               vars.before = "#"+vars[key].node().id
             }
             vars.parent = d3.select(vars[key].node().parentNode)
           }
-          
+
         }
         else {
           if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
           vars[key] = value
         }
-        
-        return vars.ui
-        
+
+        return vars.forms
+
       }
-      
+
     })(v)
-    
+
   })
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // List of simple style methods
   //----------------------------------------------------------------------------
@@ -364,13 +364,13 @@ d3plus.ui = function(passed) {
   // Create simple style methods
   //----------------------------------------------------------------------------
   style_variables.forEach(function(v){
-    
-    vars.ui[v] = (function(key) {
-      
+
+    vars.forms[v] = (function(key) {
+
       return function(value) {
-        
+
         if (!arguments.length) return styles[key]
-        
+
         if (vars.dev) {
 
           var text = value.toString()
@@ -380,9 +380,9 @@ d3plus.ui = function(passed) {
           else {
             var text = " to \""+text+"\""
           }
-          
+
         }
-        
+
         if (key == "font") {
           if (typeof value == "string") {
             if (vars.dev) d3plus.console.log("\"font-family\" set"+text)
@@ -411,7 +411,7 @@ d3plus.ui = function(passed) {
                 else {
                   var text = " to \""+text+"\""
                 }
-                
+
                 d3plus.console.log("\"font-"+style+"\" set"+text)
               }
               styles["font-"+style] = value[style]
@@ -425,102 +425,102 @@ d3plus.ui = function(passed) {
           if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
           styles[key] = value
         }
-        
-        return vars.ui
-        
+
+        return vars.forms
+
       }
-      
+
     })(v)
-    
+
   })
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Disables the UI element
   //----------------------------------------------------------------------------
-  vars.ui.disable = function() {
+  vars.forms.disable = function() {
     if (vars.dev) d3plus.console.log("disable")
     vars.enabled = false
     if (vars.init) {
-      vars.parent.call(vars.ui)
+      vars.parent.call(vars.forms)
     }
-    return vars.ui
+    return vars.forms
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enables the UI element
   //----------------------------------------------------------------------------
-  vars.ui.enable = function() {
+  vars.forms.enable = function() {
     if (vars.dev) d3plus.console.log("enable")
     vars.enabled = true
-    
+
     if (vars.data.fetch && (!vars.data.loaded || vars.data.continuous)) {
       d3plus.forms.json(vars)
     }
-    
+
     if (vars.init) {
-      vars.parent.call(vars.ui)
+      vars.parent.call(vars.forms)
     }
-    return vars.ui
+    return vars.forms
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Draws the UI element
   //----------------------------------------------------------------------------
-  vars.ui.draw = function(timing) {
-    vars.parent.call(vars.ui,timing)
-    return vars.ui
+  vars.forms.draw = function(timing) {
+    vars.parent.call(vars.forms,timing)
+    return vars.forms
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Returns UI element's current height
   //----------------------------------------------------------------------------
-  vars.ui.height = function(value) {
-    
+  vars.forms.height = function(value) {
+
     if (!arguments.length) return vars.container[0][0].offsetHeight
 
     if (vars.dev) d3plus.console.log("\"height\" set to \""+value+"\"")
     styles.height = value
-    
-    return vars.ui
+
+    return vars.forms
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Destroys UI element
   //----------------------------------------------------------------------------
-  vars.ui.remove = function(x) {
+  vars.forms.remove = function(x) {
     vars.container.remove()
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Selects something inside of the container
   //----------------------------------------------------------------------------
-  vars.ui.select = function(selection) {
+  vars.forms.select = function(selection) {
     return vars.container.select(selection)
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sets value of the UI element
   //----------------------------------------------------------------------------
-  vars.ui.value = function(value) {
-    
+  vars.forms.value = function(value) {
+
     if (!arguments.length) return vars.focus
-      
+
     if (typeof value == "string") {
       value = vars.data.array.filter(function(d){
         return d.value == value
       })[0]
     }
-    
+
     if (value.value != vars.focus) {
 
       if (vars.tag == "select") {
-        
+
         vars.element.selectAll("option").each(function(d,i){
           if (this.value == value.value) {
             vars.element.node().selectedIndex = i
           }
         })
-      
+
       }
       else if (vars.tag == "input" && vars.element.attr("type") == "radio") {
         vars.element
@@ -533,50 +533,50 @@ d3plus.ui = function(passed) {
             }
           })
       }
-    
+
       if (vars.callback) {
         vars.callback(value.value)
       }
 
       if (vars.dev) d3plus.console.log("\"value\" set to \""+value.value+"\"")
-    
+
       vars.previous = vars.focus
       vars.focus = value.value
-      
+
     }
-    
+
     vars.enabled = false
     vars.highlight = false
-    
+
     if (vars.init) {
-      vars.parent.call(vars.ui)
+      vars.parent.call(vars.forms)
     }
-    
-    return vars.ui
+
+    return vars.forms
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Toggles the UI element menu open/close
   //----------------------------------------------------------------------------
-  vars.ui.toggle = function() {
+  vars.forms.toggle = function() {
 
     if (vars.dev) d3plus.console.log("toggle")
-    
+
     if (vars.enabled) {
-      vars.ui.disable()
+      vars.forms.disable()
     }
     else {
-      vars.ui.enable()
+      vars.forms.enable()
     }
-    
-    return vars.ui
-    
+
+    return vars.forms
+
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Returns UI element's current width
   //----------------------------------------------------------------------------
-  vars.ui.width = function(value) {
+  vars.forms.width = function(value) {
     if (!arguments.length) {
       var vals = []
       vars.container.selectAll("div.d3plus_node").each(function(o){
@@ -594,12 +594,12 @@ d3plus.ui = function(passed) {
     }
     if (vars.dev) d3plus.console.log("\"width\" set to \""+value+"\"")
     styles.width = value
-    return vars.ui
+    return vars.forms
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Finally, return the main UI function to the user
   //----------------------------------------------------------------------------
-  return vars.ui
-  
+  return vars.forms
+
 }
