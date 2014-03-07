@@ -4,16 +4,17 @@ d3plus.apps.rings.requirements = ["links","focus"];
 d3plus.apps.rings.tooltip = "static"
 d3plus.apps.rings.shapes = ["circle","square","donut"];
 d3plus.apps.rings.scale = 1
+d3plus.apps.rings.nesting = false
 
 d3plus.apps.rings.draw = function(vars) {
-  
+
   var radius = d3.min([vars.app_height,vars.app_width])/2,
       ring_width = vars.small || !vars.labels.value ? radius/2.25 : radius/3,
       links = [],
       nodes = []
-  
+
   if (vars.data.app) {
-    
+
     var center = vars.data.app[vars.focus.value]
     if (!center) {
       center = {"d3plus": {}}
@@ -22,10 +23,10 @@ d3plus.apps.rings.draw = function(vars) {
     center.d3plus.x = vars.app_width/2
     center.d3plus.y = vars.app_height/2
     center.d3plus.r = ring_width/2
-    
+
     var primaries = [], claimed = []
     vars.connections(vars.focus.value).forEach(function(link){
-      
+
       var c = link.source[vars.id.key] == vars.focus.value ? link.target : link.source
       var n = vars.data.app[c[vars.id.key]]
       if (!n) {
@@ -38,11 +39,11 @@ d3plus.apps.rings.draw = function(vars) {
       n.d3plus.link = link
       claimed.push(n[vars.id.key])
       primaries.push(n)
-      
+
     })
-    
+
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Sort primary nodes by children (smallest to largest) and then by sort 
+    // Sort primary nodes by children (smallest to largest) and then by sort
     // order.
     //--------------------------------------------------------------------------
     var sort = null
@@ -58,17 +59,17 @@ d3plus.apps.rings.draw = function(vars) {
     else {
       sort = vars.id.key
     }
-    
+
     function sort_function(a,b){
-      
+
       a_value = d3plus.variable.value(vars,a,sort)
       b_value = d3plus.variable.value(vars,b,sort)
-    
+
       if (vars.color.key && sort == vars.color.key) {
-        
+
         a_value = d3plus.variable.color(vars,a)
         b_value = d3plus.variable.color(vars,b)
-        
+
         a_value = d3.rgb(a_value).hsl()
         b_value = d3.rgb(b_value).hsl()
 
@@ -82,29 +83,29 @@ d3plus.apps.rings.draw = function(vars) {
         a_value = d3plus.variable.value(vars,a,sort)
         b_value = d3plus.variable.value(vars,b,sort)
       }
-    
+
       if(a_value<b_value) return vars.order.sort.value == "desc" ? -1 : 1;
       if(a_value>b_value) return vars.order.sort.value == "desc" ? 1 : -1;
-        
+
     }
-    
+
     primaries.sort(function(a,b){
-      
+
       var lengthdiff = a.d3plus.children.length - b.d3plus.children.length
-      
+
       if (lengthdiff) {
-        
+
         return lengthdiff
-        
+
       }
       else {
-        
+
         return sort_function(a,b)
-      
+
       }
-      
+
     })
-    
+
     if (typeof vars.links.limit == "number") {
       primaries = primaries.slice(0,vars.links.limit)
     }
@@ -128,32 +129,32 @@ d3plus.apps.rings.draw = function(vars) {
         claimed.push(claim[vars.id.key])
       })
     })
-    
+
     primaries.sort(sort_function)
-    
+
     var offset = 0, radian = Math.PI*2, start = 0
     primaries.forEach(function(p,i){
-      
+
       var children = p.d3plus.children.length || 1,
           space = (radian/total)*children
-          
+
       if (i == 0) {
         start = angle
         offset -= space/2
       }
-      
+
       var angle = offset+(space/2)
-          
+
       // Rotate everything by 90 degrees so that the first is at 12:00
       angle -= radian/4
-      
+
       p.d3plus.radians = angle
       p.d3plus.x = vars.app_width/2 + (ring_width * Math.cos(angle))
       p.d3plus.y = vars.app_height/2 + (ring_width * Math.sin(angle))
       p.d3plus.r = 8
-      
+
       var check = ["source","target"]
-      
+
       check.forEach(function(node){
         if (p.d3plus.link[node][vars.id.key] == center[vars.id.key]) {
 
@@ -161,43 +162,43 @@ d3plus.apps.rings.draw = function(vars) {
             "x": vars.app_width/2+(center.d3plus.r * Math.cos(angle)),
             "y": vars.app_height/2+(center.d3plus.r * Math.sin(angle))
           }
-          
+
         }
         else {
-          
+
           p.d3plus.link[node].d3plus = {
             "x": p.d3plus.x-(p.d3plus.r * Math.cos(angle)),
             "y": p.d3plus.y-(p.d3plus.r * Math.sin(angle))
           }
-      
+
         }
       })
-      
+
       delete p.d3plus.link.d3plus
       links.push(p.d3plus.link)
-      
+
       offset += space
       p.d3plus.children.sort(function(a,b){
-        
+
         var a = a.source[vars.id.key] == p[vars.id.key] ? a.target : a.source,
             b = b.source[vars.id.key] == p[vars.id.key] ? b.target : b.source
-        
+
         return sort_function(a,b)
-        
+
       })
-      
+
       p.d3plus.children.forEach(function(link,i){
-        
+
         var c = link.source[vars.id.key] == p[vars.id.key] ? link.target : link.source
-        
+
         var d = vars.data.app[c[vars.id.key]],
             s = radian/total
-            
+
         if (!d) {
           d = {"d3plus": {}}
           d[vars.id.key] = c[vars.id.key]
         }
-        
+
         a = (angle-(s*children/2)+(s/2))+((s)*i)
         d.d3plus.radians = a
         d.d3plus.x = vars.app_width/2 + ((ring_width*2) * Math.cos(a))
@@ -205,17 +206,17 @@ d3plus.apps.rings.draw = function(vars) {
         d.d3plus.r = 4
         secondaries.push(d)
       })
-      
+
     })
-    
+
     primaries.forEach(function(p,i){
 
       vars.connections(p[vars.id.key]).forEach(function(link){
-        
+
         var c = link.source[vars.id.key] == p[vars.id.key] ? link.target : link.source
-        
+
         if (c[vars.id.key] != center[vars.id.key]) {
-          
+
           var target = secondaries.filter(function(s){
             return s[vars.id.key] == c[vars.id.key]
           })[0]
@@ -234,49 +235,49 @@ d3plus.apps.rings.draw = function(vars) {
                 "y": vars.app_height/2
               }
             }
-            
+
             var check = ["source","target"],
                 r = ring_width*2
-      
+
             check.forEach(function(node){
               if (link[node][vars.id.key] == p[vars.id.key]) {
-                
+
                 link[node].d3plus = {
                   "a": p.d3plus.radians,
                   "r": ring_width+p.d3plus.r
                 }
-          
+
               }
               else {
-          
+
                 link[node].d3plus = {
                   "a": target.d3plus.radians,
                   "r": r-target.d3plus.r
                 }
-      
+
               }
             })
-          
+
             links.push(link)
-            
+
           }
-          
+
         }
-        
+
       })
-      
+
     })
 
     nodes = [center].concat(primaries).concat(secondaries)
-    
+
     nodes.forEach(function(n) {
-      
+
       if (n[vars.id.key] != vars.focus.value) {
-        
+
         if (vars.labels.value) {
           var angle = n.d3plus.radians*(180/Math.PI),
               width = ring_width-(vars.style.labels.padding*3)-n.d3plus.r
-              
+
           if (angle < -90 || angle > 90) {
             angle = angle-180
             var buffer = -(n.d3plus.r+width/2+vars.style.labels.padding),
@@ -286,9 +287,9 @@ d3plus.apps.rings.draw = function(vars) {
             var buffer = n.d3plus.r+width/2+vars.style.labels.padding,
                 anchor = "start"
           }
-          
+
           var background = primaries.indexOf(n) >= 0 ? true : false
-          
+
           n.d3plus.label = {
             "x": buffer,
             "y": 0,
@@ -301,26 +302,23 @@ d3plus.apps.rings.draw = function(vars) {
             "resize": false,
             "background": background
           }
-          
+
         }
-        
+
       }
       else {
         delete n.d3plus.label
       }
-      
+
     })
-    
+
   }
-  
+
   vars.mouse[d3plus.evt.click] = function(d) {
     d3plus.tooltip.remove(vars.type.value)
-    vars.viz.focus(d[vars.id.key])
-    if (!vars.autodraw) {
-      vars.viz.draw()
-    }
+    vars.viz.focus(d[vars.id.key]).draw()
   }
 
   return {"links": links, "nodes": nodes}
-  
+
 };
