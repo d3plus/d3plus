@@ -85,12 +85,14 @@ d3plus.ui.message = function(vars,message) {
     .call(style)
 
   var opacity = message ? 1 : 0,
-      text = message ? message : vars.g.message.text()
+      text = message ? message : vars.g.message.text(),
+      display = message ? "inline-block" : "none"
 
   vars.g.message
     .text(text)
     .call(style)
     // .transition().duration(vars.style.timing.mouseevents)
     .style("opacity",opacity)
+    .style("display",display)
 
 }
