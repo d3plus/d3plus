@@ -84,6 +84,21 @@ d3plus.public.dev = {
   "value": false
 }
 
+d3plus.public.edges = {
+  "arrows": {
+    "direction": {
+      "accepted": ["source","target"],
+      "value": "target"
+    },
+    "value": false
+  },
+  "deprecates": ["edges"],
+  "label": false,
+  "large": 100,
+  "limit": false,
+  "value": null
+}
+
 d3plus.public.error = {
   "value": false
 }
@@ -94,6 +109,7 @@ d3plus.public.focus = {
 }
 
 d3plus.public.footer = {
+  "link": null,
   "value": false
 }
 
@@ -155,21 +171,6 @@ d3plus.public.legend = {
     "value": "color"
   },
   "value": true
-}
-
-d3plus.public.edges = {
-  "arrows": {
-    "direction": {
-      "accepted": ["source","target"],
-      "value": "target"
-    },
-    "value": false
-  },
-  "deprecates": ["edges"],
-  "label": false,
-  "large": 100,
-  "limit": false,
-  "value": null
 }
 
 d3plus.public.messages = {
@@ -301,11 +302,14 @@ d3plus.public.timeline = {
 }
 
 d3plus.public.title = {
+  "link": null,
   "sub": {
+    "link": null,
     "value": null,
     "deprecates": ["sub_title"]
   },
   "total": {
+    "link": null,
     "value": false,
     "deprecates": ["total_bar"],
     "object": true

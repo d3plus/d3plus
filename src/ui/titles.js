@@ -79,28 +79,29 @@ d3plus.ui.titles = function(vars) {
 
   }
 
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // If in "small" mode, don't draw any titles
+  // Initialize titles and detect footer
   //----------------------------------------------------------------------------
-  if (vars.small) {
-    var title_data = []
+  var title_data = []
+
+  if (vars.footer.value) {
+    title_data.push({
+      "link": vars.footer.link,
+      "style": vars.style.footer,
+      "type": "footer",
+      "value": vars.footer.value
+    })
   }
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Otherwise, determine which ones are available
+  // If not in "small" mode, detect titles available
   //----------------------------------------------------------------------------
-  else {
+  if (!vars.small) {
 
-    var title_data = []
-
-    if (vars.footer.value) {
-      title_data.push({
-        "style": vars.style.footer,
-        "type": "footer",
-        "value": vars.footer.value
-      })
-    }
     if (vars.title.value) {
       title_data.push({
+        "link": vars.title.link,
         "style": vars.style.title,
         "type": "title",
         "value": vars.title.value
@@ -108,6 +109,7 @@ d3plus.ui.titles = function(vars) {
     }
     if (vars.title.sub.value) {
       title_data.push({
+        "link": vars.title.sub.link,
         "style": vars.style.title.sub,
         "type": "sub",
         "value": vars.title.sub.value
@@ -115,6 +117,7 @@ d3plus.ui.titles = function(vars) {
     }
     if (total !== null) {
       title_data.push({
+        "link": vars.title.total.link,
         "style": vars.style.title.total,
         "type": "total",
         "value": total
@@ -124,9 +127,9 @@ d3plus.ui.titles = function(vars) {
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Title TEXT styling
+  // Title positioning
   //----------------------------------------------------------------------------
-  function style(title) {
+  function position(title) {
 
     title
       .attr("text-anchor",function(t){
@@ -160,17 +163,32 @@ d3plus.ui.titles = function(vars) {
 
       })
       .attr("y",0)
+
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Enter Titles
+  //----------------------------------------------------------------------------
+  function style(title) {
+
+    title
       .attr("font-size",function(t){
         return t.style["font-size"]
       })
       .attr("fill",function(t){
-        return t.style["font-color"]
+        return t.link ? vars.style.link["font-color"] : t.style["font-color"]
       })
       .attr("font-family",function(t){
-        return t.style["font-family"]
+        return t.link ? vars.style.link["font-family"] : t.style["font-family"]
       })
       .style("font-weight",function(t){
-        return t.style["font-weight"]
+        return t.link ? vars.style.link["font-weight"] : t.style["font-weight"]
+      })
+      .style("text-decoration",function(t){
+        return t.link ? vars.style.link["text-decoration"] : t.style["text-decoration"]
+      })
+      .style("text-transform",function(t){
+        return t.link ? vars.style.link["text-transform"] : t.style["text-transform"]
       })
 
   }
@@ -194,10 +212,11 @@ d3plus.ui.titles = function(vars) {
       return "translate(0,"+y+")"
     })
     .append("text")
+      .call(position)
       .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Instantly Calculate Title Positions and Wrap Text
+  // Wrap text and calculate positions, then transition style and opacity
   //----------------------------------------------------------------------------
   titles
     .each(function(d){
@@ -214,25 +233,47 @@ d3plus.ui.titles = function(vars) {
       vars.margin[d.style.position] += this.getBBox().height + d.style.padding*2
 
     })
-    .transition().duration(vars.style.timing.transitions)
-      .call(style)
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Transition opacity and Y position
-  //----------------------------------------------------------------------------
-  titles.transition().duration(vars.style.timing.transitions)
-    .attr("opacity",1)
-    .attr("transform",function(t){
-      var pos = t.style.position,
-          y = pos == "top" ? 0+t.y : vars.height.value-t.y
-      if (pos == "bottom") {
-        y -= this.getBBox().height+t.style.padding
+    .on(d3plus.evt.over,function(t){
+      if (t.link) {
+        d3.select(this)
+          .transition().duration(vars.style.timing.mouseevents)
+          .style("cursor","pointer")
+          .attr("fill",vars.style.link.hover["font-color"])
+          .attr("font-family",vars.style.link.hover["font-family"])
+          .style("font-weight",vars.style.link.hover["font-weight"])
+          .style("text-decoration",vars.style.link.hover["text-decoration"])
+          .style("text-transform",vars.style.link.hover["text-transform"])
       }
-      else {
-        y += t.style.padding
-      }
-      return "translate(0,"+y+")"
     })
+    .on(d3plus.evt.out,function(t){
+      if (t.link) {
+        d3.select(this)
+          .transition().duration(vars.style.timing.mouseevents)
+          .style("cursor","auto")
+          .call(style)
+      }
+    })
+    .on(d3plus.evt.click,function(t){
+      if (t.link) {
+        var target = t.link.charAt(0) != "/" ? "_blank" : "_self"
+        window.open(t.link,target)
+      }
+    })
+    .transition().duration(vars.style.timing.transitions)
+      .call(position)
+      .call(style)
+      .attr("opacity",1)
+      .attr("transform",function(t){
+        var pos = t.style.position,
+            y = pos == "top" ? 0+t.y : vars.height.value-t.y
+        if (pos == "bottom") {
+          y -= this.getBBox().height+t.style.padding
+        }
+        else {
+          y += t.style.padding
+        }
+        return "translate(0,"+y+")"
+      })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Exit unused titles
