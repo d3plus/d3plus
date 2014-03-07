@@ -2,7 +2,7 @@
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
 d3plus.tooltip.app = function(params) {
-  
+
   var vars = params.vars,
       d = params.data,
       ex = params.ex,
@@ -58,6 +58,11 @@ d3plus.tooltip.app = function(params) {
   }
 
   function make_tooltip(html) {
+
+    if (d.d3plus.children) {
+      if (!ex) ex = {}
+      ex.items = d.d3plus.children.length
+    }
 
     var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
         temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
