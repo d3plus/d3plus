@@ -102,6 +102,12 @@ d3plus.public.height = {
   "value": null
 }
 
+d3plus.public.history = {
+  "accepted": [true,false],
+  "states": [],
+  "value": true
+}
+
 d3plus.public.html = {
   "deprecates": ["click_function"],
   "value": null
@@ -164,6 +170,11 @@ d3plus.public.links = {
   "large": 100,
   "limit": false,
   "value": null
+}
+
+d3plus.public.messages = {
+  "accepted": [true,false],
+  "value": true
 }
 
 d3plus.public.nodes = {
