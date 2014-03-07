@@ -14,6 +14,11 @@ d3plus.styles.default = {
       "width": 1
     }
   },
+  "edges": {
+    "color": "#dedede",
+    "opacity": 1,
+    "width": 1
+  },
   "footer": {
     "font-align": "center",
     "font-color": "#444",
@@ -21,7 +26,9 @@ d3plus.styles.default = {
     "font-size": 10,
     "font-weight": "normal",
     "padding": 5,
-    "position": "bottom"
+    "position": "bottom",
+    "text-decoration": "none",
+    "text-transform": "none"
   },
   "font": {
     "family": "sans-serif",
@@ -65,10 +72,19 @@ d3plus.styles.default = {
       "size": 10
     }
   },
-  "edges": {
-    "color": "#dedede",
-    "opacity": 1,
-    "width": 1
+  "link": {
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-weight": "normal",
+    "hover": {
+      "font-color": "#444",
+      "font-family": "sans-serif",
+      "font-weight": "normal",
+      "text-decoration": "underline",
+      "text-transform": "none"
+    },
+    "text-decoration": "none",
+    "text-transform": "none"
   },
   "message": {
     "background": "rgba(255,255,255,0.75)",
@@ -136,8 +152,12 @@ d3plus.styles.default = {
       "font-size": 13,
       "font-weight": "normal",
       "padding": 1,
-      "position": "top"
+      "position": "top",
+      "text-decoration": "none",
+      "text-transform": "none"
     },
+    "text-decoration": "none",
+    "text-transform": "none",
     "total": {
       "font-align": "center",
       "font-color": "#444",
@@ -145,7 +165,9 @@ d3plus.styles.default = {
       "font-size": 13,
       "font-weight": "normal",
       "padding": 1,
-      "position": "top"
+      "position": "top",
+      "text-decoration": "none",
+      "text-transform": "none"
     },
     "width": null
   },
