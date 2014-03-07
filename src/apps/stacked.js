@@ -15,18 +15,18 @@ d3plus.apps.stacked.setup = function(vars) {
   vars.size.key = vars.y.key
   if (vars.dev.value) console.log("\"y\" stacked set to \"true\"")
   if (vars.dev.value) d3plus.console.timeEnd("setting local variables")
-  
+
 }
 
 d3plus.apps.stacked.draw = function(vars) {
-    
+
   if (typeof vars.size.threshold == "number" && vars.size.threshold > 0) {
-    
+
     var allowed = [],
         cutoff = vars.depth.value == 0 ? 0 : {},
         removed = [],
         largest = {}
-      
+
     d3.nest()
       .key(function(d){
         return d3plus.variable.value(vars,d,vars.x.key)
@@ -53,20 +53,20 @@ d3plus.apps.stacked.draw = function(vars) {
         return total
       })
       .entries(vars.data.app)
-      
+
     vars.data.app = vars.data.app.filter(function(d){
-    
+
       var id = d3plus.variable.value(vars,d,vars.id.key),
           val = d3plus.variable.value(vars,d,vars.y.key),
           x = d3plus.variable.value(vars,d,vars.x.key)
-    
+
       if (allowed.indexOf(id) < 0) {
         if (val/largest[x] >= vars.size.threshold) {
           allowed.push(id)
         }
-      
+
       }
-    
+
       if (allowed.indexOf(id) < 0) {
         if (vars.depth.value == 0) {
           if (val > cutoff) cutoff = val
@@ -82,23 +82,23 @@ d3plus.apps.stacked.draw = function(vars) {
       else {
         return true
       }
-    
+
     })
-  
+
     var levels = vars.id.nesting.slice(0,vars.depth.value)
     var nesting = levels.concat([vars.x.key])
     var merged = d3plus.data.nest(vars,removed,nesting,true).filter(function(d){
       return d3plus.variable.value(vars,d,vars.y.key) > 0
     })
-  
+
     merged.forEach(function(m){
-      
+
       var parent = vars.id.nesting[vars.depth.value-1]
-      
+
       m.d3plus = {}
-      
+
       vars.id.nesting.forEach(function(d,i){
-      
+
         if (vars.depth.value == i) {
           var prev = m[vars.id.nesting[i-1]]
           if (prev) {
@@ -112,7 +112,7 @@ d3plus.apps.stacked.draw = function(vars) {
           delete m[d]
         }
       })
-    
+
       if (vars.color.key) {
         if (vars.depth.value == 0) {
           m[vars.color.key] = vars.style.color.missing
@@ -121,12 +121,12 @@ d3plus.apps.stacked.draw = function(vars) {
           m[vars.color.key] = d3plus.variable.color(vars,m[parent],parent)
         }
       }
-    
+
       if (vars.icon.key && vars.depth.value != 0) {
         m[vars.icon.key] = d3plus.variable.value(vars,m[parent],vars.icon.key,parent)
         m.d3plus.depth = vars.id.nesting.indexOf(parent)
       }
-      
+
       if (vars.text.key) {
         if (vars.depth.value == 0) {
 
@@ -137,7 +137,7 @@ d3plus.apps.stacked.draw = function(vars) {
             m[vars.text.key] = vars.format("Values")
           }
           m[vars.text.key] += " < "+vars.format(cutoff)
-        
+
         }
         else {
           var name = d3plus.variable.value(vars,m,vars.text.key,parent)
@@ -145,14 +145,18 @@ d3plus.apps.stacked.draw = function(vars) {
           m[vars.text.key] += " < "+vars.format(cutoff[m[parent]],vars.y.key)
         }
         m[vars.text.key] += " ("+vars.format(vars.size.threshold*100)+"%)"
+
+        m.d3plus.threshold = cutoff
+        m.d3plus.children = d3plus.utils.uniques(removed,vars.id.key)
+
       }
-    
+
     })
-  
+
     vars.data.app = vars.data.app.concat(merged)
-    
+
   }
-  
+
   return d3plus.apps.chart.draw(vars)
-  
+
 }

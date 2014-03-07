@@ -409,9 +409,25 @@ d3plus.shape.draw = function(vars) {
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-        var depth_delta = vars.zoom_direction()
+        var depth_delta = vars.zoom_direction(),
+            previous = vars.id.solo.value
 
-        if (depth_delta === 1) {
+        if (d.d3plus.threshold && d.d3plus.children) {
+
+          vars.history.states.push(function(){
+
+            vars.viz
+              .id({"solo": previous})
+              .draw()
+
+          })
+
+          vars.viz
+            .id({"solo": d.d3plus.children})
+            .draw()
+
+        }
+        else if (depth_delta === 1) {
 
           var id = d3plus.variable.value(vars,d,vars.id.key)
 
@@ -419,14 +435,14 @@ d3plus.shape.draw = function(vars) {
 
             vars.viz
               .depth(vars.depth.value-1)
-              .id({"solo": id})
+              .id({"solo": previous})
               .draw()
 
           })
 
           vars.viz
             .depth(vars.depth.value+1)
-            .id({"solo": id})
+            .id({"solo": [id]})
             .draw()
 
         }
