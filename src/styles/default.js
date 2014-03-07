@@ -87,13 +87,14 @@ d3plus.styles.default = {
     "text-transform": "none"
   },
   "message": {
-    "background": "rgba(255,255,255,0.75)",
     "font-color": "#444",
     "font-family": "sans-serif",
     "font-size": 18,
     "font-weight": "normal",
     "opacity": 0.75,
-    "padding": 10
+    "padding": 10,
+    "text-decoration": "none",
+    "text-transform": "none"
   },
   "rendering": "crispEdges",
   "ticks": {
