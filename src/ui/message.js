@@ -6,8 +6,8 @@ d3plus.ui.message = function(vars,message) {
   var message = vars.messages.value ? message : null
 
   if (vars.messages.style == "large") {
-    var font = "message",
-        top = "50%"
+    var font = vars.style.message,
+        position = "center"
   }
   else {
 
@@ -24,12 +24,7 @@ d3plus.ui.message = function(vars,message) {
       var font = vars.style.footer
     }
 
-    if (font.position == "top") {
-      var top = "0px"
-    }
-    else {
-      var top = (vars.margin.top+vars.app_height)+"px"
-    }
+    var position = font.position
 
   }
 
@@ -37,22 +32,39 @@ d3plus.ui.message = function(vars,message) {
     "color": font["font-color"],
     "font-family": font["font-family"],
     "font-weight": font["font-weight"],
-    "font-size": font["font-size"]+"px"
+    "font-size": font["font-size"]+"px",
+    "padding": font.padding+"px"
   }
+
+  var background = vars.style.background != "none" ? vars.style.background : "white"
 
   function style(elem) {
 
     elem
       .text(text)
+      .style(font)
       .style("position","absolute")
-      .style("background",vars.style.message.background)
-      .style("padding",vars.style.message.padding+"px")
+      .style("background",background)
       .style("left","50%")
+      .style("text-align","center")
+      .style("width",function(){
+        return position == "center" ? "auto" : vars.width.value+"px"
+      })
       .style("margin-left",function(){
         var width = this.offsetWidth
         return -width/2+"px"
       })
-      .style("top",top)
+      .style("top",function(){
+        if (position == "center") {
+          return "50%";
+        }
+        else if (position == "top") {
+          return "0px"
+        }
+        else {
+          return (vars.margin.top+vars.app_height)+"px"
+        }
+      })
       .style("margin-top",function(){
         if (vars.messages.style == "large") {
           var height = this.offsetHeight
@@ -60,7 +72,6 @@ d3plus.ui.message = function(vars,message) {
         }
         return "0px"
       })
-      .style(font)
 
   }
 
