@@ -14,6 +14,15 @@ d3plus.styles.default = {
       "width": 1
     }
   },
+  "footer": {
+    "font-align": "center",
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-size": 10,
+    "font-weight": "normal",
+    "padding": 5,
+    "position": "bottom"
+  },
   "font": {
     "family": "sans-serif",
     "weight": "normal"
@@ -21,8 +30,9 @@ d3plus.styles.default = {
   "group": {
     "background": true,
   },
-  "info": {
-    "font-size": 20
+  "highlight": {
+    "primary": "#cc0000",
+    "secondary": "#ffdddd"
   },
   "labels": {
     "align": "middle",
@@ -60,9 +70,14 @@ d3plus.styles.default = {
     "opacity": 1,
     "width": 1
   },
-  "highlight": {
-    "primary": "#cc0000",
-    "secondary": "#ffdddd"
+  "message": {
+    "background": "rgba(255,255,255,0.75)",
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-size": 18,
+    "font-weight": "normal",
+    "opacity": 0.75,
+    "padding": 10
   },
   "rendering": "crispEdges",
   "ticks": {
@@ -106,8 +121,32 @@ d3plus.styles.default = {
     "transitions": 600
   },
   "title": {
-    "align": "middle",
+    "font-align": "center",
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-size": 18,
+    "font-weight": "normal",
     "height": null,
+    "padding": 2,
+    "position": "top",
+    "sub": {
+      "font-align": "center",
+      "font-color": "#444",
+      "font-family": "sans-serif",
+      "font-size": 13,
+      "font-weight": "normal",
+      "padding": 1,
+      "position": "top"
+    },
+    "total": {
+      "font-align": "center",
+      "font-color": "#444",
+      "font-family": "sans-serif",
+      "font-size": 13,
+      "font-weight": "normal",
+      "padding": 1,
+      "position": "top"
+    },
     "width": null
   },
   "tooltip": {
@@ -118,11 +157,22 @@ d3plus.styles.default = {
       "opacity": 0.8
     },
     "font": {
-      "color": "#333",
+      "color": "#444",
       "family": "sans-serif",
       "size": "12px",
       "weight": "normal"
     },
     "width": 200
+  },
+  "ui": {
+    "background": "#fff",
+    "border-color": "#aaa",
+    "border-width": 1,
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-size": 12,
+    "font-weight": "normal",
+    "hover": "#eee",
+    "padding": 5
   }
 }
