@@ -30,7 +30,7 @@ d3plus.utils.closest = function(arr,value) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Clones an object, removing any links to the original
+// Clones an object, removing any edges to the original
 //------------------------------------------------------------------------------
 d3plus.utils.copy = function(obj) {
   return d3plus.utils.merge(obj)

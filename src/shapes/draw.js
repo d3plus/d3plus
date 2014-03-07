@@ -267,15 +267,15 @@ d3plus.shape.draw = function(vars) {
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Function to Update Links
+  // Function to Update Edges
   //----------------------------------------------------------------------------
-  function links(d) {
+  function edges(d) {
 
-    var link_count = vars.g.links.selectAll("line, path").size()
+    var edge_count = vars.g.edges.selectAll("line, path").size()
 
     if (d) {
 
-      vars.g.links.selectAll("g")
+      vars.g.edges.selectAll("g")
         .each(function(l){
 
           var id = d[vars.id.key],
@@ -283,31 +283,31 @@ d3plus.shape.draw = function(vars) {
               target = l.target[vars.id.key]
 
           if (source == id || target == id) {
-            vars.g.link_focus.node().appendChild(this.cloneNode(true))
+            vars.g.edge_focus.node().appendChild(this.cloneNode(true))
           }
 
         })
 
 
-      var marker = vars.links.arrows.value ? "url(#d3plus_link_marker_highlight)" : "none"
+      var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_highlight)" : "none"
 
-      vars.g.link_focus
+      vars.g.edge_focus
         .attr("opacity",0)
         .selectAll("line, path")
         .style("stroke",vars.style.highlight.primary)
         .attr("marker-start",function(){
-          return vars.links.arrows.direction.value == "source" ? marker : "none"
+          return vars.edges.arrows.direction.value == "source" ? marker : "none"
         })
         .attr("marker-end",function(){
-          return vars.links.arrows.direction.value == "target" ? marker : "none"
+          return vars.edges.arrows.direction.value == "target" ? marker : "none"
         })
 
-      vars.g.link_focus
+      vars.g.edge_focus
         .transition().duration(vars.style.timing.mouseevents)
         .attr("opacity",1)
 
-      if (link_count < vars.links.large) {
-        vars.g.links
+      if (edge_count < vars.edges.large) {
+        vars.g.edges
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",0.5)
       }
@@ -315,15 +315,15 @@ d3plus.shape.draw = function(vars) {
     }
     else {
 
-      vars.g.link_focus
+      vars.g.edge_focus
         .transition().duration(vars.style.timing.mouseevents)
         .attr("opacity",0)
         .transition()
         .selectAll("*")
         .remove()
 
-      if (link_count < vars.links.large) {
-        vars.g.links
+      if (edge_count < vars.edges.large) {
+        vars.g.edges
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
       }
@@ -354,7 +354,7 @@ d3plus.shape.draw = function(vars) {
           vars.mouse.over(d)
         }
 
-        links(d)
+        edges(d)
 
       }
 
@@ -400,7 +400,7 @@ d3plus.shape.draw = function(vars) {
           vars.mouse.out(d)
         }
 
-        links()
+        edges()
 
       }
 
@@ -437,7 +437,7 @@ d3plus.shape.draw = function(vars) {
         }
         else {
 
-          links()
+          edges()
 
           var tooltip_data = d.data ? d.data : d
 

@@ -69,15 +69,15 @@ d3plus.draw.enter = function(vars) {
   vars.g.apps[vars.type.value].enter().append("g")
     .attr("id",vars.type.value)
 
-  // Enter Links Group
-  vars.g.links = vars.g.zoom.selectAll("g#links").data(["links"])
-  vars.g.links.enter().append("g")
-    .attr("id","links")
+  // Enter Edges Group
+  vars.g.edges = vars.g.zoom.selectAll("g#edges").data(["edges"])
+  vars.g.edges.enter().append("g")
+    .attr("id","edges")
 
-  // Enter Link Focus Group
-  vars.g.link_focus = vars.g.zoom.selectAll("g#link_focus").data(["link_focus"])
-  vars.g.link_focus.enter().append("g")
-    .attr("id","link_focus")
+  // Enter Edge Focus Group
+  vars.g.edge_focus = vars.g.zoom.selectAll("g#edge_focus").data(["edge_focus"])
+  vars.g.edge_focus.enter().append("g")
+    .attr("id","edge_focus")
     .attr("opacity",0)
 
   // Enter App Data Group

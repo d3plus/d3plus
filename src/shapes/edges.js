@@ -1,18 +1,18 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
-d3plus.shape.links = function(vars) {
+d3plus.shape.edges = function(vars) {
 
-  var links = vars.returned.links
+  var edges = vars.returned.edges
 
-  if (!links) var links = []
+  if (!edges) var edges = []
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Initialization of Lines
   //----------------------------------------------------------------------------
   function init(l) {
 
-    var opacity = vars.style.links.opacity == 1 ? vars.style.links.opacity : 0
+    var opacity = vars.style.edges.opacity == 1 ? vars.style.edges.opacity : 0
 
     l
       .attr("opacity",opacity)
@@ -25,16 +25,16 @@ d3plus.shape.links = function(vars) {
   // Styling of Lines
   //----------------------------------------------------------------------------
   function style(l) {
-    var marker = vars.links.arrows.value ? "url(#d3plus_link_marker_default)" : "none"
+    var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_default)" : "none"
     l
-      .style("stroke-width",vars.style.links.width)
-      .style("stroke",vars.style.links.color)
-      .attr("opacity",vars.style.links.opacity)
+      .style("stroke-width",vars.style.edges.width)
+      .style("stroke",vars.style.edges.color)
+      .attr("opacity",vars.style.edges.opacity)
       .attr("marker-start",function(){
-        return vars.links.arrows.direction.value == "source" ? marker : "none"
+        return vars.edges.arrows.direction.value == "source" ? marker : "none"
       })
       .attr("marker-end",function(){
-        return vars.links.arrows.direction.value == "target" ? marker : "none"
+        return vars.edges.arrows.direction.value == "target" ? marker : "none"
       })
   }
 
@@ -99,7 +99,7 @@ d3plus.shape.links = function(vars) {
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Calculates and Draws Label for link
+  // Calculates and Draws Label for edge
   //----------------------------------------------------------------------------
   function label(d) {
 
@@ -109,7 +109,7 @@ d3plus.shape.links = function(vars) {
 
     delete d.d3plus_label
 
-    if (vars.g.links.selectAll("line, path").size() < vars.links.large && vars.links.label && d[vars.links.label]) {
+    if (vars.g.edges.selectAll("line, path").size() < vars.edges.large && vars.edges.label && d[vars.edges.label]) {
 
       if ("spline" in d.d3plus) {
 
@@ -150,8 +150,8 @@ d3plus.shape.links = function(vars) {
 
       }
 
-      if (vars.links.arrows.value) {
-        var m = typeof vars.links.arrows.value == "number" ? typeof vars.links.arrows.value == "number" : 8
+      if (vars.edges.arrows.value) {
+        var m = typeof vars.edges.arrows.value == "number" ? typeof vars.edges.arrows.value == "number" : 8
         width -= m*2
       }
 
@@ -168,9 +168,9 @@ d3plus.shape.links = function(vars) {
         "angle": angle,
         "anchor": "middle",
         "valign": "center",
-        "color": d3plus.color.legible(vars.style.links.color),
+        "color": d3plus.color.legible(vars.style.edges.color),
         "resize": false,
-        "names": [vars.format(d[vars.links.label])],
+        "names": [vars.format(d[vars.edges.label])],
         "background": true
       }
 
@@ -183,16 +183,16 @@ d3plus.shape.links = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter/update/exit the Arrow Marker
   //----------------------------------------------------------------------------
-  var marker_data = vars.links.arrows.value ? ["default","highlight"] : []
-  var marker = vars.defs.selectAll(".d3plus_link_marker")
+  var marker_data = vars.edges.arrows.value ? ["default","highlight"] : []
+  var marker = vars.defs.selectAll(".d3plus_edge_marker")
     .data(marker_data)
 
-  var m = typeof vars.links.arrows.value == "number" ? vars.links.arrows.value : 10
+  var m = typeof vars.edges.arrows.value == "number" ? vars.edges.arrows.value : 10
 
   var marker_style = function(path) {
     path
       .attr("d",function(){
-        if (vars.links.arrows.direction.value == "target") {
+        if (vars.edges.arrows.direction.value == "target") {
           return "M -"+m*0.75+",-"+m/2+" L 0,0 L -"+m*0.75+","+m/2+" L -"+m*0.75+",-"+m/2
         }
         else {
@@ -201,7 +201,7 @@ d3plus.shape.links = function(vars) {
       })
       .attr("fill",function(d){
         if (d == "default") {
-          return vars.style.links.color
+          return vars.style.edges.color
         }
         else {
           return vars.style.highlight.primary
@@ -211,9 +211,9 @@ d3plus.shape.links = function(vars) {
 
   marker.enter().append("marker")
     .attr("id",function(d){
-      return "d3plus_link_marker_"+d
+      return "d3plus_edge_marker_"+d
     })
-    .attr("class","d3plus_link_marker")
+    .attr("class","d3plus_edge_marker")
     .attr("orient","auto")
     .attr("markerWidth",10)
     .attr("markerHeight",10)
@@ -231,13 +231,13 @@ d3plus.shape.links = function(vars) {
     .remove()
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Bind "links" data to lines in the "links" group
+  // Bind "edges" data to lines in the "edges" group
   //----------------------------------------------------------------------------
-  var line_data = links.filter(function(l){
+  var line_data = edges.filter(function(l){
     return !l.d3plus || (l.d3plus && !("spline" in l.d3plus))
   })
 
-  var lines = vars.g.links.selectAll("g.d3plus_link_line")
+  var lines = vars.g.edges.selectAll("g.d3plus_edge_line")
     .data(line_data,function(d){
       return d.source[vars.id.key]+"_"+d.target[vars.id.key]
     })
@@ -253,7 +253,7 @@ d3plus.shape.links = function(vars) {
     .each("end",label)
 
   lines.enter().append("g")
-    .attr("class","d3plus_link_line")
+    .attr("class","d3plus_edge_line")
     .append("line")
     .call(line)
     .call(init)
@@ -265,11 +265,11 @@ d3plus.shape.links = function(vars) {
     .attr("opacity",0)
     .remove()
 
-  var spline_data = links.filter(function(l){
+  var spline_data = edges.filter(function(l){
     return l.d3plus && l.d3plus.spline
   })
 
-  var splines = vars.g.links.selectAll("g.d3plus_link_path")
+  var splines = vars.g.edges.selectAll("g.d3plus_edge_path")
     .data(spline_data,function(d){
       return d.source[vars.id.key]+"_"+d.target[vars.id.key]
     })
@@ -285,7 +285,7 @@ d3plus.shape.links = function(vars) {
     .each("end",label)
 
   splines.enter().append("g")
-    .attr("class","d3plus_link_path")
+    .attr("class","d3plus_edge_path")
     .append("path")
     .call(spline)
     .call(init)

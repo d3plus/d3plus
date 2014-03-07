@@ -41,7 +41,7 @@ d3plus.data.analyze = function(vars) {
     vars.data.app = null
     vars.data.restricted = null
     vars.nodes.restricted = null
-    vars.links.restricted = null
+    vars.edges.restricted = null
 
     if (vars.dev.value) d3plus.console.time("key analysis")
     vars.data.keys = {}
@@ -170,9 +170,9 @@ d3plus.data.analyze = function(vars) {
           vars.nodes.restricted = vars.nodes.value.filter(nest_check)
         }
 
-        if (vars.links.value) {
+        if (vars.edges.value) {
           if (vars.dev.value) d3plus.console.log("Filtering Connections")
-          vars.links.restricted = vars.links.value.filter(function(d){
+          vars.edges.restricted = vars.edges.value.filter(function(d){
             var first_match = nest_check(d.source),
                 second_match = nest_check(d.target)
             return first_match && second_match
@@ -197,7 +197,7 @@ d3plus.data.analyze = function(vars) {
     vars.data.app = null
     vars.data[vars.data.type] = null
     vars.nodes.restricted = null
-    vars.links.restricted = null
+    vars.edges.restricted = null
     vars.filtered = false
   }
 

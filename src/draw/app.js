@@ -36,7 +36,7 @@ d3plus.draw.app = function(vars) {
 
   vars.returned = {
       "nodes": null,
-      "links": null
+      "edges": null
     }
 
   if (returned instanceof Array) {
@@ -46,8 +46,8 @@ d3plus.draw.app = function(vars) {
     if (returned.nodes) {
       vars.returned.nodes = returned.nodes
     }
-    if (returned.links) {
-      vars.returned.links = returned.links
+    if (returned.edges) {
+      vars.returned.edges = returned.edges
     }
   }
 

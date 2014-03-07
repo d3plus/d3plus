@@ -1,6 +1,6 @@
 d3plus.apps.network = {}
 d3plus.apps.network.data = "object";
-d3plus.apps.network.requirements = ["nodes","links"];
+d3plus.apps.network.requirements = ["nodes","edges"];
 d3plus.apps.network.tooltip = "static"
 d3plus.apps.network.shapes = ["circle","square","donut"];
 d3plus.apps.network.scale = 1.05
@@ -12,7 +12,7 @@ d3plus.apps.network.draw = function(vars) {
   // Use filtered lists if they are available
   //-------------------------------------------------------------------
   var nodes = vars.nodes.restricted || vars.nodes.value,
-      links = vars.links.restricted || vars.links.value
+      edges = vars.edges.restricted || vars.edges.value
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Determine Size Scale
@@ -103,7 +103,7 @@ d3plus.apps.network.draw = function(vars) {
     return b.d3plus.r - a.d3plus.r
   })
 
-  links.forEach(function(l,i){
+  edges.forEach(function(l,i){
     if (typeof l.source != "object") {
       var obj = {}
       obj[vars.id.key] = l.source
@@ -124,7 +124,7 @@ d3plus.apps.network.draw = function(vars) {
     l.target.d3plus.y = lookup[id].y
   })
 
-  return {"nodes": data, "links": links}
+  return {"nodes": data, "edges": edges}
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Private Variables
@@ -295,14 +295,14 @@ d3plus.apps.network.draw = function(vars) {
   //     if (group == "highlight" || !vars.focus.value) {
   //
   //       var prim_nodes = [],
-  //           prim_links = [];
+  //           prim_edges = [];
   //
   //       if (vars.connections[c]) {
   //         vars.connections[c].forEach(function(n){
   //           prim_nodes.push(nodes.filter(function(x){return x[vars.id] == n[vars.id]})[0])
   //         })
   //         prim_nodes.forEach(function(n){
-  //           prim_links.push({"source": node_data[0], "target": n})
+  //           prim_edges.push({"source": node_data[0], "target": n})
   //         })
   //       }
   //
@@ -384,7 +384,7 @@ d3plus.apps.network.draw = function(vars) {
   //       }
   //
   //       d3.select("g."+group).selectAll("line")
-  //         .data(prim_links).enter().append("line")
+  //         .data(prim_edges).enter().append("line")
   //           .attr("pointer-events","none")
   //           .attr("stroke",vars.style.primary.color)
   //           .attr("stroke-width",2)
@@ -472,7 +472,7 @@ d3plus.apps.network.draw = function(vars) {
 //   }
 //
 //   viz_enter.append("g")
-//     .attr("class","links")
+//     .attr("class","edges")
 //
 //   viz_enter.append("g")
 //     .attr("class","nodes")
@@ -486,7 +486,7 @@ d3plus.apps.network.draw = function(vars) {
 //   d3plus.utilsts.zoom_controls();
 //
 //   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//   // New nodes and links enter, initialize them here
+//   // New nodes and edges enter, initialize them here
 //   //-------------------------------------------------------------------
 //
 //   var node = d3.select("g.nodes").selectAll("circle.node")
@@ -499,8 +499,8 @@ d3plus.apps.network.draw = function(vars) {
 //     .call(node_color)
 //     .call(node_stroke);
 //
-//   var link = d3.select("g.links").selectAll("line.link")
-//     .data(links, function(d) { return d.source[vars.id] + "-" + d.target[vars.id]; })
+//   var link = d3.select("g.edges").selectAll("line.link")
+//     .data(edges, function(d) { return d.source[vars.id] + "-" + d.target[vars.id]; })
 //
 //   link.enter().append("line")
 //     .attr("class","link")
@@ -512,7 +512,7 @@ d3plus.apps.network.draw = function(vars) {
 //   //===================================================================
 //
 //   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//   // Update, for nodes and links that are already in existance
+//   // Update, for nodes and edges that are already in existance
 //   //-------------------------------------------------------------------
 //
 //   node

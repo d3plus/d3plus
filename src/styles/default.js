@@ -65,7 +65,7 @@ d3plus.styles.default = {
       "size": 10
     }
   },
-  "links": {
+  "edges": {
     "color": "#dedede",
     "opacity": 1,
     "width": 1

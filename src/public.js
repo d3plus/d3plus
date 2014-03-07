@@ -157,7 +157,7 @@ d3plus.public.legend = {
   "value": true
 }
 
-d3plus.public.links = {
+d3plus.public.edges = {
   "arrows": {
     "direction": {
       "accepted": ["source","target"],

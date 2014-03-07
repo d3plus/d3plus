@@ -19,40 +19,40 @@ d3plus.viz = function() {
     },
     "connections": function(focus,objects) {
 
-      var links = vars.links.restricted || vars.links.value,
+      var edges = vars.edges.restricted || vars.edges.value,
           targets = []
 
       if (!focus) {
-        return links
+        return edges
       }
 
-      var connections = links.filter(function(link){
+      var connections = edges.filter(function(edge){
 
         var check = ["source","target"],
             match = false
 
-        if (typeof link.source != "object") {
+        if (typeof edge.source != "object") {
           var obj = {}
-          obj[vars.id.key] = link.source
-          link.source = obj
+          obj[vars.id.key] = edge.source
+          edge.source = obj
         }
 
-        if (typeof link.target != "object") {
+        if (typeof edge.target != "object") {
           var obj = {}
-          obj[vars.id.key] = link.target
-          link.target = obj
+          obj[vars.id.key] = edge.target
+          edge.target = obj
         }
 
-        if (link.source[vars.id.key] == focus) {
+        if (edge.source[vars.id.key] == focus) {
           match = true
           if (objects) {
-            targets.push(link.target)
+            targets.push(edge.target)
           }
         }
-        else if (link.target[vars.id.key] == focus) {
+        else if (edge.target[vars.id.key] == focus) {
           match = true
           if (objects) {
-            targets.push(link.source)
+            targets.push(edge.source)
           }
         }
 
@@ -162,7 +162,7 @@ d3plus.viz = function() {
         {"function": d3plus.draw.update, "message": "Updating Elements"},
         {"function": d3plus.draw.errors, "message": "Checking for Errors"},
         {"function": d3plus.draw.app, "message": "Drawing Visualization"},
-        {"function": d3plus.shape.links, "message": "Drawing Links"},
+        {"function": d3plus.shape.edges, "message": "Drawing Edges"},
         {"function": d3plus.shape.draw, "message": "Drawing Shapes"},
         {"function": d3plus.draw.finish, "message": "Finishing"}
       ])
