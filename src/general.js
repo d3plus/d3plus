@@ -5,21 +5,10 @@ d3plus.version = "1.1.10 - Navy";
 
 d3plus.ie = /*@cc_on!@*/false;
 
-d3plus.fontawesome = false
-
-var sheets = document.styleSheets
-    
-for (var s = 0; s < sheets.length; s++) {
-  if (sheets[s].href && sheets[s].href.indexOf("font-awesome") >= 0) {
-    d3plus.fontawesome = true
-    break;
-  }
-}
-
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
 d3plus.scrollbar = function() {
-  
+
   var inner = document.createElement("p");
   inner.style.width = "100%";
   inner.style.height = "200px";
@@ -41,15 +30,15 @@ d3plus.scrollbar = function() {
   if (w1 == w2) w2 = outer.clientWidth;
 
   document.body.removeChild(outer);
-  
+
   var val = (w1 - w2)
-  
+
   d3plus.scrollbar = function(){
     return val
   }
-  
+
   return val;
-  
+
 }
 
 d3.select(window).on("load.d3plus_scrollbar",function(){
@@ -91,8 +80,10 @@ d3plus.apps = {};
 d3plus.color = {};
 d3plus.console = {};
 d3plus.data = {};
+d3plus.draw = {};
+d3plus.fonts = {};
 d3plus.forms = {};
-d3plus.info = {};
+d3plus.ui = {};
 d3plus.shape = {};
 d3plus.styles = {};
 d3plus.tooltip = {};
