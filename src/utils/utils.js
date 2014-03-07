@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.utils.buckets = function(arr, buckets) {
   var return_arr = [], step = 1/(buckets-1)*(arr[1]-arr[0]), i = step
-  
+
   for (var i = arr[0]; i <= arr[1]; i = i + step) {
     return_arr.push(i)
   }
@@ -40,25 +40,25 @@ d3plus.utils.copy = function(obj) {
 // Creates a Base-64 Data URL from and Image URL
 //------------------------------------------------------------------------------
 d3plus.utils.dataurl = function(url,callback) {
-    
+
   var img = new Image();
   img.src = url;
   img.crossOrigin = "Anonymous";
   img.onload = function () {
-    
+
     var canvas = document.createElement("canvas");
     canvas.width = this.width;
     canvas.height = this.height;
 
     var ctx = canvas.getContext("2d");
     ctx.drawImage(this, 0, 0);
-    
+
     callback.call(this,canvas.toDataURL("image/png"))
-    
+
     canvas = null
 
   }
-  
+
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -91,20 +91,20 @@ d3plus.utils.merge = function(obj1, obj2) {
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
 d3plus.utils.strip = function(str) {
-    
+
   var removed = [ "!","@","#","$","%","^","&","*","(",")",
                   "[","]","{","}",".",",","/","\\","|",
                   "'","\"",";",":","<",">","?","=","+"]
-  
+
   return str.replace(/[^A-Za-z0-9\-_]/g, function(chr) {
-    
+
     if (" " == chr) {
       return "_"
     }
     else if (removed.indexOf(chr) >= 0) {
       return ""
     }
-    
+
     var diacritics = [
         [/[\300-\306]/g, "A"],
         [/[\340-\346]/g, "a"],
@@ -121,22 +121,22 @@ d3plus.utils.strip = function(str) {
         [/[\307]/g, "C"],
         [/[\347]/g, "c"],
     ];
-    
+
     var ret = ""
-    
+
     for (d in diacritics) {
 
       if (diacritics[d][0].test(chr)) {
         ret = diacritics[d][1]
         break;
       }
-      
+
     }
-    
+
     return ret;
-      
+
   });
-  
+
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -144,7 +144,7 @@ d3plus.utils.strip = function(str) {
 //------------------------------------------------------------------------------
 d3plus.utils.uniques = function(data,value) {
   var type = null
-  return d3.nest().key(function(d) { 
+  return d3.nest().key(function(d) {
       if (typeof value == "string") {
         if (!type) type = typeof d[value]
         return d[value]
@@ -158,7 +158,7 @@ d3plus.utils.uniques = function(data,value) {
       }
     })
     .entries(data)
-    .reduce(function(a,b){ 
+    .reduce(function(a,b){
       var val = b.key
       if (type == "number") val = parseFloat(val)
       return a.concat(val)
