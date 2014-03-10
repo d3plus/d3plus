@@ -703,19 +703,13 @@ d3plus.ui = function(passed) {
             })
 
           options.enter().append("option")
-            .attr("value",function(d){
-              return d.value
-            })
-            .text(function(d){
-              return d.text
-            })
-            .attr("selected",function(d){
-              return d.selected
-            })
             .each(function(d){
 
-              for (k in vars.data.map) {
-                if (["alt","value"].indexOf(k) < 0 && k in d) {
+              for (k in d) {
+                if (["alt","value","text","selected"].indexOf(k) >= 0) {
+                  d3.select(this).attr(k,d[k])
+                }
+                else {
                   d3.select(this).attr("data-"+k,d[k])
                 }
               }
@@ -6393,26 +6387,32 @@ d3plus.forms.drop = function(vars,styles,timing) {
 d3plus.forms.element = function(vars) {
 
   function get_attributes(obj,elem) {
-    
-    var attributes = ["value","alt","keywords","image","style","color"]
+
+    var attributes = ["value","alt","keywords","image","style","color"];
+
+    [].forEach.call(elem.attributes, function(attr) {
+        if (/^data-/.test(attr.name)) {
+            var camelCaseName = attr.name.substr(5).replace(/-(.)/g, function ($0, $1) {
+                return $1.toUpperCase();
+            });
+            obj[camelCaseName] = attr.value;
+        }
+    });
     
     attributes.forEach(function(a){
-      
-      if (elem.getAttribute("data-"+a) !== null) {
-        obj[a] = elem.getAttribute("data-"+a)
-      }
-      else if (elem.getAttribute(a) !== null) {
+
+      if (elem.getAttribute(a) !== null) {
         obj[a] = elem.getAttribute(a)
       }
-      
+
     })
-    
+
   }
 
   vars.tag = vars.element.node().tagName.toLowerCase()
-  
+
   if (vars.tag == "select") {
-    
+
     if (vars.element.attr("id") && vars.id == "default") {
       vars.id = vars.element.attr("id")
     }
@@ -6423,45 +6423,45 @@ d3plus.forms.element = function(vars) {
           "selected": this.selected,
           "text": this.innerHTML
         }
-        
+
         get_attributes(data_obj,this)
-        
+
         if (this.selected) {
           vars.focus = this.value
         }
         vars.data.array.push(data_obj)
       })
-      
+
   }
   else if (vars.tag == "input" && vars.element.attr("type") == "radio") {
-    
+
     vars.element
       .each(function(o,i){
         var data_obj = {
           "selected": this.checked
         }
-        
+
         get_attributes(data_obj,this)
-        
+
         if (this.id) {
           var label = d3.select("label[for="+this.id+"]")
           if (!label.empty()) {
             data_obj.text = label.style("display","none").html()
           }
         }
-        
+
         if (this.checked) {
           vars.focus = this.value
         }
         vars.data.array.push(data_obj)
       })
   }
-  
+
   if (!vars.focus && vars.data.array.length) {
     vars.element.node().selectedIndex = 0
     vars.focus = vars.data.array[0].value
   }
-  
+
   if (!vars.type) {
     if (vars.data.array.length > 4) {
       vars.type = "drop"
@@ -6470,7 +6470,7 @@ d3plus.forms.element = function(vars) {
       vars.type = "radio"
     }
   }
-  
+
 }
 d3plus.forms.json = function(vars) {
   
