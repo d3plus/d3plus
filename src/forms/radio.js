@@ -2,11 +2,12 @@
 // Creates a set of Radio Buttons
 //------------------------------------------------------------------------------
 d3plus.forms.radio = function(vars,styles,timing) {
-  
+
   vars.container.transition().duration(timing)
     .style("background-color",styles.secondary)
     .style("padding",styles.stroke+"px")
-    
+    .style("margin",styles.margin+"px")
+
   var button_style = d3plus.utils.copy(styles)
   button_style.icon = false
   button_style.display = "inline-block"
@@ -14,12 +15,12 @@ d3plus.forms.radio = function(vars,styles,timing) {
   button_style.width = false
   button_style.margin = 0
   button_style.stroke = 0
-  
+
   var text = d3plus.forms.value(vars.text,["button"])
   if (!text) {
    text = "text"
   }
-  
+
   var button = d3plus.ui(button_style)
     .type("button")
     .text(text)
@@ -30,5 +31,5 @@ d3plus.forms.radio = function(vars,styles,timing) {
     .highlight(vars.focus)
     .enable()
     .draw()
-  
+
 }
