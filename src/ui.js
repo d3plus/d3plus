@@ -183,19 +183,13 @@ d3plus.ui = function(passed) {
             })
 
           options.enter().append("option")
-            .attr("value",function(d){
-              return d.value
-            })
-            .text(function(d){
-              return d.text
-            })
-            .attr("selected",function(d){
-              return d.selected
-            })
             .each(function(d){
 
-              for (k in vars.data.map) {
-                if (["alt","value"].indexOf(k) < 0 && k in d) {
+              for (k in d) {
+                if (["alt","value","text","selected"].indexOf(k) >= 0) {
+                  d3.select(this).attr(k,d[k])
+                }
+                else {
                   d3.select(this).attr("data-"+k,d[k])
                 }
               }
