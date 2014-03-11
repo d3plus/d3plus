@@ -5,7 +5,7 @@ d3plus.apps.tree_map.tooltip = "follow"
 d3plus.apps.tree_map.shapes = ["square"];
 
 d3plus.apps.tree_map.draw = function(vars) {
-
+  
   var data = d3.layout.treemap()
     .round(false)
     .size([vars.app_width, vars.app_height])
@@ -13,8 +13,7 @@ d3plus.apps.tree_map.draw = function(vars) {
     .padding(1)
     .sort(function(a, b) { return a.value - b.value; })
     .value(function(d) {
-      var val = d3plus.variable.value(vars,d,vars.size.key)
-      return val > 0 ? val : 0;
+      return d3plus.variable.value(vars,d,vars.size.key);
     })
     .nodes({"name":"root", "children": vars.data.app})
     .filter(function(d) {

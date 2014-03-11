@@ -3,9 +3,9 @@
 //-------------------------------------------------------------------
 
 d3plus.data.analyze = function(vars) {
-  
+
   vars.data.type = d3plus.apps[vars.type.value].data || "array"
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function to check key types
   //-------------------------------------------------------------------
@@ -27,14 +27,14 @@ d3plus.data.analyze = function(vars) {
       }
     }
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Initial setup when new data is detected
   //-------------------------------------------------------------------
   if (vars.data.changed) {
-    
+
     if (vars.dev.value) d3plus.console.group("New Data Detected")
-    
+
     vars.data.filtered = null
     vars.data.grouped = null
     vars.data[vars.data.type] = null
@@ -47,16 +47,16 @@ d3plus.data.analyze = function(vars) {
     vars.data.keys = {}
     get_keys(vars.data.value,true)
     if (vars.dev.value) d3plus.console.timeEnd("key analysis")
-    
+
     if (vars.dev.value) d3plus.console.groupEnd();
-    
+
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check attr keys, if new attrs exist
   //-------------------------------------------------------------------
   if (vars.attrs.changed) {
-    
+
     if (vars.dev.value) d3plus.console.group("New Attributes Detected");
     if (vars.dev.value) d3plus.console.time("key analysis");
     if (typeof vars.attrs.value == "object") {
@@ -80,36 +80,36 @@ d3plus.data.analyze = function(vars) {
       vars.check.push(k)
     }
   }
-  
+
   if (!vars.data.filtered || vars.check.length || vars.active.changed || vars.temp.changed || vars.total.changed) {
     vars.data[vars.data.type] = null
     vars.data.grouped = null
     vars.data.app = null;
     d3plus.data.filter(vars)
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Restricts Filtered Data if objects have "Solo" or "Mute"
   //-------------------------------------------------------------------
   if (vars.mute.length || vars.solo.length) {
-    
+
     vars.filtered = true
-    
+
     // if "solo", only check against "solo" (disregard "mute")
     var key = vars.solo.length ? "solo" : "mute"
-    
+
     if (vars.dev.value) d3plus.console.group("Filtering Data by \""+key+"\" values")
-    
+
     vars.data[vars.data.type] = null
     vars.data.restricted = {}
-    
+
     // start restricting based on "filtered" data
     var data = "filtered"
-        
+
     vars[key].forEach(function(v){
-      
+
       if (vars.dev.value) d3plus.console.time(v)
-      
+
       function test_value(val) {
 
         if (!(vars[v][key] instanceof Array)) {
@@ -118,7 +118,7 @@ d3plus.data.analyze = function(vars) {
         else {
           var arr = vars[v][key]
         }
-        
+
         var match = false
         arr.forEach(function(f){
           if (typeof f == "function") {
@@ -127,17 +127,17 @@ d3plus.data.analyze = function(vars) {
           else if (f == val) {
             match = true
           }
-          
+
         })
-        
+
         return match
       }
-      
+
       function nest_check(d) {
-        
+
         // if the variable has nesting, check all levels
         var match = false
-        
+
         if (vars[v].nesting) {
           vars[v].nesting.forEach(function(n){
             if (!match) {
@@ -149,27 +149,27 @@ d3plus.data.analyze = function(vars) {
           var k = vars[v].value ? vars[v].value : vars[v].key
           match = test_value(d3plus.variable.value(vars,d,k))
         }
-        
+
         if (key == "solo") {
           return match
         }
         else if (key == "mute") {
           return !match
         }
-        
+
       }
-      
+
       for (y in vars.data[data]) {
         vars.data.restricted[y] = vars.data[data][y].filter(nest_check)
       }
-      
+
       if (v == "id") {
 
         if (vars.nodes.value) {
           if (vars.dev.value) d3plus.console.log("Filtering Nodes")
           vars.nodes.restricted = vars.nodes.value.filter(nest_check)
         }
-    
+
         if (vars.links.value) {
           if (vars.dev.value) d3plus.console.log("Filtering Connections")
           vars.links.restricted = vars.links.value.filter(function(d){
@@ -178,20 +178,20 @@ d3plus.data.analyze = function(vars) {
             return first_match && second_match
           })
         }
-        
+
       }
-      
+
       // continue restricting on already "restricted" data
       data = "restricted"
-      
+
       if (vars.dev.value) d3plus.console.timeEnd(v)
-      
+
     })
-    
+
     if (vars.dev.value) d3plus.console.groupEnd()
-    
+
   }
-  else if (vars.filtered || !vars.data.restricted) {
+  else if (vars.filtered || !vars.data.restricted || vars.check.length) {
     vars.data.restricted = d3plus.utils.copy(vars.data.filtered)
     vars.data.grouped = null
     vars.data.app = null
@@ -200,35 +200,35 @@ d3plus.data.analyze = function(vars) {
     vars.links.restricted = null
     vars.filtered = false
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Formats Data to type "group", if it does not exist.
   //----------------------------------------------------------------------------
   if (!vars.data.grouped) {
     vars.data.grouped = d3plus.data.format(vars,"grouped")
   }
-  
+
   var year = !vars.time.fixed.value ? ["all"] : null
   if ((year === null && vars.time.solo.changed) || !vars.data.pool) {
     vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Formats Data to type specified by App, if it does not exist.
   //----------------------------------------------------------------------------
   if (!vars.data[vars.data.type]) {
     vars.data[vars.data.type] = d3plus.data.format(vars,vars.data.type)
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Fetch the correct Data for the App
   //-------------------------------------------------------------------
   if (!vars.data.app || vars.depth.changed || vars.time.solo.changed || vars.time.mute.changed || vars.type.changed || vars.solo.length || vars.mute.length) {
-    
+
     vars.data.app = d3plus.data.fetch(vars,vars.data.type)
-    
+
   }
-  
+
   vars.check = []
-  
+
 }
