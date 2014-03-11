@@ -244,7 +244,7 @@ d3plus.public.size = {
   "solo": {
     "value": []
   },
-  "threshold": 0.03
+  "threshold": true
 }
 
 d3plus.public.temp = {

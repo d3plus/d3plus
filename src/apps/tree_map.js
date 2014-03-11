@@ -3,8 +3,11 @@ d3plus.apps.tree_map.data = "grouped";
 d3plus.apps.tree_map.requirements = ["size"];
 d3plus.apps.tree_map.tooltip = "follow"
 d3plus.apps.tree_map.shapes = ["square"];
+d3plus.apps.tree_map.threshold = 0.0005;
 
 d3plus.apps.tree_map.draw = function(vars) {
+
+  d3plus.data.threshold(vars)
 
   var grouped_data = d3.nest()
 
