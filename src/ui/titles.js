@@ -238,11 +238,12 @@ d3plus.ui.titles = function(vars) {
         d3.select(this)
           .transition().duration(vars.style.timing.mouseevents)
           .style("cursor","pointer")
-          .attr("fill",vars.style.link.hover["font-color"])
-          .attr("font-family",vars.style.link.hover["font-family"])
-          .style("font-weight",vars.style.link.hover["font-weight"])
-          .style("text-decoration",vars.style.link.hover["text-decoration"])
-          .style("text-transform",vars.style.link.hover["text-transform"])
+          .select("text")
+            .attr("fill",vars.style.link.hover["font-color"])
+            .attr("font-family",vars.style.link.hover["font-family"])
+            .style("font-weight",vars.style.link.hover["font-weight"])
+            .style("text-decoration",vars.style.link.hover["text-decoration"])
+            .style("text-transform",vars.style.link.hover["text-transform"])
       }
     })
     .on(d3plus.evt.out,function(t){
@@ -250,7 +251,8 @@ d3plus.ui.titles = function(vars) {
         d3.select(this)
           .transition().duration(vars.style.timing.mouseevents)
           .style("cursor","auto")
-          .call(style)
+          .select("text")
+            .call(style)
       }
     })
     .on(d3plus.evt.click,function(t){
@@ -260,8 +262,6 @@ d3plus.ui.titles = function(vars) {
       }
     })
     .transition().duration(vars.style.timing.transitions)
-      .call(position)
-      .call(style)
       .attr("opacity",1)
       .attr("transform",function(t){
         var pos = t.style.position,
@@ -274,6 +274,9 @@ d3plus.ui.titles = function(vars) {
         }
         return "translate(0,"+y+")"
       })
+      .select("text")
+        .call(position)
+        .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Exit unused titles
