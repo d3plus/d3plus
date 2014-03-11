@@ -11,7 +11,10 @@ d3plus.ui.message = function(vars,message) {
   }
   else {
 
-    if (vars.title.value) {
+    if (vars.footer.value) {
+      var font = vars.style.footer
+    }
+    else if (vars.title.value) {
       var font = vars.style.title
     }
     else if (vars.title.sub.value) {
@@ -62,7 +65,15 @@ d3plus.ui.message = function(vars,message) {
           return "0px"
         }
         else {
-          return (vars.margin.top+vars.app_height)+"px"
+          return "auto"
+        }
+      })
+      .style("bottom",function(){
+        if (position == "bottom") {
+          return "0px"
+        }
+        else {
+          return "auto"
         }
       })
       .style("margin-top",function(){
