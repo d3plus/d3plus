@@ -4549,10 +4549,13 @@ d3plus.apps.tree_map.draw = function(vars) {
     .children(function(d) { return d.children; })
     .padding(1)
     .sort(function(a, b) { return a.value - b.value; })
-    .value(function(d) { return d3plus.variable.value(vars,d,vars.size.key); })
+    .value(function(d) {
+      var val = d3plus.variable.value(vars,d,vars.size.key)
+      return val > 0 ? val : 0;
+    })
     .nodes({"name":"root", "children": vars.data.app})
     .filter(function(d) {
-      return d.value > 0 && !d.children && d.area;
+      return !d.children && d.area > 0;
     })
 
   if (data.length) {
