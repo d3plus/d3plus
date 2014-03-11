@@ -4391,7 +4391,7 @@ d3plus.apps.stacked.setup = function(vars) {
   vars.x.zerofill.value = true
   if (vars.dev.value) console.log("\"x\" zerofill set to \"true\"")
   vars.y.stacked.value = true
-  if ((!vars.y.key && vars.size.key) || vars.size.changed) {
+  if ((!vars.y.key && vars.size.key) || (vars.size.changed && vars.size.previous == vars.y.key)) {
     vars.y.key = vars.size.key
     vars.y.changed = true
   }
