@@ -41,18 +41,18 @@ d3plus.ui.message = function(vars,message) {
   function style(elem) {
 
     elem
-      .text(text)
       .style(font)
       .style("position","absolute")
       .style("background",background)
-      .style("left","50%")
       .style("text-align","center")
+      .style("left",function(){
+        return position == "center" ? "50%" : "0px"
+      })
       .style("width",function(){
         return position == "center" ? "auto" : vars.width.value+"px"
       })
       .style("margin-left",function(){
-        var width = this.offsetWidth
-        return -width/2+"px"
+        return position == "center" ? -this.offsetWidth/2+"px" : "0px"
       })
       .style("top",function(){
         if (position == "center") {
@@ -82,7 +82,6 @@ d3plus.ui.message = function(vars,message) {
   vars.g.message.enter().append("div")
     .attr("id","d3plus_message")
     .attr("opacity",0)
-    .call(style)
 
   var opacity = message ? 1 : 0,
       text = message ? message : vars.g.message.text(),
