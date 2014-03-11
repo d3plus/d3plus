@@ -410,20 +410,28 @@ d3plus.shape.draw = function(vars) {
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         var depth_delta = vars.zoom_direction(),
-            previous = vars.id.solo.value
-
+            previous = vars.id.solo.value,
+            title = d3plus.variable.value(vars,d,vars.text.key),
+            color = d3plus.color.legible(d3plus.variable.color(vars,d)),
+            prev_sub = vars.title.sub.value,
+            prev_color = vars.style.title.sub["font-color"]
+            
         if (d.d3plus.threshold && d.d3plus.children) {
 
           vars.history.states.push(function(){
 
             vars.viz
               .id({"solo": previous})
+              .title({"sub": prev_sub})
+              .style({"title": {"sub": {"font-color": prev_color}}})
               .draw()
 
           })
 
           vars.viz
             .id({"solo": d.d3plus.children})
+            .title({"sub": title})
+            .style({"title": {"sub": {"font-color": color}}})
             .draw()
 
         }
@@ -436,6 +444,8 @@ d3plus.shape.draw = function(vars) {
             vars.viz
               .depth(vars.depth.value-1)
               .id({"solo": previous})
+              .title({"sub": prev_sub})
+              .style({"title": {"sub": {"font-color": prev_color}}})
               .draw()
 
           })
@@ -443,6 +453,8 @@ d3plus.shape.draw = function(vars) {
           vars.viz
             .depth(vars.depth.value+1)
             .id({"solo": [id]})
+            .title({"sub": title})
+            .style({"title": {"sub": {"font-color": color}}})
             .draw()
 
         }
