@@ -22,6 +22,7 @@ JS_FILES = \
 	src/data/filter.js \
 	src/data/format.js \
 	src/data/nest.js \
+	src/data/threshold.js \
 	\
 	src/draw/app.js \
 	src/draw/container.js \
