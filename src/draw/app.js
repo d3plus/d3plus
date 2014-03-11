@@ -61,17 +61,8 @@ d3plus.draw.app = function(vars) {
   // Check for Errors
   //-------------------------------------------------------------------
   if (!vars.internal_error) {
-    if ((!vars.error.value && !vars.data.app) || !vars.returned.nodes.length) {
+    if (!vars.data.app || !vars.returned.nodes.length) {
       vars.internal_error = "No Data Available"
-    }
-    else if (vars.error.value) {
-      vars.data.app = null
-      if (vars.error.value === true) {
-        vars.internal_error = "Error"
-      }
-      else {
-        vars.internal_error = vars.error.value
-      }
     }
     else {
       vars.internal_error = null

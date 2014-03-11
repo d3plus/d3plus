@@ -135,64 +135,74 @@ d3plus.viz = function() {
           small_height = vars.height.value <= vars.height.small
       vars.small = small_width || small_height
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Run setup function if app has it
-      //------------------------------------------------------------------------
-      var steps = []
-      if (d3plus.apps[vars.type.value].setup) {
-        steps.push({
-          "function": d3plus.apps[vars.type.value].setup,
-          "message": "Running setup function for \""+vars.type.value+"\""
-        })
+      if (vars.error.value) {
+        vars.messages.style = "large"
+        var message = vars.error.value === true ? "Error" : vars.error.value
+        if (vars.dev.value) d3plus.console.warning(message)
+        d3plus.ui.message(vars,message)
       }
+      else {
 
-      steps = steps.concat([
-        {"function": d3plus.draw.tooltips, "message": "Removing Tooltips"},
-        {"function": d3plus.draw.enter, "message": "Creating DOM Elements"},
-        {"function": d3plus.data.analyze, "message": "Analyzing Data"},
-        {"function": d3plus.data.color, "message": "Analyzing Colors"},
-        {"function": d3plus.ui.titles, "message": "Drawing Titles"},
-        {"function": d3plus.ui.legend, "message": "Drawing Legend"},
-        {"function": d3plus.ui.timeline, "message": "Drawing Timeline"},
-        {"function": d3plus.ui.history, "message": "Checking History"},
-        {"function": function(vars){
-          vars.app_height -= (vars.margin.top+vars.margin.bottom);
-        }, "message": "Calculating Visualization Height"},
-        {"function": d3plus.ui.focus, "message": "Creating Side Tooltip"},
-        {"function": d3plus.draw.update, "message": "Updating Elements"},
-        {"function": d3plus.draw.errors, "message": "Checking for Errors"},
-        {"function": d3plus.draw.app, "message": "Drawing Visualization"},
-        {"function": d3plus.shape.edges, "message": "Drawing Edges"},
-        {"function": d3plus.shape.draw, "message": "Drawing Shapes"},
-        {"function": d3plus.draw.finish, "message": "Finishing"}
-      ])
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Run setup function if app has it
+        //------------------------------------------------------------------------
+        var steps = []
+        if (d3plus.apps[vars.type.value].setup) {
+          steps.push({
+            "function": d3plus.apps[vars.type.value].setup,
+            "message": "Running setup function for \""+vars.type.value+"\""
+          })
+        }
 
-      var i = 0
-      vars.parent.style("cursor","wait")
-      vars.messages.style = vars.data.app ? "small" : "large"
-      function run_steps() {
+        steps = steps.concat([
+          {"function": d3plus.draw.tooltips, "message": "Removing Tooltips"},
+          {"function": d3plus.draw.enter, "message": "Creating DOM Elements"},
+          {"function": d3plus.data.analyze, "message": "Analyzing Data"},
+          {"function": d3plus.data.color, "message": "Analyzing Colors"},
+          {"function": d3plus.ui.titles, "message": "Drawing Titles"},
+          {"function": d3plus.ui.legend, "message": "Drawing Legend"},
+          {"function": d3plus.ui.timeline, "message": "Drawing Timeline"},
+          {"function": d3plus.ui.history, "message": "Checking History"},
+          {"function": function(vars){
+            vars.app_height -= (vars.margin.top+vars.margin.bottom);
+          }, "message": "Calculating Visualization Height"},
+          {"function": d3plus.ui.focus, "message": "Creating Side Tooltip"},
+          {"function": d3plus.draw.update, "message": "Updating Elements"},
+          {"function": d3plus.draw.errors, "message": "Checking for Errors"},
+          {"function": d3plus.draw.app, "message": "Drawing Visualization"},
+          {"function": d3plus.shape.edges, "message": "Drawing Edges"},
+          {"function": d3plus.shape.draw, "message": "Drawing Shapes"},
+          {"function": d3plus.draw.finish, "message": "Finishing"}
+        ])
 
-        var step = steps[i]
+        var i = 0
+        vars.parent.style("cursor","wait")
+        vars.messages.style = vars.data.app ? "small" : "large"
+        function run_steps() {
 
-        if (vars.dev.value) d3plus.console.log(step.message)
-        d3plus.ui.message(vars,step.message)
+          var step = steps[i]
 
-        setTimeout(function(){
+          if (vars.dev.value) d3plus.console.log(step.message)
+          d3plus.ui.message(vars,step.message)
 
-          step.function(vars)
+          setTimeout(function(){
 
-          if (i < steps.length-1) {
-            i++
-            run_steps()
-          }
-          else {
-            vars.parent.style("cursor","auto")
-          }
+            step.function(vars)
 
-        },5)
+            if (i < steps.length-1) {
+              i++
+              run_steps()
+            }
+            else {
+              vars.parent.style("cursor","auto")
+            }
+
+          },5)
+
+        }
+        run_steps()
 
       }
-      run_steps()
 
     });
 
