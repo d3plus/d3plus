@@ -61,9 +61,9 @@ d3plus.tooltip.app = function(params) {
 
     if (d.d3plus) {
 
-      if (d.d3plus.children) {
+      if (d.d3plus.merged) {
         if (!ex) ex = {}
-        ex.items = d.d3plus.children.length
+        ex.items = d.d3plus.merged.length
       }
 
       var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
@@ -119,7 +119,7 @@ d3plus.tooltip.app = function(params) {
         var width = "auto"
       }
       else {
-        var width = vars.style.tooltip.width
+        var width = vars.style.tooltip.small
       }
 
       d3plus.tooltip.create({
@@ -139,7 +139,7 @@ d3plus.tooltip.app = function(params) {
         "html": html,
         "icon": icon,
         "id": tooltip_id,
-        "max_width": vars.style.tooltip.width,
+        "max_width": vars.style.tooltip.small,
         "mouseevents": mouse,
         "offset": offset,
         "parent": vars.parent,
