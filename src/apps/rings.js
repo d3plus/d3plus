@@ -315,8 +315,10 @@ d3plus.apps.rings.draw = function(vars) {
   }
 
   vars.mouse[d3plus.evt.click] = function(d) {
-    d3plus.tooltip.remove(vars.type.value)
-    vars.viz.focus(d[vars.id.key]).draw()
+    if (d[vars.id.key] != vars.focus.value) {
+      d3plus.tooltip.remove(vars.type.value)
+      vars.viz.focus(d[vars.id.key]).draw()
+    }
   }
 
   return {"edges": edges, "nodes": nodes}
