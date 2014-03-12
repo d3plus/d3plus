@@ -27,7 +27,7 @@ d3plus.tooltip.app = function(params) {
         footer = vars.footer_text()
   }
 
-  if (params.x) {
+  if ("x" in params) {
     var x = params.x
   }
   else if (d3plus.apps[vars.type.value].tooltip == "follow") {
@@ -37,7 +37,7 @@ d3plus.tooltip.app = function(params) {
     var x = d.d3plus.x+vars.margin.left
   }
 
-  if (params.y) {
+  if ("y" in params) {
     var y = params.y
   }
   else if (d3plus.apps[vars.type.value].tooltip == "follow") {
@@ -47,7 +47,7 @@ d3plus.tooltip.app = function(params) {
     var y = d.d3plus.y+vars.margin.top
   }
 
-  if (params.offset) {
+  if ("offset" in params) {
     var offset = params.offset
   }
   else if (d3plus.apps[vars.type.value].tooltip == "follow") {
@@ -59,30 +59,34 @@ d3plus.tooltip.app = function(params) {
 
   function make_tooltip(html) {
 
-    if (d.d3plus.children) {
-      if (!ex) ex = {}
-      ex.items = d.d3plus.children.length
-    }
+    if (d.d3plus) {
 
-    var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
-        temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
-        total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
+      if (d.d3plus.children) {
+        if (!ex) ex = {}
+        ex.items = d.d3plus.children.length
+      }
 
-    if (typeof active == "number" && active > 0 && total) {
-      if (!ex) ex = {}
-      var label = vars.active.key || "active"
-      ex[label] = active+"/"+total+" ("+vars.format((active/total)*100,"share")+"%)"
-    }
+      var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
+          temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
+          total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
 
-    if (typeof temp == "number" && temp > 0 && total) {
-      if (!ex) ex = {}
-      var label = vars.temp.key || "temp"
-      ex[label] = temp+"/"+total+" ("+vars.format((temp/total)*100,"share")+"%)"
-    }
+      if (typeof active == "number" && active > 0 && total) {
+        if (!ex) ex = {}
+        var label = vars.active.key || "active"
+        ex[label] = active+"/"+total+" ("+vars.format((active/total)*100,"share")+"%)"
+      }
 
-    if (d.d3plus.share) {
-      if (!ex) ex = {}
-      ex.share = vars.format(d.d3plus.share*100,"share")+"%"
+      if (typeof temp == "number" && temp > 0 && total) {
+        if (!ex) ex = {}
+        var label = vars.temp.key || "temp"
+        ex[label] = temp+"/"+total+" ("+vars.format((temp/total)*100,"share")+"%)"
+      }
+
+      if (d.d3plus.share) {
+        if (!ex) ex = {}
+        ex.share = vars.format(d.d3plus.share*100,"share")+"%"
+      }
+
     }
 
     var depth = "depth" in params ? params.depth : vars.depth.value,
@@ -111,7 +115,7 @@ d3plus.tooltip.app = function(params) {
       if (params.width) {
         var width = params.width
       }
-      if (!fullscreen && tooltip_data.length == 0) {
+      else if (!fullscreen && tooltip_data.length == 0) {
         var width = "auto"
       }
       else {
