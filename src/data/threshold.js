@@ -146,7 +146,7 @@ d3plus.data.threshold = function(vars,split) {
           m.d3plus.children = []
           removed.forEach(function(r){
             if (m[parent] == r[parent]) {
-              m.d3plus.children.push(m[parent])
+              m.d3plus.children.push(r[vars.id.key])
             }
           })
         }
