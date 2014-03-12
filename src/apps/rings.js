@@ -33,7 +33,7 @@ d3plus.apps.rings.draw = function(vars) {
         n = {"d3plus": {}}
         n[vars.id.key] = c[vars.id.key]
       }
-      n.d3plus.children = vars.connections(n[vars.id.key]).filter(function(c){
+      n.d3plus.edges = vars.connections(n[vars.id.key]).filter(function(c){
         return c.source[vars.id.key] != vars.focus.value && c.target[vars.id.key] != vars.focus.value
       })
       n.d3plus.edge = edge
@@ -91,7 +91,7 @@ d3plus.apps.rings.draw = function(vars) {
 
     primaries.sort(function(a,b){
 
-      var lengthdiff = a.d3plus.children.length - b.d3plus.children.length
+      var lengthdiff = a.d3plus.edges.length - b.d3plus.edges.length
 
       if (lengthdiff) {
 
@@ -119,12 +119,12 @@ d3plus.apps.rings.draw = function(vars) {
     //--------------------------------------------------------------------------
     var secondaries = [], total = 0
     primaries.forEach(function(p){
-      p.d3plus.children = p.d3plus.children.filter(function(c){
+      p.d3plus.edges = p.d3plus.edges.filter(function(c){
         return (claimed.indexOf(c.source[vars.id.key]) < 0 && c.target[vars.id.key] == p[vars.id.key])
             || (claimed.indexOf(c.target[vars.id.key]) < 0 && c.source[vars.id.key] == p[vars.id.key])
       })
-      total += p.d3plus.children.length || 1
-      p.d3plus.children.forEach(function(c){
+      total += p.d3plus.edges.length || 1
+      p.d3plus.edges.forEach(function(c){
         var claim = c.target[vars.id.key] == p[vars.id.key] ? c.source : c.target
         claimed.push(claim[vars.id.key])
       })
@@ -135,7 +135,7 @@ d3plus.apps.rings.draw = function(vars) {
     var offset = 0, radian = Math.PI*2, start = 0
     primaries.forEach(function(p,i){
 
-      var children = p.d3plus.children.length || 1,
+      var children = p.d3plus.edges.length || 1,
           space = (radian/total)*children
 
       if (i == 0) {
@@ -178,7 +178,7 @@ d3plus.apps.rings.draw = function(vars) {
       edges.push(p.d3plus.edge)
 
       offset += space
-      p.d3plus.children.sort(function(a,b){
+      p.d3plus.edges.sort(function(a,b){
 
         var a = a.source[vars.id.key] == p[vars.id.key] ? a.target : a.source,
             b = b.source[vars.id.key] == p[vars.id.key] ? b.target : b.source
@@ -187,7 +187,7 @@ d3plus.apps.rings.draw = function(vars) {
 
       })
 
-      p.d3plus.children.forEach(function(edge,i){
+      p.d3plus.edges.forEach(function(edge,i){
 
         var c = edge.source[vars.id.key] == p[vars.id.key] ? edge.target : edge.source
 
