@@ -45,13 +45,11 @@ d3plus.ui.titles = function(vars) {
 
     if (total) {
 
-      total = vars.format(total,vars.size.key)
-      var obj = vars.title.total.value
-      obj.prefix ? total = obj.prefix + total : null
-      obj.suffix ? total = total + obj.suffix : null
+      var pct = ""
 
-      if ((vars.mute.length || vars.solo.length) && percentage) {
-        var overall_total = d3.sum(vars.data.pool, function(d){
+      if ((vars.mute.length || vars.solo.length) || percentage) {
+
+        var overall_total = d3.sum(vars.data.filtered.all, function(d){
           if (vars.time.solo.value.length > 0) {
             var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.key)) >= 0
           }
@@ -65,10 +63,18 @@ d3plus.ui.titles = function(vars) {
             return d3plus.variable.value(vars,d,vars.size.key)
           }
         })
-        var pct = (t/overall_total)*100
-        ot = vars.format(overall_total,vars.size.key)
-        total += " ("+vars.format(pct,"share")+"% of "+ot+")"
+
+        var pct = (total/overall_total)*100,
+            ot = vars.format(overall_total,vars.size.key)
+
+        var pct = " ("+vars.format(pct,"share")+"% of "+ot+")"
       }
+
+      total = vars.format(total,vars.size.key)
+      var obj = vars.title.total.value
+      obj.prefix ? total = obj.prefix + total : null
+      obj.suffix ? total = total + obj.suffix : null
+      total += pct
 
     }
 
