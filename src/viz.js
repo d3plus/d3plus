@@ -171,9 +171,7 @@ d3plus.viz = function() {
           {"function": d3plus.ui.focus, "message": "Creating Side Tooltip"},
           {"function": d3plus.draw.update, "message": "Updating Elements"},
           {"function": d3plus.draw.errors, "message": "Checking for Errors"},
-          {"function": d3plus.draw.app, "message": "Drawing Visualization"},
-          {"function": d3plus.shape.edges, "message": "Drawing Edges"},
-          {"function": d3plus.shape.draw, "message": "Drawing Shapes"},
+          {"function": [d3plus.draw.app,d3plus.shape.edges,d3plus.shape.draw], "message": "Drawing Visualization"},
           {"function": d3plus.draw.finish, "message": "Finishing"}
         ])
 
@@ -189,7 +187,14 @@ d3plus.viz = function() {
 
           setTimeout(function(){
 
-            step.function(vars)
+            if (step.function instanceof Array) {
+              step.function.forEach(function(f){
+                f(vars)
+              })
+            }
+            else if (typeof step.function == "function") {
+              step.function(vars)
+            }
 
             if (i < steps.length-1) {
               i++
