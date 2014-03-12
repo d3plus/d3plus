@@ -142,7 +142,17 @@ d3plus.data.threshold = function(vars,split) {
         m[vars.text.key] += " ("+vars.format(threshold*100)+"%)"
 
         m.d3plus.threshold = cutoff
-        m.d3plus.children = d3plus.utils.uniques(removed,vars.id.key)
+        if (parent) {
+          m.d3plus.children = []
+          removed.forEach(function(r){
+            if (m[parent] == r[parent]) {
+              m.d3plus.children.push(m[parent])
+            }
+          })
+        }
+        else {
+          m.d3plus.children = d3plus.utils.uniques(removed,vars.id.key)
+        }
 
       }
 
