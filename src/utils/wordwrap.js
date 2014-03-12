@@ -10,7 +10,7 @@ d3plus.utils.wordwrap = function(params) {
       font_max = params.font_max ? params.font_max : 40,
       font_min = params.font_min ? params.font_min : 9,
       text_array = params.text,
-      split = ["-","/",";",":","%","&"],
+      split = ["-","/",";",":","&"],
       regex = new RegExp("[^\\s\\"+split.join("\\")+"]+\\"+split.join("?\\")+"?","g"),
       current_text = ""
 
