@@ -3,9 +3,10 @@
 //------------------------------------------------------------------------------
 d3plus.ui.message = function(vars,message) {
 
-  var message = vars.messages.value ? message : null
+  var message = vars.messages.value ? message : null,
+      size = message == vars.internal_error ? "large" : vars.messages.style
 
-  if (vars.messages.style == "large") {
+  if (size == "large") {
     var font = vars.style.message,
         position = "center"
   }
@@ -77,7 +78,7 @@ d3plus.ui.message = function(vars,message) {
         }
       })
       .style("margin-top",function(){
-        if (vars.messages.style == "large") {
+        if (size == "large") {
           var height = this.offsetHeight
           return -height/2+"px"
         }
