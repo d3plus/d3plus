@@ -415,8 +415,8 @@ d3plus.shape.draw = function(vars) {
             color = d3plus.color.legible(d3plus.variable.color(vars,d)),
             prev_sub = vars.title.sub.value,
             prev_color = vars.style.title.sub["font-color"]
-            
-        if (d.d3plus.threshold && d.d3plus.children) {
+
+        if (d.d3plus.threshold && d.d3plus.merged) {
 
           vars.history.states.push(function(){
 
@@ -429,7 +429,7 @@ d3plus.shape.draw = function(vars) {
           })
 
           vars.viz
-            .id({"solo": d.d3plus.children})
+            .id({"solo": d.d3plus.merged})
             .title({"sub": title})
             .style({"title": {"sub": {"font-color": color}}})
             .draw()
