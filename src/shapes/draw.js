@@ -7,7 +7,7 @@ d3plus.shape.draw = function(vars) {
       edges = vars.returned.edges || []
 
   vars.timing = data.length < vars.data.large && edges.length < vars.edges.large ? vars.style.timing.transitions : 0
-  console.log(vars.timing)
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Match vars.shape types to their respective d3plus.shape functions. For
   // example, both "square", and "circle" shapes use "rect" as their drawing
@@ -313,38 +313,55 @@ d3plus.shape.draw = function(vars) {
       vars.g.edge_focus
         .attr("opacity",0)
         .selectAll("line, path")
-        .style("stroke",vars.style.highlight.primary)
-        .attr("marker-start",function(){
-          return vars.edges.arrows.direction.value == "source" ? marker : "none"
-        })
-        .attr("marker-end",function(){
-          return vars.edges.arrows.direction.value == "target" ? marker : "none"
-        })
-
-      vars.g.edge_focus
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",1)
+          .style("stroke",vars.style.highlight.primary)
+          .attr("marker-start",function(){
+            return vars.edges.arrows.direction.value == "source" ? marker : "none"
+          })
+          .attr("marker-end",function(){
+            return vars.edges.arrows.direction.value == "target" ? marker : "none"
+          })
 
       if (vars.timing) {
+
+        vars.g.edge_focus
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",1)
+
         vars.g.edges
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",0.5)
+
+      }
+      else {
+
+        vars.g.edge_focus
+          .attr("opacity",1)
+
       }
 
     }
     else {
 
-      vars.g.edge_focus
-        .transition().duration(vars.style.timing.mouseevents)
-        .attr("opacity",0)
-        .transition()
-        .selectAll("*")
-        .remove()
-
       if (vars.timing) {
+
+        vars.g.edge_focus
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",0)
+          .transition()
+          .selectAll("*")
+          .remove()
+
         vars.g.edges
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
+
+      }
+      else {
+
+        vars.g.edge_focus
+          .selectAll("*")
+          .remove()
+
       }
 
     }
