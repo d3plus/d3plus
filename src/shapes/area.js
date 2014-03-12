@@ -99,9 +99,18 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
       return [d];
     })
-    .transition().duration(vars.style.timing.transitions)
+
+  if (vars.timing) {
+    selection.selectAll("path.d3plus_data")
+      .transition().duration(vars.timing)
+        .attr("d",function(d){ return area(d.values) })
+        .call(d3plus.shape.style,vars)
+  }
+  else {
+    selection.selectAll("path.d3plus_data")
       .attr("d",function(d){ return area(d.values) })
       .call(d3plus.shape.style,vars)
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define mouse event area
@@ -164,7 +173,13 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
       }
 
     })
-    .transition().duration(vars.style.timing.transitions)
+
+  if (vars.timing) {
+    mouses.transition().duration(vars.timing)
       .attr("d",function(d){ return area(d.values) })
+  }
+  else {
+    mouses.attr("d",function(d){ return area(d.values) })
+  }
 
 }

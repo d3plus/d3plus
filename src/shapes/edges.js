@@ -36,6 +36,7 @@ d3plus.shape.edges = function(vars) {
       .attr("marker-end",function(){
         return vars.edges.arrows.direction.value == "target" ? marker : "none"
       })
+      .attr("vector-effect","non-scaling-stroke")
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -209,7 +210,21 @@ d3plus.shape.edges = function(vars) {
       })
   }
 
-  marker.enter().append("marker")
+  if (vars.timing) {
+    marker.exit().transition().duration(vars.timing)
+      .attr("opacity",0)
+      .remove()
+
+    marker.select("path").transition().duration(vars.timing)
+      .attr("opacity",1)
+      .call(marker_style)
+  }
+  else {
+    marker.exit().remove()
+  }
+
+  var opacity = vars.timing ? 0 : 1
+  var enter = marker.enter().append("marker")
     .attr("id",function(d){
       return "d3plus_edge_marker_"+d
     })
@@ -219,16 +234,13 @@ d3plus.shape.edges = function(vars) {
     .attr("markerHeight",10)
     .style("overflow","visible")
     .append("path")
-    .attr("opacity",0)
+    .attr("opacity",opacity)
     .call(marker_style)
 
-  marker.select("path").transition().duration(vars.style.timing.transitions)
-    .attr("opacity",1)
-    .call(marker_style)
-
-  marker.exit().transition().duration(vars.style.timing.transitions)
-    .attr("opacity",0)
-    .remove()
+  if (vars.timing) {
+    enter.transition().duration(vars.timing)
+      .attr("opacity",1)
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Bind "edges" data to lines in the "edges" group
@@ -242,29 +254,6 @@ d3plus.shape.edges = function(vars) {
       return d.source[vars.id.key]+"_"+d.target[vars.id.key]
     })
 
-  lines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
-    .transition().duration(vars.style.timing.transitions/2)
-    .attr("opacity",0)
-    .remove()
-
-  lines.selectAll("line").transition().duration(vars.style.timing.transitions)
-    .call(line)
-    .call(style)
-    .each("end",label)
-
-  lines.enter().append("g")
-    .attr("class","d3plus_edge_line")
-    .append("line")
-    .call(line)
-    .call(init)
-    .transition().duration(vars.style.timing.transitions)
-      .call(style)
-      .each("end",label)
-
-  lines.exit().transition().duration(vars.style.timing.transitions)
-    .attr("opacity",0)
-    .remove()
-
   var spline_data = edges.filter(function(l){
     return l.d3plus && l.d3plus.spline
   })
@@ -274,27 +263,93 @@ d3plus.shape.edges = function(vars) {
       return d.source[vars.id.key]+"_"+d.target[vars.id.key]
     })
 
-  splines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
-    .transition().duration(vars.style.timing.transitions/2)
-    .attr("opacity",0)
-    .remove()
+  if (vars.timing) {
 
-  splines.selectAll("path").transition().duration(vars.style.timing.transitions)
-    .call(spline)
-    .call(style)
-    .each("end",label)
+    lines.exit().transition().duration(vars.timing)
+      .attr("opacity",0)
+      .remove()
 
-  splines.enter().append("g")
-    .attr("class","d3plus_edge_path")
-    .append("path")
-    .call(spline)
-    .call(init)
-    .transition().duration(vars.style.timing.transitions)
+    splines.exit().transition().duration(vars.timing)
+      .attr("opacity",0)
+      .remove()
+
+    lines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .transition().duration(vars.timing/2)
+      .attr("opacity",0)
+      .remove()
+
+    splines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .transition().duration(vars.timing/2)
+      .attr("opacity",0)
+      .remove()
+
+    lines.selectAll("line").transition().duration(vars.timing)
+      .call(line)
       .call(style)
       .each("end",label)
 
-  splines.exit().transition().duration(vars.style.timing.transitions)
-    .attr("opacity",0)
-    .remove()
+    splines.selectAll("path").transition().duration(vars.timing)
+      .call(spline)
+      .call(style)
+      .each("end",label)
+
+    lines.enter().append("g")
+      .attr("class","d3plus_edge_line")
+      .append("line")
+      .call(line)
+      .call(init)
+      .transition().duration(vars.timing)
+        .call(style)
+        .each("end",label)
+
+    splines.enter().append("g")
+      .attr("class","d3plus_edge_path")
+      .append("path")
+      .call(spline)
+      .call(init)
+      .transition().duration(vars.timing)
+        .call(style)
+        .each("end",label)
+
+  }
+  else {
+
+    lines.exit().remove()
+
+    splines.exit().remove()
+
+    lines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .remove()
+
+    splines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .remove()
+
+    lines.selectAll("line")
+      .call(line)
+      .call(style)
+      .call(label)
+
+    splines.selectAll("path")
+      .call(spline)
+      .call(style)
+      .call(label)
+
+    lines.enter().append("g")
+      .attr("class","d3plus_edge_line")
+      .append("line")
+      .call(line)
+      .call(init)
+      .call(style)
+      .call(label)
+
+    splines.enter().append("g")
+      .attr("class","d3plus_edge_path")
+      .append("path")
+      .call(spline)
+      .call(init)
+      .call(style)
+      .call(label)
+
+  }
 
 }

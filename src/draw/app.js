@@ -4,17 +4,6 @@
 d3plus.draw.app = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Hide the previous app, if applicable
-  //-------------------------------------------------------------------
-  var prev = vars.type.previous
-  if (prev && vars.type.value != prev && vars.g.apps[prev]) {
-    if (vars.dev.value) d3plus.console.group("Hiding \"" + prev + "\"")
-    vars.g.apps[prev].transition().duration(vars.style.timing.transitions)
-      .attr("opacity",0)
-    if (vars.dev.value) d3plus.console.groupEnd();
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Draw the specified app
   //-------------------------------------------------------------------
   // Set vars.group to the app's specific group element
@@ -69,11 +58,30 @@ d3plus.draw.app = function(vars) {
     }
   }
 
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Hide the previous app, if applicable
+  //-------------------------------------------------------------------
+  var prev = vars.type.previous
+  if (prev && vars.type.value != prev && vars.g.apps[prev]) {
+    if (vars.dev.value) d3plus.console.group("Hiding \"" + prev + "\"")
+    if (vars.timing) {
+      vars.g.apps[prev].transition().duration(vars.timing)
+        .attr("opacity",0)
+    }
+    else {
+      vars.g.apps[prev].attr("opacity",0)
+    }
+    if (vars.dev.value) d3plus.console.groupEnd();
+  }
+
   // Make the group visible if there is data
-  vars.group.transition().duration(vars.style.timing.transitions)
-    .attr("opacity",function(){
-      if (vars.data.app.length == 0 || vars.internal_error) return 0
-      else return 1
-    })
+  var opacity = vars.data.app.length == 0 || vars.internal_error ? 0 : 1
+  if (vars.timing) {
+    vars.group.transition().duration(vars.timing)
+      .attr("opacity",opacity)
+  }
+  else {
+    vars.group.attr("opacity",opacity)
+  }
 
 }

@@ -7,13 +7,13 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   // The position and size of each rectangle on enter and exit.
   //----------------------------------------------------------------------------
   function init(nodes) {
-    
+
     nodes
       .attr("x",0)
       .attr("y",0)
       .attr("width",0)
       .attr("height",0)
-      
+
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,7 +57,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
       })
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Enter
   //----------------------------------------------------------------------------
@@ -70,10 +70,10 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   // "rects" Update
   //----------------------------------------------------------------------------
   selection.selectAll("rect.d3plus_data")
-    .data(function(d) { 
-      
+    .data(function(d) {
+
       if (vars.labels.value && !d.d3plus.label) {
-        
+
         d.d3plus_label = {
           "w": 0,
           "h": 0,
@@ -83,51 +83,66 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
 
         var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width,
             h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-    
+
         // Square bounds
         if (vars.shape.value == "square") {
-              
+
           w -= vars.style.labels.padding*2
           h -= vars.style.labels.padding*2
-          
+
           d.d3plus_share = {
             "w": w,
             "h": h/4,
             "x": 0,
             "y": 0
           }
-        
+
           d.d3plus_label.w = w
           d.d3plus_label.h = h
-        
+
         }
         // Circle bounds
         else {
           d.d3plus_label.w = Math.sqrt(Math.pow(w,2)*.75)-(vars.style.labels.padding)
           d.d3plus_label.h = Math.sqrt(Math.pow(h,2)*.75)-(vars.style.labels.padding)
         }
-        
+
         if (d.d3plus_label.w < 20 && d.d3plus_label.h < 10) {
           delete d.d3plus_label
         }
-        
+
       }
       else if (d.d3plus.label) {
         d.d3plus_label = d.d3plus.label
       }
-      
+
       return [d];
     })
-    .transition().duration(vars.style.timing.transitions)
+
+  if (vars.timing) {
+    selection.selectAll("rect.d3plus_data")
+      .transition().duration(vars.timing)
+        .call(update)
+        .call(d3plus.shape.style,vars)
+  }
+  else {
+    selection.selectAll("rect.d3plus_data")
       .call(update)
       .call(d3plus.shape.style,vars)
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Exit
   //----------------------------------------------------------------------------
-  exit.selectAll("rect.d3plus_data")
-    .transition().duration(vars.style.timing.transitions)
-    .call(init)
+  if (vars.timing) {
+    exit.selectAll("rect.d3plus_data")
+      .transition().duration(vars.timing)
+      .call(init)
+  }
+  else {
+    exit.selectAll("rect.d3plus_data")
+      .call(init)
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define mouse event shapes
@@ -153,38 +168,44 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
       return !d.d3plus.static ? [d] : [];
     })
     .on(d3plus.evt.over,function(d){
-      
+
       if (!vars.frozen) {
 
         d3.select(this).style("cursor","pointer")
-      
+
         d3.select(this.parentNode).selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
-      
+
         d3.select(this.parentNode)
           .transition().duration(vars.style.timing.mouseevents)
           .call(transform,true)
-          
+
       }
-        
+
     })
     .on(d3plus.evt.out,function(d){
-      
+
       if (!vars.frozen) {
-      
+
         d3.select(this.parentNode).selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",vars.style.data.opacity)
-          
+
         d3.select(this.parentNode)
           .transition().duration(vars.style.timing.mouseevents)
           .call(transform)
-          
+
       }
-        
+
     })
-    .transition().duration(vars.style.timing.transitions)
+
+  if (vars.timing) {
+    mouses.transition().duration(vars.timing)
       .call(update,6)
-  
+  }
+  else {
+    mouses.call(update,6)
+  }
+
 }

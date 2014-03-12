@@ -68,6 +68,7 @@ d3plus.public.coords = {
 }
 
 d3plus.public.data = {
+  "large": 400,
   "value": []
 }
 

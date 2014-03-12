@@ -3,8 +3,11 @@
 //------------------------------------------------------------------------------
 d3plus.shape.draw = function(vars) {
 
-  var data = vars.returned.nodes
+  var data = vars.returned.nodes || [],
+      edges = vars.returned.edges || []
 
+  vars.timing = data.length < vars.data.large && edges.length < vars.edges.large ? vars.style.timing.transitions : 0
+  console.log(vars.timing)
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Match vars.shape types to their respective d3plus.shape functions. For
   // example, both "square", and "circle" shapes use "rect" as their drawing
@@ -48,16 +51,8 @@ d3plus.shape.draw = function(vars) {
 
     var depth = d.d3plus.depth ? d.d3plus.depth : vars.depth.value
 
-    d.d3plus.id = ""
-
-    vars.id.nesting.forEach(function(n,i){
-      if (i <= depth) {
-        d.d3plus.id += d3plus.variable.value(vars,d,n)
-        d.d3plus.id += "_"
-      }
-    })
-
-    d.d3plus.id += depth+"_"+shape
+    d.d3plus.id = d3plus.variable.value(vars,d,vars.id.nesting[depth])
+    d.d3plus.id += "_"+depth+"_"+shape
 
     vars.axes.values.forEach(function(axis){
       if (vars[axis].scale.value == "continuous") {
@@ -103,10 +98,16 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   for (shape in shape_lookup) {
     if (!(shape_lookup[shape] in shapes) || Object.keys(shapes).length === 0) {
-      vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
-        .transition().duration(vars.style.timing.transitions)
-        .attr("opacity",0)
-        .remove()
+      if (vars.timing) {
+        vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
+          .transition().duration(vars.timing)
+          .attr("opacity",0)
+          .remove()
+      }
+      else {
+        vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
+          .remove()
+      }
     }
   }
 
@@ -217,29 +218,49 @@ d3plus.shape.draw = function(vars) {
       })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Groups Enter
-    //--------------------------------------------------------------------------
-    var enter = selection.enter().append("g")
-      .attr("class","d3plus_"+shape)
-      .attr("opacity",0)
-      .call(transform)
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Groups Update
-    //--------------------------------------------------------------------------
-    selection
-      .order()
-      .transition().duration(vars.style.timing.transitions)
-      .call(transform)
-      .attr("opacity",1)
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Groups Exit
     //--------------------------------------------------------------------------
-    var exit = selection.exit()
-      .transition().duration(vars.style.timing.transitions)
-      .attr("opacity",0)
-      .remove()
+    if (vars.timing) {
+      var exit = selection.exit()
+        .transition().duration(vars.timing)
+        .attr("opacity",0)
+        .remove()
+    }
+    else {
+      var exit = selection.exit()
+        .remove()
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Existing Groups Update
+    //--------------------------------------------------------------------------
+    if (vars.timing) {
+      selection
+        .transition().duration(vars.timing)
+        .call(transform)
+    }
+    else {
+      selection.call(transform)
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Groups Enter
+    //--------------------------------------------------------------------------
+    var opacity = vars.timing ? 0 : 1
+    var enter = selection.enter().append("g")
+      .attr("class","d3plus_"+shape)
+      .attr("opacity",opacity)
+      .call(transform)
+
+    if (vars.timing) {
+      enter.transition().duration(vars.timing)
+        .attr("opacity",1)
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // All Groups Sort Order
+    //--------------------------------------------------------------------------
+    selection.order()
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Draw appropriate graphics inside of each group
@@ -269,9 +290,7 @@ d3plus.shape.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function to Update Edges
   //----------------------------------------------------------------------------
-  function edges(d) {
-
-    var edge_count = vars.g.edges.selectAll("line, path").size()
+  function edge_update(d) {
 
     if (d) {
 
@@ -306,7 +325,7 @@ d3plus.shape.draw = function(vars) {
         .transition().duration(vars.style.timing.mouseevents)
         .attr("opacity",1)
 
-      if (edge_count < vars.edges.large) {
+      if (vars.timing) {
         vars.g.edges
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",0.5)
@@ -322,7 +341,7 @@ d3plus.shape.draw = function(vars) {
         .selectAll("*")
         .remove()
 
-      if (edge_count < vars.edges.large) {
+      if (vars.timing) {
         vars.g.edges
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
@@ -354,7 +373,7 @@ d3plus.shape.draw = function(vars) {
           vars.mouse.over(d)
         }
 
-        edges(d)
+        edge_update(d)
 
       }
 
@@ -400,7 +419,7 @@ d3plus.shape.draw = function(vars) {
           vars.mouse.out(d)
         }
 
-        edges()
+        edge_update()
 
       }
 
@@ -465,7 +484,7 @@ d3plus.shape.draw = function(vars) {
         }
         else {
 
-          edges()
+          edge_update()
 
           var tooltip_data = d.data ? d.data : d
 

@@ -93,6 +93,7 @@ d3plus.viz = function() {
     "mute": [],
     "solo": [],
     "style": d3plus.styles.default,
+    "timing": d3plus.styles.default.timing.transitions,
     "zoom_behavior": d3.behavior.zoom().scaleExtent([1,8]),
     "zoom_direction": function() {
 

@@ -7,10 +7,17 @@ d3plus.shape.labels = function(vars,selection) {
   // Label Exiting
   //----------------------------------------------------------------------------
   remove = function(text) {
-    text
-      .transition().duration(vars.style.timing.transitions)
-      .attr("opacity",0)
-      .remove()
+
+    if (vars.timing) {
+      text
+        .transition().duration(vars.timing)
+        .attr("opacity",0)
+        .remove()
+    }
+    else {
+      text.remove()
+    }
+
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -201,7 +208,7 @@ d3plus.shape.labels = function(vars,selection) {
       }
 
       if (!disabled && (background || !fill) && !stat) {
-        
+
         if (share && d.d3plus.share && vars.style.labels.align != "middle") {
 
           share.text = d.d3plus.share
@@ -214,24 +221,35 @@ d3plus.shape.labels = function(vars,selection) {
               return t.w+""+t.h+""+t.text
             })
 
-          text
-            .transition().duration(vars.style.timing.transitions/2)
-            .call(style,true)
+          if (vars.timing) {
 
-          text.enter().insert("text",".d3plus_mouse")
-            .attr("class","d3plus_share")
-            .attr("opacity",0)
-            .call(style,true)
+            text.transition().duration(vars.timing/2)
+              .call(style,true)
 
-          text
-            .transition().duration(vars.style.timing.transitions/2)
-            .delay(vars.style.timing.transitions/2)
-            .attr("opacity",0.5)
+            text.enter().insert("text",".d3plus_mouse")
+              .attr("class","d3plus_share")
+              .attr("opacity",0)
+              .call(style,true)
+
+            text
+              .transition().duration(vars.timing/2)
+              .delay(vars.timing/2)
+              .attr("opacity",0.5)
+
+          }
+          else {
+
+            text.enter().insert("text",".d3plus_mouse")
+              .attr("class","d3plus_share")
+
+            text.call(style,true)
+              .attr("opacity",0.5)
+
+          }
 
           share_size = text.node().getBBox().height
 
-          text.exit()
-            .call(remove)
+          text.exit().call(remove)
 
         }
         else {
@@ -252,24 +270,36 @@ d3plus.shape.labels = function(vars,selection) {
               return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
 
-          text
-            .transition().duration(vars.style.timing.transitions/2)
-            .call(style,true)
+          if (vars.timing) {
 
-          text.enter().insert("text",".d3plus_mouse")
-            .attr("font-size",vars.style.labels.font.size)
-            .attr("class","d3plus_label")
-            .attr("opacity",0)
-            .call(style,true)
+            text
+              .transition().duration(vars.timing/2)
+              .call(style,true)
 
-          text
-            .transition().duration(vars.style.timing.transitions/2)
-            .delay(vars.style.timing.transitions/2)
+            text.enter().insert("text",".d3plus_mouse")
+              .attr("font-size",vars.style.labels.font.size)
+              .attr("class","d3plus_label")
+              .attr("opacity",0)
+              .call(style,true)
+
+            text
+              .transition().duration(vars.timing/2)
+              .delay(vars.timing/2)
               .attr("opacity",1)
-              .call(style,false)
 
-          text.exit()
-            .call(remove)
+          }
+          else {
+
+            text.enter().insert("text",".d3plus_mouse")
+              .attr("font-size",vars.style.labels.font.size)
+              .attr("class","d3plus_label")
+
+            text.attr("opacity",1)
+                .call(style,true)
+
+          }
+
+          text.exit().call(remove)
 
           if (text.size() == 0 || text.html() == "") {
             delete d.d3plus_label
@@ -313,18 +343,36 @@ d3plus.shape.labels = function(vars,selection) {
 
             }
 
-            bg.enter().insert("rect",".d3plus_label")
-              .attr("class","d3plus_label_bg")
-              .attr("opacity",0)
-              .call(bg_style)
+            if (vars.timing) {
 
-            bg.transition().duration(vars.style.timing.transitions)
-              .attr("opacity",0.5)
-              .call(bg_style)
+              bg.exit().transition().duration(vars.timing)
+                .attr("opacity",0)
+                .remove()
 
-            bg.exit().transition().duration(vars.style.timing.transitions)
-              .attr("opacity",0)
-              .remove()
+              bg.transition().duration(vars.timing)
+                .attr("opacity",0.5)
+                .call(bg_style)
+
+              bg.enter().insert("rect",".d3plus_label")
+                .attr("class","d3plus_label_bg")
+                .attr("opacity",0)
+                .call(bg_style)
+                .transition().duration(vars.timing)
+                  .attr("opacity",0.5)
+
+            }
+            else {
+
+              bg.exit().remove()
+
+              bg.enter().insert("rect",".d3plus_label")
+                .attr("class","d3plus_label_bg")
+
+              bg.attr("opacity",0.5)
+                .call(bg_style)
+
+            }
+
           }
 
         }

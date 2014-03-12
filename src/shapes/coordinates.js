@@ -2,21 +2,21 @@
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
 d3plus.shape.coordinates = function(vars,selection,enter,exit) {
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define the geographical projection
   //----------------------------------------------------------------------------
   var projection = d3.geo[vars.coords.projection.value]()
-  
+
   var clip = d3.geo.clipExtent()
       .extent([[0, 0], [vars.app_width, vars.app_height]]);
-      
+
   if (!vars.zoom.scale) {
     vars.zoom.scale = 1
   }
-      
+
   vars.zoom.area = 1/vars.zoom.scale/vars.zoom.scale
-  
+
   // console.log(vars.zoom)
 
   // var simplify = d3.geo.transform({
@@ -24,12 +24,12 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
   //     if (z >= vars.zoom.area) this.stream.point(x,y);
   //   }
   // });
-  
+
   var path = d3.geo.path()
     .projection(projection)
     // .projection(simplify)
     // .projection({stream: function(s) { return simplify.stream(clip.stream(s)); }})
-    
+
   enter.append("path")
     .attr("id",function(d){
       return d.id
@@ -37,27 +37,35 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     .attr("class","d3plus_data")
     .attr("d",path)
     .call(d3plus.shape.style,vars)
-    
+
   selection.selectAll("path.d3plus_data")
     .on(d3plus.evt.over,function(d){
-      
+
       if (!vars.frozen) {
 
         d3.select(this).attr("opacity",1)
-        
+
       }
     })
     .on(d3plus.evt.out,function(d){
-      
+
       if (!vars.frozen) {
 
         d3.select(this).attr("opacity",vars.style.data.opacity)
-        
+
       }
     })
-    .transition().duration(vars.style.timing.transitions)
+
+  if (vars.timing) {
+    selection.selectAll("path.d3plus_data")
+      .transition().duration(vars.timing)
+        .call(d3plus.shape.style,vars)
+  }
+  else {
+    selection.selectAll("path.d3plus_data")
       .call(d3plus.shape.style,vars)
-      
+  }
+
   if (vars.coords.changed || vars.width.changed || vars.height.changed) {
     if (vars.viewport == vars.bounds) {
       vars.viewport = false
@@ -84,9 +92,9 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
       }
     })
   }
-    
+
   if (!vars.viewport) {
     d3plus.zoom.reset(vars)
   }
-  
+
 }
