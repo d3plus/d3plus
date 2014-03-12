@@ -143,15 +143,15 @@ d3plus.data.threshold = function(vars,split) {
 
         m.d3plus.threshold = cutoff
         if (parent) {
-          m.d3plus.children = []
+          m.d3plus.merged = []
           removed.forEach(function(r){
             if (m[parent] == r[parent]) {
-              m.d3plus.children.push(r[vars.id.key])
+              m.d3plus.merged.push(r[vars.id.key])
             }
           })
         }
         else {
-          m.d3plus.children = d3plus.utils.uniques(removed,vars.id.key)
+          m.d3plus.merged = d3plus.utils.uniques(removed,vars.id.key)
         }
 
       }
