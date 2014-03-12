@@ -185,7 +185,8 @@ d3plus.styles.default = {
       "size": "12px",
       "weight": "normal"
     },
-    "width": 200
+    "large": 250,
+    "small": 200
   },
   "ui": {
     "background": "#fff",
