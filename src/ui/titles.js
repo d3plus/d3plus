@@ -43,7 +43,7 @@ d3plus.ui.titles = function(vars) {
       })
     }
 
-    if (total) {
+    if (typeof total == "number") {
 
       var pct = ""
 
