@@ -36,11 +36,11 @@ d3plus.draw.update = function(vars) {
   if (d3plus.apps[vars.type.value].zoom) {
     vars.g.zoom
       .datum(vars)
-      .call(d3.behavior.zoom().on("zoom",d3plus.zoom.mouse))
+      .call(vars.zoom_behavior.on("zoom",d3plus.zoom.mouse))
   }
   else {
     vars.g.zoom
-      .call(d3.behavior.zoom().on("zoom",null))
+      .call(vars.zoom_behavior.on("zoom",null))
   }
 
 }

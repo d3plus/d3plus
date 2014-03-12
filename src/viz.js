@@ -93,6 +93,7 @@ d3plus.viz = function() {
     "mute": [],
     "solo": [],
     "style": d3plus.styles.default,
+    "zoom_behavior": d3.behavior.zoom().scaleExtent([1,8]),
     "zoom_direction": function() {
 
       var max_depth = vars.id.nesting.length-1,
