@@ -27,4 +27,20 @@ d3plus.draw.update = function(vars) {
   vars.g.container.transition().duration(vars.style.timing.transitions)
     .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
 
+  // Update Container Overlay
+  vars.g.overlay.transition().duration(vars.style.timing.transitions)
+      .attr("width",vars.width.value)
+      .attr("height",vars.height.value)
+
+  // Call zoom on zoom group if applicable
+  if (d3plus.apps[vars.type.value].zoom) {
+    vars.g.zoom
+      .datum(vars)
+      .call(d3.behavior.zoom().on("zoom",d3plus.zoom.mouse))
+  }
+  else {
+    vars.g.zoom
+      .call(d3.behavior.zoom().on("zoom",null))
+  }
+
 }

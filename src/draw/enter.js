@@ -57,10 +57,22 @@ d3plus.draw.enter = function(vars) {
   vars.g.zoom = vars.g.container.selectAll("g#zoom").data(["zoom"])
   vars.g.zoom.enter().append("g")
     .attr("id","zoom")
-    .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
 
   // Enter App Background Group
-  vars.g.app = vars.g.zoom.selectAll("g#app").data(["app"])
+  vars.g.viz = vars.g.zoom.selectAll("g#d3plus_viz").data(["d3plus_viz"])
+  vars.g.viz.enter().append("g")
+    .attr("id","d3plus_viz")
+
+  // Enter App Overlay Rect
+  vars.g.overlay = vars.g.viz.selectAll("rect#d3plus_overlay").data(["d3plus_overlay"])
+  vars.g.overlay.enter().append("rect")
+    .attr("id","d3plus_overlay")
+    .attr("width",vars.width.value)
+    .attr("height",vars.height.value)
+    .attr("opacity",0)
+
+  // Enter App Background Group
+  vars.g.app = vars.g.viz.selectAll("g#app").data(["app"])
   vars.g.app.enter().append("g")
     .attr("id","app")
 
@@ -70,18 +82,18 @@ d3plus.draw.enter = function(vars) {
     .attr("id",vars.type.value)
 
   // Enter Edges Group
-  vars.g.edges = vars.g.zoom.selectAll("g#edges").data(["edges"])
+  vars.g.edges = vars.g.viz.selectAll("g#edges").data(["edges"])
   vars.g.edges.enter().append("g")
     .attr("id","edges")
 
   // Enter Edge Focus Group
-  vars.g.edge_focus = vars.g.zoom.selectAll("g#edge_focus").data(["edge_focus"])
+  vars.g.edge_focus = vars.g.viz.selectAll("g#edge_focus").data(["edge_focus"])
   vars.g.edge_focus.enter().append("g")
     .attr("id","edge_focus")
     .attr("opacity",0)
 
   // Enter App Data Group
-  vars.g.data = vars.g.zoom.selectAll("g#data").data(["data"])
+  vars.g.data = vars.g.viz.selectAll("g#data").data(["data"])
   vars.g.data.enter().append("g")
     .attr("id","data")
 

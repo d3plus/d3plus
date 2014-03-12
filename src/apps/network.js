@@ -5,6 +5,7 @@ d3plus.apps.network.tooltip = "static"
 d3plus.apps.network.shapes = ["circle","square","donut"];
 d3plus.apps.network.scale = 1.05
 d3plus.apps.network.nesting = false
+d3plus.apps.network.zoom = true
 
 d3plus.apps.network.draw = function(vars) {
 
