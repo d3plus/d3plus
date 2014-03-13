@@ -80,11 +80,13 @@ d3plus.draw.enter = function(vars) {
   vars.g.apps[vars.type.value] = vars.g.app.selectAll("g#"+vars.type.value).data([vars.type.value])
   vars.g.apps[vars.type.value].enter().append("g")
     .attr("id",vars.type.value)
+    .attr("opacity",0)
 
   // Enter Edges Group
   vars.g.edges = vars.g.viz.selectAll("g#edges").data(["edges"])
   vars.g.edges.enter().append("g")
     .attr("id","edges")
+    .attr("opacity",0)
 
   // Enter Edge Focus Group
   vars.g.edge_focus = vars.g.viz.selectAll("g#edge_focus").data(["edge_focus"])
@@ -96,6 +98,7 @@ d3plus.draw.enter = function(vars) {
   vars.g.data = vars.g.viz.selectAll("g#data").data(["data"])
   vars.g.data.enter().append("g")
     .attr("id","data")
+    .attr("opacity",0)
 
   vars.defs = vars.svg.selectAll("defs").data(["defs"])
   vars.defs.enter().append("defs")
