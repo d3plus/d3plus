@@ -29,11 +29,6 @@ d3plus.draw.update = function(vars) {
     vars.g.container.transition().duration(vars.timing)
       .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
 
-    // Update Container Overlay
-    vars.g.overlay.transition().duration(vars.timing)
-        .attr("width",vars.width.value)
-        .attr("height",vars.height.value)
-
   }
   else {
 
@@ -61,22 +56,6 @@ d3plus.draw.update = function(vars) {
     vars.g.container
       .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
 
-    // Update Container Overlay
-    vars.g.overlay
-      .attr("width",vars.width.value)
-      .attr("height",vars.height.value)
-
-  }
-
-  // Call zoom on zoom group if applicable
-  if (d3plus.apps[vars.type.value].zoom) {
-    vars.g.zoom
-      .datum(vars)
-      .call(vars.zoom_behavior.on("zoom",d3plus.zoom.mouse))
-  }
-  else {
-    vars.g.zoom
-      .call(vars.zoom_behavior.on("zoom",null))
   }
 
 }
