@@ -314,6 +314,7 @@ d3plus.shape.draw = function(vars) {
         .attr("opacity",0)
         .selectAll("line, path")
           .style("stroke",vars.style.highlight.primary)
+          .style("stroke-width",vars.style.data.stroke.width*2)
           .attr("marker-start",function(){
             return vars.edges.arrows.direction.value == "source" ? marker : "none"
           })
@@ -367,6 +368,8 @@ d3plus.shape.draw = function(vars) {
     }
 
   }
+
+  edge_update()
 
   vars.g.data.selectAll("g")
     .on(d3plus.evt.over,function(d){
@@ -500,8 +503,6 @@ d3plus.shape.draw = function(vars) {
 
         }
         else {
-
-          edge_update()
 
           var tooltip_data = d.data ? d.data : d
 
