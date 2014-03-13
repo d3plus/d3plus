@@ -34,7 +34,11 @@ d3plus.tooltip.app = function(params) {
     var x = d3.mouse(vars.parent.node())[0]
   }
   else {
-    var x = d.d3plus.x+vars.margin.left
+    var x = d.d3plus.x
+    if (vars.zoom.translate && vars.zoom.scale) {
+      x = vars.zoom.translate[0]+x*vars.zoom.scale
+    }
+    x += vars.margin.left
   }
 
   if ("y" in params) {
@@ -44,7 +48,11 @@ d3plus.tooltip.app = function(params) {
     var y = d3.mouse(vars.parent.node())[1]
   }
   else {
-    var y = d.d3plus.y+vars.margin.top
+    var y = d.d3plus.y
+    if (vars.zoom.translate && vars.zoom.scale) {
+      y = vars.zoom.translate[1]+y*vars.zoom.scale
+    }
+    y += vars.margin.top
   }
 
   if ("offset" in params) {
@@ -55,6 +63,11 @@ d3plus.tooltip.app = function(params) {
   }
   else {
     var offset = d.d3plus.r ? d.d3plus.r : d.d3plus.height/2
+    // console.log(offset)
+    if (vars.zoom.scale) {
+      offset = offset * vars.zoom.scale
+    }
+    // console.log(offset)
   }
 
   function make_tooltip(html) {
