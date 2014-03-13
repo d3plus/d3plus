@@ -15,34 +15,7 @@ d3plus.apps.network.draw = function(vars) {
   var nodes = vars.nodes.restricted || vars.nodes.value,
       edges = vars.edges.restricted || vars.edges.value
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Determine Size Scale
-  //-------------------------------------------------------------------
-  var x_range = d3.extent(d3.values(nodes), function(d){return d.x}),
-      y_range = d3.extent(d3.values(nodes), function(d){return d.y}),
-      aspect = (x_range[1]-x_range[0])/(y_range[1]-y_range[0])
-
-  // Calculate overall network size based on aspect ratio
-  if (aspect > vars.app_width/vars.app_height) {
-    var network_height = vars.app_width/aspect,
-        network_width = vars.app_width,
-        offset_top = ((vars.app_height-network_height)/2),
-        offset_left = 0
-  } else {
-    var network_width = vars.app_height*aspect,
-        network_height = vars.app_height,
-        offset_left = ((vars.app_width-network_width)/2),
-        offset_top = 0
-  }
-
-  // Set X and Y position scales
   var scale = {}
-  scale.x = d3.scale.linear()
-    .domain(x_range)
-    .range([offset_left, vars.app_width-offset_left])
-  scale.y = d3.scale.linear()
-    .domain(y_range)
-    .range([offset_top, vars.app_height-offset_top])
 
   var val_range = d3.extent(d3.values(vars.data.app), function(d){
     var val = d3plus.variable.value(vars,d,vars.size.key)
@@ -55,8 +28,8 @@ d3plus.apps.network.draw = function(vars) {
   nodes.forEach(function(n1){
     nodes.forEach(function(n2){
       if (n1 != n2) {
-        var xx = Math.abs(scale.x(n1.x)-scale.x(n2.x));
-        var yy = Math.abs(scale.y(n1.y)-scale.y(n2.y));
+        var xx = Math.abs(n1.x-n2.x);
+        var yy = Math.abs(n1.y-n2.y);
         distances.push(Math.sqrt((xx*xx)+(yy*yy)))
       }
     })
@@ -67,10 +40,6 @@ d3plus.apps.network.draw = function(vars) {
   })
   max_size = max_size*(max_size/800)
   var min_size = 4;
-
-  // Add buffers to position scales
-  scale.x.range([offset_left+(max_size*1.5), vars.app_width-(max_size*1.5)-offset_left])
-  scale.y.range([offset_top+(max_size*1.5), vars.app_height-(max_size*1.5)-offset_top])
 
   // Create size scale
   scale.r = d3.scale[vars.size.scale.value]()
@@ -89,8 +58,8 @@ d3plus.apps.network.draw = function(vars) {
       var obj = d3plus.utils.copy(n)
     }
     obj.d3plus = {}
-    obj.d3plus.x = scale.x(n.x)
-    obj.d3plus.y = scale.y(n.y)
+    obj.d3plus.x = n.x
+    obj.d3plus.y = n.y
     lookup[obj[vars.id.key]] = {
       "x": obj.d3plus.x,
       "y": obj.d3plus.y
@@ -124,6 +93,33 @@ d3plus.apps.network.draw = function(vars) {
     l.target.d3plus.x = lookup[id].x
     l.target.d3plus.y = lookup[id].y
   })
+
+  vars.mouse[d3plus.evt.click] = function(d) {
+    d3plus.tooltip.remove(vars.type.value)
+    if (d[vars.id.key] == vars.focus.value) {
+      vars.viz.focus(null).draw()
+    }
+    else {
+      var x_bounds = [lookup[d[vars.id.key]].x],
+          y_bounds = [lookup[d[vars.id.key]].y]
+
+      vars.connections(d[vars.id.key],true).forEach(function(c){
+        x_bounds.push(lookup[c[vars.id.key]].x)
+        y_bounds.push(lookup[c[vars.id.key]].y)
+      })
+
+      var xcoords = d3.extent(x_bounds),
+          ycoords = d3.extent(y_bounds)
+
+      vars.zoom.viewport = [[xcoords[0],ycoords[0]],[xcoords[1],ycoords[1]]]
+      vars.viz.focus(d[vars.id.key]).draw()
+    }
+  }
+
+  var x_range = d3.extent(nodes,function(n){return n.x}),
+      y_range = d3.extent(nodes,function(n){return n.y})
+
+  vars.zoom.bounds = [[x_range[0],y_range[0]],[x_range[1],y_range[1]]]
 
   return {"nodes": data, "edges": edges}
 

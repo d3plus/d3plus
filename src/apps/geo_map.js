@@ -6,6 +6,7 @@ d3plus.apps.geo_map.tooltip = "follow"
 d3plus.apps.geo_map.shapes = ["coordinates"];
 d3plus.apps.geo_map.scale = 1
 d3plus.apps.geo_map.nesting = false
+d3plus.apps.geo_map.zoom = true
 
 d3plus.apps.geo_map.draw = function(vars) {
 
@@ -26,6 +27,18 @@ d3plus.apps.geo_map.draw = function(vars) {
     }
     return true
   })
+
+  vars.mouse[d3plus.evt.click] = function(d) {
+
+    d3plus.tooltip.remove(vars.type.value)
+
+    if (d[vars.id.key] == vars.focus.value) {
+      vars.viz.focus(null).draw()
+    }
+    else {
+      vars.viz.focus(d[vars.id.key]).draw()
+    }
+  }
 
   return features
 
