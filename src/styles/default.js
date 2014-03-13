@@ -15,6 +15,7 @@ d3plus.styles.default = {
     }
   },
   "edges": {
+    "arrows": 8,
     "color": "#dedede",
     "opacity": 1,
     "width": 1

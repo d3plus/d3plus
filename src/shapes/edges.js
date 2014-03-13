@@ -188,16 +188,16 @@ d3plus.shape.edges = function(vars) {
   var marker = vars.defs.selectAll(".d3plus_edge_marker")
     .data(marker_data)
 
-  var m = typeof vars.edges.arrows.value == "number" ? vars.edges.arrows.value : 10
+  var m = vars.style.edges.arrows
 
   var marker_style = function(path) {
     path
       .attr("d",function(){
         if (vars.edges.arrows.direction.value == "target") {
-          return "M -"+m*0.75+",-"+m/2+" L 0,0 L -"+m*0.75+","+m/2+" L -"+m*0.75+",-"+m/2
+          return "M -"+m+",-"+m/2+" L 0,0 L -"+m+","+m/2+" L -"+m+",-"+m/2
         }
         else {
-          return "M "+m*0.75+",-"+m/2+" L 0,0 L "+m*0.75+","+m/2+" L "+m*0.75+",-"+m/2
+          return "M "+m+",-"+m/2+" L 0,0 L "+m+","+m/2+" L "+m+",-"+m/2
         }
       })
       .attr("fill",function(d){
@@ -235,6 +235,7 @@ d3plus.shape.edges = function(vars) {
     .style("overflow","visible")
     .append("path")
     .attr("opacity",opacity)
+    .attr("markerUnits","userSpaceOnUse")
     .call(marker_style)
 
   if (vars.timing) {

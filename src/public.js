@@ -87,6 +87,7 @@ d3plus.public.dev = {
 
 d3plus.public.edges = {
   "arrows": {
+    "accepted": [true,false],
     "direction": {
       "accepted": ["source","target"],
       "value": "target"
