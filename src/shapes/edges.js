@@ -217,10 +217,18 @@ d3plus.shape.edges = function(vars) {
 
     marker.select("path").transition().duration(vars.timing)
       .attr("opacity",1)
+      .attr("markerWidth",m)
+      .attr("markerHeight",m)
       .call(marker_style)
   }
   else {
     marker.exit().remove()
+
+    marker.select("path")
+      .attr("opacity",1)
+      .attr("markerWidth",m)
+      .attr("markerHeight",m)
+      .call(marker_style)
   }
 
   var opacity = vars.timing ? 0 : 1
@@ -230,12 +238,13 @@ d3plus.shape.edges = function(vars) {
     })
     .attr("class","d3plus_edge_marker")
     .attr("orient","auto")
-    .attr("markerWidth",10)
-    .attr("markerHeight",10)
+    .attr("markerUnits","userSpaceOnUse")
+    .attr("markerWidth",m)
+    .attr("markerHeight",m)
     .style("overflow","visible")
     .append("path")
     .attr("opacity",opacity)
-    .attr("markerUnits","userSpaceOnUse")
+    .attr("vector-effect","non-scaling-stroke")
     .call(marker_style)
 
   if (vars.timing) {
