@@ -33,9 +33,15 @@ d3plus.zoom.mouse = function(vars) {
   if (d3.event.sourceEvent.type == "dblclick") {
     vars.g.viz.transition().duration(vars.timing)
       .attr("transform","translate("+translate+")scale("+scale+")")
+
+    vars.defs.selectAll("marker").selectAll("path")
+      .transition().duration(vars.timing)
+      .attr("transform","scale("+1/scale+")")
   }
   else {
     vars.g.viz.attr("transform","translate("+translate+")scale("+scale+")")
+    vars.defs.selectAll("marker").selectAll("path")
+      .attr("transform","scale("+1/scale+")")
   }
 
 }

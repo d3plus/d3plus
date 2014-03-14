@@ -47,9 +47,15 @@ d3plus.zoom.bounds = function(vars,b) {
   if (vars.timing) {
     vars.g.viz.transition().duration(vars.timing)
       .attr("transform","translate("+translate+")scale("+scale+")")
+
+    vars.defs.selectAll("marker").selectAll("path")
+      .transition().duration(vars.timing)
+      .attr("transform","scale("+1/scale+")")
+
   }
   else {
     vars.g.viz.attr("transform","translate("+translate+")scale("+scale+")")
+    vars.defs.selectAll("marker").selectAll("path").attr("transform","scale("+1/scale+")")
   }
 
 }
