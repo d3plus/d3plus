@@ -83,12 +83,13 @@ d3plus.apps.network.draw = function(vars) {
     obj.d3plus = {}
     obj.d3plus.x = n.x
     obj.d3plus.y = n.y
-    lookup[obj[vars.id.key]] = {
-      "x": obj.d3plus.x,
-      "y": obj.d3plus.y
-    }
     var val = d3plus.variable.value(vars,obj,vars.size.key)
     obj.d3plus.r = val ? radius(val) : radius.range()[0]
+    lookup[obj[vars.id.key]] = {
+      "x": obj.d3plus.x,
+      "y": obj.d3plus.y,
+      "r": obj.d3plus.r
+    }
     data.push(obj)
   })
 
@@ -102,19 +103,33 @@ d3plus.apps.network.draw = function(vars) {
       obj[vars.id.key] = l.source
       l.source = obj
     }
+    else {
+      l.source = d3plus.utils.copy(l.source)
+    }
     l.source.d3plus = {}
-    var id = l.source[vars.id.key]
-    l.source.d3plus.x = lookup[id].x
-    l.source.d3plus.y = lookup[id].y
+    var source = lookup[l.source[vars.id.key]]
+    l.source.d3plus.x = source.x
+    l.source.d3plus.y = source.y
     if (typeof l.target != "object") {
       var obj = {}
       obj[vars.id.key] = l.target
       l.target = obj
     }
+    else {
+      l.target = d3plus.utils.copy(l.target)
+    }
     l.target.d3plus = {}
-    var id = l.target[vars.id.key]
-    l.target.d3plus.x = lookup[id].x
-    l.target.d3plus.y = lookup[id].y
+    var target = lookup[l.target[vars.id.key]]
+    l.target.d3plus.x = target.x
+    l.target.d3plus.y = target.y
+
+    var angle = Math.atan2(source.y-target.y,source.x-target.x)
+
+    l.source.d3plus.x -= source.r*Math.cos(angle)
+    l.target.d3plus.x += target.r*Math.cos(angle)
+    l.source.d3plus.y -= source.r*Math.sin(angle)
+    l.target.d3plus.y += target.r*Math.sin(angle)
+
   })
 
   vars.mouse[d3plus.evt.click] = function(d) {
