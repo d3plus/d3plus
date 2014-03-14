@@ -15,7 +15,8 @@ d3plus.apps.network.draw = function(vars) {
   var nodes = vars.nodes.restricted || vars.nodes.value,
       edges = vars.edges.restricted || vars.edges.value
 
-  var scale = {}
+  var x_range = d3.extent(nodes,function(n){return n.x}),
+      y_range = d3.extent(nodes,function(n){return n.y})
 
   var val_range = d3.extent(d3.values(vars.data.app), function(d){
     var val = d3plus.variable.value(vars,d,vars.size.key)
@@ -38,13 +39,35 @@ d3plus.apps.network.draw = function(vars) {
   var max_size = d3.min(distances,function(d){
     return d;
   })
-  max_size = max_size*(max_size/800)
-  var min_size = 4;
+
+  if (vars.edges.arrows.value) {
+      max_size = max_size*0.45
+  }
+  else {
+    max_size = max_size*0.6
+  }
+  var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
+      height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
+      aspect = width/height,
+      app = vars.app_width/vars.app_height
+
+  if (app > aspect) {
+    var scale = vars.app_height/height
+  }
+  else {
+    var scale = vars.app_width/width
+  }
+  var min_size = max_size*0.25
+  if (min_size*scale < 3) {
+    min_size = 3/scale
+  }
 
   // Create size scale
-  scale.r = d3.scale[vars.size.scale.value]()
+  var radius = d3.scale[vars.size.scale.value]()
     .domain(val_range)
     .range([min_size, max_size])
+
+  vars.zoom.bounds = [[x_range[0]-max_size*1.1,y_range[0]-max_size*1.1],[x_range[1]+max_size*1.1,y_range[1]+max_size*1.1]]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Match nodes to data
@@ -65,7 +88,7 @@ d3plus.apps.network.draw = function(vars) {
       "y": obj.d3plus.y
     }
     var val = d3plus.variable.value(vars,obj,vars.size.key)
-    obj.d3plus.r = val ? scale.r(val) : scale.r.range()[0]
+    obj.d3plus.r = val ? radius(val) : radius.range()[0]
     data.push(obj)
   })
 
@@ -97,6 +120,7 @@ d3plus.apps.network.draw = function(vars) {
   vars.mouse[d3plus.evt.click] = function(d) {
     d3plus.tooltip.remove(vars.type.value)
     if (d[vars.id.key] == vars.focus.value) {
+      vars.zoom.viewport = vars.zoom.bounds
       vars.viz.focus(null).draw()
     }
     else {
@@ -111,15 +135,10 @@ d3plus.apps.network.draw = function(vars) {
       var xcoords = d3.extent(x_bounds),
           ycoords = d3.extent(y_bounds)
 
-      vars.zoom.viewport = [[xcoords[0],ycoords[0]],[xcoords[1],ycoords[1]]]
+      vars.zoom.viewport = [[xcoords[0]-max_size,ycoords[0]-max_size],[xcoords[1]+max_size,ycoords[1]+max_size]]
       vars.viz.focus(d[vars.id.key]).draw()
     }
   }
-
-  var x_range = d3.extent(nodes,function(n){return n.x}),
-      y_range = d3.extent(nodes,function(n){return n.y})
-
-  vars.zoom.bounds = [[x_range[0],y_range[0]],[x_range[1],y_range[1]]]
 
   return {"nodes": data, "edges": edges}
 
