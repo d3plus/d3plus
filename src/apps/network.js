@@ -98,27 +98,17 @@ d3plus.apps.network.draw = function(vars) {
   })
 
   edges.forEach(function(l,i){
-    if (typeof l.source != "object") {
-      var obj = {}
-      obj[vars.id.key] = l.source
-      l.source = obj
-    }
-    else {
-      l.source = d3plus.utils.copy(l.source)
-    }
+
+    l.source = d3plus.utils.copy(l.source)
     l.source.d3plus = {}
+
     var source = lookup[l.source[vars.id.key]]
     l.source.d3plus.x = source.x
     l.source.d3plus.y = source.y
-    if (typeof l.target != "object") {
-      var obj = {}
-      obj[vars.id.key] = l.target
-      l.target = obj
-    }
-    else {
-      l.target = d3plus.utils.copy(l.target)
-    }
+
+    l.target = d3plus.utils.copy(l.target)
     l.target.d3plus = {}
+
     var target = lookup[l.target[vars.id.key]]
     l.target.d3plus.x = target.x
     l.target.d3plus.y = target.y

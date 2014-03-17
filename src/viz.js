@@ -31,18 +31,6 @@ d3plus.viz = function() {
         var check = ["source","target"],
             match = false
 
-        if (typeof edge.source != "object") {
-          var obj = {}
-          obj[vars.id.key] = edge.source
-          edge.source = obj
-        }
-
-        if (typeof edge.target != "object") {
-          var obj = {}
-          obj[vars.id.key] = edge.target
-          edge.target = obj
-        }
-
         if (edge.source[vars.id.key] == focus) {
           match = true
           if (objects) {
@@ -170,7 +158,15 @@ d3plus.viz = function() {
           }, "message": "Calculating Visualization Height"},
           {"function": d3plus.ui.focus, "message": "Creating Side Tooltip"},
           {"function": d3plus.draw.update, "message": "Updating Elements"},
-          {"function": d3plus.draw.errors, "message": "Checking for Errors"},
+          {"function": d3plus.draw.errors, "message": "Checking for Errors"}
+        ])
+
+        if (d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0 ||
+            d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0) {
+              steps.push({"function": d3plus.data.network, "message": "Analyizing Network Connections"})
+            }
+
+        steps = steps.concat([
           {"function": [d3plus.draw.app,d3plus.shape.edges,d3plus.shape.draw], "message": "Drawing Visualization"},
           {"function": d3plus.draw.finish, "message": "Finishing"}
         ])
