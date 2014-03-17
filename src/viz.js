@@ -17,6 +17,17 @@ d3plus.viz = function() {
       }
 
     },
+    "connected": function(edge) {
+      var focus = vars.focus.value
+      if (focus) {
+        var source = edge.source[vars.id.key],
+            target = edge.target[vars.id.key]
+        if (source == focus || target == focus) {
+          return true
+        }
+      }
+      return false
+    },
     "connections": function(focus,objects) {
 
       var edges = vars.edges.restricted || vars.edges.value,
@@ -112,6 +123,10 @@ d3plus.viz = function() {
 
       vars.frozen = true
       d3plus.draw.container(vars)
+
+      if (!("scale" in vars.zoom)) {
+        vars.zoom.scale = 1
+      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Reset all margins

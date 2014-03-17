@@ -24,17 +24,45 @@ d3plus.shape.edges = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Styling of Lines
   //----------------------------------------------------------------------------
-  function style(l) {
+  function style(edges) {
+
     var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_default)" : "none"
-    l
-      .style("stroke-width",vars.style.edges.width)
-      .style("stroke",vars.style.edges.color)
-      .attr("opacity",vars.style.edges.opacity)
-      .attr("marker-start",function(){
-        return vars.edges.arrows.direction.value == "source" ? marker : "none"
+
+    edges
+      .style("stroke-width",function(e){
+        if (vars.connected(e)) {
+          return vars.style.edges.width*2
+        }
+        return vars.style.edges.width
       })
-      .attr("marker-end",function(){
-        return vars.edges.arrows.direction.value == "target" ? marker : "none"
+      .style("stroke",function(e){
+        if (vars.connected(e)) {
+          return d3plus.color.darker(vars.style.edges.color,.5)
+        }
+        return vars.style.edges.color
+      })
+      .attr("opacity",vars.style.edges.opacity)
+      .attr("marker-start",function(e){
+        var direction = vars.edges.arrows.direction.value
+        if (vars.edges.arrows.value && direction == "source") {
+          var connected = vars.connected(e)
+          if (connected) {
+            return "url(#d3plus_edge_marker_focus)"
+          }
+          return "url(#d3plus_edge_marker_default)"
+        }
+        return "none"
+      })
+      .attr("marker-end",function(e){
+        var direction = vars.edges.arrows.direction.value
+        if (vars.edges.arrows.value && direction == "target") {
+          var connected = vars.connected(e)
+          if (connected) {
+            return "url(#d3plus_edge_marker_focus)"
+          }
+          return "url(#d3plus_edge_marker_default)"
+        }
+        return "none"
       })
       .attr("vector-effect","non-scaling-stroke")
   }
@@ -184,7 +212,7 @@ d3plus.shape.edges = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter/update/exit the Arrow Marker
   //----------------------------------------------------------------------------
-  var marker_data = vars.edges.arrows.value ? ["default","highlight"] : []
+  var marker_data = vars.edges.arrows.value ? ["default","highlight","focus"] : []
   var marker = vars.defs.selectAll(".d3plus_edge_marker")
     .data(marker_data)
 
@@ -203,6 +231,9 @@ d3plus.shape.edges = function(vars) {
       .attr("fill",function(d){
         if (d == "default") {
           return vars.style.edges.color
+        }
+        else if (d == "focus") {
+          return d3plus.color.darker(vars.style.edges.color,.5)
         }
         else {
           return vars.style.highlight.primary
@@ -361,5 +392,12 @@ d3plus.shape.edges = function(vars) {
       .call(label)
 
   }
+
+  vars.g.edges.selectAll("g")
+    .sort(function(a,b){
+      var a = vars.connected(a),
+          b = vars.connected(b)
+      return a - b
+    })
 
 }
