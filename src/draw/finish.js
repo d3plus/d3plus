@@ -12,8 +12,7 @@ d3plus.draw.finish = function(vars) {
       d3plus.zoom.bounds(vars,vars.zoom.viewport)
     }
     else if (!vars.zoom.viewport) {
-      vars.timing = 0
-      d3plus.zoom.bounds(vars,vars.zoom.bounds)
+      d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
     }
 
   }

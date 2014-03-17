@@ -1,7 +1,11 @@
-d3plus.zoom.bounds = function(vars,b) {
+d3plus.zoom.bounds = function(vars,b,timing) {
 
   if (!b) {
     var b = vars.zoom.bounds
+  }
+
+  if (typeof timing != "number") {
+    var timing = vars.style.timing.transitions
   }
 
   vars.zoom.size = {
@@ -43,13 +47,13 @@ d3plus.zoom.bounds = function(vars,b) {
     "height": vars.zoom.bounds[1][1]-vars.zoom.bounds[0][1],
     "width": vars.zoom.bounds[1][0]-vars.zoom.bounds[0][0]
   }
-
-  if (vars.timing) {
-    vars.g.viz.transition().duration(vars.timing)
+  
+  if (timing) {
+    vars.g.viz.transition().duration(timing)
       .attr("transform","translate("+translate+")scale("+scale+")")
 
     vars.defs.selectAll("marker").selectAll("path")
-      .transition().duration(vars.timing)
+      .transition().duration(timing)
       .attr("transform","scale("+1/scale+")")
 
   }
