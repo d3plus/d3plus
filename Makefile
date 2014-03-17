@@ -22,6 +22,7 @@ JS_FILES = \
 	src/data/filter.js \
 	src/data/format.js \
 	src/data/nest.js \
+	src/data/network.js \
 	src/data/threshold.js \
 	\
 	src/draw/app.js \
@@ -76,7 +77,7 @@ JS_FILES = \
 	\
 	src/zoom/bounds.js \
 	src/zoom/controls.js \
-	src/zoom/reset.js \
+	src/zoom/mouse.js \
 	\
 	src/end.js \
 
