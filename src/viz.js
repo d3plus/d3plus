@@ -121,6 +121,8 @@ d3plus.viz = function() {
   vars.viz = function(selection) {
     selection.each(function() {
 
+      vars.data.type = d3plus.apps[vars.type.value].data || "grouped"
+
       vars.frozen = true
       d3plus.draw.container(vars)
 
@@ -144,74 +146,77 @@ d3plus.viz = function() {
       }
       else {
 
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // Run setup function if app has it
-        //------------------------------------------------------------------------
-        var steps = []
-        if (d3plus.apps[vars.type.value].setup) {
-          steps.push({
-            "function": d3plus.apps[vars.type.value].setup,
-            "message": "Running setup function for \""+vars.type.value+"\""
-          })
-        }
+        var steps = d3plus.draw.steps(vars)
 
-        steps = steps.concat([
-          {"function": d3plus.draw.tooltips, "message": "Removing Tooltips"},
-          {"function": d3plus.draw.enter, "message": "Creating DOM Elements"},
-          {"function": d3plus.data.analyze, "message": "Analyzing Data"},
-          {"function": d3plus.data.color, "message": "Analyzing Colors"},
-          {"function": d3plus.ui.titles, "message": "Drawing Titles"},
-          {"function": d3plus.ui.legend, "message": "Drawing Legend"},
-          {"function": d3plus.ui.timeline, "message": "Drawing Timeline"},
-          {"function": d3plus.ui.history, "message": "Checking History"},
-          {"function": function(vars){
-            vars.app_height -= (vars.margin.top+vars.margin.bottom);
-          }, "message": "Calculating Visualization Height"},
-          {"function": d3plus.ui.focus, "message": "Creating Side Tooltip"},
-          {"function": d3plus.draw.update, "message": "Updating Elements"}
-        ])
-        
-        if (d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0 ||
-            d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0) {
-              steps.push({"function": d3plus.data.network, "message": "Analyizing Network Connections"})
-            }
-
-        steps = steps.concat([
-          {"function": d3plus.draw.errors, "message": "Checking for Errors"},
-          {"function": [d3plus.draw.app,d3plus.shape.edges,d3plus.shape.draw], "message": "Drawing Visualization"},
-          {"function": d3plus.draw.finish, "message": "Finishing"}
-        ])
-
-        var i = 0
         vars.parent.style("cursor","wait")
         vars.messages.style = vars.data.app ? "small" : "large"
+        function check_next() {
+
+          if (steps.length) {
+            run_steps()
+          }
+          else {
+            vars.parent.style("cursor","auto")
+          }
+
+        }
+        
         function run_steps() {
 
-          var step = steps[i]
+          var step = steps.shift(),
+              same = vars.g.message && vars.g.message.text() == step.message,
+              run = "check" in step ? step.check(vars) : true
 
-          if (vars.dev.value) d3plus.console.log(step.message)
-          d3plus.ui.message(vars,step.message)
+          if (run) {
 
-          setTimeout(function(){
+            if (!same) {
 
-            if (step.function instanceof Array) {
-              step.function.forEach(function(f){
-                f(vars)
-              })
-            }
-            else if (typeof step.function == "function") {
-              step.function(vars)
-            }
+              if (vars.dev.value) {
+                d3plus.console.groupEnd()
+                d3plus.console.group(step.message)
+              }
+              d3plus.ui.message(vars,step.message)
 
-            if (i < steps.length-1) {
-              i++
-              run_steps()
+              setTimeout(function(){
+
+                if (step.function instanceof Array) {
+                  step.function.forEach(function(f){
+                    f(vars)
+                  })
+                }
+                else if (typeof step.function == "function") {
+                  step.function(vars)
+                }
+
+                check_next()
+
+              },5)
+
             }
             else {
-              vars.parent.style("cursor","auto")
+
+              if (step.function instanceof Array) {
+                step.function.forEach(function(f){
+                  f(vars)
+                })
+              }
+              else if (typeof step.function == "function") {
+                step.function(vars)
+              }
+
+              check_next()
+
             }
 
-          },5)
+          }
+          else {
+
+            if ("otherwise" in step) {
+              step.otherwise(vars)
+            }
+
+            check_next()
+          }
 
         }
         run_steps()

@@ -132,7 +132,7 @@ d3plus.variable.color = function(vars,id,level) {
     
     var color = d3plus.variable.value(vars,id,vars.color.key,level)
     
-    if (!color && typeof vars.color_scale == "function") {
+    if (!color && typeof vars.color.scale == "function") {
       color = vars.style.color.missing
     }
     else if (!color) {
@@ -143,7 +143,7 @@ d3plus.variable.color = function(vars,id,level) {
       var true_color = validate_color(color)
       return true_color ? color : get_random(color)
     }
-    else return vars.color_scale(color)
+    else return vars.color.scale(color)
   }
 }
 

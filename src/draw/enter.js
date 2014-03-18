@@ -76,12 +76,6 @@ d3plus.draw.enter = function(vars) {
   vars.g.app.enter().append("g")
     .attr("id","app")
 
-  // Enter App Group
-  vars.g.apps[vars.type.value] = vars.g.app.selectAll("g#"+vars.type.value).data([vars.type.value])
-  vars.g.apps[vars.type.value].enter().append("g")
-    .attr("id",vars.type.value)
-    .attr("opacity",0)
-
   // Enter Edges Group
   vars.g.edges = vars.g.viz.selectAll("g#edges").data(["edges"])
   vars.g.edges.enter().append("g")

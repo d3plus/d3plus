@@ -11,7 +11,17 @@ d3plus.ui.legend = function(vars) {
 
     if (vars.dev.value) d3plus.console.group("Calculating Legend")
 
-    if (!vars.color_scale && vars.data.keys[key] != "number") {
+    if (key in vars.data.keys) {
+      var color_type = vars.data.keys[key]
+    }
+    else if (key in vars.attrs.keys) {
+      var color_type = vars.attrs.keys[key]
+    }
+    else {
+      var color_type = undefined
+    }
+
+    if (!vars.color.scale && color_type != "number") {
 
       if (vars.dev.value) d3plus.console.time("determining color groups")
 
@@ -374,7 +384,7 @@ d3plus.ui.legend = function(vars) {
       }
 
     }
-    else if (vars.color_scale) {
+    else if (vars.color.scale) {
 
       if (vars.dev.value) d3plus.console.time("drawing color scale")
 
@@ -383,8 +393,8 @@ d3plus.ui.legend = function(vars) {
         .attr("opacity",0)
         .remove()
 
-      var values = vars.color_scale.domain(),
-          colors = vars.color_scale.range()
+      var values = vars.color.scale.domain(),
+          colors = vars.color.scale.range()
 
       if (values.length <= 2) {
         values = d3plus.utils.buckets(values,6)

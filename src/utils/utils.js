@@ -73,8 +73,8 @@ d3plus.utils.merge = function(obj1, obj2) {
           if (typeof ret[a] != "object") ret[a] = {}
           copy_object(obj[a],ret[a])
         }
-        else if (typeof ret[a] != typeof obj[a]) {
-          ret[a] = obj[a]
+        else if (obj[a] instanceof Array) {
+          ret[a] = obj[a].slice(0)
         }
         else {
           ret[a] = obj[a]
