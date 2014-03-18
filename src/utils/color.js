@@ -12,16 +12,16 @@ d3plus.color.random = function(x) {
 //------------------------------------------------------------------------------
 d3plus.color.darker = function(color,increment) {
   var c = d3.hsl(color);
-  
+
   if (!increment) {
     var increment = 0.2
   }
-  
+
   c.l -= increment
-  if (c.l < 0) {
-    c.l = 0
+  if (c.l < 0.1) {
+    c.l = 0.1
   }
-  
+
   return c.toString();
 }
 
@@ -40,20 +40,20 @@ d3plus.color.legible = function(color) {
 //------------------------------------------------------------------------------
 d3plus.color.lighter = function(color,increment) {
   var c = d3.hsl(color);
-  
+
   if (!increment) {
     var increment = 0.1
   }
-  
+
   c.l += increment
   c.s -= increment/2
-  if (c.l > 1) {
-    c.l = 1
+  if (c.l > .95) {
+    c.l = .95
   }
-  if (c.s < 0) {
-    c.s = 0
+  if (c.s < .05) {
+    c.s = .05
   }
-  
+
   return c.toString();
 }
 
@@ -61,19 +61,19 @@ d3plus.color.lighter = function(color,increment) {
 // Mixes 2 hexidecimal colors
 //------------------------------------------------------------------------------
 d3plus.color.mix = function(c1,c2,o1,o2) {
-  
+
   if (!o1) var o1 = 1
   if (!o2) var o2 = 1
-  
+
   c1 = d3.rgb(c1)
   c2 = d3.rgb(c2)
-  
+
   var r = (o1*c1.r + o2*c2.r - o1*o2*c2.r)/(o1+o2-o1*o2),
       g = (o1*c1.g + o2*c2.g - o1*o2*c2.g)/(o1+o2-o1*o2),
       b = (o1*c1.b + o2*c2.b - o1*o2*c2.b)/(o1+o2-o1*o2)
-      
+
   return d3.rgb(r,g,b).toString()
-  
+
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -81,7 +81,7 @@ d3plus.color.mix = function(c1,c2,o1,o2) {
 //------------------------------------------------------------------------------
 d3plus.color.text = function(color) {
   var hsl = d3.hsl(color),
-      light = "#ffffff", 
+      light = "#ffffff",
       dark = "#444444";
   if (hsl.l > 0.65) return dark;
   else if (hsl.l < 0.49) return light;
