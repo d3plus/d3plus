@@ -194,6 +194,28 @@ d3plus.draw.steps = function(vars) {
   })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Format nodes/edges if needed
+  //----------------------------------------------------------------------------
+  steps.push({
+    "check": function(vars) {
+      var edge_req = d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0
+      return (!vars.edges.linked || vars.edges.changed)
+        && edge_req && vars.edges.value
+    },
+    "function": d3plus.data.edges,
+    "message": "Analyzing Network"
+  })
+  steps.push({
+    "check": function(vars) {
+      var node_req = d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0
+      return node_req && (!vars.nodes.positions || vars.nodes.changed)
+        && vars.nodes.value && vars.edges.value
+    },
+    "function": d3plus.data.nodes,
+    "message": "Analyzing Network"
+  })
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate color scale if type is number
   //----------------------------------------------------------------------------
   steps.push({
@@ -256,28 +278,6 @@ d3plus.draw.steps = function(vars) {
       d3plus.draw.update(vars)
     },
     "message": "Updating UI"
-  })
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Format nodes/edges if needed
-  //----------------------------------------------------------------------------
-  steps.push({
-    "check": function(vars) {
-      var edge_req = d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0
-      return (!vars.edges.linked || vars.edges.changed)
-        && edge_req && vars.edges.value
-    },
-    "function": d3plus.data.edges,
-    "message": "Analyzing Network"
-  })
-  steps.push({
-    "check": function(vars) {
-      var node_req = d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0
-      return node_req && (!vars.nodes.positions || vars.nodes.changed)
-        && vars.nodes.value && vars.edges.value
-    },
-    "function": d3plus.data.nodes,
-    "message": "Analyzing Network"
   })
 
   steps.push({
