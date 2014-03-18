@@ -7,6 +7,22 @@ d3plus.ie = /*@cc_on!@*/false;
 
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
+if ("-webkit-transform" in document.body.style) {
+  d3plus.prefix = "-webkit-"
+}
+else if ("-moz-transform" in document.body.style) {
+  d3plus.prefix = "-moz-"
+}
+else if ("-ms-transform" in document.body.style) {
+  d3plus.prefix = "-ms-"
+}
+else if ("-o-transform" in document.body.style) {
+  d3plus.prefix = "-o-"
+}
+else {
+  d3plus.prefix = ""
+}
+
 d3plus.scrollbar = function() {
 
   var inner = document.createElement("p");
