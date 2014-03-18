@@ -3,7 +3,8 @@
 //------------------------------------------------------------------------------
 d3plus.shape.edges = function(vars) {
 
-  var edges = vars.returned.edges
+  var edges = vars.returned.edges,
+      scale = vars.zoom_behavior.scaleExtent()[0]
 
   if (!edges) var edges = []
 
@@ -192,8 +193,8 @@ d3plus.shape.edges = function(vars) {
         "x": x,
         "y": y,
         "translate": translate,
-        "w": width,
-        "h": 15,
+        "w": width+vars.style.labels.padding*2,
+        "h": 15+vars.style.labels.padding*2,
         "angle": angle,
         "anchor": "middle",
         "valign": "center",

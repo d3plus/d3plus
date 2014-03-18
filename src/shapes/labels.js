@@ -152,7 +152,7 @@ d3plus.shape.labels = function(vars,selection) {
             else {
               var height = t.h
             }
-
+            
             d3plus.utils.wordwrap({
               "text": t.names,
               "parent": this,
@@ -360,7 +360,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .remove()
 
               bg.transition().duration(vars.timing)
-                .attr("opacity",0.5)
+                .attr("opacity",1)
                 .call(bg_style)
 
               bg.enter().insert("rect",".d3plus_label")
@@ -368,7 +368,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .attr("opacity",0)
                 .call(bg_style)
                 .transition().duration(vars.timing)
-                  .attr("opacity",0.5)
+                  .attr("opacity",1)
 
             }
             else {
