@@ -156,8 +156,6 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
         if (!vars.frozen) {
 
-          d3.select(this).style("cursor","pointer")
-
           var mouse = d3.event[vars.continuous_axis]
               positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
               closest = d3plus.utils.closest(positions,mouse)

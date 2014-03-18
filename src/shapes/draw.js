@@ -370,6 +370,12 @@ d3plus.shape.draw = function(vars) {
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         d3.select(this).style("cursor","pointer")
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform,true)
+
+        d3.select(this).selectAll(".d3plus_data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",1)
 
         vars.covered = false
 
@@ -420,6 +426,15 @@ d3plus.shape.draw = function(vars) {
     .on(d3plus.evt.out,function(d){
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+        d3.select(this)
+          .transition().duration(vars.style.timing.mouseevents)
+          .call(transform)
+
+        d3.select(this).selectAll(".d3plus_data")
+          .transition().duration(vars.style.timing.mouseevents)
+          .attr("opacity",vars.style.data.opacity)
+
 
         if (!vars.covered) {
           d3plus.tooltip.remove(vars.type.value)

@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
-d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
+d3plus.shape.rect = function(vars,selection,enter,exit) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // The position and size of each rectangle on enter and exit.
@@ -135,70 +135,6 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
   else {
     exit.selectAll("rect.d3plus_data")
       .call(init)
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Define mouse event shapes
-  //----------------------------------------------------------------------------
-  var mouses = selection.selectAll("rect.d3plus_mouse")
-    .data(function(d) {
-      return !d.d3plus.static ? [d] : [];
-    })
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Mouse "rect" enter
-  //----------------------------------------------------------------------------
-  mouses.enter().append("rect")
-    .attr("class","d3plus_mouse")
-    .call(init)
-    .attr("opacity",0)
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Mouse "rect" update and mouse events
-  //----------------------------------------------------------------------------
-  mouses
-    .data(function(d) {
-      return !d.d3plus.static ? [d] : [];
-    })
-    .on(d3plus.evt.over,function(d){
-
-      if (!vars.frozen) {
-
-        d3.select(this).style("cursor","pointer")
-
-        d3.select(this.parentNode).selectAll(".d3plus_data")
-          .transition().duration(vars.style.timing.mouseevents)
-          .attr("opacity",1)
-
-        d3.select(this.parentNode)
-          .transition().duration(vars.style.timing.mouseevents)
-          .call(transform,true)
-
-      }
-
-    })
-    .on(d3plus.evt.out,function(d){
-
-      if (!vars.frozen) {
-
-        d3.select(this.parentNode).selectAll(".d3plus_data")
-          .transition().duration(vars.style.timing.mouseevents)
-          .attr("opacity",vars.style.data.opacity)
-
-        d3.select(this.parentNode)
-          .transition().duration(vars.style.timing.mouseevents)
-          .call(transform)
-
-      }
-
-    })
-
-  if (vars.timing) {
-    mouses.transition().duration(vars.timing)
-      .call(update,6)
-  }
-  else {
-    mouses.call(update,6)
   }
 
 }

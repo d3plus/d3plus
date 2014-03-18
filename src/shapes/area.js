@@ -130,18 +130,12 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
       if (!vars.frozen) {
 
-        d3.select(this).style("cursor","pointer")
-
         var mouse = d3.event[vars.continuous_axis]
             positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
             closest = d3plus.utils.closest(positions,mouse)
 
         d.data = d.values[positions.indexOf(closest)]
         d.d3plus = d.values[positions.indexOf(closest)].d3plus
-
-        d3.select(this.parentNode).selectAll("path.d3plus_data")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("opacity",1)
 
       }
 
@@ -163,10 +157,6 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
     .on(d3plus.evt.out,function(d){
 
       if (!vars.frozen) {
-
-        d3.select(this.parentNode).selectAll("path.d3plus_data")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("opacity",vars.style.data.opacity)
 
         delete d.d3plus
 
