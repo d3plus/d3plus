@@ -3,6 +3,8 @@
 //------------------------------------------------------------------------------
 d3plus.shape.labels = function(vars,selection) {
 
+  var scale = vars.zoom_behavior.scaleExtent()[0]
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Label Exiting
   //----------------------------------------------------------------------------
@@ -125,12 +127,6 @@ d3plus.shape.labels = function(vars,selection) {
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
-      .attr("transform",function(t){
-        var a = t.angle || 0,
-            x = t.translate && t.translate.x || 0,
-            y = t.translate && t.translate.y || 0
-        return "rotate("+a+","+x+","+y+")"
-      })
       .each(function(t){
 
         if (wrap) {
@@ -140,9 +136,10 @@ d3plus.shape.labels = function(vars,selection) {
             d3plus.utils.wordwrap({
               "text": vars.format(t.text*100,"share")+"%",
               "parent": this,
-              "width": t.w,
-              "height": t.h,
+              "width": t.w*scale,
+              "height": t.h*scale,
               "resize": t.resize,
+              "font_min": 9/scale,
               "font_max": 70
             })
 
@@ -159,8 +156,9 @@ d3plus.shape.labels = function(vars,selection) {
             d3plus.utils.wordwrap({
               "text": t.names,
               "parent": this,
-              "width": t.w,
-              "height": height,
+              "width": t.w*scale,
+              "height": height*scale,
+              "font_min": 9/scale,
               "resize": t.resize
             })
 
@@ -175,7 +173,7 @@ d3plus.shape.labels = function(vars,selection) {
         var a = t.angle || 0,
             x = t.translate && t.translate.x || 0,
             y = t.translate && t.translate.y || 0
-        return "rotate("+a+","+x+","+y+")"
+        return "rotate("+a+","+x+","+y+")scale("+1/scale+")"
       })
       .selectAll("tspan")
         .attr("x",x_pos)
@@ -209,6 +207,11 @@ d3plus.shape.labels = function(vars,selection) {
 
       if (!disabled && (background || !fill) && !stat) {
 
+        if (share) {
+          share.w -= (vars.style.labels.padding/scale)*2
+          share.h -= (vars.style.labels.padding/scale)*2
+        }
+
         if (share && d.d3plus.share && vars.style.labels.align != "middle") {
 
           share.text = d.d3plus.share
@@ -227,6 +230,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style,true)
 
             text.enter().insert("text",".d3plus_mouse")
+              .attr("font-size",vars.style.labels.font.size)
               .attr("class","d3plus_share")
               .attr("opacity",0)
               .call(style,true)
@@ -240,6 +244,7 @@ d3plus.shape.labels = function(vars,selection) {
           else {
 
             text.enter().insert("text",".d3plus_mouse")
+              .attr("font-size",vars.style.labels.font.size)
               .attr("class","d3plus_share")
 
             text.call(style,true)
@@ -257,7 +262,12 @@ d3plus.shape.labels = function(vars,selection) {
             .call(remove)
         }
 
-        if (label && label.w >= 20 && label.h >= 10 && names.length) {
+        if (label) {
+          label.w -= (vars.style.labels.padding/scale)*2
+          label.h -= (vars.style.labels.padding/scale)*2
+        }
+
+        if (label && label.w*scale >= 20 && label.h*scale >= 10 && names.length) {
 
           label.names = names
           if (!("resize" in label)) {

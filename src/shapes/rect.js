@@ -87,9 +87,6 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         // Square bounds
         if (vars.shape.value == "square") {
 
-          w -= vars.style.labels.padding*2
-          h -= vars.style.labels.padding*2
-
           d.d3plus_share = {
             "w": w,
             "h": h/4,
@@ -103,8 +100,8 @@ d3plus.shape.rect = function(vars,selection,enter,exit,transform) {
         }
         // Circle bounds
         else {
-          d.d3plus_label.w = Math.sqrt(Math.pow(w,2)*.75)-(vars.style.labels.padding)
-          d.d3plus_label.h = Math.sqrt(Math.pow(h,2)*.75)-(vars.style.labels.padding)
+          d.d3plus_label.w = Math.sqrt(Math.pow(w,2)*.75)
+          d.d3plus_label.h = Math.sqrt(Math.pow(h,2)*.75)
         }
 
       }

@@ -3,8 +3,8 @@
 //-------------------------------------------------------------------
 d3plus.data.network = function(vars) {
 
-  var required = d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0
-
+  var required = d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0
+  
   if (!vars.edges.linked && required && vars.edges.value) {
 
     vars.edges.value.forEach(function(e){
@@ -33,7 +33,7 @@ d3plus.data.network = function(vars) {
     var set = vars.nodes.value.filter(function(n){
       return typeof n.x == "number" && typeof n.y == "number"
     }).length
-    
+
     if (set == vars.nodes.value.length) {
       vars.nodes.positions = true
     }

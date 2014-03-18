@@ -32,6 +32,13 @@ d3plus.draw.finish = function(vars) {
     .attr("y",y)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Create labels
+  //----------------------------------------------------------------------------
+  if (vars.dev.value) d3plus.console.time("labels")
+  d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
+  if (vars.dev.value) d3plus.console.timeEnd("labels")
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check for Errors
   //----------------------------------------------------------------------------
   if (!vars.internal_error) {

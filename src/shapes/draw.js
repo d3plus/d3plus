@@ -276,13 +276,6 @@ d3plus.shape.draw = function(vars) {
       d3plus.shape.fill(vars,selection,enter,exit,transform)
     }
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Create labels
-    //--------------------------------------------------------------------------
-    if (vars.dev.value) d3plus.console.time("labels")
-    d3plus.shape.labels(vars,selection)
-    if (vars.dev.value) d3plus.console.timeEnd("labels")
-
     if (vars.dev.value) d3plus.console.groupEnd()
 
   }

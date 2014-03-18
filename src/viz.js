@@ -93,7 +93,7 @@ d3plus.viz = function() {
     "solo": [],
     "style": d3plus.styles.default,
     "timing": d3plus.styles.default.timing.transitions,
-    "zoom_behavior": d3.behavior.zoom(),
+    "zoom_behavior": d3.behavior.zoom().scaleExtent([1,1]),
     "zoom_direction": function() {
 
       var max_depth = vars.id.nesting.length-1,
@@ -123,10 +123,6 @@ d3plus.viz = function() {
 
       vars.frozen = true
       d3plus.draw.container(vars)
-
-      if (!("scale" in vars.zoom)) {
-        vars.zoom.scale = 1
-      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Reset all margins
@@ -172,16 +168,16 @@ d3plus.viz = function() {
             vars.app_height -= (vars.margin.top+vars.margin.bottom);
           }, "message": "Calculating Visualization Height"},
           {"function": d3plus.ui.focus, "message": "Creating Side Tooltip"},
-          {"function": d3plus.draw.update, "message": "Updating Elements"},
-          {"function": d3plus.draw.errors, "message": "Checking for Errors"}
+          {"function": d3plus.draw.update, "message": "Updating Elements"}
         ])
-
+        
         if (d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0 ||
             d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0) {
               steps.push({"function": d3plus.data.network, "message": "Analyizing Network Connections"})
             }
 
         steps = steps.concat([
+          {"function": d3plus.draw.errors, "message": "Checking for Errors"},
           {"function": [d3plus.draw.app,d3plus.shape.edges,d3plus.shape.draw], "message": "Drawing Visualization"},
           {"function": d3plus.draw.finish, "message": "Finishing"}
         ])
