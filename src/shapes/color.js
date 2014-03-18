@@ -31,7 +31,7 @@ d3plus.shape.color = function(d,vars) {
       temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
       total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
 
-  if ((!vars.active.key && !vars.temp.key) || (active && total && active == total && !temp) || (active && !total)) {
+  if ((!vars.active.key && !vars.temp.key) || active === true || (active && total && active == total && !temp) || (active && !total)) {
     return d3plus.variable.color(vars,d)
   }
   else if (vars.active.spotlight.value) {
