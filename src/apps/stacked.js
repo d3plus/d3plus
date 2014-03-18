@@ -1,5 +1,5 @@
 d3plus.apps.stacked = {}
-d3plus.apps.stacked.requirements = ["x","y"];
+d3plus.apps.stacked.requirements = ["data","x","y"];
 d3plus.apps.stacked.tooltip = "static";
 d3plus.apps.stacked.shapes = ["area"];
 d3plus.apps.stacked.threshold = 0.03;

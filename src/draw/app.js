@@ -21,7 +21,7 @@ d3plus.draw.app = function(vars) {
   else {
     var returned = null
   }
-
+  
   vars.returned = {
       "nodes": null,
       "edges": null

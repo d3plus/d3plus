@@ -40,25 +40,33 @@ d3plus.apps.network.draw = function(vars) {
   })
 
   if (vars.edges.arrows.value) {
-      max_size = max_size*0.45
+    max_size = max_size*0.45
   }
   else {
     max_size = max_size*0.6
   }
-  var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
-      height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
-      aspect = width/height,
-      app = vars.app_width/vars.app_height
 
-  if (app > aspect) {
-    var scale = vars.app_height/height
+  if (val_range[0] == val_range[1]) {
+    var min_size = max_size
   }
   else {
-    var scale = vars.app_width/width
-  }
-  var min_size = max_size*0.25
-  if (min_size*scale < 3) {
-    min_size = 3/scale
+
+    var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
+        height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
+        aspect = width/height,
+        app = vars.app_width/vars.app_height
+
+    if (app > aspect) {
+      var scale = vars.app_height/height
+    }
+    else {
+      var scale = vars.app_width/width
+    }
+    var min_size = max_size*0.25
+    if (min_size*scale < 3) {
+      min_size = 3/scale
+    }
+
   }
 
   // Create size scale

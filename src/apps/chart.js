@@ -1,7 +1,7 @@
 d3plus.apps.chart = {}
 d3plus.apps.chart.fill = true;
 d3plus.apps.chart.deprecates = ["pie_scatter","scatter"];
-d3plus.apps.chart.requirements = ["x","y"];
+d3plus.apps.chart.requirements = ["data","x","y"];
 d3plus.apps.chart.tooltip = "static";
 d3plus.apps.chart.shapes = ["circle","donut","line","square","area"];
 d3plus.apps.chart.scale = {

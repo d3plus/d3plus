@@ -1,5 +1,5 @@
 d3plus.apps.line = {}
-d3plus.apps.line.requirements = ["x","y"];
+d3plus.apps.line.requirements = ["data","x","y"];
 d3plus.apps.line.tooltip = "static";
 d3plus.apps.line.shapes = ["line"];
 

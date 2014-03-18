@@ -42,7 +42,8 @@ d3plus.draw.finish = function(vars) {
   // Check for Errors
   //----------------------------------------------------------------------------
   if (!vars.internal_error) {
-    if (!vars.data.app || !vars.returned.nodes.length) {
+    var data_req = d3plus.apps[vars.type.value].requirements.indexOf("data") >= 0
+    if ((!vars.data.app || !vars.returned.nodes.length) && data_req) {
       vars.internal_error = "No Data Available"
     }
     else {
@@ -69,7 +70,8 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
-  var new_opacity = vars.data.app.length == 0 || vars.internal_error ? 0 : 1,
+  var data_req = d3plus.apps[vars.type.value].requirements.indexOf("data") >= 0,
+      new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error ? 0 : 1,
       old_opacity = vars.group.attr("opacity")
   if (new_opacity != old_opacity) {
 
@@ -88,7 +90,7 @@ d3plus.draw.finish = function(vars) {
   // Reset all "change" values to false
   //------------------------------------------------------------------------
   function reset_change(obj) {
-    
+
     if (obj.changed) obj.changed = false
 
     for (o in obj) {
