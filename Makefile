@@ -18,11 +18,14 @@ JS_FILES = \
 	\
 	src/data/analyze.js \
 	src/data/color.js \
+	src/data/edges.js \
 	src/data/fetch.js \
 	src/data/filter.js \
 	src/data/format.js \
+	src/data/keys.js \
 	src/data/nest.js \
-	src/data/network.js \
+	src/data/nodes.js \
+	src/data/restrict.js \
 	src/data/threshold.js \
 	\
 	src/draw/app.js \
@@ -30,7 +33,7 @@ JS_FILES = \
 	src/draw/enter.js \
 	src/draw/errors.js \
 	src/draw/finish.js \
-	src/draw/tooltips.js \
+	src/draw/steps.js \
 	src/draw/update.js \
 	\
 	src/forms/button.js \
