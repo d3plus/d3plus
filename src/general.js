@@ -7,20 +7,30 @@ d3plus.ie = /*@cc_on!@*/false;
 
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
-if ("-webkit-transform" in document.body.style) {
-  d3plus.prefix = "-webkit-"
-}
-else if ("-moz-transform" in document.body.style) {
-  d3plus.prefix = "-moz-"
-}
-else if ("-ms-transform" in document.body.style) {
-  d3plus.prefix = "-ms-"
-}
-else if ("-o-transform" in document.body.style) {
-  d3plus.prefix = "-o-"
-}
-else {
-  d3plus.prefix = ""
+d3plus.prefix = function() {
+
+  if ("-webkit-transform" in document.body.style) {
+    var val = "-webkit-"
+  }
+  else if ("-moz-transform" in document.body.style) {
+    var val = "-moz-"
+  }
+  else if ("-ms-transform" in document.body.style) {
+    var val = "-ms-"
+  }
+  else if ("-o-transform" in document.body.style) {
+    var val = "-o-"
+  }
+  else {
+    var val = ""
+  }
+
+  d3plus.prefix = function(){
+    return val
+  }
+
+  return val;
+
 }
 
 d3plus.scrollbar = function() {
@@ -58,6 +68,7 @@ d3plus.scrollbar = function() {
 }
 
 d3.select(window).on("load.d3plus_scrollbar",function(){
+  d3plus.prefix()
   d3plus.scrollbar()
 })
 
