@@ -332,7 +332,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .style("text-align",styles["font-align"])
       .attr("placeholder",vars.format("Search"))
       .style("outline","none")
-      .style(d3plus.prefix+"border-radius","0")
+      .style(d3plus.prefix()+"border-radius","0")
   }
 
   search.select("input").transition().duration(timing)
@@ -586,8 +586,8 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
   button.select("div#d3plus_button_element_"+vars.id+"_icon")
     .data(["icon"])
-    .style(d3plus.prefix+"transition",(timing/1000)+"s")
-    .style(d3plus.prefix+"transform",rotate)
+    .style(d3plus.prefix()+"transition",(timing/1000)+"s")
+    .style(d3plus.prefix()+"transform",rotate)
     .style("opacity",function(){
       return vars.enabled ? 0.5 : 1
     })
