@@ -25,6 +25,14 @@ d3plus.data.edges = function(vars) {
       e.target = obj
     }
 
+    if (!("keys" in vars.data)) {
+      vars.data.keys = {}
+    }
+
+    if (!(vars.id.key in vars.data.keys)) {
+      vars.data.keys[vars.id.key] = typeof e.source[vars.id.key]
+    }
+
     if (node_create) {
       if (placed.indexOf(e.source[vars.id.key]) < 0) {
         placed.push(e.source[vars.id.key])
@@ -37,7 +45,7 @@ d3plus.data.edges = function(vars) {
     }
 
   })
-
+  
   vars.edges.linked = true
 
 }
