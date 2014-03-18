@@ -1,5 +1,4 @@
 d3plus.apps.chart = {}
-d3plus.apps.chart.data = "grouped";
 d3plus.apps.chart.fill = true;
 d3plus.apps.chart.deprecates = ["pie_scatter","scatter"];
 d3plus.apps.chart.requirements = ["x","y"];

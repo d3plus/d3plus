@@ -1,5 +1,4 @@
 d3plus.apps.rings = {}
-d3plus.apps.rings.data = "object";
 d3plus.apps.rings.requirements = ["edges","focus"];
 d3plus.apps.rings.tooltip = "static"
 d3plus.apps.rings.shapes = ["circle","square","donut"];
@@ -13,9 +12,12 @@ d3plus.apps.rings.draw = function(vars) {
       edges = [],
       nodes = []
 
-  if (vars.data.app) {
+  if (vars.data.app.length) {
 
-    var center = vars.data.app[vars.focus.value]
+    var center = vars.data.app.filter(function(d){
+      return d[vars.id.key] == vars.focus.value
+    })[0]
+    console.log(center)
     if (!center) {
       center = {"d3plus": {}}
       center[vars.id.key] = vars.focus.value
@@ -28,7 +30,9 @@ d3plus.apps.rings.draw = function(vars) {
     vars.connections(vars.focus.value).forEach(function(edge){
 
       var c = edge.source[vars.id.key] == vars.focus.value ? edge.target : edge.source
-      var n = vars.data.app[c[vars.id.key]]
+      var n = vars.data.app.filter(function(d){
+        return d[vars.id.key] == c[vars.id.key]
+      })[0]
       if (!n) {
         n = {"d3plus": {}}
         n[vars.id.key] = c[vars.id.key]
@@ -189,10 +193,12 @@ d3plus.apps.rings.draw = function(vars) {
 
       p.d3plus.edges.forEach(function(edge,i){
 
-        var c = edge.source[vars.id.key] == p[vars.id.key] ? edge.target : edge.source
-
-        var d = vars.data.app[c[vars.id.key]],
+        var c = edge.source[vars.id.key] == p[vars.id.key] ? edge.target : edge.source,
             s = radian/total
+
+        var d = vars.data.app.filter(function(a){
+          return a[vars.id.key] == c[vars.id.key]
+        })[0]
 
         if (!d) {
           d = {"d3plus": {}}

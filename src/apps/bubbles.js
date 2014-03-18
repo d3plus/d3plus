@@ -1,5 +1,4 @@
 d3plus.apps.bubbles = {}
-d3plus.apps.bubbles.data = "grouped";
 d3plus.apps.bubbles.fill = true;
 d3plus.apps.bubbles.tooltip = "static"
 d3plus.apps.bubbles.shapes = ["circle","donut"];

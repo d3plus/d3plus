@@ -1,5 +1,4 @@
 d3plus.apps.geo_map = {}
-d3plus.apps.geo_map.data = "object";
 d3plus.apps.geo_map.libs = ["topojson"];
 d3plus.apps.geo_map.requirements = ["color","coords"];
 d3plus.apps.geo_map.tooltip = "follow"

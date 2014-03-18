@@ -4,19 +4,7 @@
 
 d3plus.data.fetch = function(vars,format,years) {
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // The "format" has not been specified, use the current data type
-  //----------------------------------------------------------------------------
-  if (!format) {
-    var format = vars.data.type
-  }
-
-  if (format == "object") {
-    return_data = {};
-  }
-  else {
-    return_data = [];
-  }
+  var return_data = [];
 
   if (vars.dev.value) d3plus.console.group("Fetching \""+format+"\" data")
 
@@ -73,7 +61,7 @@ d3plus.data.fetch = function(vars,format,years) {
   else {
     var data = vars.data[format][vars.id.nesting[vars.depth.value]]
   }
-
+  
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If there is only 1 year needed, just grab it!
   //----------------------------------------------------------------------------
@@ -91,17 +79,8 @@ d3plus.data.fetch = function(vars,format,years) {
 
       if (data[y]) {
 
-        if (format == "object") {
-          for (k in data[y]) {
-            if (!return_data[data[y][k][vars.id.key]]) {
-              return_data[data[y][k][vars.id.key]] = []
-            }
-            return_data[data[y][k][vars.id.key]].push(data[y][k])
-          }
-        }
-        else {
-          return_data = return_data.concat(data[y])
-        }
+        return_data = return_data.concat(data[y])
+
       }
       else {
         missing.push(y)
@@ -135,26 +114,14 @@ d3plus.data.fetch = function(vars,format,years) {
 
       var nested = vars.id.nesting.slice(0,vars.depth.value+1)
 
-      if (return_data instanceof Array) {
-        return_data = d3plus.data.nest(vars,return_data,nested,format == "grouped")
-      }
-      else if (typeof return_data == "object") {
-        for (k in return_data) {
-          return_data[k] = d3plus.data.nest(vars,return_data[k],nested)[0]
-        }
-      }
+      return_data = d3plus.data.nest(vars,return_data,nested,format == "grouped")
 
     }
 
   }
 
   if (!return_data) {
-    if (format == "object") {
-      return_data = {};
-    }
-    else {
-      return_data = [];
-    }
+    return_data = [];
   }
 
   if (vars.dev.value) d3plus.console.groupEnd()

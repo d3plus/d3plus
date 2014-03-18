@@ -121,8 +121,6 @@ d3plus.viz = function() {
   vars.viz = function(selection) {
     selection.each(function() {
 
-      vars.data.type = d3plus.apps[vars.type.value].data || "grouped"
-
       vars.frozen = true
       d3plus.draw.container(vars)
 
@@ -160,7 +158,7 @@ d3plus.viz = function() {
           }
 
         }
-        
+
         function run_steps() {
 
           var step = steps.shift(),

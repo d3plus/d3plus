@@ -1,5 +1,4 @@
 d3plus.apps.stacked = {}
-d3plus.apps.stacked.data = "grouped";
 d3plus.apps.stacked.requirements = ["x","y"];
 d3plus.apps.stacked.tooltip = "static";
 d3plus.apps.stacked.shapes = ["area"];

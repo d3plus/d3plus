@@ -1,5 +1,4 @@
 d3plus.apps.network = {}
-d3plus.apps.network.data = "object";
 d3plus.apps.network.requirements = ["nodes","edges"];
 d3plus.apps.network.tooltip = "static"
 d3plus.apps.network.shapes = ["circle","square","donut"];
@@ -18,7 +17,7 @@ d3plus.apps.network.draw = function(vars) {
   var x_range = d3.extent(nodes,function(n){return n.x}),
       y_range = d3.extent(nodes,function(n){return n.y})
 
-  var val_range = d3.extent(d3.values(vars.data.app), function(d){
+  var val_range = d3.extent(vars.data.app, function(d){
     var val = d3plus.variable.value(vars,d,vars.size.key)
     return val == 0 ? null : val
   });
@@ -74,12 +73,18 @@ d3plus.apps.network.draw = function(vars) {
   //-------------------------------------------------------------------
   var data = [], lookup = {}
   nodes.forEach(function(n){
-    if (vars.data.app[n[vars.id.key]]) {
-      var obj = d3plus.utils.merge(n,vars.data.app[n[vars.id.key]])
+
+    var d = vars.data.app.filter(function(a){
+      return a[vars.id.key] == n[vars.id.key]
+    })[0]
+
+    if (d) {
+      var obj = d3plus.utils.merge(n,d)
     }
     else {
       var obj = d3plus.utils.copy(n)
     }
+
     obj.d3plus = {}
     obj.d3plus.x = n.x
     obj.d3plus.y = n.y

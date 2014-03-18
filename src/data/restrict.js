@@ -8,7 +8,7 @@ d3plus.data.restrict = function(vars) {
   // if "solo", only check against "solo" (disregard "mute")
   var key = vars.solo.length ? "solo" : "mute"
 
-  vars.data[vars.data.type] = null
+  vars.data.grouped = null
   vars.data.restricted = {}
 
   // start restricting based on "filtered" data

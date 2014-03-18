@@ -72,7 +72,6 @@ d3plus.draw.steps = function(vars) {
 
       vars.data.filtered = null
       vars.data.grouped = null
-      vars.data[vars.data.type] = null
       vars.data.app = null
       vars.data.restricted = null
       vars.nodes.restricted = null
@@ -117,7 +116,6 @@ d3plus.draw.steps = function(vars) {
     },
     "function": function(vars) {
 
-      vars.data[vars.data.type] = null
       vars.data.grouped = null
       vars.data.app = null;
 
@@ -143,7 +141,6 @@ d3plus.draw.steps = function(vars) {
         vars.data.restricted = d3plus.utils.copy(vars.data.filtered)
         vars.data.grouped = null
         vars.data.app = null
-        vars.data[vars.data.type] = null
         vars.nodes.restricted = null
         vars.edges.restricted = null
         vars.filtered = false
@@ -162,19 +159,6 @@ d3plus.draw.steps = function(vars) {
     },
     "function": function(vars) {
       vars.data.grouped = d3plus.data.format(vars,"grouped")
-    },
-    "message": "Formatting Data"
-  })
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Formats Data to type specified by App, if it does not exist.
-  //----------------------------------------------------------------------------
-  steps.push({
-    "check": function(vars) {
-      return !vars.data[vars.data.type]
-    },
-    "function": function(vars) {
-      vars.data[vars.data.type] = d3plus.data.format(vars,vars.data.type)
     },
     "message": "Formatting Data"
   })
@@ -199,12 +183,12 @@ d3plus.draw.steps = function(vars) {
   //----------------------------------------------------------------------------
   steps.push({
     "check": function(vars) {
-      return !vars.data.app || vars.depth.changed || vars.type.changed ||
+      return !vars.data.app || vars.depth.changed ||
           vars.time.solo.changed || vars.time.mute.changed ||
           vars.solo.length || vars.mute.length
     },
     "function": function(vars) {
-      vars.data.app = d3plus.data.fetch(vars,vars.data.type)
+      vars.data.app = d3plus.data.fetch(vars,"grouped")
     },
     "message": "Formatting Data"
   })
@@ -243,7 +227,7 @@ d3plus.draw.steps = function(vars) {
       else if (!vars.color.key) {
         vars.color.type = vars.data.keys[vars.id.key]
       }
-
+      
       return vars.data.value && vars.color.type == "number" &&
               (vars.color.changed || vars.data.changed || vars.depth.changed ||
                 (vars.time.fixed.value &&

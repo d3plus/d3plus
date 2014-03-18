@@ -1,5 +1,4 @@
 d3plus.apps.tree_map = {}
-d3plus.apps.tree_map.data = "grouped";
 d3plus.apps.tree_map.requirements = ["size"];
 d3plus.apps.tree_map.tooltip = "follow"
 d3plus.apps.tree_map.shapes = ["square"];

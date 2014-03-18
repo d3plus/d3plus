@@ -5,6 +5,8 @@ d3plus.data.color = function(vars) {
 
   if (vars.dev.value) d3plus.console.time("get data range")
 
+  var color_id = vars.color.key || vars.id.key
+
   var data_range = []
   vars.data.pool.forEach(function(d){
     var val = parseFloat(d3plus.variable.value(vars,d,color_id))
