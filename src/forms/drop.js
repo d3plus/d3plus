@@ -187,7 +187,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
     if (!icon) {
 
-      if (d3plus.fontawesome) {
+      if (d3plus.fonts.awesome) {
         data.icon = {
           "class": "fa fa-check",
           "content": ""

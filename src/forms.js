@@ -53,7 +53,7 @@ d3plus.forms = function(passed) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Set default icon based on whether or not font-awesome is present
   //----------------------------------------------------------------------------
-  styles.icon = d3plus.fontawesome ? "fa-angle-down" : "&#x27A4;"
+  styles.icon = d3plus.fonts.awesome ? "fa-angle-down" : "&#x27A4;"
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Overwrite vars if vars have been passed
@@ -192,6 +192,13 @@ d3plus.forms = function(passed) {
                 else {
                   d3.select(this).attr("data-"+k,d[k])
                 }
+              }
+
+              if (d.value == vars.focus) {
+                this.selected = true
+              }
+              else {
+                this.selected = false
               }
 
             })

@@ -53,7 +53,7 @@ d3plus.ui.history = function(vars) {
       .call(text_style)
       .each(function(){
 
-        if (d3plus.fontawesome) {
+        if (d3plus.fonts.awesome) {
           var arrow = "&#xf104 "
         }
         else {
@@ -68,7 +68,7 @@ d3plus.ui.history = function(vars) {
         tspans
           .html(String)
           .attr("font-family",function(d,i){
-            if (i == 0 && d3plus.fontawesome) {
+            if (i == 0 && d3plus.fonts.awesome) {
               return "FontAwesome"
             }
             return vars.style.ui["font-family"]
