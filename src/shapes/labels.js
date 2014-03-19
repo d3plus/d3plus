@@ -32,7 +32,7 @@ d3plus.shape.labels = function(vars,selection) {
       var align = t.anchor || vars.style.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "d3plus_share" : this.className.baseVal == "d3plus_share",
-          width = d3.select(this).node().getComputedTextLength()
+          width = d3.select(this).node().getComputedTextLength()/scale
 
       if (align == "middle" || share) {
         var pos = t.x-width/2
@@ -45,7 +45,7 @@ d3plus.shape.labels = function(vars,selection) {
       }
 
       if (tspan) {
-        var t_width = this.getComputedTextLength()
+        var t_width = this.getComputedTextLength()/scale
         if (align == "middle") {
           if (d3plus.rtl) {
             pos -= (width-t_width)/2
@@ -68,7 +68,7 @@ d3plus.shape.labels = function(vars,selection) {
         pos += width
       }
 
-      return pos
+      return pos*scale
 
     }
 
@@ -80,12 +80,13 @@ d3plus.shape.labels = function(vars,selection) {
       else {
 
         var align = vars.style.labels.align,
-            height = d3.select(this).node().getBBox().height,
-            diff = parseFloat(d3.select(this).style("font-size"),10)/5
+            height = d3.select(this).node().getBBox().height/scale,
+            diff = (parseFloat(d3.select(this).style("font-size"),10)/5)/scale
 
         if (this.className.baseVal == "d3plus_share") {
           var data = d3.select(this.parentNode).datum()
           var pheight = data.d3plus.r ? data.d3plus.r*2 : data.d3plus.height
+          pheight = pheight/scale
           if (align == "end") {
             var y = t.y-pheight/2+diff/2
           }
@@ -107,7 +108,7 @@ d3plus.shape.labels = function(vars,selection) {
 
         }
 
-        return y
+        return y*scale
 
       }
     }
@@ -140,7 +141,7 @@ d3plus.shape.labels = function(vars,selection) {
               "height": t.h*scale,
               "resize": t.resize,
               "font_min": 9/scale,
-              "font_max": 70
+              "font_max": 70*scale
             })
 
           }
@@ -152,12 +153,13 @@ d3plus.shape.labels = function(vars,selection) {
             else {
               var height = t.h
             }
-            
+
             d3plus.utils.wordwrap({
               "text": t.names,
               "parent": this,
               "width": t.w*scale,
               "height": height*scale,
+              "font_max": 40*scale,
               "font_min": 9/scale,
               "resize": t.resize
             })
@@ -173,6 +175,7 @@ d3plus.shape.labels = function(vars,selection) {
         var a = t.angle || 0,
             x = t.translate && t.translate.x || 0,
             y = t.translate && t.translate.y || 0
+
         return "rotate("+a+","+x+","+y+")scale("+1/scale+")"
       })
       .selectAll("tspan")
@@ -344,7 +347,7 @@ d3plus.shape.labels = function(vars,selection) {
                   a = label.angle || 0,
                   x = label.translate ? bounds.x+bounds.width/2 : 0,
                   y = label.translate ? bounds.y+bounds.height/2 : 0,
-                  transform = "rotate("+a+","+x+","+y+")"
+                  transform = "scale("+1/scale+")rotate("+a+","+x+","+y+")"
 
               elem
                 .attr("fill",fill)
