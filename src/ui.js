@@ -194,6 +194,13 @@ d3plus.ui = function(passed) {
                 }
               }
 
+              if (d.value == vars.focus) {
+                this.selected = true
+              }
+              else {
+                this.selected = false
+              }
+
             })
 
           options.exit().remove()
