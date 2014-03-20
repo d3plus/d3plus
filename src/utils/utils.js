@@ -94,6 +94,10 @@ d3plus.utils.offset = function(radians, distance, shape) {
 
   var coords = {"x": 0, "y": 0}
 
+  if (radians < 0) {
+    radians = Math.PI*2+radians
+  }
+
   if (shape == "square") {
 
     var diagonal = 45*(Math.PI/180)

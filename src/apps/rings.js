@@ -166,23 +166,7 @@ d3plus.apps.rings.draw = function(vars) {
           "y": center.d3plus.y
         }
 
-        if (vars.shape.value == "square") {
-
-          if (angle < 0) {
-            var test_angle = radian+angle
-          }
-          else {
-            var test_angle = angle
-          }
-
-          var offset = d3plus.utils.offset(test_angle,center.d3plus.r,"square")
-
-        }
-        else {
-
-          var offset = d3plus.utils.offset(angle,center.d3plus.r)
-
-        }
+        var offset = d3plus.utils.offset(angle,center.d3plus.r,vars.shape.value)
 
         p.d3plus.edge[node].d3plus.x += offset.x
         p.d3plus.edge[node].d3plus.y += offset.y
