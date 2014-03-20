@@ -17,7 +17,7 @@ d3plus.apps.network.draw = function(vars) {
   var x_range = d3.extent(nodes,function(n){return n.x}),
       y_range = d3.extent(nodes,function(n){return n.y})
 
-  var val_range = d3.extent(vars.data.app, function(d){
+  var val_range = d3.extent(nodes, function(d){
     var val = d3plus.variable.value(vars,d,vars.size.key)
     return val == 0 ? null : val
   });
