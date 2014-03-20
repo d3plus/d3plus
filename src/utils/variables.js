@@ -110,9 +110,12 @@ d3plus.variable.color = function(vars,id,level) {
 
   function get_random(c) {
     if (typeof c == "object") {
-      c = vars.color.key ? d3plus.variable.value(vars,c,vars.color.key) : c[vars.id.key]
+      var val = vars.color.key ? d3plus.variable.value(vars,c,vars.color.key) : c[vars.id.key]
     }
-    return d3plus.color.random(c)
+    if (!val) {
+      val = c[vars.id.key]
+    }
+    return d3plus.color.random(val)
   }
 
   function validate_color(c) {
