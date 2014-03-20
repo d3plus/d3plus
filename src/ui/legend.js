@@ -47,7 +47,8 @@ d3plus.ui.legend = function(vars) {
 
         var obj = {
           "color": color,
-          "icon_depth": vars.id.nesting[vars.depth.value]
+          "icon_depth": vars.id.nesting[vars.depth.value],
+          "name": []
         }
 
         if (vars.depth.value > 0) {
@@ -55,12 +56,12 @@ d3plus.ui.legend = function(vars) {
           for (var i = vars.depth.value-1; i >= 0; i--) {
             var parents = d3plus.utils.uniques(color_groups[color],vars.id.nesting[i])
             if (parents.length == 1) {
-              if (!obj.name) {
-                var name = d3plus.variable.text(vars,parents[0],i)
-                if (name) {
-                  obj.name = name
-                }
+
+              var name = d3plus.variable.text(vars,parents[0],i)
+              if (name && obj.name.indexOf(name) < 0) {
+                obj.name.push(name)
               }
+
               if (!obj.icon) {
                 var icon = d3plus.variable.value(vars,parents[0],vars.icon.key,vars.id.nesting[i])
                 if (icon) {
@@ -69,7 +70,7 @@ d3plus.ui.legend = function(vars) {
                 }
               }
             }
-            if (obj.name && obj.icon) {
+            if (obj.name.length > 0 && obj.icon) {
               break;
             }
           }
@@ -78,25 +79,25 @@ d3plus.ui.legend = function(vars) {
         else {
 
           for (d in color_groups[color]) {
-            if (!obj.name) {
-              var name = d3plus.variable.text(vars,color_groups[color][d],vars.depth.value)
-              if (name) {
-                obj.name = name
-              }
+
+            var name = d3plus.variable.text(vars,color_groups[color][d],vars.depth.value)
+            if (name && obj.name.indexOf(name) < 0) {
+              obj.name.push(name)
             }
+
             if (!obj.icon) {
               var icon = d3plus.variable.value(vars,color_groups[color][d],vars.icon.key)
               if (icon) {
                 obj.icon = icon
               }
             }
-            if (obj.name && obj.icon) {
+            if (obj.name.length > 0 && obj.icon) {
               break;
             }
           }
 
         }
-
+        obj.name.sort()
         colors.push(obj)
 
       }
@@ -280,7 +281,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("y",0)
                   .each(function(t){
 
-                    if (g.name) {
+                    if (g.name.length == 1) {
 
                       d3plus.utils.wordwrap({
                         "text": g.name,
@@ -342,10 +343,34 @@ d3plus.ui.legend = function(vars) {
                 var icon_style = "default"
               }
 
+              if (d.name.length == 1) {
+                var title = d.name[0],
+                    description = null
+              }
+              else {
+                var title = null
+
+                if (d.name.length > 4) {
+                  var more = d.name.length-4
+                  d.name = d.name.slice(0,4)
+                  d.name[4] = vars.format(more+" more")
+                }
+
+                if (d.name.length == 2) {
+                  var description = d.name.join(" "+vars.format("and")+" ")
+                }
+                else {
+                  d.name[d.name.length-1] = vars.format("and")+" "+d.name[d.name.length-1]
+                  var description = d.name.join(", ")
+                }
+
+              }
+
               d3plus.tooltip.create({
                 "align": "top center",
                 "arrow": true,
                 "background": vars.style.tooltip.background,
+                "description": description,
                 "fontcolor": vars.style.tooltip.font.color,
                 "fontfamily": vars.style.tooltip.font.family,
                 "fontweight": vars.style.tooltip.font.weight,
@@ -357,9 +382,10 @@ d3plus.ui.legend = function(vars) {
                 "offset": square_size/2-vars.style.legend.padding,
                 "parent": vars.parent,
                 "style": icon_style,
-                "title": d.name[0],
+                "title": title,
                 "x": x,
                 "y": y,
+                "max_width": 200,
                 "width": "auto"
               })
 
