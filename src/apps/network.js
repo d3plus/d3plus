@@ -128,10 +128,12 @@ d3plus.apps.network.draw = function(vars) {
 
     var angle = Math.atan2(source.y-target.y,source.x-target.x)
 
-    l.source.d3plus.x -= source.r*Math.cos(angle)
-    l.target.d3plus.x += target.r*Math.cos(angle)
-    l.source.d3plus.y -= source.r*Math.sin(angle)
-    l.target.d3plus.y += target.r*Math.sin(angle)
+    var source_offset = d3plus.utils.offset(angle,source.r,vars.type.value)
+    l.source.d3plus.x -= source_offset.x
+    l.source.d3plus.y -= source_offset.y
+    var target_offset = d3plus.utils.offset(angle,target.r,vars.type.value)
+    l.target.d3plus.x -= target_offset.x
+    l.target.d3plus.y -= target_offset.y
 
   })
 

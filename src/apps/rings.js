@@ -134,7 +134,10 @@ d3plus.apps.rings.draw = function(vars) {
 
   primaries.sort(sort_function)
 
-  var offset = 0, radian = Math.PI*2, start = 0
+  var offset = 0,
+      radian = Math.PI*2,
+      start = 0
+
   primaries.forEach(function(p,i){
 
     var children = p.d3plus.edges.length || 1,
@@ -146,8 +149,6 @@ d3plus.apps.rings.draw = function(vars) {
     }
 
     var angle = offset+(space/2)
-
-    // Rotate everything by 90 degrees so that the first is at 12:00
     angle -= radian/4
 
     p.d3plus.radians = angle
@@ -161,9 +162,30 @@ d3plus.apps.rings.draw = function(vars) {
       if (p.d3plus.edge[node][vars.id.key] == center[vars.id.key]) {
 
         p.d3plus.edge[node].d3plus = {
-          "x": vars.app_width/2+(center.d3plus.r * Math.cos(angle)),
-          "y": vars.app_height/2+(center.d3plus.r * Math.sin(angle))
+          "x": center.d3plus.x,
+          "y": center.d3plus.y
         }
+
+        if (vars.shape.value == "square") {
+
+          if (angle < 0) {
+            var test_angle = radian+angle
+          }
+          else {
+            var test_angle = angle
+          }
+
+          var offset = d3plus.utils.offset(test_angle,center.d3plus.r,"square")
+
+        }
+        else {
+
+          var offset = d3plus.utils.offset(angle,center.d3plus.r)
+
+        }
+
+        p.d3plus.edge[node].d3plus.x += offset.x
+        p.d3plus.edge[node].d3plus.y += offset.y
 
       }
       else {
@@ -224,12 +246,17 @@ d3plus.apps.rings.draw = function(vars) {
         var target = secondaries.filter(function(s){
           return s[vars.id.key] == c[vars.id.key]
         })[0]
+
         if (!target) {
-          r = ring_width
+          var r = ring_width
           target = primaries.filter(function(s){
             return s[vars.id.key] == c[vars.id.key]
           })[0]
         }
+        else {
+          var r = ring_width*2
+        }
+
         if (target) {
 
           edge.d3plus = {
@@ -240,8 +267,7 @@ d3plus.apps.rings.draw = function(vars) {
             }
           }
 
-          var check = ["source","target"],
-              r = ring_width*2
+          var check = ["source","target"]
 
           check.forEach(function(node){
             if (edge[node][vars.id.key] == p[vars.id.key]) {
@@ -278,8 +304,10 @@ d3plus.apps.rings.draw = function(vars) {
 
     if (n[vars.id.key] != vars.focus.value) {
 
+      n.d3plus.rotate = n.d3plus.radians*(180/Math.PI)
+
       if (vars.labels.value) {
-        var angle = n.d3plus.radians*(180/Math.PI),
+        var angle = n.d3plus.rotate,
             width = ring_width-(vars.style.labels.padding*3)-n.d3plus.r
 
         if (angle < -90 || angle > 90) {
@@ -311,6 +339,7 @@ d3plus.apps.rings.draw = function(vars) {
 
     }
     else {
+      delete n.d3plus.rotate
       delete n.d3plus.label
     }
 

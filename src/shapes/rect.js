@@ -48,8 +48,14 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
         var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
         return rounded ? (h+mod+2)/2 : 0
       })
+      .attr("transform",function(d){
+        if ("rotate" in d.d3plus) {
+          return "rotate("+d.d3plus.rotate+")"
+        }
+        return ""
+      })
       .attr("shape-rendering",function(d){
-        if (vars.shape.value == "square") {
+        if (vars.shape.value == "square" && !("rotate" in d.d3plus)) {
           return vars.style.rendering
         }
         else {
