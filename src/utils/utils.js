@@ -88,6 +88,101 @@ d3plus.utils.merge = function(obj1, obj2) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Gives X and Y offset based off angle and shape
+//------------------------------------------------------------------------------
+d3plus.utils.offset = function(radians, distance, shape) {
+
+  var coords = {"x": 0, "y": 0}
+
+  if (shape == "square") {
+
+    var diagonal = 45*(Math.PI/180)
+
+    if (radians <= Math.PI) {
+
+      if (radians < (Math.PI / 2)) {
+
+        if (radians < diagonal) {
+
+          coords.x += distance;
+          var oppositeLegLength = Math.tan(radians) * distance;
+          coords.y += oppositeLegLength;
+
+        } else {
+
+          coords.y += distance;
+          var adjacentLegLength = distance / Math.tan(radians);
+          coords.x += adjacentLegLength;
+
+        }
+
+      } else {
+
+        if (radians < (Math.PI - diagonal)) {
+
+          coords.y += distance;
+          var adjacentLegLength = distance / Math.tan(Math.PI - radians);
+          coords.x -= adjacentLegLength;
+
+        } else {
+
+          coords.x -= distance;
+          var oppositeLegLength = Math.tan(Math.PI - radians) * distance;
+          coords.y += oppositeLegLength;
+        }
+
+      }
+    } else {
+
+      if (radians < (3 * Math.PI / 2)) {
+
+        if (radians < (diagonal + Math.PI)) {
+
+          coords.x -= distance;
+          var oppositeLegLength = Math.tan(radians - Math.PI) * distance;
+          coords.y -= oppositeLegLength;
+
+        } else {
+
+          coords.y -= distance;
+          var adjacentLegLength = distance / Math.tan(radians - Math.PI);
+          coords.x -= adjacentLegLength;
+
+        }
+
+      } else {
+
+        if (radians < (2 * Math.PI - diagonal)) {
+
+          coords.y -= distance;
+          var adjacentLegLength = distance / Math.tan(2 * Math.PI - radians);
+          coords.x += adjacentLegLength;
+
+        } else {
+
+          coords.x += distance;
+          var oppositeLegLength = Math.tan(2 * Math.PI - radians) * distance;
+          coords.y -= oppositeLegLength;
+
+        }
+
+      }
+    }
+
+  }
+  else {
+
+    coords.x += distance * Math.cos(radians)
+    coords.y += distance * Math.sin(radians)
+
+  }
+
+  return coords;
+
+}
+
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
 d3plus.utils.strip = function(str) {
