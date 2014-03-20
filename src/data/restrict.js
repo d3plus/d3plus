@@ -27,6 +27,10 @@ d3plus.data.restrict = function(vars) {
         var arr = vars[v][key]
       }
 
+      if (v == "id" && key == "solo" && vars.focus.value && arr.indexOf(vars.focus.value) < 0) {
+        arr.push(vars.focus.value)
+      }
+
       var match = false
       arr.forEach(function(f){
         if (typeof f == "function") {
