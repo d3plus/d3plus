@@ -24,9 +24,9 @@ d3plus.zoom.bounds = function(vars,b,timing) {
   var min = d3.min([vars.app_width,vars.app_height])
 
   var scale = ((min-(vars.coords.padding*2)) / min) / aspect
-  
+
   if (!vars.zoom.viewport) {
-    vars.zoom_behavior.scaleExtent([scale,scale*8])
+    vars.zoom_behavior.scaleExtent([scale,scale*16])
   }
 
   var max_scale = vars.zoom_behavior.scaleExtent()[1]
