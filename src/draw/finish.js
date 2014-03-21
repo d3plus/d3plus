@@ -8,12 +8,16 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   if (d3plus.apps[vars.type.value].zoom) {
 
-    if (vars.focus.changed && vars.zoom.viewport) {
+    if (vars.dev.value) d3plus.console.time("calculating zoom")
+
+    if (vars.focus.changed) {
       d3plus.zoom.bounds(vars,vars.zoom.viewport)
     }
     else if (!vars.zoom.viewport) {
       d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
     }
+
+    if (vars.dev.value) d3plus.console.timeEnd("calculating zoom")
 
   }
 
@@ -34,9 +38,11 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create labels
   //----------------------------------------------------------------------------
-  if (vars.dev.value) d3plus.console.time("labels")
-  d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
-  if (vars.dev.value) d3plus.console.timeEnd("labels")
+  if (vars.update) {
+    if (vars.dev.value) d3plus.console.time("labels")
+    d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
+    if (vars.dev.value) d3plus.console.timeEnd("labels")
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check for Errors
@@ -71,24 +77,26 @@ d3plus.draw.finish = function(vars) {
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
   var data_req = d3plus.apps[vars.type.value].requirements.indexOf("data") >= 0,
-      new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error ? 0 : 1,
+      new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
+        ? 0 : vars.focus.value ? 0.25 : 1,
       old_opacity = vars.group.attr("opacity")
+
   if (new_opacity != old_opacity) {
 
-    vars.timing = vars.style.timing.transitions
+    var timing = vars.style.timing.transitions
 
-    vars.group.transition().duration(vars.timing)
+    vars.group.transition().duration(timing)
       .attr("opacity",new_opacity)
-    vars.g.data.transition().duration(vars.timing)
+    vars.g.data.transition().duration(timing)
       .attr("opacity",new_opacity)
-    vars.g.edges.transition().duration(vars.timing)
+    vars.g.edges.transition().duration(timing)
       .attr("opacity",new_opacity)
 
   }
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Reset all "change" values to false
-  //------------------------------------------------------------------------
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Reset all "changed" values to false
+  //----------------------------------------------------------------------------
   function reset_change(obj) {
 
     if (obj.changed) obj.changed = false
@@ -102,10 +110,25 @@ d3plus.draw.finish = function(vars) {
   }
   reset_change(vars)
 
-  setTimeout(function(){
-    vars.frozen = false
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Display and reset internal_error, if applicable
+  //----------------------------------------------------------------------------
+  if (vars.internal_error) {
+    d3plus.ui.message(vars,vars.internal_error)
+    vars.internal_error = null
+  }
+  else {
+    d3plus.ui.message(vars)
+  }
 
-    // Call zoom on zoom group if applicable
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Unfreeze controls and apply zoom behavior, if applicable
+  //----------------------------------------------------------------------------
+  setTimeout(function(){
+
+    vars.frozen = false
+    vars.update = true
+
     if (d3plus.apps[vars.type.value].zoom) {
       vars.g.zoom
         .datum(vars)
@@ -116,14 +139,6 @@ d3plus.draw.finish = function(vars) {
         .call(vars.zoom_behavior.on("zoom",null))
     }
 
-  },vars.style.timing.transitions)
-
-  if (vars.internal_error) {
-    d3plus.ui.message(vars,vars.internal_error)
-    vars.internal_error = null
-  }
-  else {
-    d3plus.ui.message(vars)
-  }
+  },vars.timing)
 
 }
