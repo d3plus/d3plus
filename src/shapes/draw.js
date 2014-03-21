@@ -5,7 +5,7 @@ d3plus.shape.draw = function(vars) {
 
   var data = vars.returned.nodes || [],
       edges = vars.returned.edges || []
-
+      
   vars.timing = data.length < vars.data.large && edges.length < vars.edges.large ? vars.style.timing.transitions : 0
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -285,7 +285,7 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   function edge_update(d) {
 
-    if (d) {
+    if (d && vars.g.edges.selectAll("g").size() > 0) {
 
       vars.g.edges.selectAll("g")
         .each(function(l){
@@ -295,7 +295,7 @@ d3plus.shape.draw = function(vars) {
               target = l.target[vars.id.key]
 
           if (source == id || target == id) {
-            vars.g.edge_focus.node().appendChild(this.cloneNode(true))
+            vars.g.edge_hover.node().appendChild(this.cloneNode(true))
           }
 
         })
@@ -303,7 +303,7 @@ d3plus.shape.draw = function(vars) {
 
       var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_highlight)" : "none"
 
-      vars.g.edge_focus
+      vars.g.edge_hover
         .attr("opacity",0)
         .selectAll("line, path")
           .style("stroke",vars.style.highlight.primary)
@@ -316,8 +316,8 @@ d3plus.shape.draw = function(vars) {
           })
 
       if (vars.timing) {
-
-        vars.g.edge_focus
+        console.log("here")
+        vars.g.edge_hover
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
 
@@ -328,7 +328,7 @@ d3plus.shape.draw = function(vars) {
       }
       else {
 
-        vars.g.edge_focus
+        vars.g.edge_hover
           .attr("opacity",1)
 
       }
@@ -338,7 +338,7 @@ d3plus.shape.draw = function(vars) {
 
       if (vars.timing) {
 
-        vars.g.edge_focus
+        vars.g.edge_hover
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",0)
           .transition()
@@ -352,7 +352,7 @@ d3plus.shape.draw = function(vars) {
       }
       else {
 
-        vars.g.edge_focus
+        vars.g.edge_hover
           .selectAll("*")
           .remove()
 
@@ -367,7 +367,7 @@ d3plus.shape.draw = function(vars) {
   vars.g.data.selectAll("g")
     .on(d3plus.evt.over,function(d){
 
-      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!d3plus.utils.child(this,d3.event.fromElement) && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         d3.select(this).style("cursor","pointer")
           .transition().duration(vars.style.timing.mouseevents)
@@ -425,7 +425,7 @@ d3plus.shape.draw = function(vars) {
     })
     .on(d3plus.evt.out,function(d){
 
-      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!d3plus.utils.child(this,d3.event.toElement) && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         d3.select(this)
           .transition().duration(vars.style.timing.mouseevents)
@@ -455,6 +455,8 @@ d3plus.shape.draw = function(vars) {
     .on(d3plus.evt.click,function(d){
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+        edge_update()
 
         var depth_delta = vars.zoom_direction(),
             previous = vars.id.solo.value,
