@@ -274,6 +274,8 @@ d3plus.public.text = {
 d3plus.public.text_format = {
   "value": function(text,key,vars) {
     if (!text) return "";
+    var smalls = ["and"]
+    if (smalls.indexOf(text) >= 0) return text
     return text.replace(/\w\S*/g, function(txt){
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     });
