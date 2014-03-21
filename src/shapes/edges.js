@@ -30,40 +30,16 @@ d3plus.shape.edges = function(vars) {
     var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_default)" : "none"
 
     edges
-      .style("stroke-width",function(e){
-        if (vars.connected(e)) {
-          return vars.style.edges.width*2
-        }
-        return vars.style.edges.width
-      })
-      .style("stroke",function(e){
-        if (vars.connected(e)) {
-          return d3plus.color.darker(vars.style.edges.color,.5)
-        }
-        return vars.style.edges.color
-      })
+      .style("stroke-width",vars.style.edges.width)
+      .style("stroke",vars.style.edges.color)
       .attr("opacity",vars.style.edges.opacity)
       .attr("marker-start",function(e){
         var direction = vars.edges.arrows.direction.value
-        if (vars.edges.arrows.value && direction == "source") {
-          var connected = vars.connected(e)
-          if (connected) {
-            return "url(#d3plus_edge_marker_focus)"
-          }
-          return "url(#d3plus_edge_marker_default)"
-        }
-        return "none"
+        return direction == "source" ? marker : "none"
       })
       .attr("marker-end",function(e){
         var direction = vars.edges.arrows.direction.value
-        if (vars.edges.arrows.value && direction == "target") {
-          var connected = vars.connected(e)
-          if (connected) {
-            return "url(#d3plus_edge_marker_focus)"
-          }
-          return "url(#d3plus_edge_marker_default)"
-        }
-        return "none"
+        return direction == "target" ? marker : "none"
       })
       .attr("vector-effect","non-scaling-stroke")
   }
