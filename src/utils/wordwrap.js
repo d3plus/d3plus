@@ -15,7 +15,9 @@ d3plus.utils.wordwrap = function(params) {
       current_text = ""
 
   if (text_array instanceof Array) {
-    text_array = text_array.slice(0)
+    text_array = text_array.filter(function(t){
+      return ["string","number"].indexOf(typeof t) >= 0
+    })
     current_text = String(text_array.shift())
   }
   else {
