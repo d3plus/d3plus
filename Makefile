@@ -33,6 +33,7 @@ JS_FILES = \
 	src/draw/enter.js \
 	src/draw/errors.js \
 	src/draw/finish.js \
+	src/draw/focus.js \
 	src/draw/steps.js \
 	src/draw/update.js \
 	\
