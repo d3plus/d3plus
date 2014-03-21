@@ -5,16 +5,14 @@ d3plus.data.color = function(vars) {
 
   if (vars.dev.value) d3plus.console.time("get data range")
 
-  var color_id = vars.color.key || vars.id.key
-
   var data_range = []
   vars.data.pool.forEach(function(d){
-    var val = parseFloat(d3plus.variable.value(vars,d,color_id))
+    var val = parseFloat(d3plus.variable.value(vars,d,vars.color.key))
     if (typeof val == "number" && !isNaN(val) && data_range.indexOf(val) < 0) data_range.push(val)
   })
 
   if (vars.dev.value) d3plus.console.timeEnd("get data range")
-
+  
   if (data_range.length > 1) {
 
     var data_domain = null
