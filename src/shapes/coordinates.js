@@ -26,7 +26,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
   //   }
   // });
 
-  var path = d3.geo.path()
+  vars.path = d3.geo.path()
     .projection(projection)
     // .projection(simplify)
     // .projection({stream: function(s) { return simplify.stream(clip.stream(s)); }})
@@ -36,7 +36,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
       return d.id
     })
     .attr("class","d3plus_data")
-    .attr("d",path)
+    .attr("d",vars.path)
     .call(d3plus.shape.style,vars)
 
   selection.selectAll("path.d3plus_data")
@@ -67,46 +67,34 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
       .call(d3plus.shape.style,vars)
   }
 
-  if (vars.coords.changed || vars.width.changed || vars.height.changed || (vars.focus.value && vars.focus.changed)) {
+  if (vars.coords.changed || vars.width.changed || vars.height.changed) {
 
-    if (!vars.focus.value) {
-      vars.zoom.bounds = false
-    }
     selection.each(function(d){
 
-      if (vars.focus.value && d[vars.id.key] == vars.focus.value) {
-        vars.zoom.viewport = path.bounds(d)
+      var b = vars.path.bounds(d)
+      if (!vars.zoom.bounds) {
+        vars.zoom.bounds =  b
       }
-
-      if (!vars.focus.value) {
-        var b = path.bounds(d)
-        if (!vars.zoom.bounds) {
-          vars.zoom.bounds =  b
+      else {
+        if (vars.zoom.bounds[0][0] > b[0][0]) {
+          vars.zoom.bounds[0][0] = b[0][0]
         }
-        else {
-          if (vars.zoom.bounds[0][0] > b[0][0]) {
-            vars.zoom.bounds[0][0] = b[0][0]
-          }
-          if (vars.zoom.bounds[0][1] > b[0][1]) {
-            vars.zoom.bounds[0][1] = b[0][1]
-          }
-          if (vars.zoom.bounds[1][0] < b[1][0]) {
-            vars.zoom.bounds[1][0] = b[1][0]
-          }
-          if (vars.zoom.bounds[1][1] < b[1][1]) {
-            vars.zoom.bounds[1][1] = b[1][1]
-          }
+        if (vars.zoom.bounds[0][1] > b[0][1]) {
+          vars.zoom.bounds[0][1] = b[0][1]
         }
-
+        if (vars.zoom.bounds[1][0] < b[1][0]) {
+          vars.zoom.bounds[1][0] = b[1][0]
+        }
+        if (vars.zoom.bounds[1][1] < b[1][1]) {
+          vars.zoom.bounds[1][1] = b[1][1]
+        }
       }
 
     })
 
   }
-  else if (vars.focus.changed) {
-    if (!vars.focus.value) {
-      vars.zoom.viewport = vars.zoom.bounds
-    }
+  else if (!vars.focus.value) {
+    vars.zoom.viewport = vars.zoom.bounds
   }
 
 }
