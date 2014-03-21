@@ -4,7 +4,7 @@
 d3plus.shape.style = function(nodes,vars) {
 
   nodes
-    .style("fill",function(d){
+    .attr("fill",function(d){
 
       if (d.d3plus && d.d3plus.spline) {
         return "none"
