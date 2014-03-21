@@ -7,7 +7,7 @@ d3plus.ui.legend = function(vars) {
       square_size = 0,
       key = vars.color.key || vars.id.key
 
-  if (!vars.small && vars.legend.value && key && vars.data.pool.length) {
+  if (!vars.small && vars.legend.value && key) {
 
     if (vars.dev.value) d3plus.console.group("Calculating Legend")
 
@@ -21,12 +21,16 @@ d3plus.ui.legend = function(vars) {
       var color_type = undefined
     }
 
-    if (!vars.color.scale && color_type != "number") {
+    if (!vars.color.scale) {
 
       if (vars.dev.value) d3plus.console.time("determining color groups")
 
-      var color_groups = {}, placed = []
-      vars.data.pool.forEach(function(d){
+      var color_groups = {},
+          placed = [],
+          data = vars.nodes.restricted ? vars.nodes.restricted :
+            vars.nodes.value ? vars.nodes.value : vars.data.pool
+
+      data.forEach(function(d){
         if (placed.indexOf(d[vars.id.key]) < 0) {
 
           var color = d3plus.variable.color(vars,d[vars.id.key])
@@ -54,10 +58,17 @@ d3plus.ui.legend = function(vars) {
         if (vars.depth.value > 0) {
 
           for (var i = vars.depth.value-1; i >= 0; i--) {
-            var parents = d3plus.utils.uniques(color_groups[color],vars.id.nesting[i])
+            var parents = []
+            color_groups[color].forEach(function(c){
+              var val = d3plus.variable.value(vars,c,vars.id.nesting[i])
+              // console.log(c,val,vars.id.nesting[i])
+              if (val && parents.indexOf(val) < 0) parents.push(val)
+            })
+            
             if (parents.length == 1) {
 
               var name = d3plus.variable.text(vars,parents[0],i)
+
               if (name && obj.name.indexOf(name) < 0) {
                 obj.name.push(name)
               }
@@ -323,7 +334,7 @@ d3plus.ui.legend = function(vars) {
 
             d3.select(this).style("cursor","pointer")
 
-            if (d.name) {
+            if (d.name.length) {
 
               d3.select(this).style("cursor","pointer")
 
@@ -343,25 +354,35 @@ d3plus.ui.legend = function(vars) {
                 var icon_style = "default"
               }
 
-              if (d.name.length == 1) {
-                var title = d.name[0],
+              var names = []
+              d.name.forEach(function(d){
+                if (d instanceof Array) {
+                  names.push(d[0])
+                }
+                else {
+                  names.push(d)
+                }
+              })
+
+              if (names.length == 1) {
+                var title = names[0],
                     description = null
               }
               else {
                 var title = null
 
-                if (d.name.length > 4) {
-                  var more = d.name.length-4
-                  d.name = d.name.slice(0,4)
-                  d.name[4] = vars.format(more+" more")
+                if (names.length > 4) {
+                  var more = names.length-4
+                  names = names.slice(0,4)
+                  names[4] = vars.format(more+" more")
                 }
 
-                if (d.name.length == 2) {
-                  var description = d.name.join(" "+vars.format("and")+" ")
+                if (names.length == 2) {
+                  var description = names.join(" "+vars.format("and")+" ")
                 }
                 else {
-                  d.name[d.name.length-1] = vars.format("and")+" "+d.name[d.name.length-1]
-                  var description = d.name.join(", ")
+                  names[names.length-1] = vars.format("and")+" "+names[names.length-1]
+                  var description = names.join(", ")
                 }
 
               }
