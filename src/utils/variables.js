@@ -74,11 +74,14 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
       var dat = id
       id = id[id_var]
     }
-    if (id_var == vars.id.key && vars.data.app instanceof Array) {
 
+    if (vars.data.app instanceof Array) {
       var dat = filter_array(vars.data.app)
-
     }
+    if (!dat) {
+      var dat = filter_array(vars.data.value)
+    }
+
     if (dat && typeof dat[variable] != "undefined") return dat[variable]
   }
 
@@ -110,16 +113,13 @@ d3plus.variable.color = function(vars,id,level) {
 
   function get_random(c) {
     if (typeof c == "object") {
-      var val = vars.color.key ? d3plus.variable.value(vars,c,vars.color.key) : c[vars.id.key]
+      c = c[vars.id.key]
     }
-    if (!val) {
-      val = c[vars.id.key]
-    }
-    return d3plus.color.random(val)
+    return d3plus.color.random(c)
   }
 
   function validate_color(c) {
-    if (c.indexOf("#") == 0 && [4,7].indexOf(c.length) >= 0) return true
+    if (typeof c == "string" && c.indexOf("#") == 0 && [4,7].indexOf(c.length) >= 0) return true
     else return false
   }
 
@@ -130,18 +130,20 @@ d3plus.variable.color = function(vars,id,level) {
 
     var color = d3plus.variable.value(vars,id,vars.color.key,level)
 
-    if (!color && typeof vars.color.scale == "function") {
-      color = vars.style.color.missing
-    }
-    else if (!color) {
+    if (!color) {
+      if (typeof vars.color.scale == "function") {
+        return vars.style.color.missing
+      }
       return get_random(id)
     }
-
-    if (typeof color == "string") {
+    else if (!vars.color.scale) {
       var true_color = validate_color(color)
       return true_color ? color : get_random(color)
     }
-    else return vars.color.scale(color)
+    else {
+      return vars.color.scale(color)
+    }
+
   }
 }
 
