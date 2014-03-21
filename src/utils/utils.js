@@ -17,6 +17,35 @@ d3plus.utils.buckets = function(arr, buckets) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Checks to see if element is inside of another elemebt
+//------------------------------------------------------------------------------
+d3plus.utils.child = function(parent,child) {
+
+  if (!parent || !child) {
+    return false;
+  }
+
+  if (d3plus.utils.d3selection(parent)) {
+    parent = parent.node()
+  }
+
+  if (d3plus.utils.d3selection(parent)) {
+    child = child.node()
+  }
+
+  var node = child.parentNode;
+  while (node != null) {
+    if (node == parent) {
+      return true;
+    }
+    node = node.parentNode;
+  }
+
+  return false;
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds closest numeric value in array
 //------------------------------------------------------------------------------
 d3plus.utils.closest = function(arr,value) {
@@ -59,6 +88,15 @@ d3plus.utils.dataurl = function(url,callback) {
 
   }
 
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Cross-browser detect for D3 element
+//------------------------------------------------------------------------------
+d3plus.utils.d3selection = function(selection) {
+  return d3plus.ie ?
+    typeof selection == "object" && selection instanceof Array
+    : selection instanceof d3.selection
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -245,11 +283,11 @@ d3plus.utils.uniques = function(data,value) {
   var type = null
   return d3.nest().key(function(d) {
       if (typeof value == "string") {
-        if (!type) type = typeof d[value]
+        if (!type && typeof d[value] !== "undefined") type = typeof d[value]
         return d[value]
       }
       else if (typeof value == "function") {
-        if (!type) type = typeof value(d)
+        if (!type && typeof value(d) !== "undefined") type = typeof value(d)
         return value(d)
       }
       else {
@@ -258,9 +296,12 @@ d3plus.utils.uniques = function(data,value) {
     })
     .entries(data)
     .reduce(function(a,b){
-      var val = b.key
-      if (type == "number") val = parseFloat(val)
-      return a.concat(val)
+      if (type) {
+        var val = b.key
+        if (type == "number") val = parseFloat(val)
+        return a.concat(val)
+      }
+      return a
     },[]).sort(function(a,b){
       return a - b
     })
