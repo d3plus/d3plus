@@ -89,10 +89,12 @@ d3plus.viz = function() {
     },
     "frozen": false,
     "g": {"apps":{}},
+    "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "mute": [],
     "solo": [],
     "style": d3plus.styles.default,
     "timing": d3plus.styles.default.timing.transitions,
+    "update": true,
     "zoom_behavior": d3.behavior.zoom().scaleExtent([1,1]),
     "zoom_direction": function() {
 
@@ -123,11 +125,6 @@ d3plus.viz = function() {
 
       vars.frozen = true
       d3plus.draw.container(vars)
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Reset all margins
-      //------------------------------------------------------------------------
-      vars.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Determine if in "small" mode
@@ -167,7 +164,7 @@ d3plus.viz = function() {
 
           if (run) {
 
-            if (!same) {
+            if (!same && vars.update) {
 
               if (vars.dev.value) {
                 d3plus.console.groupEnd()
@@ -188,7 +185,7 @@ d3plus.viz = function() {
 
                 check_next()
 
-              },5)
+              },10)
 
             }
             else {
