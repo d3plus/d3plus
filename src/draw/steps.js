@@ -252,7 +252,8 @@ d3plus.draw.steps = function(vars) {
           vars.color.type = vars.data.keys[vars.id.key]
         }
 
-        return vars.data.value && vars.color.key && vars.color.type == "number" &&
+        return vars.color.key && vars.color.type == "number" &&
+              vars.data.value && vars.color.key != vars.id.key &&
                 (vars.color.changed || vars.data.changed || vars.depth.changed ||
                   (vars.time.fixed.value &&
                     (vars.time.solo.changed || vars.time.mute.changed)
