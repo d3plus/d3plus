@@ -46,24 +46,25 @@ d3plus.draw.focus = function(vars) {
 
     }
 
-    var groups = vars.g.data.selectAll("g").filter(function(d){
-      return d[vars.id.key] == vars.focus.value
-    })
+    var focii = d3plus.utils.uniques(vars.connections(vars.focus.value,true),vars.id.key)
+    focii.push(vars.focus.value)
 
-    vars.g.data_focus.node().appendChild(groups.node().cloneNode(true))
+    var groups = vars.g.data.selectAll("g")
+      .each(function(d){
+        if (focii.indexOf(d[vars.id.key]) >= 0) {
+          var elem = vars.g.data_focus.node().appendChild(this.cloneNode(true))
+          var elem = d3.select(elem).datum(d)
+          for (e in d3plus.evt) {
+            var evt = d3.select(this).on(d3plus.evt[e])
+            if (evt) {
+              elem.on(d3plus.evt[e],evt)
+            }
+          }
+        }
+      })
 
     vars.g.data_focus.selectAll("path")
       .style("stroke-width",vars.style.data.stroke.width*2)
-      .on(d3plus.evt.click,function(){
-
-        if (typeof vars.mouse == "function") {
-          vars.mouse()
-        }
-        else if (vars.mouse.click) {
-          vars.mouse.click()
-        }
-
-      })
 
     if (vars.dev.value) d3plus.console.timeEnd("drawing focus elements")
 
