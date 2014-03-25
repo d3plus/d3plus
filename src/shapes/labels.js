@@ -128,17 +128,19 @@ d3plus.shape.labels = function(vars,selection) {
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
-      .each(function(t){
 
-        if (wrap) {
+    if (wrap) {
+
+      text
+        .each(function(t){
 
           if (t.text) {
 
             d3plus.utils.wordwrap({
               "text": vars.format(t.text*100,"share")+"%",
               "parent": this,
-              "width": t.w*scale,
-              "height": t.h*scale,
+              "width": t.w*scale-label.padding,
+              "height": t.h*scale-label.padding,
               "resize": t.resize,
               "font_min": 9/scale,
               "font_max": 70*scale
@@ -166,11 +168,13 @@ d3plus.shape.labels = function(vars,selection) {
 
           }
 
-        }
+        })
+        .attr("x",x_pos)
+        .attr("y",y_pos)
 
-      })
-      .attr("x",x_pos)
-      .attr("y",y_pos)
+    }
+
+    text
       .attr("transform",function(t){
         var a = t.angle || 0,
             x = t.translate && t.translate.x || 0,
@@ -210,12 +214,10 @@ d3plus.shape.labels = function(vars,selection) {
 
       if (!disabled && (background || !fill) && !stat) {
 
-        if (share) {
+        if (share && d.d3plus.share && vars.style.labels.align != "middle") {
+
           share.w -= (vars.style.labels.padding/scale)*2
           share.h -= (vars.style.labels.padding/scale)*2
-        }
-
-        if (share && d.d3plus.share && vars.style.labels.align != "middle") {
 
           share.text = d.d3plus.share
           if (!("resize" in share)) {
@@ -229,16 +231,15 @@ d3plus.shape.labels = function(vars,selection) {
 
           if (vars.timing) {
 
-            text.transition().duration(vars.timing/2)
-              .call(style,true)
+            text
+              .transition().duration(vars.timing/2)
+              .call(style)
 
-            text.enter().insert("text",".d3plus_mouse")
+            text.enter().append("text")
               .attr("font-size",vars.style.labels.font.size)
               .attr("class","d3plus_share")
               .attr("opacity",0)
               .call(style,true)
-
-            text
               .transition().duration(vars.timing/2)
               .delay(vars.timing/2)
               .attr("opacity",0.5)
@@ -246,12 +247,15 @@ d3plus.shape.labels = function(vars,selection) {
           }
           else {
 
-            text.enter().insert("text",".d3plus_mouse")
+            text
+              .attr("opacity",0.5)
+              .call(style)
+
+            text.enter().append("text")
               .attr("font-size",vars.style.labels.font.size)
               .attr("class","d3plus_share")
-
-            text.call(style,true)
               .attr("opacity",0.5)
+              .call(style,true)
 
           }
 
@@ -265,21 +269,20 @@ d3plus.shape.labels = function(vars,selection) {
             .call(remove)
         }
 
-        if (label) {
-          label.w -= (vars.style.labels.padding/scale)*2
-          label.h -= (vars.style.labels.padding/scale)*2
-        }
+        label.padding = (vars.style.labels.padding/scale)*2
 
-        if (label && label.w*scale >= 20 && label.h*scale >= 10 && names.length) {
+        if (label && label.w*scale-label.padding >= 20 && label.h*scale-label.padding >= 10 && names.length) {
 
           label.names = names
           if (!("resize" in label)) {
             label.resize = true
           }
-          label.share = share_size
 
+          label.share = share_size
+          
           var text = group.selectAll("text.d3plus_label")
             .data([label],function(t){
+              if (!t) return false
               return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
 
@@ -287,15 +290,13 @@ d3plus.shape.labels = function(vars,selection) {
 
             text
               .transition().duration(vars.timing/2)
-              .call(style,true)
+              .call(style)
 
-            text.enter().insert("text",".d3plus_mouse")
+            text.enter().append("text")
               .attr("font-size",vars.style.labels.font.size)
               .attr("class","d3plus_label")
               .attr("opacity",0)
               .call(style,true)
-
-            text
               .transition().duration(vars.timing/2)
               .delay(vars.timing/2)
               .attr("opacity",1)
@@ -303,12 +304,15 @@ d3plus.shape.labels = function(vars,selection) {
           }
           else {
 
-            text.enter().insert("text",".d3plus_mouse")
+            text
+              .attr("opacity",1)
+              .call(style)
+
+            text.enter().append("text")
               .attr("font-size",vars.style.labels.font.size)
               .attr("class","d3plus_label")
-
-            text.attr("opacity",1)
-                .call(style,true)
+              .call(style,true)
+              .attr("opacity",1)
 
           }
 
