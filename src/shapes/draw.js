@@ -272,7 +272,7 @@ d3plus.shape.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Check for active and temp fills for rects and donuts
     //--------------------------------------------------------------------------
-    if (["rect","donut"].indexOf(shape) >= 0) {
+    if (["rect","donut"].indexOf(shape) >= 0 && d3plus.apps[vars.type.value].fill) {
       d3plus.shape.fill(vars,selection,enter,exit,transform)
     }
 
@@ -316,7 +316,7 @@ d3plus.shape.draw = function(vars) {
           })
 
       if (vars.timing) {
-        
+
         vars.g.edge_hover
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
@@ -513,6 +513,14 @@ d3plus.shape.draw = function(vars) {
 
         }
         else if (d3plus.apps[vars.type.value].zoom) {
+          
+          d3.select(this)
+            .transition().duration(vars.style.timing.mouseevents)
+            .call(transform)
+
+          d3.select(this).selectAll(".d3plus_data")
+            .transition().duration(vars.style.timing.mouseevents)
+            .attr("opacity",vars.style.data.opacity)
 
           d3plus.tooltip.remove(vars.type.value)
           vars.update = false
