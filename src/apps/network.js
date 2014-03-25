@@ -137,32 +137,6 @@ d3plus.apps.network.draw = function(vars) {
 
   })
 
-  vars.mouse[d3plus.evt.click] = function(d) {
-
-    d3plus.tooltip.remove(vars.type.value)
-    vars.update = false
-    
-    if (!d || d[vars.id.key] == vars.focus.value) {
-      vars.zoom.viewport = vars.zoom.bounds
-      vars.viz.focus(null).draw()
-    }
-    else {
-      var x_bounds = [lookup[d[vars.id.key]].x],
-          y_bounds = [lookup[d[vars.id.key]].y]
-
-      vars.connections(d[vars.id.key],true).forEach(function(c){
-        x_bounds.push(lookup[c[vars.id.key]].x)
-        y_bounds.push(lookup[c[vars.id.key]].y)
-      })
-
-      var xcoords = d3.extent(x_bounds),
-          ycoords = d3.extent(y_bounds)
-
-      vars.zoom.viewport = [[xcoords[0]-max_size,ycoords[0]-max_size],[xcoords[1]+max_size,ycoords[1]+max_size]]
-      vars.viz.focus(d[vars.id.key]).draw()
-    }
-  }
-
   return {"nodes": data, "edges": edges}
 
 }

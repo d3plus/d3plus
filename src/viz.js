@@ -93,6 +93,7 @@ d3plus.viz = function() {
     },
     "frozen": false,
     "g": {"apps":{}},
+    "init": false,
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "mute": [],
     "solo": [],

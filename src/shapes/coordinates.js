@@ -94,7 +94,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
   }
   else if (!vars.focus.value) {
-    vars.zoom.viewport = vars.zoom.bounds
+    vars.zoom.viewport = false
   }
 
 }

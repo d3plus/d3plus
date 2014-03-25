@@ -25,7 +25,9 @@ d3plus.zoom.bounds = function(vars,b,timing) {
 
   var scale = ((min-(vars.coords.padding*2)) / min) / aspect
 
-  if (!vars.zoom.viewport) {
+  var extent = vars.zoom_behavior.scaleExtent()
+
+  if (extent[0] == extent[1] || b == vars.zoom.bounds) {
     vars.zoom_behavior.scaleExtent([scale,scale*16])
   }
 
@@ -43,7 +45,6 @@ d3plus.zoom.bounds = function(vars,b,timing) {
   vars.zoom.translate = translate
   vars.zoom_behavior.translate(translate).scale(scale)
 
-  vars.zoom.viewport = b
   vars.zoom.size = {
     "height": vars.zoom.bounds[1][1]-vars.zoom.bounds[0][1],
     "width": vars.zoom.bounds[1][0]-vars.zoom.bounds[0][0]

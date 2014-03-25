@@ -512,6 +512,19 @@ d3plus.shape.draw = function(vars) {
           vars.back()
 
         }
+        else if (d3plus.apps[vars.type.value].zoom) {
+          
+          d3plus.tooltip.remove(vars.type.value)
+          vars.update = false
+
+          if (!d || d[vars.id.key] == vars.focus.value) {
+            vars.viz.focus(null).draw()
+          }
+          else {
+            vars.viz.focus(d[vars.id.key]).draw()
+          }
+
+        }
         else {
 
           var tooltip_data = d.data ? d.data : d

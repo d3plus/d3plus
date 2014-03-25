@@ -27,21 +27,6 @@ d3plus.apps.geo_map.draw = function(vars) {
     return true
   })
 
-  vars.mouse[d3plus.evt.click] = function(d) {
-
-    d3plus.tooltip.remove(vars.type.value)
-    vars.update = false
-
-    if (!d || d[vars.id.key] == vars.focus.value) {
-      vars.zoom.viewport = vars.zoom.bounds
-      vars.viz.focus(null).draw()
-    }
-    else {
-      vars.zoom.viewport = vars.path.bounds(d)
-      vars.viz.focus(d[vars.id.key]).draw()
-    }
-  }
-
   return features
 
 };
