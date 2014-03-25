@@ -115,6 +115,9 @@ d3plus.shape.edges = function(vars) {
 
     delete d.d3plus_label
 
+    d3.select(this.parentNode).selectAll("text.d3plus_label, rect.d3plus_label_bg")
+      .call(remove)
+
     if (vars.g.edges.selectAll("line, path").size() < vars.edges.large && vars.edges.label && d[vars.edges.label]) {
 
       if ("spline" in d.d3plus) {
@@ -180,9 +183,9 @@ d3plus.shape.edges = function(vars) {
         "background": true
       }
 
-    }
+      d3plus.shape.labels(vars,d3.select(this.parentNode))
 
-    d3plus.shape.labels(vars,d3.select(this.parentNode))
+    }
 
   }
 
