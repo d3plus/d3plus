@@ -5,7 +5,7 @@ d3plus.shape.draw = function(vars) {
 
   var data = vars.returned.nodes || [],
       edges = vars.returned.edges || []
-      
+
   vars.timing = data.length < vars.data.large && edges.length < vars.edges.large ? vars.style.timing.transitions : 0
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -388,8 +388,8 @@ d3plus.shape.draw = function(vars) {
         if (typeof vars.mouse == "function") {
           vars.mouse(d)
         }
-        else if (vars.mouse.over) {
-          vars.mouse.over(d)
+        else if (vars.mouse[d3plus.evt.over]) {
+          vars.mouse[d3plus.evt.over](d)
         }
 
         edge_update(d)
@@ -416,8 +416,8 @@ d3plus.shape.draw = function(vars) {
         if (typeof vars.mouse == "function") {
           vars.mouse(d)
         }
-        else if (vars.mouse.move) {
-          vars.mouse.move(d)
+        else if (vars.mouse[d3plus.evt.move]) {
+          vars.mouse[d3plus.evt.move](d)
         }
 
       }
@@ -443,8 +443,8 @@ d3plus.shape.draw = function(vars) {
         if (typeof vars.mouse == "function") {
           vars.mouse(d)
         }
-        else if (vars.mouse.out) {
-          vars.mouse.out(d)
+        else if (vars.mouse[d3plus.evt.out]) {
+          vars.mouse[d3plus.evt.out](d)
         }
 
         edge_update()
@@ -524,8 +524,8 @@ d3plus.shape.draw = function(vars) {
           if (typeof vars.mouse == "function") {
             vars.mouse(d)
           }
-          else if (vars.mouse.click) {
-            vars.mouse.click(d)
+          else if (vars.mouse[d3plus.evt.click]) {
+            vars.mouse[d3plus.evt.click](d)
           }
 
         }
