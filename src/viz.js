@@ -156,6 +156,7 @@ d3plus.viz = function() {
             run_steps()
           }
           else {
+            if (vars.dev.value) d3plus.console.groupEnd()
             vars.parent.style("cursor","auto")
           }
 
