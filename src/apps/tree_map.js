@@ -1,4 +1,5 @@
 d3plus.apps.tree_map = {}
+d3plus.apps.tree_map.modes = ["squarify","slice","dice","slice-dice"];
 d3plus.apps.tree_map.requirements = ["data","size"];
 d3plus.apps.tree_map.tooltip = "follow"
 d3plus.apps.tree_map.shapes = ["square"];
@@ -19,6 +20,7 @@ d3plus.apps.tree_map.draw = function(vars) {
   grouped_data = grouped_data.entries(vars.data.app)
 
   var data = d3.layout.treemap()
+    .mode(vars.type.mode.value)
     .round(true)
     .size([vars.app_width, vars.app_height])
     .children(function(d) { return d.values; })

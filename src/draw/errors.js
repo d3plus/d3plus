@@ -60,4 +60,20 @@ d3plus.draw.errors = function(vars) {
     d3plus.console.log("Defaulting shape to \""+vars.shape.value+"\"")
   }
 
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check to see if the requested app supports the set "mode"
+  //----------------------------------------------------------------------------
+  if ("modes" in d3plus.apps[vars.type.value]) {
+    if (!vars.type.mode.value) {
+      vars.type.mode.value = d3plus.apps[vars.type.value].modes[0]
+    }
+    else if (d3plus.apps[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
+      var modes = d3plus.apps[vars.type.value].modes.join("\", \"")
+      d3plus.console.warning("\""+vars.type.mode.value+"\" is not an accepted mode for the \""+vars.type.value+"\" app, please use one of the following: \""+modes+"\"")
+      vars.type.mode.previous = vars.type.mode.value
+      vars.type.mode.value = d3plus.apps[vars.type.value].modes[0]
+      d3plus.console.log("Defaulting mode to \""+vars.type.mode.value+"\"")
+    }
+  }
+
 }

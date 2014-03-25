@@ -30,6 +30,10 @@ d3plus.viz = function() {
     },
     "connections": function(focus,objects) {
 
+      if (!vars.edges.value) {
+        return []
+      }
+
       var edges = vars.edges.restricted || vars.edges.value,
           targets = []
 
@@ -474,13 +478,11 @@ d3plus.viz = function() {
 
           }
 
-          if (vars.dev.value || key == "dev") {
-            if (b == "value" || b == "key" || !b) {
-              var text = "\."+key+"()"
-            }
-            else {
-              var text = "\""+b+"\" of \."+key+"()"
-            }
+          if (b == "value" || b == "key" || !b) {
+            var text = "\."+key+"()"
+          }
+          else {
+            var text = "\""+b+"\" of \."+key+"()"
           }
 
           if ((b == "value" || b == "key") && a.accepted) {
