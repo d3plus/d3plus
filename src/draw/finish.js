@@ -78,7 +78,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   var data_req = d3plus.apps[vars.type.value].requirements.indexOf("data") >= 0,
       new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
-        ? 0 : vars.focus.value ? 0.25 : 1,
+        ? 0 : vars.focus.value ? 0.4 : 1,
       old_opacity = vars.group.attr("opacity")
 
   if (new_opacity != old_opacity) {
