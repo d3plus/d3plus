@@ -45,12 +45,16 @@ d3plus.draw.finish = function(vars) {
   // Create labels
   //----------------------------------------------------------------------------
   if (vars.update) {
-    if (vars.dev.value) d3plus.console.time("labels")
-    d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
-    d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
-    if (vars.dev.value) d3plus.console.timeEnd("labels")
+    if (vars.timing || (!d3plus.apps[vars.type.value].zoom && !vars.timing)) {
+      if (vars.dev.value) d3plus.console.time("data labels")
+      d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
+      if (vars.dev.value) d3plus.console.timeEnd("data labels")
+    }
   }
   if (d3plus.apps[vars.type.value].zoom) {
+    if (vars.dev.value) d3plus.console.time("focus labels")
+    d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
+    if (vars.dev.value) d3plus.console.timeEnd("focus labels")
     d3plus.zoom.labels(vars)
   }
 
