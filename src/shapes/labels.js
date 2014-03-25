@@ -38,10 +38,10 @@ d3plus.shape.labels = function(vars,selection) {
         var pos = t.x-width/2
       }
       else if ((align == "end" && !d3plus.rtl) || (align == "start" && d3plus.rtl)) {
-        var pos = t.x+t.w/2-width
+        var pos = t.x+(t.w-t.padding)/2-width
       }
       else {
-        var pos = t.x-t.w/2
+        var pos = t.x-(t.w-t.padding)/2
       }
 
       if (tspan) {
@@ -100,10 +100,10 @@ d3plus.shape.labels = function(vars,selection) {
             var y = t.y-height/2-diff/2
           }
           else if (align == "end") {
-            var y = t.y+t.h/2-height+diff/2
+            var y = t.y+(t.h-t.padding)/2-height+diff/2
           }
           else {
-            var y = t.y-t.h/2-diff
+            var y = t.y-(t.h-t.padding)/2-diff
           }
 
         }
@@ -139,8 +139,8 @@ d3plus.shape.labels = function(vars,selection) {
             d3plus.utils.wordwrap({
               "text": vars.format(t.text*100,"share")+"%",
               "parent": this,
-              "width": t.w*scale-label.padding,
-              "height": t.h*scale-label.padding,
+              "width": t.w*scale-t.padding,
+              "height": t.h*scale-t.padding,
               "resize": t.resize,
               "font_min": 9/scale,
               "font_max": 70*scale
@@ -159,8 +159,8 @@ d3plus.shape.labels = function(vars,selection) {
             d3plus.utils.wordwrap({
               "text": t.names,
               "parent": this,
-              "width": t.w*scale,
-              "height": height*scale,
+              "width": t.w*scale-t.padding,
+              "height": height*scale-t.padding,
               "font_max": 40*scale,
               "font_min": 9/scale,
               "resize": t.resize
@@ -216,8 +216,7 @@ d3plus.shape.labels = function(vars,selection) {
 
         if (share && d.d3plus.share && vars.style.labels.align != "middle") {
 
-          share.w -= (vars.style.labels.padding/scale)*2
-          share.h -= (vars.style.labels.padding/scale)*2
+          share.padding = (vars.style.labels.padding/scale)*2
 
           share.text = d.d3plus.share
           if (!("resize" in share)) {
@@ -269,7 +268,9 @@ d3plus.shape.labels = function(vars,selection) {
             .call(remove)
         }
 
-        label.padding = (vars.style.labels.padding/scale)*2
+        if (label) {
+          label.padding = (vars.style.labels.padding/scale)*2
+        }
 
         if (label && label.w*scale-label.padding >= 20 && label.h*scale-label.padding >= 10 && names.length) {
 
@@ -279,7 +280,7 @@ d3plus.shape.labels = function(vars,selection) {
           }
 
           label.share = share_size
-          
+
           var text = group.selectAll("text.d3plus_label")
             .data([label],function(t){
               if (!t) return false
