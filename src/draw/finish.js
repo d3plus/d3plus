@@ -50,6 +50,9 @@ d3plus.draw.finish = function(vars) {
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     if (vars.dev.value) d3plus.console.timeEnd("labels")
   }
+  if (d3plus.apps[vars.type.value].zoom) {
+    d3plus.zoom.labels(vars)
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check for Errors

@@ -316,7 +316,7 @@ d3plus.shape.draw = function(vars) {
           })
 
       if (vars.timing) {
-        console.log("here")
+        
         vars.g.edge_hover
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
@@ -513,7 +513,7 @@ d3plus.shape.draw = function(vars) {
 
         }
         else if (d3plus.apps[vars.type.value].zoom) {
-          
+
           d3plus.tooltip.remove(vars.type.value)
           vars.update = false
 

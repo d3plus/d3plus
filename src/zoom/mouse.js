@@ -30,6 +30,16 @@ d3plus.zoom.mouse = function(vars) {
   vars.zoom.translate = translate
   vars.zoom.scale = scale
 
+  if (d3.event.sourceEvent.type == "wheel") {
+    clearTimeout(vars.zoom.wheel)
+    vars.zoom.wheel = setTimeout(function(){
+      d3plus.zoom.labels(vars)
+    },500)
+  }
+  else {
+    d3plus.zoom.labels(vars)
+  }
+
   if (d3.event.sourceEvent.type == "dblclick") {
     d3plus.zoom.transform(vars,vars.style.timing.transitions)
   }

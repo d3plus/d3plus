@@ -81,6 +81,7 @@ JS_FILES = \
 	\
 	src/zoom/bounds.js \
 	src/zoom/controls.js \
+	src/zoom/labels.js \
 	src/zoom/mouse.js \
 	src/zoom/transform.js \
 	\

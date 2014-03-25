@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.shape.labels = function(vars,selection) {
 
-  var scale = vars.zoom_behavior.scaleExtent()[0]
+  var scale = vars.zoom_behavior.scaleExtent()[1]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Label Exiting
