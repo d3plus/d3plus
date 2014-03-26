@@ -189,16 +189,5 @@ d3plus.styles.default = {
     },
     "large": 250,
     "small": 200
-  },
-  "ui": {
-    "background": "#fff",
-    "border-color": "#aaa",
-    "border-width": 1,
-    "font-color": "#444",
-    "font-family": "sans-serif",
-    "font-size": 12,
-    "font-weight": "normal",
-    "hover": "#eee",
-    "padding": 5
   }
 }
