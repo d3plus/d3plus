@@ -5,7 +5,7 @@ d3plus.ui.history = function(vars) {
 
   if (!vars.small && vars.history.states.length > 0) {
 
-    var min_height = vars.style.ui["font-size"] + vars.style.ui.padding*4
+    var min_height = size + vars.style.labels.padding*4
     if (vars.margin.top < min_height) {
       vars.margin.top = min_height
     }
@@ -13,16 +13,28 @@ d3plus.ui.history = function(vars) {
     var button = vars.parent.selectAll("div#d3plus_back_button")
       .data(["d3plus_back_button"])
 
+    var size = vars.title.value
+      ? vars.style.title["font-size"] : vars.style.title.sub["font-size"]
+
+    var color = vars.title.sub.value
+      ? vars.style.title.sub["font-color"] : vars.style.title["font-color"]
+
+    var family = vars.title.sub.value
+      ? vars.style.title.sub["font-family"] : vars.style.title["font-family"]
+
+    var weight = vars.title.sub.value
+      ? vars.style.title.sub["font-weight"] : vars.style.title["font-weight"]
+
     function style(elem) {
 
         elem
           .style("position","absolute")
-          .style("left",vars.style.ui.padding*2+"px")
-          .style("top",vars.margin.top/2-vars.style.ui["font-size"]/2+"px")
-          .style("color", vars.style.ui["font-color"])
-          .style("font-family", vars.style.ui["font-family"])
-          .style("font-weight", vars.style.ui["font-weight"])
-          .style("font-size",vars.style.ui["font-size"]+"px")
+          .style("left",vars.style.labels.padding*2+"px")
+          .style("top",vars.margin.top/2-size/2+"px")
+          .style("color", color)
+          .style("font-family", family)
+          .style("font-weight", weight)
+          .style("font-size",size+"px")
           .style("z-index",2000)
 
     }
@@ -50,7 +62,7 @@ d3plus.ui.history = function(vars) {
         d3.select(this)
           .style("cursor","pointer")
           .transition().duration(vars.style.timing.mouseevents)
-            .style("color",d3plus.color.lighter(vars.style.ui["font-color"]))
+            .style("color",d3plus.color.lighter(color))
 
       })
       .on(d3plus.evt.out,function(){
@@ -58,7 +70,7 @@ d3plus.ui.history = function(vars) {
         d3.select(this)
           .style("cursor","auto")
           .transition().duration(vars.style.timing.mouseevents)
-            .style("color",vars.style.ui["font-color"])
+            .style("color",color)
 
       })
       .on(d3plus.evt.click,function(){
