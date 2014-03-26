@@ -56,7 +56,7 @@ d3plus.draw.finish = function(vars) {
       },vars.timing)
     }
   }
-  if (!vars.timing || (d3plus.apps[vars.type.value].zoom && vars.timing)) {
+  if (d3plus.apps[vars.type.value].zoom) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     setTimeout(function(){
