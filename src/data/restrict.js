@@ -85,8 +85,8 @@ d3plus.data.restrict = function(vars) {
       if (vars.edges.value) {
         if (vars.dev.value) d3plus.console.log("Filtering Connections")
         vars.edges.restricted = vars.edges.value.filter(function(d){
-          var first_match = nest_check(d.source),
-              second_match = nest_check(d.target)
+          var first_match = nest_check(d[vars.edges.source]),
+              second_match = nest_check(d[vars.edges.target])
           return first_match && second_match
         })
       }

@@ -291,8 +291,8 @@ d3plus.shape.draw = function(vars) {
         .each(function(l){
 
           var id = d[vars.id.key],
-              source = l.source[vars.id.key],
-              target = l.target[vars.id.key]
+              source = l[vars.edges.source][vars.id.key],
+              target = l[vars.edges.target][vars.id.key]
 
           if (source == id || target == id) {
             vars.g.edge_hover.node().appendChild(this.cloneNode(true))

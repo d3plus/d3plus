@@ -112,28 +112,28 @@ d3plus.apps.network.draw = function(vars) {
 
   edges.forEach(function(l,i){
 
-    l.source = d3plus.utils.copy(l.source)
-    l.source.d3plus = {}
+    l[vars.edges.source] = d3plus.utils.copy(l[vars.edges.source])
+    l[vars.edges.source].d3plus = {}
 
-    var source = lookup[l.source[vars.id.key]]
-    l.source.d3plus.x = source.x
-    l.source.d3plus.y = source.y
+    var source = lookup[l[vars.edges.source][vars.id.key]]
+    l[vars.edges.source].d3plus.x = source.x
+    l[vars.edges.source].d3plus.y = source.y
 
-    l.target = d3plus.utils.copy(l.target)
-    l.target.d3plus = {}
+    l[vars.edges.target] = d3plus.utils.copy(l[vars.edges.target])
+    l[vars.edges.target].d3plus = {}
 
-    var target = lookup[l.target[vars.id.key]]
-    l.target.d3plus.x = target.x
-    l.target.d3plus.y = target.y
+    var target = lookup[l[vars.edges.target][vars.id.key]]
+    l[vars.edges.target].d3plus.x = target.x
+    l[vars.edges.target].d3plus.y = target.y
 
     var angle = Math.atan2(source.y-target.y,source.x-target.x)
 
     var source_offset = d3plus.utils.offset(angle,source.r,vars.shape.value)
-    l.source.d3plus.x -= source_offset.x
-    l.source.d3plus.y -= source_offset.y
+    l[vars.edges.source].d3plus.x -= source_offset.x
+    l[vars.edges.source].d3plus.y -= source_offset.y
     var target_offset = d3plus.utils.offset(angle,target.r,vars.shape.value)
-    l.target.d3plus.x += target_offset.x
-    l.target.d3plus.y += target_offset.y
+    l[vars.edges.target].d3plus.x += target_offset.x
+    l[vars.edges.target].d3plus.y += target_offset.y
 
   })
 

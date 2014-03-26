@@ -98,6 +98,8 @@ d3plus.public.edges = {
   "label": false,
   "large": 100,
   "limit": false,
+  "source": "source",
+  "target": "target",
   "value": null
 }
 

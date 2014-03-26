@@ -202,14 +202,18 @@ d3plus.shape.labels = function(vars,selection) {
           share_size = 0,
           fill = d3plus.apps[vars.type.value].fill
 
-      if (["line","area"].indexOf(vars.shape.value) >= 0) {
-        var background = true
-      }
-      else {
-        var active = vars.active.key ? d.d3plus[vars.active.key] : d.d3plus.active,
-            temp = vars.temp.key ? d.d3plus[vars.temp.key] : d.d3plus.temp,
-            total = vars.total.key ? d.d3plus[vars.total.key] : d.d3plus.total,
-            background = (!temp && !active) || (active == total)
+      if (label) {
+
+        if (["line","area"].indexOf(vars.shape.value) >= 0) {
+          var background = true
+        }
+        else if (d && "d3plus" in d) {
+          var active = vars.active.key ? d.d3plus[vars.active.key] : d.d3plus.active,
+              temp = vars.temp.key ? d.d3plus[vars.temp.key] : d.d3plus.temp,
+              total = vars.total.key ? d.d3plus[vars.total.key] : d.d3plus.total,
+              background = (!temp && !active) || (active == total)
+        }
+
       }
 
       if (!disabled && (background || !fill) && !stat) {
@@ -271,7 +275,7 @@ d3plus.shape.labels = function(vars,selection) {
         if (label) {
           label.padding = (vars.style.labels.padding/scale[1])*2
         }
-        
+
         if (label && label.w*scale[1]-label.padding >= 20 && label.h*scale[1]-label.padding >= 10 && names.length) {
 
           label.names = names

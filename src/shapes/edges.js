@@ -50,16 +50,16 @@ d3plus.shape.edges = function(vars) {
   function line(l) {
     l
       .attr("x1",function(d){
-        return d.source.d3plus.x
+        return d[vars.edges.source].d3plus.x
       })
       .attr("y1",function(d){
-        return d.source.d3plus.y
+        return d[vars.edges.source].d3plus.y
       })
       .attr("x2",function(d){
-        return d.target.d3plus.x
+        return d[vars.edges.target].d3plus.x
       })
       .attr("y2",function(d){
-        return d.target.d3plus.y
+        return d[vars.edges.target].d3plus.y
       })
   }
 
@@ -76,20 +76,26 @@ d3plus.shape.edges = function(vars) {
   function spline(l) {
     l
       .attr("d", function(d) {
-        if (d.source.d3plus.r) {
-          var x1 = d.source.d3plus.a,
-              y1 = d.source.d3plus.r,
-              x2 = d.target.d3plus.a,
-              y2 = d.target.d3plus.r
-          return radial({"source":{"x":x1,"y":y1},"target":{"x":x2,"y":y2}});
+        if (d[vars.edges.source].d3plus.r) {
+          var x1 = d[vars.edges.source].d3plus.a,
+              y1 = d[vars.edges.source].d3plus.r,
+              x2 = d[vars.edges.target].d3plus.a,
+              y2 = d[vars.edges.target].d3plus.r
+          var obj = {}
+          obj[vars.edges.source] = {"x":x1,"y":y1}
+          obj[vars.edges.target] = {"x":x2,"y":y2}
+          return radial(obj);
 
         }
         else {
-          var x1 = d.source.d3plus.x,
-              y1 = d.source.d3plus.y,
-              x2 = d.target.d3plus.x,
-              y2 = d.target.d3plus.y
-          return diagonal({"source":{"x":x1,"y":y1},"target":{"x":x2,"y":y2}});
+          var x1 = d[vars.edges.source].d3plus.x,
+              y1 = d[vars.edges.source].d3plus.y,
+              x2 = d[vars.edges.target].d3plus.x,
+              y2 = d[vars.edges.target].d3plus.y
+          var obj = {}
+          obj[vars.edges.source] = {"x":x1,"y":y1}
+          obj[vars.edges.target] = {"x":x2,"y":y2}
+          return diagonal(obj);
         }
       })
       .attr("transform",function(d){
@@ -138,8 +144,8 @@ d3plus.shape.edges = function(vars) {
       else {
 
         var bounds = this.getBBox()
-            start = {"x": d.source.d3plus.x, "y": d.source.d3plus.y},
-            end = {"x": d.target.d3plus.x, "y": d.target.d3plus.y},
+            start = {"x": d[vars.edges.source].d3plus.x, "y": d[vars.edges.source].d3plus.y},
+            end = {"x": d[vars.edges.target].d3plus.x, "y": d[vars.edges.target].d3plus.y},
             xdiff = end.x-start.x,
             ydiff = end.y-start.y,
             center = {"x": end.x-(xdiff)/2, "y": end.y-(ydiff)/2},
@@ -165,7 +171,7 @@ d3plus.shape.edges = function(vars) {
       if (angle < -90 || angle > 90) {
         angle -= 180
       }
-      
+
       d.d3plus_label = {
         "x": x,
         "y": y,
@@ -268,7 +274,7 @@ d3plus.shape.edges = function(vars) {
 
   var lines = vars.g.edges.selectAll("g.d3plus_edge_line")
     .data(line_data,function(d){
-      return d.source[vars.id.key]+"_"+d.target[vars.id.key]
+      return d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
     })
 
   var spline_data = edges.filter(function(l){
@@ -277,7 +283,7 @@ d3plus.shape.edges = function(vars) {
 
   var splines = vars.g.edges.selectAll("g.d3plus_edge_path")
     .data(spline_data,function(d){
-      return d.source[vars.id.key]+"_"+d.target[vars.id.key]
+      return d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
     })
 
   if (vars.timing) {

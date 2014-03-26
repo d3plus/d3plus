@@ -20,8 +20,8 @@ d3plus.viz = function() {
     "connected": function(edge) {
       var focus = vars.focus.value
       if (focus) {
-        var source = edge.source[vars.id.key],
-            target = edge.target[vars.id.key]
+        var source = edge[vars.edges.source][vars.id.key],
+            target = edge[vars.edges.target][vars.id.key]
         if (source == focus || target == focus) {
           return true
         }
@@ -43,19 +43,18 @@ d3plus.viz = function() {
 
       var connections = edges.filter(function(edge){
 
-        var check = ["source","target"],
-            match = false
+        var match = false
 
-        if (edge.source[vars.id.key] == focus) {
+        if (edge[vars.edges.source][vars.id.key] == focus) {
           match = true
           if (objects) {
-            targets.push(edge.target)
+            targets.push(edge[vars.edges.target])
           }
         }
-        else if (edge.target[vars.id.key] == focus) {
+        else if (edge[vars.edges.target][vars.id.key] == focus) {
           match = true
           if (objects) {
-            targets.push(edge.source)
+            targets.push(edge[vars.edges.source])
           }
         }
 

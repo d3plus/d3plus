@@ -1,6 +1,6 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
-//-------------------------------------------------------------------
+//------------------------------------------------------------------------------
 d3plus.ui.legend = function(vars) {
 
   var key_display = true,
@@ -11,10 +11,10 @@ d3plus.ui.legend = function(vars) {
 
     if (vars.dev.value) d3plus.console.group("Calculating Legend")
 
-    if (key in vars.data.keys) {
+    if (vars.data.keys && key in vars.data.keys) {
       var color_type = vars.data.keys[key]
     }
-    else if (key in vars.attrs.keys) {
+    else if (vars.attrs.keys && key in vars.attrs.keys) {
       var color_type = vars.attrs.keys[key]
     }
     else {
@@ -64,7 +64,7 @@ d3plus.ui.legend = function(vars) {
               // console.log(c,val,vars.id.nesting[i])
               if (val && parents.indexOf(val) < 0) parents.push(val)
             })
-            
+
             if (parents.length == 1) {
 
               var name = d3plus.variable.text(vars,parents[0],i)

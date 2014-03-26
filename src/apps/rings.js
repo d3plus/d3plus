@@ -27,7 +27,7 @@ d3plus.apps.rings.draw = function(vars) {
   var primaries = [], claimed = []
   vars.connections(vars.focus.value).forEach(function(edge){
 
-    var c = edge.source[vars.id.key] == vars.focus.value ? edge.target : edge.source
+    var c = edge[vars.edges.source][vars.id.key] == vars.focus.value ? edge[vars.edges.target] : edge[vars.edges.source]
     var n = vars.data.app.filter(function(d){
       return d[vars.id.key] == c[vars.id.key]
     })[0]
@@ -36,7 +36,7 @@ d3plus.apps.rings.draw = function(vars) {
       n[vars.id.key] = c[vars.id.key]
     }
     n.d3plus.edges = vars.connections(n[vars.id.key]).filter(function(c){
-      return c.source[vars.id.key] != vars.focus.value && c.target[vars.id.key] != vars.focus.value
+      return c[vars.edges.source][vars.id.key] != vars.focus.value && c[vars.edges.target][vars.id.key] != vars.focus.value
     })
     n.d3plus.edge = edge
     claimed.push(n[vars.id.key])
@@ -122,12 +122,12 @@ d3plus.apps.rings.draw = function(vars) {
   var secondaries = [], total = 0
   primaries.forEach(function(p){
     p.d3plus.edges = p.d3plus.edges.filter(function(c){
-      return (claimed.indexOf(c.source[vars.id.key]) < 0 && c.target[vars.id.key] == p[vars.id.key])
-          || (claimed.indexOf(c.target[vars.id.key]) < 0 && c.source[vars.id.key] == p[vars.id.key])
+      return (claimed.indexOf(c[vars.edges.source][vars.id.key]) < 0 && c[vars.edges.target][vars.id.key] == p[vars.id.key])
+          || (claimed.indexOf(c[vars.edges.target][vars.id.key]) < 0 && c[vars.edges.source][vars.id.key] == p[vars.id.key])
     })
     total += p.d3plus.edges.length || 1
     p.d3plus.edges.forEach(function(c){
-      var claim = c.target[vars.id.key] == p[vars.id.key] ? c.source : c.target
+      var claim = c[vars.edges.target][vars.id.key] == p[vars.id.key] ? c[vars.edges.source] : c[vars.edges.target]
       claimed.push(claim[vars.id.key])
     })
   })
@@ -156,7 +156,7 @@ d3plus.apps.rings.draw = function(vars) {
     p.d3plus.y = vars.app_height/2 + (ring_width * Math.sin(angle))
     p.d3plus.r = 8
 
-    var check = ["source","target"]
+    var check = [vars.edges.source,vars.edges.target]
 
     check.forEach(function(node){
       if (p.d3plus.edge[node][vars.id.key] == center[vars.id.key]) {
@@ -188,8 +188,8 @@ d3plus.apps.rings.draw = function(vars) {
     offset += space
     p.d3plus.edges.sort(function(a,b){
 
-      var a = a.source[vars.id.key] == p[vars.id.key] ? a.target : a.source,
-          b = b.source[vars.id.key] == p[vars.id.key] ? b.target : b.source
+      var a = a[vars.edges.source][vars.id.key] == p[vars.id.key] ? a[vars.edges.target] : a[vars.edges.source],
+          b = b[vars.edges.source][vars.id.key] == p[vars.id.key] ? b[vars.edges.target] : b[vars.edges.source]
 
       return sort_function(a,b)
 
@@ -197,7 +197,7 @@ d3plus.apps.rings.draw = function(vars) {
 
     p.d3plus.edges.forEach(function(edge,i){
 
-      var c = edge.source[vars.id.key] == p[vars.id.key] ? edge.target : edge.source,
+      var c = edge[vars.edges.source][vars.id.key] == p[vars.id.key] ? edge[vars.edges.target] : edge[vars.edges.source],
           s = radian/total
 
       var d = vars.data.app.filter(function(a){
@@ -223,7 +223,7 @@ d3plus.apps.rings.draw = function(vars) {
 
     vars.connections(p[vars.id.key]).forEach(function(edge){
 
-      var c = edge.source[vars.id.key] == p[vars.id.key] ? edge.target : edge.source
+      var c = edge[vars.edges.source][vars.id.key] == p[vars.id.key] ? edge[vars.edges.target] : edge[vars.edges.source]
 
       if (c[vars.id.key] != center[vars.id.key]) {
 
@@ -251,7 +251,7 @@ d3plus.apps.rings.draw = function(vars) {
             }
           }
 
-          var check = ["source","target"]
+          var check = [vars.edges.source,vars.edges.target]
 
           check.forEach(function(node){
             if (edge[node][vars.id.key] == p[vars.id.key]) {

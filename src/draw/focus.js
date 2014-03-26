@@ -21,8 +21,8 @@ d3plus.draw.focus = function(vars) {
 
       edges.each(function(l){
 
-          var source = l.source[vars.id.key],
-              target = l.target[vars.id.key]
+          var source = l[vars.edges.source][vars.id.key],
+              target = l[vars.edges.target][vars.id.key]
 
           if (source == vars.focus.value || target == vars.focus.value) {
             var elem = vars.g.edge_focus.node().appendChild(this.cloneNode(true))
