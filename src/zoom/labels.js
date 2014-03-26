@@ -14,7 +14,7 @@ d3plus.zoom.labels = function(vars) {
       .attr("opacity",function(d){
         if (!d) var d = {}
         var size = parseFloat(d3.select(this).attr("font-size"),10)
-        d.visible = size/max_scale*vars.zoom.scale >= 9
+        d.visible = size/max_scale*vars.zoom.scale >= 7
         return d.visible ? 1 : 0
       })
 
@@ -25,7 +25,7 @@ d3plus.zoom.labels = function(vars) {
       .attr("opacity",function(d){
         if (!d) var d = {}
         var size = parseFloat(d3.select(this).attr("font-size"),10)
-        d.visible = size/max_scale*vars.zoom.scale >= 9
+        d.visible = size/max_scale*vars.zoom.scale >= 7
         return d.visible ? 1 : 0
       })
 
