@@ -27,7 +27,8 @@ d3plus.forms = function(passed) {
     "propagation": true,
     "selected": false,
     "text": "text",
-    "timing": 400
+    "timing": 400,
+    "update": true
   }
 
   var styles = {
@@ -46,7 +47,6 @@ d3plus.forms = function(passed) {
     "secondary": d3plus.color.darker("#ffffff",0.05),
     "shadow": 5,
     "stroke": 1,
-    "update": true,
     "width": false
   }
 
@@ -110,14 +110,14 @@ d3plus.forms = function(passed) {
     // If it data is not an object, extract data from the element associated with it
     //--------------------------------------------------------------------------
     else if (vars.data && !vars.data.array) {
-
+      
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.element = d3.selectAll(vars.data)
         if (vars.data.charAt(0) == "#") {
           vars.before = vars.data
         }
       }
-      else if (d3plus.utils.d3selection(vars.data.select)) {
+      else if (d3plus.utils.d3selection(vars.data)) {
         vars.element = vars.data
         if (vars.data.node().id) {
           vars.before = "#"+vars.data.node().id
