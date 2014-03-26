@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.shape.labels = function(vars,selection) {
 
-  var scale = vars.zoom_behavior.scaleExtent()[1]
+  var scale = vars.zoom_behavior.scaleExtent()
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Label Exiting
@@ -32,7 +32,7 @@ d3plus.shape.labels = function(vars,selection) {
       var align = t.anchor || vars.style.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "d3plus_share" : this.className.baseVal == "d3plus_share",
-          width = d3.select(this).node().getComputedTextLength()/scale
+          width = d3.select(this).node().getComputedTextLength()/scale[1]
 
       if (align == "middle" || share) {
         var pos = t.x-width/2
@@ -45,7 +45,7 @@ d3plus.shape.labels = function(vars,selection) {
       }
 
       if (tspan) {
-        var t_width = this.getComputedTextLength()/scale
+        var t_width = this.getComputedTextLength()/scale[1]
         if (align == "middle") {
           if (d3plus.rtl) {
             pos -= (width-t_width)/2
@@ -68,7 +68,7 @@ d3plus.shape.labels = function(vars,selection) {
         pos += width
       }
 
-      return pos*scale
+      return pos*scale[1]
 
     }
 
@@ -80,13 +80,13 @@ d3plus.shape.labels = function(vars,selection) {
       else {
 
         var align = vars.style.labels.align,
-            height = d3.select(this).node().getBBox().height/scale,
-            diff = (parseFloat(d3.select(this).style("font-size"),10)/5)/scale
+            height = d3.select(this).node().getBBox().height/scale[1],
+            diff = (parseFloat(d3.select(this).style("font-size"),10)/5)/scale[1]
 
         if (this.className.baseVal == "d3plus_share") {
           var data = d3.select(this.parentNode).datum()
           var pheight = data.d3plus.r ? data.d3plus.r*2 : data.d3plus.height
-          pheight = pheight/scale
+          pheight = pheight/scale[1]
           if (align == "end") {
             var y = t.y-pheight/2+diff/2
           }
@@ -108,7 +108,7 @@ d3plus.shape.labels = function(vars,selection) {
 
         }
 
-        return y*scale
+        return y*scale[1]
 
       }
     }
@@ -139,11 +139,11 @@ d3plus.shape.labels = function(vars,selection) {
             d3plus.utils.wordwrap({
               "text": vars.format(t.text*100,"share")+"%",
               "parent": this,
-              "width": t.w*scale-t.padding,
-              "height": t.h*scale-t.padding,
+              "width": t.w*scale[1]-t.padding,
+              "height": t.h*scale[1]-t.padding,
               "resize": t.resize,
-              "font_min": 9/scale,
-              "font_max": 70*scale
+              "font_min": 9/scale[1],
+              "font_max": 70*scale[1]
             })
 
           }
@@ -159,10 +159,10 @@ d3plus.shape.labels = function(vars,selection) {
             d3plus.utils.wordwrap({
               "text": t.names,
               "parent": this,
-              "width": t.w*scale-t.padding,
-              "height": height*scale-t.padding,
-              "font_max": 40*scale,
-              "font_min": 9/scale,
+              "width": t.w*scale[1]-t.padding,
+              "height": height*scale[1]-t.padding,
+              "font_max": 40*scale[1],
+              "font_min": 9/scale[1],
               "resize": t.resize
             })
 
@@ -180,7 +180,7 @@ d3plus.shape.labels = function(vars,selection) {
             x = t.translate && t.translate.x || 0,
             y = t.translate && t.translate.y || 0
 
-        return "rotate("+a+","+x+","+y+")scale("+1/scale+")"
+        return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")"
       })
       .selectAll("tspan")
         .attr("x",x_pos)
@@ -216,7 +216,7 @@ d3plus.shape.labels = function(vars,selection) {
 
         if (share && d.d3plus.share && vars.style.labels.align != "middle") {
 
-          share.padding = (vars.style.labels.padding/scale)*2
+          share.padding = (vars.style.labels.padding/scale[1])*2
 
           share.text = d.d3plus.share
           if (!("resize" in share)) {
@@ -235,7 +235,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size)
+              .attr("font-size",vars.style.labels.font.size*scale[0])
               .attr("class","d3plus_share")
               .attr("opacity",0)
               .call(style,true)
@@ -251,7 +251,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size)
+              .attr("font-size",vars.style.labels.font.size*scale[0])
               .attr("class","d3plus_share")
               .attr("opacity",0.5)
               .call(style,true)
@@ -269,10 +269,10 @@ d3plus.shape.labels = function(vars,selection) {
         }
 
         if (label) {
-          label.padding = (vars.style.labels.padding/scale)*2
+          label.padding = (vars.style.labels.padding/scale[1])*2
         }
-
-        if (label && label.w*scale-label.padding >= 20 && label.h*scale-label.padding >= 10 && names.length) {
+        
+        if (label && label.w*scale[1]-label.padding >= 20 && label.h*scale[1]-label.padding >= 10 && names.length) {
 
           label.names = names
           if (!("resize" in label)) {
@@ -294,7 +294,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size)
+              .attr("font-size",vars.style.labels.font.size*scale[0])
               .attr("class","d3plus_label")
               .attr("opacity",0)
               .call(style,true)
@@ -310,7 +310,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size)
+              .attr("font-size",vars.style.labels.font.size*scale[0])
               .attr("class","d3plus_label")
               .call(style,true)
               .attr("opacity",1)
@@ -331,10 +331,10 @@ d3plus.shape.labels = function(vars,selection) {
 
               var bounds = text.node().getBBox()
 
-              bounds.width += vars.style.labels.padding
-              bounds.height += vars.style.labels.padding
-              bounds.x -= vars.style.labels.padding/2
-              bounds.y -= vars.style.labels.padding/2
+              bounds.width += vars.style.labels.padding*scale[0]
+              bounds.height += vars.style.labels.padding*scale[0]
+              bounds.x -= (vars.style.labels.padding*scale[0])/2
+              bounds.y -= (vars.style.labels.padding*scale[0])/2
 
             }
             else {
@@ -352,7 +352,7 @@ d3plus.shape.labels = function(vars,selection) {
                   a = label.angle || 0,
                   x = label.translate ? bounds.x+bounds.width/2 : 0,
                   y = label.translate ? bounds.y+bounds.height/2 : 0,
-                  transform = "scale("+1/scale+")rotate("+a+","+x+","+y+")"
+                  transform = "scale("+1/scale[1]+")rotate("+a+","+x+","+y+")"
 
               elem
                 .attr("fill",fill)

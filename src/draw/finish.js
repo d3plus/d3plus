@@ -49,11 +49,19 @@ d3plus.draw.finish = function(vars) {
       if (vars.dev.value) d3plus.console.time("data labels")
       d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
       if (vars.dev.value) d3plus.console.timeEnd("data labels")
+      setTimeout(function(){
+        if (vars.dev.value) d3plus.console.time("edge labels")
+        d3plus.shape.labels(vars,vars.g.edges.selectAll("g"))
+        if (vars.dev.value) d3plus.console.timeEnd("edge labels")
+      },vars.timing)
     }
   }
-  if (d3plus.apps[vars.type.value].zoom) {
+  if (!vars.timing || (d3plus.apps[vars.type.value].zoom && vars.timing)) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
+    setTimeout(function(){
+      d3plus.shape.labels(vars,vars.g.edge_focus.selectAll("g"))
+    },vars.timing)
     if (vars.dev.value) d3plus.console.timeEnd("focus labels")
     d3plus.zoom.labels(vars)
   }

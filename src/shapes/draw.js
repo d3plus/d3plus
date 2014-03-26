@@ -315,6 +315,9 @@ d3plus.shape.draw = function(vars) {
             return vars.edges.arrows.direction.value == "target" ? marker : "none"
           })
 
+      vars.g.edge_hover.selectAll("text")
+        .style("fill",vars.style.highlight.primary)
+
       if (vars.timing) {
 
         vars.g.edge_hover
@@ -513,7 +516,7 @@ d3plus.shape.draw = function(vars) {
 
         }
         else if (d3plus.apps[vars.type.value].zoom) {
-          
+
           d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)

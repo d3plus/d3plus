@@ -115,9 +115,6 @@ d3plus.shape.edges = function(vars) {
 
     delete d.d3plus_label
 
-    d3.select(this.parentNode).selectAll("text.d3plus_label, rect.d3plus_label_bg")
-      .call(remove)
-
     if (vars.g.edges.selectAll("line, path").size() < vars.edges.large && vars.edges.label && d[vars.edges.label]) {
 
       if ("spline" in d.d3plus) {
@@ -149,7 +146,7 @@ d3plus.shape.edges = function(vars) {
             radians = Math.atan2(ydiff,xdiff),
             angle = radians*(180/Math.PI),
             length = Math.sqrt((xdiff*xdiff)+(ydiff*ydiff)),
-            width = length-(vars.style.labels.padding*2),
+            width = length,
             x = center.x,
             y = center.y,
             translate = {
@@ -161,29 +158,28 @@ d3plus.shape.edges = function(vars) {
 
       if (vars.edges.arrows.value) {
         var m = typeof vars.edges.arrows.value == "number" ? typeof vars.edges.arrows.value == "number" : 8
+        m = m/vars.zoom_behavior.scaleExtent()[1]
         width -= m*2
       }
 
       if (angle < -90 || angle > 90) {
         angle -= 180
       }
-
+      
       d.d3plus_label = {
         "x": x,
         "y": y,
         "translate": translate,
-        "w": width+vars.style.labels.padding*2,
-        "h": 15+vars.style.labels.padding*2,
+        "w": width,
+        "h": 15,
         "angle": angle,
         "anchor": "middle",
         "valign": "center",
-        "color": d3plus.color.legible(vars.style.edges.color),
+        "color": vars.style.edges.color,
         "resize": false,
         "names": [vars.format(d[vars.edges.label])],
         "background": true
       }
-
-      d3plus.shape.labels(vars,d3.select(this.parentNode))
 
     }
 
@@ -213,7 +209,7 @@ d3plus.shape.edges = function(vars) {
           return vars.style.edges.color
         }
         else if (d == "focus") {
-          return d3plus.color.darker(vars.style.edges.color,.5)
+          return vars.style.highlight.focus
         }
         else {
           return vars.style.highlight.primary

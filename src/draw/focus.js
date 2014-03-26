@@ -25,7 +25,8 @@ d3plus.draw.focus = function(vars) {
               target = l.target[vars.id.key]
 
           if (source == vars.focus.value || target == vars.focus.value) {
-            vars.g.edge_focus.node().appendChild(this.cloneNode(true))
+            var elem = vars.g.edge_focus.node().appendChild(this.cloneNode(true))
+            var elem = d3.select(elem).datum(l).attr("opacity",1)
           }
 
         })
@@ -33,17 +34,19 @@ d3plus.draw.focus = function(vars) {
 
       var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_focus)" : "none"
 
-      vars.g.edge_focus
-        .selectAll("line, path")
-          .attr("vector-effect","non-scaling-stroke")
-          .style("stroke",d3plus.color.darker(vars.style.edges.color,.5))
-          .style("stroke-width",vars.style.data.stroke.width*2)
-          .attr("marker-start",function(){
-            return vars.edges.arrows.direction.value == "source" ? marker : "none"
-          })
-          .attr("marker-end",function(){
-            return vars.edges.arrows.direction.value == "target" ? marker : "none"
-          })
+      vars.g.edge_focus.selectAll("line, path")
+        .attr("vector-effect","non-scaling-stroke")
+        .style("stroke",vars.style.highlight.focus)
+        .style("stroke-width",vars.style.data.stroke.width*2)
+        .attr("marker-start",function(){
+          return vars.edges.arrows.direction.value == "source" ? marker : "none"
+        })
+        .attr("marker-end",function(){
+          return vars.edges.arrows.direction.value == "target" ? marker : "none"
+        })
+
+      vars.g.edge_focus.selectAll("text")
+        .style("fill",vars.style.highlight.focus)
 
     }
 
