@@ -34,7 +34,9 @@ d3plus.ui.focus = function(vars) {
       "width": vars.style.tooltip.large
     })
 
-    vars.app_width -= (vars.style.tooltip.large+offset*2)
+    if(!d3.select("div#d3plus_tooltip_id_"+vars.type.value+"_focus").empty()) {
+      vars.app_width -= (vars.style.tooltip.large+offset*2)
+    }
 
   }
   else {
