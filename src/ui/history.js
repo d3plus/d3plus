@@ -10,71 +10,37 @@ d3plus.ui.history = function(vars) {
       vars.margin.top = min_height
     }
 
-    var button = vars.svg.selectAll("g#d3plus_history")
-      .data(["history"])
+    var button = vars.parent.selectAll("div#d3plus_back_button")
+      .data(["d3plus_back_button"])
 
-    function text_style(elem) {
+    function style(elem) {
 
         elem
-          .attr("x",vars.style.ui.padding*2)
-          .attr("y",vars.margin.top/2-vars.style.ui["font-size"]/2)
-          .attr("font-size",vars.style.ui["font-size"]+"px")
-          .attr("dy",vars.style.ui["font-size"]+"px")
-          .attr("fill", vars.style.ui["font-color"])
-          .attr("text-anchor", "start")
-          .attr("font-family", vars.style.ui["font-family"])
+          .style("position","absolute")
+          .style("left",vars.style.ui.padding*2+"px")
+          .style("top",vars.margin.top/2-vars.style.ui["font-size"]/2+"px")
+          .style("color", vars.style.ui["font-color"])
+          .style("font-family", vars.style.ui["font-family"])
           .style("font-weight", vars.style.ui["font-weight"])
+          .style("font-size",vars.style.ui["font-size"]+"px")
+          .style("z-index",2000)
 
     }
 
-    function rect_style(elem) {
-
-        var text = button.select("text").node().getBBox()
-
-        elem
-          .attr("x",text.x - vars.style.ui.padding)
-          .attr("y",text.y - vars.style.ui.padding)
-          .attr("width",text.width + (vars.style.ui.padding*2))
-          .attr("height",text.height + (vars.style.ui.padding*2))
-          .attr("fill", vars.style.ui.background)
-          .attr("stroke", vars.style.ui["border-color"])
-          .attr("stroke-width", vars.style.ui["border-width"])
-          .attr("shape-rendering",vars.style.rendering)
-
-    }
-
-    var enter = button.enter().append("g")
-      .attr("id","d3plus_history")
-      .attr("opacity",0)
-
-    enter.append("rect")
-
-    enter.append("text")
-      .call(text_style)
-      .each(function(){
+    var enter = button.enter().append("div")
+      .attr("id","d3plus_back_button")
+      .style("opacity",0)
+      .call(style)
+      .html(function(){
 
         if (d3plus.fonts.awesome) {
-          var arrow = "&#xf104 "
+          var arrow = "<span style='font-family:FontAwesome;margin-right:5px;'>&#xf104</span>"
         }
         else {
           var arrow = "&laquo; "
         }
 
-        var tspans = d3.select(this).selectAll("tspan")
-          .data([arrow,vars.format("Back")])
-
-        tspans.enter().append("tspan")
-
-        tspans
-          .html(String)
-          .attr("font-family",function(d,i){
-            if (i == 0 && d3plus.fonts.awesome) {
-              return "FontAwesome"
-            }
-            return vars.style.ui["font-family"]
-          })
-
-        button.select("rect").call(rect_style)
+        return arrow+vars.format("Back")
 
       })
 
@@ -83,18 +49,16 @@ d3plus.ui.history = function(vars) {
 
         d3.select(this)
           .style("cursor","pointer")
-          .select("rect")
           .transition().duration(vars.style.timing.mouseevents)
-            .attr("fill",vars.style.ui.hover)
+            .style("color",d3plus.color.lighter(vars.style.ui["font-color"]))
 
       })
       .on(d3plus.evt.out,function(){
 
         d3.select(this)
           .style("cursor","auto")
-          .select("rect")
           .transition().duration(vars.style.timing.mouseevents)
-            .attr("fill",vars.style.ui.background)
+            .style("color",vars.style.ui["font-color"])
 
       })
       .on(d3plus.evt.click,function(){
@@ -103,22 +67,14 @@ d3plus.ui.history = function(vars) {
 
       })
       .transition().duration(vars.style.timing.transitions)
-        .attr("opacity",1)
-
-    button.select("text")
-      .transition().duration(vars.style.timing.transitions)
-      .call(text_style)
-
-    button.select("rect")
-      .transition().duration(vars.style.timing.transitions)
-      .delay(vars.style.timing.transitions)
-      .call(rect_style)
+        .style("opacity",1)
+        .call(style)
 
   }
   else {
-    vars.svg.selectAll("g#d3plus_history")
+    vars.parent.selectAll("div#d3plus_back_button")
       .transition().duration(vars.style.timing.transitions)
-      .attr("opacity",0)
+      .style("opacity",0)
       .remove()
   }
 
