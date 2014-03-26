@@ -16,7 +16,7 @@ d3plus.styles.default = {
   },
   "edges": {
     "arrows": 8,
-    "color": "#dedede",
+    "color": "#d0d0d0",
     "opacity": 1,
     "width": 1
   },
@@ -39,6 +39,7 @@ d3plus.styles.default = {
     "background": true,
   },
   "highlight": {
+    "focus": "#444444",
     "primary": "#cc0000",
     "secondary": "#ffdddd"
   },
