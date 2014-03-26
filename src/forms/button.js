@@ -261,6 +261,66 @@ d3plus.forms.button = function(vars,styles,timing) {
 
   }
 
+  function mouseevents(elem) {
+
+    elem
+      .on(d3plus.evt.over,function(d,i){
+
+        vars.hover = d.value
+
+        if (vars.data.array.length == 1 || d.value != vars.highlight) {
+
+          if (d3plus.ie || vars.timing == 0) {
+
+            d3.select(this).style("cursor","pointer")
+              .call(color)
+
+          }
+          else {
+
+            d3.select(this).style("cursor","pointer")
+              .transition().duration(100)
+              .call(color)
+          }
+
+        }
+
+      })
+      .on(d3plus.evt.out,function(d){
+
+        vars.hover = false
+
+        if (vars.data.array.length == 1 || vars.timing == 0) {
+
+          if (d3plus.ie || button.size() >= vars.large) {
+            d3.select(this).style("cursor","auto")
+              .call(color)
+          }
+          else {
+            d3.select(this).style("cursor","auto")
+              .transition().duration(100)
+              .call(color)
+          }
+
+        }
+
+      })
+      .on("click",function(d){
+
+        if (!vars.propagation) {
+          d3.event.stopPropagation()
+        }
+
+        if (vars.callback && d.value) {
+
+          vars.callback(d)
+
+        }
+
+      })
+
+  }
+
   var button = vars.container.selectAll("div.d3plus_node")
     .data(vars.data.array,function(d){
       return d.id || d.value
@@ -313,6 +373,7 @@ d3plus.forms.button = function(vars,styles,timing) {
     .call(color)
     .call(style)
     .call(icons)
+    .call(mouseevents)
   if (vars.dev) d3plus.console.timeEnd("enter")
 
   if (button.size() < 2) {
@@ -324,14 +385,14 @@ d3plus.forms.button = function(vars,styles,timing) {
       var previous = button.filter(function(b){
         return b.value == vars.previous
       })
-      previous.call(icons)
+      previous.call(color).call(icons)
     }
 
     if (vars.selected) {
       var focus = button.filter(function(b){
         return b.value == vars.selected
       })
-      focus.call(icons)
+      focus.call(color).call(icons)
     }
 
   }
@@ -343,61 +404,7 @@ d3plus.forms.button = function(vars,styles,timing) {
     if (vars.dev) d3plus.console.timeEnd("ordering")
 
     if (vars.dev) d3plus.console.time("events")
-    button
-      .on(d3plus.evt.over,function(d,i){
-
-        vars.hover = d.value
-
-        if (vars.data.array.length == 1 || d.value != vars.highlight) {
-
-          if (d3plus.ie || vars.timing == 0) {
-
-            d3.select(this).style("cursor","pointer")
-              .call(color)
-
-          }
-          else {
-            
-            d3.select(this).style("cursor","pointer")
-              .transition().duration(100)
-              .call(color)
-          }
-
-        }
-
-      })
-      .on(d3plus.evt.out,function(d){
-
-        vars.hover = false
-
-        if (vars.data.array.length == 1 || vars.timing == 0) {
-
-          if (d3plus.ie || button.size() >= vars.large) {
-            d3.select(this).style("cursor","auto")
-              .call(color)
-          }
-          else {
-            d3.select(this).style("cursor","auto")
-              .transition().duration(100)
-              .call(color)
-          }
-
-        }
-
-      })
-      .on("click",function(d){
-
-        if (!vars.propagation) {
-          d3.event.stopPropagation()
-        }
-
-        if (vars.callback && d.value) {
-
-          vars.callback(d)
-
-        }
-
-      })
+    button.call(mouseevents)
     if (vars.dev) d3plus.console.timeEnd("events")
 
   }
