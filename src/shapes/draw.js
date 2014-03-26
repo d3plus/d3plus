@@ -466,7 +466,8 @@ d3plus.shape.draw = function(vars) {
             title = d3plus.variable.value(vars,d,vars.text.key),
             color = d3plus.color.legible(d3plus.variable.color(vars,d)),
             prev_sub = vars.title.sub.value,
-            prev_color = vars.style.title.sub["font-color"]
+            prev_color = vars.style.title.sub["font-color"],
+            prev_total = vars.style.title.total["font-color"]
 
         if (d.d3plus.threshold && d.d3plus.merged) {
 
@@ -475,7 +476,7 @@ d3plus.shape.draw = function(vars) {
             vars.viz
               .id({"solo": previous})
               .title({"sub": prev_sub})
-              .style({"title": {"sub": {"font-color": prev_color}}})
+              .style({"title": {"sub": {"font-color": prev_color}, "total": {"font-color": prev_total}}})
               .draw()
 
           })
@@ -483,7 +484,7 @@ d3plus.shape.draw = function(vars) {
           vars.viz
             .id({"solo": d.d3plus.merged})
             .title({"sub": title})
-            .style({"title": {"sub": {"font-color": color}}})
+            .style({"title": {"sub": {"font-color": color}, "total": {"font-color": color}}})
             .draw()
 
         }
@@ -497,7 +498,7 @@ d3plus.shape.draw = function(vars) {
               .depth(vars.depth.value-1)
               .id({"solo": previous})
               .title({"sub": prev_sub})
-              .style({"title": {"sub": {"font-color": prev_color}}})
+              .style({"title": {"sub": {"font-color": prev_color}, "total": {"font-color": prev_total}}})
               .draw()
 
           })
@@ -506,7 +507,7 @@ d3plus.shape.draw = function(vars) {
             .depth(vars.depth.value+1)
             .id({"solo": [id]})
             .title({"sub": title})
-            .style({"title": {"sub": {"font-color": color}}})
+            .style({"title": {"sub": {"font-color": color}, "total": {"font-color": color}}})
             .draw()
 
         }
