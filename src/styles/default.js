@@ -184,7 +184,7 @@ d3plus.styles.default = {
     "font": {
       "color": "#444",
       "family": "sans-serif",
-      "size": "12px",
+      "size": 12,
       "weight": "normal"
     },
     "large": 250,

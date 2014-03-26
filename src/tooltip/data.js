@@ -1,13 +1,10 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
-//-------------------------------------------------------------------
-
+//------------------------------------------------------------------------------
 d3plus.tooltip.data = function(vars,id,length,extras,depth) {
 
   if (vars.small) {
-
     return []
-
   }
 
   if (!length) var length = "long"
@@ -173,6 +170,40 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
       else if (typeof a[group] == "string") {
         format_key(a[group],group)
       }
+    }
+
+  }
+
+  if (length == "long") {
+
+    var connections = vars.connections(id[vars.id.key],true)
+    if (connections.length) {
+      connections.forEach(function(c){
+        var name = d3plus.variable.text(vars,c)[0],
+            color = d3plus.variable.color(vars,c),
+            size = vars.style.tooltip.font.size,
+            radius = vars.shape.value == "square" ? 0 : size
+            styles = [
+              "background-color: "+color,
+              "border-color: "+d3plus.color.legible(color),
+              "border-style: solid",
+              "border-width: "+vars.style.data.stroke.width+"px",
+              "display: inline-block",
+              "height: "+size+"px",
+              "left: 0px",
+              "position: absolute",
+              "width: "+size+"px",
+              "top: 0px",
+              d3plus.prefix()+"border-radius: "+radius+"px",
+            ]
+            node = "<div style='"+styles.join("; ")+";'></div>"
+        tooltip_data.push({
+          "group": vars.format("Primary Connections"),
+          "highlight": false,
+          "name": "<div style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>",
+          "value": ""
+        })
+      })
     }
 
   }

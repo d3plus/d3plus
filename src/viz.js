@@ -66,7 +66,7 @@ d3plus.viz = function() {
 
     },
     "filtered": false,
-    "footer_text": function() {
+    "footer_text": function(length) {
 
       var zoom = vars.zoom_direction()
 
@@ -76,11 +76,11 @@ d3plus.viz = function() {
       else if (zoom === -1) {
         var text = vars.format("Click to Collapse")
       }
-      else if (vars.html.value || vars.tooltip.value.long) {
+      else if (length == "short" && (vars.html.value || vars.tooltip.value.long)) {
         var text = "Click for More Info"
       }
       else {
-        var text = ""
+        var text = vars.footer.value || ""
       }
 
       return vars.format(text,"footer")

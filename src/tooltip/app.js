@@ -24,7 +24,7 @@ d3plus.tooltip.app = function(params) {
     var fullscreen = false,
         align = params.anchor || vars.style.tooltip.anchor,
         length = params.length || "short",
-        footer = vars.footer_text()
+        footer = vars.footer_text(length)
   }
 
   if ("x" in params) {
@@ -150,6 +150,7 @@ d3plus.tooltip.app = function(params) {
         "html": html,
         "icon": icon,
         "id": tooltip_id,
+        "max_height": params.maxheight,
         "max_width": vars.style.tooltip.small,
         "mouseevents": mouse,
         "offset": offset,

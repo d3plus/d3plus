@@ -27,6 +27,8 @@ d3plus.ui.focus = function(vars) {
       "length": "long",
       "fullscreen": false,
       "id": vars.type.value+"_focus",
+      "maxheight": vars.app_height-offset*2,
+      "mouseevents": true,
       "offset": 0,
       "vars": vars,
       "x": vars.width.value-vars.margin.right-offset,
