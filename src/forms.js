@@ -19,6 +19,7 @@ d3plus.forms = function(passed) {
     "hover": false,
     "id": "default",
     "init": false,
+    "large": 200,
     "max-height": 600,
     "max-width": 600,
     "parent": d3.select("body"),
@@ -45,6 +46,7 @@ d3plus.forms = function(passed) {
     "secondary": d3plus.color.darker("#ffffff",0.05),
     "shadow": 5,
     "stroke": 1,
+    "update": true,
     "width": false
   }
 
@@ -66,9 +68,8 @@ d3plus.forms = function(passed) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set timing to 0 if it's the first time running this function
     //--------------------------------------------------------------------------
-    if (typeof timing != "number") {
-      var timing = vars.init ? vars.timing : 0
-    }
+    var large = vars.data instanceof Array && vars.data.length > vars.large
+    var timing = vars.init && large ? vars.timing : 0
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is an array, format it
@@ -207,52 +208,74 @@ d3plus.forms = function(passed) {
 
       }
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Select container DIV for UI element
-      //------------------------------------------------------------------------
-      vars.container = vars.parent.selectAll("div#d3plus_"+vars.type+"_"+vars.id)
-        .data(["container"])
+      if (!vars.init) {
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Create container DIV for UI element
-      //------------------------------------------------------------------------
-      vars.container.enter()
-        .insert("div",vars.before)
-        .attr("id","d3plus_"+vars.type+"_"+vars.id)
-        .style("display","inline-block")
-        .style("position","relative")
-        .style("overflow","visible")
-        .style("vertical-align","top")
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Select container DIV for UI element
+        //----------------------------------------------------------------------
+        vars.container = vars.parent.selectAll("div#d3plus_"+vars.type+"_"+vars.id)
+          .data(["container"])
 
-      vars.container.transition().duration(timing)
-        .each("start",function(){
-          if (vars.type == "drop" && vars.enabled) {
-            d3.select(this).style("z-index",9999)
-          }
-        })
-        .style("margin",styles.margin+"px")
-        .each("end",function(){
-          if (vars.type == "drop" && !vars.enabled) {
-            d3.select(this).style("z-index","auto")
-          }
-        })
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Create container DIV for UI element
+        //----------------------------------------------------------------------
+        vars.container.enter()
+          .insert("div",vars.before)
+          .attr("id","d3plus_"+vars.type+"_"+vars.id)
+          .style("display",styles.display)
+          .style("position","relative")
+          .style("overflow","visible")
+          .style("vertical-align","top")
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Select testing DIV
-      //------------------------------------------------------------------------
-      vars.tester = d3.select("body").selectAll("div.d3plus_tester")
-        .data(["tester"])
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Select testing DIV
+        //----------------------------------------------------------------------
+        vars.tester = d3.select("body").selectAll("div.d3plus_tester")
+          .data(["tester"])
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Create testing DIV
-      //------------------------------------------------------------------------
-      vars.tester.enter().append("div")
-        .attr("class","d3plus_tester")
-        .style("position","absolute")
-        .style("left","-9999px")
-        .style("top","-9999px")
-        .style("visibility","hidden")
-        .style("display","block")
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Create testing DIV
+        //----------------------------------------------------------------------
+        vars.tester.enter().append("div")
+          .attr("class","d3plus_tester")
+          .style("position","absolute")
+          .style("left","-9999px")
+          .style("top","-9999px")
+          .style("visibility","hidden")
+          .style("display","block")
+
+      }
+
+      if (timing) {
+
+        vars.container.transition().duration(timing)
+          .each("start",function(){
+            if (vars.type == "drop" && vars.enabled) {
+              d3.select(this).style("z-index",9999)
+            }
+          })
+          .style("margin",styles.margin+"px")
+          .each("end",function(){
+            if (vars.type == "drop" && !vars.enabled) {
+              d3.select(this).style("z-index","auto")
+            }
+          })
+
+      }
+      else {
+
+        vars.container
+          .style("margin",styles.margin+"px")
+          .style("z-index",function(){
+            if (vars.type == "drop" && vars.enabled) {
+              return 9999
+            }
+            else {
+              return "auto"
+            }
+          })
+
+      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Call specific UI element type
@@ -264,9 +287,8 @@ d3plus.forms = function(passed) {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Initialization complete
       //------------------------------------------------------------------------
-      if (!vars.init) {
-        vars.init = true
-      }
+      vars.init = true
+      vars.update = true
       vars.data.changed = false
 
     }
@@ -283,7 +305,9 @@ d3plus.forms = function(passed) {
     "element",
     "highlight",
     "hover",
+    "hover_previous",
     "id",
+    "large",
     "parent",
     "previous",
     "propagation",
@@ -291,7 +315,8 @@ d3plus.forms = function(passed) {
     "selected",
     "timing",
     "text",
-    "type"
+    "type",
+    "update"
   ]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -313,6 +338,10 @@ d3plus.forms = function(passed) {
             var text = " to \""+text+"\""
           }
 
+        }
+
+        if (key == "hover") {
+          vars.hover_previous = vars.hover
         }
 
         if (!arguments.length) return vars[key]
@@ -568,6 +597,7 @@ d3plus.forms = function(passed) {
   vars.forms.toggle = function() {
 
     if (vars.dev) d3plus.console.log("toggle")
+    vars.update = false
 
     if (vars.enabled) {
       vars.forms.disable()

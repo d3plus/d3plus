@@ -5,12 +5,12 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
   if (vars.element) {
     vars.element.on("focus."+vars.id,function(){
-      vars.forms.hover(true).draw()
+      vars.forms.update(false).hover(true).draw()
     })
     vars.element.on("blur."+vars.id,function(){
       var search = vars.search ? d3.event.relatedTarget != vars.container.select("input").node() : true
       if (search) {
-        vars.forms.hover(false).draw()
+        vars.forms.update(false).hover(false).draw()
       }
     })
     vars.element.on("change."+vars.id,function(){
@@ -50,7 +50,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
       // Tab
       if ([9].indexOf(key) >= 0 && (!vars.search || (vars.search && !d3.event.shiftKey))) {
-        vars.forms.disable()
+        vars.forms.update(false).disable()
       }
       // Down Arrow
       else if ([40].indexOf(key) >= 0) {
@@ -71,10 +71,10 @@ d3plus.forms.drop = function(vars,styles,timing) {
         }
 
         if (vars.enabled) {
-          vars.forms.hover(hover).draw(60)
+          vars.forms.update(false).hover(hover).draw(60)
         }
         else {
-          vars.forms.hover(hover).enable()
+          vars.forms.update(false).hover(hover).enable()
         }
 
       }
@@ -97,10 +97,10 @@ d3plus.forms.drop = function(vars,styles,timing) {
         }
 
         if (vars.enabled) {
-          vars.forms.hover(hover).draw(60)
+          vars.forms.update(false).hover(hover).draw(60)
         }
         else {
-          vars.forms.hover(hover).enable()
+          vars.forms.update(false).hover(hover).enable()
         }
 
       }
@@ -278,6 +278,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     .data([test_data])
     .callback(vars.forms.toggle)
     .highlight(vars.focus)
+    .update(vars.update)
     .enable()
     .draw()
 
@@ -315,10 +316,18 @@ d3plus.forms.drop = function(vars,styles,timing) {
   search_width -= styles.padding*4
   search_width -= styles.stroke*2
 
-  search.transition().duration(timing)
-    .style("padding",styles.padding+"px")
-    .style("display","block")
-    .style("background-color",styles.secondary)
+  if (timing) {
+    search.transition().duration(timing)
+      .style("padding",styles.padding+"px")
+      .style("display","block")
+      .style("background-color",styles.secondary)
+  }
+  else {
+    search
+      .style("padding",styles.padding+"px")
+      .style("display","block")
+      .style("background-color",styles.secondary)
+  }
 
   function search_style(elem) {
     elem
@@ -335,8 +344,14 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .style(d3plus.prefix()+"border-radius","0")
   }
 
-  search.select("input").transition().duration(timing)
-    .call(search_style)
+  if (timing) {
+    search.select("input").transition().duration(timing)
+      .call(search_style)
+  }
+  else {
+    search.select("input")
+      .call(search_style)
+  }
 
   search.enter().insert("div","#d3plus_drop_list_"+vars.id)
     .attr("class","d3plus_drop_search")
@@ -448,15 +463,17 @@ d3plus.forms.drop = function(vars,styles,timing) {
     style.icon = false
     style.display = "block"
     style.border = "none"
-    style.width = drop_width
+    style.width = "auto"
     style.margin = 0
     var text = d3plus.forms.value(vars.text,["drop","button"])
     if (!text) {
      text = "text"
     }
 
+    var large = timing ? vars.large : 0
+
     var buttons = d3plus.forms(style)
-      // .dev(vars.dev)
+      .dev(vars.dev)
       .type("button")
       .text(text)
       .data(data)
@@ -468,6 +485,9 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .previous(vars.previous)
       .selected(vars.focus)
       .hover(vars.hover)
+      .hover_previous(vars.hover_previous)
+      .update(vars.update)
+      .large(large)
       .draw()
 
     if (vars.dev) d3plus.console.groupEnd()
@@ -509,12 +529,11 @@ d3plus.forms.drop = function(vars,styles,timing) {
     if (hidden) selector.style("display","none")
 
     if (vars.dev) d3plus.console.timeEnd("calculating height")
-    if (vars.dev) d3plus.console.time("calculating scroll position")
 
     if (scrolling) {
 
-      style.width -= d3plus.scrollbar()
-      buttons.width(style.width).draw()
+      if (vars.dev) d3plus.console.time("calculating scroll position")
+      drop_width -= d3plus.scrollbar()
 
       var index = 0
       var options = list.select("div").selectAll("div.d3plus_node")
@@ -562,16 +581,18 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
       }
 
+      if (vars.dev) d3plus.console.timeEnd("calculating scroll position")
+
     }
     else {
       var scroll = 0
     }
 
-    if (vars.dev) d3plus.console.timeEnd("calculating scroll position")
-
   }
   else {
-    var scroll = list.property("scrollTop"), height = 0
+    var scroll = list.property("scrollTop"),
+        height = 0,
+        search_height = 0
   }
 
   if (vars.dev) d3plus.console.time("rotating arrow")
@@ -596,66 +617,95 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
   if (vars.dev) d3plus.console.time("drawing list")
 
-  selector.transition().duration(timing)
-    .each("start",function(){
-      d3.select(this)
-        .style("display",vars.enabled ? "block" : null)
-    })
-    .style("left",function(){
-      if (styles.align == "left") {
-        return "0px"
-      }
-      else if (styles.align == "center") {
-        return -((drop_width-button_width)/2)+"px"
-      }
-      else {
-        return "auto"
-      }
-    })
-    .style("right",function(){
-      return styles.align == "right" ? "0px" : "auto"
-    })
-    .style("height",height+"px")
-    .style("padding",styles.stroke+"px")
-    .style("background-color",styles.secondary)
-    .style("z-index",function(){
-      return vars.enabled ? "9999" : "-1";
-    })
-    .style("width",(drop_width-(styles.stroke*2))+"px")
-    .style("top",function(){
-      return vars.flipped ? "auto" : button.height()+"px"
-    })
-    .style("bottom",function(){
-      return vars.flipped ? button.height()+"px" : "auto"
-    })
-    .style("opacity",vars.enabled ? 1 : 0)
-    .each("end",function(){
+  function update(elem) {
 
-      d3.select(this).transition().duration(timing)
-        .style("top",function(){
-          return vars.flipped ? "auto" : button.height()+"px"
-        })
-        .style("bottom",function(){
-          return vars.flipped ? button.height()+"px" : "auto"
-        })
-        .style("display",!vars.enabled ? "none" : null)
+    elem
+      .style("left",function(){
+        if (styles.align == "left") {
+          return "0px"
+        }
+        else if (styles.align == "center") {
+          return -((drop_width-button_width)/2)+"px"
+        }
+        else {
+          return "auto"
+        }
+      })
+      .style("right",function(){
+        return styles.align == "right" ? "0px" : "auto"
+      })
+      .style("height",height+"px")
+      .style("padding",styles.stroke+"px")
+      .style("background-color",styles.secondary)
+      .style("z-index",function(){
+        return vars.enabled ? "9999" : "-1";
+      })
+      .style("width",(drop_width-(styles.stroke*2))+"px")
+      .style("top",function(){
+        return vars.flipped ? "auto" : button.height()+"px"
+      })
+      .style("bottom",function(){
+        return vars.flipped ? button.height()+"px" : "auto"
+      })
+      .style("opacity",vars.enabled ? 1 : 0)
 
-      if (vars.search && vars.enabled) {
-        selector.select("div.d3plus_drop_search input").node().focus()
-      }
-
-    })
-
-  function scrollTopTween(scrollTop) {
-      return function() {
-          var i = d3.interpolateNumber(this.scrollTop, scrollTop);
-          return function(t) { this.scrollTop = i(t); };
-      };
   }
 
-  list.transition().duration(timing)
-    .style("max-height",(max-search_height)+"px")
-    .tween("scroll",scrollTopTween(scroll))
+  function finish(elem) {
+
+    elem
+      .style("top",function(){
+        return vars.flipped ? "auto" : button.height()+"px"
+      })
+      .style("bottom",function(){
+        return vars.flipped ? button.height()+"px" : "auto"
+      })
+      .style("display",!vars.enabled ? "none" : null)
+
+    if (vars.search && vars.enabled) {
+      selector.select("div.d3plus_drop_search input").node().focus()
+    }
+
+  }
+
+  var max_height = vars.enabled ? max-search_height : 0
+
+  if (!timing) {
+
+    selector.call(update).call(finish)
+
+    list
+      .style("width",drop_width-styles.stroke*2+"px")
+      .style("max-height",max_height+"px")
+      .property("scrollTop",scroll)
+
+  }
+  else {
+    selector.transition().duration(timing)
+      .each("start",function(){
+        d3.select(this)
+          .style("display",vars.enabled ? "block" : null)
+      })
+      .call(update)
+      .each("end",function(){
+
+        d3.select(this).transition().duration(timing)
+          .call(finish)
+
+      })
+
+    function scrollTopTween(scrollTop) {
+        return function() {
+            var i = d3.interpolateNumber(this.scrollTop, scrollTop);
+            return function(t) { this.scrollTop = i(t); };
+        };
+    }
+
+    list.transition().duration(timing)
+      .style("width",drop_width-styles.stroke*2+"px")
+      .style("max-height",max_height+"px")
+      .tween("scroll",scrollTopTween(scroll))
+  }
 
   if (vars.dev) d3plus.console.timeEnd("drawing list")
 
