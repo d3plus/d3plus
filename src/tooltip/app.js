@@ -63,11 +63,9 @@ d3plus.tooltip.app = function(params) {
   }
   else {
     var offset = d.d3plus.r ? d.d3plus.r : d.d3plus.height/2
-    // console.log(offset)
     if (vars.zoom.scale) {
       offset = offset * vars.zoom.scale
     }
-    // console.log(offset)
   }
 
   function make_tooltip(html) {
@@ -82,7 +80,7 @@ d3plus.tooltip.app = function(params) {
       var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
           temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
           total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
-
+          
       if (typeof active == "number" && active > 0 && total) {
         if (!ex) ex = {}
         var label = vars.active.key || "active"
