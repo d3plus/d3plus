@@ -33,6 +33,40 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
   enter.append("path")
     .attr("id",function(d){
+
+      var areas = []
+      d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
+
+        var test = d3plus.utils.copy(d)
+        test.geometry.coordinates = [test.geometry.coordinates[i]]
+        var a = vars.path.area(test)
+        if (a >= vars.coords.threshold) {
+          areas.push(a)
+          return true
+        }
+        return false
+
+      })
+      areas.sort(function(a,b){
+        return a-b
+      })
+
+      var reduced = d3plus.utils.copy(d),
+          largest = d3plus.utils.copy(d)
+      reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
+
+        var test = d3plus.utils.copy(d)
+        test.geometry.coordinates = [test.geometry.coordinates[i]]
+        var a = vars.path.area(test)
+        if (a == areas[areas.length-1]) {
+          largest.geometry.coordinates = test.geometry.coordinates
+        }
+        return a >= d3.quantile(areas,.9)
+
+      })
+      d.reduced = reduced
+      d.largest = largest
+
       return d.id
     })
     .attr("class","d3plus_data")
@@ -73,28 +107,21 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
       var b = vars.path.bounds(d)
 
-      // if (!("d3plus_label" in d)) {
-      //   var center = vars.path.centroid(d),
-      //       largest = 0,
-      //       lb = b
-      //   d.geometry.coordinates.forEach(function(c,i){
-      //     var test = d3plus.utils.copy(d)
-      //     test.geometry.coordinates = [test.geometry.coordinates[i]]
-      //     var area = vars.path.area(test)
-      //     if (area > largest) {
-      //       lb = vars.path.bounds(test)
-      //     }
-      //   })
-      //   d.d3plus_label = {
-      //     "anchor": "middle",
-      //     "h": (lb[1][1]-lb[0][1])*.5,
-      //     "w": (lb[1][0]-lb[0][0])*.5,
-      //     "resize": false,
-      //     "valign": "center",
-      //     "x": center[0],
-      //     "y": center[1]
-      //   }
-      // }
+      if (!("d3plus_label" in d) && d.largest) {
+
+        var center = vars.path.centroid(d.largest),
+            lb = vars.path.bounds(d.largest)
+
+        d.d3plus_label = {
+          "anchor": "middle",
+          "h": (lb[1][1]-lb[0][1])*.4,
+          "w": (lb[1][0]-lb[0][0])*.4,
+          "resize": true,
+          "valign": "center",
+          "x": center[0],
+          "y": center[1]
+        }
+      }
 
       if (!vars.zoom.bounds) {
         vars.zoom.bounds =  b
