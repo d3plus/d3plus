@@ -535,7 +535,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     if (scrolling) {
 
       if (vars.dev) d3plus.console.time("calculating scroll position")
-      drop_width -= d3plus.scrollbar()
 
       var index = 0
       var options = list.select("div").selectAll("div.d3plus_node")
