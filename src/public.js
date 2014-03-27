@@ -64,6 +64,7 @@ d3plus.public.coords = {
   "solo": {
     "value": []
   },
+  "threshold": 0.1,
   "value": null
 }
 
