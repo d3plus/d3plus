@@ -839,6 +839,7 @@ d3plus.public.container = {
 }
 
 d3plus.public.coords = {
+  "center": [0,0],
   "fit": {
     "accepted": ["auto","height","width"],
     "value": "auto"
@@ -7107,6 +7108,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
   // Define the geographical projection
   //----------------------------------------------------------------------------
   var projection = d3.geo[vars.coords.projection.value]()
+    .center(vars.coords.center)
     // .translate([-vars.app_width/2,-vars.app_height/2])
 
   // var clip = d3.geo.clipExtent()
