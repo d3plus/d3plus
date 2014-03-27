@@ -68,7 +68,13 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
       .call(d3plus.shape.style,vars)
   }
 
-  if (vars.coords.changed || vars.width.changed || vars.height.changed) {
+  var size_change = vars.old_height != vars.app_height || vars.height.changed
+    || vars.old_width != vars.app_width || vars.width.changed
+
+  vars.old_height = vars.app_height
+  vars.old_width = vars.app_width
+
+  if (vars.coords.changed || size_change) {
 
     vars.zoom.bounds = null
 
