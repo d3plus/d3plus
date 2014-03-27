@@ -469,7 +469,7 @@ d3plus.shape.draw = function(vars) {
             prev_color = vars.style.title.sub["font-color"],
             prev_total = vars.style.title.total["font-color"]
 
-        if (d.d3plus.threshold && d.d3plus.merged) {
+        if (d.d3plus.threshold && d.d3plus.merged && vars.zoom.value) {
 
           vars.history.states.push(function(){
 
@@ -488,7 +488,7 @@ d3plus.shape.draw = function(vars) {
             .draw()
 
         }
-        else if (depth_delta === 1) {
+        else if (depth_delta === 1 && vars.zoom.value) {
 
           var id = d3plus.variable.value(vars,d,vars.id.key)
 
@@ -511,7 +511,7 @@ d3plus.shape.draw = function(vars) {
             .draw()
 
         }
-        else if (depth_delta === -1) {
+        else if (depth_delta === -1 && vars.zoom.value) {
 
           vars.back()
 
