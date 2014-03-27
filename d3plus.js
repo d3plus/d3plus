@@ -12286,6 +12286,11 @@ d3plus.ui.titles = function(vars) {
     .attr("opacity",0)
     .remove()
 
+  var min = vars.style.title.height
+  if (min && vars.margin[vars.style.title.position] < min) {
+    vars.margin[vars.style.title.position] = min
+  }
+
 }
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator
