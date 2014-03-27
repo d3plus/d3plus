@@ -4900,7 +4900,7 @@ d3plus.draw.finish = function(vars) {
       d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
     }
 
-    if (vars.focus.changed) {
+    if (vars.focus.changed || vars.height.changed || vars.width.changed) {
       if (!vars.zoom.viewport) {
         d3plus.zoom.bounds(vars,vars.zoom.bounds)
       }
@@ -4942,7 +4942,7 @@ d3plus.draw.finish = function(vars) {
       },vars.timing)
     }
   }
-  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value) {
+  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     setTimeout(function(){
@@ -5116,7 +5116,7 @@ d3plus.draw.focus = function(vars) {
 
           if (vars.shape.value == "coordinates") {
 
-            vars.zoom.viewport = vars.path.bounds(d.reduced)
+            vars.zoom.viewport = vars.path.bounds(d.d3plus.reduced)
 
           }
           else if ("d3plus" in d) {
@@ -5441,7 +5441,7 @@ d3plus.draw.steps = function(vars) {
       "function": d3plus.data.color,
       "message": "Calculating Colors",
       "otherwise": function(vars) {
-        if (!vars.color.type != "number") {
+        if (vars.color.type != "number") {
           vars.color.scale = null
         }
       }
@@ -7172,40 +7172,6 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
   enter.append("path")
     .attr("id",function(d){
-
-      var areas = []
-      d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
-
-        var test = d3plus.utils.copy(d)
-        test.geometry.coordinates = [test.geometry.coordinates[i]]
-        var a = vars.path.area(test)
-        if (a >= vars.coords.threshold) {
-          areas.push(a)
-          return true
-        }
-        return false
-
-      })
-      areas.sort(function(a,b){
-        return a-b
-      })
-
-      var reduced = d3plus.utils.copy(d),
-          largest = d3plus.utils.copy(d)
-      reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
-
-        var test = d3plus.utils.copy(d)
-        test.geometry.coordinates = [test.geometry.coordinates[i]]
-        var a = vars.path.area(test)
-        if (a == areas[areas.length-1]) {
-          largest.geometry.coordinates = test.geometry.coordinates
-        }
-        return a >= d3.quantile(areas,.9)
-
-      })
-      d.reduced = reduced
-      d.largest = largest
-
       return d.id
     })
     .attr("class","d3plus_data")
@@ -7242,24 +7208,56 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
   if (vars.coords.changed || vars.width.changed || vars.height.changed) {
 
+    vars.zoom.bounds = null
+
     selection.each(function(d){
 
       var b = vars.path.bounds(d)
 
-      if (!("d3plus_label" in d) && d.largest) {
+      var areas = []
+      d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
 
-        var center = vars.path.centroid(d.largest),
-            lb = vars.path.bounds(d.largest)
-
-        d.d3plus_label = {
-          "anchor": "middle",
-          "h": (lb[1][1]-lb[0][1])*.4,
-          "w": (lb[1][0]-lb[0][0])*.4,
-          "resize": true,
-          "valign": "center",
-          "x": center[0],
-          "y": center[1]
+        var test = d3plus.utils.copy(d)
+        test.geometry.coordinates = [test.geometry.coordinates[i]]
+        var a = vars.path.area(test)
+        if (a >= vars.coords.threshold) {
+          areas.push(a)
+          return true
         }
+        return false
+
+      })
+      areas.sort(function(a,b){
+        return a-b
+      })
+
+      var reduced = d3plus.utils.copy(d),
+          largest = d3plus.utils.copy(d)
+      reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
+
+        var test = d3plus.utils.copy(d)
+        test.geometry.coordinates = [test.geometry.coordinates[i]]
+        var a = vars.path.area(test)
+        if (a == areas[areas.length-1]) {
+          largest.geometry.coordinates = test.geometry.coordinates
+        }
+        return a >= d3.quantile(areas,.9)
+
+      })
+      d.d3plus.reduced = reduced
+      d.d3plus.largest = largest
+
+      var center = vars.path.centroid(d.d3plus.largest),
+          lb = vars.path.bounds(d.d3plus.largest)
+
+      d.d3plus_label = {
+        "anchor": "middle",
+        "h": (lb[1][1]-lb[0][1])*.4,
+        "w": (lb[1][0]-lb[0][0])*.4,
+        "resize": true,
+        "valign": "center",
+        "x": center[0],
+        "y": center[1]
       }
 
       if (!vars.zoom.bounds) {
@@ -7770,7 +7768,7 @@ d3plus.shape.draw = function(vars) {
           .attr("opacity",1)
 
         vars.covered = false
-        
+
         if ((vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value) {
 
           var tooltip_data = d.data ? d.data : d
@@ -7911,6 +7909,8 @@ d3plus.shape.draw = function(vars) {
         }
         else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
+          edge_update()
+
           d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)
@@ -7931,7 +7931,6 @@ d3plus.shape.draw = function(vars) {
 
         }
         else {
-
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d)
@@ -8629,7 +8628,7 @@ d3plus.shape.labels = function(vars,selection) {
   // Label Exiting
   //----------------------------------------------------------------------------
   remove = function(text) {
-
+    
     if (vars.timing) {
       text
         .transition().duration(vars.timing)
