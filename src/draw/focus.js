@@ -62,7 +62,9 @@ d3plus.draw.focus = function(vars) {
           var elem = d3.select(elem).datum(d).attr("opacity",1)
 
           if (vars.shape.value == "coordinates") {
-            vars.zoom.viewport = vars.path.bounds(d)
+
+            vars.zoom.viewport = vars.path.bounds(d.reduced)
+
           }
           else if ("d3plus" in d) {
             if ("x" in d.d3plus) {
