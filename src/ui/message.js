@@ -24,14 +24,11 @@ d3plus.ui.message = function(vars,message) {
     else if (vars.title.total.value) {
       var font = vars.style.title.total
     }
-
-    if (font) {
-      var position = font.position
-    }
     else {
-      var font = vars.style.message,
-          position = "center"
+      var font = vars.style.title.sub
     }
+
+    var position = font.position
 
   }
 
