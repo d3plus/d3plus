@@ -72,6 +72,12 @@ d3plus.forms.button = function(vars,styles,timing) {
 
       })
       .style("border-color",styles.secondary)
+      .style("opacity",function(d){
+        if ([vars.selected,vars.highlight].indexOf(d.value) < 0) {
+          return 0.75
+        }
+        return 1
+      })
 
   }
 
@@ -84,12 +90,6 @@ d3plus.forms.button = function(vars,styles,timing) {
       .style("width",width)
       .style("margin",styles.margin+"px")
       .style("display",styles.display)
-      .style("opacity",function(d){
-        if ([vars.selected,vars.highlight].indexOf(d.value) < 0) {
-          return 0.75
-        }
-        return 1
-      })
       .style("border-style","solid")
       .style("border-width",border_width)
       .style("font-family",styles["font-family"])
@@ -377,7 +377,7 @@ d3plus.forms.button = function(vars,styles,timing) {
   if (vars.dev) d3plus.console.timeEnd("enter")
 
   if (button.size() < 2) {
-    button.call(icons)
+    button.call(icons).call(mouseevents)
   }
   else {
 
@@ -385,14 +385,14 @@ d3plus.forms.button = function(vars,styles,timing) {
       var previous = button.filter(function(b){
         return b.value == vars.previous
       })
-      previous.call(color).call(icons)
+      previous.call(color).call(icons).call(mouseevents)
     }
 
     if (vars.selected) {
       var focus = button.filter(function(b){
         return b.value == vars.selected
       })
-      focus.call(color).call(icons)
+      focus.call(color).call(icons).call(mouseevents)
     }
 
   }
@@ -402,10 +402,6 @@ d3plus.forms.button = function(vars,styles,timing) {
     if (vars.dev) d3plus.console.time("ordering")
     button.order()
     if (vars.dev) d3plus.console.timeEnd("ordering")
-
-    if (vars.dev) d3plus.console.time("events")
-    button.call(mouseevents)
-    if (vars.dev) d3plus.console.timeEnd("events")
 
   }
 
