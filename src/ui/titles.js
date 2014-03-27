@@ -20,34 +20,32 @@ d3plus.ui.titles = function(vars) {
       d3plus.console.time(vars.size.key)
     }
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If there's a focus, and our data is keyed by IDs, just grab it!
-    //--------------------------------------------------------------------------
-    var focus = vars.focus.value,
-        data = vars.data.app
-    if (focus && typeof data == "object" && !(data instanceof Array)) {
-      var d = data[focus]
-      if (d)
-        var total = d3plus.variable.value(vars,d,vars.size.key),
-            percentage = true
-      else {
-        var total = null
-      }
-    }
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Otherwise, we need to sum up the values that are being shown
-    //--------------------------------------------------------------------------
-    else {
-      var total = d3.sum(vars.data.pool,function(d){
-        return d3plus.variable.value(vars,d,vars.size.key)
+    var total_key = vars.size.key ? vars.size.key
+      : vars.color.type == "number" ? vars.color.key : null
+
+    if (vars.focus.value) {
+      var total = vars.data.app.filter(function(d){
+        return d[vars.id.key] == vars.focus.value
       })
+      total = d3.sum(total,function(d){
+        return d3plus.variable.value(vars,d,total_key)
+      })
+    }
+    else if (total_key) {
+      var total = d3.sum(vars.data.pool,function(d){
+        return d3plus.variable.value(vars,d,total_key)
+      })
+    }
+
+    if (total === 0) {
+      total = false
     }
 
     if (typeof total == "number") {
 
       var pct = ""
 
-      if ((vars.mute.length || vars.solo.length) || percentage) {
+      if (vars.mute.length || vars.solo.length || vars.focus.value) {
 
         var overall_total = d3.sum(vars.data.filtered.all, function(d){
           if (vars.time.solo.value.length > 0) {
@@ -60,14 +58,18 @@ d3plus.ui.titles = function(vars) {
             var match = true
           }
           if (match) {
-            return d3plus.variable.value(vars,d,vars.size.key)
+            return d3plus.variable.value(vars,d,total_key)
           }
         })
 
-        var pct = (total/overall_total)*100,
-            ot = vars.format(overall_total,vars.size.key)
+        if (overall_total > total) {
 
-        var pct = " ("+vars.format(pct,"share")+"% of "+ot+")"
+          var pct = (total/overall_total)*100,
+              ot = vars.format(overall_total,vars.size.key)
+
+          var pct = " ("+vars.format(pct,"share")+"% of "+ot+")"
+
+        }
       }
 
       total = vars.format(total,vars.size.key)
@@ -121,7 +123,7 @@ d3plus.ui.titles = function(vars) {
         "value": vars.title.sub.value
       })
     }
-    if (total !== null) {
+    if (vars.title.total.value && total) {
       title_data.push({
         "link": vars.title.total.link,
         "style": vars.style.title.total,

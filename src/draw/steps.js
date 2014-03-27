@@ -270,19 +270,59 @@ d3plus.draw.steps = function(vars) {
       }
     })
 
-    steps.push({
-      "function": function(vars) {
-        vars.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
-        d3plus.ui.titles(vars)
+  }
+
+  steps.push({
+    "function": function(vars) {
+      vars.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
+      d3plus.ui.titles(vars)
+      if (vars.update) {
+
         d3plus.ui.legend(vars)
         d3plus.ui.timeline(vars)
-        d3plus.ui.history(vars)
-        vars.app_height -= (vars.margin.top+vars.margin.bottom)
-      },
-      "message": "Updating UI"
-    })
 
-  }
+      }
+      else {
+
+        var key_box = vars.g.key.node().getBBox(),
+            key_height = key_box.height+key_box.y
+
+        if (key_height > 0) {
+          vars.margin.bottom += key_height+vars.style.legend.padding
+        }
+
+        var key_box = vars.g.timeline.node().getBBox(),
+            key_height = key_box.height+key_box.y
+
+        if (key_height > 0) {
+          if (vars.margin.bottom == 0) {
+            vars.margin.bottom += vars.style.timeline.padding
+          }
+          vars.margin.bottom += key_height
+        }
+
+      }
+      d3plus.ui.history(vars)
+      vars.app_height -= (vars.margin.top+vars.margin.bottom)
+    },
+    "message": "Updating UI"
+  })
+
+  // if (vars.update) {
+  //
+  //   steps.push({
+  //     "function": function(vars) {
+  //       vars.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
+  //       d3plus.ui.titles(vars)
+  //       d3plus.ui.legend(vars)
+  //       d3plus.ui.timeline(vars)
+  //       d3plus.ui.history(vars)
+  //       vars.app_height -= (vars.margin.top+vars.margin.bottom)
+  //     },
+  //     "message": "Updating UI"
+  //   })
+  //
+  // }
 
   steps.push({
     "function": [
