@@ -1,24 +1,34 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator
 //------------------------------------------------------------------------------
-// d3plus.color.scale = d3.scale.category20()
-d3plus.color.scale = d3.scale.ordinal().range([
-  "#B22937", "#E0E61A", "#20B2AA", "#434187", "#A660AC",
-  "#E27A1D", "#4CA82B", "#7F91C3", "#502E72", "#A63570",
-  "#C11C17", "#ACD62A", "#60B6CA", "#1F1D6D", "#A650A0",
-  "#E6AA19", "#228B22", "#6F6DA7", "#80529A", "#A2395B",
-  "#DE5003", "#80C837", "#93BDE7", "#3B256D", "#A6358C",
-  "#EFCE10", "#229F6E", "#575597", "#A670B8", "#888888",
-  "#DEA1A7", "#F0F29A", "#9CDEDA", "#ABADCB", "#D6B8D8",
-  "#F2C69D", "#B0D8A3", "#C7CDE3", "#B4A2C2", "#D6A5C0",
-  "#E19C9B", "#D8EAA2", "#B8DEE6", "#9F9DBD", "#D6B4D4",
-  "#F2DA99", "#9ECB9E", "#BFBDD7", "#C8B2D2", "#D6A9B7",
-  "#EEB493", "#C8E4A7", "#CFE1F3", "#ABA1BD", "#D6A5CC",
-  "#F7EA98", "#9ED3BE", "#B7B5CF", "#D6C0E0", "#cccccc"
+d3plus.color.scale = {}
+d3plus.color.scale.default = d3.scale.ordinal().range([
+  "#b35c1e",
+  "#C9853A",
+  "#E4BA79",
+  "#F5DD9E",
+  "#F3D261",
+  "#C4B346",
+  "#94B153",
+  "#254322",
+  "#4F6456",
+  "#759E80",
+  "#9ED3E3",
+  "#27366C",
+  "#7B91D3",
+  "#C6CBF7",
+  "#D59DC2",
+  "#E5B3BB",
+  "#E06363",
+  "#AF3500",
+  "#D74B03",
+  "#843012",
+  "#9A4400",
 ])
+
 d3plus.color.random = function(x) {
   var rand_int = x || Math.floor(Math.random()*20)
-  return d3plus.color.scale(rand_int)
+  return d3plus.color.scale.default(rand_int)
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,7 +105,7 @@ d3plus.color.mix = function(c1,c2,o1,o2) {
 //------------------------------------------------------------------------------
 d3plus.color.text = function(color) {
   var hsl = d3.hsl(color),
-      light = "#ffffff",
+      light = "#f7f7f7",
       dark = "#444444";
   if (hsl.l > 0.65) return dark;
   else if (hsl.l < 0.49) return light;

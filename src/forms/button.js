@@ -64,7 +64,7 @@ d3plus.forms.button = function(vars,styles,timing) {
         var text_color = d3plus.color.text(d.bg),
             image = d.image && button.size() < vars.large
 
-        if (text_color != "#fff" && vars.selected == d.value && d.color && !image) {
+        if (text_color != "#f7f7f7" && vars.selected == d.value && d.color && !image) {
           return d3plus.color.legible(d.color)
         }
 
