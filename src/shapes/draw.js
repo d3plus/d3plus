@@ -382,11 +382,15 @@ d3plus.shape.draw = function(vars) {
 
         vars.covered = false
 
-        var tooltip_data = d.data ? d.data : d
-        d3plus.tooltip.app({
-          "vars": vars,
-          "data": tooltip_data
-        })
+        if (vars.focus.value != d[vars.id.key]) {
+
+          var tooltip_data = d.data ? d.data : d
+          d3plus.tooltip.app({
+            "vars": vars,
+            "data": tooltip_data
+          })
+
+        }
 
         if (typeof vars.mouse == "function") {
           vars.mouse(d)

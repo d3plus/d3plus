@@ -38,7 +38,7 @@ d3plus.tooltip.app = function(params) {
     else if (zoom === -1 && vars.zoom.value && solo) {
       var text = vars.format("Click to Collapse")
     }
-    else if (length == "short" && (vars.html.value || vars.tooltip.value.long)) {
+    else if (length == "short" && (vars.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
       var text = "Click for More Info"
     }
     else {
