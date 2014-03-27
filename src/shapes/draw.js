@@ -459,8 +459,6 @@ d3plus.shape.draw = function(vars) {
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-        edge_update()
-
         var depth_delta = vars.zoom_direction(),
             previous = vars.id.solo.value,
             title = d3plus.variable.value(vars,d,vars.text.key),
@@ -539,18 +537,24 @@ d3plus.shape.draw = function(vars) {
         }
         else {
 
-          var tooltip_data = d.data ? d.data : d
-
-          d3plus.tooltip.app({
-            "vars": vars,
-            "data": tooltip_data
-          })
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d)
           }
           else if (vars.mouse[d3plus.evt.click]) {
             vars.mouse[d3plus.evt.click](d)
+          }
+          else {
+
+            edge_update()
+
+            var tooltip_data = d.data ? d.data : d
+
+            d3plus.tooltip.app({
+              "vars": vars,
+              "data": tooltip_data
+            })
+
           }
 
         }
