@@ -5582,7 +5582,7 @@ d3plus.forms.button = function(vars,styles,timing) {
         if (vars.highlight != d.value) {
           if (vars.hover == d.value) {
             if (vars.highlight) {
-              d.bg = d3plus.color.lighter(styles.secondary,.025)
+              d.bg = d3plus.color.darker(styles.secondary,.05)
             }
             else {
               d.bg = d3plus.color.darker(styles.secondary,.05)
@@ -5627,11 +5627,8 @@ d3plus.forms.button = function(vars,styles,timing) {
 
   var style = function(elem) {
 
-    var width = typeof styles.width == "number" ? styles.width+"px" : styles.width
-
     elem
       .style("position","relative")
-      .style("width",width)
       .style("margin",styles.margin+"px")
       .style("display",styles.display)
       .style("border-style","solid")
@@ -5909,18 +5906,16 @@ d3plus.forms.button = function(vars,styles,timing) {
   if (vars.dev) d3plus.console.time("update")
   if (vars.timing) {
     updates
-      .call(mouseevents)
       .transition().duration(vars.timing)
       .call(color)
       .call(style)
   }
   else {
     updates
-      .call(mouseevents)
       .call(color)
       .call(style)
   }
-  updates.call(icons).transition()
+  updates.call(icons).call(mouseevents)
   if (vars.dev) d3plus.console.timeEnd("update")
 
   button.exit().remove()
@@ -6523,7 +6518,6 @@ d3plus.forms.drop = function(vars,styles,timing) {
     if (scrolling) {
 
       if (vars.dev) d3plus.console.time("calculating scroll position")
-      drop_width -= d3plus.scrollbar()
 
       var index = 0
       var options = list.select("div").selectAll("div.d3plus_node")
