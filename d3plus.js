@@ -174,7 +174,7 @@ d3plus.forms = function(passed) {
     "propagation": true,
     "selected": false,
     "text": "text",
-    "timing": 400,
+    "timing": 200,
     "update": true
   }
 
@@ -213,10 +213,11 @@ d3plus.forms = function(passed) {
   vars.forms = function(selection,timing) {
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Set timing to 0 if it's the first time running this function
+    // Set timing to 0 if it's the first time running this function or if the
+    // data length is longer than the "large" limit
     //--------------------------------------------------------------------------
-    var large = vars.data instanceof Array && vars.data.length > vars.large
-    var timing = vars.init && large ? vars.timing : 0
+    var large = vars.data.array instanceof Array && vars.data.array.length > vars.large
+    var timing = !vars.init || large || d3plus.ie ? 0 : vars.timing
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is an array, format it
@@ -5827,24 +5828,23 @@ d3plus.forms.button = function(vars,styles,timing) {
           }
 
         }
+        else {
+          d3.select(this).style("cursor","auto")
+        }
 
       })
       .on(d3plus.evt.out,function(d){
 
         vars.hover = false
 
-        if (vars.data.array.length == 1 || vars.timing == 0) {
-
-          if (d3plus.ie || button.size() >= vars.large) {
-            d3.select(this).style("cursor","auto")
-              .call(color)
-          }
-          else {
-            d3.select(this).style("cursor","auto")
-              .transition().duration(100)
-              .call(color)
-          }
-
+        if (d3plus.ie || button.size() >= vars.large) {
+          d3.select(this).style("cursor","auto")
+            .call(color)
+        }
+        else {
+          d3.select(this).style("cursor","auto")
+            .transition().duration(100)
+            .call(color)
         }
 
       })
@@ -5869,46 +5869,6 @@ d3plus.forms.button = function(vars,styles,timing) {
       return d.id || d.value
     })
 
-  if (vars.update) {
-    if (vars.dev) d3plus.console.time("update")
-    if (vars.timing) {
-      button.transition().duration(vars.timing)
-        .call(color)
-        .call(style)
-    }
-    else {
-      button
-        .call(color)
-        .call(style)
-    }
-    if (vars.dev) d3plus.console.timeEnd("update")
-
-  }
-  else if (vars.hover || vars.hover_previous) {
-
-    var checks = []
-    if (typeof vars.hover != "boolean") checks.push(vars.hover)
-    if (typeof vars.hover_previous != "boolean") checks.push(vars.hover_previous)
-
-    if (checks.length) {
-
-      var elements = button.filter(function(b){
-        return [vars.hover,vars.hover_previous].indexOf(b.value) >= 0
-      })
-
-      if (vars.timing) {
-        elements.transition().duration(vars.timing)
-          .call(color)
-      }
-      else {
-        elements
-          .call(color)
-      }
-
-    }
-
-  }
-
   if (vars.dev) d3plus.console.time("enter")
   button.enter().append("div")
     .attr("id","d3plus_button_"+vars.id)
@@ -5919,34 +5879,49 @@ d3plus.forms.button = function(vars,styles,timing) {
     .call(mouseevents)
   if (vars.dev) d3plus.console.timeEnd("enter")
 
-  if (button.size() < 2) {
-    button.call(icons).call(mouseevents)
-  }
-  else {
-
-    if (vars.previous) {
-      var previous = button.filter(function(b){
-        return b.value == vars.previous
-      })
-      previous.call(color).call(icons).call(mouseevents)
-    }
-
-    if (vars.selected) {
-      var focus = button.filter(function(b){
-        return b.value == vars.selected
-      })
-      focus.call(color).call(icons).call(mouseevents)
-    }
-
-  }
-
-  if (vars.update) {
+  if (vars.update || button.size() < vars.large) {
 
     if (vars.dev) d3plus.console.time("ordering")
     button.order()
     if (vars.dev) d3plus.console.timeEnd("ordering")
 
+    var updates = button
+
   }
+  else {
+
+    var checks = [
+      vars.previous,
+      vars.selected,
+      vars.highlight,
+      vars.hover,
+      vars.hover_previous
+    ].filter(function(c){
+        return c
+      })
+
+    var updates = button.filter(function(b){
+      return checks.indexOf(b.value) >= 0
+    })
+
+  }
+
+  if (vars.dev) d3plus.console.time("update")
+  if (vars.timing) {
+    updates
+      .call(mouseevents)
+      .transition().duration(vars.timing)
+      .call(color)
+      .call(style)
+  }
+  else {
+    updates
+      .call(mouseevents)
+      .call(color)
+      .call(style)
+  }
+  updates.call(icons).transition()
+  if (vars.dev) d3plus.console.timeEnd("update")
 
   button.exit().remove()
 
