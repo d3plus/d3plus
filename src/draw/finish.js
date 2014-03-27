@@ -6,7 +6,7 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Zoom to fit bounds, if applicable
   //----------------------------------------------------------------------------
-  if (d3plus.apps[vars.type.value].zoom) {
+  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
     if (vars.dev.value) d3plus.console.time("calculating zoom")
 
@@ -56,7 +56,7 @@ d3plus.draw.finish = function(vars) {
       },vars.timing)
     }
   }
-  if (d3plus.apps[vars.type.value].zoom) {
+  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     setTimeout(function(){
@@ -100,7 +100,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   var data_req = d3plus.apps[vars.type.value].requirements.indexOf("data") >= 0,
       new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
-        ? 0 : vars.focus.value && d3plus.apps[vars.type.value].zoom ? 0.4 : 1,
+        ? 0 : vars.focus.value && d3plus.apps[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
       old_opacity = vars.group.attr("opacity")
 
   if (new_opacity != old_opacity) {
@@ -152,7 +152,7 @@ d3plus.draw.finish = function(vars) {
     vars.update = true
     vars.init = true
 
-    if (d3plus.apps[vars.type.value].zoom) {
+    if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
       vars.g.zoom
         .datum(vars)
         .call(vars.zoom_behavior.on("zoom",d3plus.zoom.mouse))

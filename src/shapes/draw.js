@@ -516,7 +516,7 @@ d3plus.shape.draw = function(vars) {
           vars.back()
 
         }
-        else if (d3plus.apps[vars.type.value].zoom) {
+        else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
           d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)

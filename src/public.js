@@ -410,9 +410,11 @@ d3plus.public.y = {
 }
 
 d3plus.public.zoom = {
+  "accepted": [true,false],
   "scroll": {
     "accepted": [true,false],
     "value": false,
     "deprecates": ["scroll_zoom"]
-  }
+  },
+  "value": true
 }
