@@ -15,7 +15,12 @@ d3plus.shape.style = function(nodes,vars) {
 
     })
     .style("stroke", function(d){
-      var color = d3plus.shape.color(d,vars)
+      if (d.values) {
+        var color = d3plus.shape.color(d.values[0],vars)
+      }
+      else {
+        var color = d3plus.shape.color(d,vars)
+      }
       return d3plus.color.legible(color)
     })
     .style("stroke-width",vars.style.data.stroke.width)
