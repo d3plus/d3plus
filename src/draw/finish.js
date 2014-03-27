@@ -14,7 +14,7 @@ d3plus.draw.finish = function(vars) {
       d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
     }
 
-    if (vars.focus.changed) {
+    if (vars.focus.changed || vars.height.changed || vars.width.changed) {
       if (!vars.zoom.viewport) {
         d3plus.zoom.bounds(vars,vars.zoom.bounds)
       }
@@ -56,7 +56,7 @@ d3plus.draw.finish = function(vars) {
       },vars.timing)
     }
   }
-  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value) {
+  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     setTimeout(function(){

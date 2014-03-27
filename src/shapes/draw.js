@@ -381,7 +381,7 @@ d3plus.shape.draw = function(vars) {
           .attr("opacity",1)
 
         vars.covered = false
-        
+
         if ((vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value) {
 
           var tooltip_data = d.data ? d.data : d
@@ -522,6 +522,8 @@ d3plus.shape.draw = function(vars) {
         }
         else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
+          edge_update()
+
           d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)
@@ -542,7 +544,6 @@ d3plus.shape.draw = function(vars) {
 
         }
         else {
-
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d)

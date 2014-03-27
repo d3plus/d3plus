@@ -264,7 +264,7 @@ d3plus.draw.steps = function(vars) {
       "function": d3plus.data.color,
       "message": "Calculating Colors",
       "otherwise": function(vars) {
-        if (!vars.color.type != "number") {
+        if (vars.color.type != "number") {
           vars.color.scale = null
         }
       }

@@ -9,7 +9,7 @@ d3plus.shape.labels = function(vars,selection) {
   // Label Exiting
   //----------------------------------------------------------------------------
   remove = function(text) {
-
+    
     if (vars.timing) {
       text
         .transition().duration(vars.timing)
