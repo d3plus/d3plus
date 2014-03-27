@@ -222,10 +222,12 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .parent(vars.tester)
       .id(vars.id)
       .timing(0)
+      .large(9999)
       .draw()
 
     var w = button.width()
     drop_width = d3.max(w)
+    drop_width += styles.stroke*2
     button.remove()
 
     if (vars.dev) d3plus.console.timeEnd("calculating width")
@@ -470,7 +472,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
      text = "text"
     }
 
-    var large = timing ? vars.large : 0
+    var large = vars.data.array.length < vars.large ? vars.large : 0
 
     var buttons = d3plus.forms(style)
       .dev(vars.dev)
