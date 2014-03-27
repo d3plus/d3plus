@@ -24,7 +24,29 @@ d3plus.tooltip.app = function(params) {
     var fullscreen = false,
         align = params.anchor || vars.style.tooltip.anchor,
         length = params.length || "short",
-        footer = vars.footer_text(length)
+        zoom = vars.zoom_direction()
+
+    if (zoom === -1) {
+      var key = vars.id.nesting[vars.depth.value-1],
+          parent = d3plus.variable.value(vars,id,key),
+          solo = vars.id.solo.value.indexOf(parent) >= 0
+    }
+
+    if (zoom === 1 && vars.zoom.value) {
+      var text = vars.format("Click to Expand")
+    }
+    else if (zoom === -1 && vars.zoom.value && solo) {
+      var text = vars.format("Click to Collapse")
+    }
+    else if (length == "short" && (vars.html.value || vars.tooltip.value.long)) {
+      var text = "Click for More Info"
+    }
+    else {
+      var text = vars.footer.value || ""
+    }
+
+    var footer = vars.format(text,"footer")
+
   }
 
   if ("x" in params) {

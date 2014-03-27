@@ -66,25 +66,6 @@ d3plus.viz = function() {
 
     },
     "filtered": false,
-    "footer_text": function(length) {
-
-      var zoom = vars.zoom_direction()
-
-      if (zoom === 1) {
-        var text = vars.format("Click to Expand")
-      }
-      else if (zoom === -1) {
-        var text = vars.format("Click to Collapse")
-      }
-      else if (length == "short" && (vars.html.value || vars.tooltip.value.long)) {
-        var text = "Click for More Info"
-      }
-      else {
-        var text = vars.footer.value || ""
-      }
-
-      return vars.format(text,"footer")
-    },
     "format": function(value,key) {
       if (typeof value === "number") return vars.number_format.value(value,key,vars)
       if (typeof value === "string") return vars.text_format.value(value,key,vars)
