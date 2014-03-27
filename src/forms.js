@@ -110,7 +110,7 @@ d3plus.forms = function(passed) {
     // If it data is not an object, extract data from the element associated with it
     //--------------------------------------------------------------------------
     else if (vars.data && !vars.data.array) {
-      
+
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.element = d3.selectAll(vars.data)
         if (vars.data.charAt(0) == "#") {
@@ -330,8 +330,8 @@ d3plus.forms = function(passed) {
 
         if (vars.dev) {
 
-          var text = value.toString()
-          if (text.length > 50) {
+          var text = value === undefined ? "" : value.toString()
+          if (text.length > 50 || value === undefined) {
             var text = ""
           }
           else {
