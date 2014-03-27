@@ -381,7 +381,7 @@ d3plus.shape.draw = function(vars) {
           .attr("opacity",1)
 
         vars.covered = false
-
+        
         if ((vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value) {
 
           var tooltip_data = d.data ? d.data : d
@@ -410,7 +410,9 @@ d3plus.shape.draw = function(vars) {
 
         vars.covered = false
 
-        if (["area","line"].indexOf(vars.shape.value) >= 0 || d3plus.apps[vars.type.value].tooltip == "follow") {
+        if (["area","line"].indexOf(vars.shape.value) >= 0
+          || (d3plus.apps[vars.type.value].tooltip == "follow" &&
+          (vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value)) {
 
           var tooltip_data = d.data ? d.data : d
           d3plus.tooltip.app({
