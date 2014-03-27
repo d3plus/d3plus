@@ -257,7 +257,7 @@ d3plus.forms = function(passed) {
     // If it data is not an object, extract data from the element associated with it
     //--------------------------------------------------------------------------
     else if (vars.data && !vars.data.array) {
-      
+
       if (typeof vars.data == "string" && !d3.select(vars.data).empty()) {
         vars.element = d3.selectAll(vars.data)
         if (vars.data.charAt(0) == "#") {
@@ -477,8 +477,8 @@ d3plus.forms = function(passed) {
 
         if (vars.dev) {
 
-          var text = value.toString()
-          if (text.length > 50) {
+          var text = value === undefined ? "" : value.toString()
+          if (text.length > 50 || value === undefined) {
             var text = ""
           }
           else {
@@ -1199,11 +1199,13 @@ d3plus.public.y = {
 }
 
 d3plus.public.zoom = {
+  "accepted": [true,false],
   "scroll": {
     "accepted": [true,false],
     "value": false,
     "deprecates": ["scroll_zoom"]
-  }
+  },
+  "value": true
 }
 d3plus.viz = function() {
 
@@ -1273,25 +1275,6 @@ d3plus.viz = function() {
 
     },
     "filtered": false,
-    "footer_text": function(length) {
-
-      var zoom = vars.zoom_direction()
-
-      if (zoom === 1) {
-        var text = vars.format("Click to Expand")
-      }
-      else if (zoom === -1) {
-        var text = vars.format("Click to Collapse")
-      }
-      else if (length == "short" && (vars.html.value || vars.tooltip.value.long)) {
-        var text = "Click for More Info"
-      }
-      else {
-        var text = vars.footer.value || ""
-      }
-
-      return vars.format(text,"footer")
-    },
     "format": function(value,key) {
       if (typeof value === "number") return vars.number_format.value(value,key,vars)
       if (typeof value === "string") return vars.text_format.value(value,key,vars)
@@ -4905,7 +4888,7 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Zoom to fit bounds, if applicable
   //----------------------------------------------------------------------------
-  if (d3plus.apps[vars.type.value].zoom) {
+  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
     if (vars.dev.value) d3plus.console.time("calculating zoom")
 
@@ -4955,7 +4938,7 @@ d3plus.draw.finish = function(vars) {
       },vars.timing)
     }
   }
-  if (d3plus.apps[vars.type.value].zoom) {
+  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     setTimeout(function(){
@@ -4999,7 +4982,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   var data_req = d3plus.apps[vars.type.value].requirements.indexOf("data") >= 0,
       new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
-        ? 0 : vars.focus.value && d3plus.apps[vars.type.value].zoom ? 0.4 : 1,
+        ? 0 : vars.focus.value && d3plus.apps[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
       old_opacity = vars.group.attr("opacity")
 
   if (new_opacity != old_opacity) {
@@ -5051,7 +5034,7 @@ d3plus.draw.finish = function(vars) {
     vars.update = true
     vars.init = true
 
-    if (d3plus.apps[vars.type.value].zoom) {
+    if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
       vars.g.zoom
         .datum(vars)
         .call(vars.zoom_behavior.on("zoom",d3plus.zoom.mouse))
@@ -5077,7 +5060,7 @@ d3plus.draw.focus = function(vars) {
     .selectAll("g")
     .remove()
 
-  if (vars.focus.value && d3plus.apps[vars.type.value].zoom) {
+  if (vars.focus.value && d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
     if (vars.dev.value) d3plus.console.time("drawing focus elements")
 
@@ -5632,6 +5615,12 @@ d3plus.forms.button = function(vars,styles,timing) {
 
       })
       .style("border-color",styles.secondary)
+      .style("opacity",function(d){
+        if ([vars.selected,vars.highlight].indexOf(d.value) < 0) {
+          return 0.75
+        }
+        return 1
+      })
 
   }
 
@@ -5644,12 +5633,6 @@ d3plus.forms.button = function(vars,styles,timing) {
       .style("width",width)
       .style("margin",styles.margin+"px")
       .style("display",styles.display)
-      .style("opacity",function(d){
-        if ([vars.selected,vars.highlight].indexOf(d.value) < 0) {
-          return 0.75
-        }
-        return 1
-      })
       .style("border-style","solid")
       .style("border-width",border_width)
       .style("font-family",styles["font-family"])
@@ -5937,7 +5920,7 @@ d3plus.forms.button = function(vars,styles,timing) {
   if (vars.dev) d3plus.console.timeEnd("enter")
 
   if (button.size() < 2) {
-    button.call(icons)
+    button.call(icons).call(mouseevents)
   }
   else {
 
@@ -5945,14 +5928,14 @@ d3plus.forms.button = function(vars,styles,timing) {
       var previous = button.filter(function(b){
         return b.value == vars.previous
       })
-      previous.call(color).call(icons)
+      previous.call(color).call(icons).call(mouseevents)
     }
 
     if (vars.selected) {
       var focus = button.filter(function(b){
         return b.value == vars.selected
       })
-      focus.call(color).call(icons)
+      focus.call(color).call(icons).call(mouseevents)
     }
 
   }
@@ -5962,10 +5945,6 @@ d3plus.forms.button = function(vars,styles,timing) {
     if (vars.dev) d3plus.console.time("ordering")
     button.order()
     if (vars.dev) d3plus.console.timeEnd("ordering")
-
-    if (vars.dev) d3plus.console.time("events")
-    button.call(mouseevents)
-    if (vars.dev) d3plus.console.timeEnd("events")
 
   }
 
@@ -6256,10 +6235,12 @@ d3plus.forms.drop = function(vars,styles,timing) {
       .parent(vars.tester)
       .id(vars.id)
       .timing(0)
+      .large(9999)
       .draw()
 
     var w = button.width()
     drop_width = d3.max(w)
+    drop_width += styles.stroke*2
     button.remove()
 
     if (vars.dev) d3plus.console.timeEnd("calculating width")
@@ -6504,7 +6485,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
      text = "text"
     }
 
-    var large = timing ? vars.large : 0
+    var large = vars.data.array.length < vars.large ? vars.large : 0
 
     var buttons = d3plus.forms(style)
       .dev(vars.dev)
@@ -7748,11 +7729,15 @@ d3plus.shape.draw = function(vars) {
 
         vars.covered = false
 
-        var tooltip_data = d.data ? d.data : d
-        d3plus.tooltip.app({
-          "vars": vars,
-          "data": tooltip_data
-        })
+        if (vars.focus.value != d[vars.id.key]) {
+
+          var tooltip_data = d.data ? d.data : d
+          d3plus.tooltip.app({
+            "vars": vars,
+            "data": tooltip_data
+          })
+
+        }
 
         if (typeof vars.mouse == "function") {
           vars.mouse(d)
@@ -7825,8 +7810,6 @@ d3plus.shape.draw = function(vars) {
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-        edge_update()
-
         var depth_delta = vars.zoom_direction(),
             previous = vars.id.solo.value,
             title = d3plus.variable.value(vars,d,vars.text.key),
@@ -7835,7 +7818,7 @@ d3plus.shape.draw = function(vars) {
             prev_color = vars.style.title.sub["font-color"],
             prev_total = vars.style.title.total["font-color"]
 
-        if (d.d3plus.threshold && d.d3plus.merged) {
+        if (d.d3plus.threshold && d.d3plus.merged && vars.zoom.value) {
 
           vars.history.states.push(function(){
 
@@ -7854,7 +7837,7 @@ d3plus.shape.draw = function(vars) {
             .draw()
 
         }
-        else if (depth_delta === 1) {
+        else if (depth_delta === 1 && vars.zoom.value) {
 
           var id = d3plus.variable.value(vars,d,vars.id.key)
 
@@ -7877,12 +7860,12 @@ d3plus.shape.draw = function(vars) {
             .draw()
 
         }
-        else if (depth_delta === -1) {
+        else if (depth_delta === -1 && vars.zoom.value) {
 
           vars.back()
 
         }
-        else if (d3plus.apps[vars.type.value].zoom) {
+        else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
           d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)
@@ -7905,18 +7888,24 @@ d3plus.shape.draw = function(vars) {
         }
         else {
 
-          var tooltip_data = d.data ? d.data : d
-
-          d3plus.tooltip.app({
-            "vars": vars,
-            "data": tooltip_data
-          })
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d)
           }
           else if (vars.mouse[d3plus.evt.click]) {
             vars.mouse[d3plus.evt.click](d)
+          }
+          else {
+
+            edge_update()
+
+            var tooltip_data = d.data ? d.data : d
+
+            d3plus.tooltip.app({
+              "vars": vars,
+              "data": tooltip_data
+            })
+
           }
 
         }
@@ -8912,7 +8901,8 @@ d3plus.shape.labels = function(vars,selection) {
 
           if (text.size() == 0 || text.html() == "") {
             delete d.d3plus_label
-            text.remove()
+            group.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+              .call(remove)
           }
           else {
 
@@ -9694,7 +9684,29 @@ d3plus.tooltip.app = function(params) {
     var fullscreen = false,
         align = params.anchor || vars.style.tooltip.anchor,
         length = params.length || "short",
-        footer = vars.footer_text(length)
+        zoom = vars.zoom_direction()
+
+    if (zoom === -1) {
+      var key = vars.id.nesting[vars.depth.value-1],
+          parent = d3plus.variable.value(vars,id,key),
+          solo = vars.id.solo.value.indexOf(parent) >= 0
+    }
+
+    if (zoom === 1 && vars.zoom.value) {
+      var text = vars.format("Click to Expand")
+    }
+    else if (zoom === -1 && vars.zoom.value && solo) {
+      var text = vars.format("Click to Collapse")
+    }
+    else if (length == "short" && (vars.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
+      var text = "Click for More Info"
+    }
+    else {
+      var text = vars.footer.value || ""
+    }
+
+    var footer = vars.format(text,"footer")
+
   }
 
   if ("x" in params) {
@@ -11559,11 +11571,14 @@ d3plus.ui.message = function(vars,message) {
     else if (vars.title.total.value) {
       var font = vars.style.title.total
     }
-    else {
-      var font = vars.style.footer
-    }
 
-    var position = font.position
+    if (font) {
+      var position = font.position
+    }
+    else {
+      var font = vars.style.message,
+          position = "center"
+    }
 
   }
 
