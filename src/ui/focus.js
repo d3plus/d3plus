@@ -4,7 +4,7 @@
 
 d3plus.ui.focus = function(vars) {
 
-  if (!vars.internal_error && vars.focus.value && !vars.small) {
+  if (!vars.internal_error && vars.focus.value && !vars.small && vars.focus.tooltip.value) {
 
     var data = vars.data.pool.filter(function(d){
       return d3plus.variable.value(vars,d,vars.id.key) == vars.focus.value

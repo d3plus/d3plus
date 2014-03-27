@@ -109,6 +109,10 @@ d3plus.public.error = {
 
 d3plus.public.focus = {
   "deprecates": ["highlight"],
+  "tooltip": {
+    "accepted": [true,false],
+    "value": true
+  },
   "value": null
 }
 
