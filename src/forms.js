@@ -27,7 +27,7 @@ d3plus.forms = function(passed) {
     "propagation": true,
     "selected": false,
     "text": "text",
-    "timing": 400,
+    "timing": 200,
     "update": true
   }
 
@@ -66,10 +66,11 @@ d3plus.forms = function(passed) {
   vars.forms = function(selection,timing) {
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Set timing to 0 if it's the first time running this function
+    // Set timing to 0 if it's the first time running this function or if the
+    // data length is longer than the "large" limit
     //--------------------------------------------------------------------------
-    var large = vars.data instanceof Array && vars.data.length > vars.large
-    var timing = vars.init && large ? vars.timing : 0
+    var large = vars.data.array instanceof Array && vars.data.array.length > vars.large
+    var timing = !vars.init || large || d3plus.ie ? 0 : vars.timing
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is an array, format it
