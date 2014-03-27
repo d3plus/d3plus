@@ -7,6 +7,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
   // Define the geographical projection
   //----------------------------------------------------------------------------
   var projection = d3.geo[vars.coords.projection.value]()
+    .center(vars.coords.center)
     // .translate([-vars.app_width/2,-vars.app_height/2])
 
   // var clip = d3.geo.clipExtent()

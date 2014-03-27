@@ -49,6 +49,7 @@ d3plus.public.container = {
 }
 
 d3plus.public.coords = {
+  "center": [0,0],
   "fit": {
     "accepted": ["auto","height","width"],
     "value": "auto"
