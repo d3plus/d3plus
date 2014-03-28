@@ -1,23 +1,35 @@
 d3plus.apps.tree_map = {}
-d3plus.apps.tree_map.data = "nested";
-d3plus.apps.tree_map.requirements = ["size"];
+d3plus.apps.tree_map.modes = ["squarify","slice","dice","slice-dice"];
+d3plus.apps.tree_map.requirements = ["data","size"];
 d3plus.apps.tree_map.tooltip = "follow"
 d3plus.apps.tree_map.shapes = ["square"];
+d3plus.apps.tree_map.threshold = 0.0005;
 
 d3plus.apps.tree_map.draw = function(vars) {
-  
+
+  d3plus.data.threshold(vars)
+
+  var grouped_data = d3.nest()
+
+  vars.id.nesting.forEach(function(n,i){
+    if (i < vars.depth.value) {
+      grouped_data.key(function(d){return d[n]})
+    }
+  })
+
+  grouped_data = grouped_data.entries(vars.data.app)
+
   var data = d3.layout.treemap()
-    .round(false)
+    .mode(vars.type.mode.value)
+    .round(true)
     .size([vars.app_width, vars.app_height])
-    .children(function(d) { return d.children; })
+    .children(function(d) { return d.values; })
     .padding(1)
     .sort(function(a, b) { return a.value - b.value; })
-    .value(function(d) {
-      return d3plus.variable.value(vars,d,vars.size.key);
-    })
-    .nodes({"name":"root", "children": vars.data.app})
+    .value(function(d) { return d3plus.variable.value(vars,d,vars.size.key); })
+    .nodes({"name":"root", "values": grouped_data})
     .filter(function(d) {
-      return !d.children && d.area > 0;
+      return !d.values && d.area;
     })
 
   if (data.length) {

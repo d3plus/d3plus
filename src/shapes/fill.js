@@ -7,13 +7,13 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
   // The position and size of each rectangle on enter and exit.
   //----------------------------------------------------------------------------
   function init(nodes) {
-    
+
     nodes
       .attr("x",0)
       .attr("y",0)
       .attr("width",0)
       .attr("height",0)
-      
+
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,7 +57,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         }
       })
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // In order to correctly animate each donut's size and arcs, we need to store
   // it's previous values in a lookup object that does not get destroyed when
@@ -97,7 +97,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // This is the main "arcTween" function where all of the animation happens 
+  // This is the main "arcTween" function where all of the animation happens
   // for each arc.
   //----------------------------------------------------------------------------
   function size(path,mod,rad,ang) {
@@ -115,7 +115,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       }
       var radius = d3.interpolate(vars.arcs[d.d3plus.shapeType][d.d3plus.id].r,r+mod),
           angle = d3.interpolate(vars.arcs[d.d3plus.shapeType][d.d3plus.id].a,a)
-          
+
       return function(t) {
         vars.arcs[d.d3plus.shapeType][d.d3plus.id].r = radius(t)
         vars.arcs[d.d3plus.shapeType][d.d3plus.id].a = angle(t)
@@ -123,48 +123,66 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       }
     })
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check each data point for active and temp data
   //----------------------------------------------------------------------------
   selection.each(function(d){
-  
+
     var active = vars.active.key ? d.d3plus[vars.active.key] : d.d3plus.active,
         temp = vars.temp.key ? d.d3plus[vars.temp.key] : d.d3plus.temp,
         total = vars.total.key ? d.d3plus[vars.total.key] : d.d3plus.total,
         group = d3.select(this),
         color = d3plus.variable.color(vars,d)
-    
+
     var fill_data = [], hatch_data = []
-      
+
     if (total && d3plus.apps[vars.type.value].fill) {
-      
+
       if (temp) {
         var copy = d3plus.utils.copy(d)
         copy.d3plus.shapeType = "temp"
         fill_data.push(copy)
         hatch_data = ["temp"]
       }
-      
+
       if (active && (active < total || temp)) {
         var copy = d3plus.utils.copy(d)
         copy.d3plus.shapeType = "active"
         fill_data.push(copy)
       }
-        
+
     }
-    
+
+    function hatch_lines(l) {
+      l
+        .attr("stroke",color)
+        .attr("stroke-width",1)
+        .attr("shape-rendering",vars.style.rendering)
+    }
+
     var pattern = vars.defs.selectAll("pattern#d3plus_hatch_"+d.d3plus.id)
       .data(hatch_data)
-  
-    pattern.selectAll("rect")
-      .transition().duration(vars.style.timing.transitions)
-      .style("fill",color)
 
-    pattern.selectAll("line")
-      .transition().duration(vars.style.timing.transitions)
-      .style("stroke",color)
-  
+    if (vars.timing) {
+
+      pattern.selectAll("rect")
+        .transition().duration(vars.timing)
+        .style("fill",color)
+
+      pattern.selectAll("line")
+        .transition().duration(vars.timing)
+        .style("stroke",color)
+
+    }
+    else {
+
+      pattern.selectAll("rect").style("fill",color)
+
+      pattern.selectAll("line").style("stroke",color)
+
+    }
+
     var pattern_enter = pattern.enter().append("pattern")
       .attr("id","d3plus_hatch_"+d.d3plus.id)
       .attr("patternUnits","userSpaceOnUse")
@@ -173,7 +191,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       .attr("width","10")
       .attr("height","10")
       .append("g")
-    
+
     pattern_enter.append("rect")
       .attr("x","0")
       .attr("y","0")
@@ -181,72 +199,76 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       .attr("height","10")
       .attr("fill",color)
       .attr("fill-opacity",0.25)
-      
-    function hatch_lines(l) {
-      l
-        .attr("stroke",color)
-        .attr("stroke-width",1)
-        .attr("shape-rendering",vars.style.rendering)
-    }
-    
+
     pattern_enter.append("line")
       .attr("x1","0")
       .attr("x2","10")
       .attr("y1","0")
       .attr("y2","10")
       .call(hatch_lines)
-    
+
     pattern_enter.append("line")
       .attr("x1","-1")
       .attr("x2","1")
       .attr("y1","9")
       .attr("y2","11")
       .call(hatch_lines)
-    
+
     pattern_enter.append("line")
       .attr("x1","9")
       .attr("x2","11")
       .attr("y1","-1")
       .attr("y2","1")
       .call(hatch_lines)
-    
+
     var clip_data = fill_data.length ? [d] : []
-    
+
     var clip = group.selectAll("#d3plus_clip_"+d.d3plus.id)
       .data(clip_data)
-      
+
     clip.enter().insert("clipPath",".d3plus_mouse")
       .attr("id","d3plus_clip_"+d.d3plus.id)
       .append("rect")
-        .attr("class","d3plus_clipping")
-        .call(init)
-        
-    clip.selectAll("rect").transition().duration(vars.style.timing.transitions)
-      .call(update)
-    
-    clip.exit().transition().delay(vars.style.timing.transitions)
-      .remove()
+      .attr("class","d3plus_clipping")
+      .call(init)
+
+    if (vars.timing) {
       
+      clip.selectAll("rect").transition().duration(vars.timing)
+        .call(update)
+
+      clip.exit().transition().delay(vars.timing)
+        .remove()
+
+    }
+    else {
+
+      clip.selectAll("rect").call(update)
+
+      clip.exit().remove()
+
+    }
+
     var fills = group.selectAll("path.d3plus_fill")
       .data(fill_data)
-      
-    fills.transition().duration(vars.style.timing.transitions)
+
+    fills.transition().duration(vars.timing)
       .call(d3plus.shape.style,vars)
       .call(size)
-      
+
     fills.enter().insert("path","rect.d3plus_mouse")
       .attr("class","d3plus_fill")
       .attr("clip-path","url(#d3plus_clip_"+d.d3plus.id+")")
       .transition().duration(0)
         .call(size,0,undefined,0)
         .call(d3plus.shape.style,vars)
-        .transition().duration(vars.style.timing.transitions)
+        .transition().duration(vars.timing)
           .call(size)
-  
-    fills.exit().transition().duration(vars.style.timing.transitions)
+
+    fills.exit().transition().duration(vars.timing)
       .call(size,0,undefined,0)
       .remove()
-    
+
   })
-  
+
 }

@@ -16,15 +16,15 @@ d3plus.public.active = {
 }
 
 d3plus.public.aggs = {
-  "value": {},
-  "deprecated": ["nesting_aggs"]
+  "deprecated": ["nesting_aggs"],
+  "value": {}
 }
 
 d3plus.public.axes = {
   "mirror": {
     "accepted": [true,false],
-    "value": false,
-    "deprecates": ["mirror_axis","mirror_axes"]
+    "deprecates": ["mirror_axis","mirror_axes"],
+    "value": false
   },
   "values": ["x","y"]
 }
@@ -49,6 +49,7 @@ d3plus.public.container = {
 }
 
 d3plus.public.coords = {
+  "center": [0,0],
   "fit": {
     "accepted": ["auto","height","width"],
     "value": "auto"
@@ -64,10 +65,12 @@ d3plus.public.coords = {
   "solo": {
     "value": []
   },
+  "threshold": 0.1,
   "value": null
 }
 
 d3plus.public.data = {
+  "large": 400,
   "value": []
 }
 
@@ -84,22 +87,51 @@ d3plus.public.dev = {
   "value": false
 }
 
+d3plus.public.edges = {
+  "arrows": {
+    "accepted": [true,false],
+    "direction": {
+      "accepted": ["source","target"],
+      "value": "target"
+    },
+    "value": false
+  },
+  "deprecates": ["edges"],
+  "label": false,
+  "large": 100,
+  "limit": false,
+  "source": "source",
+  "target": "target",
+  "value": null
+}
+
 d3plus.public.error = {
   "value": false
 }
 
 d3plus.public.focus = {
-  "value": null,
-  "deprecates": ["highlight"]
+  "deprecates": ["highlight"],
+  "tooltip": {
+    "accepted": [true,false],
+    "value": true
+  },
+  "value": null
 }
 
 d3plus.public.footer = {
+  "link": null,
   "value": false
 }
 
 d3plus.public.height = {
   "small": 250,
   "value": null
+}
+
+d3plus.public.history = {
+  "accepted": [true,false],
+  "states": [],
+  "value": true
 }
 
 d3plus.public.html = {
@@ -151,19 +183,9 @@ d3plus.public.legend = {
   "value": true
 }
 
-d3plus.public.links = {
-  "arrows": {
-    "direction": {
-      "accepted": ["source","target"],
-      "value": "target"
-    },
-    "value": false
-  },
-  "deprecates": ["edges"],
-  "large": 100,
-  "label": false,
-  "limit": false,
-  "value": null
+d3plus.public.messages = {
+  "accepted": [true,false],
+  "value": true
 }
 
 d3plus.public.nodes = {
@@ -172,7 +194,7 @@ d3plus.public.nodes = {
 
 d3plus.public.number_format = {
   "value": function(number,key,vars) {
-    
+
     if (vars && vars.time.key && key == vars.time.key) {
       return number
     }
@@ -182,7 +204,7 @@ d3plus.public.number_format = {
     else if (number.toString().split(".")[0].length > 4) {
       var symbol = d3.formatPrefix(number).symbol
       symbol = symbol.replace("G", "B") // d3 uses G for giga
-    
+
       // Format number to precision level using proper scale
       number = d3.formatPrefix(number).scale(number)
       number = parseFloat(d3.format(".3g")(number))
@@ -194,7 +216,7 @@ d3plus.public.number_format = {
     else {
       return d3.format(",f")(number)
     }
-  
+
   }
 }
 
@@ -209,12 +231,12 @@ d3plus.public.order = {
 
 d3plus.public.shape = {
   "accepted": ["circle","donut","line","square","area","coordinates"],
-  "value": null,
   "interpolate": {
     "accepted": ["linear","step","step-before","step-after","basis","basis-open","cardinal","cardinal-open","monotone"],
     "value": "linear",
     "deprecates": ["stack_type"]
-  }
+  },
+  "value": null
 }
 
 d3plus.public.size = {
@@ -232,7 +254,7 @@ d3plus.public.size = {
   "solo": {
     "value": []
   },
-  "threshold": 0.03
+  "threshold": true
 }
 
 d3plus.public.temp = {
@@ -259,8 +281,12 @@ d3plus.public.text = {
 
 d3plus.public.text_format = {
   "value": function(text,key,vars) {
-    if (!text) return ""
-    return text.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+    if (!text) return "";
+    var smalls = ["and"]
+    if (smalls.indexOf(text) >= 0) return text
+    return text.replace(/\w\S*/g, function(txt){
+      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    });
   }
 }
 
@@ -283,27 +309,30 @@ d3plus.public.time = {
 
 d3plus.public.timeline = {
   "accepted": [true,false],
-  "value": true,
-  "label": null
+  "label": null,
+  "value": true
 }
 
 d3plus.public.title = {
-  "value": null,
+  "link": null,
   "sub": {
+    "link": null,
     "value": null,
     "deprecates": ["sub_title"]
   },
   "total": {
+    "link": null,
     "value": false,
     "deprecates": ["total_bar"],
     "object": true
-  }
+  },
+  "value": null
 }
 
 d3plus.public.tooltip = {
   "deprecates": ["tooltip_info"],
-  "value": [],
-  "object": true
+  "object": true,
+  "value": []
 }
 
 d3plus.public.total = {
@@ -318,6 +347,10 @@ d3plus.public.total = {
 }
 
 d3plus.public.type = {
+  "mode": {
+    "accepted": ["squarify","slice","dice","slice-dice"],
+    "value": "squarify"
+  },
   "value": "tree_map"
 }
 
@@ -341,12 +374,12 @@ d3plus.public.x = {
     "value": "linear",
     "deprecates": ["layout","unique_axis","xaxis_scale"]
   },
+  "solo": {
+    "value": []
+  },
   "stacked": {
     "accepted": [true,false],
     "value": false
-  },
-  "solo": {
-    "value": []
   },
   "zerofill": {
     "accepted": [true,false],
@@ -369,12 +402,12 @@ d3plus.public.y = {
     "value": "linear",
     "deprecates": ["layout","unique_axis","yaxis_scale"]
   },
+  "solo": {
+    "value": []
+  },
   "stacked": {
     "accepted": [true,false],
     "value": false
-  },
-  "solo": {
-    "value": []
   },
   "zerofill": {
     "accepted": [true,false],
@@ -383,9 +416,11 @@ d3plus.public.y = {
 }
 
 d3plus.public.zoom = {
+  "accepted": [true,false],
   "scroll": {
     "accepted": [true,false],
     "value": false,
     "deprecates": ["scroll_zoom"]
-  }
+  },
+  "value": true
 }

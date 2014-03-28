@@ -1,8 +1,11 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
-//-------------------------------------------------------------------
+//------------------------------------------------------------------------------
+d3plus.tooltip.data = function(vars,id,length,extras,depth) {
 
-d3plus.tooltip.data = function(vars,id,length,extras) {
+  if (vars.small) {
+    return []
+  }
 
   if (!length) var length = "long"
   if (length == "long") {
@@ -11,7 +14,7 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
   else {
     var other_length = "long"
   }
-  
+
   var extra_data = {}
   if (extras && typeof extras == "string") extras = [extras]
   else if (extras && typeof extras == "object") {
@@ -22,9 +25,9 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
     }
   }
   else if (!extras) var extras = []
-  
+
   var tooltip_highlights = []
-  
+
   if (vars.tooltip.value instanceof Array) {
     var a = vars.tooltip.value
   }
@@ -32,16 +35,16 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
     var a = [vars.tooltip.value]
   }
   else {
-    
-    if (vars.tooltip.value[vars.id.nesting[vars.depth.value]]) {
-      var a = vars.tooltip.value[vars.id.nesting[vars.depth.value]]
+
+    if (vars.tooltip.value[vars.id.nesting[depth]]) {
+      var a = vars.tooltip.value[vars.id.nesting[depth]]
     }
     else {
       var a = vars.tooltip.value
     }
-    
+
     if (!(a instanceof Array)) {
-      
+
       if (a[length]) {
         a = a[length]
       }
@@ -51,66 +54,66 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
       else {
         a = d3plus.utils.merge({"":[]},a)
       }
-      
+
     }
-    
+
     if (typeof a == "string") {
       a = [a]
     }
     else if (!(a instanceof Array)) {
       a = d3plus.utils.merge({"":[]},a)
     }
-    
+
   }
-  
+
   function format_key(key,group) {
     if (vars.attrs.value[group]) var id_var = group
     else var id_var = null
-    
+
     if (group) group = vars.format(group)
-    
+
     var value = extra_data[key] || d3plus.variable.value(vars,id,key,id_var)
-    
+
     if (value !== false && value !== null) {
       var name = vars.format(key),
           h = tooltip_highlights.indexOf(key) >= 0
-          
+
       var val = vars.format(value,key)
-      
+
       var obj = {"name": name, "value": val, "highlight": h, "group": group}
-      
+
       if (vars.descs[key]) obj.desc = vars.descs[key]
-    
+
       if (val) tooltip_data.push(obj)
     }
-    
+
   }
-     
+
   var tooltip_data = []
   if (a instanceof Array) {
-    
+
     extras.forEach(function(e){
       if (a.indexOf(e) < 0) a.push(e)
     })
-    
+
     a.forEach(function(t){
       format_key(t)
     })
-  
+
   }
   else {
-    
-    if (vars.id.nesting.length && vars.depth.value < vars.id.nesting.length-1) {
+
+    if (vars.id.nesting.length && depth < vars.id.nesting.length-1) {
       var a = d3plus.utils.copy(a)
       vars.id.nesting.forEach(function(n,i){
-        if (i > vars.depth.value && a[n]) delete a[n]
+        if (i > depth && a[n]) delete a[n]
       })
     }
-    
+
     if (vars.tooltip.value.long && typeof vars.tooltip.value.long == "object") {
       var placed = []
       for (group in vars.tooltip.value.long) {
-        
+
         extras.forEach(function(e){
           if (vars.tooltip.value.long[group].indexOf(e) >= 0 && ((a[group] && a[group].indexOf(e) < 0) || !a[group])) {
             if (!a[group]) a[group] = []
@@ -150,14 +153,14 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
         })
       }
     }
-    
+
     if (a[""]) {
       a[""].forEach(function(t){
         format_key(t,"")
       })
       delete a[""]
     }
-    
+
     for (group in a) {
       if (a[group] instanceof Array) {
         a[group].forEach(function(t){
@@ -168,9 +171,43 @@ d3plus.tooltip.data = function(vars,id,length,extras) {
         format_key(a[group],group)
       }
     }
-    
+
   }
-  
+
+  if (length == "long") {
+
+    var connections = vars.connections(id[vars.id.key],true)
+    if (connections.length) {
+      connections.forEach(function(c){
+        var name = d3plus.variable.text(vars,c)[0],
+            color = d3plus.variable.color(vars,c),
+            size = vars.style.tooltip.font.size,
+            radius = vars.shape.value == "square" ? 0 : size
+            styles = [
+              "background-color: "+color,
+              "border-color: "+d3plus.color.legible(color),
+              "border-style: solid",
+              "border-width: "+vars.style.data.stroke.width+"px",
+              "display: inline-block",
+              "height: "+size+"px",
+              "left: 0px",
+              "position: absolute",
+              "width: "+size+"px",
+              "top: 0px",
+              d3plus.prefix()+"border-radius: "+radius+"px",
+            ]
+            node = "<div style='"+styles.join("; ")+";'></div>"
+        tooltip_data.push({
+          "group": vars.format("Primary Connections"),
+          "highlight": false,
+          "name": "<div style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>",
+          "value": ""
+        })
+      })
+    }
+
+  }
+
   return tooltip_data
-  
+
 }

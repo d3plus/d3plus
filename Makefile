@@ -3,8 +3,8 @@ JS_FILES = \
 	\
 	src/general.js \
 	\
+	src/forms.js \
 	src/public.js \
-	src/ui.js \
 	src/viz.js \
 	\
 	src/apps/bubbles.js \
@@ -18,10 +18,24 @@ JS_FILES = \
 	\
 	src/data/analyze.js \
 	src/data/color.js \
+	src/data/edges.js \
 	src/data/fetch.js \
 	src/data/filter.js \
 	src/data/format.js \
+	src/data/keys.js \
 	src/data/nest.js \
+	src/data/nodes.js \
+	src/data/restrict.js \
+	src/data/threshold.js \
+	\
+	src/draw/app.js \
+	src/draw/container.js \
+	src/draw/enter.js \
+	src/draw/errors.js \
+	src/draw/finish.js \
+	src/draw/focus.js \
+	src/draw/steps.js \
+	src/draw/update.js \
 	\
 	src/forms/button.js \
 	src/forms/data.js \
@@ -31,20 +45,15 @@ JS_FILES = \
 	src/forms/radio.js \
 	src/forms/value.js \
 	\
-	src/info/error.js \
-	src/info/legend.js \
-	src/info/timeline.js \
-	src/info/titles.js \
-	\
 	src/shapes/area.js \
 	src/shapes/color.js \
 	src/shapes/coordinates.js \
 	src/shapes/donut.js \
 	src/shapes/draw.js \
+	src/shapes/edges.js \
 	src/shapes/fill.js \
 	src/shapes/labels.js \
 	src/shapes/line.js \
-	src/shapes/links.js \
 	src/shapes/rect.js \
 	src/shapes/style.js \
 	\
@@ -57,14 +66,24 @@ JS_FILES = \
 	src/tooltip/move.js \
 	src/tooltip/remove.js \
 	\
+	src/ui/focus.js \
+	src/ui/history.js \
+	src/ui/legend.js \
+	src/ui/message.js \
+	src/ui/timeline.js \
+	src/ui/titles.js \
+	\
 	src/utils/color.js \
+	src/utils/fonts.js \
 	src/utils/utils.js \
 	src/utils/variables.js \
 	src/utils/wordwrap.js \
 	\
 	src/zoom/bounds.js \
 	src/zoom/controls.js \
-	src/zoom/reset.js \
+	src/zoom/labels.js \
+	src/zoom/mouse.js \
+	src/zoom/transform.js \
 	\
 	src/end.js \
 
@@ -85,4 +104,3 @@ d3plus.min.js: Makefile
 
 clean:
 	rm -rf d3plus.js d3plus.min.js
-

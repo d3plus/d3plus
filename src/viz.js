@@ -3,60 +3,69 @@ d3plus.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Public Variables with Default Settings
   //-------------------------------------------------------------------
-  
-  var vars = {
-    "autodraw": false,
-    "connections": function(focus,objects) {
-      
-      var links = vars.links.restricted || vars.links.value,
-          targets = []
-      
-      if (!focus) {
-        return links
-      }
-      
-      var connections = links.filter(function(link){
 
-        var check = ["source","target"],
-            match = false
-          
-        if (typeof link.source != "object") {
-          var obj = {}
-          obj[vars.id.key] = link.source
-          link.source = obj
+  var vars = {
+    "back": function() {
+
+      if (vars.history.states.length > 0) {
+
+        var func = vars.history.states.pop()
+        if (typeof func === "function") {
+          func()
         }
-          
-        if (typeof link.target != "object") {
-          var obj = {}
-          obj[vars.id.key] = link.target
-          link.target = obj
+
+      }
+
+    },
+    "connected": function(edge) {
+      var focus = vars.focus.value
+      if (focus) {
+        var source = edge[vars.edges.source][vars.id.key],
+            target = edge[vars.edges.target][vars.id.key]
+        if (source == focus || target == focus) {
+          return true
         }
-        
-        if (link.source[vars.id.key] == focus) {
+      }
+      return false
+    },
+    "connections": function(focus,objects) {
+
+      if (!vars.edges.value) {
+        return []
+      }
+
+      var edges = vars.edges.restricted || vars.edges.value,
+          targets = []
+
+      if (!focus) {
+        return edges
+      }
+
+      var connections = edges.filter(function(edge){
+
+        var match = false
+
+        if (edge[vars.edges.source][vars.id.key] == focus) {
           match = true
           if (objects) {
-            targets.push(link.target)
+            targets.push(edge[vars.edges.target])
           }
         }
-        else if (link.target[vars.id.key] == focus) {
+        else if (edge[vars.edges.target][vars.id.key] == focus) {
           match = true
           if (objects) {
-            targets.push(link.source)
+            targets.push(edge[vars.edges.source])
           }
         }
-        
+
         return match
-        
+
       })
-      
+
       return objects ? targets : connections
-          
+
     },
     "filtered": false,
-    "footer_text": function() {
-      var text = vars.html.value || vars.tooltip.value.long ? "Click for More Info" : null
-      return vars.text_format.value(text)
-    },
     "format": function(value,key) {
       if (typeof value === "number") return vars.number_format.value(value,key,vars)
       if (typeof value === "string") return vars.text_format.value(value,key,vars)
@@ -64,423 +73,154 @@ d3plus.viz = function() {
     },
     "frozen": false,
     "g": {"apps":{}},
-    "graph": {},
+    "init": false,
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "mute": [],
     "solo": [],
-    "style": d3plus.styles.default
+    "style": d3plus.styles.default,
+    "timing": d3plus.styles.default.timing.transitions,
+    "update": true,
+    "zoom_behavior": d3.behavior.zoom().scaleExtent([1,1]),
+    "zoom_direction": function() {
+
+      var max_depth = vars.id.nesting.length-1,
+          current_depth = vars.depth.value,
+          restricted = d3plus.apps[vars.type.value].nesting === false
+
+      if (restricted) {
+        return 0
+      }
+      else if (current_depth < max_depth) {
+        return 1
+      }
+      else if (current_depth == max_depth && (vars.small || !vars.html.value)) {
+        return -1
+      }
+
+      return 0
+
+    }
   }
-  
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Main drawing function
-  //-------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   vars.viz = function(selection) {
     selection.each(function() {
-      
+
       vars.frozen = true
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // If placing into a new container, remove it's contents
-      // and check text direction.
-      //-------------------------------------------------------------------
-      if (vars.container.changed) {
-        
-        vars.parent = d3.select(vars.container.value)
-        
-        vars.parent
-          .style("overflow","hidden")
-          .style("position",function(){
-            var current = d3.select(this).style("position"),
-                remain = ["absolute","fixed"].indexOf(current) >= 0
-            return remain ? current : "relative";
-          })
-          .html("")
-          
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // Get overall width and height, if not defined
-        //----------------------------------------------------------------------
-        var sizes = ["width","height"]
-        sizes.forEach(function(s){
-          if (!vars[s].value) {
-            function check_parent(element) {
-              
-              if (element.tagName == "BODY") {
-                var val = window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
-                if (s == "width") {
-                  val -= parseFloat(d3.select(element).style("margin-left"),10)
-                  val -= parseFloat(d3.select(element).style("margin-right"),10)
-                  val -= parseFloat(d3.select(element).style("padding-left"),10)
-                  val -= parseFloat(d3.select(element).style("padding-right"),10)
-                }
-                else if (s == "height") {
-                  val -= parseFloat(d3.select(element).style("margin-top"),10)
-                  val -= parseFloat(d3.select(element).style("margin-bottom"),10)
-                  val -= parseFloat(d3.select(element).style("padding-top"),10)
-                  val -= parseFloat(d3.select(element).style("padding-bottom"),10)
-                }
-                vars[s].value = val
-              }
-              else {
-              
-                var val = parseFloat(d3.select(element).style(s),10)
-                if (typeof val == "number" && val > 0) {
-                  vars[s].value = val
-                }
-                else if (element.tagName != "BODY") {
-                  check_parent(element.parentNode)
-                }
-                
-              }
-              
-            }
-            check_parent(vars.parent.node())
-          }
-        })
+      d3plus.draw.container(vars)
 
-        vars.parent
-          .style("width",vars.width.value+"px")
-          .style("height",vars.height.value+"px")
-          
-      }
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Determine if in "small" mode
+      //------------------------------------------------------------------------
+      var small_width = vars.width.value <= vars.width.small,
+          small_height = vars.height.value <= vars.height.small
+      vars.small = small_width || small_height
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Run setup function if app has it
-      //-------------------------------------------------------------------
-      if (d3plus.apps[vars.type.value].setup) {
-        if (vars.dev.value) d3plus.console.group("Running setup function for \""+vars.type.value+"\"")
-        d3plus.apps[vars.type.value].setup(vars)
-        if (vars.dev.value) d3plus.console.groupEnd()
-      }
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Format Data as Necessary
-      //-------------------------------------------------------------------
-      d3plus.data.analyze(vars);
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Determine Color Range if Necessary
-      //-------------------------------------------------------------------
-      d3plus.data.color(vars);
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Remove All Tooltips associated with App (and previous app)
-      //-------------------------------------------------------------------
-      if (vars.type.previous && vars.type.value != vars.type.previous) {
-        d3plus.tooltip.remove(vars.type.previous);
-      }
-      d3plus.tooltip.remove(vars.type.value);
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Enter Elements
-      //-------------------------------------------------------------------
-      
-      // Enter SVG
-      vars.svg = vars.parent.selectAll("svg#d3plus").data(["d3plus"]);
-      vars.svg.enter().append("svg")
-        .attr("id","d3plus")
-        .attr("width",vars.width.value)
-        .attr("height",vars.height.value)
-        .attr("xmlns","http://www.w3.org/2000/svg")
-        .attr("xmlns:xmlns:xlink","http://www.w3.org/1999/xlink")
-
-      // Enter BG Rectangle
-      vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
-      vars.g.bg.enter().append("rect")
-        .attr("id","bg")
-        .attr("fill",vars.style.background)
-        .attr("width",vars.width.value)
-        .attr("height",vars.height.value)
-    
-      // Enter Title Group
-      vars.g.titles = vars.svg.selectAll("g#titles").data(["titles"])
-      vars.g.titles.enter().append("g")
-        .attr("id","titles")
-    
-      // Enter Timeline Group
-      vars.g.timeline = vars.svg.selectAll("g#timeline").data(["timeline"])
-      vars.g.timeline.enter().append("g")
-        .attr("id","timeline")
-        .attr("transform","translate(0,"+vars.height.value+")")
-    
-      // Enter Key Group
-      vars.g.key = vars.svg.selectAll("g#key").data(["key"])
-      vars.g.key.enter().append("g")
-        .attr("id","key")
-        .attr("transform","translate(0,"+vars.height.value+")")
-    
-      // Enter Footer Group
-      vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"])
-      vars.g.footer.enter().append("g")
-        .attr("id","footer")
-        .attr("transform","translate(0,"+vars.height.value+")")
-
-      // Enter App Clipping Mask
-      vars.g.clipping = vars.svg.selectAll("#clipping").data(["clipping"])
-      vars.g.clipping.enter().append("clipPath")
-        .attr("id","clipping")
-        .append("rect")
-          .attr("width",vars.app_width)
-          .attr("height",vars.app_height)
-    
-      // Enter Container Group
-      vars.g.container = vars.svg.selectAll("g#container").data(["container"])
-      vars.g.container.enter().append("g")
-        .attr("id","container")
-        .attr("clip-path","url(#clipping)")
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-    
-      // Enter Zoom Group
-      vars.g.zoom = vars.g.container.selectAll("g#zoom").data(["zoom"])
-      vars.g.zoom.enter().append("g")
-        .attr("id","zoom")
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-    
-      // Enter App Background Group
-      vars.g.app = vars.g.zoom.selectAll("g#app").data(["app"])
-      vars.g.app.enter().append("g")
-        .attr("id","app")
-        
-      // Enter App Group
-      vars.g.apps[vars.type.value] = vars.g.app.selectAll("g#"+vars.type.value).data([vars.type.value])
-      vars.g.apps[vars.type.value].enter().append("g")
-        .attr("id",vars.type.value)
-    
-      // Enter Links Group
-      vars.g.links = vars.g.zoom.selectAll("g#links").data(["links"])
-      vars.g.links.enter().append("g")
-        .attr("id","links")
-    
-      // Enter Link Focus Group
-      vars.g.link_focus = vars.g.zoom.selectAll("g#link_focus").data(["link_focus"])
-      vars.g.link_focus.enter().append("g")
-        .attr("id","link_focus")
-        .attr("opacity",0)
-    
-      // Enter App Data Group
-      vars.g.data = vars.g.zoom.selectAll("g#data").data(["data"])
-      vars.g.data.enter().append("g")
-        .attr("id","data")
-        
-      vars.defs = vars.svg.selectAll("defs").data(["defs"])
-      vars.defs.enter().append("defs")
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Title and Size Calculations
-      //-------------------------------------------------------------------
-      vars.app_width = vars.width.value;
-      d3plus.info.titles(vars);
-      d3plus.info.legend(vars);
-      d3plus.info.timeline(vars);
-      vars.app_height = vars.height.value - vars.margin.top - vars.margin.bottom;
-      vars.graph.height = vars.app_height-vars.graph.margin.top-vars.graph.margin.bottom;
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Update Elements
-      //-------------------------------------------------------------------
-      
-      // Update Parent Element
-      vars.parent.transition().duration(vars.style.timing.transitions)
-        .style("width",vars.width.value+"px")
-        .style("height",vars.height.value+"px")
-        
-      // Update SVG
-      vars.svg.transition().duration(vars.style.timing.transitions)
-          .attr("width",vars.width.value)
-          .attr("height",vars.height.value)
-    
-      // Update Background Rectangle
-      vars.g.bg.transition().duration(vars.style.timing.transitions)
-          .attr("width",vars.width.value)
-          .attr("height",vars.height.value)
-          
-      // Update App Clipping Rectangle
-      vars.g.clipping.select("rect").transition().duration(vars.style.timing.transitions)
-        .attr("width",vars.app_width)
-        .attr("height",vars.app_height)
-        
-      // Update Container Groups
-      vars.g.container.transition().duration(vars.style.timing.transitions)
-        .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Check to see if we have all required variables set
-      //-------------------------------------------------------------------
-      var reqs = ["id"]
-      if (d3plus.apps[vars.type.value].requirements) {
-        reqs = reqs.concat(d3plus.apps[vars.type.value].requirements)
-      }
-      var missing = []
-      reqs.forEach(function(r){
-        var key = "key" in vars[r] ? "key" : "value"
-        if (!vars[r][key]) missing.push(r)
-      })
-      if (missing.length) {
-        vars.internal_error = "The following variables need to be set: "+missing.join(", ")
-      }
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Check to see if we have focus connections, if needed
-      //-------------------------------------------------------------------
-      if (!vars.internal_error && reqs.indexOf("links") >= 0 && reqs.indexOf("focus") >= 0) {
-        var connections = vars.connections(vars.focus.value)
-        if (connections.length == 0) {
-          vars.internal_error = "No Connections Available for \""+d3plus.variable.text(vars,vars.focus.value,vars.depth.value)+"\""
-        }
-      }
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Check to see if we have all required libraries
-      //-------------------------------------------------------------------
-      var reqs = ["d3"]
-      if (d3plus.apps[vars.type.value].libs) {
-        reqs = reqs.concat(d3plus.apps[vars.type.value].libs)
-      }
-      var missing = []
-      reqs.forEach(function(r){
-        if (!window[r]) missing.push(r)
-      })
-      if (missing.length) {
-        vars.internal_error = "The following libraries need to be loaded: "+missing.join(", ")
-      }
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Check to see if the requested app supports the set shape
-      //-------------------------------------------------------------------
-      if (!vars.shape.value) {
-        vars.shape.value = d3plus.apps[vars.type.value].shapes[0]
-      }
-      else if (d3plus.apps[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
-        d3plus.console.warning("\""+vars.shape.value+"\" is not an accepted shape for the \""+vars.type.value+"\" app, please use one of the following: \""+d3plus.apps[vars.type.value].shapes.join("\", \"")+"\"")
-        vars.shape.previous = vars.shape.value
-        vars.shape.value = d3plus.apps[vars.type.value].shapes[0]
-        d3plus.console.log("Defaulting shape to \""+vars.shape.value+"\"")
-      }
-  
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Hide the previous app, if applicable
-      //-------------------------------------------------------------------
-      if (vars.type.previous && vars.type.value != vars.type.previous && vars.g.apps[vars.type.previous]) {
-        if (vars.dev.value) d3plus.console.group("Hiding \"" + vars.type.previous + "\"")
-        vars.g.apps[vars.type.previous].transition().duration(vars.style.timing.transitions)
-          .attr("opacity",0)
-        if (vars.dev.value) d3plus.console.groupEnd();
-      }
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Draw the specified app
-      //-------------------------------------------------------------------
-      // Set vars.group to the app's specific group element
-      vars.group = vars.g.apps[vars.type.value]
-      // Make the group visible if there is data
-      vars.group.transition().duration(vars.style.timing.transitions)
-        .attr("opacity",function(){
-          if (vars.data.app.length == 0 || vars.internal_error) return 0
-          else return 1
-        })
-      // Reset mouse events for the app to use
-      vars.mouse = {}
-      // Call the app's draw function, returning formatted data
-          
-      if (!vars.internal_error) {
-        if (vars.dev.value) d3plus.console.group("Calculating \"" + vars.type.value + "\"")
-        var returned = d3plus.apps[vars.type.value].draw(vars)
-        if (vars.dev.value) d3plus.console.groupEnd();
+      if (vars.error.value) {
+        vars.messages.style = "large"
+        var message = vars.error.value === true ? "Error" : vars.error.value
+        if (vars.dev.value) d3plus.console.warning(message)
+        d3plus.ui.message(vars,message)
       }
       else {
-        var returned = null
-      }
-      
-      vars.returned = {
-          "nodes": null,
-          "links": null
-        }
-          
-      if (returned instanceof Array) {
-        vars.returned.nodes = returned
-      }
-      else if (returned) {
-        if (returned.nodes) {
-          vars.returned.nodes = returned.nodes
-        }
-        if (returned.links) {
-          vars.returned.links = returned.links
-        }
-      }
-      
-      if (!vars.returned.nodes || !(vars.returned.nodes instanceof Array) || !vars.returned.nodes.length) {
-        if (vars.dev.value) d3plus.console.log("No data returned by app.")
-        vars.returned.nodes = [] 
-      }
-      
-      // Draw links based on the data
-      d3plus.shape.links(vars,vars.returned.links)
-      
-      // Draw nodes based on the data
-      d3plus.shape.draw(vars,vars.returned.nodes)
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Check for Errors
-      //-------------------------------------------------------------------
-      if (!vars.internal_error) {
-        if ((!vars.error.value && !vars.data.app) || !vars.returned.nodes.length) {
-          vars.internal_error = "No Data Available"
-        }
-        else if (vars.error.value) {
-          vars.data.app = null
-          if (vars.error.value === true) {
-            vars.internal_error = "Error"
+
+        var steps = d3plus.draw.steps(vars)
+
+        vars.parent.style("cursor","wait")
+        vars.messages.style = vars.data.app ? "small" : "large"
+        function check_next() {
+
+          if (steps.length) {
+            run_steps()
           }
           else {
-            vars.internal_error = vars.error.value
+            if (vars.dev.value) d3plus.console.groupEnd()
+            vars.parent.style("cursor","auto")
           }
+
         }
-        else {
-          vars.internal_error = null
-        }
-      }
-      d3plus.info.error(vars)
-      
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Reset all "change" values to false
-      //-------------------------------------------------------------------
-      function reset_change(obj) {
-        if (obj.changed) obj.changed = false
-        else {
-          for (o in obj) {
-            if (Object.keys(d3plus.public).indexOf(o) >= 0) {
-              if (o == "changed" && obj[o]) obj[o] = false
-              else if (obj[o] != null && typeof obj[o] == "object") {
-                reset_change(obj[o])
+
+        function run_steps() {
+
+          var step = steps.shift(),
+              same = vars.g.message && vars.g.message.text() == step.message,
+              run = "check" in step ? step.check(vars) : true
+
+          if (run) {
+
+            if (!same && vars.update) {
+
+              if (vars.dev.value) {
+                d3plus.console.groupEnd()
+                d3plus.console.group(step.message)
               }
+              d3plus.ui.message(vars,step.message)
+
+              setTimeout(function(){
+
+                if (step.function instanceof Array) {
+                  step.function.forEach(function(f){
+                    f(vars)
+                  })
+                }
+                else if (typeof step.function == "function") {
+                  step.function(vars)
+                }
+
+                check_next()
+
+              },10)
+
             }
+            else {
+
+              if (step.function instanceof Array) {
+                step.function.forEach(function(f){
+                  f(vars)
+                })
+              }
+              else if (typeof step.function == "function") {
+                step.function(vars)
+              }
+
+              check_next()
+
+            }
+
           }
+          else {
+
+            if ("otherwise" in step) {
+              step.otherwise(vars)
+            }
+
+            check_next()
+          }
+
         }
+        run_steps()
+
       }
-      reset_change(vars)
-      
-      setTimeout(function(){
-        vars.frozen = false
-      },vars.style.timing.transitions)
-      
-      vars.internal_error = null
-      
+
     });
-    
+
     return vars.viz;
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Expose Public Variables
   //-------------------------------------------------------------------
-  
+
   vars.viz.csv = function(x) {
-    
+
     if (x instanceof Array) var columns = x
-    
+
     var csv_to_return = [],
         titles = [],
         title = vars.title.value || "My D3plus App Data"
-        
+
     title = d3plus.utils.strip(title)
 
     if (!columns) {
@@ -489,13 +229,13 @@ d3plus.viz = function() {
       if (vars.size.key) columns.push(vars.size.key)
       if (vars.text.key) columns.push(vars.text.key)
     }
-    
+
     columns.forEach(function(c){
       titles.push(vars.format(c))
     })
-    
+
     csv_to_return.push(titles);
-    
+
     vars.returned.nodes.forEach(function(n){
       var arr = []
       columns.forEach(function(c){
@@ -503,13 +243,13 @@ d3plus.viz = function() {
       })
       csv_to_return.push(arr)
     })
-    
+
     var csv_data = "data:text/csv;charset=utf-8,"
     csv_to_return.forEach(function(c,i){
       dataString = c.join(",");
       csv_data += i < csv_to_return.length ? dataString + "\n" : dataString;
     })
-    
+
     if (d3plus.ie) {
       var blob = new Blob([csv_data],{
         type: "text/csv;charset=utf-8;",
@@ -523,20 +263,13 @@ d3plus.viz = function() {
       link.setAttribute("download",title+".csv");
       link.click();
     }
-    
+
     return csv_to_return;
-    
+
   };
-  
+
   vars.viz.draw = function(x) {
-    if (x) {
-      if (typeof x == "boolean") {
-        vars.autodraw = x
-      }
-      else {
-        d3plus.console.warning(".draw() only accepts booleans to change the \"autodraw\" functionality.")
-      }
-    }
+
     if (!vars.container.value) {
       d3plus.console.warning("Please define a container div using .container()")
     }
@@ -546,12 +279,13 @@ d3plus.viz = function() {
     else {
       d3.select(vars.container.value).call(vars.viz)
     }
+
     return vars.viz;
   }
 
   vars.viz.style = function(x) {
     if (!arguments.length) return vars.style;
-    
+
     function check_depth(object,property,depth) {
       if (typeof depth == "object" && !(depth instanceof Array)) {
         for (d in depth) {
@@ -572,7 +306,7 @@ d3plus.viz = function() {
         }
       }
     }
-    
+
     if (typeof x == "object") {
       check_depth(vars,"style",x)
     }
@@ -587,20 +321,20 @@ d3plus.viz = function() {
     else {
       d3plus.console.warning(".style() only accepts strings or keyed objects.");
     }
-    
+
     return vars.viz;
   };
-  
+
   Object.keys(d3plus.public).forEach(function(p){
-    
+
     // give default values to this .viz()
     vars[p] = d3plus.utils.copy(d3plus.public[p])
-    
+
     // detect available app types
     if (p == "type") {
       vars[p].accepted = Object.keys(d3plus.apps)
     }
-    
+
     // create error messages for deprecated methods
     if (vars[p]) {
       function deprecate(obj) {
@@ -622,27 +356,27 @@ d3plus.viz = function() {
       }
       deprecate(vars[p])
     }
-    
+
     // create method for variable
-    
+
     vars.viz[p] = (function(key) {
       return function(user) {
 
         if (!arguments.length) return vars[key];
-        
+
         if (vars[key].reset) {
           vars[key].reset.forEach(function(r){
             vars[r] = null
           })
         }
-        
+
         // determine default key type, if available
         if (vars[key].key !== undefined) var key_type = "key"
         else if (vars[key].value !== undefined) var key_type = "value"
         else var key_type = null
-        
-        if ((typeof user == "object" && key_type && !user[key_type] && !(Object.keys(user)[0] in vars[key]))
-              || typeof user != "object") {
+
+        if ((typeof user == "object" && user !== null && key_type && !user[key_type] && !(Object.keys(user)[0] in vars[key]))
+              || typeof user != "object" || user === null) {
           set_value(vars[key],key_type,user)
         }
         else if (typeof user == "object") {
@@ -651,22 +385,22 @@ d3plus.viz = function() {
         else {
           d3plus.console.warning("Incompatible format for ."+key+"() method.")
         }
-        
+
         function check_object(object,property,depth) {
-          
+
           if (object[property] === undefined) {
             d3plus.console.warning("\""+property+"\" cannot be set.");
           }
           else {
             if (typeof depth == "object" && !(depth instanceof Array)) {
-              
+
               if (typeof object[property] == "object" && object[property] !== null) {
                 if (object[property].key !== undefined) var key_type = "key"
                 else if (object[property].value !== undefined) var key_type = "value"
                 else var key_type = null
               }
               else var key_type = null
-              
+
               if (property == key_type) {
                 set_value(object,key_type,depth)
               }
@@ -681,7 +415,7 @@ d3plus.viz = function() {
                 for (d in depth) {
                   check_object(object[property],d,depth[d]);
                 }
-                
+
               }
             }
             else {
@@ -689,7 +423,7 @@ d3plus.viz = function() {
             }
           }
         }
-        
+
         function update_array(arr,x) {
           // if the user has passed an array, use that
           if(x instanceof Array){
@@ -703,18 +437,18 @@ d3plus.viz = function() {
           else {
             arr.push(x)
           }
-          
+
           return arr
-          
+
         }
-        
+
         function set_value(a,b,c) {
-          
+
           if (key == "type") {
             if (!a.accepted) {
               a.accepted = Object.keys(d3plus.apps)
             }
-            
+
             if (a.accepted.indexOf(c) < 0) {
               for (app in d3plus.apps) {
                 if (d3plus.apps[app].deprecates && d3plus.apps[app].deprecates.indexOf(c) >= 0) {
@@ -723,18 +457,16 @@ d3plus.viz = function() {
                 }
               }
             }
-            
+
           }
-          
-          if (vars.dev.value || key == "dev") {
-            if (b == "value" || b == "key" || !b) {
-              var text = "\."+key+"()"
-            }
-            else {
-              var text = "\""+b+"\" of \."+key+"()"
-            }
+
+          if (b == "value" || b == "key" || !b) {
+            var text = "\."+key+"()"
           }
-          
+          else {
+            var text = "\""+b+"\" of \."+key+"()"
+          }
+
           if ((b == "value" || b == "key") && a.accepted) {
             var accepted = a.accepted
           }
@@ -744,20 +476,20 @@ d3plus.viz = function() {
           else {
             var accepted = false
           }
-          
+
           if (accepted && accepted.indexOf(c) < 0) {
             d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+accepted.join("\", \"")+"\"")
           }
-          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key == c || a[b].value == c))) {
+          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key === c || a[b].value === c))) {
             if (vars.dev.value) d3plus.console.log(text+" was not updated because it did not change.")
           }
           else {
             if (b == "solo" || b == "mute") {
-              
+
               a[b].value = update_array(a[b].value,c)
               a[b].changed = true
               var arr = a[b].value
-                
+
               if (key != "time") {
                 if (arr.length && vars[b].indexOf(key) < 0) {
                   vars[b].push(key)
@@ -766,7 +498,7 @@ d3plus.viz = function() {
                   vars[b].splice(vars[b].indexOf(key), 1)
                 }
               }
-              
+
             }
             else if (key == "id" && b == "key") {
 
@@ -784,7 +516,7 @@ d3plus.viz = function() {
                 vars.depth.value = 0
               }
               a.changed = true
-                
+
             }
             else if (key == "text" && b == "key") {
 
@@ -802,7 +534,7 @@ d3plus.viz = function() {
               }
               vars.text.key = vars.text.array[vars.id.key][0]
               a.changed = true
-              
+
             }
             else if (key == "depth") {
               // Set appropriate depth and id
@@ -810,7 +542,7 @@ d3plus.viz = function() {
               else if (c < 0) vars.depth.value = 0
               else vars.depth.value = c;
               vars.id.key = vars.id.nesting[vars.depth.value]
-              
+
               if (vars.text.array) {
 
                 // Set appropriate name_array and text
@@ -819,9 +551,9 @@ d3plus.viz = function() {
                   vars.text.array[vars.id.key] = typeof n == "string" ? [n] : n
                   vars.text.key = vars.text.array[vars.id.key][0]
                 }
-                
+
               }
-              
+
               a.changed = true
             }
             else if (key == "aggs") {
@@ -845,7 +577,7 @@ d3plus.viz = function() {
               a[b] = c
               a.changed = true
             }
-            
+
             if ((vars.dev.value || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
               if (typeof a[b] != "function" && JSON.stringify(a[b]).length < 260) {
                 d3plus.console.log(text+" has been set to "+JSON.stringify(a[b])+".")
@@ -855,16 +587,11 @@ d3plus.viz = function() {
               }
             }
           }
-          
+
         }
-        
-        if (vars.autodraw) {
-          return vars.viz.draw()
-        }
-        else {
-          return vars.viz
-        }
-        
+
+        return vars.viz
+
       }
     })(p)
   })

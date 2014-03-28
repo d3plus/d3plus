@@ -2,7 +2,7 @@
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
 d3plus.shape.area = function(vars,selection,enter,exit) {
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // D3 area definition
   //----------------------------------------------------------------------------
@@ -24,9 +24,9 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
   selection.selectAll("path.d3plus_data")
     .data(function(d) {
-      
+
       if (vars.labels.value) {
-        
+
         var areas = [],
             obj = null,
             obj2 = null,
@@ -36,22 +36,22 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
               "x": 0,
               "y": 0
             }
-  
+
         function check_area(area) {
 
           obj.y = d3.max([obj.y,area.y])
           obj.y0 = d3.min([obj.y0,area.y0])
           obj.x0 = area.x
-    
+
           obj.h = (obj.y0 - obj.y)
           obj.w = (obj.x0 - obj.x)
-    
-          var toosmall = obj.h < 10 || obj.w < 30,
+
+          var toosmall = obj.h-(vars.style.labels.padding*2) < 10 || obj.w-(vars.style.labels.padding*2) < 10,
               aspect_old = label.w/label.h,
               size_old = label.w*label.h,
               aspect_new = obj.w/obj.h,
               size_new = obj.w*obj.h
-            
+
           if ((!toosmall && size_old < size_new) || !label.w) {
             label = {
               "w": obj.w-(vars.style.labels.padding*2),
@@ -63,11 +63,11 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
           if (obj.h < 10) {
             obj = d3plus.utils.copy(area)
           }
-    
+
         }
-  
+
         d.values.forEach(function(v,i){
-    
+
           if (!obj) {
             obj = d3plus.utils.copy(v.d3plus)
           }
@@ -79,29 +79,38 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
               var test = d3plus.utils.copy(v.d3plus),
                   last = d.values[i-1].d3plus
-                
+
               test.x = last.x + (test.x-last.x) * n
               test.y = last.y + (test.y-last.y) * n
               test.y0 = last.y0 + (test.y0-last.y0) * n
 
               check_area(test)
-        
+
             })
             check_area(d3plus.utils.copy(v.d3plus))
           }
         })
-        
-        if (label.w >= 20 && label.h >= 10) {
+
+        if (label.w >= 10 && label.h >= 10) {
           d.d3plus_label = label
         }
-        
+
       }
-      
+
       return [d];
     })
-    .transition().duration(vars.style.timing.transitions)
+
+  if (vars.timing) {
+    selection.selectAll("path.d3plus_data")
+      .transition().duration(vars.timing)
+        .attr("d",function(d){ return area(d.values) })
+        .call(d3plus.shape.style,vars)
+  }
+  else {
+    selection.selectAll("path.d3plus_data")
       .attr("d",function(d){ return area(d.values) })
       .call(d3plus.shape.style,vars)
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define mouse event area
@@ -114,57 +123,53 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
     .attr("opacity",0)
     .attr("stroke",1)
     .attr("d",function(d){ return area(d.values) })
-  
+
   mouses
     .data(function(d) {return [d];})
     .on(d3plus.evt.over,function(d){
-      
+
       if (!vars.frozen) {
-    
-        d3.select(this).style("cursor","pointer")
-    
+
         var mouse = d3.event[vars.continuous_axis]
             positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
             closest = d3plus.utils.closest(positions,mouse)
-    
+
         d.data = d.values[positions.indexOf(closest)]
         d.d3plus = d.values[positions.indexOf(closest)].d3plus
 
-        d3.select(this.parentNode).selectAll("path.d3plus_data")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("opacity",1)
-          
       }
-    
+
     })
     .on(d3plus.evt.move,function(d){
-      
+
       if (!vars.frozen) {
 
         var mouse = d3.event.x,
             positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
             closest = d3plus.utils.closest(positions,mouse)
-        
+
         d.data = d.values[positions.indexOf(closest)]
         d.d3plus = d.values[positions.indexOf(closest)].d3plus
-        
+
       }
-    
+
     })
     .on(d3plus.evt.out,function(d){
-      
+
       if (!vars.frozen) {
 
-        d3.select(this.parentNode).selectAll("path.d3plus_data")
-          .transition().duration(vars.style.timing.mouseevents)
-          .style("opacity",vars.style.data.opacity)
-      
         delete d.d3plus
-        
+
       }
-    
+
     })
-    .transition().duration(vars.style.timing.transitions)
+
+  if (vars.timing) {
+    mouses.transition().duration(vars.timing)
       .attr("d",function(d){ return area(d.values) })
-  
+  }
+  else {
+    mouses.attr("d",function(d){ return area(d.values) })
+  }
+
 }

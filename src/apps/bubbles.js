@@ -1,17 +1,17 @@
 d3plus.apps.bubbles = {}
-d3plus.apps.bubbles.data = "nested";
 d3plus.apps.bubbles.fill = true;
+d3plus.apps.bubbles.requirements = ["data"];
 d3plus.apps.bubbles.tooltip = "static"
 d3plus.apps.bubbles.shapes = ["circle","donut"];
 d3plus.apps.bubbles.scale = 1.05
 
 d3plus.apps.bubbles.draw = function(vars) {
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Test for labels
   //-------------------------------------------------------------------
   var label_height = vars.labels.value && !vars.small ? 50 : 0
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sort Data
   //-------------------------------------------------------------------
@@ -21,7 +21,7 @@ d3plus.apps.bubbles.draw = function(vars) {
     var b_value = d3plus.variable.value(vars,b,order)
     return vars.order.sort.value == "asc" ? a_value-b_value : b_value-a_value
   })
-    
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate rows and columns
   //-------------------------------------------------------------------
@@ -32,7 +32,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   else if (vars.data.app.length < 4) {
     var columns = vars.data.app.length,
         rows = 1;
-  } 
+  }
   else {
     var rows = Math.ceil(Math.sqrt(vars.data.app.length/(vars.app_width/vars.app_height))),
         columns = Math.ceil(Math.sqrt(vars.data.app.length*(vars.app_width/vars.app_height)));
@@ -41,59 +41,59 @@ d3plus.apps.bubbles.draw = function(vars) {
   if (vars.data.app.length > 0) {
     while ((rows-1)*columns >= vars.data.app.length) rows--
   }
-  
+
   var column_width = vars.app_width/columns,
       column_height = vars.app_height/rows
-      
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scale
   //-------------------------------------------------------------------
   if (!vars.data.app) vars.data.app = []
-  
-  var domain_min = d3.min(vars.data.app, function(d){ 
+
+  var domain_min = d3.min(vars.data.app, function(d){
     if (!vars.size.key) return 0
     return d3plus.variable.value(vars,d,vars.size.key,null,"min")
   })
-  
-  var domain_max = d3.max(vars.data.app, function(d){ 
+
+  var domain_max = d3.max(vars.data.app, function(d){
     if (!vars.size.key) return 0
     return d3plus.variable.value(vars,d,vars.size.key)
   })
-  
+
   var padding = 5
-  
+
   var size_min = 20
   var size_max = (d3.min([column_width,column_height])/2)-(padding*2)
   size_max -= label_height
-  
+
   var size = d3.scale[vars.size.scale.value]()
     .domain([domain_min,domain_max])
     .range([size_min,size_max])
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate bubble packing
   //-------------------------------------------------------------------
   var pack = d3.layout.pack()
     .size([column_width-padding*2,column_height-padding*2-label_height])
-    .value(function(d) { 
+    .value(function(d) {
       if (!vars.size.key) return 0
       return d3plus.variable.value(vars,d,vars.size.key)
     })
     .padding(padding)
-    .radius(function(d){ 
-      return size(d) 
+    .radius(function(d){
+      return size(d)
     })
-    
+
   var data = []
-  
+
   var row = 0
   vars.data.app.forEach(function(d,i){
-    
+
     var temp = pack.nodes(d)
-    
+
     var xoffset = (column_width*i) % vars.app_width,
         yoffset = column_height*row
-        
+
     temp.forEach(function(t){
       if (!t.d3plus) t.d3plus = {}
       if (!t.d3plus.depth) t.d3plus.depth = t.depth
@@ -112,17 +112,17 @@ d3plus.apps.bubbles.draw = function(vars) {
         t.d3plus.label = true
       }
     })
-    
+
     data = data.concat(temp)
-    
+
     if ((i+1) % columns == 0) {
       row++
     }
-  
+
   })
-  
+
   var downscale = size_max/d3.max(data,function(d){ return d.r })
-  
+
   data.forEach(function(d){
     d.x = ((d.x-column_width/2)*downscale)+column_width/2
     d.d3plus.x = d.x+d.xoffset
@@ -131,21 +131,21 @@ d3plus.apps.bubbles.draw = function(vars) {
     d.r = d.r*downscale
     d.d3plus.r = d.r
   })
-  
+
   data.sort(function(a,b){
     return a.depth-b.depth
   })
-  
+
   var label_data = data.filter(function(d){
     return d.depth == 0
   })
-  
+
   var labels = vars.group.selectAll("text.d3plus_bubble_label")
     .data(label_data,function(d){
       if (!d.d3plus.label_height) d.d3plus.label_height = 0
       return d[vars.id.nesting[d.depth]]
     })
-    
+
   function label_style(l) {
     l
       .attr("x",function(d){
@@ -182,20 +182,20 @@ d3plus.apps.bubbles.draw = function(vars) {
           return d.d3plus.x
         })
   }
-  
+
   labels.enter().append("text")
     .attr("class","d3plus_bubble_label")
     .call(label_style)
     .attr("opacity",0)
-    
+
   labels.transition().duration(vars.style.timing.transitions)
     .call(label_style)
     .attr("opacity",1)
-    
+
   labels.exit()
     .attr("opacity",0)
     .remove()
-  
+
   return data
 
 };

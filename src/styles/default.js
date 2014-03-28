@@ -14,6 +14,23 @@ d3plus.styles.default = {
       "width": 1
     }
   },
+  "edges": {
+    "arrows": 8,
+    "color": "#d0d0d0",
+    "opacity": 1,
+    "width": 1
+  },
+  "footer": {
+    "font-align": "center",
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-size": 10,
+    "font-weight": "normal",
+    "padding": 5,
+    "position": "bottom",
+    "text-decoration": "none",
+    "text-transform": "none"
+  },
   "font": {
     "family": "sans-serif",
     "weight": "normal"
@@ -21,8 +38,10 @@ d3plus.styles.default = {
   "group": {
     "background": true,
   },
-  "info": {
-    "font-size": 20
+  "highlight": {
+    "focus": "#444444",
+    "primary": "#cc0000",
+    "secondary": "#ffdddd"
   },
   "labels": {
     "align": "middle",
@@ -55,14 +74,29 @@ d3plus.styles.default = {
       "size": 10
     }
   },
-  "links": {
-    "color": "#dedede",
-    "opacity": 1,
-    "width": 1
+  "link": {
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-weight": "normal",
+    "hover": {
+      "font-color": "#444",
+      "font-family": "sans-serif",
+      "font-weight": "normal",
+      "text-decoration": "underline",
+      "text-transform": "none"
+    },
+    "text-decoration": "none",
+    "text-transform": "none"
   },
-  "highlight": {
-    "primary": "#cc0000",
-    "secondary": "#ffdddd"
+  "message": {
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-size": 18,
+    "font-weight": "normal",
+    "opacity": 0.75,
+    "padding": 10,
+    "text-decoration": "none",
+    "text-transform": "none"
   },
   "rendering": "crispEdges",
   "ticks": {
@@ -106,8 +140,38 @@ d3plus.styles.default = {
     "transitions": 600
   },
   "title": {
-    "align": "middle",
+    "font-align": "center",
+    "font-color": "#444",
+    "font-family": "sans-serif",
+    "font-size": 18,
+    "font-weight": "normal",
     "height": null,
+    "padding": 2,
+    "position": "top",
+    "sub": {
+      "font-align": "center",
+      "font-color": "#444",
+      "font-family": "sans-serif",
+      "font-size": 13,
+      "font-weight": "normal",
+      "padding": 1,
+      "position": "top",
+      "text-decoration": "none",
+      "text-transform": "none"
+    },
+    "text-decoration": "none",
+    "text-transform": "none",
+    "total": {
+      "font-align": "center",
+      "font-color": "#444",
+      "font-family": "sans-serif",
+      "font-size": 13,
+      "font-weight": "normal",
+      "padding": 1,
+      "position": "top",
+      "text-decoration": "none",
+      "text-transform": "none"
+    },
     "width": null
   },
   "tooltip": {
@@ -118,11 +182,12 @@ d3plus.styles.default = {
       "opacity": 0.8
     },
     "font": {
-      "color": "#333",
+      "color": "#444",
       "family": "sans-serif",
-      "size": "12px",
+      "size": 12,
       "weight": "normal"
     },
-    "width": 200
+    "large": 250,
+    "small": 200
   }
 }
