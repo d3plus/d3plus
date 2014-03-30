@@ -71,15 +71,6 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // "paths" Enter
-    //--------------------------------------------------------------------------
-    paths.enter().append("path")
-      .attr("class","d3plus_line")
-      .attr("d",function(d){ return line(d.values) })
-      .call(d3plus.shape.style,vars)
-
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind node data to "rects"
     //--------------------------------------------------------------------------
     var rects = group.selectAll("rect.d3plus_anchor")
@@ -88,23 +79,25 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // "rects" Enter
-    //--------------------------------------------------------------------------
-    rects.enter().append("rect")
-      .attr("class","d3plus_anchor")
-      .attr("id",function(d){
-        return d.d3plus.id
-      })
-      .call(init)
-      .call(d3plus.shape.style,vars)
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // "paths" and "rects" Update
+    // "paths" and "rects" Enter/Update
     //--------------------------------------------------------------------------
     if (vars.timing) {
 
       paths.transition().duration(vars.timing)
-        .attr("d",function(l){ return line(l.values) })
+        .attr("d",function(d){ return line(d.values) })
+        .call(d3plus.shape.style,vars)
+
+      paths.enter().append("path")
+        .attr("class","d3plus_line")
+        .attr("d",function(d){ return line(d.values) })
+        .call(d3plus.shape.style,vars)
+
+      rects.enter().append("rect")
+        .attr("class","d3plus_anchor")
+        .attr("id",function(d){
+          return d.d3plus.id
+        })
+        .call(init)
         .call(d3plus.shape.style,vars)
 
       rects.transition().duration(vars.timing)
@@ -118,13 +111,21 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     }
     else {
 
-      paths.attr("d",function(l){ return line(l.values) })
+      paths.enter().append("path")
+        .attr("class","d3plus_line")
+
+      paths
+        .attr("d",function(d){ return line(d.values) })
         .call(d3plus.shape.style,vars)
+
+      rects.enter().append("rect")
+        .attr("class","d3plus_anchor")
+        .attr("id",function(d){
+          return d.d3plus.id
+        })
 
       rects.call(update)
         .call(d3plus.shape.style,vars)
-
-      rects.exit().remove()
 
     }
 
