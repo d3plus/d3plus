@@ -160,6 +160,15 @@ d3plus.draw.finish = function(vars) {
       vars.g.zoom
         .datum(vars)
         .call(vars.zoom_behavior.on("zoom",d3plus.zoom.mouse))
+      if (!vars.zoom.scroll.value) {
+        vars.g.zoom.on("wheel.zoom",null)
+      }
+      if (!vars.zoom.click.value) {
+        vars.g.zoom.on("dblclick.zoom",null)
+      }
+      if (!vars.zoom.pan.value) {
+        vars.g.zoom.on("mousemove.zoom",null)
+      }
     }
     else {
       vars.g.zoom

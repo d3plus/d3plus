@@ -419,9 +419,17 @@ d3plus.public.y = {
 
 d3plus.public.zoom = {
   "accepted": [true,false],
+  "click": {
+    "accepted": [true,false],
+    "value": true
+  },
+  "pan": {
+    "accepted": [true,false],
+    "value": true
+  },
   "scroll": {
     "accepted": [true,false],
-    "value": false,
+    "value": true,
     "deprecates": ["scroll_zoom"]
   },
   "value": true
