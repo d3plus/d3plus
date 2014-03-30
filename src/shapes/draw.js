@@ -469,7 +469,7 @@ d3plus.shape.draw = function(vars) {
             previous = vars.id.solo.value,
             title = d3plus.variable.text(vars,d)[0],
             color = d3plus.color.legible(d3plus.variable.color(vars,d)),
-            prev_sub = vars.title.sub.value,
+            prev_sub = vars.title.sub.value || false,
             prev_color = vars.style.title.sub["font-color"],
             prev_total = vars.style.title.total["font-color"]
             
