@@ -123,7 +123,7 @@ d3plus.tooltip.app = function(params) {
     }
 
     var depth = "depth" in params ? params.depth : vars.depth.value,
-        title = d3plus.variable.value(vars,d,vars.text.key,vars.id.nesting[depth]),
+        title = d3plus.variable.text(vars,d,depth)[0],
         icon = d3plus.variable.value(vars,d,vars.icon.key,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,depth)
 
