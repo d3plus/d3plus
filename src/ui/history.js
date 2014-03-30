@@ -5,11 +5,6 @@ d3plus.ui.history = function(vars) {
 
   if (!vars.small && vars.history.states.length > 0) {
 
-    var min_height = size + vars.style.labels.padding*4
-    if (vars.margin.top < min_height) {
-      vars.margin.top = min_height
-    }
-
     var button = vars.parent.selectAll("div#d3plus_back_button")
       .data(["d3plus_back_button"])
 
@@ -37,6 +32,11 @@ d3plus.ui.history = function(vars) {
           .style("font-size",size+"px")
           .style("z-index",2000)
 
+    }
+
+    var min_height = size + vars.style.labels.padding*2
+    if (vars.margin.top < min_height) {
+      vars.margin.top = min_height
     }
 
     var enter = button.enter().append("div")
