@@ -46,7 +46,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
           obj.h = (obj.y0 - obj.y)
           obj.w = (obj.x0 - obj.x)
 
-          var toosmall = obj.h-(vars.style.labels.padding*2) < 10 || obj.w-(vars.style.labels.padding*2) < 10,
+          var toosmall = obj.h-(vars.style.labels.padding*2) < 15 || obj.w-(vars.style.labels.padding*2) < 20,
               aspect_old = label.w/label.h,
               size_old = label.w*label.h,
               aspect_new = obj.w/obj.h,
@@ -54,8 +54,8 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
           if ((!toosmall && size_old < size_new) || !label.w) {
             label = {
-              "w": obj.w-(vars.style.labels.padding*2),
-              "h": obj.h-(vars.style.labels.padding*2),
+              "w": obj.w,
+              "h": obj.h,
               "x": obj.x+(obj.w/2),
               "y": obj.y+(obj.h/2)
             }
