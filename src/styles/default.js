@@ -45,8 +45,8 @@ d3plus.styles.default = {
   },
   "highlight": {
     "focus": "#444444",
-    "primary": "#cc0000",
-    "secondary": "#ffdddd"
+    "primary": "#D74B03",
+    "secondary": "#E5B3BB"
   },
   "labels": {
     "align": "middle",
