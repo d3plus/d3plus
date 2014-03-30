@@ -105,6 +105,7 @@ d3plus.styles.default = {
       "color": "#888",
       "size": 12
     },
+    "size": 10,
     "width": 1
   },
   "timeline": {

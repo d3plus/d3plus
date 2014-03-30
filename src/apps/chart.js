@@ -250,7 +250,7 @@ d3plus.apps.chart.draw = function(vars) {
       var orient = axis == "x" ? "bottom" : "left"
 
       vars[axis+"_axis"] = d3.svg.axis()
-        .tickSize(10)
+        .tickSize(vars.style.ticks.size)
         .tickPadding(5)
         .orient(orient)
         .scale(vars[axis+"_scale"])
@@ -987,10 +987,10 @@ d3plus.apps.chart.draw = function(vars) {
     lines.transition().duration(vars.style.timing.mouseevents)
       .attr("class","d3plus_axis_label")
       .attr("x2",function(d){
-        return d.axis == "x" ? d.x : graph.margin.left
+        return d.axis == "x" ? d.x : graph.margin.left-vars.style.ticks.size
       })
       .attr("y2",function(d){
-        return d.axis == "y" ? d.y : graph.height+graph.margin.top
+        return d.axis == "y" ? d.y : graph.height+graph.margin.top+vars.style.ticks.size
       })
       .style("stroke",function(d){
         return d3plus.color.legible(d3plus.variable.color(vars,node));
@@ -1017,10 +1017,10 @@ d3plus.apps.chart.draw = function(vars) {
         return vars.format(val,vars[d.axis].key)
       })
       .attr("x",function(d){
-        return d.axis == "x" ? d.x : graph.margin.left-5
+        return d.axis == "x" ? d.x : graph.margin.left-5-vars.style.ticks.size
       })
       .attr("y",function(d){
-        return d.axis == "y" ? d.y : graph.height+graph.margin.top+5
+        return d.axis == "y" ? d.y : graph.height+graph.margin.top+5+vars.style.ticks.size
       })
       .attr("dy",function(d){
         return d.axis == "y" ? (vars.style.ticks.font.size*.35) : vars.style.ticks.font.size
@@ -1053,13 +1053,13 @@ d3plus.apps.chart.draw = function(vars) {
       .attr("class","d3plus_axis_label")
       .attr("x",function(d){
         var width = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().width
-        var ret = d.axis == "x" ? d.x : graph.margin.left
+        var ret = d.axis == "x" ? d.x : graph.margin.left-vars.style.ticks.size
         return d.axis == "x" ? ret-width/2-5 : ret-width-10
       })
       .attr("y",function(d){
         var height = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().height
         var ret = d.axis == "y" ? d.y : graph.height+graph.margin.top
-        return d.axis == "x" ? ret : ret-height/2-5
+        return d.axis == "x" ? ret+vars.style.ticks.size : ret-height/2-5
       })
       .attr("width",function(d){
         var text = d3.select("text#"+d.axis+"_"+d.id).node().getBBox()
