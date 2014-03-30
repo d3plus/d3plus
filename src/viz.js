@@ -339,6 +339,23 @@ d3plus.viz = function() {
     }
 
     if (typeof x == "object") {
+      if ("font" in x) {
+        var obj = d3plus.utils.copy(x.font)
+        obj = {"font": obj}
+        function check_font(o,s) {
+          for (s in o) {
+
+            if (o[s] !== null && typeof o[s] == "object") {
+              if ("font" in o[s]) {
+                check_depth(o,s,obj)
+              }
+              check_font(o[s])
+            }
+
+          }
+        }
+        check_font(vars.style)
+      }
       check_depth(vars,"style",x)
     }
     else if (typeof x == "string") {
