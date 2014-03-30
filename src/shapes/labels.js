@@ -9,7 +9,7 @@ d3plus.shape.labels = function(vars,selection) {
   // Label Exiting
   //----------------------------------------------------------------------------
   remove = function(text) {
-    
+
     if (vars.timing) {
       text
         .transition().duration(vars.timing)
@@ -114,8 +114,8 @@ d3plus.shape.labels = function(vars,selection) {
     }
 
     text
-      .style("font-weight",vars.style.font.weight)
-      .attr("font-family",vars.style.font.family)
+      .style("font-weight",vars.style.labels.font.weight)
+      .attr("font-family",vars.style.labels.font.family)
       .attr("text-anchor","start")
       .attr("fill", function(t){
         if (t.color) {

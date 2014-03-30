@@ -33,10 +33,10 @@ d3plus.ui.message = function(vars,message) {
   }
 
   var font = {
-    "color": font["font-color"],
-    "font-family": font["font-family"],
-    "font-weight": font["font-weight"],
-    "font-size": font["font-size"]+"px",
+    "color": font.font.color,
+    "font-family": font.font.family,
+    "font-weight": font.font.weight,
+    "font-size": font.font.size+"px",
     "padding": font.padding+"px"
   }
 

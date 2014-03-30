@@ -21,19 +21,24 @@ d3plus.styles.default = {
     "width": 1
   },
   "footer": {
-    "font-align": "center",
-    "font-color": "#444",
-    "font-family": "sans-serif",
-    "font-size": 10,
-    "font-weight": "normal",
+    "font": {
+      "align": "center",
+      "color": "#444",
+      "decoration": "none",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "size": 10,
+      "transform": "none",
+      "weight": "lighter"
+    },
     "padding": 5,
-    "position": "bottom",
-    "text-decoration": "none",
-    "text-transform": "none"
+    "position": "bottom"
   },
   "font": {
-    "family": "sans-serif",
-    "weight": "normal"
+    "color": "#444",
+    "decoration": "none",
+    "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+    "transform": "none",
+    "weight": "lighter"
   },
   "group": {
     "background": true,
@@ -48,9 +53,11 @@ d3plus.styles.default = {
     "padding": 7,
     "segments": 2,
     "font": {
-      "family": "sans-serif",
-      "weight": "normal",
-      "size": 10
+      "decoration": "none",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "size": 10,
+      "transform": "none",
+      "weight": "lighter"
     }
   },
   "legend": {
@@ -60,8 +67,8 @@ d3plus.styles.default = {
     },
     "label": {
       "color": "#444",
-      "family": "sans-serif",
-      "weight": "normal",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "weight": "lighter",
       "size": 12
     },
     "padding": 5,
@@ -69,41 +76,51 @@ d3plus.styles.default = {
     "tick": {
       "align": "middle",
       "color": "#444",
-      "family": "sans-serif",
-      "weight": "normal",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "weight": "lighter",
       "size": 10
     }
   },
   "link": {
-    "font-color": "#444",
-    "font-family": "sans-serif",
-    "font-weight": "normal",
-    "hover": {
-      "font-color": "#444",
-      "font-family": "sans-serif",
-      "font-weight": "normal",
-      "text-decoration": "underline",
-      "text-transform": "none"
+    "font": {
+      "color": "#444",
+      "decoration": "none",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "transform": "none",
+      "weight": "lighter"
     },
-    "text-decoration": "none",
-    "text-transform": "none"
+    "hover": {
+      "font": {
+        "color": "#444",
+        "decoration": "underline",
+        "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        "transform": "none",
+        "weight": "lighter"
+      },
+    }
   },
   "message": {
-    "font-color": "#444",
-    "font-family": "sans-serif",
-    "font-size": 18,
-    "font-weight": "normal",
+    "font": {
+      "color": "#444",
+      "decoration": "none",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "size": 18,
+      "transform": "none",
+      "weight": "lighter"
+    },
     "opacity": 0.75,
-    "padding": 10,
-    "text-decoration": "none",
-    "text-transform": "none"
+    "padding": 10
   },
   "rendering": "crispEdges",
   "ticks": {
     "color": "#ccc",
     "font": {
       "color": "#888",
-      "size": 12
+      "decoration": "none",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "size": 12,
+      "transform": "none",
+      "weight": "lighter"
     },
     "size": 10,
     "width": 1
@@ -123,16 +140,16 @@ d3plus.styles.default = {
     "height": 20,
     "label": {
       "color": "#444",
-      "family": "sans-serif",
-      "weight": "normal",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "weight": "lighter",
       "size": 12
     },
     "padding": 5,
     "tick": {
       "align": "middle",
       "color": "#444",
-      "family": "sans-serif",
-      "weight": "normal",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "weight": "lighter",
       "size": 10
     }
   },
@@ -141,37 +158,43 @@ d3plus.styles.default = {
     "transitions": 600
   },
   "title": {
-    "font-align": "center",
-    "font-color": "#444",
-    "font-family": "sans-serif",
-    "font-size": 18,
-    "font-weight": "normal",
+    "font": {
+      "align": "center",
+      "color": "#444",
+      "decoration": "none",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+      "size": 13,
+      "transform": "none",
+      "weight": "lighter"
+    },
     "height": null,
     "padding": 2,
     "position": "top",
     "sub": {
-      "font-align": "center",
-      "font-color": "#444",
-      "font-family": "sans-serif",
-      "font-size": 13,
-      "font-weight": "normal",
+      "font": {
+        "align": "center",
+        "color": "#444",
+        "decoration": "none",
+        "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        "size": 13,
+        "transform": "none",
+        "weight": "lighter"
+      },
       "padding": 1,
-      "position": "top",
-      "text-decoration": "none",
-      "text-transform": "none"
+      "position": "top"
     },
-    "text-decoration": "none",
-    "text-transform": "none",
     "total": {
-      "font-align": "center",
-      "font-color": "#444",
-      "font-family": "sans-serif",
-      "font-size": 13,
-      "font-weight": "normal",
+      "font": {
+        "align": "center",
+        "color": "#444",
+        "decoration": "none",
+        "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
+        "size": 13,
+        "transform": "none",
+        "weight": "lighter"
+      },
       "padding": 1,
-      "position": "top",
-      "text-decoration": "none",
-      "text-transform": "none"
+      "position": "top"
     },
     "width": null
   },
@@ -184,9 +207,10 @@ d3plus.styles.default = {
     },
     "font": {
       "color": "#444",
-      "family": "sans-serif",
+      "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
       "size": 12,
-      "weight": "normal"
+      "transform": "none",
+      "weight": "lighter"
     },
     "large": 250,
     "small": 200

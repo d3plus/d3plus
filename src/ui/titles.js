@@ -142,7 +142,7 @@ d3plus.ui.titles = function(vars) {
     title
       .attr("text-anchor",function(t){
 
-        var align = t.style["font-align"]
+        var align = t.style.font.align
 
         if (align == "center") {
           return "middle"
@@ -157,7 +157,7 @@ d3plus.ui.titles = function(vars) {
       })
       .attr("x",function(t){
 
-        var align = t.style["font-align"]
+        var align = t.style.font.align
 
         if (align == "center") {
           return vars.width.value/2
@@ -181,22 +181,22 @@ d3plus.ui.titles = function(vars) {
 
     title
       .attr("font-size",function(t){
-        return t.style["font-size"]
+        return t.style.font.size
       })
       .attr("fill",function(t){
-        return t.link ? vars.style.link["font-color"] : t.style["font-color"]
+        return t.link ? vars.style.link.font.color : t.style.font.color
       })
       .attr("font-family",function(t){
-        return t.link ? vars.style.link["font-family"] : t.style["font-family"]
+        return t.link ? vars.style.link.font.family : t.style.font.family
       })
       .style("font-weight",function(t){
-        return t.link ? vars.style.link["font-weight"] : t.style["font-weight"]
+        return t.link ? vars.style.link.font.weight : t.style.font.weight
       })
       .style("text-decoration",function(t){
-        return t.link ? vars.style.link["text-decoration"] : t.style["text-decoration"]
+        return t.link ? vars.style.link.font.decoration : t.style.font.decoration
       })
       .style("text-transform",function(t){
-        return t.link ? vars.style.link["text-transform"] : t.style["text-transform"]
+        return t.link ? vars.style.link.font.transform : t.style.font.transform
       })
 
   }
@@ -247,11 +247,11 @@ d3plus.ui.titles = function(vars) {
           .transition().duration(vars.style.timing.mouseevents)
           .style("cursor","pointer")
           .select("text")
-            .attr("fill",vars.style.link.hover["font-color"])
-            .attr("font-family",vars.style.link.hover["font-family"])
-            .style("font-weight",vars.style.link.hover["font-weight"])
-            .style("text-decoration",vars.style.link.hover["text-decoration"])
-            .style("text-transform",vars.style.link.hover["text-transform"])
+            .attr("fill",vars.style.link.hover.font.color)
+            .attr("font-family",vars.style.link.hover.font.family)
+            .style("font-weight",vars.style.link.hover.font.weight)
+            .style("text-decoration",vars.style.link.hover.font.decoration)
+            .style("text-transform",vars.style.link.hover.font.transform)
       }
     })
     .on(d3plus.evt.out,function(t){

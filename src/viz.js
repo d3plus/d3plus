@@ -66,6 +66,7 @@ d3plus.viz = function() {
 
     },
     "filtered": false,
+    "fonts": {},
     "format": function(value,key) {
       if (typeof value === "number") return vars.number_format.value(value,key,vars)
       if (typeof value === "string") return vars.text_format.value(value,key,vars)
@@ -101,6 +102,28 @@ d3plus.viz = function() {
 
     }
   }
+
+  function validate_fonts(obj) {
+    for (key in obj) {
+      if (obj[key] !== null && typeof obj[key] == "object" && !(obj[key] instanceof Array)) {
+
+        if ("family" in obj[key]) {
+          if (obj[key].family in vars.fonts) {
+            obj[key].family = vars.fonts[obj[key].family]
+          }
+          else {
+            var old = obj[key].family
+            obj[key].family = d3plus.fonts.validate(obj[key].family)
+            vars.fonts[old] = obj[key].family
+          }
+        }
+
+        validate_fonts(obj[key])
+
+      }
+    }
+  }
+  validate_fonts(vars.style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Main drawing function
@@ -302,6 +325,14 @@ d3plus.viz = function() {
           d3plus.console.warning("\""+property+"\" cannot be set");
         }
         else {
+          if (property == "family") {
+            if (depth in vars.fonts) {
+              depth = vars.fonts[depth]
+            }
+            else {
+              depth = d3plus.fonts.validate(depth)
+            }
+          }
           object[property] = depth;
         }
       }
