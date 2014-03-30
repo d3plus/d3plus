@@ -5,6 +5,18 @@ d3plus.shape.labels = function(vars,selection) {
 
   var scale = vars.zoom_behavior.scaleExtent()
 
+  var opacity = function(elem) {
+
+    elem
+      .attr("opacity",function(d){
+        if (!d) var d = {}
+        var size = parseFloat(d3.select(this).attr("font-size"),10)
+        d.visible = size/scale[1]*vars.zoom.scale >= 7
+        return d.visible ? 1 : 0
+      })
+
+  }
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Label Exiting
   //----------------------------------------------------------------------------
@@ -304,7 +316,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style,true)
               .transition().duration(vars.timing/2)
               .delay(vars.timing/2)
-              .attr("opacity",1)
+              .call(opacity)
 
           }
           else {
@@ -317,7 +329,7 @@ d3plus.shape.labels = function(vars,selection) {
               .attr("font-size",vars.style.labels.font.size*scale[0])
               .attr("class","d3plus_label")
               .call(style,true)
-              .attr("opacity",1)
+              .call(opacity)
 
           }
 
