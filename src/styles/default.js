@@ -1,7 +1,7 @@
 d3plus.styles.default = {
   "background": "#ffffff",
   "color": {
-    "heatmap": ["#00008f", "#003fff", "#00efff", "#ffdf00", "#ff3000", "#7f0000"],
+    "heatmap": ["#27366C", "#7B91D3", "#9ED3E3", "#F3D261", "#B35C1E", "#843012"],
     "missing": "#eeeeee",
     "range": ["#ff0000","#888888","#00ff00"]
   },
