@@ -20,11 +20,14 @@ d3plus.ui.history = function(vars) {
     var weight = vars.title.sub.value
       ? vars.style.title.sub["font-weight"] : vars.style.title["font-weight"]
 
+    var padding = vars.title.sub.value
+      ? vars.style.title.sub["padding"] : vars.style.title["padding"]
+
     function style(elem) {
 
         elem
           .style("position","absolute")
-          .style("left",vars.style.labels.padding*2+"px")
+          .style("left",padding*2+"px")
           .style("top",vars.margin.top/2-size/2+"px")
           .style("color", color)
           .style("font-family", family)
@@ -34,7 +37,7 @@ d3plus.ui.history = function(vars) {
 
     }
 
-    var min_height = size + vars.style.labels.padding*2
+    var min_height = size + padding*2
     if (vars.margin.top < min_height) {
       vars.margin.top = min_height
     }
