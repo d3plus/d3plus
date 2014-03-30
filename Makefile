@@ -13,6 +13,7 @@ JS_FILES = \
 	src/apps/line.js \
 	src/apps/network.js \
 	src/apps/rings.js \
+	src/apps/scatter.js \
 	src/apps/stacked.js \
 	src/apps/tree_map.js \
 	\
