@@ -179,7 +179,7 @@ d3plus.shape.draw = function(vars) {
         }
 
         if (!d.d3plus.id) {
-          
+
           if (d.values) {
 
             var ids = []
@@ -238,7 +238,7 @@ d3plus.shape.draw = function(vars) {
           }
 
         }
-        console.log(d.d3plus.id)
+        
         return d.d3plus ? d.d3plus.id : d3plus.variable.value(vars,d,vars.id.key);
 
       })
