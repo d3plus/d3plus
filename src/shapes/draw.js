@@ -465,6 +465,13 @@ d3plus.shape.draw = function(vars) {
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
+        if (typeof vars.mouse == "function") {
+          vars.mouse(d)
+        }
+        else if (vars.mouse[d3plus.evt.out]) {
+          vars.mouse[d3plus.evt.out](d)
+        }
+
         var depth_delta = vars.zoom_direction(),
             previous = vars.id.solo.value,
             title = d3plus.variable.text(vars,d)[0],
@@ -472,7 +479,7 @@ d3plus.shape.draw = function(vars) {
             prev_sub = vars.title.sub.value || false,
             prev_color = vars.style.title.sub["font-color"],
             prev_total = vars.style.title.total["font-color"]
-            
+
         if (d.d3plus.threshold && d.d3plus.merged && vars.zoom.value) {
 
           vars.history.states.push(function(){
@@ -545,24 +552,14 @@ d3plus.shape.draw = function(vars) {
         }
         else {
 
-          if (typeof vars.mouse == "function") {
-            vars.mouse(d)
-          }
-          else if (vars.mouse[d3plus.evt.click]) {
-            vars.mouse[d3plus.evt.click](d)
-          }
-          else {
+          edge_update()
 
-            edge_update()
+          var tooltip_data = d.data ? d.data : d
 
-            var tooltip_data = d.data ? d.data : d
-
-            d3plus.tooltip.app({
-              "vars": vars,
-              "data": tooltip_data
-            })
-
-          }
+          d3plus.tooltip.app({
+            "vars": vars,
+            "data": tooltip_data
+          })
 
         }
 
