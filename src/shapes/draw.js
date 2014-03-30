@@ -170,49 +170,75 @@ d3plus.shape.draw = function(vars) {
     var selection = vars.g.data.selectAll("g.d3plus_"+shape)
       .data(filtered_shapes,function(d){
 
+        if (!d.d3plus) {
+          d.d3plus = {}
+        }
+
         if (shape == "coordinates") {
-          if (!d.d3plus) {
-            d.d3plus = {}
-          }
           return d.id
         }
 
-        if (d.values) {
-          d.values.forEach(function(v){
-            v = id(v)
-            v.d3plus.shapeType = "circle"
-          })
-        }
-        else {
+        if (!d.d3plus.id) {
+          
+          if (d.values) {
 
-          d = id(d)
+            var ids = []
+            d.values.forEach(function(v){
+              v = id(v)
+              ids.push(v.d3plus.id)
+              v.d3plus.shapeType = "circle"
+            })
 
-          if (!d.d3plus.a) {
+            function compare() {
 
-            d.d3plus.a = {"donut": Math.PI*2}
-            var active = vars.active.key ? d.d3plus[vars.active.key] : d.d3plus.active,
-                temp = vars.temp.key ? d.d3plus[vars.temp.key] : d.d3plus.temp,
-                total = vars.total.key ? d.d3plus[vars.total.key] : d.d3plus.total
-
-            if (total) {
-              if (active) {
-                d.d3plus.a.active = (active/total) * (Math.PI * 2)
+              if (ids.length > 1 && ids[0] != ids[1]) {
+                ids[0] = ids[0].split("_")
+                ids[0].pop()
+                ids[0] = ids[0].join("_")
+                ids[1] = ids[1].split("_")
+                ids[1].pop()
+                ids[1] = ids[1].join("_")
+                compare()
               }
               else {
-                d.d3plus.a.active = 0
+                d.d3plus.id = ids[0]
               }
-              if (temp) {
-                d.d3plus.a.temp = ((temp/total) * (Math.PI * 2)) + d.d3plus.a.active
+
+            }
+            compare()
+          }
+          else {
+
+            d = id(d)
+
+            if (!d.d3plus.a) {
+
+              d.d3plus.a = {"donut": Math.PI*2}
+              var active = vars.active.key ? d.d3plus[vars.active.key] : d.d3plus.active,
+                  temp = vars.temp.key ? d.d3plus[vars.temp.key] : d.d3plus.temp,
+                  total = vars.total.key ? d.d3plus[vars.total.key] : d.d3plus.total
+
+              if (total) {
+                if (active) {
+                  d.d3plus.a.active = (active/total) * (Math.PI * 2)
+                }
+                else {
+                  d.d3plus.a.active = 0
+                }
+                if (temp) {
+                  d.d3plus.a.temp = ((temp/total) * (Math.PI * 2)) + d.d3plus.a.active
+                }
+                else {
+                  d.d3plus.a.temp = 0
+                }
               }
-              else {
-                d.d3plus.a.temp = 0
-              }
+
             }
 
           }
 
         }
-
+        console.log(d.d3plus.id)
         return d.d3plus ? d.d3plus.id : d3plus.variable.value(vars,d,vars.id.key);
 
       })
