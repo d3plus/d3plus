@@ -467,12 +467,12 @@ d3plus.shape.draw = function(vars) {
 
         var depth_delta = vars.zoom_direction(),
             previous = vars.id.solo.value,
-            title = d3plus.variable.value(vars,d,vars.text.key),
+            title = d3plus.variable.text(vars,d)[0],
             color = d3plus.color.legible(d3plus.variable.color(vars,d)),
             prev_sub = vars.title.sub.value,
             prev_color = vars.style.title.sub["font-color"],
             prev_total = vars.style.title.total["font-color"]
-
+            
         if (d.d3plus.threshold && d.d3plus.merged && vars.zoom.value) {
 
           vars.history.states.push(function(){
