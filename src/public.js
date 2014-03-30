@@ -197,7 +197,7 @@ d3plus.public.number_format = {
 
     var time = vars && vars.time.key ? [vars.time.key] : ["year","date"]
 
-    if (time.indexOf(key.toLowerCase()) >= 0) {
+    if (key && time.indexOf(key.toLowerCase()) >= 0) {
       return number
     }
     else if (number < 10 && number > -10) {
