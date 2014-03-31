@@ -27,7 +27,7 @@ d3plus.ui.history = function(vars) {
 
         elem
           .style("position","absolute")
-          .style("left",padding*2+"px")
+          .style("left",padding*4+"px")
           .style("top",vars.margin.top/2-size/2+"px")
           .style("color", color)
           .style("font-family", family)
