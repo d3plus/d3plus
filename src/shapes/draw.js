@@ -504,6 +504,9 @@ d3plus.shape.draw = function(vars) {
         else if (vars.mouse[d3plus.evt.out]) {
           vars.mouse[d3plus.evt.out](d)
         }
+        else if (vars.mouse[d3plus.evt.click]) {
+          vars.mouse[d3plus.evt.click](d)
+        }
 
         var depth_delta = vars.zoom_direction(),
             previous = vars.id.solo.value,
@@ -583,7 +586,7 @@ d3plus.shape.draw = function(vars) {
           }
 
         }
-        else {
+        else if (d[vars.id.key] != vars.focus.value) {
 
           edge_update()
 
