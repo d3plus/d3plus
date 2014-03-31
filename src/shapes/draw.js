@@ -465,10 +465,9 @@ d3plus.shape.draw = function(vars) {
     })
     .on(d3plus.evt.out,function(d){
 
-      var child = d3plus.utils.child(this,d3.event.toElement),
-          label = d3plus.utils.child(vars.g.labels.node(),d3.event.toElement)
+      var child = d3plus.utils.child(this,d3.event.toElement)
 
-      if (!child && !label && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!child && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         d3.select(this)
           .transition().duration(vars.style.timing.mouseevents)
