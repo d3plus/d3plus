@@ -9798,11 +9798,11 @@ d3plus.styles.default = {
       "opacity": 1
     },
     "handles": {
-      "color": "#fff",
+      "color": "#E5E5E5",
       "hover": "#fff",
-      "opacity": 0,
-      "size": 4,
-      "stroke": "#fff"
+      "opacity": 1,
+      "size": 3,
+      "stroke": "#ccc"
     },
     "height": 20,
     "label": {
