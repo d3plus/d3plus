@@ -63,7 +63,7 @@ d3plus.draw.focus = function(vars) {
 
           if (vars.shape.value == "coordinates") {
 
-            vars.zoom.viewport = vars.path.bounds(d.d3plus.reduced)
+            vars.zoom.viewport = vars.path.bounds(vars.zoom.coords[d.d3plus.id])
 
           }
           else if ("d3plus" in d) {

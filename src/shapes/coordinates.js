@@ -73,10 +73,12 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
   vars.old_height = vars.app_height
   vars.old_width = vars.app_width
-
-  if (vars.coords.changed || size_change) {
+  
+  if (vars.coords.changed || size_change || vars.coords.mute.changed || vars.coords.solo.changed) {
 
     vars.zoom.bounds = null
+    vars.zoom.coords = {}
+    vars.zoom.labels = {}
 
     selection.each(function(d){
 
@@ -112,13 +114,12 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
         return a >= d3.quantile(areas,.9)
 
       })
-      d.d3plus.reduced = reduced
-      d.d3plus.largest = largest
+      vars.zoom.coords[d.d3plus.id] = reduced
 
-      var center = vars.path.centroid(d.d3plus.largest),
-          lb = vars.path.bounds(d.d3plus.largest)
+      var center = vars.path.centroid(largest),
+          lb = vars.path.bounds(largest)
 
-      d.d3plus_label = {
+      vars.zoom.labels[d.d3plus.id] = {
         "anchor": "middle",
         "group": vars.g.labels,
         "h": (lb[1][1]-lb[0][1])*.35,

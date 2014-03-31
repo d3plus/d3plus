@@ -10,7 +10,7 @@ d3plus.draw.finish = function(vars) {
 
     if (vars.dev.value) d3plus.console.time("calculating zoom")
 
-    if (!vars.init) {
+    if (!vars.init && vars.zoom.bounds) {
       d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
     }
 
