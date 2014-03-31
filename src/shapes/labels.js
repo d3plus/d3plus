@@ -4,7 +4,7 @@
 d3plus.shape.labels = function(vars,selection) {
 
   var scale = vars.zoom_behavior.scaleExtent()
-  
+
   var opacity = function(elem) {
 
     elem
@@ -129,6 +129,7 @@ d3plus.shape.labels = function(vars,selection) {
       .style("font-weight",vars.style.labels.font.weight)
       .attr("font-family",vars.style.labels.font.family)
       .attr("text-anchor","start")
+      .attr("pointer-events","none")
       .attr("fill", function(t){
         if (t.color) {
           return t.color
@@ -342,31 +343,6 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style,true)
               .call(opacity)
 
-          }
-
-          if (label && "group" in label) {
-            if (d3plus.ie) {
-
-              text
-                .on(d3plus.evt.over,function(){
-                  d3.select(this).style("cursor","pointer")
-                  d.d3plus_selection.on(d3plus.evt.over)(d)
-                })
-                .on(d3plus.evt.out,function(){
-                  d.d3plus_selection.on(d3plus.evt.out)(d)
-                })
-                .on(d3plus.evt.move,function(){
-                  d3.select(this).style("cursor","pointer")
-                  d.d3plus_selection.on(d3plus.evt.move)(d)
-                })
-                .on(d3plus.evt.click,function(){
-                  d.d3plus_selection.on(d3plus.evt.click)(d)
-                })
-
-            }
-            else {
-              text.style("pointer-events","none")
-            }
           }
 
           text.exit().call(remove)

@@ -259,9 +259,6 @@ d3plus.shape.draw = function(vars) {
     var enter = selection.enter().append("g")
       .attr("class","d3plus_"+shape)
       .attr("opacity",opacity)
-      .each(function(d){
-        d.d3plus_selection = d3.select(this)
-      })
       .call(transform)
 
     if (vars.timing) {
@@ -384,11 +381,11 @@ d3plus.shape.draw = function(vars) {
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-        d.d3plus_selection.style("cursor","pointer")
+        d3.select(this).style("cursor","pointer")
           .transition().duration(vars.style.timing.mouseevents)
           .call(transform,true)
 
-        d.d3plus_selection.selectAll(".d3plus_data")
+        d3.select(this).selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
 
@@ -472,12 +469,12 @@ d3plus.shape.draw = function(vars) {
           label = d3plus.utils.child(vars.g.labels.node(),d3.event.toElement)
 
       if (!child && !label && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
-        
-        d.d3plus_selection
+
+        d3.select(this)
           .transition().duration(vars.style.timing.mouseevents)
           .call(transform)
 
-        d.d3plus_selection.selectAll(".d3plus_data")
+        d3.select(this).selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",vars.style.data.opacity)
 
@@ -568,11 +565,11 @@ d3plus.shape.draw = function(vars) {
 
           edge_update()
 
-          d.d3plus_selection
+          d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)
 
-          d.d3plus_selection.selectAll(".d3plus_data")
+          d3.select(this).selectAll(".d3plus_data")
             .transition().duration(vars.style.timing.mouseevents)
             .attr("opacity",vars.style.data.opacity)
 
