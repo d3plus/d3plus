@@ -41,7 +41,9 @@ d3plus.draw.container = function(vars) {
               val -= parseFloat(d3.select(element).style("padding-top"),10)
               val -= parseFloat(d3.select(element).style("padding-bottom"),10)
             }
-            d3.select("body").style("overflow","hidden")
+            if (d3.selectAll("body > *:not(script)").size() == 1) {
+              d3.select("body").style("overflow","hidden")
+            }
             vars[s].value = val
           }
           else {
