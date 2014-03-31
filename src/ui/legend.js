@@ -284,6 +284,7 @@ d3plus.ui.legend = function(vars) {
               else {
 
                 d3.select(this.parentNode).append("text")
+                  .attr("font-size",vars.style.labels.font.size)
                   .style("font-weight",vars.style.font.weight)
                   .attr("font-family",vars.style.font.family)
                   .attr("text-anchor","start")
@@ -295,11 +296,11 @@ d3plus.ui.legend = function(vars) {
                     if (g.name.length == 1) {
 
                       d3plus.utils.wordwrap({
-                        "text": g.name,
+                        "text": g.name[0],
                         "parent": this,
                         "width": square_size-vars.style.legend.padding*2,
                         "height": square_size-vars.style.legend.padding*2,
-                        "resize": true
+                        "resize": vars.labels.resize.value
                       })
 
                     }

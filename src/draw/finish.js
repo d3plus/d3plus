@@ -26,6 +26,9 @@ d3plus.draw.finish = function(vars) {
     if (vars.dev.value) d3plus.console.timeEnd("calculating zoom")
 
   }
+  else {
+    vars.zoom.scale = 1
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Resize/Reposition Overlay Rect for Mouse events

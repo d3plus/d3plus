@@ -12,9 +12,9 @@ d3plus.zoom.labels = function(vars) {
     vars.g.viz.selectAll("text.d3plus_label")
       .transition().duration(vars.timing)
       .attr("opacity",function(d){
-        if (!d) var d = {}
+        if (!d) var d = {"scale": max_scale}
         var size = parseFloat(d3.select(this).attr("font-size"),10)
-        d.visible = size/max_scale*vars.zoom.scale >= 7
+        d.visible = size/d.scale*vars.zoom.scale >= 7
         return d.visible ? 1 : 0
       })
 
@@ -23,9 +23,9 @@ d3plus.zoom.labels = function(vars) {
 
     vars.g.viz.selectAll("text.d3plus_label")
       .attr("opacity",function(d){
-        if (!d) var d = {}
+        if (!d) var d = {"scale": max_scale}
         var size = parseFloat(d3.select(this).attr("font-size"),10)
-        d.visible = size/max_scale*vars.zoom.scale >= 7
+        d.visible = size/d.scale*vars.zoom.scale >= 7
         return d.visible ? 1 : 0
       })
 

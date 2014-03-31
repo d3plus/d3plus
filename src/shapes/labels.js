@@ -9,9 +9,9 @@ d3plus.shape.labels = function(vars,selection) {
 
     elem
       .attr("opacity",function(d){
-        if (!d) var d = {}
+        if (!d) var d = {"scale": scale[1]}
         var size = parseFloat(d3.select(this).attr("font-size"),10)
-        d.visible = size/scale[1]*vars.zoom.scale >= 7
+        d.visible = size/d.scale*vars.zoom.scale >= 7
         return d.visible ? 1 : 0
       })
 
@@ -151,11 +151,11 @@ d3plus.shape.labels = function(vars,selection) {
             d3plus.utils.wordwrap({
               "text": vars.format(t.text*100,"share")+"%",
               "parent": this,
-              "width": t.w*scale[1]-t.padding,
-              "height": t.h*scale[1]-t.padding,
+              "width": t.w*t.scale-t.padding,
+              "height": t.h*t.scale-t.padding,
               "resize": t.resize,
-              "font_min": 9/scale[1],
-              "font_max": 70*scale[1]
+              "font_min": vars.style.labels.font.size/t.scale,
+              "font_max": 70*t.scale
             })
 
           }
@@ -171,10 +171,10 @@ d3plus.shape.labels = function(vars,selection) {
             d3plus.utils.wordwrap({
               "text": t.names,
               "parent": this,
-              "width": t.w*scale[1]-t.padding,
-              "height": height*scale[1]-t.padding,
-              "font_max": 40*scale[1],
-              "font_min": 9/scale[1],
+              "width": t.w*t.scale-t.padding,
+              "height": height*t.scale-t.padding,
+              "font_max": 40*t.scale,
+              "font_min": vars.style.labels.font.size/t.scale,
               "resize": t.resize
             })
 
@@ -232,12 +232,14 @@ d3plus.shape.labels = function(vars,selection) {
 
         if (share && d.d3plus.share && vars.style.labels.align != "middle") {
 
-          share.padding = (vars.style.labels.padding/scale[1])*2
+          share.resize = vars.labels.resize.value === false ? false :
+            "resize" in share ? share.resize : true
+
+          share.scale = share.resize ? scale[1] : scale[0]
+
+          share.padding = (vars.style.labels.padding/share.scale)*2
 
           share.text = d.d3plus.share
-          if (!("resize" in share)) {
-            share.resize = true
-          }
 
           var text = group.selectAll("text.d3plus_share")
             .data([share],function(t){
@@ -251,7 +253,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size*scale[0])
+              .attr("font-size",vars.style.labels.font.size*share.scale)
               .attr("class","d3plus_share")
               .attr("opacity",0)
               .call(style,true)
@@ -267,7 +269,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size*scale[0])
+              .attr("font-size",vars.style.labels.font.size*share.scale)
               .attr("class","d3plus_share")
               .attr("opacity",0.5)
               .call(style,true)
@@ -284,16 +286,18 @@ d3plus.shape.labels = function(vars,selection) {
             .call(remove)
         }
 
+        label.resize = vars.labels.resize.value === false ? false :
+          "resize" in label ? label.resize : true
+
+        label.scale = label.resize ? scale[1] : scale[0]
+
         if (label) {
-          label.padding = (vars.style.labels.padding/scale[1])*2
+          label.padding = (vars.style.labels.padding/label.scale)*2
         }
 
-        if (label && label.w*scale[1]-label.padding >= 20 && label.h*scale[1]-label.padding >= 10 && names.length) {
+        if (label && label.w*label.scale-label.padding >= 20 && label.h*label.scale-label.padding >= 10 && names.length) {
 
           label.names = names
-          if (!("resize" in label)) {
-            label.resize = true
-          }
 
           label.share = share_size
 
@@ -310,7 +314,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size*scale[0])
+              .attr("font-size",vars.style.labels.font.size*label.scale)
               .attr("class","d3plus_label")
               .attr("opacity",0)
               .call(style,true)
@@ -326,7 +330,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size*scale[0])
+              .attr("font-size",vars.style.labels.font.size*label.scale)
               .attr("class","d3plus_label")
               .call(style,true)
               .call(opacity)

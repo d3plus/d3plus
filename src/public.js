@@ -166,6 +166,10 @@ d3plus.public.id = {
 
 d3plus.public.labels = {
   "accepted": [true,false],
+  "resize": {
+    "accepted": [true,false],
+    "value": true
+  },
   "value": true
 }
 
