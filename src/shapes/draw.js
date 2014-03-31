@@ -83,6 +83,7 @@ d3plus.shape.draw = function(vars) {
 
     g
       .attr("transform",function(d){
+        d.d3plus.selection = d3.select(this)
         if (["line","area","coordinates"].indexOf(shape) < 0) {
           return "translate("+d.d3plus.x+","+d.d3plus.y+")scale("+scale+")"
         }
@@ -174,7 +175,10 @@ d3plus.shape.draw = function(vars) {
           d.d3plus = {}
         }
 
+        d.d3plus.selection = d3.select(this)
+
         if (shape == "coordinates") {
+          d.d3plus.id = d.id
           return d.id
         }
 
@@ -396,13 +400,13 @@ d3plus.shape.draw = function(vars) {
   vars.g.data.selectAll("g")
     .on(d3plus.evt.over,function(d){
 
-      if (!d3plus.utils.child(this,d3.event.fromElement) && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-        d3.select(this).style("cursor","pointer")
+        d.d3plus.selection.style("cursor","pointer")
           .transition().duration(vars.style.timing.mouseevents)
           .call(transform,true)
 
-        d3.select(this).selectAll(".d3plus_data")
+        d.d3plus.selection.selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
 
@@ -460,13 +464,16 @@ d3plus.shape.draw = function(vars) {
     })
     .on(d3plus.evt.out,function(d){
 
-      if (!d3plus.utils.child(this,d3.event.toElement) && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+      var child = d3plus.utils.child(this,d3.event.toElement),
+          label = d3plus.utils.child(vars.g.labels.node(),d3.event.toElement)
 
-        d3.select(this)
+      if (!child && !label && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+        d.d3plus.selection
           .transition().duration(vars.style.timing.mouseevents)
           .call(transform)
 
-        d3.select(this).selectAll(".d3plus_data")
+        d.d3plus.selection.selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",vars.style.data.opacity)
 
@@ -557,11 +564,11 @@ d3plus.shape.draw = function(vars) {
 
           edge_update()
 
-          d3.select(this)
+          d.d3plus.selection
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)
 
-          d3.select(this).selectAll(".d3plus_data")
+          d.d3plus.selection.selectAll(".d3plus_data")
             .transition().duration(vars.style.timing.mouseevents)
             .attr("opacity",vars.style.data.opacity)
 

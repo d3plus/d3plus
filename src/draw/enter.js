@@ -142,6 +142,11 @@ d3plus.draw.enter = function(vars) {
   vars.g.data_focus.enter().append("g")
     .attr("id","data_focus")
 
+  // Enter Top Label Group
+  vars.g.labels = vars.g.viz.selectAll("g#d3plus_labels").data(["d3plus_labels"])
+  vars.g.labels.enter().append("g")
+    .attr("id","d3plus_labels")
+
   vars.defs = vars.svg.selectAll("defs").data(["defs"])
   vars.defs.enter().append("defs")
 

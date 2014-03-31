@@ -120,9 +120,9 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
       d.d3plus_label = {
         "anchor": "middle",
+        "group": vars.g.labels,
         "h": (lb[1][1]-lb[0][1])*.35,
         "w": (lb[1][0]-lb[0][0])*.35,
-        "resize": true,
         "valign": "center",
         "x": center[0],
         "y": center[1]
