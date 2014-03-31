@@ -4740,6 +4740,9 @@ d3plus.draw.container = function(vars) {
               val -= parseFloat(d3.select(element).style("padding-top"),10)
               val -= parseFloat(d3.select(element).style("padding-bottom"),10)
             }
+            if (d3.selectAll("body > *:not(script)").size() == 1) {
+              d3.select("body").style("overflow","hidden")
+            }
             vars[s].value = val
           }
           else {
@@ -8111,6 +8114,7 @@ d3plus.shape.edges = function(vars) {
         return direction == "target" ? marker : "none"
       })
       .attr("vector-effect","non-scaling-stroke")
+      .attr("pointer-events","none")
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -8347,7 +8351,7 @@ d3plus.shape.edges = function(vars) {
       d.d3plus.id = d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
 
       return d.d3plus.id
-      
+
     })
 
   var spline_data = edges.filter(function(l){
