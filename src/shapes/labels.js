@@ -4,7 +4,7 @@
 d3plus.shape.labels = function(vars,selection) {
 
   var scale = vars.zoom_behavior.scaleExtent()
-
+  
   var opacity = function(elem) {
 
     elem
@@ -350,17 +350,17 @@ d3plus.shape.labels = function(vars,selection) {
               text
                 .on(d3plus.evt.over,function(){
                   d3.select(this).style("cursor","pointer")
-                  d.d3plus.selection.on(d3plus.evt.over)(d)
+                  d.d3plus_selection.on(d3plus.evt.over)(d)
                 })
                 .on(d3plus.evt.out,function(){
-                  d.d3plus.selection.on(d3plus.evt.out)(d)
+                  d.d3plus_selection.on(d3plus.evt.out)(d)
                 })
                 .on(d3plus.evt.move,function(){
                   d3.select(this).style("cursor","pointer")
-                  d.d3plus.selection.on(d3plus.evt.move)(d)
+                  d.d3plus_selection.on(d3plus.evt.move)(d)
                 })
                 .on(d3plus.evt.click,function(){
-                  d.d3plus.selection.on(d3plus.evt.click)(d)
+                  d.d3plus_selection.on(d3plus.evt.click)(d)
                 })
 
             }

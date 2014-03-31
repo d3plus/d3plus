@@ -690,7 +690,7 @@ d3plus.apps.chart.draw = function(vars) {
       .key(function(d){
         var id = d3plus.variable.value(vars,d,vars.id.key),
             depth = d.d3plus.depth ? d.d3plus.depth : 0
-        return id+"_"+depth+"_"+vars.shape.value
+        return d3plus.utils.strip(id)+"_"+depth+"_"+vars.shape.value
       })
       .rollup(function(leaves){
 
@@ -932,8 +932,8 @@ d3plus.apps.chart.draw = function(vars) {
 
   function axis_lines(node) {
 
-    var click_remove = d3.event.type == "click" && (vars.tooltip.value.long || vars.html.value),
-        create = ["mouseover","mousemove"].indexOf(d3.event.type) >= 0
+    var click_remove = d3.event.type == d3plus.evt.click && (vars.tooltip.value.long || vars.html.value),
+        create = [d3plus.evt.over,d3plus.evt.move].indexOf(d3.event.type) >= 0
 
     if (!click_remove && create && vars.shape.value != "area") {
 

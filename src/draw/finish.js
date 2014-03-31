@@ -59,18 +59,19 @@ d3plus.draw.finish = function(vars) {
       },vars.timing)
     }
   }
-  else {
-    d3plus.zoom.labels(vars)
+  else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.timing) {
+    setTimeout(function(){
+      d3plus.zoom.labels(vars)
+    },vars.timing)
   }
-  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing) {
 
+  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     setTimeout(function(){
       d3plus.shape.labels(vars,vars.g.edge_focus.selectAll("g"))
     },vars.timing)
     if (vars.dev.value) d3plus.console.timeEnd("focus labels")
-
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

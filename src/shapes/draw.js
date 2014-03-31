@@ -83,7 +83,6 @@ d3plus.shape.draw = function(vars) {
 
     g
       .attr("transform",function(d){
-        d.d3plus.selection = d3.select(this)
         if (["line","area","coordinates"].indexOf(shape) < 0) {
           return "translate("+d.d3plus.x+","+d.d3plus.y+")scale("+scale+")"
         }
@@ -175,8 +174,6 @@ d3plus.shape.draw = function(vars) {
           d.d3plus = {}
         }
 
-        d.d3plus.selection = d3.select(this)
-
         if (shape == "coordinates") {
           d.d3plus.id = d.id
           return d.id
@@ -186,30 +183,12 @@ d3plus.shape.draw = function(vars) {
 
           if (d.values) {
 
-            var ids = []
             d.values.forEach(function(v){
               v = id(v)
-              ids.push(v.d3plus.id)
               v.d3plus.shapeType = "circle"
             })
+            d.d3plus.id = d.key
 
-            function compare() {
-
-              if (ids.length > 1 && ids[0] != ids[1]) {
-                ids[0] = ids[0].split("_")
-                ids[0].pop()
-                ids[0] = ids[0].join("_")
-                ids[1] = ids[1].split("_")
-                ids[1].pop()
-                ids[1] = ids[1].join("_")
-                compare()
-              }
-              else {
-                d.d3plus.id = ids[0]
-              }
-
-            }
-            compare()
           }
           else {
 
@@ -243,7 +222,7 @@ d3plus.shape.draw = function(vars) {
 
         }
 
-        return d.d3plus ? d.d3plus.id : d3plus.variable.value(vars,d,vars.id.key);
+        return d.d3plus ? d.d3plus.id : false;
 
       })
 
@@ -280,6 +259,9 @@ d3plus.shape.draw = function(vars) {
     var enter = selection.enter().append("g")
       .attr("class","d3plus_"+shape)
       .attr("opacity",opacity)
+      .each(function(d){
+        d.d3plus_selection = d3.select(this)
+      })
       .call(transform)
 
     if (vars.timing) {
@@ -402,17 +384,28 @@ d3plus.shape.draw = function(vars) {
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-        d.d3plus.selection.style("cursor","pointer")
+        d.d3plus_selection.style("cursor","pointer")
           .transition().duration(vars.style.timing.mouseevents)
           .call(transform,true)
 
-        d.d3plus.selection.selectAll(".d3plus_data")
+        d.d3plus_selection.selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",1)
 
         vars.covered = false
 
         if ((vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value) {
+
+          if (vars.continuous_axis) {
+
+            var mouse = d3.event[vars.continuous_axis]
+                positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+                closest = d3plus.utils.closest(positions,mouse)
+
+            d.data = d.values[positions.indexOf(closest)]
+            d.d3plus = d.values[positions.indexOf(closest)].d3plus
+
+          }
 
           var tooltip_data = d.data ? d.data : d
           d3plus.tooltip.app({
@@ -444,6 +437,17 @@ d3plus.shape.draw = function(vars) {
           || (d3plus.apps[vars.type.value].tooltip == "follow" &&
           (vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value)) {
 
+          if (vars.continuous_axis) {
+
+            var mouse = d3.event[vars.continuous_axis]
+                positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+                closest = d3plus.utils.closest(positions,mouse)
+
+            d.data = d.values[positions.indexOf(closest)]
+            d.d3plus = d.values[positions.indexOf(closest)].d3plus
+
+          }
+
           var tooltip_data = d.data ? d.data : d
           d3plus.tooltip.app({
             "vars": vars,
@@ -468,12 +472,12 @@ d3plus.shape.draw = function(vars) {
           label = d3plus.utils.child(vars.g.labels.node(),d3.event.toElement)
 
       if (!child && !label && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
-
-        d.d3plus.selection
+        
+        d.d3plus_selection
           .transition().duration(vars.style.timing.mouseevents)
           .call(transform)
 
-        d.d3plus.selection.selectAll(".d3plus_data")
+        d.d3plus_selection.selectAll(".d3plus_data")
           .transition().duration(vars.style.timing.mouseevents)
           .attr("opacity",vars.style.data.opacity)
 
@@ -564,11 +568,11 @@ d3plus.shape.draw = function(vars) {
 
           edge_update()
 
-          d.d3plus.selection
+          d.d3plus_selection
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)
 
-          d.d3plus.selection.selectAll(".d3plus_data")
+          d.d3plus_selection.selectAll(".d3plus_data")
             .transition().duration(vars.style.timing.mouseevents)
             .attr("opacity",vars.style.data.opacity)
 
