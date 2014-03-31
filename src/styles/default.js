@@ -128,13 +128,15 @@ d3plus.styles.default = {
     "align": "middle",
     "background": "#eeeeee",
     "brush": {
-      "color": "#444",
-      "opacity": 0.2
+      "color": "#fff",
+      "opacity": 1
     },
     "handles": {
-      "color": "#888",
-      "hover": "#aaa",
-      "size": 3
+      "color": "#fff",
+      "hover": "#fff",
+      "opacity": 0,
+      "size": 4,
+      "stroke": "#fff"
     },
     "height": 20,
     "label": {
@@ -145,7 +147,7 @@ d3plus.styles.default = {
     },
     "tick": {
       "align": "middle",
-      "color": "#444",
+      "color": "#E5E5E5",
       "family": ["HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", "Helvetica", "Arial", "sans-serif"],
       "weight": "lighter",
       "size": 10
