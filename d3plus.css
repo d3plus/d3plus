@@ -60,10 +60,10 @@ div.d3plus_tooltip_arrow {
   left: 50%;
   margin-left: -5px;
   width: 10px;
-  -webkit-transform: rotate(45deg); 
-     -moz-transform: rotate(45deg); 
-      -ms-transform: rotate(45deg); 
-          transform: rotate(45deg); 
+  -webkit-transform: rotate(45deg);
+     -moz-transform: rotate(45deg);
+      -ms-transform: rotate(45deg);
+          transform: rotate(45deg);
   z-index: -1;
 }
 
@@ -155,40 +155,6 @@ div.d3plus_tooltip_html {
   overflow-y: auto;
   padding: 0px 12px;
   position: absolute;
-}
-
-/********************
- * Network Tooltip
- ********************/
-
-div.d3plus_network_connection {
-  opacity: 0.75;
-  padding: 3px 6px;
-}
-
-div.d3plus_network_connection:hover {
-  cursor: pointer;
-  cursor: -moz-zoom-in;
-  cursor: -webkit-zoom-in;
-  opacity: 1;
-}
-
-div.d3plus_network_connection_node {
-  -webkit-border-radius: 6px;
-     -moz-border-radius: 6px;
-          border-radius: 6px;
-  border-style: solid;
-  border-width: 1px;
-  display: inline-block;
-  height: 10px;
-  margin-bottom: -2px;
-  margin-right: 3px;
-  width: 10px;
-}
-
-div.d3plus_network_connection_name {
-  color: "#333";
-  display: inline;
 }
 
 /********************
