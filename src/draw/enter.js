@@ -27,8 +27,8 @@ d3plus.draw.enter = function(vars) {
     .attr("transform","translate(0,"+vars.height.value+")")
 
   // Enter Key Group
-  vars.g.key = vars.svg.selectAll("g#key").data(["key"])
-  vars.g.key.enter().append("g")
+  vars.g.legend = vars.svg.selectAll("g#key").data(["key"])
+  vars.g.legend.enter().append("g")
     .attr("id","key")
     .attr("transform","translate(0,"+vars.height.value+")")
 

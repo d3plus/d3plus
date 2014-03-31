@@ -71,7 +71,6 @@ d3plus.styles.default = {
       "weight": "lighter",
       "size": 12
     },
-    "padding": 5,
     "size": [10,30],
     "tick": {
       "align": "middle",
@@ -144,7 +143,6 @@ d3plus.styles.default = {
       "weight": "lighter",
       "size": 12
     },
-    "padding": 5,
     "tick": {
       "align": "middle",
       "color": "#444",
@@ -214,5 +212,8 @@ d3plus.styles.default = {
     },
     "large": 250,
     "small": 200
+  },
+  "ui": {
+    "padding": 5
   }
 }

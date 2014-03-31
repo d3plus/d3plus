@@ -131,13 +131,13 @@ d3plus.ui.timeline = function(vars) {
       })
       .attr("y",function(d){
         var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
-        var y = vars.style.timeline.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
+        var y = vars.style.ui.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
         return y
       })
 
     var year_width = 0,
         year_height = 0,
-        height = vars.style.timeline.height+vars.style.timeline.padding
+        height = vars.style.timeline.height+vars.style.ui.padding
 
     text
       .order()
@@ -156,9 +156,9 @@ d3plus.ui.timeline = function(vars) {
         if (h > year_height) year_height = h
       })
 
-    var label_width = year_width+vars.style.timeline.padding*2,
+    var label_width = year_width+vars.style.ui.padding*2,
         timeline_width = label_width*years.length,
-        available_width = vars.width.value-vars.style.timeline.padding*2,
+        available_width = vars.width.value-vars.style.ui.padding*2,
         step = 1
 
     if (timeline_width > available_width) {
@@ -174,10 +174,10 @@ d3plus.ui.timeline = function(vars) {
     }
 
     if (vars.style.timeline.align == "start") {
-      var start_x = vars.style.timeline.padding
+      var start_x = vars.style.ui.padding
     }
     else if (vars.style.timeline.align == "end") {
-      var start_x = vars.width.value - vars.style.timeline.padding - timeline_width
+      var start_x = vars.width.value - vars.style.ui.padding - timeline_width
     }
     else {
       var start_x = vars.width.value/2 - timeline_width/2
@@ -207,9 +207,9 @@ d3plus.ui.timeline = function(vars) {
       })
       .attr("y",function(d){
         var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
-        var y = vars.style.timeline.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
+        var y = vars.style.ui.padding+vars.style.timeline.height/2+this.getBBox().height/2 - diff
         if (step > 1) {
-          y += year_height+vars.style.timeline.padding
+          y += year_height+vars.style.ui.padding
         }
         return y
       })
@@ -222,7 +222,7 @@ d3plus.ui.timeline = function(vars) {
       .attr("width",timeline_width)
       .attr("height",vars.style.timeline.height)
       .attr("x",start_x)
-      .attr("y",vars.style.timeline.padding)
+      .attr("y",vars.style.ui.padding)
       .attr("fill",vars.style.timeline.background)
 
     var x = d3.time.scale()
@@ -239,10 +239,10 @@ d3plus.ui.timeline = function(vars) {
 
     ticks.enter().append("g")
       .attr("id","ticks")
-      .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
+      .attr("transform","translate("+start_x+","+vars.style.ui.padding+")")
 
     ticks.transition().duration(vars.style.timing.transitions)
-      .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
+      .attr("transform","translate("+start_x+","+vars.style.ui.padding+")")
       .call(d3.svg.axis()
         .scale(x)
         .orient("top")
@@ -263,11 +263,11 @@ d3plus.ui.timeline = function(vars) {
 
     brush_group.enter().append("g")
       .attr("id","brush")
-      .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
+      .attr("transform","translate("+start_x+","+vars.style.ui.padding+")")
       .attr("opacity",0)
 
     brush_group
-      .attr("transform","translate("+start_x+","+vars.style.timeline.padding+")")
+      .attr("transform","translate("+start_x+","+vars.style.ui.padding+")")
       .attr("opacity",1)
       .call(brush)
 
@@ -309,10 +309,7 @@ d3plus.ui.timeline = function(vars) {
       .attr("height",vars.style.timeline.height+2)
       .style("visibility","visible")
 
-    if (vars.margin.bottom == 0) {
-      vars.margin.bottom += vars.style.timeline.padding
-    }
-    vars.margin.bottom += height
+    vars.margin.bottom += (vars.style.ui.padding*2)+height
 
     vars.g.timeline.transition().duration(vars.style.timing.transitions)
       .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")

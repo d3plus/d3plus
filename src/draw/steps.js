@@ -279,31 +279,32 @@ d3plus.draw.steps = function(vars) {
 
       if (vars.update) {
 
-        d3plus.ui.legend(vars)
         d3plus.ui.timeline(vars)
+        d3plus.ui.legend(vars)
 
       }
       else {
 
-        var key_box = vars.g.key.node().getBBox(),
-            key_height = key_box.height+key_box.y
+        var timeline = vars.g.timeline.node().getBBox()
+        timeline = timeline.height+timeline.y
 
-        if (key_height > 0) {
-          vars.margin.bottom += key_height+vars.style.legend.padding
+        var legend = vars.g.legend.node().getBBox()
+        legend = legend.height+legend.y
+
+        if (legend && timeline) {
+          var padding = vars.style.ui.padding*3
+        }
+        else if (legend || timeline) {
+          var padding = vars.style.ui.padding*2
+        }
+        else {
+          var padding = 0
         }
 
-        var key_box = vars.g.timeline.node().getBBox(),
-            key_height = key_box.height+key_box.y
-
-        if (key_height > 0) {
-          if (vars.margin.bottom == 0) {
-            vars.margin.bottom += vars.style.timeline.padding
-          }
-          vars.margin.bottom += key_height
-        }
+        vars.margin.bottom += timeline+legend+padding
 
       }
-      
+
       d3plus.ui.history(vars)
       vars.app_height -= (vars.margin.top+vars.margin.bottom)
     },
