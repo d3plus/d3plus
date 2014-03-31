@@ -11561,7 +11561,7 @@ d3plus.ui.legend = function(vars) {
         .attr("class","d3plus_scale")
         .attr("opacity",0)
 
-      var heatmap = vars.defs.selectAll("#d3plus_legend_heatmap")
+      var heatmap = scale.selectAll("#d3plus_legend_heatmap")
         .data(["heatmap"])
 
       heatmap.enter().append("linearGradient")
