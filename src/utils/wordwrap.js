@@ -14,6 +14,10 @@ d3plus.utils.wordwrap = function(params) {
       regex = new RegExp("[^\\s\\"+split.join("\\")+"]+\\"+split.join("?\\")+"?","g"),
       current_text = ""
 
+  if (!d3.select(parent).attr("font-size")) {
+    d3.select(parent).attr("font-size",font_min)
+  }
+
   if (text_array instanceof Array) {
     text_array = text_array.filter(function(t){
       return ["string","number"].indexOf(typeof t) >= 0
@@ -120,20 +124,48 @@ d3plus.utils.wordwrap = function(params) {
         if (parent.childNodes.length*parent.getBBox().height < height && parent.lastChild) cut = true
       }
       if (cut) {
+
         tspan = parent.lastChild
         words = d3.select(tspan).text().match(/[^\s-]+-?/g)
 
-        var last_char = words[words.length-1].charAt(words[words.length-1].length-1)
-        if (last_char == "," || last_char == ";" || last_char == ":") words[words.length-1] = words[words.length-1].substr(0,words[words.length-1].length-1)
+        function ellipsis() {
 
-        d3.select(tspan).text(words.join(" ")+"...")
+          if (words.length) {
 
-        if (tspan.getComputedTextLength() > width) {
-          if (words.length > 1) words.pop(words.length-1)
-          last_char = words[words.length-1].charAt(words[words.length-1].length-1)
-          if (last_char == "," || last_char == ";" || last_char == ":") words[words.length-1].substr(0,words[words.length-1].length-2)
-          d3.select(tspan).text(words.join(" ")+"...")
+            var last_word = words[words.length-1],
+                last_char = last_word.charAt(last_word.length-1)
+
+            if (last_word.length == 1 && split.indexOf(last_word) >= 0) {
+
+              words.pop()
+              ellipsis()
+
+            }
+            else {
+
+              if (split.indexOf(last_char) >= 0) {
+                last_word = last_word.substr(0,last_word.length-1)
+              }
+
+              d3.select(tspan).text(words.join(" ")+"...")
+              if (tspan.getComputedTextLength() > width) {
+                words.pop()
+                ellipsis()
+              }
+
+            }
+
+          }
+          else {
+
+            d3.select(tspan).remove()
+
+          }
+
         }
+
+        ellipsis()
+
       }
     }
   }
