@@ -207,7 +207,7 @@ d3plus.shape.labels = function(vars,selection) {
 
       var disabled = d.d3plus && "label" in d.d3plus && !d.d3plus.label,
           stat = d.d3plus && "static" in d.d3plus && d.d3plus.static
-          label = d.d3plus_label || vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
+          label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
           names = label && label.names ? label.names : d3plus.variable.text(vars,d),
           group = label && "group" in label ? label.group : d3.select(this),

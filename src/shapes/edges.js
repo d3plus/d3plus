@@ -115,10 +115,6 @@ d3plus.shape.edges = function(vars) {
   //----------------------------------------------------------------------------
   function label(d) {
 
-    if (!d.d3plus) {
-      d.d3plus = {}
-    }
-
     delete d.d3plus_label
 
     if (vars.g.edges.selectAll("line, path").size() < vars.edges.large && vars.edges.label && d[vars.edges.label]) {
@@ -274,7 +270,15 @@ d3plus.shape.edges = function(vars) {
 
   var lines = vars.g.edges.selectAll("g.d3plus_edge_line")
     .data(line_data,function(d){
-      return d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
+
+      if (!d.d3plus) {
+        d.d3plus = {}
+      }
+
+      d.d3plus.id = d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
+
+      return d.d3plus.id
+      
     })
 
   var spline_data = edges.filter(function(l){
@@ -283,7 +287,15 @@ d3plus.shape.edges = function(vars) {
 
   var splines = vars.g.edges.selectAll("g.d3plus_edge_path")
     .data(spline_data,function(d){
-      return d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
+
+      if (!d.d3plus) {
+        d.d3plus = {}
+      }
+
+      d.d3plus.id = d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
+
+      return d.d3plus.id
+
     })
 
   if (vars.timing) {
