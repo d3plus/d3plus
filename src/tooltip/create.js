@@ -86,7 +86,7 @@ d3plus.tooltip.create = function(params) {
     .style("color",params.fontcolor)
     .style("font-family",params.fontfamily)
     .style("font-weight",params.fontweight)
-    .style("font-size",params.fontsize)
+    .style("font-size",params.fontsize+"px")
     .style("position","absolute")
     .style("z-index",params.zindex)
     .on(d3plus.evt.out,function(){
@@ -227,7 +227,7 @@ d3plus.tooltip.create = function(params) {
 
     title_width -= title_icon.node().offsetWidth
   }
-
+  
   if (params.title) {
     var mw = params.max_width-6
     if (params.icon) mw -= (params.iconsize+6)
