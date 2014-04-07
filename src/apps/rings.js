@@ -286,7 +286,7 @@ d3plus.apps.rings.draw = function(vars) {
 
   nodes.forEach(function(n) {
 
-    if (n[vars.id.key] != vars.focus.value) {
+    if (n[vars.id.key] != vars.focus.value && !vars.small) {
 
       n.d3plus.rotate = n.d3plus.radians*(180/Math.PI)
 
