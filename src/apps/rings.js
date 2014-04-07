@@ -22,7 +22,7 @@ d3plus.apps.rings.draw = function(vars) {
   }
   center.d3plus.x = vars.app_width/2
   center.d3plus.y = vars.app_height/2
-  center.d3plus.r = ring_width/2
+  center.d3plus.r = ring_width*.65
 
   var primaries = [], claimed = []
   vars.connections(vars.focus.value).forEach(function(edge){
