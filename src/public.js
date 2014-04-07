@@ -124,7 +124,7 @@ d3plus.public.footer = {
 }
 
 d3plus.public.height = {
-  "small": 250,
+  "small": 300,
   "value": null
 }
 
@@ -361,7 +361,7 @@ d3plus.public.type = {
 }
 
 d3plus.public.width = {
-  "small": 300,
+  "small": 400,
   "value": null
 }
 
