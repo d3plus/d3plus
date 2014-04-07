@@ -179,7 +179,10 @@ d3plus.viz = function() {
                 d3plus.console.groupEnd()
                 d3plus.console.group(step.message)
               }
-              d3plus.ui.message(vars,step.message)
+              var message = typeof vars.messages.value == "string"
+                          ? vars.messages.value : step.message
+                          
+              d3plus.ui.message(vars,message)
 
               setTimeout(function(){
 
@@ -525,8 +528,24 @@ d3plus.viz = function() {
             var accepted = false
           }
 
-          if (accepted && accepted.indexOf(c) < 0) {
-            d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+accepted.join("\", \"")+"\"")
+          var allowed = true
+          if (accepted) {
+            if (typeof accepted[0] == "string") {
+              var allowed = accepted.indexOf(c) >= 0,
+                  recs = accepted
+            }
+            else {
+              var allowed = accepted.indexOf(c.constructor) >= 0
+                , recs = []
+              accepted.forEach(function(f){
+                var n = f.toString().split("()")[0].substring(9)
+                recs.push(n)
+              })
+            }
+          }
+
+          if (accepted && !allowed) {
+            d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+recs.join("\", \"")+"\"")
           }
           else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key === c || a[b].value === c))) {
             if (vars.dev.value) d3plus.console.log(text+" was not updated because it did not change.")

@@ -9,7 +9,7 @@ d3plus.public.active = {
     "value": []
   },
   "spotlight": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": false,
     "deprecates": ["spotlight"]
   }
@@ -22,7 +22,7 @@ d3plus.public.aggs = {
 
 d3plus.public.axes = {
   "mirror": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "deprecates": ["mirror_axis","mirror_axes"],
     "value": false
   },
@@ -83,13 +83,13 @@ d3plus.public.descs = {
 }
 
 d3plus.public.dev = {
-  "accepted": [true,false],
+  "accepted": [Boolean],
   "value": false
 }
 
 d3plus.public.edges = {
   "arrows": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "direction": {
       "accepted": ["source","target"],
       "value": "target"
@@ -112,7 +112,7 @@ d3plus.public.error = {
 d3plus.public.focus = {
   "deprecates": ["highlight"],
   "tooltip": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": true
   },
   "value": null
@@ -129,7 +129,7 @@ d3plus.public.height = {
 }
 
 d3plus.public.history = {
-  "accepted": [true,false],
+  "accepted": [Boolean],
   "states": [],
   "value": true
 }
@@ -165,16 +165,16 @@ d3plus.public.id = {
 }
 
 d3plus.public.labels = {
-  "accepted": [true,false],
+  "accepted": [Boolean],
   "resize": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": true
   },
   "value": true
 }
 
 d3plus.public.legend = {
-  "accepted": [true,false],
+  "accepted": [Boolean],
   "label": null,
   "order": {
     "accepted": ["alpha","color"],
@@ -188,7 +188,7 @@ d3plus.public.legend = {
 }
 
 d3plus.public.messages = {
-  "accepted": [true,false],
+  "accepted": [Boolean,String],
   "value": true
 }
 
@@ -300,7 +300,7 @@ d3plus.public.time = {
   "data_filter": true,
   "deprecates": ["year","year_var"],
   "fixed": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": true,
     "deprecates": ["static_axis","static_axes"]
   },
@@ -314,7 +314,7 @@ d3plus.public.time = {
 }
 
 d3plus.public.timeline = {
-  "accepted": [true,false],
+  "accepted": [Boolean],
   "label": null,
   "value": true
 }
@@ -384,11 +384,11 @@ d3plus.public.x = {
     "value": []
   },
   "stacked": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": false
   },
   "zerofill": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": false
   }
 }
@@ -412,27 +412,27 @@ d3plus.public.y = {
     "value": []
   },
   "stacked": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": false
   },
   "zerofill": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": false
   }
 }
 
 d3plus.public.zoom = {
-  "accepted": [true,false],
+  "accepted": [Boolean],
   "click": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": true
   },
   "pan": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": true
   },
   "scroll": {
-    "accepted": [true,false],
+    "accepted": [Boolean],
     "value": true,
     "deprecates": ["scroll_zoom"]
   },
