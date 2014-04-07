@@ -78,9 +78,6 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     if (vars.data.app instanceof Array) {
       var dat = filter_array(vars.data.app)
     }
-    if (!dat) {
-      var dat = filter_array(vars.data.value)
-    }
 
     if (dat && typeof dat[variable] != "undefined") return dat[variable]
   }
