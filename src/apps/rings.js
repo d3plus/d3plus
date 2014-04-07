@@ -8,7 +8,7 @@ d3plus.apps.rings.nesting = false
 d3plus.apps.rings.draw = function(vars) {
 
   var radius = d3.min([vars.app_height,vars.app_width])/2
-    , ring_width = vars.small || !vars.labels.value ? (radius-vars.style.labels.padding)/2 : radius/3
+    , ring_width = vars.small || !vars.labels.value ? (radius-vars.style.labels.padding*2)/2 : radius/3
     , primaryRing = vars.small || !vars.labels.value ? ring_width*1.4 : ring_width
     , secondaryRing = ring_width*2
     , edges = []
