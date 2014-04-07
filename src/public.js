@@ -315,6 +315,10 @@ d3plus.public.time = {
 
 d3plus.public.timeline = {
   "accepted": [Boolean],
+  "handles": {
+    "accepted": [Boolean],
+    "value": true
+  },
   "label": null,
   "value": true
 }

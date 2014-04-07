@@ -290,18 +290,27 @@ d3plus.ui.timeline = function(vars) {
       .attr("stroke-width",1)
       .attr("shape-rendering",vars.style.rendering)
 
-    brush_group.selectAll("g.resize")
-      .select("rect")
-      .transition().duration(vars.style.timing.transitions)
-      .attr("fill",vars.style.timeline.handles.color)
-      .attr("stroke",vars.style.timeline.handles.stroke)
-      .attr("stroke-width",1)
-      .attr("x",-vars.style.timeline.handles.size/2)
-      .attr("opacity",vars.style.timeline.handles.opacity)
-      .attr("width",vars.style.timeline.handles.size)
-      .attr("height",vars.style.timeline.height)
-      .style("visibility","visible")
-      .attr("shape-rendering",vars.style.rendering)
+    if (vars.timeline.handles.value) {
+
+      brush_group.selectAll("g.resize")
+        .select("rect")
+        .attr("fill",vars.style.timeline.handles.color)
+        .attr("stroke",vars.style.timeline.handles.stroke)
+        .attr("stroke-width",1)
+        .attr("x",-vars.style.timeline.handles.size/2)
+        .attr("width",vars.style.timeline.handles.size)
+        .attr("height",vars.style.timeline.height)
+        .style("visibility","visible")
+        .attr("shape-rendering",vars.style.rendering)
+        .attr("opacity",vars.style.timeline.handles.opacity)
+
+    }
+    else {
+
+      brush_group.selectAll("g.resize")
+        .remove()
+
+    }
 
     if (vars.style.timeline.handles.opacity) {
 
