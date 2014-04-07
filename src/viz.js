@@ -181,7 +181,7 @@ d3plus.viz = function() {
               }
               var message = typeof vars.messages.value == "string"
                           ? vars.messages.value : step.message
-                          
+
               d3plus.ui.message(vars,message)
 
               setTimeout(function(){
@@ -557,7 +557,7 @@ d3plus.viz = function() {
               a[b].changed = true
               var arr = a[b].value
 
-              if (key != "time") {
+              if (["time","coords"].indexOf(key) < 0) {
                 if (arr.length && vars[b].indexOf(key) < 0) {
                   vars[b].push(key)
                 }
