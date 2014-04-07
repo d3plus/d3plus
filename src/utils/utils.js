@@ -100,6 +100,33 @@ d3plus.utils.d3selection = function(selection) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Returns distances of all objects in array
+//------------------------------------------------------------------------------
+d3plus.utils.distances = function(arr,accessor) {
+
+  var distances = [], checked = []
+  arr.forEach(function(node1){
+    var n1 = accessor ? accessor(node1) : [n1.x,n1.y]
+    checked.push(node1)
+    arr.forEach(function(node2){
+      if (checked.indexOf(node2) < 0) {
+        var n2 = accessor ? accessor(node2) : [n1.x,n1.y]
+          , xx = Math.abs(n1[0]-n2[0])
+          , yy = Math.abs(n1[1]-n2[1])
+        distances.push(Math.sqrt((xx*xx)+(yy*yy)))
+      }
+    })
+
+  })
+
+  distances.sort(function(a,b){
+    return a - b
+  })
+
+  return distances
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merge two objects to create a new one with the properties of both
 //------------------------------------------------------------------------------
 d3plus.utils.merge = function(obj1, obj2) {

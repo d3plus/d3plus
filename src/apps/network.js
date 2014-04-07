@@ -24,20 +24,7 @@ d3plus.apps.network.draw = function(vars) {
 
   if (typeof val_range[0] == "undefined") val_range = [1,1]
 
-  var distances = []
-  nodes.forEach(function(n1){
-    nodes.forEach(function(n2){
-      if (n1 != n2) {
-        var xx = Math.abs(n1.x-n2.x);
-        var yy = Math.abs(n1.y-n2.y);
-        distances.push(Math.sqrt((xx*xx)+(yy*yy)))
-      }
-    })
-  })
-
-  var max_size = d3.min(distances,function(d){
-    return d;
-  })
+  var max_size = d3.min(d3plus.utils.distances(nodes))
 
   if (vars.edges.arrows.value) {
     max_size = max_size*0.45
