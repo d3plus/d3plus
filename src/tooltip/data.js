@@ -82,8 +82,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
 
       var obj = {"name": name, "value": val, "highlight": h, "group": group}
 
-      if (vars.descs[key]) obj.desc = vars.descs[key]
-
+      if (vars.descs.value[key]) obj.desc = vars.descs.value[key]
       if (val) tooltip_data.push(obj)
     }
 
