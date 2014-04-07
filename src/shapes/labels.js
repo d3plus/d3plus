@@ -126,7 +126,7 @@ d3plus.shape.labels = function(vars,selection) {
     }
 
     text
-      .style("font-weight",vars.style.labels.font.weight)
+      .attr("font-weight",vars.style.labels.font.weight)
       .attr("font-family",vars.style.labels.font.family)
       .attr("text-anchor","start")
       .attr("pointer-events",function(t){

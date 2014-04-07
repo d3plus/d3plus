@@ -189,7 +189,7 @@ d3plus.ui.titles = function(vars) {
       .attr("font-family",function(t){
         return t.link ? vars.style.link.font.family : t.style.font.family
       })
-      .style("font-weight",function(t){
+      .attr("font-weight",function(t){
         return t.link ? vars.style.link.font.weight : t.style.font.weight
       })
       .style("text-decoration",function(t){
@@ -249,7 +249,7 @@ d3plus.ui.titles = function(vars) {
           .select("text")
             .attr("fill",vars.style.link.hover.font.color)
             .attr("font-family",vars.style.link.hover.font.family)
-            .style("font-weight",vars.style.link.hover.font.weight)
+            .attr("font-weight",vars.style.link.hover.font.weight)
             .style("text-decoration",vars.style.link.hover.font.decoration)
             .style("text-transform",vars.style.link.hover.font.transform)
       }

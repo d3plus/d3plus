@@ -295,7 +295,7 @@ d3plus.ui.legend = function(vars) {
 
                 d3.select(this.parentNode).append("text")
                   .attr("font-size",vars.style.labels.font.size)
-                  .style("font-weight",vars.style.font.weight)
+                  .attr("font-weight",vars.style.font.weight)
                   .attr("font-family",vars.style.font.family)
                   .attr("text-anchor","start")
                   .attr("fill",d3plus.color.text(g.color))
@@ -539,7 +539,7 @@ d3plus.ui.legend = function(vars) {
 
       text
         .order()
-        .style("font-weight",vars.style.legend.tick.weight)
+        .attr("font-weight",vars.style.legend.tick.weight)
         .attr("font-family",vars.style.legend.tick.family)
         .attr("font-size",vars.style.legend.tick.size)
         .attr("text-anchor",vars.style.legend.tick.align)

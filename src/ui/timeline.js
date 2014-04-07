@@ -154,7 +154,7 @@ d3plus.ui.timeline = function(vars) {
 
     text
       .order()
-      .style("font-weight",vars.style.timeline.tick.weight)
+      .attr("font-weight",vars.style.timeline.tick.weight)
       .attr("font-family",vars.style.timeline.tick.family)
       .attr("font-size",vars.style.timeline.tick.size)
       .attr("text-anchor",vars.style.timeline.tick.align)

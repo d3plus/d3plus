@@ -155,7 +155,7 @@ d3plus.apps.bubbles.draw = function(vars) {
         return d.d3plus.y-d.r-d.d3plus.label_height-padding
       })
       .attr("text-anchor","middle")
-      .style("font-weight",vars.style.font.weight)
+      .attr("font-weight",vars.style.font.weight)
       .attr("font-family",vars.style.font.family)
       .attr("font-size","12px")
       .style("fill",function(d){
