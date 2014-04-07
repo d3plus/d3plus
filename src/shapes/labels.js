@@ -129,7 +129,9 @@ d3plus.shape.labels = function(vars,selection) {
       .style("font-weight",vars.style.labels.font.weight)
       .attr("font-family",vars.style.labels.font.family)
       .attr("text-anchor","start")
-      .attr("pointer-events","none")
+      .attr("pointer-events",function(t){
+        return t.mouse ? "auto": "none"
+      })
       .attr("fill", function(t){
         if (t.color) {
           return t.color
@@ -146,7 +148,18 @@ d3plus.shape.labels = function(vars,selection) {
       text
         .each(function(t){
 
+          if (t.resize instanceof Array) {
+            var min = t.resize[0]
+              , max = t.resize[1]
+          }
+
           if (t.text) {
+
+
+            if (!t.resize instanceof Array) {
+              var min = 8
+                , max = 70
+            }
 
             d3plus.utils.wordwrap({
               "text": vars.format(t.text*100,"share")+"%",
@@ -154,8 +167,8 @@ d3plus.shape.labels = function(vars,selection) {
               "width": t.w*t.scale-t.padding,
               "height": t.h*t.scale-t.padding,
               "resize": t.resize,
-              "font_min": vars.style.labels.font.size/t.scale,
-              "font_max": 70*t.scale
+              "font_min": min/t.scale,
+              "font_max": max*t.scale
             })
 
           }
@@ -168,14 +181,19 @@ d3plus.shape.labels = function(vars,selection) {
               var height = t.h
             }
 
+            if (!t.resize instanceof Array) {
+              var min = 8
+                , max = 40
+            }
+
             d3plus.utils.wordwrap({
               "text": t.names,
               "parent": this,
               "width": t.w*t.scale-t.padding,
               "height": height*t.scale-t.padding,
-              "font_max": 40*t.scale,
-              "font_min": vars.style.labels.font.size/t.scale,
-              "resize": t.resize
+              "resize": t.resize,
+              "font_min": min/t.scale,
+              "font_max": max*t.scale
             })
 
           }
@@ -299,7 +317,7 @@ d3plus.shape.labels = function(vars,selection) {
           label.padding = (vars.style.labels.padding/label.scale)*2
 
         }
-
+        
         if (label && label.w*label.scale-label.padding >= 20 && label.h*label.scale-label.padding >= 10 && names.length) {
 
           label.names = names
