@@ -270,12 +270,22 @@ d3plus.ui.legend = function(vars) {
                   .attr("height",square_size)
                   .each(function(d){
 
-                    d3plus.utils.dataurl(g.icon,function(base64){
+                    if (g.icon.indexOf("/") == 0 || g.icon.indexOf(window.location.hostname) >= 0) {
+
+                      d3plus.utils.dataurl(g.icon,function(base64){
+
+                        pattern.select("image")
+                          .attr("xlink:href",base64)
+
+                      })
+
+                    }
+                    else {
 
                       pattern.select("image")
-                        .attr("xlink:href",base64)
+                        .attr("xlink:href",g.icon)
 
-                    })
+                    }
 
                   })
 
