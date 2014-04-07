@@ -180,6 +180,7 @@ d3plus.draw.finish = function(vars) {
       }
       if (!vars.zoom.pan.value) {
         vars.g.zoom.on("mousemove.zoom",null)
+        vars.g.zoom.on("mousedown.zoom",null)
       }
     }
     else {
