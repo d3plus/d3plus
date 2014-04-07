@@ -36,8 +36,8 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
       }
       // Circle bounds
       else {
-        d.d3plus_label.w = Math.sqrt(Math.pow(w,2)*.7)
-        d.d3plus_label.h = Math.sqrt(Math.pow(h,2)*.7)
+        d.d3plus_label.w = Math.sqrt(Math.pow(w,2)*.8)
+        d.d3plus_label.h = Math.sqrt(Math.pow(h,2)*.8)
       }
 
     }
