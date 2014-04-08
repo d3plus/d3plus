@@ -70,44 +70,58 @@ d3plus.draw.enter = function(vars) {
     .attr("width",vars.width.value)
     .attr("height",vars.height.value)
     .attr("opacity",0)
-    .on(d3plus.evt.move,function(d){
 
-      if (d.dragging) {
+  if (!d3plus.touch) {
 
-      }
-      else if (d3plus.apps[vars.type.value].zoom && vars.zoom.pan.value &&
-        vars.zoom_behavior.scaleExtent()[0] < vars.zoom.scale) {
-        d3.select(this).style("cursor",d3plus.prefix()+"grab")
-      }
-      else {
-        d3.select(this).style("cursor","auto")
-      }
+    vars.g.overlay
+      .on(d3plus.evt.move,function(d){
 
-    })
-    .on(d3plus.evt.up,function(d){
+        if (d.dragging) {
 
-      if (d3plus.apps[vars.type.value].zoom && vars.zoom.pan.value &&
-        vars.zoom_behavior.scaleExtent()[0] < vars.zoom.scale) {
-        d.dragging = false
-        d3.select(this).style("cursor",d3plus.prefix()+"grab")
-      }
-      else {
-        d3.select(this).style("cursor","auto")
-      }
+        }
+        else if (d3plus.apps[vars.type.value].zoom && vars.zoom.pan.value &&
+          vars.zoom_behavior.scaleExtent()[0] < vars.zoom.scale) {
+          d3.select(this).style("cursor",d3plus.prefix()+"grab")
+        }
+        else {
+          d3.select(this).style("cursor","auto")
+        }
 
-    })
-    .on(d3plus.evt.down,function(d){
+      })
+      .on(d3plus.evt.up,function(d){
 
-      if (d3plus.apps[vars.type.value].zoom && vars.zoom.pan.value &&
-        vars.zoom_behavior.scaleExtent()[0] < vars.zoom.scale) {
-        d.dragging = true
-        d3.select(this).style("cursor",d3plus.prefix()+"grabbing")
-      }
-      else {
-        d3.select(this).style("cursor","auto")
-      }
+        if (d3plus.apps[vars.type.value].zoom && vars.zoom.pan.value &&
+          vars.zoom_behavior.scaleExtent()[0] < vars.zoom.scale) {
+          d.dragging = false
+          d3.select(this).style("cursor",d3plus.prefix()+"grab")
+        }
+        else {
+          d3.select(this).style("cursor","auto")
+        }
 
-    })
+      })
+      .on(d3plus.evt.down,function(d){
+
+        if (d3plus.apps[vars.type.value].zoom && vars.zoom.pan.value &&
+          vars.zoom_behavior.scaleExtent()[0] < vars.zoom.scale) {
+          d.dragging = true
+          d3.select(this).style("cursor",d3plus.prefix()+"grabbing")
+        }
+        else {
+          d3.select(this).style("cursor","auto")
+        }
+
+      })
+
+  }
+  else {
+
+    vars.g.overlay
+      .on(d3plus.evt.over,vars.touchEvent)
+      .on(d3plus.evt.move,vars.touchEvent)
+      .on(d3plus.evt.out,vars.touchEvent)
+
+  }
 
   // Enter App Background Group
   vars.g.app = vars.g.viz.selectAll("g#app").data(["app"])

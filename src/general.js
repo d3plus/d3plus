@@ -75,8 +75,9 @@ d3.select(window).on("load.d3plus_scrollbar",function(){
 d3plus.evt = {}; // stores all mouse events that could occur
 
 // Modernizr touch events
-if (window.Modernizr && Modernizr.touch) {
-  d3plus.evt.click = "touchend"
+d3plus.touch = window.Modernizr && Modernizr.touch
+if (d3plus.touch) {
+  d3plus.evt.click = "click"
   d3plus.evt.down = "touchstart"
   d3plus.evt.up = "touchend"
   d3plus.evt.over = "touchstart"

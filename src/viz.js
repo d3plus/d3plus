@@ -80,6 +80,15 @@ d3plus.viz = function() {
     "solo": [],
     "style": d3plus.styles.default,
     "timing": d3plus.styles.default.timing.transitions,
+    "touchEvent": function(){
+      var zoomed = vars.zoom.scale > vars.zoom_behavior.scaleExtent()[0]
+        , enabled = d3plus.apps[vars.type.value].zoom
+                  && vars.zoom.value && vars.zoom.scroll.value
+        , zoomable = d3.event.touches.length > 1 && enabled
+      if (!zoomable && !zoomed) {
+        d3.event.stopPropagation()
+      }
+    },
     "update": true,
     "zoom_behavior": d3.behavior.zoom().scaleExtent([1,1]),
     "zoom_direction": function() {

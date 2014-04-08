@@ -339,94 +339,99 @@ d3plus.ui.legend = function(vars) {
             .attr("class","d3plus_color")
             .call(style)
 
-        keys
-          .order()
-          .on(d3plus.evt.over,function(d,i){
-
-            d3.select(this).style("cursor","pointer")
-
-            if (d.name.length) {
+        if (!d3plus.touch) {
+          
+          keys
+            .on(d3plus.evt.over,function(d,i){
 
               d3.select(this).style("cursor","pointer")
 
-              var x = start_x + (i*(vars.style.ui.padding+square_size)),
-                  y = d3.transform(d3.select(this.parentNode).attr("transform")).translate[1]
+              if (d.name.length) {
 
-              x += square_size/2
-              y += vars.style.ui.padding+square_size/2
+                d3.select(this).style("cursor","pointer")
 
-              if (typeof vars.icon.style.value == "string") {
-                var icon_style = vars.icon.style.value
-              }
-              else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[d.icon_depth]) {
-                var icon_style = vars.icon.style.value[d.icon_depth]
-              }
-              else {
-                var icon_style = "default"
-              }
+                var x = start_x + (i*(vars.style.ui.padding+square_size)),
+                    y = d3.transform(d3.select(this.parentNode).attr("transform")).translate[1]
 
-              var names = []
-              d.name.forEach(function(d){
-                if (d instanceof Array) {
-                  names.push(d[0])
+                x += square_size/2
+                y += vars.style.ui.padding+square_size/2
+
+                if (typeof vars.icon.style.value == "string") {
+                  var icon_style = vars.icon.style.value
+                }
+                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[d.icon_depth]) {
+                  var icon_style = vars.icon.style.value[d.icon_depth]
                 }
                 else {
-                  names.push(d)
-                }
-              })
-
-              if (names.length == 1) {
-                var title = names[0],
-                    description = null
-              }
-              else {
-                var title = null
-
-                if (names.length > 4) {
-                  var more = names.length-4
-                  names = names.slice(0,4)
-                  names[4] = vars.format(more+" more")
+                  var icon_style = "default"
                 }
 
-                if (names.length == 2) {
-                  var description = names.join(" "+vars.format("and")+" ")
+                var names = []
+                d.name.forEach(function(d){
+                  if (d instanceof Array) {
+                    names.push(d[0])
+                  }
+                  else {
+                    names.push(d)
+                  }
+                })
+
+                if (names.length == 1) {
+                  var title = names[0],
+                      description = null
                 }
                 else {
-                  names[names.length-1] = vars.format("and")+" "+names[names.length-1]
-                  var description = names.join(", ")
+                  var title = null
+
+                  if (names.length > 4) {
+                    var more = names.length-4
+                    names = names.slice(0,4)
+                    names[4] = vars.format(more+" more")
+                  }
+
+                  if (names.length == 2) {
+                    var description = names.join(" "+vars.format("and")+" ")
+                  }
+                  else {
+                    names[names.length-1] = vars.format("and")+" "+names[names.length-1]
+                    var description = names.join(", ")
+                  }
+
                 }
+
+                d3plus.tooltip.create({
+                  "align": "top center",
+                  "arrow": true,
+                  "background": vars.style.tooltip.background,
+                  "description": description,
+                  "fontcolor": vars.style.tooltip.font.color,
+                  "fontfamily": vars.style.tooltip.font.family,
+                  "fontweight": vars.style.tooltip.font.weight,
+                  // "data": tooltip_data,
+                  "color": d.color,
+                  "icon": d.icon,
+                  "id": "legend",
+                  // "mouseevents": mouse,
+                  "offset": square_size/2-vars.style.ui.padding,
+                  "parent": vars.parent,
+                  "style": icon_style,
+                  "title": title,
+                  "x": x,
+                  "y": y,
+                  "max_width": 200,
+                  "width": "auto"
+                })
 
               }
 
-              d3plus.tooltip.create({
-                "align": "top center",
-                "arrow": true,
-                "background": vars.style.tooltip.background,
-                "description": description,
-                "fontcolor": vars.style.tooltip.font.color,
-                "fontfamily": vars.style.tooltip.font.family,
-                "fontweight": vars.style.tooltip.font.weight,
-                // "data": tooltip_data,
-                "color": d.color,
-                "icon": d.icon,
-                "id": "legend",
-                // "mouseevents": mouse,
-                "offset": square_size/2-vars.style.ui.padding,
-                "parent": vars.parent,
-                "style": icon_style,
-                "title": title,
-                "x": x,
-                "y": y,
-                "max_width": 200,
-                "width": "auto"
-              })
+            })
+            .on(d3plus.evt.out,function(d){
+              d3plus.tooltip.remove("legend")
+            })
 
-            }
+        }
 
-          })
-          .on(d3plus.evt.out,function(d){
-            d3plus.tooltip.remove("legend")
-          })
+        keys.order()
           .transition().duration(vars.style.timing.transitions)
           .attr("opacity",1)
           .call(position)

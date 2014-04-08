@@ -376,124 +376,138 @@ d3plus.shape.draw = function(vars) {
 
   edge_update()
 
+  if (!d3plus.touch) {
+
+    vars.g.data.selectAll("g")
+      .on(d3plus.evt.over,function(d){
+
+        if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+          d3.select(this).style("cursor","pointer")
+            .transition().duration(vars.style.timing.mouseevents)
+            .call(transform,true)
+
+          d3.select(this).selectAll(".d3plus_data")
+            .transition().duration(vars.style.timing.mouseevents)
+            .attr("opacity",1)
+
+          vars.covered = false
+
+          if ((vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value) {
+
+            if (vars.continuous_axis) {
+
+              var mouse = d3.event[vars.continuous_axis]
+                  positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+                  closest = d3plus.utils.closest(positions,mouse)
+
+              d.data = d.values[positions.indexOf(closest)]
+              d.d3plus = d.values[positions.indexOf(closest)].d3plus
+
+            }
+
+            var tooltip_data = d.data ? d.data : d
+            d3plus.tooltip.app({
+              "vars": vars,
+              "data": tooltip_data
+            })
+
+          }
+
+          if (typeof vars.mouse == "function") {
+            vars.mouse(d)
+          }
+          else if (vars.mouse[d3plus.evt.over]) {
+            vars.mouse[d3plus.evt.over](d)
+          }
+
+          edge_update(d)
+
+        }
+
+      })
+      .on(d3plus.evt.move,function(d){
+
+        if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+          vars.covered = false
+
+          if (["area","line"].indexOf(vars.shape.value) >= 0
+            || (d3plus.apps[vars.type.value].tooltip == "follow" &&
+            (vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value)) {
+
+            if (vars.continuous_axis) {
+
+              var mouse = d3.event[vars.continuous_axis]
+                  positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+                  closest = d3plus.utils.closest(positions,mouse)
+
+              d.data = d.values[positions.indexOf(closest)]
+              d.d3plus = d.values[positions.indexOf(closest)].d3plus
+
+            }
+
+            var tooltip_data = d.data ? d.data : d
+            d3plus.tooltip.app({
+              "vars": vars,
+              "data": tooltip_data
+            })
+
+          }
+
+          if (typeof vars.mouse == "function") {
+            vars.mouse(d)
+          }
+          else if (vars.mouse[d3plus.evt.move]) {
+            vars.mouse[d3plus.evt.move](d)
+          }
+
+        }
+
+      })
+      .on(d3plus.evt.out,function(d){
+
+        var child = d3plus.utils.child(this,d3.event.toElement)
+
+        if (!child && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+          d3.select(this)
+            .transition().duration(vars.style.timing.mouseevents)
+            .call(transform)
+
+          d3.select(this).selectAll(".d3plus_data")
+            .transition().duration(vars.style.timing.mouseevents)
+            .attr("opacity",vars.style.data.opacity)
+
+
+          if (!vars.covered) {
+            d3plus.tooltip.remove(vars.type.value)
+          }
+
+          if (typeof vars.mouse == "function") {
+            vars.mouse(d)
+          }
+          else if (vars.mouse[d3plus.evt.out]) {
+            vars.mouse[d3plus.evt.out](d)
+          }
+
+          edge_update()
+
+        }
+
+      })
+
+  }
+  else {
+
+    vars.g.data.selectAll("g")
+      .on(d3plus.evt.over,vars.touchEvent)
+      .on(d3plus.evt.move,vars.touchEvent)
+      .on(d3plus.evt.out,vars.touchEvent)
+
+  }
+
   vars.g.data.selectAll("g")
-    .on(d3plus.evt.over,function(d){
-
-      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
-
-        d3.select(this).style("cursor","pointer")
-          .transition().duration(vars.style.timing.mouseevents)
-          .call(transform,true)
-
-        d3.select(this).selectAll(".d3plus_data")
-          .transition().duration(vars.style.timing.mouseevents)
-          .attr("opacity",1)
-
-        vars.covered = false
-
-        if ((vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value) {
-
-          if (vars.continuous_axis) {
-
-            var mouse = d3.event[vars.continuous_axis]
-                positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-                closest = d3plus.utils.closest(positions,mouse)
-
-            d.data = d.values[positions.indexOf(closest)]
-            d.d3plus = d.values[positions.indexOf(closest)].d3plus
-
-          }
-
-          var tooltip_data = d.data ? d.data : d
-          d3plus.tooltip.app({
-            "vars": vars,
-            "data": tooltip_data
-          })
-
-        }
-
-        if (typeof vars.mouse == "function") {
-          vars.mouse(d)
-        }
-        else if (vars.mouse[d3plus.evt.over]) {
-          vars.mouse[d3plus.evt.over](d)
-        }
-
-        edge_update(d)
-
-      }
-
-    })
-    .on(d3plus.evt.move,function(d){
-
-      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
-
-        vars.covered = false
-
-        if (["area","line"].indexOf(vars.shape.value) >= 0
-          || (d3plus.apps[vars.type.value].tooltip == "follow" &&
-          (vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value)) {
-
-          if (vars.continuous_axis) {
-
-            var mouse = d3.event[vars.continuous_axis]
-                positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-                closest = d3plus.utils.closest(positions,mouse)
-
-            d.data = d.values[positions.indexOf(closest)]
-            d.d3plus = d.values[positions.indexOf(closest)].d3plus
-
-          }
-
-          var tooltip_data = d.data ? d.data : d
-          d3plus.tooltip.app({
-            "vars": vars,
-            "data": tooltip_data
-          })
-
-        }
-
-        if (typeof vars.mouse == "function") {
-          vars.mouse(d)
-        }
-        else if (vars.mouse[d3plus.evt.move]) {
-          vars.mouse[d3plus.evt.move](d)
-        }
-
-      }
-
-    })
-    .on(d3plus.evt.out,function(d){
-
-      var child = d3plus.utils.child(this,d3.event.toElement)
-
-      if (!child && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
-
-        d3.select(this)
-          .transition().duration(vars.style.timing.mouseevents)
-          .call(transform)
-
-        d3.select(this).selectAll(".d3plus_data")
-          .transition().duration(vars.style.timing.mouseevents)
-          .attr("opacity",vars.style.data.opacity)
-
-
-        if (!vars.covered) {
-          d3plus.tooltip.remove(vars.type.value)
-        }
-
-        if (typeof vars.mouse == "function") {
-          vars.mouse(d)
-        }
-        else if (vars.mouse[d3plus.evt.out]) {
-          vars.mouse[d3plus.evt.out](d)
-        }
-
-        edge_update()
-
-      }
-
-    })
     .on(d3plus.evt.click,function(d){
 
       if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
