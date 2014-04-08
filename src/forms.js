@@ -229,22 +229,7 @@ d3plus.forms = function(passed) {
           .style("overflow","visible")
           .style("vertical-align","top")
 
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // Select testing DIV
-        //----------------------------------------------------------------------
-        vars.tester = d3.select("body").selectAll("div.d3plus_tester")
-          .data(["tester"])
-
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // Create testing DIV
-        //----------------------------------------------------------------------
-        vars.tester.enter().append("div")
-          .attr("class","d3plus_tester")
-          .style("position","absolute")
-          .style("left","-9999px")
-          .style("top","-9999px")
-          .style("visibility","hidden")
-          .style("display","block")
+        vars.tester = d3plus.fonts.tester()
 
       }
 

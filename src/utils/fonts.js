@@ -11,6 +11,26 @@ for (var s = 0; s < document.styleSheets.length; s++) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates test div to populate with test DIVs
+//------------------------------------------------------------------------------
+d3plus.fonts.tester = function() {
+
+  var tester = d3.select("body").selectAll("div.d3plus_tester")
+    .data(["d3plus_tester"])
+
+  tester.enter().append("div")
+    .attr("class","d3plus_tester")
+    .style("position","absolute")
+    .style("left","-9999px")
+    .style("top","-9999px")
+    .style("visibility","hidden")
+    .style("display","block")
+
+  return tester
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Given a single font or a list of font, determines which can be rendered
 //------------------------------------------------------------------------------
 d3plus.fonts.validate = function(test_fonts) {
@@ -19,16 +39,15 @@ d3plus.fonts.validate = function(test_fonts) {
     test_fonts = test_fonts.split(",")
   }
 
+  var tester = d3plus.fonts.tester()
+
   function create_element(font) {
 
-    return d3.select("body").append("span")
+    return tester.append("span")
       .style("font-family",font)
       .style("font-size","32px")
       .style("padding","0px")
       .style("margin","0px")
-      .style("opacity",0)
-      .style("display","block")
-      .style("position","absolute")
       .text("abcdefghiABCDEFGHI_!@#$%^&*()_+1234567890")
 
   }
@@ -65,6 +84,10 @@ d3plus.fonts.validate = function(test_fonts) {
       break;
     }
 
+  }
+
+  if (!valid) {
+    valid = "sans-serif"
   }
 
   monospace.remove()
