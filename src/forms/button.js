@@ -178,11 +178,12 @@ d3plus.forms.button = function(vars,styles,timing) {
             return c == "text" ? "static" : "absolute"
           })
           .style("width",function(c){
+
             if (styles.height) {
               buffer = (styles.height-(styles.padding*2)-(styles.stroke*2))
             }
             else {
-              buffer = parseFloat(d3.select(this.parentNode).style("height"),10)
+              buffer = styles["font-size"]+styles.padding+styles.stroke
             }
             return buffer+"px"
           })

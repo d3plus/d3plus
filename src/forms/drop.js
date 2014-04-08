@@ -461,7 +461,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
     if (vars.dev) d3plus.console.group("list buttons")
 
-    var style = d3plus.utils.copy(styles)
+    var style = d3plus.utils.merge(styles,styles.drop)
     style.icon = false
     style.display = "block"
     style.border = "none"
@@ -473,13 +473,13 @@ d3plus.forms.drop = function(vars,styles,timing) {
     }
 
     var large = vars.data.array.length < vars.large ? vars.large : 0
-
+    
     var buttons = d3plus.forms(style)
       .dev(vars.dev)
       .type("button")
       .text(text)
       .data(data)
-      .height(line_height)
+      // .height(line_height)
       .parent(list)
       .id(vars.id+"_option")
       .timing(timing)

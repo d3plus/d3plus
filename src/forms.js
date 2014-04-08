@@ -37,6 +37,7 @@ d3plus.forms = function(passed) {
     "color": "#ffffff",
     "corners": 0,
     "display": "inline-block",
+    "drop": {},
     "font-family": "'Helvetica Neue', 'HelveticaNeue', 'Helvetica', 'Arial', 'sans-serif'",
     "font-size": 12,
     "font-spacing": 0,
@@ -406,7 +407,10 @@ d3plus.forms = function(passed) {
 
       return function(value) {
 
-        if (!arguments.length) return styles[key]
+        if (!arguments.length) {
+          if (key == "font") return styles
+          return styles[key]
+        }
 
         if (vars.dev) {
 
@@ -421,39 +425,55 @@ d3plus.forms = function(passed) {
         }
 
         if (key == "font") {
-          if (typeof value == "string") {
-            if (vars.dev) d3plus.console.log("\"font-family\" set"+text)
-            styles["font-family"] = value
-          }
-          if (typeof value == "number") {
-            if (vars.dev) d3plus.console.log("\"font-size\" set"+text)
-            styles["font-size"] = value
-          }
-          else if (typeof value == "object") {
-            for (style in value) {
-              if (style == "align" && d3plus.rtl) {
-                if (value[style] == "left") {
-                  value[style] = "right"
-                }
-                else if (value[style] == "right") {
-                  value[style] = "left"
-                }
-              }
-              if (vars.dev) {
 
-                var text = value[style].toString()
-                if (text.length > 50) {
-                  var text = ""
+          function set_font(obj,thing) {
+
+            if (typeof thing == "string") {
+              if (vars.dev) d3plus.console.log("\"font-family\" set"+text)
+              obj["font-family"] = thing
+            }
+            if (typeof thing == "number") {
+              if (vars.dev) d3plus.console.log("\"font-size\" set"+text)
+              obj["font-size"] = thing
+            }
+            else if (typeof thing == "object") {
+              for (style in thing) {
+
+                if (style == "drop") {
+                  set_font(obj.drop,thing[style])
                 }
                 else {
-                  var text = " to \""+text+"\""
-                }
 
-                d3plus.console.log("\"font-"+style+"\" set"+text)
+                  if (style == "align" && d3plus.rtl) {
+                    if (thing[style] == "left") {
+                      thing[style] = "right"
+                    }
+                    else if (thing[style] == "right") {
+                      thing[style] = "left"
+                    }
+                  }
+                  if (vars.dev) {
+
+                    var text = thing[style].toString()
+                    if (text.length > 50) {
+                      var text = ""
+                    }
+                    else {
+                      var text = " to \""+text+"\""
+                    }
+
+                    d3plus.console.log("\"font-"+style+"\" set"+text)
+                  }
+                  obj["font-"+style] = thing[style]
+
+                }
               }
-              styles["font-"+style] = value[style]
             }
+
           }
+
+          set_font(styles,value)
+
         }
         else {
           if (key == "color" && styles.secondary == d3plus.color.darker(styles.color,0.05)) {
