@@ -4792,7 +4792,7 @@ d3plus.data.threshold = function(vars,split) {
         }
       })
 
-      if (vars.color.key) {
+      if (vars.color.key && vars.color.type == "string") {
         if (vars.depth.value == 0) {
           m[vars.color.key] = vars.style.color.missing
         }
