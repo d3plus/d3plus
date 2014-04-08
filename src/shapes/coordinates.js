@@ -40,24 +40,6 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     .attr("d",vars.path)
     .call(d3plus.shape.style,vars)
 
-  selection.selectAll("path.d3plus_data")
-    .on(d3plus.evt.over,function(d){
-
-      if (!vars.frozen) {
-
-        d3.select(this).attr("opacity",1)
-
-      }
-    })
-    .on(d3plus.evt.out,function(d){
-
-      if (!vars.frozen) {
-
-        d3.select(this).attr("opacity",vars.style.data.opacity)
-
-      }
-    })
-
   if (vars.timing) {
     selection.selectAll("path.d3plus_data")
       .transition().duration(vars.timing)
@@ -73,7 +55,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
   vars.old_height = vars.app_height
   vars.old_width = vars.app_width
-  
+
   if (vars.coords.changed || size_change || vars.coords.mute.changed || vars.coords.solo.changed) {
 
     vars.zoom.bounds = null
