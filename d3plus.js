@@ -3957,7 +3957,7 @@ d3plus.data.color = function(vars) {
   })
 
   if (vars.dev.value) d3plus.console.timeEnd("get data range")
-  
+
   if (data_range.length > 1) {
 
     var data_domain = null
@@ -3968,15 +3968,23 @@ d3plus.data.color = function(vars) {
 
     if (data_range[0] < 0 && data_range[1] > 0) {
       var color_range = vars.style.color.range
-      data_range.push(data_range[1])
-      data_range[1] = 0
+      if (color_range.length == 3) {
+        data_range.push(data_range[1])
+        data_range[1] = 0
+      }
     }
-    else if (data_range[1] > 0 || data_range[0] < 0) {
+    else if (data_range[1] > 0 && data_range[0] > 0) {
       var color_range = vars.style.color.heatmap
       data_range = d3plus.utils.buckets(data_range,color_range.length)
     }
     else {
       var color_range = vars.style.color.range.slice(0)
+      if (data_range[0] < 0) {
+        color_range.pop()
+      }
+      else {
+        color_range.shift()
+      }
     }
 
     vars.color.scale = d3.scale.sqrt()
@@ -5706,7 +5714,7 @@ d3plus.draw.steps = function(vars) {
     steps.push({
       "check": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
-        return (year === null && (vars.time.solo.changed || vars.time.mute.changed)) || !vars.data.pool
+        return (year === null && (vars.time.solo.changed || vars.time.mute.changed || vars.depth.changed)) || !vars.data.pool
       },
       "function": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
