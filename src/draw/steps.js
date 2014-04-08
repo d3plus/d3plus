@@ -189,7 +189,7 @@ d3plus.draw.steps = function(vars) {
     steps.push({
       "check": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
-        return (year === null && (vars.time.solo.changed || vars.time.mute.changed)) || !vars.data.pool
+        return (year === null && (vars.time.solo.changed || vars.time.mute.changed || vars.depth.changed)) || !vars.data.pool
       },
       "function": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
