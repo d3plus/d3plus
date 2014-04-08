@@ -6,6 +6,24 @@ d3plus.draw.steps = function(vars) {
   var steps = []
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check to see if any data needs to be loaded with JSON
+  //----------------------------------------------------------------------------
+  var urlLoads = ["data","attrs","coords","nodes","edges"]
+  urlLoads.forEach(function(u){
+    if (typeof vars[u].value == "string" || (!vars[u].value && vars[u].url)) {
+
+      steps.push({
+        "function": function(vars,next){
+          d3plus.data.json(vars,u,next)
+        },
+        "message": "Loading Data",
+        "wait": true
+      })
+
+    }
+  })
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If it has one, run the current app's setup function.
   //----------------------------------------------------------------------------
   steps.push({

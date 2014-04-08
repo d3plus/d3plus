@@ -23,6 +23,7 @@ JS_FILES = \
 	src/data/fetch.js \
 	src/data/filter.js \
 	src/data/format.js \
+	src/data/json.js \
 	src/data/keys.js \
 	src/data/nest.js \
 	src/data/nodes.js \

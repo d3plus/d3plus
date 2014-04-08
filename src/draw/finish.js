@@ -90,9 +90,6 @@ d3plus.draw.finish = function(vars) {
     if ((!vars.data.app || !vars.returned.nodes.length) && data_req) {
       vars.internal_error = "No Data Available"
     }
-    else {
-      vars.internal_error = null
-    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

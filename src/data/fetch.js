@@ -61,7 +61,7 @@ d3plus.data.fetch = function(vars,format,years) {
   else {
     var data = vars.data[format][vars.id.nesting[vars.depth.value]]
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If there is only 1 year needed, just grab it!
   //----------------------------------------------------------------------------
@@ -88,12 +88,9 @@ d3plus.data.fetch = function(vars,format,years) {
 
     })
 
-    if (return_data.length == 0 && missing.length) {
+    if (return_data.length == 0 && missing.length && !vars.internal_error) {
       vars.internal_error = "No Data Available for "+missing.join(", ")
       d3plus.console.warning(vars.internal_error)
-    }
-    else {
-      vars.internal_error = null
     }
 
   }

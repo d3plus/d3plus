@@ -132,6 +132,7 @@ d3plus.viz = function() {
     selection.each(function() {
 
       vars.frozen = true
+      vars.internal_error = null
       d3plus.draw.container(vars)
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -188,14 +189,16 @@ d3plus.viz = function() {
 
                 if (step.function instanceof Array) {
                   step.function.forEach(function(f){
-                    f(vars)
+                    f(vars,check_next)
                   })
                 }
                 else if (typeof step.function == "function") {
-                  step.function(vars)
+                  step.function(vars,check_next)
                 }
 
-                check_next()
+                if (!step.wait) {
+                  check_next()
+                }
 
               },10)
 
@@ -204,14 +207,16 @@ d3plus.viz = function() {
 
               if (step.function instanceof Array) {
                 step.function.forEach(function(f){
-                  f(vars)
+                  f(vars,check_next)
                 })
               }
               else if (typeof step.function == "function") {
-                step.function(vars)
+                step.function(vars,check_next)
               }
 
-              check_next()
+              if (!step.wait) {
+                check_next()
+              }
 
             }
 
@@ -411,7 +416,7 @@ d3plus.viz = function() {
     // create method for variable
 
     vars.viz[p] = (function(key) {
-      return function(user) {
+      return function(user,callback) {
 
         if (!arguments.length) return vars[key];
 
@@ -419,6 +424,10 @@ d3plus.viz = function() {
           vars[key].reset.forEach(function(r){
             vars[r] = null
           })
+        }
+
+        if (callback) {
+          vars[key].callback = callback
         }
 
         // determine default key type, if available
