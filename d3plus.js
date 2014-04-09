@@ -10069,7 +10069,7 @@ d3plus.styles.default = {
       "color": "#444",
       "decoration": "none",
       "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
-      "size": 13,
+      "size": 18,
       "transform": "none",
       "weight": 200
     },
@@ -12571,7 +12571,8 @@ d3plus.ui.titles = function(vars) {
 
       total = vars.format(total,vars.size.key)
       var obj = vars.title.total.value
-      obj.prefix ? total = obj.prefix + total : null
+        , prefix = obj.prefix || vars.format("Total")+": "
+      total = prefix + total
       obj.suffix ? total = total + obj.suffix : null
       total += pct
 
