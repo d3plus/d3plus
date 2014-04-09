@@ -74,7 +74,8 @@ d3plus.ui.titles = function(vars) {
 
       total = vars.format(total,vars.size.key)
       var obj = vars.title.total.value
-      obj.prefix ? total = obj.prefix + total : null
+        , prefix = obj.prefix || vars.format("Total")+": "
+      total = prefix + total
       obj.suffix ? total = total + obj.suffix : null
       total += pct
 

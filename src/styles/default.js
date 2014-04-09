@@ -163,7 +163,7 @@ d3plus.styles.default = {
       "color": "#444",
       "decoration": "none",
       "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
-      "size": 13,
+      "size": 18,
       "transform": "none",
       "weight": 200
     },
