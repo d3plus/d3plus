@@ -260,7 +260,7 @@ d3plus.apps.rings.draw = function(vars) {
     if (domain[0] == domain[1]) {
       domain[0] = 0
     }
-
+    
     var radius = d3.scale.linear()
       .domain(domain)
       .range([3,d3.min([primaryMax,secondaryMax])])
@@ -284,7 +284,7 @@ d3plus.apps.rings.draw = function(vars) {
   primaries.forEach(function(p,i){
 
     p.d3plus.ring = 1
-    var val = vars.size.key ? d3plus.variable.value(vars,s,vars.size.key) : 1
+    var val = vars.size.key ? d3plus.variable.value(vars,p,vars.size.key) : 1
     p.d3plus.r = radius(val)
 
     var check = [vars.edges.source,vars.edges.target]
