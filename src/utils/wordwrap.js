@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // function that will wrap and resize SVG text
 //-------------------------------------------------------------------
-d3plus.utils.wordwrap = function(params) {
+d3plus.util.wordwrap = function(params) {
 
   var parent = params.parent,
       width = params.width ? params.width : 20000,

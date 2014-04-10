@@ -122,7 +122,7 @@ d3plus.viz = function() {
           }
           else {
             var old = obj[key].family
-            obj[key].family = d3plus.fonts.validate(obj[key].family)
+            obj[key].family = d3plus.font.validate(obj[key].family)
             vars.fonts[old] = obj[key].family
           }
         }
@@ -261,7 +261,7 @@ d3plus.viz = function() {
         titles = [],
         title = vars.title.value || "My D3plus App Data"
 
-    title = d3plus.utils.strip(title)
+    title = d3plus.util.strip(title)
 
     if (!columns) {
       var columns = [vars.id.key]
@@ -347,7 +347,7 @@ d3plus.viz = function() {
               depth = vars.fonts[depth]
             }
             else {
-              depth = d3plus.fonts.validate(depth)
+              depth = d3plus.font.validate(depth)
             }
           }
           object[property] = depth;
@@ -357,7 +357,7 @@ d3plus.viz = function() {
 
     if (typeof x == "object") {
       if ("font" in x) {
-        var obj = d3plus.utils.copy(x.font)
+        var obj = d3plus.util.copy(x.font)
         obj = {"font": obj}
         function check_font(o,s) {
           for (s in o) {
@@ -393,7 +393,7 @@ d3plus.viz = function() {
   Object.keys(d3plus.public).forEach(function(p){
 
     // give default values to this .viz()
-    vars[p] = d3plus.utils.copy(d3plus.public[p])
+    vars[p] = d3plus.util.copy(d3plus.public[p])
 
     // detect available app types
     if (p == "type") {

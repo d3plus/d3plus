@@ -1,5 +1,5 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Draws "labels" using svg:text and d3plus.utils.wordwrap
+// Draws "labels" using svg:text and d3plus.util.wordwrap
 //------------------------------------------------------------------------------
 d3plus.shape.labels = function(vars,selection) {
 
@@ -161,7 +161,7 @@ d3plus.shape.labels = function(vars,selection) {
                 , max = 70
             }
 
-            d3plus.utils.wordwrap({
+            d3plus.util.wordwrap({
               "text": vars.format(t.text*100,"share")+"%",
               "parent": this,
               "width": t.w*t.scale-t.padding,
@@ -186,7 +186,7 @@ d3plus.shape.labels = function(vars,selection) {
                 , max = 40
             }
 
-            d3plus.utils.wordwrap({
+            d3plus.util.wordwrap({
               "text": t.names,
               "parent": this,
               "width": t.w*t.scale-t.padding,

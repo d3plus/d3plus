@@ -18,7 +18,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
   var extra_data = {}
   if (extras && typeof extras == "string") extras = [extras]
   else if (extras && typeof extras == "object") {
-    extra_data = d3plus.utils.merge(extra_data,extras)
+    extra_data = d3plus.util.merge(extra_data,extras)
     var extras = []
     for (k in extra_data) {
       extras.push(k)
@@ -52,7 +52,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
         a = []
       }
       else {
-        a = d3plus.utils.merge({"":[]},a)
+        a = d3plus.util.merge({"":[]},a)
       }
 
     }
@@ -61,7 +61,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
       a = [a]
     }
     else if (!(a instanceof Array)) {
-      a = d3plus.utils.merge({"":[]},a)
+      a = d3plus.util.merge({"":[]},a)
     }
 
   }
@@ -103,7 +103,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
   else {
 
     if (vars.id.nesting.length && depth < vars.id.nesting.length-1) {
-      var a = d3plus.utils.copy(a)
+      var a = d3plus.util.copy(a)
       vars.id.nesting.forEach(function(n,i){
         if (i > depth && a[n]) delete a[n]
       })

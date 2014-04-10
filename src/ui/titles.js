@@ -230,7 +230,7 @@ d3plus.ui.titles = function(vars) {
   titles
     .each(function(d){
 
-      d3plus.utils.wordwrap({
+      d3plus.util.wordwrap({
         "text": d.value,
         "parent": d3.select(this).select("text").node(),
         "width": title_width,

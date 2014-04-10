@@ -62,7 +62,7 @@ d3plus.data.filter = function(vars) {
     if (vars.dev.value) d3plus.console.group("Disaggregating by Year")
 
     // Find available years
-    vars.data.time = d3plus.utils.uniques(vars.data.filtered.all,vars.time.key)
+    vars.data.time = d3plus.util.uniques(vars.data.filtered.all,vars.time.key)
     for (var i=0; i < vars.data.time.length; i++) {
       vars.data.time[i] = parseInt(vars.data.time[i])
     }

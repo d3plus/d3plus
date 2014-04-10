@@ -228,7 +228,7 @@ d3plus.ui.legend = function(vars) {
 
               if (g.icon) {
 
-                var short_url = d3plus.utils.strip(g.icon+"_"+g.color)
+                var short_url = d3plus.util.strip(g.icon+"_"+g.color)
 
                 var pattern = vars.defs.selectAll("pattern#"+short_url)
                   .data([short_url])
@@ -272,7 +272,7 @@ d3plus.ui.legend = function(vars) {
 
                     if (g.icon.indexOf("/") == 0 || g.icon.indexOf(window.location.hostname) >= 0) {
 
-                      d3plus.utils.dataurl(g.icon,function(base64){
+                      d3plus.util.dataurl(g.icon,function(base64){
 
                         pattern.select("image")
                           .attr("xlink:href",base64)
@@ -305,7 +305,7 @@ d3plus.ui.legend = function(vars) {
 
                     if (g.name.length == 1) {
 
-                      d3plus.utils.wordwrap({
+                      d3plus.util.wordwrap({
                         "text": g.name[0],
                         "parent": this,
                         "width": square_size-vars.style.ui.padding*2,
@@ -460,7 +460,7 @@ d3plus.ui.legend = function(vars) {
           colors = vars.color.scale.range()
 
       if (values.length <= 2) {
-        values = d3plus.utils.buckets(values,6)
+        values = d3plus.util.buckets(values,6)
       }
 
       var scale = vars.g.legend.selectAll("g.d3plus_scale")

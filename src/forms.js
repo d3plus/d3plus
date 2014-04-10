@@ -56,13 +56,13 @@ d3plus.forms = function(passed) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Set default icon based on whether or not font-awesome is present
   //----------------------------------------------------------------------------
-  styles.icon = d3plus.fonts.awesome ? "fa-angle-down" : "&#x27A4;"
+  styles.icon = d3plus.font.awesome ? "fa-angle-down" : "&#x27A4;"
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Overwrite vars if vars have been passed
   //----------------------------------------------------------------------------
   if (passed) {
-    styles = d3plus.utils.merge(styles,passed)
+    styles = d3plus.util.merge(styles,passed)
   }
   vars.forms = function(selection,timing) {
 
@@ -119,7 +119,7 @@ d3plus.forms = function(passed) {
           vars.before = vars.data
         }
       }
-      else if (d3plus.utils.d3selection(vars.data)) {
+      else if (d3plus.util.d3selection(vars.data)) {
         vars.element = vars.data
         if (vars.data.node().id) {
           vars.before = "#"+vars.data.node().id
@@ -229,7 +229,7 @@ d3plus.forms = function(passed) {
           .style("overflow","visible")
           .style("vertical-align","top")
 
-        vars.tester = d3plus.fonts.tester()
+        vars.tester = d3plus.font.tester()
 
       }
 
@@ -338,7 +338,7 @@ d3plus.forms = function(passed) {
             if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
             vars[key] = d3.selectAll(value)
           }
-          else if (d3plus.utils.d3selection(value)) {
+          else if (d3plus.util.d3selection(value)) {
             if (vars.dev) d3plus.console.log("\""+key+"\" set"+text)
             vars[key] = value
           }

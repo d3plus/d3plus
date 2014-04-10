@@ -61,7 +61,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
             }
           }
           if (obj.h < 10) {
-            obj = d3plus.utils.copy(area)
+            obj = d3plus.util.copy(area)
           }
 
         }
@@ -69,15 +69,15 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
         d.values.forEach(function(v,i){
 
           if (!obj) {
-            obj = d3plus.utils.copy(v.d3plus)
+            obj = d3plus.util.copy(v.d3plus)
           }
           else {
-            var arr = d3plus.utils.buckets([0,1],vars.style.labels.segments+1)
+            var arr = d3plus.util.buckets([0,1],vars.style.labels.segments+1)
             arr.shift()
             arr.pop()
             arr.forEach(function(n){
 
-              var test = d3plus.utils.copy(v.d3plus),
+              var test = d3plus.util.copy(v.d3plus),
                   last = d.values[i-1].d3plus
 
               test.x = last.x + (test.x-last.x) * n
@@ -87,7 +87,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
               check_area(test)
 
             })
-            check_area(d3plus.utils.copy(v.d3plus))
+            check_area(d3plus.util.copy(v.d3plus))
           }
         })
 

@@ -60,7 +60,7 @@ d3plus.shape.draw = function(vars) {
       }
     })
 
-    d.d3plus.id = d3plus.utils.strip(d.d3plus.id)
+    d.d3plus.id = d3plus.util.strip(d.d3plus.id)
 
     return d
   }
@@ -398,8 +398,8 @@ d3plus.shape.draw = function(vars) {
             if (vars.continuous_axis) {
 
               var mouse = d3.event[vars.continuous_axis]
-                  positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-                  closest = d3plus.utils.closest(positions,mouse)
+                  positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+                  closest = d3plus.util.closest(positions,mouse)
 
               d.data = d.values[positions.indexOf(closest)]
               d.d3plus = d.values[positions.indexOf(closest)].d3plus
@@ -439,8 +439,8 @@ d3plus.shape.draw = function(vars) {
             if (vars.continuous_axis) {
 
               var mouse = d3.event[vars.continuous_axis]
-                  positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-                  closest = d3plus.utils.closest(positions,mouse)
+                  positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+                  closest = d3plus.util.closest(positions,mouse)
 
               d.data = d.values[positions.indexOf(closest)]
               d.d3plus = d.values[positions.indexOf(closest)].d3plus
@@ -467,7 +467,7 @@ d3plus.shape.draw = function(vars) {
       })
       .on(d3plus.evt.out,function(d){
 
-        var child = d3plus.utils.child(this,d3.event.toElement)
+        var child = d3plus.util.child(this,d3.event.toElement)
 
         if (!child && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
 

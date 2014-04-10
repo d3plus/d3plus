@@ -102,42 +102,14 @@ d3plus.lodash = typeof window._ === "function"
 
 d3plus.apps = {};
 d3plus.color = {};
-d3plus.console = {};
 d3plus.data = {};
 d3plus.draw = {};
-d3plus.fonts = {};
+d3plus.font = {};
 d3plus.forms = {};
 d3plus.ui = {};
 d3plus.shape = {};
 d3plus.styles = {};
 d3plus.tooltip = {};
-d3plus.utils = {};
+d3plus.util = {};
 d3plus.variable = {};
 d3plus.zoom = {};
-
-d3plus.console.print = function(type,message,style) {
-  if (d3plus.ie) console.log("[d3plus] "+message)
-  else console[type]("%c[d3plus]%c "+message,"font-weight:bold;",style)
-}
-d3plus.console.log = function(message,style) {
-  if (!style) var style = "font-weight:bold;"
-  d3plus.console.print("log",message,style)
-}
-d3plus.console.group = function(message,style) {
-  if (!style) var style = "font-weight:bold;"
-  d3plus.console.print("group",message,style)
-}
-d3plus.console.warning = function(message,style) {
-  if (!style) var style = "font-weight:bold;color:red;"
-  message = "WARNING: "+message
-  d3plus.console.print("log",message,style)
-}
-d3plus.console.groupEnd = function() {
-  if (!d3plus.ie) console.groupEnd()
-}
-d3plus.console.time = function(message) {
-  if (!d3plus.ie) console.time(message)
-}
-d3plus.console.timeEnd = function(message) {
-  if (!d3plus.ie) console.timeEnd(message)
-}

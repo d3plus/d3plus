@@ -112,11 +112,11 @@ d3plus.forms.button = function(vars,styles,timing) {
         }
 
         if (styles.icon) {
-          d.icon = d3plus.utils.copy(styles.icon)
+          d.icon = d3plus.util.copy(styles.icon)
           children.push("icon")
         }
         else if (d.value === vars.selected) {
-          if (d3plus.fonts.awesome) {
+          if (d3plus.font.awesome) {
             d.icon = {
               "class": "fa fa-check",
               "content": ""

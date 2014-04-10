@@ -24,7 +24,7 @@ d3plus.apps.network.draw = function(vars) {
 
   if (typeof val_range[0] == "undefined") val_range = [1,1]
 
-  var max_size = d3.min(d3plus.utils.distances(nodes))
+  var max_size = d3.min(d3plus.util.distances(nodes))
 
   if (vars.edges.arrows.value) {
     max_size = max_size*0.45
@@ -74,10 +74,10 @@ d3plus.apps.network.draw = function(vars) {
     })[0]
 
     if (d) {
-      var obj = d3plus.utils.merge(n,d)
+      var obj = d3plus.util.merge(n,d)
     }
     else {
-      var obj = d3plus.utils.copy(n)
+      var obj = d3plus.util.copy(n)
     }
 
     obj.d3plus = {}
@@ -99,14 +99,14 @@ d3plus.apps.network.draw = function(vars) {
 
   edges.forEach(function(l,i){
 
-    l[vars.edges.source] = d3plus.utils.copy(l[vars.edges.source])
+    l[vars.edges.source] = d3plus.util.copy(l[vars.edges.source])
     l[vars.edges.source].d3plus = {}
 
     var source = lookup[l[vars.edges.source][vars.id.key]]
     l[vars.edges.source].d3plus.x = source.x
     l[vars.edges.source].d3plus.y = source.y
 
-    l[vars.edges.target] = d3plus.utils.copy(l[vars.edges.target])
+    l[vars.edges.target] = d3plus.util.copy(l[vars.edges.target])
     l[vars.edges.target].d3plus = {}
 
     var target = lookup[l[vars.edges.target][vars.id.key]]
@@ -115,10 +115,10 @@ d3plus.apps.network.draw = function(vars) {
 
     var angle = Math.atan2(source.y-target.y,source.x-target.x)
 
-    var source_offset = d3plus.utils.offset(angle,source.r,vars.shape.value)
+    var source_offset = d3plus.util.offset(angle,source.r,vars.shape.value)
     l[vars.edges.source].d3plus.x -= source_offset.x
     l[vars.edges.source].d3plus.y -= source_offset.y
-    var target_offset = d3plus.utils.offset(angle,target.r,vars.shape.value)
+    var target_offset = d3plus.util.offset(angle,target.r,vars.shape.value)
     l[vars.edges.target].d3plus.x += target_offset.x
     l[vars.edges.target].d3plus.y += target_offset.y
 

@@ -183,11 +183,11 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
     if (vars.dev) d3plus.console.time("calculating width")
 
-    var data = d3plus.utils.copy(styles)
+    var data = d3plus.util.copy(styles)
 
     if (!icon) {
 
-      if (d3plus.fonts.awesome) {
+      if (d3plus.font.awesome) {
         data.icon = {
           "class": "fa fa-check",
           "content": ""
@@ -249,7 +249,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
   if (vars.dev) d3plus.console.time("creating main button")
 
-  var style = d3plus.utils.copy(styles)
+  var style = d3plus.util.copy(styles)
   style.icon = icon
   style.width = button_width
   style.margin = 0
@@ -260,11 +260,11 @@ d3plus.forms.drop = function(vars,styles,timing) {
   if (!text) {
    text = "text"
   }
-  var data = d3plus.utils.copy(vars.data.array.filter(function(d){
+  var data = d3plus.util.copy(vars.data.array.filter(function(d){
     return d.value == vars.focus
   })[0])
   data.id = "drop_button"
-  var test_data = d3plus.utils.copy(data)
+  var test_data = d3plus.util.copy(data)
   test_data.text = "Test"
   var hover = vars.hover === true ? vars.focus : false
 
@@ -396,7 +396,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   }
   else if (vars.enabled) {
 
-    var search_text = d3plus.utils.strip(vars.filter.toLowerCase()).split("_"),
+    var search_text = d3plus.util.strip(vars.filter.toLowerCase()).split("_"),
         tests = ["value","text","alt","keywords"],
         search_text = search_text.filter(function(t){ return t != ""; })
 
@@ -411,7 +411,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
         for (key in tests) {
           if (tests[key] in d && d[tests[key]]) {
-            var text = d3plus.utils.strip(d[tests[key]].toLowerCase()).split("_")
+            var text = d3plus.util.strip(d[tests[key]].toLowerCase()).split("_")
 
             for (t in text) {
               for (s in search_text) {
@@ -461,7 +461,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
     if (vars.dev) d3plus.console.group("list buttons")
 
-    var style = d3plus.utils.merge(styles,styles.drop)
+    var style = d3plus.util.merge(styles,styles.drop)
     style.icon = false
     style.display = "block"
     style.border = "none"

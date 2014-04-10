@@ -151,7 +151,7 @@ d3plus.data.threshold = function(vars,split) {
           })
         }
         else {
-          m.d3plus.merged = d3plus.utils.uniques(removed,vars.id.key)
+          m.d3plus.merged = d3plus.util.uniques(removed,vars.id.key)
         }
 
       }

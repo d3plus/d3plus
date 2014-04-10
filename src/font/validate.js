@@ -1,45 +1,13 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects if FontAwesome is loaded on the page
-//------------------------------------------------------------------------------
-d3plus.fonts.awesome = false
-for (var s = 0; s < document.styleSheets.length; s++) {
-  var sheet = document.styleSheets[s]
-  if (sheet.href && sheet.href.indexOf("font-awesome") >= 0) {
-    d3plus.fonts.awesome = true
-    break;
-  }
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Creates test div to populate with test DIVs
-//------------------------------------------------------------------------------
-d3plus.fonts.tester = function() {
-
-  var tester = d3.select("body").selectAll("div.d3plus_tester")
-    .data(["d3plus_tester"])
-
-  tester.enter().append("div")
-    .attr("class","d3plus_tester")
-    .style("position","absolute")
-    .style("left","-9999px")
-    .style("top","-9999px")
-    .style("visibility","hidden")
-    .style("display","block")
-
-  return tester
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Given a single font or a list of font, determines which can be rendered
 //------------------------------------------------------------------------------
-d3plus.fonts.validate = function(test_fonts) {
+d3plus.font.validate = function(test_fonts) {
 
   if (!(test_fonts instanceof Array)) {
     test_fonts = test_fonts.split(",")
   }
 
-  var tester = d3plus.fonts.tester()
+  var tester = d3plus.font.tester()
 
   function create_element(font) {
 

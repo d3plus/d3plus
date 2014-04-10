@@ -8,7 +8,7 @@ d3plus.forms.radio = function(vars,styles,timing) {
     .style("padding",styles.stroke+"px")
     .style("margin",styles.margin+"px")
 
-  var button_style = d3plus.utils.copy(styles)
+  var button_style = d3plus.util.copy(styles)
   button_style.icon = false
   button_style.display = "inline-block"
   button_style.border = "none"

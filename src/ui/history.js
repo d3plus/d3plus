@@ -48,7 +48,7 @@ d3plus.ui.history = function(vars) {
       .call(style)
       .html(function(){
 
-        if (d3plus.fonts.awesome) {
+        if (d3plus.font.awesome) {
           var arrow = "<span style='font-family:FontAwesome;margin-right:5px;'>&#xf104</span>"
         }
         else {

@@ -180,7 +180,7 @@ d3plus.draw.steps = function(vars) {
 
         if (vars.filtered || !vars.data.restricted || vars.check.length) {
 
-          vars.data.restricted = d3plus.utils.copy(vars.data.filtered)
+          vars.data.restricted = d3plus.util.copy(vars.data.filtered)
           vars.data.grouped = null
           vars.data.app = null
           vars.nodes.restricted = null

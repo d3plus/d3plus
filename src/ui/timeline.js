@@ -46,11 +46,11 @@ d3plus.ui.timeline = function(vars) {
       if (d3.event.sourceEvent !== null) {
 
         var extent0 = brush.extent(),
-            min_val = d3plus.utils.closest(year_ticks,d3.time.year.round(extent0[0])),
-            max_val = d3plus.utils.closest(year_ticks,d3.time.year.round(extent0[1]))
+            min_val = d3plus.util.closest(year_ticks,d3.time.year.round(extent0[0])),
+            max_val = d3plus.util.closest(year_ticks,d3.time.year.round(extent0[1]))
 
         if (min_val == max_val) {
-          min_val = d3plus.utils.closest(year_ticks,d3.time.year.floor(extent0[0]))
+          min_val = d3plus.util.closest(year_ticks,d3.time.year.floor(extent0[0]))
         }
 
         var min_index = year_ticks.indexOf(min_val),

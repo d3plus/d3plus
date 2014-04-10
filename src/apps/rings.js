@@ -14,7 +14,7 @@ d3plus.apps.rings.filter = function(vars,data) {
   })
 
   var connections = primaries.concat(secondaries)
-    , ids = d3plus.utils.uniques(connections,vars.id.key)
+    , ids = d3plus.util.uniques(connections,vars.id.key)
 
   return data.filter(function(d){
 
@@ -227,10 +227,10 @@ d3plus.apps.rings.draw = function(vars) {
 
   })
 
-  var primaryDistance = d3.min(d3plus.utils.distances(primaries,function(n){
+  var primaryDistance = d3.min(d3plus.util.distances(primaries,function(n){
         return [n.d3plus.x,n.d3plus.y]
       }))
-    , secondaryDistance = d3.min(d3plus.utils.distances(secondaries,function(n){
+    , secondaryDistance = d3.min(d3plus.util.distances(secondaries,function(n){
         return [n.d3plus.x,n.d3plus.y]
       }))
 
@@ -264,8 +264,8 @@ d3plus.apps.rings.draw = function(vars) {
     primaryMax = secondaryMax*2
   }
 
-  var ids = d3plus.utils.uniques(primaries,vars.id.key)
-  ids = ids.concat(d3plus.utils.uniques(secondaries,vars.id.key))
+  var ids = d3plus.util.uniques(primaries,vars.id.key)
+  ids = ids.concat(d3plus.util.uniques(secondaries,vars.id.key))
   ids.push(vars.focus.value)
 
   var data = vars.data.app.filter(function(d){
@@ -318,7 +318,7 @@ d3plus.apps.rings.draw = function(vars) {
           "y": center.d3plus.y
         }
 
-        var offset = d3plus.utils.offset(p.d3plus.radians,center.d3plus.r,vars.shape.value)
+        var offset = d3plus.util.offset(p.d3plus.radians,center.d3plus.r,vars.shape.value)
 
         p.d3plus.edge[node].d3plus.x += offset.x
         p.d3plus.edge[node].d3plus.y += offset.y

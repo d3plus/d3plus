@@ -12,6 +12,7 @@ var gulp = require("gulp")
 
 var files = [ "src/begin.js"
             , "src/general.js"
+            , "src/console.js"
             , "src/forms.js"
             , "src/viz.js"
             , "src/public.js"

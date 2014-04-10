@@ -69,7 +69,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
       var areas = []
       d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
 
-        var test = d3plus.utils.copy(d)
+        var test = d3plus.util.copy(d)
         test.geometry.coordinates = [test.geometry.coordinates[i]]
         var a = vars.path.area(test)
         if (a >= vars.coords.threshold) {
@@ -83,11 +83,11 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
         return a-b
       })
 
-      var reduced = d3plus.utils.copy(d),
-          largest = d3plus.utils.copy(d)
+      var reduced = d3plus.util.copy(d),
+          largest = d3plus.util.copy(d)
       reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
 
-        var test = d3plus.utils.copy(d)
+        var test = d3plus.util.copy(d)
         test.geometry.coordinates = [test.geometry.coordinates[i]]
         var a = vars.path.area(test)
         if (a == areas[areas.length-1]) {

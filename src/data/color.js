@@ -30,7 +30,7 @@ d3plus.data.color = function(vars) {
     }
     else if (data_range[1] > 0 && data_range[0] > 0) {
       var color_range = vars.style.color.heatmap
-      data_range = d3plus.utils.buckets(data_range,color_range.length)
+      data_range = d3plus.util.buckets(data_range,color_range.length)
     }
     else {
       var color_range = vars.style.color.range.slice(0)

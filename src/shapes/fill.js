@@ -140,14 +140,14 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     if (total && d3plus.apps[vars.type.value].fill) {
 
       if (temp) {
-        var copy = d3plus.utils.copy(d)
+        var copy = d3plus.util.copy(d)
         copy.d3plus.shapeType = "temp"
         fill_data.push(copy)
         hatch_data = ["temp"]
       }
 
       if (active && (active < total || temp)) {
-        var copy = d3plus.utils.copy(d)
+        var copy = d3plus.util.copy(d)
         copy.d3plus.shapeType = "active"
         fill_data.push(copy)
       }

@@ -30,7 +30,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     var step = false,
         segments = [],
         nodes = [],
-        temp = d3plus.utils.copy(d),
+        temp = d3plus.util.copy(d),
         group = d3.select(this)
 
     temp.values = []
@@ -50,7 +50,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       else {
         if (i > 0) {
           segments.push(temp)
-          temp = d3plus.utils.copy(d)
+          temp = d3plus.util.copy(d)
           temp.values = []
         }
         temp.values.push(v)
@@ -158,8 +158,8 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         if (!vars.frozen) {
 
           var mouse = d3.event[vars.continuous_axis]
-              positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-              closest = d3plus.utils.closest(positions,mouse)
+              positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
+              closest = d3plus.util.closest(positions,mouse)
 
           var parent_data = d3.select(this.parentNode).datum()
           parent_data.data = d.values[positions.indexOf(closest)]
@@ -182,8 +182,8 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         if (!vars.frozen) {
 
           var mouse = d3.event.x,
-              positions = d3plus.utils.uniques(d.values,function(x){return x.d3plus.x}),
-              closest = d3plus.utils.closest(positions,mouse)
+              positions = d3plus.util.uniques(d.values,function(x){return x.d3plus.x}),
+              closest = d3plus.util.closest(positions,mouse)
 
           var parent_data = d3.select(this.parentNode).datum()
           parent_data.data = d.values[positions.indexOf(closest)]
