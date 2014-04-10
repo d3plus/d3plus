@@ -98,6 +98,8 @@ if (d3plus.touch) {
   d3plus.evt.move = "mousemove"
 }
 
+d3plus.lodash = typeof window._ === "function"
+
 d3plus.apps = {};
 d3plus.color = {};
 d3plus.console = {};
