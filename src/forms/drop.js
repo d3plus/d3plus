@@ -309,6 +309,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   if (vars.dev) d3plus.console.timeEnd("creating dropdown")
   if (vars.dev && vars.search) d3plus.console.time("creating search")
 
+  var search_style = d3plus.util.merge(styles,styles.drop)
   var search_data = vars.search ? ["search"] : []
 
   var search = selector.selectAll("div.d3plus_drop_search")
@@ -320,27 +321,27 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
   if (timing) {
     search.transition().duration(timing)
-      .style("padding",styles.padding+"px")
+      .style("padding",search_style.padding+"px")
       .style("display","block")
-      .style("background-color",styles.secondary)
+      .style("background-color",search_style.secondary)
   }
   else {
     search
-      .style("padding",styles.padding+"px")
+      .style("padding",search_style.padding+"px")
       .style("display","block")
-      .style("background-color",styles.secondary)
+      .style("background-color",search_style.secondary)
   }
 
-  function search_style(elem) {
+  function input_style(elem) {
     elem
-      .style("padding",styles.padding+"px")
+      .style("padding",search_style.padding+"px")
       .style("width",search_width+"px")
       .style("border-style","solid")
       .style("border-width","0px")
-      .style("font-family",styles["font-family"])
-      .style("font-size",styles["font-size"]+"px")
-      .style("font-weight",styles["font-weight"])
-      .style("text-align",styles["font-align"])
+      .style("font-family",search_style["font-family"])
+      .style("font-size",search_style["font-size"]+"px")
+      .style("font-weight",search_style["font-weight"])
+      .style("text-align",search_style["font-align"])
       .attr("placeholder",vars.format("Search"))
       .style("outline","none")
       .style(d3plus.prefix()+"border-radius","0")
@@ -348,23 +349,23 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
   if (timing) {
     search.select("input").transition().duration(timing)
-      .call(search_style)
+      .call(input_style)
   }
   else {
     search.select("input")
-      .call(search_style)
+      .call(input_style)
   }
 
   search.enter().insert("div","#d3plus_drop_list_"+vars.id)
     .attr("class","d3plus_drop_search")
     .attr("id","d3plus_drop_search_"+vars.id)
-    .style("padding",styles.padding+"px")
+    .style("padding",search_style.padding+"px")
     .style("display","block")
-    .style("background-color",styles.secondary)
+    .style("background-color",search_style.secondary)
     .append("input")
       .attr("id","d3plus_drop_input_"+vars.id)
       .style("-webkit-appearance","none")
-      .call(search_style)
+      .call(input_style)
 
   search.select("input").on("keyup."+vars.id,function(d){
     if (vars.filter != this.value) {
@@ -473,7 +474,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     }
 
     var large = vars.data.array.length < vars.large ? vars.large : 0
-    
+
     var buttons = d3plus.forms(style)
       .dev(vars.dev)
       .type("button")
