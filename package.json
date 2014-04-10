@@ -1,0 +1,34 @@
+{
+  "name": "D3plus",
+  "version": "1.2.3",
+  "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
+  "main": "d3plus.js",
+  "devDependencies": {
+    "connect-livereload": "^0.3.2",
+    "express": "^4.0.0",
+    "gulp": "^3.6.0",
+    "gulp-concat": "^2.2.0",
+    "gulp-livereload": "^1.2.0",
+    "gulp-notify": "^1.2.5",
+    "gulp-rename": "^1.2.0",
+    "gulp-uglify": "^0.2.1",
+    "gulp-util": "^2.2.14",
+    "path": "^0.4.9",
+    "tiny-lr": "0.0.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexandersimoes/d3plus.git"
+  },
+  "keywords": [
+    "d3",
+    "data",
+    "visualization"
+  ],
+  "author": "Dave Landry and Alexander Simoes",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alexandersimoes/d3plus/issues"
+  },
+  "homepage": "http://www.d3plus.org"
+}
