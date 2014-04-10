@@ -34,6 +34,7 @@ gulp.task("make", function() {
       title: "D3plus",
       message: "New Build Compiled"
     }))
+    .pipe(livereload(lr))
 
 })
 
