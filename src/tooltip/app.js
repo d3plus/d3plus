@@ -45,7 +45,7 @@ d3plus.tooltip.app = function(params) {
       var text = vars.footer.value || ""
     }
 
-    var footer = vars.format(text,"footer")
+    var footer = text.length ? vars.format(text,"footer") : false
 
   }
 
