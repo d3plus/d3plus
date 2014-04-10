@@ -4,12 +4,33 @@ d3plus.apps.rings.tooltip = "static"
 d3plus.apps.rings.shapes = ["circle","square","donut"];
 d3plus.apps.rings.scale = 1
 d3plus.apps.rings.nesting = false
+d3plus.apps.rings.filter = function(vars,data) {
+
+  var primaries = vars.connections(vars.focus.value,true)
+    , secondaries = []
+  
+  primaries.forEach(function(p){
+    secondaries = secondaries.concat(vars.connections(p[vars.id.key],true))
+  })
+
+  var connections = primaries.concat(secondaries)
+    , ids = d3plus.utils.uniques(connections,vars.id.key)
+
+  return data.filter(function(d){
+
+    return ids.indexOf(d[vars.id.key]) >= 0
+
+  })
+
+}
 
 d3plus.apps.rings.draw = function(vars) {
 
   var radius = d3.min([vars.app_height,vars.app_width])/2
-    , ring_width = vars.small || !vars.labels.value ? (radius-vars.style.labels.padding*2)/2 : radius/3
-    , primaryRing = vars.small || !vars.labels.value ? ring_width*1.4 : ring_width
+    , ring_width = vars.small || !vars.labels.value
+                 ? (radius-vars.style.labels.padding*2)/2 : radius/3
+    , primaryRing = vars.small || !vars.labels.value
+                  ? ring_width*1.4 : ring_width
     , secondaryRing = ring_width*2
     , edges = []
     , nodes = []
@@ -260,7 +281,7 @@ d3plus.apps.rings.draw = function(vars) {
     if (domain[0] == domain[1]) {
       domain[0] = 0
     }
-    
+
     var radius = d3.scale.linear()
       .domain(domain)
       .range([3,d3.min([primaryMax,secondaryMax])])

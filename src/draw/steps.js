@@ -119,6 +119,28 @@ d3plus.draw.steps = function(vars) {
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Format nodes/edges if needed
+    //--------------------------------------------------------------------------
+    steps.push({
+      "check": function(vars) {
+        var edge_req = d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0
+        return (!vars.edges.linked || vars.edges.changed)
+          && edge_req && vars.edges.value
+      },
+      "function": d3plus.data.edges,
+      "message": "Analyzing Network"
+    })
+    steps.push({
+      "check": function(vars) {
+        var node_req = d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0
+        return node_req && (!vars.nodes.positions || vars.nodes.changed)
+          && vars.nodes.value && vars.edges.value
+      },
+      "function": d3plus.data.nodes,
+      "message": "Analyzing Network"
+    })
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Filter Data if variables with "data_filter" have been changed
     //--------------------------------------------------------------------------
     steps.push({
@@ -190,10 +212,14 @@ d3plus.draw.steps = function(vars) {
       "check": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
         return (year === null && (vars.time.solo.changed || vars.time.mute.changed || vars.depth.changed)) || !vars.data.pool
+          || typeof d3plus.apps[vars.type.value].filter == "function"
       },
       "function": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
         vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
+        if (typeof d3plus.apps[vars.type.value].filter == "function") {
+          vars.data.pool = d3plus.apps[vars.type.value].filter(vars,vars.data.pool)
+        }
       },
       "message": "Formatting Data"
     })
@@ -206,33 +232,15 @@ d3plus.draw.steps = function(vars) {
         return !vars.data.app || vars.depth.changed ||
             vars.time.solo.changed || vars.time.mute.changed ||
             vars.solo.length || vars.mute.length
+            || typeof d3plus.apps[vars.type.value].filter == "function"
       },
       "function": function(vars) {
         vars.data.app = d3plus.data.fetch(vars,"grouped")
+        if (typeof d3plus.apps[vars.type.value].filter == "function") {
+          vars.data.app = d3plus.apps[vars.type.value].filter(vars,vars.data.app)
+        }
       },
       "message": "Formatting Data"
-    })
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Format nodes/edges if needed
-    //--------------------------------------------------------------------------
-    steps.push({
-      "check": function(vars) {
-        var edge_req = d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0
-        return (!vars.edges.linked || vars.edges.changed)
-          && edge_req && vars.edges.value
-      },
-      "function": d3plus.data.edges,
-      "message": "Analyzing Network"
-    })
-    steps.push({
-      "check": function(vars) {
-        var node_req = d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0
-        return node_req && (!vars.nodes.positions || vars.nodes.changed)
-          && vars.nodes.value && vars.edges.value
-      },
-      "function": d3plus.data.nodes,
-      "message": "Analyzing Network"
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
