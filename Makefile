@@ -17,6 +17,14 @@ JS_FILES = \
 	src/apps/stacked.js \
 	src/apps/tree_map.js \
 	\
+	src/color/darker.js \
+	src/color/legible.js \
+	src/color/lighter.js \
+	src/color/mix.js \
+	src/color/random.js \
+	src/color/scale.js \
+	src/color/text.js \
+	\
 	src/data/analyze.js \
 	src/data/color.js \
 	src/data/edges.js \
@@ -75,7 +83,6 @@ JS_FILES = \
 	src/ui/timeline.js \
 	src/ui/titles.js \
 	\
-	src/utils/color.js \
 	src/utils/fonts.js \
 	src/utils/utils.js \
 	src/utils/wordwrap.js \
