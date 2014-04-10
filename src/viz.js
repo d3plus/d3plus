@@ -279,7 +279,7 @@ d3plus.viz = function() {
     vars.returned.nodes.forEach(function(n){
       var arr = []
       columns.forEach(function(c){
-        arr.push(d3plus.variables.value(vars,n,c))
+        arr.push(d3plus.variable.value(vars,n,c))
       })
       csv_to_return.push(arr)
     })

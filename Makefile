@@ -80,9 +80,9 @@ JS_FILES = \
 	src/utils/utils.js \
 	src/utils/wordwrap.js \
 	\
-	src/variables/color.js \
-	src/variables/text.js \
-	src/variables/value.js \
+	src/variable/color.js \
+	src/variable/text.js \
+	src/variable/value.js \
 	\
 	src/zoom/bounds.js \
 	src/zoom/controls.js \

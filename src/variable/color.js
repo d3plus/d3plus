@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
-d3plus.variables.color = function(vars,id,level) {
+d3plus.variable.color = function(vars,id,level) {
 
   function get_random(c) {
     if (typeof c == "object") {
@@ -20,7 +20,7 @@ d3plus.variables.color = function(vars,id,level) {
   }
   else {
 
-    var color = d3plus.variables.value(vars,id,vars.color.key,level)
+    var color = d3plus.variable.value(vars,id,vars.color.key,level)
 
     if (!color) {
       if (typeof vars.color.scale == "function") {

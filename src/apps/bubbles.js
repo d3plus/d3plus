@@ -17,8 +17,8 @@ d3plus.apps.bubbles.draw = function(vars) {
   //-------------------------------------------------------------------
   var order = vars.order.key || vars.size.key
   vars.data.app.sort(function(a,b){
-    var a_value = d3plus.variables.value(vars,a,order)
-    var b_value = d3plus.variables.value(vars,b,order)
+    var a_value = d3plus.variable.value(vars,a,order)
+    var b_value = d3plus.variable.value(vars,b,order)
     return vars.order.sort.value == "asc" ? a_value-b_value : b_value-a_value
   })
 
@@ -52,12 +52,12 @@ d3plus.apps.bubbles.draw = function(vars) {
 
   var domain_min = d3.min(vars.data.app, function(d){
     if (!vars.size.key) return 0
-    return d3plus.variables.value(vars,d,vars.size.key,null,"min")
+    return d3plus.variable.value(vars,d,vars.size.key,null,"min")
   })
 
   var domain_max = d3.max(vars.data.app, function(d){
     if (!vars.size.key) return 0
-    return d3plus.variables.value(vars,d,vars.size.key)
+    return d3plus.variable.value(vars,d,vars.size.key)
   })
 
   var padding = 5
@@ -77,7 +77,7 @@ d3plus.apps.bubbles.draw = function(vars) {
     .size([column_width-padding*2,column_height-padding*2-label_height])
     .value(function(d) {
       if (!vars.size.key) return 0
-      return d3plus.variables.value(vars,d,vars.size.key)
+      return d3plus.variable.value(vars,d,vars.size.key)
     })
     .padding(padding)
     .radius(function(d){
@@ -159,12 +159,12 @@ d3plus.apps.bubbles.draw = function(vars) {
       .attr("font-family",vars.style.font.family)
       .attr("font-size","12px")
       .style("fill",function(d){
-        var color = d3plus.variables.color(vars,d)
+        var color = d3plus.variable.color(vars,d)
         return d3plus.color.legible(color)
       })
       .each(function(d){
         if (d.r > 10 && label_height > 10) {
-          var names = d3plus.variables.text(vars,d,d.depth)
+          var names = d3plus.variable.text(vars,d,d.depth)
           d3plus.utils.wordwrap({
             "text": names,
             "parent": this,

@@ -51,12 +51,12 @@ d3plus.shape.draw = function(vars) {
 
     var depth = d.d3plus.depth ? d.d3plus.depth : vars.depth.value
 
-    d.d3plus.id = d3plus.variables.value(vars,d,vars.id.nesting[depth])
+    d.d3plus.id = d3plus.variable.value(vars,d,vars.id.nesting[depth])
     d.d3plus.id += "_"+depth+"_"+shape
 
     vars.axes.values.forEach(function(axis){
       if (vars[axis].scale.value == "continuous") {
-        d.d3plus.id += "_"+d3plus.variables.value(vars,d,vars[axis].key)
+        d.d3plus.id += "_"+d3plus.variable.value(vars,d,vars[axis].key)
       }
     })
 
@@ -524,8 +524,8 @@ d3plus.shape.draw = function(vars) {
 
         var depth_delta = vars.zoom_direction(),
             previous = vars.id.solo.value,
-            title = d3plus.variables.text(vars,d)[0],
-            color = d3plus.color.legible(d3plus.variables.color(vars,d)),
+            title = d3plus.variable.text(vars,d)[0],
+            color = d3plus.color.legible(d3plus.variable.color(vars,d)),
             prev_sub = vars.title.sub.value || false,
             prev_color = vars.style.title.sub.font.color,
             prev_total = vars.style.title.total.font.color
@@ -551,7 +551,7 @@ d3plus.shape.draw = function(vars) {
         }
         else if (depth_delta === 1 && vars.zoom.value) {
 
-          var id = d3plus.variables.value(vars,d,vars.id.key)
+          var id = d3plus.variable.value(vars,d,vars.id.key)
 
           vars.history.states.push(function(){
 

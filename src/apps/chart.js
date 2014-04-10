@@ -66,7 +66,7 @@ d3plus.apps.chart.draw = function(vars) {
             .key(function(d){return d[vars.x.key] })
             .rollup(function(leaves){
               return d3.sum(leaves, function(d){
-                return parseFloat(d3plus.variables.value(vars,d,vars[axis].key))
+                return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
               })
             })
             .entries(range_data)
@@ -82,7 +82,7 @@ d3plus.apps.chart.draw = function(vars) {
         }
         else if (vars.time.fixed.value) {
           vars[axis+"_range"] = d3.extent(vars.data.app,function(d){
-            return parseFloat(d3plus.variables.value(vars,d,vars[axis].key))
+            return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
           })
           vars.tickValues[axis] = d3plus.utils.uniques(vars.data.app,vars[axis].key)
         }
@@ -92,7 +92,7 @@ d3plus.apps.chart.draw = function(vars) {
             all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
           }
           vars[axis+"_range"] = d3.extent(all_depths,function(d){
-            return parseFloat(d3plus.variables.value(vars,d,vars[axis].key))
+            return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
           })
           vars.tickValues[axis] = d3plus.utils.uniques(vars.data.restricted.all,vars[axis].key)
         }
@@ -137,10 +137,10 @@ d3plus.apps.chart.draw = function(vars) {
     }
     else {
       var data = vars.data.app.filter(function(d){
-        var val = parseFloat(d3plus.variables.value(vars,d,vars.y.key))
+        var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
         var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
         if (y_include) {
-          var val = parseFloat(d3plus.variables.value(vars,d,vars.x.key))
+          var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
           return val != null && val >= vars.x_range[0] && val <= vars.x_range[1]
         }
         else return false
@@ -163,7 +163,7 @@ d3plus.apps.chart.draw = function(vars) {
       if (vars.size.key) {
         if (vars.time.fixed.value) {
           var size_domain = d3.extent(vars.data.app,function(d){
-            var val = d3plus.variables.value(vars,d,vars.size.key)
+            var val = d3plus.variable.value(vars,d,vars.size.key)
             return val == 0 ? null : val
           })
         }
@@ -173,7 +173,7 @@ d3plus.apps.chart.draw = function(vars) {
             all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
           }
           var size_domain = d3.extent(all_depths,function(d){
-            var val = d3plus.variables.value(vars,d,vars.size.key)
+            var val = d3plus.variable.value(vars,d,vars.size.key)
             return val == 0 ? null : val
           })
         }
@@ -665,14 +665,14 @@ d3plus.apps.chart.draw = function(vars) {
   }
 
   data.forEach(function(d){
-    d.d3plus.x = vars.x_scale(d3plus.variables.value(vars,d,vars.x.key))
+    d.d3plus.x = vars.x_scale(d3plus.variable.value(vars,d,vars.x.key))
     d.d3plus.x += vars.axis_offset.x
 
-    d.d3plus.r = radius(d3plus.variables.value(vars,d,vars.size.key))
+    d.d3plus.r = radius(d3plus.variable.value(vars,d,vars.size.key))
 
     if (!vars.stacked_axis) {
 
-      d.d3plus.y = vars.y_scale(d3plus.variables.value(vars,d,vars.y.key))
+      d.d3plus.y = vars.y_scale(d3plus.variable.value(vars,d,vars.y.key))
       d.d3plus.y += vars.axis_offset.y
 
       if (vars.shape.value == "area") {
@@ -688,7 +688,7 @@ d3plus.apps.chart.draw = function(vars) {
 
     data = d3.nest()
       .key(function(d){
-        var id = d3plus.variables.value(vars,d,vars.id.key),
+        var id = d3plus.variable.value(vars,d,vars.id.key),
             depth = d.d3plus.depth ? d.d3plus.depth : 0
         return d3plus.utils.strip(id)+"_"+depth+"_"+vars.shape.value
       })
@@ -784,7 +784,7 @@ d3plus.apps.chart.draw = function(vars) {
       if (a.values instanceof Array) {
         a_value = 0
         a.values.forEach(function(v){
-          var val = d3plus.variables.value(vars,v,sort)
+          var val = d3plus.variable.value(vars,v,sort)
           if (val) {
             if (typeof val == "number") {
               a_value += val
@@ -796,13 +796,13 @@ d3plus.apps.chart.draw = function(vars) {
         })
       }
       else {
-        a_value = d3plus.variables.value(vars,a,sort)
+        a_value = d3plus.variable.value(vars,a,sort)
       }
 
       if (b.values instanceof Array) {
         b_value = 0
         b.values.forEach(function(v){
-          var val = d3plus.variables.value(vars,v,sort)
+          var val = d3plus.variable.value(vars,v,sort)
           if (val) {
             if (typeof val == "number") {
               b_value += val
@@ -814,13 +814,13 @@ d3plus.apps.chart.draw = function(vars) {
         })
       }
       else {
-        b_value = d3plus.variables.value(vars,b,sort)
+        b_value = d3plus.variable.value(vars,b,sort)
       }
 
       if (vars.color.key && sort == vars.color.key) {
 
-        a_value = d3plus.variables.color(vars,a)
-        b_value = d3plus.variables.color(vars,b)
+        a_value = d3plus.variable.color(vars,a)
+        b_value = d3plus.variable.color(vars,b)
 
         a_value = d3.rgb(a_value).hsl()
         b_value = d3.rgb(b_value).hsl()
@@ -848,7 +848,7 @@ d3plus.apps.chart.draw = function(vars) {
       .x(function(d) { return d.d3plus.y; })
       .y(function(d) {
         var flip = graph.height,
-            val = d3plus.variables.value(vars,d,vars.y.key)
+            val = d3plus.variable.value(vars,d,vars.y.key)
         return flip-vars.y_scale(val);
       })
       .out(function(d,y0,y){
@@ -888,7 +888,7 @@ d3plus.apps.chart.draw = function(vars) {
           return axis == "x" ? graph.height+5 : d.d3plus.y-graph.margin.top
         })
         .style("stroke",function(d){
-          return d3plus.color.legible(d3plus.variables.color(vars,d));
+          return d3plus.color.legible(d3plus.variable.color(vars,d));
         })
         .style("stroke-width",vars.style.data.stroke.width)
         .attr("shape-rendering",vars.style.rendering)
@@ -980,7 +980,7 @@ d3plus.apps.chart.draw = function(vars) {
         return d.axis == "y" ? d.y : d.y+d.r
       })
       .style("stroke",function(d){
-        return d3plus.variables.color(vars,node)
+        return d3plus.variable.color(vars,node)
       })
       .attr("shape-rendering",vars.style.rendering)
 
@@ -993,7 +993,7 @@ d3plus.apps.chart.draw = function(vars) {
         return d.axis == "y" ? d.y : graph.height+graph.margin.top+vars.style.ticks.size
       })
       .style("stroke",function(d){
-        return d3plus.color.legible(d3plus.variables.color(vars,node));
+        return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
       .style("stroke-width",vars.style.data.stroke.width)
       .attr("opacity",1)
@@ -1013,7 +1013,7 @@ d3plus.apps.chart.draw = function(vars) {
         return d.axis+"_"+d.id
       })
       .text(function(d){
-        var val = d3plus.variables.value(vars,node,vars[d.axis].key)
+        var val = d3plus.variable.value(vars,node,vars[d.axis].key)
         return vars.format(val,vars[d.axis].key)
       })
       .attr("x",function(d){
@@ -1029,7 +1029,7 @@ d3plus.apps.chart.draw = function(vars) {
         return d.axis == "y" ? "end": "middle"
       })
       .style("fill",function(d){
-        return d3plus.color.legible(d3plus.variables.color(vars,node));
+        return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
       .style("font-size",vars.style.ticks.font.size)
       .attr("font-family",vars.style.font.family)
@@ -1070,7 +1070,7 @@ d3plus.apps.chart.draw = function(vars) {
         return text.height + 10
       })
       .style("stroke",function(d){
-        return d3plus.color.legible(d3plus.variables.color(vars,node));
+        return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
       .style("fill","white")
       .style("stroke-width",vars.style.data.stroke.width)

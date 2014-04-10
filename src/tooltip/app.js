@@ -8,7 +8,7 @@ d3plus.tooltip.app = function(params) {
       ex = params.ex,
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = "arrow" in params ? params.arrow : true,
-      id = d3plus.variables.value(vars,d,vars.id.key),
+      id = d3plus.variable.value(vars,d,vars.id.key),
       tooltip_id = params.id || vars.type.value
 
   if ((d3.event && d3.event.type == "click") && (vars.html.value || vars.tooltip.value.long) && !("fullscreen" in params)) {
@@ -28,7 +28,7 @@ d3plus.tooltip.app = function(params) {
 
     if (zoom === -1) {
       var key = vars.id.nesting[vars.depth.value-1],
-          parent = d3plus.variables.value(vars,id,key),
+          parent = d3plus.variable.value(vars,id,key),
           solo = vars.id.solo.value.indexOf(parent) >= 0
     }
 
@@ -99,9 +99,9 @@ d3plus.tooltip.app = function(params) {
         ex.items = d.d3plus.merged.length
       }
 
-      var active = vars.active.key ? d3plus.variables.value(vars,d,vars.active.key) : d.d3plus.active,
-          temp = vars.temp.key ? d3plus.variables.value(vars,d,vars.temp.key) : d.d3plus.temp,
-          total = vars.total.key ? d3plus.variables.value(vars,d,vars.total.key) : d.d3plus.total
+      var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
+          temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
+          total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
 
       if (typeof active == "number" && active > 0 && total) {
         if (!ex) ex = {}
@@ -123,8 +123,8 @@ d3plus.tooltip.app = function(params) {
     }
 
     var depth = "depth" in params ? params.depth : vars.depth.value,
-        title = d3plus.variables.text(vars,d,depth)[0],
-        icon = d3plus.variables.value(vars,d,vars.icon.key,vars.id.nesting[depth]),
+        title = d3plus.variable.text(vars,d,depth)[0],
+        icon = d3plus.variable.value(vars,d,vars.icon.key,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,depth)
 
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short") || (d.d3plus_label && "visible" in d.d3plus_label && !d.d3plus_label.visible))) {
@@ -166,7 +166,7 @@ d3plus.tooltip.app = function(params) {
         "fontsize": vars.style.tooltip.font.size,
         "fontweight": vars.style.tooltip.font.weight,
         "data": tooltip_data,
-        "color": d3plus.variables.color(vars,d),
+        "color": d3plus.variable.color(vars,d),
         "footer": footer,
         "fullscreen": fullscreen,
         "html": html,

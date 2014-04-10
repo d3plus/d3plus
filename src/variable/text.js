@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
 //------------------------------------------------------------------------------
-d3plus.variables.text = function(vars,obj,depth) {
+d3plus.variable.text = function(vars,obj,depth) {
 
   if (typeof depth != "number") var depth = vars.depth.value
 
@@ -24,7 +24,7 @@ d3plus.variables.text = function(vars,obj,depth) {
 
   var names = []
   text_keys.forEach(function(t){
-    var name = d3plus.variables.value(vars,obj,t,vars.id.nesting[depth])
+    var name = d3plus.variable.value(vars,obj,t,vars.id.nesting[depth])
     if (name) names.push(vars.format(name))
   })
 

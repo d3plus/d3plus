@@ -18,7 +18,7 @@ d3plus.apps.network.draw = function(vars) {
       y_range = d3.extent(nodes,function(n){return n.y})
 
   var val_range = d3.extent(nodes, function(d){
-    var val = d3plus.variables.value(vars,d,vars.size.key)
+    var val = d3plus.variable.value(vars,d,vars.size.key)
     return val == 0 ? null : val
   });
 
@@ -83,7 +83,7 @@ d3plus.apps.network.draw = function(vars) {
     obj.d3plus = {}
     obj.d3plus.x = n.x
     obj.d3plus.y = n.y
-    var val = d3plus.variables.value(vars,obj,vars.size.key)
+    var val = d3plus.variable.value(vars,obj,vars.size.key)
     obj.d3plus.r = val ? radius(val) : radius.range()[0]
     lookup[obj[vars.id.key]] = {
       "x": obj.d3plus.x,

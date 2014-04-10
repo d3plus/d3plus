@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
-d3plus.variables.value = function(vars,id,variable,id_var,agg) {
+d3plus.variable.value = function(vars,id,variable,id_var,agg) {
 
   if (!id_var) {
     if (variable && typeof variable == "object") {
