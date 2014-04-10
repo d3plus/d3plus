@@ -98,12 +98,6 @@ if (d3plus.touch) {
   d3plus.evt.move = "mousemove"
 }
 
-// Modernizr SVG Capable Detect
-d3plus.svg = true
-if (window.Modernizr && Modernizr.svg === false) {
-  d3plus.svg = false
-}
-
 d3plus.apps = {};
 d3plus.color = {};
 d3plus.console = {};
