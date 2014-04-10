@@ -28,12 +28,12 @@ d3plus.ui.titles = function(vars) {
         return d[vars.id.key] == vars.focus.value
       })
       total = d3.sum(total,function(d){
-        return d3plus.variable.value(vars,d,total_key)
+        return d3plus.variables.value(vars,d,total_key)
       })
     }
     else if (total_key) {
       var total = d3.sum(vars.data.pool,function(d){
-        return d3plus.variable.value(vars,d,total_key)
+        return d3plus.variables.value(vars,d,total_key)
       })
     }
 
@@ -49,16 +49,16 @@ d3plus.ui.titles = function(vars) {
 
         var overall_total = d3.sum(vars.data.filtered.all, function(d){
           if (vars.time.solo.value.length > 0) {
-            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.key)) >= 0
+            var match = vars.time.solo.value.indexOf(d3plus.variables.value(vars,d,vars.time.key)) >= 0
           }
           else if (vars.time.mute.value.length > 0) {
-            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.key)) < 0
+            var match = vars.time.solo.value.indexOf(d3plus.variables.value(vars,d,vars.time.key)) < 0
           }
           else {
             var match = true
           }
           if (match) {
-            return d3plus.variable.value(vars,d,total_key)
+            return d3plus.variables.value(vars,d,total_key)
           }
         })
 

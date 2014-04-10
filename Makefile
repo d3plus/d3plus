@@ -78,8 +78,11 @@ JS_FILES = \
 	src/utils/color.js \
 	src/utils/fonts.js \
 	src/utils/utils.js \
-	src/utils/variables.js \
 	src/utils/wordwrap.js \
+	\
+	src/variables/color.js \
+	src/variables/text.js \
+	src/variables/value.js \
 	\
 	src/zoom/bounds.js \
 	src/zoom/controls.js \

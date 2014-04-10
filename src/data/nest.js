@@ -11,14 +11,14 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
 
     nested_data
       .key(function(d){
-        return d3plus.variable.value(vars,d,nest_key)
+        return d3plus.variables.value(vars,d,nest_key)
       })
 
     vars.axes.values.forEach(function(axis){
       if (d3plus.apps[vars.type.value].requirements && d3plus.apps[vars.type.value].requirements.indexOf(axis) >= 0 && vars[axis].key && vars[axis].scale.value == "continuous") {
         nested_data
           .key(function(d){
-            return d3plus.variable.value(vars,d,vars[axis].key)
+            return d3plus.variables.value(vars,d,vars[axis].key)
           })
       }
     })
@@ -37,7 +37,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
           var key = vars[c].key ? vars[c].key : c
           to_return[key] = d3.sum(leaves, function(d){
             if (vars[c].key) {
-              var a = d3plus.variable.value(vars,d,vars[c].key)
+              var a = d3plus.variables.value(vars,d,vars[c].key)
               if (typeof a != "number") {
                 var a = a ? 1 : 0
               }
@@ -53,7 +53,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
           to_return.d3plus[key] = to_return[key]
         })
 
-        var nest_obj = d3plus.variable.value(vars,leaves[0],nest_key)
+        var nest_obj = d3plus.variables.value(vars,leaves[0],nest_key)
         to_return[nest_key] = nest_obj
 
         for (key in vars.data.keys) {

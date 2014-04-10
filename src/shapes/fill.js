@@ -133,7 +133,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         temp = vars.temp.key ? d.d3plus[vars.temp.key] : d.d3plus.temp,
         total = vars.total.key ? d.d3plus[vars.total.key] : d.d3plus.total,
         group = d3.select(this),
-        color = d3plus.variable.color(vars,d)
+        color = d3plus.variables.color(vars,d)
 
     var fill_data = [], hatch_data = []
 

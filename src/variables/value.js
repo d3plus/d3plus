@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
-d3plus.variable.value = function(vars,id,variable,id_var,agg) {
+d3plus.variables.value = function(vars,id,variable,id_var,agg) {
 
   if (!id_var) {
     if (variable && typeof variable == "object") {
@@ -100,80 +100,5 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
   if (attr && typeof attr[variable] != "undefined") return attr[variable]
 
   return null
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Finds an object's color and returns random if it cannot be found
-//------------------------------------------------------------------------------
-d3plus.variable.color = function(vars,id,level) {
-
-  function get_random(c) {
-    if (typeof c == "object") {
-      c = c[vars.id.key]
-    }
-    return d3plus.color.random(c)
-  }
-
-  function validate_color(c) {
-    if (typeof c == "string" && c.indexOf("#") == 0 && [4,7].indexOf(c.length) >= 0) return true
-    else return false
-  }
-
-  if (!vars.color.key) {
-    return get_random(id);
-  }
-  else {
-
-    var color = d3plus.variable.value(vars,id,vars.color.key,level)
-
-    if (!color) {
-      if (typeof vars.color.scale == "function") {
-        return vars.style.color.missing
-      }
-      return get_random(id)
-    }
-    else if (!vars.color.scale) {
-      var true_color = validate_color(color)
-      return true_color ? color : get_random(color)
-    }
-    else {
-      return vars.color.scale(color)
-    }
-
-  }
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Get array of available text values
-//------------------------------------------------------------------------------
-d3plus.variable.text = function(vars,obj,depth) {
-
-  if (typeof depth != "number") var depth = vars.depth.value
-
-  if (vars.text.array && typeof vars.text.array == "object") {
-    if (vars.text.array[vars.id.nesting[depth]]) {
-      var text_keys = vars.text.array[vars.id.nesting[depth]]
-    }
-    else {
-      var text_keys = vars.text.array[Object.keys(vars.text.array)[0]]
-    }
-  }
-  else {
-    var text_keys = []
-    if (vars.text.key) text_keys.push(vars.text.key)
-    text_keys.push(vars.id.nesting[depth])
-  }
-  if (typeof text_keys == "string") {
-    text_keys = [text_keys]
-  }
-
-  var names = []
-  text_keys.forEach(function(t){
-    var name = d3plus.variable.value(vars,obj,t,vars.id.nesting[depth])
-    if (name) names.push(vars.format(name))
-  })
-
-  return names
 
 }

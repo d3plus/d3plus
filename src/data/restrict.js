@@ -55,13 +55,13 @@ d3plus.data.restrict = function(vars) {
         if (vars[v].nesting) {
           vars[v].nesting.forEach(function(n){
             if (!match) {
-              match = test_value(d3plus.variable.value(vars,d,n))
+              match = test_value(d3plus.variables.value(vars,d,n))
             }
           })
         }
         else {
           var k = vars[v].value ? vars[v].value : vars[v].key
-          match = test_value(d3plus.variable.value(vars,d,k))
+          match = test_value(d3plus.variables.value(vars,d,k))
         }
 
         if (key == "solo") {

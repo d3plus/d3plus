@@ -28,7 +28,7 @@ d3plus.data.threshold = function(vars,split) {
     if (split) {
       nest
         .key(function(d){
-          return d3plus.variable.value(vars,d,split)
+          return d3plus.variables.value(vars,d,split)
         })
     }
 
@@ -41,16 +41,16 @@ d3plus.data.threshold = function(vars,split) {
           }
           else if (typeof vars.aggs[vars.size.key] == "string") {
             total = d3[vars.aggs[vars.size.key]](leaves,function(l){
-              return d3plus.variable.value(vars,l,vars.size.key)
+              return d3plus.variables.value(vars,l,vars.size.key)
             })
           }
         }
         else {
           total = d3.sum(leaves,function(l){
-            return d3plus.variable.value(vars,l,vars.size.key)
+            return d3plus.variables.value(vars,l,vars.size.key)
           })
         }
-        var x = split ? d3plus.variable.value(vars,leaves[0],split) : "all"
+        var x = split ? d3plus.variables.value(vars,leaves[0],split) : "all"
         largest[x] = total
         return total
       })
@@ -58,9 +58,9 @@ d3plus.data.threshold = function(vars,split) {
 
     vars.data.app = vars.data.app.filter(function(d){
 
-      var id = d3plus.variable.value(vars,d,vars.id.key),
-          val = d3plus.variable.value(vars,d,vars.size.key),
-          x = split ? d3plus.variable.value(vars,d,split) : "all"
+      var id = d3plus.variables.value(vars,d,vars.id.key),
+          val = d3plus.variables.value(vars,d,vars.size.key),
+          x = split ? d3plus.variables.value(vars,d,split) : "all"
 
       if (allowed.indexOf(id) < 0) {
         if (val/largest[x] >= threshold) {
@@ -90,7 +90,7 @@ d3plus.data.threshold = function(vars,split) {
     var levels = vars.id.nesting.slice(0,vars.depth.value)
     var nesting = levels.concat([vars.x.key])
     var merged = d3plus.data.nest(vars,removed,nesting,true).filter(function(d){
-      return d3plus.variable.value(vars,d,vars.size.key) > 0
+      return d3plus.variables.value(vars,d,vars.size.key) > 0
     })
 
     merged.forEach(function(m){
@@ -120,12 +120,12 @@ d3plus.data.threshold = function(vars,split) {
           m[vars.color.key] = vars.style.color.missing
         }
         else {
-          m[vars.color.key] = d3plus.variable.color(vars,m[parent],parent)
+          m[vars.color.key] = d3plus.variables.color(vars,m[parent],parent)
         }
       }
 
       if (vars.icon.key && vars.depth.value != 0) {
-        m[vars.icon.key] = d3plus.variable.value(vars,m[parent],vars.icon.key,parent)
+        m[vars.icon.key] = d3plus.variables.value(vars,m[parent],vars.icon.key,parent)
         m.d3plus.depth = vars.id.nesting.indexOf(parent)
       }
 
@@ -135,7 +135,7 @@ d3plus.data.threshold = function(vars,split) {
           m[vars.text.key] += " < "+vars.format(cutoff)
         }
         else {
-          var name = d3plus.variable.value(vars,m,vars.text.key,parent)
+          var name = d3plus.variables.value(vars,m,vars.text.key,parent)
           m[vars.text.key] = name
           m[vars.text.key] += " < "+vars.format(cutoff[m[parent]],vars.size.key)
         }

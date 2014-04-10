@@ -72,7 +72,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
 
     if (group) group = vars.format(group)
 
-    var value = extra_data[key] || d3plus.variable.value(vars,id,key,id_var)
+    var value = extra_data[key] || d3plus.variables.value(vars,id,key,id_var)
 
     if (value !== false && value !== null) {
       var name = vars.format(key),
@@ -178,8 +178,8 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
     var connections = vars.connections(id[vars.id.key],true)
     if (connections.length) {
       connections.forEach(function(c){
-        var name = d3plus.variable.text(vars,c)[0],
-            color = d3plus.variable.color(vars,c),
+        var name = d3plus.variables.text(vars,c)[0],
+            color = d3plus.variables.color(vars,c),
             size = vars.style.tooltip.font.size,
             radius = vars.shape.value == "square" ? 0 : size
             styles = [

@@ -87,13 +87,13 @@ d3plus.apps.rings.draw = function(vars) {
 
   function sort_function(a,b){
 
-    a_value = d3plus.variable.value(vars,a,sort)
-    b_value = d3plus.variable.value(vars,b,sort)
+    a_value = d3plus.variables.value(vars,a,sort)
+    b_value = d3plus.variables.value(vars,b,sort)
 
     if (vars.color.key && sort == vars.color.key) {
 
-      a_value = d3plus.variable.color(vars,a)
-      b_value = d3plus.variable.color(vars,b)
+      a_value = d3plus.variables.color(vars,a)
+      b_value = d3plus.variables.color(vars,b)
 
       a_value = d3.rgb(a_value).hsl()
       b_value = d3.rgb(b_value).hsl()
@@ -105,8 +105,8 @@ d3plus.apps.rings.draw = function(vars) {
 
     }
     else {
-      a_value = d3plus.variable.value(vars,a,sort)
-      b_value = d3plus.variable.value(vars,b,sort)
+      a_value = d3plus.variables.value(vars,a,sort)
+      b_value = d3plus.variables.value(vars,b,sort)
     }
 
     if(a_value<b_value) return vars.order.sort.value == "desc" ? -1 : 1;
@@ -275,7 +275,7 @@ d3plus.apps.rings.draw = function(vars) {
   if (vars.size.key) {
 
     var domain = d3.extent(data,function(d){
-      return d3plus.variable.value(vars,d,vars.size.key)
+      return d3plus.variables.value(vars,d,vars.size.key)
     })
 
     if (domain[0] == domain[1]) {
@@ -286,7 +286,7 @@ d3plus.apps.rings.draw = function(vars) {
       .domain(domain)
       .range([3,d3.min([primaryMax,secondaryMax])])
 
-    var val = d3plus.variable.value(vars,center,vars.size.key)
+    var val = d3plus.variables.value(vars,center,vars.size.key)
     center.d3plus.r = radius(val)
 
   }
@@ -298,14 +298,14 @@ d3plus.apps.rings.draw = function(vars) {
 
   secondaries.forEach(function(s){
     s.d3plus.ring = 2
-    var val = vars.size.key ? d3plus.variable.value(vars,s,vars.size.key) : 2
+    var val = vars.size.key ? d3plus.variables.value(vars,s,vars.size.key) : 2
     s.d3plus.r = radius(val)
   })
 
   primaries.forEach(function(p,i){
 
     p.d3plus.ring = 1
-    var val = vars.size.key ? d3plus.variable.value(vars,p,vars.size.key) : 1
+    var val = vars.size.key ? d3plus.variables.value(vars,p,vars.size.key) : 1
     p.d3plus.r = radius(val)
 
     var check = [vars.edges.source,vars.edges.target]
@@ -434,7 +434,7 @@ d3plus.apps.rings.draw = function(vars) {
           "angle": angle,
           "anchor": anchor,
           "valign": "center",
-          "color": d3plus.color.legible(d3plus.variable.color(vars,n[vars.id.key])),
+          "color": d3plus.color.legible(d3plus.variables.color(vars,n[vars.id.key])),
           "resize": [8,vars.style.labels.font.size],
           "background": background,
           "mouse": true

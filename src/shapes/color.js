@@ -7,38 +7,38 @@ d3plus.shape.color = function(d,vars) {
 
   if (vars.shape.value == "line") {
     if (shape == "circle") {
-      return d3plus.variable.color(vars,d)
+      return d3plus.variables.color(vars,d)
     }
     else {
       return "none"
     }
   }
   else if (vars.shape.value == "area" || shape == "active") {
-    return d3plus.variable.color(vars,d)
+    return d3plus.variables.color(vars,d)
   }
   else if (shape == "temp") {
     return "url(#d3plus_hatch_"+d.d3plus.id+")"
   }
   else if (shape == "active") {
-    return d3plus.variable.color(vars,d)
+    return d3plus.variables.color(vars,d)
   }
 
   if (d.d3plus.static) {
-    return d3plus.color.lighter(d3plus.variable.color(vars,d));
+    return d3plus.color.lighter(d3plus.variables.color(vars,d));
   }
 
-  var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
-      temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
-      total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
+  var active = vars.active.key ? d3plus.variables.value(vars,d,vars.active.key) : d.d3plus.active,
+      temp = vars.temp.key ? d3plus.variables.value(vars,d,vars.temp.key) : d.d3plus.temp,
+      total = vars.total.key ? d3plus.variables.value(vars,d,vars.total.key) : d.d3plus.total
 
   if ((!vars.active.key && !vars.temp.key) || active === true || (active && total && active == total && !temp) || (active && !total)) {
-    return d3plus.variable.color(vars,d)
+    return d3plus.variables.color(vars,d)
   }
   else if (vars.active.spotlight.value) {
     return "#eee"
   }
   else {
-    return d3plus.color.lighter(d3plus.variable.color(vars,d),.4);
+    return d3plus.color.lighter(d3plus.variables.color(vars,d),.4);
   }
 
 }

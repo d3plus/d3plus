@@ -36,7 +36,7 @@ d3plus.data.filter = function(vars) {
 
       vars.data.filtered = vars.data[data].filter(function(d){
         var variable = vars[key].value ? vars[key].value : vars[key].key
-        var val = d3plus.variable.value(vars,d,variable)
+        var val = d3plus.variables.value(vars,d,variable)
         if (key == "size") {
           return val > 0 ? true : false
         }
@@ -73,7 +73,7 @@ d3plus.data.filter = function(vars) {
       if (vars.dev.value) d3plus.console.time(vars.data.time.length+" years")
       vars.data.time.forEach(function(y){
         vars.data.filtered[y] = vars.data.filtered.all.filter(function(d){
-          return d3plus.variable.value(vars,d,vars.time.key) == y;
+          return d3plus.variables.value(vars,d,vars.time.key) == y;
         })
       })
       if (vars.dev.value) d3plus.console.timeEnd(vars.data.time.length+" years")

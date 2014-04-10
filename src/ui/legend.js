@@ -33,7 +33,7 @@ d3plus.ui.legend = function(vars) {
       data.forEach(function(d){
         if (placed.indexOf(d[vars.id.key]) < 0) {
 
-          var color = d3plus.variable.color(vars,d[vars.id.key])
+          var color = d3plus.variables.color(vars,d[vars.id.key])
           if (!color_groups[color]) {
             color_groups[color] = []
           }
@@ -60,21 +60,21 @@ d3plus.ui.legend = function(vars) {
           for (var i = vars.depth.value-1; i >= 0; i--) {
             var parents = []
             color_groups[color].forEach(function(c){
-              var val = d3plus.variable.value(vars,c,vars.id.nesting[i])
+              var val = d3plus.variables.value(vars,c,vars.id.nesting[i])
               // console.log(c,val,vars.id.nesting[i])
               if (val && parents.indexOf(val) < 0) parents.push(val)
             })
 
             if (parents.length == 1) {
 
-              var name = d3plus.variable.text(vars,parents[0],i)
+              var name = d3plus.variables.text(vars,parents[0],i)
 
               if (name && obj.name.indexOf(name) < 0) {
                 obj.name.push(name)
               }
 
               if (!obj.icon) {
-                var icon = d3plus.variable.value(vars,parents[0],vars.icon.key,vars.id.nesting[i])
+                var icon = d3plus.variables.value(vars,parents[0],vars.icon.key,vars.id.nesting[i])
                 if (icon) {
                   obj.icon = icon
                   obj.icon_depth = vars.id.nesting[i]
@@ -91,13 +91,13 @@ d3plus.ui.legend = function(vars) {
 
           for (d in color_groups[color]) {
 
-            var name = d3plus.variable.text(vars,color_groups[color][d],vars.depth.value)
+            var name = d3plus.variables.text(vars,color_groups[color][d],vars.depth.value)
             if (name && obj.name.indexOf(name) < 0) {
               obj.name.push(name)
             }
 
             if (!obj.icon) {
-              var icon = d3plus.variable.value(vars,color_groups[color][d],vars.icon.key)
+              var icon = d3plus.variables.value(vars,color_groups[color][d],vars.icon.key)
               if (icon) {
                 obj.icon = icon
               }
