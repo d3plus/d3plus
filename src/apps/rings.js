@@ -8,7 +8,7 @@ d3plus.apps.rings.filter = function(vars,data) {
 
   var primaries = vars.connections(vars.focus.value,true)
     , secondaries = []
-  
+
   primaries.forEach(function(p){
     secondaries = secondaries.concat(vars.connections(p[vars.id.key],true))
   })
@@ -403,11 +403,12 @@ d3plus.apps.rings.draw = function(vars) {
 
   nodes.forEach(function(n) {
 
-    if (n[vars.id.key] != vars.focus.value && !vars.small && vars.labels.value) {
+    if (!vars.small && vars.labels.value) {
 
-      n.d3plus.rotate = n.d3plus.radians*(180/Math.PI)
+      if (n[vars.id.key] != vars.focus.value) {
 
-      if (vars.labels.value) {
+        n.d3plus.rotate = n.d3plus.radians*(180/Math.PI)
+
         var angle = n.d3plus.rotate,
             width = ring_width-(vars.style.labels.padding*3)-n.d3plus.r
 
@@ -440,6 +441,27 @@ d3plus.apps.rings.draw = function(vars) {
           "mouse": true
         }
 
+      }
+      else if (vars.size.key) {
+        console.log(primaryRing,n.d3plus.r,vars.style.labels.padding)
+        var height = primaryRing-n.d3plus.r-vars.style.labels.padding*2
+
+        n.d3plus.label = {
+          "x": 0,
+          "y": n.d3plus.r+height/2,
+          "w": primaryRing,
+          "h": height,
+          "color": d3plus.color.legible(d3plus.variable.color(vars,n[vars.id.key])),
+          "resize": [10,40],
+          "background": true,
+          "mouse": true
+        }
+        console.log(n.d3plus.label)
+
+      }
+      else {
+        delete n.d3plus.rotate
+        delete n.d3plus.label
       }
 
     }
