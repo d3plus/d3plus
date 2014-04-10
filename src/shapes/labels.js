@@ -317,7 +317,7 @@ d3plus.shape.labels = function(vars,selection) {
           label.padding = (vars.style.labels.padding/label.scale)*2
 
         }
-
+        
         if (label && label.w*label.scale-label.padding >= 20 && label.h*label.scale-label.padding >= 10 && names.length) {
 
           label.names = names

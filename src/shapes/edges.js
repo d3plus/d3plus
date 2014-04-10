@@ -159,8 +159,11 @@ d3plus.shape.edges = function(vars) {
 
       }
 
+      width += vars.style.labels.padding*2
+
+      var m = 0
       if (vars.edges.arrows.value) {
-        var m = typeof vars.edges.arrows.value == "number" ? typeof vars.edges.arrows.value == "number" : 8
+        m = typeof vars.edges.arrows.value == "number" ? vars.edges.arrows.value : 8
         m = m/vars.zoom_behavior.scaleExtent()[1]
         width -= m*2
       }
@@ -168,20 +171,24 @@ d3plus.shape.edges = function(vars) {
       if (angle < -90 || angle > 90) {
         angle -= 180
       }
+      console.log(width,length,m)
+      if ((length*vars.zoom_behavior.scaleExtent()[0])-m*2 > width) {
 
-      d.d3plus_label = {
-        "x": x,
-        "y": y,
-        "translate": translate,
-        "w": width,
-        "h": 15,
-        "angle": angle,
-        "anchor": "middle",
-        "valign": "center",
-        "color": vars.style.edges.color,
-        "resize": false,
-        "names": [vars.format(d[vars.edges.label])],
-        "background": true
+        d.d3plus_label = {
+          "x": x,
+          "y": y,
+          "translate": translate,
+          "w": width,
+          "h": 15+vars.style.labels.padding*2,
+          "angle": angle,
+          "anchor": "middle",
+          "valign": "center",
+          "color": vars.style.edges.color,
+          "resize": false,
+          "names": [vars.format(d[vars.edges.label])],
+          "background": true
+        }
+
       }
 
     }
