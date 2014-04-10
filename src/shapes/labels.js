@@ -317,7 +317,7 @@ d3plus.shape.labels = function(vars,selection) {
           label.padding = (vars.style.labels.padding/label.scale)*2
 
         }
-        
+
         if (label && label.w*label.scale-label.padding >= 20 && label.h*label.scale-label.padding >= 10 && names.length) {
 
           label.names = names
@@ -415,7 +415,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .remove()
 
               bg.transition().duration(vars.timing)
-                .attr("opacity",1)
+                .attr("opacity",.6)
                 .call(bg_style)
 
               bg.enter().insert("rect",".d3plus_label")
@@ -424,7 +424,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .attr("opacity",0)
                 .call(bg_style)
                 .transition().duration(vars.timing)
-                  .attr("opacity",1)
+                  .attr("opacity",.6)
 
             }
             else {
@@ -435,7 +435,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .attr("id","d3plus_label_bg_"+d.d3plus.id)
                 .attr("class","d3plus_label_bg")
 
-              bg.attr("opacity",0.5)
+              bg.attr("opacity",0.6)
                 .call(bg_style)
 
             }
