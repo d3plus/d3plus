@@ -171,7 +171,7 @@ d3plus.shape.edges = function(vars) {
       if (angle < -90 || angle > 90) {
         angle -= 180
       }
-      console.log(width,length,m)
+
       if ((length*vars.zoom_behavior.scaleExtent()[0])-m*2 > width) {
 
         d.d3plus_label = {
@@ -186,7 +186,7 @@ d3plus.shape.edges = function(vars) {
           "color": vars.style.edges.color,
           "resize": false,
           "names": [vars.format(d[vars.edges.label])],
-          "background": true
+          "background": 1
         }
 
       }

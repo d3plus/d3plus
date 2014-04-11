@@ -55,7 +55,7 @@ d3plus.styles.default = {
     "font": {
       "decoration": "none",
       "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
-      "size": 10,
+      "size": 12,
       "transform": "none",
       "weight": 200
     }

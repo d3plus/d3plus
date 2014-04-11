@@ -390,16 +390,20 @@ d3plus.shape.labels = function(vars,selection) {
             }
 
             var bg = group.selectAll("rect#d3plus_label_bg_"+d.d3plus.id)
-              .data(background_data)
+                       .data(background_data)
+              , bg_opacity = typeof label.background == "number"
+                        ? label.background : 0.6
 
             function bg_style(elem) {
 
-              var color = vars.style.background == "transparent" ? "#ffffff" : vars.style.background,
-                  fill = label.background === true ? color : label.background,
-                  a = label.angle || 0,
-                  x = label.translate ? bounds.x+bounds.width/2 : 0,
-                  y = label.translate ? bounds.y+bounds.height/2 : 0,
-                  transform = "scale("+1/scale[1]+")rotate("+a+","+x+","+y+")"
+              var color = vars.style.background == "transparent"
+                        ? "#ffffff" : vars.style.background
+                , fill = typeof label.background == "string"
+                       ? label.background : color
+                , a = label.angle || 0
+                , x = label.translate ? bounds.x+bounds.width/2 : 0
+                , y = label.translate ? bounds.y+bounds.height/2 : 0
+                , transform = "scale("+1/scale[1]+")rotate("+a+","+x+","+y+")"
 
               elem
                 .attr("fill",fill)
@@ -415,7 +419,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .remove()
 
               bg.transition().duration(vars.timing)
-                .attr("opacity",.6)
+                .attr("opacity",bg_opacity)
                 .call(bg_style)
 
               bg.enter().insert("rect",".d3plus_label")
@@ -424,7 +428,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .attr("opacity",0)
                 .call(bg_style)
                 .transition().duration(vars.timing)
-                  .attr("opacity",.6)
+                  .attr("opacity",bg_opacity)
 
             }
             else {
@@ -435,7 +439,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .attr("id","d3plus_label_bg_"+d.d3plus.id)
                 .attr("class","d3plus_label_bg")
 
-              bg.attr("opacity",0.6)
+              bg.attr("opacity",bg_opacity)
                 .call(bg_style)
 
             }
