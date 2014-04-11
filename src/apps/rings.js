@@ -239,7 +239,7 @@ d3plus.apps.rings.draw = function(vars) {
   }
 
   if (!secondaryDistance) {
-    secondaryDistance = 16
+    secondaryDistance = ring_width/4
   }
 
   if (primaryDistance/2 - 4 < 8) {
@@ -260,8 +260,8 @@ d3plus.apps.rings.draw = function(vars) {
     secondaryMax = ring_width/10
   }
 
-  if (primaryMax > secondaryMax*2) {
-    primaryMax = secondaryMax*2
+  if (primaryMax > secondaryMax*1.5) {
+    primaryMax = secondaryMax*1.5
   }
 
   var ids = d3plus.util.uniques(primaries,vars.id.key)
@@ -315,20 +315,17 @@ d3plus.apps.rings.draw = function(vars) {
 
         p.d3plus.edge[node].d3plus = {
           "x": center.d3plus.x,
-          "y": center.d3plus.y
+          "y": center.d3plus.y,
+          "r": center.d3plus.r
         }
-
-        var offset = d3plus.util.offset(p.d3plus.radians,center.d3plus.r,vars.shape.value)
-
-        p.d3plus.edge[node].d3plus.x += offset.x
-        p.d3plus.edge[node].d3plus.y += offset.y
 
       }
       else {
 
         p.d3plus.edge[node].d3plus = {
-          "x": p.d3plus.x-(p.d3plus.r * Math.cos(p.d3plus.radians)),
-          "y": p.d3plus.y-(p.d3plus.r * Math.sin(p.d3plus.radians))
+          "x": p.d3plus.x,
+          "y": p.d3plus.y,
+          "r": p.d3plus.r
         }
 
       }
@@ -375,7 +372,8 @@ d3plus.apps.rings.draw = function(vars) {
 
               edge[node].d3plus = {
                 "a": p.d3plus.radians,
-                "r": primaryRing+p.d3plus.r
+                "r": primaryRing+p.d3plus.r,
+                "depth": 1
               }
 
             }
@@ -383,7 +381,8 @@ d3plus.apps.rings.draw = function(vars) {
 
               edge[node].d3plus = {
                 "a": target.d3plus.radians,
-                "r": r-target.d3plus.r
+                "r": r-target.d3plus.r,
+                "depth": 2
               }
 
             }
@@ -443,7 +442,7 @@ d3plus.apps.rings.draw = function(vars) {
 
       }
       else if (vars.size.key) {
-        console.log(primaryRing,n.d3plus.r,vars.style.labels.padding)
+
         var height = primaryRing-n.d3plus.r-vars.style.labels.padding*2
 
         n.d3plus.label = {
@@ -456,7 +455,6 @@ d3plus.apps.rings.draw = function(vars) {
           "background": true,
           "mouse": true
         }
-        console.log(n.d3plus.label)
 
       }
       else {

@@ -304,25 +304,55 @@ d3plus.shape.draw = function(vars) {
               target = l[vars.edges.target][vars.id.key]
 
           if (source == id || target == id) {
-            vars.g.edge_hover.node().appendChild(this.cloneNode(true))
+            var elem = vars.g.edge_hover.node().appendChild(this.cloneNode(true))
+            d3.select(elem).datum(l).attr("opacity",1)
+              .selectAll("line, path").datum(l)
           }
 
         })
 
 
-      var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_highlight)" : "none"
+      var marker = vars.edges.arrows.value
 
       vars.g.edge_hover
         .attr("opacity",0)
         .selectAll("line, path")
           .style("stroke",vars.style.highlight.primary)
-          .style("stroke-width",vars.style.data.stroke.width*2)
-          .attr("marker-start",function(){
-            return vars.edges.arrows.direction.value == "source" ? marker : "none"
+          .style("stroke-width",function(){
+            return vars.edges.size ? d3.select(this).style("stroke-width")
+                 : vars.style.data.stroke.width*2
           })
-          .attr("marker-end",function(){
-            return vars.edges.arrows.direction.value == "target" ? marker : "none"
+          .attr("marker-start",function(e){
+
+            var direction = vars.edges.arrows.direction.value
+
+            if ("bucket" in e.d3plus) {
+              var d = "_"+e.d3plus.bucket
+            }
+            else {
+              var d = ""
+            }
+
+            return direction == "source" && marker
+                 ? "url(#d3plus_edge_marker_highlight"+d+")" : "none"
+
           })
+          .attr("marker-end",function(e){
+
+            var direction = vars.edges.arrows.direction.value
+
+            if ("bucket" in e.d3plus) {
+              var d = "_"+e.d3plus.bucket
+            }
+            else {
+              var d = ""
+            }
+
+            return direction == "target" && marker
+                 ? "url(#d3plus_edge_marker_highlight"+d+")" : "none"
+
+          })
+
 
       vars.g.edge_hover.selectAll("text")
         .style("fill",vars.style.highlight.primary)
@@ -580,7 +610,7 @@ d3plus.shape.draw = function(vars) {
         else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
           edge_update()
-
+          
           d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)

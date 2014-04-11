@@ -3,10 +3,33 @@
 //------------------------------------------------------------------------------
 d3plus.shape.edges = function(vars) {
 
-  var edges = vars.returned.edges,
+  var edges = vars.returned.edges || [],
       scale = vars.zoom_behavior.scaleExtent()[0]
 
-  if (!edges) var edges = []
+  if (typeof vars.edges.size === "string") {
+
+    var strokeDomain = d3.extent(edges, function(e){
+                         return e[vars.edges.size]
+                       })
+      , maxSize = d3.min(vars.returned.nodes || [], function(n){
+                        return n.d3plus.r
+                      })*.6
+
+    vars.edges.scale = d3.scale.sqrt()
+                        .domain(strokeDomain)
+                        .range([vars.style.edges.width,maxSize*scale])
+
+  }
+  else {
+
+    var defaultWidth = typeof vars.edges.size == "number"
+                     ? vars.edges.size : vars.style.edges.width
+
+    vars.edges.scale = function(){
+      return defaultWidth
+    }
+
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Initialization of Lines
@@ -27,19 +50,43 @@ d3plus.shape.edges = function(vars) {
   //----------------------------------------------------------------------------
   function style(edges) {
 
-    var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_default)" : "none"
+    var marker = vars.edges.arrows.value
 
     edges
-      .style("stroke-width",vars.style.edges.width)
+      .style("stroke-width",function(e){
+        return vars.edges.scale(e[vars.edges.size])
+      })
       .style("stroke",vars.style.edges.color)
       .attr("opacity",vars.style.edges.opacity)
       .attr("marker-start",function(e){
+
         var direction = vars.edges.arrows.direction.value
-        return direction == "source" ? marker : "none"
+
+        if ("bucket" in e.d3plus) {
+          var d = "_"+e.d3plus.bucket
+        }
+        else {
+          var d = ""
+        }
+
+        return direction == "source" && marker
+             ? "url(#d3plus_edge_marker_default"+d+")" : "none"
+
       })
       .attr("marker-end",function(e){
+
         var direction = vars.edges.arrows.direction.value
-        return direction == "target" ? marker : "none"
+
+        if ("bucket" in e.d3plus) {
+          var d = "_"+e.d3plus.bucket
+        }
+        else {
+          var d = ""
+        }
+
+        return direction == "target" && marker
+             ? "url(#d3plus_edge_marker_default"+d+")" : "none"
+
       })
       .attr("vector-effect","non-scaling-stroke")
       .attr("pointer-events","none")
@@ -51,16 +98,16 @@ d3plus.shape.edges = function(vars) {
   function line(l) {
     l
       .attr("x1",function(d){
-        return d[vars.edges.source].d3plus.x
+        return d[vars.edges.source].d3plus.dx
       })
       .attr("y1",function(d){
-        return d[vars.edges.source].d3plus.y
+        return d[vars.edges.source].d3plus.dy
       })
       .attr("x2",function(d){
-        return d[vars.edges.target].d3plus.x
+        return d[vars.edges.target].d3plus.dx
       })
       .attr("y2",function(d){
-        return d[vars.edges.target].d3plus.y
+        return d[vars.edges.target].d3plus.dy
       })
   }
 
@@ -77,11 +124,11 @@ d3plus.shape.edges = function(vars) {
   function spline(l) {
     l
       .attr("d", function(d) {
-        if (d[vars.edges.source].d3plus.r) {
+        if (d[vars.edges.source].d3plus.dr) {
           var x1 = d[vars.edges.source].d3plus.a,
-              y1 = d[vars.edges.source].d3plus.r,
+              y1 = d[vars.edges.source].d3plus.dr,
               x2 = d[vars.edges.target].d3plus.a,
-              y2 = d[vars.edges.target].d3plus.r
+              y2 = d[vars.edges.target].d3plus.dr
           var obj = {}
           obj[vars.edges.source] = {"x":x1,"y":y1}
           obj[vars.edges.target] = {"x":x2,"y":y2}
@@ -89,10 +136,10 @@ d3plus.shape.edges = function(vars) {
 
         }
         else {
-          var x1 = d[vars.edges.source].d3plus.x,
-              y1 = d[vars.edges.source].d3plus.y,
-              x2 = d[vars.edges.target].d3plus.x,
-              y2 = d[vars.edges.target].d3plus.y
+          var x1 = d[vars.edges.source].d3plus.dx,
+              y1 = d[vars.edges.source].d3plus.dy,
+              x2 = d[vars.edges.target].d3plus.dx,
+              y2 = d[vars.edges.target].d3plus.dy
           var obj = {}
           obj[vars.edges.source] = {"x":x1,"y":y1}
           obj[vars.edges.target] = {"x":x2,"y":y2}
@@ -141,8 +188,8 @@ d3plus.shape.edges = function(vars) {
       else {
 
         var bounds = this.getBBox()
-            start = {"x": d[vars.edges.source].d3plus.x, "y": d[vars.edges.source].d3plus.y},
-            end = {"x": d[vars.edges.target].d3plus.x, "y": d[vars.edges.target].d3plus.y},
+            start = {"x": d[vars.edges.source].d3plus.dx, "y": d[vars.edges.source].d3plus.dy},
+            end = {"x": d[vars.edges.target].d3plus.dx, "y": d[vars.edges.target].d3plus.dy},
             xdiff = end.x-start.x,
             ydiff = end.y-start.y,
             center = {"x": end.x-(xdiff)/2, "y": end.y-(ydiff)/2},
@@ -163,7 +210,7 @@ d3plus.shape.edges = function(vars) {
 
       var m = 0
       if (vars.edges.arrows.value) {
-        m = typeof vars.edges.arrows.value == "number" ? vars.edges.arrows.value : 8
+        m = vars.style.edges.arrows
         m = m/vars.zoom_behavior.scaleExtent()[1]
         width -= m*2
       }
@@ -198,33 +245,64 @@ d3plus.shape.edges = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter/update/exit the Arrow Marker
   //----------------------------------------------------------------------------
-  var marker_data = vars.edges.arrows.value ? ["default","highlight","focus"] : []
-  var marker = vars.defs.selectAll(".d3plus_edge_marker")
-    .data(marker_data)
+  var markerData = vars.edges.arrows.value ? typeof vars.edges.size == "string"
+                  ? [ "default_0", "default_1", "default_2",
+                      "highlight_0", "highlight_1", "highlight_2",
+                      "focus_0", "focus_1", "focus_2" ]
+                  : [ "default", "highlight", "focus" ] : []
 
-  var m = vars.style.edges.arrows
+  if (typeof vars.edges.size == "string") {
+    var buckets = d3plus.util.buckets(vars.edges.scale.range(),4)
+      , markerSize = []
+    for (var i = 0; i < 3; i++) {
+      markerSize.push(buckets[i+1]+(buckets[1]-buckets[0])*(i+2))
+    }
+  }
+  else {
+    var markerSize = typeof vars.edges.size == "number"
+                    ? vars.edges.size/vars.style.edges.arrows
+                    : vars.style.edges.arrows
+  }
+
+  var marker = vars.defs.selectAll(".d3plus_edge_marker")
+    .data(markerData, String)
 
   var marker_style = function(path) {
     path
-      .attr("d",function(){
-        if (vars.edges.arrows.direction.value == "target") {
-          return "M -"+m+",-"+m/2+" L 0,0 L -"+m+","+m/2+" L -"+m+",-"+m/2
+      .attr("d",function(id){
+
+        var depth = id.split("_")
+
+        if (depth.length == 2 && vars.edges.scale) {
+          depth = parseInt(depth[1])
+          var m = markerSize[depth]
         }
         else {
-          return "M "+m+",-"+m/2+" L 0,0 L "+m+","+m/2+" L "+m+",-"+m/2
+          var m = markerSize
+        }
+
+        if (vars.edges.arrows.direction.value == "target") {
+          return "M 0,-"+m/2+" L "+m*.85+",0 L 0,"+m/2+" L 0,-"+m/2
+        }
+        else {
+          return "M 0,-"+m/2+" L -"+m*.85+",0 L 0,"+m/2+" L 0,-"+m/2
         }
       })
       .attr("fill",function(d){
-        if (d == "default") {
+
+        var type = d.split("_")[0]
+
+        if (type == "default") {
           return vars.style.edges.color
         }
-        else if (d == "focus") {
+        else if (type == "focus") {
           return vars.style.highlight.focus
         }
         else {
           return vars.style.highlight.primary
         }
       })
+      .attr("transform","scale("+1/scale+")")
   }
 
   if (vars.timing) {
@@ -234,8 +312,6 @@ d3plus.shape.edges = function(vars) {
 
     marker.select("path").transition().duration(vars.timing)
       .attr("opacity",1)
-      .attr("markerWidth",m)
-      .attr("markerHeight",m)
       .call(marker_style)
   }
   else {
@@ -243,8 +319,6 @@ d3plus.shape.edges = function(vars) {
 
     marker.select("path")
       .attr("opacity",1)
-      .attr("markerWidth",m)
-      .attr("markerHeight",m)
       .call(marker_style)
   }
 
@@ -256,8 +330,6 @@ d3plus.shape.edges = function(vars) {
     .attr("class","d3plus_edge_marker")
     .attr("orient","auto")
     .attr("markerUnits","userSpaceOnUse")
-    .attr("markerWidth",m)
-    .attr("markerHeight",m)
     .style("overflow","visible")
     .append("path")
     .attr("opacity",opacity)
@@ -272,8 +344,57 @@ d3plus.shape.edges = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Bind "edges" data to lines in the "edges" group
   //----------------------------------------------------------------------------
+  var strokeBuckets = typeof vars.edges.size == "string"
+                    ? d3plus.util.buckets(vars.edges.scale.domain(),4)
+                    : null
+    , direction = vars.edges.arrows.direction.value
+
   var line_data = edges.filter(function(l){
-    return !l.d3plus || (l.d3plus && !("spline" in l.d3plus))
+
+    if (!l.d3plus || (l.d3plus && !("spline" in l.d3plus))) {
+
+      if (!l.d3plus) {
+        l.d3plus = {}
+      }
+
+      if (strokeBuckets) {
+        var size = l[vars.edges.size]
+        l.d3plus.bucket = size < strokeBuckets[1] ? 0
+                        : size < strokeBuckets[2] ? 1 : 2
+        var marker = markerSize[l.d3plus.bucket]*.85/scale
+      }
+      else {
+        delete l.d3plus.bucket
+        var marker = markerSize*.85/scale
+      }
+
+      var source = l[vars.edges.source]
+        , target = l[vars.edges.target]
+        , angle = Math.atan2( source.d3plus.y - target.d3plus.y
+                            , source.d3plus.x - target.d3plus.x )
+        , sourceRadius = direction == "source" && vars.edges.arrows.value
+                       ? source.d3plus.r + marker
+                       : source.d3plus.r
+        , targetRadius = direction == "target" && vars.edges.arrows.value
+                       ? target.d3plus.r + marker
+                       : target.d3plus.r
+        , sourceOffset = d3plus.util.offset( angle
+                                           , sourceRadius
+                                           , vars.shape.value )
+        , targetOffset = d3plus.util.offset( angle
+                                           , targetRadius
+                                           , vars.shape.value )
+
+      source.d3plus.dx = source.d3plus.x - sourceOffset.x
+      source.d3plus.dy = source.d3plus.y - sourceOffset.y
+      target.d3plus.dx = target.d3plus.x + targetOffset.x
+      target.d3plus.dy = target.d3plus.y + targetOffset.y
+
+      return true
+    }
+
+    return false
+
   })
 
   var lines = vars.g.edges.selectAll("g.d3plus_edge_line")
@@ -290,7 +411,45 @@ d3plus.shape.edges = function(vars) {
     })
 
   var spline_data = edges.filter(function(l){
-    return l.d3plus && l.d3plus.spline
+
+    if (l.d3plus && l.d3plus.spline) {
+
+      if (!l.d3plus) {
+        l.d3plus = {}
+      }
+
+      if (strokeBuckets) {
+        var size = l[vars.edges.size]
+        l.d3plus.bucket = size < strokeBuckets[1] ? 0
+                        : size < strokeBuckets[2] ? 1 : 2
+        var marker = markerSize[l.d3plus.bucket]*.85/scale
+      }
+      else {
+        delete l.d3plus.bucket
+        var marker = markerSize*.85/scale
+      }
+
+      var source = l[vars.edges.source]
+        , target = l[vars.edges.target]
+        , sourceMod = source.d3plus.depth == 2 ? -marker : marker
+        , targetMod = target.d3plus.depth == 2 ? -marker : marker
+        , sourceRadius = direction == "source" && vars.edges.arrows.value
+                       ? source.d3plus.r + sourceMod
+                       : source.d3plus.r
+        , targetRadius = direction == "target" && vars.edges.arrows.value
+                       ? target.d3plus.r + targetMod
+                       : target.d3plus.r
+
+      source.d3plus.dr = sourceRadius
+      target.d3plus.dr = targetRadius
+      console.log(target.id,target.d3plus)
+
+      return true
+
+    }
+
+    return false
+
   })
 
   var splines = vars.g.edges.selectAll("g.d3plus_edge_path")

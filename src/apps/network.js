@@ -103,6 +103,7 @@ d3plus.apps.network.draw = function(vars) {
     l[vars.edges.source].d3plus = {}
 
     var source = lookup[l[vars.edges.source][vars.id.key]]
+    l[vars.edges.source].d3plus.r = source.r
     l[vars.edges.source].d3plus.x = source.x
     l[vars.edges.source].d3plus.y = source.y
 
@@ -110,17 +111,9 @@ d3plus.apps.network.draw = function(vars) {
     l[vars.edges.target].d3plus = {}
 
     var target = lookup[l[vars.edges.target][vars.id.key]]
+    l[vars.edges.target].d3plus.r = target.r
     l[vars.edges.target].d3plus.x = target.x
     l[vars.edges.target].d3plus.y = target.y
-
-    var angle = Math.atan2(source.y-target.y,source.x-target.x)
-
-    var source_offset = d3plus.util.offset(angle,source.r,vars.shape.value)
-    l[vars.edges.source].d3plus.x -= source_offset.x
-    l[vars.edges.source].d3plus.y -= source_offset.y
-    var target_offset = d3plus.util.offset(angle,target.r,vars.shape.value)
-    l[vars.edges.target].d3plus.x += target_offset.x
-    l[vars.edges.target].d3plus.y += target_offset.y
 
   })
 

@@ -26,23 +26,51 @@ d3plus.draw.focus = function(vars) {
 
           if (source == vars.focus.value || target == vars.focus.value) {
             var elem = vars.g.edge_focus.node().appendChild(this.cloneNode(true))
-            var elem = d3.select(elem).datum(l).attr("opacity",1)
+            d3.select(elem).datum(l).attr("opacity",1)
+              .selectAll("line, path").datum(l)
           }
 
         })
 
 
-      var marker = vars.edges.arrows.value ? "url(#d3plus_edge_marker_focus)" : "none"
+      var marker = vars.edges.arrows.value
 
       vars.g.edge_focus.selectAll("line, path")
         .attr("vector-effect","non-scaling-stroke")
         .style("stroke",vars.style.highlight.focus)
-        .style("stroke-width",vars.style.data.stroke.width*2)
-        .attr("marker-start",function(){
-          return vars.edges.arrows.direction.value == "source" ? marker : "none"
+        .style("stroke-width",function(){
+          return vars.edges.size ? d3.select(this).style("stroke-width")
+               : vars.style.data.stroke.width*2
         })
-        .attr("marker-end",function(){
-          return vars.edges.arrows.direction.value == "target" ? marker : "none"
+        .attr("marker-start",function(e){
+
+          var direction = vars.edges.arrows.direction.value
+
+          if ("bucket" in e.d3plus) {
+            var d = "_"+e.d3plus.bucket
+          }
+          else {
+            var d = ""
+          }
+          // console.log(e.d3plus,d)
+          return direction == "source" && marker
+               ? "url(#d3plus_edge_marker_focus"+d+")" : "none"
+
+        })
+        .attr("marker-end",function(e){
+
+          var direction = vars.edges.arrows.direction.value
+
+          if ("bucket" in e.d3plus) {
+            var d = "_"+e.d3plus.bucket
+          }
+          else {
+            var d = ""
+          }
+
+          return direction == "target" && marker
+               ? "url(#d3plus_edge_marker_focus"+d+")" : "none"
+
         })
 
       vars.g.edge_focus.selectAll("text")
