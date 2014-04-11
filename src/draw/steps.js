@@ -350,7 +350,6 @@ d3plus.draw.steps = function(vars) {
       if (vars.update) {
         d3plus.draw.errors(vars)
         d3plus.draw.app(vars)
-        d3plus.shape.edges(vars)
         d3plus.shape.draw(vars)
       }
       d3plus.draw.focus(vars)
