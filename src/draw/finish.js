@@ -48,6 +48,7 @@ d3plus.draw.finish = function(vars) {
   // Create labels
   //----------------------------------------------------------------------------
   if (vars.update) {
+    d3plus.shape.edges(vars)
     if (vars.timing || (!d3plus.apps[vars.type.value].zoom && !vars.timing)) {
       if (vars.dev.value) d3plus.console.time("data labels")
       d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
