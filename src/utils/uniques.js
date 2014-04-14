@@ -2,7 +2,13 @@
 // Returns list of unique values
 //------------------------------------------------------------------------------
 d3plus.util.uniques = function(data,value) {
+
+  if (data === undefined) {
+    return []
+  }
+
   var type = null
+  
   return d3.nest().key(function(d) {
       if (typeof value == "string") {
         if (!type && typeof d[value] !== "undefined") type = typeof d[value]
@@ -27,4 +33,5 @@ d3plus.util.uniques = function(data,value) {
     },[]).sort(function(a,b){
       return a - b
     })
+
 }
