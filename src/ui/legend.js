@@ -55,59 +55,57 @@ d3plus.ui.legend = function(vars) {
           "name": []
         }
 
-        if (vars.depth.value > 0) {
+        var i = vars.depth.value == 0 ? 1 : vars.depth.value+1
+        while (--i >= 0) {
 
-          for (var i = vars.depth.value-1; i >= 0; i--) {
-            var parents = []
-            color_groups[color].forEach(function(c){
-              var val = d3plus.variable.value(vars,c,vars.id.nesting[i])
-              // console.log(c,val,vars.id.nesting[i])
-              if (val && parents.indexOf(val) < 0) parents.push(val)
-            })
+          var nesting = vars.id.nesting[i]
+            , parents = []
 
-            if (parents.length == 1) {
+          color_groups[color].forEach(function(c){
 
-              var name = d3plus.variable.text(vars,parents[0],i)
+            var val = d3plus.variable.value(vars,c,nesting)
 
-              if (name && obj.name.indexOf(name) < 0) {
-                obj.name.push(name)
-              }
-
-              if (!obj.icon) {
-                var icon = d3plus.variable.value(vars,parents[0],vars.icon.key,vars.id.nesting[i])
-                if (icon) {
-                  obj.icon = icon
-                  obj.icon_depth = vars.id.nesting[i]
-                }
-              }
+            if (val && parents.indexOf(val) < 0) {
+              parents.push(val)
             }
-            if (obj.name.length > 0 && obj.icon) {
-              break;
-            }
-          }
 
-        }
-        else {
+          })
 
-          for (d in color_groups[color]) {
+          if (parents.length == 1) {
 
-            var name = d3plus.variable.text(vars,color_groups[color][d],vars.depth.value)
+            var parent = parents[0]
+              , name = d3plus.variable.text(vars,parent,i)
+
             if (name && obj.name.indexOf(name) < 0) {
-              obj.name.push(name)
+              obj.name.push(name.toString())
             }
 
             if (!obj.icon) {
-              var icon = d3plus.variable.value(vars,color_groups[color][d],vars.icon.key)
+              var icon = d3plus.variable.value(vars,parent,vars.icon.key,nesting)
               if (icon) {
                 obj.icon = icon
+                obj.icon_depth = vars.id.nesting[i]
               }
             }
-            if (obj.name.length > 0 && obj.icon) {
-              break;
+
+            if (vars.legend.order.val == "id") {
+              obj.id = parent
             }
+            if (["color","text"].indexOf(vars.legend.order.value) < 0) {
+              var key = vars[vars.legend.order.value].key
+              obj[vars.legend.order.value] = d3plus.variable.value(vars,parent,key,nesting)
+            }
+
+            break;
+
+          }
+
+          if (obj.name.length > 0 && obj.icon) {
+            break;
           }
 
         }
+
         obj.name.sort()
         colors.push(obj)
 
@@ -167,10 +165,16 @@ d3plus.ui.legend = function(vars) {
             else b_value = b_value.h
 
           }
-          else if (vars.legend.order.value == "alpha") {
+          else if (vars.legend.order.value == "text") {
 
             var a_value = a.name[0],
                 b_value = b.name[0]
+
+          }
+          else {
+
+            var a_value = a[vars.legend.order.value]
+              , b_value = b[vars.legend.order.value]
 
           }
 
@@ -293,7 +297,9 @@ d3plus.ui.legend = function(vars) {
               }
               else {
 
-                d3.select(this.parentNode).append("text")
+                var text = d3.select(this.parentNode).append("text")
+
+                text
                   .attr("font-size",vars.style.labels.font.size)
                   .attr("font-weight",vars.style.font.weight)
                   .attr("font-family",vars.style.font.family)
@@ -327,6 +333,10 @@ d3plus.ui.legend = function(vars) {
                       return square_size/2 - w/2
                     })
 
+                if (text.select("tspan").empty()) {
+                  text.remove()
+                }
+
                 return g.color
               }
 
@@ -340,13 +350,11 @@ d3plus.ui.legend = function(vars) {
             .call(style)
 
         if (!d3plus.touch) {
-          
+
           keys
             .on(d3plus.evt.over,function(d,i){
 
-              d3.select(this).style("cursor","pointer")
-
-              if (d.name.length) {
+              if (d.name.length && d3.select(this).select("text").empty()) {
 
                 d3.select(this).style("cursor","pointer")
 

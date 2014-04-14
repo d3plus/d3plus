@@ -68,9 +68,17 @@ d3plus.viz = function() {
     "filtered": false,
     "fonts": {},
     "format": function(value,key) {
-      if (typeof value === "number") return vars.number_format.value(value,key,vars)
-      if (typeof value === "string") return vars.text_format.value(value,key,vars)
-      else return JSON.stringify(value)
+
+      if (typeof value === "number") {
+        return vars.number_format.value(value,key,vars)
+      }
+      if (typeof value === "string") {
+        return vars.text_format.value(value,key,vars)
+      }
+      else {
+        return JSON.stringify(value)
+      }
+
     },
     "frozen": false,
     "g": {"apps":{}},
@@ -444,8 +452,9 @@ d3plus.viz = function() {
         else if (vars[key].value !== undefined) var key_type = "value"
         else var key_type = null
 
-        if ((typeof user == "object" && user !== null && key_type && !user[key_type] && !(Object.keys(user)[0] in vars[key]))
-              || typeof user != "object" || user === null) {
+        if ( ( typeof user == "object" && user !== null && key_type
+                && !user[key_type] && !(Object.keys(user)[0] in vars[key]) )
+             || typeof user != "object" || user === null) {
           set_value(vars[key],key_type,user)
         }
         else if (typeof user == "object") {
