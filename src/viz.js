@@ -190,8 +190,8 @@ d3plus.viz = function() {
               run = "check" in step ? step.check(vars) : true
 
           if (run) {
-
-            if (!same && vars.update) {
+            
+            if (!same && vars.update && (!vars.timing || !vars.init)) {
 
               if (vars.dev.value) {
                 d3plus.console.groupEnd()
