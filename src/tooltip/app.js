@@ -41,8 +41,11 @@ d3plus.tooltip.app = function(params) {
     else if (length == "short" && (vars.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
       var text = "Click for More Info"
     }
-    else {
+    else if (length == "long") {
       var text = vars.footer.value || ""
+    }
+    else {
+      var text = ""
     }
 
     var footer = text.length ? vars.format(text,"footer") : false
