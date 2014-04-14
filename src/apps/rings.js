@@ -291,9 +291,16 @@ d3plus.apps.rings.draw = function(vars) {
 
   }
   else {
+
     var radius = d3.scale.linear()
       .domain([1,2])
       .range([primaryMax,secondaryMax])
+
+
+    if (vars.edges.label) {
+      center.d3plus.r = radius(1)
+    }
+
   }
 
   secondaries.forEach(function(s){
@@ -441,9 +448,9 @@ d3plus.apps.rings.draw = function(vars) {
         }
 
       }
-      else if (vars.size.key) {
+      else if (vars.size.key || vars.edges.label) {
 
-        var height = primaryRing-n.d3plus.r-vars.style.labels.padding*2
+        var height = primaryRing-n.d3plus.r*2-vars.style.labels.padding*2
 
         n.d3plus.label = {
           "x": 0,
