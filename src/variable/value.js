@@ -21,6 +21,14 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
   if (variable && typeof variable == "function") {
     return variable(id)
   }
+  else if (variable == id_var) {
+    if (typeof id == "object") {
+      return id[variable]
+    }
+    else {
+      return id
+    }
+  }
 
   function filter_array(arr) {
     return arr.filter(function(d){
