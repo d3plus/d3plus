@@ -442,7 +442,6 @@ d3plus.shape.edges = function(vars) {
 
       source.d3plus.dr = sourceRadius
       target.d3plus.dr = targetRadius
-      console.log(target.id,target.d3plus)
 
       return true
 
