@@ -298,7 +298,7 @@ d3plus.apps.rings.draw = function(vars) {
 
 
     if (vars.edges.label) {
-      center.d3plus.r = radius(1)
+      center.d3plus.r = radius(1)*1.5
     }
 
   }
