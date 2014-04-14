@@ -218,8 +218,8 @@ d3plus.shape.edges = function(vars) {
       if (angle < -90 || angle > 90) {
         angle -= 180
       }
-
-      if ((length*vars.zoom_behavior.scaleExtent()[0])-m*2 > width) {
+      
+      if (width*vars.zoom_behavior.scaleExtent()[0] > 20) {
 
         d.d3plus_label = {
           "x": x,
