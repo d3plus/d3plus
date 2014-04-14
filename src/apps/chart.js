@@ -221,29 +221,15 @@ d3plus.apps.chart.draw = function(vars) {
         .range([0,range_max])
 
       // set buffer room (take into account largest size var)
-      var continuous_buffer = ["continuous","share"].indexOf(vars[axis].scale.value) >= 0
-      if (["square","circle","donut"].indexOf(vars.shape.value) >= 0 && !continuous_buffer) {
+      var noBuffer = ["continuous","share"].indexOf(vars[axis].scale.value) >= 0
+      if (["square","circle","donut"].indexOf(vars.shape.value) >= 0 && !noBuffer) {
 
-        if (vars[axis].scale.value != "log") {
-
-          var scale = vars[axis+"_scale"]
-          var inverse_scale = d3.scale[s]()
-            .domain(scale.range())
-            .range(scale.domain())
-
-          var largest_size = radius.range()[1]*2
-
-          // convert largest size to x scale domain
-          largest_size = inverse_scale(largest_size)
-
-          // get radius of largest in pixels by subtracting this value from the x scale minimum
-          var buffer = largest_size - scale.domain()[0];
-          buffer = vars.stacked_axis ? 0 : buffer
-          // update x scale with new buffer offsets
-          vars[axis+"_scale"]
-            .domain([scale.domain()[0]-buffer,scale.domain()[1]+buffer])
-
-        }
+        var scale = vars[axis+"_scale"]
+          , largest_size = radius.range()[1]*2
+          , domainHigh = scale.invert(-largest_size)
+          , domainLow= scale.invert(range_max+largest_size)
+            
+        vars[axis+"_scale"].domain([domainHigh,domainLow])
 
       }
 
