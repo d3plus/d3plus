@@ -45,6 +45,9 @@ d3plus.draw.container = function(vars) {
             if (d3.selectAll("body > *:not(script)").size() == 1) {
               d3.select("body").style("overflow","hidden")
             }
+            if (val <= 20) {
+              val = vars[s].small
+            }
             vars[s].value = val
           }
           else {
