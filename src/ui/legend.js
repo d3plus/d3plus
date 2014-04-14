@@ -28,8 +28,8 @@ d3plus.ui.legend = function(vars) {
       var color_groups = {},
           placed = [],
           data = vars.nodes.restricted ? vars.nodes.restricted :
-            vars.nodes.value ? vars.nodes.value : vars.data.pool
-
+            vars.nodes.value ? vars.nodes.value : vars.data.app
+            
       data.forEach(function(d){
         if (placed.indexOf(d[vars.id.key]) < 0) {
 
