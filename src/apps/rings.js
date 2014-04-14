@@ -16,6 +16,10 @@ d3plus.apps.rings.filter = function(vars,data) {
   var connections = primaries.concat(secondaries)
     , ids = d3plus.util.uniques(connections,vars.id.key)
 
+  if (data === undefined) {
+    return ids
+  }
+
   return data.filter(function(d){
 
     return ids.indexOf(d[vars.id.key]) >= 0

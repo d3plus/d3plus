@@ -26,20 +26,31 @@ d3plus.ui.legend = function(vars) {
       if (vars.dev.value) d3plus.console.time("determining color groups")
 
       var color_groups = {},
-          placed = [],
-          data = vars.nodes.restricted ? vars.nodes.restricted :
-            vars.nodes.value ? vars.nodes.value : vars.data.app
-            
-      data.forEach(function(d){
-        if (placed.indexOf(d[vars.id.key]) < 0) {
+          placed = []
 
-          var color = d3plus.variable.color(vars,d[vars.id.key])
+      if (typeof d3plus.apps[vars.type.value].filter == "function") {
+        var data = d3plus.apps[vars.type.value].filter(vars)
+      }
+      else if (vars.nodes.value && d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0) {
+        var data = vars.nodes.restriced || vars.nodes.value
+      }
+      else {
+        var data = vars.data.app
+      }
+
+      data.forEach(function(d){
+
+        var id = typeof d == "object" ? d[vars.id.key] : d
+        if (placed.indexOf(id) < 0) {
+
+          var color = d3plus.variable.color(vars,d)
           if (!color_groups[color]) {
             color_groups[color] = []
           }
           color_groups[color].push(d)
-          placed.push(d[vars.id.key])
+          placed.push(id)
         }
+
       })
 
       if (vars.dev.value) d3plus.console.timeEnd("determining color groups")
@@ -97,6 +108,18 @@ d3plus.ui.legend = function(vars) {
             }
 
             break;
+
+          }
+          else if (i == 0) {
+
+            parents.forEach(function(p){
+
+              var name = d3plus.variable.text(vars,p,i)
+              if (name && obj.name.indexOf(name) < 0) {
+                obj.name.push(name.toString())
+              }
+
+            })
 
           }
 
@@ -309,7 +332,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("y",0)
                   .each(function(t){
 
-                    if (g.name.length == 1) {
+                    if (g.name.length == 1 && g.name[0].length) {
 
                       d3plus.util.wordwrap({
                         "text": g.name[0],
@@ -354,7 +377,7 @@ d3plus.ui.legend = function(vars) {
           keys
             .on(d3plus.evt.over,function(d,i){
 
-              if (d.name.length && d3.select(this).select("text").empty()) {
+              if (d.name.length && (d3.select(this).select("text").empty() || d.name.length > 1)) {
 
                 d3.select(this).style("cursor","pointer")
 
