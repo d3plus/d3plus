@@ -279,12 +279,13 @@ d3plus.draw.steps = function(vars) {
         }
 
         return vars.color.key && vars.color.type == "number" &&
-              vars.data.value && vars.color.key != vars.id.key &&
-                (vars.color.changed || vars.data.changed || vars.depth.changed ||
-                  (vars.time.fixed.value &&
-                    (vars.time.solo.changed || vars.time.mute.changed)
-                  )
-                )
+               vars.id.nesting.indexOf(vars.color.key) < 0 &&
+               vars.data.value && vars.color.key != vars.id.key &&
+                 (vars.color.changed || vars.data.changed || vars.depth.changed ||
+                   (vars.time.fixed.value &&
+                     (vars.time.solo.changed || vars.time.mute.changed)
+                   )
+                 )
 
       },
       "function": d3plus.data.color,
