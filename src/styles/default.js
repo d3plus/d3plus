@@ -110,7 +110,7 @@ d3plus.styles.default = {
     "opacity": 0.75,
     "padding": 10
   },
-  "rendering": "crispEdges",
+  "rendering": "auto",
   "ticks": {
     "color": "#ccc",
     "font": {
