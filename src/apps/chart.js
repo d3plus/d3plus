@@ -294,6 +294,9 @@ d3plus.apps.chart.draw = function(vars) {
         });
 
       if (vars[axis].scale.value == "continuous" && vars.tickValues[axis]) {
+        var ticks = d3.extent(vars.tickValues[axis])
+        vars.tickValues[axis] = d3.range(ticks[0],ticks[1])
+        vars.tickValues[axis].push(ticks[1])
         vars[axis+"_axis"].tickValues(vars.tickValues[axis])
       }
 
@@ -495,8 +498,11 @@ d3plus.apps.chart.draw = function(vars) {
   xaxis.selectAll("path").style("fill","none")
 
   // Update Y Grid
+  var yData = vars.y.scale.value == "continuous"
+            ? vars.y_scale.ticks(vars.tickValues.y.length)
+            : vars.y_scale.ticks()
   var ylines = ygrid.selectAll("line")
-    .data(vars.y_scale.ticks())
+    .data(yData)
 
   ylines.enter().append("line")
     .style("opacity",0)
@@ -513,8 +519,11 @@ d3plus.apps.chart.draw = function(vars) {
     .remove()
 
   // Update X Grid
+  var xData = vars.x.scale.value == "continuous"
+            ? vars.x_scale.ticks(vars.tickValues.x.length)
+            : vars.x_scale.ticks()
   var xlines = xgrid.selectAll("line")
-    .data(vars.x_scale.ticks())
+    .data(xData)
 
   xlines.enter().append("line")
     .style("opacity",0)
