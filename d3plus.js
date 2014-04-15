@@ -3,7 +3,7 @@
 var d3plus = window.d3plus || {};
 window.d3plus = d3plus;
 
-d3plus.version = "1.2.3 - Royal";
+d3plus.version = "1.2.4 - Royal";
 
 d3plus.ie = /*@cc_on!@*/false;
 
@@ -865,9 +865,17 @@ d3plus.viz = function() {
     "filtered": false,
     "fonts": {},
     "format": function(value,key) {
-      if (typeof value === "number") return vars.number_format.value(value,key,vars)
-      if (typeof value === "string") return vars.text_format.value(value,key,vars)
-      else return JSON.stringify(value)
+
+      if (typeof value === "number") {
+        return vars.number_format.value(value,key,vars)
+      }
+      if (typeof value === "string") {
+        return vars.text_format.value(value,key,vars)
+      }
+      else {
+        return JSON.stringify(value)
+      }
+
     },
     "frozen": false,
     "g": {"apps":{}},
@@ -979,8 +987,8 @@ d3plus.viz = function() {
               run = "check" in step ? step.check(vars) : true
 
           if (run) {
-
-            if (!same && vars.update) {
+            
+            if (!same && vars.update && (!vars.timing || !vars.init)) {
 
               if (vars.dev.value) {
                 d3plus.console.groupEnd()
@@ -1241,8 +1249,9 @@ d3plus.viz = function() {
         else if (vars[key].value !== undefined) var key_type = "value"
         else var key_type = null
 
-        if ((typeof user == "object" && user !== null && key_type && !user[key_type] && !(Object.keys(user)[0] in vars[key]))
-              || typeof user != "object" || user === null) {
+        if ( ( typeof user == "object" && user !== null && key_type
+                && !user[key_type] && !(Object.keys(user)[0] in vars[key]) )
+             || typeof user != "object" || user === null) {
           set_value(vars[key],key_type,user)
         }
         else if (typeof user == "object") {
@@ -1661,7 +1670,7 @@ d3plus.public.legend = {
   "accepted": [Boolean],
   "label": null,
   "order": {
-    "accepted": ["alpha","color"],
+    "accepted": ["color","id","size","text"],
     "sort": {
       "accepted": ["asc","desc"],
       "value": "asc"
@@ -2000,7 +2009,7 @@ d3plus.apps.bubbles.draw = function(vars) {
 
   var size = d3.scale[vars.size.scale.value]()
     .domain([domain_min,domain_max])
-    .range([size_min,size_max])
+    .rangeRound([size_min,size_max])
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate bubble packing
@@ -2326,7 +2335,7 @@ d3plus.apps.chart.draw = function(vars) {
 
       var radius = d3.scale[vars.size.scale.value]()
         .domain(size_domain)
-        .range(size_range)
+        .rangeRound(size_range)
 
       if (vars.dev.value) d3plus.console.timeEnd("determining size scale")
 
@@ -2352,32 +2361,18 @@ d3plus.apps.chart.draw = function(vars) {
 
       vars[axis+"_scale"] = d3.scale[s]()
         .domain(vars[axis+"_range"])
-        .range([0,range_max])
+        .rangeRound([0,range_max])
 
       // set buffer room (take into account largest size var)
-      var continuous_buffer = ["continuous","share"].indexOf(vars[axis].scale.value) >= 0
-      if (["square","circle","donut"].indexOf(vars.shape.value) >= 0 && !continuous_buffer) {
+      if (["square","circle","donut"].indexOf(vars.shape.value) >= 0 &&
+          ["share"].indexOf(vars[axis].scale.value) < 0) {
 
-        if (vars[axis].scale.value != "log") {
+        var scale = vars[axis+"_scale"]
+          , largest_size = radius.range()[1]*2
+          , domainHigh = scale.invert(-largest_size)
+          , domainLow= scale.invert(range_max+largest_size)
 
-          var scale = vars[axis+"_scale"]
-          var inverse_scale = d3.scale[s]()
-            .domain(scale.range())
-            .range(scale.domain())
-
-          var largest_size = radius.range()[1]*2
-
-          // convert largest size to x scale domain
-          largest_size = inverse_scale(largest_size)
-
-          // get radius of largest in pixels by subtracting this value from the x scale minimum
-          var buffer = largest_size - scale.domain()[0];
-          buffer = vars.stacked_axis ? 0 : buffer
-          // update x scale with new buffer offsets
-          vars[axis+"_scale"]
-            .domain([scale.domain()[0]-buffer,scale.domain()[1]+buffer])
-
-        }
+        vars[axis+"_scale"].domain([domainHigh,domainLow])
 
       }
 
@@ -2416,11 +2411,11 @@ d3plus.apps.chart.draw = function(vars) {
               var w = this.getBBox().width,
                   h = this.getBBox().height
               d3.select(this).attr("transform","translate(18,8)rotate(70)");
-              var height = (Math.cos(25)*w)+5;
+              var height = Math.ceil((Math.cos(25)*w)+5);
               if (height > graph.yoffset && !vars.small) {
                 graph.yoffset = height;
               }
-              var width = (Math.cos(25)*h)+5;
+              var width = Math.ceil((Math.cos(25)*h)+5);
               if (width > graph.rightoffset && !vars.small) {
                 graph.rightoffset = width;
               }
@@ -2442,6 +2437,9 @@ d3plus.apps.chart.draw = function(vars) {
         });
 
       if (vars[axis].scale.value == "continuous" && vars.tickValues[axis]) {
+        var ticks = d3.extent(vars.tickValues[axis])
+        vars.tickValues[axis] = d3.range(ticks[0],ticks[1])
+        vars.tickValues[axis].push(ticks[1])
         vars[axis+"_axis"].tickValues(vars.tickValues[axis])
       }
 
@@ -2584,7 +2582,7 @@ d3plus.apps.chart.draw = function(vars) {
 
   graph.margin.left += graph.offset
   graph.width -= graph.offset
-  vars.x_scale.range([0,graph.width])
+  vars.x_scale.rangeRound([0,graph.width])
 
   graph.yoffset = 0
   graph.rightoffset = 0
@@ -2594,8 +2592,8 @@ d3plus.apps.chart.draw = function(vars) {
 
   graph.height -= graph.yoffset
   graph.width -= graph.rightoffset
-  vars.x_scale.range([0,graph.width])
-  vars.y_scale.range([0,graph.height])
+  vars.x_scale.rangeRound([0,graph.width])
+  vars.y_scale.rangeRound([0,graph.height])
   yaxis.call(vars.y_axis)
   xaxis.call(vars.x_axis)
 
@@ -2643,8 +2641,11 @@ d3plus.apps.chart.draw = function(vars) {
   xaxis.selectAll("path").style("fill","none")
 
   // Update Y Grid
+  var yData = vars.y.scale.value == "continuous"
+            ? vars.y_scale.ticks(vars.tickValues.y.length)
+            : vars.y_scale.ticks()
   var ylines = ygrid.selectAll("line")
-    .data(vars.y_scale.ticks())
+    .data(yData)
 
   ylines.enter().append("line")
     .style("opacity",0)
@@ -2661,8 +2662,11 @@ d3plus.apps.chart.draw = function(vars) {
     .remove()
 
   // Update X Grid
+  var xData = vars.x.scale.value == "continuous"
+            ? vars.x_scale.ticks(vars.tickValues.x.length)
+            : vars.x_scale.ticks()
   var xlines = xgrid.selectAll("line")
-    .data(vars.x_scale.ticks())
+    .data(xData)
 
   xlines.enter().append("line")
     .style("opacity",0)
@@ -2790,7 +2794,7 @@ d3plus.apps.chart.draw = function(vars) {
   //-------------------------------------------------------------------
 
   if (["line","area"].indexOf(vars.shape.value) >= 0) {
-    radius.range([2,2])
+    radius.rangeRound([2,2])
   }
 
   vars.axis_offset = {
@@ -3338,7 +3342,7 @@ d3plus.apps.network.draw = function(vars) {
   // Create size scale
   var radius = d3.scale[vars.size.scale.value]()
     .domain(val_range)
-    .range([min_size, max_size])
+    .rangeRound([min_size, max_size])
 
   vars.zoom.bounds = [[x_range[0]-max_size*1.1,y_range[0]-max_size*1.1],[x_range[1]+max_size*1.1,y_range[1]+max_size*1.1]]
 
@@ -3417,6 +3421,10 @@ d3plus.apps.rings.filter = function(vars,data) {
 
   var connections = primaries.concat(secondaries)
     , ids = d3plus.util.uniques(connections,vars.id.key)
+
+  if (data === undefined) {
+    return ids
+  }
 
   return data.filter(function(d){
 
@@ -3666,6 +3674,9 @@ d3plus.apps.rings.draw = function(vars) {
     primaryMax = secondaryMax*1.5
   }
 
+  primaryMax = Math.floor(primaryMax)
+  secondaryMax = Math.floor(secondaryMax)
+
   var ids = d3plus.util.uniques(primaries,vars.id.key)
   ids = ids.concat(d3plus.util.uniques(secondaries,vars.id.key))
   ids.push(vars.focus.value)
@@ -3686,16 +3697,23 @@ d3plus.apps.rings.draw = function(vars) {
 
     var radius = d3.scale.linear()
       .domain(domain)
-      .range([3,d3.min([primaryMax,secondaryMax])])
+      .rangeRound([3,d3.min([primaryMax,secondaryMax])])
 
     var val = d3plus.variable.value(vars,center,vars.size.key)
     center.d3plus.r = radius(val)
 
   }
   else {
+
     var radius = d3.scale.linear()
       .domain([1,2])
-      .range([primaryMax,secondaryMax])
+      .rangeRound([primaryMax,secondaryMax])
+
+
+    if (vars.edges.label) {
+      center.d3plus.r = radius(1)*1.5
+    }
+
   }
 
   secondaries.forEach(function(s){
@@ -3843,9 +3861,9 @@ d3plus.apps.rings.draw = function(vars) {
         }
 
       }
-      else if (vars.size.key) {
+      else if (vars.size.key || vars.edges.label) {
 
-        var height = primaryRing-n.d3plus.r-vars.style.labels.padding*2
+        var height = primaryRing-n.d3plus.r*2-vars.style.labels.padding*2
 
         n.d3plus.label = {
           "x": 0,
@@ -4145,7 +4163,7 @@ d3plus.data.color = function(vars) {
         data_range[1] = 0
       }
     }
-    else if (data_range[1] > 0 && data_range[0] > 0) {
+    else if (data_range[1] > 0 && data_range[0] >= 0) {
       var color_range = vars.style.color.heatmap
       data_range = d3plus.util.buckets(data_range,color_range.length)
     }
@@ -5101,22 +5119,26 @@ d3plus.draw.container = function(vars) {
       if (!vars[s].value) {
         function check_parent(element) {
 
-          if (element.tagName == "BODY") {
+          if (element.tagName === undefined || ["BODY","HTML"].indexOf(element.tagName) >= 0) {
             var val = window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
-            if (s == "width") {
-              val -= parseFloat(d3.select(element).style("margin-left"),10)
-              val -= parseFloat(d3.select(element).style("margin-right"),10)
-              val -= parseFloat(d3.select(element).style("padding-left"),10)
-              val -= parseFloat(d3.select(element).style("padding-right"),10)
+              , elem = document != element ? d3.select(element) : null
+            if (elem && s == "width") {
+              val -= parseFloat(elem.style("margin-left"),10)
+              val -= parseFloat(elem.style("margin-right"),10)
+              val -= parseFloat(elem.style("padding-left"),10)
+              val -= parseFloat(elem.style("padding-right"),10)
             }
-            else if (s == "height") {
-              val -= parseFloat(d3.select(element).style("margin-top"),10)
-              val -= parseFloat(d3.select(element).style("margin-bottom"),10)
-              val -= parseFloat(d3.select(element).style("padding-top"),10)
-              val -= parseFloat(d3.select(element).style("padding-bottom"),10)
+            else if (elem && s == "height") {
+              val -= parseFloat(elem.style("margin-top"),10)
+              val -= parseFloat(elem.style("margin-bottom"),10)
+              val -= parseFloat(elem.style("padding-top"),10)
+              val -= parseFloat(elem.style("padding-bottom"),10)
             }
             if (d3.selectAll("body > *:not(script)").size() == 1) {
               d3.select("body").style("overflow","hidden")
+            }
+            if (val <= 20) {
+              val = vars[s].small
             }
             vars[s].value = val
           }
@@ -6022,12 +6044,13 @@ d3plus.draw.steps = function(vars) {
         }
 
         return vars.color.key && vars.color.type == "number" &&
-              vars.data.value && vars.color.key != vars.id.key &&
-                (vars.color.changed || vars.data.changed || vars.depth.changed ||
-                  (vars.time.fixed.value &&
-                    (vars.time.solo.changed || vars.time.mute.changed)
-                  )
-                )
+               vars.id.nesting.indexOf(vars.color.key) < 0 &&
+               vars.data.value && vars.color.key != vars.id.key &&
+                 (vars.color.changed || vars.data.changed || vars.depth.changed ||
+                   (vars.time.fixed.value &&
+                     (vars.time.solo.changed || vars.time.mute.changed)
+                   )
+                 )
 
       },
       "function": d3plus.data.color,
@@ -8431,7 +8454,9 @@ d3plus.shape.draw = function(vars) {
 
           vars.covered = false
 
-          if ((vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value) {
+          if (["area","line"].indexOf(vars.shape.value) >= 0
+            || (d3plus.apps[vars.type.value].tooltip == "follow" &&
+            (vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value)) {
 
             if (vars.continuous_axis) {
 
@@ -8618,7 +8643,7 @@ d3plus.shape.draw = function(vars) {
         else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
           edge_update()
-          
+
           d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)
@@ -8877,8 +8902,8 @@ d3plus.shape.edges = function(vars) {
       if (angle < -90 || angle > 90) {
         angle -= 180
       }
-
-      if ((length*vars.zoom_behavior.scaleExtent()[0])-m*2 > width) {
+      
+      if (width*vars.zoom_behavior.scaleExtent()[0] > 20) {
 
         d.d3plus_label = {
           "x": x,
@@ -9101,7 +9126,6 @@ d3plus.shape.edges = function(vars) {
 
       source.d3plus.dr = sourceRadius
       target.d3plus.dr = targetRadius
-      console.log(target.id,target.d3plus)
 
       return true
 
@@ -10561,7 +10585,7 @@ d3plus.styles.default = {
     "opacity": 0.75,
     "padding": 10
   },
-  "rendering": "crispEdges",
+  "rendering": "auto",
   "ticks": {
     "color": "#ccc",
     "font": {
@@ -10714,8 +10738,11 @@ d3plus.tooltip.app = function(params) {
     else if (length == "short" && (vars.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
       var text = "Click for More Info"
     }
-    else {
+    else if (length == "long") {
       var text = vars.footer.value || ""
+    }
+    else {
+      var text = ""
     }
 
     var footer = text.length ? vars.format(text,"footer") : false
@@ -10800,7 +10827,7 @@ d3plus.tooltip.app = function(params) {
         icon = d3plus.variable.value(vars,d,vars.icon.key,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,depth)
 
-    if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short") || (d.d3plus_label && "visible" in d.d3plus_label && !d.d3plus_label.visible))) {
+    if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && "visible" in d.d3plus_label && !d.d3plus_label.visible))) {
 
       if (!title) {
         title = id
@@ -10857,6 +10884,9 @@ d3plus.tooltip.app = function(params) {
         "y": y
       })
 
+    }
+    else {
+      d3plus.tooltip.remove(tooltip_id)
     }
 
   }
@@ -11921,20 +11951,31 @@ d3plus.ui.legend = function(vars) {
       if (vars.dev.value) d3plus.console.time("determining color groups")
 
       var color_groups = {},
-          placed = [],
-          data = vars.nodes.restricted ? vars.nodes.restricted :
-            vars.nodes.value ? vars.nodes.value : vars.data.pool
+          placed = []
+
+      if (typeof d3plus.apps[vars.type.value].filter == "function") {
+        var data = d3plus.apps[vars.type.value].filter(vars)
+      }
+      else if (vars.nodes.value && d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0) {
+        var data = vars.nodes.restriced || vars.nodes.value
+      }
+      else {
+        var data = vars.data.app
+      }
 
       data.forEach(function(d){
-        if (placed.indexOf(d[vars.id.key]) < 0) {
 
-          var color = d3plus.variable.color(vars,d[vars.id.key])
+        var id = typeof d == "object" ? d[vars.id.key] : d
+        if (placed.indexOf(id) < 0) {
+
+          var color = d3plus.variable.color(vars,d)
           if (!color_groups[color]) {
             color_groups[color] = []
           }
           color_groups[color].push(d)
-          placed.push(d[vars.id.key])
+          placed.push(id)
         }
+
       })
 
       if (vars.dev.value) d3plus.console.timeEnd("determining color groups")
@@ -11950,59 +11991,69 @@ d3plus.ui.legend = function(vars) {
           "name": []
         }
 
-        if (vars.depth.value > 0) {
+        var i = vars.depth.value == 0 ? 1 : vars.depth.value+1
+        while (--i >= 0) {
 
-          for (var i = vars.depth.value-1; i >= 0; i--) {
-            var parents = []
-            color_groups[color].forEach(function(c){
-              var val = d3plus.variable.value(vars,c,vars.id.nesting[i])
-              // console.log(c,val,vars.id.nesting[i])
-              if (val && parents.indexOf(val) < 0) parents.push(val)
-            })
+          var nesting = vars.id.nesting[i]
+            , parents = []
 
-            if (parents.length == 1) {
+          color_groups[color].forEach(function(c){
 
-              var name = d3plus.variable.text(vars,parents[0],i)
+            var val = d3plus.variable.value(vars,c,nesting)
 
-              if (name && obj.name.indexOf(name) < 0) {
-                obj.name.push(name)
-              }
-
-              if (!obj.icon) {
-                var icon = d3plus.variable.value(vars,parents[0],vars.icon.key,vars.id.nesting[i])
-                if (icon) {
-                  obj.icon = icon
-                  obj.icon_depth = vars.id.nesting[i]
-                }
-              }
+            if (val && parents.indexOf(val) < 0) {
+              parents.push(val)
             }
-            if (obj.name.length > 0 && obj.icon) {
-              break;
-            }
-          }
 
-        }
-        else {
+          })
 
-          for (d in color_groups[color]) {
+          if (parents.length == 1) {
 
-            var name = d3plus.variable.text(vars,color_groups[color][d],vars.depth.value)
+            var parent = parents[0]
+              , name = d3plus.variable.text(vars,parent,i)
+
             if (name && obj.name.indexOf(name) < 0) {
-              obj.name.push(name)
+              obj.name.push(name.toString())
             }
 
             if (!obj.icon) {
-              var icon = d3plus.variable.value(vars,color_groups[color][d],vars.icon.key)
+              var icon = d3plus.variable.value(vars,parent,vars.icon.key,nesting)
               if (icon) {
                 obj.icon = icon
+                obj.icon_depth = vars.id.nesting[i]
               }
             }
-            if (obj.name.length > 0 && obj.icon) {
-              break;
+
+            if (vars.legend.order.val == "id") {
+              obj.id = parent
             }
+            if (["color","text"].indexOf(vars.legend.order.value) < 0) {
+              var key = vars[vars.legend.order.value].key
+              obj[vars.legend.order.value] = d3plus.variable.value(vars,parent,key,nesting)
+            }
+
+            break;
+
+          }
+          else if (i == 0) {
+
+            parents.forEach(function(p){
+
+              var name = d3plus.variable.text(vars,p,i)
+              if (name && obj.name.indexOf(name) < 0) {
+                obj.name.push(name.toString())
+              }
+
+            })
+
+          }
+
+          if (obj.name.length > 0 && obj.icon) {
+            break;
           }
 
         }
+
         obj.name.sort()
         colors.push(obj)
 
@@ -12062,10 +12113,16 @@ d3plus.ui.legend = function(vars) {
             else b_value = b_value.h
 
           }
-          else if (vars.legend.order.value == "alpha") {
+          else if (vars.legend.order.value == "text") {
 
             var a_value = a.name[0],
                 b_value = b.name[0]
+
+          }
+          else {
+
+            var a_value = a[vars.legend.order.value]
+              , b_value = b[vars.legend.order.value]
 
           }
 
@@ -12188,7 +12245,9 @@ d3plus.ui.legend = function(vars) {
               }
               else {
 
-                d3.select(this.parentNode).append("text")
+                var text = d3.select(this.parentNode).append("text")
+
+                text
                   .attr("font-size",vars.style.labels.font.size)
                   .attr("font-weight",vars.style.font.weight)
                   .attr("font-family",vars.style.font.family)
@@ -12198,7 +12257,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("y",0)
                   .each(function(t){
 
-                    if (g.name.length == 1) {
+                    if (g.name.length == 1 && g.name[0].length) {
 
                       d3plus.util.wordwrap({
                         "text": g.name[0],
@@ -12222,6 +12281,10 @@ d3plus.ui.legend = function(vars) {
                       return square_size/2 - w/2
                     })
 
+                if (text.select("tspan").empty()) {
+                  text.remove()
+                }
+
                 return g.color
               }
 
@@ -12235,13 +12298,11 @@ d3plus.ui.legend = function(vars) {
             .call(style)
 
         if (!d3plus.touch) {
-          
+
           keys
             .on(d3plus.evt.over,function(d,i){
 
-              d3.select(this).style("cursor","pointer")
-
-              if (d.name.length) {
+              if (d.name.length && (d3.select(this).select("text").empty() || d.name.length > 1)) {
 
                 d3.select(this).style("cursor","pointer")
 
@@ -12949,7 +13010,7 @@ d3plus.ui.timeline = function(vars) {
 
     var x = d3.time.scale()
       .domain(d3.extent(year_ticks))
-      .range([0,timeline_width])
+      .rangeRound([0,timeline_width])
 
     var brush = d3.svg.brush()
       .x(x)
@@ -13663,7 +13724,13 @@ d3plus.util.strip = function(str) {
 // Returns list of unique values
 //------------------------------------------------------------------------------
 d3plus.util.uniques = function(data,value) {
+
+  if (data === undefined) {
+    return []
+  }
+
   var type = null
+  
   return d3.nest().key(function(d) {
       if (typeof value == "string") {
         if (!type && typeof d[value] !== "undefined") type = typeof d[value]
@@ -13688,6 +13755,7 @@ d3plus.util.uniques = function(data,value) {
     },[]).sort(function(a,b){
       return a - b
     })
+
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -13966,6 +14034,14 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
 
   if (variable && typeof variable == "function") {
     return variable(id)
+  }
+  else if (variable == id_var) {
+    if (typeof id == "object") {
+      return id[variable]
+    }
+    else {
+      return id
+    }
   }
 
   function filter_array(arr) {
