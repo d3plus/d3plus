@@ -192,7 +192,7 @@ d3plus.apps.chart.draw = function(vars) {
 
       var radius = d3.scale[vars.size.scale.value]()
         .domain(size_domain)
-        .range(size_range)
+        .rangeRound(size_range)
 
       if (vars.dev.value) d3plus.console.timeEnd("determining size scale")
 
@@ -218,7 +218,7 @@ d3plus.apps.chart.draw = function(vars) {
 
       vars[axis+"_scale"] = d3.scale[s]()
         .domain(vars[axis+"_range"])
-        .range([0,range_max])
+        .rangeRound([0,range_max])
 
       // set buffer room (take into account largest size var)
       var noBuffer = ["continuous","share"].indexOf(vars[axis].scale.value) >= 0
@@ -228,7 +228,7 @@ d3plus.apps.chart.draw = function(vars) {
           , largest_size = radius.range()[1]*2
           , domainHigh = scale.invert(-largest_size)
           , domainLow= scale.invert(range_max+largest_size)
-            
+
         vars[axis+"_scale"].domain([domainHigh,domainLow])
 
       }
@@ -268,11 +268,11 @@ d3plus.apps.chart.draw = function(vars) {
               var w = this.getBBox().width,
                   h = this.getBBox().height
               d3.select(this).attr("transform","translate(18,8)rotate(70)");
-              var height = (Math.cos(25)*w)+5;
+              var height = Math.ceil((Math.cos(25)*w)+5);
               if (height > graph.yoffset && !vars.small) {
                 graph.yoffset = height;
               }
-              var width = (Math.cos(25)*h)+5;
+              var width = Math.ceil((Math.cos(25)*h)+5);
               if (width > graph.rightoffset && !vars.small) {
                 graph.rightoffset = width;
               }
@@ -436,7 +436,7 @@ d3plus.apps.chart.draw = function(vars) {
 
   graph.margin.left += graph.offset
   graph.width -= graph.offset
-  vars.x_scale.range([0,graph.width])
+  vars.x_scale.rangeRound([0,graph.width])
 
   graph.yoffset = 0
   graph.rightoffset = 0
@@ -446,8 +446,8 @@ d3plus.apps.chart.draw = function(vars) {
 
   graph.height -= graph.yoffset
   graph.width -= graph.rightoffset
-  vars.x_scale.range([0,graph.width])
-  vars.y_scale.range([0,graph.height])
+  vars.x_scale.rangeRound([0,graph.width])
+  vars.y_scale.rangeRound([0,graph.height])
   yaxis.call(vars.y_axis)
   xaxis.call(vars.x_axis)
 
@@ -642,7 +642,7 @@ d3plus.apps.chart.draw = function(vars) {
   //-------------------------------------------------------------------
 
   if (["line","area"].indexOf(vars.shape.value) >= 0) {
-    radius.range([2,2])
+    radius.rangeRound([2,2])
   }
 
   vars.axis_offset = {

@@ -240,7 +240,7 @@ d3plus.ui.timeline = function(vars) {
 
     var x = d3.time.scale()
       .domain(d3.extent(year_ticks))
-      .range([0,timeline_width])
+      .rangeRound([0,timeline_width])
 
     var brush = d3.svg.brush()
       .x(x)

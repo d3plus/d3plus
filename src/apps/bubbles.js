@@ -68,7 +68,7 @@ d3plus.apps.bubbles.draw = function(vars) {
 
   var size = d3.scale[vars.size.scale.value]()
     .domain([domain_min,domain_max])
-    .range([size_min,size_max])
+    .rangeRound([size_min,size_max])
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate bubble packing

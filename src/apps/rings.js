@@ -268,6 +268,9 @@ d3plus.apps.rings.draw = function(vars) {
     primaryMax = secondaryMax*1.5
   }
 
+  primaryMax = Math.floor(primaryMax)
+  secondaryMax = Math.floor(secondaryMax)
+
   var ids = d3plus.util.uniques(primaries,vars.id.key)
   ids = ids.concat(d3plus.util.uniques(secondaries,vars.id.key))
   ids.push(vars.focus.value)
@@ -288,7 +291,7 @@ d3plus.apps.rings.draw = function(vars) {
 
     var radius = d3.scale.linear()
       .domain(domain)
-      .range([3,d3.min([primaryMax,secondaryMax])])
+      .rangeRound([3,d3.min([primaryMax,secondaryMax])])
 
     var val = d3plus.variable.value(vars,center,vars.size.key)
     center.d3plus.r = radius(val)
@@ -298,7 +301,7 @@ d3plus.apps.rings.draw = function(vars) {
 
     var radius = d3.scale.linear()
       .domain([1,2])
-      .range([primaryMax,secondaryMax])
+      .rangeRound([primaryMax,secondaryMax])
 
 
     if (vars.edges.label) {
