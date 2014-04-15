@@ -423,7 +423,9 @@ d3plus.shape.draw = function(vars) {
 
           vars.covered = false
 
-          if ((vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value) {
+          if (["area","line"].indexOf(vars.shape.value) >= 0
+            || (d3plus.apps[vars.type.value].tooltip == "follow" &&
+            (vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value)) {
 
             if (vars.continuous_axis) {
 
@@ -610,7 +612,7 @@ d3plus.shape.draw = function(vars) {
         else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
 
           edge_update()
-          
+
           d3.select(this)
             .transition().duration(vars.style.timing.mouseevents)
             .call(transform)
