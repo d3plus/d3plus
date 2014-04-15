@@ -221,8 +221,8 @@ d3plus.apps.chart.draw = function(vars) {
         .rangeRound([0,range_max])
 
       // set buffer room (take into account largest size var)
-      var noBuffer = ["continuous","share"].indexOf(vars[axis].scale.value) >= 0
-      if (["square","circle","donut"].indexOf(vars.shape.value) >= 0 && !noBuffer) {
+      if (["square","circle","donut"].indexOf(vars.shape.value) >= 0 &&
+          ["share"].indexOf(vars[axis].scale.value) < 0) {
 
         var scale = vars[axis+"_scale"]
           , largest_size = radius.range()[1]*2
