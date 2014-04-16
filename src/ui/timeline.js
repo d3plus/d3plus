@@ -103,6 +103,8 @@ d3plus.ui.timeline = function(vars) {
 
     background.enter().append("rect")
       .attr("class","d3plus_timeline_background")
+      .attr("opacity",0)
+      .attr("fill",vars.style.timeline.background)
 
     var ticks = vars.g.timeline.selectAll("g#ticks")
       .data(["ticks"])
@@ -232,6 +234,7 @@ d3plus.ui.timeline = function(vars) {
       .remove()
 
     background.transition().duration(vars.style.timing.transitions)
+      .attr("opacity",1)
       .attr("width",timeline_width)
       .attr("height",vars.style.timeline.height)
       .attr("x",start_x)
@@ -275,20 +278,20 @@ d3plus.ui.timeline = function(vars) {
       .attr("height",vars.style.timeline.height)
 
     brush_group.selectAll("rect.background")
-      .transition().duration(vars.style.timing.transitions)
-      .attr("stroke",vars.style.timeline.tick.color)
-      .attr("stroke-width",1)
-      .style("visibility","visible")
       .attr("fill","none")
-      .attr("shape-rendering",vars.style.rendering)
+      .attr("stroke-width",1)
+      .attr("stroke",vars.style.timeline.tick.color)
+      .style("visibility","visible")
+      .transition().duration(vars.style.timing.transitions)
+        .attr("shape-rendering",vars.style.rendering)
 
     brush_group.selectAll("rect.extent")
-      .transition().duration(vars.style.timing.transitions)
-      .attr("fill",vars.style.timeline.brush.color)
-      .attr("fill-opacity",vars.style.timeline.brush.opacity)
-      .attr("stroke",vars.style.timeline.tick.color)
       .attr("stroke-width",1)
-      .attr("shape-rendering",vars.style.rendering)
+      .transition().duration(vars.style.timing.transitions)
+        .attr("fill",vars.style.timeline.brush.color)
+        .attr("fill-opacity",vars.style.timeline.brush.opacity)
+        .attr("stroke",vars.style.timeline.tick.color)
+        .attr("shape-rendering",vars.style.rendering)
 
     if (vars.timeline.handles.value) {
 
