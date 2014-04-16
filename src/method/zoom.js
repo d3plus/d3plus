@@ -1,5 +1,6 @@
 d3plus.method.zoom = {
   "accepted": [Boolean],
+  "behavior": d3.behavior.zoom().scaleExtent([1,1]),
   "click": {
     "accepted": [Boolean],
     "value": true

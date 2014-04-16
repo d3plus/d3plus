@@ -86,7 +86,7 @@ d3plus.ui.history = function(vars) {
       })
       .on(d3plus.evt.click,function(){
 
-        vars.back()
+        vars.history.back()
 
       })
       .transition().duration(vars.style.timing.transitions)

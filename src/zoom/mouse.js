@@ -25,7 +25,7 @@ d3plus.zoom.mouse = function(vars) {
     translate[1] = ymax-(limits[1][1]*scale)
   }
 
-  vars.zoom_behavior.translate(translate).scale(scale)
+  vars.zoom.behavior.translate(translate).scale(scale)
 
   vars.zoom.translate = translate
   vars.zoom.scale = scale

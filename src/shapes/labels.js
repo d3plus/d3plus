@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.shape.labels = function(vars,selection) {
 
-  var scale = vars.zoom_behavior.scaleExtent()
+  var scale = vars.zoom.behavior.scaleExtent()
 
   var opacity = function(elem) {
 

@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.zoom.labels = function(vars) {
 
-  var max_scale = vars.zoom_behavior.scaleExtent()[1]
+  var max_scale = vars.zoom.behavior.scaleExtent()[1]
 
   if (vars.dev.value) d3plus.console.time("determining label visibility")
 

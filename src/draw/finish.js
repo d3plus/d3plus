@@ -169,7 +169,7 @@ d3plus.draw.finish = function(vars) {
     if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
       vars.g.zoom
         .datum(vars)
-        .call(vars.zoom_behavior.on("zoom",d3plus.zoom.mouse))
+        .call(vars.zoom.behavior.on("zoom",d3plus.zoom.mouse))
       if (!vars.zoom.scroll.value) {
         vars.g.zoom.on("wheel.zoom",null)
       }
@@ -183,7 +183,7 @@ d3plus.draw.finish = function(vars) {
     }
     else {
       vars.g.zoom
-        .call(vars.zoom_behavior.on("zoom",null))
+        .call(vars.zoom.behavior.on("zoom",null))
     }
 
   },vars.timing)

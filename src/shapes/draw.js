@@ -606,7 +606,7 @@ d3plus.shape.draw = function(vars) {
         }
         else if (depth_delta === -1 && vars.zoom.value) {
 
-          vars.back()
+          vars.history.back()
 
         }
         else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {

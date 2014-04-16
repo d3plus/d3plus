@@ -25,13 +25,13 @@ d3plus.zoom.bounds = function(vars,b,timing) {
 
   var scale = ((min-(vars.coords.padding*2)) / min) / aspect
 
-  var extent = vars.zoom_behavior.scaleExtent()
+  var extent = vars.zoom.behavior.scaleExtent()
 
   if (extent[0] == extent[1] || b == vars.zoom.bounds) {
-    vars.zoom_behavior.scaleExtent([scale,scale*16])
+    vars.zoom.behavior.scaleExtent([scale,scale*16])
   }
 
-  var max_scale = vars.zoom_behavior.scaleExtent()[1]
+  var max_scale = vars.zoom.behavior.scaleExtent()[1]
   if (scale > max_scale) {
     scale = max_scale
   }
@@ -43,7 +43,7 @@ d3plus.zoom.bounds = function(vars,b,timing) {
   translate[1] = vars.app_height/2-(vars.zoom.size.height*scale)/2-(b[0][1]*scale)
 
   vars.zoom.translate = translate
-  vars.zoom_behavior.translate(translate).scale(scale)
+  vars.zoom.behavior.translate(translate).scale(scale)
 
   vars.zoom.size = {
     "height": vars.zoom.bounds[1][1]-vars.zoom.bounds[0][1],

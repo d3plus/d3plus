@@ -4,7 +4,7 @@
 d3plus.shape.edges = function(vars) {
 
   var edges = vars.returned.edges || [],
-      scale = vars.zoom_behavior.scaleExtent()[0]
+      scale = vars.zoom.behavior.scaleExtent()[0]
 
   if (typeof vars.edges.size === "string") {
 
@@ -211,7 +211,7 @@ d3plus.shape.edges = function(vars) {
       var m = 0
       if (vars.edges.arrows.value) {
         m = vars.style.edges.arrows
-        m = m/vars.zoom_behavior.scaleExtent()[1]
+        m = m/vars.zoom.behavior.scaleExtent()[1]
         width -= m*2
       }
 
@@ -219,7 +219,7 @@ d3plus.shape.edges = function(vars) {
         angle -= 180
       }
       
-      if (width*vars.zoom_behavior.scaleExtent()[0] > 20) {
+      if (width*vars.zoom.behavior.scaleExtent()[0] > 20) {
 
         d.d3plus_label = {
           "x": x,

@@ -5,18 +5,6 @@ d3plus.viz = function() {
   //-------------------------------------------------------------------
 
   var vars = {
-    "back": function() {
-
-      if (vars.history.states.length > 0) {
-
-        var func = vars.history.states.pop()
-        if (typeof func === "function") {
-          func()
-        }
-
-      }
-
-    },
     "connected": function(edge) {
       var focus = vars.focus.value
       if (focus) {
@@ -89,7 +77,7 @@ d3plus.viz = function() {
     "style": d3plus.styles.default,
     "timing": d3plus.styles.default.timing.transitions,
     "touchEvent": function(){
-      var zoomed = vars.zoom.scale > vars.zoom_behavior.scaleExtent()[0]
+      var zoomed = vars.zoom.scale > vars.zoom.behavior.scaleExtent()[0]
         , enabled = d3plus.apps[vars.type.value].zoom
                   && vars.zoom.value && vars.zoom.scroll.value
         , zoomable = d3.event.touches.length > 1 && enabled
@@ -98,7 +86,6 @@ d3plus.viz = function() {
       }
     },
     "update": true,
-    "zoom_behavior": d3.behavior.zoom().scaleExtent([1,1]),
     "zoom_direction": function() {
 
       var max_depth = vars.id.nesting.length-1,
