@@ -14,7 +14,7 @@ d3plus.forms = function(passed) {
     "enabled": false,
     "filter": "",
     "flipped": false,
-    "format": d3plus.public.text_format.value,
+    "format": d3plus.method.text_format.value,
     "highlight": false,
     "hover": false,
     "id": "default",

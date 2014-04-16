@@ -15,7 +15,6 @@ var files = [ "src/begin.js"
             , "src/console.js"
             , "src/forms.js"
             , "src/viz.js"
-            , "src/public.js"
             , "src/**/*.js"
             , "src/end.js" ]
 

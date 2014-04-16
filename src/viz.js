@@ -398,10 +398,10 @@ d3plus.viz = function() {
     return vars.viz;
   };
 
-  Object.keys(d3plus.public).forEach(function(p){
+  Object.keys(d3plus.method).forEach(function(p){
 
     // give default values to this .viz()
-    vars[p] = d3plus.util.copy(d3plus.public[p])
+    vars[p] = d3plus.util.copy(d3plus.method[p])
 
     // detect available app types
     if (p == "type") {

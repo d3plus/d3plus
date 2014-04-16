@@ -3,7 +3,6 @@ src/begin.js \
 src/general.js \
 src/forms.js \
 src/viz.js \
-src/public.js \
 $(wildcard src/**/*.js) \
 src/end.js \
 
