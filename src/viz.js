@@ -20,8 +20,8 @@ d3plus.viz = function() {
     "connected": function(edge) {
       var focus = vars.focus.value
       if (focus) {
-        var source = edge[vars.edges.source][vars.id.key],
-            target = edge[vars.edges.target][vars.id.key]
+        var source = edge[vars.edges.source][vars.id.value],
+            target = edge[vars.edges.target][vars.id.value]
         if (source == focus || target == focus) {
           return true
         }
@@ -45,13 +45,13 @@ d3plus.viz = function() {
 
         var match = false
 
-        if (edge[vars.edges.source][vars.id.key] == focus) {
+        if (edge[vars.edges.source][vars.id.value] == focus) {
           match = true
           if (objects) {
             targets.push(edge[vars.edges.target])
           }
         }
-        else if (edge[vars.edges.target][vars.id.key] == focus) {
+        else if (edge[vars.edges.target][vars.id.value] == focus) {
           match = true
           if (objects) {
             targets.push(edge[vars.edges.source])
@@ -190,7 +190,7 @@ d3plus.viz = function() {
               run = "check" in step ? step.check(vars) : true
 
           if (run) {
-            
+
             if (!same && vars.update && (!vars.timing || !vars.init)) {
 
               if (vars.dev.value) {
@@ -272,10 +272,10 @@ d3plus.viz = function() {
     title = d3plus.util.strip(title)
 
     if (!columns) {
-      var columns = [vars.id.key]
-      if (vars.time.key) columns.push(vars.time.key)
-      if (vars.size.key) columns.push(vars.size.key)
-      if (vars.text.key) columns.push(vars.text.key)
+      var columns = [vars.id.value]
+      if (vars.time.value) columns.push(vars.time.value)
+      if (vars.size.value) columns.push(vars.size.value)
+      if (vars.text.value) columns.push(vars.text.value)
     }
 
     columns.forEach(function(c){
@@ -447,15 +447,10 @@ d3plus.viz = function() {
           vars[key].callback = callback
         }
 
-        // determine default key type, if available
-        if (vars[key].key !== undefined) var key_type = "key"
-        else if (vars[key].value !== undefined) var key_type = "value"
-        else var key_type = null
-
-        if ( ( typeof user == "object" && user !== null && key_type
-                && !user[key_type] && !(Object.keys(user)[0] in vars[key]) )
+        if ( ( typeof user == "object" && user !== null
+                && !("value" in user) && !(Object.keys(user)[0] in vars[key]) )
              || typeof user != "object" || user === null) {
-          set_value(vars[key],key_type,user)
+          set_value(vars[key],"value",user)
         }
         else if (typeof user == "object") {
           check_object(vars,key,user)
@@ -472,21 +467,11 @@ d3plus.viz = function() {
           else {
             if (typeof depth == "object" && !(depth instanceof Array)) {
 
-              if (typeof object[property] == "object" && object[property] !== null) {
-                if (object[property].key !== undefined) var key_type = "key"
-                else if (object[property].value !== undefined) var key_type = "value"
-                else var key_type = null
-              }
-              else var key_type = null
-
-              if (property == key_type) {
-                set_value(object,key_type,depth)
-              }
-              else if (["key","value"].indexOf(property) >= 0) {
+              if (property == "value") {
                 set_value(object,property,depth)
               }
               else if (typeof object[property] == "object" && object[property] !== null && object[property].object === true) {
-                set_value(object[property],key_type,depth)
+                set_value(object[property],"value",depth)
               }
               else {
 
@@ -538,14 +523,14 @@ d3plus.viz = function() {
 
           }
 
-          if (b == "value" || b == "key" || !b) {
+          if (b == "value" || !b) {
             var text = "\."+key+"()"
           }
           else {
             var text = "\""+b+"\" of \."+key+"()"
           }
 
-          if ((b == "value" || b == "key") && a.accepted) {
+          if (b == "value" && a.accepted) {
             var accepted = a.accepted
           }
           else if (typeof a[b] == "object" && a[b] !== null && a[b].accepted) {
@@ -574,7 +559,7 @@ d3plus.viz = function() {
           if (accepted && !allowed) {
             d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+recs.join("\", \"")+"\"")
           }
-          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].key === c || a[b].value === c))) {
+          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].value === c || a[b].value === c))) {
             if (vars.dev.value) d3plus.console.log(text+" was not updated because it did not change.")
           }
           else {
@@ -594,39 +579,39 @@ d3plus.viz = function() {
               }
 
             }
-            else if (key == "id" && b == "key") {
+            else if (key == "id" && b == "value") {
 
               if (c instanceof Array) {
                 vars.id.nesting = c
-                if (vars.depth.value < c.length) vars.id.key = c[vars.depth.value]
+                if (vars.depth.value < c.length) vars.id.value = c[vars.depth.value]
                 else {
-                  vars.id.key = c[0]
+                  vars.id.value = c[0]
                   vars.depth.value = 0
                 }
               }
               else {
-                vars.id.key = c
+                vars.id.value = c
                 vars.id.nesting = [c]
                 vars.depth.value = 0
               }
               a.changed = true
 
             }
-            else if (key == "text" && b == "key") {
+            else if (key == "text" && b == "value") {
 
               if (!vars.text.array) vars.text.array = {}
               if (typeof c == "string") {
-                vars.text.array[vars.id.key] = [c]
+                vars.text.array[vars.id.value] = [c]
               }
               else if (c instanceof Array) {
-                vars.text.array[vars.id.key] = c
+                vars.text.array[vars.id.value] = c
               }
               else {
                 vars.text.array = c
-                var n = c[vars.id.key] ? c[vars.id.key] : c[Object.keys(c)[0]]
-                vars.text.array[vars.id.key] = typeof n == "string" ? [n] : n
+                var n = c[vars.id.value] ? c[vars.id.value] : c[Object.keys(c)[0]]
+                vars.text.array[vars.id.value] = typeof n == "string" ? [n] : n
               }
-              vars.text.key = vars.text.array[vars.id.key][0]
+              vars.text.value = vars.text.array[vars.id.value][0]
               a.changed = true
 
             }
@@ -635,15 +620,15 @@ d3plus.viz = function() {
               if (c >= vars.id.nesting.length) vars.depth.value = vars.id.nesting.length-1
               else if (c < 0) vars.depth.value = 0
               else vars.depth.value = c;
-              vars.id.key = vars.id.nesting[vars.depth.value]
+              vars.id.value = vars.id.nesting[vars.depth.value]
 
               if (vars.text.array) {
 
                 // Set appropriate name_array and text
-                var n = vars.text.array[vars.id.key]
+                var n = vars.text.array[vars.id.value]
                 if (n) {
-                  vars.text.array[vars.id.key] = typeof n == "string" ? [n] : n
-                  vars.text.key = vars.text.array[vars.id.key][0]
+                  vars.text.array[vars.id.value] = typeof n == "string" ? [n] : n
+                  vars.text.value = vars.text.array[vars.id.value][0]
                 }
 
               }
@@ -662,10 +647,9 @@ d3plus.viz = function() {
               }
             }
             else {
-              if (typeof a[b] == "object" && a[b] != null && (a[b].key !== undefined || a[b].value !== undefined)) {
-                var k = a[b].key !== undefined ? "key" : "value";
+              if (typeof a[b] == "object" && a[b] != null && a[b].value !== undefined) {
                 a = a[b]
-                b = k
+                b = "value"
               }
               a.previous = a[b]
               a[b] = c

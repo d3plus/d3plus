@@ -102,7 +102,7 @@ d3plus.data.fetch = function(vars,format,years) {
 
     var separated = false
     vars.axes.values.forEach(function(a){
-      if (vars[a].key == vars.time.key && vars[a].scale.value == "continuous") {
+      if (vars[a].value == vars.time.value && vars[a].scale.value == "continuous") {
         separated = true
       }
     })

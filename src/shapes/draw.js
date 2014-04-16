@@ -56,7 +56,7 @@ d3plus.shape.draw = function(vars) {
 
     vars.axes.values.forEach(function(axis){
       if (vars[axis].scale.value == "continuous") {
-        d.d3plus.id += "_"+d3plus.variable.value(vars,d,vars[axis].key)
+        d.d3plus.id += "_"+d3plus.variable.value(vars,d,vars[axis].value)
       }
     })
 
@@ -197,9 +197,9 @@ d3plus.shape.draw = function(vars) {
             if (!d.d3plus.a) {
 
               d.d3plus.a = {"donut": Math.PI*2}
-              var active = vars.active.key ? d.d3plus[vars.active.key] : d.d3plus.active,
-                  temp = vars.temp.key ? d.d3plus[vars.temp.key] : d.d3plus.temp,
-                  total = vars.total.key ? d.d3plus[vars.total.key] : d.d3plus.total
+              var active = vars.active.value ? d.d3plus[vars.active.value] : d.d3plus.active,
+                  temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
+                  total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total
 
               if (total) {
                 if (active) {
@@ -299,9 +299,9 @@ d3plus.shape.draw = function(vars) {
       vars.g.edges.selectAll("g")
         .each(function(l){
 
-          var id = d[vars.id.key],
-              source = l[vars.edges.source][vars.id.key],
-              target = l[vars.edges.target][vars.id.key]
+          var id = d[vars.id.value],
+              source = l[vars.edges.source][vars.id.value],
+              target = l[vars.edges.target][vars.id.value]
 
           if (source == id || target == id) {
             var elem = vars.g.edge_hover.node().appendChild(this.cloneNode(true))
@@ -425,7 +425,7 @@ d3plus.shape.draw = function(vars) {
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
             || (d3plus.apps[vars.type.value].tooltip == "follow" &&
-            (vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value)) {
+            (vars.focus.value != d[vars.id.value]) || !vars.focus.tooltip.value)) {
 
             if (vars.continuous_axis) {
 
@@ -466,7 +466,7 @@ d3plus.shape.draw = function(vars) {
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
             || (d3plus.apps[vars.type.value].tooltip == "follow" &&
-            (vars.focus.value != d[vars.id.key]) || !vars.focus.tooltip.value)) {
+            (vars.focus.value != d[vars.id.value]) || !vars.focus.tooltip.value)) {
 
             if (vars.continuous_axis) {
 
@@ -583,7 +583,7 @@ d3plus.shape.draw = function(vars) {
         }
         else if (depth_delta === 1 && vars.zoom.value) {
 
-          var id = d3plus.variable.value(vars,d,vars.id.key)
+          var id = d3plus.variable.value(vars,d,vars.id.value)
 
           vars.history.states.push(function(){
 
@@ -624,15 +624,15 @@ d3plus.shape.draw = function(vars) {
           d3plus.tooltip.remove(vars.type.value)
           vars.update = false
 
-          if (!d || d[vars.id.key] == vars.focus.value) {
+          if (!d || d[vars.id.value] == vars.focus.value) {
             vars.viz.focus(null).draw()
           }
           else {
-            vars.viz.focus(d[vars.id.key]).draw()
+            vars.viz.focus(d[vars.id.value]).draw()
           }
 
         }
-        else if (d[vars.id.key] != vars.focus.value) {
+        else if (d[vars.id.value] != vars.focus.value) {
 
           edge_update()
 

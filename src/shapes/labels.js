@@ -238,9 +238,9 @@ d3plus.shape.labels = function(vars,selection) {
           var background = true
         }
         else if (d && "d3plus" in d) {
-          var active = vars.active.key ? d.d3plus[vars.active.key] : d.d3plus.active,
-              temp = vars.temp.key ? d.d3plus[vars.temp.key] : d.d3plus.temp,
-              total = vars.total.key ? d.d3plus[vars.total.key] : d.d3plus.total,
+          var active = vars.active.value ? d.d3plus[vars.active.value] : d.d3plus.active,
+              temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
+              total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total,
               background = (!temp && !active) || (active == total)
         }
 

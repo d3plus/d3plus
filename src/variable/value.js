@@ -5,8 +5,8 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
 
   if (!id_var) {
     if (variable && typeof variable == "object") {
-      if (variable[vars.id.key]) {
-        var id_var = vars.id.key
+      if (variable[vars.id.value]) {
+        var id_var = vars.id.value
       }
       else {
         var id_var = Object.keys(variable)[0]
@@ -14,7 +14,7 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
       variable = variable[id_var]
     }
     else {
-      var id_var = vars.id.key
+      var id_var = vars.id.value
     }
   }
 

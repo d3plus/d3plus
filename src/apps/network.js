@@ -18,7 +18,7 @@ d3plus.apps.network.draw = function(vars) {
       y_range = d3.extent(nodes,function(n){return n.y})
 
   var val_range = d3.extent(nodes, function(d){
-    var val = d3plus.variable.value(vars,d,vars.size.key)
+    var val = d3plus.variable.value(vars,d,vars.size.value)
     return val == 0 ? null : val
   });
 
@@ -70,7 +70,7 @@ d3plus.apps.network.draw = function(vars) {
   nodes.forEach(function(n){
 
     var d = vars.data.app.filter(function(a){
-      return a[vars.id.key] == n[vars.id.key]
+      return a[vars.id.value] == n[vars.id.value]
     })[0]
 
     if (d) {
@@ -83,9 +83,9 @@ d3plus.apps.network.draw = function(vars) {
     obj.d3plus = {}
     obj.d3plus.x = n.x
     obj.d3plus.y = n.y
-    var val = d3plus.variable.value(vars,obj,vars.size.key)
+    var val = d3plus.variable.value(vars,obj,vars.size.value)
     obj.d3plus.r = val ? radius(val) : radius.range()[0]
-    lookup[obj[vars.id.key]] = {
+    lookup[obj[vars.id.value]] = {
       "x": obj.d3plus.x,
       "y": obj.d3plus.y,
       "r": obj.d3plus.r
@@ -102,7 +102,7 @@ d3plus.apps.network.draw = function(vars) {
     l[vars.edges.source] = d3plus.util.copy(l[vars.edges.source])
     l[vars.edges.source].d3plus = {}
 
-    var source = lookup[l[vars.edges.source][vars.id.key]]
+    var source = lookup[l[vars.edges.source][vars.id.value]]
     l[vars.edges.source].d3plus.r = source.r
     l[vars.edges.source].d3plus.x = source.x
     l[vars.edges.source].d3plus.y = source.y
@@ -110,7 +110,7 @@ d3plus.apps.network.draw = function(vars) {
     l[vars.edges.target] = d3plus.util.copy(l[vars.edges.target])
     l[vars.edges.target].d3plus = {}
 
-    var target = lookup[l[vars.edges.target][vars.id.key]]
+    var target = lookup[l[vars.edges.target][vars.id.value]]
     l[vars.edges.target].d3plus.r = target.r
     l[vars.edges.target].d3plus.x = target.x
     l[vars.edges.target].d3plus.y = target.y

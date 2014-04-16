@@ -12,12 +12,12 @@ d3plus.apps.stacked.setup = function(vars) {
   vars.x.zerofill.value = true
   if (vars.dev.value) console.log("\"x\" zerofill set to \"true\"")
   vars.y.stacked.value = true
-  if ((!vars.y.key && vars.size.key) || (vars.size.changed && vars.size.previous == vars.y.key)) {
-    vars.y.key = vars.size.key
+  if ((!vars.y.value && vars.size.value) || (vars.size.changed && vars.size.previous == vars.y.value)) {
+    vars.y.value = vars.size.value
     vars.y.changed = true
   }
-  else if ((!vars.size.key && vars.y.key) || (vars.y.changed && vars.y.previous == vars.size.key)) {
-    vars.size.key = vars.y.key
+  else if ((!vars.size.value && vars.y.value) || (vars.y.changed && vars.y.previous == vars.size.value)) {
+    vars.size.value = vars.y.value
     vars.size.changed = true
   }
   if (vars.dev.value) console.log("\"y\" stacked set to \"true\"")
@@ -27,7 +27,7 @@ d3plus.apps.stacked.setup = function(vars) {
 
 d3plus.apps.stacked.draw = function(vars) {
 
-  d3plus.data.threshold(vars,vars.x.key)
+  d3plus.data.threshold(vars,vars.x.value)
 
   return d3plus.apps.chart.draw(vars)
 

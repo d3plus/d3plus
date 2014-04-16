@@ -175,7 +175,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
 
   if (length == "long") {
 
-    var connections = vars.connections(id[vars.id.key],true)
+    var connections = vars.connections(id[vars.id.value],true)
     if (connections.length) {
       connections.forEach(function(c){
         var name = d3plus.variable.text(vars,c)[0],

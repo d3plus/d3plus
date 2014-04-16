@@ -21,8 +21,8 @@ d3plus.draw.focus = function(vars) {
 
       edges.each(function(l){
 
-          var source = l[vars.edges.source][vars.id.key],
-              target = l[vars.edges.target][vars.id.key]
+          var source = l[vars.edges.source][vars.id.value],
+              target = l[vars.edges.target][vars.id.value]
 
           if (source == vars.focus.value || target == vars.focus.value) {
             var elem = vars.g.edge_focus.node().appendChild(this.cloneNode(true))
@@ -78,14 +78,14 @@ d3plus.draw.focus = function(vars) {
 
     }
 
-    var focii = d3plus.util.uniques(vars.connections(vars.focus.value,true),vars.id.key)
+    var focii = d3plus.util.uniques(vars.connections(vars.focus.value,true),vars.id.value)
     focii.push(vars.focus.value)
 
     var x_bounds = [], y_bounds = [], x_buffer = [0], y_buffer = [0]
 
     var groups = vars.g.data.selectAll("g")
       .each(function(d){
-        if (focii.indexOf(d[vars.id.key]) >= 0) {
+        if (focii.indexOf(d[vars.id.value]) >= 0) {
           var elem = vars.g.data_focus.node().appendChild(this.cloneNode(true))
           var elem = d3.select(elem).datum(d).attr("opacity",1)
 

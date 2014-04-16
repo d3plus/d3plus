@@ -8,7 +8,7 @@ d3plus.tooltip.app = function(params) {
       ex = params.ex,
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = "arrow" in params ? params.arrow : true,
-      id = d3plus.variable.value(vars,d,vars.id.key),
+      id = d3plus.variable.value(vars,d,vars.id.value),
       tooltip_id = params.id || vars.type.value
 
   if ((d3.event && d3.event.type == "click") && (vars.html.value || vars.tooltip.value.long) && !("fullscreen" in params)) {
@@ -102,19 +102,19 @@ d3plus.tooltip.app = function(params) {
         ex.items = d.d3plus.merged.length
       }
 
-      var active = vars.active.key ? d3plus.variable.value(vars,d,vars.active.key) : d.d3plus.active,
-          temp = vars.temp.key ? d3plus.variable.value(vars,d,vars.temp.key) : d.d3plus.temp,
-          total = vars.total.key ? d3plus.variable.value(vars,d,vars.total.key) : d.d3plus.total
+      var active = vars.active.value ? d3plus.variable.value(vars,d,vars.active.value) : d.d3plus.active,
+          temp = vars.temp.value ? d3plus.variable.value(vars,d,vars.temp.value) : d.d3plus.temp,
+          total = vars.total.value ? d3plus.variable.value(vars,d,vars.total.value) : d.d3plus.total
 
       if (typeof active == "number" && active > 0 && total) {
         if (!ex) ex = {}
-        var label = vars.active.key || "active"
+        var label = vars.active.value || "active"
         ex[label] = active+"/"+total+" ("+vars.format((active/total)*100,"share")+"%)"
       }
 
       if (typeof temp == "number" && temp > 0 && total) {
         if (!ex) ex = {}
-        var label = vars.temp.key || "temp"
+        var label = vars.temp.value || "temp"
         ex[label] = temp+"/"+total+" ("+vars.format((temp/total)*100,"share")+"%)"
       }
 
@@ -127,7 +127,7 @@ d3plus.tooltip.app = function(params) {
 
     var depth = "depth" in params ? params.depth : vars.depth.value,
         title = d3plus.variable.text(vars,d,depth)[0],
-        icon = d3plus.variable.value(vars,d,vars.icon.key,vars.id.nesting[depth]),
+        icon = d3plus.variable.value(vars,d,vars.icon.value,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,depth)
 
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && "visible" in d.d3plus_label && !d.d3plus_label.visible))) {
@@ -136,7 +136,7 @@ d3plus.tooltip.app = function(params) {
         title = id
       }
 
-      var depth = d.d3plus && "depth" in d.d3plus ? vars.id.nesting[d.d3plus.depth] : vars.id.key
+      var depth = d.d3plus && "depth" in d.d3plus ? vars.id.nesting[d.d3plus.depth] : vars.id.value
 
       if (typeof vars.icon.style.value == "string") {
         var icon_style = vars.icon.style.value

@@ -15,10 +15,10 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
       })
 
     vars.axes.values.forEach(function(axis){
-      if (d3plus.apps[vars.type.value].requirements && d3plus.apps[vars.type.value].requirements.indexOf(axis) >= 0 && vars[axis].key && vars[axis].scale.value == "continuous") {
+      if (d3plus.apps[vars.type.value].requirements && d3plus.apps[vars.type.value].requirements.indexOf(axis) >= 0 && vars[axis].value && vars[axis].scale.value == "continuous") {
         nested_data
           .key(function(d){
-            return d3plus.variable.value(vars,d,vars[axis].key)
+            return d3plus.variable.value(vars,d,vars[axis].value)
           })
       }
     })
@@ -34,10 +34,10 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
         }
 
         checks.forEach(function(c){
-          var key = vars[c].key ? vars[c].key : c
+          var key = vars[c].value || c
           to_return[key] = d3.sum(leaves, function(d){
-            if (vars[c].key) {
-              var a = d3plus.variable.value(vars,d,vars[c].key)
+            if (vars[c].value) {
+              var a = d3plus.variable.value(vars,d,vars[c].value)
               if (typeof a != "number") {
                 var a = a ? 1 : 0
               }
@@ -59,14 +59,14 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
         for (key in vars.data.keys) {
           if (((levels.indexOf(nest_key) >= 0 && levels.indexOf(key) <= levels.indexOf(nest_key)) || (vars.id.nesting.indexOf(nest_key) >= 0 && vars.id.nesting.indexOf(key) <= vars.id.nesting.indexOf(nest_key)))
             && key in leaves[0]
-            && (!vars.active.key || key != vars.active.key) && key != "d3plus") {
+            && (!vars.active.value || key != vars.active.value) && key != "d3plus") {
             if (typeof vars.aggs.value[key] == "function") {
               to_return[key] = vars.aggs.value[key](leaves)
             }
             else if (typeof vars.aggs.value[key] == "string") {
               to_return[key] = d3[vars.aggs.value[key]](leaves, function(d){ return d[key]; })
             }
-            else if ([vars.time.key,vars.icon].indexOf(key) >= 0 || (key == nest_key && !to_return[key]) || (vars.x.key == key && vars.x.scale.value == "continuous") || (vars.y.key == key && vars.y.scale.value == "continuous")) {
+            else if ([vars.time.value,vars.icon].indexOf(key) >= 0 || (key == nest_key && !to_return[key]) || (vars.x.value == key && vars.x.scale.value == "continuous") || (vars.y.value == key && vars.y.scale.value == "continuous")) {
               to_return[key] = leaves[0][key];
             }
             else if (vars.data.keys[key] === "number" && vars.id.nesting.indexOf(key) < 0) {

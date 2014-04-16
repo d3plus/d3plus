@@ -17,15 +17,15 @@ d3plus.ui.titles = function(vars) {
 
     if (vars.dev.value) {
       d3plus.console.group("Calculating Total Value")
-      d3plus.console.time(vars.size.key)
+      d3plus.console.time(vars.size.value)
     }
 
-    var total_key = vars.size.key ? vars.size.key
-      : vars.color.type == "number" ? vars.color.key : null
+    var total_key = vars.size.value ? vars.size.value
+      : vars.color.type == "number" ? vars.color.value : null
 
     if (vars.focus.value) {
       var total = vars.data.app.filter(function(d){
-        return d[vars.id.key] == vars.focus.value
+        return d[vars.id.value] == vars.focus.value
       })
       total = d3.sum(total,function(d){
         return d3plus.variable.value(vars,d,total_key)
@@ -49,10 +49,10 @@ d3plus.ui.titles = function(vars) {
 
         var overall_total = d3.sum(vars.data.filtered.all, function(d){
           if (vars.time.solo.value.length > 0) {
-            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.key)) >= 0
+            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.value)) >= 0
           }
           else if (vars.time.mute.value.length > 0) {
-            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.key)) < 0
+            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.value)) < 0
           }
           else {
             var match = true
@@ -65,14 +65,14 @@ d3plus.ui.titles = function(vars) {
         if (overall_total > total) {
 
           var pct = (total/overall_total)*100,
-              ot = vars.format(overall_total,vars.size.key)
+              ot = vars.format(overall_total,vars.size.value)
 
           var pct = " ("+vars.format(pct,"share")+"% of "+ot+")"
 
         }
       }
 
-      total = vars.format(total,vars.size.key)
+      total = vars.format(total,vars.size.value)
       var obj = vars.title.total.value
         , prefix = obj.prefix || vars.format("Total")+": "
       total = prefix + total
@@ -82,7 +82,7 @@ d3plus.ui.titles = function(vars) {
     }
 
     if (vars.dev.value) {
-      d3plus.console.timeEnd(vars.size.key)
+      d3plus.console.timeEnd(vars.size.value)
       d3plus.console.groupEnd()
     }
 

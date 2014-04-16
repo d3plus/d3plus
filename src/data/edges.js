@@ -16,12 +16,12 @@ d3plus.data.edges = function(vars) {
 
     if (typeof e[vars.edges.source] != "object") {
       var obj = {}
-      obj[vars.id.key] = e[vars.edges.source]
+      obj[vars.id.value] = e[vars.edges.source]
       e[vars.edges.source] = obj
     }
     if (typeof e[vars.edges.target] != "object") {
       var obj = {}
-      obj[vars.id.key] = e[vars.edges.target]
+      obj[vars.id.value] = e[vars.edges.target]
       e[vars.edges.target] = obj
     }
 
@@ -29,17 +29,17 @@ d3plus.data.edges = function(vars) {
       vars.data.keys = {}
     }
 
-    if (!(vars.id.key in vars.data.keys)) {
-      vars.data.keys[vars.id.key] = typeof e[vars.edges.source][vars.id.key]
+    if (!(vars.id.value in vars.data.keys)) {
+      vars.data.keys[vars.id.value] = typeof e[vars.edges.source][vars.id.value]
     }
 
     if (node_create) {
-      if (placed.indexOf(e[vars.edges.source][vars.id.key]) < 0) {
-        placed.push(e[vars.edges.source][vars.id.key])
+      if (placed.indexOf(e[vars.edges.source][vars.id.value]) < 0) {
+        placed.push(e[vars.edges.source][vars.id.value])
         vars.nodes.value.push(e[vars.edges.source])
       }
-      if (placed.indexOf(e[vars.edges.target][vars.id.key]) < 0) {
-        placed.push(e[vars.edges.target][vars.id.key])
+      if (placed.indexOf(e[vars.edges.target][vars.id.value]) < 0) {
+        placed.push(e[vars.edges.target][vars.id.value])
         vars.nodes.value.push(e[vars.edges.target])
       }
     }

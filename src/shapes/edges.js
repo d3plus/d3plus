@@ -404,7 +404,7 @@ d3plus.shape.edges = function(vars) {
         d.d3plus = {}
       }
 
-      d.d3plus.id = d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
+      d.d3plus.id = d[vars.edges.source][vars.id.value]+"_"+d[vars.edges.target][vars.id.value]
 
       return d.d3plus.id
 
@@ -458,7 +458,7 @@ d3plus.shape.edges = function(vars) {
         d.d3plus = {}
       }
 
-      d.d3plus.id = d[vars.edges.source][vars.id.key]+"_"+d[vars.edges.target][vars.id.key]
+      d.d3plus.id = d[vars.edges.source][vars.id.value]+"_"+d[vars.edges.target][vars.id.value]
 
       return d.d3plus.id
 

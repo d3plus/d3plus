@@ -5,7 +5,7 @@ d3plus.variable.color = function(vars,id,level) {
 
   function get_random(c) {
     if (typeof c == "object") {
-      c = c[vars.id.key]
+      c = c[vars.id.value]
     }
     return d3plus.color.random(c)
   }
@@ -15,12 +15,12 @@ d3plus.variable.color = function(vars,id,level) {
     else return false
   }
 
-  if (!vars.color.key) {
+  if (!vars.color.value) {
     return get_random(id);
   }
   else {
 
-    var color = d3plus.variable.value(vars,id,vars.color.key,level)
+    var color = d3plus.variable.value(vars,id,vars.color.value,level)
 
     if (!color) {
       if (typeof vars.color.scale == "function") {

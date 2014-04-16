@@ -249,18 +249,18 @@ d3plus.draw.steps = function(vars) {
     steps.push({
       "check": function(vars) {
 
-        if (vars.color.changed && vars.color.key) {
+        if (vars.color.changed && vars.color.value) {
 
-          if (typeof vars.color.key == "object") {
-            if (vars.color.key[vars.id.key]) {
-              var color_id = vars.color.key[vars.id.key]
+          if (typeof vars.color.value == "object") {
+            if (vars.color.value[vars.id.value]) {
+              var color_id = vars.color.value[vars.id.value]
             }
             else {
-              var color_id = vars.color.key[Object.keys(vars.color.key)[0]]
+              var color_id = vars.color.value[Object.keys(vars.color.value)[0]]
             }
           }
           else {
-            var color_id = vars.color.key
+            var color_id = vars.color.value
           }
 
           if (vars.data.keys && color_id in vars.data.keys) {
@@ -274,13 +274,13 @@ d3plus.draw.steps = function(vars) {
           }
 
         }
-        else if (!vars.color.key) {
-          vars.color.type = vars.data.keys[vars.id.key]
+        else if (!vars.color.value) {
+          vars.color.type = vars.data.keys[vars.id.value]
         }
 
-        return vars.color.key && vars.color.type == "number" &&
-               vars.id.nesting.indexOf(vars.color.key) < 0 &&
-               vars.data.value && vars.color.key != vars.id.key &&
+        return vars.color.value && vars.color.type == "number" &&
+               vars.id.nesting.indexOf(vars.color.value) < 0 &&
+               vars.data.value && vars.color.value != vars.id.value &&
                  (vars.color.changed || vars.data.changed || vars.depth.changed ||
                    (vars.time.fixed.value &&
                      (vars.time.solo.changed || vars.time.mute.changed)

@@ -12,8 +12,7 @@ d3plus.draw.errors = function(vars) {
   }
   var missing = []
   reqs.forEach(function(r){
-    var key = "key" in vars[r] ? "key" : "value"
-    if (!vars[r][key]) missing.push(r)
+    if (!vars[r].value) missing.push(r)
   })
   if (missing.length) {
     vars.internal_error = "The following variables need to be set: "+missing.join(", ")

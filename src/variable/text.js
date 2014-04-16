@@ -15,7 +15,7 @@ d3plus.variable.text = function(vars,obj,depth) {
   }
   else {
     var text_keys = []
-    if (vars.text.key) text_keys.push(vars.text.key)
+    if (vars.text.value) text_keys.push(vars.text.value)
     text_keys.push(vars.id.nesting[depth])
   }
   if (typeof text_keys == "string") {

@@ -7,7 +7,7 @@ d3plus.ui.focus = function(vars) {
   if (!vars.internal_error && vars.focus.value && !vars.small && vars.focus.tooltip.value) {
 
     var data = vars.data.pool.filter(function(d){
-      return d3plus.variable.value(vars,d,vars.id.key) == vars.focus.value
+      return d3plus.variable.value(vars,d,vars.id.value) == vars.focus.value
     })
 
     if (data.length >= 1) {
@@ -15,7 +15,7 @@ d3plus.ui.focus = function(vars) {
     }
     else {
       data = {}
-      data[vars.id.key] = vars.focus.value
+      data[vars.id.value] = vars.focus.value
     }
 
     var offset = vars.style.labels.padding

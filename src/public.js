@@ -1,7 +1,6 @@
 d3plus.public = {}
 
 d3plus.public.active = {
-  "key": null,
   "mute": {
     "value": []
   },
@@ -12,7 +11,8 @@ d3plus.public.active = {
     "accepted": [Boolean],
     "value": false,
     "deprecates": ["spotlight"]
-  }
+  },
+  "value": null
 }
 
 d3plus.public.aggs = {
@@ -35,13 +35,13 @@ d3plus.public.attrs = {
 
 d3plus.public.color = {
   "deprecates": ["color_var"],
-  "key": null,
   "mute": {
     "value": []
   },
   "solo": {
     "value": []
-  }
+  },
+  "value": null
 }
 
 d3plus.public.container = {
@@ -142,18 +142,17 @@ d3plus.public.html = {
 
 d3plus.public.icon = {
   "deprecates": ["icon_var"],
-  "key": "icon",
   "style": {
     "deprecates": ["icon_style"],
     "object": true,
     "value": "default"
-  }
+  },
+  "value": "icon"
 }
 
 d3plus.public.id = {
   "data_filter": true,
   "deprecates": ["id_var","nesting"],
-  "key": "id",
   "mute": {
     "value": [],
     "deprecates": ["filter"]
@@ -162,7 +161,8 @@ d3plus.public.id = {
   "solo": {
     "value": [],
     "deprecates": ["solo"]
-  }
+  },
+  "value": "id"
 }
 
 d3plus.public.labels = {
@@ -200,7 +200,7 @@ d3plus.public.nodes = {
 d3plus.public.number_format = {
   "value": function(number,key,vars) {
 
-    var time = vars && vars.time.key ? [vars.time.key] : ["year","date"]
+    var time = vars && vars.time.value ? [vars.time.value] : ["year","date"]
 
     if (key && time.indexOf(key.toLowerCase()) >= 0) {
       return number
@@ -228,12 +228,12 @@ d3plus.public.number_format = {
 }
 
 d3plus.public.order = {
-  "key": null,
   "sort": {
     "accepted": ["asc","desc"],
     "value": "asc",
     "deprecates": ["sort"]
-  }
+  },
+  "value": null
 }
 
 d3plus.public.shape = {
@@ -249,7 +249,6 @@ d3plus.public.shape = {
 d3plus.public.size = {
   "data_filter": true,
   "deprecates": ["value"],
-  "key": null,
   "mute": {
     "value": []
   },
@@ -261,29 +260,30 @@ d3plus.public.size = {
   "solo": {
     "value": []
   },
-  "threshold": true
+  "threshold": true,
+  "value": null
 }
 
 d3plus.public.temp = {
   "deprecates": ["else_var","else"],
-  "key": null,
   "mute": {
     "value": []
   },
   "solo": {
     "value": []
-  }
+  },
+  "value": null
 }
 
 d3plus.public.text = {
   "deprecates": ["name_array","text_var"],
-  "key": null,
   "mute": {
     "value": []
   },
   "solo": {
     "value": []
-  }
+  },
+  "value": null
 }
 
 d3plus.public.text_format = {
@@ -305,13 +305,13 @@ d3plus.public.time = {
     "value": true,
     "deprecates": ["static_axis","static_axes"]
   },
-  "key": null,
   "mute": {
     "value": []
   },
   "solo": {
     "value": []
-  }
+  },
+  "value": null
 }
 
 d3plus.public.timeline = {
@@ -348,13 +348,13 @@ d3plus.public.tooltip = {
 
 d3plus.public.total = {
   "deprecates": ["total_var"],
-  "key": null,
   "mute": {
     "value": []
   },
   "solo": {
     "value": []
-  }
+  },
+  "value": null
 }
 
 d3plus.public.type = {
@@ -374,7 +374,6 @@ d3plus.public.x = {
   "data_filter": true,
   "deprecates": ["xaxis","xaxis_val","xaxis_var"],
   "domain": null,
-  "key": null,
   "lines": [],
   "mute": {
     "value": []
@@ -392,6 +391,7 @@ d3plus.public.x = {
     "accepted": [Boolean],
     "value": false
   },
+  "value": null,
   "zerofill": {
     "accepted": [Boolean],
     "value": false
@@ -402,7 +402,6 @@ d3plus.public.y = {
   "data_filter": true,
   "deprecates": ["yaxis","yaxis_val","yaxis_var"],
   "domain": null,
-  "key": null,
   "lines": [],
   "mute": {
     "value": []
@@ -420,6 +419,7 @@ d3plus.public.y = {
     "accepted": [Boolean],
     "value": false
   },
+  "value": null,
   "zerofill": {
     "accepted": [Boolean],
     "value": false

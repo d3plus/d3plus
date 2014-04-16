@@ -7,7 +7,7 @@ d3plus.data.color = function(vars) {
 
   var data_range = []
   vars.data.pool.forEach(function(d){
-    var val = parseFloat(d3plus.variable.value(vars,d,vars.color.key))
+    var val = parseFloat(d3plus.variable.value(vars,d,vars.color.value))
     if (typeof val == "number" && !isNaN(val) && data_range.indexOf(val) < 0) data_range.push(val)
   })
 

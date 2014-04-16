@@ -63,10 +63,10 @@ d3plus.apps.chart.draw = function(vars) {
             var range_data = vars.data.restricted.all
           }
           var xaxis_sums = d3.nest()
-            .key(function(d){return d[vars.x.key] })
+            .key(function(d){return d[vars.x.value] })
             .rollup(function(leaves){
               return d3.sum(leaves, function(d){
-                return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
+                return parseFloat(d3plus.variable.value(vars,d,vars[axis].value))
               })
             })
             .entries(range_data)
@@ -75,16 +75,16 @@ d3plus.apps.chart.draw = function(vars) {
         }
         else if (vars[axis].domain instanceof Array) {
           vars[axis+"_range"] = vars[axis].domain
-          vars.tickValues[axis] = d3plus.util.uniques(vars.data.app,vars[axis].key)
+          vars.tickValues[axis] = d3plus.util.uniques(vars.data.app,vars[axis].value)
           vars.tickValues[axis] = vars.tickValues[axis].filter(function(t){
             return t >= vars[axis+"_range"][0] && t <= vars[axis+"_range"][1]
           })
         }
         else if (vars.time.fixed.value) {
           vars[axis+"_range"] = d3.extent(vars.data.app,function(d){
-            return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
+            return parseFloat(d3plus.variable.value(vars,d,vars[axis].value))
           })
-          vars.tickValues[axis] = d3plus.util.uniques(vars.data.app,vars[axis].key)
+          vars.tickValues[axis] = d3plus.util.uniques(vars.data.app,vars[axis].value)
         }
         else {
           var all_depths = []
@@ -92,9 +92,9 @@ d3plus.apps.chart.draw = function(vars) {
             all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
           }
           vars[axis+"_range"] = d3.extent(all_depths,function(d){
-            return parseFloat(d3plus.variable.value(vars,d,vars[axis].key))
+            return parseFloat(d3plus.variable.value(vars,d,vars[axis].value))
           })
-          vars.tickValues[axis] = d3plus.util.uniques(vars.data.restricted.all,vars[axis].key)
+          vars.tickValues[axis] = d3plus.util.uniques(vars.data.restricted.all,vars[axis].value)
         }
 
         // add padding to axis if there is only 1 value
@@ -137,10 +137,10 @@ d3plus.apps.chart.draw = function(vars) {
     }
     else {
       var data = vars.data.app.filter(function(d){
-        var val = parseFloat(d3plus.variable.value(vars,d,vars.y.key))
+        var val = parseFloat(d3plus.variable.value(vars,d,vars.y.value))
         var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
         if (y_include) {
-          var val = parseFloat(d3plus.variable.value(vars,d,vars.x.key))
+          var val = parseFloat(d3plus.variable.value(vars,d,vars.x.value))
           return val != null && val >= vars.x_range[0] && val <= vars.x_range[1]
         }
         else return false
@@ -160,10 +160,10 @@ d3plus.apps.chart.draw = function(vars) {
     if (data) {
 
       if (vars.dev.value) d3plus.console.time("determining size scale")
-      if (vars.size.key) {
+      if (vars.size.value) {
         if (vars.time.fixed.value) {
           var size_domain = d3.extent(vars.data.app,function(d){
-            var val = d3plus.variable.value(vars,d,vars.size.key)
+            var val = d3plus.variable.value(vars,d,vars.size.value)
             return val == 0 ? null : val
           })
         }
@@ -173,7 +173,7 @@ d3plus.apps.chart.draw = function(vars) {
             all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
           }
           var size_domain = d3.extent(all_depths,function(d){
-            var val = d3plus.variable.value(vars,d,vars.size.key)
+            var val = d3plus.variable.value(vars,d,vars.size.value)
             return val == 0 ? null : val
           })
         }
@@ -243,7 +243,7 @@ d3plus.apps.chart.draw = function(vars) {
         .tickFormat(function(d, i) {
 
           var visible = true
-          if (vars[axis].key == vars.time.key && d % 1 != 0) {
+          if (vars[axis].value == vars.time.value && d % 1 != 0) {
             visible = false
           }
 
@@ -254,7 +254,7 @@ d3plus.apps.chart.draw = function(vars) {
               var text = d*100+"%"
             }
             else {
-              var text = vars.format(d,vars[axis].key);
+              var text = vars.format(d,vars[axis].value);
             }
 
             d3.select(this)
@@ -403,7 +403,7 @@ d3plus.apps.chart.draw = function(vars) {
     .attr("id", "xlabel")
     .attr("x", vars.app_width/2)
     .attr("y", vars.app_height-10)
-    .text(vars.format(vars.x.key))
+    .text(vars.format(vars.x.value))
     .attr("font-family",vars.style.font.family)
     .attr("font-weight",vars.style.font.weight)
     .attr("font-size",vars.style.labels.size)
@@ -416,7 +416,7 @@ d3plus.apps.chart.draw = function(vars) {
     .attr("id", "ylabel")
     .attr("y", 15)
     .attr("x", -(graph.height/2+graph.margin.top))
-    .text(vars.format(vars.y.key))
+    .text(vars.format(vars.y.value))
     .attr("transform","rotate(-90)")
     .attr("font-family",vars.style.font.family)
     .attr("font-weight",vars.style.font.weight)
@@ -540,7 +540,7 @@ d3plus.apps.chart.draw = function(vars) {
     .remove()
 
   // Update X Axis Label
-  xlabel.text(vars.format(vars.x.key))
+  xlabel.text(vars.format(vars.x.value))
     .attr("x", vars.app_width/2)
     .attr("y", vars.app_height-10)
     .attr("opacity",function(){
@@ -549,7 +549,7 @@ d3plus.apps.chart.draw = function(vars) {
     })
 
   // Update Y Axis Label
-  ylabel.text(vars.format(vars.y.key))
+  ylabel.text(vars.format(vars.y.value))
     .attr("y", 15)
     .attr("x", -(graph.height/2+graph.margin.top))
     .attr("opacity",function(){
@@ -660,14 +660,14 @@ d3plus.apps.chart.draw = function(vars) {
   }
 
   data.forEach(function(d){
-    d.d3plus.x = vars.x_scale(d3plus.variable.value(vars,d,vars.x.key))
+    d.d3plus.x = vars.x_scale(d3plus.variable.value(vars,d,vars.x.value))
     d.d3plus.x += vars.axis_offset.x
 
-    d.d3plus.r = radius(d3plus.variable.value(vars,d,vars.size.key))
+    d.d3plus.r = radius(d3plus.variable.value(vars,d,vars.size.value))
 
     if (!vars.stacked_axis) {
 
-      d.d3plus.y = vars.y_scale(d3plus.variable.value(vars,d,vars.y.key))
+      d.d3plus.y = vars.y_scale(d3plus.variable.value(vars,d,vars.y.value))
       d.d3plus.y += vars.axis_offset.y
 
       if (vars.shape.value == "area") {
@@ -683,22 +683,22 @@ d3plus.apps.chart.draw = function(vars) {
 
     data = d3.nest()
       .key(function(d){
-        var id = d3plus.variable.value(vars,d,vars.id.key),
+        var id = d3plus.variable.value(vars,d,vars.id.value),
             depth = d.d3plus.depth ? d.d3plus.depth : 0
         return d3plus.util.strip(id)+"_"+depth+"_"+vars.shape.value
       })
       .rollup(function(leaves){
 
-        var availables = d3plus.util.uniques(leaves,vars[vars.continuous_axis].key),
+        var availables = d3plus.util.uniques(leaves,vars[vars.continuous_axis].value),
             previousMissing = false
 
         vars.tickValues[vars.continuous_axis].forEach(function(v,i,arr){
 
           if(availables.indexOf(v) < 0){
             var obj = {}
-            obj[vars[vars.continuous_axis].key] = v
-            obj[vars.id.key] = leaves[0][vars.id.key]
-            obj[vars[vars.opp_axis].key] = vars[vars.opp_axis+"_scale"].domain()[1]
+            obj[vars[vars.continuous_axis].value] = v
+            obj[vars.id.value] = leaves[0][vars.id.value]
+            obj[vars[vars.opp_axis].value] = vars[vars.opp_axis+"_scale"].domain()[1]
             obj.d3plus = {}
             obj.d3plus.r = radius(radius.domain()[0])
             obj.d3plus[vars.continuous_axis] += vars.axis_offset[vars.continuous_axis]
@@ -741,7 +741,7 @@ d3plus.apps.chart.draw = function(vars) {
         leaves.sort(function(a,b){
           var xsort = a.d3plus[vars.continuous_axis] - b.d3plus[vars.continuous_axis]
           if (xsort) return xsort
-          var ksort = a[vars[vars.continuous_axis].key] - b[vars[vars.continuous_axis].key]
+          var ksort = a[vars[vars.continuous_axis].value] - b[vars[vars.continuous_axis].value]
           return ksort
         })
 
@@ -762,14 +762,14 @@ d3plus.apps.chart.draw = function(vars) {
   }
 
   var sort = null
-  if (vars.order.key) {
-    sort = vars.order.key
+  if (vars.order.value) {
+    sort = vars.order.value
   }
   else if (vars.continuous_axis) {
-    sort = vars[vars.opp_axis].key
+    sort = vars[vars.opp_axis].value
   }
-  else if (vars.size.key) {
-    sort = vars.size.key
+  else if (vars.size.value) {
+    sort = vars.size.value
   }
 
   if (sort) {
@@ -812,7 +812,7 @@ d3plus.apps.chart.draw = function(vars) {
         b_value = d3plus.variable.value(vars,b,sort)
       }
 
-      if (vars.color.key && sort == vars.color.key) {
+      if (vars.color.value && sort == vars.color.value) {
 
         a_value = d3plus.variable.color(vars,a)
         b_value = d3plus.variable.color(vars,b)
@@ -843,7 +843,7 @@ d3plus.apps.chart.draw = function(vars) {
       .x(function(d) { return d.d3plus.y; })
       .y(function(d) {
         var flip = graph.height,
-            val = d3plus.variable.value(vars,d,vars.y.key)
+            val = d3plus.variable.value(vars,d,vars.y.value)
         return flip-vars.y_scale(val);
       })
       .out(function(d,y0,y){
@@ -891,7 +891,7 @@ d3plus.apps.chart.draw = function(vars) {
 
     var data_ticks = plane.selectAll("g.d3plus_data_ticks")
       .data(data,function(d){
-        return d[vars.id.key]+"_"+d.d3plus.depth
+        return d[vars.id.value]+"_"+d.d3plus.depth
       })
 
     var tick_enter = data_ticks.enter().append("g")
@@ -1008,8 +1008,8 @@ d3plus.apps.chart.draw = function(vars) {
         return d.axis+"_"+d.id
       })
       .text(function(d){
-        var val = d3plus.variable.value(vars,node,vars[d.axis].key)
-        return vars.format(val,vars[d.axis].key)
+        var val = d3plus.variable.value(vars,node,vars[d.axis].value)
+        return vars.format(val,vars[d.axis].value)
       })
       .attr("x",function(d){
         return d.axis == "x" ? d.x : graph.margin.left-5-vars.style.ticks.size

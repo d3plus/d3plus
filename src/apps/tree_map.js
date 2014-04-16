@@ -26,7 +26,7 @@ d3plus.apps.tree_map.draw = function(vars) {
     .children(function(d) { return d.values; })
     .padding(1)
     .sort(function(a, b) { return a.value - b.value; })
-    .value(function(d) { return d3plus.variable.value(vars,d,vars.size.key); })
+    .value(function(d) { return d3plus.variable.value(vars,d,vars.size.value); })
     .nodes({"name":"root", "values": grouped_data})
     .filter(function(d) {
       return !d.values && d.area;

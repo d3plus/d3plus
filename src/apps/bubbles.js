@@ -15,7 +15,7 @@ d3plus.apps.bubbles.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sort Data
   //-------------------------------------------------------------------
-  var order = vars.order.key || vars.size.key
+  var order = vars.order.value || vars.size.value
   vars.data.app.sort(function(a,b){
     var a_value = d3plus.variable.value(vars,a,order)
     var b_value = d3plus.variable.value(vars,b,order)
@@ -51,13 +51,13 @@ d3plus.apps.bubbles.draw = function(vars) {
   if (!vars.data.app) vars.data.app = []
 
   var domain_min = d3.min(vars.data.app, function(d){
-    if (!vars.size.key) return 0
-    return d3plus.variable.value(vars,d,vars.size.key,null,"min")
+    if (!vars.size.value) return 0
+    return d3plus.variable.value(vars,d,vars.size.value,null,"min")
   })
 
   var domain_max = d3.max(vars.data.app, function(d){
-    if (!vars.size.key) return 0
-    return d3plus.variable.value(vars,d,vars.size.key)
+    if (!vars.size.value) return 0
+    return d3plus.variable.value(vars,d,vars.size.value)
   })
 
   var padding = 5
@@ -76,8 +76,8 @@ d3plus.apps.bubbles.draw = function(vars) {
   var pack = d3.layout.pack()
     .size([column_width-padding*2,column_height-padding*2-label_height])
     .value(function(d) {
-      if (!vars.size.key) return 0
-      return d3plus.variable.value(vars,d,vars.size.key)
+      if (!vars.size.value) return 0
+      return d3plus.variable.value(vars,d,vars.size.value)
     })
     .padding(padding)
     .radius(function(d){

@@ -12,7 +12,7 @@ d3plus.data.restrict = function(vars) {
   vars.data.restricted = {}
 
   if (vars[key].length) {
-    
+
     // start restricting based on "filtered" data
     var data = "filtered"
 
@@ -60,8 +60,7 @@ d3plus.data.restrict = function(vars) {
           })
         }
         else {
-          var k = vars[v].value ? vars[v].value : vars[v].key
-          match = test_value(d3plus.variable.value(vars,d,k))
+          match = test_value(d3plus.variable.value(vars,d,vars[v].value))
         }
 
         if (key == "solo") {

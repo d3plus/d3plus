@@ -8,7 +8,7 @@ d3plus.ui.timeline = function(vars) {
 
   if (!vars.small && years && years.length > 1 && vars.timeline.value) {
 
-    if ((vars.time.key == vars.x.key && vars.x.scale.value == "continuous") || (vars.time.key == vars.y.key && vars.y.scale.value == "continuous")) {
+    if ((vars.time.value == vars.x.value && vars.x.scale.value == "continuous") || (vars.time.value == vars.y.value && vars.y.scale.value == "continuous")) {
       var min_required = 2
     }
     else {

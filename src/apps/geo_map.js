@@ -17,7 +17,7 @@ d3plus.apps.geo_map.draw = function(vars) {
       features = topo.features
 
   var features = features.filter(function(f){
-    f[vars.id.key] = f.id
+    f[vars.id.value] = f.id
     if (vars.coords.solo.value.length) {
       return vars.coords.solo.value.indexOf(f.id) >= 0
     }

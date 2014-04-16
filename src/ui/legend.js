@@ -5,7 +5,7 @@ d3plus.ui.legend = function(vars) {
 
   var key_display = true,
       square_size = 0,
-      key = vars.color.key || vars.id.key
+      key = vars.color.value || vars.id.value
 
   if (!vars.small && vars.legend.value && key) {
 
@@ -40,7 +40,7 @@ d3plus.ui.legend = function(vars) {
 
       data.forEach(function(d){
 
-        var id = typeof d == "object" ? d[vars.id.key] : d
+        var id = typeof d == "object" ? d[vars.id.value] : d
         if (placed.indexOf(id) < 0) {
 
           var color = d3plus.variable.color(vars,d)
@@ -92,7 +92,7 @@ d3plus.ui.legend = function(vars) {
             }
 
             if (!obj.icon) {
-              var icon = d3plus.variable.value(vars,parent,vars.icon.key,nesting)
+              var icon = d3plus.variable.value(vars,parent,vars.icon.value,nesting)
               if (icon) {
                 obj.icon = icon
                 obj.icon_depth = vars.id.nesting[i]
