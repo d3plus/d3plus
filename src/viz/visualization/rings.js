@@ -1,34 +1,4 @@
-d3plus.visualization.rings = {}
-d3plus.visualization.rings.requirements = ["edges","focus"];
-d3plus.visualization.rings.tooltip = "static"
-d3plus.visualization.rings.shapes = ["circle","square","donut"];
-d3plus.visualization.rings.scale = 1
-d3plus.visualization.rings.nesting = false
-d3plus.visualization.rings.filter = function(vars,data) {
-
-  var primaries = vars.connections(vars.focus.value,true)
-    , secondaries = []
-
-  primaries.forEach(function(p){
-    secondaries = secondaries.concat(vars.connections(p[vars.id.value],true))
-  })
-
-  var connections = primaries.concat(secondaries)
-    , ids = d3plus.util.uniques(connections,vars.id.value)
-
-  if (data === undefined) {
-    return ids
-  }
-
-  return data.filter(function(d){
-
-    return ids.indexOf(d[vars.id.value]) >= 0
-
-  })
-
-}
-
-d3plus.visualization.rings.draw = function(vars) {
+d3plus.visualization.rings = function(vars) {
 
   var radius = d3.min([vars.app_height,vars.app_width])/2
     , ring_width = vars.small || !vars.labels.value
@@ -494,3 +464,35 @@ d3plus.visualization.rings.draw = function(vars) {
   return {"edges": edges, "nodes": nodes, "data": data}
 
 };
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Visualization Settings and Helper Functions
+//------------------------------------------------------------------------------
+d3plus.visualization.rings.requirements = ["edges","focus"];
+d3plus.visualization.rings.tooltip = "static"
+d3plus.visualization.rings.shapes = ["circle","square","donut"];
+d3plus.visualization.rings.scale = 1
+d3plus.visualization.rings.nesting = false
+d3plus.visualization.rings.filter = function(vars,data) {
+
+  var primaries = vars.connections(vars.focus.value,true)
+    , secondaries = []
+
+  primaries.forEach(function(p){
+    secondaries = secondaries.concat(vars.connections(p[vars.id.value],true))
+  })
+
+  var connections = primaries.concat(secondaries)
+    , ids = d3plus.util.uniques(connections,vars.id.value)
+
+  if (data === undefined) {
+    return ids
+  }
+
+  return data.filter(function(d){
+
+    return ids.indexOf(d[vars.id.value]) >= 0
+
+  })
+
+}

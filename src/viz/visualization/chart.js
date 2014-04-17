@@ -1,15 +1,7 @@
-d3plus.visualization.chart = {}
-d3plus.visualization.chart.fill = true;
-d3plus.visualization.chart.requirements = ["data","x","y"];
-d3plus.visualization.chart.tooltip = "static";
-d3plus.visualization.chart.shapes = ["circle","donut","line","square","area"];
-d3plus.visualization.chart.scale = {
-    "circle": 1.1,
-    "donut": 1.1,
-    "square": 1.1
-  };
-
-d3plus.visualization.chart.draw = function(vars) {
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Chart
+//------------------------------------------------------------------------------
+d3plus.visualization.chart = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate size and position of graph
@@ -1086,4 +1078,15 @@ d3plus.visualization.chart.draw = function(vars) {
 
   return data
 
-};
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Visualization Settings and Helper Functions
+//------------------------------------------------------------------------------
+d3plus.visualization.chart.fill         = true
+d3plus.visualization.chart.requirements = ["data","x","y"]
+d3plus.visualization.chart.scale        = { "circle": 1.1
+                                          , "donut": 1.1
+                                          , "square": 1.1 }
+d3plus.visualization.chart.shapes       = ["circle","donut","line","square","area"]
+d3plus.visualization.chart.tooltip      = "static"

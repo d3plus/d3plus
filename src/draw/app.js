@@ -14,14 +14,14 @@ d3plus.draw.app = function(vars) {
   if (!vars.internal_error) {
 
     if (vars.dev.value) d3plus.console.group("Calculating \"" + vars.type.value + "\"")
-    var returned = d3plus.visualization[vars.type.value].draw(vars)
+    var returned = d3plus.visualization[vars.type.value](vars)
     if (vars.dev.value) d3plus.console.groupEnd();
 
   }
   else {
     var returned = null
   }
-  
+
   vars.returned = {
       "nodes": null,
       "edges": null

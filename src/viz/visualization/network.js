@@ -1,16 +1,11 @@
-d3plus.visualization.network = {}
-d3plus.visualization.network.requirements = ["nodes","edges"];
-d3plus.visualization.network.tooltip = "static"
-d3plus.visualization.network.shapes = ["circle","square","donut"];
-d3plus.visualization.network.scale = 1.05
-d3plus.visualization.network.nesting = false
-d3plus.visualization.network.zoom = true
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Network
+//------------------------------------------------------------------------------
+d3plus.visualization.network = function(vars) {
 
-d3plus.visualization.network.draw = function(vars) {
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Use filtered lists if they are available
-  //-------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   var nodes = vars.nodes.restricted || vars.nodes.value,
       edges = vars.edges.restricted || vars.edges.value
 
@@ -61,11 +56,12 @@ d3plus.visualization.network.draw = function(vars) {
     .domain(val_range)
     .rangeRound([min_size, max_size])
 
-  vars.zoom.bounds = [[x_range[0]-max_size*1.1,y_range[0]-max_size*1.1],[x_range[1]+max_size*1.1,y_range[1]+max_size*1.1]]
+  vars.zoom.bounds = [ [ x_range[0]-max_size*1.1 , y_range[0]-max_size*1.1 ]
+                     , [ x_range[1]+max_size*1.1 , y_range[1]+max_size*1.1 ] ]
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Match nodes to data
-  //-------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   var data = [], lookup = {}
   nodes.forEach(function(n){
 
@@ -120,3 +116,13 @@ d3plus.visualization.network.draw = function(vars) {
   return {"nodes": data, "edges": edges}
 
 }
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Visualization Settings and Helper Functions
+//------------------------------------------------------------------------------
+d3plus.visualization.network.nesting      = false
+d3plus.visualization.network.requirements = ["nodes","edges"]
+d3plus.visualization.network.scale        = 1.05
+d3plus.visualization.network.shapes       = [ "circle" , "square" , "donut" ]
+d3plus.visualization.network.tooltip      = "static"
+d3plus.visualization.network.zoom         = true
