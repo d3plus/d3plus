@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Dropdown Menu
 //------------------------------------------------------------------------------
-d3plus.forms.drop = function(vars,styles,timing) {
+d3plus.form.drop = function(vars,styles,timing) {
 
   if (vars.element) {
     vars.element.on("focus."+vars.id,function(){
@@ -178,7 +178,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
     var icon = false
   }
 
-  var drop_width = d3plus.forms.value(styles.width,["drop","button"])
+  var drop_width = d3plus.form.value(styles.width,["drop","button"])
   if (!drop_width || typeof drop_width != "number") {
 
     if (vars.dev) d3plus.console.time("calculating width")
@@ -210,12 +210,12 @@ d3plus.forms.drop = function(vars,styles,timing) {
     data.width = false
     data.margin = 0
 
-    var text = d3plus.forms.value(vars.text,["drop","button"])
+    var text = d3plus.form.value(vars.text,["drop","button"])
     if (!text) {
      text = "text"
     }
 
-    var button = d3plus.forms(data)
+    var button = d3plus.form(data)
       .type("button")
       .text(text)
       .data(vars.data.array)
@@ -240,7 +240,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
 
   styles.width.drop = drop_width
 
-  var button_width = d3plus.forms.value(styles.width,["button","drop"])
+  var button_width = d3plus.form.value(styles.width,["button","drop"])
   if (!button_width || typeof button_width != "number") {
     button_width = drop_width
   }
@@ -256,7 +256,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   if (vars.enabled) {
     style.shadow = 0
   }
-  var text = d3plus.forms.value(vars.text,["button","drop"])
+  var text = d3plus.form.value(vars.text,["button","drop"])
   if (!text) {
    text = "text"
   }
@@ -269,7 +269,7 @@ d3plus.forms.drop = function(vars,styles,timing) {
   var hover = vars.hover === true ? vars.focus : false
 
   if (vars.dev) d3plus.console.group("main button")
-  var button = d3plus.forms(style)
+  var button = d3plus.form(style)
     // .dev(vars.dev)
     .type("button")
     .text(text)
@@ -468,14 +468,14 @@ d3plus.forms.drop = function(vars,styles,timing) {
     style.border = "none"
     style.width = "auto"
     style.margin = 0
-    var text = d3plus.forms.value(vars.text,["drop","button"])
+    var text = d3plus.form.value(vars.text,["drop","button"])
     if (!text) {
      text = "text"
     }
 
     var large = vars.data.array.length < vars.large ? vars.large : 0
 
-    var buttons = d3plus.forms(style)
+    var buttons = d3plus.form(style)
       .dev(vars.dev)
       .type("button")
       .text(text)

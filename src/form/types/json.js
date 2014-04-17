@@ -1,4 +1,4 @@
-d3plus.forms.json = function(vars) {
+d3plus.form.json = function(vars) {
   
   if (vars.dev) d3plus.console.time("loading data from \""+vars.data.fetch+"\"")
   vars.loading = true
@@ -23,7 +23,7 @@ d3plus.forms.json = function(vars) {
     vars.data.changed = true
     if (vars.dev) d3plus.console.timeEnd("loading data from \""+vars.data.fetch+"\"")
     
-    d3plus.forms.data(vars)
+    d3plus.form.data(vars)
     
     setTimeout(function(){
       vars.forms.draw()

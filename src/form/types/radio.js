@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Radio Buttons
 //------------------------------------------------------------------------------
-d3plus.forms.radio = function(vars,styles,timing) {
+d3plus.form.radio = function(vars,styles,timing) {
 
   vars.container.transition().duration(timing)
     .style("background-color",styles.secondary)
@@ -16,12 +16,12 @@ d3plus.forms.radio = function(vars,styles,timing) {
   button_style.margin = 0
   button_style.stroke = 0
 
-  var text = d3plus.forms.value(vars.text,["button"])
+  var text = d3plus.form.value(vars.text,["button"])
   if (!text) {
    text = "text"
   }
 
-  var button = d3plus.forms(button_style)
+  var button = d3plus.form(button_style)
     .type("button")
     .text(text)
     .data(vars.data.array)

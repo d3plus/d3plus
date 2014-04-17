@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Form Element shell
 //------------------------------------------------------------------------------
-d3plus.forms = function(passed) {
+d3plus.form = function(passed) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create global ui variable object
@@ -91,10 +91,10 @@ d3plus.forms = function(passed) {
       }
 
       if (vars.element) {
-        d3plus.forms.element(vars)
+        d3plus.form.element(vars)
       }
 
-      d3plus.forms.data(vars)
+      d3plus.form.data(vars)
 
       var focus = vars.data.array.filter(function(d){
         return d.value == vars.focus
@@ -135,7 +135,7 @@ d3plus.forms = function(passed) {
     if (vars.data.array.length == 0 && vars.element) {
 
       vars.parent = d3.select(vars.element.node().parentNode)
-      d3plus.forms.element(vars)
+      d3plus.form.element(vars)
 
     }
 
@@ -268,7 +268,7 @@ d3plus.forms = function(passed) {
       // Call specific UI element type
       //------------------------------------------------------------------------
       if (vars.dev) d3plus.console.group("drawing \""+vars.type+"\"")
-      d3plus.forms[vars.type](vars,styles,timing)
+      d3plus.form[vars.type](vars,styles,timing)
       if (vars.dev) d3plus.console.groupEnd()
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -496,7 +496,7 @@ d3plus.forms = function(passed) {
     vars.enabled = true
 
     if (vars.data.fetch && (!vars.data.loaded || vars.data.continuous)) {
-      d3plus.forms.json(vars)
+      d3plus.form.json(vars)
     }
 
     if (vars.init) {

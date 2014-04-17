@@ -1,4 +1,4 @@
-d3plus.forms.value = function(obj,arr) {
+d3plus.form.value = function(obj,arr) {
   
   if (typeof obj == "object" && arr) {
     var ret = false

@@ -1,4 +1,4 @@
-d3plus.forms.element = function(vars) {
+d3plus.form.element = function(vars) {
 
   function get_attributes(obj,elem) {
 

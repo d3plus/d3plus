@@ -1,4 +1,4 @@
-d3plus.forms.data = function(vars) {
+d3plus.form.data = function(vars) {
 
   if (vars.data.data) {
 

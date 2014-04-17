@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
-d3plus.forms.button = function(vars,styles,timing) {
+d3plus.form.button = function(vars,styles,timing) {
 
   if (vars.dev) d3plus.console.time("calculating borders and padding")
   if (styles.border == "all") {
