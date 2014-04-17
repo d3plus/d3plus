@@ -250,8 +250,9 @@ d3plus.ui.timeline = function(vars) {
       .extent([year_ticks[years.indexOf(start)], year_ticks[years.indexOf(end)+1]])
       .on("brushend", brushend)
 
-    ticks.transition().duration(vars.style.timing.transitions)
+    ticks
       .attr("transform","translate("+start_x+","+vars.style.ui.padding+")")
+      .transition().duration(vars.style.timing.transitions)
       .call(d3.svg.axis()
         .scale(x)
         .orient("top")
@@ -263,7 +264,7 @@ d3plus.ui.timeline = function(vars) {
         .tickPadding(0))
         .selectAll("path").attr("fill","none")
 
-    ticks.selectAll("line").transition().duration(vars.style.timing.transitions)
+    ticks.selectAll("line")
       .attr("stroke",vars.style.timeline.tick.color)
       .attr("shape-rendering",vars.style.rendering)
 
@@ -282,16 +283,14 @@ d3plus.ui.timeline = function(vars) {
       .attr("stroke-width",1)
       .attr("stroke",vars.style.timeline.tick.color)
       .style("visibility","visible")
-      .transition().duration(vars.style.timing.transitions)
-        .attr("shape-rendering",vars.style.rendering)
+      .attr("shape-rendering",vars.style.rendering)
 
     brush_group.selectAll("rect.extent")
       .attr("stroke-width",1)
-      .transition().duration(vars.style.timing.transitions)
-        .attr("fill",vars.style.timeline.brush.color)
-        .attr("fill-opacity",vars.style.timeline.brush.opacity)
-        .attr("stroke",vars.style.timeline.tick.color)
-        .attr("shape-rendering",vars.style.rendering)
+      .attr("fill",vars.style.timeline.brush.color)
+      .attr("fill-opacity",vars.style.timeline.brush.opacity)
+      .attr("stroke",vars.style.timeline.tick.color)
+      .attr("shape-rendering",vars.style.rendering)
 
     if (vars.timeline.handles.value) {
 
