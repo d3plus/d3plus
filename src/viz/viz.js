@@ -385,15 +385,16 @@ d3plus.viz = function() {
     return vars.viz;
   };
 
+  for (app in d3plus.visualization) {
+
+    vars.viz[app] = d3plus.visualization[app]
+
+  }
+
   Object.keys(d3plus.method).forEach(function(p){
 
     // give default values to this .viz()
     vars[p] = d3plus.util.copy(d3plus.method[p])
-
-    // detect available app types
-    if (p == "type") {
-      vars[p].accepted = Object.keys(d3plus.visualization)
-    }
 
     // create error messages for deprecated methods
     if (vars[p]) {
@@ -495,9 +496,6 @@ d3plus.viz = function() {
         function set_value(a,b,c) {
 
           if (key == "type") {
-            if (!a.accepted) {
-              a.accepted = Object.keys(d3plus.visualization)
-            }
 
             if (a.accepted.indexOf(c) < 0) {
               for (app in d3plus.visualization) {

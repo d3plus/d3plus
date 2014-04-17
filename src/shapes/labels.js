@@ -230,7 +230,7 @@ d3plus.shape.labels = function(vars,selection) {
           names = label && label.names ? label.names : d3plus.variable.text(vars,d),
           group = label && "group" in label ? label.group : d3.select(this),
           share_size = 0,
-          fill = d3plus.apps[vars.type.value].fill
+          fill = d3plus.visualization[vars.type.value].fill
 
       if (label) {
 

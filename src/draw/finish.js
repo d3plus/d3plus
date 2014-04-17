@@ -6,7 +6,7 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Zoom to fit bounds, if applicable
   //----------------------------------------------------------------------------
-  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
+  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
 
     if (vars.dev.value) d3plus.console.time("calculating zoom")
 
@@ -49,7 +49,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   if (vars.update) {
     d3plus.shape.edges(vars)
-    if (vars.timing || (!d3plus.apps[vars.type.value].zoom && !vars.timing)) {
+    if (vars.timing || (!d3plus.visualization[vars.type.value].zoom && !vars.timing)) {
       if (vars.dev.value) d3plus.console.time("data labels")
       d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
       if (vars.dev.value) d3plus.console.timeEnd("data labels")
@@ -64,13 +64,13 @@ d3plus.draw.finish = function(vars) {
       }
     }
   }
-  else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.timing) {
+  else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.timing) {
     setTimeout(function(){
       d3plus.zoom.labels(vars)
     },vars.timing)
   }
 
-  if (d3plus.apps[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing) {
+  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     if (vars.edges.label) {
@@ -87,7 +87,7 @@ d3plus.draw.finish = function(vars) {
   // Check for Errors
   //----------------------------------------------------------------------------
   if (!vars.internal_error) {
-    var data_req = d3plus.apps[vars.type.value].requirements.indexOf("data") >= 0
+    var data_req = d3plus.visualization[vars.type.value].requirements.indexOf("data") >= 0
     if ((!vars.data.app || !vars.returned.nodes.length) && data_req) {
       vars.internal_error = "No Data Available"
     }
@@ -112,9 +112,9 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
-  var data_req = d3plus.apps[vars.type.value].requirements.indexOf("data") >= 0,
+  var data_req = d3plus.visualization[vars.type.value].requirements.indexOf("data") >= 0,
       new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
-        ? 0 : vars.focus.value && d3plus.apps[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
+        ? 0 : vars.focus.value && d3plus.visualization[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
       old_opacity = vars.group.attr("opacity")
 
   if (new_opacity != old_opacity) {
@@ -166,7 +166,7 @@ d3plus.draw.finish = function(vars) {
     vars.update = true
     vars.init = true
 
-    if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
+    if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
       vars.g.zoom
         .datum(vars)
         .call(vars.zoom.behavior.on("zoom",d3plus.zoom.mouse))

@@ -1,10 +1,10 @@
-d3plus.apps.stacked = {}
-d3plus.apps.stacked.requirements = ["data","x","y"];
-d3plus.apps.stacked.tooltip = "static";
-d3plus.apps.stacked.shapes = ["area"];
-d3plus.apps.stacked.threshold = 0.03;
+d3plus.visualization.stacked = {}
+d3plus.visualization.stacked.requirements = ["data","x","y"];
+d3plus.visualization.stacked.tooltip = "static";
+d3plus.visualization.stacked.shapes = ["area"];
+d3plus.visualization.stacked.threshold = 0.03;
 
-d3plus.apps.stacked.setup = function(vars) {
+d3plus.visualization.stacked.setup = function(vars) {
 
   if (vars.dev.value) d3plus.console.time("setting local variables")
   vars.x.scale.value = "continuous"
@@ -25,10 +25,10 @@ d3plus.apps.stacked.setup = function(vars) {
 
 }
 
-d3plus.apps.stacked.draw = function(vars) {
+d3plus.visualization.stacked.draw = function(vars) {
 
   d3plus.data.threshold(vars,vars.x.value)
 
-  return d3plus.apps.chart.draw(vars)
+  return d3plus.visualization.chart.draw(vars)
 
 }

@@ -1,15 +1,15 @@
-d3plus.apps.chart = {}
-d3plus.apps.chart.fill = true;
-d3plus.apps.chart.requirements = ["data","x","y"];
-d3plus.apps.chart.tooltip = "static";
-d3plus.apps.chart.shapes = ["circle","donut","line","square","area"];
-d3plus.apps.chart.scale = {
+d3plus.visualization.chart = {}
+d3plus.visualization.chart.fill = true;
+d3plus.visualization.chart.requirements = ["data","x","y"];
+d3plus.visualization.chart.tooltip = "static";
+d3plus.visualization.chart.shapes = ["circle","donut","line","square","area"];
+d3plus.visualization.chart.scale = {
     "circle": 1.1,
     "donut": 1.1,
     "square": 1.1
   };
 
-d3plus.apps.chart.draw = function(vars) {
+d3plus.visualization.chart.draw = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate size and position of graph

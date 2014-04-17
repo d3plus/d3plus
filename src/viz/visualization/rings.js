@@ -1,10 +1,10 @@
-d3plus.apps.rings = {}
-d3plus.apps.rings.requirements = ["edges","focus"];
-d3plus.apps.rings.tooltip = "static"
-d3plus.apps.rings.shapes = ["circle","square","donut"];
-d3plus.apps.rings.scale = 1
-d3plus.apps.rings.nesting = false
-d3plus.apps.rings.filter = function(vars,data) {
+d3plus.visualization.rings = {}
+d3plus.visualization.rings.requirements = ["edges","focus"];
+d3plus.visualization.rings.tooltip = "static"
+d3plus.visualization.rings.shapes = ["circle","square","donut"];
+d3plus.visualization.rings.scale = 1
+d3plus.visualization.rings.nesting = false
+d3plus.visualization.rings.filter = function(vars,data) {
 
   var primaries = vars.connections(vars.focus.value,true)
     , secondaries = []
@@ -28,7 +28,7 @@ d3plus.apps.rings.filter = function(vars,data) {
 
 }
 
-d3plus.apps.rings.draw = function(vars) {
+d3plus.visualization.rings.draw = function(vars) {
 
   var radius = d3.min([vars.app_height,vars.app_width])/2
     , ring_width = vars.small || !vars.labels.value

@@ -1,13 +1,13 @@
-d3plus.apps.geo_map = {}
-d3plus.apps.geo_map.libs = ["topojson"];
-d3plus.apps.geo_map.requirements = ["color","coords"];
-d3plus.apps.geo_map.tooltip = "follow"
-d3plus.apps.geo_map.shapes = ["coordinates"];
-d3plus.apps.geo_map.scale = 1
-d3plus.apps.geo_map.nesting = false
-d3plus.apps.geo_map.zoom = true
+d3plus.visualization.geo_map = {}
+d3plus.visualization.geo_map.libs = ["topojson"];
+d3plus.visualization.geo_map.requirements = ["color","coords"];
+d3plus.visualization.geo_map.tooltip = "follow"
+d3plus.visualization.geo_map.shapes = ["coordinates"];
+d3plus.visualization.geo_map.scale = 1
+d3plus.visualization.geo_map.nesting = false
+d3plus.visualization.geo_map.zoom = true
 
-d3plus.apps.geo_map.draw = function(vars) {
+d3plus.visualization.geo_map.draw = function(vars) {
 
   topojson.presimplify(vars.coords.value)
 

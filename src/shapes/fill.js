@@ -137,7 +137,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
 
     var fill_data = [], hatch_data = []
 
-    if (total && d3plus.apps[vars.type.value].fill) {
+    if (total && d3plus.visualization[vars.type.value].fill) {
 
       if (temp) {
         var copy = d3plus.util.copy(d)

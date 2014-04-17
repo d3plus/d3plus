@@ -28,10 +28,10 @@ d3plus.ui.legend = function(vars) {
       var color_groups = {},
           placed = []
 
-      if (typeof d3plus.apps[vars.type.value].filter == "function") {
-        var data = d3plus.apps[vars.type.value].filter(vars)
+      if (typeof d3plus.visualization[vars.type.value].filter == "function") {
+        var data = d3plus.visualization[vars.type.value].filter(vars)
       }
-      else if (vars.nodes.value && d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0) {
+      else if (vars.nodes.value && d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0) {
         var data = vars.nodes.restriced || vars.nodes.value
       }
       else {

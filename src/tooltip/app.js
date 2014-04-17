@@ -55,7 +55,7 @@ d3plus.tooltip.app = function(params) {
   if ("x" in params) {
     var x = params.x
   }
-  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
+  else if (d3plus.visualization[vars.type.value].tooltip == "follow") {
     var x = d3.mouse(vars.parent.node())[0]
   }
   else {
@@ -69,7 +69,7 @@ d3plus.tooltip.app = function(params) {
   if ("y" in params) {
     var y = params.y
   }
-  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
+  else if (d3plus.visualization[vars.type.value].tooltip == "follow") {
     var y = d3.mouse(vars.parent.node())[1]
   }
   else {
@@ -83,7 +83,7 @@ d3plus.tooltip.app = function(params) {
   if ("offset" in params) {
     var offset = params.offset
   }
-  else if (d3plus.apps[vars.type.value].tooltip == "follow") {
+  else if (d3plus.visualization[vars.type.value].tooltip == "follow") {
     var offset = 3
   }
   else {

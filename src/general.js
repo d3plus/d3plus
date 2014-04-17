@@ -98,7 +98,7 @@ if (d3plus.touch) {
   d3plus.evt.move = "mousemove"
 }
 
-d3plus.apps = {};
+d3plus.visualization = {};
 d3plus.color = {};
 d3plus.data = {};
 d3plus.draw = {};

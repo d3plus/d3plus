@@ -9,8 +9,8 @@ d3plus.data.threshold = function(vars,split) {
   else if (typeof vars.size.threshold === "number") {
     var threshold = vars.size.threshold
   }
-  else if (typeof d3plus.apps[vars.type.value].threshold === "number") {
-    var threshold = d3plus.apps[vars.type.value].threshold
+  else if (typeof d3plus.visualization[vars.type.value].threshold === "number") {
+    var threshold = d3plus.visualization[vars.type.value].threshold
   }
   else {
     var threshold = 0.02

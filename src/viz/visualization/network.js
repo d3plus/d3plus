@@ -1,12 +1,12 @@
-d3plus.apps.network = {}
-d3plus.apps.network.requirements = ["nodes","edges"];
-d3plus.apps.network.tooltip = "static"
-d3plus.apps.network.shapes = ["circle","square","donut"];
-d3plus.apps.network.scale = 1.05
-d3plus.apps.network.nesting = false
-d3plus.apps.network.zoom = true
+d3plus.visualization.network = {}
+d3plus.visualization.network.requirements = ["nodes","edges"];
+d3plus.visualization.network.tooltip = "static"
+d3plus.visualization.network.shapes = ["circle","square","donut"];
+d3plus.visualization.network.scale = 1.05
+d3plus.visualization.network.nesting = false
+d3plus.visualization.network.zoom = true
 
-d3plus.apps.network.draw = function(vars) {
+d3plus.visualization.network.draw = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Use filtered lists if they are available

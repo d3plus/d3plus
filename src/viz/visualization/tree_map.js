@@ -1,11 +1,11 @@
-d3plus.apps.tree_map = {}
-d3plus.apps.tree_map.modes = ["squarify","slice","dice","slice-dice"];
-d3plus.apps.tree_map.requirements = ["data","size"];
-d3plus.apps.tree_map.tooltip = "follow"
-d3plus.apps.tree_map.shapes = ["square"];
-d3plus.apps.tree_map.threshold = 0.0005;
+d3plus.visualization.tree_map = {}
+d3plus.visualization.tree_map.modes = ["squarify","slice","dice","slice-dice"];
+d3plus.visualization.tree_map.requirements = ["data","size"];
+d3plus.visualization.tree_map.tooltip = "follow"
+d3plus.visualization.tree_map.shapes = ["square"];
+d3plus.visualization.tree_map.threshold = 0.0005;
 
-d3plus.apps.tree_map.draw = function(vars) {
+d3plus.visualization.tree_map.draw = function(vars) {
 
   d3plus.data.threshold(vars)
 

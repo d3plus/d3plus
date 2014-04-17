@@ -3,7 +3,7 @@
 //-------------------------------------------------------------------
 d3plus.data.edges = function(vars) {
 
-  var node_req = d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0,
+  var node_req = d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0,
       node_create = node_req && !vars.nodes.value
 
   if (node_create) {

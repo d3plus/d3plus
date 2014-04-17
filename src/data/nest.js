@@ -15,7 +15,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
       })
 
     vars.axes.values.forEach(function(axis){
-      if (d3plus.apps[vars.type.value].requirements && d3plus.apps[vars.type.value].requirements.indexOf(axis) >= 0 && vars[axis].value && vars[axis].scale.value == "continuous") {
+      if (d3plus.visualization[vars.type.value].requirements && d3plus.visualization[vars.type.value].requirements.indexOf(axis) >= 0 && vars[axis].value && vars[axis].scale.value == "continuous") {
         nested_data
           .key(function(d){
             return d3plus.variable.value(vars,d,vars[axis].value)

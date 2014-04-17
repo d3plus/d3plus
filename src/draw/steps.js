@@ -28,9 +28,9 @@ d3plus.draw.steps = function(vars) {
   //----------------------------------------------------------------------------
   steps.push({
     "check": function(vars) {
-      return vars.update && typeof d3plus.apps[vars.type.value].setup == "function"
+      return vars.update && typeof d3plus.visualization[vars.type.value].setup == "function"
     },
-    "function": d3plus.apps[vars.type.value].setup,
+    "function": d3plus.visualization[vars.type.value].setup,
     "message": "Initializing \""+vars.type.value+"\""
   })
 
@@ -123,7 +123,7 @@ d3plus.draw.steps = function(vars) {
     //--------------------------------------------------------------------------
     steps.push({
       "check": function(vars) {
-        var edge_req = d3plus.apps[vars.type.value].requirements.indexOf("edges") >= 0
+        var edge_req = d3plus.visualization[vars.type.value].requirements.indexOf("edges") >= 0
         return (!vars.edges.linked || vars.edges.changed)
           && edge_req && vars.edges.value
       },
@@ -132,7 +132,7 @@ d3plus.draw.steps = function(vars) {
     })
     steps.push({
       "check": function(vars) {
-        var node_req = d3plus.apps[vars.type.value].requirements.indexOf("nodes") >= 0
+        var node_req = d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0
         return node_req && (!vars.nodes.positions || vars.nodes.changed)
           && vars.nodes.value && vars.edges.value
       },
@@ -212,13 +212,13 @@ d3plus.draw.steps = function(vars) {
       "check": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
         return (year === null && (vars.time.solo.changed || vars.time.mute.changed || vars.depth.changed)) || !vars.data.pool
-          || typeof d3plus.apps[vars.type.value].filter == "function"
+          || typeof d3plus.visualization[vars.type.value].filter == "function"
       },
       "function": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
         vars.data.pool = d3plus.data.fetch(vars,"grouped",year)
-        if (typeof d3plus.apps[vars.type.value].filter == "function") {
-          vars.data.pool = d3plus.apps[vars.type.value].filter(vars,vars.data.pool)
+        if (typeof d3plus.visualization[vars.type.value].filter == "function") {
+          vars.data.pool = d3plus.visualization[vars.type.value].filter(vars,vars.data.pool)
         }
       },
       "message": "Formatting Data"
@@ -232,12 +232,12 @@ d3plus.draw.steps = function(vars) {
         return !vars.data.app || vars.depth.changed ||
             vars.time.solo.changed || vars.time.mute.changed ||
             vars.solo.length || vars.mute.length
-            || typeof d3plus.apps[vars.type.value].filter == "function"
+            || typeof d3plus.visualization[vars.type.value].filter == "function"
       },
       "function": function(vars) {
         vars.data.app = d3plus.data.fetch(vars,"grouped")
-        if (typeof d3plus.apps[vars.type.value].filter == "function") {
-          vars.data.app = d3plus.apps[vars.type.value].filter(vars,vars.data.app)
+        if (typeof d3plus.visualization[vars.type.value].filter == "function") {
+          vars.data.app = d3plus.visualization[vars.type.value].filter(vars,vars.data.app)
         }
       },
       "message": "Formatting Data"

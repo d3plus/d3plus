@@ -7,8 +7,8 @@ d3plus.draw.errors = function(vars) {
   // Check to see if we have all required variables set
   //----------------------------------------------------------------------------
   var reqs = ["id"]
-  if (d3plus.apps[vars.type.value].requirements) {
-    reqs = reqs.concat(d3plus.apps[vars.type.value].requirements)
+  if (d3plus.visualization[vars.type.value].requirements) {
+    reqs = reqs.concat(d3plus.visualization[vars.type.value].requirements)
   }
   var missing = []
   reqs.forEach(function(r){
@@ -33,8 +33,8 @@ d3plus.draw.errors = function(vars) {
   // Check to see if we have all required libraries
   //----------------------------------------------------------------------------
   var reqs = ["d3"]
-  if (d3plus.apps[vars.type.value].libs) {
-    reqs = reqs.concat(d3plus.apps[vars.type.value].libs)
+  if (d3plus.visualization[vars.type.value].libs) {
+    reqs = reqs.concat(d3plus.visualization[vars.type.value].libs)
   }
   var missing = []
   reqs.forEach(function(r){
@@ -49,28 +49,28 @@ d3plus.draw.errors = function(vars) {
   // Check to see if the requested app supports the set shape
   //----------------------------------------------------------------------------
   if (!vars.shape.value) {
-    vars.shape.value = d3plus.apps[vars.type.value].shapes[0]
+    vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
   }
-  else if (d3plus.apps[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
-    var shapes = d3plus.apps[vars.type.value].shapes.join("\", \"")
+  else if (d3plus.visualization[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
+    var shapes = d3plus.visualization[vars.type.value].shapes.join("\", \"")
     d3plus.console.warning("\""+vars.shape.value+"\" is not an accepted shape for the \""+vars.type.value+"\" app, please use one of the following: \""+shapes+"\"")
     vars.shape.previous = vars.shape.value
-    vars.shape.value = d3plus.apps[vars.type.value].shapes[0]
+    vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
     d3plus.console.log("Defaulting shape to \""+vars.shape.value+"\"")
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set "mode"
   //----------------------------------------------------------------------------
-  if ("modes" in d3plus.apps[vars.type.value]) {
+  if ("modes" in d3plus.visualization[vars.type.value]) {
     if (!vars.type.mode.value) {
-      vars.type.mode.value = d3plus.apps[vars.type.value].modes[0]
+      vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
     }
-    else if (d3plus.apps[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
-      var modes = d3plus.apps[vars.type.value].modes.join("\", \"")
+    else if (d3plus.visualization[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
+      var modes = d3plus.visualization[vars.type.value].modes.join("\", \"")
       d3plus.console.warning("\""+vars.type.mode.value+"\" is not an accepted mode for the \""+vars.type.value+"\" app, please use one of the following: \""+modes+"\"")
       vars.type.mode.previous = vars.type.mode.value
-      vars.type.mode.value = d3plus.apps[vars.type.value].modes[0]
+      vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
       d3plus.console.log("Defaulting mode to \""+vars.type.mode.value+"\"")
     }
   }

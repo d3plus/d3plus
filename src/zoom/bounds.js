@@ -14,7 +14,7 @@ d3plus.zoom.bounds = function(vars,b,timing) {
   }
 
   var fit = vars.coords.fit.value
-  if (fit == "auto" || d3plus.apps[vars.type.value].requirements.indexOf("coords") < 0) {
+  if (fit == "auto" || d3plus.visualization[vars.type.value].requirements.indexOf("coords") < 0) {
     var aspect = d3.max([vars.zoom.size.width/vars.app_width,vars.zoom.size.height/vars.app_height])
   }
   else {

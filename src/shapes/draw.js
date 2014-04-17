@@ -70,7 +70,7 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   function transform(g,grow) {
 
-    var scales = d3plus.apps[vars.type.value].scale
+    var scales = d3plus.visualization[vars.type.value].scale
     if (grow && scales && scales[vars.shape.value]) {
        var scale = scales[vars.shape.value]
     }
@@ -281,7 +281,7 @@ d3plus.shape.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Check for active and temp fills for rects and donuts
     //--------------------------------------------------------------------------
-    if (["rect","donut"].indexOf(shape) >= 0 && d3plus.apps[vars.type.value].fill) {
+    if (["rect","donut"].indexOf(shape) >= 0 && d3plus.visualization[vars.type.value].fill) {
       d3plus.shape.fill(vars,selection,enter,exit,transform)
     }
 
@@ -424,7 +424,7 @@ d3plus.shape.draw = function(vars) {
           vars.covered = false
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
-            || (d3plus.apps[vars.type.value].tooltip == "follow" &&
+            || (d3plus.visualization[vars.type.value].tooltip == "follow" &&
             (vars.focus.value != d[vars.id.value]) || !vars.focus.tooltip.value)) {
 
             if (vars.continuous_axis) {
@@ -465,7 +465,7 @@ d3plus.shape.draw = function(vars) {
           vars.covered = false
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
-            || (d3plus.apps[vars.type.value].tooltip == "follow" &&
+            || (d3plus.visualization[vars.type.value].tooltip == "follow" &&
             (vars.focus.value != d[vars.id.value]) || !vars.focus.tooltip.value)) {
 
             if (vars.continuous_axis) {
@@ -609,7 +609,7 @@ d3plus.shape.draw = function(vars) {
           vars.history.back()
 
         }
-        else if (d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
+        else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
 
           edge_update()
 

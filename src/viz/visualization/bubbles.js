@@ -1,11 +1,11 @@
-d3plus.apps.bubbles = {}
-d3plus.apps.bubbles.fill = true;
-d3plus.apps.bubbles.requirements = ["data"];
-d3plus.apps.bubbles.tooltip = "static"
-d3plus.apps.bubbles.shapes = ["circle","donut"];
-d3plus.apps.bubbles.scale = 1.05
+d3plus.visualization.bubbles = {}
+d3plus.visualization.bubbles.fill = true;
+d3plus.visualization.bubbles.requirements = ["data"];
+d3plus.visualization.bubbles.tooltip = "static"
+d3plus.visualization.bubbles.shapes = ["circle","donut"];
+d3plus.visualization.bubbles.scale = 1.05
 
-d3plus.apps.bubbles.draw = function(vars) {
+d3plus.visualization.bubbles.draw = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Test for labels

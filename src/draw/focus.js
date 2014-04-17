@@ -11,7 +11,7 @@ d3plus.draw.focus = function(vars) {
     .selectAll("g")
     .remove()
 
-  if (vars.focus.value && d3plus.apps[vars.type.value].zoom && vars.zoom.value) {
+  if (vars.focus.value && d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
 
     if (vars.dev.value) d3plus.console.time("drawing focus elements")
 
