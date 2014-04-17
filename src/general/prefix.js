@@ -1,3 +1,6 @@
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Calculates the correct CSS vendor prefix based on the current browser.
+//------------------------------------------------------------------------------
 d3plus.prefix = function() {
 
   if ("-webkit-transform" in document.body.style) {

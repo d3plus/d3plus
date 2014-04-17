@@ -1,3 +1,6 @@
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Detects scrollbar width for current browser.
+//------------------------------------------------------------------------------
 d3plus.scrollbar = function() {
 
   var inner = document.createElement("p");
