@@ -55,7 +55,7 @@ d3plus.ui.history = function(vars) {
           var arrow = "&laquo; "
         }
 
-        return arrow+vars.format("Back")
+        return arrow+vars.format.value("Back")
 
       })
 

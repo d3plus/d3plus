@@ -22,7 +22,7 @@ d3plus.draw.errors = function(vars) {
   // Check to see if we have focus connections, if needed
   //----------------------------------------------------------------------------
   if (!vars.internal_error && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
-    var connections = vars.connections(vars.focus.value)
+    var connections = vars.edges.connections(vars.focus.value,vars.id.value)
     if (connections.length == 0) {
       var name = d3plus.variable.text(vars,vars.focus.value,vars.depth.value)
       vars.internal_error = "No Connections Available for \""+name+"\""

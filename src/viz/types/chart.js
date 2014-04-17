@@ -246,7 +246,7 @@ d3plus.visualization.chart = function(vars) {
               var text = d*100+"%"
             }
             else {
-              var text = vars.format(d,vars[axis].value);
+              var text = vars.format.value(d,vars[axis].value);
             }
 
             d3.select(this)
@@ -395,7 +395,7 @@ d3plus.visualization.chart = function(vars) {
     .attr("id", "xlabel")
     .attr("x", vars.app_width/2)
     .attr("y", vars.app_height-10)
-    .text(vars.format(vars.x.value))
+    .text(vars.format.value(vars.x.value))
     .attr("font-family",vars.style.font.family)
     .attr("font-weight",vars.style.font.weight)
     .attr("font-size",vars.style.labels.size)
@@ -408,7 +408,7 @@ d3plus.visualization.chart = function(vars) {
     .attr("id", "ylabel")
     .attr("y", 15)
     .attr("x", -(graph.height/2+graph.margin.top))
-    .text(vars.format(vars.y.value))
+    .text(vars.format.value(vars.y.value))
     .attr("transform","rotate(-90)")
     .attr("font-family",vars.style.font.family)
     .attr("font-weight",vars.style.font.weight)
@@ -532,7 +532,7 @@ d3plus.visualization.chart = function(vars) {
     .remove()
 
   // Update X Axis Label
-  xlabel.text(vars.format(vars.x.value))
+  xlabel.text(vars.format.value(vars.x.value))
     .attr("x", vars.app_width/2)
     .attr("y", vars.app_height-10)
     .attr("opacity",function(){
@@ -541,7 +541,7 @@ d3plus.visualization.chart = function(vars) {
     })
 
   // Update Y Axis Label
-  ylabel.text(vars.format(vars.y.value))
+  ylabel.text(vars.format.value(vars.y.value))
     .attr("y", 15)
     .attr("x", -(graph.height/2+graph.margin.top))
     .attr("opacity",function(){
@@ -627,8 +627,8 @@ d3plus.visualization.chart = function(vars) {
     lines.selectAll("text").transition().duration(vars.style.timing.transitions)
       .text(function(){
         if (get_val(d) != null) {
-          var v = vars.format(get_val(d),y_name)
-          return get_name(d) ? vars.format(get_name(d)) + ": " + v : v
+          var v = vars.format.value(get_val(d),y_name)
+          return get_name(d) ? vars.format.value(get_name(d)) + ": " + v : v
         }
         else return null
       })
@@ -1001,7 +1001,7 @@ d3plus.visualization.chart = function(vars) {
       })
       .text(function(d){
         var val = d3plus.variable.value(vars,node,vars[d.axis].value)
-        return vars.format(val,vars[d.axis].value)
+        return vars.format.value(val,vars[d.axis].value)
       })
       .attr("x",function(d){
         return d.axis == "x" ? d.x : graph.margin.left-5-vars.style.ticks.size

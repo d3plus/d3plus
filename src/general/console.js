@@ -2,7 +2,7 @@
 // Custom styling and behavior for browser console statements.
 //------------------------------------------------------------------------------
 d3plus.console = function( type , message , style ) {
-  
+
   if ( d3plus.ie ) {
 
     console.log( "[d3plus] " + message )
@@ -23,6 +23,14 @@ d3plus.console = function( type , message , style ) {
 d3plus.console.log = function( message , style ) {
 
   var style = style || "font-weight:bold;"
+
+  this( "log" , message , style )
+
+}
+
+d3plus.console.comment = function( message , style ) {
+
+  var style = style || "font-weight:normal;color:#ccc;"
 
   this( "log" , message , style )
 

@@ -162,7 +162,7 @@ d3plus.shape.labels = function(vars,selection) {
             }
 
             d3plus.util.wordwrap({
-              "text": vars.format(t.text*100,"share")+"%",
+              "text": vars.format.value(t.text*100,"share")+"%",
               "parent": this,
               "width": t.w*t.scale-t.padding,
               "height": t.h*t.scale-t.padding,

@@ -218,7 +218,7 @@ d3plus.shape.edges = function(vars) {
       if (angle < -90 || angle > 90) {
         angle -= 180
       }
-      
+
       if (width*vars.zoom.behavior.scaleExtent()[0] > 20) {
 
         d.d3plus_label = {
@@ -232,7 +232,7 @@ d3plus.shape.edges = function(vars) {
           "valign": "center",
           "color": vars.style.edges.color,
           "resize": false,
-          "names": [vars.format(d[vars.edges.label])],
+          "names": [vars.format.value(d[vars.edges.label])],
           "background": 1
         }
 
@@ -552,12 +552,5 @@ d3plus.shape.edges = function(vars) {
       .call(label)
 
   }
-
-  vars.g.edges.selectAll("g")
-    .sort(function(a,b){
-      var a = vars.connected(a),
-          b = vars.connected(b)
-      return a - b
-    })
 
 }

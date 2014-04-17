@@ -342,7 +342,7 @@ d3plus.form.drop = function(vars,styles,timing) {
       .style("font-size",search_style["font-size"]+"px")
       .style("font-weight",search_style["font-weight"])
       .style("text-align",search_style["font-align"])
-      .attr("placeholder",vars.format("Search"))
+      .attr("placeholder",vars.format.value("Search"))
       .style("outline","none")
       .style(d3plus.prefix()+"border-radius","0")
   }
@@ -391,7 +391,7 @@ d3plus.form.drop = function(vars,styles,timing) {
   if (vars.loading) {
     var data = [
       {
-        "text": vars.format("Loading...")
+        "text": vars.format.value("Loading...")
       }
     ]
   }
@@ -432,7 +432,7 @@ d3plus.form.drop = function(vars,styles,timing) {
     if (data.length == 0) {
       data = [
         {
-          "text": vars.format("No results match")+" \""+vars.filter+"\""
+          "text": vars.format.value("No results match")+" \""+vars.filter+"\""
         }
       ]
     }

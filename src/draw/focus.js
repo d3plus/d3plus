@@ -78,7 +78,7 @@ d3plus.draw.focus = function(vars) {
 
     }
 
-    var focii = d3plus.util.uniques(vars.connections(vars.focus.value,true),vars.id.value)
+    var focii = d3plus.util.uniques(vars.edges.connections(vars.focus.value,vars.id.value,true),vars.id.value)
     focii.push(vars.focus.value)
 
     var x_bounds = [], y_bounds = [], x_buffer = [0], y_buffer = [0]

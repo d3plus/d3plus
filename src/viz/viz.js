@@ -5,69 +5,8 @@ d3plus.viz = function() {
   //-------------------------------------------------------------------
 
   var vars = {
-    "connected": function(edge) {
-      var focus = vars.focus.value
-      if (focus) {
-        var source = edge[vars.edges.source][vars.id.value],
-            target = edge[vars.edges.target][vars.id.value]
-        if (source == focus || target == focus) {
-          return true
-        }
-      }
-      return false
-    },
-    "connections": function(focus,objects) {
-
-      if (!vars.edges.value) {
-        return []
-      }
-
-      var edges = vars.edges.restricted || vars.edges.value,
-          targets = []
-
-      if (!focus) {
-        return edges
-      }
-
-      var connections = edges.filter(function(edge){
-
-        var match = false
-
-        if (edge[vars.edges.source][vars.id.value] == focus) {
-          match = true
-          if (objects) {
-            targets.push(edge[vars.edges.target])
-          }
-        }
-        else if (edge[vars.edges.target][vars.id.value] == focus) {
-          match = true
-          if (objects) {
-            targets.push(edge[vars.edges.source])
-          }
-        }
-
-        return match
-
-      })
-
-      return objects ? targets : connections
-
-    },
     "filtered": false,
     "fonts": {},
-    "format": function(value,key) {
-
-      if (typeof value === "number") {
-        return vars.number_format.value(value,key,vars)
-      }
-      if (typeof value === "string") {
-        return vars.text_format.value(value,key,vars)
-      }
-      else {
-        return JSON.stringify(value)
-      }
-
-    },
     "frozen": false,
     "g": {"apps":{}},
     "init": false,
@@ -266,7 +205,7 @@ d3plus.viz = function() {
     }
 
     columns.forEach(function(c){
-      titles.push(vars.format(c))
+      titles.push(vars.format.value(c))
     })
 
     csv_to_return.push(titles);
@@ -306,10 +245,12 @@ d3plus.viz = function() {
   vars.viz.draw = function(x) {
 
     if (!vars.container.value) {
-      d3plus.console.warning("Please define a container div using .container()")
+      var str = vars.format.locale.value.warning.setContainer
+      d3plus.console.warning(str)
     }
     else if (d3.select(vars.container.value).empty()) {
-      d3plus.console.warning("Cannot find <div> on page matching: \""+vars.container+"\"")
+      var str = vars.format.locale.value.warning.noContainer
+      d3plus.console.warning(d3plus.util.format(str,vars.container))
     }
     else {
       d3.select(vars.container.value).call(vars.viz)
@@ -325,7 +266,8 @@ d3plus.viz = function() {
       if (typeof depth == "object" && !(depth instanceof Array)) {
         for (d in depth) {
           if (object[property] === undefined) {
-            d3plus.console.warning("\""+property+"\" cannot be set");
+            var str = vars.format.locale.value.warning.noSet
+            d3plus.console.warning(d3plus.util.format(str,property));
           }
           else {
             check_depth(object[property],d,depth[d]);
@@ -334,7 +276,8 @@ d3plus.viz = function() {
       }
       else {
         if (object[property] === undefined) {
-          d3plus.console.warning("\""+property+"\" cannot be set");
+          var str = vars.format.locale.value.warning.noSet
+          d3plus.console.warning(d3plus.util.format(str,property));
         }
         else {
           if (property == "family") {
@@ -395,7 +338,9 @@ d3plus.viz = function() {
 
     // give default values to this .viz()
     vars[p] = d3plus.util.copy(d3plus.method[p])
-
+    vars[p].getVars = function(){
+      return vars
+    }
     // create error messages for deprecated methods
     if (vars[p]) {
       function deprecate(obj) {
@@ -404,7 +349,11 @@ d3plus.viz = function() {
             obj[o].forEach(function(d){
               vars.viz[d] = (function(dep,n) {
                 return function(x) {
-                  d3plus.console.warning("\."+dep+"() method has been deprecated, please use the new \."+n+"() method.")
+                  var str = vars.format.locale.value.warning.deprecated
+                  dep = "\."+dep+"()"
+                  n = "\."+n+"()"
+                  d3plus.console.warning(d3plus.util.format(str,dep,n))
+                  d3plus.console.log(d3plus.repo+"wiki/Visualization-Methods#"+n)
                   return vars.viz;
                 }
               })(d,p)
@@ -444,7 +393,9 @@ d3plus.viz = function() {
           check_object(vars,key,user)
         }
         else {
-          d3plus.console.warning("Incompatible format for ."+key+"() method.")
+          var str = vars.format.locale.value.warning.format
+          d3plus.console.warning(d3plus.util.format(str,key))
+          d3plus.console.log(d3plus.repo+"wiki/Visualization-Methods#"+key)
         }
 
         function check_object(object,property,depth) {
@@ -458,8 +409,12 @@ d3plus.viz = function() {
               if (property == "value") {
                 set_value(object,property,depth)
               }
-              else if (typeof object[property] == "object" && object[property] !== null && object[property].object === true) {
+              else if ( typeof object[property] == "object"
+                    && object[property] !== null
+                    && object[property].object === true ) {
+
                 set_value(object[property],"value",depth)
+
               }
               else {
 
@@ -500,7 +455,9 @@ d3plus.viz = function() {
             if (a.accepted.indexOf(c) < 0) {
               for (app in d3plus.visualization) {
                 if (d3plus.visualization[app].deprecates && d3plus.visualization[app].deprecates.indexOf(c) >= 0) {
-                  d3plus.console.warning(JSON.stringify(c)+" has been deprecated by "+JSON.stringify(app)+", please update your code.")
+                  var str = vars.format.locale.value.warning.deprecated
+                  d3plus.console.warning(d3plus.util.format(str,c,app))
+                  d3plus.console.log(d3plus.repo+"wiki/Visualization-Types#"+app)
                   c = app
                 }
               }
@@ -542,10 +499,12 @@ d3plus.viz = function() {
           }
 
           if (accepted && !allowed) {
-            d3plus.console.warning(""+JSON.stringify(c)+" is not an accepted value for "+text+", please use one of the following: \""+recs.join("\", \"")+"\"")
+            var str = vars.format.locale.value.warning.deprecated
+            d3plus.console.warning(d3plus.util.format(str,""+JSON.stringify(c),text,"\""+recs.join("\", \"")+"\""))
           }
           else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].value === c || a[b].value === c))) {
-            if (vars.dev.value) d3plus.console.log(text+" was not updated because it did not change.")
+            var str = vars.format.locale.value.dev.noChange
+            if (vars.dev.value) d3plus.console.comment(d3plus.util.format(str,text))
           }
           else {
             if (b == "solo" || b == "mute") {
@@ -623,7 +582,8 @@ d3plus.viz = function() {
             else if (key == "aggs") {
               for (agg in c) {
                 if (a[b][agg] && a[b][agg] == c[agg]) {
-                  if (vars.dev.value) d3plus.console.log("Aggregation for \""+agg+"\" is already set to \""+c[agg]+"\"")
+                  var str = vars.format.locale.value.dev.noChange
+                  if (vars.dev.value) d3plus.console.comment(d3plus.util.format(str,agg))
                 }
                 else {
                   a[b][agg] = c[agg]
@@ -637,16 +597,26 @@ d3plus.viz = function() {
                 b = "value"
               }
               a.previous = a[b]
+
+              if (typeof a.reference == "object") {
+                c = a.reference[c]
+              }
+              else if (typeof a.reference == "function") {
+                c = a.reference(c)
+              }
+
               a[b] = c
               a.changed = true
             }
 
             if ((vars.dev.value || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
               if (typeof a[b] != "function" && JSON.stringify(a[b]).length < 260) {
-                d3plus.console.log(text+" has been set to "+JSON.stringify(a[b])+".")
+                var str = vars.format.locale.value.dev.setLong
+                d3plus.console.log(d3plus.util.format(str,text,JSON.stringify(a[b])))
               }
               else {
-                d3plus.console.log(text+" has been set.")
+                var str = vars.format.locale.value.dev.set
+                d3plus.console.log(d3plus.util.format(str,text))
               }
             }
           }

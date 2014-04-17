@@ -33,10 +33,10 @@ d3plus.tooltip.app = function(params) {
     }
 
     if (zoom === 1 && vars.zoom.value) {
-      var text = vars.format("Click to Expand")
+      var text = vars.format.value("Click to Expand")
     }
     else if (zoom === -1 && vars.zoom.value && solo) {
-      var text = vars.format("Click to Collapse")
+      var text = vars.format.value("Click to Collapse")
     }
     else if (length == "short" && (vars.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
       var text = "Click for More Info"
@@ -48,7 +48,7 @@ d3plus.tooltip.app = function(params) {
       var text = ""
     }
 
-    var footer = text.length ? vars.format(text,"footer") : false
+    var footer = text.length ? vars.format.value(text,"footer") : false
 
   }
 
@@ -109,18 +109,18 @@ d3plus.tooltip.app = function(params) {
       if (typeof active == "number" && active > 0 && total) {
         if (!ex) ex = {}
         var label = vars.active.value || "active"
-        ex[label] = active+"/"+total+" ("+vars.format((active/total)*100,"share")+"%)"
+        ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%)"
       }
 
       if (typeof temp == "number" && temp > 0 && total) {
         if (!ex) ex = {}
         var label = vars.temp.value || "temp"
-        ex[label] = temp+"/"+total+" ("+vars.format((temp/total)*100,"share")+"%)"
+        ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%)"
       }
 
       if (d.d3plus.share) {
         if (!ex) ex = {}
-        ex.share = vars.format(d.d3plus.share*100,"share")+"%"
+        ex.share = vars.format.value(d.d3plus.share*100,"share")+"%"
       }
 
     }

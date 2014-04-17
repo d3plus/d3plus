@@ -22,7 +22,7 @@ d3plus.visualization.rings = function(vars) {
   center.d3plus.r = primaryRing*.65
 
   var primaries = [], claimed = [vars.focus.value]
-  vars.connections(vars.focus.value).forEach(function(edge){
+  vars.edges.connections(vars.focus.value,vars.id.value).forEach(function(edge){
 
     var c = edge[vars.edges.source][vars.id.value] == vars.focus.value ? edge[vars.edges.target] : edge[vars.edges.source]
     var n = vars.data.app.filter(function(d){
@@ -32,7 +32,7 @@ d3plus.visualization.rings = function(vars) {
       n = {"d3plus": {}}
       n[vars.id.value] = c[vars.id.value]
     }
-    n.d3plus.edges = vars.connections(n[vars.id.value]).filter(function(c){
+    n.d3plus.edges = vars.edges.connections(n[vars.id.value],vars.id.value).filter(function(c){
       return c[vars.edges.source][vars.id.value] != vars.focus.value && c[vars.edges.target][vars.id.value] != vars.focus.value
     })
     n.d3plus.edge = edge
@@ -318,7 +318,7 @@ d3plus.visualization.rings = function(vars) {
     delete p.d3plus.edge.d3plus
     edges.push(p.d3plus.edge)
 
-    vars.connections(p[vars.id.value]).forEach(function(edge){
+    vars.edges.connections(p[vars.id.value],vars.id.value).forEach(function(edge){
 
       var c = edge[vars.edges.source][vars.id.value] == p[vars.id.value]
             ? edge[vars.edges.target] : edge[vars.edges.source]
@@ -475,11 +475,11 @@ d3plus.visualization.rings.scale = 1
 d3plus.visualization.rings.nesting = false
 d3plus.visualization.rings.filter = function(vars,data) {
 
-  var primaries = vars.connections(vars.focus.value,true)
+  var primaries = vars.edges.connections(vars.focus.value,vars.id.value,true)
     , secondaries = []
 
   primaries.forEach(function(p){
-    secondaries = secondaries.concat(vars.connections(p[vars.id.value],true))
+    secondaries = secondaries.concat(vars.edges.connections(p[vars.id.value],vars.id.value,true))
   })
 
   var connections = primaries.concat(secondaries)

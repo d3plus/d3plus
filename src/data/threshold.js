@@ -131,15 +131,15 @@ d3plus.data.threshold = function(vars,split) {
 
       if (vars.text.value) {
         if (vars.depth.value == 0) {
-          m[vars.text.value] = vars.format("Values")
-          m[vars.text.value] += " < "+vars.format(cutoff)
+          m[vars.text.value] = vars.format.value("Values")
+          m[vars.text.value] += " < "+vars.format.value(cutoff)
         }
         else {
           var name = d3plus.variable.value(vars,m,vars.text.value,parent)
           m[vars.text.value] = name
-          m[vars.text.value] += " < "+vars.format(cutoff[m[parent]],vars.size.value)
+          m[vars.text.value] += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
         }
-        m[vars.text.value] += " ("+vars.format(threshold*100)+"%)"
+        m[vars.text.value] += " ("+vars.format.value(threshold*100)+"%)"
 
         m.d3plus.threshold = cutoff
         if (parent) {

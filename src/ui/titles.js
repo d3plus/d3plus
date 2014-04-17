@@ -65,16 +65,16 @@ d3plus.ui.titles = function(vars) {
         if (overall_total > total) {
 
           var pct = (total/overall_total)*100,
-              ot = vars.format(overall_total,vars.size.value)
+              ot = vars.format.value(overall_total,vars.size.value)
 
-          var pct = " ("+vars.format(pct,"share")+"% of "+ot+")"
+          var pct = " ("+vars.format.value(pct,"share")+"% of "+ot+")"
 
         }
       }
 
-      total = vars.format(total,vars.size.value)
+      total = vars.format.value(total,vars.size.value)
       var obj = vars.title.total.value
-        , prefix = obj.prefix || vars.format("Total")+": "
+        , prefix = obj.prefix || vars.format.value("Total")+": "
       total = prefix + total
       obj.suffix ? total = total + obj.suffix : null
       total += pct

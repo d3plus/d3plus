@@ -417,14 +417,14 @@ d3plus.ui.legend = function(vars) {
                   if (names.length > 4) {
                     var more = names.length-4
                     names = names.slice(0,4)
-                    names[4] = vars.format(more+" more")
+                    names[4] = vars.format.value(more+" more")
                   }
 
                   if (names.length == 2) {
-                    var description = names.join(" "+vars.format("and")+" ")
+                    var description = names.join(" "+vars.format.value("and")+" ")
                   }
                   else {
-                    names[names.length-1] = vars.format("and")+" "+names[names.length-1]
+                    names[names.length-1] = vars.format.value("and")+" "+names[names.length-1]
                     var description = names.join(", ")
                   }
 
@@ -581,7 +581,7 @@ d3plus.ui.legend = function(vars) {
         .attr("text-anchor",vars.style.legend.tick.align)
         .attr("fill",vars.style.legend.tick.color)
         .text(function(d){
-          return vars.format(values[d],key)
+          return vars.format.value(values[d],key)
         })
         .attr("y",function(d){
           return this.getBBox().height+vars.style.legend.gradient.height+vars.style.ui.padding*2
