@@ -11,10 +11,6 @@ var gulp = require("gulp")
   , lr = require("tiny-lr")()
 
 var files = [ "src/begin.js"
-            , "src/general.js"
-            , "src/console.js"
-            , "src/forms.js"
-            , "src/viz.js"
             , "src/**/*.js"
             , "src/end.js" ]
 

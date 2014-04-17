@@ -1,8 +1,5 @@
 JS_FILES = \
 src/begin.js \
-src/general.js \
-src/forms.js \
-src/viz.js \
 $(wildcard src/**/*.js) \
 src/end.js \
 
