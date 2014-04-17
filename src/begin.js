@@ -3,7 +3,7 @@
   var d3plus = window.d3plus || {}
   window.d3plus = d3plus
 
-  d3plus.version = "1.2.4 - Royal"
+  d3plus.version = "1.3.0 - Sky"
 
   d3plus.visualization = {}
   d3plus.color = {}
