@@ -457,7 +457,7 @@ d3plus.visualization.rings = function(vars) {
   vars.mouse[d3plus.evt.click] = function(d) {
     if (d[vars.id.value] != vars.focus.value) {
       d3plus.tooltip.remove(vars.type.value)
-      vars.viz.focus(d[vars.id.value]).draw()
+      vars.self.focus(d[vars.id.value]).draw()
     }
   }
 

@@ -5,16 +5,16 @@ d3plus.form.drop = function(vars,styles,timing) {
 
   if (vars.element) {
     vars.element.on("focus."+vars.id,function(){
-      vars.forms.update(false).hover(true).draw()
+      vars.self.update(false).hover(true).draw()
     })
     vars.element.on("blur."+vars.id,function(){
       var search = vars.search ? d3.event.relatedTarget != vars.container.select("input").node() : true
       if (search) {
-        vars.forms.update(false).hover(false).draw()
+        vars.self.update(false).hover(false).draw()
       }
     })
     vars.element.on("change."+vars.id,function(){
-      vars.forms.value(vars.data.array[this.selectedIndex])
+      vars.self.value(vars.data.array[this.selectedIndex])
     })
     vars.element.on("keydown.cancel_"+vars.id,function(){
       // Only let TAB work
@@ -50,7 +50,7 @@ d3plus.form.drop = function(vars,styles,timing) {
 
       // Tab
       if ([9].indexOf(key) >= 0 && (!vars.search || (vars.search && !d3.event.shiftKey))) {
-        vars.forms.update(false).disable()
+        vars.self.update(false).disable()
       }
       // Down Arrow
       else if ([40].indexOf(key) >= 0) {
@@ -71,10 +71,10 @@ d3plus.form.drop = function(vars,styles,timing) {
         }
 
         if (vars.enabled) {
-          vars.forms.update(false).hover(hover).draw(60)
+          vars.self.update(false).hover(hover).draw(60)
         }
         else {
-          vars.forms.update(false).hover(hover).enable()
+          vars.self.update(false).hover(hover).enable()
         }
 
       }
@@ -97,29 +97,29 @@ d3plus.form.drop = function(vars,styles,timing) {
         }
 
         if (vars.enabled) {
-          vars.forms.update(false).hover(hover).draw(60)
+          vars.self.update(false).hover(hover).draw(60)
         }
         else {
-          vars.forms.update(false).hover(hover).enable()
+          vars.self.update(false).hover(hover).enable()
         }
 
       }
       // Enter/Return
       else if ([13].indexOf(key) >= 0) {
         if (typeof vars.hover != "boolean") {
-          vars.forms.value(vars.hover).hover(true).draw()
+          vars.self.value(vars.hover).hover(true).draw()
         }
         else {
-          vars.forms.hover(vars.focus).toggle()
+          vars.self.hover(vars.focus).toggle()
         }
       }
       // Esc
       else if ([27].indexOf(key) >= 0) {
         if (vars.enabled) {
-          vars.forms.hover(true).disable()
+          vars.self.hover(true).disable()
         }
         else if (vars.hover === true) {
-          vars.forms.hover(false).draw()
+          vars.self.hover(false).draw()
         }
       }
 
@@ -136,7 +136,7 @@ d3plus.form.drop = function(vars,styles,timing) {
       var child = "_"+vars.id
 
       if (element.indexOf(child) < 0 && vars.enabled) {
-        vars.forms.disable()
+        vars.self.disable()
       }
 
     })
@@ -278,7 +278,7 @@ d3plus.form.drop = function(vars,styles,timing) {
     .timing(timing)
     .hover(hover)
     .data([test_data])
-    .callback(vars.forms.toggle)
+    .callback(vars.self.toggle)
     .highlight(vars.focus)
     .update(vars.update)
     .enable()
@@ -370,7 +370,7 @@ d3plus.form.drop = function(vars,styles,timing) {
   search.select("input").on("keyup."+vars.id,function(d){
     if (vars.filter != this.value) {
       vars.filter = this.value
-      vars.forms.draw()
+      vars.self.draw()
     }
   })
 
@@ -484,7 +484,7 @@ d3plus.form.drop = function(vars,styles,timing) {
       .parent(list)
       .id(vars.id+"_option")
       .timing(timing)
-      .callback(vars.forms.value)
+      .callback(vars.self.value)
       .previous(vars.previous)
       .selected(vars.focus)
       .hover(vars.hover)

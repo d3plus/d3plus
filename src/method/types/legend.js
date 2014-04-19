@@ -1,10 +1,9 @@
 d3plus.method.legend = {
-  "accepted": [Boolean],
-  "label": null,
+  "accepted": [ Boolean ],
   "order": {
-    "accepted": ["color","id","size","text"],
+    "accepted": [ "color" , "id" , "size" , "text" ],
     "sort": {
-      "accepted": ["asc","desc"],
+      "accepted": [ "asc" , "desc" ],
       "value": "asc"
     },
     "value": "color"

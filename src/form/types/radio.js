@@ -27,7 +27,7 @@ d3plus.form.radio = function(vars,styles,timing) {
     .data(vars.data.array)
     .parent(vars.container)
     .id(vars.id+"_radios")
-    .callback(vars.forms.value)
+    .callback(vars.self.value)
     .highlight(vars.focus)
     .enable()
     .draw()

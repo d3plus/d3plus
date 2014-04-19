@@ -25,6 +25,10 @@ d3plus.viz = function() {
       }
     },
     "update": true,
+    "wiki": {
+      "methods" : "Visualization-Methods",
+      "types"   : "Visualization-Types"
+    },
     "zoom_direction": function() {
 
       var max_depth = vars.id.nesting.length-1,
@@ -71,7 +75,7 @@ d3plus.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Main drawing function
   //----------------------------------------------------------------------------
-  vars.viz = function(selection) {
+  vars.self = function(selection) {
     selection.each(function() {
 
       vars.frozen = true
@@ -180,14 +184,14 @@ d3plus.viz = function() {
 
     });
 
-    return vars.viz;
+    return vars.self;
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Expose Public Variables
   //-------------------------------------------------------------------
 
-  vars.viz.csv = function(x) {
+  vars.self.csv = function(x) {
 
     if (x instanceof Array) var columns = x
 
@@ -242,7 +246,7 @@ d3plus.viz = function() {
 
   };
 
-  vars.viz.draw = function(x) {
+  vars.self.draw = function() {
 
     if (!vars.container.value) {
       var str = vars.format.locale.value.warning.setContainer
@@ -253,13 +257,13 @@ d3plus.viz = function() {
       d3plus.console.warning(d3plus.util.format(str,vars.container))
     }
     else {
-      d3.select(vars.container.value).call(vars.viz)
+      d3.select(vars.container.value).call(vars.self)
     }
 
-    return vars.viz;
+    return vars.self;
   }
 
-  vars.viz.style = function(x) {
+  vars.self.style = function(x) {
     if (!arguments.length) return vars.style;
 
     function check_depth(object,property,depth) {
@@ -325,309 +329,10 @@ d3plus.viz = function() {
       d3plus.console.warning(".style() only accepts strings or keyed objects.");
     }
 
-    return vars.viz;
+    return vars.self;
   };
 
-  for (app in d3plus.visualization) {
+  d3plus.method( vars )
 
-    vars.viz[app] = d3plus.visualization[app]
-
-  }
-
-  Object.keys(d3plus.method).forEach(function(p){
-
-    // give default values to this .viz()
-    vars[p] = d3plus.util.copy(d3plus.method[p])
-    vars[p].getVars = function(){
-      return vars
-    }
-    // create error messages for deprecated methods
-    if (vars[p]) {
-      function deprecate(obj) {
-        for (o in obj) {
-          if (o == "deprecates") {
-            obj[o].forEach(function(d){
-              vars.viz[d] = (function(dep,n) {
-                return function(x) {
-                  var str = vars.format.locale.value.warning.deprecated
-                  dep = "\."+dep+"()"
-                  n = "\."+n+"()"
-                  d3plus.console.warning(d3plus.util.format(str,dep,n))
-                  d3plus.console.log(d3plus.repo+"wiki/Visualization-Methods#"+n)
-                  return vars.viz;
-                }
-              })(d,p)
-            })
-          }
-          else if (typeof obj[o] == "object") {
-            deprecate(obj[o])
-          }
-        }
-      }
-      deprecate(vars[p])
-    }
-
-    // create method for variable
-
-    vars.viz[p] = (function(key) {
-      return function(user,callback) {
-
-        if (!arguments.length) return vars[key];
-
-        if (vars[key].reset) {
-          vars[key].reset.forEach(function(r){
-            vars[r] = null
-          })
-        }
-
-        if (callback) {
-          vars[key].callback = callback
-        }
-
-        if ( ( typeof user == "object" && user !== null
-                && !("value" in user) && !(Object.keys(user)[0] in vars[key]) )
-             || typeof user != "object" || user === null) {
-          set_value(vars[key],"value",user)
-        }
-        else if (typeof user == "object") {
-          check_object(vars,key,user)
-        }
-        else {
-          var str = vars.format.locale.value.warning.format
-          d3plus.console.warning(d3plus.util.format(str,key))
-          d3plus.console.log(d3plus.repo+"wiki/Visualization-Methods#"+key)
-        }
-
-        function check_object(object,property,depth) {
-
-          if (object[property] === undefined) {
-            d3plus.console.warning("\""+property+"\" cannot be set.");
-          }
-          else {
-            if (typeof depth == "object" && !(depth instanceof Array)) {
-
-              if (property == "value") {
-                set_value(object,property,depth)
-              }
-              else if ( typeof object[property] == "object"
-                    && object[property] !== null
-                    && object[property].object === true ) {
-
-                set_value(object[property],"value",depth)
-
-              }
-              else {
-
-                for (d in depth) {
-                  check_object(object[property],d,depth[d]);
-                }
-
-              }
-            }
-            else {
-              set_value(object,property,depth);
-            }
-          }
-        }
-
-        function update_array(arr,x) {
-          // if the user has passed an array, use that
-          if(x instanceof Array){
-            arr = x;
-          }
-          // otherwise add/remove it from the array
-          else if(arr.indexOf(x) >= 0){
-            arr.splice(arr.indexOf(x), 1)
-          }
-          // element not in current filter so add it
-          else {
-            arr.push(x)
-          }
-
-          return arr
-
-        }
-
-        function set_value(a,b,c) {
-
-          if (key == "type") {
-
-            if (a.accepted.indexOf(c) < 0) {
-              for (app in d3plus.visualization) {
-                if (d3plus.visualization[app].deprecates && d3plus.visualization[app].deprecates.indexOf(c) >= 0) {
-                  var str = vars.format.locale.value.warning.deprecated
-                  d3plus.console.warning(d3plus.util.format(str,c,app))
-                  d3plus.console.log(d3plus.repo+"wiki/Visualization-Types#"+app)
-                  c = app
-                }
-              }
-            }
-
-          }
-
-          if (b == "value" || !b) {
-            var text = "\."+key+"()"
-          }
-          else {
-            var text = "\""+b+"\" of \."+key+"()"
-          }
-
-          if (b == "value" && a.accepted) {
-            var accepted = a.accepted
-          }
-          else if (typeof a[b] == "object" && a[b] !== null && a[b].accepted) {
-            var accepted = a[b].accepted
-          }
-          else {
-            var accepted = false
-          }
-
-          var allowed = true
-          if (accepted) {
-            if (typeof accepted[0] == "string") {
-              var allowed = accepted.indexOf(c) >= 0,
-                  recs = accepted
-            }
-            else {
-              var allowed = accepted.indexOf(c.constructor) >= 0
-                , recs = []
-              accepted.forEach(function(f){
-                var n = f.toString().split("()")[0].substring(9)
-                recs.push(n)
-              })
-            }
-          }
-
-          if (accepted && !allowed) {
-            var str = vars.format.locale.value.warning.deprecated
-            d3plus.console.warning(d3plus.util.format(str,""+JSON.stringify(c),text,"\""+recs.join("\", \"")+"\""))
-          }
-          else if (!(a[b] instanceof Array) && a[b] == c || (a[b] && (a[b].value === c || a[b].value === c))) {
-            var str = vars.format.locale.value.dev.noChange
-            if (vars.dev.value) d3plus.console.comment(d3plus.util.format(str,text))
-          }
-          else {
-            if (b == "solo" || b == "mute") {
-
-              a[b].value = update_array(a[b].value,c)
-              a[b].changed = true
-              var arr = a[b].value
-
-              if (["time","coords"].indexOf(key) < 0) {
-                if (arr.length && vars[b].indexOf(key) < 0) {
-                  vars[b].push(key)
-                }
-                else if (!arr.length && vars[b].indexOf(key) >= 0) {
-                  vars[b].splice(vars[b].indexOf(key), 1)
-                }
-              }
-
-            }
-            else if (key == "id" && b == "value") {
-
-              if (c instanceof Array) {
-                vars.id.nesting = c
-                if (vars.depth.value < c.length) vars.id.value = c[vars.depth.value]
-                else {
-                  vars.id.value = c[0]
-                  vars.depth.value = 0
-                }
-              }
-              else {
-                vars.id.value = c
-                vars.id.nesting = [c]
-                vars.depth.value = 0
-              }
-              a.changed = true
-
-            }
-            else if (key == "text" && b == "value") {
-
-              if (!vars.text.array) vars.text.array = {}
-              if (typeof c == "string") {
-                vars.text.array[vars.id.value] = [c]
-              }
-              else if (c instanceof Array) {
-                vars.text.array[vars.id.value] = c
-              }
-              else {
-                vars.text.array = c
-                var n = c[vars.id.value] ? c[vars.id.value] : c[Object.keys(c)[0]]
-                vars.text.array[vars.id.value] = typeof n == "string" ? [n] : n
-              }
-              vars.text.value = vars.text.array[vars.id.value][0]
-              a.changed = true
-
-            }
-            else if (key == "depth") {
-              // Set appropriate depth and id
-              if (c >= vars.id.nesting.length) vars.depth.value = vars.id.nesting.length-1
-              else if (c < 0) vars.depth.value = 0
-              else vars.depth.value = c;
-              vars.id.value = vars.id.nesting[vars.depth.value]
-
-              if (vars.text.array) {
-
-                // Set appropriate name_array and text
-                var n = vars.text.array[vars.id.value]
-                if (n) {
-                  vars.text.array[vars.id.value] = typeof n == "string" ? [n] : n
-                  vars.text.value = vars.text.array[vars.id.value][0]
-                }
-
-              }
-
-              a.changed = true
-            }
-            else if (key == "aggs") {
-              for (agg in c) {
-                if (a[b][agg] && a[b][agg] == c[agg]) {
-                  var str = vars.format.locale.value.dev.noChange
-                  if (vars.dev.value) d3plus.console.comment(d3plus.util.format(str,agg))
-                }
-                else {
-                  a[b][agg] = c[agg]
-                  a.changed = true
-                }
-              }
-            }
-            else {
-              if (typeof a[b] == "object" && a[b] != null && a[b].value !== undefined) {
-                a = a[b]
-                b = "value"
-              }
-              a.previous = a[b]
-
-              if (typeof a.reference == "object") {
-                c = a.reference[c]
-              }
-              else if (typeof a.reference == "function") {
-                c = a.reference(c)
-              }
-
-              a[b] = c
-              a.changed = true
-            }
-
-            if ((vars.dev.value || key == "dev") && (a.changed || ["solo","mute"].indexOf(b) >= 0)) {
-              if (typeof a[b] != "function" && JSON.stringify(a[b]).length < 260) {
-                var str = vars.format.locale.value.dev.setLong
-                d3plus.console.log(d3plus.util.format(str,text,JSON.stringify(a[b])))
-              }
-              else {
-                var str = vars.format.locale.value.dev.set
-                d3plus.console.log(d3plus.util.format(str,text))
-              }
-            }
-          }
-
-        }
-
-        return vars.viz
-
-      }
-    })(p)
-  })
-
-  return vars.viz;
+  return vars.self;
 };

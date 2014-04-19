@@ -1,7 +1,7 @@
 d3plus.method.labels = {
-  "accepted": [Boolean],
+  "accepted": [ Boolean] ,
   "resize": {
-    "accepted": [Boolean],
+    "accepted": [ Boolean ],
     "value": true
   },
   "value": true

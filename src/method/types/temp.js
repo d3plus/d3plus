@@ -1,10 +1,7 @@
 d3plus.method.temp = {
-  "deprecates": ["else_var","else"],
-  "mute": {
-    "value": []
-  },
-  "solo": {
-    "value": []
-  },
-  "value": null
+  "accepted": [ Array , Boolean , Function , Object , String ],
+  "deprecates": [ "else_var" , "else" ],
+  "mute": d3plus.method.filter(true),
+  "solo": d3plus.method.filter(true),
+  "value": false
 }

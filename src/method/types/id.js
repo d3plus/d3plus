@@ -1,14 +1,9 @@
 d3plus.method.id = {
+  "accepted": [ Array , String ],
   "data_filter": true,
   "deprecates": ["id_var","nesting"],
-  "mute": {
-    "value": [],
-    "deprecates": ["filter"]
-  },
+  "mute": d3plus.method.filter(true),
   "nesting": ["id"],
-  "solo": {
-    "value": [],
-    "deprecates": ["solo"]
-  },
+  "solo": d3plus.method.filter(true),
   "value": "id"
 }

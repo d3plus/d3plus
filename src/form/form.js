@@ -64,7 +64,7 @@ d3plus.form = function(passed) {
   if (passed) {
     styles = d3plus.util.merge(styles,passed)
   }
-  vars.forms = function(selection,timing) {
+  vars.self = function(selection,timing) {
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set timing to 0 if it's the first time running this function or if the
@@ -311,7 +311,7 @@ d3plus.form = function(passed) {
   //----------------------------------------------------------------------------
   variables.forEach(function(v){
 
-    vars.forms[v] = (function(key) {
+    vars.self[v] = (function(key) {
 
       return function(value) {
 
@@ -359,7 +359,7 @@ d3plus.form = function(passed) {
           vars[key] = value
         }
 
-        return vars.forms
+        return vars.self
 
       }
 
@@ -388,7 +388,7 @@ d3plus.form = function(passed) {
   //----------------------------------------------------------------------------
   style_variables.forEach(function(v){
 
-    vars.forms[v] = (function(key) {
+    vars.self[v] = (function(key) {
 
       return function(value) {
 
@@ -468,7 +468,7 @@ d3plus.form = function(passed) {
           styles[key] = value
         }
 
-        return vars.forms
+        return vars.self
 
       }
 
@@ -479,19 +479,19 @@ d3plus.form = function(passed) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Disables the UI element
   //----------------------------------------------------------------------------
-  vars.forms.disable = function() {
+  vars.self.disable = function() {
     if (vars.dev) d3plus.console.log("disable")
     vars.enabled = false
     if (vars.init) {
-      vars.parent.call(vars.forms)
+      vars.parent.call(vars.self)
     }
-    return vars.forms
+    return vars.self
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enables the UI element
   //----------------------------------------------------------------------------
-  vars.forms.enable = function() {
+  vars.self.enable = function() {
     if (vars.dev) d3plus.console.log("enable")
     vars.enabled = true
 
@@ -500,50 +500,50 @@ d3plus.form = function(passed) {
     }
 
     if (vars.init) {
-      vars.parent.call(vars.forms)
+      vars.parent.call(vars.self)
     }
-    return vars.forms
+    return vars.self
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Draws the UI element
   //----------------------------------------------------------------------------
-  vars.forms.draw = function(timing) {
-    vars.parent.call(vars.forms,timing)
-    return vars.forms
+  vars.self.draw = function(timing) {
+    vars.parent.call(vars.self,timing)
+    return vars.self
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Returns UI element's current height
   //----------------------------------------------------------------------------
-  vars.forms.height = function(value) {
+  vars.self.height = function(value) {
 
     if (!arguments.length) return vars.container[0][0].offsetHeight
 
     if (vars.dev) d3plus.console.log("\"height\" set to \""+value+"\"")
     styles.height = value
 
-    return vars.forms
+    return vars.self
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Destroys UI element
   //----------------------------------------------------------------------------
-  vars.forms.remove = function(x) {
+  vars.self.remove = function(x) {
     vars.container.remove()
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Selects something inside of the container
   //----------------------------------------------------------------------------
-  vars.forms.select = function(selection) {
+  vars.self.select = function(selection) {
     return vars.container.select(selection)
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sets value of the UI element
   //----------------------------------------------------------------------------
-  vars.forms.value = function(value) {
+  vars.self.value = function(value) {
 
     if (!arguments.length) return vars.focus
 
@@ -591,35 +591,35 @@ d3plus.form = function(passed) {
     vars.highlight = false
 
     if (vars.init) {
-      vars.parent.call(vars.forms)
+      vars.parent.call(vars.self)
     }
 
-    return vars.forms
+    return vars.self
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Toggles the UI element menu open/close
   //----------------------------------------------------------------------------
-  vars.forms.toggle = function() {
+  vars.self.toggle = function() {
 
     if (vars.dev) d3plus.console.log("toggle")
     vars.update = false
 
     if (vars.enabled) {
-      vars.forms.disable()
+      vars.self.disable()
     }
     else {
-      vars.forms.enable()
+      vars.self.enable()
     }
 
-    return vars.forms
+    return vars.self
 
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Returns UI element's current width
   //----------------------------------------------------------------------------
-  vars.forms.width = function(value) {
+  vars.self.width = function(value) {
     if (!arguments.length) {
       var vals = []
       vars.container.selectAll("div.d3plus_node").each(function(o){
@@ -637,12 +637,12 @@ d3plus.form = function(passed) {
     }
     if (vars.dev) d3plus.console.log("\"width\" set to \""+value+"\"")
     styles.width = value
-    return vars.forms
+    return vars.self
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Finally, return the main UI function to the user
   //----------------------------------------------------------------------------
-  return vars.forms
+  return vars.self
 
 }

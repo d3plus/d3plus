@@ -1,5 +1,5 @@
 d3plus.method.history = {
-  "accepted": [Boolean],
+  "accepted": [ Boolean ],
   "back": function() {
 
     if (this.states.length > 0) {

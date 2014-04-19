@@ -1,15 +1,16 @@
 d3plus.method.title = {
-  "link": null,
+  "accepted": [ Boolean , Function , String ],
+  "link": false,
   "sub": {
-    "link": null,
-    "value": null,
-    "deprecates": ["sub_title"]
+    "deprecates": ["sub_title"],
+    "link": false,
+    "value": false,
   },
   "total": {
-    "link": null,
-    "value": false,
+    "accepted": [ Boolean , Object ],
     "deprecates": ["total_bar"],
-    "object": true
+    "link": false,
+    "value": false
   },
-  "value": null
+  "value": false
 }

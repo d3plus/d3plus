@@ -1,4 +1,4 @@
 d3plus.method.dev = {
-  "accepted": [Boolean],
+  "accepted": [ Boolean ],
   "value": false
 }

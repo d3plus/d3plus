@@ -1,3 +1,4 @@
 d3plus.method.container = {
-  "value": null
+  "accepted": [ Boolean , Function , String ],
+  "value": false
 }

@@ -1,4 +1,5 @@
 d3plus.method.html = {
-  "deprecates": ["click_function"],
-  "value": null
+  "accepted": [ Function , String ],
+  "deprecates": [ "click_function" ],
+  "value": false
 }

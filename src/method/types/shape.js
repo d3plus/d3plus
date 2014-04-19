@@ -1,5 +1,10 @@
 d3plus.method.shape = {
-  "accepted": ["circle","donut","line","square","area","coordinates"],
+  "accepted": [ "circle"
+              , "donut"
+              , "line"
+              , "square"
+              , "area"
+              , "coordinates" ],
   "interpolate": {
     "accepted": [ "basis"
                 , "basis-open"
@@ -13,5 +18,5 @@ d3plus.method.shape = {
     "value": "linear",
     "deprecates": ["stack_type"]
   },
-  "value": null
+  "value": false
 }

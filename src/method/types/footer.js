@@ -1,4 +1,5 @@
 d3plus.method.footer = {
-  "link": null,
+  "accepted": [ Boolean , Number , String ],
+  "link": false,
   "value": false
 }

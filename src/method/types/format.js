@@ -1,9 +1,10 @@
 d3plus.method.format = {
+  "accepted": [ Function ],
   "deprecates": [ "number_format" , "text_format" ],
   "locale": {
-    "accepted": [ "en_US" ],
-    "reference": d3plus.locale,
-    "value": d3plus.locale.en_US
+    "accepted" : [ "en_US" ],
+    "process"  : d3plus.locale,
+    "value"    : d3plus.locale.en_US
   },
   "number": function( number , key , vars ) {
 

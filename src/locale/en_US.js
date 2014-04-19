@@ -1,4 +1,5 @@
 d3plus.locale.en_US = {
+
   "common": {
     "small" : [ "a"
               , "and"
@@ -13,11 +14,14 @@ d3plus.locale.en_US = {
     "time"  : [ "date"
               , "year" ]
   },
+
   "dev" : {
     "noChange"     : "{0} was not updated because it did not change.",
+    "of"           : "of",
     "set"          : "{0} has been set.",
     "setLong"      : "{0} has been set to {1}."
   },
+
   "warning": {
     "accepted"     : "{0} is not an accepted value for {1}, please use one of the following: {2}",
     "deprecated"   : "{0} has been deprecated, please update your code to use {1}.",
@@ -26,4 +30,5 @@ d3plus.locale.en_US = {
     "setGeneral"   : "\"{0}\" is not a valid property.",
     "setContainer" : "Please define a container div using .container()"
   }
+
 }

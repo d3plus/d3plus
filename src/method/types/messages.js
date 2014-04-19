@@ -1,4 +1,4 @@
 d3plus.method.messages = {
-  "accepted": [Boolean,String],
+  "accepted": [ Boolean , String ],
   "value": true
 }

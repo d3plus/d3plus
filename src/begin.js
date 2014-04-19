@@ -7,7 +7,7 @@
 
   d3plus.repo = "https://github.com/alexandersimoes/d3plus/"
 
-  d3plus.visualization = {}
+  d3plus.array = {}
   d3plus.color = {}
   d3plus.data = {}
   d3plus.draw = {}
@@ -20,4 +20,5 @@
   d3plus.ui = {}
   d3plus.util = {}
   d3plus.variable = {}
+  d3plus.visualization = {}
   d3plus.zoom = {}

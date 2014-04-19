@@ -87,7 +87,7 @@ d3plus.ui.timeline = function(vars) {
               return years.indexOf(d) >= 0
             })
 
-            vars.viz.time({"solo": new_years}).draw()
+            vars.self.time({"solo": new_years}).draw()
 
           })
 

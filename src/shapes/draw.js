@@ -566,7 +566,7 @@ d3plus.shape.draw = function(vars) {
 
           vars.history.states.push(function(){
 
-            vars.viz
+            vars.self
               .id({"solo": previous})
               .title({"sub": prev_sub})
               .style({"title": {"sub": {"font": {"color": prev_color}}, "total": {"font": {"color": prev_total}}}})
@@ -574,7 +574,7 @@ d3plus.shape.draw = function(vars) {
 
           })
 
-          vars.viz
+          vars.self
             .id({"solo": d.d3plus.merged})
             .title({"sub": title})
             .style({"title": {"sub": {"font": {"color": color}}, "total": {"font": {"color": color}}}})
@@ -587,7 +587,7 @@ d3plus.shape.draw = function(vars) {
 
           vars.history.states.push(function(){
 
-            vars.viz
+            vars.self
               .depth(vars.depth.value-1)
               .id({"solo": previous})
               .title({"sub": prev_sub})
@@ -596,7 +596,7 @@ d3plus.shape.draw = function(vars) {
 
           })
 
-          vars.viz
+          vars.self
             .depth(vars.depth.value+1)
             .id({"solo": [id]})
             .title({"sub": title})
@@ -625,10 +625,10 @@ d3plus.shape.draw = function(vars) {
           vars.update = false
 
           if (!d || d[vars.id.value] == vars.focus.value) {
-            vars.viz.focus(null).draw()
+            vars.self.focus(null).draw()
           }
           else {
-            vars.viz.focus(d[vars.id.value]).draw()
+            vars.self.focus(d[vars.id.value]).draw()
           }
 
         }

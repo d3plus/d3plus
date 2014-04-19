@@ -1,9 +1,8 @@
 d3plus.method.timeline = {
-  "accepted": [Boolean],
+  "accepted": [ Boolean ],
   "handles": {
-    "accepted": [Boolean],
+    "accepted": [ Boolean ],
     "value": true
   },
-  "label": null,
   "value": true
 }

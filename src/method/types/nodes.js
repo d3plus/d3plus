@@ -1,3 +1,4 @@
 d3plus.method.nodes = {
-  "value": null
+  "accepted": [ Array , Boolean , Function , String ],
+  "value": false
 }
