@@ -13,7 +13,7 @@ d3plus.console = function( type , message , style ) {
     var style = style || "font-weight:bold;"
 
     console[type]( "%c[d3plus]%c " + message
-                 , "font-weight:bold;"
+                 , "color:#B35C1E;font-weight:bold;"
                  , style )
 
   }
@@ -22,7 +22,7 @@ d3plus.console = function( type , message , style ) {
 
 d3plus.console.log = function( message , style ) {
 
-  var style = style || "font-weight:bold;"
+  var style = style || "color:#444444;font-weight:normal;"
 
   this( "log" , message , style )
 
@@ -30,7 +30,7 @@ d3plus.console.log = function( message , style ) {
 
 d3plus.console.comment = function( message , style ) {
 
-  var style = style || "font-weight:normal;color:#ccc;"
+  var style = style || "color:#aaa;font-weight:normal;"
 
   this( "log" , message , style )
 
@@ -38,7 +38,7 @@ d3plus.console.comment = function( message , style ) {
 
 d3plus.console.group = function( message , style ) {
 
-  var style = style || "font-weight:bold;"
+  var style = style || "color:#444444;font-weight:bold;"
 
   this( "group" , message , style )
 
@@ -46,7 +46,7 @@ d3plus.console.group = function( message , style ) {
 
 d3plus.console.warning = function( message , style ) {
 
-  var style = style || "font-weight:bold;color:red;"
+  var style = style || "color:#D74B03;font-weight:bold;"
 
   message = "WARNING: " + message
 
