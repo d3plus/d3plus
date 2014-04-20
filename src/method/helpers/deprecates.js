@@ -18,10 +18,7 @@ d3plus.method.depricates = function( vars , obj , method ) {
             var str = vars.format.locale.value.warning.deprecated
             dep = "\."+dep+"()"
             d3plus.console.warning(d3plus.util.format(str,dep,"\."+n+"()"))
-            if ("wiki" in vars) {
-              var wiki = "methods" in vars.wiki ? vars.wiki.methods : vars.wiki
-              d3plus.console.log(d3plus.repo+"wiki/"+wiki+"#"+n)
-            }
+            d3plus.console.log(d3plus.repo+"wiki/Visualization-Methods#"+n)
             return vars.self;
 
           }

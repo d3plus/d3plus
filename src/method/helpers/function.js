@@ -52,13 +52,7 @@ d3plus.method.function = function( key , vars ) {
 
       var str = vars.format.locale.value.warning.format
       d3plus.console.warning(d3plus.util.format(str,key))
-
-      if ("wiki" in vars) {
-        
-        var wiki = "methods" in vars.wiki ? vars.wiki.methods : vars.wiki
-        d3plus.console.log(d3plus.repo+"wiki/"+wiki+"#"+key)
-
-      }
+      d3plus.console.log(d3plus.repo+"wiki/Visualization-Methods#"+key)
 
     }
 

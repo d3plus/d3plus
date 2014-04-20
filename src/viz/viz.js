@@ -25,10 +25,6 @@ d3plus.viz = function() {
       }
     },
     "update": true,
-    "wiki": {
-      "methods" : "Visualization-Methods",
-      "types"   : "Visualization-Types"
-    },
     "zoom_direction": function() {
 
       var max_depth = vars.id.nesting.length-1,
