@@ -15,7 +15,7 @@
   d3plus.locale = {}
   d3plus.method = {}
   d3plus.shape = {}
-  d3plus.styles = {}
+  d3plus.style = {}
   d3plus.tooltip = {}
   d3plus.ui = {}
   d3plus.util = {}

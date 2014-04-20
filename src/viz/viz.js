@@ -13,8 +13,8 @@ d3plus.viz = function() {
     "margin": {"top": 0, "right": 0, "bottom": 0, "left": 0},
     "mute": [],
     "solo": [],
-    "style": d3plus.styles.default,
-    "timing": d3plus.styles.default.timing.transitions,
+    "style": d3plus.style.default,
+    "timing": d3plus.style.default.timing.transitions,
     "touchEvent": function(){
       var zoomed = vars.zoom.scale > vars.zoom.behavior.scaleExtent()[0]
         , enabled = d3plus.visualization[vars.type.value].zoom
@@ -318,11 +318,11 @@ d3plus.viz = function() {
       check_depth(vars,"style",x)
     }
     else if (typeof x == "string") {
-      if (d3plus.styles[x]) {
+      if (d3plus.style[x]) {
         vars.style = plus.styles[x]
       }
       else {
-        d3plus.console.warning("Style \""+x+"\" does not exist. Installed styles are: \""+Object.keys(d3plus.styles).join("\", \"")+"\"");
+        d3plus.console.warning("Style \""+x+"\" does not exist. Installed styles are: \""+Object.keys(d3plus.style).join("\", \"")+"\"");
       }
     }
     else {
