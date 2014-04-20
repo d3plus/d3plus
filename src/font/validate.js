@@ -7,6 +7,13 @@ d3plus.font.validate = function(test_fonts) {
     test_fonts = test_fonts.split(",")
   }
 
+  var fontString = test_fonts.join(", ")
+    , completed = this.validate.complete
+
+  if (fontString in completed) {
+    return completed[fontString]
+  }
+
   var tester = d3plus.font.tester()
 
   function create_element(font) {
@@ -61,6 +68,10 @@ d3plus.font.validate = function(test_fonts) {
   monospace.remove()
   proportional.remove()
 
+  completed[fontString] = valid
+
   return valid
 
 }
+
+d3plus.font.validate.complete = {}
