@@ -33,8 +33,8 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Resize/Reposition Overlay Rect for Mouse events
   //----------------------------------------------------------------------------
-  var w = vars.zoom.size ? vars.zoom.size.width : vars.app_width,
-      h = vars.zoom.size ? vars.zoom.size.height : vars.app_height,
+  var w = vars.zoom.size ? vars.zoom.size.width : vars.width.viz,
+      h = vars.zoom.size ? vars.zoom.size.height : vars.height.viz,
       x = vars.zoom.bounds ? vars.zoom.bounds[0][0] : 0,
       y = vars.zoom.bounds ? vars.zoom.bounds[0][1] : 0
 

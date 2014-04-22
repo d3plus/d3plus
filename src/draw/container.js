@@ -73,7 +73,7 @@ d3plus.draw.container = function(vars) {
 
   }
 
-  vars.app_width = vars.width.value;
-  vars.app_height = vars.height.value;
+  vars.width.viz = vars.width.value;
+  vars.height.viz = vars.height.value;
 
 }

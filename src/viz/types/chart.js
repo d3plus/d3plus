@@ -12,8 +12,8 @@ d3plus.visualization.chart = function(vars) {
   else {
     var graph = {"margin": {"top": 10, "right": 10, "bottom": 40, "left": 40}}
   }
-  graph.width = vars.app_width-graph.margin.left-graph.margin.right
-  graph.height = vars.app_height-graph.margin.top-graph.margin.bottom
+  graph.width = vars.width.viz-graph.margin.left-graph.margin.right
+  graph.height = vars.height.viz-graph.margin.top-graph.margin.bottom
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If there is data, run the needed calculations
@@ -393,8 +393,8 @@ d3plus.visualization.chart = function(vars) {
   var xlabel = axes.selectAll("text#xlabel").data(["xlabel"])
   xlabel.enter().append("text")
     .attr("id", "xlabel")
-    .attr("x", vars.app_width/2)
-    .attr("y", vars.app_height-10)
+    .attr("x", vars.width.viz/2)
+    .attr("y", vars.height.viz-10)
     .text(vars.format.value(vars.x.value))
     .attr("font-family",vars.font.family.value)
     .attr("font-weight",vars.font.weight)
@@ -533,8 +533,8 @@ d3plus.visualization.chart = function(vars) {
 
   // Update X Axis Label
   xlabel.text(vars.format.value(vars.x.value))
-    .attr("x", vars.app_width/2)
-    .attr("y", vars.app_height-10)
+    .attr("x", vars.width.viz/2)
+    .attr("y", vars.height.viz-10)
     .attr("opacity",function(){
       if (vars.data.app.length == 0) return 0
       else return 1

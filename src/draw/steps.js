@@ -334,8 +334,8 @@ d3plus.draw.steps = function(vars) {
       }
 
       d3plus.ui.history(vars)
-      vars.app_height -= (vars.margin.top+vars.margin.bottom)
-      vars.app_width -= (vars.margin.left+vars.margin.right)
+      vars.height.viz -= (vars.margin.top+vars.margin.bottom)
+      vars.width.viz -= (vars.margin.left+vars.margin.right)
     },
     "message": "Updating UI"
   })

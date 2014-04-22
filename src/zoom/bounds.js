@@ -15,13 +15,13 @@ d3plus.zoom.bounds = function(vars,b,timing) {
 
   var fit = vars.coords.fit.value
   if (fit == "auto" || d3plus.visualization[vars.type.value].requirements.indexOf("coords") < 0) {
-    var aspect = d3.max([vars.zoom.size.width/vars.app_width,vars.zoom.size.height/vars.app_height])
+    var aspect = d3.max([vars.zoom.size.width/vars.width.viz,vars.zoom.size.height/vars.height.viz])
   }
   else {
     var aspect = vars.zoom.size[fit]/vars["app_"+fit]
   }
 
-  var min = d3.min([vars.app_width,vars.app_height])
+  var min = d3.min([vars.width.viz,vars.height.viz])
 
   var scale = ((min-(vars.coords.padding*2)) / min) / aspect
 
@@ -39,8 +39,8 @@ d3plus.zoom.bounds = function(vars,b,timing) {
 
   var translate = []
 
-  translate[0] = vars.app_width/2-(vars.zoom.size.width*scale)/2-(b[0][0]*scale)
-  translate[1] = vars.app_height/2-(vars.zoom.size.height*scale)/2-(b[0][1]*scale)
+  translate[0] = vars.width.viz/2-(vars.zoom.size.width*scale)/2-(b[0][0]*scale)
+  translate[1] = vars.height.viz/2-(vars.zoom.size.height*scale)/2-(b[0][1]*scale)
 
   vars.zoom.translate = translate
   vars.zoom.behavior.translate(translate).scale(scale)

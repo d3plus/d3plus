@@ -1,6 +1,6 @@
 d3plus.visualization.rings = function(vars) {
 
-  var radius = d3.min([vars.app_height,vars.app_width])/2
+  var radius = d3.min([vars.height.viz,vars.width.viz])/2
     , ring_width = vars.small || !vars.labels.value
                  ? (radius-vars.labels.padding*2)/2 : radius/3
     , primaryRing = vars.small || !vars.labels.value
@@ -17,8 +17,8 @@ d3plus.visualization.rings = function(vars) {
     center = {"d3plus": {}}
     center[vars.id.value] = vars.focus.value
   }
-  center.d3plus.x = vars.app_width/2
-  center.d3plus.y = vars.app_height/2
+  center.d3plus.x = vars.width.viz/2
+  center.d3plus.y = vars.height.viz/2
   center.d3plus.r = primaryRing*.65
 
   var primaries = [], claimed = [vars.focus.value]
@@ -162,8 +162,8 @@ d3plus.visualization.rings = function(vars) {
     angle -= radian/4
 
     p.d3plus.radians = angle
-    p.d3plus.x = vars.app_width/2 + (primaryRing * Math.cos(angle))
-    p.d3plus.y = vars.app_height/2 + (primaryRing * Math.sin(angle))
+    p.d3plus.x = vars.width.viz/2 + (primaryRing * Math.cos(angle))
+    p.d3plus.y = vars.height.viz/2 + (primaryRing * Math.sin(angle))
 
     offset += space
     p.d3plus.edges.sort(function(a,b){
@@ -194,8 +194,8 @@ d3plus.visualization.rings = function(vars) {
 
       a = (angle-(s*children/2)+(s/2))+((s)*i)
       d.d3plus.radians = a
-      d.d3plus.x = vars.app_width/2 + ((secondaryRing) * Math.cos(a))
-      d.d3plus.y = vars.app_height/2 + ((secondaryRing) * Math.sin(a))
+      d.d3plus.x = vars.width.viz/2 + ((secondaryRing) * Math.cos(a))
+      d.d3plus.y = vars.height.viz/2 + ((secondaryRing) * Math.sin(a))
       secondaries.push(d)
     })
 
@@ -344,8 +344,8 @@ d3plus.visualization.rings = function(vars) {
           edge.d3plus = {
             "spline": true,
             "translate": {
-              "x": vars.app_width/2,
-              "y": vars.app_height/2
+              "x": vars.width.viz/2,
+              "y": vars.height.viz/2
             }
           }
 

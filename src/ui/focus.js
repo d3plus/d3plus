@@ -27,7 +27,7 @@ d3plus.ui.focus = function(vars) {
       "length": "long",
       "fullscreen": false,
       "id": vars.type.value+"_focus",
-      "maxheight": vars.app_height-offset*2,
+      "maxheight": vars.height.viz-offset*2,
       "mouseevents": true,
       "offset": 0,
       "vars": vars,
@@ -37,7 +37,7 @@ d3plus.ui.focus = function(vars) {
     })
 
     if(!d3.select("div#d3plus_tooltip_id_"+vars.type.value+"_focus").empty()) {
-      vars.app_width -= (vars.tooltip.large+offset*2)
+      vars.width.viz -= (vars.tooltip.large+offset*2)
     }
 
   }

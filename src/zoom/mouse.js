@@ -3,12 +3,12 @@ d3plus.zoom.mouse = function(vars) {
   var translate = d3.event.translate,
       scale = d3.event.scale,
       limits = vars.zoom.bounds,
-      xoffset = (vars.app_width-(vars.zoom.size.width*scale))/2,
+      xoffset = (vars.width.viz-(vars.zoom.size.width*scale))/2,
       xmin = xoffset > 0 ? xoffset : 0,
-      xmax = xoffset > 0 ? vars.app_width-xoffset : vars.app_width,
-      yoffset = (vars.app_height-(vars.zoom.size.height*scale))/2,
+      xmax = xoffset > 0 ? vars.width.viz-xoffset : vars.width.viz,
+      yoffset = (vars.height.viz-(vars.zoom.size.height*scale))/2,
       ymin = yoffset > 0 ? yoffset : 0,
-      ymax = yoffset > 0 ? vars.app_height-yoffset : vars.app_height
+      ymax = yoffset > 0 ? vars.height.viz-yoffset : vars.height.viz
 
   // Auto center visualization
   if (translate[0]+limits[0][0]*scale > xmin) {

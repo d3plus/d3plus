@@ -35,7 +35,7 @@ d3plus.visualization.tree_map = function(vars) {
   var data = d3.layout.treemap()
     .mode(vars.type.mode.value)
     .round(true)
-    .size([ vars.app_width , vars.app_height ])
+    .size([ vars.width.viz , vars.height.viz ])
     .children(function(d) {
 
       return d.values

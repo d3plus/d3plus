@@ -8,10 +8,10 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
   var projection = d3.geo[vars.coords.projection.value]()
     .center(vars.coords.center)
-    // .translate([-vars.app_width/2,-vars.app_height/2])
+    // .translate([-vars.width.viz/2,-vars.height.viz/2])
 
   // var clip = d3.geo.clipExtent()
-  //     .extent([[0, 0], [vars.app_width, vars.app_height]]);
+  //     .extent([[0, 0], [vars.width.viz, vars.height.viz]]);
 
   if (!vars.zoom.scale) {
     vars.zoom.scale = 1
@@ -50,11 +50,11 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
       .call(d3plus.shape.style,vars)
   }
 
-  var size_change = vars.old_height != vars.app_height || vars.height.changed
-    || vars.old_width != vars.app_width || vars.width.changed
+  var size_change = vars.old_height != vars.height.viz || vars.height.changed
+    || vars.old_width != vars.width.viz || vars.width.changed
 
-  vars.old_height = vars.app_height
-  vars.old_width = vars.app_width
+  vars.old_height = vars.height.viz
+  vars.old_width = vars.width.viz
 
   if (vars.coords.changed || size_change || vars.coords.mute.changed || vars.coords.solo.changed) {
 

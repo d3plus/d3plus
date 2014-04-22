@@ -30,7 +30,7 @@ d3plus.visualization.bubbles = function(vars) {
   }
   else {
 
-    var screenRatio = vars.app_width / vars.app_height
+    var screenRatio = vars.width.viz / vars.height.viz
       , columns     = Math.ceil( Math.sqrt( dataLength * screenRatio ) )
       , rows        = Math.ceil( Math.sqrt( dataLength / screenRatio ) )
 
@@ -44,8 +44,8 @@ d3plus.visualization.bubbles = function(vars) {
 
   }
 
-  var column_width = vars.app_width/columns,
-      column_height = vars.app_height/rows
+  var column_width = vars.width.viz/columns,
+      column_height = vars.height.viz/rows
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scale
@@ -91,7 +91,7 @@ d3plus.visualization.bubbles = function(vars) {
 
     var temp = pack.nodes(d)
 
-    var xoffset = (column_width*i) % vars.app_width,
+    var xoffset = (column_width*i) % vars.width.viz,
         yoffset = column_height*row
 
     temp.forEach(function(t){

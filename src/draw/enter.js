@@ -43,8 +43,8 @@ d3plus.draw.enter = function(vars) {
   vars.g.clipping.enter().append("clipPath")
     .attr("id","clipping")
     .append("rect")
-      .attr("width",vars.app_width)
-      .attr("height",vars.app_height)
+      .attr("width",vars.width.viz)
+      .attr("height",vars.height.viz)
 
   // Enter Container Group
   vars.g.container = vars.svg.selectAll("g#container").data(["container"])

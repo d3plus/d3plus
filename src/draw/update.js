@@ -22,8 +22,8 @@ d3plus.draw.update = function(vars) {
 
     // Update App Clipping Rectangle
     vars.g.clipping.select("rect").transition().duration(vars.timing.transitions)
-      .attr("width",vars.app_width)
-      .attr("height",vars.app_height)
+      .attr("width",vars.width.viz)
+      .attr("height",vars.height.viz)
 
     // Update Container Groups
     vars.g.container.transition().duration(vars.timing.transitions)
@@ -49,8 +49,8 @@ d3plus.draw.update = function(vars) {
 
     // Update App Clipping Rectangle
     vars.g.clipping.select("rect")
-      .attr("width",vars.app_width)
-      .attr("height",vars.app_height)
+      .attr("width",vars.width.viz)
+      .attr("height",vars.height.viz)
 
     // Update Container Groups
     vars.g.container

@@ -56,7 +56,7 @@ d3plus.ui.message = function(vars,message) {
         return position == "center" ? "auto" : vars.width.value+"px"
       })
       .style("margin-left",function(){
-        var offset = vars.width.value-vars.app_width
+        var offset = vars.width.value-vars.width.viz
         return position == "center" ? -(this.offsetWidth/2+offset/2)+"px" : "0px"
       })
       .style("top",function(){

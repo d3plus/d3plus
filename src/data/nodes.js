@@ -13,7 +13,7 @@ d3plus.data.nodes = function(vars) {
   else {
 
     var force = d3.layout.force()
-      .size([vars.app_width,vars.app_height])
+      .size([vars.width.viz,vars.height.viz])
       .nodes(vars.nodes.value)
       .links(vars.edges.value)
 

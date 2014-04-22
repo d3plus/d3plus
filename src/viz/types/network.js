@@ -36,13 +36,13 @@ d3plus.visualization.network = function(vars) {
     var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
         height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
         aspect = width/height,
-        app = vars.app_width/vars.app_height
+        app = vars.width.viz/vars.height.viz
 
     if (app > aspect) {
-      var scale = vars.app_height/height
+      var scale = vars.height.viz/height
     }
     else {
-      var scale = vars.app_width/width
+      var scale = vars.width.viz/width
     }
     var min_size = max_size*0.25
     if (min_size*scale < 3) {
