@@ -27,7 +27,7 @@ d3plus.form.json = function(vars) {
     
     setTimeout(function(){
       vars.self.draw()
-    },vars.timing*1.5)
+    },vars.timing.transitions*1.5)
     
   })
   

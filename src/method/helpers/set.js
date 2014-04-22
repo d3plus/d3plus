@@ -39,6 +39,10 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
   }
 
+  if ( typeof accepted === "function" ) {
+    accepted = accepted( vars )
+  }
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the given value is allowed.
   //----------------------------------------------------------------------------
@@ -58,7 +62,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
   //----------------------------------------------------------------------------
   if (allowed === false) {
 
-    var str = vars.format.locale.value.warning.deprecated
+    var str = vars.format.locale.value.warning.accepted
       , recs = []
       , val = ""+JSON.stringify(value)
 
@@ -114,18 +118,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
     //--------------------------------------------------------------------------
     if ( key === "value" && "process" in object ) {
 
-      if ( object.process === Array ) {
-        object[key] = d3plus.array.update(object[key],value)
-      }
-      else if ( typeof object.process === "object" ) {
-        object[key] = object.process[value]
-      }
-      else if ( typeof object.process === "function" ) {
-        object[key] = object.process(value)
-      }
-      else {
-        object[key] = value
-      }
+      d3plus.method.process( object , value )
 
     }
     else if ( key === "value" && "nesting" in object ) {

@@ -17,13 +17,13 @@ d3plus.shape.edges = function(vars) {
 
     vars.edges.scale = d3.scale.sqrt()
                         .domain(strokeDomain)
-                        .range([vars.style.edges.width,maxSize*scale])
+                        .range([vars.edges.width,maxSize*scale])
 
   }
   else {
 
     var defaultWidth = typeof vars.edges.size == "number"
-                     ? vars.edges.size : vars.style.edges.width
+                     ? vars.edges.size : vars.edges.width
 
     vars.edges.scale = function(){
       return defaultWidth
@@ -36,12 +36,12 @@ d3plus.shape.edges = function(vars) {
   //----------------------------------------------------------------------------
   function init(l) {
 
-    var opacity = vars.style.edges.opacity == 1 ? vars.style.edges.opacity : 0
+    var opacity = vars.edges.opacity == 1 ? vars.edges.opacity : 0
 
     l
       .attr("opacity",opacity)
       .style("stroke-width",0)
-      .style("stroke",vars.style.background)
+      .style("stroke",vars.background.value)
       .style("fill","none")
   }
 
@@ -56,8 +56,8 @@ d3plus.shape.edges = function(vars) {
       .style("stroke-width",function(e){
         return vars.edges.scale(e[vars.edges.size])
       })
-      .style("stroke",vars.style.edges.color)
-      .attr("opacity",vars.style.edges.opacity)
+      .style("stroke",vars.edges.color)
+      .attr("opacity",vars.edges.opacity)
       .attr("marker-start",function(e){
 
         var direction = vars.edges.arrows.direction.value
@@ -206,11 +206,12 @@ d3plus.shape.edges = function(vars) {
 
       }
 
-      width += vars.style.labels.padding*2
+      width += vars.labels.padding*2
 
       var m = 0
       if (vars.edges.arrows.value) {
-        m = vars.style.edges.arrows
+        m = typeof vars.edges.arrows.value === "number"
+          ? vars.edges.arrows.value : 8
         m = m/vars.zoom.behavior.scaleExtent()[1]
         width -= m*2
       }
@@ -226,11 +227,11 @@ d3plus.shape.edges = function(vars) {
           "y": y,
           "translate": translate,
           "w": width,
-          "h": 15+vars.style.labels.padding*2,
+          "h": 15+vars.labels.padding*2,
           "angle": angle,
           "anchor": "middle",
           "valign": "center",
-          "color": vars.style.edges.color,
+          "color": vars.edges.color,
           "resize": false,
           "names": [vars.format.value(d[vars.edges.label])],
           "background": 1
@@ -259,9 +260,11 @@ d3plus.shape.edges = function(vars) {
     }
   }
   else {
-    var markerSize = typeof vars.edges.size == "number"
-                    ? vars.edges.size/vars.style.edges.arrows
-                    : vars.style.edges.arrows
+    var m = typeof vars.edges.arrows.value === "number"
+          ? vars.edges.arrows.value : 8
+
+    var markerSize = typeof vars.edges.size === "number"
+                    ? vars.edges.size/m : m
   }
 
   var marker = vars.defs.selectAll(".d3plus_edge_marker")
@@ -293,24 +296,24 @@ d3plus.shape.edges = function(vars) {
         var type = d.split("_")[0]
 
         if (type == "default") {
-          return vars.style.edges.color
+          return vars.edges.color
         }
         else if (type == "focus") {
-          return vars.style.highlight.focus
+          return vars.color.focus
         }
         else {
-          return vars.style.highlight.primary
+          return vars.color.primary
         }
       })
       .attr("transform","scale("+1/scale+")")
   }
 
-  if (vars.timing) {
-    marker.exit().transition().duration(vars.timing)
+  if (vars.timing.transitions) {
+    marker.exit().transition().duration(vars.timing.transitions)
       .attr("opacity",0)
       .remove()
 
-    marker.select("path").transition().duration(vars.timing)
+    marker.select("path").transition().duration(vars.timing.transitions)
       .attr("opacity",1)
       .call(marker_style)
   }
@@ -322,7 +325,7 @@ d3plus.shape.edges = function(vars) {
       .call(marker_style)
   }
 
-  var opacity = vars.timing ? 0 : 1
+  var opacity = vars.timing.transitions ? 0 : 1
   var enter = marker.enter().append("marker")
     .attr("id",function(d){
       return "d3plus_edge_marker_"+d
@@ -336,8 +339,8 @@ d3plus.shape.edges = function(vars) {
     .attr("vector-effect","non-scaling-stroke")
     .call(marker_style)
 
-  if (vars.timing) {
-    enter.transition().duration(vars.timing)
+  if (vars.timing.transitions) {
+    enter.transition().duration(vars.timing.transitions)
       .attr("opacity",1)
   }
 
@@ -464,32 +467,32 @@ d3plus.shape.edges = function(vars) {
 
     })
 
-  if (vars.timing) {
+  if (vars.timing.transitions) {
 
-    lines.exit().transition().duration(vars.timing)
+    lines.exit().transition().duration(vars.timing.transitions)
       .attr("opacity",0)
       .remove()
 
-    splines.exit().transition().duration(vars.timing)
+    splines.exit().transition().duration(vars.timing.transitions)
       .attr("opacity",0)
       .remove()
 
     lines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
-      .transition().duration(vars.timing/2)
+      .transition().duration(vars.timing.transitions/2)
       .attr("opacity",0)
       .remove()
 
     splines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
-      .transition().duration(vars.timing/2)
+      .transition().duration(vars.timing.transitions/2)
       .attr("opacity",0)
       .remove()
 
-    lines.selectAll("line").transition().duration(vars.timing)
+    lines.selectAll("line").transition().duration(vars.timing.transitions)
       .call(line)
       .call(style)
       .each("end",label)
 
-    splines.selectAll("path").transition().duration(vars.timing)
+    splines.selectAll("path").transition().duration(vars.timing.transitions)
       .call(spline)
       .call(style)
       .each("end",label)
@@ -499,7 +502,7 @@ d3plus.shape.edges = function(vars) {
       .append("line")
       .call(line)
       .call(init)
-      .transition().duration(vars.timing)
+      .transition().duration(vars.timing.transitions)
         .call(style)
         .each("end",label)
 
@@ -508,7 +511,7 @@ d3plus.shape.edges = function(vars) {
       .append("path")
       .call(spline)
       .call(init)
-      .transition().duration(vars.timing)
+      .transition().duration(vars.timing.transitions)
         .call(style)
         .each("end",label)
 

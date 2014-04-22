@@ -23,7 +23,7 @@ d3plus.zoom.controls = function() {
       .attr("unselectable","on")
       .on(d3plus.evt.click,function(){ 
         vars.zoom("reset") 
-        vars.update()
+        vars.draw.update()
       })
       .html("\&#8634;")
   }

@@ -18,7 +18,7 @@ d3plus.ui.focus = function(vars) {
       data[vars.id.value] = vars.focus.value
     }
 
-    var offset = vars.style.labels.padding
+    var offset = vars.labels.padding
 
     d3plus.tooltip.app({
       "anchor": "top left",
@@ -33,11 +33,11 @@ d3plus.ui.focus = function(vars) {
       "vars": vars,
       "x": vars.width.value-vars.margin.right-offset,
       "y": vars.margin.top+offset,
-      "width": vars.style.tooltip.large
+      "width": vars.tooltip.large
     })
 
     if(!d3.select("div#d3plus_tooltip_id_"+vars.type.value+"_focus").empty()) {
-      vars.app_width -= (vars.style.tooltip.large+offset*2)
+      vars.app_width -= (vars.tooltip.large+offset*2)
     }
 
   }

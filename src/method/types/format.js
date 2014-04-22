@@ -4,7 +4,7 @@ d3plus.method.format = {
   "locale": {
     "accepted" : [ "en_US" ],
     "process"  : d3plus.locale,
-    "value"    : d3plus.locale.en_US
+    "value"    : "en_US"
   },
   "number": function( number , key , vars ) {
 

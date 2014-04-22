@@ -228,7 +228,7 @@ d3plus.visualization.chart = function(vars) {
       var orient = axis == "x" ? "bottom" : "left"
 
       vars[axis+"_axis"] = d3.svg.axis()
-        .tickSize(vars.style.ticks.size)
+        .tickSize(vars.axes.ticks.size)
         .tickPadding(5)
         .orient(orient)
         .scale(vars[axis+"_scale"])
@@ -250,10 +250,10 @@ d3plus.visualization.chart = function(vars) {
             }
 
             d3.select(this)
-              .style("font-size",vars.style.ticks.font.size)
-              .style("fill",vars.style.ticks.font.color)
-              .attr("font-family",vars.style.font.family)
-              .attr("font-weight",vars.style.font.weight)
+              .style("font-size",vars.axes.ticks.font.size)
+              .style("fill",vars.axes.ticks.font.color)
+              .attr("font-family",vars.font.family.value)
+              .attr("font-weight",vars.font.weight)
               .text(text)
 
             if (axis == "x") {
@@ -303,9 +303,9 @@ d3plus.visualization.chart = function(vars) {
   // Function for Tick Styling
   function tick_style(t,axis) {
     t
-      .attr("stroke",vars.style.ticks.color)
-      .attr("stroke-width",vars.style.ticks.width)
-      .attr("shape-rendering",vars.style.rendering)
+      .attr("stroke",vars.axes.ticks.color)
+      .attr("stroke-width",vars.axes.ticks.width)
+      .attr("shape-rendering",vars.rendering)
       .style("opacity",function(d){
         var lighter = vars[axis].scale.value == "log" && d.toString().charAt(0) != "1"
         return lighter ? 0.25 : 1
@@ -349,7 +349,7 @@ d3plus.visualization.chart = function(vars) {
     .attr("height", graph.height)
     .attr("stroke-width",1)
     .attr("stroke","#ccc")
-      .attr("shape-rendering",vars.style.rendering)
+      .attr("shape-rendering",vars.rendering)
     .style("fill","#fafafa")
 
   // Enter Background Mirror
@@ -396,11 +396,11 @@ d3plus.visualization.chart = function(vars) {
     .attr("x", vars.app_width/2)
     .attr("y", vars.app_height-10)
     .text(vars.format.value(vars.x.value))
-    .attr("font-family",vars.style.font.family)
-    .attr("font-weight",vars.style.font.weight)
-    .attr("font-size",vars.style.labels.size)
-    .attr("fill",vars.style.labels.color)
-    .attr("text-anchor",vars.style.labels.align)
+    .attr("font-family",vars.font.family.value)
+    .attr("font-weight",vars.font.weight)
+    .attr("font-size",vars.labels.size)
+    .attr("fill",vars.labels.color)
+    .attr("text-anchor",vars.labels.align)
 
   // Enter Y Axis Label
   var ylabel = axes.selectAll("text#ylabel").data(["ylabel"])
@@ -410,11 +410,11 @@ d3plus.visualization.chart = function(vars) {
     .attr("x", -(graph.height/2+graph.margin.top))
     .text(vars.format.value(vars.y.value))
     .attr("transform","rotate(-90)")
-    .attr("font-family",vars.style.font.family)
-    .attr("font-weight",vars.style.font.weight)
-    .attr("font-size",vars.style.labels.size)
-    .attr("fill",vars.style.labels.color)
-    .attr("text-anchor",vars.style.labels.align)
+    .attr("font-family",vars.font.family.value)
+    .attr("font-weight",vars.font.weight)
+    .attr("font-size",vars.labels.size)
+    .attr("fill",vars.labels.color)
+    .attr("text-anchor",vars.labels.align)
 
   // Enter Mouse Event Group
   var mouseevents = vars.group.selectAll("g#mouseevents").data(["mouseevents"])
@@ -451,7 +451,7 @@ d3plus.visualization.chart = function(vars) {
   //-------------------------------------------------------------------
 
   // Update Plane Group
-  plane.transition().duration(vars.style.timing.transitions)
+  plane.transition().duration(vars.timing.transitions)
     .attr("transform", "translate(" + graph.margin.left + "," + graph.margin.top + ")")
 
   // Update Plane Background
@@ -459,7 +459,7 @@ d3plus.visualization.chart = function(vars) {
     .attr("height", graph.height)
 
   // Update Mirror Triangle
-  mirror.transition().duration(vars.style.timing.transitions)
+  mirror.transition().duration(vars.timing.transitions)
     .attr("opacity",function(){
       return vars.axes.mirror.value ? 1 : 0
     })
@@ -469,22 +469,22 @@ d3plus.visualization.chart = function(vars) {
     })
 
   // Update Y Axis
-  yaxis.transition().duration(vars.style.timing.transitions)
+  yaxis.transition().duration(vars.timing.transitions)
     .call(vars.y_axis.scale(vars.y_scale))
 
-  yaxis.selectAll("line").transition().duration(vars.style.timing.transitions)
+  yaxis.selectAll("line").transition().duration(vars.timing.transitions)
       .call(tick_style,"y")
 
   yaxis.selectAll("path").style("fill","none")
 
   // Update X Axis
-  xaxis.transition().duration(vars.style.timing.transitions)
+  xaxis.transition().duration(vars.timing.transitions)
     .attr("transform", "translate(0," + graph.height + ")")
     .call(vars.x_axis.scale(vars.x_scale))
     .selectAll("g.tick").select("text")
       .style("text-anchor","start")
 
-  xaxis.selectAll("line").transition().duration(vars.style.timing.transitions)
+  xaxis.selectAll("line").transition().duration(vars.timing.transitions)
       .call(tick_style,"x")
 
   xaxis.selectAll("path").style("fill","none")
@@ -501,12 +501,12 @@ d3plus.visualization.chart = function(vars) {
     .call(tick_position,"y")
     .call(tick_style,"y")
 
-  ylines.transition().duration(vars.style.timing.transitions)
+  ylines.transition().duration(vars.timing.transitions)
     .style("opacity",1)
     .call(tick_position,"y")
     .call(tick_style,"y")
 
-  ylines.exit().transition().duration(vars.style.timing.transitions)
+  ylines.exit().transition().duration(vars.timing.transitions)
     .style("opacity",0)
     .remove()
 
@@ -522,12 +522,12 @@ d3plus.visualization.chart = function(vars) {
     .call(tick_position,"x")
     .call(tick_style,"x")
 
-  xlines.transition().duration(vars.style.timing.transitions)
+  xlines.transition().duration(vars.timing.transitions)
     .style("opacity",1)
     .call(tick_position,"x")
     .call(tick_style,"x")
 
-  xlines.exit().transition().duration(vars.style.timing.transitions)
+  xlines.exit().transition().duration(vars.timing.transitions)
     .style("opacity",0)
     .remove()
 
@@ -607,12 +607,12 @@ d3plus.visualization.chart = function(vars) {
       .attr("stroke-dasharray","10,10")
 
     enter.append("text")
-      .style("font-size",vars.style.ticks.font.size)
-      .style("fill",vars.style.ticks.font.color)
+      .style("font-size",vars.axes.ticks.font.size)
+      .style("fill",vars.axes.ticks.font.color)
       .attr("text-align","start")
       .attr(axis,pos)
 
-    lines.selectAll("line").transition().duration(vars.style.timing.transitions)
+    lines.selectAll("line").transition().duration(vars.timing.transitions)
       .attr(axis+"1",function(d){
         return get_val(d) ? vars[axis+"_scale"](get_val(d)) : 0
       })
@@ -624,7 +624,7 @@ d3plus.visualization.chart = function(vars) {
         return get_val(d) != null && yes ? 1 : 0
       })
 
-    lines.selectAll("text").transition().duration(vars.style.timing.transitions)
+    lines.selectAll("text").transition().duration(vars.timing.transitions)
       .text(function(){
         if (get_val(d) != null) {
           var v = vars.format.value(get_val(d),y_name)
@@ -877,8 +877,8 @@ d3plus.visualization.chart = function(vars) {
         .style("stroke",function(d){
           return d3plus.color.legible(d3plus.variable.color(vars,d));
         })
-        .style("stroke-width",vars.style.data.stroke.width)
-        .attr("shape-rendering",vars.style.rendering)
+        .style("stroke-width",vars.data.stroke.width)
+        .attr("shape-rendering",vars.rendering)
     }
 
     var data_ticks = plane.selectAll("g.d3plus_data_ticks")
@@ -904,10 +904,10 @@ d3plus.visualization.chart = function(vars) {
     data_ticks.selectAll("line.d3plus_data_x")
       .call(data_tick,"x")
 
-    data_ticks.transition().duration(vars.style.timing.transitions)
+    data_ticks.transition().duration(vars.timing.transitions)
       .attr("opacity",1)
 
-    data_ticks.exit().transition().duration(vars.style.timing.transitions)
+    data_ticks.exit().transition().duration(vars.timing.transitions)
       .attr("opacity",0)
       .remove()
 
@@ -969,23 +969,23 @@ d3plus.visualization.chart = function(vars) {
       .style("stroke",function(d){
         return d3plus.variable.color(vars,node)
       })
-      .attr("shape-rendering",vars.style.rendering)
+      .attr("shape-rendering",vars.rendering)
 
-    lines.transition().duration(vars.style.timing.mouseevents)
+    lines.transition().duration(vars.timing.mouseevents)
       .attr("class","d3plus_axis_label")
       .attr("x2",function(d){
-        return d.axis == "x" ? d.x : graph.margin.left-vars.style.ticks.size
+        return d.axis == "x" ? d.x : graph.margin.left-vars.axes.ticks.size
       })
       .attr("y2",function(d){
-        return d.axis == "y" ? d.y : graph.height+graph.margin.top+vars.style.ticks.size
+        return d.axis == "y" ? d.y : graph.height+graph.margin.top+vars.axes.ticks.size
       })
       .style("stroke",function(d){
         return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
-      .style("stroke-width",vars.style.data.stroke.width)
+      .style("stroke-width",vars.data.stroke.width)
       .attr("opacity",1)
 
-    lines.exit().transition().duration(vars.style.timing.mouseevents)
+    lines.exit().transition().duration(vars.timing.mouseevents)
       .call(line_init)
       .remove()
 
@@ -1004,13 +1004,13 @@ d3plus.visualization.chart = function(vars) {
         return vars.format.value(val,vars[d.axis].value)
       })
       .attr("x",function(d){
-        return d.axis == "x" ? d.x : graph.margin.left-5-vars.style.ticks.size
+        return d.axis == "x" ? d.x : graph.margin.left-5-vars.axes.ticks.size
       })
       .attr("y",function(d){
-        return d.axis == "y" ? d.y : graph.height+graph.margin.top+5+vars.style.ticks.size
+        return d.axis == "y" ? d.y : graph.height+graph.margin.top+5+vars.axes.ticks.size
       })
       .attr("dy",function(d){
-        return d.axis == "y" ? (vars.style.ticks.font.size*.35) : vars.style.ticks.font.size
+        return d.axis == "y" ? (vars.axes.ticks.font.size*.35) : vars.axes.ticks.font.size
       })
       .attr("text-anchor",function(d){
         return d.axis == "y" ? "end": "middle"
@@ -1018,16 +1018,16 @@ d3plus.visualization.chart = function(vars) {
       .style("fill",function(d){
         return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
-      .style("font-size",vars.style.ticks.font.size)
-      .attr("font-family",vars.style.font.family)
-      .attr("font-weight",vars.style.font.weight)
+      .style("font-size",vars.axes.ticks.font.size)
+      .attr("font-family",vars.font.family.value)
+      .attr("font-weight",vars.font.weight)
       .attr("opacity",0)
 
-    texts.transition().duration(vars.style.timing.mouseevents)
-      .delay(vars.style.timing.mouseevents)
+    texts.transition().duration(vars.timing.mouseevents)
+      .delay(vars.timing.mouseevents)
       .attr("opacity",1)
 
-    texts.exit().transition().duration(vars.style.timing.mouseevents)
+    texts.exit().transition().duration(vars.timing.mouseevents)
       .attr("opacity",0)
       .remove()
 
@@ -1040,13 +1040,13 @@ d3plus.visualization.chart = function(vars) {
       .attr("class","d3plus_axis_label")
       .attr("x",function(d){
         var width = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().width
-        var ret = d.axis == "x" ? d.x : graph.margin.left-vars.style.ticks.size
+        var ret = d.axis == "x" ? d.x : graph.margin.left-vars.axes.ticks.size
         return d.axis == "x" ? ret-width/2-5 : ret-width-10
       })
       .attr("y",function(d){
         var height = d3.select("text#"+d.axis+"_"+d.id).node().getBBox().height
         var ret = d.axis == "y" ? d.y : graph.height+graph.margin.top
-        return d.axis == "x" ? ret+vars.style.ticks.size : ret-height/2-5
+        return d.axis == "x" ? ret+vars.axes.ticks.size : ret-height/2-5
       })
       .attr("width",function(d){
         var text = d3.select("text#"+d.axis+"_"+d.id).node().getBBox()
@@ -1060,15 +1060,15 @@ d3plus.visualization.chart = function(vars) {
         return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
       .style("fill","white")
-      .style("stroke-width",vars.style.data.stroke.width)
-      .attr("shape-rendering",vars.style.rendering)
+      .style("stroke-width",vars.data.stroke.width)
+      .attr("shape-rendering",vars.rendering)
       .attr("opacity",0)
 
-    rects.transition().duration(vars.style.timing.mouseevents)
-      .delay(vars.style.timing.mouseevents)
+    rects.transition().duration(vars.timing.mouseevents)
+      .delay(vars.timing.mouseevents)
       .attr("opacity",1)
 
-    rects.exit().transition().duration(vars.style.timing.mouseevents)
+    rects.exit().transition().duration(vars.timing.mouseevents)
       .attr("opacity",0)
       .remove()
 

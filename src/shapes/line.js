@@ -20,7 +20,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
   // point on the line.
   //----------------------------------------------------------------------------
 
-  var hitarea = vars.style.data.stroke.width
+  var hitarea = vars.data.stroke.width
   if (hitarea < 30) {
     hitarea = 30
   }
@@ -81,9 +81,9 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // "paths" and "rects" Enter/Update
     //--------------------------------------------------------------------------
-    if (vars.timing) {
+    if (vars.timing.transitions) {
 
-      paths.transition().duration(vars.timing)
+      paths.transition().duration(vars.timing.transitions)
         .attr("d",function(d){ return line(d.values) })
         .call(d3plus.shape.style,vars)
 
@@ -100,11 +100,11 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         .call(init)
         .call(d3plus.shape.style,vars)
 
-      rects.transition().duration(vars.timing)
+      rects.transition().duration(vars.timing.transitions)
         .call(update)
         .call(d3plus.shape.style,vars)
 
-      rects.exit().transition().duration(vars.timing)
+      rects.exit().transition().duration(vars.timing.transitions)
         .call(init)
         .remove()
 
@@ -155,7 +155,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     mouse
       .on(d3plus.evt.over,function(m){
 
-        if (!vars.frozen) {
+        if (!vars.draw.frozen) {
 
           var mouse = d3.event[vars.continuous_axis]
               positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
@@ -166,12 +166,12 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
           parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
 
           d3.select(this.parentNode).selectAll("path.d3plus_line")
-            .transition().duration(vars.style.timing.mouseevents)
-            .style("stroke-width",vars.style.data.stroke.width*2)
+            .transition().duration(vars.timing.mouseevents)
+            .style("stroke-width",vars.data.stroke.width*2)
 
           d3.select(this.parentNode).selectAll("rect")
-            .transition().duration(vars.style.timing.mouseevents)
-            .style("stroke-width",vars.style.data.stroke.width*2)
+            .transition().duration(vars.timing.mouseevents)
+            .style("stroke-width",vars.data.stroke.width*2)
             .call(update,2)
 
         }
@@ -179,7 +179,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       })
       .on(d3plus.evt.move,function(d){
 
-        if (!vars.frozen) {
+        if (!vars.draw.frozen) {
 
           var mouse = d3.event.x,
               positions = d3plus.util.uniques(d.values,function(x){return x.d3plus.x}),
@@ -194,15 +194,15 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       })
       .on(d3plus.evt.out,function(d){
 
-        if (!vars.frozen) {
+        if (!vars.draw.frozen) {
 
           d3.select(this.parentNode).selectAll("path.d3plus_line")
-            .transition().duration(vars.style.timing.mouseevents)
-            .style("stroke-width",vars.style.data.stroke.width)
+            .transition().duration(vars.timing.mouseevents)
+            .style("stroke-width",vars.data.stroke.width)
 
           d3.select(this.parentNode).selectAll("rect")
-            .transition().duration(vars.style.timing.mouseevents)
-            .style("stroke-width",vars.style.data.stroke.width)
+            .transition().duration(vars.timing.mouseevents)
+            .style("stroke-width",vars.data.stroke.width)
             .call(update)
 
           var parent_data = d3.select(this.parentNode).datum()
@@ -213,9 +213,9 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
       })
 
-    if (vars.timing) {
+    if (vars.timing.transitions) {
 
-      mouse.transition().duration(vars.timing)
+      mouse.transition().duration(vars.timing.transitions)
         .attr("d",function(l){ return line(l.values) })
         .style("stroke-width",hitarea)
 

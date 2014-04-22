@@ -23,8 +23,8 @@ d3plus.shape.style = function(nodes,vars) {
       }
       return d3plus.color.legible(color)
     })
-    .style("stroke-width",vars.style.data.stroke.width)
-    .attr("opacity",vars.style.data.opacity)
+    .style("stroke-width",vars.data.stroke.width)
+    .attr("opacity",vars.data.opacity)
     .attr("vector-effect","non-scaling-stroke")
 
 }

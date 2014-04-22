@@ -37,10 +37,10 @@ d3plus.draw.focus = function(vars) {
 
       vars.g.edge_focus.selectAll("line, path")
         .attr("vector-effect","non-scaling-stroke")
-        .style("stroke",vars.style.highlight.focus)
+        .style("stroke",vars.color.focus)
         .style("stroke-width",function(){
           return vars.edges.size ? d3.select(this).style("stroke-width")
-               : vars.style.data.stroke.width*2
+               : vars.data.stroke.width*2
         })
         .attr("marker-start",function(e){
 
@@ -74,7 +74,7 @@ d3plus.draw.focus = function(vars) {
         })
 
       vars.g.edge_focus.selectAll("text")
-        .style("fill",vars.style.highlight.focus)
+        .style("fill",vars.color.focus)
 
     }
 
@@ -140,7 +140,7 @@ d3plus.draw.focus = function(vars) {
     }
 
     vars.g.data_focus.selectAll("path")
-      .style("stroke-width",vars.style.data.stroke.width*2)
+      .style("stroke-width",vars.data.stroke.width*2)
 
     if (vars.dev.value) d3plus.console.timeEnd("drawing focus elements")
 

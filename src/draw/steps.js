@@ -28,7 +28,7 @@ d3plus.draw.steps = function(vars) {
   //----------------------------------------------------------------------------
   steps.push({
     "check": function(vars) {
-      return vars.update && typeof d3plus.visualization[vars.type.value].setup == "function"
+      return vars.draw.update && typeof d3plus.visualization[vars.type.value].setup == "function"
     },
     "function": d3plus.visualization[vars.type.value].setup,
     "message": "Initializing \""+vars.type.value+"\""
@@ -47,7 +47,7 @@ d3plus.draw.steps = function(vars) {
     "message": "Resetting Tooltips"
   })
 
-  if (vars.update) {
+  if (vars.draw.update) {
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create SVG group elements if the container is new or has changed
@@ -159,7 +159,7 @@ d3plus.draw.steps = function(vars) {
       "function": function(vars) {
 
         vars.data.grouped = null
-        vars.data.app = null;
+        vars.data.app = null
 
         d3plus.data.filter(vars)
 
@@ -172,20 +172,21 @@ d3plus.draw.steps = function(vars) {
     //--------------------------------------------------------------------------
     steps.push({
       "check": function(vars) {
-        return vars.mute.length > 0 || vars.solo.length > 0
+        var restriction = vars.solo.length ? vars.solo : vars.mute
+        return restriction.length > 0
       },
       "function": d3plus.data.restrict,
       "message": "Filtering Data",
       "otherwise": function(vars) {
 
-        if (vars.filtered || !vars.data.restricted || vars.check.length) {
+        if ("restriction" in vars.data || !vars.data.restricted || vars.check.length) {
 
           vars.data.restricted = d3plus.util.copy(vars.data.filtered)
           vars.data.grouped = null
           vars.data.app = null
           vars.nodes.restricted = null
           vars.edges.restricted = null
-          vars.filtered = false
+          delete vars.data.restriction
 
         }
 
@@ -304,7 +305,7 @@ d3plus.draw.steps = function(vars) {
       vars.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
       d3plus.ui.titles(vars)
 
-      if (vars.update) {
+      if (vars.draw.update) {
 
         d3plus.ui.timeline(vars)
         d3plus.ui.legend(vars)
@@ -319,10 +320,10 @@ d3plus.draw.steps = function(vars) {
         legend = legend.height+legend.y
 
         if (legend && timeline) {
-          var padding = vars.style.ui.padding*3
+          var padding = vars.ui.padding*3
         }
         else if (legend || timeline) {
-          var padding = vars.style.ui.padding*2
+          var padding = vars.ui.padding*2
         }
         else {
           var padding = 0
@@ -348,7 +349,7 @@ d3plus.draw.steps = function(vars) {
 
   steps.push({
     "function": function(vars) {
-      if (vars.update) {
+      if (vars.draw.update) {
         d3plus.draw.errors(vars)
         d3plus.draw.app(vars)
         d3plus.shape.draw(vars)

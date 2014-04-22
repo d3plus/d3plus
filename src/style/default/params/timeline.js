@@ -15,14 +15,14 @@ d3plus.style.default.timeline = {
   "height": 20,
   "label": {
     "color": "#444",
-    "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
     "weight": 200,
     "size": 12
   },
   "tick": {
     "align": "middle",
     "color": "#E5E5E5",
-    "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
     "weight": 200,
     "size": 10
   }

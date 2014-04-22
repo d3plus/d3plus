@@ -2,9 +2,14 @@
 // Detects is we should set the object or check all keys of object.
 //------------------------------------------------------------------------------
 d3plus.method.object = function( vars , method , object , key , value ) {
-  
+
   var acceptList   = key in object ? object[key].accepted : []
-    , matchingKey  = typeof value === "object" && value !== null
+
+  if ( typeof acceptList === "function" ) {
+    acceptList = acceptList( vars )
+  }
+
+  var matchingKey  = typeof value === "object" && value !== null
                      && Object.keys(value)[0] in object[key]
     , acceptAll    = acceptList === undefined && key in object
     , acceptString = acceptList && typeof acceptList[0] === "string"

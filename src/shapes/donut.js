@@ -29,7 +29,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
     .innerRadius(function(d){
       if (shape == "donut" && !d.d3plus.static) {
         var r = vars.arcs[d.d3plus.shapeType][d.d3plus.id].r
-        return r * vars.style.data.donut.size
+        return r * vars.data.donut.size
       }
       else {
         return 0
@@ -72,7 +72,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
   // "paths" Exit
   //----------------------------------------------------------------------------
   exit.selectAll("path.d3plus_data")
-  .transition().duration(vars.timing)
+  .transition().duration(vars.timing.transitions)
     .call(size,0,0)
     .each("end",function(d){
       delete vars.arcs[d.d3plus.shapeType][d.d3plus.id]
@@ -83,7 +83,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
   selection.selectAll("path.d3plus_data")
     .data(function(d) { return [d]; })
-    .transition().duration(vars.timing)
+    .transition().duration(vars.timing.transitions)
       .call(size)
       .call(d3plus.shape.style,vars)
 

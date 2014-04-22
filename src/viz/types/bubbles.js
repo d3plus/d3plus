@@ -155,8 +155,8 @@ d3plus.visualization.bubbles = function(vars) {
         return d.d3plus.y-d.r-d.d3plus.label_height-padding
       })
       .attr("text-anchor","middle")
-      .attr("font-weight",vars.style.font.weight)
-      .attr("font-family",vars.style.font.family)
+      .attr("font-weight",vars.font.weight)
+      .attr("font-family",vars.font.family.value)
       .attr("font-size","12px")
       .style("fill",function(d){
         var color = d3plus.variable.color(vars,d)
@@ -188,7 +188,7 @@ d3plus.visualization.bubbles = function(vars) {
     .call(label_style)
     .attr("opacity",0)
 
-  labels.transition().duration(vars.style.timing.transitions)
+  labels.transition().duration(vars.timing.transitions)
     .call(label_style)
     .attr("opacity",1)
 

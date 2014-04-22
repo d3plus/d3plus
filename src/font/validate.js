@@ -6,9 +6,9 @@ d3plus.font.validate = function(test_fonts) {
   if (!(test_fonts instanceof Array)) {
     test_fonts = test_fonts.split(",")
   }
-
+  
   var fontString = test_fonts.join(", ")
-    , completed = this.validate.complete
+    , completed = d3plus.font.validate.complete
 
   if (fontString in completed) {
     return completed[fontString]

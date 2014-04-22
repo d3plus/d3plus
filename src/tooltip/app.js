@@ -22,7 +22,7 @@ d3plus.tooltip.app = function(params) {
   }
   else {
     var fullscreen = false,
-        align = params.anchor || vars.style.tooltip.anchor,
+        align = params.anchor || vars.tooltip.anchor,
         length = params.length || "short",
         zoom = vars.zoom_direction()
 
@@ -155,19 +155,19 @@ d3plus.tooltip.app = function(params) {
         var width = "auto"
       }
       else {
-        var width = vars.style.tooltip.small
+        var width = vars.tooltip.small
       }
 
       d3plus.tooltip.create({
         "align": align,
         "arrow": arrow,
-        "background": vars.style.tooltip.background,
-        "curtain": vars.style.tooltip.curtain.color,
-        "curtainopacity": vars.style.tooltip.curtain.opacity,
-        "fontcolor": vars.style.tooltip.font.color,
-        "fontfamily": vars.style.tooltip.font.family,
-        "fontsize": vars.style.tooltip.font.size,
-        "fontweight": vars.style.tooltip.font.weight,
+        "background": vars.tooltip.background,
+        "curtain": vars.tooltip.curtain.color,
+        "curtainopacity": vars.tooltip.curtain.opacity,
+        "fontcolor": vars.tooltip.font.color,
+        "fontfamily": vars.tooltip.font.family.value,
+        "fontsize": vars.tooltip.font.size,
+        "fontweight": vars.tooltip.font.weight,
         "data": tooltip_data,
         "color": d3plus.variable.color(vars,d),
         "footer": footer,
@@ -176,7 +176,7 @@ d3plus.tooltip.app = function(params) {
         "icon": icon,
         "id": tooltip_id,
         "max_height": params.maxheight,
-        "max_width": vars.style.tooltip.small,
+        "max_width": vars.tooltip.small,
         "mouseevents": mouse,
         "offset": offset,
         "parent": vars.parent,

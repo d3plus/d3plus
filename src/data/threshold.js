@@ -117,7 +117,7 @@ d3plus.data.threshold = function(vars,split) {
 
       if (vars.color.value && vars.color.type == "string") {
         if (vars.depth.value == 0) {
-          m[vars.color.value] = vars.style.color.missing
+          m[vars.color.value] = vars.color.missing
         }
         else {
           m[vars.color.value] = d3plus.variable.color(vars,m[parent],parent)

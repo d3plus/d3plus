@@ -180,13 +180,13 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
       connections.forEach(function(c){
         var name = d3plus.variable.text(vars,c)[0],
             color = d3plus.variable.color(vars,c),
-            size = vars.style.tooltip.font.size,
+            size = vars.tooltip.font.size,
             radius = vars.shape.value == "square" ? 0 : size
             styles = [
               "background-color: "+color,
               "border-color: "+d3plus.color.legible(color),
               "border-style: solid",
-              "border-width: "+vars.style.data.stroke.width+"px",
+              "border-width: "+vars.data.stroke.width+"px",
               "display: inline-block",
               "height: "+size+"px",
               "left: 0px",

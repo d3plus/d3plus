@@ -1,9 +1,9 @@
 d3plus.method.edges = {
   "accepted": [ Array , Boolean , Function , String ],
   "arrows": {
-    "accepted": [Boolean],
+    "accepted": [ Boolean , Number ],
     "direction": {
-      "accepted": ["source","target"],
+      "accepted": [ "source" , "target" ],
       "value": "target"
     },
     "value": false

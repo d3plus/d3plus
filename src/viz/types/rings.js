@@ -2,7 +2,7 @@ d3plus.visualization.rings = function(vars) {
 
   var radius = d3.min([vars.app_height,vars.app_width])/2
     , ring_width = vars.small || !vars.labels.value
-                 ? (radius-vars.style.labels.padding*2)/2 : radius/3
+                 ? (radius-vars.labels.padding*2)/2 : radius/3
     , primaryRing = vars.small || !vars.labels.value
                   ? ring_width*1.4 : ring_width
     , secondaryRing = ring_width*2
@@ -393,22 +393,22 @@ d3plus.visualization.rings = function(vars) {
         n.d3plus.rotate = n.d3plus.radians*(180/Math.PI)
 
         var angle = n.d3plus.rotate,
-            width = ring_width-(vars.style.labels.padding*3)-n.d3plus.r
+            width = ring_width-(vars.labels.padding*3)-n.d3plus.r
 
         if (angle < -90 || angle > 90) {
           angle = angle-180
-          var buffer = -(n.d3plus.r+width/2+vars.style.labels.padding),
+          var buffer = -(n.d3plus.r+width/2+vars.labels.padding),
               anchor = "end"
         }
         else {
-          var buffer = n.d3plus.r+width/2+vars.style.labels.padding,
+          var buffer = n.d3plus.r+width/2+vars.labels.padding,
               anchor = "start"
         }
 
         var background = primaries.indexOf(n) >= 0 ? true : false
 
         var height = n.d3plus.ring == 1 ? primaryDistance : secondaryDistance
-        height += vars.style.labels.padding*2
+        height += vars.labels.padding*2
 
         n.d3plus.label = {
           "x": buffer,
@@ -419,7 +419,7 @@ d3plus.visualization.rings = function(vars) {
           "anchor": anchor,
           "valign": "center",
           "color": d3plus.color.legible(d3plus.variable.color(vars,n[vars.id.value])),
-          "resize": [8,vars.style.labels.font.size],
+          "resize": [8,vars.labels.font.size],
           "background": background,
           "mouse": true
         }
@@ -427,7 +427,7 @@ d3plus.visualization.rings = function(vars) {
       }
       else if (vars.size.value || vars.edges.label) {
 
-        var height = primaryRing-n.d3plus.r*2-vars.style.labels.padding*2
+        var height = primaryRing-n.d3plus.r*2-vars.labels.padding*2
 
         n.d3plus.label = {
           "x": 0,

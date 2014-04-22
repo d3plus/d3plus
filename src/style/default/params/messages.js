@@ -1,8 +1,8 @@
-d3plus.style.default.message = {
+d3plus.style.default.messages = {
   "font": {
     "color": "#444",
     "decoration": "none",
-    "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
     "size": 18,
     "transform": "none",
     "weight": 200

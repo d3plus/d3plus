@@ -1,8 +1,8 @@
-d3plus.style.default.link = {
+d3plus.style.default.links = {
   "font": {
     "color": "#444",
     "decoration": "none",
-    "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
     "transform": "none",
     "weight": 200
   },
@@ -10,7 +10,7 @@ d3plus.style.default.link = {
     "font": {
       "color": "#444",
       "decoration": "underline",
-      "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+      "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
       "transform": "none",
       "weight": 200
     },

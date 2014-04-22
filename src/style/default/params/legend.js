@@ -5,7 +5,7 @@ d3plus.style.default.legend = {
   },
   "label": {
     "color": "#444",
-    "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
     "weight": 200,
     "size": 12
   },
@@ -13,7 +13,7 @@ d3plus.style.default.legend = {
   "tick": {
     "align": "middle",
     "color": "#444",
-    "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
     "weight": 200,
     "size": 10
   }

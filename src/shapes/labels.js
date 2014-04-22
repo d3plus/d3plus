@@ -22,9 +22,9 @@ d3plus.shape.labels = function(vars,selection) {
   //----------------------------------------------------------------------------
   remove = function(text) {
 
-    if (vars.timing) {
+    if (vars.timing.transitions) {
       text
-        .transition().duration(vars.timing)
+        .transition().duration(vars.timing.transitions)
         .attr("opacity",0)
         .remove()
     }
@@ -41,7 +41,7 @@ d3plus.shape.labels = function(vars,selection) {
 
     function x_pos(t) {
 
-      var align = t.anchor || vars.style.labels.align,
+      var align = t.anchor || vars.labels.align,
           tspan = this.tagName == "tspan",
           share = tspan ? this.parentNode.className.baseVal == "d3plus_share" : this.className.baseVal == "d3plus_share",
           width = d3.select(this).node().getComputedTextLength()/scale[1]
@@ -91,7 +91,7 @@ d3plus.shape.labels = function(vars,selection) {
       }
       else {
 
-        var align = vars.style.labels.align,
+        var align = vars.labels.align,
             height = d3.select(this).node().getBBox().height/scale[1],
             diff = (parseFloat(d3.select(this).style("font-size"),10)/5)/scale[1]
 
@@ -126,8 +126,8 @@ d3plus.shape.labels = function(vars,selection) {
     }
 
     text
-      .attr("font-weight",vars.style.labels.font.weight)
-      .attr("font-family",vars.style.labels.font.family)
+      .attr("font-weight",vars.labels.font.weight)
+      .attr("font-family",vars.labels.font.family.value)
       .attr("text-anchor","start")
       .attr("pointer-events",function(t){
         return t.mouse ? "auto": "none"
@@ -174,7 +174,7 @@ d3plus.shape.labels = function(vars,selection) {
           }
           else {
 
-            if (vars.style.labels.align != "middle") {
+            if (vars.labels.align != "middle") {
               var height = t.h-t.share
             }
             else {
@@ -248,14 +248,14 @@ d3plus.shape.labels = function(vars,selection) {
 
       if (!disabled && (background || !fill) && !stat) {
 
-        if (share && d.d3plus.share && vars.style.labels.align != "middle") {
+        if (share && d.d3plus.share && vars.labels.align != "middle") {
 
           share.resize = vars.labels.resize.value === false ? false :
             share && "resize" in share ? share.resize : true
 
           share.scale = share.resize ? scale[1] : scale[0]
 
-          share.padding = (vars.style.labels.padding/share.scale)*2
+          share.padding = (vars.labels.padding/share.scale)*2
 
           share.text = d.d3plus.share
           share.parent = d
@@ -265,20 +265,20 @@ d3plus.shape.labels = function(vars,selection) {
               return t.w+""+t.h+""+t.text
             })
 
-          if (vars.timing) {
+          if (vars.timing.transitions) {
 
             text
-              .transition().duration(vars.timing/2)
+              .transition().duration(vars.timing.transitions/2)
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size*share.scale)
+              .attr("font-size",vars.labels.font.size*share.scale)
               .attr("id","d3plus_share_"+d.d3plus.id)
               .attr("class","d3plus_share")
               .attr("opacity",0)
               .call(style,true)
-              .transition().duration(vars.timing/2)
-              .delay(vars.timing/2)
+              .transition().duration(vars.timing.transitions/2)
+              .delay(vars.timing.transitions/2)
               .attr("opacity",0.5)
 
           }
@@ -289,7 +289,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size*share.scale)
+              .attr("font-size",vars.labels.font.size*share.scale)
               .attr("id","d3plus_share_"+d.d3plus.id)
               .attr("class","d3plus_share")
               .attr("opacity",0.5)
@@ -314,7 +314,7 @@ d3plus.shape.labels = function(vars,selection) {
 
           label.scale = label.resize ? scale[1] : scale[0]
 
-          label.padding = (vars.style.labels.padding/label.scale)*2
+          label.padding = (vars.labels.padding/label.scale)*2
 
         }
 
@@ -331,20 +331,20 @@ d3plus.shape.labels = function(vars,selection) {
               return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
 
-          if (vars.timing) {
+          if (vars.timing.transitions) {
 
             text
-              .transition().duration(vars.timing/2)
+              .transition().duration(vars.timing.transitions/2)
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size*label.scale)
+              .attr("font-size",vars.labels.font.size*label.scale)
               .attr("id","d3plus_label_"+d.d3plus.id)
               .attr("class","d3plus_label")
               .attr("opacity",0)
               .call(style,true)
-              .transition().duration(vars.timing/2)
-              .delay(vars.timing/2)
+              .transition().duration(vars.timing.transitions/2)
+              .delay(vars.timing.transitions/2)
               .call(opacity)
 
           }
@@ -355,7 +355,7 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.style.labels.font.size*label.scale)
+              .attr("font-size",vars.labels.font.size*label.scale)
               .attr("id","d3plus_label_"+d.d3plus.id)
               .attr("class","d3plus_label")
               .call(style,true)
@@ -378,10 +378,10 @@ d3plus.shape.labels = function(vars,selection) {
 
               var bounds = text.node().getBBox()
 
-              bounds.width += vars.style.labels.padding*scale[0]
-              bounds.height += vars.style.labels.padding*scale[0]
-              bounds.x -= (vars.style.labels.padding*scale[0])/2
-              bounds.y -= (vars.style.labels.padding*scale[0])/2
+              bounds.width += vars.labels.padding*scale[0]
+              bounds.height += vars.labels.padding*scale[0]
+              bounds.x -= (vars.labels.padding*scale[0])/2
+              bounds.y -= (vars.labels.padding*scale[0])/2
 
             }
             else {
@@ -396,8 +396,8 @@ d3plus.shape.labels = function(vars,selection) {
 
             function bg_style(elem) {
 
-              var color = vars.style.background == "transparent"
-                        ? "#ffffff" : vars.style.background
+              var color = vars.background.value == "transparent"
+                        ? "#ffffff" : vars.background.value
                 , fill = typeof label.background == "string"
                        ? label.background : color
                 , a = label.angle || 0
@@ -412,13 +412,13 @@ d3plus.shape.labels = function(vars,selection) {
 
             }
 
-            if (vars.timing) {
+            if (vars.timing.transitions) {
 
-              bg.exit().transition().duration(vars.timing)
+              bg.exit().transition().duration(vars.timing.transitions)
                 .attr("opacity",0)
                 .remove()
 
-              bg.transition().duration(vars.timing)
+              bg.transition().duration(vars.timing.transitions)
                 .attr("opacity",bg_opacity)
                 .call(bg_style)
 
@@ -427,7 +427,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .attr("class","d3plus_label_bg")
                 .attr("opacity",0)
                 .call(bg_style)
-                .transition().duration(vars.timing)
+                .transition().duration(vars.timing.transitions)
                   .attr("opacity",bg_opacity)
 
             }

@@ -50,7 +50,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       })
       .attr("shape-rendering",function(d){
         if (["square"].indexOf(vars.shape.value) >= 0) {
-          return vars.style.rendering
+          return vars.rendering
         }
         else {
           return "auto"
@@ -84,7 +84,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     .innerRadius(function(d){
       if (shape == "donut" && !d.d3plus.static) {
         var r = vars.arcs[d.d3plus.shapeType][d.d3plus.id].r
-        return r * vars.style.data.donut.size
+        return r * vars.data.donut.size
       }
       else {
         return 0
@@ -158,20 +158,20 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       l
         .attr("stroke",color)
         .attr("stroke-width",1)
-        .attr("shape-rendering",vars.style.rendering)
+        .attr("shape-rendering",vars.rendering)
     }
 
     var pattern = vars.defs.selectAll("pattern#d3plus_hatch_"+d.d3plus.id)
       .data(hatch_data)
 
-    if (vars.timing) {
+    if (vars.timing.transitions) {
 
       pattern.selectAll("rect")
-        .transition().duration(vars.timing)
+        .transition().duration(vars.timing.transitions)
         .style("fill",color)
 
       pattern.selectAll("line")
-        .transition().duration(vars.timing)
+        .transition().duration(vars.timing.transitions)
         .style("stroke",color)
 
     }
@@ -232,12 +232,12 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       .attr("class","d3plus_clipping")
       .call(init)
 
-    if (vars.timing) {
+    if (vars.timing.transitions) {
       
-      clip.selectAll("rect").transition().duration(vars.timing)
+      clip.selectAll("rect").transition().duration(vars.timing.transitions)
         .call(update)
 
-      clip.exit().transition().delay(vars.timing)
+      clip.exit().transition().delay(vars.timing.transitions)
         .remove()
 
     }
@@ -252,7 +252,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     var fills = group.selectAll("path.d3plus_fill")
       .data(fill_data)
 
-    fills.transition().duration(vars.timing)
+    fills.transition().duration(vars.timing.transitions)
       .call(d3plus.shape.style,vars)
       .call(size)
 
@@ -262,10 +262,10 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       .transition().duration(0)
         .call(size,0,undefined,0)
         .call(d3plus.shape.style,vars)
-        .transition().duration(vars.timing)
+        .transition().duration(vars.timing.transitions)
           .call(size)
 
-    fills.exit().transition().duration(vars.timing)
+    fills.exit().transition().duration(vars.timing.transitions)
       .call(size,0,undefined,0)
       .remove()
 

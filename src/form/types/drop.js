@@ -280,7 +280,7 @@ d3plus.form.drop = function(vars,styles,timing) {
     .data([test_data])
     .callback(vars.self.toggle)
     .highlight(vars.focus)
-    .update(vars.update)
+    .update(vars.draw.update)
     .enable()
     .draw()
 
@@ -489,7 +489,7 @@ d3plus.form.drop = function(vars,styles,timing) {
       .selected(vars.focus)
       .hover(vars.hover)
       .hover_previous(vars.hover_previous)
-      .update(vars.update)
+      .update(vars.draw.update)
       .large(large)
       .draw()
 

@@ -3,7 +3,7 @@ d3plus.style.default.title = {
     "align": "center",
     "color": "#444",
     "decoration": "none",
-    "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
     "size": 18,
     "transform": "none",
     "weight": 200
@@ -16,7 +16,7 @@ d3plus.style.default.title = {
       "align": "center",
       "color": "#444",
       "decoration": "none",
-      "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+      "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
       "size": 13,
       "transform": "none",
       "weight": 200
@@ -29,7 +29,7 @@ d3plus.style.default.title = {
       "align": "center",
       "color": "#444",
       "decoration": "none",
-      "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+      "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
       "size": 13,
       "transform": "none",
       "weight": 200

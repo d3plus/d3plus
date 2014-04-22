@@ -3,7 +3,7 @@ d3plus.style.default.footer = {
     "align": "center",
     "color": "#444",
     "decoration": "none",
-    "family": ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"],
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
     "size": 10,
     "transform": "none",
     "weight": 200

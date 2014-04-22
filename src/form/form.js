@@ -71,7 +71,7 @@ d3plus.form = function(passed) {
     // data length is longer than the "large" limit
     //--------------------------------------------------------------------------
     var large = vars.data.array instanceof Array && vars.data.array.length > vars.large
-    var timing = !vars.init || large || d3plus.ie ? 0 : vars.timing
+    var timing = vars.draw.first || large || d3plus.ie ? 0 : vars.timing.transitions
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it data is an array, format it
@@ -210,7 +210,7 @@ d3plus.form = function(passed) {
 
       }
 
-      if (!vars.init) {
+      if (vars.draw.first) {
 
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Select container DIV for UI element
@@ -274,8 +274,8 @@ d3plus.form = function(passed) {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Initialization complete
       //------------------------------------------------------------------------
-      vars.init = true
-      vars.update = true
+      vars.draw.first = false
+      vars.draw.update = true
       vars.data.changed = false
 
     }
@@ -482,7 +482,7 @@ d3plus.form = function(passed) {
   vars.self.disable = function() {
     if (vars.dev) d3plus.console.log("disable")
     vars.enabled = false
-    if (vars.init) {
+    if (!vars.draw.first) {
       vars.parent.call(vars.self)
     }
     return vars.self
@@ -499,7 +499,7 @@ d3plus.form = function(passed) {
       d3plus.form.json(vars)
     }
 
-    if (vars.init) {
+    if (!vars.draw.first) {
       vars.parent.call(vars.self)
     }
     return vars.self
@@ -590,7 +590,7 @@ d3plus.form = function(passed) {
     vars.enabled = false
     vars.highlight = false
 
-    if (vars.init) {
+    if (!vars.draw.first) {
       vars.parent.call(vars.self)
     }
 
@@ -603,7 +603,7 @@ d3plus.form = function(passed) {
   vars.self.toggle = function() {
 
     if (vars.dev) d3plus.console.log("toggle")
-    vars.update = false
+    vars.draw.update = false
 
     if (vars.enabled) {
       vars.self.disable()

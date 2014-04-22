@@ -16,7 +16,7 @@ d3plus.draw.enter = function(vars) {
   vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
   vars.g.bg.enter().append("rect")
     .attr("id","bg")
-    .attr("fill",vars.style.background)
+    .attr("fill",vars.background.value)
     .attr("width",vars.width.value)
     .attr("height",vars.height.value)
 

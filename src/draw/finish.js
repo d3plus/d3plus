@@ -10,7 +10,7 @@ d3plus.draw.finish = function(vars) {
 
     if (vars.dev.value) d3plus.console.time("calculating zoom")
 
-    if (!vars.init && vars.zoom.bounds) {
+    if (vars.draw.first && vars.zoom.bounds) {
       d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
     }
 
@@ -47,9 +47,9 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create labels
   //----------------------------------------------------------------------------
-  if (vars.update) {
+  if (vars.draw.update) {
     d3plus.shape.edges(vars)
-    if (vars.timing || (!d3plus.visualization[vars.type.value].zoom && !vars.timing)) {
+    if (vars.timing.transitions || (!d3plus.visualization[vars.type.value].zoom && !vars.timing.transitions)) {
       if (vars.dev.value) d3plus.console.time("data labels")
       d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
       if (vars.dev.value) d3plus.console.timeEnd("data labels")
@@ -59,25 +59,25 @@ d3plus.draw.finish = function(vars) {
           if (vars.dev.value) d3plus.console.time("edge labels")
           d3plus.shape.labels(vars,vars.g.edges.selectAll("g"))
           if (vars.dev.value) d3plus.console.timeEnd("edge labels")
-        },vars.timing)
+        },vars.timing.transitions)
 
       }
     }
   }
-  else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.timing) {
+  else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.timing.transitions) {
     setTimeout(function(){
       d3plus.zoom.labels(vars)
-    },vars.timing)
+    },vars.timing.transitions)
   }
 
-  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing) {
+  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing.transitions) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     if (vars.edges.label) {
 
       setTimeout(function(){
         d3plus.shape.labels(vars,vars.g.edge_focus.selectAll("g"))
-      },vars.timing)
+      },vars.timing.transitions)
 
     }
     if (vars.dev.value) d3plus.console.timeEnd("focus labels")
@@ -99,8 +99,8 @@ d3plus.draw.finish = function(vars) {
   var prev = vars.type.previous
   if (prev && vars.type.value != prev && vars.g.apps[prev]) {
     if (vars.dev.value) d3plus.console.group("Hiding \"" + prev + "\"")
-    if (vars.timing) {
-      vars.g.apps[prev].transition().duration(vars.timing)
+    if (vars.timing.transitions) {
+      vars.g.apps[prev].transition().duration(vars.timing.transitions)
         .attr("opacity",0)
     }
     else {
@@ -119,7 +119,7 @@ d3plus.draw.finish = function(vars) {
 
   if (new_opacity != old_opacity) {
 
-    var timing = vars.style.timing.transitions
+    var timing = vars.timing.transitions
 
     vars.group.transition().duration(timing)
       .attr("opacity",new_opacity)
@@ -162,9 +162,9 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   setTimeout(function(){
 
-    vars.frozen = false
-    vars.update = true
-    vars.init = true
+    vars.draw.frozen = false
+    vars.draw.update = true
+    vars.draw.first = false
 
     if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
       vars.g.zoom
@@ -186,6 +186,6 @@ d3plus.draw.finish = function(vars) {
         .call(vars.zoom.behavior.on("zoom",null))
     }
 
-  },vars.timing)
+  },vars.timing.transitions)
 
 }

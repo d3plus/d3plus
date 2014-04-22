@@ -268,7 +268,7 @@ d3plus.form.button = function(vars,styles,timing) {
 
         if (vars.data.array.length == 1 || d.value != vars.highlight) {
 
-          if (d3plus.ie || vars.timing == 0) {
+          if (d3plus.ie || vars.timing.transitions == 0) {
 
             d3.select(this).style("cursor","pointer")
               .call(color)
@@ -333,7 +333,7 @@ d3plus.form.button = function(vars,styles,timing) {
     .call(mouseevents)
   if (vars.dev) d3plus.console.timeEnd("enter")
 
-  if (vars.update || button.size() < vars.large) {
+  if (vars.draw.update || button.size() < vars.large) {
 
     if (vars.dev) d3plus.console.time("ordering")
     button.order()
@@ -361,9 +361,9 @@ d3plus.form.button = function(vars,styles,timing) {
   }
 
   if (vars.dev) d3plus.console.time("update")
-  if (vars.timing) {
+  if (vars.timing.transitions) {
     updates
-      .transition().duration(vars.timing)
+      .transition().duration(vars.timing.transitions)
       .call(color)
       .call(style)
   }

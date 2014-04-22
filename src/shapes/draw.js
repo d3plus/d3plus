@@ -6,7 +6,7 @@ d3plus.shape.draw = function(vars) {
   var data = vars.returned.nodes || [],
       edges = vars.returned.edges || []
 
-  vars.timing = data.length < vars.data.large && edges.length < vars.edges.large ? vars.style.timing.transitions : 0
+  vars.timing.transitions = data.length < vars.data.large && edges.length < vars.edges.large ? vars.timing.transitions : 0
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Match vars.shape types to their respective d3plus.shape functions. For
@@ -98,9 +98,9 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   for (shape in shape_lookup) {
     if (!(shape_lookup[shape] in shapes) || Object.keys(shapes).length === 0) {
-      if (vars.timing) {
+      if (vars.timing.transitions) {
         vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
-          .transition().duration(vars.timing)
+          .transition().duration(vars.timing.transitions)
           .attr("opacity",0)
           .remove()
       }
@@ -229,9 +229,9 @@ d3plus.shape.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Groups Exit
     //--------------------------------------------------------------------------
-    if (vars.timing) {
+    if (vars.timing.transitions) {
       var exit = selection.exit()
-        .transition().duration(vars.timing)
+        .transition().duration(vars.timing.transitions)
         .attr("opacity",0)
         .remove()
     }
@@ -243,9 +243,9 @@ d3plus.shape.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Existing Groups Update
     //--------------------------------------------------------------------------
-    if (vars.timing) {
+    if (vars.timing.transitions) {
       selection
-        .transition().duration(vars.timing)
+        .transition().duration(vars.timing.transitions)
         .call(transform)
     }
     else {
@@ -255,14 +255,14 @@ d3plus.shape.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Groups Enter
     //--------------------------------------------------------------------------
-    var opacity = vars.timing ? 0 : 1
+    var opacity = vars.timing.transitions ? 0 : 1
     var enter = selection.enter().append("g")
       .attr("class","d3plus_"+shape)
       .attr("opacity",opacity)
       .call(transform)
 
-    if (vars.timing) {
-      enter.transition().duration(vars.timing)
+    if (vars.timing.transitions) {
+      enter.transition().duration(vars.timing.transitions)
         .attr("opacity",1)
     }
 
@@ -317,10 +317,10 @@ d3plus.shape.draw = function(vars) {
       vars.g.edge_hover
         .attr("opacity",0)
         .selectAll("line, path")
-          .style("stroke",vars.style.highlight.primary)
+          .style("stroke",vars.color.primary)
           .style("stroke-width",function(){
             return vars.edges.size ? d3.select(this).style("stroke-width")
-                 : vars.style.data.stroke.width*2
+                 : vars.data.stroke.width*2
           })
           .attr("marker-start",function(e){
 
@@ -355,16 +355,16 @@ d3plus.shape.draw = function(vars) {
 
 
       vars.g.edge_hover.selectAll("text")
-        .style("fill",vars.style.highlight.primary)
+        .style("fill",vars.color.primary)
 
-      if (vars.timing) {
+      if (vars.timing.transitions) {
 
         vars.g.edge_hover
-          .transition().duration(vars.style.timing.mouseevents)
+          .transition().duration(vars.timing.mouseevents)
           .attr("opacity",1)
 
         vars.g.edges
-          .transition().duration(vars.style.timing.mouseevents)
+          .transition().duration(vars.timing.mouseevents)
           .attr("opacity",0.5)
 
       }
@@ -378,17 +378,17 @@ d3plus.shape.draw = function(vars) {
     }
     else {
 
-      if (vars.timing) {
+      if (vars.timing.transitions) {
 
         vars.g.edge_hover
-          .transition().duration(vars.style.timing.mouseevents)
+          .transition().duration(vars.timing.mouseevents)
           .attr("opacity",0)
           .transition()
           .selectAll("*")
           .remove()
 
         vars.g.edges
-          .transition().duration(vars.style.timing.mouseevents)
+          .transition().duration(vars.timing.mouseevents)
           .attr("opacity",1)
 
       }
@@ -411,14 +411,14 @@ d3plus.shape.draw = function(vars) {
     vars.g.data.selectAll("g")
       .on(d3plus.evt.over,function(d){
 
-        if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           d3.select(this).style("cursor","pointer")
-            .transition().duration(vars.style.timing.mouseevents)
+            .transition().duration(vars.timing.mouseevents)
             .call(transform,true)
 
           d3.select(this).selectAll(".d3plus_data")
-            .transition().duration(vars.style.timing.mouseevents)
+            .transition().duration(vars.timing.mouseevents)
             .attr("opacity",1)
 
           vars.covered = false
@@ -460,7 +460,7 @@ d3plus.shape.draw = function(vars) {
       })
       .on(d3plus.evt.move,function(d){
 
-        if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           vars.covered = false
 
@@ -501,15 +501,15 @@ d3plus.shape.draw = function(vars) {
 
         var child = d3plus.util.child(this,d3.event.toElement)
 
-        if (!child && !vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (!child && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           d3.select(this)
-            .transition().duration(vars.style.timing.mouseevents)
+            .transition().duration(vars.timing.mouseevents)
             .call(transform)
 
           d3.select(this).selectAll(".d3plus_data")
-            .transition().duration(vars.style.timing.mouseevents)
-            .attr("opacity",vars.style.data.opacity)
+            .transition().duration(vars.timing.mouseevents)
+            .attr("opacity",vars.data.opacity)
 
 
           if (!vars.covered) {
@@ -542,7 +542,7 @@ d3plus.shape.draw = function(vars) {
   vars.g.data.selectAll("g")
     .on(d3plus.evt.click,function(d){
 
-      if (!vars.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         if (typeof vars.mouse == "function") {
           vars.mouse(d)
@@ -559,8 +559,8 @@ d3plus.shape.draw = function(vars) {
             title = d3plus.variable.text(vars,d)[0],
             color = d3plus.color.legible(d3plus.variable.color(vars,d)),
             prev_sub = vars.title.sub.value || false,
-            prev_color = vars.style.title.sub.font.color,
-            prev_total = vars.style.title.total.font.color
+            prev_color = vars.title.sub.font.color,
+            prev_total = vars.title.total.font.color
 
         if (d.d3plus.threshold && d.d3plus.merged && vars.zoom.value) {
 
@@ -568,16 +568,38 @@ d3plus.shape.draw = function(vars) {
 
             vars.self
               .id({"solo": previous})
-              .title({"sub": prev_sub})
-              .style({"title": {"sub": {"font": {"color": prev_color}}, "total": {"font": {"color": prev_total}}}})
+              .title({
+                "sub": {
+                  "font": {
+                    "color": prev_color
+                  },
+                  "value": prev_sub
+                },
+                "total": {
+                  "font": {
+                    "color": prev_total
+                  }
+                }
+              })
               .draw()
 
           })
 
           vars.self
             .id({"solo": d.d3plus.merged})
-            .title({"sub": title})
-            .style({"title": {"sub": {"font": {"color": color}}, "total": {"font": {"color": color}}}})
+            .title({
+              "sub": {
+                "font": {
+                  "color": color
+                },
+                "value": title
+              },
+              "total": {
+                "font": {
+                  "color": color
+                }
+              }
+            })
             .draw()
 
         }
@@ -590,8 +612,19 @@ d3plus.shape.draw = function(vars) {
             vars.self
               .depth(vars.depth.value-1)
               .id({"solo": previous})
-              .title({"sub": prev_sub})
-              .style({"title": {"sub": {"font": {"color": prev_color}}, "total": {"font": {"color": prev_total}}}})
+              .title({
+                "sub": {
+                  "font": {
+                    "color": prev_color
+                  },
+                  "value": prev_sub
+                },
+                "total": {
+                  "font": {
+                    "color": prev_total
+                  }
+                }
+              })
               .draw()
 
           })
@@ -599,8 +632,19 @@ d3plus.shape.draw = function(vars) {
           vars.self
             .depth(vars.depth.value+1)
             .id({"solo": [id]})
-            .title({"sub": title})
-            .style({"title": {"sub": {"font": {"color": color}}, "total": {"font": {"color": color}}}})
+            .title({
+              "sub": {
+                "font": {
+                  "color": color
+                },
+                "value": title
+              },
+              "total": {
+                "font": {
+                  "color": color
+                }
+              }
+            })
             .draw()
 
         }
@@ -614,15 +658,15 @@ d3plus.shape.draw = function(vars) {
           edge_update()
 
           d3.select(this)
-            .transition().duration(vars.style.timing.mouseevents)
+            .transition().duration(vars.timing.mouseevents)
             .call(transform)
 
           d3.select(this).selectAll(".d3plus_data")
-            .transition().duration(vars.style.timing.mouseevents)
-            .attr("opacity",vars.style.data.opacity)
+            .transition().duration(vars.timing.mouseevents)
+            .attr("opacity",vars.data.opacity)
 
           d3plus.tooltip.remove(vars.type.value)
-          vars.update = false
+          vars.draw.update = false
 
           if (!d || d[vars.id.value] == vars.focus.value) {
             vars.self.focus(null).draw()

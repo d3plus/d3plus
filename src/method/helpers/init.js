@@ -1,11 +1,15 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //--------------------------------------------------------------------------
-d3plus.method.depricates = function( vars , obj , method ) {
+d3plus.method.init = function( vars , obj , method ) {
+
+  if ( "process" in obj ) {
+    d3plus.method.process( obj , obj.value )
+  }
 
   for ( o in obj ) {
 
-    if ( o == "deprecates" ) {
+    if ( o === "deprecates" ) {
 
       var deps = obj[o] instanceof Array ? obj[o] : [obj[o]]
 
@@ -28,10 +32,17 @@ d3plus.method.depricates = function( vars , obj , method ) {
       })
 
     }
-    else if ( typeof obj[o] == "object" && obj[o] !== null
+    else if ( o === "global" ) {
+
+      if ( !(method in vars) ) {
+        vars[method] = []
+      }
+
+    }
+    else if ( typeof obj[o] === "object" && obj[o] !== null
          && !(obj[o] instanceof Array) ) {
 
-      d3plus.method.depricates( vars , obj[o] , o )
+      d3plus.method.init( vars , obj[o] , o )
 
     }
 

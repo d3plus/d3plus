@@ -31,7 +31,7 @@ d3plus.zoom.mouse = function(vars) {
   vars.zoom.scale = scale
 
   if (d3.event.sourceEvent.type == "wheel") {
-    var delay = vars.timing ? 100 : 500
+    var delay = vars.timing.transitions ? 100 : 500
     clearTimeout(vars.zoom.wheel)
     vars.zoom.wheel = setTimeout(function(){
       d3plus.zoom.labels(vars)
@@ -42,7 +42,7 @@ d3plus.zoom.mouse = function(vars) {
   }
 
   if (d3.event.sourceEvent.type == "dblclick") {
-    d3plus.zoom.transform(vars,vars.style.timing.transitions)
+    d3plus.zoom.transform(vars,vars.timing.transitions)
   }
   else {
     d3plus.zoom.transform(vars,0)

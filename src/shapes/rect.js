@@ -102,7 +102,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
       })
       .attr("shape-rendering",function(d){
         if (vars.shape.value == "square" && !("rotate" in d.d3plus)) {
-          return vars.style.rendering
+          return vars.rendering
         }
         else {
           return "auto"
@@ -114,7 +114,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Enter
   //----------------------------------------------------------------------------
-  if (vars.timing) {
+  if (vars.timing.transitions) {
     enter.append("rect")
       .attr("class","d3plus_data")
       .call(init)
@@ -128,10 +128,10 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Update
   //----------------------------------------------------------------------------
-  if (vars.timing) {
+  if (vars.timing.transitions) {
     selection.selectAll("rect.d3plus_data")
       .data(data)
-      .transition().duration(vars.timing)
+      .transition().duration(vars.timing.transitions)
         .call(update)
         .call(d3plus.shape.style,vars)
   }
@@ -145,9 +145,9 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Exit
   //----------------------------------------------------------------------------
-  if (vars.timing) {
+  if (vars.timing.transitions) {
     exit.selectAll("rect.d3plus_data")
-      .transition().duration(vars.timing)
+      .transition().duration(vars.timing.transitions)
       .call(init)
   }
 

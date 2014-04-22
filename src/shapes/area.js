@@ -46,7 +46,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
           obj.h = (obj.y0 - obj.y)
           obj.w = (obj.x0 - obj.x)
 
-          var toosmall = obj.h-(vars.style.labels.padding*2) < 15 || obj.w-(vars.style.labels.padding*2) < 20,
+          var toosmall = obj.h-(vars.labels.padding*2) < 15 || obj.w-(vars.labels.padding*2) < 20,
               aspect_old = label.w/label.h,
               size_old = label.w*label.h,
               aspect_new = obj.w/obj.h,
@@ -72,7 +72,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
             obj = d3plus.util.copy(v.d3plus)
           }
           else {
-            var arr = d3plus.util.buckets([0,1],vars.style.labels.segments+1)
+            var arr = d3plus.util.buckets([0,1],vars.labels.segments+1)
             arr.shift()
             arr.pop()
             arr.forEach(function(n){
@@ -100,9 +100,9 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
       return [d];
     })
 
-  if (vars.timing) {
+  if (vars.timing.transitions) {
     selection.selectAll("path.d3plus_data")
-      .transition().duration(vars.timing)
+      .transition().duration(vars.timing.transitions)
         .attr("d",function(d){ return area(d.values) })
         .call(d3plus.shape.style,vars)
   }

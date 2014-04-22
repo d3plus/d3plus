@@ -7,10 +7,10 @@ d3plus.zoom.labels = function(vars) {
 
   if (vars.dev.value) d3plus.console.time("determining label visibility")
 
-  if (vars.timing) {
+  if (vars.timing.transitions) {
 
     vars.g.viz.selectAll("text.d3plus_label")
-      .transition().duration(vars.timing)
+      .transition().duration(vars.timing.transitions)
       .attr("opacity",function(d){
         if (!d) var d = {"scale": max_scale}
         var size = parseFloat(d3.select(this).attr("font-size"),10)

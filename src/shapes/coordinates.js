@@ -40,9 +40,9 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     .attr("d",vars.path)
     .call(d3plus.shape.style,vars)
 
-  if (vars.timing) {
+  if (vars.timing.transitions) {
     selection.selectAll("path.d3plus_data")
-      .transition().duration(vars.timing)
+      .transition().duration(vars.timing.transitions)
         .call(d3plus.shape.style,vars)
   }
   else {

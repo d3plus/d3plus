@@ -7,25 +7,25 @@ d3plus.ui.message = function(vars,message) {
       size = message == vars.internal_error ? "large" : vars.messages.style
 
   if (size == "large") {
-    var font = vars.style.message,
+    var font = vars.messages,
         position = "center"
   }
   else {
 
     if (vars.footer.value) {
-      var font = vars.style.footer
+      var font = vars.footer
     }
     else if (vars.title.value) {
-      var font = vars.style.title
+      var font = vars.title
     }
     else if (vars.title.sub.value) {
-      var font = vars.style.title.sub
+      var font = vars.title.sub
     }
     else if (vars.title.total.value) {
-      var font = vars.style.title.total
+      var font = vars.title.total
     }
     else {
-      var font = vars.style.title.sub
+      var font = vars.title.sub
     }
 
     var position = font.position
@@ -34,13 +34,13 @@ d3plus.ui.message = function(vars,message) {
 
   var font = {
     "color": font.font.color,
-    "font-family": font.font.family,
+    "font-family": font.font.family.value,
     "font-weight": font.font.weight,
     "font-size": font.font.size+"px",
     "padding": font.padding+"px"
   }
 
-  var background = vars.style.background != "none" ? vars.style.background : "white"
+  var background = vars.background.value != "none" ? vars.background.value : "white"
 
   function style(elem) {
 
@@ -103,7 +103,7 @@ d3plus.ui.message = function(vars,message) {
   vars.g.message
     .text(text)
     .call(style)
-    // .transition().duration(vars.style.timing.mouseevents)
+    // .transition().duration(vars.timing.mouseevents)
     .style("opacity",opacity)
     .style("display",display)
 

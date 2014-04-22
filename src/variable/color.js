@@ -24,7 +24,7 @@ d3plus.variable.color = function(vars,id,level) {
 
     if (!color) {
       if (typeof vars.color.scale == "function") {
-        return vars.style.color.missing
+        return vars.color.missing
       }
       return get_random(id)
     }
