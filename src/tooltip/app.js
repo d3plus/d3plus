@@ -24,7 +24,7 @@ d3plus.tooltip.app = function(params) {
     var fullscreen = false,
         align = params.anchor || vars.tooltip.anchor,
         length = params.length || "short",
-        zoom = vars.zoom_direction()
+        zoom = vars.zoom.direction()
 
     if (zoom === -1) {
       var key = vars.id.nesting[vars.depth.value-1],

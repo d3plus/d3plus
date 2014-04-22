@@ -533,9 +533,9 @@ d3plus.shape.draw = function(vars) {
   else {
 
     vars.g.data.selectAll("g")
-      .on(d3plus.evt.over,vars.touchEvent)
-      .on(d3plus.evt.move,vars.touchEvent)
-      .on(d3plus.evt.out,vars.touchEvent)
+      .on(d3plus.evt.over,vars.zoom.touchEvent)
+      .on(d3plus.evt.move,vars.zoom.touchEvent)
+      .on(d3plus.evt.out,vars.zoom.touchEvent)
 
   }
 
@@ -554,7 +554,7 @@ d3plus.shape.draw = function(vars) {
           vars.mouse[d3plus.evt.click](d)
         }
 
-        var depth_delta = vars.zoom_direction(),
+        var depth_delta = vars.zoom.direction(),
             previous = vars.id.solo.value,
             title = d3plus.variable.text(vars,d)[0],
             color = d3plus.color.legible(d3plus.variable.color(vars,d)),
