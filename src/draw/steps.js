@@ -257,7 +257,7 @@ d3plus.draw.steps = function(vars) {
               var color_id = vars.color.value[vars.id.value]
             }
             else {
-              var color_id = vars.color.value[Object.keys(vars.color.value)[0]]
+              var color_id = vars.color.value[d3.keys(vars.color.value)[0]]
             }
           }
           else {

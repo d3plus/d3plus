@@ -10,7 +10,7 @@ d3plus.variable.text = function(vars,obj,depth) {
       var text_keys = vars.text.array[vars.id.nesting[depth]]
     }
     else {
-      var text_keys = vars.text.array[Object.keys(vars.text.array)[0]]
+      var text_keys = vars.text.array[d3.keys(vars.text.array)[0]]
     }
   }
   else {

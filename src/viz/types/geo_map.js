@@ -6,7 +6,7 @@ d3plus.visualization.geo_map = function(vars) {
   topojson.presimplify(vars.coords.value)
 
   var coords = vars.coords.value
-    , key = Object.keys(coords.objects)[0]
+    , key = d3.keys(coords.objects)[0]
     , topo = topojson.feature(coords, coords.objects[key])
     , features = topo.features
 

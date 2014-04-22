@@ -97,7 +97,7 @@ d3plus.shape.draw = function(vars) {
   // Remove old groups
   //----------------------------------------------------------------------------
   for (shape in shape_lookup) {
-    if (!(shape_lookup[shape] in shapes) || Object.keys(shapes).length === 0) {
+    if (!(shape_lookup[shape] in shapes) || d3.keys(shapes).length === 0) {
       if (vars.timing.transitions) {
         vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
           .transition().duration(vars.timing.transitions)

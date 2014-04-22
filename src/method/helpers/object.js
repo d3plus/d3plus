@@ -10,7 +10,7 @@ d3plus.method.object = function( vars , method , object , key , value ) {
   }
 
   var matchingKey  = typeof value === "object" && value !== null
-                     && Object.keys(value)[0] in object[key]
+                     && d3.keys(value)[0] in object[key]
     , acceptAll    = acceptList === undefined && key in object
     , acceptString = acceptList && typeof acceptList[0] === "string"
                      && acceptList.indexOf(value) >= 0

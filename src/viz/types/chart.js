@@ -558,7 +558,7 @@ d3plus.visualization.chart = function(vars) {
       return null;
     }
     else {
-      return Object.keys(d)[0]
+      return d3.keys(d)[0]
     }
   }
 
@@ -570,7 +570,7 @@ d3plus.visualization.chart = function(vars) {
       return parseFloat(d);
     }
     else {
-      var v = d[Object.keys(d)[0]]
+      var v = d[d3.keys(d)[0]]
       if (typeof v == "string") {
         return parseFloat(v);
       }
@@ -588,7 +588,7 @@ d3plus.visualization.chart = function(vars) {
           return l
         }
         else {
-          return Object.keys(l)[0]
+          return d3.keys(l)[0]
         }
       })
 

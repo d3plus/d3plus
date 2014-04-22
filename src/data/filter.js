@@ -55,7 +55,7 @@ d3plus.data.filter = function(vars) {
     vars.data.filtered = {"all": vars.data.value}
   }
 
-  if (vars.time.value && Object.keys(vars.data.filtered).length == 1) {
+  if (vars.time.value && d3.keys(vars.data.filtered).length == 1) {
 
     if (vars.dev.value) d3plus.console.group("Disaggregating by Year")
 

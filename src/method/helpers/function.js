@@ -59,7 +59,7 @@ d3plus.method.function = function( key , vars ) {
       var type = typeof user
         , approvedObject = user instanceof Array ||
                            ( type === "object" && !("value" in user) &&
-                             !(Object.keys(user)[0] in vars[key]) )
+                             !(d3.keys(user)[0] in vars[key]) )
 
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

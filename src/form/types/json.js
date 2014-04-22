@@ -5,8 +5,8 @@ d3plus.form.json = function(vars) {
   
   d3.json(vars.data.fetch,function(d){
     
-    if (d && Object.keys(d).length == 1) {
-      vars.data.data = d[Object.keys(d)[0]]
+    if (d && d3.keys(d).length == 1) {
+      vars.data.data = d[d3.keys(d)[0]]
     }
     else if (d && vars.data.key && d[key]) {
       vars.data.data = d[key]

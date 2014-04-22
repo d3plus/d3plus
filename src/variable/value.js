@@ -9,7 +9,7 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
         var id_var = vars.id.value
       }
       else {
-        var id_var = Object.keys(variable)[0]
+        var id_var = d3.keys(variable)[0]
       }
       variable = variable[id_var]
     }

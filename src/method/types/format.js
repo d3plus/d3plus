@@ -3,7 +3,7 @@ d3plus.method.format = {
   "deprecates": [ "number_format" , "text_format" ],
   "locale": {
     "accepted" : function(){
-      return Object.keys(d3plus.locale)
+      return d3.keys(d3plus.locale)
     },
     "process"  : d3plus.locale,
     "value"    : "en_US"

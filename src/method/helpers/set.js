@@ -148,7 +148,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
           object.nesting = d3plus.util.merge( object.nesting , value )
 
           if ( !(vars.id.value in object.nesting) ) {
-            object.nesting[vars.id.value] = value[Object.keys(value)[0]]
+            object.nesting[vars.id.value] = value[d3.keys(value)[0]]
           }
 
         }
