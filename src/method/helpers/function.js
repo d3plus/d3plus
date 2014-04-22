@@ -5,10 +5,16 @@ d3plus.method.function = function( key , vars ) {
 
   return function( user , callback ) {
 
-    if ( "accepted" in vars[key] && vars[key].accepted === false ) {
+    var accepted = vars[key].accepted
+
+    if ( accepted instanceof Array && accepted.indexOf(undefined) >= 0 && user === undefined ) {
 
       if ( typeof vars[key].value === "function" ) {
         vars[key].value(vars)
+      }
+      else if ( "process" in vars[key] ) {
+        vars[key].value = vars[key].process()
+        return vars[key].value
       }
 
     }
@@ -85,7 +91,12 @@ d3plus.method.function = function( key , vars ) {
 
     }
 
-    return vars.self
+    if (vars[key].chainable === false) {
+      return vars[key].value
+    }
+    else {
+      return vars.self
+    }
 
   }
 

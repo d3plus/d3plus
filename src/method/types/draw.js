@@ -1,5 +1,5 @@
 d3plus.method.draw = {
-  "accepted": false,
+  "accepted": [ undefined ],
   "first": true,
   "frozen": false,
   "update": true,
