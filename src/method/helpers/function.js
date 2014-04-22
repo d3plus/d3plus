@@ -27,8 +27,13 @@ d3plus.method.function = function( key , vars ) {
       if ( key === "style" && typeof user === "object" ) {
 
         var str = vars.format.locale.value.warning.oldStyle
-        d3plus.console.warning(str)
-        d3plus.console.log(d3plus.repo+"wiki/Visualization-Methods")
+
+        for ( var s in user ) {
+
+          d3plus.console.warning(d3plus.util.format(str,s))
+          d3plus.console.log(d3plus.repo+"wiki/Visualization-Methods#"+s+"-obj")
+
+        }
 
         return vars.self
 

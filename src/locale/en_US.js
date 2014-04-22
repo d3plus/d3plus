@@ -27,7 +27,7 @@ d3plus.locale.en_US = {
     "deprecated"   : "{0} has been deprecated, please update your code to use {1}.",
     "format"       : "Incompatible format for .{0}() method.",
     "noContainer"  : "Cannot find a <div> on the page matching: \"{0}\".",
-    "oldStyle"     : "Style properties have now been embedded directly into individual methods.",
+    "oldStyle"     : "Style properties for \"{0}\" have now been embedded directly into .{0}().",
     "setGeneral"   : "\"{0}\" is not a valid property.",
     "setContainer" : "Please define a container div using .container()"
   }
