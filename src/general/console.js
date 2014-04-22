@@ -46,7 +46,7 @@ d3plus.console.group = function( message , style ) {
 
 d3plus.console.warning = function( message , style ) {
 
-  var style = style || "color:#D74B03;font-weight:bold;"
+  var style = style || "color:#B35C1E;font-weight:bold;"
 
   message = "WARNING: " + message
 
