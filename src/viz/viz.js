@@ -120,7 +120,18 @@ d3plus.viz = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define methods and expose public variables.
   //----------------------------------------------------------------------------
-  d3plus.method( vars )
+  var methods = [ "active" , "aggs" , "attrs" , "axes" , "color" , "container"
+                , "coords" , "csv" , "data" , "depth" , "descs" , "dev"
+                , "draw" , "edges" , "error" , "focus" , "footer" , "format"
+                , "height" , "history" , "html" , "icon" , "id" , "labels"
+                , "legend" , "margin" , "messages" , "nodes" , "order"
+                , "shape" , "size" , "style" , "temp" , "text" , "time"
+                , "timeline" , "title" , "tooltip" , "total" , "type"
+                , "width" , "x" , "y" , "zoom" ]
+    , styles  = [ "axes" , "background" , "color" , "data" , "edges" , "font"
+                , "footer" , "labels" , "legend" , "links" , "messages"
+                , "timeline" , "timing" , "title" , "tooltip" , "ui" ]
+  d3plus.method( vars , methods , styles )
 
   return vars.self
 
