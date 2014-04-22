@@ -302,7 +302,7 @@ d3plus.draw.steps = function(vars) {
 
   steps.push({
     "function": function(vars) {
-      vars.margin = {"top": 0, "right": 0, "bottom": 0, "left": 0}
+      vars.margin.process()
       d3plus.ui.titles(vars)
 
       if (vars.draw.update) {
@@ -335,6 +335,7 @@ d3plus.draw.steps = function(vars) {
 
       d3plus.ui.history(vars)
       vars.app_height -= (vars.margin.top+vars.margin.bottom)
+      vars.app_width -= (vars.margin.left+vars.margin.right)
     },
     "message": "Updating UI"
   })

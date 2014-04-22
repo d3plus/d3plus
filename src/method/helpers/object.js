@@ -17,7 +17,8 @@ d3plus.method.object = function( vars , method , object , key , value ) {
     , acceptType   = acceptList && typeof acceptList[0] === "function"
                      && acceptList.indexOf(value.constructor) >= 0
 
-  if ( ( acceptAll || acceptString || acceptType ) && !matchingKey ) {
+  if ( ( acceptAll || acceptString || acceptType )
+  && (!matchingKey || object[key].accessible === false)) {
 
     d3plus.method.set( vars , method , object , key , value )
 
