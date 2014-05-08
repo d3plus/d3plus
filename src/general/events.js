@@ -3,7 +3,6 @@
 //------------------------------------------------------------------------------
 d3plus.evt = {}
 
-// Modernizr touch events
 d3plus.touch = ('ontouchstart' in window) || window.DocumentTouch
                && document instanceof DocumentTouch ? true : false
 
