@@ -188,7 +188,7 @@ d3plus.visualization.bubbles = function(vars) {
     .call(label_style)
     .attr("opacity",0)
 
-  labels.transition().duration(vars.timing.transitions)
+  labels.transition().duration(vars.draw.timing)
     .call(label_style)
     .attr("opacity",1)
 

@@ -100,9 +100,9 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
       return [d];
     })
 
-  if (vars.timing.transitions) {
+  if (vars.draw.timing) {
     selection.selectAll("path.d3plus_data")
-      .transition().duration(vars.timing.transitions)
+      .transition().duration(vars.draw.timing)
         .attr("d",function(d){ return area(d.values) })
         .call(d3plus.shape.style,vars)
   }

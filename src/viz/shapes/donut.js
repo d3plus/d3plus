@@ -72,7 +72,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
   // "paths" Exit
   //----------------------------------------------------------------------------
   exit.selectAll("path.d3plus_data")
-  .transition().duration(vars.timing.transitions)
+  .transition().duration(vars.draw.timing)
     .call(size,0,0)
     .each("end",function(d){
       delete vars.arcs[d.d3plus.shapeType][d.d3plus.id]
@@ -83,7 +83,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
   selection.selectAll("path.d3plus_data")
     .data(function(d) { return [d]; })
-    .transition().duration(vars.timing.transitions)
+    .transition().duration(vars.draw.timing)
       .call(size)
       .call(d3plus.shape.style,vars)
 

@@ -56,7 +56,7 @@ d3plus.tooltip.app = function(params) {
     var x = params.x
   }
   else if (d3plus.visualization[vars.type.value].tooltip == "follow") {
-    var x = d3.mouse(vars.parent.node())[0]
+    var x = d3.mouse(vars.container.value.node())[0]
   }
   else {
     var x = d.d3plus.x
@@ -70,7 +70,7 @@ d3plus.tooltip.app = function(params) {
     var y = params.y
   }
   else if (d3plus.visualization[vars.type.value].tooltip == "follow") {
-    var y = d3.mouse(vars.parent.node())[1]
+    var y = d3.mouse(vars.container.value.node())[1]
   }
   else {
     var y = d.d3plus.y
@@ -179,7 +179,7 @@ d3plus.tooltip.app = function(params) {
         "max_width": vars.tooltip.small,
         "mouseevents": mouse,
         "offset": offset,
-        "parent": vars.parent,
+        "parent": vars.container.value,
         "style": icon_style,
         "title": title,
         "width": width,

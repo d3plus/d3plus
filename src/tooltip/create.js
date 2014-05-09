@@ -184,7 +184,7 @@ d3plus.tooltip.create = function(params) {
 
     var ischild = function(parent, child) {
        var node = child.parentNode;
-       while (node != null) {
+       while (node !== null) {
          if (node == parent) {
            return true;
          }

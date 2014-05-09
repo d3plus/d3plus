@@ -1,7 +1,7 @@
 d3plus.zoom.transform = function(vars,timing) {
 
   if (typeof timing != "number") {
-    var timing = vars.timing.transitions
+    var timing = vars.draw.timing
   }
 
   var translate = vars.zoom.translate

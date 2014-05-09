@@ -8,9 +8,7 @@ d3plus.draw.container = function(vars) {
 
   if (vars.container.changed) {
 
-    vars.parent = d3.select(vars.container.value)
-
-    vars.parent
+    vars.container.value
       .style("overflow","hidden")
       .style("position",function(){
         var current = d3.select(this).style("position"),
@@ -63,11 +61,11 @@ d3plus.draw.container = function(vars) {
           }
 
         }
-        check_parent(vars.parent.node())
+        check_parent(vars.container.value.node())
       }
     })
 
-    vars.parent
+    vars.container.value
       .style("width",vars.width.value+"px")
       .style("height",vars.height.value+"px")
 

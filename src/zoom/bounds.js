@@ -5,7 +5,7 @@ d3plus.zoom.bounds = function(vars,b,timing) {
   }
 
   if (typeof timing != "number") {
-    var timing = vars.timing.transitions
+    var timing = vars.draw.timing
   }
 
   vars.zoom.size = {

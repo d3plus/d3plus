@@ -89,7 +89,7 @@ d3plus.ui.message = function(vars,message) {
   }
 
   // Enter Message Group
-  vars.g.message = vars.parent.selectAll("div#d3plus_message")
+  vars.g.message = vars.container.value.selectAll("div#d3plus_message")
     .data(["message"])
 
   vars.g.message.enter().append("div")

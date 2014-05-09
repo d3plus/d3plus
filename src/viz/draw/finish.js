@@ -49,7 +49,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   if (vars.draw.update) {
     d3plus.shape.edges(vars)
-    if (vars.timing.transitions || (!d3plus.visualization[vars.type.value].zoom && !vars.timing.transitions)) {
+    if (vars.draw.timing || (!d3plus.visualization[vars.type.value].zoom && !vars.draw.timing)) {
       if (vars.dev.value) d3plus.console.time("data labels")
       d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
       if (vars.dev.value) d3plus.console.timeEnd("data labels")
@@ -59,25 +59,25 @@ d3plus.draw.finish = function(vars) {
           if (vars.dev.value) d3plus.console.time("edge labels")
           d3plus.shape.labels(vars,vars.g.edges.selectAll("g"))
           if (vars.dev.value) d3plus.console.timeEnd("edge labels")
-        },vars.timing.transitions)
+        },vars.draw.timing)
 
       }
     }
   }
-  else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.timing.transitions) {
+  else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
     setTimeout(function(){
       d3plus.zoom.labels(vars)
-    },vars.timing.transitions)
+    },vars.draw.timing)
   }
 
-  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.timing.transitions) {
+  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.draw.timing) {
     if (vars.dev.value) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     if (vars.edges.label) {
 
       setTimeout(function(){
         d3plus.shape.labels(vars,vars.g.edge_focus.selectAll("g"))
-      },vars.timing.transitions)
+      },vars.draw.timing)
 
     }
     if (vars.dev.value) d3plus.console.timeEnd("focus labels")
@@ -99,8 +99,8 @@ d3plus.draw.finish = function(vars) {
   var prev = vars.type.previous
   if (prev && vars.type.value != prev && vars.g.apps[prev]) {
     if (vars.dev.value) d3plus.console.group("Hiding \"" + prev + "\"")
-    if (vars.timing.transitions) {
-      vars.g.apps[prev].transition().duration(vars.timing.transitions)
+    if (vars.draw.timing) {
+      vars.g.apps[prev].transition().duration(vars.draw.timing)
         .attr("opacity",0)
     }
     else {
@@ -119,7 +119,7 @@ d3plus.draw.finish = function(vars) {
 
   if (new_opacity != old_opacity) {
 
-    var timing = vars.timing.transitions
+    var timing = vars.draw.timing
 
     vars.group.transition().duration(timing)
       .attr("opacity",new_opacity)
@@ -129,22 +129,6 @@ d3plus.draw.finish = function(vars) {
       .attr("opacity",new_opacity)
 
   }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Reset all "changed" values to false
-  //----------------------------------------------------------------------------
-  function reset_change(obj) {
-
-    if (obj.changed) obj.changed = false
-
-    for (o in obj) {
-      if (obj[o] != null && typeof obj[o] == "object" && !(obj[o] instanceof Array)) {
-        reset_change(obj[o])
-      }
-    }
-
-  }
-  reset_change(vars)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Display and reset internal_error, if applicable
@@ -162,9 +146,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   setTimeout(function(){
 
-    vars.draw.frozen = false
-    vars.draw.update = true
-    vars.draw.first = false
+    d3plus.data.reset( vars )
 
     if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
       vars.g.zoom
@@ -186,6 +168,6 @@ d3plus.draw.finish = function(vars) {
         .call(vars.zoom.behavior.on("zoom",null))
     }
 
-  },vars.timing.transitions)
+  },vars.draw.timing)
 
 }

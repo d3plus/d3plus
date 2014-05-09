@@ -5,7 +5,7 @@ d3plus.ui.history = function(vars) {
 
   if (!vars.small && vars.history.states.length > 0) {
 
-    var button = vars.parent.selectAll("div#d3plus_back_button")
+    var button = vars.container.value.selectAll("div#d3plus_back_button")
       .data(["d3plus_back_button"])
 
     var size = vars.title.value
@@ -89,14 +89,14 @@ d3plus.ui.history = function(vars) {
         vars.history.back()
 
       })
-      .transition().duration(vars.timing.transitions)
+      .transition().duration(vars.draw.timing)
         .style("opacity",1)
         .call(style)
 
   }
   else {
-    vars.parent.selectAll("div#d3plus_back_button")
-      .transition().duration(vars.timing.transitions)
+    vars.container.value.selectAll("div#d3plus_back_button")
+      .transition().duration(vars.draw.timing)
       .style("opacity",0)
       .remove()
   }

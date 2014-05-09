@@ -3,37 +3,37 @@
 //------------------------------------------------------------------------------
 d3plus.draw.update = function(vars) {
 
-  if (vars.timing.transitions) {
+  if (vars.draw.timing) {
 
     // Update Parent Element
-    vars.parent.transition().duration(vars.timing.transitions)
+    vars.container.value.transition().duration(vars.draw.timing)
       .style("width",vars.width.value+"px")
       .style("height",vars.height.value+"px")
 
     // Update SVG
-    vars.svg.transition().duration(vars.timing.transitions)
+    vars.svg.transition().duration(vars.draw.timing)
         .attr("width",vars.width.value)
         .attr("height",vars.height.value)
 
     // Update Background Rectangle
-    vars.g.bg.transition().duration(vars.timing.transitions)
+    vars.g.bg.transition().duration(vars.draw.timing)
         .attr("width",vars.width.value)
         .attr("height",vars.height.value)
 
     // Update App Clipping Rectangle
-    vars.g.clipping.select("rect").transition().duration(vars.timing.transitions)
+    vars.g.clipping.select("rect").transition().duration(vars.draw.timing)
       .attr("width",vars.width.viz)
       .attr("height",vars.height.viz)
 
     // Update Container Groups
-    vars.g.container.transition().duration(vars.timing.transitions)
+    vars.g.container.transition().duration(vars.draw.timing)
       .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
 
   }
   else {
 
     // Update Parent Element
-    vars.parent
+    vars.container.value
       .style("width",vars.width.value+"px")
       .style("height",vars.height.value+"px")
 

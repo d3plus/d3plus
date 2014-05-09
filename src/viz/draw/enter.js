@@ -4,7 +4,7 @@
 d3plus.draw.enter = function(vars) {
 
   // Enter SVG
-  vars.svg = vars.parent.selectAll("svg#d3plus").data([0]);
+  vars.svg = vars.container.value.selectAll("svg#d3plus").data([0]);
   vars.svg.enter().insert("svg","#d3plus_message")
     .attr("id","d3plus")
     .attr("width",vars.width.value)

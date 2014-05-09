@@ -270,7 +270,7 @@ d3plus.ui.titles = function(vars) {
         window.open(t.link,target)
       }
     })
-    .transition().duration(vars.timing.transitions)
+    .transition().duration(vars.draw.timing)
       .attr("opacity",1)
       .attr("transform",function(t){
         var pos = t.style.position,
@@ -290,7 +290,7 @@ d3plus.ui.titles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Exit unused titles
   //----------------------------------------------------------------------------
-  titles.exit().transition().duration(vars.timing.transitions)
+  titles.exit().transition().duration(vars.draw.timing)
     .attr("opacity",0)
     .remove()
 

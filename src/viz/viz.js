@@ -1,6 +1,9 @@
 d3plus.viz = function() {
 
-  var vars = { "g": {"apps": {} } }
+  var vars = {
+    "g"     : {"apps": {} },
+    "shell" : "viz"
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Main drawing function
@@ -11,6 +14,10 @@ d3plus.viz = function() {
       vars.draw.frozen = true
       vars.internal_error = null
       d3plus.draw.container(vars)
+
+      if ( !("timing" in vars.draw) ) {
+        vars.draw.timing = vars.timing.transitions
+      }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Determine if in "small" mode
@@ -29,7 +36,7 @@ d3plus.viz = function() {
 
         var steps = d3plus.draw.steps(vars)
 
-        vars.parent.style("cursor","wait")
+        vars.container.value.style("cursor","wait")
         vars.messages.style = vars.data.app ? "small" : "large"
         function check_next() {
 
@@ -38,7 +45,7 @@ d3plus.viz = function() {
           }
           else {
             if (vars.dev.value) d3plus.console.groupEnd()
-            vars.parent.style("cursor","auto")
+            vars.container.value.style("cursor","auto")
           }
 
         }
@@ -51,7 +58,7 @@ d3plus.viz = function() {
 
           if (run) {
 
-            if (!same && vars.draw.update && (!vars.timing.transitions || vars.draw.first)) {
+            if (!same && vars.draw.update && (!vars.draw.timing || vars.draw.first)) {
 
               if (vars.dev.value) {
                 d3plus.console.groupEnd()

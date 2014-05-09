@@ -204,7 +204,7 @@ d3plus.ui.timeline = function(vars) {
       })
       .attr("opacity",1)
 
-    text.transition().duration(vars.timing.transitions)
+    text.transition().duration(vars.draw.timing)
       .attr("fill",function(d){
 
         if (d >= init[0] && d <= init[1]) {
@@ -229,11 +229,11 @@ d3plus.ui.timeline = function(vars) {
         return y
       })
 
-    text.exit().transition().duration(vars.timing.transitions)
+    text.exit().transition().duration(vars.draw.timing)
       .attr("opacity",0)
       .remove()
 
-    background.transition().duration(vars.timing.transitions)
+    background.transition().duration(vars.draw.timing)
       .attr("opacity",1)
       .attr("width",timeline_width)
       .attr("height",vars.timeline.height)
@@ -252,7 +252,7 @@ d3plus.ui.timeline = function(vars) {
 
     ticks
       .attr("transform","translate("+start_x+","+vars.ui.padding+")")
-      .transition().duration(vars.timing.transitions)
+      .transition().duration(vars.draw.timing)
       .call(d3.svg.axis()
         .scale(x)
         .orient("top")
@@ -332,13 +332,13 @@ d3plus.ui.timeline = function(vars) {
 
     vars.margin.bottom += (vars.ui.padding*2)+height
 
-    vars.g.timeline.transition().duration(vars.timing.transitions)
+    vars.g.timeline.transition().duration(vars.draw.timing)
       .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
 
   }
   else {
 
-    vars.g.timeline.transition().duration(vars.timing.transitions)
+    vars.g.timeline.transition().duration(vars.draw.timing)
       .attr("transform","translate(0,"+vars.height.value+")")
 
   }

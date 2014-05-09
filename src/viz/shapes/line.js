@@ -81,9 +81,9 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // "paths" and "rects" Enter/Update
     //--------------------------------------------------------------------------
-    if (vars.timing.transitions) {
+    if (vars.draw.timing) {
 
-      paths.transition().duration(vars.timing.transitions)
+      paths.transition().duration(vars.draw.timing)
         .attr("d",function(d){ return line(d.values) })
         .call(d3plus.shape.style,vars)
 
@@ -100,11 +100,11 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         .call(init)
         .call(d3plus.shape.style,vars)
 
-      rects.transition().duration(vars.timing.transitions)
+      rects.transition().duration(vars.draw.timing)
         .call(update)
         .call(d3plus.shape.style,vars)
 
-      rects.exit().transition().duration(vars.timing.transitions)
+      rects.exit().transition().duration(vars.draw.timing)
         .call(init)
         .remove()
 
@@ -213,9 +213,9 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
       })
 
-    if (vars.timing.transitions) {
+    if (vars.draw.timing) {
 
-      mouse.transition().duration(vars.timing.transitions)
+      mouse.transition().duration(vars.draw.timing)
         .attr("d",function(l){ return line(l.values) })
         .style("stroke-width",hitarea)
 

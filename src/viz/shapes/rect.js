@@ -114,7 +114,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Enter
   //----------------------------------------------------------------------------
-  if (vars.timing.transitions) {
+  if (vars.draw.timing) {
     enter.append("rect")
       .attr("class","d3plus_data")
       .call(init)
@@ -128,10 +128,10 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Update
   //----------------------------------------------------------------------------
-  if (vars.timing.transitions) {
+  if (vars.draw.timing) {
     selection.selectAll("rect.d3plus_data")
       .data(data)
-      .transition().duration(vars.timing.transitions)
+      .transition().duration(vars.draw.timing)
         .call(update)
         .call(d3plus.shape.style,vars)
   }
@@ -145,9 +145,9 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "rects" Exit
   //----------------------------------------------------------------------------
-  if (vars.timing.transitions) {
+  if (vars.draw.timing) {
     exit.selectAll("rect.d3plus_data")
-      .transition().duration(vars.timing.transitions)
+      .transition().duration(vars.draw.timing)
       .call(init)
   }
 

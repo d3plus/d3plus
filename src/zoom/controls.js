@@ -2,7 +2,7 @@ d3plus.zoom.controls = function() {
   d3.select("#d3plus.utilsts.zoom_controls").remove()
   if (!vars.small) {
     // Create Zoom Controls
-    var zoom_enter = vars.parent.append("div")
+    var zoom_enter = vars.container.value.append("div")
       .attr("id","d3plus.utilsts.zoom_controls")
       .style("top",(vars.margin.top+5)+"px")
   

@@ -22,9 +22,9 @@ d3plus.shape.labels = function(vars,selection) {
   //----------------------------------------------------------------------------
   remove = function(text) {
 
-    if (vars.timing.transitions) {
+    if (vars.draw.timing) {
       text
-        .transition().duration(vars.timing.transitions)
+        .transition().duration(vars.draw.timing)
         .attr("opacity",0)
         .remove()
     }
@@ -265,10 +265,10 @@ d3plus.shape.labels = function(vars,selection) {
               return t.w+""+t.h+""+t.text
             })
 
-          if (vars.timing.transitions) {
+          if (vars.draw.timing) {
 
             text
-              .transition().duration(vars.timing.transitions/2)
+              .transition().duration(vars.draw.timing/2)
               .call(style)
 
             text.enter().append("text")
@@ -277,8 +277,8 @@ d3plus.shape.labels = function(vars,selection) {
               .attr("class","d3plus_share")
               .attr("opacity",0)
               .call(style,true)
-              .transition().duration(vars.timing.transitions/2)
-              .delay(vars.timing.transitions/2)
+              .transition().duration(vars.draw.timing/2)
+              .delay(vars.draw.timing/2)
               .attr("opacity",0.5)
 
           }
@@ -331,10 +331,10 @@ d3plus.shape.labels = function(vars,selection) {
               return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
 
-          if (vars.timing.transitions) {
+          if (vars.draw.timing) {
 
             text
-              .transition().duration(vars.timing.transitions/2)
+              .transition().duration(vars.draw.timing/2)
               .call(style)
 
             text.enter().append("text")
@@ -343,8 +343,8 @@ d3plus.shape.labels = function(vars,selection) {
               .attr("class","d3plus_label")
               .attr("opacity",0)
               .call(style,true)
-              .transition().duration(vars.timing.transitions/2)
-              .delay(vars.timing.transitions/2)
+              .transition().duration(vars.draw.timing/2)
+              .delay(vars.draw.timing/2)
               .call(opacity)
 
           }
@@ -412,13 +412,13 @@ d3plus.shape.labels = function(vars,selection) {
 
             }
 
-            if (vars.timing.transitions) {
+            if (vars.draw.timing) {
 
-              bg.exit().transition().duration(vars.timing.transitions)
+              bg.exit().transition().duration(vars.draw.timing)
                 .attr("opacity",0)
                 .remove()
 
-              bg.transition().duration(vars.timing.transitions)
+              bg.transition().duration(vars.draw.timing)
                 .attr("opacity",bg_opacity)
                 .call(bg_style)
 
@@ -427,7 +427,7 @@ d3plus.shape.labels = function(vars,selection) {
                 .attr("class","d3plus_label_bg")
                 .attr("opacity",0)
                 .call(bg_style)
-                .transition().duration(vars.timing.transitions)
+                .transition().duration(vars.draw.timing)
                   .attr("opacity",bg_opacity)
 
             }

@@ -39,7 +39,7 @@ d3plus.data.filter = function(vars) {
           return val > 0 ? true : false
         }
         else {
-          return val != null
+          return val !== null
         }
       })
       data = "filtered"

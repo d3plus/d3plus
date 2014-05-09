@@ -308,12 +308,12 @@ d3plus.shape.edges = function(vars) {
       .attr("transform","scale("+1/scale+")")
   }
 
-  if (vars.timing.transitions) {
-    marker.exit().transition().duration(vars.timing.transitions)
+  if (vars.draw.timing) {
+    marker.exit().transition().duration(vars.draw.timing)
       .attr("opacity",0)
       .remove()
 
-    marker.select("path").transition().duration(vars.timing.transitions)
+    marker.select("path").transition().duration(vars.draw.timing)
       .attr("opacity",1)
       .call(marker_style)
   }
@@ -325,7 +325,7 @@ d3plus.shape.edges = function(vars) {
       .call(marker_style)
   }
 
-  var opacity = vars.timing.transitions ? 0 : 1
+  var opacity = vars.draw.timing ? 0 : 1
   var enter = marker.enter().append("marker")
     .attr("id",function(d){
       return "d3plus_edge_marker_"+d
@@ -339,8 +339,8 @@ d3plus.shape.edges = function(vars) {
     .attr("vector-effect","non-scaling-stroke")
     .call(marker_style)
 
-  if (vars.timing.transitions) {
-    enter.transition().duration(vars.timing.transitions)
+  if (vars.draw.timing) {
+    enter.transition().duration(vars.draw.timing)
       .attr("opacity",1)
   }
 
@@ -467,32 +467,32 @@ d3plus.shape.edges = function(vars) {
 
     })
 
-  if (vars.timing.transitions) {
+  if (vars.draw.timing) {
 
-    lines.exit().transition().duration(vars.timing.transitions)
+    lines.exit().transition().duration(vars.draw.timing)
       .attr("opacity",0)
       .remove()
 
-    splines.exit().transition().duration(vars.timing.transitions)
+    splines.exit().transition().duration(vars.draw.timing)
       .attr("opacity",0)
       .remove()
 
     lines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
-      .transition().duration(vars.timing.transitions/2)
+      .transition().duration(vars.draw.timing/2)
       .attr("opacity",0)
       .remove()
 
     splines.selectAll("text.d3plus_label, rect.d3plus_label_bg")
-      .transition().duration(vars.timing.transitions/2)
+      .transition().duration(vars.draw.timing/2)
       .attr("opacity",0)
       .remove()
 
-    lines.selectAll("line").transition().duration(vars.timing.transitions)
+    lines.selectAll("line").transition().duration(vars.draw.timing)
       .call(line)
       .call(style)
       .each("end",label)
 
-    splines.selectAll("path").transition().duration(vars.timing.transitions)
+    splines.selectAll("path").transition().duration(vars.draw.timing)
       .call(spline)
       .call(style)
       .each("end",label)
@@ -502,7 +502,7 @@ d3plus.shape.edges = function(vars) {
       .append("line")
       .call(line)
       .call(init)
-      .transition().duration(vars.timing.transitions)
+      .transition().duration(vars.draw.timing)
         .call(style)
         .each("end",label)
 
@@ -511,7 +511,7 @@ d3plus.shape.edges = function(vars) {
       .append("path")
       .call(spline)
       .call(init)
-      .transition().duration(vars.timing.transitions)
+      .transition().duration(vars.draw.timing)
         .call(style)
         .each("end",label)
 

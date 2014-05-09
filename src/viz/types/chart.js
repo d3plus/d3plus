@@ -130,10 +130,10 @@ d3plus.visualization.chart = function(vars) {
     else {
       var data = vars.data.app.filter(function(d){
         var val = parseFloat(d3plus.variable.value(vars,d,vars.y.value))
-        var y_include = val != null && val <= vars.y_range[0] && val >= vars.y_range[1]
+        var y_include = val !== null && val <= vars.y_range[0] && val >= vars.y_range[1]
         if (y_include) {
           var val = parseFloat(d3plus.variable.value(vars,d,vars.x.value))
-          return val != null && val >= vars.x_range[0] && val <= vars.x_range[1]
+          return val !== null && val >= vars.x_range[0] && val <= vars.x_range[1]
         }
         else return false
       })
@@ -451,7 +451,7 @@ d3plus.visualization.chart = function(vars) {
   //-------------------------------------------------------------------
 
   // Update Plane Group
-  plane.transition().duration(vars.timing.transitions)
+  plane.transition().duration(vars.draw.timing)
     .attr("transform", "translate(" + graph.margin.left + "," + graph.margin.top + ")")
 
   // Update Plane Background
@@ -459,7 +459,7 @@ d3plus.visualization.chart = function(vars) {
     .attr("height", graph.height)
 
   // Update Mirror Triangle
-  mirror.transition().duration(vars.timing.transitions)
+  mirror.transition().duration(vars.draw.timing)
     .attr("opacity",function(){
       return vars.axes.mirror.value ? 1 : 0
     })
@@ -469,22 +469,22 @@ d3plus.visualization.chart = function(vars) {
     })
 
   // Update Y Axis
-  yaxis.transition().duration(vars.timing.transitions)
+  yaxis.transition().duration(vars.draw.timing)
     .call(vars.y_axis.scale(vars.y_scale))
 
-  yaxis.selectAll("line").transition().duration(vars.timing.transitions)
+  yaxis.selectAll("line").transition().duration(vars.draw.timing)
       .call(tick_style,"y")
 
   yaxis.selectAll("path").style("fill","none")
 
   // Update X Axis
-  xaxis.transition().duration(vars.timing.transitions)
+  xaxis.transition().duration(vars.draw.timing)
     .attr("transform", "translate(0," + graph.height + ")")
     .call(vars.x_axis.scale(vars.x_scale))
     .selectAll("g.tick").select("text")
       .style("text-anchor","start")
 
-  xaxis.selectAll("line").transition().duration(vars.timing.transitions)
+  xaxis.selectAll("line").transition().duration(vars.draw.timing)
       .call(tick_style,"x")
 
   xaxis.selectAll("path").style("fill","none")
@@ -501,12 +501,12 @@ d3plus.visualization.chart = function(vars) {
     .call(tick_position,"y")
     .call(tick_style,"y")
 
-  ylines.transition().duration(vars.timing.transitions)
+  ylines.transition().duration(vars.draw.timing)
     .style("opacity",1)
     .call(tick_position,"y")
     .call(tick_style,"y")
 
-  ylines.exit().transition().duration(vars.timing.transitions)
+  ylines.exit().transition().duration(vars.draw.timing)
     .style("opacity",0)
     .remove()
 
@@ -522,12 +522,12 @@ d3plus.visualization.chart = function(vars) {
     .call(tick_position,"x")
     .call(tick_style,"x")
 
-  xlines.transition().duration(vars.timing.transitions)
+  xlines.transition().duration(vars.draw.timing)
     .style("opacity",1)
     .call(tick_position,"x")
     .call(tick_style,"x")
 
-  xlines.exit().transition().duration(vars.timing.transitions)
+  xlines.exit().transition().duration(vars.draw.timing)
     .style("opacity",0)
     .remove()
 
@@ -612,7 +612,7 @@ d3plus.visualization.chart = function(vars) {
       .attr("text-align","start")
       .attr(axis,pos)
 
-    lines.selectAll("line").transition().duration(vars.timing.transitions)
+    lines.selectAll("line").transition().duration(vars.draw.timing)
       .attr(axis+"1",function(d){
         return get_val(d) ? vars[axis+"_scale"](get_val(d)) : 0
       })
@@ -621,12 +621,12 @@ d3plus.visualization.chart = function(vars) {
       })
       .attr("opacity",function(d){
         var yes = get_val(d) > vars[axis+"_scale"].domain()[1] && get_val(d) < vars[axis+"_scale"].domain()[0]
-        return get_val(d) != null && yes ? 1 : 0
+        return get_val(d) !== null && yes ? 1 : 0
       })
 
-    lines.selectAll("text").transition().duration(vars.timing.transitions)
+    lines.selectAll("text").transition().duration(vars.draw.timing)
       .text(function(){
-        if (get_val(d) != null) {
+        if (get_val(d) !== null) {
           var v = vars.format.value(get_val(d),y_name)
           return get_name(d) ? vars.format.value(get_name(d)) + ": " + v : v
         }
@@ -904,10 +904,10 @@ d3plus.visualization.chart = function(vars) {
     data_ticks.selectAll("line.d3plus_data_x")
       .call(data_tick,"x")
 
-    data_ticks.transition().duration(vars.timing.transitions)
+    data_ticks.transition().duration(vars.draw.timing)
       .attr("opacity",1)
 
-    data_ticks.exit().transition().duration(vars.timing.transitions)
+    data_ticks.exit().transition().duration(vars.draw.timing)
       .attr("opacity",0)
       .remove()
 
