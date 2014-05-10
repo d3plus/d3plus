@@ -3,31 +3,35 @@
 //------------------------------------------------------------------------------
 d3plus.method.object = function( vars , method , object , key , value ) {
 
-  var acceptList   = key in object ? object[key].accepted : []
+  if ([ "accepted" , "getVars" ].indexOf(key) < 0) {
 
-  if ( typeof acceptList === "function" ) {
-    acceptList = acceptList( vars )
-  }
+    var acceptList = key in object ? object[key].accepted : []
 
-  var matchingKey  = typeof value === "object" && value !== null
-                     && d3.keys(value)[0] in object[key]
-    , acceptAll    = acceptList === undefined && key in object
-    , acceptString = acceptList && typeof acceptList[0] === "string"
-                     && acceptList.indexOf(value) >= 0
-    , acceptType   = acceptList && typeof acceptList[0] === "function"
-                     && acceptList.indexOf(value.constructor) >= 0
+    if ( typeof acceptList === "function" ) {
+      acceptList = acceptList( vars )
+    }
 
-  if ( ( acceptAll || acceptString || acceptType )
-  && (!matchingKey || object[key].accessible === false)) {
+    var matchingKey  = d3plus.object.validate( value )
+                       && d3.keys(value)[0] in object[key]
+      , acceptAll    = acceptList === undefined && key in object
+      , acceptString = acceptList && typeof acceptList[0] === "string"
+                       && acceptList.indexOf(value) >= 0
+      , acceptType   = acceptList && typeof acceptList[0] === "function"
+                       && acceptList.indexOf(value.constructor) >= 0
 
-    d3plus.method.set( vars , method , object , key , value )
+    if ( ( acceptAll || acceptString || acceptType )
+    && (!matchingKey || object[key].accessible === false)) {
 
-  }
-  else {
+      d3plus.method.set( vars , method , object , key , value )
 
-    for (d in value) {
+    }
+    else {
 
-      d3plus.method.object( vars , method , object[key] , d , value[d] )
+      for (d in value) {
+
+        d3plus.method.object( vars , method , object[key] , d , value[d] )
+
+      }
 
     }
 

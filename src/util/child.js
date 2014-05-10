@@ -16,7 +16,7 @@ d3plus.util.child = function(parent,child) {
   }
 
   var node = child.parentNode;
-  while (node != null) {
+  while (node !== null) {
     if (node == parent) {
       return true;
     }

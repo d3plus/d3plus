@@ -13,9 +13,9 @@ d3plus.data.keys = function(vars,type) {
         get_keys(d)
       })
     }
-    else if (typeof arr == "object") {
+    else if ( d3plus.object.validate(arr) ) {
       for (var d in arr) {
-        if (typeof arr[d] == "object") {
+        if ( d3plus.object.validate(arr[d]) ) {
           get_keys(arr[d])
         }
         else if (!(d in vars[type].keys) && arr[d]) {
@@ -28,7 +28,7 @@ d3plus.data.keys = function(vars,type) {
     }
   }
 
-  if (typeof vars[type].value == "object") {
+  if (d3plus.object.validate(vars[type].value)) {
     for (a in vars[type].value) {
       get_keys(vars[type].value[a],type == "data")
     }

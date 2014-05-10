@@ -2,14 +2,14 @@
 // Global method shell.
 //------------------------------------------------------------------------------
 d3plus.method = function( vars , methods , styles ) {
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If no methods are defined, apply ALL of the available methods.
   //----------------------------------------------------------------------------
   if (!methods) {
     var methods = d3.keys(d3plus.method).filter(function(m){
       var method = d3plus.method[m]
-      return !(method instanceof Array) && typeof method === "object"
+      return d3plus.object.validate(method)
     })
   }
 
@@ -20,7 +20,7 @@ d3plus.method = function( vars , methods , styles ) {
   if (!styles) {
     var styles = d3.keys(initStyle).filter(function(m){
       var method = initStyle[m]
-      return !(method instanceof Array) && typeof method === "object"
+      return d3plus.object.validate(method)
     })
   }
 
@@ -32,20 +32,15 @@ d3plus.method = function( vars , methods , styles ) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Clone method defaults.
     //--------------------------------------------------------------------------
-    vars[m] = d3plus.util.copy(d3plus.method[m])
-
-    if ( styles.indexOf(m) >= 0 ) {
-      vars[m] = d3plus.util.merge(vars[m],initStyle[m])
-      styles.splice(styles.indexOf(m),1)
+    if ( !(m in vars) ) {
+      vars[m] = {}
     }
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Initialize a few globals.
-    //--------------------------------------------------------------------------
-    vars[m].previous = false
-    vars[m].changed  = false
-    vars[m].getVars  = function(){
-      return vars
+    vars[m] = d3plus.util.merge( d3plus.method[m] , vars[m] )
+
+    if ( styles.indexOf(m) >= 0 ) {
+      vars[m] = d3plus.util.merge( initStyle[m] , vars[m] )
+      styles.splice(styles.indexOf(m),1)
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

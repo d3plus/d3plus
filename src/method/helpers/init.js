@@ -1,7 +1,22 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
-//--------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 d3plus.method.init = function( vars , obj , method ) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Initialize a few globals.
+  //----------------------------------------------------------------------------
+  obj.previous = false
+  obj.changed  = false
+  obj.initialized = false
+  obj.getVars  = function(){
+    return vars
+  }
+
+  if ( "init" in obj && !("value" in obj) ) {
+    obj.value = obj.init( vars )
+    delete obj.init
+  }
 
   if ( "process" in obj ) {
     d3plus.method.process( obj , obj.value )
@@ -39,13 +54,14 @@ d3plus.method.init = function( vars , obj , method ) {
       }
 
     }
-    else if ( typeof obj[o] === "object" && obj[o] !== null
-         && !(obj[o] instanceof Array) ) {
+    else if ( d3plus.object.validate( obj[o] ) ) {
 
       d3plus.method.init( vars , obj[o] , o )
 
     }
 
   }
+
+  obj.initialized = true
 
 }

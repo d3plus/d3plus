@@ -11,13 +11,14 @@ d3plus.util.merge = function(obj1, obj2) {
 
       if (typeof obj[a] != "undefined") {
 
-        if (typeof obj[a] == "object" && !(obj[a] instanceof Array) && obj[a] !== null) {
+        if ( d3plus.object.validate(obj[a]) ) {
 
-          if (typeof ret[a] != "object") ret[a] = {}
+          if (typeof ret[a] !== "object") ret[a] = {}
           copy_object(obj[a],ret[a])
 
         }
-        else if (obj[a] instanceof Array) {
+        else if ( !d3plus.util.d3selection(obj[a])
+                  && obj[a] instanceof Array ) {
 
           ret[a] = obj[a].slice(0)
 
