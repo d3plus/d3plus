@@ -11,6 +11,7 @@ d3plus.method.history = {
     }
 
   },
+  "chain": [],
   "states": [],
   "value": true
 }

@@ -1,35 +1,44 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Radio Buttons
 //------------------------------------------------------------------------------
-d3plus.form.radio = function(vars,styles,timing) {
+d3plus.input.radio = function( vars ) {
 
-  vars.container.transition().duration(timing)
-    .style("background-color",styles.secondary)
-    .style("padding",styles.stroke+"px")
-    .style("margin",styles.margin+"px")
+  vars.container.ui.transition().duration(vars.draw.timing)
+    .style("background-color",vars.ui.color.secondary.value)
+    .style("padding",vars.ui.stroke+"px")
+    .style("margin",vars.ui.margin+"px")
 
-  var button_style = d3plus.util.copy(styles)
-  button_style.icon = false
-  button_style.display = "inline-block"
-  button_style.border = "none"
-  button_style.width = false
-  button_style.margin = 0
-  button_style.stroke = 0
+  if ( !("buttons" in vars.container) ) {
 
-  var text = d3plus.form.value(vars.text,["button"])
-  if (!text) {
-   text = "text"
+    vars.container.buttons = d3plus.form()
+      .container(vars.container.ui)
+      .type("button")
+
   }
 
-  var button = d3plus.form(button_style)
-    .type("button")
-    .text(text)
-    .data(vars.data.array)
-    .parent(vars.container)
-    .id(vars.id+"_radios")
-    .callback(vars.self.value)
-    .highlight(vars.focus)
-    .enable()
+  var buttonUI = d3plus.util.copy(vars)
+  buttonUI.ui.display.value = "inline-block"
+  buttonUI.ui.border = "none"
+  buttonUI.ui.margin = 0
+  buttonUI.ui.stroke = 0
+
+  vars.container.buttons
+    .color(vars.color)
+    .data(vars.data.value)
+    .icon({
+      "select": false,
+      "value": vars.icon.value
+    })
+    .id(vars.id)
+    .font(vars.font)
+    .focus(vars.focus.value,function(value){
+
+      vars.self.focus(value)
+      return value
+
+    })
+    .ui(buttonUI)
+    .width(false)
     .draw()
 
 }

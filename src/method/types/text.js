@@ -4,5 +4,10 @@ d3plus.method.text = {
   "mute": d3plus.method.filter(true),
   "solo": d3plus.method.filter(true),
   "nesting": true,
-  "value": false
+  "secondary": {
+    "accepted": [ Array , Boolean , Function , Object , String ],
+    "nesting": true,
+    "value": false
+  },
+  "value": "text"
 }
