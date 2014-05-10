@@ -1,27 +1,57 @@
 d3plus.method.draw = {
-  "accepted": [ undefined ],
+  "accepted": [ undefined , Function ],
   "first": true,
   "frozen": false,
-  "update": true,
-  "value": function ( vars ) {
+  "process": function ( value ) {
 
-    if ( !vars.container.value ) {
+    if ( this.initialized === false ) {
+      this.initialized = true
+      return value
+    }
+
+    var vars    = this.getVars()
+      , changes = "history" in vars ? vars.history.chain : []
+
+    if ( value === undefined && typeof this.value === "function" ) {
+      value = this.value
+    }
+
+    if ( vars.container.value === false ) {
 
       var str = vars.format.locale.value.warning.setContainer
       d3plus.console.warning(str)
 
     }
-    else if ( d3.select(vars.container.value).empty() ) {
-
+    else if ( vars.container.value.empty() ) {
+      console.log(vars.container.value.node())
       var str = vars.format.locale.value.warning.noContainer
-      d3plus.console.warning(d3plus.util.format(str,vars.container))
+      d3plus.console.warning(d3plus.util.format(str,vars.container.value))
 
     }
     else {
 
-      d3.select(vars.container.value).call(vars.self)
+      vars.container.value.call(vars.self)
 
     }
 
-  }
+    if ( typeof value === "function" && changes.length ) {
+
+      var changesObject = {}
+      changes.forEach(function(c){
+        var method = c.method
+        delete c.method
+        changesObject[method] = c
+      })
+
+      value(changesObject)
+
+      vars.history.chain = []
+
+    }
+
+    return value
+
+  },
+  "update": true,
+  "value": undefined
 }
