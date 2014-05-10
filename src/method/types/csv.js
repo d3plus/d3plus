@@ -1,6 +1,7 @@
 d3plus.method.csv = {
   "accepted": [ undefined , Array , String ],
   "chainable": false,
+  "data": [],
   "process": function ( value ) {
 
     var vars = this.getVars()
@@ -67,8 +68,10 @@ d3plus.method.csv = {
 
     }
 
-    return csv_to_return
+    this.data = csv_to_return
+
+    return columns
 
   },
-  "value": []
+  "value": undefined
 }
