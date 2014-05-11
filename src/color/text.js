@@ -3,13 +3,12 @@
 //------------------------------------------------------------------------------
 d3plus.color.text = function(color) {
 
-  var hsl = d3.hsl(color)
-    , light = "#f7f7f7"
-    , dark = "#444444"
+  var rgbColor = d3.rgb(color)
+    , r = rgbColor.r
+    , g = rgbColor.g
+    , b = rgbColor.b
+    , yiq = (r * 299 + g * 587 + b * 114) / 1000
 
-  return hsl.l > 0.65 ? dark
-       : hsl.l < 0.49 ? light
-       : hsl.h > 35 && hsl.s >= 0.3 ? dark
-       : light
+  return yiq >= 128 ? "#444444" : "#f7f7f7"
 
 }
