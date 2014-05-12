@@ -133,7 +133,7 @@ d3plus.viz = function() {
                 , "height" , "history" , "html" , "icon" , "id" , "labels"
                 , "legend" , "margin" , "messages" , "nodes" , "order"
                 , "shape" , "size" , "style" , "temp" , "text" , "time"
-                , "timeline" , "title" , "tooltip" , "total" , "type"
+                , "timeline" , "title" , "tooltip" , "total" , "type" , "ui"
                 , "width" , "x" , "y" , "zoom" ]
     , styles  = [ "axes" , "background" , "color" , "data" , "edges" , "font"
                 , "footer" , "labels" , "legend" , "links" , "messages"

@@ -6,7 +6,7 @@ d3plus.ui.legend = function(vars) {
   var key_display = true,
       square_size = 0,
       key = vars.color.value || vars.id.value
-      
+
   if (!vars.small && vars.legend.value && key) {
 
     if (vars.dev.value) d3plus.console.group("Calculating Legend")
@@ -701,7 +701,7 @@ d3plus.ui.legend = function(vars) {
     }
     else {
       var key_box = vars.g.legend.node().getBBox(),
-          key_height = key_box.height+key_box.y
+          key_height = key_box.height+key_box.y-vars.ui.padding
     }
 
     if (!vars.g.timeline.node().getBBox().height) {

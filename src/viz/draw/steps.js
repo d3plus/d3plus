@@ -307,6 +307,7 @@ d3plus.draw.steps = function(vars) {
 
       if (vars.draw.update) {
 
+        d3plus.ui.drawer(vars)
         d3plus.ui.timeline(vars)
         d3plus.ui.legend(vars)
 

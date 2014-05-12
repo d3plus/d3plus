@@ -9,7 +9,6 @@ d3plus.draw.container = function(vars) {
   if (vars.container.changed) {
 
     vars.container.value
-      .style("overflow","hidden")
       .style("position",function(){
         var current = d3.select(this).style("position"),
             remain = ["absolute","fixed"].indexOf(current) >= 0
