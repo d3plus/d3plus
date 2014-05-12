@@ -22,7 +22,7 @@ d3plus.method.type = {
       return "tree_map"
     }
     else if ( shell === "form" ) {
-      return "drop"
+      return "auto"
     }
     else {
       return undefined
