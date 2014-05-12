@@ -21,7 +21,7 @@ d3plus.input.drop.search = function ( vars ) {
 
   function inputStyle(elem) {
 
-    var width = vars.width.secondary - vars.ui.padding*4 - vars.ui.stroke*2
+    var width = vars.width.secondary - vars.ui.padding*4 - vars.ui.border*2
 
     elem
       .style("padding",vars.ui.padding+"px")

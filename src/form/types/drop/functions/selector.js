@@ -15,6 +15,6 @@ d3plus.input.drop.selector = function ( vars ) {
     .style("overflow","hidden")
 
     vars.container.selector
-      .style("padding",vars.ui.stroke+"px")
+      .style("padding",vars.ui.border+"px")
 
 }

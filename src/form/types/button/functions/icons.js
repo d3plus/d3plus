@@ -73,10 +73,10 @@ d3plus.input.button.icons = function ( elem , vars ) {
         .style("width",function(c){
 
           if (vars.height.value) {
-            buffer = (vars.height.value-(vars.ui.padding*2)-(vars.ui.stroke*2))
+            buffer = (vars.height.value-(vars.ui.padding*2)-(vars.ui.border*2))
           }
           else {
-            buffer = vars.font.size+vars.ui.padding+vars.ui.stroke
+            buffer = vars.font.size+vars.ui.padding+vars.ui.border
           }
           return buffer+"px"
         })
@@ -150,7 +150,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
         var width = vars.width.value
         width -= parseFloat(d3.select(this).style("padding-left"),10)
         width -= parseFloat(d3.select(this).style("padding-right"),10)
-        width -= vars.ui.stroke*2
+        width -= vars.ui.border*2
         width += "px"
       }
       else {

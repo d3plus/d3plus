@@ -10,7 +10,7 @@ d3plus.style.default.ui = {
     },
     "value": "left"
   },
-  "border": "all",
+  "border": 1,
   "color": {
     "primary": {
       "process": function ( value ) {
@@ -36,7 +36,6 @@ d3plus.style.default.ui = {
     "acceped": [ "block" , "inline-block" , "none" , "static" ],
     "value": "inline-block"
   },
-  "padding": 5,
   "margin": 0,
-  "stroke": 1
+  "padding": 5
 }

@@ -42,7 +42,7 @@ d3plus.input.drop.width = function ( vars ) {
     }).remove()
 
     var dropWidth = {}
-    dropWidth[key] = d3.max(w) + vars.ui.stroke*2
+    dropWidth[key] = d3.max(w) + vars.ui.border*2
 
     vars.self.width( dropWidth )
 

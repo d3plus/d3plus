@@ -87,12 +87,12 @@ d3plus.input.drop.update = function ( vars ) {
         return vars.ui.align.value === "right" ? "0px" : "auto"
       })
       .style("height",vars.container.listHeight+"px")
-      .style("padding",vars.ui.stroke+"px")
+      .style("padding",vars.ui.border+"px")
       .style("background-color",vars.ui.color.secondary.value)
       .style("z-index",function(){
         return vars.open.value ? "9999" : "-1";
       })
-      .style("width",(vars.width.secondary-(vars.ui.stroke*2))+"px")
+      .style("width",(vars.width.secondary-(vars.ui.border*2))+"px")
       .style("top",function(){
         return vars.open.flipped.value ? "auto" : vars.container.button.container().node().offsetHeight+"px"
       })
@@ -127,7 +127,7 @@ d3plus.input.drop.update = function ( vars ) {
     vars.container.selector.call(update).call(finish)
 
     vars.container.list
-      .style("width",vars.width.secondary-vars.ui.stroke*2+"px")
+      .style("width",vars.width.secondary-vars.ui.border*2+"px")
       .style("max-height",max_height+"px")
       .property("scrollTop",vars.container.listScroll)
 
@@ -154,7 +154,7 @@ d3plus.input.drop.update = function ( vars ) {
     }
 
     vars.container.list.transition().duration(vars.draw.timing)
-      .style("width",vars.width.secondary-vars.ui.stroke*2+"px")
+      .style("width",vars.width.secondary-vars.ui.border*2+"px")
       .style("max-height",max_height+"px")
       .tween("scroll",scrollTopTween(vars.container.listScroll))
   }
