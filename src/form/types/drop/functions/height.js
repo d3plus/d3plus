@@ -7,11 +7,10 @@ d3plus.input.drop.height = function ( vars ) {
   var buttonHeight = vars.container.button.container().node().offsetHeight
     , position     = vars.container.value.node().getBoundingClientRect()
 
-  vars.height.secondary = window.innerHeight-position.top
-  vars.height.secondary -= buttonHeight
-  vars.height.secondary -= 10
+  vars.height.secondary = window.innerHeight - position.top
+                        - buttonHeight - vars.ui.padding*2
 
-  if ( vars.height.secondary < buttonHeight*2 ) {
+  if ( vars.height.secondary < buttonHeight*3 ) {
     vars.height.secondary = position.top-10
     vars.self.open({"flipped": true})
   }
