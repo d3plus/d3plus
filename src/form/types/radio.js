@@ -3,11 +3,6 @@
 //------------------------------------------------------------------------------
 d3plus.input.radio = function( vars ) {
 
-  vars.container.ui.transition().duration(vars.draw.timing)
-    .style("background-color",vars.ui.color.secondary.value)
-    .style("padding",vars.ui.stroke+"px")
-    .style("margin",vars.ui.margin+"px")
-
   if ( !("buttons" in vars.container) ) {
 
     vars.container.buttons = d3plus.form()

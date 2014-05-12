@@ -153,12 +153,39 @@ d3plus.form = function() {
         vars.container.ui.enter()
           .insert("div",before)
           .attr("id","d3plus_"+vars.type.value+"_"+vars.container.id)
-          .style("display",vars.ui.display.value)
           .style("position","relative")
           .style("overflow","visible")
           .style("vertical-align","top")
 
       }
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Update Container
+      //------------------------------------------------------------------------
+      vars.container.ui.transition().duration(vars.draw.timing)
+        .style("display",vars.ui.display.value)
+        .style("margin",vars.ui.margin+"px")
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Create title, if available.
+      //------------------------------------------------------------------------
+      var title = vars.container.ui.selectAll("div.d3plus_title")
+        .data(vars.title.value ? [vars.title.value] : [])
+
+      title.enter().insert("div","#d3plus_"+vars.type.value+"_"+vars.container.id)
+        .attr("class","d3plus_title")
+
+      title.transition().duration(vars.draw.timing)
+        .style("display",vars.ui.display.value)
+        .style("color",vars.font.color)
+        .style("font-family",vars.font.family.value)
+        .style("font-size",vars.font.size+"px")
+        .style("font-weight",vars.font.weight)
+        .style("padding",vars.ui.padding+"px")
+        .style("border-color","transparent")
+        .style("border-style","solid")
+        .style("border-width",vars.ui.border+"px")
+        .text(String)
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Call specific UI element type, if there is data.
@@ -191,8 +218,8 @@ d3plus.form = function() {
   var methods = [ "alt" , "color" , "container" , "dev" , "data" , "draw"
                 , "focus" , "format" , "height" , "hover" , "icon" , "id"
                 , "keywords" , "open" , "order" , "remove" , "search"
-                , "select" , "selectAll" , "text" , "type" , "width" ]
-    , styles  = [ "drop" , "font" , "icon" , "timing" , "ui" ]
+                , "select" , "selectAll" , "text" , "title" , "type" , "width" ]
+    , styles  = [ "drop" , "font" , "icon" , "timing" , "title" , "ui" ]
 
   d3plus.method( vars , methods , styles )
 
