@@ -12,7 +12,7 @@ d3plus.style.default.icon = {
   },
   "drop": {
     "accepted": [ Boolean , String ],
-    "fallback": "&#x27A4;",
+    "fallback": "&#x276f;",
     "opacity": 1,
     "process": function ( value ) {
       var fallback = this.fallback

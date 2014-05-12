@@ -5,10 +5,10 @@ d3plus.input.drop.arrow = function ( vars ) {
 
   if (vars.dev.value) d3plus.console.time("rotating arrow")
 
-  var offset = vars.icon.drop.value === "&#x27A4;" ? 90 : 0
+  var offset = vars.icon.drop.value === "&#x276f;" ? 90 : 0
 
   if (vars.open.value != vars.open.flipped.value) {
-    var rotate = 180-offset
+    var rotate = 180 + offset
   }
   else {
     var rotate = offset
