@@ -11,15 +11,15 @@ d3plus.data.edges = function(vars) {
     var placed = []
     vars.nodes.changed = true
   }
-  
+
   vars.edges.value.forEach(function(e){
 
-    if (typeof e[vars.edges.source] != "object") {
+    if (typeof e[vars.edges.source] !== "object") {
       var obj = {}
       obj[vars.id.value] = e[vars.edges.source]
       e[vars.edges.source] = obj
     }
-    if (typeof e[vars.edges.target] != "object") {
+    if (typeof e[vars.edges.target] !== "object") {
       var obj = {}
       obj[vars.id.value] = e[vars.edges.target]
       e[vars.edges.target] = obj
@@ -42,6 +42,22 @@ d3plus.data.edges = function(vars) {
         placed.push(e[vars.edges.target][vars.id.value])
         vars.nodes.value.push(e[vars.edges.target])
       }
+    }
+
+  })
+
+  vars.edges.value = vars.edges.value.filter(function(e){
+
+    var source = e[vars.edges.source][vars.id.value]
+      , target = e[vars.edges.target][vars.id.value]
+
+    if ( source === target ) {
+      var str = vars.format.locale.value.warning.sameEdge
+      d3plus.console.warning(d3plus.util.format(str,source))
+      return false
+    }
+    else {
+      return true
     }
 
   })
