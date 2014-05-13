@@ -241,7 +241,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
         }
       }
-      else if ( typeof object[key] === "object" && typeof value === "object" ) {
+      else if ( d3plus.object.validate(object[key]) && d3plus.object.validate(value) ) {
 
         object[key] = d3plus.util.merge( object[key] , value )
 
