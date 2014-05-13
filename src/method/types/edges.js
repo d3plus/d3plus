@@ -53,6 +53,7 @@ d3plus.method.edges = {
   "label": false,
   "large": 100,
   "limit": false,
+  "process": d3plus.method.processData,
   "size": false,
   "source": "source",
   "target": "target",

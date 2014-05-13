@@ -7,6 +7,7 @@ d3plus.method.coords = {
   },
   "mute": d3plus.method.filter(false),
   "padding": 20,
+  "process": d3plus.method.processData,
   "projection": {
     "accepted": ["mercator","equirectangular"],
     "value": "mercator"

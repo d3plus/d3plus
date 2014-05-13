@@ -10,7 +10,7 @@ d3plus.draw.steps = function(vars) {
   //----------------------------------------------------------------------------
   var urlLoads = ["data","attrs","coords","nodes","edges"]
   urlLoads.forEach(function(u){
-    if (typeof vars[u].value == "string" || (!vars[u].value && vars[u].url)) {
+    if ( !vars[u].loaded && vars[u].url ) {
 
       steps.push({
         "function": function(vars,next){
