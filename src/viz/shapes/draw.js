@@ -671,7 +671,7 @@ d3plus.shape.draw = function(vars) {
           vars.draw.update = false
 
           if (!d || d[vars.id.value] == vars.focus.value) {
-            vars.self.focus(null).draw()
+            vars.self.focus(false).draw()
           }
           else {
             vars.self.focus(d[vars.id.value]).draw()
