@@ -260,7 +260,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
         var hasValue = object[key].length > 0
           , k = parentKey || key
 
-        if ( "k" in vars && ( ( hasValue && vars[k].indexOf(method) < 0 )
+        if ( k in vars && ( ( hasValue && vars[k].indexOf(method) < 0 )
         || ( !hasValue && vars[k].indexOf(method) >= 0 ) ) ) {
 
           vars[k] = d3plus.array.update(vars[k],method)
