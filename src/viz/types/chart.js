@@ -182,7 +182,7 @@ d3plus.visualization.chart = function(vars) {
 
       var size_range = [min_size,max_size]
 
-      var radius = d3.scale[vars.size.scale.value]()
+      var radius = vars.size.scale.value
         .domain(size_domain)
         .rangeRound(size_range)
 

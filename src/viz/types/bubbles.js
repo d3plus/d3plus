@@ -66,7 +66,7 @@ d3plus.visualization.bubbles = function(vars) {
   var size_max = (d3.min([column_width,column_height])/2)-(padding*2)
   size_max -= label_height
 
-  var size = d3.scale[vars.size.scale.value]()
+  var size = vars.size.scale.value
     .domain([domain_min,domain_max])
     .rangeRound([size_min,size_max])
 
