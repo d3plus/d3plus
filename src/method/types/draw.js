@@ -15,7 +15,7 @@ d3plus.method.draw = {
     if ( value === undefined && typeof this.value === "function" ) {
       value = this.value
     }
-
+    
     if ( vars.container.value === false ) {
 
       var str = vars.format.locale.value.warning.setContainer
@@ -23,7 +23,7 @@ d3plus.method.draw = {
 
     }
     else if ( vars.container.value.empty() ) {
-      console.log(vars.container.value.node())
+
       var str = vars.format.locale.value.warning.noContainer
       d3plus.console.warning(d3plus.util.format(str,vars.container.value))
 

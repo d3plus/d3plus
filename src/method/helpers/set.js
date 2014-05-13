@@ -102,11 +102,23 @@ d3plus.method.set = function( vars , method , object , key , value ) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there is a callback function, run it.
     //--------------------------------------------------------------------------
-    if ( key === "value" && typeof object.callback === "function" ) {
-      var returnedValue = object.callback(value)
-      if (returnedValue !== undefined) {
-        value = returnedValue
+    if ( key === "value" ) {
+
+      if ( "process" in object ) {
+
+        value = d3plus.method.process( object , value )
+
       }
+
+      if ( typeof object.callback === "function" && !object.url ) {
+
+        var returnedValue = object.callback(value)
+        if (returnedValue !== undefined) {
+          value = returnedValue
+        }
+
+      }
+
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -140,12 +152,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set the variable!
       //------------------------------------------------------------------------
-      if ( key === "value" && "process" in object ) {
-
-        d3plus.method.process( object , value )
-
-      }
-      else if ( key === "value" && "nesting" in object ) {
+      if ( key === "value" && "nesting" in object ) {
 
         if ( method !== "id" ) {
 

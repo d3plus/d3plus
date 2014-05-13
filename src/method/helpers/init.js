@@ -19,7 +19,7 @@ d3plus.method.init = function( vars , obj , method ) {
   }
 
   if ( "process" in obj ) {
-    d3plus.method.process( obj , obj.value )
+    obj.value = d3plus.method.process( obj , obj.value )
   }
 
   for ( o in obj ) {

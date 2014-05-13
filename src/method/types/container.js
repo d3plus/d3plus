@@ -3,11 +3,11 @@ d3plus.method.container = {
   "element": false,
   "id": "default",
   "process": function ( value ) {
-
+    
     if ( value === false ) {
       return value
     }
-    if ( d3plus.util.d3selection(value) ) {
+    else if ( d3plus.util.d3selection(value) ) {
       return value
     }
     else if ( value instanceof Array ) {

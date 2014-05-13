@@ -2,18 +2,18 @@
 // Process object's value
 //--------------------------------------------------------------------------
 d3plus.method.process = function( object , value ) {
-
+  
   if ( object.process === Array ) {
-    object.value = d3plus.array.update(object.value,value)
+    return d3plus.array.update(object.value,value)
   }
   else if ( typeof object.process === "object" && typeof value === "string" ) {
-    object.value = object.process[value]
+    return object.process[value]
   }
   else if ( typeof object.process === "function" ) {
-    object.value = object.process(value)
+    return object.process(value)
   }
   else {
-    object.value = value
+    return value
   }
 
 }
