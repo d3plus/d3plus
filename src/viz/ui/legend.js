@@ -88,7 +88,7 @@ d3plus.ui.legend = function(vars) {
               , name = d3plus.variable.text(vars,parent,i)
 
             if (name && obj.name.indexOf(name) < 0) {
-              obj.name.push(name.toString())
+              obj.name.push(name)
             }
 
             if (!obj.icon) {
@@ -116,7 +116,7 @@ d3plus.ui.legend = function(vars) {
 
               var name = d3plus.variable.text(vars,p,i)
               if (name && obj.name.indexOf(name) < 0) {
-                obj.name.push(name.toString())
+                obj.name.push(name)
               }
 
             })
@@ -377,7 +377,14 @@ d3plus.ui.legend = function(vars) {
           keys
             .on(d3plus.evt.over,function(d,i){
 
-              if (d.name.length && (d3.select(this).select("text").empty() || d.name.length > 1)) {
+              var label = d3.select(this).select("text")
+                , noLabel = label.empty()
+                , labelText = label.empty() ? ""
+                            : label.select("tspan").text().split(" ")[0]
+                , moreText = d.name.length === 1 && d.name[0] instanceof Array
+                           ? d.name[0][0].indexOf(labelText) !== 0 : true
+
+              if (d.name.length && (noLabel || moreText || d.name.length > 1)) {
 
                 d3.select(this).style("cursor","pointer")
 
