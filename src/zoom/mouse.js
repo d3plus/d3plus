@@ -41,8 +41,8 @@ d3plus.zoom.mouse = function(vars) {
     d3plus.zoom.labels(vars)
   }
 
-  if (d3.event.sourceEvent.type == "dblclick") {
-    d3plus.zoom.transform(vars,vars.draw.timing)
+  if (d3.event.sourceEvent.type === "dblclick") {
+    d3plus.zoom.transform(vars,vars.timing.transitions)
   }
   else {
     d3plus.zoom.transform(vars,0)
