@@ -21,14 +21,13 @@ d3plus.visualization.network = function(vars) {
 
   var max_size = d3.min(d3plus.util.distances(nodes))
 
+  max_size = max_size * vars.edges.overlap
+
   if (vars.edges.arrows.value) {
-    max_size = max_size*0.45
-  }
-  else {
-    max_size = max_size*0.6
+    max_size = max_size * 0.5
   }
 
-  if (val_range[0] == val_range[1]) {
+  if ( val_range[0] === val_range[1] ) {
     var min_size = max_size
   }
   else {
@@ -38,21 +37,21 @@ d3plus.visualization.network = function(vars) {
         aspect = width/height,
         app = vars.width.viz/vars.height.viz
 
-    if (app > aspect) {
+    if ( app > aspect ) {
       var scale = vars.height.viz/height
     }
     else {
       var scale = vars.width.viz/width
     }
-    var min_size = max_size*0.25
-    if (min_size*scale < 3) {
-      min_size = 3/scale
+    var min_size = max_size * 0.25
+    if ( min_size * scale < 2 ) {
+      min_size = 2/scale
     }
 
   }
 
   // Create size scale
-  var radius = d3.scale[vars.size.scale.value]()
+  var radius = vars.size.scale.value
     .domain(val_range)
     .rangeRound([min_size, max_size])
 

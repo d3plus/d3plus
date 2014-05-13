@@ -4,9 +4,8 @@ d3plus.method.size = {
   "deprecates": ["value"],
   "mute": d3plus.method.filter(true),
   "scale": {
-    "accepted": ["sqrt","linear","log"],
     "deprecates": ["size_scale"],
-    "value": "sqrt"
+    "value": d3.scale.sqrt()
   },
   "solo": d3plus.method.filter(true),
   "threshold": true,
