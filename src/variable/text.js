@@ -25,8 +25,8 @@ d3plus.variable.text = function(vars,obj,depth) {
   var names = []
   text_keys.forEach(function(t){
     var key =  vars.id.nesting[depth]
-      , name = d3plus.variable.value(vars,obj,t,key).toString()
-    if (name) names.push(vars.format.value(name))
+      , name = d3plus.variable.value(vars,obj,t,key)
+    if (name) names.push(vars.format.value(name.toString()))
   })
 
   return names
