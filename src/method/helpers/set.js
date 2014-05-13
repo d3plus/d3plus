@@ -289,12 +289,18 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       if ( ( vars.dev.value || key === "dev" )
       && ( object.changed || ("key" in object && object[key].changed) ) ) {
 
-        var newVal = JSON.stringify(object[key])
+        var longArray = object[key] instanceof Array && object[key].length > 10
+          , d3selection = d3plus.util.d3selection(object[key])
+          , typeFunction = typeof object[key] === "function"
 
-        if (typeof object[key] !== "function" && newVal.length < 260) {
+        var valString = object[key] === undefined ? "\"undefined\""
+                      : !longArray && !d3selection && !typeFunction
+                      ? JSON.stringify(object[key]) : null
+
+        if (valString !== null && valString.length < 260) {
 
           var str = vars.format.locale.value.dev.setLong
-          d3plus.console.log(d3plus.util.format(str,text,newVal))
+          d3plus.console.log(d3plus.util.format(str,text,valString))
 
         }
         else {
