@@ -153,8 +153,8 @@ d3plus.draw.steps = function(vars) {
           }
         }
 
-        return !vars.data.filtered || vars.check.length || vars.active.changed ||
-          vars.temp.changed || vars.total.changed
+        return ( !vars.data.filtered || vars.check.length || vars.active.changed ||
+          vars.temp.changed || vars.total.changed ) && vars.data.value
       },
       "function": function(vars) {
 
