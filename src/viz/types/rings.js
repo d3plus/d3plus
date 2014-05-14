@@ -12,7 +12,7 @@ d3plus.visualization.rings = function(vars) {
   var center = vars.data.app.filter(function(d){
     return d[vars.id.value] == vars.focus.value
   })[0]
-
+  
   if (!center) {
     center = {"d3plus": {}}
     center[vars.id.value] = vars.focus.value
@@ -234,7 +234,10 @@ d3plus.visualization.rings = function(vars) {
     secondaryMax = ring_width/10
   }
 
-  if (primaryMax > secondaryMax*1.5) {
+  if (secondaryMax > primaryMax) {
+    secondaryMax = primaryMax*.75
+  }
+  else if (primaryMax > secondaryMax*1.5) {
     primaryMax = secondaryMax*1.5
   }
 
@@ -286,18 +289,21 @@ d3plus.visualization.rings = function(vars) {
     s.d3plus.r = radius(val)
   })
 
-  primaries.forEach(function(p,i){
-
+  primaries.forEach(function(p){
     p.d3plus.ring = 1
     var val = vars.size.value ? d3plus.variable.value(vars,p,vars.size.value) : 1
     p.d3plus.r = radius(val)
+  })
+
+  primaries.forEach(function(p,i){
 
     var check = [vars.edges.source,vars.edges.target]
+      , edge = d3plus.util.copy(p.d3plus.edge)
 
     check.forEach(function(node){
-      if (p.d3plus.edge[node][vars.id.value] == center[vars.id.value]) {
+      if (edge[node][vars.id.value] == center[vars.id.value]) {
 
-        p.d3plus.edge[node].d3plus = {
+        edge[node].d3plus = {
           "x": center.d3plus.x,
           "y": center.d3plus.y,
           "r": center.d3plus.r
@@ -306,7 +312,7 @@ d3plus.visualization.rings = function(vars) {
       }
       else {
 
-        p.d3plus.edge[node].d3plus = {
+        edge[node].d3plus = {
           "x": p.d3plus.x,
           "y": p.d3plus.y,
           "r": p.d3plus.r
@@ -315,10 +321,12 @@ d3plus.visualization.rings = function(vars) {
       }
     })
 
-    delete p.d3plus.edge.d3plus
-    edges.push(p.d3plus.edge)
+    delete edge.d3plus
+    edges.push(edge)
 
-    vars.edges.connections(p[vars.id.value],vars.id.value).forEach(function(edge){
+    vars.edges.connections(p[vars.id.value],vars.id.value).forEach(function(e){
+
+      var edge = d3plus.util.copy(e)
 
       var c = edge[vars.edges.source][vars.id.value] == p[vars.id.value]
             ? edge[vars.edges.target] : edge[vars.edges.source]
