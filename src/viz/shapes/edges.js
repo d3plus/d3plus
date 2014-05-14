@@ -354,7 +354,7 @@ d3plus.shape.edges = function(vars) {
 
   var line_data = edges.filter(function(l){
 
-    if (!l.d3plus || (l.d3plus && !("spline" in l.d3plus))) {
+    if ( !l.d3plus || (l.d3plus && l.d3plus.spline !== true) ) {
 
       if (!l.d3plus) {
         l.d3plus = {}
@@ -416,10 +416,6 @@ d3plus.shape.edges = function(vars) {
   var spline_data = edges.filter(function(l){
 
     if (l.d3plus && l.d3plus.spline) {
-
-      if (!l.d3plus) {
-        l.d3plus = {}
-      }
 
       if (strokeBuckets) {
         var size = l[vars.edges.size]
@@ -487,15 +483,19 @@ d3plus.shape.edges = function(vars) {
       .attr("opacity",0)
       .remove()
 
-    lines.selectAll("line").transition().duration(vars.draw.timing)
-      .call(line)
-      .call(style)
-      .each("end",label)
+    lines.selectAll("line")
+      .data(function(d){ return [d] })
+      .transition().duration(vars.draw.timing)
+        .call(line)
+        .call(style)
+        .each("end",label)
 
-    splines.selectAll("path").transition().duration(vars.draw.timing)
-      .call(spline)
-      .call(style)
-      .each("end",label)
+    splines.selectAll("path")
+      .data(function(d){ return [d] })
+      .transition().duration(vars.draw.timing)
+        .call(spline)
+        .call(style)
+        .each("end",label)
 
     lines.enter().append("g")
       .attr("class","d3plus_edge_line")
