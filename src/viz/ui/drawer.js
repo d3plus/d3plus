@@ -14,7 +14,7 @@ d3plus.ui.drawer = function( vars ) {
 
   var positionStyles = {}
   vars.ui.position.accepted.forEach(function(p){
-    positionStyles[p] = p == position ? "0px" : "auto"
+    positionStyles[p] = p == position ? vars.margin.bottom+"px" : "auto"
   })
 
   drawer
