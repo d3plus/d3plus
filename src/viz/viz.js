@@ -58,7 +58,7 @@ d3plus.viz = function() {
 
           if (run) {
 
-            if (!same && vars.draw.update && (!vars.draw.timing || vars.draw.first)) {
+            if ( !same && vars.draw.update ) {
 
               if (vars.dev.value) {
                 d3plus.console.groupEnd()
