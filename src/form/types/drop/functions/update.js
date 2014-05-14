@@ -73,10 +73,10 @@ d3plus.input.drop.update = function ( vars ) {
 
     elem
       .style("left",function(){
-        if (vars.ui.align.value === "left") {
+        if (vars.font.align.value === "left") {
           return "0px"
         }
-        else if (vars.ui.align.value === "center") {
+        else if (vars.font.align.value === "center") {
           return -((vars.width.secondary-vars.width.value)/2)+"px"
         }
         else {
@@ -84,7 +84,7 @@ d3plus.input.drop.update = function ( vars ) {
         }
       })
       .style("right",function(){
-        return vars.ui.align.value === "right" ? "0px" : "auto"
+        return vars.font.align.value === "right" ? "0px" : "auto"
       })
       .style("height",vars.container.listHeight+"px")
       .style("padding",vars.ui.border+"px")

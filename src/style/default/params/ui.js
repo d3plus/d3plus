@@ -8,7 +8,7 @@ d3plus.style.default.ui = {
                         : value : value
 
     },
-    "value": "left"
+    "value": "center"
   },
   "border": 1,
   "color": {
