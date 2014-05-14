@@ -151,8 +151,7 @@ d3plus.ui.timeline = function(vars) {
       })
 
     var year_width = 0,
-        year_height = 0,
-        height = vars.timeline.height+vars.ui.padding
+        year_height = 0
 
     text
       .order()
@@ -185,7 +184,6 @@ d3plus.ui.timeline = function(vars) {
           break;
         }
       }
-      height += year_height
     }
 
     if (vars.timeline.align == "start") {
@@ -222,7 +220,7 @@ d3plus.ui.timeline = function(vars) {
       })
       .attr("y",function(d){
         var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
-        var y = vars.ui.padding+vars.timeline.height/2+this.getBBox().height/2 - diff
+        var y = vars.ui.padding+vars.timeline.height/2-1+this.getBBox().height/2 - diff
         if (step > 1) {
           y += year_height+vars.ui.padding
         }
@@ -236,7 +234,7 @@ d3plus.ui.timeline = function(vars) {
     background.transition().duration(vars.draw.timing)
       .attr("opacity",1)
       .attr("width",timeline_width)
-      .attr("height",vars.timeline.height)
+      .attr("height",vars.timeline.height-2)
       .attr("x",start_x)
       .attr("y",vars.ui.padding)
       .attr("fill",vars.timeline.background)
@@ -260,7 +258,7 @@ d3plus.ui.timeline = function(vars) {
           return year_ticks
         })
         .tickFormat("")
-        .tickSize(-vars.timeline.height)
+        .tickSize(-(vars.timeline.height-2))
         .tickPadding(0))
         .selectAll("path").attr("fill","none")
 
@@ -276,7 +274,7 @@ d3plus.ui.timeline = function(vars) {
     text.attr("pointer-events","none")
 
     brush_group.selectAll("rect.background, rect.extent")
-      .attr("height",vars.timeline.height)
+      .attr("height",vars.timeline.height-2)
 
     brush_group.selectAll("rect.background")
       .attr("fill","none")
@@ -301,7 +299,7 @@ d3plus.ui.timeline = function(vars) {
         .attr("stroke-width",1)
         .attr("x",-vars.timeline.handles.size/2)
         .attr("width",vars.timeline.handles.size)
-        .attr("height",vars.timeline.height)
+        .attr("height",vars.timeline.height-2)
         .style("visibility","visible")
         .attr("shape-rendering",vars.rendering)
         .attr("opacity",vars.timeline.handles.opacity)
@@ -330,10 +328,18 @@ d3plus.ui.timeline = function(vars) {
 
     }
 
-    vars.margin.bottom += (vars.ui.padding*2)+height
+    if ( vars.margin.bottom === 0 ) {
+      vars.margin.bottom += vars.ui.padding
+    }
+
+    var timelineBox = vars.g.timeline.node().getBBox()
+
+    vars.margin.bottom += timelineBox.height+timelineBox.y
 
     vars.g.timeline.transition().duration(vars.draw.timing)
       .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
+
+    vars.margin.bottom += vars.ui.padding
 
   }
   else {

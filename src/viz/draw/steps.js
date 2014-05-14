@@ -314,23 +314,15 @@ d3plus.draw.steps = function(vars) {
       }
       else {
 
+        var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
+
         var timeline = vars.g.timeline.node().getBBox()
-        timeline = timeline.height+timeline.y
+        timeline = vars.timeline.value ? timeline.height+timeline.y : 0
 
         var legend = vars.g.legend.node().getBBox()
-        legend = legend.height+legend.y
+        legend = vars.legend.value ? legend.height+legend.y : 0
 
-        if (legend && timeline) {
-          var padding = vars.ui.padding*3
-        }
-        else if (legend || timeline) {
-          var padding = vars.ui.padding*2
-        }
-        else {
-          var padding = 0
-        }
-
-        vars.margin.bottom += timeline+legend+padding
+        vars.margin.bottom += drawer+timeline+legend
 
       }
 
