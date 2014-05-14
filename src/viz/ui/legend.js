@@ -710,8 +710,8 @@ d3plus.ui.legend = function(vars) {
       var key_box = vars.g.legend.node().getBBox(),
           key_height = key_box.height+key_box.y-vars.ui.padding
     }
-
-    if (!vars.g.timeline.node().getBBox().height) {
+    
+    if (vars.margin.bottom === 0) {
       vars.margin.bottom += vars.ui.padding
     }
     vars.margin.bottom += key_height+vars.ui.padding

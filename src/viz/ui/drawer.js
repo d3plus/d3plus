@@ -63,7 +63,7 @@ d3plus.ui.drawer = function( vars ) {
     })
 
   ui.exit().remove()
-  
-  vars.margin[position] += drawer.node().offsetHeight-vars.ui.padding
+
+  vars.margin[position] += drawer.node().offsetHeight
 
 }
