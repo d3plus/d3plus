@@ -49,13 +49,6 @@ d3plus.method.function = function( key , vars ) {
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If defining a callback function, set it.
-    //--------------------------------------------------------------------------
-    if (callback) {
-      vars[key].callback = callback
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Determine whether or not to just set the local variable or to dig into
     // the object passed looking for keys.
     //--------------------------------------------------------------------------
@@ -92,6 +85,16 @@ d3plus.method.function = function( key , vars ) {
 
     }
 
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If defining a callback function, set it.
+    //--------------------------------------------------------------------------
+    if ( typeof callback === "function" ) {
+      vars[key].callback = callback
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If the method is not chainable, return the value associated with it.
+    //--------------------------------------------------------------------------
     if (vars[key].chainable === false) {
       return vars[key].value
     }
