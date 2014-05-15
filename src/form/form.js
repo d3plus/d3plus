@@ -135,7 +135,7 @@ d3plus.form = function() {
                 }
               }
 
-              if (d[vars.id.value] === vars.focus) {
+              if (d[vars.id.value] === vars.focus.value) {
                 this.selected = true
               }
               else {

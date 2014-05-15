@@ -97,7 +97,7 @@ d3plus.data.element = function( vars ) {
   if ( !vars.focus.value && elementData.length ) {
 
     vars.data.element.node().selectedIndex = 0
-    vars.self.focus(elementData[0].value)
+    vars.self.focus(elementData[0][vars.id.value])
 
   }
 
