@@ -31,9 +31,10 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
       //------------------------------------------------------------------------
-      if ( vars.data.changed || vars.order.changed || vars.order.sort.changed ) {
+      if ( vars.order.value && (vars.data.changed || vars.order.changed || vars.order.sort.changed) ) {
 
         var sort = vars.order.value || vars.id.value
+          , order = vars.order.sort.value
 
         vars.data.value.sort(function(a,b){
 
@@ -52,8 +53,16 @@ d3plus.form = function() {
 
           }
 
-          if(a < b) return -1;
-          if(a > b) return 1;
+          if (typeof a === "string") {
+            a = a.toLowerCase()
+          }
+
+          if (typeof b === "string") {
+            b = b.toLowerCase()
+          }
+
+          if(a < b) return order === "desc" ? -1 : 1;
+          if(a > b) return order === "desc" ? 1 : -1;
 
         })
 

@@ -53,6 +53,10 @@ d3plus.input.drop.items = function ( vars ) {
       .font( vars.font.secondary )
       .id( vars.id.value )
       .icon( vars.icon.value )
+      .order( vars.order.value )
+      .order({
+        "sort": vars.order.sort.value
+      })
       .text( vars.text.secondary.value || vars.text.value )
       .timing({
         "ui": vars.draw.timing

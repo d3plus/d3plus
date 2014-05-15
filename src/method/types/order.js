@@ -1,5 +1,5 @@
 d3plus.method.order = {
-  "accepted": [ Boolean , Function , String ],
+  "accepted": [ false , Function , String ],
   "sort": {
     "accepted": [ "asc" , "desc" ],
     "value": "asc",
