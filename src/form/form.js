@@ -107,14 +107,18 @@ d3plus.form = function() {
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Update OPTION elements with the new data.
         //----------------------------------------------------------------------
-        if ( vars.data.element && vars.type.value === "drop" ) {
+        if ( vars.data.element && vars.data.element.node().tagName === "SELECT" ) {
 
           options = vars.data.element.selectAll("option")
             .data(vars.data.value,function(d){
-              return d ? d.value : false
+              return d ? d[vars.id.value] : false
             })
 
+          options.exit().remove()
+
           options.enter().append("option")
+
+          options
             .each(function(d){
 
               for (k in d) {
@@ -137,8 +141,6 @@ d3plus.form = function() {
               }
 
             })
-
-          options.exit().remove()
 
         }
 
