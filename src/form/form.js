@@ -61,8 +61,8 @@ d3plus.form = function() {
             b = b.toLowerCase()
           }
 
-          if(a < b) return order === "desc" ? -1 : 1;
-          if(a > b) return order === "desc" ? 1 : -1;
+          if(a < b) return order === "asc" ? -1 : 1;
+          if(a > b) return order === "asc" ? 1 : -1;
 
         })
 
