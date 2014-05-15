@@ -8,7 +8,7 @@ d3plus.style.default.title = {
     "transform": "none",
     "weight": 200
   },
-  "height": null,
+  "height": false,
   "padding": 2,
   "position": "top",
   "sub": {
@@ -37,5 +37,5 @@ d3plus.style.default.title = {
     "padding": 1,
     "position": "top"
   },
-  "width": null
+  "width": false
 }
