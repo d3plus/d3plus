@@ -14,10 +14,10 @@ d3plus.method.focus = {
 
         vars.data.element.selectAll("option").each(function(d,i){
 
-          if (this[vars.id.value] === value) {
+          if (d[vars.id.value] === value) {
             vars.data.element.node().selectedIndex = i
           }
-          
+
         })
 
       }
@@ -26,7 +26,7 @@ d3plus.method.focus = {
         vars.data.element
           .each(function(){
 
-            if (this[vars.id.value] === value) {
+            if (d[vars.id.value] === value) {
               this.checked = true
             }
             else {

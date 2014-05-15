@@ -107,7 +107,9 @@ d3plus.form = function() {
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Update OPTION elements with the new data.
         //----------------------------------------------------------------------
-        if ( vars.data.element && vars.data.element.node().tagName === "SELECT" ) {
+        var elementTag = vars.data.element
+                       ? vars.data.element.node().tagName.toLowerCase() : ""
+        if ( vars.data.element && elementTag === "select" ) {
 
           options = vars.data.element.selectAll("option")
             .data(vars.data.value,function(d){

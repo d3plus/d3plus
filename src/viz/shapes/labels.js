@@ -42,7 +42,7 @@ d3plus.shape.labels = function(vars,selection) {
     function x_pos(t) {
 
       var align = t.anchor || vars.labels.align,
-          tspan = this.tagName == "tspan",
+          tspan = this.tagName.toLowerCase() === "tspan",
           share = tspan ? this.parentNode.className.baseVal == "d3plus_share" : this.className.baseVal == "d3plus_share",
           width = d3.select(this).node().getComputedTextLength()/scale[1]
 
