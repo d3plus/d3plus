@@ -16,10 +16,6 @@ d3plus.input.drop.button = function ( vars ) {
     vars.container.button = d3plus.form()
       .container(vars.container.ui)
       .data([buttonData])
-      .focus(vars.focus.value)
-      .focus(undefined,function(value){
-        self.toggle( vars )
-      })
       .type("button")
       .ui({
         "margin": 0
@@ -43,6 +39,7 @@ d3plus.input.drop.button = function ( vars ) {
     .draw({
       "update": vars.draw.update
     })
+    .focus(vars.focus.value)
     .font( vars.font )
     .icon({
       "select": vars.icon.drop.value,
@@ -54,9 +51,14 @@ d3plus.input.drop.button = function ( vars ) {
       "ui": vars.draw.timing
     })
     .ui({
-      "color": vars.ui.color
+      "color": vars.ui.color,
+      "padding": vars.ui.padding
     })
     .width(vars.width.value)
     .draw()
+
+  vars.container.button.select("div").on(d3plus.evt.click,function(){
+    self.toggle(vars)
+  })
 
 }

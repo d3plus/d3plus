@@ -3,14 +3,13 @@
 //--------------------------------------------------------------------------
 d3plus.method.processData = function ( value ) {
 
-  if ( typeof value === "boolean" ||
-     ( value instanceof Array && !d3plus.util.d3selection(value) ) ) {
+  if ( typeof value !== "string" && !d3plus.util.d3selection( value ) ) {
 
     return value
 
   }
   else {
-    
+
     var vars = this.getVars()
       , maybeURL = value.indexOf("/") >= 0
 
@@ -20,7 +19,7 @@ d3plus.method.processData = function ( value ) {
       return d3plus.data.element( vars )
 
     }
-    else if ( typeof value === "string" ) {
+    else {
 
       if ( !maybeURL && !d3.selectAll( value ).empty() ) {
 

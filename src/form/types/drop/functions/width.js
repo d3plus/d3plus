@@ -11,6 +11,7 @@ d3plus.input.drop.width = function ( vars ) {
              : vars.icon.select.value || vars.icon.drop.value
       , text = key === "value" ? vars.text.value
              : vars.text.secondary.value || vars.text.value
+      , font = key === "value" ? vars.font : vars.font.secondary
 
     if (vars.dev.value) d3plus.console.time("calculating "+type+" width")
 
@@ -21,6 +22,7 @@ d3plus.input.drop.width = function ( vars ) {
         "value": vars.data.value
       })
       .draw({ "update": false })
+      .font( font )
       .icon({ "button": icon, "value": vars.icon.value })
       .id(vars.id.value)
       .timing({
@@ -29,9 +31,10 @@ d3plus.input.drop.width = function ( vars ) {
       .text( text )
       .type( "button" )
       .ui({
-        "border": "none",
+        "border": 0,
         "display": "inline-block",
-        "margin": 0
+        "margin": 0,
+        "padding": vars.ui.padding
       })
       .width(false)
       .draw()

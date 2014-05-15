@@ -11,12 +11,6 @@ d3plus.input.radio = function( vars ) {
 
   }
 
-  var buttonUI = d3plus.util.copy(vars)
-  buttonUI.ui.display.value = "inline-block"
-  buttonUI.ui.border = "none"
-  buttonUI.ui.margin = 0
-  buttonUI.ui.stroke = 0
-
   vars.container.buttons
     .color(vars.color)
     .data(vars.data.value)
@@ -29,10 +23,14 @@ d3plus.input.radio = function( vars ) {
     .focus(vars.focus.value,function(value){
 
       vars.self.focus(value)
-      return value
 
     })
-    .ui(buttonUI)
+    .ui({
+      "border": vars.ui.border,
+      "display": "inline-block",
+      "margin": 0,
+      "padding": vars.ui.padding
+    })
     .width(false)
     .draw()
 

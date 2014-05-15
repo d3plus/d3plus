@@ -3,6 +3,8 @@
 //------------------------------------------------------------------------------
 d3plus.input.drop.items = function ( vars ) {
 
+  var self = this
+
   if (vars.open.value) {
 
     if (vars.dev.value) d3plus.console.time("updating list items")
@@ -13,14 +15,14 @@ d3plus.input.drop.items = function ( vars ) {
         .container(vars.container.list)
         .type("button")
         .ui({
-          "border": "none",
+          "border": 0,
           "display": "block",
           "margin": 0
         })
         .width(false)
 
     }
-    
+
     vars.container.items
       .data({
         "large": vars.data.large,
@@ -30,9 +32,11 @@ d3plus.input.drop.items = function ( vars ) {
         "update": vars.draw.update
       })
       .focus(vars.focus.value,function(value){
+
         if ( value !== vars.focus.value ) {
 
-          vars.self.focus(value)
+          vars.self.focus( value )
+
           var newData = vars.data.filtered.filter(function(d){
             return d[vars.id.value] === value
           })
@@ -41,7 +45,10 @@ d3plus.input.drop.items = function ( vars ) {
             .focus(value)
             .draw()
 
+          self.toggle( vars )
+
         }
+
       })
       .font( vars.font.secondary )
       .id( vars.id.value )
@@ -51,7 +58,8 @@ d3plus.input.drop.items = function ( vars ) {
         "ui": vars.draw.timing
       })
       .ui({
-        "color": vars.ui.color
+        "color": vars.ui.color,
+        "padding": vars.ui.padding
       })
       .draw()
 
