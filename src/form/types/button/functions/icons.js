@@ -81,7 +81,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
           return buffer+"px"
         })
         .style("height",function(c){
-          if (c == vars.icon.value) {
+          if ( c === vars.icon.value ) {
             return buffer+"px"
           }
           return "auto"
@@ -90,9 +90,11 @@ d3plus.input.button.icons = function ( elem , vars ) {
           if (this.offsetHeight) {
             var h = this.offsetHeight
           }
+          else if ( c === "selected" ) {
+            var h = vars.font.size
+          }
           else {
             var h = buffer
-            if (c === "selected") h -= 3
           }
           return -h/2+"px"
         })
