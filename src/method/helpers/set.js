@@ -99,25 +99,12 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
     }
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If there is a callback function, run it.
-    //--------------------------------------------------------------------------
-    if ( key === "value" ) {
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If there is a process function, run it.
+    //------------------------------------------------------------------------
+    if ( key === "value" && "process" in object ) {
 
-      if ( "process" in object ) {
-
-        value = d3plus.method.process( object , value )
-
-      }
-
-      if ( typeof object.callback === "function" && !object.url ) {
-
-        var returnedValue = object.callback(value)
-        if (returnedValue !== undefined) {
-          value = returnedValue
-        }
-
-      }
+      value = d3plus.method.process( object , value )
 
     }
 
@@ -309,6 +296,15 @@ d3plus.method.set = function( vars , method , object , key , value ) {
           d3plus.console.log(d3plus.util.format(str,text))
 
         }
+
+      }
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // If there is a callback function not associated with a URL, run it.
+      //------------------------------------------------------------------------
+      if ( key === "value" && object.callback && !object.url ) {
+
+        object.callback(value)
 
       }
 
