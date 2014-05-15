@@ -11,6 +11,11 @@ d3plus.input.radio = function( vars ) {
 
   }
 
+  var dataLength  = vars.data.value.length
+    , buttonWidth = vars.width.value
+                  ? vars.width.value/dataLength
+                  : false
+
   vars.container.buttons
     .color(vars.color)
     .data(vars.data.value)
@@ -31,7 +36,7 @@ d3plus.input.radio = function( vars ) {
       "margin": 0,
       "padding": vars.ui.padding
     })
-    .width(false)
+    .width(buttonWidth)
     .draw()
 
 }
