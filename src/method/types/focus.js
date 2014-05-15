@@ -14,7 +14,7 @@ d3plus.method.focus = {
 
         vars.data.element.selectAll("option").each(function(d,i){
 
-          if (d[vars.id.value] === value) {
+          if (d && d[vars.id.value] === value) {
             vars.data.element.node().selectedIndex = i
           }
 
@@ -24,9 +24,9 @@ d3plus.method.focus = {
       else if (elementTag === "input" && elementType === "radio") {
 
         vars.data.element
-          .each(function(){
+          .each(function(d){
 
-            if (d[vars.id.value] === value) {
+            if (d && d[vars.id.value] === value) {
               this.checked = true
             }
             else {
