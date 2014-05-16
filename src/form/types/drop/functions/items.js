@@ -23,9 +23,11 @@ d3plus.input.drop.items = function ( vars ) {
 
     }
 
+    var large = vars.draw.timing ? vars.data.large : 1
+
     vars.container.items
       .data({
-        "large": vars.data.large,
+        "large": large,
         "value": vars.data.filtered
       })
       .draw({
