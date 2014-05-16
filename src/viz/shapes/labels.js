@@ -391,14 +391,14 @@ d3plus.shape.labels = function(vars,selection) {
 
             var bg = group.selectAll("rect#d3plus_label_bg_"+d.d3plus.id)
                        .data(background_data)
-              , bg_opacity = typeof label.background == "number"
-                        ? label.background : 0.6
+              , bg_opacity = typeof label.background === "number"
+                           ? label.background : 0.6
 
             function bg_style(elem) {
 
-              var color = vars.background.value == "transparent"
+              var color = vars.background.value === "none"
                         ? "#ffffff" : vars.background.value
-                , fill = typeof label.background == "string"
+                , fill = typeof label.background === "string"
                        ? label.background : color
                 , a = label.angle || 0
                 , x = label.translate ? bounds.x+bounds.width/2 : 0
