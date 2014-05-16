@@ -82,7 +82,13 @@ d3plus.ui.legend = function(vars) {
 
           })
 
-          if (parents.length == 1) {
+          if ( parents.length === 1 ) {
+
+            color_groups[color] = parents
+
+          }
+
+          if ( parents.length === 1 && i === 0 ) {
 
             var parent = parents[0]
               , name = d3plus.variable.text(vars,parent,i)
@@ -110,7 +116,7 @@ d3plus.ui.legend = function(vars) {
             break;
 
           }
-          else if (i == 0) {
+          else if ( i === 0 ) {
 
             parents.forEach(function(p){
 
