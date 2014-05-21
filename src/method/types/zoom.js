@@ -18,7 +18,7 @@ d3plus.method.zoom = {
     else if (current_depth < max_depth) {
       return 1
     }
-    else if (current_depth == max_depth && (vars.small || !vars.html.value)) {
+    else if (current_depth == max_depth && (vars.small || !vars.tooltip.html.value)) {
       return -1
     }
 

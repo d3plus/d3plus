@@ -11,7 +11,7 @@ d3plus.tooltip.app = function(params) {
       id = d3plus.variable.value(vars,d,vars.id.value),
       tooltip_id = params.id || vars.type.value
 
-  if ((d3.event && d3.event.type == "click") && (vars.html.value || vars.tooltip.value.long) && !("fullscreen" in params)) {
+  if ((d3.event && d3.event.type == "click") && (vars.tooltip.html.value || vars.tooltip.value.long) && !("fullscreen" in params)) {
     var fullscreen = true,
         arrow = false,
         mouse = true,
@@ -38,7 +38,7 @@ d3plus.tooltip.app = function(params) {
     else if (zoom === -1 && vars.zoom.value && solo) {
       var text = vars.format.value("Click to Collapse")
     }
-    else if (length == "short" && (vars.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
+    else if (length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
       var text = "Click for More Info"
     }
     else if (length == "long") {
@@ -196,15 +196,15 @@ d3plus.tooltip.app = function(params) {
 
   if (fullscreen) {
 
-    if (typeof vars.html.value == "string") {
-      make_tooltip(vars.html.value)
+    if (typeof vars.tooltip.html.value == "string") {
+      make_tooltip(vars.tooltip.html.value)
     }
-    else if (typeof vars.html.value == "function") {
-      make_tooltip(vars.html.value(id))
+    else if (typeof vars.tooltip.html.value == "function") {
+      make_tooltip(vars.tooltip.html.value(id))
     }
-    else if (vars.html.value && typeof vars.html.value == "object" && vars.html.value.url) {
-      d3.json(vars.html.value.url,function(data){
-        var html = vars.html.value.callback ? vars.html.value.callback(data) : data
+    else if (vars.tooltip.html.value && typeof vars.tooltip.html.value == "object" && vars.tooltip.html.value.url) {
+      d3.json(vars.tooltip.html.value.url,function(data){
+        var html = vars.tooltip.html.value.callback ? vars.tooltip.html.value.callback(data) : data
         make_tooltip(html)
       })
     }

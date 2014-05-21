@@ -130,7 +130,7 @@ d3plus.viz = function() {
   var methods = [ "active" , "aggs" , "attrs" , "axes" , "color" , "container"
                 , "coords" , "csv" , "data" , "depth" , "descs" , "dev"
                 , "draw" , "edges" , "error" , "focus" , "footer" , "format"
-                , "height" , "history" , "html" , "icon" , "id" , "labels"
+                , "height" , "history" , "icon" , "id" , "labels"
                 , "legend" , "margin" , "messages" , "nodes" , "order"
                 , "shape" , "size" , "style" , "temp" , "text" , "time"
                 , "timeline" , "title" , "tooltip" , "total" , "type" , "ui"

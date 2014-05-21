@@ -919,7 +919,7 @@ d3plus.visualization.chart = function(vars) {
 
   function axis_lines(node) {
 
-    var click_remove = d3.event.type == d3plus.evt.click && (vars.tooltip.value.long || vars.html.value),
+    var click_remove = d3.event.type == d3plus.evt.click && (vars.tooltip.value.long || vars.tooltip.html.value),
         create = [d3plus.evt.over,d3plus.evt.move].indexOf(d3.event.type) >= 0
 
     if (!click_remove && create && vars.shape.value != "area") {
