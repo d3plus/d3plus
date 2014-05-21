@@ -49,7 +49,6 @@ d3plus.method.edges = {
     return objects ? targets : connections
 
   },
-  "deprecates": ["edges"],
   "label": false,
   "large": 100,
   "limit": false,
