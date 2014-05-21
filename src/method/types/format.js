@@ -1,11 +1,22 @@
 d3plus.method.format = {
-  "accepted": [ Function ],
+  "accepted": [ Function , String ],
   "deprecates": [ "number_format" , "text_format" ],
   "locale": {
     "accepted" : function(){
       return d3.keys(d3plus.locale)
     },
-    "process"  : d3plus.locale,
+    "process"  : function( value ) {
+
+      var defaultLocale = "en_US"
+        , returnObject  = d3plus.locale[defaultLocale]
+
+      if ( value !== defaultLocale ) {
+        returnObject = d3plus.util.merge( returnObject , d3plus.locale[value] )
+      }
+
+      return returnObject
+
+    },
     "value"    : "en_US"
   },
   "number": function( number , key , vars ) {
@@ -33,6 +44,19 @@ d3plus.method.format = {
     else {
       return d3.format(",f")(number)
     }
+
+  },
+  "process": function( value ) {
+
+    if ( typeof value === "string" ) {
+      var vars = this.getVars()
+      vars.self.format({"locale": "en_US"})
+    }
+    else if ( typeof value === "function" ) {
+      return value
+    }
+
+    return this.value
 
   },
   "text": function( text , key , vars ) {
