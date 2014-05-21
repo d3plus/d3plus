@@ -248,11 +248,11 @@ d3plus.ui.titles = function(vars) {
           .transition().duration(vars.timing.mouseevents)
           .style("cursor","pointer")
           .select("text")
-            .attr("fill",vars.links.hover.font.color)
-            .attr("font-family",vars.links.hover.font.family.value)
-            .attr("font-weight",vars.links.hover.font.weight)
-            .style("text-decoration",vars.links.hover.font.decoration)
-            .style("text-transform",vars.links.hover.font.transform)
+            .attr("fill",vars.links.hover.color)
+            .attr("font-family",vars.links.hover.family.value)
+            .attr("font-weight",vars.links.hover.weight)
+            .style("text-decoration",vars.links.hover.decoration)
+            .style("text-transform",vars.links.hover.transform)
       }
     })
     .on(d3plus.evt.out,function(t){
