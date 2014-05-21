@@ -232,7 +232,7 @@ d3plus.form = function() {
                 , "focus" , "format" , "height" , "hover" , "icon" , "id"
                 , "keywords" , "open" , "order" , "remove" , "search"
                 , "select" , "selectAll" , "text" , "title" , "type" , "width" ]
-    , styles  = [ "drop" , "font" , "icon" , "timing" , "title" , "ui" ]
+    , styles  = [ "font" , "icon" , "timing" , "title" , "ui" ]
 
   d3plus.method( vars , methods , styles )
 
