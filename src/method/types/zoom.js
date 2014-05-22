@@ -1,11 +1,11 @@
 d3plus.method.zoom = {
-  "accepted": [ Boolean ],
-  "behavior": d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
-  "click": {
-    "accepted": [ Boolean ],
-    "value": true
+  "accepted"   : [ Boolean ],
+  "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
+  "click"      : {
+    "accepted" : [ Boolean ],
+    "value"    : true
   },
-  "direction": function() {
+  "direction"  : function() {
 
     var vars          = this.getVars()
       , max_depth     = vars.id.nesting.length-1
@@ -25,16 +25,16 @@ d3plus.method.zoom = {
     return 0
 
   },
-  "pan": {
-    "accepted": [ Boolean ],
-    "value": true
+  "pan"        : {
+    "accepted" : [ Boolean ],
+    "value"    : true
   },
-  "scroll": {
-    "accepted": [ Boolean ],
-    "value": true,
-    "deprecates": ["scroll_zoom"]
+  "scroll"     : {
+    "accepted"   : [ Boolean ],
+    "deprecates" : "scroll_zoom",
+    "value"      : true
   },
-  "touchEvent": function() {
+  "touchEvent" : function() {
 
     var vars     = this.getVars()
       , zoomed   = vars.zoom.scale > vars.zoom.behavior.scaleExtent()[0]
@@ -47,5 +47,5 @@ d3plus.method.zoom = {
     }
 
   },
-  "value": true
+  "value"      : true
 }

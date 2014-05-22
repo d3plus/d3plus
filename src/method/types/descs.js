@@ -1,4 +1,4 @@
 d3plus.method.descs = {
-  "accepted": [ Function , Object ],
-  "value": {}
+  "accepted" : [ false , Function , Object ],
+  "value"    : false
 }

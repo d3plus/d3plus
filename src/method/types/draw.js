@@ -1,8 +1,8 @@
 d3plus.method.draw = {
-  "accepted": [ undefined , Function ],
-  "first": true,
-  "frozen": false,
-  "process": function ( value ) {
+  "accepted" : [ undefined , Function ],
+  "first"    : true,
+  "frozen"   : false,
+  "process"  : function ( value ) {
 
     if ( this.initialized === false ) {
       this.initialized = true
@@ -15,16 +15,16 @@ d3plus.method.draw = {
     if ( value === undefined && typeof this.value === "function" ) {
       value = this.value
     }
-    
+
     if ( vars.container.value === false ) {
 
-      var str = vars.format.locale.value.warning.setContainer
+      var str = vars.format.locale.value.dev.setContainer
       d3plus.console.warning(str)
 
     }
     else if ( vars.container.value.empty() ) {
 
-      var str = vars.format.locale.value.warning.noContainer
+      var str = vars.format.locale.value.dev.noContainer
       d3plus.console.warning(d3plus.util.format(str,vars.container.value))
 
     }
@@ -52,6 +52,6 @@ d3plus.method.draw = {
     return value
 
   },
-  "update": true,
-  "value": undefined
+  "update"   : true,
+  "value"    : undefined
 }

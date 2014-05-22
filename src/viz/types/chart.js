@@ -305,7 +305,7 @@ d3plus.visualization.chart = function(vars) {
     t
       .attr("stroke",vars.axes.ticks.color)
       .attr("stroke-width",vars.axes.ticks.width)
-      .attr("shape-rendering",vars.rendering)
+      .attr("shape-rendering",vars.shape.rendering.value)
       .style("opacity",function(d){
         var lighter = vars[axis].scale.value == "log" && d.toString().charAt(0) != "1"
         return lighter ? 0.25 : 1
@@ -349,7 +349,7 @@ d3plus.visualization.chart = function(vars) {
     .attr("height", graph.height)
     .attr("stroke-width",1)
     .attr("stroke","#ccc")
-      .attr("shape-rendering",vars.rendering)
+      .attr("shape-rendering",vars.shape.rendering.value)
     .style("fill","#fafafa")
 
   // Enter Background Mirror
@@ -878,7 +878,7 @@ d3plus.visualization.chart = function(vars) {
           return d3plus.color.legible(d3plus.variable.color(vars,d));
         })
         .style("stroke-width",vars.data.stroke.width)
-        .attr("shape-rendering",vars.rendering)
+        .attr("shape-rendering",vars.shape.rendering.value)
     }
 
     var data_ticks = plane.selectAll("g.d3plus_data_ticks")
@@ -969,7 +969,7 @@ d3plus.visualization.chart = function(vars) {
       .style("stroke",function(d){
         return d3plus.variable.color(vars,node)
       })
-      .attr("shape-rendering",vars.rendering)
+      .attr("shape-rendering",vars.shape.rendering.value)
 
     lines.transition().duration(vars.timing.mouseevents)
       .attr("class","d3plus_axis_label")
@@ -1061,7 +1061,7 @@ d3plus.visualization.chart = function(vars) {
       })
       .style("fill","white")
       .style("stroke-width",vars.data.stroke.width)
-      .attr("shape-rendering",vars.rendering)
+      .attr("shape-rendering",vars.shape.rendering.value)
       .attr("opacity",0)
 
     rects.transition().duration(vars.timing.mouseevents)

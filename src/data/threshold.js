@@ -131,7 +131,7 @@ d3plus.data.threshold = function(vars,split) {
 
       if (vars.text.value) {
         if (vars.depth.value == 0) {
-          m[vars.text.value] = vars.format.value("Values")
+          m[vars.text.value] = vars.format.value(vars.format.locale.value.ui.values)
           m[vars.text.value] += " < "+vars.format.value(cutoff)
         }
         else {

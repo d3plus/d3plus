@@ -1,5 +1,5 @@
 d3plus.method.aggs = {
-  "accepted": [ Function , Object ],
-  "deprecated": ["nesting_aggs"],
-  "value": {}
+  "accepted"   : [ Object ],
+  "deprecated" : "nesting_aggs",
+  "value"      : {}
 }

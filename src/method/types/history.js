@@ -1,6 +1,6 @@
 d3plus.method.history = {
-  "accepted": [ Boolean ],
-  "back": function() {
+  "accepted" : [ Boolean ],
+  "back"     : function() {
 
     if (this.states.length > 0) {
 
@@ -11,7 +11,7 @@ d3plus.method.history = {
     }
 
   },
-  "chain": [],
-  "states": [],
-  "value": true
+  "chain"    : [],
+  "states"   : [],
+  "value"    : true
 }

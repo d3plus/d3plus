@@ -41,7 +41,7 @@ d3plus.ui.titles = function(vars) {
       total = false
     }
 
-    if (typeof total == "number") {
+    if (typeof total === "number") {
 
       var pct = ""
 
@@ -74,7 +74,7 @@ d3plus.ui.titles = function(vars) {
 
       total = vars.format.value(total,vars.size.value)
       var obj = vars.title.total.value
-        , prefix = obj.prefix || vars.format.value("Total")+": "
+        , prefix = obj.prefix || vars.format.value(vars.format.locale.value.ui.total)+": "
       total = prefix + total
       obj.suffix ? total = total + obj.suffix : null
       total += pct
@@ -194,10 +194,10 @@ d3plus.ui.titles = function(vars) {
         return t.link ? vars.links.font.weight : t.style.font.weight
       })
       .style("text-decoration",function(t){
-        return t.link ? vars.links.font.decoration : t.style.font.decoration
+        return t.link ? vars.links.font.decoration.value : t.style.font.decoration.value
       })
       .style("text-transform",function(t){
-        return t.link ? vars.links.font.transform : t.style.font.transform
+        return t.link ? vars.links.font.transform.value : t.style.font.transform.value
       })
 
   }
@@ -251,8 +251,8 @@ d3plus.ui.titles = function(vars) {
             .attr("fill",vars.links.hover.color)
             .attr("font-family",vars.links.hover.family.value)
             .attr("font-weight",vars.links.hover.weight)
-            .style("text-decoration",vars.links.hover.decoration)
-            .style("text-transform",vars.links.hover.transform)
+            .style("text-decoration",vars.links.hover.decoration.value)
+            .style("text-transform",vars.links.hover.transform.value)
       }
     })
     .on(d3plus.evt.out,function(t){
@@ -293,6 +293,10 @@ d3plus.ui.titles = function(vars) {
   titles.exit().transition().duration(vars.draw.timing)
     .attr("opacity",0)
     .remove()
+
+  if ( vars.margin.top > 0 ) {
+    vars.margin.top += vars.title.padding
+  }
 
   var min = vars.title.height
   if (min && vars.margin[vars.title.position] < min) {

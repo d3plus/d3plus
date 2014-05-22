@@ -1,7 +1,6 @@
 d3plus.method.margin = {
-  "accepted": [ Number , Object , String ],
-  "accessible": false,
-  "process": function ( value ) {
+  "accepted" : [ Number , Object , String ],
+  "process"  : function ( value ) {
 
     var self = this
       , sides = [ "top" , "right" , "bottom" , "left" ]
@@ -84,5 +83,5 @@ d3plus.method.margin = {
     return userValue
 
   },
-  "value": 0
+  "value"    : 0
 }

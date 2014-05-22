@@ -264,7 +264,7 @@ d3plus.ui.timeline = function(vars) {
 
     ticks.selectAll("line")
       .attr("stroke",vars.timeline.tick.color)
-      .attr("shape-rendering",vars.rendering)
+      .attr("shape-rendering",vars.shape.rendering.value)
 
     brush_group
       .attr("transform","translate("+start_x+","+vars.ui.padding+")")
@@ -281,14 +281,14 @@ d3plus.ui.timeline = function(vars) {
       .attr("stroke-width",1)
       .attr("stroke",vars.timeline.tick.color)
       .style("visibility","visible")
-      .attr("shape-rendering",vars.rendering)
+      .attr("shape-rendering",vars.shape.rendering.value)
 
     brush_group.selectAll("rect.extent")
       .attr("stroke-width",1)
       .attr("fill",vars.timeline.brush.color)
       .attr("fill-opacity",vars.timeline.brush.opacity)
       .attr("stroke",vars.timeline.tick.color)
-      .attr("shape-rendering",vars.rendering)
+      .attr("shape-rendering",vars.shape.rendering.value)
 
     if (vars.timeline.handles.value) {
 
@@ -301,7 +301,7 @@ d3plus.ui.timeline = function(vars) {
         .attr("width",vars.timeline.handles.size)
         .attr("height",vars.timeline.height-2)
         .style("visibility","visible")
-        .attr("shape-rendering",vars.rendering)
+        .attr("shape-rendering",vars.shape.rendering.value)
         .attr("opacity",vars.timeline.handles.opacity)
 
     }

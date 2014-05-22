@@ -429,15 +429,18 @@ d3plus.ui.legend = function(vars) {
 
                   if (names.length > 4) {
                     var more = names.length-4
+                      , str = vars.format.locale.value.ui.more
                     names = names.slice(0,4)
-                    names[4] = vars.format.value(more+" more")
+                    names[4] = d3plus.util.format(str,more)
                   }
 
+                  var and = vars.format.locale.value.ui.and
+
                   if (names.length == 2) {
-                    var description = names.join(" "+vars.format.value("and")+" ")
+                    var description = names.join(" "+and+" ")
                   }
                   else {
-                    names[names.length-1] = vars.format.value("and")+" "+names[names.length-1]
+                    names[names.length-1] = and+" "+names[names.length-1]
                     var description = names.join(", ")
                   }
 

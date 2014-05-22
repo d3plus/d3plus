@@ -1,6 +1,6 @@
 d3plus.method.remove = {
-  "accepted": undefined,
-  "process": function ( value ) {
+  "accepted" : undefined,
+  "process"  : function ( value ) {
 
     if ( this.initialized ) {
       var vars = this.getVars()
@@ -12,5 +12,5 @@ d3plus.method.remove = {
 
 
   },
-  "value": undefined
+  "value"    : undefined
 }

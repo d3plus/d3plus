@@ -28,7 +28,9 @@ d3plus.viz = function() {
 
       if (vars.error.value) {
         vars.messages.style = "large"
-        var message = vars.error.value === true ? "Error" : vars.error.value
+        var message = vars.error.value === true
+                    ? vars.format.value(vars.format.locale.value.ui.error)
+                    : vars.error.value
         if (vars.dev.value) d3plus.console.warning(message)
         d3plus.ui.message(vars,message)
       }
@@ -135,9 +137,10 @@ d3plus.viz = function() {
                 , "shape" , "size" , "style" , "temp" , "text" , "time"
                 , "timeline" , "title" , "tooltip" , "total" , "type" , "ui"
                 , "width" , "x" , "y" , "zoom" ]
-    , styles  = [ "axes" , "background" , "color" , "data" , "edges" , "font"
-                , "footer" , "labels" , "legend" , "links" , "messages"
-                , "timeline" , "timing" , "title" , "tooltip" , "ui" ]
+    , styles  = [ "axes" , "background" , "color" , "coords" , "data" , "edges"
+                , "font" , "footer" , "height" , "labels" , "legend" , "links"
+                , "messages" , "nodes" , "shape" , "timeline" , "timing"
+                , "title" , "tooltip" , "ui" , "width "]
   d3plus.method( vars , methods , styles )
 
   return vars.self

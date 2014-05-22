@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Creates a set of Radio Buttons
+// Creates a set of Toggle Buttons
 //------------------------------------------------------------------------------
-d3plus.input.radio = function( vars ) {
+d3plus.input.toggle = function( vars ) {
 
   if ( !("buttons" in vars.container) ) {
 

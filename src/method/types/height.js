@@ -1,7 +1,5 @@
 d3plus.method.height = {
-  "accepted": [ Boolean , Number ],
-  "secondary": false,
-  "small": 300,
-  "max": 600,
-  "value": false
+  "accepted"  : [ false , Number ],
+  "secondary" : false,
+  "value"     : false
 }

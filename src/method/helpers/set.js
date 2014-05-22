@@ -66,7 +66,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
     if ( value !== undefined ) {
 
-      var str = vars.format.locale.value.warning.accepted
+      var str = vars.format.locale.value.dev.accepted
         , recs = []
         , val = "\""+JSON.stringify(value)+"\""
 

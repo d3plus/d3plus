@@ -1,4 +1,4 @@
 d3plus.method.depth = {
-  "accepted": [ Function , Number ],
-  "value": 0
+  "accepted" : [ Function , Number ],
+  "value"    : 0
 }

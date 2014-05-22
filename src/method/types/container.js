@@ -1,9 +1,9 @@
 d3plus.method.container = {
-  "accepted": [ Array , Object , String ],
-  "element": false,
-  "id": "default",
-  "process": function ( value ) {
-    
+  "accepted" : [ Array , Object , String ],
+  "element"  : false,
+  "id"       : "default",
+  "process"  : function ( value ) {
+
     if ( value === false ) {
       return value
     }
@@ -18,5 +18,5 @@ d3plus.method.container = {
     }
 
   },
-  "value": false
+  "value"    : false
 }

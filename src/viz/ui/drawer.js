@@ -36,6 +36,9 @@ d3plus.ui.drawer = function( vars ) {
 
       var data = []
         , container = d3.select(this)
+        , title = vars.format.locale.value.method[d.method]
+                  || vars.format.value(d.method)
+
       d.value.forEach(function(o){
 
         var obj = {
@@ -57,7 +60,7 @@ d3plus.ui.drawer = function( vars ) {
         .font(vars.ui.font)
         .id("id")
         .text("text")
-        .title(vars.format.value(d.method))
+        .title(title)
         .type("auto")
         .ui({
           "align": vars.ui.align.value,

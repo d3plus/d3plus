@@ -34,7 +34,7 @@ d3plus.input.drop.search = function ( vars ) {
       .style("text-align",vars.font.secondary.align)
       .style("outline","none")
       .style(d3plus.prefix()+"border-radius","0")
-      .attr("placeholder",vars.format.value("Search"))
+      .attr("placeholder",vars.format.value(vars.format.locale.value.method.search))
 
   }
 

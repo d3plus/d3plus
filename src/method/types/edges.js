@@ -1,13 +1,5 @@
 d3plus.method.edges = {
   "accepted"    : [ false , Array , Function , String ],
-  "arrows"      : {
-    "accepted"  : [ Boolean , Number ],
-    "direction" : {
-      "accepted" : [ "source" , "target" ],
-      "value"    : "target"
-    },
-    "value"     : false
-  },
   "connections" : function(focus,id,objects) {
 
     var self = this
@@ -50,8 +42,6 @@ d3plus.method.edges = {
 
   },
   "label"       : false,
-  "large"       : 100,
-  "limit"       : false,
   "process"     : d3plus.method.processData,
   "size"        : false,
   "source"      : "source",

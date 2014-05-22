@@ -1,4 +1,4 @@
 d3plus.method.error = {
-  "accepted": [ Boolean , Function , String ],
-  "value": false
+  "accepted" : [ Boolean , String ],
+  "value"    : false
 }

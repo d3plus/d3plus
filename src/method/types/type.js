@@ -1,5 +1,5 @@
 d3plus.method.type = {
-  "accepted": function( vars ) {
+  "accepted" : function( vars ) {
 
     var shell = vars.shell
 
@@ -10,11 +10,11 @@ d3plus.method.type = {
       return d3.keys(d3plus.input)
     }
     else {
-      return []
+      return null
     }
 
   },
-  "init": function ( vars ) {
+  "init"     : function ( vars ) {
 
     var shell = vars.shell
 
@@ -29,8 +29,8 @@ d3plus.method.type = {
     }
 
   },
-  "mode": {
-    "accepted": [ "squarify" , "slice" , "dice" , "slice-dice" ],
-    "value": "squarify"
+  "mode"     : {
+    "accepted" : [ "squarify" , "slice" , "dice" , "slice-dice" ],
+    "value"    : "squarify"
   }
 }

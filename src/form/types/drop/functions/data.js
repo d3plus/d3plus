@@ -5,7 +5,7 @@ d3plus.input.drop.data = function ( vars ) {
 
   if ( vars.data.url && !vars.data.loaded ) {
     var loadingObject = {}
-    loadingObject[vars.text.value] = vars.format.value("Loading...")
+    loadingObject[vars.text.value] = vars.format.value(vars.format.locale.value.ui.loading)
     vars.data.filtered = [loadingObject]
   }
   else if (vars.open.value) {
@@ -78,7 +78,8 @@ d3plus.input.drop.data = function ( vars ) {
     if ( vars.data.filtered.length === 0 ) {
 
       var noData = {}
-      noData[vars.text.value] = vars.format.value("No results match")+" \""+searchText+"\""
+        , str = vars.format.value(vars.format.locale.value.ui.noresults)
+      noData[vars.text.value] = d3plus.util.format(str,searchText)
       vars.data.filtered = [ noData ]
 
     }

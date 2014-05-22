@@ -50,7 +50,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       })
       .attr("shape-rendering",function(d){
         if (["square"].indexOf(vars.shape.value) >= 0) {
-          return vars.rendering
+          return vars.shape.rendering.value
         }
         else {
           return "auto"
@@ -158,7 +158,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       l
         .attr("stroke",color)
         .attr("stroke-width",1)
-        .attr("shape-rendering",vars.rendering)
+        .attr("shape-rendering",vars.shape.rendering.value)
     }
 
     var pattern = vars.defs.selectAll("pattern#d3plus_hatch_"+d.d3plus.id)

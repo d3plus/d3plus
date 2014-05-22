@@ -1,4 +1,4 @@
 d3plus.method.attrs = {
-  "accepted": [ Array , Boolean , Object , String ],
-  "value": false
+  "accepted" : [ false , Array , Object , String ],
+  "value"    : false
 }

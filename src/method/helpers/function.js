@@ -39,7 +39,7 @@ d3plus.method.function = function( key , vars ) {
     //--------------------------------------------------------------------------
     if ( key === "style" && typeof user === "object" ) {
 
-      var str = vars.format.locale.value.warning.oldStyle
+      var str = vars.format.locale.value.dev.oldStyle
 
       for ( var s in user ) {
 

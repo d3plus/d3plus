@@ -1,6 +1,5 @@
 d3plus.method.width = {
-  "accepted": [ Boolean , Number ],
-  "secondary": false,
-  "small": 400,
-  "value": false
+  "accepted"  : [ false , Number ],
+  "secondary" : false,
+  "value"     : false
 }

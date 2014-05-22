@@ -1,7 +1,7 @@
 d3plus.method.selectAll = {
-  "accepted": [ String ],
-  "chainable": false,
-  "process": function ( value ) {
+  "accepted"  : [ String ],
+  "chainable" : false,
+  "process"   : function ( value ) {
 
     var vars = this.getVars()
 
@@ -10,5 +10,5 @@ d3plus.method.selectAll = {
          : value
 
   },
-  "value": undefined
+  "value"     : undefined
 }

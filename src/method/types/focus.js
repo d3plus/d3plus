@@ -1,7 +1,7 @@
 d3plus.method.focus = {
-  "accepted": [ Boolean , Function , Number , String ],
-  "deprecates": ["highlight"],
-  "process": function(value) {
+  "accepted"   : [ false , Function , Number , String ],
+  "deprecates" : "highlight",
+  "process"    : function(value) {
 
     var vars = this.getVars()
 
@@ -42,9 +42,9 @@ d3plus.method.focus = {
     return value
 
   },
-  "tooltip": {
-    "accepted": [ Boolean ],
-    "value": true
+  "tooltip"    : {
+    "accepted" : [ Boolean ],
+    "value"    : true
   },
-  "value": false
+  "value"      : false
 }

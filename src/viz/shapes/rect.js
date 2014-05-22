@@ -102,7 +102,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
       })
       .attr("shape-rendering",function(d){
         if (vars.shape.value == "square" && !("rotate" in d.d3plus)) {
-          return vars.rendering
+          return vars.shape.rendering.value
         }
         else {
           return "auto"

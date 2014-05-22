@@ -1,4 +1,4 @@
 d3plus.style.default.background = {
-  "accepted": [ String ],
-  "value": "#ffffff"
+  "accepted" : [ String ],
+  "value"    : "#ffffff"
 }

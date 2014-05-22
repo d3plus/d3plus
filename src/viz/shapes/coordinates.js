@@ -8,10 +8,6 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
   var projection = d3.geo[vars.coords.projection.value]()
     .center(vars.coords.center)
-    // .translate([-vars.width.viz/2,-vars.height.viz/2])
-
-  // var clip = d3.geo.clipExtent()
-  //     .extent([[0, 0], [vars.width.viz, vars.height.viz]]);
 
   if (!vars.zoom.scale) {
     vars.zoom.scale = 1
@@ -19,18 +15,8 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
   vars.zoom.area = 1/vars.zoom.scale/vars.zoom.scale
 
-  // console.log(vars.zoom)
-
-  // var simplify = d3.geo.transform({
-  //   point: function(x, y, z) {
-  //     if (z >= vars.zoom.area) this.stream.point(x,y);
-  //   }
-  // });
-
   vars.path = d3.geo.path()
     .projection(projection)
-    // .projection(simplify)
-    // .projection({stream: function(s) { return simplify.stream(clip.stream(s)); }})
 
   enter.append("path")
     .attr("id",function(d){

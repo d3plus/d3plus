@@ -1,7 +1,7 @@
 d3plus.method.format = {
-  "accepted": [ Function , String ],
-  "deprecates": [ "number_format" , "text_format" ],
-  "locale": {
+  "accepted"   : [ Function , String ],
+  "deprecates" : [ "number_format" , "text_format" ],
+  "locale"     : {
     "accepted" : function(){
       return d3.keys(d3plus.locale)
     },
@@ -19,9 +19,16 @@ d3plus.method.format = {
     },
     "value"    : "en_US"
   },
-  "number": function( number , key , vars ) {
+  "number"     : function( number , key ) {
 
-    var time = vars ? [ vars.time.value ] : [ "year" , "date" ]
+    var time = this.locale.value.time
+
+    if ("getVars" in this) {
+      var vars = this.getVars()
+      if ( typeof vars.time.value === "string" ) {
+        time.push(vars.time.value)
+      }
+    }
 
     if (key && time.indexOf(key.toLowerCase()) >= 0) {
       return number
@@ -46,7 +53,7 @@ d3plus.method.format = {
     }
 
   },
-  "process": function( value ) {
+  "process"    : function( value ) {
 
     if ( typeof value === "string" ) {
       var vars = this.getVars()
@@ -59,21 +66,18 @@ d3plus.method.format = {
     return this.value
 
   },
-  "text": function( text , key , vars ) {
+  "text"       : function( text , key ) {
 
     if (!text) {
       return ""
     }
 
-    var smalls = [ "a"
-                 , "and"
-                 , "of"
-                 , "to" ]
+    var smalls = this.locale.value.lowercase
 
     return text.replace(/\w\S*/g, function(txt,i){
 
-      if (smalls.indexOf(txt) >= 0 && i != 0) {
-        return txt
+      if (smalls.indexOf(txt.toLowerCase()) >= 0 && i != 0) {
+        return txt.toLowerCase()
       }
 
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
@@ -81,15 +85,13 @@ d3plus.method.format = {
     })
 
   },
-  "value": function( value , key , vars ) {
-
-    var vars = typeof this.getVars() == "function" ? this.getVars() : undefined
+  "value"      : function( value , key ) {
 
     if ( typeof value === "number" ) {
-      return this.number( value , key , vars )
+      return this.number( value , key )
     }
     if ( typeof value === "string" ) {
-      return this.text( value , key , vars )
+      return this.text( value , key )
     }
     else {
       return JSON.stringify(value)

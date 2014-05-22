@@ -75,14 +75,29 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
     var value = extra_data[key] || d3plus.variable.value(vars,id,key,id_var)
 
     if (value !== false && value !== null) {
-      var name = vars.format.value(key),
+      var name = vars.format.locale.value.ui[key]
+               ? vars.format.value(vars.format.locale.value.ui[key])
+               : vars.format.value(key),
           h = tooltip_highlights.indexOf(key) >= 0
 
       var val = vars.format.value(value,key)
 
       var obj = {"name": name, "value": val, "highlight": h, "group": group}
 
-      if (vars.descs.value[key]) obj.desc = vars.descs.value[key]
+      if ( vars.descs.value ) {
+
+        if ( typeof vars.descs.value === "function" ) {
+          var descReturn = vars.descs.value( key )
+          if ( typeof descReturn === "string" ) {
+            obj.desc = descReturn
+          }
+        }
+        else if ( key in vars.descs.value ) {
+          obj.desc = vars.descs.value[key]
+        }
+
+      }
+
       if (val) tooltip_data.push(obj)
     }
 
@@ -197,7 +212,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
             ]
             node = "<div style='"+styles.join("; ")+";'></div>"
         tooltip_data.push({
-          "group": vars.format.value("Primary Connections"),
+          "group": vars.format.value(vars.format.locale.value.ui.primary),
           "highlight": false,
           "name": "<div style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>",
           "value": ""

@@ -9,7 +9,7 @@ d3plus.input.auto = function( vars ) {
     d3plus.input.button( vars )
   }
   else if ( dataLength < 5 ) {
-    d3plus.input.radio( vars )
+    d3plus.input.toggle( vars )
   }
   else {
     d3plus.input.drop( vars )

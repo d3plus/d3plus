@@ -33,13 +33,13 @@ d3plus.tooltip.app = function(params) {
     }
 
     if (zoom === 1 && vars.zoom.value) {
-      var text = vars.format.value("Click to Expand")
+      var text = vars.format.value(vars.format.locale.value.ui.expand)
     }
     else if (zoom === -1 && vars.zoom.value && solo) {
-      var text = vars.format.value("Click to Collapse")
+      var text = vars.format.value(vars.format.locale.value.ui.collapse)
     }
     else if (length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
-      var text = "Click for More Info"
+      var text = vars.format.locale.value.ui.moreInfo
     }
     else if (length == "long") {
       var text = vars.footer.value || ""

@@ -1,7 +1,7 @@
 d3plus.method.color = {
-  "accepted": [ Array , Boolean , Function , Object , String ],
-  "deprecates": ["color_var"],
-  "init": function ( vars ) {
+  "accepted"   : [ false , Array , Function , Object , String ],
+  "deprecates" : "color_var",
+  "init"       : function ( vars ) {
 
     if ( vars.shell === "form" ) {
       return "color"
@@ -11,6 +11,6 @@ d3plus.method.color = {
     }
 
   },
-  "mute": d3plus.method.filter(true),
-  "solo": d3plus.method.filter(true)
+  "mute"      : d3plus.method.filter(true),
+  "solo"      : d3plus.method.filter(true)
 }

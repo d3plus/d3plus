@@ -1,8 +1,8 @@
 d3plus.method.csv = {
-  "accepted": [ undefined , Array , String ],
-  "chainable": false,
-  "data": [],
-  "process": function ( value ) {
+  "accepted"  : [ undefined , Array , String ],
+  "chainable" : false,
+  "data"      : [],
+  "process"   : function ( value ) {
 
     var vars = this.getVars()
 
@@ -14,7 +14,7 @@ d3plus.method.csv = {
       var columns = value
     }
     else if ( typeof value === "string" ) {
-      var columns = [value]
+      var columns = [ value ]
     }
 
     var csv_to_return = [],
@@ -73,5 +73,5 @@ d3plus.method.csv = {
     return columns
 
   },
-  "value": undefined
+  "value"     : undefined
 }

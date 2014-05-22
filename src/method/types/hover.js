@@ -1,4 +1,4 @@
 d3plus.method.hover = {
-  "accepted": [ Boolean , Number , String ],
-  "value": false
+  "accepted" : [ false , Number , String ],
+  "value"    : false
 }
