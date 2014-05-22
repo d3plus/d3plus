@@ -102,9 +102,8 @@ d3plus.ui.message = function(vars,message) {
 
   vars.g.message
     .text(text)
-    .call(style)
-    // .transition().duration(vars.timing.mouseevents)
     .style("opacity",opacity)
     .style("display",display)
+    .call(style)
 
 }
