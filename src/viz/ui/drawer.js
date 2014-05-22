@@ -54,7 +54,7 @@ d3plus.ui.drawer = function( vars ) {
             vars.self[d.method](value).draw()
           }
         })
-        .font(vars.font)
+        .font(vars.ui.font)
         .id("id")
         .text("text")
         .title(vars.format.value(d.method))
