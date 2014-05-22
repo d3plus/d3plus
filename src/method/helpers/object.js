@@ -5,27 +5,31 @@ d3plus.method.object = function( vars , method , object , key , value ) {
 
   if ([ "accepted" , "getVars" ].indexOf(key) < 0) {
 
-    var acceptList = key in object ? object[key].accepted : []
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Determine whether or not to just set the local variable or to dig into
+    // the object passed looking for keys.
+    //--------------------------------------------------------------------------
+    var passingObject  = d3plus.object.validate(value)
+      , approvedObject = passingObject && ( !("value" in value) &&
+                         !(d3.keys(value)[0] in object[key]) )
 
-    if ( typeof acceptList === "function" ) {
-      acceptList = acceptList( vars )
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Set value of key.
+    //--------------------------------------------------------------------------
+    if ( value === null || !passingObject || approvedObject ) {
+
+      if ( approvedObject ) {
+        d3plus.method.set( vars , method , object[key] , "value" , value )
+      }
+      else {
+        d3plus.method.set( vars , method , object , key , value )
+      }
+
     }
-
-    var matchingKey  = d3plus.object.validate( value )
-                       && d3.keys(value)[0] in object[key]
-      , acceptAll    = acceptList === undefined && key in object
-      , acceptString = acceptList && typeof acceptList[0] === "string"
-                       && acceptList.indexOf(value) >= 0
-      , acceptType   = acceptList && typeof acceptList[0] === "function"
-                       && acceptList.indexOf(value.constructor) >= 0
-
-    if ( ( acceptAll || acceptString || acceptType )
-    && (!matchingKey || object[key].accessible === false)) {
-
-      d3plus.method.set( vars , method , object , key , value )
-
-    }
-    else {
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If it's an object, dig through it and set inner values.
+    //--------------------------------------------------------------------------
+    else if ( passingObject ) {
 
       for (d in value) {
 

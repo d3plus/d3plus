@@ -21,24 +21,28 @@ d3plus.method.set = function( vars , method , object , key , value ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Find appropriate "accepted" list.
   //----------------------------------------------------------------------------
-  if (key === "value" && object.accepted) {
+  if (key === "value" && "accepted" in object) {
 
     var accepted = object.accepted
 
   }
-  else if ( d3plus.object.validate( object[key] ) && object[key].accepted ) {
+  else if ( d3plus.object.validate( object[key] ) && "accepted" in object[key] ) {
 
     var accepted = object[key].accepted
 
   }
   else {
 
-    var accepted = false
+    var accepted = null
 
   }
 
   if ( typeof accepted === "function" ) {
     accepted = accepted( vars )
+  }
+
+  if ( accepted !== null && !(accepted instanceof Array) ) {
+    accepted = [ accepted ]
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -47,7 +51,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
   var allowed = true
   if (accepted instanceof Array) {
 
-    var constructor = [ null , undefined ].indexOf(value) >= 0
+    var constructor = value === undefined
                     ? value : value.constructor
 
     allowed = accepted.indexOf(value) >= 0
