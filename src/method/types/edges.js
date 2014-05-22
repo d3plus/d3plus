@@ -1,14 +1,14 @@
 d3plus.method.edges = {
-  "accepted": [ Array , Boolean , Function , String ],
-  "arrows": {
-    "accepted": [ Boolean , Number ],
-    "direction": {
-      "accepted": [ "source" , "target" ],
-      "value": "target"
+  "accepted"    : [ false , Array , Function , String ],
+  "arrows"      : {
+    "accepted"  : [ Boolean , Number ],
+    "direction" : {
+      "accepted" : [ "source" , "target" ],
+      "value"    : "target"
     },
-    "value": false
+    "value"     : false
   },
-  "connections": function(focus,id,objects) {
+  "connections" : function(focus,id,objects) {
 
     var self = this
 
@@ -49,13 +49,12 @@ d3plus.method.edges = {
     return objects ? targets : connections
 
   },
-  "label": false,
-  "large": 100,
-  "limit": false,
-  "overlap": 0.6,
-  "process": d3plus.method.processData,
-  "size": false,
-  "source": "source",
-  "target": "target",
-  "value": false
+  "label"       : false,
+  "large"       : 100,
+  "limit"       : false,
+  "process"     : d3plus.method.processData,
+  "size"        : false,
+  "source"      : "source",
+  "target"      : "target",
+  "value"       : false
 }
