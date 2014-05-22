@@ -36,6 +36,15 @@ d3plus.style.default.ui = {
     "acceped": [ "block" , "inline-block" , "none" , "static" ],
     "value": "inline-block"
   },
+  "font": {
+    "align": "center",
+    "color": "#444",
+    "decoration": "none",
+    "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
+    "size": 11,
+    "transform": "none",
+    "weight": 200
+  },
   "margin": 0,
   "padding": 5
 }

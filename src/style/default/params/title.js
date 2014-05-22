@@ -4,7 +4,7 @@ d3plus.style.default.title = {
     "color": "#444",
     "decoration": "none",
     "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
-    "size": 18,
+    "size": 16,
     "transform": "none",
     "weight": 200
   },
@@ -17,7 +17,7 @@ d3plus.style.default.title = {
       "color": "#444",
       "decoration": "none",
       "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
-      "size": 13,
+      "size": 12,
       "transform": "none",
       "weight": 200
     },
@@ -30,7 +30,7 @@ d3plus.style.default.title = {
       "color": "#444",
       "decoration": "none",
       "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
-      "size": 13,
+      "size": 12,
       "transform": "none",
       "weight": 200
     },

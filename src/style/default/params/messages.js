@@ -3,7 +3,7 @@ d3plus.style.default.messages = {
     "color": "#444",
     "decoration": "none",
     "family": d3plus.style.fontFamily(d3plus.style.default.fontFamily),
-    "size": 18,
+    "size": 16,
     "transform": "none",
     "weight": 200
   },
