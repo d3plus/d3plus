@@ -109,7 +109,7 @@ d3plus.ui.legend = function(vars) {
               obj.id = parent
             }
             if (["color","text"].indexOf(vars.legend.order.value) < 0) {
-              var key = vars[vars.legend.order.value].key
+              var key = vars[vars.legend.order.value].value
               obj[vars.legend.order.value] = d3plus.variable.value(vars,parent,key,nesting)
             }
 
