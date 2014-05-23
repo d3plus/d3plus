@@ -127,50 +127,10 @@ d3plus.shape.draw = function(vars) {
     if (vars.dev.value) d3plus.console.group("Drawing \"" + shape + "\" groups")
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Filter out too small shapes
-    //--------------------------------------------------------------------------
-    if (vars.dev.value) d3plus.console.time("filtering out small shapes")
-    var filtered_shapes = shapes[shape].filter(function(s){
-      if (s.d3plus) {
-        if ("width" in s.d3plus && s.d3plus.width < 1) {
-          return false
-        }
-        if ("height" in s.d3plus && s.d3plus.height < 1) {
-          return false
-        }
-        if ("r" in s.d3plus && s.d3plus.r < 0.5) {
-          return false
-        }
-      }
-      else if (s.values) {
-        var small = true
-        s.values.forEach(function(v){
-          if (!("y0" in v.d3plus)) {
-            small = false
-          }
-          else if (small && "y0" in v.d3plus && v.d3plus.y0-v.d3plus.y >= 1) {
-            small = false
-          }
-        })
-        if (small) {
-          return false
-        }
-      }
-      return true
-    })
-
-    if (vars.dev.value) {
-      d3plus.console.timeEnd("filtering out small shapes")
-      var removed = shapes[shape].length-filtered_shapes.length,
-          percent = d3.round(removed/shapes[shape].length,2)
-      console.log("removed "+removed+" out of "+shapes[shape].length+" shapes ("+percent*100+"% reduction)")
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind Data to Groups
     //--------------------------------------------------------------------------
     var selection = vars.g.data.selectAll("g.d3plus_"+shape)
-      .data(filtered_shapes,function(d){
+      .data(shapes[shape],function(d){
 
         if (!d.d3plus) {
           d.d3plus = {}
@@ -223,7 +183,7 @@ d3plus.shape.draw = function(vars) {
           }
 
         }
-
+console.log(d[vars.id.value],d[vars.size.value],d.d3plus)
         return d.d3plus ? d.d3plus.id : false;
 
       })
