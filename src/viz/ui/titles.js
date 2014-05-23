@@ -298,6 +298,10 @@ d3plus.ui.titles = function(vars) {
     vars.margin.top += vars.title.padding
   }
 
+  if ( vars.margin.bottom > 0 ) {
+    vars.margin.bottom += vars.title.padding
+  }
+
   var min = vars.title.height
   if (min && vars.margin[vars.title.position] < min) {
     vars.margin[vars.title.position] = min

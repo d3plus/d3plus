@@ -713,7 +713,7 @@ d3plus.ui.legend = function(vars) {
     if (vars.dev.value) d3plus.console.time("positioning legend")
 
     if (square_size) {
-      var key_height = square_size
+      var key_height = square_size+vars.ui.padding
     }
     else {
       var key_box = vars.g.legend.node().getBBox(),
