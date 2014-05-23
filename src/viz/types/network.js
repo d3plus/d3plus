@@ -53,7 +53,7 @@ d3plus.visualization.network = function(vars) {
   // Create size scale
   var radius = vars.size.scale.value
     .domain(val_range)
-    .rangeRound([min_size, max_size])
+    .range([min_size, max_size])
 
   vars.zoom.bounds = [ [ x_range[0]-max_size*1.1 , y_range[0]-max_size*1.1 ]
                      , [ x_range[1]+max_size*1.1 , y_range[1]+max_size*1.1 ] ]
