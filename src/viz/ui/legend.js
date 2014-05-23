@@ -329,9 +329,9 @@ d3plus.ui.legend = function(vars) {
                 var text = d3.select(this.parentNode).append("text")
 
                 text
-                  .attr("font-size",vars.labels.font.size)
-                  .attr("font-weight",vars.font.weight)
-                  .attr("font-family",vars.font.family.value)
+                  .attr("font-size",vars.legend.font.size)
+                  .attr("font-weight",vars.legend.font.weight)
+                  .attr("font-family",vars.legend.font.family.value)
                   .attr("text-anchor","start")
                   .attr("fill",d3plus.color.text(g.color))
                   .attr("x",0)
@@ -563,7 +563,7 @@ d3plus.ui.legend = function(vars) {
         .attr("y",vars.ui.padding)
         .attr("width", 0)
         .attr("height", vars.legend.gradient.height)
-        .attr("stroke",vars.legend.tick.color)
+        .attr("stroke",vars.legend.font.color)
         .attr("stroke-width",1)
         .style("fill", "url(#d3plus_legend_heatmap)")
 
@@ -591,11 +591,11 @@ d3plus.ui.legend = function(vars) {
 
       text
         .order()
-        .attr("font-weight",vars.legend.tick.weight)
-        .attr("font-family",vars.legend.tick.family.value)
-        .attr("font-size",vars.legend.tick.size)
-        .attr("text-anchor",vars.legend.tick.align)
-        .attr("fill",vars.legend.tick.color)
+        .attr("font-weight",vars.legend.font.weight)
+        .attr("font-family",vars.legend.font.family.value)
+        .attr("font-size",vars.legend.font.size)
+        .attr("text-anchor",vars.legend.font.align)
+        .attr("fill",vars.legend.font.color)
         .text(function(d){
           return vars.format.value(values[d],key)
         })
@@ -657,7 +657,7 @@ d3plus.ui.legend = function(vars) {
           .attr("y",vars.ui.padding)
           .attr("width",0)
           .attr("height",vars.ui.padding+vars.legend.gradient.height)
-          .attr("fill",vars.legend.tick.color)
+          .attr("fill",vars.legend.font.color)
 
         ticks.transition().duration(vars.draw.timing)
           .attr("x",function(d){
@@ -667,7 +667,7 @@ d3plus.ui.legend = function(vars) {
           .attr("y",vars.ui.padding)
           .attr("width",1)
           .attr("height",vars.ui.padding+vars.legend.gradient.height)
-          .attr("fill",vars.legend.tick.color)
+          .attr("fill",vars.legend.font.color)
 
         ticks.exit().transition().duration(vars.draw.timing)
           .attr("width",0)

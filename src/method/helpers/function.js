@@ -54,6 +54,35 @@ d3plus.method.function = function( key , vars ) {
 
     }
 
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Set all font families and weights, if calling .font()
+    //--------------------------------------------------------------------------
+    if ( key === "font" && d3plus.object.validate(user)
+         && "family" in user && typeof user.family === "string" ) {
+
+      function checkFamily ( o ) {
+
+        if ( d3plus.object.validate( o ) ) {
+
+          if ( "family" in o ) {
+            o.family.value = o.family.process( user.family )
+          }
+          else {
+
+            for ( var m in o ) {
+              checkFamily(o[m])
+            }
+
+          }
+
+        }
+
+      }
+
+      checkFamily( vars )
+
+    }
+
     d3plus.method.object( vars , key , vars , key , user )
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -28,7 +28,7 @@ d3plus.style.default.font = {
       },
       "value"    : "left"
     },
-    "color"      : "#444",
+    "color"      : "#444444",
     "decoration" : {
       "accepted" : [ "line-through" , "none" , "overline" , "underline" ],
       "value"    : "none"

@@ -252,8 +252,8 @@ d3plus.visualization.chart = function(vars) {
             d3.select(this)
               .style("font-size",vars.axes.ticks.font.size)
               .style("fill",vars.axes.ticks.font.color)
-              .attr("font-family",vars.font.family.value)
-              .attr("font-weight",vars.font.weight)
+              .attr("font-family",vars.axes.ticks.font.family.value)
+              .attr("font-weight",vars.axes.ticks.font.weight)
               .text(text)
 
             if (axis == "x") {
@@ -396,11 +396,11 @@ d3plus.visualization.chart = function(vars) {
     .attr("x", vars.width.viz/2)
     .attr("y", vars.height.viz-10)
     .text(vars.format.value(vars.x.value))
-    .attr("font-family",vars.font.family.value)
-    .attr("font-weight",vars.font.weight)
-    .attr("font-size",vars.labels.size)
-    .attr("fill",vars.labels.color)
-    .attr("text-anchor",vars.labels.align)
+    .attr("font-family",vars.labels.font.family.value)
+    .attr("font-weight",vars.labels.font.weight)
+    .attr("font-size",vars.labels.font.size)
+    .attr("fill",vars.labels.font.color)
+    .attr("text-anchor",vars.labels.font.align)
 
   // Enter Y Axis Label
   var ylabel = axes.selectAll("text#ylabel").data(["ylabel"])
@@ -410,11 +410,11 @@ d3plus.visualization.chart = function(vars) {
     .attr("x", -(graph.height/2+graph.margin.top))
     .text(vars.format.value(vars.y.value))
     .attr("transform","rotate(-90)")
-    .attr("font-family",vars.font.family.value)
-    .attr("font-weight",vars.font.weight)
-    .attr("font-size",vars.labels.size)
-    .attr("fill",vars.labels.color)
-    .attr("text-anchor",vars.labels.align)
+    .attr("font-family",vars.labels.font.family.value)
+    .attr("font-weight",vars.labels.font.weight)
+    .attr("font-size",vars.labels.font.size)
+    .attr("fill",vars.labels.font.color)
+    .attr("text-anchor",vars.labels.font.align)
 
   // Enter Mouse Event Group
   var mouseevents = vars.group.selectAll("g#mouseevents").data(["mouseevents"])
@@ -1019,8 +1019,8 @@ d3plus.visualization.chart = function(vars) {
         return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
       .style("font-size",vars.axes.ticks.font.size)
-      .attr("font-family",vars.font.family.value)
-      .attr("font-weight",vars.font.weight)
+      .attr("font-family",vars.axes.ticks.font.family.value)
+      .attr("font-weight",vars.axes.ticks.font.weight)
       .attr("opacity",0)
 
     texts.transition().duration(vars.timing.mouseevents)
