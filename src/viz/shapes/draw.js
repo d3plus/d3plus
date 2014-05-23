@@ -183,7 +183,7 @@ d3plus.shape.draw = function(vars) {
           }
 
         }
-console.log(d[vars.id.value],d[vars.size.value],d.d3plus)
+
         return d.d3plus ? d.d3plus.id : false;
 
       })

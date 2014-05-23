@@ -53,7 +53,7 @@ d3plus.data.fetch = function(vars,format,years) {
 
   }
 
-  if (vars.dev.value) console.log("years: "+years.join(","))
+  if (vars.dev.value) d3plus.console.log("years: "+years.join(","))
 
   if (format == "restricted") {
     var data = vars.data.restricted

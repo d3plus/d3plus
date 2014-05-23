@@ -52,7 +52,7 @@ d3plus.draw.focus = function(vars) {
           else {
             var d = ""
           }
-          // console.log(e.d3plus,d)
+
           return direction == "source" && marker
                ? "url(#d3plus_edge_marker_focus"+d+")" : "none"
 
