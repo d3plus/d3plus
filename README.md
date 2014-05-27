@@ -7,6 +7,7 @@ A javascript library that extends the popular [D3.js](http://d3js.org) to enable
 * [Documentation](https://github.com/alexandersimoes/d3plus/wiki)
 * [Google Group](https://groups.google.com/forum/#!forum/d3plus)
 * [Issues](https://github.com/alexandersimoes/d3plus/issues?state=open)
+* [Help with the Localization](https://docs.google.com/spreadsheets/d/1JPFkLTDqnF3azUU2ssWs_M918Rr1mXIR-Flh8ccjYlo/edit#gid=0)
 
 ### Environment Setup
 
