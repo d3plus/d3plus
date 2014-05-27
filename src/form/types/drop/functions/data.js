@@ -79,7 +79,7 @@ d3plus.input.drop.data = function ( vars ) {
 
       var noData = {}
         , str = vars.format.value(vars.format.locale.value.ui.noResults)
-      noData[vars.text.value] = d3plus.util.format(str,searchText)
+      noData[vars.text.value] = d3plus.util.format(str,"\""+searchText+"\"")
       vars.data.filtered = [ noData ]
 
     }

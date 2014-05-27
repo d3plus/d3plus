@@ -291,7 +291,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
         if (valString !== null && valString.length < 260) {
 
           var str = vars.format.locale.value.dev.setLong
-          d3plus.console.log(d3plus.util.format(str,text,valString))
+          d3plus.console.log(d3plus.util.format(str,text,"\""+valString+"\""))
 
         }
         else {

@@ -53,7 +53,7 @@ d3plus.data.edges = function(vars) {
 
     if ( source === target ) {
       var str = vars.format.locale.value.dev.sameEdge
-      d3plus.console.warning(d3plus.util.format(str,source))
+      d3plus.console.warning(d3plus.util.format(str,"\""+source+"\""))
       return false
     }
     else {

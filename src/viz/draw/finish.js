@@ -89,7 +89,7 @@ d3plus.draw.finish = function(vars) {
   if (!vars.internal_error) {
     var data_req = d3plus.visualization[vars.type.value].requirements.indexOf("data") >= 0
     if ((!vars.data.app || !vars.returned.nodes.length) && data_req) {
-      vars.internal_error = "No Data Available"
+      vars.internal_error = vars.format.locale.value.error.data
     }
   }
 
@@ -134,6 +134,7 @@ d3plus.draw.finish = function(vars) {
   // Display and reset internal_error, if applicable
   //----------------------------------------------------------------------------
   if (vars.internal_error) {
+    d3plus.console.warning(vars.internal_error)
     d3plus.ui.message(vars,vars.internal_error)
     vars.internal_error = null
   }

@@ -55,7 +55,7 @@ d3plus.viz = function() {
         function run_steps() {
 
           var step = steps.shift(),
-              same = vars.g.message && vars.g.message.text() == step.message,
+              same = vars.g.message && vars.g.message.text() === step.message,
               run = "check" in step ? step.check(vars) : true
 
           if (run) {
@@ -66,8 +66,9 @@ d3plus.viz = function() {
                 d3plus.console.groupEnd()
                 d3plus.console.group(step.message)
               }
-              var message = typeof vars.messages.value == "string"
-                          ? vars.messages.value : step.message
+              var message = typeof vars.messages.value === "string"
+                          ? vars.messages.value 
+                          : vars.format.value(step.message)
 
               d3plus.ui.message(vars,message)
 

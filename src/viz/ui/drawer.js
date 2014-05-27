@@ -34,24 +34,10 @@ d3plus.ui.drawer = function( vars ) {
     .style("display","inline-block")
     .each(function(d){
 
-      var data = []
-        , container = d3.select(this)
-        , title = vars.format.locale.value.method[d.method]
-                  || vars.format.value(d.method)
+      var container = d3.select(this)
 
-      d.value.forEach(function(o){
-
-        var obj = {
-          "id": o,
-          "text": vars.format.value(o)
-        }
-        data.push(obj)
-
-      })
-
-      d3plus.form()
+      d.form = d3plus.form()
         .container(container)
-        .data(data)
         .focus(vars[d.method].value,function(value){
           if ( value !== vars[d.method].value ) {
             vars.self[d.method](value).draw()
@@ -60,7 +46,6 @@ d3plus.ui.drawer = function( vars ) {
         .font(vars.ui.font)
         .id("id")
         .text("text")
-        .title(title)
         .type("auto")
         .ui({
           "align": vars.ui.align.value,
@@ -68,9 +53,30 @@ d3plus.ui.drawer = function( vars ) {
           "margin": vars.ui.margin
         })
         .width(d.width || false)
-        .draw()
 
     })
+
+  ui.each(function(d){
+
+    var data = []
+      , title = vars.format.locale.value.method[d.method] || d.method
+
+    d.value.forEach(function(o){
+
+      var obj = {
+        "id": o,
+        "text": vars.format.value(o)
+      }
+      data.push(obj)
+
+    })
+
+    d.form
+      .data(data)
+      .title(vars.format.value(title))
+      .draw()
+
+  })
 
   ui.exit().remove()
 

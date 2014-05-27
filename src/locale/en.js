@@ -1,18 +1,30 @@
-d3plus.locale.en_US = {
+d3plus.locale.en = {
 
-  "dev" : {
+  "dev"          : {
 
-    "accepted"     : "{0} is not an accepted value for {1}, please use one of the following: {2}",
+    "accepted"     : "{0} is not an accepted value for {1}, please use one of the following: {2}.",
     "deprecated"   : "{0} has been deprecated, please update your code to use {1}.",
     "noChange"     : "{0} was not updated because it did not change.",
-    "noContainer"  : "cannot find a <div> on the page matching: \"{0}\".",
+    "noContainer"  : "cannot find a container on the page matching {0}.",
     "of"           : "of",
-    "oldStyle"     : "style properties for \"{0}\" have now been embedded directly into .{0}().",
-    "sameEdge"     : "edges cannot link to themselves. automatically removing self-referencing edge \"{0}\".",
+    "oldStyle"     : "style properties for {0} have now been embedded directly into .{1}().",
+    "sameEdge"     : "edges cannot link to themselves. automatically removing self-referencing edge {0}.",
     "set"          : "{0} has been set.",
-    "setGeneral"   : "\"{0}\" is not a valid property.",
     "setLong"      : "{0} has been set to {1}.",
     "setContainer" : "please define a container div using .container()"
+
+  },
+
+  "error"        : {
+
+    "accepted"     : "{0} is not an accepted {1} for {2} visualizations, please use one of the following: {3}.",
+    "connections"  : "no connections available for {0}.",
+    "data"         : "no data available",
+    "dataYear"     : "no data available for {0}.",
+    "lib"          : "{0} visualizations require loading the {0} library.",
+    "libs"         : "{0} visualizations require loading the following libraries: {1}.",
+    "method"       : "{0} visualizations require setting the {0} method.",
+    "methods"      : "{0} visualizations require setting the following methods: {1}."
 
   },
 
@@ -28,7 +40,18 @@ d3plus.locale.en_US = {
                    , "with"
   ],
 
-  "method": {
+  "message"      : {
+
+    "data"         : "analyzing data",
+    "draw"         : "drawing visualization",
+    "initializing" : "initializing {0}",
+    "loading"      : "loading data",
+    "tooltipReset" : "resetting tooltips",
+    "ui"           : "updating ui"
+
+  },
+
+  "method"       : {
 
     "active"       : "active segments",
     "color"        : "color",
@@ -42,6 +65,7 @@ d3plus.locale.en_US = {
     "legend"       : "legend",
     "margin"       : "margin",
     "messages"     : "status messages",
+    "mode"         : "mode",
     "order"        : "order",
     "search"       : "search",
     "shape"        : "shape",
@@ -68,7 +92,7 @@ d3plus.locale.en_US = {
 
   ],
 
-  "ui": {
+  "ui"           : {
 
     "and"          : "and",
     "back"         : "back",
@@ -78,11 +102,29 @@ d3plus.locale.en_US = {
     "loading"      : "loading...",
     "more"         : "{0} more",
     "moreInfo"     : "click for more info",
-    "noResults"    : "no results matching \"{0}\"",
+    "noResults"    : "no results matching {0}.",
     "primary"      : "primary connections",
     "share"        : "share",
     "total"        : "total",
     "values"       : "values"
+
+  },
+
+  "uppercase"    : [ "tv"
+                   , "ui"
+  ],
+
+  "visualization": {
+
+    "bubbles"      : "Bubbles",
+    "chart"        : "Chart",
+    "geo_map"      : "Geo Map",
+    "line"         : "Line Plot",
+    "network"      : "Network",
+    "rings"        : "Rings",
+    "scatter"      : "Scatter Plot",
+    "stacked"      : "Stacked Area",
+    "tree_map"     : "Tree Map"
 
   }
 

@@ -10,12 +10,21 @@ d3plus.draw.errors = function(vars) {
   if (d3plus.visualization[vars.type.value].requirements) {
     reqs = reqs.concat(d3plus.visualization[vars.type.value].requirements)
   }
+
   var missing = []
   reqs.forEach(function(r){
-    if (!vars[r].value) missing.push(r)
+    if (!vars[r].value) missing.push("\""+r+"\"")
   })
-  if (missing.length) {
-    vars.internal_error = "The following variables need to be set: "+missing.join(", ")
+
+  if ( missing.length > 1 ) {
+    var str = vars.format.locale.value.error.methods
+      , app = vars.format.locale.value.visualization[vars.type.value]
+    vars.internal_error = d3plus.util.format(str,app,missing.join(", "))
+  }
+  else if ( missing.length === 1 ) {
+    var str = vars.format.locale.value.error.method
+      , app = vars.format.locale.value.visualization[vars.type.value]
+    vars.internal_error = d3plus.util.format(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -25,7 +34,8 @@ d3plus.draw.errors = function(vars) {
     var connections = vars.edges.connections(vars.focus.value,vars.id.value)
     if (connections.length == 0) {
       var name = d3plus.variable.text(vars,vars.focus.value,vars.depth.value)
-      vars.internal_error = "No Connections Available for \""+name+"\""
+        , str = vars.format.locale.value.error.connections
+      vars.internal_error = d3plus.util.format(str,"\""+name+"\"")
     }
   }
 
@@ -38,11 +48,18 @@ d3plus.draw.errors = function(vars) {
   }
   var missing = []
   reqs.forEach(function(r){
-    if (!window[r]) missing.push(r)
+    if (!window[r]) missing.push("\""+r+"\"")
   })
-  if (missing.length) {
-    var libs = missing.join(", ")
-    vars.internal_error = "The following libraries need to be loaded: "+libs
+
+  if ( missing.length > 1 ) {
+    var str = vars.format.locale.value.error.libs
+      , app = vars.format.locale.value.visualization[vars.type.value]
+    vars.internal_error = d3plus.util.format(str,app,missing.join(", "))
+  }
+  else if ( missing.length === 1 ) {
+    var str = vars.format.locale.value.error.lib
+      , app = vars.format.locale.value.visualization[vars.type.value]
+    vars.internal_error = d3plus.util.format(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -53,10 +70,16 @@ d3plus.draw.errors = function(vars) {
   }
   else if (d3plus.visualization[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
     var shapes = d3plus.visualization[vars.type.value].shapes.join("\", \"")
-    d3plus.console.warning("\""+vars.shape.value+"\" is not an accepted shape for the \""+vars.type.value+"\" app, please use one of the following: \""+shapes+"\"")
+      , str = vars.format.locale.value.error.accepted
+      , shape = "\""+vars.shape.value+"\""
+      , shapeStr = vars.format.locale.value.method.shape
+      , app = vars.format.locale.value.visualization[vars.type.value]
+    d3plus.console.warning(d3plus.util.format(str,shape,shapeStr,app,"\""+shapes+"\""))
     vars.shape.previous = vars.shape.value
     vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
-    d3plus.console.log("Defaulting shape to \""+vars.shape.value+"\"")
+    var str = vars.format.locale.value.dev.setLong
+      , shape = "\""+vars.shape.value+"\""
+    d3plus.console.warning(d3plus.util.format(str,shapeStr,shape))
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -68,10 +91,16 @@ d3plus.draw.errors = function(vars) {
     }
     else if (d3plus.visualization[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
       var modes = d3plus.visualization[vars.type.value].modes.join("\", \"")
-      d3plus.console.warning("\""+vars.type.mode.value+"\" is not an accepted mode for the \""+vars.type.value+"\" app, please use one of the following: \""+modes+"\"")
+        , str = vars.format.locale.value.error.accepted
+        , mode = "\""+vars.type.mode.value+"\""
+        , modeStr = vars.format.locale.value.method.mode
+        , app = vars.format.locale.value.visualization[vars.type.value]
+      d3plus.console.warning(d3plus.util.format(str,mode,modeStr,app,"\""+modes+"\""))
       vars.type.mode.previous = vars.type.mode.value
       vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
-      d3plus.console.log("Defaulting mode to \""+vars.type.mode.value+"\"")
+      var str = vars.format.locale.value.dev.setLong
+        , mode = "\""+vars.type.mode.value+"\""
+      d3plus.console.warning(d3plus.util.format(str,modeStr,mode))
     }
   }
 

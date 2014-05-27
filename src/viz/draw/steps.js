@@ -16,22 +16,11 @@ d3plus.draw.steps = function(vars) {
         "function": function(vars,next){
           d3plus.data.json(vars,u,next)
         },
-        "message": "Loading Data",
+        "message": vars.format.locale.value.message.loading,
         "wait": true
       })
 
     }
-  })
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // If it has one, run the current app's setup function.
-  //----------------------------------------------------------------------------
-  steps.push({
-    "check": function(vars) {
-      return vars.draw.update && typeof d3plus.visualization[vars.type.value].setup == "function"
-    },
-    "function": d3plus.visualization[vars.type.value].setup,
-    "message": "Initializing \""+vars.type.value+"\""
   })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -44,7 +33,22 @@ d3plus.draw.steps = function(vars) {
       }
       d3plus.tooltip.remove(vars.type.value);
     },
-    "message": "Resetting Tooltips"
+    "message": vars.format.locale.value.message.tooltipReset
+  })
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // If it has one, run the current app's setup function.
+  //----------------------------------------------------------------------------
+  var msg = vars.format.locale.value.message.initializing
+    , app = vars.format.locale.value.visualization[vars.type.value]
+  msg = d3plus.util.format(msg,app)
+  steps.push({
+    "check": function(vars) {
+      return vars.draw.update
+          && typeof d3plus.visualization[vars.type.value].setup === "function"
+    },
+    "function": d3plus.visualization[vars.type.value].setup,
+    "message": msg
   })
 
   if (vars.draw.update) {
@@ -57,7 +61,7 @@ d3plus.draw.steps = function(vars) {
         return vars.container.changed
       },
       "function": d3plus.draw.enter,
-      "message": "Creating SVG Elements"
+      "message": msg
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -78,7 +82,7 @@ d3plus.draw.steps = function(vars) {
           .attr("opacity",0)
 
       },
-      "message": "Creating \""+vars.type.value+"\" Group"
+      "message": msg
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -100,7 +104,7 @@ d3plus.draw.steps = function(vars) {
         d3plus.data.keys(vars,"data")
 
       },
-      "message": "Analyzing New Data"
+      "message": vars.format.locale.value.message.data
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -115,7 +119,7 @@ d3plus.draw.steps = function(vars) {
         d3plus.data.keys(vars,"attrs")
 
       },
-      "message": "Analyzing New Attributes"
+      "message": vars.format.locale.value.message.data
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -128,7 +132,7 @@ d3plus.draw.steps = function(vars) {
           && edge_req && vars.edges.value
       },
       "function": d3plus.data.edges,
-      "message": "Analyzing Network"
+      "message": vars.format.locale.value.message.data
     })
     steps.push({
       "check": function(vars) {
@@ -137,7 +141,7 @@ d3plus.draw.steps = function(vars) {
           && vars.nodes.value && vars.edges.value
       },
       "function": d3plus.data.nodes,
-      "message": "Analyzing Network"
+      "message": vars.format.locale.value.message.data
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -164,7 +168,7 @@ d3plus.draw.steps = function(vars) {
         d3plus.data.filter(vars)
 
       },
-      "message": "Filtering Data"
+      "message": vars.format.locale.value.message.data
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -176,7 +180,7 @@ d3plus.draw.steps = function(vars) {
         return restriction.length > 0
       },
       "function": d3plus.data.restrict,
-      "message": "Filtering Data",
+      "message": vars.format.locale.value.message.data,
       "otherwise": function(vars) {
 
         if ("restriction" in vars.data || !vars.data.restricted || vars.check.length) {
@@ -203,7 +207,7 @@ d3plus.draw.steps = function(vars) {
       "function": function(vars) {
         vars.data.grouped = d3plus.data.format(vars,"grouped")
       },
-      "message": "Formatting Data"
+      "message": vars.format.locale.value.message.data
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -222,7 +226,7 @@ d3plus.draw.steps = function(vars) {
           vars.data.pool = d3plus.visualization[vars.type.value].filter(vars,vars.data.pool)
         }
       },
-      "message": "Formatting Data"
+      "message": vars.format.locale.value.message.data
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -241,7 +245,7 @@ d3plus.draw.steps = function(vars) {
           vars.data.app = d3plus.visualization[vars.type.value].filter(vars,vars.data.app)
         }
       },
-      "message": "Formatting Data"
+      "message": vars.format.locale.value.message.data
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -276,7 +280,8 @@ d3plus.draw.steps = function(vars) {
 
         }
         else if (!vars.color.value) {
-          vars.color.type = vars.data.keys[vars.id.value]
+          vars.color.type = "keys" in vars.data
+                          ? vars.data.keys[vars.id.value] : false
         }
 
         return vars.color.value && vars.color.type == "number" &&
@@ -290,7 +295,7 @@ d3plus.draw.steps = function(vars) {
 
       },
       "function": d3plus.data.color,
-      "message": "Calculating Colors",
+      "message": vars.format.locale.value.message.data,
       "otherwise": function(vars) {
         if (vars.color.type != "number") {
           vars.color.scale = null
@@ -330,7 +335,7 @@ d3plus.draw.steps = function(vars) {
       vars.height.viz -= (vars.margin.top+vars.margin.bottom)
       vars.width.viz -= (vars.margin.left+vars.margin.right)
     },
-    "message": "Updating UI"
+    "message": vars.format.locale.value.message.ui
   })
 
   steps.push({
@@ -338,7 +343,7 @@ d3plus.draw.steps = function(vars) {
       d3plus.ui.focus,
       d3plus.draw.update
     ],
-    "message": "Updating UI"
+    "message": vars.format.locale.value.message.ui
   })
 
   steps.push({
@@ -351,7 +356,7 @@ d3plus.draw.steps = function(vars) {
       d3plus.draw.focus(vars)
       d3plus.draw.finish(vars)
     },
-    "message": "Drawing Visualization"
+    "message": vars.format.locale.value.message.draw
   })
 
   return steps

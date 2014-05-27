@@ -7,7 +7,7 @@ d3plus.method.format = {
     },
     "process"  : function( value ) {
 
-      var defaultLocale = "en_US"
+      var defaultLocale = "en"
         , returnObject  = d3plus.locale[defaultLocale]
 
       if ( value !== defaultLocale ) {
@@ -17,7 +17,7 @@ d3plus.method.format = {
       return returnObject
 
     },
-    "value"    : "en_US"
+    "value"    : "en"
   },
   "number"     : function( number , key ) {
 
@@ -57,7 +57,7 @@ d3plus.method.format = {
 
     if ( typeof value === "string" ) {
       var vars = this.getVars()
-      vars.self.format({"locale": "en_US"})
+      vars.self.format({"locale": value})
     }
     else if ( typeof value === "function" ) {
       return value
@@ -72,11 +72,15 @@ d3plus.method.format = {
       return ""
     }
 
-    var smalls = this.locale.value.lowercase
+    var smalls = this.locale.value.lowercase,
+        bigs   = this.locale.value.uppercase
 
     return text.replace(/\w\S*/g, function(txt,i){
 
-      if (smalls.indexOf(txt.toLowerCase()) >= 0 && i != 0) {
+      if ( bigs.indexOf(txt.toLowerCase()) >= 0 ) {
+        return txt.toUpperCase()
+      }
+      else if ( smalls.indexOf(txt.toLowerCase()) >= 0 && i != 0 ) {
         return txt.toLowerCase()
       }
 

@@ -43,7 +43,7 @@ d3plus.method.function = function( key , vars ) {
 
       for ( var s in user ) {
 
-        d3plus.console.warning(d3plus.util.format(str,s))
+        d3plus.console.warning(d3plus.util.format(str,"\""+s+"\"",s))
         d3plus.console.log(d3plus.repo+"wiki/Methods")
 
         vars.self[s](user[s])

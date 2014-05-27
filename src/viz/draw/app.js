@@ -41,7 +41,6 @@ d3plus.draw.app = function(vars) {
 
   var nodes = vars.returned.nodes
   if (!nodes || !(nodes instanceof Array) || !nodes.length) {
-    if (vars.dev.value) d3plus.console.log("No data returned by app.")
     vars.returned.nodes = []
   }
 

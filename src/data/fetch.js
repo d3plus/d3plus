@@ -89,8 +89,8 @@ d3plus.data.fetch = function(vars,format,years) {
     })
 
     if (return_data.length == 0 && missing.length && !vars.internal_error) {
-      vars.internal_error = "No Data Available for "+missing.join(", ")
-      d3plus.console.warning(vars.internal_error)
+      var str = vars.format.locale.value.error.dataYear
+      vars.internal_error = d3plus.util.format(str,missing.join(", "))
     }
 
   }
