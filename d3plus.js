@@ -1992,12 +1992,12 @@ d3plus.locale.pt = {
 
   "message"      : {
 
-    "data"         : "análise de dados",
-    "draw"         : "desenho visualização",
-    "initializing" : "inicializar {0}",
-    "loading"      : "carregamento de dados",
+    "data"         : "analisando dados",
+    "draw"         : "desenhando visualização",
+    "initializing" : "inicializando {0}",
+    "loading"      : "carregando dados",
     "tooltipReset" : "redefinindo as dicas",
-    "ui"           : "atualizando ui"
+    "ui"           : "atualizando interface"
 
   },
 
@@ -2041,9 +2041,7 @@ d3plus.locale.pt = {
                    , "mês"
   ],
 
-  "uppercase"    : [ "tv"
-                   , "ui"
-  ],
+  "uppercase"    : [ "tv" ],
 
   "ui"           : {
 
