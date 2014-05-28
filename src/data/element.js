@@ -71,9 +71,11 @@ d3plus.data.element = function( vars ) {
 
         get_attributes(data_obj,this)
 
-        if ( this.id ) {
+        var id = data_obj[vars.id.value] || this.id || false
 
-          var label = d3.select("label[for="+this.id+"]")
+        if ( id ) {
+
+          var label = d3.select("label[for="+id+"]")
 
           if ( !label.empty() ) {
             data_obj[vars.text.value] = label.style("display","none").html()
