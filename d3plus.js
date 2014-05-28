@@ -4747,7 +4747,7 @@ d3plus.method.process = function( object , value ) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Function to process data by url or element.
 //--------------------------------------------------------------------------
-d3plus.method.processData = function ( value ) {
+d3plus.method.processData = function ( value , self ) {
 
   if ( typeof value !== "string" && !d3plus.util.d3selection( value ) ) {
 
@@ -4756,12 +4756,16 @@ d3plus.method.processData = function ( value ) {
   }
   else {
 
-    var vars = this.getVars()
+    if ( self === undefined ) {
+      var self = this
+    }
+
+    var vars = self.getVars()
       , maybeURL = value.indexOf("/") >= 0
 
     if ( !maybeURL && d3plus.util.d3selection( value ) ) {
 
-      this.element = value
+      self.element = value
       return d3plus.data.element( vars )
 
     }
@@ -4769,13 +4773,13 @@ d3plus.method.processData = function ( value ) {
 
       if ( !maybeURL && !d3.selectAll( value ).empty() ) {
 
-        this.element = d3.selectAll( value )
+        self.element = d3.selectAll( value )
         return d3plus.data.element( vars )
 
       }
       else {
 
-        this.url = value
+        self.url = value
         return []
 
       }
@@ -5285,7 +5289,7 @@ d3plus.method.data = {
       vars.self.container({"id": "default"+value.length})
     }
 
-    return d3plus.method.processData( value )
+    return d3plus.method.processData( value , this )
   },
   "value"    : false
 }
