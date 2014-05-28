@@ -5277,7 +5277,16 @@ d3plus.method.csv = {
 
 d3plus.method.data = {
   "accepted" : [ false , Array , Function , String ],
-  "process"  : d3plus.method.processData,
+  "process"  : function( value ) {
+
+    var vars = this.getVars()
+
+    if ( vars.container.id === "default" && value.length ) {
+      vars.self.container({"id": "default"+value.length})
+    }
+
+    return d3plus.method.processData( value )
+  },
   "value"    : false
 }
 
@@ -5927,6 +5936,18 @@ d3plus.method.title = {
     "deprecates" : "total_bar",
     "link"       : false,
     "value"      : false
+  },
+  "process"  : function ( value ) {
+
+    var vars = this.getVars()
+
+    if ( vars.container.id.indexOf("default") === 0 && value ) {
+      var id = d3plus.util.strip(value).toLowerCase()
+      vars.self.container({"id": id})
+    }
+
+    return value
+
   },
   "value"    : false
 }
