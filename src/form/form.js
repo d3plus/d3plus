@@ -164,14 +164,21 @@ d3plus.form = function() {
 
         if ( before ) {
 
-          var id = before.getAttribute(vars.id.value)
-                 ? vars.id.value : "data-"+vars.id.value
-
-          if ( before.getAttribute(id) ) {
-            before = "["+id+"="+before.getAttribute(id)+"]"
+          if ( before.id ) {
+            before = "#"+before.id
           }
           else {
-            before = null
+
+            var id = before.getAttribute(vars.id.value)
+                   ? vars.id.value : "data-"+vars.id.value
+
+            if ( before.getAttribute(id) ) {
+              before = "["+id+"="+before.getAttribute(id)+"]"
+            }
+            else {
+              before = null
+            }
+
           }
 
         }
