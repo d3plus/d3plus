@@ -160,8 +160,21 @@ d3plus.form = function() {
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Create container DIV for UI element
         //----------------------------------------------------------------------
-        var before = vars.data.element && vars.data.element.node().id
-                   ? "#"+vars.data.element.node().id : null
+        var before = vars.data.element ? vars.data.element[0][0] : null
+
+        if ( before ) {
+
+          var id = before.getAttribute(vars.id.value)
+                 ? vars.id.value : "data-"+vars.id.value
+
+          if ( before.getAttribute(id) ) {
+            before = "["+id+"="+before.getAttribute(id)+"]"
+          }
+          else {
+            before = null
+          }
+
+        }
 
         vars.container.ui.enter()
           .insert("div",before)
