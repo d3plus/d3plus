@@ -13,5 +13,17 @@ d3plus.method.title = {
     "link"       : false,
     "value"      : false
   },
+  "process"  : function ( value ) {
+
+    var vars = this.getVars()
+
+    if ( vars.container.id.indexOf("default") === 0 && value ) {
+      var id = d3plus.util.strip(value).toLowerCase()
+      vars.self.container({"id": id})
+    }
+
+    return value
+
+  },
   "value"    : false
 }
