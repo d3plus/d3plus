@@ -15049,7 +15049,7 @@ d3plus.input.drop.button = function ( vars ) {
     .width(vars.width.value)
     .draw()
 
-  vars.container.button.select("div").on(d3plus.evt.click,function(){
+  vars.container.button.container(Object).ui.on(d3plus.evt.click,function(){
     self.toggle(vars)
   })
 
@@ -15724,6 +15724,10 @@ d3plus.input.drop.update = function ( vars ) {
   var previousDisplay = vars.container.selector.style("display")
   vars.container.selector.style("display","block")
   var searchHeight = vars.search.enabled ? vars.container.search.node().offsetHeight : 0
+    , offsetLeft   = !vars.container.ui.select("div.d3plus_title").empty()
+                     && vars.container.ui.select("div.d3plus_title").style("display") === "inline-block"
+                   ? vars.container.ui.select("div.d3plus_title").node().offsetWidth
+                   : 0
   vars.container.selector.style("display",previousDisplay)
 
   function update(elem) {
@@ -15731,7 +15735,7 @@ d3plus.input.drop.update = function ( vars ) {
     elem
       .style("left",function(){
         if (vars.font.align.value === "left") {
-          return "0px"
+          return offsetLeft+"px"
         }
         else if (vars.font.align.value === "center") {
           return -((vars.width.secondary-vars.width.value)/2)+"px"
