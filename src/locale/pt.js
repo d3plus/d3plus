@@ -35,6 +35,7 @@ d3plus.locale.pt = {
                    , "em"
                    , "mas"
                    , "ou"
+                   , "para"
                    , "um"
   ],
 
