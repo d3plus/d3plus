@@ -12279,12 +12279,16 @@ d3plus.ui.drawer = function( vars ) {
 
   var enabled = vars.ui.value && vars.ui.value.length
     , position = vars.ui.position.value
+    , buffer = 0
 
   var drawer = vars.container.value.selectAll("div#d3plus_drawer")
     .data(["d3plus_drawer"])
 
   drawer.enter().append("div")
     .attr("id","d3plus_drawer")
+    .each(function(){
+      buffer += vars.ui.margin*2
+    })
 
   var positionStyles = {}
   vars.ui.position.accepted.forEach(function(p){
@@ -12321,11 +12325,6 @@ d3plus.ui.drawer = function( vars ) {
         .id("id")
         .text("text")
         .type("auto")
-        .ui({
-          "align": vars.ui.align.value,
-          "padding": vars.ui.padding,
-          "margin": vars.ui.margin
-        })
         .width(d.width || false)
 
     })
@@ -12348,13 +12347,18 @@ d3plus.ui.drawer = function( vars ) {
     d.form
       .data(data)
       .title(vars.format.value(title))
+      .ui({
+        "align": vars.ui.align.value,
+        "padding": vars.ui.padding,
+        "margin": vars.ui.margin
+      })
       .draw()
 
   })
 
   ui.exit().remove()
-
-  vars.margin[position] += drawer.node().offsetHeight
+  
+  vars.margin[position] += drawer.node().offsetHeight + buffer
 
 }
 
