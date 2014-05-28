@@ -51,7 +51,7 @@ d3plus.style.default.ui = {
     },
     "weight"     : 200
   },
-  "margin"   : 0,
+  "margin"   : 5,
   "padding"  : 5,
   "position" : {
     "accepted" : [ "top" , "right" , "bottom" , "left" ],
