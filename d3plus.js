@@ -1987,6 +1987,7 @@ d3plus.locale.pt = {
                    , "em"
                    , "mas"
                    , "ou"
+                   , "para"
                    , "um"
   ],
 
@@ -5522,7 +5523,8 @@ d3plus.method.format = {
       if ( bigs.indexOf(txt.toLowerCase()) >= 0 ) {
         return txt.toUpperCase()
       }
-      else if ( smalls.indexOf(txt.toLowerCase()) >= 0 && i != 0 ) {
+      else if ( smalls.indexOf(txt.toLowerCase()) >= 0
+                && i !== 0 && i !== text.length-1 ) {
         return txt.toLowerCase()
       }
 
