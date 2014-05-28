@@ -1534,8 +1534,28 @@ d3plus.form = function() {
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Create container DIV for UI element
         //----------------------------------------------------------------------
-        var before = vars.data.element && vars.data.element.node().id
-                   ? "#"+vars.data.element.node().id : null
+        var before = vars.data.element ? vars.data.element[0][0] : null
+
+        if ( before ) {
+
+          if ( before.id ) {
+            before = "#"+before.id
+          }
+          else {
+
+            var id = before.getAttribute(vars.id.value)
+                   ? vars.id.value : "data-"+vars.id.value
+
+            if ( before.getAttribute(id) ) {
+              before = "["+id+"="+before.getAttribute(id)+"]"
+            }
+            else {
+              before = null
+            }
+
+          }
+
+        }
 
         vars.container.ui.enter()
           .insert("div",before)
@@ -14337,7 +14357,8 @@ d3plus.style.default.icon = {
   "fontCheck": function ( value , fallback ) {
 
     if ( value === false
-       || ( value.indexOf("fa-") === 0 && d3plus.font.awesome ) ) {
+         || ( value.indexOf("fa-") === 0 && d3plus.font.awesome )
+         || value.indexOf("fa-") < 0 ) {
       return value
     }
     else {
