@@ -8,7 +8,7 @@ d3plus.method.data = {
       vars.self.container({"id": "default"+value.length})
     }
 
-    return d3plus.method.processData( value )
+    return d3plus.method.processData( value , this )
   },
   "value"    : false
 }
