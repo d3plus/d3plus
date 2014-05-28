@@ -57,7 +57,7 @@ d3plus.input.drop.button = function ( vars ) {
     .width(vars.width.value)
     .draw()
 
-  vars.container.button.select("div").on(d3plus.evt.click,function(){
+  vars.container.button.container(Object).ui.on(d3plus.evt.click,function(){
     self.toggle(vars)
   })
 
