@@ -376,7 +376,8 @@ d3plus.data.element = function( vars ) {
           var label = d3.select("label[for="+id+"]")
 
           if ( !label.empty() ) {
-            data_obj[vars.text.value] = label.style("display","none").html()
+            data_obj[vars.text.value] = label.html()
+            label.call(hideElement)
           }
 
         }
@@ -404,14 +405,16 @@ d3plus.data.element = function( vars ) {
   function hideElement( elem ) {
 
     elem
-      .style("position","absolute")
-      .style("overflow","hidden")
-      .style("clip","rect(0 0 0 0)")
-      .style("width","1px")
-      .style("height","1px")
-      .style("margin","-1px")
-      .style("padding","0")
-      .style("border","0")
+      .style("position","absolute","important")
+      .style("clip","rect(1px 1px 1px 1px)","important")
+      .style("clip","rect(1px, 1px, 1px, 1px)","important")
+      .style("width","1px","important")
+      .style("height","1px","important")
+      .style("margin","-1px","important")
+      .style("padding","0","important")
+      .style("border","0","important")
+      .style("overflow","hidden","important")
+      .html("")
 
   }
 
@@ -14645,7 +14648,7 @@ d3plus.style.default.ui = {
     },
     "weight"     : 200
   },
-  "margin"   : 0,
+  "margin"   : 5,
   "padding"  : 5,
   "position" : {
     "accepted" : [ "top" , "right" , "bottom" , "left" ],
