@@ -5172,7 +5172,8 @@ d3plus.method.container = {
   "process"  : function ( value ) {
 
     if ( value === false ) {
-      return value
+      var shell = this.getVars().shell
+      return shell === "form" ? d3.select("body") : value
     }
     else if ( d3plus.util.d3selection(value) ) {
       return value
