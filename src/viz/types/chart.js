@@ -390,7 +390,7 @@ d3plus.visualization.chart = function(vars) {
     .attr("id","yaxis")
 
   // Enter X Axis Label
-  var xlabel = axes.selectAll("text#xlabel").data(["xlabel"])
+  var xlabel = axes.selectAll("text#xlabel").data(vars.small ? [] : ["xlabel"])
   xlabel.enter().append("text")
     .attr("id", "xlabel")
     .attr("x", vars.width.viz/2)
@@ -401,9 +401,10 @@ d3plus.visualization.chart = function(vars) {
     .attr("font-size",vars.labels.font.size)
     .attr("fill",vars.labels.font.color)
     .attr("text-anchor",vars.labels.font.align)
+  xlabel.exit().remove()
 
   // Enter Y Axis Label
-  var ylabel = axes.selectAll("text#ylabel").data(["ylabel"])
+  var ylabel = axes.selectAll("text#ylabel").data(vars.small ? [] : ["ylabel"])
   ylabel.enter().append("text")
     .attr("id", "ylabel")
     .attr("y", 15)
@@ -415,6 +416,7 @@ d3plus.visualization.chart = function(vars) {
     .attr("font-size",vars.labels.font.size)
     .attr("fill",vars.labels.font.color)
     .attr("text-anchor",vars.labels.font.align)
+  ylabel.exit().remove()
 
   // Enter Mouse Event Group
   var mouseevents = vars.group.selectAll("g#mouseevents").data(["mouseevents"])
