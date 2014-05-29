@@ -32,6 +32,7 @@ d3plus.input.toggle = function( vars ) {
     })
     .ui({
       "border": vars.ui.border,
+      "color": vars.ui.color,
       "display": "inline-block",
       "margin": 0,
       "padding": vars.ui.padding
