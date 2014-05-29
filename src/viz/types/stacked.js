@@ -4,11 +4,6 @@
 d3plus.visualization.stacked = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Merge data points below the threshold defined at the bottom of this file.
-  //----------------------------------------------------------------------------
-  d3plus.data.threshold(vars,vars.x.value)
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // This visualization is an extention of the Chart visualization.
   //----------------------------------------------------------------------------
   return d3plus.visualization.chart(vars)
@@ -18,9 +13,17 @@ d3plus.visualization.stacked = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
+d3plus.visualization.stacked.filter       = function( vars , data ) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Merge data points below the threshold
+  //----------------------------------------------------------------------------
+  return d3plus.data.threshold( vars , data , vars.x.value )
+
+}
 d3plus.visualization.stacked.requirements = [ "data" , "x" , "y" ]
 
-d3plus.visualization.stacked.setup = function(vars) {
+d3plus.visualization.stacked.setup        = function(vars) {
 
   if (vars.dev.value) d3plus.console.time("setting local variables")
 
@@ -55,5 +58,7 @@ d3plus.visualization.stacked.setup = function(vars) {
 }
 
 d3plus.visualization.stacked.shapes       = [ "area" ]
-d3plus.visualization.stacked.threshold    = 0.03
+d3plus.visualization.stacked.threshold    = function( vars ) {
+  return 20 / vars.height.viz
+}
 d3plus.visualization.stacked.tooltip      = "static"
