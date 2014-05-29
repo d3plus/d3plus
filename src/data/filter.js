@@ -23,7 +23,7 @@ d3plus.data.filter = function(vars) {
 
   if (vars.check.length >= 1) {
 
-    if (vars.dev.value) d3plus.console.group("Filtering Data by Required Variables");
+    if (vars.dev.value) d3plus.console.group("filtering data by required variables");
     var checking = vars.filters.join(", ")
     if (vars.dev.value) d3plus.console.time(checking)
 
@@ -57,7 +57,7 @@ d3plus.data.filter = function(vars) {
 
   if (vars.time.value && d3.keys(vars.data.filtered).length == 1) {
 
-    if (vars.dev.value) d3plus.console.group("Disaggregating by Year")
+    if (vars.dev.value) d3plus.console.group("disaggregating by year")
 
     // Find available years
     vars.data.time = d3plus.util.uniques(vars.data.filtered.all,vars.time.value)

@@ -124,7 +124,7 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   for (shape in shapes) {
 
-    if (vars.dev.value) d3plus.console.group("Drawing \"" + shape + "\" groups")
+    if (vars.dev.value) d3plus.console.group("drawing \"" + shape + "\" groups")
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind Data to Groups

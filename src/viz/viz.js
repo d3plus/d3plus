@@ -32,6 +32,7 @@ d3plus.viz = function() {
                     ? vars.format.value(vars.format.locale.value.ui.error)
                     : vars.error.value
         if (vars.dev.value) d3plus.console.warning(message)
+        var lastMessage = message
         d3plus.ui.message(vars,message)
       }
       else {
@@ -55,7 +56,7 @@ d3plus.viz = function() {
         function run_steps() {
 
           var step = steps.shift(),
-              same = vars.g.message && vars.g.message.text() === step.message,
+              same = vars.g.message && lastMessage === step.message,
               run = "check" in step ? step.check(vars) : true
 
           if (run) {
@@ -66,8 +67,11 @@ d3plus.viz = function() {
                 d3plus.console.groupEnd()
                 d3plus.console.group(step.message)
               }
+              lastMessage = typeof vars.messages.value === "string"
+                          ? vars.messages.value
+                          : step.message
               var message = typeof vars.messages.value === "string"
-                          ? vars.messages.value 
+                          ? vars.messages.value
                           : vars.format.value(step.message)
 
               d3plus.ui.message(vars,message)

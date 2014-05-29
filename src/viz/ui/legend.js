@@ -9,7 +9,7 @@ d3plus.ui.legend = function(vars) {
 
   if (!vars.small && vars.legend.value && key) {
 
-    if (vars.dev.value) d3plus.console.group("Calculating Legend")
+    if (vars.dev.value) d3plus.console.group("drawing legend")
 
     if (vars.data.keys && key in vars.data.keys) {
       var color_type = vars.data.keys[key]
@@ -28,10 +28,7 @@ d3plus.ui.legend = function(vars) {
       var color_groups = {},
           placed = []
 
-      if (typeof d3plus.visualization[vars.type.value].filter == "function") {
-        var data = d3plus.visualization[vars.type.value].filter(vars)
-      }
-      else if (vars.nodes.value && d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0) {
+      if ( vars.nodes.value && d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
         var data = vars.nodes.restriced || vars.nodes.value
       }
       else {
@@ -44,6 +41,7 @@ d3plus.ui.legend = function(vars) {
         if (placed.indexOf(id) < 0) {
 
           var color = d3plus.variable.color(vars,d)
+
           if (!color_groups[color]) {
             color_groups[color] = []
           }

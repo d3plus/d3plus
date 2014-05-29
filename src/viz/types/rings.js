@@ -12,11 +12,7 @@ d3plus.visualization.rings = function(vars) {
   var center = vars.data.app.filter(function(d){
     return d[vars.id.value] == vars.focus.value
   })[0]
-  
-  if (!center) {
-    center = {"d3plus": {}}
-    center[vars.id.value] = vars.focus.value
-  }
+
   center.d3plus.x = vars.width.viz/2
   center.d3plus.y = vars.height.viz/2
   center.d3plus.r = primaryRing*.65
@@ -28,10 +24,7 @@ d3plus.visualization.rings = function(vars) {
     var n = vars.data.app.filter(function(d){
       return d[vars.id.value] == c[vars.id.value]
     })[0]
-    if (!n) {
-      n = {"d3plus": {}}
-      n[vars.id.value] = c[vars.id.value]
-    }
+
     n.d3plus.edges = vars.edges.connections(n[vars.id.value],vars.id.value).filter(function(c){
       return c[vars.edges.source][vars.id.value] != vars.focus.value && c[vars.edges.target][vars.id.value] != vars.focus.value
     })
@@ -186,11 +179,6 @@ d3plus.visualization.rings = function(vars) {
       var d = vars.data.app.filter(function(a){
         return a[vars.id.value] == c[vars.id.value]
       })[0]
-
-      if (!d) {
-        d = {"d3plus": {}}
-        d[vars.id.value] = c[vars.id.value]
-      }
 
       a = (angle-(s*children/2)+(s/2))+((s)*i)
       d.d3plus.radians = a
@@ -476,12 +464,7 @@ d3plus.visualization.rings = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.rings.requirements = ["edges","focus"];
-d3plus.visualization.rings.tooltip = "static"
-d3plus.visualization.rings.shapes = ["circle","square","donut"];
-d3plus.visualization.rings.scale = 1
-d3plus.visualization.rings.nesting = false
-d3plus.visualization.rings.filter = function(vars,data) {
+d3plus.visualization.rings.filter       = function( vars , data ) {
 
   var primaries = vars.edges.connections(vars.focus.value,vars.id.value,true)
     , secondaries = []
@@ -492,15 +475,30 @@ d3plus.visualization.rings.filter = function(vars,data) {
 
   var connections = primaries.concat(secondaries)
     , ids = d3plus.util.uniques(connections,vars.id.value)
+    , returnData = []
 
-  if (data === undefined) {
-    return ids
-  }
+  ids.forEach(function(id){
 
-  return data.filter(function(d){
+    var d = data.filter(function(d){
+      return d[vars.id.value] === id
+    })[0]
 
-    return ids.indexOf(d[vars.id.value]) >= 0
+    if ( !d ) {
+      var obj = {"d3plus": {}}
+      obj[vars.id.value] = id
+      returnData.push(obj)
+    }
+    else {
+      returnData.push(d)
+    }
 
   })
 
+  return returnData
+
 }
+d3plus.visualization.rings.nesting      = false
+d3plus.visualization.rings.scale        = 1
+d3plus.visualization.rings.shapes       = [ "circle" , "square" , "donut" ]
+d3plus.visualization.rings.requirements = [ "edges" , "focus" ]
+d3plus.visualization.rings.tooltip      = "static"

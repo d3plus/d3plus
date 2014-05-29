@@ -225,7 +225,8 @@ d3plus.form = function() {
       //------------------------------------------------------------------------
       if ( vars.data.value.length ) {
 
-        if (vars.dev.value) d3plus.console.group("drawing \""+vars.type.value+"\"")
+        var app = vars.format.locale.value.visualization[vars.type.value]
+        if (vars.dev.value) d3plus.console.group("drawing "+ app)
         d3plus.input[vars.type.value]( vars )
         if (vars.dev.value) d3plus.console.groupEnd()
 

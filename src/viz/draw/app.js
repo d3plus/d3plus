@@ -13,7 +13,8 @@ d3plus.draw.app = function(vars) {
 
   if (!vars.internal_error) {
 
-    if (vars.dev.value) d3plus.console.group("Calculating \"" + vars.type.value + "\"")
+    var app = vars.format.locale.value.visualization[vars.type.value]
+    if (vars.dev.value) d3plus.console.group("running "+ app)
     var returned = d3plus.visualization[vars.type.value](vars)
     if (vars.dev.value) d3plus.console.groupEnd();
 

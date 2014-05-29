@@ -6,7 +6,7 @@ d3plus.data.fetch = function(vars,format,years) {
 
   var return_data = [];
 
-  if (vars.dev.value) d3plus.console.group("Fetching \""+format+"\" data")
+  if (vars.dev.value) d3plus.console.group("fetching \""+format+"\" data")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time()

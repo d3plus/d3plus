@@ -4,7 +4,7 @@
 d3plus.variable.value = function(vars,id,variable,id_var,agg) {
 
   if (!id_var) {
-    if (variable && typeof variable == "object") {
+    if ( d3plus.object.validate(variable) ) {
       if (variable[vars.id.value]) {
         var id_var = vars.id.value
       }
@@ -18,11 +18,11 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     }
   }
 
-  if (variable && typeof variable == "function") {
+  if ( variable && typeof variable === "function" ) {
     return variable(id)
   }
-  else if (variable == id_var) {
-    if (typeof id == "object") {
+  else if (variable === id_var) {
+    if ( d3plus.object.validate(id) ) {
       return id[variable]
     }
     else {
@@ -48,10 +48,10 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     }
   }
 
-  if (typeof id == "object" && typeof id[variable] != "undefined") {
+  if ( d3plus.object.validate(id) && variable in id ) {
     return id[variable]
   }
-  else if (typeof id == "object" && id.children) {
+  else if ( d3plus.object.validate(id) && id.children ) {
 
     if (!agg) {
       var agg = "sum"
@@ -78,16 +78,17 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
   }
   else {
 
-    if (typeof id == "object") {
+    if ( typeof id == "object" ) {
       var dat = id
       id = id[id_var]
     }
 
-    if (vars.data.app instanceof Array) {
-      var dat = filter_array(vars.data.app)
+    if ( vars.data.app instanceof Array ) {
+      var dat = filter_array( vars.data.app )
     }
 
-    if (dat && typeof dat[variable] != "undefined") return dat[variable]
+    if ( dat && variable in dat ) return dat[variable]
+
   }
 
   if (vars.attrs.value instanceof Array) {
@@ -105,7 +106,7 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     var attr = vars.attrs.value[id]
   }
 
-  if (attr && typeof attr[variable] != "undefined") return attr[variable]
+  if ( attr && variable in attr ) return attr[variable]
 
   return null
 

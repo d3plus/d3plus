@@ -101,7 +101,9 @@ d3plus.draw.steps = function(vars) {
         vars.nodes.restricted = null
         vars.edges.restricted = null
 
+        if (vars.dev.value) d3plus.console.time("data key analysis")
         d3plus.data.keys(vars,"data")
+        if (vars.dev.value) d3plus.console.timeEnd("data key analysis")
 
       },
       "message": vars.format.locale.value.message.data
@@ -116,7 +118,9 @@ d3plus.draw.steps = function(vars) {
       },
       "function": function(vars) {
 
+        if (vars.dev.value) d3plus.console.time("attribute key analysis")
         d3plus.data.keys(vars,"attrs")
+        if (vars.dev.value) d3plus.console.timeEnd("attribute key analysis")
 
       },
       "message": vars.format.locale.value.message.data
@@ -131,7 +135,13 @@ d3plus.draw.steps = function(vars) {
         return (!vars.edges.linked || vars.edges.changed)
           && edge_req && vars.edges.value
       },
-      "function": d3plus.data.edges,
+      "function": function(vars) {
+
+        if (vars.dev.value) d3plus.console.time("formatting edges")
+        d3plus.data.edges(vars)
+        if (vars.dev.value) d3plus.console.timeEnd("formatting edges")
+
+      },
       "message": vars.format.locale.value.message.data
     })
     steps.push({
@@ -140,7 +150,13 @@ d3plus.draw.steps = function(vars) {
         return node_req && (!vars.nodes.positions || vars.nodes.changed)
           && vars.nodes.value && vars.edges.value
       },
-      "function": d3plus.data.nodes,
+      "function": function(vars) {
+
+        if (vars.dev.value) d3plus.console.time("formatting nodes")
+        d3plus.data.nodes(vars)
+        if (vars.dev.value) d3plus.console.timeEnd("formatting nodes")
+
+      },
       "message": vars.format.locale.value.message.data
     })
 
@@ -230,6 +246,46 @@ d3plus.draw.steps = function(vars) {
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Determine color type
+    //--------------------------------------------------------------------------
+    steps.push({
+      "function": function(vars) {
+
+          if (vars.color.changed && vars.color.value) {
+
+            if ( d3plus.object.validate(vars.color.value) ) {
+              if (vars.color.value[vars.id.value]) {
+                var color_id = vars.color.value[vars.id.value]
+              }
+              else {
+                var color_id = vars.color.value[d3.keys(vars.color.value)[0]]
+              }
+            }
+            else {
+              var color_id = vars.color.value
+            }
+
+            if (vars.data.keys && color_id in vars.data.keys) {
+              vars.color.type = vars.data.keys[color_id]
+            }
+            else if (vars.attrs.keys && color_id in vars.attrs.keys) {
+              vars.color.type = vars.attrs.keys[color_id]
+            }
+            else {
+              vars.color.type = undefined
+            }
+
+          }
+          else if (!vars.color.value) {
+            vars.color.type = "keys" in vars.data
+                            ? vars.data.keys[vars.id.value] : false
+          }
+
+      },
+      "message": vars.format.locale.value.message.data
+    })
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Fetch the correct Data for the App
     //--------------------------------------------------------------------------
     steps.push({
@@ -254,37 +310,7 @@ d3plus.draw.steps = function(vars) {
     steps.push({
       "check": function(vars) {
 
-        if (vars.color.changed && vars.color.value) {
-
-          if (typeof vars.color.value == "object") {
-            if (vars.color.value[vars.id.value]) {
-              var color_id = vars.color.value[vars.id.value]
-            }
-            else {
-              var color_id = vars.color.value[d3.keys(vars.color.value)[0]]
-            }
-          }
-          else {
-            var color_id = vars.color.value
-          }
-
-          if (vars.data.keys && color_id in vars.data.keys) {
-            vars.color.type = vars.data.keys[color_id]
-          }
-          else if (vars.attrs.keys && color_id in vars.attrs.keys) {
-            vars.color.type = vars.attrs.keys[color_id]
-          }
-          else {
-            vars.color.type = undefined
-          }
-
-        }
-        else if (!vars.color.value) {
-          vars.color.type = "keys" in vars.data
-                          ? vars.data.keys[vars.id.value] : false
-        }
-
-        return vars.color.value && vars.color.type == "number" &&
+        return vars.color.value && vars.color.type === "number" &&
                vars.id.nesting.indexOf(vars.color.value) < 0 &&
                vars.data.value && vars.color.value != vars.id.value &&
                  (vars.color.changed || vars.data.changed || vars.depth.changed ||
@@ -297,7 +323,7 @@ d3plus.draw.steps = function(vars) {
       "function": d3plus.data.color,
       "message": vars.format.locale.value.message.data,
       "otherwise": function(vars) {
-        if (vars.color.type != "number") {
+        if (vars.color.type !== "number") {
           vars.color.scale = null
         }
       }

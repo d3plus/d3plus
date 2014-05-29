@@ -1,9 +1,9 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merges data underneath the size threshold
 //-------------------------------------------------------------------
-d3plus.data.threshold = function(vars,split) {
+d3plus.data.threshold = function( vars , rawData , split ) {
 
-  if (!vars.size.threshold) {
+  if ( vars.size.threshold === false ) {
     var threshold = 0
   }
   else if (typeof vars.size.threshold === "number") {
@@ -11,6 +11,9 @@ d3plus.data.threshold = function(vars,split) {
   }
   else if (typeof d3plus.visualization[vars.type.value].threshold === "number") {
     var threshold = d3plus.visualization[vars.type.value].threshold
+  }
+  else if (typeof d3plus.visualization[vars.type.value].threshold === "function") {
+    var threshold = d3plus.visualization[vars.type.value].threshold(vars)
   }
   else {
     var threshold = 0.02
@@ -54,9 +57,9 @@ d3plus.data.threshold = function(vars,split) {
         largest[x] = total
         return total
       })
-      .entries(vars.data.app)
+      .entries(rawData)
 
-    vars.data.app = vars.data.app.filter(function(d){
+    var filteredData = rawData.filter(function(d){
 
       var id = d3plus.variable.value(vars,d,vars.id.value),
           val = d3plus.variable.value(vars,d,vars.size.value),
@@ -115,7 +118,7 @@ d3plus.data.threshold = function(vars,split) {
         }
       })
 
-      if (vars.color.value && vars.color.type == "string") {
+      if (vars.color.value && vars.color.type === "string") {
         if (vars.depth.value == 0) {
           m[vars.color.value] = vars.color.missing
         }
@@ -158,8 +161,10 @@ d3plus.data.threshold = function(vars,split) {
 
     })
 
-    vars.data.app = vars.data.app.concat(merged)
+    return filteredData.concat(merged)
 
   }
+
+  return rawData
 
 }

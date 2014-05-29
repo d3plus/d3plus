@@ -3,25 +3,24 @@
 //------------------------------------------------------------------------------
 d3plus.ui.titles = function(vars) {
 
+  var total_key = vars.size.value ? vars.size.value
+    : vars.color.type === "number" ? vars.color.value : false
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If there is no data or the title bar is not needed,
   // set the total value to 'null'
   //----------------------------------------------------------------------------
   if (!vars.data.app || !vars.title.total.value || vars.small) {
-    var total = null
+    var total = false
   }
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Otherwise, let's calculate it!
   //----------------------------------------------------------------------------
-  else {
+  else if (total_key) {
 
     if (vars.dev.value) {
-      d3plus.console.group("Calculating Total Value")
-      d3plus.console.time(vars.size.value)
+      d3plus.console.time("calculating total value")
     }
-
-    var total_key = vars.size.value ? vars.size.value
-      : vars.color.type == "number" ? vars.color.value : null
 
     if (vars.focus.value) {
       var total = vars.data.app.filter(function(d){
@@ -31,7 +30,7 @@ d3plus.ui.titles = function(vars) {
         return d3plus.variable.value(vars,d,total_key)
       })
     }
-    else if (total_key) {
+    else {
       var total = d3.sum(vars.data.pool,function(d){
         return d3plus.variable.value(vars,d,total_key)
       })
@@ -82,10 +81,12 @@ d3plus.ui.titles = function(vars) {
     }
 
     if (vars.dev.value) {
-      d3plus.console.timeEnd(vars.size.value)
-      d3plus.console.groupEnd()
+      d3plus.console.timeEnd("calculating total value")
     }
 
+  }
+  else {
+    var total = false
   }
 
 
@@ -205,7 +206,7 @@ d3plus.ui.titles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter Titles
   //----------------------------------------------------------------------------
-  if (vars.dev.value) d3plus.console.log("Drawing Titles")
+  if (vars.dev.value) d3plus.console.log("drawing Titles")
   var titles = vars.svg.selectAll("g.d3plus_title")
     .data(title_data,function(t){
       return t.type

@@ -6,7 +6,7 @@ d3plus.data.format = function(vars,format) {
   if (!format) var format = "grouped"
   return_data = {}
 
-  if (vars.dev.value) d3plus.console.group("Formatting \""+format+"\" Data")
+  if (vars.dev.value) d3plus.console.group("formatting \""+format+"\" data")
 
   vars.id.nesting.forEach(function(depth){
 
@@ -15,7 +15,7 @@ d3plus.data.format = function(vars,format) {
     var level = vars.id.nesting.slice(0,vars.id.nesting.indexOf(depth)+1)
 
     return_data[depth] = {}
-    
+
     for (y in vars.data.restricted) {
 
       if (format == "grouped") {
