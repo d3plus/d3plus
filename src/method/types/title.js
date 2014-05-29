@@ -1,8 +1,8 @@
 d3plus.method.title = {
-  "accepted" : [ Boolean , Function , String ],
+  "accepted" : [ false , Function , String ],
   "link"     : false,
   "sub"      : {
-    "accepted"   : [ String ],
+    "accepted"   : [ false , String ],
     "deprecates" : "sub_title",
     "link"       : false,
     "value"      : false,
