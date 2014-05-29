@@ -9,7 +9,7 @@ d3plus.input.button.color = function ( elem , vars ) {
       if ( vars.focus.value !== d[vars.id.value] ) {
 
         if ( vars.hover.value === d[vars.id.value] ) {
-          d.d3plus_background = d3plus.color.darker(vars.ui.color.secondary.value,.05)
+          d.d3plus_background = d3.rgb(vars.ui.color.secondary.value).darker(0.5).toString()
         }
         else {
           d.d3plus_background = vars.ui.color.secondary.value
@@ -19,7 +19,7 @@ d3plus.input.button.color = function ( elem , vars ) {
       else {
 
         if ( vars.hover.value === d[vars.id.value] ) {
-          d.d3plus_background = d3plus.color.darker(vars.ui.color.primary.value,.025)
+          d.d3plus_background = d3.rgb(vars.ui.color.primary.value).darker(0.5).toString()
         }
         else {
           d.d3plus_background = vars.ui.color.primary.value
