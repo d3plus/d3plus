@@ -3,7 +3,7 @@
   var d3plus    = window.d3plus || {}
   window.d3plus = d3plus
 
-  d3plus.version = "1.3.0 - Sky"
+  d3plus.version = "1.3.1 - Sky"
   d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
 
   d3plus.array         = {}
@@ -14,8 +14,10 @@
   d3plus.input         = {}
   d3plus.locale        = {}
   d3plus.method        = {}
+  d3plus.number        = {}
   d3plus.object        = {}
   d3plus.shape         = {}
+  d3plus.string        = {}
   d3plus.style         = {}
   d3plus.tooltip       = {}
   d3plus.ui            = {}

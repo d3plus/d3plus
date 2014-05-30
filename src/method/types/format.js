@@ -19,40 +19,7 @@ d3plus.method.format = {
     },
     "value"    : "en"
   },
-  "number"     : function( number , key ) {
-
-    var time = this.locale.value.time
-
-    if ("getVars" in this) {
-      var vars = this.getVars()
-      if ( typeof vars.time.value === "string" ) {
-        time.push(vars.time.value)
-      }
-    }
-
-    if (key && time.indexOf(key.toLowerCase()) >= 0) {
-      return number
-    }
-    else if (number < 10 && number > -10) {
-      return d3.round(number,2)
-    }
-    else if (number.toString().split(".")[0].length > 4) {
-      var symbol = d3.formatPrefix(number).symbol
-      symbol = symbol.replace("G", "B") // d3 uses G for giga
-
-      // Format number to precision level using proper scale
-      number = d3.formatPrefix(number).scale(number)
-      number = parseFloat(d3.format(".3g")(number))
-      return number + symbol;
-    }
-    else if (key == "share") {
-      return d3.format(".2f")(number)
-    }
-    else {
-      return d3.format(",f")(number)
-    }
-
-  },
+  "number"     : d3plus.number.format,
   "process"    : function( value ) {
 
     if ( typeof value === "string" ) {
@@ -66,30 +33,7 @@ d3plus.method.format = {
     return this.value
 
   },
-  "text"       : function( text , key ) {
-
-    if (!text) {
-      return ""
-    }
-
-    var smalls = this.locale.value.lowercase,
-        bigs   = this.locale.value.uppercase
-
-    return text.replace(/\w\S*/g, function(txt,i){
-
-      if ( bigs.indexOf(txt.toLowerCase()) >= 0 ) {
-        return txt.toUpperCase()
-      }
-      else if ( smalls.indexOf(txt.toLowerCase()) >= 0
-                && i !== 0 && i !== text.length-1 ) {
-        return txt.toLowerCase()
-      }
-
-      return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
-
-    })
-
-  },
+  "text"       : d3plus.string.title,
   "value"      : function( value , key ) {
 
     if ( typeof value === "number" ) {
