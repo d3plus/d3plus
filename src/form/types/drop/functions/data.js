@@ -11,7 +11,7 @@ d3plus.input.drop.data = function ( vars ) {
   else if (vars.open.value) {
 
     var searchText  = vars.text.solo.value.length ? vars.text.solo.value[0] : ""
-      , searchWords = d3plus.util.strip(searchText.toLowerCase()).split("_")
+      , searchWords = d3plus.string.strip(searchText.toLowerCase()).split("_")
       , searchKeys  = [ vars.id.value
                       , vars.text.value
                       , vars.alt.value
@@ -43,7 +43,7 @@ d3plus.input.drop.data = function ( vars ) {
             }
             else {
 
-              var texts = d3plus.util.strip(text).split("_")
+              var texts = d3plus.string.strip(text).split("_")
 
               for (t in texts) {
 
@@ -79,7 +79,7 @@ d3plus.input.drop.data = function ( vars ) {
 
       var noData = {}
         , str = vars.format.value(vars.format.locale.value.ui.noResults)
-      noData[vars.text.value] = d3plus.util.format(str,"\""+searchText+"\"")
+      noData[vars.text.value] = d3plus.string.format(str,"\""+searchText+"\"")
       vars.data.filtered = [ noData ]
 
     }

@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats a string similar to Python's "format"
 //------------------------------------------------------------------------------
-d3plus.util.format = function() {
+d3plus.string.format = function() {
 
   var args = Array.prototype.slice.call(arguments)
     , str = args.shift()

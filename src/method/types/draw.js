@@ -25,7 +25,7 @@ d3plus.method.draw = {
     else if ( vars.container.value.empty() ) {
 
       var str = vars.format.locale.value.dev.noContainer
-      d3plus.console.warning(d3plus.util.format(str,"\""+vars.container.value+"\""))
+      d3plus.console.warning(d3plus.string.format(str,"\""+vars.container.value+"\""))
 
     }
     else {

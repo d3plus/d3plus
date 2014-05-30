@@ -259,7 +259,7 @@ d3plus.ui.legend = function(vars) {
 
               if (g.icon) {
 
-                var short_url = d3plus.util.strip(g.icon+"_"+g.color)
+                var short_url = d3plus.string.strip(g.icon+"_"+g.color)
 
                 var pattern = vars.defs.selectAll("pattern#"+short_url)
                   .data([short_url])
@@ -429,7 +429,7 @@ d3plus.ui.legend = function(vars) {
                     var more = names.length-4
                       , str = vars.format.locale.value.ui.more
                     names = names.slice(0,4)
-                    names[4] = d3plus.util.format(str,more)
+                    names[4] = d3plus.string.format(str,more)
                   }
 
                   var and = vars.format.locale.value.ui.and

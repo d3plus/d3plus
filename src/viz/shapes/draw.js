@@ -62,7 +62,7 @@ d3plus.shape.draw = function(vars) {
       }
     })
 
-    d.d3plus.id = d3plus.util.strip(d.d3plus.id)
+    d.d3plus.id = d3plus.string.strip(d.d3plus.id)
 
     return d
   }

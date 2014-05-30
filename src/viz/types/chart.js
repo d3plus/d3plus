@@ -679,7 +679,7 @@ d3plus.visualization.chart = function(vars) {
       .key(function(d){
         var id = d3plus.variable.value(vars,d,vars.id.value),
             depth = d.d3plus.depth ? d.d3plus.depth : 0
-        return d3plus.util.strip(id)+"_"+depth+"_"+vars.shape.value
+        return d3plus.string.strip(id)+"_"+depth+"_"+vars.shape.value
       })
       .rollup(function(leaves){
 

@@ -19,12 +19,12 @@ d3plus.draw.errors = function(vars) {
   if ( missing.length > 1 ) {
     var str = vars.format.locale.value.error.methods
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.util.format(str,app,missing.join(", "))
+    vars.internal_error = d3plus.string.format(str,app,missing.join(", "))
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.method
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.util.format(str,app,missing[0])
+    vars.internal_error = d3plus.string.format(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -35,7 +35,7 @@ d3plus.draw.errors = function(vars) {
     if (connections.length == 0) {
       var name = d3plus.variable.text(vars,vars.focus.value,vars.depth.value)
         , str = vars.format.locale.value.error.connections
-      vars.internal_error = d3plus.util.format(str,"\""+name+"\"")
+      vars.internal_error = d3plus.string.format(str,"\""+name+"\"")
     }
   }
 
@@ -54,12 +54,12 @@ d3plus.draw.errors = function(vars) {
   if ( missing.length > 1 ) {
     var str = vars.format.locale.value.error.libs
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.util.format(str,app,missing.join(", "))
+    vars.internal_error = d3plus.string.format(str,app,missing.join(", "))
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.lib
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.util.format(str,app,missing[0])
+    vars.internal_error = d3plus.string.format(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -74,12 +74,12 @@ d3plus.draw.errors = function(vars) {
       , shape = "\""+vars.shape.value+"\""
       , shapeStr = vars.format.locale.value.method.shape
       , app = vars.format.locale.value.visualization[vars.type.value]
-    d3plus.console.warning(d3plus.util.format(str,shape,shapeStr,app,"\""+shapes+"\""))
+    d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes+"\""))
     vars.shape.previous = vars.shape.value
     vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
     var str = vars.format.locale.value.dev.setLong
       , shape = "\""+vars.shape.value+"\""
-    d3plus.console.warning(d3plus.util.format(str,shapeStr,shape))
+    d3plus.console.warning(d3plus.string.format(str,shapeStr,shape))
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,12 +95,12 @@ d3plus.draw.errors = function(vars) {
         , mode = "\""+vars.type.mode.value+"\""
         , modeStr = vars.format.locale.value.method.mode
         , app = vars.format.locale.value.visualization[vars.type.value]
-      d3plus.console.warning(d3plus.util.format(str,mode,modeStr,app,"\""+modes+"\""))
+      d3plus.console.warning(d3plus.string.format(str,mode,modeStr,app,"\""+modes+"\""))
       vars.type.mode.previous = vars.type.mode.value
       vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
       var str = vars.format.locale.value.dev.setLong
         , mode = "\""+vars.type.mode.value+"\""
-      d3plus.console.warning(d3plus.util.format(str,modeStr,mode))
+      d3plus.console.warning(d3plus.string.format(str,modeStr,mode))
     }
   }
 

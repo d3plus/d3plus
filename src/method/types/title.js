@@ -18,7 +18,7 @@ d3plus.method.title = {
     var vars = this.getVars()
 
     if ( vars.container.id.indexOf("default") === 0 && value ) {
-      var id = d3plus.util.strip(value).toLowerCase()
+      var id = d3plus.string.strip(value).toLowerCase()
       vars.self.container({"id": id})
     }
 

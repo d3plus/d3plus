@@ -21,7 +21,7 @@ d3plus.method.csv = {
         titles = [],
         title = vars.title.value || "My D3plus App Data"
 
-    title = d3plus.util.strip(title)
+    title = d3plus.string.strip(title)
 
     if (!columns) {
       var columns = [vars.id.value]

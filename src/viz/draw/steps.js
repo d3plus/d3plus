@@ -41,7 +41,7 @@ d3plus.draw.steps = function(vars) {
   //----------------------------------------------------------------------------
   var msg = vars.format.locale.value.message.initializing
     , app = vars.format.locale.value.visualization[vars.type.value]
-  msg = d3plus.util.format(msg,app)
+  msg = d3plus.string.format(msg,app)
   steps.push({
     "check": function(vars) {
       return vars.draw.update

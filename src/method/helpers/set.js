@@ -81,7 +81,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
       })
 
-      d3plus.console.warning(d3plus.util.format(str,val,text,recs.join(", ")))
+      d3plus.console.warning(d3plus.string.format(str,val,text,recs.join(", ")))
 
     }
 
@@ -119,7 +119,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
          || ( object[key] && object[key] === value ) ) && value !== undefined ) {
 
       var str = vars.format.locale.value.dev.noChange
-      if (vars.dev.value) d3plus.console.comment(d3plus.util.format(str,text))
+      if (vars.dev.value) d3plus.console.comment(d3plus.string.format(str,text))
 
     }
     else {
@@ -291,13 +291,13 @@ d3plus.method.set = function( vars , method , object , key , value ) {
         if (valString !== null && valString.length < 260) {
 
           var str = vars.format.locale.value.dev.setLong
-          d3plus.console.log(d3plus.util.format(str,text,"\""+valString+"\""))
+          d3plus.console.log(d3plus.string.format(str,text,"\""+valString+"\""))
 
         }
         else {
 
           var str = vars.format.locale.value.dev.set
-          d3plus.console.log(d3plus.util.format(str,text))
+          d3plus.console.log(d3plus.string.format(str,text))
 
         }
 

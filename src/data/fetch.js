@@ -90,7 +90,7 @@ d3plus.data.fetch = function(vars,format,years) {
 
     if (return_data.length == 0 && missing.length && !vars.internal_error) {
       var str = vars.format.locale.value.error.dataYear
-      vars.internal_error = d3plus.util.format(str,missing.join(", "))
+      vars.internal_error = d3plus.string.format(str,missing.join(", "))
     }
 
   }
