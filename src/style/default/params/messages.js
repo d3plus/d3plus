@@ -12,5 +12,6 @@ d3plus.style.default.messages = {
       "value"    : "none"
     },
     "weight"     : 200
-  }
+  },
+  "padding": 5
 }

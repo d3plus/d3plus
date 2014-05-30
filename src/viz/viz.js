@@ -27,6 +27,16 @@ d3plus.viz = function() {
       vars.small = small_width || small_height
 
       if (vars.error.value) {
+
+      var timing = vars.draw.timing
+
+        vars.group.transition().duration(timing)
+          .attr("opacity",0)
+        vars.g.data.transition().duration(timing)
+          .attr("opacity",0)
+        vars.g.edges.transition().duration(timing)
+          .attr("opacity",0)
+
         vars.messages.style = "large"
         var message = vars.error.value === true
                     ? vars.format.value(vars.format.locale.value.ui.error)
@@ -34,13 +44,15 @@ d3plus.viz = function() {
         if (vars.dev.value) d3plus.console.warning(message)
         var lastMessage = message
         d3plus.ui.message(vars,message)
+
       }
       else {
 
         var steps = d3plus.draw.steps(vars)
 
         vars.container.value.style("cursor","wait")
-        vars.messages.style = vars.data.app ? "small" : "large"
+        vars.messages.style = vars.data.app && vars.group.attr("opacity") === 1
+                            ? "small" : "large"
         function check_next() {
 
           if (steps.length) {
