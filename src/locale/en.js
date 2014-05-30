@@ -21,9 +21,9 @@ d3plus.locale.en = {
     "connections"  : "no connections available for {0}.",
     "data"         : "no data available",
     "dataYear"     : "no data available for {0}.",
-    "lib"          : "{0} visualizations require loading the {0} library.",
+    "lib"          : "{0} visualizations require loading the {1} library.",
     "libs"         : "{0} visualizations require loading the following libraries: {1}.",
-    "method"       : "{0} visualizations require setting the {0} method.",
+    "method"       : "{0} visualizations require setting the {1} method.",
     "methods"      : "{0} visualizations require setting the following methods: {1}."
 
   },

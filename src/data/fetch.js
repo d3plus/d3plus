@@ -53,7 +53,7 @@ d3plus.data.fetch = function(vars,format,years) {
 
   }
 
-  if (vars.dev.value) d3plus.console.log("years: "+years.join(","))
+  if (vars.dev.value) d3plus.console.log("years: "+years.join(", "))
 
   if (format == "restricted") {
     var data = vars.data.restricted
@@ -90,7 +90,9 @@ d3plus.data.fetch = function(vars,format,years) {
 
     if (return_data.length == 0 && missing.length && !vars.internal_error) {
       var str = vars.format.locale.value.error.dataYear
-      vars.internal_error = d3plus.string.format(str,missing.join(", "))
+        , and = vars.format.locale.value.ui.and
+      missing = d3plus.string.list(missing,and)
+      vars.internal_error = d3plus.string.format(str,missing)
     }
 
   }

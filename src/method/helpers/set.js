@@ -69,6 +69,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       var str = vars.format.locale.value.dev.accepted
         , recs = []
         , val = "\""+JSON.stringify(value)+"\""
+        , and = vars.format.locale.value.ui.and
 
       accepted.forEach(function(a){
 
@@ -81,7 +82,8 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
       })
 
-      d3plus.console.warning(d3plus.string.format(str,val,text,recs.join(", ")))
+      recs = d3plus.string.list(recs,and)
+      d3plus.console.warning(d3plus.string.format(str,val,text,recs))
 
     }
 

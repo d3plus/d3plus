@@ -19,7 +19,9 @@ d3plus.draw.errors = function(vars) {
   if ( missing.length > 1 ) {
     var str = vars.format.locale.value.error.methods
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.string.format(str,app,missing.join(", "))
+      , and = vars.format.locale.value.ui.and
+    missing = d3plus.string.list(missing,and)
+    vars.internal_error = d3plus.string.format(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.method
@@ -54,7 +56,9 @@ d3plus.draw.errors = function(vars) {
   if ( missing.length > 1 ) {
     var str = vars.format.locale.value.error.libs
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.string.format(str,app,missing.join(", "))
+      , and = vars.format.locale.value.ui.and
+    missing = d3plus.string.list(missing,and)
+    vars.internal_error = d3plus.string.format(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.lib

@@ -433,14 +433,7 @@ d3plus.ui.legend = function(vars) {
                   }
 
                   var and = vars.format.locale.value.ui.and
-
-                  if (names.length == 2) {
-                    var description = names.join(" "+and+" ")
-                  }
-                  else {
-                    names[names.length-1] = and+" "+names[names.length-1]
-                    var description = names.join(", ")
-                  }
+                  var description = d3plus.string.list(names,and)
 
                 }
 
