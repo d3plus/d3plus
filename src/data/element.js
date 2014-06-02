@@ -73,7 +73,7 @@ d3plus.data.element = function( vars ) {
 
         var id = data_obj[vars.id.value] || this.id || false
 
-        if ( id ) {
+        if ( id && parseFloat(id) === NaN ) {
 
           var label = d3.select("label[for="+id+"]")
 
@@ -136,7 +136,10 @@ d3plus.data.element = function( vars ) {
   //----------------------------------------------------------------------------
   vars.data.element.call(hideElement)
 
-  if ( vars.container.value === false ) {
+  var containerTag = vars.container.value
+                   ? vars.container.value.node().tagName.toLowerCase() : false
+
+  if ( vars.container.value === false || containerTag === "body" ) {
     vars.container.value = d3.select(vars.data.element.node().parentNode)
   }
 
