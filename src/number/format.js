@@ -7,9 +7,9 @@ d3plus.number.format = function( number , key , vars ) {
     var vars = this.getVars()
   }
 
-  if ( vars && key &&
+  if ( vars && key && (
        ( key === vars.x.value && vars.x.scale.value === "log" ) ||
-       ( key === vars.y.value && vars.y.scale.value === "log" ) ) {
+       ( key === vars.y.value && vars.y.scale.value === "log" ) ) ) {
 
     var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹"
       , formatPower = function(d) {
