@@ -19,8 +19,8 @@ d3plus.style.default.ui = {
           , primary = this.value
           , secondary = vars.ui.color.secondary.value
 
-        if ( !secondary || secondary === d3.rgb(primary).darker(0.5).toString() ) {
-          vars.ui.color.secondary.value = d3.rgb(value).darker(0.5).toString()
+        if ( !secondary || secondary === d3.rgb(primary).darker(2).toString() ) {
+          vars.ui.color.secondary.value = d3.rgb(value).darker(2).toString()
         }
 
         return value
