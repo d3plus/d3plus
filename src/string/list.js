@@ -1,5 +1,5 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Removes all non ASCII characters
+// Converts an array of strings into a string list using commas and "and".
 //------------------------------------------------------------------------------
 d3plus.string.list = function( list , and ) {
 
