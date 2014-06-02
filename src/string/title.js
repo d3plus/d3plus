@@ -9,6 +9,10 @@ d3plus.string.title = function( text , key , vars ) {
 
   if ( "locale" in this ) {
     var locale = this.locale.value
+    if ( typeof locale === "string" ) {
+      locale = locale in d3plus.locale
+             ? d3plus.locale[locale] : d3plus.locale.en
+    }
   }
   else {
     var locale = d3plus.locale.en
