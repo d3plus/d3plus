@@ -14,7 +14,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
 
       var children = []
 
-      if (d[vars.icon.value] && vars.data.value.length < vars.data.large) {
+      if (d[vars.icon.value] && vars.data.value.length <= vars.data.large) {
         children.push(vars.icon.value)
       }
 
