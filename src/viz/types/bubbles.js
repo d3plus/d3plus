@@ -11,12 +11,8 @@ d3plus.visualization.bubbles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sort Data
   //----------------------------------------------------------------------------
-  var order = vars.order.value || vars.size.value
-  vars.data.app.sort(function(a,b){
-    var a_value = d3plus.variable.value(vars,a,order)
-      , b_value = d3plus.variable.value(vars,b,order)
-    return vars.order.sort.value == "asc" ? a_value-b_value : b_value-a_value
-  })
+  d3plus.array.sort( vars.data.app , vars.order.value || vars.size.value
+                   , vars.order.sort.value , vars.color.value , vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate rows and columns
@@ -132,8 +128,8 @@ d3plus.visualization.bubbles = function(vars) {
     d.d3plus.r = d.r
   })
 
-  data.sort(function(a,b){
-    return a.depth-b.depth
+  data.sort(function( a , b ){
+    return a.depth - b.depth
   })
 
   var label_data = data.filter(function(d){

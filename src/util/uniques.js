@@ -8,7 +8,7 @@ d3plus.util.uniques = function(data,value) {
   }
 
   var type = null
-  
+
   return d3.nest().key(function(d) {
       if (typeof value == "string") {
         if (!type && typeof d[value] !== "undefined") type = typeof d[value]
@@ -31,7 +31,7 @@ d3plus.util.uniques = function(data,value) {
       }
       return a
     },[]).sort(function(a,b){
-      return a - b
+      return a < b ? -1 : 1
     })
 
 }

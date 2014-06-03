@@ -38,61 +38,22 @@ d3plus.visualization.rings = function(vars) {
   // Sort primary nodes by children (smallest to largest) and then by sort
   // order.
   //--------------------------------------------------------------------------
-  var sort = null
-  if (vars.order.value) {
-    sort = vars.order.value
-  }
-  else if (vars.color.value) {
-    sort = vars.color.value
-  }
-  else if (vars.size.value) {
-    sort = vars.size.value
-  }
-  else {
-    sort = vars.id.value
-  }
-
-  function sort_function(a,b){
-
-    a_value = d3plus.variable.value(vars,a,sort)
-    b_value = d3plus.variable.value(vars,b,sort)
-
-    if (vars.color.value && sort == vars.color.value) {
-
-      a_value = d3plus.variable.color(vars,a)
-      b_value = d3plus.variable.color(vars,b)
-
-      a_value = d3.rgb(a_value).hsl()
-      b_value = d3.rgb(b_value).hsl()
-
-      if (a_value.s == 0) a_value = 361
-      else a_value = a_value.h
-      if (b_value.s == 0) b_value = 361
-      else b_value = b_value.h
-
-    }
-    else {
-      a_value = d3plus.variable.value(vars,a,sort)
-      b_value = d3plus.variable.value(vars,b,sort)
-    }
-
-    if(a_value<b_value) return vars.order.sort.value == "desc" ? -1 : 1;
-    if(a_value>b_value) return vars.order.sort.value == "desc" ? 1 : -1;
-
-  }
+  var sort = vars.order.value || vars.color.value
+          || vars.size.value || vars.id.value
 
   primaries.sort(function(a,b){
 
     var lengthdiff = a.d3plus.edges.length - b.d3plus.edges.length
 
-    if (lengthdiff) {
+    if ( lengthdiff ) {
 
       return lengthdiff
 
     }
     else {
 
-      return sort_function(a,b)
+      return d3plus.array.sort( [a,b] , sort , vars.order.sort.value
+                              , vars.color.value || [] , vars)
 
     }
 
@@ -135,7 +96,8 @@ d3plus.visualization.rings = function(vars) {
     })
   })
 
-  primaries.sort(sort_function)
+  d3plus.array.sort( primaries , sort , vars.order.sort.value
+                   , vars.color.value || [] , vars)
 
   var offset = 0,
       radian = Math.PI*2,
@@ -166,7 +128,8 @@ d3plus.visualization.rings = function(vars) {
         , b = b[vars.edges.source][vars.id.value] == p[vars.id.value]
             ? b[vars.edges.target] : b[vars.edges.source]
 
-      return sort_function(a,b)
+      return d3plus.array.sort( [a,b] , sort , vars.order.sort.value
+                              , vars.color.value || [] , vars)
 
     })
 

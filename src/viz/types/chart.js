@@ -673,6 +673,9 @@ d3plus.visualization.chart = function(vars) {
 
   })
 
+  var sort = vars.order.value ? vars.order.value : vars.continuous_axis
+           ? vars[vars.opp_axis].value : vars.size.value || vars.id.value
+
   if (["line","area"].indexOf(vars.shape.value) >= 0) {
 
     data = d3.nest()
@@ -744,6 +747,7 @@ d3plus.visualization.chart = function(vars) {
       .entries(data)
 
     data.forEach(function(d,i){
+
       vars.id.nesting.forEach(function(n,i){
         if (i <= vars.depth.value && !d[n]) {
           d[n] = d3plus.util.uniques(d.values,n).filter(function(unique){
@@ -751,82 +755,32 @@ d3plus.visualization.chart = function(vars) {
           })[0]
         }
       })
+
+      if ( !(sort in d) ) {
+        d[sort] = 0
+        d.values.forEach(function(v){
+          var val = d3plus.variable.value(vars,v,sort)
+          if (val) {
+            if (typeof val == "number") {
+              d[sort] += val
+            }
+            else {
+              d[sort] = val
+            }
+          }
+        })
+      }
+
     })
 
   }
 
-  var sort = null
-  if (vars.order.value) {
-    sort = vars.order.value
-  }
-  else if (vars.continuous_axis) {
-    sort = vars[vars.opp_axis].value
-  }
-  else if (vars.size.value) {
-    sort = vars.size.value
-  }
-
   if (sort) {
 
-    data.sort(function(a,b){
+    d3plus.array.sort( data , sort
+                     , vars.order.sort.value === "desc" ? "asc" : "desc"
+                     , vars.color.value || [] , vars )
 
-      if (a.values instanceof Array) {
-        a_value = 0
-        a.values.forEach(function(v){
-          var val = d3plus.variable.value(vars,v,sort)
-          if (val) {
-            if (typeof val == "number") {
-              a_value += val
-            }
-            else {
-              a_value = val
-            }
-          }
-        })
-      }
-      else {
-        a_value = d3plus.variable.value(vars,a,sort)
-      }
-
-      if (b.values instanceof Array) {
-        b_value = 0
-        b.values.forEach(function(v){
-          var val = d3plus.variable.value(vars,v,sort)
-          if (val) {
-            if (typeof val == "number") {
-              b_value += val
-            }
-            else {
-              b_value = val
-            }
-          }
-        })
-      }
-      else {
-        b_value = d3plus.variable.value(vars,b,sort)
-      }
-
-      if (vars.color.value && sort == vars.color.value) {
-
-        a_value = d3plus.variable.color(vars,a)
-        b_value = d3plus.variable.color(vars,b)
-
-        a_value = d3.rgb(a_value).hsl()
-        b_value = d3.rgb(b_value).hsl()
-
-        if (a_value.s == 0) a_value = 361
-        else a_value = a_value.h
-        if (b_value.s == 0) b_value = 361
-        else b_value = b_value.h
-
-      }
-
-      if(a_value<b_value) return vars.order.sort.value == "desc" ? -1 : 1;
-      if(a_value>b_value) return vars.order.sort.value == "desc" ? 1 : -1;
-
-      return 0;
-
-    });
   }
 
   if (vars.stacked_axis) {

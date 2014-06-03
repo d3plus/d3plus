@@ -31,40 +31,10 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
       //------------------------------------------------------------------------
-      if ( vars.order.value && (vars.data.changed || vars.order.changed || vars.order.sort.changed) ) {
+      if ( vars.data.changed || vars.order.changed || vars.order.sort.changed ) {
 
-        var sort = vars.order.value || vars.id.value
-          , order = vars.order.sort.value
-
-        vars.data.value.sort(function(a,b){
-
-          a = a[sort]
-          b = b[sort]
-
-          if (sort === vars.color.value) {
-
-            a = d3.rgb(a_value).hsl()
-            b = d3.rgb(b_value).hsl()
-
-            if (a.s == 0) a = 361
-            else a = a.h
-            if (b.s == 0) b = 361
-            else b = b.h
-
-          }
-
-          if (typeof a === "string") {
-            a = a.toLowerCase()
-          }
-
-          if (typeof b === "string") {
-            b = b.toLowerCase()
-          }
-
-          if(a < b) return order === "asc" ? -1 : 1;
-          if(a > b) return order === "asc" ? 1 : -1;
-
-        })
+        d3plus.array.sort( vars.data.value , vars.order.value || vars.text.value
+                         , vars.order.sort.value , vars.color.value , vars )
 
       }
 

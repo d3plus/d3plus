@@ -10,5 +10,13 @@ d3plus.style.default.legend = {
   "gradient" : {
     "height" : 10
   },
+  "order"    : {
+    "accepted" : [ "color" , "id" , "size" , "text" ],
+    "sort"     : {
+      "accepted" : [ "asc" , "desc" ],
+      "value"    : "asc"
+    },
+    "value"    : "color"
+  },
   "size"     : [ 8 , 30 ]
 }
