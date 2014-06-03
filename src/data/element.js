@@ -73,7 +73,7 @@ d3plus.data.element = function( vars ) {
 
         var id = data_obj[vars.id.value] || this.id || false
 
-        if ( id && parseFloat(id) === NaN ) {
+        if ( id && isNaN(parseFloat(id)) ) {
 
           var label = d3.select("label[for="+id+"]")
 
