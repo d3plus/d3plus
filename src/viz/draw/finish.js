@@ -134,6 +134,7 @@ d3plus.draw.finish = function(vars) {
   // Display and reset internal_error, if applicable
   //----------------------------------------------------------------------------
   if (vars.internal_error) {
+    vars.internal_error = d3plus.string.title( vars.internal_error )
     d3plus.console.warning(vars.internal_error)
     d3plus.ui.message(vars,vars.internal_error)
     vars.internal_error = null
