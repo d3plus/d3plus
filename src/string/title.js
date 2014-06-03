@@ -19,7 +19,7 @@ d3plus.string.title = function( text , key , vars ) {
   }
 
   if ( text.charAt(text.length-1) === "." ) {
-    return txt.charAt(1).toUpperCase() + txt.substr(1)
+    return text.charAt(1).toUpperCase() + text.substr(1)
   }
 
   var smalls = locale.lowercase,
