@@ -14,7 +14,7 @@ d3plus.visualization.tree_map = function(vars) {
 
       grouped_data.key(function(d){
 
-        return d[n]
+        return d3plus.variable.value(vars,d.d3plus,n)
 
       })
 
@@ -22,7 +22,15 @@ d3plus.visualization.tree_map = function(vars) {
 
   })
 
-  grouped_data = grouped_data.entries(vars.data.app)
+  var strippedData = []
+  vars.data.app.forEach(function(d){
+    strippedData.push({
+      "d3plus" : d,
+      "value"  : d3plus.variable.value(vars,d,vars.size.value)
+    })
+  })
+
+  grouped_data = grouped_data.entries(strippedData)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Pass data through the D3js .treemap() layout.
@@ -40,11 +48,6 @@ d3plus.visualization.tree_map = function(vars) {
     .sort(function(a, b) {
 
       return a.value - b.value
-
-    })
-    .value(function(d) {
-
-      return d3plus.variable.value(vars,d,vars.size.value)
 
     })
     .nodes({
@@ -76,13 +79,18 @@ d3plus.visualization.tree_map = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Calculate the position, size, and share percentage of each square.
     //--------------------------------------------------------------------------
+    var returnData = []
     data.forEach(function(d){
 
-      d.d3plus.x = d.x+d.dx/2
-      d.d3plus.y = d.y+d.dy/2
-      d.d3plus.width = d.dx
-      d.d3plus.height = d.dy
-      d.d3plus.share = d.value/root.value
+      d.d3plus.d3plus = {
+        "x": d.x+d.dx/2,
+        "y": d.y+d.dy/2,
+        "width": d.dx,
+        "height": d.dy,
+        "share": d.value/root.value
+      }
+
+      returnData.push(d.d3plus)
 
     })
 
@@ -91,7 +99,7 @@ d3plus.visualization.tree_map = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Return the data array.
   //----------------------------------------------------------------------------
-  return data
+  return returnData
 
 }
 
