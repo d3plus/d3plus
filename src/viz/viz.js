@@ -51,8 +51,9 @@ d3plus.viz = function() {
         var steps = d3plus.draw.steps(vars)
 
         vars.container.value.style("cursor","wait")
-        vars.messages.style = vars.data.app && vars.group.attr("opacity") === 1
+        vars.messages.style = vars.group && vars.group.attr("opacity") === "1"
                             ? "small" : "large"
+
         function check_next() {
 
           if (steps.length) {
