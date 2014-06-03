@@ -9,7 +9,7 @@ d3plus.input.button.color = function ( elem , vars ) {
       if ( vars.focus.value !== d[vars.id.value] ) {
 
         if ( vars.hover.value === d[vars.id.value] ) {
-          return d3plus.color.lighter(vars.ui.color.secondary.value,.1)
+          return d3plus.color.lighter(vars.ui.color.secondary.value,.25)
         }
         else {
           return vars.ui.color.secondary.value

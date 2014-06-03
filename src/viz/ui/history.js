@@ -67,7 +67,7 @@ d3plus.ui.history = function(vars) {
           d3.select(this)
             .style("cursor","pointer")
             .transition().duration(vars.timing.mouseevents)
-              .style("color",d3plus.color.lighter(color))
+              .style("color",d3plus.color.lighter(color,.25))
 
         }
 

@@ -24,7 +24,7 @@ d3plus.shape.color = function(d,vars) {
   }
 
   if (d.d3plus.static) {
-    return d3plus.color.lighter(d3plus.variable.color(vars,d));
+    return d3plus.color.lighter(d3plus.variable.color(vars,d),.75);
   }
 
   var active = vars.active.value ? d3plus.variable.value(vars,d,vars.active.value) : d.d3plus.active,
@@ -38,7 +38,7 @@ d3plus.shape.color = function(d,vars) {
     return "#eee"
   }
   else {
-    return d3plus.color.lighter(d3plus.variable.color(vars,d),.4);
+    return d3plus.color.lighter(d3plus.variable.color(vars,d),.75);
   }
 
 }
