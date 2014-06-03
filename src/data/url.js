@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Load Data using JSON
 //------------------------------------------------------------------------------
-d3plus.data.json = function( vars , key , next ) {
+d3plus.data.url = function( vars , key , next ) {
 
   var url = vars[key].url || vars[key].value
 
@@ -11,7 +11,7 @@ d3plus.data.json = function( vars , key , next ) {
   d3.json( url , function( error , data ) {
 
     if (!error && data) {
-      
+
       if (typeof vars[key].callback === "function") {
 
         var ret = vars[key].callback(data)

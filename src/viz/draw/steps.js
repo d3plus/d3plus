@@ -14,7 +14,7 @@ d3plus.draw.steps = function(vars) {
 
       steps.push({
         "function": function(vars,next){
-          d3plus.data.json(vars,u,next)
+          d3plus.data.url(vars,u,next)
         },
         "message": vars.format.locale.value.message.loading,
         "wait": true

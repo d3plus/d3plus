@@ -15,7 +15,7 @@ d3plus.input.drop.toggle = function ( vars ) {
 
   if ( vars.data.url && (!vars.data.loaded || vars.data.stream) ) {
     this.update( vars )
-    d3plus.data.json( vars , "data" ,  vars.self.draw )
+    d3plus.data.url( vars , "data" ,  vars.self.draw )
   }
   else if ( vars.data.value.length !== listLength ) {
     vars.self.draw()

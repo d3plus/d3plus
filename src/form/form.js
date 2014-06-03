@@ -233,7 +233,7 @@ d3plus.form = function() {
       }
       else if ( vars.data.url && (!vars.data.loaded || vars.data.stream) ) {
 
-        d3plus.data.json( vars , "data" , vars.self.draw )
+        d3plus.data.url( vars , "data" , vars.self.draw )
 
       }
 
