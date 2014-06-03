@@ -3,12 +3,45 @@
 //------------------------------------------------------------------------------
 d3plus.data.url = function( vars , key , next ) {
 
-  var url = vars[key].url || vars[key].value
+  var url = vars[key].url
 
-  vars[key].url = url
-  vars[key].value = []
+  if ( !vars[key].type.value ) {
 
-  d3.json( url , function( error , data ) {
+    var fileType = url.slice(url.length-5).split(".")
+    if ( fileType.length > 1 ) {
+      fileType = fileType[1]
+    }
+    else {
+      fileType = false
+    }
+
+    if ( fileType ) {
+
+      if ( fileType === "txt" ) {
+        fileType = "text"
+      }
+      if ( vars[key].type.accepted.indexOf(fileType) < 0 ) {
+        fileType = "json"
+      }
+
+    }
+    else {
+      fileType = "json"
+    }
+
+  }
+  else {
+    var fileType = vars[key].type.value
+  }
+
+  if ( fileType === "dsv" ) {
+    var parser = d3.dsv( vars[key].delimiter.value , "text/plain" )
+  }
+  else {
+    var parser = d3[fileType]
+  }
+
+  parser( url , function( error , data ) {
 
     if (!error && data) {
 
@@ -33,6 +66,24 @@ d3plus.data.url = function( vars , key , next ) {
       else {
 
         vars[key].value = data
+
+      }
+
+      if ( fileType !== "json" ) {
+
+        vars[key].value.forEach(function(d){
+
+          for ( var k in d ) {
+
+            if      ( d[k].toLowerCase() === "false" ) d[k] = false
+            else if ( d[k].toLowerCase() === "true" ) d[k] = true
+            else if ( d[k].toLowerCase() === "null" ) d[k] = null
+            else if ( d[k].toLowerCase() === "undefined" ) d[k] = undefined
+
+          }
+
+
+        })
 
       }
 

@@ -1,5 +1,9 @@
 d3plus.method.data = {
   "accepted" : [ false , Array , Function , String ],
+  "delimiter" : {
+    "accepted" : [ String ],
+    "value"    : "|"
+  },
   "process"  : function( value ) {
 
     var vars = this.getVars()
@@ -9,6 +13,11 @@ d3plus.method.data = {
     }
 
     return d3plus.method.processData( value , this )
+  },
+  "type"     : {
+    "accepted" : [ false , "json" , "xml" ,"html"
+                 , "csv" , "dsv" , "tsv" , "txt" ],
+    "value"    : false
   },
   "value"    : false
 }

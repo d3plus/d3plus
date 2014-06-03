@@ -41,10 +41,19 @@ d3plus.method.edges = {
     return objects ? targets : connections
 
   },
+  "delimiter" : {
+    "accepted" : [ String ],
+    "value"    : "|"
+  },
   "label"       : false,
   "process"     : d3plus.method.processData,
   "size"        : false,
   "source"      : "source",
   "target"      : "target",
+  "type"     : {
+    "accepted" : [ false , "json" , "xml" ,"html"
+                 , "csv" , "dsv" , "tsv" , "txt" ],
+    "value"    : false
+  },
   "value"       : false
 }
