@@ -36,6 +36,16 @@ d3plus.console.comment = function( message , style ) {
 
 }
 
+d3plus.console.error = function( message , style ) {
+
+  var style = style || "color:#ff0000;font-weight:bold;"
+
+  message = "ERROR: " + message
+
+  this( "log" , message , style )
+
+}
+
 d3plus.console.group = function( message , style ) {
 
   var style = style || "color:#444444;font-weight:bold;"
