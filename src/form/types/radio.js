@@ -30,6 +30,7 @@ d3plus.input.toggle = function( vars ) {
       vars.self.focus(value)
 
     })
+    .order(vars.order)
     .ui({
       "border": vars.ui.border,
       "color": vars.ui.color,
