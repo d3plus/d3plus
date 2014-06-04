@@ -69,7 +69,7 @@ d3plus.visualization.network = function(vars) {
     })[0]
 
     if (d) {
-      var obj = d3plus.util.merge(n,d)
+      var obj = d3plus.object.merge(n,d)
     }
     else {
       var obj = d3plus.util.copy(n)

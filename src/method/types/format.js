@@ -11,7 +11,7 @@ d3plus.method.format = {
         , returnObject  = d3plus.locale[defaultLocale]
 
       if ( value !== defaultLocale ) {
-        returnObject = d3plus.util.merge( returnObject , d3plus.locale[value] )
+        returnObject = d3plus.object.merge( returnObject , d3plus.locale[value] )
       }
 
       return returnObject

@@ -36,10 +36,10 @@ d3plus.method = function( vars , methods , styles ) {
       vars[m] = {}
     }
 
-    vars[m] = d3plus.util.merge( d3plus.method[m] , vars[m] )
+    vars[m] = d3plus.object.merge( d3plus.method[m] , vars[m] )
 
     if ( styles.indexOf(m) >= 0 ) {
-      vars[m] = d3plus.util.merge( initStyle[m] , vars[m] )
+      vars[m] = d3plus.object.merge( initStyle[m] , vars[m] )
       styles.splice(styles.indexOf(m),1)
     }
 
@@ -63,7 +63,7 @@ d3plus.method = function( vars , methods , styles ) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Clone style defaults.
     //--------------------------------------------------------------------------
-    vars[m] = d3plus.util.copy(initStyle[m])
+    vars[m] = d3plus.object.merge( vars[m] || {} , initStyle[m] )
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Run initialization on all inner properties.

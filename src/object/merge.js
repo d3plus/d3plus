@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merge two objects to create a new one with the properties of both
 //------------------------------------------------------------------------------
-d3plus.util.merge = function(obj1, obj2) {
+d3plus.object.merge = function(obj1, obj2) {
 
   var obj3 = {};
 

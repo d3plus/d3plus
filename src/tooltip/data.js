@@ -18,7 +18,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
   var extra_data = {}
   if (extras && typeof extras == "string") extras = [extras]
   else if (extras && typeof extras == "object") {
-    extra_data = d3plus.util.merge(extra_data,extras)
+    extra_data = d3plus.object.merge(extra_data,extras)
     var extras = []
     for (k in extra_data) {
       extras.push(k)
@@ -52,7 +52,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
         a = []
       }
       else {
-        a = d3plus.util.merge({"":[]},a)
+        a = d3plus.object.merge({"":[]},a)
       }
 
     }
@@ -61,7 +61,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
       a = [a]
     }
     else if (!(a instanceof Array)) {
-      a = d3plus.util.merge({"":[]},a)
+      a = d3plus.object.merge({"":[]},a)
     }
 
   }
