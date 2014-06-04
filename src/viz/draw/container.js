@@ -22,6 +22,7 @@ d3plus.draw.container = function(vars) {
     var sizes = ["width","height"]
     sizes.forEach(function(s){
       if (!vars[s].value) {
+
         function check_parent(element) {
 
           if (element.tagName === undefined || ["BODY","HTML"].indexOf(element.tagName) >= 0) {
@@ -60,6 +61,7 @@ d3plus.draw.container = function(vars) {
           }
 
         }
+
         check_parent(vars.container.value.node())
       }
     })

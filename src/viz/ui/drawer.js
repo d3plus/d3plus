@@ -25,6 +25,7 @@ d3plus.ui.drawer = function( vars ) {
     .style("text-align",vars.ui.align.value)
     .style("position","absolute")
     .style("width",vars.width.value-(vars.ui.padding*2)+"px")
+    .style("height","auto")
     .style(positionStyles)
 
   var ui = drawer.selectAll("div.d3plus_drawer_ui")
