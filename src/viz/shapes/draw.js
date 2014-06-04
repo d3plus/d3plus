@@ -391,9 +391,10 @@ d3plus.shape.draw = function(vars) {
 
             if (vars.continuous_axis) {
 
-              var mouse = d3.event[vars.continuous_axis]
-                  positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-                  closest = d3plus.util.closest(positions,mouse)
+              var index = vars.continuous_axis === "x" ? 0 : 1
+                , mouse = d3.mouse(vars.container.value.node())[index]
+                , positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]})
+                , closest = d3plus.util.closest(positions,mouse)
 
               d.data = d.values[positions.indexOf(closest)]
               d.d3plus = d.values[positions.indexOf(closest)].d3plus
@@ -432,9 +433,10 @@ d3plus.shape.draw = function(vars) {
 
             if (vars.continuous_axis) {
 
-              var mouse = d3.event[vars.continuous_axis]
-                  positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-                  closest = d3plus.util.closest(positions,mouse)
+              var index = vars.continuous_axis === "x" ? 0 : 1
+                , mouse = d3.mouse(vars.container.value.node())[index]
+                , positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]})
+                , closest = d3plus.util.closest(positions,mouse)
 
               d.data = d.values[positions.indexOf(closest)]
               d.d3plus = d.values[positions.indexOf(closest)].d3plus

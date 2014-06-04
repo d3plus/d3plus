@@ -157,14 +157,6 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
         if (!vars.draw.frozen) {
 
-          var mouse = d3.event[vars.continuous_axis]
-              positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]}),
-              closest = d3plus.util.closest(positions,mouse)
-
-          var parent_data = d3.select(this.parentNode).datum()
-          parent_data.data = d.values[positions.indexOf(closest)]
-          parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
-
           d3.select(this.parentNode).selectAll("path.d3plus_line")
             .transition().duration(vars.timing.mouseevents)
             .style("stroke-width",vars.data.stroke.width*2)
@@ -173,21 +165,6 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
             .transition().duration(vars.timing.mouseevents)
             .style("stroke-width",vars.data.stroke.width*2)
             .call(update,2)
-
-        }
-
-      })
-      .on(d3plus.evt.move,function(d){
-
-        if (!vars.draw.frozen) {
-
-          var mouse = d3.event.x,
-              positions = d3plus.util.uniques(d.values,function(x){return x.d3plus.x}),
-              closest = d3plus.util.closest(positions,mouse)
-
-          var parent_data = d3.select(this.parentNode).datum()
-          parent_data.data = d.values[positions.indexOf(closest)]
-          parent_data.d3plus = d.values[positions.indexOf(closest)].d3plus
 
         }
 
@@ -204,10 +181,6 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
             .transition().duration(vars.timing.mouseevents)
             .style("stroke-width",vars.data.stroke.width)
             .call(update)
-
-          var parent_data = d3.select(this.parentNode).datum()
-          delete parent_data.data
-          delete parent_data.d3plus
 
         }
 
