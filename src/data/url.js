@@ -51,7 +51,7 @@ d3plus.data.url = function( vars , key , next ) {
 
         if (ret) {
           if ( d3plus.object.validate(ret) && key in ret) {
-            for (k in ret) {
+            for ( var k in ret ) {
               if (k in vars) {
                 vars[k].value = ret[k]
               }

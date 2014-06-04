@@ -7,7 +7,7 @@ d3plus.object.merge = function(obj1, obj2) {
 
   function copy_object(obj,ret) {
 
-    for (var a in obj) {
+    for ( var a in obj ) {
 
       if (typeof obj[a] != "undefined") {
 

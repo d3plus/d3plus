@@ -16,7 +16,7 @@ d3plus.data.format = function(vars,format) {
 
     return_data[depth] = {}
 
-    for (y in vars.data.restricted) {
+    for ( var y in vars.data.restricted ) {
 
       if (format == "grouped") {
         return_data[depth][y] = d3plus.data.nest(vars,vars.data.restricted[y],level,true)

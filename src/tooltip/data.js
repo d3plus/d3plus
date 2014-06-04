@@ -20,7 +20,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
   else if (extras && typeof extras == "object") {
     extra_data = d3plus.object.merge(extra_data,extras)
     var extras = []
-    for (k in extra_data) {
+    for ( var k in extra_data ) {
       extras.push(k)
     }
   }
@@ -126,7 +126,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
 
     if (vars.tooltip.value.long && typeof vars.tooltip.value.long == "object") {
       var placed = []
-      for (group in vars.tooltip.value.long) {
+      for ( var group in vars.tooltip.value.long ) {
 
         extras.forEach(function(e){
           if (vars.tooltip.value.long[group].indexOf(e) >= 0 && ((a[group] && a[group].indexOf(e) < 0) || !a[group])) {
@@ -148,7 +148,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
     }
     else {
       var present = []
-      for (group in a) {
+      for ( var group in a ) {
         extras.forEach(function(e){
           if (a[group] instanceof Array && a[group].indexOf(e) >= 0) {
             present.push(e)
@@ -175,7 +175,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
       delete a[""]
     }
 
-    for (group in a) {
+    for ( var group in a ) {
       if (a[group] instanceof Array) {
         a[group].forEach(function(t){
           format_key(t,group)

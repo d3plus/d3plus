@@ -93,7 +93,7 @@ d3plus.form = function() {
           options
             .each(function(d){
 
-              for (k in d) {
+              for ( var k in d ) {
                 if ( k === vars.text.value ) {
                   d3.select(this).html(d[k])
                 }

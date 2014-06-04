@@ -22,7 +22,7 @@ d3plus.method.init = function( vars , obj , method ) {
     obj.value = d3plus.method.process( obj , obj.value )
   }
 
-  for ( o in obj ) {
+  for ( var o in obj ) {
 
     if ( o === "deprecates" ) {
 

@@ -70,7 +70,7 @@ d3plus.data.restrict = function( vars ) {
 
     }
 
-    for (y in vars.data[data]) {
+    for ( var y in vars.data[data] ) {
       vars.data.restricted[y] = vars.data[data][y].filter(nest_check)
     }
 

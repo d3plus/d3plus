@@ -27,7 +27,7 @@ d3plus.data.keys = function(vars,type) {
   }
 
   if (d3plus.object.validate(vars[type].value)) {
-    for (a in vars[type].value) {
+    for ( var a in vars[type].value ) {
       get_keys(vars[type].value[a],type == "data")
     }
   }

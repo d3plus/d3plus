@@ -122,7 +122,7 @@ d3plus.shape.draw = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create groups by shape, apply data, and call specific shape drawing class.
   //----------------------------------------------------------------------------
-  for (shape in shapes) {
+  for (var shape in shapes) {
 
     if (vars.dev.value) d3plus.console.group("drawing \"" + shape + "\" groups")
 

@@ -6,7 +6,7 @@ d3plus.font.validate = function(test_fonts) {
   if (!(test_fonts instanceof Array)) {
     test_fonts = test_fonts.split(",")
   }
-  
+
   var fontString = test_fonts.join(", ")
     , completed = d3plus.font.validate.complete
 
@@ -39,7 +39,7 @@ d3plus.font.validate = function(test_fonts) {
   var monospace = create_element("monospace"),
       proportional = create_element("sans-serif")
 
-  for (font in test_fonts) {
+  for ( var font in test_fonts ) {
 
     var family = test_fonts[font].trim()
 

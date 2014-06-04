@@ -5,12 +5,7 @@ d3plus.method.processData = function ( value , self ) {
 
   if ( typeof value !== "string" && !d3plus.util.d3selection( value ) ) {
 
-    if ( value instanceof Array ) {
-      return d3plus.util.copy(value)
-    }
-    else {
-      return value
-    }
+    return value
 
   }
   else {

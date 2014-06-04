@@ -35,7 +35,7 @@ d3plus.string.strip = function(str) {
 
     var ret = ""
 
-    for (d in diacritics) {
+    for ( var d in diacritics ) {
 
       if (diacritics[d][0].test(chr)) {
         ret = diacritics[d][1]

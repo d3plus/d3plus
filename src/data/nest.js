@@ -56,7 +56,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
         var nest_obj = d3plus.variable.value(vars,leaves[0],nest_key)
         to_return[nest_key] = nest_obj
 
-        for (key in vars.data.keys) {
+        for ( var key in vars.data.keys ) {
           if (((levels.indexOf(nest_key) >= 0 && levels.indexOf(key) <= levels.indexOf(nest_key)) || (vars.id.nesting.indexOf(nest_key) >= 0 && vars.id.nesting.indexOf(key) <= vars.id.nesting.indexOf(nest_key)))
             && key in leaves[0]
             && (!vars.active.value || key != vars.active.value) && key != "d3plus") {
@@ -112,7 +112,7 @@ d3plus.data.nest = function(vars,flat_data,levels,grouped) {
       }
       keys[levels[depth]] = obj.key
       delete obj.key
-      for (k in keys) {
+      for ( var k in keys ) {
         obj[k] = keys[k]
       }
       depth++
