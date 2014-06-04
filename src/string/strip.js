@@ -6,8 +6,9 @@ d3plus.string.strip = function(str) {
   var removed = [ "!","@","#","$","%","^","&","*","(",")",
                   "[","]","{","}",".",",","/","\\","|",
                   "'","\"",";",":","<",">","?","=","+"]
+  str += ""
 
-  return str.replace(/[^A-Za-z0-9\-_]/g, function(chr) {
+  return ""+str.replace(/[^A-Za-z0-9\-_]/g, function(chr) {
 
     if (" " == chr) {
       return "_"
