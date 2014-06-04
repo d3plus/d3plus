@@ -1,4 +1,4 @@
-d3plus.locale.en = {
+d3plus.locale.mk = {
 
   "dev"          : {
 
