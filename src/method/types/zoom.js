@@ -5,7 +5,7 @@ d3plus.method.zoom = {
     "accepted" : [ Boolean ],
     "value"    : true
   },
-  "direction"  : function() {
+  "direction"  : function( data ) {
 
     var vars          = this.getVars()
       , max_depth     = vars.id.nesting.length-1
@@ -15,10 +15,12 @@ d3plus.method.zoom = {
     if (restricted) {
       return 0
     }
-    else if (current_depth < max_depth) {
+    else if ( current_depth < max_depth
+              && ( !data || vars.id.nesting[vars.depth.value+1] in data ) ) {
       return 1
     }
-    else if (current_depth == max_depth && (vars.small || !vars.tooltip.html.value)) {
+    else if ( ( current_depth === max_depth || ( data && !(vars.id.nesting[vars.depth.value+1] in data) ) )
+              && ( vars.small || !vars.tooltip.html.value ) ) {
       return -1
     }
 

@@ -82,13 +82,13 @@ d3plus.visualization.tree_map = function(vars) {
     var returnData = []
     data.forEach(function(d){
 
-      d.d3plus.d3plus = {
+      d.d3plus.d3plus = d3plus.object.merge(d.d3plus.d3plus,{
         "x": d.x+d.dx/2,
         "y": d.y+d.dy/2,
         "width": d.dx,
         "height": d.dy,
         "share": d.value/root.value
-      }
+      })
 
       returnData.push(d.d3plus)
 

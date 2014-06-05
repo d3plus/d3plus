@@ -2,11 +2,13 @@
 // Fetches specific years of data
 //-------------------------------------------------------------------
 
-d3plus.data.fetch = function(vars,format,years) {
+d3plus.data.fetch = function( vars , years ) {
 
-  var return_data = [];
+  var return_data = []
 
-  if (vars.dev.value) d3plus.console.group("fetching \""+format+"\" data")
+  if (vars.dev.value) {
+    d3plus.console.group("fetching data")
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time()
@@ -53,14 +55,12 @@ d3plus.data.fetch = function(vars,format,years) {
 
   }
 
-  if (vars.dev.value) d3plus.console.log("years: "+years.join(", "))
+  if (vars.dev.value) {
+    var and = vars.format.locale.value.ui.and
+    d3plus.console.log("years: "+d3plus.string.list(years,and))
+  }
 
-  if (format == "restricted") {
-    var data = vars.data.restricted
-  }
-  else {
-    var data = vars.data[format][vars.id.nesting[vars.depth.value]]
-  }
+  var data = vars.data.grouped[vars.id.nesting[vars.depth.value]]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If there is only 1 year needed, just grab it!
@@ -113,7 +113,7 @@ d3plus.data.fetch = function(vars,format,years) {
 
       var nested = vars.id.nesting.slice(0,vars.depth.value+1)
 
-      return_data = d3plus.data.nest(vars,return_data,nested,format == "grouped")
+      return_data = d3plus.data.nest( vars , return_data , nested )
 
     }
 

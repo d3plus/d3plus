@@ -91,8 +91,6 @@ d3plus.visualization.bubbles = function(vars) {
         yoffset = column_height*row
 
     temp.forEach(function(t){
-      if (!t.d3plus) t.d3plus = {}
-      if (!t.d3plus.depth) t.d3plus.depth = t.depth
       t.xoffset = xoffset
       t.yoffset = yoffset+label_height
       if (t.depth < vars.depth.value) {

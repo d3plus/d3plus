@@ -92,15 +92,13 @@ d3plus.data.threshold = function( vars , rawData , split ) {
 
     var levels = vars.id.nesting.slice(0,vars.depth.value)
     var nesting = levels.concat([vars.x.value])
-    var merged = d3plus.data.nest(vars,removed,nesting,true).filter(function(d){
+    var merged = d3plus.data.nest(vars,removed,nesting).filter(function(d){
       return d3plus.variable.value(vars,d,vars.size.value) > 0
     })
 
     merged.forEach(function(m){
 
       var parent = vars.id.nesting[vars.depth.value-1]
-
-      m.d3plus = {}
 
       vars.id.nesting.forEach(function(d,i){
 

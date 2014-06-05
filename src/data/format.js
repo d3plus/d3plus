@@ -3,27 +3,21 @@
 //-------------------------------------------------------------------
 d3plus.data.format = function(vars,format) {
 
-  if (!format) var format = "grouped"
-  return_data = {}
+  var returnData = {}
 
-  if (vars.dev.value) d3plus.console.group("formatting \""+format+"\" data")
+  if (vars.dev.value) d3plus.console.group("formatting data")
 
   vars.id.nesting.forEach(function(depth){
 
     if (vars.dev.value) d3plus.console.time(depth)
 
-    var level = vars.id.nesting.slice(0,vars.id.nesting.indexOf(depth)+1)
+    var level = vars.id.nesting.slice( 0 , vars.id.nesting.indexOf(depth)+1 )
 
-    return_data[depth] = {}
+    returnData[depth] = {}
 
     for ( var y in vars.data.restricted ) {
 
-      if (format == "grouped") {
-        return_data[depth][y] = d3plus.data.nest(vars,vars.data.restricted[y],level,true)
-      }
-      else {
-        return_data[depth][y] = vars.data.restricted[y]
-      }
+      returnData[depth][y] = d3plus.data.nest( vars , vars.data.restricted[y] , level )
 
     }
 
@@ -33,6 +27,6 @@ d3plus.data.format = function(vars,format) {
 
   if (vars.dev.value) d3plus.console.groupEnd()
 
-  return return_data
+  return returnData
 
 }

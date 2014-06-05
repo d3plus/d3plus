@@ -132,16 +132,12 @@ d3plus.shape.draw = function(vars) {
     var selection = vars.g.data.selectAll("g.d3plus_"+shape)
       .data(shapes[shape],function(d){
 
-        if (!d.d3plus) {
-          d.d3plus = {}
-        }
-
-        if (shape == "coordinates") {
+        if ( shape === "coordinates" ) {
           d.d3plus.id = d.id
           return d.id
         }
 
-        if (!d.d3plus.id) {
+        if ( !d.d3plus.id ) {
 
           if (d.values) {
 
@@ -518,13 +514,13 @@ d3plus.shape.draw = function(vars) {
           vars.mouse[d3plus.evt.click](d)
         }
 
-        var depth_delta = vars.zoom.direction(),
-            previous = vars.id.solo.value,
-            title = d3plus.variable.text(vars,d)[0],
-            color = d3plus.color.legible(d3plus.variable.color(vars,d)),
-            prev_sub = vars.title.sub.value || false,
-            prev_color = vars.title.sub.font.color,
-            prev_total = vars.title.total.font.color
+        var depth_delta = vars.zoom.direction(d)
+          , previous = vars.id.solo.value
+          , title = d3plus.variable.text(vars,d)[0]
+          , color = d3plus.color.legible(d3plus.variable.color(vars,d))
+          , prev_sub = vars.title.sub.value || false
+          , prev_color = vars.title.sub.font.color
+          , prev_total = vars.title.total.font.color
 
         if (d.d3plus.threshold && d.d3plus.merged && vars.zoom.value) {
 
