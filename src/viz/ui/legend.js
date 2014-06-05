@@ -385,22 +385,18 @@ d3plus.ui.legend = function(vars) {
                   }
                 })
 
-                if (names.length == 1) {
-                  var title = names[0],
-                      description = null
+                if (names.length === 1) {
+
+                  var title       = names[0]
+                    , description = null
+
                 }
                 else {
-                  var title = null
 
-                  if (names.length > 4) {
-                    var more = names.length-4
-                      , str = vars.format.locale.value.ui.more
-                    names = names.slice(0,4)
-                    names[4] = d3plus.string.format(str,more)
-                  }
-
-                  var and = vars.format.locale.value.ui.and
-                  var description = d3plus.string.list(names,and)
+                  var title       = null
+                    , and         = vars.format.locale.value.ui.and
+                    , more        = vars.format.locale.value.ui.more
+                    , description = d3plus.string.list(names,and,4,more)
 
                 }
 
