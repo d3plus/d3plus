@@ -11,8 +11,13 @@ d3plus.string.list = function( list , and ) {
     return list.join(" "+and+" ")
   }
   else {
-    list[list.length-1] = and+" "+list[list.length-1]
+
+    if ( list.length > 1 ) {
+      list[list.length-1] = and+" "+list[list.length-1]
+    }
+
     return list.join(", ")
+
   }
 
 }
