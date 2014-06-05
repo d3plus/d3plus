@@ -3,8 +3,8 @@
 //------------------------------------------------------------------------------
 d3plus.util.child = function(parent,child) {
 
-  if (!parent || !child) {
-    return false;
+  if ( !parent || !child ) {
+    return false
   }
 
   if (d3plus.util.d3selection(parent)) {
@@ -15,14 +15,15 @@ d3plus.util.child = function(parent,child) {
     child = child.node()
   }
 
-  var node = child.parentNode;
+  var node = child.parentNode
+
   while (node !== null) {
     if (node == parent) {
       return true;
     }
-    node = node.parentNode;
+    node = node.parentNode
   }
 
-  return false;
+  return false
 
 }

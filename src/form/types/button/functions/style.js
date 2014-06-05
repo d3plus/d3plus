@@ -12,7 +12,6 @@ d3plus.input.button.style = function ( elem , vars ) {
     .style("font-family",vars.font.family.value)
     .style("font-size",vars.font.size+"px")
     .style("font-weight",vars.font.weight)
-    .style("text-align",vars.font.align.value)
     .style("letter-spacing",vars.font.spacing+"px")
 
 }

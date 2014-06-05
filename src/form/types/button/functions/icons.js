@@ -7,15 +7,12 @@ d3plus.input.button.icons = function ( elem , vars ) {
                  || (d3plus.rtl && vars.font.align.value === "right")
 
   elem
-    .text(function(d){
-      return d[vars.text.value]
-    })
     .each(function(d,i){
 
-      var children = []
+      var children = ["label"]
 
       if (d[vars.icon.value] && vars.data.value.length <= vars.data.large) {
-        children.push(vars.icon.value)
+        children.push("icon")
       }
 
       var iconGraphic = vars.icon.button.value
@@ -28,14 +25,16 @@ d3plus.input.button.icons = function ( elem , vars ) {
       }
 
       var buffer = 0
-
+      
       var items = d3.select(this).selectAll("div.d3plus_button_element")
-        .data(children,function(c,i){
+        .data(children,function(c){
           return c
         })
 
       items.enter().append("div")
-        .style("display","absolute")
+        .style("display",function(c){
+          return c === "label" ? "block" : "absolute"
+        })
         .attr("class",function(c){
           var extra = ""
           if ( c === "selected" && iconGraphic.indexOf("fa-") === 0 ) {
@@ -46,31 +45,34 @@ d3plus.input.button.icons = function ( elem , vars ) {
 
       items.order()
         .html(function(c){
-          if ( c == "selected" && iconGraphic.indexOf("fa-") < 0 ) {
-            return iconGraphic
-          }
-          else {
-            return ""
-          }
+          return c === "label" ? d[vars.text.value]
+               : c === "selected" && iconGraphic.indexOf("fa-") < 0
+               ? iconGraphic : ""
         })
         .style("background-image",function(c){
-          if (c == vars.icon.value) {
+          if (c === "icon") {
             return "url('"+d[vars.icon.value]+"')"
           }
           return "none"
         })
         .style("background-color",function(c){
-          if (c === vars.icon.value && d.style === "knockout") {
+          if (c === "icon" && d.style === "knockout") {
             return d[vars.color.value] || vars.ui.color.primary.value
           }
           return "transparent"
         })
         .style("background-size","100%")
-        .style("text-align","center")
+        .style("text-align",function(c){
+          return c === "label" ? vars.font.align.value : "center"
+        })
         .style("position",function(c){
-          return c == "text" ? "static" : "absolute"
+          return c == "label" ? "static" : "absolute"
         })
         .style("width",function(c){
+
+          if ( c === "label" ) {
+            return "auto"
+          }
 
           if (vars.height.value) {
             buffer = (vars.height.value-(vars.ui.padding*2)-(vars.ui.border*2))
@@ -81,12 +83,15 @@ d3plus.input.button.icons = function ( elem , vars ) {
           return buffer+"px"
         })
         .style("height",function(c){
-          if ( c === vars.icon.value ) {
+          if ( c === "icon" ) {
             return buffer+"px"
           }
           return "auto"
         })
         .style("margin-top",function(c){
+          if ( c === "label" ) {
+            return "0px"
+          }
           if (this.offsetHeight) {
             var h = this.offsetHeight
           }
@@ -98,15 +103,17 @@ d3plus.input.button.icons = function ( elem , vars ) {
           }
           return -h/2+"px"
         })
-        .style("top","50%")
+        .style("top",function(c){
+          return c === "label" ? "auto" : "50%"
+        })
         .style("left",function(c){
-          if ((c == vars.icon.value && !reversed) || (c === "selected" && reversed)) {
+          if ((c === "icon" && !reversed) || (c === "selected" && reversed)) {
             return vars.ui.padding+"px"
           }
           return "auto"
         })
         .style("right",function(c){
-          if ((c == vars.icon.value && reversed) || (c === "selected" && !reversed)) {
+          if ((c === "icon" && reversed) || (c === "selected" && !reversed)) {
             return vars.ui.padding+"px"
           }
           return "auto"
@@ -122,8 +129,9 @@ d3plus.input.button.icons = function ( elem , vars ) {
           return c === "selected" ? vars.icon.select.opacity : 1
         })
 
-
       items.exit().remove()
+
+      var text = d3.select(this).selectAll(".d3plus_button_label")
 
       if (buffer > 0) {
 
@@ -131,27 +139,27 @@ d3plus.input.button.icons = function ( elem , vars ) {
 
         var p = vars.ui.padding
 
-        if (children.length === 2) {
+        if (children.length === 3) {
           var padding = p+"px "+buffer+"px"
         }
-        else if ((children[0] === vars.icon.value && !d3plus.rtl) || (children[0] == "selected" && d3plus.rtl)) {
+        else if ((children.indexOf("icon") >= 0 && !d3plus.rtl) || (children.indexOf("selected") >= 0 && d3plus.rtl)) {
           var padding = p+"px "+p+"px "+p+"px "+buffer+"px"
         }
         else {
           var padding = p+"px "+buffer+"px "+p+"px "+p+"px"
         }
 
-        d3.select(this).style("padding",padding)
+        text.style("padding",padding)
 
       }
       else {
-        d3.select(this).style("padding",vars.ui.padding+"px")
+        text.style("padding",vars.ui.padding+"px")
       }
 
       if (typeof vars.width.value === "number") {
         var width = vars.width.value
-        width -= parseFloat(d3.select(this).style("padding-left"),10)
-        width -= parseFloat(d3.select(this).style("padding-right"),10)
+        width -= parseFloat(text.style("padding-left"),10)
+        width -= parseFloat(text.style("padding-right"),10)
         width -= vars.ui.border*2
         width += "px"
       }
@@ -159,7 +167,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
         var width = "auto"
       }
 
-      d3.select(this).style("width",width)
+      text.style("width",width)
 
     })
 
