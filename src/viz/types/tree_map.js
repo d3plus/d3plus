@@ -26,6 +26,7 @@ d3plus.visualization.tree_map = function(vars) {
   vars.data.app.forEach(function(d){
     strippedData.push({
       "d3plus" : d,
+      "id"     : d[vars.id.value],
       "value"  : d3plus.variable.value(vars,d,vars.size.value)
     })
   })
@@ -47,7 +48,8 @@ d3plus.visualization.tree_map = function(vars) {
     .padding(1)
     .sort(function(a, b) {
 
-      return a.value - b.value
+      var sizeDiff = a.value - b.value
+      return sizeDiff === 0 ? a.id < b.id : sizeDiff
 
     })
     .nodes({
