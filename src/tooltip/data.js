@@ -226,7 +226,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
     }
   }
 
-  if ( length === "long" ) {
+  if ( vars.tooltip.connections.value && length === "long" ) {
 
     var connections = vars.edges.connections( id[vars.id.value] , vars.id.value , true )
 
@@ -258,7 +258,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
           "name": "<div style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>",
           "value": ""
         })
-        
+
       })
     }
 

@@ -96,49 +96,52 @@ d3plus.tooltip.app = function(params) {
 
     var ex = {}
       , children = {}
-
-    var depth     = d.d3plus.merged ? vars.depth.value : vars.depth.value + 1
+      , depth     = d.d3plus.merged ? vars.depth.value : vars.depth.value + 1
       , nestKey   = vars.id.nesting[depth]
       , nameList  = d.d3plus.merged || d[nestKey]
       , dataValue = d3plus.variable.value( vars , d , vars.size.value )
 
-    if ( nameList instanceof Array ) {
+    if ( vars.tooltip.children.value ) {
 
-      nameList = nameList.slice(0)
+      if ( nameList instanceof Array ) {
 
-      var limit       = length === "short" ? 3 : vars.data.large
-        , max         = d3.min([nameList.length , limit])
+        nameList = nameList.slice(0)
 
-      for ( var i = 0 ; i < max ; i++ ) {
+        var limit       = length === "short" ? 3 : vars.data.large
+          , max         = d3.min([nameList.length , limit])
 
-        var id    = nameList[i]
-          , name  = d3plus.variable.text( vars , id , depth )[0]
-          , value = d3plus.variable.value( vars , id , vars.size.value , nestKey )
-          , color = d3plus.variable.color( vars , id , nestKey )
+        for ( var i = 0 ; i < max ; i++ ) {
 
-        children[name] = value ? vars.format.value( value , vars.size.value ) : ""
+          var id    = nameList[i]
+            , name  = d3plus.variable.text( vars , id , depth )[0]
+            , value = d3plus.variable.value( vars , id , vars.size.value , nestKey )
+            , color = d3plus.variable.color( vars , id , nestKey )
 
-        if ( color ) {
-          if ( !children.d3plus_colors ) children.d3plus_colors = {}
-          children.d3plus_colors[name] = color
+          children[name] = value ? vars.format.value( value , vars.size.value ) : ""
+
+          if ( color ) {
+            if ( !children.d3plus_colors ) children.d3plus_colors = {}
+            children.d3plus_colors[name] = color
+          }
+
+        }
+
+        if ( nameList.length > max ) {
+          children.d3plusMore = nameList.length - max
         }
 
       }
+      else if ( nameList ) {
 
-      if ( nameList.length > max ) {
-        children.d3plusMore = nameList.length - max
+        var name  = d3plus.variable.text( vars , nameList , depth )[0]
+
+        children[name] = dataValue ? vars.format.value( dataValue , vars.size.value ) : ""
+
       }
 
     }
-    else if ( nameList ) {
 
-      var name  = d3plus.variable.text( vars , nameList , depth )[0]
-
-      children[name] = dataValue ? vars.format.value( dataValue , vars.size.value ) : ""
-
-    }
-
-    if ( dataValue && ( !nameList || nameList instanceof Array ) ) {
+    if ( vars.tooltip.size.value && dataValue && ( !nameList || nameList instanceof Array ) ) {
       ex[vars.size.value] = dataValue
     }
 
@@ -156,7 +159,7 @@ d3plus.tooltip.app = function(params) {
       ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%)"
     }
 
-    if (d.d3plus.share) {
+    if ( vars.tooltip.share.value && d.d3plus.share ) {
       ex.share = vars.format.value(d.d3plus.share*100,"share")+"%"
     }
 
