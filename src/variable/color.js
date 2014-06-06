@@ -24,7 +24,11 @@ d3plus.variable.color = function( vars , id , level ) {
   }
   else {
 
-    var color = d3plus.variable.value( vars , id , vars.color.value , level )
+    for ( var i = vars.id.nesting.indexOf(level) ; i >= 0 ; i-- ) {
+      var colorLevel = vars.id.nesting[i]
+        , color = d3plus.variable.value( vars , id , vars.color.value , colorLevel )
+      if ( color ) break
+    }
 
     if ( !color ) {
 
