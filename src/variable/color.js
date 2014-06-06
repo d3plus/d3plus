@@ -7,42 +7,40 @@ d3plus.variable.color = function( vars , id , level ) {
     var level = vars.id.value
   }
 
-  function get_random(c) {
+  function getRandom( c ) {
 
-    if ( d3plus.object.validate(c) ) {
+    if ( d3plus.object.validate( c ) ) {
       c = c[ level ]
     }
-    return d3plus.color.random(c)
 
-  }
-
-  function validate_color(c) {
-    
-    if (typeof c == "string" && c.indexOf("#") == 0 && [4,7].indexOf(c.length) >= 0) return true
-    else return false
+    return d3plus.color.random( c )
 
   }
 
   if ( !vars.color.value ) {
-    return get_random(id);
+
+    return getRandom( id )
+
   }
   else {
 
     var color = d3plus.variable.value( vars , id , vars.color.value , level )
 
-    if (!color) {
-      if (typeof vars.color.scale == "function") {
+    if ( !color ) {
+
+      if ( typeof vars.color.scale === "function" ) {
         return vars.color.missing
       }
-      return get_random(id)
+      return getRandom( id )
+
     }
-    else if (!vars.color.scale) {
-      var true_color = validate_color(color)
-      return true_color ? color : get_random(color)
+    else if ( !vars.color.scale ) {
+      return d3plus.color.validate( color ) ? color : getRandom( color )
     }
     else {
-      return vars.color.scale(color)
+      return vars.color.scale( color )
     }
 
   }
+
 }
