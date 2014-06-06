@@ -91,19 +91,23 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
 
   }
 
-  if (vars.attrs.value instanceof Array) {
-    var attr = filter_array(vars.attrs.value)
-  }
-  else if (vars.attrs.value[id_var]) {
-    if (vars.attrs.value[id_var] instanceof Array) {
-      var attr = filter_array(vars.attrs.value[id_var])
+  if ( "attrs" in vars ) {
+
+    if ( vars.attrs.value instanceof Array ) {
+      var attr = filter_array(vars.attrs.value)
+    }
+    else if (vars.attrs.value[id_var]) {
+      if (vars.attrs.value[id_var] instanceof Array) {
+        var attr = filter_array(vars.attrs.value[id_var])
+      }
+      else {
+        var attr = vars.attrs.value[id_var][id]
+      }
     }
     else {
-      var attr = vars.attrs.value[id_var][id]
+      var attr = vars.attrs.value[id]
     }
-  }
-  else {
-    var attr = vars.attrs.value[id]
+
   }
 
   if ( attr && variable in attr ) return attr[variable]

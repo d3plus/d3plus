@@ -10,8 +10,9 @@ d3plus.input.drop.data = function ( vars ) {
   }
   else if (vars.open.value) {
 
-    var searchText  = vars.text.solo.value.length ? vars.text.solo.value[0] : ""
-      , searchWords = d3plus.string.strip(searchText.toLowerCase()).split("_")
+    var searchText  = vars.text.solo.value.length
+                    ? vars.text.solo.value[0].toLowerCase() : ""
+      , searchWords = d3plus.string.strip(searchText).split("_")
       , searchKeys  = [ vars.id.value
                       , vars.text.value
                       , vars.alt.value
@@ -24,7 +25,8 @@ d3plus.input.drop.data = function ( vars ) {
     }
     else {
 
-      var exactMatches = []
+      var startMatches = []
+        , exactMatches = []
         , softMatches  = []
 
       vars.data.value.forEach(function(d){
@@ -37,7 +39,11 @@ d3plus.input.drop.data = function ( vars ) {
 
             var text = d[key].toLowerCase()
 
-            if ( text.indexOf(searchText) >= 0 ) {
+            if ( key === vars.text.value && text.indexOf(searchText) == 0 ) {
+              startMatches.push(d)
+              match = true
+            }
+            else if ( text.indexOf(searchText) >= 0 ) {
               exactMatches.push(d)
               match = true
             }
@@ -71,7 +77,11 @@ d3plus.input.drop.data = function ( vars ) {
 
       })
 
-      vars.data.filtered = exactMatches.concat(softMatches)
+      vars.data.filtered = d3.merge([ startMatches , exactMatches , softMatches ])
+
+      vars.data.filtered.forEach(function(d,i){
+        d.d3plus_order = i
+      })
 
     }
 

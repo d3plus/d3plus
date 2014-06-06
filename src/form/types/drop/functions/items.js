@@ -24,6 +24,10 @@ d3plus.input.drop.items = function ( vars ) {
     }
 
     var large = vars.draw.timing ? vars.data.large : 1
+      , order = d3plus.util.copy(vars.order)
+
+    order.value = vars.text.solo.value.length && vars.text.solo.value[0] !== ""
+                ? "d3plus_order" : vars.order.value
 
     vars.container.items
       .data({
@@ -55,7 +59,7 @@ d3plus.input.drop.items = function ( vars ) {
       .font( vars.font.secondary )
       .id( vars.id.value )
       .icon( vars.icon.value )
-      .order( vars.order )
+      .order( order )
       .text( vars.text.secondary.value || vars.text.value )
       .timing({
         "ui": vars.draw.timing
