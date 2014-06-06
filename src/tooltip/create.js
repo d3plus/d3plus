@@ -12,12 +12,11 @@ d3plus.tooltip.create = function(params) {
   params.arrow_offset = params.arrow ? 8 : 0
   params.x = params.x || 0
   params.y = params.y || 0
-  params.color = params.color || "#333"
   params.parent = params.parent || d3.select("body")
   params.curtain = params.curtain || "#fff"
   params.curtainopacity = params.curtainopacity || 0.8
   params.background = params.background || "#fff"
-  params.fontcolor = params.fontcolor || "#333"
+  params.fontcolor = params.fontcolor || "#444"
   params.fontfamily = params.fontfamily || "sans-serif"
   params.fontweight = params.fontweight || "normal"
   params.fontsize = params.fontsize || "12px"
@@ -211,6 +210,7 @@ d3plus.tooltip.create = function(params) {
   }
 
   if (params.icon) {
+
     var title_icon = header.append("div")
       .attr("class","d3plus_tooltip_icon")
       .style("width",params.iconsize+"px")
@@ -230,11 +230,13 @@ d3plus.tooltip.create = function(params) {
 
   if (params.title) {
     var mw = params.max_width-6
-    if (params.icon) mw -= (params.iconsize+6)
+    if ( params.icon ) mw -= (params.iconsize+6)
     mw += "px"
+
     var title = header.append("div")
       .attr("class","d3plus_tooltip_title")
       .style("max-width",mw)
+      .style("color",!params.icon ? d3plus.color.legible(params.color) : params.fontcolor)
       .style("vertical-align","top")
       .style("width",title_width+"px")
       .style("display","inline-block")
