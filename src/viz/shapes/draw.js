@@ -132,6 +132,8 @@ d3plus.shape.draw = function(vars) {
     var selection = vars.g.data.selectAll("g.d3plus_"+shape)
       .data(shapes[shape],function(d){
 
+        if (!d.d3plus) d.d3plus = {}
+
         if ( shape === "coordinates" ) {
           d.d3plus.id = d.id
           return d.id
