@@ -280,7 +280,7 @@ d3plus.tooltip.create = function(params) {
       if ( d.highlight === true ) {
         block.style("color",d3plus.color.legible(params.color))
       }
-      else if ( d.highlight !== params.color ) {
+      else if ( d.allColors || d.highlight !== params.color ) {
         block.style("color",d3plus.color.legible(d.highlight))
       }
 

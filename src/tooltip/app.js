@@ -97,9 +97,10 @@ d3plus.tooltip.app = function(params) {
     var ex = {}
       , children = {}
 
-    var depth = d.d3plus.merged ? vars.depth.value : vars.depth.value + 1
-      , nestKey = vars.id.nesting[depth]
-      , nameList = d.d3plus.merged || d[nestKey]
+    var depth     = d.d3plus.merged ? vars.depth.value : vars.depth.value + 1
+      , nestKey   = vars.id.nesting[depth]
+      , nameList  = d.d3plus.merged || d[nestKey]
+      , dataValue = d3plus.variable.value( vars , d , vars.size.value )
 
     if ( nameList instanceof Array ) {
 
@@ -113,8 +114,7 @@ d3plus.tooltip.app = function(params) {
         var id    = nameList[i]
           , name  = d3plus.variable.text( vars , id , depth )[0]
           , value = d3plus.variable.value( vars , id , vars.size.value , nestKey )
-          , color = d.d3plus.merged
-                  ? d3plus.variable.color( vars , id , nestKey ) : false
+          , color = d3plus.variable.color( vars , id , nestKey )
 
         children[name] = value ? vars.format.value( value , vars.size.value ) : ""
 
@@ -130,14 +130,16 @@ d3plus.tooltip.app = function(params) {
       }
 
     }
-    else if ( d[nestKey] instanceof Array ) {
+    else if ( nameList ) {
 
-      var id    = d[nestKey][0]
-        , name  = d3plus.variable.text( vars , id , depth )[0]
-        , value = d3plus.variable.value( vars , id , vars.size.value , nestKey )
+      var name  = d3plus.variable.text( vars , nameList , depth )[0]
 
-      children[name] = value ? vars.format.value( value , vars.size.value ) : ""
+      children[name] = dataValue ? vars.format.value( dataValue , vars.size.value ) : ""
 
+    }
+
+    if ( dataValue && ( !nameList || nameList instanceof Array ) ) {
+      ex[vars.size.value] = dataValue
     }
 
     var active = vars.active.value ? d3plus.variable.value(vars,d,vars.active.value) : d.d3plus.active,
@@ -203,6 +205,7 @@ d3plus.tooltip.app = function(params) {
         "fontweight": vars.tooltip.font.weight,
         "data": tooltip_data,
         "color": d3plus.variable.color(vars,d),
+        "allColors": true,
         "footer": footer,
         "fullscreen": fullscreen,
         "html": html,

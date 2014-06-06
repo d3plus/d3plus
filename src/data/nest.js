@@ -66,7 +66,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
 
   var i = nestingLevels.length ? nestingLevels.length - 1 : 0
     , rollupKey = nestingLevels.length ? nestingLevels[i] : vars.id.nesting[0]
-  // console.log(nestingLevels,i,rollupKey)
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If we're at the deepest level, create the rollup function.
   //--------------------------------------------------------------------------
@@ -146,7 +146,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
 
         if ( keyValues.length ) {
 
-          if ( idKey && key !== rollupKey && keyValues.length > 1 ) {
+          if ( idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1 ) {
 
             if ( vars.size.value ) {
 

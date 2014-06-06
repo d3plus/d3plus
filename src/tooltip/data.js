@@ -226,18 +226,13 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
     }
   }
 
+  if ( length === "long" ) {
 
+    var connections = vars.edges.connections( id[vars.id.value] , vars.id.value , true )
 
-  // if ( d3.keys(children).length > 0 ) {
-  //   var title = vars.format.locale.value.ui.values
-  //   a[title] = children
-  // }
-
-  if (length == "long") {
-
-    var connections = vars.edges.connections(id[vars.id.value],vars.id.value,true)
-    if (connections.length) {
+    if ( connections.length ) {
       connections.forEach(function(c){
+
         var name = d3plus.variable.text(vars,c)[0],
             color = d3plus.variable.color(vars,c),
             size = vars.tooltip.font.size,
@@ -256,12 +251,14 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
               d3plus.prefix()+"border-radius: "+radius+"px",
             ]
             node = "<div style='"+styles.join("; ")+";'></div>"
+
         tooltip_data.push({
           "group": vars.format.value(vars.format.locale.value.ui.primary),
           "highlight": false,
           "name": "<div style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>",
           "value": ""
         })
+        
       })
     }
 

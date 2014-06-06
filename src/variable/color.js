@@ -1,26 +1,34 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
-d3plus.variable.color = function(vars,id,level) {
+d3plus.variable.color = function( vars , id , level ) {
+
+  if ( !level ) {
+    var level = vars.id.value
+  }
 
   function get_random(c) {
-    if (typeof c == "object") {
-      c = c[vars.id.value]
+
+    if ( d3plus.object.validate(c) ) {
+      c = c[ level ]
     }
     return d3plus.color.random(c)
+
   }
 
   function validate_color(c) {
+    
     if (typeof c == "string" && c.indexOf("#") == 0 && [4,7].indexOf(c.length) >= 0) return true
     else return false
+
   }
 
-  if (!vars.color.value) {
+  if ( !vars.color.value ) {
     return get_random(id);
   }
   else {
 
-    var color = d3plus.variable.value(vars,id,vars.color.value,level)
+    var color = d3plus.variable.value( vars , id , vars.color.value , level )
 
     if (!color) {
       if (typeof vars.color.scale == "function") {
