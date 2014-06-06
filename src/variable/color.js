@@ -32,7 +32,7 @@ d3plus.variable.color = function( vars , id , level ) {
 
     if ( !color ) {
 
-      if ( typeof vars.color.scale === "function" ) {
+      if ( vars.color.value || typeof vars.color.scale === "function" ) {
         return vars.color.missing
       }
       return getRandom( id )
