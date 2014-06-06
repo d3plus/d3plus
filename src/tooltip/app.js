@@ -28,14 +28,13 @@ d3plus.tooltip.app = function(params) {
 
     if (zoom === -1) {
       var key = vars.id.nesting[vars.depth.value-1],
-          parent = d3plus.variable.value(vars,id,key),
-          solo = vars.id.solo.value.indexOf(parent) >= 0
+          parent = d3plus.variable.value(vars,id,key)
     }
 
     if (zoom === 1 && vars.zoom.value) {
       var text = vars.format.value(vars.format.locale.value.ui.expand)
     }
-    else if (zoom === -1 && vars.zoom.value && solo) {
+    else if (zoom === -1 && vars.zoom.value && vars.history.states.length) {
       var text = vars.format.value(vars.format.locale.value.ui.collapse)
     }
     else if (length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
@@ -95,40 +94,74 @@ d3plus.tooltip.app = function(params) {
 
   function make_tooltip(html) {
 
-    if (d.d3plus) {
+    var ex = {}
+      , children = {}
 
-      if (d.d3plus.merged) {
-        if (!ex) ex = {}
-        ex.items = d.d3plus.merged.length
+    var depth = d.d3plus.merged ? vars.depth.value : vars.depth.value + 1
+      , nestKey = vars.id.nesting[depth]
+      , nameList = d.d3plus.merged || d[nestKey]
+
+    if ( nameList instanceof Array ) {
+
+      nameList = nameList.slice(0)
+
+      var limit       = length === "short" ? 3 : vars.data.large
+        , max         = d3.min([nameList.length , limit])
+
+      for ( var i = 0 ; i < max ; i++ ) {
+
+        var id    = nameList[i]
+          , name  = d3plus.variable.text( vars , id , depth )[0]
+          , value = d3plus.variable.value( vars , id , vars.size.value , nestKey )
+          , color = d.d3plus.merged
+                  ? d3plus.variable.color( vars , id , nestKey ) : false
+
+        children[name] = value ? vars.format.value( value , vars.size.value ) : ""
+
+        if ( color ) {
+          if ( !children.d3plus_colors ) children.d3plus_colors = {}
+          children.d3plus_colors[name] = color
+        }
+
       }
 
-      var active = vars.active.value ? d3plus.variable.value(vars,d,vars.active.value) : d.d3plus.active,
-          temp = vars.temp.value ? d3plus.variable.value(vars,d,vars.temp.value) : d.d3plus.temp,
-          total = vars.total.value ? d3plus.variable.value(vars,d,vars.total.value) : d.d3plus.total
-
-      if (typeof active == "number" && active > 0 && total) {
-        if (!ex) ex = {}
-        var label = vars.active.value || "active"
-        ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%)"
+      if ( nameList.length > max ) {
+        children.d3plusMore = nameList.length - max
       }
 
-      if (typeof temp == "number" && temp > 0 && total) {
-        if (!ex) ex = {}
-        var label = vars.temp.value || "temp"
-        ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%)"
-      }
+    }
+    else if ( d[nestKey] instanceof Array ) {
 
-      if (d.d3plus.share) {
-        if (!ex) ex = {}
-        ex.share = vars.format.value(d.d3plus.share*100,"share")+"%"
-      }
+      var id    = d[nestKey][0]
+        , name  = d3plus.variable.text( vars , id , depth )[0]
+        , value = d3plus.variable.value( vars , id , vars.size.value , nestKey )
 
+      children[name] = value ? vars.format.value( value , vars.size.value ) : ""
+
+    }
+
+    var active = vars.active.value ? d3plus.variable.value(vars,d,vars.active.value) : d.d3plus.active,
+        temp = vars.temp.value ? d3plus.variable.value(vars,d,vars.temp.value) : d.d3plus.temp,
+        total = vars.total.value ? d3plus.variable.value(vars,d,vars.total.value) : d.d3plus.total
+
+    if (typeof active == "number" && active > 0 && total) {
+      var label = vars.active.value || "active"
+      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%)"
+    }
+
+    if (typeof temp == "number" && temp > 0 && total) {
+      var label = vars.temp.value || "temp"
+      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%)"
+    }
+
+    if (d.d3plus.share) {
+      ex.share = vars.format.value(d.d3plus.share*100,"share")+"%"
     }
 
     var depth = "depth" in params ? params.depth : vars.depth.value,
         title = d3plus.variable.text(vars,d,depth)[0],
         icon = d3plus.variable.value(vars,d,vars.icon.value,vars.id.nesting[depth]),
-        tooltip_data = d3plus.tooltip.data(vars,d,length,ex,depth)
+        tooltip_data = d3plus.tooltip.data(vars,d,length,ex,children,depth)
 
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && "visible" in d.d3plus_label && !d.d3plus_label.visible))) {
 

@@ -22,11 +22,11 @@ d3plus.string.list = function( list , and , max , more ) {
     return list.join(" "+and+" ")
   }
   else {
-    
+
     if ( max && list.length > max ) {
-      var amount = list.length - max
-      list = list.slice( 0 , max )
-      list[max] = d3plus.string.format( more , amount )
+      var amount = list.length - max + 1
+      list = list.slice( 0 , max - 1 )
+      list[ max - 1 ] = d3plus.string.format( more , amount )
     }
 
     if ( list.length > 1 ) {

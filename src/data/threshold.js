@@ -91,9 +91,8 @@ d3plus.data.threshold = function( vars , rawData , split ) {
     })
 
     var levels = vars.id.nesting.slice(0,vars.depth.value)
-    var nesting = levels.concat([vars.x.value])
-    var merged = d3plus.data.nest(vars,removed,nesting).filter(function(d){
-      return d3plus.variable.value(vars,d,vars.size.value) > 0
+    var merged = d3plus.data.nest(vars,removed,levels).filter(function(d){
+      return d3plus.variable.value( vars , d , vars.size.value ) > 0
     })
 
     merged.forEach(function(m){
@@ -104,7 +103,7 @@ d3plus.data.threshold = function( vars , rawData , split ) {
 
         if (vars.depth.value == i) {
           var prev = m[vars.id.nesting[i-1]]
-          if (prev) {
+          if ( typeof prev === "string" ) {
             m[d] = "d3plus_other_"+prev
           }
           else {
@@ -147,12 +146,12 @@ d3plus.data.threshold = function( vars , rawData , split ) {
           m.d3plus.merged = []
           removed.forEach(function(r){
             if (m[parent] == r[parent]) {
-              m.d3plus.merged.push(r[vars.id.value])
+              m.d3plus.merged.push(r)
             }
           })
         }
         else {
-          m.d3plus.merged = d3plus.util.uniques(removed,vars.id.value)
+          m.d3plus.merged = removed
         }
 
       }

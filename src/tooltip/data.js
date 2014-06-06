@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
-d3plus.tooltip.data = function(vars,id,length,extras,depth) {
+d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
   if (vars.small) {
     return []
@@ -147,7 +147,9 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
       })
     }
     else {
+
       var present = []
+
       for ( var group in a ) {
         extras.forEach(function(e){
           if (a[group] instanceof Array && a[group].indexOf(e) >= 0) {
@@ -158,6 +160,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
           }
         })
       }
+
       if (present.length != extras.length) {
         if (!a[""]) a[""] = []
         extras.forEach(function(e){
@@ -166,6 +169,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
           }
         })
       }
+
     }
 
     if (a[""]) {
@@ -187,6 +191,47 @@ d3plus.tooltip.data = function(vars,id,length,extras,depth) {
     }
 
   }
+
+  if ( children ) {
+
+    var title  = vars.format.locale.value.ui.including
+      , colors = children.d3plus_colors
+
+    for ( var child in children ) {
+
+      if ( child !== "d3plus_colors" ) {
+
+        if ( child === "d3plusMore" ) {
+
+          var more = vars.format.locale.value.ui.more
+            , name = d3plus.string.format(more,children[child])
+            , highlight = true
+          children[child] = ""
+
+        }
+        else {
+          var name = child
+            , highlight = colors && colors[name] ? colors[name] : false
+        }
+
+        tooltip_data.push({
+          "group": vars.format.value(title),
+          "highlight": highlight,
+          "name": name,
+          "value": children[child]
+        })
+
+      }
+
+    }
+  }
+
+
+
+  // if ( d3.keys(children).length > 0 ) {
+  //   var title = vars.format.locale.value.ui.values
+  //   a[title] = children
+  // }
 
   if (length == "long") {
 

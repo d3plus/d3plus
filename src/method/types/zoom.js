@@ -15,7 +15,7 @@ d3plus.method.zoom = {
     if (restricted) {
       return 0
     }
-    else if ( current_depth < max_depth
+    else if ( data.d3plus.merged || current_depth < max_depth
               && ( !data || vars.id.nesting[vars.depth.value+1] in data ) ) {
       return 1
     }

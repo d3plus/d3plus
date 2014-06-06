@@ -99,6 +99,7 @@ d3plus.locale.en = {
     "collapse"     : "click to collapse",
     "error"        : "error",
     "expand"       : "click to expand",
+    "including"    : "including",
     "loading"      : "loading...",
     "more"         : "{0} more",
     "moreInfo"     : "click for more info",

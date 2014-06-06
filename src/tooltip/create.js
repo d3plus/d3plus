@@ -227,7 +227,7 @@ d3plus.tooltip.create = function(params) {
 
     title_width -= title_icon.node().offsetWidth
   }
-  
+
   if (params.title) {
     var mw = params.max_width-6
     if (params.icon) mw -= (params.iconsize+6)
@@ -277,8 +277,11 @@ d3plus.tooltip.create = function(params) {
         .attr("class","d3plus_tooltip_data_block")
         .datum(d)
 
-      if (d.highlight) {
+      if ( d.highlight === true ) {
         block.style("color",d3plus.color.legible(params.color))
+      }
+      else if ( d.highlight !== params.color ) {
+        block.style("color",d3plus.color.legible(d.highlight))
       }
 
       var name = block.append("div")

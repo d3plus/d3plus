@@ -546,7 +546,7 @@ d3plus.shape.draw = function(vars) {
           })
 
           vars.self
-            .id({"solo": d.d3plus.merged})
+            .id({"solo": d3plus.util.uniques(d.d3plus.merged,vars.id.value)})
             .title({
               "sub": {
                 "font": {
