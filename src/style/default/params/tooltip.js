@@ -16,5 +16,5 @@ d3plus.style.default.tooltip = {
     "weight"    : 200
   },
   "large"      : 250,
-  "small"      : 200
+  "small"      : 225
 }
