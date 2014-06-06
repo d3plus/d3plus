@@ -90,6 +90,8 @@ d3plus.data.threshold = function( vars , rawData , split ) {
 
     })
 
+    removed = d3plus.array.sort( removed , vars.size.value , "desc" , [] , vars )
+
     var levels = vars.id.nesting.slice(0,vars.depth.value)
     var merged = d3plus.data.nest(vars,removed,levels).filter(function(d){
       return d3plus.variable.value( vars , d , vars.size.value ) > 0
@@ -126,7 +128,7 @@ d3plus.data.threshold = function( vars , rawData , split ) {
 
       if (vars.icon.value && vars.depth.value != 0) {
         m[vars.icon.value] = d3plus.variable.value(vars,m[parent],vars.icon.value,parent)
-        m.d3plus.depth = vars.id.nesting.indexOf(parent)
+        m.d3plus.depth = vars.depth.value+1
       }
 
       if (vars.text.value) {

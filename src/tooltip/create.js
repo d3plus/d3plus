@@ -22,6 +22,8 @@ d3plus.tooltip.create = function(params) {
   params.fontsize = params.fontsize || "12px"
   params.style = params.style || "default"
   params.zindex = params.size == "small" ? 2000 : 500
+  params.locale = params.locale || d3plus.locale.en
+
   if (!params.iconsize) {
     params.iconsize = params.size == "small" ? 22 : 50
   }
@@ -30,6 +32,15 @@ d3plus.tooltip.create = function(params) {
     parseFloat(params.parent.style("width"),10),
     parseFloat(params.parent.style("height"),10)
   ]
+
+  if ( params.title instanceof Array ) {
+
+    var and = params.locale.ui.and
+      , more = params.locale.ui.more
+
+    params.title = d3plus.string.list( params.title , and , 3 , more )
+
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Function that closes ALL Descriptions
@@ -292,6 +303,15 @@ d3plus.tooltip.create = function(params) {
           .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
           })
+
+      if ( d.value instanceof Array ) {
+
+        var and = params.locale.ui.and
+          , more = params.locale.ui.more
+
+        d.value = d3plus.string.list( d.value , and , 3 , more )
+
+      }
 
       var val = block.append("div")
           .attr("class","d3plus_tooltip_data_value")

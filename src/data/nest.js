@@ -47,6 +47,11 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
     //--------------------------------------------------------------------------
     nestedData
       .key(function(d){
+
+        if ( typeof level === "function" ) {
+          return level(d)
+        }
+
         return d3plus.variable.value( vars , d , level )
       })
 
@@ -65,26 +70,41 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
   }
 
   var i = nestingLevels.length ? nestingLevels.length - 1 : 0
-    , rollupKey = nestingLevels.length ? nestingLevels[i] : vars.id.nesting[0]
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If we're at the deepest level, create the rollup function.
-  //--------------------------------------------------------------------------
+  //----------------------------------------------------------------------------
   nestedData.rollup(function( leaves ) {
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If there's only 1 leaf, and it's been processed, return it as-is.
+    //--------------------------------------------------------------------------
+    if ( leaves.length === 1 && ("d3plus" in leaves[0]) ) {
+      var returnObj = leaves[0]
+      returnObj.d3plus.depth = i
+      groupedData.push(returnObj)
+      return returnObj
+    }
+
+    if ( vars.size.value ) {
+
+      d3plus.array.sort( leaves , vars.size.value , "desc" , [] , vars )
+
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create the "d3plus" object for the return variable, starting with
     // just the current depth.
-    //----------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     var returnObj = {
       "d3plus": {
         "depth": i
       }
     }
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create a reference sum for the 3 different "segment" variables.
-    //----------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     segments.forEach(function(c){
 
       var key = vars[c].value || c
@@ -113,9 +133,9 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
 
     })
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Aggregate all values detected in the data.
-    //----------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     for ( var key in vars.data.keys ) {
 
       var agg     = vars.aggs.value[key] || "sum"
@@ -142,25 +162,28 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
       }
       else {
 
-        var keyValues = d3plus.util.uniques( leaves , key )
+        var keyValues = leaves.length === 1 ? leaves[0][key]
+                      : d3plus.util.uniques( leaves , key )
 
-        if ( keyValues.length ) {
+        if ( keyValues ) {
 
-          if ( idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1 ) {
+          if ( !(keyValues instanceof Array) ) {
+            keyValues = [ keyValues ]
+          }
 
-            if ( vars.size.value ) {
+          if ( keyValues.length ) {
 
-              d3plus.array.sort( leaves , vars.size.value , "desc" , [] , vars )
+            if ( keyValues.length <= leaves.length && idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1 ) {
+
+              returnObj[key] = leaves
 
             }
+            else {
 
-            returnObj[key] = leaves
+              returnObj[key] = keyValues.length === 1
+                             ? keyValues[0] : keyValues
 
-          }
-          else {
-
-            returnObj[key] = keyValues.length === 1
-                           ? keyValues[0] : keyValues
+            }
 
           }
 

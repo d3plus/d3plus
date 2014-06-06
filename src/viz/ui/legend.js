@@ -23,10 +23,7 @@ d3plus.ui.legend = function(vars) {
 
     if (!vars.color.scale) {
 
-      if (vars.dev.value) d3plus.console.time("determining color groups")
-
-      var color_groups = {},
-          placed = []
+      if (vars.dev.value) d3plus.console.time("grouping data by colors")
 
       if ( vars.nodes.value && d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
         var data = vars.nodes.restriced || vars.nodes.value
@@ -35,110 +32,25 @@ d3plus.ui.legend = function(vars) {
         var data = vars.data.app
       }
 
-      data.forEach(function(d){
-
-        var id = typeof d == "object" ? d[vars.id.value] : d
-        if (placed.indexOf(id) < 0) {
-
-          var color = d3plus.variable.color(vars,d)
-
-          if (!color_groups[color]) {
-            color_groups[color] = []
+      var colorFunction = function(d){
+            return d3plus.variable.color(vars,d,vars.id.nesting[d.d3plus.depth])
           }
-          color_groups[color].push(d)
-          placed.push(id)
+        , colors = d3plus.data.nest( vars , data , [colorFunction] )
+        , colorDepth = 0
+
+      for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
+        var uniqueIDs = d3plus.util.uniques( colors , vars.id.nesting[i] )
+        if ( uniqueIDs.length === colors.length ) {
+          colorDepth = i
+          break
         }
-
-      })
-
-      if (vars.dev.value) d3plus.console.timeEnd("determining color groups")
-
-      if (vars.dev.value) d3plus.console.time("grouping colors")
-
-      var colors = []
-      for (color in color_groups) {
-
-        var obj = {
-          "color": color,
-          "icon_depth": vars.id.nesting[vars.depth.value],
-          "name": []
-        }
-
-        var i = vars.depth.value == 0 ? 1 : vars.depth.value+1
-        while (--i >= 0) {
-
-          var nesting = vars.id.nesting[i]
-            , parents = []
-
-          color_groups[color].forEach(function(c){
-
-            var val = d3plus.variable.value(vars,c,nesting)
-
-            if (val && parents.indexOf(val) < 0) {
-              parents.push(val)
-            }
-
-          })
-
-          if ( parents.length === 1 ) {
-
-            color_groups[color] = parents
-
-          }
-
-          if ( parents.length === 1 && i === 0 ) {
-
-            var parent = parents[0]
-              , name = d3plus.variable.text(vars,parent,i)
-
-            if (name && obj.name.indexOf(name) < 0) {
-              obj.name.push(name)
-            }
-
-            if (!obj.icon) {
-              var icon = d3plus.variable.value(vars,parent,vars.icon.value,nesting)
-              if (icon) {
-                obj.icon = icon
-                obj.icon_depth = vars.id.nesting[i]
-              }
-            }
-
-            if (vars.legend.order.val == "id") {
-              obj.id = parent
-            }
-            if (["color","text"].indexOf(vars.legend.order.value) < 0) {
-              var key = vars[vars.legend.order.value].value
-              obj[vars.legend.order.value] = d3plus.variable.value(vars,parent,key,nesting)
-            }
-
-            break;
-
-          }
-          else if ( i === 0 ) {
-
-            parents.forEach(function(p){
-
-              var name = d3plus.variable.text(vars,p,i)
-              if (name && obj.name.indexOf(name) < 0) {
-                obj.name.push(name)
-              }
-
-            })
-
-          }
-
-          if (obj.name.length > 0 && obj.icon) {
-            break;
-          }
-
-        }
-
-        obj.name.sort()
-        colors.push(obj)
-
       }
 
-      if (vars.dev.value) d3plus.console.timeEnd("grouping colors")
+      colors.forEach(function(d){
+        d.d3plus.depth = colorDepth
+      })
+
+      if (vars.dev.value) d3plus.console.timeEnd("grouping data by color")
 
       var available_width = vars.width.value
 
@@ -196,7 +108,7 @@ d3plus.ui.legend = function(vars) {
 
         var keys = vars.g.legend.selectAll("g.d3plus_color")
           .data(colors,function(d){
-            return d.url ? d.color+"_"+d.url : d.color
+            return d[vars.id.nesting[d.d3plus.depth]]
           })
 
         function position(group) {
@@ -221,12 +133,14 @@ d3plus.ui.legend = function(vars) {
             .attr("height",square_size)
             .attr("fill",function(g){
 
-              d3.select(this.parentNode).selectAll("text")
-                .remove()
+              d3.select(this.parentNode).selectAll("text").remove()
 
-              if (g.icon) {
+              var icon = d3plus.variable.value( vars , g , vars.icon.value , vars.id.nesting[g.d3plus.depth] )
+                , color = d3plus.variable.color( vars , g , vars.id.nesting[g.d3plus.depth] )
 
-                var short_url = d3plus.string.strip(g.icon+"_"+g.color)
+              if (icon) {
+
+                var short_url = d3plus.string.strip(icon+"_"+color)
 
                 var pattern = vars.defs.selectAll("pattern#"+short_url)
                   .data([short_url])
@@ -234,14 +148,14 @@ d3plus.ui.legend = function(vars) {
                 if (typeof vars.icon.style.value == "string") {
                   var icon_style = vars.icon.style.value
                 }
-                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[g.icon_depth]) {
-                  var icon_style = vars.icon.style.value[g.icon_depth]
+                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[icon_depth]) {
+                  var icon_style = vars.icon.style.value[icon_depth]
                 }
                 else {
                   var icon_style = "default"
                 }
 
-                var color = icon_style == "knockout" ? g.color : "none"
+                var color = icon_style == "knockout" ? color : "none"
 
                 pattern.select("rect").transition().duration(vars.draw.timing)
                   .attr("fill",color)
@@ -263,14 +177,14 @@ d3plus.ui.legend = function(vars) {
                   .attr("height",square_size)
 
                 pattern_enter.append("image")
-                  .attr("xlink:href",g.icon)
+                  .attr("xlink:href",icon)
                   .attr("width",square_size)
                   .attr("height",square_size)
                   .each(function(d){
 
-                    if (g.icon.indexOf("/") == 0 || g.icon.indexOf(window.location.hostname) >= 0) {
+                    if (icon.indexOf("/") == 0 || icon.indexOf(window.location.hostname) >= 0) {
 
-                      d3plus.util.dataurl(g.icon,function(base64){
+                      d3plus.util.dataurl(icon,function(base64){
 
                         pattern.select("image")
                           .attr("xlink:href",base64)
@@ -281,7 +195,7 @@ d3plus.ui.legend = function(vars) {
                     else {
 
                       pattern.select("image")
-                        .attr("xlink:href",g.icon)
+                        .attr("xlink:href",icon)
 
                     }
 
@@ -298,15 +212,17 @@ d3plus.ui.legend = function(vars) {
                   .attr("font-weight",vars.legend.font.weight)
                   .attr("font-family",vars.legend.font.family.value)
                   .attr("text-anchor","start")
-                  .attr("fill",d3plus.color.text(g.color))
+                  .attr("fill",d3plus.color.text(color))
                   .attr("x",0)
                   .attr("y",0)
                   .each(function(t){
 
-                    if (g.name.length == 1 && g.name[0].length) {
+                    var text = d3plus.variable.text( vars , g , g.d3plus.depth )
+
+                    if (text.length === 1 && text[0].length) {
 
                       d3plus.util.wordwrap({
-                        "text": g.name[0],
+                        "text": text[0],
                         "parent": this,
                         "width": square_size-vars.ui.padding*2,
                         "height": square_size-vars.ui.padding*2,
@@ -331,7 +247,7 @@ d3plus.ui.legend = function(vars) {
                   text.remove()
                 }
 
-                return g.color
+                return color
               }
 
             })
@@ -348,86 +264,50 @@ d3plus.ui.legend = function(vars) {
           keys
             .on(d3plus.evt.over,function(d,i){
 
-              var label = d3.select(this).select("text")
-                , noLabel = label.empty()
-                , labelText = label.empty() ? ""
-                            : label.select("tspan").text().split(" ")[0]
-                , moreText = d.name.length === 1 && d.name[0] instanceof Array
-                           ? d.name[0][0].indexOf(labelText) !== 0 : true
+              d3.select(this).style("cursor","pointer")
 
-              if (d.name.length && (noLabel || moreText || d.name.length > 1)) {
+              var x = start_x + (i*(vars.ui.padding+square_size)),
+                  y = d3.transform(d3.select(this.parentNode).attr("transform")).translate[1]
 
-                d3.select(this).style("cursor","pointer")
+              x += square_size/2
+              y += vars.ui.padding+square_size/2
 
-                var x = start_x + (i*(vars.ui.padding+square_size)),
-                    y = d3.transform(d3.select(this.parentNode).attr("transform")).translate[1]
+              d3plus.tooltip.app({
+                "data": d,
+                "footer": false,
+                "vars": vars,
+                "x": x,
+                "y": y
+              })
 
-                x += square_size/2
-                y += vars.ui.padding+square_size/2
-
-                if (typeof vars.icon.style.value == "string") {
-                  var icon_style = vars.icon.style.value
-                }
-                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[d.icon_depth]) {
-                  var icon_style = vars.icon.style.value[d.icon_depth]
-                }
-                else {
-                  var icon_style = "default"
-                }
-
-                var names = []
-                d.name.forEach(function(d){
-                  if (d instanceof Array) {
-                    names.push(d[0])
-                  }
-                  else {
-                    names.push(d)
-                  }
-                })
-
-                if (names.length === 1) {
-
-                  var title       = names[0]
-                    , description = null
-
-                }
-                else {
-
-                  var title       = null
-                    , and         = vars.format.locale.value.ui.and
-                    , more        = vars.format.locale.value.ui.more
-                    , description = d3plus.string.list(names,and,4,more)
-
-                }
-
-                d3plus.tooltip.create({
-                  "align": "top center",
-                  "arrow": true,
-                  "background": vars.tooltip.background,
-                  "description": description,
-                  "fontcolor": vars.tooltip.font.color,
-                  "fontfamily": vars.tooltip.font.family.value,
-                  "fontweight": vars.tooltip.font.weight,
-                  // "data": tooltip_data,
-                  "color": d.color,
-                  "icon": d.icon,
-                  "id": "legend",
-                  // "mouseevents": mouse,
-                  "offset": square_size/2-vars.ui.padding,
-                  "parent": vars.container.value,
-                  "style": icon_style,
-                  "title": title,
-                  "x": x,
-                  "y": y,
-                  "max_width": 200,
-                  "width": "auto"
-                })
-
-              }
+              // var names = []
+              // d.name.forEach(function(d){
+              //   if (d instanceof Array) {
+              //     names.push(d[0])
+              //   }
+              //   else {
+              //     names.push(d)
+              //   }
+              // })
+              //
+              // if (names.length === 1) {
+              //
+              //   var title       = names[0]
+              //     , description = null
+              //
+              // }
+              // else {
+              //
+              //   var title       = null
+              //     , and         = vars.format.locale.value.ui.and
+              //     , more        = vars.format.locale.value.ui.more
+              //     , description = d3plus.string.list(names,and,4,more)
+              //
+              // }
 
             })
             .on(d3plus.evt.out,function(d){
-              d3plus.tooltip.remove("legend")
+              d3plus.tooltip.remove(vars.type.value)
             })
 
         }

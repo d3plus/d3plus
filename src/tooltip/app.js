@@ -5,6 +5,7 @@ d3plus.tooltip.app = function(params) {
 
   var vars = params.vars,
       d = params.data,
+      dataDepth = "depth" in d.d3plus ? d.d3plus.depth : vars.depth.value,
       ex = params.ex,
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = "arrow" in params ? params.arrow : true,
@@ -27,7 +28,7 @@ d3plus.tooltip.app = function(params) {
         zoom = vars.zoom.direction(d)
 
     if (zoom === -1) {
-      var key = vars.id.nesting[vars.depth.value-1],
+      var key = vars.id.nesting[dataDepth-1],
           parent = d3plus.variable.value(vars,id,key)
     }
 
@@ -96,7 +97,7 @@ d3plus.tooltip.app = function(params) {
 
     var ex = {}
       , children = {}
-      , depth     = d.d3plus.merged ? vars.depth.value : vars.depth.value + 1
+      , depth     = d.d3plus.merged ? dataDepth : dataDepth + 1
       , nestKey   = vars.id.nesting[depth]
       , nameList  = d.d3plus.merged || d[nestKey]
       , dataValue = d3plus.variable.value( vars , d , vars.size.value )
@@ -163,7 +164,7 @@ d3plus.tooltip.app = function(params) {
       ex.share = vars.format.value(d.d3plus.share*100,"share")+"%"
     }
 
-    var depth = "depth" in params ? params.depth : vars.depth.value,
+    var depth = "depth" in params ? params.depth : dataDepth,
         title = d3plus.variable.text(vars,d,depth)[0],
         icon = d3plus.variable.value(vars,d,vars.icon.value,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,children,depth)
@@ -199,6 +200,7 @@ d3plus.tooltip.app = function(params) {
       d3plus.tooltip.create({
         "align": align,
         "arrow": arrow,
+        "locale": vars.format.locale.value,
         "background": vars.tooltip.background,
         "curtain": vars.tooltip.curtain.color,
         "curtainopacity": vars.tooltip.curtain.opacity,
@@ -209,7 +211,7 @@ d3plus.tooltip.app = function(params) {
         "data": tooltip_data,
         "color": d3plus.variable.color(vars,d),
         "allColors": true,
-        "footer": footer,
+        "footer": params.footer === false ? params.footer : footer,
         "fullscreen": fullscreen,
         "html": html,
         "icon": icon,

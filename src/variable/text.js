@@ -28,7 +28,17 @@ d3plus.variable.text = function(vars,obj,depth) {
   var names = []
   text_keys.forEach(function(t){
     var name = d3plus.variable.value( vars , obj , t , key )
-    if (name) names.push(vars.format.value(name.toString()))
+    if ( name ) {
+      if ( !(name instanceof Array) ) {
+        name = name.toString()
+      }
+      else {
+        name.forEach(function(n){
+          n = vars.format.value(name.toString())
+        })
+      }
+      names.push(name)
+    }
   })
 
   return names

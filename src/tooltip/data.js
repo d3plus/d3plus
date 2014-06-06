@@ -80,9 +80,16 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
                : vars.format.value(key),
           h = tooltip_highlights.indexOf(key) >= 0
 
-      var val = vars.format.value(value,key)
+      if ( value instanceof Array ) {
+        value.forEach(function(v){
+          v = vars.format.value(v)
+        })
+      }
+      else {
+        value = vars.format.value(value)
+      }
 
-      var obj = {"name": name, "value": val, "highlight": h, "group": group}
+      var obj = {"name": name, "value": value, "highlight": h, "group": group}
 
       if ( vars.descs.value ) {
 
@@ -98,7 +105,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
       }
 
-      if (val) tooltip_data.push(obj)
+      if (value) tooltip_data.push(obj)
     }
 
   }
