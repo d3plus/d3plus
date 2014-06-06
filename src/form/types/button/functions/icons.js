@@ -25,7 +25,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
       }
 
       var buffer = 0
-      
+
       var items = d3.select(this).selectAll("div.d3plus_button_element")
         .data(children,function(c){
           return c
@@ -45,7 +45,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
 
       items.order()
         .html(function(c){
-          return c === "label" ? d[vars.text.value]
+          return c === "label" ? vars.format.value(d[vars.text.value])
                : c === "selected" && iconGraphic.indexOf("fa-") < 0
                ? iconGraphic : ""
         })
