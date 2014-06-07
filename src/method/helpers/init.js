@@ -37,7 +37,7 @@ d3plus.method.init = function( vars , obj , method ) {
             var str = vars.format.locale.value.dev.deprecated
             dep = "\."+dep+"()"
             d3plus.console.error(d3plus.string.format(str,dep,"\."+n+"()"))
-            d3plus.console.log(d3plus.repo+"wiki/Methods")
+            d3plus.console.wiki(d3plus.repo+"wiki/Methods")
             return vars.self;
 
           }

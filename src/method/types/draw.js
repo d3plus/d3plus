@@ -33,6 +33,7 @@ d3plus.method.draw = {
       if ( vars.dev.value && vars.methodGroup ) {
         vars.methodGroup = "wait"
         d3plus.console.groupEnd("method behavior")
+        d3plus.console.time("[d3plus] total draw time")
       }
 
       vars.container.value.call(vars.self)

@@ -10,7 +10,7 @@ d3plus.viz = function() {
   //----------------------------------------------------------------------------
   vars.self = function(selection) {
     selection.each(function() {
-      // console.time("draw")
+
       vars.draw.frozen = true
       vars.internal_error = null
       d3plus.draw.container(vars)
@@ -61,9 +61,11 @@ d3plus.viz = function() {
           }
           else {
             vars.methodGroup = false
-            if ( vars.dev.value ) d3plus.console.groupEnd()
+            if ( vars.dev.value ) {
+              d3plus.console.groupEnd()
+              d3plus.console.timeEnd("[d3plus] total draw time")
+            }
             vars.container.value.style("cursor","auto")
-            // console.timeEnd("draw")
           }
 
         }
