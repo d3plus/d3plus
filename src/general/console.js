@@ -8,13 +8,20 @@ d3plus.console = function( type , message , style ) {
     console.log( "[d3plus] " + message )
 
   }
-  else {
+  else if ( type === "groupCollapsed" ) {
 
     var style = style || "font-weight:bold;"
 
     console[type]( "%c[d3plus]%c " + message
                  , "color:#B35C1E;font-weight:bold;"
                  , style )
+
+  }
+  else {
+
+    var style = style || "font-weight:bold;"
+
+    console[type]( "%c" + message , style )
 
   }
 
@@ -50,7 +57,7 @@ d3plus.console.group = function( message , style ) {
 
   var style = style || "color:#444444;font-weight:bold;"
 
-  this( "group" , message , style )
+  this( "groupCollapsed" , message , style )
 
 }
 

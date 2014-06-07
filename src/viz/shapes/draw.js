@@ -124,8 +124,6 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   for (var shape in shapes) {
 
-    if (vars.dev.value) d3plus.console.group("drawing \"" + shape + "\" groups")
-
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind Data to Groups
     //--------------------------------------------------------------------------
@@ -234,18 +232,18 @@ d3plus.shape.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Draw appropriate graphics inside of each group
     //--------------------------------------------------------------------------
-    if (vars.dev.value) d3plus.console.time("shapes")
+    if ( vars.dev.value ) d3plus.console.time("drawing \"" + shape + "\" shapes")
     d3plus.shape[shape](vars,selection,enter,exit,transform)
-    if (vars.dev.value) d3plus.console.timeEnd("shapes")
+    if ( vars.dev.value ) d3plus.console.timeEnd("drawing \"" + shape + "\" shapes")
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Check for active and temp fills for rects and donuts
     //--------------------------------------------------------------------------
     if (["rect","donut"].indexOf(shape) >= 0 && d3plus.visualization[vars.type.value].fill) {
+      if ( vars.dev.value ) d3plus.console.time("filling \"" + shape + "\" shapes")
       d3plus.shape.fill(vars,selection,enter,exit,transform)
+      if ( vars.dev.value ) d3plus.console.timeEnd("filling \"" + shape + "\" shapes")
     }
-
-    if (vars.dev.value) d3plus.console.groupEnd()
 
   }
 

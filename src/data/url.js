@@ -3,6 +3,8 @@
 //------------------------------------------------------------------------------
 d3plus.data.url = function( vars , key , next ) {
 
+  if ( vars.dev.value ) d3plus.console.time( "loading " + key )
+
   var url = vars[key].url
 
   if ( !vars[key].type.value ) {
@@ -97,6 +99,7 @@ d3plus.data.url = function( vars , key , next ) {
 
     }
 
+    if ( vars.dev.value ) d3plus.console.time( "loading " + key )
     next()
 
   })

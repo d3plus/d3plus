@@ -7,6 +7,8 @@ d3plus.ui.drawer = function( vars ) {
     , position = vars.ui.position.value
     , buffer = 0
 
+  if ( vars.dev.value && enabled ) d3plus.console.time("drawing custom UI elements")
+
   var drawer = vars.container.value.selectAll("div#d3plus_drawer")
     .data(["d3plus_drawer"])
 
@@ -90,5 +92,7 @@ d3plus.ui.drawer = function( vars ) {
   if ( drawerHeight ) {
     vars.margin[position] += drawerHeight + buffer
   }
+
+  if ( vars.dev.value && enabled ) d3plus.console.timeEnd("drawing custom UI elements")
 
 }

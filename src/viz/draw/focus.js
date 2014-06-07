@@ -13,7 +13,7 @@ d3plus.draw.focus = function(vars) {
 
   if (vars.focus.value && d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
 
-    if (vars.dev.value) d3plus.console.time("drawing focus elements")
+    if ( vars.dev.value ) d3plus.console.time("drawing focus elements")
 
     var edges = vars.g.edges.selectAll("g")
 
@@ -142,7 +142,7 @@ d3plus.draw.focus = function(vars) {
     vars.g.data_focus.selectAll("path")
       .style("stroke-width",vars.data.stroke.width*2)
 
-    if (vars.dev.value) d3plus.console.timeEnd("drawing focus elements")
+    if ( vars.dev.value ) d3plus.console.timeEnd("drawing focus elements")
 
   }
   else {

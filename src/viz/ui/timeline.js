@@ -8,6 +8,8 @@ d3plus.ui.timeline = function(vars) {
 
   if (!vars.small && years && years.length > 1 && vars.timeline.value) {
 
+    if ( vars.dev.value ) d3plus.console.time("drawing timeline")
+
     if ((vars.time.value == vars.x.value && vars.x.scale.value == "continuous") || (vars.time.value == vars.y.value && vars.y.scale.value == "continuous")) {
       var min_required = 2
     }
@@ -340,6 +342,8 @@ d3plus.ui.timeline = function(vars) {
       .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom-vars.ui.padding/2)+")")
 
     vars.margin.bottom += vars.ui.padding
+
+    if ( vars.dev.value ) d3plus.console.time("drawing timeline")
 
   }
   else {

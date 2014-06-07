@@ -3,7 +3,9 @@
 //------------------------------------------------------------------------------
 d3plus.draw.update = function(vars) {
 
-  if (vars.draw.timing) {
+  if ( vars.dev.value ) d3plus.console.time("updating SVG elements")
+
+  if ( vars.draw.timing ) {
 
     // Update Parent Element
     vars.container.value.transition().duration(vars.draw.timing)
@@ -57,5 +59,7 @@ d3plus.draw.update = function(vars) {
       .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
 
   }
+
+  if ( vars.dev.value ) d3plus.console.timeEnd("updating SVG elements")
 
 }

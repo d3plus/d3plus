@@ -1,17 +1,15 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats Raw Data
 //-------------------------------------------------------------------
-d3plus.data.format = function(vars,format) {
+d3plus.data.format = function( vars ) {
 
   var returnData = {}
 
-  if (vars.dev.value) d3plus.console.group("formatting data")
+  vars.id.nesting.forEach(function( depth , i ){
 
-  vars.id.nesting.forEach(function(depth){
+    if ( vars.dev.value ) d3plus.console.time("disaggregating data to depth "+i)
 
-    if (vars.dev.value) d3plus.console.time(depth)
-
-    var level = vars.id.nesting.slice( 0 , vars.id.nesting.indexOf(depth)+1 )
+    var level = vars.id.nesting.slice( 0 , i + 1 )
 
     returnData[depth] = {}
 
@@ -21,11 +19,9 @@ d3plus.data.format = function(vars,format) {
 
     }
 
-    if (vars.dev.value) d3plus.console.timeEnd(depth)
+    if ( vars.dev.value ) d3plus.console.timeEnd("disaggregating data to depth "+i)
 
   })
-
-  if (vars.dev.value) d3plus.console.groupEnd()
 
   return returnData
 

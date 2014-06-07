@@ -7,7 +7,7 @@ d3plus.input.drop.button = function ( vars ) {
 
   if ( !("button" in vars.container) ) {
 
-    if (vars.dev.value) d3plus.console.time("creating main button")
+    if ( vars.dev.value ) d3plus.console.time("creating main button")
 
     var buttonData = d3plus.util.copy(vars.data.value.filter(function(d){
       return d[vars.id.value] === vars.focus.value
@@ -21,7 +21,7 @@ d3plus.input.drop.button = function ( vars ) {
         "margin": 0
       })
 
-    if (vars.dev.value) d3plus.console.timeEnd("creating main button")
+    if ( vars.dev.value ) d3plus.console.timeEnd("creating main button")
 
   }
   else if ( vars.data.changed ) {

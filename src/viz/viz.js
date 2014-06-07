@@ -10,7 +10,7 @@ d3plus.viz = function() {
   //----------------------------------------------------------------------------
   vars.self = function(selection) {
     selection.each(function() {
-
+      // console.time("draw")
       vars.draw.frozen = true
       vars.internal_error = null
       d3plus.draw.container(vars)
@@ -28,7 +28,7 @@ d3plus.viz = function() {
 
       if (vars.error.value) {
 
-      var timing = vars.draw.timing
+        var timing = vars.draw.timing
 
         vars.group.transition().duration(timing)
           .attr("opacity",0)
@@ -41,14 +41,14 @@ d3plus.viz = function() {
         var message = vars.error.value === true
                     ? vars.format.value(vars.format.locale.value.ui.error)
                     : vars.error.value
-        if (vars.dev.value) d3plus.console.warning(message)
+        if ( vars.dev.value ) d3plus.console.warning(message)
         var lastMessage = message
         d3plus.ui.message(vars,message)
 
       }
       else {
 
-        var steps = d3plus.draw.steps(vars)
+        var steps = d3plus.draw.steps( vars )
 
         vars.container.value.style("cursor","wait")
         vars.messages.style = vars.group && vars.group.attr("opacity") === "1"
@@ -56,12 +56,14 @@ d3plus.viz = function() {
 
         function check_next() {
 
-          if (steps.length) {
+          if ( steps.length ) {
             run_steps()
           }
           else {
-            if (vars.dev.value) d3plus.console.groupEnd()
+            vars.methodGroup = false
+            if ( vars.dev.value ) d3plus.console.groupEnd()
             vars.container.value.style("cursor","auto")
+            // console.timeEnd("draw")
           }
 
         }
@@ -76,13 +78,15 @@ d3plus.viz = function() {
 
             if ( !same && vars.draw.update ) {
 
-              if (vars.dev.value) {
+              if ( vars.dev.value ) {
                 d3plus.console.groupEnd()
                 d3plus.console.group(step.message)
               }
+
               lastMessage = typeof vars.messages.value === "string"
                           ? vars.messages.value
                           : step.message
+
               var message = typeof vars.messages.value === "string"
                           ? vars.messages.value
                           : vars.format.value(step.message)
@@ -135,6 +139,7 @@ d3plus.viz = function() {
           }
 
         }
+
         run_steps()
 
       }

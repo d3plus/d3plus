@@ -62,7 +62,7 @@ d3plus.input.drop.update = function ( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update List
   //----------------------------------------------------------------------------
-  if (vars.dev.value) d3plus.console.time("drawing list")
+  if ( vars.dev.value ) d3plus.console.time("drawing list")
 
   var previousDisplay = vars.container.selector.style("display")
   vars.container.selector.style("display","block")
@@ -163,6 +163,6 @@ d3plus.input.drop.update = function ( vars ) {
       .tween("scroll",scrollTopTween(vars.container.listScroll))
   }
 
-  if (vars.dev.value) d3plus.console.timeEnd("drawing list")
+  if ( vars.dev.value ) d3plus.console.timeEnd("drawing list")
 
 }

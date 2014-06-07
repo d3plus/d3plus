@@ -3,7 +3,7 @@
 //-------------------------------------------------------------------
 d3plus.data.color = function(vars) {
 
-  if (vars.dev.value) d3plus.console.time("get data range")
+  if ( vars.dev.value ) d3plus.console.time("getting color data range")
 
   var data_range = []
   vars.data.pool.forEach(function(d){
@@ -11,13 +11,13 @@ d3plus.data.color = function(vars) {
     if (typeof val == "number" && !isNaN(val) && data_range.indexOf(val) < 0) data_range.push(val)
   })
 
-  if (vars.dev.value) d3plus.console.timeEnd("get data range")
+  if ( vars.dev.value ) d3plus.console.timeEnd("getting color data range")
 
   if (data_range.length > 1) {
 
     var data_domain = null
 
-    if (vars.dev.value) d3plus.console.time("create color scale")
+    if ( vars.dev.value ) d3plus.console.time("calculating color scale")
 
     data_range = d3.extent(data_range)
 
@@ -47,7 +47,7 @@ d3plus.data.color = function(vars) {
       .range(color_range)
       .interpolate(d3.interpolateRgb)
 
-    if (vars.dev.value) d3plus.console.timeEnd("create color scale")
+    if ( vars.dev.value ) d3plus.console.timeEnd("calculating color scale")
 
   }
   else {

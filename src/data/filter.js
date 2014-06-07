@@ -23,9 +23,14 @@ d3plus.data.filter = function(vars) {
 
   if (vars.check.length >= 1) {
 
-    if (vars.dev.value) d3plus.console.group("filtering data by required variables");
-    var checking = vars.filters.join(", ")
-    if (vars.dev.value) d3plus.console.time(checking)
+    if ( vars.dev.value ) {
+      var list = []
+      vars.filters.forEach(function(f){
+        list.push("\""+f+"\"")
+      })
+      var checking = "filtering data by "+d3plus.string.list(list)
+      d3plus.console.time(checking)
+    }
 
     var data = "value"
     vars.filters.forEach(function(key){
@@ -48,16 +53,14 @@ d3plus.data.filter = function(vars) {
 
     vars.data.filtered = {"all": vars.data.filtered}
 
-    if (vars.dev.value) d3plus.console.timeEnd(checking)
-    if (vars.dev.value) d3plus.console.groupEnd();
+    if ( vars.dev.value ) d3plus.console.timeEnd(checking)
+
   }
   else if (!vars.data.filtered) {
     vars.data.filtered = {"all": vars.data.value}
   }
 
-  if (vars.time.value && d3.keys(vars.data.filtered).length == 1) {
-
-    if (vars.dev.value) d3plus.console.group("disaggregating by year")
+  if (vars.time.value && d3.keys(vars.data.filtered).length === 1) {
 
     // Find available years
     vars.data.time = d3plus.util.uniques(vars.data.filtered.all,vars.time.value)
@@ -68,16 +71,14 @@ d3plus.data.filter = function(vars) {
     vars.data.time.sort()
 
     if (vars.data.time.length) {
-      if (vars.dev.value) d3plus.console.time(vars.data.time.length+" years")
+      if ( vars.dev.value ) d3plus.console.time("disaggregating data by "+vars.data.time.length+" time periods")
       vars.data.time.forEach(function(y){
         vars.data.filtered[y] = vars.data.filtered.all.filter(function(d){
           return d3plus.variable.value(vars,d,vars.time.value) == y;
         })
       })
-      if (vars.dev.value) d3plus.console.timeEnd(vars.data.time.length+" years")
+      if ( vars.dev.value ) d3plus.console.timeEnd("disaggregating data by "+vars.data.time.length+" time periods")
     }
-
-    if (vars.dev.value) d3plus.console.groupEnd()
 
   }
 

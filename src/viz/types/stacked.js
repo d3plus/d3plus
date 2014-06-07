@@ -25,23 +25,23 @@ d3plus.visualization.stacked.requirements = [ "data" , "x" , "y" ]
 
 d3plus.visualization.stacked.setup        = function(vars) {
 
-  if (vars.dev.value) d3plus.console.time("setting local variables")
+  if ( vars.dev.value ) d3plus.console.time("setting local variables")
 
   vars.x.scale.value    = "continuous"
-  if (vars.dev.value) d3plus.console.log("\"x\" scale set to \"continuous\"")
+  if ( vars.dev.value ) d3plus.console.log("\"x\" scale set to \"continuous\"")
 
   vars.x.zerofill.value = true
-  if (vars.dev.value) d3plus.console.log("\"x\" zerofill set to \"true\"")
+  if ( vars.dev.value ) d3plus.console.log("\"x\" zerofill set to \"true\"")
 
   vars.y.stacked.value  = true
-  if (vars.dev.value) d3plus.console.log("\"y\" stacked set to \"true\"")
+  if ( vars.dev.value ) d3plus.console.log("\"y\" stacked set to \"true\"")
 
   if ( ( !vars.y.value && vars.size.value )
   || ( vars.size.changed && vars.size.previous == vars.y.value ) ) {
 
     vars.y.value   = vars.size.value
     vars.y.changed = true
-    if (vars.dev.value) d3plus.console.log("\"y\" value set to \"size\" value")
+    if ( vars.dev.value ) d3plus.console.log("\"y\" value set to \"size\" value")
 
   }
   else if ( ( !vars.size.value && vars.y.value )
@@ -49,11 +49,11 @@ d3plus.visualization.stacked.setup        = function(vars) {
 
     vars.size.value   = vars.y.value
     vars.size.changed = true
-    if (vars.dev.value) d3plus.console.log("\"size\" value set to \"y\" value")
+    if ( vars.dev.value ) d3plus.console.log("\"size\" value set to \"y\" value")
 
   }
 
-  if (vars.dev.value) d3plus.console.timeEnd("setting local variables")
+  if ( vars.dev.value ) d3plus.console.timeEnd("setting local variables")
 
 }
 

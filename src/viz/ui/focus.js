@@ -6,6 +6,8 @@ d3plus.ui.focus = function(vars) {
 
   if (!vars.internal_error && vars.focus.value && !vars.small && vars.focus.tooltip.value) {
 
+    if ( vars.dev.value ) d3plus.console.time("drawing focus tooltip")
+
     var data = vars.data.pool.filter(function(d){
       return d3plus.variable.value(vars,d,vars.id.value) == vars.focus.value
     })
@@ -39,6 +41,8 @@ d3plus.ui.focus = function(vars) {
     if(!d3.select("div#d3plus_tooltip_id_"+vars.type.value+"_focus").empty()) {
       vars.width.viz -= (vars.tooltip.large+offset*2)
     }
+
+    if ( vars.dev.value ) d3plus.console.timeEnd("drawing focus tooltip")
 
   }
   else {

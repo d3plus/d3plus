@@ -8,7 +8,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
 
-    if (vars.dev.value) d3plus.console.time("calculating zoom")
+    if ( vars.dev.value ) d3plus.console.time("calculating zoom")
 
     if (vars.draw.first && vars.zoom.bounds) {
       d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
@@ -23,7 +23,7 @@ d3plus.draw.finish = function(vars) {
       }
     }
 
-    if (vars.dev.value) d3plus.console.timeEnd("calculating zoom")
+    if ( vars.dev.value ) d3plus.console.timeEnd("calculating zoom")
 
   }
   else {
@@ -50,15 +50,15 @@ d3plus.draw.finish = function(vars) {
   if (vars.draw.update) {
     d3plus.shape.edges(vars)
     if (vars.draw.timing || (!d3plus.visualization[vars.type.value].zoom && !vars.draw.timing)) {
-      if (vars.dev.value) d3plus.console.time("data labels")
+      if ( vars.dev.value ) d3plus.console.time("data labels")
       d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
-      if (vars.dev.value) d3plus.console.timeEnd("data labels")
+      if ( vars.dev.value ) d3plus.console.timeEnd("data labels")
       if (vars.edges.label) {
 
         setTimeout(function(){
-          if (vars.dev.value) d3plus.console.time("edge labels")
+          if ( vars.dev.value ) d3plus.console.time("edge labels")
           d3plus.shape.labels(vars,vars.g.edges.selectAll("g"))
-          if (vars.dev.value) d3plus.console.timeEnd("edge labels")
+          if ( vars.dev.value ) d3plus.console.timeEnd("edge labels")
         },vars.draw.timing)
 
       }
@@ -71,7 +71,7 @@ d3plus.draw.finish = function(vars) {
   }
 
   if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.draw.timing) {
-    if (vars.dev.value) d3plus.console.time("focus labels")
+    if ( vars.dev.value ) d3plus.console.time("focus labels")
     d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
     if (vars.edges.label) {
 
@@ -80,7 +80,7 @@ d3plus.draw.finish = function(vars) {
       },vars.draw.timing)
 
     }
-    if (vars.dev.value) d3plus.console.timeEnd("focus labels")
+    if ( vars.dev.value ) d3plus.console.timeEnd("focus labels")
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -98,7 +98,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   var prev = vars.type.previous
   if (prev && vars.type.value != prev && vars.g.apps[prev]) {
-    if (vars.dev.value) d3plus.console.group("Hiding \"" + prev + "\"")
+    if ( vars.dev.value ) d3plus.console.time("hiding \"" + prev + "\"")
     if (vars.draw.timing) {
       vars.g.apps[prev].transition().duration(vars.draw.timing)
         .attr("opacity",0)
@@ -106,7 +106,7 @@ d3plus.draw.finish = function(vars) {
     else {
       vars.g.apps[prev].attr("opacity",0)
     }
-    if (vars.dev.value) d3plus.console.groupEnd();
+    if ( vars.dev.value ) d3plus.console.timeEnd()
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

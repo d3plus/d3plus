@@ -3,6 +3,8 @@
 //------------------------------------------------------------------------------
 d3plus.draw.errors = function(vars) {
 
+  if ( vars.dev.value ) d3plus.console.time("checking for errors")
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if we have all required variables set
   //----------------------------------------------------------------------------
@@ -107,5 +109,7 @@ d3plus.draw.errors = function(vars) {
       d3plus.console.warning(d3plus.string.format(str,modeStr,mode))
     }
   }
+
+  if ( vars.dev.value ) d3plus.console.timeEnd("checking for errors")
 
 }

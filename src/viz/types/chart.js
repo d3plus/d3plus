@@ -41,7 +41,7 @@ d3plus.visualization.chart = function(vars) {
 
       if (vars.data.changed || vars.depth.changed || !vars[axis+"_range"] || vars.time.fixed.value) {
 
-        if (vars.dev.value) d3plus.console.time("determining "+axis+"-axis")
+        if ( vars.dev.value ) d3plus.console.time("determining "+axis+"-axis")
         if (vars[axis].scale.value == "share") {
           vars[axis+"_range"] = [0,1]
           vars.tickValues[axis] = d3plus.util.buckets([0,1],11)
@@ -98,7 +98,7 @@ d3plus.visualization.chart = function(vars) {
         // reverse Y axis
         if (axis == "y") vars.y_range = vars.y_range.reverse()
 
-        if (vars.dev.value) d3plus.console.timeEnd("determining "+axis+"-axis")
+        if ( vars.dev.value ) d3plus.console.timeEnd("determining "+axis+"-axis")
       }
       else if (!vars[axis+"_range"]) {
         vars[axis+"_range"] = [-1,1]
@@ -122,7 +122,7 @@ d3plus.visualization.chart = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Filter data to only include values within the axes
     //-------------------------------------------------------------------
-    if (vars.dev.value) d3plus.console.time("removing data outside of axes")
+    if ( vars.dev.value ) d3plus.console.time("removing data outside of axes")
     var old_length = vars.data.app.length
     if (vars.y.scale.value == "share") {
       var data = vars.data.app
@@ -139,7 +139,7 @@ d3plus.visualization.chart = function(vars) {
       })
     }
 
-    if (vars.dev.value) d3plus.console.timeEnd("removing data outside of axes")
+    if ( vars.dev.value ) d3plus.console.timeEnd("removing data outside of axes")
     var removed = old_length - data.length
     if (removed && vars.dev.value) d3plus.console.log("removed "+removed+" nodes")
 
@@ -151,7 +151,7 @@ d3plus.visualization.chart = function(vars) {
 
     if (data) {
 
-      if (vars.dev.value) d3plus.console.time("determining size scale")
+      if ( vars.dev.value ) d3plus.console.time("determining size scale")
       if (vars.size.value) {
         if (vars.time.fixed.value) {
           var size_domain = d3.extent(vars.data.app,function(d){
@@ -186,7 +186,7 @@ d3plus.visualization.chart = function(vars) {
         .domain(size_domain)
         .rangeRound(size_range)
 
-      if (vars.dev.value) d3plus.console.timeEnd("determining size scale")
+      if ( vars.dev.value ) d3plus.console.timeEnd("determining size scale")
 
     }
 

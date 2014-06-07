@@ -3,6 +3,8 @@
 //------------------------------------------------------------------------------
 d3plus.draw.enter = function(vars) {
 
+  if ( vars.dev.value ) d3plus.console.time("creating SVG elements")
+
   // Enter SVG
   vars.svg = vars.container.value.selectAll("svg#d3plus").data([0]);
   vars.svg.enter().insert("svg","#d3plus_message")
@@ -163,5 +165,7 @@ d3plus.draw.enter = function(vars) {
 
   vars.defs = vars.svg.selectAll("defs").data(["defs"])
   vars.defs.enter().append("defs")
+
+  if ( vars.dev.value ) d3plus.console.timeEnd("creating SVG elements")
 
 }

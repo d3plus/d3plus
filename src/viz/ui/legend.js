@@ -9,21 +9,9 @@ d3plus.ui.legend = function(vars) {
 
   if (!vars.small && vars.legend.value && key) {
 
-    if (vars.dev.value) d3plus.console.group("drawing legend")
-
-    if (vars.data.keys && key in vars.data.keys) {
-      var color_type = vars.data.keys[key]
-    }
-    else if (vars.attrs.keys && key in vars.attrs.keys) {
-      var color_type = vars.attrs.keys[key]
-    }
-    else {
-      var color_type = undefined
-    }
-
     if (!vars.color.scale) {
 
-      if (vars.dev.value) d3plus.console.time("grouping data by colors")
+      if ( vars.dev.value ) d3plus.console.time("grouping data by colors")
 
       if ( vars.nodes.value && d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
         var data = vars.nodes.restriced || vars.nodes.value
@@ -50,7 +38,7 @@ d3plus.ui.legend = function(vars) {
         d.d3plus.depth = colorDepth
       })
 
-      if (vars.dev.value) d3plus.console.timeEnd("grouping data by color")
+      if ( vars.dev.value ) d3plus.console.timeEnd("grouping data by color")
 
       var available_width = vars.width.value
 
@@ -60,7 +48,7 @@ d3plus.ui.legend = function(vars) {
 
       if (square_size instanceof Array) {
 
-        if (vars.dev.value) d3plus.console.time("calculating size")
+        if ( vars.dev.value ) d3plus.console.time("calculating legend size")
 
         for (var i = square_size[1]; i >= square_size[0]; i--) {
           key_width = i*colors.length+vars.ui.padding*(colors.length+1)
@@ -70,7 +58,7 @@ d3plus.ui.legend = function(vars) {
           }
         }
 
-        if (vars.dev.value) d3plus.console.timeEnd("calculating size")
+        if ( vars.dev.value ) d3plus.console.timeEnd("calculating legend size")
 
       }
       else if (typeof square_size != "number" && square_size !== false) {
@@ -84,12 +72,16 @@ d3plus.ui.legend = function(vars) {
 
         key_width -= vars.ui.padding*2
 
-        if (vars.dev.value) d3plus.console.time("sorting colors")
+        if ( vars.dev.value ) d3plus.console.time("sorting legend")
 
-        d3plus.array.sort( colors , vars.legend.order.value
-                         , vars.legend.order.sort.value , "color" , vars )
+        var order = vars[vars.legend.order.value].value
 
-        if (vars.dev.value) d3plus.console.timeEnd("sorting colors")
+        d3plus.array.sort( colors , order , vars.legend.order.sort.value
+                         , vars.color.value , vars )
+
+        if ( vars.dev.value ) d3plus.console.timeEnd("sorting legend")
+
+        if ( vars.dev.value ) d3plus.console.time("drawing legend")
 
         if (vars.legend.align == "start") {
           var start_x = vars.ui.padding
@@ -280,31 +272,6 @@ d3plus.ui.legend = function(vars) {
                 "y": y
               })
 
-              // var names = []
-              // d.name.forEach(function(d){
-              //   if (d instanceof Array) {
-              //     names.push(d[0])
-              //   }
-              //   else {
-              //     names.push(d)
-              //   }
-              // })
-              //
-              // if (names.length === 1) {
-              //
-              //   var title       = names[0]
-              //     , description = null
-              //
-              // }
-              // else {
-              //
-              //   var title       = null
-              //     , and         = vars.format.locale.value.ui.and
-              //     , more        = vars.format.locale.value.ui.more
-              //     , description = d3plus.string.list(names,and,4,more)
-              //
-              // }
-
             })
             .on(d3plus.evt.out,function(d){
               d3plus.tooltip.remove(vars.type.value)
@@ -325,12 +292,14 @@ d3plus.ui.legend = function(vars) {
           .attr("opacity",0)
           .remove()
 
+        if ( vars.dev.value ) d3plus.console.timeEnd("drawing legend")
+
       }
 
     }
     else if (vars.color.scale) {
 
-      if (vars.dev.value) d3plus.console.time("drawing color scale")
+      if ( vars.dev.value ) d3plus.console.time("drawing color scale")
 
       vars.g.legend.selectAll("g.d3plus_color")
         .transition().duration(vars.draw.timing)
@@ -526,7 +495,7 @@ d3plus.ui.legend = function(vars) {
         scale.transition().duration(vars.draw.timing)
           .attr("opacity",1)
 
-        if (vars.dev.value) d3plus.console.timeEnd("drawing color scale")
+        if ( vars.dev.value ) d3plus.console.timeEnd("drawing color scale")
 
       }
       else {
@@ -544,7 +513,7 @@ d3plus.ui.legend = function(vars) {
   }
   if (vars.legend.value && key && key_display) {
 
-    if (vars.dev.value) d3plus.console.time("positioning legend")
+    if ( vars.dev.value ) d3plus.console.time("positioning legend")
 
     if (square_size) {
       var key_height = square_size+vars.ui.padding
@@ -562,22 +531,19 @@ d3plus.ui.legend = function(vars) {
     vars.g.legend.transition().duration(vars.draw.timing)
       .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
 
-    if (vars.dev.value) d3plus.console.timeEnd("positioning legend")
+    if ( vars.dev.value ) d3plus.console.timeEnd("positioning legend")
 
   }
   else {
 
-    if (vars.dev.value) d3plus.console.time("hiding legend")
+    if ( vars.dev.value ) d3plus.console.time("hiding legend")
 
     vars.g.legend.transition().duration(vars.draw.timing)
       .attr("transform","translate(0,"+vars.height.value+")")
 
-    if (vars.dev.value) d3plus.console.timeEnd("hiding legend")
+    if ( vars.dev.value ) d3plus.console.timeEnd("hiding legend")
 
   }
 
-  if (vars.legend.value && key && vars.dev.value) {
-    d3plus.console.groupEnd()
-  }
 
 }

@@ -7,7 +7,7 @@ d3plus.input.drop.items = function ( vars ) {
 
   if (vars.open.value) {
 
-    if (vars.dev.value) d3plus.console.time("updating list items")
+    if ( vars.dev.value ) d3plus.console.time("updating list items")
 
     if ( !("items" in vars.container) ) {
 
@@ -70,7 +70,7 @@ d3plus.input.drop.items = function ( vars ) {
       })
       .draw()
 
-    if (vars.dev.value) d3plus.console.timeEnd("updating list items")
+    if ( vars.dev.value ) d3plus.console.timeEnd("updating list items")
 
   }
 

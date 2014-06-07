@@ -5,7 +5,7 @@ d3plus.input.drop.scroll = function ( vars ) {
 
   if (vars.open.value) {
 
-    if (vars.dev.value) d3plus.console.time("calculating height")
+    if ( vars.dev.value ) d3plus.console.time("calculating height")
 
     var hidden = false
     if (vars.container.selector.style("display") == "none") {
@@ -42,11 +42,11 @@ d3plus.input.drop.scroll = function ( vars ) {
 
     if (hidden) vars.container.selector.style("display","none")
 
-    if (vars.dev.value) d3plus.console.timeEnd("calculating height")
+    if ( vars.dev.value ) d3plus.console.timeEnd("calculating height")
 
     if (scrolling) {
 
-      if (vars.dev.value) d3plus.console.time("calculating scroll position")
+      if ( vars.dev.value ) d3plus.console.time("calculating scroll position")
 
       var options = vars.container.list.select("div").selectAll("div.d3plus_node")
       var option = options[0][0]
@@ -86,7 +86,7 @@ d3plus.input.drop.scroll = function ( vars ) {
 
       }
 
-      if (vars.dev.value) d3plus.console.timeEnd("calculating scroll position")
+      if ( vars.dev.value ) d3plus.console.timeEnd("calculating scroll position")
 
     }
     else {

@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.input.drop.arrow = function ( vars ) {
 
-  if (vars.dev.value) d3plus.console.time("rotating arrow")
+  if ( vars.dev.value ) d3plus.console.time("rotating arrow")
 
   var offset = vars.icon.drop.value === "&#x276f;" ? 90 : 0
 
@@ -23,6 +23,6 @@ d3plus.input.drop.arrow = function ( vars ) {
     })
     .draw()
 
-  if (vars.dev.value) d3plus.console.timeEnd("rotating arrow")
+  if ( vars.dev.value ) d3plus.console.timeEnd("rotating arrow")
 
 }

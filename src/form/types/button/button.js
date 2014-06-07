@@ -16,7 +16,7 @@ d3plus.input.button = function( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter Buttons
   //----------------------------------------------------------------------------
-  if (vars.dev.value) d3plus.console.time("enter")
+  if ( vars.dev.value ) d3plus.console.time("enter")
 
   button.enter().append("div")
     .attr("class","d3plus_node")
@@ -25,16 +25,16 @@ d3plus.input.button = function( vars ) {
     .call( self.icons , vars )
     .call( self.mouseevents , vars , self.color )
 
-  if (vars.dev.value) d3plus.console.timeEnd("enter")
+  if ( vars.dev.value ) d3plus.console.timeEnd("enter")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update Buttons
   //----------------------------------------------------------------------------
   if (vars.draw.update || vars.draw.timing) {
 
-    if (vars.dev.value) d3plus.console.time("ordering")
+    if ( vars.dev.value ) d3plus.console.time("ordering")
     button.order()
-    if (vars.dev.value) d3plus.console.timeEnd("ordering")
+    if ( vars.dev.value ) d3plus.console.timeEnd("ordering")
 
     var updatedButtons = button
 
@@ -52,7 +52,7 @@ d3plus.input.button = function( vars ) {
 
   }
 
-  if (vars.dev.value) d3plus.console.time("update")
+  if ( vars.dev.value ) d3plus.console.time("update")
   if (vars.draw.timing) {
     updatedButtons
       .transition().duration(vars.draw.timing)
@@ -68,7 +68,7 @@ d3plus.input.button = function( vars ) {
   updatedButtons
     .call( self.icons , vars )
     .call( self.mouseevents , vars , self.color )
-  if (vars.dev.value) d3plus.console.timeEnd("update")
+  if ( vars.dev.value ) d3plus.console.timeEnd("update")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Exit Buttons

@@ -18,7 +18,7 @@ d3plus.ui.titles = function(vars) {
   //----------------------------------------------------------------------------
   else if (total_key) {
 
-    if (vars.dev.value) {
+    if ( vars.dev.value ) {
       d3plus.console.time("calculating total value")
     }
 
@@ -80,7 +80,7 @@ d3plus.ui.titles = function(vars) {
 
     }
 
-    if (vars.dev.value) {
+    if ( vars.dev.value ) {
       d3plus.console.timeEnd("calculating total value")
     }
 
@@ -206,7 +206,7 @@ d3plus.ui.titles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter Titles
   //----------------------------------------------------------------------------
-  if (vars.dev.value) d3plus.console.log("drawing Titles")
+  if ( vars.dev.value ) d3plus.console.time("drawing titles")
   var titles = vars.svg.selectAll("g.d3plus_title")
     .data(title_data,function(t){
       return t.type
@@ -307,5 +307,7 @@ d3plus.ui.titles = function(vars) {
   if (min && vars.margin[vars.title.position] < min) {
     vars.margin[vars.title.position] = min
   }
+
+  if ( vars.dev.value ) d3plus.console.timeEnd("drawing titles")
 
 }

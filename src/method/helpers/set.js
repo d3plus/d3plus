@@ -6,7 +6,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create reference text for console statements.
   //----------------------------------------------------------------------------
-  if (key == "value" || !key) {
+  if ( key === "value" || !key || key === method ) {
 
     var text = "\."+method+"()"
 
@@ -121,7 +121,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
          || ( object[key] && object[key] === value ) ) && value !== undefined ) {
 
       var str = vars.format.locale.value.dev.noChange
-      if (vars.dev.value) d3plus.console.comment(d3plus.string.format(str,text))
+      if ( vars.dev.value ) d3plus.console.comment(d3plus.string.format(str,text))
 
     }
     else {
@@ -265,7 +265,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Reset associated variables given if "value" is changed.
       //------------------------------------------------------------------------
-      if (key == "value" && object.reset) {
+      if (key === "value" && object.reset) {
 
         var reset = typeof object.reset == "string"
                   ? [ object.reset ] : object.reset
@@ -279,21 +279,22 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Display console message, if applicable.
       //------------------------------------------------------------------------
-      if ( ( vars.dev.value || key === "dev" )
-      && ( object.changed || ("key" in object && object[key].changed) ) ) {
+      if ( ( vars.dev.value || key === "dev" ) && object.changed
+           && object[key] !== undefined ) {
 
         var longArray = object[key] instanceof Array && object[key].length > 10
           , d3selection = d3plus.util.d3selection(object[key])
           , typeFunction = typeof object[key] === "function"
 
-        var valString = object[key] === undefined ? "\"undefined\""
-                      : !longArray && !d3selection && !typeFunction
-                      ? JSON.stringify(object[key]) : null
+        var valString = !longArray && !d3selection && !typeFunction
+                      ? typeof object[key] === "string" ? object[key]
+                      : JSON.stringify(object[key]) : null
 
-        if (valString !== null && valString.length < 260) {
+        if ( valString !== null && valString.length < 260 ) {
 
           var str = vars.format.locale.value.dev.setLong
           d3plus.console.log(d3plus.string.format(str,text,"\""+valString+"\""))
+
 
         }
         else {

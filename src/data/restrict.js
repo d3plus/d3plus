@@ -16,7 +16,7 @@ d3plus.data.restrict = function( vars ) {
 
   vars[key].forEach(function(v){
 
-    if (vars.dev.value) d3plus.console.time(v)
+    if ( vars.dev.value ) d3plus.console.time("applying \""+v+"\" filter")
 
     function test_value(val) {
 
@@ -77,12 +77,12 @@ d3plus.data.restrict = function( vars ) {
     if (v == "id") {
 
       if (vars.nodes.value) {
-        if (vars.dev.value) d3plus.console.log("Filtering Nodes")
+        if ( vars.dev.value ) d3plus.console.log("Filtering Nodes")
         vars.nodes.restricted = vars.nodes.value.filter(nest_check)
       }
 
       if (vars.edges.value) {
-        if (vars.dev.value) d3plus.console.log("Filtering Connections")
+        if ( vars.dev.value ) d3plus.console.log("Filtering Connections")
         vars.edges.restricted = vars.edges.value.filter(function(d){
           var first_match = nest_check(d[vars.edges.source]),
               second_match = nest_check(d[vars.edges.target])
@@ -95,7 +95,7 @@ d3plus.data.restrict = function( vars ) {
     // continue restricting on already "restricted" data
     data = "restricted"
 
-    if (vars.dev.value) d3plus.console.timeEnd(v)
+    if ( vars.dev.value ) d3plus.console.timeEnd("applying \""+v+"\" filter")
 
   })
 

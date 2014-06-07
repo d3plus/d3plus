@@ -5,6 +5,12 @@ d3plus.method.function = function( key , vars ) {
 
   return function( user , callback ) {
 
+    if ( ( vars.dev.value || ( key === "dev" && user ) )
+         && !vars.methodGroup && vars.methodGroup !== "wait" ) {
+      vars.methodGroup = true
+      d3plus.console.group("method behavior")
+    }
+
     var accepted = key in vars && d3plus.object.validate(vars[key])
                    && "accepted" in vars[key] ? vars[key].accepted
                  : key in vars ? typeof vars[key] : null

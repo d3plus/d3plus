@@ -44,7 +44,7 @@ d3plus.form = function() {
       if ( !vars.focus.value && vars.data.value.length ) {
 
         vars.focus.value = vars.data.value[0][vars.id.value]
-        if (vars.dev.value) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+        if ( vars.dev.value ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
 
       }
 
@@ -60,11 +60,11 @@ d3plus.form = function() {
 
           if (vars.data.value.length > 10) {
             vars.search.enabled = true
-            if (vars.dev.value) d3plus.console.log("Search enabled.")
+            if ( vars.dev.value ) d3plus.console.log("Search enabled.")
           }
           else {
             vars.search.enabled = false
-            if (vars.dev.value) d3plus.console.log("Search disabled.")
+            if ( vars.dev.value ) d3plus.console.log("Search disabled.")
           }
 
         }
@@ -196,9 +196,9 @@ d3plus.form = function() {
       if ( vars.data.value.length ) {
 
         var app = vars.format.locale.value.visualization[vars.type.value]
-        if (vars.dev.value) d3plus.console.group("drawing "+ app)
+        if ( vars.dev.value ) d3plus.console.time("drawing "+ app)
         d3plus.input[vars.type.value]( vars )
-        if (vars.dev.value) d3plus.console.groupEnd()
+        if ( vars.dev.value ) d3plus.console.timeEnd("drawing "+ app)
 
       }
       else if ( vars.data.url && (!vars.data.loaded || vars.data.stream) ) {
@@ -211,6 +211,7 @@ d3plus.form = function() {
       // Initialization complete
       //------------------------------------------------------------------------
       d3plus.data.reset( vars )
+      vars.methodGroup = false
 
     }
 
@@ -219,7 +220,7 @@ d3plus.form = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define methods and expose public variables.
   //----------------------------------------------------------------------------
-  var methods = [ "alt" , "color" , "container" , "dev" , "data" , "draw"
+  var methods = [ "alt" , "color" , "container" , "depth" , "dev" , "data" , "draw"
                 , "focus" , "format" , "height" , "hover" , "icon" , "id"
                 , "keywords" , "open" , "order" , "remove" , "search"
                 , "select" , "selectAll" , "text" , "title" , "type" , "width" ]

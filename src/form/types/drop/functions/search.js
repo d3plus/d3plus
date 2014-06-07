@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.input.drop.search = function ( vars ) {
 
-  if (vars.dev.value) d3plus.console.time("creating search")
+  if ( vars.dev.value ) d3plus.console.time("creating search")
 
   var self = this
 
@@ -78,6 +78,6 @@ d3plus.input.drop.search = function ( vars ) {
 
   vars.container.search.exit().remove()
 
-  if (vars.dev.value) d3plus.console.timeEnd("creating search")
+  if ( vars.dev.value ) d3plus.console.timeEnd("creating search")
 
 }

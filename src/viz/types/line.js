@@ -18,7 +18,7 @@ d3plus.visualization.line.requirements = [ "data" , "x" , "y" ]
 d3plus.visualization.line.setup = function(vars) {
 
   vars.x.scale.value = "continuous"
-  if (vars.dev.value) d3plus.console.log("\"x\" scale set to \"continuous\"")
+  if ( vars.dev.value ) d3plus.console.log("\"x\" scale set to \"continuous\"")
 
 }
 

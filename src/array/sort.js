@@ -30,8 +30,29 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
 
       var k = keys[i]
 
-      a = !(k in a) && vars ? d3plus.variable.value(vars,a,k) : a[k]
-      b = !(k in b) && vars ? d3plus.variable.value(vars,b,k) : b[k]
+      if ( vars ) {
+
+        var depthKey = a.d3plus ? vars.id.nesting[a.d3plus.depth] : undefined
+          , depthInt = a.d3plus ? a.d3plus.depth : undefined
+        a = k === vars.color.value
+          ? d3plus.variable.color( vars , a , depthKey )
+          : k === vars.text.value
+          ? d3plus.variable.text( vars , a , depthInt )
+          : d3plus.variable.value( vars , a , k , depthKey )
+
+        var depthKey = b.d3plus ? vars.id.nesting[b.d3plus.depth] : undefined
+          , depthInt = b.d3plus ? b.d3plus.depth : undefined
+        b = k === vars.color.value
+          ? d3plus.variable.color( vars , b , depthKey )
+          : k === vars.text.value
+          ? d3plus.variable.text( vars , b , depthInt )
+          : d3plus.variable.value( vars , b , k , depthKey )
+
+      }
+      else {
+        a = a[k]
+        b = b[k]
+      }
 
       a = a instanceof Array ? a = a[0]
         : typeof a === "string" ? a = a.toLowerCase() : a

@@ -13,7 +13,7 @@ d3plus.input.drop.width = function ( vars ) {
              : vars.text.secondary.value || vars.text.value
       , font = key === "value" ? vars.font : vars.font.secondary
 
-    if (vars.dev.value) d3plus.console.time("calculating "+type+" width")
+    if ( vars.dev.value ) d3plus.console.time("calculating "+type+" width")
 
     var button = d3plus.form()
       .container(d3plus.font.tester())
@@ -49,7 +49,7 @@ d3plus.input.drop.width = function ( vars ) {
 
     vars.self.width( dropWidth )
 
-    if (vars.dev.value) d3plus.console.timeEnd("calculating "+type+" width")
+    if ( vars.dev.value ) d3plus.console.timeEnd("calculating "+type+" width")
 
   }
 

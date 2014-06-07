@@ -6,10 +6,6 @@ d3plus.data.fetch = function( vars , years ) {
 
   var return_data = []
 
-  if (vars.dev.value) {
-    d3plus.console.group("fetching data")
-  }
-
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time()
   // solo and mute
@@ -55,10 +51,7 @@ d3plus.data.fetch = function( vars , years ) {
 
   }
 
-  if (vars.dev.value) {
-    var and = vars.format.locale.value.ui.and
-    d3plus.console.log("years: "+d3plus.string.list(years,and))
-  }
+  if ( vars.dev.value ) d3plus.console.time("fetching data for "+d3plus.string.list(years))
 
   var data = vars.data.grouped[vars.id.nesting[vars.depth.value]]
 
@@ -120,10 +113,10 @@ d3plus.data.fetch = function( vars , years ) {
   }
 
   if (!return_data) {
-    return_data = [];
+    return_data = []
   }
 
-  if (vars.dev.value) d3plus.console.groupEnd()
+  if ( vars.dev.value ) d3plus.console.timeEnd("fetching data for "+d3plus.string.list(years))
 
   return return_data
 

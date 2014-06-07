@@ -30,6 +30,11 @@ d3plus.method.draw = {
     }
     else {
 
+      if ( vars.dev.value && vars.methodGroup ) {
+        vars.methodGroup = "wait"
+        d3plus.console.groupEnd("method behavior")
+      }
+
       vars.container.value.call(vars.self)
 
     }

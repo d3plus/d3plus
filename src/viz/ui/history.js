@@ -5,6 +5,8 @@ d3plus.ui.history = function(vars) {
 
   if (!vars.small && vars.history.states.length > 0) {
 
+    if ( vars.dev.value ) d3plus.console.time("drawing back button")
+
     var button = vars.container.value.selectAll("div#d3plus_back_button")
       .data(["d3plus_back_button"])
 
@@ -92,6 +94,8 @@ d3plus.ui.history = function(vars) {
       .transition().duration(vars.draw.timing)
         .style("opacity",1)
         .call(style)
+
+    if ( vars.dev.value ) d3plus.console.timeEnd("drawing back button")
 
   }
   else {
