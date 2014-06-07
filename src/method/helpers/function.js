@@ -8,6 +8,7 @@ d3plus.method.function = function( key , vars ) {
     if ( ( vars.dev.value || ( key === "dev" && user ) )
          && !vars.methodGroup && vars.methodGroup !== "wait" ) {
       vars.methodGroup = true
+      d3plus.console.log("\n")
       d3plus.console.group("method behavior")
     }
 
