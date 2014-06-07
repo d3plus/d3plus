@@ -10,18 +10,25 @@ d3plus.console = function( type , message , style ) {
   }
   else if ( type === "groupCollapsed" ) {
 
-    var style = style || "font-weight:bold;"
+    var style = style || ""
 
-    console[type]( "%c[d3plus]%c " + message
-                 , "color:#B35C1E;font-weight:bold;"
-                 , style )
+    if ( window.chrome && navigator.onLine ) {
+      console[type]( "%c%c " + message
+                   , "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');"
+                   , style+"font-weight:200;" )
+    }
+    else {
+      console[type]( "%cD3plus%c " + message
+                   , "line-height:25px;font-weight:800;font-color:#444;margin-left:0px;"
+                   , style+"font-weight:200;" )
+    }
 
   }
   else {
 
-    var style = style || "font-weight:bold;"
+    var style = style || ""
 
-    console[type]( "%c" + message , style )
+    console[type]( "%c" + message , style + "font-weight:200;" )
 
   }
 
@@ -29,7 +36,7 @@ d3plus.console = function( type , message , style ) {
 
 d3plus.console.comment = function( message , style ) {
 
-  var style = style || "color:#aaa;font-weight:normal;"
+  var style = style || "color:#aaa;"
 
   this( "log" , message , style )
 
@@ -37,7 +44,7 @@ d3plus.console.comment = function( message , style ) {
 
 d3plus.console.error = function( message , style ) {
 
-  var style = style || "color:#D74B03;font-weight:bold;"
+  var style = style || "color:#D74B03;"
 
   this( "error" , message , style )
 
@@ -47,7 +54,7 @@ d3plus.console.error = function( message , style ) {
 
 d3plus.console.group = function( message , style ) {
 
-  var style = style || "color:#444444;font-weight:bold;"
+  var style = style || "color:#888;"
 
   this( "groupCollapsed" , message , style )
 
@@ -61,7 +68,7 @@ d3plus.console.groupEnd = function() {
 
 d3plus.console.log = function( message , style ) {
 
-  var style = style || "color:#444444;font-weight:normal;"
+  var style = style || "color:#444444;"
 
   this( "log" , message , style )
 
@@ -73,7 +80,7 @@ d3plus.console.stack = function() {
 
     var err = new Error()
       , stack = err.stack.split("\n")
-      , style = "color:#D74B03;font-weight:normal;"
+      , style = "color:#D74B03;"
 
     stack = stack.filter(function(e){
       return e.indexOf("Error") !== 0
@@ -113,7 +120,7 @@ d3plus.console.timeEnd = function( message ) {
 
 d3plus.console.warning = function( message , style ) {
 
-  var style = style || "color:#F3D261;font-weight:bold;"
+  var style = style || "color:#F3D261;"
 
   this( "warn" , message , style )
 
@@ -121,7 +128,7 @@ d3plus.console.warning = function( message , style ) {
 
 d3plus.console.wiki = function( message , style ) {
 
-  var style = style || "color:#aaa;font-weight:normal;"
+  var style = style || "color:#aaa;"
 
   this( "info" , "documentation: " + message , style )
 

@@ -240,10 +240,6 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
       return obj
     })
 
-  // console.log(nestingLevels)
-  // console.log(flatData,groupedData,nestedData)
-  // console.log("\n")
-
   return groupedData
 
 }

@@ -26,29 +26,11 @@ d3plus.draw.steps = function(vars) {
   })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Remove any lingering tooltips.
+  // If it has one, run the current app's setup function.
   //----------------------------------------------------------------------------
   var msg = vars.format.locale.value.message.initializing
     , app = vars.format.locale.value.visualization[vars.type.value]
   msg = d3plus.string.format(msg,app)
-  steps.push({
-    "function": function(vars) {
-      if ( vars.dev.value ) {
-        var str = vars.format.locale.value.message.tooltipReset
-        d3plus.console.time(str)
-      }
-      if ( vars.type.previous && vars.type.value !== vars.type.previous ) {
-        d3plus.tooltip.remove(vars.type.previous)
-      }
-      d3plus.tooltip.remove(vars.type.value)
-      if ( vars.dev.value ) d3plus.console.timeEnd(str)
-    },
-    "message": msg
-  })
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // If it has one, run the current app's setup function.
-  //----------------------------------------------------------------------------
   steps.push({
     "check": function(vars) {
       return vars.draw.update
@@ -353,6 +335,24 @@ d3plus.draw.steps = function(vars) {
 
   }
 
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Remove any lingering tooltips.
+  //----------------------------------------------------------------------------
+  steps.push({
+    "function": function(vars) {
+      if ( vars.dev.value ) {
+        var str = vars.format.locale.value.message.tooltipReset
+        d3plus.console.time(str)
+      }
+      if ( vars.type.previous && vars.type.value !== vars.type.previous ) {
+        d3plus.tooltip.remove(vars.type.previous)
+      }
+      d3plus.tooltip.remove(vars.type.value)
+      if ( vars.dev.value ) d3plus.console.timeEnd(str)
+    },
+    "message": vars.format.locale.value.message.ui
+  })
+
   steps.push({
     "function": function(vars) {
 
@@ -393,11 +393,13 @@ d3plus.draw.steps = function(vars) {
   })
 
   steps.push({
-    "function": [
-      d3plus.ui.focus,
-      d3plus.draw.update
-    ],
+    "function": d3plus.ui.focus,
     "message": vars.format.locale.value.message.ui
+  })
+
+  steps.push({
+    "function": d3plus.draw.update,
+    "message": vars.format.locale.value.message.draw
   })
 
   steps.push({

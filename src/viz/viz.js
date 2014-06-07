@@ -26,6 +26,8 @@ d3plus.viz = function() {
           small_height = vars.height.value <= vars.height.small
       vars.small = small_width || small_height
 
+      var lastMessage = false
+
       if (vars.error.value) {
 
         var timing = vars.draw.timing
@@ -42,7 +44,7 @@ d3plus.viz = function() {
                     ? vars.format.value(vars.format.locale.value.ui.error)
                     : vars.error.value
         if ( vars.dev.value ) d3plus.console.warning(message)
-        var lastMessage = message
+        lastMessage = message
         d3plus.ui.message(vars,message)
 
       }
@@ -62,8 +64,8 @@ d3plus.viz = function() {
           else {
             vars.methodGroup = false
             if ( vars.dev.value ) {
+              d3plus.console.timeEnd("total draw time")
               d3plus.console.groupEnd()
-              d3plus.console.timeEnd("[d3plus] total draw time")
             }
             vars.container.value.style("cursor","auto")
           }
@@ -81,7 +83,9 @@ d3plus.viz = function() {
             if ( !same && vars.draw.update ) {
 
               if ( vars.dev.value ) {
-                d3plus.console.groupEnd()
+                if ( lastMessage !== false ) {
+                  d3plus.console.groupEnd()
+                }
                 d3plus.console.group(step.message)
               }
 
