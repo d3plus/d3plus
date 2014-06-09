@@ -1,12 +1,14 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates test div to populate with test DIVs
 //------------------------------------------------------------------------------
-d3plus.font.tester = function() {
+d3plus.font.tester = function( type ) {
 
-  var tester = d3.select("body").selectAll("div.d3plus_tester")
+  if ( [ "div" , "svg" ].indexOf(type) < 0 ) var type = "div"
+
+  var tester = d3.select("body").selectAll(type+".d3plus_tester")
     .data(["d3plus_tester"])
 
-  tester.enter().append("div")
+  tester.enter().append(type)
     .attr("class","d3plus_tester")
     .style("position","absolute")
     .style("left","-9999px")

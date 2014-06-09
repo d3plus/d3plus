@@ -14,7 +14,7 @@ d3plus.font.validate = function(test_fonts) {
     return completed[fontString]
   }
 
-  var tester = d3plus.font.tester()
+  var tester = d3plus.font.tester("div")
 
   function create_element(font) {
 
