@@ -34,10 +34,14 @@ d3plus.method.init = function( vars , obj , method ) {
 
           return function(x) {
 
+            if ( vars.dev.value && vars.methodGroup ) {
+              d3plus.console.groupEnd()
+              vars.methodGroup = false
+            }
+
             var str = vars.format.locale.value.dev.deprecated
             dep = "\."+dep+"()"
-            d3plus.console.error(d3plus.string.format(str,dep,"\."+n+"()"))
-            d3plus.console.wiki(d3plus.repo+"wiki/Methods")
+            d3plus.console.error( d3plus.string.format(str,dep,"\."+n+"()") , n )
             return vars.self;
 
           }

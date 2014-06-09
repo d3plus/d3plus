@@ -83,7 +83,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       })
 
       recs = d3plus.string.list(recs,and)
-      d3plus.console.warning(d3plus.string.format(str,val,text,recs))
+      d3plus.console.warning( d3plus.string.format(str,val,text,recs) , method )
 
     }
 
@@ -289,6 +289,12 @@ d3plus.method.set = function( vars , method , object , key , value ) {
         var valString = !longArray && !d3selection && !typeFunction
                       ? typeof object[key] === "string" ? object[key]
                       : JSON.stringify(object[key]) : null
+
+        if ( ( vars.dev.value || ( key === "dev" && user ) )
+             && !vars.methodGroup && vars.methodGroup !== "wait" ) {
+          vars.methodGroup = true
+          d3plus.console.group("method behavior")
+        }
 
         if ( valString !== null && valString.length < 260 ) {
 

@@ -5,13 +5,6 @@ d3plus.method.function = function( key , vars ) {
 
   return function( user , callback ) {
 
-    if ( ( vars.dev.value || ( key === "dev" && user ) )
-         && !vars.methodGroup && vars.methodGroup !== "wait" ) {
-      vars.methodGroup = true
-      d3plus.console.log("\n")
-      d3plus.console.group("method behavior")
-    }
-
     var accepted = key in vars && d3plus.object.validate(vars[key])
                    && "accepted" in vars[key] ? vars[key].accepted
                  : key in vars ? typeof vars[key] : null
@@ -48,10 +41,15 @@ d3plus.method.function = function( key , vars ) {
 
       var str = vars.format.locale.value.dev.oldStyle
 
+      if ( ( vars.dev.value || ( key === "dev" && user ) )
+           && !vars.methodGroup && vars.methodGroup !== "wait" ) {
+        vars.methodGroup = true
+        d3plus.console.group("method behavior")
+      }
+
       for ( var s in user ) {
 
-        d3plus.console.warning(d3plus.string.format(str,"\""+s+"\"",s))
-        d3plus.console.wiki(d3plus.repo+"wiki/Methods")
+        d3plus.console.warning( d3plus.string.format(str,"\""+s+"\"",s) , s )
 
         vars.self[s](user[s])
 

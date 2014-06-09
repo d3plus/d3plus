@@ -4,7 +4,6 @@
   window.d3plus = d3plus
 
   d3plus.version = "1.3.1 - Sky"
-  d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
 
   d3plus.array         = {}
   d3plus.color         = {}

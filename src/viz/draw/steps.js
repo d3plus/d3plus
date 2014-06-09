@@ -29,7 +29,7 @@ d3plus.draw.steps = function(vars) {
   // If it has one, run the current app's setup function.
   //----------------------------------------------------------------------------
   var msg = vars.format.locale.value.message.initializing
-    , app = vars.format.locale.value.visualization[vars.type.value]
+    , app = vars.format.locale.value.visualization[vars.type.value].toLowerCase()
   msg = d3plus.string.format(msg,app)
   steps.push({
     "check": function(vars) {

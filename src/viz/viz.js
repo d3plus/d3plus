@@ -43,7 +43,7 @@ d3plus.viz = function() {
         var message = vars.error.value === true
                     ? vars.format.value(vars.format.locale.value.ui.error)
                     : vars.error.value
-        if ( vars.dev.value ) d3plus.console.warning(message)
+
         lastMessage = message
         d3plus.ui.message(vars,message)
 
@@ -66,6 +66,7 @@ d3plus.viz = function() {
             if ( vars.dev.value ) {
               d3plus.console.timeEnd("total draw time")
               d3plus.console.groupEnd()
+              d3plus.console.log("\n")
             }
             vars.container.value.style("cursor","auto")
           }

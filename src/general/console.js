@@ -3,30 +3,28 @@
 //------------------------------------------------------------------------------
 d3plus.console = function( type , message , style ) {
 
+  var style = style || ""
+
   if ( d3plus.ie ) {
 
-    console.log( "[d3plus] " + message )
+    console.log( "[ D3plus ] " + message )
 
   }
   else if ( type === "groupCollapsed" ) {
 
-    var style = style || ""
-
     if ( window.chrome && navigator.onLine ) {
       console[type]( "%c%c " + message
                    , "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');"
-                   , style+"font-weight:200;" )
+                   , "font-weight:200;" + style )
     }
     else {
       console[type]( "%cD3plus%c " + message
-                   , "line-height:25px;font-weight:800;font-color:#444;margin-left:0px;"
-                   , style+"font-weight:200;" )
+                   , "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;"
+                   , "font-weight:200;" + style )
     }
 
   }
   else {
-
-    var style = style || ""
 
     console[type]( "%c" + message , style + "font-weight:200;" )
 
@@ -34,29 +32,27 @@ d3plus.console = function( type , message , style ) {
 
 }
 
-d3plus.console.comment = function( message , style ) {
+d3plus.console.comment = function( message ) {
 
-  var style = style || "color:#aaa;"
-
-  this( "log" , message , style )
+  this( "log" , message , "color:#aaa;" )
 
 }
 
-d3plus.console.error = function( message , style ) {
+d3plus.console.error = function( message , wiki ) {
 
-  var style = style || "color:#D74B03;"
-
-  this( "error" , message , style )
+  this( "groupCollapsed" , message , "font-weight:800;color:#D74B03;" )
 
   this.stack()
 
+  this.wiki( wiki )
+
+  this.groupEnd()
+
 }
 
-d3plus.console.group = function( message , style ) {
+d3plus.console.group = function( message ) {
 
-  var style = style || "color:#888;"
-
-  this( "groupCollapsed" , message , style )
+  this( "groupCollapsed" , message , "color:#888;" )
 
 }
 
@@ -66,11 +62,9 @@ d3plus.console.groupEnd = function() {
   }
 }
 
-d3plus.console.log = function( message , style ) {
+d3plus.console.log = function( message ) {
 
-  var style = style || "color:#444444;"
-
-  this( "log" , message , style )
+  this( "log" , message , "color:#444444;" )
 
 }
 
@@ -80,7 +74,6 @@ d3plus.console.stack = function() {
 
     var err = new Error()
       , stack = err.stack.split("\n")
-      , style = "color:#D74B03;"
 
     stack = stack.filter(function(e){
       return e.indexOf("Error") !== 0
@@ -100,7 +93,7 @@ d3plus.console.stack = function() {
 
     var message = "line "+line+" of "+page+": "+url
 
-    this( "info" , message , style )
+    this( "log" , message , "color:#D74B03;" )
 
   }
 
@@ -118,18 +111,23 @@ d3plus.console.timeEnd = function( message ) {
   }
 }
 
-d3plus.console.warning = function( message , style ) {
+d3plus.console.warning = function( message , wiki ) {
 
-  var style = style || "color:#F3D261;"
+  this( "groupCollapsed" , message , "color:#888;" )
 
-  this( "warn" , message , style )
+  this.stack()
+
+  this.wiki( wiki )
+
+  this.groupEnd()
 
 }
 
-d3plus.console.wiki = function( message , style ) {
+d3plus.console.wiki = function( wiki ) {
 
-  var style = style || "color:#aaa;"
-
-  this( "info" , "documentation: " + message , style )
+  if ( wiki && wiki in d3plus.wiki ) {
+    var url = d3plus.repo + "wiki/" + d3plus.wiki[wiki]
+    this( "log" , "documentation: " + url , "color:#aaa;" )
+  }
 
 }

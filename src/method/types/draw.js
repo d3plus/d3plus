@@ -19,20 +19,22 @@ d3plus.method.draw = {
     if ( vars.container.value === false ) {
 
       var str = vars.format.locale.value.dev.setContainer
-      d3plus.console.warning(str)
+      d3plus.console.warning( str , "container" )
 
     }
     else if ( vars.container.value.empty() ) {
 
       var str = vars.format.locale.value.dev.noContainer
-      d3plus.console.warning(d3plus.string.format(str,"\""+vars.container.value+"\""))
+      d3plus.console.warning( d3plus.string.format(str,"\""+vars.container.value+"\"") , "container" )
 
     }
     else {
 
-      if ( vars.dev.value && vars.methodGroup ) {
-        vars.methodGroup = "wait"
-        d3plus.console.groupEnd()
+      if ( vars.dev.value ) {
+        if ( vars.methodGroup ) {
+          vars.methodGroup = "wait"
+          d3plus.console.groupEnd()
+        }
         d3plus.console.time("total draw time")
       }
 

@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.color.scale = {}
 d3plus.color.scale.default = d3.scale.ordinal().range([
-  "#b35c1e",
+  "#B35C1E",
   "#C9853A",
   "#E4BA79",
   "#F5DD9E",
