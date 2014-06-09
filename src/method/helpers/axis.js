@@ -7,7 +7,7 @@ d3plus.method.axis = function( axis ) {
 
   return {
     "accepted"    : [ Array , Boolean , Function , Object , String ],
-    "data_filter" : true,
+    "dataFilter"  : true,
     "deprecates"  : [ axis+"axis" , axis+"axis_val" , axis+"axis_var" ],
     "domain"      : false,
     "lines"       : [],

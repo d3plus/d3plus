@@ -4,6 +4,8 @@ d3plus.method.data = {
     "accepted" : [ String ],
     "value"    : "|"
   },
+  "filters"  : [],
+  "mute"     : [],
   "process"  : function( value ) {
 
     var vars = this.getVars()
@@ -19,5 +21,6 @@ d3plus.method.data = {
                  , "csv" , "dsv" , "tsv" , "txt" ],
     "value"    : false
   },
+  "solo"     : [],
   "value"    : false
 }

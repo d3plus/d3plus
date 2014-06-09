@@ -1,6 +1,6 @@
 d3plus.method.time = {
   "accepted"    : [ Array , Boolean , Function , Object , String ],
-  "data_filter" : true,
+  "dataFilter"  : true,
   "deprecates"  : [ "year" , "year_var" ],
   "fixed"       : {
     "accepted"   : [ Boolean ],

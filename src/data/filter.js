@@ -1,85 +1,98 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Filters the data based on vars.check
-//-------------------------------------------------------------------
-d3plus.data.filter = function(vars) {
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Restricts data based on Solo/Mute filters
+//------------------------------------------------------------------------------
+d3plus.data.filter = function( vars , data ) {
 
-  if (vars.check.indexOf("time") >= 0) {
-    vars.check.splice(vars.check.indexOf("time"),1)
-    if (vars.data.filtered) {
-      vars.data.filtered = {"all": vars.data.filtered.all}
-    }
-  }
+  if ( vars.dev.value ) d3plus.console.time("filtering data")
 
-  if (!vars.filters) {
-    vars.filters = vars.check.slice(0)
-  }
-  else {
-    vars.check.forEach(function(k){
-      if (!vars[k].value && vars.filters.indexOf(k) >= 0) {
-        vars.filters.splice(vars.filters.indexOf(k),1)
+  vars.data.filters.forEach( function( key ) {
+
+    data = data.filter( function( d ) {
+
+      var val = d3plus.variable.value(vars,d,vars[key].value)
+      if ( key === "size" ) {
+        return typeof val === "number" && val > 0
       }
-    })
-  }
-
-  if (vars.check.length >= 1) {
-
-    if ( vars.dev.value ) {
-      var list = []
-      vars.filters.forEach(function(f){
-        list.push("\""+f+"\"")
-      })
-      var checking = "filtering data by "+d3plus.string.list(list)
-      d3plus.console.time(checking)
-    }
-
-    var data = "value"
-    vars.filters.forEach(function(key){
-
-      if (key == "xaxis") vars.x_range = null
-      else if (key == "yaxis") vars.y_range = null
-
-      vars.data.filtered = vars.data[data].filter(function(d){
-        var val = d3plus.variable.value(vars,d,vars[key].value)
-        if (key == "size") {
-          return val > 0 ? true : false
-        }
-        else {
-          return val !== null
-        }
-      })
-      data = "filtered"
+      else {
+        return val !== null
+      }
 
     })
 
-    vars.data.filtered = {"all": vars.data.filtered}
+  })
 
-    if ( vars.dev.value ) d3plus.console.timeEnd(checking)
+  // if "solo", only check against "solo" (disregard "mute")
+  var key = vars.data.solo.length ? "solo" : "mute"
 
-  }
-  else if (!vars.data.filtered) {
-    vars.data.filtered = {"all": vars.data.value}
-  }
+  vars.data[key].forEach( function( v ) {
 
-  if (vars.time.value && d3.keys(vars.data.filtered).length === 1) {
+    function test_value( val ) {
 
-    // Find available years
-    vars.data.time = d3plus.util.uniques(vars.data.filtered.all,vars.time.value)
-    for (var i=0; i < vars.data.time.length; i++) {
-      vars.data.time[i] = parseInt(vars.data.time[i])
+      var arr = vars[v][key].value
+
+      if ( v === "id" && key === "solo" && vars.focus.value
+      && arr.indexOf(vars.focus.value) < 0) {
+        arr.push( vars.focus.value )
+      }
+
+      var match = false
+      arr.forEach(function(f){
+        if (typeof f === "function") {
+          match = f(val)
+        }
+        else if ( f === val ) {
+          match = true
+        }
+
+      })
+
+      return match
     }
-    vars.data.time = vars.data.time.filter(function(t){ return t; })
-    vars.data.time.sort()
 
-    if (vars.data.time.length) {
-      if ( vars.dev.value ) d3plus.console.time("disaggregating data by "+vars.data.time.length+" time periods")
-      vars.data.time.forEach(function(y){
-        vars.data.filtered[y] = vars.data.filtered.all.filter(function(d){
-          return d3plus.variable.value(vars,d,vars.time.value) == y;
+    function nest_check( d ) {
+
+      // if the variable has nesting, check all levels
+      var match = false
+
+      if (vars[v].nesting) {
+        vars[v].nesting.forEach(function(n){
+          if (!match) {
+            match = test_value(d3plus.variable.value(vars,d,n))
+          }
         })
-      })
-      if ( vars.dev.value ) d3plus.console.timeEnd("disaggregating data by "+vars.data.time.length+" time periods")
+      }
+      else {
+        match = test_value(d3plus.variable.value(vars,d,vars[v].value))
+      }
+
+      return key === "solo" ? match : !match
+
     }
 
-  }
+    data = data.filter(nest_check)
+
+    if ( v === "id" ) {
+
+      if (vars.nodes.value) {
+        if ( vars.dev.value ) d3plus.console.log("Filtering Nodes")
+        vars.nodes.restricted = vars.nodes.value.filter(nest_check)
+      }
+
+      if (vars.edges.value) {
+        if ( vars.dev.value ) d3plus.console.log("Filtering Connections")
+        vars.edges.restricted = vars.edges.value.filter(function(d){
+          var first_match = nest_check(d[vars.edges.source]),
+              second_match = nest_check(d[vars.edges.target])
+          return first_match && second_match
+        })
+      }
+
+    }
+
+  })
+
+  if ( vars.dev.value ) d3plus.console.timeEnd("filtering data")
+
+  return data
 
 }

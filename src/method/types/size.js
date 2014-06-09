@@ -1,6 +1,6 @@
 d3plus.method.size = {
   "accepted"    : [ Array , Boolean , Function , Object , String ],
-  "data_filter" : true,
+  "dataFilter"  : true,
   "deprecates"  : [ "value" , "value_var" ],
   "mute"        : d3plus.method.filter(true),
   "scale"       : {

@@ -1,12 +1,17 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cleans edges list and populates nodes list if needed
 //-------------------------------------------------------------------
-d3plus.data.edges = function(vars) {
+d3plus.data.edges = function( vars ) {
 
-  var node_req = d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0,
-      node_create = node_req && !vars.nodes.value
+  if ( vars.dev.value ) {
+    var timerString = "analyzing edges list"
+    d3plus.console.time( timerString )
+  }
 
-  if (node_create) {
+  var appReqs     = d3plus.visualization[vars.type.value].requirements,
+      createNodes = appReqs.indexOf("nodes") >= 0 && !vars.nodes.value
+
+  if ( createNodes ) {
     vars.nodes.value = []
     var placed = []
     vars.nodes.changed = true
@@ -33,7 +38,7 @@ d3plus.data.edges = function(vars) {
       vars.data.keys[vars.id.value] = typeof e[vars.edges.source][vars.id.value]
     }
 
-    if (node_create) {
+    if (createNodes) {
       if (placed.indexOf(e[vars.edges.source][vars.id.value]) < 0) {
         placed.push(e[vars.edges.source][vars.id.value])
         vars.nodes.value.push(e[vars.edges.source])
@@ -63,5 +68,7 @@ d3plus.data.edges = function(vars) {
   })
 
   vars.edges.linked = true
+
+  if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
 
 }

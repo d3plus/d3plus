@@ -142,6 +142,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
         , aggType = typeof agg
         , keyType = vars.data.keys[key]
         , idKey   = vars.id.nesting.indexOf(key) >= 0
+        , timeKey = key === vars.time.value
 
       if ( key in returnObj.d3plus ) {
 
@@ -153,7 +154,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
         returnObj[key] = vars.aggs.value[key](leaves)
 
       }
-      else if ( keyType === "number" && aggType === "string" && !idKey ) {
+      else if ( keyType === "number" && aggType === "string" && !idKey && !timeKey ) {
 
         returnObj[key] = d3[agg]( leaves , function(d){
           return key in d ? d[key] : false

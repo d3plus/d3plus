@@ -44,7 +44,7 @@ d3plus.ui.titles = function(vars) {
 
       var pct = ""
 
-      if (vars.mute.length || vars.solo.length || vars.focus.value) {
+      if (vars.data.mute.length || vars.data.solo.length || vars.focus.value) {
 
         var overall_total = d3.sum(vars.data.filtered.all, function(d){
           if (vars.time.solo.value.length > 0) {

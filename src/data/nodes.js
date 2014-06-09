@@ -3,6 +3,11 @@
 //-------------------------------------------------------------------
 d3plus.data.nodes = function(vars) {
 
+  if ( vars.dev.value ) {
+    var timerString = "analyzing node positions"
+    d3plus.console.time( timerString )
+  }
+
   var set = vars.nodes.value.filter(function(n){
     return typeof n.x == "number" && typeof n.y == "number"
   }).length
@@ -32,5 +37,7 @@ d3plus.data.nodes = function(vars) {
     vars.nodes.positions = true
 
   }
+
+  if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
 
 }

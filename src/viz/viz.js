@@ -51,17 +51,19 @@ d3plus.viz = function() {
       else {
 
         var steps = d3plus.draw.steps( vars )
+          , step  = false
 
         vars.container.value.style("cursor","wait")
         vars.messages.style = vars.group && vars.group.attr("opacity") === "1"
                             ? "small" : "large"
 
-        function check_next() {
+        var nextStep = function() {
 
           if ( steps.length ) {
-            run_steps()
+            runStep()
           }
           else {
+
             vars.methodGroup = false
             if ( vars.dev.value ) {
               d3plus.console.timeEnd("total draw time")
@@ -69,17 +71,42 @@ d3plus.viz = function() {
               d3plus.console.log("\n")
             }
             vars.container.value.style("cursor","auto")
+
           }
 
         }
 
-        function run_steps() {
+        var runFunction = function( name ) {
 
-          var step = steps.shift(),
-              same = vars.g.message && lastMessage === step.message,
-              run = "check" in step ? step.check(vars) : true
+          var name = name || "function"
 
-          if (run) {
+          if ( step[name] instanceof Array ) {
+            step[name].forEach(function(f){
+              f( vars , nextStep )
+            })
+          }
+          else if ( typeof step[name] == "function" ) {
+            step[name]( vars , nextStep )
+          }
+
+          if ( !step.wait ) {
+            nextStep()
+          }
+
+        }
+
+        function runStep() {
+
+          step = steps.shift()
+
+          var same = vars.g.message && lastMessage === step.message,
+              run = "check" in step ? step.check : true
+
+          if ( typeof run === "function" ) {
+            run = run( vars )
+          }
+
+          if ( run ) {
 
             if ( !same && vars.draw.update ) {
 
@@ -100,54 +127,38 @@ d3plus.viz = function() {
 
               d3plus.ui.message(vars,message)
 
-              setTimeout(function(){
-
-                if (step.function instanceof Array) {
-                  step.function.forEach(function(f){
-                    f(vars,check_next)
-                  })
-                }
-                else if (typeof step.function == "function") {
-                  step.function(vars,check_next)
-                }
-
-                if (!step.wait) {
-                  check_next()
-                }
-
-              },10)
+              setTimeout( runFunction , 10 )
 
             }
             else {
 
-              if (step.function instanceof Array) {
-                step.function.forEach(function(f){
-                  f(vars,check_next)
-                })
-              }
-              else if (typeof step.function == "function") {
-                step.function(vars,check_next)
-              }
-
-              if (!step.wait) {
-                check_next()
-              }
+              runFunction()
 
             }
 
           }
           else {
 
-            if ("otherwise" in step) {
-              step.otherwise(vars)
+            if ( "otherwise" in step ) {
+
+              setTimeout(function(){
+
+                runFunction( "otherwise" )
+
+              },10)
+
+            }
+            else {
+
+              nextStep()
+
             }
 
-            check_next()
           }
 
         }
 
-        run_steps()
+        runStep()
 
       }
 

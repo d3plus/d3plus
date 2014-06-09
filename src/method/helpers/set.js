@@ -250,17 +250,30 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Add method to global array if applicable.
+      // Add method to data solo/mute array if applicable.
       //------------------------------------------------------------------------
-      if ( key === "value" && object.global === true ) {
+      if ( key === "value" && object.global ) {
 
         var hasValue = object[key].length > 0
           , k = parentKey || key
 
-        if ( k in vars && ( ( hasValue && vars[k].indexOf(method) < 0 )
-        || ( !hasValue && vars[k].indexOf(method) >= 0 ) ) ) {
+        if ( k in vars && ( ( hasValue && vars.data[k].indexOf(method) < 0 )
+        || ( !hasValue && vars.data[k].indexOf(method) >= 0 ) ) ) {
 
-          vars[k] = d3plus.array.update(vars[k],method)
+          vars.data[k] = d3plus.array.update(vars.data[k],method)
+
+        }
+
+      }
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Add method to data filter array if applicable.
+      //------------------------------------------------------------------------
+      if ( key === "value" && object.dataFilter ) {
+
+        if ( vars.data.filters.indexOf(method) < 0 ) {
+
+          vars.data.filters.push( method )
 
         }
 

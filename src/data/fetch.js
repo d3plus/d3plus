@@ -4,120 +4,152 @@
 
 d3plus.data.fetch = function( vars , years ) {
 
-  var return_data = []
-
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time()
   // solo and mute
   //----------------------------------------------------------------------------
-  if (!years) {
+  if ( !years ) {
 
-    if (vars.time.solo.value.length) {
+    var key   = vars.time.solo.value.length ? "solo" : "mute"
+      , years = []
+
+    if ( vars.time[key].value.length ) {
+
       var years = []
-      vars.time.solo.value.forEach(function(y){
-        if (typeof y == "function") {
-          vars.data.time.forEach(function(t){
-            if (y(t)) {
-              years.push(t)
-            }
+      vars.time[key].value.forEach(function( y ){
+
+        if ( typeof y === "function" ) {
+          vars.data.time.forEach(function( t ){
+            if ( y(t) ) years.push( t )
           })
         }
-        else {
-          years.push(y)
-        }
+        else years.push(y)
+
       })
+
+      if ( key === "mute" ) {
+        years = vars.data.time.filter(function( t ){
+          return years.indexOf( t ) < 0
+        })
+      }
+
     }
-    else if (vars.time.mute.value.length) {
-      var muted = []
-      vars.time.mute.value.forEach(function(y){
-        if (typeof y == "function") {
-          vars.data.time.forEach(function(t){
-            if (y(t)) {
-              muted.push(t)
-            }
-          })
-        }
-        else {
-          muted.push(y)
-        }
-      })
-      var years = vars.data.time.filter(function(t){
-        return muted.indexOf(t) < 0
-      })
-    }
-    else {
-      var years = ["all"]
+    else years.push("all")
+
+  }
+
+  var cacheID = [ vars.type.value , vars.id.value , vars.depth.value ]
+                  .concat( vars.data.filters )
+                  .concat( years )
+    , filter  = vars.data.solo.length ? "solo" : "mute"
+    , cacheKeys = d3.keys(vars.data.cache)
+
+  if ( vars.data[filter].length ) {
+    vars.data[filter].forEach(function(f){
+      var vals = vars[f][filter].value.slice(0)
+      vals.unshift(f)
+      cacheID = cacheID.concat(vals)
+    })
+  }
+
+  cacheID = cacheID.join("_")
+
+  var match = false
+
+  for ( var i = 0 ; i < cacheKeys.length ; i++ ) {
+
+    var matchKey = cacheKeys[i].split("_").slice(1).join("_")
+
+    if ( matchKey === cacheID ) {
+      cacheID = new Date().getTime() + "_" + cacheID
+      vars.data.cache[cacheID] = vars.data.cache[cacheKeys[i]]
+      delete vars.data.cache[cacheKeys[i]]
+      break
     }
 
   }
 
-  if ( vars.dev.value ) d3plus.console.time("fetching data for "+d3plus.string.list(years))
-
-  var data = vars.data.grouped[vars.id.nesting[vars.depth.value]]
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // If there is only 1 year needed, just grab it!
-  //----------------------------------------------------------------------------
-  if (years.length == 1) {
-    return_data = data[years[0]]
+  if ( vars.data.cache[cacheID] ) {
+    if ( vars.dev.value ) d3plus.console.comment("data already cached")
+    return vars.data.cache[cacheID]
   }
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Otherwise, we need to grab each year individually
-  //----------------------------------------------------------------------------
   else {
 
-    var missing = []
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If there is only 1 year needed, just grab it!
+    //--------------------------------------------------------------------------
+    if ( years.length === 1 ) {
+      var returnData = vars.data.nested[ years[0] ][ vars.id.value ]
+    }
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Otherwise, we need to grab each year individually
+    //--------------------------------------------------------------------------
+    else {
 
-    years.forEach(function(y){
+      var missing = []
+        , returnData = []
 
-      if (data[y]) {
+      years.forEach(function(y){
+        if ( vars.data.nested[y] ) {
+          returnData = returnData.concat( vars.data.nested[y][vars.id.value] )
+        }
+        else missing.push( y )
+      })
 
-        return_data = return_data.concat(data[y])
+      if ( returnData.length === 0 && missing.length && !vars.internal_error ) {
+
+        var str = vars.format.locale.value.error.dataYear
+          , and = vars.format.locale.value.ui.and
+        missing = d3plus.string.list(missing,and)
+        vars.internal_error = d3plus.string.format(str,missing)
 
       }
       else {
-        missing.push(y)
+
+        var separated = false
+        vars.axes.values.forEach(function(a){
+          if ( vars[a].value === vars.time.value
+          && vars[a].scale.value === "continuous" ) {
+            separated = true
+          }
+        })
+
+        if (!separated) {
+          var nested = vars.id.nesting.slice(0,vars.depth.value+1)
+          returnData = d3plus.data.nest( vars , returnData , nested )
+        }
+
       }
-
-    })
-
-    if (return_data.length == 0 && missing.length && !vars.internal_error) {
-      var str = vars.format.locale.value.error.dataYear
-        , and = vars.format.locale.value.ui.and
-      missing = d3plus.string.list(missing,and)
-      vars.internal_error = d3plus.string.format(str,missing)
-    }
-
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Finally, we need to determine if the data needs to be merged together
-  //----------------------------------------------------------------------------
-  if (years.length > 1) {
-
-    var separated = false
-    vars.axes.values.forEach(function(a){
-      if (vars[a].value == vars.time.value && vars[a].scale.value == "continuous") {
-        separated = true
-      }
-    })
-
-    if (!separated) {
-
-      var nested = vars.id.nesting.slice(0,vars.depth.value+1)
-
-      return_data = d3plus.data.nest( vars , return_data , nested )
 
     }
 
+    if ( !returnData ) {
+      returnData = []
+    }
+    else {
+
+      returnData = d3plus.data.filter( vars , returnData )
+
+    }
+
+    var filter = d3plus.visualization[vars.type.value].filter
+    if ( typeof filter === "function" ) {
+      returnData = filter( vars , returnData )
+    }
+
+    var cacheKeys = d3.keys(vars.data.cache)
+    if ( cacheKeys.length === 20 ) {
+      cacheKeys.sort()
+      delete vars.data.cache(cacheKeys[0])
+    }
+
+    cacheID = new Date().getTime() + "_" + cacheID
+    vars.data.cache[cacheID] = returnData
+
+    if ( vars.dev.value ) d3plus.console.comment("storing data in cache")
+
+    return returnData
+
   }
-
-  if (!return_data) {
-    return_data = []
-  }
-
-  if ( vars.dev.value ) d3plus.console.timeEnd("fetching data for "+d3plus.string.list(years))
-
-  return return_data
 
 }

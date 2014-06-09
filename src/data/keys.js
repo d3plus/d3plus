@@ -3,6 +3,11 @@
 //------------------------------------------------------------------------------
 d3plus.data.keys = function( vars , type ) {
 
+  if ( vars.dev.value ) {
+    var timerString = type + " key analysis"
+    console.time( timerString )
+  }
+
   vars[type].keys = {}
 
   function get_keys( arr ) {
@@ -31,5 +36,7 @@ d3plus.data.keys = function( vars , type ) {
   else {
     get_keys(vars[type].value)
   }
+
+  if ( vars.dev.value ) console.time( timerString )
 
 }

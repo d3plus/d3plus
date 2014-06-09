@@ -1,6 +1,6 @@
 d3plus.method.id = {
   "accepted"    : [ Array , String ],
-  "data_filter" : true,
+  "dataFilter"  : true,
   "deprecates"  : [ "id_var" , "nesting" ],
   "init"        : function ( vars ) {
 
