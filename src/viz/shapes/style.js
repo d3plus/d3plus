@@ -21,7 +21,7 @@ d3plus.shape.style = function(nodes,vars) {
       else {
         var color = d3plus.shape.color(d,vars)
       }
-      return d3plus.color.legible(color)
+      return d3.rgb(color).darker(0.5)
     })
     .style("stroke-width",vars.data.stroke.width)
     .attr("opacity",vars.data.opacity)
