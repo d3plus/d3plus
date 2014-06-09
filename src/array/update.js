@@ -4,8 +4,12 @@
 //------------------------------------------------------------------------------
 d3plus.array.update = function( arr , x ) {
 
+  if ( !(arr instanceof Array) ) {
+    var arr = []
+  }
+
   // If the user has passed an array, just use that.
-  if(x instanceof Array){
+  if( x instanceof Array ){
     arr = x;
   }
   // Otherwise remove it if it is present.
