@@ -40,7 +40,7 @@ d3plus.console.comment = function( message ) {
 
 d3plus.console.error = function( message , wiki ) {
 
-  this( "groupCollapsed" , message , "font-weight:800;color:#D74B03;" )
+  this( "groupCollapsed" , "ERROR: " + message , "font-weight:800;color:#D74B03;" )
 
   this.stack()
 
@@ -73,32 +73,39 @@ d3plus.console.stack = function() {
   if ( !d3plus.ie ) {
 
     var err = new Error()
-      , stack = err.stack.split("\n")
 
-    stack = stack.filter(function(e){
-      return e.indexOf("Error") !== 0
-          && e.indexOf("d3plus.js:") < 0
-          && e.indexOf("d3plus.min.js:") < 0
-    })
+    if ( err.stack ) {
 
-    if ( stack.length ) {
+      var stack = err.stack.split("\n")
 
-      var url = stack[0].split("at ")[1]
+      stack = stack.filter(function(e){
+        return e.indexOf("Error") !== 0
+            && e.indexOf("d3plus.js:") < 0
+            && e.indexOf("d3plus.min.js:") < 0
+      })
 
-      stack = url.split(":")
-      stack.pop()
+      if ( stack.length ) {
 
-      var line = stack.pop()
-        , page = stack.join(":").split("/")
+        var splitter = window.chrome ? "at " : "@"
+          , url = stack[0].split(splitter)[1]
 
-      page = page[page.length-1]
+        stack = url.split(":")
+        if ( stack.length === 3 ) {
+          stack.pop()
+        }
 
-      var message = "line "+line+" of "+page+": "+url
+        var line = stack.pop()
+          , page = stack.join(":").split("/")
 
-      this( "log" , message , "color:#D74B03;" )
+        page = page[page.length-1]
+
+        var message = "line "+line+" of "+page+": "+url
+
+        this( "log" , message , "color:#D74B03;" )
+
+      }
 
     }
-
   }
 
 }
