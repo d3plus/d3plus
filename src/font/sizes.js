@@ -21,7 +21,7 @@ d3plus.font.sizes = function( words , style , parent ) {
       sizes.push({
         "height" : this.offsetHeight,
         "text"   : d,
-        "width"  : this.offsetWidth
+        "width"  : this.getComputedTextLength()
       })
 
     })
