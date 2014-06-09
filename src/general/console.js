@@ -81,19 +81,23 @@ d3plus.console.stack = function() {
           && e.indexOf("d3plus.min.js:") < 0
     })
 
-    var url = stack[0].split("at ")[1]
+    if ( stack.length ) {
 
-    stack = url.split(":")
-    stack.pop()
+      var url = stack[0].split("at ")[1]
 
-    var line = stack.pop()
-      , page = stack.join(":").split("/")
+      stack = url.split(":")
+      stack.pop()
 
-    page = page[page.length-1]
+      var line = stack.pop()
+        , page = stack.join(":").split("/")
 
-    var message = "line "+line+" of "+page+": "+url
+      page = page[page.length-1]
 
-    this( "log" , message , "color:#D74B03;" )
+      var message = "line "+line+" of "+page+": "+url
+
+      this( "log" , message , "color:#D74B03;" )
+
+    }
 
   }
 

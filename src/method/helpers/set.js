@@ -68,8 +68,12 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
       var str = vars.format.locale.value.dev.accepted
         , recs = []
-        , val = "\""+JSON.stringify(value)+"\""
+        , val = JSON.stringify(value)
         , and = vars.format.locale.value.ui.and
+
+      if ( typeof value !== "string" ) {
+        val = "\""+val+"\""
+      }
 
       accepted.forEach(function(a){
 
