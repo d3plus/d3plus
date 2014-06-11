@@ -158,13 +158,16 @@ d3plus.visualization.bubbles = function(vars) {
       })
       .each(function(d){
         if (d.r > 10 && label_height > 10) {
+
           var names = d3plus.variable.text(vars,d,d.depth)
-          d3plus.util.wordwrap({
-            "text"   : names,
-            "parent" : this,
-            "width"  : column_width-padding*2,
-            "height" : label_height
-          })
+
+          d3plus.textwrap()
+            .container( d3.select(this) )
+            .height( label_height )
+            .text( names )
+            .width( column_width - padding * 2 )
+            .draw()
+
         }
       })
       .attr("y",function(d){

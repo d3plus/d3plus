@@ -149,7 +149,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set the variable!
       //------------------------------------------------------------------------
-      if ( key === "value" && "nesting" in object ) {
+      if ( "id" in vars && key === "value" && "nesting" in object ) {
 
         if ( method !== "id" ) {
 
@@ -269,13 +269,10 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Add method to data filter array if applicable.
       //------------------------------------------------------------------------
-      if ( key === "value" && object.dataFilter ) {
+      if ( key === "value" && object.dataFilter && vars.data
+      && vars.data.filters.indexOf(method) < 0 ) {
 
-        if ( vars.data.filters.indexOf(method) < 0 ) {
-
-          vars.data.filters.push( method )
-
-        }
+        vars.data.filters.push( method )
 
       }
 

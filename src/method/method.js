@@ -3,26 +3,9 @@
 //------------------------------------------------------------------------------
 d3plus.method = function( vars , methods , styles ) {
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // If no methods are defined, apply ALL of the available methods.
-  //----------------------------------------------------------------------------
-  if (!methods) {
-    var methods = d3.keys(d3plus.method).filter(function(m){
-      var method = d3plus.method[m]
-      return d3plus.object.validate(method)
-    })
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // If no styles are defined, apply ALL of the available styles.
-  //----------------------------------------------------------------------------
-  var initStyle = d3plus.style[d3plus.method.style.value]
-  if (!styles) {
-    var styles = d3.keys(initStyle).filter(function(m){
-      var method = initStyle[m]
-      return d3plus.object.validate(method)
-    })
-  }
+  var methods   = methods || []
+    , styles    = styles || []
+    , initStyle = d3plus.style[ d3plus.method.style.value ]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Loop through each specified method and apply it to the object.

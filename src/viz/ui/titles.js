@@ -212,7 +212,7 @@ d3plus.ui.titles = function(vars) {
       return t.type
     })
 
-  var title_width = vars.title.width || vars.width.value
+  var titleWidth = vars.title.width || vars.width.value
 
   titles.enter().append("g")
     .attr("class","d3plus_title")
@@ -231,13 +231,12 @@ d3plus.ui.titles = function(vars) {
   titles
     .each(function(d){
 
-      d3plus.util.wordwrap({
-        "text": d.value,
-        "parent": d3.select(this).select("text").node(),
-        "width": title_width,
-        "height": vars.height.value/8,
-        "resize": false
-      })
+      d3plus.textwrap()
+        .container( d3.select(this).select("text") )
+        .height( vars.height.value / 8 )
+        .text( d.value )
+        .width( titleWidth )
+        .draw()
 
       d.y = vars.margin[d.style.position]
       vars.margin[d.style.position] += this.getBBox().height + d.style.padding*2

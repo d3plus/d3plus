@@ -1,5 +1,5 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Draws "labels" using svg:text and d3plus.util.wordwrap
+// Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
 d3plus.shape.labels = function(vars,selection) {
 
@@ -133,12 +133,17 @@ d3plus.shape.labels = function(vars,selection) {
         return t.mouse ? "auto": "none"
       })
       .attr("fill", function(t){
-        if (t.color) {
-          return t.color
-        }
-        else {
-          return d3plus.color.text(d3plus.shape.color(t.parent,vars))
-        }
+
+        if ( t.color ) return t.color
+
+
+
+        var color = d3plus.shape.color(t.parent,vars)
+          , legible = d3plus.color.text(color)
+          , opacity = t.text ? 0.15 : 1
+
+        return d3plus.color.mix( color , legible , 0.2 , opacity )
+
       })
       .attr("x",x_pos)
       .attr("y",y_pos)
@@ -158,24 +163,23 @@ d3plus.shape.labels = function(vars,selection) {
 
             if (!(t.resize instanceof Array)) {
               var min = 8
-                , max = 70
+                , max = 50
             }
 
-            d3plus.util.wordwrap({
-              "text": vars.format.value(t.text*100,"share")+"%",
-              "parent": this,
-              "width": t.w*t.scale-t.padding,
-              "height": t.h*t.scale-t.padding,
-              "resize": t.resize,
-              "font_min": min/t.scale,
-              "font_max": max*t.scale
-            })
+            d3plus.textwrap()
+              .container( d3.select(this) )
+              .height( t.h * t.scale - t.padding )
+              .resize( t.resize )
+              .size([ min / t.scale , max * t.scale ])
+              .text( vars.format.value(t.text*100,"share")+"%" )
+              .width( t.w * t.scale - t.padding )
+              .draw()
 
           }
           else {
 
             if (vars.labels.align != "middle") {
-              var height = t.h-t.share
+              var height = t.h - t.share - t.padding
             }
             else {
               var height = t.h
@@ -186,15 +190,14 @@ d3plus.shape.labels = function(vars,selection) {
                 , max = 40
             }
 
-            d3plus.util.wordwrap({
-              "text": t.names,
-              "parent": this,
-              "width": t.w*t.scale-t.padding,
-              "height": height*t.scale-t.padding,
-              "resize": t.resize,
-              "font_min": min/t.scale,
-              "font_max": max*t.scale
-            })
+            d3plus.textwrap()
+              .container( d3.select(this) )
+              .height( height * t.scale - t.padding )
+              .resize( t.resize )
+              .size([ min / t.scale , max * t.scale ])
+              .text( t.names )
+              .width( t.w * t.scale - t.padding )
+              .draw()
 
           }
 
@@ -279,20 +282,20 @@ d3plus.shape.labels = function(vars,selection) {
               .call(style,true)
               .transition().duration(vars.draw.timing/2)
               .delay(vars.draw.timing/2)
-              .attr("opacity",0.5)
+              .attr("opacity",1)
 
           }
           else {
 
             text
-              .attr("opacity",0.5)
+              .attr("opacity",1)
               .call(style)
 
             text.enter().append("text")
               .attr("font-size",vars.labels.font.size*share.scale)
               .attr("id","d3plus_share_"+d.d3plus.id)
               .attr("class","d3plus_share")
-              .attr("opacity",0.5)
+              .attr("opacity",1)
               .call(style,true)
 
           }

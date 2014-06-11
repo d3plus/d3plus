@@ -25,7 +25,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
 
         d.d3plus_share = {
           "w": w,
-          "h": h/4,
+          "h": d3.max([25,h/3]),
           "x": 0,
           "y": 0
         }

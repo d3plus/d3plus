@@ -213,13 +213,13 @@ d3plus.ui.legend = function(vars) {
 
                     if (text.length === 1 && text[0].length) {
 
-                      d3plus.util.wordwrap({
-                        "text": text[0],
-                        "parent": this,
-                        "width": square_size-vars.ui.padding*2,
-                        "height": square_size-vars.ui.padding*2,
-                        "resize": vars.labels.resize.value
-                      })
+                      d3plus.textwrap()
+                        .container( d3.select(this) )
+                        .height( square_size - vars.ui.padding * 2 )
+                        .resize( vars.labels.resize.value )
+                        .text( text[0] )
+                        .width( square_size - vars.ui.padding * 2 )
+                        .draw()
 
                     }
 
