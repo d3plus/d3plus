@@ -52,6 +52,12 @@ d3plus.console.error = function( message , wiki ) {
 
 d3plus.console.group = function( message ) {
 
+  this( "group" , message , "color:#888;" )
+
+}
+
+d3plus.console.groupCollapsed = function( message ) {
+
   this( "groupCollapsed" , message , "color:#888;" )
 
 }

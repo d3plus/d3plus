@@ -114,7 +114,7 @@ d3plus.viz = function() {
                 if ( lastMessage !== false ) {
                   d3plus.console.groupEnd()
                 }
-                d3plus.console.group(step.message)
+                d3plus.console.groupCollapsed(step.message)
               }
 
               lastMessage = typeof vars.messages.value === "string"

@@ -1,9 +1,10 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
-d3plus.shape.labels = function(vars,selection) {
+d3plus.shape.labels = function( vars , group ) {
 
   var scale = vars.zoom.behavior.scaleExtent()
+    , selection = vars.g[ group ].selectAll("g")
 
   var opacity = function(elem) {
 
@@ -136,8 +137,6 @@ d3plus.shape.labels = function(vars,selection) {
 
         if ( t.color ) return t.color
 
-
-
         var color = d3plus.shape.color(t.parent,vars)
           , legible = d3plus.color.text(color)
           , opacity = t.text ? 0.15 : 1
@@ -217,12 +216,18 @@ d3plus.shape.labels = function(vars,selection) {
       })
       .selectAll("tspan")
         .attr("x",x_pos)
+
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Loop through each selection and analyze the labels
   //----------------------------------------------------------------------------
   if (vars.labels.value) {
+
+    if ( vars.dev.value ) {
+      var timerString = "drawing " + group + " labels"
+      d3plus.console.time( timerString )
+    }
 
     selection.each(function(d){
 
@@ -321,7 +326,7 @@ d3plus.shape.labels = function(vars,selection) {
 
         }
 
-        if (label && label.w*label.scale-label.padding >= 20 && label.h*label.scale-label.padding >= 10 && names.length) {
+        if (label && label.w*label.scale-label.padding >= 25 && label.h*label.scale-label.padding >= 15 && names.length) {
 
           label.names = names
 
@@ -334,7 +339,7 @@ d3plus.shape.labels = function(vars,selection) {
               return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
 
-          if (vars.draw.timing) {
+          if ( vars.draw.timing ) {
 
             text
               .transition().duration(vars.draw.timing/2)
@@ -464,8 +469,15 @@ d3plus.shape.labels = function(vars,selection) {
       }
     })
 
+    if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+
   }
   else {
+
+    if ( vars.dev.value ) {
+      var timerString = "removing " + group + " labels"
+      d3plus.console.time( timerString )
+    }
 
     selection.selectAll("text.d3plus_label, rect.d3plus_label_bg")
       .call(remove)
@@ -473,6 +485,7 @@ d3plus.shape.labels = function(vars,selection) {
     vars.g.labels.selectAll("text.d3plus_label, rect.d3plus_label_bg")
       .call(remove)
 
-  }
+    if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
 
+  }
 }

@@ -307,7 +307,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
         if ( ( vars.dev.value || ( key === "dev" && user ) )
              && !vars.methodGroup && vars.methodGroup !== "wait" ) {
           vars.methodGroup = true
-          d3plus.console.group("method behavior")
+          d3plus.console.groupCollapsed("method behavior")
         }
 
         if ( valString !== null && valString.length < 260 ) {

@@ -50,15 +50,11 @@ d3plus.draw.finish = function(vars) {
   if (vars.draw.update) {
     d3plus.shape.edges(vars)
     if (vars.draw.timing || (!d3plus.visualization[vars.type.value].zoom && !vars.draw.timing)) {
-      if ( vars.dev.value ) d3plus.console.time("data labels")
-      d3plus.shape.labels(vars,vars.g.data.selectAll("g"))
-      if ( vars.dev.value ) d3plus.console.timeEnd("data labels")
+      d3plus.shape.labels( vars , "data" )
       if (vars.edges.label) {
 
         setTimeout(function(){
-          if ( vars.dev.value ) d3plus.console.time("edge labels")
-          d3plus.shape.labels(vars,vars.g.edges.selectAll("g"))
-          if ( vars.dev.value ) d3plus.console.timeEnd("edge labels")
+          d3plus.shape.labels( vars , "edges" )
         },vars.draw.timing)
 
       }
@@ -72,11 +68,11 @@ d3plus.draw.finish = function(vars) {
 
   if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.draw.timing) {
     if ( vars.dev.value ) d3plus.console.time("focus labels")
-    d3plus.shape.labels(vars,vars.g.data_focus.selectAll("g"))
+    d3plus.shape.labels( vars , "data_focus" )
     if (vars.edges.label) {
 
       setTimeout(function(){
-        d3plus.shape.labels(vars,vars.g.edge_focus.selectAll("g"))
+        d3plus.shape.labels( vars , "edge_focus" )
       },vars.draw.timing)
 
     }

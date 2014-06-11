@@ -44,7 +44,7 @@ d3plus.method.function = function( key , vars ) {
       if ( ( vars.dev.value || ( key === "dev" && user ) )
            && !vars.methodGroup && vars.methodGroup !== "wait" ) {
         vars.methodGroup = true
-        d3plus.console.group("method behavior")
+        d3plus.console.groupCollapsed("method behavior")
       }
 
       for ( var s in user ) {
