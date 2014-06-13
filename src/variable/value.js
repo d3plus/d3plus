@@ -3,6 +3,10 @@
 //------------------------------------------------------------------------------
 d3plus.variable.value = function(vars,id,variable,id_var,agg) {
 
+  if ( variable && typeof variable === "function" ) {
+    return variable( id )
+  }
+
   if (!id_var) {
     if ( d3plus.object.validate(variable) ) {
       if (variable[vars.id.value]) {
@@ -18,10 +22,7 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     }
   }
 
-  if ( variable && typeof variable === "function" ) {
-    return variable(id)
-  }
-  else if (variable === id_var) {
+  if (variable === id_var) {
     if ( d3plus.object.validate(id) ) {
       return id[variable]
     }

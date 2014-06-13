@@ -157,13 +157,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
             object.nesting = {}
           }
 
-          if ( typeof value == "string" ) {
-            object.nesting[vars.id.value] = [value]
-          }
-          else if (value instanceof Array) {
-            object.nesting[vars.id.value] = value
-          }
-          else {
+          if ( d3plus.object.validate( value ) ) {
 
             for (var id in value) {
 
@@ -179,6 +173,12 @@ d3plus.method.set = function( vars , method , object , key , value ) {
               object.nesting[vars.id.value] = value[d3.keys(value)[0]]
             }
 
+          }
+          else if ( value instanceof Array ) {
+            object.nesting[vars.id.value] = value
+          }
+          else {
+            object.nesting[vars.id.value] = [ value ]
           }
 
           object[key] = object.nesting[vars.id.value][0]
