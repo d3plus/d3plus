@@ -70,6 +70,10 @@ d3plus.textwrap.tspan = function( vars ) {
 
     }
 
+  if ( vars.shape.value === "circle" ) {
+    vars.container.value.attr( "text-anchor" , "middle" )
+  }
+
   for ( var i = 1 ; i < words.length ; i++ ) {
 
     if ( line * textHeight > vars.height.value ) {

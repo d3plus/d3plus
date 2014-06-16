@@ -42,6 +42,10 @@ d3plus.shape.labels = function( vars , group ) {
 
     function x_pos(t) {
 
+      if ( t.shape === "circle" ) {
+        return "0px"
+      }
+
       var align = t.anchor || vars.labels.align,
           tspan = this.tagName.toLowerCase() === "tspan",
           share = tspan ? this.parentNode.className.baseVal == "d3plus_share" : this.className.baseVal == "d3plus_share",
@@ -109,7 +113,7 @@ d3plus.shape.labels = function( vars , group ) {
         }
         else {
 
-          if (align == "middle" || t.valign == "center") {
+          if (t.shape === "circle" || align === "middle" || t.valign === "center") {
             var y = t.y-height/2-diff/2
           }
           else if (align == "end") {
@@ -129,7 +133,9 @@ d3plus.shape.labels = function( vars , group ) {
     text
       .attr("font-weight",vars.labels.font.weight)
       .attr("font-family",vars.labels.font.family.value)
-      .attr("text-anchor","start")
+      .attr("text-anchor",function(t){
+        return t.shape === "circle" ? "middle" : "start"
+      })
       .attr("pointer-events",function(t){
         return t.mouse ? "auto": "none"
       })
