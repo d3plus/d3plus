@@ -196,17 +196,17 @@ d3plus.draw.steps = function(vars) {
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Fetches data "pool" to use for scales and overall values
+    // Fetches data for app and "pool"
     //--------------------------------------------------------------------------
     steps.push({
       "function": function(vars) {
         var year = !vars.time.fixed.value ? ["all"] : null
         if ( vars.dev.value ) {
           var timerString = year ? "fetching pool data" : "fetching data"
-          d3plus.console.time(timerString)
+          d3plus.console.time( timerString )
         }
         vars.data.pool = d3plus.data.fetch( vars , year )
-        if ( vars.dev.value ) d3plus.console.timeEnd(timerString)
+        if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
         if ( !year ) {
           vars.data.app = vars.data.pool
         }

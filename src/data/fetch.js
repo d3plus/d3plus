@@ -43,6 +43,7 @@ d3plus.data.fetch = function( vars , years ) {
                   .concat( years )
     , filter  = vars.data.solo.length ? "solo" : "mute"
     , cacheKeys = d3.keys(vars.data.cache)
+    , dataFilter = d3plus.visualization[vars.type.value].filter
 
   if ( vars.data[filter].length ) {
     vars.data[filter].forEach(function(f){
@@ -70,8 +71,15 @@ d3plus.data.fetch = function( vars , years ) {
   }
 
   if ( vars.data.cache[cacheID] ) {
+
     if ( vars.dev.value ) d3plus.console.comment("data already cached")
-    return vars.data.cache[cacheID]
+
+    if ( typeof dataFilter === "function" ) {
+      var returnData = dataFilter( vars ,  vars.data.cache[cacheID] )
+    }
+
+    return returnData
+
   }
   else {
 
@@ -132,11 +140,6 @@ d3plus.data.fetch = function( vars , years ) {
 
     }
 
-    var filter = d3plus.visualization[vars.type.value].filter
-    if ( typeof filter === "function" ) {
-      returnData = filter( vars , returnData )
-    }
-
     var cacheKeys = d3.keys(vars.data.cache)
     if ( cacheKeys.length === 20 ) {
       cacheKeys.sort()
@@ -145,6 +148,10 @@ d3plus.data.fetch = function( vars , years ) {
 
     cacheID = new Date().getTime() + "_" + cacheID
     vars.data.cache[cacheID] = returnData
+
+    if ( typeof dataFilter === "function" ) {
+      returnData = dataFilter( vars , returnData )
+    }
 
     if ( vars.dev.value ) d3plus.console.comment("storing data in cache")
 

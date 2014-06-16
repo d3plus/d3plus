@@ -20,28 +20,57 @@ d3plus.ui.legend = function(vars) {
         var data = vars.data.app
       }
 
-      var colorFunction = function(d){
-            var depth = "d3plus" in d ? d.d3plus.depth : vars.depth.value
-            return d3plus.variable.color( vars , d , vars.id.nesting[depth] )
+      for ( var z = 0 ; z < data.length ; z++ ) {
+
+        d = data[z]
+
+        for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
+
+          var colorKey = vars.id.nesting[i]
+
+          if ( !(colorKey in d) ) {
+            var nextKey = vars.id.nesting[ i + 1 ]
+            d[colorKey] = d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
           }
-        , colors = d3plus.data.nest( vars , data , [ colorFunction ] )
+
+        }
+
+      }
+
+      var colorFunction = function( d ){
+            return d3plus.variable.color( vars , d , vars.id.nesting[colorDepth] )
+          }
 
       for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
 
         var colorDepth = i
           , colorKey   = vars.id.nesting[i]
 
-        colors.forEach(function( d ){
-          if ( !(colorKey in d) ) {
-            var nextKey = vars.id.nesting[ i + 1 ]
-            d[colorKey] = d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
-          }
-          d.d3plus.depth = colorDepth
-        })
+        var uniqueIDs = d3plus.util.uniques( data , colorKey )
+          , uniqueColors = d3plus.util.uniques( data , colorFunction )
 
-        var uniqueIDs = d3plus.util.uniques( colors , vars.id.nesting[i] )
-        if ( uniqueIDs.length === colors.length ) {
+        if ( uniqueIDs.length === uniqueColors.length ) {
+          for ( var z = 0 ; z < data.length ; z++ ) {
+            data[z].d3plus.depth = i
+          }
           break
+        }
+
+      }
+
+      var colors = d3plus.data.nest( vars , data , [ colorFunction ] )
+
+      for ( var z = 0 ; z < colors.length ; z++ ) {
+
+        d = colors[z]
+
+        if ( !(colorKey in d) ) {
+          var nextKey = vars.id.nesting[ colorDepth + 1 ]
+          d[colorKey] = d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
+        }
+
+        if ( !(vars.color.value in d) ) {
+          d[vars.color.value] = d3plus.variable.color( vars , d , colorKey )
         }
 
       }

@@ -97,16 +97,19 @@ d3plus.variable.value = function( vars , id , variable , id_var , agg ) {
     }
 
     if ( d3plus.object.validate(id) && id_var in id ) {
+      var val = checkData( id )
+      if ( val ) return val
       id = id[id_var]
-      checkData( id )
     }
 
     if ( id instanceof Array ) {
-      checkData( id )
+      var val = checkData( id )
+      if ( val ) return val
     }
 
     if ( vars.data.app instanceof Array ) {
-      checkData( vars.data.app )
+      var val = checkData( filterArray( vars.data.app ) )
+      if ( val ) return val
     }
 
   }

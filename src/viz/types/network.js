@@ -13,8 +13,8 @@ d3plus.visualization.network = function(vars) {
       y_range = d3.extent(nodes,function(n){return n.y})
 
   var val_range = d3.extent(nodes, function(d){
-    var val = d3plus.variable.value(vars,d,vars.size.value)
-    return val == 0 ? null : val
+    var val = d3plus.variable.value( vars , d , vars.size.value )
+    return val === 0 ? null : val
   });
 
   if (typeof val_range[0] == "undefined") val_range = [1,1]
