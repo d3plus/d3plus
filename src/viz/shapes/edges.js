@@ -529,11 +529,13 @@ d3plus.shape.edges = function(vars) {
       .remove()
 
     lines.selectAll("line")
+      .data(function(d){ return [d] })
       .call(line)
       .call(style)
       .call(label)
 
     splines.selectAll("path")
+      .data(function(d){ return [d] })
       .call(spline)
       .call(style)
       .call(label)
