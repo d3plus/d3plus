@@ -3,6 +3,7 @@
 //------------------------------------------------------------------------------
 d3plus.color.validate = function( color ) {
 
+  color = color + ""
   color = color.replace(/ /g,'')
 
   if ( color.indexOf("rgb") === 0 ) {
