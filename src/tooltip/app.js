@@ -3,9 +3,13 @@
 //-------------------------------------------------------------------
 d3plus.tooltip.app = function(params) {
 
+  if ( !( "d3plus" in params.data ) ) {
+    params.data.d3plus = {}
+  }
+
   var vars = params.vars,
       d = params.data,
-      dataDepth = "depth" in d.d3plus ? d.d3plus.depth : vars.depth.value,
+      dataDepth = "d3plus" in d ? d.d3plus.depth : vars.depth.value,
       ex = params.ex,
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = "arrow" in params ? params.arrow : true,
@@ -97,9 +101,9 @@ d3plus.tooltip.app = function(params) {
 
     var ex = {}
       , children = {}
-      , depth     = d.d3plus.merged ? dataDepth : dataDepth + 1
+      , depth     = "merged" in d.d3plus ? dataDepth : dataDepth + 1
       , nestKey   = vars.id.nesting[depth]
-      , nameList  = d.d3plus.merged || d[nestKey]
+      , nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey]
       , dataValue = d3plus.variable.value( vars , d , vars.size.value )
 
     if ( vars.tooltip.children.value ) {

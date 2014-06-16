@@ -52,7 +52,7 @@ d3plus.visualization.chart = function(vars) {
             var range_data = vars.data.app
           }
           else {
-            var range_data = vars.data.restricted.all
+            var range_data = vars.data.value
           }
           var xaxis_sums = d3.nest()
             .key(function(d){return d[vars.x.value] })
@@ -86,7 +86,7 @@ d3plus.visualization.chart = function(vars) {
           vars[axis+"_range"] = d3.extent(all_depths,function(d){
             return parseFloat(d3plus.variable.value(vars,d,vars[axis].value))
           })
-          vars.tickValues[axis] = d3plus.util.uniques(vars.data.restricted.all,vars[axis].value)
+          vars.tickValues[axis] = d3plus.util.uniques(vars.data.value,vars[axis].value)
         }
 
         // add padding to axis if there is only 1 value

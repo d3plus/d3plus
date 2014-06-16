@@ -160,16 +160,20 @@ d3plus.shape.labels = function( vars , group ) {
           if (t.text) {
 
 
-            if (!(t.resize instanceof Array)) {
-              var min = 8
-                , max = 50
+            if ( !(t.resize instanceof Array) ) {
+              var size = [ 8 / t.scale , 50 * t.scale ]
+                , resize = t.resize
+            }
+            else {
+              var size = t.resize
+                , resize = true
             }
 
             d3plus.textwrap()
               .container( d3.select(this) )
               .height( t.h * t.scale - t.padding )
-              .resize( t.resize )
-              .size([ min / t.scale , max * t.scale ])
+              .resize( resize )
+              .size( size )
               .text( vars.format.value(t.text*100,"share")+"%" )
               .width( t.w * t.scale - t.padding )
               .draw()
@@ -184,16 +188,20 @@ d3plus.shape.labels = function( vars , group ) {
               var height = t.h
             }
 
-            if (!(t.resize instanceof Array)) {
-              var min = 8
-                , max = 40
+            if ( !(t.resize instanceof Array) ) {
+              var size = [ 8 / t.scale , 40 * t.scale ]
+                , resize = t.resize
+            }
+            else {
+              var size = t.resize
+                , resize = true
             }
 
             d3plus.textwrap()
               .container( d3.select(this) )
               .height( height * t.scale - t.padding )
-              .resize( t.resize )
-              .size([ min / t.scale , max * t.scale ])
+              .resize( resize )
+              .size( size )
               .text( t.names )
               .width( t.w * t.scale - t.padding )
               .draw()
@@ -280,7 +288,6 @@ d3plus.shape.labels = function( vars , group ) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.labels.font.size*share.scale)
               .attr("id","d3plus_share_"+d.d3plus.id)
               .attr("class","d3plus_share")
               .attr("opacity",0)
@@ -297,7 +304,6 @@ d3plus.shape.labels = function( vars , group ) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.labels.font.size*share.scale)
               .attr("id","d3plus_share_"+d.d3plus.id)
               .attr("class","d3plus_share")
               .attr("opacity",1)
@@ -338,6 +344,8 @@ d3plus.shape.labels = function( vars , group ) {
               if (!t) return false
               return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
+            , fontSize = label.resize ? undefined
+                       : vars.labels.font.size * label.scale
 
           if ( vars.draw.timing ) {
 
@@ -346,7 +354,7 @@ d3plus.shape.labels = function( vars , group ) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.labels.font.size*label.scale)
+              .attr("font-size",fontSize)
               .attr("id","d3plus_label_"+d.d3plus.id)
               .attr("class","d3plus_label")
               .attr("opacity",0)
@@ -363,7 +371,7 @@ d3plus.shape.labels = function( vars , group ) {
               .call(style)
 
             text.enter().append("text")
-              .attr("font-size",vars.labels.font.size*label.scale)
+              .attr("font-size",fontSize)
               .attr("id","d3plus_label_"+d.d3plus.id)
               .attr("class","d3plus_label")
               .call(style,true)

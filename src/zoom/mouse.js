@@ -31,7 +31,7 @@ d3plus.zoom.mouse = function(vars) {
   vars.zoom.scale = scale
 
   if (d3.event.sourceEvent.type == "wheel") {
-    var delay = vars.draw.timing ? 100 : 500
+    var delay = vars.draw.timing ? 100 : 250
     clearTimeout(vars.zoom.wheel)
     vars.zoom.wheel = setTimeout(function(){
       d3plus.zoom.labels(vars)

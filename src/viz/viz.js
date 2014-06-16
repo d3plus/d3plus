@@ -63,7 +63,7 @@ d3plus.viz = function() {
             runStep()
           }
           else {
-
+            
             vars.methodGroup = false
             if ( vars.dev.value ) {
               d3plus.console.timeEnd("total draw time")

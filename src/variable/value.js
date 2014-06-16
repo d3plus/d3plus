@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
-d3plus.variable.value = function(vars,id,variable,id_var,agg) {
+d3plus.variable.value = function( vars , id , variable , id_var , agg ) {
 
   if ( variable && typeof variable === "function" ) {
     return variable( id )
@@ -22,19 +22,29 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
     }
   }
 
-  if (variable === id_var) {
-    if ( d3plus.object.validate(id) ) {
+  if ( variable === id_var ) {
+    if ( d3plus.object.validate(id) && variable in id ) {
       return id[variable]
     }
-    else {
+    else if ( !(id instanceof Array) ) {
       return id
     }
   }
 
-  function filter_array(arr) {
-    return arr.filter(function(d){
-      return d[id_var] == id
-    })[0]
+  function filterArray( arr ) {
+
+    if ( id instanceof Array ) {
+      var uniques = d3plus.util.uniques( id , id_var )
+      return arr.filter(function(d){
+        return uniques.indexOf(d[id_var]) >= 0
+      })
+    }
+    else {
+      return arr.filter(function(d){
+        return d[id_var] === id
+      })
+    }
+
   }
 
   var value_array = []
@@ -56,19 +66,21 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
 
     if (!agg) {
       var agg = "sum"
-      if (typeof vars.aggs.value == "string") {
+      if (typeof vars.aggs.value === "string") {
         agg = vars.aggs.value
       }
       else if (vars.aggs.value[variable]) {
         agg = vars.aggs.value[variable]
       }
     }
+
     check_children(id)
+
     if (value_array.length) {
-      if (typeof agg == "string") {
+      if (typeof agg === "string") {
         return d3[agg](value_array)
       }
-      else if (typeof agg == "function") {
+      else if (typeof agg === "function") {
         return agg(value_array)
       }
     }
@@ -79,39 +91,66 @@ d3plus.variable.value = function(vars,id,variable,id_var,agg) {
   }
   else {
 
-    if ( typeof id == "object" ) {
-      var dat = id
+    function checkData( data ) {
+      var vals = d3plus.util.uniques( data , variable )
+      if ( vals.length === 1 ) return vals[0]
+    }
+
+    if ( d3plus.object.validate(id) && id_var in id ) {
       id = id[id_var]
+      checkData( id )
+    }
+
+    if ( id instanceof Array ) {
+      checkData( id )
     }
 
     if ( vars.data.app instanceof Array ) {
-      var dat = filter_array( vars.data.app )
+      checkData( vars.data.app )
     }
-
-    if ( dat && variable in dat ) return dat[variable]
 
   }
 
-  if ( "attrs" in vars ) {
+  if ( "attrs" in vars && vars.attrs.value ) {
 
     if ( vars.attrs.value instanceof Array ) {
-      var attr = filter_array(vars.attrs.value)
+      var attr = filterArray(vars.attrs.value)
     }
-    else if (vars.attrs.value[id_var]) {
-      if (vars.attrs.value[id_var] instanceof Array) {
-        var attr = filter_array(vars.attrs.value[id_var])
+    else if ( id_var in vars.attrs.value ) {
+      if ( vars.attrs.value[id_var] instanceof Array ) {
+        var attr = filterArray(vars.attrs.value[id_var])
       }
       else {
-        var attr = vars.attrs.value[id_var][id]
+        var attr = vars.attrs.value[id_var]
       }
     }
     else {
-      var attr = vars.attrs.value[id]
+      var attr = vars.attrs.value
     }
 
   }
 
-  if ( attr && variable in attr ) return attr[variable]
+  if ( d3plus.object.validate(attr) ) {
+
+    var newAttr = []
+
+    if ( id instanceof Array ) {
+      id.forEach(function(d){
+        newAttr.push(attr[d])
+      })
+    }
+    else newAttr.push(attr[id])
+
+    attr = newAttr
+
+  }
+
+  if ( attr && attr.length ) {
+
+    var vals = d3plus.util.uniques( attr , variable )
+    if ( vals.length === 1 ) return vals[0]
+
+  }
 
   return null
 

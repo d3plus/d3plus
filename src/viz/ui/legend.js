@@ -21,22 +21,30 @@ d3plus.ui.legend = function(vars) {
       }
 
       var colorFunction = function(d){
-            return d3plus.variable.color(vars,d,vars.id.nesting[d.d3plus.depth])
+            var depth = "d3plus" in d ? d.d3plus.depth : vars.depth.value
+            return d3plus.variable.color( vars , d , vars.id.nesting[depth] )
           }
-        , colors = d3plus.data.nest( vars , data , [colorFunction] )
-        , colorDepth = 0
+        , colors = d3plus.data.nest( vars , data , [ colorFunction ] )
 
       for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
+
+        var colorDepth = i
+          , colorKey   = vars.id.nesting[i]
+
+        colors.forEach(function( d ){
+          if ( !(colorKey in d) ) {
+            var nextKey = vars.id.nesting[ i + 1 ]
+            d[colorKey] = d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
+          }
+          d.d3plus.depth = colorDepth
+        })
+
         var uniqueIDs = d3plus.util.uniques( colors , vars.id.nesting[i] )
         if ( uniqueIDs.length === colors.length ) {
-          colorDepth = i
           break
         }
-      }
 
-      colors.forEach(function(d){
-        d.d3plus.depth = colorDepth
-      })
+      }
 
       if ( vars.dev.value ) d3plus.console.timeEnd("grouping data by color")
 

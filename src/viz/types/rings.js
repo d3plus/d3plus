@@ -10,8 +10,13 @@ d3plus.visualization.rings = function(vars) {
     , nodes = []
 
   var center = vars.data.app.filter(function(d){
-    return d[vars.id.value] == vars.focus.value
+    return d[vars.id.value] === vars.focus.value
   })[0]
+
+  if ( !center ) {
+    center = { "d3plus" : {} }
+    center[vars.id.value] = vars.focus.value
+  }
 
   center.d3plus.x = vars.width.viz/2
   center.d3plus.y = vars.height.viz/2
@@ -22,8 +27,13 @@ d3plus.visualization.rings = function(vars) {
 
     var c = edge[vars.edges.source][vars.id.value] == vars.focus.value ? edge[vars.edges.target] : edge[vars.edges.source]
     var n = vars.data.app.filter(function(d){
-      return d[vars.id.value] == c[vars.id.value]
+      return d[vars.id.value] === c[vars.id.value]
     })[0]
+
+    if ( !n ) {
+      n = { "d3plus" : {} }
+      n[vars.id.value] = c[vars.id.value]
+    }
 
     n.d3plus.edges = vars.edges.connections(n[vars.id.value],vars.id.value).filter(function(c){
       return c[vars.edges.source][vars.id.value] != vars.focus.value && c[vars.edges.target][vars.id.value] != vars.focus.value
@@ -140,8 +150,13 @@ d3plus.visualization.rings = function(vars) {
         , s = radian/total
 
       var d = vars.data.app.filter(function(a){
-        return a[vars.id.value] == c[vars.id.value]
+        return a[vars.id.value] === c[vars.id.value]
       })[0]
+
+      if ( !d ) {
+        d = { "d3plus" : {} }
+        d[vars.id.value] = c[vars.id.value]
+      }
 
       a = (angle-(s*children/2)+(s/2))+((s)*i)
       d.d3plus.radians = a

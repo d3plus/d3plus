@@ -46,7 +46,7 @@ d3plus.ui.titles = function(vars) {
 
       if (vars.data.mute.length || vars.data.solo.length || vars.focus.value) {
 
-        var overall_total = d3.sum(vars.data.filtered.all, function(d){
+        var overall_total = d3.sum(vars.data.value, function(d){
           if (vars.time.solo.value.length > 0) {
             var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.value)) >= 0
           }
