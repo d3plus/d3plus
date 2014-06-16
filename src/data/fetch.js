@@ -74,8 +74,10 @@ d3plus.data.fetch = function( vars , years ) {
 
     if ( vars.dev.value ) d3plus.console.comment("data already cached")
 
+    var returnData = vars.data.cache[cacheID]
+
     if ( typeof dataFilter === "function" ) {
-      var returnData = dataFilter( vars ,  vars.data.cache[cacheID] )
+      returnData = dataFilter( vars ,  returnData )
     }
 
     return returnData
