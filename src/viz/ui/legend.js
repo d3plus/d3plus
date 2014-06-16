@@ -51,6 +51,7 @@ d3plus.ui.legend = function(vars) {
 
         if ( uniqueIDs.length === uniqueColors.length ) {
           for ( var z = 0 ; z < data.length ; z++ ) {
+            if ( !(d3plus in data[z]) ) data[z].d3plus = {}
             data[z].d3plus.depth = i
           }
           break
