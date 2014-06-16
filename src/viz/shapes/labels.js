@@ -197,11 +197,14 @@ d3plus.shape.labels = function( vars , group ) {
                 , resize = true
             }
 
+            var shape = t.shape || "square"
+
             d3plus.textwrap()
               .container( d3.select(this) )
               .height( height * t.scale - t.padding )
               .resize( resize )
               .size( size )
+              .shape( shape )
               .text( t.names )
               .width( t.w * t.scale - t.padding )
               .draw()

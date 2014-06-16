@@ -9,7 +9,7 @@ d3plus.tooltip.app = function(params) {
 
   var vars = params.vars,
       d = params.data,
-      dataDepth = "d3plus" in d ? d.d3plus.depth : vars.depth.value,
+      dataDepth = "d3plus" in d && "depth" in d.d3plus ? d.d3plus.depth : vars.depth.value,
       ex = params.ex,
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = "arrow" in params ? params.arrow : true,

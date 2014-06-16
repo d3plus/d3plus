@@ -50,10 +50,6 @@ d3plus.ui.legend = function(vars) {
           , uniqueColors = d3plus.util.uniques( data , colorFunction )
 
         if ( uniqueIDs.length === uniqueColors.length ) {
-          for ( var z = 0 ; z < data.length ; z++ ) {
-            if ( !(d3plus in data[z]) ) data[z].d3plus = {}
-            data[z].d3plus.depth = i
-          }
           break
         }
 
@@ -65,14 +61,15 @@ d3plus.ui.legend = function(vars) {
 
         d = colors[z]
 
-        if ( !(colorKey in d) ) {
-          var nextKey = vars.id.nesting[ colorDepth + 1 ]
-          d[colorKey] = d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
-        }
+        var nextKey = vars.id.nesting[ colorDepth + 1 ]
 
-        if ( !(vars.color.value in d) ) {
-          d[vars.color.value] = d3plus.variable.color( vars , d , colorKey )
-        }
+        d[colorKey] = d[colorKey]
+          || d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
+
+        d[vars.color.value] = d[vars.color.value]
+          || d3plus.variable.color( vars , d , colorKey )
+
+        d.d3plus = {"depth": colorDepth}
 
       }
 

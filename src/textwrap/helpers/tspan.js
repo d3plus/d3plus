@@ -45,7 +45,12 @@ d3plus.textwrap.tspan = function( vars ) {
 
           textBox.text( words.join(" ") + " " + lastWord + " ..." )
 
-          if ( textBox.node().getComputedTextLength() > vars.width.value ) {
+          var baseline = (line-1) * textHeight
+            , lineWidth = vars.shape.value === "circle"
+                        ? 2*Math.sqrt( baseline*( (2*(vars.width.value/2))-baseline ) )
+                        : vars.width.value
+
+          if ( textBox.node().getComputedTextLength() > lineWidth ) {
             ellipsis()
           }
 
@@ -56,7 +61,10 @@ d3plus.textwrap.tspan = function( vars ) {
 
         textBox.remove()
         textBox = d3.select( vars.container.value.node().lastChild )
-        if ( !textBox.empty() ) truncate()
+        if ( !textBox.empty() ) {
+          line--
+          truncate()
+        }
 
       }
 
@@ -81,7 +89,13 @@ d3plus.textwrap.tspan = function( vars ) {
 
     textBox.text( current + joiner + words[i] )
 
-    if ( textBox.node().getComputedTextLength() > vars.width.value ) {
+
+    var baseline = (line-1) * textHeight
+      , lineWidth = vars.shape.value === "circle"
+                  ? 2*Math.sqrt( baseline*( (2*(vars.width.value/2))-baseline ) )
+                  : vars.width.value
+
+    if ( textBox.node().getComputedTextLength() > lineWidth ) {
 
       if ( !tspans ) {
         textBox.text("")

@@ -20,25 +20,17 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
       var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width,
           h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
 
-      // Square bounds
-      if (vars.shape.value == "square") {
-
-        d.d3plus_share = {
-          "w": w,
-          "h": d3.max([25,h/3]),
-          "x": 0,
-          "y": 0
-        }
-
-        d.d3plus_label.w = w
-        d.d3plus_label.h = h
-
+      d.d3plus_share = {
+        "w": w,
+        "h": d3.max([25,h/3]),
+        "x": 0,
+        "y": 0
       }
-      // Circle bounds
-      else {
-        d.d3plus_label.w = Math.sqrt(Math.pow(w,2)*.8)
-        d.d3plus_label.h = Math.sqrt(Math.pow(h,2)*.8)
-      }
+
+      d.d3plus_label.w = w
+      d.d3plus_label.h = h
+
+      d.d3plus_label.shape = vars.shape.value === "circle" ? "circle" : "square"
 
     }
     else if (d.d3plus.label) {

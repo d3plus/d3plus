@@ -29,7 +29,7 @@ d3plus.textwrap = function() {
   // Define methods and expose public variables.
   //----------------------------------------------------------------------------
   var methods = [ "container" , "dev" , "draw" , "format" , "height"
-                , "resize" , "text" , "size" , "width" ]
+                , "resize" , "text" , "shape" , "size" , "width" ]
   d3plus.method( vars , methods )
 
   return vars.self
