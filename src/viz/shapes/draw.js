@@ -391,12 +391,12 @@ d3plus.shape.draw = function(vars) {
                 , positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]})
                 , closest = d3plus.util.closest(positions,mouse)
 
-              d.data = d.values[positions.indexOf(closest)]
+              d.d3plus_data = d.values[positions.indexOf(closest)]
               d.d3plus = d.values[positions.indexOf(closest)].d3plus
 
             }
 
-            var tooltip_data = d.data ? d.data : d
+            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
             d3plus.tooltip.app({
               "vars": vars,
               "data": tooltip_data
@@ -433,12 +433,12 @@ d3plus.shape.draw = function(vars) {
                 , positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]})
                 , closest = d3plus.util.closest(positions,mouse)
 
-              d.data = d.values[positions.indexOf(closest)]
+              d.d3plus_data = d.values[positions.indexOf(closest)]
               d.d3plus = d.values[positions.indexOf(closest)].d3plus
 
             }
 
-            var tooltip_data = d.data ? d.data : d
+            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
             d3plus.tooltip.app({
               "vars": vars,
               "data": tooltip_data
@@ -513,7 +513,7 @@ d3plus.shape.draw = function(vars) {
           vars.mouse[d3plus.evt.click](d)
         }
 
-        var depth_delta = vars.zoom.direction(d)
+        var depth_delta = vars.zoom.direction(d.d3plus_data || d)
           , previous = vars.id.solo.value
           , title = d3plus.variable.text(vars,d)[0]
           , color = d3plus.color.legible(d3plus.variable.color(vars,d))
@@ -639,7 +639,7 @@ d3plus.shape.draw = function(vars) {
 
           edge_update()
 
-          var tooltip_data = d.data ? d.data : d
+          var tooltip_data = d.d3plus_data ? d.d3plus_data : d
 
           d3plus.tooltip.app({
             "vars": vars,

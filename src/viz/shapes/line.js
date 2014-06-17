@@ -43,7 +43,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         step = index
       }
 
-      if (i+step == index) {
+      if ( i + step === index ) {
         temp.values.push(v)
         temp.key += "_"+segments.length
       }
@@ -57,9 +57,11 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         temp.key += "_"+segments.length
         step++
       }
-      if (i == arr.length-1) {
+
+      if ( i === arr.length - 1 ) {
         segments.push(temp)
       }
+
     })
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

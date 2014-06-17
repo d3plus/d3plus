@@ -286,9 +286,9 @@ d3plus.visualization.chart = function(vars) {
         });
 
       if (vars[axis].scale.value == "continuous" && vars.tickValues[axis]) {
-        var ticks = d3.extent(vars.tickValues[axis])
-        vars.tickValues[axis] = d3.range(ticks[0],ticks[1])
-        vars.tickValues[axis].push(ticks[1])
+        // var ticks = d3.extent(vars.tickValues[axis])
+        // vars.tickValues[axis] = d3.range(ticks[0],ticks[1])
+        // vars.tickValues[axis].push(ticks[1])
         vars[axis+"_axis"].tickValues(vars.tickValues[axis])
       }
 
@@ -956,7 +956,7 @@ d3plus.visualization.chart = function(vars) {
         return d.axis+"_"+d.id
       })
       .text(function(d){
-        var val = d3plus.variable.value(vars,node,vars[d.axis].value)
+        var val = d3plus.variable.value(vars,node.d3plus_data || node,vars[d.axis].value)
         return vars.format.value(val,vars[d.axis].value)
       })
       .attr("x",function(d){
