@@ -28,7 +28,7 @@ d3plus.ui.legend = function(vars) {
         }
       }
       else {
-        var data = vars.data.app
+        var data = d3plus.util.copy(vars.data.app)
       }
 
       for ( var z = 0 ; z < data.length ; z++ ) {
