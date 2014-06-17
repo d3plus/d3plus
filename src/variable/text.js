@@ -32,11 +32,11 @@ d3plus.variable.text = function(vars,obj,depth) {
 
     if ( name ) {
       if ( !(name instanceof Array) ) {
-        name = name.toString()
+        name = vars.format.value(name.toString())
       }
       else {
         name.forEach(function(n){
-          n = vars.format.value(name.toString())
+          n = vars.format.value(n.toString())
         })
       }
       names.push(name)
