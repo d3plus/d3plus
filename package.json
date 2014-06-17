@@ -20,13 +20,7 @@
     "type": "git",
     "url": "https://github.com/alexandersimoes/d3plus.git"
   },
-  "keywords": [
-    "charts",
-    "d3",
-    "d3plus",
-    "data",
-    "visualization"
-  ],
+  "keywords": [ "charts", "d3", "d3plus", "data", "visualization" ],
   "author": {
     "name": "Dave Landry",
     "email": "landry.dave@gmail.com",
