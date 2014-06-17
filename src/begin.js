@@ -9,6 +9,7 @@
   d3plus.color         = {}
   d3plus.data          = {}
   d3plus.draw          = {}
+  d3plus.edges         = {}
   d3plus.font          = {}
   d3plus.input         = {}
   d3plus.locale        = {}
