@@ -382,8 +382,7 @@ d3plus.shape.draw = function(vars) {
           vars.covered = false
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
-            || (d3plus.visualization[vars.type.value].tooltip == "follow" &&
-            (vars.focus.value != d[vars.id.value]) || !vars.focus.tooltip.value)) {
+            || vars.focus.value != d[vars.id.value]) {
 
             if (vars.continuous_axis) {
 
@@ -425,7 +424,7 @@ d3plus.shape.draw = function(vars) {
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
             || (d3plus.visualization[vars.type.value].tooltip == "follow" &&
-            (vars.focus.value != d[vars.id.value]) || !vars.focus.tooltip.value)) {
+            (vars.focus.value != d[vars.id.value]))) {
 
             if (vars.continuous_axis) {
 
