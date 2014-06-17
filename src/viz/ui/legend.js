@@ -6,6 +6,7 @@ d3plus.ui.legend = function(vars) {
   var key_display = true,
       square_size = 0,
       key = vars.color.value || vars.id.value
+    , colorName = vars.color.value || "d3plus_color"
 
   if (!vars.small && vars.legend.value && key) {
 
@@ -76,7 +77,7 @@ d3plus.ui.legend = function(vars) {
         d[colorKey] = d[colorKey]
           || d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
 
-        d[vars.color.value] = d[vars.color.value]
+        d[colorName] = d[colorName]
           || d3plus.variable.color( vars , d , colorKey )
 
         d.d3plus = {"depth": colorDepth}
@@ -122,7 +123,7 @@ d3plus.ui.legend = function(vars) {
         var order = vars[vars.legend.order.value].value
 
         d3plus.array.sort( colors , order , vars.legend.order.sort.value
-                         , vars.color.value , vars )
+                         , colorName , vars )
 
         if ( vars.dev.value ) d3plus.console.timeEnd("sorting legend")
 
