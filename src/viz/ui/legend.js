@@ -65,7 +65,7 @@ d3plus.ui.legend = function(vars) {
 
       }
 
-      var colors = d3plus.data.nest( vars , data , [ colorFunction ] )
+      var colors = d3plus.data.nest( vars , data , [ colorFunction ] , [] )
 
       for ( var z = 0 ; z < colors.length ; z++ ) {
 

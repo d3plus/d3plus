@@ -1,20 +1,20 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
-d3plus.data.nest = function( vars , flatData , nestingLevels ) {
+d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
-  var nestedData = d3.nest()
-    , groupedData = []
-    , segments = [ "active" , "temp" , "total" ]
-    , requirements = d3plus.visualization[vars.type.value].requirements
-    , exceptions = [ vars.time.value , vars.icon.value ]
-    , checkAxes = function() {
+  var nestedData   = d3.nest()
+    , groupedData  = []
+    , segments     = [ "active" , "temp" , "total" ]
+    , requirements = requirements || d3plus.visualization[vars.type.value].requirements
+    , exceptions   = [ vars.time.value , vars.icon.value ]
+    , checkAxes    = function() {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If the visualization has method requirements, check to see if we need
       // to key the data by a continuous scale variable.
       //------------------------------------------------------------------------
-      if ( requirements ) {
+      if ( requirements && requirements.length ) {
 
         vars.axes.values.forEach(function(axis){
 
