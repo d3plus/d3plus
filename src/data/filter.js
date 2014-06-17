@@ -5,19 +5,25 @@ d3plus.data.filter = function( vars , data ) {
 
   if ( vars.dev.value ) d3plus.console.time("filtering data")
 
+  var availableKeys = d3.keys(vars.data.keys || {}).concat(d3.keys(vars.attrs.keys || {}))
+
   vars.data.filters.forEach( function( key ) {
 
-    data = data.filter( function( d ) {
+    if ( availableKeys.indexOf(vars[key].value) >= 0 ) {
 
-      var val = d3plus.variable.value(vars,d,vars[key].value)
-      if ( key === "size" ) {
-        return typeof val === "number" && val > 0
-      }
-      else {
-        return val !== null
-      }
+      data = data.filter( function( d ) {
 
-    })
+        var val = d3plus.variable.value(vars,d,vars[key].value)
+        if ( key === "size" ) {
+          return typeof val === "number" && val > 0
+        }
+        else {
+          return val !== null
+        }
+
+      })
+
+    }
 
   })
 

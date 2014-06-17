@@ -12,10 +12,10 @@ d3plus.visualization.network = function(vars) {
   var x_range = d3.extent(nodes,function(n){return n.x}),
       y_range = d3.extent(nodes,function(n){return n.y})
 
-  var val_range = d3.extent(nodes, function(d){
+  var val_range = vars.size.value ? d3.extent(nodes, function(d){
     var val = d3plus.variable.value( vars , d , vars.size.value )
     return val === 0 ? null : val
-  });
+  }) : [ 1 , 1 ]
 
   if (typeof val_range[0] == "undefined") val_range = [1,1]
 

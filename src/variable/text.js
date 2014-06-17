@@ -21,7 +21,7 @@ d3plus.variable.text = function(vars,obj,depth) {
     textKeys.push(key)
   }
 
-  if ( typeof textKeys == "string" ) {
+  if ( !(textKeys instanceof Array) ) {
     textKeys = [ textKeys ]
   }
 

@@ -86,7 +86,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels ) {
       return returnObj
     }
 
-    if ( vars.size.value ) {
+    if ( vars.size.value && d3plus.util.uniques(leaves,vars.size.value).length ) {
 
       d3plus.array.sort( leaves , vars.size.value , "desc" , [] , vars )
 

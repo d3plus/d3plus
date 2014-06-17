@@ -15,6 +15,16 @@ d3plus.ui.legend = function(vars) {
 
       if ( vars.nodes.value && d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
         var data = vars.nodes.restriced || vars.nodes.value
+        if ( vars.data.app.length ) {
+          for ( var i = 0 ; i < data.length ; i++ ) {
+            var appData = vars.data.app.filter(function(a){
+              return a[vars.id.value] === data[i][vars.id.value]
+            })
+            if (appData.length) {
+              data[i] = d3plus.object.merge(data[i],appData[0])
+            }
+          }
+        }
       }
       else {
         var data = vars.data.app
