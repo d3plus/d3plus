@@ -86,9 +86,15 @@ d3plus.data.fetch = function( vars , years ) {
   else {
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If there's no data, return an empty array!
+    //--------------------------------------------------------------------------
+    if ( !vars.data.value ) {
+      var returnData = []
+    }
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there is only 1 year needed, just grab it!
     //--------------------------------------------------------------------------
-    if ( years.length === 1 ) {
+    else if ( years.length === 1 ) {
       var returnData = vars.data.nested[ years[0] ][ vars.id.value ]
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

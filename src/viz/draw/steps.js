@@ -200,6 +200,7 @@ d3plus.draw.steps = function(vars) {
     //--------------------------------------------------------------------------
     steps.push({
       "function": function(vars) {
+
         var year = !vars.time.fixed.value ? ["all"] : null
         if ( vars.dev.value ) {
           var timerString = year ? "fetching pool data" : "fetching data"
@@ -215,6 +216,7 @@ d3plus.draw.steps = function(vars) {
           vars.data.app = d3plus.data.fetch( vars )
           if ( vars.dev.value ) d3plus.console.timeEnd("fetching data for current year")
         }
+
       },
       "message": dataMessage
     })

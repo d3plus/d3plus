@@ -1,5 +1,6 @@
 d3plus.method.data = {
   "accepted" : [ false , Array , Function , String ],
+  "cache"    : {},
   "delimiter" : {
     "accepted" : [ String ],
     "value"    : "|"
