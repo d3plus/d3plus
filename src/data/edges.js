@@ -38,7 +38,7 @@ d3plus.data.edges = function( vars ) {
       vars.data.keys[vars.id.value] = typeof e[vars.edges.source][vars.id.value]
     }
 
-    if (createNodes) {
+    if ( createNodes ) {
       if (placed.indexOf(e[vars.edges.source][vars.id.value]) < 0) {
         placed.push(e[vars.edges.source][vars.id.value])
         vars.nodes.value.push(e[vars.edges.source])

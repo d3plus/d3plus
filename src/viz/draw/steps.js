@@ -183,7 +183,7 @@ d3plus.draw.steps = function(vars) {
       steps.push({ "function" : d3plus.data.edges, "message" : dataMessage })
     }
 
-    if ( appReqs.indexOf("nodes") >= 0 && vars.nodes.value && vars.edges.value
+    if ( appReqs.indexOf("nodes") >= 0 && vars.edges.value
     && ( !vars.nodes.positions || vars.nodes.changed ) ) {
       steps.push({ "function" : d3plus.data.nodes , "message" : dataMessage })
     }
