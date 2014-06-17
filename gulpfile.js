@@ -11,10 +11,10 @@ var gulp = require("gulp")
   , lr = require("tiny-lr")()
 
 var files = [ "src/begin.js"
-            , "src/**/*.js"
+            , "src/*/**/*.js"
             , "src/end.js" ]
 
-var tests = [ "tests/*.*", "tests/**/*.*" ]
+var tests = [ "tests/**/*.*" ]
 
 // Concatenate & Minify JS
 gulp.task("make", function() {
