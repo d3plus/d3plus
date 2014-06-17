@@ -60,7 +60,7 @@ d3plus.ui.legend = function(vars) {
         var uniqueIDs = d3plus.util.uniques( data , colorKey )
           , uniqueColors = d3plus.util.uniques( data , colorFunction )
 
-        if ( uniqueIDs.length === uniqueColors.length ) {
+        if ( uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1 ) {
           break
         }
 
