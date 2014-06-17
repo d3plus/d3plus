@@ -26,9 +26,6 @@
   d3plus.visualization = {}
   d3plus.zoom          = {}
 
-
-})();
-
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts an array of objects
 //------------------------------------------------------------------------------
@@ -942,20 +939,20 @@ d3plus.data.keys = function( vars , type ) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
-d3plus.data.nest = function( vars , flatData , nestingLevels ) {
+d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
-  var nestedData = d3.nest()
-    , groupedData = []
-    , segments = [ "active" , "temp" , "total" ]
-    , requirements = d3plus.visualization[vars.type.value].requirements
-    , exceptions = [ vars.time.value , vars.icon.value ]
-    , checkAxes = function() {
+  var nestedData   = d3.nest()
+    , groupedData  = []
+    , segments     = [ "active" , "temp" , "total" ]
+    , requirements = requirements || d3plus.visualization[vars.type.value].requirements
+    , exceptions   = [ vars.time.value , vars.icon.value ]
+    , checkAxes    = function() {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If the visualization has method requirements, check to see if we need
       // to key the data by a continuous scale variable.
       //------------------------------------------------------------------------
-      if ( requirements ) {
+      if ( requirements && requirements.length ) {
 
         vars.axes.values.forEach(function(axis){
 
@@ -1931,335 +1928,6 @@ d3plus.form = function() {
 
 }
 
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Custom styling and behavior for browser console statements.
-//------------------------------------------------------------------------------
-d3plus.console = function( type , message , style ) {
-
-  var style = style || ""
-
-  if ( d3plus.ie ) {
-
-    console.log( "[ D3plus ] " + message )
-
-  }
-  else if ( type === "groupCollapsed" ) {
-
-    if ( window.chrome && navigator.onLine ) {
-      console[type]( "%c%c " + message
-                   , "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');"
-                   , "font-weight:200;" + style )
-    }
-    else {
-      console[type]( "%cD3plus%c " + message
-                   , "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;"
-                   , "font-weight:200;" + style )
-    }
-
-  }
-  else {
-
-    console[type]( "%c" + message , style + "font-weight:200;" )
-
-  }
-
-}
-
-d3plus.console.comment = function( message ) {
-
-  this( "log" , message , "color:#aaa;" )
-
-}
-
-d3plus.console.error = function( message , wiki ) {
-
-  this( "groupCollapsed" , "ERROR: " + message , "font-weight:800;color:#D74B03;" )
-
-  this.stack()
-
-  this.wiki( wiki )
-
-  this.groupEnd()
-
-}
-
-d3plus.console.group = function( message ) {
-
-  this( "group" , message , "color:#888;" )
-
-}
-
-d3plus.console.groupCollapsed = function( message ) {
-
-  this( "groupCollapsed" , message , "color:#888;" )
-
-}
-
-d3plus.console.groupEnd = function() {
-  if ( !d3plus.ie ) {
-    console.groupEnd()
-  }
-}
-
-d3plus.console.log = function( message ) {
-
-  this( "log" , message , "color:#444444;" )
-
-}
-
-d3plus.console.stack = function() {
-
-  if ( !d3plus.ie ) {
-
-    var err = new Error()
-
-    if ( err.stack ) {
-
-      var stack = err.stack.split("\n")
-
-      stack = stack.filter(function(e){
-        return e.indexOf("Error") !== 0
-            && e.indexOf("d3plus.js:") < 0
-            && e.indexOf("d3plus.min.js:") < 0
-      })
-
-      if ( stack.length ) {
-
-        var splitter = window.chrome ? "at " : "@"
-          , url = stack[0].split(splitter)[1]
-
-        stack = url.split(":")
-        if ( stack.length === 3 ) {
-          stack.pop()
-        }
-
-        var line = stack.pop()
-          , page = stack.join(":").split("/")
-
-        page = page[page.length-1]
-
-        var message = "line "+line+" of "+page+": "+url
-
-        this( "log" , message , "color:#D74B03;" )
-
-      }
-
-    }
-  }
-
-}
-
-d3plus.console.time = function( message ) {
-  if ( !d3plus.ie ) {
-    console.time( message )
-  }
-}
-
-d3plus.console.timeEnd = function( message ) {
-  if ( !d3plus.ie ) {
-    console.timeEnd( message )
-  }
-}
-
-d3plus.console.warning = function( message , wiki ) {
-
-  this( "groupCollapsed" , message , "color:#888;" )
-
-  this.stack()
-
-  this.wiki( wiki )
-
-  this.groupEnd()
-
-}
-
-d3plus.console.wiki = function( wiki ) {
-
-  if ( wiki && wiki in d3plus.wiki ) {
-    var url = d3plus.repo + "wiki/" + d3plus.wiki[wiki]
-    this( "log" , "documentation: " + url , "color:#aaa;" )
-  }
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Creates custom mouse events based on IE and Touch Devices.
-//------------------------------------------------------------------------------
-d3plus.evt = {}
-
-d3plus.touch = ('ontouchstart' in window) || window.DocumentTouch
-               && document instanceof DocumentTouch ? true : false
-
-if (d3plus.touch) {
-
-  d3plus.evt.click = "click"
-  d3plus.evt.down  = "touchstart"
-  d3plus.evt.up    = "touchend"
-  d3plus.evt.over  = "touchstart"
-  d3plus.evt.out   = "touchend"
-  d3plus.evt.move  = "touchmove"
-
-}
-else {
-
-  d3plus.evt.click = "click"
-  d3plus.evt.down  = "mousedown"
-  d3plus.evt.up    = "mouseup"
-
-  if (d3plus.ie) {
-
-    d3plus.evt.over = "mouseenter"
-    d3plus.evt.out  = "mouseleave"
-
-  }
-  else {
-
-    d3plus.evt.over = "mouseover"
-    d3plus.evt.out  = "mouseout"
-
-  }
-
-  d3plus.evt.move = "mousemove"
-
-}
-
-d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
-
-d3plus.wiki    = {
-  "active"     : "Segmenting-Data#active",
-  "aggs"       : "Custom-Aggregations",
-  "alt"        : "Alt-Text-Parameters",
-  "attrs"      : "Attribute-Data#axes",
-  "axes"       : "Axis-Parameters",
-  "background" : "Background",
-  "color"      : "Color-Parameters",
-  "container"  : "Container-Element",
-  "coords"     : "Geography-Data",
-  "csv"        : "CSV-Export",
-  "data"       : "Data-Points",
-  "depth"      : "Visible-Depth",
-  "descs"      : "Value-Definitions",
-  "dev"        : "Verbose-Mode",
-  "draw"       : "Draw",
-  "edges"      : "Edges-List",
-  "error"      : "Custom-Error-Message",
-  "focus"      : "Focus-Element",
-  "font"       : "Font-Styles",
-  "footer"     : "Custom-Footer",
-  "format"     : "Value-Formatting",
-  "height"     : "Height",
-  "history"    : "User-History",
-  "hover"      : "Hover-Element",
-  "icon"       : "Icon-Parameters",
-  "id"         : "Unique-ID",
-  "keywords"   : "Keyword-Parameters",
-  "labels"     : "Data-Labels",
-  "legend"     : "Legend",
-  "links"      : "Link-Styles",
-  "margin"     : "Outer-Margins",
-  "messages"   : "Status-Messages",
-  "method"     : "Methods",
-  "nodes"      : "Node-Positions",
-  "open"       : "Open",
-  "order"      : "Data-Ordering",
-  "remove"     : "Remove",
-  "search"     : "Search-Box",
-  "select"     : "Selecting-Elements#select",
-  "selectAll"  : "Selecting-Elements#selectall",
-  "shape"      : "Data-Shapes",
-  "size"       : "Size-Parameters",
-  "temp"       : "Segmenting-Data#temp",
-  "text"       : "Text-Parameters",
-  "time"       : "Time-Parameters",
-  "timeline"   : "Timeline",
-  "timing"     : "Animation-Timing",
-  "title"      : "Custom-Titles",
-  "tooltip"    : "Tooltip-Parameters",
-  "total"      : "Segmenting-Data#total",
-  "type"       : "Output-Type",
-  "ui"         : "Custom-Interface",
-  "width"      : "Width",
-  "x"          : "Axis-Parameters",
-  "y"          : "Axis-Parameters",
-  "zoom"       : "Zooming"
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Determines if the current browser is Internet Explorer.
-//------------------------------------------------------------------------------
-d3plus.ie = /*@cc_on!@*/false
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Calculates the correct CSS vendor prefix based on the current browser.
-//------------------------------------------------------------------------------
-d3plus.prefix = function() {
-
-  if ("-webkit-transform" in document.body.style) {
-    var val = "-webkit-"
-  }
-  else if ("-moz-transform" in document.body.style) {
-    var val = "-moz-"
-  }
-  else if ("-ms-transform" in document.body.style) {
-    var val = "-ms-"
-  }
-  else if ("-o-transform" in document.body.style) {
-    var val = "-o-"
-  }
-  else {
-    var val = ""
-  }
-
-  d3plus.prefix = function(){
-    return val
-  }
-
-  return val;
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects right-to-left text direction on the page.
-//------------------------------------------------------------------------------
-d3plus.rtl = d3.select("html").attr("dir") == "rtl"
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects scrollbar width for current browser.
-//------------------------------------------------------------------------------
-d3plus.scrollbar = function() {
-
-  var inner = document.createElement("p");
-  inner.style.width = "100%";
-  inner.style.height = "200px";
-
-  var outer = document.createElement("div");
-  outer.style.position = "absolute";
-  outer.style.top = "0px";
-  outer.style.left = "0px";
-  outer.style.visibility = "hidden";
-  outer.style.width = "200px";
-  outer.style.height = "150px";
-  outer.style.overflow = "hidden";
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-  var w1 = inner.offsetWidth;
-  outer.style.overflow = "scroll";
-  var w2 = inner.offsetWidth;
-  if (w1 == w2) w2 = outer.clientWidth;
-
-  document.body.removeChild(outer);
-
-  var val = (w1 - w2)
-
-  d3plus.scrollbar = function(){
-    return val
-  }
-
-  return val;
-
-}
-
 d3plus.locale.en = {
 
   "dev"          : {
@@ -2728,6 +2396,335 @@ d3plus.locale.zh = {
         "用户界面",
         "研发"
     ]
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Custom styling and behavior for browser console statements.
+//------------------------------------------------------------------------------
+d3plus.console = function( type , message , style ) {
+
+  var style = style || ""
+
+  if ( d3plus.ie ) {
+
+    console.log( "[ D3plus ] " + message )
+
+  }
+  else if ( type === "groupCollapsed" ) {
+
+    if ( window.chrome && navigator.onLine ) {
+      console[type]( "%c%c " + message
+                   , "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');"
+                   , "font-weight:200;" + style )
+    }
+    else {
+      console[type]( "%cD3plus%c " + message
+                   , "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;"
+                   , "font-weight:200;" + style )
+    }
+
+  }
+  else {
+
+    console[type]( "%c" + message , style + "font-weight:200;" )
+
+  }
+
+}
+
+d3plus.console.comment = function( message ) {
+
+  this( "log" , message , "color:#aaa;" )
+
+}
+
+d3plus.console.error = function( message , wiki ) {
+
+  this( "groupCollapsed" , "ERROR: " + message , "font-weight:800;color:#D74B03;" )
+
+  this.stack()
+
+  this.wiki( wiki )
+
+  this.groupEnd()
+
+}
+
+d3plus.console.group = function( message ) {
+
+  this( "group" , message , "color:#888;" )
+
+}
+
+d3plus.console.groupCollapsed = function( message ) {
+
+  this( "groupCollapsed" , message , "color:#888;" )
+
+}
+
+d3plus.console.groupEnd = function() {
+  if ( !d3plus.ie ) {
+    console.groupEnd()
+  }
+}
+
+d3plus.console.log = function( message ) {
+
+  this( "log" , message , "color:#444444;" )
+
+}
+
+d3plus.console.stack = function() {
+
+  if ( !d3plus.ie ) {
+
+    var err = new Error()
+
+    if ( err.stack ) {
+
+      var stack = err.stack.split("\n")
+
+      stack = stack.filter(function(e){
+        return e.indexOf("Error") !== 0
+            && e.indexOf("d3plus.js:") < 0
+            && e.indexOf("d3plus.min.js:") < 0
+      })
+
+      if ( stack.length ) {
+
+        var splitter = window.chrome ? "at " : "@"
+          , url = stack[0].split(splitter)[1]
+
+        stack = url.split(":")
+        if ( stack.length === 3 ) {
+          stack.pop()
+        }
+
+        var line = stack.pop()
+          , page = stack.join(":").split("/")
+
+        page = page[page.length-1]
+
+        var message = "line "+line+" of "+page+": "+url
+
+        this( "log" , message , "color:#D74B03;" )
+
+      }
+
+    }
+  }
+
+}
+
+d3plus.console.time = function( message ) {
+  if ( !d3plus.ie ) {
+    console.time( message )
+  }
+}
+
+d3plus.console.timeEnd = function( message ) {
+  if ( !d3plus.ie ) {
+    console.timeEnd( message )
+  }
+}
+
+d3plus.console.warning = function( message , wiki ) {
+
+  this( "groupCollapsed" , message , "color:#888;" )
+
+  this.stack()
+
+  this.wiki( wiki )
+
+  this.groupEnd()
+
+}
+
+d3plus.console.wiki = function( wiki ) {
+
+  if ( wiki && wiki in d3plus.wiki ) {
+    var url = d3plus.repo + "wiki/" + d3plus.wiki[wiki]
+    this( "log" , "documentation: " + url , "color:#aaa;" )
+  }
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates custom mouse events based on IE and Touch Devices.
+//------------------------------------------------------------------------------
+d3plus.evt = {}
+
+d3plus.touch = ('ontouchstart' in window) || window.DocumentTouch
+               && document instanceof DocumentTouch ? true : false
+
+if (d3plus.touch) {
+
+  d3plus.evt.click = "click"
+  d3plus.evt.down  = "touchstart"
+  d3plus.evt.up    = "touchend"
+  d3plus.evt.over  = "touchstart"
+  d3plus.evt.out   = "touchend"
+  d3plus.evt.move  = "touchmove"
+
+}
+else {
+
+  d3plus.evt.click = "click"
+  d3plus.evt.down  = "mousedown"
+  d3plus.evt.up    = "mouseup"
+
+  if (d3plus.ie) {
+
+    d3plus.evt.over = "mouseenter"
+    d3plus.evt.out  = "mouseleave"
+
+  }
+  else {
+
+    d3plus.evt.over = "mouseover"
+    d3plus.evt.out  = "mouseout"
+
+  }
+
+  d3plus.evt.move = "mousemove"
+
+}
+
+d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
+
+d3plus.wiki    = {
+  "active"     : "Segmenting-Data#active",
+  "aggs"       : "Custom-Aggregations",
+  "alt"        : "Alt-Text-Parameters",
+  "attrs"      : "Attribute-Data#axes",
+  "axes"       : "Axis-Parameters",
+  "background" : "Background",
+  "color"      : "Color-Parameters",
+  "container"  : "Container-Element",
+  "coords"     : "Geography-Data",
+  "csv"        : "CSV-Export",
+  "data"       : "Data-Points",
+  "depth"      : "Visible-Depth",
+  "descs"      : "Value-Definitions",
+  "dev"        : "Verbose-Mode",
+  "draw"       : "Draw",
+  "edges"      : "Edges-List",
+  "error"      : "Custom-Error-Message",
+  "focus"      : "Focus-Element",
+  "font"       : "Font-Styles",
+  "footer"     : "Custom-Footer",
+  "format"     : "Value-Formatting",
+  "height"     : "Height",
+  "history"    : "User-History",
+  "hover"      : "Hover-Element",
+  "icon"       : "Icon-Parameters",
+  "id"         : "Unique-ID",
+  "keywords"   : "Keyword-Parameters",
+  "labels"     : "Data-Labels",
+  "legend"     : "Legend",
+  "links"      : "Link-Styles",
+  "margin"     : "Outer-Margins",
+  "messages"   : "Status-Messages",
+  "method"     : "Methods",
+  "nodes"      : "Node-Positions",
+  "open"       : "Open",
+  "order"      : "Data-Ordering",
+  "remove"     : "Remove",
+  "search"     : "Search-Box",
+  "select"     : "Selecting-Elements#select",
+  "selectAll"  : "Selecting-Elements#selectall",
+  "shape"      : "Data-Shapes",
+  "size"       : "Size-Parameters",
+  "temp"       : "Segmenting-Data#temp",
+  "text"       : "Text-Parameters",
+  "time"       : "Time-Parameters",
+  "timeline"   : "Timeline",
+  "timing"     : "Animation-Timing",
+  "title"      : "Custom-Titles",
+  "tooltip"    : "Tooltip-Parameters",
+  "total"      : "Segmenting-Data#total",
+  "type"       : "Output-Type",
+  "ui"         : "Custom-Interface",
+  "width"      : "Width",
+  "x"          : "Axis-Parameters",
+  "y"          : "Axis-Parameters",
+  "zoom"       : "Zooming"
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Determines if the current browser is Internet Explorer.
+//------------------------------------------------------------------------------
+d3plus.ie = /*@cc_on!@*/false
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Calculates the correct CSS vendor prefix based on the current browser.
+//------------------------------------------------------------------------------
+d3plus.prefix = function() {
+
+  if ("-webkit-transform" in document.body.style) {
+    var val = "-webkit-"
+  }
+  else if ("-moz-transform" in document.body.style) {
+    var val = "-moz-"
+  }
+  else if ("-ms-transform" in document.body.style) {
+    var val = "-ms-"
+  }
+  else if ("-o-transform" in document.body.style) {
+    var val = "-o-"
+  }
+  else {
+    var val = ""
+  }
+
+  d3plus.prefix = function(){
+    return val
+  }
+
+  return val;
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Detects right-to-left text direction on the page.
+//------------------------------------------------------------------------------
+d3plus.rtl = d3.select("html").attr("dir") == "rtl"
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Detects scrollbar width for current browser.
+//------------------------------------------------------------------------------
+d3plus.scrollbar = function() {
+
+  var inner = document.createElement("p");
+  inner.style.width = "100%";
+  inner.style.height = "200px";
+
+  var outer = document.createElement("div");
+  outer.style.position = "absolute";
+  outer.style.top = "0px";
+  outer.style.left = "0px";
+  outer.style.visibility = "hidden";
+  outer.style.width = "200px";
+  outer.style.height = "150px";
+  outer.style.overflow = "hidden";
+  outer.appendChild(inner);
+
+  document.body.appendChild(outer);
+  var w1 = inner.offsetWidth;
+  outer.style.overflow = "scroll";
+  var w2 = inner.offsetWidth;
+  if (w1 == w2) w2 = outer.clientWidth;
+
+  document.body.removeChild(outer);
+
+  var val = (w1 - w2)
+
+  d3plus.scrollbar = function(){
+    return val
+  }
+
+  return val;
+
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -4695,11 +4692,11 @@ d3plus.variable.text = function(vars,obj,depth) {
 
     if ( name ) {
       if ( !(name instanceof Array) ) {
-        name = name.toString()
+        name = vars.format.value(name.toString())
       }
       else {
         name.forEach(function(n){
-          n = vars.format.value(name.toString())
+          n = vars.format.value(n.toString())
         })
       }
       names.push(name)
@@ -9291,8 +9288,7 @@ d3plus.shape.draw = function(vars) {
           vars.covered = false
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
-            || (d3plus.visualization[vars.type.value].tooltip == "follow" &&
-            (vars.focus.value != d[vars.id.value]) || !vars.focus.tooltip.value)) {
+            || vars.focus.value != d[vars.id.value]) {
 
             if (vars.continuous_axis) {
 
@@ -9334,7 +9330,7 @@ d3plus.shape.draw = function(vars) {
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
             || (d3plus.visualization[vars.type.value].tooltip == "follow" &&
-            (vars.focus.value != d[vars.id.value]) || !vars.focus.tooltip.value)) {
+            (vars.focus.value != d[vars.id.value]))) {
 
             if (vars.continuous_axis) {
 
@@ -13761,6 +13757,7 @@ d3plus.ui.legend = function(vars) {
   var key_display = true,
       square_size = 0,
       key = vars.color.value || vars.id.value
+    , colorName = vars.color.value || "d3plus_color"
 
   if (!vars.small && vars.legend.value && key) {
 
@@ -13782,7 +13779,7 @@ d3plus.ui.legend = function(vars) {
         }
       }
       else {
-        var data = vars.data.app
+        var data = d3plus.util.copy(vars.data.app)
       }
 
       for ( var z = 0 ; z < data.length ; z++ ) {
@@ -13820,7 +13817,7 @@ d3plus.ui.legend = function(vars) {
 
       }
 
-      var colors = d3plus.data.nest( vars , data , [ colorFunction ] )
+      var colors = d3plus.data.nest( vars , data , [ colorFunction ] , [] )
 
       for ( var z = 0 ; z < colors.length ; z++ ) {
 
@@ -13831,7 +13828,7 @@ d3plus.ui.legend = function(vars) {
         d[colorKey] = d[colorKey]
           || d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
 
-        d[vars.color.value] = d[vars.color.value]
+        d[colorName] = d[colorName]
           || d3plus.variable.color( vars , d , colorKey )
 
         d.d3plus = {"depth": colorDepth}
@@ -13877,7 +13874,7 @@ d3plus.ui.legend = function(vars) {
         var order = vars[vars.legend.order.value].value
 
         d3plus.array.sort( colors , order , vars.legend.order.sort.value
-                         , vars.color.value , vars )
+                         , colorName , vars )
 
         if ( vars.dev.value ) d3plus.console.timeEnd("sorting legend")
 
@@ -17068,3 +17065,6 @@ d3plus.input.drop.window = function ( vars , elem ) {
   }
 
 }
+
+
+})();
