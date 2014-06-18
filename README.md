@@ -1,5 +1,9 @@
 <a href="http://d3plus.org/"><img src="https://raw.githubusercontent.com/alexandersimoes/d3plus/gh-pages/assets/img/facebook.jpg"></a>
 
+| <a href="http://d3plus.org/examples/basic/9029130/"><img src="https://gist.githubusercontent.com/davelandry/9029130/raw/thumbnail.png" width="150px"><br>Tree Maps</a> | <a href="http://d3plus.org/examples/basic/9029462/"><img src="https://gist.githubusercontent.com/davelandry/9029462/raw/thumbnail.png" width="150px"><br>Stacked Areas</a> | <a href="http://d3plus.org/examples/basic/9029781/"><img src="https://gist.githubusercontent.com/davelandry/9029781/raw/thumbnail.png" width="150px"><br>Scatter Plots</a> | <a href="http://d3plus.org/examples/basic/9037371/"><img src="https://gist.githubusercontent.com/davelandry/9037371/raw/thumbnail.png" width="150px"><br>Line Plots</a> |
+| :-: | :-: | :-: | :-: |
+| <a href="http://d3plus.org/examples/basic/9042919/"><img src="https://gist.githubusercontent.com/davelandry/9042919/raw/thumbnail.png" width="150px"><br>**Networks**</a> | <a href="http://d3plus.org/examples/basic/9034389/"><img src="https://gist.githubusercontent.com/davelandry/9034389/raw/thumbnail.png" width="150px"><br>**Rings**</a> | <a href="http://d3plus.org/examples/basic/9042807/"><img src="https://gist.githubusercontent.com/davelandry/9042807/raw/thumbnail.png" width="150px"><br>**Geo Maps**</a> | <a href="http://d3plus.org/examples/utilities/a39f0c3fc52804ee859a/"><img src="https://gist.githubusercontent.com/davelandry/a39f0c3fc52804ee859a/raw/thumbnail.png" width="150px"><br>**SVG Text Wrapping**</a> |
+
 A javascript library that extends the popular [D3.js](http://d3js.org) to enable fast and beautiful visualizations.
 
 ### Helpful Links
