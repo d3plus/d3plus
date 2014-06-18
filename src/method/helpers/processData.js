@@ -19,16 +19,14 @@ d3plus.method.processData = function ( value , self ) {
 
     if ( !maybeURL && d3plus.util.d3selection( value ) ) {
 
-      self.element = value
-      return d3plus.data.element( vars )
+      return value
 
     }
     else {
 
       if ( !maybeURL && !d3.selectAll( value ).empty() ) {
 
-        self.element = d3.selectAll( value )
-        return d3plus.data.element( vars )
+        return d3.selectAll( value )
 
       }
       else {

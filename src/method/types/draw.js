@@ -12,6 +12,10 @@ d3plus.method.draw = {
     var vars    = this.getVars()
       , changes = "history" in vars ? vars.history.chain : []
 
+    if ( vars.data.value && d3plus.util.d3selection( vars.data.value ) ) {
+      vars.data.value = d3plus.data.element( vars )
+    }
+
     if ( value === undefined && typeof this.value === "function" ) {
       value = this.value
     }

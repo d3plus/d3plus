@@ -28,6 +28,8 @@ d3plus.data.element = function( vars ) {
 
   }
 
+  vars.data.element = vars.data.value
+
   var elementTag  = vars.data.element.node().tagName.toLowerCase()
     , elementType = vars.data.element.attr("type")
     , elementData = []
@@ -44,7 +46,7 @@ d3plus.data.element = function( vars ) {
 
         var data_obj = {}
 
-        data_obj[vars.text.value] = this.innerHTML
+        data_obj.text = this.innerHTML
 
         get_attributes(data_obj,this)
 
@@ -78,7 +80,7 @@ d3plus.data.element = function( vars ) {
           var label = d3.select("label[for="+id+"]")
 
           if ( !label.empty() ) {
-            data_obj[vars.text.value] = label.html()
+            data_obj.text = label.html()
             label.call(hideElement)
           }
 
