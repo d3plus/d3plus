@@ -9,11 +9,11 @@
   d3plus.color         = {}
   d3plus.data          = {}
   d3plus.draw          = {}
-  d3plus.edges         = {}
   d3plus.font          = {}
   d3plus.input         = {}
   d3plus.locale        = {}
   d3plus.method        = {}
+  d3plus.network       = {}
   d3plus.number        = {}
   d3plus.object        = {}
   d3plus.shape         = {}
