@@ -9,17 +9,21 @@ var gulp = require("gulp")
   , uglify = require("gulp-uglify")
   , express = require("express")
   , lr = require("tiny-lr")()
+  , coffee = require('gulp-coffee')
+  , gulpif = require('gulp-if');
 
 var files = [ "src/begin.js"
-            , "src/**/*.js"
+            , "src/*/**/*.js"
+            , "src/*/**/*.coffee"
             , "src/end.js" ]
 
-var tests = [ "tests/*.*", "tests/**/*.*" ]
+var tests = ["tests/**/*.*" ]
 
 // Concatenate & Minify JS
 gulp.task("make", function() {
 
   return gulp.src(files)
+    .pipe(gulpif(/[.]coffee$/, coffee({bare: true})))
     .pipe(concat("d3plus.js"))
     .pipe(gulp.dest("./"))
     .pipe(rename("d3plus.min.js"))

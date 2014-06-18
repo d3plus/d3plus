@@ -13,7 +13,8 @@
     "gulp-rename": "^1.2.0",
     "gulp-uglify": "^0.2.1",
     "gulp-util": "^2.2.14",
-    "path": "^0.4.9",
+    "gulp-coffee": "^2.0.1",
+    "gulp-if": "^1.2.1",
     "tiny-lr": "0.0.5"
   },
   "repository": {
