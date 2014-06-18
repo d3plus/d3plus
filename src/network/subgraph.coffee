@@ -34,44 +34,16 @@
   # string; the name of the attribute in edge pointing to the target of the edge
   # function; given an edge returns the target node of that edge
 
-d3plus.network.subgraph = (edges, source, K, directed, distance, nodeid, startpoint, endpoint) ->
+# if nodes is defined, the input is assumed to be normalized and nodes is assumed to be a dictionary
+# that mappes node id to the outedges of the node
+
+d3plus.network.subgraph = (edges, source, K, directed, distance, nodeid, startpoint, endpoint, nodes) ->
   ######### User's input normalization ############
-  if not K? then K = 1
-
-  if not nodeid? then nodeid = (node) -> return node
-  else if typeof nodeid is 'string' then nodeid = do (nodeid) -> (node) -> return node[nodeid]
-  
-  if source? and typeof source is 'object' then source = nodeid source
-  
-  if not startpoint? then startpoint = (edge) -> return edge.source
-  else if typeof startpoint is 'string' then startpoint = do (startpoint) -> (edge) -> return edge[startpoint]
-
-  if not endpoint? then endpoint = (edge) -> return edge.target
-  else if typeof endpoint is 'string' then endpoint = do (endpoint) -> (edge) -> return edge[endpoint]
-
-  if not distance? then distance = (edge) -> return 1
-  else if typeof distance is 'number' then distance = do (distance) -> (edge) -> return distance
-  else if typeof distance is 'string' then distance = do (distance) -> (edge) -> return edge[distance]
-  else if distance instanceof Array
-    edge2distance = {}
-    for edge, i in edges
-      a = nodeid startpoint edge
-      b = nodeid endpoint edge
-      edge2distance[a + '_' + b] = distance[i]
-    distance = (edge) ->
-      a = nodeid startpoint edge
-      b = nodeid endpoint edge
-      return edge2distance[a + '_' + b]
-  # create the nodes explicitly by going through the edges
-  # and assign some bookkeeping variables to them
-  nodes = {}
-  for edge in edges
-    a = nodeid startpoint edge
-    b = nodeid endpoint edge
-    for c in [a, b]
-      if c not of nodes then nodes[c] = {id: c, outedges:[]}
-    nodes[a].outedges.push edge
-    if not directed then nodes[b].outedges.push edge
+  if not nodes? or typeof nodes isnt 'object'
+    input = d3plus.network.normalize edges, source, null, directed, distance, nodeid, startpoint, endpoint, K
+    if input is null then return null
+    if typeof input is 'string' then return input
+    [edges, source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes] = input
   ####### END user's input normalization #########
   
   # start expanding from the source node to get the subgraph in DFS fashion
@@ -89,8 +61,9 @@ d3plus.network.subgraph = (edges, source, K, directed, distance, nodeid, startpo
             visited[b] = true
             dfs b, new_distance
   dfs source, 0
+
   # find all the edges for these nodes
   return {
-    nodes: Object.keys(visited)
+    nodes: nodes[id].node for id of visited
     edges: edge for edge in edges when nodeid(startpoint(edge)) of visited and nodeid(endpoint(edge)) of visited
   }

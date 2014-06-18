@@ -9,11 +9,11 @@
   d3plus.color         = {}
   d3plus.data          = {}
   d3plus.draw          = {}
-  d3plus.edges         = {}
   d3plus.font          = {}
   d3plus.input         = {}
   d3plus.locale        = {}
   d3plus.method        = {}
+  d3plus.network       = {}
   d3plus.number        = {}
   d3plus.object        = {}
   d3plus.shape         = {}
@@ -1523,15 +1523,6 @@ d3plus.data.url = function( vars , key , next ) {
     next()
 
   })
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Returns primary connections for a given node ID
-//------------------------------------------------------------------------------
-d3plus.edges.connections = function( edges , focus , id , source , target , returnNodes ) {
-
-  
 
 }
 
@@ -7363,1150 +7354,6 @@ d3plus.textwrap.wrap = function( vars ) {
     }
 
   }
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Miscellaneous Error Checks
-//------------------------------------------------------------------------------
-d3plus.draw.app = function(vars) {
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Draw the specified app
-  //-------------------------------------------------------------------
-  // Set vars.group to the app's specific group element
-  vars.group = vars.g.apps[vars.type.value]
-  // Reset mouse events for the app to use
-  vars.mouse = {}
-
-  if (!vars.internal_error) {
-
-    var app = vars.format.locale.value.visualization[vars.type.value]
-    if ( vars.dev.value ) d3plus.console.time("running "+ app)
-    var returned = d3plus.visualization[vars.type.value](vars)
-    if ( vars.dev.value ) d3plus.console.timeEnd("running "+ app)
-
-  }
-  else {
-    var returned = null
-  }
-
-  vars.returned = {
-      "nodes": null,
-      "edges": null
-    }
-
-  if (returned instanceof Array) {
-    vars.returned.nodes = returned
-  }
-  else if (returned) {
-    if (returned.nodes) {
-      vars.returned.nodes = returned.nodes
-    }
-    if (returned.edges) {
-      vars.returned.edges = returned.edges
-    }
-  }
-
-  var nodes = vars.returned.nodes
-  if (!nodes || !(nodes instanceof Array) || !nodes.length) {
-    vars.returned.nodes = []
-  }
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// If placing into a new container, remove it's contents
-// and check text direction.
-//
-// Also initialized app width and height.
-//------------------------------------------------------------------------------
-d3plus.draw.container = function(vars) {
-
-  if (vars.container.changed) {
-
-    vars.container.value
-      .style("position",function(){
-        var current = d3.select(this).style("position"),
-            remain = ["absolute","fixed"].indexOf(current) >= 0
-        return remain ? current : "relative";
-      })
-      .html("")
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Get overall width and height, if not defined
-    //--------------------------------------------------------------------------
-    var sizes = ["width","height"]
-    sizes.forEach(function(s){
-      if (!vars[s].value) {
-
-        function check_parent(element) {
-
-          if (element.tagName === undefined || ["BODY","HTML"].indexOf(element.tagName) >= 0) {
-            var val = window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
-              , elem = document != element ? d3.select(element) : null
-            if (elem && s == "width") {
-              val -= parseFloat(elem.style("margin-left"),10)
-              val -= parseFloat(elem.style("margin-right"),10)
-              val -= parseFloat(elem.style("padding-left"),10)
-              val -= parseFloat(elem.style("padding-right"),10)
-            }
-            else if (elem && s == "height") {
-              val -= parseFloat(elem.style("margin-top"),10)
-              val -= parseFloat(elem.style("margin-bottom"),10)
-              val -= parseFloat(elem.style("padding-top"),10)
-              val -= parseFloat(elem.style("padding-bottom"),10)
-            }
-            if (d3.selectAll("body > *:not(script)").size() == 1) {
-              d3.select("body").style("overflow","hidden")
-            }
-            if (val <= 20) {
-              val = vars[s].small
-            }
-            vars[s].value = val
-          }
-          else {
-
-            var val = parseFloat(d3.select(element).style(s),10)
-            if (typeof val == "number" && val > 0) {
-              vars[s].value = val
-            }
-            else if (element.tagName != "BODY") {
-              check_parent(element.parentNode)
-            }
-
-          }
-
-        }
-
-        check_parent(vars.container.value.node())
-      }
-    })
-
-    vars.container.value
-      .style("width",vars.width.value+"px")
-      .style("height",vars.height.value+"px")
-
-  }
-
-  vars.width.viz = vars.width.value;
-  vars.height.viz = vars.height.value;
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Enter Elements
-//------------------------------------------------------------------------------
-d3plus.draw.enter = function(vars) {
-
-  if ( vars.dev.value ) d3plus.console.time("creating SVG elements")
-
-  // Enter SVG
-  vars.svg = vars.container.value.selectAll("svg#d3plus").data([0]);
-  vars.svg.enter().insert("svg","#d3plus_message")
-    .attr("id","d3plus")
-    .attr("width",vars.width.value)
-    .attr("height",vars.height.value)
-    .attr("xmlns","http://www.w3.org/2000/svg")
-    .attr("xmlns:xmlns:xlink","http://www.w3.org/1999/xlink")
-
-  // Enter BG Rectangle
-  vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
-  vars.g.bg.enter().append("rect")
-    .attr("id","bg")
-    .attr("fill",vars.background.value)
-    .attr("width",vars.width.value)
-    .attr("height",vars.height.value)
-
-  // Enter Timeline Group
-  vars.g.timeline = vars.svg.selectAll("g#timeline").data(["timeline"])
-  vars.g.timeline.enter().append("g")
-    .attr("id","timeline")
-    .attr("transform","translate(0,"+vars.height.value+")")
-
-  // Enter Key Group
-  vars.g.legend = vars.svg.selectAll("g#key").data(["key"])
-  vars.g.legend.enter().append("g")
-    .attr("id","key")
-    .attr("transform","translate(0,"+vars.height.value+")")
-
-  // Enter Footer Group
-  vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"])
-  vars.g.footer.enter().append("g")
-    .attr("id","footer")
-    .attr("transform","translate(0,"+vars.height.value+")")
-
-  // Enter App Clipping Mask
-  vars.g.clipping = vars.svg.selectAll("#clipping").data(["clipping"])
-  vars.g.clipping.enter().append("clipPath")
-    .attr("id","clipping")
-    .append("rect")
-      .attr("width",vars.width.viz)
-      .attr("height",vars.height.viz)
-
-  // Enter Container Group
-  vars.g.container = vars.svg.selectAll("g#container").data(["container"])
-  vars.g.container.enter().append("g")
-    .attr("id","container")
-    .attr("clip-path","url(#clipping)")
-    .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-
-  // Enter Zoom Group
-  vars.g.zoom = vars.g.container.selectAll("g#zoom").data(["zoom"])
-  vars.g.zoom.enter().append("g")
-    .attr("id","zoom")
-
-  // Enter App Background Group
-  vars.g.viz = vars.g.zoom.selectAll("g#d3plus_viz").data(["d3plus_viz"])
-  vars.g.viz.enter().append("g")
-    .attr("id","d3plus_viz")
-
-  // Enter App Overlay Rect
-  vars.g.overlay = vars.g.viz.selectAll("rect#d3plus_overlay").data([{"id":"d3plus_overlay"}])
-  vars.g.overlay.enter().append("rect")
-    .attr("id","d3plus_overlay")
-    .attr("width",vars.width.value)
-    .attr("height",vars.height.value)
-    .attr("opacity",0)
-
-  if (!d3plus.touch) {
-
-    vars.g.overlay
-      .on(d3plus.evt.move,function(d){
-
-        if (d.dragging) {
-
-        }
-        else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
-          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",d3plus.prefix()+"grab")
-        }
-        else {
-          d3.select(this).style("cursor","auto")
-        }
-
-      })
-      .on(d3plus.evt.up,function(d){
-
-        if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
-          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d.dragging = false
-          d3.select(this).style("cursor",d3plus.prefix()+"grab")
-        }
-        else {
-          d3.select(this).style("cursor","auto")
-        }
-
-      })
-      .on(d3plus.evt.down,function(d){
-
-        if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
-          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d.dragging = true
-          d3.select(this).style("cursor",d3plus.prefix()+"grabbing")
-        }
-        else {
-          d3.select(this).style("cursor","auto")
-        }
-
-      })
-
-  }
-  else {
-
-    vars.g.overlay
-      .on(d3plus.evt.over,vars.zoom.touchEvent)
-      .on(d3plus.evt.move,vars.zoom.touchEvent)
-      .on(d3plus.evt.out,vars.zoom.touchEvent)
-
-  }
-
-  // Enter App Background Group
-  vars.g.app = vars.g.viz.selectAll("g#app").data(["app"])
-  vars.g.app.enter().append("g")
-    .attr("id","app")
-
-  // Enter Edges Group
-  vars.g.edges = vars.g.viz.selectAll("g#edges").data(["edges"])
-  vars.g.edges.enter().append("g")
-    .attr("id","edges")
-    .attr("opacity",0)
-
-  // Enter Edge Focus Group
-  vars.g.edge_focus = vars.g.viz.selectAll("g#focus").data(["focus"])
-  vars.g.edge_focus.enter().append("g")
-    .attr("id","focus")
-
-  // Enter Edge Hover Group
-  vars.g.edge_hover = vars.g.viz.selectAll("g#edge_hover").data(["edge_hover"])
-  vars.g.edge_hover.enter().append("g")
-    .attr("id","edge_hover")
-    .attr("opacity",0)
-
-  // Enter App Data Group
-  vars.g.data = vars.g.viz.selectAll("g#data").data(["data"])
-  vars.g.data.enter().append("g")
-    .attr("id","data")
-    .attr("opacity",0)
-
-  // Enter Data Focus Group
-  vars.g.data_focus = vars.g.viz.selectAll("g#data_focus").data(["data_focus"])
-  vars.g.data_focus.enter().append("g")
-    .attr("id","data_focus")
-
-  // Enter Top Label Group
-  vars.g.labels = vars.g.viz.selectAll("g#d3plus_labels").data(["d3plus_labels"])
-  vars.g.labels.enter().append("g")
-    .attr("id","d3plus_labels")
-
-  vars.defs = vars.svg.selectAll("defs").data(["defs"])
-  vars.defs.enter().append("defs")
-
-  if ( vars.dev.value ) d3plus.console.timeEnd("creating SVG elements")
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Miscellaneous Error Checks
-//------------------------------------------------------------------------------
-d3plus.draw.errors = function(vars) {
-
-  if ( vars.dev.value ) d3plus.console.time("checking for errors")
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Check to see if we have all required variables set
-  //----------------------------------------------------------------------------
-  var reqs = ["id"]
-  if (d3plus.visualization[vars.type.value].requirements) {
-    reqs = reqs.concat(d3plus.visualization[vars.type.value].requirements)
-  }
-
-  var missing = []
-  reqs.forEach(function(r){
-    if (!vars[r].value) missing.push("\""+r+"\"")
-  })
-
-  if ( missing.length > 1 ) {
-    var str = vars.format.locale.value.error.methods
-      , app = vars.format.locale.value.visualization[vars.type.value]
-      , and = vars.format.locale.value.ui.and
-    missing = d3plus.string.list(missing,and)
-    vars.internal_error = d3plus.string.format(str,app,missing)
-  }
-  else if ( missing.length === 1 ) {
-    var str = vars.format.locale.value.error.method
-      , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.string.format(str,app,missing[0])
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Check to see if we have focus connections, if needed
-  //----------------------------------------------------------------------------
-  if (!vars.internal_error && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
-    var connections = vars.edges.connections(vars.focus.value,vars.id.value)
-    if (connections.length == 0) {
-      var name = d3plus.variable.text(vars,vars.focus.value,vars.depth.value)
-        , str = vars.format.locale.value.error.connections
-      vars.internal_error = d3plus.string.format(str,"\""+name+"\"")
-    }
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Check to see if we have all required libraries
-  //----------------------------------------------------------------------------
-  var reqs = ["d3"]
-  if (d3plus.visualization[vars.type.value].libs) {
-    reqs = reqs.concat(d3plus.visualization[vars.type.value].libs)
-  }
-  var missing = []
-  reqs.forEach(function(r){
-    if (!window[r]) missing.push("\""+r+"\"")
-  })
-
-  if ( missing.length > 1 ) {
-    var str = vars.format.locale.value.error.libs
-      , app = vars.format.locale.value.visualization[vars.type.value]
-      , and = vars.format.locale.value.ui.and
-    missing = d3plus.string.list(missing,and)
-    vars.internal_error = d3plus.string.format(str,app,missing)
-  }
-  else if ( missing.length === 1 ) {
-    var str = vars.format.locale.value.error.lib
-      , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.string.format(str,app,missing[0])
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Check to see if the requested app supports the set shape
-  //----------------------------------------------------------------------------
-  if (!vars.shape.value) {
-    vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
-  }
-  else if (d3plus.visualization[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
-    var shapes = d3plus.visualization[vars.type.value].shapes.join("\", \"")
-      , str = vars.format.locale.value.error.accepted
-      , shape = "\""+vars.shape.value+"\""
-      , shapeStr = vars.format.locale.value.method.shape
-      , app = vars.format.locale.value.visualization[vars.type.value]
-    d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes+"\""),"shape")
-    vars.shape.previous = vars.shape.value
-    vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
-    var str = vars.format.locale.value.dev.setLong
-      , shape = "\""+vars.shape.value+"\""
-    if ( vars.dev.value ) {
-      d3plus.console.log(d3plus.string.format(str,shapeStr,shape))
-    }
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Check to see if the requested app supports the set "mode"
-  //----------------------------------------------------------------------------
-  if ("modes" in d3plus.visualization[vars.type.value]) {
-    if (!vars.type.mode.value) {
-      vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
-    }
-    else if (d3plus.visualization[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
-      var modes = d3plus.visualization[vars.type.value].modes.join("\", \"")
-        , str = vars.format.locale.value.error.accepted
-        , mode = "\""+vars.type.mode.value+"\""
-        , modeStr = vars.format.locale.value.method.mode
-        , app = vars.format.locale.value.visualization[vars.type.value]
-      d3plus.console.warning(d3plus.string.format(str,mode,modeStr,app,"\""+modes+"\""))
-      vars.type.mode.previous = vars.type.mode.value
-      vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
-      var str = vars.format.locale.value.dev.setLong
-        , mode = "\""+vars.type.mode.value+"\""
-      if ( vars.dev.value ) {
-        d3plus.console.log(d3plus.string.format(str,modeStr,mode))
-      }
-    }
-  }
-
-  if ( vars.dev.value ) d3plus.console.timeEnd("checking for errors")
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Finalize Visualization
-//------------------------------------------------------------------------------
-d3plus.draw.finish = function(vars) {
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Zoom to fit bounds, if applicable
-  //----------------------------------------------------------------------------
-  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
-
-    if ( vars.dev.value ) d3plus.console.time("calculating zoom")
-
-    if (vars.draw.first && vars.zoom.bounds) {
-      d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
-    }
-
-    if (vars.focus.changed || vars.height.changed || vars.width.changed) {
-      if (!vars.zoom.viewport) {
-        d3plus.zoom.bounds(vars,vars.zoom.bounds)
-      }
-      else {
-        d3plus.zoom.bounds(vars,vars.zoom.viewport)
-      }
-    }
-
-    if ( vars.dev.value ) d3plus.console.timeEnd("calculating zoom")
-
-  }
-  else {
-    vars.zoom.scale = 1
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Resize/Reposition Overlay Rect for Mouse events
-  //----------------------------------------------------------------------------
-  var w = vars.zoom.size ? vars.zoom.size.width : vars.width.viz,
-      h = vars.zoom.size ? vars.zoom.size.height : vars.height.viz,
-      x = vars.zoom.bounds ? vars.zoom.bounds[0][0] : 0,
-      y = vars.zoom.bounds ? vars.zoom.bounds[0][1] : 0
-
-  vars.g.overlay
-    .attr("width",w)
-    .attr("height",h)
-    .attr("x",x)
-    .attr("y",y)
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Create labels
-  //----------------------------------------------------------------------------
-  if (vars.draw.update) {
-    d3plus.shape.edges(vars)
-    if (vars.draw.timing || (!d3plus.visualization[vars.type.value].zoom && !vars.draw.timing)) {
-      d3plus.shape.labels( vars , "data" )
-      if (vars.edges.label) {
-
-        setTimeout(function(){
-          d3plus.shape.labels( vars , "edges" )
-        },vars.draw.timing)
-
-      }
-    }
-  }
-  else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
-    setTimeout(function(){
-      d3plus.zoom.labels(vars)
-    },vars.draw.timing)
-  }
-
-  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.draw.timing) {
-    if ( vars.dev.value ) d3plus.console.time("focus labels")
-    d3plus.shape.labels( vars , "data_focus" )
-    if (vars.edges.label) {
-
-      setTimeout(function(){
-        d3plus.shape.labels( vars , "edge_focus" )
-      },vars.draw.timing)
-
-    }
-    if ( vars.dev.value ) d3plus.console.timeEnd("focus labels")
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Check for Errors
-  //----------------------------------------------------------------------------
-  if (!vars.internal_error) {
-    var data_req = d3plus.visualization[vars.type.value].requirements.indexOf("data") >= 0
-    if ((!vars.data.app || !vars.returned.nodes.length) && data_req) {
-      vars.internal_error = vars.format.locale.value.error.data
-    }
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Hide the previous app, if applicable
-  //----------------------------------------------------------------------------
-  var prev = vars.type.previous
-  if (prev && vars.type.value != prev && vars.g.apps[prev]) {
-    if ( vars.dev.value ) d3plus.console.time("hiding \"" + prev + "\"")
-    if (vars.draw.timing) {
-      vars.g.apps[prev].transition().duration(vars.draw.timing)
-        .attr("opacity",0)
-    }
-    else {
-      vars.g.apps[prev].attr("opacity",0)
-    }
-    if ( vars.dev.value ) d3plus.console.timeEnd()
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Show the current app, data, and edges groups
-  //----------------------------------------------------------------------------
-  var data_req = d3plus.visualization[vars.type.value].requirements.indexOf("data") >= 0,
-      new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
-        ? 0 : vars.focus.value && d3plus.visualization[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
-      old_opacity = vars.group.attr("opacity")
-
-  if (new_opacity != old_opacity) {
-
-    var timing = vars.draw.timing
-
-    vars.group.transition().duration(timing)
-      .attr("opacity",new_opacity)
-    vars.g.data.transition().duration(timing)
-      .attr("opacity",new_opacity)
-    vars.g.edges.transition().duration(timing)
-      .attr("opacity",new_opacity)
-
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Display and reset internal_error, if applicable
-  //----------------------------------------------------------------------------
-  if (vars.internal_error) {
-    vars.internal_error = d3plus.string.title( vars.internal_error )
-    d3plus.console.warning(vars.internal_error)
-    d3plus.ui.message(vars,vars.internal_error)
-    vars.internal_error = null
-  }
-  else {
-    d3plus.ui.message(vars)
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Unfreeze controls and apply zoom behavior, if applicable
-  //----------------------------------------------------------------------------
-  setTimeout(function(){
-
-    d3plus.data.reset( vars )
-
-    if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
-      vars.g.zoom
-        .datum(vars)
-        .call(vars.zoom.behavior.on("zoom",d3plus.zoom.mouse))
-      if (!vars.zoom.scroll.value) {
-        vars.g.zoom.on("wheel.zoom",null)
-      }
-      if (!vars.zoom.click.value) {
-        vars.g.zoom.on("dblclick.zoom",null)
-      }
-      if (!vars.zoom.pan.value) {
-        vars.g.zoom.on("mousemove.zoom",null)
-        vars.g.zoom.on("mousedown.zoom",null)
-      }
-    }
-    else {
-      vars.g.zoom
-        .call(vars.zoom.behavior.on("zoom",null))
-    }
-
-  },vars.draw.timing)
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Creates focus elements, if available
-//------------------------------------------------------------------------------
-d3plus.draw.focus = function(vars) {
-
-  vars.g.edge_focus
-    .selectAll("g")
-    .remove()
-
-  vars.g.data_focus
-    .selectAll("g")
-    .remove()
-
-  if (vars.focus.value && d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
-
-    if ( vars.dev.value ) d3plus.console.time("drawing focus elements")
-
-    var edges = vars.g.edges.selectAll("g")
-
-    if (edges.size() > 0) {
-
-      edges.each(function(l){
-
-          var source = l[vars.edges.source][vars.id.value],
-              target = l[vars.edges.target][vars.id.value]
-
-          if (source == vars.focus.value || target == vars.focus.value) {
-            var elem = vars.g.edge_focus.node().appendChild(this.cloneNode(true))
-            d3.select(elem).datum(l).attr("opacity",1)
-              .selectAll("line, path").datum(l)
-          }
-
-        })
-
-
-      var marker = vars.edges.arrows.value
-
-      vars.g.edge_focus.selectAll("line, path")
-        .attr("vector-effect","non-scaling-stroke")
-        .style("stroke",vars.color.focus)
-        .style("stroke-width",function(){
-          return vars.edges.size ? d3.select(this).style("stroke-width")
-               : vars.data.stroke.width*2
-        })
-        .attr("marker-start",function(e){
-
-          var direction = vars.edges.arrows.direction.value
-
-          if ("bucket" in e.d3plus) {
-            var d = "_"+e.d3plus.bucket
-          }
-          else {
-            var d = ""
-          }
-
-          return direction == "source" && marker
-               ? "url(#d3plus_edge_marker_focus"+d+")" : "none"
-
-        })
-        .attr("marker-end",function(e){
-
-          var direction = vars.edges.arrows.direction.value
-
-          if ("bucket" in e.d3plus) {
-            var d = "_"+e.d3plus.bucket
-          }
-          else {
-            var d = ""
-          }
-
-          return direction == "target" && marker
-               ? "url(#d3plus_edge_marker_focus"+d+")" : "none"
-
-        })
-
-      vars.g.edge_focus.selectAll("text")
-        .style("fill",vars.color.focus)
-
-    }
-
-    var focii = d3plus.util.uniques(vars.edges.connections(vars.focus.value,vars.id.value,true),vars.id.value)
-    focii.push(vars.focus.value)
-
-    var x_bounds = [], y_bounds = [], x_buffer = [0], y_buffer = [0]
-
-    var groups = vars.g.data.selectAll("g")
-      .each(function(d){
-        if (focii.indexOf(d[vars.id.value]) >= 0) {
-          var elem = vars.g.data_focus.node().appendChild(this.cloneNode(true))
-          var elem = d3.select(elem).datum(d).attr("opacity",1)
-
-          if (vars.shape.value == "coordinates") {
-
-            vars.zoom.viewport = vars.path.bounds(vars.zoom.coords[d.d3plus.id])
-
-          }
-          else if ("d3plus" in d) {
-            if ("x" in d.d3plus) {
-              x_bounds.push(d.d3plus.x)
-            }
-            if ("y" in d.d3plus) {
-              y_bounds.push(d.d3plus.y)
-            }
-            if ("r" in d.d3plus) {
-              x_buffer.push(d.d3plus.r)
-              y_buffer.push(d.d3plus.r)
-            }
-            else {
-              if ("width" in d.d3plus) {
-                x_buffer.push(d.d3plus.width/2)
-              }
-              if ("height" in d.d3plus) {
-                y_buffer.push(d.d3plus.height/2)
-              }
-            }
-          }
-
-          for (e in d3plus.evt) {
-            var evt = d3.select(this).on(d3plus.evt[e])
-            if (evt) {
-              elem.on(d3plus.evt[e],evt)
-            }
-          }
-
-        }
-      })
-
-    if (x_bounds.length && y_bounds.length) {
-
-      var xcoords = d3.extent(x_bounds),
-          ycoords = d3.extent(y_bounds),
-          xmax = d3.max(x_buffer),
-          ymax = d3.max(y_buffer)
-
-      vars.zoom.viewport = [
-        [xcoords[0]-xmax,ycoords[0]-ymax],
-        [xcoords[1]+xmax,ycoords[1]+ymax]
-      ]
-
-    }
-
-    vars.g.data_focus.selectAll("path")
-      .style("stroke-width",vars.data.stroke.width*2)
-
-    if ( vars.dev.value ) d3plus.console.timeEnd("drawing focus elements")
-
-  }
-  else {
-    vars.zoom.viewport = null
-  }
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Calculate steps needed to redraw the visualization
-//------------------------------------------------------------------------------
-d3plus.draw.steps = function(vars) {
-
-  var steps       = []
-    , appType     = vars.type.value
-    , locale      = vars.format.locale.value
-    , uiMessage   = locale.message.ui
-    , drawMessage = locale.message.draw
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Check to see if any data needs to be loaded with JSON
-  //----------------------------------------------------------------------------
-  var urlLoads = [ "data" , "attrs" , "coords" , "nodes" , "edges" ]
-  urlLoads.forEach(function(u){
-
-    if ( !vars[u].loaded && vars[u].url ) {
-
-      steps.push({
-        "function": function( vars , next ){
-          d3plus.data.url( vars , u , next )
-        },
-        "message": locale.message.loading,
-        "wait": true
-      })
-
-    }
-
-  })
-
-  if (vars.draw.update) {
-
-    var appName     = locale.visualization[appType].toLowerCase()
-      , appSetup    = d3plus.visualization[appType].setup
-      , appReqs     = d3plus.visualization[appType].requirements
-      , appMessage  = d3plus.string.format(locale.message.initializing,appName)
-      , dataMessage = locale.message.data
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If it has one, run the current app's setup function.
-    //--------------------------------------------------------------------------
-    if ( typeof appSetup === "function" ) {
-
-      steps.push({
-        "function": function( vars ) {
-
-          if ( vars.dev.value ) {
-            var timerString = "running " + appName + " setup"
-            d3plus.console.time( timerString )
-          }
-
-          appSetup( vars )
-
-          if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
-
-        },
-        "message": appMessage
-      })
-
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Create SVG group elements if the container is new or has changed
-    //--------------------------------------------------------------------------
-    if ( vars.container.changed ) {
-
-      steps.push({ "function" : d3plus.draw.enter , "message" : appMessage })
-
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Create group for current app, if it doesn't exist.
-    //--------------------------------------------------------------------------
-    if ( !( appType in vars.g.apps ) ) {
-
-      steps.push({
-        "function": function( vars ) {
-
-          if ( vars.dev.value ) {
-            var timerString = "creating " + appName + " group"
-            d3plus.console.time( timerString )
-          }
-
-          vars.g.apps[appType] = vars.g.app
-            .selectAll("g#"+appType)
-            .data([appType])
-
-          vars.g.apps[appType].enter().append("g")
-            .attr("id",appType)
-            .attr("opacity",0)
-
-          if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
-
-        },
-        "message": appMessage
-      })
-
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If new data is detected, analyze and reset it.
-    //--------------------------------------------------------------------------
-    if ( vars.data.changed ) {
-
-      steps.push({
-        "function": function(vars) {
-          vars.data.cache = {}
-          delete vars.nodes.restricted
-          delete vars.edges.restricted
-          d3plus.data.keys( vars , "data" )
-        },
-        "message": dataMessage
-      })
-
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If new attributes are detected, analyze them.
-    //--------------------------------------------------------------------------
-    if ( vars.attrs.changed ) {
-
-      steps.push({
-        "function": function( vars ) {
-          d3plus.data.keys( vars , "attrs" )
-        },
-        "message": dataMessage
-      })
-
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Determine color type
-    //--------------------------------------------------------------------------
-    steps.push({
-      "function": function(vars) {
-
-          if ( vars.color.changed && vars.color.value ) {
-
-            if ( vars.dev.value ) {
-              var timerString = "determining color type"
-              d3plus.console.time( timerString )
-            }
-
-            var colorKey = vars.color.value
-
-            if ( d3plus.object.validate(colorKey) ) {
-              if (colorKey[vars.id.value]) {
-                colorKey = colorKey[vars.id.value]
-              }
-              else {
-                colorKey = colorKey[d3.keys(colorKey)[0]]
-              }
-            }
-
-            if ( vars.data.keys && colorKey in vars.data.keys ) {
-              vars.color.type = vars.data.keys[colorKey]
-            }
-            else if ( vars.attrs.keys && colorKey in vars.attrs.keys ) {
-              vars.color.type = vars.attrs.keys[colorKey]
-            }
-            else {
-              vars.color.type = undefined
-            }
-
-            if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
-
-          }
-          else if (!vars.color.value) {
-            vars.color.type = "keys" in vars.data
-                            ? vars.data.keys[vars.id.value] : false
-          }
-
-      },
-      "message": dataMessage
-    })
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Format nodes/edges if needed
-    //--------------------------------------------------------------------------
-    if ( appReqs.indexOf("edges") >= 0 && vars.edges.value
-    && ( !vars.edges.linked || vars.edges.changed ) ) {
-      steps.push({ "function" : d3plus.data.edges, "message" : dataMessage })
-    }
-
-    if ( appReqs.indexOf("nodes") >= 0 && vars.nodes.value && vars.edges.value
-    && ( !vars.nodes.positions || vars.nodes.changed ) ) {
-      steps.push({ "function" : d3plus.data.nodes , "message" : dataMessage })
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Groups data by time and nesting.
-    //--------------------------------------------------------------------------
-    if ( vars.data.changed || vars.time.changed || vars.id.changed ) {
-      steps.push({ "function" : d3plus.data.format , "message" : dataMessage })
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Fetches data for app and "pool"
-    //--------------------------------------------------------------------------
-    steps.push({
-      "function": function(vars) {
-        var year = !vars.time.fixed.value ? ["all"] : null
-        if ( vars.dev.value ) {
-          var timerString = year ? "fetching pool data" : "fetching data"
-          d3plus.console.time( timerString )
-        }
-        vars.data.pool = d3plus.data.fetch( vars , year )
-        if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
-        if ( !year ) {
-          vars.data.app = vars.data.pool
-        }
-        else {
-          if ( vars.dev.value ) d3plus.console.time("fetching data for current year")
-          vars.data.app = d3plus.data.fetch( vars )
-          if ( vars.dev.value ) d3plus.console.timeEnd("fetching data for current year")
-        }
-      },
-      "message": dataMessage
-    })
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Calculate color scale if type is number
-    //--------------------------------------------------------------------------
-    steps.push({
-      "check": function(vars) {
-
-        return vars.color.value && vars.color.type === "number" &&
-               vars.id.nesting.indexOf(vars.color.value) < 0 &&
-               vars.data.value && vars.color.value != vars.id.value &&
-                 (vars.color.changed || vars.data.changed || vars.depth.changed ||
-                   (vars.time.fixed.value &&
-                     (vars.time.solo.changed || vars.time.mute.changed)
-                   )
-                 )
-
-      },
-      "function": d3plus.data.color,
-      "message": dataMessage,
-      "otherwise": function(vars) {
-        if (vars.color.type !== "number") {
-          vars.color.scale = null
-        }
-      }
-    })
-
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Remove any lingering tooltips.
-  //----------------------------------------------------------------------------
-  steps.push({
-    "function": function(vars) {
-      if ( vars.dev.value ) {
-        var str = vars.format.locale.value.message.tooltipReset
-        d3plus.console.time(str)
-      }
-      if ( vars.type.previous && appType !== vars.type.previous ) {
-        d3plus.tooltip.remove(vars.type.previous)
-      }
-      d3plus.tooltip.remove(appType)
-      if ( vars.dev.value ) d3plus.console.timeEnd(str)
-    },
-    "message": uiMessage
-  })
-
-  steps.push({
-    "function": function(vars) {
-
-      vars.margin.process()
-      d3plus.ui.titles(vars)
-
-      if ( vars.draw.update ) {
-
-        d3plus.ui.drawer(vars)
-        d3plus.ui.timeline(vars)
-        d3plus.ui.legend(vars)
-
-      }
-      else {
-
-        if ( vars.dev.value ) d3plus.console.time("calculating margins")
-
-        var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
-
-        var timeline = vars.g.timeline.node().getBBox()
-        timeline = vars.timeline.value ? timeline.height+timeline.y : 0
-
-        var legend = vars.g.legend.node().getBBox()
-        legend = vars.legend.value ? legend.height+legend.y : 0
-
-        vars.margin.bottom += drawer+timeline+legend
-
-        if ( vars.dev.value ) d3plus.console.timeEnd("calculating margins")
-
-      }
-
-      d3plus.ui.history(vars)
-      vars.height.viz -= (vars.margin.top+vars.margin.bottom)
-      vars.width.viz -= (vars.margin.left+vars.margin.right)
-
-    },
-    "message": uiMessage
-  })
-
-  steps.push({
-    "function": d3plus.ui.focus,
-    "message": uiMessage
-  })
-
-  steps.push({
-    "function": d3plus.draw.update,
-    "message": drawMessage
-  })
-
-  if ( vars.draw.update ) {
-    steps.push({
-      "function" : [ d3plus.draw.errors
-                   , d3plus.draw.app
-                   , d3plus.shape.draw ],
-      "message"  : drawMessage
-    })
-  }
-
-  steps.push({
-    "function" : [ d3plus.draw.focus , d3plus.draw.finish ],
-    "message" : drawMessage
-  })
-
-  return steps
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Updating Elements
-//------------------------------------------------------------------------------
-d3plus.draw.update = function(vars) {
-
-  if ( vars.dev.value ) d3plus.console.time("updating SVG elements")
-
-  if ( vars.draw.timing ) {
-
-    // Update Parent Element
-    vars.container.value.transition().duration(vars.draw.timing)
-      .style("width",vars.width.value+"px")
-      .style("height",vars.height.value+"px")
-
-    // Update SVG
-    vars.svg.transition().duration(vars.draw.timing)
-        .attr("width",vars.width.value)
-        .attr("height",vars.height.value)
-
-    // Update Background Rectangle
-    vars.g.bg.transition().duration(vars.draw.timing)
-        .attr("width",vars.width.value)
-        .attr("height",vars.height.value)
-
-    // Update App Clipping Rectangle
-    vars.g.clipping.select("rect").transition().duration(vars.draw.timing)
-      .attr("width",vars.width.viz)
-      .attr("height",vars.height.viz)
-
-    // Update Container Groups
-    vars.g.container.transition().duration(vars.draw.timing)
-      .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-
-  }
-  else {
-
-    // Update Parent Element
-    vars.container.value
-      .style("width",vars.width.value+"px")
-      .style("height",vars.height.value+"px")
-
-    // Update SVG
-    vars.svg
-      .attr("width",vars.width.value)
-      .attr("height",vars.height.value)
-
-    // Update Background Rectangle
-    vars.g.bg
-      .attr("width",vars.width.value)
-      .attr("height",vars.height.value)
-
-    // Update App Clipping Rectangle
-    vars.g.clipping.select("rect")
-      .attr("width",vars.width.viz)
-      .attr("height",vars.height.viz)
-
-    // Update Container Groups
-    vars.g.container
-      .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
-
-  }
-
-  if ( vars.dev.value ) d3plus.console.timeEnd("updating SVG elements")
 
 }
 
@@ -15110,6 +13957,1150 @@ d3plus.ui.titles = function(vars) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Miscellaneous Error Checks
+//------------------------------------------------------------------------------
+d3plus.draw.app = function(vars) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Draw the specified app
+  //-------------------------------------------------------------------
+  // Set vars.group to the app's specific group element
+  vars.group = vars.g.apps[vars.type.value]
+  // Reset mouse events for the app to use
+  vars.mouse = {}
+
+  if (!vars.internal_error) {
+
+    var app = vars.format.locale.value.visualization[vars.type.value]
+    if ( vars.dev.value ) d3plus.console.time("running "+ app)
+    var returned = d3plus.visualization[vars.type.value](vars)
+    if ( vars.dev.value ) d3plus.console.timeEnd("running "+ app)
+
+  }
+  else {
+    var returned = null
+  }
+
+  vars.returned = {
+      "nodes": null,
+      "edges": null
+    }
+
+  if (returned instanceof Array) {
+    vars.returned.nodes = returned
+  }
+  else if (returned) {
+    if (returned.nodes) {
+      vars.returned.nodes = returned.nodes
+    }
+    if (returned.edges) {
+      vars.returned.edges = returned.edges
+    }
+  }
+
+  var nodes = vars.returned.nodes
+  if (!nodes || !(nodes instanceof Array) || !nodes.length) {
+    vars.returned.nodes = []
+  }
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// If placing into a new container, remove it's contents
+// and check text direction.
+//
+// Also initialized app width and height.
+//------------------------------------------------------------------------------
+d3plus.draw.container = function(vars) {
+
+  if (vars.container.changed) {
+
+    vars.container.value
+      .style("position",function(){
+        var current = d3.select(this).style("position"),
+            remain = ["absolute","fixed"].indexOf(current) >= 0
+        return remain ? current : "relative";
+      })
+      .html("")
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Get overall width and height, if not defined
+    //--------------------------------------------------------------------------
+    var sizes = ["width","height"]
+    sizes.forEach(function(s){
+      if (!vars[s].value) {
+
+        function check_parent(element) {
+
+          if (element.tagName === undefined || ["BODY","HTML"].indexOf(element.tagName) >= 0) {
+            var val = window["inner"+s.charAt(0).toUpperCase()+s.slice(1)]
+              , elem = document != element ? d3.select(element) : null
+            if (elem && s == "width") {
+              val -= parseFloat(elem.style("margin-left"),10)
+              val -= parseFloat(elem.style("margin-right"),10)
+              val -= parseFloat(elem.style("padding-left"),10)
+              val -= parseFloat(elem.style("padding-right"),10)
+            }
+            else if (elem && s == "height") {
+              val -= parseFloat(elem.style("margin-top"),10)
+              val -= parseFloat(elem.style("margin-bottom"),10)
+              val -= parseFloat(elem.style("padding-top"),10)
+              val -= parseFloat(elem.style("padding-bottom"),10)
+            }
+            if (d3.selectAll("body > *:not(script)").size() == 1) {
+              d3.select("body").style("overflow","hidden")
+            }
+            if (val <= 20) {
+              val = vars[s].small
+            }
+            vars[s].value = val
+          }
+          else {
+
+            var val = parseFloat(d3.select(element).style(s),10)
+            if (typeof val == "number" && val > 0) {
+              vars[s].value = val
+            }
+            else if (element.tagName != "BODY") {
+              check_parent(element.parentNode)
+            }
+
+          }
+
+        }
+
+        check_parent(vars.container.value.node())
+      }
+    })
+
+    vars.container.value
+      .style("width",vars.width.value+"px")
+      .style("height",vars.height.value+"px")
+
+  }
+
+  vars.width.viz = vars.width.value;
+  vars.height.viz = vars.height.value;
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Enter Elements
+//------------------------------------------------------------------------------
+d3plus.draw.enter = function(vars) {
+
+  if ( vars.dev.value ) d3plus.console.time("creating SVG elements")
+
+  // Enter SVG
+  vars.svg = vars.container.value.selectAll("svg#d3plus").data([0]);
+  vars.svg.enter().insert("svg","#d3plus_message")
+    .attr("id","d3plus")
+    .attr("width",vars.width.value)
+    .attr("height",vars.height.value)
+    .attr("xmlns","http://www.w3.org/2000/svg")
+    .attr("xmlns:xmlns:xlink","http://www.w3.org/1999/xlink")
+
+  // Enter BG Rectangle
+  vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
+  vars.g.bg.enter().append("rect")
+    .attr("id","bg")
+    .attr("fill",vars.background.value)
+    .attr("width",vars.width.value)
+    .attr("height",vars.height.value)
+
+  // Enter Timeline Group
+  vars.g.timeline = vars.svg.selectAll("g#timeline").data(["timeline"])
+  vars.g.timeline.enter().append("g")
+    .attr("id","timeline")
+    .attr("transform","translate(0,"+vars.height.value+")")
+
+  // Enter Key Group
+  vars.g.legend = vars.svg.selectAll("g#key").data(["key"])
+  vars.g.legend.enter().append("g")
+    .attr("id","key")
+    .attr("transform","translate(0,"+vars.height.value+")")
+
+  // Enter Footer Group
+  vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"])
+  vars.g.footer.enter().append("g")
+    .attr("id","footer")
+    .attr("transform","translate(0,"+vars.height.value+")")
+
+  // Enter App Clipping Mask
+  vars.g.clipping = vars.svg.selectAll("#clipping").data(["clipping"])
+  vars.g.clipping.enter().append("clipPath")
+    .attr("id","clipping")
+    .append("rect")
+      .attr("width",vars.width.viz)
+      .attr("height",vars.height.viz)
+
+  // Enter Container Group
+  vars.g.container = vars.svg.selectAll("g#container").data(["container"])
+  vars.g.container.enter().append("g")
+    .attr("id","container")
+    .attr("clip-path","url(#clipping)")
+    .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+
+  // Enter Zoom Group
+  vars.g.zoom = vars.g.container.selectAll("g#zoom").data(["zoom"])
+  vars.g.zoom.enter().append("g")
+    .attr("id","zoom")
+
+  // Enter App Background Group
+  vars.g.viz = vars.g.zoom.selectAll("g#d3plus_viz").data(["d3plus_viz"])
+  vars.g.viz.enter().append("g")
+    .attr("id","d3plus_viz")
+
+  // Enter App Overlay Rect
+  vars.g.overlay = vars.g.viz.selectAll("rect#d3plus_overlay").data([{"id":"d3plus_overlay"}])
+  vars.g.overlay.enter().append("rect")
+    .attr("id","d3plus_overlay")
+    .attr("width",vars.width.value)
+    .attr("height",vars.height.value)
+    .attr("opacity",0)
+
+  if (!d3plus.touch) {
+
+    vars.g.overlay
+      .on(d3plus.evt.move,function(d){
+
+        if (d.dragging) {
+
+        }
+        else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
+          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+          d3.select(this).style("cursor",d3plus.prefix()+"grab")
+        }
+        else {
+          d3.select(this).style("cursor","auto")
+        }
+
+      })
+      .on(d3plus.evt.up,function(d){
+
+        if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
+          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+          d.dragging = false
+          d3.select(this).style("cursor",d3plus.prefix()+"grab")
+        }
+        else {
+          d3.select(this).style("cursor","auto")
+        }
+
+      })
+      .on(d3plus.evt.down,function(d){
+
+        if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
+          vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
+          d.dragging = true
+          d3.select(this).style("cursor",d3plus.prefix()+"grabbing")
+        }
+        else {
+          d3.select(this).style("cursor","auto")
+        }
+
+      })
+
+  }
+  else {
+
+    vars.g.overlay
+      .on(d3plus.evt.over,vars.zoom.touchEvent)
+      .on(d3plus.evt.move,vars.zoom.touchEvent)
+      .on(d3plus.evt.out,vars.zoom.touchEvent)
+
+  }
+
+  // Enter App Background Group
+  vars.g.app = vars.g.viz.selectAll("g#app").data(["app"])
+  vars.g.app.enter().append("g")
+    .attr("id","app")
+
+  // Enter Edges Group
+  vars.g.edges = vars.g.viz.selectAll("g#edges").data(["edges"])
+  vars.g.edges.enter().append("g")
+    .attr("id","edges")
+    .attr("opacity",0)
+
+  // Enter Edge Focus Group
+  vars.g.edge_focus = vars.g.viz.selectAll("g#focus").data(["focus"])
+  vars.g.edge_focus.enter().append("g")
+    .attr("id","focus")
+
+  // Enter Edge Hover Group
+  vars.g.edge_hover = vars.g.viz.selectAll("g#edge_hover").data(["edge_hover"])
+  vars.g.edge_hover.enter().append("g")
+    .attr("id","edge_hover")
+    .attr("opacity",0)
+
+  // Enter App Data Group
+  vars.g.data = vars.g.viz.selectAll("g#data").data(["data"])
+  vars.g.data.enter().append("g")
+    .attr("id","data")
+    .attr("opacity",0)
+
+  // Enter Data Focus Group
+  vars.g.data_focus = vars.g.viz.selectAll("g#data_focus").data(["data_focus"])
+  vars.g.data_focus.enter().append("g")
+    .attr("id","data_focus")
+
+  // Enter Top Label Group
+  vars.g.labels = vars.g.viz.selectAll("g#d3plus_labels").data(["d3plus_labels"])
+  vars.g.labels.enter().append("g")
+    .attr("id","d3plus_labels")
+
+  vars.defs = vars.svg.selectAll("defs").data(["defs"])
+  vars.defs.enter().append("defs")
+
+  if ( vars.dev.value ) d3plus.console.timeEnd("creating SVG elements")
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Miscellaneous Error Checks
+//------------------------------------------------------------------------------
+d3plus.draw.errors = function(vars) {
+
+  if ( vars.dev.value ) d3plus.console.time("checking for errors")
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check to see if we have all required variables set
+  //----------------------------------------------------------------------------
+  var reqs = ["id"]
+  if (d3plus.visualization[vars.type.value].requirements) {
+    reqs = reqs.concat(d3plus.visualization[vars.type.value].requirements)
+  }
+
+  var missing = []
+  reqs.forEach(function(r){
+    if (!vars[r].value) missing.push("\""+r+"\"")
+  })
+
+  if ( missing.length > 1 ) {
+    var str = vars.format.locale.value.error.methods
+      , app = vars.format.locale.value.visualization[vars.type.value]
+      , and = vars.format.locale.value.ui.and
+    missing = d3plus.string.list(missing,and)
+    vars.internal_error = d3plus.string.format(str,app,missing)
+  }
+  else if ( missing.length === 1 ) {
+    var str = vars.format.locale.value.error.method
+      , app = vars.format.locale.value.visualization[vars.type.value]
+    vars.internal_error = d3plus.string.format(str,app,missing[0])
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check to see if we have focus connections, if needed
+  //----------------------------------------------------------------------------
+  if (!vars.internal_error && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
+    var connections = vars.edges.connections(vars.focus.value,vars.id.value)
+    if (connections.length == 0) {
+      var name = d3plus.variable.text(vars,vars.focus.value,vars.depth.value)
+        , str = vars.format.locale.value.error.connections
+      vars.internal_error = d3plus.string.format(str,"\""+name+"\"")
+    }
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check to see if we have all required libraries
+  //----------------------------------------------------------------------------
+  var reqs = ["d3"]
+  if (d3plus.visualization[vars.type.value].libs) {
+    reqs = reqs.concat(d3plus.visualization[vars.type.value].libs)
+  }
+  var missing = []
+  reqs.forEach(function(r){
+    if (!window[r]) missing.push("\""+r+"\"")
+  })
+
+  if ( missing.length > 1 ) {
+    var str = vars.format.locale.value.error.libs
+      , app = vars.format.locale.value.visualization[vars.type.value]
+      , and = vars.format.locale.value.ui.and
+    missing = d3plus.string.list(missing,and)
+    vars.internal_error = d3plus.string.format(str,app,missing)
+  }
+  else if ( missing.length === 1 ) {
+    var str = vars.format.locale.value.error.lib
+      , app = vars.format.locale.value.visualization[vars.type.value]
+    vars.internal_error = d3plus.string.format(str,app,missing[0])
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check to see if the requested app supports the set shape
+  //----------------------------------------------------------------------------
+  if (!vars.shape.value) {
+    vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
+  }
+  else if (d3plus.visualization[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
+    var shapes = d3plus.visualization[vars.type.value].shapes.join("\", \"")
+      , str = vars.format.locale.value.error.accepted
+      , shape = "\""+vars.shape.value+"\""
+      , shapeStr = vars.format.locale.value.method.shape
+      , app = vars.format.locale.value.visualization[vars.type.value]
+    d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes+"\""),"shape")
+    vars.shape.previous = vars.shape.value
+    vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
+    var str = vars.format.locale.value.dev.setLong
+      , shape = "\""+vars.shape.value+"\""
+    if ( vars.dev.value ) {
+      d3plus.console.log(d3plus.string.format(str,shapeStr,shape))
+    }
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check to see if the requested app supports the set "mode"
+  //----------------------------------------------------------------------------
+  if ("modes" in d3plus.visualization[vars.type.value]) {
+    if (!vars.type.mode.value) {
+      vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
+    }
+    else if (d3plus.visualization[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
+      var modes = d3plus.visualization[vars.type.value].modes.join("\", \"")
+        , str = vars.format.locale.value.error.accepted
+        , mode = "\""+vars.type.mode.value+"\""
+        , modeStr = vars.format.locale.value.method.mode
+        , app = vars.format.locale.value.visualization[vars.type.value]
+      d3plus.console.warning(d3plus.string.format(str,mode,modeStr,app,"\""+modes+"\""))
+      vars.type.mode.previous = vars.type.mode.value
+      vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
+      var str = vars.format.locale.value.dev.setLong
+        , mode = "\""+vars.type.mode.value+"\""
+      if ( vars.dev.value ) {
+        d3plus.console.log(d3plus.string.format(str,modeStr,mode))
+      }
+    }
+  }
+
+  if ( vars.dev.value ) d3plus.console.timeEnd("checking for errors")
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Finalize Visualization
+//------------------------------------------------------------------------------
+d3plus.draw.finish = function(vars) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Zoom to fit bounds, if applicable
+  //----------------------------------------------------------------------------
+  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
+
+    if ( vars.dev.value ) d3plus.console.time("calculating zoom")
+
+    if (vars.draw.first && vars.zoom.bounds) {
+      d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
+    }
+
+    if (vars.focus.changed || vars.height.changed || vars.width.changed) {
+      if (!vars.zoom.viewport) {
+        d3plus.zoom.bounds(vars,vars.zoom.bounds)
+      }
+      else {
+        d3plus.zoom.bounds(vars,vars.zoom.viewport)
+      }
+    }
+
+    if ( vars.dev.value ) d3plus.console.timeEnd("calculating zoom")
+
+  }
+  else {
+    vars.zoom.scale = 1
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Resize/Reposition Overlay Rect for Mouse events
+  //----------------------------------------------------------------------------
+  var w = vars.zoom.size ? vars.zoom.size.width : vars.width.viz,
+      h = vars.zoom.size ? vars.zoom.size.height : vars.height.viz,
+      x = vars.zoom.bounds ? vars.zoom.bounds[0][0] : 0,
+      y = vars.zoom.bounds ? vars.zoom.bounds[0][1] : 0
+
+  vars.g.overlay
+    .attr("width",w)
+    .attr("height",h)
+    .attr("x",x)
+    .attr("y",y)
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Create labels
+  //----------------------------------------------------------------------------
+  if (vars.draw.update) {
+    d3plus.shape.edges(vars)
+    if (vars.draw.timing || (!d3plus.visualization[vars.type.value].zoom && !vars.draw.timing)) {
+      d3plus.shape.labels( vars , "data" )
+      if (vars.edges.label) {
+
+        setTimeout(function(){
+          d3plus.shape.labels( vars , "edges" )
+        },vars.draw.timing)
+
+      }
+    }
+  }
+  else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
+    setTimeout(function(){
+      d3plus.zoom.labels(vars)
+    },vars.draw.timing)
+  }
+
+  if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value && vars.focus.value && !vars.draw.timing) {
+    if ( vars.dev.value ) d3plus.console.time("focus labels")
+    d3plus.shape.labels( vars , "data_focus" )
+    if (vars.edges.label) {
+
+      setTimeout(function(){
+        d3plus.shape.labels( vars , "edge_focus" )
+      },vars.draw.timing)
+
+    }
+    if ( vars.dev.value ) d3plus.console.timeEnd("focus labels")
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check for Errors
+  //----------------------------------------------------------------------------
+  if (!vars.internal_error) {
+    var data_req = d3plus.visualization[vars.type.value].requirements.indexOf("data") >= 0
+    if ((!vars.data.app || !vars.returned.nodes.length) && data_req) {
+      vars.internal_error = vars.format.locale.value.error.data
+    }
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Hide the previous app, if applicable
+  //----------------------------------------------------------------------------
+  var prev = vars.type.previous
+  if (prev && vars.type.value != prev && vars.g.apps[prev]) {
+    if ( vars.dev.value ) d3plus.console.time("hiding \"" + prev + "\"")
+    if (vars.draw.timing) {
+      vars.g.apps[prev].transition().duration(vars.draw.timing)
+        .attr("opacity",0)
+    }
+    else {
+      vars.g.apps[prev].attr("opacity",0)
+    }
+    if ( vars.dev.value ) d3plus.console.timeEnd()
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Show the current app, data, and edges groups
+  //----------------------------------------------------------------------------
+  var data_req = d3plus.visualization[vars.type.value].requirements.indexOf("data") >= 0,
+      new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
+        ? 0 : vars.focus.value && d3plus.visualization[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
+      old_opacity = vars.group.attr("opacity")
+
+  if (new_opacity != old_opacity) {
+
+    var timing = vars.draw.timing
+
+    vars.group.transition().duration(timing)
+      .attr("opacity",new_opacity)
+    vars.g.data.transition().duration(timing)
+      .attr("opacity",new_opacity)
+    vars.g.edges.transition().duration(timing)
+      .attr("opacity",new_opacity)
+
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Display and reset internal_error, if applicable
+  //----------------------------------------------------------------------------
+  if (vars.internal_error) {
+    vars.internal_error = d3plus.string.title( vars.internal_error )
+    d3plus.console.warning(vars.internal_error)
+    d3plus.ui.message(vars,vars.internal_error)
+    vars.internal_error = null
+  }
+  else {
+    d3plus.ui.message(vars)
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Unfreeze controls and apply zoom behavior, if applicable
+  //----------------------------------------------------------------------------
+  setTimeout(function(){
+
+    d3plus.data.reset( vars )
+
+    if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
+      vars.g.zoom
+        .datum(vars)
+        .call(vars.zoom.behavior.on("zoom",d3plus.zoom.mouse))
+      if (!vars.zoom.scroll.value) {
+        vars.g.zoom.on("wheel.zoom",null)
+      }
+      if (!vars.zoom.click.value) {
+        vars.g.zoom.on("dblclick.zoom",null)
+      }
+      if (!vars.zoom.pan.value) {
+        vars.g.zoom.on("mousemove.zoom",null)
+        vars.g.zoom.on("mousedown.zoom",null)
+      }
+    }
+    else {
+      vars.g.zoom
+        .call(vars.zoom.behavior.on("zoom",null))
+    }
+
+  },vars.draw.timing)
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates focus elements, if available
+//------------------------------------------------------------------------------
+d3plus.draw.focus = function(vars) {
+
+  vars.g.edge_focus
+    .selectAll("g")
+    .remove()
+
+  vars.g.data_focus
+    .selectAll("g")
+    .remove()
+
+  if (vars.focus.value && d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
+
+    if ( vars.dev.value ) d3plus.console.time("drawing focus elements")
+
+    var edges = vars.g.edges.selectAll("g")
+
+    if (edges.size() > 0) {
+
+      edges.each(function(l){
+
+          var source = l[vars.edges.source][vars.id.value],
+              target = l[vars.edges.target][vars.id.value]
+
+          if (source == vars.focus.value || target == vars.focus.value) {
+            var elem = vars.g.edge_focus.node().appendChild(this.cloneNode(true))
+            d3.select(elem).datum(l).attr("opacity",1)
+              .selectAll("line, path").datum(l)
+          }
+
+        })
+
+
+      var marker = vars.edges.arrows.value
+
+      vars.g.edge_focus.selectAll("line, path")
+        .attr("vector-effect","non-scaling-stroke")
+        .style("stroke",vars.color.focus)
+        .style("stroke-width",function(){
+          return vars.edges.size ? d3.select(this).style("stroke-width")
+               : vars.data.stroke.width*2
+        })
+        .attr("marker-start",function(e){
+
+          var direction = vars.edges.arrows.direction.value
+
+          if ("bucket" in e.d3plus) {
+            var d = "_"+e.d3plus.bucket
+          }
+          else {
+            var d = ""
+          }
+
+          return direction == "source" && marker
+               ? "url(#d3plus_edge_marker_focus"+d+")" : "none"
+
+        })
+        .attr("marker-end",function(e){
+
+          var direction = vars.edges.arrows.direction.value
+
+          if ("bucket" in e.d3plus) {
+            var d = "_"+e.d3plus.bucket
+          }
+          else {
+            var d = ""
+          }
+
+          return direction == "target" && marker
+               ? "url(#d3plus_edge_marker_focus"+d+")" : "none"
+
+        })
+
+      vars.g.edge_focus.selectAll("text")
+        .style("fill",vars.color.focus)
+
+    }
+
+    var focii = d3plus.util.uniques(vars.edges.connections(vars.focus.value,vars.id.value,true),vars.id.value)
+    focii.push(vars.focus.value)
+
+    var x_bounds = [], y_bounds = [], x_buffer = [0], y_buffer = [0]
+
+    var groups = vars.g.data.selectAll("g")
+      .each(function(d){
+        if (focii.indexOf(d[vars.id.value]) >= 0) {
+          var elem = vars.g.data_focus.node().appendChild(this.cloneNode(true))
+          var elem = d3.select(elem).datum(d).attr("opacity",1)
+
+          if (vars.shape.value == "coordinates") {
+
+            vars.zoom.viewport = vars.path.bounds(vars.zoom.coords[d.d3plus.id])
+
+          }
+          else if ("d3plus" in d) {
+            if ("x" in d.d3plus) {
+              x_bounds.push(d.d3plus.x)
+            }
+            if ("y" in d.d3plus) {
+              y_bounds.push(d.d3plus.y)
+            }
+            if ("r" in d.d3plus) {
+              x_buffer.push(d.d3plus.r)
+              y_buffer.push(d.d3plus.r)
+            }
+            else {
+              if ("width" in d.d3plus) {
+                x_buffer.push(d.d3plus.width/2)
+              }
+              if ("height" in d.d3plus) {
+                y_buffer.push(d.d3plus.height/2)
+              }
+            }
+          }
+
+          for (e in d3plus.evt) {
+            var evt = d3.select(this).on(d3plus.evt[e])
+            if (evt) {
+              elem.on(d3plus.evt[e],evt)
+            }
+          }
+
+        }
+      })
+
+    if (x_bounds.length && y_bounds.length) {
+
+      var xcoords = d3.extent(x_bounds),
+          ycoords = d3.extent(y_bounds),
+          xmax = d3.max(x_buffer),
+          ymax = d3.max(y_buffer)
+
+      vars.zoom.viewport = [
+        [xcoords[0]-xmax,ycoords[0]-ymax],
+        [xcoords[1]+xmax,ycoords[1]+ymax]
+      ]
+
+    }
+
+    vars.g.data_focus.selectAll("path")
+      .style("stroke-width",vars.data.stroke.width*2)
+
+    if ( vars.dev.value ) d3plus.console.timeEnd("drawing focus elements")
+
+  }
+  else {
+    vars.zoom.viewport = null
+  }
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Calculate steps needed to redraw the visualization
+//------------------------------------------------------------------------------
+d3plus.draw.steps = function(vars) {
+
+  var steps       = []
+    , appType     = vars.type.value
+    , locale      = vars.format.locale.value
+    , uiMessage   = locale.message.ui
+    , drawMessage = locale.message.draw
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Check to see if any data needs to be loaded with JSON
+  //----------------------------------------------------------------------------
+  var urlLoads = [ "data" , "attrs" , "coords" , "nodes" , "edges" ]
+  urlLoads.forEach(function(u){
+
+    if ( !vars[u].loaded && vars[u].url ) {
+
+      steps.push({
+        "function": function( vars , next ){
+          d3plus.data.url( vars , u , next )
+        },
+        "message": locale.message.loading,
+        "wait": true
+      })
+
+    }
+
+  })
+
+  if (vars.draw.update) {
+
+    var appName     = locale.visualization[appType].toLowerCase()
+      , appSetup    = d3plus.visualization[appType].setup
+      , appReqs     = d3plus.visualization[appType].requirements
+      , appMessage  = d3plus.string.format(locale.message.initializing,appName)
+      , dataMessage = locale.message.data
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If it has one, run the current app's setup function.
+    //--------------------------------------------------------------------------
+    if ( typeof appSetup === "function" ) {
+
+      steps.push({
+        "function": function( vars ) {
+
+          if ( vars.dev.value ) {
+            var timerString = "running " + appName + " setup"
+            d3plus.console.time( timerString )
+          }
+
+          appSetup( vars )
+
+          if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+
+        },
+        "message": appMessage
+      })
+
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Create SVG group elements if the container is new or has changed
+    //--------------------------------------------------------------------------
+    if ( vars.container.changed ) {
+
+      steps.push({ "function" : d3plus.draw.enter , "message" : appMessage })
+
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Create group for current app, if it doesn't exist.
+    //--------------------------------------------------------------------------
+    if ( !( appType in vars.g.apps ) ) {
+
+      steps.push({
+        "function": function( vars ) {
+
+          if ( vars.dev.value ) {
+            var timerString = "creating " + appName + " group"
+            d3plus.console.time( timerString )
+          }
+
+          vars.g.apps[appType] = vars.g.app
+            .selectAll("g#"+appType)
+            .data([appType])
+
+          vars.g.apps[appType].enter().append("g")
+            .attr("id",appType)
+            .attr("opacity",0)
+
+          if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+
+        },
+        "message": appMessage
+      })
+
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If new data is detected, analyze and reset it.
+    //--------------------------------------------------------------------------
+    if ( vars.data.changed ) {
+
+      steps.push({
+        "function": function(vars) {
+          vars.data.cache = {}
+          delete vars.nodes.restricted
+          delete vars.edges.restricted
+          d3plus.data.keys( vars , "data" )
+        },
+        "message": dataMessage
+      })
+
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If new attributes are detected, analyze them.
+    //--------------------------------------------------------------------------
+    if ( vars.attrs.changed ) {
+
+      steps.push({
+        "function": function( vars ) {
+          d3plus.data.keys( vars , "attrs" )
+        },
+        "message": dataMessage
+      })
+
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Determine color type
+    //--------------------------------------------------------------------------
+    steps.push({
+      "function": function(vars) {
+
+          if ( vars.color.changed && vars.color.value ) {
+
+            if ( vars.dev.value ) {
+              var timerString = "determining color type"
+              d3plus.console.time( timerString )
+            }
+
+            var colorKey = vars.color.value
+
+            if ( d3plus.object.validate(colorKey) ) {
+              if (colorKey[vars.id.value]) {
+                colorKey = colorKey[vars.id.value]
+              }
+              else {
+                colorKey = colorKey[d3.keys(colorKey)[0]]
+              }
+            }
+
+            if ( vars.data.keys && colorKey in vars.data.keys ) {
+              vars.color.type = vars.data.keys[colorKey]
+            }
+            else if ( vars.attrs.keys && colorKey in vars.attrs.keys ) {
+              vars.color.type = vars.attrs.keys[colorKey]
+            }
+            else {
+              vars.color.type = undefined
+            }
+
+            if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+
+          }
+          else if (!vars.color.value) {
+            vars.color.type = "keys" in vars.data
+                            ? vars.data.keys[vars.id.value] : false
+          }
+
+      },
+      "message": dataMessage
+    })
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Format nodes/edges if needed
+    //--------------------------------------------------------------------------
+    if ( appReqs.indexOf("edges") >= 0 && vars.edges.value
+    && ( !vars.edges.linked || vars.edges.changed ) ) {
+      steps.push({ "function" : d3plus.data.edges, "message" : dataMessage })
+    }
+
+    if ( appReqs.indexOf("nodes") >= 0 && vars.nodes.value && vars.edges.value
+    && ( !vars.nodes.positions || vars.nodes.changed ) ) {
+      steps.push({ "function" : d3plus.data.nodes , "message" : dataMessage })
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Groups data by time and nesting.
+    //--------------------------------------------------------------------------
+    if ( vars.data.changed || vars.time.changed || vars.id.changed ) {
+      steps.push({ "function" : d3plus.data.format , "message" : dataMessage })
+    }
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Fetches data for app and "pool"
+    //--------------------------------------------------------------------------
+    steps.push({
+      "function": function(vars) {
+        var year = !vars.time.fixed.value ? ["all"] : null
+        if ( vars.dev.value ) {
+          var timerString = year ? "fetching pool data" : "fetching data"
+          d3plus.console.time( timerString )
+        }
+        vars.data.pool = d3plus.data.fetch( vars , year )
+        if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+        if ( !year ) {
+          vars.data.app = vars.data.pool
+        }
+        else {
+          if ( vars.dev.value ) d3plus.console.time("fetching data for current year")
+          vars.data.app = d3plus.data.fetch( vars )
+          if ( vars.dev.value ) d3plus.console.timeEnd("fetching data for current year")
+        }
+      },
+      "message": dataMessage
+    })
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Calculate color scale if type is number
+    //--------------------------------------------------------------------------
+    steps.push({
+      "check": function(vars) {
+
+        return vars.color.value && vars.color.type === "number" &&
+               vars.id.nesting.indexOf(vars.color.value) < 0 &&
+               vars.data.value && vars.color.value != vars.id.value &&
+                 (vars.color.changed || vars.data.changed || vars.depth.changed ||
+                   (vars.time.fixed.value &&
+                     (vars.time.solo.changed || vars.time.mute.changed)
+                   )
+                 )
+
+      },
+      "function": d3plus.data.color,
+      "message": dataMessage,
+      "otherwise": function(vars) {
+        if (vars.color.type !== "number") {
+          vars.color.scale = null
+        }
+      }
+    })
+
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Remove any lingering tooltips.
+  //----------------------------------------------------------------------------
+  steps.push({
+    "function": function(vars) {
+      if ( vars.dev.value ) {
+        var str = vars.format.locale.value.message.tooltipReset
+        d3plus.console.time(str)
+      }
+      if ( vars.type.previous && appType !== vars.type.previous ) {
+        d3plus.tooltip.remove(vars.type.previous)
+      }
+      d3plus.tooltip.remove(appType)
+      if ( vars.dev.value ) d3plus.console.timeEnd(str)
+    },
+    "message": uiMessage
+  })
+
+  steps.push({
+    "function": function(vars) {
+
+      vars.margin.process()
+      d3plus.ui.titles(vars)
+
+      if ( vars.draw.update ) {
+
+        d3plus.ui.drawer(vars)
+        d3plus.ui.timeline(vars)
+        d3plus.ui.legend(vars)
+
+      }
+      else {
+
+        if ( vars.dev.value ) d3plus.console.time("calculating margins")
+
+        var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
+
+        var timeline = vars.g.timeline.node().getBBox()
+        timeline = vars.timeline.value ? timeline.height+timeline.y : 0
+
+        var legend = vars.g.legend.node().getBBox()
+        legend = vars.legend.value ? legend.height+legend.y : 0
+
+        vars.margin.bottom += drawer+timeline+legend
+
+        if ( vars.dev.value ) d3plus.console.timeEnd("calculating margins")
+
+      }
+
+      d3plus.ui.history(vars)
+      vars.height.viz -= (vars.margin.top+vars.margin.bottom)
+      vars.width.viz -= (vars.margin.left+vars.margin.right)
+
+    },
+    "message": uiMessage
+  })
+
+  steps.push({
+    "function": d3plus.ui.focus,
+    "message": uiMessage
+  })
+
+  steps.push({
+    "function": d3plus.draw.update,
+    "message": drawMessage
+  })
+
+  if ( vars.draw.update ) {
+    steps.push({
+      "function" : [ d3plus.draw.errors
+                   , d3plus.draw.app
+                   , d3plus.shape.draw ],
+      "message"  : drawMessage
+    })
+  }
+
+  steps.push({
+    "function" : [ d3plus.draw.focus , d3plus.draw.finish ],
+    "message" : drawMessage
+  })
+
+  return steps
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Updating Elements
+//------------------------------------------------------------------------------
+d3plus.draw.update = function(vars) {
+
+  if ( vars.dev.value ) d3plus.console.time("updating SVG elements")
+
+  if ( vars.draw.timing ) {
+
+    // Update Parent Element
+    vars.container.value.transition().duration(vars.draw.timing)
+      .style("width",vars.width.value+"px")
+      .style("height",vars.height.value+"px")
+
+    // Update SVG
+    vars.svg.transition().duration(vars.draw.timing)
+        .attr("width",vars.width.value)
+        .attr("height",vars.height.value)
+
+    // Update Background Rectangle
+    vars.g.bg.transition().duration(vars.draw.timing)
+        .attr("width",vars.width.value)
+        .attr("height",vars.height.value)
+
+    // Update App Clipping Rectangle
+    vars.g.clipping.select("rect").transition().duration(vars.draw.timing)
+      .attr("width",vars.width.viz)
+      .attr("height",vars.height.viz)
+
+    // Update Container Groups
+    vars.g.container.transition().duration(vars.draw.timing)
+      .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+
+  }
+  else {
+
+    // Update Parent Element
+    vars.container.value
+      .style("width",vars.width.value+"px")
+      .style("height",vars.height.value+"px")
+
+    // Update SVG
+    vars.svg
+      .attr("width",vars.width.value)
+      .attr("height",vars.height.value)
+
+    // Update Background Rectangle
+    vars.g.bg
+      .attr("width",vars.width.value)
+      .attr("height",vars.height.value)
+
+    // Update App Clipping Rectangle
+    vars.g.clipping.select("rect")
+      .attr("width",vars.width.viz)
+      .attr("height",vars.height.viz)
+
+    // Update Container Groups
+    vars.g.container
+      .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+
+  }
+
+  if ( vars.dev.value ) d3plus.console.timeEnd("updating SVG elements")
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
 d3plus.input.button = function( vars ) {
@@ -17413,8 +17404,8 @@ Heap = (function() {
 
 d3plus.data.heap = Heap;
 
-d3plus.edges.shortestPath = function(edges, source, target, directed, distance, nodeid, startpoint, endpoint, K) {
-  var a, alt, b, c, edge, edge2distance, getPath, heap, i, maxsize, nodes, path, res, result, u, visited, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2;
+d3plus.network.normalize = function(edges, source, target, directed, distance, nodeid, startpoint, endpoint, K) {
+  var a, b, edge, edge2distance, errormsg, i, id, id1, idA, idB, node, nodeA, nodeB, nodes, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
   if (K == null) {
     K = 1;
   }
@@ -17487,38 +17478,73 @@ d3plus.edges.shortestPath = function(edges, source, target, directed, distance, 
       return edge2distance[a + '_' + b];
     };
   }
-  heap = new d3plus.data.heap(function(a, b) {
-    return a.distance - b.distance;
-  });
-  getPath = function(path) {
-    edges = [];
-    while (path.edge != null) {
-      edges.push(path.edge);
-      path = path.previous;
-    }
-    return edges.reverse();
-  };
   nodes = {};
   for (_j = 0, _len1 = edges.length; _j < _len1; _j++) {
     edge = edges[_j];
-    a = nodeid(startpoint(edge));
-    b = nodeid(endpoint(edge));
-    _ref = [a, b];
+    nodeA = startpoint(edge);
+    nodeB = endpoint(edge);
+    idA = nodeid(nodeA);
+    idB = nodeid(nodeB);
+    _ref = [nodeA, nodeB];
     for (_k = 0, _len2 = _ref.length; _k < _len2; _k++) {
-      c = _ref[_k];
-      if (!(c in nodes)) {
-        nodes[c] = {
-          id: c,
-          outedges: [],
-          count: 0
+      node = _ref[_k];
+      id = nodeid(node);
+      if (!(id in nodes)) {
+        nodes[id] = {
+          node: node,
+          outedges: []
         };
       }
     }
-    nodes[a].outedges.push(edge);
+    nodes[idA].outedges.push(edge);
     if (!directed) {
-      nodes[b].outedges.push(edge);
+      nodes[idB].outedges.push(edge);
     }
   }
+  errormsg = null;
+  if (edges.length === 0) {
+    errormsg = 'The length of edges is 0';
+  } else if (K < 0) {
+    errormsg = 'K can not have negative value';
+  } else if (distance(edges[0]) == null) {
+    errormsg = 'Check the distance function/attribute';
+  } else if (startpoint(edges[0]) == null) {
+    errormsg = 'Check the startpoint function/attribute';
+  } else if (endpoint(edges[0]) == null) {
+    errormsg = 'Check the endpoint function/attribute';
+  } else {
+    id1 = nodeid(startpoint(edges[0]));
+    if ((id1 == null) || ((_ref1 = typeof id1) !== 'string' && _ref1 !== 'number')) {
+      errormsg = 'Check the nodeid function/attribute';
+    } else if (!(source in nodes)) {
+      errormsg = 'The source is not in the graph';
+    } else if ((target != null) && !(target in nodes)) {
+      errormsg = 'The target is not in the graph';
+    }
+  }
+  if (errormsg != null) {
+    d3plus.console.error(errormsg);
+    return null;
+  }
+  return [edges, source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes];
+};
+
+d3plus.network.shortestPath = function(edges, source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes) {
+  var a, alt, b, edge, getPath, heap, id, input, maxsize, node, path, res, result, u, visited, _i, _j, _len, _len1, _ref, _ref1;
+  if ((nodes == null) || typeof nodes !== 'object') {
+    input = d3plus.network.normalize(edges, source, target, directed, distance, nodeid, startpoint, endpoint, K);
+    if (input === null) {
+      return null;
+    }
+    edges = input[0], source = input[1], target = input[2], directed = input[3], distance = input[4], nodeid = input[5], startpoint = input[6], endpoint = input[7], K = input[8], nodes = input[9];
+  }
+  for (id in nodes) {
+    node = nodes[id];
+    node.count = 0;
+  }
+  heap = new d3plus.data.heap(function(a, b) {
+    return a.distance - b.distance;
+  });
   visited = {};
   if (target == null) {
     visited[source] = true;
@@ -17528,14 +17554,8 @@ d3plus.edges.shortestPath = function(edges, source, target, directed, distance, 
     target: source,
     distance: 0
   });
-  if (!(source in nodes)) {
-    return 'Error: the source of the search is not in the graph';
-  }
-  if ((target != null) && !(target in nodes)) {
-    return 'Error: the target of the search is not in the graph';
-  }
-  result = [];
   maxsize = 0;
+  result = [];
   while (!heap.empty()) {
     maxsize = Math.max(maxsize, heap.size());
     path = heap.pop();
@@ -17550,13 +17570,13 @@ d3plus.edges.shortestPath = function(edges, source, target, directed, distance, 
       break;
     }
     if (nodes[u].count <= K) {
-      _ref1 = nodes[u].outedges;
-      for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
-        edge = _ref1[_l];
+      _ref = nodes[u].outedges;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        edge = _ref[_i];
         a = nodeid(startpoint(edge));
         b = nodeid(endpoint(edge));
         if (!directed && b === u) {
-          _ref2 = [b, a], a = _ref2[0], b = _ref2[1];
+          _ref1 = [b, a], a = _ref1[0], b = _ref1[1];
         }
         if (target == null) {
           if (visited[b]) {
@@ -17574,8 +17594,16 @@ d3plus.edges.shortestPath = function(edges, source, target, directed, distance, 
       }
     }
   }
-  for (_m = 0, _len4 = result.length; _m < _len4; _m++) {
-    res = result[_m];
+  getPath = function(path) {
+    edges = [];
+    while (path.edge != null) {
+      edges.push(path.edge);
+      path = path.previous;
+    }
+    return edges.reverse();
+  };
+  for (_j = 0, _len1 = result.length; _j < _len1; _j++) {
+    res = result[_j];
     if (target != null) {
       delete res.target;
       res.edges = getPath(res);
@@ -17584,6 +17612,69 @@ d3plus.edges.shortestPath = function(edges, source, target, directed, distance, 
     delete res.previous;
   }
   return result;
+};
+
+d3plus.network.subgraph = function(edges, source, K, directed, distance, nodeid, startpoint, endpoint, nodes) {
+  var dfs, edge, id, input, target, visited;
+  if ((nodes == null) || typeof nodes !== 'object') {
+    input = d3plus.network.normalize(edges, source, null, directed, distance, nodeid, startpoint, endpoint, K);
+    if (input === null) {
+      return null;
+    }
+    if (typeof input === 'string') {
+      return input;
+    }
+    edges = input[0], source = input[1], target = input[2], directed = input[3], distance = input[4], nodeid = input[5], startpoint = input[6], endpoint = input[7], K = input[8], nodes = input[9];
+  }
+  visited = {};
+  visited[source] = true;
+  dfs = function(origin, curr_distance) {
+    var a, b, edge, new_distance, _i, _len, _ref, _ref1, _results;
+    _ref = nodes[origin].outedges;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      edge = _ref[_i];
+      a = nodeid(startpoint(edge));
+      b = nodeid(endpoint(edge));
+      if (!directed && b === origin) {
+        _ref1 = [b, a], a = _ref1[0], b = _ref1[1];
+      }
+      if (!(b in visited)) {
+        new_distance = curr_distance + distance(edge);
+        if (new_distance <= K) {
+          visited[b] = true;
+          _results.push(dfs(b, new_distance));
+        } else {
+          _results.push(void 0);
+        }
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
+  };
+  dfs(source, 0);
+  return {
+    nodes: (function() {
+      var _results;
+      _results = [];
+      for (id in visited) {
+        _results.push(nodes[id].node);
+      }
+      return _results;
+    })(),
+    edges: (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = edges.length; _i < _len; _i++) {
+        edge = edges[_i];
+        if (nodeid(startpoint(edge)) in visited && nodeid(endpoint(edge)) in visited) {
+          _results.push(edge);
+        }
+      }
+      return _results;
+    })()
+  };
 };
 
 
