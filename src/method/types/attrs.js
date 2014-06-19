@@ -4,6 +4,7 @@ d3plus.method.attrs = {
     "accepted" : [ String ],
     "value"    : "|"
   },
+  "process"  : d3plus.method.processData,
   "type"     : {
     "accepted" : [ false , "json" , "xml" ,"html"
                  , "csv" , "dsv" , "tsv" , "txt" ],
