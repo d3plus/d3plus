@@ -392,7 +392,7 @@ d3plus.shape.labels = function( vars , group ) {
 
           if (text.size() == 0 || text.html() == "") {
             delete d.d3plus_label
-            group.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+            group.selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
               .call(remove)
           }
           else {
