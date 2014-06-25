@@ -10,6 +10,7 @@
   d3plus.data          = {}
   d3plus.draw          = {}
   d3plus.font          = {}
+  d3plus.geom          = {}
   d3plus.input         = {}
   d3plus.locale        = {}
   d3plus.method        = {}
