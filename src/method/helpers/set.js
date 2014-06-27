@@ -77,11 +77,14 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
       accepted.forEach(function(a){
 
-        if (typeof a == "string") {
+        if ( typeof a === "string" ) {
           recs.push("\""+a+"\"")
         }
+        else if ( typeof a === "function" ) {
+          recs.push(a.toString().split("()")[0].substring(9))
+        }
         else {
-          recs.push("\""+a.toString().split("()")[0].substring(9)+"\"")
+          recs.push(a.toString())
         }
 
       })
@@ -326,14 +329,14 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
       }
 
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // If there is a callback function not associated with a URL, run it.
-      //------------------------------------------------------------------------
-      if ( key === "value" && object.callback && !object.url ) {
+    }
 
-        object.callback(value)
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // If there is a callback function not associated with a URL, run it.
+    //--------------------------------------------------------------------------
+    if ( key === "value" && object.callback && !object.url ) {
 
-      }
+      object.callback(value)
 
     }
 
