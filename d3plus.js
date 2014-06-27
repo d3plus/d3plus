@@ -3,17 +3,18 @@
   var d3plus    = window.d3plus || {}
   window.d3plus = d3plus
 
-  d3plus.version = "1.3.2 - Sky"
+  d3plus.version = "1.4.0 - Teal"
 
   d3plus.array         = {}
   d3plus.color         = {}
   d3plus.data          = {}
   d3plus.draw          = {}
-  d3plus.edges         = {}
   d3plus.font          = {}
+  d3plus.geom          = {}
   d3plus.input         = {}
   d3plus.locale        = {}
   d3plus.method        = {}
+  d3plus.network       = {}
   d3plus.number        = {}
   d3plus.object        = {}
   d3plus.shape         = {}
@@ -438,6 +439,8 @@ d3plus.data.element = function( vars ) {
 
   }
 
+  vars.data.element = vars.data.value
+
   var elementTag  = vars.data.element.node().tagName.toLowerCase()
     , elementType = vars.data.element.attr("type")
     , elementData = []
@@ -454,7 +457,7 @@ d3plus.data.element = function( vars ) {
 
         var data_obj = {}
 
-        data_obj[vars.text.value] = this.innerHTML
+        data_obj.text = this.innerHTML
 
         get_attributes(data_obj,this)
 
@@ -488,7 +491,7 @@ d3plus.data.element = function( vars ) {
           var label = d3.select("label[for="+id+"]")
 
           if ( !label.empty() ) {
-            data_obj[vars.text.value] = label.html()
+            data_obj.text = label.html()
             label.call(hideElement)
           }
 
@@ -1546,15 +1549,6 @@ d3plus.data.url = function( vars , key , next ) {
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Returns primary connections for a given node ID
-//------------------------------------------------------------------------------
-d3plus.edges.connections = function( edges , focus , id , source , target , returnNodes ) {
-
-  
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects if FontAwesome is loaded on the page
 //------------------------------------------------------------------------------
 d3plus.font.awesome = false
@@ -1941,6 +1935,456 @@ d3plus.form = function() {
 
 }
 
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Custom styling and behavior for browser console statements.
+//------------------------------------------------------------------------------
+d3plus.console = function( type , message , style ) {
+
+  var style = style || ""
+
+  if ( d3plus.ie ) {
+
+    console.log( "[ D3plus ] " + message )
+
+  }
+  else if ( type === "groupCollapsed" ) {
+
+    if ( window.chrome && navigator.onLine ) {
+      console[type]( "%c%c " + message
+                   , "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');"
+                   , "font-weight:200;" + style )
+    }
+    else {
+      console[type]( "%cD3plus%c " + message
+                   , "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;"
+                   , "font-weight:200;" + style )
+    }
+
+  }
+  else {
+
+    console[type]( "%c" + message , style + "font-weight:200;" )
+
+  }
+
+}
+
+d3plus.console.comment = function( message ) {
+
+  this( "log" , message , "color:#aaa;" )
+
+}
+
+d3plus.console.error = function( message , wiki ) {
+
+  this( "groupCollapsed" , "ERROR: " + message , "font-weight:800;color:#D74B03;" )
+
+  this.stack()
+
+  this.wiki( wiki )
+
+  this.groupEnd()
+
+}
+
+d3plus.console.group = function( message ) {
+
+  this( "group" , message , "color:#888;" )
+
+}
+
+d3plus.console.groupCollapsed = function( message ) {
+
+  this( "groupCollapsed" , message , "color:#888;" )
+
+}
+
+d3plus.console.groupEnd = function() {
+  if ( !d3plus.ie ) {
+    console.groupEnd()
+  }
+}
+
+d3plus.console.log = function( message ) {
+
+  this( "log" , message , "color:#444444;" )
+
+}
+
+d3plus.console.stack = function() {
+
+  if ( !d3plus.ie ) {
+
+    var err = new Error()
+
+    if ( err.stack ) {
+
+      var stack = err.stack.split("\n")
+
+      stack = stack.filter(function(e){
+        return e.indexOf("Error") !== 0
+            && e.indexOf("d3plus.js:") < 0
+            && e.indexOf("d3plus.min.js:") < 0
+      })
+
+      if ( stack.length ) {
+
+        var splitter = window.chrome ? "at " : "@"
+          , url = stack[0].split(splitter)[1]
+
+        stack = url.split(":")
+        if ( stack.length === 3 ) {
+          stack.pop()
+        }
+
+        var line = stack.pop()
+          , page = stack.join(":").split("/")
+
+        page = page[page.length-1]
+
+        var message = "line "+line+" of "+page+": "+url
+
+        this( "log" , message , "color:#D74B03;" )
+
+      }
+
+    }
+  }
+
+}
+
+d3plus.console.time = function( message ) {
+  if ( !d3plus.ie ) {
+    console.time( message )
+  }
+}
+
+d3plus.console.timeEnd = function( message ) {
+  if ( !d3plus.ie ) {
+    console.timeEnd( message )
+  }
+}
+
+d3plus.console.warning = function( message , wiki ) {
+
+  this( "groupCollapsed" , message , "color:#888;" )
+
+  this.stack()
+
+  this.wiki( wiki )
+
+  this.groupEnd()
+
+}
+
+d3plus.console.wiki = function( wiki ) {
+
+  if ( wiki && wiki in d3plus.wiki ) {
+    var url = d3plus.repo + "wiki/" + d3plus.wiki[wiki]
+    this( "log" , "documentation: " + url , "color:#aaa;" )
+  }
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Creates custom mouse events based on IE and Touch Devices.
+//------------------------------------------------------------------------------
+d3plus.evt = {}
+
+d3plus.touch = ('ontouchstart' in window) || window.DocumentTouch
+               && document instanceof DocumentTouch ? true : false
+
+if (d3plus.touch) {
+
+  d3plus.evt.click = "click"
+  d3plus.evt.down  = "touchstart"
+  d3plus.evt.up    = "touchend"
+  d3plus.evt.over  = "touchstart"
+  d3plus.evt.out   = "touchend"
+  d3plus.evt.move  = "touchmove"
+
+}
+else {
+
+  d3plus.evt.click = "click"
+  d3plus.evt.down  = "mousedown"
+  d3plus.evt.up    = "mouseup"
+
+  if (d3plus.ie) {
+
+    d3plus.evt.over = "mouseenter"
+    d3plus.evt.out  = "mouseleave"
+
+  }
+  else {
+
+    d3plus.evt.over = "mouseover"
+    d3plus.evt.out  = "mouseout"
+
+  }
+
+  d3plus.evt.move = "mousemove"
+
+}
+
+d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
+
+d3plus.wiki    = {
+  "active"     : "Segmenting-Data#active",
+  "aggs"       : "Custom-Aggregations",
+  "alt"        : "Alt-Text-Parameters",
+  "attrs"      : "Attribute-Data#axes",
+  "axes"       : "Axis-Parameters",
+  "background" : "Background",
+  "color"      : "Color-Parameters",
+  "container"  : "Container-Element",
+  "coords"     : "Geography-Data",
+  "csv"        : "CSV-Export",
+  "data"       : "Data-Points",
+  "depth"      : "Visible-Depth",
+  "descs"      : "Value-Definitions",
+  "dev"        : "Verbose-Mode",
+  "draw"       : "Draw",
+  "edges"      : "Edges-List",
+  "error"      : "Custom-Error-Message",
+  "focus"      : "Focus-Element",
+  "font"       : "Font-Styles",
+  "footer"     : "Custom-Footer",
+  "format"     : "Value-Formatting",
+  "height"     : "Height",
+  "history"    : "User-History",
+  "hover"      : "Hover-Element",
+  "icon"       : "Icon-Parameters",
+  "id"         : "Unique-ID",
+  "keywords"   : "Keyword-Parameters",
+  "labels"     : "Data-Labels",
+  "legend"     : "Legend",
+  "links"      : "Link-Styles",
+  "margin"     : "Outer-Margins",
+  "messages"   : "Status-Messages",
+  "method"     : "Methods",
+  "nodes"      : "Node-Positions",
+  "open"       : "Open",
+  "order"      : "Data-Ordering",
+  "remove"     : "Remove",
+  "search"     : "Search-Box",
+  "select"     : "Selecting-Elements#select",
+  "selectAll"  : "Selecting-Elements#selectall",
+  "shape"      : "Data-Shapes",
+  "size"       : "Size-Parameters",
+  "temp"       : "Segmenting-Data#temp",
+  "text"       : "Text-Parameters",
+  "time"       : "Time-Parameters",
+  "timeline"   : "Timeline",
+  "timing"     : "Animation-Timing",
+  "title"      : "Custom-Titles",
+  "tooltip"    : "Tooltip-Parameters",
+  "total"      : "Segmenting-Data#total",
+  "type"       : "Output-Type",
+  "ui"         : "Custom-Interface",
+  "width"      : "Width",
+  "x"          : "Axis-Parameters",
+  "y"          : "Axis-Parameters",
+  "zoom"       : "Zooming"
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Determines if the current browser is Internet Explorer.
+//------------------------------------------------------------------------------
+d3plus.ie = /*@cc_on!@*/false
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Calculates the correct CSS vendor prefix based on the current browser.
+//------------------------------------------------------------------------------
+d3plus.prefix = function() {
+
+  if ("-webkit-transform" in document.body.style) {
+    var val = "-webkit-"
+  }
+  else if ("-moz-transform" in document.body.style) {
+    var val = "-moz-"
+  }
+  else if ("-ms-transform" in document.body.style) {
+    var val = "-ms-"
+  }
+  else if ("-o-transform" in document.body.style) {
+    var val = "-o-"
+  }
+  else {
+    var val = ""
+  }
+
+  d3plus.prefix = function(){
+    return val
+  }
+
+  return val;
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Detects right-to-left text direction on the page.
+//------------------------------------------------------------------------------
+d3plus.rtl = d3.select("html").attr("dir") == "rtl"
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Detects scrollbar width for current browser.
+//------------------------------------------------------------------------------
+d3plus.scrollbar = function() {
+
+  var inner = document.createElement("p");
+  inner.style.width = "100%";
+  inner.style.height = "200px";
+
+  var outer = document.createElement("div");
+  outer.style.position = "absolute";
+  outer.style.top = "0px";
+  outer.style.left = "0px";
+  outer.style.visibility = "hidden";
+  outer.style.width = "200px";
+  outer.style.height = "150px";
+  outer.style.overflow = "hidden";
+  outer.appendChild(inner);
+
+  document.body.appendChild(outer);
+  var w1 = inner.offsetWidth;
+  outer.style.overflow = "scroll";
+  var w2 = inner.offsetWidth;
+  if (w1 == w2) w2 = outer.clientWidth;
+
+  document.body.removeChild(outer);
+
+  var val = (w1 - w2)
+
+  d3plus.scrollbar = function(){
+    return val
+  }
+
+  return val;
+
+}
+
+/*
+ (c) 2013, Vladimir Agafonkin
+ Simplify.js, a high-performance JS polyline simplification library
+ mourner.github.io/simplify-js
+*/
+
+// both algorithms combined for awesome performance
+d3plus.geom.simplify = function(points, tolerance, highestQuality) {
+    //// Helper functions ///////////////////////////
+    // square distance between 2 points
+    function getSqDist(p1, p2) {
+
+        var dx = p1[0] - p2[0],
+            dy = p1[1] - p2[1];
+
+        return dx * dx + dy * dy;
+    }
+
+    // square distance from a point to a segment
+    function getSqSegDist(p, p1, p2) {
+
+        var x = p1[0],
+            y = p1[1],
+            dx = p2[0] - x,
+            dy = p2[1] - y;
+
+        if (dx !== 0 || dy !== 0) {
+
+            var t = ((p[0] - x) * dx + (p[1] - y) * dy) / (dx * dx + dy * dy);
+
+            if (t > 1) {
+                x = p2[0];
+                y = p2[1];
+
+            } else if (t > 0) {
+                x += dx * t;
+                y += dy * t;
+            }
+        }
+
+        dx = p[0] - x;
+        dy = p[1] - y;
+
+        return dx * dx + dy * dy;
+    }
+    // rest of the code doesn't care about point format
+
+    // basic distance-based simplification
+    function simplifyRadialDist(points, sqTolerance) {
+
+        var prevPoint = points[0],
+            newPoints = [prevPoint],
+            point;
+
+        for (var i = 1, len = points.length; i < len; i++) {
+            point = points[i];
+
+            if (getSqDist(point, prevPoint) > sqTolerance) {
+                newPoints.push(point);
+                prevPoint = point;
+            }
+        }
+
+        if (prevPoint !== point) newPoints.push(point);
+
+        return newPoints;
+    }
+
+    // simplification using optimized Douglas-Peucker algorithm with recursion elimination
+    function simplifyDouglasPeucker(points, sqTolerance) {
+
+        var len = points.length,
+            MarkerArray = typeof Uint8Array !== 'undefined' ? Uint8Array : Array,
+            markers = new MarkerArray(len),
+            first = 0,
+            last = len - 1,
+            stack = [],
+            newPoints = [],
+            i, maxSqDist, sqDist, index;
+
+        markers[first] = markers[last] = 1;
+
+        while (last) {
+
+            maxSqDist = 0;
+
+            for (i = first + 1; i < last; i++) {
+                sqDist = getSqSegDist(points[i], points[first], points[last]);
+
+                if (sqDist > maxSqDist) {
+                    index = i;
+                    maxSqDist = sqDist;
+                }
+            }
+
+            if (maxSqDist > sqTolerance) {
+                markers[index] = 1;
+                stack.push(first, index, index, last);
+            }
+
+            last = stack.pop();
+            first = stack.pop();
+        }
+
+        for (i = 0; i < len; i++) {
+            if (markers[i]) newPoints.push(points[i]);
+        }
+
+        return newPoints;
+    }
+
+    /////////////////////////////////////////////////
+    if (points.length <= 1) return points;
+
+    var sqTolerance = tolerance !== undefined ? tolerance * tolerance : 1;
+
+    points = highestQuality ? points : simplifyRadialDist(points, sqTolerance);
+    points = simplifyDouglasPeucker(points, sqTolerance);
+
+    return points;
+}
 d3plus.locale.en = {
 
   "dev"          : {
@@ -2409,335 +2853,6 @@ d3plus.locale.zh = {
         "用户界面",
         "研发"
     ]
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Custom styling and behavior for browser console statements.
-//------------------------------------------------------------------------------
-d3plus.console = function( type , message , style ) {
-
-  var style = style || ""
-
-  if ( d3plus.ie ) {
-
-    console.log( "[ D3plus ] " + message )
-
-  }
-  else if ( type === "groupCollapsed" ) {
-
-    if ( window.chrome && navigator.onLine ) {
-      console[type]( "%c%c " + message
-                   , "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');"
-                   , "font-weight:200;" + style )
-    }
-    else {
-      console[type]( "%cD3plus%c " + message
-                   , "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;"
-                   , "font-weight:200;" + style )
-    }
-
-  }
-  else {
-
-    console[type]( "%c" + message , style + "font-weight:200;" )
-
-  }
-
-}
-
-d3plus.console.comment = function( message ) {
-
-  this( "log" , message , "color:#aaa;" )
-
-}
-
-d3plus.console.error = function( message , wiki ) {
-
-  this( "groupCollapsed" , "ERROR: " + message , "font-weight:800;color:#D74B03;" )
-
-  this.stack()
-
-  this.wiki( wiki )
-
-  this.groupEnd()
-
-}
-
-d3plus.console.group = function( message ) {
-
-  this( "group" , message , "color:#888;" )
-
-}
-
-d3plus.console.groupCollapsed = function( message ) {
-
-  this( "groupCollapsed" , message , "color:#888;" )
-
-}
-
-d3plus.console.groupEnd = function() {
-  if ( !d3plus.ie ) {
-    console.groupEnd()
-  }
-}
-
-d3plus.console.log = function( message ) {
-
-  this( "log" , message , "color:#444444;" )
-
-}
-
-d3plus.console.stack = function() {
-
-  if ( !d3plus.ie ) {
-
-    var err = new Error()
-
-    if ( err.stack ) {
-
-      var stack = err.stack.split("\n")
-
-      stack = stack.filter(function(e){
-        return e.indexOf("Error") !== 0
-            && e.indexOf("d3plus.js:") < 0
-            && e.indexOf("d3plus.min.js:") < 0
-      })
-
-      if ( stack.length ) {
-
-        var splitter = window.chrome ? "at " : "@"
-          , url = stack[0].split(splitter)[1]
-
-        stack = url.split(":")
-        if ( stack.length === 3 ) {
-          stack.pop()
-        }
-
-        var line = stack.pop()
-          , page = stack.join(":").split("/")
-
-        page = page[page.length-1]
-
-        var message = "line "+line+" of "+page+": "+url
-
-        this( "log" , message , "color:#D74B03;" )
-
-      }
-
-    }
-  }
-
-}
-
-d3plus.console.time = function( message ) {
-  if ( !d3plus.ie ) {
-    console.time( message )
-  }
-}
-
-d3plus.console.timeEnd = function( message ) {
-  if ( !d3plus.ie ) {
-    console.timeEnd( message )
-  }
-}
-
-d3plus.console.warning = function( message , wiki ) {
-
-  this( "groupCollapsed" , message , "color:#888;" )
-
-  this.stack()
-
-  this.wiki( wiki )
-
-  this.groupEnd()
-
-}
-
-d3plus.console.wiki = function( wiki ) {
-
-  if ( wiki && wiki in d3plus.wiki ) {
-    var url = d3plus.repo + "wiki/" + d3plus.wiki[wiki]
-    this( "log" , "documentation: " + url , "color:#aaa;" )
-  }
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Creates custom mouse events based on IE and Touch Devices.
-//------------------------------------------------------------------------------
-d3plus.evt = {}
-
-d3plus.touch = ('ontouchstart' in window) || window.DocumentTouch
-               && document instanceof DocumentTouch ? true : false
-
-if (d3plus.touch) {
-
-  d3plus.evt.click = "click"
-  d3plus.evt.down  = "touchstart"
-  d3plus.evt.up    = "touchend"
-  d3plus.evt.over  = "touchstart"
-  d3plus.evt.out   = "touchend"
-  d3plus.evt.move  = "touchmove"
-
-}
-else {
-
-  d3plus.evt.click = "click"
-  d3plus.evt.down  = "mousedown"
-  d3plus.evt.up    = "mouseup"
-
-  if (d3plus.ie) {
-
-    d3plus.evt.over = "mouseenter"
-    d3plus.evt.out  = "mouseleave"
-
-  }
-  else {
-
-    d3plus.evt.over = "mouseover"
-    d3plus.evt.out  = "mouseout"
-
-  }
-
-  d3plus.evt.move = "mousemove"
-
-}
-
-d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
-
-d3plus.wiki    = {
-  "active"     : "Segmenting-Data#active",
-  "aggs"       : "Custom-Aggregations",
-  "alt"        : "Alt-Text-Parameters",
-  "attrs"      : "Attribute-Data#axes",
-  "axes"       : "Axis-Parameters",
-  "background" : "Background",
-  "color"      : "Color-Parameters",
-  "container"  : "Container-Element",
-  "coords"     : "Geography-Data",
-  "csv"        : "CSV-Export",
-  "data"       : "Data-Points",
-  "depth"      : "Visible-Depth",
-  "descs"      : "Value-Definitions",
-  "dev"        : "Verbose-Mode",
-  "draw"       : "Draw",
-  "edges"      : "Edges-List",
-  "error"      : "Custom-Error-Message",
-  "focus"      : "Focus-Element",
-  "font"       : "Font-Styles",
-  "footer"     : "Custom-Footer",
-  "format"     : "Value-Formatting",
-  "height"     : "Height",
-  "history"    : "User-History",
-  "hover"      : "Hover-Element",
-  "icon"       : "Icon-Parameters",
-  "id"         : "Unique-ID",
-  "keywords"   : "Keyword-Parameters",
-  "labels"     : "Data-Labels",
-  "legend"     : "Legend",
-  "links"      : "Link-Styles",
-  "margin"     : "Outer-Margins",
-  "messages"   : "Status-Messages",
-  "method"     : "Methods",
-  "nodes"      : "Node-Positions",
-  "open"       : "Open",
-  "order"      : "Data-Ordering",
-  "remove"     : "Remove",
-  "search"     : "Search-Box",
-  "select"     : "Selecting-Elements#select",
-  "selectAll"  : "Selecting-Elements#selectall",
-  "shape"      : "Data-Shapes",
-  "size"       : "Size-Parameters",
-  "temp"       : "Segmenting-Data#temp",
-  "text"       : "Text-Parameters",
-  "time"       : "Time-Parameters",
-  "timeline"   : "Timeline",
-  "timing"     : "Animation-Timing",
-  "title"      : "Custom-Titles",
-  "tooltip"    : "Tooltip-Parameters",
-  "total"      : "Segmenting-Data#total",
-  "type"       : "Output-Type",
-  "ui"         : "Custom-Interface",
-  "width"      : "Width",
-  "x"          : "Axis-Parameters",
-  "y"          : "Axis-Parameters",
-  "zoom"       : "Zooming"
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Determines if the current browser is Internet Explorer.
-//------------------------------------------------------------------------------
-d3plus.ie = /*@cc_on!@*/false
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Calculates the correct CSS vendor prefix based on the current browser.
-//------------------------------------------------------------------------------
-d3plus.prefix = function() {
-
-  if ("-webkit-transform" in document.body.style) {
-    var val = "-webkit-"
-  }
-  else if ("-moz-transform" in document.body.style) {
-    var val = "-moz-"
-  }
-  else if ("-ms-transform" in document.body.style) {
-    var val = "-ms-"
-  }
-  else if ("-o-transform" in document.body.style) {
-    var val = "-o-"
-  }
-  else {
-    var val = ""
-  }
-
-  d3plus.prefix = function(){
-    return val
-  }
-
-  return val;
-
-}
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects right-to-left text direction on the page.
-//------------------------------------------------------------------------------
-d3plus.rtl = d3.select("html").attr("dir") == "rtl"
-
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects scrollbar width for current browser.
-//------------------------------------------------------------------------------
-d3plus.scrollbar = function() {
-
-  var inner = document.createElement("p");
-  inner.style.width = "100%";
-  inner.style.height = "200px";
-
-  var outer = document.createElement("div");
-  outer.style.position = "absolute";
-  outer.style.top = "0px";
-  outer.style.left = "0px";
-  outer.style.visibility = "hidden";
-  outer.style.width = "200px";
-  outer.style.height = "150px";
-  outer.style.overflow = "hidden";
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-  var w1 = inner.offsetWidth;
-  outer.style.overflow = "scroll";
-  var w2 = inner.offsetWidth;
-  if (w1 == w2) w2 = outer.clientWidth;
-
-  document.body.removeChild(outer);
-
-  var val = (w1 - w2)
-
-  d3plus.scrollbar = function(){
-    return val
-  }
-
-  return val;
-
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -5656,16 +5771,14 @@ d3plus.method.processData = function ( value , self ) {
 
     if ( !maybeURL && d3plus.util.d3selection( value ) ) {
 
-      self.element = value
-      return d3plus.data.element( vars )
+      return value
 
     }
     else {
 
       if ( !maybeURL && !d3.selectAll( value ).empty() ) {
 
-        self.element = d3.selectAll( value )
-        return d3plus.data.element( vars )
+        return d3.selectAll( value )
 
       }
       else {
@@ -6058,6 +6171,7 @@ d3plus.method.attrs = {
     "accepted" : [ String ],
     "value"    : "|"
   },
+  "process"  : d3plus.method.processData,
   "type"     : {
     "accepted" : [ false , "json" , "xml" ,"html"
                  , "csv" , "dsv" , "tsv" , "txt" ],
@@ -6262,6 +6376,10 @@ d3plus.method.draw = {
 
     var vars    = this.getVars()
       , changes = "history" in vars ? vars.history.chain : []
+
+    if ( "data" in vars && vars.data.value && d3plus.util.d3selection( vars.data.value ) ) {
+      vars.data.value = d3plus.data.element( vars )
+    }
 
     if ( value === undefined && typeof this.value === "function" ) {
       value = this.value
@@ -10807,7 +10925,7 @@ d3plus.shape.labels = function( vars , group ) {
 
           if (text.size() == 0 || text.html() == "") {
             delete d.d3plus_label
-            group.selectAll("text.d3plus_label, rect.d3plus_label_bg")
+            group.selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
               .call(remove)
           }
           else {
@@ -17083,6 +17201,940 @@ d3plus.input.drop.window = function ( vars , elem ) {
   }
 
 }
+
+var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
+
+floor = Math.floor, min = Math.min;
+
+
+/* 
+Default comparison function to be used
+ */
+
+defaultCmp = function(x, y) {
+  if (x < y) {
+    return -1;
+  }
+  if (x > y) {
+    return 1;
+  }
+  return 0;
+};
+
+
+/* 
+Insert item x in list a, and keep it sorted assuming a is sorted.
+
+If x is already in a, insert it to the right of the rightmost x.
+
+Optional args lo (default 0) and hi (default a.length) bound the slice
+of a to be searched.
+ */
+
+insort = function(a, x, lo, hi, cmp) {
+  var mid;
+  if (lo == null) {
+    lo = 0;
+  }
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  if (lo < 0) {
+    throw new Error('lo must be non-negative');
+  }
+  if (hi == null) {
+    hi = a.length;
+  }
+  while (lo < hi) {
+    mid = floor((lo + hi) / 2);
+    if (cmp(x, a[mid]) < 0) {
+      hi = mid;
+    } else {
+      lo = mid + 1;
+    }
+  }
+  return ([].splice.apply(a, [lo, lo - lo].concat(x)), x);
+};
+
+
+/*
+Push item onto heap, maintaining the heap invariant.
+ */
+
+heappush = function(array, item, cmp) {
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  array.push(item);
+  return _siftdown(array, 0, array.length - 1, cmp);
+};
+
+
+/*
+Pop the smallest item off the heap, maintaining the heap invariant.
+ */
+
+heappop = function(array, cmp) {
+  var lastelt, returnitem;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  lastelt = array.pop();
+  if (array.length) {
+    returnitem = array[0];
+    array[0] = lastelt;
+    _siftup(array, 0, cmp);
+  } else {
+    returnitem = lastelt;
+  }
+  return returnitem;
+};
+
+
+/*
+Pop and return the current smallest value, and add the new item.
+
+This is more efficient than heappop() followed by heappush(), and can be 
+more appropriate when using a fixed size heap. Note that the value
+returned may be larger than item! That constrains reasonable use of
+this routine unless written as part of a conditional replacement:
+    if item > array[0]
+      item = heapreplace(array, item)
+ */
+
+heapreplace = function(array, item, cmp) {
+  var returnitem;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  returnitem = array[0];
+  array[0] = item;
+  _siftup(array, 0, cmp);
+  return returnitem;
+};
+
+
+/*
+Fast version of a heappush followed by a heappop.
+ */
+
+heappushpop = function(array, item, cmp) {
+  var _ref;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  if (array.length && cmp(array[0], item) < 0) {
+    _ref = [array[0], item], item = _ref[0], array[0] = _ref[1];
+    _siftup(array, 0, cmp);
+  }
+  return item;
+};
+
+
+/*
+Transform list into a heap, in-place, in O(array.length) time.
+ */
+
+heapify = function(array, cmp) {
+  var i, _i, _j, _len, _ref, _ref1, _results, _results1;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  _ref1 = (function() {
+    _results1 = [];
+    for (var _j = 0, _ref = floor(array.length / 2); 0 <= _ref ? _j < _ref : _j > _ref; 0 <= _ref ? _j++ : _j--){ _results1.push(_j); }
+    return _results1;
+  }).apply(this).reverse();
+  _results = [];
+  for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+    i = _ref1[_i];
+    _results.push(_siftup(array, i, cmp));
+  }
+  return _results;
+};
+
+
+/*
+Update the position of the given item in the heap.
+This function should be called every time the item is being modified.
+ */
+
+updateItem = function(array, item, cmp) {
+  var pos;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  pos = array.indexOf(item);
+  if (pos === -1) {
+    return;
+  }
+  _siftdown(array, 0, pos, cmp);
+  return _siftup(array, pos, cmp);
+};
+
+
+/*
+Find the n largest elements in a dataset.
+ */
+
+nlargest = function(array, n, cmp) {
+  var elem, result, _i, _len, _ref;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  result = array.slice(0, n);
+  if (!result.length) {
+    return result;
+  }
+  heapify(result, cmp);
+  _ref = array.slice(n);
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    elem = _ref[_i];
+    heappushpop(result, elem, cmp);
+  }
+  return result.sort(cmp).reverse();
+};
+
+
+/*
+Find the n smallest elements in a dataset.
+ */
+
+nsmallest = function(array, n, cmp) {
+  var elem, i, los, result, _i, _j, _len, _ref, _ref1, _results;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  if (n * 10 <= array.length) {
+    result = array.slice(0, n).sort(cmp);
+    if (!result.length) {
+      return result;
+    }
+    los = result[result.length - 1];
+    _ref = array.slice(n);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      elem = _ref[_i];
+      if (cmp(elem, los) < 0) {
+        insort(result, elem, 0, null, cmp);
+        result.pop();
+        los = result[result.length - 1];
+      }
+    }
+    return result;
+  }
+  heapify(array, cmp);
+  _results = [];
+  for (i = _j = 0, _ref1 = min(n, array.length); 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+    _results.push(heappop(array, cmp));
+  }
+  return _results;
+};
+
+_siftdown = function(array, startpos, pos, cmp) {
+  var newitem, parent, parentpos;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  newitem = array[pos];
+  while (pos > startpos) {
+    parentpos = (pos - 1) >> 1;
+    parent = array[parentpos];
+    if (cmp(newitem, parent) < 0) {
+      array[pos] = parent;
+      pos = parentpos;
+      continue;
+    }
+    break;
+  }
+  return array[pos] = newitem;
+};
+
+_siftup = function(array, pos, cmp) {
+  var childpos, endpos, newitem, rightpos, startpos;
+  if (cmp == null) {
+    cmp = defaultCmp;
+  }
+  endpos = array.length;
+  startpos = pos;
+  newitem = array[pos];
+  childpos = 2 * pos + 1;
+  while (childpos < endpos) {
+    rightpos = childpos + 1;
+    if (rightpos < endpos && !(cmp(array[childpos], array[rightpos]) < 0)) {
+      childpos = rightpos;
+    }
+    array[pos] = array[childpos];
+    pos = childpos;
+    childpos = 2 * pos + 1;
+  }
+  array[pos] = newitem;
+  return _siftdown(array, startpos, pos, cmp);
+};
+
+Heap = (function() {
+  Heap.push = heappush;
+
+  Heap.pop = heappop;
+
+  Heap.replace = heapreplace;
+
+  Heap.pushpop = heappushpop;
+
+  Heap.heapify = heapify;
+
+  Heap.nlargest = nlargest;
+
+  Heap.nsmallest = nsmallest;
+
+  function Heap(cmp) {
+    this.cmp = cmp != null ? cmp : defaultCmp;
+    if (!(this instanceof Heap)) {
+      return new Heap(this.cmp);
+    }
+    this.nodes = [];
+  }
+
+  Heap.prototype.push = function(x) {
+    return heappush(this.nodes, x, this.cmp);
+  };
+
+  Heap.prototype.pop = function() {
+    return heappop(this.nodes, this.cmp);
+  };
+
+  Heap.prototype.peek = function() {
+    return this.nodes[0];
+  };
+
+  Heap.prototype.contains = function(x) {
+    return this.nodes.indexOf(x) !== -1;
+  };
+
+  Heap.prototype.replace = function(x) {
+    return heapreplace(this.nodes, x, this.cmp);
+  };
+
+  Heap.prototype.pushpop = function(x) {
+    return heappushpop(this.nodes, x, this.cmp);
+  };
+
+  Heap.prototype.heapify = function() {
+    return heapify(this.nodes, this.cmp);
+  };
+
+  Heap.prototype.updateItem = function(x) {
+    return updateItem(this.nodes, x, this.cmp);
+  };
+
+  Heap.prototype.clear = function() {
+    return this.nodes = [];
+  };
+
+  Heap.prototype.empty = function() {
+    return this.nodes.length === 0;
+  };
+
+  Heap.prototype.size = function() {
+    return this.nodes.length;
+  };
+
+  Heap.prototype.clone = function() {
+    var heap;
+    heap = new Heap();
+    heap.nodes = this.nodes.slice(0);
+    return heap;
+  };
+
+  Heap.prototype.toArray = function() {
+    return this.nodes.slice(0);
+  };
+
+  Heap.prototype.insert = Heap.prototype.push;
+
+  Heap.prototype.top = Heap.prototype.peek;
+
+  Heap.prototype.front = Heap.prototype.peek;
+
+  Heap.prototype.has = Heap.prototype.contains;
+
+  Heap.prototype.copy = Heap.prototype.clone;
+
+  return Heap;
+
+})();
+
+d3plus.data.heap = Heap;
+
+var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, squaredDist;
+
+d3plus.geom.largestRect = function(poly, options) {
+  var aRatio, aRatios, angle, angleRad, angleStep, angles, aspectRatioStep, aspectRatios, boxHeight, boxWidth, centroid, height, left, maxArea, maxAspectRatio, maxAspectRatioCurr, maxHeightCurr, maxRect, maxWidthCurr, maxx, maxy, minAreaTimes, minAspectRatioCurr, minSqDistH, minSqDistW, minWidth, minx, miny, modifOrigins, origOrigin, origin, origins, p1H, p1W, p2H, p2W, rectPoly, right, rndPoint, rndX, rndY, tolerance, width, widthStep, x0, y0, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+  aspectRatioStep = 0.5;
+  angleStep = 5;
+  maxAspectRatio = 15;
+  if (options == null) {
+    options = {};
+  }
+  options.nTries = options.nTries || 20;
+  if (options.angle != null) {
+    if (options.angle instanceof Array) {
+      angles = options.angle;
+    } else if (typeof options.angle === 'number') {
+      angles = [options.angle];
+    } else if (typeof options.angle === 'string' && !isNaN(options.angle)) {
+      angles = [Number(options.angle)];
+    }
+  }
+  if (angles == null) {
+    angles = d3.range(-90, 90 + angleStep, angleStep);
+  }
+  if (options.aspectRatio != null) {
+    if (options.aspectRatio instanceof Array) {
+      aspectRatios = options.aspectRatio;
+    } else if (typeof options.aspectRatio === 'number') {
+      aspectRatios = [options.aspectRatio];
+    } else if (typeof options.aspectRatio === 'string' && !isNaN(options.aspectRatio)) {
+      aspectRatios = [Number(options.aspectRatio)];
+    }
+  }
+  if (options.origin != null) {
+    if (options.origin instanceof Array) {
+      if (options.origin[0] instanceof Array) {
+        origins = options.origin;
+      } else {
+        origins = [options.origin];
+      }
+    }
+  }
+  _ref = d3.extent(poly, function(d) {
+    return d[0];
+  }), minx = _ref[0], maxx = _ref[1];
+  _ref1 = d3.extent(poly, function(d) {
+    return d[1];
+  }), miny = _ref1[0], maxy = _ref1[1];
+  tolerance = Math.min(maxx - minx, maxy - miny) / 25;
+  poly = d3plus.geom.simplify(poly, tolerance);
+  _ref2 = d3.extent(poly, function(d) {
+    return d[0];
+  }), minx = _ref2[0], maxx = _ref2[1];
+  _ref3 = d3.extent(poly, function(d) {
+    return d[1];
+  }), miny = _ref3[0], maxy = _ref3[1];
+  _ref4 = [maxx - minx, maxy - miny], boxWidth = _ref4[0], boxHeight = _ref4[1];
+  minAreaTimes = 200;
+  minWidth = Math.sqrt(boxWidth * boxHeight / minAreaTimes);
+  widthStep = boxWidth / 100;
+  if (origins == null) {
+    origins = [];
+    centroid = d3.geom.polygon(poly).centroid();
+    if (pointInPoly(centroid, poly)) {
+      origins.push(centroid);
+    }
+    while (origins.length < options.nTries) {
+      rndX = Math.random() * boxWidth + minx;
+      rndY = Math.random() * boxHeight + miny;
+      rndPoint = [rndX, rndY];
+      if (pointInPoly(rndPoint, poly)) {
+        origins.push(rndPoint);
+      }
+    }
+  }
+  maxArea = 0;
+  maxRect = null;
+  for (_i = 0, _len = angles.length; _i < _len; _i++) {
+    angle = angles[_i];
+    angleRad = -angle * Math.PI / 180;
+    for (_j = 0, _len1 = origins.length; _j < _len1; _j++) {
+      origOrigin = origins[_j];
+      _ref5 = intersectPoints(poly, origOrigin, angleRad), p1W = _ref5[0], p2W = _ref5[1];
+      _ref6 = intersectPoints(poly, origOrigin, angleRad + Math.PI / 2), p1H = _ref6[0], p2H = _ref6[1];
+      modifOrigins = [origOrigin, [(p1W[0] + p2W[0]) / 2, (p1W[1] + p2W[1]) / 2], [(p1H[0] + p2H[0]) / 2, (p1H[1] + p2H[1]) / 2]];
+      for (_k = 0, _len2 = modifOrigins.length; _k < _len2; _k++) {
+        origin = modifOrigins[_k];
+        _ref7 = intersectPoints(poly, origin, angleRad), p1W = _ref7[0], p2W = _ref7[1];
+        minSqDistW = Math.min(squaredDist(origin, p1W), squaredDist(origin, p2W));
+        maxWidthCurr = 2 * Math.sqrt(minSqDistW);
+        _ref8 = intersectPoints(poly, origin, angleRad + Math.PI / 2), p1H = _ref8[0], p2H = _ref8[1];
+        minSqDistH = Math.min(squaredDist(origin, p1H), squaredDist(origin, p2H));
+        maxHeightCurr = 2 * Math.sqrt(minSqDistH);
+        if (maxWidthCurr * maxHeightCurr < maxArea) {
+          continue;
+        }
+        if (aspectRatios != null) {
+          aRatios = aspectRatios;
+        } else {
+          minAspectRatioCurr = Math.max(1, maxArea / (maxHeightCurr * maxHeightCurr));
+          maxAspectRatioCurr = Math.min(maxAspectRatio, (maxWidthCurr * maxWidthCurr) / maxArea);
+          aRatios = d3.range(minAspectRatioCurr, maxAspectRatioCurr + aspectRatioStep, aspectRatioStep);
+        }
+        for (_l = 0, _len3 = aRatios.length; _l < _len3; _l++) {
+          aRatio = aRatios[_l];
+          left = Math.max(minWidth, Math.sqrt(maxArea * aRatio));
+          right = Math.min(maxWidthCurr, maxHeightCurr * aRatio);
+          if (right * maxHeightCurr < maxArea) {
+            continue;
+          }
+          while ((right - left) >= widthStep) {
+            width = (left + right) / 2;
+            height = width / aRatio;
+            x0 = origin[0], y0 = origin[1];
+            rectPoly = [[x0 - width / 2, y0 - height / 2], [x0 + width / 2, y0 - height / 2], [x0 + width / 2, y0 + height / 2], [x0 - width / 2, y0 + height / 2]];
+            rectPoly = rotatePoly(rectPoly, angleRad, origin);
+            if (polyInsidePoly(rectPoly, poly)) {
+              maxArea = width * height;
+              maxRect = {
+                cx: x0,
+                cy: y0,
+                width: width,
+                height: height,
+                angle: angle
+              };
+              left = width;
+            } else {
+              right = width;
+            }
+          }
+        }
+      }
+    }
+  }
+  return [maxRect, maxArea];
+};
+
+squaredDist = function(a, b) {
+  var deltax, deltay;
+  deltax = b[0] - a[0];
+  deltay = b[1] - a[1];
+  return deltax * deltax + deltay * deltay;
+};
+
+rayIntersectsSegment = function(p, p1, p2) {
+  var a, b, mAB, mAP, _ref;
+  _ref = p1[1] < p2[1] ? [p1, p2] : [p2, p1], a = _ref[0], b = _ref[1];
+  if (p[1] === b[1] || p[1] === a[1]) {
+    p[1] += Number.MIN_VALUE;
+  }
+  if (p[1] > b[1] || p[1] < a[1]) {
+    return false;
+  } else if (p[0] > a[0] && p[0] > b[0]) {
+    return false;
+  } else if (p[0] < a[0] && p[0] < b[0]) {
+    return true;
+  } else {
+    mAB = (b[1] - a[1]) / (b[0] - a[0]);
+    mAP = (p[1] - a[1]) / (p[0] - a[0]);
+    return mAP > mAB;
+  }
+};
+
+pointInPoly = function(p, poly) {
+  var a, b, c, i, n;
+  i = -1;
+  n = poly.length;
+  b = poly[n - 1];
+  c = 0;
+  while (++i < n) {
+    a = b;
+    b = poly[i];
+    if (rayIntersectsSegment(p, a, b)) {
+      c++;
+    }
+  }
+  return c % 2 !== 0;
+};
+
+pointInSegmentBox = function(p, p1, q1) {
+  var eps, px, py;
+  eps = 1e-9;
+  px = p[0], py = p[1];
+  if (px < Math.min(p1[0], q1[0]) - eps || px > Math.max(p1[0], q1[0]) + eps || py < Math.min(p1[1], q1[1]) - eps || py > Math.max(p1[1], q1[1]) + eps) {
+    return false;
+  }
+  return true;
+};
+
+lineIntersection = function(p1, q1, p2, q2) {
+  var cross1, cross2, denom, dx1, dx2, dy1, dy2, eps, px, py;
+  eps = 1e-9;
+  dx1 = p1[0] - q1[0];
+  dy1 = p1[1] - q1[1];
+  dx2 = p2[0] - q2[0];
+  dy2 = p2[1] - q2[1];
+  denom = dx1 * dy2 - dy1 * dx2;
+  if (Math.abs(denom) < eps) {
+    return null;
+  }
+  cross1 = p1[0] * q1[1] - p1[1] * q1[0];
+  cross2 = p2[0] * q2[1] - p2[1] * q2[0];
+  px = (cross1 * dx2 - cross2 * dx1) / denom;
+  py = (cross1 * dy2 - cross2 * dy1) / denom;
+  return [px, py];
+};
+
+segmentsIntersect = function(p1, q1, p2, q2) {
+  var p;
+  p = lineIntersection(p1, q1, p2, q2);
+  if (p == null) {
+    return false;
+  }
+  return pointInSegmentBox(p, p1, q1) && pointInSegmentBox(p, p2, q2);
+};
+
+polyInsidePoly = function(polyA, polyB) {
+  var aA, aB, bA, bB, iA, iB, nA, nB;
+  iA = -1;
+  nA = polyA.length;
+  nB = polyB.length;
+  bA = polyA[nA - 1];
+  while (++iA < nA) {
+    aA = bA;
+    bA = polyA[iA];
+    iB = -1;
+    bB = polyB[nB - 1];
+    while (++iB < nB) {
+      aB = bB;
+      bB = polyB[iB];
+      if (segmentsIntersect(aA, bA, aB, bB)) {
+        return false;
+      }
+    }
+  }
+  return pointInPoly(polyA[0], polyB);
+};
+
+rotatePoint = function(p, alpha, origin) {
+  var cosAlpha, sinAlpha, xshifted, yshifted;
+  if (origin == null) {
+    origin = [0, 0];
+  }
+  xshifted = p[0] - origin[0];
+  yshifted = p[1] - origin[1];
+  cosAlpha = Math.cos(alpha);
+  sinAlpha = Math.sin(alpha);
+  return [cosAlpha * xshifted - sinAlpha * yshifted + origin[0], sinAlpha * xshifted + cosAlpha * yshifted + origin[1]];
+};
+
+rotatePoly = function(poly, alpha, origin) {
+  var point, _i, _len, _results;
+  _results = [];
+  for (_i = 0, _len = poly.length; _i < _len; _i++) {
+    point = poly[_i];
+    _results.push(rotatePoint(point, alpha, origin));
+  }
+  return _results;
+};
+
+intersectPoints = function(poly, origin, alpha) {
+  var a, b, closestPointLeft, closestPointRight, eps, i, idx, minSqDistLeft, minSqDistRight, n, p, shiftedOrigin, sqDist, x0, y0;
+  eps = 1e-9;
+  origin = [origin[0] + eps * Math.cos(alpha), origin[1] + eps * Math.sin(alpha)];
+  x0 = origin[0], y0 = origin[1];
+  shiftedOrigin = [x0 + Math.cos(alpha), y0 + Math.sin(alpha)];
+  idx = 0;
+  if (Math.abs(shiftedOrigin[0] - x0) < eps) {
+    idx = 1;
+  }
+  i = -1;
+  n = poly.length;
+  b = poly[n - 1];
+  minSqDistLeft = Number.MAX_VALUE;
+  minSqDistRight = Number.MAX_VALUE;
+  closestPointLeft = null;
+  closestPointRight = null;
+  while (++i < n) {
+    a = b;
+    b = poly[i];
+    p = lineIntersection(origin, shiftedOrigin, a, b);
+    if ((p != null) && pointInSegmentBox(p, a, b)) {
+      sqDist = squaredDist(origin, p);
+      if (p[idx] < origin[idx]) {
+        if (sqDist < minSqDistLeft) {
+          minSqDistLeft = sqDist;
+          closestPointLeft = p;
+        }
+      } else if (p[idx] > origin[idx]) {
+        if (sqDist < minSqDistRight) {
+          minSqDistRight = sqDist;
+          closestPointRight = p;
+        }
+      }
+    }
+  }
+  return [closestPointLeft, closestPointRight];
+};
+
+d3plus.network.normalize = function(edges, source, target, directed, distance, nodeid, startpoint, endpoint, K) {
+  var a, b, edge, edge2distance, errormsg, i, id, id1, idA, idB, node, nodeA, nodeB, nodes, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+  if (K == null) {
+    K = 1;
+  }
+  if (nodeid == null) {
+    nodeid = function(node) {
+      return node;
+    };
+  } else if (typeof nodeid === 'string') {
+    nodeid = (function(nodeid) {
+      return function(node) {
+        return node[nodeid];
+      };
+    })(nodeid);
+  }
+  if ((source != null) && typeof source === 'object') {
+    source = nodeid(source);
+  }
+  if ((target != null) && typeof target === 'object') {
+    target = nodeid(target);
+  }
+  if (startpoint == null) {
+    startpoint = function(edge) {
+      return edge.source;
+    };
+  } else if (typeof startpoint === 'string') {
+    startpoint = (function(startpoint) {
+      return function(edge) {
+        return edge[startpoint];
+      };
+    })(startpoint);
+  }
+  if (endpoint == null) {
+    endpoint = function(edge) {
+      return edge.target;
+    };
+  } else if (typeof endpoint === 'string') {
+    endpoint = (function(endpoint) {
+      return function(edge) {
+        return edge[endpoint];
+      };
+    })(endpoint);
+  }
+  if (distance == null) {
+    distance = function(edge) {
+      return 1;
+    };
+  } else if (typeof distance === 'number') {
+    distance = (function(distance) {
+      return function(edge) {
+        return distance;
+      };
+    })(distance);
+  } else if (typeof distance === 'string') {
+    distance = (function(distance) {
+      return function(edge) {
+        return edge[distance];
+      };
+    })(distance);
+  } else if (distance instanceof Array) {
+    edge2distance = {};
+    for (i = _i = 0, _len = edges.length; _i < _len; i = ++_i) {
+      edge = edges[i];
+      a = nodeid(startpoint(edge));
+      b = nodeid(endpoint(edge));
+      edge2distance[a + '_' + b] = distance[i];
+    }
+    distance = function(edge) {
+      a = nodeid(startpoint(edge));
+      b = nodeid(endpoint(edge));
+      return edge2distance[a + '_' + b];
+    };
+  }
+  nodes = {};
+  for (_j = 0, _len1 = edges.length; _j < _len1; _j++) {
+    edge = edges[_j];
+    nodeA = startpoint(edge);
+    nodeB = endpoint(edge);
+    idA = nodeid(nodeA);
+    idB = nodeid(nodeB);
+    _ref = [nodeA, nodeB];
+    for (_k = 0, _len2 = _ref.length; _k < _len2; _k++) {
+      node = _ref[_k];
+      id = nodeid(node);
+      if (!(id in nodes)) {
+        nodes[id] = {
+          node: node,
+          outedges: []
+        };
+      }
+    }
+    nodes[idA].outedges.push(edge);
+    if (!directed) {
+      nodes[idB].outedges.push(edge);
+    }
+  }
+  errormsg = null;
+  if (edges.length === 0) {
+    errormsg = 'The length of edges is 0';
+  } else if (K < 0) {
+    errormsg = 'K can not have negative value';
+  } else if (distance(edges[0]) == null) {
+    errormsg = 'Check the distance function/attribute';
+  } else if (startpoint(edges[0]) == null) {
+    errormsg = 'Check the startpoint function/attribute';
+  } else if (endpoint(edges[0]) == null) {
+    errormsg = 'Check the endpoint function/attribute';
+  } else {
+    id1 = nodeid(startpoint(edges[0]));
+    if ((id1 == null) || ((_ref1 = typeof id1) !== 'string' && _ref1 !== 'number')) {
+      errormsg = 'Check the nodeid function/attribute';
+    } else if (!(source in nodes)) {
+      errormsg = 'The source is not in the graph';
+    } else if ((target != null) && !(target in nodes)) {
+      errormsg = 'The target is not in the graph';
+    }
+  }
+  if (errormsg != null) {
+    d3plus.console.error(errormsg);
+    return null;
+  }
+  return [edges, source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes];
+};
+
+d3plus.network.shortestPath = function(edges, source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes) {
+  var a, alt, b, edge, getPath, heap, id, input, maxsize, node, path, res, result, u, visited, _i, _j, _len, _len1, _ref, _ref1;
+  if ((nodes == null) || typeof nodes !== 'object') {
+    input = d3plus.network.normalize(edges, source, target, directed, distance, nodeid, startpoint, endpoint, K);
+    if (input === null) {
+      return null;
+    }
+    edges = input[0], source = input[1], target = input[2], directed = input[3], distance = input[4], nodeid = input[5], startpoint = input[6], endpoint = input[7], K = input[8], nodes = input[9];
+  }
+  for (id in nodes) {
+    node = nodes[id];
+    node.count = 0;
+  }
+  heap = new d3plus.data.heap(function(a, b) {
+    return a.distance - b.distance;
+  });
+  visited = {};
+  if (target == null) {
+    visited[source] = true;
+  }
+  heap.push({
+    edge: null,
+    target: source,
+    distance: 0
+  });
+  maxsize = 0;
+  result = [];
+  while (!heap.empty()) {
+    maxsize = Math.max(maxsize, heap.size());
+    path = heap.pop();
+    u = path.target;
+    nodes[u].count++;
+    if (target == null) {
+      result.push(path);
+    } else if (u === target) {
+      result.push(path);
+    }
+    if (result.length === K) {
+      break;
+    }
+    if (nodes[u].count <= K) {
+      _ref = nodes[u].outedges;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        edge = _ref[_i];
+        a = nodeid(startpoint(edge));
+        b = nodeid(endpoint(edge));
+        if (!directed && b === u) {
+          _ref1 = [b, a], a = _ref1[0], b = _ref1[1];
+        }
+        if (target == null) {
+          if (visited[b]) {
+            continue;
+          }
+          visited[b] = true;
+        }
+        alt = path.distance + distance(edge);
+        heap.push({
+          edge: edge,
+          previous: path,
+          target: b,
+          distance: alt
+        });
+      }
+    }
+  }
+  getPath = function(path) {
+    edges = [];
+    while (path.edge != null) {
+      edges.push(path.edge);
+      path = path.previous;
+    }
+    return edges.reverse();
+  };
+  for (_j = 0, _len1 = result.length; _j < _len1; _j++) {
+    res = result[_j];
+    if (target != null) {
+      delete res.target;
+      res.edges = getPath(res);
+    }
+    delete res.edge;
+    delete res.previous;
+  }
+  return result;
+};
+
+d3plus.network.subgraph = function(edges, source, K, directed, distance, nodeid, startpoint, endpoint, nodes) {
+  var dfs, edge, id, input, target, visited;
+  if ((nodes == null) || typeof nodes !== 'object') {
+    input = d3plus.network.normalize(edges, source, null, directed, distance, nodeid, startpoint, endpoint, K);
+    if (input === null) {
+      return null;
+    }
+    if (typeof input === 'string') {
+      return input;
+    }
+    edges = input[0], source = input[1], target = input[2], directed = input[3], distance = input[4], nodeid = input[5], startpoint = input[6], endpoint = input[7], K = input[8], nodes = input[9];
+  }
+  visited = {};
+  visited[source] = true;
+  dfs = function(origin, curr_distance) {
+    var a, b, edge, new_distance, _i, _len, _ref, _ref1, _results;
+    _ref = nodes[origin].outedges;
+    _results = [];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      edge = _ref[_i];
+      a = nodeid(startpoint(edge));
+      b = nodeid(endpoint(edge));
+      if (!directed && b === origin) {
+        _ref1 = [b, a], a = _ref1[0], b = _ref1[1];
+      }
+      if (!(b in visited)) {
+        new_distance = curr_distance + distance(edge);
+        if (new_distance <= K) {
+          visited[b] = true;
+          _results.push(dfs(b, new_distance));
+        } else {
+          _results.push(void 0);
+        }
+      } else {
+        _results.push(void 0);
+      }
+    }
+    return _results;
+  };
+  dfs(source, 0);
+  return {
+    nodes: (function() {
+      var _results;
+      _results = [];
+      for (id in visited) {
+        _results.push(nodes[id].node);
+      }
+      return _results;
+    })(),
+    edges: (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = edges.length; _i < _len; _i++) {
+        edge = edges[_i];
+        if (nodeid(startpoint(edge)) in visited && nodeid(endpoint(edge)) in visited) {
+          _results.push(edge);
+        }
+      }
+      return _results;
+    })()
+  };
+};
 
 
 })();
