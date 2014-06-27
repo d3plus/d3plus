@@ -1,14 +1,14 @@
 d3plus.data.element = function( vars ) {
 
+  var attributes = [ vars.color.value
+                   , vars.icon.value
+                   , vars.keywords.value
+                   , vars.alt.value
+                   , "style" ]
+
+  attributes = attributes.concat(vars.id.nesting)
+
   function get_attributes( obj , elem ) {
-
-    var attributes = [ vars.color.value
-                     , vars.icon.value
-                     , vars.id.value
-                     , vars.keywords.value
-                     , vars.alt.value
-                     , "style" ];
-
     [].forEach.call(elem.attributes, function(attr) {
         if (/^data-/.test(attr.name)) {
             var camelCaseName = attr.name.substr(5).replace(/-(.)/g, function ($0, $1) {
@@ -53,7 +53,13 @@ d3plus.data.element = function( vars ) {
         elementData.push(data_obj)
 
         if (this.selected) {
-          vars.focus.value = data_obj[vars.id.value]
+          for (var i = vars.id.nesting.length-1; i >= 0; i--) {
+            var level = vars.id.nesting[i]
+            if (level in data_obj) {
+              vars.self.focus(data_obj[level])
+              break
+            }
+          }
         }
 
       })

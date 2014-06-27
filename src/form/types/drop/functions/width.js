@@ -4,6 +4,21 @@
 //------------------------------------------------------------------------------
 d3plus.input.drop.width = function ( vars ) {
 
+  var data = [], buffer = 0
+  for ( var level in vars.data.nested.all ) {
+    var newData = vars.data.nested.all[level]
+      , key     = d3plus.object.validate(vars.text.nesting) && level in vars.text.nesting
+                ? vars.text.nesting[level][0] : level
+
+    if ( [vars.id.value,vars.text.value].indexOf(key) < 0 ) {
+      newData = d3plus.util.copy(newData)
+      newData.forEach(function(d){
+        d[vars.text.value || vars.id.value] = d[key]
+      })
+    }
+    data = data.concat( newData )
+  }
+
   function getWidth( type ) {
 
     var key  = type === "primary" ? "value" : type
@@ -16,10 +31,10 @@ d3plus.input.drop.width = function ( vars ) {
     if ( vars.dev.value ) d3plus.console.time("calculating "+type+" width")
 
     var button = d3plus.form()
-      .container(d3plus.font.tester())
+      .container( d3plus.font.tester() )
       .data({
         "large": 9999,
-        "value": vars.data.value
+        "value": data
       })
       .draw({ "update": false })
       .font( font )
@@ -28,7 +43,7 @@ d3plus.input.drop.width = function ( vars ) {
       .timing({
         "ui": 0
       })
-      .text( text )
+      .text( text || vars.id.value )
       .type( "button" )
       .ui({
         "border": 0,

@@ -5,14 +5,14 @@ d3plus.input.auto = function( vars ) {
 
   var dataLength = vars.data.value.length
 
-  if ( dataLength == 1 ) {
-    d3plus.input.button( vars )
+  if ( dataLength === 1 ) {
+    vars.self.type("button").draw()
   }
   else if ( dataLength < 5 ) {
-    d3plus.input.toggle( vars )
+    vars.self.type("toggle").draw()
   }
   else {
-    d3plus.input.drop( vars )
+    vars.self.type("drop").draw()
   }
 
 }

@@ -11,14 +11,14 @@ d3plus.input.toggle = function( vars ) {
 
   }
 
-  var dataLength  = vars.data.value.length
+  var dataLength  = vars.data.app.length
     , buttonWidth = vars.width.value
                   ? vars.width.value/dataLength
                   : false
 
   vars.container.buttons
     .color(vars.color)
-    .data(vars.data.value)
+    .data(vars.data.app)
     .icon({
       "select": false,
       "value": vars.icon.value

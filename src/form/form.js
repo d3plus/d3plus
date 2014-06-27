@@ -28,12 +28,25 @@ d3plus.form = function() {
     //--------------------------------------------------------------------------
     if ( vars.data.value instanceof Array ) {
 
+      if ( vars.dev.value ) d3plus.console.groupCollapsed("drawing \""+vars.type.value+"\"")
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Analyze new data, if changed.
+      //------------------------------------------------------------------------
+      if ( vars.data.changed ) {
+        vars.data.cache = {}
+        d3plus.data.keys( vars , "data" )
+        d3plus.data.format( vars )
+      }
+
+      vars.data.app = d3plus.data.fetch( vars )
+
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
       //------------------------------------------------------------------------
       if ( vars.data.changed || vars.order.changed || vars.order.sort.changed ) {
 
-        d3plus.array.sort( vars.data.value , vars.order.value || vars.text.value
+        d3plus.array.sort( vars.data.app , vars.order.value || vars.text.value
                          , vars.order.sort.value , vars.color.value , vars )
 
       }
@@ -41,10 +54,24 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( !vars.focus.value && vars.data.value.length ) {
+      if ( !vars.focus.value && vars.data.app.length ) {
 
-        vars.focus.value = vars.data.value[0][vars.id.value]
+        vars.focus.value = vars.data.app[0][vars.id.value]
         if ( vars.dev.value ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+
+      }
+
+      function getLevel(d,depth) {
+
+        var depth = typeof depth !== "number" ? vars.id.nesting.length-1 : depth
+          , level = vars.id.nesting[depth]
+
+        if ( !(level in d) || d[level] instanceof Array ) {
+          return getLevel(d,depth-1)
+        }
+        else {
+          return level
+        }
 
       }
 
@@ -58,7 +85,7 @@ d3plus.form = function() {
         //----------------------------------------------------------------------
         if ( vars.search.value === "auto" ) {
 
-          if (vars.data.value.length > 10) {
+          if (vars.data.app.length > 10) {
             vars.search.enabled = true
             if ( vars.dev.value ) d3plus.console.log("Search enabled.")
           }
@@ -81,9 +108,14 @@ d3plus.form = function() {
                        ? vars.data.element.node().tagName.toLowerCase() : ""
         if ( vars.data.element && elementTag === "select" ) {
 
+          var optionData = []
+          for (var level in vars.data.nested.all) {
+            optionData = optionData.concat(vars.data.nested.all[level])
+          }
+
           options = vars.data.element.selectAll("option")
-            .data(vars.data.value,function(d){
-              return d ? d[vars.id.value] : false
+            .data(optionData,function(d){
+              return d ? d[getLevel(d)] : false
             })
 
           options.exit().remove()
@@ -93,19 +125,31 @@ d3plus.form = function() {
           options
             .each(function(d){
 
+              var level   = getLevel(d)
+                , textKey = level === vars.id.value ? vars.text.value || vars.id.value
+                          : vars.text.nesting !== true && level in vars.text.nesting
+                          ? vars.text.nesting[level] : level
+
               for ( var k in d ) {
-                if ( k === vars.text.value ) {
-                  d3.select(this).html(d[k])
+
+                if ( typeof d[k] !== "object" ) {
+
+                  if ( k === textKey ) {
+                    d3.select(this).html(d[k])
+                  }
+
+                  if ( ["alt","value"].indexOf(k) >= 0 ) {
+                    d3.select(this).attr(k,d[k])
+                  }
+                  else {
+                    d3.select(this).attr("data-"+k,d[k])
+                  }
+
                 }
-                if ( ["alt","value"].indexOf(k) >= 0 ) {
-                  d3.select(this).attr(k,d[k])
-                }
-                else {
-                  d3.select(this).attr("data-"+k,d[k])
-                }
+
               }
 
-              if (d[vars.id.value] === vars.focus.value) {
+              if (d[level] === vars.focus.value) {
                 this.selected = true
               }
               else {
@@ -117,78 +161,100 @@ d3plus.form = function() {
         }
 
       }
+      else if (vars.focus.changed && vars.data.element) {
+        var elementTag = vars.data.element.node().tagName.toLowerCase()
+        if (elementTag === "select") {
+          vars.data.element.selectAll("option")
+            .each(function(d){
+              var level = getLevel(d)
+              if (d[level] === vars.focus.value) {
+                this.selected = true
+              }
+              else {
+                this.selected = false
+              }
+            })
+        }
+      }
 
-      if (vars.draw.first) {
+      if ( vars.type.value !== "auto" ) {
 
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // Select container DIV for UI element
-        //----------------------------------------------------------------------
-        vars.container.ui = vars.container.value
-          .selectAll("div#d3plus_"+vars.type.value+"_"+vars.container.id)
-          .data(["container"])
+        if ( !vars.container.ui ) {
 
-        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-        // Create container DIV for UI element
-        //----------------------------------------------------------------------
-        var before = vars.data.element ? vars.data.element[0][0] : null
+          //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          // Select container DIV for UI element
+          //----------------------------------------------------------------------
+          vars.container.ui = vars.container.value
+            .selectAll("div#d3plus_"+vars.type.value+"_"+vars.container.id)
+            .data(["container"])
 
-        if ( before ) {
+          //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+          // Create container DIV for UI element
+          //----------------------------------------------------------------------
+          var before = vars.data.element ? vars.data.element[0][0] : null
 
-          if ( before.id ) {
-            before = "#"+before.id
-          }
-          else {
+          if ( before ) {
 
-            var id = before.getAttribute(vars.id.value)
-                   ? vars.id.value : "data-"+vars.id.value
-
-            if ( before.getAttribute(id) ) {
-              before = "["+id+"="+before.getAttribute(id)+"]"
+            if ( before.id ) {
+              before = "#"+before.id
             }
             else {
-              before = null
+
+              var id = before.getAttribute(vars.id.value)
+                     ? vars.id.value : "data-"+vars.id.value
+
+              if ( before.getAttribute(id) ) {
+                before = "["+id+"="+before.getAttribute(id)+"]"
+              }
+              else {
+                before = null
+              }
+
             }
 
           }
+
+          vars.container.ui.enter()
+            .insert("div",before)
+            .attr("id","d3plus_"+vars.type.value+"_"+vars.container.id)
+            .style("position","relative")
+            .style("overflow","visible")
+            .style("vertical-align","top")
 
         }
 
-        vars.container.ui.enter()
-          .insert("div",before)
-          .attr("id","d3plus_"+vars.type.value+"_"+vars.container.id)
-          .style("position","relative")
-          .style("overflow","visible")
-          .style("vertical-align","top")
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Update Container
+        //------------------------------------------------------------------------
+        vars.container.ui.transition().duration(vars.draw.timing)
+          .style("display",vars.ui.display.value)
+          .style("margin",vars.ui.margin+"px")
+
+        //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        // Create title, if available.
+        //------------------------------------------------------------------------
+        var title = vars.container.ui.selectAll("div.d3plus_title")
+          .data(vars.title.value ? [vars.title.value] : [])
+
+        title.enter().insert("div","#d3plus_"+vars.type.value+"_"+vars.container.id)
+          .attr("class","d3plus_title")
+
+        title
+          .style("display",vars.ui.display.value)
+          .style("color",vars.font.color)
+          .style("font-family",vars.font.family.value)
+          .style("font-size",vars.font.size+"px")
+          .style("font-weight",vars.font.weight)
+          .style("padding",vars.ui.padding+"px")
+          .style("border-color","transparent")
+          .style("border-style","solid")
+          .style("border-width",vars.ui.border+"px")
+          .text(String)
+          .each(function(d){
+            vars.margin.left = this.offsetWidth
+          })
 
       }
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Update Container
-      //------------------------------------------------------------------------
-      vars.container.ui.transition().duration(vars.draw.timing)
-        .style("display",vars.ui.display.value)
-        .style("margin",vars.ui.margin+"px")
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // Create title, if available.
-      //------------------------------------------------------------------------
-      var title = vars.container.ui.selectAll("div.d3plus_title")
-        .data(vars.title.value ? [vars.title.value] : [])
-
-      title.enter().insert("div","#d3plus_"+vars.type.value+"_"+vars.container.id)
-        .attr("class","d3plus_title")
-
-      title.transition().duration(vars.draw.timing)
-        .style("display",vars.ui.display.value)
-        .style("color",vars.font.color)
-        .style("font-family",vars.font.family.value)
-        .style("font-size",vars.font.size+"px")
-        .style("font-weight",vars.font.weight)
-        .style("padding",vars.ui.padding+"px")
-        .style("border-color","transparent")
-        .style("border-style","solid")
-        .style("border-width",vars.ui.border+"px")
-        .text(String)
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Call specific UI element type, if there is data.
@@ -213,6 +279,8 @@ d3plus.form = function() {
       d3plus.data.reset( vars )
       vars.methodGroup = false
 
+      if ( vars.dev.value ) d3plus.console.groupEnd()
+
     }
 
   }
@@ -220,10 +288,11 @@ d3plus.form = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define methods and expose public variables.
   //----------------------------------------------------------------------------
-  var methods = [ "alt" , "color" , "container" , "depth" , "dev" , "data" , "draw"
-                , "focus" , "format" , "height" , "hover" , "icon" , "id"
-                , "keywords" , "open" , "order" , "remove" , "search"
-                , "select" , "selectAll" , "text" , "title" , "type" , "width" ]
+  var methods = [ "active" , "aggs" , "alt" , "color" , "container" , "depth"
+                , "dev" , "data" , "draw" , "focus" , "format" , "height"
+                , "history" , "hover" , "icon" , "id" , "keywords" , "margin"
+                , "open" , "order" , "remove" , "search" , "select"
+                , "selectAll" , "text" , "title" , "type" , "width" ]
     , styles  = [ "data" , "font" , "icon" , "timing" , "title" , "ui" ]
 
   d3plus.method( vars , methods , styles )

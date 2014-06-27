@@ -1,4 +1,17 @@
 d3plus.style.default.icon = {
+  "back"   : {
+    "accepted" : [ false , String ],
+    "fallback" : "&#x276e;",
+    "opacity"  : 1,
+    "process"  : function ( value ) {
+
+      var fallback = this.fallback
+      return d3plus.style.default.icon.fontCheck( value , fallback )
+
+    },
+    "rotate"   : 0,
+    "value"    : "fa-angle-left"
+  },
   "button" : {
     "accepted" : [ false , String ],
     "fallback" : false,
@@ -36,6 +49,19 @@ d3plus.style.default.icon = {
       return fallback
     }
 
+  },
+  "next"   : {
+    "accepted" : [ false , String ],
+    "fallback" : "&#x276f;",
+    "opacity"  : 1,
+    "process"  : function ( value ) {
+
+      var fallback = this.fallback
+      return d3plus.style.default.icon.fontCheck( value , fallback )
+
+    },
+    "rotate"   : 0,
+    "value"    : "fa-angle-right"
   },
   "select" : {
     "accepted" : [ false , String ],

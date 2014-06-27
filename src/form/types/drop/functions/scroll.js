@@ -68,7 +68,7 @@ d3plus.input.drop.scroll = function ( vars ) {
 
       if (hidden) vars.container.selector.style("display","none")
 
-      if (hidden || vars.data.changed) {
+      if ( hidden || vars.data.changed || vars.depth.changed ) {
 
         vars.container.listScroll = button_top
 

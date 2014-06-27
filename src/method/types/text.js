@@ -10,11 +10,9 @@ d3plus.method.text = {
     if ( vars.shell === "textwrap" ) {
       var s = this.split
       this.break = new RegExp("[^\\s\\"+s.join("\\")+"]+\\"+s.join("?\\")+"?","g")
-      return false
     }
-    else {
-      return "text"
-    }
+
+    return false
 
   },
   "nesting"    : true,

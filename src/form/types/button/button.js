@@ -9,7 +9,7 @@ d3plus.input.button = function( vars ) {
   // Bind Data to Buttons
   //----------------------------------------------------------------------------
   var button = vars.container.ui.selectAll("div.d3plus_node")
-    .data(vars.data.value,function(d){
+    .data(vars.data.app,function(d){
       return d[vars.id.value]
     })
 

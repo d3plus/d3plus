@@ -9,13 +9,8 @@ d3plus.input.drop.button = function ( vars ) {
 
     if ( vars.dev.value ) d3plus.console.time("creating main button")
 
-    var buttonData = d3plus.util.copy(vars.data.value.filter(function(d){
-      return d[vars.id.value] === vars.focus.value
-    })[0])
-
     vars.container.button = d3plus.form()
       .container(vars.container.ui)
-      .data([buttonData])
       .type("button")
       .ui({
         "margin": 0
@@ -24,14 +19,28 @@ d3plus.input.drop.button = function ( vars ) {
     if ( vars.dev.value ) d3plus.console.timeEnd("creating main button")
 
   }
-  else if ( vars.data.changed ) {
+
+  if ( vars.focus.changed || vars.data.changed || vars.depth.changed ) {
+
+    var depth = vars.depth.value
 
     var buttonData = d3plus.util.copy(vars.data.value.filter(function(d){
-      return d[vars.id.value] === vars.focus.value
+      var match = false
+      for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
+        var level = vars.id.nesting[i]
+        match = level in d && d[level] === vars.focus.value
+        if (match) {
+          depth = i
+          break
+        }
+      }
+      return match
     })[0])
 
     vars.container.button
       .data([buttonData])
+      .id( vars.id.nesting )
+      .depth(depth)
 
   }
 
@@ -45,8 +54,7 @@ d3plus.input.drop.button = function ( vars ) {
       "select": vars.icon.drop.value,
       "value": vars.icon.value
     })
-    .id(vars.id.value)
-    .text( vars.text.value || vars.text.secondary )
+    .text( vars.text.value )
     .timing({
       "ui": vars.draw.timing
     })
@@ -57,8 +65,10 @@ d3plus.input.drop.button = function ( vars ) {
     .width(vars.width.value)
     .draw()
 
+  vars.margin.top += vars.container.button.container(Object).ui.node().offsetHeight
+
   vars.container.button.container(Object).ui.on(d3plus.evt.click,function(){
-    self.toggle(vars)
+    vars.self.open(!vars.open.value).draw()
   })
 
 }

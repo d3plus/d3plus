@@ -22,7 +22,7 @@ d3plus.input.drop.element = function ( vars ) {
     })
 
     vars.data.element.on("change."+vars.container.id,function(){
-      vars.self.value(vars.data.value[this.selectedIndex])
+      vars.self.focus(this.value).draw()
     })
 
     vars.data.element.on("keydown.cancel_"+vars.container.id,function(){
