@@ -37,6 +37,10 @@ d3plus.input.drop.button = function ( vars ) {
       return match
     })[0])
 
+    if ( !buttonData ) {
+      buttonData = vars.container.button.data()[0] || vars.data.app[0]
+    }
+
     vars.container.button
       .data([buttonData])
       .id( vars.id.nesting )
@@ -51,6 +55,7 @@ d3plus.input.drop.button = function ( vars ) {
     .focus(vars.focus.value)
     .font( vars.font )
     .icon({
+      "button": vars.icon.drop.value,
       "select": vars.icon.drop.value,
       "value": vars.icon.value
     })

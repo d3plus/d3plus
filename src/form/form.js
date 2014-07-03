@@ -55,7 +55,6 @@ d3plus.form = function() {
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
       if ( !vars.focus.value && vars.data.app.length ) {
-
         vars.focus.value = vars.data.app[0][vars.id.value]
         if ( vars.dev.value ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
 
@@ -63,10 +62,11 @@ d3plus.form = function() {
 
       function getLevel(d,depth) {
 
-        var depth = typeof depth !== "number" ? vars.id.nesting.length-1 : depth
+        var depth = typeof depth !== "number" ? vars.id.nesting.length === 1
+                  ? 0 : vars.id.nesting.length-1 : depth
           , level = vars.id.nesting[depth]
 
-        if ( !(level in d) || d[level] instanceof Array ) {
+        if ( depth > 0 && (!(level in d) || d[level] instanceof Array) ) {
           return getLevel(d,depth-1)
         }
         else {
@@ -115,7 +115,8 @@ d3plus.form = function() {
 
           options = vars.data.element.selectAll("option")
             .data(optionData,function(d){
-              return d ? d[getLevel(d)] : false
+              var level = getLevel(d)
+              return d && level in d ? d[level] : false
             })
 
           options.exit().remove()
