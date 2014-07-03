@@ -14,6 +14,8 @@ d3plus.method.format = {
         returnObject = d3plus.object.merge( returnObject , d3plus.locale[value] )
       }
 
+      this.language = value
+
       return returnObject
 
     },
