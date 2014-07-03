@@ -1132,6 +1132,14 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
         var keyValues = leaves.length === 1 ? leaves[0][key]
                       : d3plus.util.uniques( leaves , key )
 
+        if ( keyValues.length === 1 && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
+          var vals = []
+          leaves.forEach(function(d){
+            vals = vals.concat(d[key])
+          })
+          var keyValues = d3plus.util.uniques(vals,key)
+        }
+
         if ( keyValues ) {
 
           if ( !(keyValues instanceof Array) ) {
@@ -3333,6 +3341,14 @@ d3plus.tooltip.app = function(params) {
       if ( nameList instanceof Array ) {
 
         nameList = nameList.slice(0)
+
+        if ( d3plus.object.validate(nameList[0]) ) {
+          var vals = []
+          nameList.forEach(function(d){
+            vals = vals.concat(d[nestKey])
+          })
+          nameList = d3plus.util.uniques(vals,nestKey)
+        }
 
         var limit       = length === "short" ? 3 : vars.data.large
           , max         = d3.min([nameList.length , limit])
