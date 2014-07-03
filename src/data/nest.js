@@ -7,7 +7,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
     , groupedData  = []
     , segments     = vars.shell === "viz"
                     ? [ "active" , "temp" , "total" ] : []
-    , requirements = requirements instanceof Array || vars.shell === "viz"
+    , requirements = requirements instanceof Array ? requirements : vars.shell === "viz"
                    ? d3plus.visualization[vars.type.value].requirements : []
     , exceptions   = vars.shell === "viz"
                    ? [ vars.time.value , vars.icon.value ] : []
