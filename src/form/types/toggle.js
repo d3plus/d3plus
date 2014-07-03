@@ -24,6 +24,7 @@ d3plus.input.toggle = function( vars ) {
   toggles.enter().append("div")
     .attr("class","d3plus_toggle")
     .style("display","inline-block")
+    .style("vertical-align","top")
 
   toggles.order()
     .each(function(d){
