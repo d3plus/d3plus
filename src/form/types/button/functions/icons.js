@@ -45,9 +45,13 @@ d3plus.input.button.icons = function ( elem , vars ) {
           return "d3plus_button_element d3plus_button_" + c + extra
         })
         .html(function(c){
-          return c === "label" ? vars.format.value(vars.text.value ? d[vars.text.value] : d[vars.id.value])
-               : c === "selected" && iconGraphic.indexOf("fa-") < 0
-               ? iconGraphic : ""
+          if ( c === "label" ) {
+            var k = vars.text.value && vars.text.value in d && !(d[vars.text.value] instanceof Array)
+                  ? vars.text.value : vars.id.value
+            return vars.format.value(d[k])
+          }
+          return c === "selected" && iconGraphic.indexOf("fa-") < 0
+                 ? iconGraphic : ""
         })
         .style("background-image",function(c){
           if (c === "icon") {
