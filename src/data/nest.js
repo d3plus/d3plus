@@ -169,7 +169,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
         var keyValues = leaves.length === 1 ? leaves[0][key]
                       : d3plus.util.uniques( leaves , key )
 
-        if ( keyValues.length === 1 && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
+        if ( keyValues instanceof Array && keyValues.length === 1 && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
           var vals = []
           leaves.forEach(function(d){
             vals = vals.concat(d[key])

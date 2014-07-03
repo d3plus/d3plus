@@ -38,16 +38,20 @@ d3plus.input.drop.title = function ( vars ) {
 
   function backStyle(elem) {
 
-    var className = vars.icon.back.value.indexOf("fa-") === 0 ? " fa "+vars.icon.back.value : ""
-    className = "d3plus_drop_back" + className
+    if ( !elem.empty() ) {
 
-    var text = vars.icon.back.value.indexOf("fa-") === 0 ? "" : vars.icon.back.value
+      var className = vars.icon.back.value.indexOf("fa-") === 0 ? " fa "+vars.icon.back.value : ""
+      className = "d3plus_drop_back" + className
 
-    elem
-      .style("position","absolute")
-      .attr("class",className)
-      .style("top",vars.ui.padding+(vars.font.secondary.size/2)/2.5+"px")
-      .text(text)
+      var text = vars.icon.back.value.indexOf("fa-") === 0 ? "" : vars.icon.back.value
+
+      elem
+        .style("position","absolute")
+        .attr("class",className)
+        .style("top",vars.ui.padding+(vars.font.secondary.size/2)/2.5+"px")
+        .html(text)
+
+    }
 
   }
 
