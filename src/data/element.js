@@ -6,6 +6,10 @@ d3plus.data.element = function( vars ) {
                    , vars.alt.value
                    , "style" ]
 
+  if (!vars.text.value) {
+    vars.self.text("text")
+  }
+
   attributes = attributes.concat(vars.id.nesting)
 
   function get_attributes( obj , elem ) {

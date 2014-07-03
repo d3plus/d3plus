@@ -63,7 +63,9 @@ d3plus.input.toggle = function( vars ) {
           "value": vars.icon.value
         })
         .font(vars.font)
+        .format(vars.format)
         .order(vars.order)
+        .text(vars.text.value)
         .ui({
           "border": vars.ui.border,
           "color": vars.ui.color,
