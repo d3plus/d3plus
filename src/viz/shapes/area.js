@@ -34,7 +34,9 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
           bottoms.push([v.d3plus.x,v.d3plus.y0])
         })
         tops = tops.concat(bottoms.reverse())
-        var lr = largestRectangle(tops)[0]
+        var lr = largestRectangle(tops,{
+          "angle": d3.range(-80,81,5)
+        })[0]
 
         if (lr) {
 
