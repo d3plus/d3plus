@@ -5,7 +5,7 @@ d3plus.input.drop.data = function ( vars ) {
 
   if ( vars.data.url && !vars.data.loaded ) {
     var loadingObject = {}
-    loadingObject[vars.text.value] = vars.format.value(vars.format.locale.value.ui.loading)
+    loadingObject[vars.text.value || vars.id.value] = vars.format.value(vars.format.locale.value.ui.loading)
     vars.data.filtered = [loadingObject]
   }
   else if (vars.open.value) {
@@ -18,18 +18,32 @@ d3plus.input.drop.data = function ( vars ) {
                       , vars.alt.value
                       , vars.keywords.value ]
 
+    searchKeys = searchKeys.filter(function(t){ return t })
     searchWords = searchWords.filter(function(t){ return t != ""; })
 
     if (!vars.text.solo.value.length || vars.text.solo.value[0] === "") {
-      vars.data.filtered = vars.data.value
+      vars.data.filtered = vars.data.app
+      if (vars.id.nesting.length > 1 && vars.depth.value < vars.id.nesting.length-1) {
+        vars.data.filtered = vars.data.filtered.filter(function(d){
+          if ("endPoint" in d.d3plus && d.d3plus.endPoint === vars.depth.value) {
+            d.d3plus.icon = false
+          }
+          return true
+        })
+      }
     }
     else {
 
       var startMatches = []
         , exactMatches = []
         , softMatches  = []
+        , searchData   = []
 
-      vars.data.value.forEach(function(d){
+      vars.id.nesting.forEach(function(n){
+        searchData = searchData.concat(vars.data.nested.all[n])
+      })
+
+      searchData.forEach(function(d){
 
         var match = false
 
@@ -39,7 +53,7 @@ d3plus.input.drop.data = function ( vars ) {
 
             var text = d[key].toLowerCase()
 
-            if ( key === vars.text.value && text.indexOf(searchText) == 0 ) {
+            if ( [vars.text.value,vars.id.value].indexOf(key) >= 0 && text.indexOf(searchText) == 0 ) {
               startMatches.push(d)
               match = true
             }
@@ -89,7 +103,7 @@ d3plus.input.drop.data = function ( vars ) {
 
       var noData = {}
         , str = vars.format.value(vars.format.locale.value.ui.noResults)
-      noData[vars.text.value] = d3plus.string.format(str,"\""+searchText+"\"")
+      noData[vars.text.value || vars.id.value] = d3plus.string.format(str,"\""+searchText+"\"")
       vars.data.filtered = [ noData ]
 
     }

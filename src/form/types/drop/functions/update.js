@@ -64,21 +64,12 @@ d3plus.input.drop.update = function ( vars ) {
   //----------------------------------------------------------------------------
   if ( vars.dev.value ) d3plus.console.time("drawing list")
 
-  var previousDisplay = vars.container.selector.style("display")
-  vars.container.selector.style("display","block")
-  var searchHeight = vars.search.enabled ? vars.container.search.node().offsetHeight : 0
-    , offsetLeft   = !vars.container.ui.select("div.d3plus_title").empty()
-                     && vars.container.ui.select("div.d3plus_title").style("display") === "inline-block"
-                   ? vars.container.ui.select("div.d3plus_title").node().offsetWidth
-                   : 0
-  vars.container.selector.style("display",previousDisplay)
-
   function update(elem) {
 
     elem
       .style("left",function(){
         if (vars.font.align.value === "left") {
-          return offsetLeft+"px"
+          return vars.margin.left+"px"
         }
         else if (vars.font.align.value === "center") {
           return -((vars.width.secondary-vars.width.value)/2)+"px"
@@ -98,10 +89,10 @@ d3plus.input.drop.update = function ( vars ) {
       })
       .style("width",(vars.width.secondary-(vars.ui.border*2))+"px")
       .style("top",function(){
-        return vars.open.flipped.value ? "auto" : vars.container.button.container().node().offsetHeight+"px"
+        return vars.open.flipped.value ? "auto" : vars.margin.top+"px"
       })
       .style("bottom",function(){
-        return vars.open.flipped.value ? vars.container.button.container().node().offsetHeight+"px" : "auto"
+        return vars.open.flipped.value ? vars.margin.top+"px" : "auto"
       })
       .style("opacity",vars.open.value ? 1 : 0)
 
@@ -111,10 +102,10 @@ d3plus.input.drop.update = function ( vars ) {
 
     elem
       .style("top",function(){
-        return vars.open.flipped.value ? "auto" : vars.container.button.container().node().offsetHeight+"px"
+        return vars.open.flipped.value ? "auto" : vars.margin.top+"px"
       })
       .style("bottom",function(){
-        return vars.open.flipped.value ? vars.container.button.container().node().offsetHeight+"px" : "auto"
+        return vars.open.flipped.value ? vars.margin.top+"px" : "auto"
       })
       .style("display",!vars.open.value ? "none" : null)
 
@@ -124,7 +115,7 @@ d3plus.input.drop.update = function ( vars ) {
 
   }
 
-  var max_height = vars.open.value ? vars.height.secondary-searchHeight : 0
+  var max_height = vars.open.value ? vars.height.secondary-vars.margin.title : 0
 
   if (!vars.draw.timing) {
 

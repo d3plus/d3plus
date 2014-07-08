@@ -5,7 +5,15 @@ d3plus.data.filter = function( vars , data ) {
 
   if ( vars.dev.value ) d3plus.console.time("filtering data")
 
-  var availableKeys = d3.keys(vars.data.keys || {}).concat(d3.keys(vars.attrs.keys || {}))
+  var availableKeys = d3.keys(vars.data.keys || {})
+
+  if ( "attrs" in vars ) {
+    availableKeys = availableKeys.concat(d3.keys(vars.attrs.keys || {}))
+  }
+
+  data = data.filter(function(d){
+    return vars.id.value in d
+  })
 
   vars.data.filters.forEach( function( key ) {
 
@@ -35,11 +43,6 @@ d3plus.data.filter = function( vars , data ) {
     function test_value( val ) {
 
       var arr = vars[v][key].value
-
-      if ( v === "id" && key === "solo" && vars.focus.value
-      && arr.indexOf(vars.focus.value) < 0) {
-        arr.push( vars.focus.value )
-      }
 
       var match = false
       arr.forEach(function(f){
@@ -79,12 +82,12 @@ d3plus.data.filter = function( vars , data ) {
 
     if ( v === "id" ) {
 
-      if (vars.nodes.value) {
+      if ("nodes" in vars && vars.nodes.value) {
         if ( vars.dev.value ) d3plus.console.log("Filtering Nodes")
         vars.nodes.restricted = vars.nodes.value.filter(nest_check)
       }
 
-      if (vars.edges.value) {
+      if ("edges" in vars && vars.edges.value) {
         if ( vars.dev.value ) d3plus.console.log("Filtering Connections")
         vars.edges.restricted = vars.edges.value.filter(function(d){
           var first_match = nest_check(d[vars.edges.source]),

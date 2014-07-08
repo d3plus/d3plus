@@ -112,6 +112,14 @@ d3plus.tooltip.app = function(params) {
 
         nameList = nameList.slice(0)
 
+        if ( d3plus.object.validate(nameList[0]) ) {
+          var vals = []
+          nameList.forEach(function(d){
+            vals = vals.concat(d[nestKey])
+          })
+          nameList = d3plus.util.uniques(vals,nestKey)
+        }
+
         var limit       = length === "short" ? 3 : vars.data.large
           , max         = d3.min([nameList.length , limit])
 

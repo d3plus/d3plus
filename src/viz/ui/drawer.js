@@ -75,6 +75,7 @@ d3plus.ui.drawer = function( vars ) {
 
     d.form
       .data(data)
+      .format(vars.format.locale.language)
       .title(vars.format.value(title))
       .ui({
         "align": vars.ui.align.value,

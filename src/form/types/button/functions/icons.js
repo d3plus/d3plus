@@ -11,7 +11,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
 
       var children = ["label"]
 
-      if (d[vars.icon.value] && vars.data.value.length <= vars.data.large) {
+      if ( d[vars.icon.value] && vars.data.app.length <= vars.data.large ) {
         children.push("icon")
       }
 
@@ -20,7 +20,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
         iconGraphic = vars.icon.select.value
         children.push("selected")
       }
-      else if ( vars.icon.button.value ) {
+      else if ( iconGraphic && d.d3plus.icon !== false ) {
         children.push("selected")
       }
 
@@ -35,19 +35,23 @@ d3plus.input.button.icons = function ( elem , vars ) {
         .style("display",function(c){
           return c === "label" ? "block" : "absolute"
         })
+
+      items.order()
         .attr("class",function(c){
           var extra = ""
           if ( c === "selected" && iconGraphic.indexOf("fa-") === 0 ) {
-            extra = " fa "+vars.icon.select.value
+            extra = " fa "+iconGraphic
           }
           return "d3plus_button_element d3plus_button_" + c + extra
         })
-
-      items.order()
         .html(function(c){
-          return c === "label" ? vars.format.value(d[vars.text.value])
-               : c === "selected" && iconGraphic.indexOf("fa-") < 0
-               ? iconGraphic : ""
+          if ( c === "label" ) {
+            var k = vars.text.value && vars.text.value in d && !(d[vars.text.value] instanceof Array)
+                  ? vars.text.value : vars.id.value
+            return vars.format.value(d[k])
+          }
+          return c === "selected" && iconGraphic.indexOf("fa-") < 0
+                 ? iconGraphic : ""
         })
         .style("background-image",function(c){
           if (c === "icon") {

@@ -5,9 +5,12 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
   var nestedData   = d3.nest()
     , groupedData  = []
-    , segments     = [ "active" , "temp" , "total" ]
-    , requirements = requirements || d3plus.visualization[vars.type.value].requirements
-    , exceptions   = [ vars.time.value , vars.icon.value ]
+    , segments     = vars.shell === "viz"
+                    ? [ "active" , "temp" , "total" ] : []
+    , requirements = requirements instanceof Array ? requirements : vars.shell === "viz"
+                   ? d3plus.visualization[vars.type.value].requirements : []
+    , exceptions   = vars.shell === "viz"
+                   ? [ vars.time.value , vars.icon.value ] : []
     , checkAxes    = function() {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -86,7 +89,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
       return returnObj
     }
 
-    if ( vars.size.value && d3plus.util.uniques(leaves,vars.size.value).length ) {
+    if ( "size" in vars && vars.size.value && d3plus.util.uniques(leaves,vars.size.value).length ) {
 
       d3plus.array.sort( leaves , vars.size.value , "desc" , [] , vars )
 
@@ -142,7 +145,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
         , aggType = typeof agg
         , keyType = vars.data.keys[key]
         , idKey   = vars.id.nesting.indexOf(key) >= 0
-        , timeKey = key === vars.time.value
+        , timeKey = "time" in vars && key === vars.time.value
 
       if ( key in returnObj.d3plus ) {
 
@@ -166,6 +169,14 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
         var keyValues = leaves.length === 1 ? leaves[0][key]
                       : d3plus.util.uniques( leaves , key )
 
+        if ( keyValues instanceof Array && keyValues.length === 1 && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
+          var vals = []
+          leaves.forEach(function(d){
+            vals = vals.concat(d[key])
+          })
+          var keyValues = d3plus.util.uniques(vals,key)
+        }
+
         if ( keyValues ) {
 
           if ( !(keyValues instanceof Array) ) {
@@ -188,6 +199,12 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
           }
 
+        }
+        else if (idKey) {
+          var endPoint = vars.id.nesting.indexOf(key) - 1
+          if (endPoint >= i && (!("endPoint" in returnObj.d3plus) || returnObj.d3plus.endPoint > i)) {
+            returnObj.d3plus.endPoint = i
+          }
         }
 
       }

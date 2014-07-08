@@ -4,7 +4,10 @@
 d3plus.input.drop = function( vars ) {
 
   var self = this.drop
-  
+
+  vars.margin.top = 0
+  vars.margin.title = 0
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Hijack events of original element, if applicable.
   //----------------------------------------------------------------------------
@@ -34,6 +37,11 @@ d3plus.input.drop = function( vars ) {
   // Create "selector" to hold the search box and search vars.container.list.
   //----------------------------------------------------------------------------
   self.selector( vars )
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Create and style the title box, if applicable.
+  //----------------------------------------------------------------------------
+  self.title( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create and style the search box, if applicable.
