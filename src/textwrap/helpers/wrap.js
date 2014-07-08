@@ -7,7 +7,7 @@ d3plus.textwrap.wrap = function( vars ) {
 
     vars.text.current = vars.text.phrases.shift() + ""
     vars.text.words   = vars.text.current.match(vars.text.break)
-    
+
     if ( vars.resize.value ) {
       this.resize( vars )
     }

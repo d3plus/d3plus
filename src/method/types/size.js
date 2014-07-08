@@ -2,7 +2,7 @@ d3plus.method.size = {
   "accepted"    : function( vars ) {
 
     if ( vars.shell === "textwrap" ) {
-      return [ Array ]
+      return [ Array , false ]
     }
     else {
       return [ Array , Boolean , Function , Object , String ]
@@ -11,16 +11,6 @@ d3plus.method.size = {
   },
   "dataFilter"  : true,
   "deprecates"  : [ "value" , "value_var" ],
-  "init"        : function( vars ) {
-
-    if ( vars.shell === "textwrap" ) {
-      return [ 9 , 40 ]
-    }
-    else {
-      return false
-    }
-
-  },
   "mute"        : d3plus.method.filter(true),
   "scale"       : {
     "accepted"   : [ Function ],
@@ -28,5 +18,6 @@ d3plus.method.size = {
     "value"      : d3.scale.sqrt()
   },
   "solo"        : d3plus.method.filter(true),
-  "threshold"   : true
+  "threshold"   : true,
+  "value"       : false
 }
