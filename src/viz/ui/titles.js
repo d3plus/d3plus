@@ -234,6 +234,7 @@ d3plus.ui.titles = function(vars) {
       d3plus.textwrap()
         .container( d3.select(this).select("text") )
         .height( vars.height.value / 8 )
+        .size(false)
         .text( d.value )
         .width( titleWidth )
         .draw()
