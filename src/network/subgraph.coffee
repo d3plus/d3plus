@@ -2,48 +2,50 @@
 # Returns a subgraph of distance K away from the source node
 #------------------------------------------------------------------------------
 
-# edges is a list of edge objects
+# edges; a list of edge objects
 
-# source can be 
+# source; it can be a:
   # pointer to the source node or its id
   # string denoting the id of the source node
 
-# K, returns the subgraph of nodes that are at most distance K from the source. Default is 1
+# options; a dictionary of options with attributes
+    # K; returns the subgraph of nodes that are at most distance K from the source. Default is 1.
 
-# directed specifies whether the graph is directed. Default is false
+    # directed; whether the graph is directed. Default is false.
 
-# distance can be
-  # undefined; every edge has default distance of 1
-  # constant; every edge has the same distance
-  # string; the name of the atrribute in edge that describes the distance of that edge
-  # array; each value corresponds to the distance of the respective edge in the edges array
-  # function; given edge, returns the distance
+    # distance; it can be:
+      # undefined; every edge has default distance of 1
+      # constant; every edge has the same distance
+      # string; the name of the atrribute in edge that describes the distance of that edge
+      # array; each value corresponds to the distance of the respective edge in the edges array
+      # function; given edge, returns the distance
 
-# nodeid can be
-  # undefined; then we assume that each node obtained by getting the endpoints of an edge is a string/number describing the id of the node
-  # string; the name of the attribute in node that describes the id of the node.
-  # function; given the node, returns the id.
+    # nodeid; it can be:
+      # undefined; then we assume that each node obtained by getting the endpoints of an edge is a string/number describing the id of the node
+      # string; the name of the attribute in node that describes the id of the node.
+      # function; given the node, returns the id.
 
-# startpoint can be
-  # undefined; it is assumed that edge.source points to the source of the edge
-  # string; the name of the attribute in edge pointing to the source of the edge
-  # function; given an edge returns the source node of that edge
+    # startpoint; it can be:
+      # undefined; it is assumed that edge.source points to the source of the edge
+      # string; the name of the attribute in edge pointing to the source of the edge
+      # function; given an edge returns the source node of that edge
 
-# endpoint can be
-  # undefined; it is assumed that edge.target points to the target of the edge
-  # string; the name of the attribute in edge pointing to the target of the edge
-  # function; given an edge returns the target node of that edge
+    # endpoint; it can be:
+      # undefined; it is assumed that edge.target points to the target of the edge
+      # string; the name of the attribute in edge pointing to the target of the edge
+      # function; given an edge returns the target node of that edge
 
-# if nodes is defined, the input is assumed to be normalized and nodes is assumed to be a dictionary
-# that mappes node id to the outedges of the node
+    # nodes; if defined, the input is assumed to be normalized and nodes is assumed to be a dictionary
+    # that maps node id to the outedges of the node
 
-d3plus.network.subgraph = (edges, source, K, directed, distance, nodeid, startpoint, endpoint, nodes) ->
+# returns a graph object composed of nodes of distance K away from the source node and the links between them.
+d3plus.network.subgraph = (edges, source, options) ->
   ######### User's input normalization ############
-  if not nodes? or typeof nodes isnt 'object'
-    input = d3plus.network.normalize edges, source, null, directed, distance, nodeid, startpoint, endpoint, K
-    if input is null then return null
-    if typeof input is 'string' then return input
-    [edges, source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes] = input
+  if not options.nodes? or typeof options.nodes isnt 'object'
+    [edges, source, options] = d3plus.network.normalize edges, source, options
+    if options is null then return null
+  # unpack options object
+  {directed, distance, nodeid, startpoint, endpoint, K, nodes} = options
   ####### END user's input normalization #########
   
   # start expanding from the source node to get the subgraph in DFS fashion

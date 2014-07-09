@@ -2,9 +2,11 @@
 # Normalizes the graph input and checks if it is valid
 #------------------------------------------------------------------------------
 
-d3plus.network.normalize = (edges, source, target, directed, distance, nodeid, startpoint, endpoint, K) ->
+d3plus.network.normalize = (edges, source, options) ->
+  # unpack options
+  {target, directed, distance, nodeid, startpoint, endpoint, K} = options
+  
   if not K? then K = 1
-
   if not nodeid? then nodeid = (node) -> return node
   else if typeof nodeid is 'string' then nodeid = do (nodeid) -> (node) -> return node[nodeid]
   if source? and typeof source is 'object' then source = nodeid source
@@ -61,4 +63,4 @@ d3plus.network.normalize = (edges, source, target, directed, distance, nodeid, s
     d3plus.console.error errormsg
     return null
   
-  return [edges, source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes]
+  return [edges, source, {target, directed, distance, nodeid, startpoint, endpoint, K, nodes}]
