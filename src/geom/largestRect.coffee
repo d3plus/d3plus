@@ -62,12 +62,11 @@ d3plus.geom.largestRect = (poly, options) ->
   ##### User's input normalization #####
   if not options? then options = {}
   # maximum allowed aspect ratio for the rectangle solution
-  options.maxAspectRatio = options.maxAspectRatio || 15
-  options.minWidth = options.minWidth || 0
-  options.minHeight = options.minHeight || 0
-  options.tolerance = options.tolerance || 0.02
-
-  options.nTries = options.nTries || 20 # Default value for the number of possible center points of the maximal rectangle
+  if not options.maxAspectRatio? then options.maxAspectRatio = 15
+  if not options.minWidth? then options.minWidth = 0
+  if not options.minHeight? then options.minHeight = 0
+  if not options.tolerance? then options.tolerance = 0.02
+  if not options.nTries? then options.nTries = 20 # Default value for the number of possible center points of the maximal rectangle
   
   if options.angle?
     if options.angle instanceof Array then angles = options.angle
@@ -94,9 +93,8 @@ d3plus.geom.largestRect = (poly, options) ->
 
   # simplify polygon
   tolerance = Math.min(maxx - minx, maxy - miny) * options.tolerance
-  if tolerance > 0
-    poly = d3plus.geom.simplify poly, tolerance
-    if options.vdebug then events.push type: 'simplify', poly: poly
+  if tolerance > 0 then poly = d3plus.geom.simplify poly, tolerance
+  if options.vdebug then events.push type: 'simplify', poly: poly
   
   # get the width of the bounding box of the simplified polygon
   [minx, maxx] = d3.extent poly, (d) -> d[0]
