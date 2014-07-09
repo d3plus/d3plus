@@ -37,7 +37,7 @@ d3plus.input.button.mouseevents = function ( elem , vars , color ) {
       }
 
     })
-    .on("click",function(d){
+    .on(d3plus.evt.click,function(d){
 
       if ( d[vars.id.value] ) {
 

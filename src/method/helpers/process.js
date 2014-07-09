@@ -4,7 +4,7 @@
 d3plus.method.process = function( object , value ) {
 
   if ( object.process === Array ) {
-    return d3plus.array.update(object.value,value)
+    return d3plus.array.update(d3plus.util.copy(object.value),value)
   }
   else if ( typeof object.process === "object" && typeof value === "string" ) {
     return object.process[value]

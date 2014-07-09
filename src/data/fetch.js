@@ -8,7 +8,7 @@ d3plus.data.fetch = function( vars , years ) {
   // If "years" have not been requested, determine the years using .time()
   // solo and mute
   //----------------------------------------------------------------------------
-  if ( !years ) {
+  if ( !years && "time" in vars ) {
 
     var key   = vars.time.solo.value.length ? "solo" : "mute"
       , years = []
@@ -37,13 +37,17 @@ d3plus.data.fetch = function( vars , years ) {
     else years.push("all")
 
   }
+  else {
+    years = [ "all" ]
+  }
 
   var cacheID = [ vars.type.value , vars.id.value , vars.depth.value ]
                   .concat( vars.data.filters )
                   .concat( years )
     , filter  = vars.data.solo.length ? "solo" : "mute"
     , cacheKeys = d3.keys(vars.data.cache)
-    , dataFilter = d3plus.visualization[vars.type.value].filter
+    , dataFilter = vars.shell === "viz"
+                 ? d3plus.visualization[vars.type.value].filter : null
 
   if ( vars.data[filter].length ) {
     vars.data[filter].forEach(function(f){

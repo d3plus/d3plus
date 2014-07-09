@@ -7,7 +7,11 @@ d3plus.font.sizes = function( words , style , parent ) {
     , style  = style || {}
     , sizes  = []
 
-  var tspans = parent.selectAll("tspan.d3plus_testFontSize")
+  if ( !(words instanceof Array) ) {
+    words = [words]
+  }
+
+  var tspans = tester.selectAll("tspan.d3plus_testFontSize")
     .data(words)
 
   tspans.enter().append("tspan")
@@ -28,8 +32,8 @@ d3plus.font.sizes = function( words , style , parent ) {
 
   tspans.remove()
 
-  if ( !parent ) {
-    parent.remove()
+  if ( !tester ) {
+    tester.remove()
   }
 
   return sizes

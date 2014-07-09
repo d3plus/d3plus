@@ -15,7 +15,7 @@ d3plus.textwrap = function() {
       d3plus.textwrap.getDimensions( vars )
       d3plus.textwrap.getSize( vars )
 
-      if ( vars.size.value[0] < vars.height.value ) {
+      if ( vars.size.value[0] <= vars.height.value ) {
         d3plus.textwrap.getText( vars )
         d3plus.textwrap.wrap( vars )
       }

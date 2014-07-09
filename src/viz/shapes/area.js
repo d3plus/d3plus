@@ -27,73 +27,55 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
       if (vars.labels.value) {
 
-        var areas = [],
-            obj = null,
-            obj2 = null,
-            label = {
-              "w": 0,
-              "h": 0,
-              "x": 0,
-              "y": 0
-            }
+        var tops = []
+          , bottoms = []
+          , names = d3plus.variable.text(vars,d)
 
-        function check_area(area) {
+        d.values.forEach(function(v){
+          tops.push([v.d3plus.x,v.d3plus.y])
+          bottoms.push([v.d3plus.x,v.d3plus.y0])
+        })
+        tops = tops.concat(bottoms.reverse())
 
-          obj.y = d3.max([obj.y,area.y])
-          obj.y0 = d3.min([obj.y0,area.y0])
-          obj.x0 = area.x
-
-          obj.h = (obj.y0 - obj.y)
-          obj.w = (obj.x0 - obj.x)
-
-          var toosmall = obj.h-vars.labels.padding*2 < 10 || obj.w-vars.labels.padding*2 < 20,
-              aspect_old = label.w/label.h,
-              size_old = label.w*label.h,
-              aspect_new = obj.w/obj.h,
-              size_new = obj.w*obj.h
-
-          if ((!toosmall && size_old < size_new) || !label.w) {
-            label = {
-              "w": obj.w,
-              "h": obj.h,
-              "x": obj.x+(obj.w/2),
-              "y": obj.y+(obj.h/2)
-            }
-          }
-
-          if (toosmall) {
-            obj = d3plus.util.copy(area)
-          }
-
+        var style = {
+          "font-weight": vars.labels.font.weight,
+          "font-family": vars.labels.font.family.value
         }
+        var size = d3plus.font.sizes(names[0],style)
+          , ratio = size[0].width/size[0].height
 
-        d.values.forEach(function(v,i){
+        var lr = largestRectangle(tops,{
+          "angle": d3.range(-70,71,1),
+          "aspectRatio": ratio,
+          "tolerance": 0
+        })[0]
 
-          if (!obj) {
-            obj = d3plus.util.copy(v.d3plus)
+        if (lr) {
+
+          var label = {
+            "w": Math.floor(lr.width),
+            "h": Math.floor(lr.height),
+            "x": Math.floor(lr.cx),
+            "y": Math.floor(lr.cy),
+            "angle": lr.angle*-1,
+            "padding": 2,
+            "names": names
+          }
+
+          if (lr.angle !== 0) {
+            label.translate = {
+              "x":label.x,
+              "y":label.y
+            }
           }
           else {
-            var arr = d3plus.util.buckets([0,1],vars.labels.segments+1)
-            arr.shift()
-            arr.pop()
-            arr.forEach(function(n){
-
-              var test = d3plus.util.copy(v.d3plus),
-                  last = d.values[i-1].d3plus
-
-              test.x = last.x + (test.x-last.x) * n
-              test.y = last.y + (test.y-last.y) * n
-              test.y0 = last.y0 + (test.y0-last.y0) * n
-
-              check_area(test)
-
-            })
-            check_area(d3plus.util.copy(v.d3plus))
+            label.translate = false
           }
-        })
 
-        if (label.w >= 10 && label.h >= 10) {
-          d.d3plus_label = label
+          if (label.w >= 10 && label.h >= 10) {
+            d.d3plus_label = label
+          }
+
         }
 
       }

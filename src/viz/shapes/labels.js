@@ -167,7 +167,7 @@ d3plus.shape.labels = function( vars , group ) {
 
 
             if ( !(t.resize instanceof Array) ) {
-              var size = [ 8 / t.scale , 50 * t.scale ]
+              var size = [ 9 / t.scale , 50 * t.scale ]
                 , resize = t.resize
             }
             else {
@@ -187,7 +187,7 @@ d3plus.shape.labels = function( vars , group ) {
           }
           else {
 
-            if (vars.labels.align != "middle") {
+            if (vars.labels.align !== "middle" && t.share) {
               var height = t.h - t.share - t.padding
             }
             else {
@@ -195,7 +195,7 @@ d3plus.shape.labels = function( vars , group ) {
             }
 
             if ( !(t.resize instanceof Array) ) {
-              var size = [ 8 / t.scale , 40 * t.scale ]
+              var size = [ 9 / t.scale , 40 * t.scale ]
                 , resize = t.resize
             }
             else {
@@ -337,11 +337,12 @@ d3plus.shape.labels = function( vars , group ) {
 
           label.scale = label.resize ? scale[1] : scale[0]
 
-          label.padding = (vars.labels.padding/label.scale)*2
+          var padding = typeof label.padding === "number" ? label.padding : vars.labels.padding
+          label.padding = (padding/label.scale)*2
 
         }
 
-        if (label && label.w*label.scale-label.padding >= 25 && label.h*label.scale-label.padding >= 15 && names.length) {
+        if (label && label.w*label.scale-label.padding >= 20 && label.h*label.scale-label.padding >= 10 && names.length) {
 
           label.names = names
 
