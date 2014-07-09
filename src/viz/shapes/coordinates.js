@@ -84,17 +84,48 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
       })
       vars.zoom.coords[d.d3plus.id] = reduced
 
-      var center = vars.path.centroid(largest),
-          lb = vars.path.bounds(largest)
+      var coords = largest.geometry.coordinates[0]
+      if (coords && largest.geometry.type === "MultiPolygon") {
+        coords = coords[0]
+        largest.geometry.coordinates[0] = coords
+        largest.geometry.type = "Polygon"
+      }
 
-      vars.zoom.labels[d.d3plus.id] = {
-        "anchor": "middle",
-        "group": vars.g.labels,
-        "h": (lb[1][1]-lb[0][1])*.35,
-        "w": (lb[1][0]-lb[0][0])*.35,
-        "valign": "center",
-        "x": center[0],
-        "y": center[1]
+      if (coords) {
+
+        var path = vars.path(largest).split("M")[1].split("Z")[0].split("L")
+        for (var i = 0; i < path.length; i++) {
+          path[i] = path[i].split(",")
+          path[i][0] = parseFloat(path[i][0])
+          path[i][1] = parseFloat(path[i][1])
+        }
+
+        var rect = largestRectangle(path,{
+          "angle": 0
+        })[0]
+
+        if (rect) {
+
+          var label = {
+            "anchor": "middle",
+            "valign": "center",
+            "group": vars.g.labels,
+            "h": Math.floor(rect.height),
+            "w": Math.floor(rect.width),
+            "x": Math.floor(rect.cx),
+            "y": Math.floor(rect.cy)
+          }
+
+          vars.zoom.labels[d.d3plus.id] = label
+
+        }
+        else {
+          delete vars.zoom.labels[d.d3plus.id]
+        }
+
+      }
+      else {
+        delete vars.zoom.labels[d.d3plus.id]
       }
 
       if (!vars.zoom.bounds) {
