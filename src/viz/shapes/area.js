@@ -29,13 +29,25 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
         var tops = []
           , bottoms = []
+          , names = d3plus.variable.text(vars,d)
+
         d.values.forEach(function(v){
           tops.push([v.d3plus.x,v.d3plus.y])
           bottoms.push([v.d3plus.x,v.d3plus.y0])
         })
         tops = tops.concat(bottoms.reverse())
+
+        var style = {
+          "font-weight": vars.labels.font.weight,
+          "font-family": vars.labels.font.family.value
+        }
+        var size = d3plus.font.sizes(names[0],style)
+          , ratio = size[0].width/size[0].height
+
         var lr = largestRectangle(tops,{
-          "angle": d3.range(-80,81,5)
+          "angle": d3.range(-70,71,1),
+          "aspectRatio": ratio,
+          "tolerance": 0
         })[0]
 
         if (lr) {
@@ -45,8 +57,11 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
             "h": Math.floor(lr.height),
             "x": Math.floor(lr.cx),
             "y": Math.floor(lr.cy),
-            "angle": lr.angle*-1
+            "angle": lr.angle*-1,
+            "padding": 2,
+            "names": names
           }
+
           if (lr.angle !== 0) {
             label.translate = {
               "x":label.x,
