@@ -20,9 +20,19 @@
     # - a string which is parsed to a number
     # - an array of numbers, specifying the possible aspectRatios of the polygon
 
+  # maxAspectRatio; maximum aspect ratio (width/height). Default is 15.
+  # This should be used if the aspectRatio is not provided.
+
   # nTries; the number of randomly drawn points inside the polygon which
   # the algorithm explores as possible center points of the maximal rectangle.
   # Default value is 20.
+
+  # minWidth; the minimum width of the rectangle. Default is 0.
+
+  # minHeight; the minimum height of the rectangle. Default is 0.
+
+  # tolerance; The simplification tolerance factor. Should be between 0 and 1.
+  # Default is 0.02. Larger tolerance corresponds to more extensive simplification.
 
   # origin; the center point of the rectangle. If specified, the rectangle is
   # fixed at that point, otherwise the algorithm optimizes across all possible points.
@@ -34,26 +44,29 @@
 # Returns the largest found rectangle as an object with the following attributes
   # width - the width of the rectangle
   # height - the height of the rectangle
-  # cx - the x coord of the rectangle's center
-  # cy - the y coord of the rectangle's center
+  # cx - the x coordinate of the rectangle's center
+  # cy - the y coordinate of the rectangle's center
   # angle - rotation angle in degrees. The anchor of rotation is the center point
+d3plus.geom.largestRect = (poly, options) ->
+  ## For visualization debugging purposes ##
+  events = []
 
-largestRectangle = (poly, options) ->
   ########## Algorithm constants ##########
-  # step size for the aspect ratio. aspect ratio is the ratio of width to height;
-  # it has has linear impact on running time
+  # step size for the aspect ratio
   aspectRatioStep = 0.5
   # step size for angles (in degrees); has linear impact on running time
   angleStep = 5
-  # maximum allowed aspect ratio for the rectangle solution
-  maxAspectRatio = 15
   #######################################
 
 
   ##### User's input normalization #####
   if not options? then options = {}
-  
-  options.nTries = options.nTries || 20 # Default value for the number of possible center points of the maximal rectangle
+  # maximum allowed aspect ratio for the rectangle solution
+  if not options.maxAspectRatio? then options.maxAspectRatio = 15
+  if not options.minWidth? then options.minWidth = 0
+  if not options.minHeight? then options.minHeight = 0
+  if not options.tolerance? then options.tolerance = 0.02
+  if not options.nTries? then options.nTries = 20 # Default value for the number of possible center points of the maximal rectangle
   
   if options.angle?
     if options.angle instanceof Array then angles = options.angle
@@ -71,27 +84,26 @@ largestRectangle = (poly, options) ->
       if options.origin[0] instanceof Array then origins = options.origin
       else origins = [options.origin]
 
-  ########################################
 
+  ########################################
+  area = d3.geom.polygon(poly).area()
   # get the width of the bounding box of the original polygon to determine tolerance
   [minx, maxx] = d3.extent poly, (d) -> d[0]
   [miny, maxy] = d3.extent poly, (d) -> d[1]
 
   # simplify polygon
-  tolerance = Math.min(maxx - minx, maxy - miny)/25
-  poly = d3plus.geom.simplify poly, tolerance
-
+  tolerance = Math.min(maxx - minx, maxy - miny) * options.tolerance
+  if tolerance > 0 then poly = d3plus.geom.simplify poly, tolerance
+  if options.vdebug then events.push type: 'simplify', poly: poly
+  
   # get the width of the bounding box of the simplified polygon
   [minx, maxx] = d3.extent poly, (d) -> d[0]
   [miny, maxy] = d3.extent poly, (d) -> d[1]
-
+  bBox = [[minx, miny], [maxx, miny], [maxx, maxy] ,[minx, maxy]]
   [boxWidth, boxHeight] = [maxx - minx, maxy - miny]
-  # don't look for rectangles with area smaller than this times the polygon bounding box
-  minAreaTimes = 200 # doesn't impact running time much. impacts recall rate.
-  minWidth = Math.sqrt(boxWidth*boxHeight / minAreaTimes)
   
   # discretize the binary search for optimal width to a resolution of this times the polygon width
-  widthStep = boxWidth / 100 # doesn't impact running time, recall nor precision
+  widthStep = Math.min(boxWidth, boxHeight)/50
   
   # populate possible center points with random points inside the polygon
   if not origins?
@@ -105,39 +117,46 @@ largestRectangle = (poly, options) ->
       rndY = Math.random() * boxHeight + miny
       rndPoint = [rndX, rndY]
       if pointInPoly(rndPoint, poly) then origins.push rndPoint
+  if options.vdebug then events.push type: 'origins', points: origins
   maxArea = 0
   maxRect = null
   for angle in angles
     angleRad = -angle*Math.PI/180
-    for origOrigin in origins
+    if options.vdebug then events.push
+      type: 'angle'
+      angle: angle
+    for origOrigin, i in origins
       # generate improved origins
       [p1W, p2W] = intersectPoints poly, origOrigin, angleRad
       [p1H, p2H] = intersectPoints poly, origOrigin, angleRad + Math.PI/2
       modifOrigins = [
-        origOrigin,
         [(p1W[0] + p2W[0])/2, (p1W[1] + p2W[1])/2], # average along with width axis
         [(p1H[0] + p2H[0])/2, (p1H[1] + p2H[1])/2] # average along with height axis
       ]
+      if options.vdebug then events.push type: 'modifOrigin', idx: i, p1W: p1W, p2W: p2W, p1H: p1H, p2H: p2H, modifOrigins: modifOrigins
       for origin in modifOrigins
+        if options.vdebug then events.push type: 'origin', cx: origin[0], cy: origin[1]
         [p1W, p2W] = intersectPoints poly, origin, angleRad
         minSqDistW = Math.min squaredDist(origin, p1W), squaredDist(origin, p2W)
-        maxWidthCurr = 2*Math.sqrt(minSqDistW)
+        maxWidth = 2*Math.sqrt(minSqDistW)
         
         [p1H, p2H] = intersectPoints poly, origin, angleRad + Math.PI/2
         minSqDistH = Math.min squaredDist(origin, p1H), squaredDist(origin, p2H)
-        maxHeightCurr = 2*Math.sqrt(minSqDistH)
-        
-        continue if maxWidthCurr * maxHeightCurr < maxArea
+        maxHeight = 2*Math.sqrt(minSqDistH)
+        continue if maxWidth * maxHeight < maxArea
         if aspectRatios? then aRatios = aspectRatios
         else
-          minAspectRatioCurr = Math.max(1, maxArea / (maxHeightCurr*maxHeightCurr))
-          maxAspectRatioCurr = Math.min(maxAspectRatio, (maxWidthCurr*maxWidthCurr) / maxArea)
-          aRatios = d3.range(minAspectRatioCurr, maxAspectRatioCurr + aspectRatioStep, aspectRatioStep)
+          minAspectRatio = Math.max 1, options.minWidth / maxHeight, maxArea/(maxHeight*maxHeight)
+          maxAspectRatio = Math.min options.maxAspectRatio, maxWidth/options.minHeight, (maxWidth*maxWidth)/maxArea
+          aRatios = d3.range(minAspectRatio, maxAspectRatio + aspectRatioStep, aspectRatioStep)
         for aRatio in aRatios
           # do a binary search to find the max width that works
-          left = Math.max(minWidth, Math.sqrt(maxArea*aRatio))
-          right = Math.min maxWidthCurr, maxHeightCurr*aRatio
-          continue if right * maxHeightCurr < maxArea
+          left = Math.max options.minWidth, Math.sqrt(maxArea*aRatio)
+          right = Math.min maxWidth, maxHeight*aRatio
+          continue if right * maxHeight < maxArea
+          
+          if (right - left) >= widthStep
+            if options.vdebug then events.push type: 'aRatio', aRatio: aRatio
           
           while (right - left) >= widthStep
             width = (left + right) / 2
@@ -151,6 +170,7 @@ largestRectangle = (poly, options) ->
             ]
             rectPoly = rotatePoly rectPoly, angleRad, origin
             if polyInsidePoly(rectPoly, poly)
+              insidePoly = true
               # we know that the area is already greater than the maxArea found so far
               maxArea = width * height
               maxRect = 
@@ -159,18 +179,27 @@ largestRectangle = (poly, options) ->
                 width: width
                 height: height
                 angle: angle
-              left = width # increase the width in the search
-            else right = width # descrease the width in the search
-  return [maxRect, maxArea]
+              left = width # increase the width in the binary search
+            else
+              insidePoly = false
+              right = width # decrease the width in the binary search
+            if options.vdebug then events.push
+              type: 'rectangle'
+              cx: x0
+              cy: y0
+              width: width
+              height: height
+              areaFraction: (width*height)/area
+              angle: angle
+              insidePoly: insidePoly
+  return [maxRect, maxArea, events]
 
-# export to library
-d3plus.geom.largestRectangle = largestRectangle
 
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Helper functions
 #------------------------------------------------------------------------------
 
-# Returns the squared eucledian distance between points a and b
+# Returns the squared euclidean distance between points a and b
 squaredDist = (a, b) ->
   deltax = b[0] - a[0]
   deltay = b[1] - a[1]
@@ -256,6 +285,7 @@ polyInsidePoly = (polyA, polyB) ->
       aB = bB
       bB = polyB[iB]
       return false if segmentsIntersect aA, bA, aB, bB
+
   return pointInPoly polyA[0], polyB
 
 # Rotates the point p for alpha radians around the origin 
@@ -304,3 +334,5 @@ intersectPoints = (poly, origin, alpha) ->
           minSqDistRight = sqDist
           closestPointRight = p
   return [closestPointLeft, closestPointRight]
+
+
