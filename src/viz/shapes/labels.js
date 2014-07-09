@@ -337,7 +337,8 @@ d3plus.shape.labels = function( vars , group ) {
 
           label.scale = label.resize ? scale[1] : scale[0]
 
-          label.padding = (vars.labels.padding/label.scale)*2
+          var padding = typeof label.padding === "number" ? label.padding : vars.labels.padding
+          label.padding = (padding/label.scale)*2
 
         }
 
