@@ -41,10 +41,16 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
           "font-weight": vars.labels.font.weight,
           "font-family": vars.labels.font.family.value
         }
-        var size = d3plus.font.sizes(names[0],style)
-          , ratio = size[0].width/size[0].height
 
-        var lr = largestRectangle(tops,{
+        if (names.length) {
+          var size = d3plus.font.sizes(names[0],style)
+            , ratio = size[0].width/size[0].height
+        }
+        else {
+          var ratio = null
+        }
+
+        var lr = d3plus.geom.largestRect(tops,{
           "angle": d3.range(-70,71,1),
           "aspectRatio": ratio,
           "tolerance": 0
