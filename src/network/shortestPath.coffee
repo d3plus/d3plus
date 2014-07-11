@@ -1,3 +1,4 @@
+Heap = require 'heap'
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Finds the shortest paths in the graph
 #------------------------------------------------------------------------------
@@ -58,7 +59,7 @@ d3plus.network.shortestPath = (edges, source, options) ->
   #book-keeping
   node.count = 0 for id, node of nodes
   
-  heap = new d3plus.data.heap (a,b) -> return a.distance - b.distance
+  heap = new Heap (a,b) -> return a.distance - b.distance
   visited = {}
   if not target? then visited[source] = true
   heap.push {edge: null, target: source, distance: 0}

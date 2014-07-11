@@ -47,6 +47,9 @@
   # cx - the x coordinate of the rectangle's center
   # cy - the y coordinate of the rectangle's center
   # angle - rotation angle in degrees. The anchor of rotation is the center point
+
+simplify = require 'simplify-js'
+
 d3plus.geom.largestRect = (poly, options) ->
   ## For visualization debugging purposes ##
   events = []
@@ -93,7 +96,11 @@ d3plus.geom.largestRect = (poly, options) ->
 
   # simplify polygon
   tolerance = Math.min(maxx - minx, maxy - miny) * options.tolerance
-  if tolerance > 0 then poly = d3plus.geom.simplify poly, tolerance
+  tempPoly = ({x:p[0], y:p[1]} for p in poly)
+
+  if tolerance > 0
+    tempPoly = simplify tempPoly, tolerance
+    poly = ([p.x, p.y] for p in tempPoly)
   if options.vdebug then events.push type: 'simplify', poly: poly
   
   # get the width of the bounding box of the simplified polygon

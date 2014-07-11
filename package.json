@@ -43,6 +43,11 @@
       "name": "Alexander Simoes",
       "email": "alexandersimoes@gmail.com",
       "url": "http://www.alexandersimoes.com"
+    },
+    {
+      "name": "Daniel Smilkov",
+      "email": "dsmilkov@gmail.com",
+      "url": "http://smilkov.com"
     }
   ],
   "license": "MIT",
@@ -53,6 +58,9 @@
   "homepage": "http://www.d3plus.org",
   "dependencies": {
     "d3": "^3.4.9",
+    "heap": "^0.2.3",
+    "simplify-js": "^1.2.1",
+    "static-kdtree": "^1.0.1",
     "topojson": "^1.6.14"
   },
   "browserify": {
