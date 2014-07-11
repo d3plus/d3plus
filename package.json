@@ -4,24 +4,35 @@
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "d3plus.js",
   "devDependencies": {
+    "browserify": "^4.2.0",
+    "coffeeify": "^0.6.0",
     "connect-livereload": "^0.3.2",
+    "event-stream": "^3.1.5",
     "express": "^4.0.0",
+    "glob": "^4.0.3",
     "gulp": "^3.6.0",
-    "gulp-concat": "^2.2.0",
-    "gulp-livereload": "^1.2.0",
-    "gulp-notify": "^1.2.5",
+    "gulp-duration": "0.0.0",
+    "gulp-livereload": "^1.5.0",
+    "gulp-notify": "^1.4.0",
     "gulp-rename": "^1.2.0",
+    "gulp-streamify": "0.0.5",
     "gulp-uglify": "^0.2.1",
-    "gulp-util": "^2.2.14",
-    "gulp-coffee": "^2.0.1",
-    "gulp-if": "^1.2.1",
-    "tiny-lr": "0.0.5"
+    "gulp-util": "^2.2.20",
+    "tiny-lr": "0.0.5",
+    "vinyl-source-stream": "^0.1.1",
+    "watchify": "^0.6.4"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/alexandersimoes/d3plus.git"
   },
-  "keywords": [ "charts", "d3", "d3plus", "data", "visualization" ],
+  "keywords": [
+    "charts",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
   "author": {
     "name": "Dave Landry",
     "email": "landry.dave@gmail.com",
@@ -39,5 +50,14 @@
     "url": "https://github.com/alexandersimoes/d3plus/issues",
     "email": "landry.dave@gmail.com"
   },
-  "homepage": "http://www.d3plus.org"
+  "homepage": "http://www.d3plus.org",
+  "dependencies": {
+    "d3": "^3.4.9",
+    "topojson": "^1.6.14"
+  },
+  "browserify": {
+    "transform": [
+      "coffeeify"
+    ]
+  }
 }
