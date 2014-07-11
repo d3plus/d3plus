@@ -1,4 +1,5549 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*!
+ * The buffer module from node.js, for the browser.
+ *
+ * @author   Feross Aboukhadijeh <feross@feross.org> <http://feross.org>
+ * @license  MIT
+ */
+
+var base64 = require('base64-js')
+var ieee754 = require('ieee754')
+
+exports.Buffer = Buffer
+exports.SlowBuffer = Buffer
+exports.INSPECT_MAX_BYTES = 50
+Buffer.poolSize = 8192
+
+/**
+ * If `Buffer._useTypedArrays`:
+ *   === true    Use Uint8Array implementation (fastest)
+ *   === false   Use Object implementation (compatible down to IE6)
+ */
+Buffer._useTypedArrays = (function () {
+  // Detect if browser supports Typed Arrays. Supported browsers are IE 10+, Firefox 4+,
+  // Chrome 7+, Safari 5.1+, Opera 11.6+, iOS 4.2+. If the browser does not support adding
+  // properties to `Uint8Array` instances, then that's the same as no `Uint8Array` support
+  // because we need to be able to add all the node Buffer API methods. This is an issue
+  // in Firefox 4-29. Now fixed: https://bugzilla.mozilla.org/show_bug.cgi?id=695438
+  try {
+    var buf = new ArrayBuffer(0)
+    var arr = new Uint8Array(buf)
+    arr.foo = function () { return 42 }
+    return 42 === arr.foo() &&
+        typeof arr.subarray === 'function' // Chrome 9-10 lack `subarray`
+  } catch (e) {
+    return false
+  }
+})()
+
+/**
+ * Class: Buffer
+ * =============
+ *
+ * The Buffer constructor returns instances of `Uint8Array` that are augmented
+ * with function properties for all the node `Buffer` API functions. We use
+ * `Uint8Array` so that square bracket notation works as expected -- it returns
+ * a single octet.
+ *
+ * By augmenting the instances, we can avoid modifying the `Uint8Array`
+ * prototype.
+ */
+function Buffer (subject, encoding, noZero) {
+  if (!(this instanceof Buffer))
+    return new Buffer(subject, encoding, noZero)
+
+  var type = typeof subject
+
+  if (encoding === 'base64' && type === 'string') {
+    subject = base64clean(subject)
+  }
+
+  // Find the length
+  var length
+  if (type === 'number')
+    length = coerce(subject)
+  else if (type === 'string')
+    length = Buffer.byteLength(subject, encoding)
+  else if (type === 'object')
+    length = coerce(subject.length) // assume that object is array-like
+  else
+    throw new Error('First argument needs to be a number, array or string.')
+
+  var buf
+  if (Buffer._useTypedArrays) {
+    // Preferred: Return an augmented `Uint8Array` instance for best performance
+    buf = Buffer._augment(new Uint8Array(length))
+  } else {
+    // Fallback: Return THIS instance of Buffer (created by `new`)
+    buf = this
+    buf.length = length
+    buf._isBuffer = true
+  }
+
+  var i
+  if (Buffer._useTypedArrays && typeof subject.byteLength === 'number') {
+    // Speed optimization -- use set if we're copying from a typed array
+    buf._set(subject)
+  } else if (isArrayish(subject)) {
+    // Treat array-ish objects as a byte array
+    if (Buffer.isBuffer(subject)) {
+      for (i = 0; i < length; i++)
+        buf[i] = subject.readUInt8(i)
+    } else {
+      for (i = 0; i < length; i++)
+        buf[i] = ((subject[i] % 256) + 256) % 256
+    }
+  } else if (type === 'string') {
+    buf.write(subject, 0, encoding)
+  } else if (type === 'number' && !Buffer._useTypedArrays && !noZero) {
+    for (i = 0; i < length; i++) {
+      buf[i] = 0
+    }
+  }
+
+  return buf
+}
+
+// STATIC METHODS
+// ==============
+
+Buffer.isEncoding = function (encoding) {
+  switch (String(encoding).toLowerCase()) {
+    case 'hex':
+    case 'utf8':
+    case 'utf-8':
+    case 'ascii':
+    case 'binary':
+    case 'base64':
+    case 'raw':
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      return true
+    default:
+      return false
+  }
+}
+
+Buffer.isBuffer = function (b) {
+  return !!(b !== null && b !== undefined && b._isBuffer)
+}
+
+Buffer.byteLength = function (str, encoding) {
+  var ret
+  str = str.toString()
+  switch (encoding || 'utf8') {
+    case 'hex':
+      ret = str.length / 2
+      break
+    case 'utf8':
+    case 'utf-8':
+      ret = utf8ToBytes(str).length
+      break
+    case 'ascii':
+    case 'binary':
+    case 'raw':
+      ret = str.length
+      break
+    case 'base64':
+      ret = base64ToBytes(str).length
+      break
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      ret = str.length * 2
+      break
+    default:
+      throw new Error('Unknown encoding')
+  }
+  return ret
+}
+
+Buffer.concat = function (list, totalLength) {
+  assert(isArray(list), 'Usage: Buffer.concat(list[, length])')
+
+  if (list.length === 0) {
+    return new Buffer(0)
+  } else if (list.length === 1) {
+    return list[0]
+  }
+
+  var i
+  if (totalLength === undefined) {
+    totalLength = 0
+    for (i = 0; i < list.length; i++) {
+      totalLength += list[i].length
+    }
+  }
+
+  var buf = new Buffer(totalLength)
+  var pos = 0
+  for (i = 0; i < list.length; i++) {
+    var item = list[i]
+    item.copy(buf, pos)
+    pos += item.length
+  }
+  return buf
+}
+
+Buffer.compare = function (a, b) {
+  assert(Buffer.isBuffer(a) && Buffer.isBuffer(b), 'Arguments must be Buffers')
+  var x = a.length
+  var y = b.length
+  for (var i = 0, len = Math.min(x, y); i < len && a[i] === b[i]; i++) {}
+  if (i !== len) {
+    x = a[i]
+    y = b[i]
+  }
+  if (x < y) {
+    return -1
+  }
+  if (y < x) {
+    return 1
+  }
+  return 0
+}
+
+// BUFFER INSTANCE METHODS
+// =======================
+
+function hexWrite (buf, string, offset, length) {
+  offset = Number(offset) || 0
+  var remaining = buf.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+
+  // must be an even number of digits
+  var strLen = string.length
+  assert(strLen % 2 === 0, 'Invalid hex string')
+
+  if (length > strLen / 2) {
+    length = strLen / 2
+  }
+  for (var i = 0; i < length; i++) {
+    var byte = parseInt(string.substr(i * 2, 2), 16)
+    assert(!isNaN(byte), 'Invalid hex string')
+    buf[offset + i] = byte
+  }
+  return i
+}
+
+function utf8Write (buf, string, offset, length) {
+  var charsWritten = blitBuffer(utf8ToBytes(string), buf, offset, length)
+  return charsWritten
+}
+
+function asciiWrite (buf, string, offset, length) {
+  var charsWritten = blitBuffer(asciiToBytes(string), buf, offset, length)
+  return charsWritten
+}
+
+function binaryWrite (buf, string, offset, length) {
+  return asciiWrite(buf, string, offset, length)
+}
+
+function base64Write (buf, string, offset, length) {
+  var charsWritten = blitBuffer(base64ToBytes(string), buf, offset, length)
+  return charsWritten
+}
+
+function utf16leWrite (buf, string, offset, length) {
+  var charsWritten = blitBuffer(utf16leToBytes(string), buf, offset, length)
+  return charsWritten
+}
+
+Buffer.prototype.write = function (string, offset, length, encoding) {
+  // Support both (string, offset, length, encoding)
+  // and the legacy (string, encoding, offset, length)
+  if (isFinite(offset)) {
+    if (!isFinite(length)) {
+      encoding = length
+      length = undefined
+    }
+  } else {  // legacy
+    var swap = encoding
+    encoding = offset
+    offset = length
+    length = swap
+  }
+
+  offset = Number(offset) || 0
+  var remaining = this.length - offset
+  if (!length) {
+    length = remaining
+  } else {
+    length = Number(length)
+    if (length > remaining) {
+      length = remaining
+    }
+  }
+  encoding = String(encoding || 'utf8').toLowerCase()
+
+  var ret
+  switch (encoding) {
+    case 'hex':
+      ret = hexWrite(this, string, offset, length)
+      break
+    case 'utf8':
+    case 'utf-8':
+      ret = utf8Write(this, string, offset, length)
+      break
+    case 'ascii':
+      ret = asciiWrite(this, string, offset, length)
+      break
+    case 'binary':
+      ret = binaryWrite(this, string, offset, length)
+      break
+    case 'base64':
+      ret = base64Write(this, string, offset, length)
+      break
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      ret = utf16leWrite(this, string, offset, length)
+      break
+    default:
+      throw new Error('Unknown encoding')
+  }
+  return ret
+}
+
+Buffer.prototype.toString = function (encoding, start, end) {
+  var self = this
+
+  encoding = String(encoding || 'utf8').toLowerCase()
+  start = Number(start) || 0
+  end = (end === undefined) ? self.length : Number(end)
+
+  // Fastpath empty strings
+  if (end === start)
+    return ''
+
+  var ret
+  switch (encoding) {
+    case 'hex':
+      ret = hexSlice(self, start, end)
+      break
+    case 'utf8':
+    case 'utf-8':
+      ret = utf8Slice(self, start, end)
+      break
+    case 'ascii':
+      ret = asciiSlice(self, start, end)
+      break
+    case 'binary':
+      ret = binarySlice(self, start, end)
+      break
+    case 'base64':
+      ret = base64Slice(self, start, end)
+      break
+    case 'ucs2':
+    case 'ucs-2':
+    case 'utf16le':
+    case 'utf-16le':
+      ret = utf16leSlice(self, start, end)
+      break
+    default:
+      throw new Error('Unknown encoding')
+  }
+  return ret
+}
+
+Buffer.prototype.toJSON = function () {
+  return {
+    type: 'Buffer',
+    data: Array.prototype.slice.call(this._arr || this, 0)
+  }
+}
+
+Buffer.prototype.equals = function (b) {
+  assert(Buffer.isBuffer(b), 'Argument must be a Buffer')
+  return Buffer.compare(this, b) === 0
+}
+
+Buffer.prototype.compare = function (b) {
+  assert(Buffer.isBuffer(b), 'Argument must be a Buffer')
+  return Buffer.compare(this, b)
+}
+
+// copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
+Buffer.prototype.copy = function (target, target_start, start, end) {
+  var source = this
+
+  if (!start) start = 0
+  if (!end && end !== 0) end = this.length
+  if (!target_start) target_start = 0
+
+  // Copy 0 bytes; we're done
+  if (end === start) return
+  if (target.length === 0 || source.length === 0) return
+
+  // Fatal error conditions
+  assert(end >= start, 'sourceEnd < sourceStart')
+  assert(target_start >= 0 && target_start < target.length,
+      'targetStart out of bounds')
+  assert(start >= 0 && start < source.length, 'sourceStart out of bounds')
+  assert(end >= 0 && end <= source.length, 'sourceEnd out of bounds')
+
+  // Are we oob?
+  if (end > this.length)
+    end = this.length
+  if (target.length - target_start < end - start)
+    end = target.length - target_start + start
+
+  var len = end - start
+
+  if (len < 100 || !Buffer._useTypedArrays) {
+    for (var i = 0; i < len; i++) {
+      target[i + target_start] = this[i + start]
+    }
+  } else {
+    target._set(this.subarray(start, start + len), target_start)
+  }
+}
+
+function base64Slice (buf, start, end) {
+  if (start === 0 && end === buf.length) {
+    return base64.fromByteArray(buf)
+  } else {
+    return base64.fromByteArray(buf.slice(start, end))
+  }
+}
+
+function utf8Slice (buf, start, end) {
+  var res = ''
+  var tmp = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++) {
+    if (buf[i] <= 0x7F) {
+      res += decodeUtf8Char(tmp) + String.fromCharCode(buf[i])
+      tmp = ''
+    } else {
+      tmp += '%' + buf[i].toString(16)
+    }
+  }
+
+  return res + decodeUtf8Char(tmp)
+}
+
+function asciiSlice (buf, start, end) {
+  var ret = ''
+  end = Math.min(buf.length, end)
+
+  for (var i = start; i < end; i++) {
+    ret += String.fromCharCode(buf[i])
+  }
+  return ret
+}
+
+function binarySlice (buf, start, end) {
+  return asciiSlice(buf, start, end)
+}
+
+function hexSlice (buf, start, end) {
+  var len = buf.length
+
+  if (!start || start < 0) start = 0
+  if (!end || end < 0 || end > len) end = len
+
+  var out = ''
+  for (var i = start; i < end; i++) {
+    out += toHex(buf[i])
+  }
+  return out
+}
+
+function utf16leSlice (buf, start, end) {
+  var bytes = buf.slice(start, end)
+  var res = ''
+  for (var i = 0; i < bytes.length; i += 2) {
+    res += String.fromCharCode(bytes[i] + bytes[i + 1] * 256)
+  }
+  return res
+}
+
+Buffer.prototype.slice = function (start, end) {
+  var len = this.length
+  start = clamp(start, len, 0)
+  end = clamp(end, len, len)
+
+  if (Buffer._useTypedArrays) {
+    return Buffer._augment(this.subarray(start, end))
+  } else {
+    var sliceLen = end - start
+    var newBuf = new Buffer(sliceLen, undefined, true)
+    for (var i = 0; i < sliceLen; i++) {
+      newBuf[i] = this[i + start]
+    }
+    return newBuf
+  }
+}
+
+// `get` will be removed in Node 0.13+
+Buffer.prototype.get = function (offset) {
+  console.log('.get() is deprecated. Access using array indexes instead.')
+  return this.readUInt8(offset)
+}
+
+// `set` will be removed in Node 0.13+
+Buffer.prototype.set = function (v, offset) {
+  console.log('.set() is deprecated. Access using array indexes instead.')
+  return this.writeUInt8(v, offset)
+}
+
+Buffer.prototype.readUInt8 = function (offset, noAssert) {
+  if (!noAssert) {
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset < this.length, 'Trying to read beyond buffer length')
+  }
+
+  if (offset >= this.length)
+    return
+
+  return this[offset]
+}
+
+function readUInt16 (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 1 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  var val
+  if (littleEndian) {
+    val = buf[offset]
+    if (offset + 1 < len)
+      val |= buf[offset + 1] << 8
+  } else {
+    val = buf[offset] << 8
+    if (offset + 1 < len)
+      val |= buf[offset + 1]
+  }
+  return val
+}
+
+Buffer.prototype.readUInt16LE = function (offset, noAssert) {
+  return readUInt16(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readUInt16BE = function (offset, noAssert) {
+  return readUInt16(this, offset, false, noAssert)
+}
+
+function readUInt32 (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  var val
+  if (littleEndian) {
+    if (offset + 2 < len)
+      val = buf[offset + 2] << 16
+    if (offset + 1 < len)
+      val |= buf[offset + 1] << 8
+    val |= buf[offset]
+    if (offset + 3 < len)
+      val = val + (buf[offset + 3] << 24 >>> 0)
+  } else {
+    if (offset + 1 < len)
+      val = buf[offset + 1] << 16
+    if (offset + 2 < len)
+      val |= buf[offset + 2] << 8
+    if (offset + 3 < len)
+      val |= buf[offset + 3]
+    val = val + (buf[offset] << 24 >>> 0)
+  }
+  return val
+}
+
+Buffer.prototype.readUInt32LE = function (offset, noAssert) {
+  return readUInt32(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readUInt32BE = function (offset, noAssert) {
+  return readUInt32(this, offset, false, noAssert)
+}
+
+Buffer.prototype.readInt8 = function (offset, noAssert) {
+  if (!noAssert) {
+    assert(offset !== undefined && offset !== null,
+        'missing offset')
+    assert(offset < this.length, 'Trying to read beyond buffer length')
+  }
+
+  if (offset >= this.length)
+    return
+
+  var neg = this[offset] & 0x80
+  if (neg)
+    return (0xff - this[offset] + 1) * -1
+  else
+    return this[offset]
+}
+
+function readInt16 (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 1 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  var val = readUInt16(buf, offset, littleEndian, true)
+  var neg = val & 0x8000
+  if (neg)
+    return (0xffff - val + 1) * -1
+  else
+    return val
+}
+
+Buffer.prototype.readInt16LE = function (offset, noAssert) {
+  return readInt16(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readInt16BE = function (offset, noAssert) {
+  return readInt16(this, offset, false, noAssert)
+}
+
+function readInt32 (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  var val = readUInt32(buf, offset, littleEndian, true)
+  var neg = val & 0x80000000
+  if (neg)
+    return (0xffffffff - val + 1) * -1
+  else
+    return val
+}
+
+Buffer.prototype.readInt32LE = function (offset, noAssert) {
+  return readInt32(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readInt32BE = function (offset, noAssert) {
+  return readInt32(this, offset, false, noAssert)
+}
+
+function readFloat (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset + 3 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  return ieee754.read(buf, offset, littleEndian, 23, 4)
+}
+
+Buffer.prototype.readFloatLE = function (offset, noAssert) {
+  return readFloat(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readFloatBE = function (offset, noAssert) {
+  return readFloat(this, offset, false, noAssert)
+}
+
+function readDouble (buf, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset + 7 < buf.length, 'Trying to read beyond buffer length')
+  }
+
+  return ieee754.read(buf, offset, littleEndian, 52, 8)
+}
+
+Buffer.prototype.readDoubleLE = function (offset, noAssert) {
+  return readDouble(this, offset, true, noAssert)
+}
+
+Buffer.prototype.readDoubleBE = function (offset, noAssert) {
+  return readDouble(this, offset, false, noAssert)
+}
+
+Buffer.prototype.writeUInt8 = function (value, offset, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset < this.length, 'trying to write beyond buffer length')
+    verifuint(value, 0xff)
+  }
+
+  if (offset >= this.length) return
+
+  this[offset] = value
+  return offset + 1
+}
+
+function writeUInt16 (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 1 < buf.length, 'trying to write beyond buffer length')
+    verifuint(value, 0xffff)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  for (var i = 0, j = Math.min(len - offset, 2); i < j; i++) {
+    buf[offset + i] =
+        (value & (0xff << (8 * (littleEndian ? i : 1 - i)))) >>>
+            (littleEndian ? i : 1 - i) * 8
+  }
+  return offset + 2
+}
+
+Buffer.prototype.writeUInt16LE = function (value, offset, noAssert) {
+  return writeUInt16(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeUInt16BE = function (value, offset, noAssert) {
+  return writeUInt16(this, value, offset, false, noAssert)
+}
+
+function writeUInt32 (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'trying to write beyond buffer length')
+    verifuint(value, 0xffffffff)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  for (var i = 0, j = Math.min(len - offset, 4); i < j; i++) {
+    buf[offset + i] =
+        (value >>> (littleEndian ? i : 3 - i) * 8) & 0xff
+  }
+  return offset + 4
+}
+
+Buffer.prototype.writeUInt32LE = function (value, offset, noAssert) {
+  return writeUInt32(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeUInt32BE = function (value, offset, noAssert) {
+  return writeUInt32(this, value, offset, false, noAssert)
+}
+
+Buffer.prototype.writeInt8 = function (value, offset, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset < this.length, 'Trying to write beyond buffer length')
+    verifsint(value, 0x7f, -0x80)
+  }
+
+  if (offset >= this.length)
+    return
+
+  if (value >= 0)
+    this.writeUInt8(value, offset, noAssert)
+  else
+    this.writeUInt8(0xff + value + 1, offset, noAssert)
+  return offset + 1
+}
+
+function writeInt16 (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 1 < buf.length, 'Trying to write beyond buffer length')
+    verifsint(value, 0x7fff, -0x8000)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  if (value >= 0)
+    writeUInt16(buf, value, offset, littleEndian, noAssert)
+  else
+    writeUInt16(buf, 0xffff + value + 1, offset, littleEndian, noAssert)
+  return offset + 2
+}
+
+Buffer.prototype.writeInt16LE = function (value, offset, noAssert) {
+  return writeInt16(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeInt16BE = function (value, offset, noAssert) {
+  return writeInt16(this, value, offset, false, noAssert)
+}
+
+function writeInt32 (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'Trying to write beyond buffer length')
+    verifsint(value, 0x7fffffff, -0x80000000)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  if (value >= 0)
+    writeUInt32(buf, value, offset, littleEndian, noAssert)
+  else
+    writeUInt32(buf, 0xffffffff + value + 1, offset, littleEndian, noAssert)
+  return offset + 4
+}
+
+Buffer.prototype.writeInt32LE = function (value, offset, noAssert) {
+  return writeInt32(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeInt32BE = function (value, offset, noAssert) {
+  return writeInt32(this, value, offset, false, noAssert)
+}
+
+function writeFloat (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 3 < buf.length, 'Trying to write beyond buffer length')
+    verifIEEE754(value, 3.4028234663852886e+38, -3.4028234663852886e+38)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  ieee754.write(buf, value, offset, littleEndian, 23, 4)
+  return offset + 4
+}
+
+Buffer.prototype.writeFloatLE = function (value, offset, noAssert) {
+  return writeFloat(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeFloatBE = function (value, offset, noAssert) {
+  return writeFloat(this, value, offset, false, noAssert)
+}
+
+function writeDouble (buf, value, offset, littleEndian, noAssert) {
+  if (!noAssert) {
+    assert(value !== undefined && value !== null, 'missing value')
+    assert(typeof littleEndian === 'boolean', 'missing or invalid endian')
+    assert(offset !== undefined && offset !== null, 'missing offset')
+    assert(offset + 7 < buf.length,
+        'Trying to write beyond buffer length')
+    verifIEEE754(value, 1.7976931348623157E+308, -1.7976931348623157E+308)
+  }
+
+  var len = buf.length
+  if (offset >= len)
+    return
+
+  ieee754.write(buf, value, offset, littleEndian, 52, 8)
+  return offset + 8
+}
+
+Buffer.prototype.writeDoubleLE = function (value, offset, noAssert) {
+  return writeDouble(this, value, offset, true, noAssert)
+}
+
+Buffer.prototype.writeDoubleBE = function (value, offset, noAssert) {
+  return writeDouble(this, value, offset, false, noAssert)
+}
+
+// fill(value, start=0, end=buffer.length)
+Buffer.prototype.fill = function (value, start, end) {
+  if (!value) value = 0
+  if (!start) start = 0
+  if (!end) end = this.length
+
+  assert(end >= start, 'end < start')
+
+  // Fill 0 bytes; we're done
+  if (end === start) return
+  if (this.length === 0) return
+
+  assert(start >= 0 && start < this.length, 'start out of bounds')
+  assert(end >= 0 && end <= this.length, 'end out of bounds')
+
+  var i
+  if (typeof value === 'number') {
+    for (i = start; i < end; i++) {
+      this[i] = value
+    }
+  } else {
+    var bytes = utf8ToBytes(value.toString())
+    var len = bytes.length
+    for (i = start; i < end; i++) {
+      this[i] = bytes[i % len]
+    }
+  }
+
+  return this
+}
+
+Buffer.prototype.inspect = function () {
+  var out = []
+  var len = this.length
+  for (var i = 0; i < len; i++) {
+    out[i] = toHex(this[i])
+    if (i === exports.INSPECT_MAX_BYTES) {
+      out[i + 1] = '...'
+      break
+    }
+  }
+  return '<Buffer ' + out.join(' ') + '>'
+}
+
+/**
+ * Creates a new `ArrayBuffer` with the *copied* memory of the buffer instance.
+ * Added in Node 0.12. Only available in browsers that support ArrayBuffer.
+ */
+Buffer.prototype.toArrayBuffer = function () {
+  if (typeof Uint8Array !== 'undefined') {
+    if (Buffer._useTypedArrays) {
+      return (new Buffer(this)).buffer
+    } else {
+      var buf = new Uint8Array(this.length)
+      for (var i = 0, len = buf.length; i < len; i += 1) {
+        buf[i] = this[i]
+      }
+      return buf.buffer
+    }
+  } else {
+    throw new Error('Buffer.toArrayBuffer not supported in this browser')
+  }
+}
+
+// HELPER FUNCTIONS
+// ================
+
+var BP = Buffer.prototype
+
+/**
+ * Augment a Uint8Array *instance* (not the Uint8Array class!) with Buffer methods
+ */
+Buffer._augment = function (arr) {
+  arr._isBuffer = true
+
+  // save reference to original Uint8Array get/set methods before overwriting
+  arr._get = arr.get
+  arr._set = arr.set
+
+  // deprecated, will be removed in node 0.13+
+  arr.get = BP.get
+  arr.set = BP.set
+
+  arr.write = BP.write
+  arr.toString = BP.toString
+  arr.toLocaleString = BP.toString
+  arr.toJSON = BP.toJSON
+  arr.equals = BP.equals
+  arr.compare = BP.compare
+  arr.copy = BP.copy
+  arr.slice = BP.slice
+  arr.readUInt8 = BP.readUInt8
+  arr.readUInt16LE = BP.readUInt16LE
+  arr.readUInt16BE = BP.readUInt16BE
+  arr.readUInt32LE = BP.readUInt32LE
+  arr.readUInt32BE = BP.readUInt32BE
+  arr.readInt8 = BP.readInt8
+  arr.readInt16LE = BP.readInt16LE
+  arr.readInt16BE = BP.readInt16BE
+  arr.readInt32LE = BP.readInt32LE
+  arr.readInt32BE = BP.readInt32BE
+  arr.readFloatLE = BP.readFloatLE
+  arr.readFloatBE = BP.readFloatBE
+  arr.readDoubleLE = BP.readDoubleLE
+  arr.readDoubleBE = BP.readDoubleBE
+  arr.writeUInt8 = BP.writeUInt8
+  arr.writeUInt16LE = BP.writeUInt16LE
+  arr.writeUInt16BE = BP.writeUInt16BE
+  arr.writeUInt32LE = BP.writeUInt32LE
+  arr.writeUInt32BE = BP.writeUInt32BE
+  arr.writeInt8 = BP.writeInt8
+  arr.writeInt16LE = BP.writeInt16LE
+  arr.writeInt16BE = BP.writeInt16BE
+  arr.writeInt32LE = BP.writeInt32LE
+  arr.writeInt32BE = BP.writeInt32BE
+  arr.writeFloatLE = BP.writeFloatLE
+  arr.writeFloatBE = BP.writeFloatBE
+  arr.writeDoubleLE = BP.writeDoubleLE
+  arr.writeDoubleBE = BP.writeDoubleBE
+  arr.fill = BP.fill
+  arr.inspect = BP.inspect
+  arr.toArrayBuffer = BP.toArrayBuffer
+
+  return arr
+}
+
+var INVALID_BASE64_RE = /[^+\/0-9A-z]/g
+
+function base64clean (str) {
+  // Node strips out invalid characters like \n and \t from the string, base64-js does not
+  str = stringtrim(str).replace(INVALID_BASE64_RE, '')
+  // Node allows for non-padded base64 strings (missing trailing ===), base64-js does not
+  while (str.length % 4 !== 0) {
+    str = str + '='
+  }
+  return str
+}
+
+function stringtrim (str) {
+  if (str.trim) return str.trim()
+  return str.replace(/^\s+|\s+$/g, '')
+}
+
+// slice(start, end)
+function clamp (index, len, defaultValue) {
+  if (typeof index !== 'number') return defaultValue
+  index = ~~index;  // Coerce to integer.
+  if (index >= len) return len
+  if (index >= 0) return index
+  index += len
+  if (index >= 0) return index
+  return 0
+}
+
+function coerce (length) {
+  // Coerce length to a number (possibly NaN), round up
+  // in case it's fractional (e.g. 123.456) then do a
+  // double negate to coerce a NaN to 0. Easy, right?
+  length = ~~Math.ceil(+length)
+  return length < 0 ? 0 : length
+}
+
+function isArray (subject) {
+  return (Array.isArray || function (subject) {
+    return Object.prototype.toString.call(subject) === '[object Array]'
+  })(subject)
+}
+
+function isArrayish (subject) {
+  return isArray(subject) || Buffer.isBuffer(subject) ||
+      subject && typeof subject === 'object' &&
+      typeof subject.length === 'number'
+}
+
+function toHex (n) {
+  if (n < 16) return '0' + n.toString(16)
+  return n.toString(16)
+}
+
+function utf8ToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    var b = str.charCodeAt(i)
+    if (b <= 0x7F) {
+      byteArray.push(b)
+    } else {
+      var start = i
+      if (b >= 0xD800 && b <= 0xDFFF) i++
+      var h = encodeURIComponent(str.slice(start, i+1)).substr(1).split('%')
+      for (var j = 0; j < h.length; j++) {
+        byteArray.push(parseInt(h[j], 16))
+      }
+    }
+  }
+  return byteArray
+}
+
+function asciiToBytes (str) {
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    // Node's code seems to be doing this and not & 0x7F..
+    byteArray.push(str.charCodeAt(i) & 0xFF)
+  }
+  return byteArray
+}
+
+function utf16leToBytes (str) {
+  var c, hi, lo
+  var byteArray = []
+  for (var i = 0; i < str.length; i++) {
+    c = str.charCodeAt(i)
+    hi = c >> 8
+    lo = c % 256
+    byteArray.push(lo)
+    byteArray.push(hi)
+  }
+
+  return byteArray
+}
+
+function base64ToBytes (str) {
+  return base64.toByteArray(str)
+}
+
+function blitBuffer (src, dst, offset, length) {
+  for (var i = 0; i < length; i++) {
+    if ((i + offset >= dst.length) || (i >= src.length))
+      break
+    dst[i + offset] = src[i]
+  }
+  return i
+}
+
+function decodeUtf8Char (str) {
+  try {
+    return decodeURIComponent(str)
+  } catch (err) {
+    return String.fromCharCode(0xFFFD) // UTF 8 invalid char
+  }
+}
+
+/*
+ * We have to make sure that the value is a valid integer. This means that it
+ * is non-negative. It has no fractional component and that it does not
+ * exceed the maximum allowed value.
+ */
+function verifuint (value, max) {
+  assert(typeof value === 'number', 'cannot write a non-number as a number')
+  assert(value >= 0, 'specified a negative value for writing an unsigned value')
+  assert(value <= max, 'value is larger than maximum value for type')
+  assert(Math.floor(value) === value, 'value has a fractional component')
+}
+
+function verifsint (value, max, min) {
+  assert(typeof value === 'number', 'cannot write a non-number as a number')
+  assert(value <= max, 'value larger than maximum allowed value')
+  assert(value >= min, 'value smaller than minimum allowed value')
+  assert(Math.floor(value) === value, 'value has a fractional component')
+}
+
+function verifIEEE754 (value, max, min) {
+  assert(typeof value === 'number', 'cannot write a non-number as a number')
+  assert(value <= max, 'value larger than maximum allowed value')
+  assert(value >= min, 'value smaller than minimum allowed value')
+}
+
+function assert (test, message) {
+  if (!test) throw new Error(message || 'Failed assertion')
+}
+
+},{"base64-js":2,"ieee754":3}],2:[function(require,module,exports){
+var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+;(function (exports) {
+	'use strict';
+
+  var Arr = (typeof Uint8Array !== 'undefined')
+    ? Uint8Array
+    : Array
+
+	var PLUS   = '+'.charCodeAt(0)
+	var SLASH  = '/'.charCodeAt(0)
+	var NUMBER = '0'.charCodeAt(0)
+	var LOWER  = 'a'.charCodeAt(0)
+	var UPPER  = 'A'.charCodeAt(0)
+
+	function decode (elt) {
+		var code = elt.charCodeAt(0)
+		if (code === PLUS)
+			return 62 // '+'
+		if (code === SLASH)
+			return 63 // '/'
+		if (code < NUMBER)
+			return -1 //no match
+		if (code < NUMBER + 10)
+			return code - NUMBER + 26 + 26
+		if (code < UPPER + 26)
+			return code - UPPER
+		if (code < LOWER + 26)
+			return code - LOWER + 26
+	}
+
+	function b64ToByteArray (b64) {
+		var i, j, l, tmp, placeHolders, arr
+
+		if (b64.length % 4 > 0) {
+			throw new Error('Invalid string. Length must be a multiple of 4')
+		}
+
+		// the number of equal signs (place holders)
+		// if there are two placeholders, than the two characters before it
+		// represent one byte
+		// if there is only one, then the three characters before it represent 2 bytes
+		// this is just a cheap hack to not do indexOf twice
+		var len = b64.length
+		placeHolders = '=' === b64.charAt(len - 2) ? 2 : '=' === b64.charAt(len - 1) ? 1 : 0
+
+		// base64 is 4/3 + up to two characters of the original data
+		arr = new Arr(b64.length * 3 / 4 - placeHolders)
+
+		// if there are placeholders, only get up to the last complete 4 chars
+		l = placeHolders > 0 ? b64.length - 4 : b64.length
+
+		var L = 0
+
+		function push (v) {
+			arr[L++] = v
+		}
+
+		for (i = 0, j = 0; i < l; i += 4, j += 3) {
+			tmp = (decode(b64.charAt(i)) << 18) | (decode(b64.charAt(i + 1)) << 12) | (decode(b64.charAt(i + 2)) << 6) | decode(b64.charAt(i + 3))
+			push((tmp & 0xFF0000) >> 16)
+			push((tmp & 0xFF00) >> 8)
+			push(tmp & 0xFF)
+		}
+
+		if (placeHolders === 2) {
+			tmp = (decode(b64.charAt(i)) << 2) | (decode(b64.charAt(i + 1)) >> 4)
+			push(tmp & 0xFF)
+		} else if (placeHolders === 1) {
+			tmp = (decode(b64.charAt(i)) << 10) | (decode(b64.charAt(i + 1)) << 4) | (decode(b64.charAt(i + 2)) >> 2)
+			push((tmp >> 8) & 0xFF)
+			push(tmp & 0xFF)
+		}
+
+		return arr
+	}
+
+	function uint8ToBase64 (uint8) {
+		var i,
+			extraBytes = uint8.length % 3, // if we have 1 byte left, pad 2 bytes
+			output = "",
+			temp, length
+
+		function encode (num) {
+			return lookup.charAt(num)
+		}
+
+		function tripletToBase64 (num) {
+			return encode(num >> 18 & 0x3F) + encode(num >> 12 & 0x3F) + encode(num >> 6 & 0x3F) + encode(num & 0x3F)
+		}
+
+		// go through the array every three bytes, we'll deal with trailing stuff later
+		for (i = 0, length = uint8.length - extraBytes; i < length; i += 3) {
+			temp = (uint8[i] << 16) + (uint8[i + 1] << 8) + (uint8[i + 2])
+			output += tripletToBase64(temp)
+		}
+
+		// pad the end with zeros, but make sure to not forget the extra bytes
+		switch (extraBytes) {
+			case 1:
+				temp = uint8[uint8.length - 1]
+				output += encode(temp >> 2)
+				output += encode((temp << 4) & 0x3F)
+				output += '=='
+				break
+			case 2:
+				temp = (uint8[uint8.length - 2] << 8) + (uint8[uint8.length - 1])
+				output += encode(temp >> 10)
+				output += encode((temp >> 4) & 0x3F)
+				output += encode((temp << 2) & 0x3F)
+				output += '='
+				break
+		}
+
+		return output
+	}
+
+	exports.toByteArray = b64ToByteArray
+	exports.fromByteArray = uint8ToBase64
+}(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
+
+},{}],3:[function(require,module,exports){
+exports.read = function(buffer, offset, isLE, mLen, nBytes) {
+  var e, m,
+      eLen = nBytes * 8 - mLen - 1,
+      eMax = (1 << eLen) - 1,
+      eBias = eMax >> 1,
+      nBits = -7,
+      i = isLE ? (nBytes - 1) : 0,
+      d = isLE ? -1 : 1,
+      s = buffer[offset + i];
+
+  i += d;
+
+  e = s & ((1 << (-nBits)) - 1);
+  s >>= (-nBits);
+  nBits += eLen;
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8);
+
+  m = e & ((1 << (-nBits)) - 1);
+  e >>= (-nBits);
+  nBits += mLen;
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8);
+
+  if (e === 0) {
+    e = 1 - eBias;
+  } else if (e === eMax) {
+    return m ? NaN : ((s ? -1 : 1) * Infinity);
+  } else {
+    m = m + Math.pow(2, mLen);
+    e = e - eBias;
+  }
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
+};
+
+exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
+  var e, m, c,
+      eLen = nBytes * 8 - mLen - 1,
+      eMax = (1 << eLen) - 1,
+      eBias = eMax >> 1,
+      rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
+      i = isLE ? 0 : (nBytes - 1),
+      d = isLE ? 1 : -1,
+      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+
+  value = Math.abs(value);
+
+  if (isNaN(value) || value === Infinity) {
+    m = isNaN(value) ? 1 : 0;
+    e = eMax;
+  } else {
+    e = Math.floor(Math.log(value) / Math.LN2);
+    if (value * (c = Math.pow(2, -e)) < 1) {
+      e--;
+      c *= 2;
+    }
+    if (e + eBias >= 1) {
+      value += rt / c;
+    } else {
+      value += rt * Math.pow(2, 1 - eBias);
+    }
+    if (value * c >= 2) {
+      e++;
+      c /= 2;
+    }
+
+    if (e + eBias >= eMax) {
+      m = 0;
+      e = eMax;
+    } else if (e + eBias >= 1) {
+      m = (value * c - 1) * Math.pow(2, mLen);
+      e = e + eBias;
+    } else {
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
+      e = 0;
+    }
+  }
+
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8);
+
+  e = (e << mLen) | m;
+  eLen += mLen;
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8);
+
+  buffer[offset + i - d] |= s * 128;
+};
+
+},{}],4:[function(require,module,exports){
+module.exports = require('./lib/heap');
+
+},{"./lib/heap":5}],5:[function(require,module,exports){
+// Generated by CoffeeScript 1.6.3
+(function() {
+  var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
+
+  floor = Math.floor, min = Math.min;
+
+  /* 
+  Default comparison function to be used
+  */
+
+
+  defaultCmp = function(x, y) {
+    if (x < y) {
+      return -1;
+    }
+    if (x > y) {
+      return 1;
+    }
+    return 0;
+  };
+
+  /* 
+  Insert item x in list a, and keep it sorted assuming a is sorted.
+  
+  If x is already in a, insert it to the right of the rightmost x.
+  
+  Optional args lo (default 0) and hi (default a.length) bound the slice
+  of a to be searched.
+  */
+
+
+  insort = function(a, x, lo, hi, cmp) {
+    var mid;
+    if (lo == null) {
+      lo = 0;
+    }
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (lo < 0) {
+      throw new Error('lo must be non-negative');
+    }
+    if (hi == null) {
+      hi = a.length;
+    }
+    while (lo < hi) {
+      mid = floor((lo + hi) / 2);
+      if (cmp(x, a[mid]) < 0) {
+        hi = mid;
+      } else {
+        lo = mid + 1;
+      }
+    }
+    return ([].splice.apply(a, [lo, lo - lo].concat(x)), x);
+  };
+
+  /*
+  Push item onto heap, maintaining the heap invariant.
+  */
+
+
+  heappush = function(array, item, cmp) {
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    array.push(item);
+    return _siftdown(array, 0, array.length - 1, cmp);
+  };
+
+  /*
+  Pop the smallest item off the heap, maintaining the heap invariant.
+  */
+
+
+  heappop = function(array, cmp) {
+    var lastelt, returnitem;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    lastelt = array.pop();
+    if (array.length) {
+      returnitem = array[0];
+      array[0] = lastelt;
+      _siftup(array, 0, cmp);
+    } else {
+      returnitem = lastelt;
+    }
+    return returnitem;
+  };
+
+  /*
+  Pop and return the current smallest value, and add the new item.
+  
+  This is more efficient than heappop() followed by heappush(), and can be 
+  more appropriate when using a fixed size heap. Note that the value
+  returned may be larger than item! That constrains reasonable use of
+  this routine unless written as part of a conditional replacement:
+      if item > array[0]
+        item = heapreplace(array, item)
+  */
+
+
+  heapreplace = function(array, item, cmp) {
+    var returnitem;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    returnitem = array[0];
+    array[0] = item;
+    _siftup(array, 0, cmp);
+    return returnitem;
+  };
+
+  /*
+  Fast version of a heappush followed by a heappop.
+  */
+
+
+  heappushpop = function(array, item, cmp) {
+    var _ref;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (array.length && cmp(array[0], item) < 0) {
+      _ref = [array[0], item], item = _ref[0], array[0] = _ref[1];
+      _siftup(array, 0, cmp);
+    }
+    return item;
+  };
+
+  /*
+  Transform list into a heap, in-place, in O(array.length) time.
+  */
+
+
+  heapify = function(array, cmp) {
+    var i, _i, _j, _len, _ref, _ref1, _results, _results1;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    _ref1 = (function() {
+      _results1 = [];
+      for (var _j = 0, _ref = floor(array.length / 2); 0 <= _ref ? _j < _ref : _j > _ref; 0 <= _ref ? _j++ : _j--){ _results1.push(_j); }
+      return _results1;
+    }).apply(this).reverse();
+    _results = [];
+    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+      i = _ref1[_i];
+      _results.push(_siftup(array, i, cmp));
+    }
+    return _results;
+  };
+
+  /*
+  Update the position of the given item in the heap.
+  This function should be called every time the item is being modified.
+  */
+
+
+  updateItem = function(array, item, cmp) {
+    var pos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    pos = array.indexOf(item);
+    if (pos === -1) {
+      return;
+    }
+    _siftdown(array, 0, pos, cmp);
+    return _siftup(array, pos, cmp);
+  };
+
+  /*
+  Find the n largest elements in a dataset.
+  */
+
+
+  nlargest = function(array, n, cmp) {
+    var elem, result, _i, _len, _ref;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    result = array.slice(0, n);
+    if (!result.length) {
+      return result;
+    }
+    heapify(result, cmp);
+    _ref = array.slice(n);
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      elem = _ref[_i];
+      heappushpop(result, elem, cmp);
+    }
+    return result.sort(cmp).reverse();
+  };
+
+  /*
+  Find the n smallest elements in a dataset.
+  */
+
+
+  nsmallest = function(array, n, cmp) {
+    var elem, i, los, result, _i, _j, _len, _ref, _ref1, _results;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    if (n * 10 <= array.length) {
+      result = array.slice(0, n).sort(cmp);
+      if (!result.length) {
+        return result;
+      }
+      los = result[result.length - 1];
+      _ref = array.slice(n);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        elem = _ref[_i];
+        if (cmp(elem, los) < 0) {
+          insort(result, elem, 0, null, cmp);
+          result.pop();
+          los = result[result.length - 1];
+        }
+      }
+      return result;
+    }
+    heapify(array, cmp);
+    _results = [];
+    for (i = _j = 0, _ref1 = min(n, array.length); 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+      _results.push(heappop(array, cmp));
+    }
+    return _results;
+  };
+
+  _siftdown = function(array, startpos, pos, cmp) {
+    var newitem, parent, parentpos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    newitem = array[pos];
+    while (pos > startpos) {
+      parentpos = (pos - 1) >> 1;
+      parent = array[parentpos];
+      if (cmp(newitem, parent) < 0) {
+        array[pos] = parent;
+        pos = parentpos;
+        continue;
+      }
+      break;
+    }
+    return array[pos] = newitem;
+  };
+
+  _siftup = function(array, pos, cmp) {
+    var childpos, endpos, newitem, rightpos, startpos;
+    if (cmp == null) {
+      cmp = defaultCmp;
+    }
+    endpos = array.length;
+    startpos = pos;
+    newitem = array[pos];
+    childpos = 2 * pos + 1;
+    while (childpos < endpos) {
+      rightpos = childpos + 1;
+      if (rightpos < endpos && !(cmp(array[childpos], array[rightpos]) < 0)) {
+        childpos = rightpos;
+      }
+      array[pos] = array[childpos];
+      pos = childpos;
+      childpos = 2 * pos + 1;
+    }
+    array[pos] = newitem;
+    return _siftdown(array, startpos, pos, cmp);
+  };
+
+  Heap = (function() {
+    Heap.push = heappush;
+
+    Heap.pop = heappop;
+
+    Heap.replace = heapreplace;
+
+    Heap.pushpop = heappushpop;
+
+    Heap.heapify = heapify;
+
+    Heap.nlargest = nlargest;
+
+    Heap.nsmallest = nsmallest;
+
+    function Heap(cmp) {
+      this.cmp = cmp != null ? cmp : defaultCmp;
+      this.nodes = [];
+    }
+
+    Heap.prototype.push = function(x) {
+      return heappush(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.pop = function() {
+      return heappop(this.nodes, this.cmp);
+    };
+
+    Heap.prototype.peek = function() {
+      return this.nodes[0];
+    };
+
+    Heap.prototype.contains = function(x) {
+      return this.nodes.indexOf(x) !== -1;
+    };
+
+    Heap.prototype.replace = function(x) {
+      return heapreplace(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.pushpop = function(x) {
+      return heappushpop(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.heapify = function() {
+      return heapify(this.nodes, this.cmp);
+    };
+
+    Heap.prototype.updateItem = function(x) {
+      return updateItem(this.nodes, x, this.cmp);
+    };
+
+    Heap.prototype.clear = function() {
+      return this.nodes = [];
+    };
+
+    Heap.prototype.empty = function() {
+      return this.nodes.length === 0;
+    };
+
+    Heap.prototype.size = function() {
+      return this.nodes.length;
+    };
+
+    Heap.prototype.clone = function() {
+      var heap;
+      heap = new Heap();
+      heap.nodes = this.nodes.slice(0);
+      return heap;
+    };
+
+    Heap.prototype.toArray = function() {
+      return this.nodes.slice(0);
+    };
+
+    Heap.prototype.insert = Heap.prototype.push;
+
+    Heap.prototype.top = Heap.prototype.peek;
+
+    Heap.prototype.front = Heap.prototype.peek;
+
+    Heap.prototype.has = Heap.prototype.contains;
+
+    Heap.prototype.copy = Heap.prototype.clone;
+
+    return Heap;
+
+  })();
+
+  if (typeof module !== "undefined" && module !== null ? module.exports : void 0) {
+    module.exports = Heap;
+  } else {
+    window.Heap = Heap;
+  }
+
+}).call(this);
+
+},{}],6:[function(require,module,exports){
+/*
+ (c) 2013, Vladimir Agafonkin
+ Simplify.js, a high-performance JS polyline simplification library
+ mourner.github.io/simplify-js
+*/
+
+(function () { 'use strict';
+
+// to suit your point format, run search/replace for '.x' and '.y';
+// for 3D version, see 3d branch (configurability would draw significant performance overhead)
+
+// square distance between 2 points
+function getSqDist(p1, p2) {
+
+    var dx = p1.x - p2.x,
+        dy = p1.y - p2.y;
+
+    return dx * dx + dy * dy;
+}
+
+// square distance from a point to a segment
+function getSqSegDist(p, p1, p2) {
+
+    var x = p1.x,
+        y = p1.y,
+        dx = p2.x - x,
+        dy = p2.y - y;
+
+    if (dx !== 0 || dy !== 0) {
+
+        var t = ((p.x - x) * dx + (p.y - y) * dy) / (dx * dx + dy * dy);
+
+        if (t > 1) {
+            x = p2.x;
+            y = p2.y;
+
+        } else if (t > 0) {
+            x += dx * t;
+            y += dy * t;
+        }
+    }
+
+    dx = p.x - x;
+    dy = p.y - y;
+
+    return dx * dx + dy * dy;
+}
+// rest of the code doesn't care about point format
+
+// basic distance-based simplification
+function simplifyRadialDist(points, sqTolerance) {
+
+    var prevPoint = points[0],
+        newPoints = [prevPoint],
+        point;
+
+    for (var i = 1, len = points.length; i < len; i++) {
+        point = points[i];
+
+        if (getSqDist(point, prevPoint) > sqTolerance) {
+            newPoints.push(point);
+            prevPoint = point;
+        }
+    }
+
+    if (prevPoint !== point) newPoints.push(point);
+
+    return newPoints;
+}
+
+// simplification using optimized Douglas-Peucker algorithm with recursion elimination
+function simplifyDouglasPeucker(points, sqTolerance) {
+
+    var len = points.length,
+        MarkerArray = typeof Uint8Array !== 'undefined' ? Uint8Array : Array,
+        markers = new MarkerArray(len),
+        first = 0,
+        last = len - 1,
+        stack = [],
+        newPoints = [],
+        i, maxSqDist, sqDist, index;
+
+    markers[first] = markers[last] = 1;
+
+    while (last) {
+
+        maxSqDist = 0;
+
+        for (i = first + 1; i < last; i++) {
+            sqDist = getSqSegDist(points[i], points[first], points[last]);
+
+            if (sqDist > maxSqDist) {
+                index = i;
+                maxSqDist = sqDist;
+            }
+        }
+
+        if (maxSqDist > sqTolerance) {
+            markers[index] = 1;
+            stack.push(first, index, index, last);
+        }
+
+        last = stack.pop();
+        first = stack.pop();
+    }
+
+    for (i = 0; i < len; i++) {
+        if (markers[i]) newPoints.push(points[i]);
+    }
+
+    return newPoints;
+}
+
+// both algorithms combined for awesome performance
+function simplify(points, tolerance, highestQuality) {
+
+    var sqTolerance = tolerance !== undefined ? tolerance * tolerance : 1;
+
+    points = highestQuality ? points : simplifyRadialDist(points, sqTolerance);
+    points = simplifyDouglasPeucker(points, sqTolerance);
+
+    return points;
+}
+
+// export as AMD module / Node module / browser or worker variable
+if (typeof define === 'function' && define.amd) define(function() { return simplify; });
+else if (typeof module !== 'undefined') module.exports = simplify;
+else if (typeof self !== 'undefined') self.simplify = simplify;
+else window.simplify = simplify;
+
+})();
+
+},{}],7:[function(require,module,exports){
+"use strict"
+
+module.exports = createKDTree
+module.exports.deserialize = deserializeKDTree
+
+var ndarray = require("ndarray")
+var ndselect = require("ndarray-select")
+var pack = require("ndarray-pack")
+var ops = require("ndarray-ops")
+var ndscratch = require("ndarray-scratch")
+var pool = require("typedarray-pool")
+var inorderTree = require("inorder-tree-layout")
+var bits = require("bit-twiddle")
+var KDTHeap = require("./lib/heap.js")
+
+function KDTree(points, ids, n, d) {
+  this.points = points
+  this.ids = ids
+  this.dimension = d
+  this.length = n
+}
+
+var proto = KDTree.prototype
+
+proto.serialize = function() {
+  if(this.length > 0) {
+    return {
+      p: Array.prototype.slice.call(this.points.data, 0, this.length*this.dimension),
+      i: Array.prototype.slice.call(this.ids, 0, this.length)
+    }
+  } else {
+    return { d: this.dimension }
+  }
+}
+
+//Range query
+proto.range = function kdtRangeQuery(lo, hi, visit) {
+  var n = this.length
+  if(n < 1) {
+    return
+  }
+
+  //Check degenerate case
+  var d = this.dimension
+  for(var i=0; i<d; ++i) {
+    if(hi[i] < lo[i]) {
+      return
+    }
+  }
+
+  var points = this.points
+  var ids = this.ids
+
+  //Walk tree in level order, skipping subtrees which do not intersect range
+  var visitRange = ndscratch.malloc([n, 2, d])
+  var visitIndex = pool.mallocInt32(n)
+  var rangeData = visitRange.data
+  var pointData = points.data
+  var visitCount = 1
+  var visitTop = 0
+  var retval
+
+  visitIndex[0] = 0
+  pack(lo, visitRange.pick(0,0))
+  pack(hi, visitRange.pick(0,1))
+  
+  while(visitTop < visitCount) {
+    var idx = visitIndex[visitTop]
+    var k = bits.log2(idx+1)%d
+    var loidx = visitRange.index(visitTop, 0, 0)
+    var hiidx = visitRange.index(visitTop, 1, 0)
+    var pidx = points.index(idx, 0)
+
+    var visitPoint = true
+    for(var i=0; i<d; ++i) {
+      var pc = pointData[pidx+i]
+      if((pc < rangeData[loidx + i]) || 
+         (rangeData[hiidx + i] < pc)) {
+        visitPoint = false
+        break
+      }
+    }
+    if(visitPoint) {
+      retval = visit(ids[idx])
+      if(retval !== undefined) {
+        break
+      }
+    }
+
+    //Visit children
+    var pk = pointData[pidx+k]
+    var hk = rangeData[hiidx+k]
+    var lk = rangeData[loidx+k]
+    if(lk <= pk) {
+      var left = 2 * idx + 1
+      if(left < n) {
+        visitIndex[visitCount] = left
+        var y = visitRange.index(visitCount, 0, 0)
+        for(var i=0; i<d; ++i) {
+          rangeData[y+i] = rangeData[loidx+i]
+        }
+        var z = visitRange.index(visitCount, 1, 0)
+        for(var i=0; i<d; ++i) {
+          rangeData[z+i] = rangeData[hiidx+i]
+        }
+        rangeData[z+k] = Math.min(hk, pk)
+        visitCount += 1
+      }
+    }
+    if(pk <= hk) {
+      var right = 2 * (idx + 1)
+      if(right < n) {
+        visitIndex[visitCount] = right
+        var y = visitRange.index(visitCount, 0, 0)
+        for(var i=0; i<d; ++i) {
+          rangeData[y+i] = rangeData[loidx+i]
+        }
+        var z = visitRange.index(visitCount, 1, 0)
+        for(var i=0; i<d; ++i) {
+          rangeData[z+i] = rangeData[hiidx+i]
+        }
+        rangeData[y+k] = Math.max(lk, pk)
+        visitCount += 1
+      }
+    }
+
+    //Increment pointer
+    visitTop += 1
+  }
+  ndscratch.free(visitRange)
+  pool.free(visitIndex)
+  return retval
+}
+
+proto.rnn = function(point, radius, visit) {
+  if(radius < 0) {
+    return
+  }
+  var n = this.length
+  if(n < 1) {
+    return
+  }
+  var d = this.dimension
+  var points = this.points
+  var ids = this.ids
+
+  //Walk tree in level order, skipping subtrees which do not intersect sphere
+  var visitDistance = ndscratch.malloc([n, d])
+  var visitIndex = pool.mallocInt32(n)
+  var distanceData = visitDistance.data
+  var pointData = points.data
+  var visitCount = 1
+  var visitTop = 0
+  var r2 = radius*radius
+  var retval
+
+  //Initialize top of queue
+  visitIndex[0] = 0
+  for(var i=0; i<d; ++i) {
+    visitDistance.set(0, i, 0)
+  }
+
+  //Walk over queue
+  while(visitTop < visitCount) {
+    var idx = visitIndex[visitTop]
+    var pidx = points.index(idx, 0)
+
+    //Check if point in sphere
+    var d2 = 0.0
+    for(var i=0; i<d; ++i) {
+      d2 += Math.pow(point[i] - pointData[pidx+i], 2)
+    }
+    if(d2 <= r2) {
+      retval = visit(ids[idx])
+      if(retval !== undefined) {
+        break
+      }
+    }
+
+    //Visit children
+    var k = bits.log2(idx+1)%d
+    var ds = 0.0
+    var didx = visitDistance.index(visitTop, 0)
+    for(var i=0; i<d; ++i) {
+      if(i !== k) {
+        ds += distanceData[didx + i]
+      }
+    }
+
+    //Handle split axis
+    var qk = point[k]
+    var pk = pointData[pidx+k]
+    var dk = distanceData[didx+k]
+    var lk = dk
+    var hk = dk
+    if(qk < pk) {
+      hk = Math.max(dk, Math.pow(pk - qk, 2))
+    } else {
+      lk = Math.max(dk, Math.pow(pk - qk, 2))
+    }
+
+    var d2l = lk + ds
+    var d2h = hk + ds
+
+    if(d2l <= r2) {
+      var left = 2 * idx + 1
+      if(left < n) {
+        visitIndex[visitCount] = left
+        var y = visitDistance.index(visitCount, 0)
+        for(var i=0; i<d; ++i) {
+          distanceData[y+i] = distanceData[didx+i]
+        }
+        distanceData[y+k] = lk
+        visitCount += 1
+      }
+    }
+    if(d2h <= r2) {
+      var right = 2 * (idx + 1)
+      if(right < n) {
+        visitIndex[visitCount] = right
+        var y = visitDistance.index(visitCount, 0)
+        for(var i=0; i<d; ++i) {
+          distanceData[y+i] = distanceData[didx+i]
+        }
+        distanceData[y+k] = hk
+        visitCount += 1
+      }
+    }
+
+    //Increment pointer
+    visitTop += 1
+  }
+
+  ndscratch.free(visitDistance)
+  pool.free(visitIndex)
+  return retval
+}
+
+proto.nn = function(point, maxDistance) {
+  var n = this.length
+  if(n < 1) {
+    return -1
+  }
+  if(typeof maxDistance === "number") {
+    if(maxDistance < 0) {
+      return -1
+    } 
+  } else {
+    maxDistance = Infinity
+  }
+  var d = this.dimension
+  var points = this.points
+  var pointData = points.data
+  var dataVector = pool.mallocFloat64(d)
+
+  var toVisit = new KDTHeap(n, d+1)
+  var index = toVisit.index
+  var data = toVisit.data
+  index[0] = 0
+  for(var i=0; i<=d; ++i) {
+    data[i] = 0
+  }
+  toVisit.count += 1
+
+  var nearest = -1
+  var nearestD = maxDistance
+
+  while(toVisit.count > 0) {
+    if(data[0] >= nearestD) {
+      break
+    }
+
+    var idx = index[0]
+    var pidx = points.index(idx, 0)
+    var d2 = 0.0
+    for(var i=0; i<d; ++i) {
+      d2 += Math.pow(point[i]-pointData[pidx+i], 2)
+    }
+    if(d2 < nearestD) {
+      nearestD = d2
+      nearest = idx
+    }
+
+    //Compute distance bounds for children
+    var k = bits.log2(idx+1)%d
+    var ds = 0
+    for(var i=0; i<d; ++i) {
+      var dd = data[i+1]
+      if(i !== k) {
+        ds += dd
+      }
+      dataVector[i] = dd
+    }
+    var qk = point[k]
+    var pk = pointData[pidx+k]
+    var dk = dataVector[k]
+    var lk = dk
+    var hk = dk
+    if(qk < pk) {
+      hk = Math.max(dk, Math.pow(pk - qk, 2))
+    } else {
+      lk = Math.max(dk, Math.pow(pk - qk, 2))
+    }
+    var d2l = lk + ds
+    var d2h = hk + ds
+
+    toVisit.pop()
+    
+    if(d2l < nearestD) {
+      var left = 2 * idx + 1
+      if(left < n) {
+        var vcount = toVisit.count
+        index[vcount] = left
+        var vptr = vcount * (d+1)
+        data[vptr] = d2l
+        for(var i=1; i<=d; ++i) {
+          data[vptr+i] = dataVector[i-1]
+        }
+        data[vptr+k+1] = lk
+        toVisit.push()
+      }
+    }
+    if(d2h < nearestD) {
+      var right = 2 * (idx + 1)
+      if(right < n) {
+        var vcount = toVisit.count
+        index[vcount] = right
+        var vptr = vcount * (d+1)
+        data[vptr] = d2h
+        for(var i=1; i<=d; ++i) {
+          data[vptr+i] = dataVector[i-1]
+        }
+        data[vptr+k+1] = hk
+        toVisit.push()
+      }
+    }
+  }
+
+  pool.freeFloat64(dataVector)
+  toVisit.dispose()
+  
+  if(nearest < 0) {
+    return -1
+  }
+  return this.ids[nearest]
+}
+
+proto.knn = function(point, maxPoints, maxDistance) {
+  //Check degenerate cases
+  if(typeof maxDistance === "number") {
+    if(maxDistance < 0) {
+      return []
+    }
+  } else {
+    maxDistance = Infinity
+  }
+  var n = this.length
+  if(n < 1) {
+    return []
+  }
+  if(typeof maxPoints === "number") {
+    if(maxPoints <= 0) {
+      return []
+    }
+    maxPoints = Math.min(maxPoints, n)|0
+  } else {
+    maxPoints = n
+  }
+  var ids = this.ids
+
+  var d = this.dimension
+  var points = this.points
+  var pointData = points.data
+  var dataVector = pool.mallocFloat64(d)
+  
+  //List of closest points
+  var closestPoints = new KDTHeap(maxPoints, 1)
+  var cl_index = closestPoints.index
+  var cl_data = closestPoints.data
+
+  var toVisit = new KDTHeap(n, d+1)
+  var index = toVisit.index
+  var data = toVisit.data
+  index[0] = 0
+  for(var i=0; i<=d; ++i) {
+    data[i] = 0
+  }
+  toVisit.count += 1
+
+  var nearest = -1
+  var nearestD = maxDistance
+
+  while(toVisit.count > 0) {
+    if(data[0] >= nearestD) {
+      break
+    }
+
+    var idx = index[0]
+    var pidx = points.index(idx, 0)
+    var d2 = 0.0
+    for(var i=0; i<d; ++i) {
+      d2 += Math.pow(point[i]-pointData[pidx+i], 2)
+    }
+    if(d2 < nearestD) {
+      if(closestPoints.count >= maxPoints) {
+        closestPoints.pop()
+      }
+      var pcount = closestPoints.count
+      cl_index[pcount] = idx
+      cl_data[pcount] = -d2
+      closestPoints.push()
+      if(closestPoints.count >= maxPoints) {
+        nearestD = -cl_data[0]
+      }
+    }
+
+    //Compute distance bounds for children
+    var k = bits.log2(idx+1)%d
+    var ds = 0
+    for(var i=0; i<d; ++i) {
+      var dd = data[i+1]
+      if(i !== k) {
+        ds += dd
+      }
+      dataVector[i] = dd
+    }
+    var qk = point[k]
+    var pk = pointData[pidx+k]
+    var dk = dataVector[k]
+    var lk = dk
+    var hk = dk
+    if(qk < pk) {
+      hk = Math.max(dk, Math.pow(pk - qk, 2))
+    } else {
+      lk = Math.max(dk, Math.pow(pk - qk, 2))
+    }
+    var d2l = lk + ds
+    var d2h = hk + ds
+
+    toVisit.pop()
+    if(d2l < nearestD) {
+      var left = 2 * idx + 1
+      if(left < n) {
+        var vcount = toVisit.count
+        index[vcount] = left
+        var vptr = vcount * (d+1)
+        data[vptr] = d2l
+        for(var i=1; i<=d; ++i) {
+          data[vptr+i] = dataVector[i-1]
+        }
+        data[vptr+k+1] = lk
+        toVisit.push()
+      }
+    }
+    if(d2h < nearestD) {
+      var right = 2 * (idx + 1)
+      if(right < n) {
+        var vcount = toVisit.count
+        index[vcount] = right
+        var vptr = vcount * (d+1)
+        data[vptr] = d2h
+        for(var i=1; i<=d; ++i) {
+          data[vptr+i] = dataVector[i-1]
+        }
+        data[vptr+k+1] = hk
+        toVisit.push()
+      }
+    }
+  }
+
+  pool.freeFloat64(dataVector)
+  toVisit.dispose()
+
+  //Sort result
+  var result = new Array(closestPoints.count)
+  var ids = this.ids
+  for(var i=closestPoints.count-1; i>=0; --i) {
+    result[i] = ids[cl_index[0]]
+    closestPoints.pop()
+  }
+  closestPoints.dispose()
+
+  return result
+}
+
+proto.dispose = function kdtDispose() {
+  pool.free(this.points.data)
+  pool.freeInt32(this.ids)
+  this.points = null
+  this.ids = null
+  this.length = 0
+}
+
+function createKDTree(points) {
+  var n, d, indexed
+  if(Array.isArray(points)) {
+    n = points.length
+    if(n === 0) {
+      return new KDTree(null, null, 0, 0)
+    }
+    d = points[0].length
+    indexed = ndarray(pool.mallocDouble(n*(d+1)), [n, d+1])
+    pack(points, indexed.hi(n, d))
+  } else {
+    n = points.shape[0]
+    d = points.shape[1]
+
+    //Round up data type size
+    var type = points.dtype
+    if(type === "int8" ||
+       type === "int16" ||
+       type === "int32" ) {
+      type = "int32"
+    } else if(type === "uint8" ||
+      type === "uint8_clamped" ||
+      type === "buffer" ||
+      type === "uint16" ||
+      type === "uint32") {
+      type = "uint32"
+    } else if(type === "float32") {
+      type = "float32"
+    } else {
+      type = "float64"
+    }
+    indexed = ndarray(pool.malloc(n*(d+1)), [n, d+1])
+    ops.assign(indexed.hi(n,d), points)
+  }
+  for(var i=0; i<n; ++i) {
+    indexed.set(i, d, i)
+  }
+
+  var pointArray = ndscratch.malloc([n, d], points.dtype)
+  var indexArray = pool.mallocInt32(n)
+  var pointer = 0
+  var pointData = pointArray.data
+  var arrayData = indexed.data
+  var l2_n = bits.log2(bits.nextPow2(n))
+
+  var sel_cmp = ndselect.compile(indexed.order, true, indexed.dtype)
+
+  //Walk tree in level order
+  var toVisit = [indexed]
+  while(pointer < n) {
+    var head = toVisit.shift()
+    var array = head
+    var nn = array.shape[0]|0
+    
+    //Find median
+    if(nn > 1) {
+      var k = bits.log2(pointer+1)%d
+      var median
+      var n_2 = inorderTree.root(nn)
+      median = sel_cmp(array, n_2, function(a,b) {
+        return a.get(k) - b.get(k)
+      })
+
+      //Copy into new array
+      var pptr = pointArray.index(pointer, 0)
+      var mptr = median.offset
+      for(var i=0; i<d; ++i) {
+        pointData[pptr++] = arrayData[mptr++]
+      }
+      indexArray[pointer] = arrayData[mptr]
+      pointer += 1
+
+      //Queue new items
+      toVisit.push(array.hi(n_2))
+      if(nn > 2) {
+        toVisit.push(array.lo(n_2+1))
+      }
+    } else {
+      //Copy into new array
+      var mptr = array.offset
+      var pptr = pointArray.index(pointer, 0)
+      for(var i=0; i<d; ++i) {
+        pointData[pptr+i] = arrayData[mptr++]
+      }
+      indexArray[pointer] = arrayData[mptr]
+      pointer += 1
+    }
+  }
+
+  //Release indexed
+  pool.free(indexed.data)
+
+  return new KDTree(pointArray, indexArray, n, d)
+}
+
+function deserializeKDTree(data) {
+  var points = data.p
+  var ids = data.i
+  if(points) {
+    var nd = points.length
+    var pointArray = pool.mallocFloat64(nd)
+    for(var i=0; i<nd; ++i) {
+      pointArray[i] = points[i]
+    }
+    var n = ids.length
+    var idArray = pool.mallocInt32(n)
+    for(var i=0; i<n; ++i) {
+      idArray[i] = ids[i]
+    }
+    var d = (nd/n)|0
+    return new KDTree(
+      ndarray(pointArray, [n,d]),
+      idArray,
+      n,
+      d)
+  } else {
+    return new KDTree(null, null, 0, data.d)
+  }
+}
+},{"./lib/heap.js":8,"bit-twiddle":9,"inorder-tree-layout":10,"ndarray":25,"ndarray-ops":12,"ndarray-pack":17,"ndarray-scratch":23,"ndarray-select":24,"typedarray-pool":28}],8:[function(require,module,exports){
+"use strict"
+
+module.exports = KDTHeap
+
+var pool = require("typedarray-pool")
+
+function heapParent(i) {
+  if(i & 1) {
+    return (i - 1) >> 1
+  }
+  return (i >> 1) - 1
+}
+
+function KDTHeap(n, d) {
+  this.count = 0
+  this.dataSize = d
+  this.index = pool.mallocInt32(n)
+  this.data = pool.mallocFloat64(n*d)
+}
+
+var proto = KDTHeap.prototype
+
+proto.heapSwap = function(_i,_j) {
+  var data = this.data
+  var index = this.index
+  var d = this.dataSize
+  var tmp = index[_i]
+  index[_i] = index[_j]
+  index[_j] = tmp
+  var aptr = d*_i
+  var bptr = d*_j
+  for(var _k=0; _k<d; ++_k) {
+    var t2 = data[aptr]
+    data[aptr] = data[bptr]
+    data[bptr] = t2
+    aptr += 1
+    bptr += 1
+  }
+}
+
+proto.heapUp = function(i) {
+  var d = this.dataSize
+  var index = this.index
+  var data = this.data
+  var w = data[d*i]
+  while(i>0) {
+    var parent = heapParent(i)
+    if(parent >= 0) {
+      var pw = data[d*parent]
+      if(w < pw) {
+        this.heapSwap(i, parent)
+        i = parent
+        continue
+      }
+    }
+    break
+  }
+}
+
+proto.heapDown = function(i) {
+  var d = this.dataSize
+  var index = this.index
+  var data = this.data
+  var count = this.count
+  var w = data[d*i]
+  while(true) {
+    var tw = w
+    var left  = 2*i + 1
+    var right = 2*(i + 1)
+    var next = i
+    if(left < count) {
+      var lw = data[d*left]
+      if(lw < tw) {
+        next = left
+        tw = lw
+      }
+    }
+    if(right < count) {
+      var rw = data[d*right]
+      if(rw < tw) {
+        next = right
+      }
+    }
+    if(next === i) {
+      break
+    }
+    this.heapSwap(i, next)
+    i = next      
+  }
+}
+
+//Clear item from top of heap
+proto.pop = function() {
+  this.count -= 1
+  this.heapSwap(0, this.count)
+  this.heapDown(0)
+}
+
+//Assume object already written to data
+proto.push = function() {
+  this.heapUp(this.count)
+  this.count += 1
+}
+
+proto.dispose = function() {
+  pool.freeInt32(this.index)
+  pool.freeFloat64(this.data)
+}
+},{"typedarray-pool":28}],9:[function(require,module,exports){
+/**
+ * Bit twiddling hacks for JavaScript.
+ *
+ * Author: Mikola Lysenko
+ *
+ * Ported from Stanford bit twiddling hack library:
+ *    http://graphics.stanford.edu/~seander/bithacks.html
+ */
+
+"use strict"; "use restrict";
+
+//Number of bits in an integer
+var INT_BITS = 32;
+
+//Constants
+exports.INT_BITS  = INT_BITS;
+exports.INT_MAX   =  0x7fffffff;
+exports.INT_MIN   = -1<<(INT_BITS-1);
+
+//Returns -1, 0, +1 depending on sign of x
+exports.sign = function(v) {
+  return (v > 0) - (v < 0);
+}
+
+//Computes absolute value of integer
+exports.abs = function(v) {
+  var mask = v >> (INT_BITS-1);
+  return (v ^ mask) - mask;
+}
+
+//Computes minimum of integers x and y
+exports.min = function(x, y) {
+  return y ^ ((x ^ y) & -(x < y));
+}
+
+//Computes maximum of integers x and y
+exports.max = function(x, y) {
+  return x ^ ((x ^ y) & -(x < y));
+}
+
+//Checks if a number is a power of two
+exports.isPow2 = function(v) {
+  return !(v & (v-1)) && (!!v);
+}
+
+//Computes log base 2 of v
+exports.log2 = function(v) {
+  var r, shift;
+  r =     (v > 0xFFFF) << 4; v >>>= r;
+  shift = (v > 0xFF  ) << 3; v >>>= shift; r |= shift;
+  shift = (v > 0xF   ) << 2; v >>>= shift; r |= shift;
+  shift = (v > 0x3   ) << 1; v >>>= shift; r |= shift;
+  return r | (v >> 1);
+}
+
+//Computes log base 10 of v
+exports.log10 = function(v) {
+  return  (v >= 1000000000) ? 9 : (v >= 100000000) ? 8 : (v >= 10000000) ? 7 :
+          (v >= 1000000) ? 6 : (v >= 100000) ? 5 : (v >= 10000) ? 4 :
+          (v >= 1000) ? 3 : (v >= 100) ? 2 : (v >= 10) ? 1 : 0;
+}
+
+//Counts number of bits
+exports.popCount = function(v) {
+  v = v - ((v >>> 1) & 0x55555555);
+  v = (v & 0x33333333) + ((v >>> 2) & 0x33333333);
+  return ((v + (v >>> 4) & 0xF0F0F0F) * 0x1010101) >>> 24;
+}
+
+//Counts number of trailing zeros
+function countTrailingZeros(v) {
+  var c = 32;
+  v &= -v;
+  if (v) c--;
+  if (v & 0x0000FFFF) c -= 16;
+  if (v & 0x00FF00FF) c -= 8;
+  if (v & 0x0F0F0F0F) c -= 4;
+  if (v & 0x33333333) c -= 2;
+  if (v & 0x55555555) c -= 1;
+  return c;
+}
+exports.countTrailingZeros = countTrailingZeros;
+
+//Rounds to next power of 2
+exports.nextPow2 = function(v) {
+  v += v === 0;
+  --v;
+  v |= v >>> 1;
+  v |= v >>> 2;
+  v |= v >>> 4;
+  v |= v >>> 8;
+  v |= v >>> 16;
+  return v + 1;
+}
+
+//Rounds down to previous power of 2
+exports.prevPow2 = function(v) {
+  v |= v >>> 1;
+  v |= v >>> 2;
+  v |= v >>> 4;
+  v |= v >>> 8;
+  v |= v >>> 16;
+  return v - (v>>>1);
+}
+
+//Computes parity of word
+exports.parity = function(v) {
+  v ^= v >>> 16;
+  v ^= v >>> 8;
+  v ^= v >>> 4;
+  v &= 0xf;
+  return (0x6996 >>> v) & 1;
+}
+
+var REVERSE_TABLE = new Array(256);
+
+(function(tab) {
+  for(var i=0; i<256; ++i) {
+    var v = i, r = i, s = 7;
+    for (v >>>= 1; v; v >>>= 1) {
+      r <<= 1;
+      r |= v & 1;
+      --s;
+    }
+    tab[i] = (r << s) & 0xff;
+  }
+})(REVERSE_TABLE);
+
+//Reverse bits in a 32 bit word
+exports.reverse = function(v) {
+  return  (REVERSE_TABLE[ v         & 0xff] << 24) |
+          (REVERSE_TABLE[(v >>> 8)  & 0xff] << 16) |
+          (REVERSE_TABLE[(v >>> 16) & 0xff] << 8)  |
+           REVERSE_TABLE[(v >>> 24) & 0xff];
+}
+
+//Interleave bits of 2 coordinates with 16 bits.  Useful for fast quadtree codes
+exports.interleave2 = function(x, y) {
+  x &= 0xFFFF;
+  x = (x | (x << 8)) & 0x00FF00FF;
+  x = (x | (x << 4)) & 0x0F0F0F0F;
+  x = (x | (x << 2)) & 0x33333333;
+  x = (x | (x << 1)) & 0x55555555;
+
+  y &= 0xFFFF;
+  y = (y | (y << 8)) & 0x00FF00FF;
+  y = (y | (y << 4)) & 0x0F0F0F0F;
+  y = (y | (y << 2)) & 0x33333333;
+  y = (y | (y << 1)) & 0x55555555;
+
+  return x | (y << 1);
+}
+
+//Extracts the nth interleaved component
+exports.deinterleave2 = function(v, n) {
+  v = (v >>> n) & 0x55555555;
+  v = (v | (v >>> 1))  & 0x33333333;
+  v = (v | (v >>> 2))  & 0x0F0F0F0F;
+  v = (v | (v >>> 4))  & 0x00FF00FF;
+  v = (v | (v >>> 16)) & 0x000FFFF;
+  return (v << 16) >> 16;
+}
+
+
+//Interleave bits of 3 coordinates, each with 10 bits.  Useful for fast octree codes
+exports.interleave3 = function(x, y, z) {
+  x &= 0x3FF;
+  x  = (x | (x<<16)) & 4278190335;
+  x  = (x | (x<<8))  & 251719695;
+  x  = (x | (x<<4))  & 3272356035;
+  x  = (x | (x<<2))  & 1227133513;
+
+  y &= 0x3FF;
+  y  = (y | (y<<16)) & 4278190335;
+  y  = (y | (y<<8))  & 251719695;
+  y  = (y | (y<<4))  & 3272356035;
+  y  = (y | (y<<2))  & 1227133513;
+  x |= (y << 1);
+  
+  z &= 0x3FF;
+  z  = (z | (z<<16)) & 4278190335;
+  z  = (z | (z<<8))  & 251719695;
+  z  = (z | (z<<4))  & 3272356035;
+  z  = (z | (z<<2))  & 1227133513;
+  
+  return x | (z << 2);
+}
+
+//Extracts nth interleaved component of a 3-tuple
+exports.deinterleave3 = function(v, n) {
+  v = (v >>> n)       & 1227133513;
+  v = (v | (v>>>2))   & 3272356035;
+  v = (v | (v>>>4))   & 251719695;
+  v = (v | (v>>>8))   & 4278190335;
+  v = (v | (v>>>16))  & 0x3FF;
+  return (v<<22)>>22;
+}
+
+//Computes next combination in colexicographic order (this is mistakenly called nextPermutation on the bit twiddling hacks page)
+exports.nextCombination = function(v) {
+  var t = v | (v - 1);
+  return (t + 1) | (((~t & -~t) - 1) >>> (countTrailingZeros(v) + 1));
+}
+
+
+},{}],10:[function(require,module,exports){
+"use strict"
+
+var bits = require("bit-twiddle")
+
+function rootInorder(n) {
+  var ptree = (bits.nextPow2(n+1)>>>1) - 1
+  var f     = n - ptree
+  if(bits.nextPow2(f)-1 >= ptree) {
+    return ptree
+  }
+  return (ptree>>>1)+f
+}
+exports.root = rootInorder
+
+function beginInorder(n) {
+  return 0
+}
+exports.begin = beginInorder
+
+function endInorder(n) {
+  return n-1
+}
+exports.end = endInorder
+
+
+//This is really horrible because n is not necessarily a power of 2
+// If it was, we could just do:
+//
+//    height = bits.countTrailingZeros(~x)
+//
+// Instead, we just binary search because doing the right thing here is way too complicated.
+function heightInorder(n, x) {
+  if(n <= 0) {
+    return 0
+  }
+  var r = rootInorder(n)
+  if(x > r) {
+    return heightInorder(n-r-1, x-r-1)
+  } else if(x === r) {
+    return bits.log2(n)
+  }
+  return heightInorder(r, x)
+}
+exports.height = heightInorder
+
+function prevInorder(n, x) {
+  return Math.max(x-1,0)
+}
+exports.prev = prevInorder
+
+function nextInorder(n, x) {
+  return Math.min(x+1,n-1)
+}
+exports.next = nextInorder
+
+
+//The version for n = (1<<k)-1:
+//
+//  parent = (x & ~(1<<(h+1))) + (1<<h)
+//
+function parentInorder(n, x) {
+  if(n <= 0) {
+    return -1
+  }
+  var r = rootInorder(n)
+  if(x > r) {
+    var q = parentInorder(n-r-1, x-r-1)
+    if(q < 0) {
+      return r
+    } else {
+      return q + r + 1
+    }
+  } else if(x === r) {
+    return -1
+  }
+  var q =  parentInorder(r, x)
+  if(q < 0) {
+    return r
+  }
+  return q
+}
+exports.parent = parentInorder
+
+
+//Again, we get screwed because n is not a power of two -1.  If it was, we could do:
+//
+//    left = x - (1 << (h-1) )
+//
+// Where h is the height of the node
+//
+function leftInorder(n, x) {
+  if(n <= 0) {
+    return 0
+  }
+  var r = rootInorder(n)
+  if(x > r) {
+    return leftInorder(n-r-1, x-r-1) + r + 1
+  } else if(x === r) {
+    return rootInorder(x)
+  }
+  return leftInorder(r, x)
+
+}
+exports.left = leftInorder
+
+//for power of two minus one:
+//
+//    right = x + (1<<(h-1))
+//
+function rightInorder(n, x) {
+  if(n <= 0) {
+    return 0
+  }
+  var r = rootInorder(n)
+  if(x > r) {
+    return rightInorder(n-r-1, x-r-1) + r + 1
+  } else if(x === r) {
+    return rootInorder(n-r-1) + r + 1
+  }
+  return rightInorder(r, x)
+}
+exports.right = rightInorder
+
+
+function leafInorder(n, x) {
+  return heightInorder(n, x) === 0
+}
+exports.leaf = leafInorder
+
+
+function loInorder(n, x) {
+  n |= 0
+  x |= 0
+  var l = 0
+  while(n > 1) {
+    var r = rootInorder(n)
+    if(x > r) {
+      l += r + 1
+      n -= r + 1
+      x -= r + 1
+    } else if(x === r) {
+      break
+    } else {
+      n = r
+    }
+  }
+  return l
+}
+exports.lo = loInorder
+
+function hiInorder(n, x) {
+  n |= 0
+  x |= 0
+  var l = 0
+  while(n > 1) {
+    var r = rootInorder(n)
+    if(x > r) {
+      l += r + 1
+      n -= r + 1
+      x -= r + 1
+    } else if(x === r) {
+      l += n-1
+      break
+    } else {
+      n = r
+    }
+  }
+  return l
+}
+exports.hi = hiInorder
+
+},{"bit-twiddle":11}],11:[function(require,module,exports){
+module.exports=require(9)
+},{}],12:[function(require,module,exports){
+"use strict"
+
+var compile = require("cwise-compiler")
+
+var EmptyProc = {
+  body: "",
+  args: [],
+  thisVars: [],
+  localVars: []
+}
+
+function fixup(x) {
+  if(!x) {
+    return EmptyProc
+  }
+  for(var i=0; i<x.args.length; ++i) {
+    var a = x.args[i]
+    if(i === 0) {
+      x.args[i] = {name: a, lvalue:true, rvalue: !!x.rvalue, count:x.count||1 }
+    } else {
+      x.args[i] = {name: a, lvalue:false, rvalue:true, count: 1}
+    }
+  }
+  if(!x.thisVars) {
+    x.thisVars = []
+  }
+  if(!x.localVars) {
+    x.localVars = []
+  }
+  return x
+}
+
+function pcompile(user_args) {
+  return compile({
+    args:     user_args.args,
+    pre:      fixup(user_args.pre),
+    body:     fixup(user_args.body),
+    post:     fixup(user_args.proc),
+    funcName: user_args.funcName
+  })
+}
+
+function makeOp(user_args) {
+  var args = []
+  for(var i=0; i<user_args.args.length; ++i) {
+    args.push("a"+i)
+  }
+  var wrapper = new Function("P", [
+    "return function ", user_args.funcName, "_ndarrayops(", args.join(","), ") {P(", args.join(","), ");return a0}"
+  ].join(""))
+  return wrapper(pcompile(user_args))
+}
+
+var assign_ops = {
+  add:  "+",
+  sub:  "-",
+  mul:  "*",
+  div:  "/",
+  mod:  "%",
+  band: "&",
+  bor:  "|",
+  bxor: "^",
+  lshift: "<<",
+  rshift: ">>",
+  rrshift: ">>>"
+}
+;(function(){
+  for(var id in assign_ops) {
+    var op = assign_ops[id]
+    exports[id] = makeOp({
+      args: ["array","array","array"],
+      body: {args:["a","b","c"],
+             body: "a=b"+op+"c"},
+      funcName: id
+    })
+    exports[id+"eq"] = makeOp({
+      args: ["array","array"],
+      body: {args:["a","b"],
+             body:"a"+op+"=b"},
+      rvalue: true,
+      funcName: id+"eq"
+    })
+    exports[id+"s"] = makeOp({
+      args: ["array", "array", "scalar"],
+      body: {args:["a","b","s"],
+             body:"a=b"+op+"s"},
+      funcName: id+"s"
+    })
+    exports[id+"seq"] = makeOp({
+      args: ["array","scalar"],
+      body: {args:["a","s"],
+             body:"a"+op+"=s"},
+      rvalue: true,
+      funcName: id+"seq"
+    })
+  }
+})();
+
+var unary_ops = {
+  not: "!",
+  bnot: "~",
+  neg: "-",
+  recip: "1.0/"
+}
+;(function(){
+  for(var id in unary_ops) {
+    var op = unary_ops[id]
+    exports[id] = makeOp({
+      args: ["array", "array"],
+      body: {args:["a","b"],
+             body:"a="+op+"b"},
+      funcName: id
+    })
+    exports[id+"eq"] = makeOp({
+      args: ["array"],
+      body: {args:["a"],
+             body:"a="+op+"a"},
+      rvalue: true,
+      count: 2,
+      funcName: id+"eq"
+    })
+  }
+})();
+
+var binary_ops = {
+  and: "&&",
+  or: "||",
+  eq: "===",
+  neq: "!==",
+  lt: "<",
+  gt: ">",
+  leq: "<=",
+  geq: ">="
+}
+;(function() {
+  for(var id in binary_ops) {
+    var op = binary_ops[id]
+    exports[id] = makeOp({
+      args: ["array","array","array"],
+      body: {args:["a", "b", "c"],
+             body:"a=b"+op+"c"},
+      funcName: id
+    })
+    exports[id+"s"] = makeOp({
+      args: ["array","array","scalar"],
+      body: {args:["a", "b", "s"],
+             body:"a=b"+op+"s"},
+      funcName: id+"s"
+    })
+    exports[id+"eq"] = makeOp({
+      args: ["array", "array"],
+      body: {args:["a", "b"],
+             body:"a=a"+op+"b"},
+      rvalue:true,
+      count:2,
+      funcName: id+"eq"
+    })
+    exports[id+"seq"] = makeOp({
+      args: ["array", "scalar"],
+      body: {args:["a","s"],
+             body:"a=a"+op+"s"},
+      rvalue:true,
+      count:2,
+      funcName: id+"seq"
+    })
+  }
+})();
+
+var math_unary = [
+  "abs",
+  "acos",
+  "asin",
+  "atan",
+  "ceil",
+  "cos",
+  "exp",
+  "floor",
+  "log",
+  "round",
+  "sin",
+  "sqrt",
+  "tan"
+]
+;(function() {
+  for(var i=0; i<math_unary.length; ++i) {
+    var f = math_unary[i]
+    exports[f] = makeOp({
+                    args: ["array", "array"],
+                    pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                    body: {args:["a","b"], body:"a=this_f(b)", thisVars:["this_f"]},
+                    funcName: f
+                  })
+    exports[f+"eq"] = makeOp({
+                      args: ["array"],
+                      pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                      body: {args: ["a"], body:"a=this_f(a)", thisVars:["this_f"]},
+                      rvalue: true,
+                      count: 2,
+                      funcName: f+"eq"
+                    })
+  }
+})();
+
+var math_comm = [
+  "max",
+  "min",
+  "atan2",
+  "pow"
+]
+;(function(){
+  for(var i=0; i<math_comm.length; ++i) {
+    var f= math_comm[i]
+    exports[f] = makeOp({
+                  args:["array", "array", "array"],
+                  pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                  body: {args:["a","b","c"], body:"a=this_f(b,c)", thisVars:["this_f"]},
+                  funcName: f
+                })
+    exports[f+"s"] = makeOp({
+                  args:["array", "array", "scalar"],
+                  pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                  body: {args:["a","b","c"], body:"a=this_f(b,c)", thisVars:["this_f"]},
+                  funcName: f+"s"
+                  })
+    exports[f+"eq"] = makeOp({ args:["array", "array"],
+                  pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                  body: {args:["a","b"], body:"a=this_f(a,b)", thisVars:["this_f"]},
+                  rvalue: true,
+                  count: 2,
+                  funcName: f+"eq"
+                  })
+    exports[f+"seq"] = makeOp({ args:["array", "scalar"],
+                  pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                  body: {args:["a","b"], body:"a=this_f(a,b)", thisVars:["this_f"]},
+                  rvalue:true,
+                  count:2,
+                  funcName: f+"seq"
+                  })
+  }
+})();
+
+var math_noncomm = [
+  "atan2",
+  "pow"
+]
+;(function(){
+  for(var i=0; i<math_noncomm.length; ++i) {
+    var f= math_noncomm[i]
+    exports[f+"op"] = makeOp({
+                  args:["array", "array", "array"],
+                  pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                  body: {args:["a","b","c"], body:"a=this_f(c,b)", thisVars:["this_f"]},
+                  funcName: f+"op"
+                })
+    exports[f+"ops"] = makeOp({
+                  args:["array", "array", "scalar"],
+                  pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                  body: {args:["a","b","c"], body:"a=this_f(c,b)", thisVars:["this_f"]},
+                  funcName: f+"ops"
+                  })
+    exports[f+"opeq"] = makeOp({ args:["array", "array"],
+                  pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                  body: {args:["a","b"], body:"a=this_f(b,a)", thisVars:["this_f"]},
+                  rvalue: true,
+                  count: 2,
+                  funcName: f+"opeq"
+                  })
+    exports[f+"opseq"] = makeOp({ args:["array", "scalar"],
+                  pre: {args:[], body:"this_f=Math."+f, thisVars:["this_f"]},
+                  body: {args:["a","b"], body:"a=this_f(b,a)", thisVars:["this_f"]},
+                  rvalue:true,
+                  count:2,
+                  funcName: f+"opseq"
+                  })
+  }
+})();
+
+exports.any = compile({
+  args:["array"],
+  pre: EmptyProc,
+  body: {args:[{name:"a", lvalue:false, rvalue:true, count:1}], body: "if(a){return true}", localVars: [], thisVars: []},
+  post: {args:[], localVars:[], thisVars:[], body:"return false"},
+  funcName: "any"
+})
+
+exports.all = compile({
+  args:["array"],
+  pre: EmptyProc,
+  body: {args:[{name:"x", lvalue:false, rvalue:true, count:1}], body: "if(!x){return false}", localVars: [], thisVars: []},
+  post: {args:[], localVars:[], thisVars:[], body:"return true"},
+  funcName: "all"
+})
+
+exports.sum = compile({
+  args:["array"],
+  pre: {args:[], localVars:[], thisVars:["this_s"], body:"this_s=0"},
+  body: {args:[{name:"a", lvalue:false, rvalue:true, count:1}], body: "this_s+=a", localVars: [], thisVars: ["this_s"]},
+  post: {args:[], localVars:[], thisVars:["this_s"], body:"return this_s"},
+  funcName: "sum"
+})
+
+exports.prod = compile({
+  args:["array"],
+  pre: {args:[], localVars:[], thisVars:["this_s"], body:"this_s=1"},
+  body: {args:[{name:"a", lvalue:false, rvalue:true, count:1}], body: "this_s*=a", localVars: [], thisVars: ["this_s"]},
+  post: {args:[], localVars:[], thisVars:["this_s"], body:"return this_s"},
+  funcName: "prod"
+})
+
+exports.norm2squared = compile({
+  args:["array"],
+  pre: {args:[], localVars:[], thisVars:["this_s"], body:"this_s=0"},
+  body: {args:[{name:"a", lvalue:false, rvalue:true, count:2}], body: "this_s+=a*a", localVars: [], thisVars: ["this_s"]},
+  post: {args:[], localVars:[], thisVars:["this_s"], body:"return this_s"},
+  funcName: "norm2squared"
+})
+  
+exports.norm2 = compile({
+  args:["array"],
+  pre: {args:[], localVars:[], thisVars:["this_s"], body:"this_s=0"},
+  body: {args:[{name:"a", lvalue:false, rvalue:true, count:2}], body: "this_s+=a*a", localVars: [], thisVars: ["this_s"]},
+  post: {args:[], localVars:[], thisVars:["this_s"], body:"return Math.sqrt(this_s)"},
+  funcName: "norm2"
+})
+  
+
+exports.norminf = compile({
+  args:["array"],
+  pre: {args:[], localVars:[], thisVars:["this_s"], body:"this_s=0"},
+  body: {args:[{name:"a", lvalue:false, rvalue:true, count:4}], body:"if(-a>this_s){this_s=-a}else if(a>this_s){this_s=a}", localVars: [], thisVars: ["this_s"]},
+  post: {args:[], localVars:[], thisVars:["this_s"], body:"return this_s"},
+  funcName: "norminf"
+})
+
+exports.norm1 = compile({
+  args:["array"],
+  pre: {args:[], localVars:[], thisVars:["this_s"], body:"this_s=0"},
+  body: {args:[{name:"a", lvalue:false, rvalue:true, count:3}], body: "this_s+=a<0?-a:a", localVars: [], thisVars: ["this_s"]},
+  post: {args:[], localVars:[], thisVars:["this_s"], body:"return this_s"},
+  funcName: "norm1"
+})
+
+exports.sup = compile({
+  args: [ "array" ],
+  pre:
+   { body: "this_h=-Infinity",
+     args: [],
+     thisVars: [ "this_h" ],
+     localVars: [] },
+  body:
+   { body: "if(_inline_1_arg0_>this_h)this_h=_inline_1_arg0_",
+     args: [{"name":"_inline_1_arg0_","lvalue":false,"rvalue":true,"count":2} ],
+     thisVars: [ "this_h" ],
+     localVars: [] },
+  post:
+   { body: "return this_h",
+     args: [],
+     thisVars: [ "this_h" ],
+     localVars: [] }
+ })
+
+exports.inf = compile({
+  args: [ "array" ],
+  pre:
+   { body: "this_h=Infinity",
+     args: [],
+     thisVars: [ "this_h" ],
+     localVars: [] },
+  body:
+   { body: "if(_inline_1_arg0_<this_h)this_h=_inline_1_arg0_",
+     args: [{"name":"_inline_1_arg0_","lvalue":false,"rvalue":true,"count":2} ],
+     thisVars: [ "this_h" ],
+     localVars: [] },
+  post:
+   { body: "return this_h",
+     args: [],
+     thisVars: [ "this_h" ],
+     localVars: [] }
+ })
+
+exports.argmin = compile({
+  args:["index","array","shape"],
+  pre:{
+    body:"{this_v=Infinity;this_i=_inline_0_arg2_.slice(0)}",
+    args:[
+      {name:"_inline_0_arg0_",lvalue:false,rvalue:false,count:0},
+      {name:"_inline_0_arg1_",lvalue:false,rvalue:false,count:0},
+      {name:"_inline_0_arg2_",lvalue:false,rvalue:true,count:1}
+      ],
+    thisVars:["this_i","this_v"],
+    localVars:[]},
+  body:{
+    body:"{if(_inline_1_arg1_<this_v){this_v=_inline_1_arg1_;for(var _inline_1_k=0;_inline_1_k<_inline_1_arg0_.length;++_inline_1_k){this_i[_inline_1_k]=_inline_1_arg0_[_inline_1_k]}}}",
+    args:[
+      {name:"_inline_1_arg0_",lvalue:false,rvalue:true,count:2},
+      {name:"_inline_1_arg1_",lvalue:false,rvalue:true,count:2}],
+    thisVars:["this_i","this_v"],
+    localVars:["_inline_1_k"]},
+  post:{
+    body:"{return this_i}",
+    args:[],
+    thisVars:["this_i"],
+    localVars:[]}
+})
+
+exports.argmax = compile({
+  args:["index","array","shape"],
+  pre:{
+    body:"{this_v=-Infinity;this_i=_inline_0_arg2_.slice(0)}",
+    args:[
+      {name:"_inline_0_arg0_",lvalue:false,rvalue:false,count:0},
+      {name:"_inline_0_arg1_",lvalue:false,rvalue:false,count:0},
+      {name:"_inline_0_arg2_",lvalue:false,rvalue:true,count:1}
+      ],
+    thisVars:["this_i","this_v"],
+    localVars:[]},
+  body:{
+    body:"{if(_inline_1_arg1_>this_v){this_v=_inline_1_arg1_;for(var _inline_1_k=0;_inline_1_k<_inline_1_arg0_.length;++_inline_1_k){this_i[_inline_1_k]=_inline_1_arg0_[_inline_1_k]}}}",
+    args:[
+      {name:"_inline_1_arg0_",lvalue:false,rvalue:true,count:2},
+      {name:"_inline_1_arg1_",lvalue:false,rvalue:true,count:2}],
+    thisVars:["this_i","this_v"],
+    localVars:["_inline_1_k"]},
+  post:{
+    body:"{return this_i}",
+    args:[],
+    thisVars:["this_i"],
+    localVars:[]}
+})  
+
+exports.random = makeOp({
+  args: ["array"],
+  pre: {args:[], body:"this_f=Math.random", thisVars:["this_f"]},
+  body: {args: ["a"], body:"a=this_f()", thisVars:["this_f"]},
+  funcName: "random"
+})
+
+exports.assign = makeOp({
+  args:["array", "array"],
+  body: {args:["a", "b"], body:"a=b"},
+  funcName: "assign" })
+
+exports.assigns = makeOp({
+  args:["array", "scalar"],
+  body: {args:["a", "b"], body:"a=b"},
+  funcName: "assigns" })
+
+
+exports.equals = compile({
+  args:["array", "array"],
+  pre: EmptyProc,
+  body: {args:[{name:"x", lvalue:false, rvalue:true, count:1},
+               {name:"y", lvalue:false, rvalue:true, count:1}], 
+        body: "if(x!==y){return false}", 
+        localVars: [], 
+        thisVars: []},
+  post: {args:[], localVars:[], thisVars:[], body:"return true"},
+  funcName: "equals"
+})
+
+
+
+},{"cwise-compiler":13}],13:[function(require,module,exports){
+"use strict"
+
+var createThunk = require("./lib/thunk.js")
+
+function Procedure() {
+  this.argTypes = []
+  this.shimArgs = []
+  this.arrayArgs = []
+  this.scalarArgs = []
+  this.offsetArgs = []
+  this.offsetArgIndex = []
+  this.indexArgs = []
+  this.shapeArgs = []
+  this.funcName = ""
+  this.pre = null
+  this.body = null
+  this.post = null
+  this.debug = false
+}
+
+function compileCwise(user_args) {
+  //Create procedure
+  var proc = new Procedure()
+  
+  //Parse blocks
+  proc.pre    = user_args.pre
+  proc.body   = user_args.body
+  proc.post   = user_args.post
+
+  //Parse arguments
+  var proc_args = user_args.args.slice(0)
+  proc.argTypes = proc_args
+  for(var i=0; i<proc_args.length; ++i) {
+    var arg_type = proc_args[i]
+    if(arg_type === "array") {
+      proc.arrayArgs.push(i)
+      proc.shimArgs.push("array" + i)
+      if(i < proc.pre.args.length && proc.pre.args[i].count>0) {
+        throw new Error("cwise: pre() block may not reference array args")
+      }
+      if(i < proc.post.args.length && proc.post.args[i].count>0) {
+        throw new Error("cwise: post() block may not reference array args")
+      }
+    } else if(arg_type === "scalar") {
+      proc.scalarArgs.push(i)
+      proc.shimArgs.push("scalar" + i)
+    } else if(arg_type === "index") {
+      proc.indexArgs.push(i)
+      if(i < proc.pre.args.length && proc.pre.args[i].count > 0) {
+        throw new Error("cwise: pre() block may not reference array index")
+      }
+      if(i < proc.body.args.length && proc.body.args[i].lvalue) {
+        throw new Error("cwise: body() block may not write to array index")
+      }
+      if(i < proc.post.args.length && proc.post.args[i].count > 0) {
+        throw new Error("cwise: post() block may not reference array index")
+      }
+    } else if(arg_type === "shape") {
+      proc.shapeArgs.push(i)
+      if(i < proc.pre.args.length && proc.pre.args[i].lvalue) {
+        throw new Error("cwise: pre() block may not write to array shape")
+      }
+      if(i < proc.body.args.length && proc.body.args[i].lvalue) {
+        throw new Error("cwise: body() block may not write to array shape")
+      }
+      if(i < proc.post.args.length && proc.post.args[i].lvalue) {
+        throw new Error("cwise: post() block may not write to array shape")
+      }
+    } else if(typeof arg_type === "object" && arg_type.offset) {
+      proc.argTypes[i] = "offset"
+      proc.offsetArgs.push({ array: arg_type.array, offset:arg_type.offset })
+      proc.offsetArgIndex.push(i)
+    } else {
+      throw new Error("cwise: Unknown argument type " + proc_args[i])
+    }
+  }
+  
+  //Make sure at least one array argument was specified
+  if(proc.arrayArgs.length <= 0) {
+    throw new Error("cwise: No array arguments specified")
+  }
+  
+  //Make sure arguments are correct
+  if(proc.pre.args.length > proc_args.length) {
+    throw new Error("cwise: Too many arguments in pre() block")
+  }
+  if(proc.body.args.length > proc_args.length) {
+    throw new Error("cwise: Too many arguments in body() block")
+  }
+  if(proc.post.args.length > proc_args.length) {
+    throw new Error("cwise: Too many arguments in post() block")
+  }
+
+  //Check debug flag
+  proc.debug = !!user_args.printCode || !!user_args.debug
+  
+  //Retrieve name
+  proc.funcName = user_args.funcName || "cwise"
+  
+  //Read in block size
+  proc.blockSize = user_args.blockSize || 64
+
+  return createThunk(proc)
+}
+
+module.exports = compileCwise
+
+},{"./lib/thunk.js":15}],14:[function(require,module,exports){
+"use strict"
+
+var uniq = require("uniq")
+
+function innerFill(order, proc, body) {
+  var dimension = order.length
+    , nargs = proc.arrayArgs.length
+    , has_index = proc.indexArgs.length>0
+    , code = []
+    , vars = []
+    , idx=0, pidx=0, i, j
+  for(i=0; i<dimension; ++i) {
+    vars.push(["i",i,"=0"].join(""))
+  }
+  //Compute scan deltas
+  for(j=0; j<nargs; ++j) {
+    for(i=0; i<dimension; ++i) {
+      pidx = idx
+      idx = order[i]
+      if(i === 0) {
+        vars.push(["d",j,"s",i,"=t",j,"p",idx].join(""))
+      } else {
+        vars.push(["d",j,"s",i,"=(t",j,"p",idx,"-s",pidx,"*t",j,"p",pidx,")"].join(""))
+      }
+    }
+  }
+  code.push("var " + vars.join(","))
+  //Scan loop
+  for(i=dimension-1; i>=0; --i) {
+    idx = order[i]
+    code.push(["for(i",i,"=0;i",i,"<s",idx,";++i",i,"){"].join(""))
+  }
+  //Push body of inner loop
+  code.push(body)
+  //Advance scan pointers
+  for(i=0; i<dimension; ++i) {
+    pidx = idx
+    idx = order[i]
+    for(j=0; j<nargs; ++j) {
+      code.push(["p",j,"+=d",j,"s",i].join(""))
+    }
+    if(has_index) {
+      if(i > 0) {
+        code.push(["index[",pidx,"]-=s",pidx].join(""))
+      }
+      code.push(["++index[",idx,"]"].join(""))
+    }
+    code.push("}")
+  }
+  return code.join("\n")
+}
+
+function outerFill(matched, order, proc, body) {
+  var dimension = order.length
+    , nargs = proc.arrayArgs.length
+    , blockSize = proc.blockSize
+    , has_index = proc.indexArgs.length > 0
+    , code = []
+  for(var i=0; i<nargs; ++i) {
+    code.push(["var offset",i,"=p",i].join(""))
+  }
+  //Generate matched loops
+  for(var i=matched; i<dimension; ++i) {
+    code.push(["for(var j"+i+"=SS[", order[i], "]|0;j", i, ">0;){"].join(""))
+    code.push(["if(j",i,"<",blockSize,"){"].join(""))
+    code.push(["s",order[i],"=j",i].join(""))
+    code.push(["j",i,"=0"].join(""))
+    code.push(["}else{s",order[i],"=",blockSize].join(""))
+    code.push(["j",i,"-=",blockSize,"}"].join(""))
+    if(has_index) {
+      code.push(["index[",order[i],"]=j",i].join(""))
+    }
+  }
+  for(var i=0; i<nargs; ++i) {
+    var indexStr = ["offset"+i]
+    for(var j=matched; j<dimension; ++j) {
+      indexStr.push(["j",j,"*t",i,"p",order[j]].join(""))
+    }
+    code.push(["p",i,"=(",indexStr.join("+"),")"].join(""))
+  }
+  code.push(innerFill(order, proc, body))
+  for(var i=matched; i<dimension; ++i) {
+    code.push("}")
+  }
+  return code.join("\n")
+}
+
+//Count the number of compatible inner orders
+function countMatches(orders) {
+  var matched = 0, dimension = orders[0].length
+  while(matched < dimension) {
+    for(var j=1; j<orders.length; ++j) {
+      if(orders[j][matched] !== orders[0][matched]) {
+        return matched
+      }
+    }
+    ++matched
+  }
+  return matched
+}
+
+//Processes a block according to the given data types
+function processBlock(block, proc, dtypes) {
+  var code = block.body
+  var pre = []
+  var post = []
+  for(var i=0; i<block.args.length; ++i) {
+    var carg = block.args[i]
+    if(carg.count <= 0) {
+      continue
+    }
+    var re = new RegExp(carg.name, "g")
+    var ptrStr = ""
+    var arrNum = proc.arrayArgs.indexOf(i)
+    switch(proc.argTypes[i]) {
+      case "offset":
+        var offArgIndex = proc.offsetArgIndex.indexOf(i)
+        var offArg = proc.offsetArgs[offArgIndex]
+        arrNum = offArg.array
+        ptrStr = "+q" + offArgIndex
+      case "array":
+        ptrStr = "p" + arrNum + ptrStr
+        var localStr = "l" + i
+        var arrStr = "a" + arrNum
+        if(carg.count === 1) {
+          if(dtypes[arrNum] === "generic") {
+            if(carg.lvalue) {
+              pre.push(["var ", localStr, "=", arrStr, ".get(", ptrStr, ")"].join(""))
+              code = code.replace(re, localStr)
+              post.push([arrStr, ".set(", ptrStr, ",", localStr,")"].join(""))
+            } else {
+              code = code.replace(re, [arrStr, ".get(", ptrStr, ")"].join(""))
+            }
+          } else {
+            code = code.replace(re, [arrStr, "[", ptrStr, "]"].join(""))
+          }
+        } else if(dtypes[arrNum] === "generic") {
+          pre.push(["var ", localStr, "=", arrStr, ".get(", ptrStr, ")"].join(""))
+          code = code.replace(re, localStr)
+          if(carg.lvalue) {
+            post.push([arrStr, ".set(", ptrStr, ",", localStr,")"].join(""))
+          }
+        } else {
+          pre.push(["var ", localStr, "=", arrStr, "[", ptrStr, "]"].join(""))
+          code = code.replace(re, localStr)
+          if(carg.lvalue) {
+            post.push([arrStr, "[", ptrStr, "]=", localStr].join(""))
+          }
+        }
+      break
+      case "scalar":
+        code = code.replace(re, "Y" + proc.scalarArgs.indexOf(i))
+      break
+      case "index":
+        code = code.replace(re, "index")
+      break
+      case "shape":
+        code = code.replace(re, "shape")
+      break
+    }
+  }
+  return [pre.join("\n"), code, post.join("\n")].join("\n").trim()
+}
+
+function typeSummary(dtypes) {
+  var summary = new Array(dtypes.length)
+  var allEqual = true
+  for(var i=0; i<dtypes.length; ++i) {
+    var t = dtypes[i]
+    var digits = t.match(/\d+/)
+    if(!digits) {
+      digits = ""
+    } else {
+      digits = digits[0]
+    }
+    if(t.charAt(0) === 0) {
+      summary[i] = "u" + t.charAt(1) + digits
+    } else {
+      summary[i] = t.charAt(0) + digits
+    }
+    if(i > 0) {
+      allEqual = allEqual && summary[i] === summary[i-1]
+    }
+  }
+  if(allEqual) {
+    return summary[0]
+  }
+  return summary.join("")
+}
+
+//Generates a cwise operator
+function generateCWiseOp(proc, typesig) {
+
+  //Compute dimension
+  var dimension = typesig[1].length|0
+  var orders = new Array(proc.arrayArgs.length)
+  var dtypes = new Array(proc.arrayArgs.length)
+
+  //First create arguments for procedure
+  var arglist = ["SS"]
+  var code = ["'use strict'"]
+  var vars = []
+  
+  for(var j=0; j<dimension; ++j) {
+    vars.push(["s", j, "=SS[", j, "]"].join(""))
+  }
+  for(var i=0; i<proc.arrayArgs.length; ++i) {
+    arglist.push("a"+i)
+    arglist.push("t"+i)
+    arglist.push("p"+i)
+    dtypes[i] = typesig[2*i]
+    orders[i] = typesig[2*i+1]
+    
+    for(var j=0; j<dimension; ++j) {
+      vars.push(["t",i,"p",j,"=t",i,"[",j,"]"].join(""))
+    }
+  }
+  for(var i=0; i<proc.scalarArgs.length; ++i) {
+    arglist.push("Y" + i)
+  }
+  if(proc.shapeArgs.length > 0) {
+    vars.push("shape=SS.slice(0)")
+  }
+  if(proc.indexArgs.length > 0) {
+    var zeros = new Array(dimension)
+    for(var i=0; i<dimension; ++i) {
+      zeros[i] = "0"
+    }
+    vars.push(["index=[", zeros.join(","), "]"].join(""))
+  }
+  for(var i=0; i<proc.offsetArgs.length; ++i) {
+    var off_arg = proc.offsetArgs[i]
+    var init_string = []
+    for(var j=0; j<off_arg.offset.length; ++j) {
+      if(off_arg.offset[j] === 0) {
+        continue
+      } else if(off_arg.offset[j] === 1) {
+        init_string.push(["t", off_arg.array, "p", j].join(""))      
+      } else {
+        init_string.push([off_arg.offset[j], "*t", off_arg.array, "p", j].join(""))
+      }
+    }
+    if(init_string.length === 0) {
+      vars.push("q" + i + "=0")
+    } else {
+      vars.push(["q", i, "=", init_string.join("+")].join(""))
+    }
+  }
+
+  //Prepare this variables
+  var thisVars = uniq([].concat(proc.pre.thisVars)
+                      .concat(proc.body.thisVars)
+                      .concat(proc.post.thisVars))
+  vars = vars.concat(thisVars)
+  code.push("var " + vars.join(","))
+  for(var i=0; i<proc.arrayArgs.length; ++i) {
+    code.push("p"+i+"|=0")
+  }
+  
+  //Inline prelude
+  if(proc.pre.body.length > 3) {
+    code.push(processBlock(proc.pre, proc, dtypes))
+  }
+
+  //Process body
+  var body = processBlock(proc.body, proc, dtypes)
+  var matched = countMatches(orders)
+  if(matched < dimension) {
+    code.push(outerFill(matched, orders[0], proc, body))
+  } else {
+    code.push(innerFill(orders[0], proc, body))
+  }
+
+  //Inline epilog
+  if(proc.post.body.length > 3) {
+    code.push(processBlock(proc.post, proc, dtypes))
+  }
+  
+  if(proc.debug) {
+    console.log("Generated cwise routine for ", typesig, ":\n\n", code.join("\n"))
+  }
+  
+  var loopName = [(proc.funcName||"unnamed"), "_cwise_loop_", orders[0].join("s"),"m",matched,typeSummary(dtypes)].join("")
+  var f = new Function(["function ",loopName,"(", arglist.join(","),"){", code.join("\n"),"} return ", loopName].join(""))
+  return f()
+}
+module.exports = generateCWiseOp
+},{"uniq":16}],15:[function(require,module,exports){
+"use strict"
+
+var compile = require("./compile.js")
+
+function createThunk(proc) {
+  var code = ["'use strict'", "var CACHED={}"]
+  var vars = []
+  var thunkName = proc.funcName + "_cwise_thunk"
+  
+  //Build thunk
+  code.push(["return function ", thunkName, "(", proc.shimArgs.join(","), "){"].join(""))
+  var typesig = []
+  var string_typesig = []
+  var proc_args = [["array",proc.arrayArgs[0],".shape"].join("")]
+  for(var i=0; i<proc.arrayArgs.length; ++i) {
+    var j = proc.arrayArgs[i]
+    vars.push(["t", j, "=array", j, ".dtype,",
+               "r", j, "=array", j, ".order"].join(""))
+    typesig.push("t" + j)
+    typesig.push("r" + j)
+    string_typesig.push("t"+j)
+    string_typesig.push("r"+j+".join()")
+    proc_args.push("array" + j + ".data")
+    proc_args.push("array" + j + ".stride")
+    proc_args.push("array" + j + ".offset|0")
+  }
+  for(var i=0; i<proc.scalarArgs.length; ++i) {
+    proc_args.push("scalar" + proc.scalarArgs[i])
+  }
+  vars.push(["type=[", string_typesig.join(","), "].join()"].join(""))
+  vars.push("proc=CACHED[type]")
+  code.push("var " + vars.join(","))
+  
+  code.push(["if(!proc){",
+             "CACHED[type]=proc=compile([", typesig.join(","), "])}",
+             "return proc(", proc_args.join(","), ")}"].join(""))
+
+  if(proc.debug) {
+    console.log("Generated thunk:", code.join("\n"))
+  }
+  
+  //Compile thunk
+  var thunk = new Function("compile", code.join("\n"))
+  return thunk(compile.bind(undefined, proc))
+}
+
+module.exports = createThunk
+
+},{"./compile.js":14}],16:[function(require,module,exports){
+"use strict"
+
+function unique_pred(list, compare) {
+  var ptr = 1
+    , len = list.length
+    , a=list[0], b=list[0]
+  for(var i=1; i<len; ++i) {
+    b = a
+    a = list[i]
+    if(compare(a, b)) {
+      if(i === ptr) {
+        ptr++
+        continue
+      }
+      list[ptr++] = a
+    }
+  }
+  list.length = ptr
+  return list
+}
+
+function unique_eq(list) {
+  var ptr = 1
+    , len = list.length
+    , a=list[0], b = list[0]
+  for(var i=1; i<len; ++i, b=a) {
+    b = a
+    a = list[i]
+    if(a !== b) {
+      if(i === ptr) {
+        ptr++
+        continue
+      }
+      list[ptr++] = a
+    }
+  }
+  list.length = ptr
+  return list
+}
+
+function unique(list, compare, sorted) {
+  if(list.length === 0) {
+    return list
+  }
+  if(compare) {
+    if(!sorted) {
+      list.sort(compare)
+    }
+    return unique_pred(list, compare)
+  }
+  if(!sorted) {
+    list.sort()
+  }
+  return unique_eq(list)
+}
+
+module.exports = unique
+
+},{}],17:[function(require,module,exports){
+"use strict"
+
+var ndarray = require("ndarray")
+var do_convert = require("./doConvert.js")
+
+module.exports = function convert(arr, result) {
+  var shape = [], c = arr, sz = 1
+  while(c instanceof Array) {
+    shape.push(c.length)
+    sz *= c.length
+    c = c[0]
+  }
+  if(shape.length === 0) {
+    return ndarray()
+  }
+  if(!result) {
+    result = ndarray(new Float64Array(sz), shape)
+  }
+  do_convert(result, arr)
+  return result
+}
+
+},{"./doConvert.js":18,"ndarray":25}],18:[function(require,module,exports){
+module.exports=require('cwise-compiler')({"args":["array","scalar","index"],"pre":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"body":{"body":"{\nvar _inline_1_v=_inline_1_arg1_,_inline_1_i\nfor(_inline_1_i=0;_inline_1_i<_inline_1_arg2_.length-1;++_inline_1_i) {\n_inline_1_v=_inline_1_v[_inline_1_arg2_[_inline_1_i]]\n}\n_inline_1_arg0_=_inline_1_v[_inline_1_arg2_[_inline_1_arg2_.length-1]]\n}","args":[{"name":"_inline_1_arg0_","lvalue":true,"rvalue":false,"count":1},{"name":"_inline_1_arg1_","lvalue":false,"rvalue":true,"count":1},{"name":"_inline_1_arg2_","lvalue":false,"rvalue":true,"count":4}],"thisVars":[],"localVars":["_inline_1_i","_inline_1_v"]},"post":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"funcName":"convert","blockSize":64})
+
+},{"cwise-compiler":19}],19:[function(require,module,exports){
+"use strict"
+
+var createThunk = require("./lib/thunk.js")
+
+function Procedure() {
+  this.argTypes = []
+  this.shimArgs = []
+  this.arrayArgs = []
+  this.scalarArgs = []
+  this.offsetArgs = []
+  this.offsetArgIndex = []
+  this.indexArgs = []
+  this.shapeArgs = []
+  this.funcName = ""
+  this.pre = null
+  this.body = null
+  this.post = null
+  this.debug = false
+}
+
+function compileCwise(user_args) {
+  //Create procedure
+  var proc = new Procedure()
+  
+  //Parse blocks
+  proc.pre    = user_args.pre
+  proc.body   = user_args.body
+  proc.post   = user_args.post
+
+  //Parse arguments
+  var proc_args = user_args.args.slice(0)
+  proc.argTypes = proc_args.slice(0)
+  for(var i=0; i<proc_args.length; ++i) {
+    var arg_type = proc_args[i]
+    if(arg_type === "array") {
+      proc.arrayArgs.push(i)
+      proc.shimArgs.push("array" + i)
+      if(i < proc.pre.args.length && proc.pre.args[i].count>0) {
+        throw new Error("cwise: pre() block may not reference array args")
+      }
+      if(i < proc.post.args.length && proc.post.args[i].count>0) {
+        throw new Error("cwise: post() block may not reference array args")
+      }
+    } else if(arg_type === "scalar") {
+      proc.scalarArgs.push(i)
+      proc.shimArgs.push("scalar" + i)
+    } else if(arg_type === "index") {
+      proc.indexArgs.push(i)
+      if(i < proc.pre.args.length && proc.pre.args[i].count > 0) {
+        throw new Error("cwise: pre() block may not reference array index")
+      }
+      if(i < proc.body.args.length && proc.body.args[i].lvalue) {
+        throw new Error("cwise: body() block may not write to array index")
+      }
+      if(i < proc.post.args.length && proc.post.args[i].count > 0) {
+        throw new Error("cwise: post() block may not reference array index")
+      }
+    } else if(arg_type === "shape") {
+      proc.shapeArgs.push(i)
+      if(i < proc.pre.args.length && proc.pre.args[i].lvalue) {
+        throw new Error("cwise: pre() block may not write to array shape")
+      }
+      if(i < proc.body.args.length && proc.body.args[i].lvalue) {
+        throw new Error("cwise: body() block may not write to array shape")
+      }
+      if(i < proc.post.args.length && proc.post.args[i].lvalue) {
+        throw new Error("cwise: post() block may not write to array shape")
+      }
+    } else if(typeof arg_type === "object" && arg_type.offset) {
+      proc.argTypes[i] = "offset"
+      proc.offsetArgs.push({ array: arg_type.array, offset:arg_type.offset })
+      proc.offsetArgIndex.push(i)
+    } else {
+      throw new Error("cwise: Unknown argument type " + proc_args[i])
+    }
+  }
+  
+  //Make sure at least one array argument was specified
+  if(proc.arrayArgs.length <= 0) {
+    throw new Error("cwise: No array arguments specified")
+  }
+  
+  //Make sure arguments are correct
+  if(proc.pre.args.length > proc_args.length) {
+    throw new Error("cwise: Too many arguments in pre() block")
+  }
+  if(proc.body.args.length > proc_args.length) {
+    throw new Error("cwise: Too many arguments in body() block")
+  }
+  if(proc.post.args.length > proc_args.length) {
+    throw new Error("cwise: Too many arguments in post() block")
+  }
+
+  //Check debug flag
+  proc.debug = !!user_args.printCode || !!user_args.debug
+  
+  //Retrieve name
+  proc.funcName = user_args.funcName || "cwise"
+  
+  //Read in block size
+  proc.blockSize = user_args.blockSize || 64
+
+  return createThunk(proc)
+}
+
+module.exports = compileCwise
+
+},{"./lib/thunk.js":21}],20:[function(require,module,exports){
+"use strict"
+
+var uniq = require("uniq")
+
+function innerFill(order, proc, body) {
+  var dimension = order.length
+    , nargs = proc.arrayArgs.length
+    , has_index = proc.indexArgs.length>0
+    , code = []
+    , vars = []
+    , idx=0, pidx=0, i, j
+  for(i=0; i<dimension; ++i) {
+    vars.push(["i",i,"=0"].join(""))
+  }
+  //Compute scan deltas
+  for(j=0; j<nargs; ++j) {
+    for(i=0; i<dimension; ++i) {
+      pidx = idx
+      idx = order[i]
+      if(i === 0) {
+        vars.push(["d",j,"s",i,"=t",j,"[",idx,"]"].join(""))
+      } else {
+        vars.push(["d",j,"s",i,"=(t",j,"[",idx,"]-s",pidx,"*t",j,"[",pidx,"])"].join(""))
+      }
+    }
+  }
+  code.push("var " + vars.join(","))
+  //Scan loop
+  for(i=dimension-1; i>=0; --i) {
+    idx = order[i]
+    code.push(["for(i",i,"=0;i",i,"<s",idx,";++i",i,"){"].join(""))
+  }
+  //Push body of inner loop
+  code.push(body)
+  //Advance scan pointers
+  for(i=0; i<dimension; ++i) {
+    pidx = idx
+    idx = order[i]
+    for(j=0; j<nargs; ++j) {
+      code.push(["p",j,"+=d",j,"s",i].join(""))
+    }
+    if(has_index) {
+      if(i > 0) {
+        code.push(["index[",pidx,"]-=s",pidx].join(""))
+      }
+      code.push(["++index[",idx,"]"].join(""))
+    }
+    code.push("}")
+  }
+  return code.join("\n")
+}
+
+function outerFill(matched, order, proc, body) {
+  var dimension = order.length
+    , nargs = proc.arrayArgs.length
+    , blockSize = proc.blockSize
+    , has_index = proc.indexArgs.length > 0
+    , code = []
+  for(var i=0; i<nargs; ++i) {
+    code.push(["var offset",i,"=p",i].join(""))
+  }
+  //Generate matched loops
+  for(var i=matched; i<dimension; ++i) {
+    code.push(["for(var j"+i+"=SS[", order[i], "]|0;j", i, ">0;){"].join(""))
+    code.push(["if(j",i,"<",blockSize,"){"].join(""))
+    code.push(["s",order[i],"=j",i].join(""))
+    code.push(["j",i,"=0"].join(""))
+    code.push(["}else{s",order[i],"=",blockSize].join(""))
+    code.push(["j",i,"-=",blockSize,"}"].join(""))
+    if(has_index) {
+      code.push(["index[",order[i],"]=j",i].join(""))
+    }
+  }
+  for(var i=0; i<nargs; ++i) {
+    var indexStr = ["offset"+i]
+    for(var j=matched; j<dimension; ++j) {
+      indexStr.push(["j",j,"*t",i,"[",order[j],"]"].join(""))
+    }
+    code.push(["p",i,"=(",indexStr.join("+"),")"].join(""))
+  }
+  code.push(innerFill(order, proc, body))
+  for(var i=matched; i<dimension; ++i) {
+    code.push("}")
+  }
+  return code.join("\n")
+}
+
+//Count the number of compatible inner orders
+function countMatches(orders) {
+  var matched = 0, dimension = orders[0].length
+  while(matched < dimension) {
+    for(var j=1; j<orders.length; ++j) {
+      if(orders[j][matched] !== orders[0][matched]) {
+        return matched
+      }
+    }
+    ++matched
+  }
+  return matched
+}
+
+//Processes a block according to the given data types
+function processBlock(block, proc, dtypes) {
+  var code = block.body
+  var pre = []
+  var post = []
+  for(var i=0; i<block.args.length; ++i) {
+    var carg = block.args[i]
+    if(carg.count <= 0) {
+      continue
+    }
+    var re = new RegExp(carg.name, "g")
+    var ptrStr = ""
+    var arrNum = proc.arrayArgs.indexOf(i)
+    switch(proc.argTypes[i]) {
+      case "offset":
+        var offArgIndex = proc.offsetArgIndex.indexOf(i)
+        var offArg = proc.offsetArgs[offArgIndex]
+        arrNum = offArg.array
+        ptrStr = "+q" + offArgIndex
+      case "array":
+        ptrStr = "p" + arrNum + ptrStr
+        var localStr = "l" + i
+        var arrStr = "a" + arrNum
+        if(carg.count === 1) {
+          if(dtypes[arrNum] === "generic") {
+            if(carg.lvalue) {
+              pre.push(["var ", localStr, "=", arrStr, ".get(", ptrStr, ")"].join(""))
+              code = code.replace(re, localStr)
+              post.push([arrStr, ".set(", ptrStr, ",", localStr,")"].join(""))
+            } else {
+              code = code.replace(re, [arrStr, ".get(", ptrStr, ")"].join(""))
+            }
+          } else {
+            code = code.replace(re, [arrStr, "[", ptrStr, "]"].join(""))
+          }
+        } else if(dtypes[arrNum] === "generic") {
+          pre.push(["var ", localStr, "=", arrStr, ".get(", ptrStr, ")"].join(""))
+          code = code.replace(re, localStr)
+          if(carg.lvalue) {
+            post.push([arrStr, ".set(", ptrStr, ",", localStr,")"].join(""))
+          }
+        } else {
+          pre.push(["var ", localStr, "=", arrStr, "[", ptrStr, "]"].join(""))
+          code = code.replace(re, localStr)
+          if(carg.lvalue) {
+            post.push([arrStr, "[", ptrStr, "]=", localStr].join(""))
+          }
+        }
+      break
+      case "scalar":
+        code = code.replace(re, "Y" + proc.scalarArgs.indexOf(i))
+      break
+      case "index":
+        code = code.replace(re, "index")
+      break
+      case "shape":
+        code = code.replace(re, "shape")
+      break
+    }
+  }
+  return [pre.join("\n"), code, post.join("\n")].join("\n").trim()
+}
+
+function typeSummary(dtypes) {
+  var summary = new Array(dtypes.length)
+  var allEqual = true
+  for(var i=0; i<dtypes.length; ++i) {
+    var t = dtypes[i]
+    var digits = t.match(/\d+/)
+    if(!digits) {
+      digits = ""
+    } else {
+      digits = digits[0]
+    }
+    if(t.charAt(0) === 0) {
+      summary[i] = "u" + t.charAt(1) + digits
+    } else {
+      summary[i] = t.charAt(0) + digits
+    }
+    if(i > 0) {
+      allEqual = allEqual && summary[i] === summary[i-1]
+    }
+  }
+  if(allEqual) {
+    return summary[0]
+  }
+  return summary.join("")
+}
+
+//Generates a cwise operator
+function generateCWiseOp(proc, typesig) {
+
+  //Compute dimension
+  var dimension = typesig[1].length|0
+  var orders = new Array(proc.arrayArgs.length)
+  var dtypes = new Array(proc.arrayArgs.length)
+
+  //First create arguments for procedure
+  var arglist = ["SS"]
+  var code = ["'use strict'"]
+  var vars = []
+  
+  for(var j=0; j<dimension; ++j) {
+    vars.push(["s", j, "=SS[", j, "]"].join(""))
+  }
+  for(var i=0; i<proc.arrayArgs.length; ++i) {
+    arglist.push("a"+i)
+    arglist.push("t"+i)
+    arglist.push("p"+i)
+    dtypes[i] = typesig[2*i]
+    orders[i] = typesig[2*i+1]
+  }
+  for(var i=0; i<proc.scalarArgs.length; ++i) {
+    arglist.push("Y" + i)
+  }
+  if(proc.shapeArgs.length > 0) {
+    vars.push("shape=SS.slice(0)")
+  }
+  if(proc.indexArgs.length > 0) {
+    var zeros = new Array(dimension)
+    for(var i=0; i<dimension; ++i) {
+      zeros[i] = "0"
+    }
+    vars.push(["index=[", zeros.join(","), "]"].join(""))
+  }
+  for(var i=0; i<proc.offsetArgs.length; ++i) {
+    var off_arg = proc.offsetArgs[i]
+    var init_string = []
+    for(var j=0; j<off_arg.offset.length; ++j) {
+      if(off_arg.offset[j] === 0) {
+        continue
+      } else if(off_arg.offset[j] === 1) {
+        init_string.push(["t", off_arg.array, "[", j, "]"].join(""))      
+      } else {
+        init_string.push([off_arg.offset[j], "*t", off_arg.array, "[", j, "]"].join(""))
+      }
+    }
+    if(init_string.length === 0) {
+      vars.push("q" + i + "=0")
+    } else {
+      vars.push(["q", i, "=(", init_string.join("+"),")|0"].join(""))
+    }
+  }
+
+  //Prepare this variables
+  var thisVars = uniq([].concat(proc.pre.thisVars)
+                      .concat(proc.body.thisVars)
+                      .concat(proc.post.thisVars))
+  vars = vars.concat(thisVars)
+  code.push("var " + vars.join(","))
+  for(var i=0; i<proc.arrayArgs.length; ++i) {
+    code.push("p"+i+"|=0")
+  }
+  
+  //Inline prelude
+  if(proc.pre.body.length > 3) {
+    code.push(processBlock(proc.pre, proc, dtypes))
+  }
+
+  //Process body
+  var body = processBlock(proc.body, proc, dtypes)
+  var matched = countMatches(orders)
+  if(matched < dimension) {
+    code.push(outerFill(matched, orders[0], proc, body))
+  } else {
+    code.push(innerFill(orders[0], proc, body))
+  }
+
+  //Inline epilog
+  if(proc.post.body.length > 3) {
+    code.push(processBlock(proc.post, proc, dtypes))
+  }
+  
+  if(proc.debug) {
+    console.log("Generated cwise routine for ", typesig, ":\n\n", code.join("\n"))
+  }
+  
+  var loopName = [(proc.funcName||"unnamed"), "_cwise_loop_", orders[0].join("s"),"m",matched,typeSummary(dtypes)].join("")
+  var f = new Function(["function ",loopName,"(", arglist.join(","),"){", code.join("\n"),"} return ", loopName].join(""))
+  return f()
+}
+module.exports = generateCWiseOp
+},{"uniq":22}],21:[function(require,module,exports){
+arguments[4][15][0].apply(exports,arguments)
+},{"./compile.js":20}],22:[function(require,module,exports){
+"use strict"
+
+function unique_pred(list, compare) {
+  var ptr = 1
+    , len = list.length
+    , a=list[0], b=list[0]
+  for(var i=1; i<len; ++i) {
+    b = a
+    a = list[i]
+    if(compare(a, b)) {
+      if(i === ptr) {
+        ptr++
+        continue
+      }
+      list[ptr++] = a
+    }
+  }
+  list.length = ptr
+  return list
+}
+
+function unique_eq(list) {
+  var ptr = 1
+    , len = list.length
+    , a=list[0], b = list[0]
+  for(var i=1; i<len; ++i, b=a) {
+    b = a
+    a = list[i]
+    if(a !== b) {
+      if(i === ptr) {
+        ptr++
+        continue
+      }
+      list[ptr++] = a
+    }
+  }
+  list.length = ptr
+  return list
+}
+
+function unique(list, compare, sorted) {
+  if(list.length === 0) {
+    return []
+  }
+  if(compare) {
+    if(!sorted) {
+      list.sort(compare)
+    }
+    return unique_pred(list, compare)
+  }
+  if(!sorted) {
+    list.sort()
+  }
+  return unique_eq(list)
+}
+
+module.exports = unique
+},{}],23:[function(require,module,exports){
+"use strict"
+
+var ndarray = require("ndarray")
+var ops = require("ndarray-ops")
+var pool = require("typedarray-pool")
+
+function clone(array) {
+  var dtype = array.dtype
+  if(dtype === "generic" || dtype === "array") {
+    dtype = "double"
+  }
+  var data = pool.malloc(array.size, dtype)
+  var result = ndarray(data, array.shape)
+  ops.assign(result, array)
+  return result
+}
+exports.clone = clone
+
+function malloc(shape, dtype) {
+  if(!dtype) {
+    dtype = "double"
+  }
+  var sz = 1
+  var stride = new Array(shape.length)
+  for(var i=shape.length-1; i>=0; --i) {
+    stride[i] = sz
+    sz *= shape[i]
+  }
+  return ndarray(pool.malloc(sz, dtype), shape, stride, 0)
+}
+exports.malloc = malloc
+
+function free(array) {
+  if(array.dtype === "generic" || array.dtype === "array") {
+    return
+  }
+  pool.free(array.data)
+}
+exports.free = free
+
+function zeros(shape, dtype) {
+  if(!dtype) {
+    dtype = "double"
+  }
+
+  var sz = 1
+  var stride = new Array(shape.length)
+  for(var i=shape.length-1; i>=0; --i) {
+    stride[i] = sz
+    sz *= shape[i]
+  }
+  var buf = pool.malloc(sz, dtype)
+  for(var i=0; i<sz; ++i) {
+    buf[i] = 0
+  }
+  return ndarray(buf, shape, stride, 0)
+}
+exports.zeros = zeros
+},{"ndarray":25,"ndarray-ops":12,"typedarray-pool":28}],24:[function(require,module,exports){
+"use strict"
+
+module.exports = ndSelect
+module.exports.compile = lookupCache
+
+//Macros
+var ARRAY = "a"
+var RANK = "K"
+var CMP = "C"
+var DATA = "d"
+var OFFSET = "o"
+var RND = "R"
+var TMP = "T"
+var LO = "L"
+var HI = "H"
+var PIVOT = "X"
+function SHAPE(i) {
+  return "s" + i
+}
+function STRIDE(i) {
+  return "t" + i
+}
+function STEP(i) {
+  return "u" + i
+}
+function STEP_CMP(i) {
+  return "v" + i
+}
+function INDEX(i) {
+  return "i" + i
+}
+function PICK(i) {
+  return "p" + i
+}
+function PTR(i) {
+  return "x" + i
+}
+
+//Create new order where index 0 is slowest index
+function permuteOrder(order) {
+  var norder = order.slice()
+  norder.splice(order.indexOf(0), 1)
+  norder.unshift(0)
+  return norder
+}
+
+//Generate quick select procedure
+function compileQuickSelect(order, useCompare, dtype) {
+  order = permuteOrder(order)
+
+  var dimension = order.length
+  var useGetter = (dtype === "generic")
+  var funcName = "ndSelect" + dtype + order.join("_") + "_" + (useCompare ? "cmp" : "lex")
+
+  var code = []
+
+  //Get arguments for code
+  var args = [ARRAY, RANK]
+  if(useCompare) {
+    args.push(CMP)
+  }
+
+  //Unpack ndarray variables
+  var vars = [
+    DATA + "=" + ARRAY + ".data",
+    OFFSET + "=" + ARRAY + ".offset|0",
+    RND + "=Math.random",
+    TMP]
+  for(var i=0; i<2; ++i) {
+    vars.push(PTR(i) + "=0")
+  }
+  for(var i=0; i<dimension; ++i) {
+    vars.push(
+      SHAPE(i) + "=" + ARRAY + ".shape[" + i + "]|0",
+      STRIDE(i) + "=" + ARRAY + ".stride[" + i + "]|0",
+      INDEX(i) + "=0")
+  }
+  for(var i=1; i<dimension; ++i) {
+    if(i < dimension-1) {
+      vars.push(STEP_CMP(i) + "=(" + STRIDE(i) + "-" + SHAPE(i+1) + "*" + STRIDE(i+1) + ")|0",
+                STEP(order[i]) + "=(" + STRIDE(order[i]) + "-" + SHAPE(order[i+1]) + "*" + STRIDE(order[i+1]) + ")|0")
+    } else {
+      vars.push(STEP_CMP(i) + "=" + STRIDE(i),
+                STEP(order[i]) + "=" + STRIDE(order[i]))
+    }
+  }
+  if(useCompare) {
+    for(var i=0; i<2; ++i) {
+      vars.push(PICK(i) + "=" + ARRAY + ".pick(0)")
+    }
+  }
+  vars.push(
+    PIVOT + "=0",
+    LO + "=0",
+    HI + "=" + SHAPE(order[0]) + "-1")
+
+  function compare(out, i0, i1) {
+    if(useCompare) {
+      code.push(
+        PICK(0), ".offset=", OFFSET, "+", STRIDE(order[0]), "*(", i0, ");",
+        PICK(1), ".offset=", OFFSET, "+", STRIDE(order[0]), "*(", i1, ");",
+        out, "=", CMP, "(", PICK(0), ",", PICK(1), ");")
+    } else {
+      code.push(
+        PTR(0), "=", OFFSET, "+", STRIDE(0), "*(", i0, ");",
+        PTR(1), "=", OFFSET, "+", STRIDE(0), "*(", i1, ");")
+      if(dimension > 1) {
+        code.push("_cmp:")
+      }
+      for(var i=dimension-1; i>0; --i) {
+        code.push("for(", INDEX(i), "=0;", 
+          INDEX(i), "<", SHAPE(i), ";",
+          INDEX(i), "++){")
+      }
+      if(useGetter) {
+        code.push(out, "=", DATA, ".get(", PTR(0), ")-", 
+                            DATA, ".get(", PTR(1), ");")
+      } else {
+        code.push(out, "=", DATA, "[", PTR(0), "]-", 
+                            DATA, "[", PTR(1), "];")
+      }
+      if(dimension > 1) {
+        code.push("if(", out, ")break _cmp;")
+      }
+      for(var i=1; i<dimension; ++i) {
+        code.push(
+          PTR(0), "+=", STEP_CMP(i), ";",
+          PTR(1), "+=", STEP_CMP(i),
+          "}")
+      }
+    }
+  }
+
+  function swap(i0, i1) {
+    code.push(
+      PTR(0), "=", OFFSET, "+", STRIDE(order[0]), "*(", i0, ");",
+      PTR(1), "=", OFFSET, "+", STRIDE(order[0]), "*(", i1, ");")
+    for(var i=dimension-1; i>0; --i) {
+      code.push("for(", INDEX(order[i]), "=0;", 
+        INDEX(order[i]), "<", SHAPE(order[i]), ";",
+        INDEX(order[i]), "++){")
+    }
+    if(useGetter) {
+      code.push(TMP, "=", DATA, ".get(", PTR(0), ");", 
+                DATA, ".set(", PTR(0), ",", DATA, ".get(", PTR(1), "));",
+                DATA, ".set(", PTR(1), ",", TMP, ");")
+    } else {
+      code.push(TMP, "=", DATA, "[", PTR(0), "];", 
+                DATA, "[", PTR(0), "]=", DATA, "[", PTR(1), "];",
+                DATA, "[", PTR(1), "]=", TMP, ";")
+    }
+    for(var i=1; i<dimension; ++i) {
+      code.push(
+        PTR(0), "+=", STEP(order[i]), ";",
+        PTR(1), "+=", STEP(order[i]),
+        "}")
+    }
+  }
+
+  code.push(
+    "while(", LO, "<", HI, "){",
+      PIVOT, "=(", RND, "()*(", HI, "-", LO, "+1)+", LO, ")|0;")
+
+  //Partition array by pivot
+  swap(PIVOT, HI)
+
+  code.push(
+    PIVOT, "=", LO, ";",
+    "for(", INDEX(0), "=", LO, ";",
+      INDEX(0), "<", HI, ";",
+      INDEX(0), "++){")
+  compare(TMP, INDEX(0), HI)
+  code.push("if(", TMP, "<0){")
+    swap(PIVOT, INDEX(0))
+    code.push(PIVOT, "++;")
+  code.push("}}")
+  swap(PIVOT, HI)
+
+  //Check pivot bounds
+  code.push(
+    "if(", PIVOT, "===", RANK, "){",
+      LO, "=", PIVOT, ";",
+      "break;",
+    "}else if(", RANK, "<", PIVOT, "){",
+      HI, "=", PIVOT, "-1;",
+    "}else{",
+      LO, "=", PIVOT, "+1;",
+    "}",
+  "}")
+
+  if(useCompare) {
+    code.push(PICK(0), ".offset=", OFFSET, "+", LO, "*", STRIDE(0), ";",
+      "return ", PICK(0), ";")
+  } else {
+    code.push("return ", ARRAY, ".pick(", LO, ");")
+  }
+
+  //Compile and link js together
+  var procCode = [
+    "'use strict';function ", funcName, "(", args, "){",
+      "var ", vars.join(), ";",
+      code.join(""),
+    "};return ", funcName
+  ].join("")
+
+  var proc = new Function(procCode)
+  return proc()
+}
+
+var CACHE = {}
+
+function lookupCache(order, useCompare, dtype) {
+  var typesig = order.join() + useCompare + dtype
+  var proc = CACHE[typesig]
+  if(proc) {
+    return proc
+  }
+  return CACHE[typesig] = compileQuickSelect(order, useCompare, dtype)
+}
+
+function ndSelect(array, k, compare) {
+  k |= 0
+  if((array.dimension === 0) || 
+    (array.shape[0] <= k) ||
+    (k < 0)) {
+    return null
+  }
+  var useCompare = !!compare
+  var proc = lookupCache(array.order, useCompare, array.dtype)
+  if(useCompare) {
+    return proc(array, k, compare)
+  } else {
+    return proc(array, k)
+  }
+}
+},{}],25:[function(require,module,exports){
+(function (Buffer){
+var iota = require("iota-array")
+
+var arrayMethods = [
+  "concat",
+  "join",
+  "slice",
+  "toString",
+  "indexOf",
+  "lastIndexOf",
+  "forEach",
+  "every",
+  "some",
+  "filter",
+  "map",
+  "reduce",
+  "reduceRight"
+]
+
+var hasTypedArrays  = ((typeof Float64Array) !== "undefined")
+var hasBuffer       = ((typeof Buffer) !== "undefined")
+
+function compare1st(a, b) {
+  return a[0] - b[0]
+}
+
+function order() {
+  var stride = this.stride
+  var terms = new Array(stride.length)
+  var i
+  for(i=0; i<terms.length; ++i) {
+    terms[i] = [Math.abs(stride[i]), i]
+  }
+  terms.sort(compare1st)
+  var result = new Array(terms.length)
+  for(i=0; i<result.length; ++i) {
+    result[i] = terms[i][1]
+  }
+  return result
+}
+
+function compileConstructor(dtype, dimension) {
+  var className = ["View", dimension, "d", dtype].join("")
+  if(dimension < 0) {
+    className = "View_Nil" + dtype
+  }
+  var useGetters = (dtype === "generic")
+  
+  if(dimension === -1) {
+    //Special case for trivial arrays
+    var code = 
+      "function "+className+"(a){this.data=a;};\
+var proto="+className+".prototype;\
+proto.dtype='"+dtype+"';\
+proto.index=function(){return -1};\
+proto.size=0;\
+proto.dimension=-1;\
+proto.shape=proto.stride=proto.order=[];\
+proto.lo=proto.hi=proto.transpose=proto.step=\
+function(){return new "+className+"(this.data);};\
+proto.get=proto.set=function(){};\
+proto.pick=function(){return null};\
+return function construct_"+className+"(a){return new "+className+"(a);}"
+    var procedure = new Function(code)
+    return procedure()
+  } else if(dimension === 0) {
+    //Special case for 0d arrays
+    var code =
+      "function "+className+"(a,d) {\
+this.data = a;\
+this.offset = d\
+};\
+var proto="+className+".prototype;\
+proto.dtype='"+dtype+"';\
+proto.index=function(){return this.offset};\
+proto.dimension=0;\
+proto.size=1;\
+proto.shape=\
+proto.stride=\
+proto.order=[];\
+proto.lo=\
+proto.hi=\
+proto.transpose=\
+proto.step=function "+className+"_copy() {\
+return new "+className+"(this.data,this.offset)\
+};\
+proto.pick=function "+className+"_pick(){\
+return TrivialArray(this.data);\
+};\
+proto.valueOf=proto.get=function "+className+"_get(){\
+return "+(useGetters ? "this.data.get(this.offset)" : "this.data[this.offset]")+
+"};\
+proto.set=function "+className+"_set(v){\
+return "+(useGetters ? "this.data.set(this.offset,v)" : "this.data[this.offset]=v")+"\
+};\
+return function construct_"+className+"(a,b,c,d){return new "+className+"(a,d)}"
+    var procedure = new Function("TrivialArray", code)
+    return procedure(CACHED_CONSTRUCTORS[dtype][0])
+  }
+
+  var code = ["'use strict'"]
+    
+  //Create constructor for view
+  var indices = iota(dimension)
+  var args = indices.map(function(i) { return "i"+i })
+  var index_str = "this.offset+" + indices.map(function(i) {
+        return "this._stride" + i + "*i" + i
+      }).join("+")
+  code.push("function "+className+"(a,"+
+    indices.map(function(i) {
+      return "b"+i
+    }).join(",") + "," +
+    indices.map(function(i) {
+      return "c"+i
+    }).join(",") + ",d){this.data=a")
+  for(var i=0; i<dimension; ++i) {
+    code.push("this._shape"+i+"=b"+i+"|0")
+  }
+  for(var i=0; i<dimension; ++i) {
+    code.push("this._stride"+i+"=c"+i+"|0")
+  }
+  code.push("this.offset=d|0}",
+    "var proto="+className+".prototype",
+    "proto.dtype='"+dtype+"'",
+    "proto.dimension="+dimension)
+  
+  //view.stride and view.shape
+  var strideClassName = "VStride" + dimension + "d" + dtype
+  var shapeClassName = "VShape" + dimension + "d" + dtype
+  var props = {"stride":strideClassName, "shape":shapeClassName}
+  for(var prop in props) {
+    var arrayName = props[prop]
+    code.push(
+      "function " + arrayName + "(v) {this._v=v} var aproto=" + arrayName + ".prototype",
+      "aproto.length="+dimension)
+    
+    var array_elements = []
+    for(var i=0; i<dimension; ++i) {
+      array_elements.push(["this._v._", prop, i].join(""))
+    }
+    code.push(
+      "aproto.toJSON=function " + arrayName + "_toJSON(){return [" + array_elements.join(",") + "]}",
+      "aproto.valueOf=aproto.toString=function " + arrayName + "_toString(){return [" + array_elements.join(",") + "].join()}")
+    
+    for(var i=0; i<dimension; ++i) {
+      code.push("Object.defineProperty(aproto,"+i+",{get:function(){return this._v._"+prop+i+"},set:function(v){return this._v._"+prop+i+"=v|0},enumerable:true})")
+    }
+    for(var i=0; i<arrayMethods.length; ++i) {
+      if(arrayMethods[i] in Array.prototype) {
+        code.push("aproto."+arrayMethods[i]+"=Array.prototype."+arrayMethods[i])
+      }
+    }
+    code.push(["Object.defineProperty(proto,'",prop,"',{get:function ", arrayName, "_get(){return new ", arrayName, "(this)},set: function ", arrayName, "_set(v){"].join(""))
+    for(var i=0; i<dimension; ++i) {
+      code.push("this._"+prop+i+"=v["+i+"]|0")
+    }
+    code.push("return v}})")
+  }
+  
+  //view.size:
+  code.push("Object.defineProperty(proto,'size',{get:function "+className+"_size(){\
+return "+indices.map(function(i) { return "this._shape"+i }).join("*"),
+"}})")
+
+  //view.order:
+  if(dimension === 1) {
+    code.push("proto.order=[0]")
+  } else {
+    code.push("Object.defineProperty(proto,'order',{get:")
+    if(dimension < 4) {
+      code.push("function "+className+"_order(){")
+      if(dimension === 2) {
+        code.push("return (Math.abs(this._stride0)>Math.abs(this._stride1))?[1,0]:[0,1]}})")
+      } else if(dimension === 3) {
+        code.push(
+"var s0=Math.abs(this._stride0),s1=Math.abs(this._stride1),s2=Math.abs(this._stride2);\
+if(s0>s1){\
+if(s1>s2){\
+return [2,1,0];\
+}else if(s0>s2){\
+return [1,2,0];\
+}else{\
+return [1,0,2];\
+}\
+}else if(s0>s2){\
+return [2,0,1];\
+}else if(s2>s1){\
+return [0,1,2];\
+}else{\
+return [0,2,1];\
+}}})")
+      }
+    } else {
+      code.push("ORDER})")
+    }
+  }
+  
+  //view.set(i0, ..., v):
+  code.push(
+"proto.set=function "+className+"_set("+args.join(",")+",v){")
+  if(useGetters) {
+    code.push("return this.data.set("+index_str+",v)}")
+  } else {
+    code.push("return this.data["+index_str+"]=v}")
+  }
+  
+  //view.get(i0, ...):
+  code.push("proto.get=function "+className+"_get("+args.join(",")+"){")
+  if(useGetters) {
+    code.push("return this.data.get("+index_str+")}")
+  } else {
+    code.push("return this.data["+index_str+"]}")
+  }
+  
+  //view.index:
+  code.push(
+    "proto.index=function "+className+"_index(", args.join(), "){return "+index_str+"}")
+
+  //view.hi():
+  code.push("proto.hi=function "+className+"_hi("+args.join(",")+"){return new "+className+"(this.data,"+
+    indices.map(function(i) {
+      return ["(typeof i",i,"!=='number'||i",i,"<0)?this._shape", i, ":i", i,"|0"].join("")
+    }).join(",")+","+
+    indices.map(function(i) {
+      return "this._stride"+i
+    }).join(",")+",this.offset)}")
+  
+  //view.lo():
+  var a_vars = indices.map(function(i) { return "a"+i+"=this._shape"+i })
+  var c_vars = indices.map(function(i) { return "c"+i+"=this._stride"+i })
+  code.push("proto.lo=function "+className+"_lo("+args.join(",")+"){var b=this.offset,d=0,"+a_vars.join(",")+","+c_vars.join(","))
+  for(var i=0; i<dimension; ++i) {
+    code.push(
+"if(typeof i"+i+"==='number'&&i"+i+">=0){\
+d=i"+i+"|0;\
+b+=c"+i+"*d;\
+a"+i+"-=d}")
+  }
+  code.push("return new "+className+"(this.data,"+
+    indices.map(function(i) {
+      return "a"+i
+    }).join(",")+","+
+    indices.map(function(i) {
+      return "c"+i
+    }).join(",")+",b)}")
+  
+  //view.step():
+  code.push("proto.step=function "+className+"_step("+args.join(",")+"){var "+
+    indices.map(function(i) {
+      return "a"+i+"=this._shape"+i
+    }).join(",")+","+
+    indices.map(function(i) {
+      return "b"+i+"=this._stride"+i
+    }).join(",")+",c=this.offset,d=0,ceil=Math.ceil")
+  for(var i=0; i<dimension; ++i) {
+    code.push(
+"if(typeof i"+i+"==='number'){\
+d=i"+i+"|0;\
+if(d<0){\
+c+=b"+i+"*(a"+i+"-1);\
+a"+i+"=ceil(-a"+i+"/d)\
+}else{\
+a"+i+"=ceil(a"+i+"/d)\
+}\
+b"+i+"*=d\
+}")
+  }
+  code.push("return new "+className+"(this.data,"+
+    indices.map(function(i) {
+      return "a" + i
+    }).join(",")+","+
+    indices.map(function(i) {
+      return "b" + i
+    }).join(",")+",c)}")
+  
+  //view.transpose():
+  var tShape = new Array(dimension)
+  var tStride = new Array(dimension)
+  for(var i=0; i<dimension; ++i) {
+    tShape[i] = "a[i"+i+"]"
+    tStride[i] = "b[i"+i+"]"
+  }
+  code.push("proto.transpose=function "+className+"_transpose("+args+"){"+
+    args.map(function(n,idx) { return n + "=(" + n + "===undefined?" + idx + ":" + n + "|0)"}).join(";"),
+    "var a=this.shape,b=this.stride;return new "+className+"(this.data,"+tShape.join(",")+","+tStride.join(",")+",this.offset)}")
+  
+  //view.pick():
+  code.push("proto.pick=function "+className+"_pick("+args+"){var a=[],b=[],c=this.offset")
+  for(var i=0; i<dimension; ++i) {
+    code.push("if(typeof i"+i+"==='number'&&i"+i+">=0){c=(c+this._stride"+i+"*i"+i+")|0}else{a.push(this._shape"+i+");b.push(this._stride"+i+")}")
+  }
+  code.push("var ctor=CTOR_LIST[a.length+1];return ctor(this.data,a,b,c)}")
+    
+  //Add return statement
+  code.push("return function construct_"+className+"(data,shape,stride,offset){return new "+className+"(data,"+
+    indices.map(function(i) {
+      return "shape["+i+"]"
+    }).join(",")+","+
+    indices.map(function(i) {
+      return "stride["+i+"]"
+    }).join(",")+",offset)}")
+
+  //Compile procedure
+  var procedure = new Function("CTOR_LIST", "ORDER", code.join("\n"))
+  return procedure(CACHED_CONSTRUCTORS[dtype], order)
+}
+
+function arrayDType(data) {
+  if(hasBuffer) {
+    if(Buffer.isBuffer(data)) {
+      return "buffer"
+    }
+  }
+  if(hasTypedArrays) {
+    switch(Object.prototype.toString.call(data)) {
+      case "[object Float64Array]":
+        return "float64"
+      case "[object Float32Array]":
+        return "float32"
+      case "[object Int8Array]":
+        return "int8"
+      case "[object Int16Array]":
+        return "int16"
+      case "[object Int32Array]":
+        return "int32"
+      case "[object Uint8Array]":
+        return "uint8"
+      case "[object Uint16Array]":
+        return "uint16"
+      case "[object Uint32Array]":
+        return "uint32"
+      case "[object Uint8ClampedArray]":
+        return "uint8_clamped"
+    }
+  }
+  if(Array.isArray(data)) {
+    return "array"
+  }
+  return "generic"
+}
+
+var CACHED_CONSTRUCTORS = {
+  "float32":[],
+  "float64":[],
+  "int8":[],
+  "int16":[],
+  "int32":[],
+  "uint8":[],
+  "uint16":[],
+  "uint32":[],
+  "array":[],
+  "uint8_clamped":[],
+  "buffer":[],
+  "generic":[]
+}
+
+;(function() {
+  for(var id in CACHED_CONSTRUCTORS) {
+    CACHED_CONSTRUCTORS[id].push(compileConstructor(id, -1))
+  }
+});
+
+function wrappedNDArrayCtor(data, shape, stride, offset) {
+  if(data === undefined) {
+    var ctor = CACHED_CONSTRUCTORS.array[0]
+    return ctor([])
+  } else if(typeof data === "number") {
+    data = [data]
+  }
+  if(shape === undefined) {
+    shape = [ data.length ]
+  }
+  var d = shape.length
+  if(stride === undefined) {
+    stride = new Array(d)
+    for(var i=d-1, sz=1; i>=0; --i) {
+      stride[i] = sz
+      sz *= shape[i]
+    }
+  }
+  if(offset === undefined) {
+    offset = 0
+    for(var i=0; i<d; ++i) {
+      if(stride[i] < 0) {
+        offset -= (shape[i]-1)*stride[i]
+      }
+    }
+  }
+  var dtype = arrayDType(data)
+  var ctor_list = CACHED_CONSTRUCTORS[dtype]
+  while(ctor_list.length <= d+1) {
+    ctor_list.push(compileConstructor(dtype, ctor_list.length-1))
+  }
+  var ctor = ctor_list[d+1]
+  return ctor(data, shape, stride, offset)
+}
+
+module.exports = wrappedNDArrayCtor
+}).call(this,require("buffer").Buffer)
+},{"buffer":1,"iota-array":26}],26:[function(require,module,exports){
+"use strict"
+
+function iota(n) {
+  var result = new Array(n)
+  for(var i=0; i<n; ++i) {
+    result[i] = i
+  }
+  return result
+}
+
+module.exports = iota
+},{}],27:[function(require,module,exports){
+"use strict"
+
+function dupe_array(count, value, i) {
+  var c = count[i]|0
+  if(c <= 0) {
+    return []
+  }
+  var result = new Array(c), j
+  if(i === count.length-1) {
+    for(j=0; j<c; ++j) {
+      result[j] = value
+    }
+  } else {
+    for(j=0; j<c; ++j) {
+      result[j] = dupe_array(count, value, i+1)
+    }
+  }
+  return result
+}
+
+function dupe_number(count, value) {
+  var result, i
+  result = new Array(count)
+  for(i=0; i<count; ++i) {
+    result[i] = value
+  }
+  return result
+}
+
+function dupe(count, value) {
+  if(typeof value === "undefined") {
+    value = 0
+  }
+  switch(typeof count) {
+    case "number":
+      if(count > 0) {
+        return dupe_number(count|0, value)
+      }
+    break
+    case "object":
+      if(typeof (count.length) === "number") {
+        return dupe_array(count, value, 0)
+      }
+    break
+  }
+  return []
+}
+
+module.exports = dupe
+},{}],28:[function(require,module,exports){
+(function (global,Buffer){
+var bits = require("bit-twiddle")
+var dup = require("dup")
+if(!global.__TYPEDARRAY_POOL) {
+  global.__TYPEDARRAY_POOL = {
+      UINT8   : dup([32, 0])
+    , UINT16  : dup([32, 0])
+    , UINT32  : dup([32, 0])
+    , INT8    : dup([32, 0])
+    , INT16   : dup([32, 0])
+    , INT32   : dup([32, 0])
+    , FLOAT   : dup([32, 0])
+    , DOUBLE  : dup([32, 0])
+    , DATA    : dup([32, 0])
+    , UINT8C  : dup([32, 0])
+    , BUFFER  : dup([32, 0])
+  }
+}
+var hasUint8C = (typeof Uint8ClampedArray) !== "undefined"
+var POOL = global.__TYPEDARRAY_POOL
+if(!POOL.UINT8C) {
+  POOL.UINT8C = dup([32, 0])
+}
+if(!POOL.BUFFER) {
+  POOL.BUFFER = dup([32, 0])
+}
+var UINT8   = POOL.UINT8
+  , UINT16  = POOL.UINT16
+  , UINT32  = POOL.UINT32
+  , INT8    = POOL.INT8
+  , INT16   = POOL.INT16
+  , INT32   = POOL.INT32
+  , FLOAT   = POOL.FLOAT
+  , DOUBLE  = POOL.DOUBLE
+  , DATA    = POOL.DATA
+  , UINT8C  = POOL.UINT8C
+  , BUFFER  = POOL.BUFFER
+
+exports.free = function free(array) {
+  var n = array.length|0
+    , log_n = bits.log2(n)
+  if(Buffer.isBuffer(array)) {
+    BUFFER[log_n].push(array)
+  } else {
+    switch(Object.prototype.toString.call(array)) {
+      case "[object Uint8Array]":
+        UINT8[log_n].push(array)
+      break
+      case "[object Uint16Array]":
+        UINT16[log_n].push(array)
+      break
+      case "[object Uint32Array]":
+        UINT32[log_n].push(array)
+      break
+      case "[object Int8Array]":
+        INT8[log_n].push(array)
+      break
+      case "[object Int16Array]":
+        INT16[log_n].push(array)
+      break
+      case "[object Int32Array]":
+        INT32[log_n].push(array)
+      break
+      case "[object Uint8ClampedArray]":
+        UINT8C[log_n].push(array)
+      break
+      case "[object Float32Array]":
+        FLOAT[log_n].push(array)
+      break
+      case "[object Float64Array]":
+        DOUBLE[log_n].push(array)
+      break
+      case "[object ArrayBuffer]":
+        DATA[log_n].push(array)
+      break
+      default:
+        throw new Error("typedarray-pool: Unspecified array type")
+    }
+  }
+}
+
+exports.freeUint8 = function freeUint8(array) {
+  UINT8[bits.log2(array.length)].push(array)
+}
+
+exports.freeUint16 = function freeUint16(array) {
+  UINT16[bits.log2(array.length)].push(array)
+}
+
+exports.freeUint32 = function freeUint32(array) {
+  UINT32[bits.log2(array.length)].push(array)
+}
+
+exports.freeInt8 = function freeInt8(array) {
+  INT8[bits.log2(array.length)].push(array)
+}
+
+exports.freeInt16 = function freeInt16(array) {
+  INT16[bits.log2(array.length)].push(array)
+}
+
+exports.freeInt32 = function freeInt32(array) {
+  INT32[bits.log2(array.length)].push(array)
+}
+
+exports.freeFloat32 = exports.freeFloat = function freeFloat(array) {
+  FLOAT[bits.log2(array.length)].push(array)
+}
+
+exports.freeFloat64 = exports.freeDouble = function freeDouble(array) {
+  DOUBLE[bits.log2(array.length)].push(array)
+}
+
+exports.freeArrayBuffer = function freeArrayBuffer(array) {
+  DATA[bits.log2(array.length)].push(array)
+}
+
+if(hasUint8C) {
+  exports.freeUint8Clamped = function freeUint8Clamped(array) {
+    UINT8C[bits.log2(array.length)].push(array)
+  }
+} else {
+  exports.freeUint8Clamped = exports.freeUint8
+}
+
+exports.freeBuffer = function freeBuffer(array) {
+  BUFFER[bits.log2(array.length)].push(array)
+}
+
+exports.malloc = function malloc(n, dtype) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  if(dtype === undefined || dtype === "arraybuffer") {
+    var d = DATA[log_n]
+    if(d.length > 0) {
+      var r = d[d.length-1]
+      d.pop()
+      return r
+    }
+    return new ArrayBuffer(n)
+  } else {
+    switch(dtype) {
+      case "uint8":
+        var u8 = UINT8[log_n]
+        if(u8.length > 0) {
+          return u8.pop()
+        }
+        return new Uint8Array(n)
+      break
+
+      case "uint16":
+        var u16 = UINT16[log_n]
+        if(u16.length > 0) {
+          return u16.pop()
+        }
+        return new Uint16Array(n)
+      break
+
+      case "uint32":
+        var u32 = UINT32[log_n]
+        if(u32.length > 0) {
+          return u32.pop()
+        }
+        return new Uint32Array(n)
+      break
+
+      case "int8":
+        var i8 = INT8[log_n]
+        if(i8.length > 0) {
+          return i8.pop()
+        }
+        return new Int8Array(n)
+      break
+
+      case "int16":
+        var i16 = INT16[log_n]
+        if(i16.length > 0) {
+          return i16.pop()
+        }
+        return new Int16Array(n)
+      break
+
+      case "int32":
+        var i32 = INT32[log_n]
+        if(i32.length > 0) {
+          return i32.pop()
+        }
+        return new Int32Array(n)
+      break
+
+      case "float":
+      case "float32":
+        var f = FLOAT[log_n]
+        if(f.length > 0) {
+          return f.pop()
+        }
+        return new Float32Array(n)
+      break
+
+      case "double":
+      case "float64":
+        var dd = DOUBLE[log_n]
+        if(dd.length > 0) {
+          return dd.pop()
+        }
+        return new Float64Array(n)
+      break
+
+      case "uint8_clamped":
+        if(hasUint8C) {
+          var u8c = UINT8C[log_n]
+          if(u8c.length > 0) {
+            return u8c.pop()
+          }
+          return new Uint8ClampedArray(n)
+        } else {
+          var u8 = UINT8[log_n]
+          if(u8.length > 0) {
+            return u8.pop()
+          }
+          return new Uint8Array(n)
+        }
+      break
+
+      case "buffer":
+        var buf = BUFFER[log_n]
+        if(buf.length > 0) {
+          return buf.pop()
+        }
+        return new Buffer(n)
+      break
+
+      default:
+        return null
+    }
+  }
+  return null
+}
+
+exports.mallocUint8 = function mallocUint8(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = UINT8[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Uint8Array(n)
+}
+
+exports.mallocUint16 = function mallocUint16(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = UINT16[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Uint16Array(n)
+}
+
+exports.mallocUint32 = function mallocUint32(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = UINT32[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Uint32Array(n)
+}
+
+exports.mallocInt8 = function mallocInt8(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = INT8[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Int8Array(n)
+}
+
+exports.mallocInt16 = function mallocInt16(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = INT16[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Int16Array(n)
+}
+
+exports.mallocInt32 = function mallocInt32(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = INT32[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Int32Array(n)
+}
+
+exports.mallocFloat32 = exports.mallocFloat = function mallocFloat(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = FLOAT[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Float32Array(n)
+}
+
+exports.mallocFloat64 = exports.mallocDouble = function mallocDouble(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = DOUBLE[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Float64Array(n)
+}
+
+exports.mallocArrayBuffer = function mallocArrayBuffer(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = DATA[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new ArrayBuffer(n)
+}
+
+if(hasUint8C) {
+  exports.mallocUint8Clamped = function mallocUint8Clamped(n) {
+    n = bits.nextPow2(n)
+    var log_n = bits.log2(n)
+    var cache = UINT8C[log_n]
+    if(cache.length > 0) {
+      return cache.pop()
+    }
+    return new Uint8ClampedArray(n)
+  }
+} else {
+  exports.mallocUint8Clamped = exports.mallocUint8
+}
+
+exports.mallocBuffer = function mallocBuffer(n) {
+  n = bits.nextPow2(n)
+  var log_n = bits.log2(n)
+  var cache = BUFFER[log_n]
+  if(cache.length > 0) {
+    return cache.pop()
+  }
+  return new Buffer(n)
+}
+
+exports.clearCache = function clearCache() {
+  for(var i=0; i<32; ++i) {
+    UINT8[i].length = 0
+    UINT16[i].length = 0
+    UINT32[i].length = 0
+    INT8[i].length = 0
+    INT16[i].length = 0
+    INT32[i].length = 0
+    FLOAT[i].length = 0
+    DOUBLE[i].length = 0
+    DATA[i].length = 0
+    UINT8C[i].length = 0
+    BUFFER[i].length = 0
+  }
+}
+}).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
+},{"bit-twiddle":9,"buffer":1,"dup":27}],29:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts an array of objects
 //------------------------------------------------------------------------------
@@ -82,7 +5627,7 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
 
 }
 
-},{}],2:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updates an array, either overwriting it with a new array, removing an entry
 // if it is present, or adding it if it is not.
@@ -110,7 +5655,7 @@ d3plus.array.update = function( arr , x ) {
 
 }
 
-},{}],3:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 d3plus.color.legible = function(color) {
   var hsl;
   hsl = d3.hsl(color);
@@ -124,7 +5669,7 @@ d3plus.color.legible = function(color) {
 };
 
 
-},{}],4:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Lightens a color
 //------------------------------------------------------------------------------
@@ -142,7 +5687,7 @@ d3plus.color.lighter = function( color , increment ) {
 
 }
 
-},{}],5:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Mixes 2 hexidecimal colors
 //------------------------------------------------------------------------------
@@ -162,7 +5707,7 @@ d3plus.color.mix = function(c1,c2,o1,o2) {
 
 }
 
-},{}],6:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator
 //------------------------------------------------------------------------------
@@ -171,7 +5716,7 @@ d3plus.color.random = function(x) {
   return d3plus.color.scale.default(rand_int)
 }
 
-},{}],7:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Usable Color Scales
 //------------------------------------------------------------------------------
@@ -200,7 +5745,7 @@ d3plus.color.scale.default = d3.scale.ordinal().range([
   "#9A4400",
 ])
 
-},{}],8:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts colors based on hue
 //------------------------------------------------------------------------------
@@ -216,7 +5761,7 @@ d3plus.color.sort = function( a , b ) {
 
 }
 
-},{}],9:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns appropriate text color based off of a given color
 //------------------------------------------------------------------------------
@@ -232,7 +5777,7 @@ d3plus.color.text = function(color) {
 
 }
 
-},{}],10:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts colors based on hue
 //------------------------------------------------------------------------------
@@ -256,7 +5801,7 @@ d3plus.color.validate = function( color ) {
 
 }
 
-},{}],11:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets color range of data, if applicable
 //-------------------------------------------------------------------
@@ -315,7 +5860,7 @@ d3plus.data.color = function(vars) {
 
 }
 
-},{}],12:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cleans edges list and populates nodes list if needed
 //-------------------------------------------------------------------
@@ -391,7 +5936,7 @@ d3plus.data.edges = function( vars ) {
 
 }
 
-},{}],13:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 d3plus.data.element = function( vars ) {
 
   var attributes = [ vars.color.value
@@ -553,7 +6098,7 @@ d3plus.data.element = function( vars ) {
 
 }
 
-},{}],14:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches specific years of data
 //-------------------------------------------------------------------
@@ -729,7 +6274,7 @@ d3plus.data.fetch = function( vars , years ) {
 
 }
 
-},{}],15:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Restricts data based on Solo/Mute filters
 //------------------------------------------------------------------------------
@@ -838,7 +6383,7 @@ d3plus.data.filter = function( vars , data ) {
 
 }
 
-},{}],16:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats raw data by time and nesting
 //------------------------------------------------------------------------------
@@ -905,372 +6450,7 @@ d3plus.data.format = function( vars ) {
 
 }
 
-},{}],17:[function(require,module,exports){
-var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
-
-floor = Math.floor, min = Math.min;
-
-
-/* 
-Default comparison function to be used
- */
-
-defaultCmp = function(x, y) {
-  if (x < y) {
-    return -1;
-  }
-  if (x > y) {
-    return 1;
-  }
-  return 0;
-};
-
-
-/* 
-Insert item x in list a, and keep it sorted assuming a is sorted.
-
-If x is already in a, insert it to the right of the rightmost x.
-
-Optional args lo (default 0) and hi (default a.length) bound the slice
-of a to be searched.
- */
-
-insort = function(a, x, lo, hi, cmp) {
-  var mid;
-  if (lo == null) {
-    lo = 0;
-  }
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  if (lo < 0) {
-    throw new Error('lo must be non-negative');
-  }
-  if (hi == null) {
-    hi = a.length;
-  }
-  while (lo < hi) {
-    mid = floor((lo + hi) / 2);
-    if (cmp(x, a[mid]) < 0) {
-      hi = mid;
-    } else {
-      lo = mid + 1;
-    }
-  }
-  return ([].splice.apply(a, [lo, lo - lo].concat(x)), x);
-};
-
-
-/*
-Push item onto heap, maintaining the heap invariant.
- */
-
-heappush = function(array, item, cmp) {
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  array.push(item);
-  return _siftdown(array, 0, array.length - 1, cmp);
-};
-
-
-/*
-Pop the smallest item off the heap, maintaining the heap invariant.
- */
-
-heappop = function(array, cmp) {
-  var lastelt, returnitem;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  lastelt = array.pop();
-  if (array.length) {
-    returnitem = array[0];
-    array[0] = lastelt;
-    _siftup(array, 0, cmp);
-  } else {
-    returnitem = lastelt;
-  }
-  return returnitem;
-};
-
-
-/*
-Pop and return the current smallest value, and add the new item.
-
-This is more efficient than heappop() followed by heappush(), and can be 
-more appropriate when using a fixed size heap. Note that the value
-returned may be larger than item! That constrains reasonable use of
-this routine unless written as part of a conditional replacement:
-    if item > array[0]
-      item = heapreplace(array, item)
- */
-
-heapreplace = function(array, item, cmp) {
-  var returnitem;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  returnitem = array[0];
-  array[0] = item;
-  _siftup(array, 0, cmp);
-  return returnitem;
-};
-
-
-/*
-Fast version of a heappush followed by a heappop.
- */
-
-heappushpop = function(array, item, cmp) {
-  var _ref;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  if (array.length && cmp(array[0], item) < 0) {
-    _ref = [array[0], item], item = _ref[0], array[0] = _ref[1];
-    _siftup(array, 0, cmp);
-  }
-  return item;
-};
-
-
-/*
-Transform list into a heap, in-place, in O(array.length) time.
- */
-
-heapify = function(array, cmp) {
-  var i, _i, _j, _len, _ref, _ref1, _results, _results1;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  _ref1 = (function() {
-    _results1 = [];
-    for (var _j = 0, _ref = floor(array.length / 2); 0 <= _ref ? _j < _ref : _j > _ref; 0 <= _ref ? _j++ : _j--){ _results1.push(_j); }
-    return _results1;
-  }).apply(this).reverse();
-  _results = [];
-  for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-    i = _ref1[_i];
-    _results.push(_siftup(array, i, cmp));
-  }
-  return _results;
-};
-
-
-/*
-Update the position of the given item in the heap.
-This function should be called every time the item is being modified.
- */
-
-updateItem = function(array, item, cmp) {
-  var pos;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  pos = array.indexOf(item);
-  if (pos === -1) {
-    return;
-  }
-  _siftdown(array, 0, pos, cmp);
-  return _siftup(array, pos, cmp);
-};
-
-
-/*
-Find the n largest elements in a dataset.
- */
-
-nlargest = function(array, n, cmp) {
-  var elem, result, _i, _len, _ref;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  result = array.slice(0, n);
-  if (!result.length) {
-    return result;
-  }
-  heapify(result, cmp);
-  _ref = array.slice(n);
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    elem = _ref[_i];
-    heappushpop(result, elem, cmp);
-  }
-  return result.sort(cmp).reverse();
-};
-
-
-/*
-Find the n smallest elements in a dataset.
- */
-
-nsmallest = function(array, n, cmp) {
-  var elem, i, los, result, _i, _j, _len, _ref, _ref1, _results;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  if (n * 10 <= array.length) {
-    result = array.slice(0, n).sort(cmp);
-    if (!result.length) {
-      return result;
-    }
-    los = result[result.length - 1];
-    _ref = array.slice(n);
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      elem = _ref[_i];
-      if (cmp(elem, los) < 0) {
-        insort(result, elem, 0, null, cmp);
-        result.pop();
-        los = result[result.length - 1];
-      }
-    }
-    return result;
-  }
-  heapify(array, cmp);
-  _results = [];
-  for (i = _j = 0, _ref1 = min(n, array.length); 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-    _results.push(heappop(array, cmp));
-  }
-  return _results;
-};
-
-_siftdown = function(array, startpos, pos, cmp) {
-  var newitem, parent, parentpos;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  newitem = array[pos];
-  while (pos > startpos) {
-    parentpos = (pos - 1) >> 1;
-    parent = array[parentpos];
-    if (cmp(newitem, parent) < 0) {
-      array[pos] = parent;
-      pos = parentpos;
-      continue;
-    }
-    break;
-  }
-  return array[pos] = newitem;
-};
-
-_siftup = function(array, pos, cmp) {
-  var childpos, endpos, newitem, rightpos, startpos;
-  if (cmp == null) {
-    cmp = defaultCmp;
-  }
-  endpos = array.length;
-  startpos = pos;
-  newitem = array[pos];
-  childpos = 2 * pos + 1;
-  while (childpos < endpos) {
-    rightpos = childpos + 1;
-    if (rightpos < endpos && !(cmp(array[childpos], array[rightpos]) < 0)) {
-      childpos = rightpos;
-    }
-    array[pos] = array[childpos];
-    pos = childpos;
-    childpos = 2 * pos + 1;
-  }
-  array[pos] = newitem;
-  return _siftdown(array, startpos, pos, cmp);
-};
-
-Heap = (function() {
-  Heap.push = heappush;
-
-  Heap.pop = heappop;
-
-  Heap.replace = heapreplace;
-
-  Heap.pushpop = heappushpop;
-
-  Heap.heapify = heapify;
-
-  Heap.nlargest = nlargest;
-
-  Heap.nsmallest = nsmallest;
-
-  function Heap(cmp) {
-    this.cmp = cmp != null ? cmp : defaultCmp;
-    if (!(this instanceof Heap)) {
-      return new Heap(this.cmp);
-    }
-    this.nodes = [];
-  }
-
-  Heap.prototype.push = function(x) {
-    return heappush(this.nodes, x, this.cmp);
-  };
-
-  Heap.prototype.pop = function() {
-    return heappop(this.nodes, this.cmp);
-  };
-
-  Heap.prototype.peek = function() {
-    return this.nodes[0];
-  };
-
-  Heap.prototype.contains = function(x) {
-    return this.nodes.indexOf(x) !== -1;
-  };
-
-  Heap.prototype.replace = function(x) {
-    return heapreplace(this.nodes, x, this.cmp);
-  };
-
-  Heap.prototype.pushpop = function(x) {
-    return heappushpop(this.nodes, x, this.cmp);
-  };
-
-  Heap.prototype.heapify = function() {
-    return heapify(this.nodes, this.cmp);
-  };
-
-  Heap.prototype.updateItem = function(x) {
-    return updateItem(this.nodes, x, this.cmp);
-  };
-
-  Heap.prototype.clear = function() {
-    return this.nodes = [];
-  };
-
-  Heap.prototype.empty = function() {
-    return this.nodes.length === 0;
-  };
-
-  Heap.prototype.size = function() {
-    return this.nodes.length;
-  };
-
-  Heap.prototype.clone = function() {
-    var heap;
-    heap = new Heap();
-    heap.nodes = this.nodes.slice(0);
-    return heap;
-  };
-
-  Heap.prototype.toArray = function() {
-    return this.nodes.slice(0);
-  };
-
-  Heap.prototype.insert = Heap.prototype.push;
-
-  Heap.prototype.top = Heap.prototype.peek;
-
-  Heap.prototype.front = Heap.prototype.peek;
-
-  Heap.prototype.has = Heap.prototype.contains;
-
-  Heap.prototype.copy = Heap.prototype.clone;
-
-  return Heap;
-
-})();
-
-d3plus.data.heap = Heap;
-
-
-},{}],18:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get Key Types from Data
 //------------------------------------------------------------------------------
@@ -1314,7 +6494,106 @@ d3plus.data.keys = function( vars , type ) {
 
 }
 
-},{}],19:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
+var kdtree;
+
+kdtree = require('static-kdtree');
+
+d3plus.data.lof = function(points, K) {
+  var avg_lrd, i, j, kdists, ldr, ldrs, neighbors, p, reachDist, result, sqDist, tree;
+  if (K == null) {
+    K = 10;
+  }
+  tree = kdtree(points);
+  neighbors = (function() {
+    var _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = points.length; _i < _len; _i++) {
+      p = points[_i];
+      _results.push(tree.knn(p, K + 1).slice(1));
+    }
+    return _results;
+  })();
+  sqDist = function(i, j) {
+    var A, B, delta, dist, _i, _ref;
+    A = points[i];
+    B = points[j];
+    dist = 0;
+    for (i = _i = 0, _ref = A.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      delta = A[i] - B[i];
+      dist += delta * delta;
+    }
+    return dist;
+  };
+  kdists = (function() {
+    var _i, _ref, _results;
+    _results = [];
+    for (i = _i = 0, _ref = points.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      _results.push(sqDist(i, neighbors[i][K - 1]));
+    }
+    return _results;
+  })();
+  reachDist = function(i, j) {
+    return Math.max(sqDist(i, j), kdists[j]);
+  };
+  ldr = function(i) {
+    var j, rDist, _i, _len, _ref;
+    rDist = 0;
+    _ref = neighbors[i];
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      j = _ref[_i];
+      rDist += reachDist(i, j);
+    }
+    return K / rDist;
+  };
+  ldrs = (function() {
+    var _i, _ref, _results;
+    _results = [];
+    for (i = _i = 0, _ref = points.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      _results.push(ldr(i));
+    }
+    return _results;
+  })();
+  result = (function() {
+    var _i, _j, _len, _ref, _ref1, _results;
+    _results = [];
+    for (i = _i = 0, _ref = points.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+      avg_lrd = 0;
+      _ref1 = neighbors[i];
+      for (_j = 0, _len = _ref1.length; _j < _len; _j++) {
+        j = _ref1[_j];
+        avg_lrd += ldrs[j];
+      }
+      avg_lrd /= K;
+      _results.push([i, avg_lrd / ldrs[i]]);
+    }
+    return _results;
+  })();
+  result.sort(function(a, b) {
+    return b[1] - a[1];
+  });
+  return result;
+};
+
+
+},{"static-kdtree":7}],47:[function(require,module,exports){
+d3plus.data.mad = function(points) {
+  var mad, median, result;
+  median = d3.median(points);
+  mad = d3.median(points.map(function(p) {
+    return Math.abs(p - median);
+  }));
+  result = points.map(function(p, i) {
+    return [i, Math.abs(p - median) / mad];
+  });
+  result.sort(function(a, b) {
+    return b[1] - a[1];
+  });
+  return result;
+};
+
+
+},{}],48:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
@@ -1579,7 +6858,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
 }
 
-},{}],20:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates node positions, if needed for network
 //-------------------------------------------------------------------
@@ -1624,7 +6903,7 @@ d3plus.data.nodes = function(vars) {
 
 }
 
-},{}],21:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Resets certain keys in global variables.
 //-------------------------------------------------------------------
@@ -1652,7 +6931,7 @@ d3plus.data.reset = function( obj , method ) {
 
 }
 
-},{}],22:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merges data underneath the size threshold
 //-------------------------------------------------------------------
@@ -1830,7 +7109,7 @@ d3plus.data.threshold = function( vars , rawData , split ) {
 
 }
 
-},{}],23:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Load Data using JSON
 //------------------------------------------------------------------------------
@@ -1939,7 +7218,7 @@ d3plus.data.url = function( vars , key , next ) {
 
 }
 
-},{}],24:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects if FontAwesome is loaded on the page
 //------------------------------------------------------------------------------
@@ -1952,7 +7231,7 @@ for (var s = 0; s < document.styleSheets.length; s++) {
   }
 }
 
-},{}],25:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates test div to populate with test DIVs
 //------------------------------------------------------------------------------
@@ -1995,7 +7274,7 @@ d3plus.font.sizes = function( words , style , parent ) {
 
 }
 
-},{}],26:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates test div to populate with test DIVs
 //------------------------------------------------------------------------------
@@ -2018,7 +7297,7 @@ d3plus.font.tester = function( type ) {
 
 }
 
-},{}],27:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Given a single font or a list of font, determines which can be rendered
 //------------------------------------------------------------------------------
@@ -2097,7 +7376,7 @@ d3plus.font.validate = function(test_fonts) {
 
 d3plus.font.validate.complete = {}
 
-},{}],28:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Form Element shell
 //------------------------------------------------------------------------------
@@ -2405,7 +7684,7 @@ d3plus.form = function() {
 
 }
 
-},{}],29:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines form type based on data length.
 //------------------------------------------------------------------------------
@@ -2425,7 +7704,7 @@ d3plus.input.auto = function( vars ) {
 
 }
 
-},{}],30:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
@@ -2505,7 +7784,7 @@ d3plus.input.button = function( vars ) {
 
 }
 
-},{}],31:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -2566,7 +7845,7 @@ d3plus.input.button.color = function ( elem , vars ) {
 
 }
 
-},{}],32:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -2746,7 +8025,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
 
 }
 
-},{}],33:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -2798,7 +8077,7 @@ d3plus.input.button.mouseevents = function ( elem , vars , color ) {
 
 }
 
-},{}],34:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -2817,7 +8096,7 @@ d3plus.input.button.style = function ( elem , vars ) {
 
 }
 
-},{}],35:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Dropdown Menu
 //------------------------------------------------------------------------------
@@ -2885,7 +8164,7 @@ d3plus.input.drop = function( vars ) {
 
 }
 
-},{}],36:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if a given variable is allowed to be selected.
 //------------------------------------------------------------------------------
@@ -2921,7 +8200,7 @@ d3plus.input.drop.active = function ( vars , value , active ) {
 
 }
 
-},{}],37:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
 //------------------------------------------------------------------------------
@@ -2951,7 +8230,7 @@ d3plus.input.drop.arrow = function ( vars ) {
 
 }
 
-},{}],38:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the main drop button.
 //------------------------------------------------------------------------------
@@ -3032,7 +8311,7 @@ d3plus.input.drop.button = function ( vars ) {
 
 }
 
-},{}],39:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
 //------------------------------------------------------------------------------
@@ -3150,7 +8429,7 @@ d3plus.input.drop.data = function ( vars ) {
 
 }
 
-},{}],40:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Overrides keyboard behavior of the original input element.
 //------------------------------------------------------------------------------
@@ -3189,7 +8468,7 @@ d3plus.input.drop.element = function ( vars ) {
 
 }
 
-},{}],41:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the height and orientation of the dropdown list, based on
 // available screen space.
@@ -3216,7 +8495,7 @@ d3plus.input.drop.height = function ( vars ) {
 
 }
 
-},{}],42:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Populates item list based on filtered data.
 //------------------------------------------------------------------------------
@@ -3339,7 +8618,7 @@ d3plus.input.drop.items = function ( vars ) {
 
 }
 
-},{}],43:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Assigns behavior to the user's keyboard for navigation.
 //------------------------------------------------------------------------------
@@ -3449,7 +8728,7 @@ d3plus.input.drop.keyboard = function ( vars ) {
 
 }
 
-},{}],44:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
 //------------------------------------------------------------------------------
@@ -3470,7 +8749,7 @@ d3plus.input.drop.list = function ( vars ) {
 
 }
 
-},{}],45:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
 //------------------------------------------------------------------------------
@@ -3574,7 +8853,7 @@ d3plus.input.drop.scroll = function ( vars ) {
 
 }
 
-},{}],46:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the search box, if enabled.
 //------------------------------------------------------------------------------
@@ -3663,7 +8942,7 @@ d3plus.input.drop.search = function ( vars ) {
 
 }
 
-},{}],47:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
@@ -3685,7 +8964,7 @@ d3plus.input.drop.selector = function ( vars ) {
 
 }
 
-},{}],48:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the title and back button.
 //------------------------------------------------------------------------------
@@ -3831,7 +9110,7 @@ d3plus.input.drop.title = function ( vars ) {
 
 }
 
-},{}],49:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Redraws only the drop down list.
 //------------------------------------------------------------------------------
@@ -3992,7 +9271,7 @@ d3plus.input.drop.update = function ( vars ) {
 
 }
 
-},{}],50:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If no widths are defined, then this calculates the width needed to fit the
 // longest entry in the list.
@@ -4086,7 +9365,7 @@ d3plus.input.drop.width = function ( vars ) {
 
 }
 
-},{}],51:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Recursive function that applies a click event to all parent windows that
 // will close the dropdown if it is open.
@@ -4129,7 +9408,7 @@ d3plus.input.drop.window = function ( vars , elem ) {
 
 }
 
-},{}],52:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Toggle Buttons
 //------------------------------------------------------------------------------
@@ -4213,7 +9492,7 @@ d3plus.input.toggle = function( vars ) {
 
 }
 
-},{}],53:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Custom styling and behavior for browser console statements.
 //------------------------------------------------------------------------------
@@ -4365,7 +9644,7 @@ d3plus.console.wiki = function( wiki ) {
 
 }
 
-},{}],54:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates custom mouse events based on IE and Touch Devices.
 //------------------------------------------------------------------------------
@@ -4407,7 +9686,7 @@ else {
 
 }
 
-},{}],55:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
 
 d3plus.wiki    = {
@@ -4469,13 +9748,13 @@ d3plus.wiki    = {
   "zoom"       : "Zooming"
 }
 
-},{}],56:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines if the current browser is Internet Explorer.
 //------------------------------------------------------------------------------
 d3plus.ie = /*@cc_on!@*/false
 
-},{}],57:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the correct CSS vendor prefix based on the current browser.
 //------------------------------------------------------------------------------
@@ -4505,13 +9784,13 @@ d3plus.prefix = function() {
 
 }
 
-},{}],58:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects right-to-left text direction on the page.
 //------------------------------------------------------------------------------
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
-},{}],59:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects scrollbar width for current browser.
 //------------------------------------------------------------------------------
@@ -4549,11 +9828,13 @@ d3plus.scrollbar = function() {
 
 }
 
-},{}],60:[function(require,module,exports){
-var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, squaredDist;
+},{}],89:[function(require,module,exports){
+var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
+
+simplify = require('simplify-js');
 
 d3plus.geom.largestRect = function(poly, options) {
-  var aRatio, aRatios, angle, angleRad, angleStep, angles, area, aspectRatioStep, aspectRatios, bBox, boxHeight, boxWidth, centroid, events, height, i, insidePoly, left, maxArea, maxAspectRatio, maxHeight, maxRect, maxWidth, maxx, maxy, minAspectRatio, minSqDistH, minSqDistW, minx, miny, modifOrigins, origOrigin, origin, origins, p1H, p1W, p2H, p2W, rectPoly, right, rndPoint, rndX, rndY, tolerance, width, widthStep, x0, y0, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+  var aRatio, aRatios, angle, angleRad, angleStep, angles, area, aspectRatioStep, aspectRatios, bBox, boxHeight, boxWidth, centroid, events, height, i, insidePoly, left, maxArea, maxAspectRatio, maxHeight, maxRect, maxWidth, maxx, maxy, minAspectRatio, minSqDistH, minSqDistW, minx, miny, modifOrigins, origOrigin, origin, origins, p, p1H, p1W, p2H, p2W, rectPoly, right, rndPoint, rndX, rndY, tempPoly, tolerance, width, widthStep, x0, y0, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
   events = [];
   aspectRatioStep = 0.5;
   angleStep = 5;
@@ -4613,8 +9894,29 @@ d3plus.geom.largestRect = function(poly, options) {
     return d[1];
   }), miny = _ref1[0], maxy = _ref1[1];
   tolerance = Math.min(maxx - minx, maxy - miny) * options.tolerance;
+  tempPoly = (function() {
+    var _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = poly.length; _i < _len; _i++) {
+      p = poly[_i];
+      _results.push({
+        x: p[0],
+        y: p[1]
+      });
+    }
+    return _results;
+  })();
   if (tolerance > 0) {
-    poly = d3plus.geom.simplify(poly, tolerance);
+    tempPoly = simplify(tempPoly, tolerance);
+    poly = (function() {
+      var _i, _len, _results;
+      _results = [];
+      for (_i = 0, _len = tempPoly.length; _i < _len; _i++) {
+        p = tempPoly[_i];
+        _results.push([p.x, p.y]);
+      }
+      return _results;
+    })();
   }
   if (options.vdebug) {
     events.push({
@@ -4923,129 +10225,7 @@ intersectPoints = function(poly, origin, alpha) {
 };
 
 
-},{}],61:[function(require,module,exports){
-/*
- (c) 2013, Vladimir Agafonkin
- Simplify.js, a high-performance JS polyline simplification library
- mourner.github.io/simplify-js
-*/
-
-// both algorithms combined for awesome performance
-d3plus.geom.simplify = function(points, tolerance, highestQuality) {
-    //// Helper functions ///////////////////////////
-    // square distance between 2 points
-    function getSqDist(p1, p2) {
-
-        var dx = p1[0] - p2[0],
-            dy = p1[1] - p2[1];
-
-        return dx * dx + dy * dy;
-    }
-
-    // square distance from a point to a segment
-    function getSqSegDist(p, p1, p2) {
-
-        var x = p1[0],
-            y = p1[1],
-            dx = p2[0] - x,
-            dy = p2[1] - y;
-
-        if (dx !== 0 || dy !== 0) {
-
-            var t = ((p[0] - x) * dx + (p[1] - y) * dy) / (dx * dx + dy * dy);
-
-            if (t > 1) {
-                x = p2[0];
-                y = p2[1];
-
-            } else if (t > 0) {
-                x += dx * t;
-                y += dy * t;
-            }
-        }
-
-        dx = p[0] - x;
-        dy = p[1] - y;
-
-        return dx * dx + dy * dy;
-    }
-    // rest of the code doesn't care about point format
-
-    // basic distance-based simplification
-    function simplifyRadialDist(points, sqTolerance) {
-
-        var prevPoint = points[0],
-            newPoints = [prevPoint],
-            point;
-
-        for (var i = 1, len = points.length; i < len; i++) {
-            point = points[i];
-
-            if (getSqDist(point, prevPoint) > sqTolerance) {
-                newPoints.push(point);
-                prevPoint = point;
-            }
-        }
-
-        if (prevPoint !== point) newPoints.push(point);
-
-        return newPoints;
-    }
-
-    // simplification using optimized Douglas-Peucker algorithm with recursion elimination
-    function simplifyDouglasPeucker(points, sqTolerance) {
-
-        var len = points.length,
-            MarkerArray = typeof Uint8Array !== 'undefined' ? Uint8Array : Array,
-            markers = new MarkerArray(len),
-            first = 0,
-            last = len - 1,
-            stack = [],
-            newPoints = [],
-            i, maxSqDist, sqDist, index;
-
-        markers[first] = markers[last] = 1;
-
-        while (last) {
-
-            maxSqDist = 0;
-
-            for (i = first + 1; i < last; i++) {
-                sqDist = getSqSegDist(points[i], points[first], points[last]);
-
-                if (sqDist > maxSqDist) {
-                    index = i;
-                    maxSqDist = sqDist;
-                }
-            }
-
-            if (maxSqDist > sqTolerance) {
-                markers[index] = 1;
-                stack.push(first, index, index, last);
-            }
-
-            last = stack.pop();
-            first = stack.pop();
-        }
-
-        for (i = 0; i < len; i++) {
-            if (markers[i]) newPoints.push(points[i]);
-        }
-
-        return newPoints;
-    }
-
-    /////////////////////////////////////////////////
-    if (points.length <= 1) return points;
-
-    var sqTolerance = tolerance !== undefined ? tolerance * tolerance : 1;
-
-    points = highestQuality ? points : simplifyRadialDist(points, sqTolerance);
-    points = simplifyDouglasPeucker(points, sqTolerance);
-
-    return points;
-}
-},{}],62:[function(require,module,exports){
+},{"simplify-js":6}],90:[function(require,module,exports){
 var d3plus    = window.d3plus || {}
 window.d3plus = d3plus
 
@@ -5073,7 +10253,7 @@ d3plus.variable      = {}
 d3plus.visualization = {}
 d3plus.zoom          = {}
 
-},{}],63:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 d3plus.locale.en = {
 
   "dev"          : {
@@ -5207,7 +10387,7 @@ d3plus.locale.en = {
 
 }
 
-},{}],64:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 d3plus.locale.mk = {
     "dev": {
         "accepted": "{0} не е прифатенa вредноста за {1}, ве молиме користете еднa од следниве вредности: {2}.",
@@ -5320,7 +10500,7 @@ d3plus.locale.mk = {
     ]
 }
 
-},{}],65:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 d3plus.locale.pt = {
     "dev": {
         "accepted": "{0} não é um valor aceito para {1}, por favor, use um dos seguintes procedimentos: {2}.",
@@ -5432,7 +10612,7 @@ d3plus.locale.pt = {
     ]
 }
 
-},{}],66:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 d3plus.locale.zh = {
     "dev": {
         "accepted": "{0}不是{1}的可接受值, 请用下列之一的值:{2}",
@@ -5547,7 +10727,7 @@ d3plus.locale.zh = {
     ]
 }
 
-},{}],67:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //--------------------------------------------------------------------------
@@ -5583,7 +10763,7 @@ d3plus.method.axis = function( axis ) {
 
 }
 
-},{}],68:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //--------------------------------------------------------------------------
@@ -5600,7 +10780,7 @@ d3plus.method.filter = function( global ) {
 
 }
 
-},{}],69:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get/set function for methods
 //------------------------------------------------------------------------------
@@ -5714,7 +10894,7 @@ d3plus.method.function = function( key , vars ) {
 
 }
 
-},{}],70:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //------------------------------------------------------------------------------
@@ -5787,7 +10967,7 @@ d3plus.method.init = function( vars , obj , method ) {
 
 }
 
-},{}],71:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects is we should set the object or check all keys of object.
 //------------------------------------------------------------------------------
@@ -5833,7 +11013,7 @@ d3plus.method.object = function( vars , method , object , key , value ) {
 
 }
 
-},{}],72:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Process object's value
 //--------------------------------------------------------------------------
@@ -5854,7 +11034,7 @@ d3plus.method.process = function( object , value ) {
 
 }
 
-},{}],73:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Function to process data by url or element.
 //--------------------------------------------------------------------------
@@ -5901,7 +11081,7 @@ d3plus.method.processData = function ( value , self ) {
 
 }
 
-},{}],74:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets a method's value.
 //------------------------------------------------------------------------------
@@ -6248,7 +11428,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
 }
 
-},{}],75:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Global method shell.
 //------------------------------------------------------------------------------
@@ -6313,7 +11493,7 @@ d3plus.method = function( vars , methods , styles ) {
 
 }
 
-},{}],76:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 d3plus.method.active = {
   "accepted"   : [ false , Array , Function , Number , Object , String ],
   "deprecates" : "active_var",
@@ -6327,14 +11507,14 @@ d3plus.method.active = {
   "value"      : false
 }
 
-},{}],77:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 d3plus.method.aggs = {
   "accepted"   : [ Object ],
   "deprecated" : "nesting_aggs",
   "value"      : {}
 }
 
-},{}],78:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 d3plus.method.alt = {
   "accepted" : [ false , Array , Function , Object , String ],
   "mute"     : d3plus.method.filter(true),
@@ -6342,7 +11522,7 @@ d3plus.method.alt = {
   "value"    : "alt"
 }
 
-},{}],79:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 d3plus.method.attrs = {
   "accepted" : [ false , Array , Object , String ],
   "delimiter" : {
@@ -6358,7 +11538,7 @@ d3plus.method.attrs = {
   "value"    : false
 }
 
-},{}],80:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 d3plus.method.axes = {
   "mirror" : {
     "accepted"   : [ Boolean ],
@@ -6368,7 +11548,7 @@ d3plus.method.axes = {
   "values" : [ "x" , "y" ]
 }
 
-},{}],81:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 d3plus.method.color = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "color_var",
@@ -6386,7 +11566,7 @@ d3plus.method.color = {
   "solo"      : d3plus.method.filter(true)
 }
 
-},{}],82:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 d3plus.method.container = {
   "accepted" : [ Array , Object , String ],
   "element"  : false,
@@ -6411,7 +11591,7 @@ d3plus.method.container = {
   "value"    : false
 }
 
-},{}],83:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 d3plus.method.coords = {
   "accepted" : [ false , Array , Function , Object , String ],
   "mute"     : d3plus.method.filter(false),
@@ -6424,7 +11604,7 @@ d3plus.method.coords = {
   "value"    : false
 }
 
-},{}],84:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 d3plus.method.csv = {
   "accepted"  : [ undefined , Array , String ],
   "chainable" : false,
@@ -6503,7 +11683,7 @@ d3plus.method.csv = {
   "value"     : undefined
 }
 
-},{}],85:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 d3plus.method.data = {
   "accepted" : [ false , Array , Function , String ],
   "cache"    : {},
@@ -6532,25 +11712,25 @@ d3plus.method.data = {
   "value"    : false
 }
 
-},{}],86:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 d3plus.method.depth = {
   "accepted" : [ Function , Number ],
   "value"    : 0
 }
 
-},{}],87:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 d3plus.method.descs = {
   "accepted" : [ false , Function , Object ],
   "value"    : false
 }
 
-},{}],88:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 d3plus.method.dev = {
   "accepted" : [ Boolean ],
   "value"    : false
 }
 
-},{}],89:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 d3plus.method.draw = {
   "accepted" : [ undefined , Function ],
   "first"    : true,
@@ -6621,7 +11801,7 @@ d3plus.method.draw = {
   "value"    : undefined
 }
 
-},{}],90:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 d3plus.method.edges = {
   "accepted"    : [ false , Array , Function , String ],
   "connections" : function(focus,id,objects) {
@@ -6682,13 +11862,13 @@ d3plus.method.edges = {
   "value"       : false
 }
 
-},{}],91:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 d3plus.method.error = {
   "accepted" : [ Boolean , String ],
   "value"    : false
 }
 
-},{}],92:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 d3plus.method.focus = {
   "accepted"   : [ false , Function , Number , String ],
   "deprecates" : "highlight",
@@ -6740,14 +11920,14 @@ d3plus.method.focus = {
   "value"      : false
 }
 
-},{}],93:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 d3plus.method.footer = {
   "accepted" : [ false , Number , String ],
   "link"     : false,
   "value"    : false
 }
 
-},{}],94:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 d3plus.method.format = {
   "accepted"   : [ Function , String ],
   "deprecates" : [ "number_format" , "text_format" ],
@@ -6809,14 +11989,14 @@ d3plus.method.format = {
   }
 }
 
-},{}],95:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 d3plus.method.height = {
   "accepted"  : [ false , Number ],
   "secondary" : false,
   "value"     : false
 }
 
-},{}],96:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 d3plus.method.history = {
   "accepted" : [ Boolean ],
   "back"     : function() {
@@ -6835,13 +12015,13 @@ d3plus.method.history = {
   "value"    : true
 }
 
-},{}],97:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 d3plus.method.hover = {
   "accepted" : [ false , Number , String ],
   "value"    : false
 }
 
-},{}],98:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 d3plus.method.icon = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "icon_var",
@@ -6853,7 +12033,7 @@ d3plus.method.icon = {
   "value"      : "icon"
 }
 
-},{}],99:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 d3plus.method.id = {
   "accepted"    : [ Array , String ],
   "dataFilter"  : true,
@@ -6874,7 +12054,7 @@ d3plus.method.id = {
   "solo"        : d3plus.method.filter(true)
 }
 
-},{}],100:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 d3plus.method.keywords = {
   "accepted" : [ false , Array , Function , Object , String ],
   "mute"     : d3plus.method.filter(true),
@@ -6882,7 +12062,7 @@ d3plus.method.keywords = {
   "value"    : "keywords"
 }
 
-},{}],101:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 d3plus.method.labels = {
   "accepted" : [ Boolean ] ,
   "resize"   : {
@@ -6892,13 +12072,13 @@ d3plus.method.labels = {
   "value"    : true
 }
 
-},{}],102:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 d3plus.method.legend = {
   "accepted" : [ Boolean ],
   "value"    : true
 }
 
-},{}],103:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 d3plus.method.margin = {
   "accepted" : [ Number , Object , String ],
   "process"  : function ( value ) {
@@ -6987,13 +12167,13 @@ d3plus.method.margin = {
   "value"    : 0
 }
 
-},{}],104:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 d3plus.method.messages = {
   "accepted" : [ Boolean , String ],
   "value"    : true
 }
 
-},{}],105:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 d3plus.method.nodes = {
   "accepted" : [ false , Array , Function , String ],
   "delimiter" : {
@@ -7009,7 +12189,7 @@ d3plus.method.nodes = {
   "value"    : false
 }
 
-},{}],106:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 d3plus.method.open = {
   "accepted" : [ Boolean ],
   "flipped"  : {
@@ -7019,7 +12199,7 @@ d3plus.method.open = {
   "value"    : false
 }
 
-},{}],107:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 d3plus.method.order = {
   "accepted" : [ false , Function , String ],
   "sort"     : {
@@ -7030,7 +12210,7 @@ d3plus.method.order = {
   "value"    : false
 }
 
-},{}],108:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 d3plus.method.remove = {
   "accepted" : undefined,
   "process"  : function ( value ) {
@@ -7048,13 +12228,13 @@ d3plus.method.remove = {
   "value"    : undefined
 }
 
-},{}],109:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 d3plus.method.resize = {
   "accepted" : [ Boolean ],
   "value"    : false
 }
 
-},{}],110:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 d3plus.method.search = {
   "accepted" : [ "auto" , Boolean ],
   "process"  : function(value) {
@@ -7069,7 +12249,7 @@ d3plus.method.search = {
   "value"    : "auto"
 }
 
-},{}],111:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 d3plus.method.select = {
   "accepted"  : [ String ],
   "chainable" : false,
@@ -7085,7 +12265,7 @@ d3plus.method.select = {
   "value"     : undefined
 }
 
-},{}],112:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 d3plus.method.selectAll = {
   "accepted"  : [ String ],
   "chainable" : false,
@@ -7101,7 +12281,7 @@ d3plus.method.selectAll = {
   "value"     : undefined
 }
 
-},{}],113:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 d3plus.method.shape = {
   "accepted" : function( vars ) {
     return vars.shell === "textwrap" ? [ "circle" , "square" ]
@@ -7111,7 +12291,7 @@ d3plus.method.shape = {
   "value"    : false
 }
 
-},{}],114:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 d3plus.method.size = {
   "accepted"    : function( vars ) {
 
@@ -7136,7 +12316,7 @@ d3plus.method.size = {
   "value"       : false
 }
 
-},{}],115:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 d3plus.method.style = {
   "accepted" : function( vars ){
     return d3.keys(d3plus.style).filter(function(s){
@@ -7146,7 +12326,7 @@ d3plus.method.style = {
   "value"    : "default"
 }
 
-},{}],116:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 d3plus.method.temp = {
   "accepted": [ false , Array , Function , Object , String ],
   "deprecates": [ "else_var" , "else" ],
@@ -7155,7 +12335,7 @@ d3plus.method.temp = {
   "value": false
 }
 
-},{}],117:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 d3plus.method.text = {
   "accepted"   : [ Array , Boolean , Function , Object , String ],
   "deprecates" : [ "name_array" , "text_var" ],
@@ -7184,7 +12364,7 @@ d3plus.method.text = {
   "split"      : [ "-" , "/" , ";" , ":" , "&" ]
 }
 
-},{}],118:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 d3plus.method.time = {
   "accepted"    : [ Array , Boolean , Function , Object , String ],
   "dataFilter"  : true,
@@ -7199,13 +12379,13 @@ d3plus.method.time = {
   "value"       : false
 }
 
-},{}],119:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 d3plus.method.timeline = {
   "accepted" : [ Boolean ],
   "value"    : true
 }
 
-},{}],120:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 d3plus.method.title = {
   "accepted" : [ false , Function , String ],
   "link"     : false,
@@ -7236,7 +12416,7 @@ d3plus.method.title = {
   "value"    : false
 }
 
-},{}],121:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 d3plus.method.tooltip = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "tooltip_info",
@@ -7248,7 +12428,7 @@ d3plus.method.tooltip = {
   "value"      : false
 }
 
-},{}],122:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 d3plus.method.total = {
   "accepted": [ false , Array , Function , Object , String ],
   "deprecates": [ "total_var" ],
@@ -7257,7 +12437,7 @@ d3plus.method.total = {
   "value": false
 }
 
-},{}],123:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 d3plus.method.type = {
   "accepted" : function( vars ) {
 
@@ -7295,26 +12475,26 @@ d3plus.method.type = {
   }
 }
 
-},{}],124:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 d3plus.method.ui = {
   "accepted" : [ Array , Boolean ],
   "value"    : false
 }
 
-},{}],125:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 d3plus.method.width = {
   "accepted"  : [ false , Number ],
   "secondary" : false,
   "value"     : false
 }
 
-},{}],126:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 d3plus.method.x = d3plus.method.axis("x")
 
-},{}],127:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 d3plus.method.y = d3plus.method.axis("y")
 
-},{}],128:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 d3plus.method.zoom = {
   "accepted"   : [ Boolean ],
   "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
@@ -7369,7 +12549,7 @@ d3plus.method.zoom = {
   "value"      : true
 }
 
-},{}],129:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 d3plus.network.normalize = function(edges, source, options) {
   var K, a, b, directed, distance, edge, edge2distance, endpoint, errormsg, i, id, id1, idA, idB, node, nodeA, nodeB, nodeid, nodes, startpoint, target, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
   target = options.target, directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K;
@@ -7508,7 +12688,11 @@ d3plus.network.normalize = function(edges, source, options) {
 };
 
 
-},{}],130:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
+var Heap;
+
+Heap = require('heap');
+
 d3plus.network.shortestPath = function(edges, source, options) {
   var K, a, alt, b, directed, distance, edge, endpoint, getPath, heap, id, maxsize, node, nodeid, nodes, path, res, result, startpoint, target, u, visited, _i, _j, _len, _len1, _ref, _ref1, _ref2;
   if ((options.nodes == null) || typeof options.nodes !== 'object') {
@@ -7522,7 +12706,7 @@ d3plus.network.shortestPath = function(edges, source, options) {
     node = nodes[id];
     node.count = 0;
   }
-  heap = new d3plus.data.heap(function(a, b) {
+  heap = new Heap(function(a, b) {
     return a.distance - b.distance;
   });
   visited = {};
@@ -7595,7 +12779,7 @@ d3plus.network.shortestPath = function(edges, source, options) {
 };
 
 
-},{}],131:[function(require,module,exports){
+},{"heap":4}],159:[function(require,module,exports){
 d3plus.network.subgraph = function(edges, source, options) {
   var K, dfs, directed, distance, edge, endpoint, id, nodeid, nodes, startpoint, visited, _ref;
   if ((options.nodes == null) || typeof options.nodes !== 'object') {
@@ -7657,7 +12841,7 @@ d3plus.network.subgraph = function(edges, source, options) {
 };
 
 
-},{}],132:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats numbers to look "pretty"
 //------------------------------------------------------------------------------
@@ -7719,7 +12903,7 @@ d3plus.number.format = function( number , key , vars ) {
 
 }
 
-},{}],133:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merge two objects to create a new one with the properties of both
 //------------------------------------------------------------------------------
@@ -7763,7 +12947,7 @@ d3plus.object.merge = function(obj1, obj2) {
   return obj3;
 }
 
-},{}],134:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if the passed object has keys and is not an array.
 //------------------------------------------------------------------------------
@@ -7773,7 +12957,7 @@ d3plus.object.validate = function( obj ) {
 
 }
 
-},{}],135:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats a string similar to Python's "format"
 //------------------------------------------------------------------------------
@@ -7804,7 +12988,7 @@ d3plus.string.format = function() {
 
 }
 
-},{}],136:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Converts an array of strings into a string list using commas and "and".
 //------------------------------------------------------------------------------
@@ -7846,7 +13030,7 @@ d3plus.string.list = function( list , and , max , more ) {
 
 }
 
-},{}],137:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
@@ -7900,7 +13084,7 @@ d3plus.string.strip = function(str) {
 
 }
 
-},{}],138:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats numbers to look "pretty"
 //------------------------------------------------------------------------------
@@ -7944,7 +13128,7 @@ d3plus.string.title = function( text , key , vars ) {
 
 }
 
-},{}],139:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // D3plus Default Color Scheme
 // Created by Dave Landry
@@ -7957,7 +13141,7 @@ d3plus.style.default.fontFamily = [ "Helvetica Neue"
                                   , "Arial"
                                   , "sans-serif" ]
 
-},{}],140:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 d3plus.style.default.axes = {
   "ticks" : {
     "color" : "#ccc",
@@ -7980,13 +13164,13 @@ d3plus.style.default.axes = {
   }
 }
 
-},{}],141:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 d3plus.style.default.background = {
   "accepted" : [ String ],
   "value"    : "#ffffff"
 }
 
-},{}],142:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 d3plus.style.default.color = {
   "heatmap"   : [ "#27366c" , "#7b91d3" , "#9ed3e3"
                 , "#f3d261" , "#c9853a" , "#d74b03" ],
@@ -7997,7 +13181,7 @@ d3plus.style.default.color = {
   "secondary" : "#e5b3bb"
 }
 
-},{}],143:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 d3plus.style.default.coords = {
   "center"     : [ 0 , 0 ],
   "fit"        : {
@@ -8012,7 +13196,7 @@ d3plus.style.default.coords = {
   "threshold"  : 0.1
 }
 
-},{}],144:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 d3plus.style.default.data = {
   "donut"   : {
     "size" : 0.35
@@ -8024,7 +13208,7 @@ d3plus.style.default.data = {
   }
 }
 
-},{}],145:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 d3plus.style.default.edges = {
   "arrows"  : {
     "accepted"  : [ Boolean , Number ],
@@ -8041,7 +13225,7 @@ d3plus.style.default.edges = {
   "width"   : 1
 }
 
-},{}],146:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 d3plus.style.default.font = {
   "align"      : {
     "accepted" : [ "left" , "center" , "right" ],
@@ -8095,7 +13279,7 @@ d3plus.style.default.font = {
   "weight"     : 200
 }
 
-},{}],147:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 d3plus.style.default.footer = {
   "font"     : {
     "align"      : "center",
@@ -8116,13 +13300,13 @@ d3plus.style.default.footer = {
   "position" : "bottom"
 }
 
-},{}],148:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 d3plus.style.default.height = {
   "small" : 300,
   "max"   : 600
 }
 
-},{}],149:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 d3plus.style.default.icon = {
   "back"   : {
     "accepted" : [ false , String ],
@@ -8203,7 +13387,7 @@ d3plus.style.default.icon = {
   }
 }
 
-},{}],150:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 d3plus.style.default.labels = {
   "align"    : "middle",
   "font"     : {
@@ -8223,7 +13407,7 @@ d3plus.style.default.labels = {
   "segments" : 2
 }
 
-},{}],151:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 d3plus.style.default.legend = {
   "align"    : "middle",
   "font"     : {
@@ -8247,7 +13431,7 @@ d3plus.style.default.legend = {
   "size"     : [ 8 , 30 ]
 }
 
-},{}],152:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 d3plus.style.default.links = {
   "font"  : {
     "color"      : "#444444",
@@ -8277,7 +13461,7 @@ d3plus.style.default.links = {
   }
 }
 
-},{}],153:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 d3plus.style.default.messages = {
   "font" : {
     "color"      : "#444",
@@ -8296,12 +13480,12 @@ d3plus.style.default.messages = {
   "padding": 5
 }
 
-},{}],154:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 d3plus.style.default.nodes = {
   "overlap" : 0.6
 }
 
-},{}],155:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 d3plus.style.default.shape = {
   "interpolate" : {
     "accepted"   : [ "basis" , "basis-open" , "cardinal"
@@ -8316,7 +13500,7 @@ d3plus.style.default.shape = {
   }
 }
 
-},{}],156:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 d3plus.style.default.timeline = {
   "align"      : "middle",
   "background" : "#eeeeee",
@@ -8343,14 +13527,14 @@ d3plus.style.default.timeline = {
   }
 }
 
-},{}],157:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 d3plus.style.default.timing = {
   "mouseevents" : 60,
   "transitions" : 600,
   "ui"          : 200
 }
 
-},{}],158:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 d3plus.style.default.title = {
   "font"     : {
     "align"      : "center",
@@ -8411,7 +13595,7 @@ d3plus.style.default.title = {
   "width"    : false
 }
 
-},{}],159:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 d3plus.style.default.tooltip = {
   "anchor"      : "top center",
   "background"  : "#ffffff",
@@ -8449,7 +13633,7 @@ d3plus.style.default.tooltip = {
   "small"      : 225
 }
 
-},{}],160:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 d3plus.style.default.ui = {
   "align"    : {
     "accepted" : [ "left" , "center" , "right" ],
@@ -8511,12 +13695,12 @@ d3plus.style.default.ui = {
   }
 }
 
-},{}],161:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 d3plus.style.default.width = {
   "small" : 400
 }
 
-},{}],162:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Constructs font family property using the validate function
 //------------------------------------------------------------------------------
@@ -8529,7 +13713,7 @@ d3plus.style.fontFamily = function( family ) {
 
 }
 
-},{}],163:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into the container
 //------------------------------------------------------------------------------
@@ -8544,7 +13728,7 @@ d3plus.textwrap.flow = function( vars ) {
 
 }
 
-},{}],164:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text as a foreign element.
 //------------------------------------------------------------------------------
@@ -8575,7 +13759,7 @@ d3plus.textwrap.foreign = function( vars ) {
 
 }
 
-},{}],165:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks width and height, and gets it if needed.
 //------------------------------------------------------------------------------
@@ -8625,7 +13809,7 @@ d3plus.textwrap.getDimensions = function( vars ) {
 
 }
 
-},{}],166:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches text if not specified, and formats text to array.
 //------------------------------------------------------------------------------
@@ -8649,7 +13833,7 @@ d3plus.textwrap.getSize = function( vars ) {
 
 }
 
-},{}],167:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches text if not specified, and formats text to array.
 //------------------------------------------------------------------------------
@@ -8681,7 +13865,7 @@ d3plus.textwrap.getText = function( vars ) {
 
 }
 
-},{}],168:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Logic to determine the best size for text
 //------------------------------------------------------------------------------
@@ -8743,7 +13927,7 @@ d3plus.textwrap.resize = function( vars , line ) {
 
 }
 
-},{}],169:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into tspans
 //------------------------------------------------------------------------------
@@ -8865,7 +14049,7 @@ d3plus.textwrap.tspan = function( vars ) {
 
 }
 
-},{}],170:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into the container
 //------------------------------------------------------------------------------
@@ -8887,7 +14071,7 @@ d3plus.textwrap.wrap = function( vars ) {
 
 }
 
-},{}],171:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Word wraps SVG text
 //------------------------------------------------------------------------------
@@ -8926,7 +14110,7 @@ d3plus.textwrap = function() {
 
 }
 
-},{}],172:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -9201,7 +14385,7 @@ d3plus.tooltip.app = function(params) {
 
 }
 
-},{}],173:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Correctly positions the tooltip's arrow
 //-------------------------------------------------------------------
@@ -9276,7 +14460,7 @@ d3plus.tooltip.arrow = function(arrow) {
       }
     })
 }
-},{}],174:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create a Tooltip
 //-------------------------------------------------------------------
@@ -9739,7 +14923,7 @@ d3plus.tooltip.create = function(params) {
 
 }
 
-},{}],175:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
@@ -10017,7 +15201,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
 }
 
-},{}],176:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Set X and Y position for Tooltip
 //-------------------------------------------------------------------
@@ -10120,7 +15304,7 @@ d3plus.tooltip.move = function(x,y,id) {
     
 }
 
-},{}],177:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Destroy Tooltips
 //-------------------------------------------------------------------
@@ -10148,7 +15332,7 @@ d3plus.tooltip.remove = function(id) {
 
 }
 
-},{}],178:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Expands a min/max into a specified number of buckets
 //------------------------------------------------------------------------------
@@ -10167,7 +15351,7 @@ d3plus.util.buckets = function(arr, buckets) {
   return return_arr
 }
 
-},{}],179:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if element is inside of another elemebt
 //------------------------------------------------------------------------------
@@ -10198,7 +15382,7 @@ d3plus.util.child = function(parent,child) {
 
 }
 
-},{}],180:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds closest numeric value in array
 //------------------------------------------------------------------------------
@@ -10212,7 +15396,7 @@ d3plus.util.closest = function(arr,value) {
   return closest
 }
 
-},{}],181:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Clones a variable
 //------------------------------------------------------------------------------
@@ -10236,7 +15420,7 @@ d3plus.util.copy = function( variable ) {
 
 }
 
-},{}],182:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cross-browser detect for D3 element
 //------------------------------------------------------------------------------
@@ -10246,7 +15430,7 @@ d3plus.util.d3selection = function(selection) {
     : selection instanceof d3.selection
 }
 
-},{}],183:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Base-64 Data URL from and Image URL
 //------------------------------------------------------------------------------
@@ -10272,7 +15456,7 @@ d3plus.util.dataurl = function(url,callback) {
 
 }
 
-},{}],184:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns distances of all objects in array
 //------------------------------------------------------------------------------
@@ -10300,7 +15484,7 @@ d3plus.util.distances = function(arr,accessor) {
   return distances
 }
 
-},{}],185:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Gives X and Y offset based off angle and shape
 //------------------------------------------------------------------------------
@@ -10399,7 +15583,7 @@ d3plus.util.offset = function(radians, distance, shape) {
 
 }
 
-},{}],186:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns list of unique values
 //------------------------------------------------------------------------------
@@ -10447,7 +15631,7 @@ d3plus.util.uniques = function( data , value ) {
 
 }
 
-},{}],187:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
@@ -10499,7 +15683,7 @@ d3plus.variable.color = function( vars , id , level ) {
 
 }
 
-},{}],188:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
 //------------------------------------------------------------------------------
@@ -10549,7 +15733,7 @@ d3plus.variable.text = function(vars,obj,depth) {
 
 }
 
-},{}],189:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
@@ -10711,7 +15895,7 @@ d3plus.variable.value = function( vars , id , variable , id_var , agg ) {
 
 }
 
-},{}],190:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -10761,7 +15945,7 @@ d3plus.draw.app = function(vars) {
 
 }
 
-},{}],191:[function(require,module,exports){
+},{}],219:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If placing into a new container, remove it's contents
 // and check text direction.
@@ -10841,7 +16025,7 @@ d3plus.draw.container = function(vars) {
 
 }
 
-},{}],192:[function(require,module,exports){
+},{}],220:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Enter Elements
 //------------------------------------------------------------------------------
@@ -11014,7 +16198,7 @@ d3plus.draw.enter = function(vars) {
 
 }
 
-},{}],193:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -11135,7 +16319,7 @@ d3plus.draw.errors = function(vars) {
 
 }
 
-},{}],194:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
 //------------------------------------------------------------------------------
@@ -11308,7 +16492,7 @@ d3plus.draw.finish = function(vars) {
 
 }
 
-},{}],195:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates focus elements, if available
 //------------------------------------------------------------------------------
@@ -11462,7 +16646,7 @@ d3plus.draw.focus = function(vars) {
 
 }
 
-},{}],196:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -11798,7 +16982,7 @@ d3plus.draw.steps = function(vars) {
 
 }
 
-},{}],197:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
 //------------------------------------------------------------------------------
@@ -11865,7 +17049,7 @@ d3plus.draw.update = function(vars) {
 
 }
 
-},{}],198:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -11971,7 +17155,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
 }
 
-},{}],199:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns the correct fill color for a node
 //-------------------------------------------------------------------
@@ -12017,7 +17201,7 @@ d3plus.shape.color = function(d,vars) {
 
 }
 
-},{}],200:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -12192,7 +17376,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
 }
 
-},{}],201:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
 //------------------------------------------------------------------------------
@@ -12293,7 +17477,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
 
 }
 
-},{}],202:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws the appropriate shape based on the data
 //------------------------------------------------------------------------------
@@ -12950,7 +18134,7 @@ d3plus.shape.draw = function(vars) {
 
 }
 
-},{}],203:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -13513,7 +18697,7 @@ d3plus.shape.edges = function(vars) {
 
 }
 
-},{}],204:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -13789,7 +18973,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
 
 }
 
-},{}],205:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
@@ -14300,7 +19484,7 @@ d3plus.shape.labels = function( vars , group ) {
   }
 }
 
-},{}],206:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
 //------------------------------------------------------------------------------
@@ -14566,7 +19750,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
 }
 
-},{}],207:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -14714,7 +19898,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
 
 }
 
-},{}],208:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fill style for all shapes
 //-------------------------------------------------------------------
@@ -14746,7 +19930,7 @@ d3plus.shape.style = function(nodes,vars) {
 
 }
 
-},{}],209:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Bubbles
 //------------------------------------------------------------------------------
@@ -14955,7 +20139,7 @@ d3plus.visualization.bubbles.scale        = 1.05
 d3plus.visualization.bubbles.shapes       = [ "circle" , "donut" ]
 d3plus.visualization.bubbles.tooltip      = "static"
 
-},{}],210:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Chart
 //------------------------------------------------------------------------------
@@ -16005,7 +21189,7 @@ d3plus.visualization.chart.scale        = { "circle": 1.1
 d3plus.visualization.chart.shapes       = ["circle","donut","line","square","area"]
 d3plus.visualization.chart.tooltip      = "static"
 
-},{}],211:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Geo Map
 //------------------------------------------------------------------------------
@@ -16052,7 +21236,7 @@ d3plus.visualization.geo_map.shapes       = [ "coordinates" ];
 d3plus.visualization.geo_map.tooltip      = "follow"
 d3plus.visualization.geo_map.zoom         = true
 
-},{}],212:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Line Plot
 //------------------------------------------------------------------------------
@@ -16079,7 +21263,7 @@ d3plus.visualization.line.setup = function(vars) {
 d3plus.visualization.line.shapes       = [ "line" ]
 d3plus.visualization.line.tooltip      = "static"
 
-},{}],213:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
@@ -16208,7 +21392,7 @@ d3plus.visualization.network.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.network.tooltip      = "static"
 d3plus.visualization.network.zoom         = true
 
-},{}],214:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 d3plus.visualization.rings = function(vars) {
 
   var radius = d3.min([vars.height.viz,vars.width.viz])/2
@@ -16692,7 +21876,7 @@ d3plus.visualization.rings.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.rings.requirements = [ "edges" , "focus" ]
 d3plus.visualization.rings.tooltip      = "static"
 
-},{}],215:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Scatterplot
 //------------------------------------------------------------------------------
@@ -16714,7 +21898,7 @@ d3plus.visualization.scatter.scale        = d3plus.visualization.chart.scale
 d3plus.visualization.scatter.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.scatter.tooltip      = "static"
 
-},{}],216:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Stacked Area Chart
 //------------------------------------------------------------------------------
@@ -16768,7 +21952,7 @@ d3plus.visualization.stacked.threshold    = function( vars ) {
 }
 d3plus.visualization.stacked.tooltip      = "static"
 
-},{}],217:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
@@ -16896,7 +22080,7 @@ d3plus.visualization.tree_map.threshold    = function( vars ) {
 }
 d3plus.visualization.tree_map.tooltip      = "follow"
 
-},{}],218:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws a UI drawer, if defined.
 //------------------------------------------------------------------------------
@@ -16997,7 +22181,7 @@ d3plus.ui.drawer = function( vars ) {
 
 }
 
-},{}],219:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates focus tooltip, if applicable
 //-------------------------------------------------------------------
@@ -17051,7 +22235,7 @@ d3plus.ui.focus = function(vars) {
 
 }
 
-},{}],220:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates "back" button, if applicable
 //------------------------------------------------------------------------------
@@ -17161,7 +22345,7 @@ d3plus.ui.history = function(vars) {
 
 }
 
-},{}],221:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -17758,7 +22942,7 @@ d3plus.ui.legend = function(vars) {
 
 }
 
-},{}],222:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -17869,7 +23053,7 @@ d3plus.ui.message = function(vars,message) {
 
 }
 
-},{}],223:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //-------------------------------------------------------------------
@@ -18227,7 +23411,7 @@ d3plus.ui.timeline = function(vars) {
 
 }
 
-},{}],224:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws appropriate titles
 //------------------------------------------------------------------------------
@@ -18542,7 +23726,7 @@ d3plus.ui.titles = function(vars) {
 
 }
 
-},{}],225:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 d3plus.viz = function() {
 
   var vars = {
@@ -18733,7 +23917,7 @@ d3plus.viz = function() {
 
 }
 
-},{}],226:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 d3plus.zoom.bounds = function( vars , b , timing ) {
 
   if (!b) {
@@ -18790,7 +23974,7 @@ d3plus.zoom.bounds = function( vars , b , timing ) {
 
 }
 
-},{}],227:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 d3plus.zoom.controls = function() {
   d3.select("#d3plus.utilsts.zoom_controls").remove()
   if (!vars.small) {
@@ -18822,7 +24006,7 @@ d3plus.zoom.controls = function() {
   }
 }
 
-},{}],228:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets label opacity based on zoom
 //------------------------------------------------------------------------------
@@ -18860,7 +24044,7 @@ d3plus.zoom.labels = function(vars) {
 
 }
 
-},{}],229:[function(require,module,exports){
+},{}],257:[function(require,module,exports){
 d3plus.zoom.mouse = function(vars) {
 
   var translate = d3.event.translate,
@@ -18913,7 +24097,7 @@ d3plus.zoom.mouse = function(vars) {
 
 }
 
-},{}],230:[function(require,module,exports){
+},{}],258:[function(require,module,exports){
 d3plus.zoom.transform = function(vars,timing) {
 
   if (typeof timing !== "number") {
@@ -18937,4 +24121,4 @@ d3plus.zoom.transform = function(vars,timing) {
 
 }
 
-},{}]},{},[62,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,52,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,53,54,55,56,57,58,59,60,61,63,64,65,66,75,67,68,69,70,71,72,73,74,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,162,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,171,163,164,165,166,167,168,169,170,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,225,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,226,227,228,229,230])
+},{}]},{},[90,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,81,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,82,83,84,85,86,87,88,89,91,92,93,94,103,95,96,97,98,99,100,101,102,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,190,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,199,191,192,193,194,195,196,197,198,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,253,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,254,255,256,257,258])
