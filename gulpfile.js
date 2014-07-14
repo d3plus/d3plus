@@ -10,6 +10,7 @@ var gulp = require("gulp")
   , express = require("express")
   , source = require("vinyl-source-stream")
   , lr = require("tiny-lr")()
+  , browserify = require("browserify")
   , watchify = require("watchify")
   , streamify = require('gulp-streamify')
   , es = require('event-stream')
@@ -17,7 +18,7 @@ var gulp = require("gulp")
 
 var files = "./src/**/*.*"
 
-var tests = ["tests/**/*.*" ]
+var tests = [ "tests/**/*.*" ]
 
 // Concatenate & Minify JS
 gulp.task("make", function() {
@@ -28,7 +29,9 @@ gulp.task("make", function() {
 
   var rebundle = function() {
 
-    var bundle = bundler.bundle();
+    var bundle = bundler
+      .ignore("./src/libs.js")
+      .bundle();
 
     var normal = bundle
       .pipe(source("d3plus.js"))
@@ -38,6 +41,19 @@ gulp.task("make", function() {
     var min = bundle
       .pipe(source("d3plus.min.js"))
       .pipe(streamify(uglify()))
+      .pipe(gulp.dest("./"));
+
+    var bundle = browserify(fileList)
+      .transform("coffeeify")
+      .bundle();
+
+    var full = bundle
+      .pipe(source("d3plus.full.js"))
+      .pipe(gulp.dest("./"));
+
+    var fullmin = bundle
+      .pipe(source("d3plus.full.min.js"))
+      .pipe(streamify(uglify()))
       .pipe(gulp.dest("./"))
       .pipe(notify({
         title: "D3plus",
@@ -45,7 +61,7 @@ gulp.task("make", function() {
       }))
       .pipe(livereload(lr));
 
-    return es.merge(normal,min);
+    return es.merge(normal,min,full,fullmin);
 
   }
 
