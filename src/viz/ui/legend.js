@@ -5,10 +5,10 @@ d3plus.ui.legend = function(vars) {
 
   var key_display = true,
       square_size = 0,
-      key = vars.color.value || vars.id.value
+      key = vars.color.value
     , colorName = vars.color.value || "d3plus_color"
 
-  if (!vars.small && vars.legend.value && key) {
+  if (key && !vars.small && vars.legend.value) {
 
     if (!vars.color.scale) {
 
