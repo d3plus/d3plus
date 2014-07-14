@@ -24,11 +24,13 @@ d3plus.visualization.tree_map = function(vars) {
 
   var strippedData = []
   vars.data.app.forEach(function(d){
+
     strippedData.push({
       "d3plus" : d,
       "id"     : d[vars.id.value],
       "value"  : d3plus.variable.value(vars,d,vars.size.value)
     })
+
   })
 
   grouped_data = grouped_data.entries(strippedData)

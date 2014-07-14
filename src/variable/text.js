@@ -26,6 +26,11 @@ d3plus.variable.text = function(vars,obj,depth) {
   }
 
   var names = []
+
+  if (d3plus.object.validate(obj) && "d3plus" in obj && obj.d3plus.text) {
+    names.push(obj.d3plus.text)
+  }
+
   textKeys.forEach(function( t ){
 
     var name = d3plus.variable.value( vars , obj , t , key )

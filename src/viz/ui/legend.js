@@ -80,7 +80,7 @@ d3plus.ui.legend = function(vars) {
         d[colorName] = d[colorName]
           || d3plus.variable.color( vars , d , colorKey )
 
-        d.d3plus = {"depth": colorDepth}
+        d.d3plus.colorDepth = colorDepth
 
       }
 
@@ -146,7 +146,7 @@ d3plus.ui.legend = function(vars) {
 
         var keys = vars.g.legend.selectAll("g.d3plus_color")
           .data(colors,function(d){
-            return d[vars.id.nesting[d.d3plus.depth]]
+            return d[vars.id.nesting[d.d3plus.colorDepth]]
           })
 
         function position(group) {

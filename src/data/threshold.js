@@ -133,31 +133,35 @@ d3plus.data.threshold = function( vars , rawData , split ) {
           m.d3plus.depth = vars.depth.value+1
         }
 
+        if (vars.depth.value == 0) {
+          var textLabel = vars.format.value(vars.format.locale.value.ui.values)
+          textLabel += " < "+vars.format.value(cutoff)
+        }
+        else {
+          var name = d3plus.variable.text(vars,m,vars.depth.value-1)[0]
+          var textLabel = name
+          textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
+        }
+        textLabel += " ("+vars.format.value(threshold*100)+"%)"
+
+        m.d3plus.threshold = cutoff
+        if (parent) {
+          m.d3plus.merged = []
+          removed.forEach(function(r){
+            if (m[parent] == r[parent]) {
+              m.d3plus.merged.push(r)
+            }
+          })
+        }
+        else {
+          m.d3plus.merged = removed
+        }
+
         if (vars.text.value) {
-          if (vars.depth.value == 0) {
-            m[vars.text.value] = vars.format.value(vars.format.locale.value.ui.values)
-            m[vars.text.value] += " < "+vars.format.value(cutoff)
-          }
-          else {
-            var name = d3plus.variable.value(vars,m,vars.text.value,parent)
-            m[vars.text.value] = name
-            m[vars.text.value] += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
-          }
-          m[vars.text.value] += " ("+vars.format.value(threshold*100)+"%)"
-
-          m.d3plus.threshold = cutoff
-          if (parent) {
-            m.d3plus.merged = []
-            removed.forEach(function(r){
-              if (m[parent] == r[parent]) {
-                m.d3plus.merged.push(r)
-              }
-            })
-          }
-          else {
-            m.d3plus.merged = removed
-          }
-
+          m[vars.text.value] = textLabel
+        }
+        else {
+          m.d3plus.text = textLabel
         }
 
       })
