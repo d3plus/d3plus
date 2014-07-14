@@ -203,8 +203,6 @@ d3plus.ui.timeline = function(vars) {
         return i%step == 0 ? d : ""
       })
       .attr("opacity",1)
-
-    text.transition().duration(vars.draw.timing)
       .attr("fill",function(d){
 
         if (d >= init[0] && d <= init[1]) {
