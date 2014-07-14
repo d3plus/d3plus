@@ -3745,7 +3745,7 @@ function wrappedNDArrayCtor(data, shape, stride, offset) {
 
 module.exports = wrappedNDArrayCtor
 }).call(this,require("buffer").Buffer)
-},{"buffer":26,"iota-array":23}],23:[function(require,module,exports){
+},{"buffer":27,"iota-array":23}],23:[function(require,module,exports){
 "use strict"
 
 function iota(n) {
@@ -4177,7 +4177,9 @@ exports.clearCache = function clearCache() {
   }
 }
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"bit-twiddle":6,"buffer":26,"dup":24}],26:[function(require,module,exports){
+},{"bit-twiddle":6,"buffer":27,"dup":24}],26:[function(require,module,exports){
+
+},{}],27:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -5288,7 +5290,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":27,"ieee754":28}],27:[function(require,module,exports){
+},{"base64-js":28,"ieee754":29}],28:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -5410,7 +5412,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -5496,7 +5498,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts an array of objects
 //------------------------------------------------------------------------------
@@ -5580,7 +5582,7 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
 
 }
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updates an array, either overwriting it with a new array, removing an entry
 // if it is present, or adding it if it is not.
@@ -5608,7 +5610,7 @@ d3plus.array.update = function( arr , x ) {
 
 }
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 d3plus.color.legible = function(color) {
   var hsl;
   hsl = d3.hsl(color);
@@ -5622,7 +5624,7 @@ d3plus.color.legible = function(color) {
 };
 
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Lightens a color
 //------------------------------------------------------------------------------
@@ -5640,7 +5642,7 @@ d3plus.color.lighter = function( color , increment ) {
 
 }
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Mixes 2 hexidecimal colors
 //------------------------------------------------------------------------------
@@ -5660,7 +5662,7 @@ d3plus.color.mix = function(c1,c2,o1,o2) {
 
 }
 
-},{}],34:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Random color generator
 //------------------------------------------------------------------------------
@@ -5669,7 +5671,7 @@ d3plus.color.random = function(x) {
   return d3plus.color.scale.default(rand_int)
 }
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Usable Color Scales
 //------------------------------------------------------------------------------
@@ -5698,7 +5700,7 @@ d3plus.color.scale.default = d3.scale.ordinal().range([
   "#9A4400",
 ])
 
-},{}],36:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts colors based on hue
 //------------------------------------------------------------------------------
@@ -5714,7 +5716,7 @@ d3plus.color.sort = function( a , b ) {
 
 }
 
-},{}],37:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns appropriate text color based off of a given color
 //------------------------------------------------------------------------------
@@ -5730,7 +5732,7 @@ d3plus.color.text = function(color) {
 
 }
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts colors based on hue
 //------------------------------------------------------------------------------
@@ -5754,7 +5756,7 @@ d3plus.color.validate = function( color ) {
 
 }
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets color range of data, if applicable
 //-------------------------------------------------------------------
@@ -5813,7 +5815,7 @@ d3plus.data.color = function(vars) {
 
 }
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cleans edges list and populates nodes list if needed
 //-------------------------------------------------------------------
@@ -5889,7 +5891,7 @@ d3plus.data.edges = function( vars ) {
 
 }
 
-},{}],41:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 d3plus.data.element = function( vars ) {
 
   var attributes = [ vars.color.value
@@ -6051,7 +6053,7 @@ d3plus.data.element = function( vars ) {
 
 }
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches specific years of data
 //-------------------------------------------------------------------
@@ -6227,7 +6229,7 @@ d3plus.data.fetch = function( vars , years ) {
 
 }
 
-},{}],43:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Restricts data based on Solo/Mute filters
 //------------------------------------------------------------------------------
@@ -6336,7 +6338,7 @@ d3plus.data.filter = function( vars , data ) {
 
 }
 
-},{}],44:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats raw data by time and nesting
 //------------------------------------------------------------------------------
@@ -6403,7 +6405,7 @@ d3plus.data.format = function( vars ) {
 
 }
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get Key Types from Data
 //------------------------------------------------------------------------------
@@ -6447,7 +6449,7 @@ d3plus.data.keys = function( vars , type ) {
 
 }
 
-},{}],46:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 var kdtree;
 
 kdtree = require('static-kdtree');
@@ -6529,7 +6531,7 @@ d3plus.data.lof = function(points, K) {
 };
 
 
-},{"static-kdtree":4}],47:[function(require,module,exports){
+},{"static-kdtree":4}],48:[function(require,module,exports){
 d3plus.data.mad = function(points) {
   var mad, median, result;
   median = d3.median(points);
@@ -6546,7 +6548,7 @@ d3plus.data.mad = function(points) {
 };
 
 
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
@@ -6811,7 +6813,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
 }
 
-},{}],49:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates node positions, if needed for network
 //-------------------------------------------------------------------
@@ -6856,7 +6858,7 @@ d3plus.data.nodes = function(vars) {
 
 }
 
-},{}],50:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Resets certain keys in global variables.
 //-------------------------------------------------------------------
@@ -6884,7 +6886,7 @@ d3plus.data.reset = function( obj , method ) {
 
 }
 
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merges data underneath the size threshold
 //-------------------------------------------------------------------
@@ -7066,7 +7068,7 @@ d3plus.data.threshold = function( vars , rawData , split ) {
 
 }
 
-},{}],52:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Load Data using JSON
 //------------------------------------------------------------------------------
@@ -7175,7 +7177,7 @@ d3plus.data.url = function( vars , key , next ) {
 
 }
 
-},{}],53:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects if FontAwesome is loaded on the page
 //------------------------------------------------------------------------------
@@ -7188,7 +7190,7 @@ for (var s = 0; s < document.styleSheets.length; s++) {
   }
 }
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates test div to populate with test DIVs
 //------------------------------------------------------------------------------
@@ -7231,7 +7233,7 @@ d3plus.font.sizes = function( words , style , parent ) {
 
 }
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates test div to populate with test DIVs
 //------------------------------------------------------------------------------
@@ -7254,7 +7256,7 @@ d3plus.font.tester = function( type ) {
 
 }
 
-},{}],56:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Given a single font or a list of font, determines which can be rendered
 //------------------------------------------------------------------------------
@@ -7333,7 +7335,7 @@ d3plus.font.validate = function(test_fonts) {
 
 d3plus.font.validate.complete = {}
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Form Element shell
 //------------------------------------------------------------------------------
@@ -7641,7 +7643,7 @@ d3plus.form = function() {
 
 }
 
-},{}],58:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines form type based on data length.
 //------------------------------------------------------------------------------
@@ -7661,7 +7663,7 @@ d3plus.input.auto = function( vars ) {
 
 }
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
@@ -7741,7 +7743,7 @@ d3plus.input.button = function( vars ) {
 
 }
 
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -7802,7 +7804,7 @@ d3plus.input.button.color = function ( elem , vars ) {
 
 }
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -7982,7 +7984,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
 
 }
 
-},{}],62:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -8034,7 +8036,7 @@ d3plus.input.button.mouseevents = function ( elem , vars , color ) {
 
 }
 
-},{}],63:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -8053,7 +8055,7 @@ d3plus.input.button.style = function ( elem , vars ) {
 
 }
 
-},{}],64:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Dropdown Menu
 //------------------------------------------------------------------------------
@@ -8121,7 +8123,7 @@ d3plus.input.drop = function( vars ) {
 
 }
 
-},{}],65:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if a given variable is allowed to be selected.
 //------------------------------------------------------------------------------
@@ -8157,7 +8159,7 @@ d3plus.input.drop.active = function ( vars , value , active ) {
 
 }
 
-},{}],66:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
 //------------------------------------------------------------------------------
@@ -8187,7 +8189,7 @@ d3plus.input.drop.arrow = function ( vars ) {
 
 }
 
-},{}],67:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the main drop button.
 //------------------------------------------------------------------------------
@@ -8268,7 +8270,7 @@ d3plus.input.drop.button = function ( vars ) {
 
 }
 
-},{}],68:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
 //------------------------------------------------------------------------------
@@ -8386,7 +8388,7 @@ d3plus.input.drop.data = function ( vars ) {
 
 }
 
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Overrides keyboard behavior of the original input element.
 //------------------------------------------------------------------------------
@@ -8425,7 +8427,7 @@ d3plus.input.drop.element = function ( vars ) {
 
 }
 
-},{}],70:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the height and orientation of the dropdown list, based on
 // available screen space.
@@ -8452,7 +8454,7 @@ d3plus.input.drop.height = function ( vars ) {
 
 }
 
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Populates item list based on filtered data.
 //------------------------------------------------------------------------------
@@ -8575,7 +8577,7 @@ d3plus.input.drop.items = function ( vars ) {
 
 }
 
-},{}],72:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Assigns behavior to the user's keyboard for navigation.
 //------------------------------------------------------------------------------
@@ -8685,7 +8687,7 @@ d3plus.input.drop.keyboard = function ( vars ) {
 
 }
 
-},{}],73:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
 //------------------------------------------------------------------------------
@@ -8706,7 +8708,7 @@ d3plus.input.drop.list = function ( vars ) {
 
 }
 
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
 //------------------------------------------------------------------------------
@@ -8810,7 +8812,7 @@ d3plus.input.drop.scroll = function ( vars ) {
 
 }
 
-},{}],75:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the search box, if enabled.
 //------------------------------------------------------------------------------
@@ -8899,7 +8901,7 @@ d3plus.input.drop.search = function ( vars ) {
 
 }
 
-},{}],76:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
@@ -8921,7 +8923,7 @@ d3plus.input.drop.selector = function ( vars ) {
 
 }
 
-},{}],77:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the title and back button.
 //------------------------------------------------------------------------------
@@ -9067,7 +9069,7 @@ d3plus.input.drop.title = function ( vars ) {
 
 }
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Redraws only the drop down list.
 //------------------------------------------------------------------------------
@@ -9228,7 +9230,7 @@ d3plus.input.drop.update = function ( vars ) {
 
 }
 
-},{}],79:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If no widths are defined, then this calculates the width needed to fit the
 // longest entry in the list.
@@ -9322,7 +9324,7 @@ d3plus.input.drop.width = function ( vars ) {
 
 }
 
-},{}],80:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Recursive function that applies a click event to all parent windows that
 // will close the dropdown if it is open.
@@ -9365,7 +9367,7 @@ d3plus.input.drop.window = function ( vars , elem ) {
 
 }
 
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Toggle Buttons
 //------------------------------------------------------------------------------
@@ -9449,7 +9451,7 @@ d3plus.input.toggle = function( vars ) {
 
 }
 
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Custom styling and behavior for browser console statements.
 //------------------------------------------------------------------------------
@@ -9601,7 +9603,7 @@ d3plus.console.wiki = function( wiki ) {
 
 }
 
-},{}],83:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates custom mouse events based on IE and Touch Devices.
 //------------------------------------------------------------------------------
@@ -9643,7 +9645,7 @@ else {
 
 }
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
 
 d3plus.wiki    = {
@@ -9705,13 +9707,13 @@ d3plus.wiki    = {
   "zoom"       : "Zooming"
 }
 
-},{}],85:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines if the current browser is Internet Explorer.
 //------------------------------------------------------------------------------
 d3plus.ie = /*@cc_on!@*/false
 
-},{}],86:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the correct CSS vendor prefix based on the current browser.
 //------------------------------------------------------------------------------
@@ -9741,13 +9743,13 @@ d3plus.prefix = function() {
 
 }
 
-},{}],87:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects right-to-left text direction on the page.
 //------------------------------------------------------------------------------
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
-},{}],88:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects scrollbar width for current browser.
 //------------------------------------------------------------------------------
@@ -9785,7 +9787,7 @@ d3plus.scrollbar = function() {
 
 }
 
-},{}],89:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
 
 simplify = require('simplify-js');
@@ -10182,12 +10184,12 @@ intersectPoints = function(poly, origin, alpha) {
 };
 
 
-},{"simplify-js":3}],90:[function(require,module,exports){
+},{"simplify-js":3}],91:[function(require,module,exports){
 var d3plus    = window.d3plus || {}
 window.d3plus = d3plus
 
 d3plus.version = "1.4.0 - Teal"
-d3plus.farts = true
+
 d3plus.array         = {}
 d3plus.color         = {}
 d3plus.data          = {}
@@ -10210,7 +10212,7 @@ d3plus.variable      = {}
 d3plus.visualization = {}
 d3plus.zoom          = {}
 
-},{}],91:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 d3plus.locale.en = {
 
   "dev"          : {
@@ -10344,7 +10346,7 @@ d3plus.locale.en = {
 
 }
 
-},{}],92:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 d3plus.locale.mk = {
     "dev": {
         "accepted": "{0} не е прифатенa вредноста за {1}, ве молиме користете еднa од следниве вредности: {2}.",
@@ -10457,7 +10459,7 @@ d3plus.locale.mk = {
     ]
 }
 
-},{}],93:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 d3plus.locale.pt = {
     "dev": {
         "accepted": "{0} não é um valor aceito para {1}, por favor, use um dos seguintes procedimentos: {2}.",
@@ -10569,7 +10571,7 @@ d3plus.locale.pt = {
     ]
 }
 
-},{}],94:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 d3plus.locale.zh = {
     "dev": {
         "accepted": "{0}不是{1}的可接受值, 请用下列之一的值:{2}",
@@ -10684,7 +10686,7 @@ d3plus.locale.zh = {
     ]
 }
 
-},{}],95:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //--------------------------------------------------------------------------
@@ -10720,7 +10722,7 @@ d3plus.method.axis = function( axis ) {
 
 }
 
-},{}],96:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //--------------------------------------------------------------------------
@@ -10737,7 +10739,7 @@ d3plus.method.filter = function( global ) {
 
 }
 
-},{}],97:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get/set function for methods
 //------------------------------------------------------------------------------
@@ -10851,7 +10853,7 @@ d3plus.method.function = function( key , vars ) {
 
 }
 
-},{}],98:[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //------------------------------------------------------------------------------
@@ -10924,7 +10926,7 @@ d3plus.method.init = function( vars , obj , method ) {
 
 }
 
-},{}],99:[function(require,module,exports){
+},{}],100:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects is we should set the object or check all keys of object.
 //------------------------------------------------------------------------------
@@ -10970,7 +10972,7 @@ d3plus.method.object = function( vars , method , object , key , value ) {
 
 }
 
-},{}],100:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Process object's value
 //--------------------------------------------------------------------------
@@ -10991,7 +10993,7 @@ d3plus.method.process = function( object , value ) {
 
 }
 
-},{}],101:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Function to process data by url or element.
 //--------------------------------------------------------------------------
@@ -11038,7 +11040,7 @@ d3plus.method.processData = function ( value , self ) {
 
 }
 
-},{}],102:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets a method's value.
 //------------------------------------------------------------------------------
@@ -11385,7 +11387,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
 }
 
-},{}],103:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Global method shell.
 //------------------------------------------------------------------------------
@@ -11450,7 +11452,7 @@ d3plus.method = function( vars , methods , styles ) {
 
 }
 
-},{}],104:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 d3plus.method.active = {
   "accepted"   : [ false , Array , Function , Number , Object , String ],
   "deprecates" : "active_var",
@@ -11464,14 +11466,14 @@ d3plus.method.active = {
   "value"      : false
 }
 
-},{}],105:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 d3plus.method.aggs = {
   "accepted"   : [ Object ],
   "deprecated" : "nesting_aggs",
   "value"      : {}
 }
 
-},{}],106:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 d3plus.method.alt = {
   "accepted" : [ false , Array , Function , Object , String ],
   "mute"     : d3plus.method.filter(true),
@@ -11479,7 +11481,7 @@ d3plus.method.alt = {
   "value"    : "alt"
 }
 
-},{}],107:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 d3plus.method.attrs = {
   "accepted" : [ false , Array , Object , String ],
   "delimiter" : {
@@ -11495,7 +11497,7 @@ d3plus.method.attrs = {
   "value"    : false
 }
 
-},{}],108:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 d3plus.method.axes = {
   "mirror" : {
     "accepted"   : [ Boolean ],
@@ -11505,7 +11507,7 @@ d3plus.method.axes = {
   "values" : [ "x" , "y" ]
 }
 
-},{}],109:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 d3plus.method.color = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "color_var",
@@ -11523,7 +11525,7 @@ d3plus.method.color = {
   "solo"      : d3plus.method.filter(true)
 }
 
-},{}],110:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 d3plus.method.container = {
   "accepted" : [ Array , Object , String ],
   "element"  : false,
@@ -11548,7 +11550,7 @@ d3plus.method.container = {
   "value"    : false
 }
 
-},{}],111:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 d3plus.method.coords = {
   "accepted" : [ false , Array , Function , Object , String ],
   "filetype" : {
@@ -11561,7 +11563,7 @@ d3plus.method.coords = {
   "value"    : false
 }
 
-},{}],112:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 d3plus.method.csv = {
   "accepted"  : [ undefined , Array , String ],
   "chainable" : false,
@@ -11640,7 +11642,7 @@ d3plus.method.csv = {
   "value"     : undefined
 }
 
-},{}],113:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 d3plus.method.data = {
   "accepted" : [ false , Array , Function , String ],
   "cache"    : {},
@@ -11669,25 +11671,25 @@ d3plus.method.data = {
   "value"    : false
 }
 
-},{}],114:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 d3plus.method.depth = {
   "accepted" : [ Function , Number ],
   "value"    : 0
 }
 
-},{}],115:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 d3plus.method.descs = {
   "accepted" : [ false , Function , Object ],
   "value"    : false
 }
 
-},{}],116:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 d3plus.method.dev = {
   "accepted" : [ Boolean ],
   "value"    : false
 }
 
-},{}],117:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 d3plus.method.draw = {
   "accepted" : [ undefined , Function ],
   "first"    : true,
@@ -11758,7 +11760,7 @@ d3plus.method.draw = {
   "value"    : undefined
 }
 
-},{}],118:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 d3plus.method.edges = {
   "accepted"    : [ false , Array , Function , String ],
   "connections" : function(focus,id,objects) {
@@ -11819,13 +11821,13 @@ d3plus.method.edges = {
   "value"       : false
 }
 
-},{}],119:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 d3plus.method.error = {
   "accepted" : [ Boolean , String ],
   "value"    : false
 }
 
-},{}],120:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 d3plus.method.focus = {
   "accepted"   : [ false , Function , Number , String ],
   "deprecates" : "highlight",
@@ -11877,14 +11879,14 @@ d3plus.method.focus = {
   "value"      : false
 }
 
-},{}],121:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 d3plus.method.footer = {
   "accepted" : [ false , Number , String ],
   "link"     : false,
   "value"    : false
 }
 
-},{}],122:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 d3plus.method.format = {
   "accepted"   : [ Function , String ],
   "deprecates" : [ "number_format" , "text_format" ],
@@ -11946,14 +11948,14 @@ d3plus.method.format = {
   }
 }
 
-},{}],123:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 d3plus.method.height = {
   "accepted"  : [ false , Number ],
   "secondary" : false,
   "value"     : false
 }
 
-},{}],124:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 d3plus.method.history = {
   "accepted" : [ Boolean ],
   "back"     : function() {
@@ -11972,13 +11974,13 @@ d3plus.method.history = {
   "value"    : true
 }
 
-},{}],125:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 d3plus.method.hover = {
   "accepted" : [ false , Number , String ],
   "value"    : false
 }
 
-},{}],126:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 d3plus.method.icon = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "icon_var",
@@ -11990,7 +11992,7 @@ d3plus.method.icon = {
   "value"      : "icon"
 }
 
-},{}],127:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 d3plus.method.id = {
   "accepted"    : [ Array , String ],
   "dataFilter"  : true,
@@ -12011,7 +12013,7 @@ d3plus.method.id = {
   "solo"        : d3plus.method.filter(true)
 }
 
-},{}],128:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 d3plus.method.keywords = {
   "accepted" : [ false , Array , Function , Object , String ],
   "mute"     : d3plus.method.filter(true),
@@ -12019,7 +12021,7 @@ d3plus.method.keywords = {
   "value"    : "keywords"
 }
 
-},{}],129:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 d3plus.method.labels = {
   "accepted" : [ Boolean ] ,
   "resize"   : {
@@ -12029,13 +12031,13 @@ d3plus.method.labels = {
   "value"    : true
 }
 
-},{}],130:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 d3plus.method.legend = {
   "accepted" : [ Boolean ],
   "value"    : true
 }
 
-},{}],131:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 d3plus.method.margin = {
   "accepted" : [ Number , Object , String ],
   "process"  : function ( value ) {
@@ -12124,13 +12126,13 @@ d3plus.method.margin = {
   "value"    : 0
 }
 
-},{}],132:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 d3plus.method.messages = {
   "accepted" : [ Boolean , String ],
   "value"    : true
 }
 
-},{}],133:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 d3plus.method.nodes = {
   "accepted" : [ false , Array , Function , String ],
   "delimiter" : {
@@ -12146,7 +12148,7 @@ d3plus.method.nodes = {
   "value"    : false
 }
 
-},{}],134:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 d3plus.method.open = {
   "accepted" : [ Boolean ],
   "flipped"  : {
@@ -12156,7 +12158,7 @@ d3plus.method.open = {
   "value"    : false
 }
 
-},{}],135:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 d3plus.method.order = {
   "accepted" : [ false , Function , String ],
   "sort"     : {
@@ -12167,7 +12169,7 @@ d3plus.method.order = {
   "value"    : false
 }
 
-},{}],136:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 d3plus.method.remove = {
   "accepted" : undefined,
   "process"  : function ( value ) {
@@ -12185,13 +12187,13 @@ d3plus.method.remove = {
   "value"    : undefined
 }
 
-},{}],137:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 d3plus.method.resize = {
   "accepted" : [ Boolean ],
   "value"    : false
 }
 
-},{}],138:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 d3plus.method.search = {
   "accepted" : [ "auto" , Boolean ],
   "process"  : function(value) {
@@ -12206,7 +12208,7 @@ d3plus.method.search = {
   "value"    : "auto"
 }
 
-},{}],139:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 d3plus.method.select = {
   "accepted"  : [ String ],
   "chainable" : false,
@@ -12222,7 +12224,7 @@ d3plus.method.select = {
   "value"     : undefined
 }
 
-},{}],140:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 d3plus.method.selectAll = {
   "accepted"  : [ String ],
   "chainable" : false,
@@ -12238,7 +12240,7 @@ d3plus.method.selectAll = {
   "value"     : undefined
 }
 
-},{}],141:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 d3plus.method.shape = {
   "accepted" : function( vars ) {
     return vars.shell === "textwrap" ? [ "circle" , "square" ]
@@ -12248,7 +12250,7 @@ d3plus.method.shape = {
   "value"    : false
 }
 
-},{}],142:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 d3plus.method.size = {
   "accepted"    : function( vars ) {
 
@@ -12273,7 +12275,7 @@ d3plus.method.size = {
   "value"       : false
 }
 
-},{}],143:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 d3plus.method.style = {
   "accepted" : function( vars ){
     return d3.keys(d3plus.style).filter(function(s){
@@ -12283,7 +12285,7 @@ d3plus.method.style = {
   "value"    : "default"
 }
 
-},{}],144:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 d3plus.method.temp = {
   "accepted": [ false , Array , Function , Object , String ],
   "deprecates": [ "else_var" , "else" ],
@@ -12292,7 +12294,7 @@ d3plus.method.temp = {
   "value": false
 }
 
-},{}],145:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 d3plus.method.text = {
   "accepted"   : [ Array , Boolean , Function , Object , String ],
   "deprecates" : [ "name_array" , "text_var" ],
@@ -12321,7 +12323,7 @@ d3plus.method.text = {
   "split"      : [ "-" , "/" , ";" , ":" , "&" ]
 }
 
-},{}],146:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 d3plus.method.time = {
   "accepted"    : [ Array , Boolean , Function , Object , String ],
   "dataFilter"  : true,
@@ -12336,13 +12338,13 @@ d3plus.method.time = {
   "value"       : false
 }
 
-},{}],147:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 d3plus.method.timeline = {
   "accepted" : [ Boolean ],
   "value"    : true
 }
 
-},{}],148:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 d3plus.method.title = {
   "accepted" : [ false , Function , String ],
   "link"     : false,
@@ -12373,7 +12375,7 @@ d3plus.method.title = {
   "value"    : false
 }
 
-},{}],149:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 d3plus.method.tooltip = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "tooltip_info",
@@ -12385,7 +12387,7 @@ d3plus.method.tooltip = {
   "value"      : false
 }
 
-},{}],150:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 d3plus.method.total = {
   "accepted": [ false , Array , Function , Object , String ],
   "deprecates": [ "total_var" ],
@@ -12394,7 +12396,7 @@ d3plus.method.total = {
   "value": false
 }
 
-},{}],151:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 d3plus.method.type = {
   "accepted" : function( vars ) {
 
@@ -12432,26 +12434,26 @@ d3plus.method.type = {
   }
 }
 
-},{}],152:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 d3plus.method.ui = {
   "accepted" : [ Array , Boolean ],
   "value"    : false
 }
 
-},{}],153:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 d3plus.method.width = {
   "accepted"  : [ false , Number ],
   "secondary" : false,
   "value"     : false
 }
 
-},{}],154:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 d3plus.method.x = d3plus.method.axis("x")
 
-},{}],155:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 d3plus.method.y = d3plus.method.axis("y")
 
-},{}],156:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 d3plus.method.zoom = {
   "accepted"   : [ Boolean ],
   "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
@@ -12506,7 +12508,7 @@ d3plus.method.zoom = {
   "value"      : true
 }
 
-},{}],157:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 d3plus.network.normalize = function(edges, source, options) {
   var K, a, b, directed, distance, edge, edge2distance, endpoint, errormsg, i, id, id1, idA, idB, node, nodeA, nodeB, nodeid, nodes, startpoint, target, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
   target = options.target, directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K;
@@ -12645,7 +12647,7 @@ d3plus.network.normalize = function(edges, source, options) {
 };
 
 
-},{}],158:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 var Heap;
 
 Heap = require('heap');
@@ -12736,7 +12738,7 @@ d3plus.network.shortestPath = function(edges, source, options) {
 };
 
 
-},{"heap":1}],159:[function(require,module,exports){
+},{"heap":1}],160:[function(require,module,exports){
 d3plus.network.subgraph = function(edges, source, options) {
   var K, dfs, directed, distance, edge, endpoint, id, nodeid, nodes, startpoint, visited, _ref;
   if ((options.nodes == null) || typeof options.nodes !== 'object') {
@@ -12798,7 +12800,7 @@ d3plus.network.subgraph = function(edges, source, options) {
 };
 
 
-},{}],160:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats numbers to look "pretty"
 //------------------------------------------------------------------------------
@@ -12860,7 +12862,7 @@ d3plus.number.format = function( number , key , vars ) {
 
 }
 
-},{}],161:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merge two objects to create a new one with the properties of both
 //------------------------------------------------------------------------------
@@ -12904,7 +12906,7 @@ d3plus.object.merge = function(obj1, obj2) {
   return obj3;
 }
 
-},{}],162:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if the passed object has keys and is not an array.
 //------------------------------------------------------------------------------
@@ -12914,7 +12916,7 @@ d3plus.object.validate = function( obj ) {
 
 }
 
-},{}],163:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats a string similar to Python's "format"
 //------------------------------------------------------------------------------
@@ -12945,7 +12947,7 @@ d3plus.string.format = function() {
 
 }
 
-},{}],164:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Converts an array of strings into a string list using commas and "and".
 //------------------------------------------------------------------------------
@@ -12987,7 +12989,7 @@ d3plus.string.list = function( list , and , max , more ) {
 
 }
 
-},{}],165:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
@@ -13041,7 +13043,7 @@ d3plus.string.strip = function(str) {
 
 }
 
-},{}],166:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats numbers to look "pretty"
 //------------------------------------------------------------------------------
@@ -13085,7 +13087,7 @@ d3plus.string.title = function( text , key , vars ) {
 
 }
 
-},{}],167:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // D3plus Default Color Scheme
 // Created by Dave Landry
@@ -13098,7 +13100,7 @@ d3plus.style.default.fontFamily = [ "Helvetica Neue"
                                   , "Arial"
                                   , "sans-serif" ]
 
-},{}],168:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 d3plus.style.default.axes = {
   "ticks" : {
     "color" : "#ccc",
@@ -13121,13 +13123,13 @@ d3plus.style.default.axes = {
   }
 }
 
-},{}],169:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 d3plus.style.default.background = {
   "accepted" : [ String ],
   "value"    : "#ffffff"
 }
 
-},{}],170:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 d3plus.style.default.color = {
   "heatmap"   : [ "#27366c" , "#7b91d3" , "#9ed3e3"
                 , "#f3d261" , "#c9853a" , "#d74b03" ],
@@ -13138,7 +13140,7 @@ d3plus.style.default.color = {
   "secondary" : "#e5b3bb"
 }
 
-},{}],171:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 d3plus.style.default.coords = {
   "center"     : [ 0 , 0 ],
   "fit"        : {
@@ -13153,7 +13155,7 @@ d3plus.style.default.coords = {
   "threshold"  : 0.1
 }
 
-},{}],172:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 d3plus.style.default.data = {
   "donut"   : {
     "size" : 0.35
@@ -13165,7 +13167,7 @@ d3plus.style.default.data = {
   }
 }
 
-},{}],173:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 d3plus.style.default.edges = {
   "arrows"  : {
     "accepted"  : [ Boolean , Number ],
@@ -13182,7 +13184,7 @@ d3plus.style.default.edges = {
   "width"   : 1
 }
 
-},{}],174:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 d3plus.style.default.font = {
   "align"      : {
     "accepted" : [ "left" , "center" , "right" ],
@@ -13236,7 +13238,7 @@ d3plus.style.default.font = {
   "weight"     : 200
 }
 
-},{}],175:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 d3plus.style.default.footer = {
   "font"     : {
     "align"      : "center",
@@ -13257,13 +13259,13 @@ d3plus.style.default.footer = {
   "position" : "bottom"
 }
 
-},{}],176:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 d3plus.style.default.height = {
   "small" : 300,
   "max"   : 600
 }
 
-},{}],177:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 d3plus.style.default.icon = {
   "back"   : {
     "accepted" : [ false , String ],
@@ -13344,7 +13346,7 @@ d3plus.style.default.icon = {
   }
 }
 
-},{}],178:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 d3plus.style.default.labels = {
   "align"    : "middle",
   "font"     : {
@@ -13364,7 +13366,7 @@ d3plus.style.default.labels = {
   "segments" : 2
 }
 
-},{}],179:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 d3plus.style.default.legend = {
   "align"    : "middle",
   "font"     : {
@@ -13388,7 +13390,7 @@ d3plus.style.default.legend = {
   "size"     : [ 8 , 30 ]
 }
 
-},{}],180:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 d3plus.style.default.links = {
   "font"  : {
     "color"      : "#444444",
@@ -13418,7 +13420,7 @@ d3plus.style.default.links = {
   }
 }
 
-},{}],181:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 d3plus.style.default.messages = {
   "font" : {
     "color"      : "#444",
@@ -13437,12 +13439,12 @@ d3plus.style.default.messages = {
   "padding": 5
 }
 
-},{}],182:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 d3plus.style.default.nodes = {
   "overlap" : 0.6
 }
 
-},{}],183:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 d3plus.style.default.shape = {
   "interpolate" : {
     "accepted"   : [ "basis" , "basis-open" , "cardinal"
@@ -13457,7 +13459,7 @@ d3plus.style.default.shape = {
   }
 }
 
-},{}],184:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 d3plus.style.default.timeline = {
   "align"      : "middle",
   "background" : "#eeeeee",
@@ -13484,14 +13486,14 @@ d3plus.style.default.timeline = {
   }
 }
 
-},{}],185:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 d3plus.style.default.timing = {
   "mouseevents" : 60,
   "transitions" : 600,
   "ui"          : 200
 }
 
-},{}],186:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 d3plus.style.default.title = {
   "font"     : {
     "align"      : "center",
@@ -13552,7 +13554,7 @@ d3plus.style.default.title = {
   "width"    : false
 }
 
-},{}],187:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 d3plus.style.default.tooltip = {
   "anchor"      : "top center",
   "background"  : "#ffffff",
@@ -13590,7 +13592,7 @@ d3plus.style.default.tooltip = {
   "small"      : 225
 }
 
-},{}],188:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 d3plus.style.default.ui = {
   "align"    : {
     "accepted" : [ "left" , "center" , "right" ],
@@ -13652,12 +13654,12 @@ d3plus.style.default.ui = {
   }
 }
 
-},{}],189:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 d3plus.style.default.width = {
   "small" : 400
 }
 
-},{}],190:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Constructs font family property using the validate function
 //------------------------------------------------------------------------------
@@ -13670,7 +13672,7 @@ d3plus.style.fontFamily = function( family ) {
 
 }
 
-},{}],191:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into the container
 //------------------------------------------------------------------------------
@@ -13685,7 +13687,7 @@ d3plus.textwrap.flow = function( vars ) {
 
 }
 
-},{}],192:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text as a foreign element.
 //------------------------------------------------------------------------------
@@ -13716,7 +13718,7 @@ d3plus.textwrap.foreign = function( vars ) {
 
 }
 
-},{}],193:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks width and height, and gets it if needed.
 //------------------------------------------------------------------------------
@@ -13766,7 +13768,7 @@ d3plus.textwrap.getDimensions = function( vars ) {
 
 }
 
-},{}],194:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches text if not specified, and formats text to array.
 //------------------------------------------------------------------------------
@@ -13790,7 +13792,7 @@ d3plus.textwrap.getSize = function( vars ) {
 
 }
 
-},{}],195:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches text if not specified, and formats text to array.
 //------------------------------------------------------------------------------
@@ -13822,7 +13824,7 @@ d3plus.textwrap.getText = function( vars ) {
 
 }
 
-},{}],196:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Logic to determine the best size for text
 //------------------------------------------------------------------------------
@@ -13884,7 +13886,7 @@ d3plus.textwrap.resize = function( vars , line ) {
 
 }
 
-},{}],197:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into tspans
 //------------------------------------------------------------------------------
@@ -14006,7 +14008,7 @@ d3plus.textwrap.tspan = function( vars ) {
 
 }
 
-},{}],198:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into the container
 //------------------------------------------------------------------------------
@@ -14028,7 +14030,7 @@ d3plus.textwrap.wrap = function( vars ) {
 
 }
 
-},{}],199:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Word wraps SVG text
 //------------------------------------------------------------------------------
@@ -14067,7 +14069,7 @@ d3plus.textwrap = function() {
 
 }
 
-},{}],200:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -14338,7 +14340,7 @@ d3plus.tooltip.app = function(params) {
 
 }
 
-},{}],201:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Correctly positions the tooltip's arrow
 //-------------------------------------------------------------------
@@ -14413,13 +14415,14 @@ d3plus.tooltip.arrow = function(arrow) {
       }
     })
 }
-},{}],202:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create a Tooltip
 //-------------------------------------------------------------------
 d3plus.tooltip.create = function(params) {
 
   var default_width = params.fullscreen ? 250 : 200
+    , vendor = d3plus.prefix()
   params.width = params.width || default_width
   params.max_width = params.max_width || 386
   params.id = params.id || "default"
@@ -14513,7 +14516,7 @@ d3plus.tooltip.create = function(params) {
     .style("font-family",params.fontfamily)
     .style("font-weight",params.fontweight)
     .style("font-size",params.fontsize+"px")
-    .style(d3plus.prefix()+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
+    .style(vendor+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
     .style("position","absolute")
     .style("z-index",params.zindex)
     .on(d3plus.evt.out,function(){
@@ -14581,7 +14584,26 @@ d3plus.tooltip.create = function(params) {
       .style("background-color",params.color)
       .style("color",d3plus.color.text(params.color))
       .style("position","absolute")
+      .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.25)")
+      .style("font-size","20px")
+      .style("height","18px")
+      .style("line-height","14px")
+      .style("text-align","center")
+      .style("right","16px")
+      .style("top","-10px")
+      .style("width","18px")
+      .style("z-index",10)
       .html("\&times;")
+      .on(d3plus.evt.over,function(){
+        d3.select(this)
+          .style("cursor","pointer")
+          .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.5)")
+      })
+      .on(d3plus.evt.out,function(){
+        d3.select(this)
+          .style("cursor","auto")
+          .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.25)")
+      })
       .on(d3plus.evt.click,function(){
         d3plus.tooltip.remove(params.id)
       })
@@ -14636,8 +14658,15 @@ d3plus.tooltip.create = function(params) {
     var arrow = tooltip.append("div")
       .attr("class","d3plus_tooltip_arrow")
       .style("background-color",params.background)
-      .style(d3plus.prefix()+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
+      .style(vendor+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
       .style("position","absolute")
+      .style("bottom","-5px")
+      .style("height","10px")
+      .style("left","50%")
+      .style("margin-left","-5px")
+      .style("width","10px")
+      .style(vendor+"transform","rotate(45deg)")
+      .style("z-index",-1)
   }
 
   if (params.icon) {
@@ -14676,12 +14705,17 @@ d3plus.tooltip.create = function(params) {
       .style("text-overflow","ellipsis")
       .style("word-wrap","break-word")
       .style("z-index",1)
+      .style("font-size",params.size === "large" ? "18px" : "16px")
+      .style("line-height",params.size === "large" ? "20px" : "17px")
+      .style("padding",params.size === "large" ? "3px 6px" : "3px")
       .text(params.title)
   }
 
   if (params.description) {
     var description = body.append("div")
       .attr("class","d3plus_tooltip_description")
+      .style("font-size","12px")
+      .style("padding","6px")
       .text(params.description)
   }
 
@@ -14689,6 +14723,8 @@ d3plus.tooltip.create = function(params) {
 
     var data_container = body.append("div")
       .attr("class","d3plus_tooltip_data_container")
+      .style("overflow-y","auto")
+      .style("z-index",-1)
   }
 
   if (params.data) {
@@ -14703,12 +14739,18 @@ d3plus.tooltip.create = function(params) {
           last_group = d.group
           data_container.append("div")
             .attr("class","d3plus_tooltip_data_title")
+            .style("font-size","12px")
+            .style("font-weight","bold")
+            .style("padding","6px 3px 0px 3px")
             .text(d.group)
         }
       }
 
       var block = data_container.append("div")
         .attr("class","d3plus_tooltip_data_block")
+        .style("font-size","12px")
+        .style("padding","3px 6px")
+        .style("position","relative")
         .datum(d)
 
       if ( d.highlight === true ) {
@@ -14737,6 +14779,10 @@ d3plus.tooltip.create = function(params) {
 
       var val = block.append("div")
           .attr("class","d3plus_tooltip_data_value")
+          .style("display","block")
+          .style("position","absolute")
+          .style("text-align","right")
+          .style("top","3px")
           .text(d.value)
           .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
@@ -14752,6 +14798,10 @@ d3plus.tooltip.create = function(params) {
       if (params.mouseevents && d.desc) {
         var desc = block.append("div")
           .attr("class","d3plus_tooltip_data_desc")
+          .style("color","#888")
+          .style("overflow","hidden")
+          .style(vendor+"transition","height 0.5s")
+          .style("width","85%")
           .text(d.desc)
           .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
@@ -14763,6 +14813,20 @@ d3plus.tooltip.create = function(params) {
 
         var help = name.append("div")
           .attr("class","d3plus_tooltip_data_help")
+          .style("background-color","#ccc")
+          .style(vendor+"border-radius","5px")
+          .style("color","#fff")
+          .style("cursor","pointer")
+          .style("display","inline-block")
+          .style("font-size","8px")
+          .style("font-weight","bold")
+          .style("height","10px")
+          .style("margin","3px 0px 0px 3px")
+          .style("padding-right","1px")
+          .style("text-align","center")
+          .style("width","10px")
+          .style("vertical-align","top")
+          .style(prefix+"transition","background-color 0.5s")
           .text("?")
           .on(d3plus.evt.over,function(){
             var c = d3.select(this.parentNode.parentNode).style("color")
@@ -14796,6 +14860,10 @@ d3plus.tooltip.create = function(params) {
         if ((d.group && d.group == params.data[i+1].group) || !d.group && !params.data[i+1].group)
         data_container.append("div")
           .attr("class","d3plus_tooltip_data_seperator")
+          .style("background-color","#ddd")
+          .style("display","block")
+          .style("height","1px")
+          .style("margin","0px 3px")
       }
 
     })
@@ -14827,6 +14895,9 @@ d3plus.tooltip.create = function(params) {
 
   var footer = body.append("div")
     .attr("class","d3plus_tooltip_footer")
+    .style("font-size","10px")
+    .style("position","relative")
+    .style("text-align","center")
 
   if (params.footer) {
     footer.html(params.footer)
@@ -14841,6 +14912,11 @@ d3plus.tooltip.create = function(params) {
       .attr("class","d3plus_tooltip_html")
       .style("width",w+"px")
       .style("height",h+"px")
+      .style("display","inline-block")
+      .style("vertical-align","top")
+      .style("overflow-y","auto")
+      .style("padding","0px 12px")
+      .style("position","absolute")
       .html(params.html)
   }
 
@@ -14882,7 +14958,7 @@ d3plus.tooltip.create = function(params) {
 
 }
 
-},{}],203:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
@@ -15160,7 +15236,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
 }
 
-},{}],204:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Set X and Y position for Tooltip
 //-------------------------------------------------------------------
@@ -15263,7 +15339,7 @@ d3plus.tooltip.move = function(x,y,id) {
     
 }
 
-},{}],205:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Destroy Tooltips
 //-------------------------------------------------------------------
@@ -15291,7 +15367,7 @@ d3plus.tooltip.remove = function(id) {
 
 }
 
-},{}],206:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Expands a min/max into a specified number of buckets
 //------------------------------------------------------------------------------
@@ -15310,7 +15386,7 @@ d3plus.util.buckets = function(arr, buckets) {
   return return_arr
 }
 
-},{}],207:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if element is inside of another elemebt
 //------------------------------------------------------------------------------
@@ -15341,7 +15417,7 @@ d3plus.util.child = function(parent,child) {
 
 }
 
-},{}],208:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds closest numeric value in array
 //------------------------------------------------------------------------------
@@ -15355,7 +15431,7 @@ d3plus.util.closest = function(arr,value) {
   return closest
 }
 
-},{}],209:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Clones a variable
 //------------------------------------------------------------------------------
@@ -15379,7 +15455,7 @@ d3plus.util.copy = function( variable ) {
 
 }
 
-},{}],210:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cross-browser detect for D3 element
 //------------------------------------------------------------------------------
@@ -15389,7 +15465,7 @@ d3plus.util.d3selection = function(selection) {
     : selection instanceof d3.selection
 }
 
-},{}],211:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Base-64 Data URL from and Image URL
 //------------------------------------------------------------------------------
@@ -15415,7 +15491,7 @@ d3plus.util.dataurl = function(url,callback) {
 
 }
 
-},{}],212:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns distances of all objects in array
 //------------------------------------------------------------------------------
@@ -15443,7 +15519,7 @@ d3plus.util.distances = function(arr,accessor) {
   return distances
 }
 
-},{}],213:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Gives X and Y offset based off angle and shape
 //------------------------------------------------------------------------------
@@ -15542,7 +15618,7 @@ d3plus.util.offset = function(radians, distance, shape) {
 
 }
 
-},{}],214:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns list of unique values
 //------------------------------------------------------------------------------
@@ -15590,7 +15666,7 @@ d3plus.util.uniques = function( data , value ) {
 
 }
 
-},{}],215:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
@@ -15642,7 +15718,7 @@ d3plus.variable.color = function( vars , id , level ) {
 
 }
 
-},{}],216:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
 //------------------------------------------------------------------------------
@@ -15697,7 +15773,7 @@ d3plus.variable.text = function(vars,obj,depth) {
 
 }
 
-},{}],217:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
@@ -15859,7 +15935,7 @@ d3plus.variable.value = function( vars , id , variable , id_var , agg ) {
 
 }
 
-},{}],218:[function(require,module,exports){
+},{}],219:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -15909,7 +15985,7 @@ d3plus.draw.app = function(vars) {
 
 }
 
-},{}],219:[function(require,module,exports){
+},{}],220:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If placing into a new container, remove it's contents
 // and check text direction.
@@ -15989,7 +16065,7 @@ d3plus.draw.container = function(vars) {
 
 }
 
-},{}],220:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Enter Elements
 //------------------------------------------------------------------------------
@@ -16162,7 +16238,7 @@ d3plus.draw.enter = function(vars) {
 
 }
 
-},{}],221:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -16283,7 +16359,7 @@ d3plus.draw.errors = function(vars) {
 
 }
 
-},{}],222:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
 //------------------------------------------------------------------------------
@@ -16456,7 +16532,7 @@ d3plus.draw.finish = function(vars) {
 
 }
 
-},{}],223:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates focus elements, if available
 //------------------------------------------------------------------------------
@@ -16610,7 +16686,7 @@ d3plus.draw.focus = function(vars) {
 
 }
 
-},{}],224:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -16946,7 +17022,7 @@ d3plus.draw.steps = function(vars) {
 
 }
 
-},{}],225:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
 //------------------------------------------------------------------------------
@@ -17013,7 +17089,7 @@ d3plus.draw.update = function(vars) {
 
 }
 
-},{}],226:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -17119,7 +17195,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
 }
 
-},{}],227:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns the correct fill color for a node
 //-------------------------------------------------------------------
@@ -17165,7 +17241,7 @@ d3plus.shape.color = function(d,vars) {
 
 }
 
-},{}],228:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -17340,7 +17416,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
 }
 
-},{}],229:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
 //------------------------------------------------------------------------------
@@ -17441,7 +17517,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
 
 }
 
-},{}],230:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws the appropriate shape based on the data
 //------------------------------------------------------------------------------
@@ -18098,7 +18174,7 @@ d3plus.shape.draw = function(vars) {
 
 }
 
-},{}],231:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -18661,7 +18737,7 @@ d3plus.shape.edges = function(vars) {
 
 }
 
-},{}],232:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -18937,7 +19013,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
 
 }
 
-},{}],233:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
@@ -19448,7 +19524,7 @@ d3plus.shape.labels = function( vars , group ) {
   }
 }
 
-},{}],234:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
 //------------------------------------------------------------------------------
@@ -19714,7 +19790,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
 }
 
-},{}],235:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -19862,7 +19938,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
 
 }
 
-},{}],236:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fill style for all shapes
 //-------------------------------------------------------------------
@@ -19894,7 +19970,7 @@ d3plus.shape.style = function(nodes,vars) {
 
 }
 
-},{}],237:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Bubbles
 //------------------------------------------------------------------------------
@@ -20103,7 +20179,7 @@ d3plus.visualization.bubbles.scale        = 1.05
 d3plus.visualization.bubbles.shapes       = [ "circle" , "donut" ]
 d3plus.visualization.bubbles.tooltip      = "static"
 
-},{}],238:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Chart
 //------------------------------------------------------------------------------
@@ -21153,7 +21229,7 @@ d3plus.visualization.chart.scale        = { "circle": 1.1
 d3plus.visualization.chart.shapes       = ["circle","donut","line","square","area"]
 d3plus.visualization.chart.tooltip      = "static"
 
-},{}],239:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Geo Map
 //------------------------------------------------------------------------------
@@ -21200,7 +21276,7 @@ d3plus.visualization.geo_map.shapes       = [ "coordinates" ];
 d3plus.visualization.geo_map.tooltip      = "follow"
 d3plus.visualization.geo_map.zoom         = true
 
-},{}],240:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Line Plot
 //------------------------------------------------------------------------------
@@ -21227,7 +21303,7 @@ d3plus.visualization.line.setup = function(vars) {
 d3plus.visualization.line.shapes       = [ "line" ]
 d3plus.visualization.line.tooltip      = "static"
 
-},{}],241:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
@@ -21356,7 +21432,7 @@ d3plus.visualization.network.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.network.tooltip      = "static"
 d3plus.visualization.network.zoom         = true
 
-},{}],242:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 d3plus.visualization.rings = function(vars) {
 
   var radius = d3.min([vars.height.viz,vars.width.viz])/2
@@ -21840,7 +21916,7 @@ d3plus.visualization.rings.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.rings.requirements = [ "edges" , "focus" ]
 d3plus.visualization.rings.tooltip      = "static"
 
-},{}],243:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Scatterplot
 //------------------------------------------------------------------------------
@@ -21862,7 +21938,7 @@ d3plus.visualization.scatter.scale        = d3plus.visualization.chart.scale
 d3plus.visualization.scatter.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.scatter.tooltip      = "static"
 
-},{}],244:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Stacked Area Chart
 //------------------------------------------------------------------------------
@@ -21916,7 +21992,7 @@ d3plus.visualization.stacked.threshold    = function( vars ) {
 }
 d3plus.visualization.stacked.tooltip      = "static"
 
-},{}],245:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
@@ -22046,7 +22122,7 @@ d3plus.visualization.tree_map.threshold    = function( vars ) {
 }
 d3plus.visualization.tree_map.tooltip      = "follow"
 
-},{}],246:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws a UI drawer, if defined.
 //------------------------------------------------------------------------------
@@ -22147,7 +22223,7 @@ d3plus.ui.drawer = function( vars ) {
 
 }
 
-},{}],247:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates focus tooltip, if applicable
 //-------------------------------------------------------------------
@@ -22201,7 +22277,7 @@ d3plus.ui.focus = function(vars) {
 
 }
 
-},{}],248:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates "back" button, if applicable
 //------------------------------------------------------------------------------
@@ -22311,7 +22387,7 @@ d3plus.ui.history = function(vars) {
 
 }
 
-},{}],249:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -22908,7 +22984,7 @@ d3plus.ui.legend = function(vars) {
 
 }
 
-},{}],250:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -23019,7 +23095,7 @@ d3plus.ui.message = function(vars,message) {
 
 }
 
-},{}],251:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //-------------------------------------------------------------------
@@ -23375,7 +23451,7 @@ d3plus.ui.timeline = function(vars) {
 
 }
 
-},{}],252:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws appropriate titles
 //------------------------------------------------------------------------------
@@ -23690,7 +23766,7 @@ d3plus.ui.titles = function(vars) {
 
 }
 
-},{}],253:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 d3plus.viz = function() {
 
   var vars = {
@@ -23881,7 +23957,7 @@ d3plus.viz = function() {
 
 }
 
-},{}],254:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 d3plus.zoom.bounds = function( vars , b , timing ) {
 
   if (!b) {
@@ -23938,7 +24014,7 @@ d3plus.zoom.bounds = function( vars , b , timing ) {
 
 }
 
-},{}],255:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 d3plus.zoom.controls = function() {
 
   d3.select("#d3plus.utilsts.zoom_controls").remove()
@@ -24022,7 +24098,7 @@ d3plus.zoom.controls = function() {
 
 }
 
-},{}],256:[function(require,module,exports){
+},{}],257:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets label opacity based on zoom
 //------------------------------------------------------------------------------
@@ -24060,7 +24136,7 @@ d3plus.zoom.labels = function(vars) {
 
 }
 
-},{}],257:[function(require,module,exports){
+},{}],258:[function(require,module,exports){
 d3plus.zoom.mouse = function(vars) {
 
   var translate = d3.event.translate,
@@ -24113,7 +24189,7 @@ d3plus.zoom.mouse = function(vars) {
 
 }
 
-},{}],258:[function(require,module,exports){
+},{}],259:[function(require,module,exports){
 d3plus.zoom.transform = function(vars,timing) {
 
   if (typeof timing !== "number") {
@@ -24137,4 +24213,4 @@ d3plus.zoom.transform = function(vars,timing) {
 
 }
 
-},{}]},{},[90,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,81,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,82,83,84,85,86,87,88,89,91,92,93,94,103,95,96,97,98,99,100,101,102,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,190,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,199,191,192,193,194,195,196,197,198,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,253,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,254,255,256,257,258])
+},{}]},{},[91,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,82,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,83,84,85,86,87,88,89,90,92,93,94,95,104,96,97,98,99,100,101,102,103,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,191,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,200,192,193,194,195,196,197,198,199,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,254,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,255,256,257,258,259])

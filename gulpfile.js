@@ -35,7 +35,6 @@ gulp.task("make", function() {
 
     var normal = bundle
       .pipe(source("d3plus.js"))
-      .pipe(timer("Build Time"))
       .pipe(gulp.dest("./"));
 
     var min = bundle
@@ -55,6 +54,7 @@ gulp.task("make", function() {
       .pipe(source("d3plus.full.min.js"))
       .pipe(streamify(uglify()))
       .pipe(gulp.dest("./"))
+      .pipe(timer("Build Time"))
       .pipe(notify({
         title: "D3plus",
         message: "New Build Compiled"
