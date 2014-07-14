@@ -62,10 +62,5 @@
     "simplify-js": "^1.2.1",
     "static-kdtree": "^1.0.1",
     "topojson": "^1.6.14"
-  },
-  "browserify": {
-    "transform": [
-      "coffeeify"
-    ]
   }
 }

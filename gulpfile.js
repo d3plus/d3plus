@@ -24,7 +24,7 @@ gulp.task("make", function() {
 
   var fileList = glob.sync(files,{nosort: true});
 
-  var bundler = watchify(fileList);
+  var bundler = watchify(fileList).transform("coffeeify");
 
   var rebundle = function() {
 
@@ -45,7 +45,6 @@ gulp.task("make", function() {
       }))
       .pipe(livereload(lr));
 
-    // return min
     return es.merge(normal,min);
 
   }
