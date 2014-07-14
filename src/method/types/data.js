@@ -5,6 +5,11 @@ d3plus.method.data = {
     "accepted" : [ String ],
     "value"    : "|"
   },
+  "filetype" : {
+    "accepted" : [ false , "json" , "xml" ,"html"
+                 , "csv" , "dsv" , "tsv" , "txt" ],
+    "value"    : false
+  },
   "filters"  : [],
   "mute"     : [],
   "process"  : function( value ) {
@@ -16,11 +21,6 @@ d3plus.method.data = {
     }
 
     return d3plus.method.processData( value , this )
-  },
-  "type"     : {
-    "accepted" : [ false , "json" , "xml" ,"html"
-                 , "csv" , "dsv" , "tsv" , "txt" ],
-    "value"    : false
   },
   "solo"     : [],
   "value"    : false

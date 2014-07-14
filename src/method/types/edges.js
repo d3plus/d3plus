@@ -45,15 +45,15 @@ d3plus.method.edges = {
     "accepted" : [ String ],
     "value"    : "|"
   },
+  "filetype"    : {
+    "accepted" : [ false , "json" , "xml" ,"html"
+                 , "csv" , "dsv" , "tsv" , "txt" ],
+    "value"    : false
+  },
   "label"       : false,
   "process"     : d3plus.method.processData,
   "size"        : false,
   "source"      : "source",
   "target"      : "target",
-  "type"     : {
-    "accepted" : [ false , "json" , "xml" ,"html"
-                 , "csv" , "dsv" , "tsv" , "txt" ],
-    "value"    : false
-  },
   "value"       : false
 }
