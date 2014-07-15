@@ -30156,10 +30156,10 @@ d3plus.textwrap.getDimensions = function( vars ) {
 //------------------------------------------------------------------------------
 d3plus.textwrap.getSize = function( vars ) {
 
-  if ( !vars.size.value ) {
+  var size = vars.container.value.attr("font-size")
+             || vars.container.value.style("font-size")
 
-    var size = vars.container.value.attr("font-size")
-               || vars.container.value.style("font-size")
+  if ( !vars.size.value ) {
 
     size = parseFloat( size , 10 )
 
@@ -30171,6 +30171,8 @@ d3plus.textwrap.getSize = function( vars ) {
     }
 
   }
+
+  vars.container.fontSize = size
 
 }
 
@@ -30277,14 +30279,15 @@ d3plus.textwrap.tspan = function( vars ) {
   var xPosition  = vars.container.value.attr("x") || "0px"
     , words      = vars.text.words.slice(0)
     , tspans     = false
+    , fontSize   = vars.resize.value ? vars.size.value[1] : vars.container.fontSize || vars.size.value[0]
     , textBox    = vars.container.value.append("tspan").text( words[0] )
-                     .attr( "dy" , vars.size.value[1] + "px" )
+                     .attr( "dy" , fontSize + "px" )
     , textHeight = textBox.node().offsetHeight
     , line       = 1
     , newLine    = function( ) {
       return vars.container.value.append("tspan")
               .attr( "x" , xPosition )
-              .attr( "dy" , vars.size.value[1] + "px" )
+              .attr( "dy" , fontSize + "px" )
     }
     , truncate   = function( ) {
 
@@ -35624,8 +35627,8 @@ d3plus.shape.labels = function( vars , group ) {
     text
       .attr("transform",function(t){
         var a = t.angle || 0,
-            x = t.translate && t.translate.x || 0,
-            y = t.translate && t.translate.y || 0
+            x = t.translate && t.translate.x ? t.translate.x : 0,
+            y = t.translate && t.translate.y ? t.translate.y : 0
 
         return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")"
       })

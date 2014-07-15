@@ -226,8 +226,8 @@ d3plus.shape.labels = function( vars , group ) {
     text
       .attr("transform",function(t){
         var a = t.angle || 0,
-            x = t.translate && t.translate.x || 0,
-            y = t.translate && t.translate.y || 0
+            x = t.translate && t.translate.x ? t.translate.x : 0,
+            y = t.translate && t.translate.y ? t.translate.y : 0
 
         return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")"
       })

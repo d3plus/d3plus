@@ -3,10 +3,10 @@
 //------------------------------------------------------------------------------
 d3plus.textwrap.getSize = function( vars ) {
 
-  if ( !vars.size.value ) {
+  var size = vars.container.value.attr("font-size")
+             || vars.container.value.style("font-size")
 
-    var size = vars.container.value.attr("font-size")
-               || vars.container.value.style("font-size")
+  if ( !vars.size.value ) {
 
     size = parseFloat( size , 10 )
 
@@ -18,5 +18,7 @@ d3plus.textwrap.getSize = function( vars ) {
     }
 
   }
+
+  vars.container.fontSize = size
 
 }
