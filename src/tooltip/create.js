@@ -4,6 +4,7 @@
 d3plus.tooltip.create = function(params) {
 
   var default_width = params.fullscreen ? 250 : 200
+    , vendor = d3plus.prefix()
   params.width = params.width || default_width
   params.max_width = params.max_width || 386
   params.id = params.id || "default"
@@ -97,6 +98,7 @@ d3plus.tooltip.create = function(params) {
     .style("font-family",params.fontfamily)
     .style("font-weight",params.fontweight)
     .style("font-size",params.fontsize+"px")
+    .style(vendor+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
     .style("position","absolute")
     .style("z-index",params.zindex)
     .on(d3plus.evt.out,function(){
@@ -119,6 +121,7 @@ d3plus.tooltip.create = function(params) {
     .datum(params)
     .attr("class","d3plus_tooltip_container")
     .style("background-color",params.background)
+    .style("padding","6px")
 
   if (params.fullscreen && params.html) {
 
@@ -131,6 +134,7 @@ d3plus.tooltip.create = function(params) {
 
     var body = container.append("div")
       .attr("class","d3plus_tooltip_body")
+      .style("padding-right","6px")
       .style("display","inline-block")
       .style("z-index",1)
       .style("width",params.width+"px")
@@ -162,7 +166,26 @@ d3plus.tooltip.create = function(params) {
       .style("background-color",params.color)
       .style("color",d3plus.color.text(params.color))
       .style("position","absolute")
+      .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.25)")
+      .style("font-size","20px")
+      .style("height","18px")
+      .style("line-height","14px")
+      .style("text-align","center")
+      .style("right","16px")
+      .style("top","-10px")
+      .style("width","18px")
+      .style("z-index",10)
       .html("\&times;")
+      .on(d3plus.evt.over,function(){
+        d3.select(this)
+          .style("cursor","pointer")
+          .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.5)")
+      })
+      .on(d3plus.evt.out,function(){
+        d3.select(this)
+          .style("cursor","auto")
+          .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.25)")
+      })
       .on(d3plus.evt.click,function(){
         d3plus.tooltip.remove(params.id)
       })
@@ -217,7 +240,15 @@ d3plus.tooltip.create = function(params) {
     var arrow = tooltip.append("div")
       .attr("class","d3plus_tooltip_arrow")
       .style("background-color",params.background)
+      .style(vendor+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
       .style("position","absolute")
+      .style("bottom","-5px")
+      .style("height","10px")
+      .style("left","50%")
+      .style("margin-left","-5px")
+      .style("width","10px")
+      .style(vendor+"transform","rotate(45deg)")
+      .style("z-index",-1)
   }
 
   if (params.icon) {
@@ -231,6 +262,7 @@ d3plus.tooltip.create = function(params) {
       .style("background-size","100%")
       .style("background-image","url("+params.icon+")")
       .style("display","inline-block")
+      .style("margin","0px 3px 3px 0px")
 
     if (params.style == "knockout") {
       title_icon.style("background-color",params.color)
@@ -255,12 +287,17 @@ d3plus.tooltip.create = function(params) {
       .style("text-overflow","ellipsis")
       .style("word-wrap","break-word")
       .style("z-index",1)
+      .style("font-size",params.size === "large" ? "18px" : "16px")
+      .style("line-height",params.size === "large" ? "20px" : "17px")
+      .style("padding",params.size === "large" ? "3px 6px" : "3px")
       .text(params.title)
   }
 
   if (params.description) {
     var description = body.append("div")
       .attr("class","d3plus_tooltip_description")
+      .style("font-size","12px")
+      .style("padding","6px")
       .text(params.description)
   }
 
@@ -268,6 +305,8 @@ d3plus.tooltip.create = function(params) {
 
     var data_container = body.append("div")
       .attr("class","d3plus_tooltip_data_container")
+      .style("overflow-y","auto")
+      .style("z-index",-1)
   }
 
   if (params.data) {
@@ -282,12 +321,18 @@ d3plus.tooltip.create = function(params) {
           last_group = d.group
           data_container.append("div")
             .attr("class","d3plus_tooltip_data_title")
+            .style("font-size","12px")
+            .style("font-weight","bold")
+            .style("padding","6px 3px 0px 3px")
             .text(d.group)
         }
       }
 
       var block = data_container.append("div")
         .attr("class","d3plus_tooltip_data_block")
+        .style("font-size","12px")
+        .style("padding","3px 6px")
+        .style("position","relative")
         .datum(d)
 
       if ( d.highlight === true ) {
@@ -299,6 +344,7 @@ d3plus.tooltip.create = function(params) {
 
       var name = block.append("div")
           .attr("class","d3plus_tooltip_data_name")
+          .style("display","inline-block")
           .html(d.name)
           .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
@@ -315,6 +361,10 @@ d3plus.tooltip.create = function(params) {
 
       var val = block.append("div")
           .attr("class","d3plus_tooltip_data_value")
+          .style("display","block")
+          .style("position","absolute")
+          .style("text-align","right")
+          .style("top","3px")
           .text(d.value)
           .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
@@ -330,6 +380,10 @@ d3plus.tooltip.create = function(params) {
       if (params.mouseevents && d.desc) {
         var desc = block.append("div")
           .attr("class","d3plus_tooltip_data_desc")
+          .style("color","#888")
+          .style("overflow","hidden")
+          .style(vendor+"transition","height 0.5s")
+          .style("width","85%")
           .text(d.desc)
           .on(d3plus.evt.out,function(){
             d3.event.stopPropagation()
@@ -341,6 +395,20 @@ d3plus.tooltip.create = function(params) {
 
         var help = name.append("div")
           .attr("class","d3plus_tooltip_data_help")
+          .style("background-color","#ccc")
+          .style(vendor+"border-radius","5px")
+          .style("color","#fff")
+          .style("cursor","pointer")
+          .style("display","inline-block")
+          .style("font-size","8px")
+          .style("font-weight","bold")
+          .style("height","10px")
+          .style("margin","3px 0px 0px 3px")
+          .style("padding-right","1px")
+          .style("text-align","center")
+          .style("width","10px")
+          .style("vertical-align","top")
+          .style(prefix+"transition","background-color 0.5s")
           .text("?")
           .on(d3plus.evt.over,function(){
             var c = d3.select(this.parentNode.parentNode).style("color")
@@ -374,6 +442,10 @@ d3plus.tooltip.create = function(params) {
         if ((d.group && d.group == params.data[i+1].group) || !d.group && !params.data[i+1].group)
         data_container.append("div")
           .attr("class","d3plus_tooltip_data_seperator")
+          .style("background-color","#ddd")
+          .style("display","block")
+          .style("height","1px")
+          .style("margin","0px 3px")
       }
 
     })
@@ -405,6 +477,9 @@ d3plus.tooltip.create = function(params) {
 
   var footer = body.append("div")
     .attr("class","d3plus_tooltip_footer")
+    .style("font-size","10px")
+    .style("position","relative")
+    .style("text-align","center")
 
   if (params.footer) {
     footer.html(params.footer)
@@ -419,6 +494,11 @@ d3plus.tooltip.create = function(params) {
       .attr("class","d3plus_tooltip_html")
       .style("width",w+"px")
       .style("height",h+"px")
+      .style("display","inline-block")
+      .style("vertical-align","top")
+      .style("overflow-y","auto")
+      .style("padding","0px 12px")
+      .style("position","absolute")
       .html(params.html)
   }
 

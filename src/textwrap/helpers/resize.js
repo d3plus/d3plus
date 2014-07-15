@@ -19,7 +19,8 @@ d3plus.textwrap.resize = function( vars , line ) {
                                      , { "font-size" : sizeMax + "px" }
                                      , vars.container.value )
       , maxWidth  = d3.max( sizes , function(d){ return d.width } )
-      , textArea  = d3.sum( sizes , function(d){ return d.width * d.height } ) * 1.2
+      , areaMod   = 1.165 + (vars.width.value/vars.height.value*0.037)
+      , textArea  = d3.sum( sizes , function(d){ return d.width * d.height } ) * areaMod
       , boxArea   = vars.shape.value === "circle"
                   ? Math.PI * Math.pow( vars.width.value / 2 , 2 )
                   : lineWidth * vars.height.value
@@ -29,9 +30,15 @@ d3plus.textwrap.resize = function( vars , line ) {
       var areaRatio  = Math.sqrt( boxArea / textArea )
         , widthRatio = lineWidth / maxWidth
         , sizeRatio  = d3.min([ areaRatio , widthRatio ])
-        
+
       sizeMax = d3.max([ vars.size.value[0] , Math.floor( sizeMax * sizeRatio ) ])
 
+    }
+
+    var heightMax = Math.floor(vars.height.value * 0.8)
+
+    if ( sizeMax > heightMax ) {
+      sizeMax = heightMax
     }
 
     if ( maxWidth * (sizeMax/vars.size.value[1]) <= lineWidth ) {

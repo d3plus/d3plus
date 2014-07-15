@@ -113,11 +113,7 @@ d3plus.tooltip.app = function(params) {
         nameList = nameList.slice(0)
 
         if ( d3plus.object.validate(nameList[0]) ) {
-          var vals = []
-          nameList.forEach(function(d){
-            vals = vals.concat(d[nestKey])
-          })
-          nameList = d3plus.util.uniques(vals,nestKey)
+          nameList = d3plus.util.uniques(nameList,nestKey)
         }
 
         var limit       = length === "short" ? 3 : vars.data.large
@@ -144,7 +140,7 @@ d3plus.tooltip.app = function(params) {
         }
 
       }
-      else if ( nameList ) {
+      else if ( nameList && nameList !== "null" ) {
 
         var name  = d3plus.variable.text( vars , nameList , depth )[0]
 

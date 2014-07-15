@@ -21,7 +21,10 @@ d3plus.method.format = {
     },
     "value"    : "en"
   },
-  "number"     : d3plus.number.format,
+  "number"     : {
+    "accepted" : [ false , Function ],
+    "value"    : false
+  },
   "process"    : function( value ) {
 
     if ( typeof value === "string" ) {
@@ -35,14 +38,19 @@ d3plus.method.format = {
     return this.value
 
   },
-  "text"       : d3plus.string.title,
+  "text"       : {
+    "accepted" : [ false , Function ],
+    "value"    : false
+  },
   "value"      : function( value , key ) {
 
     if ( typeof value === "number" ) {
-      return this.number( value , key )
+      var f = this.number.value || d3plus.number.format
+      return f( value , key )
     }
-    if ( typeof value === "string" ) {
-      return this.text( value , key )
+    else if ( typeof value === "string" ) {
+      var f = this.text.value || d3plus.string.title
+      return f( value , key )
     }
     else {
       return JSON.stringify(value)

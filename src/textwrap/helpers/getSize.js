@@ -6,11 +6,19 @@ d3plus.textwrap.getSize = function( vars ) {
   var size = vars.container.value.attr("font-size")
              || vars.container.value.style("font-size")
 
-  if ( vars.resize.value ) {
-    vars.self.size( [ parseFloat( size , 10 ) , vars.size.value[1] ] )
+  if ( !vars.size.value ) {
+
+    size = parseFloat( size , 10 )
+
+    if ( vars.resize.value ) {
+      vars.self.size( [ size , size*2 ] )
+    }
+    else {
+      vars.self.size( [ size/2 , size ] )
+    }
+
   }
-  else {
-    vars.self.size( [ vars.size.value[0] , parseFloat( size , 10 ) ] )
-  }
+
+  vars.container.fontSize = size
 
 }

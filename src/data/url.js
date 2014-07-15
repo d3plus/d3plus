@@ -7,7 +7,7 @@ d3plus.data.url = function( vars , key , next ) {
 
   var url = vars[key].url
 
-  if ( !vars[key].type.value ) {
+  if ( !vars[key].filetype.value ) {
 
     var fileType = url.slice(url.length-5).split(".")
     if ( fileType.length > 1 ) {
@@ -22,7 +22,7 @@ d3plus.data.url = function( vars , key , next ) {
       if ( fileType === "txt" ) {
         fileType = "text"
       }
-      if ( vars[key].type.accepted.indexOf(fileType) < 0 ) {
+      if ( vars[key].filetype.accepted.indexOf(fileType) < 0 ) {
         fileType = "json"
       }
 
@@ -33,7 +33,7 @@ d3plus.data.url = function( vars , key , next ) {
 
   }
   else {
-    var fileType = vars[key].type.value
+    var fileType = vars[key].filetype.value
   }
 
   if ( fileType === "dsv" ) {

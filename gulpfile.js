@@ -2,34 +2,80 @@
 var gulp = require("gulp")
   , gutil = require("gulp-util")
   , path = require("path")
-  , concat = require("gulp-concat")
   , livereload = require("gulp-livereload")
   , notify = require("gulp-notify")
   , rename = require("gulp-rename")
   , uglify = require("gulp-uglify")
+  , glob = require("glob")
   , express = require("express")
+  , source = require("vinyl-source-stream")
   , lr = require("tiny-lr")()
+  , browserify = require("browserify")
+  , watchify = require("watchify")
+  , streamify = require('gulp-streamify')
+  , es = require('event-stream')
+  , timer = require("gulp-duration")
+  , plumber = require("gulp-plumber")
 
-var files = [ "src/begin.js"
-            , "src/*/**/*.js"
-            , "src/end.js" ]
+var files = "./src/**/*.*"
 
 var tests = [ "tests/**/*.*" ]
+
+var error = {
+  title: "D3plus",
+  subtitle: "Build Error",
+  message: "<%= error.message %>",
+  icon: __dirname + "/icon.png"
+}
 
 // Concatenate & Minify JS
 gulp.task("make", function() {
 
-  return gulp.src(files)
-    .pipe(concat("d3plus.js"))
-    .pipe(gulp.dest("./"))
-    .pipe(rename("d3plus.min.js"))
-    .pipe(uglify())
-    .pipe(gulp.dest("./"))
-    .pipe(notify({
-      title: "D3plus",
-      message: "New Build Compiled"
-    }))
-    .pipe(livereload(lr))
+  var fileList = glob.sync(files,{nosort: true});
+
+  var bundler = watchify({entries: fileList, debug: true})
+    .transform("coffeeify");
+
+  var rebundle = function() {
+
+    var normal = bundler
+      .ignore("./src/libs.js")
+      .bundle()
+      .on("error",notify.onError(error))
+      .pipe(plumber())
+      .pipe(source("d3plus.js"))
+      .pipe(gulp.dest("./"))
+      .pipe(rename("d3plus.min.js"))
+      .pipe(streamify(uglify()))
+      .pipe(gulp.dest("./"))
+      .on("error",notify.onError(error));
+
+    var full = browserify(fileList)
+      .transform("coffeeify")
+      .bundle()
+      .on("error",notify.onError(error))
+      .pipe(plumber())
+      .pipe(source("d3plus.full.js"))
+      .pipe(gulp.dest("./"))
+      .pipe(rename("d3plus.full.min.js"))
+      .pipe(streamify(uglify()))
+      .pipe(gulp.dest("./"))
+      .pipe(timer("Total Build Time"))
+      .pipe(notify({
+        title: "D3plus",
+        message: "New Build Compiled",
+        icon: __dirname + "/icon.png"
+      }))
+      .pipe(livereload(lr))
+      .on("error",notify.onError(error));
+
+    return es.merge(normal,full);
+
+  }
+
+  bundler.on("update",rebundle)
+
+  return rebundle();
 
 })
 
@@ -57,8 +103,6 @@ var servers = createServers(4000, 35729);
 
 // Watch Files For Changes
 gulp.task("watch", function() {
-
-  gulp.watch(files, ["make"])
 
   gulp.watch(tests, function(evt) {
 
