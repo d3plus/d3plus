@@ -6,14 +6,15 @@ d3plus.textwrap.tspan = function( vars ) {
   var xPosition  = vars.container.value.attr("x") || "0px"
     , words      = vars.text.words.slice(0)
     , tspans     = false
+    , fontSize   = vars.resize.value ? vars.size.value[1] : vars.container.fontSize || vars.size.value[0]
     , textBox    = vars.container.value.append("tspan").text( words[0] )
-                     .attr( "dy" , vars.size.value[1] + "px" )
+                     .attr( "dy" , fontSize + "px" )
     , textHeight = textBox.node().offsetHeight
     , line       = 1
     , newLine    = function( ) {
       return vars.container.value.append("tspan")
               .attr( "x" , xPosition )
-              .attr( "dy" , vars.size.value[1] + "px" )
+              .attr( "dy" , fontSize + "px" )
     }
     , truncate   = function( ) {
 
