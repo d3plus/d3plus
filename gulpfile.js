@@ -15,6 +15,7 @@ var gulp = require("gulp")
   , streamify = require('gulp-streamify')
   , es = require('event-stream')
   , timer = require("gulp-duration")
+  , plumber = require("gulp-plumber")
 
 var files = "./src/**/*.*"
 
@@ -29,39 +30,33 @@ gulp.task("make", function() {
 
   var rebundle = function() {
 
-    var bundle = bundler
+    var normal = bundler
       .ignore("./src/libs.js")
-      .bundle();
-
-    var normal = bundle
+      .bundle()
+      .pipe(plumber())
       .pipe(source("d3plus.js"))
-      .pipe(gulp.dest("./"));
-
-    var min = bundle
-      .pipe(source("d3plus.min.js"))
+      .pipe(gulp.dest("./"))
+      .pipe(rename("d3plus.min.js"))
       .pipe(streamify(uglify()))
       .pipe(gulp.dest("./"));
 
-    var bundle = browserify(fileList)
+    var full = browserify(fileList)
       .transform("coffeeify")
-      .bundle();
-
-    var full = bundle
+      .bundle()
       .pipe(source("d3plus.full.js"))
-      .pipe(gulp.dest("./"));
-
-    var fullmin = bundle
-      .pipe(source("d3plus.full.min.js"))
+      .pipe(gulp.dest("./"))
+      .pipe(rename("d3plus.full.min.js"))
       .pipe(streamify(uglify()))
       .pipe(gulp.dest("./"))
-      .pipe(timer("Build Time"))
+      .pipe(timer("Total Build Time"))
       .pipe(notify({
         title: "D3plus",
-        message: "New Build Compiled"
+        message: "New Build Compiled",
+        icon: __dirname + "/icon.png"
       }))
       .pipe(livereload(lr));
 
-    return es.merge(normal,min,full,fullmin);
+    return es.merge(normal,full);
 
   }
 
@@ -95,6 +90,8 @@ var servers = createServers(4000, 35729);
 
 // Watch Files For Changes
 gulp.task("watch", function() {
+
+  gulp.watch("gulpfile.js",["make"])
 
   gulp.watch(tests, function(evt) {
 
