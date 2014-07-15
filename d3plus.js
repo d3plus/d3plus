@@ -7178,19 +7178,18 @@ d3plus.data.url = function( vars , key , next ) {
 }
 
 },{}],54:[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects if FontAwesome is loaded on the page
-//------------------------------------------------------------------------------
-d3plus.font.awesome = false
-for (var s = 0; s < document.styleSheets.length; s++) {
-  var sheet = document.styleSheets[s]
-  if (sheet.href && sheet.href.indexOf("font-awesome") >= 0) {
-    d3plus.font.awesome = true
-    break;
-  }
-}
 
-},{}],55:[function(require,module,exports){
+/**
+ * Detects if the Font-Awesome library is loaded on the page.
+ */
+var stylesheet;
+
+stylesheet = require("../style/sheet.coffee");
+
+d3plus.font.awesome = stylesheet("font-awesome");
+
+
+},{"../style/sheet.coffee":192}],55:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates test div to populate with test DIVs
 //------------------------------------------------------------------------------
@@ -9452,158 +9451,112 @@ d3plus.input.toggle = function( vars ) {
 }
 
 },{}],83:[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Custom styling and behavior for browser console statements.
-//------------------------------------------------------------------------------
-d3plus.console = function( type , message , style ) {
+var wiki;
 
-  var style = style || ""
+wiki = require("./wiki.coffee");
 
-  if ( d3plus.ie ) {
-
-    console.log( "[ D3plus ] " + message )
-
-  }
-  else if ( type === "groupCollapsed" ) {
-
-    if ( window.chrome && navigator.onLine ) {
-      console[type]( "%c%c " + message
-                   , "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');"
-                   , "font-weight:200;" + style )
+d3plus.console = function(type, message, style) {
+  style = style || "";
+  if (d3plus.ie) {
+    console.log("[ D3plus ] " + message);
+  } else if (type === "groupCollapsed") {
+    if (window.chrome && navigator.onLine) {
+      console[type]("%c%c " + message, "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');", "font-weight:200;" + style);
+    } else {
+      console[type]("%cD3plus%c " + message, "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;", "font-weight:200;" + style);
     }
-    else {
-      console[type]( "%cD3plus%c " + message
-                   , "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;"
-                   , "font-weight:200;" + style )
-    }
-
+  } else {
+    console[type]("%c" + message, style + "font-weight:200;");
   }
-  else {
+};
 
-    console[type]( "%c" + message , style + "font-weight:200;" )
+d3plus.console.comment = function(message) {
+  this("log", message, "color:#aaa;");
+};
 
-  }
+d3plus.console.error = function(message, url) {
+  this("groupCollapsed", "ERROR: " + message, "font-weight:800;color:#D74B03;");
+  this.stack();
+  this.wiki(url);
+  this.groupEnd();
+};
 
-}
+d3plus.console.group = function(message) {
+  this("group", message, "color:#888;");
+};
 
-d3plus.console.comment = function( message ) {
-
-  this( "log" , message , "color:#aaa;" )
-
-}
-
-d3plus.console.error = function( message , wiki ) {
-
-  this( "groupCollapsed" , "ERROR: " + message , "font-weight:800;color:#D74B03;" )
-
-  this.stack()
-
-  this.wiki( wiki )
-
-  this.groupEnd()
-
-}
-
-d3plus.console.group = function( message ) {
-
-  this( "group" , message , "color:#888;" )
-
-}
-
-d3plus.console.groupCollapsed = function( message ) {
-
-  this( "groupCollapsed" , message , "color:#888;" )
-
-}
+d3plus.console.groupCollapsed = function(message) {
+  this("groupCollapsed", message, "color:#888;");
+};
 
 d3plus.console.groupEnd = function() {
-  if ( !d3plus.ie ) {
-    console.groupEnd()
+  if (!d3plus.ie) {
+    console.groupEnd();
   }
-}
+};
 
-d3plus.console.log = function( message ) {
-
-  this( "log" , message , "color:#444444;" )
-
-}
+d3plus.console.log = function(message) {
+  this("log", message, "color:#444444;");
+};
 
 d3plus.console.stack = function() {
-
-  if ( !d3plus.ie ) {
-
-    var err = new Error()
-
-    if ( err.stack ) {
-
-      var stack = err.stack.split("\n")
-
-      stack = stack.filter(function(e){
-        return e.indexOf("Error") !== 0
-            && e.indexOf("d3plus.js:") < 0
-            && e.indexOf("d3plus.min.js:") < 0
-      })
-
-      if ( stack.length ) {
-
-        var splitter = window.chrome ? "at " : "@"
-          , url = stack[0].split(splitter)[1]
-
-        stack = url.split(":")
-        if ( stack.length === 3 ) {
-          stack.pop()
+  var err, line, message, page, splitter, stack, url;
+  if (!d3plus.ie) {
+    err = new Error();
+    if (err.stack) {
+      stack = err.stack.split("\n");
+      stack = stack.filter(function(e) {
+        return e.indexOf("Error") !== 0 && e.indexOf("d3plus.js:") < 0 && e.indexOf("d3plus.min.js:") < 0;
+      });
+      if (stack.length) {
+        splitter = (window.chrome ? "at " : "@");
+        url = stack[0].split(splitter)[1];
+        stack = url.split(":");
+        if (stack.length === 3) {
+          stack.pop();
         }
-
-        var line = stack.pop()
-          , page = stack.join(":").split("/")
-
-        page = page[page.length-1]
-
-        var message = "line "+line+" of "+page+": "+url
-
-        this( "log" , message , "color:#D74B03;" )
-
+        line = stack.pop();
+        page = stack.join(":").split("/");
+        page = page[page.length - 1];
+        message = "line " + line + " of " + page + ": " + url;
+        this("log", message, "color:#D74B03;");
       }
-
     }
   }
+};
 
-}
-
-d3plus.console.time = function( message ) {
-  if ( !d3plus.ie ) {
-    console.time( message )
+d3plus.console.time = function(message) {
+  if (!d3plus.ie) {
+    console.time(message);
   }
-}
+};
 
-d3plus.console.timeEnd = function( message ) {
-  if ( !d3plus.ie ) {
-    console.timeEnd( message )
+d3plus.console.timeEnd = function(message) {
+  if (!d3plus.ie) {
+    console.timeEnd(message);
   }
-}
+};
 
-d3plus.console.warning = function( message , wiki ) {
+d3plus.console.warning = function(message, url) {
+  this("groupCollapsed", message, "color:#888;");
+  this.stack();
+  this.wiki(url);
+  this.groupEnd();
+};
 
-  this( "groupCollapsed" , message , "color:#888;" )
-
-  this.stack()
-
-  this.wiki( wiki )
-
-  this.groupEnd()
-
-}
-
-d3plus.console.wiki = function( wiki ) {
-
-  if ( wiki && wiki in d3plus.wiki ) {
-    var url = d3plus.repo + "wiki/" + d3plus.wiki[wiki]
-    this( "log" , "documentation: " + url , "color:#aaa;" )
+d3plus.console.wiki = function(url) {
+  if (url) {
+    if (url in wiki) {
+      url = d3plus.repo + "wiki/" + wiki[url];
+    }
+    this("log", "documentation: " + url, "color:#aaa;");
   }
+};
 
-}
+module.exports = d3plus.console;
 
-},{}],84:[function(require,module,exports){
+
+},{"./wiki.coffee":89}],84:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates custom mouse events based on IE and Touch Devices.
 //------------------------------------------------------------------------------
@@ -9646,74 +9599,12 @@ else {
 }
 
 },{}],85:[function(require,module,exports){
-d3plus.repo    = "https://github.com/alexandersimoes/d3plus/"
-
-d3plus.wiki    = {
-  "active"     : "Segmenting-Data#active",
-  "aggs"       : "Custom-Aggregations",
-  "alt"        : "Alt-Text-Parameters",
-  "attrs"      : "Attribute-Data#axes",
-  "axes"       : "Axis-Parameters",
-  "background" : "Background",
-  "color"      : "Color-Parameters",
-  "container"  : "Container-Element",
-  "coords"     : "Geography-Data",
-  "csv"        : "CSV-Export",
-  "data"       : "Data-Points",
-  "depth"      : "Visible-Depth",
-  "descs"      : "Value-Definitions",
-  "dev"        : "Verbose-Mode",
-  "draw"       : "Draw",
-  "edges"      : "Edges-List",
-  "error"      : "Custom-Error-Message",
-  "focus"      : "Focus-Element",
-  "font"       : "Font-Styles",
-  "footer"     : "Custom-Footer",
-  "format"     : "Value-Formatting",
-  "height"     : "Height",
-  "history"    : "User-History",
-  "hover"      : "Hover-Element",
-  "icon"       : "Icon-Parameters",
-  "id"         : "Unique-ID",
-  "keywords"   : "Keyword-Parameters",
-  "labels"     : "Data-Labels",
-  "legend"     : "Legend",
-  "links"      : "Link-Styles",
-  "margin"     : "Outer-Margins",
-  "messages"   : "Status-Messages",
-  "method"     : "Methods",
-  "nodes"      : "Node-Positions",
-  "open"       : "Open",
-  "order"      : "Data-Ordering",
-  "remove"     : "Remove",
-  "search"     : "Search-Box",
-  "select"     : "Selecting-Elements#select",
-  "selectAll"  : "Selecting-Elements#selectall",
-  "shape"      : "Data-Shapes",
-  "size"       : "Size-Parameters",
-  "temp"       : "Segmenting-Data#temp",
-  "text"       : "Text-Parameters",
-  "time"       : "Time-Parameters",
-  "timeline"   : "Timeline",
-  "timing"     : "Animation-Timing",
-  "title"      : "Custom-Titles",
-  "tooltip"    : "Tooltip-Parameters",
-  "total"      : "Segmenting-Data#total",
-  "type"       : "Output-Type",
-  "ui"         : "Custom-Interface",
-  "width"      : "Width",
-  "x"          : "Axis-Parameters",
-  "y"          : "Axis-Parameters",
-  "zoom"       : "Zooming"
-}
-
-},{}],86:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines if the current browser is Internet Explorer.
 //------------------------------------------------------------------------------
 d3plus.ie = /*@cc_on!@*/false
 
-},{}],87:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the correct CSS vendor prefix based on the current browser.
 //------------------------------------------------------------------------------
@@ -9743,13 +9634,13 @@ d3plus.prefix = function() {
 
 }
 
-},{}],88:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects right-to-left text direction on the page.
 //------------------------------------------------------------------------------
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
-},{}],89:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects scrollbar width for current browser.
 //------------------------------------------------------------------------------
@@ -9786,6 +9677,69 @@ d3plus.scrollbar = function() {
   return val;
 
 }
+
+},{}],89:[function(require,module,exports){
+d3plus.wiki = {
+  active: "Segmenting-Data#active",
+  aggs: "Custom-Aggregations",
+  alt: "Alt-Text-Parameters",
+  attrs: "Attribute-Data#axes",
+  axes: "Axis-Parameters",
+  background: "Background",
+  color: "Color-Parameters",
+  container: "Container-Element",
+  coords: "Geography-Data",
+  csv: "CSV-Export",
+  data: "Data-Points",
+  depth: "Visible-Depth",
+  descs: "Value-Definitions",
+  dev: "Verbose-Mode",
+  draw: "Draw",
+  edges: "Edges-List",
+  error: "Custom-Error-Message",
+  focus: "Focus-Element",
+  font: "Font-Styles",
+  footer: "Custom-Footer",
+  format: "Value-Formatting",
+  height: "Height",
+  history: "User-History",
+  hover: "Hover-Element",
+  icon: "Icon-Parameters",
+  id: "Unique-ID",
+  keywords: "Keyword-Parameters",
+  labels: "Data-Labels",
+  legend: "Legend",
+  links: "Link-Styles",
+  margin: "Outer-Margins",
+  messages: "Status-Messages",
+  method: "Methods",
+  nodes: "Node-Positions",
+  open: "Open",
+  order: "Data-Ordering",
+  remove: "Remove",
+  search: "Search-Box",
+  select: "Selecting-Elements#select",
+  selectAll: "Selecting-Elements#selectall",
+  shape: "Data-Shapes",
+  size: "Size-Parameters",
+  temp: "Segmenting-Data#temp",
+  text: "Text-Parameters",
+  time: "Time-Parameters",
+  timeline: "Timeline",
+  timing: "Animation-Timing",
+  title: "Custom-Titles",
+  tooltip: "Tooltip-Parameters",
+  total: "Segmenting-Data#total",
+  type: "Output-Type",
+  ui: "Custom-Interface",
+  width: "Width",
+  x: "Axis-Parameters",
+  y: "Axis-Parameters",
+  zoom: "Zooming"
+};
+
+module.exports = d3plus.wiki;
+
 
 },{}],90:[function(require,module,exports){
 var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
@@ -10185,34 +10139,68 @@ intersectPoints = function(poly, origin, alpha) {
 
 
 },{"simplify-js":3}],91:[function(require,module,exports){
-var d3plus    = window.d3plus || {}
-window.d3plus = d3plus
+var d3plus, message, stylesheet;
 
-d3plus.version = "1.4.0 - Teal"
+d3plus = window.d3plus || {};
 
-d3plus.array         = {}
-d3plus.color         = {}
-d3plus.data          = {}
-d3plus.draw          = {}
-d3plus.font          = {}
-d3plus.geom          = {}
-d3plus.input         = {}
-d3plus.locale        = {}
-d3plus.method        = {}
-d3plus.network       = {}
-d3plus.number        = {}
-d3plus.object        = {}
-d3plus.shape         = {}
-d3plus.string        = {}
-d3plus.style         = {}
-d3plus.tooltip       = {}
-d3plus.ui            = {}
-d3plus.util          = {}
-d3plus.variable      = {}
-d3plus.visualization = {}
-d3plus.zoom          = {}
+window.d3plus = d3plus;
 
-},{}],92:[function(require,module,exports){
+d3plus.version = "1.4.0 - Teal";
+
+d3plus.repo = "https://github.com/alexandersimoes/d3plus/";
+
+d3plus.array = {};
+
+d3plus.color = {};
+
+d3plus.data = {};
+
+d3plus.draw = {};
+
+d3plus.font = {};
+
+d3plus.geom = {};
+
+d3plus.input = {};
+
+d3plus.locale = {};
+
+d3plus.method = {};
+
+d3plus.network = {};
+
+d3plus.number = {};
+
+d3plus.object = {};
+
+d3plus.shape = {};
+
+d3plus.string = {};
+
+d3plus.style = {};
+
+d3plus.tooltip = {};
+
+d3plus.ui = {};
+
+d3plus.util = {};
+
+d3plus.variable = {};
+
+d3plus.visualization = {};
+
+d3plus.zoom = {};
+
+stylesheet = require("./style/sheet.coffee");
+
+message = require("./general/console.coffee");
+
+if (stylesheet("d3plus.css")) {
+  message.warning("d3plus.css has been deprecated, you do not need to load this file.", "https://github.com/alexandersimoes/d3plus/releases/tag/v1.4.0");
+}
+
+
+},{"./general/console.coffee":83,"./style/sheet.coffee":192}],92:[function(require,module,exports){
 d3plus.locale.en = {
 
   "dev"          : {
@@ -13673,6 +13661,25 @@ d3plus.style.fontFamily = function( family ) {
 }
 
 },{}],192:[function(require,module,exports){
+d3plus.style.sheet = function(name) {
+  var i, returnBoolean, sheet;
+  i = 0;
+  returnBoolean = false;
+  while (i < document.styleSheets.length) {
+    sheet = document.styleSheets[i];
+    if (sheet.href && sheet.href.indexOf(name) >= 0) {
+      returnBoolean = true;
+      break;
+    }
+    i++;
+  }
+  return returnBoolean;
+};
+
+module.exports = d3plus.style.sheet;
+
+
+},{}],193:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into the container
 //------------------------------------------------------------------------------
@@ -13687,7 +13694,7 @@ d3plus.textwrap.flow = function( vars ) {
 
 }
 
-},{}],193:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text as a foreign element.
 //------------------------------------------------------------------------------
@@ -13718,7 +13725,7 @@ d3plus.textwrap.foreign = function( vars ) {
 
 }
 
-},{}],194:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks width and height, and gets it if needed.
 //------------------------------------------------------------------------------
@@ -13768,7 +13775,7 @@ d3plus.textwrap.getDimensions = function( vars ) {
 
 }
 
-},{}],195:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches text if not specified, and formats text to array.
 //------------------------------------------------------------------------------
@@ -13792,7 +13799,7 @@ d3plus.textwrap.getSize = function( vars ) {
 
 }
 
-},{}],196:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches text if not specified, and formats text to array.
 //------------------------------------------------------------------------------
@@ -13824,7 +13831,7 @@ d3plus.textwrap.getText = function( vars ) {
 
 }
 
-},{}],197:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Logic to determine the best size for text
 //------------------------------------------------------------------------------
@@ -13886,7 +13893,7 @@ d3plus.textwrap.resize = function( vars , line ) {
 
 }
 
-},{}],198:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into tspans
 //------------------------------------------------------------------------------
@@ -14008,7 +14015,7 @@ d3plus.textwrap.tspan = function( vars ) {
 
 }
 
-},{}],199:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into the container
 //------------------------------------------------------------------------------
@@ -14030,7 +14037,7 @@ d3plus.textwrap.wrap = function( vars ) {
 
 }
 
-},{}],200:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Word wraps SVG text
 //------------------------------------------------------------------------------
@@ -14069,7 +14076,7 @@ d3plus.textwrap = function() {
 
 }
 
-},{}],201:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -14340,7 +14347,7 @@ d3plus.tooltip.app = function(params) {
 
 }
 
-},{}],202:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Correctly positions the tooltip's arrow
 //-------------------------------------------------------------------
@@ -14415,7 +14422,7 @@ d3plus.tooltip.arrow = function(arrow) {
       }
     })
 }
-},{}],203:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create a Tooltip
 //-------------------------------------------------------------------
@@ -14958,7 +14965,7 @@ d3plus.tooltip.create = function(params) {
 
 }
 
-},{}],204:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
@@ -15236,7 +15243,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
 }
 
-},{}],205:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Set X and Y position for Tooltip
 //-------------------------------------------------------------------
@@ -15339,7 +15346,7 @@ d3plus.tooltip.move = function(x,y,id) {
     
 }
 
-},{}],206:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Destroy Tooltips
 //-------------------------------------------------------------------
@@ -15367,7 +15374,7 @@ d3plus.tooltip.remove = function(id) {
 
 }
 
-},{}],207:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Expands a min/max into a specified number of buckets
 //------------------------------------------------------------------------------
@@ -15386,7 +15393,7 @@ d3plus.util.buckets = function(arr, buckets) {
   return return_arr
 }
 
-},{}],208:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if element is inside of another elemebt
 //------------------------------------------------------------------------------
@@ -15417,7 +15424,7 @@ d3plus.util.child = function(parent,child) {
 
 }
 
-},{}],209:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds closest numeric value in array
 //------------------------------------------------------------------------------
@@ -15431,7 +15438,7 @@ d3plus.util.closest = function(arr,value) {
   return closest
 }
 
-},{}],210:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Clones a variable
 //------------------------------------------------------------------------------
@@ -15455,7 +15462,7 @@ d3plus.util.copy = function( variable ) {
 
 }
 
-},{}],211:[function(require,module,exports){
+},{}],212:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cross-browser detect for D3 element
 //------------------------------------------------------------------------------
@@ -15465,7 +15472,7 @@ d3plus.util.d3selection = function(selection) {
     : selection instanceof d3.selection
 }
 
-},{}],212:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Base-64 Data URL from and Image URL
 //------------------------------------------------------------------------------
@@ -15491,7 +15498,7 @@ d3plus.util.dataurl = function(url,callback) {
 
 }
 
-},{}],213:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns distances of all objects in array
 //------------------------------------------------------------------------------
@@ -15519,7 +15526,7 @@ d3plus.util.distances = function(arr,accessor) {
   return distances
 }
 
-},{}],214:[function(require,module,exports){
+},{}],215:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Gives X and Y offset based off angle and shape
 //------------------------------------------------------------------------------
@@ -15618,7 +15625,7 @@ d3plus.util.offset = function(radians, distance, shape) {
 
 }
 
-},{}],215:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns list of unique values
 //------------------------------------------------------------------------------
@@ -15666,7 +15673,7 @@ d3plus.util.uniques = function( data , value ) {
 
 }
 
-},{}],216:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
@@ -15718,7 +15725,7 @@ d3plus.variable.color = function( vars , id , level ) {
 
 }
 
-},{}],217:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
 //------------------------------------------------------------------------------
@@ -15773,7 +15780,7 @@ d3plus.variable.text = function(vars,obj,depth) {
 
 }
 
-},{}],218:[function(require,module,exports){
+},{}],219:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
@@ -15935,7 +15942,7 @@ d3plus.variable.value = function( vars , id , variable , id_var , agg ) {
 
 }
 
-},{}],219:[function(require,module,exports){
+},{}],220:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -15985,7 +15992,7 @@ d3plus.draw.app = function(vars) {
 
 }
 
-},{}],220:[function(require,module,exports){
+},{}],221:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If placing into a new container, remove it's contents
 // and check text direction.
@@ -16065,7 +16072,7 @@ d3plus.draw.container = function(vars) {
 
 }
 
-},{}],221:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Enter Elements
 //------------------------------------------------------------------------------
@@ -16238,7 +16245,7 @@ d3plus.draw.enter = function(vars) {
 
 }
 
-},{}],222:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -16359,7 +16366,7 @@ d3plus.draw.errors = function(vars) {
 
 }
 
-},{}],223:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
 //------------------------------------------------------------------------------
@@ -16532,7 +16539,7 @@ d3plus.draw.finish = function(vars) {
 
 }
 
-},{}],224:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates focus elements, if available
 //------------------------------------------------------------------------------
@@ -16686,7 +16693,7 @@ d3plus.draw.focus = function(vars) {
 
 }
 
-},{}],225:[function(require,module,exports){
+},{}],226:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -17022,7 +17029,7 @@ d3plus.draw.steps = function(vars) {
 
 }
 
-},{}],226:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
 //------------------------------------------------------------------------------
@@ -17089,7 +17096,7 @@ d3plus.draw.update = function(vars) {
 
 }
 
-},{}],227:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -17195,7 +17202,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
 }
 
-},{}],228:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns the correct fill color for a node
 //-------------------------------------------------------------------
@@ -17241,7 +17248,7 @@ d3plus.shape.color = function(d,vars) {
 
 }
 
-},{}],229:[function(require,module,exports){
+},{}],230:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -17416,7 +17423,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
 }
 
-},{}],230:[function(require,module,exports){
+},{}],231:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
 //------------------------------------------------------------------------------
@@ -17517,7 +17524,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
 
 }
 
-},{}],231:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws the appropriate shape based on the data
 //------------------------------------------------------------------------------
@@ -18174,7 +18181,7 @@ d3plus.shape.draw = function(vars) {
 
 }
 
-},{}],232:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -18737,7 +18744,7 @@ d3plus.shape.edges = function(vars) {
 
 }
 
-},{}],233:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -19013,7 +19020,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
 
 }
 
-},{}],234:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
@@ -19524,7 +19531,7 @@ d3plus.shape.labels = function( vars , group ) {
   }
 }
 
-},{}],235:[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
 //------------------------------------------------------------------------------
@@ -19790,7 +19797,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
 }
 
-},{}],236:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -19938,7 +19945,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
 
 }
 
-},{}],237:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fill style for all shapes
 //-------------------------------------------------------------------
@@ -19970,7 +19977,7 @@ d3plus.shape.style = function(nodes,vars) {
 
 }
 
-},{}],238:[function(require,module,exports){
+},{}],239:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Bubbles
 //------------------------------------------------------------------------------
@@ -20179,7 +20186,7 @@ d3plus.visualization.bubbles.scale        = 1.05
 d3plus.visualization.bubbles.shapes       = [ "circle" , "donut" ]
 d3plus.visualization.bubbles.tooltip      = "static"
 
-},{}],239:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Chart
 //------------------------------------------------------------------------------
@@ -21229,7 +21236,7 @@ d3plus.visualization.chart.scale        = { "circle": 1.1
 d3plus.visualization.chart.shapes       = ["circle","donut","line","square","area"]
 d3plus.visualization.chart.tooltip      = "static"
 
-},{}],240:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Geo Map
 //------------------------------------------------------------------------------
@@ -21276,7 +21283,7 @@ d3plus.visualization.geo_map.shapes       = [ "coordinates" ];
 d3plus.visualization.geo_map.tooltip      = "follow"
 d3plus.visualization.geo_map.zoom         = true
 
-},{}],241:[function(require,module,exports){
+},{}],242:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Line Plot
 //------------------------------------------------------------------------------
@@ -21303,7 +21310,7 @@ d3plus.visualization.line.setup = function(vars) {
 d3plus.visualization.line.shapes       = [ "line" ]
 d3plus.visualization.line.tooltip      = "static"
 
-},{}],242:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
@@ -21432,7 +21439,7 @@ d3plus.visualization.network.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.network.tooltip      = "static"
 d3plus.visualization.network.zoom         = true
 
-},{}],243:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 d3plus.visualization.rings = function(vars) {
 
   var radius = d3.min([vars.height.viz,vars.width.viz])/2
@@ -21916,7 +21923,7 @@ d3plus.visualization.rings.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.rings.requirements = [ "edges" , "focus" ]
 d3plus.visualization.rings.tooltip      = "static"
 
-},{}],244:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Scatterplot
 //------------------------------------------------------------------------------
@@ -21938,7 +21945,7 @@ d3plus.visualization.scatter.scale        = d3plus.visualization.chart.scale
 d3plus.visualization.scatter.shapes       = [ "circle" , "square" , "donut" ]
 d3plus.visualization.scatter.tooltip      = "static"
 
-},{}],245:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Stacked Area Chart
 //------------------------------------------------------------------------------
@@ -21992,7 +21999,7 @@ d3plus.visualization.stacked.threshold    = function( vars ) {
 }
 d3plus.visualization.stacked.tooltip      = "static"
 
-},{}],246:[function(require,module,exports){
+},{}],247:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
@@ -22122,7 +22129,7 @@ d3plus.visualization.tree_map.threshold    = function( vars ) {
 }
 d3plus.visualization.tree_map.tooltip      = "follow"
 
-},{}],247:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws a UI drawer, if defined.
 //------------------------------------------------------------------------------
@@ -22223,7 +22230,7 @@ d3plus.ui.drawer = function( vars ) {
 
 }
 
-},{}],248:[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates focus tooltip, if applicable
 //-------------------------------------------------------------------
@@ -22277,7 +22284,7 @@ d3plus.ui.focus = function(vars) {
 
 }
 
-},{}],249:[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates "back" button, if applicable
 //------------------------------------------------------------------------------
@@ -22387,7 +22394,7 @@ d3plus.ui.history = function(vars) {
 
 }
 
-},{}],250:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -22984,7 +22991,7 @@ d3plus.ui.legend = function(vars) {
 
 }
 
-},{}],251:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -23095,7 +23102,7 @@ d3plus.ui.message = function(vars,message) {
 
 }
 
-},{}],252:[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //-------------------------------------------------------------------
@@ -23451,7 +23458,7 @@ d3plus.ui.timeline = function(vars) {
 
 }
 
-},{}],253:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws appropriate titles
 //------------------------------------------------------------------------------
@@ -23766,7 +23773,7 @@ d3plus.ui.titles = function(vars) {
 
 }
 
-},{}],254:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 d3plus.viz = function() {
 
   var vars = {
@@ -23957,7 +23964,7 @@ d3plus.viz = function() {
 
 }
 
-},{}],255:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 d3plus.zoom.bounds = function( vars , b , timing ) {
 
   if (!b) {
@@ -24014,7 +24021,7 @@ d3plus.zoom.bounds = function( vars , b , timing ) {
 
 }
 
-},{}],256:[function(require,module,exports){
+},{}],257:[function(require,module,exports){
 d3plus.zoom.controls = function() {
 
   d3.select("#d3plus.utilsts.zoom_controls").remove()
@@ -24098,7 +24105,7 @@ d3plus.zoom.controls = function() {
 
 }
 
-},{}],257:[function(require,module,exports){
+},{}],258:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets label opacity based on zoom
 //------------------------------------------------------------------------------
@@ -24136,7 +24143,7 @@ d3plus.zoom.labels = function(vars) {
 
 }
 
-},{}],258:[function(require,module,exports){
+},{}],259:[function(require,module,exports){
 d3plus.zoom.mouse = function(vars) {
 
   var translate = d3.event.translate,
@@ -24189,7 +24196,7 @@ d3plus.zoom.mouse = function(vars) {
 
 }
 
-},{}],259:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 d3plus.zoom.transform = function(vars,timing) {
 
   if (typeof timing !== "number") {
@@ -24213,4 +24220,4 @@ d3plus.zoom.transform = function(vars,timing) {
 
 }
 
-},{}]},{},[91,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,82,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,83,84,85,86,87,88,89,90,92,93,94,95,104,96,97,98,99,100,101,102,103,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,191,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,200,192,193,194,195,196,197,198,199,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,254,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,255,256,257,258,259])
+},{}]},{},[91,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,82,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,83,84,85,86,87,88,89,90,92,93,94,95,104,96,97,98,99,100,101,102,103,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,191,192,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,201,193,194,195,196,197,198,199,200,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,255,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,256,257,258,259,260])

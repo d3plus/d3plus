@@ -1,7 +1,8 @@
-var d3plus    = window.d3plus || {}
-window.d3plus = d3plus
+d3plus               = window.d3plus or {}
+window.d3plus        = d3plus
 
-d3plus.version = "1.4.0 - Teal"
+d3plus.version       = "1.4.0 - Teal"
+d3plus.repo          = "https://github.com/alexandersimoes/d3plus/"
 
 d3plus.array         = {}
 d3plus.color         = {}
@@ -24,3 +25,9 @@ d3plus.util          = {}
 d3plus.variable      = {}
 d3plus.visualization = {}
 d3plus.zoom          = {}
+
+stylesheet           = require "./style/sheet.coffee"
+message              = require "./general/console.coffee"
+
+if stylesheet "d3plus.css"
+  message.warning "d3plus.css has been deprecated, you do not need to load this file.", "https://github.com/alexandersimoes/d3plus/releases/tag/v1.4.0"
