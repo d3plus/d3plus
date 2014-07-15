@@ -21,28 +21,40 @@ var files = "./src/**/*.*"
 
 var tests = [ "tests/**/*.*" ]
 
+var error = {
+  title: "D3plus",
+  subtitle: "Build Error",
+  message: "<%= error.message %>",
+  icon: __dirname + "/icon.png"
+}
+
 // Concatenate & Minify JS
 gulp.task("make", function() {
 
   var fileList = glob.sync(files,{nosort: true});
 
-  var bundler = watchify(fileList).transform("coffeeify");
+  var bundler = watchify({entries: fileList, debug: true})
+    .transform("coffeeify");
 
   var rebundle = function() {
 
     var normal = bundler
       .ignore("./src/libs.js")
       .bundle()
+      .on("error",notify.onError(error))
       .pipe(plumber())
       .pipe(source("d3plus.js"))
       .pipe(gulp.dest("./"))
       .pipe(rename("d3plus.min.js"))
       .pipe(streamify(uglify()))
-      .pipe(gulp.dest("./"));
+      .pipe(gulp.dest("./"))
+      .on("error",notify.onError(error));
 
     var full = browserify(fileList)
       .transform("coffeeify")
       .bundle()
+      .on("error",notify.onError(error))
+      .pipe(plumber())
       .pipe(source("d3plus.full.js"))
       .pipe(gulp.dest("./"))
       .pipe(rename("d3plus.full.min.js"))
@@ -54,7 +66,8 @@ gulp.task("make", function() {
         message: "New Build Compiled",
         icon: __dirname + "/icon.png"
       }))
-      .pipe(livereload(lr));
+      .pipe(livereload(lr))
+      .on("error",notify.onError(error));
 
     return es.merge(normal,full);
 
@@ -90,8 +103,6 @@ var servers = createServers(4000, 35729);
 
 // Watch Files For Changes
 gulp.task("watch", function() {
-
-  gulp.watch("gulpfile.js",["make"])
 
   gulp.watch(tests, function(evt) {
 
