@@ -11,7 +11,7 @@ d3plus.util.uniques = function( data , value ) {
     , nest = d3.nest()
         .key(function(d) {
 
-          if (typeof value === "string") {
+          if (d && typeof value === "string") {
             if ( !type && typeof d[value] !== "undefined" ) type = typeof d[value]
             return d[value]
           }
