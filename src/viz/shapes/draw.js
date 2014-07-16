@@ -51,9 +51,9 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   function id(d) {
 
-    var depth = d.d3plus.depth ? d.d3plus.depth : vars.depth.value
-
+    var depth = vars.depth.value
     d.d3plus.id = d3plus.variable.value(vars,d,vars.id.nesting[depth])
+
     d.d3plus.id += "_"+depth+"_"+shape
 
     vars.axes.values.forEach(function(axis){

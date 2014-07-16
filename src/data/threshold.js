@@ -128,9 +128,12 @@ d3plus.data.threshold = function( vars , rawData , split ) {
           }
         }
 
-        if (vars.icon.value && vars.depth.value != 0) {
+        if (vars.icon.value) {
           m[vars.icon.value] = d3plus.variable.value(vars,m[parent],vars.icon.value,parent)
-          m.d3plus.depth = vars.depth.value+1
+        }
+
+        if (m[parent]) {
+          m.d3plus.depth = vars.depth.value
         }
 
         if (vars.depth.value == 0) {
