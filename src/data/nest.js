@@ -105,6 +105,18 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
       }
     }
 
+    if ("d3plus" in leaves[0]) {
+
+      if ("merged" in leaves[0].d3plus) returnObj.d3plus.merged = []
+
+      leaves.forEach(function(l){
+        if (l.d3plus.merged instanceof Array) {
+          returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged)
+        }
+        if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text
+      })
+    }
+
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create a reference sum for the 3 different "segment" variables.
     //--------------------------------------------------------------------------
@@ -169,7 +181,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
         var keyValues = leaves.length === 1 ? leaves[0][key]
                       : d3plus.util.uniques( leaves , key )
 
-        if ( keyValues instanceof Array && keyValues.length === 1 && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
+        if ( keyValues instanceof Array && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
           var vals = []
           leaves.forEach(function(d){
             vals = vals.concat(d[key])
