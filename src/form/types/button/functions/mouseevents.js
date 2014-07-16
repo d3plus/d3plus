@@ -39,7 +39,7 @@ d3plus.input.button.mouseevents = function ( elem , vars , color ) {
     })
     .on(d3plus.evt.click,function(d){
 
-      if ( d[vars.id.value] ) {
+      if ( vars.id.value in d ) {
 
         vars.self.focus(d[vars.id.value]).draw()
 

@@ -177,7 +177,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
           var keyValues = d3plus.util.uniques(vals,key)
         }
 
-        if ( keyValues ) {
+        if ( keyValues !== undefined && keyValues !== null ) {
 
           if ( !(keyValues instanceof Array) ) {
             keyValues = [ keyValues ]

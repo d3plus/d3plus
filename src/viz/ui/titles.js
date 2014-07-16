@@ -22,7 +22,7 @@ d3plus.ui.titles = function(vars) {
       d3plus.console.time("calculating total value")
     }
 
-    if (vars.focus.value) {
+    if (vars.focus.value !== false) {
       var total = vars.data.app.filter(function(d){
         return d[vars.id.value] == vars.focus.value
       })
