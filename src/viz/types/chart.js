@@ -697,6 +697,7 @@ d3plus.visualization.chart = function(vars) {
             obj[vars.id.value] = leaves[0][vars.id.value]
             obj[vars[vars.opp_axis].value] = vars[vars.opp_axis+"_scale"].domain()[1]
             obj.d3plus = {}
+
             obj.d3plus.r = radius(radius.domain()[0])
             obj.d3plus[vars.continuous_axis] += vars.axis_offset[vars.continuous_axis]
 
@@ -747,6 +748,19 @@ d3plus.visualization.chart = function(vars) {
       .entries(data)
 
     data.forEach(function(d,i){
+
+      if ("d3plus" in d.values[0]) {
+
+        if (!d.d3plus) d.d3plus = {}
+
+        d.values.forEach(function(l){
+          if (l.d3plus.merged instanceof Array) {
+            if (!d.d3plus.merged) d.d3plus.merged = []
+            d.d3plus.merged = d.d3plus.merged.concat(l.d3plus.merged)
+          }
+          if (l.d3plus.text) d.d3plus.text = l.d3plus.text
+        })
+      }
 
       vars.id.nesting.forEach(function(n,i){
         if (i <= vars.depth.value && !d[n]) {

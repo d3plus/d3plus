@@ -107,10 +107,9 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
     if ("d3plus" in leaves[0]) {
 
-      if ("merged" in leaves[0].d3plus) returnObj.d3plus.merged = []
-
       leaves.forEach(function(l){
         if (l.d3plus.merged instanceof Array) {
+          if (!returnObj.d3plus.merged) returnObj.d3plus.merged = []
           returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged)
         }
         if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text

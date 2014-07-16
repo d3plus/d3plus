@@ -30,23 +30,26 @@ d3plus.variable.text = function(vars,obj,depth) {
   if (d3plus.object.validate(obj) && "d3plus" in obj && obj.d3plus.text) {
     names.push(obj.d3plus.text)
   }
+  else {
 
-  textKeys.forEach(function( t ){
+    textKeys.forEach(function( t ){
 
-    var name = d3plus.variable.value( vars , obj , t , key )
+      var name = d3plus.variable.value( vars , obj , t , key )
 
-    if ( name ) {
-      if ( !(name instanceof Array) ) {
-        name = vars.format.value(name.toString())
+      if ( name ) {
+        if ( !(name instanceof Array) ) {
+          name = vars.format.value(name.toString())
+        }
+        else {
+          name.forEach(function(n){
+            n = vars.format.value(n.toString())
+          })
+        }
+        names.push(name)
       }
-      else {
-        name.forEach(function(n){
-          n = vars.format.value(n.toString())
-        })
-      }
-      names.push(name)
-    }
-  })
+    })
+
+  }
 
   return names
 
