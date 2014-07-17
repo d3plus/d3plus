@@ -92,7 +92,7 @@ d3plus.data.fetch = function( vars , years ) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there's no data, return an empty array!
     //--------------------------------------------------------------------------
-    if ( !vars.data.value ) {
+    if ( !vars.data.value || !vars.data.value.length ) {
       var returnData = []
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
