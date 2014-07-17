@@ -46,7 +46,7 @@ d3plus.input.drop.width = function ( vars ) {
       .text( text || vars.id.value )
       .type( "button" )
       .ui({
-        "border": 0,
+        "border": type === "primary" ? vars.ui.border : 0,
         "display": "inline-block",
         "margin": 0,
         "padding": vars.ui.padding
@@ -60,7 +60,7 @@ d3plus.input.drop.width = function ( vars ) {
     }).remove()
 
     var dropWidth = {}
-    dropWidth[key] = d3.max(w) + vars.ui.border*2
+    dropWidth[key] = d3.max(w)
 
     vars.self.width( dropWidth )
 
@@ -68,25 +68,21 @@ d3plus.input.drop.width = function ( vars ) {
 
   }
 
+  if ( typeof vars.width.value !== "number" ) {
+
+    getWidth( "primary" )
+
+  }
+
   if ( typeof vars.width.secondary !== "number" ) {
 
-    if ( typeof vars.width.value === "number" ) {
+    if ( !vars.text.secondary.value || vars.text.value === vars.text.secondary.value ) {
       vars.self.width({"secondary": vars.width.value})
     }
     else {
       getWidth( "secondary" )
     }
 
-  }
-
-  if ( typeof vars.width.value !== "number" ) {
-
-    if ( vars.text.value === vars.text.secondary ) {
-      vars.self.width(vars.width.secondary)
-    }
-    else {
-      getWidth( "primary" )
-    }
   }
 
 }
