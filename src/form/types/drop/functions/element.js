@@ -12,7 +12,7 @@ d3plus.input.drop.element = function ( vars ) {
     vars.data.element.on("blur."+vars.container.id,function(){
 
       var search = vars.search.enabled
-                 ? d3.event.relatedTarget != vars.container.select("input").node()
+                 ? d3.event.relatedTarget != vars.container.value.select("input").node()
                  : true
 
       if (search) {
