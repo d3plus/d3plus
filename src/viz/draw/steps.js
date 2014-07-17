@@ -137,6 +137,8 @@ d3plus.draw.steps = function(vars) {
 
           if ( vars.color.changed && vars.color.value ) {
 
+            vars.color.scale = null
+
             if ( vars.dev.value ) {
               var timerString = "determining color type"
               d3plus.console.time( timerString )
@@ -238,12 +240,7 @@ d3plus.draw.steps = function(vars) {
 
       },
       "function": d3plus.data.color,
-      "message": dataMessage,
-      "otherwise": function(vars) {
-        if (vars.color.type !== "number") {
-          vars.color.scale = null
-        }
-      }
+      "message": dataMessage
     })
 
   }
