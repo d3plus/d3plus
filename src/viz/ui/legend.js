@@ -186,8 +186,8 @@ d3plus.ui.legend = function(vars) {
                 if (typeof vars.icon.style.value == "string") {
                   var icon_style = vars.icon.style.value
                 }
-                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[icon_depth]) {
-                  var icon_style = vars.icon.style.value[icon_depth]
+                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[vars.id.nesting[colorDepth]]) {
+                  var icon_style = vars.icon.style.value[vars.id.nesting[colorDepth]]
                 }
                 else {
                   var icon_style = "default"
