@@ -59,7 +59,6 @@ d3plus.form = function() {
         var element = vars.data.element.value
 
         if ( element && element.node().tagName.toLowerCase() === "select" ) {
-          vars.focus.value = vars.data.app[0][vars.id.value]
           var i = element.property("selectedIndex")
             , option = element.selectAll("option")[0][i]
             , val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value)
