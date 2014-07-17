@@ -185,7 +185,11 @@ d3plus.tooltip.app = function(params) {
         title = id
       }
 
-      var depth = d.d3plus && "depth" in d.d3plus ? vars.id.nesting[d.d3plus.depth] : vars.id.value
+      var depth = "d3plus" in d && "merged" in d.d3plus ? dataDepth - 1 : dataDepth
+
+      if (depth < 0) depth = 0
+
+      depth = vars.id.nesting[depth]
 
       if (typeof vars.icon.style.value == "string") {
         var icon_style = vars.icon.style.value
