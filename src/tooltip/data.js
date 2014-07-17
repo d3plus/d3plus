@@ -74,7 +74,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
     var value = extra_data[key] || d3plus.variable.value(vars,id,key,id_var)
 
-    if (value !== false && value !== null) {
+    if (value && value !== "null" && !(value instanceof Array) && ((typeof value === "string" && value.indexOf("d3plus_other") < 0) || !(typeof value === "string"))) {
       var name = vars.format.locale.value.ui[key]
                ? vars.format.value(vars.format.locale.value.ui[key])
                : vars.format.value(key),
