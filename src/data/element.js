@@ -32,20 +32,20 @@ d3plus.data.element = function( vars ) {
 
   }
 
-  vars.data.element = vars.data.value
+  vars.self.data({"element": vars.data.value})
 
-  var elementTag  = vars.data.element.node().tagName.toLowerCase()
-    , elementType = vars.data.element.attr("type")
+  var elementTag  = vars.data.element.value.node().tagName.toLowerCase()
+    , elementType = vars.data.element.value.attr("type")
     , elementData = []
 
   if ( elementTag === "select" ) {
 
-    var elementID = vars.data.element.node().id
+    var elementID = vars.data.element.value.node().id
     if ( elementID ) {
       vars.self.container({"id": elementID})
     }
 
-    vars.data.element.selectAll("option")
+    vars.data.element.value.selectAll("option")
       .each(function( o , i ){
 
         var data_obj = {}
@@ -71,12 +71,12 @@ d3plus.data.element = function( vars ) {
   }
   else if ( elementTag === "input" && elementType === "radio" ) {
 
-    var elementName = vars.data.element.node().getAttribute("name")
+    var elementName = vars.data.element.value.node().getAttribute("name")
     if ( elementName ) {
       vars.self.container({"id": elementName})
     }
 
-    vars.data.element
+    vars.data.element.value
       .each(function( o , i ){
 
         var data_obj = {}
@@ -111,7 +111,7 @@ d3plus.data.element = function( vars ) {
   //----------------------------------------------------------------------------
   if ( vars.focus.value === false && elementData.length ) {
 
-    vars.data.element.node().selectedIndex = 0
+    vars.data.element.value.node().selectedIndex = 0
     vars.self.focus(elementData[0][vars.id.value])
 
   }
@@ -128,7 +128,6 @@ d3plus.data.element = function( vars ) {
       .style("padding","0","important")
       .style("border","0","important")
       .style("overflow","hidden","important")
-      .html("")
 
   }
 
@@ -143,16 +142,11 @@ d3plus.data.element = function( vars ) {
 
   }
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Hide the original data element.
-  //----------------------------------------------------------------------------
-  vars.data.element.call(hideElement)
-
   var containerTag = vars.container.value
                    ? vars.container.value.node().tagName.toLowerCase() : false
 
   if ( vars.container.value === false || containerTag === "body" ) {
-    vars.container.value = d3.select(vars.data.element.node().parentNode)
+    vars.container.value = d3.select(vars.data.element.value.node().parentNode)
   }
 
   return elementData

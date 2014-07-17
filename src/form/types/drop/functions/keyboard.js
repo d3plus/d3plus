@@ -85,7 +85,7 @@ d3plus.input.drop.keyboard = function ( vars ) {
       // Enter/Return
       else if ([13].indexOf(key) >= 0) {
         if (typeof vars.hover != "boolean") {
-          vars.self.value(vars.hover).hover(true).draw()
+          vars.self.value(vars.hover).draw()
         }
         else {
           vars.self.hover(vars.focus).toggle()
@@ -94,7 +94,7 @@ d3plus.input.drop.keyboard = function ( vars ) {
       // Esc
       else if ([27].indexOf(key) >= 0) {
         if (vars.open.value) {
-          vars.self.hover(true).disable()
+          vars.self.disable()
         }
         else if (vars.hover === true) {
           vars.self.hover(false).draw()

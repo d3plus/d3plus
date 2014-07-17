@@ -54,9 +54,23 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( vars.focus.value === false && vars.data.app.length ) {
-        vars.focus.value = vars.data.app[0][vars.id.value]
-        if ( vars.dev.value ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+      if ( vars.focus.value === false ) {
+
+        var element = vars.data.element.value
+
+        if ( element && element.node().tagName.toLowerCase() === "select" ) {
+          vars.focus.value = vars.data.app[0][vars.id.value]
+          var i = element.property("selectedIndex")
+            , option = element.selectAll("option")[0][i]
+            , val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value)
+          if (val) vars.focus.value = val
+        }
+
+        if ( vars.focus.value === false && vars.data.app.length ) {
+          vars.focus.value = vars.data.app[0][vars.id.value]
+        }
+
+        if ( vars.dev.value && vars.focus.value !== false ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
 
       }
 
@@ -104,16 +118,16 @@ d3plus.form = function() {
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Update OPTION elements with the new data.
         //----------------------------------------------------------------------
-        var elementTag = vars.data.element
-                       ? vars.data.element.node().tagName.toLowerCase() : ""
-        if ( vars.data.element && elementTag === "select" ) {
+        var elementTag = vars.data.element.value
+                       ? vars.data.element.value.node().tagName.toLowerCase() : ""
+        if ( vars.data.element.value && elementTag === "select" ) {
 
           var optionData = []
           for (var level in vars.data.nested.all) {
             optionData = optionData.concat(vars.data.nested.all[level])
           }
 
-          options = vars.data.element.selectAll("option")
+          options = vars.data.element.value.selectAll("option")
             .data(optionData,function(d){
               var level = getLevel(d)
               return d && level in d ? d[level] : false
@@ -162,10 +176,10 @@ d3plus.form = function() {
         }
 
       }
-      else if (vars.focus.changed && vars.data.element) {
-        var elementTag = vars.data.element.node().tagName.toLowerCase()
+      else if (vars.focus.changed && vars.data.element.value) {
+        var elementTag = vars.data.element.value.node().tagName.toLowerCase()
         if (elementTag === "select") {
-          vars.data.element.selectAll("option")
+          vars.data.element.value.selectAll("option")
             .each(function(d){
               var level = getLevel(d)
               if (d[level] === vars.focus.value) {
@@ -192,7 +206,7 @@ d3plus.form = function() {
           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
           // Create container DIV for UI element
           //----------------------------------------------------------------------
-          var before = vars.data.element ? vars.data.element[0][0] : null
+          var before = vars.data.element.value ? vars.data.element.value[0][0] : null
 
           if ( before ) {
 

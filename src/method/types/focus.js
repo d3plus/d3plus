@@ -5,17 +5,17 @@ d3plus.method.focus = {
 
     var vars = this.getVars()
 
-    if ( vars.data.element ) {
+    if ( vars.data.element.value ) {
 
-      var elementTag  = vars.data.element.node().tagName.toLowerCase()
-        , elementType = vars.data.element.attr("type")
+      var elementTag  = vars.data.element.value.node().tagName.toLowerCase()
+        , elementType = vars.data.element.value.attr("type")
 
       if (elementTag === "select") {
 
-        vars.data.element.selectAll("option").each(function(d,i){
+        vars.data.element.value.selectAll("option").each(function(d,i){
 
           if (d && d[vars.id.value] === value) {
-            vars.data.element.node().selectedIndex = i
+            vars.data.element.value.node().selectedIndex = i
           }
 
         })
@@ -23,7 +23,7 @@ d3plus.method.focus = {
       }
       else if (elementTag === "input" && elementType === "radio") {
 
-        vars.data.element
+        vars.data.element.value
           .each(function(d){
 
             if (d && d[vars.id.value] === value) {
