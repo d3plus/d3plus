@@ -177,6 +177,8 @@ d3plus.tooltip.app = function(params) {
         icon = d3plus.variable.value(vars,d,vars.icon.value,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,children,depth)
 
+    if (icon === "null") icon = false
+
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && "visible" in d.d3plus_label && !d.d3plus_label.visible))) {
 
       if (!title) {

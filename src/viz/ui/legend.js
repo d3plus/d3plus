@@ -176,7 +176,7 @@ d3plus.ui.legend = function(vars) {
               var icon = d3plus.variable.value( vars , g , vars.icon.value , vars.id.nesting[g.d3plus.depth] )
                 , color = d3plus.variable.color( vars , g , vars.id.nesting[g.d3plus.depth] )
 
-              if (icon) {
+              if (icon && icon !== "null") {
 
                 var short_url = d3plus.string.strip(icon+"_"+color)
 
@@ -186,13 +186,13 @@ d3plus.ui.legend = function(vars) {
                 if (typeof vars.icon.style.value == "string") {
                   var icon_style = vars.icon.style.value
                 }
-                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[vars.id.nesting[colorDepth]]) {
-                  var icon_style = vars.icon.style.value[vars.id.nesting[colorDepth]]
+                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[vars.id.nesting[g.d3plus.depth]]) {
+                  var icon_style = vars.icon.style.value[vars.id.nesting[g.d3plus.depth]]
                 }
                 else {
                   var icon_style = "default"
                 }
-
+                
                 var color = icon_style == "knockout" ? color : "none"
 
                 pattern.select("rect").transition().duration(vars.draw.timing)
