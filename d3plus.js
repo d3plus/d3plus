@@ -10431,20 +10431,20 @@ d3plus.data.element = function( vars ) {
 
   }
 
-  vars.data.element = vars.data.value
+  vars.self.data({"element": vars.data.value})
 
-  var elementTag  = vars.data.element.node().tagName.toLowerCase()
-    , elementType = vars.data.element.attr("type")
+  var elementTag  = vars.data.element.value.node().tagName.toLowerCase()
+    , elementType = vars.data.element.value.attr("type")
     , elementData = []
 
   if ( elementTag === "select" ) {
 
-    var elementID = vars.data.element.node().id
+    var elementID = vars.data.element.value.node().id
     if ( elementID ) {
       vars.self.container({"id": elementID})
     }
 
-    vars.data.element.selectAll("option")
+    vars.data.element.value.selectAll("option")
       .each(function( o , i ){
 
         var data_obj = {}
@@ -10470,12 +10470,12 @@ d3plus.data.element = function( vars ) {
   }
   else if ( elementTag === "input" && elementType === "radio" ) {
 
-    var elementName = vars.data.element.node().getAttribute("name")
+    var elementName = vars.data.element.value.node().getAttribute("name")
     if ( elementName ) {
       vars.self.container({"id": elementName})
     }
 
-    vars.data.element
+    vars.data.element.value
       .each(function( o , i ){
 
         var data_obj = {}
@@ -10508,9 +10508,9 @@ d3plus.data.element = function( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Get focus from data, if it hasn't been found or set.
   //----------------------------------------------------------------------------
-  if ( !vars.focus.value && elementData.length ) {
+  if ( vars.focus.value === false && elementData.length ) {
 
-    vars.data.element.node().selectedIndex = 0
+    vars.data.element.value.node().selectedIndex = 0
     vars.self.focus(elementData[0][vars.id.value])
 
   }
@@ -10527,7 +10527,6 @@ d3plus.data.element = function( vars ) {
       .style("padding","0","important")
       .style("border","0","important")
       .style("overflow","hidden","important")
-      .html("")
 
   }
 
@@ -10542,16 +10541,11 @@ d3plus.data.element = function( vars ) {
 
   }
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Hide the original data element.
-  //----------------------------------------------------------------------------
-  vars.data.element.call(hideElement)
-
   var containerTag = vars.container.value
                    ? vars.container.value.node().tagName.toLowerCase() : false
 
   if ( vars.container.value === false || containerTag === "body" ) {
-    vars.container.value = d3.select(vars.data.element.node().parentNode)
+    vars.container.value = d3.select(vars.data.element.value.node().parentNode)
   }
 
   return elementData
@@ -10653,7 +10647,7 @@ d3plus.data.fetch = function( vars , years ) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there's no data, return an empty array!
     //--------------------------------------------------------------------------
-    if ( !vars.data.value ) {
+    if ( !vars.data.value || !vars.data.value.length ) {
       var returnData = []
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -11161,6 +11155,17 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
       }
     }
 
+    if ("d3plus" in leaves[0]) {
+
+      leaves.forEach(function(l){
+        if (l.d3plus.merged instanceof Array) {
+          if (!returnObj.d3plus.merged) returnObj.d3plus.merged = []
+          returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged)
+        }
+        if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text
+      })
+    }
+
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create a reference sum for the 3 different "segment" variables.
     //--------------------------------------------------------------------------
@@ -11225,7 +11230,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
         var keyValues = leaves.length === 1 ? leaves[0][key]
                       : d3plus.util.uniques( leaves , key )
 
-        if ( keyValues instanceof Array && keyValues.length === 1 && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
+        if ( keyValues instanceof Array && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
           var vals = []
           leaves.forEach(function(d){
             vals = vals.concat(d[key])
@@ -11233,7 +11238,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
           var keyValues = d3plus.util.uniques(vals,key)
         }
 
-        if ( keyValues ) {
+        if ( keyValues !== undefined && keyValues !== null ) {
 
           if ( !(keyValues instanceof Array) ) {
             keyValues = [ keyValues ]
@@ -11522,9 +11527,12 @@ d3plus.data.threshold = function( vars , rawData , split ) {
           }
         }
 
-        if (vars.icon.value && vars.depth.value != 0) {
+        if (vars.icon.value) {
           m[vars.icon.value] = d3plus.variable.value(vars,m[parent],vars.icon.value,parent)
-          m.d3plus.depth = vars.depth.value+1
+        }
+
+        if (m[parent]) {
+          m.d3plus.depth = vars.depth.value
         }
 
         if (vars.depth.value == 0) {
@@ -11532,8 +11540,8 @@ d3plus.data.threshold = function( vars , rawData , split ) {
           textLabel += " < "+vars.format.value(cutoff)
         }
         else {
-          var name = d3plus.variable.text(vars,m,vars.depth.value-1)[0]
-          var textLabel = name
+          var textLabel = d3plus.variable.text(vars,m,vars.depth.value-1)[0]
+          textLabel = textLabel.split(" < ")[0]
           textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
         }
         textLabel += " ("+vars.format.value(threshold*100)+"%)"
@@ -11896,9 +11904,22 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( !vars.focus.value && vars.data.app.length ) {
-        vars.focus.value = vars.data.app[0][vars.id.value]
-        if ( vars.dev.value ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+      if ( vars.focus.value === false ) {
+
+        var element = vars.data.element.value
+
+        if ( element && element.node().tagName.toLowerCase() === "select" ) {
+          var i = element.property("selectedIndex")
+            , option = element.selectAll("option")[0][i]
+            , val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value)
+          if (val) vars.focus.value = val
+        }
+
+        if ( vars.focus.value === false && vars.data.app.length ) {
+          vars.focus.value = vars.data.app[0][vars.id.value]
+        }
+
+        if ( vars.dev.value && vars.focus.value !== false ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
 
       }
 
@@ -11946,16 +11967,16 @@ d3plus.form = function() {
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Update OPTION elements with the new data.
         //----------------------------------------------------------------------
-        var elementTag = vars.data.element
-                       ? vars.data.element.node().tagName.toLowerCase() : ""
-        if ( vars.data.element && elementTag === "select" ) {
+        var elementTag = vars.data.element.value
+                       ? vars.data.element.value.node().tagName.toLowerCase() : ""
+        if ( vars.data.element.value && elementTag === "select" ) {
 
           var optionData = []
           for (var level in vars.data.nested.all) {
             optionData = optionData.concat(vars.data.nested.all[level])
           }
 
-          options = vars.data.element.selectAll("option")
+          options = vars.data.element.value.selectAll("option")
             .data(optionData,function(d){
               var level = getLevel(d)
               return d && level in d ? d[level] : false
@@ -12004,10 +12025,10 @@ d3plus.form = function() {
         }
 
       }
-      else if (vars.focus.changed && vars.data.element) {
-        var elementTag = vars.data.element.node().tagName.toLowerCase()
+      else if (vars.focus.changed && vars.data.element.value) {
+        var elementTag = vars.data.element.value.node().tagName.toLowerCase()
         if (elementTag === "select") {
-          vars.data.element.selectAll("option")
+          vars.data.element.value.selectAll("option")
             .each(function(d){
               var level = getLevel(d)
               if (d[level] === vars.focus.value) {
@@ -12034,7 +12055,7 @@ d3plus.form = function() {
           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
           // Create container DIV for UI element
           //----------------------------------------------------------------------
-          var before = vars.data.element ? vars.data.element[0][0] : null
+          var before = vars.data.element.value ? vars.data.element.value[0][0] : null
 
           if ( before ) {
 
@@ -12530,7 +12551,7 @@ d3plus.input.button.mouseevents = function ( elem , vars , color ) {
     })
     .on(d3plus.evt.click,function(d){
 
-      if ( d[vars.id.value] ) {
+      if ( vars.id.value in d ) {
 
         vars.self.focus(d[vars.id.value]).draw()
 
@@ -12898,29 +12919,29 @@ d3plus.input.drop.data = function ( vars ) {
 //------------------------------------------------------------------------------
 d3plus.input.drop.element = function ( vars ) {
 
-  if (vars.data.element) {
+  if (vars.data.element.value) {
 
-    vars.data.element.on("focus."+vars.container.id,function(){
-      vars.self.draw({"update":false}).hover(true).draw()
+    vars.data.element.value.on("focus."+vars.container.id,function(){
+      vars.self.draw({"update":false}).draw()
     })
 
-    vars.data.element.on("blur."+vars.container.id,function(){
+    vars.data.element.value.on("blur."+vars.container.id,function(){
 
       var search = vars.search.enabled
-                 ? d3.event.relatedTarget != vars.container.select("input").node()
+                 ? d3.event.relatedTarget != vars.container.value.select("input").node()
                  : true
 
       if (search) {
-        vars.self.draw({"update":false}).hover(false).draw()
+        vars.self.draw({"update":false}).draw()
       }
 
     })
 
-    vars.data.element.on("change."+vars.container.id,function(){
+    vars.data.element.value.on("change."+vars.container.id,function(){
       vars.self.focus(this.value).draw()
     })
 
-    vars.data.element.on("keydown.cancel_"+vars.container.id,function(){
+    vars.data.element.value.on("keydown.cancel_"+vars.container.id,function(){
       var key = d3.event.keyCode
       if (key != 9) {
         d3.event.preventDefault()
@@ -13169,7 +13190,7 @@ d3plus.input.drop.keyboard = function ( vars ) {
       // Enter/Return
       else if ([13].indexOf(key) >= 0) {
         if (typeof vars.hover != "boolean") {
-          vars.self.value(vars.hover).hover(true).draw()
+          vars.self.value(vars.hover).draw()
         }
         else {
           vars.self.hover(vars.focus).toggle()
@@ -13178,7 +13199,7 @@ d3plus.input.drop.keyboard = function ( vars ) {
       // Esc
       else if ([27].indexOf(key) >= 0) {
         if (vars.open.value) {
-          vars.self.hover(true).disable()
+          vars.self.disable()
         }
         else if (vars.hover === true) {
           vars.self.hover(false).draw()
@@ -13783,7 +13804,7 @@ d3plus.input.drop.width = function ( vars ) {
       .text( text || vars.id.value )
       .type( "button" )
       .ui({
-        "border": 0,
+        "border": type === "primary" ? vars.ui.border : 0,
         "display": "inline-block",
         "margin": 0,
         "padding": vars.ui.padding
@@ -13797,7 +13818,7 @@ d3plus.input.drop.width = function ( vars ) {
     }).remove()
 
     var dropWidth = {}
-    dropWidth[key] = d3.max(w) + vars.ui.border*2
+    dropWidth[key] = d3.max(w)
 
     vars.self.width( dropWidth )
 
@@ -13805,25 +13826,21 @@ d3plus.input.drop.width = function ( vars ) {
 
   }
 
+  if ( typeof vars.width.value !== "number" ) {
+
+    getWidth( "primary" )
+
+  }
+
   if ( typeof vars.width.secondary !== "number" ) {
 
-    if ( typeof vars.width.value === "number" ) {
+    if ( !vars.text.secondary.value || vars.text.value === vars.text.secondary.value ) {
       vars.self.width({"secondary": vars.width.value})
     }
     else {
       getWidth( "secondary" )
     }
 
-  }
-
-  if ( typeof vars.width.value !== "number" ) {
-
-    if ( vars.text.value === vars.text.secondary ) {
-      vars.self.width(vars.width.secondary)
-    }
-    else {
-      getWidth( "primary" )
-    }
   }
 
 }
@@ -14650,7 +14667,7 @@ d3plus = window.d3plus || {};
 
 window.d3plus = d3plus;
 
-d3plus.version = "1.4.0 - Teal";
+d3plus.version = "1.4.1 - Teal";
 
 d3plus.repo = "https://github.com/alexandersimoes/d3plus/";
 
@@ -16143,6 +16160,43 @@ d3plus.method.data = {
     "accepted" : [ String ],
     "value"    : "|"
   },
+  "element": {
+    "process": function( value ) {
+
+      if ( d3plus.util.d3selection(value) ) {
+        var element = value
+      }
+      else if (typeof value === "string" && !d3.select(value).empty()) {
+        var element = d3.select(value)
+      }
+      else {
+        var element = false
+      }
+
+      if (element) {
+
+        var vars = this.getVars()
+
+        vars.self.container(d3.select(element.node().parentNode))
+
+        element
+          .style("position","absolute","important")
+          .style("clip","rect(1px 1px 1px 1px)","important")
+          .style("clip","rect(1px, 1px, 1px, 1px)","important")
+          .style("width","1px","important")
+          .style("height","1px","important")
+          .style("margin","-1px","important")
+          .style("padding","0","important")
+          .style("border","0","important")
+          .style("overflow","hidden","important")
+
+      }
+
+      return element
+
+    },
+    "value": false
+  },
   "filetype" : {
     "accepted" : [ false , "json" , "xml" ,"html"
                  , "csv" , "dsv" , "tsv" , "txt" ],
@@ -16328,17 +16382,17 @@ d3plus.method.focus = {
 
     var vars = this.getVars()
 
-    if ( vars.data.element ) {
+    if ( vars.data.element.value ) {
 
-      var elementTag  = vars.data.element.node().tagName.toLowerCase()
-        , elementType = vars.data.element.attr("type")
+      var elementTag  = vars.data.element.value.node().tagName.toLowerCase()
+        , elementType = vars.data.element.value.attr("type")
 
       if (elementTag === "select") {
 
-        vars.data.element.selectAll("option").each(function(d,i){
+        vars.data.element.value.selectAll("option").each(function(d,i){
 
           if (d && d[vars.id.value] === value) {
-            vars.data.element.node().selectedIndex = i
+            vars.data.element.value.node().selectedIndex = i
           }
 
         })
@@ -16346,7 +16400,7 @@ d3plus.method.focus = {
       }
       else if (elementTag === "input" && elementType === "radio") {
 
-        vars.data.element
+        vars.data.element.value
           .each(function(d){
 
             if (d && d[vars.id.value] === value) {
@@ -18764,13 +18818,19 @@ d3plus.tooltip.app = function(params) {
         icon = d3plus.variable.value(vars,d,vars.icon.value,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,children,depth)
 
+    if (icon === "null") icon = false
+
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && "visible" in d.d3plus_label && !d.d3plus_label.visible))) {
 
       if (!title) {
         title = id
       }
 
-      var depth = d.d3plus && "depth" in d.d3plus ? vars.id.nesting[d.d3plus.depth] : vars.id.value
+      var depth = "d3plus" in d && "merged" in d.d3plus ? dataDepth - 1 : dataDepth
+
+      if (depth < 0) depth = 0
+
+      depth = vars.id.nesting[depth]
 
       if (typeof vars.icon.style.value == "string") {
         var icon_style = vars.icon.style.value
@@ -19550,7 +19610,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
     var value = extra_data[key] || d3plus.variable.value(vars,id,key,id_var)
 
-    if (value !== false && value !== null) {
+    if (value && value !== "null" && !(value instanceof Array) && ((typeof value === "string" && value.indexOf("d3plus_other") < 0) || !(typeof value === "string"))) {
       var name = vars.format.locale.value.ui[key]
                ? vars.format.value(vars.format.locale.value.ui[key])
                : vars.format.value(key),
@@ -20147,7 +20207,7 @@ d3plus.util.uniques = function( data , value ) {
     , nest = d3.nest()
         .key(function(d) {
 
-          if (typeof value === "string") {
+          if (d && typeof value === "string") {
             if ( !type && typeof d[value] !== "undefined" ) type = typeof d[value]
             return d[value]
           }
@@ -20266,23 +20326,26 @@ d3plus.variable.text = function(vars,obj,depth) {
   if (d3plus.object.validate(obj) && "d3plus" in obj && obj.d3plus.text) {
     names.push(obj.d3plus.text)
   }
+  else {
 
-  textKeys.forEach(function( t ){
+    textKeys.forEach(function( t ){
 
-    var name = d3plus.variable.value( vars , obj , t , key )
+      var name = d3plus.variable.value( vars , obj , t , key )
 
-    if ( name ) {
-      if ( !(name instanceof Array) ) {
-        name = vars.format.value(name.toString())
+      if ( name ) {
+        if ( !(name instanceof Array) ) {
+          name = vars.format.value(name.toString())
+        }
+        else {
+          name.forEach(function(n){
+            n = vars.format.value(n.toString())
+          })
+        }
+        names.push(name)
       }
-      else {
-        name.forEach(function(n){
-          n = vars.format.value(n.toString())
-        })
-      }
-      names.push(name)
-    }
-  })
+    })
+
+  }
 
   return names
 
@@ -21061,7 +21124,7 @@ d3plus.draw.focus = function(vars) {
     .selectAll("g")
     .remove()
 
-  if (vars.focus.value && d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
+  if (vars.focus.value !== false && d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
 
     if ( vars.dev.value ) d3plus.console.time("drawing focus elements")
 
@@ -21341,6 +21404,8 @@ d3plus.draw.steps = function(vars) {
 
           if ( vars.color.changed && vars.color.value ) {
 
+            vars.color.scale = null
+
             if ( vars.dev.value ) {
               var timerString = "determining color type"
               d3plus.console.time( timerString )
@@ -21442,12 +21507,7 @@ d3plus.draw.steps = function(vars) {
 
       },
       "function": d3plus.data.color,
-      "message": dataMessage,
-      "otherwise": function(vars) {
-        if (vars.color.type !== "number") {
-          vars.color.scale = null
-        }
-      }
+      "message": dataMessage
     })
 
   }
@@ -21925,7 +21985,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     })
 
   }
-  else if (!vars.focus.value) {
+  else if (vars.focus.value === false) {
     vars.zoom.viewport = false
   }
 
@@ -22086,9 +22146,9 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   function id(d) {
 
-    var depth = d.d3plus.depth ? d.d3plus.depth : vars.depth.value
-
+    var depth = vars.depth.value
     d.d3plus.id = d3plus.variable.value(vars,d,vars.id.nesting[depth])
+
     d.d3plus.id += "_"+depth+"_"+shape
 
     vars.axes.values.forEach(function(axis){
@@ -25394,6 +25454,7 @@ d3plus.visualization.chart = function(vars) {
             obj[vars.id.value] = leaves[0][vars.id.value]
             obj[vars[vars.opp_axis].value] = vars[vars.opp_axis+"_scale"].domain()[1]
             obj.d3plus = {}
+
             obj.d3plus.r = radius(radius.domain()[0])
             obj.d3plus[vars.continuous_axis] += vars.axis_offset[vars.continuous_axis]
 
@@ -25444,6 +25505,19 @@ d3plus.visualization.chart = function(vars) {
       .entries(data)
 
     data.forEach(function(d,i){
+
+      if ("d3plus" in d.values[0]) {
+
+        if (!d.d3plus) d.d3plus = {}
+
+        d.values.forEach(function(l){
+          if (l.d3plus.merged instanceof Array) {
+            if (!d.d3plus.merged) d.d3plus.merged = []
+            d.d3plus.merged = d.d3plus.merged.concat(l.d3plus.merged)
+          }
+          if (l.d3plus.text) d.d3plus.text = l.d3plus.text
+        })
+      }
 
       vars.id.nesting.forEach(function(n,i){
         if (i <= vars.depth.value && !d[n]) {
@@ -27081,7 +27155,7 @@ d3plus.ui.legend = function(vars) {
               var icon = d3plus.variable.value( vars , g , vars.icon.value , vars.id.nesting[g.d3plus.depth] )
                 , color = d3plus.variable.color( vars , g , vars.id.nesting[g.d3plus.depth] )
 
-              if (icon) {
+              if (icon && icon !== "null") {
 
                 var short_url = d3plus.string.strip(icon+"_"+color)
 
@@ -27091,13 +27165,13 @@ d3plus.ui.legend = function(vars) {
                 if (typeof vars.icon.style.value == "string") {
                   var icon_style = vars.icon.style.value
                 }
-                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[icon_depth]) {
-                  var icon_style = vars.icon.style.value[icon_depth]
+                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[vars.id.nesting[g.d3plus.depth]]) {
+                  var icon_style = vars.icon.style.value[vars.id.nesting[g.d3plus.depth]]
                 }
                 else {
                   var icon_style = "default"
                 }
-
+                
                 var color = icon_style == "knockout" ? color : "none"
 
                 pattern.select("rect").transition().duration(vars.draw.timing)
@@ -27991,7 +28065,7 @@ d3plus.ui.titles = function(vars) {
       d3plus.console.time("calculating total value")
     }
 
-    if (vars.focus.value) {
+    if (vars.focus.value !== false) {
       var total = vars.data.app.filter(function(d){
         return d[vars.id.value] == vars.focus.value
       })

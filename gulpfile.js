@@ -38,6 +38,22 @@ gulp.task("make", function() {
 
   var rebundle = function() {
 
+    // return bundler
+    //   .ignore("./src/libs.js")
+    //   .bundle()
+    //   .on("error",notify.onError(error))
+    //   .pipe(plumber())
+    //   .pipe(source("d3plus.js"))
+    //   .pipe(gulp.dest("./"))
+    //   .pipe(timer("Total Build Time"))
+    //   .pipe(notify({
+    //     title: "D3plus",
+    //     message: "New Build Compiled",
+    //     icon: __dirname + "/icon.png"
+    //   }))
+    //   .pipe(livereload(lr))
+    //   .on("error",notify.onError(error));
+
     var normal = bundler
       .ignore("./src/libs.js")
       .bundle()
