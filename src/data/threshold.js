@@ -141,8 +141,8 @@ d3plus.data.threshold = function( vars , rawData , split ) {
           textLabel += " < "+vars.format.value(cutoff)
         }
         else {
-          var name = d3plus.variable.text(vars,m,vars.depth.value-1)[0]
-          var textLabel = name
+          var textLabel = d3plus.variable.text(vars,m,vars.depth.value-1)[0]
+          textLabel = textLabel.split(" < ")[0]
           textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
         }
         textLabel += " ("+vars.format.value(threshold*100)+"%)"
