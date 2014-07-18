@@ -8,7 +8,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
     , segments     = vars.shell === "viz"
                     ? [ "active" , "temp" , "total" ] : []
     , requirements = requirements instanceof Array ? requirements : vars.shell === "viz"
-                   ? d3plus.visualization[vars.type.value].requirements : []
+                   ? vars.types[vars.type.value].requirements : []
     , exceptions   = vars.shell === "viz"
                    ? [ vars.time.value , vars.icon.value ] : []
     , checkAxes    = function() {

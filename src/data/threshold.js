@@ -9,11 +9,11 @@ d3plus.data.threshold = function( vars , rawData , split ) {
   else if (typeof vars.size.threshold === "number") {
     var threshold = vars.size.threshold
   }
-  else if (typeof d3plus.visualization[vars.type.value].threshold === "number") {
-    var threshold = d3plus.visualization[vars.type.value].threshold
+  else if (typeof vars.types[vars.type.value].threshold === "number") {
+    var threshold = vars.types[vars.type.value].threshold
   }
-  else if (typeof d3plus.visualization[vars.type.value].threshold === "function") {
-    var threshold = d3plus.visualization[vars.type.value].threshold(vars)
+  else if (typeof vars.types[vars.type.value].threshold === "function") {
+    var threshold = vars.types[vars.type.value].threshold(vars)
   }
   else {
     var threshold = 0.02

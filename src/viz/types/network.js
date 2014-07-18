@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
-d3plus.visualization.network = function(vars) {
+var network = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Use filtered lists if they are available
@@ -119,9 +119,11 @@ d3plus.visualization.network = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.network.nesting      = false
-d3plus.visualization.network.requirements = ["nodes","edges"]
-d3plus.visualization.network.scale        = 1.05
-d3plus.visualization.network.shapes       = [ "circle" , "square" , "donut" ]
-d3plus.visualization.network.tooltip      = "static"
-d3plus.visualization.network.zoom         = true
+network.nesting      = false
+network.requirements = ["nodes","edges"]
+network.scale        = 1.05
+network.shapes       = [ "circle" , "square" , "donut" ]
+network.tooltip      = "static"
+network.zoom         = true
+
+module.exports = network

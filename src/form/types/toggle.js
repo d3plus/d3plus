@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Toggle Buttons
 //------------------------------------------------------------------------------
-d3plus.input.toggle = function( vars ) {
+module.exports = function( vars ) {
 
   if ( !("buttons" in vars.container) ) {
 

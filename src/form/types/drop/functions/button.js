@@ -1,9 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the main drop button.
 //------------------------------------------------------------------------------
-d3plus.input.drop.button = function ( vars ) {
-
-  var self = this
+module.exports = function ( vars ) {
 
   if ( !("button" in vars.container) ) {
 

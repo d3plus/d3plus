@@ -1,4 +1,4 @@
-d3plus.visualization.rings = function(vars) {
+var rings = function(vars) {
 
   var radius = d3.min([vars.height.viz,vars.width.viz])/2
     , ring_width = vars.small || !vars.labels.value
@@ -442,7 +442,7 @@ d3plus.visualization.rings = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.rings.filter       = function( vars , data ) {
+rings.filter       = function( vars , data ) {
 
   var primaries = vars.edges.connections(vars.focus.value,vars.id.value,true)
     , secondaries = []
@@ -475,8 +475,10 @@ d3plus.visualization.rings.filter       = function( vars , data ) {
   return returnData
 
 }
-d3plus.visualization.rings.nesting      = false
-d3plus.visualization.rings.scale        = 1
-d3plus.visualization.rings.shapes       = [ "circle" , "square" , "donut" ]
-d3plus.visualization.rings.requirements = [ "edges" , "focus" ]
-d3plus.visualization.rings.tooltip      = "static"
+rings.nesting      = false
+rings.scale        = 1
+rings.shapes       = [ "circle" , "square" , "donut" ]
+rings.requirements = [ "edges" , "focus" ]
+rings.tooltip      = "static"
+
+module.exports = rings

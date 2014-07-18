@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
-d3plus.visualization.tree_map = function(vars) {
+var tree_map = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Group the data by each depth defined by the .id() method.
@@ -110,7 +110,7 @@ d3plus.visualization.tree_map = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.tree_map.filter       = function( vars , data ) {
+tree_map.filter       = function( vars , data ) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Merge data points below the threshold
@@ -118,11 +118,13 @@ d3plus.visualization.tree_map.filter       = function( vars , data ) {
   return d3plus.data.threshold( vars , data )
 
 }
-d3plus.visualization.tree_map.modes        = [ "squarify" , "slice"
+tree_map.modes        = [ "squarify" , "slice"
                                            , "dice" , "slice-dice" ]
-d3plus.visualization.tree_map.requirements = [ "data" , "size" ]
-d3plus.visualization.tree_map.shapes       = [ "square" ]
-d3plus.visualization.tree_map.threshold    = function( vars ) {
+tree_map.requirements = [ "data" , "size" ]
+tree_map.shapes       = [ "square" ]
+tree_map.threshold    = function( vars ) {
   return ( 40 * 40 ) / (vars.width.viz * vars.height.viz)
 }
-d3plus.visualization.tree_map.tooltip      = "follow"
+tree_map.tooltip      = "follow"
+
+module.exports = tree_map

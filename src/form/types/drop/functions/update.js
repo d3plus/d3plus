@@ -1,9 +1,12 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Redraws only the drop down list.
 //------------------------------------------------------------------------------
-d3plus.input.drop.update = function ( vars ) {
+module.exports = function ( vars ) {
 
-  var self = this
+  var items = require("./items.js")
+    , height = require("./height.js")
+    , scrolllist = require("./scroll.js")
+    , arrow = require("./arrow.js")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If the menu is open, set the container element's z-index to '9999'.
@@ -42,22 +45,22 @@ d3plus.input.drop.update = function ( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update list items based on filtered data.
   //----------------------------------------------------------------------------
-  self.items( vars )
+  items( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate the height and orientation of the dropdown list.
   //----------------------------------------------------------------------------
-  self.height( vars )
+  height( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate scroll position of dropdown menu.
   //----------------------------------------------------------------------------
-  self.scroll( vars )
+  scrolllist( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Rotate the dropdown button arrow appropriately.
   //----------------------------------------------------------------------------
-  self.arrow( vars )
+  arrow( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update List

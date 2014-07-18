@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the title and back button.
 //------------------------------------------------------------------------------
-d3plus.input.drop.title = function ( vars ) {
+module.exports = function ( vars ) {
 
   if ( vars.open.value ) {
 

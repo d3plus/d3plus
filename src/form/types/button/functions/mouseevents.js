@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
-d3plus.input.button.mouseevents = function ( elem , vars , color ) {
+module.exports = function ( elem , vars , color ) {
 
   elem
     .on(d3plus.evt.over,function(d,i){

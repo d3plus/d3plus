@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Assigns behavior to the user's keyboard for navigation.
 //------------------------------------------------------------------------------
-d3plus.input.drop.keyboard = function ( vars ) {
+module.exports = function ( vars ) {
 
   d3.select(document).on("keydown."+vars.container.id,function(){
 

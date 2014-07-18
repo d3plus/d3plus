@@ -47,7 +47,7 @@ d3plus.data.fetch = function( vars , years ) {
     , filter  = vars.data.solo.length ? "solo" : "mute"
     , cacheKeys = d3.keys(vars.data.cache)
     , dataFilter = vars.shell === "viz"
-                 ? d3plus.visualization[vars.type.value].filter : null
+                 ? vars.types[vars.type.value].filter : null
 
   if ( vars.data[filter].length ) {
     vars.data[filter].forEach(function(f){

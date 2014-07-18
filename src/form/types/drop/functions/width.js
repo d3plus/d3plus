@@ -2,7 +2,7 @@
 // If no widths are defined, then this calculates the width needed to fit the
 // longest entry in the list.
 //------------------------------------------------------------------------------
-d3plus.input.drop.width = function ( vars ) {
+module.exports = function ( vars ) {
 
   var data = [], buffer = 0
   for ( var level in vars.data.nested.all ) {

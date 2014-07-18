@@ -8,7 +8,7 @@ d3plus.data.edges = function( vars ) {
     d3plus.console.time( timerString )
   }
 
-  var appReqs     = d3plus.visualization[vars.type.value].requirements,
+  var appReqs     = vars.types[vars.type.value].requirements,
       createNodes = appReqs.indexOf("nodes") >= 0 && !vars.nodes.value
 
   if ( createNodes ) {

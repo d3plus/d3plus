@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if a given variable is allowed to be selected.
 //------------------------------------------------------------------------------
-d3plus.input.drop.active = function ( vars , value , active ) {
+module.exports = function ( vars , value , active ) {
 
   var ret = []
     , active = active || vars.active.value

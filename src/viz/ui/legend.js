@@ -14,7 +14,7 @@ d3plus.ui.legend = function(vars) {
 
       if ( vars.dev.value ) d3plus.console.time("grouping data by colors")
 
-      if ( vars.nodes.value && d3plus.visualization[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
+      if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
         var data = vars.nodes.restriced || vars.nodes.value
         if ( vars.data.app.length ) {
           for ( var i = 0 ; i < data.length ; i++ ) {

@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
-d3plus.input.button.icons = function ( elem , vars ) {
+module.exports = function ( elem , vars ) {
 
   var reversed = (vars.font.align.value === "right" && !d3plus.rtl)
                  || (d3plus.rtl && vars.font.align.value === "right")

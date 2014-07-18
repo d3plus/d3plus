@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Bubbles
 //------------------------------------------------------------------------------
-d3plus.visualization.bubbles = function(vars) {
+var bubbles = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Test for labels
@@ -200,8 +200,10 @@ d3plus.visualization.bubbles = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.bubbles.fill         = true
-d3plus.visualization.bubbles.requirements = [ "data" ]
-d3plus.visualization.bubbles.scale        = 1.05
-d3plus.visualization.bubbles.shapes       = [ "circle" , "donut" ]
-d3plus.visualization.bubbles.tooltip      = "static"
+bubbles.fill         = true
+bubbles.requirements = [ "data" ]
+bubbles.scale        = 1.05
+bubbles.shapes       = [ "circle" , "donut" ]
+bubbles.tooltip      = "static"
+
+module.exports = bubbles

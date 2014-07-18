@@ -6,7 +6,15 @@ d3plus.form = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Initialize the global variable object.
   //----------------------------------------------------------------------------
-  var vars = { "shell": "form" }
+  var vars = {
+    "types": {
+      "auto": require("./types/auto.js"),
+      "button": require("./types/button/button.js"),
+      "drop": require("./types/drop/drop.js"),
+      "toggle": require("./types/toggle.js")
+    },
+    "shell": "form"
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create the main drawing function.
@@ -277,7 +285,7 @@ d3plus.form = function() {
 
         var app = vars.format.locale.value.visualization[vars.type.value]
         if ( vars.dev.value ) d3plus.console.time("drawing "+ app)
-        d3plus.input[vars.type.value]( vars )
+        vars.types[vars.type.value]( vars )
         if ( vars.dev.value ) d3plus.console.timeEnd("drawing "+ app)
 
       }

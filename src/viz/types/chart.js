@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Chart
 //------------------------------------------------------------------------------
-d3plus.visualization.chart = function(vars) {
+var chart = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate size and position of graph
@@ -1053,10 +1053,10 @@ d3plus.visualization.chart = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.chart.fill         = true
-d3plus.visualization.chart.requirements = ["data","x","y"]
-d3plus.visualization.chart.scale        = { "circle": 1.1
-                                          , "donut": 1.1
-                                          , "square": 1.1 }
-d3plus.visualization.chart.shapes       = ["circle","donut","line","square","area"]
-d3plus.visualization.chart.tooltip      = "static"
+chart.fill         = true
+chart.requirements = ["data","x","y"]
+chart.scale        = {"circle": 1.1, "donut": 1.1, "square": 1.1 }
+chart.shapes       = ["circle","donut","line","square","area"]
+chart.tooltip      = "static"
+
+module.exports = chart

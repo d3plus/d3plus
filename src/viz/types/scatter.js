@@ -1,20 +1,23 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Scatterplot
 //------------------------------------------------------------------------------
-d3plus.visualization.scatter = function(vars) {
+var chart = require("./chart.js")
+var scatter = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // This visualization is an extention of the Chart visualization.
   //----------------------------------------------------------------------------
-  return d3plus.visualization.chart(vars)
+  return chart(vars)
 
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.scatter.fill         = true
-d3plus.visualization.scatter.requirements = [ "data" , "x" , "y" ]
-d3plus.visualization.scatter.scale        = d3plus.visualization.chart.scale
-d3plus.visualization.scatter.shapes       = [ "circle" , "square" , "donut" ]
-d3plus.visualization.scatter.tooltip      = "static"
+scatter.fill         = true
+scatter.requirements = [ "data" , "x" , "y" ]
+scatter.scale        = chart.scale
+scatter.shapes       = [ "circle" , "square" , "donut" ]
+scatter.tooltip      = "static"
+
+module.exports = scatter

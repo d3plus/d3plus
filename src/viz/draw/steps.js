@@ -32,8 +32,8 @@ d3plus.draw.steps = function(vars) {
   if (vars.draw.update) {
 
     var appName     = locale.visualization[appType].toLowerCase()
-      , appSetup    = d3plus.visualization[appType].setup
-      , appReqs     = d3plus.visualization[appType].requirements
+      , appSetup    = vars.types[appType].setup
+      , appReqs     = vars.types[appType].requirements
       , appMessage  = d3plus.string.format(locale.message.initializing,appName)
       , dataMessage = locale.message.data
 

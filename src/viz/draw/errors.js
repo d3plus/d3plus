@@ -9,8 +9,8 @@ d3plus.draw.errors = function(vars) {
   // Check to see if we have all required variables set
   //----------------------------------------------------------------------------
   var reqs = ["id"]
-  if (d3plus.visualization[vars.type.value].requirements) {
-    reqs = reqs.concat(d3plus.visualization[vars.type.value].requirements)
+  if (vars.types[vars.type.value].requirements) {
+    reqs = reqs.concat(vars.types[vars.type.value].requirements)
   }
 
   var missing = []
@@ -47,8 +47,8 @@ d3plus.draw.errors = function(vars) {
   // Check to see if we have all required libraries
   //----------------------------------------------------------------------------
   var reqs = ["d3"]
-  if (d3plus.visualization[vars.type.value].libs) {
-    reqs = reqs.concat(d3plus.visualization[vars.type.value].libs)
+  if (vars.types[vars.type.value].libs) {
+    reqs = reqs.concat(vars.types[vars.type.value].libs)
   }
   var missing = []
   reqs.forEach(function(r){
@@ -72,17 +72,17 @@ d3plus.draw.errors = function(vars) {
   // Check to see if the requested app supports the set shape
   //----------------------------------------------------------------------------
   if (!vars.shape.value) {
-    vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
+    vars.shape.value = vars.types[vars.type.value].shapes[0]
   }
-  else if (d3plus.visualization[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
-    var shapes = d3plus.visualization[vars.type.value].shapes.join("\", \"")
+  else if (vars.types[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
+    var shapes = vars.types[vars.type.value].shapes.join("\", \"")
       , str = vars.format.locale.value.error.accepted
       , shape = "\""+vars.shape.value+"\""
       , shapeStr = vars.format.locale.value.method.shape
       , app = vars.format.locale.value.visualization[vars.type.value]
     d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes+"\""),"shape")
     vars.shape.previous = vars.shape.value
-    vars.shape.value = d3plus.visualization[vars.type.value].shapes[0]
+    vars.shape.value = vars.types[vars.type.value].shapes[0]
     var str = vars.format.locale.value.dev.setLong
       , shape = "\""+vars.shape.value+"\""
     if ( vars.dev.value ) {
@@ -93,19 +93,19 @@ d3plus.draw.errors = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set "mode"
   //----------------------------------------------------------------------------
-  if ("modes" in d3plus.visualization[vars.type.value]) {
+  if ("modes" in vars.types[vars.type.value]) {
     if (!vars.type.mode.value) {
-      vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
+      vars.type.mode.value = vars.types[vars.type.value].modes[0]
     }
-    else if (d3plus.visualization[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
-      var modes = d3plus.visualization[vars.type.value].modes.join("\", \"")
+    else if (vars.types[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
+      var modes = vars.types[vars.type.value].modes.join("\", \"")
         , str = vars.format.locale.value.error.accepted
         , mode = "\""+vars.type.mode.value+"\""
         , modeStr = vars.format.locale.value.method.mode
         , app = vars.format.locale.value.visualization[vars.type.value]
       d3plus.console.warning(d3plus.string.format(str,mode,modeStr,app,"\""+modes+"\""))
       vars.type.mode.previous = vars.type.mode.value
-      vars.type.mode.value = d3plus.visualization[vars.type.value].modes[0]
+      vars.type.mode.value = vars.types[vars.type.value].modes[0]
       var str = vars.format.locale.value.dev.setLong
         , mode = "\""+vars.type.mode.value+"\""
       if ( vars.dev.value ) {

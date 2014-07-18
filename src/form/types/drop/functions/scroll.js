@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
 //------------------------------------------------------------------------------
-d3plus.input.drop.scroll = function ( vars ) {
+module.exports = function ( vars ) {
 
   if (vars.open.value) {
 

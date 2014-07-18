@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//
+// Defines button color
 //------------------------------------------------------------------------------
-d3plus.input.button.color = function ( elem , vars ) {
+module.exports = function ( elem , vars ) {
 
   elem
     .style("background-color",function(d){

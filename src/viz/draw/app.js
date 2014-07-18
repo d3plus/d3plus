@@ -15,7 +15,7 @@ d3plus.draw.app = function(vars) {
 
     var app = vars.format.locale.value.visualization[vars.type.value]
     if ( vars.dev.value ) d3plus.console.time("running "+ app)
-    var returned = d3plus.visualization[vars.type.value](vars)
+    var returned = vars.types[vars.type.value](vars)
     if ( vars.dev.value ) d3plus.console.timeEnd("running "+ app)
 
   }
