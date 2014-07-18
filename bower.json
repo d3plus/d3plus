@@ -1,7 +1,7 @@
 {
   "name": "d3plus",
   "main": "d3plus.js",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "homepage": "https://github.com/alexandersimoes/d3plus",
   "authors": [
     "Dave Landry <landry.dave@gmail.com>",
