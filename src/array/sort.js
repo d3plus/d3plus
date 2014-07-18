@@ -34,6 +34,7 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
 
         var depthKey = a.d3plus ? vars.id.nesting[a.d3plus.depth] : undefined
           , depthInt = a.d3plus ? a.d3plus.depth : undefined
+
         a = k === vars.color.value
           ? d3plus.variable.color( vars , a , depthKey )
           : k === vars.text.value

@@ -89,12 +89,6 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
       return returnObj
     }
 
-    if ( "size" in vars && vars.size.value && d3plus.util.uniques(leaves,vars.size.value).length ) {
-
-      d3plus.array.sort( leaves , vars.size.value , "desc" , [] , vars )
-
-    }
-
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create the "d3plus" object for the return variable, starting with
     // just the current depth.
@@ -179,16 +173,24 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
       }
       else {
 
-        var keyValues = leaves.length === 1 ? leaves[0][key]
-                      : d3plus.util.uniques( leaves , key )
-
-        if ( keyValues instanceof Array && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
-          var vals = []
-          leaves.forEach(function(d){
-            vals = vals.concat(d[key])
-          })
-          var keyValues = d3plus.util.uniques(vals,key)
+        var testVals = []
+        function checkVal(obj) {
+          if (obj instanceof Array) {
+            obj.forEach(checkVal)
+          }
+          else if (d3plus.object.validate(obj) && key in obj) {
+            if (obj[key] instanceof Array) {
+              obj[key].forEach(checkVal)
+            }
+            else {
+              testVals.push(obj)
+            }
+          }
         }
+        checkVal(leaves)
+
+        var keyValues = testVals.length === 1 ? testVals[0][key]
+                      : d3plus.util.uniques( testVals , key )
 
         if ( keyValues !== undefined && keyValues !== null ) {
 
@@ -198,15 +200,17 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
           if ( keyValues.length ) {
 
-            if ( keyValues.length <= leaves.length && idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1 ) {
-
-              returnObj[key] = leaves
+            if ( idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1 ) {
+              if (key == "id" && nestingLevels.length == 1 && testVals.length > leaves.length) {
+                var newNesting = nestingLevels.concat(key)
+                testVals = d3plus.data.nest(vars,testVals,newNesting)
+              }
+              returnObj[key] = testVals.length === 1 ? testVals[0] : testVals
 
             }
             else {
 
-              returnObj[key] = keyValues.length === 1
-                             ? keyValues[0] : keyValues
+              returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues
 
             }
 

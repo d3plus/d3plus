@@ -23,7 +23,7 @@ d3plus.data.filter = function( vars , data ) {
 
         var val = d3plus.variable.value(vars,d,vars[key].value)
         if ( key === "size" ) {
-          return typeof val === "number" && val > 0
+          return typeof val === "number"
         }
         else {
           return val !== null

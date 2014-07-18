@@ -192,7 +192,7 @@ d3plus.ui.legend = function(vars) {
                 else {
                   var icon_style = "default"
                 }
-                
+
                 var color = icon_style == "knockout" ? color : "none"
 
                 pattern.select("rect").transition().duration(vars.draw.timing)
