@@ -1,7 +1,7 @@
 d3plus               = window.d3plus or {}
 window.d3plus        = d3plus
 
-d3plus.version       = "1.4.2 - Teal"
+d3plus.version       = "1.4.3 - Teal"
 d3plus.repo          = "https://github.com/alexandersimoes/d3plus/"
 
 d3plus.array         = {}

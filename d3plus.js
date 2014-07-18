@@ -9963,6 +9963,7 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
 
         var depthKey = a.d3plus ? vars.id.nesting[a.d3plus.depth] : undefined
           , depthInt = a.d3plus ? a.d3plus.depth : undefined
+
         a = k === vars.color.value
           ? d3plus.variable.color( vars , a , depthKey )
           : k === vars.text.value
@@ -10596,6 +10597,10 @@ d3plus.data.fetch = function( vars , years ) {
     years = [ "all" ]
   }
 
+  if (years.indexOf("all") >= 0 && vars.data.time.length) {
+    years = vars.data.time
+  }
+
   var cacheID = [ vars.type.value , vars.id.value , vars.depth.value ]
                   .concat( vars.data.filters )
                   .concat( years )
@@ -10754,7 +10759,7 @@ d3plus.data.filter = function( vars , data ) {
 
         var val = d3plus.variable.value(vars,d,vars[key].value)
         if ( key === "size" ) {
-          return typeof val === "number" && val > 0
+          return typeof val === "number"
         }
         else {
           return val !== null
@@ -10793,9 +10798,12 @@ d3plus.data.filter = function( vars , data ) {
 
       // if the variable has nesting, check all levels
       var match = false
-
       if (vars[v].nesting) {
-        vars[v].nesting.forEach(function(n){
+        var nesting = vars[v].nesting
+        if (d3plus.object.validate(nesting)) {
+          nesting = d3.keys(nesting)
+        }
+        nesting.forEach(function(n){
           if (!match) {
             match = test_value(d3plus.variable.value(vars,d,n))
           }
@@ -10868,37 +10876,44 @@ d3plus.data.format = function( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Gets all unique time values
   //----------------------------------------------------------------------------
-  vars.data.nested = { "all" : {} }
+  vars.data.nested = {}
+  if (vars.data.time.length === 0) {
 
-  vars.id.nesting.forEach( function( depth , i ) {
-
-    var nestingDepth = vars.id.nesting.slice( 0 , i + 1 )
-
-    vars.data.nested.all[ depth ] = d3plus.data.nest( vars
-                                                    , vars.data.value
-                                                    , nestingDepth )
-
-  })
-
-  vars.data.time.forEach( function( t ) {
-
-    vars.data.nested[ t ] = { }
-
-    var timeData = vars.data.value.filter( function(d) {
-      return parseInt( d3plus.variable.value( vars , d , vars.time.value ) ) === t
-    })
-
+    vars.data.nested.all = {}
     vars.id.nesting.forEach( function( depth , i ) {
 
       var nestingDepth = vars.id.nesting.slice( 0 , i + 1 )
 
-      vars.data.nested[ t ][ depth ] = d3plus.data.nest( vars
-                                                       , timeData
-                                                       , nestingDepth )
+      vars.data.nested.all[ depth ] = d3plus.data.nest( vars
+                                                      , vars.data.value
+                                                      , nestingDepth )
 
     })
 
-  })
+  }
+  else {
+
+    vars.data.time.forEach( function( t ) {
+
+      vars.data.nested[ t ] = { }
+
+      var timeData = vars.data.value.filter( function(d) {
+        return parseInt( d3plus.variable.value( vars , d , vars.time.value ) ) === t
+      })
+
+      vars.id.nesting.forEach( function( depth , i ) {
+
+        var nestingDepth = vars.id.nesting.slice( 0 , i + 1 )
+
+        vars.data.nested[ t ][ depth ] = d3plus.data.nest( vars
+                                                         , timeData
+                                                         , nestingDepth )
+
+      })
+
+    })
+
+  }
 
   if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
 
@@ -10928,7 +10943,7 @@ d3plus.data.keys = function( vars , type ) {
         if ( d3plus.object.validate(arr[d]) ) {
           get_keys( arr[d] )
         }
-        else if (!(d in vars[type].keys) && arr[d]) {
+        else if (!(d in vars[type].keys) && d in arr) {
           vars[type].keys[d] = typeof arr[d]
         }
       }
@@ -11139,12 +11154,6 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
       return returnObj
     }
 
-    if ( "size" in vars && vars.size.value && d3plus.util.uniques(leaves,vars.size.value).length ) {
-
-      d3plus.array.sort( leaves , vars.size.value , "desc" , [] , vars )
-
-    }
-
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create the "d3plus" object for the return variable, starting with
     // just the current depth.
@@ -11229,16 +11238,24 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
       }
       else {
 
-        var keyValues = leaves.length === 1 ? leaves[0][key]
-                      : d3plus.util.uniques( leaves , key )
-
-        if ( keyValues instanceof Array && typeof keyValues[0] === "string" && keyValues[0].indexOf("[object Object]") === 0) {
-          var vals = []
-          leaves.forEach(function(d){
-            vals = vals.concat(d[key])
-          })
-          var keyValues = d3plus.util.uniques(vals,key)
+        var testVals = []
+        function checkVal(obj) {
+          if (obj instanceof Array) {
+            obj.forEach(checkVal)
+          }
+          else if (d3plus.object.validate(obj) && key in obj) {
+            if (obj[key] instanceof Array) {
+              obj[key].forEach(checkVal)
+            }
+            else {
+              testVals.push(obj)
+            }
+          }
         }
+        checkVal(leaves)
+
+        var keyValues = testVals.length === 1 ? testVals[0][key]
+                      : d3plus.util.uniques( testVals , key )
 
         if ( keyValues !== undefined && keyValues !== null ) {
 
@@ -11248,15 +11265,17 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
           if ( keyValues.length ) {
 
-            if ( keyValues.length <= leaves.length && idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1 ) {
-
-              returnObj[key] = leaves
+            if ( idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1 ) {
+              if (key == "id" && nestingLevels.length == 1 && testVals.length > leaves.length) {
+                var newNesting = nestingLevels.concat(key)
+                testVals = d3plus.data.nest(vars,testVals,newNesting)
+              }
+              returnObj[key] = testVals.length === 1 ? testVals[0] : testVals
 
             }
             else {
 
-              returnObj[key] = keyValues.length === 1
-                             ? keyValues[0] : keyValues
+              returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues
 
             }
 
@@ -14669,7 +14688,7 @@ d3plus = window.d3plus || {};
 
 window.d3plus = d3plus;
 
-d3plus.version = "1.4.2 - Teal";
+d3plus.version = "1.4.3 - Teal";
 
 d3plus.repo = "https://github.com/alexandersimoes/d3plus/";
 
@@ -18755,12 +18774,25 @@ d3plus.tooltip.app = function(params) {
 
         nameList = nameList.slice(0)
 
-        if ( d3plus.object.validate(nameList[0]) ) {
-          nameList = d3plus.util.uniques(nameList,nestKey)
+        if (d3plus.object.validate(nameList[0])) {
+
+          var namesWithValues = nameList.filter(function(n){
+            return vars.size.value in n
+          })
+
+          var namesNoValues = nameList.filter(function(n){
+            return !(vars.size.value in n)
+          })
+
+          d3plus.array.sort( namesWithValues , vars.size.value , "desc" , [] , vars )
+
+          nameList = namesWithValues.concat(namesNoValues)
+
         }
 
-        var limit       = length === "short" ? 3 : vars.data.large
-          , max         = d3.min([nameList.length , limit])
+        var limit = length === "short" ? 3 : vars.data.large
+          , max   = d3.min([nameList.length , limit])
+          , objs  = []
 
         for ( var i = 0 ; i < max ; i++ ) {
 
@@ -18783,7 +18815,7 @@ d3plus.tooltip.app = function(params) {
         }
 
       }
-      else if ( nameList && nameList !== "null" ) {
+      else if ( nameList && nameList !== "null" && nameList !== d[nestKey] ) {
 
         var name  = d3plus.variable.text( vars , nameList , depth )[0]
 
@@ -18793,7 +18825,7 @@ d3plus.tooltip.app = function(params) {
 
     }
 
-    if ( vars.tooltip.size.value && dataValue && ( !nameList || nameList instanceof Array ) ) {
+    if ( vars.size.value && vars.tooltip.size.value && dataValue && ( !nameList || nameList instanceof Array ) ) {
       ex[vars.size.value] = dataValue
     }
 
@@ -20205,41 +20237,28 @@ d3plus.util.uniques = function( data , value ) {
     return []
   }
 
-  var type = false
-    , nest = d3.nest()
-        .key(function(d) {
+  var type = typeof value
 
-          if (d && typeof value === "string") {
-            if ( !type && typeof d[value] !== "undefined" ) type = typeof d[value]
-            return d[value]
-          }
-          else if (typeof value === "function") {
-            if ( !type && typeof value(d) !== "undefined" ) type = typeof value(d)
-            return value(d)
-          }
-          else {
-            return d
-          }
+  return d3.nest()
+    .key(function(d) {
 
-        })
-        .entries(data)
-        .reduce(function( a , b ){
-
-          return type && b.key !== "undefined"
-               ? a.concat( type === "number" ? parseFloat(b.key) : b.key )
-               : a
-
-        }, [] )
-
-  if ( type === "number" ) {
-    nest.sort(function( a , b ){
-
-      return a < b ? -1 : 1
+      if ( d3plus.object.validate(d) && type === "string" ) {
+        return d[value]
+      }
+      else if ( type === "function" ) {
+        return value(d)
+      }
+      else {
+        return d
+      }
 
     })
-  }
+    .entries(data)
+    .reduce(function( a , b ){
 
-  return nest
+      return b.key !== "undefined" ? a.concat(b.key) : a
+
+    }, [] )
 
 }
 
@@ -27173,7 +27192,7 @@ d3plus.ui.legend = function(vars) {
                 else {
                   var icon_style = "default"
                 }
-                
+
                 var color = icon_style == "knockout" ? color : "none"
 
                 pattern.select("rect").transition().duration(vars.draw.timing)
