@@ -9,25 +9,35 @@ d3plus.draw.errors = function(vars) {
   // Check to see if we have all required variables set
   //----------------------------------------------------------------------------
   var reqs = ["id"]
-  if (vars.types[vars.type.value].requirements) {
-    reqs = reqs.concat(vars.types[vars.type.value].requirements)
+    , app_reqs = vars.types[vars.type.value].requirements
+  if (app_reqs) {
+    if (!(app_reqs instanceof Array)) reqs.push(app_reqs)
+    else reqs = reqs.concat(vars.types[vars.type.value].requirements)
   }
 
   var missing = []
   reqs.forEach(function(r){
-    if (!vars[r].value) missing.push("\""+r+"\"")
+    if (typeof r === "string") {
+      if (!vars[r].value) missing.push("\""+r+"\"")
+    }
+    else if (typeof r === "function") {
+      var reqReturn = r(vars)
+      if (!reqReturn.status && reqReturn.text) {
+        missing.push("\""+reqReturn.text+"\"")
+      }
+    }
   })
 
   if ( missing.length > 1 ) {
     var str = vars.format.locale.value.error.methods
-      , app = vars.format.locale.value.visualization[vars.type.value]
+      , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
       , and = vars.format.locale.value.ui.and
     missing = d3plus.string.list(missing,and)
     vars.internal_error = d3plus.string.format(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.method
-      , app = vars.format.locale.value.visualization[vars.type.value]
+      , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
     vars.internal_error = d3plus.string.format(str,app,missing[0])
   }
 
@@ -71,23 +81,20 @@ d3plus.draw.errors = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set shape
   //----------------------------------------------------------------------------
+  var shapes = vars.types[vars.type.value].shapes || ["circle"]
+  if (!(shapes instanceof Array)) shapes = [shapes]
+
   if (!vars.shape.value) {
-    vars.shape.value = vars.types[vars.type.value].shapes[0]
+    vars.self.shape(shapes.length ? shapes[0] : "circle")
   }
-  else if (vars.types[vars.type.value].shapes.indexOf(vars.shape.value) < 0) {
+  else if (shapes.indexOf(vars.shape.value) < 0) {
     var shapes = vars.types[vars.type.value].shapes.join("\", \"")
       , str = vars.format.locale.value.error.accepted
       , shape = "\""+vars.shape.value+"\""
       , shapeStr = vars.format.locale.value.method.shape
-      , app = vars.format.locale.value.visualization[vars.type.value]
+      , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
     d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes+"\""),"shape")
-    vars.shape.previous = vars.shape.value
-    vars.shape.value = vars.types[vars.type.value].shapes[0]
-    var str = vars.format.locale.value.dev.setLong
-      , shape = "\""+vars.shape.value+"\""
-    if ( vars.dev.value ) {
-      d3plus.console.log(d3plus.string.format(str,shapeStr,shape))
-    }
+    vars.self.shape(shapes.length ? shapes[0] : "circle")
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -95,22 +102,16 @@ d3plus.draw.errors = function(vars) {
   //----------------------------------------------------------------------------
   if ("modes" in vars.types[vars.type.value]) {
     if (!vars.type.mode.value) {
-      vars.type.mode.value = vars.types[vars.type.value].modes[0]
+      vars.self.type({"mode": vars.types[vars.type.value].modes[0]})
     }
     else if (vars.types[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
       var modes = vars.types[vars.type.value].modes.join("\", \"")
         , str = vars.format.locale.value.error.accepted
         , mode = "\""+vars.type.mode.value+"\""
         , modeStr = vars.format.locale.value.method.mode
-        , app = vars.format.locale.value.visualization[vars.type.value]
+        , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
       d3plus.console.warning(d3plus.string.format(str,mode,modeStr,app,"\""+modes+"\""))
-      vars.type.mode.previous = vars.type.mode.value
-      vars.type.mode.value = vars.types[vars.type.value].modes[0]
-      var str = vars.format.locale.value.dev.setLong
-        , mode = "\""+vars.type.mode.value+"\""
-      if ( vars.dev.value ) {
-        d3plus.console.log(d3plus.string.format(str,modeStr,mode))
-      }
+      vars.self.type({"mode": vars.types[vars.type.value].modes[0]})
     }
   }
 

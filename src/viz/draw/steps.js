@@ -31,11 +31,14 @@ d3plus.draw.steps = function(vars) {
 
   if (vars.draw.update) {
 
-    var appName     = locale.visualization[appType].toLowerCase()
-      , appSetup    = vars.types[appType].setup
-      , appReqs     = vars.types[appType].requirements
+    var appName     = locale.visualization[appType] || appType
+      , appSetup    = vars.types[appType].setup || false
+      , appReqs     = vars.types[appType].requirements || []
       , appMessage  = d3plus.string.format(locale.message.initializing,appName)
       , dataMessage = locale.message.data
+
+    if (!(appReqs instanceof Array)) appReqs = [appReqs]
+    appName = appName.toLowerCase()
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it has one, run the current app's setup function.

@@ -82,8 +82,10 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check for Errors
   //----------------------------------------------------------------------------
+  var reqs = vars.types[vars.type.value].requirements || []
+  if (!(reqs instanceof Array)) reqs = [reqs]
+  var data_req = reqs.indexOf("data") >= 0
   if (!vars.internal_error) {
-    var data_req = vars.types[vars.type.value].requirements.indexOf("data") >= 0
     if ((!vars.data.app || !vars.returned.nodes.length) && data_req) {
       vars.internal_error = vars.format.locale.value.error.data
     }
@@ -108,8 +110,7 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
-  var data_req = vars.types[vars.type.value].requirements.indexOf("data") >= 0,
-      new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
+  var new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
         ? 0 : vars.focus.value[0] && vars.types[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
       old_opacity = vars.group.attr("opacity")
 

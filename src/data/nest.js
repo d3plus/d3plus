@@ -7,8 +7,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
     , groupedData  = []
     , segments     = vars.shell === "viz"
                     ? [ "active" , "temp" , "total" ] : []
-    , requirements = requirements instanceof Array ? requirements : vars.shell === "viz"
-                   ? vars.types[vars.type.value].requirements : []
+    , requirements = requirements || vars.types[vars.type.value].requirements || []
     , exceptions   = vars.shell === "viz"
                    ? [ vars.time.value , vars.icon.value ] : []
     , checkAxes    = function() {
@@ -39,6 +38,8 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
       }
 
     }
+
+  if (!(requirements instanceof Array)) requirements = [requirements]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Loop through each nesting level.

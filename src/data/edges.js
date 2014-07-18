@@ -8,8 +8,9 @@ d3plus.data.edges = function( vars ) {
     d3plus.console.time( timerString )
   }
 
-  var appReqs     = vars.types[vars.type.value].requirements,
-      createNodes = appReqs.indexOf("nodes") >= 0 && !vars.nodes.value
+  var appReqs     = vars.types[vars.type.value].requirements
+  if (!(appReqs instanceof Array)) appReqs = [appReqs]
+  var createNodes = appReqs.indexOf("nodes") >= 0 && !vars.nodes.value
 
   if ( createNodes ) {
     vars.nodes.value = []
