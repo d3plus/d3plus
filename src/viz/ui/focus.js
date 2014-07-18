@@ -4,12 +4,12 @@
 
 d3plus.ui.focus = function(vars) {
 
-  if (!vars.internal_error && vars.focus.value && !vars.small && vars.focus.tooltip.value) {
+  if (!vars.internal_error && vars.focus.value.length === 1 && vars.focus.value[0] && !vars.small && vars.focus.tooltip.value) {
 
     if ( vars.dev.value ) d3plus.console.time("drawing focus tooltip")
 
     var data = vars.data.pool.filter(function(d){
-      return d3plus.variable.value(vars,d,vars.id.value) == vars.focus.value
+      return d3plus.variable.value(vars,d,vars.id.value) == vars.focus.value[0]
     })
 
     if (data.length >= 1) {
@@ -17,7 +17,7 @@ d3plus.ui.focus = function(vars) {
     }
     else {
       data = {}
-      data[vars.id.value] = vars.focus.value
+      data[vars.id.value] = vars.focus.value[0]
     }
 
     var offset = vars.labels.padding

@@ -62,7 +62,7 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( vars.focus.value === false ) {
+      if ( vars.focus.value[0] === false ) {
 
         var element = vars.data.element.value
 
@@ -70,14 +70,14 @@ d3plus.form = function() {
           var i = element.property("selectedIndex")
             , option = element.selectAll("option")[0][i]
             , val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value)
-          if (val) vars.focus.value = val
+          if (val) vars.focus.value[0] = val
         }
 
-        if ( vars.focus.value === false && vars.data.app.length ) {
-          vars.focus.value = vars.data.app[0][vars.id.value]
+        if ( vars.focus.value[0] === false && vars.data.app.length ) {
+          vars.focus.value[0] = vars.data.app[0][vars.id.value]
         }
 
-        if ( vars.dev.value && vars.focus.value !== false ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+        if ( vars.dev.value && vars.focus.value[0] !== false ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
 
       }
 
@@ -171,7 +171,7 @@ d3plus.form = function() {
 
               }
 
-              if (d[level] === vars.focus.value) {
+              if (d[level] === vars.focus.value[0]) {
                 this.selected = true
               }
               else {
@@ -189,7 +189,7 @@ d3plus.form = function() {
           vars.data.element.value.selectAll("option")
             .each(function(d){
               var level = getLevel(d)
-              if (d[level] === vars.focus.value) {
+              if (d[level] === vars.focus.value[0]) {
                 this.selected = true
               }
               else {

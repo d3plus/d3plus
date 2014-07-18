@@ -35,9 +35,9 @@ d3plus.draw.errors = function(vars) {
   // Check to see if we have focus connections, if needed
   //----------------------------------------------------------------------------
   if (!vars.internal_error && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
-    var connections = vars.edges.connections(vars.focus.value,vars.id.value)
+    var connections = vars.edges.connections(vars.focus.value[0],vars.id.value)
     if (connections.length == 0) {
-      var name = d3plus.variable.text(vars,vars.focus.value,vars.depth.value)
+      var name = d3plus.variable.text(vars,vars.focus.value[0],vars.depth.value)
         , str = vars.format.locale.value.error.connections
       vars.internal_error = d3plus.string.format(str,"\""+name+"\"")
     }

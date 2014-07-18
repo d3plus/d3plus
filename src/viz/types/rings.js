@@ -10,22 +10,22 @@ var rings = function(vars) {
     , nodes = []
 
   var center = vars.data.app.filter(function(d){
-    return d[vars.id.value] === vars.focus.value
+    return d[vars.id.value] === vars.focus.value[0]
   })[0]
 
   if ( !center ) {
     center = { "d3plus" : {} }
-    center[vars.id.value] = vars.focus.value
+    center[vars.id.value] = vars.focus.value[0]
   }
 
   center.d3plus.x = vars.width.viz/2
   center.d3plus.y = vars.height.viz/2
   center.d3plus.r = primaryRing*.65
 
-  var primaries = [], claimed = [vars.focus.value]
-  vars.edges.connections(vars.focus.value,vars.id.value).forEach(function(edge){
+  var primaries = [], claimed = [vars.focus.value[0]]
+  vars.edges.connections(vars.focus.value[0],vars.id.value).forEach(function(edge){
 
-    var c = edge[vars.edges.source][vars.id.value] == vars.focus.value ? edge[vars.edges.target] : edge[vars.edges.source]
+    var c = edge[vars.edges.source][vars.id.value] == vars.focus.value[0] ? edge[vars.edges.target] : edge[vars.edges.source]
     var n = vars.data.app.filter(function(d){
       return d[vars.id.value] === c[vars.id.value]
     })[0]
@@ -36,7 +36,7 @@ var rings = function(vars) {
     }
 
     n.d3plus.edges = vars.edges.connections(n[vars.id.value],vars.id.value).filter(function(c){
-      return c[vars.edges.source][vars.id.value] != vars.focus.value && c[vars.edges.target][vars.id.value] != vars.focus.value
+      return c[vars.edges.source][vars.id.value] != vars.focus.value[0] && c[vars.edges.target][vars.id.value] != vars.focus.value[0]
     })
     n.d3plus.edge = edge
     claimed.push(n[vars.id.value])
@@ -212,7 +212,7 @@ var rings = function(vars) {
 
   var ids = d3plus.util.uniques(primaries,vars.id.value)
   ids = ids.concat(d3plus.util.uniques(secondaries,vars.id.value))
-  ids.push(vars.focus.value)
+  ids.push(vars.focus.value[0])
 
   var data = vars.data.app.filter(function(d){
     return ids.indexOf(d[vars.id.value]) >= 0
@@ -362,7 +362,7 @@ var rings = function(vars) {
 
     if (!vars.small && vars.labels.value) {
 
-      if (n[vars.id.value] != vars.focus.value) {
+      if (n[vars.id.value] != vars.focus.value[0]) {
 
         n.d3plus.rotate = n.d3plus.radians*(180/Math.PI)
 
@@ -429,7 +429,7 @@ var rings = function(vars) {
   })
 
   vars.mouse[d3plus.evt.click] = function(d) {
-    if (d[vars.id.value] != vars.focus.value) {
+    if (d[vars.id.value] != vars.focus.value[0]) {
       d3plus.tooltip.remove(vars.type.value)
       vars.self.focus(d[vars.id.value]).draw()
     }
@@ -444,7 +444,7 @@ var rings = function(vars) {
 //------------------------------------------------------------------------------
 rings.filter       = function( vars , data ) {
 
-  var primaries = vars.edges.connections(vars.focus.value,vars.id.value,true)
+  var primaries = vars.edges.connections(vars.focus.value[0],vars.id.value,true)
     , secondaries = []
 
   primaries.forEach(function(p){

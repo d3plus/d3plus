@@ -45,7 +45,7 @@ module.exports = function( vars ) {
   else {
 
     var checks = [ vars.focus.previous
-                 , vars.focus.value
+                 , vars.focus.value[0]
                  , vars.hover.previous
                  , vars.hover.value ].filter(function(c){ return c })
 

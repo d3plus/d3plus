@@ -11,7 +11,7 @@ d3plus.draw.focus = function(vars) {
     .selectAll("g")
     .remove()
 
-  if (vars.focus.value !== false && vars.types[vars.type.value].zoom && vars.zoom.value) {
+  if (vars.focus.value[0] !== false && vars.types[vars.type.value].zoom && vars.zoom.value) {
 
     if ( vars.dev.value ) d3plus.console.time("drawing focus elements")
 
@@ -24,7 +24,7 @@ d3plus.draw.focus = function(vars) {
           var source = l[vars.edges.source][vars.id.value],
               target = l[vars.edges.target][vars.id.value]
 
-          if (source == vars.focus.value || target == vars.focus.value) {
+          if (source == vars.focus.value[0] || target == vars.focus.value[0]) {
             var elem = vars.g.edge_focus.node().appendChild(this.cloneNode(true))
             d3.select(elem).datum(l).attr("opacity",1)
               .selectAll("line, path").datum(l)
@@ -78,8 +78,8 @@ d3plus.draw.focus = function(vars) {
 
     }
 
-    var focii = d3plus.util.uniques(vars.edges.connections(vars.focus.value,vars.id.value,true),vars.id.value)
-    focii.push(vars.focus.value)
+    var focii = d3plus.util.uniques(vars.edges.connections(vars.focus.value[0],vars.id.value,true),vars.id.value)
+    focii.push(vars.focus.value[0])
 
     var x_bounds = [], y_bounds = [], x_buffer = [0], y_buffer = [0]
 

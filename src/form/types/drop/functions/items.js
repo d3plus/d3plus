@@ -33,9 +33,9 @@ module.exports = function ( vars ) {
     if ( vars.focus.changed || !vars.container.items.focus() ) {
 
       vars.container.items
-        .focus( vars.focus.value , function(value){
+        .focus( vars.focus.value[0] , function(value){
 
-          var change = value !== vars.focus.value
+          var change = value !== vars.focus.value[0]
           if ( change && vars.active.value ) {
 
             change = active(vars,value)

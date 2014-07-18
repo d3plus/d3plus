@@ -51,7 +51,7 @@ module.exports = function ( vars ) {
       var options = vars.container.list.select("div").selectAll("div.d3plus_node")
       var option = options[0][0]
       options.each(function(d,i){
-        if (d[vars.id.value] == vars.focus.value) {
+        if (d[vars.id.value] == vars.focus.value[0]) {
           option = this
         }
       })

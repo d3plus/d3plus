@@ -166,7 +166,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
     })
 
   }
-  else if (vars.focus.value === false) {
+  else if (vars.focus.value[0] === false) {
     vars.zoom.viewport = false
   }
 

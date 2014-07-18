@@ -26,7 +26,7 @@ module.exports = function ( vars ) {
       var match = false
       for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
         var level = vars.id.nesting[i]
-        match = level in d && d[level] === vars.focus.value
+        match = level in d && d[level] === vars.focus.value[0]
         if (match) {
           depth = i
           break
@@ -50,7 +50,7 @@ module.exports = function ( vars ) {
     .draw({
       "update": vars.draw.update
     })
-    .focus(vars.focus.value)
+    .focus(vars.focus.value[0])
     .font( vars.font )
     .icon({
       "button": vars.icon.drop.value,
