@@ -6,7 +6,7 @@ d3plus.ui.timeline = function(vars) {
 
   var years = vars.data.time
 
-  if (!vars.small && years && years.length > 1 && vars.timeline.value) {
+  if (!vars.internal_error && !vars.small && years && years.length > 1 && vars.timeline.value) {
 
     if ( vars.dev.value ) d3plus.console.time("drawing timeline")
 

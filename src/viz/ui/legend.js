@@ -8,7 +8,7 @@ d3plus.ui.legend = function(vars) {
       key = vars.color.value
     , colorName = vars.color.value || "d3plus_color"
 
-  if (key && !vars.small && vars.legend.value) {
+  if (!vars.internal_error && key && !vars.small && vars.legend.value) {
 
     if (!vars.color.scale) {
 

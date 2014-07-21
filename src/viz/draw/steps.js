@@ -266,6 +266,8 @@ d3plus.draw.steps = function(vars) {
     "message": uiMessage
   })
 
+  steps.push({"function": d3plus.draw.errors, "message": uiMessage})
+
   steps.push({
     "function": function(vars) {
 
@@ -317,8 +319,7 @@ d3plus.draw.steps = function(vars) {
 
   if ( vars.draw.update ) {
     steps.push({
-      "function" : [ d3plus.draw.errors
-                   , d3plus.draw.app
+      "function" : [ d3plus.draw.app
                    , d3plus.shape.draw ],
       "message"  : drawMessage
     })
