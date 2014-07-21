@@ -18,7 +18,9 @@ d3plus.method.type = {
 
   },
   "mode"     : {
-    "accepted" : [ "squarify" , "slice" , "dice" , "slice-dice" ],
-    "value"    : "squarify"
+    "accepted" : function(vars){
+      return vars.types[vars.type.value].modes || [ false ]
+    },
+    "value"    : false
   }
 }

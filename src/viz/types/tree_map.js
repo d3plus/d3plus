@@ -119,10 +119,9 @@ tree_map.filter       = function( vars , data ) {
   return d3plus.data.threshold( vars , data )
 
 }
-tree_map.modes        = [ "squarify" , "slice"
-                                           , "dice" , "slice-dice" ]
-tree_map.requirements = [ "data" , "size" ]
-tree_map.shapes       = [ "square" ]
+tree_map.modes        = ["squarify", "slice", "dice", "slice-dice"]
+tree_map.requirements = ["data", "size"]
+tree_map.shapes       = ["square"]
 tree_map.threshold    = function( vars ) {
   return ( 40 * 40 ) / (vars.width.viz * vars.height.viz)
 }
