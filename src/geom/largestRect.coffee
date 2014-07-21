@@ -89,7 +89,7 @@ d3plus.geom.largestRect = (poly, options) ->
 
 
   ########################################
-  area = d3.geom.polygon(poly).area()
+  area = Math.abs(d3.geom.polygon(poly).area()) # take absolute value of the signed area
   # get the width of the bounding box of the original polygon to determine tolerance
   [minx, maxx] = d3.extent poly, (d) -> d[0]
   [miny, maxy] = d3.extent poly, (d) -> d[1]
@@ -136,10 +136,10 @@ d3plus.geom.largestRect = (poly, options) ->
       # generate improved origins
       [p1W, p2W] = intersectPoints poly, origOrigin, angleRad
       [p1H, p2H] = intersectPoints poly, origOrigin, angleRad + Math.PI/2
-      modifOrigins = [
-        [(p1W[0] + p2W[0])/2, (p1W[1] + p2W[1])/2], # average along with width axis
-        [(p1H[0] + p2H[0])/2, (p1H[1] + p2H[1])/2] # average along with height axis
-      ]
+      modifOrigins = []
+      if p1W? and p2W? then modifOrigins.push [(p1W[0] + p2W[0])/2, (p1W[1] + p2W[1])/2] # average along with width axis
+      if p1H? and p2H? then modifOrigins.push [(p1H[0] + p2H[0])/2, (p1H[1] + p2H[1])/2] # average along with height axis
+      
       if options.vdebug then events.push type: 'modifOrigin', idx: i, p1W: p1W, p2W: p2W, p1H: p1H, p2H: p2H, modifOrigins: modifOrigins
       for origin in modifOrigins
         if options.vdebug then events.push type: 'origin', cx: origin[0], cy: origin[1]
