@@ -6,6 +6,9 @@ d3plus.variable.value = function( vars , id , variable , id_var , agg ) {
   if ( variable && typeof variable === "function" ) {
     return variable( id )
   }
+  else if ( !variable ) {
+    return null
+  }
 
   if (!id_var) {
     if ( d3plus.object.validate(variable) ) {
