@@ -1,3 +1,4 @@
+var fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
@@ -14,7 +15,7 @@ var tree_map = function(vars) {
 
       grouped_data.key(function(d){
 
-        return d3plus.variable.value(vars,d.d3plus,n)
+        return fetchValue(vars,d.d3plus,n)
 
       })
 
@@ -28,7 +29,7 @@ var tree_map = function(vars) {
     strippedData.push({
       "d3plus" : d,
       "id"     : d[vars.id.value],
-      "value"  : d3plus.variable.value(vars,d,vars.size.value)
+      "value"  : fetchValue(vars,d,vars.size.value)
     })
 
   })

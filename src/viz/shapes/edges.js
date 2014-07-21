@@ -373,7 +373,10 @@ d3plus.shape.edges = function(vars) {
 
       var source = l[vars.edges.source]
         , target = l[vars.edges.target]
-        , angle = Math.atan2( source.d3plus.y - target.d3plus.y
+
+      if (!source.d3plus || !target.d3plus) return false
+
+      var angle = Math.atan2( source.d3plus.y - target.d3plus.y
                             , source.d3plus.x - target.d3plus.x )
         , sourceRadius = direction == "source" && vars.edges.arrows.value
                        ? source.d3plus.r + marker

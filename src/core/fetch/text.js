@@ -1,7 +1,8 @@
+var fetchValue = require("./value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
 //------------------------------------------------------------------------------
-d3plus.variable.text = function(vars,obj,depth) {
+module.exports = function(vars,obj,depth) {
 
   if ( typeof depth !== "number" ) var depth = vars.depth.value
 
@@ -34,7 +35,7 @@ d3plus.variable.text = function(vars,obj,depth) {
 
     textKeys.forEach(function( t ){
 
-      var name = d3plus.variable.value( vars , obj , t , key )
+      var name = fetchValue( vars , obj , t , key )
 
       if ( name ) {
         if ( !(name instanceof Array) ) {

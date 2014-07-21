@@ -1,3 +1,4 @@
+var fetchValue = require("../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Restricts data based on Solo/Mute filters
 //------------------------------------------------------------------------------
@@ -21,7 +22,7 @@ d3plus.data.filter = function( vars , data ) {
 
       data = data.filter( function( d ) {
 
-        var val = d3plus.variable.value(vars,d,vars[key].value)
+        var val = fetchValue(vars,d,vars[key].value)
         if ( key === "size" ) {
           return typeof val === "number"
         }
@@ -69,12 +70,12 @@ d3plus.data.filter = function( vars , data ) {
         }
         nesting.forEach(function(n){
           if (!match) {
-            match = test_value(d3plus.variable.value(vars,d,n))
+            match = test_value(fetchValue(vars,d,n))
           }
         })
       }
       else {
-        match = test_value(d3plus.variable.value(vars,d,vars[v].value))
+        match = test_value(fetchValue(vars,d,vars[v].value))
       }
 
       return key === "solo" ? match : !match

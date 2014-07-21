@@ -1,3 +1,6 @@
+var fetchValue = require("../../core/fetch/value.js"),
+    fetchColor = require("../../core/fetch/color.js"),
+    fetchText  = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws the appropriate shape based on the data
 //------------------------------------------------------------------------------
@@ -52,13 +55,13 @@ d3plus.shape.draw = function(vars) {
   function id(d) {
 
     var depth = vars.depth.value
-    d.d3plus.id = d3plus.variable.value(vars,d,vars.id.nesting[depth])
+    d.d3plus.id = fetchValue(vars,d,vars.id.nesting[depth])
 
     d.d3plus.id += "_"+depth+"_"+shape
 
     vars.axes.values.forEach(function(axis){
       if (vars[axis].scale.value == "continuous") {
-        d.d3plus.id += "_"+d3plus.variable.value(vars,d,vars[axis].value)
+        d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
       }
     })
 
@@ -85,12 +88,17 @@ d3plus.shape.draw = function(vars) {
 
     g
       .attr("transform",function(d){
+
+        var x = d.d3plus.x || 0
+          , y = d.d3plus.y || 0
+
         if (["line","area","coordinates"].indexOf(shape) < 0) {
-          return "translate("+d.d3plus.x+","+d.d3plus.y+")scale("+scale+")"
+          return "translate("+x+","+y+")scale("+scale+")"
         }
         else {
           return "scale("+scale+")"
         }
+
       })
 
   }
@@ -515,8 +523,8 @@ d3plus.shape.draw = function(vars) {
 
         var depth_delta = vars.zoom.direction(d.d3plus_data || d)
           , previous = vars.id.solo.value
-          , title = d3plus.variable.text(vars,d)[0]
-          , color = d3plus.color.legible(d3plus.variable.color(vars,d))
+          , title = fetchText(vars,d)[0]
+          , color = d3plus.color.legible(fetchColor(vars,d))
           , prev_sub = vars.title.sub.value || false
           , prev_color = vars.title.sub.font.color
           , prev_total = vars.title.total.font.color
@@ -564,7 +572,7 @@ d3plus.shape.draw = function(vars) {
         }
         else if (depth_delta === 1 && vars.zoom.value) {
 
-          var id = d3plus.variable.value(vars,d,vars.id.value)
+          var id = fetchValue(vars,d,vars.id.value)
 
           vars.history.states.push(function(){
 

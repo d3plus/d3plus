@@ -1,3 +1,4 @@
+var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -29,7 +30,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
         var tops = []
           , bottoms = []
-          , names = d3plus.variable.text(vars,d)
+          , names = fetchText(vars,d)
 
         d.values.forEach(function(v){
           tops.push([v.d3plus.x,v.d3plus.y])

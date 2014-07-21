@@ -1,3 +1,5 @@
+var fetchValue = require("../../core/fetch/value.js")
+  , fetchColor = require("../../core/fetch/color.js")
 var rings = function(vars) {
 
   var radius = d3.min([vars.height.viz,vars.width.viz])/2
@@ -221,7 +223,7 @@ var rings = function(vars) {
   if (vars.size.value) {
 
     var domain = d3.extent(data,function(d){
-      return d3plus.variable.value(vars,d,vars.size.value)
+      return fetchValue(vars,d,vars.size.value)
     })
 
     if (domain[0] == domain[1]) {
@@ -232,7 +234,7 @@ var rings = function(vars) {
       .domain(domain)
       .rangeRound([3,d3.min([primaryMax,secondaryMax])])
 
-    var val = d3plus.variable.value(vars,center,vars.size.value)
+    var val = fetchValue(vars,center,vars.size.value)
     center.d3plus.r = radius(val)
 
   }
@@ -251,13 +253,13 @@ var rings = function(vars) {
 
   secondaries.forEach(function(s){
     s.d3plus.ring = 2
-    var val = vars.size.value ? d3plus.variable.value(vars,s,vars.size.value) : 2
+    var val = vars.size.value ? fetchValue(vars,s,vars.size.value) : 2
     s.d3plus.r = radius(val)
   })
 
   primaries.forEach(function(p){
     p.d3plus.ring = 1
-    var val = vars.size.value ? d3plus.variable.value(vars,p,vars.size.value) : 1
+    var val = vars.size.value ? fetchValue(vars,p,vars.size.value) : 1
     p.d3plus.r = radius(val)
   })
 
@@ -392,7 +394,7 @@ var rings = function(vars) {
           "angle": angle,
           "anchor": anchor,
           "valign": "center",
-          "color": d3plus.color.legible(d3plus.variable.color(vars,n[vars.id.value])),
+          "color": d3plus.color.legible(fetchColor(vars,n[vars.id.value])),
           "resize": [8,vars.labels.font.size],
           "background": background,
           "mouse": true
@@ -408,7 +410,7 @@ var rings = function(vars) {
           "y": n.d3plus.r+height/2,
           "w": primaryRing,
           "h": height,
-          "color": d3plus.color.legible(d3plus.variable.color(vars,n[vars.id.value])),
+          "color": d3plus.color.legible(fetchColor(vars,n[vars.id.value])),
           "resize": [10,40],
           "background": true,
           "mouse": true

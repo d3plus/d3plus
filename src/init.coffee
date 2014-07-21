@@ -21,7 +21,6 @@ d3plus.style         = {}
 d3plus.tooltip       = {}
 d3plus.ui            = {}
 d3plus.util          = {}
-d3plus.variable      = {}
 d3plus.zoom          = {}
 
 stylesheet           = require "./style/sheet.coffee"

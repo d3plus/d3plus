@@ -1,7 +1,8 @@
+var fetchValue = require("./value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
-d3plus.variable.color = function( vars , id , level ) {
+module.exports = function( vars , id , level ) {
 
   if ( !level ) {
     var level = vars.id.value
@@ -26,7 +27,7 @@ d3plus.variable.color = function( vars , id , level ) {
 
     for ( var i = vars.id.nesting.indexOf(level) ; i >= 0 ; i-- ) {
       var colorLevel = vars.id.nesting[i]
-        , color = d3plus.variable.value( vars , id , vars.color.value , colorLevel )
+        , color = fetchValue( vars , id , vars.color.value , colorLevel )
       if ( color ) break
     }
 

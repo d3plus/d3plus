@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
-d3plus.variable.value = function( vars , id , variable , id_var , agg ) {
+module.exports = function( vars , id , variable , id_var , agg ) {
 
   if ( variable && typeof variable === "function" ) {
     return variable( id )

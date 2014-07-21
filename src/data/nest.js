@@ -1,3 +1,4 @@
+var fetchValue = require("../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
@@ -28,7 +29,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
             exceptions.push(axisKey)
 
             nestedData.key(function(d){
-              return d3plus.variable.value( vars , d , axisKey )
+              return fetchValue( vars , d , axisKey )
             })
 
           }
@@ -56,7 +57,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
           return level(d)
         }
 
-        return d3plus.variable.value( vars , d , level )
+        return fetchValue( vars , d , level )
       })
 
     checkAxes()
@@ -124,7 +125,7 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
         if ( vars[c].value ) {
 
-          var a = d3plus.variable.value(vars,d,vars[c].value)
+          var a = fetchValue(vars,d,vars[c].value)
 
           if ( typeof a !== "number" ) {
             a = a ? 1 : 0

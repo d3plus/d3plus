@@ -1,3 +1,6 @@
+var fetchValue = require("../core/fetch/value.js"),
+    fetchColor = require("../core/fetch/color.js"),
+    fetchText  = require("../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merges data underneath the size threshold
 //-------------------------------------------------------------------
@@ -31,7 +34,7 @@ d3plus.data.threshold = function( vars , rawData , split ) {
     if (split) {
       nest
         .key(function(d){
-          return d3plus.variable.value(vars,d,split)
+          return fetchValue(vars,d,split)
         })
     }
 
@@ -44,16 +47,16 @@ d3plus.data.threshold = function( vars , rawData , split ) {
           }
           else if (typeof vars.aggs[vars.size.value] == "string") {
             total = d3[vars.aggs[vars.size.value]](leaves,function(l){
-              return d3plus.variable.value(vars,l,vars.size.value)
+              return fetchValue(vars,l,vars.size.value)
             })
           }
         }
         else {
           total = d3.sum(leaves,function(l){
-            return d3plus.variable.value(vars,l,vars.size.value)
+            return fetchValue(vars,l,vars.size.value)
           })
         }
-        var x = split ? d3plus.variable.value(vars,leaves[0],split) : "all"
+        var x = split ? fetchValue(vars,leaves[0],split) : "all"
         largest[x] = total
         return total
       })
@@ -61,9 +64,9 @@ d3plus.data.threshold = function( vars , rawData , split ) {
 
     var filteredData = rawData.filter(function(d){
 
-      var id = d3plus.variable.value(vars,d,vars.id.value),
-          val = d3plus.variable.value(vars,d,vars.size.value),
-          x = split ? d3plus.variable.value(vars,d,split) : "all"
+      var id = fetchValue(vars,d,vars.id.value),
+          val = fetchValue(vars,d,vars.size.value),
+          x = split ? fetchValue(vars,d,split) : "all"
 
       if (allowed.indexOf(id) < 0) {
         if (val/largest[x] >= threshold) {
@@ -96,7 +99,7 @@ d3plus.data.threshold = function( vars , rawData , split ) {
 
       var levels = vars.id.nesting.slice(0,vars.depth.value)
       var merged = d3plus.data.nest(vars,removed,levels).filter(function(d){
-        return d3plus.variable.value( vars , d , vars.size.value ) > 0
+        return fetchValue( vars , d , vars.size.value ) > 0
       })
 
       merged.forEach(function(m){
@@ -124,12 +127,12 @@ d3plus.data.threshold = function( vars , rawData , split ) {
             m[vars.color.value] = vars.color.missing
           }
           else {
-            m[vars.color.value] = d3plus.variable.color(vars,m[parent],parent)
+            m[vars.color.value] = fetchColor(vars,m[parent],parent)
           }
         }
 
         if (vars.icon.value) {
-          m[vars.icon.value] = d3plus.variable.value(vars,m[parent],vars.icon.value,parent)
+          m[vars.icon.value] = fetchValue(vars,m[parent],vars.icon.value,parent)
         }
 
         if (m[parent]) {
@@ -141,7 +144,7 @@ d3plus.data.threshold = function( vars , rawData , split ) {
           textLabel += " < "+vars.format.value(cutoff)
         }
         else {
-          var textLabel = d3plus.variable.text(vars,m,vars.depth.value-1)[0]
+          var textLabel = fetchText(vars,m,vars.depth.value-1)[0]
           textLabel = textLabel.split(" < ")[0]
           textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
         }

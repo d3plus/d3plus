@@ -1,3 +1,6 @@
+var fetchValue = require("../../core/fetch/value.js"),
+    fetchColor = require("../../core/fetch/color.js"),
+    fetchText  = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -41,7 +44,7 @@ d3plus.ui.legend = function(vars) {
 
           if ( !(colorKey in d) ) {
             var nextKey = vars.id.nesting[ i + 1 ]
-            d[colorKey] = d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
+            d[colorKey] = fetchValue( vars , d[nextKey] , colorKey , nextKey )
           }
 
         }
@@ -49,7 +52,7 @@ d3plus.ui.legend = function(vars) {
       }
 
       var colorFunction = function( d ){
-            return d3plus.variable.color( vars , d , vars.id.nesting[colorDepth] )
+            return fetchColor( vars , d , vars.id.nesting[colorDepth] )
           }
 
       for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
@@ -75,10 +78,10 @@ d3plus.ui.legend = function(vars) {
         var nextKey = vars.id.nesting[ colorDepth + 1 ]
 
         d[colorKey] = d[colorKey]
-          || d3plus.variable.value( vars , d[nextKey] , colorKey , nextKey )
+          || fetchValue( vars , d[nextKey] , colorKey , nextKey )
 
         d[colorName] = d[colorName]
-          || d3plus.variable.color( vars , d , colorKey )
+          || fetchColor( vars , d , colorKey )
 
         d.d3plus.colorDepth = colorDepth
 
@@ -173,8 +176,8 @@ d3plus.ui.legend = function(vars) {
 
               d3.select(this.parentNode).selectAll("text").remove()
 
-              var icon = d3plus.variable.value( vars , g , vars.icon.value , vars.id.nesting[g.d3plus.depth] )
-                , color = d3plus.variable.color( vars , g , vars.id.nesting[g.d3plus.depth] )
+              var icon = fetchValue( vars , g , vars.icon.value , vars.id.nesting[g.d3plus.depth] )
+                , color = fetchColor( vars , g , vars.id.nesting[g.d3plus.depth] )
 
               if (icon && icon !== "null") {
 
@@ -255,7 +258,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("y",0)
                   .each(function(t){
 
-                    var text = d3plus.variable.text( vars , g , g.d3plus.depth )
+                    var text = fetchText( vars , g , g.d3plus.depth )
 
                     if (text.length === 1 && text[0].length) {
 

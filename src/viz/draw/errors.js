@@ -1,3 +1,4 @@
+var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -47,7 +48,7 @@ d3plus.draw.errors = function(vars) {
   if (!vars.internal_error && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
     var connections = vars.edges.connections(vars.focus.value[0],vars.id.value)
     if (connections.length == 0) {
-      var name = d3plus.variable.text(vars,vars.focus.value[0],vars.depth.value)
+      var name = fetchText(vars,vars.focus.value[0],vars.depth.value)
         , str = vars.format.locale.value.error.connections
       vars.internal_error = d3plus.string.format(str,"\""+name+"\"")
     }

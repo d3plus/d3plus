@@ -1,3 +1,4 @@
+var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -105,7 +106,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
           "font-family": vars.labels.font.family.value
         }
 
-        var names = d3plus.variable.text(vars,d)
+        var names = fetchText(vars,d)
 
         if (names.length && names[0].split(" ").length === 1) {
           var size = d3plus.font.sizes(names[0],style)[0]

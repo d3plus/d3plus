@@ -1,3 +1,4 @@
+var fetchData = require("../../core/fetch/data.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -211,14 +212,14 @@ d3plus.draw.steps = function(vars) {
           var timerString = year ? "fetching pool data" : "fetching data"
           d3plus.console.time( timerString )
         }
-        vars.data.pool = d3plus.data.fetch( vars , year )
+        vars.data.pool = fetchData( vars , year )
         if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
         if ( !year ) {
           vars.data.app = vars.data.pool
         }
         else {
           if ( vars.dev.value ) d3plus.console.time("fetching data for current year")
-          vars.data.app = d3plus.data.fetch( vars )
+          vars.data.app = fetchData( vars )
           if ( vars.dev.value ) d3plus.console.timeEnd("fetching data for current year")
         }
 

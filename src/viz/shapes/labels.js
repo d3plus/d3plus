@@ -1,3 +1,4 @@
+var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
@@ -252,7 +253,7 @@ d3plus.shape.labels = function( vars , group ) {
           stat = d.d3plus && "static" in d.d3plus && d.d3plus.static
           label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
-          names = label && label.names ? label.names : d3plus.variable.text(vars,d),
+          names = label && label.names ? label.names : fetchText(vars,d),
           group = label && "group" in label ? label.group : d3.select(this),
           share_size = 0,
           fill = vars.types[vars.type.value].fill

@@ -1,3 +1,4 @@
+var fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
@@ -13,7 +14,7 @@ var network = function(vars) {
       y_range = d3.extent(nodes,function(n){return n.y})
 
   var val_range = vars.size.value ? d3.extent(nodes, function(d){
-    var val = d3plus.variable.value( vars , d , vars.size.value )
+    var val = fetchValue( vars , d , vars.size.value )
     return val === 0 ? null : val
   }) : [ 1 , 1 ]
 
@@ -78,7 +79,7 @@ var network = function(vars) {
     obj.d3plus = {}
     obj.d3plus.x = n.x
     obj.d3plus.y = n.y
-    var val = d3plus.variable.value(vars,obj,vars.size.value)
+    var val = fetchValue(vars,obj,vars.size.value)
     obj.d3plus.r = val ? radius(val) : radius.range()[0]
     lookup[obj[vars.id.value]] = {
       "x": obj.d3plus.x,

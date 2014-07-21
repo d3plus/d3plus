@@ -1,3 +1,4 @@
+var fetchValue = require("../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats raw data by time and nesting
 //------------------------------------------------------------------------------
@@ -50,7 +51,7 @@ d3plus.data.format = function( vars ) {
       vars.data.nested[ t ] = { }
 
       var timeData = vars.data.value.filter( function(d) {
-        return parseInt( d3plus.variable.value( vars , d , vars.time.value ) ) === t
+        return parseInt( fetchValue( vars , d , vars.time.value ) ) === t
       })
 
       vars.id.nesting.forEach( function( depth , i ) {

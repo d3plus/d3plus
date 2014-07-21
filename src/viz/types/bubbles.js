@@ -1,3 +1,6 @@
+var fetchValue = require("../../core/fetch/value.js"),
+    fetchColor = require("../../core/fetch/color.js"),
+    fetchText  = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Bubbles
 //------------------------------------------------------------------------------
@@ -48,12 +51,12 @@ var bubbles = function(vars) {
   //----------------------------------------------------------------------------
   var domain_min = d3.min(vars.data.app, function(d){
     if (!vars.size.value) return 0
-    return d3plus.variable.value(vars,d,vars.size.value,null,"min")
+    return fetchValue(vars,d,vars.size.value,null,"min")
   })
 
   var domain_max = d3.max(vars.data.app, function(d){
     if (!vars.size.value) return 0
-    return d3plus.variable.value(vars,d,vars.size.value)
+    return fetchValue(vars,d,vars.size.value)
   })
 
   var padding = 5
@@ -73,7 +76,7 @@ var bubbles = function(vars) {
     .size([column_width-padding*2,column_height-padding*2-label_height])
     .value(function(d) {
       if (!vars.size.value) return 0
-      return d3plus.variable.value(vars,d,vars.size.value)
+      return fetchValue(vars,d,vars.size.value)
     })
     .padding(padding)
     .radius(function(d){
@@ -153,13 +156,13 @@ var bubbles = function(vars) {
       .attr("font-family",vars.labels.font.family.value)
       .attr("font-size","12px")
       .style("fill",function(d){
-        var color = d3plus.variable.color(vars,d)
+        var color = fetchColor(vars,d)
         return d3plus.color.legible(color)
       })
       .each(function(d){
         if (d.r > 10 && label_height > 10) {
 
-          var names = d3plus.variable.text(vars,d,d.depth)
+          var names = fetchText(vars,d,d.depth)
 
           d3plus.textwrap()
             .container( d3.select(this) )

@@ -1,3 +1,5 @@
+var fetchValue = require("../../core/fetch/value.js")
+  , fetchColor = require("../../core/fetch/color.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Chart
 //------------------------------------------------------------------------------
@@ -58,7 +60,7 @@ var chart = function(vars) {
             .key(function(d){return d[vars.x.value] })
             .rollup(function(leaves){
               return d3.sum(leaves, function(d){
-                return parseFloat(d3plus.variable.value(vars,d,vars[axis].value))
+                return parseFloat(fetchValue(vars,d,vars[axis].value))
               })
             })
             .entries(range_data)
@@ -74,7 +76,7 @@ var chart = function(vars) {
         }
         else if (vars.time.fixed.value) {
           vars[axis+"_range"] = d3.extent(vars.data.app,function(d){
-            return parseFloat(d3plus.variable.value(vars,d,vars[axis].value))
+            return parseFloat(fetchValue(vars,d,vars[axis].value))
           })
           vars.tickValues[axis] = d3plus.util.uniques(vars.data.app,vars[axis].value)
         }
@@ -84,7 +86,7 @@ var chart = function(vars) {
             all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
           }
           vars[axis+"_range"] = d3.extent(all_depths,function(d){
-            return parseFloat(d3plus.variable.value(vars,d,vars[axis].value))
+            return parseFloat(fetchValue(vars,d,vars[axis].value))
           })
           vars.tickValues[axis] = d3plus.util.uniques(vars.data.value,vars[axis].value)
         }
@@ -129,10 +131,10 @@ var chart = function(vars) {
     }
     else {
       var data = vars.data.app.filter(function(d){
-        var val = parseFloat(d3plus.variable.value(vars,d,vars.y.value))
+        var val = parseFloat(fetchValue(vars,d,vars.y.value))
         var y_include = val !== null && val <= vars.y_range[0] && val >= vars.y_range[1]
         if (y_include) {
-          var val = parseFloat(d3plus.variable.value(vars,d,vars.x.value))
+          var val = parseFloat(fetchValue(vars,d,vars.x.value))
           return val !== null && val >= vars.x_range[0] && val <= vars.x_range[1]
         }
         else return false
@@ -155,7 +157,7 @@ var chart = function(vars) {
       if (vars.size.value) {
         if (vars.time.fixed.value) {
           var size_domain = d3.extent(vars.data.app,function(d){
-            var val = d3plus.variable.value(vars,d,vars.size.value)
+            var val = fetchValue(vars,d,vars.size.value)
             return val == 0 ? null : val
           })
         }
@@ -165,7 +167,7 @@ var chart = function(vars) {
             all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
           }
           var size_domain = d3.extent(all_depths,function(d){
-            var val = d3plus.variable.value(vars,d,vars.size.value)
+            var val = fetchValue(vars,d,vars.size.value)
             return val == 0 ? null : val
           })
         }
@@ -654,14 +656,14 @@ var chart = function(vars) {
   }
 
   data.forEach(function(d){
-    d.d3plus.x = vars.x_scale(d3plus.variable.value(vars,d,vars.x.value))
+    d.d3plus.x = vars.x_scale(fetchValue(vars,d,vars.x.value))
     d.d3plus.x += vars.axis_offset.x
 
-    d.d3plus.r = radius(d3plus.variable.value(vars,d,vars.size.value))
+    d.d3plus.r = radius(fetchValue(vars,d,vars.size.value))
 
     if (!vars.stacked_axis) {
 
-      d.d3plus.y = vars.y_scale(d3plus.variable.value(vars,d,vars.y.value))
+      d.d3plus.y = vars.y_scale(fetchValue(vars,d,vars.y.value))
       d.d3plus.y += vars.axis_offset.y
 
       if (vars.shape.value == "area") {
@@ -680,7 +682,7 @@ var chart = function(vars) {
 
     data = d3.nest()
       .key(function(d){
-        var id = d3plus.variable.value(vars,d,vars.id.value),
+        var id = fetchValue(vars,d,vars.id.value),
             depth = d.d3plus.depth ? d.d3plus.depth : 0
         return d3plus.string.strip(id)+"_"+depth+"_"+vars.shape.value
       })
@@ -773,7 +775,7 @@ var chart = function(vars) {
       if ( !(sort in d) ) {
         d[sort] = 0
         d.values.forEach(function(v){
-          var val = d3plus.variable.value(vars,v,sort)
+          var val = fetchValue(vars,v,sort)
           if (val) {
             if (typeof val == "number") {
               d[sort] += val
@@ -805,7 +807,7 @@ var chart = function(vars) {
       .x(function(d) { return d.d3plus.y; })
       .y(function(d) {
         var flip = graph.height,
-            val = d3plus.variable.value(vars,d,vars.y.value)
+            val = fetchValue(vars,d,vars.y.value)
         return flip-vars.y_scale(val);
       })
       .out(function(d,y0,y){
@@ -845,7 +847,7 @@ var chart = function(vars) {
           return axis == "x" ? graph.height+5 : d.d3plus.y-graph.margin.top
         })
         .style("stroke",function(d){
-          return d3plus.color.legible(d3plus.variable.color(vars,d));
+          return d3plus.color.legible(fetchColor(vars,d));
         })
         .style("stroke-width",vars.data.stroke.width)
         .attr("shape-rendering",vars.shape.rendering.value)
@@ -937,7 +939,7 @@ var chart = function(vars) {
         return d.axis == "y" ? d.y : d.y+d.r
       })
       .style("stroke",function(d){
-        return d3plus.variable.color(vars,node)
+        return fetchColor(vars,node)
       })
       .attr("shape-rendering",vars.shape.rendering.value)
 
@@ -950,7 +952,7 @@ var chart = function(vars) {
         return d.axis == "y" ? d.y : graph.height+graph.margin.top+vars.axes.ticks.size
       })
       .style("stroke",function(d){
-        return d3plus.color.legible(d3plus.variable.color(vars,node));
+        return d3plus.color.legible(fetchColor(vars,node));
       })
       .style("stroke-width",vars.data.stroke.width)
       .attr("opacity",1)
@@ -970,7 +972,7 @@ var chart = function(vars) {
         return d.axis+"_"+d.id
       })
       .text(function(d){
-        var val = d3plus.variable.value(vars,node.d3plus_data || node,vars[d.axis].value)
+        var val = fetchValue(vars,node.d3plus_data || node,vars[d.axis].value)
         return vars.format.value(val,vars[d.axis].value)
       })
       .attr("x",function(d){
@@ -986,7 +988,7 @@ var chart = function(vars) {
         return d.axis == "y" ? "end": "middle"
       })
       .style("fill",function(d){
-        return d3plus.color.legible(d3plus.variable.color(vars,node));
+        return d3plus.color.legible(fetchColor(vars,node));
       })
       .style("font-size",vars.axes.ticks.font.size)
       .attr("font-family",vars.axes.ticks.font.family.value)
@@ -1027,7 +1029,7 @@ var chart = function(vars) {
         return text.height + 10
       })
       .style("stroke",function(d){
-        return d3plus.color.legible(d3plus.variable.color(vars,node));
+        return d3plus.color.legible(fetchColor(vars,node));
       })
       .style("fill","white")
       .style("stroke-width",vars.data.stroke.width)

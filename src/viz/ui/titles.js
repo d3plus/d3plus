@@ -1,3 +1,4 @@
+var fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws appropriate titles
 //------------------------------------------------------------------------------
@@ -27,12 +28,12 @@ d3plus.ui.titles = function(vars) {
         return d[vars.id.value] == vars.focus.value[0]
       })
       total = d3.sum(total,function(d){
-        return d3plus.variable.value(vars,d,total_key)
+        return fetchValue(vars,d,total_key)
       })
     }
     else {
       var total = d3.sum(vars.data.pool,function(d){
-        return d3plus.variable.value(vars,d,total_key)
+        return fetchValue(vars,d,total_key)
       })
     }
 
@@ -48,16 +49,16 @@ d3plus.ui.titles = function(vars) {
 
         var overall_total = d3.sum(vars.data.value, function(d){
           if (vars.time.solo.value.length > 0) {
-            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.value)) >= 0
+            var match = vars.time.solo.value.indexOf(fetchValue(vars,d,vars.time.value)) >= 0
           }
           else if (vars.time.mute.value.length > 0) {
-            var match = vars.time.solo.value.indexOf(d3plus.variable.value(vars,d,vars.time.value)) < 0
+            var match = vars.time.solo.value.indexOf(fetchValue(vars,d,vars.time.value)) < 0
           }
           else {
             var match = true
           }
           if (match) {
-            return d3plus.variable.value(vars,d,total_key)
+            return fetchValue(vars,d,total_key)
           }
         })
 

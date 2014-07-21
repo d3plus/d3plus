@@ -1,3 +1,4 @@
+var fetchData = require("../core/fetch/data.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Form Element shell
 //------------------------------------------------------------------------------
@@ -47,7 +48,7 @@ d3plus.form = function() {
         d3plus.data.format( vars )
       }
 
-      vars.data.app = d3plus.data.fetch( vars )
+      vars.data.app = fetchData( vars )
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
