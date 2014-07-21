@@ -21,7 +21,7 @@ d3plus.data.keys = function( vars , type ) {
         if ( d3plus.object.validate(arr[d]) ) {
           get_keys( arr[d] )
         }
-        else if (!(d in vars[type].keys) && arr[d]) {
+        else if (!(d in vars[type].keys) && d in arr) {
           vars[type].keys[d] = typeof arr[d]
         }
       }

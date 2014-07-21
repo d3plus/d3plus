@@ -41,6 +41,10 @@ d3plus.data.fetch = function( vars , years ) {
     years = [ "all" ]
   }
 
+  if (years.indexOf("all") >= 0 && vars.data.time.length) {
+    years = vars.data.time
+  }
+
   var cacheID = [ vars.type.value , vars.id.value , vars.depth.value ]
                   .concat( vars.data.filters )
                   .concat( years )

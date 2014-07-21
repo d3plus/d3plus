@@ -112,12 +112,25 @@ d3plus.tooltip.app = function(params) {
 
         nameList = nameList.slice(0)
 
-        if ( d3plus.object.validate(nameList[0]) ) {
-          nameList = d3plus.util.uniques(nameList,nestKey)
+        if (d3plus.object.validate(nameList[0])) {
+
+          var namesWithValues = nameList.filter(function(n){
+            return vars.size.value in n
+          })
+
+          var namesNoValues = nameList.filter(function(n){
+            return !(vars.size.value in n)
+          })
+
+          d3plus.array.sort( namesWithValues , vars.size.value , "desc" , [] , vars )
+
+          nameList = namesWithValues.concat(namesNoValues)
+
         }
 
-        var limit       = length === "short" ? 3 : vars.data.large
-          , max         = d3.min([nameList.length , limit])
+        var limit = length === "short" ? 3 : vars.data.large
+          , max   = d3.min([nameList.length , limit])
+          , objs  = []
 
         for ( var i = 0 ; i < max ; i++ ) {
 
@@ -140,7 +153,7 @@ d3plus.tooltip.app = function(params) {
         }
 
       }
-      else if ( nameList && nameList !== "null" ) {
+      else if ( nameList && nameList !== "null" && nameList !== d[nestKey] ) {
 
         var name  = d3plus.variable.text( vars , nameList , depth )[0]
 
@@ -150,7 +163,7 @@ d3plus.tooltip.app = function(params) {
 
     }
 
-    if ( vars.tooltip.size.value && dataValue && ( !nameList || nameList instanceof Array ) ) {
+    if ( vars.size.value && vars.tooltip.size.value && dataValue && ( !nameList || nameList instanceof Array ) ) {
       ex[vars.size.value] = dataValue
     }
 

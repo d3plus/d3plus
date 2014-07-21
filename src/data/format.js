@@ -28,37 +28,44 @@ d3plus.data.format = function( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Gets all unique time values
   //----------------------------------------------------------------------------
-  vars.data.nested = { "all" : {} }
+  vars.data.nested = {}
+  if (vars.data.time.length === 0) {
 
-  vars.id.nesting.forEach( function( depth , i ) {
-
-    var nestingDepth = vars.id.nesting.slice( 0 , i + 1 )
-
-    vars.data.nested.all[ depth ] = d3plus.data.nest( vars
-                                                    , vars.data.value
-                                                    , nestingDepth )
-
-  })
-
-  vars.data.time.forEach( function( t ) {
-
-    vars.data.nested[ t ] = { }
-
-    var timeData = vars.data.value.filter( function(d) {
-      return parseInt( d3plus.variable.value( vars , d , vars.time.value ) ) === t
-    })
-
+    vars.data.nested.all = {}
     vars.id.nesting.forEach( function( depth , i ) {
 
       var nestingDepth = vars.id.nesting.slice( 0 , i + 1 )
 
-      vars.data.nested[ t ][ depth ] = d3plus.data.nest( vars
-                                                       , timeData
-                                                       , nestingDepth )
+      vars.data.nested.all[ depth ] = d3plus.data.nest( vars
+                                                      , vars.data.value
+                                                      , nestingDepth )
 
     })
 
-  })
+  }
+  else {
+
+    vars.data.time.forEach( function( t ) {
+
+      vars.data.nested[ t ] = { }
+
+      var timeData = vars.data.value.filter( function(d) {
+        return parseInt( d3plus.variable.value( vars , d , vars.time.value ) ) === t
+      })
+
+      vars.id.nesting.forEach( function( depth , i ) {
+
+        var nestingDepth = vars.id.nesting.slice( 0 , i + 1 )
+
+        vars.data.nested[ t ][ depth ] = d3plus.data.nest( vars
+                                                         , timeData
+                                                         , nestingDepth )
+
+      })
+
+    })
+
+  }
 
   if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
 

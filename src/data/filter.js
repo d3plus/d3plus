@@ -23,7 +23,7 @@ d3plus.data.filter = function( vars , data ) {
 
         var val = d3plus.variable.value(vars,d,vars[key].value)
         if ( key === "size" ) {
-          return typeof val === "number" && val > 0
+          return typeof val === "number"
         }
         else {
           return val !== null
@@ -62,9 +62,12 @@ d3plus.data.filter = function( vars , data ) {
 
       // if the variable has nesting, check all levels
       var match = false
-
       if (vars[v].nesting) {
-        vars[v].nesting.forEach(function(n){
+        var nesting = vars[v].nesting
+        if (d3plus.object.validate(nesting)) {
+          nesting = d3.keys(nesting)
+        }
+        nesting.forEach(function(n){
           if (!match) {
             match = test_value(d3plus.variable.value(vars,d,n))
           }
