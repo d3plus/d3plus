@@ -5,14 +5,19 @@ d3plus.textwrap.getText = function( vars ) {
 
   if ( !vars.text.value ) {
 
-    var text = vars.container.value.html()
-    if ( text.indexOf("tspan") >= 0 ) {
-      text.replace(/\<\/tspan\>\<tspan\>/g," ")
-      text.replace(/\<\/tspan\>/g,"")
-      text.replace(/\<tspan\>/g,"")
-    }
+    var text = vars.container.value.text()
 
-    vars.self.text( text )
+    if (text) {
+
+      if ( text.indexOf("tspan") >= 0 ) {
+        text.replace(/\<\/tspan\>\<tspan\>/g," ")
+        text.replace(/\<\/tspan\>/g,"")
+        text.replace(/\<tspan\>/g,"")
+      }
+
+      vars.self.text( text )
+
+    }
 
   }
 
@@ -25,6 +30,6 @@ d3plus.textwrap.getText = function( vars ) {
     vars.text.phrases = [ vars.text.value + "" ]
   }
 
-  vars.container.value.html("")
+  vars.container.value.text("")
 
 }
