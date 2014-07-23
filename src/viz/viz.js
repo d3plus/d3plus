@@ -8,6 +8,7 @@ d3plus.viz = function() {
       "geo_map":  require("./types/geo_map.js"),
       "line":     require("./types/line.js"),
       "network":  require("./types/network.js"),
+      "paths":    require("./types/paths.coffee"),
       "rings":    require("./types/rings.js"),
       "scatter":  require("./types/scatter.js"),
       "stacked":  require("./types/stacked.js"),

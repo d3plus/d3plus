@@ -71,11 +71,11 @@ var rings = function(vars) {
 
   })
 
-  if (typeof vars.edges.limit == "number") {
-    primaries = primaries.slice(0,vars.edges.limit)
+  if (typeof vars.edges.limit.value == "number") {
+    primaries = primaries.slice(0,vars.edges.limit.value)
   }
-  else if (typeof vars.edges.limit == "function") {
-    primaries = vars.edges.limit(primaries)
+  else if (typeof vars.edges.limit.value == "function") {
+    primaries = vars.edges.limit.value(primaries)
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
