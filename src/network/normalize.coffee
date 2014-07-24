@@ -2,10 +2,10 @@
 # Normalizes the graph input and checks if it is valid
 #------------------------------------------------------------------------------
 
-d3plus.network.normalize = (edges, source, options) ->
+d3plus.network.normalize = (edges, options) ->
   # unpack options
-  {target, directed, distance, nodeid, startpoint, endpoint, K} = options
-  
+  {source, target, directed, distance, nodeid, startpoint, endpoint, K} = options
+  if not directed then directed = false
   if not K? then K = 1
   if not nodeid? then nodeid = (node) -> return node
   else if typeof nodeid is 'string' then nodeid = do (nodeid) -> (node) -> return node[nodeid]
@@ -56,11 +56,11 @@ d3plus.network.normalize = (edges, source, options) ->
   else
     id1 = nodeid(startpoint(edges[0]))
     if not id1? or typeof id1 not in ['string','number'] then errormsg = 'Check the nodeid function/attribute'
-    else if source not of nodes then errormsg = 'The source is not in the graph'
+    else if source? and source not of nodes then errormsg = 'The source is not in the graph'
     else if target? and target not of nodes then errormsg = 'The target is not in the graph'
   
   if errormsg?
     d3plus.console.error errormsg
     return null
   
-  return [edges, source, {target, directed, distance, nodeid, startpoint, endpoint, K, nodes}]
+  return [edges, {source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes}]

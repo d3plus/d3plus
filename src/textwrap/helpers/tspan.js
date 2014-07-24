@@ -9,7 +9,7 @@ d3plus.textwrap.tspan = function( vars ) {
     , fontSize   = vars.resize.value ? vars.size.value[1] : vars.container.fontSize || vars.size.value[0]
     , textBox    = vars.container.value.append("tspan").text( words[0] )
                      .attr( "dy" , fontSize + "px" )
-    , textHeight = textBox.node().offsetHeight
+    , textHeight = textBox.node().offsetHeight || textBox.node().getBoundingClientRect().height
     , line       = 1
     , newLine    = function( ) {
       return vars.container.value.append("tspan")

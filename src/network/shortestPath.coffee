@@ -49,21 +49,23 @@ Heap = require 'heap'
 # returns the top K shortest paths from the source to the given target, or the top K closest nodes to the source
 d3plus.network.shortestPath = (edges, source, options) ->
   ######### User's options normalization ############
+  if not options? then options = {}
+  options.source = source
   if not options.nodes? or typeof options.nodes isnt 'object'
-    [edges, source, options] = d3plus.network.normalize edges, source, options
+    [edges, options] = d3plus.network.normalize edges, options
     if options is null then return null
   # unpack options object
-  {target, directed, distance, nodeid, startpoint, endpoint, K, nodes} = options
-  ####### END user's input normalization #########
+  {source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes} = options
+  ####### END user's input normalization #########  
 
   #book-keeping
   node.count = 0 for id, node of nodes
-
+  
   heap = new Heap (a,b) -> return a.distance - b.distance
   visited = {}
   if not target? then visited[source] = true
   heap.push {edge: null, target: source, distance: 0}
-
+  
   # iterative by popping the node with minimum distance from the graph
   maxsize = 0
   result = []
@@ -85,7 +87,7 @@ d3plus.network.shortestPath = (edges, source, options) ->
           visited[b] = true
         alt = path.distance + distance edge
         heap.push {edge: edge, previous: path, target: b, distance: alt}
-
+  
   # expand the path information in the result object
   getPath = (path) ->
     # path should be a combination of edges

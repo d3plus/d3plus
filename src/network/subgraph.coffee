@@ -41,11 +41,13 @@
 # returns a graph object composed of nodes of distance K away from the source node and the links between them.
 d3plus.network.subgraph = (edges, source, options) ->
   ######### User's input normalization ############
+  if not options? then options = {}
+  options.source = source
   if not options.nodes? or typeof options.nodes isnt 'object'
-    [edges, source, options] = d3plus.network.normalize edges, source, options
+    [edges, options] = d3plus.network.normalize edges, options
     if options is null then return null
   # unpack options object
-  {directed, distance, nodeid, startpoint, endpoint, K, nodes} = options
+  {source, directed, distance, nodeid, startpoint, endpoint, K, nodes} = options
   ####### END user's input normalization #########
   
   # start expanding from the source node to get the subgraph in DFS fashion
