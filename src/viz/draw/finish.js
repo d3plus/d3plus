@@ -55,7 +55,7 @@ d3plus.draw.finish = function(vars) {
 
         setTimeout(function(){
           d3plus.shape.labels( vars , "edges" )
-        },vars.draw.timing)
+        },vars.draw.timing+200)
 
       }
     }
@@ -73,7 +73,7 @@ d3plus.draw.finish = function(vars) {
 
       setTimeout(function(){
         d3plus.shape.labels( vars , "edge_focus" )
-      },vars.draw.timing)
+      },vars.draw.timing+200)
 
     }
     if ( vars.dev.value ) d3plus.console.timeEnd("focus labels")
