@@ -160,25 +160,25 @@ d3plus.shape.draw = function(vars) {
 
             d = id(d)
 
-            if (!d.d3plus.a) {
+            if (!d.d3plus.segments) {
 
-              d.d3plus.a = {"donut": Math.PI*2}
+              d.d3plus.segments = {"donut": Math.PI*2}
               var active = vars.active.value ? d.d3plus[vars.active.value] : d.d3plus.active,
                   temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
                   total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total
 
               if (total) {
                 if (active) {
-                  d.d3plus.a.active = (active/total) * (Math.PI * 2)
+                  d.d3plus.segments.active = (active/total) * (Math.PI * 2)
                 }
                 else {
-                  d.d3plus.a.active = 0
+                  d.d3plus.segments.active = 0
                 }
                 if (temp) {
-                  d.d3plus.a.temp = ((temp/total) * (Math.PI * 2)) + d.d3plus.a.active
+                  d.d3plus.segments.temp = ((temp/total) * (Math.PI * 2)) + d.d3plus.segments.active
                 }
                 else {
-                  d.d3plus.a.temp = 0
+                  d.d3plus.segments.temp = 0
                 }
               }
 
@@ -261,6 +261,10 @@ d3plus.shape.draw = function(vars) {
   function edge_update(d) {
 
     if (d && vars.g.edges.selectAll("g").size() > 0) {
+
+      vars.g.edge_hover
+        .selectAll("*")
+        .remove()
 
       vars.g.edges.selectAll("g")
         .each(function(l){
