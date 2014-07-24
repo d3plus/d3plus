@@ -240,7 +240,7 @@ d3plus.shape.labels = function( vars , group ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Loop through each selection and analyze the labels
   //----------------------------------------------------------------------------
-  if (vars.labels.value) {
+  if (group === "edges" || vars.labels.value) {
 
     if ( vars.dev.value ) {
       var timerString = "drawing " + group + " labels"
