@@ -266,7 +266,7 @@ var rings = function(vars) {
   primaries.forEach(function(p,i){
 
     var check = [vars.edges.source,vars.edges.target]
-      , edge = d3plus.util.copy(p.d3plus.edge)
+      , edge = p.d3plus.edge
 
     check.forEach(function(node){
       if (edge[node][vars.id.value] == center[vars.id.value]) {
@@ -292,9 +292,7 @@ var rings = function(vars) {
     delete edge.d3plus
     edges.push(edge)
 
-    vars.edges.connections(p[vars.id.value],vars.id.value).forEach(function(e){
-
-      var edge = d3plus.util.copy(e)
+    vars.edges.connections(p[vars.id.value],vars.id.value).forEach(function(edge){
 
       var c = edge[vars.edges.source][vars.id.value] == p[vars.id.value]
             ? edge[vars.edges.target] : edge[vars.edges.source]

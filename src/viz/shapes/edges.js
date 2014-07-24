@@ -13,7 +13,7 @@ d3plus.shape.edges = function(vars) {
                        })
       , maxSize = d3.min(vars.returned.nodes || [], function(n){
                         return n.d3plus.r
-                      })*.6
+                      })*.5
 
     vars.edges.scale = d3.scale.sqrt()
                         .domain(strokeDomain)
@@ -98,16 +98,16 @@ d3plus.shape.edges = function(vars) {
   function line(l) {
     l
       .attr("x1",function(d){
-        return d[vars.edges.source].d3plus.dx
+        return d[vars.edges.source].d3plus.edges[d.d3plus.id].dx
       })
       .attr("y1",function(d){
-        return d[vars.edges.source].d3plus.dy
+        return d[vars.edges.source].d3plus.edges[d.d3plus.id].dy
       })
       .attr("x2",function(d){
-        return d[vars.edges.target].d3plus.dx
+        return d[vars.edges.target].d3plus.edges[d.d3plus.id].dx
       })
       .attr("y2",function(d){
-        return d[vars.edges.target].d3plus.dy
+        return d[vars.edges.target].d3plus.edges[d.d3plus.id].dy
       })
   }
 
@@ -124,11 +124,11 @@ d3plus.shape.edges = function(vars) {
   function spline(l) {
     l
       .attr("d", function(d) {
-        if (d[vars.edges.source].d3plus.dr) {
+        if (d[vars.edges.source].d3plus.edges[d.d3plus.id].dr) {
           var x1 = d[vars.edges.source].d3plus.a,
-              y1 = d[vars.edges.source].d3plus.dr,
+              y1 = d[vars.edges.source].d3plus.edges[d.d3plus.id].dr,
               x2 = d[vars.edges.target].d3plus.a,
-              y2 = d[vars.edges.target].d3plus.dr
+              y2 = d[vars.edges.target].d3plus.edges[d.d3plus.id].dr
           var obj = {}
           obj[vars.edges.source] = {"x":x1,"y":y1}
           obj[vars.edges.target] = {"x":x2,"y":y2}
@@ -136,10 +136,10 @@ d3plus.shape.edges = function(vars) {
 
         }
         else {
-          var x1 = d[vars.edges.source].d3plus.dx,
-              y1 = d[vars.edges.source].d3plus.dy,
-              x2 = d[vars.edges.target].d3plus.dx,
-              y2 = d[vars.edges.target].d3plus.dy
+          var x1 = d[vars.edges.source].d3plus.edges[d.d3plus.id].dx,
+              y1 = d[vars.edges.source].d3plus.edges[d.d3plus.id].dy,
+              x2 = d[vars.edges.target].d3plus.edges[d.d3plus.id].dx,
+              y2 = d[vars.edges.target].d3plus.edges[d.d3plus.id].dy
           var obj = {}
           obj[vars.edges.source] = {"x":x1,"y":y1}
           obj[vars.edges.target] = {"x":x2,"y":y2}
@@ -354,11 +354,11 @@ d3plus.shape.edges = function(vars) {
 
   var line_data = edges.filter(function(l){
 
-    if ( !l.d3plus || (l.d3plus && l.d3plus.spline !== true) ) {
+    if (!l.d3plus) l.d3plus = {}
 
-      if (!l.d3plus) {
-        l.d3plus = {}
-      }
+    l.d3plus.id = "edge_"+l[vars.edges.source][vars.id.value]+"_"+l[vars.edges.target][vars.id.value]
+
+    if ( l.d3plus.spline !== true ) {
 
       if (strokeBuckets) {
         var size = l[vars.edges.size]
@@ -376,25 +376,34 @@ d3plus.shape.edges = function(vars) {
 
       if (!source.d3plus || !target.d3plus) return false
 
-      var angle = Math.atan2( source.d3plus.y - target.d3plus.y
-                            , source.d3plus.x - target.d3plus.x )
+      var sourceAngle = Math.atan2( source.d3plus.y - target.d3plus.y
+                                  , source.d3plus.x - target.d3plus.x )
+        , targetAngle = Math.atan2( target.d3plus.y - source.d3plus.y
+                                  , target.d3plus.x - source.d3plus.x )
         , sourceRadius = direction == "source" && vars.edges.arrows.value
                        ? source.d3plus.r + marker
                        : source.d3plus.r
         , targetRadius = direction == "target" && vars.edges.arrows.value
                        ? target.d3plus.r + marker
                        : target.d3plus.r
-        , sourceOffset = d3plus.util.offset( angle
+        , sourceOffset = d3plus.util.offset( sourceAngle
                                            , sourceRadius
                                            , vars.shape.value )
-        , targetOffset = d3plus.util.offset( angle
+        , targetOffset = d3plus.util.offset( targetAngle
                                            , targetRadius
                                            , vars.shape.value )
 
-      source.d3plus.dx = source.d3plus.x - sourceOffset.x
-      source.d3plus.dy = source.d3plus.y - sourceOffset.y
-      target.d3plus.dx = target.d3plus.x + targetOffset.x
-      target.d3plus.dy = target.d3plus.y + targetOffset.y
+      if (!("edges" in source.d3plus)) source.d3plus.edges = {}
+      source.d3plus.edges[l.d3plus.id] = {
+          "dx": source.d3plus.x - sourceOffset.x,
+          "dy": source.d3plus.y - sourceOffset.y
+      }
+
+      if (!("edges" in target.d3plus)) target.d3plus.edges = {}
+      target.d3plus.edges[l.d3plus.id] = {
+          "dx": target.d3plus.x - targetOffset.x,
+          "dy": target.d3plus.y - targetOffset.y
+      }
 
       return true
     }
@@ -406,19 +415,13 @@ d3plus.shape.edges = function(vars) {
   var lines = vars.g.edges.selectAll("g.d3plus_edge_line")
     .data(line_data,function(d){
 
-      if (!d.d3plus) {
-        d.d3plus = {}
-      }
-
-      d.d3plus.id = d[vars.edges.source][vars.id.value]+"_"+d[vars.edges.target][vars.id.value]
-
       return d.d3plus.id
 
     })
 
   var spline_data = edges.filter(function(l){
 
-    if (l.d3plus && l.d3plus.spline) {
+    if (l.d3plus.spline) {
 
       if (strokeBuckets) {
         var size = l[vars.edges.size]
@@ -442,8 +445,12 @@ d3plus.shape.edges = function(vars) {
                        ? target.d3plus.r + targetMod
                        : target.d3plus.r
 
-      source.d3plus.dr = sourceRadius
-      target.d3plus.dr = targetRadius
+
+      if (!("edges" in source.d3plus)) source.d3plus.edges = {}
+      source.d3plus.edges[l.d3plus.id] = {"dr": sourceRadius}
+
+      if (!("edges" in target.d3plus)) target.d3plus.edges = {}
+      target.d3plus.edges[l.d3plus.id] = {"dr": targetRadius}
 
       return true
 
@@ -455,12 +462,6 @@ d3plus.shape.edges = function(vars) {
 
   var splines = vars.g.edges.selectAll("g.d3plus_edge_path")
     .data(spline_data,function(d){
-
-      if (!d.d3plus) {
-        d.d3plus = {}
-      }
-
-      d.d3plus.id = d[vars.edges.source][vars.id.value]+"_"+d[vars.edges.target][vars.id.value]
 
       return d.d3plus.id
 

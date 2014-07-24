@@ -95,17 +95,13 @@ var network = function(vars) {
 
   edges.forEach(function(l,i){
 
-    l[vars.edges.source] = d3plus.util.copy(l[vars.edges.source])
     l[vars.edges.source].d3plus = {}
-
     var source = lookup[l[vars.edges.source][vars.id.value]]
     l[vars.edges.source].d3plus.r = source.r
     l[vars.edges.source].d3plus.x = source.x
     l[vars.edges.source].d3plus.y = source.y
 
-    l[vars.edges.target] = d3plus.util.copy(l[vars.edges.target])
     l[vars.edges.target].d3plus = {}
-
     var target = lookup[l[vars.edges.target][vars.id.value]]
     l[vars.edges.target].d3plus.r = target.r
     l[vars.edges.target].d3plus.x = target.x

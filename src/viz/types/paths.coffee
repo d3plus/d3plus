@@ -47,15 +47,12 @@ viz = (vars) ->
               prevIndex = colIndex
             if next in col
               nextIndex = colIndex
-          if nextIndex - prevIndex is 1
+          if prevIndex isnt null and nextIndex is null
+            paths["all"].splice prevIndex + 1, 0, [id]
+          else if nextIndex - prevIndex is 1
             paths["all"].splice nextIndex, 0, [id]
           else if nextIndex - prevIndex > 1
             paths["all"][nextIndex - 1].push id
-          else
-            console.log pathInt, paths[pathInt]
-            console.log prev, prevIndex, id, next, nextIndex
-
-  console.log paths["all"]
 
   columns = paths["all"].length
 
@@ -108,10 +105,6 @@ viz = (vars) ->
     else
       node.d3plus.r = maxRadius
 
-  console.log "\n"
-  console.log "Returning:"
-  console.log vars.data.app, edges
-  console.log "\n"
   # return
   nodes: vars.data.app
   edges: edges
