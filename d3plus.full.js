@@ -26170,6 +26170,10 @@ simplify = require('simplify-js');
 
 d3plus.geom.largestRect = function(poly, options) {
   var aRatio, aRatios, angle, angleRad, angleStep, angles, area, aspectRatioStep, aspectRatios, bBox, boxHeight, boxWidth, centroid, events, height, i, insidePoly, left, maxArea, maxAspectRatio, maxHeight, maxRect, maxWidth, maxx, maxy, minAspectRatio, minSqDistH, minSqDistW, minx, miny, modifOrigins, origOrigin, origin, origins, p, p1H, p1W, p2H, p2W, rectPoly, right, rndPoint, rndX, rndY, tempPoly, tolerance, width, widthStep, x0, y0, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+  if (poly.length < 3) {
+    d3plus.console.error('polygon has to have at least 3 points');
+    return null;
+  }
   events = [];
   aspectRatioStep = 0.5;
   angleStep = 5;
@@ -26222,6 +26226,10 @@ d3plus.geom.largestRect = function(poly, options) {
     }
   }
   area = Math.abs(d3.geom.polygon(poly).area());
+  if (area === 0) {
+    d3plus.console.error('polygon has 0 area');
+    return null;
+  }
   _ref = d3.extent(poly, function(d) {
     return d[0];
   }), minx = _ref[0], maxx = _ref[1];
