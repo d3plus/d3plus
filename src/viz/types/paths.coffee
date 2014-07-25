@@ -9,6 +9,7 @@ viz = (vars) ->
   pathLookup[vars.focus.value[0]] = 0
   pathLookup[vars.focus.value[1]] = 0
   paths = {all: [[vars.focus.value[0]],[vars.focus.value[1]]]}
+
   for path, pathInt in viz.paths
 
     edges = edges.concat path.edges
@@ -23,9 +24,9 @@ viz = (vars) ->
       edge[vars.edges.target] = vars.data.app.filter((d) ->
         edge[vars.edges.target][vars.id.value] is d[vars.id.value] )[0]
 
-      direction = if edge[vars.edges.source][vars.id.value] is lastHop then "target" else "source"
+      nextDir = if edge[vars.edges.source][vars.id.value] is lastHop then "target" else "source"
 
-      nextHop = edge[vars.edges[direction]][vars.id.value]
+      nextHop = edge[vars.edges[nextDir]][vars.id.value]
 
       if pathLookup[nextHop] is undefined
         pathLookup[nextHop] = pathInt
@@ -54,28 +55,9 @@ viz = (vars) ->
           else if nextIndex - prevIndex > 1
             paths["all"][nextIndex - 1].push id
 
-  columns = paths["all"].length
-
-  columnWidth = Math.floor vars.width.viz / columns
-
   rows = viz.paths.length
 
   rowHeight = Math.floor vars.height.viz / rows
-
-  overlap = if vars.size.value then vars.nodes.overlap else 0.45
-
-  maxRadius = d3.min([columnWidth,rowHeight]) * overlap
-
-  sizeDomain = d3.extent vars.data.app, (node) ->
-    fetchValue vars, node, vars.size.value
-
-  size = vars.size.scale.value
-    .domain sizeDomain
-    .rangeRound [2, maxRadius]
-
-  x = d3.scale.linear()
-    .domain [0, columns - 1]
-    .rangeRound [columnWidth/2, vars.width.viz - columnWidth/2]
 
   yDomain = []
   i = 0
@@ -89,6 +71,25 @@ viz = (vars) ->
   y = d3.scale.ordinal()
     .domain yDomain
     .range d3.range rowHeight/2, vars.height.viz + rowHeight/2, (vars.height.viz - rowHeight)/(rows-1)
+
+  columns = paths["all"].length
+
+  columnWidth = Math.floor vars.width.viz / columns
+
+  x = d3.scale.linear()
+    .domain [0, columns - 1]
+    .rangeRound [columnWidth/2, vars.width.viz - columnWidth/2]
+
+  overlap = if vars.size.value then vars.nodes.overlap else 0.4
+
+  maxRadius = d3.min([columnWidth,rowHeight]) * overlap
+
+  sizeDomain = d3.extent vars.data.app, (node) ->
+    fetchValue vars, node, vars.size.value
+
+  size = vars.size.scale.value
+    .domain sizeDomain
+    .rangeRound [2, maxRadius]
 
   for node in vars.data.app
 
@@ -104,6 +105,42 @@ viz = (vars) ->
       node.d3plus.r = size(fetchValue vars, node, vars.size.value)
     else
       node.d3plus.r = maxRadius
+
+  for path, pathInt in viz.paths
+
+    lastHop = vars.focus.value[0]
+
+    for edge, edgeInt in path.edges
+
+      nextDir = if edge[vars.edges.source][vars.id.value] is lastHop then "target" else "source"
+      lastDir = if nextDir is "target" then "source" else "target"
+
+      nextHop = edge[vars.edges[nextDir]][vars.id.value]
+
+      if pathLookup[lastHop] isnt pathLookup[nextHop]
+
+        edge.d3plus =
+          spline: true
+
+        edge[vars.edges.source].d3plus ?= {}
+        edge[vars.edges.source].d3plus.edges ?= {}
+        edge[vars.edges.target].d3plus ?= {}
+        edge[vars.edges.target].d3plus.edges ?= {}
+
+        xDiff = edge[nextDir].d3plus.x - edge[lastDir].d3plus.x
+
+        edge[lastDir].d3plus.edges[edge[nextDir][vars.id.value]] =
+          angle: Math.PI
+          radius: columnWidth/2
+        edge[nextDir].d3plus.edges[edge[lastDir][vars.id.value]] =
+          angle: 0
+          radius: columnWidth/2
+          offset: xDiff - columnWidth
+
+      else
+        delete edge.d3plus
+
+      lastHop = nextHop
 
   # return
   nodes: vars.data.app

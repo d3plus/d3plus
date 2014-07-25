@@ -98,63 +98,30 @@ d3plus.shape.edges = function(vars) {
   function line(l) {
     l
       .attr("x1",function(d){
-        return d[vars.edges.source].d3plus.edges[d.d3plus.id].dx
+        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].x
       })
       .attr("y1",function(d){
-        return d[vars.edges.source].d3plus.edges[d.d3plus.id].dy
+        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].y
       })
       .attr("x2",function(d){
-        return d[vars.edges.target].d3plus.edges[d.d3plus.id].dx
+        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].x
       })
       .attr("y2",function(d){
-        return d[vars.edges.target].d3plus.edges[d.d3plus.id].dy
+        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].y
       })
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Positioning of Splines
   //----------------------------------------------------------------------------
-  var diagonal = d3.svg.diagonal(),
-      radial = d3.svg.diagonal()
-        .projection(function(d){
-          var r = d.y, a = d.x;
-          return [r * Math.cos(a), r * Math.sin(a)];
-        })
+  var curve = d3.svg.line().interpolate(vars.edges.interpolate.value)
 
   function spline(l) {
     l
       .attr("d", function(d) {
-        if (d[vars.edges.source].d3plus.edges[d.d3plus.id].dr) {
-          var x1 = d[vars.edges.source].d3plus.a,
-              y1 = d[vars.edges.source].d3plus.edges[d.d3plus.id].dr,
-              x2 = d[vars.edges.target].d3plus.a,
-              y2 = d[vars.edges.target].d3plus.edges[d.d3plus.id].dr
-          var obj = {}
-          obj[vars.edges.source] = {"x":x1,"y":y1}
-          obj[vars.edges.target] = {"x":x2,"y":y2}
-          return radial(obj);
 
-        }
-        else {
-          var x1 = d[vars.edges.source].d3plus.edges[d.d3plus.id].dx,
-              y1 = d[vars.edges.source].d3plus.edges[d.d3plus.id].dy,
-              x2 = d[vars.edges.target].d3plus.edges[d.d3plus.id].dx,
-              y2 = d[vars.edges.target].d3plus.edges[d.d3plus.id].dy
-          var obj = {}
-          obj[vars.edges.source] = {"x":x1,"y":y1}
-          obj[vars.edges.target] = {"x":x2,"y":y2}
-          return diagonal(obj);
-        }
-      })
-      .attr("transform",function(d){
-        if (d.d3plus && d.d3plus.translate) {
-          var x = d.d3plus.translate.x || 0
-          var y = d.d3plus.translate.y || 0
-          return "translate("+x+","+y+")"
-        }
-        else {
-          "translate(0,0)"
-        }
+        return curve(d.d3plus.spline);
+
       })
   }
 
@@ -177,19 +144,17 @@ d3plus.shape.edges = function(vars) {
             angle = radians*(180/Math.PI),
             bounding = this.parentNode.getBBox(),
             width = length*.8,
-            x = d.d3plus.translate.x+center.x,
-            y = d.d3plus.translate.y+center.y,
-            translate = {
-              "x": d.d3plus.translate.x+center.x,
-              "y": d.d3plus.translate.y+center.y
-            }
+            x = center.x,
+            y = center.y
 
       }
       else {
 
-        var bounds = this.getBBox()
-            start = {"x": d[vars.edges.source].d3plus.dx, "y": d[vars.edges.source].d3plus.dy},
-            end = {"x": d[vars.edges.target].d3plus.dx, "y": d[vars.edges.target].d3plus.dy},
+        var bounds = this.getBBox(),
+            source = d[vars.edges.source],
+            target = d[vars.edges.target],
+            start = {"x": source.d3plus.edges[target[vars.id.value]].x, "y": source.d3plus.edges[target[vars.id.value]].y},
+            end = {"x": target.d3plus.edges[source[vars.id.value]].x, "y": target.d3plus.edges[source[vars.id.value]].y},
             xdiff = end.x-start.x,
             ydiff = end.y-start.y,
             center = {"x": end.x-(xdiff)/2, "y": end.y-(ydiff)/2},
@@ -198,11 +163,7 @@ d3plus.shape.edges = function(vars) {
             length = Math.sqrt((xdiff*xdiff)+(ydiff*ydiff)),
             width = length,
             x = center.x,
-            y = center.y,
-            translate = {
-              "x": center.x,
-              "y": center.y
-            }
+            y = center.y
 
       }
 
@@ -225,7 +186,7 @@ d3plus.shape.edges = function(vars) {
         d.d3plus_label = {
           "x": x,
           "y": y,
-          "translate": translate,
+          "translate": {"x": x, "y": y},
           "w": width,
           "h": 15+vars.labels.padding*2,
           "angle": angle,
@@ -256,7 +217,7 @@ d3plus.shape.edges = function(vars) {
     var buckets = d3plus.util.buckets(vars.edges.scale.range(),4)
       , markerSize = []
     for (var i = 0; i < 3; i++) {
-      markerSize.push(buckets[i+1]+(buckets[1]-buckets[0])*(i+2))
+      markerSize.push(buckets[i+1]+(buckets[1]-buckets[0])*(i+2)*2)
     }
   }
   else {
@@ -394,15 +355,15 @@ d3plus.shape.edges = function(vars) {
                                            , vars.shape.value )
 
       if (!("edges" in source.d3plus)) source.d3plus.edges = {}
-      source.d3plus.edges[l.d3plus.id] = {
-          "dx": source.d3plus.x - sourceOffset.x,
-          "dy": source.d3plus.y - sourceOffset.y
+      source.d3plus.edges[target[vars.id.value]] = {
+          "x": source.d3plus.x - sourceOffset.x,
+          "y": source.d3plus.y - sourceOffset.y
       }
 
       if (!("edges" in target.d3plus)) target.d3plus.edges = {}
-      target.d3plus.edges[l.d3plus.id] = {
-          "dx": target.d3plus.x - targetOffset.x,
-          "dy": target.d3plus.y - targetOffset.y
+      target.d3plus.edges[source[vars.id.value]] = {
+          "x": target.d3plus.x - targetOffset.x,
+          "y": target.d3plus.y - targetOffset.y
       }
 
       return true
@@ -436,21 +397,45 @@ d3plus.shape.edges = function(vars) {
 
       var source = l[vars.edges.source]
         , target = l[vars.edges.target]
-        , sourceMod = source.d3plus.depth == 2 ? -marker : marker
-        , targetMod = target.d3plus.depth == 2 ? -marker : marker
-        , sourceRadius = direction == "source" && vars.edges.arrows.value
-                       ? source.d3plus.r + sourceMod
-                       : source.d3plus.r
-        , targetRadius = direction == "target" && vars.edges.arrows.value
-                       ? target.d3plus.r + targetMod
-                       : target.d3plus.r
+        , sourceEdge = source.d3plus.edges ? source.d3plus.edges[target[vars.id.value]] || {} : {}
+        , targetEdge = target.d3plus.edges ? target.d3plus.edges[source[vars.id.value]] || {} : {}
+        , sourceMod = vars.edges.arrows.value && direction == "source"
+                    ? sourceEdge.depth == 2 ? -marker : marker : 0
+        , targetMod = vars.edges.arrows.value && direction == "target"
+                    ? targetEdge.depth == 2 ? -marker : marker : 0
+        , angleTweak = 0.1
+        , sourceTweak = source.d3plus.x > target.d3plus.x ? 1-angleTweak : 1+angleTweak
+        , targetTweak = source.d3plus.x > target.d3plus.x ? 1+angleTweak : 1-angleTweak
+        , sourceAngle = typeof sourceEdge.angle === "number" ? sourceEdge.angle
+                      : Math.atan2( source.d3plus.y - target.d3plus.y
+                                  , source.d3plus.x - target.d3plus.x ) * sourceTweak
+        , sourceOffset = d3plus.util.offset(sourceAngle, source.d3plus.r + sourceMod, vars.shape.value )
+        , targetAngle = typeof targetEdge.angle === "number" ? targetEdge.angle
+                      : Math.atan2( target.d3plus.y - source.d3plus.y
+                                  , target.d3plus.x - source.d3plus.x ) * targetTweak
+        , targetOffset = d3plus.util.offset(targetAngle, target.d3plus.r + targetMod, vars.shape.value )
+        , start = [source.d3plus.x-sourceOffset.x, source.d3plus.y-sourceOffset.y]
+        , startOffset = sourceEdge.offset ? d3plus.util.offset(sourceAngle,sourceEdge.offset) : false
+        , startPoint = startOffset ? [start[0]-startOffset.x,start[1]-startOffset.y] : start
+        , end = [target.d3plus.x-targetOffset.x, target.d3plus.y-targetOffset.y]
+        , endOffset = targetEdge.offset ? d3plus.util.offset(targetAngle,targetEdge.offset) : false
+        , endPoint = endOffset ? [end[0]-endOffset.x,end[1]-endOffset.y] : end
+        , xd = endPoint[0] - startPoint[0]
+        , yd = endPoint[1] - startPoint[1]
+        , sourceDistance = sourceEdge.radius ? sourceEdge.radius - source.d3plus.r : Math.sqrt(xd*xd+yd*yd)/6
+        , targetDistance = targetEdge.radius ? targetEdge.radius - target.d3plus.r : Math.sqrt(xd*xd+yd*yd)/6
+        , startAnchor = d3plus.util.offset(sourceAngle,sourceDistance)
+        , endAnchor = d3plus.util.offset(targetAngle,targetDistance)
 
+      l.d3plus.spline = [
+        start,
+        [startPoint[0]-startAnchor.x,startPoint[1]-startAnchor.y],
+        [endPoint[0]-endAnchor.x,endPoint[1]-endAnchor.y],
+        end
+      ]
 
-      if (!("edges" in source.d3plus)) source.d3plus.edges = {}
-      source.d3plus.edges[l.d3plus.id] = {"dr": sourceRadius}
-
-      if (!("edges" in target.d3plus)) target.d3plus.edges = {}
-      target.d3plus.edges[l.d3plus.id] = {"dr": targetRadius}
+      if (startOffset) l.d3plus.spline.splice(1,0,startPoint)
+      if (endOffset) l.d3plus.spline.splice(l.d3plus.spline.length-1,0,endPoint)
 
       return true
 

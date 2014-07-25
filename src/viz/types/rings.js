@@ -325,21 +325,25 @@ var rings = function(vars) {
 
           var check = [vars.edges.source,vars.edges.target]
 
-          check.forEach(function(node){
+          check.forEach(function(node,i){
+
+            if (edge[node].d3plus === undefined) edge[node].d3plus = {}
+            if (edge[node].d3plus.edges === undefined) edge[node].d3plus.edges = {}
+
+            var oppID = i === 0 ? edge[vars.edges.target][vars.id.value] : edge[vars.edges.source][vars.id.value]
+
             if (edge[node][vars.id.value] == p[vars.id.value]) {
 
-              edge[node].d3plus = {
-                "a": p.d3plus.radians,
-                "r": primaryRing+p.d3plus.r,
+              edge[node].d3plus.edges[oppID] = {
+                "angle": p.d3plus.radians,
                 "depth": 1
               }
 
             }
             else {
 
-              edge[node].d3plus = {
-                "a": target.d3plus.radians,
-                "r": r-target.d3plus.r,
+              edge[node].d3plus.edges[oppID] = {
+                "angle": target.d3plus.radians,
                 "depth": 2
               }
 
@@ -458,7 +462,7 @@ rings.filter       = function( vars , data ) {
   ids.forEach(function(id){
 
     var d = data.filter(function(d){
-      return d[vars.id.value] === id
+      return d[vars.id.value] == id
     })[0]
 
     if ( !d ) {

@@ -50,6 +50,10 @@ d3plus.method.edges = {
                  , "csv" , "dsv" , "tsv" , "txt" ],
     "value"    : false
   },
+  "interpolate" : {
+    "accepted"   : ["basis", "cardinal", "linear", "monotone", "step"],
+    "value"      : "basis"
+  },
   "label"       : false,
   "limit"       : {
     "accepted" : [false, Function, Number],
