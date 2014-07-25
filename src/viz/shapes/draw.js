@@ -394,7 +394,7 @@ d3plus.shape.draw = function(vars) {
           vars.covered = false
 
           if (["area","line"].indexOf(vars.shape.value) >= 0
-            || vars.focus.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
+            || vars.focus.value.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
 
             if (vars.continuous_axis) {
 
@@ -647,7 +647,7 @@ d3plus.shape.draw = function(vars) {
           }
 
         }
-        else if (vars.focus.value !== 1 || d[vars.id.value] != vars.focus.value[0]) {
+        else if (vars.focus.value.length !== 1 || d[vars.id.value] != vars.focus.value[0]) {
 
           edge_update()
 
