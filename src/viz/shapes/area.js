@@ -26,7 +26,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   selection.selectAll("path.d3plus_data")
     .data(function(d) {
 
-      if (vars.labels.value) {
+      if (vars.labels.value && d.values.length > 1) {
 
         var tops = []
           , bottoms = []

@@ -347,4 +347,3 @@ intersectPoints = (poly, origin, alpha) ->
           minSqDistRight = sqDist
           closestPointRight = p
   return [closestPointLeft, closestPointRight]
-
