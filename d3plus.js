@@ -10560,6 +10560,8 @@ d3plus.data.element = function( vars ) {
 
 d3plus.data.fetch = function( vars , years ) {
 
+  if (!vars.data.value) return []
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time()
   // solo and mute
