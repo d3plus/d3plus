@@ -501,7 +501,7 @@ d3plus.shape.draw = function(vars) {
   vars.g.data.selectAll("g")
     .on(d3plus.evt.click,function(d){
 
-      if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         if (typeof vars.mouse == "function") {
           vars.mouse(d)
