@@ -263,30 +263,19 @@ var rings = function(vars) {
     p.d3plus.r = radius(val)
   })
 
+  nodes = [center].concat(primaries).concat(secondaries)
+
   primaries.forEach(function(p,i){
 
     var check = [vars.edges.source,vars.edges.target]
       , edge = p.d3plus.edge
 
     check.forEach(function(node){
-      if (edge[node][vars.id.value] == center[vars.id.value]) {
 
-        edge[node].d3plus = {
-          "x": center.d3plus.x,
-          "y": center.d3plus.y,
-          "r": center.d3plus.r
-        }
+      edge[node] = nodes.filter(function(n){
+        return n[vars.id.value] == edge[node][vars.id.value]
+      })[0]
 
-      }
-      else {
-
-        edge[node].d3plus = {
-          "x": p.d3plus.x,
-          "y": p.d3plus.y,
-          "r": p.d3plus.r
-        }
-
-      }
     })
 
     delete edge.d3plus
@@ -327,7 +316,10 @@ var rings = function(vars) {
 
           check.forEach(function(node,i){
 
-            if (edge[node].d3plus === undefined) edge[node].d3plus = {}
+            edge[node] = nodes.filter(function(n){
+              return n[vars.id.value] == edge[node][vars.id.value]
+            })[0]
+
             if (edge[node].d3plus.edges === undefined) edge[node].d3plus.edges = {}
 
             var oppID = i === 0 ? edge[vars.edges.target][vars.id.value] : edge[vars.edges.source][vars.id.value]
@@ -335,8 +327,8 @@ var rings = function(vars) {
             if (edge[node][vars.id.value] == p[vars.id.value]) {
 
               edge[node].d3plus.edges[oppID] = {
-                "angle": p.d3plus.radians,
-                "depth": 1
+                "angle": p.d3plus.radians + Math.PI,
+                "radius": ring_width/2
               }
 
             }
@@ -344,7 +336,7 @@ var rings = function(vars) {
 
               edge[node].d3plus.edges[oppID] = {
                 "angle": target.d3plus.radians,
-                "depth": 2
+                "radius": ring_width/2
               }
 
             }
@@ -359,8 +351,6 @@ var rings = function(vars) {
     })
 
   })
-
-  nodes = [center].concat(primaries).concat(secondaries)
 
   nodes.forEach(function(n) {
 

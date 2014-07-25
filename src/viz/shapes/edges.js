@@ -399,10 +399,8 @@ d3plus.shape.edges = function(vars) {
         , target = l[vars.edges.target]
         , sourceEdge = source.d3plus.edges ? source.d3plus.edges[target[vars.id.value]] || {} : {}
         , targetEdge = target.d3plus.edges ? target.d3plus.edges[source[vars.id.value]] || {} : {}
-        , sourceMod = vars.edges.arrows.value && direction == "source"
-                    ? sourceEdge.depth == 2 ? -marker : marker : 0
-        , targetMod = vars.edges.arrows.value && direction == "target"
-                    ? targetEdge.depth == 2 ? -marker : marker : 0
+        , sourceMod = vars.edges.arrows.value && direction == "source" ? marker : 0
+        , targetMod = vars.edges.arrows.value && direction == "target" ? marker : 0
         , angleTweak = 0.1
         , sourceTweak = source.d3plus.x > target.d3plus.x ? 1-angleTweak : 1+angleTweak
         , targetTweak = source.d3plus.x > target.d3plus.x ? 1+angleTweak : 1-angleTweak
@@ -422,20 +420,26 @@ d3plus.shape.edges = function(vars) {
         , endPoint = endOffset ? [end[0]-endOffset.x,end[1]-endOffset.y] : end
         , xd = endPoint[0] - startPoint[0]
         , yd = endPoint[1] - startPoint[1]
-        , sourceDistance = sourceEdge.radius ? sourceEdge.radius - source.d3plus.r : Math.sqrt(xd*xd+yd*yd)/6
-        , targetDistance = targetEdge.radius ? targetEdge.radius - target.d3plus.r : Math.sqrt(xd*xd+yd*yd)/6
-        , startAnchor = d3plus.util.offset(sourceAngle,sourceDistance)
-        , endAnchor = d3plus.util.offset(targetAngle,targetDistance)
+        , sourceDistance = typeof sourceEdge.radius === "number" ? sourceEdge.radius : Math.sqrt(xd*xd+yd*yd)/4
+        , targetDistance = typeof targetEdge.radius === "number" ? targetEdge.radius : Math.sqrt(xd*xd+yd*yd)/4
+        , startAnchor = d3plus.util.offset(sourceAngle,sourceDistance-source.d3plus.r-sourceMod*2)
+        , endAnchor = d3plus.util.offset(targetAngle,targetDistance-target.d3plus.r-targetMod*2)
 
-      l.d3plus.spline = [
-        start,
-        [startPoint[0]-startAnchor.x,startPoint[1]-startAnchor.y],
-        [endPoint[0]-endAnchor.x,endPoint[1]-endAnchor.y],
-        end
-      ]
+      l.d3plus.spline = [ start, end ]
+      var testAngle = Math.abs(Math.atan2( source.d3plus.y - target.d3plus.y
+                                         , source.d3plus.x - target.d3plus.x )).toFixed(5)
+        , testStart = Math.abs(sourceAngle).toFixed(5)
+        , testEnd   = Math.abs(targetAngle - Math.PI).toFixed(5)
 
-      if (startOffset) l.d3plus.spline.splice(1,0,startPoint)
-      if (endOffset) l.d3plus.spline.splice(l.d3plus.spline.length-1,0,endPoint)
+      if (testStart !== testEnd || [testStart,testEnd].indexOf(testAngle) < 0) {
+
+        l.d3plus.spline.splice(1,0,[startPoint[0]-startAnchor.x,startPoint[1]-startAnchor.y],
+                                   [endPoint[0]-endAnchor.x,endPoint[1]-endAnchor.y])
+
+        if (startOffset) l.d3plus.spline.splice(1,0,startPoint)
+        if (endOffset) l.d3plus.spline.splice(l.d3plus.spline.length-1,0,endPoint)
+
+      }
 
       return true
 
