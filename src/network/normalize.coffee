@@ -4,7 +4,7 @@
 
 d3plus.network.normalize = (edges, options) ->
   # unpack options
-  {source, target, directed, distance, nodeid, startpoint, endpoint, K} = options
+  {source, target, directed, distance, nodeid, startpoint, endpoint, K, vdebug} = options
   if not directed then directed = false
   if not K? then K = 1
   if not nodeid? then nodeid = (node) -> return node
@@ -63,4 +63,4 @@ d3plus.network.normalize = (edges, options) ->
     d3plus.console.error errormsg
     return null
   
-  return [edges, {source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes}]
+  return [edges, {source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes, vdebug}]
