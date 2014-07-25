@@ -11931,7 +11931,8 @@ d3plus.form = function() {
 
         if ( element && element.node().tagName.toLowerCase() === "select" ) {
           var i = element.property("selectedIndex")
-            , option = element.selectAll("option")[0][i]
+          i = i < 0 ? 0 : i
+          var option = element.selectAll("option")[0][i]
             , val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value)
           if (val) vars.focus.value = val
         }
@@ -14342,7 +14343,7 @@ d3plus.geom.largestRect = function(poly, options) {
       }
     }
   }
-  area = d3.geom.polygon(poly).area();
+  area = Math.abs(d3.geom.polygon(poly).area());
   _ref = d3.extent(poly, function(d) {
     return d[0];
   }), minx = _ref[0], maxx = _ref[1];
@@ -14425,7 +14426,13 @@ d3plus.geom.largestRect = function(poly, options) {
       origOrigin = origins[i];
       _ref5 = intersectPoints(poly, origOrigin, angleRad), p1W = _ref5[0], p2W = _ref5[1];
       _ref6 = intersectPoints(poly, origOrigin, angleRad + Math.PI / 2), p1H = _ref6[0], p2H = _ref6[1];
-      modifOrigins = [[(p1W[0] + p2W[0]) / 2, (p1W[1] + p2W[1]) / 2], [(p1H[0] + p2H[0]) / 2, (p1H[1] + p2H[1]) / 2]];
+      modifOrigins = [];
+      if ((p1W != null) && (p2W != null)) {
+        modifOrigins.push([(p1W[0] + p2W[0]) / 2, (p1W[1] + p2W[1]) / 2]);
+      }
+      if ((p1H != null) && (p2H != null)) {
+        modifOrigins.push([(p1H[0] + p2H[0]) / 2, (p1H[1] + p2H[1]) / 2]);
+      }
       if (options.vdebug) {
         events.push({
           type: 'modifOrigin',
@@ -14688,7 +14695,7 @@ d3plus = window.d3plus || {};
 
 window.d3plus = d3plus;
 
-d3plus.version = "1.4.3 - Teal";
+d3plus.version = "1.4.4 - Teal";
 
 d3plus.repo = "https://github.com/alexandersimoes/d3plus/";
 
@@ -17077,9 +17084,12 @@ d3plus.method.zoom = {
 }
 
 },{}],160:[function(require,module,exports){
-d3plus.network.normalize = function(edges, source, options) {
-  var K, a, b, directed, distance, edge, edge2distance, endpoint, errormsg, i, id, id1, idA, idB, node, nodeA, nodeB, nodeid, nodes, startpoint, target, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
-  target = options.target, directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K;
+d3plus.network.normalize = function(edges, options) {
+  var K, a, b, directed, distance, edge, edge2distance, endpoint, errormsg, i, id, id1, idA, idB, node, nodeA, nodeB, nodeid, nodes, source, startpoint, target, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+  source = options.source, target = options.target, directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K;
+  if (!directed) {
+    directed = false;
+  }
   if (K == null) {
     K = 1;
   }
@@ -17190,7 +17200,7 @@ d3plus.network.normalize = function(edges, source, options) {
     id1 = nodeid(startpoint(edges[0]));
     if ((id1 == null) || ((_ref1 = typeof id1) !== 'string' && _ref1 !== 'number')) {
       errormsg = 'Check the nodeid function/attribute';
-    } else if (!(source in nodes)) {
+    } else if ((source != null) && !(source in nodes)) {
       errormsg = 'The source is not in the graph';
     } else if ((target != null) && !(target in nodes)) {
       errormsg = 'The target is not in the graph';
@@ -17201,7 +17211,8 @@ d3plus.network.normalize = function(edges, source, options) {
     return null;
   }
   return [
-    edges, source, {
+    edges, {
+      source: source,
       target: target,
       directed: directed,
       distance: distance,
@@ -17222,13 +17233,17 @@ Heap = require('heap');
 
 d3plus.network.shortestPath = function(edges, source, options) {
   var K, a, alt, b, directed, distance, edge, endpoint, getPath, heap, id, maxsize, node, nodeid, nodes, path, res, result, startpoint, target, u, visited, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+  if (options == null) {
+    options = {};
+  }
+  options.source = source;
   if ((options.nodes == null) || typeof options.nodes !== 'object') {
-    _ref = d3plus.network.normalize(edges, source, options), edges = _ref[0], source = _ref[1], options = _ref[2];
+    _ref = d3plus.network.normalize(edges, options), edges = _ref[0], options = _ref[1];
     if (options === null) {
       return null;
     }
   }
-  target = options.target, directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K, nodes = options.nodes;
+  source = options.source, target = options.target, directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K, nodes = options.nodes;
   for (id in nodes) {
     node = nodes[id];
     node.count = 0;
@@ -17309,13 +17324,17 @@ d3plus.network.shortestPath = function(edges, source, options) {
 },{"heap":1}],162:[function(require,module,exports){
 d3plus.network.subgraph = function(edges, source, options) {
   var K, dfs, directed, distance, edge, endpoint, id, nodeid, nodes, startpoint, visited, _ref;
+  if (options == null) {
+    options = {};
+  }
+  options.source = source;
   if ((options.nodes == null) || typeof options.nodes !== 'object') {
-    _ref = d3plus.network.normalize(edges, source, options), edges = _ref[0], source = _ref[1], options = _ref[2];
+    _ref = d3plus.network.normalize(edges, options), edges = _ref[0], options = _ref[1];
     if (options === null) {
       return null;
     }
   }
-  directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K, nodes = options.nodes;
+  source = options.source, directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K, nodes = options.nodes;
   visited = {};
   visited[source] = true;
   dfs = function(origin, curr_distance) {
@@ -18389,14 +18408,19 @@ d3plus.textwrap.getText = function( vars ) {
 
   if ( !vars.text.value ) {
 
-    var text = vars.container.value.html()
-    if ( text.indexOf("tspan") >= 0 ) {
-      text.replace(/\<\/tspan\>\<tspan\>/g," ")
-      text.replace(/\<\/tspan\>/g,"")
-      text.replace(/\<tspan\>/g,"")
-    }
+    var text = vars.container.value.text()
 
-    vars.self.text( text )
+    if (text) {
+
+      if ( text.indexOf("tspan") >= 0 ) {
+        text.replace(/\<\/tspan\>\<tspan\>/g," ")
+        text.replace(/\<\/tspan\>/g,"")
+        text.replace(/\<tspan\>/g,"")
+      }
+
+      vars.self.text( text )
+
+    }
 
   }
 
@@ -18409,7 +18433,7 @@ d3plus.textwrap.getText = function( vars ) {
     vars.text.phrases = [ vars.text.value + "" ]
   }
 
-  vars.container.value.html("")
+  vars.container.value.text("")
 
 }
 
@@ -18487,7 +18511,7 @@ d3plus.textwrap.tspan = function( vars ) {
     , fontSize   = vars.resize.value ? vars.size.value[1] : vars.container.fontSize || vars.size.value[0]
     , textBox    = vars.container.value.append("tspan").text( words[0] )
                      .attr( "dy" , fontSize + "px" )
-    , textHeight = textBox.node().offsetHeight
+    , textHeight = textBox.node().offsetHeight || textBox.node().getBoundingClientRect().height
     , line       = 1
     , newLine    = function( ) {
       return vars.container.value.append("tspan")
@@ -18774,7 +18798,7 @@ d3plus.tooltip.app = function(params) {
 
         nameList = nameList.slice(0)
 
-        if (d3plus.object.validate(nameList[0])) {
+        if (vars.size.value && d3plus.object.validate(nameList[0])) {
 
           var namesWithValues = nameList.filter(function(n){
             return vars.size.value in n
@@ -18815,7 +18839,7 @@ d3plus.tooltip.app = function(params) {
         }
 
       }
-      else if ( nameList && nameList !== "null" && nameList !== d[nestKey] ) {
+      else if ( nameList && nameList !== "null" ) {
 
         var name  = d3plus.variable.text( vars , nameList , depth )[0]
 
@@ -20381,6 +20405,9 @@ d3plus.variable.value = function( vars , id , variable , id_var , agg ) {
   if ( variable && typeof variable === "function" ) {
     return variable( id )
   }
+  else if ( !variable ) {
+    return null
+  }
 
   if (!id_var) {
     if ( d3plus.object.validate(variable) ) {
@@ -21713,7 +21740,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
   selection.selectAll("path.d3plus_data")
     .data(function(d) {
 
-      if (vars.labels.value) {
+      if (vars.labels.value && d.values.length > 1) {
 
         var tops = []
           , bottoms = []
@@ -22617,7 +22644,7 @@ d3plus.shape.draw = function(vars) {
   vars.g.data.selectAll("g")
     .on(d3plus.evt.click,function(d){
 
-      if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         if (typeof vars.mouse == "function") {
           vars.mouse(d)
