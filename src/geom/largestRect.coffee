@@ -51,6 +51,9 @@
 simplify = require 'simplify-js'
 
 d3plus.geom.largestRect = (poly, options) ->
+  if poly.length < 3
+    d3plus.console.error 'polygon has to have at least 3 points'
+    return null
   ## For visualization debugging purposes ##
   events = []
 
@@ -90,6 +93,9 @@ d3plus.geom.largestRect = (poly, options) ->
 
   ########################################
   area = Math.abs(d3.geom.polygon(poly).area()) # take absolute value of the signed area
+  if area is 0
+    d3plus.console.error 'polygon has 0 area'
+    return null
   # get the width of the bounding box of the original polygon to determine tolerance
   [minx, maxx] = d3.extent poly, (d) -> d[0]
   [miny, maxy] = d3.extent poly, (d) -> d[1]
@@ -341,5 +347,4 @@ intersectPoints = (poly, origin, alpha) ->
           minSqDistRight = sqDist
           closestPointRight = p
   return [closestPointLeft, closestPointRight]
-
 
