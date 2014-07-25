@@ -20,8 +20,8 @@
       # function; given the node, returns the id.
 
     # startpoint; it can be:
-      # undefined; it is assumed that edge.source points to the source of the edge
-      # string; the name of the attribute in edge pointing to the source of the edge
+      # undefined; it is assumed that edge.source points to the source node of the edge
+      # string; the name of the attribute in edge pointing to the source node of the edge
       # function; given an edge returns the source node of that edge
 
     # endpoint; it can be:
@@ -35,6 +35,9 @@
 # returns an array of communities, where each community is an array of node ids belonging to that community.
 
 d3plus.network.cluster = (edges, options) ->
+    ## For visualization debugging purposes ##
+    events = []
+  
     ######### User's options normalization ############
     if not options? then options = {}
     if not options.nodes? or typeof options.nodes isnt 'object'
@@ -65,7 +68,6 @@ d3plus.network.cluster = (edges, options) ->
         nodesMap[a].degree+=1
         nodesMap[b].degree+=1
     
-
     communities = {}
     Q = 0
     for id, node of nodesMap
@@ -100,7 +102,7 @@ d3plus.network.cluster = (edges, options) ->
           linksMap[k][maxb] = linksMap[maxb][k]
         delete linksMap[k][maxa]
       for k of linksMap[maxb]
-        if k not of linksMap[maxa] and  k isnt maxb
+        if k not of linksMap[maxa] and k isnt maxb
           ## k is connected to b but not a
           linksMap[maxb][k] -= 2*communities[maxa].score*communities[k].score
           linksMap[k][maxb] = linksMap[maxb][k]
@@ -108,6 +110,7 @@ d3plus.network.cluster = (edges, options) ->
       for node in communities[maxa].nodes
         communities[maxb].nodes.push node
       communities[maxb].score += communities[maxa].score
+      if options.vdebug then events.push type: 'merge', father: maxb, child: maxa, nodes: communities[maxb].nodes
       delete communities[maxa]
       delete linksMap[maxa]
       Q += deltaQ
@@ -116,4 +119,5 @@ d3plus.network.cluster = (edges, options) ->
     ## sort communities by size
     commSizes = ([cid, community.nodes.length] for cid, community of communities)
     commSizes.sort (a,b) -> b[1] - a[1]
-    communities[commSize[0]].nodes for commSize in commSizes
+    result = (communities[commSize[0]].nodes for commSize in commSizes)
+    return [result, events]
