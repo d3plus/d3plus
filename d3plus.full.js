@@ -23627,7 +23627,7 @@ d3plus.font.sizes = function( words , style , parent ) {
     .each(function(d){
 
       sizes.push({
-        "height" : this.offsetHeight,
+        "height" : this.offsetHeight || this.getBoundingClientRect().height,
         "text"   : d,
         "width"  : this.getComputedTextLength()
       })
@@ -24328,8 +24328,8 @@ d3plus.input.button.icons = function ( elem , vars ) {
           if ( c === "label" ) {
             return "0px"
           }
-          if (this.offsetHeight) {
-            var h = this.offsetHeight
+          if (this.offsetHeight || this.getBoundingClientRect().height) {
+            var h = this.offsetHeight || this.getBoundingClientRect().height
           }
           else if ( c === "selected" ) {
             var h = vars.font.size
@@ -24687,9 +24687,11 @@ d3plus.input.drop.button = function ( vars ) {
     .width(vars.width.value)
     .draw()
 
-  vars.margin.top += vars.container.button.container(Object).ui.node().offsetHeight
+  var button = vars.container.button.container(Object).ui
 
-  vars.container.button.container(Object).ui.on(d3plus.evt.click,function(){
+  vars.margin.top += button.node().offsetHeight || button.node().getBoundingClientRect().height
+
+  button.on(d3plus.evt.click,function(){
     vars.self.open(!vars.open.value).draw()
   })
 
@@ -25150,7 +25152,7 @@ d3plus.input.drop.scroll = function ( vars ) {
 
     if (hidden) vars.container.selector.style("display","block")
 
-    var searchHeight = vars.search.enabled ? vars.container.search.node().offsetHeight : 0
+    var searchHeight = vars.search.enabled ? vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height : 0
 
     var old_height = vars.container.selector.style("height"),
         old_scroll = vars.container.selector.property("scrollTop"),
@@ -25199,7 +25201,7 @@ d3plus.input.drop.scroll = function ( vars ) {
       }
 
       var button_top = option.offsetTop,
-          button_height = option.offsetHeight,
+          button_height = option.offsetHeight || option.getBoundingClientRect().height,
           list_top = vars.container.list.property("scrollTop")
 
       if (hidden) vars.container.selector.style("display","none")
@@ -25319,7 +25321,7 @@ d3plus.input.drop.search = function ( vars ) {
   vars.container.search.exit().remove()
 
   if ( vars.search.enabled ) {
-    vars.margin.title += vars.container.search.node().offsetHeight
+    vars.margin.title += vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height
   }
 
   if ( vars.dev.value ) d3plus.console.timeEnd("creating search")
@@ -25485,7 +25487,7 @@ d3plus.input.drop.title = function ( vars ) {
     vars.container.title.exit().remove()
 
     if ( enabled ) {
-      vars.margin.title += vars.container.title.node().offsetHeight
+      vars.margin.title += vars.container.title.node().offsetHeight || vars.container.title.node().getBoundingClientRect().height
     }
 
     if ( vars.dev.value ) d3plus.console.timeEnd("creating title and back button")
@@ -25879,7 +25881,7 @@ wiki = require("./wiki.coffee");
 
 d3plus.console = function(type, message, style) {
   style = style || "";
-  if (d3plus.ie) {
+  if (d3plus.ie || typeof InstallTrigger !== 'undefined') {
     console.log("[ D3plus ] " + message);
   } else if (type === "groupCollapsed") {
     if (window.chrome && navigator.onLine) {
@@ -26581,7 +26583,7 @@ d3plus = window.d3plus || {};
 
 window.d3plus = d3plus;
 
-d3plus.version = "1.4.4 - Teal";
+d3plus.version = "1.4.5 - Teal";
 
 d3plus.repo = "https://github.com/alexandersimoes/d3plus/";
 
@@ -30966,6 +30968,10 @@ d3plus.tooltip.create = function(params) {
   params.zindex = params.size == "small" ? 2000 : 500
   params.locale = params.locale || d3plus.locale.en
 
+
+  var parentHeight = params.parent ? params.parent.node().offsetHeight
+                  || params.parent.node().getBoundingClientRect().height : 0
+
   if (!params.iconsize) {
     params.iconsize = params.size == "small" ? 22 : 50
   }
@@ -30999,7 +31005,7 @@ d3plus.tooltip.create = function(params) {
     params.anchor.x = "center"
     params.anchor.y = "center"
     params.x = params.parent ? params.parent.node().offsetWidth/2 : window.innerWidth/2
-    params.y = params.parent ? params.parent.node().offsetHeight/2 : window.innerHeight/2
+    params.y = params.parent ? parentHeight/2 : window.innerHeight/2
   }
   else if (params.align) {
     var a = params.align.split(" ")
@@ -31067,7 +31073,7 @@ d3plus.tooltip.create = function(params) {
   if (params.fullscreen && params.html) {
 
     w = params.parent ? params.parent.node().offsetWidth*0.75 : window.innerWidth*0.75
-    h = params.parent ? params.parent.node().offsetHeight*0.75 : window.innerHeight*0.75
+    h = params.parent ? parentHeight*0.75 : window.innerHeight*0.75
 
     container
       .style("width",w+"px")
@@ -31330,7 +31336,7 @@ d3plus.tooltip.create = function(params) {
             d3.event.stopPropagation()
           })
 
-        var dh = desc.node().offsetHeight
+        var dh = desc.node().offsetHeight || desc.node().getBoundingClientRect().height
 
         desc.style("height","0px")
 
@@ -31426,7 +31432,7 @@ d3plus.tooltip.create = function(params) {
     footer.html(params.footer)
   }
 
-  params.height = tooltip.node().offsetHeight
+  params.height = tooltip.node().offsetHeight || tooltip.node().getBoundingClientRect().height
 
   if (params.html && params.fullscreen) {
     var h = params.height-12
@@ -31451,8 +31457,7 @@ d3plus.tooltip.create = function(params) {
   if (params.data || (!params.fullscreen && params.html)) {
 
     if (!params.fullscreen) {
-      var parent_height = params.parent.node().offsetHeight
-      var limit = params.fixed ? parent_height-params.y-10 : parent_height-10
+      var limit = params.fixed ? parentHeight-params.y-10 : parentHeight-10
       var h = params.height < limit ? params.height : limit
     }
     else {
@@ -31461,12 +31466,12 @@ d3plus.tooltip.create = function(params) {
     h -= parseFloat(container.style("padding-top"),10)
     h -= parseFloat(container.style("padding-bottom"),10)
     if (header) {
-      h -= header.node().offsetHeight
+      h -= header.node().offsetHeight || header.node().getBoundingClientRect().height
       h -= parseFloat(header.style("padding-top"),10)
       h -= parseFloat(header.style("padding-bottom"),10)
     }
     if (footer) {
-      h -= footer.node().offsetHeight
+      h -= footer.node().offsetHeight || footer.node().getBoundingClientRect().height
       h -= parseFloat(footer.style("padding-top"),10)
       h -= parseFloat(footer.style("padding-bottom"),10)
     }
@@ -31475,7 +31480,7 @@ d3plus.tooltip.create = function(params) {
       .style("max-height",h+"px")
   }
 
-  params.height = tooltip.node().offsetHeight
+  params.height = tooltip.node().offsetHeight || tooltip.node().getBoundingClientRect().height
 
   d3plus.tooltip.move(params.x,params.y,params.id);
 
@@ -33486,6 +33491,7 @@ d3plus.draw.steps = function(vars) {
         if ( vars.dev.value ) d3plus.console.time("calculating margins")
 
         var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
+                  || vars.container.value.select("div#d3plus_drawer").node().getBoundingClientRect().height
 
         var timeline = vars.g.timeline.node().getBBox()
         timeline = vars.timeline.value ? timeline.height+timeline.y : 0
@@ -36075,9 +36081,11 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
     temp.values = []
     d.values.forEach(function(v,i,arr){
+
       nodes.push(v)
+
       var k = v[vars[vars.continuous_axis].value],
-          index = vars.tickValues[vars.continuous_axis].indexOf(k)
+          index = vars.tickValues[vars.continuous_axis].indexOf(k.toString())
 
       if (step === false) {
         step = index
@@ -36945,8 +36953,8 @@ d3plus.visualization.chart = function(vars) {
             }
 
             d3.select(this)
-              .style("font-size",vars.axes.ticks.font.size)
-              .style("fill",vars.axes.ticks.font.color)
+              .attr("font-size",vars.axes.ticks.font.size)
+              .attr("fill",vars.axes.ticks.font.color)
               .attr("font-family",vars.axes.ticks.font.family.value)
               .attr("font-weight",vars.axes.ticks.font.weight)
               .text(text)
@@ -37304,8 +37312,8 @@ d3plus.visualization.chart = function(vars) {
       .attr("stroke-dasharray","10,10")
 
     enter.append("text")
-      .style("font-size",vars.axes.ticks.font.size)
-      .style("fill",vars.axes.ticks.font.color)
+      .attr("font-size",vars.axes.ticks.font.size)
+      .attr("fill",vars.axes.ticks.font.color)
       .attr("text-align","start")
       .attr(axis,pos)
 
@@ -37680,10 +37688,10 @@ d3plus.visualization.chart = function(vars) {
       .attr("text-anchor",function(d){
         return d.axis == "y" ? "end": "middle"
       })
-      .style("fill",function(d){
+      .attr("fill",function(d){
         return d3plus.color.legible(d3plus.variable.color(vars,node));
       })
-      .style("font-size",vars.axes.ticks.font.size)
+      .attr("font-size",vars.axes.ticks.font.size)
       .attr("font-family",vars.axes.ticks.font.family.value)
       .attr("font-weight",vars.axes.ticks.font.weight)
       .attr("opacity",0)
@@ -38740,7 +38748,7 @@ d3plus.ui.drawer = function( vars ) {
 
   ui.exit().remove()
 
-  var drawerHeight = drawer.node().offsetHeight
+  var drawerHeight = drawer.node().offsetHeight || drawer.node().getBoundingClientRect().height
 
   if ( drawerHeight ) {
     vars.margin[position] += drawerHeight + buffer
@@ -39594,7 +39602,7 @@ d3plus.ui.message = function(vars,message) {
       })
       .style("margin-top",function(){
         if (size == "large") {
-          var height = this.offsetHeight
+          var height = this.offsetHeight || this.getBoundingClientRect().height
           return -height/2+"px"
         }
         return "0px"
