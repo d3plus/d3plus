@@ -15717,8 +15717,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If value has not changed, show a comment in the console.
     //--------------------------------------------------------------------------
-    if ( ( !(object[key] instanceof Array) && object[key] === value
-         || ( object[key] && object[key] === value ) ) && value !== undefined ) {
+    if ( !(object[key] instanceof Array) && object[key] === value && value !== undefined ) {
 
       var str = vars.format.locale.value.dev.noChange
       if ( vars.dev.value ) d3plus.console.comment(d3plus.string.format(str,text))
@@ -19691,11 +19690,11 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
       if ( value instanceof Array ) {
         value.forEach(function(v){
-          v = vars.format.value(v)
+          v = vars.format.value(v,key)
         })
       }
       else {
-        value = vars.format.value(value)
+        value = vars.format.value(value,key)
       }
 
       var obj = {"name": name, "value": value, "highlight": h, "group": group}
@@ -21025,7 +21024,7 @@ d3plus.draw.finish = function(vars) {
       d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
     }
 
-    if (vars.focus.changed || vars.height.changed || vars.width.changed) {
+    if (vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
       if (!vars.zoom.viewport) {
         d3plus.zoom.bounds(vars,vars.zoom.bounds)
       }
@@ -25990,7 +25989,8 @@ d3plus.visualization.network = function(vars) {
 
   var max_size = d3.min(d3plus.util.distances(nodes))
 
-  max_size = max_size * vars.nodes.overlap
+  var overlap = vars.size.value ? vars.nodes.overlap : 0.4
+  max_size = max_size * overlap
 
   if (vars.edges.arrows.value) {
     max_size = max_size * 0.5
