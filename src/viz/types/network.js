@@ -21,7 +21,8 @@ d3plus.visualization.network = function(vars) {
 
   var max_size = d3.min(d3plus.util.distances(nodes))
 
-  max_size = max_size * vars.nodes.overlap
+  var overlap = vars.size.value ? vars.nodes.overlap : 0.4
+  max_size = max_size * overlap
 
   if (vars.edges.arrows.value) {
     max_size = max_size * 0.5
