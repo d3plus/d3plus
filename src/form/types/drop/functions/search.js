@@ -79,7 +79,7 @@ d3plus.input.drop.search = function ( vars ) {
   vars.container.search.exit().remove()
 
   if ( vars.search.enabled ) {
-    vars.margin.title += vars.container.search.node().offsetHeight
+    vars.margin.title += vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height
   }
 
   if ( vars.dev.value ) d3plus.console.timeEnd("creating search")

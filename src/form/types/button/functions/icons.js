@@ -96,8 +96,8 @@ d3plus.input.button.icons = function ( elem , vars ) {
           if ( c === "label" ) {
             return "0px"
           }
-          if (this.offsetHeight) {
-            var h = this.offsetHeight
+          if (this.offsetHeight || this.getBoundingClientRect().height) {
+            var h = this.offsetHeight || this.getBoundingClientRect().height
           }
           else if ( c === "selected" ) {
             var h = vars.font.size
