@@ -14,7 +14,7 @@ d3plus.draw.finish = function(vars) {
       d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
     }
 
-    if (vars.focus.changed || vars.height.changed || vars.width.changed) {
+    if (vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
       if (!vars.zoom.viewport) {
         d3plus.zoom.bounds(vars,vars.zoom.bounds)
       }
