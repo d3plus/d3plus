@@ -35,9 +35,11 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
     temp.values = []
     d.values.forEach(function(v,i,arr){
+
       nodes.push(v)
+
       var k = v[vars[vars.continuous_axis].value],
-          index = vars.tickValues[vars.continuous_axis].indexOf(k)
+          index = vars.tickValues[vars.continuous_axis].indexOf(k.toString())
 
       if (step === false) {
         step = index
