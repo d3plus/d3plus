@@ -20276,28 +20276,36 @@ d3plus.util.uniques = function( data , value ) {
     return []
   }
 
-  var type = typeof value
+  var type = false
 
   return d3.nest()
     .key(function(d) {
 
-      if ( d3plus.object.validate(d) && type === "string" ) {
-        return d[value]
+      if ( d3plus.object.validate(d) && typeof value === "string" ) {
+        var val = d[value]
       }
-      else if ( type === "function" ) {
-        return value(d)
+      else if ( typeof value === "function" ) {
+        var val = value(d)
       }
       else {
-        return d
+        var val = d
       }
+
+      if (!type) type = typeof val
+      return val
 
     })
     .entries(data)
     .reduce(function( a , b ){
 
-      return b.key !== "undefined" ? a.concat(b.key) : a
+      if (b.key === "undefined") return a
 
-    }, [] )
+      if (type === "number") var val = parseFloat(b.key)
+      else var val = b.key
+
+      return a.concat(val)
+
+    }, [] ).sort(function(a,b){return a-b})
 
 }
 
@@ -24205,7 +24213,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       nodes.push(v)
 
       var k = v[vars[vars.continuous_axis].value],
-          index = vars.tickValues[vars.continuous_axis].indexOf(k.toString())
+          index = vars.tickValues[vars.continuous_axis].indexOf(k)
 
       if (step === false) {
         step = index
