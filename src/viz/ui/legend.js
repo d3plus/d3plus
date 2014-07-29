@@ -252,7 +252,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("font-size",vars.legend.font.size)
                   .attr("font-weight",vars.legend.font.weight)
                   .attr("font-family",vars.legend.font.family.value)
-                  .attr("text-anchor","start")
+                  .style("text-anchor","start")
                   .attr("fill",d3plus.color.text(color))
                   .attr("x",0)
                   .attr("y",0)
@@ -446,7 +446,7 @@ d3plus.ui.legend = function(vars) {
         .attr("font-weight",vars.legend.font.weight)
         .attr("font-family",vars.legend.font.family.value)
         .attr("font-size",vars.legend.font.size)
-        .attr("text-anchor",vars.legend.font.align)
+        .style("text-anchor",vars.legend.font.align)
         .attr("fill",vars.legend.font.color)
         .text(function(d){
           return vars.format.value(values[d],key)

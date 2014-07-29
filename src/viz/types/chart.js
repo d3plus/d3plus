@@ -351,8 +351,8 @@ var chart = function(vars) {
     .attr("height", graph.height)
     .attr("stroke-width",1)
     .attr("stroke","#ccc")
-      .attr("shape-rendering",vars.shape.rendering.value)
-    .style("fill","#fafafa")
+    .attr("shape-rendering",vars.shape.rendering.value)
+    .attr("fill","#fafafa")
 
   // Enter Background Mirror
   var mirror = plane.selectAll("path#mirror").data(["mirror"])
@@ -402,7 +402,7 @@ var chart = function(vars) {
     .attr("font-weight",vars.labels.font.weight)
     .attr("font-size",vars.labels.font.size)
     .attr("fill",vars.labels.font.color)
-    .attr("text-anchor",vars.labels.font.align)
+    .style("text-anchor",vars.labels.font.align)
   xlabel.exit().remove()
 
   // Enter Y Axis Label
@@ -417,7 +417,7 @@ var chart = function(vars) {
     .attr("font-weight",vars.labels.font.weight)
     .attr("font-size",vars.labels.font.size)
     .attr("fill",vars.labels.font.color)
-    .attr("text-anchor",vars.labels.font.align)
+    .style("text-anchor",vars.labels.font.align)
   ylabel.exit().remove()
 
   // Enter Mouse Event Group
@@ -479,7 +479,7 @@ var chart = function(vars) {
   yaxis.selectAll("line").transition().duration(vars.draw.timing)
       .call(tick_style,"y")
 
-  yaxis.selectAll("path").style("fill","none")
+  yaxis.selectAll("path").attr("fill","none")
 
   // Update X Axis
   xaxis.transition().duration(vars.draw.timing)
@@ -491,7 +491,7 @@ var chart = function(vars) {
   xaxis.selectAll("line").transition().duration(vars.draw.timing)
       .call(tick_style,"x")
 
-  xaxis.selectAll("path").style("fill","none")
+  xaxis.selectAll("path").attr("fill","none")
 
   // Update Y Grid
   var yData = vars.y.scale.value == "continuous"
@@ -984,10 +984,10 @@ var chart = function(vars) {
       .attr("dy",function(d){
         return d.axis == "y" ? (vars.axes.ticks.font.size*.35) : vars.axes.ticks.font.size
       })
-      .attr("text-anchor",function(d){
+      .style("text-anchor",function(d){
         return d.axis == "y" ? "end": "middle"
       })
-      .style("fill",function(d){
+      .attr("fill",function(d){
         return d3plus.color.legible(fetchColor(vars,node));
       })
       .attr("font-size",vars.axes.ticks.font.size)
@@ -1031,7 +1031,7 @@ var chart = function(vars) {
       .style("stroke",function(d){
         return d3plus.color.legible(fetchColor(vars,node));
       })
-      .style("fill","white")
+      .attr("fill","white")
       .style("stroke-width",vars.data.stroke.width)
       .attr("shape-rendering",vars.shape.rendering.value)
       .attr("opacity",0)

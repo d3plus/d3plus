@@ -143,7 +143,7 @@ d3plus.ui.titles = function(vars) {
   function position(title) {
 
     title
-      .attr("text-anchor",function(t){
+      .style("text-anchor",function(t){
 
         var align = t.style.font.align
 

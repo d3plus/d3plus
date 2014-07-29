@@ -134,7 +134,7 @@ d3plus.shape.labels = function( vars , group ) {
     text
       .attr("font-weight",vars.labels.font.weight)
       .attr("font-family",vars.labels.font.family.value)
-      .attr("text-anchor",function(t){
+      .style("text-anchor",function(t){
         return t.shape === "circle" ? "middle" : "start"
       })
       .attr("pointer-events",function(t){

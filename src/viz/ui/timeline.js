@@ -160,7 +160,7 @@ d3plus.ui.timeline = function(vars) {
       .attr("font-weight",vars.timeline.tick.weight)
       .attr("font-family",vars.timeline.tick.family.value)
       .attr("font-size",vars.timeline.tick.size)
-      .attr("text-anchor",vars.timeline.tick.align)
+      .style("text-anchor",vars.timeline.tick.align)
       .attr("opacity",0)
       .text(function(d){
         return d
