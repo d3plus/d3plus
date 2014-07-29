@@ -4,7 +4,7 @@
 wiki = require "./wiki.coffee"
 d3plus.console = (type, message, style) ->
   style = style or ""
-  if d3plus.ie
+  if d3plus.ie or typeof InstallTrigger isnt 'undefined'
     console.log "[ D3plus ] " + message
   else if type is "groupCollapsed"
     if window.chrome and navigator.onLine
@@ -63,11 +63,11 @@ d3plus.console.stack = ->
   return
 
 d3plus.console.time = (message) ->
-  console.time message  unless d3plus.ie
+  console.time message unless d3plus.ie
   return
 
 d3plus.console.timeEnd = (message) ->
-  console.timeEnd message  unless d3plus.ie
+  console.timeEnd message unless d3plus.ie
   return
 
 d3plus.console.warning = (message, url) ->

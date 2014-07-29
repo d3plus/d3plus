@@ -124,8 +124,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If value has not changed, show a comment in the console.
     //--------------------------------------------------------------------------
-    if ( ( !(object[key] instanceof Array) && object[key] === value
-         || ( object[key] && object[key] === value ) ) && value !== undefined ) {
+    if ( !(object[key] instanceof Array) && object[key] === value && value !== undefined ) {
 
       var str = vars.format.locale.value.dev.noChange
       if ( vars.dev.value ) d3plus.console.comment(d3plus.string.format(str,text))

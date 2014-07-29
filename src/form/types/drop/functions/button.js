@@ -68,9 +68,11 @@ module.exports = function ( vars ) {
     .width(vars.width.value)
     .draw()
 
-  vars.margin.top += vars.container.button.container(Object).ui.node().offsetHeight
+  var button = vars.container.button.container(Object).ui
 
-  vars.container.button.container(Object).ui.on(d3plus.evt.click,function(){
+  vars.margin.top += button.node().offsetHeight || button.node().getBoundingClientRect().height
+
+  button.on(d3plus.evt.click,function(){
     vars.self.open(!vars.open.value).draw()
   })
 

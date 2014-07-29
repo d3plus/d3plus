@@ -25,6 +25,10 @@ d3plus.tooltip.create = function(params) {
   params.zindex = params.size == "small" ? 2000 : 500
   params.locale = params.locale || d3plus.locale.en
 
+
+  var parentHeight = params.parent ? params.parent.node().offsetHeight
+                  || params.parent.node().getBoundingClientRect().height : 0
+
   if (!params.iconsize) {
     params.iconsize = params.size == "small" ? 22 : 50
   }
@@ -58,7 +62,7 @@ d3plus.tooltip.create = function(params) {
     params.anchor.x = "center"
     params.anchor.y = "center"
     params.x = params.parent ? params.parent.node().offsetWidth/2 : window.innerWidth/2
-    params.y = params.parent ? params.parent.node().offsetHeight/2 : window.innerHeight/2
+    params.y = params.parent ? parentHeight/2 : window.innerHeight/2
   }
   else if (params.align) {
     var a = params.align.split(" ")
@@ -126,7 +130,7 @@ d3plus.tooltip.create = function(params) {
   if (params.fullscreen && params.html) {
 
     w = params.parent ? params.parent.node().offsetWidth*0.75 : window.innerWidth*0.75
-    h = params.parent ? params.parent.node().offsetHeight*0.75 : window.innerHeight*0.75
+    h = params.parent ? parentHeight*0.75 : window.innerHeight*0.75
 
     container
       .style("width",w+"px")
@@ -389,7 +393,7 @@ d3plus.tooltip.create = function(params) {
             d3.event.stopPropagation()
           })
 
-        var dh = desc.node().offsetHeight
+        var dh = desc.node().offsetHeight || desc.node().getBoundingClientRect().height
 
         desc.style("height","0px")
 
@@ -485,7 +489,7 @@ d3plus.tooltip.create = function(params) {
     footer.html(params.footer)
   }
 
-  params.height = tooltip.node().offsetHeight
+  params.height = tooltip.node().offsetHeight || tooltip.node().getBoundingClientRect().height
 
   if (params.html && params.fullscreen) {
     var h = params.height-12
@@ -510,8 +514,7 @@ d3plus.tooltip.create = function(params) {
   if (params.data || (!params.fullscreen && params.html)) {
 
     if (!params.fullscreen) {
-      var parent_height = params.parent.node().offsetHeight
-      var limit = params.fixed ? parent_height-params.y-10 : parent_height-10
+      var limit = params.fixed ? parentHeight-params.y-10 : parentHeight-10
       var h = params.height < limit ? params.height : limit
     }
     else {
@@ -520,12 +523,12 @@ d3plus.tooltip.create = function(params) {
     h -= parseFloat(container.style("padding-top"),10)
     h -= parseFloat(container.style("padding-bottom"),10)
     if (header) {
-      h -= header.node().offsetHeight
+      h -= header.node().offsetHeight || header.node().getBoundingClientRect().height
       h -= parseFloat(header.style("padding-top"),10)
       h -= parseFloat(header.style("padding-bottom"),10)
     }
     if (footer) {
-      h -= footer.node().offsetHeight
+      h -= footer.node().offsetHeight || footer.node().getBoundingClientRect().height
       h -= parseFloat(footer.style("padding-top"),10)
       h -= parseFloat(footer.style("padding-bottom"),10)
     }
@@ -534,7 +537,7 @@ d3plus.tooltip.create = function(params) {
       .style("max-height",h+"px")
   }
 
-  params.height = tooltip.node().offsetHeight
+  params.height = tooltip.node().offsetHeight || tooltip.node().getBoundingClientRect().height
 
   d3plus.tooltip.move(params.x,params.y,params.id);
 

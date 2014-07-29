@@ -252,8 +252,8 @@ var chart = function(vars) {
             }
 
             d3.select(this)
-              .style("font-size",vars.axes.ticks.font.size)
-              .style("fill",vars.axes.ticks.font.color)
+              .attr("font-size",vars.axes.ticks.font.size)
+              .attr("fill",vars.axes.ticks.font.color)
               .attr("font-family",vars.axes.ticks.font.family.value)
               .attr("font-weight",vars.axes.ticks.font.weight)
               .text(text)
@@ -611,8 +611,8 @@ var chart = function(vars) {
       .attr("stroke-dasharray","10,10")
 
     enter.append("text")
-      .style("font-size",vars.axes.ticks.font.size)
-      .style("fill",vars.axes.ticks.font.color)
+      .attr("font-size",vars.axes.ticks.font.size)
+      .attr("fill",vars.axes.ticks.font.color)
       .attr("text-align","start")
       .attr(axis,pos)
 
@@ -990,7 +990,7 @@ var chart = function(vars) {
       .style("fill",function(d){
         return d3plus.color.legible(fetchColor(vars,node));
       })
-      .style("font-size",vars.axes.ticks.font.size)
+      .attr("font-size",vars.axes.ticks.font.size)
       .attr("font-family",vars.axes.ticks.font.family.value)
       .attr("font-weight",vars.axes.ticks.font.weight)
       .attr("opacity",0)

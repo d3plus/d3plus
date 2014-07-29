@@ -14,7 +14,7 @@ module.exports = function ( vars ) {
 
     if (hidden) vars.container.selector.style("display","block")
 
-    var searchHeight = vars.search.enabled ? vars.container.search.node().offsetHeight : 0
+    var searchHeight = vars.search.enabled ? vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height : 0
 
     var old_height = vars.container.selector.style("height"),
         old_scroll = vars.container.selector.property("scrollTop"),
@@ -63,7 +63,7 @@ module.exports = function ( vars ) {
       }
 
       var button_top = option.offsetTop,
-          button_height = option.offsetHeight,
+          button_height = option.offsetHeight || option.getBoundingClientRect().height,
           list_top = vars.container.list.property("scrollTop")
 
       if (hidden) vars.container.selector.style("display","none")

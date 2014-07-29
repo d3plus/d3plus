@@ -88,7 +88,7 @@ d3plus.ui.drawer = function( vars ) {
 
   ui.exit().remove()
 
-  var drawerHeight = drawer.node().offsetHeight
+  var drawerHeight = drawer.node().offsetHeight || drawer.node().getBoundingClientRect().height
 
   if ( drawerHeight ) {
     vars.margin[position] += drawerHeight + buffer

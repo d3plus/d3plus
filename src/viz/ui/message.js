@@ -80,7 +80,7 @@ d3plus.ui.message = function(vars,message) {
       })
       .style("margin-top",function(){
         if (size == "large") {
-          var height = this.offsetHeight
+          var height = this.offsetHeight || this.getBoundingClientRect().height
           return -height/2+"px"
         }
         return "0px"

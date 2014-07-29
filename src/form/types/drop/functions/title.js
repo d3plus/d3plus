@@ -134,7 +134,7 @@ module.exports = function ( vars ) {
     vars.container.title.exit().remove()
 
     if ( enabled ) {
-      vars.margin.title += vars.container.title.node().offsetHeight
+      vars.margin.title += vars.container.title.node().offsetHeight || vars.container.title.node().getBoundingClientRect().height
     }
 
     if ( vars.dev.value ) d3plus.console.timeEnd("creating title and back button")

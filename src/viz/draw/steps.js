@@ -287,6 +287,7 @@ d3plus.draw.steps = function(vars) {
         if ( vars.dev.value ) d3plus.console.time("calculating margins")
 
         var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
+                  || vars.container.value.select("div#d3plus_drawer").node().getBoundingClientRect().height
 
         var timeline = vars.g.timeline.node().getBBox()
         timeline = vars.timeline.value ? timeline.height+timeline.y : 0
