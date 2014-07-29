@@ -19,7 +19,7 @@ d3plus.method.format = {
       return returnObject
 
     },
-    "value"    : "en"
+    "value"    : "en_US"
   },
   "number"     : {
     "accepted" : [ false , Function ],
