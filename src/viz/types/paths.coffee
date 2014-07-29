@@ -68,9 +68,11 @@ viz = (vars) ->
       yDomain.unshift i
     i++
 
+  labelSpace = if vars.size.value and !vars.small then 30 else 0
+
   y = d3.scale.ordinal()
     .domain yDomain
-    .range d3.range rowHeight/2, vars.height.viz + rowHeight/2, (vars.height.viz - rowHeight)/(rows-1)
+    .range d3.range rowHeight/2 - labelSpace, vars.height.viz + rowHeight/2 - labelSpace, (vars.height.viz - rowHeight)/(rows-1)
 
   columns = paths["all"].length
 
@@ -80,16 +82,16 @@ viz = (vars) ->
     .domain [0, columns - 1]
     .rangeRound [columnWidth/2, vars.width.viz - columnWidth/2]
 
-  overlap = if vars.size.value then vars.nodes.overlap else 0.4
-
-  maxRadius = d3.min([columnWidth,rowHeight]) * overlap
+  minRadius = 5
+  maxRadius = d3.min([columnWidth,rowHeight - labelSpace]) * 0.4
 
   sizeDomain = d3.extent vars.data.app, (node) ->
-    fetchValue vars, node, vars.size.value
+    val = fetchValue vars, node, vars.size.value
+    return val or 0
 
   size = vars.size.scale.value
     .domain sizeDomain
-    .rangeRound [2, maxRadius]
+    .rangeRound [minRadius, maxRadius]
 
   for node in vars.data.app
 
@@ -102,9 +104,20 @@ viz = (vars) ->
     node.d3plus.y = y(pathLookup[node[vars.id.value]])
 
     if vars.size.value
-      node.d3plus.r = size(fetchValue vars, node, vars.size.value)
+      val = fetchValue vars, node, vars.size.value
+      node.d3plus.r = if val then size(val) else minRadius
     else
       node.d3plus.r = maxRadius
+
+    if node.d3plus.r < columnWidth * 0.1 and !vars.small
+      node.d3plus.label =
+        x: 0
+        y: node.d3plus.r + vars.labels.padding*2
+        w: columnWidth * 0.6
+        h: labelSpace + maxRadius - node.d3plus.r
+        resize: false
+    else
+      delete node.d3plus.label
 
   for path, pathInt in viz.paths
 
