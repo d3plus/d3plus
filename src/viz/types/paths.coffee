@@ -35,27 +35,32 @@ viz = (vars) ->
 
       lastHop = nextHop
 
+  rows = 0
   for pathInt, path of paths
     if pathInt isnt "all"
+      newPath = 0
       for id, i in path
         if i not in [0, path.length-1] and pathLookup[id] is parseFloat(pathInt)
+          newPath = 1
           prev = path[i-1]
           next = path[i+1]
           prevIndex = null
           nextIndex = null
-          for col, colIndex in paths["all"]
+          for col, colIndex in paths.all
             if prev in col
               prevIndex = colIndex
             if next in col
               nextIndex = colIndex
           if prevIndex isnt null and nextIndex is null
-            paths["all"].splice prevIndex + 1, 0, [id]
+            if prevIndex + 1 is paths.all.length - 1
+              paths.all.splice prevIndex + 1, 0, [id]
+            else
+              paths.all[prevIndex + 1].push id
           else if nextIndex - prevIndex is 1
-            paths["all"].splice nextIndex, 0, [id]
+            paths.all.splice nextIndex, 0, [id]
           else if nextIndex - prevIndex > 1
-            paths["all"][nextIndex - 1].push id
-
-  rows = viz.paths.length
+            paths.all[nextIndex - 1].push id
+      rows += newPath
 
   rowHeight = Math.floor vars.height.viz / rows
 
@@ -198,7 +203,6 @@ viz.filter = (vars, data) ->
 
   returnData
 
-viz.modes        = ["right", "left", "center"]
 viz.nesting      = false
 viz.requirements = [
   (vars) ->
