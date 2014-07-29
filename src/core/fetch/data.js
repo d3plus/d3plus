@@ -104,7 +104,12 @@ module.exports = function( vars , years ) {
     // If there is only 1 year needed, just grab it!
     //--------------------------------------------------------------------------
     else if ( years.length === 1 ) {
-      var returnData = vars.data.nested[ years[0] ][ vars.id.value ]
+      if ( vars.data.nested[ years[0] ] ) {
+        var returnData = vars.data.nested[ years[0] ][ vars.id.value ]
+      }
+      else {
+        var returnData = []
+      }
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Otherwise, we need to grab each year individually

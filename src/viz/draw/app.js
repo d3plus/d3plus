@@ -24,7 +24,7 @@ d3plus.draw.app = function(vars) {
   }
 
   vars.returned = {
-      "nodes": null,
+      "nodes": [],
       "edges": null
     }
 
@@ -43,10 +43,5 @@ d3plus.draw.app = function(vars) {
   vars.returned.nodes = vars.returned.nodes.filter(function(n){
     return n.d3plus && "x" in n.d3plus && "y" in n.d3plus
   })
-
-  var nodes = vars.returned.nodes
-  if (!nodes || !(nodes instanceof Array) || !nodes.length) {
-    vars.returned.nodes = []
-  }
 
 }
