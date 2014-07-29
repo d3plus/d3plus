@@ -21,7 +21,8 @@
     "gulp-util": "^2.2.20",
     "tiny-lr": "0.0.5",
     "vinyl-source-stream": "^0.1.1",
-    "watchify": "^0.6.4"
+    "watchify": "^0.6.4",
+    "yargs": "^1.2.6"
   },
   "repository": {
     "type": "git",
