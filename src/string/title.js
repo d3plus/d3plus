@@ -11,11 +11,11 @@ d3plus.string.title = function( text , key , vars ) {
     var locale = this.locale.value
     if ( typeof locale === "string" ) {
       locale = locale in d3plus.locale
-             ? d3plus.locale[locale] : d3plus.locale.en
+             ? d3plus.locale[locale] : d3plus.locale.en_US
     }
   }
   else {
-    var locale = d3plus.locale.en
+    var locale = d3plus.locale.en_US
   }
 
   if ( text.charAt(text.length-1) === "." ) {

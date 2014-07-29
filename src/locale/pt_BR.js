@@ -1,4 +1,4 @@
-d3plus.locale.pt = {
+d3plus.locale.pt_BR = {
     "dev": {
         "accepted": "{0} não é um valor aceito para {1}, por favor, use um dos seguintes procedimentos: {2}.",
         "deprecated": "{0} método foi removido, por favor atualize seu código para utilizar {1}.",

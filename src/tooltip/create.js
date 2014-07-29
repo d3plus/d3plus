@@ -23,7 +23,7 @@ d3plus.tooltip.create = function(params) {
   params.fontsize = params.fontsize || "12px"
   params.style = params.style || "default"
   params.zindex = params.size == "small" ? 2000 : 500
-  params.locale = params.locale || d3plus.locale.en
+  params.locale = params.locale || d3plus.locale.en_US
 
 
   var parentHeight = params.parent ? params.parent.node().offsetHeight

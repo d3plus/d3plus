@@ -11,11 +11,11 @@ d3plus.string.list = function( list , and , max , more ) {
   }
 
   if ( !and ) {
-    var and = d3plus.locale.en.ui.and
+    var and = d3plus.locale.en_US.ui.and
   }
 
   if ( !more ) {
-    var more = d3plus.locale.en.ui.more
+    var more = d3plus.locale.en_US.ui.more
   }
 
   if ( list.length === 2 ) {

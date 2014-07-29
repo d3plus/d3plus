@@ -1,4 +1,4 @@
-d3plus.locale.zh = {
+d3plus.locale.zh_CN = {
     "dev": {
         "accepted": "{0}不是{1}的可接受值, 请用下列之一的值:{2}",
         "deprecated": "{0}的方法已被移除, 请更新您的代码去使用{1}",

@@ -7,7 +7,7 @@ d3plus.method.format = {
     },
     "process"  : function( value ) {
 
-      var defaultLocale = "en"
+      var defaultLocale = "en_US"
         , returnObject  = d3plus.locale[defaultLocale]
 
       if ( value !== defaultLocale ) {

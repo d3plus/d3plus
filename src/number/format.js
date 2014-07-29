@@ -27,7 +27,7 @@ d3plus.number.format = function( number , key , vars ) {
       , time = locale.time
   }
   else {
-    var locale = d3plus.locale.en
+    var locale = d3plus.locale.en_US
       , time = locale.time
   }
 
