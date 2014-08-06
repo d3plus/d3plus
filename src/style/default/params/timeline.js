@@ -1,25 +1,27 @@
 d3plus.style.default.timeline = {
   "align"      : "middle",
-  "background" : "#eeeeee",
-  "brush"      : {
-    "color"   : "#ffffff",
-    "opacity" : 1
+  "hover": {
+    "accepted": [ "all-scroll", "col-resize", "crosshair", "default", "grab", "grabbing", "move", "pointer" ],
+    "value": "pointer"
   },
   "handles"    : {
     "accepted" : [ Boolean ],
     "color"    : "#e5e5e5",
-    "hover"    : "#ffffff",
+    "hover"    : "#cccccc",
     "opacity"  : 1,
-    "size"     : 3,
-    "stroke"   : "#cccccc",
+    "size"     : 2,
+    "stroke"   : "#818181",
     "value"    : true
   },
-  "height"    : 20,
+  "height"    : {
+    "accepted": [ Number ],
+    "value": 25
+  },
   "tick"      : {
     "align"  : "middle",
-    "color"  : "#e5e5e5",
+    "color"  : "#818181",
     "family" : d3plus.style.fontFamily(d3plus.style.default.fontFamily),
-    "size"   : 10,
+    "size"   : 12,
     "weight" : 200
   }
 }
