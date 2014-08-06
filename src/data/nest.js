@@ -167,11 +167,9 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
 
       }
       else if ( keyType === "number" && aggType === "string" && !idKey && !timeKey ) {
-
-        returnObj[key] = d3[agg]( leaves , function(d){
-          return key in d ? d[key] : false
-        })
-
+        var uniques = d3plus.util.uniques(leaves,key)
+        if (uniques.length) returnObj[key] = d3[agg](uniques)
+        else returnObj[key] = null
       }
       else {
 
