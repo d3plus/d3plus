@@ -18,19 +18,18 @@ module.exports = function( vars , years ) {
 
       var years = []
       vars.time[key].value.forEach(function( y ){
-
         if ( typeof y === "function" ) {
-          vars.data.time.forEach(function( t ){
-            if ( y(t) ) years.push( t )
+          vars.data.time.values.forEach(function( t ){
+            if ( y(t.getTime()) ) years.push( t.getTime() )
           })
         }
-        else years.push(y)
+        else years.push(new Date(y).getTime())
 
       })
 
       if ( key === "mute" ) {
-        years = vars.data.time.filter(function( t ){
-          return years.indexOf( t ) < 0
+        years = vars.data.time.values.filter(function( t ){
+          return years.indexOf( t.getTime() ) < 0
         })
       }
 
@@ -42,8 +41,11 @@ module.exports = function( vars , years ) {
     years = [ "all" ]
   }
 
-  if (years.indexOf("all") >= 0 && vars.data.time.length) {
-    years = vars.data.time
+  if (years.indexOf("all") >= 0 && vars.data.time.values.length) {
+    years = vars.data.time.values.slice(0)
+    for (var i = 0; i < years.length; i++) {
+      years[i] = years[i].getTime()
+    }
   }
 
   var cacheID = [ vars.type.value , vars.id.value , vars.depth.value ]
@@ -109,6 +111,7 @@ module.exports = function( vars , years ) {
       }
       else {
         var returnData = []
+          , missing = [years[0]]
       }
     }
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -126,15 +129,33 @@ module.exports = function( vars , years ) {
         else missing.push( y )
       })
 
-      if ( returnData.length === 0 && missing.length && !vars.internal_error ) {
+    }
 
-        var str = vars.format.locale.value.error.dataYear
-          , and = vars.format.locale.value.ui.and
-        missing = d3plus.string.list(missing,and)
-        vars.internal_error = d3plus.string.format(str,missing)
+    if ( returnData.length === 0 && missing.length && !vars.internal_error ) {
 
+      var format = vars.time.format.value || vars.data.time.format
+
+      if (missing.length > 1) {
+        missing = d3.extent(missing)
       }
-      else {
+
+      missing = missing.map(function(m){
+        return format(new Date(m))
+      })
+      missing = missing.join(" - ")
+
+      var str = vars.format.locale.value.error.dataYear
+        , and = vars.format.locale.value.ui.and
+      missing = d3plus.string.list(missing,and)
+      vars.internal_error = d3plus.string.format(str,missing)
+      vars.time.missing = true
+
+    }
+    else {
+
+      vars.time.missing = false
+
+      if ( years.length > 1 ) {
 
         var separated = false
         vars.axes.values.forEach(function(a){
@@ -151,31 +172,31 @@ module.exports = function( vars , years ) {
 
       }
 
+      if ( !returnData ) {
+        returnData = []
+      }
+      else {
+
+        returnData = d3plus.data.filter( vars , returnData )
+
+      }
+
+      var cacheKeys = d3.keys(vars.data.cache)
+      if ( cacheKeys.length === 20 ) {
+        cacheKeys.sort()
+        delete vars.data.cache(cacheKeys[0])
+      }
+
+      cacheID = new Date().getTime() + "_" + cacheID
+      vars.data.cache[cacheID] = returnData
+
+      if ( typeof dataFilter === "function" ) {
+        returnData = dataFilter( vars , returnData )
+      }
+
+      if ( vars.dev.value ) d3plus.console.comment("storing data in cache")
+
     }
-
-    if ( !returnData ) {
-      returnData = []
-    }
-    else {
-
-      returnData = d3plus.data.filter( vars , returnData )
-
-    }
-
-    var cacheKeys = d3.keys(vars.data.cache)
-    if ( cacheKeys.length === 20 ) {
-      cacheKeys.sort()
-      delete vars.data.cache(cacheKeys[0])
-    }
-
-    cacheID = new Date().getTime() + "_" + cacheID
-    vars.data.cache[cacheID] = returnData
-
-    if ( typeof dataFilter === "function" ) {
-      returnData = dataFilter( vars , returnData )
-    }
-
-    if ( vars.dev.value ) d3plus.console.comment("storing data in cache")
 
     return returnData
 

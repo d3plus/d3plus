@@ -44,7 +44,13 @@ d3plus.method.format = {
   },
   "value"      : function( value , key ) {
 
-    if ( typeof value === "number" ) {
+    var vars = this.getVars()
+
+    if ( vars.time && vars.time.value && key === vars.time.value ) {
+      var f = vars.time.format.value || d3.locale(vars.format.locale.value.format).timeFormat
+      return f( value )
+    }
+    else if ( typeof value === "number" ) {
       var f = this.number.value || d3plus.number.format
       return f( value , key )
     }

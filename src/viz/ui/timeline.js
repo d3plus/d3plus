@@ -4,11 +4,17 @@
 
 d3plus.ui.timeline = function(vars) {
 
-  var years = vars.data.time
-
-  if (!vars.internal_error && !vars.small && years && years.length > 1 && vars.timeline.value) {
+  var years = []
+  vars.data.time.values.forEach(function(d){
+    years.push(new Date(d))
+  })
+  
+  if ((!vars.internal_error || !vars.data.missing) && !vars.small && years && years.length > 1 && vars.timeline.value) {
 
     if ( vars.dev.value ) d3plus.console.time("drawing timeline")
+
+    var timeFormat = vars.time.format.value || vars.data.time.format
+      , timeMultiFormat = vars.time.format.value || vars.data.time.multiFormat
 
     if ((vars.time.value == vars.x.value && vars.x.scale.value == "continuous") || (vars.time.value == vars.y.value && vars.y.scale.value == "continuous")) {
       var min_required = 2
@@ -19,44 +25,71 @@ d3plus.ui.timeline = function(vars) {
 
     if (vars.time.solo.value.length) {
       var init = d3.extent(vars.time.solo.value)
+      for (var i = 0; i < init.length; i++) {
+        if (init[i].constructor !== Date) {
+          var d = new Date(init[i].toString())
+          d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
+          init[i] = d
+        }
+      }
     }
     else {
       var init = d3.extent(years)
     }
 
     var min = years[0],
-        max = years[years.length-1],
-        start = init[0],
-        end = init[1],
+        start = new Date(init[0]),
+        end = new Date(init[1]),
         year_ticks = [],
-        steps = []
+        steps = [],
+        step = vars.data.time.step,
+        total = vars.data.time.total
 
-    years.forEach(function(y,i){
-      if (i != 0) steps.push(y-years[i-1])
-    })
-    var step = d3.min(steps),
-        total = step*years.length
     years = []
-    for (var i = min; i <= max; i += step) {
-      years.push(i)
-      year_ticks.push(d3.time.year(new Date(parseInt(i), 0, 1)))
-    }
-    year_ticks.push(d3.time.year(new Date(parseInt(max+step), 0, 1)))
 
-    var brushend = function() {
+    var max = vars.data.time.stepIntervals+1
+    for (var i = 0; i <= max; i++) {
+      var d = new Date(min)
+      d["set"+vars.data.time.stepType](d["get"+vars.data.time.stepType]() + i)
+      if (i !== max) {
+        years.push(d)
+      }
+      year_ticks.push(d)
+    }
+    end["set"+vars.data.time.stepType](end["get"+vars.data.time.stepType]() + 1)
+    start = d3plus.util.closest(year_ticks,start)
+    end = d3plus.util.closest(year_ticks,end)
+
+    var yearMS = year_ticks.slice(0)
+    for (var i = 0; i < yearMS.length; i++) {
+      yearMS[i] = yearMS[i].getTime()
+    }
+
+    var min_index = yearMS.indexOf(start.getTime())
+      , max_index = yearMS.indexOf(end.getTime())
+
+    var brushed = function() {
 
       if (d3.event.sourceEvent !== null) {
 
-        var extent0 = brush.extent(),
-            min_val = d3plus.util.closest(year_ticks,d3.time.year.round(extent0[0])),
-            max_val = d3plus.util.closest(year_ticks,d3.time.year.round(extent0[1]))
+        brushExtent = brush.extent()
 
-        if (min_val == max_val) {
-          min_val = d3plus.util.closest(year_ticks,d3.time.year.floor(extent0[0]))
+        var min_val = d3plus.util.closest(year_ticks,brushExtent[0]),
+            max_val = d3plus.util.closest(year_ticks,brushExtent[1])
+
+        if (min_val === max_val) {
+          min_index = yearMS.indexOf(min_val.getTime())
+          if (min_val < brushExtent[0] || min_index === 0) {
+            max_val = year_ticks[min_index + 1]
+          }
+          else {
+            min_val = year_ticks[min_index - 1]
+          }
+
         }
 
-        var min_index = year_ticks.indexOf(min_val),
-            max_index = year_ticks.indexOf(max_val)
+        min_index = yearMS.indexOf(min_val.getTime())
+        max_index = yearMS.indexOf(max_val.getTime())
 
         if (max_index-min_index >= min_required) {
           var extent = [min_val,max_val]
@@ -78,20 +111,11 @@ d3plus.ui.timeline = function(vars) {
           extent = [extent[0],extent[extent.length-1]]
         }
 
-        d3.select(this).transition()
-          .call(brush.extent(extent))
-          // .call(brush.event)
-          .each("end",function(d){
+        brushExtent = extent
 
-            var new_years = d3.range(extent[0].getFullYear(),extent[1].getFullYear())
+        text.attr("fill",textFill)
 
-            new_years = new_years.filter(function(d){
-              return years.indexOf(d) >= 0
-            })
-
-            vars.self.time({"solo": new_years}).draw()
-
-          })
+        d3.select(this).call(brush.extent(extent))
 
       }
       else {
@@ -100,13 +124,142 @@ d3plus.ui.timeline = function(vars) {
 
     }
 
+    var brushend = function() {
+
+      if (d3.event.sourceEvent !== null) {
+
+        if (vars.time.solo.value.length) {
+          var solod = d3.extent(vars.time.solo.value)
+            , old_min = yearMS.indexOf(d3plus.util.closest(year_ticks,solod[0]).getTime())
+            , old_max = yearMS.indexOf(d3plus.util.closest(year_ticks,solod[1]).getTime())+1
+            , change = old_min !== min_index || old_max !== max_index
+        }
+        else {
+          var change = max_index-min_index !== years.length
+        }
+
+        if (change) {
+
+          if (max_index-min_index == years.length) {
+            var newYears = []
+          }
+          else {
+
+            var newYears = d3.range(min_index,max_index)
+              .map(function(y){
+                var i = vars.data.time.dataSteps.indexOf(y)
+                return i >= 0 ? vars.data.time.values[i] : years[y]
+              })
+
+          }
+
+          vars.self.time({"solo": newYears}).draw()
+
+        }
+
+      }
+      else {
+        return;
+      }
+
+    }
+
+    var textStyle = {
+      "font-weight": vars.timeline.tick.weight,
+      "font-family": vars.timeline.tick.family.value,
+      "font-size": vars.timeline.tick.size,
+      "text-anchor": vars.timeline.tick.align
+    }
+
+    var timeFormatter = function(v,i) {
+      if (i === 0 || i === years.length-1) return timeFormat(v)
+      else return timeMultiFormat(v)
+    }
+
+    var textSizes = d3plus.font.sizes(years.map(timeFormatter),textStyle)
+      , yearWidths = textSizes.map(function(t){return t.width})
+      , year_width = d3.max(yearWidths)
+      , year_height = d3.max(textSizes.map(function(t){return t.height}))
+
+    var label_width = year_width+vars.ui.padding*2,
+        timelineHeight = year_height+vars.ui.padding*2
+        timeline_width = label_width*years.length,
+        available_width = vars.width.value-vars.ui.padding*2,
+        tickStep = 1,
+        textRotate = 0
+
+    if (timeline_width > available_width) {
+      label_width = year_height+vars.ui.padding*2
+      timelineHeight = year_width+vars.ui.padding*2
+      timeline_width = label_width*years.length
+      textRotate = 90
+    }
+
+    timelineHeight = d3.max([timelineHeight,vars.timeline.height.value])
+
+    var old_width = label_width
+    if (timeline_width > available_width) {
+      timeline_width = available_width
+      old_width = label_width-vars.ui.padding*2
+      label_width = timeline_width/years.length
+      if (old_width > label_width) {
+        tickStep = Math.ceil(old_width/(timeline_width/years.length))
+        for (tickStep; tickStep < years.length-1; tickStep++) {
+          if ((years.length-1)%tickStep == 0) {
+            break;
+          }
+        }
+
+      }
+    }
+
+    if (vars.timeline.align == "start") {
+      var start_x = vars.ui.padding
+    }
+    else if (vars.timeline.align == "end") {
+      var start_x = vars.width.value - vars.ui.padding - timeline_width
+    }
+    else {
+      var start_x = vars.width.value/2 - timeline_width/2
+    }
+
+    var brushExtent = [start,end]
+
+    var textFill = function(d) {
+
+      if (d >= brushExtent[0] && d < brushExtent[1]) {
+        var opacity = 1
+          , color = d3plus.color.text(vars.ui.color.primary.value)
+      }
+      else {
+        var opacity = 0.5
+          , color = d3plus.color.text(vars.ui.color.secondary.value)
+      }
+
+      var color = d3.rgb(color)
+
+      return "rgba("+color.r+","+color.g+","+color.b+","+opacity+")"
+
+    }
+
     var background = vars.g.timeline.selectAll("rect.d3plus_timeline_background")
       .data(["background"])
 
     background.enter().append("rect")
       .attr("class","d3plus_timeline_background")
-      .attr("opacity",0)
-      .attr("fill",vars.timeline.background)
+      .attr("shape-rendering","crispEdges")
+      .attr("width",timeline_width+2)
+      .attr("height",timelineHeight+2)
+      .attr("fill",vars.ui.color.secondary.value)
+      .attr("x",start_x-1)
+      .attr("y",vars.ui.padding)
+
+    background.transition().duration(vars.draw.timing)
+      .attr("width",timeline_width+2)
+      .attr("height",timelineHeight+2)
+      .attr("fill",vars.ui.color.secondary.value)
+      .attr("x",start_x-1)
+      .attr("y",vars.ui.padding)
 
     var ticks = vars.g.timeline.selectAll("g#ticks")
       .data(["ticks"])
@@ -134,110 +287,47 @@ d3plus.ui.timeline = function(vars) {
 
     text.enter().append("text")
       .attr("y",0)
-      .attr("dy",0)
-      .attr("x",function(d){
-        if (vars.timeline.align == "middle") {
-          return vars.width.value/2
-        }
-        else if (vars.timeline.align == "end") {
-          return vars.width.value
-        }
-        else {
-          return 0
-        }
-      })
-      .attr("y",function(d){
-        var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
-        var y = vars.ui.padding+vars.timeline.height/2+this.getBBox().height/2 - diff
-        return y
-      })
-
-    var year_width = 0,
-        year_height = 0
+      .attr("dy","0.5ex")
+      .attr("x",0)
 
     text
       .order()
-      .attr("font-weight",vars.timeline.tick.weight)
-      .attr("font-family",vars.timeline.tick.family.value)
-      .attr("font-size",vars.timeline.tick.size)
-      .style("text-anchor",vars.timeline.tick.align)
-      .attr("opacity",0)
-      .text(function(d){
-        return d
-      })
-      .each(function(d){
-        var w = this.getBBox().width,
-            h = this.getBBox().height
-        if (w > year_width) year_width = w
-        if (h > year_height) year_height = h
-      })
-
-    var label_width = year_width+vars.ui.padding*2,
-        timeline_width = label_width*years.length,
-        available_width = vars.width.value-vars.ui.padding*2,
-        step = 1
-
-    if (timeline_width > available_width) {
-      timeline_width = available_width
-      step = Math.ceil(label_width/(timeline_width/years.length))
-      label_width = timeline_width/years.length
-      for (step; step < years.length-1; step++) {
-        if ((years.length-1)%step == 0) {
-          break;
-        }
-      }
-    }
-
-    if (vars.timeline.align == "start") {
-      var start_x = vars.ui.padding
-    }
-    else if (vars.timeline.align == "end") {
-      var start_x = vars.width.value - vars.ui.padding - timeline_width
-    }
-    else {
-      var start_x = vars.width.value/2 - timeline_width/2
-    }
-
-    text
+      .attr(textStyle)
       .text(function(d,i){
-        return i%step == 0 ? d : ""
-      })
-      .attr("opacity",1)
-      .attr("fill",function(d){
+        if (i === 0 || i === years.length-1) return timeFormat(d)
 
-        if (d >= init[0] && d <= init[1]) {
-          var color1 = vars.timeline.background,
-              color2 = vars.timeline.brush.color,
-              opacity = vars.timeline.brush.opacity
-              mixed = d3plus.color.mix(color2,color1,opacity)
+        var prev = (i-1)%tickStep === 0
+          , next = (i+1)%tickStep === 0
+          , data = vars.data.time.dataSteps.indexOf(i) >= 0
+          , fits = (yearWidths[i-1]/2 + yearWidths[i] + yearWidths[i+1]/2 + vars.ui.padding*4) < label_width*2
 
-          return d3plus.color.text(mixed)
-        }
-        return d3plus.color.text(vars.timeline.background)
+        return i%tickStep === 0 || (!prev && !next && data && old_width < label_width*3) ? timeMultiFormat(d) : ""
       })
-      .attr("x",function(d,i){
-        return start_x + (label_width*i) + label_width/2
+      .attr("opacity",function(d,i){
+        return vars.data.time.dataSteps.indexOf(i) >= 0 ? 1 : 0.4
       })
-      .attr("y",function(d){
-        var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/5
-        var y = vars.ui.padding+vars.timeline.height/2-1+this.getBBox().height/2 - diff
-        if (step > 1) {
-          y += year_height+vars.ui.padding
+      .attr("fill",textFill)
+      .attr("transform",function(d,i){
+        var x = start_x + (label_width*i) + label_width/2
+          , y = timelineHeight/2 + vars.ui.padding + 1
+
+        // var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/4
+        // var y = vars.ui.padding+vars.timeline.height/2+this.getBBox().height/2 - diff
+
+        if (textRotate) {
+          // x -= vars.ui.padding
+          // y += vars.ui.padding
         }
-        return y
+        else {
+          // x += vars.ui.padding
+          // y += vars.ui.padding
+        }
+        return "translate("+Math.round(x)+","+Math.round(y)+")rotate("+textRotate+")"
       })
 
     text.exit().transition().duration(vars.draw.timing)
       .attr("opacity",0)
       .remove()
-
-    background.transition().duration(vars.draw.timing)
-      .attr("opacity",1)
-      .attr("width",timeline_width)
-      .attr("height",vars.timeline.height-2)
-      .attr("x",start_x)
-      .attr("y",vars.ui.padding)
-      .attr("fill",vars.timeline.background)
 
     var x = d3.time.scale()
       .domain(d3.extent(year_ticks))
@@ -245,7 +335,8 @@ d3plus.ui.timeline = function(vars) {
 
     var brush = d3.svg.brush()
       .x(x)
-      .extent([year_ticks[years.indexOf(start)], year_ticks[years.indexOf(end)+1]])
+      .extent(brushExtent)
+      .on("brush", brushed)
       .on("brushend", brushend)
 
     ticks
@@ -258,63 +349,65 @@ d3plus.ui.timeline = function(vars) {
           return year_ticks
         })
         .tickFormat("")
-        .tickSize(-(vars.timeline.height-2))
+        .tickSize(-timelineHeight)
         .tickPadding(0))
         .selectAll("path").attr("fill","none")
 
     ticks.selectAll("line")
       .attr("stroke",vars.timeline.tick.color)
-      .attr("shape-rendering",vars.shape.rendering.value)
+      .attr("stroke-width",1)
+      .attr("shape-rendering","crispEdges")
 
     brush_group
-      .attr("transform","translate("+start_x+","+vars.ui.padding+")")
+      .attr("transform","translate("+start_x+","+(vars.ui.padding+1)+")")
       .attr("opacity",1)
       .call(brush)
 
     text.attr("pointer-events","none")
 
-    brush_group.selectAll("rect.background, rect.extent")
-      .attr("height",vars.timeline.height-2)
-
     brush_group.selectAll("rect.background")
       .attr("fill","none")
-      .attr("stroke-width",1)
-      .attr("stroke",vars.timeline.tick.color)
+      // .attr("stroke-width",1)
+      // .attr("stroke",vars.ui.color.secondary.value)
       .style("visibility","visible")
-      .attr("shape-rendering",vars.shape.rendering.value)
+      .attr("height",timelineHeight)
+      .attr("shape-rendering","crispEdges")
+      .on(d3plus.evt.move,function(){
+        var c = vars.timeline.hover.value
+        if (["grab","grabbing"].indexOf(c) >= 0) c = d3plus.prefix()+c
+        d3.select(this).style("cursor",c)
+      })
 
     brush_group.selectAll("rect.extent")
-      .attr("stroke-width",1)
-      .attr("fill",vars.timeline.brush.color)
-      .attr("fill-opacity",vars.timeline.brush.opacity)
-      .attr("stroke",vars.timeline.tick.color)
-      .attr("shape-rendering",vars.shape.rendering.value)
+      // .attr("stroke-width",1)
+      // .attr("stroke",vars.ui.color.secondary.value)
+      .attr("height",timelineHeight)
+      .attr("fill",vars.ui.color.primary.value)
+      .attr("shape-rendering","crispEdges")
+      .on(d3plus.evt.move,function(){
+        var c = vars.timeline.hover.value
+        if (["grab","grabbing"].indexOf(c) >= 0) c = d3plus.prefix()+c
+        d3.select(this).style("cursor",c)
+      })
 
     if (vars.timeline.handles.value) {
 
-      brush_group.selectAll("g.resize")
-        .select("rect")
+      var handles = brush_group.selectAll("g.resize").selectAll("rect.d3plus_handle")
+        .data(["d3plus_handle"])
+
+      handles.enter().insert("rect","rect")
+        .attr("class","d3plus_handle")
+
+      handles
         .attr("fill",vars.timeline.handles.color)
-        .attr("stroke",vars.timeline.handles.stroke)
-        .attr("stroke-width",1)
-        .attr("x",-vars.timeline.handles.size/2)
+        .attr("transform",function(d){
+          var mod = this.parentNode.className.baseVal === "resize e" ? -vars.timeline.handles.size : 0
+          return "translate("+mod+",0)"
+        })
         .attr("width",vars.timeline.handles.size)
-        .attr("height",vars.timeline.height-2)
         .style("visibility","visible")
-        .attr("shape-rendering",vars.shape.rendering.value)
+        .attr("shape-rendering","crispEdges")
         .attr("opacity",vars.timeline.handles.opacity)
-
-    }
-    else {
-
-      brush_group.selectAll("g.resize")
-        .remove()
-
-    }
-
-    if (vars.timeline.handles.opacity) {
-
-      brush_group.selectAll("g.resize")
         .on(d3plus.evt.over,function(){
           d3.select(this).select("rect")
             .transition().duration(vars.timing.mouseevents)
@@ -325,6 +418,15 @@ d3plus.ui.timeline = function(vars) {
             .transition().duration(vars.timing.mouseevents)
             .attr("fill",vars.timeline.handles.color)
         })
+
+      brush_group.selectAll("g.resize").selectAll("rect")
+        .attr("height",timelineHeight)
+
+    }
+    else {
+
+      brush_group.selectAll("g.resize")
+        .remove()
 
     }
 
@@ -337,7 +439,7 @@ d3plus.ui.timeline = function(vars) {
     vars.margin.bottom += timelineBox.height+timelineBox.y
 
     vars.g.timeline.transition().duration(vars.draw.timing)
-      .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom-vars.ui.padding/2)+")")
+      .attr("transform","translate(0,"+Math.round(vars.height.value-vars.margin.bottom-vars.ui.padding/2)+")")
 
     vars.margin.bottom += vars.ui.padding
 

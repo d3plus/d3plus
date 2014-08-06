@@ -33,9 +33,9 @@ d3plus.locale.en_US = {
     thousands: ",",
     grouping: [3],
     currency: ["$", ""],
-    dateTime: "%a %b %e %X %Y",
-    date: "%m/%d/%Y",
-    time: "%H:%M:%S",
+    dateTime: "%A, %B %-d, %Y %X",
+    date: "%-m/%-d/%Y",
+    time: "%I:%M:%S %p",
     periods: ["AM", "PM"],
     days: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
     shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
@@ -106,6 +106,24 @@ d3plus.locale.en_US = {
                    , "year"
 
   ],
+
+  "timeFormat": {
+    "FullYear": "%Y",
+    "Month": "%B",
+    "MonthSmall": "%b",
+    "Date": "%A %-d",
+    "DateSmall": "%-d",
+    "Hours": "%I %p",
+    "Minutes": "%I:%M",
+    "Seconds": "%Ss",
+    "Milliseconds": "%Lms",
+    "FullYear-Month": "%b %Y",
+    "FullYear-Date": "%-m/%-d/%Y",
+    "Month-Date": "%b %-d",
+    "Hours-Minutes": "%I:%M %p",
+    "Hours-Seconds": "%I:%M:%S %p",
+    "Hours-Milliseconds": "%H:%M:%S.%L"
+  },
 
   "ui"           : {
 

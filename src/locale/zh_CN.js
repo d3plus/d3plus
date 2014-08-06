@@ -26,7 +26,7 @@ d3plus.locale.zh_CN = {
         thousands: ",",
         grouping: [3],
         currency: ["¥", ""],
-        dateTime: "%a %b %e %X %Y",
+        dateTime: "%A %B %e %Y %X",
         date: "%Y/%-m/%-d",
         time: "%H:%M:%S",
         periods: ["上午", "下午"],
