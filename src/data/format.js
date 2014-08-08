@@ -4,18 +4,18 @@ var fetchValue = require("../core/fetch/value.js")
 //------------------------------------------------------------------------------
 d3plus.data.format = function( vars ) {
 
-  if ( vars.dev.value ) {
-    var timerString = "disaggregating data by time and nesting"
-    d3plus.console.time( timerString )
-  }
-
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Gets all unique time values
   //----------------------------------------------------------------------------
+  vars.data.time = {"values": []}
   if ( vars.time && vars.time.value ) {
 
+    if ( vars.dev.value ) {
+      var timerString = "analyzing time periods"
+      d3plus.console.time( timerString )
+    }
+
     var uniqueTimes = d3plus.util.uniques( vars.data.value , vars.time.value )
-    vars.data.time = {"values": []}
     for ( var i = 0; i < uniqueTimes.length ; i++ ) {
       var d = new Date(uniqueTimes[i].toString())
       if (d !== "Invalid Date") {
@@ -135,9 +135,21 @@ d3plus.data.format = function( vars ) {
     vars.data.time.format = d3.locale(locale.format).timeFormat(getFormat(stepType,totalType))
     vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi)
 
+    vars.data.time.ticks = []
+    var min = d3.min(vars.data.time.values)
+    for (var i = 0; i <= vars.data.time.stepIntervals; i++) {
+      var d = new Date(min)
+      d["set"+vars.data.time.stepType](d["get"+vars.data.time.stepType]() + i)
+      vars.data.time.ticks.push(d)
+    }
+
+    if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+
   }
-  else {
-    vars.data.time.values = []
+
+  if ( vars.dev.value ) {
+    var timerString = "nesting data by time and depths"
+    d3plus.console.time( timerString )
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

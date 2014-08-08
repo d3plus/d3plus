@@ -393,10 +393,9 @@ d3plus.shape.draw = function(vars) {
 
           vars.covered = false
 
-          if (["area","line"].indexOf(vars.shape.value) >= 0
-            || vars.focus.value.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
+          if (vars.focus.value.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
 
-            if (vars.continuous_axis) {
+            if (d.values && vars.continuous_axis) {
 
               var index = vars.continuous_axis === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
@@ -434,11 +433,9 @@ d3plus.shape.draw = function(vars) {
 
           vars.covered = false
 
-          if (["area","line"].indexOf(vars.shape.value) >= 0
-            || (vars.types[vars.type.value].tooltip == "follow" &&
-            vars.focus.value[0] != d[vars.id.value])) {
+          if (d.values || (vars.types[vars.type.value].tooltip == "follow" && vars.focus.value[0] != d[vars.id.value])) {
 
-            if (vars.continuous_axis) {
+            if (d.values && vars.continuous_axis) {
 
               var index = vars.continuous_axis === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]

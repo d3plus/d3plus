@@ -17,6 +17,7 @@ var scatter = function(vars) {
 scatter.fill         = true
 scatter.requirements = [ "data" , "x" , "y" ]
 scatter.scale        = chart.scale
+scatter.setup        = chart.setup
 scatter.shapes       = [ "circle" , "square" , "donut" ]
 scatter.tooltip      = "static"
 

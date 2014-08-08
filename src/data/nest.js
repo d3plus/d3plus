@@ -166,7 +166,26 @@ d3plus.data.nest = function( vars , flatData , nestingLevels , requirements ) {
         returnObj[key] = vars.aggs.value[key](leaves)
 
       }
-      else if ( keyType === "number" && aggType === "string" && !idKey && !timeKey ) {
+      else if ( timeKey ) {
+        var uniques = d3plus.util.uniques(leaves,key), dates = []
+
+        for ( var i = 0; i < uniques.length ; i++ ) {
+          var d = uniques[i]
+          if (d.constructor === Date) dates.push(d)
+          else {
+            d = new Date(uniques[i].toString())
+            if (d !== "Invalid Date") {
+              d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
+              dates.push(d)
+            }
+          }
+        }
+
+        if (dates.length === 1) returnObj[key] = dates[0]
+        else if (uniques.length) returnObj[key] = dates
+        else returnObj[key] = null
+      }
+      else if ( keyType === "number" && aggType === "string" && !idKey ) {
         var uniques = d3plus.util.uniques(leaves,key)
         if (uniques.length) returnObj[key] = d3[agg](uniques)
         else returnObj[key] = null

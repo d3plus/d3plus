@@ -1,5 +1,6 @@
 var fetchValue = require("../../core/fetch/value.js")
   , fetchColor = require("../../core/fetch/color.js")
+  , fetchData  = require("../../core/fetch/data.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Chart
 //------------------------------------------------------------------------------
@@ -54,13 +55,13 @@ var chart = function(vars) {
             var range_data = vars.data.app
           }
           else {
-            var range_data = vars.data.value
+            var range_data = fetchData(vars,["all"])
           }
           var xaxis_sums = d3.nest()
             .key(function(d){return d[vars.x.value] })
             .rollup(function(leaves){
               return d3.sum(leaves, function(d){
-                return parseFloat(fetchValue(vars,d,vars[axis].value))
+                return fetchValue(vars,d,vars[axis].value)
               })
             })
             .entries(range_data)
@@ -76,7 +77,7 @@ var chart = function(vars) {
         }
         else if (vars.time.fixed.value) {
           vars[axis+"_range"] = d3.extent(vars.data.app,function(d){
-            return parseFloat(fetchValue(vars,d,vars[axis].value))
+            return fetchValue(vars,d,vars[axis].value)
           })
           vars.tickValues[axis] = d3plus.util.uniques(vars.data.app,vars[axis].value)
         }
@@ -86,9 +87,9 @@ var chart = function(vars) {
             all_depths = all_depths.concat(vars.data.grouped[vars.id.nesting[id]].all)
           }
           vars[axis+"_range"] = d3.extent(all_depths,function(d){
-            return parseFloat(fetchValue(vars,d,vars[axis].value))
+            return fetchValue(vars,d,vars[axis].value)
           })
-          vars.tickValues[axis] = d3plus.util.uniques(vars.data.value,vars[axis].value)
+          vars.tickValues[axis] = d3plus.util.uniques(fetchData(vars,["all"]),vars[axis].value)
         }
 
         // add padding to axis if there is only 1 value
@@ -121,29 +122,7 @@ var chart = function(vars) {
 
     //===================================================================
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Filter data to only include values within the axes
-    //-------------------------------------------------------------------
-    if ( vars.dev.value ) d3plus.console.time("removing data outside of axes")
-    var old_length = vars.data.app.length
-    if (vars.y.scale.value == "share") {
-      var data = vars.data.app
-    }
-    else {
-      var data = vars.data.app.filter(function(d){
-        var val = parseFloat(fetchValue(vars,d,vars.y.value))
-        var y_include = val !== null && val <= vars.y_range[0] && val >= vars.y_range[1]
-        if (y_include) {
-          var val = parseFloat(fetchValue(vars,d,vars.x.value))
-          return val !== null && val >= vars.x_range[0] && val <= vars.x_range[1]
-        }
-        else return false
-      })
-    }
-
-    if ( vars.dev.value ) d3plus.console.timeEnd("removing data outside of axes")
-    var removed = old_length - data.length
-    if (removed && vars.dev.value) d3plus.console.log("removed "+removed+" nodes")
+    var data = vars.data.app
 
     //===================================================================
 
@@ -197,6 +176,12 @@ var chart = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create axis scales and add buffer if necessary
     //-------------------------------------------------------------------
+    var tickAttrs = {
+      "font-size":   vars.axes.ticks.font.size,
+      "fill":        vars.axes.ticks.font.color,
+      "font-family": vars.axes.ticks.font.family.value,
+      "font-weight": vars.axes.ticks.font.weight
+    }
 
     vars.axes.values.forEach(function(axis){
 
@@ -247,35 +232,11 @@ var chart = function(vars) {
             if (vars[axis].scale.value == "share") {
               var text = d*100+"%"
             }
+            else if (d.constructor === Date) {
+              var text = vars.data.time.multiFormat(d)
+            }
             else {
               var text = vars.format.value(d,vars[axis].value);
-            }
-
-            d3.select(this)
-              .attr("font-size",vars.axes.ticks.font.size)
-              .attr("fill",vars.axes.ticks.font.color)
-              .attr("font-family",vars.axes.ticks.font.family.value)
-              .attr("font-weight",vars.axes.ticks.font.weight)
-              .text(text)
-
-            if (axis == "x") {
-              var w = this.getBBox().width,
-                  h = this.getBBox().height
-              d3.select(this).attr("transform","translate(18,8)rotate(70)");
-              var height = Math.ceil((Math.cos(25)*w)+5);
-              if (height > graph.yoffset && !vars.small) {
-                graph.yoffset = height;
-              }
-              var width = Math.ceil((Math.cos(25)*h)+5);
-              if (width > graph.rightoffset && !vars.small) {
-                graph.rightoffset = width;
-              }
-            }
-            else {
-              var width = this.getBBox().width;
-              if (width > graph.offset && !vars.small) {
-                graph.offset = width;
-              }
             }
 
           }
@@ -285,21 +246,21 @@ var chart = function(vars) {
 
           return text;
 
-        });
+        })
 
-      if (vars[axis].scale.value == "continuous" && vars.tickValues[axis]) {
-        // var ticks = d3.extent(vars.tickValues[axis])
-        // vars.tickValues[axis] = d3.range(ticks[0],ticks[1])
-        // vars.tickValues[axis].push(ticks[1])
-        vars[axis+"_axis"].tickValues(vars.tickValues[axis])
+      if (vars[axis].value === vars.time.value) {
+        var range = vars[axis+"_range"]
+        vars[axis].ticks = vars.data.time.ticks.filter(function(t){
+          return t <= range[1] && t >= range[0]
+        })
       }
+      else {
+        vars[axis].ticks = vars[axis+"_scale"].ticks()
+      }
+      vars[axis+"_axis"].tickValues(vars[axis].ticks)
 
     })
 
-  }
-
-  if (!data) {
-    var data = []
   }
 
   // Function for Tick Styling
@@ -330,6 +291,41 @@ var chart = function(vars) {
         return axis == "y" ? vars.y_scale(d) : graph.height
       })
   }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Calculate Spacing Needed for Axes Labels
+  //-------------------------------------------------------------------
+  var yTicks = vars.y.ticks.map(function(d){
+        return vars.format.value(d,vars.y.value)
+      })
+    , yAxisWidth = d3.max(d3plus.font.sizes(yTicks,tickAttrs),function(d){return d.width}) + vars.labels.padding
+  graph.margin.left += yAxisWidth
+  graph.width -= yAxisWidth
+  vars.x_scale.rangeRound([0,graph.width])
+
+  var xTicks = vars.x.ticks.map(function(d){
+        return vars.format.value(d,vars.x.value)
+      })
+    , xSizes = d3plus.font.sizes(xTicks,tickAttrs)
+    , xAxisWidth = d3.max(xSizes,function(d){return d.width})
+    , xMaxWidth = d3.min([graph.width/(xTicks.length+1),graph.margin.left*2]) - vars.labels.padding*2
+
+  if (xAxisWidth < xMaxWidth) {
+    var xOffset = d3.max(xSizes,function(d){return d.height}) + vars.labels.padding
+      , xAnchor = "middle"
+      , xDy     = "0ex"
+      , xTransform = "translate(0,10)"
+  }
+  else {
+    var xOffset = d3.max(xSizes,function(d){return d.width}) + vars.labels.padding
+      , xRotate = true
+      , xAnchor = "start"
+      , xDy     = "0.5ex"
+      , xTransform = "translate(15,10)rotate(70)"
+  }
+
+  graph.height -= xOffset
+  vars.y_scale.rangeRound([0,graph.height])
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter SVG Elements
@@ -385,11 +381,20 @@ var chart = function(vars) {
   xaxis.enter().append("g")
     .attr("id","xaxis")
     .attr("transform", "translate(0," + graph.height + ")")
+    .call(vars.x_axis.scale(vars.x_scale))
+    .selectAll("g.tick").select("text")
+      .attr(tickAttrs)
+      .style("text-anchor",xAnchor)
+      .attr("dy",xDy)
+      .attr("transform",xTransform)
 
   // Enter Y Axis Scale
   var yaxis = plane.selectAll("g#yaxis").data(["yaxis"])
   yaxis.enter().append("g")
     .attr("id","yaxis")
+    .call(vars.y_axis.scale(vars.y_scale))
+    .selectAll("g.tick").select("text")
+      .attr(tickAttrs)
 
   // Enter X Axis Label
   var xlabel = axes.selectAll("text#xlabel").data(vars.small ? [] : ["xlabel"])
@@ -426,31 +431,6 @@ var chart = function(vars) {
     .attr("id","mouseevents")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Calculate Spacing Needed for Axes Labels
-  //-------------------------------------------------------------------
-  graph.offset = 0
-  yaxis.call(vars.y_axis)
-    .selectAll("line")
-    .call(tick_style,"y")
-
-  graph.margin.left += graph.offset
-  graph.width -= graph.offset
-  vars.x_scale.rangeRound([0,graph.width])
-
-  graph.yoffset = 0
-  graph.rightoffset = 0
-  xaxis.call(vars.x_axis)
-    .selectAll("line")
-    .call(tick_style,"x")
-
-  graph.height -= graph.yoffset
-  graph.width -= graph.rightoffset
-  vars.x_scale.rangeRound([0,graph.width])
-  vars.y_scale.rangeRound([0,graph.height])
-  yaxis.call(vars.y_axis)
-  xaxis.call(vars.x_axis)
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update SVG Elements
   //-------------------------------------------------------------------
 
@@ -475,6 +455,8 @@ var chart = function(vars) {
   // Update Y Axis
   yaxis.transition().duration(vars.draw.timing)
     .call(vars.y_axis.scale(vars.y_scale))
+    .selectAll("g.tick").select("text")
+      .attr(tickAttrs)
 
   yaxis.selectAll("line").transition().duration(vars.draw.timing)
       .call(tick_style,"y")
@@ -486,7 +468,10 @@ var chart = function(vars) {
     .attr("transform", "translate(0," + graph.height + ")")
     .call(vars.x_axis.scale(vars.x_scale))
     .selectAll("g.tick").select("text")
-      .style("text-anchor","start")
+      .attr(tickAttrs)
+      .style("text-anchor",xAnchor)
+      .attr("dy",xDy)
+      .attr("transform",xTransform)
 
   xaxis.selectAll("line").transition().duration(vars.draw.timing)
       .call(tick_style,"x")
@@ -494,11 +479,8 @@ var chart = function(vars) {
   xaxis.selectAll("path").attr("fill","none")
 
   // Update Y Grid
-  var yData = vars.y.scale.value == "continuous"
-            ? vars.y_scale.ticks(vars.tickValues.y.length)
-            : vars.y_scale.ticks()
   var ylines = ygrid.selectAll("line")
-    .data(yData)
+    .data(vars.y.ticks)
 
   ylines.enter().append("line")
     .style("opacity",0)
@@ -515,11 +497,8 @@ var chart = function(vars) {
     .remove()
 
   // Update X Grid
-  var xData = vars.x.scale.value == "continuous"
-            ? vars.x_scale.ticks(vars.tickValues.x.length)
-            : vars.x_scale.ticks()
   var xlines = xgrid.selectAll("line")
-    .data(xData)
+    .data(vars.x.ticks)
 
   xlines.enter().append("line")
     .style("opacity",0)
@@ -689,11 +668,19 @@ var chart = function(vars) {
       .rollup(function(leaves){
 
         var availables = d3plus.util.uniques(leaves,vars[vars.continuous_axis].value),
-            previousMissing = false
+            previousMissing = false,
+            timeVars = vars[vars.continuous_axis].value === vars.time.value
 
-        vars.tickValues[vars.continuous_axis].forEach(function(v,i,arr){
+        if (timeVars && availables[0].constructor === Date) {
+          availables = availables.map(function(t){return t.getTime()})
+        }
 
-          if(availables.indexOf(v) < 0){
+        vars[vars.continuous_axis].ticks.forEach(function(v,i,arr){
+
+          var tester = timeVars ? v.getTime() : v
+
+          if(availables.indexOf(tester) < 0){
+
             var obj = {}
             obj[vars[vars.continuous_axis].value] = v
             obj[vars.id.value] = leaves[0][vars.id.value]
@@ -736,6 +723,7 @@ var chart = function(vars) {
           else {
             previousMissing = false
           }
+
         })
 
         leaves.sort(function(a,b){
@@ -804,13 +792,14 @@ var chart = function(vars) {
     var stack = d3.layout.stack()
       .values(function(d) { return d.values; })
       .x(function(d) { return d.d3plus.x; })
-      .x(function(d) { return d.d3plus.y; })
+      // .x(function(d) { return d.d3plus.y; })
       .y(function(d) {
         var flip = graph.height,
             val = fetchValue(vars,d,vars.y.value)
         return flip-vars.y_scale(val);
       })
       .out(function(d,y0,y){
+
         var flip = graph.height
 
         if (vars[vars.stacked_axis].scale.value == "share") {
@@ -823,10 +812,10 @@ var chart = function(vars) {
         }
         d.d3plus.y += graph.margin.top
         d.d3plus.y0 += graph.margin.top
+
       })
 
     var offset = vars[vars.stacked_axis].scale.value == "share" ? "expand" : "zero";
-
     var data = stack.offset(offset)(data)
 
   }
@@ -1058,6 +1047,10 @@ var chart = function(vars) {
 chart.fill         = true
 chart.requirements = ["data","x","y"]
 chart.scale        = {"circle": 1.1, "donut": 1.1, "square": 1.1 }
+chart.setup        = function(vars) {
+  if (vars.x.value === vars.time.value) vars.self.x({"scale": "continuous"})
+  if (vars.y.value === vars.time.value) vars.self.y({"scale": "continuous"})
+}
 chart.shapes       = ["circle","donut","line","square","area"]
 chart.tooltip      = "static"
 

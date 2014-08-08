@@ -8,7 +8,7 @@ d3plus.style.default.axes = {
         "value": "none"
       },
       "family"     : d3plus.style.fontFamily(d3plus.style.default.fontFamily),
-      "size"       : 12,
+      "size"       : 10,
       "transform"  : {
         "accepted" : [ "capitalize" , "lowercase" , "none" , "uppercase" ],
         "value"    : "none"

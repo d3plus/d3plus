@@ -8,7 +8,7 @@ d3plus.ui.timeline = function(vars) {
   vars.data.time.values.forEach(function(d){
     years.push(new Date(d))
   })
-  
+
   if ((!vars.internal_error || !vars.data.missing) && !vars.small && years && years.length > 1 && vars.timeline.value) {
 
     if ( vars.dev.value ) d3plus.console.time("drawing timeline")
@@ -39,23 +39,14 @@ d3plus.ui.timeline = function(vars) {
 
     var min = years[0],
         start = new Date(init[0]),
-        end = new Date(init[1]),
-        year_ticks = [],
-        steps = [],
-        step = vars.data.time.step,
-        total = vars.data.time.total
+        end = new Date(init[1])
 
-    years = []
+    years = vars.data.time.ticks
+    var year_ticks = years.slice()
+    var d = new Date(min)
+    d["set"+vars.data.time.stepType](d["get"+vars.data.time.stepType]() + years.length)
+    year_ticks.push(d)
 
-    var max = vars.data.time.stepIntervals+1
-    for (var i = 0; i <= max; i++) {
-      var d = new Date(min)
-      d["set"+vars.data.time.stepType](d["get"+vars.data.time.stepType]() + i)
-      if (i !== max) {
-        years.push(d)
-      }
-      year_ticks.push(d)
-    }
     end["set"+vars.data.time.stepType](end["get"+vars.data.time.stepType]() + 1)
     start = d3plus.util.closest(year_ticks,start)
     end = d3plus.util.closest(year_ticks,end)
