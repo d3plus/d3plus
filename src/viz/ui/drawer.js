@@ -46,9 +46,11 @@ d3plus.ui.drawer = function( vars ) {
       d.form = d3plus.form()
         .container(container)
         .focus(vars[d.method].value,function(value){
-          if ( value !== vars[d.method].value ) {
-            vars.self[d.method](value).draw()
+
+          if ( value[0] !== vars[d.method].value ) {
+            vars.self[d.method](value[0]).draw()
           }
+          
         })
         .font(vars.ui.font)
         .id("id")
