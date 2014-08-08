@@ -75,7 +75,7 @@ module.exports = function ( vars ) {
           return vars.margin.left+"px"
         }
         else if (vars.font.align.value === "center") {
-          return -((vars.width.secondary-vars.width.value)/2)+"px"
+          return vars.margin.left-((vars.width.secondary-vars.width.value)/2)+"px"
         }
         else {
           return "auto"
