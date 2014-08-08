@@ -7,35 +7,27 @@ d3plus.util.uniques = function( data , value ) {
     return []
   }
 
-  var type = false
+  if (!(data instanceof Array)) data = [data]
 
-  return d3.nest()
-    .key(function(d) {
-
-      if ( d3plus.object.validate(d) && typeof value === "string" ) {
-        var val = d[value]
-      }
-      else if ( typeof value === "function" ) {
+  var vals = [], lookups = []
+  data.forEach(function(d){
+    if (d3plus.object.validate(d)) {
+      if (typeof value === "function") {
         var val = value(d)
       }
       else {
-        var val = d
+        var val = d[value]
       }
+      var lookup = ["number","string"].indexOf(typeof val) >= 0 ? val : JSON.stringify(val)
+      if (lookups.indexOf(lookup) < 0) {
+        vals.push(val)
+        lookups.push(lookup)
+      }
+    }
+  })
 
-      if (!type) type = typeof val
-      return val
+  vals.sort(function(a,b){return a-b})
 
-    })
-    .entries(data)
-    .reduce(function( a , b ){
-
-      if (b.key === "undefined") return a
-
-      if (type === "number") var val = parseFloat(b.key)
-      else var val = b.key
-
-      return a.concat(val)
-
-    }, [] ).sort(function(a,b){return a-b})
+  return vals
 
 }
