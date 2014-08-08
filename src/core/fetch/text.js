@@ -33,21 +33,29 @@ module.exports = function(vars,obj,depth) {
   }
   else {
 
+    var ids = obj[key]
+
+    if (!(ids instanceof Array)) ids = [ids]
+
     textKeys.forEach(function( t ){
 
-      var name = fetchValue( vars , obj , t , key )
+      var name = []
+      ids.forEach(function(i){
+        name.push(fetchValue(vars,i,t,key))
+      })
 
       if ( name ) {
         if ( !(name instanceof Array) ) {
-          name = vars.format.value(name.toString())
+          name = vars.format.value(name.toString(),t)
         }
         else {
           name.forEach(function(n){
-            n = vars.format.value(n.toString())
+            if (n) n = vars.format.value(n.toString(),t)
           })
         }
         names.push(name)
       }
+
     })
 
   }
