@@ -5,7 +5,6 @@ d3plus.ui.drawer = function( vars ) {
 
   var enabled = vars.ui.value && vars.ui.value.length
     , position = vars.ui.position.value
-    , buffer = 0
 
   if ( vars.dev.value && enabled ) d3plus.console.time("drawing custom UI elements")
 
@@ -14,9 +13,6 @@ d3plus.ui.drawer = function( vars ) {
 
   drawer.enter().append("div")
     .attr("id","d3plus_drawer")
-    .each(function(){
-      buffer += vars.ui.margin*2
-    })
 
   var positionStyles = {}
   vars.ui.position.accepted.forEach(function(p){
@@ -50,13 +46,11 @@ d3plus.ui.drawer = function( vars ) {
           if ( value[0] !== vars[d.method].value ) {
             vars.self[d.method](value[0]).draw()
           }
-          
+
         })
-        .font(vars.ui.font)
         .id("id")
         .text("text")
         .type("auto")
-        .width(d.width || false)
 
     })
 
@@ -75,15 +69,20 @@ d3plus.ui.drawer = function( vars ) {
 
     })
 
+    var font = d3plus.util.copy(vars.ui.font)
+    font.secondary = vars.ui.font
+
     d.form
       .data(data)
+      .font(font)
       .format(vars.format.locale.language)
       .title(vars.format.value(title))
       .ui({
         "align": vars.ui.align.value,
         "padding": vars.ui.padding,
-        "margin": vars.ui.margin
+        "margin": 0
       })
+      .width(d.width || false)
       .draw()
 
   })
@@ -93,7 +92,7 @@ d3plus.ui.drawer = function( vars ) {
   var drawerHeight = drawer.node().offsetHeight || drawer.node().getBoundingClientRect().height
 
   if ( drawerHeight ) {
-    vars.margin[position] += drawerHeight + buffer
+    vars.margin[position] += drawerHeight
   }
 
   if ( vars.dev.value && enabled ) d3plus.console.timeEnd("drawing custom UI elements")

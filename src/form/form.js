@@ -250,8 +250,10 @@ d3plus.form = function() {
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Update Container
         //------------------------------------------------------------------------
-        vars.container.ui.transition().duration(vars.draw.timing)
+        vars.container.ui
           .style("display",vars.ui.display.value)
+
+        vars.container.ui.transition().duration(vars.draw.timing)
           .style("margin",vars.ui.margin+"px")
 
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -262,9 +264,9 @@ d3plus.form = function() {
 
         title.enter().insert("div","#d3plus_"+vars.type.value+"_"+vars.container.id)
           .attr("class","d3plus_title")
+          .style("display","inline-block")
 
         title
-          .style("display",vars.ui.display.value)
           .style("color",vars.font.color)
           .style("font-family",vars.font.family.value)
           .style("font-size",vars.font.size+"px")
