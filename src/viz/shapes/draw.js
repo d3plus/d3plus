@@ -54,10 +54,12 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   function id(d) {
 
-    var depth = vars.depth.value
-    d.d3plus.id = fetchValue(vars,d,vars.id.nesting[depth])
+    d.d3plus.id = ""
+    for (var i = 0; i <= vars.depth.value; i++) {
+      d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
+    }
 
-    d.d3plus.id += "_"+depth+"_"+shape
+    d.d3plus.id += shape
 
     vars.axes.values.forEach(function(axis){
       if (vars[axis].scale.value == "continuous") {
