@@ -15,13 +15,7 @@ d3plus.style.default.timeline = {
   },
   "height"    : {
     "accepted": [ Number ],
-    "value": 25
+    "value": 23
   },
-  "tick"      : {
-    "align"  : "middle",
-    "color"  : "#818181",
-    "family" : d3plus.style.fontFamily(d3plus.style.default.fontFamily),
-    "size"   : 12,
-    "weight" : 200
-  }
+  "tick"      : "#818181"
 }

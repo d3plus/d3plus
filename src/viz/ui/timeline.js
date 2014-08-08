@@ -156,10 +156,10 @@ d3plus.ui.timeline = function(vars) {
     }
 
     var textStyle = {
-      "font-weight": vars.timeline.tick.weight,
-      "font-family": vars.timeline.tick.family.value,
-      "font-size": vars.timeline.tick.size,
-      "text-anchor": vars.timeline.tick.align
+      "font-weight": vars.ui.font.weight,
+      "font-family": vars.ui.font.family.value,
+      "font-size": vars.ui.font.size,
+      "text-anchor": "middle"
     }
 
     var timeFormatter = function(v,i) {
@@ -345,7 +345,7 @@ d3plus.ui.timeline = function(vars) {
         .selectAll("path").attr("fill","none")
 
     ticks.selectAll("line")
-      .attr("stroke",vars.timeline.tick.color)
+      .attr("stroke",vars.timeline.tick)
       .attr("stroke-width",1)
       .attr("shape-rendering","crispEdges")
 
