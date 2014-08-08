@@ -63,7 +63,7 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( vars.focus.value[0] === false ) {
+      if ( !vars.focus.value.length ) {
 
         var element = vars.data.element.value
 
@@ -75,11 +75,11 @@ d3plus.form = function() {
           if (val) vars.focus.value[0] = val
         }
 
-        if ( vars.focus.value[0] === false && vars.data.app.length ) {
+        if ( !vars.focus.value.length && vars.data.app.length ) {
           vars.focus.value[0] = vars.data.app[0][vars.id.value]
         }
 
-        if ( vars.dev.value && vars.focus.value[0] !== false ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+        if ( vars.dev.value && vars.focus.value.length ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
 
       }
 

@@ -4,7 +4,7 @@ var fetchValue = require("../../core/fetch/value.js")
 //-------------------------------------------------------------------
 d3plus.ui.focus = function(vars) {
 
-  if (!vars.internal_error && vars.focus.value.length === 1 && vars.focus.value[0] && !vars.small && vars.focus.tooltip.value) {
+  if (!vars.internal_error && vars.focus.value.length === 1 && vars.focus.value.length && !vars.small && vars.focus.tooltip.value) {
 
     if ( vars.dev.value ) d3plus.console.time("drawing focus tooltip")
 

@@ -54,7 +54,7 @@ module.exports = function( vars ) {
         .color(vars.color)
         .focus(vars.focus.value[0],function(value){
 
-          if (value !== vars.focus.value[0]) {
+          if (value[0] !== vars.focus.value[0]) {
             vars.self.focus(value).draw()
           }
 

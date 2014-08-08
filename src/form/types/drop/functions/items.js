@@ -30,10 +30,12 @@ module.exports = function ( vars ) {
     order.value = vars.text.solo.value.length && vars.text.solo.value[0] !== ""
                 ? "d3plus_order" : vars.order.value
 
-    if ( vars.focus.changed || !vars.container.items.focus() ) {
+    if ( vars.focus.changed || !vars.container.items.focus().length ) {
 
       vars.container.items
         .focus( vars.focus.value[0] , function(value){
+
+          value = value[0]
 
           var change = value !== vars.focus.value[0]
           if ( change && vars.active.value ) {

@@ -109,7 +109,7 @@ d3plus.data.element = function( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Get focus from data, if it hasn't been found or set.
   //----------------------------------------------------------------------------
-  if ( vars.focus.value[0] === false && elementData.length ) {
+  if ( !vars.focus.value.length && elementData.length ) {
 
     vars.data.element.value.node().selectedIndex = 0
     vars.self.focus(elementData[0][vars.id.value])

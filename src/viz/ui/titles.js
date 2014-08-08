@@ -23,7 +23,7 @@ d3plus.ui.titles = function(vars) {
       d3plus.console.time("calculating total value")
     }
 
-    if (vars.focus.value[0] !== false) {
+    if (vars.focus.value.length) {
       var total = vars.data.app.filter(function(d){
         return d[vars.id.value] == vars.focus.value[0]
       })
@@ -45,7 +45,7 @@ d3plus.ui.titles = function(vars) {
 
       var pct = ""
 
-      if (vars.data.mute.length || vars.data.solo.length || vars.focus.value[0]) {
+      if (vars.data.mute.length || vars.data.solo.length || vars.focus.value.length) {
 
         var overall_total = d3.sum(vars.data.value, function(d){
           if (vars.time.solo.value.length > 0) {

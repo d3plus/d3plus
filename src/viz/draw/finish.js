@@ -61,7 +61,7 @@ d3plus.draw.finish = function(vars) {
     },vars.draw.timing)
   }
 
-  if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.focus.value[0] && !vars.draw.timing) {
+  if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.focus.value.length && !vars.draw.timing) {
     if ( vars.dev.value ) d3plus.console.time("focus labels")
     d3plus.shape.labels( vars , "data_focus" )
     if (vars.edges.label) {
@@ -106,7 +106,7 @@ d3plus.draw.finish = function(vars) {
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
   var new_opacity = (data_req && vars.data.app.length == 0) || vars.internal_error
-        ? 0 : vars.focus.value[0] && vars.types[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
+        ? 0 : vars.focus.value.length && vars.types[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
       old_opacity = vars.group.attr("opacity")
 
   if (new_opacity != old_opacity) {

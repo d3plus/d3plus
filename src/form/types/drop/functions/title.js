@@ -59,7 +59,7 @@ module.exports = function ( vars ) {
 
     function titleStyle(elem) {
 
-      var text = title ? vars.focus.value[0] : vars.format.locale.value.ui.back
+      var text = title ? vars.focus.value.length : vars.format.locale.value.ui.back
 
       elem
         .text(vars.format.value(text))
