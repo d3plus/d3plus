@@ -6,21 +6,16 @@ d3plus.draw.finish = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Zoom to fit bounds, if applicable
   //----------------------------------------------------------------------------
-  if (vars.types[vars.type.value].zoom && vars.zoom.value) {
+  var zoom = vars.zoom.viewport || vars.zoom.bounds
+  if (vars.types[vars.type.value].zoom && vars.zoom.value && zoom) {
 
     if ( vars.dev.value ) d3plus.console.time("calculating zoom")
 
-    if (vars.draw.first && vars.zoom.bounds) {
-      d3plus.zoom.bounds(vars,vars.zoom.bounds,0)
+    if (vars.draw.first) {
+      d3plus.zoom.bounds(vars,zoom,0)
     }
-
-    if (vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
-      if (!vars.zoom.viewport) {
-        d3plus.zoom.bounds(vars,vars.zoom.bounds)
-      }
-      else {
-        d3plus.zoom.bounds(vars,vars.zoom.viewport)
-      }
+    else if (vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
+      d3plus.zoom.bounds(vars,zoom)
     }
 
     if ( vars.dev.value ) d3plus.console.timeEnd("calculating zoom")
