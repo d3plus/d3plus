@@ -176,21 +176,23 @@ d3plus.ui.legend = function(vars) {
 
               d3.select(this.parentNode).selectAll("text").remove()
 
-              var icon = fetchValue( vars , g , vars.icon.value , vars.id.nesting[g.d3plus.depth] )
-                , color = fetchColor( vars , g , vars.id.nesting[g.d3plus.depth] )
+              var depth = g.d3plus.depth || vars.depth.value
+                , depthId = vars.id.nesting[depth]
+                , icon = fetchValue( vars , g , vars.icon.value , depthId )
+                , color = fetchColor( vars , g , depthId )
 
               if (icon && icon !== "null") {
 
                 var short_url = d3plus.string.strip(icon+"_"+color)
+                  , iconStyle = vars.icon.style.value
+                  , pattern = vars.defs.selectAll("pattern#"+short_url)
+                      .data([short_url])
 
-                var pattern = vars.defs.selectAll("pattern#"+short_url)
-                  .data([short_url])
-
-                if (typeof vars.icon.style.value == "string") {
+                if (typeof iconStyle === "string") {
                   var icon_style = vars.icon.style.value
                 }
-                else if (typeof vars.icon.style.value == "object" && vars.icon.style.value[vars.id.nesting[g.d3plus.depth]]) {
-                  var icon_style = vars.icon.style.value[vars.id.nesting[g.d3plus.depth]]
+                else if (d3plus.object.validate(iconStyle) && iconStyle[depthId]) {
+                  var icon_style = iconStyle[depthId]
                 }
                 else {
                   var icon_style = "default"
