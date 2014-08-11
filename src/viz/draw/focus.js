@@ -146,7 +146,7 @@ d3plus.draw.focus = function(vars) {
 
   }
   else {
-    vars.zoom.viewport = null
+    vars.zoom.viewport = false
   }
 
 }

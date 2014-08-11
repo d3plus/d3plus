@@ -3,45 +3,52 @@ d3plus.method.focus = {
   "deprecates" : "highlight",
   "process"    : function(value) {
 
-    if (!(value instanceof Array)) value = [value]
+    if (value === false) {
+      return []
+    }
+    else {
 
-    var vars = this.getVars()
+      if (!(value instanceof Array)) value = [value]
 
-    if ( ["string","number"].indexOf(typeof value[0]) >= 0 && vars.data.element.value ) {
+      var vars = this.getVars()
 
-      var elementTag  = vars.data.element.value.node().tagName.toLowerCase()
-        , elementType = vars.data.element.value.attr("type")
+      if ( ["string","number"].indexOf(typeof value[0]) >= 0 && vars.data.element.value ) {
 
-      if (elementTag === "select") {
+        var elementTag  = vars.data.element.value.node().tagName.toLowerCase()
+          , elementType = vars.data.element.value.attr("type")
 
-        vars.data.element.value.selectAll("option").each(function(d,i){
+        if (elementTag === "select") {
 
-          if (d && d[vars.id.value] === value[0]) {
-            vars.data.element.value.node().selectedIndex = i
-          }
-
-        })
-
-      }
-      else if (elementTag === "input" && elementType === "radio") {
-
-        vars.data.element.value
-          .each(function(d){
+          vars.data.element.value.selectAll("option").each(function(d,i){
 
             if (d && d[vars.id.value] === value[0]) {
-              this.checked = true
-            }
-            else {
-              this.checked = false
+              vars.data.element.value.node().selectedIndex = i
             }
 
           })
 
+        }
+        else if (elementTag === "input" && elementType === "radio") {
+
+          vars.data.element.value
+            .each(function(d){
+
+              if (d && d[vars.id.value] === value[0]) {
+                this.checked = true
+              }
+              else {
+                this.checked = false
+              }
+
+            })
+
+        }
+
       }
 
-    }
+      return value
 
-    return value
+    }
 
   },
   "tooltip"    : {
