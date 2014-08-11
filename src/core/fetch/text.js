@@ -13,12 +13,12 @@ module.exports = function(vars,obj,depth) {
       var textKeys = vars.text.nesting[key]
     }
     else {
-      var textKeys = vars.text.nesting[ d3.keys(vars.text.nesting)[0] ]
+      var textKeys = key
     }
   }
   else {
     var textKeys = []
-    if (vars.text.value) textKeys.push(vars.text.value)
+    if (vars.text.value && depth === vars.depth.value) textKeys.push(vars.text.value)
     textKeys.push(key)
   }
 
@@ -41,7 +41,8 @@ module.exports = function(vars,obj,depth) {
 
       var name = []
       ids.forEach(function(i){
-        name.push(fetchValue(vars,i,t,key))
+        var n = fetchValue(vars,i,t,key)
+        if (n) name.push(n)
       })
 
       if ( name.length ) {
