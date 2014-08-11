@@ -363,6 +363,7 @@ d3plus.shape.labels = function( vars , group ) {
             text
               .transition().duration(vars.draw.timing/2)
               .call(style)
+              .call(opacity)
 
             text.enter().append("text")
               .attr("font-size",fontSize)
@@ -380,6 +381,7 @@ d3plus.shape.labels = function( vars , group ) {
             text
               .attr("opacity",1)
               .call(style)
+              .call(opacity)
 
             text.enter().append("text")
               .attr("font-size",fontSize)
