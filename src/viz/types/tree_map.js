@@ -26,11 +26,17 @@ var tree_map = function(vars) {
   var strippedData = []
   vars.data.app.forEach(function(d){
 
-    strippedData.push({
-      "d3plus" : d,
-      "id"     : d[vars.id.value],
-      "value"  : fetchValue(vars,d,vars.size.value)
-    })
+    var val = fetchValue(vars,d,vars.size.value)
+
+    if (val && typeof val === "number") {
+
+      strippedData.push({
+        "d3plus" : d,
+        "id"     : d[vars.id.value],
+        "value"  : fetchValue(vars,d,vars.size.value)
+      })
+
+    }
 
   })
 
