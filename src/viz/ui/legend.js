@@ -158,7 +158,7 @@ d3plus.ui.legend = function(vars) {
 
         var keys = vars.g.legend.selectAll("g.d3plus_color")
           .data(colors,function(d){
-            return fetchColor(vars,d,vars.id.nesting[d.d3plus.colorDepth])
+            return fetchColor(vars,d,vars.id.nesting[d.d3plus.colorDepth])+d[colorKey].toString()
           })
 
         function position(group) {
@@ -333,7 +333,8 @@ d3plus.ui.legend = function(vars) {
                 "vars": vars,
                 "x": x,
                 "y": y,
-                "title": title
+                "title": title,
+                "offset": square_size*.4
               })
 
             })
