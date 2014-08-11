@@ -324,12 +324,16 @@ d3plus.ui.legend = function(vars) {
               x += square_size/2
               y += vars.ui.padding+square_size/2
 
+              var idIndex = vars.id.nesting.indexOf(colorName)
+                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName))
+
               d3plus.tooltip.app({
                 "data": d,
                 "footer": false,
                 "vars": vars,
                 "x": x,
-                "y": y
+                "y": y,
+                "title": title
               })
 
             })

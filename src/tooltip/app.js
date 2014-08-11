@@ -189,7 +189,7 @@ d3plus.tooltip.app = function(params) {
     }
 
     var depth = "depth" in params ? params.depth : dataDepth,
-        title = fetchText(vars,d,depth)[0],
+        title = params.title || fetchText(vars,d,depth)[0],
         icon = fetchValue(vars,d,vars.icon.value,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,children,depth)
 
