@@ -54,17 +54,26 @@ d3plus.ui.legend = function(vars) {
       var colorFunction = function( d ){
             return fetchColor( vars , d , vars.id.nesting[colorDepth] )
           }
+        , colorDepth = 0
 
-      for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
+      if (vars.id.nesting.indexOf(colorName) >= 0) {
+        colorDepth = vars.id.nesting.indexOf(vars.color.value)
 
-        var colorDepth = i
-          , colorKey   = vars.id.nesting[i]
+      }
+      else {
 
-        var uniqueIDs = d3plus.util.uniques( data , colorKey )
-          , uniqueColors = d3plus.util.uniques( data , colorFunction )
+        for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
 
-        if ( uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1 ) {
-          break
+          colorDepth = i
+          var colorKey   = vars.id.nesting[i]
+
+          var uniqueIDs = d3plus.util.uniques( data , colorKey )
+            , uniqueColors = d3plus.util.uniques( data , colorFunction )
+
+          if ( uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1 ) {
+            break
+          }
+
         }
 
       }
@@ -73,7 +82,7 @@ d3plus.ui.legend = function(vars) {
 
       for ( var z = 0 ; z < colors.length ; z++ ) {
 
-        d = colors[z]
+        var d = colors[z]
 
         var nextKey = vars.id.nesting[ colorDepth + 1 ]
 
@@ -149,7 +158,7 @@ d3plus.ui.legend = function(vars) {
 
         var keys = vars.g.legend.selectAll("g.d3plus_color")
           .data(colors,function(d){
-            return d[vars.id.nesting[d.d3plus.colorDepth]]
+            return fetchColor(vars,d,vars.id.nesting[d.d3plus.colorDepth])
           })
 
         function position(group) {

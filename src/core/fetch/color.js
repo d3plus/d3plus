@@ -14,6 +14,10 @@ module.exports = function( vars , id , level ) {
       c = c[ level ]
     }
 
+    if (c instanceof Array) {
+      c = c[0]
+    }
+
     return d3plus.color.random( c )
 
   }

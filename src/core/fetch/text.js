@@ -44,15 +44,11 @@ module.exports = function(vars,obj,depth) {
         name.push(fetchValue(vars,i,t,key))
       })
 
-      if ( name ) {
-        if ( !(name instanceof Array) ) {
-          name = vars.format.value(name.toString(),t)
-        }
-        else {
-          name.forEach(function(n){
-            if (n) n = vars.format.value(n.toString(),t)
-          })
-        }
+      if ( name.length ) {
+        name.forEach(function(n){
+          if (n) n = vars.format.value(n.toString(),t)
+        })
+        if (name.length === 1) name = name[0]
         names.push(name)
       }
 
