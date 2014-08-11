@@ -43,7 +43,7 @@ d3plus.data.color = function(vars) {
       }
     }
 
-    vars.color.scale = d3.scale.sqrt()
+    vars.color.valueScale = d3.scale.sqrt()
       .domain(data_range)
       .range(color_range)
       .interpolate(d3.interpolateRgb)
@@ -52,7 +52,7 @@ d3plus.data.color = function(vars) {
 
   }
   else {
-    vars.color.scale = null
+    vars.color.valueScale = null
   }
 
 }

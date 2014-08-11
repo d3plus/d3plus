@@ -18,7 +18,7 @@ module.exports = function( vars , id , level ) {
       c = c[0]
     }
 
-    return d3plus.color.random( c )
+    return d3plus.color.random( c, vars.color.scale.value )
 
   }
 
@@ -37,17 +37,17 @@ module.exports = function( vars , id , level ) {
 
     if ( !color ) {
 
-      if ( vars.color.value || typeof vars.color.scale === "function" ) {
+      if ( vars.color.value || typeof vars.color.valueScale === "function" ) {
         return vars.color.missing
       }
       return getRandom( id )
 
     }
-    else if ( !vars.color.scale ) {
+    else if ( !vars.color.valueScale ) {
       return d3plus.color.validate( color ) ? color : getRandom( color )
     }
     else {
-      return vars.color.scale( color )
+      return vars.color.valueScale( color )
     }
 
   }

@@ -1,9 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Usable Color Scales
 //------------------------------------------------------------------------------
-d3plus.color.scale = {}
-
-d3plus.color.scale.default = d3.scale.ordinal().range([
+d3plus.color.scale = d3.scale.ordinal().range([
   "#b22200",
   "#EACE3F",
   "#282F6B",

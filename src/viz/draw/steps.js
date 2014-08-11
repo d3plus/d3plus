@@ -141,7 +141,7 @@ d3plus.draw.steps = function(vars) {
 
           if ( vars.color.changed && vars.color.value ) {
 
-            vars.color.scale = null
+            vars.color.valueScale = null
 
             if ( vars.dev.value ) {
               var timerString = "determining color type"

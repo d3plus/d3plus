@@ -13,7 +13,7 @@ d3plus.ui.legend = function(vars) {
 
   if (!vars.internal_error && key && !vars.small && vars.legend.value) {
 
-    if (!vars.color.scale) {
+    if (!vars.color.valueScale) {
 
       if ( vars.dev.value ) d3plus.console.time("grouping data by colors")
 
@@ -361,7 +361,7 @@ d3plus.ui.legend = function(vars) {
       }
 
     }
-    else if (vars.color.scale) {
+    else if (vars.color.valueScale) {
 
       if ( vars.dev.value ) d3plus.console.time("drawing color scale")
 
@@ -370,8 +370,8 @@ d3plus.ui.legend = function(vars) {
         .attr("opacity",0)
         .remove()
 
-      var values = vars.color.scale.domain(),
-          colors = vars.color.scale.range()
+      var values = vars.color.valueScale.domain(),
+          colors = vars.color.valueScale.range()
 
       if (values.length <= 2) {
         values = d3plus.util.buckets(values,6)
