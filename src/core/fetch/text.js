@@ -29,7 +29,7 @@ module.exports = function(vars,obj,depth) {
   var names = []
 
   if (d3plus.object.validate(obj) && "d3plus" in obj && obj.d3plus.text) {
-    names.push(obj.d3plus.text)
+    names.push(obj.d3plus.text.toString())
   }
   else {
 
@@ -42,7 +42,7 @@ module.exports = function(vars,obj,depth) {
       var name = []
       ids.forEach(function(i){
         var n = fetchValue(vars,i,t,key)
-        if (n) name.push(n)
+        if (n) name.push(n.toString())
       })
 
       if ( name.length ) {
