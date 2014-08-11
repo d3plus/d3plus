@@ -58,7 +58,7 @@ d3plus.ui.legend = function(vars) {
 
       if (vars.id.nesting.indexOf(colorName) >= 0) {
         colorDepth = vars.id.nesting.indexOf(vars.color.value)
-
+        colorKey = vars.id.nesting[vars.id.nesting.indexOf(colorName)]
       }
       else {
 
@@ -324,7 +324,7 @@ d3plus.ui.legend = function(vars) {
               x += square_size/2
               y += vars.ui.padding+square_size/2
 
-              var idIndex = vars.id.nesting.indexOf(colorName)
+              var idIndex = vars.id.nesting.indexOf(colorKey)
                 , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName))
 
               d3plus.tooltip.app({
