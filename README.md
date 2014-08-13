@@ -1,3 +1,6 @@
+[![Dependency Status](https://david-dm.org/alexandersimoes/d3plus.svg?style=flat)](https://david-dm.org/alexandersimoes/d3plus)
+[![devDependency Status](https://david-dm.org/alexandersimoes/d3plus/dev-status.svg?style=flat)](https://david-dm.org/alexandersimoes/d3plus#info=devDependencies)
+
 <a href="http://d3plus.org/"><img src="https://raw.githubusercontent.com/alexandersimoes/d3plus/gh-pages/assets/img/facebook.jpg"></a>
 
 | <a href="http://d3plus.org/examples/basic/9029130/"><img src="https://gist.githubusercontent.com/davelandry/9029130/raw/thumbnail.png" width="150px"><br>Tree Maps</a> | <a href="http://d3plus.org/examples/basic/9029462/"><img src="https://gist.githubusercontent.com/davelandry/9029462/raw/thumbnail.png" width="150px"><br>Stacked Areas</a> | <a href="http://d3plus.org/examples/basic/9029781/"><img src="https://gist.githubusercontent.com/davelandry/9029781/raw/thumbnail.png" width="150px"><br>Scatter Plots</a> | <a href="http://d3plus.org/examples/basic/9037371/"><img src="https://gist.githubusercontent.com/davelandry/9037371/raw/thumbnail.png" width="150px"><br>Line Plots</a> |
