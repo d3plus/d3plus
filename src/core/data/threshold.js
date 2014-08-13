@@ -99,9 +99,7 @@ module.exports = function( vars , rawData , split ) {
       removed = d3plus.array.sort( removed , vars.size.value , "desc" , [] , vars )
 
       var levels = vars.id.nesting.slice(0,vars.depth.value)
-      var merged = dataNest(vars,removed,levels).filter(function(d){
-        return fetchValue( vars , d , vars.size.value ) > 0
-      })
+      var merged = dataNest(vars,removed,levels)
 
       merged.forEach(function(m){
 
@@ -128,7 +126,7 @@ module.exports = function( vars , rawData , split ) {
             m[vars.color.value] = vars.color.missing
           }
           else {
-            m[vars.color.value] = fetchColor(vars,m[parent],parent)
+            m[vars.color.value] = fetchValue(vars,m[parent],vars.color.value,parent)
           }
         }
 
@@ -145,8 +143,8 @@ module.exports = function( vars , rawData , split ) {
           textLabel += " < "+vars.format.value(cutoff)
         }
         else {
-          var textLabel = fetchText(vars,m,vars.depth.value-1)[0]
-          textLabel = textLabel.split(" < ")[0]
+          var textLabel = fetchText(vars,m,vars.depth.value-1)
+          textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values)
           textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
         }
         textLabel += " ("+vars.format.value(threshold*100)+"%)"

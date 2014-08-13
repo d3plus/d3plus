@@ -13,7 +13,7 @@ module.exports = function(vars,obj,depth) {
       var textKeys = vars.text.nesting[key]
     }
     else {
-      var textKeys = key
+      var textKeys = vars.text.value
     }
   }
   else {
@@ -34,7 +34,6 @@ module.exports = function(vars,obj,depth) {
   else {
 
     var ids = d3plus.object.validate(obj) && key in obj ? obj[key] : fetchValue(vars, obj, key)
-
     if (!(ids instanceof Array)) ids = [ids]
     else if (d3plus.object.validate(ids[0])) {
       ids = d3plus.util.uniques(ids,key)

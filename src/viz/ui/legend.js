@@ -32,7 +32,8 @@ d3plus.ui.legend = function(vars) {
         }
       }
       else {
-        var data = vars.data.app
+        // var data = vars.data.app
+        var data = dataNest(vars, vars.data.app, vars.id.nesting, [])
       }
 
       // for ( var z = 0 ; z < data.length ; z++ ) {
@@ -186,7 +187,7 @@ d3plus.ui.legend = function(vars) {
 
               d3.select(this.parentNode).selectAll("text").remove()
 
-              var depth = g.d3plus.depth || vars.depth.value
+              var depth = "depth" in g.d3plus ? g.d3plus.depth : vars.depth.value
                 , depthId = vars.id.nesting[depth]
                 , icon = fetchValue( vars , g , vars.icon.value , depthId )
                 , color = fetchColor( vars , g , depthId )

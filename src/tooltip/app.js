@@ -104,7 +104,7 @@ d3plus.tooltip.app = function(params) {
 
     var ex = {}
       , children = {}
-      , depth     = "merged" in d.d3plus ? dataDepth : dataDepth + 1
+      , depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth+1 : dataDepth
       , nestKey   = vars.id.nesting[depth]
       , nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey]
       , dataValue = fetchValue( vars , d , vars.size.value )

@@ -142,7 +142,7 @@ module.exports = function( vars , years ) {
 
     }
 
-    if ( returnData.length === 0 && missing.length && !vars.internal_error ) {
+    if ( returnData.length === 0 && missing && missing.length && !vars.internal_error ) {
 
       var format = vars.time.format.value || vars.data.time.format
 
