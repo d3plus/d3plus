@@ -1,8 +1,8 @@
+var chart = require("./chart.js"),
+    dataThreshold = require("../../core/data/threshold.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Stacked Area Chart
 //------------------------------------------------------------------------------
-var chart = require("./chart.js"),
-    dataThreshold = require("../../core/data/threshold.js")
 var stacked = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
