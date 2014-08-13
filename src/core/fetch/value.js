@@ -114,7 +114,6 @@ module.exports = function( vars , id , variable , id_var , agg ) {
   }
 
   if ( attr && attr.length ) {
-
     var vals = d3plus.util.uniques( attr , variable )
     if ( vals.length === 1 ) return vals[0]
     else if (vals.length) return vals

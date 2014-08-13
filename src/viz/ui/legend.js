@@ -69,7 +69,9 @@ d3plus.ui.legend = function(vars) {
           colorDepth = i
           colorKey   = vars.id.nesting[i]
 
-          var uniqueIDs = d3plus.util.uniques( data , colorKey )
+          var uniqueIDs = d3plus.util.uniques( data , function(d){
+                return fetchValue(vars, d, colorKey)
+              } )
             , uniqueColors = d3plus.util.uniques( data , colorFunction )
 
           if ( uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1 ) {
@@ -268,7 +270,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("y",0)
                   .each(function(t){
 
-                    var idIndex = vars.id.nesting.indexOf(colorName)
+                    var idIndex = vars.id.nesting.indexOf(colorKey)
                       , text = idIndex >= 0 ? fetchText(vars,t,idIndex) : [vars.format.value(fetchValue(vars,t,colorName,colorKey))]
 
                     if (text.length === 1 && text[0].length) {
@@ -329,7 +331,7 @@ d3plus.ui.legend = function(vars) {
               x += square_size/2
               y += vars.ui.padding+square_size/2
 
-              var idIndex = vars.id.nesting.indexOf(colorName)
+              var idIndex = vars.id.nesting.indexOf(colorKey)
                 , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey))
 
               d3plus.tooltip.app({

@@ -33,7 +33,7 @@ module.exports = function(vars,obj,depth) {
   }
   else {
 
-    var ids = obj[key]
+    var ids = d3plus.object.validate(obj) && key in obj ? obj[key] : fetchValue(vars, obj, key)
 
     if (!(ids instanceof Array)) ids = [ids]
     else if (d3plus.object.validate(ids[0])) {

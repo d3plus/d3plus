@@ -30,8 +30,8 @@ module.exports = function( vars , id , level ) {
   else {
 
     for ( var i = vars.id.nesting.indexOf(level) ; i >= 0 ; i-- ) {
-      var o = d3plus.object.validate(id) && !(vars.color.value in id) && id[level] instanceof Array ? id[level][0] : id
-        , colorLevel = vars.id.nesting[i]
+      var colorLevel = vars.id.nesting[i]
+        , o = d3plus.object.validate(id) && !(vars.color.value in id) && id[level] instanceof Array ? id[level][0] : fetchValue(vars, id, colorLevel)
         , color = fetchValue( vars , o , vars.color.value , colorLevel )
       if ( color ) break
     }
