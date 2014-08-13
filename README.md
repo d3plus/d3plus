@@ -1,5 +1,8 @@
-[![Dependency Status](https://david-dm.org/alexandersimoes/d3plus.svg?style=flat)](https://david-dm.org/alexandersimoes/d3plus)
-[![devDependency Status](https://david-dm.org/alexandersimoes/d3plus/dev-status.svg?style=flat)](https://david-dm.org/alexandersimoes/d3plus#info=devDependencies)
+[![NPM Release](http://img.shields.io/npm/v/d3plus.svg?style=flat-square)](https://www.npmjs.org/package/d3plus)
+[![Dependency Status](http://img.shields.io/david/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus)
+[![Dependency Status](http://img.shields.io/david/dev/alexandersimoes/d3plus.svg?style=flat-square)](https://david-dm.org/alexandersimoes/d3plus#info=devDependencies)
+[![NPM Downloads](http://img.shields.io/npm/dm/d3plus.svg?style=flat-square)](https://www.npmjs.org/package/d3plus)
+[![License](http://img.shields.io/npm/l/d3plus.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 
 <a href="http://d3plus.org/"><img src="https://raw.githubusercontent.com/alexandersimoes/d3plus/gh-pages/assets/img/facebook.jpg"></a>
 
