@@ -28486,12 +28486,12 @@ d3plus.ui.message = function(vars,message) {
 
 d3plus.ui.timeline = function(vars) {
 
-  var years = []
-  vars.data.time.values.forEach(function(d){
-    years.push(new Date(d))
-  })
+  if ((!vars.internal_error || !vars.data.missing) && !vars.small && vars.data.time && vars.data.time.values.length > 1 && vars.timeline.value) {
 
-  if ((!vars.internal_error || !vars.data.missing) && !vars.small && years && years.length > 1 && vars.timeline.value) {
+    var years = []
+    vars.data.time.values.forEach(function(d){
+      years.push(new Date(d))
+    })
 
     if ( vars.dev.value ) d3plus.console.time("drawing timeline")
 
