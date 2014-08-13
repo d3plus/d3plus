@@ -1,3 +1,5 @@
+var dataFilter = require("../data/filter.js"),
+    dataNest = require("../data/nest.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches specific years of data
 //-------------------------------------------------------------------
@@ -62,7 +64,7 @@ module.exports = function( vars , years ) {
                   .concat( years )
     , filter  = vars.data.solo.length ? "solo" : "mute"
     , cacheKeys = d3.keys(vars.data.cache)
-    , dataFilter = vars.shell === "viz"
+    , vizFilter = vars.shell === "viz"
                  ? vars.types[vars.type.value].filter : null
 
   if ( vars.data[filter].length ) {
@@ -96,8 +98,8 @@ module.exports = function( vars , years ) {
 
     var returnData = vars.data.cache[cacheID]
 
-    if ( typeof dataFilter === "function" ) {
-      returnData = dataFilter( vars ,  returnData )
+    if ( typeof vizFilter === "function" ) {
+      returnData = vizFilter( vars ,  returnData )
     }
 
     return returnData
@@ -176,7 +178,7 @@ module.exports = function( vars , years ) {
 
         if (!separated) {
           var nested = vars.id.nesting.slice(0,vars.depth.value+1)
-          returnData = d3plus.data.nest( vars , returnData , nested )
+          returnData = dataNest( vars , returnData , nested )
         }
 
       }
@@ -186,7 +188,7 @@ module.exports = function( vars , years ) {
       }
       else {
 
-        returnData = d3plus.data.filter( vars , returnData )
+        returnData = dataFilter( vars , returnData )
 
       }
 
@@ -199,8 +201,8 @@ module.exports = function( vars , years ) {
       cacheID = new Date().getTime() + "_" + cacheID
       vars.data.cache[cacheID] = returnData
 
-      if ( typeof dataFilter === "function" ) {
-        returnData = dataFilter( vars , returnData )
+      if ( typeof vizFilter === "function" ) {
+        returnData = vizFilter( vars , returnData )
       }
 
       if ( vars.dev.value ) d3plus.console.comment("storing data in cache")

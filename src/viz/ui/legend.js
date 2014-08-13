@@ -1,4 +1,5 @@
-var fetchValue = require("../../core/fetch/value.js"),
+var dataNest   = require("../../core/data/nest.js"),
+    fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.js"),
     fetchText  = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -79,7 +80,7 @@ d3plus.ui.legend = function(vars) {
 
       }
 
-      var colors = d3plus.data.nest( vars , data , [ colorFunction ] , [] )
+      var colors = dataNest( vars , data , [ colorFunction ] , [] )
 
       // for ( var z = 0 ; z < colors.length ; z++ ) {
       //
@@ -159,7 +160,9 @@ d3plus.ui.legend = function(vars) {
 
         var keys = vars.g.legend.selectAll("g.d3plus_color")
           .data(colors,function(d){
-            return fetchColor(vars,d,colorKey)
+            var col = fetchColor(vars,d,colorKey)
+              , val = fetchValue(vars,d,colorName)
+            return col+val
           })
 
         function position(group) {

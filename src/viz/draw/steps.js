@@ -1,4 +1,10 @@
-var fetchData = require("../../core/fetch/data.js")
+var dataFormat = require("../../core/data/format.js"),
+    dataColor  = require("../../core/data/color.js"),
+    dataKeys   = require("../../core/data/keys.js"),
+    dataLoad   = require("../../core/data/load.js"),
+    fetchData  = require("../../core/fetch/data.js"),
+    parseEdges = require("../../core/parse/edges.js"),
+    parseNodes = require("../../core/parse/nodes.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -20,7 +26,7 @@ d3plus.draw.steps = function(vars) {
 
       steps.push({
         "function": function( vars , next ){
-          d3plus.data.url( vars , u , next )
+          dataLoad( vars , u , next )
         },
         "message": locale.message.loading,
         "wait": true
@@ -112,7 +118,7 @@ d3plus.draw.steps = function(vars) {
           vars.data.cache = {}
           delete vars.nodes.restricted
           delete vars.edges.restricted
-          d3plus.data.keys( vars , "data" )
+          dataKeys( vars , "data" )
         },
         "message": dataMessage
       })
@@ -126,7 +132,7 @@ d3plus.draw.steps = function(vars) {
 
       steps.push({
         "function": function( vars ) {
-          d3plus.data.keys( vars , "attrs" )
+          dataKeys( vars , "attrs" )
         },
         "message": dataMessage
       })
@@ -186,19 +192,19 @@ d3plus.draw.steps = function(vars) {
     //--------------------------------------------------------------------------
     if ( appReqs.indexOf("edges") >= 0 && vars.edges.value
     && ( !vars.edges.linked || vars.edges.changed ) ) {
-      steps.push({ "function" : d3plus.data.edges, "message" : dataMessage })
+      steps.push({ "function" : parseEdges, "message" : dataMessage })
     }
 
     if ( appReqs.indexOf("nodes") >= 0 && vars.edges.value
     && ( !vars.nodes.positions || vars.nodes.changed ) ) {
-      steps.push({ "function" : d3plus.data.nodes , "message" : dataMessage })
+      steps.push({ "function" : parseNodes , "message" : dataMessage })
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Groups data by time and nesting.
     //--------------------------------------------------------------------------
     if ( vars.data.changed || vars.time.changed || vars.id.changed ) {
-      steps.push({ "function" : d3plus.data.format , "message" : dataMessage })
+      steps.push({ "function" : dataFormat , "message" : dataMessage })
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -243,7 +249,7 @@ d3plus.draw.steps = function(vars) {
                  )
 
       },
-      "function": d3plus.data.color,
+      "function": dataColor,
       "message": dataMessage
     })
 

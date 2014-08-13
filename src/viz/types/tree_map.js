@@ -1,4 +1,5 @@
-var fetchValue = require("../../core/fetch/value.js")
+var dataThreshold = require("../../core/data/threshold.js"),
+    fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
@@ -122,7 +123,7 @@ tree_map.filter       = function( vars , data ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Merge data points below the threshold
   //----------------------------------------------------------------------------
-  return d3plus.data.threshold( vars , data )
+  return dataThreshold( vars , data )
 
 }
 tree_map.modes        = ["squarify", "slice", "dice", "slice-dice"]

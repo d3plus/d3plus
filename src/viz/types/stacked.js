@@ -1,7 +1,8 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Stacked Area Chart
 //------------------------------------------------------------------------------
-var chart = require("./chart.js")
+var chart = require("./chart.js"),
+    dataThreshold = require("../../core/data/threshold.js")
 var stacked = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -19,7 +20,7 @@ stacked.filter       = function( vars , data ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Merge data points below the threshold
   //----------------------------------------------------------------------------
-  return d3plus.data.threshold( vars , data , vars.x.value )
+  return dataThreshold( vars , data , vars.x.value )
 
 }
 stacked.requirements = [ "data" , "x" , "y" ]

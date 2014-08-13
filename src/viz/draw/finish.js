@@ -1,3 +1,4 @@
+var methodReset = require("../../core/method/reset.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
 //------------------------------------------------------------------------------
@@ -140,7 +141,7 @@ d3plus.draw.finish = function(vars) {
   //----------------------------------------------------------------------------
   setTimeout(function(){
 
-    d3plus.data.reset( vars )
+    methodReset( vars )
 
     if (vars.types[vars.type.value].zoom && vars.zoom.value) {
       vars.g.zoom
