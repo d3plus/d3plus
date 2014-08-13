@@ -11500,14 +11500,14 @@ module.exports = function(vars,obj,depth) {
       })
 
       if ( name.length ) {
-        name.forEach(function(n){
+        name = name.map(function(n){
           if (n instanceof Array) {
-            n.forEach(function(nn){
-              nn = vars.format.value(nn.toString(),t)
+            return n.map(function(nn){
+              return vars.format.value(nn.toString(),t)
             })
           }
           else if (n) {
-            n = vars.format.value(n.toString(),t)
+            return vars.format.value(n.toString(),t)
           }
         })
         if (name.length === 1) name = name[0]
@@ -25323,8 +25323,28 @@ var chart = function(vars) {
 
         // add padding to axis if there is only 1 value
         if (vars[axis+"_range"][0] == vars[axis+"_range"][1]) {
-          vars[axis+"_range"][0] -= 1
-          vars[axis+"_range"][1] += 1
+          if (vars[axis].value === vars.time.value) {
+            var closestTime = d3plus.util.closest(vars.data.time.ticks,vars[axis+"_range"][0])
+              , timeIndex = vars.data.time.ticks.indexOf(closestTime)
+            if (timeIndex > 0) {
+              vars[axis+"_range"][0] = vars.data.time.ticks[timeIndex-1]
+            }
+            else {
+              var diff = vars.data.time.ticks[timeIndex+1] - closestTime
+              vars[axis+"_range"][0] = new Date(closestTime.getTime() - diff)
+            }
+            if (timeIndex < vars.data.time.ticks.length - 1) {
+              vars[axis+"_range"][1] = vars.data.time.ticks[timeIndex+1]
+            }
+            else {
+              var diff = closestTime - vars.data.time.ticks[timeIndex-1]
+              vars[axis+"_range"][1] = new Date(closestTime.getTime() + diff)
+            }
+          }
+          else {
+            vars[axis+"_range"][0] -= 1
+            vars[axis+"_range"][1] += 1
+          }
         }
 
         // reverse Y axis
@@ -25482,6 +25502,15 @@ var chart = function(vars) {
         vars[axis].ticks = vars.data.time.ticks.filter(function(t){
           return t <= range[1] && t >= range[0]
         })
+        if (vars[axis].ticks.indexOf(range[0]) < 0) {
+          vars[axis].ticks.unshift(range[0])
+        }
+        if (vars[axis].ticks.indexOf(range[1]) < 0) {
+          vars[axis].ticks.push(range[1])
+        }
+      }
+      else if (vars.continuous_axis === axis) {
+        vars[axis].ticks = vars.tickValues[axis]
       }
       else {
         vars[axis].ticks = vars[axis+"_scale"].ticks()
@@ -25530,30 +25559,33 @@ var chart = function(vars) {
     , yAxisWidth = d3.max(d3plus.font.sizes(yTicks,tickAttrs),function(d){return d.width}) + vars.labels.padding
   graph.margin.left += yAxisWidth
   graph.width -= yAxisWidth
-  vars.x_scale.rangeRound([0,graph.width])
 
   var xTicks = vars.x.ticks.map(function(d){
         return vars.format.value(d,vars.x.value)
       })
     , xSizes = d3plus.font.sizes(xTicks,tickAttrs)
     , xAxisWidth = d3.max(xSizes,function(d){return d.width})
+    , xAxisHeight = d3.max(xSizes,function(d){return d.height})
     , xMaxWidth = d3.min([graph.width/(xTicks.length+1),graph.margin.left*2]) - vars.labels.padding*2
 
   if (xAxisWidth < xMaxWidth) {
-    var xOffset = d3.max(xSizes,function(d){return d.height}) + vars.labels.padding
-      , xAnchor = "middle"
+    xAxisWidth += vars.labels.padding
+    var xAnchor = "middle"
       , xDy     = "0ex"
       , xTransform = "translate(0,10)"
   }
   else {
-    var xOffset = d3.max(xSizes,function(d){return d.width}) + vars.labels.padding
-      , xRotate = true
+    xAxisWidth = xAxisHeight + vars.labels.padding
+    xAxisHeight = d3.max(xSizes,function(d){return d.width})
+    var xRotate = true
       , xAnchor = "start"
       , xDy     = "0.5ex"
       , xTransform = "translate(15,10)rotate(70)"
   }
 
-  graph.height -= xOffset
+  graph.height -= xAxisHeight
+  graph.width -= xAxisWidth/2
+  vars.x_scale.rangeRound([0,graph.width])
   vars.y_scale.rangeRound([0,graph.height])
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
