@@ -32,7 +32,7 @@ module.exports = function ( vars ) {
     if ( vars.dev.value ) d3plus.console.time("calculating "+type+" width")
 
     var button = d3plus.form()
-      .container( fontTester )
+      .container( fontTester() )
       .data({
         "large": 9999,
         "value": data
