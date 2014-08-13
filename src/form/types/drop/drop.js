@@ -1,9 +1,19 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Dropdown Menu
 //------------------------------------------------------------------------------
-d3plus.input.drop = function( vars ) {
+module.exports = function( vars ) {
 
-  var self = this.drop
+  var element = require("./functions/element.js")
+    , keyboard = require("./functions/keyboard.js")
+    , windowevent = require("./functions/window.js")
+    , width = require("./functions/width.js")
+    , button = require("./functions/button.js")
+    , selector = require("./functions/selector.js")
+    , title = require("./functions/title.js")
+    , search = require("./functions/search.js")
+    , list = require("./functions/list.js")
+    , data = require("./functions/data.js")
+    , update = require("./functions/update.js")
 
   vars.margin.top = 0
   vars.margin.title = 0
@@ -11,56 +21,56 @@ d3plus.input.drop = function( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Hijack events of original element, if applicable.
   //----------------------------------------------------------------------------
-  self.element( vars )
+  element( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Capture keyboard events
   //----------------------------------------------------------------------------
-  self.keyboard( vars )
+  keyboard( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Apply click function to all parent windows to close dropdown.
   //----------------------------------------------------------------------------
-  self.window( vars )
+  windowevent( vars )
 
   // ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to make sure we have both a button and list width.
   // ---------------------------------------------------------------------------
-  self.width( vars )
+  width( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create main button, if it does not already exist.
   //----------------------------------------------------------------------------
-  self.button( vars )
+  button( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create "selector" to hold the search box and search vars.container.list.
   //----------------------------------------------------------------------------
-  self.selector( vars )
+  selector( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create and style the title box, if applicable.
   //----------------------------------------------------------------------------
-  self.title( vars )
+  title( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create and style the search box, if applicable.
   //----------------------------------------------------------------------------
-  self.search( vars )
+  search( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create and style the item list.
   //----------------------------------------------------------------------------
-  self.list( vars )
+  list( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Filter data based off search term, if applicable.
   //----------------------------------------------------------------------------
-  self.data( vars )
+  data( vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Updates all divs
   //----------------------------------------------------------------------------
-  self.update( vars )
+  update( vars )
 
 }

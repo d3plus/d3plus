@@ -1,3 +1,4 @@
+var fontTester = require("../core/font/tester.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Given a single font or a list of font, determines which can be rendered
 //------------------------------------------------------------------------------
@@ -14,7 +15,7 @@ d3plus.font.validate = function(test_fonts) {
     return completed[fontString]
   }
 
-  var tester = d3plus.font.tester("div")
+  var tester = fontTester("div")
 
   function create_element(font) {
 

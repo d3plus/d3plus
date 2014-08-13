@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
-d3plus.input.drop.selector = function ( vars ) {
+module.exports = function ( vars ) {
 
   vars.container.selector = vars.container.ui
     .selectAll("div.d3plus_drop_selector")

@@ -1,3 +1,4 @@
+var fetchColor = require("../../core/fetch/color.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -133,11 +134,11 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
         temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
         total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total,
         group = d3.select(this),
-        color = d3plus.variable.color(vars,d)
+        color = fetchColor(vars,d)
 
     var fill_data = [], hatch_data = []
 
-    if (total && d3plus.visualization[vars.type.value].fill) {
+    if (total && vars.types[vars.type.value].fill) {
 
       if (temp) {
         var copy = d3plus.util.copy(d)
@@ -233,7 +234,7 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
       .call(init)
 
     if (vars.draw.timing) {
-      
+
       clip.selectAll("rect").transition().duration(vars.draw.timing)
         .call(update)
 

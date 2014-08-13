@@ -1,11 +1,13 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the search box, if enabled.
 //------------------------------------------------------------------------------
-d3plus.input.drop.search = function ( vars ) {
+module.exports = function ( vars ) {
 
   if ( vars.dev.value ) d3plus.console.time("creating search")
 
-  var self = this
+  var data = require("./data.js")
+    , items = require("./items.js")
+    , update = require("./update.js")
 
   vars.container.search = vars.container.selector.selectAll("div.d3plus_drop_search")
     .data(vars.search.enabled ? ["search"] : [])
@@ -70,9 +72,9 @@ d3plus.input.drop.search = function ( vars ) {
   vars.container.search.select("input").on("keyup."+vars.container.id,function(d){
     if (vars.text.solo[0] !== this.value) {
       vars.self.text({"solo":[this.value]})
-      self.data( vars )
-      self.items( vars )
-      self.update( vars )
+      data( vars )
+      items( vars )
+      update( vars )
     }
   })
 

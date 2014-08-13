@@ -7,6 +7,10 @@ d3plus.method.time = {
     "deprecates" : [ "static_axis" , "static_axes" ],
     "value"      : true
   },
+  "format"      : {
+    "accepted" : [false, String],
+    "value"    : false
+  },
   "mute"        : d3plus.method.filter(false),
   "solo"        : d3plus.method.filter(false),
   "value"       : false

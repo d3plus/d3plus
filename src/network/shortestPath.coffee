@@ -104,3 +104,5 @@ d3plus.network.shortestPath = (edges, source, options) ->
     delete res.edge
     delete res.previous
   return result
+
+module.exports = d3plus.network.shortestPath

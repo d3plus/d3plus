@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Toggle Buttons
 //------------------------------------------------------------------------------
-d3plus.input.toggle = function( vars ) {
+module.exports = function( vars ) {
 
   if ( !("buttons" in vars.container) ) {
 
@@ -52,10 +52,10 @@ d3plus.input.toggle = function( vars ) {
 
       d.d3plus.form
         .color(vars.color)
-        .focus(vars.focus.value,function(value){
+        .focus(vars.focus.value[0],function(value){
 
-          if (value !== vars.focus.value) {
-            vars.self.focus(value).draw()
+          if (value[0] !== vars.focus.value[0]) {
+            vars.self.focus(value[0]).draw()
           }
 
         })

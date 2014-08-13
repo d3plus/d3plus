@@ -2,9 +2,7 @@
 // Recursive function that applies a click event to all parent windows that
 // will close the dropdown if it is open.
 //------------------------------------------------------------------------------
-d3plus.input.drop.window = function ( vars , elem ) {
-
-  var self = this
+var windowEvents = function ( vars , elem ) {
 
   if ( elem === undefined ) {
     var elem = window
@@ -34,8 +32,10 @@ d3plus.input.drop.window = function ( vars , elem ) {
 
   if (same_origin) {
     if (elem.self !== window.top) {
-      self.window( vars , elem.parent )
+      windowEvents( vars , elem.parent )
     }
   }
 
 }
+
+module.exports = windowEvents

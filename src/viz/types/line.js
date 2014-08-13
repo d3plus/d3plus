@@ -1,25 +1,23 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Line Plot
 //------------------------------------------------------------------------------
-d3plus.visualization.line = function(vars) {
+var line = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // This visualization is an extention of the Chart visualization.
   //----------------------------------------------------------------------------
-  return d3plus.visualization.chart(vars)
+  return chart(vars)
 
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.line.requirements = [ "data" , "x" , "y" ]
-
-d3plus.visualization.line.setup = function(vars) {
-
+line.requirements = [ "data" , "x" , "y" ]
+line.setup = function(vars) {
   vars.self.x({ "scale" : "continuous" })
-
 }
+line.shapes       = [ "line" ]
+line.tooltip      = "static"
 
-d3plus.visualization.line.shapes       = [ "line" ]
-d3plus.visualization.line.tooltip      = "static"
+module.exports = line

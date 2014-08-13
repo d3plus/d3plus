@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the title and back button.
 //------------------------------------------------------------------------------
-d3plus.input.drop.title = function ( vars ) {
+module.exports = function ( vars ) {
 
   if ( vars.open.value ) {
 
@@ -15,7 +15,7 @@ d3plus.input.drop.title = function ( vars ) {
     title = true
     for (var i = 0; i < vars.id.nesting.length; i++) {
       var level = vars.id.nesting[i]
-      if ( level in focus && focus[level] === vars.focus.value ) {
+      if ( level in focus && focus[level] === vars.focus.value[0] ) {
         title = false
         break;
       }
@@ -59,7 +59,7 @@ d3plus.input.drop.title = function ( vars ) {
 
     function titleStyle(elem) {
 
-      var text = title ? vars.focus.value : vars.format.locale.value.ui.back
+      var text = title ? vars.focus.value.length : vars.format.locale.value.ui.back
 
       elem
         .text(vars.format.value(text))

@@ -16,6 +16,7 @@ var gulp = require("gulp")
   , es = require('event-stream')
   , timer = require("gulp-duration")
   , plumber = require("gulp-plumber")
+  , args = require("yargs").argv
 
 var files = "./src/**/*.*"
 
@@ -38,54 +39,60 @@ gulp.task("make", function() {
 
   var rebundle = function() {
 
-    // return bundler
-    //   .ignore("./src/libs.js")
-    //   .bundle()
-    //   .on("error",notify.onError(error))
-    //   .pipe(plumber())
-    //   .pipe(source("d3plus.js"))
-    //   .pipe(gulp.dest("./"))
-    //   .pipe(timer("Total Build Time"))
-    //   .pipe(notify({
-    //     title: "D3plus",
-    //     message: "New Build Compiled",
-    //     icon: __dirname + "/icon.png"
-    //   }))
-    //   .pipe(livereload(lr))
-    //   .on("error",notify.onError(error));
+    if (args.prod) {
 
-    var normal = bundler
-      .ignore("./src/libs.js")
-      .bundle()
-      .on("error",notify.onError(error))
-      .pipe(plumber())
-      .pipe(source("d3plus.js"))
-      .pipe(gulp.dest("./"))
-      .pipe(rename("d3plus.min.js"))
-      .pipe(streamify(uglify()))
-      .pipe(gulp.dest("./"))
-      .on("error",notify.onError(error));
+      var normal = bundler
+        .ignore("./src/libs.js")
+        .bundle()
+        .on("error",notify.onError(error))
+        .pipe(plumber())
+        .pipe(source("d3plus.js"))
+        .pipe(gulp.dest("./"))
+        .pipe(rename("d3plus.min.js"))
+        .pipe(streamify(uglify()))
+        .pipe(gulp.dest("./"))
+        .on("error",notify.onError(error));
 
-    var full = browserify(fileList)
-      .transform("coffeeify")
-      .bundle()
-      .on("error",notify.onError(error))
-      .pipe(plumber())
-      .pipe(source("d3plus.full.js"))
-      .pipe(gulp.dest("./"))
-      .pipe(rename("d3plus.full.min.js"))
-      .pipe(streamify(uglify()))
-      .pipe(gulp.dest("./"))
-      .pipe(timer("Total Build Time"))
-      .pipe(notify({
-        title: "D3plus",
-        message: "New Build Compiled",
-        icon: __dirname + "/icon.png"
-      }))
-      .pipe(livereload(lr))
-      .on("error",notify.onError(error));
+      var full = browserify(fileList)
+        .transform("coffeeify")
+        .bundle()
+        .on("error",notify.onError(error))
+        .pipe(plumber())
+        .pipe(source("d3plus.full.js"))
+        .pipe(gulp.dest("./"))
+        .pipe(rename("d3plus.full.min.js"))
+        .pipe(streamify(uglify()))
+        .pipe(gulp.dest("./"))
+        .pipe(timer("Total Build Time"))
+        .pipe(notify({
+          title: "D3plus",
+          message: "Production Builds Compiled",
+          icon: __dirname + "/icon.png"
+        }))
+        .on("error",notify.onError(error));
 
-    return es.merge(normal,full);
+      return es.merge(normal,full);
+
+    }
+    else {
+
+      return bundler
+        .ignore("./src/libs.js")
+        .bundle()
+        .on("error",notify.onError(error))
+        .pipe(plumber())
+        .pipe(source("d3plus.js"))
+        .pipe(gulp.dest("./"))
+        .pipe(timer("Total Build Time"))
+        .pipe(notify({
+          title: "D3plus",
+          message: "New Build Compiled",
+          icon: __dirname + "/icon.png"
+        }))
+        .pipe(livereload(lr))
+        .on("error",notify.onError(error));
+
+    }
 
   }
 

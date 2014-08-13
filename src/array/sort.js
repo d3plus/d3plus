@@ -1,3 +1,6 @@
+var fetchValue = require("../core/fetch/value.js"),
+    fetchColor = require("../core/fetch/color.js"),
+    fetchText  = require("../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts an array of objects
 //------------------------------------------------------------------------------
@@ -36,18 +39,18 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
           , depthInt = a.d3plus ? a.d3plus.depth : undefined
 
         a = k === vars.color.value
-          ? d3plus.variable.color( vars , a , depthKey )
+          ? fetchColor( vars , a , depthKey )
           : k === vars.text.value
-          ? d3plus.variable.text( vars , a , depthInt )
-          : d3plus.variable.value( vars , a , k , depthKey )
+          ? fetchText( vars , a , depthInt )
+          : fetchValue( vars , a , k , depthKey )
 
         var depthKey = b.d3plus ? vars.id.nesting[b.d3plus.depth] : undefined
           , depthInt = b.d3plus ? b.d3plus.depth : undefined
         b = k === vars.color.value
-          ? d3plus.variable.color( vars , b , depthKey )
+          ? fetchColor( vars , b , depthKey )
           : k === vars.text.value
-          ? d3plus.variable.text( vars , b , depthInt )
-          : d3plus.variable.value( vars , b , k , depthKey )
+          ? fetchText( vars , b , depthInt )
+          : fetchValue( vars , b , k , depthKey )
 
       }
       else {

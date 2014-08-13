@@ -1,3 +1,6 @@
+var fetchValue = require("../core/fetch/value.js"),
+    fetchColor = require("../core/fetch/color.js"),
+    fetchText  = require("../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -13,7 +16,7 @@ d3plus.tooltip.app = function(params) {
       ex = params.ex,
       mouse = params.mouseevents ? params.mouseevents : false,
       arrow = "arrow" in params ? params.arrow : true,
-      id = d3plus.variable.value(vars,d,vars.id.value),
+      id = fetchValue(vars,d,vars.id.value),
       tooltip_id = params.id || vars.type.value
 
   if ((d3.event && d3.event.type == "click") && (vars.tooltip.html.value || vars.tooltip.value.long) && !("fullscreen" in params)) {
@@ -33,7 +36,7 @@ d3plus.tooltip.app = function(params) {
 
     if (zoom === -1) {
       var key = vars.id.nesting[dataDepth-1],
-          parent = d3plus.variable.value(vars,id,key)
+          parent = fetchValue(vars,id,key)
     }
 
     if (zoom === 1 && vars.zoom.value) {
@@ -42,7 +45,7 @@ d3plus.tooltip.app = function(params) {
     else if (zoom === -1 && vars.zoom.value && vars.history.states.length) {
       var text = vars.format.value(vars.format.locale.value.ui.collapse)
     }
-    else if (length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && vars.focus.value != id) {
+    else if (!vars.small && length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && (vars.focus.value.length !== 1 || vars.focus.value[0] != id)) {
       var text = vars.format.locale.value.ui.moreInfo
     }
     else if (length == "long") {
@@ -59,7 +62,7 @@ d3plus.tooltip.app = function(params) {
   if ("x" in params) {
     var x = params.x
   }
-  else if (d3plus.visualization[vars.type.value].tooltip == "follow") {
+  else if (vars.types[vars.type.value].tooltip == "follow") {
     var x = d3.mouse(vars.container.value.node())[0]
   }
   else {
@@ -73,7 +76,7 @@ d3plus.tooltip.app = function(params) {
   if ("y" in params) {
     var y = params.y
   }
-  else if (d3plus.visualization[vars.type.value].tooltip == "follow") {
+  else if (vars.types[vars.type.value].tooltip == "follow") {
     var y = d3.mouse(vars.container.value.node())[1]
   }
   else {
@@ -87,7 +90,7 @@ d3plus.tooltip.app = function(params) {
   if ("offset" in params) {
     var offset = params.offset
   }
-  else if (d3plus.visualization[vars.type.value].tooltip == "follow") {
+  else if (vars.types[vars.type.value].tooltip == "follow") {
     var offset = 3
   }
   else {
@@ -101,10 +104,10 @@ d3plus.tooltip.app = function(params) {
 
     var ex = {}
       , children = {}
-      , depth     = "merged" in d.d3plus ? dataDepth : dataDepth + 1
+      , depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth+1 : dataDepth
       , nestKey   = vars.id.nesting[depth]
       , nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey]
-      , dataValue = d3plus.variable.value( vars , d , vars.size.value )
+      , dataValue = fetchValue( vars , d , vars.size.value )
 
     if ( vars.tooltip.children.value ) {
 
@@ -135,9 +138,9 @@ d3plus.tooltip.app = function(params) {
         for ( var i = 0 ; i < max ; i++ ) {
 
           var id    = nameList[i]
-            , name  = d3plus.variable.text( vars , id , depth )[0]
-            , value = d3plus.variable.value( vars , id , vars.size.value , nestKey )
-            , color = d3plus.variable.color( vars , id , nestKey )
+            , name  = fetchText( vars , id , depth )[0]
+            , value = fetchValue( vars , id , vars.size.value , nestKey )
+            , color = fetchColor( vars , id , nestKey )
 
           children[name] = value ? vars.format.value( value , vars.size.value ) : ""
 
@@ -155,7 +158,7 @@ d3plus.tooltip.app = function(params) {
       }
       else if ( nameList && nameList !== "null" ) {
 
-        var name  = d3plus.variable.text( vars , nameList , depth )[0]
+        var name  = fetchText( vars , nameList , depth )[0]
 
         children[name] = dataValue ? vars.format.value( dataValue , vars.size.value ) : ""
 
@@ -167,9 +170,9 @@ d3plus.tooltip.app = function(params) {
       ex[vars.size.value] = dataValue
     }
 
-    var active = vars.active.value ? d3plus.variable.value(vars,d,vars.active.value) : d.d3plus.active,
-        temp = vars.temp.value ? d3plus.variable.value(vars,d,vars.temp.value) : d.d3plus.temp,
-        total = vars.total.value ? d3plus.variable.value(vars,d,vars.total.value) : d.d3plus.total
+    var active = vars.active.value ? fetchValue(vars,d,vars.active.value) : d.d3plus.active,
+        temp = vars.temp.value ? fetchValue(vars,d,vars.temp.value) : d.d3plus.temp,
+        total = vars.total.value ? fetchValue(vars,d,vars.total.value) : d.d3plus.total
 
     if (typeof active == "number" && active > 0 && total) {
       var label = vars.active.value || "active"
@@ -186,13 +189,13 @@ d3plus.tooltip.app = function(params) {
     }
 
     var depth = "depth" in params ? params.depth : dataDepth,
-        title = d3plus.variable.text(vars,d,depth)[0],
-        icon = d3plus.variable.value(vars,d,vars.icon.value,vars.id.nesting[depth]),
+        title = params.title || fetchText(vars,d,depth)[0],
+        icon = fetchValue(vars,d,vars.icon.value,vars.id.nesting[depth]),
         tooltip_data = d3plus.tooltip.data(vars,d,length,ex,children,depth)
 
     if (icon === "null") icon = false
 
-    if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && "visible" in d.d3plus_label && !d.d3plus_label.visible))) {
+    if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && (!("visible" in d.d3plus_label) || ("visible" in d.d3plus_label && d.d3plus_label.visible === false))))) {
 
       if (!title) {
         title = id
@@ -236,7 +239,7 @@ d3plus.tooltip.app = function(params) {
         "fontsize": vars.tooltip.font.size,
         "fontweight": vars.tooltip.font.weight,
         "data": tooltip_data,
-        "color": d3plus.variable.color(vars,d),
+        "color": fetchColor(vars,d),
         "allColors": true,
         "footer": params.footer === false ? params.footer : footer,
         "fullscreen": fullscreen,

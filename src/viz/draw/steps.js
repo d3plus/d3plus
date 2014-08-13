@@ -1,3 +1,10 @@
+var dataFormat = require("../../core/data/format.js"),
+    dataColor  = require("../../core/data/color.js"),
+    dataKeys   = require("../../core/data/keys.js"),
+    dataLoad   = require("../../core/data/load.coffee"),
+    fetchData  = require("../../core/fetch/data.js"),
+    parseEdges = require("../../core/parse/edges.js"),
+    parseNodes = require("../../core/parse/nodes.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -19,7 +26,7 @@ d3plus.draw.steps = function(vars) {
 
       steps.push({
         "function": function( vars , next ){
-          d3plus.data.url( vars , u , next )
+          dataLoad( vars , u , next )
         },
         "message": locale.message.loading,
         "wait": true
@@ -31,11 +38,14 @@ d3plus.draw.steps = function(vars) {
 
   if (vars.draw.update) {
 
-    var appName     = locale.visualization[appType].toLowerCase()
-      , appSetup    = d3plus.visualization[appType].setup
-      , appReqs     = d3plus.visualization[appType].requirements
+    var appName     = locale.visualization[appType] || appType
+      , appSetup    = vars.types[appType].setup || false
+      , appReqs     = vars.types[appType].requirements || []
       , appMessage  = d3plus.string.format(locale.message.initializing,appName)
       , dataMessage = locale.message.data
+
+    if (!(appReqs instanceof Array)) appReqs = [appReqs]
+    appName = appName.toLowerCase()
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it has one, run the current app's setup function.
@@ -108,7 +118,7 @@ d3plus.draw.steps = function(vars) {
           vars.data.cache = {}
           delete vars.nodes.restricted
           delete vars.edges.restricted
-          d3plus.data.keys( vars , "data" )
+          dataKeys( vars , "data" )
         },
         "message": dataMessage
       })
@@ -122,7 +132,7 @@ d3plus.draw.steps = function(vars) {
 
       steps.push({
         "function": function( vars ) {
-          d3plus.data.keys( vars , "attrs" )
+          dataKeys( vars , "attrs" )
         },
         "message": dataMessage
       })
@@ -137,7 +147,7 @@ d3plus.draw.steps = function(vars) {
 
           if ( vars.color.changed && vars.color.value ) {
 
-            vars.color.scale = null
+            vars.color.valueScale = null
 
             if ( vars.dev.value ) {
               var timerString = "determining color type"
@@ -182,19 +192,19 @@ d3plus.draw.steps = function(vars) {
     //--------------------------------------------------------------------------
     if ( appReqs.indexOf("edges") >= 0 && vars.edges.value
     && ( !vars.edges.linked || vars.edges.changed ) ) {
-      steps.push({ "function" : d3plus.data.edges, "message" : dataMessage })
+      steps.push({ "function" : parseEdges, "message" : dataMessage })
     }
 
     if ( appReqs.indexOf("nodes") >= 0 && vars.edges.value
     && ( !vars.nodes.positions || vars.nodes.changed ) ) {
-      steps.push({ "function" : d3plus.data.nodes , "message" : dataMessage })
+      steps.push({ "function" : parseNodes , "message" : dataMessage })
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Groups data by time and nesting.
     //--------------------------------------------------------------------------
     if ( vars.data.changed || vars.time.changed || vars.id.changed ) {
-      steps.push({ "function" : d3plus.data.format , "message" : dataMessage })
+      steps.push({ "function" : dataFormat , "message" : dataMessage })
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -208,14 +218,14 @@ d3plus.draw.steps = function(vars) {
           var timerString = year ? "fetching pool data" : "fetching data"
           d3plus.console.time( timerString )
         }
-        vars.data.pool = d3plus.data.fetch( vars , year )
+        vars.data.pool = fetchData( vars , year )
         if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
         if ( !year ) {
           vars.data.app = vars.data.pool
         }
         else {
           if ( vars.dev.value ) d3plus.console.time("fetching data for current year")
-          vars.data.app = d3plus.data.fetch( vars )
+          vars.data.app = fetchData( vars )
           if ( vars.dev.value ) d3plus.console.timeEnd("fetching data for current year")
         }
 
@@ -239,7 +249,7 @@ d3plus.draw.steps = function(vars) {
                  )
 
       },
-      "function": d3plus.data.color,
+      "function": dataColor,
       "message": dataMessage
     })
 
@@ -262,6 +272,8 @@ d3plus.draw.steps = function(vars) {
     },
     "message": uiMessage
   })
+
+  steps.push({"function": d3plus.draw.errors, "message": uiMessage})
 
   steps.push({
     "function": function(vars) {
@@ -315,8 +327,7 @@ d3plus.draw.steps = function(vars) {
 
   if ( vars.draw.update ) {
     steps.push({
-      "function" : [ d3plus.draw.errors
-                   , d3plus.draw.app
+      "function" : [ d3plus.draw.app
                    , d3plus.shape.draw ],
       "message"  : drawMessage
     })

@@ -81,7 +81,7 @@ d3plus.draw.enter = function(vars) {
         if (d.dragging) {
 
         }
-        else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
+        else if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
           d3.select(this).style("cursor",d3plus.prefix()+"grab")
         }
@@ -92,7 +92,7 @@ d3plus.draw.enter = function(vars) {
       })
       .on(d3plus.evt.up,function(d){
 
-        if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
+        if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
           d.dragging = false
           d3.select(this).style("cursor",d3plus.prefix()+"grab")
@@ -104,7 +104,7 @@ d3plus.draw.enter = function(vars) {
       })
       .on(d3plus.evt.down,function(d){
 
-        if (d3plus.visualization[vars.type.value].zoom && vars.zoom.pan.value &&
+        if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
           d.dragging = true
           d3.select(this).style("cursor",d3plus.prefix()+"grabbing")
