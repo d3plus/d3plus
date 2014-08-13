@@ -160,14 +160,13 @@ d3plus.tooltip.app = function(params) {
       else if ( nameList && nameList !== "null" ) {
 
         var name  = fetchText( vars , nameList , depth )[0]
-
         children[name] = dataValue ? vars.format.value( dataValue , vars.size.value ) : ""
 
       }
 
     }
 
-    if ( vars.size.value && vars.tooltip.size.value && dataValue && ( !nameList || nameList instanceof Array ) ) {
+    if ( vars.size.value && vars.tooltip.size.value && dataValue && ( same || !nameList || nameList instanceof Array ) ) {
       ex[vars.size.value] = dataValue
     }
 
