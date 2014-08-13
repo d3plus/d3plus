@@ -34,27 +34,28 @@ d3plus.ui.legend = function(vars) {
         var data = vars.data.app
       }
 
-      for ( var z = 0 ; z < data.length ; z++ ) {
-
-        d = data[z]
-
-        for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
-
-          var colorKey = vars.id.nesting[i]
-
-          if ( !(colorKey in d) ) {
-            var nextKey = vars.id.nesting[ i + 1 ]
-            d[colorKey] = fetchValue( vars , d[nextKey] , colorKey , nextKey )
-          }
-
-        }
-
-      }
+      // for ( var z = 0 ; z < data.length ; z++ ) {
+      //
+      //   d = data[z]
+      //
+      //   for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
+      //
+      //     var colorKey = vars.id.nesting[i]
+      //
+      //     if ( !(colorKey in d) ) {
+      //       var nextKey = vars.id.nesting[ i + 1 ]
+      //       d[colorKey] = fetchValue( vars , d[nextKey] , colorKey , nextKey )
+      //     }
+      //
+      //   }
+      //
+      // }
 
       var colorFunction = function( d ){
-            return fetchColor( vars , d , vars.id.nesting[colorDepth] )
+            return fetchColor( vars , d , colorKey )
           }
         , colorDepth = 0
+        , colorKey = vars.id.value
 
       if (vars.id.nesting.indexOf(colorName) >= 0) {
         colorDepth = vars.id.nesting.indexOf(vars.color.value)
@@ -62,10 +63,10 @@ d3plus.ui.legend = function(vars) {
       }
       else {
 
-        for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
+        for ( var i = 0 ; i <= vars.depth.value ; i++ ) {
 
           colorDepth = i
-          var colorKey   = vars.id.nesting[i]
+          colorKey   = vars.id.nesting[i]
 
           var uniqueIDs = d3plus.util.uniques( data , colorKey )
             , uniqueColors = d3plus.util.uniques( data , colorFunction )
@@ -80,21 +81,21 @@ d3plus.ui.legend = function(vars) {
 
       var colors = d3plus.data.nest( vars , data , [ colorFunction ] , [] )
 
-      for ( var z = 0 ; z < colors.length ; z++ ) {
-
-        var d = colors[z]
-
-        var nextKey = vars.id.nesting[ colorDepth + 1 ]
-
-        d[colorKey] = d[colorKey]
-          || fetchValue( vars , d[nextKey] , colorKey , nextKey )
-
-        d[colorName] = d[colorName]
-          || fetchColor( vars , d , colorKey )
-
-        d.d3plus.colorDepth = colorDepth
-
-      }
+      // for ( var z = 0 ; z < colors.length ; z++ ) {
+      //
+      //   var d = colors[z]
+      //
+      //   // var nextKey = vars.id.nesting[ colorDepth + 1 ]
+      //   //
+      //   // d[colorKey] = d[colorKey]
+      //   //   || fetchValue( vars , d[nextKey] , colorKey , nextKey )
+      //   //
+      //   // d[colorName] = d[colorName]
+      //   //   || fetchValue( vars , d[colorKey][0] , colorName, colorKey )
+      //
+      //   d.d3plus.colorDepth = colorDepth
+      //
+      // }
 
       if ( vars.dev.value ) d3plus.console.timeEnd("grouping data by color")
 
@@ -158,7 +159,7 @@ d3plus.ui.legend = function(vars) {
 
         var keys = vars.g.legend.selectAll("g.d3plus_color")
           .data(colors,function(d){
-            return fetchColor(vars,d,vars.id.nesting[d.d3plus.colorDepth])+d[colorName].toString()
+            return fetchColor(vars,d,colorKey)
           })
 
         function position(group) {
@@ -170,11 +171,6 @@ d3plus.ui.legend = function(vars) {
             })
 
         }
-
-        var key_enter = keys.enter().append("g")
-          .attr("class","d3plus_color")
-          .attr("opacity",0)
-          .call(position)
 
         function style(rect) {
 
@@ -269,7 +265,8 @@ d3plus.ui.legend = function(vars) {
                   .attr("y",0)
                   .each(function(t){
 
-                    var text = fetchText( vars , g , g.d3plus.depth )
+                    var idIndex = vars.id.nesting.indexOf(colorName)
+                      , text = idIndex >= 0 ? fetchText(vars,t,idIndex) : [vars.format.value(fetchValue(vars,t,colorName,colorKey))]
 
                     if (text.length === 1 && text[0].length) {
 
@@ -306,6 +303,11 @@ d3plus.ui.legend = function(vars) {
 
         }
 
+        var key_enter = keys.enter().append("g")
+          .attr("class","d3plus_color")
+          .attr("opacity",0)
+          .call(position)
+
         key_enter
           .append("rect")
             .attr("class","d3plus_color")
@@ -324,8 +326,8 @@ d3plus.ui.legend = function(vars) {
               x += square_size/2
               y += vars.ui.padding+square_size/2
 
-              var idIndex = vars.id.nesting.indexOf(colorKey)
-                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName))
+              var idIndex = vars.id.nesting.indexOf(colorName)
+                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey))
 
               d3plus.tooltip.app({
                 "data": d,
