@@ -32,8 +32,8 @@ d3plus.ui.legend = function(vars) {
         }
       }
       else {
-        // var data = vars.data.app
-        var data = dataNest(vars, vars.data.app, vars.id.nesting, [])
+        var data = vars.data.app
+        // var data = dataNest(vars, vars.data.app, vars.id.nesting, [])
       }
 
       // for ( var z = 0 ; z < data.length ; z++ ) {
