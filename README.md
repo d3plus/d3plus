@@ -72,6 +72,7 @@ That is because there are some specific methods you should invoke on your visual
 visualization
 	.type("tree_map")
 	.id("person")
+	.draw()
 ```
 
-Once you set the [Methods](https://github.com/alexandersimoes/d3plus/wiki/Methods) you need, you will just need to invoke the [Draw](https://github.com/alexandersimoes/d3plus/wiki/Draw) method to display your changes.
+Once you set the [Methods](https://github.com/alexandersimoes/d3plus/wiki/Methods) you need to change, you just need to invoke the [Draw](https://github.com/alexandersimoes/d3plus/wiki/Draw) method again to display your changes.
