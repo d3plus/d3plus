@@ -85,10 +85,10 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     // If there's only 1 leaf, and it's been processed, return it as-is.
     //--------------------------------------------------------------------------
     if ( leaves.length === 1 && ("d3plus" in leaves[0]) ) {
-      var returnObj = d3plus.util.copy(leaves[0])
-      returnObj.d3plus.depth = i
-      groupedData.push(returnObj)
-      return returnObj
+      // var returnObj = leaves[0]
+      // returnObj.d3plus.depth = i
+      groupedData.push(leaves[0])
+      return leaves[0]
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
