@@ -25322,10 +25322,11 @@ var chart = function(vars) {
         }
 
         // add padding to axis if there is only 1 value
-        if (vars[axis+"_range"][0] == vars[axis+"_range"][1]) {
+        if (vars[axis+"_range"][0] === vars[axis+"_range"][1]) {
           if (vars[axis].value === vars.time.value) {
             var closestTime = d3plus.util.closest(vars.data.time.ticks,vars[axis+"_range"][0])
               , timeIndex = vars.data.time.ticks.indexOf(closestTime)
+
             if (timeIndex > 0) {
               vars[axis+"_range"][0] = vars.data.time.ticks[timeIndex-1]
             }
@@ -25502,11 +25503,14 @@ var chart = function(vars) {
         vars[axis].ticks = vars.data.time.ticks.filter(function(t){
           return t <= range[1] && t >= range[0]
         })
-        if (vars[axis].ticks.indexOf(range[0]) < 0) {
-          vars[axis].ticks.unshift(range[0])
+
+        var minClosest = d3plus.util.closest(vars.data.time.ticks,range[0])
+        var maxClosest = d3plus.util.closest(vars.data.time.ticks,range[1])
+        if (vars[axis].ticks.indexOf(minClosest) < 0) {
+          vars[axis].ticks.unshift(minClosest)
         }
-        if (vars[axis].ticks.indexOf(range[1]) < 0) {
-          vars[axis].ticks.push(range[1])
+        if (vars[axis].ticks.indexOf(maxClosest) < 0) {
+          vars[axis].ticks.push(maxClosest)
         }
       }
       else if (vars.continuous_axis === axis) {
@@ -25515,6 +25519,7 @@ var chart = function(vars) {
       else {
         vars[axis].ticks = vars[axis+"_scale"].ticks()
       }
+
       vars[axis+"_axis"].tickValues(vars[axis].ticks)
 
     })
