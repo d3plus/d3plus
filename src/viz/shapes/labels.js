@@ -345,6 +345,15 @@ d3plus.shape.labels = function( vars , group ) {
 
         if (label && label.w*label.scale-label.padding >= 20 && label.h*label.scale-label.padding >= 10 && names.length) {
 
+          var and = vars.format.locale.value.ui.and
+            , more = vars.format.locale.value.ui.more
+
+          for (var i = 0; i < names.length; i++) {
+            if (names[i] instanceof Array) {
+              names[i] = d3plus.string.list(names[i],and,3,more)
+            }
+          }
+
           label.names = names
 
           label.share = share_size
