@@ -10,7 +10,7 @@ d3plus.method.zoom = {
     var vars          = this.getVars()
       , max_depth     = vars.id.nesting.length-1
       , current_depth = vars.depth.value
-      , restricted    = d3plus.visualization[vars.type.value].nesting === false
+      , restricted    = vars.types[vars.type.value].nesting === false
 
     if (restricted) {
       return 0
@@ -40,7 +40,7 @@ d3plus.method.zoom = {
 
     var vars     = this.getVars()
       , zoomed   = vars.zoom.scale > vars.zoom.behavior.scaleExtent()[0]
-      , enabled  = d3plus.visualization[vars.type.value].zoom
+      , enabled  = vars.types[vars.type.value].zoom
                  && vars.zoom.value && vars.zoom.scroll.value
       , zoomable = d3.event.touches.length > 1 && enabled
 

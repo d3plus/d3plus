@@ -1,3 +1,8 @@
+var dataFormat = require("../core/data/format.js"),
+    dataKeys = require("../core/data/keys.js"),
+    dataLoad = require("../core/data/load.coffee"),
+    fetchData  = require("../core/fetch/data.js"),
+    methodReset = require("../core/method/reset.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Form Element shell
 //------------------------------------------------------------------------------
@@ -6,7 +11,15 @@ d3plus.form = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Initialize the global variable object.
   //----------------------------------------------------------------------------
-  var vars = { "shell": "form" }
+  var vars = {
+    "types": {
+      "auto": require("./types/auto.js"),
+      "button": require("./types/button/button.js"),
+      "drop": require("./types/drop/drop.js"),
+      "toggle": require("./types/toggle.js")
+    },
+    "shell": "form"
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create the main drawing function.
@@ -35,11 +48,11 @@ d3plus.form = function() {
       //------------------------------------------------------------------------
       if ( vars.data.changed ) {
         vars.data.cache = {}
-        d3plus.data.keys( vars , "data" )
-        d3plus.data.format( vars )
+        dataKeys( vars , "data" )
+        dataFormat( vars )
       }
 
-      vars.data.app = d3plus.data.fetch( vars )
+      vars.data.app = fetchData( vars )
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
@@ -54,7 +67,7 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( vars.focus.value === false ) {
+      if ( !vars.focus.value.length ) {
 
         var element = vars.data.element.value
 
@@ -63,14 +76,14 @@ d3plus.form = function() {
           i = i < 0 ? 0 : i
           var option = element.selectAll("option")[0][i]
             , val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value)
-          if (val) vars.focus.value = val
+          if (val) vars.focus.value[0] = val
         }
 
-        if ( vars.focus.value === false && vars.data.app.length ) {
-          vars.focus.value = vars.data.app[0][vars.id.value]
+        if ( !vars.focus.value.length && vars.data.app.length ) {
+          vars.focus.value[0] = vars.data.app[0][vars.id.value]
         }
 
-        if ( vars.dev.value && vars.focus.value !== false ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+        if ( vars.dev.value && vars.focus.value.length ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
 
       }
 
@@ -164,7 +177,7 @@ d3plus.form = function() {
 
               }
 
-              if (d[level] === vars.focus.value) {
+              if (d[level] === vars.focus.value[0]) {
                 this.selected = true
               }
               else {
@@ -182,7 +195,7 @@ d3plus.form = function() {
           vars.data.element.value.selectAll("option")
             .each(function(d){
               var level = getLevel(d)
-              if (d[level] === vars.focus.value) {
+              if (d[level] === vars.focus.value[0]) {
                 this.selected = true
               }
               else {
@@ -241,8 +254,10 @@ d3plus.form = function() {
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Update Container
         //------------------------------------------------------------------------
-        vars.container.ui.transition().duration(vars.draw.timing)
+        vars.container.ui
           .style("display",vars.ui.display.value)
+
+        vars.container.ui.transition().duration(vars.draw.timing)
           .style("margin",vars.ui.margin+"px")
 
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -253,9 +268,9 @@ d3plus.form = function() {
 
         title.enter().insert("div","#d3plus_"+vars.type.value+"_"+vars.container.id)
           .attr("class","d3plus_title")
+          .style("display","inline-block")
 
         title
-          .style("display",vars.ui.display.value)
           .style("color",vars.font.color)
           .style("font-family",vars.font.family.value)
           .style("font-size",vars.font.size+"px")
@@ -278,20 +293,20 @@ d3plus.form = function() {
 
         var app = vars.format.locale.value.visualization[vars.type.value]
         if ( vars.dev.value ) d3plus.console.time("drawing "+ app)
-        d3plus.input[vars.type.value]( vars )
+        vars.types[vars.type.value]( vars )
         if ( vars.dev.value ) d3plus.console.timeEnd("drawing "+ app)
 
       }
       else if ( vars.data.url && (!vars.data.loaded || vars.data.stream) ) {
 
-        d3plus.data.url( vars , "data" , vars.self.draw )
+        dataLoad( vars , "data" , vars.self.draw )
 
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Initialization complete
       //------------------------------------------------------------------------
-      d3plus.data.reset( vars )
+      methodReset( vars )
       vars.methodGroup = false
 
       if ( vars.dev.value ) d3plus.console.groupEnd()

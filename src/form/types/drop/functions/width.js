@@ -1,8 +1,9 @@
+var fontTester = require("../../../../core/font/tester.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If no widths are defined, then this calculates the width needed to fit the
 // longest entry in the list.
 //------------------------------------------------------------------------------
-d3plus.input.drop.width = function ( vars ) {
+module.exports = function ( vars ) {
 
   var data = [], buffer = 0
   for ( var level in vars.data.nested.all ) {
@@ -31,7 +32,7 @@ d3plus.input.drop.width = function ( vars ) {
     if ( vars.dev.value ) d3plus.console.time("calculating "+type+" width")
 
     var button = d3plus.form()
-      .container( d3plus.font.tester() )
+      .container( fontTester() )
       .data({
         "large": 9999,
         "value": data

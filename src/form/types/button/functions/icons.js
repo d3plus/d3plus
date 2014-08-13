@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
-d3plus.input.button.icons = function ( elem , vars ) {
+module.exports = function ( elem , vars ) {
 
   var reversed = (vars.font.align.value === "right" && !d3plus.rtl)
                  || (d3plus.rtl && vars.font.align.value === "right")
@@ -16,7 +16,7 @@ d3plus.input.button.icons = function ( elem , vars ) {
       }
 
       var iconGraphic = vars.icon.button.value
-      if ( d[vars.id.value] === vars.focus.value && vars.icon.select.value ) {
+      if ( d[vars.id.value] === vars.focus.value[0] && vars.icon.select.value ) {
         iconGraphic = vars.icon.select.value
         children.push("selected")
       }

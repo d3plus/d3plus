@@ -1,3 +1,6 @@
+var fetchValue = require("../../core/fetch/value.js"),
+    fetchColor = require("../../core/fetch/color.js"),
+    fetchText  = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws the appropriate shape based on the data
 //------------------------------------------------------------------------------
@@ -51,14 +54,16 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   function id(d) {
 
-    var depth = vars.depth.value
-    d.d3plus.id = d3plus.variable.value(vars,d,vars.id.nesting[depth])
+    d.d3plus.id = ""
+    for (var i = 0; i <= vars.depth.value; i++) {
+      d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
+    }
 
-    d.d3plus.id += "_"+depth+"_"+shape
+    d.d3plus.id += shape
 
     vars.axes.values.forEach(function(axis){
       if (vars[axis].scale.value == "continuous") {
-        d.d3plus.id += "_"+d3plus.variable.value(vars,d,vars[axis].value)
+        d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
       }
     })
 
@@ -72,7 +77,7 @@ d3plus.shape.draw = function(vars) {
   //----------------------------------------------------------------------------
   function transform(g,grow) {
 
-    var scales = d3plus.visualization[vars.type.value].scale
+    var scales = vars.types[vars.type.value].scale
     if (grow && scales && scales[vars.shape.value]) {
        var scale = scales[vars.shape.value]
     }
@@ -85,12 +90,17 @@ d3plus.shape.draw = function(vars) {
 
     g
       .attr("transform",function(d){
+
+        var x = d.d3plus.x || 0
+          , y = d.d3plus.y || 0
+
         if (["line","area","coordinates"].indexOf(shape) < 0) {
-          return "translate("+d.d3plus.x+","+d.d3plus.y+")scale("+scale+")"
+          return "translate("+x+","+y+")scale("+scale+")"
         }
         else {
           return "scale("+scale+")"
         }
+
       })
 
   }
@@ -152,25 +162,25 @@ d3plus.shape.draw = function(vars) {
 
             d = id(d)
 
-            if (!d.d3plus.a) {
+            if (!d.d3plus.segments) {
 
-              d.d3plus.a = {"donut": Math.PI*2}
+              d.d3plus.segments = {"donut": Math.PI*2}
               var active = vars.active.value ? d.d3plus[vars.active.value] : d.d3plus.active,
                   temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
                   total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total
 
               if (total) {
                 if (active) {
-                  d.d3plus.a.active = (active/total) * (Math.PI * 2)
+                  d.d3plus.segments.active = (active/total) * (Math.PI * 2)
                 }
                 else {
-                  d.d3plus.a.active = 0
+                  d.d3plus.segments.active = 0
                 }
                 if (temp) {
-                  d.d3plus.a.temp = ((temp/total) * (Math.PI * 2)) + d.d3plus.a.active
+                  d.d3plus.segments.temp = ((temp/total) * (Math.PI * 2)) + d.d3plus.segments.active
                 }
                 else {
-                  d.d3plus.a.temp = 0
+                  d.d3plus.segments.temp = 0
                 }
               }
 
@@ -239,7 +249,7 @@ d3plus.shape.draw = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Check for active and temp fills for rects and donuts
     //--------------------------------------------------------------------------
-    if (["rect","donut"].indexOf(shape) >= 0 && d3plus.visualization[vars.type.value].fill) {
+    if (["rect","donut"].indexOf(shape) >= 0 && vars.types[vars.type.value].fill) {
       if ( vars.dev.value ) d3plus.console.time("filling \"" + shape + "\" shapes")
       d3plus.shape.fill( vars , selection , enter , exit , transform )
       if ( vars.dev.value ) d3plus.console.timeEnd("filling \"" + shape + "\" shapes")
@@ -253,6 +263,10 @@ d3plus.shape.draw = function(vars) {
   function edge_update(d) {
 
     if (d && vars.g.edges.selectAll("g").size() > 0) {
+
+      vars.g.edge_hover
+        .selectAll("*")
+        .remove()
 
       vars.g.edges.selectAll("g")
         .each(function(l){
@@ -381,10 +395,9 @@ d3plus.shape.draw = function(vars) {
 
           vars.covered = false
 
-          if (["area","line"].indexOf(vars.shape.value) >= 0
-            || vars.focus.value != d[vars.id.value]) {
+          if (vars.focus.value.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
 
-            if (vars.continuous_axis) {
+            if (d.values && vars.continuous_axis) {
 
               var index = vars.continuous_axis === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
@@ -422,11 +435,9 @@ d3plus.shape.draw = function(vars) {
 
           vars.covered = false
 
-          if (["area","line"].indexOf(vars.shape.value) >= 0
-            || (d3plus.visualization[vars.type.value].tooltip == "follow" &&
-            (vars.focus.value != d[vars.id.value]))) {
+          if (d.values || (vars.types[vars.type.value].tooltip == "follow" && vars.focus.value[0] != d[vars.id.value])) {
 
-            if (vars.continuous_axis) {
+            if (d.values && vars.continuous_axis) {
 
               var index = vars.continuous_axis === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
@@ -515,8 +526,8 @@ d3plus.shape.draw = function(vars) {
 
         var depth_delta = vars.zoom.direction(d.d3plus_data || d)
           , previous = vars.id.solo.value
-          , title = d3plus.variable.text(vars,d)[0]
-          , color = d3plus.color.legible(d3plus.variable.color(vars,d))
+          , title = fetchText(vars,d)[0]
+          , color = d3plus.color.legible(fetchColor(vars,d))
           , prev_sub = vars.title.sub.value || false
           , prev_color = vars.title.sub.font.color
           , prev_total = vars.title.total.font.color
@@ -564,7 +575,7 @@ d3plus.shape.draw = function(vars) {
         }
         else if (depth_delta === 1 && vars.zoom.value) {
 
-          var id = d3plus.variable.value(vars,d,vars.id.value)
+          var id = fetchValue(vars,d,vars.id.value)
 
           vars.history.states.push(function(){
 
@@ -612,7 +623,7 @@ d3plus.shape.draw = function(vars) {
           vars.history.back()
 
         }
-        else if (d3plus.visualization[vars.type.value].zoom && vars.zoom.value) {
+        else if (vars.types[vars.type.value].zoom && vars.zoom.value) {
 
           edge_update()
 
@@ -627,7 +638,7 @@ d3plus.shape.draw = function(vars) {
           d3plus.tooltip.remove(vars.type.value)
           vars.draw.update = false
 
-          if (!d || d[vars.id.value] == vars.focus.value) {
+          if (!d || d[vars.id.value] == vars.focus.value[0]) {
             vars.self.focus(false).draw()
           }
           else {
@@ -635,7 +646,7 @@ d3plus.shape.draw = function(vars) {
           }
 
         }
-        else if (d[vars.id.value] != vars.focus.value) {
+        else if (vars.focus.value.length !== 1 || d[vars.id.value] != vars.focus.value[0]) {
 
           edge_update()
 

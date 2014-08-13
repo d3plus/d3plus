@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
-d3plus.input.button.style = function ( elem , vars ) {
+module.exports = function ( elem , vars ) {
 
   elem
     .style("position","relative")

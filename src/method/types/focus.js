@@ -1,50 +1,59 @@
 d3plus.method.focus = {
-  "accepted"   : [ false , Function , Number , String ],
+  "accepted"   : [ false , Array , Function , Number , String ],
   "deprecates" : "highlight",
   "process"    : function(value) {
 
-    var vars = this.getVars()
+    if (value === false) {
+      return []
+    }
+    else {
 
-    if ( vars.data.element.value ) {
+      if (!(value instanceof Array)) value = [value]
 
-      var elementTag  = vars.data.element.value.node().tagName.toLowerCase()
-        , elementType = vars.data.element.value.attr("type")
+      var vars = this.getVars()
 
-      if (elementTag === "select") {
+      if ( ["string","number"].indexOf(typeof value[0]) >= 0 && vars.data.element.value ) {
 
-        vars.data.element.value.selectAll("option").each(function(d,i){
+        var elementTag  = vars.data.element.value.node().tagName.toLowerCase()
+          , elementType = vars.data.element.value.attr("type")
 
-          if (d && d[vars.id.value] === value) {
-            vars.data.element.value.node().selectedIndex = i
-          }
+        if (elementTag === "select") {
 
-        })
+          vars.data.element.value.selectAll("option").each(function(d,i){
 
-      }
-      else if (elementTag === "input" && elementType === "radio") {
-
-        vars.data.element.value
-          .each(function(d){
-
-            if (d && d[vars.id.value] === value) {
-              this.checked = true
-            }
-            else {
-              this.checked = false
+            if (d && d[vars.id.value] === value[0]) {
+              vars.data.element.value.node().selectedIndex = i
             }
 
           })
 
+        }
+        else if (elementTag === "input" && elementType === "radio") {
+
+          vars.data.element.value
+            .each(function(d){
+
+              if (d && d[vars.id.value] === value[0]) {
+                this.checked = true
+              }
+              else {
+                this.checked = false
+              }
+
+            })
+
+        }
+
       }
 
-    }
+      return value
 
-    return value
+    }
 
   },
   "tooltip"    : {
     "accepted" : [ Boolean ],
     "value"    : true
   },
-  "value"      : false
+  "value"      : []
 }

@@ -1,3 +1,4 @@
+var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
@@ -133,7 +134,7 @@ d3plus.shape.labels = function( vars , group ) {
     text
       .attr("font-weight",vars.labels.font.weight)
       .attr("font-family",vars.labels.font.family.value)
-      .attr("text-anchor",function(t){
+      .style("text-anchor",function(t){
         return t.shape === "circle" ? "middle" : "start"
       })
       .attr("pointer-events",function(t){
@@ -239,7 +240,7 @@ d3plus.shape.labels = function( vars , group ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Loop through each selection and analyze the labels
   //----------------------------------------------------------------------------
-  if (vars.labels.value) {
+  if (group === "edges" || vars.labels.value) {
 
     if ( vars.dev.value ) {
       var timerString = "drawing " + group + " labels"
@@ -252,10 +253,10 @@ d3plus.shape.labels = function( vars , group ) {
           stat = d.d3plus && "static" in d.d3plus && d.d3plus.static
           label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
-          names = label && label.names ? label.names : d3plus.variable.text(vars,d),
+          names = label && label.names ? label.names : fetchText(vars,d),
           group = label && "group" in label ? label.group : d3.select(this),
           share_size = 0,
-          fill = d3plus.visualization[vars.type.value].fill
+          fill = vars.types[vars.type.value].fill
 
       if (label) {
 
@@ -344,6 +345,15 @@ d3plus.shape.labels = function( vars , group ) {
 
         if (label && label.w*label.scale-label.padding >= 20 && label.h*label.scale-label.padding >= 10 && names.length) {
 
+          var and = vars.format.locale.value.ui.and
+            , more = vars.format.locale.value.ui.more
+
+          for (var i = 0; i < names.length; i++) {
+            if (names[i] instanceof Array) {
+              names[i] = d3plus.string.list(names[i],and,3,more)
+            }
+          }
+
           label.names = names
 
           label.share = share_size
@@ -362,6 +372,7 @@ d3plus.shape.labels = function( vars , group ) {
             text
               .transition().duration(vars.draw.timing/2)
               .call(style)
+              .call(opacity)
 
             text.enter().append("text")
               .attr("font-size",fontSize)
@@ -379,6 +390,7 @@ d3plus.shape.labels = function( vars , group ) {
             text
               .attr("opacity",1)
               .call(style)
+              .call(opacity)
 
             text.enter().append("text")
               .attr("font-size",fontSize)

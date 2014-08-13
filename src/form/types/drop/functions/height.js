@@ -2,7 +2,7 @@
 // Calculates the height and orientation of the dropdown list, based on
 // available screen space.
 //------------------------------------------------------------------------------
-d3plus.input.drop.height = function ( vars ) {
+module.exports = function ( vars ) {
 
   var button = vars.container.button.container().node().getBoundingClientRect()
 

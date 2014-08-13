@@ -1,3 +1,5 @@
+var fetchValue = require("../../core/fetch/value.js")
+  , fetchColor = require("../../core/fetch/color.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns the correct fill color for a node
 //-------------------------------------------------------------------
@@ -7,38 +9,38 @@ d3plus.shape.color = function(d,vars) {
 
   if (vars.shape.value == "line") {
     if (shape == "circle") {
-      return d3plus.variable.color(vars,d)
+      return fetchColor(vars,d)
     }
     else {
       return "none"
     }
   }
   else if (vars.shape.value == "area" || shape == "active") {
-    return d3plus.variable.color(vars,d)
+    return fetchColor(vars,d)
   }
   else if (shape == "temp") {
     return "url(#d3plus_hatch_"+d.d3plus.id+")"
   }
   else if (shape == "active") {
-    return d3plus.variable.color(vars,d)
+    return fetchColor(vars,d)
   }
 
   if (d.d3plus.static) {
-    return d3plus.color.lighter(d3plus.variable.color(vars,d),.75);
+    return d3plus.color.lighter(fetchColor(vars,d),.75);
   }
 
-  var active = vars.active.value ? d3plus.variable.value(vars,d,vars.active.value) : d.d3plus.active,
-      temp = vars.temp.value ? d3plus.variable.value(vars,d,vars.temp.value) : d.d3plus.temp,
-      total = vars.total.value ? d3plus.variable.value(vars,d,vars.total.value) : d.d3plus.total
+  var active = vars.active.value ? fetchValue(vars,d,vars.active.value) : d.d3plus.active,
+      temp = vars.temp.value ? fetchValue(vars,d,vars.temp.value) : d.d3plus.temp,
+      total = vars.total.value ? fetchValue(vars,d,vars.total.value) : d.d3plus.total
 
   if ((!vars.active.value && !vars.temp.value) || active === true || (active && total && active == total && !temp) || (active && !total)) {
-    return d3plus.variable.color(vars,d)
+    return fetchColor(vars,d)
   }
   else if (vars.active.spotlight.value) {
     return "#eee"
   }
   else {
-    return d3plus.color.lighter(d3plus.variable.color(vars,d),.75);
+    return d3plus.color.lighter(fetchColor(vars,d),.75);
   }
 
 }

@@ -2,6 +2,18 @@ d3plus.viz = function() {
 
   var vars = {
     "g"     : {"apps": {} },
+    "types" : {
+      "bubbles":  require("./types/bubbles.js"),
+      "chart":    require("./types/chart.js"),
+      "geo_map":  require("./types/geo_map.js"),
+      "line":     require("./types/line.js"),
+      "network":  require("./types/network.js"),
+      "paths":    require("./types/paths.coffee"),
+      "rings":    require("./types/rings.js"),
+      "scatter":  require("./types/scatter.js"),
+      "stacked":  require("./types/stacked.js"),
+      "tree_map": require("./types/tree_map.js")
+    },
     "shell" : "viz"
   }
 
@@ -63,7 +75,7 @@ d3plus.viz = function() {
             runStep()
           }
           else {
-            
+
             vars.methodGroup = false
             if ( vars.dev.value ) {
               d3plus.console.timeEnd("total draw time")

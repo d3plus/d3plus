@@ -1,9 +1,12 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
-d3plus.input.button = function( vars ) {
+module.exports = function( vars ) {
 
-  var self = this.button
+  var color = require("./functions/color.js")
+    , icons = require("./functions/icons.js")
+    , mouseevents = require("./functions/mouseevents.js")
+    , style = require("./functions/style.js")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Bind Data to Buttons
@@ -20,10 +23,10 @@ d3plus.input.button = function( vars ) {
 
   button.enter().append("div")
     .attr("class","d3plus_node")
-    .call( self.color , vars )
-    .call( self.style , vars )
-    .call( self.icons , vars )
-    .call( self.mouseevents , vars , self.color )
+    .call( color , vars )
+    .call( style , vars )
+    .call( icons , vars )
+    .call( mouseevents , vars , color )
 
   if ( vars.dev.value ) d3plus.console.timeEnd("enter")
 
@@ -42,7 +45,7 @@ d3plus.input.button = function( vars ) {
   else {
 
     var checks = [ vars.focus.previous
-                 , vars.focus.value
+                 , vars.focus.value[0]
                  , vars.hover.previous
                  , vars.hover.value ].filter(function(c){ return c })
 
@@ -56,18 +59,18 @@ d3plus.input.button = function( vars ) {
   if (vars.draw.timing) {
     updatedButtons
       .transition().duration(vars.draw.timing)
-      .call( self.color , vars )
-      .call( self.style , vars )
+      .call( color , vars )
+      .call( style , vars )
   }
   else {
     updatedButtons
-      .call( self.color , vars )
-      .call( self.style , vars )
+      .call( color , vars )
+      .call( style , vars )
   }
 
   updatedButtons
-    .call( self.icons , vars )
-    .call( self.mouseevents , vars , self.color )
+    .call( icons , vars )
+    .call( mouseevents , vars , color )
   if ( vars.dev.value ) d3plus.console.timeEnd("update")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

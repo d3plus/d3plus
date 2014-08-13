@@ -1,9 +1,9 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Populates item list based on filtered data.
 //------------------------------------------------------------------------------
-d3plus.input.drop.items = function ( vars ) {
+module.exports = function ( vars ) {
 
-  var self = this
+  var active = require("./active.js")
 
   if (vars.open.value) {
 
@@ -30,15 +30,17 @@ d3plus.input.drop.items = function ( vars ) {
     order.value = vars.text.solo.value.length && vars.text.solo.value[0] !== ""
                 ? "d3plus_order" : vars.order.value
 
-    if ( vars.focus.changed || !vars.container.items.focus() ) {
+    if ( vars.focus.changed || !vars.container.items.focus().length ) {
 
       vars.container.items
-        .focus( vars.focus.value , function(value){
+        .focus( vars.focus.value[0] , function(value){
 
-          var change = value !== vars.focus.value
+          value = value[0]
+
+          var change = value !== vars.focus.value[0]
           if ( change && vars.active.value ) {
 
-            change = self.active(vars,value)
+            change = active(vars,value)
 
           }
 

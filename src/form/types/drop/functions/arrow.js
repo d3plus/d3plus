@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
 //------------------------------------------------------------------------------
-d3plus.input.drop.arrow = function ( vars ) {
+module.exports = function ( vars ) {
 
   if ( vars.dev.value ) d3plus.console.time("rotating arrow")
 

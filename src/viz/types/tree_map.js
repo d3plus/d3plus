@@ -1,7 +1,9 @@
+var dataThreshold = require("../../core/data/threshold.js"),
+    fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
-d3plus.visualization.tree_map = function(vars) {
+var tree_map = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Group the data by each depth defined by the .id() method.
@@ -14,7 +16,7 @@ d3plus.visualization.tree_map = function(vars) {
 
       grouped_data.key(function(d){
 
-        return d3plus.variable.value(vars,d.d3plus,n)
+        return fetchValue(vars,d.d3plus,n)
 
       })
 
@@ -25,11 +27,17 @@ d3plus.visualization.tree_map = function(vars) {
   var strippedData = []
   vars.data.app.forEach(function(d){
 
-    strippedData.push({
-      "d3plus" : d,
-      "id"     : d[vars.id.value],
-      "value"  : d3plus.variable.value(vars,d,vars.size.value)
-    })
+    var val = fetchValue(vars,d,vars.size.value)
+
+    if (val && typeof val === "number") {
+
+      strippedData.push({
+        "d3plus" : d,
+        "id"     : d[vars.id.value],
+        "value"  : fetchValue(vars,d,vars.size.value)
+      })
+
+    }
 
   })
 
@@ -110,19 +118,20 @@ d3plus.visualization.tree_map = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.tree_map.filter       = function( vars , data ) {
+tree_map.filter       = function( vars , data ) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Merge data points below the threshold
   //----------------------------------------------------------------------------
-  return d3plus.data.threshold( vars , data )
+  return dataThreshold( vars , data )
 
 }
-d3plus.visualization.tree_map.modes        = [ "squarify" , "slice"
-                                           , "dice" , "slice-dice" ]
-d3plus.visualization.tree_map.requirements = [ "data" , "size" ]
-d3plus.visualization.tree_map.shapes       = [ "square" ]
-d3plus.visualization.tree_map.threshold    = function( vars ) {
+tree_map.modes        = ["squarify", "slice", "dice", "slice-dice"]
+tree_map.requirements = ["data", "size"]
+tree_map.shapes       = ["square"]
+tree_map.threshold    = function( vars ) {
   return ( 40 * 40 ) / (vars.width.viz * vars.height.viz)
 }
-d3plus.visualization.tree_map.tooltip      = "follow"
+tree_map.tooltip      = "follow"
+
+module.exports = tree_map

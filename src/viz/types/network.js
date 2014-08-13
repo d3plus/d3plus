@@ -1,7 +1,8 @@
+var fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
-d3plus.visualization.network = function(vars) {
+var network = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Use filtered lists if they are available
@@ -13,7 +14,7 @@ d3plus.visualization.network = function(vars) {
       y_range = d3.extent(nodes,function(n){return n.y})
 
   var val_range = vars.size.value ? d3.extent(nodes, function(d){
-    var val = d3plus.variable.value( vars , d , vars.size.value )
+    var val = fetchValue( vars , d , vars.size.value )
     return val === 0 ? null : val
   }) : [ 1 , 1 ]
 
@@ -79,7 +80,7 @@ d3plus.visualization.network = function(vars) {
     obj.d3plus = {}
     obj.d3plus.x = n.x
     obj.d3plus.y = n.y
-    var val = d3plus.variable.value(vars,obj,vars.size.value)
+    var val = fetchValue(vars,obj,vars.size.value)
     obj.d3plus.r = val ? radius(val) : radius.range()[0]
     lookup[obj[vars.id.value]] = {
       "x": obj.d3plus.x,
@@ -95,17 +96,13 @@ d3plus.visualization.network = function(vars) {
 
   edges.forEach(function(l,i){
 
-    l[vars.edges.source] = d3plus.util.copy(l[vars.edges.source])
     l[vars.edges.source].d3plus = {}
-
     var source = lookup[l[vars.edges.source][vars.id.value]]
     l[vars.edges.source].d3plus.r = source.r
     l[vars.edges.source].d3plus.x = source.x
     l[vars.edges.source].d3plus.y = source.y
 
-    l[vars.edges.target] = d3plus.util.copy(l[vars.edges.target])
     l[vars.edges.target].d3plus = {}
-
     var target = lookup[l[vars.edges.target][vars.id.value]]
     l[vars.edges.target].d3plus.r = target.r
     l[vars.edges.target].d3plus.x = target.x
@@ -120,9 +117,11 @@ d3plus.visualization.network = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.network.nesting      = false
-d3plus.visualization.network.requirements = ["nodes","edges"]
-d3plus.visualization.network.scale        = 1.05
-d3plus.visualization.network.shapes       = [ "circle" , "square" , "donut" ]
-d3plus.visualization.network.tooltip      = "static"
-d3plus.visualization.network.zoom         = true
+network.nesting      = false
+network.requirements = ["nodes","edges"]
+network.scale        = 1.05
+network.shapes       = [ "circle" , "square" , "donut" ]
+network.tooltip      = "static"
+network.zoom         = true
+
+module.exports = network

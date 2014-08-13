@@ -1,29 +1,31 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Stacked Area Chart
 //------------------------------------------------------------------------------
-d3plus.visualization.stacked = function(vars) {
+var chart = require("./chart.js"),
+    dataThreshold = require("../../core/data/threshold.js")
+var stacked = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // This visualization is an extention of the Chart visualization.
   //----------------------------------------------------------------------------
-  return d3plus.visualization.chart(vars)
+  return chart(vars)
 
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.stacked.filter       = function( vars , data ) {
+stacked.filter       = function( vars , data ) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Merge data points below the threshold
   //----------------------------------------------------------------------------
-  return d3plus.data.threshold( vars , data , vars.x.value )
+  return dataThreshold( vars , data , vars.x.value )
 
 }
-d3plus.visualization.stacked.requirements = [ "data" , "x" , "y" ]
+stacked.requirements = [ "data" , "x" , "y" ]
 
-d3plus.visualization.stacked.setup        = function( vars ) {
+stacked.setup        = function( vars ) {
 
   vars.self
     .x({ "scale" : "continuous" , "zerofill" : true })
@@ -45,8 +47,10 @@ d3plus.visualization.stacked.setup        = function( vars ) {
 
 }
 
-d3plus.visualization.stacked.shapes       = [ "area" ]
-d3plus.visualization.stacked.threshold    = function( vars ) {
+stacked.shapes       = [ "area" ]
+stacked.threshold    = function( vars ) {
   return 20 / vars.height.viz
 }
-d3plus.visualization.stacked.tooltip      = "static"
+stacked.tooltip      = "static"
+
+module.exports = stacked

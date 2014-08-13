@@ -1,3 +1,5 @@
+var fetchValue = require("../../core/fetch/value.js")
+
 d3plus.method.csv = {
   "accepted"  : [ undefined , Array , String ],
   "chainable" : false,
@@ -39,7 +41,7 @@ d3plus.method.csv = {
     vars.returned.nodes.forEach(function(n){
       var arr = []
       columns.forEach(function(c){
-        arr.push(d3plus.variable.value(vars,n,c))
+        arr.push(fetchValue(vars,n,c))
       })
       csv_to_return.push(arr)
     })

@@ -1,3 +1,6 @@
+var fetchValue = require("../core/fetch/value.js"),
+    fetchColor = require("../core/fetch/color.js"),
+    fetchText  = require("../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
@@ -67,14 +70,15 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
   }
 
   function format_key(key,group) {
+
     if (vars.attrs.value[group]) var id_var = group
     else var id_var = null
 
     if (group) group = vars.format.value(group)
 
-    var value = extra_data[key] || d3plus.variable.value(vars,id,key,id_var)
+    var value = extra_data[key] || fetchValue(vars,id,key,id_var)
 
-    if (value && value !== "null" && !(value instanceof Array) && ((typeof value === "string" && value.indexOf("d3plus_other") < 0) || !(typeof value === "string"))) {
+    if (value != null && value != "undefined" && !(value instanceof Array) && ((typeof value === "string" && value.indexOf("d3plus_other") < 0) || !(typeof value === "string"))) {
       var name = vars.format.locale.value.ui[key]
                ? vars.format.value(vars.format.locale.value.ui[key])
                : vars.format.value(key),
@@ -105,7 +109,8 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
       }
 
-      if (value) tooltip_data.push(obj)
+      tooltip_data.push(obj)
+
     }
 
   }
@@ -240,8 +245,8 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
     if ( connections.length ) {
       connections.forEach(function(c){
 
-        var name = d3plus.variable.text(vars,c)[0],
-            color = d3plus.variable.color(vars,c),
+        var name = fetchText(vars,c)[0],
+            color = fetchColor(vars,c),
             size = vars.tooltip.font.size,
             radius = vars.shape.value == "square" ? 0 : size
             styles = [

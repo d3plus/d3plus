@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Geo Map
 //------------------------------------------------------------------------------
-d3plus.visualization.geo_map = function(vars) {
+var geo_map = function(vars) {
 
   topojson.presimplify(vars.coords.value)
 
@@ -36,10 +36,12 @@ d3plus.visualization.geo_map = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-d3plus.visualization.geo_map.libs         = [ "topojson" ];
-d3plus.visualization.geo_map.nesting      = false
-d3plus.visualization.geo_map.requirements = [ "color" , "coords" ];
-d3plus.visualization.geo_map.scale        = 1
-d3plus.visualization.geo_map.shapes       = [ "coordinates" ];
-d3plus.visualization.geo_map.tooltip      = "follow"
-d3plus.visualization.geo_map.zoom         = true
+geo_map.libs         = [ "topojson" ];
+geo_map.nesting      = false
+geo_map.requirements = [ "color" , "coords" ];
+geo_map.scale        = 1
+geo_map.shapes       = [ "coordinates" ];
+geo_map.tooltip      = "follow"
+geo_map.zoom         = true
+
+module.exports = geo_map

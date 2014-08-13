@@ -52,7 +52,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
     path.attrTween("d", function(d){
       if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       else var r = rad
-      if (ang == undefined) var a = d.d3plus.a[d.d3plus.shapeType]
+      if (ang == undefined) var a = d.d3plus.segments[d.d3plus.shapeType]
       else var a = ang
       if (!vars.arcs[d.d3plus.shapeType][d.d3plus.id]) {
         vars.arcs[d.d3plus.shapeType][d.d3plus.id] = {"r": 0}

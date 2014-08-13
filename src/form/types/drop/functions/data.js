@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
 //------------------------------------------------------------------------------
-d3plus.input.drop.data = function ( vars ) {
+module.exports = function ( vars ) {
 
   if ( vars.data.url && !vars.data.loaded ) {
     var loadingObject = {}
