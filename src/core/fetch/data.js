@@ -107,31 +107,10 @@ module.exports = function( vars , years ) {
   }
   else {
 
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If there's no data, return an empty array!
-    //--------------------------------------------------------------------------
-    if ( !vars.data.value || !vars.data.value.length ) {
-      var returnData = []
-    }
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If there is only 1 year needed, just grab it!
-    //--------------------------------------------------------------------------
-    else if ( years.length === 1 ) {
-      if ( vars.data.nested[ years[0] ] ) {
-        var returnData = vars.data.nested[ years[0] ][ vars.id.value ]
-      }
-      else {
-        var returnData = []
-          , missing = [years[0]]
-      }
-    }
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Otherwise, we need to grab each year individually
-    //--------------------------------------------------------------------------
-    else {
+    var missing = []
+      , returnData = []
 
-      var missing = []
-        , returnData = []
+    if ( vars.data.value && vars.data.value.length ) {
 
       years.forEach(function(y){
         if ( vars.data.nested[y] ) {
@@ -142,7 +121,7 @@ module.exports = function( vars , years ) {
 
     }
 
-    if ( returnData.length === 0 && missing && missing.length && !vars.internal_error ) {
+    if ( returnData.length === 0 && missing.length && !vars.internal_error ) {
 
       var format = vars.time.format.value || vars.data.time.format
 
