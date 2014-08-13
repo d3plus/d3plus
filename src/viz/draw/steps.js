@@ -1,7 +1,7 @@
 var dataFormat = require("../../core/data/format.js"),
     dataColor  = require("../../core/data/color.js"),
     dataKeys   = require("../../core/data/keys.js"),
-    dataLoad   = require("../../core/data/load.js"),
+    dataLoad   = require("../../core/data/load.coffee"),
     fetchData  = require("../../core/fetch/data.js"),
     parseEdges = require("../../core/parse/edges.js"),
     parseNodes = require("../../core/parse/nodes.js")
