@@ -19469,8 +19469,9 @@ d3plus.tooltip.app = function(params) {
       , nestKey   = vars.id.nesting[depth]
       , nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey]
       , dataValue = fetchValue( vars , d , vars.size.value )
+      , same = (!(nameList instanceof Array) || (nameList instanceof Array && nameList.length === 1)) && depth === vars.depth.value
 
-    if ( vars.tooltip.children.value ) {
+    if ( !same && vars.tooltip.children.value ) {
 
       if ( nameList instanceof Array ) {
 
@@ -19520,14 +19521,13 @@ d3plus.tooltip.app = function(params) {
       else if ( nameList && nameList !== "null" ) {
 
         var name  = fetchText( vars , nameList , depth )[0]
-
         children[name] = dataValue ? vars.format.value( dataValue , vars.size.value ) : ""
 
       }
 
     }
 
-    if ( vars.size.value && vars.tooltip.size.value && dataValue && ( !nameList || nameList instanceof Array ) ) {
+    if ( vars.size.value && vars.tooltip.size.value && dataValue && ( same || !nameList || nameList instanceof Array ) ) {
       ex[vars.size.value] = dataValue
     }
 
@@ -26367,6 +26367,7 @@ geo_map.zoom         = true
 module.exports = geo_map
 
 },{}],245:[function(require,module,exports){
+var chart = require("./chart.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Line Plot
 //------------------------------------------------------------------------------
@@ -26391,7 +26392,7 @@ line.tooltip      = "static"
 
 module.exports = line
 
-},{}],246:[function(require,module,exports){
+},{"./chart.js":243}],246:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
@@ -27256,10 +27257,10 @@ rings.tooltip      = "static"
 module.exports = rings
 
 },{"../../core/fetch/color.js":48,"../../core/fetch/value.js":51}],249:[function(require,module,exports){
+var chart = require("./chart.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Scatterplot
 //------------------------------------------------------------------------------
-var chart = require("./chart.js")
 var scatter = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -27282,11 +27283,11 @@ scatter.tooltip      = "static"
 module.exports = scatter
 
 },{"./chart.js":243}],250:[function(require,module,exports){
+var chart = require("./chart.js"),
+    dataThreshold = require("../../core/data/threshold.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Stacked Area Chart
 //------------------------------------------------------------------------------
-var chart = require("./chart.js"),
-    dataThreshold = require("../../core/data/threshold.js")
 var stacked = function(vars) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
