@@ -108,8 +108,9 @@ d3plus.tooltip.app = function(params) {
       , nestKey   = vars.id.nesting[depth]
       , nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey]
       , dataValue = fetchValue( vars , d , vars.size.value )
+      , same = (!(nameList instanceof Array) || (nameList instanceof Array && nameList.length === 1)) && depth === vars.depth.value
 
-    if ( vars.tooltip.children.value ) {
+    if ( !same && vars.tooltip.children.value ) {
 
       if ( nameList instanceof Array ) {
 
