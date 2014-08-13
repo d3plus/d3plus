@@ -36,18 +36,33 @@ module.exports = function(vars,obj,depth) {
     var ids = obj[key]
 
     if (!(ids instanceof Array)) ids = [ids]
+    else if (d3plus.object.validate(ids[0])) {
+      ids = d3plus.util.uniques(ids,key)
+    }
 
     textKeys.forEach(function( t ){
 
       var name = []
       ids.forEach(function(i){
         var n = fetchValue(vars,i,t,key)
-        if (n) name.push(n.toString())
+        if (n) {
+          if (n instanceof Array && d3plus.object.validate(n[0])) {
+            n = d3plus.util.uniques(n,t)
+          }
+          name = name.concat(n)
+        }
       })
 
       if ( name.length ) {
         name.forEach(function(n){
-          if (n) n = vars.format.value(n.toString(),t)
+          if (n instanceof Array) {
+            n.forEach(function(nn){
+              nn = vars.format.value(nn.toString(),t)
+            })
+          }
+          else if (n) {
+            n = vars.format.value(n.toString(),t)
+          }
         })
         if (name.length === 1) name = name[0]
         names.push(name)

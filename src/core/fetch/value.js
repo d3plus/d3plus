@@ -50,47 +50,8 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
   }
 
-  var value_array = []
-  function check_children(obj) {
-    if (obj.children) {
-      obj.children.forEach(function(c){
-        check_children(c)
-      })
-    }
-    else if (obj[variable]) {
-      value_array.push(obj[variable])
-    }
-  }
-
   if ( d3plus.object.validate(id) && variable in id ) {
     return id[variable]
-  }
-  else if ( d3plus.object.validate(id) && id.children ) {
-
-    if (!agg) {
-      var agg = "sum"
-      if (typeof vars.aggs.value === "string") {
-        agg = vars.aggs.value
-      }
-      else if (vars.aggs.value[variable]) {
-        agg = vars.aggs.value[variable]
-      }
-    }
-
-    check_children(id)
-
-    if (value_array.length) {
-      if (typeof agg === "string") {
-        return d3[agg](value_array)
-      }
-      else if (typeof agg === "function") {
-        return agg(value_array)
-      }
-    }
-
-    var dat = id
-    id = dat[id_var]
-
   }
   else {
 
@@ -141,6 +102,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
     var newAttr = []
 
     if ( id instanceof Array ) {
+      if (d3plus.object.validate(id[0])) id = d3plus.util.uniques(id,id_var)
       id.forEach(function(d){
         newAttr.push(attr[d])
       })
@@ -155,6 +117,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
     var vals = d3plus.util.uniques( attr , variable )
     if ( vals.length === 1 ) return vals[0]
+    else if (vals.length) return vals
 
   }
 

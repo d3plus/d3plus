@@ -30,8 +30,9 @@ module.exports = function( vars , id , level ) {
   else {
 
     for ( var i = vars.id.nesting.indexOf(level) ; i >= 0 ; i-- ) {
-      var colorLevel = vars.id.nesting[i]
-        , color = fetchValue( vars , id , vars.color.value , colorLevel )
+      var o = !(vars.color.value in id) && id[level] instanceof Array ? id[level][0] : id
+        , colorLevel = vars.id.nesting[i]
+        , color = fetchValue( vars , o , vars.color.value , colorLevel )
       if ( color ) break
     }
 
