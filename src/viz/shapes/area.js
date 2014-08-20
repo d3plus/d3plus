@@ -55,21 +55,21 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
           "angle": d3.range(-70,71,1),
           "aspectRatio": ratio,
           "tolerance": 0
-        })[0]
+        })
 
-        if (lr) {
+        if (lr && lr[0]) {
 
           var label = {
-            "w": Math.floor(lr.width),
-            "h": Math.floor(lr.height),
-            "x": Math.floor(lr.cx),
-            "y": Math.floor(lr.cy),
-            "angle": lr.angle*-1,
+            "w": Math.floor(lr[0].width),
+            "h": Math.floor(lr[0].height),
+            "x": Math.floor(lr[0].cx),
+            "y": Math.floor(lr[0].cy),
+            "angle": lr[0].angle*-1,
             "padding": 2,
             "names": names
           }
 
-          if (lr.angle !== 0) {
+          if (lr[0].angle !== 0) {
             label.translate = {
               "x":label.x,
               "y":label.y
