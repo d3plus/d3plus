@@ -16,7 +16,8 @@ var gulp = require("gulp")
   , es = require('event-stream')
   , timer = require("gulp-duration")
   , plumber = require("gulp-plumber")
-  , args = require("yargs").argv
+  , rimraf = require("gulp-rimraf")
+  , yuidoc = require("gulp-yuidoc")
 
 var files = "./src/**/*.*"
 
@@ -29,70 +30,64 @@ var error = {
   icon: __dirname + "/icon.png"
 }
 
+var documentation = function() {
+
+  gulp.src("./docs/files/*.*", {read: false})
+    .pipe(rimraf())
+
+  gulp.src(files)
+    .pipe(yuidoc({"syntaxtype": "js"}))
+    .pipe(gulp.dest("./docs"))
+
+  gulp.src(files)
+    .pipe(yuidoc({"syntaxtype": "coffee"}))
+    .pipe(gulp.dest("./docs"))
+
+}
+
+// gulp.task("server", function() {
+//
+//   var port = 4000
+//     , lrport = 35729
+//
+//   lr.listen(lrport, function() {
+//     gutil.log('LR Listening on', lrport);
+//   });
+//
+//   var app = express();
+//   app.use(require('connect-livereload')())
+//   app.use(express.static(__dirname));
+//   app.listen(port);
+//
+// })
+
 // Concatenate & Minify JS
 gulp.task("make", function() {
 
   var fileList = glob.sync(files,{nosort: true});
 
-  var bundler = watchify({entries: fileList, debug: true})
+  var bundler = browserify({entries: fileList, debug: true})
+    .ignore("./src/libs.js")
     .transform("coffeeify");
+
+  bundler = watchify(bundler)
 
   var rebundle = function() {
 
-    if (args.prod) {
-
-      var normal = bundler
-        .ignore("./src/libs.js")
-        .bundle()
-        .on("error",notify.onError(error))
-        .pipe(plumber())
-        .pipe(source("d3plus.js"))
-        .pipe(gulp.dest("./"))
-        .pipe(rename("d3plus.min.js"))
-        .pipe(streamify(uglify()))
-        .pipe(gulp.dest("./"))
-        .on("error",notify.onError(error));
-
-      var full = browserify(fileList)
-        .transform("coffeeify")
-        .bundle()
-        .on("error",notify.onError(error))
-        .pipe(plumber())
-        .pipe(source("d3plus.full.js"))
-        .pipe(gulp.dest("./"))
-        .pipe(rename("d3plus.full.min.js"))
-        .pipe(streamify(uglify()))
-        .pipe(gulp.dest("./"))
-        .pipe(timer("Total Build Time"))
-        .pipe(notify({
-          title: "D3plus",
-          message: "Production Builds Compiled",
-          icon: __dirname + "/icon.png"
-        }))
-        .on("error",notify.onError(error));
-
-      return es.merge(normal,full);
-
-    }
-    else {
-
-      return bundler
-        .ignore("./src/libs.js")
-        .bundle()
-        .on("error",notify.onError(error))
-        .pipe(plumber())
-        .pipe(source("d3plus.js"))
-        .pipe(gulp.dest("./"))
-        .pipe(timer("Total Build Time"))
-        .pipe(notify({
-          title: "D3plus",
-          message: "New Build Compiled",
-          icon: __dirname + "/icon.png"
-        }))
-        .pipe(livereload(lr))
-        .on("error",notify.onError(error));
-
-    }
+    return bundler.bundle()
+      .on("error",notify.onError(error))
+      .pipe(plumber())
+      .pipe(source("d3plus.js"))
+      .pipe(gulp.dest("./"))
+      .pipe(timer("Total Build Time"))
+      .pipe(notify({
+        title: "D3plus",
+        message: "New Build Compiled",
+        icon: __dirname + "/icon.png"
+      }))
+      // .pipe(livereload(lr))
+      .on("error",notify.onError(error))
+      .once("end",documentation);
 
   }
 
@@ -102,42 +97,65 @@ gulp.task("make", function() {
 
 })
 
-var createServers = function(port, lrport) {
-
-  lr.listen(lrport, function() {
-    gutil.log('LR Listening on', lrport);
-  });
-
-  var app = express();
-  app.use(require('connect-livereload')())
-  app.use(express.static(__dirname));
-  app.listen(port, function() {
-    gutil.log('Express Listening on', port);
-  });
-
-  return {
-    lr: lr,
-    app: app
-  };
-
-};
-
-var servers = createServers(4000, 35729);
-
 // Watch Files For Changes
-gulp.task("watch", function() {
+// gulp.task("watch", function() {
+//
+//   gulp.watch(tests, function(evt) {
+//
+//     var fileName = path.relative(__dirname,evt.path)
+//     gutil.log(gutil.colors.cyan(fileName), 'changed')
+//
+//     gulp.src(evt.path, {read: false})
+//       .pipe(livereload(lr))
+//
+//   })
+//
+// })
 
-  gulp.watch(tests, function(evt) {
+// Task to build files for release
+gulp.task("build", function(){
 
-    var fileName = path.relative(__dirname,evt.path)
-    gutil.log(gutil.colors.cyan(fileName), 'changed')
+  var fileList = glob.sync(files,{nosort: true});
 
-    gulp.src(evt.path, {read: false})
-      .pipe(livereload(lr))
+  var normal = browserify(fileList)
+    .ignore("./src/libs.js")
+    .transform("coffeeify")
+    .bundle()
+    .on("error",notify.onError(error))
+    .pipe(plumber())
+    .pipe(source("d3plus.js"))
+    .pipe(gulp.dest("./"))
+    .pipe(rename("d3plus.min.js"))
+    .pipe(streamify(uglify()))
+    .pipe(gulp.dest("./"))
+    .on("error",notify.onError(error));
 
-  })
+  var full = browserify(fileList)
+    .transform("coffeeify")
+    .bundle()
+    .on("error",notify.onError(error))
+    .pipe(plumber())
+    .pipe(source("d3plus.full.js"))
+    .pipe(gulp.dest("./"))
+    .pipe(rename("d3plus.full.min.js"))
+    .pipe(streamify(uglify()))
+    .pipe(gulp.dest("./"))
+    .pipe(timer("Total Build Time"))
+    .pipe(notify({
+      title: "D3plus",
+      message: "Production Builds Compiled",
+      icon: __dirname + "/icon.png"
+    }))
+    .on("error",notify.onError(error));
+
+  return es.merge(normal,full)
+    .once("end",function(){
+        documentation();
+        process.exit();
+      });
 
 })
 
 // Default Task
-gulp.task("default", ["make","watch"])
+gulp.task("default",["make"])
+// gulp.task("default", ["server","make","watch"])
