@@ -250,7 +250,6 @@ d3plus.shape.labels = function( vars , group ) {
     selection.each(function(d){
 
       var disabled = d.d3plus && "label" in d.d3plus && !d.d3plus.label,
-          stat = d.d3plus && "static" in d.d3plus && d.d3plus.static
           label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
           names = label && label.names ? label.names : fetchText(vars,d),
@@ -272,7 +271,7 @@ d3plus.shape.labels = function( vars , group ) {
 
       }
 
-      if (!disabled && (background || !fill) && !stat) {
+      if (!disabled && (background || !fill)) {
 
         if (share && d.d3plus.share && vars.labels.align != "middle") {
 
