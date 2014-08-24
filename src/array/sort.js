@@ -18,10 +18,7 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
     keys = [ keys ]
   }
 
-  if ( !colors ) {
-    var colors = [ "color" ]
-  }
-  else if ( !(colors instanceof Array) ) {
+  if ( !(colors instanceof Array) ) {
     colors = [ colors ]
   }
 
@@ -38,17 +35,14 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
         var depthKey = a.d3plus ? vars.id.nesting[a.d3plus.depth] : undefined
           , depthInt = a.d3plus ? a.d3plus.depth : undefined
 
-        a = k === vars.color.value
-          ? fetchColor( vars , a , depthKey )
-          : k === vars.text.value
+        a = k === vars.text.value
           ? fetchText( vars , a , depthInt )
           : fetchValue( vars , a , k , depthKey )
 
         var depthKey = b.d3plus ? vars.id.nesting[b.d3plus.depth] : undefined
           , depthInt = b.d3plus ? b.d3plus.depth : undefined
-        b = k === vars.color.value
-          ? fetchColor( vars , b , depthKey )
-          : k === vars.text.value
+
+        b = k === vars.text.value
           ? fetchText( vars , b , depthInt )
           : fetchValue( vars , b , k , depthKey )
 
@@ -63,7 +57,7 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
       b = b instanceof Array ? b = b[0]
         : typeof b === "string" ? b = b.toLowerCase() : b
 
-      retVal = colors.indexOf(k) >= 0 ? d3plus.color.sort( a , b )
+      retVal = typeof a !== "number" && typeof b !== "number" && colors.indexOf(k) >= 0 ? d3plus.color.sort( a , b )
              : a < b ? -1 : 1
 
       if ( retVal !== 0 || i === keys.length-1 ) {
