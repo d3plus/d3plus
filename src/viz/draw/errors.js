@@ -89,12 +89,12 @@ d3plus.draw.errors = function(vars) {
     vars.self.shape(shapes.length ? shapes[0] : "circle")
   }
   else if (shapes.indexOf(vars.shape.value) < 0) {
-    var shapes = vars.types[vars.type.value].shapes.join("\", \"")
+    var shapes = vars.types[vars.type.value].shapes
       , str = vars.format.locale.value.error.accepted
       , shape = "\""+vars.shape.value+"\""
       , shapeStr = vars.format.locale.value.method.shape
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-    d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes+"\""),"shape")
+    d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes.join("\", \"")+"\""),"shape")
     vars.self.shape(shapes.length ? shapes[0] : "circle")
   }
 
