@@ -4,7 +4,7 @@
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "d3plus.js",
   "devDependencies": {
-    "browserify": "^5.10.0",
+    "browserify": "^4.2.3",
     "coffeeify": "^0.6.0",
     "connect-livereload": "^0.3.2",
     "event-stream": "^3.1.7",
@@ -23,7 +23,7 @@
     "gulp-yuidoc": "^0.1.2",
     "tiny-lr": "^0.0.5",
     "vinyl-source-stream": "^0.1.1",
-    "watchify": "^1.0.2"
+    "watchify": "^0.6.4"
   },
   "repository": {
     "type": "git",

@@ -45,30 +45,30 @@ var documentation = function() {
 
 }
 
-// gulp.task("server", function() {
-//
-//   var port = 4000
-//     , lrport = 35729
-//
-//   lr.listen(lrport, function() {
-//     gutil.log('LR Listening on', lrport);
-//   });
-//
-//   var app = express();
-//   app.use(require('connect-livereload')())
-//   app.use(express.static(__dirname));
-//   app.listen(port);
-//
-// })
+gulp.task("server", function() {
+
+  var port = 4000
+    , lrport = 35728
+
+  // lr.listen(lrport, function() {
+  //   gutil.log('LR Listening on', lrport);
+  // });
+
+  var app = express();
+  app.use(require('connect-livereload')())
+  app.use(express.static(__dirname));
+  app.listen(port);
+
+})
 
 // Concatenate & Minify JS
 gulp.task("make", function() {
 
   var fileList = glob.sync(files,{nosort: true});
 
-  var bundler = browserify({entries: fileList, debug: true})
+  var bundler = browserify({entries: fileList, cache: {}, packageCache: {}, fullPaths: true})
     .ignore("./src/libs.js")
-    .transform("coffeeify");
+    .transform("coffeeify")
 
   bundler = watchify(bundler)
 
@@ -85,9 +85,10 @@ gulp.task("make", function() {
         message: "New Build Compiled",
         icon: __dirname + "/icon.png"
       }))
-      // .pipe(livereload(lr))
+      .pipe(livereload(lr))
       .on("error",notify.onError(error))
-      .once("end",documentation);
+      // .once("end",documentation);
+      // .once("end",process.exit)
 
   }
 
@@ -98,19 +99,19 @@ gulp.task("make", function() {
 })
 
 // Watch Files For Changes
-// gulp.task("watch", function() {
-//
-//   gulp.watch(tests, function(evt) {
-//
-//     var fileName = path.relative(__dirname,evt.path)
-//     gutil.log(gutil.colors.cyan(fileName), 'changed')
-//
-//     gulp.src(evt.path, {read: false})
-//       .pipe(livereload(lr))
-//
-//   })
-//
-// })
+gulp.task("watch", function() {
+
+  gulp.watch(tests, function(evt) {
+
+    var fileName = path.relative(__dirname,evt.path)
+    gutil.log(gutil.colors.cyan(fileName), 'changed')
+
+    gulp.src(evt.path, {read: false})
+      .pipe(livereload(lr))
+
+  })
+
+})
 
 // Task to build files for release
 gulp.task("build", function(){
@@ -157,5 +158,5 @@ gulp.task("build", function(){
 })
 
 // Default Task
-gulp.task("default",["make"])
-// gulp.task("default", ["server","make","watch"])
+// gulp.task("default",["make"])
+gulp.task("default", ["server","make","watch"])
