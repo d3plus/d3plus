@@ -8,6 +8,10 @@ module.exports = function( vars , id , level ) {
     var level = vars.id.value
   }
 
+  if (typeof level === "number") {
+    level = vars.id.nesting[level]
+  }
+
   function getRandom( c ) {
 
     if ( d3plus.object.validate( c ) ) {
