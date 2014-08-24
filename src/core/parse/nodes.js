@@ -22,6 +22,18 @@ module.exports = function(vars) {
       .nodes(vars.nodes.value)
       .links(vars.edges.value)
 
+    var strength = vars.edges.strength.value
+    if (strength) {
+      if (typeof strength === "string") {
+        force.linkStrength(function(e){
+          return e[strength]
+        })
+      }
+      else {
+        force.linkStrength(strength)
+      }
+    }
+
     var iterations = 50,
         threshold = 0.01;
 

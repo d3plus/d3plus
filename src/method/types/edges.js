@@ -62,6 +62,10 @@ d3plus.method.edges = {
   "process"     : d3plus.method.processData,
   "size"        : false,
   "source"      : "source",
+  "strength"    : {
+    "accepted" : [false, Function, Number, String],
+    "value"    : false
+  },
   "target"      : "target",
   "value"       : false
 }
