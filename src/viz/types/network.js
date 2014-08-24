@@ -70,12 +70,9 @@ var network = function(vars) {
       return a[vars.id.value] == n[vars.id.value]
     })[0]
 
-    if (d) {
-      var obj = d3plus.object.merge(n,d)
-    }
-    else {
-      var obj = d3plus.util.copy(n)
-    }
+    var obj = d || {}
+
+    obj[vars.id.value] = n[vars.id.value]
 
     obj.d3plus = {}
     obj.d3plus.x = n.x
@@ -87,6 +84,7 @@ var network = function(vars) {
       "y": obj.d3plus.y,
       "r": obj.d3plus.r
     }
+
     data.push(obj)
   })
 
