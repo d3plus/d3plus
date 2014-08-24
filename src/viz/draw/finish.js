@@ -15,7 +15,7 @@ d3plus.draw.finish = function(vars) {
     if (vars.draw.first) {
       d3plus.zoom.bounds(vars,zoom,0)
     }
-    else if (vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
+    else if (vars.type.changed || vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
       d3plus.zoom.bounds(vars,zoom)
     }
 
@@ -23,7 +23,9 @@ d3plus.draw.finish = function(vars) {
 
   }
   else {
+    vars.zoom.bounds = [[0,0],[vars.width.viz,vars.height.viz]]
     vars.zoom.scale = 1
+    d3plus.zoom.bounds(vars)
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
