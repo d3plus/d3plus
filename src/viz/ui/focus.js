@@ -28,7 +28,7 @@ d3plus.ui.focus = function(vars) {
       "data": data,
       "length": "long",
       "fullscreen": false,
-      "id": vars.type.value+"_focus",
+      "id": "visualization_focus",
       "maxheight": vars.height.viz-offset*2,
       "mouseevents": true,
       "offset": 0,
@@ -38,7 +38,7 @@ d3plus.ui.focus = function(vars) {
       "width": vars.tooltip.large
     })
 
-    if(!d3.select("div#d3plus_tooltip_id_"+vars.type.value+"_focus").empty()) {
+    if(!d3.select("div#d3plus_tooltip_id_visualization_focus").empty()) {
       vars.width.viz -= (vars.tooltip.large+offset*2)
     }
 
@@ -46,7 +46,7 @@ d3plus.ui.focus = function(vars) {
 
   }
   else {
-    d3plus.tooltip.remove(vars.type.value+"_focus")
+    d3plus.tooltip.remove("visualization_focus")
   }
 
 }
