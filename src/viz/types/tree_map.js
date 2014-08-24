@@ -31,6 +31,8 @@ var tree_map = function(vars) {
 
     if (val && typeof val === "number") {
 
+      delete d.d3plus.r
+
       strippedData.push({
         "d3plus" : d,
         "id"     : d[vars.id.value],
