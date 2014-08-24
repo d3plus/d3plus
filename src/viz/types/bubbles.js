@@ -1,15 +1,19 @@
 var fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.js"),
-    fetchText  = require("../../core/fetch/text.js")
+    fetchText  = require("../../core/fetch/text.js"),
+    groupData = require("../../core/data/group.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Bubbles
 //------------------------------------------------------------------------------
 var bubbles = function(vars) {
 
+  var groupedData = groupData(vars,vars.data.app)
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Test for labels
   //----------------------------------------------------------------------------
-  var label_height = vars.labels.value && !vars.small ? 50 : 0
+  var maxChildren = d3.max(groupedData,function(d){return d.values instanceof Array ? d.values.length : 1})
+  var label_height = vars.labels.value && !vars.small && maxChildren > 1 ? 50 : 0
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sort Data
@@ -20,7 +24,7 @@ var bubbles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate rows and columns
   //----------------------------------------------------------------------------
-  var dataLength = vars.data.app.length
+  var dataLength = groupedData.length
 
   if (dataLength < 4) {
 
@@ -51,12 +55,12 @@ var bubbles = function(vars) {
   //----------------------------------------------------------------------------
   var domain_min = d3.min(vars.data.app, function(d){
     if (!vars.size.value) return 0
-    return fetchValue(vars,d,vars.size.value,null,"min")
+    return fetchValue(vars,d,vars.size.value,vars.id.value,"min")
   })
 
   var domain_max = d3.max(vars.data.app, function(d){
     if (!vars.size.value) return 0
-    return fetchValue(vars,d,vars.size.value)
+    return fetchValue(vars,d,vars.size.value,vars.id.value)
   })
 
   var padding = 5
@@ -72,21 +76,23 @@ var bubbles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate bubble packing
   //----------------------------------------------------------------------------
+
   var pack = d3.layout.pack()
-    .size([column_width-padding*2,column_height-padding*2-label_height])
-    .value(function(d) {
-      if (!vars.size.value) return 0
-      return fetchValue(vars,d,vars.size.value)
+    .children(function(d) {
+      return d.values
     })
     .padding(padding)
     .radius(function(d){
       return size(d)
     })
+    .size([column_width-padding*2,column_height-padding*2-label_height])
+    .value(function(d){
+      return d.value
+    })
 
   var data = []
-
   var row = 0
-  vars.data.app.forEach(function(d,i){
+  groupedData.forEach(function(d,i){
 
     var temp = pack.nodes(d)
 
@@ -94,23 +100,26 @@ var bubbles = function(vars) {
         yoffset = column_height*row
 
     temp.forEach(function(t){
-      t.xoffset = xoffset
-      t.yoffset = yoffset+label_height
-      if (t.depth < vars.depth.value) {
-        t.d3plus.static = true
-      }
-      else {
-        t.d3plus.static = false
-      }
-      if (temp.length == 1) {
-        t.d3plus.label = false
-      }
-      else {
-        t.d3plus.label = true
-      }
-    })
 
-    data = data.concat(temp)
+      var obj = t.d3plus || {"d3plus": {}}
+      if (t.d3plus) {
+        var obj = t.d3plus
+      }
+      else {
+        var obj = {"d3plus": {}}
+        obj[vars.id.value] = t.key
+      }
+
+      obj.d3plus.depth = t.depth
+
+      obj.d3plus.x = t.x
+      obj.d3plus.xOffset = xoffset
+      obj.d3plus.y = t.y
+      obj.d3plus.yOffset = yoffset+label_height
+      obj.d3plus.r = t.r
+      data.push(obj)
+
+    })
 
     if ((i+1) % columns == 0) {
       row++
@@ -118,83 +127,46 @@ var bubbles = function(vars) {
 
   })
 
-  var downscale = size_max/d3.max(data,function(d){ return d.r })
+  var downscale = size_max/d3.max(data,function(d){ return d.d3plus.r })
+
+  var xPadding = pack.size()[0]/2,
+      yPadding = pack.size()[1]/2
 
   data.forEach(function(d){
-    d.x = ((d.x-column_width/2)*downscale)+column_width/2
-    d.d3plus.x = d.x+d.xoffset
-    d.y = ((d.y-column_height/2)*downscale)+column_height/2
-    d.d3plus.y = d.y+d.yoffset
-    d.r = d.r*downscale
-    d.d3plus.r = d.r
+
+    d.d3plus.x = ((d.d3plus.x-xPadding)*downscale)+xPadding+d.d3plus.xOffset
+    d.d3plus.y = ((d.d3plus.y-yPadding)*downscale)+yPadding+d.d3plus.yOffset
+    d.d3plus.r = d.d3plus.r*downscale
+    delete d.d3plus.xOffset
+    delete d.d3plus.yOffset
+
+    if (d.d3plus.depth < vars.depth.value) {
+      d.d3plus.static = true
+
+      if (d.d3plus.depth === 0) {
+        d.d3plus.label = {
+          "x": 0,
+          "y": -(size_max+label_height/2),
+          "w": size_max*1.5,
+          "h": label_height,
+          "color": d3plus.color.legible(fetchColor(vars,d,d.d3plus.depth)),
+        }
+      }
+      else {
+        d.d3plus.label = false
+      }
+
+    }
+    else {
+      d.d3plus.static = false
+      delete d.d3plus.label
+    }
+
   })
 
   data.sort(function( a , b ){
-    return a.depth - b.depth
+    return a.d3plus.depth - b.d3plus.depth
   })
-
-  var label_data = data.filter(function(d){
-    return d.depth == 0
-  })
-
-  var labels = vars.group.selectAll("text.d3plus_bubble_label")
-    .data(label_data,function(d){
-      if (!d.d3plus.label_height) d.d3plus.label_height = 0
-      return d[vars.id.nesting[d.depth]]
-    })
-
-  function label_style(l) {
-    l
-      .attr("x",function(d){
-        return d.d3plus.x
-      })
-      .attr("y",function(d){
-        return d.d3plus.y-d.r-d.d3plus.label_height-padding
-      })
-      .style("text-anchor","middle")
-      .attr("font-weight",vars.labels.font.weight)
-      .attr("font-family",vars.labels.font.family.value)
-      .attr("font-size","12px")
-      .style("fill",function(d){
-        var color = fetchColor(vars,d)
-        return d3plus.color.legible(color)
-      })
-      .each(function(d){
-        if (d.r > 10 && label_height > 10) {
-
-          var names = fetchText(vars,d,d.depth)
-
-          d3plus.textwrap()
-            .container( d3.select(this) )
-            .height( label_height )
-            .text( names )
-            .width( column_width - padding * 2 )
-            .draw()
-
-        }
-      })
-      .attr("y",function(d){
-        d.d3plus.label_height = d3.select(this).node().getBBox().height
-        return d.d3plus.y-d.r-d.d3plus.label_height-padding
-      })
-      .selectAll("tspan")
-        .attr("x",function(d){
-          return d.d3plus.x
-        })
-  }
-
-  labels.enter().append("text")
-    .attr("class","d3plus_bubble_label")
-    .call(label_style)
-    .attr("opacity",0)
-
-  labels.transition().duration(vars.draw.timing)
-    .call(label_style)
-    .attr("opacity",1)
-
-  labels.exit()
-    .attr("opacity",0)
-    .remove()
 
   return data
 

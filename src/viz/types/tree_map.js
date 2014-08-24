@@ -1,49 +1,12 @@
 var dataThreshold = require("../../core/data/threshold.js"),
-    fetchValue = require("../../core/fetch/value.js")
+    fetchValue = require("../../core/fetch/value.js"),
+    groupData = require("../../core/data/group.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
 var tree_map = function(vars) {
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Group the data by each depth defined by the .id() method.
-  //----------------------------------------------------------------------------
-  var grouped_data = d3.nest()
-
-  vars.id.nesting.forEach(function(n,i){
-
-    if (i < vars.depth.value) {
-
-      grouped_data.key(function(d){
-
-        return fetchValue(vars,d.d3plus,n)
-
-      })
-
-    }
-
-  })
-
-  var strippedData = []
-  vars.data.app.forEach(function(d){
-
-    var val = fetchValue(vars,d,vars.size.value)
-
-    if (val && typeof val === "number") {
-
-      delete d.d3plus.r
-
-      strippedData.push({
-        "d3plus" : d,
-        "id"     : d[vars.id.value],
-        "value"  : fetchValue(vars,d,vars.size.value)
-      })
-
-    }
-
-  })
-
-  grouped_data = grouped_data.entries(strippedData)
+  grouped_data = groupData(vars,vars.data.app)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Pass data through the D3js .treemap() layout.
