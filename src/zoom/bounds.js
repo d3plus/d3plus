@@ -23,7 +23,9 @@ d3plus.zoom.bounds = function( vars , b , timing ) {
 
   var min = d3.min([vars.width.viz,vars.height.viz])
 
-  var scale = ((min-(vars.coords.padding*2)) / min) / aspect
+  var padding = vars.types[vars.type.value].zoom ? vars.coords.padding*2 : 0
+
+  var scale = ((min-padding) / min) / aspect
 
   var extent = vars.zoom.behavior.scaleExtent()
 
