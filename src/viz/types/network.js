@@ -94,6 +94,10 @@ var network = function(vars) {
 
   edges.forEach(function(l,i){
 
+    if (l.d3plus) {
+      delete l.d3plus.spline
+    }
+
     l[vars.edges.source].d3plus = {}
     var source = lookup[l[vars.edges.source][vars.id.value]]
     l[vars.edges.source].d3plus.r = source.r
