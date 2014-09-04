@@ -4,7 +4,7 @@ var fetchText = require("../../core/fetch/text.js")
 //------------------------------------------------------------------------------
 d3plus.shape.labels = function( vars , group ) {
 
-  var scale = vars.zoom.behavior.scaleExtent()
+  var scale = vars.types[vars.type.value].zoom ? vars.zoom.behavior.scaleExtent() : [1,1]
     , selection = vars.g[ group ].selectAll("g")
 
   var opacity = function(elem) {
