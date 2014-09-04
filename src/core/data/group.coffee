@@ -14,7 +14,7 @@ module.exports = (vars, data) ->
 
     val = if vars.size.value then fetchValue vars, d, vars.size.value else 1
 
-    if val and typeof val is "number"
+    if val and typeof val is "number" and val > 0
 
       delete d.d3plus.r
       delete d.d3plus.x
