@@ -55,7 +55,13 @@ module.exports = function( vars , id , level ) {
     var colors = []
     for ( var i = vars.id.nesting.indexOf(level) ; i >= 0 ; i-- ) {
       var colorLevel = vars.id.nesting[i]
-        , value = d3plus.object.validate(id) ? fetchValue( vars , id , vars.color.value , colorLevel ) : id
+      if (d3plus.object.validate(id)) {
+        var o = !(colorLevel in id) ? fetchValue(vars,id,colorLevel) : id
+          , value = fetchValue( vars , o , vars.color.value , colorLevel )
+      }
+      else {
+        var value = id
+      }
       if ( value ) {
         var color = getColor(value)
         if (colors.indexOf(color) < 0) colors.push(color)

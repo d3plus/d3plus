@@ -33,25 +33,7 @@ d3plus.ui.legend = function(vars) {
       }
       else {
         var data = vars.data.app
-        // var data = dataNest(vars, vars.data.app, vars.id.nesting, [])
       }
-
-      // for ( var z = 0 ; z < data.length ; z++ ) {
-      //
-      //   d = data[z]
-      //
-      //   for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
-      //
-      //     var colorKey = vars.id.nesting[i]
-      //
-      //     if ( !(colorKey in d) ) {
-      //       var nextKey = vars.id.nesting[ i + 1 ]
-      //       d[colorKey] = fetchValue( vars , d[nextKey] , colorKey , nextKey )
-      //     }
-      //
-      //   }
-      //
-      // }
 
       var colorFunction = function( d ){
             return fetchColor( vars , d , colorKey )
@@ -84,22 +66,6 @@ d3plus.ui.legend = function(vars) {
       }
 
       var colors = dataNest( vars , data , [ colorFunction ] , [] )
-
-      // for ( var z = 0 ; z < colors.length ; z++ ) {
-      //
-      //   var d = colors[z]
-      //
-      //   // var nextKey = vars.id.nesting[ colorDepth + 1 ]
-      //   //
-      //   // d[colorKey] = d[colorKey]
-      //   //   || fetchValue( vars , d[nextKey] , colorKey , nextKey )
-      //   //
-      //   // d[colorName] = d[colorName]
-      //   //   || fetchValue( vars , d[colorKey][0] , colorName, colorKey )
-      //
-      //   d.d3plus.colorDepth = colorDepth
-      //
-      // }
 
       if ( vars.dev.value ) d3plus.console.timeEnd("grouping data by color")
 
@@ -140,7 +106,7 @@ d3plus.ui.legend = function(vars) {
         var order = vars[vars.legend.order.value].value
 
         d3plus.array.sort( colors , order , vars.legend.order.sort.value
-                         , colorName , vars )
+                         , colorName , vars , colorDepth )
 
         if ( vars.dev.value ) d3plus.console.timeEnd("sorting legend")
 
@@ -187,10 +153,8 @@ d3plus.ui.legend = function(vars) {
 
               d3.select(this.parentNode).selectAll("text").remove()
 
-              var depth = "depth" in g.d3plus ? g.d3plus.depth : vars.depth.value
-                , depthId = vars.id.nesting[depth]
-                , icon = fetchValue( vars , g , vars.icon.value , depthId )
-                , color = fetchColor( vars , g , depthId )
+              var icon = fetchValue( vars , g , vars.icon.value , colorKey )
+                , color = fetchColor( vars , g , colorKey )
 
               if (icon && icon !== "null") {
 
@@ -202,8 +166,8 @@ d3plus.ui.legend = function(vars) {
                 if (typeof iconStyle === "string") {
                   var icon_style = vars.icon.style.value
                 }
-                else if (d3plus.object.validate(iconStyle) && iconStyle[depthId]) {
-                  var icon_style = iconStyle[depthId]
+                else if (d3plus.object.validate(iconStyle) && iconStyle[colorKey]) {
+                  var icon_style = iconStyle[colorKey]
                 }
                 else {
                   var icon_style = "default"
@@ -271,8 +235,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("y",0)
                   .each(function(t){
 
-                    var idIndex = vars.id.nesting.indexOf(colorKey)
-                      , text = idIndex >= 0 ? fetchText(vars,t,idIndex) : [vars.format.value(fetchValue(vars,t,colorName,colorKey))]
+                    var text = fetchText(vars,t,colorDepth)
 
                     if (text.length === 1 && text[0].length) {
 
