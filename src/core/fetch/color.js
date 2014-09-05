@@ -33,27 +33,36 @@ module.exports = function( vars , id , level ) {
   }
   else {
 
+    function getColor(color) {
+
+      if ( !color ) {
+
+        if ( vars.color.value || typeof vars.color.valueScale === "function" ) {
+          return vars.color.missing
+        }
+        return getRandom( id )
+
+      }
+      else if ( !vars.color.valueScale ) {
+        return d3plus.color.validate( color ) ? color : getRandom( color )
+      }
+      else {
+        return vars.color.valueScale( color )
+      }
+
+    }
+
+    var colors = []
     for ( var i = vars.id.nesting.indexOf(level) ; i >= 0 ; i-- ) {
       var colorLevel = vars.id.nesting[i]
-        , o = d3plus.object.validate(id) && !(vars.color.value in id) && id[level] instanceof Array ? id[level][0] : fetchValue(vars, id, colorLevel)
-        , color = fetchValue( vars , o , vars.color.value , colorLevel )
-      if ( color ) break
-    }
-
-    if ( !color ) {
-
-      if ( vars.color.value || typeof vars.color.valueScale === "function" ) {
-        return vars.color.missing
+        , value = d3plus.object.validate(id) ? fetchValue( vars , id , vars.color.value , colorLevel ) : id
+      if ( value ) {
+        var color = getColor(value)
+        if (colors.indexOf(color) < 0) colors.push(color)
       }
-      return getRandom( id )
+    }
 
-    }
-    else if ( !vars.color.valueScale ) {
-      return d3plus.color.validate( color ) ? color : getRandom( color )
-    }
-    else {
-      return vars.color.valueScale( color )
-    }
+    return colors.length === 0 ? getColor(undefined) : colors.length === 1 ? colors[0] : vars.color.missing
 
   }
 
