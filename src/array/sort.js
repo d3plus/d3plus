@@ -52,13 +52,18 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
         b = b[k]
       }
 
-      a = a instanceof Array ? a = a[0]
-        : typeof a === "string" ? a = a.toLowerCase() : a
-      b = b instanceof Array ? b = b[0]
-        : typeof b === "string" ? b = b.toLowerCase() : b
-
-      retVal = typeof a !== "number" && typeof b !== "number" && colors.indexOf(k) >= 0 ? d3plus.color.sort( a , b )
-             : a < b ? -1 : 1
+      if (colors.indexOf(k) >= 0) {
+        a = fetchColor(vars, a)
+        b = fetchColor(vars, b)
+        retVal = d3plus.color.sort(a,b)
+      }
+      else {
+        a = a instanceof Array ? a = a[0]
+          : typeof a === "string" ? a = a.toLowerCase() : a
+        b = b instanceof Array ? b = b[0]
+          : typeof b === "string" ? b = b.toLowerCase() : b
+        retVal = a < b ? -1 : 1
+      }
 
       if ( retVal !== 0 || i === keys.length-1 ) {
         break
