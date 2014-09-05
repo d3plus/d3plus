@@ -38,7 +38,7 @@ module.exports = function( vars , id , level ) {
       if ( !color ) {
 
         if ( vars.color.value || typeof vars.color.valueScale === "function" ) {
-          return vars.color.missing
+          return vars.color.valueScale(0)
         }
         return getRandom( id )
 

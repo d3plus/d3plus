@@ -1,10 +1,10 @@
 d3plus.style.default.color = {
-  "heatmap"   : [ "#27366c" , "#7b91d3" , "#9ed3e3"
-                , "#f3d261" , "#c9853a" , "#d74b03" ],
+  "heatmap"   : [ "#282F6B" , "#419391" , "#AFD5E8"
+                , "#EACE3F" , "#B35C1E" , "#B22200" ],
   "focus"     : "#444444",
   "missing"   : "#eeeeee",
   "primary"   : "#d74b03",
-  "range"     : [ "#d74b03" , "#eeeeee" , "#94b153" ],
+  "range"     : [ "#B22200" , "#FFEE8D" , "#759143" ],
   "scale"     : {
     "accepted": [ Array, "d3plus", "category10", "category20", "category20b", "category20c" ],
     "process": function(value) {
