@@ -35,7 +35,7 @@ d3plus.number.format = function( number , key , vars ) {
     time.push(vars.time.value)
   }
 
-  if (key && time.indexOf(key.toLowerCase()) >= 0) {
+  if (typeof key === "string" && time.indexOf(key.toLowerCase()) >= 0) {
     return number
   }
   else if (number < 10 && number > -10) {

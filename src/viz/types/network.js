@@ -12,44 +12,55 @@ var network = function(vars) {
 
   var x_range = d3.extent(nodes,function(n){return n.x}),
       y_range = d3.extent(nodes,function(n){return n.y})
-
-  var val_range = vars.size.value ? d3.extent(nodes, function(d){
-    var val = fetchValue( vars , d , vars.size.value )
-    return val === 0 ? null : val
-  }) : [ 1 , 1 ]
-
-  if (typeof val_range[0] == "undefined") val_range = [1,1]
-
-  var max_size = d3.min(d3plus.util.distances(nodes))
-
-  var overlap = vars.size.value ? vars.nodes.overlap : 0.4
-  max_size = max_size * overlap
-
-  if (vars.edges.arrows.value) {
-    max_size = max_size * 0.5
+  
+  var val_range = [ 1 , 1 ]
+  if (typeof vars.size.value === "number"){
+    val_range = [vars.size.value, vars.size.value]
   }
-
-  if ( val_range[0] === val_range[1] ) {
-    var min_size = max_size
+  else if (vars.size.value){
+    val_range = d3.extent(nodes, function(d){
+      var val = fetchValue( vars , d , vars.size.value )
+      return val === 0 ? null : val
+    })
+  }
+  if (typeof val_range[0] == "undefined") val_range = [1,1]
+  
+  if (typeof vars.size.value === "number"){
+    var max_size = vars.size.value;
+    var min_size = vars.size.value;
   }
   else {
+    var max_size = d3.min(d3plus.util.distances(nodes))
 
-    var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
-        height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
-        aspect = width/height,
-        app = vars.width.viz/vars.height.viz
+    var overlap = vars.size.value ? vars.nodes.overlap : 0.4
+    max_size = max_size * overlap
 
-    if ( app > aspect ) {
-      var scale = vars.height.viz/height
+    if (vars.edges.arrows.value) {
+      max_size = max_size * 0.5
+    }
+
+    if ( val_range[0] === val_range[1] ) {
+      var min_size = max_size
     }
     else {
-      var scale = vars.width.viz/width
-    }
-    var min_size = max_size * 0.25
-    if ( min_size * scale < 2 ) {
-      min_size = 2/scale
-    }
 
+      var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
+          height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
+          aspect = width/height,
+          app = vars.width.viz/vars.height.viz
+
+      if ( app > aspect ) {
+        var scale = vars.height.viz/height
+      }
+      else {
+        var scale = vars.width.viz/width
+      }
+      var min_size = max_size * 0.25
+      if ( min_size * scale < 2 ) {
+        min_size = 2/scale
+      }
+
+    }
   }
 
   // Create size scale

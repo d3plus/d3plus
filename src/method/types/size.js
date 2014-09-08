@@ -5,7 +5,7 @@ d3plus.method.size = {
       return [ Array , false ]
     }
     else {
-      return [ Array , Boolean , Function , Object , String ]
+      return [ Array , Boolean , Function , Number , Object , String ]
     }
 
   },

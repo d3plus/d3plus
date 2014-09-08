@@ -154,7 +154,10 @@ var chart = function(vars) {
     if (data) {
 
       if ( vars.dev.value ) d3plus.console.time("determining size scale")
-      if (vars.size.value) {
+      if (typeof vars.size.value === "number"){
+        var size_domain = [vars.size.value, vars.size.value]
+      }
+      else if (vars.size.value) {
         if (vars.time.fixed.value) {
           var size_domain = d3.extent(vars.data.app,function(d){
             var val = fetchValue(vars,d,vars.size.value)
@@ -177,12 +180,18 @@ var chart = function(vars) {
         var size_domain = [0,0]
       }
 
-      var max_size = Math.floor(d3.max([d3.min([graph.width,graph.height])/15,10])),
-          min_size = 10
+      if(typeof vars.size.value == "number"){
+        var size_range = size_domain;
+      }
+      else {
+        var min_size = 2,
+            max_size = Math.floor(d3.max([d3.min([graph.width,graph.height])/15, min_size]));
+            
 
-      if (size_domain[0] == size_domain[1]) var min_size = max_size
+        if (size_domain[0] == size_domain[1]) var min_size = max_size
 
-      var size_range = [min_size,max_size]
+        var size_range = [min_size,max_size]
+      }
 
       var radius = vars.size.scale.value
         .domain(size_domain)

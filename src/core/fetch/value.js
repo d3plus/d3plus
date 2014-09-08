@@ -6,6 +6,9 @@ module.exports = function( vars , id , variable , id_var , agg ) {
   if ( variable && typeof variable === "function" ) {
     return variable( id )
   }
+  else if ( variable && typeof variable === "number" ) {
+    return variable
+  }
   else if ( !variable ) {
     return null
   }
