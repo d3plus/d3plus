@@ -23,7 +23,10 @@ d3plus.shape.style = function(nodes,vars) {
       }
       return d3.rgb(color).darker(0.5)
     })
-    .style("stroke-width",vars.data.stroke.width)
+    .style("stroke-width",function(d){
+      var mod = d.d3plus.shapeType === "line" ? 2 : 1
+      return vars.data.stroke.width * mod
+    })
     .attr("opacity",vars.data.opacity)
     .attr("vector-effect","non-scaling-stroke")
 

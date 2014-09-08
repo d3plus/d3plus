@@ -20,10 +20,8 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
   // point on the line.
   //----------------------------------------------------------------------------
 
-  var hitarea = vars.data.stroke.width
-  if (hitarea < 30) {
-    hitarea = 30
-  }
+  var stroke = vars.data.stroke.width * 2
+    , hitarea = stroke < 30 ? 30 : stroke
 
   selection.each(function(d){
 
@@ -163,11 +161,11 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
           d3.select(this.parentNode).selectAll("path.d3plus_line")
             .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",vars.data.stroke.width*2)
+            .style("stroke-width",stroke*2)
 
           d3.select(this.parentNode).selectAll("rect")
             .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",vars.data.stroke.width*2)
+            .style("stroke-width",stroke)
             .call(update,2)
 
         }
@@ -179,7 +177,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
           d3.select(this.parentNode).selectAll("path.d3plus_line")
             .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",vars.data.stroke.width)
+            .style("stroke-width",stroke)
 
           d3.select(this.parentNode).selectAll("rect")
             .transition().duration(vars.timing.mouseevents)
