@@ -1,4 +1,6 @@
-var validObject = require("../../object/validate.coffee"),
+var copy = require("../../util/copy.coffee"),
+    d3selection = require("../../util/d3selection.coffee"),
+    validObject = require("../../object/validate.coffee"),
     mergeObject = require("../../object/merge.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -141,9 +143,9 @@ d3plus.method.set = function( vars , method , object , key , value ) {
       object.changed = true
 
       if ( "history" in vars && method !== "draw" ) {
-        var copy = d3plus.util.copy(object)
-        copy.method = method
-        vars.history.chain.push(copy)
+        var c = copy(object)
+        c.method = method
+        vars.history.chain.push(c)
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -302,7 +304,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
            && object[key] !== undefined ) {
 
         var longArray = object[key] instanceof Array && object[key].length > 10
-          , d3selection = d3plus.util.d3selection(object[key])
+          , d3selection = d3selection(object[key])
           , typeFunction = typeof object[key] === "function"
 
         var valString = !longArray && !d3selection && !typeFunction

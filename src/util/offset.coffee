@@ -1,7 +1,5 @@
-###
- * Gives X and Y offset based off angle and shape
- ###
-d3plus.util.offset = (radians, distance, shape) ->
+# Gives X and Y offset based off angle and shape
+module.exports = (radians, distance, shape) ->
 
   coords =
     x: 0

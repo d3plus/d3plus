@@ -1,5 +1,8 @@
-var fetchValue = require("../../core/fetch/value.js")
+var distances = require("../../util/distances.coffee")
+  , fetchValue = require("../../core/fetch/value.js")
   , fetchColor = require("../../core/fetch/color.js")
+  , uniqueValues = require("../../util/uniques.coffee")
+
 var rings = function(vars) {
 
   var radius = d3.min([vars.height.viz,vars.width.viz])/2
@@ -169,10 +172,10 @@ var rings = function(vars) {
 
   })
 
-  var primaryDistance = d3.min(d3plus.util.distances(primaries,function(n){
+  var primaryDistance = d3.min(distances(primaries,function(n){
         return [n.d3plus.x,n.d3plus.y]
       }))
-    , secondaryDistance = d3.min(d3plus.util.distances(secondaries,function(n){
+    , secondaryDistance = d3.min(distances(secondaries,function(n){
         return [n.d3plus.x,n.d3plus.y]
       }))
 
@@ -212,8 +215,8 @@ var rings = function(vars) {
   primaryMax = Math.floor(primaryMax)
   secondaryMax = Math.floor(secondaryMax)
 
-  var ids = d3plus.util.uniques(primaries,vars.id.value)
-  ids = ids.concat(d3plus.util.uniques(secondaries,vars.id.value))
+  var ids = uniqueValues(primaries,vars.id.value)
+  ids = ids.concat(uniqueValues(secondaries,vars.id.value))
   ids.push(vars.focus.value[0])
 
   var data = vars.data.app.filter(function(d){
@@ -446,7 +449,7 @@ rings.filter       = function( vars , data ) {
   })
 
   var connections = primaries.concat(secondaries)
-    , ids = d3plus.util.uniques(connections,vars.id.value)
+    , ids = uniqueValues(connections,vars.id.value)
     , returnData = []
 
   ids.forEach(function(id){

@@ -1,3 +1,6 @@
+var buckets = require("../../util/buckets.coffee"),
+    offset = require("../../util/offset.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -214,10 +217,10 @@ d3plus.shape.edges = function(vars) {
                   : [ "default", "highlight", "focus" ] : []
 
   if (typeof vars.edges.size == "string") {
-    var buckets = d3plus.util.buckets(vars.edges.scale.range(),4)
+    var b = buckets(vars.edges.scale.range(),4)
       , markerSize = []
     for (var i = 0; i < 3; i++) {
-      markerSize.push(buckets[i+1]+(buckets[1]-buckets[0])*(i+2)*2)
+      markerSize.push(b[i+1]+(b[1]-b[0])*(i+2)*2)
     }
   }
   else {
@@ -309,7 +312,7 @@ d3plus.shape.edges = function(vars) {
   // Bind "edges" data to lines in the "edges" group
   //----------------------------------------------------------------------------
   var strokeBuckets = typeof vars.edges.size == "string"
-                    ? d3plus.util.buckets(vars.edges.scale.domain(),4)
+                    ? buckets(vars.edges.scale.domain(),4)
                     : null
     , direction = vars.edges.arrows.direction.value
 
@@ -347,10 +350,10 @@ d3plus.shape.edges = function(vars) {
         , targetRadius = direction == "target" && vars.edges.arrows.value
                        ? target.d3plus.r + marker
                        : target.d3plus.r
-        , sourceOffset = d3plus.util.offset( sourceAngle
+        , sourceOffset = offset( sourceAngle
                                            , sourceRadius
                                            , vars.shape.value )
-        , targetOffset = d3plus.util.offset( targetAngle
+        , targetOffset = offset( targetAngle
                                            , targetRadius
                                            , vars.shape.value )
 
@@ -407,23 +410,23 @@ d3plus.shape.edges = function(vars) {
         , sourceAngle = typeof sourceEdge.angle === "number" ? sourceEdge.angle
                       : Math.atan2( source.d3plus.y - target.d3plus.y
                                   , source.d3plus.x - target.d3plus.x ) * sourceTweak
-        , sourceOffset = d3plus.util.offset(sourceAngle, source.d3plus.r + sourceMod, vars.shape.value )
+        , sourceOffset = offset(sourceAngle, source.d3plus.r + sourceMod, vars.shape.value )
         , targetAngle = typeof targetEdge.angle === "number" ? targetEdge.angle
                       : Math.atan2( target.d3plus.y - source.d3plus.y
                                   , target.d3plus.x - source.d3plus.x ) * targetTweak
-        , targetOffset = d3plus.util.offset(targetAngle, target.d3plus.r + targetMod, vars.shape.value )
+        , targetOffset = offset(targetAngle, target.d3plus.r + targetMod, vars.shape.value )
         , start = [source.d3plus.x-sourceOffset.x, source.d3plus.y-sourceOffset.y]
-        , startOffset = sourceEdge.offset ? d3plus.util.offset(sourceAngle,sourceEdge.offset) : false
+        , startOffset = sourceEdge.offset ? offset(sourceAngle,sourceEdge.offset) : false
         , startPoint = startOffset ? [start[0]-startOffset.x,start[1]-startOffset.y] : start
         , end = [target.d3plus.x-targetOffset.x, target.d3plus.y-targetOffset.y]
-        , endOffset = targetEdge.offset ? d3plus.util.offset(targetAngle,targetEdge.offset) : false
+        , endOffset = targetEdge.offset ? offset(targetAngle,targetEdge.offset) : false
         , endPoint = endOffset ? [end[0]-endOffset.x,end[1]-endOffset.y] : end
         , xd = endPoint[0] - startPoint[0]
         , yd = endPoint[1] - startPoint[1]
         , sourceDistance = typeof sourceEdge.radius === "number" ? sourceEdge.radius : Math.sqrt(xd*xd+yd*yd)/4
         , targetDistance = typeof targetEdge.radius === "number" ? targetEdge.radius : Math.sqrt(xd*xd+yd*yd)/4
-        , startAnchor = d3plus.util.offset(sourceAngle,sourceDistance-source.d3plus.r-sourceMod*2)
-        , endAnchor = d3plus.util.offset(targetAngle,targetDistance-target.d3plus.r-targetMod*2)
+        , startAnchor = offset(sourceAngle,sourceDistance-source.d3plus.r-sourceMod*2)
+        , endAnchor = offset(targetAngle,targetDistance-target.d3plus.r-targetMod*2)
 
       l.d3plus.spline = [ start, end ]
       var testAngle = Math.abs(Math.atan2( source.d3plus.y - target.d3plus.y

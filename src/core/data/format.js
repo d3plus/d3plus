@@ -1,5 +1,6 @@
 var dataNest   = require("./nest.js"),
-    fetchValue = require("../fetch/value.js")
+    fetchValue = require("../fetch/value.js"),
+    uniques    = require("../../util/uniques.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats raw data by time and nesting
 //------------------------------------------------------------------------------
@@ -16,7 +17,7 @@ module.exports = function( vars ) {
       d3plus.console.time( timerString )
     }
 
-    var uniqueTimes = d3plus.util.uniques( vars.data.value , vars.time.value )
+    var uniqueTimes = uniques( vars.data.value , vars.time.value )
     for ( var i = 0; i < uniqueTimes.length ; i++ ) {
       var d = new Date(uniqueTimes[i].toString())
       if (d !== "Invalid Date") {

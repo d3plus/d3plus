@@ -1,7 +1,8 @@
+var closest = require("../../util/closest.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //-------------------------------------------------------------------
-
 d3plus.ui.timeline = function(vars) {
 
   if ((!vars.internal_error || !vars.data.missing) && !vars.small && vars.data.time && vars.data.time.values.length > 1 && vars.timeline.value) {
@@ -48,8 +49,8 @@ d3plus.ui.timeline = function(vars) {
     year_ticks.push(d)
 
     end["set"+vars.data.time.stepType](end["get"+vars.data.time.stepType]() + 1)
-    start = d3plus.util.closest(year_ticks,start)
-    end = d3plus.util.closest(year_ticks,end)
+    start = closest(year_ticks,start)
+    end = closest(year_ticks,end)
 
     var yearMS = year_ticks.slice(0)
     for (var i = 0; i < yearMS.length; i++) {
@@ -65,8 +66,8 @@ d3plus.ui.timeline = function(vars) {
 
         brushExtent = brush.extent()
 
-        var min_val = d3plus.util.closest(year_ticks,brushExtent[0]),
-            max_val = d3plus.util.closest(year_ticks,brushExtent[1])
+        var min_val = closest(year_ticks,brushExtent[0]),
+            max_val = closest(year_ticks,brushExtent[1])
 
         if (min_val === max_val) {
           min_index = yearMS.indexOf(min_val.getTime())
@@ -121,8 +122,8 @@ d3plus.ui.timeline = function(vars) {
 
         if (vars.time.solo.value.length) {
           var solod = d3.extent(vars.time.solo.value)
-            , old_min = yearMS.indexOf(d3plus.util.closest(year_ticks,solod[0]).getTime())
-            , old_max = yearMS.indexOf(d3plus.util.closest(year_ticks,solod[1]).getTime())+1
+            , old_min = yearMS.indexOf(closest(year_ticks,solod[0]).getTime())
+            , old_max = yearMS.indexOf(closest(year_ticks,solod[1]).getTime())+1
             , change = old_min !== min_index || old_max !== max_index
         }
         else {

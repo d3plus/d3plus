@@ -1,4 +1,4 @@
-var methodReset = require("../../core/method/reset.js")
+var methodReset = require("../../core/method/reset.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
 //------------------------------------------------------------------------------

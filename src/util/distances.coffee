@@ -1,5 +1,5 @@
 # Returns distances of all objects in array
-d3plus.util.distances = (arr, accessor) ->
+module.exports = (arr, accessor) ->
 
   distances = []
   checked = []
@@ -15,5 +15,3 @@ d3plus.util.distances = (arr, accessor) ->
         distances.push Math.sqrt((xx * xx) + (yy * yy))
 
   distances.sort (a, b) -> a - b
-
-  distances

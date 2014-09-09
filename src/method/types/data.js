@@ -1,3 +1,5 @@
+var d3selection = require("../../util/d3selection.coffee")
+
 d3plus.method.data = {
   "accepted" : [ false , Array , Function , String ],
   "cache"    : {},
@@ -8,7 +10,7 @@ d3plus.method.data = {
   "element": {
     "process": function( value ) {
 
-      if ( d3plus.util.d3selection(value) ) {
+      if ( d3selection(value) ) {
         var element = value
       }
       else if (typeof value === "string" && !d3.select(value).empty()) {

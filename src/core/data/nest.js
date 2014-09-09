@@ -1,5 +1,6 @@
 var fetchValue = require("../fetch/value.js"),
-    validObject = require("../../object/validate.coffee")
+    validObject  = require("../../object/validate.coffee"),
+    uniqueValues = require("../../util/uniques.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
@@ -168,7 +169,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
       }
       else if ( timeKey ) {
-        var uniques = d3plus.util.uniques(leaves,key), dates = []
+        var uniques = uniqueValues(leaves,key), dates = []
 
         function parseDates(arr) {
 
@@ -198,7 +199,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
         else returnObj[key] = null
       }
       else if ( keyType === "number" && aggType === "string" && !idKey ) {
-        var uniques = d3plus.util.uniques(leaves,key)
+        var uniques = uniqueValues(leaves,key)
         if (uniques.length) returnObj[key] = d3[agg](uniques)
         else returnObj[key] = null
       }
@@ -221,7 +222,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
         checkVal(leaves)
 
         var keyValues = testVals.length === 1 ? testVals[0][key]
-                      : d3plus.util.uniques( testVals , key )
+                      : uniqueValues( testVals , key )
 
         if ( keyValues !== undefined && keyValues !== null ) {
 

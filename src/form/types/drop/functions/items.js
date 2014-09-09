@@ -1,3 +1,5 @@
+var copy = require("../../../../util/copy.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Populates item list based on filtered data.
 //------------------------------------------------------------------------------
@@ -24,7 +26,7 @@ module.exports = function ( vars ) {
     }
 
     var large = vars.draw.timing ? vars.data.large : 1
-      , order = d3plus.util.copy(vars.order)
+      , order = copy(vars.order)
       , deepest = vars.depth.value === vars.id.nesting.length-1
 
     order.value = vars.text.solo.value.length && vars.text.solo.value[0] !== ""

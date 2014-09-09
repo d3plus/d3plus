@@ -1,3 +1,5 @@
+var copy = require("../../util/copy.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws a UI drawer, if defined.
 //------------------------------------------------------------------------------
@@ -69,7 +71,7 @@ d3plus.ui.drawer = function( vars ) {
 
     })
 
-    var font = d3plus.util.copy(vars.ui.font)
+    var font = copy(vars.ui.font)
     font.secondary = vars.ui.font
 
     d.form

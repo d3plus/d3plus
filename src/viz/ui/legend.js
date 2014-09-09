@@ -1,8 +1,12 @@
-var dataNest    = require("../../core/data/nest.js"),
-    fetchValue  = require("../../core/fetch/value.js"),
-    fetchColor  = require("../../core/fetch/color.js"),
-    fetchText   = require("../../core/fetch/text.js"),
-    validObject = require("../../object/validate.coffee")
+var buckets = require("../../util/buckets.coffee"),
+    copy         = require("../../util/copy.coffee"),
+    dataNest     = require("../../core/data/nest.js"),
+    dataURL      = require("../../util/dataURL.coffee"),
+    fetchValue   = require("../../core/fetch/value.js"),
+    fetchColor   = require("../../core/fetch/color.js"),
+    fetchText    = require("../../core/fetch/text.js"),
+    validObject  = require("../../object/validate.coffee"),
+    uniqueValues = require("../../util/uniques.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -20,7 +24,7 @@ d3plus.ui.legend = function(vars) {
       if ( vars.dev.value ) d3plus.console.time("grouping data by colors")
 
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
-        var data = d3plus.util.copy(vars.nodes.restriced || vars.nodes.value)
+        var data = copy(vars.nodes.restriced || vars.nodes.value)
         if ( vars.data.app.length ) {
           for ( var i = 0 ; i < data.length ; i++ ) {
             var appData = vars.data.app.filter(function(a){
@@ -53,10 +57,10 @@ d3plus.ui.legend = function(vars) {
           colorDepth = i
           colorKey   = vars.id.nesting[i]
 
-          var uniqueIDs = d3plus.util.uniques( data , function(d){
+          var uniqueIDs = uniqueValues( data , function(d){
                 return fetchValue(vars, d, colorKey)
               } )
-            , uniqueColors = d3plus.util.uniques( data , colorFunction )
+            , uniqueColors = uniqueValues( data , colorFunction )
 
           if ( uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1 ) {
             break
@@ -203,7 +207,7 @@ d3plus.ui.legend = function(vars) {
 
                     if (icon.indexOf("/") == 0 || icon.indexOf(window.location.hostname) >= 0) {
 
-                      d3plus.util.dataurl(icon,function(base64){
+                      dataURL(icon,function(base64){
 
                         pattern.select("image")
                           .attr("xlink:href",base64)
@@ -347,7 +351,7 @@ d3plus.ui.legend = function(vars) {
           colors = vars.color.valueScale.range()
 
       if (values.length <= 2) {
-        values = d3plus.util.buckets(values,6)
+        values = buckets(values,6)
       }
 
       var scale = vars.g.legend.selectAll("g.d3plus_scale")

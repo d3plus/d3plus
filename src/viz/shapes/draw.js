@@ -1,6 +1,10 @@
-var fetchValue = require("../../core/fetch/value.js"),
+var child = require("../../util/child.coffee"),
+    closest = require("../../util/closest.coffee"),
+    fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.js"),
-    fetchText  = require("../../core/fetch/text.js")
+    fetchText  = require("../../core/fetch/text.js"),
+    uniqueValues = require("../../util/uniques.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws the appropriate shape based on the data
 //------------------------------------------------------------------------------
@@ -401,11 +405,11 @@ d3plus.shape.draw = function(vars) {
 
               var index = vars.continuous_axis === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]})
-                , closest = d3plus.util.closest(positions,mouse)
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.continuous_axis]})
+                , match = closest(positions,mouse)
 
-              d.d3plus_data = d.values[positions.indexOf(closest)]
-              d.d3plus = d.values[positions.indexOf(closest)].d3plus
+              d.d3plus_data = d.values[positions.indexOf(match)]
+              d.d3plus = d.values[positions.indexOf(match)].d3plus
 
             }
 
@@ -441,11 +445,11 @@ d3plus.shape.draw = function(vars) {
 
               var index = vars.continuous_axis === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = d3plus.util.uniques(d.values,function(x){return x.d3plus[vars.continuous_axis]})
-                , closest = d3plus.util.closest(positions,mouse)
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.continuous_axis]})
+                , match = closest(positions,mouse)
 
-              d.d3plus_data = d.values[positions.indexOf(closest)]
-              d.d3plus = d.values[positions.indexOf(closest)].d3plus
+              d.d3plus_data = d.values[positions.indexOf(match)]
+              d.d3plus = d.values[positions.indexOf(match)].d3plus
 
             }
 
@@ -469,9 +473,9 @@ d3plus.shape.draw = function(vars) {
       })
       .on(d3plus.evt.out,function(d){
 
-        var child = d3plus.util.child(this,d3.event.toElement)
+        var childElement = child(this,d3.event.toElement)
 
-        if (!child && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (!childElement && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           d3.select(this)
             .transition().duration(vars.timing.mouseevents)
@@ -556,7 +560,7 @@ d3plus.shape.draw = function(vars) {
           })
 
           vars.self
-            .id({"solo": d3plus.util.uniques(d.d3plus.merged,vars.id.value)})
+            .id({"solo": uniqueValues(d.d3plus.merged,vars.id.value)})
             .title({
               "sub": {
                 "font": {

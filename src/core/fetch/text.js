@@ -1,5 +1,7 @@
 var fetchValue = require("./value.js"),
-    validObject = require("../../object/validate.coffee")
+    validObject = require("../../object/validate.coffee"),
+    uniqueValues = require("../../util/uniques.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
 //------------------------------------------------------------------------------
@@ -37,7 +39,7 @@ module.exports = function(vars,obj,depth) {
     var ids = validObject(obj) && key in obj ? obj[key] : fetchValue(vars, obj, key)
     if (!(ids instanceof Array)) ids = [ids]
     else if (validObject(ids[0])) {
-      ids = d3plus.util.uniques(ids,key)
+      ids = uniqueValues(ids,key)
     }
 
     textKeys.forEach(function( t ){
@@ -47,7 +49,7 @@ module.exports = function(vars,obj,depth) {
         var n = fetchValue(vars,i,t,key)
         if (n) {
           if (n instanceof Array && validObject(n[0])) {
-            n = d3plus.util.uniques(n,t)
+            n = uniqueValues(n,t)
           }
           name = name.concat(n)
         }

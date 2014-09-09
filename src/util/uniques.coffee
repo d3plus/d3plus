@@ -1,6 +1,6 @@
 objectValidate = require "../object/validate.coffee"
 # Returns list of unique values
-d3plus.util.uniques = (data, value) ->
+module.exports = (data, value) ->
 
   return [] if data is `undefined` or value is `undefined`
 

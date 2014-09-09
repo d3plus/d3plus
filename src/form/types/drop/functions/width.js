@@ -1,4 +1,5 @@
-var fontTester  = require("../../../../core/font/tester.coffee"),
+var copy = require("../../../../util/copy.coffee"),
+    fontTester  = require("../../../../core/font/tester.coffee"),
     validObject = require("../../../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If no widths are defined, then this calculates the width needed to fit the
@@ -13,7 +14,7 @@ module.exports = function ( vars ) {
                 ? vars.text.nesting[level][0] : level
 
     if ( [vars.id.value,vars.text.value].indexOf(key) < 0 ) {
-      newData = d3plus.util.copy(newData)
+      newData = copy(newData)
       newData.forEach(function(d){
         d[vars.text.value || vars.id.value] = d[key]
       })

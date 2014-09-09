@@ -2,7 +2,7 @@ var dataFormat = require("../core/data/format.js"),
     dataKeys = require("../core/data/keys.js"),
     dataLoad = require("../core/data/load.coffee"),
     fetchData  = require("../core/fetch/data.js"),
-    methodReset = require("../core/method/reset.js")
+    methodReset = require("../core/method/reset.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Form Element shell
 //------------------------------------------------------------------------------

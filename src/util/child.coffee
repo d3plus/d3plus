@@ -1,6 +1,7 @@
-d3selection = require "./d3selection.js"
+d3selection = require "./d3selection.coffee"
+
 # Checks to see if element is inside of another element
-d3plus.util.child = (parent, child) ->
+module.exports = (parent, child) ->
 
   return false if not parent or not child
 

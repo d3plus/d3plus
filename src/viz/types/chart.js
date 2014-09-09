@@ -1,6 +1,11 @@
-var fetchValue = require("../../core/fetch/value.js")
+var buckets = require("../../util/buckets.coffee")
+  , closest = require("../../util/closest.coffee")
+  , copy = require("../../util/copy.coffee")
+  , fetchValue = require("../../core/fetch/value.js")
   , fetchColor = require("../../core/fetch/color.js")
   , fetchData  = require("../../core/fetch/data.js")
+  , uniqueValues = require("../../util/uniques.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Chart
 //------------------------------------------------------------------------------
@@ -47,7 +52,7 @@ var chart = function(vars) {
         if ( vars.dev.value ) d3plus.console.time("determining "+axis+"-axis")
         if (vars[axis].scale.value == "share") {
           vars[axis+"_range"] = [0,1]
-          vars.tickValues[axis] = d3plus.util.buckets([0,1],11)
+          vars.tickValues[axis] = buckets([0,1],11)
           vars.stacked_axis = axis
         }
         else if (vars[axis].stacked.value) {
@@ -70,7 +75,7 @@ var chart = function(vars) {
         }
         else if (vars[axis].domain instanceof Array) {
           vars[axis+"_range"] = vars[axis].domain
-          vars.tickValues[axis] = d3plus.util.uniques(vars.data.app,vars[axis].value)
+          vars.tickValues[axis] = uniqueValues(vars.data.app,vars[axis].value)
           vars.tickValues[axis] = vars.tickValues[axis].filter(function(t){
             return t >= vars[axis+"_range"][0] && t <= vars[axis+"_range"][1]
           })
@@ -79,7 +84,7 @@ var chart = function(vars) {
           vars[axis+"_range"] = d3.extent(vars.data.app,function(d){
             return fetchValue(vars,d,vars[axis].value)
           })
-          vars.tickValues[axis] = d3plus.util.uniques(vars.data.app,vars[axis].value)
+          vars.tickValues[axis] = uniqueValues(vars.data.app,vars[axis].value)
         }
         else {
           var all_depths = []
@@ -89,13 +94,13 @@ var chart = function(vars) {
           vars[axis+"_range"] = d3.extent(all_depths,function(d){
             return fetchValue(vars,d,vars[axis].value)
           })
-          vars.tickValues[axis] = d3plus.util.uniques(fetchData(vars,["all"]),vars[axis].value)
+          vars.tickValues[axis] = uniqueValues(fetchData(vars,["all"]),vars[axis].value)
         }
 
         // add padding to axis if there is only 1 value
         if (vars[axis+"_range"][0] === vars[axis+"_range"][1]) {
           if (vars[axis].value === vars.time.value) {
-            var closestTime = d3plus.util.closest(vars.data.time.ticks,vars[axis+"_range"][0])
+            var closestTime = closest(vars.data.time.ticks,vars[axis+"_range"][0])
               , timeIndex = vars.data.time.ticks.indexOf(closestTime)
 
             if (timeIndex > 0) {
@@ -186,7 +191,7 @@ var chart = function(vars) {
       else {
         var min_size = 2,
             max_size = Math.floor(d3.max([d3.min([graph.width,graph.height])/15, min_size]));
-            
+
 
         if (size_domain[0] == size_domain[1]) var min_size = max_size
 
@@ -284,8 +289,8 @@ var chart = function(vars) {
           return t <= range[1] && t >= range[0]
         })
 
-        var minClosest = d3plus.util.closest(vars.data.time.ticks,range[0])
-        var maxClosest = d3plus.util.closest(vars.data.time.ticks,range[1])
+        var minClosest = closest(vars.data.time.ticks,range[0])
+        var maxClosest = closest(vars.data.time.ticks,range[1])
         if (vars[axis].ticks.indexOf(minClosest) < 0) {
           vars[axis].ticks.unshift(minClosest)
         }
@@ -713,7 +718,7 @@ var chart = function(vars) {
       })
       .rollup(function(leaves){
 
-        var availables = d3plus.util.uniques(leaves,vars[vars.continuous_axis].value),
+        var availables = uniqueValues(leaves,vars[vars.continuous_axis].value),
             previousMissing = false,
             timeVars = vars[vars.continuous_axis].value === vars.time.value
 
@@ -758,7 +763,7 @@ var chart = function(vars) {
               if (i < arr.length-1) {
                 var position = vars[vars.continuous_axis+"_scale"](arr[i+1])
                 position += vars.axis_offset[vars.continuous_axis]
-                var obj2 = d3plus.util.copy(obj)
+                var obj2 = copy(obj)
                 obj2.d3plus[vars.continuous_axis] = position
                 leaves.push(obj2)
               }
@@ -800,7 +805,7 @@ var chart = function(vars) {
 
       vars.id.nesting.forEach(function(n,i){
         if (i <= vars.depth.value && !d[n]) {
-          d[n] = d3plus.util.uniques(d.values,n).filter(function(unique){
+          d[n] = uniqueValues(d.values,n).filter(function(unique){
             return unique && unique != "undefined"
           })[0]
         }
@@ -934,8 +939,8 @@ var chart = function(vars) {
       if (node.data) var node = node.data
 
       var line_data = [
-        d3plus.util.copy(node.d3plus),
-        d3plus.util.copy(node.d3plus)
+        copy(node.d3plus),
+        copy(node.d3plus)
       ]
       line_data[0].axis = "x"
       line_data[1].axis = "y"

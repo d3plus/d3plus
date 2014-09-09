@@ -1,5 +1,6 @@
 shortestPath = require "../../network/shortestPath.coffee"
 fetchValue   = require "../../core/fetch/value.js"
+uniqueValues = require "../../util/uniques.coffee"
 
 # Paths Visualization
 viz = (vars) ->
@@ -189,7 +190,7 @@ viz.filter = (vars, data) ->
         viz.nodes.push target
         added.push target[vars.id.value]
 
-  ids = d3plus.util.uniques(viz.nodes, vars.id.value)
+  ids = uniqueValues(viz.nodes, vars.id.value)
   returnData = []
   for id in ids
     d = data.filter (d) ->

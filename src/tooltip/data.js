@@ -1,4 +1,5 @@
-var fetchValue = require("../core/fetch/value.js"),
+var copy = require("../util/copy.coffee"),
+    fetchValue = require("../core/fetch/value.js"),
     fetchColor = require("../core/fetch/color.js"),
     fetchText  = require("../core/fetch/text.js"),
     mergeObject = require("../object/merge.coffee")
@@ -131,7 +132,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
   else {
 
     if (vars.id.nesting.length && depth < vars.id.nesting.length-1) {
-      var a = d3plus.util.copy(a)
+      var a = copy(a)
       vars.id.nesting.forEach(function(n,i){
         if (i > depth && a[n]) delete a[n]
       })

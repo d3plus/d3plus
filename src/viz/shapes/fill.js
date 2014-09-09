@@ -1,4 +1,5 @@
-var fetchColor = require("../../core/fetch/color.js")
+var copy = require("../../util/copy.coffee"),
+    fetchColor = require("../../core/fetch/color.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -141,16 +142,16 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
     if (total && vars.types[vars.type.value].fill) {
 
       if (temp) {
-        var copy = d3plus.util.copy(d)
-        copy.d3plus.shapeType = "temp"
-        fill_data.push(copy)
+        var c = copy(d)
+        c.d3plus.shapeType = "temp"
+        fill_data.push(c)
         hatch_data = ["temp"]
       }
 
       if (active && (active < total || temp)) {
-        var copy = d3plus.util.copy(d)
-        copy.d3plus.shapeType = "active"
-        fill_data.push(copy)
+        var c = copy(d)
+        c.d3plus.shapeType = "active"
+        fill_data.push(c)
       }
 
     }

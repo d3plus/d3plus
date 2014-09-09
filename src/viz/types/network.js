@@ -1,4 +1,5 @@
-var fetchValue = require("../../core/fetch/value.js")
+var distances = require("../../util/distances.coffee"),
+    fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
@@ -12,7 +13,7 @@ var network = function(vars) {
 
   var x_range = d3.extent(nodes,function(n){return n.x}),
       y_range = d3.extent(nodes,function(n){return n.y})
-  
+
   var val_range = [ 1 , 1 ]
   if (typeof vars.size.value === "number"){
     val_range = [vars.size.value, vars.size.value]
@@ -24,13 +25,13 @@ var network = function(vars) {
     })
   }
   if (typeof val_range[0] == "undefined") val_range = [1,1]
-  
+
   if (typeof vars.size.value === "number"){
     var max_size = vars.size.value;
     var min_size = vars.size.value;
   }
   else {
-    var max_size = d3.min(d3plus.util.distances(nodes))
+    var max_size = d3.min(distances(nodes))
 
     var overlap = vars.size.value ? vars.nodes.overlap : 0.4
     max_size = max_size * overlap

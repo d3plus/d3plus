@@ -1,5 +1,5 @@
 # Finds closest numeric value in array
-d3plus.util.closest = (arr, value) ->
+module.exports = (arr, value) ->
 
   closest = arr[0]
 

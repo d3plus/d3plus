@@ -1,3 +1,5 @@
+var d3selection = require("../../util/d3selection.coffee")
+
 d3plus.method.container = {
   "accepted" : [ Array , Object , String ],
   "element"  : false,
@@ -8,7 +10,7 @@ d3plus.method.container = {
       var shell = this.getVars().shell
       return shell === "form" ? d3.select("body") : value
     }
-    else if ( d3plus.util.d3selection(value) ) {
+    else if ( d3selection(value) ) {
       return value
     }
     else if ( value instanceof Array ) {

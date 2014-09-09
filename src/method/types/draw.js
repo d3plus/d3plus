@@ -1,4 +1,6 @@
-var parseElement = require("../../core/parse/element.js")
+var d3selection = require("../../util/d3selection.coffee"),
+    parseElement = require("../../core/parse/element.js")
+
 d3plus.method.draw = {
   "accepted" : [ undefined , Function ],
   "first"    : true,
@@ -13,7 +15,7 @@ d3plus.method.draw = {
     var vars    = this.getVars()
       , changes = "history" in vars ? vars.history.chain : []
 
-    if ( "data" in vars && vars.data.value && d3plus.util.d3selection( vars.data.value ) ) {
+    if ( "data" in vars && vars.data.value && d3selection( vars.data.value ) ) {
       vars.data.value = parseElement( vars )
     }
 

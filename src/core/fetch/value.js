@@ -1,4 +1,5 @@
-var validObject = require("../../object/validate.coffee")
+var validObject = require("../../object/validate.coffee"),
+    uniqueValues = require("../../util/uniques.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
@@ -42,7 +43,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
   function filterArray( arr ) {
 
     if ( id instanceof Array ) {
-      var uniques = d3plus.util.uniques( id , id_var )
+      var uniques = uniqueValues( id , id_var )
       return arr.filter(function(d){
         return uniques.indexOf(d[id_var]) >= 0
       })
@@ -61,7 +62,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
   else {
 
     function checkData( data ) {
-      var vals = d3plus.util.uniques( data , variable )
+      var vals = uniqueValues( data , variable )
       if ( vals.length === 1 ) return vals[0]
     }
 
@@ -107,7 +108,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
     var newAttr = []
 
     if ( id instanceof Array ) {
-      if (validObject(id[0])) id = d3plus.util.uniques(id,id_var)
+      if (validObject(id[0])) id = uniqueValues(id,id_var)
       id.forEach(function(d){
         newAttr.push(attr[d])
       })
@@ -119,7 +120,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
   }
 
   if ( attr && attr.length ) {
-    var vals = d3plus.util.uniques( attr , variable )
+    var vals = uniqueValues( attr , variable )
     if ( vals.length === 1 ) return vals[0]
     else if (vals.length) return vals
 

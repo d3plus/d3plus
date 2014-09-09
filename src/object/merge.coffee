@@ -1,4 +1,4 @@
-d3selection = require "../util/d3selection.js"
+d3selection = require "../util/d3selection.coffee"
 validate    = require "./validate.coffee"
 
 ###*

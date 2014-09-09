@@ -1,4 +1,5 @@
-var fetchValue = require("../fetch/value.js")
+var buckets = require("../../util/buckets.coffee"),
+    fetchValue = require("../fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets color range of data, if applicable
 //-------------------------------------------------------------------
@@ -31,7 +32,7 @@ module.exports = function(vars) {
     }
     else if (data_range[1] > 0 && data_range[0] >= 0) {
       var color_range = vars.color.heatmap
-      data_range = d3plus.util.buckets(data_range,color_range.length)
+      data_range = buckets(data_range,color_range.length)
     }
     else {
       var color_range = vars.color.range.slice(0)

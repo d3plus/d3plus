@@ -1,3 +1,5 @@
+var copy = require("../../util/copy.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
 //------------------------------------------------------------------------------
@@ -28,7 +30,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     var step = false,
         segments = [],
         nodes = [],
-        temp = d3plus.util.copy(d),
+        temp = copy(d),
         group = d3.select(this)
 
     temp.values = []
@@ -50,7 +52,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
       else {
         if (i > 0) {
           segments.push(temp)
-          temp = d3plus.util.copy(d)
+          temp = copy(d)
           temp.values = []
         }
         temp.values.push(v)

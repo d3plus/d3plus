@@ -1,3 +1,5 @@
+var child = require("../../../../util/child.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Recursive function that applies a click event to all parent windows that
 // will close the dropdown if it is open.
@@ -17,7 +19,7 @@ var windowEvents = function ( vars , elem ) {
       element = parent.parentNode
     }
 
-    if (element && parent && !d3plus.util.child(vars.container.ui, element) && vars.open.value) {
+    if (element && parent && !child(vars.container.ui, element) && vars.open.value) {
       vars.self.open(!vars.open.value).draw()
     }
 

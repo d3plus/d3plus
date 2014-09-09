@@ -1,3 +1,5 @@
+var copy = require("../../../../util/copy.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the main drop button.
 //------------------------------------------------------------------------------
@@ -22,7 +24,7 @@ module.exports = function ( vars ) {
 
     var depth = vars.depth.value
 
-    var buttonData = d3plus.util.copy(vars.data.value.filter(function(d){
+    var buttonData = copy(vars.data.value.filter(function(d){
       var match = false
       for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
         var level = vars.id.nesting[i]
