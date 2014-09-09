@@ -50,7 +50,7 @@ d3plus.console.stack = ->
       stack = stack.filter((e) ->
         e.indexOf("Error") isnt 0 and e.indexOf("d3plus.js:") < 0 and e.indexOf("d3plus.min.js:") < 0
       )
-      if stack.length
+      if stack.length and stack[0].length
         splitter = (if window.chrome then "at " else "@")
         url = stack[0].split(splitter)[1]
         stack = url.split(":")
