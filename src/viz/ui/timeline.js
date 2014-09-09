@@ -1,4 +1,5 @@
-var closest = require("../../util/closest.coffee")
+var closest = require("../../util/closest.coffee"),
+    fontSizes = require("../../font/sizes.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
@@ -168,7 +169,7 @@ d3plus.ui.timeline = function(vars) {
       else return timeMultiFormat(v)
     }
 
-    var textSizes = d3plus.font.sizes(years.map(timeFormatter),textStyle)
+    var textSizes = fontSizes(years.map(timeFormatter),textStyle)
       , yearWidths = textSizes.map(function(t){return t.width})
       , year_width = d3.max(yearWidths)
       , year_height = d3.max(textSizes.map(function(t){return t.height}))

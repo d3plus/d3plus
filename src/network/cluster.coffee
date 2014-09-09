@@ -1,3 +1,4 @@
+normalize = require "./normalize.coffee"
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Community detection algorithm (graph clustering/partitioning)
 # Based on the paper:
@@ -34,14 +35,14 @@
 
 # returns an array of communities, where each community is an array of node ids belonging to that community.
 
-d3plus.network.cluster = (edges, options) ->
+module.exports = (edges, options) ->
     ## For visualization debugging purposes ##
     events = []
-  
+
     ######### User's options normalization ############
     if not options? then options = {}
     if not options.nodes? or typeof options.nodes isnt 'object'
-      [edges, options] = d3plus.network.normalize edges, options
+      [edges, options] = normalize edges, options
       if options is null then return null
     # unpack options object
     {distance, nodeid, startpoint, endpoint, nodes} = options
@@ -51,7 +52,7 @@ d3plus.network.cluster = (edges, options) ->
     nodesMap = {}
     for id of nodes
       nodesMap[id] = { node: nodes[id].node, degree:0 }
-    
+
     # build the links map, which stores the expected number of links between every pair of nodes
     m = 0
     linksMap = {}
@@ -59,20 +60,20 @@ d3plus.network.cluster = (edges, options) ->
       a = nodeid startpoint edge
       b = nodeid endpoint edge
       linksMap[a] = {} if a not of linksMap
-      linksMap[b] = {} if b not of linksMap 
-      
+      linksMap[b] = {} if b not of linksMap
+
       if b not of linksMap[a]
         linksMap[a][b] = 0
         linksMap[b][a] = 0
         m++
         nodesMap[a].degree+=1
         nodesMap[b].degree+=1
-    
+
     communities = {}
     Q = 0
     for id, node of nodesMap
       communities[id] = {score: node.degree / (2.0*m), nodes:[id]}
-      
+
     for a of linksMap
       for b of linksMap[a]
         linksMap[a][b] = 1.0 / (2*m) - (nodesMap[a].degree * nodesMap[b].degree)/(4.0*m*m)
@@ -106,7 +107,7 @@ d3plus.network.cluster = (edges, options) ->
           ## k is connected to b but not a
           linksMap[maxb][k] -= 2*communities[maxa].score*communities[k].score
           linksMap[k][maxb] = linksMap[maxb][k]
-      
+
       for node in communities[maxa].nodes
         communities[maxb].nodes.push node
       communities[maxb].score += communities[maxa].score

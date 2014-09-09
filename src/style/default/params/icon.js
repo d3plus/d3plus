@@ -1,3 +1,5 @@
+var stylesheet = require("../../sheet.coffee")
+
 d3plus.style.default.icon = {
   "back"   : {
     "accepted" : [ false , String ],
@@ -41,7 +43,7 @@ d3plus.style.default.icon = {
   "fontCheck": function ( value , fallback ) {
 
     if ( value === false
-         || ( value.indexOf("fa-") === 0 && d3plus.font.awesome )
+         || ( value.indexOf("fa-") === 0 && stylesheet("font-awesome") )
          || value.indexOf("fa-") < 0 ) {
       return value
     }

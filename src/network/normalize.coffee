@@ -1,8 +1,7 @@
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Normalizes the graph input and checks if it is valid
 #------------------------------------------------------------------------------
-
-d3plus.network.normalize = (edges, options) ->
+module.exports = (edges, options) ->
   # unpack options
   {source, target, directed, distance, nodeid, startpoint, endpoint, K, vdebug} = options
   if not directed then directed = false
@@ -11,7 +10,7 @@ d3plus.network.normalize = (edges, options) ->
   else if typeof nodeid is 'string' then nodeid = do (nodeid) -> (node) -> return node[nodeid]
   if source? and typeof source is 'object' then source = nodeid source
   if target? and typeof target is 'object' then target = nodeid target
-  
+
   if not startpoint? then startpoint = (edge) -> return edge.source
   else if typeof startpoint is 'string' then startpoint = do (startpoint) -> (edge) -> return edge[startpoint]
 
@@ -31,7 +30,7 @@ d3plus.network.normalize = (edges, options) ->
       a = nodeid startpoint edge
       b = nodeid endpoint edge
       return edge2distance[a + '_' + b]
-  
+
   # create the nodes explicitly by going through the edges
   # and assign some bookkeeping variables to them
   nodes = {}
@@ -58,9 +57,9 @@ d3plus.network.normalize = (edges, options) ->
     if not id1? or typeof id1 not in ['string','number'] then errormsg = 'Check the nodeid function/attribute'
     else if source? and source not of nodes then errormsg = 'The source is not in the graph'
     else if target? and target not of nodes then errormsg = 'The target is not in the graph'
-  
+
   if errormsg?
     d3plus.console.error errormsg
     return null
-  
+
   return [edges, {source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes, vdebug}]

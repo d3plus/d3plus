@@ -9,7 +9,7 @@
   # the longer side of the polygon (the width) will be aligned with the x axis.
   # An angle of +90 and/or -90 means that the longer side of the polygon (the width)
   # will be aligned with the y axis. The parameter angle can be
-    # - a number between -90 and +90 specifying the angle of rotation of the polygon.  
+    # - a number between -90 and +90 specifying the angle of rotation of the polygon.
     # - a string which is parsed to a number
     # - an array of numbers, specifying the possible rotations of the polygon
     # - unspecified, which means the polygon can have any possible angle
@@ -50,7 +50,7 @@
 
 simplify = require 'simplify-js'
 
-d3plus.geom.largestRect = (poly, options) ->
+module.exports = (poly, options) ->
   if poly.length < 3
     d3plus.console.error 'polygon has to have at least 3 points'
     return null
@@ -73,18 +73,18 @@ d3plus.geom.largestRect = (poly, options) ->
   if not options.minHeight? then options.minHeight = 0
   if not options.tolerance? then options.tolerance = 0.02
   if not options.nTries? then options.nTries = 20 # Default value for the number of possible center points of the maximal rectangle
-  
+
   if options.angle?
     if options.angle instanceof Array then angles = options.angle
     else if typeof options.angle is 'number' then angles = [options.angle]
     else if typeof options.angle is 'string' and not isNaN(options.angle) then angles = [Number(options.angle)]
   if not angles? then angles = d3.range -90, 90+angleStep, angleStep
-  
+
   if options.aspectRatio?
     if options.aspectRatio instanceof Array then aspectRatios = options.aspectRatio
     else if typeof options.aspectRatio is 'number' then aspectRatios = [options.aspectRatio]
     else if typeof options.aspectRatio is 'string' and not isNaN(options.aspectRatio) then aspectRatios = [Number(options.aspectRatio)]
-  
+
   if options.origin?
     if options.origin instanceof Array
       if options.origin[0] instanceof Array then origins = options.origin
@@ -108,16 +108,16 @@ d3plus.geom.largestRect = (poly, options) ->
     tempPoly = simplify tempPoly, tolerance
     poly = ([p.x, p.y] for p in tempPoly)
   if options.vdebug then events.push type: 'simplify', poly: poly
-  
+
   # get the width of the bounding box of the simplified polygon
   [minx, maxx] = d3.extent poly, (d) -> d[0]
   [miny, maxy] = d3.extent poly, (d) -> d[1]
   bBox = [[minx, miny], [maxx, miny], [maxx, maxy] ,[minx, maxy]]
   [boxWidth, boxHeight] = [maxx - minx, maxy - miny]
-  
+
   # discretize the binary search for optimal width to a resolution of this times the polygon width
   widthStep = Math.min(boxWidth, boxHeight)/50
-  
+
   # populate possible center points with random points inside the polygon
   if not origins?
     origins = []
@@ -145,14 +145,14 @@ d3plus.geom.largestRect = (poly, options) ->
       modifOrigins = []
       if p1W? and p2W? then modifOrigins.push [(p1W[0] + p2W[0])/2, (p1W[1] + p2W[1])/2] # average along with width axis
       if p1H? and p2H? then modifOrigins.push [(p1H[0] + p2H[0])/2, (p1H[1] + p2H[1])/2] # average along with height axis
-      
+
       if options.vdebug then events.push type: 'modifOrigin', idx: i, p1W: p1W, p2W: p2W, p1H: p1H, p2H: p2H, modifOrigins: modifOrigins
       for origin in modifOrigins
         if options.vdebug then events.push type: 'origin', cx: origin[0], cy: origin[1]
         [p1W, p2W] = intersectPoints poly, origin, angleRad
         minSqDistW = Math.min squaredDist(origin, p1W), squaredDist(origin, p2W)
         maxWidth = 2*Math.sqrt(minSqDistW)
-        
+
         [p1H, p2H] = intersectPoints poly, origin, angleRad + Math.PI/2
         minSqDistH = Math.min squaredDist(origin, p1H), squaredDist(origin, p2H)
         maxHeight = 2*Math.sqrt(minSqDistH)
@@ -167,10 +167,10 @@ d3plus.geom.largestRect = (poly, options) ->
           left = Math.max options.minWidth, Math.sqrt(maxArea*aRatio)
           right = Math.min maxWidth, maxHeight*aRatio
           continue if right * maxHeight < maxArea
-          
+
           if (right - left) >= widthStep
             if options.vdebug then events.push type: 'aRatio', aRatio: aRatio
-          
+
           while (right - left) >= widthStep
             width = (left + right) / 2
             height = width / aRatio
@@ -186,7 +186,7 @@ d3plus.geom.largestRect = (poly, options) ->
               insidePoly = true
               # we know that the area is already greater than the maxArea found so far
               maxArea = width * height
-              maxRect = 
+              maxRect =
                 cx: x0
                 cy: y0
                 width: width
@@ -287,11 +287,11 @@ polyInsidePoly = (polyA, polyB) ->
   nA = polyA.length
   nB = polyB.length
   bA = polyA[nA-1]
-  
+
   while ++iA < nA
     aA = bA
     bA = polyA[iA]
-    
+
     iB = -1
     bB = polyB[nB-1]
     while ++iB < nB
@@ -301,7 +301,7 @@ polyInsidePoly = (polyA, polyB) ->
 
   return pointInPoly polyA[0], polyB
 
-# Rotates the point p for alpha radians around the origin 
+# Rotates the point p for alpha radians around the origin
 rotatePoint = (p, alpha, origin) ->
   if not origin? then origin = [0,0]
   xshifted = p[0] - origin[0]
@@ -312,17 +312,17 @@ rotatePoint = (p, alpha, origin) ->
            sinAlpha * xshifted + cosAlpha * yshifted + origin[1]
   ]
 
-# Rotates the polygon for alpha radians around the origin  
+# Rotates the polygon for alpha radians around the origin
 rotatePoly = (poly, alpha, origin) -> rotatePoint(point, alpha, origin) for point in poly
 
 # Gives the 2 closest intersection points between a ray with alpha radians
 # from the origin and the polygon. The two points should lie on opposite sides of the origin
-intersectPoints = (poly, origin, alpha) ->  
+intersectPoints = (poly, origin, alpha) ->
   eps = 1e-9
   origin = [origin[0] + eps*Math.cos(alpha), origin[1] + eps*Math.sin(alpha)]
   [x0, y0] = origin
   shiftedOrigin = [x0 + Math.cos(alpha), y0 + Math.sin(alpha)]
-  
+
   idx = 0
   if Math.abs(shiftedOrigin[0] - x0) < eps then idx = 1
   i = -1

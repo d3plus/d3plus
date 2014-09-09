@@ -1,3 +1,5 @@
+var fontSizes = require("../../font/sizes.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Logic to determine the best size for text
 //------------------------------------------------------------------------------
@@ -15,7 +17,7 @@ d3plus.textwrap.resize = function( vars , line ) {
     var sizeMax   = Math.floor( vars.size.value[1] )
       , lineWidth = vars.shape.value === "circle" ? vars.width.value * 0.785
                   : vars.width.value
-      , sizes     = d3plus.font.sizes( words
+      , sizes     = fontSizes( words
                                      , { "font-size" : sizeMax + "px" }
                                      , vars.container.value )
       , maxWidth  = d3.max( sizes , function(d){ return d.width } )

@@ -1,4 +1,5 @@
-Heap = require 'heap'
+Heap      = require 'heap'
+normalize = require "./normalize.coffee"
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Finds the shortest paths in the graph
 #------------------------------------------------------------------------------
@@ -47,25 +48,25 @@ Heap = require 'heap'
     # that maps node id to the outedges of the node
 
 # returns the top K shortest paths from the source to the given target, or the top K closest nodes to the source
-d3plus.network.shortestPath = (edges, source, options) ->
+module.exports = (edges, source, options) ->
   ######### User's options normalization ############
   if not options? then options = {}
   options.source = source
   if not options.nodes? or typeof options.nodes isnt 'object'
-    [edges, options] = d3plus.network.normalize edges, options
+    [edges, options] = normalize edges, options
     if options is null then return null
   # unpack options object
   {source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes} = options
-  ####### END user's input normalization #########  
+  ####### END user's input normalization #########
 
   #book-keeping
   node.count = 0 for id, node of nodes
-  
+
   heap = new Heap (a,b) -> return a.distance - b.distance
   visited = {}
   if not target? then visited[source] = true
   heap.push {edge: null, target: source, distance: 0}
-  
+
   # iterative by popping the node with minimum distance from the graph
   maxsize = 0
   result = []
@@ -87,7 +88,7 @@ d3plus.network.shortestPath = (edges, source, options) ->
           visited[b] = true
         alt = path.distance + distance edge
         heap.push {edge: edge, previous: path, target: b, distance: alt}
-  
+
   # expand the path information in the result object
   getPath = (path) ->
     # path should be a combination of edges
@@ -104,5 +105,3 @@ d3plus.network.shortestPath = (edges, source, options) ->
     delete res.edge
     delete res.previous
   return result
-
-module.exports = d3plus.network.shortestPath

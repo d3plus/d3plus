@@ -1,5 +1,7 @@
 var copy = require("../../util/copy.coffee"),
-    fetchText = require("../../core/fetch/text.js")
+    fetchText = require("../../core/fetch/text.js"),
+    fontSizes = require("../../font/sizes.coffee"),
+    largestRect = require("../../geom/largestRect.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -110,14 +112,14 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
         var names = fetchText(vars,d)
 
         if (names.length && names[0].split(" ").length === 1) {
-          var size = d3plus.font.sizes(names[0],style)[0]
+          var size = fontSizes(names[0],style)[0]
             , ratio = size.width/size.height
         }
         else {
           var ratio = null
         }
 
-        var rect = d3plus.geom.largestRect(path,{
+        var rect = largestRect(path,{
           "angle": 0,
           "aspectRatio": ratio
         })[0]

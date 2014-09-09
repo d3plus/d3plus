@@ -23,6 +23,48 @@ d3plus.version = "1.5.0 - Aqua"
 d3plus.repo = "https://github.com/alexandersimoes/d3plus/"
 
 ###*
+# Utilities related to manipulating data.
+# @class d3plus.data
+# @for d3plus
+# @static
+###
+d3plus.data =
+  bestRegress: require "./data/bestRegress.coffee"
+  lof:         require "./data/lof.coffee"
+  mad:         require "./data/mad.coffee"
+
+###*
+# Utilities related to fonts.
+# @class d3plus.font
+# @for d3plus
+# @static
+###
+d3plus.font =
+  sizes:    require "./font/sizes.coffee"
+  validate: require "./font/validate.coffee"
+
+###*
+# Utilities related to geometric algorithms.
+# @class d3plus.geom
+# @for d3plus
+# @static
+###
+d3plus.geom =
+  largestRect: require "./geom/largestRect.coffee"
+
+###*
+# Utilities related to network graphs.
+# @class d3plus.network
+# @for d3plus
+# @static
+###
+d3plus.network =
+  cluster:      require "./network/cluster.coffee"
+  normalize:    require "./network/normalize.coffee"
+  shortestPath: require "./network/shortestPath.coffee"
+  subgraph:     require "./network/subgraph.coffee"
+
+###*
 # D3plus features a set of methods that relate to various object properties. These methods may be used outside of the normal constraints of the visualizations.
 # @class d3plus.object
 # @for d3plus
@@ -51,13 +93,9 @@ d3plus.util =
 
 d3plus.array         = {}
 d3plus.color         = {}
-d3plus.data          = {}
 d3plus.draw          = {}
-d3plus.font          = {}
-d3plus.geom          = {}
 d3plus.locale        = {}
 d3plus.method        = {}
-d3plus.network       = {}
 d3plus.number        = {}
 d3plus.shape         = {}
 d3plus.string        = {}

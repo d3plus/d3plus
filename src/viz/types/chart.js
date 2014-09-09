@@ -4,6 +4,7 @@ var buckets = require("../../util/buckets.coffee")
   , fetchValue = require("../../core/fetch/value.js")
   , fetchColor = require("../../core/fetch/color.js")
   , fetchData  = require("../../core/fetch/data.js")
+  , fontSizes = require("../../font/sizes.coffee")
   , uniqueValues = require("../../util/uniques.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -346,14 +347,14 @@ var chart = function(vars) {
   var yTicks = vars.y.ticks.map(function(d){
         return vars.format.value(d,vars.y.value)
       })
-    , yAxisWidth = d3.max(d3plus.font.sizes(yTicks,tickAttrs),function(d){return d.width}) + vars.labels.padding
+    , yAxisWidth = d3.max(fontSizes(yTicks,tickAttrs),function(d){return d.width}) + vars.labels.padding
   graph.margin.left += yAxisWidth
   graph.width -= yAxisWidth
 
   var xTicks = vars.x.ticks.map(function(d){
         return vars.format.value(d,vars.x.value)
       })
-    , xSizes = d3plus.font.sizes(xTicks,tickAttrs)
+    , xSizes = fontSizes(xTicks,tickAttrs)
     , xAxisWidth = d3.max(xSizes,function(d){return d.width})
     , xAxisHeight = d3.max(xSizes,function(d){return d.height})
     , xMaxWidth = d3.min([graph.width/(xTicks.length+1),graph.margin.left*2]) - vars.labels.padding*2

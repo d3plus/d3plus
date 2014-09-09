@@ -14,7 +14,7 @@ kdtree = require 'static-kdtree'
 # and lof is the local outlier factor for that point. The array is ordered by descreasing order of LOF
 # so the outliers are in the beginning of the array.
 
-d3plus.data.lof = (points, K=10) ->
+module.exports = (points, K=10) ->
   tree = kdtree points # construct a kd-tree
   neighbors = (tree.knn(p, K+1)[1...] for p in points) # get the k nearest neighbors for each point
 
@@ -27,10 +27,10 @@ d3plus.data.lof = (points, K=10) ->
       delta = A[i] - B[i]
       dist += delta * delta
     return dist
-  
+
   # pre-compute kdist for all points
   kdists = (sqDist i, neighbors[i][K-1] for i in [0...points.length])
-  
+
   # reachability distance
   reachDist = (i, j) -> Math.max sqDist(i, j), kdists[j]
 
@@ -48,5 +48,5 @@ d3plus.data.lof = (points, K=10) ->
     avg_lrd += ldrs[j] for j in neighbors[i]
     avg_lrd /= K
     [i, avg_lrd / ldrs[i]]
+
   result.sort (a,b) -> b[1] - a[1]
-  return result

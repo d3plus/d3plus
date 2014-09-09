@@ -1,3 +1,4 @@
+var stylesheet = require("../../style/sheet.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates "back" button, if applicable
 //------------------------------------------------------------------------------
@@ -50,7 +51,7 @@ d3plus.ui.history = function(vars) {
       .call(style)
       .html(function(){
 
-        if (d3plus.font.awesome) {
+        if (stylesheet("font-awesome")) {
           var arrow = "<span style='font-family:FontAwesome;margin-right:5px;'>&#xf104</span>"
         }
         else {

@@ -1,6 +1,6 @@
 fontTester = require "../core/font/tester.coffee"
 
-d3plus.font.sizes = (words, style, parent) ->
+module.exports = (words, style, parent) ->
 
   tester = parent or fontTester("svg").append("text")
   style = style or {}

@@ -14,14 +14,14 @@
 
 numeric = require 'numeric'
 
-d3plus.data.bestRegress = (data, options) ->
+module.exports = (data, options) ->
   if not options? then options = {}
   if not options.maxDegree? then options.maxDegree = 5 # try to fit a polynomial up to this degree
   N = data.length
   # choose the model that has minimum BIC (penalty)
   prevBIC = Number.MAX_VALUE
   bestResult = null
-  
+
   # construct the matrix X
   Xfulltr = ((Math.pow(point[0], degree) for point in data) for degree in [1...options.maxDegree+1])
   y = (point[1] for point in data)
@@ -47,4 +47,4 @@ d3plus.data.bestRegress = (data, options) ->
     if bic < prevBIC
       prevBIC = bic
       bestResult = [degrees, beta_hat, y_hat]
-  return bestResult
+  bestResult

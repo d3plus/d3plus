@@ -1,4 +1,6 @@
-var fetchText = require("../../core/fetch/text.js")
+var fetchText = require("../../core/fetch/text.js"),
+    fontSizes = require("../../font/sizes.coffee"),
+    largestRect = require("../../geom/largestRect.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -44,14 +46,14 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
         }
 
         if (names.length) {
-          var size = d3plus.font.sizes(names[0],style)
+          var size = fontSizes(names[0],style)
             , ratio = size[0].width/size[0].height
         }
         else {
           var ratio = null
         }
 
-        var lr = d3plus.geom.largestRect(tops,{
+        var lr = largestRect(tops,{
           "angle": d3.range(-70,71,1),
           "aspectRatio": ratio,
           "tolerance": 0
