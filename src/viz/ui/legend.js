@@ -1,4 +1,5 @@
-var buckets = require("../../util/buckets.coffee"),
+var arraySort = require("../../array/sort.coffee"),
+    buckets      = require("../../util/buckets.coffee"),
     copy         = require("../../util/copy.coffee"),
     dataNest     = require("../../core/data/nest.js"),
     dataURL      = require("../../util/dataURL.coffee"),
@@ -110,7 +111,7 @@ d3plus.ui.legend = function(vars) {
 
         var order = vars[vars.legend.order.value].value
 
-        d3plus.array.sort( colors , order , vars.legend.order.sort.value
+        arraySort( colors , order , vars.legend.order.sort.value
                          , colorName , vars , colorDepth )
 
         if ( vars.dev.value ) d3plus.console.timeEnd("sorting legend")

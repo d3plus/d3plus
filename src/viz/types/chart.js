@@ -1,4 +1,5 @@
-var buckets = require("../../util/buckets.coffee")
+var arraySort = require("../../array/sort.coffee"),
+    buckets = require("../../util/buckets.coffee")
   , closest = require("../../util/closest.coffee")
   , copy = require("../../util/copy.coffee")
   , fetchValue = require("../../core/fetch/value.js")
@@ -833,7 +834,7 @@ var chart = function(vars) {
 
   if (sort) {
 
-    d3plus.array.sort( data , sort
+    arraySort( data , sort
                      , vars.order.sort.value === "desc" ? "asc" : "desc"
                      , vars.color.value || [] , vars )
 

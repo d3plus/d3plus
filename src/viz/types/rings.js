@@ -1,4 +1,5 @@
-var distances = require("../../util/distances.coffee")
+var arraySort = require("../../array/sort.coffee")
+  , distances = require("../../util/distances.coffee")
   , fetchValue = require("../../core/fetch/value.js")
   , fetchColor = require("../../core/fetch/color.js")
   , uniqueValues = require("../../util/uniques.coffee")
@@ -67,7 +68,7 @@ var rings = function(vars) {
     }
     else {
 
-      return d3plus.array.sort( [a,b] , sort , vars.order.sort.value
+      return arraySort( [a,b] , sort , vars.order.sort.value
                               , vars.color.value || [] , vars)
 
     }
@@ -111,7 +112,7 @@ var rings = function(vars) {
     })
   })
 
-  d3plus.array.sort( primaries , sort , vars.order.sort.value
+  arraySort( primaries , sort , vars.order.sort.value
                    , vars.color.value || [] , vars)
 
   var offset = 0,
@@ -143,7 +144,7 @@ var rings = function(vars) {
         , b = b[vars.edges.source][vars.id.value] == p[vars.id.value]
             ? b[vars.edges.target] : b[vars.edges.source]
 
-      return d3plus.array.sort( [a,b] , sort , vars.order.sort.value
+      return arraySort( [a,b] , sort , vars.order.sort.value
                               , vars.color.value || [] , vars)
 
     })

@@ -1,5 +1,5 @@
 # Updates an array, either overwriting it with a new array, removing an entry
-d3plus.array.update = (arr, x) ->
+module.exports = (arr, x) ->
   arr = [] unless arr instanceof Array
 
   # If the user has passed an array, just use that.

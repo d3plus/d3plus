@@ -1,4 +1,5 @@
-var dataFormat = require("../core/data/format.js"),
+var arraySort = require("../array/sort.coffee"),
+    dataFormat = require("../core/data/format.js"),
     dataKeys = require("../core/data/keys.js"),
     dataLoad = require("../core/data/load.coffee"),
     fetchData  = require("../core/fetch/data.js"),
@@ -59,7 +60,7 @@ d3plus.form = function() {
       //------------------------------------------------------------------------
       if ( vars.data.changed || vars.order.changed || vars.order.sort.changed ) {
 
-        d3plus.array.sort( vars.data.app , vars.order.value || vars.text.value
+        arraySort( vars.data.app , vars.order.value || vars.text.value
                          , vars.order.sort.value , vars.color.value , vars )
 
       }

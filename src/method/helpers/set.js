@@ -1,7 +1,8 @@
 var copy = require("../../util/copy.coffee"),
     d3selection = require("../../util/d3selection.coffee"),
     validObject = require("../../object/validate.coffee"),
-    mergeObject = require("../../object/merge.coffee")
+    mergeObject = require("../../object/merge.coffee"),
+    updateArray = require("../../array/update.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets a method's value.
@@ -267,7 +268,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
         if ( k in vars && ( ( hasValue && vars.data[k].indexOf(method) < 0 )
         || ( !hasValue && vars.data[k].indexOf(method) >= 0 ) ) ) {
 
-          vars.data[k] = d3plus.array.update(vars.data[k],method)
+          vars.data[k] = updateArray(vars.data[k],method)
 
         }
 

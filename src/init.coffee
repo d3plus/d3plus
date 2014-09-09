@@ -23,6 +23,16 @@ d3plus.version = "1.5.0 - Aqua"
 d3plus.repo = "https://github.com/alexandersimoes/d3plus/"
 
 ###*
+# Utilities related to modifying arrays.
+# @class d3plus.array
+# @for d3plus
+# @static
+###
+d3plus.array =
+  sort:   require "./array/sort.coffee"
+  update: require "./array/update.coffee"
+
+###*
 # Utilities related to manipulating data.
 # @class d3plus.data
 # @for d3plus
@@ -91,7 +101,6 @@ d3plus.util =
   offset:      require "./util/offset.coffee"
   uniques:     require "./util/uniques.coffee"
 
-d3plus.array         = {}
 d3plus.color         = {}
 d3plus.draw          = {}
 d3plus.locale        = {}

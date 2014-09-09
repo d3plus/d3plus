@@ -1,4 +1,5 @@
-var dataNest   = require("./nest.js"),
+var arraySort = require("../../array/sort.coffee"),
+    dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.js"),
     fetchColor = require("../fetch/color.js"),
     fetchText  = require("../fetch/text.js")
@@ -96,7 +97,7 @@ module.exports = function( vars , rawData , split ) {
 
     if ( removed.length > 1 ) {
 
-      removed = d3plus.array.sort( removed , vars.size.value , "desc" , [] , vars )
+      removed = arraySort( removed , vars.size.value , "desc" , [] , vars )
 
       var levels = vars.id.nesting.slice(0,vars.depth.value)
       var merged = dataNest(vars,removed,levels)

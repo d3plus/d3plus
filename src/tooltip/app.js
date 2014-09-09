@@ -1,4 +1,5 @@
-var fetchValue  = require("../core/fetch/value.js"),
+var arraySort = require("../array/sort.coffee"),
+    fetchValue  = require("../core/fetch/value.js"),
     fetchColor  = require("../core/fetch/color.js"),
     fetchText   = require("../core/fetch/text.js"),
     validObject = require("../object/validate.coffee")
@@ -127,7 +128,7 @@ d3plus.tooltip.app = function(params) {
             return !(vars.size.value in n)
           })
 
-          d3plus.array.sort( namesWithValues , vars.size.value , "desc" , [] , vars )
+          arraySort( namesWithValues , vars.size.value , "desc" , [] , vars )
 
           nameList = namesWithValues.concat(namesNoValues)
 

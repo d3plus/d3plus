@@ -1,4 +1,5 @@
-var fetchValue = require("../../core/fetch/value.js"),
+var arraySort = require("../../array/sort.coffee"),
+    fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.js"),
     fetchText  = require("../../core/fetch/text.js"),
     groupData = require("../../core/data/group.coffee")
@@ -18,7 +19,7 @@ var bubbles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sort Data
   //----------------------------------------------------------------------------
-  d3plus.array.sort( groupedData , vars.order.value || vars.size.value
+  arraySort( groupedData , vars.order.value || vars.size.value
                    , vars.order.sort.value , vars.color.value , vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
