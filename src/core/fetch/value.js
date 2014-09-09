@@ -1,3 +1,5 @@
+var validObject = require("../../object/validate.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
@@ -14,7 +16,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
   }
 
   if (!id_var) {
-    if ( d3plus.object.validate(variable) ) {
+    if ( validObject(variable) ) {
       if (variable[vars.id.value]) {
         var id_var = vars.id.value
       }
@@ -29,7 +31,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
   }
 
   if ( variable === id_var ) {
-    if ( d3plus.object.validate(id) && variable in id ) {
+    if ( validObject(id) && variable in id ) {
       return id[variable]
     }
     else if ( !(id instanceof Array) ) {
@@ -53,7 +55,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
   }
 
-  if ( d3plus.object.validate(id) && variable in id ) {
+  if ( validObject(id) && variable in id ) {
     return id[variable]
   }
   else {
@@ -63,7 +65,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
       if ( vals.length === 1 ) return vals[0]
     }
 
-    if ( d3plus.object.validate(id) && id_var in id ) {
+    if ( validObject(id) && id_var in id ) {
       var val = checkData( id )
       if ( val ) return val
       id = id[id_var]
@@ -100,12 +102,12 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
   }
 
-  if ( d3plus.object.validate(attr) ) {
+  if ( validObject(attr) ) {
 
     var newAttr = []
 
     if ( id instanceof Array ) {
-      if (d3plus.object.validate(id[0])) id = d3plus.util.uniques(id,id_var)
+      if (validObject(id[0])) id = d3plus.util.uniques(id,id_var)
       id.forEach(function(d){
         newAttr.push(attr[d])
       })

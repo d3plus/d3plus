@@ -1,6 +1,4 @@
-###*
- * Returns appropriate text color based off of a given color
- ###
+# Returns appropriate text color based off of a given color
 d3plus.color.text = (color) ->
   rgbColor = d3.rgb(color)
   r = rgbColor.r

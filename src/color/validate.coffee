@@ -1,6 +1,4 @@
-###*
- * Tests if a string is a valid color
- ###
+# Tests if a string is a valid color
 d3plus.color.validate = (color) ->
   color = color + ""
   color = color.replace(RegExp(" ", "g"), "")

@@ -1,6 +1,4 @@
-###*
- * Finds closest numeric value in array
- ###
+# Finds closest numeric value in array
 d3plus.util.closest = (arr, value) ->
 
   closest = arr[0]

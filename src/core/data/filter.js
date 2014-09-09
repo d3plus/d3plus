@@ -1,4 +1,5 @@
-var fetchValue = require("../fetch/value.js")
+var fetchValue = require("../fetch/value.js"),
+    validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Restricts data based on Solo/Mute filters
 //------------------------------------------------------------------------------
@@ -65,7 +66,7 @@ module.exports = function( vars , data ) {
       var match = false
       if (vars[v].nesting) {
         var nesting = vars[v].nesting
-        if (d3plus.object.validate(nesting)) {
+        if (validObject(nesting)) {
           nesting = d3.keys(nesting)
         }
         nesting.forEach(function(n){

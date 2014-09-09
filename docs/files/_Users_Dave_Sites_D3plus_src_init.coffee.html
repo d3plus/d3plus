@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>/Users/Dave/Sites/D3plus/src/array/update.coffee</title>
+    <title>/Users/Dave/Sites/D3plus/src/init.coffee - d3plus</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -15,11 +15,11 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="../assets/css/logo.png" title=""></h1>
+                <h1><img src="../assets/css/logo.png" title="d3plus"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: </em>
+            <em>API Docs for: 1.5.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,6 +40,10 @@
 
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/d3plus.html">d3plus</a></li>
+            
+                <li><a href="../classes/d3plus.object.html">d3plus.object</a></li>
             
             </ul>
 
@@ -80,29 +84,59 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: /Users/Dave/Sites/D3plus/src/array/update.coffee</h1>
+                        <h1 class="file-heading">File: /Users/Dave/Sites/D3plus/src/init.coffee</h1>
 
 <div class="file">
     <pre class="code prettyprint linenums">
 ###*
- * Updates an array, either overwriting it with a new array, removing an entry
- * if it is present, or adding it if it is not.
- ###
-d3plus.array.update = (arr, x) -&gt;
-  arr = [] unless arr instanceof Array
+# @class d3plus
+###
+d3plus               = window.d3plus or {}
+window.d3plus        = d3plus
 
-  # If the user has passed an array, just use that.
-  if x instanceof Array
-    arr = x
+###*
+# The current version of **D3plus** you are using. Returns a string in [semantic versioning](http://semver.org/) format.
+# @property d3plus.version
+# @for d3plus
+# @type String
+# @static
+###
+d3plus.version       = &quot;1.5.0 - Aqua&quot;
+d3plus.repo          = &quot;https://github.com/alexandersimoes/d3plus/&quot;
 
-  # Otherwise remove it if it is present.
-  else if arr.indexOf(x) &gt;= 0
-    arr.splice arr.indexOf(x), 1
+d3plus.array         = {}
+d3plus.color         = {}
+d3plus.data          = {}
+d3plus.draw          = {}
+d3plus.font          = {}
+d3plus.geom          = {}
+d3plus.locale        = {}
+d3plus.method        = {}
+d3plus.network       = {}
+d3plus.number        = {}
 
-  # Else, add it!
-  else
-    arr.push x
-  arr
+###*
+# @class d3plus.object
+# @for d3plus
+# @static
+###
+d3plus.object =
+  merge:    require &quot;./object/merge.coffee&quot;
+  validate: require &quot;./object/validate.coffee&quot;
+
+d3plus.shape         = {}
+d3plus.string        = {}
+d3plus.style         = {}
+d3plus.tooltip       = {}
+d3plus.ui            = {}
+d3plus.util          = {}
+d3plus.zoom          = {}
+
+stylesheet           = require &quot;./style/sheet.coffee&quot;
+message              = require &quot;./general/console.coffee&quot;
+
+if stylesheet &quot;d3plus.css&quot;
+  message.warning &quot;d3plus.css has been deprecated, you do not need to load this file.&quot;, &quot;https://github.com/alexandersimoes/d3plus/releases/tag/v1.4.0&quot;
 
     </pre>
 </div>

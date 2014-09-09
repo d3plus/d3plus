@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>/Users/Dave/Sites/D3plus/src/util/uniques.coffee</title>
+    <title>d3plus.object</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -41,9 +41,15 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/d3plus.object.merge.html">d3plus.object.merge</a></li>
+            
             </ul>
 
             <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/d3plus.html">d3plus</a></li>
+            
+                <li><a href="../modules/d3plus.object.html">d3plus.object</a></li>
             
             </ul>
         </div>
@@ -80,33 +86,37 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: /Users/Dave/Sites/D3plus/src/util/uniques.coffee</h1>
+                        <h1>d3plus.object Module</h1>
+<div class="box clearfix meta">
+    
 
-<div class="file">
-    <pre class="code prettyprint linenums">
-objectValidate = require &quot;../object/validate.coffee&quot;
-###*
- * Returns list of unique values
- ###
-d3plus.util.uniques = (data, value) -&gt;
+    
 
-  return [] if data is &#x60;undefined&#x60; or value is &#x60;undefined&#x60;
+    
+        <div class="foundat">
+            Defined in: <a href="../files/_Users_Dave_Sites_D3plus_src_init.coffee.html#l21"><code>&#x2F;Users&#x2F;Dave&#x2F;Sites&#x2F;D3plus&#x2F;src&#x2F;init.coffee:21</code></a>
+        </div>
+    
 
-  data = [ data ] unless data instanceof Array
-  vals = []
-  lookups = []
+    
+</div>
 
-  for d in data
-    if objectValidate d
-      val = if typeof value is &quot;function&quot; then value d else d[value]
-      lookup = if [ &quot;number&quot;, &quot;string&quot; ].indexOf(typeof val) &gt;= 0 then val else JSON.stringify(val)
-      if lookups.indexOf(lookup) &lt; 0
-        vals.push val
-        lookups.push lookup
 
-  vals.sort (a, b) -&gt; a - b
 
-    </pre>
+<div class="box intro">
+    
+</div>
+
+
+
+<div class="yui3-g">
+    <div class="yui3-u-1-2">
+        
+    </div>
+
+    <div class="yui3-u-1-2">
+        
+    </div>
 </div>
 
                     </div>

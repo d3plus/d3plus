@@ -1,4 +1,5 @@
-var fontTester = require("../../../../core/font/tester.coffee")
+var fontTester  = require("../../../../core/font/tester.coffee"),
+    validObject = require("../../../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If no widths are defined, then this calculates the width needed to fit the
 // longest entry in the list.
@@ -8,7 +9,7 @@ module.exports = function ( vars ) {
   var data = [], buffer = 0
   for ( var level in vars.data.nested.all ) {
     var newData = vars.data.nested.all[level]
-      , key     = d3plus.object.validate(vars.text.nesting) && level in vars.text.nesting
+      , key     = validObject(vars.text.nesting) && level in vars.text.nesting
                 ? vars.text.nesting[level][0] : level
 
     if ( [vars.id.value,vars.text.value].indexOf(key) < 0 ) {

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>/Users/Dave/Sites/D3plus/src/object/merge.coffee</title>
+    <title>/Users/Dave/Sites/D3plus/src/object/merge.coffee - d3plus</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -15,11 +15,11 @@
     <div id="hd" class="yui3-g header">
         <div class="yui3-u-3-4">
             
-                <h1><img src="../assets/css/logo.png" title=""></h1>
+                <h1><img src="../assets/css/logo.png" title="d3plus"></h1>
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: </em>
+            <em>API Docs for: 1.5.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -40,6 +40,10 @@
 
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/d3plus.html">d3plus</a></li>
+            
+                <li><a href="../classes/d3plus.object.html">d3plus.object</a></li>
             
             </ul>
 
@@ -85,16 +89,22 @@
 <div class="file">
     <pre class="code prettyprint linenums">
 d3selection = require &quot;../util/d3selection.js&quot;
+validate    = require &quot;./validate.coffee&quot;
 
 ###*
- * Merge two objects to create a new one with the properties of both
- ###
-d3plus.object.merge = (obj1, obj2) -&gt;
+# Given any two objects, this method will merge the two objects together, returning a new third object. The values of the second object always overwrite the first.
+# @method d3plus.object.merge
+# @for d3plus.object
+# @param obj1 {Object} The primary object.
+# @param obj2 {Object} The secondary object to merge into the first.
+# @return {Object}
+###
+module.exports = (obj1, obj2) -&gt;
 
   copyObject = (obj, ret) -&gt;
     for a of obj
       unless typeof obj[a] is &quot;undefined&quot;
-        if d3plus.object.validate(obj[a])
+        if validate(obj[a])
           ret[a] = {}  if typeof ret[a] isnt &quot;object&quot;
           copyObject obj[a], ret[a]
         else if not d3selection(obj[a]) and obj[a] instanceof Array
@@ -108,8 +118,6 @@ d3plus.object.merge = (obj1, obj2) -&gt;
   copyObject obj2, obj3 if obj2
 
   obj3
-
-module.exports = d3plus.object.merge
 
     </pre>
 </div>

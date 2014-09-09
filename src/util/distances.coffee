@@ -1,6 +1,4 @@
-###*
- * Returns distances of all objects in array
- ###
+# Returns distances of all objects in array
 d3plus.util.distances = (arr, accessor) ->
 
   distances = []

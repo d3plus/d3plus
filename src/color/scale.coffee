@@ -1,6 +1,4 @@
-###*
- * Default D3plus color scale
- ###
+# Default D3plus color scale
 d3plus.color.scale = d3.scale.ordinal().range([
   "#b22200",
   "#EACE3F",

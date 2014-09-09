@@ -1,3 +1,5 @@
+var validObject = require("../../object/validate.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get/set function for methods
 //------------------------------------------------------------------------------
@@ -5,7 +7,7 @@ d3plus.method.function = function( key , vars ) {
 
   return function( user , callback ) {
 
-    var accepted = key in vars && d3plus.object.validate(vars[key])
+    var accepted = key in vars && validObject(vars[key])
                    && "accepted" in vars[key] ? vars[key].accepted
                  : key in vars ? typeof vars[key] : null
 
@@ -62,12 +64,12 @@ d3plus.method.function = function( key , vars ) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Set all font families and weights, if calling .font()
     //--------------------------------------------------------------------------
-    if ( key === "font" && d3plus.object.validate(user)
+    if ( key === "font" && validObject(user)
          && "family" in user && typeof user.family === "string" ) {
 
       function checkFamily ( o ) {
 
-        if ( d3plus.object.validate( o ) ) {
+        if ( validObject( o ) ) {
 
           if ( "family" in o ) {
             o.family.value = o.family.process( user.family )

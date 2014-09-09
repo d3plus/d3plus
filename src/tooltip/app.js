@@ -1,6 +1,7 @@
-var fetchValue = require("../core/fetch/value.js"),
-    fetchColor = require("../core/fetch/color.js"),
-    fetchText  = require("../core/fetch/text.js")
+var fetchValue  = require("../core/fetch/value.js"),
+    fetchColor  = require("../core/fetch/color.js"),
+    fetchText   = require("../core/fetch/text.js"),
+    validObject = require("../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -116,7 +117,7 @@ d3plus.tooltip.app = function(params) {
 
         nameList = nameList.slice(0)
 
-        if (vars.size.value && d3plus.object.validate(nameList[0])) {
+        if (vars.size.value && validObject(nameList[0])) {
 
           var namesWithValues = nameList.filter(function(n){
             return vars.size.value in n

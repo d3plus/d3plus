@@ -1,6 +1,4 @@
-###*
- * Sorts 2 colors based on hue.
- ###
+# Sorts 2 colors based on hue.
 d3plus.color.sort = (a, b) ->
   aHSL = d3.hsl a
   bHSL = d3.hsl b

@@ -1,4 +1,5 @@
-var fetchValue = require("./value.js")
+var fetchValue = require("./value.js"),
+    validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
 //------------------------------------------------------------------------------
@@ -8,7 +9,7 @@ module.exports = function(vars,obj,depth) {
 
   var key = vars.id.nesting[depth]
 
-  if ( vars.text.nesting && d3plus.object.validate(vars.text.nesting) ) {
+  if ( vars.text.nesting && validObject(vars.text.nesting) ) {
     if ( vars.text.nesting[key] ) {
       var textKeys = vars.text.nesting[key]
     }
@@ -28,14 +29,14 @@ module.exports = function(vars,obj,depth) {
 
   var names = []
 
-  if (d3plus.object.validate(obj) && "d3plus" in obj && obj.d3plus.text) {
+  if (validObject(obj) && "d3plus" in obj && obj.d3plus.text) {
     names.push(obj.d3plus.text.toString())
   }
   else {
 
-    var ids = d3plus.object.validate(obj) && key in obj ? obj[key] : fetchValue(vars, obj, key)
+    var ids = validObject(obj) && key in obj ? obj[key] : fetchValue(vars, obj, key)
     if (!(ids instanceof Array)) ids = [ids]
-    else if (d3plus.object.validate(ids[0])) {
+    else if (validObject(ids[0])) {
       ids = d3plus.util.uniques(ids,key)
     }
 
@@ -45,7 +46,7 @@ module.exports = function(vars,obj,depth) {
       ids.forEach(function(i){
         var n = fetchValue(vars,i,t,key)
         if (n) {
-          if (n instanceof Array && d3plus.object.validate(n[0])) {
+          if (n instanceof Array && validObject(n[0])) {
             n = d3plus.util.uniques(n,t)
           }
           name = name.concat(n)

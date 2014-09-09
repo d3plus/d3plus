@@ -1,6 +1,4 @@
-###*
- * Calculates the correct CSS vendor prefix based on the current browser.
- ###
+# Calculates the correct CSS vendor prefix based on the current browser.
 d3plus.prefix = ->
 
   if "-webkit-transform" of document.body.style

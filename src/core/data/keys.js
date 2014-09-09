@@ -1,3 +1,4 @@
+var validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get Key Types from Data
 //------------------------------------------------------------------------------
@@ -16,9 +17,9 @@ module.exports = function( vars , type ) {
         get_keys( d )
       })
     }
-    else if ( d3plus.object.validate(arr) ) {
+    else if ( validObject(arr) ) {
       for (var d in arr) {
-        if ( d3plus.object.validate(arr[d]) ) {
+        if ( validObject(arr[d]) ) {
           get_keys( arr[d] )
         }
         else if (!(d in vars[type].keys) && d in arr) {
@@ -28,7 +29,7 @@ module.exports = function( vars , type ) {
     }
   }
 
-  if ( d3plus.object.validate(vars[type].value) ) {
+  if ( validObject(vars[type].value) ) {
     for ( var a in vars[type].value ) {
       get_keys(vars[type].value[a])
     }

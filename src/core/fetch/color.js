@@ -1,4 +1,5 @@
-var fetchValue = require("./value.js")
+var fetchValue = require("./value.js"),
+    validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
@@ -14,7 +15,7 @@ module.exports = function( vars , id , level ) {
 
   function getRandom( c ) {
 
-    if ( d3plus.object.validate( c ) ) {
+    if ( validObject( c ) ) {
       c = c[ level ]
     }
 
@@ -55,7 +56,7 @@ module.exports = function( vars , id , level ) {
     var colors = []
     for ( var i = vars.id.nesting.indexOf(level) ; i >= 0 ; i-- ) {
       var colorLevel = vars.id.nesting[i]
-      if (d3plus.object.validate(id)) {
+      if (validObject(id)) {
         var o = !(colorLevel in id) ? fetchValue(vars,id,colorLevel) : id
           , value = fetchValue( vars , o , vars.color.value , colorLevel )
       }

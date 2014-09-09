@@ -1,6 +1,16 @@
+###*
+# @class d3plus
+###
 d3plus               = window.d3plus or {}
 window.d3plus        = d3plus
 
+###*
+# The current version of **D3plus** you are using. Returns a string in [semantic versioning](http://semver.org/) format.
+# @property d3plus.version
+# @for d3plus
+# @type String
+# @static
+###
 d3plus.version       = "1.5.0 - Aqua"
 d3plus.repo          = "https://github.com/alexandersimoes/d3plus/"
 
@@ -14,7 +24,16 @@ d3plus.locale        = {}
 d3plus.method        = {}
 d3plus.network       = {}
 d3plus.number        = {}
-d3plus.object        = {}
+
+###*
+# @class d3plus.object
+# @for d3plus
+# @static
+###
+d3plus.object =
+  merge:    require "./object/merge.coffee"
+  validate: require "./object/validate.coffee"
+
 d3plus.shape         = {}
 d3plus.string        = {}
 d3plus.style         = {}

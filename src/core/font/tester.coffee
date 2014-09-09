@@ -1,6 +1,4 @@
-###*
- * Creates an invisible test element to populate
- ###
+# Creates an invisible test element to populate
 module.exports = (type) ->
 
   type = "div" if [ "div", "svg" ].indexOf(type) < 0

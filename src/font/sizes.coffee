@@ -1,8 +1,5 @@
 fontTester = require "../core/font/tester.coffee"
 
-###*
- * Creates test div to populate with test DIVs
- ###
 d3plus.font.sizes = (words, style, parent) ->
 
   tester = parent or fontTester("svg").append("text")

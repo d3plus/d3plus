@@ -1,4 +1,5 @@
-var fetchValue = require("../fetch/value.js")
+var fetchValue = require("../fetch/value.js"),
+    validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
@@ -208,7 +209,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
           if (obj instanceof Array) {
             obj.forEach(checkVal)
           }
-          else if (d3plus.object.validate(obj) && key in obj) {
+          else if (validObject(obj) && key in obj) {
             if (obj[key] instanceof Array) {
               obj[key].forEach(checkVal)
             }

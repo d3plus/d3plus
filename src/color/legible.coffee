@@ -1,6 +1,4 @@
-###*
- * Darkens a color if it's too light to appear on white
- ###
+# Darkens a color if it's too light to appear on white
 d3plus.color.legible = (color) ->
   hsl = d3.hsl color
   if hsl.l > .45

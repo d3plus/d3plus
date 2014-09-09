@@ -1,10 +1,11 @@
-var dataFormat = require("../../core/data/format.js"),
-    dataColor  = require("../../core/data/color.js"),
-    dataKeys   = require("../../core/data/keys.js"),
-    dataLoad   = require("../../core/data/load.coffee"),
-    fetchData  = require("../../core/fetch/data.js"),
-    parseEdges = require("../../core/parse/edges.js"),
-    parseNodes = require("../../core/parse/nodes.js")
+var dataFormat  = require("../../core/data/format.js"),
+    dataColor   = require("../../core/data/color.js"),
+    dataKeys    = require("../../core/data/keys.js"),
+    dataLoad    = require("../../core/data/load.coffee"),
+    fetchData   = require("../../core/fetch/data.js"),
+    parseEdges  = require("../../core/parse/edges.js"),
+    parseNodes  = require("../../core/parse/nodes.js"),
+    validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -156,7 +157,7 @@ d3plus.draw.steps = function(vars) {
 
             var colorKey = vars.color.value
 
-            if ( d3plus.object.validate(colorKey) ) {
+            if ( validObject(colorKey) ) {
               if (colorKey[vars.id.value]) {
                 colorKey = colorKey[vars.id.value]
               }

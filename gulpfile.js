@@ -18,6 +18,7 @@ var gulp = require("gulp")
   , plumber = require("gulp-plumber")
   , rimraf = require("gulp-rimraf")
   , yuidoc = require("gulp-yuidoc")
+  , project = require("./package.json")
 
 var files = "./src/**/*.*"
 
@@ -30,29 +31,12 @@ var error = {
   icon: __dirname + "/icon.png"
 }
 
-var documentation = function() {
-
-  gulp.src("./docs/files/*.*", {read: false})
-    .pipe(rimraf())
-
-  gulp.src(files)
-    .pipe(yuidoc({"syntaxtype": "js"}))
-    .pipe(gulp.dest("./docs"))
-
-  gulp.src(files)
-    .pipe(yuidoc({"syntaxtype": "coffee"}))
-    .pipe(gulp.dest("./docs"))
-
-}
+gulp.task("default", ["server","make","watch"])
 
 gulp.task("server", function() {
 
   var port = 4000
     , lrport = 35728
-
-  // lr.listen(lrport, function() {
-  //   gutil.log('LR Listening on', lrport);
-  // });
 
   var app = express();
   app.use(require('connect-livereload')())
@@ -87,8 +71,6 @@ gulp.task("make", function() {
       }))
       .pipe(livereload(lr))
       .on("error",notify.onError(error))
-      // .once("end",documentation);
-      // .once("end",process.exit)
 
   }
 
@@ -113,8 +95,12 @@ gulp.task("watch", function() {
 
 })
 
+gulp.task("release",["builds","docs"], function() {
+  process.exit();
+})
+
 // Task to build files for release
-gulp.task("build", function(){
+gulp.task("builds", function(){
 
   var fileList = glob.sync(files,{nosort: true});
 
@@ -150,13 +136,20 @@ gulp.task("build", function(){
     .on("error",notify.onError(error));
 
   return es.merge(normal,full)
-    .once("end",function(){
-        documentation();
-        process.exit();
-      });
 
 })
 
-// Default Task
-// gulp.task("default",["make"])
-gulp.task("default", ["server","make","watch"])
+gulp.task("docs", function() {
+
+  gulp.src("./docs/files/*.*", {read: false})
+    .pipe(rimraf())
+
+  gulp.src(files)
+    .pipe(yuidoc({"project": project, "syntaxtype": "js"}))
+    .pipe(gulp.dest("./docs"))
+
+  gulp.src(files)
+    .pipe(yuidoc({"project": project, "syntaxtype": "coffee"}))
+    .pipe(gulp.dest("./docs"))
+
+})

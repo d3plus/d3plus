@@ -1,7 +1,5 @@
 d3selection = require "./d3selection.js"
-###*
- * Checks to see if element is inside of another element
- ###
+# Checks to see if element is inside of another element
 d3plus.util.child = (parent, child) ->
 
   return false if not parent or not child

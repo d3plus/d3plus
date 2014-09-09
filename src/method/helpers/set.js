@@ -1,3 +1,6 @@
+var validObject = require("../../object/validate.coffee"),
+    mergeObject = require("../../object/merge.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets a method's value.
 //------------------------------------------------------------------------------
@@ -26,7 +29,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
     var accepted = object.accepted
 
   }
-  else if ( d3plus.object.validate( object[key] ) && "accepted" in object[key] ) {
+  else if ( validObject( object[key] ) && "accepted" in object[key] ) {
 
     var accepted = object[key].accepted
 
@@ -104,7 +107,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
     // If the method we are setting has a nested "value" key, change the
     // reference object and key to reflect that.
     //--------------------------------------------------------------------------
-    if ( d3plus.object.validate( object[key] ) && "value" in object[key] ) {
+    if ( validObject( object[key] ) && "value" in object[key] ) {
 
       var parentKey = key
       object = object[key]
@@ -159,7 +162,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
             object.nesting = {}
           }
 
-          if ( d3plus.object.validate( value ) ) {
+          if ( validObject( value ) ) {
 
             for (var id in value) {
 
@@ -169,7 +172,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
             }
 
-            object.nesting = d3plus.object.merge( object.nesting , value )
+            object.nesting = mergeObject( object.nesting , value )
 
             if ( !(vars.id.value in object.nesting) ) {
               object.nesting[vars.id.value] = value[d3.keys(value)[0]]
@@ -240,9 +243,9 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
         }
       }
-      else if ( d3plus.object.validate(object[key]) && d3plus.object.validate(value) ) {
+      else if ( validObject(object[key]) && validObject(value) ) {
 
-        object[key] = d3plus.object.merge( object[key] , value )
+        object[key] = mergeObject( object[key] , value )
 
       }
       else {

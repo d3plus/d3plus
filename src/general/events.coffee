@@ -1,6 +1,4 @@
-###*
- * Creates custom mouse events based on IE and Touch Devices.
- ###
+# Creates custom mouse events based on IE and Touch Devices.
 d3plus.touch = if ("ontouchstart" of window) or window.DocumentTouch and document instanceof DocumentTouch then true else false
 if d3plus.touch
   d3plus.evt =

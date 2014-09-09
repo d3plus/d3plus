@@ -1,3 +1,5 @@
+validObject = require "../../object/validate.coffee"
+
 # Detects is we should set the object or check all keys of object.
 d3plus.method.object = (vars, method, object, key, value) ->
 
@@ -5,8 +7,8 @@ d3plus.method.object = (vars, method, object, key, value) ->
 
     # Determine whether or not to just set the local variable or to dig into
     # the object passed looking for keys.
-    passingObject = d3plus.object.validate(value)
-    objectOnly = d3plus.object.validate(object[key]) and "objectAccess" of object[key] and object[key]["objectAccess"] is false
+    passingObject = validObject(value)
+    objectOnly = validObject(object[key]) and "objectAccess" of object[key] and object[key]["objectAccess"] is false
     approvedObject = passingObject and (objectOnly or (("value" not of value) and (d3.keys(value)[0] not of object[key])))
 
     # Set value of key.

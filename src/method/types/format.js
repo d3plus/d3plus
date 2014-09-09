@@ -1,3 +1,5 @@
+var mergeObject = require("../../object/merge.coffee")
+
 d3plus.method.format = {
   "accepted"   : [ Function , String ],
   "deprecates" : [ "number_format" , "text_format" ],
@@ -11,7 +13,7 @@ d3plus.method.format = {
         , returnObject  = d3plus.locale[defaultLocale]
 
       if ( value !== defaultLocale ) {
-        returnObject = d3plus.object.merge( returnObject , d3plus.locale[value] )
+        returnObject = mergeObject( returnObject , d3plus.locale[value] )
       }
 
       this.language = value

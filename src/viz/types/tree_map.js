@@ -1,6 +1,7 @@
 var dataThreshold = require("../../core/data/threshold.js"),
-    fetchValue = require("../../core/fetch/value.js"),
-    groupData = require("../../core/data/group.coffee")
+    fetchValue    = require("../../core/fetch/value.js"),
+    groupData     = require("../../core/data/group.coffee"),
+    mergeObject   = require("../../object/merge.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
@@ -59,7 +60,7 @@ var tree_map = function(vars) {
     var returnData = []
     data.forEach(function(d){
 
-      d.d3plus.d3plus = d3plus.object.merge(d.d3plus.d3plus,{
+      d.d3plus.d3plus = mergeObject(d.d3plus.d3plus,{
         "x": d.x+d.dx/2,
         "y": d.y+d.dy/2,
         "width": d.dx,

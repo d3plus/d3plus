@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>/Users/Dave/Sites/D3plus/src/font/sizes.coffee</title>
+    <title>object</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -45,6 +45,10 @@
 
             <ul id="api-modules" class="apis modules">
             
+                <li><a href="../modules/d3plus.html">d3plus</a></li>
+            
+                <li><a href="../modules/object.html">object</a></li>
+            
             </ul>
         </div>
     </div>
@@ -80,37 +84,37 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: /Users/Dave/Sites/D3plus/src/font/sizes.coffee</h1>
+                        <h1>object Module</h1>
+<div class="box clearfix meta">
+    
 
-<div class="file">
-    <pre class="code prettyprint linenums">
-fontTester = require &quot;../core/font/tester.coffee&quot;
+    
 
-###*
- * Creates test div to populate with test DIVs
- ###
-d3plus.font.sizes = (words, style, parent) -&gt;
+    
+        <div class="foundat">
+            Defined in: <a href="../files/_Users_Dave_Sites_D3plus_src_init.coffee.html#l21"><code>&#x2F;Users&#x2F;Dave&#x2F;Sites&#x2F;D3plus&#x2F;src&#x2F;init.coffee:21</code></a>
+        </div>
+    
 
-  tester = parent or fontTester(&quot;svg&quot;).append(&quot;text&quot;)
-  style = style or {}
-  sizes = []
-  words = [ words ] unless words instanceof Array
-  tspans = tester.selectAll(&quot;tspan.d3plus_testFontSize&quot;).data(words)
-  attr =
-    x: 0
-    y: 0
+    
+</div>
 
-  tspans.enter().append(&quot;tspan&quot;).attr(&quot;class&quot;, &quot;d3plus_testFontSize&quot;).text(String).style(style).attr(attr).each (d) -&gt;
-    sizes.push
-      height: @offsetHeight or @getBoundingClientRect().height
-      text: d
-      width: @getComputedTextLength()
 
-  tspans.remove()
-  tester.remove() unless tester
-  sizes
 
-    </pre>
+<div class="box intro">
+    
+</div>
+
+
+
+<div class="yui3-g">
+    <div class="yui3-u-1-2">
+        
+    </div>
+
+    <div class="yui3-u-1-2">
+        
+    </div>
 </div>
 
                     </div>

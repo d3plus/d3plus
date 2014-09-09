@@ -1,6 +1,4 @@
-###*
- * Mixes 2 colors with optional opacities
- ###
+# Mixes 2 colors with optional opacities
 d3plus.color.mix = (c1, c2, o1, o2) ->
   o1 = 1  unless o1
   o2 = 1  unless o2

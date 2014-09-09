@@ -1,3 +1,5 @@
+var validObject = require("../../object/validate.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //------------------------------------------------------------------------------
@@ -58,7 +60,7 @@ d3plus.method.init = function( vars , obj , method ) {
       }
 
     }
-    else if ( d3plus.object.validate( obj[o] ) ) {
+    else if ( validObject( obj[o] ) ) {
 
       d3plus.method.init( vars , obj[o] , o )
 

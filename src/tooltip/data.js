@@ -1,6 +1,7 @@
 var fetchValue = require("../core/fetch/value.js"),
     fetchColor = require("../core/fetch/color.js"),
-    fetchText  = require("../core/fetch/text.js")
+    fetchText  = require("../core/fetch/text.js"),
+    mergeObject = require("../object/merge.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
@@ -21,7 +22,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
   var extra_data = {}
   if (extras && typeof extras == "string") extras = [extras]
   else if (extras && typeof extras == "object") {
-    extra_data = d3plus.object.merge(extra_data,extras)
+    extra_data = mergeObject(extra_data,extras)
     var extras = []
     for ( var k in extra_data ) {
       extras.push(k)
@@ -55,7 +56,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
         a = []
       }
       else {
-        a = d3plus.object.merge({"":[]},a)
+        a = mergeObject({"":[]},a)
       }
 
     }
@@ -64,7 +65,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
       a = [a]
     }
     else if (!(a instanceof Array)) {
-      a = d3plus.object.merge({"":[]},a)
+      a = mergeObject({"":[]},a)
     }
 
   }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>/Users/Dave/Sites/D3plus/src/color/text.coffee</title>
+    <title>d3plus.object.merge</title>
     <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
     <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
     <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
@@ -41,9 +41,15 @@
         <div id="api-tabview-panel">
             <ul id="api-classes" class="apis classes">
             
+                <li><a href="../classes/d3plus.object.html">d3plus.object</a></li>
+            
             </ul>
 
             <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/d3plus.html">d3plus</a></li>
+            
+                <li><a href="../modules/d3plus.object.merge.html">d3plus.object.merge</a></li>
             
             </ul>
         </div>
@@ -80,22 +86,38 @@
             <div class="apidocs">
                 <div id="docs-main">
                     <div class="content">
-                        <h1 class="file-heading">File: /Users/Dave/Sites/D3plus/src/color/text.coffee</h1>
+                        <h1>d3plus.object.merge Module</h1>
+<div class="box clearfix meta">
+    
 
-<div class="file">
-    <pre class="code prettyprint linenums">
-###*
- * Returns appropriate text color based off of a given color
- ###
-d3plus.color.text = (color) -&gt;
-  rgbColor = d3.rgb(color)
-  r = rgbColor.r
-  g = rgbColor.g
-  b = rgbColor.b
-  yiq = (r * 299 + g * 587 + b * 114) / 1000
-  if yiq &gt;= 128 then &quot;#444444&quot; else &quot;#f7f7f7&quot;
+    
 
-    </pre>
+    
+        <div class="foundat">
+            Defined in: <a href="../files/_Users_Dave_Sites_D3plus_src_object_merge.coffee.html#l4"><code>&#x2F;Users&#x2F;Dave&#x2F;Sites&#x2F;D3plus&#x2F;src&#x2F;object&#x2F;merge.coffee:4</code></a>
+        </div>
+    
+
+    
+</div>
+
+
+
+<div class="box intro">
+    <p>Merges two javascript Objects to create a new one with the properties of both.</p>
+
+</div>
+
+
+
+<div class="yui3-g">
+    <div class="yui3-u-1-2">
+        
+    </div>
+
+    <div class="yui3-u-1-2">
+        
+    </div>
 </div>
 
                     </div>

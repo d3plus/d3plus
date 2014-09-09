@@ -1,6 +1,6 @@
-###*
- * Load Data using JSON
- ###
+validObject = require "../../object/validate.coffee"
+
+# Load Data using JSON
 module.exports = (vars, key, next) ->
 
   d3plus.console.time "loading " + key if vars.dev.value
@@ -37,7 +37,7 @@ module.exports = (vars, key, next) ->
       if typeof vars[key].callback is "function"
         ret = vars[key].callback(data)
         if ret
-          if d3plus.object.validate(ret) and key of ret
+          if validObject(ret) and key of ret
             for k of ret
               vars[k].value = ret[k] if k of vars
           else

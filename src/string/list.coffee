@@ -1,6 +1,4 @@
-###*
- * Converts an array of strings into a string list using commas and "and".
- ###
+# Converts an array of strings into a string list using commas and "and".
 d3plus.string.list = (list, andText, max, moreText) ->
   unless list instanceof Array
     return list

@@ -1,6 +1,4 @@
-###*
- * Formats numbers to look "pretty"
- ###
+# Formats numbers to look "pretty"
 d3plus.string.title = (text, key, vars) ->
 
   return "" unless text

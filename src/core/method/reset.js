@@ -1,7 +1,9 @@
+var validObject = require("../../object/validate.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Resets certain keys in global variables.
 //-------------------------------------------------------------------
-var reset = function( obj , method ) {
+module.exports = function( obj , method ) {
 
   if ( obj.changed ) {
     obj.changed = false
@@ -15,7 +17,7 @@ var reset = function( obj , method ) {
 
   for ( var o in obj ) {
 
-    if ( d3plus.object.validate( obj[o] ) ) {
+    if ( validObject( obj[o] ) ) {
 
       reset( obj[o] , o )
 
@@ -24,5 +26,3 @@ var reset = function( obj , method ) {
   }
 
 }
-
-module.exports = reset

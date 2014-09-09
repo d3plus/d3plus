@@ -1,7 +1,8 @@
-var dataNest   = require("../../core/data/nest.js"),
-    fetchValue = require("../../core/fetch/value.js"),
-    fetchColor = require("../../core/fetch/color.js"),
-    fetchText  = require("../../core/fetch/text.js")
+var dataNest    = require("../../core/data/nest.js"),
+    fetchValue  = require("../../core/fetch/value.js"),
+    fetchColor  = require("../../core/fetch/color.js"),
+    fetchText   = require("../../core/fetch/text.js"),
+    validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -166,7 +167,7 @@ d3plus.ui.legend = function(vars) {
                 if (typeof iconStyle === "string") {
                   var icon_style = vars.icon.style.value
                 }
-                else if (d3plus.object.validate(iconStyle) && iconStyle[colorKey]) {
+                else if (validObject(iconStyle) && iconStyle[colorKey]) {
                   var icon_style = iconStyle[colorKey]
                 }
                 else {

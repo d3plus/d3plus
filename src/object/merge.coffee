@@ -1,14 +1,20 @@
 d3selection = require "../util/d3selection.js"
+validate    = require "./validate.coffee"
 
 ###*
- * Merge two objects to create a new one with the properties of both
- ###
-d3plus.object.merge = (obj1, obj2) ->
+# Given any two objects, this method will merge the two objects together, returning a new third object. The values of the second object always overwrite the first.
+# @method d3plus.object.merge
+# @for d3plus.object
+# @param obj1 {Object} The primary object.
+# @param obj2 {Object} The secondary object to merge into the first.
+# @return {Object}
+###
+module.exports = (obj1, obj2) ->
 
   copyObject = (obj, ret) ->
     for a of obj
       unless typeof obj[a] is "undefined"
-        if d3plus.object.validate(obj[a])
+        if validate(obj[a])
           ret[a] = {}  if typeof ret[a] isnt "object"
           copyObject obj[a], ret[a]
         else if not d3selection(obj[a]) and obj[a] instanceof Array
@@ -22,5 +28,3 @@ d3plus.object.merge = (obj1, obj2) ->
   copyObject obj2, obj3 if obj2
 
   obj3
-
-module.exports = d3plus.object.merge

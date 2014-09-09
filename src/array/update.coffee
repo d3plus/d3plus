@@ -1,7 +1,4 @@
-###*
- * Updates an array, either overwriting it with a new array, removing an entry
- * if it is present, or adding it if it is not.
- ###
+# Updates an array, either overwriting it with a new array, removing an entry
 d3plus.array.update = (arr, x) ->
   arr = [] unless arr instanceof Array
 
