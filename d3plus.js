@@ -11346,7 +11346,7 @@ module.exports = function( vars , id , level ) {
         var value = id
       }
 
-      if ( value !== undefined && value !== null && !isNaN(value) ) {
+      if ( value !== undefined && value !== null ) {
         var color = getColor(value)
         if (colors.indexOf(color) < 0) colors.push(color)
       }
