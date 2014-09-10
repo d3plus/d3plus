@@ -1,5 +1,5 @@
 # Formats numbers to look "pretty"
-d3plus.string.title = (text, key, vars) ->
+module.exports = (text, key, vars) ->
 
   return "" unless text
 

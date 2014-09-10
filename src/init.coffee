@@ -33,6 +33,22 @@ d3plus.array =
   update: require "./array/update.coffee"
 
 ###*
+# Utilities related to color manipulation.
+# @class d3plus.color
+# @for d3plus
+# @static
+###
+d3plus.color =
+  legible:  require "./color/legible.coffee"
+  lighter:  require "./color/lighter.coffee"
+  mix:      require "./color/mix.coffee"
+  random:   require "./color/random.coffee"
+  scale:    require "./color/scale.coffee"
+  sort:     require "./color/sort.coffee"
+  text:     require "./color/text.coffee"
+  validate: require "./color/validate.coffee"
+
+###*
 # Utilities related to manipulating data.
 # @class d3plus.data
 # @for d3plus
@@ -75,6 +91,15 @@ d3plus.network =
   subgraph:     require "./network/subgraph.coffee"
 
 ###*
+# Utilities that process numbers.
+# @class d3plus.number
+# @for d3plus
+# @static
+###
+d3plus.number =
+  format: require "./number/format.js"
+
+###*
 # D3plus features a set of methods that relate to various object properties. These methods may be used outside of the normal constraints of the visualizations.
 # @class d3plus.object
 # @for d3plus
@@ -83,6 +108,18 @@ d3plus.network =
 d3plus.object =
   merge:    require "./object/merge.coffee"
   validate: require "./object/validate.coffee"
+
+###*
+# Utilities that process strings.
+# @class d3plus.string
+# @for d3plus
+# @static
+###
+d3plus.string =
+  format: require "./string/format.js"
+  list:   require "./string/list.coffee"
+  strip:  require "./string/strip.js"
+  title:  require "./string/title.coffee"
 
 ###*
 # D3plus features Utilities that can be used to help with some common javascript processes.
@@ -101,13 +138,11 @@ d3plus.util =
   offset:      require "./util/offset.coffee"
   uniques:     require "./util/uniques.coffee"
 
-d3plus.color         = {}
+# THESE SHOULD PROBABLY ALL BE INTERNAL ONLY
 d3plus.draw          = {}
 d3plus.locale        = {}
 d3plus.method        = {}
-d3plus.number        = {}
 d3plus.shape         = {}
-d3plus.string        = {}
 d3plus.style         = {}
 d3plus.tooltip       = {}
 d3plus.ui            = {}

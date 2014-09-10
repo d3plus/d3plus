@@ -1,4 +1,6 @@
-var mergeObject = require("../../object/merge.coffee")
+var formatNumber = require("../../number/format.js"),
+    mergeObject = require("../../object/merge.coffee"),
+    titleCase = require("../../string/title.coffee")
 
 d3plus.method.format = {
   "accepted"   : [ Function , String ],
@@ -56,11 +58,11 @@ d3plus.method.format = {
       return f( v )
     }
     else if ( typeof value === "number" ) {
-      var f = this.number.value || d3plus.number.format
+      var f = this.number.value || formatNumber
       return f( value , key )
     }
     else if ( typeof value === "string" ) {
-      var f = this.text.value || d3plus.string.title
+      var f = this.text.value || titleCase
       return f( value , key )
     }
     else {

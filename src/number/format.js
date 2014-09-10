@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats numbers to look "pretty"
 //------------------------------------------------------------------------------
-d3plus.number.format = function( number , key , vars ) {
+module.exports = function( number , key , vars ) {
 
   if ( !vars && "getVars" in this) {
     var vars = this.getVars()

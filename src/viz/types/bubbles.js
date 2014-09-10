@@ -2,7 +2,8 @@ var arraySort = require("../../array/sort.coffee"),
     fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.js"),
     fetchText  = require("../../core/fetch/text.js"),
-    groupData = require("../../core/data/group.coffee")
+    legible    = require("../../color/legible.coffee"),
+    groupData  = require("../../core/data/group.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Bubbles
 //------------------------------------------------------------------------------
@@ -150,7 +151,7 @@ var bubbles = function(vars) {
           "y": -(size_max+label_height/2),
           "w": size_max*1.5,
           "h": label_height,
-          "color": d3plus.color.legible(fetchColor(vars,d,d.d3plus.depth)),
+          "color": legible(fetchColor(vars,d,d.d3plus.depth)),
         }
       }
       else {

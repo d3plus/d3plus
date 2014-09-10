@@ -1,3 +1,6 @@
+var stringFormat = require("../../../../string/format.js"),
+    stringStrip = require("../../../../string/strip.js")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
 //------------------------------------------------------------------------------
@@ -12,7 +15,7 @@ module.exports = function ( vars ) {
 
     var searchText  = vars.text.solo.value.length
                     ? vars.text.solo.value[0].toLowerCase() : ""
-      , searchWords = d3plus.string.strip(searchText).split("_")
+      , searchWords = stringStrip(searchText).split("_")
       , searchKeys  = [ vars.id.value
                       , vars.text.value
                       , vars.alt.value
@@ -63,7 +66,7 @@ module.exports = function ( vars ) {
             }
             else {
 
-              var texts = d3plus.string.strip(text).split("_")
+              var texts = stringStrip(text).split("_")
 
               for (t in texts) {
 
@@ -103,7 +106,7 @@ module.exports = function ( vars ) {
 
       var noData = {}
         , str = vars.format.value(vars.format.locale.value.ui.noResults)
-      noData[vars.text.value || vars.id.value] = d3plus.string.format(str,"\""+searchText+"\"")
+      noData[vars.text.value || vars.id.value] = stringFormat(str,"\""+searchText+"\"")
       vars.data.filtered = [ noData ]
 
     }

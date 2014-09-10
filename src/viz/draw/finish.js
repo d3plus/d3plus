@@ -1,4 +1,6 @@
-var methodReset = require("../../core/method/reset.coffee")
+var methodReset = require("../../core/method/reset.coffee"),
+    titleCase = require("../../string/title.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
 //------------------------------------------------------------------------------
@@ -129,7 +131,7 @@ d3plus.draw.finish = function(vars) {
   // Display and reset internal_error, if applicable
   //----------------------------------------------------------------------------
   if (vars.internal_error) {
-    vars.internal_error = d3plus.string.title( vars.internal_error )
+    vars.internal_error = titleCase( vars.internal_error )
     d3plus.console.warning(vars.internal_error)
     d3plus.ui.message(vars,vars.internal_error)
     vars.internal_error = null

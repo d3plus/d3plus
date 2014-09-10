@@ -1,3 +1,7 @@
+var legible = require("../color/legible.coffee"),
+    stringList = require("../string/list.coffee"),
+    textColor  = require("../color/text.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create a Tooltip
 //-------------------------------------------------------------------
@@ -43,7 +47,7 @@ d3plus.tooltip.create = function(params) {
     var and = params.locale.ui.and
       , more = params.locale.ui.more
 
-    params.title = d3plus.string.list( params.title , and , 3 , more )
+    params.title = stringList( params.title , and , 3 , more )
 
   }
 
@@ -168,7 +172,7 @@ d3plus.tooltip.create = function(params) {
     var close = tooltip.append("div")
       .attr("class","d3plus_tooltip_close")
       .style("background-color",params.color)
-      .style("color",d3plus.color.text(params.color))
+      .style("color",textColor(params.color))
       .style("position","absolute")
       .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.25)")
       .style("font-size","20px")
@@ -283,7 +287,7 @@ d3plus.tooltip.create = function(params) {
     var title = header.append("div")
       .attr("class","d3plus_tooltip_title")
       .style("max-width",mw)
-      .style("color",!params.icon ? d3plus.color.legible(params.color) : params.fontcolor)
+      .style("color",!params.icon ? legible(params.color) : params.fontcolor)
       .style("vertical-align","top")
       .style("width",title_width+"px")
       .style("display","inline-block")
@@ -340,10 +344,10 @@ d3plus.tooltip.create = function(params) {
         .datum(d)
 
       if ( d.highlight === true ) {
-        block.style("color",d3plus.color.legible(params.color))
+        block.style("color",legible(params.color))
       }
       else if ( d.allColors || d.highlight !== params.color ) {
-        block.style("color",d3plus.color.legible(d.highlight))
+        block.style("color",legible(d.highlight))
       }
 
       var name = block.append("div")
@@ -359,7 +363,7 @@ d3plus.tooltip.create = function(params) {
         var and = params.locale.ui.and
           , more = params.locale.ui.more
 
-        d.value = d3plus.string.list( d.value , and , 3 , more )
+        d.value = list( d.value , and , 3 , more )
 
       }
 

@@ -1,3 +1,5 @@
+var stringFormat = require("../../string/format.js")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cleans edges list and populates nodes list if needed
 //-------------------------------------------------------------------
@@ -59,7 +61,7 @@ module.exports = function( vars ) {
 
     if ( source === target ) {
       var str = vars.format.locale.value.dev.sameEdge
-      d3plus.console.warning(d3plus.string.format(str,"\""+source+"\"") , "edges" )
+      d3plus.console.warning(stringFormat(str,"\""+source+"\"") , "edges" )
       return false
     }
     else {

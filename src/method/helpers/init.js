@@ -1,4 +1,5 @@
-var validObject = require("../../object/validate.coffee")
+var stringFormat = require("../../string/format.js"),
+    validObject = require("../../object/validate.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
@@ -43,7 +44,7 @@ d3plus.method.init = function( vars , obj , method ) {
 
             var str = vars.format.locale.value.dev.deprecated
             dep = "\."+dep+"()"
-            d3plus.console.error( d3plus.string.format(str,dep,"\."+n+"()") , n )
+            d3plus.console.error( stringFormat(str,dep,"\."+n+"()") , n )
             return vars.self;
 
           }

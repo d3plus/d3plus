@@ -1,4 +1,5 @@
-var validObject = require("../../object/validate.coffee")
+var stringFormat = require("../../string/format.js"),
+    validObject = require("../../object/validate.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get/set function for methods
@@ -51,7 +52,7 @@ d3plus.method.function = function( key , vars ) {
 
       for ( var s in user ) {
 
-        d3plus.console.warning( d3plus.string.format(str,"\""+s+"\"",s) , s )
+        d3plus.console.warning( stringFormat(str,"\""+s+"\"",s) , s )
 
         vars.self[s](user[s])
 

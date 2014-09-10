@@ -1,5 +1,7 @@
+format = require "./format.js"
+
 # Converts an array of strings into a string list using commas and "and".
-d3plus.string.list = (list, andText, max, moreText) ->
+module.exports = (list, andText, max, moreText) ->
   unless list instanceof Array
     return list
   else
@@ -12,6 +14,6 @@ d3plus.string.list = (list, andText, max, moreText) ->
     if max and list.length > max
       amount = list.length - max + 1
       list = list.slice(0, max - 1)
-      list[max - 1] = d3plus.string.format(moreText, amount)
+      list[max - 1] = format(moreText, amount)
     list[list.length - 1] = andText + " " + list[list.length - 1]  if list.length > 1
     list.join ", "

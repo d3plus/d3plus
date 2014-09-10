@@ -1,3 +1,7 @@
+var legible = require("../../../../color/legible.coffee"),
+    lighter   = require("../../../../color/lighter.coffee"),
+    textColor = require("../../../../color/text.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Defines button color
 //------------------------------------------------------------------------------
@@ -9,7 +13,7 @@ module.exports = function ( elem , vars ) {
       if ( vars.focus.value[0] !== d[vars.id.value] ) {
 
         if ( vars.hover.value === d[vars.id.value] ) {
-          return d3plus.color.lighter(vars.ui.color.secondary.value,.25)
+          return lighter(vars.ui.color.secondary.value,.25)
         }
         else {
           return vars.ui.color.secondary.value
@@ -40,13 +44,13 @@ module.exports = function ( elem , vars ) {
       }
 
       if ( vars.focus.value[0] === d[vars.id.value] && d[vars.color.value] && !image ) {
-        var color = d3plus.color.legible(d[vars.color.value])
+        var color = legible(d[vars.color.value])
       }
       else if ( vars.focus.value[0] === d[vars.id.value] ) {
-        var color = d3plus.color.text(vars.ui.color.primary.value)
+        var color = textColor(vars.ui.color.primary.value)
       }
       else {
-        var color = d3plus.color.text(vars.ui.color.secondary.value)
+        var color = textColor(vars.ui.color.secondary.value)
       }
 
       var color = d3.rgb(color)

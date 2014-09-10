@@ -1,4 +1,5 @@
-var fetchValue = require("../../core/fetch/value.js")
+var fetchValue = require("../../core/fetch/value.js"),
+    stringStrip = require("../../string/strip.js")
 
 d3plus.method.csv = {
   "accepted"  : [ undefined , Array , String ],
@@ -23,7 +24,7 @@ d3plus.method.csv = {
         titles = [],
         title = vars.title.value || "My D3plus App Data"
 
-    title = d3plus.string.strip(title)
+    title = stringStrip(title)
 
     if (!columns) {
       var columns = [vars.id.value]

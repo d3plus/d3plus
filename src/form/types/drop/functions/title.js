@@ -1,3 +1,6 @@
+var lighter = require("../../../../color/lighter.coffee"),
+    textColor = require("../../../../color/text.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the title and back button.
 //------------------------------------------------------------------------------
@@ -34,7 +37,7 @@ module.exports = function ( vars ) {
         .style("font-size",vars.font.secondary.size+"px")
         .style("font-weight",vars.font.secondary.weight)
         .style("text-align",vars.font.secondary.align)
-        .style("color",d3plus.color.text(vars.ui.color.secondary.value))
+        .style("color",textColor(vars.ui.color.secondary.value))
 
     }
 
@@ -109,12 +112,12 @@ module.exports = function ( vars ) {
     vars.container.title
       .on(d3plus.evt.over,function(d,i){
 
-        var color = d3plus.color.lighter(vars.ui.color.secondary.value)
+        var color = lighter(vars.ui.color.secondary.value)
 
         d3.select(this).style("cursor","pointer")
           .transition().duration(vars.timing.mouseevents)
           .style("background-color",color)
-          .style("color",d3plus.color.text(color))
+          .style("color",textColor(color))
 
       })
       .on(d3plus.evt.out,function(d){
@@ -124,7 +127,7 @@ module.exports = function ( vars ) {
         d3.select(this).style("cursor","auto")
           .transition().duration(vars.timing.mouseevents)
           .style("background-color",color)
-          .style("color",d3plus.color.text(color))
+          .style("color",textColor(color))
 
       })
       .on(d3plus.evt.click,function(d){

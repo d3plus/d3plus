@@ -1,5 +1,6 @@
 var closest = require("../../util/closest.coffee"),
-    fontSizes = require("../../font/sizes.coffee")
+    fontSizes = require("../../font/sizes.coffee"),
+    textColor = require("../../color/text.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
@@ -222,11 +223,11 @@ d3plus.ui.timeline = function(vars) {
 
       if (d >= brushExtent[0] && d < brushExtent[1]) {
         var opacity = 1
-          , color = d3plus.color.text(vars.ui.color.primary.value)
+          , color = textColor(vars.ui.color.primary.value)
       }
       else {
         var opacity = 0.5
-          , color = d3plus.color.text(vars.ui.color.secondary.value)
+          , color = textColor(vars.ui.color.secondary.value)
       }
 
       var color = d3.rgb(color)

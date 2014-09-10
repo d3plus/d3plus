@@ -1,11 +1,12 @@
 var dataFormat  = require("../../core/data/format.js"),
-    dataColor   = require("../../core/data/color.js"),
-    dataKeys    = require("../../core/data/keys.js"),
-    dataLoad    = require("../../core/data/load.coffee"),
-    fetchData   = require("../../core/fetch/data.js"),
-    parseEdges  = require("../../core/parse/edges.js"),
-    parseNodes  = require("../../core/parse/nodes.js"),
-    validObject = require("../../object/validate.coffee")
+    dataColor    = require("../../core/data/color.js"),
+    dataKeys     = require("../../core/data/keys.js"),
+    dataLoad     = require("../../core/data/load.coffee"),
+    fetchData    = require("../../core/fetch/data.js"),
+    parseEdges   = require("../../core/parse/edges.js"),
+    parseNodes   = require("../../core/parse/nodes.js"),
+    stringFormat = require("../../string/format.js"),
+    validObject  = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -42,7 +43,7 @@ d3plus.draw.steps = function(vars) {
     var appName     = locale.visualization[appType] || appType
       , appSetup    = vars.types[appType].setup || false
       , appReqs     = vars.types[appType].requirements || []
-      , appMessage  = d3plus.string.format(locale.message.initializing,appName)
+      , appMessage  = stringFormat(locale.message.initializing,appName)
       , dataMessage = locale.message.data
 
     if (!(appReqs instanceof Array)) appReqs = [appReqs]

@@ -1,8 +1,10 @@
 var child = require("../../util/child.coffee"),
-    closest = require("../../util/closest.coffee"),
-    fetchValue = require("../../core/fetch/value.js"),
-    fetchColor = require("../../core/fetch/color.js"),
-    fetchText  = require("../../core/fetch/text.js"),
+    closest      = require("../../util/closest.coffee"),
+    fetchValue   = require("../../core/fetch/value.js"),
+    fetchColor   = require("../../core/fetch/color.js"),
+    fetchText    = require("../../core/fetch/text.js"),
+    legible      = require("../../color/legible.coffee"),
+    stringStrip  = require("../../string/strip.js"),
     uniqueValues = require("../../util/uniques.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -71,7 +73,7 @@ d3plus.shape.draw = function(vars) {
       }
     })
 
-    d.d3plus.id = d3plus.string.strip(d.d3plus.id)
+    d.d3plus.id = stringStrip(d.d3plus.id)
 
     return d
   }
@@ -531,7 +533,7 @@ d3plus.shape.draw = function(vars) {
         var depth_delta = vars.zoom.direction(d.d3plus_data || d)
           , previous = vars.id.solo.value
           , title = fetchText(vars,d)[0]
-          , color = d3plus.color.legible(fetchColor(vars,d))
+          , color = legible(fetchColor(vars,d))
           , prev_sub = vars.title.sub.value || false
           , prev_color = vars.title.sub.font.color
           , prev_total = vars.title.total.font.color

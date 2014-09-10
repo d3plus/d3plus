@@ -1,12 +1,14 @@
 var arraySort = require("../../array/sort.coffee"),
-    buckets = require("../../util/buckets.coffee")
-  , closest = require("../../util/closest.coffee")
-  , copy = require("../../util/copy.coffee")
-  , fetchValue = require("../../core/fetch/value.js")
-  , fetchColor = require("../../core/fetch/color.js")
-  , fetchData  = require("../../core/fetch/data.js")
-  , fontSizes = require("../../font/sizes.coffee")
-  , uniqueValues = require("../../util/uniques.coffee")
+    buckets      = require("../../util/buckets.coffee"),
+    closest      = require("../../util/closest.coffee"),
+    copy         = require("../../util/copy.coffee"),
+    fetchValue   = require("../../core/fetch/value.js"),
+    fetchColor   = require("../../core/fetch/color.js"),
+    fetchData    = require("../../core/fetch/data.js"),
+    fontSizes    = require("../../font/sizes.coffee"),
+    legible      = require("../../color/legible.coffee"),
+    stringStrip  = require("../../string/strip.js"),
+    uniqueValues = require("../../util/uniques.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Chart
@@ -716,7 +718,7 @@ var chart = function(vars) {
       .key(function(d){
         var id = fetchValue(vars,d,vars.id.value),
             depth = d.d3plus.depth ? d.d3plus.depth : 0
-        return d3plus.string.strip(id)+"_"+depth+"_"+vars.shape.value
+        return stringStrip(id)+"_"+depth+"_"+vars.shape.value
       })
       .rollup(function(leaves){
 
@@ -889,7 +891,7 @@ var chart = function(vars) {
           return axis == "x" ? graph.height+5 : d.d3plus.y-graph.margin.top
         })
         .style("stroke",function(d){
-          return d3plus.color.legible(fetchColor(vars,d));
+          return legible(fetchColor(vars,d));
         })
         .style("stroke-width",vars.data.stroke.width)
         .attr("shape-rendering",vars.shape.rendering.value)
@@ -994,7 +996,7 @@ var chart = function(vars) {
         return d.axis == "y" ? d.y : graph.height+graph.margin.top+vars.axes.ticks.size
       })
       .style("stroke",function(d){
-        return d3plus.color.legible(fetchColor(vars,node));
+        return legible(fetchColor(vars,node));
       })
       .style("stroke-width",vars.data.stroke.width)
       .attr("opacity",1)
@@ -1030,7 +1032,7 @@ var chart = function(vars) {
         return d.axis == "y" ? "end": "middle"
       })
       .attr("fill",function(d){
-        return d3plus.color.legible(fetchColor(vars,node));
+        return legible(fetchColor(vars,node));
       })
       .attr("font-size",vars.axes.ticks.font.size)
       .attr("font-family",vars.axes.ticks.font.family.value)
@@ -1071,7 +1073,7 @@ var chart = function(vars) {
         return text.height + 10
       })
       .style("stroke",function(d){
-        return d3plus.color.legible(fetchColor(vars,node));
+        return legible(fetchColor(vars,node));
       })
       .attr("fill","white")
       .style("stroke-width",vars.data.stroke.width)

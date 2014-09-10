@@ -6,8 +6,10 @@ var arraySort = require("../../array/sort.coffee"),
     fetchValue   = require("../../core/fetch/value.js"),
     fetchColor   = require("../../core/fetch/color.js"),
     fetchText    = require("../../core/fetch/text.js"),
-    validObject  = require("../../object/validate.coffee"),
-    uniqueValues = require("../../util/uniques.coffee")
+    textColor    = require("../../color/text.coffee"),
+    uniqueValues = require("../../util/uniques.coffee"),
+    stringStrip  = require("../../string/strip.js"),
+    validObject  = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -164,7 +166,7 @@ d3plus.ui.legend = function(vars) {
 
               if (icon && icon !== "null") {
 
-                var short_url = d3plus.string.strip(icon+"_"+color)
+                var short_url = stringStrip(icon+"_"+color)
                   , iconStyle = vars.icon.style.value
                   , pattern = vars.defs.selectAll("pattern#"+short_url)
                       .data([short_url])
@@ -236,7 +238,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("font-weight",vars.legend.font.weight)
                   .attr("font-family",vars.legend.font.family.value)
                   .style("text-anchor","start")
-                  .attr("fill",d3plus.color.text(color))
+                  .attr("fill",textColor(color))
                   .attr("x",0)
                   .attr("y",0)
                   .each(function(t){

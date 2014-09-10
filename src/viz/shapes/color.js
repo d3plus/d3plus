@@ -1,5 +1,6 @@
-var fetchValue = require("../../core/fetch/value.js")
-  , fetchColor = require("../../core/fetch/color.js")
+var fetchValue = require("../../core/fetch/value.js"),
+    fetchColor = require("../../core/fetch/color.js"),
+    lighter    = require("../../color/lighter.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Returns the correct fill color for a node
 //-------------------------------------------------------------------
@@ -26,7 +27,7 @@ d3plus.shape.color = function(d,vars) {
   }
 
   if (d.d3plus.static) {
-    return d3plus.color.lighter(fetchColor(vars,d),.75);
+    return lighter(fetchColor(vars,d),.75);
   }
 
   var active = vars.active.value ? fetchValue(vars,d,vars.active.value) : d.d3plus.active,
@@ -40,7 +41,7 @@ d3plus.shape.color = function(d,vars) {
     return "#eee"
   }
   else {
-    return d3plus.color.lighter(fetchColor(vars,d),.75);
+    return lighter(fetchColor(vars,d),.75);
   }
 
 }

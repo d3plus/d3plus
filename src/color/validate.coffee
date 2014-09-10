@@ -1,5 +1,5 @@
 # Tests if a string is a valid color
-d3plus.color.validate = (color) ->
+module.exports = (color) ->
   color = color + ""
   color = color.replace(RegExp(" ", "g"), "")
   color = color.split("(")[1].split(")")[0].split(",").slice(0, 3).join(",") if color.indexOf("rgb") is 0

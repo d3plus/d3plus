@@ -1,4 +1,8 @@
-var fetchText = require("../../core/fetch/text.js")
+var fetchText = require("../../core/fetch/text.js"),
+    mix        = require("../../color/mix.coffee"),
+    stringList = require("../../string/list.coffee"),
+    textColor  = require("../../color/text.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
@@ -145,10 +149,10 @@ d3plus.shape.labels = function( vars , group ) {
         if ( t.color ) return t.color
 
         var color = d3plus.shape.color(t.parent,vars)
-          , legible = d3plus.color.text(color)
+          , legible = textColor(color)
           , opacity = t.text ? 0.15 : 1
 
-        return d3plus.color.mix( color , legible , 0.2 , opacity )
+        return mix( color , legible , 0.2 , opacity )
 
       })
       .attr("x",x_pos)
@@ -349,7 +353,7 @@ d3plus.shape.labels = function( vars , group ) {
 
           for (var i = 0; i < names.length; i++) {
             if (names[i] instanceof Array) {
-              names[i] = d3plus.string.list(names[i],and,3,more)
+              names[i] = stringList(names[i],and,3,more)
             }
           }
 

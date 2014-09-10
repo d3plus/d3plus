@@ -1,5 +1,8 @@
 var fetchValue = require("./value.js"),
+    randomColor = require("../../color/random.coffee"),
+    validColor  = require("../../color/validate.coffee"),
     validObject = require("../../object/validate.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
 //------------------------------------------------------------------------------
@@ -23,7 +26,7 @@ module.exports = function( vars , id , level ) {
       c = c[0]
     }
 
-    return d3plus.color.random( c, vars.color.scale.value )
+    return randomColor( c, vars.color.scale.value )
 
   }
 
@@ -45,7 +48,7 @@ module.exports = function( vars , id , level ) {
 
       }
       else if ( !vars.color.valueScale ) {
-        return d3plus.color.validate( color ) ? color : getRandom( color )
+        return validColor( color ) ? color : getRandom( color )
       }
       else {
         return vars.color.valueScale( color )

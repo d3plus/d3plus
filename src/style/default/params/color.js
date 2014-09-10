@@ -1,3 +1,5 @@
+var defaultScale = require("../../../color/scale.coffee")
+
 d3plus.style.default.color = {
   "heatmap"   : [ "#282F6B" , "#419391" , "#AFD5E8"
                 , "#EACE3F" , "#B35C1E" , "#B22200" ],
@@ -12,14 +14,11 @@ d3plus.style.default.color = {
       if (value instanceof Array) {
         return d3.scale.ordinal().range(value)
       }
+      else if (value === "d3plus") {
+        return defaultScale
+      }
       else {
-        if (value === "d3plus") {
-          return d3plus.color.scale
-        }
-        else {
-          console.log("Here!")
-          return d3.scale[value]()
-        }
+        return d3.scale[value]()
       }
 
     },

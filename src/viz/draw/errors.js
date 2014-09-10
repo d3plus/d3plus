@@ -1,4 +1,7 @@
-var fetchText = require("../../core/fetch/text.js")
+var fetchText = require("../../core/fetch/text.js"),
+    stringFormat = require("../../string/format.js"),
+    stringList   = require("../../string/list.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -33,13 +36,13 @@ d3plus.draw.errors = function(vars) {
     var str = vars.format.locale.value.error.methods
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
       , and = vars.format.locale.value.ui.and
-    missing = d3plus.string.list(missing,and)
-    vars.internal_error = d3plus.string.format(str,app,missing)
+    missing = stringList(missing,and)
+    vars.internal_error = stringFormat(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.method
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-    vars.internal_error = d3plus.string.format(str,app,missing[0])
+    vars.internal_error = stringFormat(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -50,7 +53,7 @@ d3plus.draw.errors = function(vars) {
     if (connections.length == 0) {
       var name = fetchText(vars,vars.focus.value[0],vars.depth.value)
         , str = vars.format.locale.value.error.connections
-      vars.internal_error = d3plus.string.format(str,"\""+name+"\"")
+      vars.internal_error = stringFormat(str,"\""+name+"\"")
     }
   }
 
@@ -70,13 +73,13 @@ d3plus.draw.errors = function(vars) {
     var str = vars.format.locale.value.error.libs
       , app = vars.format.locale.value.visualization[vars.type.value]
       , and = vars.format.locale.value.ui.and
-    missing = d3plus.string.list(missing,and)
-    vars.internal_error = d3plus.string.format(str,app,missing)
+    missing = stringList(missing,and)
+    vars.internal_error = stringFormat(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.lib
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = d3plus.string.format(str,app,missing[0])
+    vars.internal_error = stringFormat(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -94,7 +97,7 @@ d3plus.draw.errors = function(vars) {
       , shape = "\""+vars.shape.value+"\""
       , shapeStr = vars.format.locale.value.method.shape
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-    d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes.join("\", \"")+"\""),"shape")
+    d3plus.console.warning(stringFormat(str,shape,shapeStr,app,"\""+shapes.join("\", \"")+"\""),"shape")
     vars.self.shape(shapes.length ? shapes[0] : "circle")
   }
 
@@ -111,7 +114,7 @@ d3plus.draw.errors = function(vars) {
         , mode = "\""+vars.type.mode.value+"\""
         , modeStr = vars.format.locale.value.method.mode
         , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-      d3plus.console.warning(d3plus.string.format(str,mode,modeStr,app,"\""+modes+"\""))
+      d3plus.console.warning(stringFormat(str,mode,modeStr,app,"\""+modes+"\""))
       vars.self.type({"mode": vars.types[vars.type.value].modes[0]})
     }
   }

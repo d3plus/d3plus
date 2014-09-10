@@ -1,3 +1,4 @@
+colorSort  = require("../color/sort.coffee")
 fetchValue = require("../core/fetch/value.js")
 fetchColor = require("../core/fetch/color.js")
 fetchText  = require("../core/fetch/text.js")
@@ -24,7 +25,7 @@ module.exports = (arr, keys, sort, colors, vars, depth) ->
       if vars and colors.indexOf(k) >= 0
         a = fetchColor(vars, a, depth)
         b = fetchColor(vars, b, depth)
-        retVal = d3plus.color.sort(a, b)
+        retVal = colorSort(a, b)
       else
         a = (if a instanceof Array then a = a[0] else (if typeof a is "string" then a = a.toLowerCase() else a))
         b = (if b instanceof Array then b = b[0] else (if typeof b is "string" then b = b.toLowerCase() else b))

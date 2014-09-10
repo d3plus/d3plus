@@ -1,8 +1,10 @@
 var copy = require("../util/copy.coffee"),
-    fetchValue = require("../core/fetch/value.js"),
-    fetchColor = require("../core/fetch/color.js"),
-    fetchText  = require("../core/fetch/text.js"),
-    mergeObject = require("../object/merge.coffee")
+    fetchValue   = require("../core/fetch/value.js"),
+    fetchColor   = require("../core/fetch/color.js"),
+    fetchText    = require("../core/fetch/text.js"),
+    legible      = require("../color/legible.coffee"),
+    mergeObject  = require("../object/merge.coffee"),
+    stringFormat = require("../string/format.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
@@ -218,7 +220,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
         if ( child === "d3plusMore" ) {
 
           var more = vars.format.locale.value.ui.more
-            , name = d3plus.string.format(more,children[child])
+            , name = stringFormat(more,children[child])
             , highlight = true
           children[child] = ""
 
@@ -253,7 +255,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
             radius = vars.shape.value == "square" ? 0 : size
             styles = [
               "background-color: "+color,
-              "border-color: "+d3plus.color.legible(color),
+              "border-color: "+legible(color),
               "border-style: solid",
               "border-width: "+vars.data.stroke.width+"px",
               "display: inline-block",

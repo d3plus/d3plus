@@ -1,4 +1,6 @@
-var stylesheet = require("../../style/sheet.coffee")
+var lighter = require("../../color/lighter.coffee"),
+    stylesheet = require("../../style/sheet.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates "back" button, if applicable
 //------------------------------------------------------------------------------
@@ -70,7 +72,7 @@ d3plus.ui.history = function(vars) {
           d3.select(this)
             .style("cursor","pointer")
             .transition().duration(vars.timing.mouseevents)
-              .style("color",d3plus.color.lighter(color,.25))
+              .style("color",lighter(color,.25))
 
         }
 

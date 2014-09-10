@@ -1,3 +1,5 @@
+var stringStrip = require("../../string/strip.js")
+
 d3plus.method.title = {
   "accepted" : [ false , Function , String ],
   "link"     : false,
@@ -18,7 +20,7 @@ d3plus.method.title = {
     var vars = this.getVars()
 
     if ( vars.container.id.indexOf("default") === 0 && value ) {
-      var id = d3plus.string.strip(value).toLowerCase()
+      var id = stringStrip(value).toLowerCase()
       vars.self.container({"id": id})
     }
 

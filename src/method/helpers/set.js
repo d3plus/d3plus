@@ -1,8 +1,10 @@
 var copy = require("../../util/copy.coffee"),
-    d3selection = require("../../util/d3selection.coffee"),
-    validObject = require("../../object/validate.coffee"),
-    mergeObject = require("../../object/merge.coffee"),
-    updateArray = require("../../array/update.coffee")
+    d3selection  = require("../../util/d3selection.coffee"),
+    validObject  = require("../../object/validate.coffee"),
+    mergeObject  = require("../../object/merge.coffee"),
+    stringFormat = require("../../string/format.js"),
+    stringList   = require("../../string/list.coffee")
+    updateArray  = require("../../array/update.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets a method's value.
@@ -95,8 +97,8 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
       })
 
-      recs = d3plus.string.list(recs,and)
-      d3plus.console.warning( d3plus.string.format(str,val,text,recs) , method )
+      recs = stringList(recs,and)
+      d3plus.console.warning( stringFormat(str,val,text,recs) , method )
 
     }
 
@@ -133,7 +135,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
     if ( !(object[key] instanceof Array) && object[key] === value && value !== undefined ) {
 
       var str = vars.format.locale.value.dev.noChange
-      if ( vars.dev.value ) d3plus.console.comment(d3plus.string.format(str,text))
+      if ( vars.dev.value ) d3plus.console.comment(stringFormat(str,text))
 
     }
     else {
@@ -321,14 +323,14 @@ d3plus.method.set = function( vars , method , object , key , value ) {
         if ( valString !== null && valString.length < 260 ) {
 
           var str = vars.format.locale.value.dev.setLong
-          d3plus.console.log(d3plus.string.format(str,text,"\""+valString+"\""))
+          d3plus.console.log(stringFormat(str,text,"\""+valString+"\""))
 
 
         }
         else {
 
           var str = vars.format.locale.value.dev.set
-          d3plus.console.log(d3plus.string.format(str,text))
+          d3plus.console.log(stringFormat(str,text))
 
         }
 

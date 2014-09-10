@@ -1,5 +1,8 @@
 var dataFilter = require("../data/filter.js"),
-    dataNest = require("../data/nest.js")
+    dataNest     = require("../data/nest.js"),
+    stringFormat = require("../../string/format.js"),
+    stringList   = require("../../string/list.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches specific years of data
 //-------------------------------------------------------------------
@@ -136,8 +139,8 @@ module.exports = function( vars , years ) {
 
       var str = vars.format.locale.value.error.dataYear
         , and = vars.format.locale.value.ui.and
-      missing = d3plus.string.list(missing,and)
-      vars.internal_error = d3plus.string.format(str,missing)
+      missing = stringList(missing,and)
+      vars.internal_error = stringFormat(str,missing)
       vars.time.missing = true
 
     }

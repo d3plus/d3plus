@@ -1,5 +1,6 @@
 var d3selection = require("../../util/d3selection.coffee"),
-    parseElement = require("../../core/parse/element.js")
+    parseElement = require("../../core/parse/element.js"),
+    stringFormat = require("../../string/format.js")
 
 d3plus.method.draw = {
   "accepted" : [ undefined , Function ],
@@ -32,7 +33,7 @@ d3plus.method.draw = {
     else if ( vars.container.value.empty() ) {
 
       var str = vars.format.locale.value.dev.noContainer
-      d3plus.console.warning( d3plus.string.format(str,"\""+vars.container.value+"\"") , "container" )
+      d3plus.console.warning( stringFormat(str,"\""+vars.container.value+"\"") , "container" )
 
     }
     else {
