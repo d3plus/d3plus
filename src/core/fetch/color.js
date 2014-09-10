@@ -38,7 +38,7 @@ module.exports = function( vars , id , level ) {
 
       if ( !color ) {
 
-        if ( vars.color.value || typeof vars.color.valueScale === "function" ) {
+        if ( vars.color.value && typeof vars.color.valueScale === "function" ) {
           return vars.color.valueScale(0)
         }
         return getRandom( id )
@@ -63,13 +63,15 @@ module.exports = function( vars , id , level ) {
       else {
         var value = id
       }
-      if ( value ) {
+
+      if ( value !== undefined && value !== null ) {
         var color = getColor(value)
         if (colors.indexOf(color) < 0) colors.push(color)
       }
+
     }
 
-    return colors.length === 0 ? getColor(undefined) : colors.length === 1 ? colors[0] : vars.color.missing
+    return colors.length === 1 ? colors[0] : vars.color.missing
 
   }
 
