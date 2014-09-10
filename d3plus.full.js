@@ -21109,13 +21109,15 @@ module.exports = function( vars , id , level ) {
       else {
         var value = id
       }
-      if ( value ) {
+
+      if ( value !== undefined ) {
         var color = getColor(value)
         if (colors.indexOf(color) < 0) colors.push(color)
       }
+
     }
 
-    return colors.length === 0 ? getColor(undefined) : colors.length === 1 ? colors[0] : vars.color.missing
+    return colors.length === 1 ? colors[0] : vars.color.missing
 
   }
 
