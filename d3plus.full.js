@@ -1380,7 +1380,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
 },{}],4:[function(require,module,exports){
 !function() {
   var d3 = {
-    version: "3.4.9"
+    version: "3.4.11"
   };
   if (!Date.now) Date.now = function() {
     return +new Date();
@@ -2607,9 +2607,9 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
       x: 0,
       y: 0,
       k: 1
-    }, translate0, center, size = [ 960, 500 ], scaleExtent = d3_behavior_zoomInfinity, mousedown = "mousedown.zoom", mousemove = "mousemove.zoom", mouseup = "mouseup.zoom", mousewheelTimer, touchstart = "touchstart.zoom", touchtime, event = d3_eventDispatch(zoom, "zoomstart", "zoom", "zoomend"), x0, x1, y0, y1;
+    }, translate0, center0, center, size = [ 960, 500 ], scaleExtent = d3_behavior_zoomInfinity, mousedown = "mousedown.zoom", mousemove = "mousemove.zoom", mouseup = "mouseup.zoom", mousewheelTimer, touchstart = "touchstart.zoom", touchtime, event = d3_eventDispatch(zoom, "zoomstart", "zoom", "zoomend"), x0, x1, y0, y1;
     function zoom(g) {
-      g.on(mousedown, mousedowned).on(d3_behavior_zoomWheel + ".zoom", mousewheeled).on(mousemove, mousewheelreset).on("dblclick.zoom", dblclicked).on(touchstart, touchstarted);
+      g.on(mousedown, mousedowned).on(d3_behavior_zoomWheel + ".zoom", mousewheeled).on("dblclick.zoom", dblclicked).on(touchstart, touchstarted);
     }
     zoom.event = function(g) {
       g.each(function() {
@@ -2751,7 +2751,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
         zoomed(dispatch);
       }
       function ended() {
-        subject.on(mousemove, d3_window === that ? mousewheelreset : null).on(mouseup, null);
+        subject.on(mousemove, null).on(mouseup, null);
         dragRestore(dragged && d3.event.target === target);
         zoomended(dispatch);
       }
@@ -2829,21 +2829,16 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
     }
     function mousewheeled() {
       var dispatch = event.of(this, arguments);
-      if (mousewheelTimer) clearTimeout(mousewheelTimer); else d3_selection_interrupt.call(this), 
-      zoomstarted(dispatch);
+      if (mousewheelTimer) clearTimeout(mousewheelTimer); else translate0 = location(center0 = center || d3.mouse(this)), 
+      d3_selection_interrupt.call(this), zoomstarted(dispatch);
       mousewheelTimer = setTimeout(function() {
         mousewheelTimer = null;
         zoomended(dispatch);
       }, 50);
       d3_eventPreventDefault();
-      var point = center || d3.mouse(this);
-      if (!translate0) translate0 = location(point);
       scaleTo(Math.pow(2, d3_behavior_zoomDelta() * .002) * view.k);
-      translateTo(point, translate0);
+      translateTo(center0, translate0);
       zoomed(dispatch);
-    }
-    function mousewheelreset() {
-      translate0 = null;
     }
     function dblclicked() {
       var dispatch = event.of(this, arguments), p = d3.mouse(this), l = location(p), k = Math.log(view.k) / Math.LN2;
@@ -6065,13 +6060,13 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   (d3.geo.transverseMercator = function() {
     var projection = d3_geo_mercatorProjection(d3_geo_transverseMercator), center = projection.center, rotate = projection.rotate;
     projection.center = function(_) {
-      return _ ? center([ -_[1], _[0] ]) : (_ = center(), [ -_[1], _[0] ]);
+      return _ ? center([ -_[1], _[0] ]) : (_ = center(), [ _[1], -_[0] ]);
     };
     projection.rotate = function(_) {
       return _ ? rotate([ _[0], _[1], _.length > 2 ? _[2] + 90 : 90 ]) : (_ = rotate(), 
       [ _[0], _[1], _[2] - 90 ]);
     };
-    return projection.rotate([ 0, 0 ]);
+    return rotate([ 0, 0, 90 ]);
   }).raw = d3_geo_transverseMercator;
   d3.geom = {};
   function d3_geom_pointX(d) {
@@ -10613,13 +10608,8 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   d3.xml = d3_xhrType(function(request) {
     return request.responseXML;
   });
-  if (typeof define === "function" && define.amd) {
-    define(d3);
-  } else if (typeof module === "object" && module.exports) {
-    module.exports = d3;
-  } else {
-    this.d3 = d3;
-  }
+  if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
+  this.d3 = d3;
 }();
 },{}],5:[function(require,module,exports){
 module.exports = require('./lib/heap');
@@ -19229,2062 +19219,9 @@ exports.clearCache = function clearCache() {
 }
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
 },{"bit-twiddle":11,"buffer":1,"dup":29}],31:[function(require,module,exports){
-var topojson = module.exports = require("./topojson");
-topojson.topology = require("./lib/topojson/topology");
-topojson.simplify = require("./lib/topojson/simplify");
-topojson.clockwise = require("./lib/topojson/clockwise");
-topojson.filter = require("./lib/topojson/filter");
-topojson.prune = require("./lib/topojson/prune");
-topojson.stitch = require("./lib/topojson/stitch");
-topojson.scale = require("./lib/topojson/scale");
-
-},{"./lib/topojson/clockwise":34,"./lib/topojson/filter":38,"./lib/topojson/prune":42,"./lib/topojson/scale":44,"./lib/topojson/simplify":45,"./lib/topojson/stitch":47,"./lib/topojson/topology":48,"./topojson":60}],32:[function(require,module,exports){
-
-// Computes the bounding box of the specified hash of GeoJSON objects.
-module.exports = function(objects) {
-  var x0 = Infinity,
-      y0 = Infinity,
-      x1 = -Infinity,
-      y1 = -Infinity;
-
-  function boundGeometry(geometry) {
-    if (geometry && boundGeometryType.hasOwnProperty(geometry.type)) boundGeometryType[geometry.type](geometry);
-  }
-
-  var boundGeometryType = {
-    GeometryCollection: function(o) { o.geometries.forEach(boundGeometry); },
-    Point: function(o) { boundPoint(o.coordinates); },
-    MultiPoint: function(o) { o.coordinates.forEach(boundPoint); },
-    LineString: function(o) { boundLine(o.coordinates); },
-    MultiLineString: function(o) { o.coordinates.forEach(boundLine); },
-    Polygon: function(o) { o.coordinates.forEach(boundLine); },
-    MultiPolygon: function(o) { o.coordinates.forEach(boundMultiLine); }
-  };
-
-  function boundPoint(coordinates) {
-    var x = coordinates[0],
-        y = coordinates[1];
-    if (x < x0) x0 = x;
-    if (x > x1) x1 = x;
-    if (y < y0) y0 = y;
-    if (y > y1) y1 = y;
-  }
-
-  function boundLine(coordinates) {
-    coordinates.forEach(boundPoint);
-  }
-
-  function boundMultiLine(coordinates) {
-    coordinates.forEach(boundLine);
-  }
-
-  for (var key in objects) {
-    boundGeometry(objects[key]);
-  }
-
-  return [x0, y0, x1, y1];
-};
-
-},{}],33:[function(require,module,exports){
-exports.name = "cartesian";
-exports.formatDistance = formatDistance;
-exports.ringArea = ringArea;
-exports.absoluteArea = Math.abs;
-exports.triangleArea = triangleArea;
-exports.distance = distance;
-
-function formatDistance(d) {
-  return d.toString();
-}
-
-function ringArea(ring) {
-  var i = -1,
-      n = ring.length,
-      a,
-      b = ring[n - 1],
-      area = 0;
-
-  while (++i < n) {
-    a = b;
-    b = ring[i];
-    area += a[0] * b[1] - a[1] * b[0];
-  }
-
-  return area * .5;
-}
-
-function triangleArea(triangle) {
-  return Math.abs(
-    (triangle[0][0] - triangle[2][0]) * (triangle[1][1] - triangle[0][1])
-    - (triangle[0][0] - triangle[1][0]) * (triangle[2][1] - triangle[0][1])
-  );
-}
-
-function distance(x0, y0, x1, y1) {
-  var dx = x0 - x1, dy = y0 - y1;
-  return Math.sqrt(dx * dx + dy * dy);
-}
-
-},{}],34:[function(require,module,exports){
-var type = require("./type"),
-    systems = require("./coordinate-systems"),
-    topojson = require("../../topojson");
-
-module.exports = function(object, options) {
-  if (object.type === "Topology") clockwiseTopology(object, options);
-  else clockwiseGeometry(object, options);
-};
-
-function clockwiseGeometry(object, options) {
-  var system = null;
-
-  if (options)
-    "coordinate-system" in options && (system = systems[options["coordinate-system"]]);
-
-  var clockwisePolygon = clockwisePolygonSystem(system.ringArea, reverse);
-
-  type({
-    LineString: noop,
-    MultiLineString: noop,
-    Point: noop,
-    MultiPoint: noop,
-    Polygon: function(polygon) { clockwisePolygon(polygon.coordinates); },
-    MultiPolygon: function(multiPolygon) { multiPolygon.coordinates.forEach(clockwisePolygon); }
-  }).object(object);
-
-  function reverse(array) { array.reverse(); }
-}
-
-function clockwiseTopology(topology, options) {
-  var system = null;
-
-  if (options)
-    "coordinate-system" in options && (system = systems[options["coordinate-system"]]);
-
-  var clockwisePolygon = clockwisePolygonSystem(ringArea, reverse);
-
-  var clockwise = type({
-    LineString: noop,
-    MultiLineString: noop,
-    Point: noop,
-    MultiPoint: noop,
-    Polygon: function(polygon) { clockwisePolygon(polygon.arcs); },
-    MultiPolygon: function(multiPolygon) { multiPolygon.arcs.forEach(clockwisePolygon); }
-  });
-
-  for (var key in topology.objects) {
-    clockwise.object(topology.objects[key]);
-  }
-
-  function ringArea(ring) {
-    return system.ringArea(topojson.feature(topology, {type: "Polygon", arcs: [ring]}).geometry.coordinates[0]);
-  }
-
-  // TODO It might be slightly more compact to reverse the arc.
-  function reverse(ring) {
-    var i = -1, n = ring.length;
-    ring.reverse();
-    while (++i < n) ring[i] = ~ring[i];
-  }
-};
-
-function clockwisePolygonSystem(ringArea, reverse) {
-  return function(rings) {
-    if (!(n = rings.length)) return;
-    var n,
-        areas = new Array(n),
-        max = -Infinity,
-        best,
-        area,
-        t;
-    // Find the largest absolute ring area; this should be the exterior ring.
-    for (var i = 0; i < n; ++i) {
-      var area = Math.abs(areas[i] = ringArea(rings[i]));
-      if (area > max) max = area, best = i;
-    }
-    // Ensure the largest ring appears first.
-    if (best) {
-      t = rings[best], rings[best] = rings[0], rings[0] = t;
-      t = areas[best], areas[best] = areas[0], areas[0] = t;
-    }
-    if (areas[0] < 0) reverse(rings[0]);
-    for (var i = 1; i < n; ++i) {
-      if (areas[i] > 0) reverse(rings[i]);
-    }
-  };
-}
-
-function noop() {}
-
-},{"../../topojson":60,"./coordinate-systems":36,"./type":59}],35:[function(require,module,exports){
-// Given a hash of GeoJSON objects and an id function, invokes the id function
-// to compute a new id for each object that is a feature. The function is passed
-// the feature and is expected to return the new feature id, or null if the
-// feature should not have an id.
-module.exports = function(objects, id) {
-  if (arguments.length < 2) id = function(d) { return d.id; };
-
-  function idObject(object) {
-    if (object && idObjectType.hasOwnProperty(object.type)) idObjectType[object.type](object);
-  }
-
-  function idFeature(feature) {
-    var i = id(feature);
-    if (i == null) delete feature.id;
-    else feature.id = i;
-  }
-
-  var idObjectType = {
-    Feature: idFeature,
-    FeatureCollection: function(collection) { collection.features.forEach(idFeature); }
-  };
-
-  for (var key in objects) {
-    idObject(objects[key]);
-  }
-
-  return objects;
-};
-
-},{}],36:[function(require,module,exports){
-module.exports = {
-  cartesian: require("./cartesian"),
-  spherical: require("./spherical")
-};
-
-},{"./cartesian":33,"./spherical":46}],37:[function(require,module,exports){
-// Given a TopoJSON topology in absolute (quantized) coordinates,
-// converts to fixed-point delta encoding.
-// This is a destructive operation that modifies the given topology!
-module.exports = function(topology) {
-  var arcs = topology.arcs,
-      i = -1,
-      n = arcs.length;
-
-  while (++i < n) {
-    var arc = arcs[i],
-        j = 0,
-        m = arc.length,
-        point = arc[0],
-        x0 = point[0],
-        y0 = point[1],
-        x1,
-        y1;
-    while (++j < m) {
-      point = arc[j];
-      x1 = point[0];
-      y1 = point[1];
-      arc[j] = [x1 - x0, y1 - y0];
-      x0 = x1;
-      y0 = y1;
-    }
-  }
-
-  return topology;
-};
-
-},{}],38:[function(require,module,exports){
-var type = require("./type"),
-    prune = require("./prune"),
-    clockwise = require("./clockwise"),
-    systems = require("./coordinate-systems"),
-    topojson = require("../../topojson");
-
-module.exports = function(topology, options) {
-  var system = null,
-      forceClockwise = true, // force exterior rings to be clockwise?
-      preserveAttached = true, // e.g., remove islands but not small counties
-      preserveRing = preserveNone,
-      minimumArea;
-
-  if (options)
-    "coordinate-system" in options && (system = systems[options["coordinate-system"]]),
-    "minimum-area" in options && (minimumArea = +options["minimum-area"]),
-    "preserve-attached" in options && (preserveAttached = !!options["preserve-attached"]),
-    "force-clockwise" in options && (forceClockwise = !!options["force-clockwise"]);
-
-  if (forceClockwise) clockwise(topology, options); // deprecated; for backwards-compatibility
-
-  if (!(minimumArea > 0)) minimumArea = Number.MIN_VALUE;
-
-  if (preserveAttached) {
-    var uniqueRingByArc = {}, // arc index -> index of unique associated ring, or -1 if used by multiple rings
-        ringIndex = 0;
-
-    var checkAttachment = type({
-      LineString: noop,
-      MultiLineString: noop,
-      Point: noop,
-      MultiPoint: noop,
-      MultiPolygon: function(multiPolygon) {
-        var arcs = multiPolygon.arcs, i = -1, n = arcs.length;
-        while (++i < n) this.polygon(arcs[i]);
-      },
-      Polygon: function(polygon) {
-        this.polygon(polygon.arcs);
-      },
-      polygon: function(arcs) {
-        for (var i = 0, n = arcs.length; i < n; ++i, ++ringIndex) {
-          for (var ring = arcs[i], j = 0, m = ring.length; j < m; ++j) {
-            var arc = ring[j];
-            if (arc < 0) arc = ~arc;
-            var uniqueRing = uniqueRingByArc[arc];
-            if (uniqueRing >= 0 && uniqueRing !== ringIndex) uniqueRingByArc[arc] = -1;
-            else uniqueRingByArc[arc] = ringIndex;
-          }
-        }
-      }
-    });
-
-    preserveRing = function(ring) {
-      for (var j = 0, m = ring.length; j < m; ++j) {
-        var arc = ring[j];
-        if (uniqueRingByArc[arc < 0 ? ~arc : arc] < 0) {
-          return true;
-        }
-      }
-    };
-
-    for (var key in topology.objects) {
-      checkAttachment.object(topology.objects[key]);
-    }
-  }
-
-  var filter = type({
-    LineString: noop, // TODO remove empty lines
-    MultiLineString: noop,
-    Point: noop,
-    MultiPoint: noop,
-    Polygon: function(polygon) {
-      polygon.arcs = filterPolygon(polygon.arcs);
-      if (!polygon.arcs || !polygon.arcs.length) {
-        polygon.type = null;
-        delete polygon.arcs;
-      }
-    },
-    MultiPolygon: function(multiPolygon) {
-      multiPolygon.arcs = multiPolygon.arcs
-          .map(filterPolygon)
-          .filter(function(polygon) { return polygon && polygon.length; });
-      if (!multiPolygon.arcs.length) {
-        multiPolygon.type = null;
-        delete multiPolygon.arcs;
-      }
-    },
-    GeometryCollection: function(collection) {
-      this.defaults.GeometryCollection.call(this, collection);
-      collection.geometries = collection.geometries.filter(function(geometry) { return geometry.type != null; });
-      if (!collection.geometries.length) {
-        collection.type = null;
-        delete collection.geometries;
-      }
-    }
-  });
-
-  for (var key in topology.objects) {
-    filter.object(topology.objects[key]);
-  }
-
-  prune(topology, options);
-
-  function filterPolygon(arcs) {
-    return arcs.length && filterExteriorRing(arcs[0]) // if the exterior is small, ignore any holes
-        ? [arcs.shift()].concat(arcs.filter(filterInteriorRing))
-        : null;
-  }
-
-  function filterExteriorRing(ring) {
-    return preserveRing(ring) || system.absoluteArea(ringArea(ring)) >= minimumArea;
-  }
-
-  function filterInteriorRing(ring) {
-    return preserveRing(ring) || system.absoluteArea(-ringArea(ring)) >= minimumArea;
-  }
-
-  function ringArea(ring) {
-    return system.ringArea(topojson.feature(topology, {type: "Polygon", arcs: [ring]}).geometry.coordinates[0]);
-  }
-};
-
-function noop() {}
-
-function preserveNone() {
-  return false;
-}
-
-},{"../../topojson":60,"./clockwise":34,"./coordinate-systems":36,"./prune":42,"./type":59}],39:[function(require,module,exports){
-// Given a hash of GeoJSON objects, replaces Features with geometry objects.
-// This is a destructive operation that modifies the input objects!
-module.exports = function(objects) {
-
-  function geomifyObject(object) {
-    return (object && geomifyObjectType.hasOwnProperty(object.type)
-        ? geomifyObjectType[object.type]
-        : geomifyGeometry)(object);
-  }
-
-  function geomifyFeature(feature) {
-    var geometry = feature.geometry;
-    if (geometry == null) {
-      feature.type = null;
-    } else {
-      geomifyGeometry(geometry);
-      feature.type = geometry.type;
-      if (geometry.geometries) feature.geometries = geometry.geometries;
-      else if (geometry.coordinates) feature.coordinates = geometry.coordinates;
-    }
-    delete feature.geometry;
-    return feature;
-  }
-
-  function geomifyGeometry(geometry) {
-    if (!geometry) return {type: null};
-    if (geomifyGeometryType.hasOwnProperty(geometry.type)) geomifyGeometryType[geometry.type](geometry);
-    return geometry;
-  }
-
-  var geomifyObjectType = {
-    Feature: geomifyFeature,
-    FeatureCollection: function(collection) {
-      collection.type = "GeometryCollection";
-      collection.geometries = collection.features;
-      collection.features.forEach(geomifyFeature);
-      delete collection.features;
-      return collection;
-    }
-  };
-
-  var geomifyGeometryType = {
-    GeometryCollection: function(o) {
-      var geometries = o.geometries, i = -1, n = geometries.length;
-      while (++i < n) geometries[i] = geomifyGeometry(geometries[i]);
-    },
-    MultiPoint: function(o) {
-      if (!o.coordinates.length) {
-        o.type = null;
-        delete o.coordinates;
-      } else if (o.coordinates.length < 2) {
-        o.type = "Point";
-        o.coordinates = o.coordinates[0];
-      }
-    },
-    LineString: function(o) {
-      if (!o.coordinates.length) {
-        o.type = null;
-        delete o.coordinates;
-      }
-    },
-    MultiLineString: function(o) {
-      for (var lines = o.coordinates, i = 0, N = 0, n = lines.length; i < n; ++i) {
-        var line = lines[i];
-        if (line.length) lines[N++] = line;
-      }
-      if (!N) {
-        o.type = null;
-        delete o.coordinates;
-      } else if (N < 2) {
-        o.type = "LineString";
-        o.coordinates = lines[0];
-      } else {
-        o.coordinates.length = N;
-      }
-    },
-    Polygon: function(o) {
-      for (var rings = o.coordinates, i = 0, N = 0, n = rings.length; i < n; ++i) {
-        var ring = rings[i];
-        if (ring.length) rings[N++] = ring;
-      }
-      if (!N) {
-        o.type = null;
-        delete o.coordinates;
-      } else {
-        o.coordinates.length = N;
-      }
-    },
-    MultiPolygon: function(o) {
-      for (var polygons = o.coordinates, j = 0, M = 0, m = polygons.length; j < m; ++j) {
-        for (var rings = polygons[j], i = 0, N = 0, n = rings.length; i < n; ++i) {
-          var ring = rings[i];
-          if (ring.length) rings[N++] = ring;
-        }
-        if (N) {
-          rings.length = N;
-          polygons[M++] = rings;
-        }
-      }
-      if (!M) {
-        o.type = null;
-        delete o.coordinates;
-      } else if (M < 2) {
-        o.type = "Polygon";
-        o.coordinates = polygons[0];
-      } else {
-        polygons.length = M;
-      }
-    }
-  };
-
-  for (var key in objects) {
-    objects[key] = geomifyObject(objects[key]);
-  }
-
-  return objects;
-};
-
-},{}],40:[function(require,module,exports){
-var quantize = require("./quantize");
-
-module.exports = function(topology, Q0, Q1) {
-  if (Q0) {
-    if (Q1 === Q0 || !topology.bbox.every(isFinite)) return topology;
-    var k = Q1 / Q0,
-        q = quantize(0, 0, k, k);
-
-    topology.transform.scale[0] /= k;
-    topology.transform.scale[1] /= k;
-  } else {
-    var bbox = topology.bbox,
-        x0 = isFinite(bbox[0]) ? bbox[0] : 0,
-        y0 = isFinite(bbox[1]) ? bbox[1] : 0,
-        x1 = isFinite(bbox[2]) ? bbox[2] : 0,
-        y1 = isFinite(bbox[3]) ? bbox[3] : 0,
-        kx = x1 - x0 ? (Q1 - 1) / (x1 - x0) : 1,
-        ky = y1 - y0 ? (Q1 - 1) / (y1 - y0) : 1,
-        q = quantize(-x0, -y0, kx, ky);
-
-    topology.transform = q.transform;
-  }
-
-  function quantizeGeometry(geometry) {
-    if (geometry && quantizeGeometryType.hasOwnProperty(geometry.type)) quantizeGeometryType[geometry.type](geometry);
-  }
-
-  var quantizeGeometryType = {
-    GeometryCollection: function(o) { o.geometries.forEach(quantizeGeometry); },
-    Point: function(o) { q.point(o.coordinates); },
-    MultiPoint: function(o) { o.coordinates.forEach(q.point); }
-  };
-
-  for (var key in topology.objects) {
-    quantizeGeometry(topology.objects[key]);
-  }
-
-  // XXX shared points are bad mmkay
-  topology.arcs = topology.arcs.map(function(arc) {
-    q.line(arc = arc.map(function(point) { return point.slice(); }));
-    if (arc.length < 2) arc.push(arc[0]); // arcs must have at least two points
-    return arc;
-  });
-
-  return topology;
-};
-
-},{"./quantize":43}],41:[function(require,module,exports){
-var quantize = require("./quantize");
-
-module.exports = function(objects, bbox, Q0, Q1) {
-  if (arguments.length < 4) Q1 = Q0;
-
-  var x0 = isFinite(bbox[0]) ? bbox[0] : 0,
-      y0 = isFinite(bbox[1]) ? bbox[1] : 0,
-      x1 = isFinite(bbox[2]) ? bbox[2] : 0,
-      y1 = isFinite(bbox[3]) ? bbox[3] : 0,
-      kx = x1 - x0 ? (Q1 - 1) / (x1 - x0) * Q0 / Q1 : 1,
-      ky = y1 - y0 ? (Q1 - 1) / (y1 - y0) * Q0 / Q1 : 1,
-      q = quantize(-x0, -y0, kx, ky);
-
-  function quantizeGeometry(geometry) {
-    if (geometry && quantizeGeometryType.hasOwnProperty(geometry.type)) quantizeGeometryType[geometry.type](geometry);
-  }
-
-  var quantizeGeometryType = {
-    GeometryCollection: function(o) { o.geometries.forEach(quantizeGeometry); },
-    Point: function(o) { q.point(o.coordinates); },
-    MultiPoint: function(o) { o.coordinates.forEach(q.point); },
-    LineString: function(o) {
-      var line = o.coordinates;
-      q.line(line);
-      if (line.length < 2) line[1] = line[0]; // must have 2+
-    },
-    MultiLineString: function(o) {
-      for (var lines = o.coordinates, i = 0, n = lines.length; i < n; ++i) {
-        var line = lines[i];
-        q.line(line);
-        if (line.length < 2) line[1] = line[0]; // must have 2+
-      }
-    },
-    Polygon: function(o) {
-      for (var rings = o.coordinates, i = 0, n = rings.length; i < n; ++i) {
-        var ring = rings[i];
-        q.line(ring);
-        while (ring.length < 4) ring.push(ring[0]); // must have 4+
-      }
-    },
-    MultiPolygon: function(o) {
-      for (var polygons = o.coordinates, i = 0, n = polygons.length; i < n; ++i) {
-        for (var rings = polygons[i], j = 0, m = rings.length; j < m; ++j) {
-          var ring = rings[j];
-          q.line(ring);
-          while (ring.length < 4) ring.push(ring[0]); // must have 4+
-        }
-      }
-    }
-  };
-
-  for (var key in objects) {
-    quantizeGeometry(objects[key]);
-  }
-
-  return q.transform;
-};
-
-},{"./quantize":43}],42:[function(require,module,exports){
-module.exports = function(topology, options) {
-  var verbose = false,
-      objects = topology.objects,
-      oldArcs = topology.arcs,
-      oldArcCount = oldArcs.length,
-      newArcs = topology.arcs = [],
-      newArcCount = 0,
-      newIndexByOldIndex = new Array(oldArcs.length);
-
-  if (options)
-    "verbose" in options && (verbose = !!options["verbose"]);
-
-  function pruneGeometry(geometry) {
-    if (geometry && pruneGeometryType.hasOwnProperty(geometry.type)) pruneGeometryType[geometry.type](geometry);
-  }
-
-  var pruneGeometryType = {
-    GeometryCollection: function(o) { o.geometries.forEach(pruneGeometry); },
-    LineString: function(o) { pruneArcs(o.arcs); },
-    MultiLineString: function(o) { o.arcs.forEach(pruneArcs); },
-    Polygon: function(o) { o.arcs.forEach(pruneArcs); },
-    MultiPolygon: function(o) { o.arcs.forEach(pruneMultiArcs); }
-  };
-
-  function pruneArcs(arcs) {
-    for (var i = 0, n = arcs.length; i < n; ++i) {
-      var oldIndex = arcs[i],
-          oldReverse = oldIndex < 0 && (oldIndex = ~oldIndex, true),
-          newIndex;
-
-      // If this is the first instance of this arc,
-      // record it under its new index.
-      if ((newIndex = newIndexByOldIndex[oldIndex]) == null) {
-        newIndexByOldIndex[oldIndex] = newIndex = newArcCount++;
-        newArcs[newIndex] = oldArcs[oldIndex];
-      }
-
-      arcs[i] = oldReverse ? ~newIndex : newIndex;
-    }
-  }
-
-  function pruneMultiArcs(arcs) {
-    arcs.forEach(pruneArcs);
-  }
-
-  for (var key in objects) {
-    pruneGeometry(objects[key]);
-  }
-
-  if (verbose) console.warn("prune: retained " + newArcCount + " / " + oldArcCount + " arcs (" + Math.round(newArcCount / oldArcCount * 100) + "%)");
-
-  return topology;
-};
-
-function noop() {}
-
-},{}],43:[function(require,module,exports){
-module.exports = function(dx, dy, kx, ky) {
-
-  function quantizePoint(coordinates) {
-    coordinates[0] = Math.round((coordinates[0] + dx) * kx);
-    coordinates[1] = Math.round((coordinates[1] + dy) * ky);
-    return coordinates;
-  }
-
-  function quantizeLine(coordinates) {
-    var i = 0,
-        j = 1,
-        n = coordinates.length,
-        pi = quantizePoint(coordinates[0]),
-        pj,
-        px = pi[0],
-        py = pi[1],
-        x,
-        y;
-
-    while (++i < n) {
-      pi = quantizePoint(coordinates[i]);
-      x = pi[0];
-      y = pi[1];
-      if (x !== px || y !== py) { // skip coincident points
-        pj = coordinates[j++];
-        pj[0] = px = x;
-        pj[1] = py = y;
-      }
-    }
-
-    coordinates.length = j;
-  }
-
-  return {
-    point: quantizePoint,
-    line: quantizeLine,
-    transform: {
-      scale: [1 / kx, 1 / ky],
-      translate: [-dx, -dy]
-    }
-  };
-};
-
-},{}],44:[function(require,module,exports){
-var type = require("./type");
-
-module.exports = function(topology, options) {
-  var width,
-      height,
-      margin = 0,
-      invert = true;
-
-  if (options)
-    "width" in options && (width = +options["width"]),
-    "height" in options && (height = +options["height"]),
-    "margin" in options && (margin = +options["margin"]),
-    "invert" in options && (invert = !!options["invert"]);
-
-  var bx = topology.bbox,
-      dx = bx[2] - bx[0],
-      dy = bx[3] - bx[1],
-      cx = (bx[2] + bx[0]) / 2,
-      cy = (bx[3] + bx[1]) / 2,
-      kx;
-
-  width = Math.max(0, width - margin * 2);
-  height = Math.max(0, height - margin * 2);
-
-  if (width && height) {
-    kx = Math.min(width / dx, height / dy);
-  } else if (width) {
-    kx = width / dx;
-    height = kx * dy;
-  } else {
-    kx = height / dy;
-    width = kx * dx;
-  }
-
-  var ky = invert ? -kx : kx,
-      lt = scalePoint([bx[0], bx[1]]),
-      rb = scalePoint([bx[2], bx[3]]),
-      tx;
-
-  topology.bbox = invert
-      ? [lt[0], rb[1], rb[0], lt[1]]
-      : [lt[0], lt[1], rb[0], rb[1]];
-
-  function scalePoint(point) {
-    return [
-      point[0] * kx + (width / 2 - cx * kx) + margin,
-      point[1] * ky + (height / 2 - cy * ky) + margin
-    ];
-  }
-
-  if (tx = topology.transform) {
-    tx.scale[0] *= kx;
-    tx.scale[1] *= ky;
-    tx.translate[0] = width / 2 + margin - (cx - tx.translate[0]) * kx;
-    tx.translate[1] = height / 2 + margin - (cy - tx.translate[1]) * ky;
-  } else {
-    var scale = type({
-      LineString: noop,
-      MultiLineString: noop,
-      Point: function(point) { point.coordinates = scalePoint(point.coordinates); },
-      MultiPoint: function(multipoint) { multipoint.coordinates = multipoint.coordinates.map(scalePoint); },
-      Polygon: noop,
-      MultiPolygon: noop
-    });
-
-    for (var key in topology.objects) {
-      scale.object(topology.objects[key]);
-    }
-
-    topology.arcs = topology.arcs.map(function(arc) {
-      return arc.map(scalePoint);
-    });
-  }
-
-  return topology;
-};
-
-function noop() {}
-
-},{"./type":59}],45:[function(require,module,exports){
-var topojson = require("../../topojson"),
-    systems = require("./coordinate-systems");
-
-module.exports = function(topology, options) {
-  var minimumArea = 0,
-      retainProportion,
-      verbose = false,
-      system = null,
-      N = topology.arcs.reduce(function(p, v) { return p + v.length; }, 0),
-      M = 0;
-
-  if (options)
-    "minimum-area" in options && (minimumArea = +options["minimum-area"]),
-    "coordinate-system" in options && (system = systems[options["coordinate-system"]]),
-    "retain-proportion" in options && (retainProportion = +options["retain-proportion"]),
-    "verbose" in options && (verbose = !!options["verbose"]);
-
-  topojson.presimplify(topology, system.triangleArea);
-
-  if (retainProportion) {
-    var areas = [];
-    topology.arcs.forEach(function(arc) {
-      arc.forEach(function(point) {
-        if (isFinite(point[2])) areas.push(point[2]); // ignore endpoints
-      });
-    });
-    options["minimum-area"] = minimumArea = N ? areas.sort(function(a, b) { return b - a; })[Math.ceil((N - 1) * retainProportion)] : 0;
-    if (verbose) console.warn("simplification: effective minimum area " + minimumArea.toPrecision(3));
-  }
-
-  topology.arcs.forEach(topology.transform ? function(arc) {
-    var dx = 0,
-        dy = 0, // accumulate removed points
-        i = -1,
-        j = -1,
-        n = arc.length,
-        source,
-        target;
-
-    while (++i < n) {
-      source = arc[i];
-      if (source[2] >= minimumArea) {
-        target = arc[++j];
-        target[0] = source[0] + dx;
-        target[1] = source[1] + dy;
-        dx = dy = 0;
-      } else {
-        dx += source[0];
-        dy += source[1];
-      }
-    }
-
-    arc.length = ++j;
-  } : function(arc) {
-    var i = -1,
-        j = -1,
-        n = arc.length,
-        point;
-
-    while (++i < n) {
-      point = arc[i];
-      if (point[2] >= minimumArea) {
-        arc[++j] = point;
-      }
-    }
-
-    arc.length = ++j;
-  });
-
-  // Remove computed area (z) for each point, and remove coincident points.
-  // This is done as a separate pass because some coordinates may be shared
-  // between arcs (such as the last point and first point of a cut line).
-  // If the entire arc is empty, retain at least two points (per spec).
-  topology.arcs.forEach(topology.transform ? function(arc) {
-    var i = 0,
-        j = 0,
-        n = arc.length,
-        p = arc[0];
-    p.length = 2;
-    while (++i < n) {
-      p = arc[i];
-      p.length = 2;
-      if (p[0] || p[1]) arc[++j] = p;
-    }
-    M += arc.length = (j || 1) + 1;
-  } : function(arc) {
-    var i = 0,
-        j = 0,
-        n = arc.length,
-        p = arc[0],
-        x0 = p[0],
-        y0 = p[1],
-        x1,
-        y1;
-    p.length = 2;
-    while (++i < n) {
-      p = arc[i], x1 = p[0], y1 = p[1];
-      p.length = 2;
-      if (x0 !== x1 || y0 !== y1) arc[++j] = p, x0 = x1, y0 = y1;
-    }
-    M += arc.length = (j || 1) + 1;
-  });
-
-  if (verbose) console.warn("simplification: retained " + M + " / " + N + " points (" + Math.round((M / N) * 100) + "%)");
-
-  return topology;
-};
-
-},{"../../topojson":60,"./coordinate-systems":36}],46:[function(require,module,exports){
-var π = Math.PI,
-    π_4 = π / 4,
-    radians = π / 180;
-
-exports.name = "spherical";
-exports.formatDistance = formatDistance;
-exports.ringArea = ringArea;
-exports.absoluteArea = absoluteArea;
-exports.triangleArea = triangleArea;
-exports.distance = haversinDistance; // XXX why two implementations?
-
-function formatDistance(k) {
-  var km = k * radians * 6371;
-  return (km > 1 ? km.toFixed(3) + "km" : (km * 1000).toPrecision(3) + "m") + " (" + k.toPrecision(3) + "°)";
-}
-
-function ringArea(ring) {
-  if (!ring.length) return 0;
-  var area = 0,
-      p = ring[0],
-      λ = p[0] * radians,
-      φ = p[1] * radians / 2 + π_4,
-      λ0 = λ,
-      cosφ0 = Math.cos(φ),
-      sinφ0 = Math.sin(φ);
-
-  for (var i = 1, n = ring.length; i < n; ++i) {
-    p = ring[i], λ = p[0] * radians, φ = p[1] * radians / 2 + π_4;
-
-    // Spherical excess E for a spherical triangle with vertices: south pole,
-    // previous point, current point.  Uses a formula derived from Cagnoli’s
-    // theorem.  See Todhunter, Spherical Trig. (1871), Sec. 103, Eq. (2).
-    var dλ = λ - λ0,
-        cosφ = Math.cos(φ),
-        sinφ = Math.sin(φ),
-        k = sinφ0 * sinφ,
-        u = cosφ0 * cosφ + k * Math.cos(dλ),
-        v = k * Math.sin(dλ);
-    area += Math.atan2(v, u);
-
-    // Advance the previous point.
-    λ0 = λ, cosφ0 = cosφ, sinφ0 = sinφ;
-  }
-
-  return 2 * (area > π ? area - 2 * π : area < -π ? area + 2 * π : area);
-}
-
-function absoluteArea(a) {
-  return a < 0 ? a + 4 * π : a;
-}
-
-function triangleArea(t) {
-  var a = distance(t[0], t[1]),
-      b = distance(t[1], t[2]),
-      c = distance(t[2], t[0]),
-      s = (a + b + c) / 2;
-  return 4 * Math.atan(Math.sqrt(Math.max(0, Math.tan(s / 2) * Math.tan((s - a) / 2) * Math.tan((s - b) / 2) * Math.tan((s - c) / 2))));
-}
-
-function distance(a, b) {
-  var Δλ = (b[0] - a[0]) * radians,
-      sinΔλ = Math.sin(Δλ),
-      cosΔλ = Math.cos(Δλ),
-      sinφ0 = Math.sin(a[1] * radians),
-      cosφ0 = Math.cos(a[1] * radians),
-      sinφ1 = Math.sin(b[1] * radians),
-      cosφ1 = Math.cos(b[1] * radians),
-      _;
-  return Math.atan2(Math.sqrt((_ = cosφ1 * sinΔλ) * _ + (_ = cosφ0 * sinφ1 - sinφ0 * cosφ1 * cosΔλ) * _), sinφ0 * sinφ1 + cosφ0 * cosφ1 * cosΔλ);
-}
-
-function haversinDistance(x0, y0, x1, y1) {
-  x0 *= radians, y0 *= radians, x1 *= radians, y1 *= radians;
-  return 2 * Math.asin(Math.sqrt(haversin(y1 - y0) + Math.cos(y0) * Math.cos(y1) * haversin(x1 - x0)));
-}
-
-function haversin(x) {
-  return (x = Math.sin(x / 2)) * x;
-}
-
-},{}],47:[function(require,module,exports){
-var type = require("./type");
-
-module.exports = function(objects, transform) {
-  var ε = 1e-2,
-      x0 = -180, x0e = x0 + ε,
-      x1 = 180, x1e = x1 - ε,
-      y0 = -90, y0e = y0 + ε,
-      y1 = 90, y1e = y1 - ε;
-
-  if (transform) {
-    var kx = transform.scale[0],
-        ky = transform.scale[1],
-        dx = transform.translate[0],
-        dy = transform.translate[1];
-
-    x0 = Math.round((x0 - dx) / kx);
-    x1 = Math.round((x1 - dx) / kx);
-    y0 = Math.round((y0 - dy) / ky);
-    y1 = Math.round((y1 - dy) / ky);
-    x0e = Math.round((x0e - dx) / kx);
-    x1e = Math.round((x1e - dx) / kx);
-    y0e = Math.round((y0e - dy) / ky);
-    y1e = Math.round((y1e - dy) / ky);
-  }
-
-  function normalizePoint(y) {
-    return y <= y0e ? [0, y0] // south pole
-        : y >= y1e ? [0, y1] // north pole
-        : [x0, y]; // antimeridian
-  }
-
-  function stitchPolygons(polygons) {
-    var fragments = [];
-
-    for (var p = 0, np = polygons.length; p < np; ++p) {
-      var polygon = polygons[p];
-
-      // For each ring, detect where it crosses the antimeridian or pole.
-      for (var j = 0, m = polygon.length; j < m; ++j) {
-        var ring = polygon[j];
-        ring.polygon = polygon;
-
-        // By default, assume that this ring doesn’t need any stitching.
-        fragments.push(ring);
-
-        for (var i = 0, n = ring.length; i < n; ++i) {
-          var point = ring[i],
-              x = point[0],
-              y = point[1];
-
-          // If this is an antimeridian or polar point…
-          if (x <= x0e || x >= x1e || y <= y0e || y >= y1e) {
-
-            // Advance through any antimeridian or polar points…
-            for (var k = i + 1; k < n; ++k) {
-              var pointk = ring[k],
-                  xk = pointk[0],
-                  yk = pointk[1];
-              if (xk > x0e && xk < x1e && yk > y0e && yk < y1e) break;
-            }
-
-            // If this was just a single antimeridian or polar point,
-            // we don’t need to cut this ring into a fragment;
-            // we can just leave it as-is.
-            if (k === i + 1) continue;
-
-            // Otherwise, if this is not the first point in the ring,
-            // cut the current fragment so that it ends at the current point.
-            // The current point is also normalized for later joining.
-            if (i) {
-              var fragmentBefore = ring.slice(0, i + 1);
-              fragmentBefore.polygon = polygon;
-              fragmentBefore[fragmentBefore.length - 1] = normalizePoint(y);
-              fragments[fragments.length - 1] = fragmentBefore;
-            }
-
-            // If the ring started with an antimeridian fragment,
-            // we can ignore that fragment entirely.
-            else {
-              fragments.pop();
-            }
-
-            // If the remainder of the ring is an antimeridian fragment,
-            // move on to the next ring.
-            if (k >= n) break;
-
-            // Otherwise, add the remaining ring fragment and continue.
-            fragments.push(ring = ring.slice(k - 1));
-            ring[0] = normalizePoint(ring[0][1]);
-            ring.polygon = polygon;
-            i = -1;
-            n = ring.length;
-          }
-        }
-      }
-      polygon.length = 0;
-    }
-
-    // Now stitch the fragments back together into rings.
-    // To connect the fragments start-to-end, create a simple index by end.
-    var fragmentByStart = {},
-        fragmentByEnd = {};
-
-    // For each fragment…
-    for (var i = 0, n = fragments.length; i < n; ++i) {
-      var fragment = fragments[i],
-          start = fragment[0],
-          end = fragment[fragment.length - 1];
-
-      // If this fragment is closed, add it as a standalone ring.
-      if (start[0] === end[0] && start[1] === end[1]) {
-        fragment.polygon.push(fragment);
-        fragments[i] = null;
-        continue;
-      }
-
-      fragment.index = i;
-      fragmentByStart[start] = fragmentByEnd[end] = fragment;
-    }
-
-    // For each open fragment…
-    for (var i = 0; i < n; ++i) {
-      var fragment = fragments[i];
-      if (fragment) {
-
-        var start = fragment[0],
-            end = fragment[fragment.length - 1],
-            startFragment = fragmentByEnd[start],
-            endFragment = fragmentByStart[end];
-
-        delete fragmentByStart[start];
-        delete fragmentByEnd[end];
-
-        // If this fragment is closed, add it as a standalone ring.
-        if (start[0] === end[0] && start[1] === end[1]) {
-          fragment.polygon.push(fragment);
-          continue;
-        }
-
-        if (startFragment) {
-          delete fragmentByEnd[start];
-          delete fragmentByStart[startFragment[0]];
-          startFragment.pop(); // drop the shared coordinate
-          fragments[startFragment.index] = null;
-          fragment = startFragment.concat(fragment);
-          fragment.polygon = startFragment.polygon;
-
-          if (startFragment === endFragment) {
-            // Connect both ends to this single fragment to create a ring.
-            fragment.polygon.push(fragment);
-          } else {
-            fragment.index = n++;
-            fragments.push(fragmentByStart[fragment[0]] = fragmentByEnd[fragment[fragment.length - 1]] = fragment);
-          }
-        } else if (endFragment) {
-          delete fragmentByStart[end];
-          delete fragmentByEnd[endFragment[endFragment.length - 1]];
-          fragment.pop(); // drop the shared coordinate
-          fragment = fragment.concat(endFragment);
-          fragment.polygon = endFragment.polygon;
-          fragment.index = n++;
-          fragments[endFragment.index] = null;
-          fragments.push(fragmentByStart[fragment[0]] = fragmentByEnd[fragment[fragment.length - 1]] = fragment);
-        } else {
-          fragment.push(fragment[0]); // close ring
-          fragment.polygon.push(fragment);
-        }
-      }
-    }
-    // TODO remove empty polygons.
-  }
-
-  var stitch = type({
-    Polygon: function(polygon) { stitchPolygons([polygon.coordinates]); },
-    MultiPolygon: function(multiPolygon) { stitchPolygons(multiPolygon.coordinates); }
-  });
-
-  for (var key in objects) {
-    stitch.object(objects[key]);
-  }
-};
-
-},{"./type":59}],48:[function(require,module,exports){
-var type = require("./type"),
-    stitch = require("./stitch"),
-    systems = require("./coordinate-systems"),
-    topologize = require("./topology/index"),
-    delta = require("./delta"),
-    geomify = require("./geomify"),
-    prequantize = require("./pre-quantize"),
-    postquantize = require("./post-quantize"),
-    bounds = require("./bounds"),
-    computeId = require("./compute-id"),
-    transformProperties = require("./transform-properties");
-
-var ε = 1e-6;
-
-module.exports = function(objects, options) {
-  var Q0 = 1e4, // precision of pre-quantization
-      Q1 = 1e4, // precision of post-quantization (must be divisor of Q0)
-      id = function(d) { return d.id; }, // function to compute object id
-      propertyTransform = function() {}, // function to transform properties
-      transform,
-      minimumArea = 0,
-      stitchPoles = true,
-      verbose = false,
-      system = null;
-
-  if (options)
-    "verbose" in options && (verbose = !!options["verbose"]),
-    "stitch-poles" in options && (stitchPoles = !!options["stitch-poles"]),
-    "coordinate-system" in options && (system = systems[options["coordinate-system"]]),
-    "minimum-area" in options && (minimumArea = +options["minimum-area"]),
-    "quantization" in options && (Q0 = Q1 = +options["quantization"]),
-    "pre-quantization" in options && (Q0 = +options["pre-quantization"]),
-    "post-quantization" in options && (Q1 = +options["post-quantization"]),
-    "id" in options && (id = options["id"]),
-    "property-transform" in options && (propertyTransform = options["property-transform"]);
-
-  if (Q0 / Q1 % 1) throw new Error("post-quantization is not a divisor of pre-quantization");
-  if (Q0 && !Q1) throw new Error("post-quantization is required when input is already quantized");
-
-  // Compute the new feature id and transform properties.
-  computeId(objects, id);
-  transformProperties(objects, propertyTransform);
-
-  // Convert to geometry objects.
-  geomify(objects);
-
-  // Compute initial bounding box.
-  var bbox = bounds(objects);
-
-  // For automatic coordinate system determination, consider the bounding box.
-  var oversize = bbox[0] < -180 - ε
-      || bbox[1] < -90 - ε
-      || bbox[2] > 180 + ε
-      || bbox[3] > 90 + ε;
-  if (!system) {
-    system = systems[oversize ? "cartesian" : "spherical"];
-    if (options) options["coordinate-system"] = system.name;
-  }
-
-  if (system === systems.spherical) {
-    if (oversize) throw new Error("spherical coordinates outside of [±180°, ±90°]");
-
-    // When near the spherical coordinate limits, clamp to nice round values.
-    // This avoids quantized coordinates that are slightly outside the limits.
-    if (bbox[0] < -180 + ε) bbox[0] = -180;
-    if (bbox[1] < -90 + ε) bbox[1] = -90;
-    if (bbox[2] > 180 - ε) bbox[2] = 180;
-    if (bbox[3] > 90 - ε) bbox[3] = 90;
-  }
-
-  if (verbose) {
-    console.warn("bounds: " + bbox.join(" ") + " (" + system.name + ")");
-  }
-
-  // Pre-topology quantization.
-  if (Q0) {
-    transform = prequantize(objects, bbox, Q0, Q1);
-    if (verbose) {
-      console.warn("pre-quantization: " + transform.scale.map(function(k) { return system.formatDistance(k); }).join(" "));
-    }
-  }
-
-  // Remove any antimeridian cuts and restitch.
-  if (system === systems.spherical && stitchPoles) {
-    stitch(objects, transform);
-  }
-
-  // Compute the topology.
-  var topology = topologize(objects);
-  if (Q0) topology.transform = transform;
-  topology.bbox = bbox;
-  if (verbose) {
-    console.warn("topology: " + topology.arcs.length + " arcs, " + topology.arcs.reduce(function(p, v) { return p + v.length; }, 0) + " points");
-  }
-
-  // Post-topology quantization.
-  if (Q1 && Q1 !== Q0) {
-    postquantize(topology, Q0, Q1);
-    transform = topology.transform;
-    if (verbose) {
-      console.warn("post-quantization: " + transform.scale.map(function(k) { return system.formatDistance(k); }).join(" "));
-    }
-  }
-
-  // Convert to delta-encoding.
-  if (Q1) {
-    delta(topology);
-  }
-
-  return topology;
-};
-
-},{"./bounds":32,"./compute-id":35,"./coordinate-systems":36,"./delta":37,"./geomify":39,"./post-quantize":40,"./pre-quantize":41,"./stitch":47,"./topology/index":54,"./transform-properties":58,"./type":59}],49:[function(require,module,exports){
-var join = require("./join");
-
-// Given an extracted (pre-)topology, cuts (or rotates) arcs so that all shared
-// point sequences are identified. The topology can then be subsequently deduped
-// to remove exact duplicate arcs.
-module.exports = function(topology) {
-  var junctions = join(topology),
-      coordinates = topology.coordinates,
-      lines = topology.lines,
-      rings = topology.rings;
-
-  for (var i = 0, n = lines.length; i < n; ++i) {
-    var line = lines[i],
-        lineMid = line[0],
-        lineEnd = line[1];
-    while (++lineMid < lineEnd) {
-      if (junctions.has(coordinates[lineMid])) {
-        var next = {0: lineMid, 1: line[1]};
-        line[1] = lineMid;
-        line = line.next = next;
-      }
-    }
-  }
-
-  for (var i = 0, n = rings.length; i < n; ++i) {
-    var ring = rings[i],
-        ringStart = ring[0],
-        ringMid = ringStart,
-        ringEnd = ring[1],
-        ringFixed = junctions.has(coordinates[ringStart]);
-    while (++ringMid < ringEnd) {
-      if (junctions.has(coordinates[ringMid])) {
-        if (ringFixed) {
-          var next = {0: ringMid, 1: ring[1]};
-          ring[1] = ringMid;
-          ring = ring.next = next;
-        } else { // For the first junction, we can rotate rather than cut.
-          rotateArray(coordinates, ringStart, ringEnd, ringEnd - ringMid);
-          coordinates[ringEnd] = coordinates[ringStart];
-          ringFixed = true;
-          ringMid = ringStart; // restart; we may have skipped junctions
-        }
-      }
-    }
-  }
-
-  return topology;
-};
-
-function rotateArray(array, start, end, offset) {
-  reverse(array, start, end);
-  reverse(array, start, start + offset);
-  reverse(array, start + offset, end);
-}
-
-function reverse(array, start, end) {
-  for (var mid = start + ((end-- - start) >> 1), t; start < mid; ++start, --end) {
-    t = array[start], array[start] = array[end], array[end] = t;
-  }
-}
-
-},{"./join":55}],50:[function(require,module,exports){
-var join = require("./join"),
-    hashmap = require("./hashmap"),
-    hashPoint = require("./point-hash"),
-    equalPoint = require("./point-equal");
-
-// Given a cut topology, combines duplicate arcs.
-module.exports = function(topology) {
-  var coordinates = topology.coordinates,
-      lines = topology.lines,
-      rings = topology.rings,
-      arcCount = lines.length + rings.length;
-
-  delete topology.lines;
-  delete topology.rings;
-
-  // Count the number of (non-unique) arcs to initialize the hashmap safely.
-  for (var i = 0, n = lines.length; i < n; ++i) {
-    var line = lines[i]; while (line = line.next) ++arcCount;
-  }
-  for (var i = 0, n = rings.length; i < n; ++i) {
-    var ring = rings[i]; while (ring = ring.next) ++arcCount;
-  }
-
-  var arcsByEnd = hashmap(arcCount * 2 * 1.4, hashPoint, equalPoint),
-      arcs = topology.arcs = [];
-
-  for (var i = 0, n = lines.length; i < n; ++i) {
-    var line = lines[i];
-    do {
-      dedupLine(line);
-    } while (line = line.next);
-  }
-
-  for (var i = 0, n = rings.length; i < n; ++i) {
-    var ring = rings[i];
-    if (ring.next) { // arc is no longer closed
-      do {
-        dedupLine(ring);
-      } while (ring = ring.next);
-    } else {
-      dedupRing(ring);
-    }
-  }
-
-  function dedupLine(arc) {
-    var startPoint,
-        endPoint,
-        startArcs,
-        endArcs;
-
-    // Does this arc match an existing arc in order?
-    if (startArcs = arcsByEnd.get(startPoint = coordinates[arc[0]])) {
-      for (var i = 0, n = startArcs.length; i < n; ++i) {
-        var startArc = startArcs[i];
-        if (equalLine(startArc, arc)) {
-          arc[0] = startArc[0];
-          arc[1] = startArc[1];
-          return;
-        }
-      }
-    }
-
-    // Does this arc match an existing arc in reverse order?
-    if (endArcs = arcsByEnd.get(endPoint = coordinates[arc[1]])) {
-      for (var i = 0, n = endArcs.length; i < n; ++i) {
-        var endArc = endArcs[i];
-        if (reverseEqualLine(endArc, arc)) {
-          arc[1] = endArc[0];
-          arc[0] = endArc[1];
-          return;
-        }
-      }
-    }
-
-    if (startArcs) startArcs.push(arc); else arcsByEnd.set(startPoint, [arc]);
-    if (endArcs) endArcs.push(arc); else arcsByEnd.set(endPoint, [arc]);
-    arcs.push(arc);
-  }
-
-  function dedupRing(arc) {
-    var endPoint,
-        endArcs;
-
-    // Does this arc match an existing line in order, or reverse order?
-    // Rings are closed, so their start point and end point is the same.
-    if (endArcs = arcsByEnd.get(endPoint = coordinates[arc[0]])) {
-      for (var i = 0, n = endArcs.length; i < n; ++i) {
-        var endArc = endArcs[i];
-        if (equalRing(endArc, arc)) {
-          arc[0] = endArc[0];
-          arc[1] = endArc[1];
-          return;
-        }
-        if (reverseEqualRing(endArc, arc)) {
-          arc[0] = endArc[1];
-          arc[1] = endArc[0];
-          return;
-        }
-      }
-    }
-
-    // Otherwise, does this arc match an existing ring in order, or reverse order?
-    if (endArcs = arcsByEnd.get(endPoint = coordinates[arc[0] + findMinimumOffset(arc)])) {
-      for (var i = 0, n = endArcs.length; i < n; ++i) {
-        var endArc = endArcs[i];
-        if (equalRing(endArc, arc)) {
-          arc[0] = endArc[0];
-          arc[1] = endArc[1];
-          return;
-        }
-        if (reverseEqualRing(endArc, arc)) {
-          arc[0] = endArc[1];
-          arc[1] = endArc[0];
-          return;
-        }
-      }
-    }
-
-    if (endArcs) endArcs.push(arc); else arcsByEnd.set(endPoint, [arc]);
-    arcs.push(arc);
-  }
-
-  function equalLine(arcA, arcB) {
-    var ia = arcA[0], ib = arcB[0],
-        ja = arcA[1], jb = arcB[1];
-    if (ia - ja !== ib - jb) return false;
-    for (; ia <= ja; ++ia, ++ib) if (!equalPoint(coordinates[ia], coordinates[ib])) return false;
-    return true;
-  }
-
-  function reverseEqualLine(arcA, arcB) {
-    var ia = arcA[0], ib = arcB[0],
-        ja = arcA[1], jb = arcB[1];
-    if (ia - ja !== ib - jb) return false;
-    for (; ia <= ja; ++ia, --jb) if (!equalPoint(coordinates[ia], coordinates[jb])) return false;
-    return true;
-  }
-
-  function equalRing(arcA, arcB) {
-    var ia = arcA[0], ib = arcB[0],
-        ja = arcA[1], jb = arcB[1],
-        n = ja - ia;
-    if (n !== jb - ib) return false;
-    var ka = findMinimumOffset(arcA),
-        kb = findMinimumOffset(arcB);
-    for (var i = 0; i < n; ++i) {
-      if (!equalPoint(coordinates[ia + (i + ka) % n], coordinates[ib + (i + kb) % n])) return false;
-    }
-    return true;
-  }
-
-  function reverseEqualRing(arcA, arcB) {
-    var ia = arcA[0], ib = arcB[0],
-        ja = arcA[1], jb = arcB[1],
-        n = ja - ia;
-    if (n !== jb - ib) return false;
-    var ka = findMinimumOffset(arcA),
-        kb = n - findMinimumOffset(arcB);
-    for (var i = 0; i < n; ++i) {
-      if (!equalPoint(coordinates[ia + (i + ka) % n], coordinates[jb - (i + kb) % n])) return false;
-    }
-    return true;
-  }
-
-  // Rings are rotated to a consistent, but arbitrary, start point.
-  // This is necessary to detect when a ring and a rotated copy are dupes.
-  function findMinimumOffset(arc) {
-    var start = arc[0],
-        end = arc[1],
-        mid = start,
-        minimum = mid,
-        minimumPoint = coordinates[mid];
-    while (++mid < end) {
-      var point = coordinates[mid];
-      if (point[0] < minimumPoint[0] || point[0] === minimumPoint[0] && point[1] < minimumPoint[1]) {
-        minimum = mid;
-        minimumPoint = point;
-      }
-    }
-    return minimum - start;
-  }
-
-  return topology;
-};
-
-},{"./hashmap":52,"./join":55,"./point-equal":56,"./point-hash":57}],51:[function(require,module,exports){
-// Extracts the lines and rings from the specified hash of geometry objects.
-//
-// Returns an object with three properties:
-//
-// * coordinates - shared buffer of [x, y] coordinates
-// * lines - lines extracted from the hash, of the form [start, end]
-// * rings - rings extracted from the hash, of the form [start, end]
-//
-// For each ring or line, start and end represent inclusive indexes into the
-// coordinates buffer. For rings (and closed lines), coordinates[start] equals
-// coordinates[end].
-//
-// For each line or polygon geometry in the input hash, including nested
-// geometries as in geometry collections, the `coordinates` array is replaced
-// with an equivalent `arcs` array that, for each line (for line string
-// geometries) or ring (for polygon geometries), points to one of the above
-// lines or rings.
-module.exports = function(objects) {
-  var index = -1,
-      lines = [],
-      rings = [],
-      coordinates = [];
-
-  function extractGeometry(geometry) {
-    if (geometry && extractGeometryType.hasOwnProperty(geometry.type)) extractGeometryType[geometry.type](geometry);
-  }
-
-  var extractGeometryType = {
-    GeometryCollection: function(o) { o.geometries.forEach(extractGeometry); },
-    LineString: function(o) { o.arcs = extractLine(o.coordinates); delete o.coordinates; },
-    MultiLineString: function(o) { o.arcs = o.coordinates.map(extractLine); delete o.coordinates; },
-    Polygon: function(o) { o.arcs = o.coordinates.map(extractRing); delete o.coordinates; },
-    MultiPolygon: function(o) { o.arcs = o.coordinates.map(extractMultiRing); delete o.coordinates; }
-  };
-
-  function extractLine(line) {
-    for (var i = 0, n = line.length; i < n; ++i) coordinates[++index] = line[i];
-    var arc = {0: index - n + 1, 1: index};
-    lines.push(arc);
-    return arc;
-  }
-
-  function extractRing(ring) {
-    for (var i = 0, n = ring.length; i < n; ++i) coordinates[++index] = ring[i];
-    var arc = {0: index - n + 1, 1: index};
-    rings.push(arc);
-    return arc;
-  }
-
-  function extractMultiRing(rings) {
-    return rings.map(extractRing);
-  }
-
-  for (var key in objects) {
-    extractGeometry(objects[key]);
-  }
-
-  return {
-    type: "Topology",
-    coordinates: coordinates,
-    lines: lines,
-    rings: rings,
-    objects: objects
-  };
-};
-
-},{}],52:[function(require,module,exports){
-module.exports = function(size, hash, equal, keyType, keyEmpty, valueType) {
-  if (arguments.length === 3) {
-    keyType = valueType = Array;
-    keyEmpty = null;
-  }
-
-  var keystore = new keyType(size = 1 << Math.max(4, Math.ceil(Math.log(size) / Math.LN2))),
-      valstore = new valueType(size),
-      mask = size - 1,
-      free = size;
-
-  for (var i = 0; i < size; ++i) {
-    keystore[i] = keyEmpty;
-  }
-
-  function set(key, value) {
-    var index = hash(key) & mask,
-        matchKey = keystore[index],
-        collisions = 0;
-    while (matchKey != keyEmpty) {
-      if (equal(matchKey, key)) return valstore[index] = value;
-      if (++collisions >= size) throw new Error("full hashmap");
-      matchKey = keystore[index = (index + 1) & mask];
-    }
-    keystore[index] = key;
-    valstore[index] = value;
-    --free;
-    return value;
-  }
-
-  function maybeSet(key, value) {
-    var index = hash(key) & mask,
-        matchKey = keystore[index],
-        collisions = 0;
-    while (matchKey != keyEmpty) {
-      if (equal(matchKey, key)) return valstore[index];
-      if (++collisions >= size) throw new Error("full hashmap");
-      matchKey = keystore[index = (index + 1) & mask];
-    }
-    keystore[index] = key;
-    valstore[index] = value;
-    --free;
-    return value;
-  }
-
-  function get(key, missingValue) {
-    var index = hash(key) & mask,
-        matchKey = keystore[index],
-        collisions = 0;
-    while (matchKey != keyEmpty) {
-      if (equal(matchKey, key)) return valstore[index];
-      if (++collisions >= size) break;
-      matchKey = keystore[index = (index + 1) & mask];
-    }
-    return missingValue;
-  }
-
-  function keys() {
-    var keys = [];
-    for (var i = 0, n = keystore.length; i < n; ++i) {
-      var matchKey = keystore[i];
-      if (matchKey != keyEmpty) keys.push(matchKey);
-    }
-    return keys;
-  }
-
-  return {
-    set: set,
-    maybeSet: maybeSet, // set if unset
-    get: get,
-    keys: keys
-  };
-};
-
-},{}],53:[function(require,module,exports){
-module.exports = function(size, hash, equal, type, empty) {
-  if (arguments.length === 3) {
-    type = Array;
-    empty = null;
-  }
-
-  var store = new type(size = 1 << Math.max(4, Math.ceil(Math.log(size) / Math.LN2))),
-      mask = size - 1,
-      free = size;
-
-  for (var i = 0; i < size; ++i) {
-    store[i] = empty;
-  }
-
-  function add(value) {
-    var index = hash(value) & mask,
-        match = store[index],
-        collisions = 0;
-    while (match != empty) {
-      if (equal(match, value)) return true;
-      if (++collisions >= size) throw new Error("full hashset");
-      match = store[index = (index + 1) & mask];
-    }
-    store[index] = value;
-    --free;
-    return true;
-  }
-
-  function has(value) {
-    var index = hash(value) & mask,
-        match = store[index],
-        collisions = 0;
-    while (match != empty) {
-      if (equal(match, value)) return true;
-      if (++collisions >= size) break;
-      match = store[index = (index + 1) & mask];
-    }
-    return false;
-  }
-
-  function values() {
-    var values = [];
-    for (var i = 0, n = store.length; i < n; ++i) {
-      var match = store[i];
-      if (match != empty) values.push(match);
-    }
-    return values;
-  }
-
-  return {
-    add: add,
-    has: has,
-    values: values
-  };
-};
-
-},{}],54:[function(require,module,exports){
-var hashmap = require("./hashmap"),
-    extract = require("./extract"),
-    cut = require("./cut"),
-    dedup = require("./dedup");
-
-// Constructs the TopoJSON Topology for the specified hash of geometries.
-// Each object in the specified hash must be a GeoJSON object,
-// meaning FeatureCollection, a Feature or a geometry object.
-module.exports = function(objects) {
-  var topology = dedup(cut(extract(objects))),
-      coordinates = topology.coordinates,
-      indexByArc = hashmap(topology.arcs.length * 1.4, hashArc, equalArc);
-
-  objects = topology.objects; // for garbage collection
-
-  topology.arcs = topology.arcs.map(function(arc, i) {
-    indexByArc.set(arc, i);
-    return coordinates.slice(arc[0], arc[1] + 1);
-  });
-
-  delete topology.coordinates;
-  coordinates = null;
-
-  function indexGeometry(geometry) {
-    if (geometry && indexGeometryType.hasOwnProperty(geometry.type)) indexGeometryType[geometry.type](geometry);
-  }
-
-  var indexGeometryType = {
-    GeometryCollection: function(o) { o.geometries.forEach(indexGeometry); },
-    LineString: function(o) { o.arcs = indexArcs(o.arcs); },
-    MultiLineString: function(o) { o.arcs = o.arcs.map(indexArcs); },
-    Polygon: function(o) { o.arcs = o.arcs.map(indexArcs); },
-    MultiPolygon: function(o) { o.arcs = o.arcs.map(indexMultiArcs); }
-  };
-
-  function indexArcs(arc) {
-    var indexes = [];
-    do {
-      var index = indexByArc.get(arc);
-      indexes.push(arc[0] < arc[1] ? index : ~index);
-    } while (arc = arc.next);
-    return indexes;
-  }
-
-  function indexMultiArcs(arcs) {
-    return arcs.map(indexArcs);
-  }
-
-  for (var key in objects) {
-    indexGeometry(objects[key]);
-  }
-
-  return topology;
-};
-
-function hashArc(arc) {
-  var i = arc[0], j = arc[1], t;
-  if (j < i) t = i, i = j, j = t;
-  return i + 31 * j;
-}
-
-function equalArc(arcA, arcB) {
-  var ia = arcA[0], ja = arcA[1],
-      ib = arcB[0], jb = arcB[1], t;
-  if (ja < ia) t = ia, ia = ja, ja = t;
-  if (jb < ib) t = ib, ib = jb, jb = t;
-  return ia === ib && ja === jb;
-}
-
-},{"./cut":49,"./dedup":50,"./extract":51,"./hashmap":52}],55:[function(require,module,exports){
-var hashset = require("./hashset"),
-    hashmap = require("./hashmap"),
-    hashPoint = require("./point-hash"),
-    equalPoint = require("./point-equal");
-
-// Given an extracted (pre-)topology, identifies all of the junctions. These are
-// the points at which arcs (lines or rings) will need to be cut so that each
-// arc is represented uniquely.
-//
-// A junction is a point where at least one arc deviates from another arc going
-// through the same point. For example, consider the point B. If there is a arc
-// through ABC and another arc through CBA, then B is not a junction because in
-// both cases the adjacent point pairs are {A,C}. However, if there is an
-// additional arc ABD, then {A,D} != {A,C}, and thus B becomes a junction.
-//
-// For a closed ring ABCA, the first point A’s adjacent points are the second
-// and last point {B,C}. For a line, the first and last point are always
-// considered junctions, even if the line is closed; this ensures that a closed
-// line is never rotated.
-module.exports = function(topology) {
-  var coordinates = topology.coordinates,
-      lines = topology.lines,
-      rings = topology.rings,
-      indexes = index(),
-      visitedByIndex = new Int32Array(coordinates.length),
-      leftByIndex = new Int32Array(coordinates.length),
-      rightByIndex = new Int32Array(coordinates.length),
-      junctionByIndex = new Int8Array(coordinates.length),
-      junctionCount = 0; // upper bound on number of junctions
-
-  for (var i = 0, n = coordinates.length; i < n; ++i) {
-    visitedByIndex[i] = leftByIndex[i] = rightByIndex[i] = -1;
-  }
-
-  for (var i = 0, n = lines.length; i < n; ++i) {
-    var line = lines[i],
-        lineStart = line[0],
-        lineEnd = line[1],
-        previousIndex,
-        currentIndex = indexes[lineStart],
-        nextIndex = indexes[++lineStart];
-    ++junctionCount, junctionByIndex[currentIndex] = 1; // start
-    while (++lineStart <= lineEnd) {
-      sequence(i, previousIndex = currentIndex, currentIndex = nextIndex, nextIndex = indexes[lineStart]);
-    }
-    ++junctionCount, junctionByIndex[nextIndex] = 1; // end
-  }
-
-  for (var i = 0, n = coordinates.length; i < n; ++i) {
-    visitedByIndex[i] = -1;
-  }
-
-  for (var i = 0, n = rings.length; i < n; ++i) {
-    var ring = rings[i],
-        ringStart = ring[0] + 1,
-        ringEnd = ring[1],
-        previousIndex = indexes[ringEnd - 1],
-        currentIndex = indexes[ringStart - 1],
-        nextIndex = indexes[ringStart];
-    sequence(i, previousIndex, currentIndex, nextIndex);
-    while (++ringStart <= ringEnd) {
-      sequence(i, previousIndex = currentIndex, currentIndex = nextIndex, nextIndex = indexes[ringStart]);
-    }
-  }
-
-  function sequence(i, previousIndex, currentIndex, nextIndex) {
-    if (visitedByIndex[currentIndex] === i) return; // ignore self-intersection
-    visitedByIndex[currentIndex] = i;
-    var leftIndex = leftByIndex[currentIndex];
-    if (leftIndex >= 0) {
-      var rightIndex = rightByIndex[currentIndex];
-      if ((leftIndex !== previousIndex || rightIndex !== nextIndex)
-        && (leftIndex !== nextIndex || rightIndex !== previousIndex)) {
-        ++junctionCount, junctionByIndex[currentIndex] = 1;
-      }
-    } else {
-      leftByIndex[currentIndex] = previousIndex;
-      rightByIndex[currentIndex] = nextIndex;
-    }
-  }
-
-  function index() {
-    var indexByPoint = hashmap(coordinates.length * 1.4, hashIndex, equalIndex, Int32Array, -1, Int32Array),
-        indexes = new Int32Array(coordinates.length);
-
-    for (var i = 0, n = coordinates.length; i < n; ++i) {
-      indexes[i] = indexByPoint.maybeSet(i, i);
-    }
-
-    return indexes;
-  }
-
-  function hashIndex(i) {
-    return hashPoint(coordinates[i]);
-  }
-
-  function equalIndex(i, j) {
-    return equalPoint(coordinates[i], coordinates[j]);
-  }
-
-  visitedByIndex = leftByIndex = rightByIndex = null;
-
-  var junctionByPoint = hashset(junctionCount * 1.4, hashPoint, equalPoint);
-
-  // Convert back to a standard hashset by point for caller convenience.
-  for (var i = 0, n = coordinates.length, j; i < n; ++i) {
-    if (junctionByIndex[j = indexes[i]]) {
-      junctionByPoint.add(coordinates[j]);
-    }
-  }
-
-  return junctionByPoint;
-};
-
-},{"./hashmap":52,"./hashset":53,"./point-equal":56,"./point-hash":57}],56:[function(require,module,exports){
-module.exports = function(pointA, pointB) {
-  return pointA[0] === pointB[0] && pointA[1] === pointB[1];
-};
-
-},{}],57:[function(require,module,exports){
-// TODO if quantized, use simpler Int32 hashing?
-
-var buffer = new ArrayBuffer(16),
-    floats = new Float64Array(buffer),
-    uints = new Uint32Array(buffer);
-
-module.exports = function(point) {
-  floats[0] = point[0];
-  floats[1] = point[1];
-  var hash = uints[0] ^ uints[1];
-  hash = hash << 5 ^ hash >> 7 ^ uints[2] ^ uints[3];
-  return hash & 0x7fffffff;
-};
-
-},{}],58:[function(require,module,exports){
-// Given a hash of GeoJSON objects, transforms any properties on features using
-// the specified transform function. If no properties are propagated to the new
-// properties hash, the properties hash will be deleted.
-module.exports = function(objects, propertyTransform) {
-  if (arguments.length < 2) propertyTransform = function() {};
-
-  function transformObject(object) {
-    if (object && transformObjectType.hasOwnProperty(object.type)) transformObjectType[object.type](object);
-  }
-
-  function transformFeature(feature) {
-    if (feature.properties == null) feature.properties = {};
-    var properties = feature.properties = propertyTransform(feature);
-    if (properties) for (var key in properties) return;
-    delete feature.properties;
-  }
-
-  var transformObjectType = {
-    Feature: transformFeature,
-    FeatureCollection: function(collection) { collection.features.forEach(transformFeature); }
-  };
-
-  for (var key in objects) {
-    transformObject(objects[key]);
-  }
-
-  return objects;
-};
-
-},{}],59:[function(require,module,exports){
-module.exports = function(types) {
-  for (var type in typeDefaults) {
-    if (!(type in types)) {
-      types[type] = typeDefaults[type];
-    }
-  }
-  types.defaults = typeDefaults;
-  return types;
-};
-
-var typeDefaults = {
-
-  Feature: function(feature) {
-    if (feature.geometry) this.geometry(feature.geometry);
-  },
-
-  FeatureCollection: function(collection) {
-    var features = collection.features, i = -1, n = features.length;
-    while (++i < n) this.Feature(features[i]);
-  },
-
-  GeometryCollection: function(collection) {
-    var geometries = collection.geometries, i = -1, n = geometries.length;
-    while (++i < n) this.geometry(geometries[i]);
-  },
-
-  LineString: function(lineString) {
-    this.line(lineString.coordinates);
-  },
-
-  MultiLineString: function(multiLineString) {
-    var coordinates = multiLineString.coordinates, i = -1, n = coordinates.length;
-    while (++i < n) this.line(coordinates[i]);
-  },
-
-  MultiPoint: function(multiPoint) {
-    var coordinates = multiPoint.coordinates, i = -1, n = coordinates.length;
-    while (++i < n) this.point(coordinates[i]);
-  },
-
-  MultiPolygon: function(multiPolygon) {
-    var coordinates = multiPolygon.coordinates, i = -1, n = coordinates.length;
-    while (++i < n) this.polygon(coordinates[i]);
-  },
-
-  Point: function(point) {
-    this.point(point.coordinates);
-  },
-
-  Polygon: function(polygon) {
-    this.polygon(polygon.coordinates);
-  },
-
-  object: function(object) {
-    return object == null ? null
-        : typeObjects.hasOwnProperty(object.type) ? this[object.type](object)
-        : this.geometry(object);
-  },
-
-  geometry: function(geometry) {
-    return geometry == null ? null
-        : typeGeometries.hasOwnProperty(geometry.type) ? this[geometry.type](geometry)
-        : null;
-  },
-
-  point: function() {},
-
-  line: function(coordinates) {
-    var i = -1, n = coordinates.length;
-    while (++i < n) this.point(coordinates[i]);
-  },
-
-  polygon: function(coordinates) {
-    var i = -1, n = coordinates.length;
-    while (++i < n) this.line(coordinates[i]);
-  }
-};
-
-var typeGeometries = {
-  LineString: 1,
-  MultiLineString: 1,
-  MultiPoint: 1,
-  MultiPolygon: 1,
-  Point: 1,
-  Polygon: 1,
-  GeometryCollection: 1
-};
-
-var typeObjects = {
-  Feature: 1,
-  FeatureCollection: 1
-};
-
-},{}],60:[function(require,module,exports){
 !function() {
   var topojson = {
-    version: "1.6.14",
+    version: "1.6.16",
     mesh: function(topology) { return object(topology, meshArcs.apply(this, arguments)); },
     meshArcs: meshArcs,
     merge: function(topology) { return object(topology, mergeArcs.apply(this, arguments)); },
@@ -21633,14 +19570,14 @@ var typeObjects = {
   function presimplify(topology, triangleArea) {
     var absolute = transformAbsolute(topology.transform),
         relative = transformRelative(topology.transform),
-        heap = minAreaHeap(),
-        maxArea = 0,
-        triangle;
+        heap = minAreaHeap();
 
     if (!triangleArea) triangleArea = cartesianTriangleArea;
 
     topology.arcs.forEach(function(arc) {
-      var triangles = [];
+      var triangles = [],
+          maxArea = 0,
+          triangle;
 
       arc.forEach(absolute);
 
@@ -21659,33 +19596,31 @@ var typeObjects = {
         triangle.previous = triangles[i - 1];
         triangle.next = triangles[i + 1];
       }
-    });
 
-    while (triangle = heap.pop()) {
-      var previous = triangle.previous,
-          next = triangle.next;
+      while (triangle = heap.pop()) {
+        var previous = triangle.previous,
+            next = triangle.next;
 
-      // If the area of the current point is less than that of the previous point
-      // to be eliminated, use the latter's area instead. This ensures that the
-      // current point cannot be eliminated without eliminating previously-
-      // eliminated points.
-      if (triangle[1][2] < maxArea) triangle[1][2] = maxArea;
-      else maxArea = triangle[1][2];
+        // If the area of the current point is less than that of the previous point
+        // to be eliminated, use the latter's area instead. This ensures that the
+        // current point cannot be eliminated without eliminating previously-
+        // eliminated points.
+        if (triangle[1][2] < maxArea) triangle[1][2] = maxArea;
+        else maxArea = triangle[1][2];
 
-      if (previous) {
-        previous.next = next;
-        previous[2] = triangle[2];
-        update(previous);
+        if (previous) {
+          previous.next = next;
+          previous[2] = triangle[2];
+          update(previous);
+        }
+
+        if (next) {
+          next.previous = previous;
+          next[0] = triangle[0];
+          update(next);
+        }
       }
 
-      if (next) {
-        next.previous = previous;
-        next[0] = triangle[0];
-        update(next);
-      }
-    }
-
-    topology.arcs.forEach(function(arc) {
       arc.forEach(relative);
     });
 
@@ -21815,14 +19750,14 @@ var typeObjects = {
   else this.topojson = topojson;
 }();
 
-},{}],61:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 var fetchValue = require("../core/fetch/value.js"),
     fetchColor = require("../core/fetch/color.js"),
     fetchText  = require("../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sorts an array of objects
 //------------------------------------------------------------------------------
-d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
+d3plus.array.sort = function( arr , keys , sort , colors , vars , depth ) {
 
   if ( !arr || arr.length <= 1 || !keys ) {
     return arr || []
@@ -21836,11 +19771,12 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
     keys = [ keys ]
   }
 
-  if ( !colors ) {
-    var colors = [ "color" ]
-  }
-  else if ( !(colors instanceof Array) ) {
+  if ( !(colors instanceof Array) ) {
     colors = [ colors ]
+  }
+
+  if (depth !== undefined && typeof depth !== "number") {
+    depth = vars.id.nesting.indexOf(depth)
   }
 
   function comparator( a , b ) {
@@ -21853,22 +19789,13 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
 
       if ( vars ) {
 
-        var depthKey = a.d3plus ? vars.id.nesting[a.d3plus.depth] : undefined
-          , depthInt = a.d3plus ? a.d3plus.depth : undefined
+        a = k === vars.text.value
+          ? fetchText( vars , a , depth )
+          : fetchValue( vars , a , k , depth )
 
-        a = k === vars.color.value
-          ? fetchColor( vars , a , depthKey )
-          : k === vars.text.value
-          ? fetchText( vars , a , depthInt )
-          : fetchValue( vars , a , k , depthKey )
-
-        var depthKey = b.d3plus ? vars.id.nesting[b.d3plus.depth] : undefined
-          , depthInt = b.d3plus ? b.d3plus.depth : undefined
-        b = k === vars.color.value
-          ? fetchColor( vars , b , depthKey )
-          : k === vars.text.value
-          ? fetchText( vars , b , depthInt )
-          : fetchValue( vars , b , k , depthKey )
+        b = k === vars.text.value
+          ? fetchText( vars , b , depth )
+          : fetchValue( vars , b , k , depth )
 
       }
       else {
@@ -21876,13 +19803,18 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
         b = b[k]
       }
 
-      a = a instanceof Array ? a = a[0]
-        : typeof a === "string" ? a = a.toLowerCase() : a
-      b = b instanceof Array ? b = b[0]
-        : typeof b === "string" ? b = b.toLowerCase() : b
-
-      retVal = colors.indexOf(k) >= 0 ? d3plus.color.sort( a , b )
-             : a < b ? -1 : 1
+      if (colors.indexOf(k) >= 0) {
+        a = fetchColor(vars, a, depth)
+        b = fetchColor(vars, b, depth)
+        retVal = d3plus.color.sort(a,b)
+      }
+      else {
+        a = a instanceof Array ? a = a[0]
+          : typeof a === "string" ? a = a.toLowerCase() : a
+        b = b instanceof Array ? b = b[0]
+          : typeof b === "string" ? b = b.toLowerCase() : b
+        retVal = a < b ? -1 : 1
+      }
 
       if ( retVal !== 0 || i === keys.length-1 ) {
         break
@@ -21903,7 +19835,7 @@ d3plus.array.sort = function( arr , keys , sort , colors , vars ) {
 
 }
 
-},{"../core/fetch/color.js":78,"../core/fetch/text.js":80,"../core/fetch/value.js":81}],62:[function(require,module,exports){
+},{"../core/fetch/color.js":50,"../core/fetch/text.js":52,"../core/fetch/value.js":53}],33:[function(require,module,exports){
 
 /**
  * Updates an array, either overwriting it with a new array, removing an entry
@@ -21924,7 +19856,7 @@ d3plus.array.update = function(arr, x) {
 };
 
 
-},{}],63:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 
 /**
  * Darkens a color if it's too light to appear on white
@@ -21942,7 +19874,7 @@ d3plus.color.legible = function(color) {
 };
 
 
-},{}],64:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 
 /**
  * Lightens a color
@@ -21958,7 +19890,7 @@ d3plus.color.lighter = function(color, increment) {
 };
 
 
-},{}],65:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 
 /**
  * Mixes 2 colors with optional opacities
@@ -21980,7 +19912,7 @@ d3plus.color.mix = function(c1, c2, o1, o2) {
 };
 
 
-},{}],66:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 
 /**
  * Returns a random color
@@ -21993,7 +19925,7 @@ d3plus.color.random = function(x, scale) {
 };
 
 
-},{}],67:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 
 /**
  * Default D3plus color scale
@@ -22001,7 +19933,7 @@ d3plus.color.random = function(x, scale) {
 d3plus.color.scale = d3.scale.ordinal().range(["#b22200", "#EACE3F", "#282F6B", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
 
 
-},{}],68:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 
 /**
  * Sorts 2 colors based on hue.
@@ -22020,7 +19952,7 @@ d3plus.color.sort = function(a, b) {
 };
 
 
-},{}],69:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 
 /**
  * Returns appropriate text color based off of a given color
@@ -22040,7 +19972,7 @@ d3plus.color.text = function(color) {
 };
 
 
-},{}],70:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 
 /**
  * Tests if a string is a valid color
@@ -22062,7 +19994,7 @@ d3plus.color.validate = function(color) {
 };
 
 
-},{}],71:[function(require,module,exports){
+},{}],42:[function(require,module,exports){
 var fetchValue = require("../fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets color range of data, if applicable
@@ -22122,7 +20054,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../fetch/value.js":81}],72:[function(require,module,exports){
+},{"../fetch/value.js":53}],43:[function(require,module,exports){
 var fetchValue = require("../fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Restricts data based on Solo/Mute filters
@@ -22235,7 +20167,7 @@ module.exports = function( vars , data ) {
 
 }
 
-},{"../fetch/value.js":81}],73:[function(require,module,exports){
+},{"../fetch/value.js":53}],44:[function(require,module,exports){
 var dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -22441,7 +20373,41 @@ module.exports = function( vars ) {
 
 }
 
-},{"../fetch/value.js":81,"./nest.js":76}],74:[function(require,module,exports){
+},{"../fetch/value.js":53,"./nest.js":48}],45:[function(require,module,exports){
+var fetchValue;
+
+fetchValue = require("../fetch/value.js");
+
+module.exports = function(vars, data) {
+  var d, groupedData, strippedData, val, _i, _len;
+  groupedData = d3.nest();
+  vars.id.nesting.forEach(function(n, i) {
+    if (i < vars.depth.value) {
+      return groupedData.key(function(d) {
+        return fetchValue(vars, d.d3plus, n);
+      });
+    }
+  });
+  strippedData = [];
+  for (_i = 0, _len = data.length; _i < _len; _i++) {
+    d = data[_i];
+    val = vars.size.value ? fetchValue(vars, d, vars.size.value) : 1;
+    if (val && typeof val === "number" && val > 0) {
+      delete d.d3plus.r;
+      delete d.d3plus.x;
+      delete d.d3plus.y;
+      strippedData.push({
+        d3plus: d,
+        id: d[vars.id.value],
+        value: val
+      });
+    }
+  }
+  return groupedData.entries(strippedData);
+};
+
+
+},{"../fetch/value.js":53}],46:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get Key Types from Data
 //------------------------------------------------------------------------------
@@ -22485,7 +20451,7 @@ module.exports = function( vars , type ) {
 
 }
 
-},{}],75:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 
 /**
  * Load Data using JSON
@@ -22577,7 +20543,7 @@ module.exports = function(vars, key, next) {
 };
 
 
-},{}],76:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var fetchValue = require("../fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
@@ -22891,7 +20857,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
 module.exports = dataNest
 
-},{"../fetch/value.js":81}],77:[function(require,module,exports){
+},{"../fetch/value.js":53}],49:[function(require,module,exports){
 var dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.js"),
     fetchColor = require("../fetch/color.js"),
@@ -23078,7 +21044,7 @@ module.exports = function( vars , rawData , split ) {
 
 }
 
-},{"../fetch/color.js":78,"../fetch/text.js":80,"../fetch/value.js":81,"./nest.js":76}],78:[function(require,module,exports){
+},{"../fetch/color.js":50,"../fetch/text.js":52,"../fetch/value.js":53,"./nest.js":48}],50:[function(require,module,exports){
 var fetchValue = require("./value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds an object's color and returns random if it cannot be found
@@ -23087,6 +21053,10 @@ module.exports = function( vars , id , level ) {
 
   if ( !level ) {
     var level = vars.id.value
+  }
+
+  if (typeof level === "number") {
+    level = vars.id.nesting[level]
   }
 
   function getRandom( c ) {
@@ -23110,33 +21080,48 @@ module.exports = function( vars , id , level ) {
   }
   else {
 
+    function getColor(color) {
+
+      if ( !color ) {
+
+        if ( vars.color.value && typeof vars.color.valueScale === "function" ) {
+          return vars.color.valueScale(0)
+        }
+        return getRandom( id )
+
+      }
+      else if ( !vars.color.valueScale ) {
+        return d3plus.color.validate( color ) ? color : getRandom( color )
+      }
+      else {
+        return vars.color.valueScale( color )
+      }
+
+    }
+
+    var colors = []
     for ( var i = vars.id.nesting.indexOf(level) ; i >= 0 ; i-- ) {
       var colorLevel = vars.id.nesting[i]
-        , o = d3plus.object.validate(id) && !(vars.color.value in id) && id[level] instanceof Array ? id[level][0] : fetchValue(vars, id, colorLevel)
-        , color = fetchValue( vars , o , vars.color.value , colorLevel )
-      if ( color ) break
-    }
-
-    if ( !color ) {
-
-      if ( vars.color.value || typeof vars.color.valueScale === "function" ) {
-        return vars.color.missing
+      if (d3plus.object.validate(id)) {
+        var o = !(colorLevel in id) ? fetchValue(vars,id,colorLevel) : id
+          , value = fetchValue( vars , o , vars.color.value , colorLevel )
       }
-      return getRandom( id )
+      else {
+        var value = id
+      }
+      if ( value ) {
+        var color = getColor(value)
+        if (colors.indexOf(color) < 0) colors.push(color)
+      }
+    }
 
-    }
-    else if ( !vars.color.valueScale ) {
-      return d3plus.color.validate( color ) ? color : getRandom( color )
-    }
-    else {
-      return vars.color.valueScale( color )
-    }
+    return colors.length === 0 ? getColor(undefined) : colors.length === 1 ? colors[0] : vars.color.missing
 
   }
 
 }
 
-},{"./value.js":81}],79:[function(require,module,exports){
+},{"./value.js":53}],51:[function(require,module,exports){
 var dataFilter = require("../data/filter.js"),
     dataNest = require("../data/nest.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -23333,7 +21318,7 @@ module.exports = function( vars , years ) {
 
 }
 
-},{"../data/filter.js":72,"../data/nest.js":76}],80:[function(require,module,exports){
+},{"../data/filter.js":43,"../data/nest.js":48}],52:[function(require,module,exports){
 var fetchValue = require("./value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
@@ -23411,7 +21396,7 @@ module.exports = function(vars,obj,depth) {
 
 }
 
-},{"./value.js":81}],81:[function(require,module,exports){
+},{"./value.js":53}],53:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
@@ -23419,6 +21404,9 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
   if ( variable && typeof variable === "function" ) {
     return variable( id )
+  }
+  else if ( variable && typeof variable === "number" ) {
+    return variable
   }
   else if ( !variable ) {
     return null
@@ -23538,7 +21526,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
 }
 
-},{}],82:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 
 /**
  * Creates an invisible test element to populate
@@ -23561,7 +21549,7 @@ module.exports = function(type) {
 };
 
 
-},{}],83:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Resets certain keys in global variables.
 //-------------------------------------------------------------------
@@ -23591,7 +21579,7 @@ var reset = function( obj , method ) {
 
 module.exports = reset
 
-},{}],84:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cleans edges list and populates nodes list if needed
 //-------------------------------------------------------------------
@@ -23668,7 +21656,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],85:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 // Parses an HTML element for data
 module.exports = function( vars ) {
 
@@ -23825,7 +21813,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],86:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates node positions, if needed for network
 //-------------------------------------------------------------------
@@ -23850,6 +21838,18 @@ module.exports = function(vars) {
       .nodes(vars.nodes.value)
       .links(vars.edges.value)
 
+    var strength = vars.edges.strength.value
+    if (strength) {
+      if (typeof strength === "string") {
+        force.linkStrength(function(e){
+          return e[strength]
+        })
+      }
+      else {
+        force.linkStrength(strength)
+      }
+    }
+
     var iterations = 50,
         threshold = 0.01;
 
@@ -23870,7 +21870,7 @@ module.exports = function(vars) {
 
 }
 
-},{}],87:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 var numeric;
 
 numeric = require('numeric');
@@ -23947,7 +21947,7 @@ d3plus.data.bestRegress = function(data, options) {
 };
 
 
-},{"numeric":7}],88:[function(require,module,exports){
+},{"numeric":7}],60:[function(require,module,exports){
 var kdtree;
 
 kdtree = require('static-kdtree');
@@ -24029,7 +22029,7 @@ d3plus.data.lof = function(points, K) {
 };
 
 
-},{"static-kdtree":9}],89:[function(require,module,exports){
+},{"static-kdtree":9}],61:[function(require,module,exports){
 d3plus.data.mad = function(points) {
   var mad, median, result;
   median = d3.median(points);
@@ -24046,7 +22046,7 @@ d3plus.data.mad = function(points) {
 };
 
 
-},{}],90:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 
 /**
  * Detects if the Font-Awesome library is loaded on the page.
@@ -24058,7 +22058,7 @@ stylesheet = require("../style/sheet.coffee");
 d3plus.font.awesome = stylesheet("font-awesome");
 
 
-},{"../style/sheet.coffee":229}],91:[function(require,module,exports){
+},{"../style/sheet.coffee":201}],63:[function(require,module,exports){
 var fontTester;
 
 fontTester = require("../core/font/tester.coffee");
@@ -24096,7 +22096,7 @@ d3plus.font.sizes = function(words, style, parent) {
 };
 
 
-},{"../core/font/tester.coffee":82}],92:[function(require,module,exports){
+},{"../core/font/tester.coffee":54}],64:[function(require,module,exports){
 var fontTester = require("../core/font/tester.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Given a single font or a list of font, determines which can be rendered
@@ -24176,7 +22176,7 @@ d3plus.font.validate = function(test_fonts) {
 
 d3plus.font.validate.complete = {}
 
-},{"../core/font/tester.coffee":82}],93:[function(require,module,exports){
+},{"../core/font/tester.coffee":54}],65:[function(require,module,exports){
 var dataFormat = require("../core/data/format.js"),
     dataKeys = require("../core/data/keys.js"),
     dataLoad = require("../core/data/load.coffee"),
@@ -24513,7 +22513,7 @@ d3plus.form = function() {
 
 }
 
-},{"../core/data/format.js":73,"../core/data/keys.js":74,"../core/data/load.coffee":75,"../core/fetch/data.js":79,"../core/method/reset.js":83,"./types/auto.js":94,"./types/button/button.js":95,"./types/drop/drop.js":100,"./types/toggle.js":117}],94:[function(require,module,exports){
+},{"../core/data/format.js":44,"../core/data/keys.js":46,"../core/data/load.coffee":47,"../core/fetch/data.js":51,"../core/method/reset.js":55,"./types/auto.js":66,"./types/button/button.js":67,"./types/drop/drop.js":72,"./types/toggle.js":89}],66:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines form type based on data length.
 //------------------------------------------------------------------------------
@@ -24533,7 +22533,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],95:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
@@ -24616,7 +22616,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"./functions/color.js":96,"./functions/icons.js":97,"./functions/mouseevents.js":98,"./functions/style.js":99}],96:[function(require,module,exports){
+},{"./functions/color.js":68,"./functions/icons.js":69,"./functions/mouseevents.js":70,"./functions/style.js":71}],68:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Defines button color
 //------------------------------------------------------------------------------
@@ -24677,7 +22677,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{}],97:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -24857,7 +22857,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{}],98:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -24909,7 +22909,7 @@ module.exports = function ( elem , vars , color ) {
 
 }
 
-},{}],99:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -24928,7 +22928,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{}],100:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Dropdown Menu
 //------------------------------------------------------------------------------
@@ -25006,7 +23006,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"./functions/button.js":103,"./functions/data.js":104,"./functions/element.js":105,"./functions/keyboard.js":108,"./functions/list.js":109,"./functions/search.js":111,"./functions/selector.js":112,"./functions/title.js":113,"./functions/update.js":114,"./functions/width.js":115,"./functions/window.js":116}],101:[function(require,module,exports){
+},{"./functions/button.js":75,"./functions/data.js":76,"./functions/element.js":77,"./functions/keyboard.js":80,"./functions/list.js":81,"./functions/search.js":83,"./functions/selector.js":84,"./functions/title.js":85,"./functions/update.js":86,"./functions/width.js":87,"./functions/window.js":88}],73:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if a given variable is allowed to be selected.
 //------------------------------------------------------------------------------
@@ -25042,7 +23042,7 @@ module.exports = function ( vars , value , active ) {
 
 }
 
-},{}],102:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
 //------------------------------------------------------------------------------
@@ -25072,7 +23072,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],103:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the main drop button.
 //------------------------------------------------------------------------------
@@ -25153,7 +23153,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],104:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
 //------------------------------------------------------------------------------
@@ -25271,7 +23271,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],105:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Overrides keyboard behavior of the original input element.
 //------------------------------------------------------------------------------
@@ -25310,7 +23310,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],106:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the height and orientation of the dropdown list, based on
 // available screen space.
@@ -25337,7 +23337,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],107:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Populates item list based on filtered data.
 //------------------------------------------------------------------------------
@@ -25462,7 +23462,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"./active.js":101}],108:[function(require,module,exports){
+},{"./active.js":73}],80:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Assigns behavior to the user's keyboard for navigation.
 //------------------------------------------------------------------------------
@@ -25572,7 +23572,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],109:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
 //------------------------------------------------------------------------------
@@ -25593,7 +23593,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],110:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
 //------------------------------------------------------------------------------
@@ -25697,7 +23697,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],111:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the search box, if enabled.
 //------------------------------------------------------------------------------
@@ -25788,7 +23788,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"./data.js":104,"./items.js":107,"./update.js":114}],112:[function(require,module,exports){
+},{"./data.js":76,"./items.js":79,"./update.js":86}],84:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
@@ -25810,7 +23810,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],113:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the title and back button.
 //------------------------------------------------------------------------------
@@ -25956,7 +23956,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],114:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Redraws only the drop down list.
 //------------------------------------------------------------------------------
@@ -26120,7 +24120,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"./arrow.js":102,"./height.js":106,"./items.js":107,"./scroll.js":110}],115:[function(require,module,exports){
+},{"./arrow.js":74,"./height.js":78,"./items.js":79,"./scroll.js":82}],87:[function(require,module,exports){
 var fontTester = require("../../../../core/font/tester.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If no widths are defined, then this calculates the width needed to fit the
@@ -26211,7 +24211,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/font/tester.coffee":82}],116:[function(require,module,exports){
+},{"../../../../core/font/tester.coffee":54}],88:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Recursive function that applies a click event to all parent windows that
 // will close the dropdown if it is open.
@@ -26254,7 +24254,7 @@ var windowEvents = function ( vars , elem ) {
 
 module.exports = windowEvents
 
-},{}],117:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Toggle Buttons
 //------------------------------------------------------------------------------
@@ -26338,7 +24338,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],118:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 var wiki;
 
 wiki = require("./wiki.coffee");
@@ -26396,7 +24396,7 @@ d3plus.console.stack = function() {
       stack = stack.filter(function(e) {
         return e.indexOf("Error") !== 0 && e.indexOf("d3plus.js:") < 0 && e.indexOf("d3plus.min.js:") < 0;
       });
-      if (stack.length) {
+      if (stack.length && stack[0].length) {
         splitter = (window.chrome ? "at " : "@");
         url = stack[0].split(splitter)[1];
         stack = url.split(":");
@@ -26444,7 +24444,7 @@ d3plus.console.wiki = function(url) {
 module.exports = d3plus.console;
 
 
-},{"./wiki.coffee":124}],119:[function(require,module,exports){
+},{"./wiki.coffee":96}],91:[function(require,module,exports){
 
 /**
  * Creates custom mouse events based on IE and Touch Devices.
@@ -26472,13 +24472,13 @@ if (d3plus.touch) {
 }
 
 
-},{}],120:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines if the current browser is Internet Explorer.
 //------------------------------------------------------------------------------
 d3plus.ie = /*@cc_on!@*/false
 
-},{}],121:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 
 /**
  * Calculates the correct CSS vendor prefix based on the current browser.
@@ -26503,13 +24503,13 @@ d3plus.prefix = function() {
 };
 
 
-},{}],122:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects right-to-left text direction on the page.
 //------------------------------------------------------------------------------
 d3plus.rtl = d3.select("html").attr("dir") == "rtl"
 
-},{}],123:[function(require,module,exports){
+},{}],95:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Detects scrollbar width for current browser.
 //------------------------------------------------------------------------------
@@ -26547,7 +24547,7 @@ d3plus.scrollbar = function() {
 
 }
 
-},{}],124:[function(require,module,exports){
+},{}],96:[function(require,module,exports){
 d3plus.wiki = {
   active: "Segmenting-Data#active",
   aggs: "Custom-Aggregations",
@@ -26610,7 +24610,7 @@ d3plus.wiki = {
 module.exports = d3plus.wiki;
 
 
-},{}],125:[function(require,module,exports){
+},{}],97:[function(require,module,exports){
 var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
 
 simplify = require('simplify-js');
@@ -27021,14 +25021,14 @@ intersectPoints = function(poly, origin, alpha) {
 };
 
 
-},{"simplify-js":8}],126:[function(require,module,exports){
+},{"simplify-js":8}],98:[function(require,module,exports){
 var d3plus, message, stylesheet;
 
 d3plus = window.d3plus || {};
 
 window.d3plus = d3plus;
 
-d3plus.version = "1.5.0 - Aqua";
+d3plus.version = "1.5.1 - Aqua";
 
 d3plus.repo = "https://github.com/alexandersimoes/d3plus/";
 
@@ -27077,11 +25077,11 @@ if (stylesheet("d3plus.css")) {
 }
 
 
-},{"./general/console.coffee":118,"./style/sheet.coffee":229}],127:[function(require,module,exports){
+},{"./general/console.coffee":90,"./style/sheet.coffee":201}],99:[function(require,module,exports){
 window.d3 = require("d3")
 window.topojson = require("topojson")
 
-},{"d3":4,"topojson":31}],128:[function(require,module,exports){
+},{"d3":4,"topojson":31}],100:[function(require,module,exports){
 d3plus.locale.en_US = {
 
   "dev"          : {
@@ -27248,7 +25248,7 @@ d3plus.locale.en_US = {
 
 }
 
-},{}],129:[function(require,module,exports){
+},{}],101:[function(require,module,exports){
 d3plus.locale.mk_MK = {
     "dev": {
         "accepted": "{0} не е прифатенa вредноста за {1}, ве молиме користете еднa од следниве вредности: {2}.",
@@ -27375,7 +25375,7 @@ d3plus.locale.mk_MK = {
     ]
 }
 
-},{}],130:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 d3plus.locale.pt_BR = {
     "dev": {
         "accepted": "{0} não é um valor aceito para {1}, por favor, use um dos seguintes procedimentos: {2}.",
@@ -27501,7 +25501,7 @@ d3plus.locale.pt_BR = {
     ]
 }
 
-},{}],131:[function(require,module,exports){
+},{}],103:[function(require,module,exports){
 d3plus.locale.zh_CN = {
     "dev": {
         "accepted": "{0}不是{1}的可接受值, 请用下列之一的值:{2}",
@@ -27630,7 +25630,7 @@ d3plus.locale.zh_CN = {
     ]
 }
 
-},{}],132:[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //--------------------------------------------------------------------------
@@ -27666,7 +25666,7 @@ d3plus.method.axis = function( axis ) {
 
 }
 
-},{}],133:[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //--------------------------------------------------------------------------
@@ -27683,7 +25683,7 @@ d3plus.method.filter = function( global ) {
 
 }
 
-},{}],134:[function(require,module,exports){
+},{}],106:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get/set function for methods
 //------------------------------------------------------------------------------
@@ -27797,7 +25797,7 @@ d3plus.method.function = function( key , vars ) {
 
 }
 
-},{}],135:[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create dummy methods to catch deprecates
 //------------------------------------------------------------------------------
@@ -27870,53 +25870,31 @@ d3plus.method.init = function( vars , obj , method ) {
 
 }
 
-},{}],136:[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects is we should set the object or check all keys of object.
-//------------------------------------------------------------------------------
-d3plus.method.object = function( vars , method , object , key , value ) {
-
-  if ([ "accepted" , "getVars" ].indexOf(key) < 0) {
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Determine whether or not to just set the local variable or to dig into
-    // the object passed looking for keys.
-    //--------------------------------------------------------------------------
-    var passingObject  = d3plus.object.validate(value)
-      , approvedObject = passingObject && ( !("value" in value) &&
-                         !(d3.keys(value)[0] in object[key]) )
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Set value of key.
-    //--------------------------------------------------------------------------
-    if ( value === null || !passingObject || approvedObject ) {
-
-      if ( approvedObject ) {
-        d3plus.method.set( vars , method , object[key] , "value" , value )
+},{}],108:[function(require,module,exports){
+d3plus.method.object = function(vars, method, object, key, value) {
+  var approvedObject, d, objectOnly, passingObject, _results;
+  if (["accepted", "getVars"].indexOf(key) < 0) {
+    passingObject = d3plus.object.validate(value);
+    objectOnly = d3plus.object.validate(object[key]) && "objectAccess" in object[key] && object[key]["objectAccess"] === false;
+    approvedObject = passingObject && (objectOnly || ((!("value" in value)) && (!(d3.keys(value)[0] in object[key]))));
+    if (value === null || !passingObject || approvedObject) {
+      if (approvedObject) {
+        return d3plus.method.set(vars, method, object[key], "value", value);
+      } else {
+        return d3plus.method.set(vars, method, object, key, value);
       }
-      else {
-        d3plus.method.set( vars , method , object , key , value )
-      }
-
-    }
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // If it's an object, dig through it and set inner values.
-    //--------------------------------------------------------------------------
-    else if ( passingObject ) {
-
+    } else if (passingObject) {
+      _results = [];
       for (d in value) {
-
-        d3plus.method.object( vars , method , object[key] , d , value[d] )
-
+        _results.push(d3plus.method.object(vars, method, object[key], d, value[d]));
       }
-
+      return _results;
     }
-
   }
+};
 
-}
 
-},{}],137:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Process object's value
 //--------------------------------------------------------------------------
@@ -27937,7 +25915,7 @@ d3plus.method.process = function( object , value ) {
 
 }
 
-},{}],138:[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Function to process data by url or element.
 //--------------------------------------------------------------------------
@@ -27984,7 +25962,7 @@ d3plus.method.processData = function ( value , self ) {
 
 }
 
-},{}],139:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets a method's value.
 //------------------------------------------------------------------------------
@@ -28330,7 +26308,7 @@ d3plus.method.set = function( vars , method , object , key , value ) {
 
 }
 
-},{}],140:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Global method shell.
 //------------------------------------------------------------------------------
@@ -28395,7 +26373,7 @@ d3plus.method = function( vars , methods , styles ) {
 
 }
 
-},{}],141:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 d3plus.method.active = {
   "accepted"   : [ false , Array , Function , Number , Object , String ],
   "deprecates" : "active_var",
@@ -28409,14 +26387,15 @@ d3plus.method.active = {
   "value"      : false
 }
 
-},{}],142:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 d3plus.method.aggs = {
   "accepted"   : [ Object ],
   "deprecated" : "nesting_aggs",
+  "objectAccess": false,
   "value"      : {}
 }
 
-},{}],143:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 d3plus.method.alt = {
   "accepted" : [ false , Array , Function , Object , String ],
   "mute"     : d3plus.method.filter(true),
@@ -28424,7 +26403,7 @@ d3plus.method.alt = {
   "value"    : "alt"
 }
 
-},{}],144:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 d3plus.method.attrs = {
   "accepted" : [ false , Array , Object , String ],
   "delimiter" : {
@@ -28440,7 +26419,7 @@ d3plus.method.attrs = {
   "value"    : false
 }
 
-},{}],145:[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 d3plus.method.axes = {
   "mirror" : {
     "accepted"   : [ Boolean ],
@@ -28450,7 +26429,7 @@ d3plus.method.axes = {
   "values" : [ "x" , "y" ]
 }
 
-},{}],146:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 d3plus.method.color = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "color_var",
@@ -28468,7 +26447,7 @@ d3plus.method.color = {
   "solo"      : d3plus.method.filter(true)
 }
 
-},{}],147:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 d3plus.method.container = {
   "accepted" : [ Array , Object , String ],
   "element"  : false,
@@ -28493,7 +26472,7 @@ d3plus.method.container = {
   "value"    : false
 }
 
-},{}],148:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 d3plus.method.coords = {
   "accepted" : [ false , Array , Function , Object , String ],
   "filetype" : {
@@ -28506,7 +26485,7 @@ d3plus.method.coords = {
   "value"    : false
 }
 
-},{}],149:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js")
 
 d3plus.method.csv = {
@@ -28587,7 +26566,7 @@ d3plus.method.csv = {
   "value"     : undefined
 }
 
-},{"../../core/fetch/value.js":81}],150:[function(require,module,exports){
+},{"../../core/fetch/value.js":53}],122:[function(require,module,exports){
 d3plus.method.data = {
   "accepted" : [ false , Array , Function , String ],
   "cache"    : {},
@@ -28653,25 +26632,25 @@ d3plus.method.data = {
   "value"    : false
 }
 
-},{}],151:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 d3plus.method.depth = {
   "accepted" : [ Function , Number ],
   "value"    : 0
 }
 
-},{}],152:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 d3plus.method.descs = {
   "accepted" : [ false , Function , Object ],
   "value"    : false
 }
 
-},{}],153:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 d3plus.method.dev = {
   "accepted" : [ Boolean ],
   "value"    : false
 }
 
-},{}],154:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 var parseElement = require("../../core/parse/element.js")
 d3plus.method.draw = {
   "accepted" : [ undefined , Function ],
@@ -28743,7 +26722,7 @@ d3plus.method.draw = {
   "value"    : undefined
 }
 
-},{"../../core/parse/element.js":85}],155:[function(require,module,exports){
+},{"../../core/parse/element.js":57}],127:[function(require,module,exports){
 d3plus.method.edges = {
   "accepted"    : [ false , Array , Function , String ],
   "connections" : function(focus,id,objects) {
@@ -28808,17 +26787,21 @@ d3plus.method.edges = {
   "process"     : d3plus.method.processData,
   "size"        : false,
   "source"      : "source",
+  "strength"    : {
+    "accepted" : [false, Function, Number, String],
+    "value"    : false
+  },
   "target"      : "target",
   "value"       : false
 }
 
-},{}],156:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 d3plus.method.error = {
   "accepted" : [ Boolean , String ],
   "value"    : false
 }
 
-},{}],157:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 d3plus.method.focus = {
   "accepted"   : [ false , Array , Function , Number , String ],
   "deprecates" : "highlight",
@@ -28879,14 +26862,14 @@ d3plus.method.focus = {
   "value"      : []
 }
 
-},{}],158:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 d3plus.method.footer = {
   "accepted" : [ false , Number , String ],
   "link"     : false,
   "value"    : false
 }
 
-},{}],159:[function(require,module,exports){
+},{}],131:[function(require,module,exports){
 d3plus.method.format = {
   "accepted"   : [ Function , String ],
   "deprecates" : [ "number_format" , "text_format" ],
@@ -28957,14 +26940,14 @@ d3plus.method.format = {
   }
 }
 
-},{}],160:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 d3plus.method.height = {
   "accepted"  : [ false , Number ],
   "secondary" : false,
   "value"     : false
 }
 
-},{}],161:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 d3plus.method.history = {
   "accepted" : [ Boolean ],
   "back"     : function() {
@@ -28983,13 +26966,13 @@ d3plus.method.history = {
   "value"    : true
 }
 
-},{}],162:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 d3plus.method.hover = {
   "accepted" : [ false , Number , String ],
   "value"    : false
 }
 
-},{}],163:[function(require,module,exports){
+},{}],135:[function(require,module,exports){
 d3plus.method.icon = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "icon_var",
@@ -29001,7 +26984,7 @@ d3plus.method.icon = {
   "value"      : "icon"
 }
 
-},{}],164:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 d3plus.method.id = {
   "accepted"    : [ Array , String ],
   "dataFilter"  : true,
@@ -29022,7 +27005,7 @@ d3plus.method.id = {
   "solo"        : d3plus.method.filter(true)
 }
 
-},{}],165:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 d3plus.method.keywords = {
   "accepted" : [ false , Array , Function , Object , String ],
   "mute"     : d3plus.method.filter(true),
@@ -29030,7 +27013,7 @@ d3plus.method.keywords = {
   "value"    : "keywords"
 }
 
-},{}],166:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 d3plus.method.labels = {
   "accepted" : [ Boolean ] ,
   "resize"   : {
@@ -29040,13 +27023,13 @@ d3plus.method.labels = {
   "value"    : true
 }
 
-},{}],167:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 d3plus.method.legend = {
   "accepted" : [ Boolean ],
   "value"    : true
 }
 
-},{}],168:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 d3plus.method.margin = {
   "accepted" : [ Number , Object , String ],
   "process"  : function ( value ) {
@@ -29135,13 +27118,13 @@ d3plus.method.margin = {
   "value"    : 0
 }
 
-},{}],169:[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 d3plus.method.messages = {
   "accepted" : [ Boolean , String ],
   "value"    : true
 }
 
-},{}],170:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 d3plus.method.nodes = {
   "accepted" : [ false , Array , Function , String ],
   "delimiter" : {
@@ -29157,7 +27140,7 @@ d3plus.method.nodes = {
   "value"    : false
 }
 
-},{}],171:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 d3plus.method.open = {
   "accepted" : [ Boolean ],
   "flipped"  : {
@@ -29167,7 +27150,7 @@ d3plus.method.open = {
   "value"    : false
 }
 
-},{}],172:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 d3plus.method.order = {
   "accepted" : [ false , Function , String ],
   "sort"     : {
@@ -29178,7 +27161,7 @@ d3plus.method.order = {
   "value"    : false
 }
 
-},{}],173:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 d3plus.method.remove = {
   "accepted" : undefined,
   "process"  : function ( value ) {
@@ -29196,13 +27179,13 @@ d3plus.method.remove = {
   "value"    : undefined
 }
 
-},{}],174:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 d3plus.method.resize = {
   "accepted" : [ Boolean ],
   "value"    : false
 }
 
-},{}],175:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 d3plus.method.search = {
   "accepted" : [ "auto" , Boolean ],
   "process"  : function(value) {
@@ -29217,7 +27200,7 @@ d3plus.method.search = {
   "value"    : "auto"
 }
 
-},{}],176:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 d3plus.method.select = {
   "accepted"  : [ String ],
   "chainable" : false,
@@ -29233,7 +27216,7 @@ d3plus.method.select = {
   "value"     : undefined
 }
 
-},{}],177:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 d3plus.method.selectAll = {
   "accepted"  : [ String ],
   "chainable" : false,
@@ -29249,7 +27232,7 @@ d3plus.method.selectAll = {
   "value"     : undefined
 }
 
-},{}],178:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 d3plus.method.shape = {
   "accepted" : function( vars ) {
     return vars.shell === "textwrap" ? [ "circle" , "square" ]
@@ -29259,7 +27242,7 @@ d3plus.method.shape = {
   "value"    : false
 }
 
-},{}],179:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 d3plus.method.size = {
   "accepted"    : function( vars ) {
 
@@ -29267,7 +27250,7 @@ d3plus.method.size = {
       return [ Array , false ]
     }
     else {
-      return [ Array , Boolean , Function , Object , String ]
+      return [ Array , Boolean , Function , Number , Object , String ]
     }
 
   },
@@ -29284,7 +27267,7 @@ d3plus.method.size = {
   "value"       : false
 }
 
-},{}],180:[function(require,module,exports){
+},{}],152:[function(require,module,exports){
 d3plus.method.style = {
   "accepted" : function( vars ){
     return d3.keys(d3plus.style).filter(function(s){
@@ -29294,7 +27277,7 @@ d3plus.method.style = {
   "value"    : "default"
 }
 
-},{}],181:[function(require,module,exports){
+},{}],153:[function(require,module,exports){
 d3plus.method.temp = {
   "accepted": [ false , Array , Function , Object , String ],
   "deprecates": [ "else_var" , "else" ],
@@ -29303,7 +27286,7 @@ d3plus.method.temp = {
   "value": false
 }
 
-},{}],182:[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 d3plus.method.text = {
   "accepted"   : [ Array , Boolean , Function , Object , String ],
   "deprecates" : [ "name_array" , "text_var" ],
@@ -29332,7 +27315,7 @@ d3plus.method.text = {
   "split"      : [ "-" , "/" , ";" , ":" , "&" ]
 }
 
-},{}],183:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 d3plus.method.time = {
   "accepted"    : [ Array , Boolean , Function , Object , String ],
   "dataFilter"  : true,
@@ -29351,13 +27334,13 @@ d3plus.method.time = {
   "value"       : false
 }
 
-},{}],184:[function(require,module,exports){
+},{}],156:[function(require,module,exports){
 d3plus.method.timeline = {
   "accepted" : [ Boolean ],
   "value"    : true
 }
 
-},{}],185:[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 d3plus.method.title = {
   "accepted" : [ false , Function , String ],
   "link"     : false,
@@ -29388,7 +27371,7 @@ d3plus.method.title = {
   "value"    : false
 }
 
-},{}],186:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 d3plus.method.tooltip = {
   "accepted"   : [ false , Array , Function , Object , String ],
   "deprecates" : "tooltip_info",
@@ -29400,7 +27383,7 @@ d3plus.method.tooltip = {
   "value"      : false
 }
 
-},{}],187:[function(require,module,exports){
+},{}],159:[function(require,module,exports){
 d3plus.method.total = {
   "accepted": [ false , Array , Function , Object , String ],
   "deprecates": [ "total_var" ],
@@ -29409,7 +27392,7 @@ d3plus.method.total = {
   "value": false
 }
 
-},{}],188:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 d3plus.method.type = {
   "accepted" : function( vars ) {
     return d3.keys(vars.types)
@@ -29437,26 +27420,26 @@ d3plus.method.type = {
   }
 }
 
-},{}],189:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 d3plus.method.ui = {
   "accepted" : [ Array , Boolean ],
   "value"    : false
 }
 
-},{}],190:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 d3plus.method.width = {
   "accepted"  : [ false , Number ],
   "secondary" : false,
   "value"     : false
 }
 
-},{}],191:[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 d3plus.method.x = d3plus.method.axis("x")
 
-},{}],192:[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 d3plus.method.y = d3plus.method.axis("y")
 
-},{}],193:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 d3plus.method.zoom = {
   "accepted"   : [ Boolean ],
   "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
@@ -29511,7 +27494,7 @@ d3plus.method.zoom = {
   "value"      : true
 }
 
-},{}],194:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 d3plus.network.cluster = function(edges, options) {
   var Q, a, b, cid, commSize, commSizes, communities, community, deltaQ, distance, edge, endpoint, events, id, iter, k, linksMap, m, maxa, maxb, node, nodeid, nodes, nodesMap, result, startpoint, _i, _j, _len, _len1, _ref, _ref1;
   events = [];
@@ -29644,7 +27627,7 @@ d3plus.network.cluster = function(edges, options) {
 };
 
 
-},{}],195:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 d3plus.network.normalize = function(edges, options) {
   var K, a, b, directed, distance, edge, edge2distance, endpoint, errormsg, i, id, id1, idA, idB, node, nodeA, nodeB, nodeid, nodes, source, startpoint, target, vdebug, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
   source = options.source, target = options.target, directed = options.directed, distance = options.distance, nodeid = options.nodeid, startpoint = options.startpoint, endpoint = options.endpoint, K = options.K, vdebug = options.vdebug;
@@ -29788,7 +27771,7 @@ d3plus.network.normalize = function(edges, options) {
 };
 
 
-},{}],196:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 var Heap;
 
 Heap = require('heap');
@@ -29885,7 +27868,7 @@ d3plus.network.shortestPath = function(edges, source, options) {
 module.exports = d3plus.network.shortestPath;
 
 
-},{"heap":5}],197:[function(require,module,exports){
+},{"heap":5}],169:[function(require,module,exports){
 d3plus.network.subgraph = function(edges, source, options) {
   var K, dfs, directed, distance, edge, endpoint, id, nodeid, nodes, startpoint, visited, _ref;
   if (options == null) {
@@ -29951,7 +27934,7 @@ d3plus.network.subgraph = function(edges, source, options) {
 };
 
 
-},{}],198:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats numbers to look "pretty"
 //------------------------------------------------------------------------------
@@ -29989,7 +27972,7 @@ d3plus.number.format = function( number , key , vars ) {
     time.push(vars.time.value)
   }
 
-  if (key && time.indexOf(key.toLowerCase()) >= 0) {
+  if (typeof key === "string" && time.indexOf(key.toLowerCase()) >= 0) {
     return number
   }
   else if (number < 10 && number > -10) {
@@ -30013,7 +27996,7 @@ d3plus.number.format = function( number , key , vars ) {
 
 }
 
-},{}],199:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../util/d3selection.js");
@@ -30059,7 +28042,7 @@ d3plus.object.merge = function(obj1, obj2) {
 module.exports = d3plus.object.merge;
 
 
-},{"../util/d3selection.js":249}],200:[function(require,module,exports){
+},{"../util/d3selection.js":221}],172:[function(require,module,exports){
 
 /**
  * Checks to see if the passed object has keys and is not an array.
@@ -30071,7 +28054,7 @@ d3plus.object.validate = function(obj) {
 module.exports = d3plus.object.validate;
 
 
-},{}],201:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats a string similar to Python's "format"
 //------------------------------------------------------------------------------
@@ -30102,7 +28085,7 @@ d3plus.string.format = function() {
 
 }
 
-},{}],202:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 
 /**
  * Converts an array of strings into a string list using commas and "and".
@@ -30136,7 +28119,7 @@ d3plus.string.list = function(list, andText, max, moreText) {
 };
 
 
-},{}],203:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
@@ -30190,7 +28173,7 @@ d3plus.string.strip = function(str) {
 
 }
 
-},{}],204:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 
 /**
  * Formats numbers to look "pretty"
@@ -30226,7 +28209,7 @@ d3plus.string.title = function(text, key, vars) {
 };
 
 
-},{}],205:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // D3plus Default Color Scheme
 // Created by Dave Landry
@@ -30239,7 +28222,7 @@ d3plus.style.default.fontFamily = [ "Helvetica Neue"
                                   , "Arial"
                                   , "sans-serif" ]
 
-},{}],206:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 d3plus.style.default.axes = {
   "ticks" : {
     "color" : "#ccc",
@@ -30262,20 +28245,20 @@ d3plus.style.default.axes = {
   }
 }
 
-},{}],207:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 d3plus.style.default.background = {
   "accepted" : [ String ],
   "value"    : "#ffffff"
 }
 
-},{}],208:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 d3plus.style.default.color = {
-  "heatmap"   : [ "#27366c" , "#7b91d3" , "#9ed3e3"
-                , "#f3d261" , "#c9853a" , "#d74b03" ],
+  "heatmap"   : [ "#282F6B" , "#419391" , "#AFD5E8"
+                , "#EACE3F" , "#B35C1E" , "#B22200" ],
   "focus"     : "#444444",
   "missing"   : "#eeeeee",
   "primary"   : "#d74b03",
-  "range"     : [ "#d74b03" , "#eeeeee" , "#94b153" ],
+  "range"     : [ "#B22200" , "#FFEE8D" , "#759143" ],
   "scale"     : {
     "accepted": [ Array, "d3plus", "category10", "category20", "category20b", "category20c" ],
     "process": function(value) {
@@ -30299,7 +28282,7 @@ d3plus.style.default.color = {
   "secondary" : "#e5b3bb"
 }
 
-},{}],209:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 d3plus.style.default.coords = {
   "center"     : [ 0 , 0 ],
   "fit"        : {
@@ -30314,7 +28297,7 @@ d3plus.style.default.coords = {
   "threshold"  : 0.1
 }
 
-},{}],210:[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 d3plus.style.default.data = {
   "donut"   : {
     "size" : 0.35
@@ -30326,7 +28309,7 @@ d3plus.style.default.data = {
   }
 }
 
-},{}],211:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 d3plus.style.default.edges = {
   "arrows"  : {
     "accepted"  : [ Boolean , Number ],
@@ -30343,7 +28326,7 @@ d3plus.style.default.edges = {
   "width"   : 1
 }
 
-},{}],212:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 d3plus.style.default.font = {
   "align"      : {
     "accepted" : [ "left" , "center" , "right" ],
@@ -30397,7 +28380,7 @@ d3plus.style.default.font = {
   "weight"     : 200
 }
 
-},{}],213:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 d3plus.style.default.footer = {
   "font"     : {
     "align"      : "center",
@@ -30418,13 +28401,13 @@ d3plus.style.default.footer = {
   "position" : "bottom"
 }
 
-},{}],214:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 d3plus.style.default.height = {
   "small" : 300,
   "max"   : 600
 }
 
-},{}],215:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 d3plus.style.default.icon = {
   "back"   : {
     "accepted" : [ false , String ],
@@ -30505,7 +28488,7 @@ d3plus.style.default.icon = {
   }
 }
 
-},{}],216:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 d3plus.style.default.labels = {
   "align"    : "middle",
   "font"     : {
@@ -30525,7 +28508,7 @@ d3plus.style.default.labels = {
   "segments" : 2
 }
 
-},{}],217:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 d3plus.style.default.legend = {
   "align"    : "middle",
   "font"     : {
@@ -30549,7 +28532,7 @@ d3plus.style.default.legend = {
   "size"     : [ 8 , 30 ]
 }
 
-},{}],218:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 d3plus.style.default.links = {
   "font"  : {
     "color"      : "#444444",
@@ -30579,7 +28562,7 @@ d3plus.style.default.links = {
   }
 }
 
-},{}],219:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 d3plus.style.default.messages = {
   "font" : {
     "color"      : "#444",
@@ -30598,12 +28581,12 @@ d3plus.style.default.messages = {
   "padding": 5
 }
 
-},{}],220:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 d3plus.style.default.nodes = {
   "overlap" : 0.6
 }
 
-},{}],221:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 d3plus.style.default.shape = {
   "interpolate" : {
     "accepted"   : [ "basis" , "basis-open" , "cardinal"
@@ -30618,7 +28601,7 @@ d3plus.style.default.shape = {
   }
 }
 
-},{}],222:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 d3plus.style.default.timeline = {
   "align"      : "middle",
   "hover": {
@@ -30641,14 +28624,14 @@ d3plus.style.default.timeline = {
   "tick"      : "#818181"
 }
 
-},{}],223:[function(require,module,exports){
+},{}],195:[function(require,module,exports){
 d3plus.style.default.timing = {
   "mouseevents" : 60,
   "transitions" : 600,
   "ui"          : 200
 }
 
-},{}],224:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 d3plus.style.default.title = {
   "font"     : {
     "align"      : "center",
@@ -30709,7 +28692,7 @@ d3plus.style.default.title = {
   "width"    : false
 }
 
-},{}],225:[function(require,module,exports){
+},{}],197:[function(require,module,exports){
 d3plus.style.default.tooltip = {
   "anchor"      : "top center",
   "background"  : "#ffffff",
@@ -30747,7 +28730,7 @@ d3plus.style.default.tooltip = {
   "small"      : 225
 }
 
-},{}],226:[function(require,module,exports){
+},{}],198:[function(require,module,exports){
 d3plus.style.default.ui = {
   "align"    : {
     "accepted" : [ "left" , "center" , "right" ],
@@ -30809,12 +28792,12 @@ d3plus.style.default.ui = {
   }
 }
 
-},{}],227:[function(require,module,exports){
+},{}],199:[function(require,module,exports){
 d3plus.style.default.width = {
   "small" : 400
 }
 
-},{}],228:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Constructs font family property using the validate function
 //------------------------------------------------------------------------------
@@ -30827,7 +28810,7 @@ d3plus.style.fontFamily = function( family ) {
 
 }
 
-},{}],229:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 d3plus.style.sheet = function(name) {
   var i, returnBoolean, sheet;
   i = 0;
@@ -30846,7 +28829,7 @@ d3plus.style.sheet = function(name) {
 module.exports = d3plus.style.sheet;
 
 
-},{}],230:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into the container
 //------------------------------------------------------------------------------
@@ -30861,7 +28844,7 @@ d3plus.textwrap.flow = function( vars ) {
 
 }
 
-},{}],231:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text as a foreign element.
 //------------------------------------------------------------------------------
@@ -30892,7 +28875,7 @@ d3plus.textwrap.foreign = function( vars ) {
 
 }
 
-},{}],232:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks width and height, and gets it if needed.
 //------------------------------------------------------------------------------
@@ -30942,7 +28925,7 @@ d3plus.textwrap.getDimensions = function( vars ) {
 
 }
 
-},{}],233:[function(require,module,exports){
+},{}],205:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches text if not specified, and formats text to array.
 //------------------------------------------------------------------------------
@@ -30968,7 +28951,7 @@ d3plus.textwrap.getSize = function( vars ) {
 
 }
 
-},{}],234:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches text if not specified, and formats text to array.
 //------------------------------------------------------------------------------
@@ -31005,7 +28988,7 @@ d3plus.textwrap.getText = function( vars ) {
 
 }
 
-},{}],235:[function(require,module,exports){
+},{}],207:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Logic to determine the best size for text
 //------------------------------------------------------------------------------
@@ -31067,7 +29050,7 @@ d3plus.textwrap.resize = function( vars , line ) {
 
 }
 
-},{}],236:[function(require,module,exports){
+},{}],208:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into tspans
 //------------------------------------------------------------------------------
@@ -31190,7 +29173,7 @@ d3plus.textwrap.tspan = function( vars ) {
 
 }
 
-},{}],237:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into the container
 //------------------------------------------------------------------------------
@@ -31212,7 +29195,7 @@ d3plus.textwrap.wrap = function( vars ) {
 
 }
 
-},{}],238:[function(require,module,exports){
+},{}],210:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Word wraps SVG text
 //------------------------------------------------------------------------------
@@ -31251,7 +29234,7 @@ d3plus.textwrap = function() {
 
 }
 
-},{}],239:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 var fetchValue = require("../core/fetch/value.js"),
     fetchColor = require("../core/fetch/color.js"),
     fetchText  = require("../core/fetch/text.js")
@@ -31544,7 +29527,7 @@ d3plus.tooltip.app = function(params) {
 
 }
 
-},{"../core/fetch/color.js":78,"../core/fetch/text.js":80,"../core/fetch/value.js":81}],240:[function(require,module,exports){
+},{"../core/fetch/color.js":50,"../core/fetch/text.js":52,"../core/fetch/value.js":53}],212:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Correctly positions the tooltip's arrow
 //-------------------------------------------------------------------
@@ -31619,7 +29602,7 @@ d3plus.tooltip.arrow = function(arrow) {
       }
     })
 }
-},{}],241:[function(require,module,exports){
+},{}],213:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create a Tooltip
 //-------------------------------------------------------------------
@@ -32165,7 +30148,7 @@ d3plus.tooltip.create = function(params) {
 
 }
 
-},{}],242:[function(require,module,exports){
+},{}],214:[function(require,module,exports){
 var fetchValue = require("../core/fetch/value.js"),
     fetchColor = require("../core/fetch/color.js"),
     fetchText  = require("../core/fetch/text.js")
@@ -32448,7 +30431,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
 }
 
-},{"../core/fetch/color.js":78,"../core/fetch/text.js":80,"../core/fetch/value.js":81}],243:[function(require,module,exports){
+},{"../core/fetch/color.js":50,"../core/fetch/text.js":52,"../core/fetch/value.js":53}],215:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Set X and Y position for Tooltip
 //-------------------------------------------------------------------
@@ -32551,7 +30534,7 @@ d3plus.tooltip.move = function(x,y,id) {
     
 }
 
-},{}],244:[function(require,module,exports){
+},{}],216:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Destroy Tooltips
 //-------------------------------------------------------------------
@@ -32579,7 +30562,7 @@ d3plus.tooltip.remove = function(id) {
 
 }
 
-},{}],245:[function(require,module,exports){
+},{}],217:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Expands a min/max into a specified number of buckets
 //------------------------------------------------------------------------------
@@ -32598,7 +30581,7 @@ d3plus.util.buckets = function(arr, buckets) {
   return return_arr
 }
 
-},{}],246:[function(require,module,exports){
+},{}],218:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("./d3selection.js");
@@ -32630,7 +30613,7 @@ d3plus.util.child = function(parent, child) {
 };
 
 
-},{"./d3selection.js":249}],247:[function(require,module,exports){
+},{"./d3selection.js":221}],219:[function(require,module,exports){
 
 /**
  * Finds closest numeric value in array
@@ -32647,7 +30630,7 @@ d3plus.util.closest = function(arr, value) {
 };
 
 
-},{}],248:[function(require,module,exports){
+},{}],220:[function(require,module,exports){
 var objectMerge, objectValidate;
 
 objectMerge = require("../object/merge.coffee");
@@ -32670,7 +30653,7 @@ d3plus.util.copy = function(variable) {
 };
 
 
-},{"../object/merge.coffee":199,"../object/validate.coffee":200}],249:[function(require,module,exports){
+},{"../object/merge.coffee":171,"../object/validate.coffee":172}],221:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cross-browser detect for D3 element
 //------------------------------------------------------------------------------
@@ -32682,7 +30665,7 @@ d3plus.util.d3selection = function(selection) {
 
 module.exports = d3plus.util.d3selection
 
-},{}],250:[function(require,module,exports){
+},{}],222:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Base-64 Data URL from and Image URL
 //------------------------------------------------------------------------------
@@ -32708,7 +30691,7 @@ d3plus.util.dataurl = function(url,callback) {
 
 }
 
-},{}],251:[function(require,module,exports){
+},{}],223:[function(require,module,exports){
 
 /**
  * Returns distances of all objects in array
@@ -32738,7 +30721,7 @@ d3plus.util.distances = function(arr, accessor) {
 };
 
 
-},{}],252:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 
 /*
  * Gives X and Y offset based off angle and shape
@@ -32807,7 +30790,7 @@ d3plus.util.offset = function(radians, distance, shape) {
 };
 
 
-},{}],253:[function(require,module,exports){
+},{}],225:[function(require,module,exports){
 var objectValidate;
 
 objectValidate = require("../object/validate.coffee");
@@ -32844,7 +30827,7 @@ d3plus.util.uniques = function(data, value) {
 };
 
 
-},{"../object/validate.coffee":200}],254:[function(require,module,exports){
+},{"../object/validate.coffee":172}],226:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
 //------------------------------------------------------------------------------
@@ -32889,7 +30872,7 @@ d3plus.draw.app = function(vars) {
 
 }
 
-},{}],255:[function(require,module,exports){
+},{}],227:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If placing into a new container, remove it's contents
 // and check text direction.
@@ -32969,7 +30952,7 @@ d3plus.draw.container = function(vars) {
 
 }
 
-},{}],256:[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Enter Elements
 //------------------------------------------------------------------------------
@@ -33142,7 +31125,7 @@ d3plus.draw.enter = function(vars) {
 
 }
 
-},{}],257:[function(require,module,exports){
+},{}],229:[function(require,module,exports){
 var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Miscellaneous Error Checks
@@ -33234,12 +31217,12 @@ d3plus.draw.errors = function(vars) {
     vars.self.shape(shapes.length ? shapes[0] : "circle")
   }
   else if (shapes.indexOf(vars.shape.value) < 0) {
-    var shapes = vars.types[vars.type.value].shapes.join("\", \"")
+    var shapes = vars.types[vars.type.value].shapes
       , str = vars.format.locale.value.error.accepted
       , shape = "\""+vars.shape.value+"\""
       , shapeStr = vars.format.locale.value.method.shape
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-    d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes+"\""),"shape")
+    d3plus.console.warning(d3plus.string.format(str,shape,shapeStr,app,"\""+shapes.join("\", \"")+"\""),"shape")
     vars.self.shape(shapes.length ? shapes[0] : "circle")
   }
 
@@ -33265,7 +31248,7 @@ d3plus.draw.errors = function(vars) {
 
 }
 
-},{"../../core/fetch/text.js":80}],258:[function(require,module,exports){
+},{"../../core/fetch/text.js":52}],230:[function(require,module,exports){
 var methodReset = require("../../core/method/reset.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
@@ -33283,7 +31266,7 @@ d3plus.draw.finish = function(vars) {
     if (vars.draw.first) {
       d3plus.zoom.bounds(vars,zoom,0)
     }
-    else if (vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
+    else if (vars.type.changed || vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
       d3plus.zoom.bounds(vars,zoom)
     }
 
@@ -33291,7 +31274,9 @@ d3plus.draw.finish = function(vars) {
 
   }
   else {
+    vars.zoom.bounds = [[0,0],[vars.width.viz,vars.height.viz]]
     vars.zoom.scale = 1
+    d3plus.zoom.bounds(vars)
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -33435,7 +31420,7 @@ d3plus.draw.finish = function(vars) {
 
 }
 
-},{"../../core/method/reset.js":83}],259:[function(require,module,exports){
+},{"../../core/method/reset.js":55}],231:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates focus elements, if available
 //------------------------------------------------------------------------------
@@ -33589,7 +31574,7 @@ d3plus.draw.focus = function(vars) {
 
 }
 
-},{}],260:[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 var dataFormat = require("../../core/data/format.js"),
     dataColor  = require("../../core/data/color.js"),
     dataKeys   = require("../../core/data/keys.js"),
@@ -33934,7 +31919,7 @@ d3plus.draw.steps = function(vars) {
 
 }
 
-},{"../../core/data/color.js":71,"../../core/data/format.js":73,"../../core/data/keys.js":74,"../../core/data/load.coffee":75,"../../core/fetch/data.js":79,"../../core/parse/edges.js":84,"../../core/parse/nodes.js":86}],261:[function(require,module,exports){
+},{"../../core/data/color.js":42,"../../core/data/format.js":44,"../../core/data/keys.js":46,"../../core/data/load.coffee":47,"../../core/fetch/data.js":51,"../../core/parse/edges.js":56,"../../core/parse/nodes.js":58}],233:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
 //------------------------------------------------------------------------------
@@ -34001,7 +31986,7 @@ d3plus.draw.update = function(vars) {
 
 }
 
-},{}],262:[function(require,module,exports){
+},{}],234:[function(require,module,exports){
 var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -34059,21 +32044,21 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
           "angle": d3.range(-70,71,1),
           "aspectRatio": ratio,
           "tolerance": 0
-        })[0]
+        })
 
-        if (lr) {
+        if (lr && lr[0]) {
 
           var label = {
-            "w": Math.floor(lr.width),
-            "h": Math.floor(lr.height),
-            "x": Math.floor(lr.cx),
-            "y": Math.floor(lr.cy),
-            "angle": lr.angle*-1,
+            "w": Math.floor(lr[0].width),
+            "h": Math.floor(lr[0].height),
+            "x": Math.floor(lr[0].cx),
+            "y": Math.floor(lr[0].cy),
+            "angle": lr[0].angle*-1,
             "padding": 2,
             "names": names
           }
 
-          if (lr.angle !== 0) {
+          if (lr[0].angle !== 0) {
             label.translate = {
               "x":label.x,
               "y":label.y
@@ -34108,7 +32093,7 @@ d3plus.shape.area = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../core/fetch/text.js":80}],263:[function(require,module,exports){
+},{"../../core/fetch/text.js":52}],235:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js")
   , fetchColor = require("../../core/fetch/color.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -34156,7 +32141,7 @@ d3plus.shape.color = function(d,vars) {
 
 }
 
-},{"../../core/fetch/color.js":78,"../../core/fetch/value.js":81}],264:[function(require,module,exports){
+},{"../../core/fetch/color.js":50,"../../core/fetch/value.js":53}],236:[function(require,module,exports){
 var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -34332,7 +32317,7 @@ d3plus.shape.coordinates = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../core/fetch/text.js":80}],265:[function(require,module,exports){
+},{"../../core/fetch/text.js":52}],237:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
 //------------------------------------------------------------------------------
@@ -34433,7 +32418,7 @@ d3plus.shape.donut = function(vars,selection,enter,exit) {
 
 }
 
-},{}],266:[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.js"),
     fetchText  = require("../../core/fetch/text.js")
@@ -35101,7 +33086,7 @@ d3plus.shape.draw = function(vars) {
 
 }
 
-},{"../../core/fetch/color.js":78,"../../core/fetch/text.js":80,"../../core/fetch/value.js":81}],267:[function(require,module,exports){
+},{"../../core/fetch/color.js":50,"../../core/fetch/text.js":52,"../../core/fetch/value.js":53}],239:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -35657,7 +33642,7 @@ d3plus.shape.edges = function(vars) {
 
 }
 
-},{}],268:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 var fetchColor = require("../../core/fetch/color.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -35934,14 +33919,14 @@ d3plus.shape.fill = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../core/fetch/color.js":78}],269:[function(require,module,exports){
+},{"../../core/fetch/color.js":50}],241:[function(require,module,exports){
 var fetchText = require("../../core/fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
 //------------------------------------------------------------------------------
 d3plus.shape.labels = function( vars , group ) {
 
-  var scale = vars.zoom.behavior.scaleExtent()
+  var scale = vars.types[vars.type.value].zoom ? vars.zoom.behavior.scaleExtent() : [1,1]
     , selection = vars.g[ group ].selectAll("g")
 
   var opacity = function(elem) {
@@ -36187,7 +34172,6 @@ d3plus.shape.labels = function( vars , group ) {
     selection.each(function(d){
 
       var disabled = d.d3plus && "label" in d.d3plus && !d.d3plus.label,
-          stat = d.d3plus && "static" in d.d3plus && d.d3plus.static
           label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
           names = label && label.names ? label.names : fetchText(vars,d),
@@ -36209,7 +34193,7 @@ d3plus.shape.labels = function( vars , group ) {
 
       }
 
-      if (!disabled && (background || !fill) && !stat) {
+      if (!disabled && (background || !fill)) {
 
         if (share && d.d3plus.share && vars.labels.align != "middle") {
 
@@ -36457,7 +34441,7 @@ d3plus.shape.labels = function( vars , group ) {
   }
 }
 
-},{"../../core/fetch/text.js":80}],270:[function(require,module,exports){
+},{"../../core/fetch/text.js":52}],242:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
 //------------------------------------------------------------------------------
@@ -36480,10 +34464,8 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
   // point on the line.
   //----------------------------------------------------------------------------
 
-  var hitarea = vars.data.stroke.width
-  if (hitarea < 30) {
-    hitarea = 30
-  }
+  var stroke = vars.data.stroke.width * 2
+    , hitarea = stroke < 30 ? 30 : stroke
 
   selection.each(function(d){
 
@@ -36623,11 +34605,11 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
           d3.select(this.parentNode).selectAll("path.d3plus_line")
             .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",vars.data.stroke.width*2)
+            .style("stroke-width",stroke*2)
 
           d3.select(this.parentNode).selectAll("rect")
             .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",vars.data.stroke.width*2)
+            .style("stroke-width",stroke)
             .call(update,2)
 
         }
@@ -36639,7 +34621,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
           d3.select(this.parentNode).selectAll("path.d3plus_line")
             .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",vars.data.stroke.width)
+            .style("stroke-width",stroke)
 
           d3.select(this.parentNode).selectAll("rect")
             .transition().duration(vars.timing.mouseevents)
@@ -36725,7 +34707,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
 
 }
 
-},{}],271:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -36873,7 +34855,7 @@ d3plus.shape.rect = function(vars,selection,enter,exit) {
 
 }
 
-},{}],272:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fill style for all shapes
 //-------------------------------------------------------------------
@@ -36899,36 +34881,43 @@ d3plus.shape.style = function(nodes,vars) {
       }
       return d3.rgb(color).darker(0.5)
     })
-    .style("stroke-width",vars.data.stroke.width)
+    .style("stroke-width",function(d){
+      var mod = d.d3plus.shapeType === "line" ? 2 : 1
+      return vars.data.stroke.width * mod
+    })
     .attr("opacity",vars.data.opacity)
     .attr("vector-effect","non-scaling-stroke")
 
 }
 
-},{}],273:[function(require,module,exports){
+},{}],245:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.js"),
-    fetchText  = require("../../core/fetch/text.js")
+    fetchText  = require("../../core/fetch/text.js"),
+    groupData = require("../../core/data/group.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Bubbles
 //------------------------------------------------------------------------------
 var bubbles = function(vars) {
 
+  var groupedData = groupData(vars,vars.data.app)
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Test for labels
   //----------------------------------------------------------------------------
-  var label_height = vars.labels.value && !vars.small ? 50 : 0
+  var maxChildren = d3.max(groupedData,function(d){return d.values instanceof Array ? d.values.length : 1})
+  var label_height = vars.labels.value && !vars.small && maxChildren > 1 ? 50 : 0
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Sort Data
   //----------------------------------------------------------------------------
-  d3plus.array.sort( vars.data.app , vars.order.value || vars.size.value
+  d3plus.array.sort( groupedData , vars.order.value || vars.size.value
                    , vars.order.sort.value , vars.color.value , vars )
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate rows and columns
   //----------------------------------------------------------------------------
-  var dataLength = vars.data.app.length
+  var dataLength = groupedData.length
 
   if (dataLength < 4) {
 
@@ -36959,12 +34948,12 @@ var bubbles = function(vars) {
   //----------------------------------------------------------------------------
   var domain_min = d3.min(vars.data.app, function(d){
     if (!vars.size.value) return 0
-    return fetchValue(vars,d,vars.size.value,null,"min")
+    return fetchValue(vars,d,vars.size.value,vars.id.value,"min")
   })
 
   var domain_max = d3.max(vars.data.app, function(d){
     if (!vars.size.value) return 0
-    return fetchValue(vars,d,vars.size.value)
+    return fetchValue(vars,d,vars.size.value,vars.id.value)
   })
 
   var padding = 5
@@ -36980,21 +34969,23 @@ var bubbles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Calculate bubble packing
   //----------------------------------------------------------------------------
+
   var pack = d3.layout.pack()
-    .size([column_width-padding*2,column_height-padding*2-label_height])
-    .value(function(d) {
-      if (!vars.size.value) return 0
-      return fetchValue(vars,d,vars.size.value)
+    .children(function(d) {
+      return d.values
     })
     .padding(padding)
     .radius(function(d){
       return size(d)
     })
+    .size([column_width-padding*2,column_height-padding*2-label_height])
+    .value(function(d){
+      return d.value
+    })
 
   var data = []
-
   var row = 0
-  vars.data.app.forEach(function(d,i){
+  groupedData.forEach(function(d,i){
 
     var temp = pack.nodes(d)
 
@@ -37002,23 +34993,26 @@ var bubbles = function(vars) {
         yoffset = column_height*row
 
     temp.forEach(function(t){
-      t.xoffset = xoffset
-      t.yoffset = yoffset+label_height
-      if (t.depth < vars.depth.value) {
-        t.d3plus.static = true
-      }
-      else {
-        t.d3plus.static = false
-      }
-      if (temp.length == 1) {
-        t.d3plus.label = false
-      }
-      else {
-        t.d3plus.label = true
-      }
-    })
 
-    data = data.concat(temp)
+      var obj = t.d3plus || {"d3plus": {}}
+      if (t.d3plus) {
+        var obj = t.d3plus
+      }
+      else {
+        var obj = {"d3plus": {}}
+        obj[vars.id.value] = t.key
+      }
+
+      obj.d3plus.depth = t.depth
+
+      obj.d3plus.x = t.x
+      obj.d3plus.xOffset = xoffset
+      obj.d3plus.y = t.y
+      obj.d3plus.yOffset = yoffset+label_height
+      obj.d3plus.r = t.r
+      data.push(obj)
+
+    })
 
     if ((i+1) % columns == 0) {
       row++
@@ -37026,83 +35020,46 @@ var bubbles = function(vars) {
 
   })
 
-  var downscale = size_max/d3.max(data,function(d){ return d.r })
+  var downscale = size_max/d3.max(data,function(d){ return d.d3plus.r })
+
+  var xPadding = pack.size()[0]/2,
+      yPadding = pack.size()[1]/2
 
   data.forEach(function(d){
-    d.x = ((d.x-column_width/2)*downscale)+column_width/2
-    d.d3plus.x = d.x+d.xoffset
-    d.y = ((d.y-column_height/2)*downscale)+column_height/2
-    d.d3plus.y = d.y+d.yoffset
-    d.r = d.r*downscale
-    d.d3plus.r = d.r
+
+    d.d3plus.x = ((d.d3plus.x-xPadding)*downscale)+xPadding+d.d3plus.xOffset
+    d.d3plus.y = ((d.d3plus.y-yPadding)*downscale)+yPadding+d.d3plus.yOffset
+    d.d3plus.r = d.d3plus.r*downscale
+    delete d.d3plus.xOffset
+    delete d.d3plus.yOffset
+
+    if (d.d3plus.depth < vars.depth.value) {
+      d.d3plus.static = true
+
+      if (d.d3plus.depth === 0) {
+        d.d3plus.label = {
+          "x": 0,
+          "y": -(size_max+label_height/2),
+          "w": size_max*1.5,
+          "h": label_height,
+          "color": d3plus.color.legible(fetchColor(vars,d,d.d3plus.depth)),
+        }
+      }
+      else {
+        d.d3plus.label = false
+      }
+
+    }
+    else {
+      d.d3plus.static = false
+      delete d.d3plus.label
+    }
+
   })
 
   data.sort(function( a , b ){
-    return a.depth - b.depth
+    return a.d3plus.depth - b.d3plus.depth
   })
-
-  var label_data = data.filter(function(d){
-    return d.depth == 0
-  })
-
-  var labels = vars.group.selectAll("text.d3plus_bubble_label")
-    .data(label_data,function(d){
-      if (!d.d3plus.label_height) d.d3plus.label_height = 0
-      return d[vars.id.nesting[d.depth]]
-    })
-
-  function label_style(l) {
-    l
-      .attr("x",function(d){
-        return d.d3plus.x
-      })
-      .attr("y",function(d){
-        return d.d3plus.y-d.r-d.d3plus.label_height-padding
-      })
-      .style("text-anchor","middle")
-      .attr("font-weight",vars.labels.font.weight)
-      .attr("font-family",vars.labels.font.family.value)
-      .attr("font-size","12px")
-      .style("fill",function(d){
-        var color = fetchColor(vars,d)
-        return d3plus.color.legible(color)
-      })
-      .each(function(d){
-        if (d.r > 10 && label_height > 10) {
-
-          var names = fetchText(vars,d,d.depth)
-
-          d3plus.textwrap()
-            .container( d3.select(this) )
-            .height( label_height )
-            .text( names )
-            .width( column_width - padding * 2 )
-            .draw()
-
-        }
-      })
-      .attr("y",function(d){
-        d.d3plus.label_height = d3.select(this).node().getBBox().height
-        return d.d3plus.y-d.r-d.d3plus.label_height-padding
-      })
-      .selectAll("tspan")
-        .attr("x",function(d){
-          return d.d3plus.x
-        })
-  }
-
-  labels.enter().append("text")
-    .attr("class","d3plus_bubble_label")
-    .call(label_style)
-    .attr("opacity",0)
-
-  labels.transition().duration(vars.draw.timing)
-    .call(label_style)
-    .attr("opacity",1)
-
-  labels.exit()
-    .attr("opacity",0)
-    .remove()
 
   return data
 
@@ -37119,7 +35076,7 @@ bubbles.tooltip      = "static"
 
 module.exports = bubbles
 
-},{"../../core/fetch/color.js":78,"../../core/fetch/text.js":80,"../../core/fetch/value.js":81}],274:[function(require,module,exports){
+},{"../../core/data/group.coffee":45,"../../core/fetch/color.js":50,"../../core/fetch/text.js":52,"../../core/fetch/value.js":53}],246:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js")
   , fetchColor = require("../../core/fetch/color.js")
   , fetchData  = require("../../core/fetch/data.js")
@@ -37276,7 +35233,10 @@ var chart = function(vars) {
     if (data) {
 
       if ( vars.dev.value ) d3plus.console.time("determining size scale")
-      if (vars.size.value) {
+      if (typeof vars.size.value === "number"){
+        var size_domain = [vars.size.value, vars.size.value]
+      }
+      else if (vars.size.value) {
         if (vars.time.fixed.value) {
           var size_domain = d3.extent(vars.data.app,function(d){
             var val = fetchValue(vars,d,vars.size.value)
@@ -37299,12 +35259,18 @@ var chart = function(vars) {
         var size_domain = [0,0]
       }
 
-      var max_size = Math.floor(d3.max([d3.min([graph.width,graph.height])/15,10])),
-          min_size = 10
+      if(typeof vars.size.value == "number"){
+        var size_range = size_domain;
+      }
+      else {
+        var min_size = 2,
+            max_size = Math.floor(d3.max([d3.min([graph.width,graph.height])/15, min_size]));
+            
 
-      if (size_domain[0] == size_domain[1]) var min_size = max_size
+        if (size_domain[0] == size_domain[1]) var min_size = max_size
 
-      var size_range = [min_size,max_size]
+        var size_range = [min_size,max_size]
+      }
 
       var radius = vars.size.scale.value
         .domain(size_domain)
@@ -38215,7 +36181,7 @@ chart.tooltip      = "static"
 
 module.exports = chart
 
-},{"../../core/fetch/color.js":78,"../../core/fetch/data.js":79,"../../core/fetch/value.js":81}],275:[function(require,module,exports){
+},{"../../core/fetch/color.js":50,"../../core/fetch/data.js":51,"../../core/fetch/value.js":53}],247:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Geo Map
 //------------------------------------------------------------------------------
@@ -38264,7 +36230,7 @@ geo_map.zoom         = true
 
 module.exports = geo_map
 
-},{}],276:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 var chart = require("./chart.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Line Plot
@@ -38290,7 +36256,7 @@ line.tooltip      = "static"
 
 module.exports = line
 
-},{"./chart.js":274}],277:[function(require,module,exports){
+},{"./chart.js":246}],249:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
@@ -38305,44 +36271,55 @@ var network = function(vars) {
 
   var x_range = d3.extent(nodes,function(n){return n.x}),
       y_range = d3.extent(nodes,function(n){return n.y})
-
-  var val_range = vars.size.value ? d3.extent(nodes, function(d){
-    var val = fetchValue( vars , d , vars.size.value )
-    return val === 0 ? null : val
-  }) : [ 1 , 1 ]
-
-  if (typeof val_range[0] == "undefined") val_range = [1,1]
-
-  var max_size = d3.min(d3plus.util.distances(nodes))
-
-  var overlap = vars.size.value ? vars.nodes.overlap : 0.4
-  max_size = max_size * overlap
-
-  if (vars.edges.arrows.value) {
-    max_size = max_size * 0.5
+  
+  var val_range = [ 1 , 1 ]
+  if (typeof vars.size.value === "number"){
+    val_range = [vars.size.value, vars.size.value]
   }
-
-  if ( val_range[0] === val_range[1] ) {
-    var min_size = max_size
+  else if (vars.size.value){
+    val_range = d3.extent(nodes, function(d){
+      var val = fetchValue( vars , d , vars.size.value )
+      return val === 0 ? null : val
+    })
+  }
+  if (typeof val_range[0] == "undefined") val_range = [1,1]
+  
+  if (typeof vars.size.value === "number"){
+    var max_size = vars.size.value;
+    var min_size = vars.size.value;
   }
   else {
+    var max_size = d3.min(d3plus.util.distances(nodes))
 
-    var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
-        height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
-        aspect = width/height,
-        app = vars.width.viz/vars.height.viz
+    var overlap = vars.size.value ? vars.nodes.overlap : 0.4
+    max_size = max_size * overlap
 
-    if ( app > aspect ) {
-      var scale = vars.height.viz/height
+    if (vars.edges.arrows.value) {
+      max_size = max_size * 0.5
+    }
+
+    if ( val_range[0] === val_range[1] ) {
+      var min_size = max_size
     }
     else {
-      var scale = vars.width.viz/width
-    }
-    var min_size = max_size * 0.25
-    if ( min_size * scale < 2 ) {
-      min_size = 2/scale
-    }
 
+      var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
+          height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
+          aspect = width/height,
+          app = vars.width.viz/vars.height.viz
+
+      if ( app > aspect ) {
+        var scale = vars.height.viz/height
+      }
+      else {
+        var scale = vars.width.viz/width
+      }
+      var min_size = max_size * 0.25
+      if ( min_size * scale < 2 ) {
+        min_size = 2/scale
+      }
+
+    }
   }
 
   // Create size scale
@@ -38363,12 +36340,9 @@ var network = function(vars) {
       return a[vars.id.value] == n[vars.id.value]
     })[0]
 
-    if (d) {
-      var obj = d3plus.object.merge(n,d)
-    }
-    else {
-      var obj = d3plus.util.copy(n)
-    }
+    var obj = d || {}
+
+    obj[vars.id.value] = n[vars.id.value]
 
     obj.d3plus = {}
     obj.d3plus.x = n.x
@@ -38380,6 +36354,7 @@ var network = function(vars) {
       "y": obj.d3plus.y,
       "r": obj.d3plus.r
     }
+
     data.push(obj)
   })
 
@@ -38388,6 +36363,10 @@ var network = function(vars) {
   })
 
   edges.forEach(function(l,i){
+
+    if (l.d3plus) {
+      delete l.d3plus.spline
+    }
 
     l[vars.edges.source].d3plus = {}
     var source = lookup[l[vars.edges.source][vars.id.value]]
@@ -38419,7 +36398,7 @@ network.zoom         = true
 
 module.exports = network
 
-},{"../../core/fetch/value.js":81}],278:[function(require,module,exports){
+},{"../../core/fetch/value.js":53}],250:[function(require,module,exports){
 var fetchValue, shortestPath, viz,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -38674,7 +36653,7 @@ viz.tooltip = "static";
 module.exports = viz;
 
 
-},{"../../core/fetch/value.js":81,"../../network/shortestPath.coffee":196}],279:[function(require,module,exports){
+},{"../../core/fetch/value.js":53,"../../network/shortestPath.coffee":168}],251:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js")
   , fetchColor = require("../../core/fetch/color.js")
 var rings = function(vars) {
@@ -39154,7 +37133,7 @@ rings.tooltip      = "static"
 
 module.exports = rings
 
-},{"../../core/fetch/color.js":78,"../../core/fetch/value.js":81}],280:[function(require,module,exports){
+},{"../../core/fetch/color.js":50,"../../core/fetch/value.js":53}],252:[function(require,module,exports){
 var chart = require("./chart.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Scatterplot
@@ -39180,7 +37159,7 @@ scatter.tooltip      = "static"
 
 module.exports = scatter
 
-},{"./chart.js":274}],281:[function(require,module,exports){
+},{"./chart.js":246}],253:[function(require,module,exports){
 var chart = require("./chart.js"),
     dataThreshold = require("../../core/data/threshold.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -39238,51 +37217,16 @@ stacked.tooltip      = "static"
 
 module.exports = stacked
 
-},{"../../core/data/threshold.js":77,"./chart.js":274}],282:[function(require,module,exports){
+},{"../../core/data/threshold.js":49,"./chart.js":246}],254:[function(require,module,exports){
 var dataThreshold = require("../../core/data/threshold.js"),
-    fetchValue = require("../../core/fetch/value.js")
+    fetchValue = require("../../core/fetch/value.js"),
+    groupData = require("../../core/data/group.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Tree Map
 //------------------------------------------------------------------------------
 var tree_map = function(vars) {
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Group the data by each depth defined by the .id() method.
-  //----------------------------------------------------------------------------
-  var grouped_data = d3.nest()
-
-  vars.id.nesting.forEach(function(n,i){
-
-    if (i < vars.depth.value) {
-
-      grouped_data.key(function(d){
-
-        return fetchValue(vars,d.d3plus,n)
-
-      })
-
-    }
-
-  })
-
-  var strippedData = []
-  vars.data.app.forEach(function(d){
-
-    var val = fetchValue(vars,d,vars.size.value)
-
-    if (val && typeof val === "number") {
-
-      strippedData.push({
-        "d3plus" : d,
-        "id"     : d[vars.id.value],
-        "value"  : fetchValue(vars,d,vars.size.value)
-      })
-
-    }
-
-  })
-
-  grouped_data = grouped_data.entries(strippedData)
+  grouped_data = groupData(vars,vars.data.app)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Pass data through the D3js .treemap() layout.
@@ -39377,7 +37321,7 @@ tree_map.tooltip      = "follow"
 
 module.exports = tree_map
 
-},{"../../core/data/threshold.js":77,"../../core/fetch/value.js":81}],283:[function(require,module,exports){
+},{"../../core/data/group.coffee":45,"../../core/data/threshold.js":49,"../../core/fetch/value.js":53}],255:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws a UI drawer, if defined.
 //------------------------------------------------------------------------------
@@ -39479,7 +37423,7 @@ d3plus.ui.drawer = function( vars ) {
 
 }
 
-},{}],284:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates focus tooltip, if applicable
@@ -39510,7 +37454,7 @@ d3plus.ui.focus = function(vars) {
       "data": data,
       "length": "long",
       "fullscreen": false,
-      "id": vars.type.value+"_focus",
+      "id": "visualization_focus",
       "maxheight": vars.height.viz-offset*2,
       "mouseevents": true,
       "offset": 0,
@@ -39520,7 +37464,7 @@ d3plus.ui.focus = function(vars) {
       "width": vars.tooltip.large
     })
 
-    if(!d3.select("div#d3plus_tooltip_id_"+vars.type.value+"_focus").empty()) {
+    if(!d3.select("div#d3plus_tooltip_id_visualization_focus").empty()) {
       vars.width.viz -= (vars.tooltip.large+offset*2)
     }
 
@@ -39528,12 +37472,12 @@ d3plus.ui.focus = function(vars) {
 
   }
   else {
-    d3plus.tooltip.remove(vars.type.value+"_focus")
+    d3plus.tooltip.remove("visualization_focus")
   }
 
 }
 
-},{"../../core/fetch/value.js":81}],285:[function(require,module,exports){
+},{"../../core/fetch/value.js":53}],257:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates "back" button, if applicable
 //------------------------------------------------------------------------------
@@ -39643,7 +37587,7 @@ d3plus.ui.history = function(vars) {
 
 }
 
-},{}],286:[function(require,module,exports){
+},{}],258:[function(require,module,exports){
 var dataNest   = require("../../core/data/nest.js"),
     fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.js"),
@@ -39665,39 +37609,21 @@ d3plus.ui.legend = function(vars) {
       if ( vars.dev.value ) d3plus.console.time("grouping data by colors")
 
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
-        var data = vars.nodes.restriced || vars.nodes.value
+        var data = d3plus.util.copy(vars.nodes.restriced || vars.nodes.value)
         if ( vars.data.app.length ) {
           for ( var i = 0 ; i < data.length ; i++ ) {
             var appData = vars.data.app.filter(function(a){
               return a[vars.id.value] === data[i][vars.id.value]
             })
             if (appData.length) {
-              data[i] = d3plus.object.merge(data[i],appData[0])
+              data[i] = appData[0]
             }
           }
         }
       }
       else {
         var data = vars.data.app
-        // var data = dataNest(vars, vars.data.app, vars.id.nesting, [])
       }
-
-      // for ( var z = 0 ; z < data.length ; z++ ) {
-      //
-      //   d = data[z]
-      //
-      //   for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
-      //
-      //     var colorKey = vars.id.nesting[i]
-      //
-      //     if ( !(colorKey in d) ) {
-      //       var nextKey = vars.id.nesting[ i + 1 ]
-      //       d[colorKey] = fetchValue( vars , d[nextKey] , colorKey , nextKey )
-      //     }
-      //
-      //   }
-      //
-      // }
 
       var colorFunction = function( d ){
             return fetchColor( vars , d , colorKey )
@@ -39730,22 +37656,6 @@ d3plus.ui.legend = function(vars) {
       }
 
       var colors = dataNest( vars , data , [ colorFunction ] , [] )
-
-      // for ( var z = 0 ; z < colors.length ; z++ ) {
-      //
-      //   var d = colors[z]
-      //
-      //   // var nextKey = vars.id.nesting[ colorDepth + 1 ]
-      //   //
-      //   // d[colorKey] = d[colorKey]
-      //   //   || fetchValue( vars , d[nextKey] , colorKey , nextKey )
-      //   //
-      //   // d[colorName] = d[colorName]
-      //   //   || fetchValue( vars , d[colorKey][0] , colorName, colorKey )
-      //
-      //   d.d3plus.colorDepth = colorDepth
-      //
-      // }
 
       if ( vars.dev.value ) d3plus.console.timeEnd("grouping data by color")
 
@@ -39786,7 +37696,7 @@ d3plus.ui.legend = function(vars) {
         var order = vars[vars.legend.order.value].value
 
         d3plus.array.sort( colors , order , vars.legend.order.sort.value
-                         , colorName , vars )
+                         , colorName , vars , colorDepth )
 
         if ( vars.dev.value ) d3plus.console.timeEnd("sorting legend")
 
@@ -39833,10 +37743,8 @@ d3plus.ui.legend = function(vars) {
 
               d3.select(this.parentNode).selectAll("text").remove()
 
-              var depth = "depth" in g.d3plus ? g.d3plus.depth : vars.depth.value
-                , depthId = vars.id.nesting[depth]
-                , icon = fetchValue( vars , g , vars.icon.value , depthId )
-                , color = fetchColor( vars , g , depthId )
+              var icon = fetchValue( vars , g , vars.icon.value , colorKey )
+                , color = fetchColor( vars , g , colorKey )
 
               if (icon && icon !== "null") {
 
@@ -39848,8 +37756,8 @@ d3plus.ui.legend = function(vars) {
                 if (typeof iconStyle === "string") {
                   var icon_style = vars.icon.style.value
                 }
-                else if (d3plus.object.validate(iconStyle) && iconStyle[depthId]) {
-                  var icon_style = iconStyle[depthId]
+                else if (d3plus.object.validate(iconStyle) && iconStyle[colorKey]) {
+                  var icon_style = iconStyle[colorKey]
                 }
                 else {
                   var icon_style = "default"
@@ -39917,8 +37825,7 @@ d3plus.ui.legend = function(vars) {
                   .attr("y",0)
                   .each(function(t){
 
-                    var idIndex = vars.id.nesting.indexOf(colorKey)
-                      , text = idIndex >= 0 ? fetchText(vars,t,idIndex) : [vars.format.value(fetchValue(vars,t,colorName,colorKey))]
+                    var text = fetchText(vars,t,colorDepth)
 
                     if (text.length === 1 && text[0].length) {
 
@@ -40267,7 +38174,7 @@ d3plus.ui.legend = function(vars) {
 
 }
 
-},{"../../core/data/nest.js":76,"../../core/fetch/color.js":78,"../../core/fetch/text.js":80,"../../core/fetch/value.js":81}],287:[function(require,module,exports){
+},{"../../core/data/nest.js":48,"../../core/fetch/color.js":50,"../../core/fetch/text.js":52,"../../core/fetch/value.js":53}],259:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -40378,7 +38285,7 @@ d3plus.ui.message = function(vars,message) {
 
 }
 
-},{}],288:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //-------------------------------------------------------------------
@@ -40827,7 +38734,7 @@ d3plus.ui.timeline = function(vars) {
 
 }
 
-},{}],289:[function(require,module,exports){
+},{}],261:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws appropriate titles
@@ -41143,7 +39050,7 @@ d3plus.ui.titles = function(vars) {
 
 }
 
-},{"../../core/fetch/value.js":81}],290:[function(require,module,exports){
+},{"../../core/fetch/value.js":53}],262:[function(require,module,exports){
 d3plus.viz = function() {
 
   var vars = {
@@ -41346,7 +39253,7 @@ d3plus.viz = function() {
 
 }
 
-},{"./types/bubbles.js":273,"./types/chart.js":274,"./types/geo_map.js":275,"./types/line.js":276,"./types/network.js":277,"./types/paths.coffee":278,"./types/rings.js":279,"./types/scatter.js":280,"./types/stacked.js":281,"./types/tree_map.js":282}],291:[function(require,module,exports){
+},{"./types/bubbles.js":245,"./types/chart.js":246,"./types/geo_map.js":247,"./types/line.js":248,"./types/network.js":249,"./types/paths.coffee":250,"./types/rings.js":251,"./types/scatter.js":252,"./types/stacked.js":253,"./types/tree_map.js":254}],263:[function(require,module,exports){
 d3plus.zoom.bounds = function( vars , b , timing ) {
 
   if (!b) {
@@ -41372,7 +39279,9 @@ d3plus.zoom.bounds = function( vars , b , timing ) {
 
   var min = d3.min([vars.width.viz,vars.height.viz])
 
-  var scale = ((min-(vars.coords.padding*2)) / min) / aspect
+  var padding = vars.types[vars.type.value].zoom ? vars.coords.padding*2 : 0
+
+  var scale = ((min-padding) / min) / aspect
 
   var extent = vars.zoom.behavior.scaleExtent()
 
@@ -41403,7 +39312,7 @@ d3plus.zoom.bounds = function( vars , b , timing ) {
 
 }
 
-},{}],292:[function(require,module,exports){
+},{}],264:[function(require,module,exports){
 d3plus.zoom.controls = function() {
 
   d3.select("#d3plus.utilsts.zoom_controls").remove()
@@ -41487,7 +39396,7 @@ d3plus.zoom.controls = function() {
 
 }
 
-},{}],293:[function(require,module,exports){
+},{}],265:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets label opacity based on zoom
 //------------------------------------------------------------------------------
@@ -41525,7 +39434,7 @@ d3plus.zoom.labels = function(vars) {
 
 }
 
-},{}],294:[function(require,module,exports){
+},{}],266:[function(require,module,exports){
 d3plus.zoom.mouse = function(vars) {
 
   var translate = d3.event.translate,
@@ -41578,7 +39487,7 @@ d3plus.zoom.mouse = function(vars) {
 
 }
 
-},{}],295:[function(require,module,exports){
+},{}],267:[function(require,module,exports){
 d3plus.zoom.transform = function(vars,timing) {
 
   if (typeof timing !== "number") {
@@ -41602,4 +39511,4 @@ d3plus.zoom.transform = function(vars,timing) {
 
 }
 
-},{}]},{},[126,127,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,117,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,118,119,120,121,122,123,124,125,128,129,130,131,140,132,133,134,135,136,137,138,139,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,228,229,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,238,230,231,232,233,234,235,236,237,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,290,254,255,256,257,258,259,260,261,262,263,264,265,266,267,268,269,270,271,272,273,274,275,276,277,278,279,280,281,282,283,284,285,286,287,288,289,291,292,293,294,295])
+},{}]},{},[98,99,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,89,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,90,91,92,93,94,95,96,97,100,101,102,103,112,104,105,106,107,108,109,110,111,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,200,201,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,210,202,203,204,205,206,207,208,209,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,262,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,263,264,265,266,267])
