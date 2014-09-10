@@ -21110,7 +21110,7 @@ module.exports = function( vars , id , level ) {
         var value = id
       }
 
-      if ( value !== undefined ) {
+      if ( value !== undefined && value !== null && !isNaN(value) ) {
         var color = getColor(value)
         if (colors.indexOf(color) < 0) colors.push(color)
       }
