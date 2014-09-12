@@ -16,7 +16,7 @@ var rings = function(vars) {
     , edges = []
     , nodes = []
 
-  var center = vars.data.app.filter(function(d){
+  var center = vars.data.viz.filter(function(d){
     return d[vars.id.value] === vars.focus.value[0]
   })[0]
 
@@ -33,7 +33,7 @@ var rings = function(vars) {
   vars.edges.connections(vars.focus.value[0],vars.id.value).forEach(function(edge){
 
     var c = edge[vars.edges.source][vars.id.value] == vars.focus.value[0] ? edge[vars.edges.target] : edge[vars.edges.source]
-    var n = vars.data.app.filter(function(d){
+    var n = vars.data.viz.filter(function(d){
       return d[vars.id.value] === c[vars.id.value]
     })[0]
 
@@ -156,7 +156,7 @@ var rings = function(vars) {
           ? edge[vars.edges.target] : edge[vars.edges.source]
         , s = radian/total
 
-      var d = vars.data.app.filter(function(a){
+      var d = vars.data.viz.filter(function(a){
         return a[vars.id.value] === c[vars.id.value]
       })[0]
 
@@ -221,7 +221,7 @@ var rings = function(vars) {
   ids = ids.concat(uniqueValues(secondaries,vars.id.value))
   ids.push(vars.focus.value[0])
 
-  var data = vars.data.app.filter(function(d){
+  var data = vars.data.viz.filter(function(d){
     return ids.indexOf(d[vars.id.value]) >= 0
   })
 

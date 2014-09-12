@@ -6,9 +6,14 @@ var dataFilter = require("../data/filter.js"),
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches specific years of data
 //-------------------------------------------------------------------
-module.exports = function( vars , years ) {
+module.exports = function(vars, years, depth) {
 
   if (!vars.data.value) return []
+
+  if (depth === undefined) var depth = vars.depth.value
+  var nestLevel = vars.id.nesting[depth]
+
+  if (years && !(years instanceof Array)) years = [years]
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time()
@@ -62,7 +67,7 @@ module.exports = function( vars , years ) {
     }
   }
 
-  var cacheID = [ vars.type.value , vars.id.value , vars.depth.value ]
+  var cacheID = [ vars.type.value , nestLevel , depth ]
                   .concat( vars.data.filters )
                   .concat( years )
     , filter  = vars.data.solo.length ? "solo" : "mute"
@@ -117,7 +122,7 @@ module.exports = function( vars , years ) {
 
       years.forEach(function(y){
         if ( vars.data.nested[y] ) {
-          returnData = returnData.concat( vars.data.nested[y][vars.id.value] )
+          returnData = returnData.concat( vars.data.nested[y][nestLevel] )
         }
         else missing.push( y )
       })
@@ -150,8 +155,8 @@ module.exports = function( vars , years ) {
 
       if ( years.length > 1 ) {
 
-        var separated = false
-        vars.axes.values.forEach(function(a){
+        var separated = false;
+        ["x","y"].forEach(function(a){
           if ( vars[a].value === vars.time.value
           && vars[a].scale.value === "continuous" ) {
             separated = true
@@ -159,7 +164,7 @@ module.exports = function( vars , years ) {
         })
 
         if (!separated) {
-          var nested = vars.id.nesting.slice(0,vars.depth.value+1)
+          var nested = vars.id.nesting.slice(0,depth+1)
           returnData = dataNest( vars , returnData , nested )
         }
 

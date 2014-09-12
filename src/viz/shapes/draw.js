@@ -65,9 +65,9 @@ d3plus.shape.draw = function(vars) {
       d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
     }
 
-    d.d3plus.id += shape
+    d.d3plus.id += shape;
 
-    vars.axes.values.forEach(function(axis){
+    ["x","y"].forEach(function(axis){
       if (vars[axis].scale.value == "continuous") {
         d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
       }
@@ -403,11 +403,11 @@ d3plus.shape.draw = function(vars) {
 
           if (vars.focus.value.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
 
-            if (d.values && vars.continuous_axis) {
+            if (d.values && vars.axes.continuous) {
 
-              var index = vars.continuous_axis === "x" ? 0 : 1
+              var index = vars.axes.continuous === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.continuous_axis]})
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.continuous]})
                 , match = closest(positions,mouse)
 
               d.d3plus_data = d.values[positions.indexOf(match)]
@@ -424,10 +424,10 @@ d3plus.shape.draw = function(vars) {
           }
 
           if (typeof vars.mouse == "function") {
-            vars.mouse(d)
+            vars.mouse(d.d3plus_data || d, vars)
           }
           else if (vars.mouse[d3plus.evt.over]) {
-            vars.mouse[d3plus.evt.over](d)
+            vars.mouse[d3plus.evt.over](d.d3plus_data || d, vars)
           }
 
           edge_update(d)
@@ -443,11 +443,11 @@ d3plus.shape.draw = function(vars) {
 
           if (d.values || (vars.types[vars.type.value].tooltip == "follow" && vars.focus.value[0] != d[vars.id.value])) {
 
-            if (d.values && vars.continuous_axis) {
+            if (d.values && vars.axes.continuous) {
 
-              var index = vars.continuous_axis === "x" ? 0 : 1
+              var index = vars.axes.continuous === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.continuous_axis]})
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.continuous]})
                 , match = closest(positions,mouse)
 
               d.d3plus_data = d.values[positions.indexOf(match)]
@@ -464,10 +464,10 @@ d3plus.shape.draw = function(vars) {
           }
 
           if (typeof vars.mouse == "function") {
-            vars.mouse(d)
+            vars.mouse(d.d3plus_data || d, vars)
           }
           else if (vars.mouse[d3plus.evt.move]) {
-            vars.mouse[d3plus.evt.move](d)
+            vars.mouse[d3plus.evt.move](d.d3plus_data || d, vars)
           }
 
         }
@@ -493,10 +493,10 @@ d3plus.shape.draw = function(vars) {
           }
 
           if (typeof vars.mouse == "function") {
-            vars.mouse(d)
+            vars.mouse(d.d3plus_data || d, vars)
           }
           else if (vars.mouse[d3plus.evt.out]) {
-            vars.mouse[d3plus.evt.out](d)
+            vars.mouse[d3plus.evt.out](d.d3plus_data || d, vars)
           }
 
           edge_update()
@@ -521,13 +521,13 @@ d3plus.shape.draw = function(vars) {
       if (!d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         if (typeof vars.mouse == "function") {
-          vars.mouse(d)
+          vars.mouse(d.d3plus_data || d, vars)
         }
         else if (vars.mouse[d3plus.evt.out]) {
-          vars.mouse[d3plus.evt.out](d)
+          vars.mouse[d3plus.evt.out](d.d3plus_data || d, vars)
         }
         else if (vars.mouse[d3plus.evt.click]) {
-          vars.mouse[d3plus.evt.click](d)
+          vars.mouse[d3plus.evt.click](d.d3plus_data || d, vars)
         }
 
         var depth_delta = vars.zoom.direction(d.d3plus_data || d)
@@ -581,7 +581,7 @@ d3plus.shape.draw = function(vars) {
         }
         else if (depth_delta === 1 && vars.zoom.value) {
 
-          var id = fetchValue(vars,d,vars.id.value)
+          var id = fetchValue(vars,d.d3plus_data || d,vars.id.value)
 
           vars.history.states.push(function(){
 

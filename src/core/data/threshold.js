@@ -166,9 +166,7 @@ module.exports = function( vars , rawData , split ) {
         if (vars.text.value) {
           m[vars.text.value] = textLabel
         }
-        else {
-          m.d3plus.text = textLabel
-        }
+        m.d3plus.text = textLabel
 
       })
 

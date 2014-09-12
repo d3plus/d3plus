@@ -31,15 +31,16 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
         segments = [],
         nodes = [],
         temp = copy(d),
-        group = d3.select(this)
+        group = d3.select(this),
+        continuous = vars[vars.axes.continuous]
 
     temp.values = []
     d.values.forEach(function(v,i,arr){
 
       nodes.push(v)
 
-      var k = v[vars[vars.continuous_axis].value],
-          index = vars.tickValues[vars.continuous_axis].indexOf(k)
+      var k = v[continuous.value],
+          index = continuous.ticks.values.indexOf(k)
 
       if (step === false) {
         step = index
@@ -71,6 +72,7 @@ d3plus.shape.line = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     var paths = group.selectAll("path.d3plus_line")
       .data(segments, function(d){
+        d.d3plus.shapeType = "line"
         return d.key
       })
 

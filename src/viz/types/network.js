@@ -78,7 +78,7 @@ var network = function(vars) {
   var data = [], lookup = {}
   nodes.forEach(function(n){
 
-    var d = vars.data.app.filter(function(a){
+    var d = vars.data.viz.filter(function(a){
       return a[vars.id.value] == n[vars.id.value]
     })[0]
 

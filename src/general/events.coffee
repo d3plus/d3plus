@@ -1,6 +1,8 @@
+ie    = require "./ie.js"
+touch = require "./touch.coffee"
+
 # Creates custom mouse events based on IE and Touch Devices.
-d3plus.touch = if ("ontouchstart" of window) or window.DocumentTouch and document instanceof DocumentTouch then true else false
-if d3plus.touch
+if touch
   d3plus.evt =
     click: "click"
     down: "touchstart"
@@ -13,6 +15,8 @@ else
     click: "click"
     down: "mousedown"
     up: "mouseup"
-    over: if d3plus.ie then "mouseenter" else "mouseover"
-    out: if d3plus.ie then "mouseleave" else "mouseout"
+    over: if ie then "mouseenter" else "mouseover"
+    out: if ie then "mouseleave" else "mouseout"
     move: "mousemove"
+
+module.exports = d3plus.evt

@@ -1,1 +1,1 @@
-d3plus.method.x = d3plus.method.axis("x")
+d3plus.method.x = require("../_includes/axis.js")("x")

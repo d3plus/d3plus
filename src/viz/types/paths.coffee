@@ -19,10 +19,10 @@ viz = (vars) ->
 
     for edge, edgeInt in path.edges
 
-      edge[vars.edges.source] = vars.data.app.filter((d) ->
+      edge[vars.edges.source] = vars.data.viz.filter((d) ->
         edge[vars.edges.source][vars.id.value] is d[vars.id.value] )[0]
 
-      edge[vars.edges.target] = vars.data.app.filter((d) ->
+      edge[vars.edges.target] = vars.data.viz.filter((d) ->
         edge[vars.edges.target][vars.id.value] is d[vars.id.value] )[0]
 
       nextDir = if edge[vars.edges.source][vars.id.value] is lastHop then "target" else "source"
@@ -91,7 +91,7 @@ viz = (vars) ->
   minRadius = 5
   maxRadius = d3.min([columnWidth,rowHeight - labelSpace]) * 0.4
 
-  sizeDomain = d3.extent vars.data.app, (node) ->
+  sizeDomain = d3.extent vars.data.viz, (node) ->
     val = fetchValue vars, node, vars.size.value
     return val or 0
 
@@ -99,7 +99,7 @@ viz = (vars) ->
     .domain sizeDomain
     .rangeRound [minRadius, maxRadius]
 
-  for node in vars.data.app
+  for node in vars.data.viz
 
     node.d3plus ?= {}
 
@@ -162,7 +162,7 @@ viz = (vars) ->
       lastHop = nextHop
 
   # return
-  nodes: vars.data.app
+  nodes: vars.data.viz
   edges: edges
 
 viz.filter = (vars, data) ->

@@ -28,9 +28,9 @@ d3plus.ui.legend = function(vars) {
 
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
         var data = copy(vars.nodes.restriced || vars.nodes.value)
-        if ( vars.data.app.length ) {
+        if ( vars.data.viz.length ) {
           for ( var i = 0 ; i < data.length ; i++ ) {
-            var appData = vars.data.app.filter(function(a){
+            var appData = vars.data.viz.filter(function(a){
               return a[vars.id.value] === data[i][vars.id.value]
             })
             if (appData.length) {
@@ -40,7 +40,7 @@ d3plus.ui.legend = function(vars) {
         }
       }
       else {
-        var data = vars.data.app
+        var data = vars.data.viz
       }
 
       var colorFunction = function( d ){

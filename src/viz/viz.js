@@ -4,14 +4,14 @@ d3plus.viz = function() {
     "g"     : {"apps": {} },
     "types" : {
       "bubbles":  require("./types/bubbles.js"),
-      "chart":    require("./types/chart.js"),
+      "chart":    require("./types/deprecated/chart.coffee"),
       "geo_map":  require("./types/geo_map.js"),
-      "line":     require("./types/line.js"),
+      "line":     require("./types/line.coffee"),
       "network":  require("./types/network.js"),
       "paths":    require("./types/paths.coffee"),
       "rings":    require("./types/rings.js"),
-      "scatter":  require("./types/scatter.js"),
-      "stacked":  require("./types/stacked.js"),
+      "scatter":  require("./types/scatter.coffee"),
+      "stacked":  require("./types/stacked.coffee"),
       "tree_map": require("./types/tree_map.js")
     },
     "shell" : "viz"

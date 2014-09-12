@@ -19,7 +19,7 @@ module.exports = function( vars , id , level ) {
   function getRandom( c ) {
 
     if ( validObject( c ) ) {
-      c = c[ level ]
+      c = fetchValue(vars, c, level)
     }
 
     if (c instanceof Array) {

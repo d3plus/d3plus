@@ -223,11 +223,11 @@ d3plus.draw.steps = function(vars) {
         vars.data.pool = fetchData( vars , year )
         if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
         if ( !year ) {
-          vars.data.app = vars.data.pool
+          vars.data.viz = vars.data.pool
         }
         else {
           if ( vars.dev.value ) d3plus.console.time("fetching data for current year")
-          vars.data.app = fetchData( vars )
+          vars.data.viz = fetchData( vars )
           if ( vars.dev.value ) d3plus.console.timeEnd("fetching data for current year")
         }
 

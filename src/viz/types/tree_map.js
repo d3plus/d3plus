@@ -7,7 +7,7 @@ var dataThreshold = require("../../core/data/threshold.js"),
 //------------------------------------------------------------------------------
 var tree_map = function(vars) {
 
-  grouped_data = groupData(vars,vars.data.app)
+  grouped_data = groupData(vars,vars.data.viz)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Pass data through the D3js .treemap() layout.

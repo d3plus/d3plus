@@ -9,7 +9,7 @@ var arraySort = require("../../array/sort.coffee"),
 //------------------------------------------------------------------------------
 var bubbles = function(vars) {
 
-  var groupedData = groupData(vars,vars.data.app)
+  var groupedData = groupData(vars,vars.data.viz)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Test for labels
@@ -43,7 +43,7 @@ var bubbles = function(vars) {
 
   if (dataLength > 0) {
 
-    while ((rows-1)*columns >= vars.data.app.length) {
+    while ((rows-1)*columns >= vars.data.viz.length) {
       rows--
     }
 
@@ -55,12 +55,12 @@ var bubbles = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define size scale
   //----------------------------------------------------------------------------
-  var domain_min = d3.min(vars.data.app, function(d){
+  var domain_min = d3.min(vars.data.viz, function(d){
     if (!vars.size.value) return 0
     return fetchValue(vars,d,vars.size.value,vars.id.value,"min")
   })
 
-  var domain_max = d3.max(vars.data.app, function(d){
+  var domain_max = d3.max(vars.data.viz, function(d){
     if (!vars.size.value) return 0
     return fetchValue(vars,d,vars.size.value,vars.id.value)
   })

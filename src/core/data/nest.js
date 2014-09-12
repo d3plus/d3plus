@@ -21,7 +21,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
       //------------------------------------------------------------------------
       if ( requirements && requirements.length ) {
 
-        vars.axes.values.forEach(function(axis){
+        ["x","y"].forEach(function(axis){
 
           var axisKey = vars[axis].value
 

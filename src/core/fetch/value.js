@@ -4,7 +4,7 @@ var validObject = require("../../object/validate.coffee"),
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finds a given variable by searching through the data and attrs
 //------------------------------------------------------------------------------
-module.exports = function( vars , id , variable , id_var , agg ) {
+fetch = function( vars , id , variable , id_var , agg ) {
 
   if ( variable && typeof variable === "function" ) {
     return variable( id )
@@ -127,5 +127,21 @@ module.exports = function( vars , id , variable , id_var , agg ) {
   }
 
   return null
+
+}
+
+module.exports = function( vars , id , variable , id_var , agg ) {
+
+  if (validObject(id) && id.values instanceof Array) {
+    var val = null
+    for(var i = 0; i < id.values.length; i++) {
+      val = fetch( vars , id.values[i] , variable , id_var , agg )
+      if (val) break;
+    }
+    return val
+  }
+  else {
+    return fetch( vars , id , variable , id_var , agg )
+  }
 
 }

@@ -11,7 +11,7 @@ d3plus.ui.titles = function(vars) {
   // If there is no data or the title bar is not needed,
   // set the total value to 'null'
   //----------------------------------------------------------------------------
-  if (!vars.data.app || !vars.title.total.value || vars.small) {
+  if (!vars.data.viz || !vars.title.total.value || vars.small) {
     var total = false
   }
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -24,7 +24,7 @@ d3plus.ui.titles = function(vars) {
     }
 
     if (vars.focus.value.length) {
-      var total = vars.data.app.filter(function(d){
+      var total = vars.data.viz.filter(function(d){
         return d[vars.id.value] == vars.focus.value[0]
       })
       total = d3.sum(total,function(d){
