@@ -62,7 +62,7 @@ module.exports = (vars, b) ->
 
 dataChange = (vars) ->
 
-  check   = ["data","time","id","depth"]
+  check   = ["data","time","id","depth","type"]
   changed = vars.time.fixed.value and (vars.time.solo.changed or vars.time.mute.changed)
 
   for k in check
