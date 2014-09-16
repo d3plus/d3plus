@@ -1,13 +1,14 @@
-mergeObject    = require "../../object/merge.coffee"
+locale      = require "../../core/locale/locale.coffee"
+mergeObject = require "../../object/merge.coffee"
 
 module.exports =
   accepted:   [Function, String]
   locale:
-    accepted: -> d3.keys d3plus.locale
+    accepted: -> d3.keys locale
     process:  (value) ->
       defaultLocale = "en_US"
-      returnObject  = d3plus.locale[defaultLocale]
-      returnObject  = mergeObject(returnObject, d3plus.locale[value]) if value isnt defaultLocale
+      returnObject  = locale[defaultLocale]
+      returnObject  = mergeObject(returnObject, locale[value]) if value isnt defaultLocale
       @language     = value
       returnObject
     value: "en_US"

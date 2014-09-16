@@ -1,4 +1,5 @@
-var legible = require("../color/legible.coffee"),
+var defaultLocale = require("../core/locale/languages/en_US.js"),
+    legible    = require("../color/legible.coffee"),
     stringList = require("../string/list.coffee"),
     textColor  = require("../color/text.coffee")
 
@@ -27,7 +28,7 @@ d3plus.tooltip.create = function(params) {
   params.fontsize = params.fontsize || "12px"
   params.style = params.style || "default"
   params.zindex = params.size == "small" ? 2000 : 500
-  params.locale = params.locale || d3plus.locale.en_US
+  params.locale = params.locale || defaultLocale
 
 
   var parentHeight = params.parent ? params.parent.node().offsetHeight

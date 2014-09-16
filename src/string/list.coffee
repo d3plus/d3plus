@@ -1,4 +1,5 @@
 format = require "./format.js"
+locale = require("../core/locale/languages/en_US.js").ui
 
 # Converts an array of strings into a string list using commas and "and".
 module.exports = (list, andText, max, moreText) ->
@@ -6,8 +7,8 @@ module.exports = (list, andText, max, moreText) ->
     return list
   else
     list = list.slice(0)
-  andText = d3plus.locale.en_US.ui.and  unless andText
-  moreText = d3plus.locale.en_US.ui.moreText  unless moreText
+  andText = locale.and unless andText
+  moreText = locale.moreText unless moreText
   if list.length is 2
     list.join " " + andText + " "
   else

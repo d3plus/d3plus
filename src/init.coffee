@@ -161,9 +161,9 @@ d3plus.util =
 ###
 d3plus.viz = require "./viz/viz.coffee"
 
-# THESE SHOULD PROBABLY ALL BE RELOCATED
-d3plus.locale        = {}
-d3plus.tooltip       = {}
+# ENTIRE TOOLTIP NEEDS TO BE RE-WRITTEN
+# https://github.com/alexandersimoes/d3plus/issues/74
+d3plus.tooltip = {}
 
 # Flash a console message if they are loading the old, unneeded stylesheet!
 stylesheet = require "./style/sheet.coffee"

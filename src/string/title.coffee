@@ -1,13 +1,10 @@
-# Formats numbers to look "pretty"
+defaultLocale = require "../core/locale/languages/en_US.js"
+
 module.exports = (text, key, vars) ->
 
   return "" unless text
 
-  if "locale" of this
-    locale = @locale.value
-    locale = (if locale of d3plus.locale then d3plus.locale[locale] else d3plus.locale.en_US) if typeof locale is "string"
-  else
-    locale = d3plus.locale.en_US
+  locale = if "locale" of this then @locale.value else defaultLocale
 
   # If it's a sentence, just capitalize the first letter.
   return text.charAt(0).toUpperCase() + text.substr(1)  if text.charAt(text.length - 1) is "."

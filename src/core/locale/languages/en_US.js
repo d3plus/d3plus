@@ -1,4 +1,4 @@
-d3plus.locale.en_US = {
+module.exports = {
 
   "dev"          : {
 

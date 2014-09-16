@@ -1,6 +1,6 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+var defaultLocale = require("../core/locale/languages/en_US.js")
+
 // Formats numbers to look "pretty"
-//------------------------------------------------------------------------------
 module.exports = function( number , key , vars ) {
 
   if ( !vars && "getVars" in this) {
@@ -23,12 +23,10 @@ module.exports = function( number , key , vars ) {
   }
 
   if ( "locale" in this ) {
-    var locale = this.locale.value
-      , time = locale.time
+    var time = this.locale.value.time
   }
   else {
-    var locale = d3plus.locale.en_US
-      , time = locale.time
+    var time = defaultLocale.time
   }
 
   if ( vars && typeof vars.time.value === "string") {
