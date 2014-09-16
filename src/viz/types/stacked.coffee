@@ -10,6 +10,10 @@ stacked = (vars) ->
 
   graph vars
 
+  # Add padding to the top of the Y axis
+  domain = vars.y.scale.viz.domain()
+  vars.y.scale.viz.domain [domain[0]*1.025,domain[1]]
+
   data = nest vars
 
   # Assign x and y to each data point
