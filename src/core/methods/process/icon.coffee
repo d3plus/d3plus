@@ -1,4 +1,4 @@
-stylesheet = require "../../../style/sheet.coffee"
+stylesheet = require "../../../client/css.coffee"
 
 module.exports = (value) ->
   if value is false or value.indexOf("fa-") < 0 or (value.indexOf("fa-") is 0 and stylesheet("font-awesome"))

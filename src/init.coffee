@@ -33,6 +33,15 @@ d3plus.array =
   update: require "./array/update.coffee"
 
 ###*
+# Utilities related to the client's browser.
+# @class d3plus.client
+# @for d3plus
+# @static
+###
+d3plus.client =
+  css: require "./client/css.coffee"
+
+###*
 # Utilities related to color manipulation.
 # @class d3plus.color
 # @for d3plus
@@ -122,15 +131,6 @@ d3plus.string =
   title:  require "./string/title.coffee"
 
 ###*
-# Utilities that relate to styles.
-# @class d3plus.style
-# @for d3plus
-# @static
-###
-d3plus.style =
-  sheet: require "./style/sheet.coffee"
-
-###*
 # D3plus SVG Textwrapping
 # @class d3plus.textwrap
 # @for d3plus
@@ -166,7 +166,7 @@ d3plus.viz = require "./viz/viz.coffee"
 d3plus.tooltip = {}
 
 # Flash a console message if they are loading the old, unneeded stylesheet!
-stylesheet = require "./style/sheet.coffee"
+stylesheet = require "./client/css.coffee"
 message    = require "./core/console/print.coffee"
 if stylesheet "d3plus.css"
   message.warning "d3plus.css has been deprecated, you do not need to load this file.", d3plus.repo+"releases/tag/v1.4.0"

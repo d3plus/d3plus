@@ -1,6 +1,6 @@
 var lighter = require("../../../color/lighter.coffee"),
     print      = require("../../../core/console/print.coffee"),
-    stylesheet = require("../../../style/sheet.coffee")
+    stylesheet = require("../../../client/css.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates "back" button, if applicable
