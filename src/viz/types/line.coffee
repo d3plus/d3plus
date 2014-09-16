@@ -1,13 +1,17 @@
 fetchValue = require "../../core/fetch/value.js"
 graph      = require "./helpers/graph/draw.coffee"
-dataTicks  = require "./helpers/graph/includes/dataTicks.coffee"
+dataTicks  = require "./helpers/graph/dataTicks.coffee"
 nest       = require "./helpers/graph/nest.coffee"
 stack      = require "./helpers/graph/stack.coffee"
 
 # Line Plot
 line = (vars) ->
 
-  graph vars
+  graph vars,
+    buffer:
+      axis:  "y"
+      value: 10
+    mouse: true
 
   data = nest vars
 

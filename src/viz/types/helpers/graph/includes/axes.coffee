@@ -1,14 +1,17 @@
+buffer     = require "./buffer.coffee"
 closest    = require "../../../../../util/closest.coffee"
 fetchData  = require "../../../../../core/fetch/data.js"
 fetchValue = require "../../../../../core/fetch/value.js"
 print      = require "../../../../../core/console/print.coffee"
 uniques    = require "../../../../../util/uniques.coffee"
 
-module.exports = (vars) ->
+module.exports = (vars, b) ->
 
-  changed = dataChange vars
+  b                 = {} if b is undefined
+  changed           = dataChange vars
   vars.axes.dataset = getData vars if changed
-
+  vars.axes.scale   = if b.buffer then sizeScale vars, b.buffer else false
+  vars.axes.buffer = if typeof b.buffer is "object" and b.buffer.axis then [b.buffer.axis] else ["x","y"]
   for axis in ["x","y"]
 
     filtered = vars[axis].solo.changed or vars[axis].mute.changed
@@ -40,6 +43,9 @@ module.exports = (vars) ->
 
       # calculate scale
       vars[axis].scale.viz = getScale vars, axis, range
+
+      # Add buffer to scale if it needs it
+      buffer vars, axis if axis isnt vars.axes.continuous and vars.axes.scale and vars.axes.buffer.indexOf(axis) >= 0
 
       # store axis domain
       vars[axis].domain.viz = range
@@ -125,3 +131,30 @@ getScale = (vars, axis, range) ->
   d3.scale[scaleType]()
     .domain range
     .rangeRound [0,rangeMax]
+
+sizeScale = (vars, b) ->
+
+  b = {value: b} if typeof b isnt "object"
+
+  value = if b.value then b.value else vars.size.value
+
+  if typeof value is "number"
+    vars.size.scale.value.rangeRound [value,value]
+  else if value
+
+    print.time "calculating buffer scale" if vars.dev.value
+
+    min = if b.min then b.min else 2
+    max = if b.max then b.max else Math.floor d3.max [d3.min([vars.width.viz,vars.height.viz])/15, min]
+
+    domain = d3.extent vars.axes.dataset, (d) ->
+      val = fetchValue vars, d, value
+      if !val then 0 else val
+
+    min = max if domain[0] is domain[1]
+
+    print.timeEnd "calculating buffer scale" if vars.dev.value
+
+    vars.size.scale.value
+      .domain domain
+      .rangeRound [min,max]

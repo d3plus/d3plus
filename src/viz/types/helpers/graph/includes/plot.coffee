@@ -1,3 +1,4 @@
+buffer    = require "./buffer.coffee"
 fontSizes = require "../../../../../font/sizes.coffee"
 
 module.exports = (vars) ->
@@ -14,6 +15,7 @@ module.exports = (vars) ->
   # Set ticks, if not previously set
   for axis in ["x","y"]
     vars[axis].ticks.values = vars[axis].scale.viz.ticks() if vars[axis].ticks.values is false
+    buffer vars, axis if vars.axes.scale and axis is vars.axes.continuous and vars.axes.buffer.indexOf(axis) >= 0
 
   # Calculate padding for tick labels
   labelPadding vars
