@@ -39,7 +39,13 @@ d3plus.array =
 # @static
 ###
 d3plus.client =
-  css: require "./client/css.coffee"
+  css:       require "./client/css.coffee"
+  ie:        require "./client/ie.js"
+  pointer:   require "./client/pointer.coffee"
+  prefix:    require "./client/prefix.coffee"
+  rtl:       require "./client/rtl.coffee"
+  scrollbar: require "./client/scrollbar.coffee"
+  touch:     require "./client/touch.coffee"
 
 ###*
 # Utilities related to color manipulation.

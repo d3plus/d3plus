@@ -1,4 +1,5 @@
 var arraySort = require("../../array/sort.coffee"),
+    events       = require("../../client/pointer.coffee"),
     distances    = require("../../util/distances.coffee"),
     fetchValue   = require("../../core/fetch/value.js"),
     fetchColor   = require("../../core/fetch/color.coffee"),
@@ -427,7 +428,7 @@ var rings = function(vars) {
 
   })
 
-  vars.mouse[d3plus.evt.click] = function(d) {
+  vars.mouse[events.click] = function(d) {
     if (d[vars.id.value] != vars.focus.value[0]) {
       d3plus.tooltip.remove(vars.type.value)
       vars.self.focus(d[vars.id.value]).draw()

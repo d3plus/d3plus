@@ -1,6 +1,7 @@
 var fetchText  = require("../../../core/fetch/text.js"),
     mix        = require("../../../color/mix.coffee"),
     print      = require("../../../core/console/print.coffee"),
+    rtl        = require("../../../client/rtl.coffee"),
     shapeColor = require("./color.coffee"),
     stringList = require("../../../string/list.coffee"),
     textColor  = require("../../../color/text.coffee")
@@ -61,7 +62,7 @@ module.exports = function( vars , group ) {
       if (align == "middle" || share) {
         var pos = t.x-width/2
       }
-      else if ((align == "end" && !d3plus.rtl) || (align == "start" && d3plus.rtl)) {
+      else if ((align == "end" && !rtl) || (align == "start" && rtl)) {
         var pos = t.x+(t.w-t.padding)/2-width
       }
       else {
@@ -71,7 +72,7 @@ module.exports = function( vars , group ) {
       if (tspan) {
         var t_width = this.getComputedTextLength()/scale[1]
         if (align == "middle") {
-          if (d3plus.rtl) {
+          if (rtl) {
             pos -= (width-t_width)/2
           }
           else {
@@ -79,7 +80,7 @@ module.exports = function( vars , group ) {
           }
         }
         else if (align == "end") {
-          if (d3plus.rtl) {
+          if (rtl) {
             pos -= (width-t_width)
           }
           else {
@@ -88,7 +89,7 @@ module.exports = function( vars , group ) {
         }
       }
 
-      if (d3plus.rtl) {
+      if (rtl) {
         pos += width
       }
 

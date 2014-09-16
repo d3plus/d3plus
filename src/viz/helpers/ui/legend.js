@@ -3,6 +3,7 @@ var arraySort = require("../../../array/sort.coffee"),
     copy         = require("../../../util/copy.coffee"),
     dataNest     = require("../../../core/data/nest.js"),
     dataURL      = require("../../../util/dataURL.coffee"),
+    events       = require("../../../client/pointer.coffee"),
     fetchValue   = require("../../../core/fetch/value.js"),
     fetchColor   = require("../../../core/fetch/color.coffee"),
     fetchText    = require("../../../core/fetch/text.js"),
@@ -10,6 +11,7 @@ var arraySort = require("../../../array/sort.coffee"),
     textColor    = require("../../../color/text.coffee"),
     uniqueValues = require("../../../util/uniques.coffee"),
     stringStrip  = require("../../../string/strip.js"),
+    touch        = require("../../../client/touch.coffee"),
     validObject  = require("../../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
@@ -291,10 +293,10 @@ module.exports = function(vars) {
             .attr("class","d3plus_color")
             .call(style)
 
-        if (!d3plus.touch) {
+        if (!touch) {
 
           keys
-            .on(d3plus.evt.over,function(d,i){
+            .on(events.over,function(d,i){
 
               d3.select(this).style("cursor","pointer")
 
@@ -318,7 +320,7 @@ module.exports = function(vars) {
               })
 
             })
-            .on(d3plus.evt.out,function(d){
+            .on(events.out,function(d){
               d3plus.tooltip.remove(vars.type.value)
             })
 

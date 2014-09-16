@@ -1,4 +1,5 @@
 fetchValue  = require "../../core/fetch/value.js"
+ie          = require "../../client/ie.js"
 stringStrip = require "../../string/strip.js"
 
 module.exports =
@@ -38,7 +39,7 @@ module.exports =
       dataString = c.join(",")
       csv_data += (if i < csv_to_return.length then dataString + "\n" else dataString)
 
-    if d3plus.ie
+    if ie
       blob = new Blob [csv_data], {type: "text/csv;charset=utf-8;"}
       navigator.msSaveBlob blob, title + ".csv"
     else

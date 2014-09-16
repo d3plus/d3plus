@@ -1,4 +1,5 @@
-var lighter = require("../../../../color/lighter.coffee"),
+var events = require("../../../../client/pointer.coffee"),
+    lighter   = require("../../../../color/lighter.coffee"),
     print     = require("../../../../core/console/print.coffee"),
     textColor = require("../../../../color/text.coffee")
 
@@ -111,7 +112,7 @@ module.exports = function ( vars ) {
       .call(titleStyle)
 
     vars.container.title
-      .on(d3plus.evt.over,function(d,i){
+      .on(events.over,function(d,i){
 
         var color = lighter(vars.ui.color.secondary.value)
 
@@ -121,7 +122,7 @@ module.exports = function ( vars ) {
           .style("color",textColor(color))
 
       })
-      .on(d3plus.evt.out,function(d){
+      .on(events.out,function(d){
 
         var color = vars.ui.color.secondary.value
 
@@ -131,7 +132,7 @@ module.exports = function ( vars ) {
           .style("color",textColor(color))
 
       })
-      .on(d3plus.evt.click,function(d){
+      .on(events.click,function(d){
         vars.history.back()
       })
 

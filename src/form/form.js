@@ -4,6 +4,7 @@ var arraySort = require("../array/sort.coffee"),
     dataKeys    = require("../core/data/keys.js"),
     dataLoad    = require("../core/data/load.coffee"),
     fetchData   = require("../core/fetch/data.js"),
+    ie          = require("../client/ie.js"),
     methodReset = require("../core/methods/reset.coffee"),
     print       = require("../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -36,7 +37,7 @@ d3plus.form = function() {
     var large = vars.data.value instanceof Array
                 && vars.data.value.length > vars.data.large
 
-    vars.draw.timing = vars.draw.first || large || d3plus.ie
+    vars.draw.timing = vars.draw.first || large || ie
                      ? 0 : vars.timing.ui
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

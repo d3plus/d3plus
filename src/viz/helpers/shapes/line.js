@@ -1,4 +1,5 @@
 var copy = require("../../../util/copy.coffee"),
+    events     = require("../../../client/pointer.coffee"),
     shapeStyle = require("./style.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -160,7 +161,7 @@ module.exports = function(vars,selection,enter,exit) {
     // Mouse "paths" Update
     //--------------------------------------------------------------------------
     mouse
-      .on(d3plus.evt.over,function(m){
+      .on(events.over,function(m){
 
         if (!vars.draw.frozen) {
 
@@ -176,7 +177,7 @@ module.exports = function(vars,selection,enter,exit) {
         }
 
       })
-      .on(d3plus.evt.out,function(d){
+      .on(events.out,function(d){
 
         if (!vars.draw.frozen) {
 

@@ -1,10 +1,10 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//
-//------------------------------------------------------------------------------
+var prefix = require("../../../../client/prefix.coffee"),
+    rtl = require("../../../../client/rtl.coffee")
+
 module.exports = function ( elem , vars ) {
 
-  var reversed = (vars.font.align.value === "right" && !d3plus.rtl)
-                 || (d3plus.rtl && vars.font.align.value === "right")
+  var reversed = (vars.font.align.value === "right" && !rtl)
+                 || (rtl && vars.font.align.value === "right")
 
   elem
     .each(function(d,i){
@@ -122,10 +122,10 @@ module.exports = function ( elem , vars ) {
           }
           return "auto"
         })
-        .style(d3plus.prefix()+"transition",function(c){
+        .style(prefix()+"transition",function(c){
           return c === "selected" ? (vars.draw.timing/1000)+"s" : "none"
         })
-        .style(d3plus.prefix()+"transform",function(c){
+        .style(prefix()+"transform",function(c){
           var degree = c === "selected" ? vars.icon.select.rotate : "none"
           return "rotate("+degree+"deg)"
         })
@@ -146,7 +146,7 @@ module.exports = function ( elem , vars ) {
         if (children.length === 3) {
           var padding = p+"px "+buffer+"px"
         }
-        else if ((children.indexOf("icon") >= 0 && !d3plus.rtl) || (children.indexOf("selected") >= 0 && d3plus.rtl)) {
+        else if ((children.indexOf("icon") >= 0 && !rtl) || (children.indexOf("selected") >= 0 && rtl)) {
           var padding = p+"px "+p+"px "+p+"px "+buffer+"px"
         }
         else {

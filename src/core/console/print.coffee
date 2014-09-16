@@ -1,8 +1,10 @@
+ie   = require "../../client/ie.js"
 wiki = require "./wiki.coffee"
+
 # Custom styling and behavior for browser console statements.
 print = (type, message, style) ->
   style = style or ""
-  if d3plus.ie or typeof InstallTrigger isnt 'undefined'
+  if ie or typeof InstallTrigger isnt 'undefined'
     console.log "[ D3plus ] " + message
   else if type is "groupCollapsed"
     if window.chrome and navigator.onLine
@@ -33,7 +35,7 @@ print.groupCollapsed = (message) ->
   return
 
 print.groupEnd = ->
-  console.groupEnd()  unless d3plus.ie
+  console.groupEnd() unless ie
   return
 
 print.log = (message) ->
@@ -41,7 +43,7 @@ print.log = (message) ->
   return
 
 print.stack = ->
-  unless d3plus.ie
+  unless ie
     err = new Error()
     if err.stack
       stack = err.stack.split("\n")
@@ -61,11 +63,11 @@ print.stack = ->
   return
 
 print.time = (message) ->
-  console.time message unless d3plus.ie
+  console.time message unless ie
   return
 
 print.timeEnd = (message) ->
-  console.timeEnd message unless d3plus.ie
+  console.timeEnd message unless ie
   return
 
 print.warning = (message, url) ->

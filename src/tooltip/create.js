@@ -1,5 +1,8 @@
 var defaultLocale = require("../core/locale/languages/en_US.js"),
+    events     = require("../client/pointer.coffee"),
     legible    = require("../color/legible.coffee"),
+    prefix     = require("../client/prefix.coffee"),
+    rtl        = require("../client/rtl.coffee"),
     stringList = require("../string/list.coffee"),
     textColor  = require("../color/text.coffee")
 
@@ -9,7 +12,7 @@ var defaultLocale = require("../core/locale/languages/en_US.js"),
 d3plus.tooltip.create = function(params) {
 
   var default_width = params.fullscreen ? 250 : 200
-    , vendor = d3plus.prefix()
+    , vendor = prefix()
   params.width = params.width || default_width
   params.max_width = params.max_width || 386
   params.id = params.id || "default"
@@ -94,7 +97,7 @@ d3plus.tooltip.create = function(params) {
       .style("right","0px")
       .style("bottom","0px")
       .style("left","0px")
-      .on(d3plus.evt.click,function(){
+      .on(events.click,function(){
         d3plus.tooltip.remove(params.id)
       })
   }
@@ -110,7 +113,7 @@ d3plus.tooltip.create = function(params) {
     .style(vendor+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
     .style("position","absolute")
     .style("z-index",params.zindex)
-    .on(d3plus.evt.out,function(){
+    .on(events.out,function(){
       close_descriptions()
     })
 
@@ -185,17 +188,17 @@ d3plus.tooltip.create = function(params) {
       .style("width","18px")
       .style("z-index",10)
       .html("\&times;")
-      .on(d3plus.evt.over,function(){
+      .on(events.over,function(){
         d3.select(this)
           .style("cursor","pointer")
           .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.5)")
       })
-      .on(d3plus.evt.out,function(){
+      .on(events.out,function(){
         d3.select(this)
           .style("cursor","auto")
           .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.25)")
       })
-      .on(d3plus.evt.click,function(){
+      .on(events.click,function(){
         d3plus.tooltip.remove(params.id)
       })
   }
@@ -205,7 +208,7 @@ d3plus.tooltip.create = function(params) {
   }
   else if (params.mouseevents !== true) {
 
-    var oldout = d3.select(params.mouseevents).on(d3plus.evt.out)
+    var oldout = d3.select(params.mouseevents).on(events.out)
 
     var newout = function() {
 
@@ -220,7 +223,7 @@ d3plus.tooltip.create = function(params) {
       if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
         oldout(d3.select(params.mouseevents).datum())
         close_descriptions()
-        d3.select(params.mouseevents).on(d3plus.evt.out,oldout)
+        d3.select(params.mouseevents).on(events.out,oldout)
       }
     }
 
@@ -235,12 +238,12 @@ d3plus.tooltip.create = function(params) {
        return false;
     }
 
-    d3.select(params.mouseevents).on(d3plus.evt.out,newout)
-    tooltip.on(d3plus.evt.out,newout)
+    d3.select(params.mouseevents).on(events.out,newout)
+    tooltip.on(events.out,newout)
 
-    var move_event = d3.select(params.mouseevents).on(d3plus.evt.move)
+    var move_event = d3.select(params.mouseevents).on(events.move)
     if (move_event) {
-      tooltip.on(d3plus.evt.move,move_event)
+      tooltip.on(events.move,move_event)
     }
 
   }
@@ -355,7 +358,7 @@ d3plus.tooltip.create = function(params) {
           .attr("class","d3plus_tooltip_data_name")
           .style("display","inline-block")
           .html(d.name)
-          .on(d3plus.evt.out,function(){
+          .on(events.out,function(){
             d3.event.stopPropagation()
           })
 
@@ -375,11 +378,11 @@ d3plus.tooltip.create = function(params) {
           .style("text-align","right")
           .style("top","3px")
           .text(d.value)
-          .on(d3plus.evt.out,function(){
+          .on(events.out,function(){
             d3.event.stopPropagation()
           })
 
-      if (d3plus.rtl) {
+      if (rtl) {
         val.style("left","6px")
       }
       else {
@@ -394,7 +397,7 @@ d3plus.tooltip.create = function(params) {
           .style(vendor+"transition","height 0.5s")
           .style("width","85%")
           .text(d.desc)
-          .on(d3plus.evt.out,function(){
+          .on(events.out,function(){
             d3.event.stopPropagation()
           })
 
@@ -419,25 +422,25 @@ d3plus.tooltip.create = function(params) {
           .style("vertical-align","top")
           .style(prefix+"transition","background-color 0.5s")
           .text("?")
-          .on(d3plus.evt.over,function(){
+          .on(events.over,function(){
             var c = d3.select(this.parentNode.parentNode).style("color")
             d3.select(this).style("background-color",c)
             desc.style("height",dh+"px")
           })
-          .on(d3plus.evt.out,function(){
+          .on(events.out,function(){
             d3.event.stopPropagation()
           })
 
         name
           .style("cursor","pointer")
-          .on(d3plus.evt.over,function(){
+          .on(events.over,function(){
             close_descriptions()
             var c = d3.select(this.parentNode).style("color")
             help.style("background-color",c)
             desc.style("height",dh+"px")
           })
 
-        block.on(d3plus.evt.out,function(){
+        block.on(events.out,function(){
           d3.event.stopPropagation()
           close_descriptions()
         })

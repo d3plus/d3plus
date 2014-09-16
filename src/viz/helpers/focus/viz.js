@@ -1,4 +1,5 @@
-var print = require("../../../core/console/print.coffee"),
+var events = require("../../../client/pointer.coffee"),
+    print        = require("../../../core/console/print.coffee"),
     uniqueValues = require("../../../util/uniques.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -118,10 +119,10 @@ module.exports = function(vars) {
             }
           }
 
-          for (e in d3plus.evt) {
-            var evt = d3.select(this).on(d3plus.evt[e])
+          for (e in events) {
+            var evt = d3.select(this).on(events[e])
             if (evt) {
-              elem.on(d3plus.evt[e],evt)
+              elem.on(events[e],evt)
             }
           }
 

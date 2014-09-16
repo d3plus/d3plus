@@ -1,5 +1,7 @@
-var fetchValue = require("../../../core/fetch/value.js"),
-    print = require("../../../core/console/print.coffee")
+var events = require("../../../client/pointer.coffee"),
+    fetchValue = require("../../../core/fetch/value.js"),
+    print      = require("../../../core/console/print.coffee"),
+    rtl        = require("../../../client/rtl.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws appropriate titles
 //------------------------------------------------------------------------------
@@ -151,10 +153,10 @@ module.exports = function(vars) {
         if (align == "center") {
           return "middle"
         }
-        else if ((align == "left" && !d3plus.rtl) || (align == "right" && d3plus.rtl)) {
+        else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
           return "start"
         }
-        else if ((align == "left" && d3plus.rtl) || (align == "right" && !d3plus.rtl)) {
+        else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
           return "end"
         }
 
@@ -166,10 +168,10 @@ module.exports = function(vars) {
         if (align == "center") {
           return vars.width.value/2
         }
-        else if ((align == "left" && !d3plus.rtl) || (align == "right" && d3plus.rtl)) {
+        else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
           return vars.padding
         }
-        else if ((align == "left" && d3plus.rtl) || (align == "right" && !d3plus.rtl)) {
+        else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
           return vars.width.value-vars.padding
         }
 
@@ -245,7 +247,7 @@ module.exports = function(vars) {
       vars.margin[d.style.position] += this.getBBox().height + d.style.padding*2
 
     })
-    .on(d3plus.evt.over,function(t){
+    .on(events.over,function(t){
       if (t.link) {
         d3.select(this)
           .transition().duration(vars.timing.mouseevents)
@@ -258,7 +260,7 @@ module.exports = function(vars) {
             .style("text-transform",vars.links.hover.transform.value)
       }
     })
-    .on(d3plus.evt.out,function(t){
+    .on(events.out,function(t){
       if (t.link) {
         d3.select(this)
           .transition().duration(vars.timing.mouseevents)
@@ -267,7 +269,7 @@ module.exports = function(vars) {
             .call(style)
       }
     })
-    .on(d3plus.evt.click,function(t){
+    .on(events.click,function(t){
       if (t.link) {
         var target = t.link.charAt(0) != "/" ? "_blank" : "_self"
         window.open(t.link,target)

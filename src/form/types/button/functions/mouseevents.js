@@ -1,14 +1,14 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//
-//------------------------------------------------------------------------------
+var events = require("../../../../client/pointer.coffee"),
+    ie = require("../../../../client/ie.js")
+
 module.exports = function ( elem , vars , color ) {
 
   elem
-    .on(d3plus.evt.over,function(d,i){
+    .on(events.over,function(d,i){
 
       vars.self.hover(d[vars.id.value])
 
-      if ( d3plus.ie || !vars.draw.timing ) {
+      if ( ie || !vars.draw.timing ) {
 
         d3.select(this).style("cursor","pointer")
           .call( color , vars )
@@ -22,11 +22,11 @@ module.exports = function ( elem , vars , color ) {
       }
 
     })
-    .on(d3plus.evt.out,function(d){
+    .on(events.out,function(d){
 
       vars.self.hover(false)
 
-      if ( d3plus.ie || !vars.draw.timing ) {
+      if ( ie || !vars.draw.timing ) {
         d3.select(this).style("cursor","auto")
           .call( color , vars )
       }
@@ -37,7 +37,7 @@ module.exports = function ( elem , vars , color ) {
       }
 
     })
-    .on(d3plus.evt.click,function(d){
+    .on(events.click,function(d){
 
       if ( vars.id.value in d ) {
 

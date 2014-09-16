@@ -1,3 +1,5 @@
+var events = require("../../../client/pointer.coffee")
+
 module.exports = function() {
 
   d3.select("#d3plus.utilsts.zoom_controls").remove()
@@ -11,19 +13,19 @@ module.exports = function() {
     zoom_enter.append("div")
       .attr("id","zoom_in")
       .attr("unselectable","on")
-      .on(d3plus.evt.click,function(){ vars.zoom("in") })
+      .on(events.click,function(){ vars.zoom("in") })
       .text("+")
 
     zoom_enter.append("div")
       .attr("id","zoom_out")
       .attr("unselectable","on")
-      .on(d3plus.evt.click,function(){ vars.zoom("out") })
+      .on(events.click,function(){ vars.zoom("out") })
       .text("-")
 
     zoom_enter.append("div")
       .attr("id","zoom_reset")
       .attr("unselectable","on")
-      .on(d3plus.evt.click,function(){
+      .on(events.click,function(){
         vars.zoom("reset")
         vars.draw.update()
       })

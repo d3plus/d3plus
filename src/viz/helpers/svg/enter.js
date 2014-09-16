@@ -1,4 +1,7 @@
-var print = require("../../../core/console/print.coffee")
+var events = require("../../../client/pointer.coffee"),
+    prefix = require("../../../client/prefix.coffee"),
+    print  = require("../../../core/console/print.coffee"),
+    touch  = require("../../../client/touch.coffee")
 
 // Enter SVG Elements
 module.exports = function(vars) {
@@ -73,41 +76,41 @@ module.exports = function(vars) {
     .attr("height",vars.height.value)
     .attr("opacity",0)
 
-  if (!d3plus.touch) {
+  if (!touch) {
 
     vars.g.overlay
-      .on(d3plus.evt.move,function(d){
+      .on(events.move,function(d){
 
         if (d.dragging) {
 
         }
         else if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",d3plus.prefix()+"grab")
+          d3.select(this).style("cursor",prefix()+"grab")
         }
         else {
           d3.select(this).style("cursor","auto")
         }
 
       })
-      .on(d3plus.evt.up,function(d){
+      .on(events.up,function(d){
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
           d.dragging = false
-          d3.select(this).style("cursor",d3plus.prefix()+"grab")
+          d3.select(this).style("cursor",prefix()+"grab")
         }
         else {
           d3.select(this).style("cursor","auto")
         }
 
       })
-      .on(d3plus.evt.down,function(d){
+      .on(events.down,function(d){
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
           d.dragging = true
-          d3.select(this).style("cursor",d3plus.prefix()+"grabbing")
+          d3.select(this).style("cursor",prefix()+"grabbing")
         }
         else {
           d3.select(this).style("cursor","auto")
@@ -119,9 +122,9 @@ module.exports = function(vars) {
   else {
 
     vars.g.overlay
-      .on(d3plus.evt.over,vars.zoom.touchEvent)
-      .on(d3plus.evt.move,vars.zoom.touchEvent)
-      .on(d3plus.evt.out,vars.zoom.touchEvent)
+      .on(events.over,vars.zoom.touchEvent)
+      .on(events.move,vars.zoom.touchEvent)
+      .on(events.out,vars.zoom.touchEvent)
 
   }
 

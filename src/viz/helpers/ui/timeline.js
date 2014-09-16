@@ -1,5 +1,7 @@
 var closest = require("../../../util/closest.coffee"),
     fontSizes = require("../../../font/sizes.coffee"),
+    events    = require("../../../client/pointer.coffee"),
+    prefix    = require("../../../client/prefix.coffee"),
     print     = require("../../../core/console/print.coffee"),
     textColor = require("../../../color/text.coffee")
 
@@ -367,9 +369,9 @@ module.exports = function(vars) {
       .style("visibility","visible")
       .attr("height",timelineHeight)
       .attr("shape-rendering","crispEdges")
-      .on(d3plus.evt.move,function(){
+      .on(events.move,function(){
         var c = vars.timeline.hover.value
-        if (["grab","grabbing"].indexOf(c) >= 0) c = d3plus.prefix()+c
+        if (["grab","grabbing"].indexOf(c) >= 0) c = prefix()+c
         d3.select(this).style("cursor",c)
       })
 
@@ -379,9 +381,9 @@ module.exports = function(vars) {
       .attr("height",timelineHeight)
       .attr("fill",vars.ui.color.primary.value)
       .attr("shape-rendering","crispEdges")
-      .on(d3plus.evt.move,function(){
+      .on(events.move,function(){
         var c = vars.timeline.hover.value
-        if (["grab","grabbing"].indexOf(c) >= 0) c = d3plus.prefix()+c
+        if (["grab","grabbing"].indexOf(c) >= 0) c = prefix()+c
         d3.select(this).style("cursor",c)
       })
 
@@ -403,12 +405,12 @@ module.exports = function(vars) {
         .style("visibility","visible")
         .attr("shape-rendering","crispEdges")
         .attr("opacity",vars.timeline.handles.opacity)
-        .on(d3plus.evt.over,function(){
+        .on(events.over,function(){
           d3.select(this).select("rect")
             .transition().duration(vars.timing.mouseevents)
             .attr("fill",vars.timeline.handles.hover)
         })
-        .on(d3plus.evt.out,function(){
+        .on(events.out,function(){
           d3.select(this).select("rect")
             .transition().duration(vars.timing.mouseevents)
             .attr("fill",vars.timeline.handles.color)

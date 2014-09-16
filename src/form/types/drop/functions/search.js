@@ -1,4 +1,5 @@
-var print = require("../../../../core/console/print.coffee")
+var prefix = require("../../../../client/prefix.coffee"),
+    print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the search box, if enabled.
 //------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ module.exports = function ( vars ) {
       .style("font-weight",vars.font.secondary.weight)
       .style("text-align",vars.font.secondary.align)
       .style("outline","none")
-      .style(d3plus.prefix()+"border-radius","0")
+      .style(prefix()+"border-radius","0")
       .attr("placeholder",vars.format.value(vars.format.locale.value.method.search))
 
   }

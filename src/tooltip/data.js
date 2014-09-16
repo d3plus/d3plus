@@ -4,6 +4,7 @@ var copy = require("../util/copy.coffee"),
     fetchText    = require("../core/fetch/text.js"),
     legible      = require("../color/legible.coffee"),
     mergeObject  = require("../object/merge.coffee"),
+    prefix       = require("../client/prefix.coffee"),
     stringFormat = require("../string/format.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
@@ -264,7 +265,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
               "position: absolute",
               "width: "+size+"px",
               "top: 0px",
-              d3plus.prefix()+"border-radius: "+radius+"px",
+              prefix()+"border-radius: "+radius+"px",
             ]
             node = "<div style='"+styles.join("; ")+";'></div>"
 

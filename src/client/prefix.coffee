@@ -1,5 +1,5 @@
 # Calculates the correct CSS vendor prefix based on the current browser.
-d3plus.prefix = ->
+prefix = ->
 
   if "-webkit-transform" of document.body.style
     val = "-webkit-"
@@ -12,7 +12,8 @@ d3plus.prefix = ->
   else
     val = ""
 
-  d3plus.prefix = ->
-    val
+  prefix = -> val
 
   val
+
+module.exports = prefix

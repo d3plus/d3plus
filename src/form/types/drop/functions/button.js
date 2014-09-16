@@ -1,5 +1,6 @@
 var copy = require("../../../../util/copy.coffee"),
-    print = require("../../../../core/console/print.coffee")
+    events = require("../../../../client/pointer.coffee"),
+    print  = require("../../../../core/console/print.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the main drop button.
@@ -75,7 +76,7 @@ module.exports = function ( vars ) {
 
   vars.margin.top += button.node().offsetHeight || button.node().getBoundingClientRect().height
 
-  button.on(d3plus.evt.click,function(){
+  button.on(events.click,function(){
     vars.self.open(!vars.open.value).draw()
   })
 

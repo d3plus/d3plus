@@ -1,5 +1,6 @@
 var child        = require("../../../util/child.coffee"),
     closest      = require("../../../util/closest.coffee"),
+    events       = require("../../../client/pointer.coffee"),
     fetchValue   = require("../../../core/fetch/value.js"),
     fetchColor   = require("../../../core/fetch/color.coffee"),
     fetchText    = require("../../../core/fetch/text.js"),
@@ -7,6 +8,7 @@ var child        = require("../../../util/child.coffee"),
     print        = require("../../../core/console/print.coffee"),
     shapeFill    = require("./fill.js"),
     stringStrip  = require("../../../string/strip.js"),
+    touch        = require("../../../client/touch.coffee"),
     uniqueValues = require("../../../util/uniques.coffee")
 
 var drawShape = {
@@ -394,10 +396,10 @@ module.exports = function(vars) {
 
   edge_update()
 
-  if (!d3plus.touch) {
+  if (!touch) {
 
     vars.g.data.selectAll("g")
-      .on(d3plus.evt.over,function(d){
+      .on(events.over,function(d){
 
         if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
@@ -436,8 +438,8 @@ module.exports = function(vars) {
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
           }
-          else if (vars.mouse[d3plus.evt.over]) {
-            vars.mouse[d3plus.evt.over](d.d3plus_data || d, vars)
+          else if (vars.mouse[events.over]) {
+            vars.mouse[events.over](d.d3plus_data || d, vars)
           }
 
           edge_update(d)
@@ -445,7 +447,7 @@ module.exports = function(vars) {
         }
 
       })
-      .on(d3plus.evt.move,function(d){
+      .on(events.move,function(d){
 
         if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
@@ -476,14 +478,14 @@ module.exports = function(vars) {
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
           }
-          else if (vars.mouse[d3plus.evt.move]) {
-            vars.mouse[d3plus.evt.move](d.d3plus_data || d, vars)
+          else if (vars.mouse[events.move]) {
+            vars.mouse[events.move](d.d3plus_data || d, vars)
           }
 
         }
 
       })
-      .on(d3plus.evt.out,function(d){
+      .on(events.out,function(d){
 
         var childElement = child(this,d3.event.toElement)
 
@@ -505,8 +507,8 @@ module.exports = function(vars) {
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
           }
-          else if (vars.mouse[d3plus.evt.out]) {
-            vars.mouse[d3plus.evt.out](d.d3plus_data || d, vars)
+          else if (vars.mouse[events.out]) {
+            vars.mouse[events.out](d.d3plus_data || d, vars)
           }
 
           edge_update()
@@ -519,25 +521,25 @@ module.exports = function(vars) {
   else {
 
     vars.g.data.selectAll("g")
-      .on(d3plus.evt.over,vars.zoom.touchEvent)
-      .on(d3plus.evt.move,vars.zoom.touchEvent)
-      .on(d3plus.evt.out,vars.zoom.touchEvent)
+      .on(events.over,vars.zoom.touchEvent)
+      .on(events.move,vars.zoom.touchEvent)
+      .on(events.out,vars.zoom.touchEvent)
 
   }
 
   vars.g.data.selectAll("g")
-    .on(d3plus.evt.click,function(d){
+    .on(events.click,function(d){
 
       if (!d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         if (typeof vars.mouse == "function") {
           vars.mouse(d.d3plus_data || d, vars)
         }
-        else if (vars.mouse[d3plus.evt.out]) {
-          vars.mouse[d3plus.evt.out](d.d3plus_data || d, vars)
+        else if (vars.mouse[events.out]) {
+          vars.mouse[events.out](d.d3plus_data || d, vars)
         }
-        else if (vars.mouse[d3plus.evt.click]) {
-          vars.mouse[d3plus.evt.click](d.d3plus_data || d, vars)
+        else if (vars.mouse[events.click]) {
+          vars.mouse[events.click](d.d3plus_data || d, vars)
         }
 
         var depth_delta = vars.zoom.direction(d.d3plus_data || d)

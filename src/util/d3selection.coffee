@@ -1,3 +1,5 @@
+ie = require "../client/ie.js"
+
 # Cross-browser detect for D3 element
-module.exports = (selection) ->
-  (if d3plus.ie then typeof selection is "object" and selection instanceof Array else selection instanceof d3.selection)
+module.exports = (elem) ->
+  (if ie then typeof elem is "object" and elem instanceof Array else elem instanceof d3.selection)
