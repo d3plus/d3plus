@@ -1,11 +1,11 @@
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Calculates node positions, if needed for network
-//-------------------------------------------------------------------
+var print = require("../console/print.coffee")
+
+// Calculates node positions, if needed for network.
 module.exports = function(vars) {
 
   if ( vars.dev.value ) {
     var timerString = "analyzing node positions"
-    d3plus.console.time( timerString )
+    print.time( timerString )
   }
 
   var set = vars.nodes.value.filter(function(n){
@@ -50,6 +50,6 @@ module.exports = function(vars) {
 
   }
 
-  if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+  if ( vars.dev.value ) print.timeEnd( timerString )
 
 }

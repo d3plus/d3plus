@@ -1,4 +1,5 @@
 var lighter = require("../../../../color/lighter.coffee"),
+    print     = require("../../../../core/console/print.coffee"),
     textColor = require("../../../../color/text.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -8,7 +9,7 @@ module.exports = function ( vars ) {
 
   if ( vars.open.value ) {
 
-    if ( vars.dev.value ) d3plus.console.time("creating title and back button")
+    if ( vars.dev.value ) print.time("creating title and back button")
 
     var self    = this
       , enabled = vars.id.solo.value.length === 1 && vars.depth.value > 0
@@ -18,7 +19,7 @@ module.exports = function ( vars ) {
     title = true
     for (var i = 0; i < vars.id.nesting.length; i++) {
       var level = vars.id.nesting[i]
-      if ( level in focus && focus[level] === vars.focus.value[0] ) {
+      if ( level in focus && focus[level] === vars.focus.value ) {
         title = false
         break;
       }
@@ -62,7 +63,7 @@ module.exports = function ( vars ) {
 
     function titleStyle(elem) {
 
-      var text = title ? vars.focus.value.length : vars.format.locale.value.ui.back
+      var text = title ? vars.focus.value : vars.format.locale.value.ui.back
 
       elem
         .text(vars.format.value(text))
@@ -140,7 +141,7 @@ module.exports = function ( vars ) {
       vars.margin.title += vars.container.title.node().offsetHeight || vars.container.title.node().getBoundingClientRect().height
     }
 
-    if ( vars.dev.value ) d3plus.console.timeEnd("creating title and back button")
+    if ( vars.dev.value ) print.timeEnd("creating title and back button")
 
   }
 

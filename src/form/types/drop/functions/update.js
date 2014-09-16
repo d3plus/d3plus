@@ -1,12 +1,13 @@
+var items = require("./items.js"),
+    height     = require("./height.js"),
+    print      = require("../../../../core/console/print.coffee"),
+    scrolllist = require("./scroll.js"),
+    arrow      = require("./arrow.js")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Redraws only the drop down list.
 //------------------------------------------------------------------------------
 module.exports = function ( vars ) {
-
-  var items = require("./items.js")
-    , height = require("./height.js")
-    , scrolllist = require("./scroll.js")
-    , arrow = require("./arrow.js")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If the menu is open, set the container element's z-index to '9999'.
@@ -65,7 +66,7 @@ module.exports = function ( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update List
   //----------------------------------------------------------------------------
-  if ( vars.dev.value ) d3plus.console.time("drawing list")
+  if ( vars.dev.value ) print.time("drawing list")
 
   function update(elem) {
 
@@ -157,6 +158,6 @@ module.exports = function ( vars ) {
       .tween("scroll",scrollTopTween(vars.container.listScroll))
   }
 
-  if ( vars.dev.value ) d3plus.console.timeEnd("drawing list")
+  if ( vars.dev.value ) print.timeEnd("drawing list")
 
 }

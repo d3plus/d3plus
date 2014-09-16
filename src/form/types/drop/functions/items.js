@@ -1,4 +1,5 @@
-var copy = require("../../../../util/copy.coffee")
+var copy = require("../../../../util/copy.coffee"),
+    print = require("../../../../core/console/print.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Populates item list based on filtered data.
@@ -9,7 +10,7 @@ module.exports = function ( vars ) {
 
   if (vars.open.value) {
 
-    if ( vars.dev.value ) d3plus.console.time("updating list items")
+    if ( vars.dev.value ) print.time("updating list items")
 
     if ( !("items" in vars.container) ) {
 
@@ -35,11 +36,9 @@ module.exports = function ( vars ) {
     if ( vars.focus.changed || !vars.container.items.focus().length ) {
 
       vars.container.items
-        .focus( vars.focus.value[0] , function(value){
+        .focus( vars.focus.value , function(value){
 
-          value = value[0]
-
-          var change = value !== vars.focus.value[0]
+          var change = value !== vars.focus.value
           if ( change && vars.active.value ) {
 
             change = active(vars,value)
@@ -118,7 +117,7 @@ module.exports = function ( vars ) {
       })
       .draw()
 
-    if ( vars.dev.value ) d3plus.console.timeEnd("updating list items")
+    if ( vars.dev.value ) print.timeEnd("updating list items")
 
   }
 

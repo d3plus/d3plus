@@ -1,9 +1,10 @@
+var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
 //------------------------------------------------------------------------------
 module.exports = function ( vars ) {
 
-  if ( vars.dev.value ) d3plus.console.time("rotating arrow")
+  if ( vars.dev.value ) print.time("rotating arrow")
 
   var offset = vars.icon.drop.value === "&#x276f;" ? 90 : 0
 
@@ -23,6 +24,6 @@ module.exports = function ( vars ) {
     })
     .draw()
 
-  if ( vars.dev.value ) d3plus.console.timeEnd("rotating arrow")
+  if ( vars.dev.value ) print.timeEnd("rotating arrow")
 
 }

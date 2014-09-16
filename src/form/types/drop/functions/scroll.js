@@ -1,3 +1,4 @@
+var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
 //------------------------------------------------------------------------------
@@ -5,7 +6,7 @@ module.exports = function ( vars ) {
 
   if (vars.open.value) {
 
-    if ( vars.dev.value ) d3plus.console.time("calculating height")
+    if ( vars.dev.value ) print.time("calculating height")
 
     var hidden = false
     if (vars.container.selector.style("display") == "none") {
@@ -42,16 +43,16 @@ module.exports = function ( vars ) {
 
     if (hidden) vars.container.selector.style("display","none")
 
-    if ( vars.dev.value ) d3plus.console.timeEnd("calculating height")
+    if ( vars.dev.value ) print.timeEnd("calculating height")
 
     if (scrolling) {
 
-      if ( vars.dev.value ) d3plus.console.time("calculating scroll position")
+      if ( vars.dev.value ) print.time("calculating scroll position")
 
       var options = vars.container.list.select("div").selectAll("div.d3plus_node")
       var option = options[0][0]
       options.each(function(d,i){
-        if (d[vars.id.value] == vars.focus.value[0]) {
+        if (d[vars.id.value] == vars.focus.value) {
           option = this
         }
       })
@@ -86,7 +87,7 @@ module.exports = function ( vars ) {
 
       }
 
-      if ( vars.dev.value ) d3plus.console.timeEnd("calculating scroll position")
+      if ( vars.dev.value ) print.timeEnd("calculating scroll position")
 
     }
     else {

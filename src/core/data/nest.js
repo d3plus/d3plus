@@ -8,11 +8,9 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
   var nestedData   = d3.nest()
     , groupedData  = []
-    , segments     = vars.shell === "viz"
-                    ? [ "active" , "temp" , "total" ] : []
+    , segments     = "temp" in vars ? [ "active" , "temp" , "total" ] : []
     , requirements = requirements || vars.types[vars.type.value].requirements || []
-    , exceptions   = vars.shell === "viz"
-                   ? [ vars.time.value , vars.icon.value ] : []
+    , exceptions   = "time" in vars ? [ vars.time.value , vars.icon.value ] : []
     , checkAxes    = function() {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

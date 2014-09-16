@@ -1,7 +1,7 @@
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into tspans
 //------------------------------------------------------------------------------
-d3plus.textwrap.tspan = function( vars ) {
+module.exports = function( vars ) {
 
   var xPosition  = vars.container.value.attr("x") || "0px"
     , words      = vars.text.words.slice(0)

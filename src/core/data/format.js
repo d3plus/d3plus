@@ -1,5 +1,6 @@
 var dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.js"),
+    print      = require("../console/print.coffee"),
     uniques    = require("../../util/uniques.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats raw data by time and nesting
@@ -14,7 +15,7 @@ module.exports = function( vars ) {
 
     if ( vars.dev.value ) {
       var timerString = "analyzing time periods"
-      d3plus.console.time( timerString )
+      print.time( timerString )
     }
 
     var uniqueTimes = uniques( vars.data.value , vars.time.value )
@@ -145,13 +146,13 @@ module.exports = function( vars ) {
       vars.data.time.ticks.push(d)
     }
 
-    if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+    if ( vars.dev.value ) print.timeEnd( timerString )
 
   }
 
   if ( vars.dev.value ) {
     var timerString = "nesting data by time and depths"
-    d3plus.console.time( timerString )
+    print.time( timerString )
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -200,6 +201,6 @@ module.exports = function( vars ) {
 
   }
 
-  if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+  if ( vars.dev.value ) print.timeEnd( timerString )
 
 }

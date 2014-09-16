@@ -1,7 +1,7 @@
 var arraySort = require("../../array/sort.coffee"),
     distances    = require("../../util/distances.coffee"),
     fetchValue   = require("../../core/fetch/value.js"),
-    fetchColor   = require("../../core/fetch/color.js"),
+    fetchColor   = require("../../core/fetch/color.coffee"),
     legible      = require("../../color/legible.coffee"),
     uniqueValues = require("../../util/uniques.coffee")
 
@@ -391,7 +391,7 @@ var rings = function(vars) {
           "angle": angle,
           "anchor": anchor,
           "valign": "center",
-          "color": legible(fetchColor(vars,n[vars.id.value])),
+          "color": legible(fetchColor(vars,n)),
           "resize": [8,vars.labels.font.size],
           "background": background,
           "mouse": true
@@ -407,7 +407,7 @@ var rings = function(vars) {
           "y": n.d3plus.r+height/2,
           "w": primaryRing,
           "h": height,
-          "color": legible(fetchColor(vars,n[vars.id.value])),
+          "color": legible(fetchColor(vars,n)),
           "resize": [10,40],
           "background": true,
           "mouse": true

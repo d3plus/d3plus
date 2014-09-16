@@ -1,7 +1,7 @@
 closest    = require "../../../../../util/closest.coffee"
 fetchData  = require "../../../../../core/fetch/data.js"
 fetchValue = require "../../../../../core/fetch/value.js"
-print      = require "../../../../../general/console.coffee"
+print      = require "../../../../../core/console/print.coffee"
 uniques    = require "../../../../../util/uniques.coffee"
 
 module.exports = (vars) ->

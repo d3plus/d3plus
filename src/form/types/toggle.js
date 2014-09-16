@@ -52,10 +52,10 @@ module.exports = function( vars ) {
 
       d.d3plus.form
         .color(vars.color)
-        .focus(vars.focus.value[0],function(value){
+        .focus(vars.focus.value,function(value){
 
-          if (value[0] !== vars.focus.value[0]) {
-            vars.self.focus(value[0]).draw()
+          if (value !== vars.focus.value) {
+            vars.self.focus(value).draw()
           }
 
         })

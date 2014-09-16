@@ -2,7 +2,7 @@ objectValidate = require "../object/validate.coffee"
 # Returns list of unique values
 module.exports = (data, value) ->
 
-  return [] if data is `undefined` or value is `undefined`
+  return [] if data is undefined or value is undefined
 
   data = [ data ] unless data instanceof Array
   vals = []

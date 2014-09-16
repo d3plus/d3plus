@@ -1,4 +1,5 @@
-var stringFormat = require("../../string/format.js")
+var print = require("../console/print.coffee"),
+    stringFormat = require("../../string/format.js")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Cleans edges list and populates nodes list if needed
@@ -7,7 +8,7 @@ module.exports = function( vars ) {
 
   if ( vars.dev.value ) {
     var timerString = "analyzing edges list"
-    d3plus.console.time( timerString )
+    print.time( timerString )
   }
 
   var appReqs     = vars.types[vars.type.value].requirements
@@ -61,7 +62,7 @@ module.exports = function( vars ) {
 
     if ( source === target ) {
       var str = vars.format.locale.value.dev.sameEdge
-      d3plus.console.warning(stringFormat(str,"\""+source+"\"") , "edges" )
+      print.warning(stringFormat(str,"\""+source+"\"") , "edges" )
       return false
     }
     else {
@@ -72,6 +73,6 @@ module.exports = function( vars ) {
 
   vars.edges.linked = true
 
-  if ( vars.dev.value ) d3plus.console.timeEnd( timerString )
+  if ( vars.dev.value ) print.timeEnd( timerString )
 
 }

@@ -1,6 +1,6 @@
-#^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-# Normalizes the graph input and checks if it is valid
-#------------------------------------------------------------------------------
+print = require "../core/console/print.coffee"
+
+# Normalizes the graph input and checks if it is valid.
 module.exports = (edges, options) ->
   # unpack options
   {source, target, directed, distance, nodeid, startpoint, endpoint, K, vdebug} = options
@@ -59,7 +59,7 @@ module.exports = (edges, options) ->
     else if target? and target not of nodes then errormsg = 'The target is not in the graph'
 
   if errormsg?
-    d3plus.console.error errormsg
+    print.error errormsg
     return null
 
   return [edges, {source, target, directed, distance, nodeid, startpoint, endpoint, K, nodes, vdebug}]

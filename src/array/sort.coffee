@@ -1,6 +1,6 @@
 colorSort  = require("../color/sort.coffee")
 fetchValue = require("../core/fetch/value.js")
-fetchColor = require("../core/fetch/color.js")
+fetchColor = require("../core/fetch/color.coffee")
 fetchText  = require("../core/fetch/text.js")
 
 # Sorts an array of objects

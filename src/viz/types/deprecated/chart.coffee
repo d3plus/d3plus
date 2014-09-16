@@ -1,4 +1,4 @@
-print = require("../../../general/console.coffee")
+print = require("../../../core/console/print.coffee")
 
 chart = (vars) ->
 
@@ -10,7 +10,7 @@ chart = (vars) ->
     area:   "stacked"
 
   type = types[vars.shape.value]
-  print.warning "The \"chart\" visualization type has been deprecated, please use \"" + type + "\""
+  print.warning "The \"chart\" visualization type has been deprecated and will be removed in version 2.0. Please use the \"" + type + "\" visualization type."
   vars.self.type(type).draw()
   return
 

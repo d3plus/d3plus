@@ -1,5 +1,6 @@
 var copy = require("../../../../util/copy.coffee"),
     fontTester  = require("../../../../core/font/tester.coffee"),
+    print       = require("../../../../core/console/print.coffee"),
     validObject = require("../../../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // If no widths are defined, then this calculates the width needed to fit the
@@ -31,7 +32,7 @@ module.exports = function ( vars ) {
              : vars.text.secondary.value || vars.text.value
       , font = key === "value" ? vars.font : vars.font.secondary
 
-    if ( vars.dev.value ) d3plus.console.time("calculating "+type+" width")
+    if ( vars.dev.value ) print.time("calculating "+type+" width")
 
     var button = d3plus.form()
       .container( fontTester() )
@@ -67,7 +68,7 @@ module.exports = function ( vars ) {
 
     vars.self.width( dropWidth )
 
-    if ( vars.dev.value ) d3plus.console.timeEnd("calculating "+type+" width")
+    if ( vars.dev.value ) print.timeEnd("calculating "+type+" width")
 
   }
 

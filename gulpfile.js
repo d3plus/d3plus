@@ -1,24 +1,23 @@
 // Include gulp
-var gulp = require("gulp")
-  , gutil = require("gulp-util")
-  , path = require("path")
-  , livereload = require("gulp-livereload")
-  , notify = require("gulp-notify")
-  , rename = require("gulp-rename")
-  , uglify = require("gulp-uglify")
-  , glob = require("glob")
-  , express = require("express")
-  , source = require("vinyl-source-stream")
-  , lr = require("tiny-lr")()
-  , browserify = require("browserify")
-  , watchify = require("watchify")
-  , streamify = require('gulp-streamify')
-  , es = require('event-stream')
-  , timer = require("gulp-duration")
-  , plumber = require("gulp-plumber")
-  , rimraf = require("gulp-rimraf")
-  , yuidoc = require("gulp-yuidoc")
-  , project = require("./package.json")
+var gulp = require("gulp"),
+    gutil      = require("gulp-util"),
+    path       = require("path"),
+    livereload = require("gulp-livereload"),
+    notify     = require("gulp-notify"),
+    rename     = require("gulp-rename"),
+    uglify     = require("gulp-uglify"),
+    glob       = require("glob"),
+    express    = require("express"),
+    source     = require("vinyl-source-stream"),
+    lr         = require("tiny-lr")(),
+    browserify = require("browserify"),
+    watchify   = require("watchify"),
+    streamify  = require('gulp-streamify'),
+    es         = require('event-stream'),
+    timer      = require("gulp-duration"),
+    rimraf     = require("gulp-rimraf"),
+    yuidoc     = require("gulp-yuidoc"),
+    project    = require("./package.json")
 
 var files = "./src/**/*.*"
 
@@ -27,7 +26,7 @@ var tests = [ "tests/**/*.*" ]
 var error = {
   title: "D3plus",
   subtitle: "Build Error",
-  message: "<%= error.message %>",
+  message: "Error: <%= error.message %>",
   icon: __dirname + "/icon.png"
 }
 
@@ -60,7 +59,6 @@ gulp.task("make", function() {
 
     return bundler.bundle()
       .on("error",notify.onError(error))
-      .pipe(plumber())
       .pipe(source("d3plus.js"))
       .pipe(gulp.dest("./"))
       .pipe(timer("Total Build Time"))
@@ -109,7 +107,6 @@ gulp.task("builds", function(){
     .transform("coffeeify")
     .bundle()
     .on("error",notify.onError(error))
-    .pipe(plumber())
     .pipe(source("d3plus.js"))
     .pipe(gulp.dest("./"))
     .pipe(rename("d3plus.min.js"))
@@ -121,7 +118,6 @@ gulp.task("builds", function(){
     .transform("coffeeify")
     .bundle()
     .on("error",notify.onError(error))
-    .pipe(plumber())
     .pipe(source("d3plus.full.js"))
     .pipe(gulp.dest("./"))
     .pipe(rename("d3plus.full.min.js"))

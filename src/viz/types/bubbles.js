@@ -1,6 +1,6 @@
 var arraySort = require("../../array/sort.coffee"),
     fetchValue = require("../../core/fetch/value.js"),
-    fetchColor = require("../../core/fetch/color.js"),
+    fetchColor = require("../../core/fetch/color.coffee"),
     fetchText  = require("../../core/fetch/text.js"),
     legible    = require("../../color/legible.coffee"),
     groupData  = require("../../core/data/group.coffee")

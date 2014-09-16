@@ -1,9 +1,11 @@
 var arraySort = require("../array/sort.coffee"),
-    dataFormat = require("../core/data/format.js"),
-    dataKeys = require("../core/data/keys.js"),
-    dataLoad = require("../core/data/load.coffee"),
-    fetchData  = require("../core/fetch/data.js"),
-    methodReset = require("../core/method/reset.coffee")
+    attach      = require("../core/methods/attach.coffee"),
+    dataFormat  = require("../core/data/format.js"),
+    dataKeys    = require("../core/data/keys.js"),
+    dataLoad    = require("../core/data/load.coffee"),
+    fetchData   = require("../core/fetch/data.js"),
+    methodReset = require("../core/methods/reset.coffee"),
+    print       = require("../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Form Element shell
 //------------------------------------------------------------------------------
@@ -42,7 +44,7 @@ d3plus.form = function() {
     //--------------------------------------------------------------------------
     if ( vars.data.value instanceof Array ) {
 
-      if ( vars.dev.value ) d3plus.console.groupCollapsed("drawing \""+vars.type.value+"\"")
+      if ( vars.dev.value ) print.groupCollapsed("drawing \""+vars.type.value+"\"")
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Analyze new data, if changed.
@@ -68,7 +70,7 @@ d3plus.form = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( !vars.focus.value.length ) {
+      if ( !vars.focus.value ) {
 
         var element = vars.data.element.value
 
@@ -77,14 +79,14 @@ d3plus.form = function() {
           i = i < 0 ? 0 : i
           var option = element.selectAll("option")[0][i]
             , val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value)
-          if (val) vars.focus.value[0] = val
+          if (val) vars.focus.value = val
         }
 
-        if ( !vars.focus.value.length && vars.data.app.length ) {
-          vars.focus.value[0] = vars.data.app[0][vars.id.value]
+        if ( !vars.focus.value && vars.data.app.length ) {
+          vars.focus.value = vars.data.app[0][vars.id.value]
         }
 
-        if ( vars.dev.value && vars.focus.value.length ) d3plus.console.log("\"value\" set to \""+vars.focus+"\"")
+        if ( vars.dev.value && vars.focus.value ) print.log("\"value\" set to \""+vars.focus+"\"")
 
       }
 
@@ -115,11 +117,11 @@ d3plus.form = function() {
 
           if (vars.data.app.length > 10) {
             vars.search.enabled = true
-            if ( vars.dev.value ) d3plus.console.log("Search enabled.")
+            if ( vars.dev.value ) print.log("Search enabled.")
           }
           else {
             vars.search.enabled = false
-            if ( vars.dev.value ) d3plus.console.log("Search disabled.")
+            if ( vars.dev.value ) print.log("Search disabled.")
           }
 
         }
@@ -143,7 +145,7 @@ d3plus.form = function() {
 
           options = vars.data.element.value.selectAll("option")
             .data(optionData,function(d){
-              var level = getLevel(d)
+              var level = d ? getLevel(d) : false
               return d && level in d ? d[level] : false
             })
 
@@ -178,7 +180,7 @@ d3plus.form = function() {
 
               }
 
-              if (d[level] === vars.focus.value[0]) {
+              if (d[level] === vars.focus.value) {
                 this.selected = true
               }
               else {
@@ -196,7 +198,7 @@ d3plus.form = function() {
           vars.data.element.value.selectAll("option")
             .each(function(d){
               var level = getLevel(d)
-              if (d[level] === vars.focus.value[0]) {
+              if (d[level] === vars.focus.value) {
                 this.selected = true
               }
               else {
@@ -293,9 +295,9 @@ d3plus.form = function() {
       if ( vars.data.value.length ) {
 
         var app = vars.format.locale.value.visualization[vars.type.value]
-        if ( vars.dev.value ) d3plus.console.time("drawing "+ app)
+        if ( vars.dev.value ) print.time("drawing "+ app)
         vars.types[vars.type.value]( vars )
-        if ( vars.dev.value ) d3plus.console.timeEnd("drawing "+ app)
+        if ( vars.dev.value ) print.timeEnd("drawing "+ app)
 
       }
       else if ( vars.data.url && (!vars.data.loaded || vars.data.stream) ) {
@@ -310,7 +312,7 @@ d3plus.form = function() {
       methodReset( vars )
       vars.methodGroup = false
 
-      if ( vars.dev.value ) d3plus.console.groupEnd()
+      if ( vars.dev.value ) print.groupEnd()
 
     }
 
@@ -319,14 +321,39 @@ d3plus.form = function() {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define methods and expose public variables.
   //----------------------------------------------------------------------------
-  var methods = [ "active" , "aggs" , "alt" , "color" , "container" , "depth"
-                , "dev" , "data" , "draw" , "focus" , "format" , "height"
-                , "history" , "hover" , "icon" , "id" , "keywords" , "margin"
-                , "open" , "order" , "remove" , "search" , "select"
-                , "selectAll" , "text" , "title" , "type" , "width" ]
-    , styles  = [ "data" , "font" , "icon" , "timing" , "title" , "ui" ]
-
-  d3plus.method( vars , methods , styles )
+  attach(vars, {
+    "active":    require("./methods/active.coffee"),
+    "aggs":      require("./methods/aggs.coffee"),
+    "alt":       require("./methods/alt.coffee"),
+    "color":     require("./methods/color.coffee"),
+    "container": require("./methods/container.coffee"),
+    "data":      require("./methods/data.js"),
+    "depth":     require("./methods/depth.coffee"),
+    "dev":       require("./methods/dev.coffee"),
+    "draw":      require("./methods/draw.js"),
+    "focus":     require("./methods/focus.coffee"),
+    "font":      require("./methods/font.coffee"),
+    "format":    require("./methods/format.coffee"),
+    "height":    require("./methods/height.coffee"),
+    "history":   require("./methods/history.coffee"),
+    "hover":     require("./methods/hover.coffee"),
+    "icon":      require("./methods/icon.coffee"),
+    "id":        require("./methods/id.coffee"),
+    "keywords":  require("./methods/keywords.coffee"),
+    "margin":    require("./methods/margin.coffee"),
+    "open":      require("./methods/open.coffee"),
+    "order":     require("./methods/order.coffee"),
+    "remove":    require("./methods/remove.coffee"),
+    "search":    require("./methods/search.coffee"),
+    "select":    require("./methods/select.coffee"),
+    "selectAll": require("./methods/selectAll.coffee"),
+    "text":      require("./methods/text.coffee"),
+    "timing":    require("./methods/timing.coffee"),
+    "title":     require("./methods/title.coffee"),
+    "type":      require("./methods/type.coffee"),
+    "ui":        require("./methods/ui.coffee"),
+    "width":     require("./methods/width.coffee")
+  })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Finally, return the main UI function to the user

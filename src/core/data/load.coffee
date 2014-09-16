@@ -1,9 +1,10 @@
+print       = require "../console/print.coffee"
 validObject = require "../../object/validate.coffee"
 
 # Load Data using JSON
 module.exports = (vars, key, next) ->
 
-  d3plus.console.time "loading " + key if vars.dev.value
+  print.time "loading " + key if vars.dev.value
 
   url = vars[key].url
 
@@ -56,7 +57,7 @@ module.exports = (vars, key, next) ->
               d[k] = true
             else if d[k].toLowerCase() is "null"
               d[k] = null
-            else d[k] = `undefined` if d[k].toLowerCase() is "undefined"
+            else d[k] = undefined if d[k].toLowerCase() is "undefined"
 
       vars[key].changed = true
       vars[key].loaded = true
@@ -64,5 +65,5 @@ module.exports = (vars, key, next) ->
     else
       vars.internal_error = "Could not load data from: \"" + url + "\""
 
-    d3plus.console.time "loading " + key if vars.dev.value
+    print.time "loading " + key if vars.dev.value
     next()

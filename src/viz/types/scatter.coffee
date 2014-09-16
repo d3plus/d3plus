@@ -1,5 +1,5 @@
 fetchValue = require "../../core/fetch/value.js"
-print      = require "../../general/console.coffee"
+print      = require "../../core/console/print.coffee"
 sort       = require "../../array/sort.coffee"
 
 axes  = require "./helpers/graph/includes/axes.coffee"

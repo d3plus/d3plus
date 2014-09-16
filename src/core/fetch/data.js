@@ -1,5 +1,6 @@
 var dataFilter = require("../data/filter.js"),
     dataNest     = require("../data/nest.js"),
+    print        = require("../console/print.coffee"),
     stringFormat = require("../../string/format.js"),
     stringList   = require("../../string/list.coffee")
 
@@ -72,8 +73,7 @@ module.exports = function(vars, years, depth) {
                   .concat( years )
     , filter  = vars.data.solo.length ? "solo" : "mute"
     , cacheKeys = d3.keys(vars.data.cache)
-    , vizFilter = vars.shell === "viz"
-                 ? vars.types[vars.type.value].filter : null
+    , vizFilter = vars.types[vars.type.value].filter || null
 
   if ( vars.data[filter].length ) {
     vars.data[filter].forEach(function(f){
@@ -102,7 +102,7 @@ module.exports = function(vars, years, depth) {
 
   if ( vars.data.cache[cacheID] ) {
 
-    if ( vars.dev.value ) d3plus.console.comment("data already cached")
+    if ( vars.dev.value ) print.comment("data already cached")
 
     var returnData = vars.data.cache[cacheID]
 
@@ -192,7 +192,7 @@ module.exports = function(vars, years, depth) {
         returnData = vizFilter( vars , returnData )
       }
 
-      if ( vars.dev.value ) d3plus.console.comment("storing data in cache")
+      if ( vars.dev.value ) print.comment("storing data in cache")
 
     }
 

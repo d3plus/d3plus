@@ -1,11 +1,12 @@
 var fetchValue = require("../fetch/value.js"),
+    print       = require("../console/print.coffee"),
     validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Restricts data based on Solo/Mute filters
 //------------------------------------------------------------------------------
 module.exports = function( vars , data ) {
 
-  if ( vars.dev.value ) d3plus.console.time("filtering data")
+  if ( vars.dev.value ) print.time("filtering data")
 
   var availableKeys = d3.keys(vars.data.keys || {})
 
@@ -88,12 +89,12 @@ module.exports = function( vars , data ) {
     if ( v === "id" ) {
 
       if ("nodes" in vars && vars.nodes.value) {
-        if ( vars.dev.value ) d3plus.console.log("Filtering Nodes")
+        if ( vars.dev.value ) print.log("Filtering Nodes")
         vars.nodes.restricted = vars.nodes.value.filter(nest_check)
       }
 
       if ("edges" in vars && vars.edges.value) {
-        if ( vars.dev.value ) d3plus.console.log("Filtering Connections")
+        if ( vars.dev.value ) print.log("Filtering Connections")
         vars.edges.restricted = vars.edges.value.filter(function(d){
           var first_match = nest_check(d[vars.edges.source]),
               second_match = nest_check(d[vars.edges.target])
@@ -105,7 +106,7 @@ module.exports = function( vars , data ) {
 
   })
 
-  if ( vars.dev.value ) d3plus.console.timeEnd("filtering data")
+  if ( vars.dev.value ) print.timeEnd("filtering data")
 
   return data
 

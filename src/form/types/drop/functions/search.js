@@ -1,9 +1,10 @@
+var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the search box, if enabled.
 //------------------------------------------------------------------------------
 module.exports = function ( vars ) {
 
-  if ( vars.dev.value ) d3plus.console.time("creating search")
+  if ( vars.dev.value ) print.time("creating search")
 
   var data = require("./data.js")
     , items = require("./items.js")
@@ -84,6 +85,6 @@ module.exports = function ( vars ) {
     vars.margin.title += vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height
   }
 
-  if ( vars.dev.value ) d3plus.console.timeEnd("creating search")
+  if ( vars.dev.value ) print.timeEnd("creating search")
 
 }

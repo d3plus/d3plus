@@ -1,4 +1,5 @@
-var copy = require("../../../../util/copy.coffee")
+var copy = require("../../../../util/copy.coffee"),
+    print = require("../../../../core/console/print.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the main drop button.
@@ -7,7 +8,7 @@ module.exports = function ( vars ) {
 
   if ( !("button" in vars.container) ) {
 
-    if ( vars.dev.value ) d3plus.console.time("creating main button")
+    if ( vars.dev.value ) print.time("creating main button")
 
     vars.container.button = d3plus.form()
       .container(vars.container.ui)
@@ -16,7 +17,7 @@ module.exports = function ( vars ) {
         "margin": 0
       })
 
-    if ( vars.dev.value ) d3plus.console.timeEnd("creating main button")
+    if ( vars.dev.value ) print.timeEnd("creating main button")
 
   }
 
@@ -28,7 +29,7 @@ module.exports = function ( vars ) {
       var match = false
       for ( var i = 0 ; i < vars.id.nesting.length ; i++ ) {
         var level = vars.id.nesting[i]
-        match = level in d && d[level] === vars.focus.value[0]
+        match = level in d && d[level] === vars.focus.value
         if (match) {
           depth = i
           break
@@ -52,7 +53,7 @@ module.exports = function ( vars ) {
     .draw({
       "update": vars.draw.update
     })
-    .focus(vars.focus.value[0])
+    .focus(vars.focus.value)
     .font( vars.font )
     .icon({
       "button": vars.icon.drop.value,

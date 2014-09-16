@@ -1,11 +1,12 @@
 var buckets = require("../../util/buckets.coffee"),
-    fetchValue = require("../fetch/value.js")
+    fetchValue = require("../fetch/value.js"),
+    print      = require("../console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets color range of data, if applicable
 //-------------------------------------------------------------------
 module.exports = function(vars) {
 
-  if ( vars.dev.value ) d3plus.console.time("getting color data range")
+  if ( vars.dev.value ) print.time("getting color data range")
 
   var data_range = []
   vars.data.pool.forEach(function(d){
@@ -13,13 +14,13 @@ module.exports = function(vars) {
     if (typeof val == "number" && !isNaN(val) && data_range.indexOf(val) < 0) data_range.push(val)
   })
 
-  if ( vars.dev.value ) d3plus.console.timeEnd("getting color data range")
+  if ( vars.dev.value ) print.timeEnd("getting color data range")
 
   if (data_range.length > 1) {
 
     var data_domain = null
 
-    if ( vars.dev.value ) d3plus.console.time("calculating color scale")
+    if ( vars.dev.value ) print.time("calculating color scale")
 
     data_range = d3.extent(data_range)
 
@@ -49,7 +50,7 @@ module.exports = function(vars) {
       .range(color_range)
       .interpolate(d3.interpolateRgb)
 
-    if ( vars.dev.value ) d3plus.console.timeEnd("calculating color scale")
+    if ( vars.dev.value ) print.timeEnd("calculating color scale")
 
   }
   else {

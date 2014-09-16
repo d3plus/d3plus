@@ -122,6 +122,22 @@ d3plus.string =
   title:  require "./string/title.coffee"
 
 ###*
+# Utilities that relate to styles.
+# @class d3plus.style
+# @for d3plus
+# @static
+###
+d3plus.style =
+  sheet: require "./style/sheet.coffee"
+
+###*
+# D3plus SVG Textwrapping
+# @class d3plus.textwrap
+# @for d3plus
+###
+d3plus.textwrap = require "./textwrap/textwrap.coffee"
+
+###*
 # D3plus features Utilities that can be used to help with some common javascript processes.
 # @class d3plus.util
 # @for d3plus
@@ -138,18 +154,19 @@ d3plus.util =
   offset:      require "./util/offset.coffee"
   uniques:     require "./util/uniques.coffee"
 
-# THESE SHOULD PROBABLY ALL BE INTERNAL ONLY
-d3plus.draw          = {}
+###*
+# D3plus Visualizations
+# @class d3plus.viz
+# @for d3plus
+###
+d3plus.viz = require "./viz/viz.coffee"
+
+# THESE SHOULD PROBABLY ALL BE RELOCATED
 d3plus.locale        = {}
-d3plus.method        = {}
-d3plus.shape         = {}
-d3plus.style         = {}
 d3plus.tooltip       = {}
-d3plus.ui            = {}
-d3plus.zoom          = {}
 
 # Flash a console message if they are loading the old, unneeded stylesheet!
 stylesheet = require "./style/sheet.coffee"
-message    = require "./general/console.coffee"
+message    = require "./core/console/print.coffee"
 if stylesheet "d3plus.css"
   message.warning "d3plus.css has been deprecated, you do not need to load this file.", d3plus.repo+"releases/tag/v1.4.0"

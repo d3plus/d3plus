@@ -1,3 +1,4 @@
+var print = require("../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
@@ -19,7 +20,7 @@ module.exports = function( vars ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter Buttons
   //----------------------------------------------------------------------------
-  if ( vars.dev.value ) d3plus.console.time("enter")
+  if ( vars.dev.value ) print.time("enter")
 
   button.enter().append("div")
     .attr("class","d3plus_node")
@@ -28,16 +29,16 @@ module.exports = function( vars ) {
     .call( icons , vars )
     .call( mouseevents , vars , color )
 
-  if ( vars.dev.value ) d3plus.console.timeEnd("enter")
+  if ( vars.dev.value ) print.timeEnd("enter")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Update Buttons
   //----------------------------------------------------------------------------
   if (vars.draw.update || vars.draw.timing) {
 
-    if ( vars.dev.value ) d3plus.console.time("ordering")
+    if ( vars.dev.value ) print.time("ordering")
     button.order()
-    if ( vars.dev.value ) d3plus.console.timeEnd("ordering")
+    if ( vars.dev.value ) print.timeEnd("ordering")
 
     var updatedButtons = button
 
@@ -45,7 +46,7 @@ module.exports = function( vars ) {
   else {
 
     var checks = [ vars.focus.previous
-                 , vars.focus.value[0]
+                 , vars.focus.value
                  , vars.hover.previous
                  , vars.hover.value ].filter(function(c){ return c })
 
@@ -55,7 +56,7 @@ module.exports = function( vars ) {
 
   }
 
-  if ( vars.dev.value ) d3plus.console.time("update")
+  if ( vars.dev.value ) print.time("update")
   if (vars.draw.timing) {
     updatedButtons
       .transition().duration(vars.draw.timing)
@@ -71,7 +72,7 @@ module.exports = function( vars ) {
   updatedButtons
     .call( icons , vars )
     .call( mouseevents , vars , color )
-  if ( vars.dev.value ) d3plus.console.timeEnd("update")
+  if ( vars.dev.value ) print.timeEnd("update")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Exit Buttons
