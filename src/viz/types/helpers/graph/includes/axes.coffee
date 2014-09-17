@@ -21,8 +21,7 @@ module.exports = (vars, opts) ->
       print.time "calculating "+axis+" axis" if vars.dev.value
 
       # reset ticks
-      vars[axis].ticks =
-        values: false
+      vars[axis].ticks.values = false
 
       # calculate range
       range = axisRange vars, axis

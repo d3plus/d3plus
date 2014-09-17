@@ -1,22 +1,13 @@
-family = require "../../core/methods/font/family.coffee"
+rendering = require "../../core/methods/rendering.coffee"
 
 module.exports =
+  background:
+    color:     "#fafafa"
+    rendering: rendering()
+    stroke:
+      color: "#444"
+      width: 1
   mirror:
-    accepted: [Boolean]
+    accepted:   [Boolean]
     deprecates: ["mirror_axis", "mirror_axes"]
-    value: false
-  ticks:
-    color: "#ccc"
-    font:
-      color: "#888"
-      decoration:
-        accepted: ["line-through", "none", "overline", "underline"]
-        value: "none"
-      family: family()
-      size: 10
-      transform:
-        accepted: ["capitalize", "lowercase", "none", "uppercase"]
-        value: "none"
-      weight: 200
-    size: 10
-    width: 1
+    value:      false

@@ -1,16 +1,17 @@
 # Updates an array, either overwriting it with a new array, removing an entry
 module.exports = (arr, x) ->
-  arr = [] unless arr instanceof Array
+
+  # Return an empty array if the user has passed `false`
+  return [] if x is false
 
   # If the user has passed an array, just use that.
-  if x instanceof Array
-    arr = x
+  return x if x instanceof Array
 
-  # Otherwise remove it if it is present.
-  else if arr.indexOf(x) >= 0
-    arr.splice arr.indexOf(x), 1
+  # Create an empty Array if none has been passed
+  arr = [] unless arr instanceof Array
 
-  # Else, add it!
-  else
-    arr.push x
+  # Remove or add the value
+  if arr.indexOf(x) >= 0 then arr.splice arr.indexOf(x), 1 else arr.push x
+
+  # Return the array
   arr

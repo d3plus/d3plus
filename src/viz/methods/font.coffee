@@ -1,6 +1,6 @@
-family     = require "../../core/methods/font/family.coffee"
 align      = require "../../core/methods/font/align.coffee"
 decoration = require "../../core/methods/font/decoration.coffee"
+family     = require "../../core/methods/font/family.coffee"
 transform  = require "../../core/methods/font/transform.coffee"
 
 module.exports =

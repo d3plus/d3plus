@@ -1,4 +1,10 @@
-filter = require "../../../core/methods/filter.coffee"
+align      = require "../../../core/methods/font/align.coffee"
+decoration = require "../../../core/methods/font/decoration.coffee"
+family     = require "../../../core/methods/font/family.coffee"
+filter     = require "../../../core/methods/filter.coffee"
+position   = require "../../../core/methods/font/position.coffee"
+rendering  = require "../../../core/methods/rendering.coffee"
+transform  = require "../../../core/methods/font/transform.coffee"
 
 module.exports = (axis) ->
   accepted:   [Array, Boolean, Function, Object, String]
@@ -7,7 +13,59 @@ module.exports = (axis) ->
   domain:
     accepted: [false, Array]
     value:    false
-  lines: []
+  grid:
+    color: "#ccc"
+    rendering: rendering()
+  label:
+    color: "#444"
+    decoration: decoration()
+    family: family()
+    size: 12
+    transform: transform()
+    weight: 200
+  lines:
+    accept:    [false, Array, Number, Object]
+    dasharray:
+      accepted: [Array, String]
+      process: (value) ->
+        if value instanceof Array
+          value = value.filter (d) -> !isNaN(d)
+          value = if value.length then value.join(", ") else "none"
+        value
+      value: "10, 10"
+    color:     "#888"
+    font:
+      align: align("right")
+      color:      "#444"
+      background:
+        accepted: [Boolean]
+        value:    true
+      decoration: decoration()
+      family:     family()
+      padding:
+        accepted: [Number]
+        value:    10
+      position:   position("middle")
+      size:       12
+      transform:  transform()
+      weight:     200
+    process:   Array
+    rendering: rendering()
+    width:     1
+    value:     []
+  mouse:
+    accept:    [Boolean]
+    dasharray:
+      accepted: [Array, String]
+      process: (value) ->
+        if value instanceof Array
+          value = value.filter (d) -> !isNaN(d)
+          value = if value.length then value.join(", ") else "none"
+        value
+      value: "none"
+    rendering: rendering()
+    width:     2
+    value:     true
   mute:  filter(true)
   range: false
   reset: ["range"]
@@ -31,6 +89,18 @@ module.exports = (axis) ->
       else vars.axes.stacked = axis if value
       value
     value: false
+  ticks:
+    color:     "#444"
+    font:
+      color:      "#444"
+      decoration: decoration()
+      family:     family()
+      size:       10
+      transform:  transform()
+      weight:     200
+    rendering: rendering()
+    size:      10
+    width:     1
   value:    false
   zerofill:
     accepted: [Boolean]

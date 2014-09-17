@@ -3,12 +3,6 @@ fontSizes = require "../../../../../font/sizes.coffee"
 
 module.exports = (vars, opts) ->
 
-  vars.axes.ticks.attrs =
-    "font-size":   vars.axes.ticks.font.size
-    "fill":        vars.axes.ticks.font.color
-    "font-family": vars.axes.ticks.font.family.value
-    "font-weight": vars.axes.ticks.font.weight
-
   # Reset margins
   vars.axes.margin = resetMargins vars
 
@@ -37,21 +31,31 @@ resetMargins = (vars) ->
     # return
     top:    10
     right:  10
-    bottom: 40
+    bottom: 45
     left:   40
 
 labelPadding = (vars) ->
 
   # Calculate Y axis padding
+  yAttrs =
+    "font-size":   vars.y.ticks.font.size
+    "fill":        vars.y.ticks.font.color
+    "font-family": vars.y.ticks.font.family.value
+    "font-weight": vars.y.ticks.font.weight
   yText                  = vars.y.ticks.values.map (d) -> vars.format.value(d,vars.y.value)
-  yAxisWidth             = d3.max fontSizes(yText,vars.axes.ticks.attrs), (d) -> d.width
+  yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
   vars.axes.width        = vars.width.viz - vars.axes.margin.left - vars.axes.margin.right
 
   # Calculate X axis padding
+  xAttrs =
+    "font-size":   vars.x.ticks.font.size
+    "fill":        vars.x.ticks.font.color
+    "font-family": vars.x.ticks.font.family.value
+    "font-weight": vars.x.ticks.font.weight
   xText       = vars.x.ticks.values.map (d) -> vars.format.value(d,vars.x.value)
-  xSizes      = fontSizes(xText,vars.axes.ticks.attrs)
+  xSizes      = fontSizes(xText,xAttrs)
   xAxisWidth  = d3.max xSizes, (d) -> d.width
   xAxisHeight = d3.max xSizes, (d) -> d.height
   xMaxWidth   = d3.min([vars.axes.width/(xText.length+1),vars.axes.margin.left*2]) - vars.labels.padding*2
@@ -60,15 +64,13 @@ labelPadding = (vars) ->
     xAxisWidth             += vars.labels.padding
     vars.x.ticks.rotate     = false
     vars.x.ticks.anchor     = "middle"
-    vars.x.ticks.dy         = "0ex"
-    vars.x.ticks.transform  = "translate(0,10)"
+    vars.x.ticks.transform  = "translate(0,0)"
   else
     xAxisWidth             = xAxisHeight + vars.labels.padding
     xAxisHeight            = d3.max xSizes, (d) -> d.width
     vars.x.ticks.rotate    = true
     vars.x.ticks.anchor    = "start"
-    vars.x.ticks.dy        = "0.5ex"
-    vars.x.ticks.transform = "translate(15,10)rotate(70)"
+    vars.x.ticks.transform = "translate("+xAxisWidth+",15)rotate(90)"
 
   xAxisHeight              = Math.round xAxisHeight
   xAxisWidth               = Math.round xAxisWidth
@@ -82,7 +84,7 @@ labelPadding = (vars) ->
 createAxis = (vars, axis) ->
 
   d3.svg.axis()
-    .tickSize vars.axes.ticks.size
+    .tickSize vars[axis].ticks.size
     .tickPadding 5
     .orient if axis is "x" then "bottom" else "left"
     .scale vars[axis].scale.viz
