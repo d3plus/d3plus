@@ -8,6 +8,13 @@ module.exports =
   scale:
     accepted:   [Function]
     deprecates: "size_scale"
+    max:
+      accepted: [Function, Number]
+      value:    (vars) ->
+        Math.floor d3.max [d3.min([vars.width.viz,vars.height.viz])/15, 6]
+    min:
+      accepted: [Function, Number]
+      value:    3
     value:      d3.scale.sqrt()
   solo:       filter(true)
   threshold:  true

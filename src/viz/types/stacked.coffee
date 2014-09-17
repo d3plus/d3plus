@@ -8,11 +8,8 @@ threshold  = require "../../core/data/threshold.js"
 # Stacked Area Chart
 stacked = (vars) ->
 
-  graph vars
-
-  # Add padding to the top of the Y axis
-  domain = vars.y.scale.viz.domain()
-  vars.y.scale.viz.domain [domain[0]*1.025,domain[1]]
+  graph vars,
+    buffer: vars.axes.opposite
 
   data = nest vars
 

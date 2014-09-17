@@ -5,13 +5,12 @@ fetchValue = require "../../../../../core/fetch/value.js"
 print      = require "../../../../../core/console/print.coffee"
 uniques    = require "../../../../../util/uniques.coffee"
 
-module.exports = (vars, b) ->
+module.exports = (vars, opts) ->
 
-  b                 = {} if b is undefined
   changed           = dataChange vars
   vars.axes.dataset = getData vars if changed
-  vars.axes.scale   = if b.buffer then sizeScale vars, b.buffer else false
-  vars.axes.buffer = if typeof b.buffer is "object" and b.buffer.axis then [b.buffer.axis] else ["x","y"]
+  vars.axes.scale   = if opts.buffer then sizeScale vars, opts.buffer else false
+
   for axis in ["x","y"]
 
     filtered = vars[axis].solo.changed or vars[axis].mute.changed
@@ -45,7 +44,7 @@ module.exports = (vars, b) ->
       vars[axis].scale.viz = getScale vars, axis, range
 
       # Add buffer to scale if it needs it
-      buffer vars, axis if axis isnt vars.axes.continuous and vars.axes.scale and vars.axes.buffer.indexOf(axis) >= 0
+      buffer vars, axis, opts.buffer if opts.buffer and axis isnt vars.axes.continuous
 
       # store axis domain
       vars[axis].domain.viz = range
@@ -132,11 +131,9 @@ getScale = (vars, axis, range) ->
     .domain range
     .rangeRound [0,rangeMax]
 
-sizeScale = (vars, b) ->
+sizeScale = (vars, value) ->
 
-  b = {value: b} if typeof b isnt "object"
-
-  value = if b.value then b.value else vars.size.value
+  value = vars.size.value if value is true
 
   if typeof value is "number"
     vars.size.scale.value.rangeRound [value,value]
@@ -144,8 +141,10 @@ sizeScale = (vars, b) ->
 
     print.time "calculating buffer scale" if vars.dev.value
 
-    min = if b.min then b.min else 2
-    max = if b.max then b.max else Math.floor d3.max [d3.min([vars.width.viz,vars.height.viz])/15, min]
+    min = vars.size.scale.min.value
+    min = min vars if typeof min is "function"
+    max = vars.size.scale.max.value
+    max = max vars if typeof max is "function"
 
     domain = d3.extent vars.axes.dataset, (d) ->
       val = fetchValue vars, d, value

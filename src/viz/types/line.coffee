@@ -8,10 +8,8 @@ stack      = require "./helpers/graph/stack.coffee"
 line = (vars) ->
 
   graph vars,
-    buffer:
-      axis:  "y"
-      value: 10
-    mouse: true
+    buffer: vars.axes.opposite
+    mouse:  true
 
   data = nest vars
 
