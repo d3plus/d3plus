@@ -175,32 +175,32 @@ module.exports = function(vars) {
 
     var textSizes = fontSizes(years.map(timeFormatter),textStyle)
       , yearWidths = textSizes.map(function(t){return t.width})
-      , year_width = d3.max(yearWidths)
-      , year_height = d3.max(textSizes.map(function(t){return t.height}))
+      , yearWidth = Math.ceil(d3.max(yearWidths))
+      , yearHeight = d3.max(textSizes.map(function(t){return t.height}))
 
-    var label_width = year_width+vars.ui.padding*2,
-        timelineHeight = year_height+vars.ui.padding*2
-        timeline_width = label_width*years.length,
-        available_width = vars.width.value-vars.ui.padding*2,
+    var labelWidth = yearWidth+vars.ui.padding*2,
+        timelineHeight = yearHeight+vars.ui.padding*2
+        timelineWidth = labelWidth*years.length,
+        availableWidth = vars.width.value-vars.ui.padding*2,
         tickStep = 1,
         textRotate = 0
 
-    if (timeline_width > available_width) {
-      label_width = year_height+vars.ui.padding*2
-      timelineHeight = year_width+vars.ui.padding*2
-      timeline_width = label_width*years.length
+    if (timelineWidth > availableWidth) {
+      labelWidth = yearHeight+vars.ui.padding*2
+      timelineHeight = yearWidth+vars.ui.padding*2
+      timelineWidth = labelWidth*years.length
       textRotate = 90
     }
 
     timelineHeight = d3.max([timelineHeight,vars.timeline.height.value])
 
-    var old_width = label_width
-    if (timeline_width > available_width) {
-      timeline_width = available_width
-      old_width = label_width-vars.ui.padding*2
-      label_width = timeline_width/years.length
-      if (old_width > label_width) {
-        tickStep = Math.ceil(old_width/(timeline_width/years.length))
+    var oldWidth = labelWidth
+    if (timelineWidth > availableWidth) {
+      timelineWidth = availableWidth
+      oldWidth = labelWidth-vars.ui.padding*2
+      labelWidth = timelineWidth/years.length
+      if (oldWidth > labelWidth) {
+        tickStep = Math.ceil(oldWidth/(timelineWidth/years.length))
         for (tickStep; tickStep < years.length-1; tickStep++) {
           if ((years.length-1)%tickStep == 0) {
             break;
@@ -214,10 +214,10 @@ module.exports = function(vars) {
       var start_x = vars.ui.padding
     }
     else if (vars.timeline.align == "end") {
-      var start_x = vars.width.value - vars.ui.padding - timeline_width
+      var start_x = vars.width.value - vars.ui.padding - timelineWidth
     }
     else {
-      var start_x = vars.width.value/2 - timeline_width/2
+      var start_x = vars.width.value/2 - timelineWidth/2
     }
 
     var brushExtent = [start,end]
@@ -241,18 +241,18 @@ module.exports = function(vars) {
 
     var background = vars.g.timeline.selectAll("rect.d3plus_timeline_background")
       .data(["background"])
-
+    console.log(timelineWidth)
     background.enter().append("rect")
       .attr("class","d3plus_timeline_background")
       .attr("shape-rendering","crispEdges")
-      .attr("width",timeline_width+2)
+      .attr("width",timelineWidth+2)
       .attr("height",timelineHeight+2)
       .attr("fill",vars.ui.color.secondary.value)
       .attr("x",start_x-1)
       .attr("y",vars.ui.padding)
 
     background.transition().duration(vars.draw.timing)
-      .attr("width",timeline_width+2)
+      .attr("width",timelineWidth+2)
       .attr("height",timelineHeight+2)
       .attr("fill",vars.ui.color.secondary.value)
       .attr("x",start_x-1)
@@ -296,16 +296,16 @@ module.exports = function(vars) {
         var prev = (i-1)%tickStep === 0
           , next = (i+1)%tickStep === 0
           , data = vars.data.time.dataSteps.indexOf(i) >= 0
-          , fits = (yearWidths[i-1]/2 + yearWidths[i] + yearWidths[i+1]/2 + vars.ui.padding*4) < label_width*2
+          , fits = (yearWidths[i-1]/2 + yearWidths[i] + yearWidths[i+1]/2 + vars.ui.padding*4) < labelWidth*2
 
-        return i%tickStep === 0 || (!prev && !next && data && old_width < label_width*3) ? timeMultiFormat(d) : ""
+        return i%tickStep === 0 || (!prev && !next && data && oldWidth < labelWidth*3) ? timeMultiFormat(d) : ""
       })
       .attr("opacity",function(d,i){
         return vars.data.time.dataSteps.indexOf(i) >= 0 ? 1 : 0.4
       })
       .attr("fill",textFill)
       .attr("transform",function(d,i){
-        var x = start_x + (label_width*i) + label_width/2
+        var x = start_x + (labelWidth*i) + labelWidth/2
           , y = timelineHeight/2 + vars.ui.padding + 1
 
         // var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/4
@@ -328,7 +328,7 @@ module.exports = function(vars) {
 
     var x = d3.time.scale()
       .domain(d3.extent(year_ticks))
-      .rangeRound([0,timeline_width])
+      .rangeRound([0,timelineWidth])
 
     var brush = d3.svg.brush()
       .x(x)
