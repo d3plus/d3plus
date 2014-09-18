@@ -188,7 +188,7 @@ module.exports = function( vars , group ) {
               .height( t.h * t.scale - t.padding )
               .resize( resize )
               .size( size )
-              .text( vars.format.value(t.text*100,"share")+"%" )
+              .text( vars.format.value(t.text*100,"share")+"%" , vars)
               .width( t.w * t.scale - t.padding )
               .draw()
 

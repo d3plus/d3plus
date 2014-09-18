@@ -59,11 +59,11 @@ module.exports = function(vars,obj,depth) {
         name = name.map(function(n){
           if (n instanceof Array) {
             return n.map(function(nn){
-              return vars.format.value(nn.toString(),t)
+              return vars.format.value(nn.toString(),t, vars)
             })
           }
           else if (n) {
-            return vars.format.value(n.toString(),t)
+            return vars.format.value(n.toString(),t, vars)
           }
         })
         if (name.length === 1) name = name[0]

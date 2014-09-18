@@ -42,7 +42,7 @@ labelPadding = (vars) ->
     "fill":        vars.y.ticks.font.color
     "font-family": vars.y.ticks.font.family.value
     "font-weight": vars.y.ticks.font.weight
-  yText                  = vars.y.ticks.values.map (d) -> vars.format.value(d,vars.y.value)
+  yText                  = vars.y.ticks.values.map (d) -> vars.format.value(d,vars.y.value, vars)
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
@@ -54,7 +54,7 @@ labelPadding = (vars) ->
     "fill":        vars.x.ticks.font.color
     "font-family": vars.x.ticks.font.family.value
     "font-weight": vars.x.ticks.font.weight
-  xText       = vars.x.ticks.values.map (d) -> vars.format.value(d,vars.x.value)
+  xText       = vars.x.ticks.values.map (d) -> vars.format.value(d,vars.x.value, vars)
   xSizes      = fontSizes(xText,xAttrs)
   xAxisWidth  = d3.max xSizes, (d) -> d.width
   xAxisHeight = d3.max xSizes, (d) -> d.height
@@ -101,7 +101,7 @@ createAxis = (vars, axis) ->
         else if d.constructor is Date
           text = vars.data.time.multiFormat(d)
         else
-          text = vars.format.value(d, vars[axis].value)
+          text = vars.format.value(d, vars[axis].value, vars)
       else
         text = null
 

@@ -1,8 +1,9 @@
-var arraySort = require("../array/sort.coffee"),
-    fetchValue  = require("../core/fetch/value.js"),
-    fetchColor  = require("../core/fetch/color.coffee"),
-    fetchText   = require("../core/fetch/text.js"),
-    validObject = require("../object/validate.coffee")
+var arraySort     = require("../array/sort.coffee"),
+    fetchValue    = require("../core/fetch/value.js"),
+    fetchColor    = require("../core/fetch/color.coffee"),
+    fetchText     = require("../core/fetch/text.js"),
+    validObject   = require("../object/validate.coffee"),
+    zoomDirection = require("../viz/helpers/zoom/direction.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -34,7 +35,7 @@ d3plus.tooltip.app = function(params) {
     var fullscreen = false,
         align = params.anchor || vars.tooltip.anchor,
         length = params.length || "short",
-        zoom = vars.zoom.direction(d)
+        zoom = zoomDirection(d, vars)
 
     if (zoom === -1) {
       var key = vars.id.nesting[dataDepth-1],
@@ -57,7 +58,7 @@ d3plus.tooltip.app = function(params) {
       var text = ""
     }
 
-    var footer = text.length ? vars.format.value(text,"footer") : false
+    var footer = text.length ? vars.format.value(text,"footer", vars) : false
 
   }
 
@@ -145,7 +146,7 @@ d3plus.tooltip.app = function(params) {
             , value = fetchValue( vars , id , vars.size.value , nestKey )
             , color = fetchColor( vars , id , nestKey )
 
-          children[name] = value ? vars.format.value( value , vars.size.value ) : ""
+          children[name] = value ? vars.format.value( value , vars.size.value , vars) : ""
 
           if ( color ) {
             if ( !children.d3plus_colors ) children.d3plus_colors = {}
@@ -162,7 +163,7 @@ d3plus.tooltip.app = function(params) {
       else if ( nameList && nameList !== "null" ) {
 
         var name  = fetchText( vars , nameList , depth )[0]
-        children[name] = dataValue ? vars.format.value( dataValue , vars.size.value ) : ""
+        children[name] = dataValue ? vars.format.value( dataValue , vars.size.value , vars) : ""
 
       }
 
@@ -178,16 +179,16 @@ d3plus.tooltip.app = function(params) {
 
     if (typeof active == "number" && active > 0 && total) {
       var label = vars.active.value || "active"
-      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%)"
+      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%, vars)"
     }
 
     if (typeof temp == "number" && temp > 0 && total) {
       var label = vars.temp.value || "temp"
-      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%)"
+      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%, vars)"
     }
 
     if ( vars.tooltip.share.value && d.d3plus.share ) {
-      ex.share = vars.format.value(d.d3plus.share*100,"share")+"%"
+      ex.share = vars.format.value(d.d3plus.share*100,"share", vars)+"%"
     }
 
     var depth = "depth" in params ? params.depth : dataDepth,

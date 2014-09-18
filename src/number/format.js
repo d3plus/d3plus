@@ -3,10 +3,6 @@ var defaultLocale = require("../core/locale/languages/en_US.js")
 // Formats numbers to look "pretty"
 module.exports = function( number , key , vars ) {
 
-  if ( !vars && "getVars" in this) {
-    var vars = this.getVars()
-  }
-
   if ( vars && key && (
        ( key === vars.x.value && vars.x.scale.value === "log" ) ||
        ( key === vars.y.value && vars.y.scale.value === "log" ) ) ) {

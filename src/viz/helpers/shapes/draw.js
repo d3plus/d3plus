@@ -1,15 +1,17 @@
-var child        = require("../../../util/child.coffee"),
-    closest      = require("../../../util/closest.coffee"),
-    events       = require("../../../client/pointer.coffee"),
-    fetchValue   = require("../../../core/fetch/value.js"),
-    fetchColor   = require("../../../core/fetch/color.coffee"),
-    fetchText    = require("../../../core/fetch/text.js"),
-    legible      = require("../../../color/legible.coffee"),
-    print        = require("../../../core/console/print.coffee"),
-    shapeFill    = require("./fill.js"),
-    stringStrip  = require("../../../string/strip.js"),
-    touch        = require("../../../client/touch.coffee"),
-    uniqueValues = require("../../../util/uniques.coffee")
+var child         = require("../../../util/child.coffee"),
+    closest       = require("../../../util/closest.coffee"),
+    events        = require("../../../client/pointer.coffee"),
+    fetchValue    = require("../../../core/fetch/value.js"),
+    fetchColor    = require("../../../core/fetch/color.coffee"),
+    fetchText     = require("../../../core/fetch/text.js"),
+    legible       = require("../../../color/legible.coffee"),
+    print         = require("../../../core/console/print.coffee"),
+    shapeFill     = require("./fill.js"),
+    stringStrip   = require("../../../string/strip.js"),
+    touch         = require("../../../client/touch.coffee"),
+    touchEvent    = require("../zoom/propagation.coffee"),
+    uniqueValues  = require("../../../util/uniques.coffee"),
+    zoomDirection = require("../zoom/direction.coffee")
 
 var drawShape = {
   "area":        require("./area.js"),
@@ -520,10 +522,14 @@ module.exports = function(vars) {
   }
   else {
 
+    var mouseEvent = function() {
+      touchEvent(vars, d3.event)
+    }
+
     vars.g.data.selectAll("g")
-      .on(events.over,vars.zoom.touchEvent)
-      .on(events.move,vars.zoom.touchEvent)
-      .on(events.out,vars.zoom.touchEvent)
+      .on(events.over, mouseEvent)
+      .on(events.move, mouseEvent)
+      .on(events.out , mouseEvent)
 
   }
 
@@ -542,7 +548,7 @@ module.exports = function(vars) {
           vars.mouse[events.click](d.d3plus_data || d, vars)
         }
 
-        var depth_delta = vars.zoom.direction(d.d3plus_data || d)
+        var depth_delta = zoomDirection(d.d3plus_data || d, vars)
           , previous = vars.id.solo.value
           , title = fetchText(vars,d)[0]
           , color = legible(fetchColor(vars,d))

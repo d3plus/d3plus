@@ -91,11 +91,11 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
       if ( value instanceof Array ) {
         value.forEach(function(v){
-          v = vars.format.value(v,key)
+          v = vars.format.value(v,key, vars)
         })
       }
       else {
-        value = vars.format.value(value,key)
+        value = vars.format.value(value,key, vars)
       }
 
       var obj = {"name": name, "value": value, "highlight": h, "group": group}

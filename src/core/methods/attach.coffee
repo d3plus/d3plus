@@ -25,7 +25,6 @@ initialize = (vars, obj, method) ->
   obj.previous    = false
   obj.changed     = false
   obj.initialized = false
-  obj.getVars     = -> vars
 
   if "init" of obj and ("value" not of obj)
     obj.value = obj.init(vars)
@@ -106,7 +105,7 @@ createFunction = (vars, key) ->
 # Detects is we should set the object or check all keys of object.
 checkObject = (vars, method, object, key, value) ->
 
-  if ["accepted", "getVars"].indexOf(key) < 0
+  if key isnt "accepted"
 
     # Determine whether or not to just set the local variable or to dig into
     # the object passed looking for keys.

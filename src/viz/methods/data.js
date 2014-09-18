@@ -18,9 +18,7 @@ module.exports = {
   "mute"     : [],
   "large"   : 400,
   "opacity" : 0.9,
-  "process"  : function( value ) {
-
-    var vars = this.getVars()
+  "process"  : function(value, vars) {
 
     if ( vars.container.id === "default" && value.length ) {
       vars.self.container({"id": "default"+value.length})

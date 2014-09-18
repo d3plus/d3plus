@@ -8,7 +8,7 @@ module.exports = {
     "value"    : "|"
   },
   "element": {
-    "process": function( value ) {
+    "process": function(value, vars) {
 
       if ( d3selection(value) ) {
         var element = value
@@ -21,8 +21,6 @@ module.exports = {
       }
 
       if (element) {
-
-        var vars = this.getVars()
 
         vars.self.container(d3.select(element.node().parentNode))
 
@@ -50,9 +48,7 @@ module.exports = {
   },
   "filters"  : [],
   "mute"     : [],
-  "process"  : function( value ) {
-
-    var vars = this.getVars()
+  "process"  : function(value, vars) {
 
     if ( vars.container.id === "default" && value.length ) {
       vars.self.container({"id": "default"+value.length})

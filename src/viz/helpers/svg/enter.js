@@ -1,7 +1,8 @@
 var events = require("../../../client/pointer.coffee"),
-    prefix = require("../../../client/prefix.coffee"),
-    print  = require("../../../core/console/print.coffee"),
-    touch  = require("../../../client/touch.coffee")
+    prefix     = require("../../../client/prefix.coffee"),
+    print      = require("../../../core/console/print.coffee"),
+    touch      = require("../../../client/touch.coffee"),
+    touchEvent = require("../zoom/propagation.coffee")
 
 // Enter SVG Elements
 module.exports = function(vars) {
@@ -121,10 +122,14 @@ module.exports = function(vars) {
   }
   else {
 
+    var mouseEvent = function() {
+      touchEvent(vars, d3.event)
+    }
+
     vars.g.overlay
-      .on(events.over,vars.zoom.touchEvent)
-      .on(events.move,vars.zoom.touchEvent)
-      .on(events.out,vars.zoom.touchEvent)
+      .on(events.over, mouseEvent)
+      .on(events.move, mouseEvent)
+      .on(events.out , mouseEvent)
 
   }
 

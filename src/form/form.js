@@ -21,8 +21,7 @@ d3plus.form = function() {
       "button": require("./types/button/button.js"),
       "drop": require("./types/drop/drop.js"),
       "toggle": require("./types/toggle.js")
-    },
-    "shell": "form"
+    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

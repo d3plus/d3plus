@@ -177,12 +177,12 @@ module.exports = (vars) ->
     # Draw Axis Text Label
     visible = if vars.small then [] else [0]
     label = vars.group.selectAll("text#d3plus_graph_"+axis+"label").data visible
-    label.text vars.format.value(vars[axis].value)
+    label.text vars.format.value(vars[axis].value, undefined, vars)
       .transition().duration vars.draw.timing
         .call labelStyle, axis
     label.enter().append("text")
       .attr "id", "d3plus_graph_"+axis+"label"
-      .text vars.format.value(vars[axis].value)
+      .text vars.format.value(vars[axis].value, undefined, vars)
       .call labelStyle, axis
     label.exit().remove()
 

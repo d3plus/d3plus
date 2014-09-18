@@ -81,7 +81,7 @@ module.exports = (node, vars) ->
     .text (d) ->
       axis = vars.axes.stacked or d
       val  = fetchValue vars, node, vars[axis].value
-      vars.format.value val, vars[axis].value
+      vars.format.value val, vars[axis].value, vars
     .transition().duration(timing).delay timing
       .attr "opacity", 1
       .call textStyle

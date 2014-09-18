@@ -146,7 +146,7 @@ module.exports = function( vars , rawData , split ) {
         else {
           var textLabel = fetchText(vars,m,vars.depth.value-1)
           textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values)
-          textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
+          textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value, vars)
         }
         textLabel += " ("+vars.format.value(threshold*100)+"%)"
 

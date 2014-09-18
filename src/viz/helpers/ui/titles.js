@@ -68,14 +68,14 @@ module.exports = function(vars) {
         if (overall_total > total) {
 
           var pct = (total/overall_total)*100,
-              ot = vars.format.value(overall_total,vars.size.value)
+              ot = vars.format.value(overall_total,vars.size.value, vars)
 
-          var pct = " ("+vars.format.value(pct,"share")+"% of "+ot+")"
+          var pct = " ("+vars.format.value(pct,"share")+"% of "+ot+", vars)"
 
         }
       }
 
-      total = vars.format.value(total,vars.size.value)
+      total = vars.format.value(total,vars.size.value, vars)
       var obj = vars.title.total.value
         , prefix = obj.prefix || vars.format.value(vars.format.locale.value.ui.total)+": "
       total = prefix + total
