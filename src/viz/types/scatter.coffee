@@ -9,7 +9,7 @@ scatter = (vars) ->
 
   # Calculate X and Y domains, using "size" as a buffer
   graph vars,
-    buffer: vars.size.value
+    buffer: "size"
     mouse:  true
 
   # Assign x, y, and radius to each data point

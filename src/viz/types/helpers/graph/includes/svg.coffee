@@ -6,6 +6,9 @@ module.exports = (vars) ->
     width:  vars.axes.width
     height: vars.axes.height
     fill:   vars.axes.background.color
+    stroke:            vars.axes.background.stroke.color
+    "stroke-width":    vars.axes.background.stroke.width
+    "shape-rendering": vars.axes.background.rendering.value
 
   alignMap =
     left:   "start"
@@ -28,19 +31,33 @@ module.exports = (vars) ->
     logScale = vars[axis].scale.value is "log"
 
     tick
-       .attr "stroke"         , (d) ->
-         log = logScale and d.toString().charAt(0) isnt "1"
-         if !grid then vars[axis].ticks.color else if log then mix(vars[axis].grid.color, vars.axes.background.color, 0.5, 1) else vars[axis].grid.color
-       .attr "stroke-width"   , vars[axis].ticks.width
-       .attr "shape-rendering", vars[axis].ticks.rendering.value
-       .style "opacity", 1
+      .attr "stroke"         , (d) ->
+        log = logScale and d.toString().charAt(0) isnt "1"
+        if d is 0
+          vars[axis].axis.color
+        else if !grid
+          vars[axis].ticks.color
+        else if log
+          mix(vars[axis].grid.color, vars.axes.background.color, 0.5, 1)
+        else
+          vars[axis].grid.color
+      .attr "stroke-width"   , vars[axis].ticks.width
+      .attr "shape-rendering", vars[axis].ticks.rendering.value
 
   tickFont = (tick, axis) ->
     tick
-      .attr "font-size"  , vars[axis].ticks.font.size
-      .attr "fill"       , vars[axis].ticks.font.color
-      .attr "font-family", vars[axis].ticks.font.family.value
-      .attr "font-weight", vars[axis].ticks.font.weight
+      .attr "font-size"  , (d) ->
+        type = if d is 0 then "axis" else "ticks"
+        vars[axis][type].font.size
+      .attr "fill"       , (d) ->
+        type = if d is 0 then "axis" else "ticks"
+        vars[axis][type].font.color
+      .attr "font-family", (d) ->
+        type = if d is 0 then "axis" else "ticks"
+        vars[axis][type].font.family.value
+      .attr "font-weight", (d) ->
+        type = if d is 0 then "axis" else "ticks"
+        vars[axis][type].font.weight
 
   lineStyle = (line, axis) ->
 
@@ -113,7 +130,7 @@ module.exports = (vars) ->
 
     axis
       .attr "transform", "translate(0," + vars.axes.height + ")"
-      .call vars.x.axis.scale(vars.x.scale.viz)
+      .call vars.x.axis.svg.scale(vars.x.scale.viz)
       .selectAll("g.tick").select("text")
         .style "text-anchor", vars.x.ticks.anchor
         .attr "transform", vars.x.ticks.transform
@@ -131,7 +148,7 @@ module.exports = (vars) ->
   # Draw Y Axis Tick Marks
   yStyle = (axis) ->
     axis
-      .call vars.y.axis.scale(vars.y.scale.viz)
+      .call vars.y.axis.svg.scale(vars.y.scale.viz)
       .selectAll("g.tick").select("text")
         .call tickFont, "y"
   yAxis = plane.selectAll("g#d3plus_graph_yticks").data [0]
@@ -162,15 +179,19 @@ module.exports = (vars) ->
     grid = plane.selectAll("g#d3plus_graph_"+axis+"grid").data [0]
     grid.enter().append "g"
       .attr "id", "d3plus_graph_"+axis+"grid"
-    lines = grid.selectAll("line").data vars[axis].ticks.values
+    lines = grid.selectAll("line")
+      .data vars[axis].ticks.values, (d) -> d
+    lines.transition().duration vars.draw.timing
+      .call tickPosition, axis
+      .call tickStyle, axis, true
     lines.enter().append "line"
       .style "opacity", 0
       .call tickPosition, axis
       .call tickStyle, axis, true
-    lines.transition().duration vars.draw.timing
-      .call tickPosition, axis
-      .call tickStyle, axis, true
-    lines.exit().transition().duration vars.draw.timing
+      .transition().duration vars.draw.timing
+        .delay vars.draw.timing/2
+        .style "opacity", 1
+    lines.exit().transition().duration vars.draw.timing/2
       .style "opacity", 0
       .remove()
 
@@ -301,23 +322,5 @@ module.exports = (vars) ->
 
       lineRects.exit().transition().duration vars.draw.timing
         .attr("opacity", 0).remove()
-
-  # Draw Front Border
-  borderStyle =
-    fill:              "none"
-    stroke:            vars.axes.background.stroke.color
-    "stroke-width":    vars.axes.background.stroke.width
-    "shape-rendering": vars.axes.background.rendering.value
-    width:             vars.axes.width
-    height:            vars.axes.height
-
-  bg = plane.selectAll("rect#d3plus_graph_border").data [0]
-  bg.transition().duration vars.draw.timing
-    .attr borderStyle
-  bg.enter().append "rect"
-    .attr "id", "d3plus_graph_border"
-    .attr "x", 0
-    .attr "y", 0
-    .attr borderStyle
 
   return

@@ -3,19 +3,20 @@ module.exports = (vars, axis, buffer) ->
   if (buffer is "x" and axis is "x") or (buffer is "y" and axis is "y")
 
     domain = vars[axis].scale.viz.domain()
+    domain = domain.slice().reverse() if axis is "y"
 
-    allPositive = domain[0] > 0 and domain[1] > 0
-    allNegative = domain[0] < 0 and domain[0] < 0
+    allPositive = domain[0] >= 0 and domain[1] >= 0
+    allNegative = domain[0] <= 0 and domain[1] <= 0
 
-    if axis is "y"
-      domain[0] = domain[0] * 1.05
-      domain[1] = domain[1] * 0.95
-    else
-      domain[0] = domain[0] * 0.95
-      domain[1] = domain[1] * 1.05
+    additional = Math.abs(domain[1] - domain[0]) * 0.05
+
+    domain[0] = domain[0] - additional
+    domain[1] = domain[1] + additional
 
     domain[0] = 0 if (allPositive and domain[0] < 0) or (allNegative and domain[0] > 0)
     domain[1] = 0 if (allPositive and domain[1] < 0) or (allNegative and domain[1] > 0)
+
+    domain = domain.reverse() if axis is "y"
 
     vars[axis].scale.viz.domain(domain)
 

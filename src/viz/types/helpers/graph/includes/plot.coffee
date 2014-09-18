@@ -16,7 +16,7 @@ module.exports = (vars, opts) ->
 
   # Create SVG Axes
   for axis in ["x","y"]
-    vars[axis].axis = createAxis(vars, axis)
+    vars[axis].axis.svg = createAxis(vars, axis)
 
   return
 

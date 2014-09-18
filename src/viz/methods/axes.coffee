@@ -5,7 +5,7 @@ module.exports =
     color:     "#fafafa"
     rendering: rendering()
     stroke:
-      color: "#444"
+      color: "#ccc"
       width: 1
   mirror:
     accepted:   [Boolean]

@@ -8,21 +8,31 @@ transform  = require "../../../core/methods/font/transform.coffee"
 
 module.exports = (axis) ->
   accepted:   [Array, Boolean, Function, Object, String]
+  axis:
+    color:     "#444"
+    font:
+      color:      "#444"
+      decoration: decoration()
+      family:     family()
+      size:       10
+      transform:  transform()
+      weight:     200
+    rendering: rendering()
   dataFilter: true
   deprecates: [axis + "axis", axis + "axis_val", axis + "axis_var"]
   domain:
     accepted: [false, Array]
     value:    false
   grid:
-    color: "#ccc"
+    color:     "#ccc"
     rendering: rendering()
   label:
-    color: "#444"
+    color:      "#444"
     decoration: decoration()
-    family: family()
-    size: 12
-    transform: transform()
-    weight: 200
+    family:     family()
+    size:       12
+    transform:  transform()
+    weight:     200
   lines:
     accept:    [false, Array, Number, Object]
     dasharray:
@@ -90,9 +100,9 @@ module.exports = (axis) ->
       value
     value: false
   ticks:
-    color:     "#444"
+    color:     "#ccc"
     font:
-      color:      "#444"
+      color:      "#666"
       decoration: decoration()
       family:     family()
       size:       10

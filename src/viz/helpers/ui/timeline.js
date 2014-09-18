@@ -241,7 +241,7 @@ module.exports = function(vars) {
 
     var background = vars.g.timeline.selectAll("rect.d3plus_timeline_background")
       .data(["background"])
-    console.log(timelineWidth)
+
     background.enter().append("rect")
       .attr("class","d3plus_timeline_background")
       .attr("shape-rendering","crispEdges")

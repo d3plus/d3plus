@@ -132,18 +132,21 @@ getScale = (vars, axis, range) ->
 
 sizeScale = (vars, value) ->
 
-  value = vars.size.value if value is true
+  value = "size" if value is true
+  value = vars[value].value if value of vars
 
-  if typeof value is "number"
+  min = vars.size.scale.min.value
+  min = min vars if typeof min is "function"
+  max = vars.size.scale.max.value
+  max = max vars if typeof max is "function"
+
+  if value is false
+    vars.size.scale.value.rangeRound [max,max]
+  else if typeof value is "number"
     vars.size.scale.value.rangeRound [value,value]
   else if value
 
     print.time "calculating buffer scale" if vars.dev.value
-
-    min = vars.size.scale.min.value
-    min = min vars if typeof min is "function"
-    max = vars.size.scale.max.value
-    max = max vars if typeof max is "function"
 
     domain = d3.extent vars.axes.dataset, (d) ->
       val = fetchValue vars, d, value
