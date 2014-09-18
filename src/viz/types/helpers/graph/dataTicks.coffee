@@ -8,13 +8,13 @@ module.exports = (vars) ->
   style = (line, axis) ->
     line
       .attr "x1", (d) ->
-        if axis is "y" then 0 else d.d3plus.x - vars.axes.margin.left
+        if axis is "y" then -2 else d.d3plus.x - vars.axes.margin.left
       .attr "x2", (d) ->
-        if axis is "y" then -5 else d.d3plus.x - vars.axes.margin.left
+        if axis is "y" then -8 else d.d3plus.x - vars.axes.margin.left
       .attr "y1", (d) ->
-        if axis is "x" then vars.axes.height else d.d3plus.y - vars.axes.margin.top
+        if axis is "x" then vars.axes.height + 2 else d.d3plus.y - vars.axes.margin.top
       .attr "y2", (d) ->
-        if axis is "x" then vars.axes.height + 5 else d.d3plus.y - vars.axes.margin.top
+        if axis is "x" then vars.axes.height + 8 else d.d3plus.y - vars.axes.margin.top
       .style "stroke", (d) -> legible color vars, d
       .style "stroke-width", vars.data.stroke.width
       .attr "shape-rendering", vars.shape.rendering.value
