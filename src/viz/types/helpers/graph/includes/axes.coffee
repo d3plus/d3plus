@@ -24,7 +24,8 @@ module.exports = (vars, opts) ->
       vars[axis].ticks.values = false
 
       # calculate range
-      range = axisRange vars, axis
+      zero  = if [true,axis].indexOf(opts.zero) > 0 then true else false
+      range = axisRange vars, axis, zero
 
       # add padding to axis if there is only 1 value
       range = soloPadding vars, axis, range if range[0] is range[1]
@@ -77,7 +78,7 @@ getData = (vars) ->
     depths  = d3.range(0,vars.id.nesting.length)
     d3.merge [fetchData(vars,"all",d) for d in depths]
 
-axisRange = (vars, axis) ->
+axisRange = (vars, axis, zero) ->
 
   if vars[axis].scale.value is "share"
     vars[axis].ticks.values = d3.range 0, 1.1, 1.1
@@ -86,11 +87,21 @@ axisRange = (vars, axis) ->
     oppAxis = if axis is "x" then "y" else "x"
     axisSums = d3.nest()
       .key (d) -> fetchValue vars, d, vars[oppAxis].value
-      .rollup (leaves) -> d3.sum leaves, (d) -> fetchValue vars, d, vars[axis].value
+      .rollup (leaves) ->
+        positives = d3.sum leaves, (d) ->
+          val = fetchValue vars, d, vars[axis].value
+          if val > 0 then val else 0
+        negatives = d3.sum leaves, (d) ->
+          val = fetchValue vars, d, vars[axis].value
+          if val < 0 then val else 0
+        [negatives,positives]
       .entries vars.axes.dataset
-    [0, d3.max(axisSums, (d) -> d.values )]
+    values = d3.merge axisSums.map (d) -> d.values
+    d3.extent values
   else
-    d3.extent vars.axes.dataset, (d) -> fetchValue vars, d, vars[axis].value
+    values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value
+    values.push 0 if zero
+    d3.extent values
 
 timeTicks = (vars, range) ->
   ticks = vars.data.time.ticks.filter (t) ->

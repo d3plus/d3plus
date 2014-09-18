@@ -1,6 +1,21 @@
 module.exports = (vars, axis, buffer) ->
 
-  if (buffer is "x" and axis is "x") or (buffer is "y" and axis is "y")
+  if axis is vars.axes.continuous
+
+    domain     = vars[axis].scale.viz.domain()
+    domain     = domain.slice().reverse() if axis is "y"
+    difference = Math.abs domain[1] - domain[0]
+    additional = difference / (vars[axis].ticks.values.length - 1)
+    additional = additional / 2
+
+    domain[0] = domain[0] - additional
+    domain[1] = domain[1] + additional
+
+    domain = domain.reverse() if axis is "y"
+
+    vars[axis].scale.viz.domain(domain)
+
+  else if (buffer is "x" and axis is "x") or (buffer is "y" and axis is "y")
 
     domain = vars[axis].scale.viz.domain()
     domain = domain.slice().reverse() if axis is "y"

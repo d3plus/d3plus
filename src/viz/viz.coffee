@@ -10,6 +10,7 @@ module.exports = ->
   vars =
     g: {apps: {}}
     types:
+      bar:      require "./types/bar.coffee"
       bubbles:  require "./types/bubbles.js"
       chart:    require "./types/deprecated/chart.coffee"
       geo_map:  require "./types/geo_map.js"
