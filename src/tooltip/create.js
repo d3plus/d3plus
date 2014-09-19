@@ -362,6 +362,12 @@ d3plus.tooltip.create = function(params) {
             d3.event.stopPropagation()
           })
 
+      if (d.link) {
+        name
+          .style("cursor","pointer")
+          .on(events.click,d.link)
+      }
+
       if ( d.value instanceof Array ) {
 
         var and = params.locale.ui.and
@@ -377,7 +383,7 @@ d3plus.tooltip.create = function(params) {
           .style("position","absolute")
           .style("text-align","right")
           .style("top","3px")
-          .text(d.value)
+          .html(d.value)
           .on(events.out,function(){
             d3.event.stopPropagation()
           })

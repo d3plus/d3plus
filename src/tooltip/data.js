@@ -248,7 +248,13 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
     var connections = vars.edges.connections( id[vars.id.value] , vars.id.value , true )
 
     if ( connections.length ) {
-      connections.forEach(function(c){
+      connections.forEach(function(conn){
+
+        var c = vars.data.viz.filter(function(d){
+          return d[vars.id.value] === conn[vars.id.value]
+        })
+
+        var c = c.length ? c[0] : conn
 
         var name = fetchText(vars,c)[0],
             color = fetchColor(vars,c),
@@ -269,11 +275,15 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
             ]
             node = "<div style='"+styles.join("; ")+";'></div>"
 
+        var nodeClick = function() {
+          vars.self.focus([c[vars.id.value]]).draw()
+        }
+
         tooltip_data.push({
           "group": vars.format.value(vars.format.locale.value.ui.primary),
           "highlight": false,
-          "name": "<div style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>",
-          "value": ""
+          "link": nodeClick,
+          "name": "<div id='d3plustooltipfocuslink_"+c[vars.id.value]+"' class='d3plus_tooltip_focus_link' style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>"
         })
 
       })
