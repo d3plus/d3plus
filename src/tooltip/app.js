@@ -268,7 +268,7 @@ d3plus.tooltip.app = function(params) {
 
   }
 
-  if (fullscreen) {
+  if (fullscreen || params.length === "long") {
 
     if (typeof vars.tooltip.html.value == "string") {
       make_tooltip(vars.tooltip.html.value)
