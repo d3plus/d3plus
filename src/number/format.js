@@ -3,7 +3,7 @@ var defaultLocale = require("../core/locale/languages/en_US.js")
 // Formats numbers to look "pretty"
 module.exports = function( number , key , vars ) {
 
-  if ( vars && key && (
+  if ( vars && key && vars.x && vars.y && (
        ( key === vars.x.value && vars.x.scale.value === "log" ) ||
        ( key === vars.y.value && vars.y.scale.value === "log" ) ) ) {
 
@@ -25,7 +25,7 @@ module.exports = function( number , key , vars ) {
     var time = defaultLocale.time
   }
 
-  if ( vars && typeof vars.time.value === "string") {
+  if ( vars && vars.time && typeof vars.time.value === "string") {
     time.push(vars.time.value)
   }
 
