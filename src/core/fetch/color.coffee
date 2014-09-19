@@ -32,7 +32,7 @@ module.exports = (vars, id, level) ->
     while i >= 0
       colorLevel = vars.id.nesting[i]
       if validObject(id)
-        o = (if (colorLevel of id) then fetchValue(vars, id, colorLevel) else id)
+        o = (unless (colorLevel of id) then fetchValue(vars, id, colorLevel) else id)
         value = fetchValue(vars, o, vars.color.value, colorLevel)
       else
         value = id
