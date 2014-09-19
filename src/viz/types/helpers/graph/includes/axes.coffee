@@ -28,7 +28,7 @@ module.exports = (vars, opts) ->
       range = axisRange vars, axis, zero
 
       # add padding to axis if there is only 1 value
-      range = soloPadding vars, axis, range if range[0] is range[1]
+      range = soloPadding vars, axis, range if range[0] is range[1] and !vars[axis].range.value
 
       # calculate ticks if the axis is the time variable
       if vars[axis].value is vars.time.value
@@ -44,7 +44,7 @@ module.exports = (vars, opts) ->
       vars[axis].scale.viz = getScale vars, axis, range
 
       # Add buffer to scale if it needs it
-      buffer vars, axis, opts.buffer if opts.buffer and axis isnt vars.axes.continuous
+      buffer vars, axis, opts.buffer if opts.buffer and axis isnt vars.axes.continuous and !vars[axis].range.value
 
       # store axis domain
       vars[axis].domain.viz = range
@@ -79,8 +79,9 @@ getData = (vars) ->
     d3.merge [fetchData(vars,"all",d) for d in depths]
 
 axisRange = (vars, axis, zero) ->
-
-  if vars[axis].scale.value is "share"
+  if vars[axis].range.value and vars[axis].range.value.length is 2
+    vars[axis].range.value.slice()
+  else if vars[axis].scale.value is "share"
     vars[axis].ticks.values = d3.range 0, 1.1, 1.1
     [0,1]
   else if vars[axis].stacked.value

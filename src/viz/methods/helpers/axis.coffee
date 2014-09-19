@@ -77,8 +77,9 @@ module.exports = (axis) ->
     width:     2
     value:     true
   mute:  filter(true)
-  range: false
-  reset: ["range"]
+  range:
+    accepted: [false, Array]
+    value:    false
   scale:
     accepted:   ["linear", "log", "continuous", "share"]
     deprecates: ["layout", "unique_axis", axis + "axis_scale"]

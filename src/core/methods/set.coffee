@@ -135,13 +135,6 @@ module.exports = (vars, method, object, key, value) ->
       # Add method to data filter array if applicable.
       vars.data.filters.push method if key is "value" and object.dataFilter and vars.data and vars.data.filters.indexOf(method) < 0
 
-      # Reset associated variables given if "value" is changed.
-      if key is "value" and object.reset
-        reset = (if typeof object.reset is "string" then [object.reset] else object.reset)
-        reset.forEach (r) ->
-          object[r] = false
-          return
-
       # Display console message, if applicable.
       if (vars.dev.value or key is "dev") and object.changed and object[key] isnt undefined
         longArray    = object[key] instanceof Array and object[key].length > 10

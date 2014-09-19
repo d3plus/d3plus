@@ -9,7 +9,7 @@ module.exports = (vars, opts) ->
   # Set ticks, if not previously set
   for axis in ["x","y"]
     vars[axis].ticks.values = vars[axis].scale.viz.ticks() if vars[axis].ticks.values is false
-    buffer vars, axis, opts.buffer if opts.buffer and axis is vars.axes.continuous
+    buffer vars, axis, opts.buffer if opts.buffer and axis is vars.axes.continuous and !vars[axis].range.value
 
   # Calculate padding for tick labels
   labelPadding vars
