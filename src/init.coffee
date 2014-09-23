@@ -158,7 +158,7 @@ d3plus.util =
   copy:        require "./util/copy.coffee"
   d3selection: require "./util/d3selection.coffee"
   dataurl:     require "./util/dataURL.coffee"
-  distances:   require "./util/distances.coffee"
+  distances:   require "./network/distances.coffee"
   uniques:     require "./util/uniques.coffee"
 
 ###*

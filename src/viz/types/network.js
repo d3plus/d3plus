@@ -1,4 +1,4 @@
-var distances = require("../../util/distances.coffee"),
+var distances = require("../../network/distances.coffee"),
     fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
