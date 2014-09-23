@@ -82,10 +82,7 @@ module.exports = function(vars) {
     vars.g.overlay
       .on(events.move,function(d){
 
-        if (d.dragging) {
-
-        }
-        else if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
+        if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
           d3.select(this).style("cursor",prefix()+"grab")
         }
@@ -98,7 +95,6 @@ module.exports = function(vars) {
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d.dragging = false
           d3.select(this).style("cursor",prefix()+"grab")
         }
         else {
@@ -110,7 +106,6 @@ module.exports = function(vars) {
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d.dragging = true
           d3.select(this).style("cursor",prefix()+"grabbing")
         }
         else {

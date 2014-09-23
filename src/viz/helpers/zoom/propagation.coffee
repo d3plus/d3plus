@@ -5,7 +5,7 @@ module.exports = (vars, event) ->
 
   zoomed   = zoom.scale > zoom.behavior.scaleExtent()[0]
   enabled  = vars.types[vars.type.value].zoom and zoom.value and zoom.scroll.value
-  zoomable = event.touches.length > 1 and enabled
+  zoomable = event.touches and event.touches.length > 1 and enabled
 
   event.stopPropagation() if not zoomable and not zoomed
   return

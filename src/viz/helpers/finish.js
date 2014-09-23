@@ -7,7 +7,7 @@ var edges = require("./shapes/edges.js"),
 
 var bounds = require("./zoom/bounds.js")
 var labels = require("./zoom/labels.js")
-var mouse  = require("./zoom/mouse.js")
+var mouse  = require("./zoom/mouse.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
@@ -160,19 +160,30 @@ module.exports = function(vars) {
         .datum(vars)
         .call(vars.zoom.behavior.on("zoom",mouse))
       if (!vars.zoom.scroll.value) {
-        vars.g.zoom.on("wheel.zoom",null)
+        vars.g.zoom
+          .on("mousewheel.zoom",null)
+          .on("MozMousePixelScroll.zoom",null)
+          .on("wheel.zoom",null)
       }
       if (!vars.zoom.click.value) {
         vars.g.zoom.on("dblclick.zoom",null)
       }
       if (!vars.zoom.pan.value) {
-        vars.g.zoom.on("mousemove.zoom",null)
-        vars.g.zoom.on("mousedown.zoom",null)
+        vars.g.zoom
+          .on("mousedown.zoom",null)
+          .on("mousemove.zoom",null)
       }
     }
     else {
       vars.g.zoom
         .call(vars.zoom.behavior.on("zoom",null))
+        .on("dblclick.zoom",null)
+        .on("mousedown.zoom",null)
+        .on("mousemove.zoom",null)
+        .on("mousewheel.zoom",null)
+        .on("MozMousePixelScroll.zoom",null)
+        .on("touchstart.zoom",null)
+        .on("wheel.zoom",null)
     }
 
   },vars.draw.timing)
