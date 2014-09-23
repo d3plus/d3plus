@@ -1,5 +1,5 @@
 var buckets = require("../../../util/buckets.coffee"),
-    offset  = require("../../../util/offset.coffee")
+    offset  = require("../../../geom/offset.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect

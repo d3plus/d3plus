@@ -92,6 +92,7 @@ d3plus.font =
 ###
 d3plus.geom =
   largestRect: require "./geom/largestRect.coffee"
+  offset:      require "./geom/offset.coffee"
   path2poly:   require "./geom/path2poly.coffee"
 
 ###*
@@ -158,7 +159,6 @@ d3plus.util =
   d3selection: require "./util/d3selection.coffee"
   dataurl:     require "./util/dataURL.coffee"
   distances:   require "./util/distances.coffee"
-  offset:      require "./util/offset.coffee"
   uniques:     require "./util/uniques.coffee"
 
 ###*
