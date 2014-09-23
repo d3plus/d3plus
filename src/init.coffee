@@ -92,6 +92,7 @@ d3plus.font =
 ###
 d3plus.geom =
   largestRect: require "./geom/largestRect.coffee"
+  path2poly:   require "./geom/path2poly.coffee"
 
 ###*
 # Utilities related to network graphs.
