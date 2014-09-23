@@ -43,7 +43,7 @@ stacked.requirements = ["data", "x", "y"]
 stacked.setup = (vars) ->
 
   vars.self.x
-    scale: "continuous"
+    scale: "discrete"
     zerofill: true
   vars.self.y
     stacked: true

@@ -34,15 +34,15 @@ module.exports = function(vars,selection,enter,exit) {
         nodes = [],
         temp = copy(d),
         group = d3.select(this),
-        continuous = vars[vars.axes.continuous]
+        discrete = vars[vars.axes.discrete]
 
     temp.values = []
     d.values.forEach(function(v,i,arr){
 
       nodes.push(v)
 
-      var k = v[continuous.value],
-          index = continuous.ticks.values.indexOf(k)
+      var k = v[discrete.value],
+          index = discrete.ticks.values.indexOf(k)
 
       if (step === false) {
         step = index

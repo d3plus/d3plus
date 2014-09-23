@@ -5,9 +5,9 @@ uniqueValues = require "../../../../util/uniques.coffee"
 module.exports = (vars, data) ->
 
   data       = vars.data.viz unless data
-  continuous = vars[vars.axes.continuous]
+  discrete = vars[vars.axes.discrete]
   opposite   = vars[vars.axes.opposite]
-  ticks      = continuous.ticks.values
+  ticks      = discrete.ticks.values
   offsets    =
     x: vars.axes.margin.left
     y: vars.axes.margin.top
@@ -19,7 +19,7 @@ module.exports = (vars, data) ->
       "line_"+stringStrip(id)+"_"+depth
     .rollup (leaves) ->
 
-      availables = uniqueValues leaves, continuous.value
+      availables = uniqueValues leaves, discrete.value
       timeVar    = availables[0].constructor is Date
       availables = availables.map((t) -> t.getTime()) if timeVar
 
@@ -27,17 +27,17 @@ module.exports = (vars, data) ->
 
         tester = if timeVar then tick.getTime() else tick
 
-        if availables.indexOf(tester) < 0 and continuous.zerofill.value
+        if availables.indexOf(tester) < 0 and discrete.zerofill.value
 
           obj                   = {d3plus: {}}
           obj[vars.id.value]    = leaves[0][vars.id.value]
-          obj[continuous.value] = tick
+          obj[discrete.value] = tick
           obj[opposite.value]   = opposite.scale.viz.domain()[1]
 
           leaves.push obj
 
       return leaves.sort (a, b) ->
-        xsort = a[continuous.value] - b[continuous.value]
+        xsort = a[discrete.value] - b[discrete.value]
         ysort = a[opposite.value] - b[opposite.value]
         if xsort then xsort else ysort
 

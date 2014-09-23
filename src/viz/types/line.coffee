@@ -31,7 +31,7 @@ line = (vars) ->
 # Visualization Settings and Helper Functions
 line.requirements = ["data", "x", "y"]
 line.setup        = (vars) ->
-  vars.self.x scale: "continuous"
+  vars.self.x scale: "discrete"
   y    = vars.y
   size = vars.size
   if (not y.value and size.value) or (size.changed and size.previous is y.value)

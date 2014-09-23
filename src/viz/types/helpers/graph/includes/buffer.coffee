@@ -1,6 +1,6 @@
 module.exports = (vars, axis, buffer) ->
 
-  if axis is vars.axes.continuous
+  if axis is vars.axes.discrete
 
     domain     = vars[axis].scale.viz.domain()
     domain     = domain.slice().reverse() if axis is "y"

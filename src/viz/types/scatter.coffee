@@ -38,8 +38,8 @@ scatter.fill = true
 scatter.requirements = ["data", "x", "y"]
 scatter.scale = 1.1
 scatter.setup = (vars) ->
-  vars.self.x scale: "continuous" if vars.x.value is vars.time.value
-  vars.self.y scale: "continuous" if vars.y.value is vars.time.value
+  vars.self.x scale: "discrete" if vars.x.value is vars.time.value
+  vars.self.y scale: "discrete" if vars.y.value is vars.time.value
 scatter.shapes = ["circle", "square", "donut"]
 scatter.tooltip = "static"
 

@@ -22,7 +22,7 @@ module.exports = function(vars) {
     var timeFormat = vars.time.format.value || vars.data.time.format
       , timeMultiFormat = vars.time.format.value || vars.data.time.multiFormat
 
-    if ((vars.time.value == vars.x.value && vars.x.scale.value == "continuous") || (vars.time.value == vars.y.value && vars.y.scale.value == "continuous")) {
+    if ((vars.time.value == vars.x.value && vars.x.scale.value == "discrete") || (vars.time.value == vars.y.value && vars.y.scale.value == "discrete")) {
       var min_required = 2
     }
     else {

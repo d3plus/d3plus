@@ -15,7 +15,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If the visualization has method requirements, check to see if we need
-      // to key the data by a continuous scale variable.
+      // to key the data by a discrete scale variable.
       //------------------------------------------------------------------------
       if ( requirements && requirements.length ) {
 
@@ -24,7 +24,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
           var axisKey = vars[axis].value
 
           if ( requirements.indexOf(axis) >= 0 && axisKey
-               && vars[axis].scale.value === "continuous") {
+               && vars[axis].scale.value === "discrete") {
 
             exceptions.push(axisKey)
 

@@ -81,14 +81,14 @@ module.exports = (axis) ->
     accepted: [false, Array]
     value:    false
   scale:
-    accepted:   ["linear", "log", "continuous", "share"]
+    accepted:   ["linear", "log", "discrete", "share"]
     deprecates: ["layout", "unique_axis", axis + "axis_scale"]
     process:    (value, vars) ->
-      for scale in ["log", "continuous", "share"]
+      for scale in ["log", "discrete", "share"]
         if scale is value
           vars.axes[scale] = axis
         else vars.axes[scale] = false if vars.axes[scale] is axis
-      vars.axes.opposite = (if axis is "x" then "y" else "x") if value is "continuous"
+      vars.axes.opposite = (if axis is "x" then "y" else "x") if value is "discrete"
       value
     value: "linear"
   solo:    filter(true)

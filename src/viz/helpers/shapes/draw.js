@@ -78,7 +78,7 @@ module.exports = function(vars) {
     d.d3plus.id += shape;
 
     ["x","y"].forEach(function(axis){
-      if (vars[axis].scale.value == "continuous") {
+      if (vars[axis].scale.value == "discrete") {
         d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
       }
     })
@@ -413,11 +413,11 @@ module.exports = function(vars) {
 
           if (vars.focus.value.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
 
-            if (d.values && vars.axes.continuous) {
+            if (d.values && vars.axes.discrete) {
 
-              var index = vars.axes.continuous === "x" ? 0 : 1
+              var index = vars.axes.discrete === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.continuous]})
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
                 , match = closest(positions,mouse)
 
               d.d3plus_data = d.values[positions.indexOf(match)]
@@ -453,11 +453,11 @@ module.exports = function(vars) {
 
           if (d.values || (vars.types[vars.type.value].tooltip == "follow" && vars.focus.value[0] != d[vars.id.value])) {
 
-            if (d.values && vars.axes.continuous) {
+            if (d.values && vars.axes.discrete) {
 
-              var index = vars.axes.continuous === "x" ? 0 : 1
+              var index = vars.axes.discrete === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.continuous]})
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
                 , match = closest(positions,mouse)
 
               d.d3plus_data = d.values[positions.indexOf(match)]

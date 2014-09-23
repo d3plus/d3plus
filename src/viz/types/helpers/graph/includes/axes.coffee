@@ -34,7 +34,7 @@ module.exports = (vars, opts) ->
       # calculate ticks if the axis is the time variable
       if vars[axis].value is vars.time.value
         vars[axis].ticks.values = timeTicks vars, range
-      else if axis is vars.axes.continuous
+      else if axis is vars.axes.discrete
         vars[axis].ticks.values = uniques vars.axes.dataset, (d) ->
           fetchValue vars, d, vars[axis].value
 
@@ -45,7 +45,7 @@ module.exports = (vars, opts) ->
       vars[axis].scale.viz = getScale vars, axis, range
 
       # Add buffer to scale if it needs it
-      buffer vars, axis, opts.buffer if opts.buffer and axis isnt vars.axes.continuous and !vars[axis].range.value
+      buffer vars, axis, opts.buffer if opts.buffer and axis isnt vars.axes.discrete and !vars[axis].range.value
 
       # store axis domain
       vars[axis].domain.viz = range
@@ -138,7 +138,7 @@ soloPadding = (vars, axis, range) ->
 getScale = (vars, axis, range) ->
   rangeMax  = if axis is "x" then vars.width.viz else vars.height.viz
   scaleType = vars[axis].scale.value
-  scaleType = "linear" if ["continuous","share"].indexOf(scaleType) >= 0
+  scaleType = "linear" if ["discrete","share"].indexOf(scaleType) >= 0
   d3.scale[scaleType]()
     .domain range
     .rangeRound [0,rangeMax]

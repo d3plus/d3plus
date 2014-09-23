@@ -16,11 +16,11 @@ bar = (vars) ->
 
   stack vars, nested if vars.axes.stacked
 
-  continuous = vars.axes.continuous
-  h = if continuous is "x" then "height" else "width"
-  w = if continuous is "x" then "width" else "height"
+  discrete = vars.axes.discrete
+  h = if discrete is "x" then "height" else "width"
+  w = if discrete is "x" then "width" else "height"
 
-  space    = vars.axes[w] / vars[vars.axes.continuous].ticks.values.length
+  space    = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
   space   -= vars.labels.padding * 2
 
   if vars.axes.stacked
@@ -35,15 +35,15 @@ bar = (vars) ->
       .range [-offset, offset]
 
   opposite   = vars.axes.opposite
-  cMargin    = if continuous is "x" then "left" else "top"
-  oMargin    = if continuous is "x" then "top" else "left"
+  cMargin    = if discrete is "x" then "left" else "top"
+  oMargin    = if discrete is "x" then "top" else "left"
 
   for point, i in nested
     mod = if vars.axes.stacked then 0 else x(i)
     for d in point.values
 
-      d.d3plus[continuous]  = vars[continuous].scale.viz fetchValue(vars, d, vars[continuous].value)
-      d.d3plus[continuous] += vars.axes.margin[cMargin] + mod
+      d.d3plus[discrete]  = vars[discrete].scale.viz fetchValue(vars, d, vars[discrete].value)
+      d.d3plus[discrete] += vars.axes.margin[cMargin] + mod
 
       if vars.axes.stacked
         base   = d.d3plus[opposite+"0"]
@@ -68,9 +68,9 @@ bar = (vars) ->
 bar.requirements = ["data", "x", "y"]
 bar.setup        = (vars) ->
 
-  unless vars.axes.continuous
+  unless vars.axes.discrete
     axis = if vars.y.value is vars.time.value then "y" else "x"
-    vars.self[axis] scale: "continuous"
+    vars.self[axis] scale: "discrete"
 
   return
 bar.shapes  = ["square"]

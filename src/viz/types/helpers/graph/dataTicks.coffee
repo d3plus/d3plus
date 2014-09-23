@@ -21,7 +21,7 @@ module.exports = (vars) ->
 
   ticks = vars.group.select("g#d3plus_graph_plane").selectAll "g.d3plus_data_tick"
     .data data, (d) ->
-      mod = if vars.axes.continuous then "_"+d.d3plus[vars.axes.continuous] else ""
+      mod = if vars.axes.discrete then "_"+d.d3plus[vars.axes.discrete] else ""
       "tick_" + d[vars.id.value] + "_" + d.d3plus.depth + mod
 
   ticks.enter().append "g"
@@ -30,11 +30,11 @@ module.exports = (vars) ->
 
   for axis in ["x","y"]
 
-    axisData = if axis isnt vars.axes.continuous then data else []
+    axisData = if axis isnt vars.axes.discrete then data else []
 
     tick = ticks.selectAll "line.d3plus_data_"+axis
       .data axisData, (d) ->
-        mod = if vars.axes.continuous then "_"+d.d3plus[vars.axes.continuous] else ""
+        mod = if vars.axes.discrete then "_"+d.d3plus[vars.axes.discrete] else ""
         "tick_" + d[vars.id.value] + "_" + d.d3plus.depth + mod
 
     tick.enter().append("line")
