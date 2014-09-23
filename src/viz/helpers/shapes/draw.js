@@ -14,11 +14,12 @@ var child         = require("../../../util/child.coffee"),
     zoomDirection = require("../zoom/direction.coffee")
 
 var drawShape = {
+  "arc":         require("./arc.coffee"),
   "area":        require("./area.js"),
   "coordinates": require("./coordinates.js"),
   "donut":       require("./donut.js"),
   "line":        require("./line.js"),
-  "rect":        require("./rect.js")
+  "rect":        require("./rect.coffee")
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -38,13 +39,15 @@ module.exports = function(vars) {
   // example, both "square", and "circle" shapes use "rect" as their drawing
   // class.
   //----------------------------------------------------------------------------
-  var shape_lookup = {
-    "area": "area",
-    "circle": "rect",
-    "donut": "donut",
-    "line": "line",
-    "square": "rect",
-    "coordinates": "coordinates"
+  var shapeLookup = {
+    "arc":         "arc",
+    "area":        "area",
+    "circle":      "rect",
+    "coordinates": "coordinates",
+    "donut":       "donut",
+    "line":        "line",
+    "rect":        "rect",
+    "square":      "rect"
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -52,21 +55,14 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   var shapes = {}
   data.forEach(function(d){
-    if (!d.d3plus) {
-      var s = shape_lookup[vars.shape.value]
+    var s = d.d3plus.shape || vars.shape.value
+    if (s in shapeLookup) {
+      s = shapeLookup[s]
+      if (!shapes[s]) {
+        shapes[s] = []
+      }
+      shapes[s].push(d)
     }
-    else if (!d.d3plus.shape) {
-      var s = shape_lookup[vars.shape.value]
-      d.d3plus.shapeType = s
-    }
-    else {
-      var s = d.d3plus.shape
-      d.d3plus.shapeType = s
-    }
-    if (!shapes[s]) {
-      shapes[s] = []
-    }
-    shapes[s].push(d)
   })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -128,16 +124,16 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Remove old groups
   //----------------------------------------------------------------------------
-  for (shape in shape_lookup) {
-    if (!(shape_lookup[shape] in shapes) || d3.keys(shapes).length === 0) {
+  for (shape in shapeLookup) {
+    if (!(shapeLookup[shape] in shapes) || d3.keys(shapes).length === 0) {
       if (vars.draw.timing) {
-        vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
+        vars.g.data.selectAll("g.d3plus_"+shapeLookup[shape])
           .transition().duration(vars.draw.timing)
           .attr("opacity",0)
           .remove()
       }
       else {
-        vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
+        vars.g.data.selectAll("g.d3plus_"+shapeLookup[shape])
           .remove()
       }
     }
@@ -173,7 +169,7 @@ module.exports = function(vars) {
 
             d.values.forEach(function(v){
               v = id(v)
-              v.d3plus.shapeType = "circle"
+              v.d3plus.shape = "circle"
             })
             d.d3plus.id = d.key
 

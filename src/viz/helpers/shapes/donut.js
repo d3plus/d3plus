@@ -24,12 +24,12 @@ module.exports = function(vars,selection,enter,exit) {
   var arc = d3.svg.arc()
     .startAngle(0)
     .endAngle(function(d){
-      var a = vars.arcs[d.d3plus.shapeType][d.d3plus.id].a
+      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a
       return a > Math.PI*2 ? Math.PI*2 : a;
     })
     .innerRadius(function(d){
       if (shape == "donut" && !d.d3plus.static) {
-        var r = vars.arcs[d.d3plus.shapeType][d.d3plus.id].r
+        var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
         return r * vars.data.donut.size
       }
       else {
@@ -37,8 +37,8 @@ module.exports = function(vars,selection,enter,exit) {
       }
     })
     .outerRadius(function(d){
-      var r = vars.arcs[d.d3plus.shapeType][d.d3plus.id].r
-      if (d.d3plus.shapeType != "donut") return r*2
+      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
+      if (d.d3plus.shape != "donut") return r*2
       else return r
     })
 
@@ -53,17 +53,17 @@ module.exports = function(vars,selection,enter,exit) {
     path.attrTween("d", function(d){
       if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       else var r = rad
-      if (ang == undefined) var a = d.d3plus.segments[d.d3plus.shapeType]
+      if (ang == undefined) var a = d.d3plus.segments[d.d3plus.shape]
       else var a = ang
-      if (!vars.arcs[d.d3plus.shapeType][d.d3plus.id]) {
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id] = {"r": 0}
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].a = d.d3plus.shapeType == "donut" ? Math.PI * 2 : 0
+      if (!vars.arcs[d.d3plus.shape][d.d3plus.id]) {
+        vars.arcs[d.d3plus.shape][d.d3plus.id] = {"r": 0}
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = d.d3plus.shape == "donut" ? Math.PI * 2 : 0
       }
-      var radius = d3.interpolate(vars.arcs[d.d3plus.shapeType][d.d3plus.id].r,r+mod),
-          angle = d3.interpolate(vars.arcs[d.d3plus.shapeType][d.d3plus.id].a,a)
+      var radius = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].r,r+mod),
+          angle = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].a,a)
       return function(t) {
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].r = radius(t)
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].a = angle(t)
+        vars.arcs[d.d3plus.shape][d.d3plus.id].r = radius(t)
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = angle(t)
         return arc(d)
       }
     })
@@ -76,7 +76,7 @@ module.exports = function(vars,selection,enter,exit) {
   .transition().duration(vars.draw.timing)
     .call(size,0,0)
     .each("end",function(d){
-      delete vars.arcs[d.d3plus.shapeType][d.d3plus.id]
+      delete vars.arcs[d.d3plus.shape][d.d3plus.id]
     })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

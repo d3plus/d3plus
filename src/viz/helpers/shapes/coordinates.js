@@ -2,6 +2,7 @@ var copy = require("../../../util/copy.coffee"),
     fetchText   = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
+    path2poly   = require("../../../geom/path2poly.coffee"),
     shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -98,12 +99,7 @@ module.exports = function(vars,selection,enter,exit) {
 
       if (coords) {
 
-        var path = vars.path(largest).split("M")[1].split("Z")[0].split("L")
-        for (var i = 0; i < path.length; i++) {
-          path[i] = path[i].split(",")
-          path[i][0] = parseFloat(path[i][0])
-          path[i][1] = parseFloat(path[i][1])
-        }
+        var path = path2poly(vars.path(largest))
 
         var style = {
           "font-weight": vars.labels.font.weight,

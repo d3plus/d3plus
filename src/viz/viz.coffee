@@ -17,10 +17,11 @@ module.exports = ->
       line:     require "./types/line.coffee"
       network:  require "./types/network.js"
       paths:    require "./types/paths.coffee"
+      pie:      require "./types/pie.coffee"
       rings:    require "./types/rings.js"
       scatter:  require "./types/scatter.coffee"
       stacked:  require "./types/stacked.coffee"
-      tree_map: require "./types/tree_map.js"
+      tree_map: require "./types/tree_map.coffee"
 
   # Main drawing function
   vars.self = (selection) ->

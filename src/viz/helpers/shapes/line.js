@@ -74,7 +74,7 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     var paths = group.selectAll("path.d3plus_line")
       .data(segments, function(d){
-        d.d3plus.shapeType = "line"
+        d.d3plus.shape = "line"
         return d.key
       })
 

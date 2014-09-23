@@ -15,7 +15,7 @@ module.exports = (nodes, vars) ->
 
     .style "stroke-width", (d) ->
 
-      mod = if d.d3plus.shapeType is "line" then 2 else 1
+      mod = if d.d3plus.shape is "line" then 2 else 1
       vars.data.stroke.width * mod
 
     .attr "opacity", vars.data.opacity

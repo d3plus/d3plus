@@ -5,7 +5,7 @@ lighter    = require "../../../color/lighter.coffee"
 # Returns the correct fill color for a node
 module.exports = (d, vars) ->
 
-  shape = if d.d3plus then d.d3plus.shapeType else vars.shape.value
+  shape = d.d3plus.shape or vars.shape.value
 
   if vars.shape.value is "line" and shape isnt "circle"
     return "none"

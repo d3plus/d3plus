@@ -16,11 +16,12 @@ module.exports = (vars, opts) ->
     filtered = vars[axis].solo.changed or vars[axis].mute.changed
     modified = changed or vars[axis].changed or (vars.time.fixed.value and filtered)
 
-    if modified or vars[axis].stacked.changed
+    if modified or vars[axis].stacked.changed or vars[axis].range.changed
 
       print.time "calculating "+axis+" axis" if vars.dev.value
 
       # reset ticks
+      vars[axis].reset        = true
       vars[axis].ticks.values = false
 
       # calculate range
