@@ -14,6 +14,9 @@ module.exports = function( vars , rawData , split ) {
   else if (typeof vars.size.threshold === "number") {
     var threshold = vars.size.threshold
   }
+  else if (typeof vars.size.threshold === "function") {
+    var threshold = vars.size.threshold(vars)
+  }
   else if (typeof vars.types[vars.type.value].threshold === "number") {
     var threshold = vars.types[vars.type.value].threshold
   }
