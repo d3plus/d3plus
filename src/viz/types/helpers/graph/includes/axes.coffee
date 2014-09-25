@@ -9,7 +9,7 @@ module.exports = (vars, opts) ->
 
   changed           = dataChange vars
   vars.axes.dataset = getData vars if changed
-  vars.axes.scale   = if opts.buffer then sizeScale vars, opts.buffer else false
+  vars.axes.scale   = if opts.buffer and opts.buffer isnt true then sizeScale vars, opts.buffer else false
 
   for axis in ["x","y"]
 

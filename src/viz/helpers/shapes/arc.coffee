@@ -34,22 +34,30 @@ module.exports = (vars, selection, enter, exit) ->
     newarc = d3.svg.arc()
       .innerRadius 0
       .outerRadius (d) -> d.d3plus.r
-      .startAngle (d) -> d.d3plus.startAngle
+      .startAngle (d) ->
+        d.d3plus.startAngleCurrent = 0 if d.d3plus.startAngleCurrent is undefined
+        d.d3plus.startAngleCurrent = d.d3plus.startAngle if isNaN(d.d3plus.startAngleCurrent)
+        d.d3plus.startAngleCurrent
       .endAngle (d) ->
-        d.d3plus.currentAngle = d.d3plus.startAngle if d.d3plus.currentAngle is undefined
-        d.d3plus.currentAngle
+        d.d3plus.endAngleCurrent = 0 if d.d3plus.endAngleCurrent is undefined
+        d.d3plus.endAngleCurrent = d.d3plus.endAngle if isNaN(d.d3plus.endAngleCurrent)
+        d.d3plus.endAngleCurrent
 
     arcTween = (arcs, newAngle) ->
       arcs.attrTween "d", (d) ->
 
         if newAngle is undefined
-          a = d.d3plus.endAngle
+          s = d.d3plus.startAngle
+          e = d.d3plus.endAngle
         else if newAngle is 0
-          a = d.d3plus.startAngle
+          s = 0
+          e = 0
 
-        interpolate = d3.interpolate(d.d3plus.currentAngle, a)
+        interpolateS = d3.interpolate(d.d3plus.startAngleCurrent, s)
+        interpolateE = d3.interpolate(d.d3plus.endAngleCurrent, e)
         (t) ->
-          d.d3plus.currentAngle = interpolate(t)
+          d.d3plus.startAngleCurrent = interpolateS(t)
+          d.d3plus.endAngleCurrent   = interpolateE(t)
           newarc d
 
     enter.append("path")

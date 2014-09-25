@@ -6,6 +6,8 @@ validObject = require "../../object/validate.coffee"
 # Finds an object's color and returns random if it cannot be found
 module.exports = (vars, id, level) ->
 
+  return id.d3plus.color if id.d3plus and id.d3plus.color
+
   getRandom = (c) ->
     c = fetchValue(vars, c, level) if validObject(c)
     c = c[0] if c instanceof Array

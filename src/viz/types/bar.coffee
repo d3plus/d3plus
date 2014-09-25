@@ -7,7 +7,7 @@ stack      = require "./helpers/graph/stack.coffee"
 bar = (vars) ->
 
   graph vars,
-    buffer: vars.axes.opposite
+    buffer: true
     zero:   vars.axes.opposite
 
   data = vars.data.viz
@@ -20,15 +20,14 @@ bar = (vars) ->
   h = if discrete is "x" then "height" else "width"
   w = if discrete is "x" then "width" else "height"
 
-  space    = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
-  space   -= vars.labels.padding * 2
+  space  = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
 
   if vars.axes.stacked
-    maxSize = space
+    maxSize = space - vars.labels.padding * 4
   else
     maxSize  = space / nested.length
-    maxSize -= vars.labels.padding
-    offset   = space/2 - maxSize/2 - vars.labels.padding
+    maxSize -= vars.labels.padding * 2
+    offset   = space/2 - maxSize/2 - vars.labels.padding * 2
 
     x = d3.scale.linear()
       .domain [0, nested.length-1]
@@ -57,8 +56,11 @@ bar = (vars) ->
       d.d3plus[opposite]  = base - length/2
       d.d3plus[opposite] += vars.axes.margin[oMargin] unless vars.axes.stacked
 
-      d.d3plus[w]  = maxSize
-      d.d3plus[h] = Math.abs length
+      d.d3plus[w]             = maxSize
+      d.d3plus[h]             = Math.abs length
+      d.d3plus.init           = {}
+      d.d3plus.init[opposite] = vars[opposite].scale.viz(0) - d.d3plus[opposite] + vars.axes.margin[oMargin]
+      d.d3plus.init[w]        = d.d3plus[w]
 
       d.d3plus.label = false
 

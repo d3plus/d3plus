@@ -6,5 +6,5 @@ module.exports =
     accepted:   ["basis", "basis-open", "cardinal", "cardinal-open", "linear", "monotone", "step", "step-before", "step-after"]
     deprecates: "stack_type"
     value:      "linear"
-  rendering: rendering("auto")
+  rendering: rendering()
   value:     false

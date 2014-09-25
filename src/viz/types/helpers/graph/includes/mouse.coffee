@@ -16,7 +16,9 @@ module.exports = (node, vars) ->
 
   if not clickRemove and create
     color    = legible fetchColor vars, node
-    lineData = ["x","y"].filter (axis) -> axis isnt vars.axes.stacked and vars[axis].mouse.value
+    lineData = ["x","y"].filter (axis) ->
+      val = fetchValue vars, node, vars[axis].value
+      !(val instanceof Array) and axis isnt vars.axes.stacked and vars[axis].mouse.value and axis isnt vars.axes.discrete
   else
     lineData = []
 

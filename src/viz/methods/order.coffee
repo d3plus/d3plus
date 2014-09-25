@@ -1,7 +1,7 @@
 module.exports =
-  accepted: [false, Function, String]
+  accepted:   [false, Function, String]
+  deprecates: ["sort"]
   sort:
     accepted:   ["asc", "desc"]
-    deprecates: ["sort"]
     value:      "asc"
   value:    false

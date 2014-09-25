@@ -34,5 +34,7 @@ module.exports = (vars, data) ->
   negativeData = data.filter (d) ->
     fetchValue(vars, d, vars[stacked].value) < 0
 
-  stack positiveData if positiveData.length
-  stack negativeData if negativeData.length
+  positiveData = stack positiveData if positiveData.length
+  negativeData = stack negativeData if negativeData.length
+
+  positiveData.concat(negativeData)

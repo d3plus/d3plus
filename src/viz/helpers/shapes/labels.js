@@ -259,10 +259,12 @@ module.exports = function( vars , group ) {
       var disabled = d.d3plus && "label" in d.d3plus && !d.d3plus.label,
           label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
-          names = label && label.names ? label.names : fetchText(vars,d),
+          names = d.d3plus.label ? d.d3plus.label : label && label.names ? label.names : fetchText(vars,d),
           group = label && "group" in label ? label.group : d3.select(this),
           share_size = 0,
           fill = vars.types[vars.type.value].fill
+
+      if (!(names instanceof Array)) names = [names]
 
       if (label) {
 
@@ -436,11 +438,11 @@ module.exports = function( vars , group ) {
             var bg = group.selectAll("rect#d3plus_label_bg_"+d.d3plus.id)
                        .data(background_data)
               , bg_opacity = typeof label.background === "number"
-                           ? label.background : 0.6
+                           ? label.background : typeof label.background === "string" ? 1 : 0.6
 
             function bg_style(elem) {
 
-              var color = vars.background.value === "none"
+              var color = typeof label.background === "string" ? label.background : vars.background.value === "none"
                         ? "#ffffff" : vars.background.value
                 , fill = typeof label.background === "string"
                        ? label.background : color

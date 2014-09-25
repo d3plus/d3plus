@@ -1,9 +1,24 @@
+comparator    = require "../../array/comparator.coffee"
 dataThreshold = require("../../core/data/threshold.js")
+fetchValue    = require("../../core/fetch/value.js")
 groupData     = require("../../core/data/group.coffee")
+
+order = {}
 
 pie = (vars) ->
 
-  pieLayout   = d3.layout.pie().value (d) -> d.value
+  pieLayout   = d3.layout.pie()
+    .value (d) -> d.value
+    .sort (a, b) ->
+      if vars.order.value
+        comparator a.d3plus, b.d3plus, [vars.order.value], vars.order.sort.value, [], vars
+      else
+        aID = fetchValue vars, a.d3plus, vars.id.value
+        order[aID] = a.value if order[aID] is undefined
+        bID = fetchValue vars, b.d3plus, vars.id.value
+        order[bID] = b.value if order[bID] is undefined
+        if order[bID] < order[aID] then -1 else 1
+
   groupedData = groupData vars, vars.data.viz, []
   pieData     = pieLayout groupedData
   returnData  = []
@@ -13,7 +28,6 @@ pie = (vars) ->
   for d in pieData
 
     item = d.data.d3plus
-
     item.d3plus.startAngle = d.startAngle
     item.d3plus.endAngle   = d.endAngle
     item.d3plus.r          = radius

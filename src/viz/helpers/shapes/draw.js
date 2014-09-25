@@ -19,7 +19,8 @@ var drawShape = {
   "coordinates": require("./coordinates.js"),
   "donut":       require("./donut.js"),
   "line":        require("./line.js"),
-  "rect":        require("./rect.coffee")
+  "rect":        require("./rect.coffee"),
+  "whisker":     require("./whisker.coffee")
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -47,7 +48,8 @@ module.exports = function(vars) {
     "donut":       "donut",
     "line":        "line",
     "rect":        "rect",
-    "square":      "rect"
+    "square":      "rect",
+    "whisker":     "whisker"
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,12 +57,11 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   var shapes = {}
   data.forEach(function(d){
-    var s = d.d3plus.shape || vars.shape.value
+    var s = d.d3plus && d.d3plus.shape ? d.d3plus.shape : vars.shape.value
     if (s in shapeLookup) {
+      if (d.d3plus) d.d3plus.shape = s
       s = shapeLookup[s]
-      if (!shapes[s]) {
-        shapes[s] = []
-      }
+      if (!shapes[s]) shapes[s] = []
       shapes[s].push(d)
     }
   })
@@ -70,20 +71,22 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   function id(d) {
 
-    d.d3plus.id = ""
-    for (var i = 0; i <= vars.depth.value; i++) {
-      d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
-    }
-
-    d.d3plus.id += shape;
-
-    ["x","y"].forEach(function(axis){
-      if (vars[axis].scale.value == "discrete") {
-        d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
+    if (!d.d3plus.id) {
+      d.d3plus.id = ""
+      for (var i = 0; i <= vars.depth.value; i++) {
+        d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
       }
-    })
 
-    d.d3plus.id = stringStrip(d.d3plus.id)
+      d.d3plus.id += shape;
+
+      ["x","y"].forEach(function(axis){
+        if (vars[axis].scale.value == "discrete") {
+          d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
+        }
+      })
+
+      d.d3plus.id = stringStrip(d.d3plus.id)
+    }
 
     return d
   }

@@ -15,7 +15,7 @@ module.exports = (vars, axis, buffer) ->
 
     vars[axis].scale.viz.domain(domain)
 
-  else if (buffer is "x" and axis is "x") or (buffer is "y" and axis is "y")
+  else if (buffer is "x" and axis is "x") or (buffer is "y" and axis is "y") or (buffer is true)
 
     domain = vars[axis].scale.viz.domain()
     domain = domain.slice().reverse() if axis is "y"
