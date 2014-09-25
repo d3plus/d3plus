@@ -17,5 +17,7 @@ module.exports =
       value:    3
     value:      d3.scale.sqrt()
   solo:       filter(true)
-  threshold:  true
+  threshold:
+    accepted: [Boolean, Function, Number]
+    value:    true
   value:      false

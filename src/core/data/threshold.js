@@ -8,11 +8,14 @@ var arraySort = require("../../array/sort.coffee"),
 //-------------------------------------------------------------------
 module.exports = function( vars , rawData , split ) {
 
-  if ( vars.size.threshold === false ) {
+  if ( vars.size.threshold.value === false ) {
     var threshold = 0
   }
-  else if (typeof vars.size.threshold === "number") {
-    var threshold = vars.size.threshold
+  else if (typeof vars.size.threshold.value === "number") {
+    var threshold = vars.size.threshold.value
+  }
+  else if (typeof vars.size.threshold.value === "function") {
+    var threshold = vars.size.threshold.value(vars)
   }
   else if (typeof vars.types[vars.type.value].threshold === "number") {
     var threshold = vars.types[vars.type.value].threshold
