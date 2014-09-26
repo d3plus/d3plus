@@ -38,7 +38,9 @@ gulp.task("server", function() {
     , lrport = 35728
 
   var app = express();
-  app.use(require('connect-livereload')())
+  app.use(require('connect-livereload')({
+    hostname: "0.0.0.0"
+  }))
   app.use(express.static(__dirname));
   app.listen(port);
 
