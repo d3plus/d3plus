@@ -142,16 +142,16 @@ module.exports = function( vars , rawData , split ) {
           m.d3plus.depth = vars.depth.value
         }
 
-        if (vars.depth.value == 0) {
-          var textLabel = vars.format.value(vars.format.locale.value.ui.values)
-          textLabel += " < "+vars.format.value(cutoff)
+        if (vars.depth.value === 0) {
+          var textLabel = vars.format.value(vars.format.locale.value.ui.values, "threshold", vars)
+          textLabel += " < "+vars.format.value(cutoff, vars.size.value, vars)
         }
         else {
           var textLabel = fetchText(vars,m,vars.depth.value-1)
-          textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values)
-          textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value, vars)
+          textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars)
+          textLabel += " < "+vars.format.value(cutoff[m[parent]], vars.size.value, vars)
         }
-        textLabel += " ("+vars.format.value(threshold*100)+"%)"
+        textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)"
 
         m.d3plus.threshold = cutoff
         if (parent) {
