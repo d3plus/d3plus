@@ -86,11 +86,10 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set shape
   //----------------------------------------------------------------------------
-  var shapes = vars.types[vars.type.value].shapes || ["circle"]
-  if (!(shapes instanceof Array)) shapes = [shapes]
+  var shapes = vars.shape.accepted(vars)
 
   if (!vars.shape.value) {
-    vars.self.shape(shapes.length ? shapes[0] : "circle")
+    vars.self.shape(shapes[0])
   }
   else if (shapes.indexOf(vars.shape.value) < 0) {
     var shapes = vars.types[vars.type.value].shapes
@@ -99,7 +98,7 @@ module.exports = function(vars) {
       , shapeStr = vars.format.locale.value.method.shape
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
     print.warning(stringFormat(str,shape,shapeStr,app,"\""+shapes.join("\", \"")+"\""),"shape")
-    vars.self.shape(shapes.length ? shapes[0] : "circle")
+    vars.self.shape(shapes[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
