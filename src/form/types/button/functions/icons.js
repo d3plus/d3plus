@@ -127,7 +127,7 @@ module.exports = function ( elem , vars ) {
         })
         .style(prefix()+"transform",function(c){
           var degree = c === "selected" ? vars.icon.select.rotate : "none"
-          return "rotate("+degree+"deg)"
+          return typeof degree === "string" ? degree : "rotate("+degree+"deg)"
         })
         .style("opacity",function(c){
           return c === "selected" ? vars.icon.select.opacity : 1

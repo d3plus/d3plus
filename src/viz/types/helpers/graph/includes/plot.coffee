@@ -41,8 +41,7 @@ labelPadding = (vars) ->
 
   # Calculate Y axis padding
   yAttrs =
-    "font-size":   vars.y.ticks.font.size
-    "fill":        vars.y.ticks.font.color
+    "font-size":   vars.y.ticks.font.size+"px"
     "font-family": vars.y.ticks.font.family.value
     "font-weight": vars.y.ticks.font.weight
   yText                  = vars.y.ticks.values.map (d) -> vars.format.value(d,vars.y.value, vars)
@@ -53,8 +52,7 @@ labelPadding = (vars) ->
 
   # Calculate X axis padding
   xAttrs =
-    "font-size":   vars.x.ticks.font.size
-    "fill":        vars.x.ticks.font.color
+    "font-size":   vars.x.ticks.font.size+"px"
     "font-family": vars.x.ticks.font.family.value
     "font-weight": vars.x.ticks.font.weight
   xText       = vars.x.ticks.values.map (d) -> vars.format.value(d,vars.x.value, vars)

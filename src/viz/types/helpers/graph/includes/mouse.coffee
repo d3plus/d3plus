@@ -56,7 +56,7 @@ module.exports = (node, vars) ->
 
   textStyle = (text) ->
     text
-      .attr "font-size",   (d) -> vars[d].ticks.font.size
+      .attr "font-size",   (d) -> vars[d].ticks.font.size+"px"
       .attr "fill",        (d) -> vars[d].ticks.font.color
       .attr "font-family", (d) -> vars[d].ticks.font.family.value
       .attr "font-weight", (d) -> vars[d].ticks.font.weight

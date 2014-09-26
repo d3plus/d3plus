@@ -48,7 +48,7 @@ module.exports = (vars) ->
     tick
       .attr "font-size"  , (d) ->
         type = if d is 0 then "axis" else "ticks"
-        vars[axis][type].font.size
+        vars[axis][type].font.size+"px"
       .attr "fill"       , (d) ->
         type = if d is 0 then "axis" else "ticks"
         vars[axis][type].font.color
@@ -84,7 +84,7 @@ module.exports = (vars) ->
        .attr "dy"         , vars[axis].lines.font.position.value
        .attr "text-anchor", alignMap[vars[axis].lines.font.align.value]
        .attr "transform"  , (d) -> d.transform
-       .attr "font-size"  , vars[axis].lines.font.size
+       .attr "font-size"  , vars[axis].lines.font.size+"px"
        .attr "fill"       , (d) -> d.color or vars[axis].lines.color
        .attr "font-family", vars[axis].lines.font.family.value
        .attr "font-weight", vars[axis].lines.font.weight
@@ -169,7 +169,7 @@ module.exports = (vars) ->
       .attr "transform", if axis is "y" then "rotate(-90)" else null
       .attr "font-family", vars[axis].label.family.value
       .attr "font-weight", vars[axis].label.weight
-      .attr "font-size", vars[axis].label.size
+      .attr "font-size", vars[axis].label.size+"px"
       .attr "fill", vars[axis].label.color
       .style "text-anchor", vars[axis].label.align
 

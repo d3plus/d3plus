@@ -1,13 +1,12 @@
-var print = require("../../../core/console/print.coffee")
+var print = require("../../../core/console/print.coffee"),
+    color = require("./functions/color.js"),
+    icons = require("./functions/icons.js"),
+    mouseevents = require("./functions/mouseevents.js"),
+    style = require("./functions/style.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
 module.exports = function( vars ) {
-
-  var color = require("./functions/color.js")
-    , icons = require("./functions/icons.js")
-    , mouseevents = require("./functions/mouseevents.js")
-    , style = require("./functions/style.js")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Bind Data to Buttons

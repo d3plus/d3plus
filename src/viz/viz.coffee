@@ -64,7 +64,6 @@ module.exports = ->
               print.timeEnd "total draw time"
               print.groupEnd()
               print.log "\n"
-            vars.container.value.style "cursor", "auto"
           return
 
         runFunction = (step, name) ->
@@ -108,8 +107,6 @@ module.exports = ->
             else
               nextStep()
           return
-
-        vars.container.value.style "cursor", "wait"
 
         vars.messages.style = if vars.group and vars.group.attr("opacity") is "1" then "small" else "large"
 

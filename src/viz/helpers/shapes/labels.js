@@ -1,4 +1,5 @@
-var fetchText  = require("../../../core/fetch/text.js"),
+var copy       = require("../../../util/copy.coffee"),
+    fetchText  = require("../../../core/fetch/text.js"),
     mix        = require("../../../color/mix.coffee"),
     print      = require("../../../core/console/print.coffee"),
     rtl        = require("../../../client/rtl.coffee"),
@@ -373,7 +374,7 @@ module.exports = function( vars , group ) {
               return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
             , fontSize = label.resize ? undefined
-                       : vars.labels.font.size * label.scale
+                       : (vars.labels.font.size * label.scale) + "px"
 
           if ( vars.draw.timing ) {
 
@@ -422,8 +423,7 @@ module.exports = function( vars , group ) {
 
               var background_data = ["background"]
 
-              var bounds = text.node().getBBox()
-
+              var bounds = copy(text.node().getBBox())
               bounds.width += vars.labels.padding*scale[0]
               bounds.height += vars.labels.padding*scale[0]
               bounds.x -= (vars.labels.padding*scale[0])/2

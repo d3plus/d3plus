@@ -1,4 +1,4 @@
-var d3selection = require("../../util/d3selection.coffee"),
+var d3selection  = require("../../util/d3selection.coffee"),
     parseElement = require("../../core/parse/element.js"),
     print        = require("../../core/console/print.coffee"),
     stringFormat = require("../../string/format.js")
@@ -14,7 +14,7 @@ module.exports = {
       return value
     }
 
-    if (vars.data.value && d3selection( vars.data.value )) {
+    if (vars.data.value && (!(vars.data.value instanceof Array) || d3selection(vars.data.value))) {
       vars.data.value = parseElement( vars )
     }
 

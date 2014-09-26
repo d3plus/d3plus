@@ -164,7 +164,7 @@ module.exports = function(vars) {
     var textStyle = {
       "font-weight": vars.ui.font.weight,
       "font-family": vars.ui.font.family.value,
-      "font-size": vars.ui.font.size,
+      "font-size": vars.ui.font.size+"px",
       "text-anchor": "middle"
     }
 
@@ -307,18 +307,6 @@ module.exports = function(vars) {
       .attr("transform",function(d,i){
         var x = start_x + (labelWidth*i) + labelWidth/2
           , y = timelineHeight/2 + vars.ui.padding + 1
-
-        // var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/4
-        // var y = vars.ui.padding+vars.timeline.height/2+this.getBBox().height/2 - diff
-
-        if (textRotate) {
-          // x -= vars.ui.padding
-          // y += vars.ui.padding
-        }
-        else {
-          // x += vars.ui.padding
-          // y += vars.ui.padding
-        }
         return "translate("+Math.round(x)+","+Math.round(y)+")rotate("+textRotate+")"
       })
 

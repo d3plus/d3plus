@@ -15,7 +15,7 @@ module.exports = (vars) ->
     .attr "y"     , "0px"
     .append "xhtml:div"
       .style "font-family", family
-      .style "font-size"  , vars.size.value[1]
+      .style "font-size"  , vars.size.value[1]+"px"
       .style "color"      , color
       .style "text-align" , anchor
       .style "opacity"    , opacity

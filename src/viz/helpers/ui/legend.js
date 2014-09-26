@@ -237,7 +237,7 @@ module.exports = function(vars) {
                 var text = d3.select(this.parentNode).append("text")
 
                 text
-                  .attr("font-size",vars.legend.font.size)
+                  .attr("font-size",vars.legend.font.size+"px")
                   .attr("font-weight",vars.legend.font.weight)
                   .attr("font-family",vars.legend.font.family.value)
                   .style("text-anchor","start")
@@ -443,7 +443,7 @@ module.exports = function(vars) {
         .order()
         .attr("font-weight",vars.legend.font.weight)
         .attr("font-family",vars.legend.font.family.value)
-        .attr("font-size",vars.legend.font.size)
+        .attr("font-size",vars.legend.font.size+"px")
         .style("text-anchor",vars.legend.font.align)
         .attr("fill",vars.legend.font.color)
         .text(function(d){
