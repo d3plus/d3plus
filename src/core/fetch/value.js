@@ -7,7 +7,7 @@ var validObject = require("../../object/validate.coffee"),
 fetch = function( vars , id , variable , id_var , agg ) {
 
   if ( variable && typeof variable === "function" ) {
-    return variable( id )
+    return variable(id, vars)
   }
   else if ( variable && typeof variable === "number" ) {
     return variable
