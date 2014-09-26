@@ -22,6 +22,7 @@ module.exports = ->
       rings:    require "./types/rings.js"
       scatter:  require "./types/scatter.coffee"
       stacked:  require "./types/stacked.coffee"
+      table:    require "./types/table.js"
       tree_map: require "./types/tree_map.coffee"
 
   # Main drawing function
@@ -127,6 +128,7 @@ module.exports = ->
     axes:       require "./methods/axes.coffee"
     background: require "./methods/background.coffee"
     color:      require "./methods/color.coffee"
+    cols:       require "./methods/cols.js"
     container:  require "./methods/container.coffee"
     coords:     require "./methods/coords.coffee"
     csv:        require "./methods/csv.coffee"
