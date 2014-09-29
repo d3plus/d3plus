@@ -9986,7 +9986,7 @@ exports.clearCache = function clearCache() {
   }
 }
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"bit-twiddle":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js","buffer":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/index.js","dup":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/node_modules/dup/dup.js"}],"/Users/Dave/Sites/D3plus/src/array/sort.coffee":[function(require,module,exports){
+},{"bit-twiddle":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js","buffer":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/index.js","dup":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/node_modules/dup/dup.js"}],"/Users/Dave/Sites/D3plus/src/array/comparator.coffee":[function(require,module,exports){
 var colorSort, fetchColor, fetchText, fetchValue;
 
 colorSort = require("../color/sort.coffee");
@@ -9997,74 +9997,214 @@ fetchColor = require("../core/fetch/color.coffee");
 
 fetchText = require("../core/fetch/text.js");
 
-module.exports = function(arr, keys, sort, colors, vars, depth) {
-  var comparator;
-  comparator = function(a, b) {
-    var i, k, retVal;
-    retVal = 0;
-    i = 0;
-    while (i < keys.length) {
-      k = keys[i];
-      if (vars) {
-        a = (k === vars.text.value ? fetchText(vars, a, depth) : fetchValue(vars, a, k, depth));
-        b = (k === vars.text.value ? fetchText(vars, b, depth) : fetchValue(vars, b, k, depth));
-      } else {
-        a = a[k];
-        b = b[k];
-      }
-      if (vars && colors.indexOf(k) >= 0) {
-        a = fetchColor(vars, a, depth);
-        b = fetchColor(vars, b, depth);
-        retVal = colorSort(a, b);
-      } else {
-        a = (a instanceof Array ? a = a[0] : (typeof a === "string" ? a = a.toLowerCase() : a));
-        b = (b instanceof Array ? b = b[0] : (typeof b === "string" ? b = b.toLowerCase() : b));
-        retVal = (a < b ? -1 : 1);
-      }
-      if (retVal !== 0 || i === keys.length - 1) {
-        break;
-      }
-      i++;
-    }
-    if (sort === "asc") {
-      return retVal;
-    } else {
-      return -retVal;
-    }
-  };
-  if (!arr || arr.length <= 1 || !keys) {
-    return arr || [];
-  }
+module.exports = function(a, b, keys, sort, colors, vars, depth) {
+  var i, k, retVal;
   if (!sort) {
     sort = "asc";
-  }
-  if (!(keys instanceof Array)) {
-    keys = [keys];
   }
   if (!(colors instanceof Array)) {
     colors = [colors];
   }
+  if (!(keys instanceof Array)) {
+    keys = [keys];
+  }
   if (vars && depth !== void 0 && typeof depth !== "number") {
     depth = vars.id.nesting.indexOf(depth);
   }
-  return arr.sort(comparator);
+  retVal = 0;
+  i = 0;
+  while (i < keys.length) {
+    k = keys[i];
+    if (vars) {
+      a = k === vars.text.value ? fetchText(vars, a, depth) : fetchValue(vars, a, k, depth);
+      b = k === vars.text.value ? fetchText(vars, b, depth) : fetchValue(vars, b, k, depth);
+    } else {
+      a = a[k];
+      b = b[k];
+    }
+    if (vars && colors.indexOf(k) >= 0) {
+      a = fetchColor(vars, a, depth);
+      b = fetchColor(vars, b, depth);
+      retVal = colorSort(a, b);
+    } else {
+      a = a instanceof Array ? a = a[0] : (typeof a === "string" ? a = a.toLowerCase() : a);
+      b = b instanceof Array ? b = b[0] : (typeof b === "string" ? b = b.toLowerCase() : b);
+      retVal = a < b ? -1 : 1;
+    }
+    if (retVal !== 0 || i === keys.length - 1) {
+      break;
+    }
+    i++;
+  }
+  if (sort === "asc") {
+    return retVal;
+  } else {
+    return -retVal;
+  }
 };
 
 
-},{"../color/sort.coffee":"/Users/Dave/Sites/D3plus/src/color/sort.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/array/update.coffee":[function(require,module,exports){
+},{"../color/sort.coffee":"/Users/Dave/Sites/D3plus/src/color/sort.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/array/sort.coffee":[function(require,module,exports){
+var comparator;
+
+comparator = require("./comparator.coffee");
+
+module.exports = function(arr, keys, sort, colors, vars, depth) {
+  if (!arr || arr.length <= 1 || !keys) {
+    return arr || [];
+  } else {
+    return arr.sort(function(a, b) {
+      return comparator(a, b, keys, sort, colors, vars, depth);
+    });
+  }
+};
+
+
+},{"./comparator.coffee":"/Users/Dave/Sites/D3plus/src/array/comparator.coffee"}],"/Users/Dave/Sites/D3plus/src/array/update.coffee":[function(require,module,exports){
 module.exports = function(arr, x) {
+  if (x === false) {
+    return [];
+  }
+  if (x instanceof Array) {
+    return x;
+  }
   if (!(arr instanceof Array)) {
     arr = [];
   }
-  if (x instanceof Array) {
-    arr = x;
-  } else if (arr.indexOf(x) >= 0) {
+  if (arr.indexOf(x) >= 0) {
     arr.splice(arr.indexOf(x), 1);
   } else {
     arr.push(x);
   }
   return arr;
 };
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/client/css.coffee":[function(require,module,exports){
+var sheet;
+
+sheet = function(name) {
+  var css, i, returnBoolean, tested;
+  tested = sheet.tested;
+  if (name in tested) {
+    return tested[name];
+  }
+  i = 0;
+  returnBoolean = false;
+  while (i < document.styleSheets.length) {
+    css = document.styleSheets[i];
+    if (css.href && css.href.indexOf(name) >= 0) {
+      returnBoolean = true;
+      break;
+    }
+    i++;
+  }
+  return returnBoolean;
+};
+
+sheet.tested = {};
+
+module.exports = sheet;
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/client/ie.js":[function(require,module,exports){
+// Determines if the current browser is Internet Explorer.
+module.exports = /*@cc_on!@*/false
+
+},{}],"/Users/Dave/Sites/D3plus/src/client/pointer.coffee":[function(require,module,exports){
+var ie, touch;
+
+ie = require("./ie.js");
+
+touch = require("./touch.coffee");
+
+if (touch) {
+  module.exports = {
+    click: "click",
+    down: "touchstart",
+    up: "touchend",
+    over: "touchstart",
+    out: "touchend",
+    move: "touchmove"
+  };
+} else {
+  module.exports = {
+    click: "click",
+    down: "mousedown",
+    up: "mouseup",
+    over: ie ? "mouseenter" : "mouseover",
+    out: ie ? "mouseleave" : "mouseout",
+    move: "mousemove"
+  };
+}
+
+
+},{"./ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee"}],"/Users/Dave/Sites/D3plus/src/client/prefix.coffee":[function(require,module,exports){
+var prefix;
+
+prefix = function() {
+  var val;
+  if ("-webkit-transform" in document.body.style) {
+    val = "-webkit-";
+  } else if ("-moz-transform" in document.body.style) {
+    val = "-moz-";
+  } else if ("-ms-transform" in document.body.style) {
+    val = "-ms-";
+  } else if ("-o-transform" in document.body.style) {
+    val = "-o-";
+  } else {
+    val = "";
+  }
+  prefix = function() {
+    return val;
+  };
+  return val;
+};
+
+module.exports = prefix;
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/client/rtl.coffee":[function(require,module,exports){
+module.exports = d3.select("html").attr("dir") === "rtl";
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/client/scrollbar.coffee":[function(require,module,exports){
+var scrollbar;
+
+scrollbar = function() {
+  var inner, outer, val, w1, w2;
+  inner = document.createElement("p");
+  inner.style.width = "100%";
+  inner.style.height = "200px";
+  outer = document.createElement("div");
+  outer.style.position = "absolute";
+  outer.style.top = "0px";
+  outer.style.left = "0px";
+  outer.style.visibility = "hidden";
+  outer.style.width = "200px";
+  outer.style.height = "150px";
+  outer.style.overflow = "hidden";
+  outer.appendChild(inner);
+  document.body.appendChild(outer);
+  w1 = inner.offsetWidth;
+  outer.style.overflow = "scroll";
+  w2 = inner.offsetWidth;
+  if (w1 === w2) {
+    w2 = outer.clientWidth;
+  }
+  document.body.removeChild(outer);
+  val = w1 - w2;
+  scrollbar = function() {
+    return val;
+  };
+  return val;
+};
+
+module.exports = scrollbar;
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/client/touch.coffee":[function(require,module,exports){
+module.exports = ("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch ? true : false;
 
 
 },{}],"/Users/Dave/Sites/D3plus/src/color/legible.coffee":[function(require,module,exports){
@@ -10178,13 +10318,15 @@ module.exports = function(color) {
 
 
 },{}],"/Users/Dave/Sites/D3plus/src/core/console/print.coffee":[function(require,module,exports){
-var print, wiki;
+var ie, print, wiki;
+
+ie = require("../../client/ie.js");
 
 wiki = require("./wiki.coffee");
 
 print = function(type, message, style) {
   style = style || "";
-  if (d3plus.ie || typeof InstallTrigger !== 'undefined') {
+  if (ie || typeof InstallTrigger !== 'undefined') {
     console.log("[ D3plus ] " + message);
   } else if (type === "groupCollapsed") {
     if (window.chrome && navigator.onLine) {
@@ -10217,7 +10359,7 @@ print.groupCollapsed = function(message) {
 };
 
 print.groupEnd = function() {
-  if (!d3plus.ie) {
+  if (!ie) {
     console.groupEnd();
   }
 };
@@ -10228,7 +10370,7 @@ print.log = function(message) {
 
 print.stack = function() {
   var err, line, message, page, splitter, stack, url;
-  if (!d3plus.ie) {
+  if (!ie) {
     err = new Error();
     if (err.stack) {
       stack = err.stack.split("\n");
@@ -10253,13 +10395,13 @@ print.stack = function() {
 };
 
 print.time = function(message) {
-  if (!d3plus.ie) {
+  if (!ie) {
     console.time(message);
   }
 };
 
 print.timeEnd = function(message) {
-  if (!d3plus.ie) {
+  if (!ie) {
     console.timeEnd(message);
   }
 };
@@ -10283,7 +10425,7 @@ print.wiki = function(url) {
 module.exports = print;
 
 
-},{"./wiki.coffee":"/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee"}],"/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee":[function(require,module,exports){
+},{"../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./wiki.coffee":"/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee"}],"/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee":[function(require,module,exports){
 module.exports = {
   active: "Segmenting-Data#active",
   aggs: "Custom-Aggregations",
@@ -10734,19 +10876,23 @@ var fetchValue;
 
 fetchValue = require("../fetch/value.js");
 
-module.exports = function(vars, data) {
-  var d, groupedData, strippedData, val, _i, _len;
+module.exports = function(vars, data, nesting) {
+  var d, groupedData, i, n, strippedData, val, _i, _j, _len, _len1;
   groupedData = d3.nest();
-  vars.id.nesting.forEach(function(n, i) {
+  if (nesting === void 0) {
+    nesting = vars.id.nesting;
+  }
+  for (i = _i = 0, _len = nesting.length; _i < _len; i = ++_i) {
+    n = nesting[i];
     if (i < vars.depth.value) {
-      return groupedData.key(function(d) {
+      groupedData.key(function(d) {
         return fetchValue(vars, d.d3plus, n);
       });
     }
-  });
+  }
   strippedData = [];
-  for (_i = 0, _len = data.length; _i < _len; _i++) {
-    d = data[_i];
+  for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
+    d = data[_j];
     val = vars.size.value ? fetchValue(vars, d, vars.size.value) : 1;
     if (val && typeof val === "number" && val > 0) {
       delete d.d3plus.r;
@@ -10920,7 +11066,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // If the visualization has method requirements, check to see if we need
-      // to key the data by a continuous scale variable.
+      // to key the data by a discrete scale variable.
       //------------------------------------------------------------------------
       if ( requirements && requirements.length ) {
 
@@ -10929,7 +11075,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
           var axisKey = vars[axis].value
 
           if ( requirements.indexOf(axis) >= 0 && axisKey
-               && vars[axis].scale.value === "continuous") {
+               && vars[axis].scale.value === "discrete") {
 
             exceptions.push(axisKey)
 
@@ -11227,11 +11373,14 @@ var arraySort = require("../../array/sort.coffee"),
 //-------------------------------------------------------------------
 module.exports = function( vars , rawData , split ) {
 
-  if ( vars.size.threshold === false ) {
+  if ( vars.size.threshold.value === false ) {
     var threshold = 0
   }
-  else if (typeof vars.size.threshold === "number") {
-    var threshold = vars.size.threshold
+  else if (typeof vars.size.threshold.value === "number") {
+    var threshold = vars.size.threshold.value
+  }
+  else if (typeof vars.size.threshold.value === "function") {
+    var threshold = vars.size.threshold.value(vars)
   }
   else if (typeof vars.types[vars.type.value].threshold === "number") {
     var threshold = vars.types[vars.type.value].threshold
@@ -11358,16 +11507,16 @@ module.exports = function( vars , rawData , split ) {
           m.d3plus.depth = vars.depth.value
         }
 
-        if (vars.depth.value == 0) {
-          var textLabel = vars.format.value(vars.format.locale.value.ui.values)
-          textLabel += " < "+vars.format.value(cutoff)
+        if (vars.depth.value === 0) {
+          var textLabel = vars.format.value(vars.format.locale.value.ui.values, "threshold", vars)
+          textLabel += " < "+vars.format.value(cutoff, vars.size.value, vars)
         }
         else {
           var textLabel = fetchText(vars,m,vars.depth.value-1)
-          textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values)
-          textLabel += " < "+vars.format.value(cutoff[m[parent]],vars.size.value)
+          textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars)
+          textLabel += " < "+vars.format.value(cutoff[m[parent]], vars.size.value, vars)
         }
-        textLabel += " ("+vars.format.value(threshold*100)+"%)"
+        textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)"
 
         m.d3plus.threshold = cutoff
         if (parent) {
@@ -11415,6 +11564,9 @@ validObject = require("../../object/validate.coffee");
 
 module.exports = function(vars, id, level) {
   var color, colorLevel, colors, getColor, getRandom, i, o, value;
+  if (id.d3plus && id.d3plus.color) {
+    return id.d3plus.color;
+  }
   getRandom = function(c) {
     if (validObject(c)) {
       c = fetchValue(vars, c, level);
@@ -11454,7 +11606,7 @@ module.exports = function(vars, id, level) {
     while (i >= 0) {
       colorLevel = vars.id.nesting[i];
       if (validObject(id)) {
-        o = (colorLevel in id ? fetchValue(vars, id, colorLevel) : id);
+        o = (!(colorLevel in id) ? fetchValue(vars, id, colorLevel) : id);
         value = fetchValue(vars, o, vars.color.value, colorLevel);
       } else {
         value = id;
@@ -11637,7 +11789,7 @@ module.exports = function(vars, years, depth) {
         var separated = false;
         ["x","y"].forEach(function(a){
           if ( vars[a].value === vars.time.value
-          && vars[a].scale.value === "continuous" ) {
+          && vars[a].scale.value === "discrete" ) {
             separated = true
           }
         })
@@ -11743,11 +11895,11 @@ module.exports = function(vars,obj,depth) {
         name = name.map(function(n){
           if (n instanceof Array) {
             return n.map(function(nn){
-              return vars.format.value(nn.toString(),t)
+              return vars.format.value(nn.toString(),t, vars)
             })
           }
           else if (n) {
-            return vars.format.value(n.toString(),t)
+            return vars.format.value(n.toString(),t, vars)
           }
         })
         if (name.length === 1) name = name[0]
@@ -11772,7 +11924,7 @@ var validObject = require("../../object/validate.coffee"),
 fetch = function( vars , id , variable , id_var , agg ) {
 
   if ( variable && typeof variable === "function" ) {
-    return variable( id )
+    return variable(id, vars)
   }
   else if ( variable && typeof variable === "number" ) {
     return variable
@@ -11913,7 +12065,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
 },{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee":[function(require,module,exports){
 module.exports = function(type) {
-  var styles, tester;
+  var attrs, styles, tester;
   if (["div", "svg"].indexOf(type) < 0) {
     type = "div";
   }
@@ -11924,8 +12076,11 @@ module.exports = function(type) {
     visibility: "hidden",
     display: "block"
   };
-  tester = d3.select("body").selectAll(type + ".d3plus_tester").data(["d3plus_tester"]);
-  tester.enter().append(type).attr("class", "d3plus_tester").style(styles);
+  attrs = type === "div" ? {} : {
+    position: "absolute"
+  };
+  tester = d3.select("body").selectAll(type + ".d3plus_tester").data([0]);
+  tester.enter().append(type).attr("class", "d3plus_tester").style(styles).attr(attrs);
   return tester;
 };
 
@@ -12520,9 +12675,6 @@ initialize = function(vars, obj, method) {
   obj.previous = false;
   obj.changed = false;
   obj.initialized = false;
-  obj.getVars = function() {
-    return vars;
-  };
   if ("init" in obj && (!("value" in obj))) {
     obj.value = obj.init(vars);
     delete obj.init;
@@ -12621,7 +12773,7 @@ createFunction = function(vars, key) {
 
 checkObject = function(vars, method, object, key, value) {
   var approvedObject, d, objectOnly, passingObject;
-  if (["accepted", "getVars"].indexOf(key) < 0) {
+  if (key !== "accepted") {
     passingObject = validObject(value);
     objectOnly = validObject(object[key]) && "objectAccess" in object[key] && object[key]["objectAccess"] === false;
     approvedObject = passingObject && (objectOnly || ((!("value" in value)) && (!(d3.keys(value)[0] in object[key]))));
@@ -12646,7 +12798,7 @@ module.exports = function(g) {
     g = false;
   }
   return {
-    accepted: [Array, Boolean, Function, Number, Object, String],
+    accepted: [false, Array, Function, Number, Object, String],
     global: g,
     process: Array,
     value: []
@@ -12655,6 +12807,10 @@ module.exports = function(g) {
 
 
 },{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee":[function(require,module,exports){
+var rtl;
+
+rtl = require("../../../client/rtl.coffee");
+
 module.exports = function(align) {
   if (!align) {
     align = "left";
@@ -12662,7 +12818,7 @@ module.exports = function(align) {
   return {
     accepted: ["left", "center", "right"],
     process: function(value) {
-      if (d3plus.rtl) {
+      if (rtl) {
         if (value === "left") {
           return "right";
         } else {
@@ -12681,7 +12837,7 @@ module.exports = function(align) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee":[function(require,module,exports){
+},{"../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee":[function(require,module,exports){
 module.exports = function(decoration) {
   if (!decoration) {
     decoration = "none";
@@ -12711,7 +12867,28 @@ module.exports = function(family) {
 };
 
 
-},{"../../../font/validate.coffee":"/Users/Dave/Sites/D3plus/src/font/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee":[function(require,module,exports){
+},{"../../../font/validate.coffee":"/Users/Dave/Sites/D3plus/src/font/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/font/position.coffee":[function(require,module,exports){
+module.exports = function(position) {
+  if (!position) {
+    position = "bottom";
+  }
+  return {
+    accepted: ["top", "middle", "bottom"],
+    mapping: {
+      top: "0ex",
+      middle: "0.5ex",
+      bottom: "1ex"
+    },
+    process: function(value) {
+      this.text = value;
+      return this.mapping[value];
+    },
+    value: position
+  };
+};
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee":[function(require,module,exports){
 module.exports = function(transform) {
   if (!transform) {
     transform = "none";
@@ -12728,15 +12905,11 @@ var d3selection;
 
 d3selection = require("../../../util/d3selection.coffee");
 
-module.exports = function(value, self) {
-  var maybeURL, vars;
+module.exports = function(value, vars) {
+  var maybeURL;
   if (typeof value !== "string" && !d3selection(value)) {
     return value;
   } else {
-    if (self === void 0) {
-      self = this;
-    }
-    vars = self.getVars();
     maybeURL = value.indexOf("/") >= 0;
     if (!maybeURL && d3selection(value)) {
       return value;
@@ -12744,7 +12917,7 @@ module.exports = function(value, self) {
       if (!maybeURL && !d3.selectAll(value).empty()) {
         return d3.selectAll(value);
       } else {
-        self.url = value;
+        this.url = value;
         return [];
       }
     }
@@ -12776,7 +12949,7 @@ module.exports = function(vars, object, value) {
 },{"../../../array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee":[function(require,module,exports){
 var stylesheet;
 
-stylesheet = require("../../../style/sheet.coffee");
+stylesheet = require("../../../client/css.coffee");
 
 module.exports = function(value) {
   if (value === false || value.indexOf("fa-") < 0 || (value.indexOf("fa-") === 0 && stylesheet("font-awesome"))) {
@@ -12787,7 +12960,21 @@ module.exports = function(value) {
 };
 
 
-},{"../../../style/sheet.coffee":"/Users/Dave/Sites/D3plus/src/style/sheet.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee":[function(require,module,exports){
+},{"../../../client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee":[function(require,module,exports){
+module.exports = function(rendering) {
+  var accepted;
+  accepted = ["auto", "optimizeSpeed", "crispEdges", "geometricPrecision"];
+  if (!(accepted.indexOf(rendering) >= 0)) {
+    rendering = "crispEdges";
+  }
+  return {
+    accepted: accepted,
+    value: rendering
+  };
+};
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee":[function(require,module,exports){
 var reset, validObject;
 
 validObject = require("../../object/validate.coffee");
@@ -12834,7 +13021,7 @@ stringList = require("../../string/list.coffee");
 updateArray = require("../../array/update.coffee");
 
 module.exports = function(vars, method, object, key, value) {
-  var accepted, allowed, and_, c, constructor, d3object, hasValue, id, k, longArray, n, parentKey, recs, reset, str, text, typeFunction, val, valString;
+  var accepted, allowed, and_, c, constructor, d3object, hasValue, id, k, longArray, n, parentKey, recs, str, text, typeFunction, val, valString;
   if (key === "value" || !key || key === method) {
     text = "." + method + "()";
   } else {
@@ -12971,12 +13158,6 @@ module.exports = function(vars, method, object, key, value) {
       }
       if (key === "value" && object.dataFilter && vars.data && vars.data.filters.indexOf(method) < 0) {
         vars.data.filters.push(method);
-      }
-      if (key === "value" && object.reset) {
-        reset = (typeof object.reset === "string" ? [object.reset] : object.reset);
-        reset.forEach(function(r) {
-          object[r] = false;
-        });
       }
       if ((vars.dev.value || key === "dev") && object.changed && object[key] !== void 0) {
         longArray = object[key] instanceof Array && object[key].length > 10;
@@ -13484,20 +13665,20 @@ module.exports = function(words, style, parent) {
   if (!(words instanceof Array)) {
     words = [words];
   }
-  tspans = tester.selectAll("tspan.d3plus_testFontSize").data(words);
+  tspans = tester.selectAll("tspan").data(words);
   attr = {
     x: 0,
     y: 0
   };
-  tspans.enter().append("tspan").attr("class", "d3plus_testFontSize").text(String).style(style).attr(attr).each(function(d) {
+  tspans.enter().append("tspan").text(String).attr("position", "absolute").attr("top", "0px").attr("left", "0px").style(style).attr(attr).each(function(d) {
     return sizes.push({
-      height: this.offsetHeight || this.getBoundingClientRect().height,
+      height: this.offsetHeight || this.getBoundingClientRect().height || this.parentNode.getBBox().height,
       text: d,
       width: this.getComputedTextLength()
     });
   });
   tspans.remove();
-  if (!tester) {
+  if (!parent) {
     tester.remove();
   }
   return sizes;
@@ -13569,6 +13750,7 @@ var arraySort = require("../array/sort.coffee"),
     dataKeys    = require("../core/data/keys.js"),
     dataLoad    = require("../core/data/load.coffee"),
     fetchData   = require("../core/fetch/data.js"),
+    ie          = require("../client/ie.js"),
     methodReset = require("../core/methods/reset.coffee"),
     print       = require("../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -13585,8 +13767,7 @@ d3plus.form = function() {
       "button": require("./types/button/button.js"),
       "drop": require("./types/drop/drop.js"),
       "toggle": require("./types/toggle.js")
-    },
-    "shell": "form"
+    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -13601,7 +13782,7 @@ d3plus.form = function() {
     var large = vars.data.value instanceof Array
                 && vars.data.value.length > vars.data.large
 
-    vars.draw.timing = vars.draw.first || large || d3plus.ie
+    vars.draw.timing = vars.draw.first || large || ie
                      ? 0 : vars.timing.ui
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -13853,7 +14034,7 @@ d3plus.form = function() {
           })
 
       }
-
+      
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Call specific UI element type, if there is data.
       //------------------------------------------------------------------------
@@ -13927,7 +14108,7 @@ d3plus.form = function() {
 
 }
 
-},{"../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../core/data/format.js":"/Users/Dave/Sites/D3plus/src/core/data/format.js","../core/data/keys.js":"/Users/Dave/Sites/D3plus/src/core/data/keys.js","../core/data/load.coffee":"/Users/Dave/Sites/D3plus/src/core/data/load.coffee","../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","../core/methods/reset.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","./methods/active.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/active.coffee","./methods/aggs.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee","./methods/alt.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee","./methods/color.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/color.coffee","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/container.coffee","./methods/data.js":"/Users/Dave/Sites/D3plus/src/form/methods/data.js","./methods/depth.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee","./methods/draw.js":"/Users/Dave/Sites/D3plus/src/form/methods/draw.js","./methods/focus.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee","./methods/font.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/font.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/height.coffee","./methods/history.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/history.coffee","./methods/hover.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee","./methods/icon.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee","./methods/id.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/id.coffee","./methods/keywords.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee","./methods/margin.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee","./methods/open.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/open.coffee","./methods/order.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/order.coffee","./methods/remove.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee","./methods/search.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/search.coffee","./methods/select.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/select.coffee","./methods/selectAll.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/text.coffee","./methods/timing.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee","./methods/title.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/title.coffee","./methods/type.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/type.coffee","./methods/ui.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/width.coffee","./types/auto.js":"/Users/Dave/Sites/D3plus/src/form/types/auto.js","./types/button/button.js":"/Users/Dave/Sites/D3plus/src/form/types/button/button.js","./types/drop/drop.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js","./types/toggle.js":"/Users/Dave/Sites/D3plus/src/form/types/toggle.js"}],"/Users/Dave/Sites/D3plus/src/form/methods/active.coffee":[function(require,module,exports){
+},{"../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../core/data/format.js":"/Users/Dave/Sites/D3plus/src/core/data/format.js","../core/data/keys.js":"/Users/Dave/Sites/D3plus/src/core/data/keys.js","../core/data/load.coffee":"/Users/Dave/Sites/D3plus/src/core/data/load.coffee","../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","../core/methods/reset.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","./methods/active.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/active.coffee","./methods/aggs.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee","./methods/alt.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee","./methods/color.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/color.coffee","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/container.coffee","./methods/data.js":"/Users/Dave/Sites/D3plus/src/form/methods/data.js","./methods/depth.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee","./methods/draw.js":"/Users/Dave/Sites/D3plus/src/form/methods/draw.js","./methods/focus.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee","./methods/font.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/font.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/height.coffee","./methods/history.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/history.coffee","./methods/hover.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee","./methods/icon.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee","./methods/id.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/id.coffee","./methods/keywords.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee","./methods/margin.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee","./methods/open.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/open.coffee","./methods/order.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/order.coffee","./methods/remove.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee","./methods/search.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/search.coffee","./methods/select.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/select.coffee","./methods/selectAll.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/text.coffee","./methods/timing.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee","./methods/title.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/title.coffee","./methods/type.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/type.coffee","./methods/ui.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/width.coffee","./types/auto.js":"/Users/Dave/Sites/D3plus/src/form/types/auto.js","./types/button/button.js":"/Users/Dave/Sites/D3plus/src/form/types/button/button.js","./types/drop/drop.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js","./types/toggle.js":"/Users/Dave/Sites/D3plus/src/form/types/toggle.js"}],"/Users/Dave/Sites/D3plus/src/form/methods/active.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14031,7 +14212,7 @@ module.exports = {
     "value"    : "|"
   },
   "element": {
-    "process": function( value ) {
+    "process": function(value, vars) {
 
       if ( d3selection(value) ) {
         var element = value
@@ -14044,8 +14225,6 @@ module.exports = {
       }
 
       if (element) {
-
-        var vars = this.getVars()
 
         vars.self.container(d3.select(element.node().parentNode))
 
@@ -14073,9 +14252,7 @@ module.exports = {
   },
   "filters"  : [],
   "mute"     : [],
-  "process"  : function( value ) {
-
-    var vars = this.getVars()
+  "process"  : function(value, vars) {
 
     if ( vars.container.id === "default" && value.length ) {
       vars.self.container({"id": "default"+value.length})
@@ -14102,7 +14279,7 @@ module.exports = {
 
 
 },{}],"/Users/Dave/Sites/D3plus/src/form/methods/draw.js":[function(require,module,exports){
-var d3selection = require("../../util/d3selection.coffee"),
+var d3selection  = require("../../util/d3selection.coffee"),
     parseElement = require("../../core/parse/element.js"),
     print        = require("../../core/console/print.coffee"),
     stringFormat = require("../../string/format.js")
@@ -14118,7 +14295,7 @@ module.exports = {
       return value
     }
 
-    if (vars.data.value && d3selection( vars.data.value )) {
+    if (vars.data.value && (!(vars.data.value instanceof Array) || d3selection(vars.data.value))) {
       vars.data.value = parseElement( vars )
     }
 
@@ -14292,19 +14469,21 @@ module.exports = {
     accepted: [false, Function],
     value: false
   },
-  value: function(value, key) {
-    var f, v, vars;
-    vars = this.getVars();
+  value: function(value, key, vars) {
+    var f, v;
+    if (!vars) {
+      vars = {};
+    }
     if (vars.time && vars.time.value && key === vars.time.value) {
       f = vars.time.format.value || vars.data.time.format;
       v = (value.constructor === Date ? value : new Date(value));
       return f(v);
     } else if (typeof value === "number") {
       f = this.number.value || formatNumber;
-      return f(value, key);
+      return f(value, key, vars);
     } else if (typeof value === "string") {
       f = this.text.value || titleCase;
-      return f(value, key);
+      return f(value, key, vars);
     } else {
       return JSON.stringify(value);
     }
@@ -14735,16 +14914,15 @@ module.exports = function( vars ) {
 }
 
 },{}],"/Users/Dave/Sites/D3plus/src/form/types/button/button.js":[function(require,module,exports){
-var print = require("../../../core/console/print.coffee")
+var print = require("../../../core/console/print.coffee"),
+    color = require("./functions/color.js"),
+    icons = require("./functions/icons.js"),
+    mouseevents = require("./functions/mouseevents.js"),
+    style = require("./functions/style.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a Button
 //------------------------------------------------------------------------------
 module.exports = function( vars ) {
-
-  var color = require("./functions/color.js")
-    , icons = require("./functions/icons.js")
-    , mouseevents = require("./functions/mouseevents.js")
-    , style = require("./functions/style.js")
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Bind Data to Buttons
@@ -14884,13 +15062,13 @@ module.exports = function ( elem , vars ) {
 }
 
 },{"../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/icons.js":[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//
-//------------------------------------------------------------------------------
+var prefix = require("../../../../client/prefix.coffee"),
+    rtl = require("../../../../client/rtl.coffee")
+
 module.exports = function ( elem , vars ) {
 
-  var reversed = (vars.font.align.value === "right" && !d3plus.rtl)
-                 || (d3plus.rtl && vars.font.align.value === "right")
+  var reversed = (vars.font.align.value === "right" && !rtl)
+                 || (rtl && vars.font.align.value === "right")
 
   elem
     .each(function(d,i){
@@ -15008,12 +15186,12 @@ module.exports = function ( elem , vars ) {
           }
           return "auto"
         })
-        .style(d3plus.prefix()+"transition",function(c){
+        .style(prefix()+"transition",function(c){
           return c === "selected" ? (vars.draw.timing/1000)+"s" : "none"
         })
-        .style(d3plus.prefix()+"transform",function(c){
+        .style(prefix()+"transform",function(c){
           var degree = c === "selected" ? vars.icon.select.rotate : "none"
-          return "rotate("+degree+"deg)"
+          return typeof degree === "string" ? degree : "rotate("+degree+"deg)"
         })
         .style("opacity",function(c){
           return c === "selected" ? vars.icon.select.opacity : 1
@@ -15032,7 +15210,7 @@ module.exports = function ( elem , vars ) {
         if (children.length === 3) {
           var padding = p+"px "+buffer+"px"
         }
-        else if ((children.indexOf("icon") >= 0 && !d3plus.rtl) || (children.indexOf("selected") >= 0 && d3plus.rtl)) {
+        else if ((children.indexOf("icon") >= 0 && !rtl) || (children.indexOf("selected") >= 0 && rtl)) {
           var padding = p+"px "+p+"px "+p+"px "+buffer+"px"
         }
         else {
@@ -15063,18 +15241,18 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js":[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-//
-//------------------------------------------------------------------------------
+},{"../../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js":[function(require,module,exports){
+var events = require("../../../../client/pointer.coffee"),
+    ie = require("../../../../client/ie.js")
+
 module.exports = function ( elem , vars , color ) {
 
   elem
-    .on(d3plus.evt.over,function(d,i){
+    .on(events.over,function(d,i){
 
       vars.self.hover(d[vars.id.value])
 
-      if ( d3plus.ie || !vars.draw.timing ) {
+      if ( ie || !vars.draw.timing ) {
 
         d3.select(this).style("cursor","pointer")
           .call( color , vars )
@@ -15088,11 +15266,11 @@ module.exports = function ( elem , vars , color ) {
       }
 
     })
-    .on(d3plus.evt.out,function(d){
+    .on(events.out,function(d){
 
       vars.self.hover(false)
 
-      if ( d3plus.ie || !vars.draw.timing ) {
+      if ( ie || !vars.draw.timing ) {
         d3.select(this).style("cursor","auto")
           .call( color , vars )
       }
@@ -15103,7 +15281,7 @@ module.exports = function ( elem , vars , color ) {
       }
 
     })
-    .on(d3plus.evt.click,function(d){
+    .on(events.click,function(d){
 
       if ( vars.id.value in d ) {
 
@@ -15115,7 +15293,7 @@ module.exports = function ( elem , vars , color ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js":[function(require,module,exports){
+},{"../../../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -15281,7 +15459,8 @@ module.exports = function ( vars ) {
 
 },{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/button.js":[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
-    print = require("../../../../core/console/print.coffee")
+    events = require("../../../../client/pointer.coffee"),
+    print  = require("../../../../core/console/print.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the main drop button.
@@ -15357,13 +15536,13 @@ module.exports = function ( vars ) {
 
   vars.margin.top += button.node().offsetHeight || button.node().getBoundingClientRect().height
 
-  button.on(d3plus.evt.click,function(){
+  button.on(events.click,function(){
     vars.self.open(!vars.open.value).draw()
   })
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js":[function(require,module,exports){
+},{"../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js":[function(require,module,exports){
 var stringFormat = require("../../../../string/format.js"),
     stringStrip = require("../../../../string/strip.js")
 
@@ -15914,7 +16093,8 @@ module.exports = function ( vars ) {
 }
 
 },{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/search.js":[function(require,module,exports){
-var print = require("../../../../core/console/print.coffee")
+var prefix = require("../../../../client/prefix.coffee"),
+    print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the search box, if enabled.
 //------------------------------------------------------------------------------
@@ -15952,7 +16132,7 @@ module.exports = function ( vars ) {
       .style("font-weight",vars.font.secondary.weight)
       .style("text-align",vars.font.secondary.align)
       .style("outline","none")
-      .style(d3plus.prefix()+"border-radius","0")
+      .style(prefix()+"border-radius","0")
       .attr("placeholder",vars.format.value(vars.format.locale.value.method.search))
 
   }
@@ -16005,7 +16185,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./data.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","./items.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","./update.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js":[function(require,module,exports){
+},{"../../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./data.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","./items.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","./update.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
@@ -16028,7 +16208,8 @@ module.exports = function ( vars ) {
 }
 
 },{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/title.js":[function(require,module,exports){
-var lighter = require("../../../../color/lighter.coffee"),
+var events = require("../../../../client/pointer.coffee"),
+    lighter   = require("../../../../color/lighter.coffee"),
     print     = require("../../../../core/console/print.coffee"),
     textColor = require("../../../../color/text.coffee")
 
@@ -16141,7 +16322,7 @@ module.exports = function ( vars ) {
       .call(titleStyle)
 
     vars.container.title
-      .on(d3plus.evt.over,function(d,i){
+      .on(events.over,function(d,i){
 
         var color = lighter(vars.ui.color.secondary.value)
 
@@ -16151,7 +16332,7 @@ module.exports = function ( vars ) {
           .style("color",textColor(color))
 
       })
-      .on(d3plus.evt.out,function(d){
+      .on(events.out,function(d){
 
         var color = vars.ui.color.secondary.value
 
@@ -16161,7 +16342,7 @@ module.exports = function ( vars ) {
           .style("color",textColor(color))
 
       })
-      .on(d3plus.evt.click,function(d){
+      .on(events.click,function(d){
         vars.history.back()
       })
 
@@ -16177,7 +16358,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js":[function(require,module,exports){
+},{"../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js":[function(require,module,exports){
 var items = require("./items.js"),
     height     = require("./height.js"),
     print      = require("../../../../core/console/print.coffee"),
@@ -16564,112 +16745,6 @@ module.exports = function( vars ) {
     })
 
 }
-
-},{}],"/Users/Dave/Sites/D3plus/src/general/events.coffee":[function(require,module,exports){
-var ie, touch;
-
-ie = require("./ie.js");
-
-touch = require("./touch.coffee");
-
-if (touch) {
-  d3plus.evt = {
-    click: "click",
-    down: "touchstart",
-    up: "touchend",
-    over: "touchstart",
-    out: "touchend",
-    move: "touchmove"
-  };
-} else {
-  d3plus.evt = {
-    click: "click",
-    down: "mousedown",
-    up: "mouseup",
-    over: ie ? "mouseenter" : "mouseover",
-    out: ie ? "mouseleave" : "mouseout",
-    move: "mousemove"
-  };
-}
-
-module.exports = d3plus.evt;
-
-
-},{"./ie.js":"/Users/Dave/Sites/D3plus/src/general/ie.js","./touch.coffee":"/Users/Dave/Sites/D3plus/src/general/touch.coffee"}],"/Users/Dave/Sites/D3plus/src/general/ie.js":[function(require,module,exports){
-// Determines if the current browser is Internet Explorer.
-d3plus.ie = /*@cc_on!@*/false
-module.exports = d3plus.ie
-
-},{}],"/Users/Dave/Sites/D3plus/src/general/prefix.coffee":[function(require,module,exports){
-d3plus.prefix = function() {
-  var val;
-  if ("-webkit-transform" in document.body.style) {
-    val = "-webkit-";
-  } else if ("-moz-transform" in document.body.style) {
-    val = "-moz-";
-  } else if ("-ms-transform" in document.body.style) {
-    val = "-ms-";
-  } else if ("-o-transform" in document.body.style) {
-    val = "-o-";
-  } else {
-    val = "";
-  }
-  d3plus.prefix = function() {
-    return val;
-  };
-  return val;
-};
-
-
-},{}],"/Users/Dave/Sites/D3plus/src/general/rtl.js":[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects right-to-left text direction on the page.
-//------------------------------------------------------------------------------
-d3plus.rtl = d3.select("html").attr("dir") == "rtl"
-
-},{}],"/Users/Dave/Sites/D3plus/src/general/scrollbar.js":[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Detects scrollbar width for current browser.
-//------------------------------------------------------------------------------
-d3plus.scrollbar = function() {
-
-  var inner = document.createElement("p");
-  inner.style.width = "100%";
-  inner.style.height = "200px";
-
-  var outer = document.createElement("div");
-  outer.style.position = "absolute";
-  outer.style.top = "0px";
-  outer.style.left = "0px";
-  outer.style.visibility = "hidden";
-  outer.style.width = "200px";
-  outer.style.height = "150px";
-  outer.style.overflow = "hidden";
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-  var w1 = inner.offsetWidth;
-  outer.style.overflow = "scroll";
-  var w2 = inner.offsetWidth;
-  if (w1 == w2) w2 = outer.clientWidth;
-
-  document.body.removeChild(outer);
-
-  var val = (w1 - w2)
-
-  d3plus.scrollbar = function(){
-    return val
-  }
-
-  return val;
-
-}
-
-},{}],"/Users/Dave/Sites/D3plus/src/general/touch.coffee":[function(require,module,exports){
-d3plus.touch = ("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch ? true : false;
-
-module.exports = d3plus.touch;
-
 
 },{}],"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee":[function(require,module,exports){
 var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, print, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
@@ -17084,7 +17159,117 @@ intersectPoints = function(poly, origin, alpha) {
 };
 
 
-},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","simplify-js":"/Users/Dave/Sites/D3plus/node_modules/simplify-js/simplify.js"}],"/Users/Dave/Sites/D3plus/src/init.coffee":[function(require,module,exports){
+},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","simplify-js":"/Users/Dave/Sites/D3plus/node_modules/simplify-js/simplify.js"}],"/Users/Dave/Sites/D3plus/src/geom/offset.coffee":[function(require,module,exports){
+module.exports = function(radians, distance, shape) {
+  var adjacentLegLength, coords, diagonal, oppositeLegLength;
+  coords = {
+    x: 0,
+    y: 0
+  };
+  if (radians < 0) {
+    radians = Math.PI * 2 + radians;
+  }
+  if (shape === "square") {
+    diagonal = 45 * (Math.PI / 180);
+    if (radians <= Math.PI) {
+      if (radians < (Math.PI / 2)) {
+        if (radians < diagonal) {
+          coords.x += distance;
+          oppositeLegLength = Math.tan(radians) * distance;
+          coords.y += oppositeLegLength;
+        } else {
+          coords.y += distance;
+          adjacentLegLength = distance / Math.tan(radians);
+          coords.x += adjacentLegLength;
+        }
+      } else {
+        if (radians < (Math.PI - diagonal)) {
+          coords.y += distance;
+          adjacentLegLength = distance / Math.tan(Math.PI - radians);
+          coords.x -= adjacentLegLength;
+        } else {
+          coords.x -= distance;
+          oppositeLegLength = Math.tan(Math.PI - radians) * distance;
+          coords.y += oppositeLegLength;
+        }
+      }
+    } else {
+      if (radians < (3 * Math.PI / 2)) {
+        if (radians < (diagonal + Math.PI)) {
+          coords.x -= distance;
+          oppositeLegLength = Math.tan(radians - Math.PI) * distance;
+          coords.y -= oppositeLegLength;
+        } else {
+          coords.y -= distance;
+          adjacentLegLength = distance / Math.tan(radians - Math.PI);
+          coords.x -= adjacentLegLength;
+        }
+      } else {
+        if (radians < (2 * Math.PI - diagonal)) {
+          coords.y -= distance;
+          adjacentLegLength = distance / Math.tan(2 * Math.PI - radians);
+          coords.x += adjacentLegLength;
+        } else {
+          coords.x += distance;
+          oppositeLegLength = Math.tan(2 * Math.PI - radians) * distance;
+          coords.y -= oppositeLegLength;
+        }
+      }
+    }
+  } else {
+    coords.x += distance * Math.cos(radians);
+    coords.y += distance * Math.sin(radians);
+  }
+  return coords;
+};
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee":[function(require,module,exports){
+var offset;
+
+offset = require("../geom/offset.coffee");
+
+module.exports = function(path) {
+  var angle, i, last, length, o, obtuse, p, poly, prev, radius, segments, start, step, width, _i, _len;
+  path = path.slice(1).slice(0, -1).split(/L|A/);
+  poly = [];
+  for (_i = 0, _len = path.length; _i < _len; _i++) {
+    p = path[_i];
+    p = p.split(" ");
+    if (p.length === 1) {
+      poly.push(p[0].split(",").map(function(d) {
+        return parseFloat(d);
+      }));
+    } else {
+      prev = poly[poly.length - 1];
+      last = p.pop().split(",").map(function(d) {
+        return parseFloat(d);
+      });
+      radius = parseFloat(p.shift().split(",")[0]);
+      width = Math.sqrt(Math.pow(last[0] - prev[0], 2) + Math.pow(last[1] - prev[1], 2));
+      angle = Math.acos((radius * radius + radius * radius - width * width) / (2 * radius * radius));
+      obtuse = p[1].split(",")[0] === "1";
+      if (obtuse) {
+        angle = Math.PI * 2 - angle;
+      }
+      length = angle / (Math.PI * 2) * (radius * Math.PI * 2);
+      segments = length / 5;
+      start = Math.atan2(-prev[1], -prev[0]) - Math.PI;
+      step = angle / segments;
+      i = step;
+      while (i < angle) {
+        o = offset(start + i, radius);
+        poly.push([o.x, o.y]);
+        i += step;
+      }
+      poly.push(last);
+    }
+  }
+  return poly;
+};
+
+
+},{"../geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee"}],"/Users/Dave/Sites/D3plus/src/init.coffee":[function(require,module,exports){
 
 /**
  * @class d3plus
@@ -17104,7 +17289,7 @@ window.d3plus = d3plus;
  * @static
  */
 
-d3plus.version = "1.5.0 - Aqua";
+d3plus.version = "1.5.1 - Aqua";
 
 
 /**
@@ -17128,6 +17313,24 @@ d3plus.repo = "https://github.com/alexandersimoes/d3plus/";
 d3plus.array = {
   sort: require("./array/sort.coffee"),
   update: require("./array/update.coffee")
+};
+
+
+/**
+ * Utilities related to the client's browser.
+ * @class d3plus.client
+ * @for d3plus
+ * @static
+ */
+
+d3plus.client = {
+  css: require("./client/css.coffee"),
+  ie: require("./client/ie.js"),
+  pointer: require("./client/pointer.coffee"),
+  prefix: require("./client/prefix.coffee"),
+  rtl: require("./client/rtl.coffee"),
+  scrollbar: require("./client/scrollbar.coffee"),
+  touch: require("./client/touch.coffee")
 };
 
 
@@ -17185,7 +17388,9 @@ d3plus.font = {
  */
 
 d3plus.geom = {
-  largestRect: require("./geom/largestRect.coffee")
+  largestRect: require("./geom/largestRect.coffee"),
+  offset: require("./geom/offset.coffee"),
+  path2poly: require("./geom/path2poly.coffee")
 };
 
 
@@ -17245,18 +17450,6 @@ d3plus.string = {
 
 
 /**
- * Utilities that relate to styles.
- * @class d3plus.style
- * @for d3plus
- * @static
- */
-
-d3plus.style = {
-  sheet: require("./style/sheet.coffee")
-};
-
-
-/**
  * D3plus SVG Textwrapping
  * @class d3plus.textwrap
  * @for d3plus
@@ -17279,8 +17472,7 @@ d3plus.util = {
   copy: require("./util/copy.coffee"),
   d3selection: require("./util/d3selection.coffee"),
   dataurl: require("./util/dataURL.coffee"),
-  distances: require("./util/distances.coffee"),
-  offset: require("./util/offset.coffee"),
+  distances: require("./network/distances.coffee"),
   uniques: require("./util/uniques.coffee")
 };
 
@@ -17295,7 +17487,7 @@ d3plus.viz = require("./viz/viz.coffee");
 
 d3plus.tooltip = {};
 
-stylesheet = require("./style/sheet.coffee");
+stylesheet = require("./client/css.coffee");
 
 message = require("./core/console/print.coffee");
 
@@ -17304,7 +17496,7 @@ if (stylesheet("d3plus.css")) {
 }
 
 
-},{"./array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","./array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","./color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","./color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","./color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee","./color/random.coffee":"/Users/Dave/Sites/D3plus/src/color/random.coffee","./color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","./color/sort.coffee":"/Users/Dave/Sites/D3plus/src/color/sort.coffee","./color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","./color/validate.coffee":"/Users/Dave/Sites/D3plus/src/color/validate.coffee","./core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./data/bestRegress.coffee":"/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee","./data/lof.coffee":"/Users/Dave/Sites/D3plus/src/data/lof.coffee","./data/mad.coffee":"/Users/Dave/Sites/D3plus/src/data/mad.coffee","./font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./font/validate.coffee":"/Users/Dave/Sites/D3plus/src/font/validate.coffee","./geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","./network/cluster.coffee":"/Users/Dave/Sites/D3plus/src/network/cluster.coffee","./network/normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee","./network/shortestPath.coffee":"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","./network/subgraph.coffee":"/Users/Dave/Sites/D3plus/src/network/subgraph.coffee","./number/format.js":"/Users/Dave/Sites/D3plus/src/number/format.js","./object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","./object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","./string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","./string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","./string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","./string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee","./style/sheet.coffee":"/Users/Dave/Sites/D3plus/src/style/sheet.coffee","./textwrap/textwrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","./util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","./util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee","./util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","./util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","./util/dataURL.coffee":"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","./util/distances.coffee":"/Users/Dave/Sites/D3plus/src/util/distances.coffee","./util/offset.coffee":"/Users/Dave/Sites/D3plus/src/util/offset.coffee","./util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./viz/viz.coffee":"/Users/Dave/Sites/D3plus/src/viz/viz.coffee"}],"/Users/Dave/Sites/D3plus/src/network/cluster.coffee":[function(require,module,exports){
+},{"./array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","./array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","./client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee","./client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","./client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","./client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","./client/scrollbar.coffee":"/Users/Dave/Sites/D3plus/src/client/scrollbar.coffee","./client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","./color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","./color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","./color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee","./color/random.coffee":"/Users/Dave/Sites/D3plus/src/color/random.coffee","./color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","./color/sort.coffee":"/Users/Dave/Sites/D3plus/src/color/sort.coffee","./color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","./color/validate.coffee":"/Users/Dave/Sites/D3plus/src/color/validate.coffee","./core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./data/bestRegress.coffee":"/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee","./data/lof.coffee":"/Users/Dave/Sites/D3plus/src/data/lof.coffee","./data/mad.coffee":"/Users/Dave/Sites/D3plus/src/data/mad.coffee","./font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./font/validate.coffee":"/Users/Dave/Sites/D3plus/src/font/validate.coffee","./geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","./geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee","./geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","./network/cluster.coffee":"/Users/Dave/Sites/D3plus/src/network/cluster.coffee","./network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee","./network/normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee","./network/shortestPath.coffee":"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","./network/subgraph.coffee":"/Users/Dave/Sites/D3plus/src/network/subgraph.coffee","./number/format.js":"/Users/Dave/Sites/D3plus/src/number/format.js","./object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","./object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","./string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","./string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","./string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","./string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee","./textwrap/textwrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","./util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","./util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee","./util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","./util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","./util/dataURL.coffee":"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","./util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./viz/viz.coffee":"/Users/Dave/Sites/D3plus/src/viz/viz.coffee"}],"/Users/Dave/Sites/D3plus/src/network/cluster.coffee":[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -17441,7 +17633,32 @@ module.exports = function(edges, options) {
 };
 
 
-},{"./normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee"}],"/Users/Dave/Sites/D3plus/src/network/normalize.coffee":[function(require,module,exports){
+},{"./normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee"}],"/Users/Dave/Sites/D3plus/src/network/distances.coffee":[function(require,module,exports){
+module.exports = function(arr, accessor) {
+  var checked, distances;
+  distances = [];
+  checked = [];
+  arr.forEach(function(node1) {
+    var n1;
+    n1 = (accessor ? accessor(node1) : [node1.x, node1.y]);
+    checked.push(node1);
+    return arr.forEach(function(node2) {
+      var n2, xx, yy;
+      if (checked.indexOf(node2) < 0) {
+        n2 = (accessor ? accessor(node2) : [node2.x, node2.y]);
+        xx = Math.abs(n1[0] - n2[0]);
+        yy = Math.abs(n1[1] - n2[1]);
+        return distances.push(Math.sqrt((xx * xx) + (yy * yy)));
+      }
+    });
+  });
+  return distances.sort(function(a, b) {
+    return a - b;
+  });
+};
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/network/normalize.coffee":[function(require,module,exports){
 var print;
 
 print = require("../core/console/print.coffee");
@@ -17762,11 +17979,7 @@ var defaultLocale = require("../core/locale/languages/en_US.js")
 // Formats numbers to look "pretty"
 module.exports = function( number , key , vars ) {
 
-  if ( !vars && "getVars" in this) {
-    var vars = this.getVars()
-  }
-
-  if ( vars && key && (
+  if ( vars && key && vars.x && vars.y && (
        ( key === vars.x.value && vars.x.scale.value === "log" ) ||
        ( key === vars.y.value && vars.y.scale.value === "log" ) ) ) {
 
@@ -17788,7 +18001,7 @@ module.exports = function( number , key , vars ) {
     var time = defaultLocale.time
   }
 
-  if ( vars && typeof vars.time.value === "string") {
+  if ( vars && vars.time && typeof vars.time.value === "string") {
     time.push(vars.time.value)
   }
 
@@ -18032,34 +18245,7 @@ module.exports = function(text, key, vars) {
 };
 
 
-},{"../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js"}],"/Users/Dave/Sites/D3plus/src/style/sheet.coffee":[function(require,module,exports){
-var sheet;
-
-sheet = function(name) {
-  var css, i, returnBoolean, tested;
-  tested = sheet.tested;
-  if (name in tested) {
-    return tested[name];
-  }
-  i = 0;
-  returnBoolean = false;
-  while (i < document.styleSheets.length) {
-    css = document.styleSheets[i];
-    if (css.href && css.href.indexOf(name) >= 0) {
-      returnBoolean = true;
-      break;
-    }
-    i++;
-  }
-  return returnBoolean;
-};
-
-sheet.tested = {};
-
-module.exports = sheet;
-
-
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee":[function(require,module,exports){
+},{"../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js"}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee":[function(require,module,exports){
 var foreign, tspan;
 
 foreign = require("./foreign.coffee");
@@ -18084,7 +18270,7 @@ module.exports = function(vars) {
   color = text.attr("fill") || text.style("fill");
   opacity = text.attr("opacity") || text.style("opacity");
   anchor = anchor === "end" ? "right" : (anchor === "middle" ? "center" : "left");
-  d3.select(text.node().parentNode).append("foreignObject").attr("width", vars.width.value + "px").attr("height", vars.height.value + "px").attr("x", "0px").attr("y", "0px").append("xhtml:div").style("font-family", family).style("font-size", vars.size.value[1]).style("color", color).style("text-align", anchor).style("opacity", opacity).text(vars.text.current);
+  d3.select(text.node().parentNode).append("foreignObject").attr("width", vars.width.value + "px").attr("height", vars.height.value + "px").attr("x", "0px").attr("y", "0px").append("xhtml:div").style("font-family", family).style("font-size", vars.size.value[1] + "px").style("color", color).style("text-align", anchor).style("opacity", opacity).text(vars.text.current);
 };
 
 
@@ -18562,11 +18748,12 @@ module.exports = function() {
 
 
 },{"../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","./helpers/getDimensions.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getDimensions.coffee","./helpers/getSize.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getSize.coffee","./helpers/getText.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getText.coffee","./helpers/wrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/wrap.coffee","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/container.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/dev.coffee","./methods/draw.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/draw.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/height.coffee","./methods/resize.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/resize.coffee","./methods/shape.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/shape.coffee","./methods/size.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/size.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/text.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/width.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/app.js":[function(require,module,exports){
-var arraySort = require("../array/sort.coffee"),
-    fetchValue  = require("../core/fetch/value.js"),
-    fetchColor  = require("../core/fetch/color.coffee"),
-    fetchText   = require("../core/fetch/text.js"),
-    validObject = require("../object/validate.coffee")
+var arraySort     = require("../array/sort.coffee"),
+    fetchValue    = require("../core/fetch/value.js"),
+    fetchColor    = require("../core/fetch/color.coffee"),
+    fetchText     = require("../core/fetch/text.js"),
+    validObject   = require("../object/validate.coffee"),
+    zoomDirection = require("../viz/helpers/zoom/direction.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -18598,7 +18785,7 @@ d3plus.tooltip.app = function(params) {
     var fullscreen = false,
         align = params.anchor || vars.tooltip.anchor,
         length = params.length || "short",
-        zoom = vars.zoom.direction(d)
+        zoom = zoomDirection(d, vars)
 
     if (zoom === -1) {
       var key = vars.id.nesting[dataDepth-1],
@@ -18621,7 +18808,7 @@ d3plus.tooltip.app = function(params) {
       var text = ""
     }
 
-    var footer = text.length ? vars.format.value(text,"footer") : false
+    var footer = text.length ? vars.format.value(text,"footer", vars) : false
 
   }
 
@@ -18709,7 +18896,7 @@ d3plus.tooltip.app = function(params) {
             , value = fetchValue( vars , id , vars.size.value , nestKey )
             , color = fetchColor( vars , id , nestKey )
 
-          children[name] = value ? vars.format.value( value , vars.size.value ) : ""
+          children[name] = value ? vars.format.value( value , vars.size.value , vars) : ""
 
           if ( color ) {
             if ( !children.d3plus_colors ) children.d3plus_colors = {}
@@ -18726,7 +18913,7 @@ d3plus.tooltip.app = function(params) {
       else if ( nameList && nameList !== "null" ) {
 
         var name  = fetchText( vars , nameList , depth )[0]
-        children[name] = dataValue ? vars.format.value( dataValue , vars.size.value ) : ""
+        children[name] = dataValue ? vars.format.value( dataValue , vars.size.value , vars) : ""
 
       }
 
@@ -18742,16 +18929,16 @@ d3plus.tooltip.app = function(params) {
 
     if (typeof active == "number" && active > 0 && total) {
       var label = vars.active.value || "active"
-      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%)"
+      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%, vars)"
     }
 
     if (typeof temp == "number" && temp > 0 && total) {
       var label = vars.temp.value || "temp"
-      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%)"
+      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%, vars)"
     }
 
     if ( vars.tooltip.share.value && d.d3plus.share ) {
-      ex.share = vars.format.value(d.d3plus.share*100,"share")+"%"
+      ex.share = vars.format.value(d.d3plus.share*100,"share", vars)+"%"
     }
 
     var depth = "depth" in params ? params.depth : dataDepth,
@@ -18831,7 +19018,7 @@ d3plus.tooltip.app = function(params) {
 
   }
 
-  if (fullscreen) {
+  if (fullscreen || params.length === "long") {
 
     if (typeof vars.tooltip.html.value == "string") {
       make_tooltip(vars.tooltip.html.value)
@@ -18856,7 +19043,7 @@ d3plus.tooltip.app = function(params) {
 
 }
 
-},{"../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/arrow.js":[function(require,module,exports){
+},{"../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../viz/helpers/zoom/direction.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/arrow.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Correctly positions the tooltip's arrow
 //-------------------------------------------------------------------
@@ -18933,7 +19120,10 @@ d3plus.tooltip.arrow = function(arrow) {
 }
 },{}],"/Users/Dave/Sites/D3plus/src/tooltip/create.js":[function(require,module,exports){
 var defaultLocale = require("../core/locale/languages/en_US.js"),
+    events     = require("../client/pointer.coffee"),
     legible    = require("../color/legible.coffee"),
+    prefix     = require("../client/prefix.coffee"),
+    rtl        = require("../client/rtl.coffee"),
     stringList = require("../string/list.coffee"),
     textColor  = require("../color/text.coffee")
 
@@ -18943,7 +19133,7 @@ var defaultLocale = require("../core/locale/languages/en_US.js"),
 d3plus.tooltip.create = function(params) {
 
   var default_width = params.fullscreen ? 250 : 200
-    , vendor = d3plus.prefix()
+    , vendor = prefix()
   params.width = params.width || default_width
   params.max_width = params.max_width || 386
   params.id = params.id || "default"
@@ -19028,7 +19218,7 @@ d3plus.tooltip.create = function(params) {
       .style("right","0px")
       .style("bottom","0px")
       .style("left","0px")
-      .on(d3plus.evt.click,function(){
+      .on(events.click,function(){
         d3plus.tooltip.remove(params.id)
       })
   }
@@ -19044,7 +19234,7 @@ d3plus.tooltip.create = function(params) {
     .style(vendor+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
     .style("position","absolute")
     .style("z-index",params.zindex)
-    .on(d3plus.evt.out,function(){
+    .on(events.out,function(){
       close_descriptions()
     })
 
@@ -19119,17 +19309,17 @@ d3plus.tooltip.create = function(params) {
       .style("width","18px")
       .style("z-index",10)
       .html("\&times;")
-      .on(d3plus.evt.over,function(){
+      .on(events.over,function(){
         d3.select(this)
           .style("cursor","pointer")
           .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.5)")
       })
-      .on(d3plus.evt.out,function(){
+      .on(events.out,function(){
         d3.select(this)
           .style("cursor","auto")
           .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.25)")
       })
-      .on(d3plus.evt.click,function(){
+      .on(events.click,function(){
         d3plus.tooltip.remove(params.id)
       })
   }
@@ -19139,7 +19329,7 @@ d3plus.tooltip.create = function(params) {
   }
   else if (params.mouseevents !== true) {
 
-    var oldout = d3.select(params.mouseevents).on(d3plus.evt.out)
+    var oldout = d3.select(params.mouseevents).on(events.out)
 
     var newout = function() {
 
@@ -19154,7 +19344,7 @@ d3plus.tooltip.create = function(params) {
       if (!target || (!ischild(tooltip.node(),target) && !ischild(params.mouseevents,target) && !istooltip)) {
         oldout(d3.select(params.mouseevents).datum())
         close_descriptions()
-        d3.select(params.mouseevents).on(d3plus.evt.out,oldout)
+        d3.select(params.mouseevents).on(events.out,oldout)
       }
     }
 
@@ -19169,12 +19359,12 @@ d3plus.tooltip.create = function(params) {
        return false;
     }
 
-    d3.select(params.mouseevents).on(d3plus.evt.out,newout)
-    tooltip.on(d3plus.evt.out,newout)
+    d3.select(params.mouseevents).on(events.out,newout)
+    tooltip.on(events.out,newout)
 
-    var move_event = d3.select(params.mouseevents).on(d3plus.evt.move)
+    var move_event = d3.select(params.mouseevents).on(events.move)
     if (move_event) {
-      tooltip.on(d3plus.evt.move,move_event)
+      tooltip.on(events.move,move_event)
     }
 
   }
@@ -19289,9 +19479,15 @@ d3plus.tooltip.create = function(params) {
           .attr("class","d3plus_tooltip_data_name")
           .style("display","inline-block")
           .html(d.name)
-          .on(d3plus.evt.out,function(){
+          .on(events.out,function(){
             d3.event.stopPropagation()
           })
+
+      if (d.link) {
+        name
+          .style("cursor","pointer")
+          .on(events.click,d.link)
+      }
 
       if ( d.value instanceof Array ) {
 
@@ -19308,12 +19504,12 @@ d3plus.tooltip.create = function(params) {
           .style("position","absolute")
           .style("text-align","right")
           .style("top","3px")
-          .text(d.value)
-          .on(d3plus.evt.out,function(){
+          .html(d.value)
+          .on(events.out,function(){
             d3.event.stopPropagation()
           })
 
-      if (d3plus.rtl) {
+      if (rtl) {
         val.style("left","6px")
       }
       else {
@@ -19328,7 +19524,7 @@ d3plus.tooltip.create = function(params) {
           .style(vendor+"transition","height 0.5s")
           .style("width","85%")
           .text(d.desc)
-          .on(d3plus.evt.out,function(){
+          .on(events.out,function(){
             d3.event.stopPropagation()
           })
 
@@ -19353,25 +19549,25 @@ d3plus.tooltip.create = function(params) {
           .style("vertical-align","top")
           .style(prefix+"transition","background-color 0.5s")
           .text("?")
-          .on(d3plus.evt.over,function(){
+          .on(events.over,function(){
             var c = d3.select(this.parentNode.parentNode).style("color")
             d3.select(this).style("background-color",c)
             desc.style("height",dh+"px")
           })
-          .on(d3plus.evt.out,function(){
+          .on(events.out,function(){
             d3.event.stopPropagation()
           })
 
         name
           .style("cursor","pointer")
-          .on(d3plus.evt.over,function(){
+          .on(events.over,function(){
             close_descriptions()
             var c = d3.select(this.parentNode).style("color")
             help.style("background-color",c)
             desc.style("height",dh+"px")
           })
 
-        block.on(d3plus.evt.out,function(){
+        block.on(events.out,function(){
           d3.event.stopPropagation()
           close_descriptions()
         })
@@ -19482,13 +19678,14 @@ d3plus.tooltip.create = function(params) {
 
 }
 
-},{"../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/data.js":[function(require,module,exports){
+},{"../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/data.js":[function(require,module,exports){
 var copy = require("../util/copy.coffee"),
     fetchValue   = require("../core/fetch/value.js"),
     fetchColor   = require("../core/fetch/color.coffee"),
     fetchText    = require("../core/fetch/text.js"),
     legible      = require("../color/legible.coffee"),
     mergeObject  = require("../object/merge.coffee"),
+    prefix       = require("../client/prefix.coffee"),
     stringFormat = require("../string/format.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
@@ -19575,11 +19772,11 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
       if ( value instanceof Array ) {
         value.forEach(function(v){
-          v = vars.format.value(v,key)
+          v = vars.format.value(v,key, vars)
         })
       }
       else {
-        value = vars.format.value(value,key)
+        value = vars.format.value(value,key, vars)
       }
 
       var obj = {"name": name, "value": value, "highlight": h, "group": group}
@@ -19732,7 +19929,13 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
     var connections = vars.edges.connections( id[vars.id.value] , vars.id.value , true )
 
     if ( connections.length ) {
-      connections.forEach(function(c){
+      connections.forEach(function(conn){
+
+        var c = vars.data.viz.filter(function(d){
+          return d[vars.id.value] === conn[vars.id.value]
+        })
+
+        var c = c.length ? c[0] : conn
 
         var name = fetchText(vars,c)[0],
             color = fetchColor(vars,c),
@@ -19749,15 +19952,19 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
               "position: absolute",
               "width: "+size+"px",
               "top: 0px",
-              d3plus.prefix()+"border-radius: "+radius+"px",
+              prefix()+"border-radius: "+radius+"px",
             ]
             node = "<div style='"+styles.join("; ")+";'></div>"
+
+        var nodeClick = function() {
+          vars.self.focus([c[vars.id.value]]).draw()
+        }
 
         tooltip_data.push({
           "group": vars.format.value(vars.format.locale.value.ui.primary),
           "highlight": false,
-          "name": "<div style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>",
-          "value": ""
+          "link": nodeClick,
+          "name": "<div id='d3plustooltipfocuslink_"+c[vars.id.value]+"' class='d3plus_tooltip_focus_link' style='position:relative;padding-left:"+size*1.5+"px;'>"+node+name+"</div>"
         })
 
       })
@@ -19769,7 +19976,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
 }
 
-},{"../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/move.js":[function(require,module,exports){
+},{"../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/move.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Set X and Y position for Tooltip
 //-------------------------------------------------------------------
@@ -19975,16 +20182,20 @@ module.exports = copy;
 
 
 },{"../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee":[function(require,module,exports){
-module.exports = function(selection) {
-  if (d3plus.ie) {
-    return typeof selection === "object" && selection instanceof Array;
+var ie;
+
+ie = require("../client/ie.js");
+
+module.exports = function(elem) {
+  if (ie) {
+    return typeof elem === "object" && elem instanceof Array && "size" in elem && "select" in elem;
   } else {
-    return selection instanceof d3.selection;
+    return elem instanceof d3.selection;
   }
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee":[function(require,module,exports){
+},{"../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js"}],"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee":[function(require,module,exports){
 module.exports = function(url, callback) {
   var img;
   img = new Image();
@@ -20003,102 +20214,14 @@ module.exports = function(url, callback) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/distances.coffee":[function(require,module,exports){
-module.exports = function(arr, accessor) {
-  var checked, distances;
-  distances = [];
-  checked = [];
-  arr.forEach(function(node1) {
-    var n1;
-    n1 = (accessor ? accessor(node1) : [node1.x, node1.y]);
-    checked.push(node1);
-    return arr.forEach(function(node2) {
-      var n2, xx, yy;
-      if (checked.indexOf(node2) < 0) {
-        n2 = (accessor ? accessor(node2) : [node2.x, node2.y]);
-        xx = Math.abs(n1[0] - n2[0]);
-        yy = Math.abs(n1[1] - n2[1]);
-        return distances.push(Math.sqrt((xx * xx) + (yy * yy)));
-      }
-    });
-  });
-  return distances.sort(function(a, b) {
-    return a - b;
-  });
-};
-
-
-},{}],"/Users/Dave/Sites/D3plus/src/util/offset.coffee":[function(require,module,exports){
-module.exports = function(radians, distance, shape) {
-  var adjacentLegLength, coords, diagonal, oppositeLegLength;
-  coords = {
-    x: 0,
-    y: 0
-  };
-  if (radians < 0) {
-    radians = Math.PI * 2 + radians;
-  }
-  if (shape === "square") {
-    diagonal = 45 * (Math.PI / 180);
-    if (radians <= Math.PI) {
-      if (radians < (Math.PI / 2)) {
-        if (radians < diagonal) {
-          coords.x += distance;
-          oppositeLegLength = Math.tan(radians) * distance;
-          coords.y += oppositeLegLength;
-        } else {
-          coords.y += distance;
-          adjacentLegLength = distance / Math.tan(radians);
-          coords.x += adjacentLegLength;
-        }
-      } else {
-        if (radians < (Math.PI - diagonal)) {
-          coords.y += distance;
-          adjacentLegLength = distance / Math.tan(Math.PI - radians);
-          coords.x -= adjacentLegLength;
-        } else {
-          coords.x -= distance;
-          oppositeLegLength = Math.tan(Math.PI - radians) * distance;
-          coords.y += oppositeLegLength;
-        }
-      }
-    } else {
-      if (radians < (3 * Math.PI / 2)) {
-        if (radians < (diagonal + Math.PI)) {
-          coords.x -= distance;
-          oppositeLegLength = Math.tan(radians - Math.PI) * distance;
-          coords.y -= oppositeLegLength;
-        } else {
-          coords.y -= distance;
-          adjacentLegLength = distance / Math.tan(radians - Math.PI);
-          coords.x -= adjacentLegLength;
-        }
-      } else {
-        if (radians < (2 * Math.PI - diagonal)) {
-          coords.y -= distance;
-          adjacentLegLength = distance / Math.tan(2 * Math.PI - radians);
-          coords.x += adjacentLegLength;
-        } else {
-          coords.x += distance;
-          oppositeLegLength = Math.tan(2 * Math.PI - radians) * distance;
-          coords.y -= oppositeLegLength;
-        }
-      }
-    }
-  } else {
-    coords.x += distance * Math.cos(radians);
-    coords.y += distance * Math.sin(radians);
-  }
-  return coords;
-};
-
-
 },{}],"/Users/Dave/Sites/D3plus/src/util/uniques.coffee":[function(require,module,exports){
-var objectValidate;
+var fetchValue, objectValidate;
+
+fetchValue = require("../core/fetch/value.js");
 
 objectValidate = require("../object/validate.coffee");
 
-module.exports = function(data, value) {
+module.exports = function(data, value, vars) {
   var d, lookup, lookups, val, vals, _i, _len;
   if (data === void 0 || value === void 0) {
     return [];
@@ -20111,7 +20234,13 @@ module.exports = function(data, value) {
   for (_i = 0, _len = data.length; _i < _len; _i++) {
     d = data[_i];
     if (objectValidate(d)) {
-      val = typeof value === "function" ? value(d) : d[value];
+      if (typeof value === "function") {
+        val = value(d);
+      } else if (vars) {
+        val = fetchValue(vars, d, value);
+      } else {
+        val = d[value];
+      }
       lookup = ["number", "string"].indexOf(typeof val) >= 0 ? val : JSON.stringify(val);
       if (lookups.indexOf(lookup) < 0) {
         vals.push(val);
@@ -20125,7 +20254,7 @@ module.exports = function(data, value) {
 };
 
 
-},{"../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee":[function(require,module,exports){
+},{"../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee":[function(require,module,exports){
 module.exports = function(vars) {
   var checkParent, s, _i, _len, _ref;
   vars.container.value.style("position", function() {
@@ -20629,11 +20758,10 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set shape
   //----------------------------------------------------------------------------
-  var shapes = vars.types[vars.type.value].shapes || ["circle"]
-  if (!(shapes instanceof Array)) shapes = [shapes]
+  var shapes = vars.shape.accepted(vars)
 
   if (!vars.shape.value) {
-    vars.self.shape(shapes.length ? shapes[0] : "circle")
+    vars.self.shape(shapes[0])
   }
   else if (shapes.indexOf(vars.shape.value) < 0) {
     var shapes = vars.types[vars.type.value].shapes
@@ -20642,7 +20770,7 @@ module.exports = function(vars) {
       , shapeStr = vars.format.locale.value.method.shape
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
     print.warning(stringFormat(str,shape,shapeStr,app,"\""+shapes.join("\", \"")+"\""),"shape")
-    vars.self.shape(shapes.length ? shapes[0] : "circle")
+    vars.self.shape(shapes[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20677,7 +20805,7 @@ var edges = require("./shapes/edges.js"),
 
 var bounds = require("./zoom/bounds.js")
 var labels = require("./zoom/labels.js")
-var mouse  = require("./zoom/mouse.js")
+var mouse  = require("./zoom/mouse.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Finalize Visualization
@@ -20830,26 +20958,37 @@ module.exports = function(vars) {
         .datum(vars)
         .call(vars.zoom.behavior.on("zoom",mouse))
       if (!vars.zoom.scroll.value) {
-        vars.g.zoom.on("wheel.zoom",null)
+        vars.g.zoom
+          .on("mousewheel.zoom",null)
+          .on("MozMousePixelScroll.zoom",null)
+          .on("wheel.zoom",null)
       }
       if (!vars.zoom.click.value) {
         vars.g.zoom.on("dblclick.zoom",null)
       }
       if (!vars.zoom.pan.value) {
-        vars.g.zoom.on("mousemove.zoom",null)
-        vars.g.zoom.on("mousedown.zoom",null)
+        vars.g.zoom
+          .on("mousedown.zoom",null)
+          .on("mousemove.zoom",null)
       }
     }
     else {
       vars.g.zoom
         .call(vars.zoom.behavior.on("zoom",null))
+        .on("dblclick.zoom",null)
+        .on("mousedown.zoom",null)
+        .on("mousemove.zoom",null)
+        .on("mousewheel.zoom",null)
+        .on("MozMousePixelScroll.zoom",null)
+        .on("touchstart.zoom",null)
+        .on("wheel.zoom",null)
     }
 
   },vars.draw.timing)
 
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/methods/reset.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","../../string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee","./shapes/edges.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js","./shapes/labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js","./ui/message.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","./zoom/bounds.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js","./zoom/labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","./zoom/mouse.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.js":[function(require,module,exports){
+},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/methods/reset.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","../../string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee","./shapes/edges.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js","./shapes/labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js","./ui/message.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","./zoom/bounds.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js","./zoom/labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","./zoom/mouse.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.js":[function(require,module,exports){
 var fetchValue = require("../../../core/fetch/value.js"),
     print = require("../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20905,7 +21044,8 @@ module.exports = function(vars) {
 }
 
 },{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/viz.js":[function(require,module,exports){
-var print = require("../../../core/console/print.coffee"),
+var events = require("../../../client/pointer.coffee"),
+    print        = require("../../../core/console/print.coffee"),
     uniqueValues = require("../../../util/uniques.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21025,10 +21165,10 @@ module.exports = function(vars) {
             }
           }
 
-          for (e in d3plus.evt) {
-            var evt = d3.select(this).on(d3plus.evt[e])
+          for (e in events) {
+            var evt = d3.select(this).on(events[e])
             if (evt) {
-              elem.on(d3plus.evt[e],evt)
+              elem.on(events[e],evt)
             }
           }
 
@@ -21061,7 +21201,98 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/arc.coffee":[function(require,module,exports){
+var largestRect, path2poly, shapeStyle;
+
+shapeStyle = require("./style.coffee");
+
+largestRect = require("../../../geom/largestRect.coffee");
+
+path2poly = require("../../../geom/path2poly.coffee");
+
+module.exports = function(vars, selection, enter, exit) {
+  var arc, arcTween, data, newarc;
+  arc = d3.svg.arc().innerRadius(0).outerRadius(function(d) {
+    return d.d3plus.r;
+  }).startAngle(function(d) {
+    return d.d3plus.startAngle;
+  }).endAngle(function(d) {
+    return d.d3plus.endAngle;
+  });
+  data = function(d) {
+    var poly, rect;
+    if (vars.labels.value) {
+      if (d.d3plus.label) {
+        d.d3plus_label = d.d3plus.label;
+      } else {
+        poly = path2poly(arc(d));
+        rect = largestRect(poly, {
+          angle: 0
+        });
+        if (rect[0]) {
+          d.d3plus_label = {
+            w: rect[0].width,
+            h: rect[0].height,
+            x: rect[0].cx,
+            y: rect[0].cy
+          };
+        } else {
+          delete d.d3plus_label;
+        }
+      }
+    }
+    return [d];
+  };
+  if (vars.draw.timing) {
+    newarc = d3.svg.arc().innerRadius(0).outerRadius(function(d) {
+      return d.d3plus.r;
+    }).startAngle(function(d) {
+      if (d.d3plus.startAngleCurrent === void 0) {
+        d.d3plus.startAngleCurrent = 0;
+      }
+      if (isNaN(d.d3plus.startAngleCurrent)) {
+        d.d3plus.startAngleCurrent = d.d3plus.startAngle;
+      }
+      return d.d3plus.startAngleCurrent;
+    }).endAngle(function(d) {
+      if (d.d3plus.endAngleCurrent === void 0) {
+        d.d3plus.endAngleCurrent = 0;
+      }
+      if (isNaN(d.d3plus.endAngleCurrent)) {
+        d.d3plus.endAngleCurrent = d.d3plus.endAngle;
+      }
+      return d.d3plus.endAngleCurrent;
+    });
+    arcTween = function(arcs, newAngle) {
+      return arcs.attrTween("d", function(d) {
+        var e, interpolateE, interpolateS, s;
+        if (newAngle === void 0) {
+          s = d.d3plus.startAngle;
+          e = d.d3plus.endAngle;
+        } else if (newAngle === 0) {
+          s = 0;
+          e = 0;
+        }
+        interpolateS = d3.interpolate(d.d3plus.startAngleCurrent, s);
+        interpolateE = d3.interpolate(d.d3plus.endAngleCurrent, e);
+        return function(t) {
+          d.d3plus.startAngleCurrent = interpolateS(t);
+          d.d3plus.endAngleCurrent = interpolateE(t);
+          return newarc(d);
+        };
+      });
+    };
+    enter.append("path").attr("class", "d3plus_data").call(shapeStyle, vars).attr("d", newarc);
+    selection.selectAll("path.d3plus_data").data(data).transition().duration(vars.draw.timing).call(shapeStyle, vars).call(arcTween);
+    exit.selectAll("path.d3plus_data").transition().duration(vars.draw.timing).call(arcTween, 0);
+  } else {
+    enter.append("path").attr("class", "d3plus_data");
+    selection.selectAll("path.d3plus_data").data(data).call(shapeStyle, vars).attr("d", arc);
+  }
+};
+
+
+},{"../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","../../../geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js":[function(require,module,exports){
 var fetchText = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
@@ -21182,7 +21413,7 @@ lighter = require("../../../color/lighter.coffee");
 
 module.exports = function(d, vars) {
   var active, shape, temp, total;
-  shape = d.d3plus ? d.d3plus.shapeType : vars.shape.value;
+  shape = d.d3plus.shape || vars.shape.value;
   if (vars.shape.value === "line" && shape !== "circle") {
     return "none";
   } else if (vars.shape.value === "area" || shape === "active" || vars.shape.value === "line") {
@@ -21210,6 +21441,7 @@ var copy = require("../../../util/copy.coffee"),
     fetchText   = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
+    path2poly   = require("../../../geom/path2poly.coffee"),
     shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -21306,12 +21538,7 @@ module.exports = function(vars,selection,enter,exit) {
 
       if (coords) {
 
-        var path = vars.path(largest).split("M")[1].split("Z")[0].split("L")
-        for (var i = 0; i < path.length; i++) {
-          path[i] = path[i].split(",")
-          path[i][0] = parseFloat(path[i][0])
-          path[i][1] = parseFloat(path[i][1])
-        }
+        var path = path2poly(vars.path(largest))
 
         var style = {
           "font-weight": vars.labels.font.weight,
@@ -21385,7 +21612,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js":[function(require,module,exports){
+},{"../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","../../../geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js":[function(require,module,exports){
 var shapeStyle = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
@@ -21412,12 +21639,12 @@ module.exports = function(vars,selection,enter,exit) {
   var arc = d3.svg.arc()
     .startAngle(0)
     .endAngle(function(d){
-      var a = vars.arcs[d.d3plus.shapeType][d.d3plus.id].a
+      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a
       return a > Math.PI*2 ? Math.PI*2 : a;
     })
     .innerRadius(function(d){
       if (shape == "donut" && !d.d3plus.static) {
-        var r = vars.arcs[d.d3plus.shapeType][d.d3plus.id].r
+        var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
         return r * vars.data.donut.size
       }
       else {
@@ -21425,8 +21652,8 @@ module.exports = function(vars,selection,enter,exit) {
       }
     })
     .outerRadius(function(d){
-      var r = vars.arcs[d.d3plus.shapeType][d.d3plus.id].r
-      if (d.d3plus.shapeType != "donut") return r*2
+      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
+      if (d.d3plus.shape != "donut") return r*2
       else return r
     })
 
@@ -21441,17 +21668,17 @@ module.exports = function(vars,selection,enter,exit) {
     path.attrTween("d", function(d){
       if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       else var r = rad
-      if (ang == undefined) var a = d.d3plus.segments[d.d3plus.shapeType]
+      if (ang == undefined) var a = d.d3plus.segments[d.d3plus.shape]
       else var a = ang
-      if (!vars.arcs[d.d3plus.shapeType][d.d3plus.id]) {
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id] = {"r": 0}
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].a = d.d3plus.shapeType == "donut" ? Math.PI * 2 : 0
+      if (!vars.arcs[d.d3plus.shape][d.d3plus.id]) {
+        vars.arcs[d.d3plus.shape][d.d3plus.id] = {"r": 0}
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = d.d3plus.shape == "donut" ? Math.PI * 2 : 0
       }
-      var radius = d3.interpolate(vars.arcs[d.d3plus.shapeType][d.d3plus.id].r,r+mod),
-          angle = d3.interpolate(vars.arcs[d.d3plus.shapeType][d.d3plus.id].a,a)
+      var radius = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].r,r+mod),
+          angle = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].a,a)
       return function(t) {
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].r = radius(t)
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].a = angle(t)
+        vars.arcs[d.d3plus.shape][d.d3plus.id].r = radius(t)
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = angle(t)
         return arc(d)
       }
     })
@@ -21464,7 +21691,7 @@ module.exports = function(vars,selection,enter,exit) {
   .transition().duration(vars.draw.timing)
     .call(size,0,0)
     .each("end",function(d){
-      delete vars.arcs[d.d3plus.shapeType][d.d3plus.id]
+      delete vars.arcs[d.d3plus.shape][d.d3plus.id]
     })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21488,23 +21715,29 @@ module.exports = function(vars,selection,enter,exit) {
 }
 
 },{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/draw.js":[function(require,module,exports){
-var child        = require("../../../util/child.coffee"),
-    closest      = require("../../../util/closest.coffee"),
-    fetchValue   = require("../../../core/fetch/value.js"),
-    fetchColor   = require("../../../core/fetch/color.coffee"),
-    fetchText    = require("../../../core/fetch/text.js"),
-    legible      = require("../../../color/legible.coffee"),
-    print        = require("../../../core/console/print.coffee"),
-    shapeFill    = require("./fill.js"),
-    stringStrip  = require("../../../string/strip.js"),
-    uniqueValues = require("../../../util/uniques.coffee")
+var child         = require("../../../util/child.coffee"),
+    closest       = require("../../../util/closest.coffee"),
+    events        = require("../../../client/pointer.coffee"),
+    fetchValue    = require("../../../core/fetch/value.js"),
+    fetchColor    = require("../../../core/fetch/color.coffee"),
+    fetchText     = require("../../../core/fetch/text.js"),
+    legible       = require("../../../color/legible.coffee"),
+    print         = require("../../../core/console/print.coffee"),
+    shapeFill     = require("./fill.js"),
+    stringStrip   = require("../../../string/strip.js"),
+    touch         = require("../../../client/touch.coffee"),
+    touchEvent    = require("../zoom/propagation.coffee"),
+    uniqueValues  = require("../../../util/uniques.coffee"),
+    zoomDirection = require("../zoom/direction.coffee")
 
 var drawShape = {
+  "arc":         require("./arc.coffee"),
   "area":        require("./area.js"),
   "coordinates": require("./coordinates.js"),
   "donut":       require("./donut.js"),
   "line":        require("./line.js"),
-  "rect":        require("./rect.js")
+  "rect":        require("./rect.coffee"),
+  "whisker":     require("./whisker.coffee")
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21524,13 +21757,16 @@ module.exports = function(vars) {
   // example, both "square", and "circle" shapes use "rect" as their drawing
   // class.
   //----------------------------------------------------------------------------
-  var shape_lookup = {
-    "area": "area",
-    "circle": "rect",
-    "donut": "donut",
-    "line": "line",
-    "square": "rect",
-    "coordinates": "coordinates"
+  var shapeLookup = {
+    "arc":         "arc",
+    "area":        "area",
+    "circle":      "rect",
+    "coordinates": "coordinates",
+    "donut":       "donut",
+    "line":        "line",
+    "rect":        "rect",
+    "square":      "rect",
+    "whisker":     "whisker"
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21538,21 +21774,13 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   var shapes = {}
   data.forEach(function(d){
-    if (!d.d3plus) {
-      var s = shape_lookup[vars.shape.value]
+    var s = d.d3plus && d.d3plus.shape ? d.d3plus.shape : vars.shape.value
+    if (s in shapeLookup) {
+      if (d.d3plus) d.d3plus.shape = s
+      s = shapeLookup[s]
+      if (!shapes[s]) shapes[s] = []
+      shapes[s].push(d)
     }
-    else if (!d.d3plus.shape) {
-      var s = shape_lookup[vars.shape.value]
-      d.d3plus.shapeType = s
-    }
-    else {
-      var s = d.d3plus.shape
-      d.d3plus.shapeType = s
-    }
-    if (!shapes[s]) {
-      shapes[s] = []
-    }
-    shapes[s].push(d)
   })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21560,20 +21788,22 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   function id(d) {
 
-    d.d3plus.id = ""
-    for (var i = 0; i <= vars.depth.value; i++) {
-      d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
-    }
-
-    d.d3plus.id += shape;
-
-    ["x","y"].forEach(function(axis){
-      if (vars[axis].scale.value == "continuous") {
-        d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
+    if (!d.d3plus.id) {
+      d.d3plus.id = ""
+      for (var i = 0; i <= vars.depth.value; i++) {
+        d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
       }
-    })
 
-    d.d3plus.id = stringStrip(d.d3plus.id)
+      d.d3plus.id += shape;
+
+      ["x","y"].forEach(function(axis){
+        if (vars[axis].scale.value == "discrete") {
+          d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
+        }
+      })
+
+      d.d3plus.id = stringStrip(d.d3plus.id)
+    }
 
     return d
   }
@@ -21614,16 +21844,16 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Remove old groups
   //----------------------------------------------------------------------------
-  for (shape in shape_lookup) {
-    if (!(shape_lookup[shape] in shapes) || d3.keys(shapes).length === 0) {
+  for (shape in shapeLookup) {
+    if (!(shapeLookup[shape] in shapes) || d3.keys(shapes).length === 0) {
       if (vars.draw.timing) {
-        vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
+        vars.g.data.selectAll("g.d3plus_"+shapeLookup[shape])
           .transition().duration(vars.draw.timing)
           .attr("opacity",0)
           .remove()
       }
       else {
-        vars.g.data.selectAll("g.d3plus_"+shape_lookup[shape])
+        vars.g.data.selectAll("g.d3plus_"+shapeLookup[shape])
           .remove()
       }
     }
@@ -21659,7 +21889,7 @@ module.exports = function(vars) {
 
             d.values.forEach(function(v){
               v = id(v)
-              v.d3plus.shapeType = "circle"
+              v.d3plus.shape = "circle"
             })
             d.d3plus.id = d.key
 
@@ -21884,10 +22114,10 @@ module.exports = function(vars) {
 
   edge_update()
 
-  if (!d3plus.touch) {
+  if (!touch) {
 
     vars.g.data.selectAll("g")
-      .on(d3plus.evt.over,function(d){
+      .on(events.over,function(d){
 
         if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
@@ -21903,11 +22133,11 @@ module.exports = function(vars) {
 
           if (vars.focus.value.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
 
-            if (d.values && vars.axes.continuous) {
+            if (d.values && vars.axes.discrete) {
 
-              var index = vars.axes.continuous === "x" ? 0 : 1
+              var index = vars.axes.discrete === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.continuous]})
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
                 , match = closest(positions,mouse)
 
               d.d3plus_data = d.values[positions.indexOf(match)]
@@ -21926,8 +22156,8 @@ module.exports = function(vars) {
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
           }
-          else if (vars.mouse[d3plus.evt.over]) {
-            vars.mouse[d3plus.evt.over](d.d3plus_data || d, vars)
+          else if (vars.mouse[events.over]) {
+            vars.mouse[events.over](d.d3plus_data || d, vars)
           }
 
           edge_update(d)
@@ -21935,7 +22165,7 @@ module.exports = function(vars) {
         }
 
       })
-      .on(d3plus.evt.move,function(d){
+      .on(events.move,function(d){
 
         if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
@@ -21943,11 +22173,11 @@ module.exports = function(vars) {
 
           if (d.values || (vars.types[vars.type.value].tooltip == "follow" && vars.focus.value[0] != d[vars.id.value])) {
 
-            if (d.values && vars.axes.continuous) {
+            if (d.values && vars.axes.discrete) {
 
-              var index = vars.axes.continuous === "x" ? 0 : 1
+              var index = vars.axes.discrete === "x" ? 0 : 1
                 , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.continuous]})
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
                 , match = closest(positions,mouse)
 
               d.d3plus_data = d.values[positions.indexOf(match)]
@@ -21966,14 +22196,14 @@ module.exports = function(vars) {
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
           }
-          else if (vars.mouse[d3plus.evt.move]) {
-            vars.mouse[d3plus.evt.move](d.d3plus_data || d, vars)
+          else if (vars.mouse[events.move]) {
+            vars.mouse[events.move](d.d3plus_data || d, vars)
           }
 
         }
 
       })
-      .on(d3plus.evt.out,function(d){
+      .on(events.out,function(d){
 
         var childElement = child(this,d3.event.toElement)
 
@@ -21995,8 +22225,8 @@ module.exports = function(vars) {
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
           }
-          else if (vars.mouse[d3plus.evt.out]) {
-            vars.mouse[d3plus.evt.out](d.d3plus_data || d, vars)
+          else if (vars.mouse[events.out]) {
+            vars.mouse[events.out](d.d3plus_data || d, vars)
           }
 
           edge_update()
@@ -22008,29 +22238,33 @@ module.exports = function(vars) {
   }
   else {
 
+    var mouseEvent = function() {
+      touchEvent(vars, d3.event)
+    }
+
     vars.g.data.selectAll("g")
-      .on(d3plus.evt.over,vars.zoom.touchEvent)
-      .on(d3plus.evt.move,vars.zoom.touchEvent)
-      .on(d3plus.evt.out,vars.zoom.touchEvent)
+      .on(events.over, mouseEvent)
+      .on(events.move, mouseEvent)
+      .on(events.out , mouseEvent)
 
   }
 
   vars.g.data.selectAll("g")
-    .on(d3plus.evt.click,function(d){
+    .on(events.click,function(d){
 
       if (!d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         if (typeof vars.mouse == "function") {
           vars.mouse(d.d3plus_data || d, vars)
         }
-        else if (vars.mouse[d3plus.evt.out]) {
-          vars.mouse[d3plus.evt.out](d.d3plus_data || d, vars)
+        else if (vars.mouse[events.out]) {
+          vars.mouse[events.out](d.d3plus_data || d, vars)
         }
-        else if (vars.mouse[d3plus.evt.click]) {
-          vars.mouse[d3plus.evt.click](d.d3plus_data || d, vars)
+        else if (vars.mouse[events.click]) {
+          vars.mouse[events.click](d.d3plus_data || d, vars)
         }
 
-        var depth_delta = vars.zoom.direction(d.d3plus_data || d)
+        var depth_delta = zoomDirection(d.d3plus_data || d, vars)
           , previous = vars.id.solo.value
           , title = fetchText(vars,d)[0]
           , color = legible(fetchColor(vars,d))
@@ -22171,9 +22405,9 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee","../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./area.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js","./coordinates.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js","./donut.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js","./fill.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js","./line.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js","./rect.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee","../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","../zoom/direction.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee","../zoom/propagation.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee","./arc.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/arc.coffee","./area.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js","./coordinates.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js","./donut.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js","./fill.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js","./line.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js","./rect.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.coffee","./whisker.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/whisker.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js":[function(require,module,exports){
 var buckets = require("../../../util/buckets.coffee"),
-    offset  = require("../../../util/offset.coffee")
+    offset  = require("../../../geom/offset.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -22730,7 +22964,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","../../../util/offset.coffee":"/Users/Dave/Sites/D3plus/src/util/offset.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js":[function(require,module,exports){
+},{"../../../geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee","../../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js":[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchColor = require("../../../core/fetch/color.coffee"),
     shapeStyle = require("./style.coffee")
@@ -22814,12 +23048,12 @@ module.exports = function(vars,selection,enter,exit) {
   var arc = d3.svg.arc()
     .startAngle(0)
     .endAngle(function(d){
-      var a = vars.arcs[d.d3plus.shapeType][d.d3plus.id].a
+      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a
       return a > Math.PI*2 ? Math.PI*2 : a;
     })
     .innerRadius(function(d){
       if (shape == "donut" && !d.d3plus.static) {
-        var r = vars.arcs[d.d3plus.shapeType][d.d3plus.id].r
+        var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
         return r * vars.data.donut.size
       }
       else {
@@ -22827,8 +23061,8 @@ module.exports = function(vars,selection,enter,exit) {
       }
     })
     .outerRadius(function(d){
-      var r = vars.arcs[d.d3plus.shapeType][d.d3plus.id].r
-      if (d.d3plus.shapeType != "donut") return r*2
+      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
+      if (d.d3plus.shape != "donut") return r*2
       else return r
     })
 
@@ -22843,18 +23077,18 @@ module.exports = function(vars,selection,enter,exit) {
     path.attrTween("d", function(d){
       if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
       else var r = rad
-      if (ang == undefined) var a = d.d3plus.a[d.d3plus.shapeType]
+      if (ang == undefined) var a = d.d3plus.a[d.d3plus.shape]
       else var a = ang
-      if (!vars.arcs[d.d3plus.shapeType][d.d3plus.id]) {
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id] = {"r": 0}
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].a = d.d3plus.shapeType == "donut" ? Math.PI * 2 : 0
+      if (!vars.arcs[d.d3plus.shape][d.d3plus.id]) {
+        vars.arcs[d.d3plus.shape][d.d3plus.id] = {"r": 0}
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = d.d3plus.shape == "donut" ? Math.PI * 2 : 0
       }
-      var radius = d3.interpolate(vars.arcs[d.d3plus.shapeType][d.d3plus.id].r,r+mod),
-          angle = d3.interpolate(vars.arcs[d.d3plus.shapeType][d.d3plus.id].a,a)
+      var radius = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].r,r+mod),
+          angle = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].a,a)
 
       return function(t) {
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].r = radius(t)
-        vars.arcs[d.d3plus.shapeType][d.d3plus.id].a = angle(t)
+        vars.arcs[d.d3plus.shape][d.d3plus.id].r = radius(t)
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = angle(t)
         return arc(d)
       }
     })
@@ -22877,14 +23111,14 @@ module.exports = function(vars,selection,enter,exit) {
 
       if (temp) {
         var c = copy(d)
-        c.d3plus.shapeType = "temp"
+        c.d3plus.shape = "temp"
         fill_data.push(c)
         hatch_data = ["temp"]
       }
 
       if (active && (active < total || temp)) {
         var c = copy(d)
-        c.d3plus.shapeType = "active"
+        c.d3plus.shape = "active"
         fill_data.push(c)
       }
 
@@ -23010,9 +23244,11 @@ module.exports = function(vars,selection,enter,exit) {
 }
 
 },{"../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js":[function(require,module,exports){
-var fetchText  = require("../../../core/fetch/text.js"),
+var copy       = require("../../../util/copy.coffee"),
+    fetchText  = require("../../../core/fetch/text.js"),
     mix        = require("../../../color/mix.coffee"),
     print      = require("../../../core/console/print.coffee"),
+    rtl        = require("../../../client/rtl.coffee"),
     shapeColor = require("./color.coffee"),
     stringList = require("../../../string/list.coffee"),
     textColor  = require("../../../color/text.coffee")
@@ -23073,7 +23309,7 @@ module.exports = function( vars , group ) {
       if (align == "middle" || share) {
         var pos = t.x-width/2
       }
-      else if ((align == "end" && !d3plus.rtl) || (align == "start" && d3plus.rtl)) {
+      else if ((align == "end" && !rtl) || (align == "start" && rtl)) {
         var pos = t.x+(t.w-t.padding)/2-width
       }
       else {
@@ -23083,7 +23319,7 @@ module.exports = function( vars , group ) {
       if (tspan) {
         var t_width = this.getComputedTextLength()/scale[1]
         if (align == "middle") {
-          if (d3plus.rtl) {
+          if (rtl) {
             pos -= (width-t_width)/2
           }
           else {
@@ -23091,7 +23327,7 @@ module.exports = function( vars , group ) {
           }
         }
         else if (align == "end") {
-          if (d3plus.rtl) {
+          if (rtl) {
             pos -= (width-t_width)
           }
           else {
@@ -23100,7 +23336,7 @@ module.exports = function( vars , group ) {
         }
       }
 
-      if (d3plus.rtl) {
+      if (rtl) {
         pos += width
       }
 
@@ -23199,7 +23435,7 @@ module.exports = function( vars , group ) {
               .height( t.h * t.scale - t.padding )
               .resize( resize )
               .size( size )
-              .text( vars.format.value(t.text*100,"share")+"%" )
+              .text( vars.format.value(t.text*100,"share")+"%" , vars)
               .width( t.w * t.scale - t.padding )
               .draw()
 
@@ -23270,10 +23506,12 @@ module.exports = function( vars , group ) {
       var disabled = d.d3plus && "label" in d.d3plus && !d.d3plus.label,
           label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
-          names = label && label.names ? label.names : fetchText(vars,d),
+          names = d.d3plus.label ? d.d3plus.label : label && label.names ? label.names : fetchText(vars,d),
           group = label && "group" in label ? label.group : d3.select(this),
           share_size = 0,
           fill = vars.types[vars.type.value].fill
+
+      if (!(names instanceof Array)) names = [names]
 
       if (label) {
 
@@ -23382,7 +23620,7 @@ module.exports = function( vars , group ) {
               return t.w+"_"+t.h+"_"+t.x+"_"+t.y+"_"+t.names.join("_")
             })
             , fontSize = label.resize ? undefined
-                       : vars.labels.font.size * label.scale
+                       : (vars.labels.font.size * label.scale) + "px"
 
           if ( vars.draw.timing ) {
 
@@ -23431,8 +23669,7 @@ module.exports = function( vars , group ) {
 
               var background_data = ["background"]
 
-              var bounds = text.node().getBBox()
-
+              var bounds = copy(text.node().getBBox())
               bounds.width += vars.labels.padding*scale[0]
               bounds.height += vars.labels.padding*scale[0]
               bounds.x -= (vars.labels.padding*scale[0])/2
@@ -23447,11 +23684,11 @@ module.exports = function( vars , group ) {
             var bg = group.selectAll("rect#d3plus_label_bg_"+d.d3plus.id)
                        .data(background_data)
               , bg_opacity = typeof label.background === "number"
-                           ? label.background : 0.6
+                           ? label.background : typeof label.background === "string" ? 1 : 0.6
 
             function bg_style(elem) {
 
-              var color = vars.background.value === "none"
+              var color = typeof label.background === "string" ? label.background : vars.background.value === "none"
                         ? "#ffffff" : vars.background.value
                 , fill = typeof label.background === "string"
                        ? label.background : color
@@ -23537,8 +23774,9 @@ module.exports = function( vars , group ) {
   }
 }
 
-},{"../../../color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","./color.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js":[function(require,module,exports){
+},{"../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../../../color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./color.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js":[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
+    events     = require("../../../client/pointer.coffee"),
     shapeStyle = require("./style.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -23573,15 +23811,15 @@ module.exports = function(vars,selection,enter,exit) {
         nodes = [],
         temp = copy(d),
         group = d3.select(this),
-        continuous = vars[vars.axes.continuous]
+        discrete = vars[vars.axes.discrete]
 
     temp.values = []
     d.values.forEach(function(v,i,arr){
 
       nodes.push(v)
 
-      var k = v[continuous.value],
-          index = continuous.ticks.values.indexOf(k)
+      var k = v[discrete.value],
+          index = discrete.ticks.values.indexOf(k)
 
       if (step === false) {
         step = index
@@ -23613,7 +23851,7 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     var paths = group.selectAll("path.d3plus_line")
       .data(segments, function(d){
-        d.d3plus.shapeType = "line"
+        d.d3plus.shape = "line"
         return d.key
       })
 
@@ -23700,7 +23938,7 @@ module.exports = function(vars,selection,enter,exit) {
     // Mouse "paths" Update
     //--------------------------------------------------------------------------
     mouse
-      .on(d3plus.evt.over,function(m){
+      .on(events.over,function(m){
 
         if (!vars.draw.frozen) {
 
@@ -23716,7 +23954,7 @@ module.exports = function(vars,selection,enter,exit) {
         }
 
       })
-      .on(d3plus.evt.out,function(d){
+      .on(events.out,function(d){
 
         if (!vars.draw.frozen) {
 
@@ -23808,155 +24046,138 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.js":[function(require,module,exports){
-var shapeStyle = require("./style.coffee")
+},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.coffee":[function(require,module,exports){
+var shapeStyle;
 
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Draws "square" and "circle" shapes using svg:rect
-//------------------------------------------------------------------------------
-module.exports = function(vars,selection,enter,exit) {
+shapeStyle = require("./style.coffee");
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Calculate label position and pass data from parent.
-  //----------------------------------------------------------------------------
-  function data(d) {
-
+module.exports = function(vars, selection, enter, exit) {
+  var data, init, update;
+  data = function(d) {
+    var h, w;
     if (vars.labels.value && !d.d3plus.label) {
-
       d.d3plus_label = {
-        "w": 0,
-        "h": 0,
-        "x": 0,
-        "y": 0
-      }
-
-      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width,
-          h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-
+        w: 0,
+        h: 0,
+        x: 0,
+        y: 0
+      };
+      w = (d.d3plus.r ? d.d3plus.r * 2 : d.d3plus.width);
+      h = (d.d3plus.r ? d.d3plus.r * 2 : d.d3plus.height);
       d.d3plus_share = {
-        "w": w,
-        "h": d3.max([25,h/3]),
-        "x": 0,
-        "y": 0
+        w: w,
+        h: d3.max([25, h / 3]),
+        x: 0,
+        y: 0
+      };
+      d.d3plus_label.w = w;
+      d.d3plus_label.h = h;
+      d.d3plus_label.shape = (d.d3plus.shape === "circle" ? "circle" : "square");
+    } else {
+      if (d.d3plus.label) {
+        d.d3plus_label = d.d3plus.label;
       }
-
-      d.d3plus_label.w = w
-      d.d3plus_label.h = h
-
-      d.d3plus_label.shape = vars.shape.value === "circle" ? "circle" : "square"
-
     }
-    else if (d.d3plus.label) {
-      d.d3plus_label = d.d3plus.label
-    }
-
     return [d];
-
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // The position and size of each rectangle on enter and exit.
-  //----------------------------------------------------------------------------
-  function init(nodes) {
-
-    nodes
-      .attr("x",0)
-      .attr("y",0)
-      .attr("width",0)
-      .attr("height",0)
-
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // The position and size of each rectangle on update.
-  //----------------------------------------------------------------------------
-  function update(nodes) {
-
-    nodes
-      .attr("x",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return -w/2
-      })
-      .attr("y",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return -h/2
-      })
-      .attr("width",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return w
-      })
-      .attr("height",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return h
-      })
-      .attr("rx",function(d){
-        var rounded = vars.shape.value == "circle"
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return rounded ? (w+2)/2 : 0
-      })
-      .attr("ry",function(d){
-        var rounded = vars.shape.value == "circle"
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return rounded ? (h+2)/2 : 0
-      })
-      .attr("transform",function(d){
-        if ("rotate" in d.d3plus) {
-          return "rotate("+d.d3plus.rotate+")"
+  };
+  init = function(nodes) {
+    return nodes.attr("x", function(d) {
+      if (d.d3plus.init && "x" in d.d3plus.init) {
+        return d.d3plus.init.x;
+      } else {
+        if (d.d3plus.init && "width" in d.d3plus.init) {
+          return -d.d3plus.width / 2;
+        } else {
+          return 0;
         }
-        return ""
-      })
-      .attr("shape-rendering",function(d){
-        if (vars.shape.value == "square" && !("rotate" in d.d3plus)) {
-          return vars.shape.rendering.value
+      }
+    }).attr("y", function(d) {
+      if (d.d3plus.init && "y" in d.d3plus.init) {
+        return d.d3plus.init.y;
+      } else {
+        if (d.d3plus.init && "height" in d.d3plus.init) {
+          return -d.d3plus.height / 2;
+        } else {
+          return 0;
         }
-        else {
-          return "auto"
-        }
-      })
-
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // "rects" Enter
-  //----------------------------------------------------------------------------
+      }
+    }).attr("width", function(d) {
+      if (d.d3plus.init && "width" in d.d3plus.init) {
+        return d.d3plus.init.width;
+      } else {
+        return 0;
+      }
+    }).attr("height", function(d) {
+      if (d.d3plus.init && "height" in d.d3plus.init) {
+        return d.d3plus.init.height;
+      } else {
+        return 0;
+      }
+    });
+  };
+  update = function(nodes) {
+    return nodes.attr("x", function(d) {
+      var w;
+      w = d.d3plus.r ? d.d3plus.r * 2 : d.d3plus.width;
+      return -w / 2;
+    }).attr("y", function(d) {
+      var h;
+      h = d.d3plus.r ? d.d3plus.r * 2 : d.d3plus.height;
+      return -h / 2;
+    }).attr("width", function(d) {
+      if (d.d3plus.r) {
+        return d.d3plus.r * 2;
+      } else {
+        return d.d3plus.width;
+      }
+    }).attr("height", function(d) {
+      if (d.d3plus.r) {
+        return d.d3plus.r * 2;
+      } else {
+        return d.d3plus.height;
+      }
+    }).attr("rx", function(d) {
+      var rounded, w;
+      rounded = d.d3plus.shape === "circle";
+      w = d.d3plus.r ? d.d3plus.r * 2 : d.d3plus.width;
+      if (rounded) {
+        return (w + 2) / 2;
+      } else {
+        return 0;
+      }
+    }).attr("ry", function(d) {
+      var h, rounded;
+      rounded = d.d3plus.shape === "circle";
+      h = d.d3plus.r ? d.d3plus.r * 2 : d.d3plus.height;
+      if (rounded) {
+        return (h + 2) / 2;
+      } else {
+        return 0;
+      }
+    }).attr("transform", function(d) {
+      if ("rotate" in d.d3plus) {
+        return "rotate(" + d.d3plus.rotate + ")";
+      } else {
+        return "";
+      }
+    }).attr("shape-rendering", function(d) {
+      if (d.d3plus.shape === "square" && (!("rotate" in d.d3plus))) {
+        return vars.shape.rendering.value;
+      } else {
+        return "auto";
+      }
+    });
+  };
   if (vars.draw.timing) {
-    enter.append("rect")
-      .attr("class","d3plus_data")
-      .call(init)
-      .call(shapeStyle,vars)
+    enter.append("rect").attr("class", "d3plus_data").call(init).call(shapeStyle, vars);
+    selection.selectAll("rect.d3plus_data").data(data).transition().duration(vars.draw.timing).call(update).call(shapeStyle, vars);
+    return exit.selectAll("rect.d3plus_data").transition().duration(vars.draw.timing).call(init);
+  } else {
+    enter.append("rect").attr("class", "d3plus_data");
+    return selection.selectAll("rect.d3plus_data").data(data).call(update).call(shapeStyle, vars);
   }
-  else {
-    enter.append("rect")
-      .attr("class","d3plus_data")
-  }
+};
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // "rects" Update
-  //----------------------------------------------------------------------------
-  if (vars.draw.timing) {
-    selection.selectAll("rect.d3plus_data")
-      .data(data)
-      .transition().duration(vars.draw.timing)
-        .call(update)
-        .call(shapeStyle,vars)
-  }
-  else {
-    selection.selectAll("rect.d3plus_data")
-      .data(data)
-      .call(update)
-      .call(shapeStyle,vars)
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // "rects" Exit
-  //----------------------------------------------------------------------------
-  if (vars.draw.timing) {
-    exit.selectAll("rect.d3plus_data")
-      .transition().duration(vars.draw.timing)
-      .call(init)
-  }
-
-}
 
 },{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee":[function(require,module,exports){
 var color;
@@ -23972,18 +24193,108 @@ module.exports = function(nodes, vars) {
     }
   }).style("stroke", function(d) {
     var c;
-    c = d.values ? color(d.values[0], vars) : color(d, vars);
-    return d3.rgb(c).darker(0.5);
+    if (d.d3plus && d.d3plus.stroke) {
+      return d.d3plus.stroke;
+    } else {
+      c = d.values ? color(d.values[0], vars) : color(d, vars);
+      return d3.rgb(c).darker(0.7);
+    }
   }).style("stroke-width", function(d) {
     var mod;
-    mod = d.d3plus.shapeType === "line" ? 2 : 1;
+    mod = d.d3plus.shape === "line" ? 2 : 1;
     return vars.data.stroke.width * mod;
   }).attr("opacity", vars.data.opacity).attr("vector-effect", "non-scaling-stroke");
 };
 
 
-},{"./color.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js":[function(require,module,exports){
-var print = require("../../../core/console/print.coffee")
+},{"./color.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/whisker.coffee":[function(require,module,exports){
+module.exports = function(vars, selection, enter, exit) {
+  var d, data, init, marker, orient, pos, position, size, style;
+  data = function(d) {
+    if (d.d3plus.label) {
+      d.d3plus_label = {
+        w: size,
+        h: size,
+        x: 0,
+        y: 0,
+        background: "#fff",
+        resize: false
+      };
+    } else {
+      delete d.d3plus_label;
+    }
+    return [d];
+  };
+  style = function(line) {
+    return line.style("stroke-width", vars.data.stroke.width).style("stroke", "#444").attr("fill", "none").attr("shape-rendering", vars.shape.rendering.value);
+  };
+  init = function(line) {
+    return line.attr("x1", 0).attr("x2", 0).attr("y1", 0).attr("y2", 0);
+  };
+  position = function(line) {
+    return line.attr("x1", function(d) {
+      var offset, w, x;
+      if (["top", "bottom"].indexOf(d.d3plus.position) >= 0) {
+        return 0;
+      } else {
+        offset = d.d3plus.offset || 0;
+        w = d.d3plus.width || 0;
+        x = offset < 0 ? -w : w;
+        return x + offset;
+      }
+    }).attr("x2", function(d) {
+      if (["top", "bottom"].indexOf(d.d3plus.position) >= 0) {
+        return 0;
+      } else {
+        return d.d3plus.offset || 0;
+      }
+    }).attr("y1", function(d) {
+      var h, offset, y;
+      if (["left", "right"].indexOf(d.d3plus.position) >= 0) {
+        return 0;
+      } else {
+        offset = d.d3plus.offset || 0;
+        h = d.d3plus.height || 0;
+        y = offset < 0 ? -h : h;
+        return y + offset;
+      }
+    }).attr("y2", function(d) {
+      if (["left", "right"].indexOf(d.d3plus.position) >= 0) {
+        return 0;
+      } else {
+        return d.d3plus.offset || 0;
+      }
+    }).attr("marker-start", "url(#d3plus_whisker_marker)");
+  };
+  marker = vars.defs.selectAll("#d3plus_whisker_marker").data([0]);
+  marker.enter().append("marker").attr("id", "d3plus_whisker_marker").attr("markerUnits", "userSpaceOnUse").style("overflow", "visible").append("line");
+  d = selection.datum();
+  if (d) {
+    pos = d.d3plus.position;
+    orient = ["top", "bottom"].indexOf(pos) >= 0 ? "horizontal" : "vertical";
+    size = orient === "horizontal" ? d.d3plus.width : d.d3plus.height;
+  } else {
+    orient = "horizontal";
+    size = 0;
+  }
+  marker.select("line").attr("x1", orient === "horizontal" ? -size / 2 : 0).attr("x2", orient === "horizontal" ? size / 2 : 0).attr("y1", orient === "vertical" ? -size / 2 : 0).attr("y2", orient === "vertical" ? size / 2 : 0).call(style).style("stroke-width", vars.data.stroke.width * 2);
+  if (vars.draw.timing) {
+    enter.append("line").attr("class", "d3plus_data").call(style).call(init);
+    selection.selectAll("line.d3plus_data").data(data).transition().duration(vars.draw.timing).call(style).call(position);
+    exit.selectAll("line.d3plus_data").transition().duration(vars.draw.timing).call(init);
+  } else {
+    enter.append("line").attr("class", "d3plus_data");
+    selection.selectAll("line.d3plus_data").data(data).call(style).call(position);
+  }
+};
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js":[function(require,module,exports){
+var events = require("../../../client/pointer.coffee"),
+    prefix     = require("../../../client/prefix.coffee"),
+    print      = require("../../../core/console/print.coffee"),
+    touch      = require("../../../client/touch.coffee"),
+    touchEvent = require("../zoom/propagation.coffee")
 
 // Enter SVG Elements
 module.exports = function(vars) {
@@ -24058,41 +24369,36 @@ module.exports = function(vars) {
     .attr("height",vars.height.value)
     .attr("opacity",0)
 
-  if (!d3plus.touch) {
+  if (!touch) {
 
     vars.g.overlay
-      .on(d3plus.evt.move,function(d){
+      .on(events.move,function(d){
 
-        if (d.dragging) {
-
-        }
-        else if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
+        if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",d3plus.prefix()+"grab")
+          d3.select(this).style("cursor",prefix()+"grab")
         }
         else {
           d3.select(this).style("cursor","auto")
         }
 
       })
-      .on(d3plus.evt.up,function(d){
+      .on(events.up,function(d){
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d.dragging = false
-          d3.select(this).style("cursor",d3plus.prefix()+"grab")
+          d3.select(this).style("cursor",prefix()+"grab")
         }
         else {
           d3.select(this).style("cursor","auto")
         }
 
       })
-      .on(d3plus.evt.down,function(d){
+      .on(events.down,function(d){
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d.dragging = true
-          d3.select(this).style("cursor",d3plus.prefix()+"grabbing")
+          d3.select(this).style("cursor",prefix()+"grabbing")
         }
         else {
           d3.select(this).style("cursor","auto")
@@ -24103,10 +24409,14 @@ module.exports = function(vars) {
   }
   else {
 
+    var mouseEvent = function() {
+      touchEvent(vars, d3.event)
+    }
+
     vars.g.overlay
-      .on(d3plus.evt.over,vars.zoom.touchEvent)
-      .on(d3plus.evt.move,vars.zoom.touchEvent)
-      .on(d3plus.evt.out,vars.zoom.touchEvent)
+      .on(events.over, mouseEvent)
+      .on(events.move, mouseEvent)
+      .on(events.out , mouseEvent)
 
   }
 
@@ -24155,7 +24465,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../zoom/propagation.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js":[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
@@ -24371,9 +24681,10 @@ module.exports = function( vars ) {
 }
 
 },{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/history.js":[function(require,module,exports){
-var lighter = require("../../../color/lighter.coffee"),
+var events = require("../../../client/pointer.coffee"),
+    lighter    = require("../../../color/lighter.coffee"),
     print      = require("../../../core/console/print.coffee"),
-    stylesheet = require("../../../style/sheet.coffee")
+    stylesheet = require("../../../client/css.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates "back" button, if applicable
@@ -24439,7 +24750,7 @@ module.exports = function(vars) {
       })
 
     button
-      .on(d3plus.evt.over,function(){
+      .on(events.over,function(){
 
         if (!vars.small && vars.history.states.length > 0) {
 
@@ -24451,7 +24762,7 @@ module.exports = function(vars) {
         }
 
       })
-      .on(d3plus.evt.out,function(){
+      .on(events.out,function(){
 
         if (!vars.small && vars.history.states.length > 0) {
 
@@ -24463,7 +24774,7 @@ module.exports = function(vars) {
         }
 
       })
-      .on(d3plus.evt.click,function(){
+      .on(events.click,function(){
 
         vars.history.back()
 
@@ -24484,12 +24795,13 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../style/sheet.coffee":"/Users/Dave/Sites/D3plus/src/style/sheet.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js":[function(require,module,exports){
+},{"../../../client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee","../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js":[function(require,module,exports){
 var arraySort = require("../../../array/sort.coffee"),
     buckets      = require("../../../util/buckets.coffee"),
     copy         = require("../../../util/copy.coffee"),
     dataNest     = require("../../../core/data/nest.js"),
     dataURL      = require("../../../util/dataURL.coffee"),
+    events       = require("../../../client/pointer.coffee"),
     fetchValue   = require("../../../core/fetch/value.js"),
     fetchColor   = require("../../../core/fetch/color.coffee"),
     fetchText    = require("../../../core/fetch/text.js"),
@@ -24497,6 +24809,7 @@ var arraySort = require("../../../array/sort.coffee"),
     textColor    = require("../../../color/text.coffee"),
     uniqueValues = require("../../../util/uniques.coffee"),
     stringStrip  = require("../../../string/strip.js"),
+    touch        = require("../../../client/touch.coffee"),
     validObject  = require("../../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
@@ -24722,7 +25035,7 @@ module.exports = function(vars) {
                 var text = d3.select(this.parentNode).append("text")
 
                 text
-                  .attr("font-size",vars.legend.font.size)
+                  .attr("font-size",vars.legend.font.size+"px")
                   .attr("font-weight",vars.legend.font.weight)
                   .attr("font-family",vars.legend.font.family.value)
                   .style("text-anchor","start")
@@ -24778,10 +25091,10 @@ module.exports = function(vars) {
             .attr("class","d3plus_color")
             .call(style)
 
-        if (!d3plus.touch) {
+        if (!touch) {
 
           keys
-            .on(d3plus.evt.over,function(d,i){
+            .on(events.over,function(d,i){
 
               d3.select(this).style("cursor","pointer")
 
@@ -24792,7 +25105,7 @@ module.exports = function(vars) {
               y += vars.ui.padding+square_size/2
 
               var idIndex = vars.id.nesting.indexOf(colorKey)
-                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey))
+                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), vars)
 
               d3plus.tooltip.app({
                 "data": d,
@@ -24805,7 +25118,7 @@ module.exports = function(vars) {
               })
 
             })
-            .on(d3plus.evt.out,function(d){
+            .on(events.out,function(d){
               d3plus.tooltip.remove(vars.type.value)
             })
 
@@ -24928,11 +25241,11 @@ module.exports = function(vars) {
         .order()
         .attr("font-weight",vars.legend.font.weight)
         .attr("font-family",vars.legend.font.family.value)
-        .attr("font-size",vars.legend.font.size)
+        .attr("font-size",vars.legend.font.size+"px")
         .style("text-anchor",vars.legend.font.align)
         .attr("fill",vars.legend.font.color)
         .text(function(d){
-          return vars.format.value(values[d],key)
+          return vars.format.value(values[d],key, vars)
         })
         .attr("y",function(d){
           return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2
@@ -25080,7 +25393,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/data/nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../../util/dataURL.coffee":"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js":[function(require,module,exports){
+},{"../../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/data/nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../../util/dataURL.coffee":"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -25194,6 +25507,8 @@ module.exports = function(vars,message) {
 },{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/timeline.js":[function(require,module,exports){
 var closest = require("../../../util/closest.coffee"),
     fontSizes = require("../../../font/sizes.coffee"),
+    events    = require("../../../client/pointer.coffee"),
+    prefix    = require("../../../client/prefix.coffee"),
     print     = require("../../../core/console/print.coffee"),
     textColor = require("../../../color/text.coffee")
 
@@ -25214,7 +25529,7 @@ module.exports = function(vars) {
     var timeFormat = vars.time.format.value || vars.data.time.format
       , timeMultiFormat = vars.time.format.value || vars.data.time.multiFormat
 
-    if ((vars.time.value == vars.x.value && vars.x.scale.value == "continuous") || (vars.time.value == vars.y.value && vars.y.scale.value == "continuous")) {
+    if ((vars.time.value == vars.x.value && vars.x.scale.value == "discrete") || (vars.time.value == vars.y.value && vars.y.scale.value == "discrete")) {
       var min_required = 2
     }
     else {
@@ -25356,7 +25671,7 @@ module.exports = function(vars) {
     var textStyle = {
       "font-weight": vars.ui.font.weight,
       "font-family": vars.ui.font.family.value,
-      "font-size": vars.ui.font.size,
+      "font-size": vars.ui.font.size+"px",
       "text-anchor": "middle"
     }
 
@@ -25367,32 +25682,32 @@ module.exports = function(vars) {
 
     var textSizes = fontSizes(years.map(timeFormatter),textStyle)
       , yearWidths = textSizes.map(function(t){return t.width})
-      , year_width = d3.max(yearWidths)
-      , year_height = d3.max(textSizes.map(function(t){return t.height}))
+      , yearWidth = Math.ceil(d3.max(yearWidths))
+      , yearHeight = d3.max(textSizes.map(function(t){return t.height}))
 
-    var label_width = year_width+vars.ui.padding*2,
-        timelineHeight = year_height+vars.ui.padding*2
-        timeline_width = label_width*years.length,
-        available_width = vars.width.value-vars.ui.padding*2,
+    var labelWidth = yearWidth+vars.ui.padding*2,
+        timelineHeight = yearHeight+vars.ui.padding*2
+        timelineWidth = labelWidth*years.length,
+        availableWidth = vars.width.value-vars.ui.padding*2,
         tickStep = 1,
         textRotate = 0
 
-    if (timeline_width > available_width) {
-      label_width = year_height+vars.ui.padding*2
-      timelineHeight = year_width+vars.ui.padding*2
-      timeline_width = label_width*years.length
+    if (timelineWidth > availableWidth) {
+      labelWidth = yearHeight+vars.ui.padding*2
+      timelineHeight = yearWidth+vars.ui.padding*2
+      timelineWidth = labelWidth*years.length
       textRotate = 90
     }
 
     timelineHeight = d3.max([timelineHeight,vars.timeline.height.value])
 
-    var old_width = label_width
-    if (timeline_width > available_width) {
-      timeline_width = available_width
-      old_width = label_width-vars.ui.padding*2
-      label_width = timeline_width/years.length
-      if (old_width > label_width) {
-        tickStep = Math.ceil(old_width/(timeline_width/years.length))
+    var oldWidth = labelWidth
+    if (timelineWidth > availableWidth) {
+      timelineWidth = availableWidth
+      oldWidth = labelWidth-vars.ui.padding*2
+      labelWidth = timelineWidth/years.length
+      if (oldWidth > labelWidth) {
+        tickStep = Math.ceil(oldWidth/(timelineWidth/years.length))
         for (tickStep; tickStep < years.length-1; tickStep++) {
           if ((years.length-1)%tickStep == 0) {
             break;
@@ -25406,10 +25721,10 @@ module.exports = function(vars) {
       var start_x = vars.ui.padding
     }
     else if (vars.timeline.align == "end") {
-      var start_x = vars.width.value - vars.ui.padding - timeline_width
+      var start_x = vars.width.value - vars.ui.padding - timelineWidth
     }
     else {
-      var start_x = vars.width.value/2 - timeline_width/2
+      var start_x = vars.width.value/2 - timelineWidth/2
     }
 
     var brushExtent = [start,end]
@@ -25437,14 +25752,14 @@ module.exports = function(vars) {
     background.enter().append("rect")
       .attr("class","d3plus_timeline_background")
       .attr("shape-rendering","crispEdges")
-      .attr("width",timeline_width+2)
+      .attr("width",timelineWidth+2)
       .attr("height",timelineHeight+2)
       .attr("fill",vars.ui.color.secondary.value)
       .attr("x",start_x-1)
       .attr("y",vars.ui.padding)
 
     background.transition().duration(vars.draw.timing)
-      .attr("width",timeline_width+2)
+      .attr("width",timelineWidth+2)
       .attr("height",timelineHeight+2)
       .attr("fill",vars.ui.color.secondary.value)
       .attr("x",start_x-1)
@@ -25488,29 +25803,17 @@ module.exports = function(vars) {
         var prev = (i-1)%tickStep === 0
           , next = (i+1)%tickStep === 0
           , data = vars.data.time.dataSteps.indexOf(i) >= 0
-          , fits = (yearWidths[i-1]/2 + yearWidths[i] + yearWidths[i+1]/2 + vars.ui.padding*4) < label_width*2
+          , fits = (yearWidths[i-1]/2 + yearWidths[i] + yearWidths[i+1]/2 + vars.ui.padding*4) < labelWidth*2
 
-        return i%tickStep === 0 || (!prev && !next && data && old_width < label_width*3) ? timeMultiFormat(d) : ""
+        return i%tickStep === 0 || (!prev && !next && data && oldWidth < labelWidth*3) ? timeMultiFormat(d) : ""
       })
       .attr("opacity",function(d,i){
         return vars.data.time.dataSteps.indexOf(i) >= 0 ? 1 : 0.4
       })
       .attr("fill",textFill)
       .attr("transform",function(d,i){
-        var x = start_x + (label_width*i) + label_width/2
+        var x = start_x + (labelWidth*i) + labelWidth/2
           , y = timelineHeight/2 + vars.ui.padding + 1
-
-        // var diff = diff = parseFloat(d3.select(this).style("font-size"),10)/4
-        // var y = vars.ui.padding+vars.timeline.height/2+this.getBBox().height/2 - diff
-
-        if (textRotate) {
-          // x -= vars.ui.padding
-          // y += vars.ui.padding
-        }
-        else {
-          // x += vars.ui.padding
-          // y += vars.ui.padding
-        }
         return "translate("+Math.round(x)+","+Math.round(y)+")rotate("+textRotate+")"
       })
 
@@ -25520,7 +25823,7 @@ module.exports = function(vars) {
 
     var x = d3.time.scale()
       .domain(d3.extent(year_ticks))
-      .rangeRound([0,timeline_width])
+      .rangeRound([0,timelineWidth])
 
     var brush = d3.svg.brush()
       .x(x)
@@ -25561,9 +25864,9 @@ module.exports = function(vars) {
       .style("visibility","visible")
       .attr("height",timelineHeight)
       .attr("shape-rendering","crispEdges")
-      .on(d3plus.evt.move,function(){
+      .on(events.move,function(){
         var c = vars.timeline.hover.value
-        if (["grab","grabbing"].indexOf(c) >= 0) c = d3plus.prefix()+c
+        if (["grab","grabbing"].indexOf(c) >= 0) c = prefix()+c
         d3.select(this).style("cursor",c)
       })
 
@@ -25573,9 +25876,9 @@ module.exports = function(vars) {
       .attr("height",timelineHeight)
       .attr("fill",vars.ui.color.primary.value)
       .attr("shape-rendering","crispEdges")
-      .on(d3plus.evt.move,function(){
+      .on(events.move,function(){
         var c = vars.timeline.hover.value
-        if (["grab","grabbing"].indexOf(c) >= 0) c = d3plus.prefix()+c
+        if (["grab","grabbing"].indexOf(c) >= 0) c = prefix()+c
         d3.select(this).style("cursor",c)
       })
 
@@ -25597,12 +25900,12 @@ module.exports = function(vars) {
         .style("visibility","visible")
         .attr("shape-rendering","crispEdges")
         .attr("opacity",vars.timeline.handles.opacity)
-        .on(d3plus.evt.over,function(){
+        .on(events.over,function(){
           d3.select(this).select("rect")
             .transition().duration(vars.timing.mouseevents)
             .attr("fill",vars.timeline.handles.hover)
         })
-        .on(d3plus.evt.out,function(){
+        .on(events.out,function(){
           d3.select(this).select("rect")
             .transition().duration(vars.timing.mouseevents)
             .attr("fill",vars.timeline.handles.color)
@@ -25644,9 +25947,11 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js":[function(require,module,exports){
-var fetchValue = require("../../../core/fetch/value.js"),
-    print = require("../../../core/console/print.coffee")
+},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js":[function(require,module,exports){
+var events = require("../../../client/pointer.coffee"),
+    fetchValue = require("../../../core/fetch/value.js"),
+    print      = require("../../../core/console/print.coffee"),
+    rtl        = require("../../../client/rtl.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws appropriate titles
 //------------------------------------------------------------------------------
@@ -25713,14 +26018,14 @@ module.exports = function(vars) {
         if (overall_total > total) {
 
           var pct = (total/overall_total)*100,
-              ot = vars.format.value(overall_total,vars.size.value)
+              ot = vars.format.value(overall_total,vars.size.value, vars)
 
-          var pct = " ("+vars.format.value(pct,"share")+"% of "+ot+")"
+          var pct = " ("+vars.format.value(pct,"share")+"% of "+ot+", vars)"
 
         }
       }
 
-      total = vars.format.value(total,vars.size.value)
+      total = vars.format.value(total,vars.size.value, vars)
       var obj = vars.title.total.value
         , prefix = obj.prefix || vars.format.value(vars.format.locale.value.ui.total)+": "
       total = prefix + total
@@ -25798,10 +26103,10 @@ module.exports = function(vars) {
         if (align == "center") {
           return "middle"
         }
-        else if ((align == "left" && !d3plus.rtl) || (align == "right" && d3plus.rtl)) {
+        else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
           return "start"
         }
-        else if ((align == "left" && d3plus.rtl) || (align == "right" && !d3plus.rtl)) {
+        else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
           return "end"
         }
 
@@ -25813,10 +26118,10 @@ module.exports = function(vars) {
         if (align == "center") {
           return vars.width.value/2
         }
-        else if ((align == "left" && !d3plus.rtl) || (align == "right" && d3plus.rtl)) {
+        else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
           return vars.padding
         }
-        else if ((align == "left" && d3plus.rtl) || (align == "right" && !d3plus.rtl)) {
+        else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
           return vars.width.value-vars.padding
         }
 
@@ -25892,7 +26197,7 @@ module.exports = function(vars) {
       vars.margin[d.style.position] += this.getBBox().height + d.style.padding*2
 
     })
-    .on(d3plus.evt.over,function(t){
+    .on(events.over,function(t){
       if (t.link) {
         d3.select(this)
           .transition().duration(vars.timing.mouseevents)
@@ -25905,7 +26210,7 @@ module.exports = function(vars) {
             .style("text-transform",vars.links.hover.transform.value)
       }
     })
-    .on(d3plus.evt.out,function(t){
+    .on(events.out,function(t){
       if (t.link) {
         d3.select(this)
           .transition().duration(vars.timing.mouseevents)
@@ -25914,7 +26219,7 @@ module.exports = function(vars) {
             .call(style)
       }
     })
-    .on(d3plus.evt.click,function(t){
+    .on(events.click,function(t){
       if (t.link) {
         var target = t.link.charAt(0) != "/" ? "_blank" : "_self"
         window.open(t.link,target)
@@ -25961,7 +26266,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js":[function(require,module,exports){
 var transform = require("./transform.coffee")
 
 module.exports = function( vars , b , timing ) {
@@ -26023,6 +26328,8 @@ module.exports = function( vars , b , timing ) {
 }
 
 },{"./transform.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/controls.js":[function(require,module,exports){
+var events = require("../../../client/pointer.coffee")
+
 module.exports = function() {
 
   d3.select("#d3plus.utilsts.zoom_controls").remove()
@@ -26036,19 +26343,19 @@ module.exports = function() {
     zoom_enter.append("div")
       .attr("id","zoom_in")
       .attr("unselectable","on")
-      .on(d3plus.evt.click,function(){ vars.zoom("in") })
+      .on(events.click,function(){ vars.zoom("in") })
       .text("+")
 
     zoom_enter.append("div")
       .attr("id","zoom_out")
       .attr("unselectable","on")
-      .on(d3plus.evt.click,function(){ vars.zoom("out") })
+      .on(events.click,function(){ vars.zoom("out") })
       .text("-")
 
     zoom_enter.append("div")
       .attr("id","zoom_reset")
       .attr("unselectable","on")
-      .on(d3plus.evt.click,function(){
+      .on(events.click,function(){
         vars.zoom("reset")
         vars.draw.update()
       })
@@ -26106,6 +26413,24 @@ module.exports = function() {
 
 }
 
+},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee":[function(require,module,exports){
+module.exports = function(data, vars) {
+  var current_depth, max_depth, restricted;
+  max_depth = vars.id.nesting.length - 1;
+  current_depth = vars.depth.value;
+  restricted = vars.types[vars.type.value].nesting === false;
+  if (restricted) {
+    return 0;
+  } else if (data.d3plus.merged || current_depth < max_depth && (!data || vars.id.nesting[vars.depth.value + 1] in data)) {
+    return 1;
+  } else if ((current_depth === max_depth || (data && (!(vars.id.nesting[vars.depth.value + 1] in data)))) && (vars.small || !vars.tooltip.html.value)) {
+    return -1;
+  } else {
+    return 0;
+  }
+};
+
+
 },{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js":[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 
@@ -26144,63 +26469,71 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.js":[function(require,module,exports){
-var labels     = require("./labels.js")
-var transform  = require("./transform.coffee")
+},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.coffee":[function(require,module,exports){
+var labels, transform;
+
+labels = require("./labels.js");
+
+transform = require("./transform.coffee");
 
 module.exports = function(vars) {
-
-  var translate = d3.event.translate,
-      scale = d3.event.scale,
-      limits = vars.zoom.bounds,
-      xoffset = (vars.width.viz-(vars.zoom.size.width*scale))/2,
-      xmin = xoffset > 0 ? xoffset : 0,
-      xmax = xoffset > 0 ? vars.width.viz-xoffset : vars.width.viz,
-      yoffset = (vars.height.viz-(vars.zoom.size.height*scale))/2,
-      ymin = yoffset > 0 ? yoffset : 0,
-      ymax = yoffset > 0 ? vars.height.viz-yoffset : vars.height.viz
-
-  // Auto center visualization
-  if (translate[0]+limits[0][0]*scale > xmin) {
-    translate[0] = -limits[0][0]*scale+xmin
+  var delay, limits, scale, translate, xmax, xmin, xoffset, ymax, ymin, yoffset;
+  translate = d3.event.translate;
+  scale = d3.event.scale;
+  limits = vars.zoom.bounds;
+  xoffset = (vars.width.viz - (vars.zoom.size.width * scale)) / 2;
+  xmin = (xoffset > 0 ? xoffset : 0);
+  xmax = (xoffset > 0 ? vars.width.viz - xoffset : vars.width.viz);
+  yoffset = (vars.height.viz - (vars.zoom.size.height * scale)) / 2;
+  ymin = (yoffset > 0 ? yoffset : 0);
+  ymax = (yoffset > 0 ? vars.height.viz - yoffset : vars.height.viz);
+  if (translate[0] + limits[0][0] * scale > xmin) {
+    translate[0] = -limits[0][0] * scale + xmin;
+  } else if (translate[0] + limits[1][0] * scale < xmax) {
+    translate[0] = xmax - (limits[1][0] * scale);
   }
-  else if (translate[0]+limits[1][0]*scale < xmax) {
-    translate[0] = xmax-(limits[1][0]*scale)
+  if (translate[1] + limits[0][1] * scale > ymin) {
+    translate[1] = -limits[0][1] * scale + ymin;
+  } else if (translate[1] + limits[1][1] * scale < ymax) {
+    translate[1] = ymax - (limits[1][1] * scale);
   }
-
-  if (translate[1]+limits[0][1]*scale > ymin) {
-    translate[1] = -limits[0][1]*scale+ymin
+  vars.zoom.behavior.translate(translate).scale(scale);
+  vars.zoom.translate = translate;
+  vars.zoom.scale = scale;
+  if (d3.event.sourceEvent.type === "wheel") {
+    delay = (vars.draw.timing ? 100 : 250);
+    clearTimeout(vars.zoom.wheel);
+    vars.zoom.wheel = setTimeout(function() {
+      return labels(vars);
+    }, delay);
+  } else {
+    labels(vars);
   }
-  else if (translate[1]+limits[1][1]*scale < ymax) {
-    translate[1] = ymax-(limits[1][1]*scale)
-  }
-
-  vars.zoom.behavior.translate(translate).scale(scale)
-
-  vars.zoom.translate = translate
-  vars.zoom.scale = scale
-
-  if (d3.event.sourceEvent.type == "wheel") {
-    var delay = vars.draw.timing ? 100 : 250
-    clearTimeout(vars.zoom.wheel)
-    vars.zoom.wheel = setTimeout(function(){
-      labels(vars)
-    },delay)
-  }
-  else {
-    labels(vars)
-  }
-
   if (d3.event.sourceEvent.type === "dblclick") {
-    transform(vars,vars.timing.transitions)
+    return transform(vars, vars.timing.transitions);
+  } else {
+    return transform(vars, 0);
   }
-  else {
-    transform(vars,0)
+};
+
+
+},{"./labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","./transform.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee":[function(require,module,exports){
+module.exports = function(vars, event) {
+  var enabled, zoom, zoomable, zoomed;
+  zoom = vars.zoom;
+  if (!event) {
+    event = d3.event;
   }
+  zoomed = zoom.scale > zoom.behavior.scaleExtent()[0];
+  enabled = vars.types[vars.type.value].zoom && zoom.value && zoom.scroll.value;
+  zoomable = event.touches && event.touches.length > 1 && enabled;
+  if (!zoomable && !zoomed) {
+    event.stopPropagation();
+  }
+};
 
-}
 
-},{"./labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","./transform.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee":[function(require,module,exports){
+},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee":[function(require,module,exports){
 module.exports = function(vars, timing) {
   var scale, translate;
   if (typeof timing !== "number") {
@@ -26265,39 +26598,28 @@ module.exports = {
 
 
 },{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee":[function(require,module,exports){
-var family;
+var rendering;
 
-family = require("../../core/methods/font/family.coffee");
+rendering = require("../../core/methods/rendering.coffee");
 
 module.exports = {
+  background: {
+    color: "#fafafa",
+    rendering: rendering(),
+    stroke: {
+      color: "#ccc",
+      width: 1
+    }
+  },
   mirror: {
     accepted: [Boolean],
     deprecates: ["mirror_axis", "mirror_axes"],
     value: false
-  },
-  ticks: {
-    color: "#ccc",
-    font: {
-      color: "#888",
-      decoration: {
-        accepted: ["line-through", "none", "overline", "underline"],
-        value: "none"
-      },
-      family: family(),
-      size: 10,
-      transform: {
-        accepted: ["capitalize", "lowercase", "none", "uppercase"],
-        value: "none"
-      },
-      weight: 200
-    },
-    size: 10,
-    width: 1
   }
 };
 
 
-},{"../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee":[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [String],
   value: "#ffffff"
@@ -26341,7 +26663,20 @@ module.exports = {
 };
 
 
-},{"../../color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee":[function(require,module,exports){
+},{"../../color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/cols.js":[function(require,module,exports){
+module.exports = {
+  "accepted" : [ Array , Function , String ],
+  "process"  : function(value, vars) {
+
+    if (typeof value === "string") value = [value]
+    
+    return value
+    
+  },
+  "value"    : false
+}
+
+},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee":[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -26397,9 +26732,11 @@ module.exports = {
 
 
 },{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee":[function(require,module,exports){
-var fetchValue, stringStrip;
+var fetchValue, ie, stringStrip;
 
 fetchValue = require("../../core/fetch/value.js");
+
+ie = require("../../client/ie.js");
 
 stringStrip = require("../../string/strip.js");
 
@@ -26455,7 +26792,7 @@ module.exports = {
       dataString = c.join(",");
       csv_data += (i < csv_to_return.length ? dataString + "\n" : dataString);
     }
-    if (d3plus.ie) {
+    if (ie) {
       blob = new Blob([csv_data], {
         type: "text/csv;charset=utf-8;"
       });
@@ -26474,7 +26811,7 @@ module.exports = {
 };
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/viz/methods/data.js":[function(require,module,exports){
+},{"../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/viz/methods/data.js":[function(require,module,exports){
 var process = require("../../core/methods/process/data.coffee")
 
 module.exports = {
@@ -26495,9 +26832,7 @@ module.exports = {
   "mute"     : [],
   "large"   : 400,
   "opacity" : 0.9,
-  "process"  : function( value ) {
-
-    var vars = this.getVars()
+  "process"  : function(value, vars) {
 
     if ( vars.container.id === "default" && value.length ) {
       vars.self.container({"id": "default"+value.length})
@@ -26717,11 +27052,11 @@ module.exports = {
 },{}],"/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee":[function(require,module,exports){
 var align, decoration, family, transform;
 
-family = require("../../core/methods/font/family.coffee");
-
 align = require("../../core/methods/font/align.coffee");
 
 decoration = require("../../core/methods/font/decoration.coffee");
+
+family = require("../../core/methods/font/family.coffee");
 
 transform = require("../../core/methods/font/transform.coffee");
 
@@ -26824,19 +27159,21 @@ module.exports = {
     accepted: [false, Function],
     value: false
   },
-  value: function(value, key) {
-    var f, v, vars;
-    vars = this.getVars();
+  value: function(value, key, vars) {
+    var f, v;
+    if (!vars) {
+      vars = {};
+    }
     if (vars.time && vars.time.value && key === vars.time.value) {
       f = vars.time.format.value || vars.data.time.format;
       v = (value.constructor === Date ? value : new Date(value));
       return f(v);
     } else if (typeof value === "number") {
       f = this.number.value || formatNumber;
-      return f(value, key);
+      return f(value, key, vars);
     } else if (typeof value === "string") {
       f = this.text.value || titleCase;
-      return f(value, key);
+      return f(value, key, vars);
     } else {
       return JSON.stringify(value);
     }
@@ -26855,29 +27192,124 @@ module.exports = {
 
 
 },{}],"/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee":[function(require,module,exports){
-var filter;
+var align, decoration, family, filter, position, rendering, transform;
+
+align = require("../../../core/methods/font/align.coffee");
+
+decoration = require("../../../core/methods/font/decoration.coffee");
+
+family = require("../../../core/methods/font/family.coffee");
 
 filter = require("../../../core/methods/filter.coffee");
+
+position = require("../../../core/methods/font/position.coffee");
+
+rendering = require("../../../core/methods/rendering.coffee");
+
+transform = require("../../../core/methods/font/transform.coffee");
 
 module.exports = function(axis) {
   return {
     accepted: [Array, Boolean, Function, Object, String],
+    axis: {
+      color: "#444",
+      font: {
+        color: "#444",
+        decoration: decoration(),
+        family: family(),
+        size: 10,
+        transform: transform(),
+        weight: 200
+      },
+      rendering: rendering()
+    },
     dataFilter: true,
     deprecates: [axis + "axis", axis + "axis_val", axis + "axis_var"],
     domain: {
       accepted: [false, Array],
       value: false
     },
-    lines: [],
+    grid: {
+      color: "#ccc",
+      rendering: rendering()
+    },
+    label: {
+      color: "#444",
+      decoration: decoration(),
+      family: family(),
+      size: 12,
+      transform: transform(),
+      weight: 200
+    },
+    lines: {
+      accept: [false, Array, Number, Object],
+      dasharray: {
+        accepted: [Array, String],
+        process: function(value) {
+          if (value instanceof Array) {
+            value = value.filter(function(d) {
+              return !isNaN(d);
+            });
+            value = value.length ? value.join(", ") : "none";
+          }
+          return value;
+        },
+        value: "10, 10"
+      },
+      color: "#888",
+      font: {
+        align: align("right"),
+        color: "#444",
+        background: {
+          accepted: [Boolean],
+          value: true
+        },
+        decoration: decoration(),
+        family: family(),
+        padding: {
+          accepted: [Number],
+          value: 10
+        },
+        position: position("middle"),
+        size: 12,
+        transform: transform(),
+        weight: 200
+      },
+      process: Array,
+      rendering: rendering(),
+      width: 1,
+      value: []
+    },
+    mouse: {
+      accept: [Boolean],
+      dasharray: {
+        accepted: [Array, String],
+        process: function(value) {
+          if (value instanceof Array) {
+            value = value.filter(function(d) {
+              return !isNaN(d);
+            });
+            value = value.length ? value.join(", ") : "none";
+          }
+          return value;
+        },
+        value: "none"
+      },
+      rendering: rendering(),
+      width: 2,
+      value: true
+    },
     mute: filter(true),
-    range: false,
-    reset: ["range"],
+    range: {
+      accepted: [false, Array],
+      value: false
+    },
     scale: {
-      accepted: ["linear", "log", "continuous", "share"],
+      accepted: ["linear", "log", "discrete", "share"],
       deprecates: ["layout", "unique_axis", axis + "axis_scale"],
       process: function(value, vars) {
         var scale, _i, _len, _ref;
-        _ref = ["log", "continuous", "share"];
+        _ref = ["log", "discrete", "share"];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           scale = _ref[_i];
           if (scale === value) {
@@ -26888,7 +27320,7 @@ module.exports = function(axis) {
             }
           }
         }
-        if (value === "continuous") {
+        if (value === "discrete") {
           vars.axes.opposite = (axis === "x" ? "y" : "x");
         }
         return value;
@@ -26910,6 +27342,20 @@ module.exports = function(axis) {
       },
       value: false
     },
+    ticks: {
+      color: "#ccc",
+      font: {
+        color: "#666",
+        decoration: decoration(),
+        family: family(),
+        size: 10,
+        transform: transform(),
+        weight: 200
+      },
+      rendering: rendering(),
+      size: 10,
+      width: 1
+    },
     value: false,
     zerofill: {
       accepted: [Boolean],
@@ -26919,7 +27365,7 @@ module.exports = function(axis) {
 };
 
 
-},{"../../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee":[function(require,module,exports){
+},{"../../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","../../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../../core/methods/font/position.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/position.coffee","../../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","../../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   back: function() {
@@ -27177,9 +27623,9 @@ module.exports = {
 },{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, String],
+  deprecates: ["sort"],
   sort: {
     accepted: ["asc", "desc"],
-    deprecates: ["sort"],
     value: "asc"
   },
   value: false
@@ -27187,22 +27633,34 @@ module.exports = {
 
 
 },{}],"/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee":[function(require,module,exports){
+var rendering;
+
+rendering = require("../../core/methods/rendering.coffee");
+
 module.exports = {
-  accepted: ["circle", "donut", "line", "square", "area", "coordinates"],
+  accepted: function(vars) {
+    var list;
+    list = vars.types[vars.type.value].shapes;
+    if (list && !(list instanceof Array)) {
+      list = [list];
+    }
+    if (list.length) {
+      return list;
+    } else {
+      return ["square"];
+    }
+  },
   interpolate: {
     accepted: ["basis", "basis-open", "cardinal", "cardinal-open", "linear", "monotone", "step", "step-before", "step-after"],
     deprecates: "stack_type",
     value: "linear"
   },
-  rendering: {
-    accepted: ["auto", "optimizeSpeed", "crispEdges", "geometricPrecision"],
-    value: "auto"
-  },
+  rendering: rendering(),
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee":[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27215,10 +27673,23 @@ module.exports = {
   scale: {
     accepted: [Function],
     deprecates: "size_scale",
+    max: {
+      accepted: [Function, Number],
+      value: function(vars) {
+        return Math.floor(d3.max([d3.min([vars.width.viz, vars.height.viz]) / 15, 6]));
+      }
+    },
+    min: {
+      accepted: [Function, Number],
+      value: 3
+    },
     value: d3.scale.sqrt()
   },
   solo: filter(true),
-  threshold: true,
+  threshold: {
+    accepted: [Boolean, Function, Number],
+    value: true
+  },
   value: false
 };
 
@@ -27542,28 +28013,6 @@ module.exports = {
     "accepted" : [ Boolean ],
     "value"    : true
   },
-  "direction"  : function( data ) {
-
-    var vars          = this.getVars()
-      , max_depth     = vars.id.nesting.length-1
-      , current_depth = vars.depth.value
-      , restricted    = vars.types[vars.type.value].nesting === false
-
-    if (restricted) {
-      return 0
-    }
-    else if ( data.d3plus.merged || current_depth < max_depth
-              && ( !data || vars.id.nesting[vars.depth.value+1] in data ) ) {
-      return 1
-    }
-    else if ( ( current_depth === max_depth || ( data && !(vars.id.nesting[vars.depth.value+1] in data) ) )
-              && ( vars.small || !vars.tooltip.html.value ) ) {
-      return -1
-    }
-
-    return 0
-
-  },
   "pan"        : {
     "accepted" : [ Boolean ],
     "value"    : true
@@ -27573,23 +28022,282 @@ module.exports = {
     "deprecates" : "scroll_zoom",
     "value"      : true
   },
-  "touchEvent" : function() {
-
-    var vars     = this.getVars()
-      , zoomed   = vars.zoom.scale > vars.zoom.behavior.scaleExtent()[0]
-      , enabled  = vars.types[vars.type.value].zoom
-                 && vars.zoom.value && vars.zoom.scroll.value
-      , zoomable = d3.event.touches.length > 1 && enabled
-
-    if (!zoomable && !zoomed) {
-      d3.event.stopPropagation()
-    }
-
-  },
   "value"      : true
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js":[function(require,module,exports){
+},{}],"/Users/Dave/Sites/D3plus/src/viz/types/bar.coffee":[function(require,module,exports){
+var bar, fetchValue, graph, nest, stack;
+
+fetchValue = require("../../core/fetch/value.js");
+
+graph = require("./helpers/graph/draw.coffee");
+
+nest = require("./helpers/graph/nest.coffee");
+
+stack = require("./helpers/graph/stack.coffee");
+
+bar = function(vars) {
+  var base, cMargin, d, data, discrete, h, i, length, maxSize, mod, nested, oMargin, offset, opposite, point, space, value, w, x, _i, _j, _len, _len1, _ref;
+  graph(vars, {
+    buffer: true,
+    zero: vars.axes.opposite
+  });
+  data = vars.data.viz;
+  nested = nest(vars, data);
+  if (vars.axes.stacked) {
+    stack(vars, nested);
+  }
+  discrete = vars.axes.discrete;
+  h = discrete === "x" ? "height" : "width";
+  w = discrete === "x" ? "width" : "height";
+  space = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length;
+  if (vars.axes.stacked) {
+    maxSize = space - vars.labels.padding * 4;
+  } else {
+    maxSize = space / nested.length;
+    maxSize -= vars.labels.padding * 2;
+    offset = space / 2 - maxSize / 2 - vars.labels.padding * 2;
+    x = d3.scale.linear().domain([0, nested.length - 1]).range([-offset, offset]);
+  }
+  opposite = vars.axes.opposite;
+  cMargin = discrete === "x" ? "left" : "top";
+  oMargin = discrete === "x" ? "top" : "left";
+  for (i = _i = 0, _len = nested.length; _i < _len; i = ++_i) {
+    point = nested[i];
+    mod = vars.axes.stacked ? 0 : x(i);
+    _ref = point.values;
+    for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+      d = _ref[_j];
+      d.d3plus[discrete] = vars[discrete].scale.viz(fetchValue(vars, d, vars[discrete].value));
+      d.d3plus[discrete] += vars.axes.margin[cMargin] + mod;
+      if (vars.axes.stacked) {
+        base = d.d3plus[opposite + "0"];
+        value = d.d3plus[opposite];
+        length = base - value;
+      } else {
+        base = vars[opposite].scale.viz(0);
+        value = vars[opposite].scale.viz(fetchValue(vars, d, vars[opposite].value));
+        length = base - value;
+      }
+      d.d3plus[opposite] = base - length / 2;
+      if (!vars.axes.stacked) {
+        d.d3plus[opposite] += vars.axes.margin[oMargin];
+      }
+      d.d3plus[w] = maxSize;
+      d.d3plus[h] = Math.abs(length);
+      d.d3plus.init = {};
+      d.d3plus.init[opposite] = vars[opposite].scale.viz(0) - d.d3plus[opposite] + vars.axes.margin[oMargin];
+      d.d3plus.init[w] = d.d3plus[w];
+      d.d3plus.label = false;
+    }
+  }
+  return data;
+};
+
+bar.requirements = ["data", "x", "y"];
+
+bar.setup = function(vars) {
+  var axis;
+  if (!vars.axes.discrete) {
+    axis = vars.y.value === vars.time.value ? "y" : "x";
+    vars.self[axis]({
+      scale: "discrete"
+    });
+  }
+};
+
+bar.shapes = ["square"];
+
+bar.tooltip = "static";
+
+module.exports = bar;
+
+
+},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/box.coffee":[function(require,module,exports){
+var box, fetchValue, graph, uniques;
+
+fetchValue = require("../../core/fetch/value.js");
+
+graph = require("./helpers/graph/draw.coffee");
+
+uniques = require("../../util/uniques.coffee");
+
+box = function(vars) {
+  var disMargin, discrete, h, mergeData, mode, oppMargin, opposite, returnData, space, w;
+  graph(vars, {
+    buffer: true,
+    mouse: true
+  });
+  discrete = vars.axes.discrete;
+  opposite = vars.axes.opposite;
+  disMargin = discrete === "x" ? vars.axes.margin.left : vars.axes.margin.top;
+  oppMargin = opposite === "x" ? vars.axes.margin.left : vars.axes.margin.top;
+  h = discrete === "x" ? "height" : "width";
+  w = discrete === "x" ? "width" : "height";
+  space = vars.axes[w] / vars[discrete].ticks.values.length;
+  space = d3.max([d3.min([space / 2, 40]), 10]);
+  mode = vars.type.mode.value;
+  if (!(mode instanceof Array)) {
+    mode = [mode, mode];
+  }
+  mergeData = function(arr) {
+    var key, obj, vals;
+    obj = {};
+    for (key in vars.data.keys) {
+      vals = uniques(arr, key);
+      obj[key] = vals.length === 1 ? vals[0] : vals;
+    }
+    return obj;
+  };
+  returnData = [];
+  d3.nest().key(function(d) {
+    return fetchValue(vars, d, vars[discrete].value);
+  }).rollup(function(leaves) {
+    var bottom, bottomWhisker, boxData, d, first, iqr, key, median, medianData, outliers, scale, second, top, topWhisker, val, values, x, y, _i, _j, _len, _len1;
+    scale = vars[opposite].scale.viz;
+    values = leaves.map(function(d) {
+      return fetchValue(vars, d, vars[opposite].value);
+    });
+    values.sort(function(a, b) {
+      return a - b;
+    });
+    first = d3.quantile(values, 0.25);
+    median = d3.quantile(values, 0.50);
+    second = d3.quantile(values, 0.75);
+    if (mode[0] === "tukey") {
+      iqr = first - second;
+      bottom = first + iqr * 1.5;
+    } else if (mode[0] === "extent") {
+      bottom = d3.min(values);
+    } else if (typeof mode[0] === "number") {
+      bottom = d3.quantile(values, mode[0] / 100);
+    }
+    if (mode[1] === "tukey") {
+      iqr = first - second;
+      top = second - iqr * 1.5;
+    } else if (mode[1] === "extent") {
+      top = d3.max(values);
+    } else if (typeof mode[1] === "number") {
+      top = d3.quantile(values, (100 - mode[1]) / 100);
+    }
+    bottom = d3.max([d3.min(values), bottom]);
+    top = d3.min([d3.max(values), top]);
+    boxData = [];
+    bottomWhisker = [];
+    topWhisker = [];
+    outliers = [];
+    for (_i = 0, _len = leaves.length; _i < _len; _i++) {
+      d = leaves[_i];
+      val = fetchValue(vars, d, vars[opposite].value);
+      if (val >= first && val <= second) {
+        boxData.push(d);
+      } else if (val >= bottom && val < first) {
+        bottomWhisker.push(d);
+      } else if (val <= top && val > second) {
+        topWhisker.push(d);
+      } else {
+        outliers.push(d);
+      }
+    }
+    key = fetchValue(vars, leaves[0], vars[discrete].value);
+    x = vars[discrete].scale.viz(key);
+    x += disMargin;
+    if (key.constructor === Date) {
+      key = key.getTime();
+    }
+    boxData = mergeData(boxData);
+    boxData.d3plus = {
+      color: "white",
+      id: "box_" + key,
+      init: {},
+      shape: "square",
+      stroke: "#444",
+      text: "Interquartile Range for " + key
+    };
+    boxData.d3plus[w] = space;
+    boxData.d3plus.init[w] = space;
+    boxData.d3plus[h] = Math.abs(scale(first) - scale(second));
+    boxData.d3plus[discrete] = x;
+    y = d3.min([scale(first), scale(second)]) + boxData.d3plus[h] / 2;
+    y += oppMargin;
+    boxData.d3plus[opposite] = y;
+    returnData.push(boxData);
+    medianData = {
+      d3plus: {
+        id: "median_line_" + key,
+        label: median,
+        position: h === "height" ? "top" : "right",
+        shape: "whisker",
+        "static": true
+      }
+    };
+    medianData.d3plus[w] = space;
+    medianData.d3plus[discrete] = x;
+    medianData.d3plus[opposite] = scale(median);
+    returnData.push(medianData);
+    bottomWhisker = mergeData(bottomWhisker);
+    bottomWhisker.d3plus = {
+      id: "bottom_whisker_line_" + key,
+      offset: boxData.d3plus[h] / 2,
+      position: h === "height" ? "bottom" : "left",
+      shape: "whisker",
+      "static": true
+    };
+    bottomWhisker.d3plus[h] = Math.abs(scale(bottom) - scale(first));
+    bottomWhisker.d3plus[w] = space;
+    bottomWhisker.d3plus[discrete] = x;
+    bottomWhisker.d3plus[opposite] = y;
+    returnData.push(bottomWhisker);
+    topWhisker = mergeData(topWhisker);
+    topWhisker.d3plus = {
+      id: "top_whisker_line_" + key,
+      offset: -boxData.d3plus[h] / 2,
+      position: h === "height" ? "top" : "right",
+      shape: "whisker",
+      "static": true
+    };
+    topWhisker.d3plus[h] = Math.abs(scale(top) - scale(second));
+    topWhisker.d3plus[w] = space;
+    topWhisker.d3plus[discrete] = x;
+    topWhisker.d3plus[opposite] = y;
+    returnData.push(topWhisker);
+    for (_j = 0, _len1 = outliers.length; _j < _len1; _j++) {
+      d = outliers[_j];
+      d.d3plus[discrete] = x;
+      d.d3plus[opposite] = scale(fetchValue(vars, d, vars.y.value));
+      d.d3plus[opposite] += vars.axes.margin.top;
+      d.d3plus.r = 4;
+    }
+    returnData = returnData.concat(outliers);
+    return leaves;
+  }).entries(vars.data.viz);
+  return returnData;
+};
+
+box.modes = ["tukey", "extent", Array, Number];
+
+box.requirements = ["data", "x", "y"];
+
+box.shapes = ["circle"];
+
+box.setup = function(vars) {
+  if (!vars.axes.discrete) {
+    if (vars.y.value === vars.time.value) {
+      return vars.self.y({
+        scale: "discrete"
+      });
+    } else {
+      return vars.self.x({
+        scale: "discrete"
+      });
+    }
+  }
+};
+
+module.exports = box;
+
+
+},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js":[function(require,module,exports){
 var arraySort = require("../../array/sort.coffee"),
     fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.coffee"),
@@ -27850,7 +28558,69 @@ geo_map.zoom         = true
 
 module.exports = geo_map
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee":[function(require,module,exports){
+},{}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee":[function(require,module,exports){
+var color, legible;
+
+color = require("../../../../core/fetch/color.coffee");
+
+legible = require("../../../../color/legible.coffee");
+
+module.exports = function(vars) {
+  var axis, axisData, data, style, tick, ticks, _i, _len, _ref;
+  data = vars.axes.stacked ? [] : vars.data.viz;
+  style = function(line, axis) {
+    return line.attr("x1", function(d) {
+      if (axis === "y") {
+        return -2;
+      } else {
+        return d.d3plus.x - vars.axes.margin.left;
+      }
+    }).attr("x2", function(d) {
+      if (axis === "y") {
+        return -8;
+      } else {
+        return d.d3plus.x - vars.axes.margin.left;
+      }
+    }).attr("y1", function(d) {
+      if (axis === "x") {
+        return vars.axes.height + 2;
+      } else {
+        return d.d3plus.y - vars.axes.margin.top;
+      }
+    }).attr("y2", function(d) {
+      if (axis === "x") {
+        return vars.axes.height + 8;
+      } else {
+        return d.d3plus.y - vars.axes.margin.top;
+      }
+    }).style("stroke", function(d) {
+      return legible(color(vars, d));
+    }).style("stroke-width", vars.data.stroke.width).attr("shape-rendering", vars.shape.rendering.value);
+  };
+  ticks = vars.group.select("g#d3plus_graph_plane").selectAll("g.d3plus_data_tick").data(data, function(d) {
+    var mod;
+    mod = vars.axes.discrete ? "_" + d.d3plus[vars.axes.discrete] : "";
+    return "tick_" + d[vars.id.value] + "_" + d.d3plus.depth + mod;
+  });
+  ticks.enter().append("g").attr("class", "d3plus_data_tick").attr("opacity", 0);
+  _ref = ["x", "y"];
+  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+    axis = _ref[_i];
+    axisData = axis !== vars.axes.discrete ? data : [];
+    tick = ticks.selectAll("line.d3plus_data_" + axis).data(axisData, function(d) {
+      var mod;
+      mod = vars.axes.discrete ? "_" + d.d3plus[vars.axes.discrete] : "";
+      return "tick_" + d[vars.id.value] + "_" + d.d3plus.depth + mod;
+    });
+    tick.enter().append("line").attr("class", "d3plus_data_" + axis).call(style, axis);
+    tick.transition().duration(vars.draw.timing).call(style, axis);
+  }
+  ticks.transition().duration(vars.draw.timing).attr("opacity", 1);
+  ticks.exit().transition().duration(vars.draw.timing).attr("opacity", 0).remove();
+};
+
+
+},{"../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee":[function(require,module,exports){
 var axes, draw, mouse, plot;
 
 axes = require("./includes/axes.coffee");
@@ -27861,16 +28631,21 @@ mouse = require("./includes/mouse.coffee");
 
 plot = require("./includes/plot.coffee");
 
-module.exports = function(vars) {
-  axes(vars);
-  plot(vars);
-  draw(vars);
-  vars.mouse = mouse;
+module.exports = function(vars, opts) {
+  if (opts === void 0) {
+    opts = {};
+  }
+  axes(vars, opts);
+  plot(vars, opts);
+  draw(vars, opts);
+  vars.mouse = opts.mouse === true ? mouse : false;
 };
 
 
 },{"./includes/axes.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee","./includes/mouse.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee","./includes/plot.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee","./includes/svg.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee":[function(require,module,exports){
-var axisRange, closest, dataChange, fetchData, fetchValue, getData, getScale, print, soloPadding, timeTicks, uniques;
+var axisRange, buffer, closest, dataChange, fetchData, fetchValue, getData, getScale, print, sizeScale, soloPadding, timeTicks, uniques;
+
+buffer = require("./buffer.coffee");
 
 closest = require("../../../../../util/closest.coffee");
 
@@ -27882,31 +28657,32 @@ print = require("../../../../../core/console/print.coffee");
 
 uniques = require("../../../../../util/uniques.coffee");
 
-module.exports = function(vars) {
-  var axis, changed, domains, filtered, modified, range, _i, _len, _ref;
+module.exports = function(vars, opts) {
+  var axis, changed, domains, filtered, modified, range, zero, _i, _len, _ref;
   changed = dataChange(vars);
   if (changed) {
     vars.axes.dataset = getData(vars);
   }
+  vars.axes.scale = opts.buffer && opts.buffer !== true ? sizeScale(vars, opts.buffer) : false;
   _ref = ["x", "y"];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
     filtered = vars[axis].solo.changed || vars[axis].mute.changed;
     modified = changed || vars[axis].changed || (vars.time.fixed.value && filtered);
-    if (modified || vars[axis].stacked.changed) {
+    if (modified || vars[axis].stacked.changed || vars[axis].range.changed) {
       if (vars.dev.value) {
         print.time("calculating " + axis + " axis");
       }
-      vars[axis].ticks = {
-        values: false
-      };
-      range = axisRange(vars, axis);
-      if (range[0] === range[1]) {
+      vars[axis].reset = true;
+      vars[axis].ticks.values = false;
+      zero = [true, axis].indexOf(opts.zero) > 0 ? true : false;
+      range = axisRange(vars, axis, zero);
+      if (range[0] === range[1] && !vars[axis].range.value) {
         range = soloPadding(vars, axis, range);
       }
       if (vars[axis].value === vars.time.value) {
         vars[axis].ticks.values = timeTicks(vars, range);
-      } else if (axis === vars.axes.continuous) {
+      } else if (axis === vars.axes.discrete) {
         vars[axis].ticks.values = uniques(vars.axes.dataset, function(d) {
           return fetchValue(vars, d, vars[axis].value);
         });
@@ -27915,6 +28691,9 @@ module.exports = function(vars) {
         range = range.reverse();
       }
       vars[axis].scale.viz = getScale(vars, axis, range);
+      if (opts.buffer && axis !== vars.axes.discrete && !vars[axis].range.value) {
+        buffer(vars, axis, opts.buffer);
+      }
       vars[axis].domain.viz = range;
       if (vars.dev.value) {
         print.timeEnd("calculating " + axis + " axis");
@@ -27930,7 +28709,7 @@ module.exports = function(vars) {
 
 dataChange = function(vars) {
   var changed, check, k, _i, _len;
-  check = ["data", "time", "id", "depth"];
+  check = ["data", "time", "id", "depth", "type"];
   changed = vars.time.fixed.value && (vars.time.solo.changed || vars.time.mute.changed);
   for (_i = 0, _len = check.length; _i < _len; _i++) {
     k = check[_i];
@@ -27962,9 +28741,11 @@ getData = function(vars) {
   }
 };
 
-axisRange = function(vars, axis) {
-  var axisSums, oppAxis;
-  if (vars[axis].scale.value === "share") {
+axisRange = function(vars, axis, zero) {
+  var axisSums, oppAxis, values;
+  if (vars[axis].range.value && vars[axis].range.value.length === 2) {
+    return vars[axis].range.value.slice();
+  } else if (vars[axis].scale.value === "share") {
     vars[axis].ticks.values = d3.range(0, 1.1, 1.1);
     return [0, 1];
   } else if (vars[axis].stacked.value) {
@@ -27972,19 +28753,39 @@ axisRange = function(vars, axis) {
     axisSums = d3.nest().key(function(d) {
       return fetchValue(vars, d, vars[oppAxis].value);
     }).rollup(function(leaves) {
-      return d3.sum(leaves, function(d) {
-        return fetchValue(vars, d, vars[axis].value);
+      var negatives, positives;
+      positives = d3.sum(leaves, function(d) {
+        var val;
+        val = fetchValue(vars, d, vars[axis].value);
+        if (val > 0) {
+          return val;
+        } else {
+          return 0;
+        }
       });
+      negatives = d3.sum(leaves, function(d) {
+        var val;
+        val = fetchValue(vars, d, vars[axis].value);
+        if (val < 0) {
+          return val;
+        } else {
+          return 0;
+        }
+      });
+      return [negatives, positives];
     }).entries(vars.axes.dataset);
-    return [
-      0, d3.max(axisSums, function(d) {
-        return d.values;
-      })
-    ];
+    values = d3.merge(axisSums.map(function(d) {
+      return d.values;
+    }));
+    return d3.extent(values);
   } else {
-    return d3.extent(vars.axes.dataset, function(d) {
+    values = vars.axes.dataset.map(function(d) {
       return fetchValue(vars, d, vars[axis].value);
     });
+    if (zero) {
+      values.push(0);
+    }
+    return d3.extent(values);
   }
 };
 
@@ -28032,81 +28833,109 @@ getScale = function(vars, axis, range) {
   var rangeMax, scaleType;
   rangeMax = axis === "x" ? vars.width.viz : vars.height.viz;
   scaleType = vars[axis].scale.value;
-  if (["continuous", "share"].indexOf(scaleType) >= 0) {
+  if (["discrete", "share"].indexOf(scaleType) >= 0) {
     scaleType = "linear";
   }
   return d3.scale[scaleType]().domain(range).rangeRound([0, rangeMax]);
 };
 
-
-},{"../../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","../../../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/dataTicks.coffee":[function(require,module,exports){
-var color, legible;
-
-color = require("../../../../../core/fetch/color.coffee");
-
-legible = require("../../../../../color/legible.coffee");
-
-module.exports = function(vars) {
-  var axis, axisData, data, style, tick, ticks, _i, _len, _ref;
-  data = vars.axes.stacked ? [] : vars.data.viz;
-  style = function(line, axis) {
-    return line.attr("x1", function(d) {
-      if (axis === "y") {
+sizeScale = function(vars, value) {
+  var domain, max, min;
+  if (value === true) {
+    value = "size";
+  }
+  if (value in vars) {
+    value = vars[value].value;
+  }
+  min = vars.size.scale.min.value;
+  if (typeof min === "function") {
+    min = min(vars);
+  }
+  max = vars.size.scale.max.value;
+  if (typeof max === "function") {
+    max = max(vars);
+  }
+  if (value === false) {
+    return vars.size.scale.value.rangeRound([max, max]);
+  } else if (typeof value === "number") {
+    return vars.size.scale.value.rangeRound([value, value]);
+  } else if (value) {
+    if (vars.dev.value) {
+      print.time("calculating buffer scale");
+    }
+    domain = d3.extent(vars.axes.dataset, function(d) {
+      var val;
+      val = fetchValue(vars, d, value);
+      if (!val) {
         return 0;
       } else {
-        return d.d3plus.x - vars.axes.margin.left;
+        return val;
       }
-    }).attr("x2", function(d) {
-      if (axis === "y") {
-        return -5;
-      } else {
-        return d.d3plus.x - vars.axes.margin.left;
-      }
-    }).attr("y1", function(d) {
-      if (axis === "x") {
-        return vars.axes.height;
-      } else {
-        return d.d3plus.y - vars.axes.margin.top;
-      }
-    }).attr("y2", function(d) {
-      if (axis === "x") {
-        return vars.axes.height + 5;
-      } else {
-        return d.d3plus.y - vars.axes.margin.top;
-      }
-    }).style("stroke", function(d) {
-      return legible(color(vars, d));
-    }).style("stroke-width", vars.data.stroke.width).attr("shape-rendering", vars.shape.rendering.value);
-  };
-  ticks = vars.group.select("g#d3plus_graph_plane").selectAll("g.d3plus_data_tick").data(data, function(d) {
-    var mod;
-    mod = vars.axes.continuous ? "_" + d.d3plus[vars.axes.continuous] : "";
-    return "tick_" + d[vars.id.value] + "_" + d.d3plus.depth + mod;
-  });
-  ticks.enter().append("g").attr("class", "d3plus_data_tick").attr("opacity", 0);
-  _ref = ["x", "y"];
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    axis = _ref[_i];
-    axisData = axis !== vars.axes.continuous ? data : [];
-    tick = ticks.selectAll("line.d3plus_data_" + axis).data(axisData, function(d) {
-      var mod;
-      mod = vars.axes.continuous ? "_" + d.d3plus[vars.axes.continuous] : "";
-      return "tick_" + d[vars.id.value] + "_" + d.d3plus.depth + mod;
     });
-    tick.enter().append("line").attr("class", "d3plus_data_" + axis).call(style, axis);
-    tick.transition().duration(vars.draw.timing).call(style, axis);
+    if (domain[0] === domain[1]) {
+      min = max;
+    }
+    if (vars.dev.value) {
+      print.timeEnd("calculating buffer scale");
+    }
+    return vars.size.scale.value.domain(domain).rangeRound([min, max]);
   }
-  ticks.transition().duration(vars.draw.timing).attr("opacity", 1);
-  ticks.exit().transition().duration(vars.draw.timing).attr("opacity", 0).remove();
 };
 
 
-},{"../../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee":[function(require,module,exports){
+},{"../../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","../../../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./buffer.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee":[function(require,module,exports){
+module.exports = function(vars, axis, buffer) {
+  var additional, allNegative, allPositive, difference, domain, domainHigh, domainLow, maxSize, rangeMax;
+  if (axis === vars.axes.discrete) {
+    domain = vars[axis].scale.viz.domain();
+    if (axis === "y") {
+      domain = domain.slice().reverse();
+    }
+    difference = Math.abs(domain[1] - domain[0]);
+    additional = difference / (vars[axis].ticks.values.length - 1);
+    additional = additional / 2;
+    domain[0] = domain[0] - additional;
+    domain[1] = domain[1] + additional;
+    if (axis === "y") {
+      domain = domain.reverse();
+    }
+    return vars[axis].scale.viz.domain(domain);
+  } else if ((buffer === "x" && axis === "x") || (buffer === "y" && axis === "y") || (buffer === true)) {
+    domain = vars[axis].scale.viz.domain();
+    if (axis === "y") {
+      domain = domain.slice().reverse();
+    }
+    allPositive = domain[0] >= 0 && domain[1] >= 0;
+    allNegative = domain[0] <= 0 && domain[1] <= 0;
+    additional = Math.abs(domain[1] - domain[0]) * 0.05;
+    domain[0] = domain[0] - additional;
+    domain[1] = domain[1] + additional;
+    if ((allPositive && domain[0] < 0) || (allNegative && domain[0] > 0)) {
+      domain[0] = 0;
+    }
+    if ((allPositive && domain[1] < 0) || (allNegative && domain[1] > 0)) {
+      domain[1] = 0;
+    }
+    if (axis === "y") {
+      domain = domain.reverse();
+    }
+    return vars[axis].scale.viz.domain(domain);
+  } else if (vars.axes.scale && buffer !== "y" && buffer !== "x") {
+    rangeMax = vars[axis].scale.viz.range()[1];
+    maxSize = vars.axes.scale.range()[1];
+    domainHigh = vars[axis].scale.viz.invert(-maxSize * 2);
+    domainLow = vars[axis].scale.viz.invert(rangeMax + maxSize * 2);
+    return vars[axis].scale.viz.domain([domainHigh, domainLow]);
+  }
+};
+
+
+},{}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee":[function(require,module,exports){
 var copy, events, fetchColor, fetchValue, legible;
 
 copy = require("../../../../../util/copy.coffee");
 
-events = require("../../../../../general/events.coffee");
+events = require("../../../../../client/pointer.coffee");
 
 fetchColor = require("../../../../../core/fetch/color.coffee");
 
@@ -28126,7 +28955,9 @@ module.exports = function(node, vars) {
   if (!clickRemove && create) {
     color = legible(fetchColor(vars, node));
     lineData = ["x", "y"].filter(function(axis) {
-      return axis !== vars.axes.stacked;
+      var val;
+      val = fetchValue(vars, node, vars[axis].value);
+      return !(val instanceof Array) && axis !== vars.axes.stacked && vars[axis].mouse.value && axis !== vars.axes.discrete;
     });
   } else {
     lineData = [];
@@ -28144,7 +28975,7 @@ module.exports = function(node, vars) {
       } else {
         return y + r;
       }
-    }).style("stroke-width", 0).attr("opacity", 0);
+    }).attr("opacity", 0);
   };
   lineStyle = function(line) {
     return line.attr("x1", function(d) {
@@ -28165,30 +28996,44 @@ module.exports = function(node, vars) {
       } else {
         return color;
       }
-    }).attr("stroke-dasharray", "5,5");
+    }).attr("stroke-dasharray", function(d) {
+      return vars[d].mouse.dasharray.value;
+    }).attr("shape-rendering", function(d) {
+      return vars[d].mouse.rendering.value;
+    }).style("stroke-width", function(d) {
+      return vars[d].mouse.width;
+    });
   };
   lines = vars.g.labels.selectAll("line.d3plus_mouse_axis_label").data(lineData);
-  lines.enter().append("line").attr("class", "d3plus_mouse_axis_label").attr("shape-rendering", vars.shape.rendering.value).attr("pointer-events", "none").call(lineInit).call(lineStyle);
+  lines.enter().append("line").attr("class", "d3plus_mouse_axis_label").attr("pointer-events", "none").call(lineInit).call(lineStyle);
   lines.transition().duration(timing).attr("x2", function(d) {
     if (d === "x") {
       return x;
     } else {
-      return node.d3plus.x0 || graph.margin.left - graph.ticks.size;
+      return node.d3plus.x0 || graph.margin.left - vars[d].ticks.size;
     }
   }).attr("y2", function(d) {
     if (d === "y") {
       return y;
     } else {
-      return node.d3plus.y0 || graph.height + graph.margin.top + graph.ticks.size;
+      return node.d3plus.y0 || graph.height + graph.margin.top + vars[d].ticks.size;
     }
-  }).style("stroke-width", vars.data.stroke.width).style("opacity", 1).call(lineStyle);
+  }).style("opacity", 1).call(lineStyle);
   lines.exit().transition().duration(timing).call(lineInit).remove();
   textStyle = function(text) {
-    return text.attr(graph.ticks.attrs).attr("x", function(d) {
+    return text.attr("font-size", function(d) {
+      return vars[d].ticks.font.size + "px";
+    }).attr("fill", function(d) {
+      return vars[d].ticks.font.color;
+    }).attr("font-family", function(d) {
+      return vars[d].ticks.font.family.value;
+    }).attr("font-weight", function(d) {
+      return vars[d].ticks.font.weight;
+    }).attr("x", function(d) {
       if (d === "x") {
         return x;
       } else {
-        return graph.margin.left - 5 - graph.ticks.size;
+        return graph.margin.left - 5 - vars[d].ticks.size;
       }
     }).attr("y", function(d) {
       if (d === "y") {
@@ -28197,7 +29042,7 @@ module.exports = function(node, vars) {
         if (node.d3plus.y0) {
           return node.d3plus.y + (node.d3plus.y0 - node.d3plus.y) / 2 + graph.margin.top - 6;
         } else {
-          return graph.height + graph.margin.top + 5 + graph.ticks.size;
+          return graph.height + graph.margin.top + 5 + vars[d].ticks.size;
         }
       }
     }).attr("fill", vars.shape.value === "area" ? "white" : color);
@@ -28207,9 +29052,9 @@ module.exports = function(node, vars) {
     return d + "_d3plusmouseaxislabel";
   }).attr("dy", function(d) {
     if (d === "y") {
-      return graph.ticks.font.size * 0.35;
+      return vars[d].ticks.font.size * 0.35;
     } else {
-      return graph.ticks.font.size;
+      return vars[d].ticks.font.size;
     }
   }).style("text-anchor", function(d) {
     if (d === "y") {
@@ -28222,7 +29067,7 @@ module.exports = function(node, vars) {
     var axis, val;
     axis = vars.axes.stacked || d;
     val = fetchValue(vars, node, vars[axis].value);
-    return vars.format.value(val, vars[axis].value);
+    return vars.format.value(val, vars[axis].value, vars);
   }).transition().duration(timing).delay(timing).attr("opacity", 1).call(textStyle);
   texts.exit().transition().duration(timing).attr("opacity", 0).remove();
   rectStyle = function(rect) {
@@ -28236,7 +29081,7 @@ module.exports = function(node, vars) {
       if (d === "x") {
         return x - width / 2 - 5;
       } else {
-        return graph.margin.left - graph.ticks.size - width - 10;
+        return graph.margin.left - vars[d].ticks.size - width - 10;
       }
     }).attr("y", function(d) {
       var mod;
@@ -28247,14 +29092,18 @@ module.exports = function(node, vars) {
         if (node.d3plus.y0) {
           return node.d3plus.y + (node.d3plus.y0 - node.d3plus.y) / 2 + graph.margin.top - mod;
         } else {
-          return graph.height + graph.margin.top + graph.ticks.size;
+          return graph.height + graph.margin.top + vars[d].ticks.size;
         }
       }
     }).attr("width", function(d) {
       return getText(d).width + 10;
     }).attr("height", function(d) {
       return getText(d).height + 10;
-    }).style("stroke", vars.shape.value === "area" ? "transparent" : color).attr("fill", vars.shape.value === "area" ? color : vars.background.value).style("stroke-width", vars.data.stroke.width).attr("shape-rendering", vars.shape.rendering.value);
+    }).style("stroke", vars.shape.value === "area" ? "transparent" : color).attr("fill", vars.shape.value === "area" ? color : vars.background.value).attr("shape-rendering", function(d) {
+      return vars[d].mouse.rendering.value;
+    }).style("stroke-width", function(d) {
+      return vars[d].mouse.width;
+    });
   };
   rects = vars.g.labels.selectAll("rect.d3plus_mouse_axis_label").data(lineData);
   rects.enter().insert("rect", "text.d3plus_mouse_axis_label").attr("class", "d3plus_mouse_axis_label").attr("pointer-events", "none").attr("opacity", 0).call(rectStyle);
@@ -28263,19 +29112,15 @@ module.exports = function(node, vars) {
 };
 
 
-},{"../../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../../general/events.coffee":"/Users/Dave/Sites/D3plus/src/general/events.coffee","../../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee":[function(require,module,exports){
-var createAxis, fontSizes, labelPadding, resetMargins;
+},{"../../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee":[function(require,module,exports){
+var buffer, createAxis, fontSizes, labelPadding, resetMargins;
+
+buffer = require("./buffer.coffee");
 
 fontSizes = require("../../../../../font/sizes.coffee");
 
-module.exports = function(vars) {
-  var axis, _i, _j, _len, _len1, _ref, _ref1;
-  vars.axes.ticks.attrs = {
-    "font-size": vars.axes.ticks.font.size,
-    "fill": vars.axes.ticks.font.color,
-    "font-family": vars.axes.ticks.font.family.value,
-    "font-weight": vars.axes.ticks.font.weight
-  };
+module.exports = function(vars, opts) {
+  var axis, opp, _i, _j, _len, _len1, _ref, _ref1;
   vars.axes.margin = resetMargins(vars);
   _ref = ["x", "y"];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -28283,12 +29128,17 @@ module.exports = function(vars) {
     if (vars[axis].ticks.values === false) {
       vars[axis].ticks.values = vars[axis].scale.viz.ticks();
     }
+    opp = axis === "x" ? "y" : "x";
+    if (opts.buffer && opts.buffer !== opp && axis === vars.axes.discrete && !vars[axis].range.value && vars[axis].reset === true) {
+      buffer(vars, axis, opts.buffer);
+    }
+    vars[axis].reset = false;
   }
   labelPadding(vars);
   _ref1 = ["x", "y"];
   for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
     axis = _ref1[_j];
-    vars[axis].axis = createAxis(vars, axis);
+    vars[axis].axis.svg = createAxis(vars, axis);
   }
 };
 
@@ -28304,27 +29154,37 @@ resetMargins = function(vars) {
     return {
       top: 10,
       right: 10,
-      bottom: 40,
+      bottom: 45,
       left: 40
     };
   }
 };
 
 labelPadding = function(vars) {
-  var xAxisHeight, xAxisWidth, xMaxWidth, xSizes, xText, yAxisWidth, yText;
+  var xAttrs, xAxisHeight, xAxisWidth, xMaxWidth, xSizes, xText, yAttrs, yAxisWidth, yText;
+  yAttrs = {
+    "font-size": vars.y.ticks.font.size + "px",
+    "font-family": vars.y.ticks.font.family.value,
+    "font-weight": vars.y.ticks.font.weight
+  };
   yText = vars.y.ticks.values.map(function(d) {
-    return vars.format.value(d, vars.y.value);
+    return vars.format.value(d, vars.y.value, vars);
   });
-  yAxisWidth = d3.max(fontSizes(yText, vars.axes.ticks.attrs), function(d) {
+  yAxisWidth = d3.max(fontSizes(yText, yAttrs), function(d) {
     return d.width;
   });
   yAxisWidth = Math.round(yAxisWidth + vars.labels.padding);
   vars.axes.margin.left += yAxisWidth;
   vars.axes.width = vars.width.viz - vars.axes.margin.left - vars.axes.margin.right;
+  xAttrs = {
+    "font-size": vars.x.ticks.font.size + "px",
+    "font-family": vars.x.ticks.font.family.value,
+    "font-weight": vars.x.ticks.font.weight
+  };
   xText = vars.x.ticks.values.map(function(d) {
-    return vars.format.value(d, vars.x.value);
+    return vars.format.value(d, vars.x.value, vars);
   });
-  xSizes = fontSizes(xText, vars.axes.ticks.attrs);
+  xSizes = fontSizes(xText, xAttrs);
   xAxisWidth = d3.max(xSizes, function(d) {
     return d.width;
   });
@@ -28336,8 +29196,7 @@ labelPadding = function(vars) {
     xAxisWidth += vars.labels.padding;
     vars.x.ticks.rotate = false;
     vars.x.ticks.anchor = "middle";
-    vars.x.ticks.dy = "0ex";
-    vars.x.ticks.transform = "translate(0,10)";
+    vars.x.ticks.transform = "translate(0,0)";
   } else {
     xAxisWidth = xAxisHeight + vars.labels.padding;
     xAxisHeight = d3.max(xSizes, function(d) {
@@ -28345,8 +29204,7 @@ labelPadding = function(vars) {
     });
     vars.x.ticks.rotate = true;
     vars.x.ticks.anchor = "start";
-    vars.x.ticks.dy = "0.5ex";
-    vars.x.ticks.transform = "translate(15,10)rotate(70)";
+    vars.x.ticks.transform = "translate(" + xAxisWidth + ",15)rotate(90)";
   }
   xAxisHeight = Math.round(xAxisHeight);
   xAxisWidth = Math.round(xAxisWidth);
@@ -28358,7 +29216,7 @@ labelPadding = function(vars) {
 };
 
 createAxis = function(vars, axis) {
-  return d3.svg.axis().tickSize(vars.axes.ticks.size).tickPadding(5).orient(axis === "x" ? "bottom" : "left").scale(vars[axis].scale.viz).tickValues(vars[axis].ticks.values).tickFormat(function(d, i) {
+  return d3.svg.axis().tickSize(vars[axis].ticks.size).tickPadding(5).orient(axis === "x" ? "bottom" : "left").scale(vars[axis].scale.viz).tickValues(vars[axis].ticks.values).tickFormat(function(d, i) {
     var hiddenTime, majorLog, scale, text;
     scale = vars[axis].scale.value;
     hiddenTime = vars[axis].value === vars.time.value && d % 1 !== 0;
@@ -28369,7 +29227,7 @@ createAxis = function(vars, axis) {
       } else if (d.constructor === Date) {
         text = vars.data.time.multiFormat(d);
       } else {
-        text = vars.format.value(d, vars[axis].value);
+        text = vars.format.value(d, vars[axis].value, vars);
       }
     } else {
       text = null;
@@ -28379,12 +29237,25 @@ createAxis = function(vars, axis) {
 };
 
 
-},{"../../../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee":[function(require,module,exports){
+},{"../../../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./buffer.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee":[function(require,module,exports){
+var mix;
+
+mix = require("../../../../../color/mix.coffee");
+
 module.exports = function(vars) {
-  var axis, bg, d, domain, graphSize, grid, label, labelStyle, line, lineData, lines, linetexts, max, mirror, opp, plane, planeTrans, textData, textPad, textPos, tickPosition, tickStyle, visible, xAxis, xEnter, xStyle, yAxis, yEnter, yStyle, _i, _j, _len, _len1, _ref, _ref1;
-  graphSize = {
+  var alignMap, axis, bg, bgStyle, d, domain, grid, label, labelStyle, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, mirror, plane, planeTrans, position, rectData, rectStyle, textData, textPad, textPos, tickFont, tickPosition, tickStyle, visible, xAxis, xEnter, xStyle, yAxis, yEnter, yStyle, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+  bgStyle = {
     width: vars.axes.width,
-    height: vars.axes.height
+    height: vars.axes.height,
+    fill: vars.axes.background.color,
+    stroke: vars.axes.background.stroke.color,
+    "stroke-width": vars.axes.background.stroke.width,
+    "shape-rendering": vars.axes.background.rendering.value
+  };
+  alignMap = {
+    left: "start",
+    center: "middle",
+    right: "end"
   };
   tickPosition = function(tick, axis) {
     return tick.attr("x1", function(d) {
@@ -28413,26 +29284,74 @@ module.exports = function(vars) {
       }
     });
   };
-  tickStyle = function(tick, axis) {
+  tickStyle = function(tick, axis, grid) {
     var logScale;
     logScale = vars[axis].scale.value === "log";
-    return tick.attr("stroke", vars.axes.ticks.color).attr("stroke-width", vars.axes.ticks.width).attr("shape-rendering", vars.shape.rendering.value).style("opacity", function(d) {
-      var lighter;
-      lighter = logScale && d.toString().charAt(0) !== "1";
-      if (lighter) {
-        return 0.25;
+    return tick.attr("stroke", function(d) {
+      var log;
+      log = logScale && d.toString().charAt(0) !== "1";
+      if (d === 0) {
+        return vars[axis].axis.color;
+      } else if (!grid) {
+        return vars[axis].ticks.color;
+      } else if (log) {
+        return mix(vars[axis].grid.color, vars.axes.background.color, 0.5, 1);
       } else {
-        return 1;
+        return vars[axis].grid.color;
       }
+    }).attr("stroke-width", vars[axis].ticks.width).attr("shape-rendering", vars[axis].ticks.rendering.value);
+  };
+  tickFont = function(tick, axis) {
+    return tick.attr("font-size", function(d) {
+      var type;
+      type = d === 0 ? "axis" : "ticks";
+      return vars[axis][type].font.size + "px";
+    }).attr("fill", function(d) {
+      var type;
+      type = d === 0 ? "axis" : "ticks";
+      return vars[axis][type].font.color;
+    }).attr("font-family", function(d) {
+      var type;
+      type = d === 0 ? "axis" : "ticks";
+      return vars[axis][type].font.family.value;
+    }).attr("font-weight", function(d) {
+      var type;
+      type = d === 0 ? "axis" : "ticks";
+      return vars[axis][type].font.weight;
     });
+  };
+  lineStyle = function(line, axis) {
+    var max, opp;
+    max = axis === "x" ? "height" : "width";
+    opp = axis === "x" ? "y" : "x";
+    return line.attr(opp + "1", 0).attr(opp + "2", vars.axes[max]).attr(axis + "1", function(d) {
+      return d.coords.line;
+    }).attr(axis + "2", function(d) {
+      return d.coords.line;
+    }).attr("stroke", function(d) {
+      return d.color || vars[axis].lines.color;
+    }).attr("stroke-width", vars[axis].lines.width).attr("shape-rendering", vars[axis].lines.rendering.value).attr("stroke-dasharray", vars[axis].lines.dasharray.value);
+  };
+  lineFont = function(text, axis) {
+    var opp;
+    opp = axis === "x" ? "y" : "x";
+    return text.attr(opp, function(d) {
+      return d.coords.text[opp] + "px";
+    }).attr(axis, function(d) {
+      return d.coords.text[axis] + "px";
+    }).attr("dy", vars[axis].lines.font.position.value).attr("text-anchor", alignMap[vars[axis].lines.font.align.value]).attr("transform", function(d) {
+      return d.transform;
+    }).attr("font-size", vars[axis].lines.font.size + "px").attr("fill", function(d) {
+      return d.color || vars[axis].lines.color;
+    }).attr("font-family", vars[axis].lines.font.family.value).attr("font-weight", vars[axis].lines.font.weight);
   };
   planeTrans = "translate(" + vars.axes.margin.left + "," + vars.axes.margin.top + ")";
   plane = vars.group.selectAll("g#d3plus_graph_plane").data([0]);
   plane.transition().duration(vars.draw.timing).attr("transform", planeTrans);
   plane.enter().append("g").attr("id", "d3plus_graph_plane").attr("transform", planeTrans);
   bg = plane.selectAll("rect#d3plus_graph_background").data([0]);
-  bg.transition().duration(vars.draw.timing).attr(graphSize);
-  bg.enter().append("rect").attr("id", "d3plus_graph_background").attr("x", 0).attr("y", 0).attr("fill", "#fafafa").attr("stroke-width", 1).attr("stroke", "#ccc").attr("shape-rendering", vars.shape.rendering.value).attr(graphSize);
+  bg.transition().duration(vars.draw.timing).attr(bgStyle);
+  bg.enter().append("rect").attr("id", "d3plus_graph_background").attr("x", 0).attr("y", 0).attr(bgStyle);
   mirror = plane.selectAll("path#d3plus_graph_mirror").data([0]);
   mirror.enter().append("path").attr("id", "d3plus_graph_mirror").attr("fill", "#000").attr("fill-opacity", 0.03).attr("stroke-width", 1).attr("stroke", "#ccc").attr("stroke-dasharray", "10,10").attr("opacity", 0);
   mirror.transition().duration(vars.draw.timing).attr("opacity", function() {
@@ -28443,12 +29362,12 @@ module.exports = function(vars) {
     }
   }).attr("d", function() {
     var h, w;
-    w = graphSize.width;
-    h = graphSize.height;
+    w = bgStyle.width;
+    h = bgStyle.height;
     return "M " + w + " " + h + " L 0 " + h + " L " + w + " 0 Z";
   });
   xStyle = function(axis) {
-    return axis.attr("transform", "translate(0," + vars.axes.height + ")").call(vars.x.axis.scale(vars.x.scale.viz)).selectAll("g.tick").select("text").attr(vars.axes.ticks.attrs).style("text-anchor", vars.x.ticks.anchor).attr("dy", vars.x.ticks.dy).attr("transform", vars.x.ticks.transform);
+    return axis.attr("transform", "translate(0," + vars.axes.height + ")").call(vars.x.axis.svg.scale(vars.x.scale.viz)).selectAll("g.tick").select("text").style("text-anchor", vars.x.ticks.anchor).attr("transform", vars.x.ticks.transform).call(tickFont, "x");
   };
   xAxis = plane.selectAll("g#d3plus_graph_xticks").data([0]);
   xAxis.transition().duration(vars.draw.timing).call(xStyle);
@@ -28457,7 +29376,7 @@ module.exports = function(vars) {
   xEnter.selectAll("path").attr("fill", "none");
   xEnter.selectAll("line").call(tickStyle, "x");
   yStyle = function(axis) {
-    return axis.call(vars.y.axis.scale(vars.y.scale.viz)).selectAll("g.tick").select("text").attr(vars.axes.ticks.attrs);
+    return axis.call(vars.y.axis.svg.scale(vars.y.scale.viz)).selectAll("g.tick").select("text").call(tickFont, "y");
   };
   yAxis = plane.selectAll("g#d3plus_graph_yticks").data([0]);
   yAxis.transition().duration(vars.draw.timing).call(yStyle);
@@ -28466,68 +29385,134 @@ module.exports = function(vars) {
   yEnter.selectAll("path").attr("fill", "none");
   yEnter.selectAll("line").call(tickStyle, "y");
   labelStyle = function(label, axis) {
-    return label.attr("x", axis === "x" ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.top)).attr("y", axis === "x" ? vars.height.viz - 10 : 15).attr("transform", axis === "y" ? "rotate(-90)" : null).attr("font-family", vars.labels.font.family.value).attr("font-weight", vars.labels.font.weight).attr("font-size", vars.labels.font.size).attr("fill", vars.labels.font.color).style("text-anchor", vars.labels.font.align);
+    return label.attr("x", axis === "x" ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.top)).attr("y", axis === "x" ? vars.height.viz - 10 : 15).attr("transform", axis === "y" ? "rotate(-90)" : null).attr("font-family", vars[axis].label.family.value).attr("font-weight", vars[axis].label.weight).attr("font-size", vars[axis].label.size + "px").attr("fill", vars[axis].label.color).style("text-anchor", vars[axis].label.align);
   };
   _ref = ["x", "y"];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
     grid = plane.selectAll("g#d3plus_graph_" + axis + "grid").data([0]);
     grid.enter().append("g").attr("id", "d3plus_graph_" + axis + "grid");
-    lines = grid.selectAll("line").data(vars[axis].ticks.values);
-    lines.enter().append("line").style("opacity", 0).call(tickPosition, axis).call(tickStyle, axis);
-    lines.transition().duration(vars.draw.timing).call(tickPosition, axis).call(tickStyle, axis);
-    lines.exit().transition().duration(vars.draw.timing).style("opacity", 0).remove();
+    lines = grid.selectAll("line").data(vars[axis].ticks.values, function(d) {
+      return d;
+    });
+    lines.transition().duration(vars.draw.timing).call(tickPosition, axis).call(tickStyle, axis, true);
+    lines.enter().append("line").style("opacity", 0).call(tickPosition, axis).call(tickStyle, axis, true).transition().duration(vars.draw.timing).delay(vars.draw.timing / 2).style("opacity", 1);
+    lines.exit().transition().duration(vars.draw.timing / 2).style("opacity", 0).remove();
     visible = vars.small ? [] : [0];
     label = vars.group.selectAll("text#d3plus_graph_" + axis + "label").data(visible);
-    label.text(vars.format.value(vars[axis].value)).transition().duration(vars.draw.timing).call(labelStyle, axis);
-    label.enter().append("text").attr("id", "d3plus_graph_" + axis + "label").text(vars.format.value(vars[axis].value)).call(labelStyle, axis);
+    label.text(vars.format.value(vars[axis].value, void 0, vars)).transition().duration(vars.draw.timing).call(labelStyle, axis);
+    label.enter().append("text").attr("id", "d3plus_graph_" + axis + "label").text(vars.format.value(vars[axis].value, void 0, vars)).call(labelStyle, axis);
     label.exit().remove();
-    if (vars[axis].lines instanceof Array) {
-      max = axis === "x" ? "height" : "width";
-      opp = axis === "x" ? "y" : "x";
+  }
+  _ref1 = ["x", "y"];
+  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+    axis = _ref1[_j];
+    lineGroup = plane.selectAll("g#d3plus_graph_" + axis + "_userlines").data([0]);
+    lineGroup.enter().append("g").attr("id", "d3plus_graph_" + axis + "_userlines");
+    if (vars[axis].lines.value.length) {
       domain = vars[axis].scale.viz.domain();
+      if (axis === "y") {
+        domain = domain.slice().reverse();
+      }
       textData = [];
       lineData = [];
-      _ref1 = vars[axis].lines;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        line = _ref1[_j];
-        d = typeof line === "object" ? line[d3.keys(line)[0]] : line;
+      _ref2 = vars[axis].lines.value;
+      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+        line = _ref2[_k];
+        d = typeof line === "object" ? line.position : line;
         if (!isNaN(d)) {
           d = parseFloat(d);
-          if (d > domain[1] && d < domain[0]) {
+          if (d > domain[0] && d < domain[1]) {
+            d = typeof line !== "object" ? {
+              "position": d
+            } : line;
+            d.coords = {
+              line: vars[axis].scale.viz(d.position)
+            };
             lineData.push(d);
-            if (typeof line === "object") {
-              textData.push(line);
+            if (d.text) {
+              d.axis = axis;
+              d.padding = vars[axis].lines.font.padding.value * 0.5;
+              d.align = vars[axis].lines.font.align.value;
+              position = vars[axis].lines.font.position.text;
+              textPad = position === "middle" ? 0 : d.padding * 2;
+              if (position === "top") {
+                textPad = -textPad;
+              }
+              if (axis === "x") {
+                textPos = d.align === "left" ? vars.axes.height : d.align === "center" ? vars.axes.height / 2 : 0;
+                if (d.align === "left") {
+                  textPos -= d.padding * 2;
+                }
+                if (d.align === "right") {
+                  textPos += d.padding * 2;
+                }
+              } else {
+                textPos = d.align === "left" ? 0 : d.align === "center" ? vars.axes.width / 2 : vars.axes.width;
+                if (d.align === "right") {
+                  textPos -= d.padding * 2;
+                }
+                if (d.align === "left") {
+                  textPos += d.padding * 2;
+                }
+              }
+              d.coords.text = {};
+              d.coords.text[axis === "x" ? "y" : "x"] = textPos;
+              d.coords.text[axis] = vars[axis].scale.viz(d.position) + textPad;
+              d.transform = axis === "x" ? "rotate(-90," + d.coords.text.x + "," + d.coords.text.y + ")" : null;
+              textData.push(d);
             }
           }
         }
       }
-      lines = plane.selectAll("line.d3plus_graph_" + axis + "line").data(lineData);
-      lines.enter().append("line").attr("class", "d3plus_graph_" + axis + "line").attr(opp + "1", 0).attr(opp + "2", vars.axes[max]).attr("stroke", "#ccc").attr("stroke-width", 2).attr("stroke-dasharray", "10,10").attr("opacity", 0);
-      lines.transition().duration(vars.draw.timing).attr(axis + "1", function(d) {
-        return vars[axis].scale.viz(d);
-      }).attr(axis + "2", function(d) {
-        return vars[axis].scale.viz(d);
-      }).attr("opacity", 1);
+      lines = lineGroup.selectAll("line.d3plus_graph_" + axis + "line").data(lineData, function(d) {
+        return d.position;
+      });
+      lines.enter().append("line").attr("class", "d3plus_graph_" + axis + "line").attr("opacity", 0).call(lineStyle, axis);
+      lines.transition().duration(vars.draw.timing).attr("opacity", 1).call(lineStyle, axis);
       lines.exit().transition().duration(vars.draw.timing).attr("opacity", 0).remove();
-      textPos = axis === "x" ? (vars.axes.height - 8) + "px" : "10px";
-      textPad = axis === "x" ? 10 : 20;
-      linetexts = plane.selectAll("text.d3plus_graph_" + axis + "linetext").data(textData);
-      linetexts.enter().append("text").attr("class", "d3plus_graph_" + axis + "linetext").attr("font-size", vars.axes.ticks.font.size).attr("fill", vars.axes.ticks.font.color).attr("text-align", "start").attr(opp, textPos).attr("opacity", 0).attr(axis, function(d) {
-        return (vars[axis].scale.viz(d[d3.keys(d)[0]]) + textPad) + "px";
+      linetexts = lineGroup.selectAll("text.d3plus_graph_" + axis + "line_text").data(textData, function(d) {
+        return d.position;
       });
+      linetexts.enter().append("text").attr("class", "d3plus_graph_" + axis + "line_text").attr("id", function(d) {
+        return "d3plus_graph_" + axis + "line_text_" + d.position;
+      }).attr("opacity", 0).call(lineFont, axis);
       linetexts.text(function(d) {
-        return d3.keys(d)[0];
-      }).transition().duration(vars.draw.timing).attr("opacity", 1).attr(axis, function(d) {
-        return (vars[axis].scale.viz(d[d3.keys(d)[0]]) + textPad) + "px";
-      });
+        return d.text;
+      }).transition().duration(vars.draw.timing).attr("opacity", 1).call(lineFont, axis);
       linetexts.exit().transition().duration(vars.draw.timing).attr("opacity", 0).remove();
+      rectStyle = function(rect) {
+        var getText;
+        getText = function(d) {
+          return plane.select("text#d3plus_graph_" + d.axis + "line_text_" + d.position).node().getBBox();
+        };
+        return rect.attr("x", function(d) {
+          return getText(d).x - d.padding;
+        }).attr("y", function(d) {
+          return getText(d).y - d.padding;
+        }).attr("transform", function(d) {
+          return d.transform;
+        }).attr("width", function(d) {
+          return getText(d).width + (d.padding * 2);
+        }).attr("height", function(d) {
+          return getText(d).height + (d.padding * 2);
+        }).attr("fill", vars.axes.background.color);
+      };
+      rectData = vars[axis].lines.font.background.value ? textData : [];
+      lineRects = lineGroup.selectAll("rect.d3plus_graph_" + axis + "line_rect").data(rectData, function(d) {
+        return d.position;
+      });
+      lineRects.enter().insert("rect", "text.d3plus_graph_" + axis + "line_text").attr("class", "d3plus_graph_" + axis + "line_rect").attr("pointer-events", "none").attr("opacity", 0).call(rectStyle);
+      lineRects.transition().delay(vars.draw.timing).each("end", function(d) {
+        return d3.select(this).transition().duration(vars.draw.timing).attr("opacity", 1).call(rectStyle);
+      });
+      lineRects.exit().transition().duration(vars.draw.timing).attr("opacity", 0).remove();
     }
   }
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee":[function(require,module,exports){
+},{"../../../../../color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee":[function(require,module,exports){
 var fetchValue, stringStrip, uniqueValues;
 
 fetchValue = require("../../../../core/fetch/value.js");
@@ -28537,13 +29522,13 @@ stringStrip = require("../../../../string/strip.js");
 uniqueValues = require("../../../../util/uniques.coffee");
 
 module.exports = function(vars, data) {
-  var continuous, offsets, opposite, ticks;
+  var discrete, offsets, opposite, ticks;
   if (!data) {
     data = vars.data.viz;
   }
-  continuous = vars[vars.axes.continuous];
+  discrete = vars[vars.axes.discrete];
   opposite = vars[vars.axes.opposite];
-  ticks = continuous.ticks.values;
+  ticks = discrete.ticks.values;
   offsets = {
     x: vars.axes.margin.left,
     y: vars.axes.margin.top
@@ -28555,7 +29540,7 @@ module.exports = function(vars, data) {
     return "line_" + stringStrip(id) + "_" + depth;
   }).rollup(function(leaves) {
     var availables, i, obj, tester, tick, timeVar, _i, _len;
-    availables = uniqueValues(leaves, continuous.value);
+    availables = uniqueValues(leaves, discrete.value);
     timeVar = availables[0].constructor === Date;
     if (timeVar) {
       availables = availables.map(function(t) {
@@ -28565,19 +29550,19 @@ module.exports = function(vars, data) {
     for (i = _i = 0, _len = ticks.length; _i < _len; i = ++_i) {
       tick = ticks[i];
       tester = timeVar ? tick.getTime() : tick;
-      if (availables.indexOf(tester) < 0 && continuous.zerofill.value) {
+      if (availables.indexOf(tester) < 0 && discrete.zerofill.value) {
         obj = {
           d3plus: {}
         };
         obj[vars.id.value] = leaves[0][vars.id.value];
-        obj[continuous.value] = tick;
+        obj[discrete.value] = tick;
         obj[opposite.value] = opposite.scale.viz.domain()[1];
         leaves.push(obj);
       }
     }
     return leaves.sort(function(a, b) {
       var xsort, ysort;
-      xsort = a[continuous.value] - b[continuous.value];
+      xsort = a[discrete.value] - b[discrete.value];
       ysort = a[opposite.value] - b[opposite.value];
       if (xsort) {
         return xsort;
@@ -28595,30 +29580,46 @@ var fetchValue;
 fetchValue = require("../../../../core/fetch/value.js");
 
 module.exports = function(vars, data) {
-  var flip, margin, opposite, scale, stack, stackedAxis;
-  flip = vars.axes.height;
-  stackedAxis = vars.axes.stacked;
-  scale = vars[stackedAxis].scale.value;
-  opposite = stackedAxis === "x" ? "y" : "x";
-  margin = vars.axes.margin.top;
+  var flip, margin, negativeData, offset, opposite, positiveData, scale, stack, stacked;
+  stacked = vars.axes.stacked;
+  flip = vars[stacked].scale.viz(0);
+  scale = vars[stacked].scale.value;
+  opposite = stacked === "x" ? "y" : "x";
+  margin = stacked === "y" ? vars.axes.margin.top : vars.axes.margin.left;
+  offset = scale === "share" ? "expand" : "zero";
   stack = d3.layout.stack().values(function(d) {
     return d.values;
-  }).x(function(d) {
-    return d.d3plus.x;
+  }).offset(offset).x(function(d) {
+    return d.d3plus[opposite];
   }).y(function(d) {
-    return flip - vars.y.scale.viz(fetchValue(vars, d, vars.y.value));
+    return flip - vars[stacked].scale.viz(fetchValue(vars, d, vars[stacked].value));
   }).out(function(d, y0, y) {
+    var negative, value;
+    value = fetchValue(vars, d, vars[stacked].value);
+    negative = value < 0;
     if (scale === "share") {
-      d.d3plus.y0 = (1 - y0) * flip;
-      d.d3plus.y = d.d3plus.y0 - (y * flip);
+      d.d3plus[stacked + "0"] = (1 - y0) * flip;
+      d.d3plus[stacked] = d.d3plus[stacked + "0"] - (y * flip);
     } else {
-      d.d3plus.y0 = flip - y0;
-      d.d3plus.y = d.d3plus.y0 - y;
+      d.d3plus[stacked + "0"] = flip - y0;
+      d.d3plus[stacked] = d.d3plus[stacked + "0"] - y;
     }
-    d.d3plus.y += margin;
-    return d.d3plus.y0 += margin;
+    d.d3plus[stacked] += margin;
+    return d.d3plus[stacked + "0"] += margin;
   });
-  return stack.offset(scale === "share" ? "expand" : "zero")(data);
+  positiveData = data.filter(function(d) {
+    return fetchValue(vars, d, vars[stacked].value) > 0;
+  });
+  negativeData = data.filter(function(d) {
+    return fetchValue(vars, d, vars[stacked].value) < 0;
+  });
+  if (positiveData.length) {
+    positiveData = stack(positiveData);
+  }
+  if (negativeData.length) {
+    negativeData = stack(negativeData);
+  }
+  return positiveData.concat(negativeData);
 };
 
 
@@ -28629,7 +29630,7 @@ fetchValue = require("../../core/fetch/value.js");
 
 graph = require("./helpers/graph/draw.coffee");
 
-dataTicks = require("./helpers/graph/includes/dataTicks.coffee");
+dataTicks = require("./helpers/graph/dataTicks.coffee");
 
 nest = require("./helpers/graph/nest.coffee");
 
@@ -28637,7 +29638,10 @@ stack = require("./helpers/graph/stack.coffee");
 
 line = function(vars) {
   var d, data, point, _i, _j, _len, _len1, _ref;
-  graph(vars);
+  graph(vars, {
+    buffer: vars.axes.opposite,
+    mouse: true
+  });
   data = nest(vars);
   for (_i = 0, _len = data.length; _i < _len; _i++) {
     point = data[_i];
@@ -28664,7 +29668,7 @@ line.requirements = ["data", "x", "y"];
 line.setup = function(vars) {
   var size, y;
   vars.self.x({
-    scale: "continuous"
+    scale: "discrete"
   });
   y = vars.y;
   size = vars.size;
@@ -28682,8 +29686,8 @@ line.tooltip = "static";
 module.exports = line;
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/includes/dataTicks.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/dataTicks.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/network.js":[function(require,module,exports){
-var distances = require("../../util/distances.coffee"),
+},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/dataTicks.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/network.js":[function(require,module,exports){
+var distances = require("../../network/distances.coffee"),
     fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
@@ -28825,7 +29829,7 @@ network.zoom         = true
 
 module.exports = network
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../util/distances.coffee":"/Users/Dave/Sites/D3plus/src/util/distances.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee":[function(require,module,exports){
+},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee":[function(require,module,exports){
 var fetchValue, shortestPath, uniqueValues, viz,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -29082,9 +30086,79 @@ viz.tooltip = "static";
 module.exports = viz;
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/shortestPath.coffee":"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/rings.js":[function(require,module,exports){
+},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/shortestPath.coffee":"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/pie.coffee":[function(require,module,exports){
+var comparator, dataThreshold, fetchValue, groupData, order, pie;
+
+comparator = require("../../array/comparator.coffee");
+
+dataThreshold = require("../../core/data/threshold.js");
+
+fetchValue = require("../../core/fetch/value.js");
+
+groupData = require("../../core/data/group.coffee");
+
+order = {};
+
+pie = function(vars) {
+  var d, groupedData, item, pieData, pieLayout, radius, returnData, _i, _len;
+  pieLayout = d3.layout.pie().value(function(d) {
+    return d.value;
+  }).sort(function(a, b) {
+    var aID, bID;
+    if (vars.order.value) {
+      return comparator(a.d3plus, b.d3plus, [vars.order.value], vars.order.sort.value, [], vars);
+    } else {
+      aID = fetchValue(vars, a.d3plus, vars.id.value);
+      if (order[aID] === void 0) {
+        order[aID] = a.value;
+      }
+      bID = fetchValue(vars, b.d3plus, vars.id.value);
+      if (order[bID] === void 0) {
+        order[bID] = b.value;
+      }
+      if (order[bID] < order[aID]) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+  });
+  groupedData = groupData(vars, vars.data.viz, []);
+  pieData = pieLayout(groupedData);
+  returnData = [];
+  radius = d3.min([vars.width.viz, vars.height.viz]) / 2 - vars.labels.padding * 2;
+  for (_i = 0, _len = pieData.length; _i < _len; _i++) {
+    d = pieData[_i];
+    item = d.data.d3plus;
+    item.d3plus.startAngle = d.startAngle;
+    item.d3plus.endAngle = d.endAngle;
+    item.d3plus.r = radius;
+    item.d3plus.x = vars.width.viz / 2;
+    item.d3plus.y = vars.height.viz / 2;
+    returnData.push(item);
+  }
+  return returnData;
+};
+
+pie.filter = dataThreshold;
+
+pie.requirements = ["data", "size"];
+
+pie.shapes = ["arc"];
+
+pie.threshold = function(vars) {
+  return (40 * 40) / (vars.width.viz * vars.height.viz);
+};
+
+pie.tooltip = "follow";
+
+module.exports = pie;
+
+
+},{"../../array/comparator.coffee":"/Users/Dave/Sites/D3plus/src/array/comparator.coffee","../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/types/rings.js":[function(require,module,exports){
 var arraySort = require("../../array/sort.coffee"),
-    distances    = require("../../util/distances.coffee"),
+    events       = require("../../client/pointer.coffee"),
+    distances    = require("../../network/distances.coffee"),
     fetchValue   = require("../../core/fetch/value.js"),
     fetchColor   = require("../../core/fetch/color.coffee"),
     legible      = require("../../color/legible.coffee"),
@@ -29512,7 +30586,7 @@ var rings = function(vars) {
 
   })
 
-  vars.mouse[d3plus.evt.click] = function(d) {
+  vars.mouse[events.click] = function(d) {
     if (d[vars.id.value] != vars.focus.value[0]) {
       d3plus.tooltip.remove(vars.type.value)
       vars.self.focus(d[vars.id.value]).draw()
@@ -29567,80 +30641,39 @@ rings.tooltip      = "static"
 
 module.exports = rings
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../util/distances.coffee":"/Users/Dave/Sites/D3plus/src/util/distances.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee":[function(require,module,exports){
-var axes, draw, fetchValue, mouse, plot, print, scatter, sort, ticks;
+},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee":[function(require,module,exports){
+var fetchValue, graph, print, scatter, sort, ticks;
 
 fetchValue = require("../../core/fetch/value.js");
+
+graph = require("./helpers/graph/draw.coffee");
 
 print = require("../../core/console/print.coffee");
 
 sort = require("../../array/sort.coffee");
 
-axes = require("./helpers/graph/includes/axes.coffee");
-
-draw = require("./helpers/graph/includes/svg.coffee");
-
-mouse = require("./helpers/graph/includes/mouse.coffee");
-
-plot = require("./helpers/graph/includes/plot.coffee");
-
-ticks = require("./helpers/graph/includes/dataTicks.coffee");
+ticks = require("./helpers/graph/dataTicks.coffee");
 
 scatter = function(vars) {
-  var axis, d, domainHigh, domainLow, maxRadius, minRadius, radius, rangeMax, sizeDomain, _i, _j, _len, _len1, _ref, _ref1;
-  axes(vars);
-  minRadius = 2;
-  maxRadius = Math.floor(d3.max([d3.min([vars.width.viz, vars.height.viz]) / 15, minRadius]));
-  if (typeof vars.size.value === "number") {
-    if (vars.size.value) {
-      maxRadius = vars.size.value;
-    }
-  } else if (vars.size.value) {
-    if (vars.dev.value) {
-      print.time("calculating size scale");
-    }
-    sizeDomain = d3.extent(vars.axes.dataset, function(d) {
-      var val;
-      val = fetchValue(vars, d, vars.size.value);
-      if (!val) {
-        return 0;
-      } else {
-        return val;
-      }
-    });
-    if (sizeDomain[0] === sizeDomain[1]) {
-      minRadius = maxRadius;
-    }
-    radius = vars.size.scale.value.domain(sizeDomain).rangeRound([minRadius, maxRadius]);
-    if (vars.dev.value) {
-      print.timeEnd("calculating size scale");
-    }
-  }
-  _ref = ["x", "y"];
+  var d, _i, _len, _ref;
+  graph(vars, {
+    buffer: "size",
+    mouse: true
+  });
+  _ref = vars.data.viz;
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    axis = _ref[_i];
-    rangeMax = vars[axis].scale.viz.range()[1];
-    domainHigh = vars[axis].scale.viz.invert(-maxRadius * 2);
-    domainLow = vars[axis].scale.viz.invert(rangeMax + maxRadius * 2);
-    vars[axis].scale.viz.domain([domainHigh, domainLow]);
-  }
-  plot(vars);
-  draw(vars);
-  _ref1 = vars.data.viz;
-  for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-    d = _ref1[_j];
+    d = _ref[_i];
     d.d3plus.x = vars.x.scale.viz(fetchValue(vars, d, vars.x.value));
     d.d3plus.x += vars.axes.margin.left;
     d.d3plus.y = vars.y.scale.viz(fetchValue(vars, d, vars.y.value));
     d.d3plus.y += vars.axes.margin.top;
     if (typeof vars.size.value === "number" || !vars.size.value) {
-      d.d3plus.r = maxRadius;
+      d.d3plus.r = vars.axes.scale(0);
     } else {
-      d.d3plus.r = radius(fetchValue(vars, d, vars.size.value));
+      d.d3plus.r = vars.axes.scale(fetchValue(vars, d, vars.size.value));
     }
   }
   ticks(vars);
-  vars.mouse = mouse;
   return sort(vars.data.viz, vars.order.value || vars.size.value || vars.id.value, vars.order.sort.value === "desc" ? "asc" : "desc", vars.color.value || [], vars);
 };
 
@@ -29653,12 +30686,12 @@ scatter.scale = 1.1;
 scatter.setup = function(vars) {
   if (vars.x.value === vars.time.value) {
     vars.self.x({
-      scale: "continuous"
+      scale: "discrete"
     });
   }
   if (vars.y.value === vars.time.value) {
     return vars.self.y({
-      scale: "continuous"
+      scale: "discrete"
     });
   }
 };
@@ -29670,7 +30703,7 @@ scatter.tooltip = "static";
 module.exports = scatter;
 
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/includes/axes.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee","./helpers/graph/includes/dataTicks.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/dataTicks.coffee","./helpers/graph/includes/mouse.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee","./helpers/graph/includes/plot.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee","./helpers/graph/includes/svg.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee":[function(require,module,exports){
+},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/dataTicks.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee":[function(require,module,exports){
 var fetchValue, graph, nest, sort, stack, stacked, threshold;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -29687,7 +30720,9 @@ threshold = require("../../core/data/threshold.js");
 
 stacked = function(vars) {
   var d, data, order, point, sortOrder, _i, _j, _len, _len1, _ref;
-  graph(vars);
+  graph(vars, {
+    buffer: vars.axes.opposite
+  });
   data = nest(vars);
   for (_i = 0, _len = data.length; _i < _len; _i++) {
     point = data[_i];
@@ -29727,7 +30762,7 @@ stacked.requirements = ["data", "x", "y"];
 stacked.setup = function(vars) {
   var size, y;
   vars.self.x({
-    scale: "continuous",
+    scale: "discrete",
     zerofill: true
   });
   vars.self.y({
@@ -29753,112 +30788,126 @@ stacked.tooltip = "static";
 module.exports = stacked;
 
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/tree_map.js":[function(require,module,exports){
-var dataThreshold = require("../../core/data/threshold.js"),
-    fetchValue    = require("../../core/fetch/value.js"),
-    groupData     = require("../../core/data/group.coffee"),
-    mergeObject   = require("../../object/merge.coffee")
+},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/table.js":[function(require,module,exports){
+var uniques = require("../../util/uniques.coffee")
+var copy    = require("../../util/copy.coffee")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Tree Map
+// Table
 //------------------------------------------------------------------------------
-var tree_map = function(vars) {
-
-  grouped_data = groupData(vars,vars.data.viz)
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Pass data through the D3js .treemap() layout.
-  //----------------------------------------------------------------------------
-  var data = d3.layout.treemap()
-    .mode(vars.type.mode.value)
-    .round(true)
-    .size([ vars.width.viz , vars.height.viz ])
-    .children(function(d) {
-
-      return d.values
-
+var table = function(vars) {
+  
+  var ids = uniques(vars.data.viz, vars.id.value);
+  var item_height = vars.height.viz / ids.length;
+  var item_width = vars.width.viz / vars.cols.value.length;
+  
+  var ret = []
+  
+  vars.data.viz.forEach(function(d, row_i){
+    
+    // loop through each user defined column to create new "object" to draw
+    vars.cols.value.forEach(function(col, col_i){
+      
+      // be sure that this column is actually in this data item
+      if(d3.keys(d).indexOf(col) >= 0 && d[col]){
+        
+        // need to clone data since we'll be dupliating it for each column
+        var d_clone = copy(d);
+      
+        // set unique ID otherwise it'd be the same in each column
+        d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value]+"_"+col;
+      
+        d_clone.d3plus.x = (item_width * col_i) + item_width/2;
+        d_clone.d3plus.width = item_width;
+      
+        d_clone.d3plus.y = (item_height * row_i) + item_height/2;
+        d_clone.d3plus.height = item_height;
+      
+        ret.push(d_clone)
+      }
     })
-    .padding(1)
-    .sort(function(a, b) {
+    
+  })
+  
+  return ret
 
-      var sizeDiff = a.value - b.value
-      return sizeDiff === 0 ? a.id < b.id : sizeDiff
-
-    })
-    .nodes({
-      "name":"root",
-      "values": grouped_data
-    })
-    .filter(function(d) {
-
-      return !d.values && d.area
-
-    })
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // If the "data" array has entries...
-  //----------------------------------------------------------------------------
-  if (data.length) {
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Create the "root" node to use when calculating share percentage.
-    //--------------------------------------------------------------------------
-    var root = data[0]
-
-    while (root.parent) {
-
-      root = root.parent
-
-    }
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Calculate the position, size, and share percentage of each square.
-    //--------------------------------------------------------------------------
-    var returnData = []
-    data.forEach(function(d){
-
-      d.d3plus.d3plus = mergeObject(d.d3plus.d3plus,{
-        "x": d.x+d.dx/2,
-        "y": d.y+d.dy/2,
-        "width": d.dx,
-        "height": d.dy,
-        "share": d.value/root.value
-      })
-
-      returnData.push(d.d3plus)
-
-    })
-
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Return the data array.
-  //----------------------------------------------------------------------------
-  return returnData
-
-}
+};
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-tree_map.filter       = function( vars , data ) {
+table.shapes = ["square"]
+table.requirements = ["data", "cols"]
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Merge data points below the threshold
-  //----------------------------------------------------------------------------
-  return dataThreshold( vars , data )
+module.exports = table
 
-}
-tree_map.modes        = ["squarify", "slice", "dice", "slice-dice"]
-tree_map.requirements = ["data", "size"]
-tree_map.shapes       = ["square"]
-tree_map.threshold    = function( vars ) {
-  return ( 40 * 40 ) / (vars.width.viz * vars.height.viz)
-}
-tree_map.tooltip      = "follow"
+},{"../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/tree_map.coffee":[function(require,module,exports){
+var dataThreshold, groupData, mergeObject, tree_map;
 
-module.exports = tree_map
+dataThreshold = require("../../core/data/threshold.js");
 
-},{"../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/viz.coffee":[function(require,module,exports){
+groupData = require("../../core/data/group.coffee");
+
+mergeObject = require("../../object/merge.coffee");
+
+tree_map = function(vars) {
+  var d, data, groupedData, returnData, root, _i, _len;
+  groupedData = groupData(vars, vars.data.viz);
+  data = d3.layout.treemap().mode(vars.type.mode.value).round(true).size([vars.width.viz, vars.height.viz]).children(function(d) {
+    return d.values;
+  }).padding(1).sort(function(a, b) {
+    var sizeDiff;
+    sizeDiff = a.value - b.value;
+    if (sizeDiff === 0) {
+      return a.id < b.id;
+    } else {
+      return sizeDiff;
+    }
+  }).nodes({
+    name: "root",
+    values: groupedData
+  }).filter(function(d) {
+    return !d.values && d.area;
+  });
+  if (data.length) {
+    root = data[0];
+    while (root.parent) {
+      root = root.parent;
+    }
+    returnData = [];
+    for (_i = 0, _len = data.length; _i < _len; _i++) {
+      d = data[_i];
+      d.d3plus.d3plus = mergeObject(d.d3plus.d3plus, {
+        x: d.x + d.dx / 2,
+        y: d.y + d.dy / 2,
+        width: d.dx,
+        height: d.dy,
+        share: d.value / root.value
+      });
+      returnData.push(d.d3plus);
+    }
+  }
+  return returnData;
+};
+
+tree_map.filter = dataThreshold;
+
+tree_map.modes = ["squarify", "slice", "dice", "slice-dice"];
+
+tree_map.requirements = ["data", "size"];
+
+tree_map.shapes = ["square"];
+
+tree_map.threshold = function(vars) {
+  return (40 * 40) / (vars.width.viz * vars.height.viz);
+};
+
+tree_map.tooltip = "follow";
+
+module.exports = tree_map;
+
+
+},{"../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/viz.coffee":[function(require,module,exports){
 var attach, axis, container, flash, getSteps, print;
 
 attach = require("../core/methods/attach.coffee");
@@ -29880,16 +30929,20 @@ module.exports = function() {
       apps: {}
     },
     types: {
+      bar: require("./types/bar.coffee"),
       bubbles: require("./types/bubbles.js"),
+      box: require("./types/box.coffee"),
       chart: require("./types/deprecated/chart.coffee"),
       geo_map: require("./types/geo_map.js"),
       line: require("./types/line.coffee"),
       network: require("./types/network.js"),
       paths: require("./types/paths.coffee"),
+      pie: require("./types/pie.coffee"),
       rings: require("./types/rings.js"),
       scatter: require("./types/scatter.coffee"),
       stacked: require("./types/stacked.coffee"),
-      tree_map: require("./types/tree_map.js")
+      table: require("./types/table.js"),
+      tree_map: require("./types/tree_map.coffee")
     }
   };
   vars.self = function(selection) {
@@ -29929,7 +30982,6 @@ module.exports = function() {
               print.groupEnd();
               print.log("\n");
             }
-            vars.container.value.style("cursor", "auto");
           }
         };
         runFunction = function(step, name) {
@@ -29982,7 +31034,6 @@ module.exports = function() {
             }
           }
         };
-        vars.container.value.style("cursor", "wait");
         vars.messages.style = vars.group && vars.group.attr("opacity") === "1" ? "small" : "large";
         steps = getSteps(vars);
         runStep();
@@ -29997,6 +31048,7 @@ module.exports = function() {
     axes: require("./methods/axes.coffee"),
     background: require("./methods/background.coffee"),
     color: require("./methods/color.coffee"),
+    cols: require("./methods/cols.js"),
     container: require("./methods/container.coffee"),
     coords: require("./methods/coords.coffee"),
     csv: require("./methods/csv.coffee"),
@@ -30044,4 +31096,4 @@ module.exports = function() {
 };
 
 
-},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","./helpers/container.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee","./helpers/drawSteps.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js","./helpers/ui/message.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","./methods/active.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee","./methods/aggs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee","./methods/attrs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee","./methods/axes.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee","./methods/background.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee","./methods/color.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee","./methods/coords.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee","./methods/csv.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee","./methods/data.js":"/Users/Dave/Sites/D3plus/src/viz/methods/data.js","./methods/depth.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee","./methods/descs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee","./methods/draw.js":"/Users/Dave/Sites/D3plus/src/viz/methods/draw.js","./methods/edges.js":"/Users/Dave/Sites/D3plus/src/viz/methods/edges.js","./methods/error.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee","./methods/focus.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee","./methods/font.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee","./methods/footer.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee","./methods/helpers/axis.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee","./methods/history.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee","./methods/icon.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee","./methods/id.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee","./methods/labels.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee","./methods/legend.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee","./methods/links.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee","./methods/margin.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee","./methods/messages.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee","./methods/nodes.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee","./methods/order.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee","./methods/shape.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee","./methods/size.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee","./methods/style.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee","./methods/temp.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee","./methods/time.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee","./methods/timeline.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee","./methods/timing.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee","./methods/title.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee","./methods/tooltip.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee","./methods/total.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee","./methods/type.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee","./methods/ui.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee","./methods/zoom.js":"/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js","./types/bubbles.js":"/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js","./types/deprecated/chart.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee","./types/geo_map.js":"/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js","./types/line.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/line.coffee","./types/network.js":"/Users/Dave/Sites/D3plus/src/viz/types/network.js","./types/paths.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee","./types/rings.js":"/Users/Dave/Sites/D3plus/src/viz/types/rings.js","./types/scatter.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee","./types/stacked.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee","./types/tree_map.js":"/Users/Dave/Sites/D3plus/src/viz/types/tree_map.js"}]},{},["/Users/Dave/Sites/D3plus/src/init.coffee","/Users/Dave/Sites/D3plus/src/array/sort.coffee","/Users/Dave/Sites/D3plus/src/array/update.coffee","/Users/Dave/Sites/D3plus/src/color/legible.coffee","/Users/Dave/Sites/D3plus/src/color/lighter.coffee","/Users/Dave/Sites/D3plus/src/color/mix.coffee","/Users/Dave/Sites/D3plus/src/color/random.coffee","/Users/Dave/Sites/D3plus/src/color/scale.coffee","/Users/Dave/Sites/D3plus/src/color/sort.coffee","/Users/Dave/Sites/D3plus/src/color/text.coffee","/Users/Dave/Sites/D3plus/src/color/validate.coffee","/Users/Dave/Sites/D3plus/src/core/console/print.coffee","/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee","/Users/Dave/Sites/D3plus/src/core/data/color.js","/Users/Dave/Sites/D3plus/src/core/data/filter.js","/Users/Dave/Sites/D3plus/src/core/data/format.js","/Users/Dave/Sites/D3plus/src/core/data/group.coffee","/Users/Dave/Sites/D3plus/src/core/data/keys.js","/Users/Dave/Sites/D3plus/src/core/data/load.coffee","/Users/Dave/Sites/D3plus/src/core/data/nest.js","/Users/Dave/Sites/D3plus/src/core/data/threshold.js","/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","/Users/Dave/Sites/D3plus/src/core/fetch/data.js","/Users/Dave/Sites/D3plus/src/core/fetch/text.js","/Users/Dave/Sites/D3plus/src/core/fetch/value.js","/Users/Dave/Sites/D3plus/src/core/font/tester.coffee","/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/mk_MK.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/pt_BR.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/zh_CN.js","/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","/Users/Dave/Sites/D3plus/src/core/methods/set.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee","/Users/Dave/Sites/D3plus/src/core/parse/edges.js","/Users/Dave/Sites/D3plus/src/core/parse/element.js","/Users/Dave/Sites/D3plus/src/core/parse/nodes.js","/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee","/Users/Dave/Sites/D3plus/src/data/lof.coffee","/Users/Dave/Sites/D3plus/src/data/mad.coffee","/Users/Dave/Sites/D3plus/src/font/sizes.coffee","/Users/Dave/Sites/D3plus/src/font/validate.coffee","/Users/Dave/Sites/D3plus/src/form/form.js","/Users/Dave/Sites/D3plus/src/form/methods/active.coffee","/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee","/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee","/Users/Dave/Sites/D3plus/src/form/methods/color.coffee","/Users/Dave/Sites/D3plus/src/form/methods/container.coffee","/Users/Dave/Sites/D3plus/src/form/methods/data.js","/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee","/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/form/methods/draw.js","/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee","/Users/Dave/Sites/D3plus/src/form/methods/font.coffee","/Users/Dave/Sites/D3plus/src/form/methods/format.coffee","/Users/Dave/Sites/D3plus/src/form/methods/height.coffee","/Users/Dave/Sites/D3plus/src/form/methods/history.coffee","/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee","/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee","/Users/Dave/Sites/D3plus/src/form/methods/id.coffee","/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee","/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee","/Users/Dave/Sites/D3plus/src/form/methods/open.coffee","/Users/Dave/Sites/D3plus/src/form/methods/order.coffee","/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee","/Users/Dave/Sites/D3plus/src/form/methods/search.coffee","/Users/Dave/Sites/D3plus/src/form/methods/select.coffee","/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee","/Users/Dave/Sites/D3plus/src/form/methods/text.coffee","/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee","/Users/Dave/Sites/D3plus/src/form/methods/title.coffee","/Users/Dave/Sites/D3plus/src/form/methods/type.coffee","/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee","/Users/Dave/Sites/D3plus/src/form/methods/width.coffee","/Users/Dave/Sites/D3plus/src/form/types/auto.js","/Users/Dave/Sites/D3plus/src/form/types/toggle.js","/Users/Dave/Sites/D3plus/src/form/types/button/button.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/color.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/icons.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js","/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/active.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/arrow.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/button.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/element.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/height.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/keyboard.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/list.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/scroll.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/search.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/title.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/width.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/window.js","/Users/Dave/Sites/D3plus/src/general/events.coffee","/Users/Dave/Sites/D3plus/src/general/ie.js","/Users/Dave/Sites/D3plus/src/general/prefix.coffee","/Users/Dave/Sites/D3plus/src/general/rtl.js","/Users/Dave/Sites/D3plus/src/general/scrollbar.js","/Users/Dave/Sites/D3plus/src/general/touch.coffee","/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","/Users/Dave/Sites/D3plus/src/network/cluster.coffee","/Users/Dave/Sites/D3plus/src/network/normalize.coffee","/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","/Users/Dave/Sites/D3plus/src/network/subgraph.coffee","/Users/Dave/Sites/D3plus/src/number/format.js","/Users/Dave/Sites/D3plus/src/object/merge.coffee","/Users/Dave/Sites/D3plus/src/object/validate.coffee","/Users/Dave/Sites/D3plus/src/string/format.js","/Users/Dave/Sites/D3plus/src/string/list.coffee","/Users/Dave/Sites/D3plus/src/string/strip.js","/Users/Dave/Sites/D3plus/src/string/title.coffee","/Users/Dave/Sites/D3plus/src/style/sheet.coffee","/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/foreign.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getDimensions.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getSize.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getText.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/tspan.js","/Users/Dave/Sites/D3plus/src/textwrap/helpers/wrap.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/container.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/draw.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/format.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/height.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/resize.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/shape.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/size.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/text.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/width.coffee","/Users/Dave/Sites/D3plus/src/tooltip/app.js","/Users/Dave/Sites/D3plus/src/tooltip/arrow.js","/Users/Dave/Sites/D3plus/src/tooltip/create.js","/Users/Dave/Sites/D3plus/src/tooltip/data.js","/Users/Dave/Sites/D3plus/src/tooltip/move.js","/Users/Dave/Sites/D3plus/src/tooltip/remove.js","/Users/Dave/Sites/D3plus/src/util/buckets.coffee","/Users/Dave/Sites/D3plus/src/util/child.coffee","/Users/Dave/Sites/D3plus/src/util/closest.coffee","/Users/Dave/Sites/D3plus/src/util/copy.coffee","/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","/Users/Dave/Sites/D3plus/src/util/distances.coffee","/Users/Dave/Sites/D3plus/src/util/offset.coffee","/Users/Dave/Sites/D3plus/src/util/uniques.coffee","/Users/Dave/Sites/D3plus/src/viz/viz.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js","/Users/Dave/Sites/D3plus/src/viz/helpers/errorCheck.js","/Users/Dave/Sites/D3plus/src/viz/helpers/finish.js","/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.js","/Users/Dave/Sites/D3plus/src/viz/helpers/focus/viz.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/draw.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js","/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js","/Users/Dave/Sites/D3plus/src/viz/helpers/types/run.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/drawer.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/history.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/timeline.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/controls.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/data.js","/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/draw.js","/Users/Dave/Sites/D3plus/src/viz/methods/edges.js","/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js","/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee","/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js","/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js","/Users/Dave/Sites/D3plus/src/viz/types/line.coffee","/Users/Dave/Sites/D3plus/src/viz/types/network.js","/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee","/Users/Dave/Sites/D3plus/src/viz/types/rings.js","/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee","/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee","/Users/Dave/Sites/D3plus/src/viz/types/tree_map.js","/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/dataTicks.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee"])
+},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","./helpers/container.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee","./helpers/drawSteps.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js","./helpers/ui/message.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","./methods/active.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee","./methods/aggs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee","./methods/attrs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee","./methods/axes.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee","./methods/background.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee","./methods/color.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee","./methods/cols.js":"/Users/Dave/Sites/D3plus/src/viz/methods/cols.js","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee","./methods/coords.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee","./methods/csv.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee","./methods/data.js":"/Users/Dave/Sites/D3plus/src/viz/methods/data.js","./methods/depth.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee","./methods/descs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee","./methods/draw.js":"/Users/Dave/Sites/D3plus/src/viz/methods/draw.js","./methods/edges.js":"/Users/Dave/Sites/D3plus/src/viz/methods/edges.js","./methods/error.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee","./methods/focus.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee","./methods/font.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee","./methods/footer.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee","./methods/helpers/axis.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee","./methods/history.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee","./methods/icon.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee","./methods/id.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee","./methods/labels.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee","./methods/legend.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee","./methods/links.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee","./methods/margin.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee","./methods/messages.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee","./methods/nodes.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee","./methods/order.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee","./methods/shape.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee","./methods/size.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee","./methods/style.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee","./methods/temp.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee","./methods/time.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee","./methods/timeline.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee","./methods/timing.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee","./methods/title.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee","./methods/tooltip.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee","./methods/total.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee","./methods/type.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee","./methods/ui.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee","./methods/zoom.js":"/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js","./types/bar.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/bar.coffee","./types/box.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/box.coffee","./types/bubbles.js":"/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js","./types/deprecated/chart.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee","./types/geo_map.js":"/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js","./types/line.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/line.coffee","./types/network.js":"/Users/Dave/Sites/D3plus/src/viz/types/network.js","./types/paths.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee","./types/pie.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/pie.coffee","./types/rings.js":"/Users/Dave/Sites/D3plus/src/viz/types/rings.js","./types/scatter.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee","./types/stacked.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee","./types/table.js":"/Users/Dave/Sites/D3plus/src/viz/types/table.js","./types/tree_map.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/tree_map.coffee"}]},{},["/Users/Dave/Sites/D3plus/src/init.coffee","/Users/Dave/Sites/D3plus/src/array/comparator.coffee","/Users/Dave/Sites/D3plus/src/array/sort.coffee","/Users/Dave/Sites/D3plus/src/array/update.coffee","/Users/Dave/Sites/D3plus/src/client/css.coffee","/Users/Dave/Sites/D3plus/src/client/ie.js","/Users/Dave/Sites/D3plus/src/client/pointer.coffee","/Users/Dave/Sites/D3plus/src/client/prefix.coffee","/Users/Dave/Sites/D3plus/src/client/rtl.coffee","/Users/Dave/Sites/D3plus/src/client/scrollbar.coffee","/Users/Dave/Sites/D3plus/src/client/touch.coffee","/Users/Dave/Sites/D3plus/src/color/legible.coffee","/Users/Dave/Sites/D3plus/src/color/lighter.coffee","/Users/Dave/Sites/D3plus/src/color/mix.coffee","/Users/Dave/Sites/D3plus/src/color/random.coffee","/Users/Dave/Sites/D3plus/src/color/scale.coffee","/Users/Dave/Sites/D3plus/src/color/sort.coffee","/Users/Dave/Sites/D3plus/src/color/text.coffee","/Users/Dave/Sites/D3plus/src/color/validate.coffee","/Users/Dave/Sites/D3plus/src/core/console/print.coffee","/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee","/Users/Dave/Sites/D3plus/src/core/data/color.js","/Users/Dave/Sites/D3plus/src/core/data/filter.js","/Users/Dave/Sites/D3plus/src/core/data/format.js","/Users/Dave/Sites/D3plus/src/core/data/group.coffee","/Users/Dave/Sites/D3plus/src/core/data/keys.js","/Users/Dave/Sites/D3plus/src/core/data/load.coffee","/Users/Dave/Sites/D3plus/src/core/data/nest.js","/Users/Dave/Sites/D3plus/src/core/data/threshold.js","/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","/Users/Dave/Sites/D3plus/src/core/fetch/data.js","/Users/Dave/Sites/D3plus/src/core/fetch/text.js","/Users/Dave/Sites/D3plus/src/core/fetch/value.js","/Users/Dave/Sites/D3plus/src/core/font/tester.coffee","/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/mk_MK.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/pt_BR.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/zh_CN.js","/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee","/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","/Users/Dave/Sites/D3plus/src/core/methods/set.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/position.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee","/Users/Dave/Sites/D3plus/src/core/parse/edges.js","/Users/Dave/Sites/D3plus/src/core/parse/element.js","/Users/Dave/Sites/D3plus/src/core/parse/nodes.js","/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee","/Users/Dave/Sites/D3plus/src/data/lof.coffee","/Users/Dave/Sites/D3plus/src/data/mad.coffee","/Users/Dave/Sites/D3plus/src/font/sizes.coffee","/Users/Dave/Sites/D3plus/src/font/validate.coffee","/Users/Dave/Sites/D3plus/src/form/form.js","/Users/Dave/Sites/D3plus/src/form/methods/active.coffee","/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee","/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee","/Users/Dave/Sites/D3plus/src/form/methods/color.coffee","/Users/Dave/Sites/D3plus/src/form/methods/container.coffee","/Users/Dave/Sites/D3plus/src/form/methods/data.js","/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee","/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/form/methods/draw.js","/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee","/Users/Dave/Sites/D3plus/src/form/methods/font.coffee","/Users/Dave/Sites/D3plus/src/form/methods/format.coffee","/Users/Dave/Sites/D3plus/src/form/methods/height.coffee","/Users/Dave/Sites/D3plus/src/form/methods/history.coffee","/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee","/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee","/Users/Dave/Sites/D3plus/src/form/methods/id.coffee","/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee","/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee","/Users/Dave/Sites/D3plus/src/form/methods/open.coffee","/Users/Dave/Sites/D3plus/src/form/methods/order.coffee","/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee","/Users/Dave/Sites/D3plus/src/form/methods/search.coffee","/Users/Dave/Sites/D3plus/src/form/methods/select.coffee","/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee","/Users/Dave/Sites/D3plus/src/form/methods/text.coffee","/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee","/Users/Dave/Sites/D3plus/src/form/methods/title.coffee","/Users/Dave/Sites/D3plus/src/form/methods/type.coffee","/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee","/Users/Dave/Sites/D3plus/src/form/methods/width.coffee","/Users/Dave/Sites/D3plus/src/form/types/auto.js","/Users/Dave/Sites/D3plus/src/form/types/toggle.js","/Users/Dave/Sites/D3plus/src/form/types/button/button.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/color.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/icons.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js","/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/active.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/arrow.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/button.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/element.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/height.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/keyboard.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/list.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/scroll.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/search.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/title.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/width.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/window.js","/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","/Users/Dave/Sites/D3plus/src/geom/offset.coffee","/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","/Users/Dave/Sites/D3plus/src/network/cluster.coffee","/Users/Dave/Sites/D3plus/src/network/distances.coffee","/Users/Dave/Sites/D3plus/src/network/normalize.coffee","/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","/Users/Dave/Sites/D3plus/src/network/subgraph.coffee","/Users/Dave/Sites/D3plus/src/number/format.js","/Users/Dave/Sites/D3plus/src/object/merge.coffee","/Users/Dave/Sites/D3plus/src/object/validate.coffee","/Users/Dave/Sites/D3plus/src/string/format.js","/Users/Dave/Sites/D3plus/src/string/list.coffee","/Users/Dave/Sites/D3plus/src/string/strip.js","/Users/Dave/Sites/D3plus/src/string/title.coffee","/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/foreign.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getDimensions.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getSize.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getText.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/tspan.js","/Users/Dave/Sites/D3plus/src/textwrap/helpers/wrap.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/container.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/draw.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/format.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/height.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/resize.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/shape.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/size.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/text.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/width.coffee","/Users/Dave/Sites/D3plus/src/tooltip/app.js","/Users/Dave/Sites/D3plus/src/tooltip/arrow.js","/Users/Dave/Sites/D3plus/src/tooltip/create.js","/Users/Dave/Sites/D3plus/src/tooltip/data.js","/Users/Dave/Sites/D3plus/src/tooltip/move.js","/Users/Dave/Sites/D3plus/src/tooltip/remove.js","/Users/Dave/Sites/D3plus/src/util/buckets.coffee","/Users/Dave/Sites/D3plus/src/util/child.coffee","/Users/Dave/Sites/D3plus/src/util/closest.coffee","/Users/Dave/Sites/D3plus/src/util/copy.coffee","/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","/Users/Dave/Sites/D3plus/src/util/uniques.coffee","/Users/Dave/Sites/D3plus/src/viz/viz.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js","/Users/Dave/Sites/D3plus/src/viz/helpers/errorCheck.js","/Users/Dave/Sites/D3plus/src/viz/helpers/finish.js","/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.js","/Users/Dave/Sites/D3plus/src/viz/helpers/focus/viz.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/arc.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/draw.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/whisker.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js","/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js","/Users/Dave/Sites/D3plus/src/viz/helpers/types/run.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/drawer.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/history.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/timeline.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/controls.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/cols.js","/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/data.js","/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/draw.js","/Users/Dave/Sites/D3plus/src/viz/methods/edges.js","/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js","/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee","/Users/Dave/Sites/D3plus/src/viz/types/bar.coffee","/Users/Dave/Sites/D3plus/src/viz/types/box.coffee","/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js","/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js","/Users/Dave/Sites/D3plus/src/viz/types/line.coffee","/Users/Dave/Sites/D3plus/src/viz/types/network.js","/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee","/Users/Dave/Sites/D3plus/src/viz/types/pie.coffee","/Users/Dave/Sites/D3plus/src/viz/types/rings.js","/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee","/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee","/Users/Dave/Sites/D3plus/src/viz/types/table.js","/Users/Dave/Sites/D3plus/src/viz/types/tree_map.coffee","/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee"])
