@@ -1,6 +1,6 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/Dave/Sites/D3plus/node_modules/browserify/lib/_empty.js":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"/Users/alexandersimoes/Sites/vizwhiz/node_modules/browserify/lib/_empty.js":[function(require,module,exports){
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/index.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/browserify/node_modules/buffer/index.js":[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -17,35 +17,22 @@ exports.INSPECT_MAX_BYTES = 50
 Buffer.poolSize = 8192
 
 /**
- * If `TYPED_ARRAY_SUPPORT`:
+ * If `Buffer._useTypedArrays`:
  *   === true    Use Uint8Array implementation (fastest)
- *   === false   Use Object implementation (most compatible, even IE6)
- *
- * Browsers that support typed arrays are IE 10+, Firefox 4+, Chrome 7+, Safari 5.1+,
- * Opera 11.6+, iOS 4.2+.
- *
- * Note:
- *
- * - Implementation must support adding new properties to `Uint8Array` instances.
- *   Firefox 4-29 lacked support, fixed in Firefox 30+.
- *   See: https://bugzilla.mozilla.org/show_bug.cgi?id=695438.
- *
- *  - Chrome 9-10 is missing the `TypedArray.prototype.subarray` function.
- *
- *  - IE10 has a broken `TypedArray.prototype.subarray` function which returns arrays of
- *    incorrect length in some situations.
- *
- * We detect these buggy browsers and set `TYPED_ARRAY_SUPPORT` to `false` so they will
- * get the Object implementation, which is slower but will work correctly.
+ *   === false   Use Object implementation (compatible down to IE6)
  */
-var TYPED_ARRAY_SUPPORT = (function () {
+Buffer._useTypedArrays = (function () {
+  // Detect if browser supports Typed Arrays. Supported browsers are IE 10+, Firefox 4+,
+  // Chrome 7+, Safari 5.1+, Opera 11.6+, iOS 4.2+. If the browser does not support adding
+  // properties to `Uint8Array` instances, then that's the same as no `Uint8Array` support
+  // because we need to be able to add all the node Buffer API methods. This is an issue
+  // in Firefox 4-29. Now fixed: https://bugzilla.mozilla.org/show_bug.cgi?id=695438
   try {
     var buf = new ArrayBuffer(0)
     var arr = new Uint8Array(buf)
     arr.foo = function () { return 42 }
-    return 42 === arr.foo() && // typed array instances can be augmented
-        typeof arr.subarray === 'function' && // chrome 9-10 lack `subarray`
-        new Uint8Array(1).subarray(1, 1).byteLength === 0 // ie10 has broken `subarray`
+    return 42 === arr.foo() &&
+        typeof arr.subarray === 'function' // Chrome 9-10 lack `subarray`
   } catch (e) {
     return false
   }
@@ -78,14 +65,14 @@ function Buffer (subject, encoding, noZero) {
       subject = base64clean(subject)
     length = Buffer.byteLength(subject, encoding)
   } else if (type === 'object' && subject !== null) { // assume object is array-like
-    if (subject.type === 'Buffer' && isArray(subject.data))
+    if (subject.type === 'Buffer' && Array.isArray(subject.data))
       subject = subject.data
     length = +subject.length > 0 ? Math.floor(+subject.length) : 0
   } else
     throw new Error('First argument needs to be a number, array or string.')
 
   var buf
-  if (TYPED_ARRAY_SUPPORT) {
+  if (Buffer._useTypedArrays) {
     // Preferred: Return an augmented `Uint8Array` instance for best performance
     buf = Buffer._augment(new Uint8Array(length))
   } else {
@@ -96,7 +83,7 @@ function Buffer (subject, encoding, noZero) {
   }
 
   var i
-  if (TYPED_ARRAY_SUPPORT && typeof subject.byteLength === 'number') {
+  if (Buffer._useTypedArrays && typeof subject.byteLength === 'number') {
     // Speed optimization -- use set if we're copying from a typed array
     buf._set(subject)
   } else if (isArrayish(subject)) {
@@ -110,7 +97,7 @@ function Buffer (subject, encoding, noZero) {
     }
   } else if (type === 'string') {
     buf.write(subject, 0, encoding)
-  } else if (type === 'number' && !TYPED_ARRAY_SUPPORT && !noZero) {
+  } else if (type === 'number' && !Buffer._useTypedArrays && !noZero) {
     for (i = 0; i < length; i++) {
       buf[i] = 0
     }
@@ -417,7 +404,7 @@ Buffer.prototype.copy = function (target, target_start, start, end) {
 
   var len = end - start
 
-  if (len < 100 || !TYPED_ARRAY_SUPPORT) {
+  if (len < 100 || !Buffer._useTypedArrays) {
     for (var i = 0; i < len; i++) {
       target[i + target_start] = this[i + start]
     }
@@ -511,7 +498,7 @@ Buffer.prototype.slice = function (start, end) {
   if (end < start)
     end = start
 
-  if (TYPED_ARRAY_SUPPORT) {
+  if (Buffer._useTypedArrays) {
     return Buffer._augment(this.subarray(start, end))
   } else {
     var sliceLen = end - start
@@ -970,7 +957,7 @@ Buffer.prototype.inspect = function () {
  */
 Buffer.prototype.toArrayBuffer = function () {
   if (typeof Uint8Array !== 'undefined') {
-    if (TYPED_ARRAY_SUPPORT) {
+    if (Buffer._useTypedArrays) {
       return (new Buffer(this)).buffer
     } else {
       var buf = new Uint8Array(this.length)
@@ -1171,7 +1158,7 @@ function assert (test, message) {
   if (!test) throw new Error(message || 'Failed assertion')
 }
 
-},{"base64-js":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js","ieee754":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js"}],"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js":[function(require,module,exports){
+},{"base64-js":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js","ieee754":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js":[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -1293,7 +1280,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js":[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -1379,10 +1366,10 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/heap/index.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/heap/index.js":[function(require,module,exports){
 module.exports = require('./lib/heap');
 
-},{"./lib/heap":"/Users/Dave/Sites/D3plus/node_modules/heap/lib/heap.js"}],"/Users/Dave/Sites/D3plus/node_modules/heap/lib/heap.js":[function(require,module,exports){
+},{"./lib/heap":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/heap/lib/heap.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/heap/lib/heap.js":[function(require,module,exports){
 // Generated by CoffeeScript 1.6.3
 (function() {
   var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
@@ -1751,7 +1738,7 @@ module.exports = require('./lib/heap');
 
 }).call(this);
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/numeric/numeric-1.2.6.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/numeric/numeric-1.2.6.js":[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -6179,7 +6166,7 @@ numeric.svd= function svd(A) {
 
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],"/Users/Dave/Sites/D3plus/node_modules/simplify-js/simplify.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/simplify-js/simplify.js":[function(require,module,exports){
 /*
  (c) 2013, Vladimir Agafonkin
  Simplify.js, a high-performance JS polyline simplification library
@@ -6312,7 +6299,7 @@ else window.simplify = simplify;
 
 })();
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/kdtree.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/kdtree.js":[function(require,module,exports){
 "use strict"
 
 module.exports = createKDTree
@@ -6925,7 +6912,7 @@ function deserializeKDTree(data) {
     return new KDTree(null, null, 0, data.d)
   }
 }
-},{"./lib/heap.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/lib/heap.js","bit-twiddle":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js","inorder-tree-layout":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/inorder-tree-layout/inorder.js","ndarray":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/ndarray.js","ndarray-ops":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js","ndarray-pack":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/convert.js","ndarray-scratch":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/scratch.js","ndarray-select":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-select/select.js","typedarray-pool":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/lib/heap.js":[function(require,module,exports){
+},{"./lib/heap.js":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/lib/heap.js","bit-twiddle":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js","inorder-tree-layout":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/inorder-tree-layout/inorder.js","ndarray":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray/ndarray.js","ndarray-ops":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js","ndarray-pack":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/convert.js","ndarray-scratch":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-scratch/scratch.js","ndarray-select":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-select/select.js","typedarray-pool":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/lib/heap.js":[function(require,module,exports){
 "use strict"
 
 module.exports = KDTHeap
@@ -7034,7 +7021,7 @@ proto.dispose = function() {
   pool.freeInt32(this.index)
   pool.freeFloat64(this.data)
 }
-},{"typedarray-pool":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js":[function(require,module,exports){
+},{"typedarray-pool":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js":[function(require,module,exports){
 /**
  * Bit twiddling hacks for JavaScript.
  *
@@ -7240,7 +7227,7 @@ exports.nextCombination = function(v) {
 }
 
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/inorder-tree-layout/inorder.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/inorder-tree-layout/inorder.js":[function(require,module,exports){
 "use strict"
 
 var bits = require("bit-twiddle")
@@ -7412,9 +7399,9 @@ function hiInorder(n, x) {
 }
 exports.hi = hiInorder
 
-},{"bit-twiddle":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/inorder-tree-layout/node_modules/bit-twiddle/twiddle.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/inorder-tree-layout/node_modules/bit-twiddle/twiddle.js":[function(require,module,exports){
-module.exports=require("/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js")
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js":[function(require,module,exports){
+},{"bit-twiddle":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/inorder-tree-layout/node_modules/bit-twiddle/twiddle.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/inorder-tree-layout/node_modules/bit-twiddle/twiddle.js":[function(require,module,exports){
+module.exports=require("/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js")
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js":[function(require,module,exports){
 "use strict"
 
 var compile = require("cwise-compiler")
@@ -7877,7 +7864,7 @@ exports.equals = compile({
 
 
 
-},{"cwise-compiler":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/compiler.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/compiler.js":[function(require,module,exports){
+},{"cwise-compiler":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/compiler.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/compiler.js":[function(require,module,exports){
 "use strict"
 
 var createThunk = require("./lib/thunk.js")
@@ -7985,7 +7972,7 @@ function compileCwise(user_args) {
 
 module.exports = compileCwise
 
-},{"./lib/thunk.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/compile.js":[function(require,module,exports){
+},{"./lib/thunk.js":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/compile.js":[function(require,module,exports){
 "use strict"
 
 var uniq = require("uniq")
@@ -8273,7 +8260,7 @@ function generateCWiseOp(proc, typesig) {
   return f()
 }
 module.exports = generateCWiseOp
-},{"uniq":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/node_modules/uniq/uniq.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js":[function(require,module,exports){
+},{"uniq":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/node_modules/uniq/uniq.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js":[function(require,module,exports){
 "use strict"
 
 var compile = require("./compile.js")
@@ -8322,7 +8309,7 @@ function createThunk(proc) {
 
 module.exports = createThunk
 
-},{"./compile.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/compile.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/node_modules/uniq/uniq.js":[function(require,module,exports){
+},{"./compile.js":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/compile.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/node_modules/uniq/uniq.js":[function(require,module,exports){
 "use strict"
 
 function unique_pred(list, compare) {
@@ -8381,7 +8368,7 @@ function unique(list, compare, sorted) {
 
 module.exports = unique
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/convert.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/convert.js":[function(require,module,exports){
 "use strict"
 
 var ndarray = require("ndarray")
@@ -8404,10 +8391,10 @@ module.exports = function convert(arr, result) {
   return result
 }
 
-},{"./doConvert.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/doConvert.js","ndarray":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/ndarray.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/doConvert.js":[function(require,module,exports){
+},{"./doConvert.js":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/doConvert.js","ndarray":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray/ndarray.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/doConvert.js":[function(require,module,exports){
 module.exports=require('cwise-compiler')({"args":["array","scalar","index"],"pre":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"body":{"body":"{\nvar _inline_1_v=_inline_1_arg1_,_inline_1_i\nfor(_inline_1_i=0;_inline_1_i<_inline_1_arg2_.length-1;++_inline_1_i) {\n_inline_1_v=_inline_1_v[_inline_1_arg2_[_inline_1_i]]\n}\n_inline_1_arg0_=_inline_1_v[_inline_1_arg2_[_inline_1_arg2_.length-1]]\n}","args":[{"name":"_inline_1_arg0_","lvalue":true,"rvalue":false,"count":1},{"name":"_inline_1_arg1_","lvalue":false,"rvalue":true,"count":1},{"name":"_inline_1_arg2_","lvalue":false,"rvalue":true,"count":4}],"thisVars":[],"localVars":["_inline_1_i","_inline_1_v"]},"post":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"funcName":"convert","blockSize":64})
 
-},{"cwise-compiler":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/compiler.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/compiler.js":[function(require,module,exports){
+},{"cwise-compiler":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/compiler.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/compiler.js":[function(require,module,exports){
 "use strict"
 
 var createThunk = require("./lib/thunk.js")
@@ -8515,7 +8502,7 @@ function compileCwise(user_args) {
 
 module.exports = compileCwise
 
-},{"./lib/thunk.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/thunk.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/compile.js":[function(require,module,exports){
+},{"./lib/thunk.js":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/thunk.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/compile.js":[function(require,module,exports){
 "use strict"
 
 var uniq = require("uniq")
@@ -8799,9 +8786,9 @@ function generateCWiseOp(proc, typesig) {
   return f()
 }
 module.exports = generateCWiseOp
-},{"uniq":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/node_modules/uniq/uniq.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/thunk.js":[function(require,module,exports){
-arguments[4]["/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js"][0].apply(exports,arguments)
-},{"./compile.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/compile.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/node_modules/uniq/uniq.js":[function(require,module,exports){
+},{"uniq":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/node_modules/uniq/uniq.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/thunk.js":[function(require,module,exports){
+arguments[4]["/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js"][0].apply(exports,arguments)
+},{"./compile.js":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/compile.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/node_modules/uniq/uniq.js":[function(require,module,exports){
 "use strict"
 
 function unique_pred(list, compare) {
@@ -8859,7 +8846,7 @@ function unique(list, compare, sorted) {
 }
 
 module.exports = unique
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/scratch.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-scratch/scratch.js":[function(require,module,exports){
 "use strict"
 
 var ndarray = require("ndarray")
@@ -8918,7 +8905,7 @@ function zeros(shape, dtype) {
   return ndarray(buf, shape, stride, 0)
 }
 exports.zeros = zeros
-},{"ndarray":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/ndarray.js","ndarray-ops":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js","typedarray-pool":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-select/select.js":[function(require,module,exports){
+},{"ndarray":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray/ndarray.js","ndarray-ops":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js","typedarray-pool":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray-select/select.js":[function(require,module,exports){
 "use strict"
 
 module.exports = ndSelect
@@ -9154,7 +9141,7 @@ function ndSelect(array, k, compare) {
     return proc(array, k)
   }
 }
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/ndarray.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray/ndarray.js":[function(require,module,exports){
 (function (Buffer){
 var iota = require("iota-array")
 
@@ -9554,7 +9541,7 @@ function wrappedNDArrayCtor(data, shape, stride, offset) {
 
 module.exports = wrappedNDArrayCtor
 }).call(this,require("buffer").Buffer)
-},{"buffer":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/index.js","iota-array":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/node_modules/iota-array/iota.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/node_modules/iota-array/iota.js":[function(require,module,exports){
+},{"buffer":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/browserify/node_modules/buffer/index.js","iota-array":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray/node_modules/iota-array/iota.js"}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/ndarray/node_modules/iota-array/iota.js":[function(require,module,exports){
 "use strict"
 
 function iota(n) {
@@ -9566,7 +9553,7 @@ function iota(n) {
 }
 
 module.exports = iota
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/node_modules/dup/dup.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/typedarray-pool/node_modules/dup/dup.js":[function(require,module,exports){
 "use strict"
 
 function dupe_array(count, value, i) {
@@ -9616,7 +9603,7 @@ function dupe(count, value) {
 }
 
 module.exports = dupe
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js":[function(require,module,exports){
 (function (global,Buffer){
 var bits = require("bit-twiddle")
 var dup = require("dup")
@@ -9986,7 +9973,7 @@ exports.clearCache = function clearCache() {
   }
 }
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"bit-twiddle":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js","buffer":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/index.js","dup":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/node_modules/dup/dup.js"}],"/Users/Dave/Sites/D3plus/src/array/comparator.coffee":[function(require,module,exports){
+},{"bit-twiddle":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js","buffer":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/browserify/node_modules/buffer/index.js","dup":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/node_modules/typedarray-pool/node_modules/dup/dup.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/array/comparator.coffee":[function(require,module,exports){
 var colorSort, fetchColor, fetchText, fetchValue;
 
 colorSort = require("../color/sort.coffee");
@@ -10044,7 +10031,7 @@ module.exports = function(a, b, keys, sort, colors, vars, depth) {
 };
 
 
-},{"../color/sort.coffee":"/Users/Dave/Sites/D3plus/src/color/sort.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/array/sort.coffee":[function(require,module,exports){
+},{"../color/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/sort.coffee","../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee":[function(require,module,exports){
 var comparator;
 
 comparator = require("./comparator.coffee");
@@ -10060,7 +10047,7 @@ module.exports = function(arr, keys, sort, colors, vars, depth) {
 };
 
 
-},{"./comparator.coffee":"/Users/Dave/Sites/D3plus/src/array/comparator.coffee"}],"/Users/Dave/Sites/D3plus/src/array/update.coffee":[function(require,module,exports){
+},{"./comparator.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/comparator.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/array/update.coffee":[function(require,module,exports){
 module.exports = function(arr, x) {
   if (x === false) {
     return [];
@@ -10080,7 +10067,7 @@ module.exports = function(arr, x) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/css.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/client/css.coffee":[function(require,module,exports){
 var sheet;
 
 sheet = function(name) {
@@ -10107,11 +10094,11 @@ sheet.tested = {};
 module.exports = sheet;
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/ie.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js":[function(require,module,exports){
 // Determines if the current browser is Internet Explorer.
 module.exports = /*@cc_on!@*/false
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/pointer.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee":[function(require,module,exports){
 var ie, touch;
 
 ie = require("./ie.js");
@@ -10139,7 +10126,7 @@ if (touch) {
 }
 
 
-},{"./ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee"}],"/Users/Dave/Sites/D3plus/src/client/prefix.coffee":[function(require,module,exports){
+},{"./ie.js":"/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js","./touch.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/touch.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee":[function(require,module,exports){
 var prefix;
 
 prefix = function() {
@@ -10164,11 +10151,11 @@ prefix = function() {
 module.exports = prefix;
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/rtl.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/client/rtl.coffee":[function(require,module,exports){
 module.exports = d3.select("html").attr("dir") === "rtl";
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/scrollbar.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/client/scrollbar.coffee":[function(require,module,exports){
 var scrollbar;
 
 scrollbar = function() {
@@ -10203,11 +10190,11 @@ scrollbar = function() {
 module.exports = scrollbar;
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/touch.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/client/touch.coffee":[function(require,module,exports){
 module.exports = ("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch ? true : false;
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/legible.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee":[function(require,module,exports){
 module.exports = function(color) {
   var hsl;
   hsl = d3.hsl(color);
@@ -10221,7 +10208,7 @@ module.exports = function(color) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/lighter.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/color/lighter.coffee":[function(require,module,exports){
 module.exports = function(color, increment) {
   var c;
   if (increment === void 0) {
@@ -10233,7 +10220,7 @@ module.exports = function(color, increment) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/mix.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/color/mix.coffee":[function(require,module,exports){
 module.exports = function(c1, c2, o1, o2) {
   var b, g, r;
   if (!o1) {
@@ -10251,7 +10238,7 @@ module.exports = function(c1, c2, o1, o2) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/random.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/color/random.coffee":[function(require,module,exports){
 var defaultScale;
 
 defaultScale = require("./scale.coffee");
@@ -10264,11 +10251,11 @@ module.exports = function(x, scale) {
 };
 
 
-},{"./scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee"}],"/Users/Dave/Sites/D3plus/src/color/scale.coffee":[function(require,module,exports){
+},{"./scale.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/scale.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/color/scale.coffee":[function(require,module,exports){
 module.exports = d3.scale.ordinal().range(["#b22200", "#EACE3F", "#282F6B", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/sort.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/color/sort.coffee":[function(require,module,exports){
 module.exports = function(a, b) {
   var aHSL, bHSL;
   aHSL = d3.hsl(a);
@@ -10283,7 +10270,7 @@ module.exports = function(a, b) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/text.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee":[function(require,module,exports){
 module.exports = function(color) {
   var b, g, r, rgbColor, yiq;
   rgbColor = d3.rgb(color);
@@ -10299,7 +10286,7 @@ module.exports = function(color) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/validate.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/color/validate.coffee":[function(require,module,exports){
 module.exports = function(color) {
   var blackColors, testColor, userBlack;
   color = color + "";
@@ -10317,7 +10304,7 @@ module.exports = function(color) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/console/print.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee":[function(require,module,exports){
 var ie, print, wiki;
 
 ie = require("../../client/ie.js");
@@ -10425,7 +10412,7 @@ print.wiki = function(url) {
 module.exports = print;
 
 
-},{"../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./wiki.coffee":"/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee"}],"/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee":[function(require,module,exports){
+},{"../../client/ie.js":"/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js","./wiki.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/wiki.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/wiki.coffee":[function(require,module,exports){
 module.exports = {
   active: "Segmenting-Data#active",
   aggs: "Custom-Aggregations",
@@ -10486,7 +10473,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/data/color.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/color.js":[function(require,module,exports){
 var buckets = require("../../util/buckets.coffee"),
     fetchValue = require("../fetch/value.js"),
     print      = require("../console/print.coffee")
@@ -10548,7 +10535,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/data/filter.js":[function(require,module,exports){
+},{"../../util/buckets.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/buckets.coffee","../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/filter.js":[function(require,module,exports){
 var fetchValue = require("../fetch/value.js"),
     print       = require("../console/print.coffee"),
     validObject = require("../../object/validate.coffee")
@@ -10663,7 +10650,7 @@ module.exports = function( vars , data ) {
 
 }
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/data/format.js":[function(require,module,exports){
+},{"../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/format.js":[function(require,module,exports){
 var dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.js"),
     print      = require("../console/print.coffee"),
@@ -10871,7 +10858,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js"}],"/Users/Dave/Sites/D3plus/src/core/data/group.coffee":[function(require,module,exports){
+},{"../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee","../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","./nest.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/nest.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/group.coffee":[function(require,module,exports){
 var fetchValue;
 
 fetchValue = require("../fetch/value.js");
@@ -10909,7 +10896,7 @@ module.exports = function(vars, data, nesting) {
 };
 
 
-},{"../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/data/keys.js":[function(require,module,exports){
+},{"../fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/keys.js":[function(require,module,exports){
 var validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get Key Types from Data
@@ -10954,7 +10941,7 @@ module.exports = function( vars , type ) {
 
 }
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/core/data/load.coffee":[function(require,module,exports){
+},{"../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/load.coffee":[function(require,module,exports){
 var print, validObject;
 
 print = require("../console/print.coffee");
@@ -11048,7 +11035,7 @@ module.exports = function(vars, key, next) {
 };
 
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/core/data/nest.js":[function(require,module,exports){
+},{"../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/nest.js":[function(require,module,exports){
 var fetchValue = require("../fetch/value.js"),
     validObject  = require("../../object/validate.coffee"),
     uniqueValues = require("../../util/uniques.coffee")
@@ -11362,7 +11349,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
 module.exports = dataNest
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/data/threshold.js":[function(require,module,exports){
+},{"../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee","../fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/threshold.js":[function(require,module,exports){
 var arraySort = require("../../array/sort.coffee"),
     dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.js"),
@@ -11551,7 +11538,7 @@ module.exports = function( vars , rawData , split ) {
 
 }
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js"}],"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee":[function(require,module,exports){
+},{"../../array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","../fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","./nest.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/nest.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee":[function(require,module,exports){
 var fetchValue, randomColor, validColor, validObject;
 
 fetchValue = require("./value.js");
@@ -11628,7 +11615,7 @@ module.exports = function(vars, id, level) {
 };
 
 
-},{"../../color/random.coffee":"/Users/Dave/Sites/D3plus/src/color/random.coffee","../../color/validate.coffee":"/Users/Dave/Sites/D3plus/src/color/validate.coffee","../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","./value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/fetch/data.js":[function(require,module,exports){
+},{"../../color/random.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/random.coffee","../../color/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/validate.coffee","../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","./value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/data.js":[function(require,module,exports){
 var dataFilter = require("../data/filter.js"),
     dataNest     = require("../data/nest.js"),
     print        = require("../console/print.coffee"),
@@ -11833,7 +11820,7 @@ module.exports = function(vars, years, depth) {
 
 }
 
-},{"../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../data/filter.js":"/Users/Dave/Sites/D3plus/src/core/data/filter.js","../data/nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js"}],"/Users/Dave/Sites/D3plus/src/core/fetch/text.js":[function(require,module,exports){
+},{"../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","../../string/list.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/list.coffee","../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../data/filter.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/filter.js","../data/nest.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/nest.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js":[function(require,module,exports){
 var fetchValue = require("./value.js"),
     validObject = require("../../object/validate.coffee"),
     uniqueValues = require("../../util/uniques.coffee")
@@ -11914,7 +11901,7 @@ module.exports = function(vars,obj,depth) {
 
 }
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/fetch/value.js":[function(require,module,exports){
+},{"../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee","./value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js":[function(require,module,exports){
 var validObject = require("../../object/validate.coffee"),
     uniqueValues = require("../../util/uniques.coffee")
 
@@ -12063,7 +12050,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
 }
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee":[function(require,module,exports){
+},{"../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/font/tester.coffee":[function(require,module,exports){
 module.exports = function(type) {
   var attrs, styles, tester;
   if (["div", "svg"].indexOf(type) < 0) {
@@ -12085,7 +12072,7 @@ module.exports = function(type) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/en_US.js":[function(require,module,exports){
 module.exports = {
 
   "dev"          : {
@@ -12252,7 +12239,7 @@ module.exports = {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/languages/mk_MK.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/mk_MK.js":[function(require,module,exports){
 module.exports = {
     "dev": {
         "accepted": "{0} не е прифатенa вредноста за {1}, ве молиме користете еднa од следниве вредности: {2}.",
@@ -12379,7 +12366,7 @@ module.exports = {
     ]
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/languages/pt_BR.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/pt_BR.js":[function(require,module,exports){
 module.exports = {
     "dev": {
         "accepted": "{0} não é um valor aceito para {1}, por favor, use um dos seguintes procedimentos: {2}.",
@@ -12505,7 +12492,7 @@ module.exports = {
     ]
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/languages/zh_CN.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/zh_CN.js":[function(require,module,exports){
 module.exports = {
     "dev": {
         "accepted": "{0}不是{1}的可接受值, 请用下列之一的值:{2}",
@@ -12634,7 +12621,7 @@ module.exports = {
     ]
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/locale.coffee":[function(require,module,exports){
 module.exports = {
   en_US: require("./languages/en_US.js"),
   mk_MK: require("./languages/mk_MK.js"),
@@ -12643,7 +12630,7 @@ module.exports = {
 };
 
 
-},{"./languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","./languages/mk_MK.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/mk_MK.js","./languages/pt_BR.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/pt_BR.js","./languages/zh_CN.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/zh_CN.js"}],"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee":[function(require,module,exports){
+},{"./languages/en_US.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/en_US.js","./languages/mk_MK.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/mk_MK.js","./languages/pt_BR.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/pt_BR.js","./languages/zh_CN.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/zh_CN.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/attach.coffee":[function(require,module,exports){
 var checkObject, copy, createFunction, initialize, print, process, setMethod, stringFormat, validObject;
 
 copy = require("../../util/copy.coffee");
@@ -12792,7 +12779,7 @@ checkObject = function(vars, method, object, key, value) {
 };
 
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./process/detect.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee","./set.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/set.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee":[function(require,module,exports){
+},{"../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","./process/detect.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/detect.coffee","./set.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/set.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee":[function(require,module,exports){
 module.exports = function(g) {
   if (!g) {
     g = false;
@@ -12806,7 +12793,7 @@ module.exports = function(g) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/align.coffee":[function(require,module,exports){
 var rtl;
 
 rtl = require("../../../client/rtl.coffee");
@@ -12837,7 +12824,7 @@ module.exports = function(align) {
 };
 
 
-},{"../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee":[function(require,module,exports){
+},{"../../../client/rtl.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/rtl.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee":[function(require,module,exports){
 module.exports = function(decoration) {
   if (!decoration) {
     decoration = "none";
@@ -12849,7 +12836,7 @@ module.exports = function(decoration) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee":[function(require,module,exports){
 var helvetica, validate;
 
 validate = require("../../../font/validate.coffee");
@@ -12867,7 +12854,7 @@ module.exports = function(family) {
 };
 
 
-},{"../../../font/validate.coffee":"/Users/Dave/Sites/D3plus/src/font/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/font/position.coffee":[function(require,module,exports){
+},{"../../../font/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/validate.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/position.coffee":[function(require,module,exports){
 module.exports = function(position) {
   if (!position) {
     position = "bottom";
@@ -12888,7 +12875,7 @@ module.exports = function(position) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee":[function(require,module,exports){
 module.exports = function(transform) {
   if (!transform) {
     transform = "none";
@@ -12900,7 +12887,7 @@ module.exports = function(transform) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/data.coffee":[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../../util/d3selection.coffee");
@@ -12926,7 +12913,7 @@ module.exports = function(value, vars) {
 };
 
 
-},{"../../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee":[function(require,module,exports){
+},{"../../../util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/detect.coffee":[function(require,module,exports){
 var copy, update;
 
 copy = require("../../../util/copy.coffee");
@@ -12946,7 +12933,7 @@ module.exports = function(vars, object, value) {
 };
 
 
-},{"../../../array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee":[function(require,module,exports){
+},{"../../../array/update.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/update.coffee","../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/icon.coffee":[function(require,module,exports){
 var stylesheet;
 
 stylesheet = require("../../../client/css.coffee");
@@ -12960,7 +12947,7 @@ module.exports = function(value) {
 };
 
 
-},{"../../../client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee":[function(require,module,exports){
+},{"../../../client/css.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/css.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/rendering.coffee":[function(require,module,exports){
 module.exports = function(rendering) {
   var accepted;
   accepted = ["auto", "optimizeSpeed", "crispEdges", "geometricPrecision"];
@@ -12974,7 +12961,7 @@ module.exports = function(rendering) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/reset.coffee":[function(require,module,exports){
 var reset, validObject;
 
 validObject = require("../../object/validate.coffee");
@@ -12999,7 +12986,7 @@ reset = function(obj, method) {
 module.exports = reset;
 
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/set.coffee":[function(require,module,exports){
+},{"../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/set.coffee":[function(require,module,exports){
 var copy, d3selection, mergeObject, print, process, stringFormat, stringList, updateArray, validObject;
 
 copy = require("../../util/copy.coffee");
@@ -13184,7 +13171,7 @@ module.exports = function(vars, method, object, key, value) {
 };
 
 
-},{"../../array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./process/detect.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee"}],"/Users/Dave/Sites/D3plus/src/core/parse/edges.js":[function(require,module,exports){
+},{"../../array/update.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/update.coffee","../../object/merge.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee","../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","../../string/list.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/list.coffee","../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","../../util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee","../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","./process/detect.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/detect.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/edges.js":[function(require,module,exports){
 var print = require("../console/print.coffee"),
     stringFormat = require("../../string/format.js")
 
@@ -13264,7 +13251,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/core/parse/element.js":[function(require,module,exports){
+},{"../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/element.js":[function(require,module,exports){
 // Parses an HTML element for data
 module.exports = function( vars ) {
 
@@ -13421,7 +13408,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/parse/nodes.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/nodes.js":[function(require,module,exports){
 var print = require("../console/print.coffee")
 
 // Calculates node positions, if needed for network.
@@ -13478,7 +13465,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee":[function(require,module,exports){
+},{"../console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/data/bestRegress.coffee":[function(require,module,exports){
 var numeric;
 
 numeric = require('numeric');
@@ -13555,7 +13542,7 @@ module.exports = function(data, options) {
 };
 
 
-},{"numeric":"/Users/Dave/Sites/D3plus/node_modules/numeric/numeric-1.2.6.js"}],"/Users/Dave/Sites/D3plus/src/data/lof.coffee":[function(require,module,exports){
+},{"numeric":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/numeric/numeric-1.2.6.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/data/lof.coffee":[function(require,module,exports){
 var kdtree;
 
 kdtree = require('static-kdtree');
@@ -13636,7 +13623,7 @@ module.exports = function(points, K) {
 };
 
 
-},{"static-kdtree":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/kdtree.js"}],"/Users/Dave/Sites/D3plus/src/data/mad.coffee":[function(require,module,exports){
+},{"static-kdtree":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/static-kdtree/kdtree.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/data/mad.coffee":[function(require,module,exports){
 module.exports = function(points) {
   var mad, median, result;
   median = d3.median(points);
@@ -13652,7 +13639,7 @@ module.exports = function(points) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/font/sizes.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee":[function(require,module,exports){
 var fontTester;
 
 fontTester = require("../core/font/tester.coffee");
@@ -13685,7 +13672,7 @@ module.exports = function(words, style, parent) {
 };
 
 
-},{"../core/font/tester.coffee":"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee"}],"/Users/Dave/Sites/D3plus/src/font/validate.coffee":[function(require,module,exports){
+},{"../core/font/tester.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/font/tester.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/font/validate.coffee":[function(require,module,exports){
 var fontTester, validate;
 
 fontTester = require("../core/font/tester.coffee");
@@ -13743,7 +13730,7 @@ validate.complete = {};
 module.exports = validate;
 
 
-},{"../core/font/tester.coffee":"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee"}],"/Users/Dave/Sites/D3plus/src/form/form.js":[function(require,module,exports){
+},{"../core/font/tester.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/font/tester.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/form.js":[function(require,module,exports){
 var arraySort = require("../array/sort.coffee"),
     attach      = require("../core/methods/attach.coffee"),
     dataFormat  = require("../core/data/format.js"),
@@ -14108,7 +14095,7 @@ d3plus.form = function() {
 
 }
 
-},{"../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../core/data/format.js":"/Users/Dave/Sites/D3plus/src/core/data/format.js","../core/data/keys.js":"/Users/Dave/Sites/D3plus/src/core/data/keys.js","../core/data/load.coffee":"/Users/Dave/Sites/D3plus/src/core/data/load.coffee","../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","../core/methods/reset.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","./methods/active.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/active.coffee","./methods/aggs.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee","./methods/alt.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee","./methods/color.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/color.coffee","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/container.coffee","./methods/data.js":"/Users/Dave/Sites/D3plus/src/form/methods/data.js","./methods/depth.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee","./methods/draw.js":"/Users/Dave/Sites/D3plus/src/form/methods/draw.js","./methods/focus.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee","./methods/font.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/font.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/height.coffee","./methods/history.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/history.coffee","./methods/hover.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee","./methods/icon.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee","./methods/id.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/id.coffee","./methods/keywords.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee","./methods/margin.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee","./methods/open.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/open.coffee","./methods/order.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/order.coffee","./methods/remove.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee","./methods/search.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/search.coffee","./methods/select.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/select.coffee","./methods/selectAll.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/text.coffee","./methods/timing.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee","./methods/title.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/title.coffee","./methods/type.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/type.coffee","./methods/ui.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/width.coffee","./types/auto.js":"/Users/Dave/Sites/D3plus/src/form/types/auto.js","./types/button/button.js":"/Users/Dave/Sites/D3plus/src/form/types/button/button.js","./types/drop/drop.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js","./types/toggle.js":"/Users/Dave/Sites/D3plus/src/form/types/toggle.js"}],"/Users/Dave/Sites/D3plus/src/form/methods/active.coffee":[function(require,module,exports){
+},{"../array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","../client/ie.js":"/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js","../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../core/data/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/format.js","../core/data/keys.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/keys.js","../core/data/load.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/load.coffee","../core/fetch/data.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/data.js","../core/methods/attach.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/attach.coffee","../core/methods/reset.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/reset.coffee","./methods/active.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/active.coffee","./methods/aggs.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/aggs.coffee","./methods/alt.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/alt.coffee","./methods/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/color.coffee","./methods/container.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/container.coffee","./methods/data.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/data.js","./methods/depth.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/depth.coffee","./methods/dev.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/dev.coffee","./methods/draw.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/draw.js","./methods/focus.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/focus.coffee","./methods/font.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/font.coffee","./methods/format.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/format.coffee","./methods/height.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/height.coffee","./methods/history.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/history.coffee","./methods/hover.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/hover.coffee","./methods/icon.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/icon.coffee","./methods/id.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/id.coffee","./methods/keywords.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/keywords.coffee","./methods/margin.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/margin.coffee","./methods/open.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/open.coffee","./methods/order.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/order.coffee","./methods/remove.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/remove.coffee","./methods/search.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/search.coffee","./methods/select.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/select.coffee","./methods/selectAll.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/selectAll.coffee","./methods/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/text.coffee","./methods/timing.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/timing.coffee","./methods/title.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/title.coffee","./methods/type.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/type.coffee","./methods/ui.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/ui.coffee","./methods/width.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/width.coffee","./types/auto.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/auto.js","./types/button/button.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/button.js","./types/drop/drop.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/drop.js","./types/toggle.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/toggle.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/active.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14119,7 +14106,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/aggs.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   objectAccess: false,
@@ -14127,7 +14114,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/alt.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14140,7 +14127,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/color.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/color.coffee":[function(require,module,exports){
 var filter, scale;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14177,7 +14164,7 @@ module.exports = {
 };
 
 
-},{"../../color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/container.coffee":[function(require,module,exports){
+},{"../../color/scale.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/scale.coffee","../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/container.coffee":[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -14201,7 +14188,7 @@ module.exports = {
 };
 
 
-},{"../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/data.js":[function(require,module,exports){
+},{"../../util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/data.js":[function(require,module,exports){
 var d3selection = require("../../util/d3selection.coffee"),
     process = require("../../core/methods/process/data.coffee")
 
@@ -14264,21 +14251,21 @@ module.exports = {
   "value"    : false
 }
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee","../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/data.coffee","../../util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/depth.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Function, Number],
   value: 0
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/dev.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/draw.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/draw.js":[function(require,module,exports){
 var d3selection  = require("../../util/d3selection.coffee"),
     parseElement = require("../../core/parse/element.js"),
     print        = require("../../core/console/print.coffee"),
@@ -14351,7 +14338,7 @@ module.exports = {
   "value"    : undefined
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/parse/element.js":"/Users/Dave/Sites/D3plus/src/core/parse/element.js","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee":[function(require,module,exports){
+},{"../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../core/parse/element.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/element.js","../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","../../util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/focus.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, Number, String],
   deprecates: "highlight",
@@ -14386,7 +14373,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/font.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/font.coffee":[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -14419,7 +14406,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/format.coffee":[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/format.coffee":[function(require,module,exports){
 var formatNumber, locale, mergeObject, titleCase;
 
 formatNumber = require("../../number/format.js");
@@ -14491,7 +14478,7 @@ module.exports = {
 };
 
 
-},{"../../core/locale/locale.coffee":"/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","../../number/format.js":"/Users/Dave/Sites/D3plus/src/number/format.js","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../../string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/height.coffee":[function(require,module,exports){
+},{"../../core/locale/locale.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/locale.coffee","../../number/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/number/format.js","../../object/merge.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee","../../string/title.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/title.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/height.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   max: 600,
@@ -14501,7 +14488,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/history.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/history.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   back: function() {
@@ -14515,14 +14502,14 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/hover.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Number, String],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/icon.coffee":[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/icon.coffee");
@@ -14577,7 +14564,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/process/icon.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/id.coffee":[function(require,module,exports){
+},{"../../core/methods/process/icon.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/icon.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/id.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14593,7 +14580,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/keywords.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14606,7 +14593,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/margin.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Number, Object, String],
   process: function(value) {
@@ -14674,7 +14661,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/open.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/open.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   flipped: {
@@ -14685,7 +14672,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/order.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/order.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, String],
   sort: {
@@ -14697,7 +14684,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/remove.coffee":[function(require,module,exports){
 module.exports = {
   accepted: void 0,
   process: function(value, vars) {
@@ -14709,7 +14696,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/search.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/search.coffee":[function(require,module,exports){
 module.exports = {
   accepted: ["auto", Boolean],
   process: function(value) {
@@ -14722,7 +14709,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/select.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/select.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [String],
   chainable: false,
@@ -14739,7 +14726,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/selectAll.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [String],
   chainable: false,
@@ -14756,7 +14743,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/text.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/text.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14775,7 +14762,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/timing.coffee":[function(require,module,exports){
 module.exports = {
   mouseevents: 60,
   transitions: 600,
@@ -14783,7 +14770,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/title.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/title.coffee":[function(require,module,exports){
 var decoration, family, stringStrip, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -14820,7 +14807,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/form/methods/type.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee","../../string/strip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/type.coffee":[function(require,module,exports){
 module.exports = {
   accepted: function(vars) {
     return d3.keys(vars.types);
@@ -14829,7 +14816,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/ui.coffee":[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -14884,7 +14871,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/width.coffee":[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/width.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   secondary: false,
@@ -14893,7 +14880,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/auto.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/auto.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines form type based on data length.
 //------------------------------------------------------------------------------
@@ -14913,7 +14900,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/button/button.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/button.js":[function(require,module,exports){
 var print = require("../../../core/console/print.coffee"),
     color = require("./functions/color.js"),
     icons = require("./functions/icons.js"),
@@ -14996,7 +14983,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./functions/color.js":"/Users/Dave/Sites/D3plus/src/form/types/button/functions/color.js","./functions/icons.js":"/Users/Dave/Sites/D3plus/src/form/types/button/functions/icons.js","./functions/mouseevents.js":"/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js","./functions/style.js":"/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/color.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","./functions/color.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/color.js","./functions/icons.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/icons.js","./functions/mouseevents.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/mouseevents.js","./functions/style.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/style.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/color.js":[function(require,module,exports){
 var legible = require("../../../../color/legible.coffee"),
     lighter   = require("../../../../color/lighter.coffee"),
     textColor = require("../../../../color/text.coffee")
@@ -15061,7 +15048,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{"../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/icons.js":[function(require,module,exports){
+},{"../../../../color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","../../../../color/lighter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/icons.js":[function(require,module,exports){
 var prefix = require("../../../../client/prefix.coffee"),
     rtl = require("../../../../client/rtl.coffee")
 
@@ -15241,7 +15228,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{"../../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js":[function(require,module,exports){
+},{"../../../../client/prefix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee","../../../../client/rtl.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/rtl.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/mouseevents.js":[function(require,module,exports){
 var events = require("../../../../client/pointer.coffee"),
     ie = require("../../../../client/ie.js")
 
@@ -15293,7 +15280,7 @@ module.exports = function ( elem , vars , color ) {
 
 }
 
-},{"../../../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js":[function(require,module,exports){
+},{"../../../../client/ie.js":"/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js","../../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/style.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -15312,7 +15299,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/drop.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Dropdown Menu
 //------------------------------------------------------------------------------
@@ -15390,7 +15377,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"./functions/button.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/button.js","./functions/data.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","./functions/element.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/element.js","./functions/keyboard.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/keyboard.js","./functions/list.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/list.js","./functions/search.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/search.js","./functions/selector.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js","./functions/title.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/title.js","./functions/update.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js","./functions/width.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/width.js","./functions/window.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/window.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/active.js":[function(require,module,exports){
+},{"./functions/button.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/button.js","./functions/data.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/data.js","./functions/element.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/element.js","./functions/keyboard.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/keyboard.js","./functions/list.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/list.js","./functions/search.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/search.js","./functions/selector.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/selector.js","./functions/title.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/title.js","./functions/update.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/update.js","./functions/width.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/width.js","./functions/window.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/window.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/active.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if a given variable is allowed to be selected.
 //------------------------------------------------------------------------------
@@ -15426,7 +15413,7 @@ module.exports = function ( vars , value , active ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/arrow.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/arrow.js":[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
@@ -15457,7 +15444,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/button.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/button.js":[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     events = require("../../../../client/pointer.coffee"),
     print  = require("../../../../core/console/print.coffee")
@@ -15542,7 +15529,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js":[function(require,module,exports){
+},{"../../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/data.js":[function(require,module,exports){
 var stringFormat = require("../../../../string/format.js"),
     stringStrip = require("../../../../string/strip.js")
 
@@ -15663,7 +15650,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/element.js":[function(require,module,exports){
+},{"../../../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","../../../../string/strip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/element.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Overrides keyboard behavior of the original input element.
 //------------------------------------------------------------------------------
@@ -15702,7 +15689,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/height.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/height.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the height and orientation of the dropdown list, based on
 // available screen space.
@@ -15729,7 +15716,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/items.js":[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     print = require("../../../../core/console/print.coffee")
 
@@ -15855,7 +15842,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./active.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/active.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/keyboard.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","./active.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/active.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/keyboard.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Assigns behavior to the user's keyboard for navigation.
 //------------------------------------------------------------------------------
@@ -15965,7 +15952,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/list.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/list.js":[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
@@ -15987,7 +15974,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/scroll.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/scroll.js":[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
@@ -16092,7 +16079,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/search.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/search.js":[function(require,module,exports){
 var prefix = require("../../../../client/prefix.coffee"),
     print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -16185,7 +16172,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./data.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","./items.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","./update.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js":[function(require,module,exports){
+},{"../../../../client/prefix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee","../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","./data.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/data.js","./items.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/items.js","./update.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/update.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/selector.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
@@ -16207,7 +16194,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/title.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/title.js":[function(require,module,exports){
 var events = require("../../../../client/pointer.coffee"),
     lighter   = require("../../../../color/lighter.coffee"),
     print     = require("../../../../core/console/print.coffee"),
@@ -16358,7 +16345,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js":[function(require,module,exports){
+},{"../../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../../color/lighter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee","../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/update.js":[function(require,module,exports){
 var items = require("./items.js"),
     height     = require("./height.js"),
     print      = require("../../../../core/console/print.coffee"),
@@ -16523,7 +16510,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./arrow.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/arrow.js","./height.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/height.js","./items.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","./scroll.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/scroll.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/width.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","./arrow.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/arrow.js","./height.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/height.js","./items.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/items.js","./scroll.js":"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/scroll.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/width.js":[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     fontTester  = require("../../../../core/font/tester.coffee"),
     print       = require("../../../../core/console/print.coffee"),
@@ -16617,7 +16604,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../core/font/tester.coffee":"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee","../../../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/window.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../../core/font/tester.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/font/tester.coffee","../../../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/window.js":[function(require,module,exports){
 var child = require("../../../../util/child.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -16662,7 +16649,7 @@ var windowEvents = function ( vars , elem ) {
 
 module.exports = windowEvents
 
-},{"../../../../util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/toggle.js":[function(require,module,exports){
+},{"../../../../util/child.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/child.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/form/types/toggle.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Toggle Buttons
 //------------------------------------------------------------------------------
@@ -16746,7 +16733,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/geom/largestRect.coffee":[function(require,module,exports){
 var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, print, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
 
 print = require("../core/console/print.coffee");
@@ -17159,7 +17146,7 @@ intersectPoints = function(poly, origin, alpha) {
 };
 
 
-},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","simplify-js":"/Users/Dave/Sites/D3plus/node_modules/simplify-js/simplify.js"}],"/Users/Dave/Sites/D3plus/src/geom/offset.coffee":[function(require,module,exports){
+},{"../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","simplify-js":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/simplify-js/simplify.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/geom/offset.coffee":[function(require,module,exports){
 module.exports = function(radians, distance, shape) {
   var adjacentLegLength, coords, diagonal, oppositeLegLength;
   coords = {
@@ -17224,7 +17211,7 @@ module.exports = function(radians, distance, shape) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/geom/path2poly.coffee":[function(require,module,exports){
 var offset;
 
 offset = require("../geom/offset.coffee");
@@ -17269,7 +17256,7 @@ module.exports = function(path) {
 };
 
 
-},{"../geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee"}],"/Users/Dave/Sites/D3plus/src/init.coffee":[function(require,module,exports){
+},{"../geom/offset.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/offset.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/init.coffee":[function(require,module,exports){
 
 /**
  * @class d3plus
@@ -17496,7 +17483,7 @@ if (stylesheet("d3plus.css")) {
 }
 
 
-},{"./array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","./array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","./client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee","./client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","./client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","./client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","./client/scrollbar.coffee":"/Users/Dave/Sites/D3plus/src/client/scrollbar.coffee","./client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","./color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","./color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","./color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee","./color/random.coffee":"/Users/Dave/Sites/D3plus/src/color/random.coffee","./color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","./color/sort.coffee":"/Users/Dave/Sites/D3plus/src/color/sort.coffee","./color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","./color/validate.coffee":"/Users/Dave/Sites/D3plus/src/color/validate.coffee","./core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./data/bestRegress.coffee":"/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee","./data/lof.coffee":"/Users/Dave/Sites/D3plus/src/data/lof.coffee","./data/mad.coffee":"/Users/Dave/Sites/D3plus/src/data/mad.coffee","./font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./font/validate.coffee":"/Users/Dave/Sites/D3plus/src/font/validate.coffee","./geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","./geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee","./geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","./network/cluster.coffee":"/Users/Dave/Sites/D3plus/src/network/cluster.coffee","./network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee","./network/normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee","./network/shortestPath.coffee":"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","./network/subgraph.coffee":"/Users/Dave/Sites/D3plus/src/network/subgraph.coffee","./number/format.js":"/Users/Dave/Sites/D3plus/src/number/format.js","./object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","./object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","./string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","./string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","./string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","./string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee","./textwrap/textwrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","./util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","./util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee","./util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","./util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","./util/dataURL.coffee":"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","./util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./viz/viz.coffee":"/Users/Dave/Sites/D3plus/src/viz/viz.coffee"}],"/Users/Dave/Sites/D3plus/src/network/cluster.coffee":[function(require,module,exports){
+},{"./array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","./array/update.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/update.coffee","./client/css.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/css.coffee","./client/ie.js":"/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js","./client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","./client/prefix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee","./client/rtl.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/rtl.coffee","./client/scrollbar.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/scrollbar.coffee","./client/touch.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/touch.coffee","./color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","./color/lighter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/lighter.coffee","./color/mix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/mix.coffee","./color/random.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/random.coffee","./color/scale.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/scale.coffee","./color/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/sort.coffee","./color/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee","./color/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/validate.coffee","./core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","./data/bestRegress.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/data/bestRegress.coffee","./data/lof.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/data/lof.coffee","./data/mad.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/data/mad.coffee","./font/sizes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee","./font/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/validate.coffee","./geom/largestRect.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/largestRect.coffee","./geom/offset.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/offset.coffee","./geom/path2poly.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/path2poly.coffee","./network/cluster.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/cluster.coffee","./network/distances.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/distances.coffee","./network/normalize.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/normalize.coffee","./network/shortestPath.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/shortestPath.coffee","./network/subgraph.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/subgraph.coffee","./number/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/number/format.js","./object/merge.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee","./object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","./string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","./string/list.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/list.coffee","./string/strip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js","./string/title.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/title.coffee","./textwrap/textwrap.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/textwrap.coffee","./util/buckets.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/buckets.coffee","./util/child.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/child.coffee","./util/closest.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/closest.coffee","./util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","./util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee","./util/dataURL.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/dataURL.coffee","./util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee","./viz/viz.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/viz.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/network/cluster.coffee":[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -17633,7 +17620,7 @@ module.exports = function(edges, options) {
 };
 
 
-},{"./normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee"}],"/Users/Dave/Sites/D3plus/src/network/distances.coffee":[function(require,module,exports){
+},{"./normalize.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/normalize.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/network/distances.coffee":[function(require,module,exports){
 module.exports = function(arr, accessor) {
   var checked, distances;
   distances = [];
@@ -17658,7 +17645,7 @@ module.exports = function(arr, accessor) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/network/normalize.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/network/normalize.coffee":[function(require,module,exports){
 var print;
 
 print = require("../core/console/print.coffee");
@@ -17806,7 +17793,7 @@ module.exports = function(edges, options) {
 };
 
 
-},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee":[function(require,module,exports){
+},{"../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/network/shortestPath.coffee":[function(require,module,exports){
 var Heap, normalize;
 
 Heap = require('heap');
@@ -17903,7 +17890,7 @@ module.exports = function(edges, source, options) {
 };
 
 
-},{"./normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee","heap":"/Users/Dave/Sites/D3plus/node_modules/heap/index.js"}],"/Users/Dave/Sites/D3plus/src/network/subgraph.coffee":[function(require,module,exports){
+},{"./normalize.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/normalize.coffee","heap":"/Users/alexandersimoes/Sites/vizwhiz/node_modules/heap/index.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/network/subgraph.coffee":[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -17973,7 +17960,7 @@ module.exports = function(edges, source, options) {
 };
 
 
-},{"./normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee"}],"/Users/Dave/Sites/D3plus/src/number/format.js":[function(require,module,exports){
+},{"./normalize.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/normalize.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/number/format.js":[function(require,module,exports){
 var defaultLocale = require("../core/locale/languages/en_US.js")
 
 // Formats numbers to look "pretty"
@@ -18029,7 +18016,7 @@ module.exports = function( number , key , vars ) {
 
 }
 
-},{"../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js"}],"/Users/Dave/Sites/D3plus/src/object/merge.coffee":[function(require,module,exports){
+},{"../core/locale/languages/en_US.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/en_US.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee":[function(require,module,exports){
 var d3selection, validate;
 
 d3selection = require("../util/d3selection.coffee");
@@ -18080,7 +18067,7 @@ module.exports = function(obj1, obj2) {
 };
 
 
-},{"../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","./validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/object/validate.coffee":[function(require,module,exports){
+},{"../util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee","./validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee":[function(require,module,exports){
 
 /**
  * This function returns true if the variable passed is a literal javascript keyed Object. It's a small, simple function, but it catches some edge-cases that can throw off your code (such as Arrays and `null`).
@@ -18094,7 +18081,7 @@ module.exports = function(obj) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/string/format.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats a string similar to Python's "format"
 //------------------------------------------------------------------------------
@@ -18125,7 +18112,7 @@ module.exports = function() {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/string/list.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/string/list.coffee":[function(require,module,exports){
 var format, locale;
 
 format = require("./format.js");
@@ -18161,7 +18148,7 @@ module.exports = function(list, andText, max, moreText) {
 };
 
 
-},{"../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","./format.js":"/Users/Dave/Sites/D3plus/src/string/format.js"}],"/Users/Dave/Sites/D3plus/src/string/strip.js":[function(require,module,exports){
+},{"../core/locale/languages/en_US.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/en_US.js","./format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
@@ -18216,7 +18203,7 @@ module.exports = function(str) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/string/title.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/string/title.coffee":[function(require,module,exports){
 var defaultLocale;
 
 defaultLocale = require("../core/locale/languages/en_US.js");
@@ -18245,7 +18232,7 @@ module.exports = function(text, key, vars) {
 };
 
 
-},{"../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js"}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee":[function(require,module,exports){
+},{"../core/locale/languages/en_US.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/en_US.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/flow.coffee":[function(require,module,exports){
 var foreign, tspan;
 
 foreign = require("./foreign.coffee");
@@ -18261,7 +18248,7 @@ module.exports = function(vars) {
 };
 
 
-},{"./foreign.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/foreign.coffee","./tspan.js":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/tspan.js"}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/foreign.coffee":[function(require,module,exports){
+},{"./foreign.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/foreign.coffee","./tspan.js":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/tspan.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/foreign.coffee":[function(require,module,exports){
 module.exports = function(vars) {
   var anchor, color, family, opacity, text;
   text = vars.container.value;
@@ -18274,7 +18261,7 @@ module.exports = function(vars) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getDimensions.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getDimensions.coffee":[function(require,module,exports){
 module.exports = function(vars) {
   var circle, height, parent, radius, rect, width;
   if (!vars.width.value || !vars.height.value) {
@@ -18310,7 +18297,7 @@ module.exports = function(vars) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getSize.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getSize.coffee":[function(require,module,exports){
 module.exports = function(vars) {
   var size;
   size = vars.container.value.attr("font-size" || vars.container.value.style("font-size"));
@@ -18326,7 +18313,7 @@ module.exports = function(vars) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getText.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getText.coffee":[function(require,module,exports){
 module.exports = function(vars) {
   var text;
   if (!vars.text.value) {
@@ -18351,7 +18338,7 @@ module.exports = function(vars) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/tspan.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/tspan.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into tspans
 //------------------------------------------------------------------------------
@@ -18474,7 +18461,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/wrap.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/wrap.coffee":[function(require,module,exports){
 var flow, fontSizes, resize, wrap;
 
 flow = require("./flow.coffee");
@@ -18545,7 +18532,7 @@ resize = function(vars) {
 };
 
 
-},{"../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./flow.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee"}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/container.coffee":[function(require,module,exports){
+},{"../../font/sizes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee","./flow.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/flow.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/container.coffee":[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -18569,14 +18556,14 @@ module.exports = {
 };
 
 
-},{"../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/dev.coffee":[function(require,module,exports){
+},{"../../util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/dev.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/draw.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/draw.coffee":[function(require,module,exports){
 var print;
 
 print = require("../../core/console/print.coffee");
@@ -18610,7 +18597,7 @@ module.exports = {
 };
 
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/format.coffee":[function(require,module,exports){
+},{"../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/format.coffee":[function(require,module,exports){
 var locale, mergeObject;
 
 locale = require("../../core/locale/locale.coffee");
@@ -18651,35 +18638,35 @@ module.exports = {
 };
 
 
-},{"../../core/locale/locale.coffee":"/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee"}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/height.coffee":[function(require,module,exports){
+},{"../../core/locale/locale.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/locale.coffee","../../object/merge.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/height.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/resize.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/resize.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/shape.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/shape.coffee":[function(require,module,exports){
 module.exports = {
   accepted: ["circle", "square"],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/size.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/size.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Array, false],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/text.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/text.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Array, Function, Number, String],
   html: {
@@ -18696,14 +18683,14 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/width.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/width.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/textwrap.coffee":[function(require,module,exports){
 var attach, dimensions, size, text, wrap;
 
 attach = require("../core/methods/attach.coffee");
@@ -18747,7 +18734,7 @@ module.exports = function() {
 };
 
 
-},{"../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","./helpers/getDimensions.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getDimensions.coffee","./helpers/getSize.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getSize.coffee","./helpers/getText.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getText.coffee","./helpers/wrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/wrap.coffee","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/container.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/dev.coffee","./methods/draw.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/draw.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/height.coffee","./methods/resize.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/resize.coffee","./methods/shape.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/shape.coffee","./methods/size.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/size.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/text.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/width.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/app.js":[function(require,module,exports){
+},{"../core/methods/attach.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/attach.coffee","./helpers/getDimensions.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getDimensions.coffee","./helpers/getSize.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getSize.coffee","./helpers/getText.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getText.coffee","./helpers/wrap.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/wrap.coffee","./methods/container.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/container.coffee","./methods/dev.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/dev.coffee","./methods/draw.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/draw.coffee","./methods/format.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/format.coffee","./methods/height.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/height.coffee","./methods/resize.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/resize.coffee","./methods/shape.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/shape.coffee","./methods/size.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/size.coffee","./methods/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/text.coffee","./methods/width.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/width.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/app.js":[function(require,module,exports){
 var arraySort     = require("../array/sort.coffee"),
     fetchValue    = require("../core/fetch/value.js"),
     fetchColor    = require("../core/fetch/color.coffee"),
@@ -19043,7 +19030,7 @@ d3plus.tooltip.app = function(params) {
 
 }
 
-},{"../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../viz/helpers/zoom/direction.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/arrow.js":[function(require,module,exports){
+},{"../array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../viz/helpers/zoom/direction.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/direction.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/arrow.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Correctly positions the tooltip's arrow
 //-------------------------------------------------------------------
@@ -19118,7 +19105,7 @@ d3plus.tooltip.arrow = function(arrow) {
       }
     })
 }
-},{}],"/Users/Dave/Sites/D3plus/src/tooltip/create.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/create.js":[function(require,module,exports){
 var defaultLocale = require("../core/locale/languages/en_US.js"),
     events     = require("../client/pointer.coffee"),
     legible    = require("../color/legible.coffee"),
@@ -19678,7 +19665,7 @@ d3plus.tooltip.create = function(params) {
 
 }
 
-},{"../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/data.js":[function(require,module,exports){
+},{"../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../client/prefix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee","../client/rtl.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/rtl.coffee","../color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","../color/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee","../core/locale/languages/en_US.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/en_US.js","../string/list.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/list.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/data.js":[function(require,module,exports){
 var copy = require("../util/copy.coffee"),
     fetchValue   = require("../core/fetch/value.js"),
     fetchColor   = require("../core/fetch/color.coffee"),
@@ -19976,7 +19963,7 @@ d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
 
 }
 
-},{"../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/move.js":[function(require,module,exports){
+},{"../client/prefix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee","../color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../object/merge.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee","../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/move.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Set X and Y position for Tooltip
 //-------------------------------------------------------------------
@@ -20079,7 +20066,7 @@ d3plus.tooltip.move = function(x,y,id) {
     
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/tooltip/remove.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/remove.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Destroy Tooltips
 //-------------------------------------------------------------------
@@ -20107,7 +20094,7 @@ d3plus.tooltip.remove = function(id) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/buckets.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/util/buckets.coffee":[function(require,module,exports){
 module.exports = function(arr, n) {
   var buckets, step;
   buckets = [];
@@ -20116,7 +20103,7 @@ module.exports = function(arr, n) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/child.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/util/child.coffee":[function(require,module,exports){
 var d3selection;
 
 d3selection = require("./d3selection.coffee");
@@ -20143,7 +20130,7 @@ module.exports = function(parent, child) {
 };
 
 
-},{"./d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/util/closest.coffee":[function(require,module,exports){
+},{"./d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/util/closest.coffee":[function(require,module,exports){
 module.exports = function(arr, value) {
   var closest;
   closest = arr[0];
@@ -20156,7 +20143,7 @@ module.exports = function(arr, value) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/copy.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee":[function(require,module,exports){
 var copy, objectMerge, objectValidate;
 
 objectMerge = require("../object/merge.coffee");
@@ -20181,7 +20168,7 @@ copy = function(variable) {
 module.exports = copy;
 
 
-},{"../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee":[function(require,module,exports){
+},{"../object/merge.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee","../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee":[function(require,module,exports){
 var ie;
 
 ie = require("../client/ie.js");
@@ -20195,7 +20182,7 @@ module.exports = function(elem) {
 };
 
 
-},{"../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js"}],"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee":[function(require,module,exports){
+},{"../client/ie.js":"/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/util/dataURL.coffee":[function(require,module,exports){
 module.exports = function(url, callback) {
   var img;
   img = new Image();
@@ -20214,7 +20201,7 @@ module.exports = function(url, callback) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/uniques.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee":[function(require,module,exports){
 var fetchValue, objectValidate;
 
 fetchValue = require("../core/fetch/value.js");
@@ -20254,7 +20241,7 @@ module.exports = function(data, value, vars) {
 };
 
 
-},{"../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee":[function(require,module,exports){
+},{"../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/container.coffee":[function(require,module,exports){
 module.exports = function(vars) {
   var checkParent, s, _i, _len, _ref;
   vars.container.value.style("position", function() {
@@ -20309,7 +20296,7 @@ module.exports = function(vars) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/drawSteps.js":[function(require,module,exports){
 var dataFormat   = require("../../core/data/format.js"),
     dataColor    = require("../../core/data/color.js"),
     dataKeys     = require("../../core/data/keys.js"),
@@ -20669,7 +20656,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/data/color.js":"/Users/Dave/Sites/D3plus/src/core/data/color.js","../../core/data/format.js":"/Users/Dave/Sites/D3plus/src/core/data/format.js","../../core/data/keys.js":"/Users/Dave/Sites/D3plus/src/core/data/keys.js","../../core/data/load.coffee":"/Users/Dave/Sites/D3plus/src/core/data/load.coffee","../../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../../core/parse/edges.js":"/Users/Dave/Sites/D3plus/src/core/parse/edges.js","../../core/parse/nodes.js":"/Users/Dave/Sites/D3plus/src/core/parse/nodes.js","../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","./errorCheck.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/errorCheck.js","./finish.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/finish.js","./focus/tooltip.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.js","./focus/viz.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/viz.js","./shapes/draw.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/draw.js","./svg/enter.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js","./svg/update.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js","./types/run.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/types/run.coffee","./ui/drawer.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/drawer.js","./ui/history.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/history.js","./ui/legend.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js","./ui/timeline.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/timeline.js","./ui/titles.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/errorCheck.js":[function(require,module,exports){
+},{"../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../core/data/color.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/color.js","../../core/data/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/format.js","../../core/data/keys.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/keys.js","../../core/data/load.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/load.coffee","../../core/fetch/data.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/data.js","../../core/parse/edges.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/edges.js","../../core/parse/nodes.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/nodes.js","../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","./errorCheck.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/errorCheck.js","./finish.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/finish.js","./focus/tooltip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/focus/tooltip.js","./focus/viz.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/focus/viz.js","./shapes/draw.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/draw.js","./svg/enter.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/svg/enter.js","./svg/update.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/svg/update.js","./types/run.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/types/run.coffee","./ui/drawer.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/drawer.js","./ui/history.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/history.js","./ui/legend.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/legend.js","./ui/timeline.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/timeline.js","./ui/titles.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/titles.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/errorCheck.js":[function(require,module,exports){
 var fetchText = require("../../core/fetch/text.js"),
     print        = require("../../core/console/print.coffee"),
     stringFormat = require("../../string/format.js"),
@@ -20795,7 +20782,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/finish.js":[function(require,module,exports){
+},{"../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","../../string/list.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/list.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/finish.js":[function(require,module,exports){
 var edges = require("./shapes/edges.js"),
     flash       = require("./ui/message.js"),
     methodReset = require("../../core/methods/reset.coffee"),
@@ -20988,7 +20975,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/methods/reset.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","../../string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee","./shapes/edges.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js","./shapes/labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js","./ui/message.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","./zoom/bounds.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js","./zoom/labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","./zoom/mouse.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.js":[function(require,module,exports){
+},{"../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../core/methods/reset.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/reset.coffee","../../string/title.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/title.coffee","./shapes/edges.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/edges.js","./shapes/labels.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/labels.js","./ui/message.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/message.js","./zoom/bounds.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/bounds.js","./zoom/labels.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/labels.js","./zoom/mouse.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/mouse.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/focus/tooltip.js":[function(require,module,exports){
 var fetchValue = require("../../../core/fetch/value.js"),
     print = require("../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21043,7 +21030,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/viz.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/focus/viz.js":[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     print        = require("../../../core/console/print.coffee"),
     uniqueValues = require("../../../util/uniques.coffee")
@@ -21201,7 +21188,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/arc.coffee":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/arc.coffee":[function(require,module,exports){
 var largestRect, path2poly, shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -21292,7 +21279,7 @@ module.exports = function(vars, selection, enter, exit) {
 };
 
 
-},{"../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","../../../geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js":[function(require,module,exports){
+},{"../../../geom/largestRect.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/largestRect.coffee","../../../geom/path2poly.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/path2poly.coffee","./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/area.js":[function(require,module,exports){
 var fetchText = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
@@ -21402,7 +21389,65 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee":[function(require,module,exports){
+},{"../../../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/largestRect.coffee","./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/check.js":[function(require,module,exports){
+var fetchText = require("../../../core/fetch/text.js"),
+    fontSizes   = require("../../../font/sizes.coffee"),
+    largestRect = require("../../../geom/largestRect.coffee"),
+    shapeStyle  = require("./style.coffee")
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Draws "square" and "circle" shapes using svg:rect
+//------------------------------------------------------------------------------
+module.exports = function(vars,selection,enter,exit) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Initialize check scale on enter and exit.
+  //----------------------------------------------------------------------------
+  function init(paths){
+    paths.attr("transform", "scale(1)")
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Change scale of check on update.
+  //---------------------------------------------------------------------------
+  function update(paths){
+    paths.attr("transform", function(d){
+      var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
+      var scale = Math.floor(smaller_dim / 16);
+      return "scale("+scale+")";
+    })
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Enter
+  //----------------------------------------------------------------------------
+  enter.append("path").attr("class","d3plus_data")
+    .attr("d", "M5-6.844L3.594-5.407L-2,0.188l-1.594-1.594L-5-2.844L-7.844,0l1.438,1.406l3,3L-2,5.843l1.406-1.438l7-7L7.844-4L5-6.844z")
+    .call(init)
+    .call(shapeStyle,vars)
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Update
+  //----------------------------------------------------------------------------
+  selection.selectAll("path.d3plus_data")
+    .data(function(d) {
+      return [d];
+    })
+
+  if (vars.draw.timing) {
+    selection.selectAll("path.d3plus_data")
+      .transition().duration(vars.draw.timing)
+        .call(update)
+        .call(shapeStyle,vars)
+  }
+  else {
+    selection.selectAll("path.d3plus_data")
+      .call(update)
+      .call(shapeStyle,vars)
+  }
+
+}
+
+},{"../../../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/largestRect.coffee","./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/color.coffee":[function(require,module,exports){
 var fetchColor, fetchValue, lighter;
 
 fetchValue = require("../../../core/fetch/value.js");
@@ -21436,7 +21481,7 @@ module.exports = function(d, vars) {
 };
 
 
-},{"../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js":[function(require,module,exports){
+},{"../../../color/lighter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/lighter.coffee","../../../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/coordinates.js":[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
     fetchText   = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
@@ -21612,7 +21657,117 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","../../../geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js":[function(require,module,exports){
+},{"../../../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/largestRect.coffee","../../../geom/path2poly.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/path2poly.coffee","../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/cross.js":[function(require,module,exports){
+var shapeStyle  = require("./style.coffee")
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Draws "square" and "circle" shapes using svg:rect
+//------------------------------------------------------------------------------
+module.exports = function(vars,selection,enter,exit) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Initialize check scale on enter and exit.
+  //----------------------------------------------------------------------------
+  function init(paths){
+    paths.attr("transform", "scale(1)")
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Change scale of check on update.
+  //---------------------------------------------------------------------------
+  function update(paths){
+    paths.attr("transform", function(d){
+      var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
+      var scale = Math.floor(smaller_dim / 16);
+      return "scale("+scale+")";
+    })
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Enter
+  //----------------------------------------------------------------------------
+  enter.append("path").attr("class","d3plus_data")
+    .attr("d", d3.svg.symbol().type("cross"))
+    .call(init)
+    .call(shapeStyle,vars)
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Update
+  //----------------------------------------------------------------------------
+  selection.selectAll("path.d3plus_data")
+    .data(function(d) {
+      return [d];
+    })
+
+  if (vars.draw.timing) {
+    selection.selectAll("path.d3plus_data")
+      .transition().duration(vars.draw.timing)
+        .call(update)
+        .call(shapeStyle,vars)
+  }
+  else {
+    selection.selectAll("path.d3plus_data")
+      .call(update)
+      .call(shapeStyle,vars)
+  }
+
+}
+
+},{"./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/diamond.js":[function(require,module,exports){
+var shapeStyle  = require("./style.coffee")
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Draws "square" and "circle" shapes using svg:rect
+//------------------------------------------------------------------------------
+module.exports = function(vars,selection,enter,exit) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Initialize check scale on enter and exit.
+  //----------------------------------------------------------------------------
+  function init(paths){
+    paths.attr("transform", "scale(1)")
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Change scale of check on update.
+  //---------------------------------------------------------------------------
+  function update(paths){
+    paths.attr("transform", function(d){
+      var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
+      var scale = Math.floor(smaller_dim / 16);
+      return "scale("+scale+")";
+    })
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Enter
+  //----------------------------------------------------------------------------
+  enter.append("path").attr("class","d3plus_data")
+    .attr("d", d3.svg.symbol().type("diamond"))
+    .call(init)
+    .call(shapeStyle,vars)
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Update
+  //----------------------------------------------------------------------------
+  selection.selectAll("path.d3plus_data")
+    .data(function(d) {
+      return [d];
+    })
+
+  if (vars.draw.timing) {
+    selection.selectAll("path.d3plus_data")
+      .transition().duration(vars.draw.timing)
+        .call(update)
+        .call(shapeStyle,vars)
+  }
+  else {
+    selection.selectAll("path.d3plus_data")
+      .call(update)
+      .call(shapeStyle,vars)
+  }
+
+}
+
+},{"./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/donut.js":[function(require,module,exports){
 var shapeStyle = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
@@ -21714,7 +21869,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/draw.js":[function(require,module,exports){
+},{"./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/draw.js":[function(require,module,exports){
 var child         = require("../../../util/child.coffee"),
     closest       = require("../../../util/closest.coffee"),
     events        = require("../../../client/pointer.coffee"),
@@ -21731,13 +21886,18 @@ var child         = require("../../../util/child.coffee"),
     zoomDirection = require("../zoom/direction.coffee")
 
 var drawShape = {
-  "arc":         require("./arc.coffee"),
-  "area":        require("./area.js"),
-  "coordinates": require("./coordinates.js"),
-  "donut":       require("./donut.js"),
-  "line":        require("./line.js"),
-  "rect":        require("./rect.coffee"),
-  "whisker":     require("./whisker.coffee")
+  "arc":           require("./arc.coffee"),
+  "area":          require("./area.js"),
+  "check":         require("./check.js"),
+  "coordinates":   require("./coordinates.js"),
+  "cross":         require("./cross.js"),
+  "diamond":       require("./diamond.js"),
+  "donut":         require("./donut.js"),
+  "line":          require("./line.js"),
+  "rect":          require("./rect.coffee"),
+  "triangle_down": require("./triangle_down.js"),
+  "triangle_up":   require("./triangle_up.js"),
+  "whisker":       require("./whisker.coffee")
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21758,15 +21918,22 @@ module.exports = function(vars) {
   // class.
   //----------------------------------------------------------------------------
   var shapeLookup = {
-    "arc":         "arc",
-    "area":        "area",
-    "circle":      "rect",
-    "coordinates": "coordinates",
-    "donut":       "donut",
-    "line":        "line",
-    "rect":        "rect",
-    "square":      "rect",
-    "whisker":     "whisker"
+    "arc":             "arc",
+    "area":            "area",
+    "check":           "check",
+    "circle":          "rect",
+    "coordinates":     "coordinates",
+    "cross":           "cross",
+    "donut":           "donut",
+    "diamond":         "diamond",
+    "line":            "line",
+    "plus":            "cross",
+    "rect":            "rect",
+    "square":          "rect",
+    "triangle_down":   "triangle_down",
+    "triangle":        "triangle_up",
+    "triangle_up":     "triangle_up",
+    "whisker":         "whisker"
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -22405,7 +22572,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee","../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","../zoom/direction.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee","../zoom/propagation.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee","./arc.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/arc.coffee","./area.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js","./coordinates.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js","./donut.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js","./fill.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js","./line.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js","./rect.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.coffee","./whisker.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/whisker.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../client/touch.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/touch.coffee","../../../color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../../string/strip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js","../../../util/child.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/child.coffee","../../../util/closest.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/closest.coffee","../../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee","../zoom/direction.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/direction.coffee","../zoom/propagation.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/propagation.coffee","./arc.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/arc.coffee","./area.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/area.js","./check.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/check.js","./coordinates.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/coordinates.js","./cross.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/cross.js","./diamond.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/diamond.js","./donut.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/donut.js","./fill.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/fill.js","./line.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/line.js","./rect.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/rect.coffee","./triangle_down.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/triangle_down.js","./triangle_up.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/triangle_up.js","./whisker.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/whisker.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/edges.js":[function(require,module,exports){
 var buckets = require("../../../util/buckets.coffee"),
     offset  = require("../../../geom/offset.coffee")
 
@@ -22964,7 +23131,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee","../../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js":[function(require,module,exports){
+},{"../../../geom/offset.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/geom/offset.coffee","../../../util/buckets.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/buckets.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/fill.js":[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchColor = require("../../../core/fetch/color.coffee"),
     shapeStyle = require("./style.coffee")
@@ -23243,7 +23410,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js":[function(require,module,exports){
+},{"../../../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/labels.js":[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchText  = require("../../../core/fetch/text.js"),
     mix        = require("../../../color/mix.coffee"),
@@ -23774,7 +23941,7 @@ module.exports = function( vars , group ) {
   }
 }
 
-},{"../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../../../color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./color.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js":[function(require,module,exports){
+},{"../../../client/rtl.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/rtl.coffee","../../../color/mix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/mix.coffee","../../../color/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee","../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../../../string/list.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/list.coffee","../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","./color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/color.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/line.js":[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
     events     = require("../../../client/pointer.coffee"),
     shapeStyle = require("./style.coffee")
@@ -24046,7 +24213,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.coffee":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/rect.coffee":[function(require,module,exports){
 var shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -24179,7 +24346,7 @@ module.exports = function(vars, selection, enter, exit) {
 };
 
 
-},{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee":[function(require,module,exports){
+},{"./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee":[function(require,module,exports){
 var color;
 
 color = require("./color.coffee");
@@ -24207,7 +24374,117 @@ module.exports = function(nodes, vars) {
 };
 
 
-},{"./color.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/whisker.coffee":[function(require,module,exports){
+},{"./color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/color.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/triangle_down.js":[function(require,module,exports){
+var shapeStyle  = require("./style.coffee")
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Draws "square" and "circle" shapes using svg:rect
+//------------------------------------------------------------------------------
+module.exports = function(vars,selection,enter,exit) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Initialize check scale on enter and exit.
+  //----------------------------------------------------------------------------
+  function init(paths){
+    paths.attr("transform", "scale(1)")
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Change scale of check on update.
+  //---------------------------------------------------------------------------
+  function update(paths){
+    paths.attr("transform", function(d){
+      var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
+      var scale = Math.floor(smaller_dim / 16);
+      return "scale("+scale+")";
+    })
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Enter
+  //----------------------------------------------------------------------------
+  enter.append("path").attr("class","d3plus_data")
+    .attr("d", d3.svg.symbol().type("triangle-down"))
+    .call(init)
+    .call(shapeStyle,vars)
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Update
+  //----------------------------------------------------------------------------
+  selection.selectAll("path.d3plus_data")
+    .data(function(d) {
+      return [d];
+    })
+
+  if (vars.draw.timing) {
+    selection.selectAll("path.d3plus_data")
+      .transition().duration(vars.draw.timing)
+        .call(update)
+        .call(shapeStyle,vars)
+  }
+  else {
+    selection.selectAll("path.d3plus_data")
+      .call(update)
+      .call(shapeStyle,vars)
+  }
+
+}
+
+},{"./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/triangle_up.js":[function(require,module,exports){
+var shapeStyle  = require("./style.coffee")
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Draws "square" and "circle" shapes using svg:rect
+//------------------------------------------------------------------------------
+module.exports = function(vars,selection,enter,exit) {
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Initialize check scale on enter and exit.
+  //----------------------------------------------------------------------------
+  function init(paths){
+    paths.attr("transform", "scale(1)")
+  }
+  
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Change scale of check on update.
+  //---------------------------------------------------------------------------
+  function update(paths){
+    paths.attr("transform", function(d){
+      var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
+      var scale = Math.floor(smaller_dim / 16);
+      return "scale("+scale+")";
+    })
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Enter
+  //----------------------------------------------------------------------------
+  enter.append("path").attr("class","d3plus_data")
+    .attr("d", d3.svg.symbol().type("triangle-up"))
+    .call(init)
+    .call(shapeStyle,vars)
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // "paths" Update
+  //----------------------------------------------------------------------------
+  selection.selectAll("path.d3plus_data")
+    .data(function(d) {
+      return [d];
+    })
+
+  if (vars.draw.timing) {
+    selection.selectAll("path.d3plus_data")
+      .transition().duration(vars.draw.timing)
+        .call(update)
+        .call(shapeStyle,vars)
+  }
+  else {
+    selection.selectAll("path.d3plus_data")
+      .call(update)
+      .call(shapeStyle,vars)
+  }
+
+}
+
+},{"./style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/whisker.coffee":[function(require,module,exports){
 module.exports = function(vars, selection, enter, exit) {
   var d, data, init, marker, orient, pos, position, size, style;
   data = function(d) {
@@ -24289,7 +24566,7 @@ module.exports = function(vars, selection, enter, exit) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/svg/enter.js":[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     prefix     = require("../../../client/prefix.coffee"),
     print      = require("../../../core/console/print.coffee"),
@@ -24465,7 +24742,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../zoom/propagation.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../client/prefix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee","../../../client/touch.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/touch.coffee","../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../zoom/propagation.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/propagation.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/svg/update.js":[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
@@ -24533,7 +24810,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/types/run.coffee":[function(require,module,exports){
+},{"../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/types/run.coffee":[function(require,module,exports){
 var print;
 
 print = require("../../../core/console/print.coffee");
@@ -24575,7 +24852,7 @@ module.exports = function(vars) {
 };
 
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/drawer.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/drawer.js":[function(require,module,exports){
 var copy  = require("../../../util/copy.coffee"),
     print = require("../../../core/console/print.coffee")
 
@@ -24680,7 +24957,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/history.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/history.js":[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     lighter    = require("../../../color/lighter.coffee"),
     print      = require("../../../core/console/print.coffee"),
@@ -24795,7 +25072,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee","../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js":[function(require,module,exports){
+},{"../../../client/css.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/css.coffee","../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../color/lighter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/lighter.coffee","../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/legend.js":[function(require,module,exports){
 var arraySort = require("../../../array/sort.coffee"),
     buckets      = require("../../../util/buckets.coffee"),
     copy         = require("../../../util/copy.coffee"),
@@ -25393,7 +25670,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/data/nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../../util/dataURL.coffee":"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js":[function(require,module,exports){
+},{"../../../array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../client/touch.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/touch.coffee","../../../color/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee","../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../core/data/nest.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/nest.js","../../../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../../object/validate.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","../../../string/strip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js","../../../util/buckets.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/buckets.coffee","../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","../../../util/dataURL.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/dataURL.coffee","../../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/message.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -25504,7 +25781,7 @@ module.exports = function(vars,message) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/timeline.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/timeline.js":[function(require,module,exports){
 var closest = require("../../../util/closest.coffee"),
     fontSizes = require("../../../font/sizes.coffee"),
     events    = require("../../../client/pointer.coffee"),
@@ -25947,7 +26224,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../client/prefix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee","../../../color/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee","../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../font/sizes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee","../../../util/closest.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/closest.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/titles.js":[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     fetchValue = require("../../../core/fetch/value.js"),
     print      = require("../../../core/console/print.coffee"),
@@ -26266,7 +26543,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../client/rtl.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/rtl.coffee","../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/bounds.js":[function(require,module,exports){
 var transform = require("./transform.coffee")
 
 module.exports = function( vars , b , timing ) {
@@ -26327,7 +26604,7 @@ module.exports = function( vars , b , timing ) {
 
 }
 
-},{"./transform.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/controls.js":[function(require,module,exports){
+},{"./transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/controls.js":[function(require,module,exports){
 var events = require("../../../client/pointer.coffee")
 
 module.exports = function() {
@@ -26413,7 +26690,7 @@ module.exports = function() {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee":[function(require,module,exports){
+},{"../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/direction.coffee":[function(require,module,exports){
 module.exports = function(data, vars) {
   var current_depth, max_depth, restricted;
   max_depth = vars.id.nesting.length - 1;
@@ -26431,7 +26708,7 @@ module.exports = function(data, vars) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/labels.js":[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 
 // Sets label opacity based on zoom
@@ -26469,7 +26746,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.coffee":[function(require,module,exports){
+},{"../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/mouse.coffee":[function(require,module,exports){
 var labels, transform;
 
 labels = require("./labels.js");
@@ -26517,7 +26794,7 @@ module.exports = function(vars) {
 };
 
 
-},{"./labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","./transform.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee":[function(require,module,exports){
+},{"./labels.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/labels.js","./transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/propagation.coffee":[function(require,module,exports){
 module.exports = function(vars, event) {
   var enabled, zoom, zoomable, zoomed;
   zoom = vars.zoom;
@@ -26533,7 +26810,7 @@ module.exports = function(vars, event) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/transform.coffee":[function(require,module,exports){
 module.exports = function(vars, timing) {
   var scale, translate;
   if (typeof timing !== "number") {
@@ -26549,7 +26826,7 @@ module.exports = function(vars, timing) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/active.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -26568,7 +26845,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/aggs.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   deprecated: "nesting_aggs",
@@ -26577,7 +26854,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/attrs.coffee":[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -26597,7 +26874,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/data.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/axes.coffee":[function(require,module,exports){
 var rendering;
 
 rendering = require("../../core/methods/rendering.coffee");
@@ -26619,14 +26896,14 @@ module.exports = {
 };
 
 
-},{"../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee":[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/rendering.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/background.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [String],
   value: "#ffffff"
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/color.coffee":[function(require,module,exports){
 var filter, scale;
 
 filter = require("../../core/methods/filter.coffee");
@@ -26663,7 +26940,7 @@ module.exports = {
 };
 
 
-},{"../../color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/cols.js":[function(require,module,exports){
+},{"../../color/scale.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/scale.coffee","../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/cols.js":[function(require,module,exports){
 module.exports = {
   "accepted" : [ Array , Function , String ],
   "process"  : function(value, vars) {
@@ -26676,7 +26953,7 @@ module.exports = {
   "value"    : false
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/container.coffee":[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -26700,7 +26977,7 @@ module.exports = {
 };
 
 
-},{"../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee":[function(require,module,exports){
+},{"../../util/d3selection.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/coords.coffee":[function(require,module,exports){
 var filter, process;
 
 filter = require("../../core/methods/filter.coffee");
@@ -26731,7 +27008,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee","../../core/methods/process/data.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/data.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/csv.coffee":[function(require,module,exports){
 var fetchValue, ie, stringStrip;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -26811,7 +27088,7 @@ module.exports = {
 };
 
 
-},{"../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/viz/methods/data.js":[function(require,module,exports){
+},{"../../client/ie.js":"/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js","../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../string/strip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/data.js":[function(require,module,exports){
 var process = require("../../core/methods/process/data.coffee")
 
 module.exports = {
@@ -26847,28 +27124,28 @@ module.exports = {
   "value"    : false
 }
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/data.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/depth.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Function, Number],
   value: 0
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/descs.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, Object],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/dev.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/draw.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/draw.js":[function(require,module,exports){
 var print        = require("../../core/console/print.coffee"),
     stringFormat = require("../../string/format.js")
 
@@ -26935,7 +27212,7 @@ module.exports = {
   "value"    : undefined
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js"}],"/Users/Dave/Sites/D3plus/src/viz/methods/edges.js":[function(require,module,exports){
+},{"../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../string/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/edges.js":[function(require,module,exports){
 var process = require("../../core/methods/process/data.coffee")
 
 module.exports = {
@@ -27021,14 +27298,14 @@ module.exports = {
   "width":  1
 }
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/data.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/error.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean, String],
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/focus.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Array, Function, Number, String],
   deprecates: "highlight",
@@ -27049,7 +27326,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/font.coffee":[function(require,module,exports){
 var align, decoration, family, transform;
 
 align = require("../../core/methods/font/align.coffee");
@@ -27082,7 +27359,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee":[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/footer.coffee":[function(require,module,exports){
 var decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -27109,7 +27386,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/format.coffee":[function(require,module,exports){
 var formatNumber, locale, mergeObject, titleCase;
 
 formatNumber = require("../../number/format.js");
@@ -27181,7 +27458,7 @@ module.exports = {
 };
 
 
-},{"../../core/locale/locale.coffee":"/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","../../number/format.js":"/Users/Dave/Sites/D3plus/src/number/format.js","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../../string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee":[function(require,module,exports){
+},{"../../core/locale/locale.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/locale.coffee","../../number/format.js":"/Users/alexandersimoes/Sites/vizwhiz/src/number/format.js","../../object/merge.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee","../../string/title.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/string/title.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/height.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   max: 600,
@@ -27191,7 +27468,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/helpers/axis.coffee":[function(require,module,exports){
 var align, decoration, family, filter, position, rendering, transform;
 
 align = require("../../../core/methods/font/align.coffee");
@@ -27365,7 +27642,7 @@ module.exports = function(axis) {
 };
 
 
-},{"../../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","../../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../../core/methods/font/position.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/position.coffee","../../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","../../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee":[function(require,module,exports){
+},{"../../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee","../../../core/methods/font/align.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/align.coffee","../../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../../core/methods/font/position.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/position.coffee","../../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee","../../../core/methods/rendering.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/rendering.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/history.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   back: function() {
@@ -27379,7 +27656,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/icon.coffee":[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/icon.coffee");
@@ -27404,7 +27681,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/process/icon.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee":[function(require,module,exports){
+},{"../../core/methods/process/icon.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/icon.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/id.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27420,7 +27697,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/labels.coffee":[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -27449,7 +27726,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/legend.coffee":[function(require,module,exports){
 var family;
 
 family = require("../../core/methods/font/family.coffee");
@@ -27480,7 +27757,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee":[function(require,module,exports){
+},{"../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/links.coffee":[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -27507,7 +27784,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/margin.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Number, Object, String],
   process: function(value) {
@@ -27575,7 +27852,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/messages.coffee":[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -27599,7 +27876,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/nodes.coffee":[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -27620,7 +27897,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/data.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/order.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, String],
   deprecates: ["sort"],
@@ -27632,7 +27909,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/shape.coffee":[function(require,module,exports){
 var rendering;
 
 rendering = require("../../core/methods/rendering.coffee");
@@ -27660,7 +27937,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee":[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/rendering.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/size.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27694,13 +27971,13 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/style.coffee":[function(require,module,exports){
 module.exports = {
   value: false
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/temp.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27714,7 +27991,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/text.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27729,7 +28006,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/time.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27753,7 +28030,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/timeline.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   align: "middle",
@@ -27779,7 +28056,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/timing.coffee":[function(require,module,exports){
 module.exports = {
   mouseevents: 60,
   transitions: 600,
@@ -27787,7 +28064,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/title.coffee":[function(require,module,exports){
 var decoration, family, stringStrip, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -27862,7 +28139,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee","../../string/strip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/tooltip.coffee":[function(require,module,exports){
 var family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -27912,7 +28189,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee":[function(require,module,exports){
+},{"../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/total.coffee":[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27926,7 +28203,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/type.coffee":[function(require,module,exports){
 module.exports = {
   accepted: function(vars) {
     return d3.keys(vars.types);
@@ -27941,7 +28218,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/ui.coffee":[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -27996,7 +28273,7 @@ module.exports = {
 };
 
 
-},{"../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee":[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/width.coffee":[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   secondary: false,
@@ -28005,7 +28282,7 @@ module.exports = {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/zoom.js":[function(require,module,exports){
 module.exports = {
   "accepted"   : [ Boolean ],
   "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
@@ -28025,7 +28302,7 @@ module.exports = {
   "value"      : true
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/types/bar.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/bar.coffee":[function(require,module,exports){
 var bar, fetchValue, graph, nest, stack;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -28113,7 +28390,7 @@ bar.tooltip = "static";
 module.exports = bar;
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/box.coffee":[function(require,module,exports){
+},{"../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/stack.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/box.coffee":[function(require,module,exports){
 var box, fetchValue, graph, uniques;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -28297,7 +28574,7 @@ box.setup = function(vars) {
 module.exports = box;
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js":[function(require,module,exports){
+},{"../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee","./helpers/graph/draw.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/draw.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/bubbles.js":[function(require,module,exports){
 var arraySort = require("../../array/sort.coffee"),
     fetchValue = require("../../core/fetch/value.js"),
     fetchColor = require("../../core/fetch/color.coffee"),
@@ -28485,7 +28762,7 @@ bubbles.tooltip      = "static"
 
 module.exports = bubbles
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee":[function(require,module,exports){
+},{"../../array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","../../color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","../../core/data/group.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/group.coffee","../../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../../core/fetch/text.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/deprecated/chart.coffee":[function(require,module,exports){
 var chart, print;
 
 print = require("../../../core/console/print.coffee");
@@ -28509,7 +28786,7 @@ chart.shapes = ["circle", "donut", "line", "square", "area"];
 module.exports = chart;
 
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/geo_map.js":[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Geo Map
 //------------------------------------------------------------------------------
@@ -28558,7 +28835,7 @@ geo_map.zoom         = true
 
 module.exports = geo_map
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/dataTicks.coffee":[function(require,module,exports){
 var color, legible;
 
 color = require("../../../../core/fetch/color.coffee");
@@ -28620,7 +28897,7 @@ module.exports = function(vars) {
 };
 
 
-},{"../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee":[function(require,module,exports){
+},{"../../../../color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","../../../../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/draw.coffee":[function(require,module,exports){
 var axes, draw, mouse, plot;
 
 axes = require("./includes/axes.coffee");
@@ -28642,7 +28919,7 @@ module.exports = function(vars, opts) {
 };
 
 
-},{"./includes/axes.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee","./includes/mouse.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee","./includes/plot.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee","./includes/svg.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee":[function(require,module,exports){
+},{"./includes/axes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/axes.coffee","./includes/mouse.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/mouse.coffee","./includes/plot.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/plot.coffee","./includes/svg.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/svg.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/axes.coffee":[function(require,module,exports){
 var axisRange, buffer, closest, dataChange, fetchData, fetchValue, getData, getScale, print, sizeScale, soloPadding, timeTicks, uniques;
 
 buffer = require("./buffer.coffee");
@@ -28883,7 +29160,7 @@ sizeScale = function(vars, value) {
 };
 
 
-},{"../../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","../../../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./buffer.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee":[function(require,module,exports){
+},{"../../../../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../../../../core/fetch/data.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/data.js","../../../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../../../../util/closest.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/closest.coffee","../../../../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee","./buffer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/buffer.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/buffer.coffee":[function(require,module,exports){
 module.exports = function(vars, axis, buffer) {
   var additional, allNegative, allPositive, difference, domain, domainHigh, domainLow, maxSize, rangeMax;
   if (axis === vars.axes.discrete) {
@@ -28930,7 +29207,7 @@ module.exports = function(vars, axis, buffer) {
 };
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee":[function(require,module,exports){
+},{}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/mouse.coffee":[function(require,module,exports){
 var copy, events, fetchColor, fetchValue, legible;
 
 copy = require("../../../../../util/copy.coffee");
@@ -29112,7 +29389,7 @@ module.exports = function(node, vars) {
 };
 
 
-},{"../../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee":[function(require,module,exports){
+},{"../../../../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../../../../color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","../../../../../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../../../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../../../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/plot.coffee":[function(require,module,exports){
 var buffer, createAxis, fontSizes, labelPadding, resetMargins;
 
 buffer = require("./buffer.coffee");
@@ -29237,7 +29514,7 @@ createAxis = function(vars, axis) {
 };
 
 
-},{"../../../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./buffer.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee":[function(require,module,exports){
+},{"../../../../../font/sizes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee","./buffer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/buffer.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/svg.coffee":[function(require,module,exports){
 var mix;
 
 mix = require("../../../../../color/mix.coffee");
@@ -29512,7 +29789,7 @@ module.exports = function(vars) {
 };
 
 
-},{"../../../../../color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee":[function(require,module,exports){
+},{"../../../../../color/mix.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/mix.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/nest.coffee":[function(require,module,exports){
 var fetchValue, stringStrip, uniqueValues;
 
 fetchValue = require("../../../../core/fetch/value.js");
@@ -29574,7 +29851,7 @@ module.exports = function(vars, data) {
 };
 
 
-},{"../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee":[function(require,module,exports){
+},{"../../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../../../string/strip.js":"/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js","../../../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/stack.coffee":[function(require,module,exports){
 var fetchValue;
 
 fetchValue = require("../../../../core/fetch/value.js");
@@ -29623,7 +29900,7 @@ module.exports = function(vars, data) {
 };
 
 
-},{"../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/types/line.coffee":[function(require,module,exports){
+},{"../../../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/line.coffee":[function(require,module,exports){
 var dataTicks, fetchValue, graph, line, nest, stack;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -29686,7 +29963,7 @@ line.tooltip = "static";
 module.exports = line;
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/dataTicks.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/network.js":[function(require,module,exports){
+},{"../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","./helpers/graph/dataTicks.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/dataTicks.coffee","./helpers/graph/draw.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/stack.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/network.js":[function(require,module,exports){
 var distances = require("../../network/distances.coffee"),
     fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -29829,7 +30106,7 @@ network.zoom         = true
 
 module.exports = network
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee":[function(require,module,exports){
+},{"../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../network/distances.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/distances.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/paths.coffee":[function(require,module,exports){
 var fetchValue, shortestPath, uniqueValues, viz,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -30086,7 +30363,7 @@ viz.tooltip = "static";
 module.exports = viz;
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/shortestPath.coffee":"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/pie.coffee":[function(require,module,exports){
+},{"../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../network/shortestPath.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/shortestPath.coffee","../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/pie.coffee":[function(require,module,exports){
 var comparator, dataThreshold, fetchValue, groupData, order, pie;
 
 comparator = require("../../array/comparator.coffee");
@@ -30155,7 +30432,7 @@ pie.tooltip = "follow";
 module.exports = pie;
 
 
-},{"../../array/comparator.coffee":"/Users/Dave/Sites/D3plus/src/array/comparator.coffee","../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/types/rings.js":[function(require,module,exports){
+},{"../../array/comparator.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/comparator.coffee","../../core/data/group.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/rings.js":[function(require,module,exports){
 var arraySort = require("../../array/sort.coffee"),
     events       = require("../../client/pointer.coffee"),
     distances    = require("../../network/distances.coffee"),
@@ -30641,7 +30918,7 @@ rings.tooltip      = "static"
 
 module.exports = rings
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee":[function(require,module,exports){
+},{"../../array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","../../client/pointer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","../../color/legible.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","../../core/fetch/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","../../network/distances.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/network/distances.coffee","../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/scatter.coffee":[function(require,module,exports){
 var fetchValue, graph, print, scatter, sort, ticks;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -30703,7 +30980,7 @@ scatter.tooltip = "static";
 module.exports = scatter;
 
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/dataTicks.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee":[function(require,module,exports){
+},{"../../array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","../../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","./helpers/graph/dataTicks.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/dataTicks.coffee","./helpers/graph/draw.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/draw.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/stacked.coffee":[function(require,module,exports){
 var fetchValue, graph, nest, sort, stack, stacked, threshold;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -30788,41 +31065,110 @@ stacked.tooltip = "static";
 module.exports = stacked;
 
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/table.js":[function(require,module,exports){
+},{"../../array/sort.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","../../core/data/threshold.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/stack.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/table.js":[function(require,module,exports){
 var uniques = require("../../util/uniques.coffee")
 var copy    = require("../../util/copy.coffee")
+var rand_col= require("../../color/random.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Table
 //------------------------------------------------------------------------------
 var table = function(vars) {
   
+  if (!("dummy" in vars.data.viz[0])){
+    vars.data.viz.unshift({"dummy":true, "d3plus":{}})
+  }
+  if (vars.cols.value[0] != "label"){
+    vars.cols.value.unshift("label")
+  }
+  
   var ids = uniques(vars.data.viz, vars.id.value);
   var item_height = vars.height.viz / ids.length;
   var item_width = vars.width.viz / vars.cols.value.length;
   
-  var ret = []
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Setup background
+  //----------------------------------------------------------------------------
+  vars.group.selectAll("rect").data([0]).enter()
+    .append("rect")
+    .attr("class", "background")
+    .attr("height", vars.height.viz)
+    .attr("width", vars.width.viz)
+    .style("fill", vars.color.missing)
+
+  // draw line separater
+  var lines_horiz = vars.group.selectAll("line.horiz").data(vars.data.viz);
+  lines_horiz.enter().append("line").attr("class", "horiz")
+  lines_horiz
+    .attr("x1", 0)
+    .attr("y1", function(d, row_i){ return (item_height * row_i) + item_height })
+    .attr("x2", vars.width.viz)
+    .attr("y2", function(d, row_i){ return (item_height * row_i) + item_height })
+    .style("fill", "#fff")
+    .style("stroke", "#fff")
+  lines_horiz.exit().remove()
+  // draw line separater
+  var lines_vert = vars.group.selectAll("line.vert").data(vars.cols.value);
+  lines_vert.enter().append("line").attr("class", "vert")
+  lines_vert
+    .attr("x1", function(d, col_i){ return (item_width * col_i) + item_width })
+    .attr("y1", 0)
+    .attr("x2", function(d, col_i){ return (item_width * col_i) + item_width })
+    .attr("y2", vars.height.viz)
+    .style("fill", "#fff")
+    .style("stroke", "#fff")
+  lines_vert.exit().remove()
   
+  var ret = []
+  var colors = {}
+  
+  // set up color scales
+  vars.cols.value.forEach(function(col){
+    var domain_extent = d3.extent(vars.data.viz, function(d){ return d[col]; })
+    colors[col] = d3.scale.linear().domain(domain_extent).range([vars.color.missing,rand_col(col)])
+  })
+  
+  vars.data.keys
   vars.data.viz.forEach(function(d, row_i){
     
     // loop through each user defined column to create new "object" to draw
     vars.cols.value.forEach(function(col, col_i){
       
+      // need to clone data since we'll be dupliating it for each column
+      var d_clone = copy(d);
+    
+      // set unique ID otherwise it'd be the same in each column
+      d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value]+"_"+col;
+    
+      d_clone.d3plus.x = (item_width * col_i) + item_width/2;
+      d_clone.d3plus.y = (item_height * row_i) + item_height/2;
+      d_clone.d3plus.width = item_width;
+      d_clone.d3plus.height = item_height;
+      
+      if(d.dummy){
+        d_clone.d3plus.shape = "square";
+        d_clone.d3plus.color = rand_col(col);
+        d_clone.d3plus.stroke = "#fff";
+        d_clone.d3plus.text = col;
+        if(col == "label"){
+          d_clone.d3plus.label = false
+        }
+        ret.push(d_clone)
+      }
+      
+      if(col == "label"){
+        d_clone.d3plus.shape = "square";
+        d_clone.d3plus.color = "#fff";
+        // special case for top left corner
+        if(!d_clone.dummy){
+          ret.push(d_clone)
+        }
+      }
+      
       // be sure that this column is actually in this data item
       if(d3.keys(d).indexOf(col) >= 0 && d[col]){
-        
-        // need to clone data since we'll be dupliating it for each column
-        var d_clone = copy(d);
-      
-        // set unique ID otherwise it'd be the same in each column
-        d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value]+"_"+col;
-      
-        d_clone.d3plus.x = (item_width * col_i) + item_width/2;
-        d_clone.d3plus.width = item_width;
-      
-        d_clone.d3plus.y = (item_height * row_i) + item_height/2;
-        d_clone.d3plus.height = item_height;
-      
+        d_clone.d3plus.label = false;
+        d_clone.d3plus.color = colors[col](d_clone[col]);
         ret.push(d_clone)
       }
     })
@@ -30836,12 +31182,12 @@ var table = function(vars) {
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Visualization Settings and Helper Functions
 //------------------------------------------------------------------------------
-table.shapes = ["square"]
+table.shapes = ["check", "cross", "diamond", "square", "triangle", "triangle_up", "triangle_down"]
 table.requirements = ["data", "cols"]
 
 module.exports = table
 
-},{"../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/tree_map.coffee":[function(require,module,exports){
+},{"../../color/random.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/color/random.coffee","../../util/copy.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","../../util/uniques.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/tree_map.coffee":[function(require,module,exports){
 var dataThreshold, groupData, mergeObject, tree_map;
 
 dataThreshold = require("../../core/data/threshold.js");
@@ -30907,7 +31253,7 @@ tree_map.tooltip = "follow";
 module.exports = tree_map;
 
 
-},{"../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/viz.coffee":[function(require,module,exports){
+},{"../../core/data/group.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/alexandersimoes/Sites/vizwhiz/src/core/data/threshold.js","../../object/merge.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee"}],"/Users/alexandersimoes/Sites/vizwhiz/src/viz/viz.coffee":[function(require,module,exports){
 var attach, axis, container, flash, getSteps, print;
 
 attach = require("../core/methods/attach.coffee");
@@ -31096,4 +31442,4 @@ module.exports = function() {
 };
 
 
-},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","./helpers/container.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee","./helpers/drawSteps.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js","./helpers/ui/message.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","./methods/active.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee","./methods/aggs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee","./methods/attrs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee","./methods/axes.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee","./methods/background.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee","./methods/color.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee","./methods/cols.js":"/Users/Dave/Sites/D3plus/src/viz/methods/cols.js","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee","./methods/coords.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee","./methods/csv.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee","./methods/data.js":"/Users/Dave/Sites/D3plus/src/viz/methods/data.js","./methods/depth.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee","./methods/descs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee","./methods/draw.js":"/Users/Dave/Sites/D3plus/src/viz/methods/draw.js","./methods/edges.js":"/Users/Dave/Sites/D3plus/src/viz/methods/edges.js","./methods/error.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee","./methods/focus.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee","./methods/font.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee","./methods/footer.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee","./methods/helpers/axis.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee","./methods/history.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee","./methods/icon.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee","./methods/id.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee","./methods/labels.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee","./methods/legend.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee","./methods/links.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee","./methods/margin.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee","./methods/messages.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee","./methods/nodes.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee","./methods/order.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee","./methods/shape.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee","./methods/size.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee","./methods/style.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee","./methods/temp.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee","./methods/time.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee","./methods/timeline.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee","./methods/timing.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee","./methods/title.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee","./methods/tooltip.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee","./methods/total.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee","./methods/type.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee","./methods/ui.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee","./methods/zoom.js":"/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js","./types/bar.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/bar.coffee","./types/box.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/box.coffee","./types/bubbles.js":"/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js","./types/deprecated/chart.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee","./types/geo_map.js":"/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js","./types/line.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/line.coffee","./types/network.js":"/Users/Dave/Sites/D3plus/src/viz/types/network.js","./types/paths.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee","./types/pie.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/pie.coffee","./types/rings.js":"/Users/Dave/Sites/D3plus/src/viz/types/rings.js","./types/scatter.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee","./types/stacked.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee","./types/table.js":"/Users/Dave/Sites/D3plus/src/viz/types/table.js","./types/tree_map.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/tree_map.coffee"}]},{},["/Users/Dave/Sites/D3plus/src/init.coffee","/Users/Dave/Sites/D3plus/src/array/comparator.coffee","/Users/Dave/Sites/D3plus/src/array/sort.coffee","/Users/Dave/Sites/D3plus/src/array/update.coffee","/Users/Dave/Sites/D3plus/src/client/css.coffee","/Users/Dave/Sites/D3plus/src/client/ie.js","/Users/Dave/Sites/D3plus/src/client/pointer.coffee","/Users/Dave/Sites/D3plus/src/client/prefix.coffee","/Users/Dave/Sites/D3plus/src/client/rtl.coffee","/Users/Dave/Sites/D3plus/src/client/scrollbar.coffee","/Users/Dave/Sites/D3plus/src/client/touch.coffee","/Users/Dave/Sites/D3plus/src/color/legible.coffee","/Users/Dave/Sites/D3plus/src/color/lighter.coffee","/Users/Dave/Sites/D3plus/src/color/mix.coffee","/Users/Dave/Sites/D3plus/src/color/random.coffee","/Users/Dave/Sites/D3plus/src/color/scale.coffee","/Users/Dave/Sites/D3plus/src/color/sort.coffee","/Users/Dave/Sites/D3plus/src/color/text.coffee","/Users/Dave/Sites/D3plus/src/color/validate.coffee","/Users/Dave/Sites/D3plus/src/core/console/print.coffee","/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee","/Users/Dave/Sites/D3plus/src/core/data/color.js","/Users/Dave/Sites/D3plus/src/core/data/filter.js","/Users/Dave/Sites/D3plus/src/core/data/format.js","/Users/Dave/Sites/D3plus/src/core/data/group.coffee","/Users/Dave/Sites/D3plus/src/core/data/keys.js","/Users/Dave/Sites/D3plus/src/core/data/load.coffee","/Users/Dave/Sites/D3plus/src/core/data/nest.js","/Users/Dave/Sites/D3plus/src/core/data/threshold.js","/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","/Users/Dave/Sites/D3plus/src/core/fetch/data.js","/Users/Dave/Sites/D3plus/src/core/fetch/text.js","/Users/Dave/Sites/D3plus/src/core/fetch/value.js","/Users/Dave/Sites/D3plus/src/core/font/tester.coffee","/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/mk_MK.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/pt_BR.js","/Users/Dave/Sites/D3plus/src/core/locale/languages/zh_CN.js","/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee","/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","/Users/Dave/Sites/D3plus/src/core/methods/set.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/position.coffee","/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee","/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee","/Users/Dave/Sites/D3plus/src/core/parse/edges.js","/Users/Dave/Sites/D3plus/src/core/parse/element.js","/Users/Dave/Sites/D3plus/src/core/parse/nodes.js","/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee","/Users/Dave/Sites/D3plus/src/data/lof.coffee","/Users/Dave/Sites/D3plus/src/data/mad.coffee","/Users/Dave/Sites/D3plus/src/font/sizes.coffee","/Users/Dave/Sites/D3plus/src/font/validate.coffee","/Users/Dave/Sites/D3plus/src/form/form.js","/Users/Dave/Sites/D3plus/src/form/methods/active.coffee","/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee","/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee","/Users/Dave/Sites/D3plus/src/form/methods/color.coffee","/Users/Dave/Sites/D3plus/src/form/methods/container.coffee","/Users/Dave/Sites/D3plus/src/form/methods/data.js","/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee","/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/form/methods/draw.js","/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee","/Users/Dave/Sites/D3plus/src/form/methods/font.coffee","/Users/Dave/Sites/D3plus/src/form/methods/format.coffee","/Users/Dave/Sites/D3plus/src/form/methods/height.coffee","/Users/Dave/Sites/D3plus/src/form/methods/history.coffee","/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee","/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee","/Users/Dave/Sites/D3plus/src/form/methods/id.coffee","/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee","/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee","/Users/Dave/Sites/D3plus/src/form/methods/open.coffee","/Users/Dave/Sites/D3plus/src/form/methods/order.coffee","/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee","/Users/Dave/Sites/D3plus/src/form/methods/search.coffee","/Users/Dave/Sites/D3plus/src/form/methods/select.coffee","/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee","/Users/Dave/Sites/D3plus/src/form/methods/text.coffee","/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee","/Users/Dave/Sites/D3plus/src/form/methods/title.coffee","/Users/Dave/Sites/D3plus/src/form/methods/type.coffee","/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee","/Users/Dave/Sites/D3plus/src/form/methods/width.coffee","/Users/Dave/Sites/D3plus/src/form/types/auto.js","/Users/Dave/Sites/D3plus/src/form/types/toggle.js","/Users/Dave/Sites/D3plus/src/form/types/button/button.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/color.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/icons.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js","/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js","/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/active.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/arrow.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/button.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/element.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/height.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/keyboard.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/list.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/scroll.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/search.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/title.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/width.js","/Users/Dave/Sites/D3plus/src/form/types/drop/functions/window.js","/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","/Users/Dave/Sites/D3plus/src/geom/offset.coffee","/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","/Users/Dave/Sites/D3plus/src/network/cluster.coffee","/Users/Dave/Sites/D3plus/src/network/distances.coffee","/Users/Dave/Sites/D3plus/src/network/normalize.coffee","/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","/Users/Dave/Sites/D3plus/src/network/subgraph.coffee","/Users/Dave/Sites/D3plus/src/number/format.js","/Users/Dave/Sites/D3plus/src/object/merge.coffee","/Users/Dave/Sites/D3plus/src/object/validate.coffee","/Users/Dave/Sites/D3plus/src/string/format.js","/Users/Dave/Sites/D3plus/src/string/list.coffee","/Users/Dave/Sites/D3plus/src/string/strip.js","/Users/Dave/Sites/D3plus/src/string/title.coffee","/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/foreign.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getDimensions.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getSize.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/getText.coffee","/Users/Dave/Sites/D3plus/src/textwrap/helpers/tspan.js","/Users/Dave/Sites/D3plus/src/textwrap/helpers/wrap.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/container.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/draw.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/format.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/height.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/resize.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/shape.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/size.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/text.coffee","/Users/Dave/Sites/D3plus/src/textwrap/methods/width.coffee","/Users/Dave/Sites/D3plus/src/tooltip/app.js","/Users/Dave/Sites/D3plus/src/tooltip/arrow.js","/Users/Dave/Sites/D3plus/src/tooltip/create.js","/Users/Dave/Sites/D3plus/src/tooltip/data.js","/Users/Dave/Sites/D3plus/src/tooltip/move.js","/Users/Dave/Sites/D3plus/src/tooltip/remove.js","/Users/Dave/Sites/D3plus/src/util/buckets.coffee","/Users/Dave/Sites/D3plus/src/util/child.coffee","/Users/Dave/Sites/D3plus/src/util/closest.coffee","/Users/Dave/Sites/D3plus/src/util/copy.coffee","/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","/Users/Dave/Sites/D3plus/src/util/uniques.coffee","/Users/Dave/Sites/D3plus/src/viz/viz.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js","/Users/Dave/Sites/D3plus/src/viz/helpers/errorCheck.js","/Users/Dave/Sites/D3plus/src/viz/helpers/finish.js","/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.js","/Users/Dave/Sites/D3plus/src/viz/helpers/focus/viz.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/arc.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/draw.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/whisker.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js","/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js","/Users/Dave/Sites/D3plus/src/viz/helpers/types/run.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/drawer.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/history.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/timeline.js","/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/controls.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee","/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/cols.js","/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/data.js","/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/draw.js","/Users/Dave/Sites/D3plus/src/viz/methods/edges.js","/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee","/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js","/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee","/Users/Dave/Sites/D3plus/src/viz/types/bar.coffee","/Users/Dave/Sites/D3plus/src/viz/types/box.coffee","/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js","/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js","/Users/Dave/Sites/D3plus/src/viz/types/line.coffee","/Users/Dave/Sites/D3plus/src/viz/types/network.js","/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee","/Users/Dave/Sites/D3plus/src/viz/types/pie.coffee","/Users/Dave/Sites/D3plus/src/viz/types/rings.js","/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee","/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee","/Users/Dave/Sites/D3plus/src/viz/types/table.js","/Users/Dave/Sites/D3plus/src/viz/types/tree_map.coffee","/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee","/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee"])
+},{"../core/console/print.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","../core/methods/attach.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/attach.coffee","./helpers/container.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/container.coffee","./helpers/drawSteps.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/drawSteps.js","./helpers/ui/message.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/message.js","./methods/active.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/active.coffee","./methods/aggs.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/aggs.coffee","./methods/attrs.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/attrs.coffee","./methods/axes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/axes.coffee","./methods/background.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/background.coffee","./methods/color.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/color.coffee","./methods/cols.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/cols.js","./methods/container.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/container.coffee","./methods/coords.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/coords.coffee","./methods/csv.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/csv.coffee","./methods/data.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/data.js","./methods/depth.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/depth.coffee","./methods/descs.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/descs.coffee","./methods/dev.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/dev.coffee","./methods/draw.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/draw.js","./methods/edges.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/edges.js","./methods/error.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/error.coffee","./methods/focus.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/focus.coffee","./methods/font.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/font.coffee","./methods/footer.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/footer.coffee","./methods/format.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/format.coffee","./methods/height.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/height.coffee","./methods/helpers/axis.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/helpers/axis.coffee","./methods/history.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/history.coffee","./methods/icon.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/icon.coffee","./methods/id.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/id.coffee","./methods/labels.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/labels.coffee","./methods/legend.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/legend.coffee","./methods/links.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/links.coffee","./methods/margin.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/margin.coffee","./methods/messages.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/messages.coffee","./methods/nodes.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/nodes.coffee","./methods/order.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/order.coffee","./methods/shape.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/shape.coffee","./methods/size.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/size.coffee","./methods/style.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/style.coffee","./methods/temp.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/temp.coffee","./methods/text.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/text.coffee","./methods/time.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/time.coffee","./methods/timeline.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/timeline.coffee","./methods/timing.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/timing.coffee","./methods/title.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/title.coffee","./methods/tooltip.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/tooltip.coffee","./methods/total.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/total.coffee","./methods/type.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/type.coffee","./methods/ui.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/ui.coffee","./methods/width.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/width.coffee","./methods/zoom.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/zoom.js","./types/bar.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/bar.coffee","./types/box.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/box.coffee","./types/bubbles.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/bubbles.js","./types/deprecated/chart.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/deprecated/chart.coffee","./types/geo_map.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/geo_map.js","./types/line.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/line.coffee","./types/network.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/network.js","./types/paths.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/paths.coffee","./types/pie.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/pie.coffee","./types/rings.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/rings.js","./types/scatter.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/scatter.coffee","./types/stacked.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/stacked.coffee","./types/table.js":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/table.js","./types/tree_map.coffee":"/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/tree_map.coffee"}]},{},["/Users/alexandersimoes/Sites/vizwhiz/src/init.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/array/comparator.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/array/sort.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/array/update.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/client/css.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/client/ie.js","/Users/alexandersimoes/Sites/vizwhiz/src/client/pointer.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/client/prefix.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/client/rtl.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/client/scrollbar.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/client/touch.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/color/legible.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/color/lighter.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/color/mix.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/color/random.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/color/scale.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/color/sort.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/color/text.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/color/validate.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/console/print.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/console/wiki.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/data/color.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/data/filter.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/data/format.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/data/group.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/data/keys.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/data/load.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/data/nest.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/data/threshold.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/color.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/data.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/text.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/fetch/value.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/font/tester.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/locale.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/en_US.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/mk_MK.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/pt_BR.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/locale/languages/zh_CN.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/attach.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/filter.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/rendering.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/reset.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/set.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/align.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/decoration.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/family.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/position.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/font/transform.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/data.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/detect.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/methods/process/icon.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/edges.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/element.js","/Users/alexandersimoes/Sites/vizwhiz/src/core/parse/nodes.js","/Users/alexandersimoes/Sites/vizwhiz/src/data/bestRegress.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/data/lof.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/data/mad.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/font/sizes.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/font/validate.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/form.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/active.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/aggs.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/alt.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/color.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/container.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/data.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/depth.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/dev.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/draw.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/focus.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/font.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/format.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/height.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/history.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/hover.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/icon.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/id.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/keywords.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/margin.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/open.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/order.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/remove.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/search.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/select.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/selectAll.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/text.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/timing.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/title.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/type.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/ui.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/methods/width.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/auto.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/toggle.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/button.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/color.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/icons.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/mouseevents.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/button/functions/style.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/drop.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/active.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/arrow.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/button.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/data.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/element.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/height.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/items.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/keyboard.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/list.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/scroll.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/search.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/selector.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/title.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/update.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/width.js","/Users/alexandersimoes/Sites/vizwhiz/src/form/types/drop/functions/window.js","/Users/alexandersimoes/Sites/vizwhiz/src/geom/largestRect.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/geom/offset.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/geom/path2poly.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/network/cluster.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/network/distances.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/network/normalize.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/network/shortestPath.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/network/subgraph.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/number/format.js","/Users/alexandersimoes/Sites/vizwhiz/src/object/merge.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/object/validate.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/string/format.js","/Users/alexandersimoes/Sites/vizwhiz/src/string/list.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/string/strip.js","/Users/alexandersimoes/Sites/vizwhiz/src/string/title.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/textwrap.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/flow.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/foreign.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getDimensions.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getSize.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/getText.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/tspan.js","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/helpers/wrap.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/container.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/dev.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/draw.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/format.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/height.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/resize.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/shape.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/size.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/text.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/textwrap/methods/width.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/app.js","/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/arrow.js","/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/create.js","/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/data.js","/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/move.js","/Users/alexandersimoes/Sites/vizwhiz/src/tooltip/remove.js","/Users/alexandersimoes/Sites/vizwhiz/src/util/buckets.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/util/child.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/util/closest.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/util/copy.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/util/d3selection.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/util/dataURL.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/util/uniques.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/viz.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/container.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/drawSteps.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/errorCheck.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/finish.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/focus/tooltip.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/focus/viz.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/arc.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/area.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/check.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/color.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/coordinates.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/donut.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/draw.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/edges.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/fill.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/labels.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/line.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/rect.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/style.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/shapes/whisker.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/svg/enter.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/svg/update.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/types/run.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/drawer.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/history.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/legend.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/message.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/timeline.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/ui/titles.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/bounds.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/controls.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/direction.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/labels.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/mouse.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/propagation.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/helpers/zoom/transform.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/active.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/aggs.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/attrs.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/axes.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/background.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/color.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/cols.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/container.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/coords.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/csv.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/data.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/depth.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/descs.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/dev.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/draw.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/edges.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/error.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/focus.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/font.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/footer.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/format.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/height.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/history.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/icon.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/id.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/labels.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/legend.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/links.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/margin.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/messages.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/nodes.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/order.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/shape.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/size.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/style.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/temp.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/text.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/time.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/timeline.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/timing.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/title.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/tooltip.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/total.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/type.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/ui.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/width.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/zoom.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/methods/helpers/axis.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/bar.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/box.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/bubbles.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/geo_map.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/line.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/network.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/paths.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/pie.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/rings.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/scatter.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/stacked.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/table.js","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/tree_map.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/deprecated/chart.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/dataTicks.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/draw.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/nest.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/stack.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/axes.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/buffer.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/mouse.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/plot.coffee","/Users/alexandersimoes/Sites/vizwhiz/src/viz/types/helpers/graph/includes/svg.coffee"])

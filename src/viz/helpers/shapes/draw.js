@@ -14,13 +14,18 @@ var child         = require("../../../util/child.coffee"),
     zoomDirection = require("../zoom/direction.coffee")
 
 var drawShape = {
-  "arc":         require("./arc.coffee"),
-  "area":        require("./area.js"),
-  "coordinates": require("./coordinates.js"),
-  "donut":       require("./donut.js"),
-  "line":        require("./line.js"),
-  "rect":        require("./rect.coffee"),
-  "whisker":     require("./whisker.coffee")
+  "arc":           require("./arc.coffee"),
+  "area":          require("./area.js"),
+  "check":         require("./check.js"),
+  "coordinates":   require("./coordinates.js"),
+  "cross":         require("./cross.js"),
+  "diamond":       require("./diamond.js"),
+  "donut":         require("./donut.js"),
+  "line":          require("./line.js"),
+  "rect":          require("./rect.coffee"),
+  "triangle_down": require("./triangle_down.js"),
+  "triangle_up":   require("./triangle_up.js"),
+  "whisker":       require("./whisker.coffee")
 }
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -41,15 +46,22 @@ module.exports = function(vars) {
   // class.
   //----------------------------------------------------------------------------
   var shapeLookup = {
-    "arc":         "arc",
-    "area":        "area",
-    "circle":      "rect",
-    "coordinates": "coordinates",
-    "donut":       "donut",
-    "line":        "line",
-    "rect":        "rect",
-    "square":      "rect",
-    "whisker":     "whisker"
+    "arc":             "arc",
+    "area":            "area",
+    "check":           "check",
+    "circle":          "rect",
+    "coordinates":     "coordinates",
+    "cross":           "cross",
+    "donut":           "donut",
+    "diamond":         "diamond",
+    "line":            "line",
+    "plus":            "cross",
+    "rect":            "rect",
+    "square":          "rect",
+    "triangle_down":   "triangle_down",
+    "triangle":        "triangle_up",
+    "triangle_up":     "triangle_up",
+    "whisker":         "whisker"
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
