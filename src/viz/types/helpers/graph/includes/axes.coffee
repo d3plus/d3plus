@@ -1,5 +1,4 @@
 buffer     = require "./buffer.coffee"
-closest    = require "../../../../../util/closest.coffee"
 fetchData  = require "../../../../../core/fetch/data.js"
 fetchValue = require "../../../../../core/fetch/value.js"
 print      = require "../../../../../core/console/print.coffee"
@@ -28,12 +27,9 @@ module.exports = (vars, opts) ->
       zero  = if [true,axis].indexOf(opts.zero) > 0 then true else false
       range = axisRange vars, axis, zero
 
-      # add padding to axis if there is only 1 value
-      range = soloPadding vars, axis, range if range[0] is range[1] and !vars[axis].range.value
-
       # calculate ticks if the axis is the time variable
       if vars[axis].value is vars.time.value
-        vars[axis].ticks.values = timeTicks vars, range
+        vars[axis].ticks.values = if vars.time.solo.value.length then vars.time.solo.value else vars.data.time.ticks
       else if axis is vars.axes.discrete
         vars[axis].ticks.values = uniques vars.axes.dataset, (d) ->
           fetchValue vars, d, vars[axis].value
@@ -104,36 +100,6 @@ axisRange = (vars, axis, zero) ->
     values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value
     values.push 0 if zero
     d3.extent values
-
-timeTicks = (vars, range) ->
-  ticks = vars.data.time.ticks.filter (t) ->
-    t <= range[1] and t >= range[0]
-  minClosest = closest vars.data.time.ticks, range[0]
-  maxClosest = closest vars.data.time.ticks, range[1]
-  ticks.unshift minClosest if ticks.indexOf(minClosest) < 0
-  ticks.push maxClosest if ticks.indexOf(maxClosest) < 0
-  ticks
-
-soloPadding = (vars, axis, range) ->
-
-  if vars[axis].value is vars.time.value
-    closestTime = closest(vars.data.time.ticks, range[0])
-    timeIndex = vars.data.time.ticks.indexOf(closestTime)
-    if timeIndex > 0
-      range[0] = vars.data.time.ticks[timeIndex - 1]
-    else
-      diff = vars.data.time.ticks[timeIndex + 1] - closestTime
-      range[0] = new Date(closestTime.getTime() - diff)
-    if timeIndex < vars.data.time.ticks.length - 1
-      range[1] = vars.data.time.ticks[timeIndex + 1]
-    else
-      diff = closestTime - vars.data.time.ticks[timeIndex - 1]
-      range[1] = new Date(closestTime.getTime() + diff)
-  else
-    range[0] -= 1
-    range[1] += 1
-
-  range
 
 getScale = (vars, axis, range) ->
   rangeMax  = if axis is "x" then vars.width.viz else vars.height.viz

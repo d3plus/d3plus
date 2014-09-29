@@ -78,6 +78,7 @@ box = (vars) ->
       x    = vars[discrete].scale.viz key
       x   += disMargin
 
+      label = vars.format.value(key, vars[discrete].value, vars)
       key = key.getTime() if key.constructor is Date
 
       # Create center box
@@ -87,9 +88,10 @@ box = (vars) ->
           color:  "white"
           id:     "box_"+key
           init:   {}
+          label:  false
           shape:  "square"
           stroke: "#444"
-          text:   "Interquartile Range for " + key
+          text:   "Interquartile Range for " + label
 
       boxData.d3plus[w]      = space
       boxData.d3plus.init[w] = space
@@ -112,7 +114,7 @@ box = (vars) ->
 
       medianData.d3plus[w]        = space
       medianData.d3plus[discrete] = x
-      medianData.d3plus[opposite] = scale median
+      medianData.d3plus[opposite] = scale(median) + oppMargin
 
       returnData.push medianData
 
@@ -125,6 +127,7 @@ box = (vars) ->
         shape:    "whisker"
         static:   true
 
+      bottomWhisker.d3plus.offset   *= -1 if opposite is "x"
       bottomWhisker.d3plus[h]        = Math.abs scale(bottom) - scale(first)
       bottomWhisker.d3plus[w]        = space
       bottomWhisker.d3plus[discrete] = x
@@ -134,11 +137,12 @@ box = (vars) ->
       topWhisker = mergeData topWhisker
       topWhisker.d3plus =
         id:       "top_whisker_line_"+key
-        offset:   -boxData.d3plus[h]/2
+        offset:   boxData.d3plus[h]/2
         position: if h is "height" then "top" else "right"
         shape:    "whisker"
         static:   true
 
+      topWhisker.d3plus.offset   *= -1 if opposite is "y"
       topWhisker.d3plus[h]        = Math.abs scale(top) - scale(second)
       topWhisker.d3plus[w]        = space
       topWhisker.d3plus[discrete] = x
@@ -148,7 +152,7 @@ box = (vars) ->
       for d in outliers
         d.d3plus[discrete]  = x
         d.d3plus[opposite]  = scale fetchValue(vars, d, vars.y.value)
-        d.d3plus[opposite] += vars.axes.margin.top
+        d.d3plus[opposite] += oppMargin
         d.d3plus.r = 4
 
       returnData = returnData.concat(outliers)

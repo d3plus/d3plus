@@ -1,18 +1,38 @@
+closest = require "../../../../../util/closest.coffee"
+
 module.exports = (vars, axis, buffer) ->
 
   if axis is vars.axes.discrete
 
-    domain     = vars[axis].scale.viz.domain()
-    domain     = domain.slice().reverse() if axis is "y"
-    difference = Math.abs domain[1] - domain[0]
-    additional = difference / (vars[axis].ticks.values.length - 1)
-    additional = additional / 2
+    domain = vars[axis].scale.viz.domain()
+    domain = domain.slice().reverse() if axis is "y"
 
-    domain[0] = domain[0] - additional
-    domain[1] = domain[1] + additional
+    if vars[axis].ticks.values.length is 1
+      if vars[axis].value is vars.time.value
+        closestTime = closest(vars.data.time.ticks, domain[0])
+        timeIndex = vars.data.time.ticks.indexOf(closestTime)
+        if timeIndex > 0
+          domain[0] = vars.data.time.ticks[timeIndex - 1]
+        else
+          diff = vars.data.time.ticks[timeIndex + 1] - closestTime
+          domain[0] = new Date(closestTime.getTime() - diff)
+        if timeIndex < vars.data.time.ticks.length - 1
+          domain[1] = vars.data.time.ticks[timeIndex + 1]
+        else
+          diff = closestTime - vars.data.time.ticks[timeIndex - 1]
+          domain[1] = new Date(closestTime.getTime() + diff)
+      else
+        domain[0] -= 1
+        domain[1] += 1
+    else
+      difference = Math.abs domain[1] - domain[0]
+      additional = difference / (vars[axis].ticks.values.length - 1)
+      additional = additional / 2
+
+      domain[0] = domain[0] - additional
+      domain[1] = domain[1] + additional
 
     domain = domain.reverse() if axis is "y"
-
     vars[axis].scale.viz.domain(domain)
 
   else if (buffer is "x" and axis is "x") or (buffer is "y" and axis is "y") or (buffer is true)
