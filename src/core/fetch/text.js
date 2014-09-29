@@ -33,6 +33,7 @@ module.exports = function(vars,obj,depth) {
 
   if (validObject(obj) && "d3plus" in obj && obj.d3plus.text) {
     names.push(obj.d3plus.text.toString())
+    names.push(vars.format.value(obj.d3plus.text.toString(), undefined, vars))
   }
   else {
 
