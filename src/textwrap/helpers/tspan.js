@@ -6,15 +6,15 @@ module.exports = function( vars ) {
   var xPosition  = vars.container.value.attr("x") || "0px"
     , words      = vars.text.words.slice(0)
     , tspans     = false
-    , fontSize   = vars.resize.value ? vars.size.value[1] : vars.container.fontSize || vars.size.value[0]
+    , fontSize   = vars.resize.value ? vars.size.value[1]+"px" : vars.container.fontSize || vars.size.value[0]+"px"
     , textBox    = vars.container.value.append("tspan").text( words[0] )
-                     .attr( "dy" , fontSize + "px" )
+                     .attr( "dy" , fontSize )
     , textHeight = textBox.node().offsetHeight || textBox.node().getBoundingClientRect().height
     , line       = 1
     , newLine    = function( ) {
       return vars.container.value.append("tspan")
               .attr( "x" , xPosition )
-              .attr( "dy" , fontSize + "px" )
+              .attr( "dy" , fontSize )
     }
     , truncate   = function( ) {
 
