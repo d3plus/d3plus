@@ -5,19 +5,20 @@ var rand_col= require("../../color/random.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Table
 //------------------------------------------------------------------------------
+
 var table = function(vars) {
-  
+
   if (!("dummy" in vars.data.viz[0])){
     vars.data.viz.unshift({"dummy":true, "d3plus":{}})
   }
   if (vars.cols.value[0] != "label"){
     vars.cols.value.unshift("label")
   }
-  
+
   var ids = uniques(vars.data.viz, vars.id.value);
   var item_height = vars.height.viz / ids.length;
   var item_width = vars.width.viz / vars.cols.value.length;
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Setup background
   //----------------------------------------------------------------------------
@@ -50,33 +51,42 @@ var table = function(vars) {
     .style("fill", "#fff")
     .style("stroke", "#fff")
   lines_vert.exit().remove()
-  
+
   var ret = []
   var colors = {}
-  
+
   // set up color scales
   vars.cols.value.forEach(function(col){
-    var domain_extent = d3.extent(vars.data.viz, function(d){ return d[col]; })
-    colors[col] = d3.scale.linear().domain(domain_extent).range([vars.color.missing,rand_col(col)])
+    if(vars.data.keys[col] == "number"){
+      var domain_extent = d3.extent(vars.data.viz, function(d){ return d[col]; })
+      colors[col] = d3.scale.linear().domain(domain_extent).range([vars.color.missing,rand_col(col)])
+    }
+    else if(vars.data.keys[col] == "boolean"){
+      colors[col] = function(bool){
+        return bool ? rand_col(col) : vars.color.missing;
+      }
+    }
   })
-  
-  vars.data.keys
+
+  // support for strings
+
   vars.data.viz.forEach(function(d, row_i){
-    
+
     // loop through each user defined column to create new "object" to draw
     vars.cols.value.forEach(function(col, col_i){
-      
+
       // need to clone data since we'll be dupliating it for each column
       var d_clone = copy(d);
-    
+
       // set unique ID otherwise it'd be the same in each column
       d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value]+"_"+col;
-    
+
       d_clone.d3plus.x = (item_width * col_i) + item_width/2;
       d_clone.d3plus.y = (item_height * row_i) + item_height/2;
       d_clone.d3plus.width = item_width;
       d_clone.d3plus.height = item_height;
-      
+
+      // these are the column headers
       if(d.dummy){
         d_clone.d3plus.shape = "square";
         d_clone.d3plus.color = rand_col(col);
@@ -87,7 +97,7 @@ var table = function(vars) {
         }
         ret.push(d_clone)
       }
-      
+
       if(col == "label"){
         d_clone.d3plus.shape = "square";
         d_clone.d3plus.color = "#fff";
@@ -96,17 +106,22 @@ var table = function(vars) {
           ret.push(d_clone)
         }
       }
-      
+
       // be sure that this column is actually in this data item
-      if(d3.keys(d).indexOf(col) >= 0 && d[col]){
-        d_clone.d3plus.label = false;
-        d_clone.d3plus.color = colors[col](d_clone[col]);
+      if(d3.keys(d).indexOf(col) >= 0 && (d[col] !== undefined && d[col] !== 0)){
+        if(colors[col]){
+          d_clone.d3plus.color = colors[col](d_clone[col]);
+        }
+        d_clone.d3plus.text = d_clone[col];
+        if(vars.data.keys[col] == "boolean"){
+          d_clone.d3plus.label = false;
+        }
         ret.push(d_clone)
       }
     })
-    
+
   })
-  
+
   return ret
 
 };
