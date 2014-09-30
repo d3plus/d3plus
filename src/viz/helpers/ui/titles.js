@@ -1,7 +1,8 @@
 var events = require("../../../client/pointer.coffee"),
     fetchValue = require("../../../core/fetch/value.js"),
     print      = require("../../../core/console/print.coffee"),
-    rtl        = require("../../../client/rtl.coffee")
+    rtl        = require("../../../client/rtl.coffee"),
+    textWrap   = require("../../../textwrap/textwrap.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws appropriate titles
 //------------------------------------------------------------------------------
@@ -235,7 +236,7 @@ module.exports = function(vars) {
   titles
     .each(function(d){
 
-      d3plus.textwrap()
+      textWrap()
         .container( d3.select(this).select("text") )
         .height( vars.height.value / 8 )
         .size(false)

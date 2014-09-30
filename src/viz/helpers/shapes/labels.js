@@ -5,7 +5,8 @@ var copy       = require("../../../util/copy.coffee"),
     rtl        = require("../../../client/rtl.coffee"),
     shapeColor = require("./color.coffee"),
     stringList = require("../../../string/list.coffee"),
-    textColor  = require("../../../color/text.coffee")
+    textColor  = require("../../../color/text.coffee"),
+    textWrap   = require("../../../textwrap/textwrap.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "labels" using svg:text and d3plus.textwrap
@@ -184,7 +185,7 @@ module.exports = function( vars , group ) {
                 , resize = true
             }
 
-            d3plus.textwrap()
+            textWrap()
               .container( d3.select(this) )
               .height( t.h * t.scale - t.padding )
               .resize( resize )
@@ -214,7 +215,7 @@ module.exports = function( vars , group ) {
 
             var shape = t.shape || "square"
 
-            d3plus.textwrap()
+            textWrap()
               .container( d3.select(this) )
               .height( height * t.scale - t.padding )
               .resize( resize )

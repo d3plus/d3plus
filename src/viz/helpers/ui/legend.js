@@ -13,6 +13,7 @@ var arraySort = require("../../../array/sort.coffee"),
     textColor     = require("../../../color/text.coffee"),
     uniqueValues  = require("../../../util/uniques.coffee"),
     stringStrip   = require("../../../string/strip.js"),
+    textWrap      = require("../../../textwrap/textwrap.coffee"),
     touch         = require("../../../client/touch.coffee"),
     validObject   = require("../../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -252,7 +253,7 @@ module.exports = function(vars) {
 
                     if (text.length === 1 && text[0].length) {
 
-                      d3plus.textwrap()
+                      textWrap()
                         .container( d3.select(this) )
                         .height( square_size - vars.ui.padding * 2 )
                         .resize( vars.labels.resize.value )
