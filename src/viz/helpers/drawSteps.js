@@ -1,26 +1,27 @@
-var dataFormat   = require("../../core/data/format.js"),
-    dataColor    = require("../../core/data/color.js"),
-    dataKeys     = require("../../core/data/keys.js"),
-    dataLoad     = require("../../core/data/load.coffee"),
-    drawDrawer   = require("./ui/drawer.js"),
-    drawLegend   = require("./ui/legend.js"),
-    drawTimeline = require("./ui/timeline.js"),
-    errorCheck   = require("./errorCheck.js"),
-    fetchData    = require("../../core/fetch/data.js"),
-    finish       = require("./finish.js"),
-    focusTooltip = require("./focus/tooltip.js"),
-    focusViz     = require("./focus/viz.js"),
-    history      = require("./ui/history.js"),
-    parseEdges   = require("../../core/parse/edges.js"),
-    parseNodes   = require("../../core/parse/nodes.js"),
-    print        = require("../../core/console/print.coffee"),
-    runType      = require("./types/run.coffee"),
-    shapes       = require("./shapes/draw.js"),
-    stringFormat = require("../../string/format.js"),
-    svgSetup     = require("./svg/enter.js"),
-    svgUpdate    = require("./svg/update.js"),
-    titles       = require("./ui/titles.js"),
-    validObject  = require("../../object/validate.coffee")
+var dataFormat    = require("../../core/data/format.js"),
+    dataColor     = require("../../core/data/color.js"),
+    dataKeys      = require("../../core/data/keys.js"),
+    dataLoad      = require("../../core/data/load.coffee"),
+    drawDrawer    = require("./ui/drawer.js"),
+    drawLegend    = require("./ui/legend.js"),
+    drawTimeline  = require("./ui/timeline.js"),
+    errorCheck    = require("./errorCheck.js"),
+    fetchData     = require("../../core/fetch/data.js"),
+    finish        = require("./finish.js"),
+    focusTooltip  = require("./focus/tooltip.coffee"),
+    focusViz      = require("./focus/viz.js"),
+    history       = require("./ui/history.js"),
+    parseEdges    = require("../../core/parse/edges.js"),
+    parseNodes    = require("../../core/parse/nodes.js"),
+    print         = require("../../core/console/print.coffee"),
+    removeTooltip = require("../../tooltip/remove.coffee"),
+    runType       = require("./types/run.coffee"),
+    shapes        = require("./shapes/draw.js"),
+    stringFormat  = require("../../string/format.js"),
+    svgSetup      = require("./svg/enter.js"),
+    svgUpdate     = require("./svg/update.js"),
+    titles        = require("./ui/titles.js"),
+    validObject   = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculate steps needed to redraw the visualization
 //------------------------------------------------------------------------------
@@ -281,9 +282,9 @@ module.exports = function(vars) {
         print.time(str)
       }
       if ( vars.type.previous && appType !== vars.type.previous ) {
-        d3plus.tooltip.remove(vars.type.previous)
+        removeTooltip(vars.type.previous)
       }
-      d3plus.tooltip.remove(appType)
+      removeTooltip(appType)
       if ( vars.dev.value ) print.timeEnd(str)
     },
     "message": uiMessage

@@ -1,18 +1,20 @@
 var arraySort = require("../../../array/sort.coffee"),
-    buckets      = require("../../../util/buckets.coffee"),
-    copy         = require("../../../util/copy.coffee"),
-    dataNest     = require("../../../core/data/nest.js"),
-    dataURL      = require("../../../util/dataURL.coffee"),
-    events       = require("../../../client/pointer.coffee"),
-    fetchValue   = require("../../../core/fetch/value.js"),
-    fetchColor   = require("../../../core/fetch/color.coffee"),
-    fetchText    = require("../../../core/fetch/text.js"),
-    print        = require("../../../core/console/print.coffee"),
-    textColor    = require("../../../color/text.coffee"),
-    uniqueValues = require("../../../util/uniques.coffee"),
-    stringStrip  = require("../../../string/strip.js"),
-    touch        = require("../../../client/touch.coffee"),
-    validObject  = require("../../../object/validate.coffee")
+    buckets       = require("../../../util/buckets.coffee"),
+    copy          = require("../../../util/copy.coffee"),
+    createTooltip = require("../tooltip/create.js"),
+    dataNest      = require("../../../core/data/nest.js"),
+    dataURL       = require("../../../util/dataURL.coffee"),
+    events        = require("../../../client/pointer.coffee"),
+    fetchValue    = require("../../../core/fetch/value.js"),
+    fetchColor    = require("../../../core/fetch/color.coffee"),
+    fetchText     = require("../../../core/fetch/text.js"),
+    print         = require("../../../core/console/print.coffee"),
+    removeTooltip = require("../../../tooltip/remove.coffee"),
+    textColor     = require("../../../color/text.coffee"),
+    uniqueValues  = require("../../../util/uniques.coffee"),
+    stringStrip   = require("../../../string/strip.js"),
+    touch         = require("../../../client/touch.coffee"),
+    validObject   = require("../../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -309,7 +311,7 @@ module.exports = function(vars) {
               var idIndex = vars.id.nesting.indexOf(colorKey)
                 , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), vars)
 
-              d3plus.tooltip.app({
+              createTooltip({
                 "data": d,
                 "footer": false,
                 "vars": vars,
@@ -321,7 +323,7 @@ module.exports = function(vars) {
 
             })
             .on(events.out,function(d){
-              d3plus.tooltip.remove(vars.type.value)
+              removeTooltip(vars.type.value)
             })
 
         }

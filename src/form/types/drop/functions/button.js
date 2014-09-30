@@ -1,5 +1,6 @@
 var copy = require("../../../../util/copy.coffee"),
     events = require("../../../../client/pointer.coffee"),
+    form   = require("../../../form.js"),
     print  = require("../../../../core/console/print.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -11,7 +12,7 @@ module.exports = function ( vars ) {
 
     if ( vars.dev.value ) print.time("creating main button")
 
-    vars.container.button = d3plus.form()
+    vars.container.button = form()
       .container(vars.container.ui)
       .type("button")
       .ui({

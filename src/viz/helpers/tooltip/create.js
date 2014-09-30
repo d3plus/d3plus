@@ -1,13 +1,16 @@
-var arraySort     = require("../array/sort.coffee"),
-    fetchValue    = require("../core/fetch/value.js"),
-    fetchColor    = require("../core/fetch/color.coffee"),
-    fetchText     = require("../core/fetch/text.js"),
-    validObject   = require("../object/validate.coffee"),
-    zoomDirection = require("../viz/helpers/zoom/direction.coffee")
+var arraySort     = require("../../../array/sort.coffee"),
+    createTooltip = require("../../../tooltip/create.js"),
+    fetchData     = require("./data.js"),
+    fetchColor    = require("../../../core/fetch/color.coffee"),
+    fetchText     = require("../../../core/fetch/text.js"),
+    fetchValue    = require("../../../core/fetch/value.js"),
+    removeTooltip = require("../../../tooltip/remove.coffee"),
+    validObject   = require("../../../object/validate.coffee"),
+    zoomDirection = require("../zoom/direction.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
-d3plus.tooltip.app = function(params) {
+module.exports = function(params) {
 
   if ( !( "d3plus" in params.data ) ) {
     params.data.d3plus = {}
@@ -194,7 +197,7 @@ d3plus.tooltip.app = function(params) {
     var depth = "depth" in params ? params.depth : dataDepth,
         title = params.title || fetchText(vars,d,depth)[0],
         icon = fetchValue(vars,d,vars.icon.value,vars.id.nesting[depth]),
-        tooltip_data = d3plus.tooltip.data(vars,d,length,ex,children,depth)
+        tooltip_data = fetchData(vars,d,length,ex,children,depth)
 
     if (icon === "null") icon = false
 
@@ -230,7 +233,7 @@ d3plus.tooltip.app = function(params) {
         var width = vars.tooltip.small
       }
 
-      d3plus.tooltip.create({
+      createTooltip({
         "align": align,
         "arrow": arrow,
         "locale": vars.format.locale.value,
@@ -263,7 +266,7 @@ d3plus.tooltip.app = function(params) {
 
     }
     else {
-      d3plus.tooltip.remove(tooltip_id)
+      removeTooltip(tooltip_id)
     }
 
   }

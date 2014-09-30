@@ -1,3 +1,5 @@
+var form = require("../form.js")
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a set of Toggle Buttons
 //------------------------------------------------------------------------------
@@ -5,7 +7,7 @@ module.exports = function( vars ) {
 
   if ( !("buttons" in vars.container) ) {
 
-    vars.container.buttons = d3plus.form()
+    vars.container.buttons = form()
       .container(vars.container.ui)
       .type("button")
 
@@ -30,8 +32,7 @@ module.exports = function( vars ) {
     .each(function(d){
 
       if (!("form" in d.d3plus)) {
-        d.d3plus.form = d3plus.form()
-          .container(d3.select(this))
+        d.d3plus.form = form().container(d3.select(this))
       }
 
       var id = vars.id.nesting.length > vars.depth.value ? vars.id.nesting[vars.depth.value+1] : vars.id.value

@@ -1,15 +1,17 @@
 var defaultLocale = require("../core/locale/languages/en_US.js"),
-    events     = require("../client/pointer.coffee"),
-    legible    = require("../color/legible.coffee"),
-    prefix     = require("../client/prefix.coffee"),
-    rtl        = require("../client/rtl.coffee"),
-    stringList = require("../string/list.coffee"),
-    textColor  = require("../color/text.coffee")
+    events        = require("../client/pointer.coffee"),
+    legible       = require("../color/legible.coffee"),
+    move          = require("./move.coffee"),
+    prefix        = require("../client/prefix.coffee"),
+    rtl           = require("../client/rtl.coffee"),
+    removeTooltip = require("./remove.coffee"),
+    stringList    = require("../string/list.coffee"),
+    textColor     = require("../color/text.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Create a Tooltip
 //-------------------------------------------------------------------
-d3plus.tooltip.create = function(params) {
+module.exports = function(params) {
 
   var default_width = params.fullscreen ? 250 : 200
     , vendor = prefix()
@@ -63,7 +65,7 @@ d3plus.tooltip.create = function(params) {
     d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc")
   }
 
-  d3plus.tooltip.remove(params.id)
+  removeTooltip(params.id)
 
   params.anchor = {}
   if (params.fullscreen) {
@@ -98,7 +100,7 @@ d3plus.tooltip.create = function(params) {
       .style("bottom","0px")
       .style("left","0px")
       .on(events.click,function(){
-        d3plus.tooltip.remove(params.id)
+        removeTooltip(params.id)
       })
   }
 
@@ -199,7 +201,7 @@ d3plus.tooltip.create = function(params) {
           .style(vendor+"box-shadow","0 1px 3px rgba(0, 0, 0, 0.25)")
       })
       .on(events.click,function(){
-        d3plus.tooltip.remove(params.id)
+        removeTooltip(params.id)
       })
   }
 
@@ -553,6 +555,6 @@ d3plus.tooltip.create = function(params) {
 
   params.height = tooltip.node().offsetHeight || tooltip.node().getBoundingClientRect().height
 
-  d3plus.tooltip.move(params.x,params.y,params.id);
+  move(params.x, params.y, params.id);
 
 }

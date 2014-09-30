@@ -1,10 +1,11 @@
-var arraySort = require("../../array/sort.coffee"),
-    events       = require("../../client/pointer.coffee"),
-    distances    = require("../../network/distances.coffee"),
-    fetchValue   = require("../../core/fetch/value.js"),
-    fetchColor   = require("../../core/fetch/color.coffee"),
-    legible      = require("../../color/legible.coffee"),
-    uniqueValues = require("../../util/uniques.coffee")
+var arraySort     = require("../../array/sort.coffee"),
+    events        = require("../../client/pointer.coffee"),
+    distances     = require("../../network/distances.coffee"),
+    fetchValue    = require("../../core/fetch/value.js"),
+    fetchColor    = require("../../core/fetch/color.coffee"),
+    legible       = require("../../color/legible.coffee"),
+    removeTooltip = require("../../tooltip/remove.coffee"),
+    uniqueValues  = require("../../util/uniques.coffee")
 
 var rings = function(vars) {
 
@@ -430,7 +431,7 @@ var rings = function(vars) {
 
   vars.mouse[events.click] = function(d) {
     if (d[vars.id.value] != vars.focus.value[0]) {
-      d3plus.tooltip.remove(vars.type.value)
+      removeTooltip(vars.type.value)
       vars.self.focus(d[vars.id.value]).draw()
     }
   }

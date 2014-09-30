@@ -85,6 +85,13 @@ d3plus.font =
   validate: require "./font/validate.coffee"
 
 ###*
+# D3plus Forms
+# @class d3plus.form
+# @for d3plus
+###
+d3plus.form = require "./form/form.js"
+
+###*
 # Utilities related to geometric algorithms.
 # @class d3plus.geom
 # @for d3plus
@@ -146,6 +153,16 @@ d3plus.string =
 d3plus.textwrap = require "./textwrap/textwrap.coffee"
 
 ###*
+# D3plus Tooltips
+# @class d3plus.tooltip
+# @for d3plus
+###
+d3plus.tooltip =
+  create: require "./tooltip/create.js"
+  move:   require "./tooltip/move.coffee"
+  remove: require "./tooltip/remove.coffee"
+
+###*
 # D3plus features Utilities that can be used to help with some common javascript processes.
 # @class d3plus.util
 # @for d3plus
@@ -167,10 +184,6 @@ d3plus.util =
 # @for d3plus
 ###
 d3plus.viz = require "./viz/viz.coffee"
-
-# ENTIRE TOOLTIP NEEDS TO BE RE-WRITTEN
-# https://github.com/alexandersimoes/d3plus/issues/74
-d3plus.tooltip = {}
 
 # Flash a console message if they are loading the old, unneeded stylesheet!
 stylesheet = require "./client/css.coffee"

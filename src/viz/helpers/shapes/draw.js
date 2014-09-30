@@ -1,11 +1,13 @@
 var child         = require("../../../util/child.coffee"),
     closest       = require("../../../util/closest.coffee"),
+    createTooltip = require("../tooltip/create.js"),
     events        = require("../../../client/pointer.coffee"),
     fetchValue    = require("../../../core/fetch/value.js"),
     fetchColor    = require("../../../core/fetch/color.coffee"),
     fetchText     = require("../../../core/fetch/text.js"),
     legible       = require("../../../color/legible.coffee"),
     print         = require("../../../core/console/print.coffee"),
+    removeTooltip = require("../../../tooltip/remove.coffee"),
     shapeFill     = require("./fill.js"),
     stringStrip   = require("../../../string/strip.js"),
     touch         = require("../../../client/touch.coffee"),
@@ -429,7 +431,7 @@ module.exports = function(vars) {
             }
 
             var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-            d3plus.tooltip.app({
+            createTooltip({
               "vars": vars,
               "data": tooltip_data
             })
@@ -469,7 +471,7 @@ module.exports = function(vars) {
             }
 
             var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-            d3plus.tooltip.app({
+            createTooltip({
               "vars": vars,
               "data": tooltip_data
             })
@@ -502,7 +504,7 @@ module.exports = function(vars) {
 
 
           if (!vars.covered) {
-            d3plus.tooltip.remove(vars.type.value)
+            removeTooltip(vars.type.value)
           }
 
           if (typeof vars.mouse == "function") {
@@ -658,7 +660,7 @@ module.exports = function(vars) {
             .transition().duration(vars.timing.mouseevents)
             .attr("opacity",vars.data.opacity)
 
-          d3plus.tooltip.remove(vars.type.value)
+          removeTooltip(vars.type.value)
           vars.draw.update = false
 
           if (!d || d[vars.id.value] == vars.focus.value[0]) {
@@ -675,7 +677,7 @@ module.exports = function(vars) {
 
           var tooltip_data = d.d3plus_data ? d.d3plus_data : d
 
-          d3plus.tooltip.app({
+          createTooltip({
             "vars": vars,
             "data": tooltip_data
           })

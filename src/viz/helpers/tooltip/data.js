@@ -1,15 +1,15 @@
-var copy = require("../util/copy.coffee"),
-    fetchValue   = require("../core/fetch/value.js"),
-    fetchColor   = require("../core/fetch/color.coffee"),
-    fetchText    = require("../core/fetch/text.js"),
-    legible      = require("../color/legible.coffee"),
-    mergeObject  = require("../object/merge.coffee"),
-    prefix       = require("../client/prefix.coffee"),
-    stringFormat = require("../string/format.js")
+var copy = require("../../../util/copy.coffee"),
+    fetchValue   = require("../../../core/fetch/value.js"),
+    fetchColor   = require("../../../core/fetch/color.coffee"),
+    fetchText    = require("../../../core/fetch/text.js"),
+    legible      = require("../../../color/legible.coffee"),
+    mergeObject  = require("../../../object/merge.coffee"),
+    prefix       = require("../../../client/prefix.coffee"),
+    stringFormat = require("../../../string/format.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
-d3plus.tooltip.data = function(vars,id,length,extras,children,depth) {
+module.exports = function(vars,id,length,extras,children,depth) {
 
   if (vars.small) {
     return []

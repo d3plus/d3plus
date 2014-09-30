@@ -1,4 +1,5 @@
 var copy  = require("../../../util/copy.coffee"),
+    form  = require("../../../form/form.js"),
     print = require("../../../core/console/print.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,7 +43,7 @@ module.exports = function( vars ) {
 
       var container = d3.select(this)
 
-      d.form = d3plus.form()
+      d.form = form()
         .container(container)
         .focus(vars[d.method].value,function(value){
 
