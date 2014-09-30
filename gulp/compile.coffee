@@ -22,7 +22,7 @@ gulp.task "compile", ->
     .pipe(gulp.dest("./"))
     .on("error", notify.onError(error))
 
-  full = browserify(["./src/init.coffee", "./src/libs.coffee"])
+  full = browserify(["./src/libs.coffee", "./src/init.coffee"])
     .transform("coffeeify")
     .bundle()
     .on("error", notify.onError(error))

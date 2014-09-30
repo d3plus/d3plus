@@ -12,7 +12,8 @@ gulp.task "rebuild", ->
 
   # fileList = glob.sync files, {nosort: true}
 
-  bundler = browserify ["./src/init.coffee"]
+  bundler = browserify watchify.args
+    .add "./src/init.coffee"
     .transform "coffeeify"
 
   bundler = watchify(bundler)
