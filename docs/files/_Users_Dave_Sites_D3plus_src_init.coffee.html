@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 1.5.0</em>
+            <em>API Docs for: 1.5.1</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -43,7 +43,35 @@
             
                 <li><a href="../classes/d3plus.html">d3plus</a></li>
             
+                <li><a href="../classes/d3plus.array.html">d3plus.array</a></li>
+            
+                <li><a href="../classes/d3plus.client.html">d3plus.client</a></li>
+            
+                <li><a href="../classes/d3plus.color.html">d3plus.color</a></li>
+            
+                <li><a href="../classes/d3plus.data.html">d3plus.data</a></li>
+            
+                <li><a href="../classes/d3plus.font.html">d3plus.font</a></li>
+            
+                <li><a href="../classes/d3plus.form.html">d3plus.form</a></li>
+            
+                <li><a href="../classes/d3plus.geom.html">d3plus.geom</a></li>
+            
+                <li><a href="../classes/d3plus.network.html">d3plus.network</a></li>
+            
+                <li><a href="../classes/d3plus.number.html">d3plus.number</a></li>
+            
                 <li><a href="../classes/d3plus.object.html">d3plus.object</a></li>
+            
+                <li><a href="../classes/d3plus.string.html">d3plus.string</a></li>
+            
+                <li><a href="../classes/d3plus.textwrap.html">d3plus.textwrap</a></li>
+            
+                <li><a href="../classes/d3plus.tooltip.html">d3plus.tooltip</a></li>
+            
+                <li><a href="../classes/d3plus.util.html">d3plus.util</a></li>
+            
+                <li><a href="../classes/d3plus.viz.html">d3plus.viz</a></li>
             
             </ul>
 
@@ -91,8 +119,8 @@
 ###*
 # @class d3plus
 ###
-d3plus               = window.d3plus or {}
-window.d3plus        = d3plus
+d3plus        = window.d3plus or {}
+window.d3plus = d3plus
 
 ###*
 # The current version of **D3plus** you are using. Returns a string in [semantic versioning](http://semver.org/) format.
@@ -101,21 +129,120 @@ window.d3plus        = d3plus
 # @type String
 # @static
 ###
-d3plus.version       = &quot;1.5.0 - Aqua&quot;
-d3plus.repo          = &quot;https://github.com/alexandersimoes/d3plus/&quot;
-
-d3plus.array         = {}
-d3plus.color         = {}
-d3plus.data          = {}
-d3plus.draw          = {}
-d3plus.font          = {}
-d3plus.geom          = {}
-d3plus.locale        = {}
-d3plus.method        = {}
-d3plus.network       = {}
-d3plus.number        = {}
+d3plus.version = &quot;1.5.1 - Aqua&quot;
 
 ###*
+# The URL for the repo, used internally for certain error messages.
+# @property d3plus.repo
+# @for d3plus
+# @type String
+# @static
+###
+d3plus.repo = &quot;https://github.com/alexandersimoes/d3plus/&quot;
+
+###*
+# Utilities related to modifying arrays.
+# @class d3plus.array
+# @for d3plus
+# @static
+###
+d3plus.array =
+  sort:   require &quot;./array/sort.coffee&quot;
+  update: require &quot;./array/update.coffee&quot;
+
+###*
+# Utilities related to the client&#x27;s browser.
+# @class d3plus.client
+# @for d3plus
+# @static
+###
+d3plus.client =
+  css:       require &quot;./client/css.coffee&quot;
+  ie:        require &quot;./client/ie.js&quot;
+  pointer:   require &quot;./client/pointer.coffee&quot;
+  prefix:    require &quot;./client/prefix.coffee&quot;
+  rtl:       require &quot;./client/rtl.coffee&quot;
+  scrollbar: require &quot;./client/scrollbar.coffee&quot;
+  touch:     require &quot;./client/touch.coffee&quot;
+
+###*
+# Utilities related to color manipulation.
+# @class d3plus.color
+# @for d3plus
+# @static
+###
+d3plus.color =
+  legible:  require &quot;./color/legible.coffee&quot;
+  lighter:  require &quot;./color/lighter.coffee&quot;
+  mix:      require &quot;./color/mix.coffee&quot;
+  random:   require &quot;./color/random.coffee&quot;
+  scale:    require &quot;./color/scale.coffee&quot;
+  sort:     require &quot;./color/sort.coffee&quot;
+  text:     require &quot;./color/text.coffee&quot;
+  validate: require &quot;./color/validate.coffee&quot;
+
+###*
+# Utilities related to manipulating data.
+# @class d3plus.data
+# @for d3plus
+# @static
+###
+d3plus.data =
+  bestRegress: require &quot;./data/bestRegress.coffee&quot;
+  lof:         require &quot;./data/lof.coffee&quot;
+  mad:         require &quot;./data/mad.coffee&quot;
+
+###*
+# Utilities related to fonts.
+# @class d3plus.font
+# @for d3plus
+# @static
+###
+d3plus.font =
+  sizes:    require &quot;./font/sizes.coffee&quot;
+  validate: require &quot;./font/validate.coffee&quot;
+
+###*
+# D3plus Forms
+# @class d3plus.form
+# @for d3plus
+###
+d3plus.form = require &quot;./form/form.js&quot;
+
+###*
+# Utilities related to geometric algorithms.
+# @class d3plus.geom
+# @for d3plus
+# @static
+###
+d3plus.geom =
+  largestRect: require &quot;./geom/largestRect.coffee&quot;
+  offset:      require &quot;./geom/offset.coffee&quot;
+  path2poly:   require &quot;./geom/path2poly.coffee&quot;
+
+###*
+# Utilities related to network graphs.
+# @class d3plus.network
+# @for d3plus
+# @static
+###
+d3plus.network =
+  cluster:      require &quot;./network/cluster.coffee&quot;
+  normalize:    require &quot;./network/normalize.coffee&quot;
+  shortestPath: require &quot;./network/shortestPath.coffee&quot;
+  subgraph:     require &quot;./network/subgraph.coffee&quot;
+
+###*
+# Utilities that process numbers.
+# @class d3plus.number
+# @for d3plus
+# @static
+###
+d3plus.number =
+  format: require &quot;./number/format.js&quot;
+
+###*
+# D3plus features a set of methods that relate to various object properties. These methods may be used outside of the normal constraints of the visualizations.
 # @class d3plus.object
 # @for d3plus
 # @static
@@ -124,19 +251,63 @@ d3plus.object =
   merge:    require &quot;./object/merge.coffee&quot;
   validate: require &quot;./object/validate.coffee&quot;
 
-d3plus.shape         = {}
-d3plus.string        = {}
-d3plus.style         = {}
-d3plus.tooltip       = {}
-d3plus.ui            = {}
-d3plus.util          = {}
-d3plus.zoom          = {}
+###*
+# Utilities that process strings.
+# @class d3plus.string
+# @for d3plus
+# @static
+###
+d3plus.string =
+  format: require &quot;./string/format.js&quot;
+  list:   require &quot;./string/list.coffee&quot;
+  strip:  require &quot;./string/strip.js&quot;
+  title:  require &quot;./string/title.coffee&quot;
 
-stylesheet           = require &quot;./style/sheet.coffee&quot;
-message              = require &quot;./general/console.coffee&quot;
+###*
+# D3plus SVG Textwrapping
+# @class d3plus.textwrap
+# @for d3plus
+###
+d3plus.textwrap = require &quot;./textwrap/textwrap.coffee&quot;
 
+###*
+# D3plus Tooltips
+# @class d3plus.tooltip
+# @for d3plus
+###
+d3plus.tooltip =
+  create: require &quot;./tooltip/create.js&quot;
+  move:   require &quot;./tooltip/move.coffee&quot;
+  remove: require &quot;./tooltip/remove.coffee&quot;
+
+###*
+# D3plus features Utilities that can be used to help with some common javascript processes.
+# @class d3plus.util
+# @for d3plus
+# @static
+###
+d3plus.util =
+  buckets:     require &quot;./util/buckets.coffee&quot;
+  child:       require &quot;./util/child.coffee&quot;
+  closest:     require &quot;./util/closest.coffee&quot;
+  copy:        require &quot;./util/copy.coffee&quot;
+  d3selection: require &quot;./util/d3selection.coffee&quot;
+  dataurl:     require &quot;./util/dataURL.coffee&quot;
+  distances:   require &quot;./network/distances.coffee&quot;
+  uniques:     require &quot;./util/uniques.coffee&quot;
+
+###*
+# D3plus Visualizations
+# @class d3plus.viz
+# @for d3plus
+###
+d3plus.viz = require &quot;./viz/viz.coffee&quot;
+
+# Flash a console message if they are loading the old, unneeded stylesheet!
+stylesheet = require &quot;./client/css.coffee&quot;
+message    = require &quot;./core/console/print.coffee&quot;
 if stylesheet &quot;d3plus.css&quot;
-  message.warning &quot;d3plus.css has been deprecated, you do not need to load this file.&quot;, &quot;https://github.com/alexandersimoes/d3plus/releases/tag/v1.4.0&quot;
+  message.warning &quot;d3plus.css has been deprecated, you do not need to load this file.&quot;, d3plus.repo+&quot;releases/tag/v1.4.0&quot;
 
     </pre>
 </div>

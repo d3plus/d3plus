@@ -5,6 +5,7 @@
   "main": "d3plus.js",
   "devDependencies": {
     "browserify": "^4.2.3",
+    "coffee-script": "^1.8.0",
     "coffeeify": "^0.6.0",
     "connect-livereload": "^0.3.2",
     "event-stream": "^3.1.7",
@@ -20,6 +21,7 @@
     "gulp-uglify": "^0.2.1",
     "gulp-util": "^3.0.0",
     "gulp-yuidoc": "^0.1.2",
+    "require-dir": "^0.1.0",
     "tiny-lr": "^0.0.5",
     "vinyl-source-stream": "^0.1.1",
     "watchify": "^0.6.4"
