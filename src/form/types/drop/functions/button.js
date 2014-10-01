@@ -41,7 +41,7 @@ module.exports = function ( vars ) {
     })[0])
 
     if ( !buttonData ) {
-      buttonData = vars.container.button.data()[0] || vars.data.app[0]
+      buttonData = vars.container.button.data()[0] || vars.data.viz[0]
     }
 
     vars.container.button

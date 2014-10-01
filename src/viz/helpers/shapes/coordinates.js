@@ -97,7 +97,9 @@ module.exports = function(vars,selection,enter,exit) {
         largest.geometry.type = "Polygon"
       }
 
-      if (coords) {
+      var names = fetchText(vars,d)
+
+      if (coords && names.length) {
 
         var path = path2poly(vars.path(largest))
 
@@ -106,9 +108,7 @@ module.exports = function(vars,selection,enter,exit) {
           "font-family": vars.labels.font.family.value
         }
 
-        var names = fetchText(vars,d)
-
-        if (names.length && names[0].split(" ").length === 1) {
+        if (names[0].split(" ").length === 1) {
           var size = fontSizes(names[0],style)[0]
             , ratio = size.width/size.height
         }

@@ -34,7 +34,7 @@ module.exports = function ( elem , vars ) {
     })
     .style("color",function(d){
 
-      var image = d[vars.icon.value] && vars.data.app.length < vars.data.large
+      var image = d[vars.icon.value] && vars.data.viz.length < vars.data.large
 
       if ( vars.focus.value === d[vars.id.value] ) {
         var opacity = 1

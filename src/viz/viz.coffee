@@ -14,7 +14,7 @@ module.exports = ->
       bubbles:  require "./types/bubbles.js"
       box:      require "./types/box.coffee"
       chart:    require "./types/deprecated/chart.coffee"
-      geo_map:  require "./types/geo_map.js"
+      geo_map:  require "./types/geo_map.coffee"
       line:     require "./types/line.coffee"
       network:  require "./types/network.js"
       paths:    require "./types/paths.coffee"

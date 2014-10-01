@@ -12,7 +12,7 @@ module.exports = function( vars ) {
   // Bind Data to Buttons
   //----------------------------------------------------------------------------
   var button = vars.container.ui.selectAll("div.d3plus_node")
-    .data(vars.data.app,function(d){
+    .data(vars.data.viz,function(d){
       return d[vars.id.value]
     })
 

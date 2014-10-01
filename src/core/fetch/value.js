@@ -77,8 +77,8 @@ fetch = function( vars , id , variable , id_var , agg ) {
       if ( val ) return val
     }
 
-    if ( vars.data.app instanceof Array ) {
-      var val = checkData( filterArray( vars.data.app ) )
+    if ( vars.data.viz instanceof Array ) {
+      var val = checkData( filterArray( vars.data.viz ) )
       if ( val ) return val
     }
 

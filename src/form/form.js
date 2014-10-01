@@ -55,14 +55,14 @@ module.exports = function() {
         dataFormat( vars )
       }
 
-      vars.data.app = fetchData( vars )
+      vars.data.viz = fetchData( vars )
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
       //------------------------------------------------------------------------
       if ( vars.data.changed || vars.order.changed || vars.order.sort.changed ) {
 
-        arraySort( vars.data.app , vars.order.value || vars.text.value
+        arraySort( vars.data.viz , vars.order.value || vars.text.value
                          , vars.order.sort.value , vars.color.value , vars )
 
       }
@@ -82,8 +82,8 @@ module.exports = function() {
           if (val) vars.focus.value = val
         }
 
-        if ( !vars.focus.value && vars.data.app.length ) {
-          vars.focus.value = vars.data.app[0][vars.id.value]
+        if ( !vars.focus.value && vars.data.viz.length ) {
+          vars.focus.value = vars.data.viz[0][vars.id.value]
         }
 
         if ( vars.dev.value && vars.focus.value ) print.log("\"value\" set to \""+vars.focus+"\"")
@@ -115,7 +115,7 @@ module.exports = function() {
         //----------------------------------------------------------------------
         if ( vars.search.value === "auto" ) {
 
-          if (vars.data.app.length > 10) {
+          if (vars.data.viz.length > 10) {
             vars.search.enabled = true
             if ( vars.dev.value ) print.log("Search enabled.")
           }

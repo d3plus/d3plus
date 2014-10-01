@@ -25,7 +25,7 @@ module.exports = function ( vars ) {
     searchWords = searchWords.filter(function(t){ return t != ""; })
 
     if (!vars.text.solo.value.length || vars.text.solo.value[0] === "") {
-      vars.data.filtered = vars.data.app
+      vars.data.filtered = vars.data.viz
       if (vars.id.nesting.length > 1 && vars.depth.value < vars.id.nesting.length-1) {
         vars.data.filtered = vars.data.filtered.filter(function(d){
           if ("endPoint" in d.d3plus && d.d3plus.endPoint === vars.depth.value) {

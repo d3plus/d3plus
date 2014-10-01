@@ -11,7 +11,7 @@ module.exports = function ( elem , vars ) {
 
       var children = ["label"]
 
-      if ( d[vars.icon.value] && vars.data.app.length <= vars.data.large ) {
+      if ( d[vars.icon.value] && vars.data.viz.length <= vars.data.large ) {
         children.push("icon")
       }
 

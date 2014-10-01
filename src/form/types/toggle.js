@@ -13,13 +13,13 @@ module.exports = function( vars ) {
 
   }
 
-  var dataLength  = vars.data.app.length
+  var dataLength  = vars.data.viz.length
     , buttonWidth = vars.width.value
                   ? vars.width.value/dataLength
                   : false
 
   var toggles = vars.container.ui.selectAll("div.d3plus_toggle")
-    .data(vars.data.app,function(d){
+    .data(vars.data.viz,function(d){
       return d[vars.id.value]
     })
 
