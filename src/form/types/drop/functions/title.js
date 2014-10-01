@@ -15,7 +15,7 @@ module.exports = function ( vars ) {
     var self    = this
       , enabled = vars.id.solo.value.length === 1 && vars.depth.value > 0
       , title   = enabled
-      , focus   = vars.container.button.data(Object).app[0]
+      , focus   = vars.container.button.data(Object).viz[0]
 
     title = true
     for (var i = 0; i < vars.id.nesting.length; i++) {
