@@ -13,7 +13,7 @@ module.exports = (vars, opts) ->
   for axis in ["x","y"]
 
     filtered = vars[axis].solo.changed or vars[axis].mute.changed
-    modified = changed or vars[axis].changed or (vars.time.fixed.value and filtered)
+    modified = changed or vars[axis].changed or (vars.time.fixed.value and filtered) or vars[axis].scale.changed
 
     if modified or vars[axis].stacked.changed or vars[axis].range.changed
 
@@ -58,7 +58,7 @@ module.exports = (vars, opts) ->
 
 dataChange = (vars) ->
 
-  check   = ["data","time","id","depth","type"]
+  check   = ["data", "time", "id", "depth", "type"]
   changed = vars.time.fixed.value and (vars.time.solo.changed or vars.time.mute.changed)
 
   for k in check
@@ -79,7 +79,7 @@ axisRange = (vars, axis, zero) ->
   if vars[axis].range.value and vars[axis].range.value.length is 2
     vars[axis].range.value.slice()
   else if vars[axis].scale.value is "share"
-    vars[axis].ticks.values = d3.range 0, 1.1, 1.1
+    vars[axis].ticks.values = d3.range 0, 1.1, 0.1
     [0,1]
   else if vars[axis].stacked.value
     oppAxis = if axis is "x" then "y" else "x"

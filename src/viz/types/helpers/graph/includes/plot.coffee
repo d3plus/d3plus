@@ -98,12 +98,10 @@ createAxis = (vars, axis) ->
 
       if !hiddenTime and (majorLog or scale isnt "log")
         if scale is "share"
-          text = d * 100 + "%"
+          d * 100 + "%"
         else if d.constructor is Date
-          text = vars.data.time.multiFormat(d)
+          vars.data.time.multiFormat(d)
         else
-          text = vars.format.value(d, vars[axis].value, vars)
+          vars.format.value(d, vars[axis].value, vars)
       else
-        text = null
-
-      text
+        null
