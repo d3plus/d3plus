@@ -57,26 +57,25 @@ module.exports = function( vars ) {
 
     var step = vars.data.time.step, total = vars.data.time.total
     periods.forEach(function(p,i){
-
-      if (!vars.data.time.stepType && (i === periods.length-1 || Math.round(step) < conversions[i])) {
+      var c = p === "Date" ? 28 : conversions[i]
+      if (!vars.data.time.stepType && (i === periods.length-1 || Math.round(step) < c)) {
         vars.data.time.stepType = p
         var start = vars.data.time.values[0]
           , end = vars.data.time.values[vars.data.time.values.length-1]
         vars.data.time.stepIntervals = getDiff(start,end,i)
       }
 
-      if (!vars.data.time.totalType && (i === periods.length-1 || Math.round(total) < conversions[i])) {
+      if (!vars.data.time.totalType && (i === periods.length-1 || Math.round(total) < c)) {
         vars.data.time.totalType = p
       }
 
-      step = step/conversions[i]
-      total = total/conversions[i]
+      step = step/c
+      total = total/c
     })
 
     vars.data.time.values.forEach(function(y,i){
       if (i != 0) {
         var prev = vars.data.time.values[0]
-        // console.log(periods.indexOf(vars.data.time.stepType))
         vars.data.time.dataSteps.push(getDiff(prev,y,periods.indexOf(vars.data.time.stepType)))
       }
       else {
@@ -126,7 +125,7 @@ module.exports = function( vars ) {
         , function(d) { return d.getHours(); }
         , function(d) { return d.getDate() != 1; }
         , function(d) { return d.getMonth(); }
-        , function() { return true; }
+        , function(d) { return true; }
       ]
 
     for (var i = periods.indexOf(stepType); i <= periods.indexOf(totalType); i++) {
