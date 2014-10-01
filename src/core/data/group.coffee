@@ -7,7 +7,8 @@ module.exports = (vars, data, nesting) ->
 
   for n, i in nesting
     if i < vars.depth.value
-      groupedData.key (d) -> fetchValue vars, d.d3plus, n
+      key = n
+      groupedData.key (d) -> fetchValue vars, d.d3plus, key
 
   strippedData = []
   for d in data

@@ -11,7 +11,7 @@ module.exports = ->
     g: {apps: {}}
     types:
       bar:      require "./types/bar.coffee"
-      bubbles:  require "./types/bubbles.js"
+      bubbles:  require "./types/bubbles.coffee"
       box:      require "./types/box.coffee"
       chart:    require "./types/deprecated/chart.coffee"
       geo_map:  require "./types/geo_map.coffee"
