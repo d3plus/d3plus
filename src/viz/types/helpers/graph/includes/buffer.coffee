@@ -2,7 +2,8 @@ closest = require "../../../../../util/closest.coffee"
 
 module.exports = (vars, axis, buffer) ->
 
-  if vars[axis].scale.value isnt "share"
+  if vars[axis].scale.value isnt "share" and !vars[axis].range.value
+
     if axis is vars.axes.discrete
 
       domain = vars[axis].scale.viz.domain()
@@ -56,12 +57,16 @@ module.exports = (vars, axis, buffer) ->
 
       vars[axis].scale.viz.domain(domain)
 
-    else if vars.axes.scale and buffer isnt "y" and buffer isnt "x"
+    else if vars.axes.scale
 
       rangeMax = vars[axis].scale.viz.range()[1]
       maxSize  = vars.axes.scale.range()[1]
 
       domainHigh = vars[axis].scale.viz.invert -maxSize * 2
       domainLow  = vars[axis].scale.viz.invert rangeMax + maxSize * 2
+
+      if domainHigh is domainLow
+        domainHigh += 1
+        domainLow  -= 1
 
       vars[axis].scale.viz.domain([domainHigh,domainLow])

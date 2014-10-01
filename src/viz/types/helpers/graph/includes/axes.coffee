@@ -23,16 +23,16 @@ module.exports = (vars, opts) ->
       vars[axis].reset        = true
       vars[axis].ticks.values = false
 
-      # calculate range
-      zero  = if [true,axis].indexOf(opts.zero) > 0 then true else false
-      range = axisRange vars, axis, zero
-
       # calculate ticks if the axis is the time variable
       if vars[axis].value is vars.time.value
         vars[axis].ticks.values = if vars.time.solo.value.length then vars.time.solo.value else vars.data.time.ticks
       else if axis is vars.axes.discrete
         vars[axis].ticks.values = uniques vars.axes.dataset, (d) ->
           fetchValue vars, d, vars[axis].value
+
+      # calculate range
+      zero  = if [true,axis].indexOf(opts.zero) > 0 then true else false
+      range = axisRange vars, axis, zero
 
       # flip range if Y axis
       range = range.reverse() if axis is "y"
@@ -41,7 +41,7 @@ module.exports = (vars, opts) ->
       vars[axis].scale.viz = getScale vars, axis, range
 
       # Add buffer to scale if it needs it
-      buffer vars, axis, opts.buffer if opts.buffer and axis isnt vars.axes.discrete and !vars[axis].range.value
+      buffer vars, axis, opts.buffer if opts.buffer and axis isnt vars.axes.discrete
 
       # store axis domain
       vars[axis].domain.viz = range
@@ -96,6 +96,8 @@ axisRange = (vars, axis, zero) ->
       .entries vars.axes.dataset
     values = d3.merge axisSums.map (d) -> d.values
     d3.extent values
+  else if vars[axis].value is vars.time.value
+    d3.extent vars[axis].ticks.values
   else
     values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value
     values.push 0 if zero
@@ -105,6 +107,7 @@ getScale = (vars, axis, range) ->
   rangeMax  = if axis is "x" then vars.width.viz else vars.height.viz
   scaleType = vars[axis].scale.value
   scaleType = "linear" if ["discrete","share"].indexOf(scaleType) >= 0
+
   d3.scale[scaleType]()
     .domain range
     .rangeRound [0,rangeMax]
