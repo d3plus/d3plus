@@ -8,7 +8,7 @@ module.exports =
     align:      "center"
     color:      "#444"
     decoration: decoration()
-    family:     family
+    family:     family()
     size:       11
     transform:  transform()
     weight:     200
