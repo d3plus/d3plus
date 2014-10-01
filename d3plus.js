@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({"./src/init.coffee":[function(require,module,exports){
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
 /**
  * @class d3plus
@@ -40,6 +40,7 @@ d3plus.repo = "https://github.com/alexandersimoes/d3plus/";
  */
 
 d3plus.array = {
+  contains: require("./array/contains.coffee"),
   sort: require("./array/sort.coffee"),
   update: require("./array/update.coffee")
 };
@@ -246,7 +247,7 @@ if (stylesheet("d3plus.css")) {
 
 
 
-},{"./array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","./array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","./client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee","./client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","./client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","./client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","./client/scrollbar.coffee":"/Users/Dave/Sites/D3plus/src/client/scrollbar.coffee","./client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","./color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","./color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","./color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee","./color/random.coffee":"/Users/Dave/Sites/D3plus/src/color/random.coffee","./color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","./color/sort.coffee":"/Users/Dave/Sites/D3plus/src/color/sort.coffee","./color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","./color/validate.coffee":"/Users/Dave/Sites/D3plus/src/color/validate.coffee","./core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./data/bestRegress.coffee":"/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee","./data/lof.coffee":"/Users/Dave/Sites/D3plus/src/data/lof.coffee","./data/mad.coffee":"/Users/Dave/Sites/D3plus/src/data/mad.coffee","./font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./font/validate.coffee":"/Users/Dave/Sites/D3plus/src/font/validate.coffee","./form/form.js":"/Users/Dave/Sites/D3plus/src/form/form.js","./geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","./geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee","./geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","./network/cluster.coffee":"/Users/Dave/Sites/D3plus/src/network/cluster.coffee","./network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee","./network/normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee","./network/shortestPath.coffee":"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","./network/subgraph.coffee":"/Users/Dave/Sites/D3plus/src/network/subgraph.coffee","./number/format.js":"/Users/Dave/Sites/D3plus/src/number/format.js","./object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","./object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","./string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","./string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","./string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","./string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee","./textwrap/textwrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","./tooltip/create.js":"/Users/Dave/Sites/D3plus/src/tooltip/create.js","./tooltip/move.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/move.coffee","./tooltip/remove.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee","./util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","./util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee","./util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","./util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","./util/dataURL.coffee":"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","./util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./viz/viz.coffee":"/Users/Dave/Sites/D3plus/src/viz/viz.coffee"}],"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/index.js":[function(require,module,exports){
+},{"./array/contains.coffee":36,"./array/sort.coffee":37,"./array/update.coffee":38,"./client/css.coffee":39,"./client/ie.js":40,"./client/pointer.coffee":41,"./client/prefix.coffee":42,"./client/rtl.coffee":43,"./client/scrollbar.coffee":44,"./client/touch.coffee":45,"./color/legible.coffee":46,"./color/lighter.coffee":47,"./color/mix.coffee":48,"./color/random.coffee":49,"./color/scale.coffee":50,"./color/sort.coffee":51,"./color/text.coffee":52,"./color/validate.coffee":53,"./core/console/print.coffee":54,"./data/bestRegress.coffee":91,"./data/lof.coffee":92,"./data/mad.coffee":93,"./font/sizes.coffee":94,"./font/validate.coffee":95,"./form/form.js":96,"./geom/largestRect.coffee":152,"./geom/offset.coffee":153,"./geom/path2poly.coffee":154,"./network/cluster.coffee":155,"./network/distances.coffee":156,"./network/normalize.coffee":157,"./network/shortestPath.coffee":158,"./network/subgraph.coffee":159,"./number/format.js":160,"./object/merge.coffee":161,"./object/validate.coffee":162,"./string/format.js":163,"./string/list.coffee":164,"./string/strip.js":165,"./string/title.coffee":166,"./textwrap/textwrap.coffee":184,"./tooltip/create.js":185,"./tooltip/move.coffee":186,"./tooltip/remove.coffee":187,"./util/buckets.coffee":188,"./util/child.coffee":189,"./util/closest.coffee":190,"./util/copy.coffee":191,"./util/d3selection.coffee":192,"./util/dataURL.coffee":193,"./util/uniques.coffee":194,"./viz/viz.coffee":307}],2:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -1298,7 +1299,7 @@ function decodeUtf8Char (str) {
   }
 }
 
-},{"base64-js":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js","ieee754":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js","is-array":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/is-array/index.js"}],"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/base64-js/lib/b64.js":[function(require,module,exports){
+},{"base64-js":3,"ieee754":4,"is-array":5}],3:[function(require,module,exports){
 var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 ;(function (exports) {
@@ -1420,7 +1421,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 	exports.fromByteArray = uint8ToBase64
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/ieee754/index.js":[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 exports.read = function(buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
@@ -1506,7 +1507,7 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128;
 };
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/node_modules/is-array/index.js":[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 
 /**
  * isArray
@@ -1541,10 +1542,10 @@ module.exports = isArray || function (val) {
   return !! val && '[object Array]' == str.call(val);
 };
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/heap/index.js":[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 module.exports = require('./lib/heap');
 
-},{"./lib/heap":"/Users/Dave/Sites/D3plus/node_modules/heap/lib/heap.js"}],"/Users/Dave/Sites/D3plus/node_modules/heap/lib/heap.js":[function(require,module,exports){
+},{"./lib/heap":7}],7:[function(require,module,exports){
 // Generated by CoffeeScript 1.8.0
 (function() {
   var Heap, defaultCmp, floor, heapify, heappop, heappush, heappushpop, heapreplace, insort, min, nlargest, nsmallest, updateItem, _siftdown, _siftup;
@@ -1915,7 +1916,7 @@ module.exports = require('./lib/heap');
 
 }).call(this);
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/numeric/numeric-1.2.6.js":[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 (function (global){
 "use strict";
 
@@ -6343,7 +6344,7 @@ numeric.svd= function svd(A) {
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],"/Users/Dave/Sites/D3plus/node_modules/simplify-js/simplify.js":[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*
  (c) 2013, Vladimir Agafonkin
  Simplify.js, a high-performance JS polyline simplification library
@@ -6476,7 +6477,7 @@ else window.simplify = simplify;
 
 })();
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/kdtree.js":[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 "use strict"
 
 module.exports = createKDTree
@@ -7089,7 +7090,7 @@ function deserializeKDTree(data) {
     return new KDTree(null, null, 0, data.d)
   }
 }
-},{"./lib/heap.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/lib/heap.js","bit-twiddle":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js","inorder-tree-layout":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/inorder-tree-layout/inorder.js","ndarray":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/ndarray.js","ndarray-ops":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js","ndarray-pack":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/convert.js","ndarray-scratch":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/scratch.js","ndarray-select":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-select/select.js","typedarray-pool":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/lib/heap.js":[function(require,module,exports){
+},{"./lib/heap.js":11,"bit-twiddle":12,"inorder-tree-layout":13,"ndarray":31,"ndarray-ops":15,"ndarray-pack":20,"ndarray-scratch":29,"ndarray-select":30,"typedarray-pool":34}],11:[function(require,module,exports){
 "use strict"
 
 module.exports = KDTHeap
@@ -7198,7 +7199,7 @@ proto.dispose = function() {
   pool.freeInt32(this.index)
   pool.freeFloat64(this.data)
 }
-},{"typedarray-pool":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js":[function(require,module,exports){
+},{"typedarray-pool":34}],12:[function(require,module,exports){
 /**
  * Bit twiddling hacks for JavaScript.
  *
@@ -7404,7 +7405,7 @@ exports.nextCombination = function(v) {
 }
 
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/inorder-tree-layout/inorder.js":[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict"
 
 var bits = require("bit-twiddle")
@@ -7576,9 +7577,9 @@ function hiInorder(n, x) {
 }
 exports.hi = hiInorder
 
-},{"bit-twiddle":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/inorder-tree-layout/node_modules/bit-twiddle/twiddle.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/inorder-tree-layout/node_modules/bit-twiddle/twiddle.js":[function(require,module,exports){
-module.exports=require("/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js")
-},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js":[function(require,module,exports){
+},{"bit-twiddle":14}],14:[function(require,module,exports){
+module.exports=require(12)
+},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js":12}],15:[function(require,module,exports){
 "use strict"
 
 var compile = require("cwise-compiler")
@@ -8041,7 +8042,7 @@ exports.equals = compile({
 
 
 
-},{"cwise-compiler":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/compiler.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/compiler.js":[function(require,module,exports){
+},{"cwise-compiler":16}],16:[function(require,module,exports){
 "use strict"
 
 var createThunk = require("./lib/thunk.js")
@@ -8149,7 +8150,7 @@ function compileCwise(user_args) {
 
 module.exports = compileCwise
 
-},{"./lib/thunk.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/compile.js":[function(require,module,exports){
+},{"./lib/thunk.js":18}],17:[function(require,module,exports){
 "use strict"
 
 var uniq = require("uniq")
@@ -8437,7 +8438,7 @@ function generateCWiseOp(proc, typesig) {
   return f()
 }
 module.exports = generateCWiseOp
-},{"uniq":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/node_modules/uniq/uniq.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js":[function(require,module,exports){
+},{"uniq":19}],18:[function(require,module,exports){
 "use strict"
 
 var compile = require("./compile.js")
@@ -8486,7 +8487,7 @@ function createThunk(proc) {
 
 module.exports = createThunk
 
-},{"./compile.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/compile.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/node_modules/uniq/uniq.js":[function(require,module,exports){
+},{"./compile.js":17}],19:[function(require,module,exports){
 "use strict"
 
 function unique_pred(list, compare) {
@@ -8545,7 +8546,7 @@ function unique(list, compare, sorted) {
 
 module.exports = unique
 
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/convert.js":[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 "use strict"
 
 var ndarray = require("ndarray")
@@ -8568,10 +8569,10 @@ module.exports = function convert(arr, result) {
   return result
 }
 
-},{"./doConvert.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/doConvert.js","ndarray":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/ndarray.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/doConvert.js":[function(require,module,exports){
+},{"./doConvert.js":21,"ndarray":31}],21:[function(require,module,exports){
 module.exports=require('cwise-compiler')({"args":["array","scalar","index"],"pre":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"body":{"body":"{\nvar _inline_1_v=_inline_1_arg1_,_inline_1_i\nfor(_inline_1_i=0;_inline_1_i<_inline_1_arg2_.length-1;++_inline_1_i) {\n_inline_1_v=_inline_1_v[_inline_1_arg2_[_inline_1_i]]\n}\n_inline_1_arg0_=_inline_1_v[_inline_1_arg2_[_inline_1_arg2_.length-1]]\n}","args":[{"name":"_inline_1_arg0_","lvalue":true,"rvalue":false,"count":1},{"name":"_inline_1_arg1_","lvalue":false,"rvalue":true,"count":1},{"name":"_inline_1_arg2_","lvalue":false,"rvalue":true,"count":4}],"thisVars":[],"localVars":["_inline_1_i","_inline_1_v"]},"post":{"body":"{}","args":[],"thisVars":[],"localVars":[]},"funcName":"convert","blockSize":64})
 
-},{"cwise-compiler":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/compiler.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/compiler.js":[function(require,module,exports){
+},{"cwise-compiler":22}],22:[function(require,module,exports){
 "use strict"
 
 var createThunk = require("./lib/thunk.js")
@@ -8679,7 +8680,7 @@ function compileCwise(user_args) {
 
 module.exports = compileCwise
 
-},{"./lib/thunk.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/thunk.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/compile.js":[function(require,module,exports){
+},{"./lib/thunk.js":24}],23:[function(require,module,exports){
 "use strict"
 
 var uniq = require("uniq")
@@ -8963,9 +8964,9 @@ function generateCWiseOp(proc, typesig) {
   return f()
 }
 module.exports = generateCWiseOp
-},{"uniq":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/node_modules/uniq/uniq.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/lib/thunk.js":[function(require,module,exports){
-module.exports=require("/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js")
-},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-pack/node_modules/cwise-compiler/node_modules/uniq/uniq.js":[function(require,module,exports){
+},{"uniq":25}],24:[function(require,module,exports){
+arguments[4][18][0].apply(exports,arguments)
+},{"./compile.js":23,"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/node_modules/cwise-compiler/lib/thunk.js":18}],25:[function(require,module,exports){
 "use strict"
 
 function unique_pred(list, compare) {
@@ -9023,9 +9024,9 @@ function unique(list, compare, sorted) {
 }
 
 module.exports = unique
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/node_modules/bit-twiddle/twiddle.js":[function(require,module,exports){
-module.exports=require("/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js")
-},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/node_modules/dup/dup.js":[function(require,module,exports){
+},{}],26:[function(require,module,exports){
+module.exports=require(12)
+},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/bit-twiddle/twiddle.js":12}],27:[function(require,module,exports){
 "use strict"
 
 function dupe_array(count, value, i) {
@@ -9075,7 +9076,7 @@ function dupe(count, value) {
 }
 
 module.exports = dupe
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/pool.js":[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 (function (global,Buffer){
 'use strict'
 
@@ -9292,7 +9293,7 @@ exports.clearCache = function clearCache() {
   }
 }
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"bit-twiddle":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/node_modules/bit-twiddle/twiddle.js","buffer":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/index.js","dup":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/node_modules/dup/dup.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/scratch.js":[function(require,module,exports){
+},{"bit-twiddle":26,"buffer":2,"dup":27}],29:[function(require,module,exports){
 "use strict"
 
 var ndarray = require("ndarray")
@@ -9351,7 +9352,7 @@ function zeros(shape, dtype) {
   return ndarray(buf, shape, stride, 0)
 }
 exports.zeros = zeros
-},{"ndarray":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/ndarray.js","ndarray-ops":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-ops/ndarray-ops.js","typedarray-pool":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/pool.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-select/select.js":[function(require,module,exports){
+},{"ndarray":31,"ndarray-ops":15,"typedarray-pool":28}],30:[function(require,module,exports){
 "use strict"
 
 module.exports = ndSelect
@@ -9587,7 +9588,7 @@ function ndSelect(array, k, compare) {
     return proc(array, k)
   }
 }
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/ndarray.js":[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 (function (Buffer){
 var iota = require("iota-array")
 
@@ -9987,7 +9988,7 @@ function wrappedNDArrayCtor(data, shape, stride, offset) {
 
 module.exports = wrappedNDArrayCtor
 }).call(this,require("buffer").Buffer)
-},{"buffer":"/Users/Dave/Sites/D3plus/node_modules/browserify/node_modules/buffer/index.js","iota-array":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/node_modules/iota-array/iota.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray/node_modules/iota-array/iota.js":[function(require,module,exports){
+},{"buffer":2,"iota-array":32}],32:[function(require,module,exports){
 "use strict"
 
 function iota(n) {
@@ -9999,11 +10000,11 @@ function iota(n) {
 }
 
 module.exports = iota
-},{}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/node_modules/dup/dup.js":[function(require,module,exports){
-module.exports=require("/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/node_modules/dup/dup.js")
-},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/node_modules/dup/dup.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/node_modules/dup/dup.js"}],"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/typedarray-pool/pool.js":[function(require,module,exports){
-module.exports=require("/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/pool.js")
-},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/pool.js":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/pool.js"}],"/Users/Dave/Sites/D3plus/src/array/comparator.coffee":[function(require,module,exports){
+},{}],33:[function(require,module,exports){
+module.exports=require(27)
+},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/node_modules/dup/dup.js":27}],34:[function(require,module,exports){
+module.exports=require(28)
+},{"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/node_modules/ndarray-scratch/node_modules/typedarray-pool/pool.js":28,"bit-twiddle":12,"buffer":2,"dup":33}],35:[function(require,module,exports){
 var colorSort, fetchColor, fetchText, fetchValue;
 
 colorSort = require("../color/sort.coffee");
@@ -10062,7 +10063,20 @@ module.exports = function(a, b, keys, sort, colors, vars, depth) {
 
 
 
-},{"../color/sort.coffee":"/Users/Dave/Sites/D3plus/src/color/sort.coffee","../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/array/sort.coffee":[function(require,module,exports){
+},{"../color/sort.coffee":51,"../core/fetch/color.coffee":64,"../core/fetch/text.js":66,"../core/fetch/value.js":67}],36:[function(require,module,exports){
+module.exports = function(arr, value) {
+  var constructor;
+  if (arr instanceof Array) {
+    constructor = value === void 0 ? value : value.constructor;
+    return arr.indexOf(value) >= 0 || (value !== void 0 && arr.indexOf(constructor) >= 0);
+  } else {
+    return false;
+  }
+};
+
+
+
+},{}],37:[function(require,module,exports){
 var comparator;
 
 comparator = require("./comparator.coffee");
@@ -10079,7 +10093,7 @@ module.exports = function(arr, keys, sort, colors, vars, depth) {
 
 
 
-},{"./comparator.coffee":"/Users/Dave/Sites/D3plus/src/array/comparator.coffee"}],"/Users/Dave/Sites/D3plus/src/array/update.coffee":[function(require,module,exports){
+},{"./comparator.coffee":35}],38:[function(require,module,exports){
 module.exports = function(arr, x) {
   if (x === false) {
     return [];
@@ -10100,7 +10114,7 @@ module.exports = function(arr, x) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/css.coffee":[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 var sheet;
 
 sheet = function(name) {
@@ -10128,11 +10142,11 @@ module.exports = sheet;
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/ie.js":[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 // Determines if the current browser is Internet Explorer.
 module.exports = /*@cc_on!@*/false
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/pointer.coffee":[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var ie, touch;
 
 ie = require("./ie.js");
@@ -10161,7 +10175,7 @@ if (touch) {
 
 
 
-},{"./ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee"}],"/Users/Dave/Sites/D3plus/src/client/prefix.coffee":[function(require,module,exports){
+},{"./ie.js":40,"./touch.coffee":45}],42:[function(require,module,exports){
 var prefix;
 
 prefix = function() {
@@ -10187,12 +10201,12 @@ module.exports = prefix;
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/rtl.coffee":[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = d3.select("html").attr("dir") === "rtl";
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/scrollbar.coffee":[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 var scrollbar;
 
 scrollbar = function() {
@@ -10228,12 +10242,12 @@ module.exports = scrollbar;
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/client/touch.coffee":[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 module.exports = ("ontouchstart" in window) || window.DocumentTouch && document instanceof DocumentTouch ? true : false;
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/legible.coffee":[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 module.exports = function(color) {
   var hsl;
   hsl = d3.hsl(color);
@@ -10248,7 +10262,7 @@ module.exports = function(color) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/lighter.coffee":[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 module.exports = function(color, increment) {
   var c;
   if (increment === void 0) {
@@ -10261,7 +10275,7 @@ module.exports = function(color, increment) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/mix.coffee":[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 module.exports = function(c1, c2, o1, o2) {
   var b, g, r;
   if (!o1) {
@@ -10280,7 +10294,7 @@ module.exports = function(c1, c2, o1, o2) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/random.coffee":[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var defaultScale;
 
 defaultScale = require("./scale.coffee");
@@ -10294,12 +10308,12 @@ module.exports = function(x, scale) {
 
 
 
-},{"./scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee"}],"/Users/Dave/Sites/D3plus/src/color/scale.coffee":[function(require,module,exports){
+},{"./scale.coffee":50}],50:[function(require,module,exports){
 module.exports = d3.scale.ordinal().range(["#b22200", "#EACE3F", "#282F6B", "#B35C1E", "#224F20", "#5F487C", "#759143", "#419391", "#993F88", "#e89c89", "#ffee8d", "#afd5e8", "#f7ba77", "#a5c697", "#c5b5e5", "#d1d392", "#bbefd0", "#e099cf"]);
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/sort.coffee":[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 module.exports = function(a, b) {
   var aHSL, bHSL;
   aHSL = d3.hsl(a);
@@ -10315,7 +10329,7 @@ module.exports = function(a, b) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/text.coffee":[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 module.exports = function(color) {
   var b, g, r, rgbColor, yiq;
   rgbColor = d3.rgb(color);
@@ -10332,7 +10346,7 @@ module.exports = function(color) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/color/validate.coffee":[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 module.exports = function(color) {
   var blackColors, testColor, userBlack;
   color = color + "";
@@ -10351,7 +10365,7 @@ module.exports = function(color) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/console/print.coffee":[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 var ie, print, wiki;
 
 ie = require("../../client/ie.js");
@@ -10460,7 +10474,7 @@ module.exports = print;
 
 
 
-},{"../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","./wiki.coffee":"/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee"}],"/Users/Dave/Sites/D3plus/src/core/console/wiki.coffee":[function(require,module,exports){
+},{"../../client/ie.js":40,"./wiki.coffee":55}],55:[function(require,module,exports){
 module.exports = {
   active: "Segmenting-Data#active",
   aggs: "Custom-Aggregations",
@@ -10522,7 +10536,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/data/color.js":[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var buckets = require("../../util/buckets.coffee"),
     fetchValue = require("../fetch/value.js"),
     print      = require("../console/print.coffee")
@@ -10584,7 +10598,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/data/filter.js":[function(require,module,exports){
+},{"../../util/buckets.coffee":188,"../console/print.coffee":54,"../fetch/value.js":67}],57:[function(require,module,exports){
 var fetchValue = require("../fetch/value.js"),
     print       = require("../console/print.coffee"),
     validObject = require("../../object/validate.coffee")
@@ -10699,7 +10713,7 @@ module.exports = function( vars , data ) {
 
 }
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/data/format.js":[function(require,module,exports){
+},{"../../object/validate.coffee":162,"../console/print.coffee":54,"../fetch/value.js":67}],58:[function(require,module,exports){
 var dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.js"),
     print      = require("../console/print.coffee"),
@@ -10907,13 +10921,13 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js"}],"/Users/Dave/Sites/D3plus/src/core/data/group.coffee":[function(require,module,exports){
+},{"../../util/uniques.coffee":194,"../console/print.coffee":54,"../fetch/value.js":67,"./nest.js":62}],59:[function(require,module,exports){
 var fetchValue;
 
 fetchValue = require("../fetch/value.js");
 
 module.exports = function(vars, data, nesting) {
-  var d, groupedData, i, n, strippedData, val, _i, _j, _len, _len1;
+  var d, groupedData, i, key, n, strippedData, val, _i, _j, _len, _len1;
   groupedData = d3.nest();
   if (nesting === void 0) {
     nesting = vars.id.nesting;
@@ -10921,8 +10935,9 @@ module.exports = function(vars, data, nesting) {
   for (i = _i = 0, _len = nesting.length; _i < _len; i = ++_i) {
     n = nesting[i];
     if (i < vars.depth.value) {
+      key = n;
       groupedData.key(function(d) {
-        return fetchValue(vars, d.d3plus, n);
+        return fetchValue(vars, d.d3plus, key);
       });
     }
   }
@@ -10946,7 +10961,7 @@ module.exports = function(vars, data, nesting) {
 
 
 
-},{"../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/data/keys.js":[function(require,module,exports){
+},{"../fetch/value.js":67}],60:[function(require,module,exports){
 var validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get Key Types from Data
@@ -10991,7 +11006,7 @@ module.exports = function( vars , type ) {
 
 }
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/core/data/load.coffee":[function(require,module,exports){
+},{"../../object/validate.coffee":162}],61:[function(require,module,exports){
 var print, validObject;
 
 print = require("../console/print.coffee");
@@ -11086,7 +11101,7 @@ module.exports = function(vars, key, next) {
 
 
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/core/data/nest.js":[function(require,module,exports){
+},{"../../object/validate.coffee":162,"../console/print.coffee":54}],62:[function(require,module,exports){
 var fetchValue = require("../fetch/value.js"),
     validObject  = require("../../object/validate.coffee"),
     uniqueValues = require("../../util/uniques.coffee")
@@ -11400,7 +11415,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
 module.exports = dataNest
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/data/threshold.js":[function(require,module,exports){
+},{"../../object/validate.coffee":162,"../../util/uniques.coffee":194,"../fetch/value.js":67}],63:[function(require,module,exports){
 var arraySort = require("../../array/sort.coffee"),
     dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.js"),
@@ -11589,7 +11604,7 @@ module.exports = function( vars , rawData , split ) {
 
 }
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js"}],"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee":[function(require,module,exports){
+},{"../../array/sort.coffee":37,"../fetch/color.coffee":64,"../fetch/text.js":66,"../fetch/value.js":67,"./nest.js":62}],64:[function(require,module,exports){
 var fetchValue, randomColor, validColor, validObject;
 
 fetchValue = require("./value.js");
@@ -11667,7 +11682,7 @@ module.exports = function(vars, id, level) {
 
 
 
-},{"../../color/random.coffee":"/Users/Dave/Sites/D3plus/src/color/random.coffee","../../color/validate.coffee":"/Users/Dave/Sites/D3plus/src/color/validate.coffee","../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","./value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/fetch/data.js":[function(require,module,exports){
+},{"../../color/random.coffee":49,"../../color/validate.coffee":53,"../../object/validate.coffee":162,"./value.js":67}],65:[function(require,module,exports){
 var dataFilter = require("../data/filter.js"),
     dataNest     = require("../data/nest.js"),
     print        = require("../console/print.coffee"),
@@ -11872,7 +11887,7 @@ module.exports = function(vars, years, depth) {
 
 }
 
-},{"../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../data/filter.js":"/Users/Dave/Sites/D3plus/src/core/data/filter.js","../data/nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js"}],"/Users/Dave/Sites/D3plus/src/core/fetch/text.js":[function(require,module,exports){
+},{"../../string/format.js":163,"../../string/list.coffee":164,"../console/print.coffee":54,"../data/filter.js":57,"../data/nest.js":62}],66:[function(require,module,exports){
 var fetchValue = require("./value.js"),
     validObject = require("../../object/validate.coffee"),
     uniqueValues = require("../../util/uniques.coffee")
@@ -11949,12 +11964,12 @@ module.exports = function(vars,obj,depth) {
     })
 
   }
-
+  
   return names
 
 }
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/core/fetch/value.js":[function(require,module,exports){
+},{"../../object/validate.coffee":162,"../../util/uniques.coffee":194,"./value.js":67}],67:[function(require,module,exports){
 var validObject = require("../../object/validate.coffee"),
     uniqueValues = require("../../util/uniques.coffee")
 
@@ -12034,8 +12049,8 @@ fetch = function( vars , id , variable , id_var , agg ) {
       if ( val ) return val
     }
 
-    if ( vars.data.app instanceof Array ) {
-      var val = checkData( filterArray( vars.data.app ) )
+    if ( vars.data.viz instanceof Array ) {
+      var val = checkData( filterArray( vars.data.viz ) )
       if ( val ) return val
     }
 
@@ -12103,7 +12118,7 @@ module.exports = function( vars , id , variable , id_var , agg ) {
 
 }
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee":[function(require,module,exports){
+},{"../../object/validate.coffee":162,"../../util/uniques.coffee":194}],68:[function(require,module,exports){
 module.exports = function(type) {
   var attrs, styles, tester;
   if (["div", "svg"].indexOf(type) < 0) {
@@ -12126,38 +12141,31 @@ module.exports = function(type) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js":[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 module.exports = {
-
-  "dev"          : {
-
-    "accepted"     : "{0} is not an accepted value for {1}, please use one of the following: {2}.",
-    "deprecated"   : "the {0} method has been removed, please update your code to use {1}.",
-    "noChange"     : "{0} was not updated because it did not change.",
-    "noContainer"  : "cannot find a container on the page matching {0}.",
-    "of"           : "of",
-    "oldStyle"     : "style properties for {0} have now been embedded directly into .{1}().",
-    "sameEdge"     : "edges cannot link to themselves. automatically removing self-referencing edge {0}.",
-    "set"          : "{0} has been set.",
-    "setLong"      : "{0} has been set to {1}.",
-    "setContainer" : "please define a container div using .container()"
-
+  dev: {
+    accepted: "{0} is not an accepted value for {1}, please use one of the following: {2}.",
+    deprecated: "the {0} method has been removed, please update your code to use {1}.",
+    noChange: "{0} was not updated because it did not change.",
+    noContainer: "cannot find a container on the page matching {0}.",
+    of: "of",
+    oldStyle: "style properties for {0} have now been embedded directly into .{1}().",
+    sameEdge: "edges cannot link to themselves. automatically removing self-referencing edge {0}.",
+    set: "{0} has been set.",
+    setLong: "{0} has been set to {1}.",
+    setContainer: "please define a container div using .container()"
   },
-
-  "error"        : {
-
-    "accepted"     : "{0} is not an accepted {1} for {2} visualizations, please use one of the following: {3}.",
-    "connections"  : "no connections available for {0}.",
-    "data"         : "no data available",
-    "dataYear"     : "no data available for {0}.",
-    "lib"          : "{0} visualizations require loading the {1} library.",
-    "libs"         : "{0} visualizations require loading the following libraries: {1}.",
-    "method"       : "{0} visualizations require setting the {1} method.",
-    "methods"      : "{0} visualizations require setting the following methods: {1}."
-
+  error: {
+    accepted: "{0} is not an accepted {1} for {2} visualizations, please use one of the following: {3}.",
+    connections: "no connections available for {0}.",
+    data: "no data available",
+    dataYear: "no data available for {0}.",
+    lib: "{0} visualizations require loading the {1} library.",
+    libs: "{0} visualizations require loading the following libraries: {1}.",
+    method: "{0} visualizations require setting the {1} method.",
+    methods: "{0} visualizations require setting the following methods: {1}."
   },
-
-  "format"       : {
+  format: {
     decimal: ".",
     thousands: ",",
     grouping: [3],
@@ -12171,81 +12179,56 @@ module.exports = {
     months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
   },
-
-  "lowercase"    : [ "a"
-                   , "and"
-                   , "at"
-                   , "but"
-                   , "in"
-                   , "of"
-                   , "or"
-                   , "the"
-                   , "to"
-                   , "with"
-  ],
-
-  "message"      : {
-
-    "data"         : "analyzing data",
-    "draw"         : "drawing visualization",
-    "initializing" : "initializing {0}",
-    "loading"      : "loading data",
-    "tooltipReset" : "resetting tooltips",
-    "ui"           : "updating ui"
-
+  lowercase: ["a", "and", "at", "but", "in", "of", "or", "the", "to", "with"],
+  message: {
+    data: "analyzing data",
+    draw: "drawing visualization",
+    initializing: "initializing {0}",
+    loading: "loading data",
+    tooltipReset: "resetting tooltips",
+    ui: "updating ui"
   },
-
-  "method"       : {
-
-    "active"       : "active segments",
-    "color"        : "color",
-    "depth"        : "depth",
-    "dev"          : "verbose",
-    "focus"        : "focus",
-    "icon"         : "icon",
-    "id"           : "id",
-    "height"       : "height",
-    "labels"       : "labels",
-    "legend"       : "legend",
-    "margin"       : "margin",
-    "messages"     : "status messages",
-    "mode"         : "mode",
-    "order"        : "order",
-    "search"       : "search",
-    "shape"        : "shape",
-    "size"         : "size",
-    "style"        : "style",
-    "temp"         : "temporary segments",
-    "text"         : "text",
-    "time"         : "time",
-    "timeline"     : "timeline",
-    "total"        : "total segments",
-    "type"         : "type",
-    "width"        : "width",
-    "x"            : "x axis",
-    "y"            : "y axis",
-    "zoom"         : "zoom"
-
+  method: {
+    active: "active segments",
+    color: "color",
+    depth: "depth",
+    dev: "verbose",
+    focus: "focus",
+    icon: "icon",
+    id: "id",
+    height: "height",
+    labels: "labels",
+    legend: "legend",
+    margin: "margin",
+    messages: "status messages",
+    mode: "mode",
+    order: "order",
+    search: "search",
+    shape: "shape",
+    size: "size",
+    style: "style",
+    temp: "temporary segments",
+    text: "text",
+    time: "time",
+    timeline: "timeline",
+    total: "total segments",
+    type: "type",
+    width: "width",
+    x: "x axis",
+    y: "y axis",
+    zoom: "zoom"
   },
-
-  "time"         : [ "date"
-                   , "day"
-                   , "month"
-                   , "time"
-                   , "year"
-
-  ],
-
-  "timeFormat": {
-    "FullYear": "%Y",
-    "Month": "%B",
-    "MonthSmall": "%b",
-    "Date": "%A %-d",
-    "DateSmall": "%-d",
-    "Hours": "%I %p",
-    "Minutes": "%I:%M",
-    "Seconds": "%Ss",
-    "Milliseconds": "%Lms",
+  time: ["date", "day", "month", "time", "year"],
+  timeFormat: {
+    FullYear: "%Y",
+    Month: "%B",
+    MonthSmall: "%b",
+    Date: "%A %-d",
+    DateSmall: "%-d",
+    Hours: "%I %p",
+    Minutes: "%I:%M",
+    Seconds: "%Ss",
+    Milliseconds: "%Lms",
     "FullYear-Month": "%b %Y",
     "FullYear-Date": "%-m/%-d/%Y",
     "Month-Date": "%b %-d",
@@ -12253,47 +12236,45 @@ module.exports = {
     "Hours-Seconds": "%I:%M:%S %p",
     "Hours-Milliseconds": "%H:%M:%S.%L"
   },
-
-  "ui"           : {
-
-    "and"          : "and",
-    "back"         : "back",
-    "collapse"     : "click to collapse",
-    "error"        : "error",
-    "expand"       : "click to expand",
-    "including"    : "including",
-    "loading"      : "loading...",
-    "more"         : "{0} more",
-    "moreInfo"     : "click for more info",
-    "noResults"    : "no results matching {0}.",
-    "primary"      : "primary connections",
-    "share"        : "share",
-    "total"        : "total",
-    "values"       : "values"
-
+  ui: {
+    and: "and",
+    back: "back",
+    collapse: "click to collapse",
+    error: "error",
+    expand: "click to expand",
+    including: "including",
+    loading: "loading...",
+    more: "{0} more",
+    moreInfo: "click for more info",
+    or: "or",
+    noResults: "no results matching {0}.",
+    primary: "primary connections",
+    share: "share",
+    total: "total",
+    values: "values"
   },
-
-  "uppercase"    : [ "tv"
-                   , "ui"
-  ],
-
-  "visualization": {
-
-    "bubbles"      : "Bubbles",
-    "chart"        : "Chart",
-    "geo_map"      : "Geo Map",
-    "line"         : "Line Plot",
-    "network"      : "Network",
-    "rings"        : "Rings",
-    "scatter"      : "Scatter Plot",
-    "stacked"      : "Stacked Area",
-    "tree_map"     : "Tree Map"
-
+  uppercase: ["tv", "ui"],
+  visualization: {
+    bar: "Bar Chart",
+    box: "Box Plot",
+    bubbles: "Bubbles",
+    chart: "Chart",
+    geo_map: "Geo Map",
+    line: "Line Plot",
+    network: "Network",
+    paths: "Paths",
+    pie: "Pie Chart",
+    rings: "Rings",
+    scatter: "Scatter Plot",
+    stacked: "Stacked Area",
+    table: "Table",
+    tree_map: "Tree Map"
   }
+};
 
-}
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/languages/mk_MK.js":[function(require,module,exports){
+
+},{}],70:[function(require,module,exports){
 module.exports = {
     "dev": {
         "accepted": "{0} не е прифатенa вредноста за {1}, ве молиме користете еднa од следниве вредности: {2}.",
@@ -12380,14 +12361,19 @@ module.exports = {
         "година"
     ],
     "visualization": {
+        "bar": "Бар табела",
+        "box": "Кутија Парцел",
         "bubbles": "Меурчиња",
         "chart": "Табела",
         "geo_map": "Гео мапа",
         "line": "Линиски график",
         "network": "Мрежа",
+        "path": "Патеки",
+        "pie": "Пита графикон",
         "rings": "Прстени",
         "scatter": "Распрскан график",
         "stacked": "Наредена површина",
+        "table": "Табела",
         "tree_map": "Мапа во вид на дрво"
     },
     "ui": {
@@ -12400,6 +12386,7 @@ module.exports = {
         "more": "{0} повеќе",
         "moreInfo": "кликнете за повеќе информации",
         "noResults": "Нема резултати за појавување на {0}.",
+        "or": "или",
         "primary": "основно врски",
         "share": "удел",
         "total": "Вкупно",
@@ -12420,7 +12407,7 @@ module.exports = {
     ]
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/languages/pt_BR.js":[function(require,module,exports){
+},{}],71:[function(require,module,exports){
 module.exports = {
     "dev": {
         "accepted": "{0} não é um valor aceito para {1}, por favor, use um dos seguintes procedimentos: {2}.",
@@ -12507,14 +12494,19 @@ module.exports = {
         "mês"
     ],
     "visualization": {
+        "bar": "Gráfico de Barras",
+        "box": "Box Plot",
         "bubbles": "Bolhas",
         "chart": "Gráfico",
         "geo_map": "Mapa",
         "line": "Gráfico de Linha",
         "network": "Rede",
+        "path": "Caminhos",
+        "pie": "Pie Chart",
         "rings": "Anéis",
         "scatter": "Dispersão",
         "stacked": "Evolução",
+        "table": "Tabela",
         "tree_map": "Tree Map"
     },
     "ui": {
@@ -12527,6 +12519,7 @@ module.exports = {
         "more": "mais {0}",
         "moreInfo": "clique para mais informações",
         "noResults": "nenhum resultado para {0}.",
+        "or": "ou",
         "primary": "conexões primárias",
         "share": "participação",
         "total": "total",
@@ -12546,7 +12539,7 @@ module.exports = {
     ]
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/languages/zh_CN.js":[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 module.exports = {
     "dev": {
         "accepted": "{0}不是{1}的可接受值, 请用下列之一的值:{2}",
@@ -12634,14 +12627,19 @@ module.exports = {
         "年"
     ],
     "visualization": {
+        "bar": "条形图",
+        "box": "箱线图",
         "bubbles": "气泡",
         "chart": "图表",
         "geo_map": "地理地图",
         "line": "线图",
         "network": "网络",
+        "path": "路径",
+        "pie": "饼图",
         "rings": "特性",
         "scatter": "散点图",
         "stacked": "堆积面积图",
+        "table": "表",
         "tree_map": "树图"
     },
     "ui": {
@@ -12654,6 +12652,7 @@ module.exports = {
         "more": "{0}更多",
         "moreInfo": "点击了解更多信息",
         "noResults": "没有结果匹配{0}。",
+        "or": "或",
         "primary": "主要连接",
         "share": "共享",
         "total": "总",
@@ -12675,9 +12674,9 @@ module.exports = {
     ]
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee":[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 module.exports = {
-  en_US: require("./languages/en_US.js"),
+  en_US: require("./languages/en_US.coffee"),
   mk_MK: require("./languages/mk_MK.js"),
   pt_BR: require("./languages/pt_BR.js"),
   zh_CN: require("./languages/zh_CN.js")
@@ -12685,7 +12684,7 @@ module.exports = {
 
 
 
-},{"./languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","./languages/mk_MK.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/mk_MK.js","./languages/pt_BR.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/pt_BR.js","./languages/zh_CN.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/zh_CN.js"}],"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee":[function(require,module,exports){
+},{"./languages/en_US.coffee":69,"./languages/mk_MK.js":70,"./languages/pt_BR.js":71,"./languages/zh_CN.js":72}],74:[function(require,module,exports){
 var checkObject, copy, createFunction, initialize, print, process, setMethod, stringFormat, validObject;
 
 copy = require("../../util/copy.coffee");
@@ -12835,7 +12834,7 @@ checkObject = function(vars, method, object, key, value) {
 
 
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./process/detect.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee","./set.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/set.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee":[function(require,module,exports){
+},{"../../object/validate.coffee":162,"../../string/format.js":163,"../../util/copy.coffee":191,"../console/print.coffee":54,"./process/detect.coffee":82,"./set.coffee":87}],75:[function(require,module,exports){
 module.exports = function(g) {
   if (!g) {
     g = false;
@@ -12850,7 +12849,7 @@ module.exports = function(g) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee":[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 var rtl;
 
 rtl = require("../../../client/rtl.coffee");
@@ -12882,7 +12881,7 @@ module.exports = function(align) {
 
 
 
-},{"../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee":[function(require,module,exports){
+},{"../../../client/rtl.coffee":43}],77:[function(require,module,exports){
 module.exports = function(decoration) {
   if (!decoration) {
     decoration = "none";
@@ -12895,7 +12894,7 @@ module.exports = function(decoration) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee":[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 var helvetica, validate;
 
 validate = require("../../../font/validate.coffee");
@@ -12914,7 +12913,7 @@ module.exports = function(family) {
 
 
 
-},{"../../../font/validate.coffee":"/Users/Dave/Sites/D3plus/src/font/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/font/position.coffee":[function(require,module,exports){
+},{"../../../font/validate.coffee":95}],79:[function(require,module,exports){
 module.exports = function(position) {
   if (!position) {
     position = "bottom";
@@ -12936,7 +12935,7 @@ module.exports = function(position) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee":[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 module.exports = function(transform) {
   if (!transform) {
     transform = "none";
@@ -12949,7 +12948,7 @@ module.exports = function(transform) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee":[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../../util/d3selection.coffee");
@@ -12976,7 +12975,7 @@ module.exports = function(value, vars) {
 
 
 
-},{"../../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee":[function(require,module,exports){
+},{"../../../util/d3selection.coffee":192}],82:[function(require,module,exports){
 var copy, update;
 
 copy = require("../../../util/copy.coffee");
@@ -12997,7 +12996,7 @@ module.exports = function(vars, object, value) {
 
 
 
-},{"../../../array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee":[function(require,module,exports){
+},{"../../../array/update.coffee":38,"../../../util/copy.coffee":191}],83:[function(require,module,exports){
 var stylesheet;
 
 stylesheet = require("../../../client/css.coffee");
@@ -13012,7 +13011,58 @@ module.exports = function(value) {
 
 
 
-},{"../../../client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee":[function(require,module,exports){
+},{"../../../client/css.coffee":39}],84:[function(require,module,exports){
+var contains, format, list, print;
+
+contains = require("../../array/contains.coffee");
+
+format = require("../../string/format.js");
+
+list = require("../../string/list.coffee");
+
+print = require("../console/print.coffee");
+
+module.exports = function(vars, accepted, value, method, text) {
+  var a, allowed, app, recs, str, val, _i, _len;
+  if (typeof accepted === "function") {
+    accepted = accepted(vars);
+  }
+  if (!(accepted instanceof Array)) {
+    accepted = [accepted];
+  }
+  allowed = contains(accepted, value);
+  if (allowed === false && value !== void 0) {
+    recs = [];
+    val = JSON.stringify(value);
+    if (typeof value !== "string") {
+      val = "\"" + val + "\"";
+    }
+    for (_i = 0, _len = accepted.length; _i < _len; _i++) {
+      a = accepted[_i];
+      if (typeof a === "string") {
+        recs.push("\"" + a + "\"");
+      } else if (typeof a === "function") {
+        recs.push(a.toString().split("()")[0].substring(9));
+      } else {
+        recs.push(a.toString());
+      }
+    }
+    recs = list(recs, vars.format.locale.value.ui.or);
+    if (vars.type && ["mode", "shape"].indexOf(method) >= 0) {
+      str = vars.format.locale.value.error.accepted;
+      app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value;
+      print.warning(format(str, val, method, app, recs), method);
+    } else {
+      str = vars.format.locale.value.dev.accepted;
+      print.warning(format(str, val, text, recs), method);
+    }
+  }
+  return !allowed;
+};
+
+
+
+},{"../../array/contains.coffee":36,"../../string/format.js":163,"../../string/list.coffee":164,"../console/print.coffee":54}],85:[function(require,module,exports){
 module.exports = function(rendering) {
   var accepted;
   accepted = ["auto", "optimizeSpeed", "crispEdges", "geometricPrecision"];
@@ -13027,7 +13077,7 @@ module.exports = function(rendering) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee":[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 var reset, validObject;
 
 validObject = require("../../object/validate.coffee");
@@ -13053,8 +13103,8 @@ module.exports = reset;
 
 
 
-},{"../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/core/methods/set.coffee":[function(require,module,exports){
-var copy, d3selection, mergeObject, print, process, stringFormat, stringList, updateArray, validObject;
+},{"../../object/validate.coffee":162}],87:[function(require,module,exports){
+var copy, d3selection, mergeObject, print, process, rejected, stringFormat, updateArray, validObject;
 
 copy = require("../../util/copy.coffee");
 
@@ -13068,14 +13118,14 @@ print = require("../console/print.coffee");
 
 process = require("./process/detect.coffee");
 
-stringFormat = require("../../string/format.js");
+rejected = require("./rejected.coffee");
 
-stringList = require("../../string/list.coffee");
+stringFormat = require("../../string/format.js");
 
 updateArray = require("../../array/update.coffee");
 
 module.exports = function(vars, method, object, key, value) {
-  var accepted, allowed, and_, c, constructor, d3object, hasValue, id, k, longArray, n, parentKey, recs, str, text, typeFunction, val, valString;
+  var accepted, c, d3object, hasValue, id, k, longArray, n, parentKey, str, text, typeFunction, valString;
   if (key === "value" || !key || key === method) {
     text = "." + method + "()";
   } else {
@@ -13086,41 +13136,9 @@ module.exports = function(vars, method, object, key, value) {
   } else if (validObject(object[key]) && "accepted" in object[key]) {
     accepted = object[key].accepted;
   } else {
-    accepted = null;
+    accepted = [value];
   }
-  if (typeof accepted === "function") {
-    accepted = accepted(vars);
-  }
-  if (accepted !== null && (!(accepted instanceof Array))) {
-    accepted = [accepted];
-  }
-  allowed = true;
-  if (accepted instanceof Array) {
-    constructor = (value === void 0 ? value : value.constructor);
-    allowed = accepted.indexOf(value) >= 0 || accepted.indexOf(constructor) >= 0;
-  }
-  if (allowed === false) {
-    if (value !== void 0) {
-      str = vars.format.locale.value.dev.accepted;
-      recs = [];
-      val = JSON.stringify(value);
-      and_ = vars.format.locale.value.ui.and;
-      if (typeof value !== "string") {
-        val = "\"" + val + "\"";
-      }
-      accepted.forEach(function(a) {
-        if (typeof a === "string") {
-          recs.push("\"" + a + "\"");
-        } else if (typeof a === "function") {
-          recs.push(a.toString().split("()")[0].substring(9));
-        } else {
-          recs.push(a.toString());
-        }
-      });
-      recs = stringList(recs, and_);
-      print.warning(stringFormat(str, val, text, recs), method);
-    }
-  } else {
+  if (!rejected(vars, accepted, value, method, text)) {
     if (validObject(object[key]) && "value" in object[key]) {
       parentKey = key;
       object = object[key];
@@ -13239,7 +13257,7 @@ module.exports = function(vars, method, object, key, value) {
 
 
 
-},{"../../array/update.coffee":"/Users/Dave/Sites/D3plus/src/array/update.coffee","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./process/detect.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/detect.coffee"}],"/Users/Dave/Sites/D3plus/src/core/parse/edges.js":[function(require,module,exports){
+},{"../../array/update.coffee":38,"../../object/merge.coffee":161,"../../object/validate.coffee":162,"../../string/format.js":163,"../../util/copy.coffee":191,"../../util/d3selection.coffee":192,"../console/print.coffee":54,"./process/detect.coffee":82,"./rejected.coffee":84}],88:[function(require,module,exports){
 var print = require("../console/print.coffee"),
     stringFormat = require("../../string/format.js")
 
@@ -13319,7 +13337,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/core/parse/element.js":[function(require,module,exports){
+},{"../../string/format.js":163,"../console/print.coffee":54}],89:[function(require,module,exports){
 // Parses an HTML element for data
 module.exports = function( vars ) {
 
@@ -13476,7 +13494,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/core/parse/nodes.js":[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 var print = require("../console/print.coffee")
 
 // Calculates node positions, if needed for network.
@@ -13533,7 +13551,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/data/bestRegress.coffee":[function(require,module,exports){
+},{"../console/print.coffee":54}],91:[function(require,module,exports){
 var numeric;
 
 numeric = require('numeric');
@@ -13611,7 +13629,7 @@ module.exports = function(data, options) {
 
 
 
-},{"numeric":"/Users/Dave/Sites/D3plus/node_modules/numeric/numeric-1.2.6.js"}],"/Users/Dave/Sites/D3plus/src/data/lof.coffee":[function(require,module,exports){
+},{"numeric":8}],92:[function(require,module,exports){
 var kdtree;
 
 kdtree = require('static-kdtree');
@@ -13693,7 +13711,7 @@ module.exports = function(points, K) {
 
 
 
-},{"static-kdtree":"/Users/Dave/Sites/D3plus/node_modules/static-kdtree/kdtree.js"}],"/Users/Dave/Sites/D3plus/src/data/mad.coffee":[function(require,module,exports){
+},{"static-kdtree":10}],93:[function(require,module,exports){
 module.exports = function(points) {
   var mad, median, result;
   median = d3.median(points);
@@ -13710,7 +13728,7 @@ module.exports = function(points) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/font/sizes.coffee":[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 var fontTester;
 
 fontTester = require("../core/font/tester.coffee");
@@ -13744,7 +13762,7 @@ module.exports = function(words, style, parent) {
 
 
 
-},{"../core/font/tester.coffee":"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee"}],"/Users/Dave/Sites/D3plus/src/font/validate.coffee":[function(require,module,exports){
+},{"../core/font/tester.coffee":68}],95:[function(require,module,exports){
 var fontTester, validate;
 
 fontTester = require("../core/font/tester.coffee");
@@ -13803,7 +13821,7 @@ module.exports = validate;
 
 
 
-},{"../core/font/tester.coffee":"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee"}],"/Users/Dave/Sites/D3plus/src/form/form.js":[function(require,module,exports){
+},{"../core/font/tester.coffee":68}],96:[function(require,module,exports){
 var arraySort = require("../array/sort.coffee"),
     attach      = require("../core/methods/attach.coffee"),
     dataFormat  = require("../core/data/format.js"),
@@ -13861,14 +13879,14 @@ module.exports = function() {
         dataFormat( vars )
       }
 
-      vars.data.app = fetchData( vars )
+      vars.data.viz = fetchData( vars )
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
       //------------------------------------------------------------------------
       if ( vars.data.changed || vars.order.changed || vars.order.sort.changed ) {
 
-        arraySort( vars.data.app , vars.order.value || vars.text.value
+        arraySort( vars.data.viz , vars.order.value || vars.text.value
                          , vars.order.sort.value , vars.color.value , vars )
 
       }
@@ -13888,8 +13906,8 @@ module.exports = function() {
           if (val) vars.focus.value = val
         }
 
-        if ( !vars.focus.value && vars.data.app.length ) {
-          vars.focus.value = vars.data.app[0][vars.id.value]
+        if ( !vars.focus.value && vars.data.viz.length ) {
+          vars.focus.value = vars.data.viz[0][vars.id.value]
         }
 
         if ( vars.dev.value && vars.focus.value ) print.log("\"value\" set to \""+vars.focus+"\"")
@@ -13921,7 +13939,7 @@ module.exports = function() {
         //----------------------------------------------------------------------
         if ( vars.search.value === "auto" ) {
 
-          if (vars.data.app.length > 10) {
+          if (vars.data.viz.length > 10) {
             vars.search.enabled = true
             if ( vars.dev.value ) print.log("Search enabled.")
           }
@@ -14168,7 +14186,7 @@ module.exports = function() {
 
 }
 
-},{"../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../core/data/format.js":"/Users/Dave/Sites/D3plus/src/core/data/format.js","../core/data/keys.js":"/Users/Dave/Sites/D3plus/src/core/data/keys.js","../core/data/load.coffee":"/Users/Dave/Sites/D3plus/src/core/data/load.coffee","../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","../core/methods/reset.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","./methods/active.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/active.coffee","./methods/aggs.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee","./methods/alt.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee","./methods/color.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/color.coffee","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/container.coffee","./methods/data.js":"/Users/Dave/Sites/D3plus/src/form/methods/data.js","./methods/depth.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee","./methods/draw.js":"/Users/Dave/Sites/D3plus/src/form/methods/draw.js","./methods/focus.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee","./methods/font.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/font.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/height.coffee","./methods/history.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/history.coffee","./methods/hover.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee","./methods/icon.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee","./methods/id.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/id.coffee","./methods/keywords.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee","./methods/margin.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee","./methods/open.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/open.coffee","./methods/order.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/order.coffee","./methods/remove.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee","./methods/search.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/search.coffee","./methods/select.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/select.coffee","./methods/selectAll.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/text.coffee","./methods/timing.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee","./methods/title.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/title.coffee","./methods/type.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/type.coffee","./methods/ui.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/form/methods/width.coffee","./types/auto.js":"/Users/Dave/Sites/D3plus/src/form/types/auto.js","./types/button/button.js":"/Users/Dave/Sites/D3plus/src/form/types/button/button.js","./types/drop/drop.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js","./types/toggle.js":"/Users/Dave/Sites/D3plus/src/form/types/toggle.js"}],"/Users/Dave/Sites/D3plus/src/form/methods/active.coffee":[function(require,module,exports){
+},{"../array/sort.coffee":37,"../client/ie.js":40,"../core/console/print.coffee":54,"../core/data/format.js":58,"../core/data/keys.js":60,"../core/data/load.coffee":61,"../core/fetch/data.js":65,"../core/methods/attach.coffee":74,"../core/methods/reset.coffee":86,"./methods/active.coffee":97,"./methods/aggs.coffee":98,"./methods/alt.coffee":99,"./methods/color.coffee":100,"./methods/container.coffee":101,"./methods/data.js":102,"./methods/depth.coffee":103,"./methods/dev.coffee":104,"./methods/draw.js":105,"./methods/focus.coffee":106,"./methods/font.coffee":107,"./methods/format.coffee":108,"./methods/height.coffee":109,"./methods/history.coffee":110,"./methods/hover.coffee":111,"./methods/icon.coffee":112,"./methods/id.coffee":113,"./methods/keywords.coffee":114,"./methods/margin.coffee":115,"./methods/open.coffee":116,"./methods/order.coffee":117,"./methods/remove.coffee":118,"./methods/search.coffee":119,"./methods/select.coffee":120,"./methods/selectAll.coffee":121,"./methods/text.coffee":122,"./methods/timing.coffee":123,"./methods/title.coffee":124,"./methods/type.coffee":125,"./methods/ui.coffee":126,"./methods/width.coffee":127,"./types/auto.js":128,"./types/button/button.js":129,"./types/drop/drop.js":134,"./types/toggle.js":151}],97:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14180,7 +14198,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/aggs.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],98:[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   objectAccess: false,
@@ -14189,7 +14207,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/alt.coffee":[function(require,module,exports){
+},{}],99:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14203,7 +14221,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/color.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],100:[function(require,module,exports){
 var filter, scale;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14241,7 +14259,7 @@ module.exports = {
 
 
 
-},{"../../color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/container.coffee":[function(require,module,exports){
+},{"../../color/scale.coffee":50,"../../core/methods/filter.coffee":75}],101:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -14266,7 +14284,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/data.js":[function(require,module,exports){
+},{"../../util/d3selection.coffee":192}],102:[function(require,module,exports){
 var d3selection = require("../../util/d3selection.coffee"),
     process = require("../../core/methods/process/data.coffee")
 
@@ -14329,7 +14347,7 @@ module.exports = {
   "value"    : false
 }
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee","../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/depth.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":81,"../../util/d3selection.coffee":192}],103:[function(require,module,exports){
 module.exports = {
   accepted: [Function, Number],
   value: 0
@@ -14337,7 +14355,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/dev.coffee":[function(require,module,exports){
+},{}],104:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -14345,7 +14363,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/draw.js":[function(require,module,exports){
+},{}],105:[function(require,module,exports){
 var d3selection  = require("../../util/d3selection.coffee"),
     parseElement = require("../../core/parse/element.js"),
     print        = require("../../core/console/print.coffee"),
@@ -14418,7 +14436,7 @@ module.exports = {
   "value"    : undefined
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/parse/element.js":"/Users/Dave/Sites/D3plus/src/core/parse/element.js","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/focus.coffee":[function(require,module,exports){
+},{"../../core/console/print.coffee":54,"../../core/parse/element.js":89,"../../string/format.js":163,"../../util/d3selection.coffee":192}],106:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, Number, String],
   deprecates: "highlight",
@@ -14454,7 +14472,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/font.coffee":[function(require,module,exports){
+},{}],107:[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -14488,7 +14506,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/format.coffee":[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":76,"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],108:[function(require,module,exports){
 var formatNumber, locale, mergeObject, titleCase;
 
 formatNumber = require("../../number/format.js");
@@ -14561,7 +14579,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":"/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","../../number/format.js":"/Users/Dave/Sites/D3plus/src/number/format.js","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../../string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/height.coffee":[function(require,module,exports){
+},{"../../core/locale/locale.coffee":73,"../../number/format.js":160,"../../object/merge.coffee":161,"../../string/title.coffee":166}],109:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   max: 600,
@@ -14572,7 +14590,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/history.coffee":[function(require,module,exports){
+},{}],110:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   back: function() {
@@ -14587,7 +14605,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/hover.coffee":[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number, String],
   value: false
@@ -14595,7 +14613,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/icon.coffee":[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/icon.coffee");
@@ -14651,7 +14669,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/icon.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/id.coffee":[function(require,module,exports){
+},{"../../core/methods/process/icon.coffee":83}],113:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14668,7 +14686,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/keywords.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],114:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14682,7 +14700,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/margin.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],115:[function(require,module,exports){
 module.exports = {
   accepted: [Number, Object, String],
   process: function(value) {
@@ -14751,7 +14769,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/open.coffee":[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   flipped: {
@@ -14763,7 +14781,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/order.coffee":[function(require,module,exports){
+},{}],117:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, String],
   sort: {
@@ -14776,7 +14794,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/remove.coffee":[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 module.exports = {
   accepted: void 0,
   process: function(value, vars) {
@@ -14789,7 +14807,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/search.coffee":[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 module.exports = {
   accepted: ["auto", Boolean],
   process: function(value) {
@@ -14803,7 +14821,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/select.coffee":[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   chainable: false,
@@ -14821,7 +14839,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/selectAll.coffee":[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   chainable: false,
@@ -14839,7 +14857,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/text.coffee":[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -14859,7 +14877,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/timing.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],123:[function(require,module,exports){
 module.exports = {
   mouseevents: 60,
   transitions: 600,
@@ -14868,7 +14886,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/title.coffee":[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 var decoration, family, stringStrip, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -14906,7 +14924,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/form/methods/type.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80,"../../string/strip.js":165}],125:[function(require,module,exports){
 module.exports = {
   accepted: function(vars) {
     return d3.keys(vars.types);
@@ -14916,7 +14934,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/methods/ui.coffee":[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -14972,7 +14990,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/form/methods/width.coffee":[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":76,"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],127:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   secondary: false,
@@ -14982,7 +15000,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/auto.js":[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines form type based on data length.
 //------------------------------------------------------------------------------
@@ -15002,7 +15020,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/button/button.js":[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 var print = require("../../../core/console/print.coffee"),
     color = require("./functions/color.js"),
     icons = require("./functions/icons.js"),
@@ -15017,7 +15035,7 @@ module.exports = function( vars ) {
   // Bind Data to Buttons
   //----------------------------------------------------------------------------
   var button = vars.container.ui.selectAll("div.d3plus_node")
-    .data(vars.data.app,function(d){
+    .data(vars.data.viz,function(d){
       return d[vars.id.value]
     })
 
@@ -15085,7 +15103,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./functions/color.js":"/Users/Dave/Sites/D3plus/src/form/types/button/functions/color.js","./functions/icons.js":"/Users/Dave/Sites/D3plus/src/form/types/button/functions/icons.js","./functions/mouseevents.js":"/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js","./functions/style.js":"/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/color.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":54,"./functions/color.js":130,"./functions/icons.js":131,"./functions/mouseevents.js":132,"./functions/style.js":133}],130:[function(require,module,exports){
 var legible = require("../../../../color/legible.coffee"),
     lighter   = require("../../../../color/lighter.coffee"),
     textColor = require("../../../../color/text.coffee")
@@ -15122,7 +15140,7 @@ module.exports = function ( elem , vars ) {
     })
     .style("color",function(d){
 
-      var image = d[vars.icon.value] && vars.data.app.length < vars.data.large
+      var image = d[vars.icon.value] && vars.data.viz.length < vars.data.large
 
       if ( vars.focus.value === d[vars.id.value] ) {
         var opacity = 1
@@ -15150,7 +15168,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{"../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/icons.js":[function(require,module,exports){
+},{"../../../../color/legible.coffee":46,"../../../../color/lighter.coffee":47,"../../../../color/text.coffee":52}],131:[function(require,module,exports){
 var prefix = require("../../../../client/prefix.coffee"),
     rtl = require("../../../../client/rtl.coffee")
 
@@ -15164,7 +15182,7 @@ module.exports = function ( elem , vars ) {
 
       var children = ["label"]
 
-      if ( d[vars.icon.value] && vars.data.app.length <= vars.data.large ) {
+      if ( d[vars.icon.value] && vars.data.viz.length <= vars.data.large ) {
         children.push("icon")
       }
 
@@ -15330,7 +15348,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{"../../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/mouseevents.js":[function(require,module,exports){
+},{"../../../../client/prefix.coffee":42,"../../../../client/rtl.coffee":43}],132:[function(require,module,exports){
 var events = require("../../../../client/pointer.coffee"),
     ie = require("../../../../client/ie.js")
 
@@ -15382,7 +15400,7 @@ module.exports = function ( elem , vars , color ) {
 
 }
 
-},{"../../../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/button/functions/style.js":[function(require,module,exports){
+},{"../../../../client/ie.js":40,"../../../../client/pointer.coffee":41}],133:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -15401,7 +15419,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/drop.js":[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Dropdown Menu
 //------------------------------------------------------------------------------
@@ -15479,7 +15497,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"./functions/button.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/button.js","./functions/data.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","./functions/element.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/element.js","./functions/keyboard.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/keyboard.js","./functions/list.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/list.js","./functions/search.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/search.js","./functions/selector.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js","./functions/title.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/title.js","./functions/update.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js","./functions/width.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/width.js","./functions/window.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/window.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/active.js":[function(require,module,exports){
+},{"./functions/button.js":137,"./functions/data.js":138,"./functions/element.js":139,"./functions/keyboard.js":142,"./functions/list.js":143,"./functions/search.js":145,"./functions/selector.js":146,"./functions/title.js":147,"./functions/update.js":148,"./functions/width.js":149,"./functions/window.js":150}],135:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if a given variable is allowed to be selected.
 //------------------------------------------------------------------------------
@@ -15515,7 +15533,7 @@ module.exports = function ( vars , value , active ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/arrow.js":[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
@@ -15546,7 +15564,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/button.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":54}],137:[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     events = require("../../../../client/pointer.coffee"),
     form   = require("../../../form.js"),
@@ -15590,7 +15608,7 @@ module.exports = function ( vars ) {
     })[0])
 
     if ( !buttonData ) {
-      buttonData = vars.container.button.data()[0] || vars.data.app[0]
+      buttonData = vars.container.button.data()[0] || vars.data.viz[0]
     }
 
     vars.container.button
@@ -15632,7 +15650,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../../form.js":"/Users/Dave/Sites/D3plus/src/form/form.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js":[function(require,module,exports){
+},{"../../../../client/pointer.coffee":41,"../../../../core/console/print.coffee":54,"../../../../util/copy.coffee":191,"../../../form.js":96}],138:[function(require,module,exports){
 var stringFormat = require("../../../../string/format.js"),
     stringStrip = require("../../../../string/strip.js")
 
@@ -15660,7 +15678,7 @@ module.exports = function ( vars ) {
     searchWords = searchWords.filter(function(t){ return t != ""; })
 
     if (!vars.text.solo.value.length || vars.text.solo.value[0] === "") {
-      vars.data.filtered = vars.data.app
+      vars.data.filtered = vars.data.viz
       if (vars.id.nesting.length > 1 && vars.depth.value < vars.id.nesting.length-1) {
         vars.data.filtered = vars.data.filtered.filter(function(d){
           if ("endPoint" in d.d3plus && d.d3plus.endPoint === vars.depth.value) {
@@ -15753,7 +15771,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/element.js":[function(require,module,exports){
+},{"../../../../string/format.js":163,"../../../../string/strip.js":165}],139:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Overrides keyboard behavior of the original input element.
 //------------------------------------------------------------------------------
@@ -15792,7 +15810,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/height.js":[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the height and orientation of the dropdown list, based on
 // available screen space.
@@ -15819,7 +15837,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js":[function(require,module,exports){
+},{}],141:[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     form = require("../../../form.js"),
     print = require("../../../../core/console/print.coffee")
@@ -15946,7 +15964,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../../form.js":"/Users/Dave/Sites/D3plus/src/form/form.js","./active.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/active.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/keyboard.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":54,"../../../../util/copy.coffee":191,"../../../form.js":96,"./active.js":135}],142:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Assigns behavior to the user's keyboard for navigation.
 //------------------------------------------------------------------------------
@@ -16056,7 +16074,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/list.js":[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
@@ -16078,7 +16096,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/scroll.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":54}],144:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
@@ -16183,7 +16201,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/search.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":54}],145:[function(require,module,exports){
 var prefix = require("../../../../client/prefix.coffee"),
     print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -16276,7 +16294,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./data.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/data.js","./items.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","./update.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/selector.js":[function(require,module,exports){
+},{"../../../../client/prefix.coffee":42,"../../../../core/console/print.coffee":54,"./data.js":138,"./items.js":141,"./update.js":148}],146:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
@@ -16298,7 +16316,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/title.js":[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 var events = require("../../../../client/pointer.coffee"),
     lighter   = require("../../../../color/lighter.coffee"),
     print     = require("../../../../core/console/print.coffee"),
@@ -16316,7 +16334,7 @@ module.exports = function ( vars ) {
     var self    = this
       , enabled = vars.id.solo.value.length === 1 && vars.depth.value > 0
       , title   = enabled
-      , focus   = vars.container.button.data(Object).app[0]
+      , focus   = vars.container.button.data(Object).viz[0]
 
     title = true
     for (var i = 0; i < vars.id.nesting.length; i++) {
@@ -16449,7 +16467,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/update.js":[function(require,module,exports){
+},{"../../../../client/pointer.coffee":41,"../../../../color/lighter.coffee":47,"../../../../color/text.coffee":52,"../../../../core/console/print.coffee":54}],148:[function(require,module,exports){
 var items = require("./items.js"),
     height     = require("./height.js"),
     print      = require("../../../../core/console/print.coffee"),
@@ -16614,7 +16632,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","./arrow.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/arrow.js","./height.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/height.js","./items.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/items.js","./scroll.js":"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/scroll.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/width.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":54,"./arrow.js":136,"./height.js":140,"./items.js":141,"./scroll.js":144}],149:[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     fontTester  = require("../../../../core/font/tester.coffee"),
     form        = require("../../../form.js"),
@@ -16709,7 +16727,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../core/font/tester.coffee":"/Users/Dave/Sites/D3plus/src/core/font/tester.coffee","../../../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../../form.js":"/Users/Dave/Sites/D3plus/src/form/form.js"}],"/Users/Dave/Sites/D3plus/src/form/types/drop/functions/window.js":[function(require,module,exports){
+},{"../../../../core/console/print.coffee":54,"../../../../core/font/tester.coffee":68,"../../../../object/validate.coffee":162,"../../../../util/copy.coffee":191,"../../../form.js":96}],150:[function(require,module,exports){
 var child = require("../../../../util/child.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -16754,7 +16772,7 @@ var windowEvents = function ( vars , elem ) {
 
 module.exports = windowEvents
 
-},{"../../../../util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee"}],"/Users/Dave/Sites/D3plus/src/form/types/toggle.js":[function(require,module,exports){
+},{"../../../../util/child.coffee":189}],151:[function(require,module,exports){
 var form = require("../form.js")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -16770,13 +16788,13 @@ module.exports = function( vars ) {
 
   }
 
-  var dataLength  = vars.data.app.length
+  var dataLength  = vars.data.viz.length
     , buttonWidth = vars.width.value
                   ? vars.width.value/dataLength
                   : false
 
   var toggles = vars.container.ui.selectAll("div.d3plus_toggle")
-    .data(vars.data.app,function(d){
+    .data(vars.data.viz,function(d){
       return d[vars.id.value]
     })
 
@@ -16839,7 +16857,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../form.js":"/Users/Dave/Sites/D3plus/src/form/form.js"}],"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee":[function(require,module,exports){
+},{"../form.js":96}],152:[function(require,module,exports){
 var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, print, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
 
 print = require("../core/console/print.coffee");
@@ -17253,7 +17271,7 @@ intersectPoints = function(poly, origin, alpha) {
 
 
 
-},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","simplify-js":"/Users/Dave/Sites/D3plus/node_modules/simplify-js/simplify.js"}],"/Users/Dave/Sites/D3plus/src/geom/offset.coffee":[function(require,module,exports){
+},{"../core/console/print.coffee":54,"simplify-js":9}],153:[function(require,module,exports){
 module.exports = function(radians, distance, shape) {
   var adjacentLegLength, coords, diagonal, oppositeLegLength;
   coords = {
@@ -17319,7 +17337,7 @@ module.exports = function(radians, distance, shape) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee":[function(require,module,exports){
+},{}],154:[function(require,module,exports){
 var offset;
 
 offset = require("../geom/offset.coffee");
@@ -17365,7 +17383,7 @@ module.exports = function(path) {
 
 
 
-},{"../geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee"}],"/Users/Dave/Sites/D3plus/src/network/cluster.coffee":[function(require,module,exports){
+},{"../geom/offset.coffee":153}],155:[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -17503,7 +17521,7 @@ module.exports = function(edges, options) {
 
 
 
-},{"./normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee"}],"/Users/Dave/Sites/D3plus/src/network/distances.coffee":[function(require,module,exports){
+},{"./normalize.coffee":157}],156:[function(require,module,exports){
 module.exports = function(arr, accessor) {
   var checked, distances;
   distances = [];
@@ -17529,7 +17547,7 @@ module.exports = function(arr, accessor) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/network/normalize.coffee":[function(require,module,exports){
+},{}],157:[function(require,module,exports){
 var print;
 
 print = require("../core/console/print.coffee");
@@ -17678,7 +17696,7 @@ module.exports = function(edges, options) {
 
 
 
-},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee":[function(require,module,exports){
+},{"../core/console/print.coffee":54}],158:[function(require,module,exports){
 var Heap, normalize;
 
 Heap = require('heap');
@@ -17776,7 +17794,7 @@ module.exports = function(edges, source, options) {
 
 
 
-},{"./normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee","heap":"/Users/Dave/Sites/D3plus/node_modules/heap/index.js"}],"/Users/Dave/Sites/D3plus/src/network/subgraph.coffee":[function(require,module,exports){
+},{"./normalize.coffee":157,"heap":6}],159:[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -17847,8 +17865,8 @@ module.exports = function(edges, source, options) {
 
 
 
-},{"./normalize.coffee":"/Users/Dave/Sites/D3plus/src/network/normalize.coffee"}],"/Users/Dave/Sites/D3plus/src/number/format.js":[function(require,module,exports){
-var defaultLocale = require("../core/locale/languages/en_US.js")
+},{"./normalize.coffee":157}],160:[function(require,module,exports){
+var defaultLocale = require("../core/locale/languages/en_US.coffee")
 
 // Formats numbers to look "pretty"
 module.exports = function( number , key , vars ) {
@@ -17903,7 +17921,7 @@ module.exports = function( number , key , vars ) {
 
 }
 
-},{"../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js"}],"/Users/Dave/Sites/D3plus/src/object/merge.coffee":[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":69}],161:[function(require,module,exports){
 var d3selection, validate;
 
 d3selection = require("../util/d3selection.coffee");
@@ -17955,7 +17973,7 @@ module.exports = function(obj1, obj2) {
 
 
 
-},{"../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee","./validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/object/validate.coffee":[function(require,module,exports){
+},{"../util/d3selection.coffee":192,"./validate.coffee":162}],162:[function(require,module,exports){
 
 /**
  * This function returns true if the variable passed is a literal javascript keyed Object. It's a small, simple function, but it catches some edge-cases that can throw off your code (such as Arrays and `null`).
@@ -17970,7 +17988,7 @@ module.exports = function(obj) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/string/format.js":[function(require,module,exports){
+},{}],163:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats a string similar to Python's "format"
 //------------------------------------------------------------------------------
@@ -18001,12 +18019,12 @@ module.exports = function() {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/string/list.coffee":[function(require,module,exports){
+},{}],164:[function(require,module,exports){
 var format, locale;
 
 format = require("./format.js");
 
-locale = require("../core/locale/languages/en_US.js").ui;
+locale = require("../core/locale/languages/en_US.coffee").ui;
 
 module.exports = function(list, andText, max, moreText) {
   var amount;
@@ -18038,7 +18056,7 @@ module.exports = function(list, andText, max, moreText) {
 
 
 
-},{"../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","./format.js":"/Users/Dave/Sites/D3plus/src/string/format.js"}],"/Users/Dave/Sites/D3plus/src/string/strip.js":[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":69,"./format.js":163}],165:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
@@ -18093,10 +18111,10 @@ module.exports = function(str) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/string/title.coffee":[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 var defaultLocale;
 
-defaultLocale = require("../core/locale/languages/en_US.js");
+defaultLocale = require("../core/locale/languages/en_US.coffee");
 
 module.exports = function(text, key, vars) {
   var bigs, locale, smalls;
@@ -18123,7 +18141,7 @@ module.exports = function(text, key, vars) {
 
 
 
-},{"../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js"}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee":[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":69}],167:[function(require,module,exports){
 var foreign, tspan;
 
 foreign = require("./foreign.coffee");
@@ -18140,7 +18158,7 @@ module.exports = function(vars) {
 
 
 
-},{"./foreign.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/foreign.coffee","./tspan.js":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/tspan.js"}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/foreign.coffee":[function(require,module,exports){
+},{"./foreign.coffee":168,"./tspan.js":172}],168:[function(require,module,exports){
 module.exports = function(vars) {
   var anchor, color, family, opacity, text;
   text = vars.container.value;
@@ -18154,7 +18172,7 @@ module.exports = function(vars) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getDimensions.coffee":[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 module.exports = function(vars) {
   var circle, height, parent, radius, rect, width;
   if (!vars.width.value || !vars.height.value) {
@@ -18191,7 +18209,7 @@ module.exports = function(vars) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getSize.coffee":[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 module.exports = function(vars) {
   var size;
   size = vars.container.value.attr("font-size" || vars.container.value.style("font-size"));
@@ -18208,7 +18226,7 @@ module.exports = function(vars) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getText.coffee":[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 module.exports = function(vars) {
   var text;
   if (!vars.text.value) {
@@ -18234,7 +18252,7 @@ module.exports = function(vars) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/tspan.js":[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into tspans
 //------------------------------------------------------------------------------
@@ -18357,7 +18375,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/helpers/wrap.coffee":[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 var flow, fontSizes, resize, wrap;
 
 flow = require("./flow.coffee");
@@ -18429,7 +18447,7 @@ resize = function(vars) {
 
 
 
-},{"../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./flow.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/flow.coffee"}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/container.coffee":[function(require,module,exports){
+},{"../../font/sizes.coffee":94,"./flow.coffee":167}],174:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -18454,7 +18472,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/dev.coffee":[function(require,module,exports){
+},{"../../util/d3selection.coffee":192}],175:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -18462,7 +18480,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/draw.coffee":[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 var print;
 
 print = require("../../core/console/print.coffee");
@@ -18497,7 +18515,7 @@ module.exports = {
 
 
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/format.coffee":[function(require,module,exports){
+},{"../../core/console/print.coffee":54}],177:[function(require,module,exports){
 var locale, mergeObject;
 
 locale = require("../../core/locale/locale.coffee");
@@ -18539,7 +18557,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":"/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee"}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/height.coffee":[function(require,module,exports){
+},{"../../core/locale/locale.coffee":73,"../../object/merge.coffee":161}],178:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   value: false
@@ -18547,7 +18565,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/resize.coffee":[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -18555,7 +18573,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/shape.coffee":[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 module.exports = {
   accepted: ["circle", "square"],
   value: false
@@ -18563,7 +18581,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/size.coffee":[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 module.exports = {
   accepted: [Array, false],
   value: false
@@ -18571,7 +18589,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/text.coffee":[function(require,module,exports){
+},{}],182:[function(require,module,exports){
 module.exports = {
   accepted: [false, Array, Function, Number, String],
   html: {
@@ -18589,7 +18607,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/methods/width.coffee":[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   value: false
@@ -18597,7 +18615,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee":[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 var attach, dimensions, size, text, wrap;
 
 attach = require("../core/methods/attach.coffee");
@@ -18642,8 +18660,8 @@ module.exports = function() {
 
 
 
-},{"../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","./helpers/getDimensions.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getDimensions.coffee","./helpers/getSize.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getSize.coffee","./helpers/getText.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/getText.coffee","./helpers/wrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/helpers/wrap.coffee","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/container.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/dev.coffee","./methods/draw.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/draw.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/height.coffee","./methods/resize.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/resize.coffee","./methods/shape.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/shape.coffee","./methods/size.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/size.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/text.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/methods/width.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/create.js":[function(require,module,exports){
-var defaultLocale = require("../core/locale/languages/en_US.js"),
+},{"../core/methods/attach.coffee":74,"./helpers/getDimensions.coffee":169,"./helpers/getSize.coffee":170,"./helpers/getText.coffee":171,"./helpers/wrap.coffee":173,"./methods/container.coffee":174,"./methods/dev.coffee":175,"./methods/draw.coffee":176,"./methods/format.coffee":177,"./methods/height.coffee":178,"./methods/resize.coffee":179,"./methods/shape.coffee":180,"./methods/size.coffee":181,"./methods/text.coffee":182,"./methods/width.coffee":183}],185:[function(require,module,exports){
+var defaultLocale = require("../core/locale/languages/en_US.coffee"),
     events        = require("../client/pointer.coffee"),
     legible       = require("../color/legible.coffee"),
     move          = require("./move.coffee"),
@@ -19204,7 +19222,7 @@ module.exports = function(params) {
 
 }
 
-},{"../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../core/locale/languages/en_US.js":"/Users/Dave/Sites/D3plus/src/core/locale/languages/en_US.js","../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","./move.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/move.coffee","./remove.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee"}],"/Users/Dave/Sites/D3plus/src/tooltip/move.coffee":[function(require,module,exports){
+},{"../client/pointer.coffee":41,"../client/prefix.coffee":42,"../client/rtl.coffee":43,"../color/legible.coffee":46,"../color/text.coffee":52,"../core/locale/languages/en_US.coffee":69,"../string/list.coffee":164,"./move.coffee":186,"./remove.coffee":187}],186:[function(require,module,exports){
 var arrowStyle;
 
 module.exports = function(x, y, id) {
@@ -19365,7 +19383,7 @@ arrowStyle = function(arrow) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee":[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 module.exports = function(id) {
   if (id) {
     d3.selectAll("div#d3plus_tooltip_curtain_" + id).remove();
@@ -19378,7 +19396,7 @@ module.exports = function(id) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/buckets.coffee":[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 module.exports = function(arr, n) {
   var buckets, step;
   buckets = [];
@@ -19388,7 +19406,7 @@ module.exports = function(arr, n) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/child.coffee":[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("./d3selection.coffee");
@@ -19416,7 +19434,7 @@ module.exports = function(parent, child) {
 
 
 
-},{"./d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/util/closest.coffee":[function(require,module,exports){
+},{"./d3selection.coffee":192}],190:[function(require,module,exports){
 module.exports = function(arr, value) {
   var closest;
   closest = arr[0];
@@ -19430,7 +19448,7 @@ module.exports = function(arr, value) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/copy.coffee":[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 var copy, objectMerge, objectValidate;
 
 objectMerge = require("../object/merge.coffee");
@@ -19456,7 +19474,7 @@ module.exports = copy;
 
 
 
-},{"../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee":[function(require,module,exports){
+},{"../object/merge.coffee":161,"../object/validate.coffee":162}],192:[function(require,module,exports){
 var ie;
 
 ie = require("../client/ie.js");
@@ -19471,7 +19489,7 @@ module.exports = function(elem) {
 
 
 
-},{"../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js"}],"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee":[function(require,module,exports){
+},{"../client/ie.js":40}],193:[function(require,module,exports){
 module.exports = function(url, callback) {
   var img;
   img = new Image();
@@ -19491,7 +19509,7 @@ module.exports = function(url, callback) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/util/uniques.coffee":[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 var fetchValue, objectValidate;
 
 fetchValue = require("../core/fetch/value.js");
@@ -19532,7 +19550,7 @@ module.exports = function(data, value, vars) {
 
 
 
-},{"../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee":[function(require,module,exports){
+},{"../core/fetch/value.js":67,"../object/validate.coffee":162}],195:[function(require,module,exports){
 module.exports = function(vars) {
   var checkParent, s, _i, _len, _ref;
   vars.container.value.style("position", function() {
@@ -19588,7 +19606,7 @@ module.exports = function(vars) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js":[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 var dataFormat    = require("../../core/data/format.js"),
     dataColor     = require("../../core/data/color.js"),
     dataKeys      = require("../../core/data/keys.js"),
@@ -19949,9 +19967,10 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/data/color.js":"/Users/Dave/Sites/D3plus/src/core/data/color.js","../../core/data/format.js":"/Users/Dave/Sites/D3plus/src/core/data/format.js","../../core/data/keys.js":"/Users/Dave/Sites/D3plus/src/core/data/keys.js","../../core/data/load.coffee":"/Users/Dave/Sites/D3plus/src/core/data/load.coffee","../../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../../core/parse/edges.js":"/Users/Dave/Sites/D3plus/src/core/parse/edges.js","../../core/parse/nodes.js":"/Users/Dave/Sites/D3plus/src/core/parse/nodes.js","../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../tooltip/remove.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee","./errorCheck.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/errorCheck.js","./finish.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/finish.js","./focus/tooltip.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.coffee","./focus/viz.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/viz.js","./shapes/draw.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/draw.js","./svg/enter.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js","./svg/update.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js","./types/run.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/types/run.coffee","./ui/drawer.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/drawer.js","./ui/history.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/history.js","./ui/legend.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js","./ui/timeline.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/timeline.js","./ui/titles.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/errorCheck.js":[function(require,module,exports){
-var fetchText = require("../../core/fetch/text.js"),
+},{"../../core/console/print.coffee":54,"../../core/data/color.js":56,"../../core/data/format.js":58,"../../core/data/keys.js":60,"../../core/data/load.coffee":61,"../../core/fetch/data.js":65,"../../core/parse/edges.js":88,"../../core/parse/nodes.js":90,"../../object/validate.coffee":162,"../../string/format.js":163,"../../tooltip/remove.coffee":187,"./errorCheck.js":197,"./finish.js":198,"./focus/tooltip.coffee":199,"./focus/viz.js":200,"./shapes/draw.js":209,"./svg/enter.js":219,"./svg/update.js":220,"./types/run.coffee":223,"./ui/drawer.js":224,"./ui/history.js":225,"./ui/legend.js":226,"./ui/timeline.js":228,"./ui/titles.js":229}],197:[function(require,module,exports){
+var fetchText    = require("../../core/fetch/text.js"),
     print        = require("../../core/console/print.coffee"),
+    rejected     = require("../../core/methods/rejected.coffee"),
     stringFormat = require("../../string/format.js"),
     stringList   = require("../../string/list.coffee")
 
@@ -20038,44 +20057,34 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set shape
   //----------------------------------------------------------------------------
-  var shapes = vars.shape.accepted(vars)
+  var shapes = vars.shape.accepted(vars);
+  if (!(shapes instanceof Array)) shapes = [shapes]
+  var shape = vars.shape.value;
 
-  if (!vars.shape.value) {
-    vars.self.shape(shapes[0])
-  }
-  else if (shapes.indexOf(vars.shape.value) < 0) {
-    var shapes = vars.types[vars.type.value].shapes
-      , str = vars.format.locale.value.error.accepted
-      , shape = "\""+vars.shape.value+"\""
-      , shapeStr = vars.format.locale.value.method.shape
-      , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-    print.warning(stringFormat(str,shape,shapeStr,app,"\""+shapes.join("\", \"")+"\""),"shape")
-    vars.self.shape(shapes[0])
+  if (!shape || rejected(vars, shapes, shape, "shape")) {
+    vars.self.shape(shapes[0]);
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set "mode"
   //----------------------------------------------------------------------------
   if ("modes" in vars.types[vars.type.value]) {
-    if (!vars.type.mode.value) {
-      vars.self.type({"mode": vars.types[vars.type.value].modes[0]})
+
+    var modes = vars.types[vars.type.value].modes
+    if (!(modes instanceof Array)) modes = [modes]
+    var mode = vars.type.mode.value
+
+    if (!mode || rejected(vars, modes, mode, "mode")) {
+      vars.self.type({"mode": modes[0]})
     }
-    else if (vars.types[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
-      var modes = vars.types[vars.type.value].modes.join("\", \"")
-        , str = vars.format.locale.value.error.accepted
-        , mode = "\""+vars.type.mode.value+"\""
-        , modeStr = vars.format.locale.value.method.mode
-        , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-      print.warning(stringFormat(str,mode,modeStr,app,"\""+modes+"\""))
-      vars.self.type({"mode": vars.types[vars.type.value].modes[0]})
-    }
+
   }
 
   if ( vars.dev.value ) print.timeEnd("checking for errors")
 
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/finish.js":[function(require,module,exports){
+},{"../../core/console/print.coffee":54,"../../core/fetch/text.js":66,"../../core/methods/rejected.coffee":84,"../../string/format.js":163,"../../string/list.coffee":164}],198:[function(require,module,exports){
 var edges = require("./shapes/edges.js"),
     flash       = require("./ui/message.js"),
     methodReset = require("../../core/methods/reset.coffee"),
@@ -20268,7 +20277,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/methods/reset.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/reset.coffee","../../string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee","./shapes/edges.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js","./shapes/labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js","./ui/message.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","./zoom/bounds.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js","./zoom/labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","./zoom/mouse.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/tooltip.coffee":[function(require,module,exports){
+},{"../../core/console/print.coffee":54,"../../core/methods/reset.coffee":86,"../../string/title.coffee":166,"./shapes/edges.js":210,"./shapes/labels.js":212,"./ui/message.js":227,"./zoom/bounds.js":230,"./zoom/labels.js":232,"./zoom/mouse.coffee":233}],199:[function(require,module,exports){
 var createTooltip, fetchValue, print, removeTooltip;
 
 createTooltip = require("../tooltip/create.js");
@@ -20324,7 +20333,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../tooltip/remove.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee","../tooltip/create.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/tooltip/create.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/focus/viz.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":54,"../../../core/fetch/value.js":67,"../../../tooltip/remove.coffee":187,"../tooltip/create.js":221}],200:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     print        = require("../../../core/console/print.coffee"),
     uniqueValues = require("../../../util/uniques.coffee")
@@ -20482,7 +20491,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/arc.coffee":[function(require,module,exports){
+},{"../../../client/pointer.coffee":41,"../../../core/console/print.coffee":54,"../../../util/uniques.coffee":194}],201:[function(require,module,exports){
 var largestRect, path2poly, shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -20574,7 +20583,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{"../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","../../../geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js":[function(require,module,exports){
+},{"../../../geom/largestRect.coffee":152,"../../../geom/path2poly.coffee":154,"./style.coffee":215}],202:[function(require,module,exports){
 var fetchText = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
@@ -20684,7 +20693,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/check.js":[function(require,module,exports){
+},{"../../../core/fetch/text.js":66,"../../../font/sizes.coffee":94,"../../../geom/largestRect.coffee":152,"./style.coffee":215}],203:[function(require,module,exports){
 var fetchText = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
@@ -20742,7 +20751,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee":[function(require,module,exports){
+},{"../../../core/fetch/text.js":66,"../../../font/sizes.coffee":94,"../../../geom/largestRect.coffee":152,"./style.coffee":215}],204:[function(require,module,exports){
 var fetchColor, fetchValue, lighter;
 
 fetchValue = require("../../../core/fetch/value.js");
@@ -20777,7 +20786,7 @@ module.exports = function(d, vars) {
 
 
 
-},{"../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js":[function(require,module,exports){
+},{"../../../color/lighter.coffee":47,"../../../core/fetch/color.coffee":64,"../../../core/fetch/value.js":67}],205:[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
     fetchText   = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
@@ -20877,7 +20886,9 @@ module.exports = function(vars,selection,enter,exit) {
         largest.geometry.type = "Polygon"
       }
 
-      if (coords) {
+      var names = fetchText(vars,d)
+
+      if (coords && names.length) {
 
         var path = path2poly(vars.path(largest))
 
@@ -20886,9 +20897,7 @@ module.exports = function(vars,selection,enter,exit) {
           "font-family": vars.labels.font.family.value
         }
 
-        var names = fetchText(vars,d)
-
-        if (names.length && names[0].split(" ").length === 1) {
+        if (names[0].split(" ").length === 1) {
           var size = fontSizes(names[0],style)[0]
             , ratio = size.width/size.height
         }
@@ -20953,7 +20962,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../geom/largestRect.coffee":"/Users/Dave/Sites/D3plus/src/geom/largestRect.coffee","../../../geom/path2poly.coffee":"/Users/Dave/Sites/D3plus/src/geom/path2poly.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/cross.js":[function(require,module,exports){
+},{"../../../core/fetch/text.js":66,"../../../font/sizes.coffee":94,"../../../geom/largestRect.coffee":152,"../../../geom/path2poly.coffee":154,"../../../util/copy.coffee":191,"./style.coffee":215}],206:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -20964,25 +20973,23 @@ module.exports = function(vars,selection,enter,exit) {
   // Initialize check scale on enter and exit.
   //----------------------------------------------------------------------------
   function init(paths){
-    paths.attr("transform", "scale(1)")
+    paths.attr("d", d3.svg.symbol().type("cross").size(10))
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Change scale of check on update.
   //---------------------------------------------------------------------------
   function update(paths){
-    paths.attr("transform", function(d){
+    paths.attr("d", d3.svg.symbol().type("cross").size(function(d){
       var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
-      var scale = Math.floor(smaller_dim / 16);
-      return "scale("+scale+")";
-    })
+      return d3.scale.pow().exponent(2)(smaller_dim/2);
+    }))
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
   //----------------------------------------------------------------------------
   enter.append("path").attr("class","d3plus_data")
-    .attr("d", d3.svg.symbol().type("cross"))
     .call(init)
     .call(shapeStyle,vars)
 
@@ -21008,7 +21015,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/diamond.js":[function(require,module,exports){
+},{"./style.coffee":215}],207:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -21019,25 +21026,23 @@ module.exports = function(vars,selection,enter,exit) {
   // Initialize check scale on enter and exit.
   //----------------------------------------------------------------------------
   function init(paths){
-    paths.attr("transform", "scale(1)")
+    paths.attr("d", d3.svg.symbol().type("diamond").size(10))
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Change scale of check on update.
   //---------------------------------------------------------------------------
   function update(paths){
-    paths.attr("transform", function(d){
+    paths.attr("d", d3.svg.symbol().type("diamond").size(function(d){
       var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
-      var scale = Math.floor(smaller_dim / 16);
-      return "scale("+scale+")";
-    })
+      return d3.scale.pow().exponent(2)(smaller_dim/2);
+    }))
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
   //----------------------------------------------------------------------------
   enter.append("path").attr("class","d3plus_data")
-    .attr("d", d3.svg.symbol().type("diamond"))
     .call(init)
     .call(shapeStyle,vars)
 
@@ -21063,7 +21068,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js":[function(require,module,exports){
+},{"./style.coffee":215}],208:[function(require,module,exports){
 var shapeStyle = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
@@ -21165,7 +21170,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/draw.js":[function(require,module,exports){
+},{"./style.coffee":215}],209:[function(require,module,exports){
 var child         = require("../../../util/child.coffee"),
     closest       = require("../../../util/closest.coffee"),
     createTooltip = require("../tooltip/create.js"),
@@ -21870,7 +21875,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../tooltip/remove.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee","../../../util/child.coffee":"/Users/Dave/Sites/D3plus/src/util/child.coffee","../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","../tooltip/create.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/tooltip/create.js","../zoom/direction.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee","../zoom/propagation.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee","./arc.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/arc.coffee","./area.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/area.js","./check.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/check.js","./coordinates.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/coordinates.js","./cross.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/cross.js","./diamond.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/diamond.js","./donut.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/donut.js","./fill.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js","./line.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js","./rect.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.coffee","./triangle_down.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/triangle_down.js","./triangle_up.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/triangle_up.js","./whisker.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/whisker.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/edges.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":41,"../../../client/touch.coffee":45,"../../../color/legible.coffee":46,"../../../core/console/print.coffee":54,"../../../core/fetch/color.coffee":64,"../../../core/fetch/text.js":66,"../../../core/fetch/value.js":67,"../../../string/strip.js":165,"../../../tooltip/remove.coffee":187,"../../../util/child.coffee":189,"../../../util/closest.coffee":190,"../../../util/uniques.coffee":194,"../tooltip/create.js":221,"../zoom/direction.coffee":231,"../zoom/propagation.coffee":234,"./arc.coffee":201,"./area.js":202,"./check.js":203,"./coordinates.js":205,"./cross.js":206,"./diamond.js":207,"./donut.js":208,"./fill.js":211,"./line.js":213,"./rect.coffee":214,"./triangle_down.js":216,"./triangle_up.js":217,"./whisker.coffee":218}],210:[function(require,module,exports){
 var buckets = require("../../../util/buckets.coffee"),
     offset  = require("../../../geom/offset.coffee")
 
@@ -22429,7 +22434,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../geom/offset.coffee":"/Users/Dave/Sites/D3plus/src/geom/offset.coffee","../../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/fill.js":[function(require,module,exports){
+},{"../../../geom/offset.coffee":153,"../../../util/buckets.coffee":188}],211:[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchColor = require("../../../core/fetch/color.coffee"),
     shapeStyle = require("./style.coffee")
@@ -22708,7 +22713,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/labels.js":[function(require,module,exports){
+},{"../../../core/fetch/color.coffee":64,"../../../util/copy.coffee":191,"./style.coffee":215}],212:[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchText  = require("../../../core/fetch/text.js"),
     mix        = require("../../../color/mix.coffee"),
@@ -22972,7 +22977,7 @@ module.exports = function( vars , group ) {
       var disabled = d.d3plus && "label" in d.d3plus && !d.d3plus.label,
           label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
-          names = d.d3plus.label ? d.d3plus.label : label && label.names ? label.names : fetchText(vars,d),
+          names = d.d3plus.text ? d.d3plus.text : label && label.names ? label.names : fetchText(vars,d),
           group = label && "group" in label ? label.group : d3.select(this),
           share_size = 0,
           fill = vars.types[vars.type.value].fill
@@ -23240,7 +23245,7 @@ module.exports = function( vars , group ) {
   }
 }
 
-},{"../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../../../color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../string/list.coffee":"/Users/Dave/Sites/D3plus/src/string/list.coffee","../../../textwrap/textwrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./color.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/line.js":[function(require,module,exports){
+},{"../../../client/rtl.coffee":43,"../../../color/mix.coffee":48,"../../../color/text.coffee":52,"../../../core/console/print.coffee":54,"../../../core/fetch/text.js":66,"../../../string/list.coffee":164,"../../../textwrap/textwrap.coffee":184,"../../../util/copy.coffee":191,"./color.coffee":204}],213:[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
     events     = require("../../../client/pointer.coffee"),
     shapeStyle = require("./style.coffee")
@@ -23512,7 +23517,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/rect.coffee":[function(require,module,exports){
+},{"../../../client/pointer.coffee":41,"../../../util/copy.coffee":191,"./style.coffee":215}],214:[function(require,module,exports){
 var shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -23646,7 +23651,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee":[function(require,module,exports){
+},{"./style.coffee":215}],215:[function(require,module,exports){
 var color;
 
 color = require("./color.coffee");
@@ -23675,7 +23680,7 @@ module.exports = function(nodes, vars) {
 
 
 
-},{"./color.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/triangle_down.js":[function(require,module,exports){
+},{"./color.coffee":204}],216:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -23686,25 +23691,23 @@ module.exports = function(vars,selection,enter,exit) {
   // Initialize check scale on enter and exit.
   //----------------------------------------------------------------------------
   function init(paths){
-    paths.attr("transform", "scale(1)")
+    paths.attr("d", d3.svg.symbol().type("triangle-down").size(10))
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Change scale of check on update.
   //---------------------------------------------------------------------------
   function update(paths){
-    paths.attr("transform", function(d){
+    paths.attr("d", d3.svg.symbol().type("triangle-down").size(function(d){
       var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
-      var scale = Math.floor(smaller_dim / 16);
-      return "scale("+scale+")";
-    })
+      return d3.scale.pow().exponent(2)(smaller_dim/2);
+    }))
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
   //----------------------------------------------------------------------------
   enter.append("path").attr("class","d3plus_data")
-    .attr("d", d3.svg.symbol().type("triangle-down"))
     .call(init)
     .call(shapeStyle,vars)
 
@@ -23730,7 +23733,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/triangle_up.js":[function(require,module,exports){
+},{"./style.coffee":215}],217:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -23741,25 +23744,23 @@ module.exports = function(vars,selection,enter,exit) {
   // Initialize check scale on enter and exit.
   //----------------------------------------------------------------------------
   function init(paths){
-    paths.attr("transform", "scale(1)")
+    paths.attr("d", d3.svg.symbol().type("triangle-up").size(10))
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Change scale of check on update.
   //---------------------------------------------------------------------------
   function update(paths){
-    paths.attr("transform", function(d){
+    paths.attr("d", d3.svg.symbol().type("triangle-up").size(function(d){
       var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
-      var scale = Math.floor(smaller_dim / 16);
-      return "scale("+scale+")";
-    })
+      return d3.scale.pow().exponent(2)(smaller_dim/2);
+    }))
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
   //----------------------------------------------------------------------------
   enter.append("path").attr("class","d3plus_data")
-    .attr("d", d3.svg.symbol().type("triangle-up"))
     .call(init)
     .call(shapeStyle,vars)
 
@@ -23785,11 +23786,11 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/style.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/shapes/whisker.coffee":[function(require,module,exports){
+},{"./style.coffee":215}],218:[function(require,module,exports){
 module.exports = function(vars, selection, enter, exit) {
   var d, data, init, marker, orient, pos, position, size, style;
   data = function(d) {
-    if (d.d3plus.label) {
+    if (d.d3plus.text) {
       d.d3plus_label = {
         w: size,
         h: size,
@@ -23869,7 +23870,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/enter.js":[function(require,module,exports){
+},{}],219:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     prefix     = require("../../../client/prefix.coffee"),
     print      = require("../../../core/console/print.coffee"),
@@ -24045,7 +24046,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../zoom/propagation.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/svg/update.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":41,"../../../client/prefix.coffee":42,"../../../client/touch.coffee":45,"../../../core/console/print.coffee":54,"../zoom/propagation.coffee":234}],220:[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
@@ -24113,7 +24114,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/tooltip/create.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":54}],221:[function(require,module,exports){
 var arraySort     = require("../../../array/sort.coffee"),
     createTooltip = require("../../../tooltip/create.js"),
     fetchData     = require("./data.js"),
@@ -24412,7 +24413,7 @@ module.exports = function(params) {
 
 }
 
-},{"../../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../../tooltip/create.js":"/Users/Dave/Sites/D3plus/src/tooltip/create.js","../../../tooltip/remove.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee","../zoom/direction.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee","./data.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/tooltip/data.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/tooltip/data.js":[function(require,module,exports){
+},{"../../../array/sort.coffee":37,"../../../core/fetch/color.coffee":64,"../../../core/fetch/text.js":66,"../../../core/fetch/value.js":67,"../../../object/validate.coffee":162,"../../../tooltip/create.js":185,"../../../tooltip/remove.coffee":187,"../zoom/direction.coffee":231,"./data.js":222}],222:[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
     fetchValue   = require("../../../core/fetch/value.js"),
     fetchColor   = require("../../../core/fetch/color.coffee"),
@@ -24710,7 +24711,7 @@ module.exports = function(vars,id,length,extras,children,depth) {
 
 }
 
-},{"../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/types/run.coffee":[function(require,module,exports){
+},{"../../../client/prefix.coffee":42,"../../../color/legible.coffee":46,"../../../core/fetch/color.coffee":64,"../../../core/fetch/text.js":66,"../../../core/fetch/value.js":67,"../../../object/merge.coffee":161,"../../../string/format.js":163,"../../../util/copy.coffee":191}],223:[function(require,module,exports){
 var print;
 
 print = require("../../../core/console/print.coffee");
@@ -24753,7 +24754,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/drawer.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":54}],224:[function(require,module,exports){
 var copy  = require("../../../util/copy.coffee"),
     form  = require("../../../form/form.js"),
     print = require("../../../core/console/print.coffee")
@@ -24859,7 +24860,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../form/form.js":"/Users/Dave/Sites/D3plus/src/form/form.js","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/history.js":[function(require,module,exports){
+},{"../../../core/console/print.coffee":54,"../../../form/form.js":96,"../../../util/copy.coffee":191}],225:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     lighter    = require("../../../color/lighter.coffee"),
     print      = require("../../../core/console/print.coffee"),
@@ -24974,7 +24975,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/css.coffee":"/Users/Dave/Sites/D3plus/src/client/css.coffee","../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../color/lighter.coffee":"/Users/Dave/Sites/D3plus/src/color/lighter.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/legend.js":[function(require,module,exports){
+},{"../../../client/css.coffee":39,"../../../client/pointer.coffee":41,"../../../color/lighter.coffee":47,"../../../core/console/print.coffee":54}],226:[function(require,module,exports){
 var arraySort = require("../../../array/sort.coffee"),
     buckets       = require("../../../util/buckets.coffee"),
     copy          = require("../../../util/copy.coffee"),
@@ -25575,7 +25576,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/touch.coffee":"/Users/Dave/Sites/D3plus/src/client/touch.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/data/nest.js":"/Users/Dave/Sites/D3plus/src/core/data/nest.js","../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../object/validate.coffee":"/Users/Dave/Sites/D3plus/src/object/validate.coffee","../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../textwrap/textwrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee","../../../tooltip/remove.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee","../../../util/buckets.coffee":"/Users/Dave/Sites/D3plus/src/util/buckets.coffee","../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../../util/dataURL.coffee":"/Users/Dave/Sites/D3plus/src/util/dataURL.coffee","../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","../tooltip/create.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/tooltip/create.js"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js":[function(require,module,exports){
+},{"../../../array/sort.coffee":37,"../../../client/pointer.coffee":41,"../../../client/touch.coffee":45,"../../../color/text.coffee":52,"../../../core/console/print.coffee":54,"../../../core/data/nest.js":62,"../../../core/fetch/color.coffee":64,"../../../core/fetch/text.js":66,"../../../core/fetch/value.js":67,"../../../object/validate.coffee":162,"../../../string/strip.js":165,"../../../textwrap/textwrap.coffee":184,"../../../tooltip/remove.coffee":187,"../../../util/buckets.coffee":188,"../../../util/copy.coffee":191,"../../../util/dataURL.coffee":193,"../../../util/uniques.coffee":194,"../tooltip/create.js":221}],227:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -25686,7 +25687,7 @@ module.exports = function(vars,message) {
 
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/timeline.js":[function(require,module,exports){
+},{}],228:[function(require,module,exports){
 var closest = require("../../../util/closest.coffee"),
     fontSizes = require("../../../font/sizes.coffee"),
     events    = require("../../../client/pointer.coffee"),
@@ -26129,7 +26130,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/prefix.coffee":"/Users/Dave/Sites/D3plus/src/client/prefix.coffee","../../../color/text.coffee":"/Users/Dave/Sites/D3plus/src/color/text.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/titles.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":41,"../../../client/prefix.coffee":42,"../../../color/text.coffee":52,"../../../core/console/print.coffee":54,"../../../font/sizes.coffee":94,"../../../util/closest.coffee":190}],229:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     fetchValue = require("../../../core/fetch/value.js"),
     print      = require("../../../core/console/print.coffee"),
@@ -26449,7 +26450,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../client/rtl.coffee":"/Users/Dave/Sites/D3plus/src/client/rtl.coffee","../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../textwrap/textwrap.coffee":"/Users/Dave/Sites/D3plus/src/textwrap/textwrap.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/bounds.js":[function(require,module,exports){
+},{"../../../client/pointer.coffee":41,"../../../client/rtl.coffee":43,"../../../core/console/print.coffee":54,"../../../core/fetch/value.js":67,"../../../textwrap/textwrap.coffee":184}],230:[function(require,module,exports){
 var transform = require("./transform.coffee")
 
 module.exports = function( vars , b , timing ) {
@@ -26510,7 +26511,7 @@ module.exports = function( vars , b , timing ) {
 
 }
 
-},{"./transform.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/direction.coffee":[function(require,module,exports){
+},{"./transform.coffee":235}],231:[function(require,module,exports){
 module.exports = function(data, vars) {
   var current_depth, max_depth, restricted;
   max_depth = vars.id.nesting.length - 1;
@@ -26529,7 +26530,7 @@ module.exports = function(data, vars) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js":[function(require,module,exports){
+},{}],232:[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 
 // Sets label opacity based on zoom
@@ -26567,7 +26568,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/mouse.coffee":[function(require,module,exports){
+},{"../../../core/console/print.coffee":54}],233:[function(require,module,exports){
 var labels, transform;
 
 labels = require("./labels.js");
@@ -26616,7 +26617,7 @@ module.exports = function(vars) {
 
 
 
-},{"./labels.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/labels.js","./transform.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/propagation.coffee":[function(require,module,exports){
+},{"./labels.js":232,"./transform.coffee":235}],234:[function(require,module,exports){
 module.exports = function(vars, event) {
   var enabled, zoom, zoomable, zoomed;
   zoom = vars.zoom;
@@ -26633,7 +26634,7 @@ module.exports = function(vars, event) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/helpers/zoom/transform.coffee":[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 module.exports = function(vars, timing) {
   var scale, translate;
   if (typeof timing !== "number") {
@@ -26650,7 +26651,7 @@ module.exports = function(vars, timing) {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee":[function(require,module,exports){
+},{}],236:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -26670,7 +26671,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],237:[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   deprecated: "nesting_aggs",
@@ -26680,7 +26681,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee":[function(require,module,exports){
+},{}],238:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -26701,7 +26702,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":81}],239:[function(require,module,exports){
 var rendering;
 
 rendering = require("../../core/methods/rendering.coffee");
@@ -26724,7 +26725,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee":[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":85}],240:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   value: "#ffffff"
@@ -26732,7 +26733,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee":[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 var filter, scale;
 
 filter = require("../../core/methods/filter.coffee");
@@ -26770,7 +26771,7 @@ module.exports = {
 
 
 
-},{"../../color/scale.coffee":"/Users/Dave/Sites/D3plus/src/color/scale.coffee","../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/cols.js":[function(require,module,exports){
+},{"../../color/scale.coffee":50,"../../core/methods/filter.coffee":75}],242:[function(require,module,exports){
 module.exports = {
   "accepted" : [ Array , Function , String ],
   "process"  : function(value, vars) {
@@ -26783,7 +26784,7 @@ module.exports = {
   "value"    : false
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee":[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -26808,7 +26809,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":"/Users/Dave/Sites/D3plus/src/util/d3selection.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee":[function(require,module,exports){
+},{"../../util/d3selection.coffee":192}],244:[function(require,module,exports){
 var filter, process;
 
 filter = require("../../core/methods/filter.coffee");
@@ -26840,7 +26841,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75,"../../core/methods/process/data.coffee":81}],245:[function(require,module,exports){
 var fetchValue, ie, stringStrip;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -26921,7 +26922,7 @@ module.exports = {
 
 
 
-},{"../../client/ie.js":"/Users/Dave/Sites/D3plus/src/client/ie.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/viz/methods/data.js":[function(require,module,exports){
+},{"../../client/ie.js":40,"../../core/fetch/value.js":67,"../../string/strip.js":165}],246:[function(require,module,exports){
 var process = require("../../core/methods/process/data.coffee")
 
 module.exports = {
@@ -26957,7 +26958,7 @@ module.exports = {
   "value"    : false
 }
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":81}],247:[function(require,module,exports){
 module.exports = {
   accepted: [Function, Number],
   value: 0
@@ -26965,7 +26966,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee":[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, Object],
   value: false
@@ -26973,7 +26974,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee":[function(require,module,exports){
+},{}],249:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -26981,7 +26982,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/draw.js":[function(require,module,exports){
+},{}],250:[function(require,module,exports){
 var print        = require("../../core/console/print.coffee"),
     stringFormat = require("../../string/format.js")
 
@@ -27048,7 +27049,7 @@ module.exports = {
   "value"    : undefined
 }
 
-},{"../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../string/format.js":"/Users/Dave/Sites/D3plus/src/string/format.js"}],"/Users/Dave/Sites/D3plus/src/viz/methods/edges.js":[function(require,module,exports){
+},{"../../core/console/print.coffee":54,"../../string/format.js":163}],251:[function(require,module,exports){
 var process = require("../../core/methods/process/data.coffee")
 
 module.exports = {
@@ -27134,7 +27135,7 @@ module.exports = {
   "width":  1
 }
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":81}],252:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean, String],
   value: false
@@ -27142,7 +27143,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee":[function(require,module,exports){
+},{}],253:[function(require,module,exports){
 module.exports = {
   accepted: [false, Array, Function, Number, String],
   deprecates: "highlight",
@@ -27164,7 +27165,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee":[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 var align, decoration, family, transform;
 
 align = require("../../core/methods/font/align.coffee");
@@ -27179,12 +27180,12 @@ module.exports = {
   align: align(),
   color: "#444444",
   decoration: decoration(),
-  family: family,
+  family: family(),
   secondary: {
     align: align(),
     color: "#444444",
     decoration: decoration(),
-    family: family,
+    family: family(),
     size: 12,
     spacing: 0,
     transform: transform(),
@@ -27198,7 +27199,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee":[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":76,"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],255:[function(require,module,exports){
 var decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -27213,7 +27214,7 @@ module.exports = {
     align: "center",
     color: "#444",
     decoration: decoration(),
-    family: family,
+    family: family(),
     size: 11,
     transform: transform(),
     weight: 200
@@ -27226,7 +27227,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],256:[function(require,module,exports){
 var formatNumber, locale, mergeObject, titleCase;
 
 formatNumber = require("../../number/format.js");
@@ -27299,7 +27300,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":"/Users/Dave/Sites/D3plus/src/core/locale/locale.coffee","../../number/format.js":"/Users/Dave/Sites/D3plus/src/number/format.js","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee","../../string/title.coffee":"/Users/Dave/Sites/D3plus/src/string/title.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee":[function(require,module,exports){
+},{"../../core/locale/locale.coffee":73,"../../number/format.js":160,"../../object/merge.coffee":161,"../../string/title.coffee":166}],257:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   max: 600,
@@ -27310,7 +27311,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee":[function(require,module,exports){
+},{}],258:[function(require,module,exports){
 var align, decoration, family, filter, position, rendering, transform;
 
 align = require("../../../core/methods/font/align.coffee");
@@ -27485,7 +27486,7 @@ module.exports = function(axis) {
 
 
 
-},{"../../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee","../../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../../core/methods/font/position.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/position.coffee","../../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","../../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee":[function(require,module,exports){
+},{"../../../core/methods/filter.coffee":75,"../../../core/methods/font/align.coffee":76,"../../../core/methods/font/decoration.coffee":77,"../../../core/methods/font/family.coffee":78,"../../../core/methods/font/position.coffee":79,"../../../core/methods/font/transform.coffee":80,"../../../core/methods/rendering.coffee":85}],259:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   back: function() {
@@ -27500,7 +27501,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee":[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/icon.coffee");
@@ -27526,7 +27527,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/icon.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/icon.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee":[function(require,module,exports){
+},{"../../core/methods/process/icon.coffee":83}],261:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27543,7 +27544,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],262:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -27573,7 +27574,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],263:[function(require,module,exports){
 var family;
 
 family = require("../../core/methods/font/family.coffee");
@@ -27605,7 +27606,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee":[function(require,module,exports){
+},{"../../core/methods/font/family.coffee":78}],264:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -27633,7 +27634,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],265:[function(require,module,exports){
 module.exports = {
   accepted: [Number, Object, String],
   process: function(value) {
@@ -27702,7 +27703,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee":[function(require,module,exports){
+},{}],266:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -27727,7 +27728,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],267:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -27749,7 +27750,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/data.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/process/data.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee":[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":81}],268:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, String],
   deprecates: ["sort"],
@@ -27762,7 +27763,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee":[function(require,module,exports){
+},{}],269:[function(require,module,exports){
 var rendering;
 
 rendering = require("../../core/methods/rendering.coffee");
@@ -27791,7 +27792,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/rendering.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/rendering.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee":[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":85}],270:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27826,14 +27827,14 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],271:[function(require,module,exports){
 module.exports = {
   value: false
 };
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee":[function(require,module,exports){
+},{}],272:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27848,7 +27849,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],273:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27864,7 +27865,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],274:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -27889,7 +27890,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],275:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   align: "middle",
@@ -27916,7 +27917,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee":[function(require,module,exports){
+},{}],276:[function(require,module,exports){
 module.exports = {
   mouseevents: 60,
   transitions: 600,
@@ -27925,7 +27926,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee":[function(require,module,exports){
+},{}],277:[function(require,module,exports){
 var decoration, family, stringStrip, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -27975,7 +27976,8 @@ module.exports = {
     },
     link: false,
     padding: 1,
-    position: "top"
+    position: "top",
+    value: false
   },
   total: {
     accepted: [Boolean, Object],
@@ -28001,7 +28003,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee","../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js"}],"/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee":[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80,"../../string/strip.js":165}],278:[function(require,module,exports){
 var family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -28052,7 +28054,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee":[function(require,module,exports){
+},{"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],279:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -28067,7 +28069,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/filter.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee":[function(require,module,exports){
+},{"../../core/methods/filter.coffee":75}],280:[function(require,module,exports){
 module.exports = {
   accepted: function(vars) {
     return d3.keys(vars.types);
@@ -28083,7 +28085,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee":[function(require,module,exports){
+},{}],281:[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -28139,7 +28141,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/align.coffee","../../core/methods/font/decoration.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/decoration.coffee","../../core/methods/font/family.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/family.coffee","../../core/methods/font/transform.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/font/transform.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee":[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":76,"../../core/methods/font/decoration.coffee":77,"../../core/methods/font/family.coffee":78,"../../core/methods/font/transform.coffee":80}],282:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   secondary: false,
@@ -28149,7 +28151,7 @@ module.exports = {
 
 
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js":[function(require,module,exports){
+},{}],283:[function(require,module,exports){
 module.exports = {
   "accepted"   : [ Boolean ],
   "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
@@ -28169,7 +28171,7 @@ module.exports = {
   "value"      : true
 }
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/types/bar.coffee":[function(require,module,exports){
+},{}],284:[function(require,module,exports){
 var bar, fetchValue, graph, nest, stack;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -28258,7 +28260,7 @@ module.exports = bar;
 
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/box.coffee":[function(require,module,exports){
+},{"../../core/fetch/value.js":67,"./helpers/graph/draw.coffee":290,"./helpers/graph/nest.coffee":296,"./helpers/graph/stack.coffee":297}],285:[function(require,module,exports){
 var box, fetchValue, graph, uniques;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -28372,10 +28374,10 @@ box = function(vars) {
     medianData = {
       d3plus: {
         id: "median_line_" + key,
-        label: median,
         position: h === "height" ? "top" : "right",
         shape: "whisker",
-        "static": true
+        "static": true,
+        text: median
       }
     };
     medianData.d3plus[w] = space;
@@ -28420,6 +28422,7 @@ box = function(vars) {
       d.d3plus[opposite] = scale(fetchValue(vars, d, vars.y.value));
       d.d3plus[opposite] += oppMargin;
       d.d3plus.r = 4;
+      d.d3plus.shape = vars.shape.value;
     }
     returnData = returnData.concat(outliers);
     return leaves;
@@ -28431,7 +28434,7 @@ box.modes = ["tukey", "extent", Array, Number];
 
 box.requirements = ["data", "x", "y"];
 
-box.shapes = ["circle"];
+box.shapes = ["circle", "check", "cross", "diamond", "square", "triangle", "triangle_up", "triangle_down"];
 
 box.setup = function(vars) {
   if (!vars.axes.discrete) {
@@ -28451,195 +28454,154 @@ module.exports = box;
 
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js":[function(require,module,exports){
-var arraySort = require("../../array/sort.coffee"),
-    fetchValue = require("../../core/fetch/value.js"),
-    fetchColor = require("../../core/fetch/color.coffee"),
-    fetchText  = require("../../core/fetch/text.js"),
-    legible    = require("../../color/legible.coffee"),
-    groupData  = require("../../core/data/group.coffee")
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Bubbles
-//------------------------------------------------------------------------------
-var bubbles = function(vars) {
+},{"../../core/fetch/value.js":67,"../../util/uniques.coffee":194,"./helpers/graph/draw.coffee":290}],286:[function(require,module,exports){
+var arraySort, bubbles, fetchColor, fetchText, fetchValue, groupData, legible;
 
-  var groupedData = groupData(vars,vars.data.viz)
+arraySort = require("../../array/sort.coffee");
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Test for labels
-  //----------------------------------------------------------------------------
-  var maxChildren = d3.max(groupedData,function(d){return d.values instanceof Array ? d.values.length : 1})
-  var label_height = vars.labels.value && !vars.small && maxChildren > 1 ? 50 : 0
+fetchValue = require("../../core/fetch/value.js");
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Sort Data
-  //----------------------------------------------------------------------------
-  arraySort( groupedData , vars.order.value || vars.size.value
-                   , vars.order.sort.value , vars.color.value , vars )
+fetchColor = require("../../core/fetch/color.coffee");
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Calculate rows and columns
-  //----------------------------------------------------------------------------
-  var dataLength = groupedData.length
+fetchText = require("../../core/fetch/text.js");
 
+legible = require("../../color/legible.coffee");
+
+groupData = require("../../core/data/group.coffee");
+
+bubbles = function(vars) {
+  var column_height, column_width, columns, d, data, dataLength, domain, domainMax, domainMin, downscale, groupedData, i, labelHeight, maxChildren, obj, pack, padding, row, rows, screenRatio, size, size_max, size_min, t, temp, xPadding, xoffset, yPadding, yoffset, _i, _j, _k, _len, _len1, _len2;
+  groupedData = groupData(vars, vars.data.viz);
+  maxChildren = d3.max(groupedData, function(d) {
+    if (d.values instanceof Array) {
+      return d.values.length;
+    } else {
+      return 1;
+    }
+  });
+  labelHeight = vars.labels.value && !vars.small && maxChildren > 1 ? 50 : 0;
+  arraySort(groupedData, vars.order.value || vars.size.value, vars.order.sort.value, vars.color.value, vars);
+  dataLength = groupedData.length;
   if (dataLength < 4) {
-
-    var columns = dataLength
-      , rows    = 1
+    columns = dataLength;
+    rows = 1;
+  } else {
+    screenRatio = vars.width.viz / vars.height.viz;
+    columns = Math.ceil(Math.sqrt(dataLength * screenRatio));
+    rows = Math.ceil(Math.sqrt(dataLength / screenRatio));
   }
-  else {
-
-    var screenRatio = vars.width.viz / vars.height.viz
-      , columns     = Math.ceil( Math.sqrt( dataLength * screenRatio ) )
-      , rows        = Math.ceil( Math.sqrt( dataLength / screenRatio ) )
-
-  }
-
   if (dataLength > 0) {
-
-    while ((rows-1)*columns >= vars.data.viz.length) {
-      rows--
+    while ((rows - 1) * columns >= vars.data.viz.length) {
+      rows--;
     }
-
   }
-
-  var column_width = vars.width.viz/columns,
-      column_height = vars.height.viz/rows
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Define size scale
-  //----------------------------------------------------------------------------
-  var domain_min = d3.min(vars.data.viz, function(d){
-    if (!vars.size.value) return 0
-    return fetchValue(vars,d,vars.size.value,vars.id.value,"min")
-  })
-
-  var domain_max = d3.max(vars.data.viz, function(d){
-    if (!vars.size.value) return 0
-    return fetchValue(vars,d,vars.size.value,vars.id.value)
-  })
-
-  var padding = 5
-
-  var size_min = 20
-  var size_max = (d3.min([column_width,column_height])/2)-(padding*2)
-  size_max -= label_height
-
-  var size = vars.size.scale.value
-    .domain([domain_min,domain_max])
-    .rangeRound([size_min,size_max])
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Calculate bubble packing
-  //----------------------------------------------------------------------------
-
-  var pack = d3.layout.pack()
-    .children(function(d) {
-      return d.values
-    })
-    .padding(padding)
-    .radius(function(d){
-      return size(d)
-    })
-    .size([column_width-padding*2,column_height-padding*2-label_height])
-    .value(function(d){
-      return d.value
-    })
-
-  var data = []
-  var row = 0
-  groupedData.forEach(function(d,i){
-
-    var temp = pack.nodes(d)
-
-    var xoffset = (column_width*i) % vars.width.viz,
-        yoffset = column_height*row
-
-    temp.forEach(function(t){
-
-      var obj = t.d3plus || {"d3plus": {}}
+  column_width = vars.width.viz / columns;
+  column_height = vars.height.viz / rows;
+  if (vars.size.value) {
+    domainMin = d3.min(vars.data.viz, function(d) {
+      return fetchValue(vars, d, vars.size.value, vars.id.value, "min");
+    });
+    domainMax = d3.max(vars.data.viz, function(d) {
+      return fetchValue(vars, d, vars.size.value, vars.id.value);
+    });
+    domain = [domainMin, domainMax];
+  } else {
+    domain = [0, 0];
+  }
+  padding = 5;
+  size_min = 20;
+  size_max = (d3.min([column_width, column_height]) / 2) - (padding * 2);
+  size_max -= labelHeight;
+  size = vars.size.scale.value.domain(domain).rangeRound([size_min, size_max]);
+  pack = d3.layout.pack().children(function(d) {
+    return d.values;
+  }).padding(padding).radius(function(d) {
+    return size(d);
+  }).size([column_width - padding * 2, column_height - padding * 2 - labelHeight]).value(function(d) {
+    return d.value;
+  });
+  data = [];
+  row = 0;
+  for (i = _i = 0, _len = groupedData.length; _i < _len; i = ++_i) {
+    d = groupedData[i];
+    temp = pack.nodes(d);
+    xoffset = (column_width * i) % vars.width.viz;
+    yoffset = column_height * row;
+    for (_j = 0, _len1 = temp.length; _j < _len1; _j++) {
+      t = temp[_j];
+      obj = t.d3plus || {
+        d3plus: {}
+      };
       if (t.d3plus) {
-        var obj = t.d3plus
+        obj = t.d3plus;
+      } else {
+        obj = {
+          d3plus: {}
+        };
+        obj[vars.id.value] = t.key;
       }
-      else {
-        var obj = {"d3plus": {}}
-        obj[vars.id.value] = t.key
-      }
-
-      obj.d3plus.depth = t.depth
-
-      obj.d3plus.x = t.x
-      obj.d3plus.xOffset = xoffset
-      obj.d3plus.y = t.y
-      obj.d3plus.yOffset = yoffset+label_height
-      obj.d3plus.r = t.r
-      data.push(obj)
-
-    })
-
-    if ((i+1) % columns == 0) {
-      row++
+      obj.d3plus.depth = t.depth;
+      obj.d3plus.x = t.x;
+      obj.d3plus.xOffset = xoffset;
+      obj.d3plus.y = t.y;
+      obj.d3plus.yOffset = yoffset + labelHeight;
+      obj.d3plus.r = t.r;
+      data.push(obj);
     }
-
-  })
-
-  var downscale = size_max/d3.max(data,function(d){ return d.d3plus.r })
-
-  var xPadding = pack.size()[0]/2,
-      yPadding = pack.size()[1]/2
-
-  data.forEach(function(d){
-
-    d.d3plus.x = ((d.d3plus.x-xPadding)*downscale)+xPadding+d.d3plus.xOffset
-    d.d3plus.y = ((d.d3plus.y-yPadding)*downscale)+yPadding+d.d3plus.yOffset
-    d.d3plus.r = d.d3plus.r*downscale
-    delete d.d3plus.xOffset
-    delete d.d3plus.yOffset
-
+    if ((i + 1) % columns === 0) {
+      row++;
+    }
+  }
+  downscale = size_max / d3.max(data, function(d) {
+    return d.d3plus.r;
+  });
+  xPadding = pack.size()[0] / 2;
+  yPadding = pack.size()[1] / 2;
+  for (_k = 0, _len2 = data.length; _k < _len2; _k++) {
+    d = data[_k];
+    d.d3plus.x = ((d.d3plus.x - xPadding) * downscale) + xPadding + d.d3plus.xOffset;
+    d.d3plus.y = ((d.d3plus.y - yPadding) * downscale) + yPadding + d.d3plus.yOffset;
+    d.d3plus.r = d.d3plus.r * downscale;
+    delete d.d3plus.xOffset;
+    delete d.d3plus.yOffset;
     if (d.d3plus.depth < vars.depth.value) {
-      d.d3plus.static = true
-
+      d.d3plus["static"] = true;
       if (d.d3plus.depth === 0) {
         d.d3plus.label = {
-          "x": 0,
-          "y": -(size_max+label_height/2),
-          "w": size_max*1.5,
-          "h": label_height,
-          "color": legible(fetchColor(vars,d,d.d3plus.depth)),
-        }
+          x: 0,
+          y: -(size_max + labelHeight / 2),
+          w: size_max * 1.5,
+          h: labelHeight,
+          color: legible(fetchColor(vars, d, d.d3plus.depth))
+        };
+      } else {
+        d.d3plus.label = false;
       }
-      else {
-        d.d3plus.label = false
-      }
-
+    } else {
+      d.d3plus["static"] = false;
+      delete d.d3plus.label;
     }
-    else {
-      d.d3plus.static = false
-      delete d.d3plus.label
-    }
+  }
+  return data.sort(function(a, b) {
+    return a.d3plus.depth - b.d3plus.depth;
+  });
+};
 
-  })
+bubbles.fill = true;
 
-  data.sort(function( a , b ){
-    return a.d3plus.depth - b.d3plus.depth
-  })
+bubbles.requirements = ["data"];
 
-  return data
+bubbles.scale = 1.05;
 
-}
+bubbles.shapes = ["circle", "donut"];
 
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Visualization Settings and Helper Functions
-//------------------------------------------------------------------------------
-bubbles.fill         = true
-bubbles.requirements = [ "data" ]
-bubbles.scale        = 1.05
-bubbles.shapes       = [ "circle" , "donut" ]
-bubbles.tooltip      = "static"
+bubbles.tooltip = "static";
 
-module.exports = bubbles
+module.exports = bubbles;
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../core/fetch/text.js":"/Users/Dave/Sites/D3plus/src/core/fetch/text.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee":[function(require,module,exports){
+
+
+},{"../../array/sort.coffee":37,"../../color/legible.coffee":46,"../../core/data/group.coffee":59,"../../core/fetch/color.coffee":64,"../../core/fetch/text.js":66,"../../core/fetch/value.js":67}],287:[function(require,module,exports){
 var chart, print;
 
 print = require("../../../core/console/print.coffee");
@@ -28664,56 +28626,50 @@ module.exports = chart;
 
 
 
-},{"../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js":[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Geo Map
-//------------------------------------------------------------------------------
-var geo_map = function(vars) {
+},{"../../../core/console/print.coffee":54}],288:[function(require,module,exports){
+var geo_map;
 
-  topojson.presimplify(vars.coords.value)
-
-  var coords = vars.coords.value
-    , key = d3.keys(coords.objects)[0]
-    , topo = topojson.feature(coords, coords.objects[key])
-    , features = topo.features
-
-  var features = features.filter(function(f){
-
-    f[vars.id.value] = f.id
-
-    if (vars.coords.solo.value.length) {
-
-      return vars.coords.solo.value.indexOf(f.id) >= 0
-
+geo_map = function(vars) {
+  var coords, features, key, mute, solo, topo;
+  topojson.presimplify(vars.coords.value);
+  coords = vars.coords.value;
+  key = d3.keys(coords.objects)[0];
+  topo = topojson.feature(coords, coords.objects[key]);
+  features = topo.features;
+  solo = vars.coords.solo.value;
+  mute = vars.coords.mute.value;
+  features = features.filter(function(f) {
+    f[vars.id.value] = f.id;
+    if (solo.length) {
+      return solo.indexOf(f.id) >= 0;
+    } else if (mute.length) {
+      return mute.indexOf(f.id) < 0;
+    } else {
+      return true;
     }
-    else if (vars.coords.mute.value.length) {
-
-      return vars.coords.mute.value.indexOf(f.id) < 0
-
-    }
-
-    return true
-
-  })
-
-  return features
-
+  });
+  return features;
 };
 
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Visualization Settings and Helper Functions
-//------------------------------------------------------------------------------
-geo_map.libs         = [ "topojson" ];
-geo_map.nesting      = false
-geo_map.requirements = [ "color" , "coords" ];
-geo_map.scale        = 1
-geo_map.shapes       = [ "coordinates" ];
-geo_map.tooltip      = "follow"
-geo_map.zoom         = true
+geo_map.libs = ["topojson"];
 
-module.exports = geo_map
+geo_map.nesting = false;
 
-},{}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee":[function(require,module,exports){
+geo_map.requirements = ["color", "coords"];
+
+geo_map.scale = 1;
+
+geo_map.shapes = ["coordinates"];
+
+geo_map.tooltip = "follow";
+
+geo_map.zoom = true;
+
+module.exports = geo_map;
+
+
+
+},{}],289:[function(require,module,exports){
 var color, legible;
 
 color = require("../../../../core/fetch/color.coffee");
@@ -28776,7 +28732,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee":[function(require,module,exports){
+},{"../../../../color/legible.coffee":46,"../../../../core/fetch/color.coffee":64}],290:[function(require,module,exports){
 var axes, draw, mouse, plot;
 
 axes = require("./includes/axes.coffee");
@@ -28799,7 +28755,7 @@ module.exports = function(vars, opts) {
 
 
 
-},{"./includes/axes.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee","./includes/mouse.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee","./includes/plot.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee","./includes/svg.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/axes.coffee":[function(require,module,exports){
+},{"./includes/axes.coffee":291,"./includes/mouse.coffee":293,"./includes/plot.coffee":294,"./includes/svg.coffee":295}],291:[function(require,module,exports){
 var axisRange, buffer, dataChange, fetchData, fetchValue, getData, getScale, print, sizeScale, uniques;
 
 buffer = require("./buffer.coffee");
@@ -28823,7 +28779,7 @@ module.exports = function(vars, opts) {
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
     filtered = vars[axis].solo.changed || vars[axis].mute.changed;
-    modified = changed || vars[axis].changed || (vars.time.fixed.value && filtered);
+    modified = changed || vars[axis].changed || (vars.time.fixed.value && filtered) || vars[axis].scale.changed;
     if (modified || vars[axis].stacked.changed || vars[axis].range.changed) {
       if (vars.dev.value) {
         print.time("calculating " + axis + " axis");
@@ -28898,7 +28854,7 @@ axisRange = function(vars, axis, zero) {
   if (vars[axis].range.value && vars[axis].range.value.length === 2) {
     return vars[axis].range.value.slice();
   } else if (vars[axis].scale.value === "share") {
-    vars[axis].ticks.values = d3.range(0, 1.1, 1.1);
+    vars[axis].ticks.values = d3.range(0, 1.1, 0.1);
     return [0, 1];
   } else if (vars[axis].stacked.value) {
     oppAxis = axis === "x" ? "y" : "x";
@@ -28996,81 +28952,83 @@ sizeScale = function(vars, value) {
 
 
 
-},{"../../../../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../../../../core/fetch/data.js":"/Users/Dave/Sites/D3plus/src/core/fetch/data.js","../../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee","./buffer.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee":[function(require,module,exports){
+},{"../../../../../core/console/print.coffee":54,"../../../../../core/fetch/data.js":65,"../../../../../core/fetch/value.js":67,"../../../../../util/uniques.coffee":194,"./buffer.coffee":292}],292:[function(require,module,exports){
 var closest;
 
 closest = require("../../../../../util/closest.coffee");
 
 module.exports = function(vars, axis, buffer) {
   var additional, allNegative, allPositive, closestTime, diff, difference, domain, domainHigh, domainLow, maxSize, rangeMax, timeIndex;
-  if (axis === vars.axes.discrete) {
-    domain = vars[axis].scale.viz.domain();
-    if (axis === "y") {
-      domain = domain.slice().reverse();
-    }
-    if (vars[axis].ticks.values.length === 1) {
-      if (vars[axis].value === vars.time.value) {
-        closestTime = closest(vars.data.time.ticks, domain[0]);
-        timeIndex = vars.data.time.ticks.indexOf(closestTime);
-        if (timeIndex > 0) {
-          domain[0] = vars.data.time.ticks[timeIndex - 1];
+  if (vars[axis].scale.value !== "share") {
+    if (axis === vars.axes.discrete) {
+      domain = vars[axis].scale.viz.domain();
+      if (axis === "y") {
+        domain = domain.slice().reverse();
+      }
+      if (vars[axis].ticks.values.length === 1) {
+        if (vars[axis].value === vars.time.value) {
+          closestTime = closest(vars.data.time.ticks, domain[0]);
+          timeIndex = vars.data.time.ticks.indexOf(closestTime);
+          if (timeIndex > 0) {
+            domain[0] = vars.data.time.ticks[timeIndex - 1];
+          } else {
+            diff = vars.data.time.ticks[timeIndex + 1] - closestTime;
+            domain[0] = new Date(closestTime.getTime() - diff);
+          }
+          if (timeIndex < vars.data.time.ticks.length - 1) {
+            domain[1] = vars.data.time.ticks[timeIndex + 1];
+          } else {
+            diff = closestTime - vars.data.time.ticks[timeIndex - 1];
+            domain[1] = new Date(closestTime.getTime() + diff);
+          }
         } else {
-          diff = vars.data.time.ticks[timeIndex + 1] - closestTime;
-          domain[0] = new Date(closestTime.getTime() - diff);
-        }
-        if (timeIndex < vars.data.time.ticks.length - 1) {
-          domain[1] = vars.data.time.ticks[timeIndex + 1];
-        } else {
-          diff = closestTime - vars.data.time.ticks[timeIndex - 1];
-          domain[1] = new Date(closestTime.getTime() + diff);
+          domain[0] -= 1;
+          domain[1] += 1;
         }
       } else {
-        domain[0] -= 1;
-        domain[1] += 1;
+        difference = Math.abs(domain[1] - domain[0]);
+        additional = difference / (vars[axis].ticks.values.length - 1);
+        additional = additional / 2;
+        domain[0] = domain[0] - additional;
+        domain[1] = domain[1] + additional;
       }
-    } else {
-      difference = Math.abs(domain[1] - domain[0]);
-      additional = difference / (vars[axis].ticks.values.length - 1);
-      additional = additional / 2;
+      if (axis === "y") {
+        domain = domain.reverse();
+      }
+      return vars[axis].scale.viz.domain(domain);
+    } else if ((buffer === "x" && axis === "x") || (buffer === "y" && axis === "y") || (buffer === true)) {
+      domain = vars[axis].scale.viz.domain();
+      if (axis === "y") {
+        domain = domain.slice().reverse();
+      }
+      allPositive = domain[0] >= 0 && domain[1] >= 0;
+      allNegative = domain[0] <= 0 && domain[1] <= 0;
+      additional = Math.abs(domain[1] - domain[0]) * 0.05;
       domain[0] = domain[0] - additional;
       domain[1] = domain[1] + additional;
+      if ((allPositive && domain[0] < 0) || (allNegative && domain[0] > 0)) {
+        domain[0] = 0;
+      }
+      if ((allPositive && domain[1] < 0) || (allNegative && domain[1] > 0)) {
+        domain[1] = 0;
+      }
+      if (axis === "y") {
+        domain = domain.reverse();
+      }
+      return vars[axis].scale.viz.domain(domain);
+    } else if (vars.axes.scale && buffer !== "y" && buffer !== "x") {
+      rangeMax = vars[axis].scale.viz.range()[1];
+      maxSize = vars.axes.scale.range()[1];
+      domainHigh = vars[axis].scale.viz.invert(-maxSize * 2);
+      domainLow = vars[axis].scale.viz.invert(rangeMax + maxSize * 2);
+      return vars[axis].scale.viz.domain([domainHigh, domainLow]);
     }
-    if (axis === "y") {
-      domain = domain.reverse();
-    }
-    return vars[axis].scale.viz.domain(domain);
-  } else if ((buffer === "x" && axis === "x") || (buffer === "y" && axis === "y") || (buffer === true)) {
-    domain = vars[axis].scale.viz.domain();
-    if (axis === "y") {
-      domain = domain.slice().reverse();
-    }
-    allPositive = domain[0] >= 0 && domain[1] >= 0;
-    allNegative = domain[0] <= 0 && domain[1] <= 0;
-    additional = Math.abs(domain[1] - domain[0]) * 0.05;
-    domain[0] = domain[0] - additional;
-    domain[1] = domain[1] + additional;
-    if ((allPositive && domain[0] < 0) || (allNegative && domain[0] > 0)) {
-      domain[0] = 0;
-    }
-    if ((allPositive && domain[1] < 0) || (allNegative && domain[1] > 0)) {
-      domain[1] = 0;
-    }
-    if (axis === "y") {
-      domain = domain.reverse();
-    }
-    return vars[axis].scale.viz.domain(domain);
-  } else if (vars.axes.scale && buffer !== "y" && buffer !== "x") {
-    rangeMax = vars[axis].scale.viz.range()[1];
-    maxSize = vars.axes.scale.range()[1];
-    domainHigh = vars[axis].scale.viz.invert(-maxSize * 2);
-    domainLow = vars[axis].scale.viz.invert(rangeMax + maxSize * 2);
-    return vars[axis].scale.viz.domain([domainHigh, domainLow]);
   }
 };
 
 
 
-},{"../../../../../util/closest.coffee":"/Users/Dave/Sites/D3plus/src/util/closest.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/mouse.coffee":[function(require,module,exports){
+},{"../../../../../util/closest.coffee":190}],293:[function(require,module,exports){
 var copy, events, fetchColor, fetchValue, legible;
 
 copy = require("../../../../../util/copy.coffee");
@@ -29253,7 +29211,7 @@ module.exports = function(node, vars) {
 
 
 
-},{"../../../../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../../../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../../../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/plot.coffee":[function(require,module,exports){
+},{"../../../../../client/pointer.coffee":41,"../../../../../color/legible.coffee":46,"../../../../../core/fetch/color.coffee":64,"../../../../../core/fetch/value.js":67,"../../../../../util/copy.coffee":191}],294:[function(require,module,exports){
 var buffer, createAxis, fontSizes, labelPadding, resetMargins;
 
 buffer = require("./buffer.coffee");
@@ -29358,28 +29316,27 @@ labelPadding = function(vars) {
 
 createAxis = function(vars, axis) {
   return d3.svg.axis().tickSize(vars[axis].ticks.size).tickPadding(5).orient(axis === "x" ? "bottom" : "left").scale(vars[axis].scale.viz).tickValues(vars[axis].ticks.values).tickFormat(function(d, i) {
-    var hiddenTime, majorLog, scale, text;
+    var hiddenTime, majorLog, scale;
     scale = vars[axis].scale.value;
     hiddenTime = vars[axis].value === vars.time.value && d % 1 !== 0;
     majorLog = scale === "log" && d.toString().charAt(0) === "1";
     if (!hiddenTime && (majorLog || scale !== "log")) {
       if (scale === "share") {
-        text = d * 100 + "%";
+        return d * 100 + "%";
       } else if (d.constructor === Date) {
-        text = vars.data.time.multiFormat(d);
+        return vars.data.time.multiFormat(d);
       } else {
-        text = vars.format.value(d, vars[axis].value, vars);
+        return vars.format.value(d, vars[axis].value, vars);
       }
     } else {
-      text = null;
+      return null;
     }
-    return text;
   });
 };
 
 
 
-},{"../../../../../font/sizes.coffee":"/Users/Dave/Sites/D3plus/src/font/sizes.coffee","./buffer.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/buffer.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/includes/svg.coffee":[function(require,module,exports){
+},{"../../../../../font/sizes.coffee":94,"./buffer.coffee":292}],295:[function(require,module,exports){
 var mix;
 
 mix = require("../../../../../color/mix.coffee");
@@ -29655,7 +29612,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../../../color/mix.coffee":"/Users/Dave/Sites/D3plus/src/color/mix.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee":[function(require,module,exports){
+},{"../../../../../color/mix.coffee":48}],296:[function(require,module,exports){
 var fetchValue, stringStrip, uniqueValues;
 
 fetchValue = require("../../../../core/fetch/value.js");
@@ -29718,7 +29675,7 @@ module.exports = function(vars, data) {
 
 
 
-},{"../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../../../string/strip.js":"/Users/Dave/Sites/D3plus/src/string/strip.js","../../../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee":[function(require,module,exports){
+},{"../../../../core/fetch/value.js":67,"../../../../string/strip.js":165,"../../../../util/uniques.coffee":194}],297:[function(require,module,exports){
 var fetchValue;
 
 fetchValue = require("../../../../core/fetch/value.js");
@@ -29768,7 +29725,7 @@ module.exports = function(vars, data) {
 
 
 
-},{"../../../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/types/line.coffee":[function(require,module,exports){
+},{"../../../../core/fetch/value.js":67}],298:[function(require,module,exports){
 var dataTicks, fetchValue, graph, line, nest, stack;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -29832,7 +29789,7 @@ module.exports = line;
 
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/dataTicks.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/network.js":[function(require,module,exports){
+},{"../../core/fetch/value.js":67,"./helpers/graph/dataTicks.coffee":289,"./helpers/graph/draw.coffee":290,"./helpers/graph/nest.coffee":296,"./helpers/graph/stack.coffee":297}],299:[function(require,module,exports){
 var distances = require("../../network/distances.coffee"),
     fetchValue = require("../../core/fetch/value.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -29975,7 +29932,7 @@ network.zoom         = true
 
 module.exports = network
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee":[function(require,module,exports){
+},{"../../core/fetch/value.js":67,"../../network/distances.coffee":156}],300:[function(require,module,exports){
 var fetchValue, shortestPath, uniqueValues, viz,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -30233,7 +30190,7 @@ module.exports = viz;
 
 
 
-},{"../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/shortestPath.coffee":"/Users/Dave/Sites/D3plus/src/network/shortestPath.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/pie.coffee":[function(require,module,exports){
+},{"../../core/fetch/value.js":67,"../../network/shortestPath.coffee":158,"../../util/uniques.coffee":194}],301:[function(require,module,exports){
 var comparator, dataThreshold, fetchValue, groupData, order, pie;
 
 comparator = require("../../array/comparator.coffee");
@@ -30303,7 +30260,7 @@ module.exports = pie;
 
 
 
-},{"../../array/comparator.coffee":"/Users/Dave/Sites/D3plus/src/array/comparator.coffee","../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js"}],"/Users/Dave/Sites/D3plus/src/viz/types/rings.js":[function(require,module,exports){
+},{"../../array/comparator.coffee":35,"../../core/data/group.coffee":59,"../../core/data/threshold.js":63,"../../core/fetch/value.js":67}],302:[function(require,module,exports){
 var arraySort     = require("../../array/sort.coffee"),
     events        = require("../../client/pointer.coffee"),
     distances     = require("../../network/distances.coffee"),
@@ -30790,7 +30747,7 @@ rings.tooltip      = "static"
 
 module.exports = rings
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../client/pointer.coffee":"/Users/Dave/Sites/D3plus/src/client/pointer.coffee","../../color/legible.coffee":"/Users/Dave/Sites/D3plus/src/color/legible.coffee","../../core/fetch/color.coffee":"/Users/Dave/Sites/D3plus/src/core/fetch/color.coffee","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","../../network/distances.coffee":"/Users/Dave/Sites/D3plus/src/network/distances.coffee","../../tooltip/remove.coffee":"/Users/Dave/Sites/D3plus/src/tooltip/remove.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee":[function(require,module,exports){
+},{"../../array/sort.coffee":37,"../../client/pointer.coffee":41,"../../color/legible.coffee":46,"../../core/fetch/color.coffee":64,"../../core/fetch/value.js":67,"../../network/distances.coffee":156,"../../tooltip/remove.coffee":187,"../../util/uniques.coffee":194}],303:[function(require,module,exports){
 var fetchValue, graph, print, scatter, sort, ticks;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -30853,7 +30810,7 @@ module.exports = scatter;
 
 
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/dataTicks.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/dataTicks.coffee","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee":[function(require,module,exports){
+},{"../../array/sort.coffee":37,"../../core/console/print.coffee":54,"../../core/fetch/value.js":67,"./helpers/graph/dataTicks.coffee":289,"./helpers/graph/draw.coffee":290}],304:[function(require,module,exports){
 var fetchValue, graph, nest, sort, stack, stacked, threshold;
 
 fetchValue = require("../../core/fetch/value.js");
@@ -30939,7 +30896,7 @@ module.exports = stacked;
 
 
 
-},{"../../array/sort.coffee":"/Users/Dave/Sites/D3plus/src/array/sort.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../core/fetch/value.js":"/Users/Dave/Sites/D3plus/src/core/fetch/value.js","./helpers/graph/draw.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/draw.coffee","./helpers/graph/nest.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/nest.coffee","./helpers/graph/stack.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/helpers/graph/stack.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/table.js":[function(require,module,exports){
+},{"../../array/sort.coffee":37,"../../core/data/threshold.js":63,"../../core/fetch/value.js":67,"./helpers/graph/draw.coffee":290,"./helpers/graph/nest.coffee":296,"./helpers/graph/stack.coffee":297}],305:[function(require,module,exports){
 var uniques = require("../../util/uniques.coffee")
 var copy    = require("../../util/copy.coffee")
 var rand_col= require("../../color/random.coffee")
@@ -30947,19 +30904,20 @@ var rand_col= require("../../color/random.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Table
 //------------------------------------------------------------------------------
+
 var table = function(vars) {
-  
+
   if (!("dummy" in vars.data.viz[0])){
     vars.data.viz.unshift({"dummy":true, "d3plus":{}})
   }
   if (vars.cols.value[0] != "label"){
     vars.cols.value.unshift("label")
   }
-  
+
   var ids = uniques(vars.data.viz, vars.id.value);
   var item_height = vars.height.viz / ids.length;
   var item_width = vars.width.viz / vars.cols.value.length;
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Setup background
   //----------------------------------------------------------------------------
@@ -30992,33 +30950,42 @@ var table = function(vars) {
     .style("fill", "#fff")
     .style("stroke", "#fff")
   lines_vert.exit().remove()
-  
+
   var ret = []
   var colors = {}
-  
+
   // set up color scales
   vars.cols.value.forEach(function(col){
-    var domain_extent = d3.extent(vars.data.viz, function(d){ return d[col]; })
-    colors[col] = d3.scale.linear().domain(domain_extent).range([vars.color.missing,rand_col(col)])
+    if(vars.data.keys[col] == "number"){
+      var domain_extent = d3.extent(vars.data.viz, function(d){ return d[col]; })
+      colors[col] = d3.scale.linear().domain(domain_extent).range([vars.color.missing,rand_col(col)])
+    }
+    else if(vars.data.keys[col] == "boolean"){
+      colors[col] = function(bool){
+        return bool ? rand_col(col) : vars.color.missing;
+      }
+    }
   })
-  
-  vars.data.keys
+
+  // support for strings
+
   vars.data.viz.forEach(function(d, row_i){
-    
+
     // loop through each user defined column to create new "object" to draw
     vars.cols.value.forEach(function(col, col_i){
-      
+
       // need to clone data since we'll be dupliating it for each column
       var d_clone = copy(d);
-    
+
       // set unique ID otherwise it'd be the same in each column
       d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value]+"_"+col;
-    
+
       d_clone.d3plus.x = (item_width * col_i) + item_width/2;
       d_clone.d3plus.y = (item_height * row_i) + item_height/2;
       d_clone.d3plus.width = item_width;
       d_clone.d3plus.height = item_height;
-      
+
+      // these are the column headers
       if(d.dummy){
         d_clone.d3plus.shape = "square";
         d_clone.d3plus.color = rand_col(col);
@@ -31029,7 +30996,7 @@ var table = function(vars) {
         }
         ret.push(d_clone)
       }
-      
+
       if(col == "label"){
         d_clone.d3plus.shape = "square";
         d_clone.d3plus.color = "#fff";
@@ -31038,17 +31005,22 @@ var table = function(vars) {
           ret.push(d_clone)
         }
       }
-      
+
       // be sure that this column is actually in this data item
-      if(d3.keys(d).indexOf(col) >= 0 && d[col]){
-        d_clone.d3plus.label = false;
-        d_clone.d3plus.color = colors[col](d_clone[col]);
+      if(d3.keys(d).indexOf(col) >= 0 && (d[col] !== undefined && d[col] !== 0)){
+        if(colors[col]){
+          d_clone.d3plus.color = colors[col](d_clone[col]);
+        }
+        d_clone.d3plus.text = d_clone[col];
+        if(vars.data.keys[col] == "boolean"){
+          d_clone.d3plus.label = false;
+        }
         ret.push(d_clone)
       }
     })
-    
+
   })
-  
+
   return ret
 
 };
@@ -31061,7 +31033,7 @@ table.requirements = ["data", "cols"]
 
 module.exports = table
 
-},{"../../color/random.coffee":"/Users/Dave/Sites/D3plus/src/color/random.coffee","../../util/copy.coffee":"/Users/Dave/Sites/D3plus/src/util/copy.coffee","../../util/uniques.coffee":"/Users/Dave/Sites/D3plus/src/util/uniques.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/types/tree_map.coffee":[function(require,module,exports){
+},{"../../color/random.coffee":49,"../../util/copy.coffee":191,"../../util/uniques.coffee":194}],306:[function(require,module,exports){
 var dataThreshold, groupData, mergeObject, tree_map;
 
 dataThreshold = require("../../core/data/threshold.js");
@@ -31128,7 +31100,7 @@ module.exports = tree_map;
 
 
 
-},{"../../core/data/group.coffee":"/Users/Dave/Sites/D3plus/src/core/data/group.coffee","../../core/data/threshold.js":"/Users/Dave/Sites/D3plus/src/core/data/threshold.js","../../object/merge.coffee":"/Users/Dave/Sites/D3plus/src/object/merge.coffee"}],"/Users/Dave/Sites/D3plus/src/viz/viz.coffee":[function(require,module,exports){
+},{"../../core/data/group.coffee":59,"../../core/data/threshold.js":63,"../../object/merge.coffee":161}],307:[function(require,module,exports){
 var attach, axis, container, flash, getSteps, print;
 
 attach = require("../core/methods/attach.coffee");
@@ -31151,10 +31123,10 @@ module.exports = function() {
     },
     types: {
       bar: require("./types/bar.coffee"),
-      bubbles: require("./types/bubbles.js"),
+      bubbles: require("./types/bubbles.coffee"),
       box: require("./types/box.coffee"),
       chart: require("./types/deprecated/chart.coffee"),
-      geo_map: require("./types/geo_map.js"),
+      geo_map: require("./types/geo_map.coffee"),
       line: require("./types/line.coffee"),
       network: require("./types/network.js"),
       paths: require("./types/paths.coffee"),
@@ -31318,4 +31290,4 @@ module.exports = function() {
 
 
 
-},{"../core/console/print.coffee":"/Users/Dave/Sites/D3plus/src/core/console/print.coffee","../core/methods/attach.coffee":"/Users/Dave/Sites/D3plus/src/core/methods/attach.coffee","./helpers/container.coffee":"/Users/Dave/Sites/D3plus/src/viz/helpers/container.coffee","./helpers/drawSteps.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/drawSteps.js","./helpers/ui/message.js":"/Users/Dave/Sites/D3plus/src/viz/helpers/ui/message.js","./methods/active.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/active.coffee","./methods/aggs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/aggs.coffee","./methods/attrs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/attrs.coffee","./methods/axes.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/axes.coffee","./methods/background.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/background.coffee","./methods/color.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/color.coffee","./methods/cols.js":"/Users/Dave/Sites/D3plus/src/viz/methods/cols.js","./methods/container.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/container.coffee","./methods/coords.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/coords.coffee","./methods/csv.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/csv.coffee","./methods/data.js":"/Users/Dave/Sites/D3plus/src/viz/methods/data.js","./methods/depth.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/depth.coffee","./methods/descs.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/descs.coffee","./methods/dev.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/dev.coffee","./methods/draw.js":"/Users/Dave/Sites/D3plus/src/viz/methods/draw.js","./methods/edges.js":"/Users/Dave/Sites/D3plus/src/viz/methods/edges.js","./methods/error.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/error.coffee","./methods/focus.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/focus.coffee","./methods/font.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/font.coffee","./methods/footer.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/footer.coffee","./methods/format.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/format.coffee","./methods/height.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/height.coffee","./methods/helpers/axis.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/helpers/axis.coffee","./methods/history.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/history.coffee","./methods/icon.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/icon.coffee","./methods/id.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/id.coffee","./methods/labels.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/labels.coffee","./methods/legend.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/legend.coffee","./methods/links.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/links.coffee","./methods/margin.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/margin.coffee","./methods/messages.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/messages.coffee","./methods/nodes.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/nodes.coffee","./methods/order.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/order.coffee","./methods/shape.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/shape.coffee","./methods/size.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/size.coffee","./methods/style.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/style.coffee","./methods/temp.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/temp.coffee","./methods/text.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/text.coffee","./methods/time.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/time.coffee","./methods/timeline.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/timeline.coffee","./methods/timing.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/timing.coffee","./methods/title.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/title.coffee","./methods/tooltip.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/tooltip.coffee","./methods/total.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/total.coffee","./methods/type.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/type.coffee","./methods/ui.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/ui.coffee","./methods/width.coffee":"/Users/Dave/Sites/D3plus/src/viz/methods/width.coffee","./methods/zoom.js":"/Users/Dave/Sites/D3plus/src/viz/methods/zoom.js","./types/bar.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/bar.coffee","./types/box.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/box.coffee","./types/bubbles.js":"/Users/Dave/Sites/D3plus/src/viz/types/bubbles.js","./types/deprecated/chart.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/deprecated/chart.coffee","./types/geo_map.js":"/Users/Dave/Sites/D3plus/src/viz/types/geo_map.js","./types/line.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/line.coffee","./types/network.js":"/Users/Dave/Sites/D3plus/src/viz/types/network.js","./types/paths.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/paths.coffee","./types/pie.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/pie.coffee","./types/rings.js":"/Users/Dave/Sites/D3plus/src/viz/types/rings.js","./types/scatter.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/scatter.coffee","./types/stacked.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/stacked.coffee","./types/table.js":"/Users/Dave/Sites/D3plus/src/viz/types/table.js","./types/tree_map.coffee":"/Users/Dave/Sites/D3plus/src/viz/types/tree_map.coffee"}]},{},["./src/init.coffee"]);
+},{"../core/console/print.coffee":54,"../core/methods/attach.coffee":74,"./helpers/container.coffee":195,"./helpers/drawSteps.js":196,"./helpers/ui/message.js":227,"./methods/active.coffee":236,"./methods/aggs.coffee":237,"./methods/attrs.coffee":238,"./methods/axes.coffee":239,"./methods/background.coffee":240,"./methods/color.coffee":241,"./methods/cols.js":242,"./methods/container.coffee":243,"./methods/coords.coffee":244,"./methods/csv.coffee":245,"./methods/data.js":246,"./methods/depth.coffee":247,"./methods/descs.coffee":248,"./methods/dev.coffee":249,"./methods/draw.js":250,"./methods/edges.js":251,"./methods/error.coffee":252,"./methods/focus.coffee":253,"./methods/font.coffee":254,"./methods/footer.coffee":255,"./methods/format.coffee":256,"./methods/height.coffee":257,"./methods/helpers/axis.coffee":258,"./methods/history.coffee":259,"./methods/icon.coffee":260,"./methods/id.coffee":261,"./methods/labels.coffee":262,"./methods/legend.coffee":263,"./methods/links.coffee":264,"./methods/margin.coffee":265,"./methods/messages.coffee":266,"./methods/nodes.coffee":267,"./methods/order.coffee":268,"./methods/shape.coffee":269,"./methods/size.coffee":270,"./methods/style.coffee":271,"./methods/temp.coffee":272,"./methods/text.coffee":273,"./methods/time.coffee":274,"./methods/timeline.coffee":275,"./methods/timing.coffee":276,"./methods/title.coffee":277,"./methods/tooltip.coffee":278,"./methods/total.coffee":279,"./methods/type.coffee":280,"./methods/ui.coffee":281,"./methods/width.coffee":282,"./methods/zoom.js":283,"./types/bar.coffee":284,"./types/box.coffee":285,"./types/bubbles.coffee":286,"./types/deprecated/chart.coffee":287,"./types/geo_map.coffee":288,"./types/line.coffee":298,"./types/network.js":299,"./types/paths.coffee":300,"./types/pie.coffee":301,"./types/rings.js":302,"./types/scatter.coffee":303,"./types/stacked.coffee":304,"./types/table.js":305,"./types/tree_map.coffee":306}]},{},[1]);
