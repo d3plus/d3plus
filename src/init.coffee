@@ -29,8 +29,9 @@ d3plus.repo = "https://github.com/alexandersimoes/d3plus/"
 # @static
 ###
 d3plus.array =
-  sort:   require "./array/sort.coffee"
-  update: require "./array/update.coffee"
+  contains: require "./array/contains.coffee"
+  sort:     require "./array/sort.coffee"
+  update:   require "./array/update.coffee"
 
 ###*
 # Utilities related to the client's browser.

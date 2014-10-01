@@ -1,5 +1,6 @@
-var fetchText = require("../../core/fetch/text.js"),
+var fetchText    = require("../../core/fetch/text.js"),
     print        = require("../../core/console/print.coffee"),
+    rejected     = require("../../core/methods/rejected.coffee"),
     stringFormat = require("../../string/format.js"),
     stringList   = require("../../string/list.coffee")
 
@@ -86,37 +87,27 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set shape
   //----------------------------------------------------------------------------
-  var shapes = vars.shape.accepted(vars)
+  var shapes = vars.shape.accepted(vars);
+  if (!(shapes instanceof Array)) shapes = [shapes]
+  var shape = vars.shape.value;
 
-  if (!vars.shape.value) {
-    vars.self.shape(shapes[0])
-  }
-  else if (shapes.indexOf(vars.shape.value) < 0) {
-    var shapes = vars.types[vars.type.value].shapes
-      , str = vars.format.locale.value.error.accepted
-      , shape = "\""+vars.shape.value+"\""
-      , shapeStr = vars.format.locale.value.method.shape
-      , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-    print.warning(stringFormat(str,shape,shapeStr,app,"\""+shapes.join("\", \"")+"\""),"shape")
-    vars.self.shape(shapes[0])
+  if (!shape || rejected(vars, shapes, shape, "shape")) {
+    vars.self.shape(shapes[0]);
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if the requested app supports the set "mode"
   //----------------------------------------------------------------------------
   if ("modes" in vars.types[vars.type.value]) {
-    if (!vars.type.mode.value) {
-      vars.self.type({"mode": vars.types[vars.type.value].modes[0]})
+
+    var modes = vars.types[vars.type.value].modes
+    if (!(modes instanceof Array)) modes = [modes]
+    var mode = vars.type.mode.value
+
+    if (!mode || rejected(vars, modes, mode, "mode")) {
+      vars.self.type({"mode": modes[0]})
     }
-    else if (vars.types[vars.type.value].modes.indexOf(vars.type.mode.value) < 0) {
-      var modes = vars.types[vars.type.value].modes.join("\", \"")
-        , str = vars.format.locale.value.error.accepted
-        , mode = "\""+vars.type.mode.value+"\""
-        , modeStr = vars.format.locale.value.method.mode
-        , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-      print.warning(stringFormat(str,mode,modeStr,app,"\""+modes+"\""))
-      vars.self.type({"mode": vars.types[vars.type.value].modes[0]})
-    }
+
   }
 
   if ( vars.dev.value ) print.timeEnd("checking for errors")

@@ -154,6 +154,7 @@ box = (vars) ->
         d.d3plus[opposite]  = scale fetchValue(vars, d, vars.y.value)
         d.d3plus[opposite] += oppMargin
         d.d3plus.r = 4
+        d.d3plus.shape = vars.shape.value
 
       returnData = returnData.concat(outliers)
 
@@ -165,7 +166,7 @@ box = (vars) ->
 # Visualization Settings and Helper Functions
 box.modes        = ["tukey", "extent", Array, Number]
 box.requirements = ["data", "x", "y"]
-box.shapes       = ["circle"]
+box.shapes       = ["circle", "check", "cross", "diamond", "square", "triangle", "triangle_up", "triangle_down"]
 box.setup        = (vars) ->
   unless vars.axes.discrete
     if vars.y.value is vars.time.value

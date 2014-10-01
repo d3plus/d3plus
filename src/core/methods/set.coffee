@@ -4,8 +4,8 @@ validObject  = require "../../object/validate.coffee"
 mergeObject  = require "../../object/merge.coffee"
 print        = require "../console/print.coffee"
 process      = require "./process/detect.coffee"
+rejected     = require "./rejected.coffee"
 stringFormat = require "../../string/format.js"
-stringList   = require "../../string/list.coffee"
 updateArray  = require "../../array/update.coffee"
 
 # Sets a method's value.
@@ -23,38 +23,9 @@ module.exports = (vars, method, object, key, value) ->
   else if validObject(object[key]) and "accepted" of object[key]
     accepted = object[key].accepted
   else
-    accepted = null
-  accepted = accepted(vars)  if typeof accepted is "function"
-  accepted = [accepted]  if accepted isnt null and (accepted not instanceof Array)
+    accepted = [value]
 
-  # Check to see if the given value is allowed.
-  allowed = true
-  if accepted instanceof Array
-    constructor = (if value is undefined then value else value.constructor)
-    allowed     = accepted.indexOf(value) >= 0 or accepted.indexOf(constructor) >= 0
-
-  # If value is not allowed, show an error message in the console.
-  if allowed is false
-    if value isnt undefined
-      str  = vars.format.locale.value.dev.accepted
-      recs = []
-      val  = JSON.stringify(value)
-      and_ = vars.format.locale.value.ui.and
-      val  = "\"" + val + "\""  if typeof value isnt "string"
-      accepted.forEach (a) ->
-        if typeof a is "string"
-          recs.push "\"" + a + "\""
-        else if typeof a is "function"
-          recs.push a.toString().split("()")[0].substring(9)
-        else
-          recs.push a.toString()
-        return
-
-      recs = stringList(recs, and_)
-      print.warning stringFormat(str, val, text, recs), method
-
-  # Otherwise, set the value!
-  else
+  unless rejected vars, accepted, value, method, text
 
     # If the method we are setting has a nested "value" key, change the
     # reference object and key to reflect that.
