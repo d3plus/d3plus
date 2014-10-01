@@ -136,6 +136,7 @@ module.exports = {
     "loading"      : "loading...",
     "more"         : "{0} more",
     "moreInfo"     : "click for more info",
+    "or"           : "or",
     "noResults"    : "no results matching {0}.",
     "primary"      : "primary connections",
     "share"        : "share",

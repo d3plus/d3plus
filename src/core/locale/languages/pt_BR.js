@@ -104,6 +104,7 @@ module.exports = {
         "more": "mais {0}",
         "moreInfo": "clique para mais informações",
         "noResults": "nenhum resultado para {0}.",
+        "or": "ou",
         "primary": "conexões primárias",
         "share": "participação",
         "total": "total",

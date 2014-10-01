@@ -26,9 +26,9 @@ module.exports = (vars, accepted, value, method, text) ->
       else
         recs.push a.toString()
 
-    recs = list recs, vars.format.locale.value.ui.and
+    recs = list recs, vars.format.locale.value.ui.or
 
-    if ["mode", "shape"].indexOf(method) >= 0
+    if vars.type and ["mode", "shape"].indexOf(method) >= 0
       str = vars.format.locale.value.error.accepted
       app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
       print.warning format(str, val, method, app, recs), method

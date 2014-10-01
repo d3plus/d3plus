@@ -105,6 +105,7 @@ module.exports = {
         "more": "{0}更多",
         "moreInfo": "点击了解更多信息",
         "noResults": "没有结果匹配{0}。",
+        "or": "或",
         "primary": "主要连接",
         "share": "共享",
         "total": "总",
