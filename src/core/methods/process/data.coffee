@@ -1,7 +1,7 @@
 d3selection = require "../../../util/d3selection.coffee"
 
 # Function to process data by url or element.
-module.exports = (value, vars) ->
+module.exports = (value, vars, method) ->
 
   if typeof value isnt "string" and not d3selection(value)
     value
@@ -13,6 +13,6 @@ module.exports = (value, vars) ->
       if not maybeURL and not d3.selectAll(value).empty()
         return d3.selectAll(value)
       else
-        @url = value
+        method.url = value
         return []
     []

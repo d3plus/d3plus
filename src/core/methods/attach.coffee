@@ -86,7 +86,7 @@ createFunction = (vars, key) ->
       checkFamily = (o) ->
         if validObject(o)
           if "family" of o
-            o.family.value = o.family.process(user.family)
+            o.family.value = o.family.process(user.family, vars)
           else
             for m of o
               checkFamily o[m]

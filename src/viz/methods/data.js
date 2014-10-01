@@ -24,7 +24,7 @@ module.exports = {
       vars.self.container({"id": "default"+value.length})
     }
 
-    return process(value, this)
+    return process(value, vars, this)
   },
   "solo"     : [],
   "stroke"  : {

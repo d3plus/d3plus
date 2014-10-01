@@ -9,6 +9,6 @@ module.exports = (vars, object, value) ->
   else if typeof object.process is "object" and typeof value is "string"
     object.process[value]
   else if typeof object.process is "function"
-    object.process value, vars
+    object.process value, vars, object
   else
     value

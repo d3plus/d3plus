@@ -19,6 +19,7 @@ module.exports = function( vars ) {
     }
 
     var uniqueTimes = uniques( vars.data.value , vars.time.value )
+
     for ( var i = 0; i < uniqueTimes.length ; i++ ) {
       var d = new Date(uniqueTimes[i].toString())
       if (d !== "Invalid Date") {
