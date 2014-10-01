@@ -2,7 +2,7 @@ module.exports = (vars, selection, enter, exit) ->
 
   data = (d) ->
 
-    if d.d3plus.label
+    if d.d3plus.text
       d.d3plus_label =
         w:          size
         h:          size

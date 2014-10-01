@@ -107,10 +107,10 @@ box = (vars) ->
       medianData =
         d3plus:
           id:       "median_line_"+key
-          label:    median
           position: if h is "height" then "top" else "right"
           shape:    "whisker"
           static:   true
+          text:     median
 
       medianData.d3plus[w]        = space
       medianData.d3plus[discrete] = x

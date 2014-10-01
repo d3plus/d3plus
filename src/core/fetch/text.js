@@ -74,7 +74,7 @@ module.exports = function(vars,obj,depth) {
     })
 
   }
-
+  
   return names
 
 }
