@@ -84,14 +84,19 @@ module.exports = {
         "mês"
     ],
     "visualization": {
+        "bar": "Gráfico de Barras",
+        "box": "Box Plot",
         "bubbles": "Bolhas",
         "chart": "Gráfico",
         "geo_map": "Mapa",
         "line": "Gráfico de Linha",
         "network": "Rede",
+        "path": "Caminhos",
+        "pie": "Pie Chart",
         "rings": "Anéis",
         "scatter": "Dispersão",
         "stacked": "Evolução",
+        "table": "Tabela",
         "tree_map": "Tree Map"
     },
     "ui": {

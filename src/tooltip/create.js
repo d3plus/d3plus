@@ -1,4 +1,4 @@
-var defaultLocale = require("../core/locale/languages/en_US.js"),
+var defaultLocale = require("../core/locale/languages/en_US.coffee"),
     events        = require("../client/pointer.coffee"),
     legible       = require("../color/legible.coffee"),
     move          = require("./move.coffee"),

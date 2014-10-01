@@ -1,5 +1,5 @@
 format = require "./format.js"
-locale = require("../core/locale/languages/en_US.js").ui
+locale = require("../core/locale/languages/en_US.coffee").ui
 
 # Converts an array of strings into a string list using commas and "and".
 module.exports = (list, andText, max, moreText) ->

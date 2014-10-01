@@ -1,4 +1,4 @@
-defaultLocale = require "../core/locale/languages/en_US.js"
+defaultLocale = require "../core/locale/languages/en_US.coffee"
 
 module.exports = (text, key, vars) ->
 

@@ -1,4 +1,4 @@
-var defaultLocale = require("../core/locale/languages/en_US.js")
+var defaultLocale = require("../core/locale/languages/en_US.coffee")
 
 // Formats numbers to look "pretty"
 module.exports = function( number , key , vars ) {

@@ -85,14 +85,19 @@ module.exports = {
         "年"
     ],
     "visualization": {
+        "bar": "条形图",
+        "box": "箱线图",
         "bubbles": "气泡",
         "chart": "图表",
         "geo_map": "地理地图",
         "line": "线图",
         "network": "网络",
+        "path": "路径",
+        "pie": "饼图",
         "rings": "特性",
         "scatter": "散点图",
         "stacked": "堆积面积图",
+        "table": "表",
         "tree_map": "树图"
     },
     "ui": {
