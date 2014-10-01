@@ -37,6 +37,7 @@ module.exports =
     link:     false
     padding:  1
     position: "top"
+    value:    false
   total:
     accepted:   [Boolean, Object]
     deprecates: "total_bar"
