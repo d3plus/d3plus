@@ -8,25 +8,23 @@ module.exports = function(vars,selection,enter,exit) {
   // Initialize check scale on enter and exit.
   //----------------------------------------------------------------------------
   function init(paths){
-    paths.attr("transform", "scale(1)")
+    paths.attr("d", d3.svg.symbol().type("triangle-up").size(10))
   }
   
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Change scale of check on update.
   //---------------------------------------------------------------------------
   function update(paths){
-    paths.attr("transform", function(d){
+    paths.attr("d", d3.svg.symbol().type("triangle-up").size(function(d){
       var smaller_dim = Math.min(d.d3plus.width, d.d3plus.height);
-      var scale = Math.floor(smaller_dim / 16);
-      return "scale("+scale+")";
-    })
+      return d3.scale.pow().exponent(2)(smaller_dim/2);
+    }))
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
   //----------------------------------------------------------------------------
   enter.append("path").attr("class","d3plus_data")
-    .attr("d", d3.svg.symbol().type("triangle-up"))
     .call(init)
     .call(shapeStyle,vars)
 
