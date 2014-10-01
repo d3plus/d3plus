@@ -1,4 +1,5 @@
 var copy = require("../../../util/copy.coffee"),
+    closest = require("../../../util/closest.coffee"),
     events     = require("../../../client/pointer.coffee"),
     shapeStyle = require("./style.coffee")
 
@@ -24,8 +25,15 @@ module.exports = function(vars,selection,enter,exit) {
   // point on the line.
   //----------------------------------------------------------------------------
 
-  var stroke = vars.data.stroke.width * 2
-    , hitarea = stroke < 30 ? 30 : stroke
+  var stroke = vars.data.stroke.width * 2,
+      hitarea = stroke < 30 ? 30 : stroke,
+      discrete = vars[vars.axes.discrete],
+      ticks = []
+
+  discrete.ticks.values.forEach(function(d){
+    if (d.constructor === Date) ticks.push(d.getTime())
+    else ticks.push(d)
+  })
 
   selection.each(function(d){
 
@@ -33,16 +41,18 @@ module.exports = function(vars,selection,enter,exit) {
         segments = [],
         nodes = [],
         temp = copy(d),
-        group = d3.select(this),
-        discrete = vars[vars.axes.discrete]
+        group = d3.select(this)
 
     temp.values = []
     d.values.forEach(function(v,i,arr){
 
       nodes.push(v)
 
-      var k = v[discrete.value],
-          index = discrete.ticks.values.indexOf(k)
+      var k = v[discrete.value]
+
+      if (k.constructor === Date) k = k.getTime()
+
+      var index = ticks.indexOf(closest(ticks,k))
 
       if (step === false) {
         step = index
