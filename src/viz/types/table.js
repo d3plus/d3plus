@@ -16,7 +16,7 @@ var table = function(vars) {
   }
 
   var ids = uniques(vars.data.viz, vars.id.value);
-  var item_height = vars.height.viz / ids.length;
+  var item_height = vars.height.viz / (ids.length+1);
   var item_width = vars.width.viz / vars.cols.value.length;
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -71,6 +71,7 @@ var table = function(vars) {
   // support for strings
 
   vars.data.viz.forEach(function(d, row_i){
+    console.log(d)
 
     // loop through each user defined column to create new "object" to draw
     vars.cols.value.forEach(function(col, col_i){
@@ -108,7 +109,7 @@ var table = function(vars) {
       }
 
       // be sure that this column is actually in this data item
-      if(d3.keys(d).indexOf(col) >= 0 && (d[col] !== undefined && d[col] !== 0)){
+      if(d3.keys(d).indexOf(col) >= 0 && col in d){
         if(colors[col]){
           d_clone.d3plus.color = colors[col](d_clone[col]);
         }
