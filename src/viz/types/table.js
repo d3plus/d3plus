@@ -7,17 +7,19 @@ var rand_col= require("../../color/random.coffee")
 //------------------------------------------------------------------------------
 
 var table = function(vars) {
-
-  if (!("dummy" in vars.data.viz[0])){
-    vars.data.viz.unshift({"dummy":true, "d3plus":{}})
-  }
-  if (vars.cols.value[0] != "label"){
-    vars.cols.value.unshift("label")
-  }
-
+  
+  // get unique IDs and columns
   var ids = uniques(vars.data.viz, vars.id.value);
-  var item_height = vars.height.viz / (ids.length+1);
-  var item_width = vars.width.viz / vars.cols.value.length;
+  var cols = uniques(vars.cols.value);
+  
+  // if user wants to show the row labels (default behavior) add this as a col
+  if (cols.indexOf("label") < 0 && vars.cols.index.value){
+    cols.unshift("label");
+  }
+  
+  // width/height are a function of number of IDs and columns
+  var item_height = vars.height.viz / (ids.length+1); // add 1 for header offset
+  var item_width = vars.width.viz / cols.length;
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Setup background
@@ -28,8 +30,7 @@ var table = function(vars) {
     .attr("height", vars.height.viz)
     .attr("width", vars.width.viz)
     .style("fill", vars.color.missing)
-
-  // draw line separater
+  // draw line separater w/ enter/update/exit
   var lines_horiz = vars.group.selectAll("line.horiz").data(vars.data.viz);
   lines_horiz.enter().append("line").attr("class", "horiz")
   lines_horiz
@@ -40,8 +41,8 @@ var table = function(vars) {
     .style("fill", "#fff")
     .style("stroke", "#fff")
   lines_horiz.exit().remove()
-  // draw line separater
-  var lines_vert = vars.group.selectAll("line.vert").data(vars.cols.value);
+  // draw line separater w/ enter/update/exit
+  var lines_vert = vars.group.selectAll("line.vert").data(cols);
   lines_vert.enter().append("line").attr("class", "vert")
   lines_vert
     .attr("x1", function(d, col_i){ return (item_width * col_i) + item_width })
@@ -54,11 +55,37 @@ var table = function(vars) {
 
   var ret = []
   var colors = {}
-
-  // set up color scales
-  vars.cols.value.forEach(function(col){
+  
+  // doing 2 things here, first we add our column headers to our ret array as
+  // items dor d3plus to draw. We also compute the color scales for each column
+  cols.forEach(function(col, col_i){
+    // add columns
+    var header = {"d3plus":{
+      "x": (item_width * col_i) + item_width/2,
+      "y": item_height/2,
+      "width": item_width,
+      "height": item_height,
+      "id": "d3p_header_"+col.replace(/ /g,"_"),
+      "shape": "square",
+      "color": rand_col(col),
+      "text": col
+    }}
+    if(col == vars.id.value){
+      header.d3plus.color = "#fff";
+    }
+    if(col == "label"){
+      header.d3plus.label = false;
+      header.d3plus.color = "#fff";
+      header.d3plus.stroke = "#fff";
+    }
+    ret.push(header)
+    
+    // set up color scales
     if(vars.data.keys[col] == "number"){
       var domain_extent = d3.extent(vars.data.viz, function(d){ return d[col]; })
+      if(domain_extent[0] == domain_extent[1]){
+        domain_extent = [domain_extent[0]-1, domain_extent[1]]
+      }
       colors[col] = d3.scale.linear().domain(domain_extent).range([vars.color.missing,rand_col(col)])
     }
     else if(vars.data.keys[col] == "boolean"){
@@ -68,44 +95,28 @@ var table = function(vars) {
     }
   })
 
-  // support for strings
-
   vars.data.viz.forEach(function(d, row_i){
-    console.log(d)
+    // offset for column headers
+    row_i += 1;
 
     // loop through each user defined column to create new "object" to draw
-    vars.cols.value.forEach(function(col, col_i){
+    cols.forEach(function(col, col_i){
 
       // need to clone data since we'll be dupliating it for each column
       var d_clone = copy(d);
 
       // set unique ID otherwise it'd be the same in each column
-      d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value]+"_"+col;
-
+      d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value].replace(/ /g,"_")+"_"+col;
       d_clone.d3plus.x = (item_width * col_i) + item_width/2;
       d_clone.d3plus.y = (item_height * row_i) + item_height/2;
       d_clone.d3plus.width = item_width;
       d_clone.d3plus.height = item_height;
 
-      // these are the column headers
-      if(d.dummy){
-        d_clone.d3plus.shape = "square";
-        d_clone.d3plus.color = rand_col(col);
-        d_clone.d3plus.stroke = "#fff";
-        d_clone.d3plus.text = col;
-        if(col == "label"){
-          d_clone.d3plus.label = false
-        }
-        ret.push(d_clone)
-      }
-
       if(col == "label"){
         d_clone.d3plus.shape = "square";
         d_clone.d3plus.color = "#fff";
         // special case for top left corner
-        if(!d_clone.dummy){
-          ret.push(d_clone)
-        }
+        ret.push(d_clone)
       }
 
       // be sure that this column is actually in this data item
@@ -116,6 +127,11 @@ var table = function(vars) {
         d_clone.d3plus.text = d_clone[col];
         if(vars.data.keys[col] == "boolean"){
           d_clone.d3plus.label = false;
+        }
+        else if(vars.data.keys[col] == "string"){
+          d_clone.d3plus.color = vars.color.missing;
+          d_clone.d3plus.stroke = "#fff";
+          d_clone.d3plus.shape = "square";
         }
         ret.push(d_clone)
       }
