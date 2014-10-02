@@ -3,7 +3,13 @@ objectValidate = require "../object/validate.coffee"
 # Returns list of unique values
 module.exports = (data, value, vars) ->
 
-  return [] if data is undefined or value is undefined
+  return [] if data is undefined
+  
+  if value is undefined
+    return data.reduce((p, c) ->
+      p.push c  if p.indexOf(c) < 0
+      p
+    , [])
 
   data = [ data ] unless data instanceof Array
   vals = []
