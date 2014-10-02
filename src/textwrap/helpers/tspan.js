@@ -35,12 +35,12 @@ module.exports = function( vars ) {
           , lastChar = lastWord.charAt( lastWord.length-1 )
 
         if ( lastWord.length === 1
-        && vars.text.split.indexOf( lastWord ) >= 0 ) {
+        && vars.text.split.value.indexOf( lastWord ) >= 0 ) {
           ellipsis()
         }
         else {
 
-          if ( vars.text.split.indexOf( lastChar ) >= 0 ) {
+          if ( vars.text.split.value.indexOf( lastChar ) >= 0 ) {
             lastWord = lastWord.substr( 0 , lastWord.length - 1 )
           }
 

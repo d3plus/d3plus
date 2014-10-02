@@ -1,10 +1,12 @@
 module.exports =
-  accepted:   [false, Array, Function, Number, String]
+  accepted:   [false, Array, Number, String]
   html:
     accepted: [Boolean]
     value:    false
   init: (vars) ->
-    s = @split
+    s = @split.value
     @break = new RegExp "[^\\s\\" + s.join("\\") + "]+\\" + s.join("?\\") + "?", "g"
     false
-  split: ["-", "/", ";", ":", "&"]
+  split:
+    accepted: [Array]
+    value:    ["-", "/", ";", ":", "&"]

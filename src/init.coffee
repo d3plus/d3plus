@@ -29,9 +29,10 @@ d3plus.repo = "https://github.com/alexandersimoes/d3plus/"
 # @static
 ###
 d3plus.array =
-  contains: require "./array/contains.coffee"
-  sort:     require "./array/sort.coffee"
-  update:   require "./array/update.coffee"
+  comparator: require "./array/comparator.coffee"
+  contains:   require "./array/contains.coffee"
+  sort:       require "./array/sort.coffee"
+  update:     require "./array/update.coffee"
 
 ###*
 # Utilities related to the client's browser.
@@ -111,6 +112,7 @@ d3plus.geom =
 ###
 d3plus.network =
   cluster:      require "./network/cluster.coffee"
+  distances:    require "./network/distances.coffee"
   normalize:    require "./network/normalize.coffee"
   shortestPath: require "./network/shortestPath.coffee"
   subgraph:     require "./network/subgraph.coffee"
@@ -176,7 +178,6 @@ d3plus.util =
   copy:        require "./util/copy.coffee"
   d3selection: require "./util/d3selection.coffee"
   dataurl:     require "./util/dataURL.coffee"
-  distances:   require "./network/distances.coffee"
   uniques:     require "./util/uniques.coffee"
 
 ###*
