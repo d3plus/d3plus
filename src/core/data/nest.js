@@ -150,108 +150,112 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     //--------------------------------------------------------------------------
     for ( var key in vars.data.keys ) {
 
-      var agg     = vars.aggs.value[key] || "sum"
-        , aggType = typeof agg
-        , keyType = vars.data.keys[key]
-        , idKey   = vars.id.nesting.indexOf(key) >= 0
-        , timeKey = "time" in vars && key === vars.time.value
+      var uniques = uniqueValues(leaves,key)
 
-      if ( key in returnObj.d3plus ) {
+      if (uniques.length) {
 
-        returnObj[key] = returnObj.d3plus[key]
+        var agg     = vars.aggs.value[key] || "sum"
+          , aggType = typeof agg
+          , keyType = vars.data.keys[key]
+          , idKey   = vars.id.nesting.indexOf(key) >= 0
+          , timeKey = "time" in vars && key === vars.time.value
 
-      }
-      else if ( aggType === "function" ) {
+        if ( key in returnObj.d3plus ) {
 
-        returnObj[key] = vars.aggs.value[key](leaves)
+          returnObj[key] = returnObj.d3plus[key]
 
-      }
-      else if ( timeKey ) {
-        var uniques = uniqueValues(leaves,key), dates = []
+        }
+        else if ( aggType === "function" ) {
 
-        function parseDates(arr) {
+          returnObj[key] = vars.aggs.value[key](leaves)
 
-          for ( var i = 0; i < arr.length ; i++ ) {
-            var d = arr[i]
-            if (d !== undefined) {
-              if (d.constructor === Date) dates.push(d)
-              else if (d.constructor === Array) {
-                parseDates(d)
-              }
-              else {
-                d = new Date(d.toString())
-                if (d !== "Invalid Date") {
-                  d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
-                  dates.push(d)
+        }
+        else if ( timeKey ) {
+          var dates = []
+
+          function parseDates(arr) {
+
+            for ( var i = 0; i < arr.length ; i++ ) {
+              var d = arr[i]
+              if (d !== undefined) {
+                if (d.constructor === Date) dates.push(d)
+                else if (d.constructor === Array) {
+                  parseDates(d)
+                }
+                else {
+                  d = new Date(d.toString())
+                  if (d !== "Invalid Date") {
+                    d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
+                    dates.push(d)
+                  }
                 }
               }
             }
+
           }
+
+          parseDates(uniques)
+
+          if (dates.length === 1) returnObj[key] = dates[0]
+          else returnObj[key] = dates
 
         }
-
-        parseDates(uniques)
-
-        if (dates.length === 1) returnObj[key] = dates[0]
-        else if (uniques.length) returnObj[key] = dates
-        else returnObj[key] = null
-      }
-      else if ( keyType === "number" && aggType === "string" && !idKey ) {
-        var uniques = uniqueValues(leaves,key)
-        if (uniques.length) returnObj[key] = d3[agg](uniques)
-        else returnObj[key] = null
-      }
-      else {
-
-        var testVals = []
-        function checkVal(obj) {
-          if (obj instanceof Array) {
-            obj.forEach(checkVal)
-          }
-          else if (validObject(obj) && key in obj) {
-            if (obj[key] instanceof Array) {
-              obj[key].forEach(checkVal)
-            }
-            else {
-              testVals.push(obj)
-            }
-          }
+        else if ( keyType === "number" && aggType === "string" && !idKey ) {
+          returnObj[key] = d3[agg](uniques)
         }
-        checkVal(leaves)
+        else {
 
-        var keyValues = testVals.length === 1 ? testVals[0][key]
-                      : uniqueValues( testVals , key )
-
-        if ( keyValues !== undefined && keyValues !== null ) {
-
-          if ( !(keyValues instanceof Array) ) {
-            keyValues = [ keyValues ]
-          }
-
-          if ( keyValues.length ) {
-
-            if ( idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1 ) {
-              if (key == "id" && nestingLevels.length == 1 && testVals.length > leaves.length) {
-                var newNesting = nestingLevels.concat(key)
-                testVals = dataNest(vars,testVals,newNesting)
+          var testVals = []
+          function checkVal(obj) {
+            if (obj instanceof Array) {
+              obj.forEach(checkVal)
+            }
+            else if (validObject(obj) && key in obj) {
+              if (obj[key] instanceof Array) {
+                obj[key].forEach(checkVal)
               }
-              returnObj[key] = testVals.length === 1 ? testVals[0] : testVals
-
+              else {
+                testVals.push(obj)
+              }
             }
-            else {
+          }
+          checkVal(leaves)
 
-              returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues
+          var keyValues = testVals.length === 1 ? testVals[0][key]
+                        : uniqueValues( testVals , key )
+
+          if ( keyValues !== undefined && keyValues !== null ) {
+
+            if ( !(keyValues instanceof Array) ) {
+              keyValues = [ keyValues ]
+            }
+
+            if ( keyValues.length ) {
+
+              if ( idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1 ) {
+                if (key == "id" && nestingLevels.length == 1 && testVals.length > leaves.length) {
+                  var newNesting = nestingLevels.concat(key)
+                  testVals = dataNest(vars,testVals,newNesting)
+                }
+                returnObj[key] = testVals.length === 1 ? testVals[0] : testVals
+
+              }
+              else {
+
+                returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues
+
+              }
 
             }
 
           }
-
-        }
-        else if (idKey) {
-          var endPoint = vars.id.nesting.indexOf(key) - 1
-          if (endPoint >= i && (!("endPoint" in returnObj.d3plus) || returnObj.d3plus.endPoint > i)) {
-            returnObj.d3plus.endPoint = i
+          else if (idKey) {
+            var endPoint = vars.id.nesting.indexOf(key) - 1
+            if (endPoint >= i && (!("endPoint" in returnObj.d3plus) || returnObj.d3plus.endPoint > i)) {
+              returnObj.d3plus.endPoint = i
+            }
           }
+
         }
 
       }

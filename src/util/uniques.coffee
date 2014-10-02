@@ -18,7 +18,7 @@ module.exports = (data, value, vars) ->
       else
         val = d[value]
       lookup = if [ "number", "string" ].indexOf(typeof val) >= 0 then val else JSON.stringify(val)
-      if lookups.indexOf(lookup) < 0
+      if lookup isnt undefined and lookups.indexOf(lookup) < 0
         vals.push val
         lookups.push lookup
 
