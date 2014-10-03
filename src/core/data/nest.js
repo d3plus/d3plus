@@ -154,7 +154,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
       if (uniques.length) {
 
-        var agg     = vars.aggs.value[key] || "sum"
+        var agg     = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum"
           , aggType = typeof agg
           , keyType = vars.data.keys[key]
           , idKey   = vars.id.nesting.indexOf(key) >= 0

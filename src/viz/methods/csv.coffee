@@ -10,9 +10,12 @@ module.exports =
 
     return [] if vars.returned is undefined
 
+    value = value or vars.cols.value
+
     if value instanceof Array
       columns = value
-    else columns = [value] if typeof value is "string"
+    else if typeof value is "string"
+      columns = [value]
 
     csv_to_return = []
     titles        = []

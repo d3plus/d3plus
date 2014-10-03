@@ -4,8 +4,6 @@ decoration = require "../../core/methods/font/decoration.coffee"
 transform  = require "../../core/methods/font/transform.coffee"
 
 module.exports =
-  accepted: [Array, Boolean]
-  align:    align("center")
   border:   1
   color:
     primary:
@@ -21,7 +19,7 @@ module.exports =
     acceped: ["block", "inline-block"]
     value:   "inline-block"
   font:
-    align:      "center"
+    align:      align("center")
     color:      "#444"
     decoration: decoration()
     family:     family()
@@ -30,7 +28,3 @@ module.exports =
     weight:     200
   margin:   5
   padding:  5
-  position:
-    accepted: ["top", "right", "bottom", "left"]
-    value:    "bottom"
-  value: false

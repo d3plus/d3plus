@@ -1,3 +1,3 @@
 module.exports =
-  accepted: [Function, Number]
+  accepted: [Number]
   value:    0

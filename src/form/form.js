@@ -323,7 +323,6 @@ module.exports = function() {
   //----------------------------------------------------------------------------
   attach(vars, {
     "active":    require("./methods/active.coffee"),
-    "aggs":      require("./methods/aggs.coffee"),
     "alt":       require("./methods/alt.coffee"),
     "color":     require("./methods/color.coffee"),
     "container": require("./methods/container.coffee"),

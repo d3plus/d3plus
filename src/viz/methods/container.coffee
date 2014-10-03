@@ -2,7 +2,6 @@ d3selection = require("../../util/d3selection.coffee")
 
 module.exports =
   accepted: [false, Array, Object, String]
-  element:  false
   id:       "default"
   process:  (value) ->
     if value is false

@@ -1,5 +1,5 @@
 module.exports =
-  accepted:   [false, Function, Number, String]
+  accepted:   [false, Number, String]
   deprecates: "highlight"
   process:    (value, vars) ->
 
@@ -18,8 +18,4 @@ module.exports =
           @checked = d and d[vars.id.value] is value
 
     value
-
-  tooltip:
-    accepted: [Boolean]
-    value:    true
   value:      false

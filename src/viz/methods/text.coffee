@@ -6,4 +6,4 @@ module.exports =
   nesting:    true
   mute:       filter(true)
   solo:       filter(true)
-  value: false
+  value:      false
