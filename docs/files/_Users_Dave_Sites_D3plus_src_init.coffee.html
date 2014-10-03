@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 1.5.1</em>
+            <em>API Docs for: 1.6.0</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -129,7 +129,7 @@ window.d3plus = d3plus
 # @type String
 # @static
 ###
-d3plus.version = &quot;1.5.1 - Aqua&quot;
+d3plus.version = &quot;1.6.0 - Turquoise&quot;
 
 ###*
 # The URL for the repo, used internally for certain error messages.
@@ -147,9 +147,10 @@ d3plus.repo = &quot;https://github.com/alexandersimoes/d3plus/&quot;
 # @static
 ###
 d3plus.array =
-  contains: require &quot;./array/contains.coffee&quot;
-  sort:     require &quot;./array/sort.coffee&quot;
-  update:   require &quot;./array/update.coffee&quot;
+  comparator: require &quot;./array/comparator.coffee&quot;
+  contains:   require &quot;./array/contains.coffee&quot;
+  sort:       require &quot;./array/sort.coffee&quot;
+  update:     require &quot;./array/update.coffee&quot;
 
 ###*
 # Utilities related to the client&#x27;s browser.
@@ -229,6 +230,7 @@ d3plus.geom =
 ###
 d3plus.network =
   cluster:      require &quot;./network/cluster.coffee&quot;
+  distances:    require &quot;./network/distances.coffee&quot;
   normalize:    require &quot;./network/normalize.coffee&quot;
   shortestPath: require &quot;./network/shortestPath.coffee&quot;
   subgraph:     require &quot;./network/subgraph.coffee&quot;
@@ -294,7 +296,6 @@ d3plus.util =
   copy:        require &quot;./util/copy.coffee&quot;
   d3selection: require &quot;./util/d3selection.coffee&quot;
   dataurl:     require &quot;./util/dataURL.coffee&quot;
-  distances:   require &quot;./network/distances.coffee&quot;
   uniques:     require &quot;./util/uniques.coffee&quot;
 
 ###*
