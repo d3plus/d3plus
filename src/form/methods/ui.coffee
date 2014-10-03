@@ -4,6 +4,7 @@ decoration = require "../../core/methods/font/decoration.coffee"
 transform  = require "../../core/methods/font/transform.coffee"
 
 module.exports =
+  align: align("center")
   border:   1
   color:
     primary:
