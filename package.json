@@ -4,7 +4,7 @@
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "d3plus.js",
   "devDependencies": {
-    "browserify": "^5.12.1",
+    "browserify": "^6.0.2",
     "coffee-script": "^1.8.0",
     "coffeeify": "^0.7.0",
     "connect-livereload": "^0.4.0",
@@ -13,7 +13,7 @@
     "gulp": "^3.8.7",
     "gulp-duration": "^0.0.0",
     "gulp-livereload": "^2.1.0",
-    "gulp-notify": "^1.4.2",
+    "gulp-notify": "^2.0.0",
     "gulp-rename": "^1.2.0",
     "gulp-rimraf": "^0.1.0",
     "gulp-streamify": "^0.0.5",
@@ -29,7 +29,13 @@
     "type": "git",
     "url": "https://github.com/alexandersimoes/d3plus.git"
   },
-  "keywords": ["charts", "d3", "d3plus", "data", "visualization"],
+  "keywords": [
+    "charts",
+    "d3",
+    "d3plus",
+    "data",
+    "visualization"
+  ],
   "author": {
     "name": "Dave Landry",
     "email": "landry.dave@gmail.com",
