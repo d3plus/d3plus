@@ -14,7 +14,7 @@
     "d3": "^3.4.11",
     "heap": "^0.2.4",
     "numeric": "^1.2.6",
-    "simplify-js": "^1.2.1",
+    "simplify-js": "git@github.com:mourner/simplify-js.git"
     "static-kdtree": "git@github.com:mikolalysenko/static-kdtree.git#ce6e639c333fbab310fa44a3587b4bfdf10dbd4b"
     "topojson": "^1.6.18"
   },
