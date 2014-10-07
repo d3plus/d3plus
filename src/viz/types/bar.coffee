@@ -6,19 +6,24 @@ stack      = require "./helpers/graph/stack.coffee"
 # Line Plot
 bar = (vars) ->
 
+  discrete = vars.axes.discrete
+  h        = if discrete is "x" then "height" else "width"
+  w        = if discrete is "x" then "width" else "height"
+  opposite = vars.axes.opposite
+  cMargin  = if discrete is "x" then "left" else "top"
+  oMargin  = if discrete is "x" then "top" else "left"
+
+  data = vars.data.viz.filter (d) -> fetchValue vars, d, vars[opposite].value
+
+  return [] unless data.length
+
   graph vars,
     buffer: true
     zero:   vars.axes.opposite
 
-  data = vars.data.viz
-
   nested = nest vars, data
 
   stack vars, nested if vars.axes.stacked
-
-  discrete = vars.axes.discrete
-  h = if discrete is "x" then "height" else "width"
-  w = if discrete is "x" then "width" else "height"
 
   space  = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
 
@@ -32,10 +37,6 @@ bar = (vars) ->
     x = d3.scale.linear()
       .domain [0, nested.length-1]
       .range [-offset, offset]
-
-  opposite   = vars.axes.opposite
-  cMargin    = if discrete is "x" then "left" else "top"
-  oMargin    = if discrete is "x" then "top" else "left"
 
   for point, i in nested
     mod = if vars.axes.stacked then 0 else x(i)
