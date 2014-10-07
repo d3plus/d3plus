@@ -25,7 +25,16 @@ module.exports = (vars, opts) ->
 
       # calculate ticks if the axis is the time variable
       if vars[axis].value is vars.time.value
-        vars[axis].ticks.values = if vars.time.solo.value.length then vars.time.solo.value else vars.data.time.ticks
+        if vars.time.solo.value.length
+          ticks = vars.time.solo.value
+          for t, i in ticks
+            if t.constructor isnt Date
+              d = new Date(t.toString())
+              d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
+              ticks[i] = d
+          vars[axis].ticks.values = ticks
+        else
+          vars[axis].ticks.values = vars.data.time.ticks
       else if axis is vars.axes.discrete
         vars[axis].ticks.values = uniques vars.axes.dataset, (d) ->
           fetchValue vars, d, vars[axis].value

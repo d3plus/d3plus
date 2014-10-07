@@ -10,7 +10,7 @@ module.exports = (vars, opts) ->
   for axis in ["x","y"]
     vars[axis].ticks.values = vars[axis].scale.viz.ticks() if vars[axis].ticks.values is false
     opp = if axis is "x" then "y" else "x"
-    if opts.buffer and opts.buffer isnt opp and axis is vars.axes.discrete and vars[axis].reset is true
+    if opts.buffer and (opts.buffer isnt opp or vars[axis].ticks.values.length is 1) and axis is vars.axes.discrete and vars[axis].reset is true
       buffer vars, axis, opts.buffer
     vars[axis].reset = false
 
