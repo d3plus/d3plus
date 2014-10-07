@@ -5,6 +5,8 @@ module.exports = (vars, opts) ->
 
   # Reset margins
   vars.axes.margin = resetMargins vars
+  vars.axes.height = vars.height.viz
+  vars.axes.width  = vars.width.viz
 
   # Set ticks, if not previously set
   for axis in ["x","y"]
@@ -15,7 +17,7 @@ module.exports = (vars, opts) ->
     vars[axis].reset = false
 
   # Calculate padding for tick labels
-  labelPadding vars
+  labelPadding vars unless vars.small
 
   # Create SVG Axes
   for axis in ["x","y"]
@@ -48,7 +50,7 @@ labelPadding = (vars) ->
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
-  vars.axes.width        = vars.width.viz - vars.axes.margin.left - vars.axes.margin.right
+  vars.axes.width       -= (vars.axes.margin.left - vars.axes.margin.right)
 
   # Calculate X axis padding
   xAttrs =
@@ -76,7 +78,7 @@ labelPadding = (vars) ->
   xAxisHeight              = Math.round xAxisHeight
   xAxisWidth               = Math.round xAxisWidth
   vars.axes.margin.bottom += xAxisHeight
-  vars.axes.height         = vars.height.viz - vars.axes.margin.top - vars.axes.margin.bottom
+  vars.axes.height        -= (vars.axes.margin.top + vars.axes.margin.bottom)
   vars.axes.width         -= Math.round xAxisWidth/2
 
   vars.x.scale.viz.rangeRound [0,vars.axes.width]

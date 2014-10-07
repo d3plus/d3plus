@@ -15,6 +15,8 @@ module.exports = (vars) ->
     center: "middle"
     right:  "end"
 
+  axisData = if vars.small then [] else [0]
+
   tickPosition = (tick, axis) ->
     tick
       .attr "x1", (d) ->
@@ -135,7 +137,7 @@ module.exports = (vars) ->
         .style "text-anchor", vars.x.ticks.anchor
         .attr "transform", vars.x.ticks.transform
         .call tickFont, "x"
-  xAxis = plane.selectAll("g#d3plus_graph_xticks").data [0]
+  xAxis = plane.selectAll("g#d3plus_graph_xticks").data axisData
   xAxis.transition().duration(vars.draw.timing).call xStyle
   xAxis.selectAll("line").transition().duration vars.draw.timing
     .call tickStyle, "x"
@@ -144,6 +146,9 @@ module.exports = (vars) ->
     .call xStyle
   xEnter.selectAll("path").attr "fill", "none"
   xEnter.selectAll("line").call tickStyle, "x"
+  xAxis.exit().transition().duration vars.data.timing
+    .attr "opacity", 0
+    .remove()
 
   # Draw Y Axis Tick Marks
   yStyle = (axis) ->
@@ -151,7 +156,7 @@ module.exports = (vars) ->
       .call vars.y.axis.svg.scale(vars.y.scale.viz)
       .selectAll("g.tick").select("text")
         .call tickFont, "y"
-  yAxis = plane.selectAll("g#d3plus_graph_yticks").data [0]
+  yAxis = plane.selectAll("g#d3plus_graph_yticks").data axisData
   yAxis.transition().duration(vars.draw.timing).call yStyle
   yAxis.selectAll("line").transition().duration vars.draw.timing
     .call tickStyle, "y"
@@ -160,6 +165,9 @@ module.exports = (vars) ->
     .call yStyle
   yEnter.selectAll("path").attr "fill", "none"
   yEnter.selectAll("line").call tickStyle, "y"
+  yAxis.exit().transition().duration vars.data.timing
+    .attr "opacity", 0
+    .remove()
 
   # Style for both axes text labels
   labelStyle = (label, axis) ->
@@ -196,8 +204,7 @@ module.exports = (vars) ->
       .remove()
 
     # Draw Axis Text Label
-    visible = if vars.small then [] else [0]
-    label = vars.group.selectAll("text#d3plus_graph_"+axis+"label").data visible
+    label = vars.group.selectAll("text#d3plus_graph_"+axis+"label").data axisData
     label.text vars.format.value(vars[axis].value, undefined, vars)
       .transition().duration vars.draw.timing
         .call labelStyle, axis
@@ -205,7 +212,9 @@ module.exports = (vars) ->
       .attr "id", "d3plus_graph_"+axis+"label"
       .text vars.format.value(vars[axis].value, undefined, vars)
       .call labelStyle, axis
-    label.exit().remove()
+    label.exit().transition().duration vars.data.timing
+      .attr "opacity", 0
+      .remove()
 
   for axis in ["x","y"]
 
