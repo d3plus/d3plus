@@ -102,8 +102,8 @@ module.exports = function(vars,message) {
 
   vars.g.message
     .text(text)
-    .style("opacity",opacity)
     .style("display",display)
-    .call(style)
+    .call(style).transition().duration(vars.draw.timing)
+      .style("opacity",opacity)
 
 }
