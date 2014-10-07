@@ -1,5 +1,5 @@
 module.exports =
   accepted:  [false, Number]
   secondary: false
-  small:     400
+  small:     200
   value:     false
