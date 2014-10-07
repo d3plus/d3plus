@@ -18,7 +18,7 @@ window.d3plus = d3plus;
  * @static
  */
 
-d3plus.version = "1.6.0 - Turquoise";
+d3plus.version = "1.6.1 - Turquoise";
 
 
 /**
@@ -25651,9 +25651,9 @@ module.exports = function(vars,message) {
 
   vars.g.message
     .text(text)
-    .style("opacity",opacity)
     .style("display",display)
-    .call(style)
+    .call(style).transition().duration(vars.draw.timing)
+      .style("opacity",opacity)
 
 }
 
@@ -27274,7 +27274,7 @@ module.exports = {
   accepted: [false, Number],
   max: 600,
   secondary: false,
-  small: 300,
+  small: 200,
   value: false
 };
 
@@ -28114,7 +28114,7 @@ module.exports = {
 module.exports = {
   accepted: [false, Number],
   secondary: false,
-  small: 400,
+  small: 200,
   value: false
 };
 
@@ -28153,18 +28153,26 @@ stack = require("./helpers/graph/stack.coffee");
 
 bar = function(vars) {
   var base, cMargin, d, data, discrete, h, i, length, maxSize, mod, nested, oMargin, offset, opposite, point, space, value, w, x, _i, _j, _len, _len1, _ref;
+  discrete = vars.axes.discrete;
+  h = discrete === "x" ? "height" : "width";
+  w = discrete === "x" ? "width" : "height";
+  opposite = vars.axes.opposite;
+  cMargin = discrete === "x" ? "left" : "top";
+  oMargin = discrete === "x" ? "top" : "left";
+  data = vars.data.viz.filter(function(d) {
+    return fetchValue(vars, d, vars[opposite].value);
+  });
+  if (!data.length) {
+    return [];
+  }
   graph(vars, {
     buffer: true,
     zero: vars.axes.opposite
   });
-  data = vars.data.viz;
   nested = nest(vars, data);
   if (vars.axes.stacked) {
     stack(vars, nested);
   }
-  discrete = vars.axes.discrete;
-  h = discrete === "x" ? "height" : "width";
-  w = discrete === "x" ? "width" : "height";
   space = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length;
   if (vars.axes.stacked) {
     maxSize = space - vars.labels.padding * 4;
@@ -28174,9 +28182,6 @@ bar = function(vars) {
     offset = space / 2 - maxSize / 2 - vars.labels.padding * 2;
     x = d3.scale.linear().domain([0, nested.length - 1]).range([-offset, offset]);
   }
-  opposite = vars.axes.opposite;
-  cMargin = discrete === "x" ? "left" : "top";
-  oMargin = discrete === "x" ? "top" : "left";
   for (i = _i = 0, _len = nested.length; _i < _len; i = ++_i) {
     point = nested[i];
     mod = vars.axes.stacked ? 0 : x(i);
@@ -28738,7 +28743,7 @@ print = require("../../../../../core/console/print.coffee");
 uniques = require("../../../../../util/uniques.coffee");
 
 module.exports = function(vars, opts) {
-  var axis, changed, domains, filtered, modified, range, zero, _i, _len, _ref;
+  var axis, changed, d, domains, filtered, i, modified, range, t, ticks, zero, _i, _j, _len, _len1, _ref;
   changed = dataChange(vars);
   if (changed) {
     vars.axes.dataset = getData(vars);
@@ -28756,7 +28761,20 @@ module.exports = function(vars, opts) {
       vars[axis].reset = true;
       vars[axis].ticks.values = false;
       if (vars[axis].value === vars.time.value) {
-        vars[axis].ticks.values = vars.time.solo.value.length ? vars.time.solo.value : vars.data.time.ticks;
+        if (vars.time.solo.value.length) {
+          ticks = vars.time.solo.value;
+          for (i = _j = 0, _len1 = ticks.length; _j < _len1; i = ++_j) {
+            t = ticks[i];
+            if (t.constructor !== Date) {
+              d = new Date(t.toString());
+              d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
+              ticks[i] = d;
+            }
+          }
+          vars[axis].ticks.values = ticks;
+        } else {
+          vars[axis].ticks.values = vars.data.time.ticks;
+        }
       } else if (axis === vars.axes.discrete) {
         vars[axis].ticks.values = uniques(vars.axes.dataset, function(d) {
           return fetchValue(vars, d, vars[axis].value);
@@ -28937,7 +28955,7 @@ module.exports = function(vars, axis, buffer) {
         domain = domain.slice().reverse();
       }
       if (vars[axis].ticks.values.length === 1) {
-        if (vars[axis].value === vars.time.value) {
+        if (vars[axis].value === vars.time.value && vars.data.time.ticks.length !== 1) {
           closestTime = closest(vars.data.time.ticks, domain[0]);
           timeIndex = vars.data.time.ticks.indexOf(closestTime);
           if (timeIndex > 0) {
@@ -29196,6 +29214,8 @@ fontSizes = require("../../../../../font/sizes.coffee");
 module.exports = function(vars, opts) {
   var axis, opp, _i, _j, _len, _len1, _ref, _ref1;
   vars.axes.margin = resetMargins(vars);
+  vars.axes.height = vars.height.viz;
+  vars.axes.width = vars.width.viz;
   _ref = ["x", "y"];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
@@ -29203,12 +29223,14 @@ module.exports = function(vars, opts) {
       vars[axis].ticks.values = vars[axis].scale.viz.ticks();
     }
     opp = axis === "x" ? "y" : "x";
-    if (opts.buffer && opts.buffer !== opp && axis === vars.axes.discrete && vars[axis].reset === true) {
+    if (opts.buffer && (opts.buffer !== opp || vars[axis].ticks.values.length === 1) && axis === vars.axes.discrete && vars[axis].reset === true) {
       buffer(vars, axis, opts.buffer);
     }
     vars[axis].reset = false;
   }
-  labelPadding(vars);
+  if (!vars.small) {
+    labelPadding(vars);
+  }
   _ref1 = ["x", "y"];
   for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
     axis = _ref1[_j];
@@ -29249,7 +29271,7 @@ labelPadding = function(vars) {
   });
   yAxisWidth = Math.round(yAxisWidth + vars.labels.padding);
   vars.axes.margin.left += yAxisWidth;
-  vars.axes.width = vars.width.viz - vars.axes.margin.left - vars.axes.margin.right;
+  vars.axes.width -= vars.axes.margin.left - vars.axes.margin.right;
   xAttrs = {
     "font-size": vars.x.ticks.font.size + "px",
     "font-family": vars.x.ticks.font.family.value,
@@ -29283,7 +29305,7 @@ labelPadding = function(vars) {
   xAxisHeight = Math.round(xAxisHeight);
   xAxisWidth = Math.round(xAxisWidth);
   vars.axes.margin.bottom += xAxisHeight;
-  vars.axes.height = vars.height.viz - vars.axes.margin.top - vars.axes.margin.bottom;
+  vars.axes.height -= vars.axes.margin.top + vars.axes.margin.bottom;
   vars.axes.width -= Math.round(xAxisWidth / 2);
   vars.x.scale.viz.rangeRound([0, vars.axes.width]);
   return vars.y.scale.viz.rangeRound([0, vars.axes.height]);
@@ -29317,7 +29339,7 @@ var mix;
 mix = require("../../../../../color/mix.coffee");
 
 module.exports = function(vars) {
-  var alignMap, axis, bg, bgStyle, d, domain, grid, label, labelStyle, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, mirror, plane, planeTrans, position, rectData, rectStyle, textData, textPad, textPos, tickFont, tickPosition, tickStyle, visible, xAxis, xEnter, xStyle, yAxis, yEnter, yStyle, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+  var alignMap, axis, axisData, bg, bgStyle, d, domain, grid, label, labelStyle, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, mirror, plane, planeTrans, position, rectData, rectStyle, textData, textPad, textPos, tickFont, tickPosition, tickStyle, xAxis, xEnter, xStyle, yAxis, yEnter, yStyle, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
   bgStyle = {
     width: vars.axes.width,
     height: vars.axes.height,
@@ -29331,6 +29353,7 @@ module.exports = function(vars) {
     center: "middle",
     right: "end"
   };
+  axisData = vars.small ? [] : [0];
   tickPosition = function(tick, axis) {
     return tick.attr("x1", function(d) {
       if (axis === "x") {
@@ -29443,21 +29466,23 @@ module.exports = function(vars) {
   xStyle = function(axis) {
     return axis.attr("transform", "translate(0," + vars.axes.height + ")").call(vars.x.axis.svg.scale(vars.x.scale.viz)).selectAll("g.tick").select("text").style("text-anchor", vars.x.ticks.anchor).attr("transform", vars.x.ticks.transform).call(tickFont, "x");
   };
-  xAxis = plane.selectAll("g#d3plus_graph_xticks").data([0]);
+  xAxis = plane.selectAll("g#d3plus_graph_xticks").data(axisData);
   xAxis.transition().duration(vars.draw.timing).call(xStyle);
   xAxis.selectAll("line").transition().duration(vars.draw.timing).call(tickStyle, "x");
   xEnter = xAxis.enter().append("g").attr("id", "d3plus_graph_xticks").call(xStyle);
   xEnter.selectAll("path").attr("fill", "none");
   xEnter.selectAll("line").call(tickStyle, "x");
+  xAxis.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   yStyle = function(axis) {
     return axis.call(vars.y.axis.svg.scale(vars.y.scale.viz)).selectAll("g.tick").select("text").call(tickFont, "y");
   };
-  yAxis = plane.selectAll("g#d3plus_graph_yticks").data([0]);
+  yAxis = plane.selectAll("g#d3plus_graph_yticks").data(axisData);
   yAxis.transition().duration(vars.draw.timing).call(yStyle);
   yAxis.selectAll("line").transition().duration(vars.draw.timing).call(tickStyle, "y");
   yEnter = yAxis.enter().append("g").attr("id", "d3plus_graph_yticks").call(yStyle);
   yEnter.selectAll("path").attr("fill", "none");
   yEnter.selectAll("line").call(tickStyle, "y");
+  yAxis.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   labelStyle = function(label, axis) {
     return label.attr("x", axis === "x" ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.top)).attr("y", axis === "x" ? vars.height.viz - 10 : 15).attr("transform", axis === "y" ? "rotate(-90)" : null).attr("font-family", vars[axis].label.family.value).attr("font-weight", vars[axis].label.weight).attr("font-size", vars[axis].label.size + "px").attr("fill", vars[axis].label.color).style("text-anchor", vars[axis].label.align);
   };
@@ -29472,11 +29497,10 @@ module.exports = function(vars) {
     lines.transition().duration(vars.draw.timing).call(tickPosition, axis).call(tickStyle, axis, true);
     lines.enter().append("line").style("opacity", 0).call(tickPosition, axis).call(tickStyle, axis, true).transition().duration(vars.draw.timing).delay(vars.draw.timing / 2).style("opacity", 1);
     lines.exit().transition().duration(vars.draw.timing / 2).style("opacity", 0).remove();
-    visible = vars.small ? [] : [0];
-    label = vars.group.selectAll("text#d3plus_graph_" + axis + "label").data(visible);
+    label = vars.group.selectAll("text#d3plus_graph_" + axis + "label").data(axisData);
     label.text(vars.format.value(vars[axis].value, void 0, vars)).transition().duration(vars.draw.timing).call(labelStyle, axis);
     label.enter().append("text").attr("id", "d3plus_graph_" + axis + "label").text(vars.format.value(vars[axis].value, void 0, vars)).call(labelStyle, axis);
-    label.exit().remove();
+    label.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   }
   _ref1 = ["x", "y"];
   for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
