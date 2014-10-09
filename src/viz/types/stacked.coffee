@@ -42,17 +42,18 @@ stacked.filter = (vars, data) ->
 stacked.requirements = ["data", "x", "y"]
 stacked.setup = (vars) ->
 
-  vars.self.x
-    scale: "discrete"
+  vars.self.x scale: "discrete" unless vars.axes.discrete
+
+  vars.self[vars.axes.discrete]
     zerofill: true
-  vars.self.y
+  vars.self[vars.axes.opposite]
     stacked: true
 
-  y = vars.y
+  y    = vars[vars.axes.opposite]
   size = vars.size
 
   if (not y.value and size.value) or (size.changed and size.previous is y.value)
-    vars.self.y size.value
+    vars.self[vars.axes.opposite] size.value
   else if (not size.value and y.value) or (y.changed and y.previous is size.value)
     vars.self.size y.value
   return

@@ -69,13 +69,7 @@ bar = (vars) ->
 
 # Visualization Settings and Helper Functions
 bar.requirements = ["data", "x", "y"]
-bar.setup        = (vars) ->
-
-  unless vars.axes.discrete
-    axis = if vars.y.value is vars.time.value then "y" else "x"
-    vars.self[axis] scale: "discrete"
-
-  return
+bar.setup        = (vars) -> vars.self.x scale: "discrete" unless vars.axes.discrete
 bar.shapes  = ["square"]
 bar.tooltip = "static"
 

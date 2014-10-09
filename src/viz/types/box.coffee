@@ -167,11 +167,6 @@ box = (vars) ->
 box.modes        = ["tukey", "extent", Array, Number]
 box.requirements = ["data", "x", "y"]
 box.shapes       = ["circle", "check", "cross", "diamond", "square", "triangle", "triangle_up", "triangle_down"]
-box.setup        = (vars) ->
-  unless vars.axes.discrete
-    if vars.y.value is vars.time.value
-      vars.self.y scale: "discrete"
-    else
-      vars.self.x scale: "discrete"
+box.setup        = (vars) -> vars.self.x scale: "discrete" unless vars.axes.discrete
 
 module.exports = box
