@@ -65,9 +65,9 @@ var table = function(vars) {
       "y": item_height/2,
       "width": item_width,
       "height": item_height,
-      "id": "d3p_header_"+col.replace(/ /g,"_"),
+      "id": "d3p_header_"+col.toString().replace(/ /g,"_"),
       "shape": "square",
-      "color": rand_col(col),
+      "color": "#fff",
       "text": col
     }}
     if(col == vars.id.value){
@@ -106,7 +106,7 @@ var table = function(vars) {
       var d_clone = copy(d);
 
       // set unique ID otherwise it'd be the same in each column
-      d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value].replace(/ /g,"_")+"_"+col;
+      d_clone.d3plus.id = "d3p_"+d_clone[vars.id.value].toString().replace(/ /g,"_")+"_"+col;
       d_clone.d3plus.x = (item_width * col_i) + item_width/2;
       d_clone.d3plus.y = (item_height * row_i) + item_height/2;
       d_clone.d3plus.width = item_width;
