@@ -7,12 +7,12 @@ module.exports =
   align:      align()
   color:      "#444444"
   decoration: decoration()
-  family:     family
+  family:     family()
   secondary:
     align:      align()
     color:      "#444444"
     decoration: decoration()
-    family:     family
+    family:     family()
     size:       12
     spacing:    0
     transform:  transform()
