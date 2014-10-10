@@ -100,7 +100,7 @@ module.exports = function( vars ) {
         elementData.push(data_obj)
 
         if (this.checked) {
-          vars.focus.value[0] = data_obj[vars.id.value]
+          vars.self.focus(data_obj[vars.id.value])
         }
 
       })
