@@ -38,7 +38,7 @@
     "require-dir": "^0.1.0",
     "tiny-lr": "^0.1.4",
     "vinyl-source-stream": "^1.0.0",
-    "watchify": "^1.0.6"
+    "watchify": "^2.0.0"
   },
   "keywords": ["charts", "d3", "d3plus", "data", "visualization"],
   "license": "MIT"
