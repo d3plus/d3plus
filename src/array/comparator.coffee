@@ -14,8 +14,8 @@ module.exports = (a, b, keys, sort, colors, vars, depth) ->
 
     k = keys[i]
 
-    a = if vars and a.d3plus.sortKeys then a.d3plus.sortKeys[k] else a[k]
-    b = if vars and b.d3plus.sortKeys then b.d3plus.sortKeys[k] else b[k]
+    a = if vars and a.d3plus and a.d3plus.sortKeys then a.d3plus.sortKeys[k] else a[k]
+    b = if vars and b.d3plus and b.d3plus.sortKeys then b.d3plus.sortKeys[k] else b[k]
 
     if vars and colors.indexOf(k) >= 0
       retVal = colorSort a, b

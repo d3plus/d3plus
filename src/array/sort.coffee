@@ -10,6 +10,6 @@ module.exports = (arr, keys, sort, colors, vars, depth) ->
 
     if vars
       for d in arr
-        d.d3plus.sortKeys = fetchSort(vars, d, keys, colors, depth)
+        d.d3plus.sortKeys = fetchSort(vars, d, keys, colors, depth) if d.d3plus
 
     arr.sort (a, b) -> comparator a, b, keys, sort, colors, vars, depth
