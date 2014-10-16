@@ -1,5 +1,5 @@
 var d3selection = require("../../util/d3selection.coffee"),
-    process = require("../../core/methods/process/data.coffee")
+    process = require("../../core/methods/process/data.coffee");
 
 module.exports = {
   "accepted" : [ false , Array , Function , String ],
@@ -10,19 +10,18 @@ module.exports = {
   "element": {
     "process": function(value, vars) {
 
+      var element = false;
+
       if ( d3selection(value) ) {
-        var element = value
+        element = value;
       }
       else if (typeof value === "string" && !d3.select(value).empty()) {
-        var element = d3.select(value)
-      }
-      else {
-        var element = false
+        element = d3.select(value);
       }
 
       if (element) {
 
-        vars.self.container(d3.select(element.node().parentNode))
+        vars.self.container(d3.select(element.node().parentNode));
 
         element
           .style("position","absolute","important")
@@ -33,11 +32,11 @@ module.exports = {
           .style("margin","-1px","important")
           .style("padding","0","important")
           .style("border","0","important")
-          .style("overflow","hidden","important")
+          .style("overflow","hidden","important");
 
       }
 
-      return element
+      return element;
 
     },
     "value": false
@@ -51,11 +50,15 @@ module.exports = {
   "process"  : function(value, vars) {
 
     if ( vars.container.id === "default" && value.length ) {
-      vars.self.container({"id": "default"+value.length})
+      vars.self.container({"id": "default"+value.length});
     }
 
-    return process(value, vars, this)
+    return process(value, vars, this);
   },
   "solo"     : [],
+  "sort": {
+    "accepted": [Boolean],
+    "value":    true
+  },
   "value"    : false
-}
+};

@@ -13,6 +13,7 @@ module.exports = (vars) ->
     unless "items" of vars.container
       vars.container.items = form()
         .container vars.container.list
+        .data {"sort": false}
         .type "button"
         .ui
           border:  0
