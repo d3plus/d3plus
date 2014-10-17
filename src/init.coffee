@@ -11,7 +11,7 @@ window.d3plus = d3plus
 # @type String
 # @static
 ###
-d3plus.version = "1.6.2 - Turquoise"
+d3plus.version = "1.6.3 - Turquoise"
 
 ###*
 # The URL for the repo, used internally for certain error messages.
