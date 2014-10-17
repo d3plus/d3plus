@@ -33,7 +33,7 @@ module.exports = function(vars,obj,depth) {
 
   if (validObject(obj) && "d3plus" in obj && obj.d3plus.text) {
     names.push(obj.d3plus.text.toString())
-    names.push(vars.format.value(obj.d3plus.text.toString(), undefined, vars))
+    names.push(vars.format.value(obj.d3plus.text.toString(), undefined, vars, obj))
   }
   else {
 
@@ -42,6 +42,8 @@ module.exports = function(vars,obj,depth) {
     else if (validObject(ids[0])) {
       ids = uniqueValues(ids,key)
     }
+
+    var formatObj = validObject(obj) ? obj : undefined;
 
     textKeys.forEach(function( t ){
 
@@ -60,11 +62,11 @@ module.exports = function(vars,obj,depth) {
         name = name.map(function(n){
           if (n instanceof Array) {
             return n.map(function(nn){
-              return vars.format.value(nn.toString(),t, vars)
+              return vars.format.value(nn.toString(), t, vars, formatObj);
             })
           }
           else if (n) {
-            return vars.format.value(n.toString(),t, vars)
+            return vars.format.value(n.toString(), t, vars, formatObj);
           }
         })
         if (name.length === 1) name = name[0]
@@ -74,7 +76,7 @@ module.exports = function(vars,obj,depth) {
     })
 
   }
-  
+
   return names
 
 }

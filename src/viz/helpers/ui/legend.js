@@ -310,7 +310,7 @@ module.exports = function(vars) {
               y += vars.ui.padding+square_size/2
 
               var idIndex = vars.id.nesting.indexOf(colorKey)
-                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), vars)
+                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), colorName, vars, d)
 
               createTooltip({
                 "data": d,
@@ -450,7 +450,7 @@ module.exports = function(vars) {
         .style("text-anchor",vars.legend.font.align)
         .attr("fill",vars.legend.font.color)
         .text(function(d){
-          return vars.format.value(values[d],key, vars)
+          return vars.format.value(values[d], key, vars)
         })
         .attr("y",function(d){
           return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2

@@ -46,7 +46,7 @@ labelPadding = (vars) ->
     "font-size":   vars.y.ticks.font.size+"px"
     "font-family": vars.y.ticks.font.family.value
     "font-weight": vars.y.ticks.font.weight
-  yText                  = vars.y.ticks.values.map (d) -> vars.format.value(d,vars.y.value, vars)
+  yText                  = vars.y.ticks.values.map (d) -> vars.format.value(d, vars.y.value, vars)
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
@@ -57,7 +57,7 @@ labelPadding = (vars) ->
     "font-size":   vars.x.ticks.font.size+"px"
     "font-family": vars.x.ticks.font.family.value
     "font-weight": vars.x.ticks.font.weight
-  xText       = vars.x.ticks.values.map (d) -> vars.format.value(d,vars.x.value, vars)
+  xText       = vars.x.ticks.values.map (d) -> vars.format.value(d, vars.x.value, vars)
   xSizes      = fontSizes(xText,xAttrs)
   xAxisWidth  = d3.max xSizes, (d) -> d.width
   xAxisHeight = d3.max xSizes, (d) -> d.height

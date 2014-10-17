@@ -149,7 +149,7 @@ module.exports = function(params) {
             , value = fetchValue( vars , id , vars.size.value , nestKey )
             , color = fetchColor( vars , id , nestKey )
 
-          children[name] = value ? vars.format.value( value , vars.size.value , vars) : ""
+          children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
 
           if ( color ) {
             if ( !children.d3plus_colors ) children.d3plus_colors = {}
@@ -166,7 +166,7 @@ module.exports = function(params) {
       else if ( nameList && nameList !== "null" ) {
 
         var name  = fetchText( vars , nameList , depth )[0]
-        children[name] = dataValue ? vars.format.value( dataValue , vars.size.value , vars) : ""
+        children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
 
       }
 
@@ -182,16 +182,16 @@ module.exports = function(params) {
 
     if (typeof active == "number" && active > 0 && total) {
       var label = vars.active.value || "active"
-      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%, vars)"
+      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100, "share", vars, d)+"%)"
     }
 
     if (typeof temp == "number" && temp > 0 && total) {
       var label = vars.temp.value || "temp"
-      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%, vars)"
+      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100, "share", vars, d)+"%)"
     }
 
     if ( vars.tooltip.share.value && d.d3plus.share ) {
-      ex.share = vars.format.value(d.d3plus.share*100,"share", vars)+"%"
+      ex.share = vars.format.value(d.d3plus.share*100, "share", vars, d)+"%"
     }
 
     var depth = "depth" in params ? params.depth : dataDepth,
