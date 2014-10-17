@@ -18,7 +18,7 @@ window.d3plus = d3plus;
  * @static
  */
 
-d3plus.version = "1.6.2 - Turquoise";
+d3plus.version = "1.6.3 - Turquoise";
 
 
 /**
@@ -1553,7 +1553,7 @@ module.exports = isArray || function (val) {
 },{}],7:[function(require,module,exports){
 !function() {
   var d3 = {
-    version: "3.4.11"
+    version: "3.4.12"
   };
   if (!Date.now) Date.now = function() {
     return +new Date();
@@ -1825,7 +1825,7 @@ module.exports = isArray || function (val) {
     size: d3_map_size,
     empty: d3_map_empty,
     forEach: function(f) {
-      for (var key in this) if (key.charCodeAt(0) === d3_map_prefixCode) f.call(this, key.substring(1), this[key]);
+      for (var key in this) if (key.charCodeAt(0) === d3_map_prefixCode) f.call(this, key.slice(1), this[key]);
     }
   });
   var d3_map_prefix = "\x00", d3_map_prefixCode = d3_map_prefix.charCodeAt(0);
@@ -1935,7 +1935,7 @@ module.exports = isArray || function (val) {
     size: d3_map_size,
     empty: d3_map_empty,
     forEach: function(f) {
-      for (var value in this) if (value.charCodeAt(0) === d3_map_prefixCode) f.call(this, value.substring(1));
+      for (var value in this) if (value.charCodeAt(0) === d3_map_prefixCode) f.call(this, value.slice(1));
     }
   });
   d3.behavior = {};
@@ -1952,7 +1952,7 @@ module.exports = isArray || function (val) {
   }
   function d3_vendorSymbol(object, name) {
     if (name in object) return name;
-    name = name.charAt(0).toUpperCase() + name.substring(1);
+    name = name.charAt(0).toUpperCase() + name.slice(1);
     for (var i = 0, n = d3_vendorPrefixes.length; i < n; ++i) {
       var prefixName = d3_vendorPrefixes[i] + name;
       if (prefixName in object) return prefixName;
@@ -1969,8 +1969,8 @@ module.exports = isArray || function (val) {
   d3_dispatch.prototype.on = function(type, listener) {
     var i = type.indexOf("."), name = "";
     if (i >= 0) {
-      name = type.substring(i + 1);
-      type = type.substring(0, i);
+      name = type.slice(i + 1);
+      type = type.slice(0, i);
     }
     if (type) return arguments.length < 2 ? this[type].on(name) : this[type].on(name, listener);
     if (arguments.length === 2) {
@@ -2111,8 +2111,8 @@ module.exports = isArray || function (val) {
     qualify: function(name) {
       var i = name.indexOf(":"), prefix = name;
       if (i >= 0) {
-        prefix = name.substring(0, i);
-        name = name.substring(i + 1);
+        prefix = name.slice(0, i);
+        name = name.slice(i + 1);
       }
       return d3_nsPrefix.hasOwnProperty(prefix) ? {
         space: d3_nsPrefix[prefix],
@@ -2464,7 +2464,7 @@ module.exports = isArray || function (val) {
   };
   d3_selectionPrototype.size = function() {
     var n = 0;
-    this.each(function() {
+    d3_selection_each(this, function() {
       ++n;
     });
     return n;
@@ -2561,7 +2561,7 @@ module.exports = isArray || function (val) {
   };
   function d3_selection_on(type, listener, capture) {
     var name = "__on" + type, i = type.indexOf("."), wrap = d3_selection_onListener;
-    if (i > 0) type = type.substring(0, i);
+    if (i > 0) type = type.slice(0, i);
     var filter = d3_selection_onFilters.get(type);
     if (filter) type = filter, wrap = d3_selection_onFilter;
     function onRemove() {
@@ -2669,13 +2669,13 @@ module.exports = isArray || function (val) {
     var rect = container.getBoundingClientRect();
     return [ e.clientX - rect.left - container.clientLeft, e.clientY - rect.top - container.clientTop ];
   }
-  d3.touches = function(container, touches) {
-    if (arguments.length < 2) touches = d3_eventSource().touches;
-    return touches ? d3_array(touches).map(function(touch) {
-      var point = d3_mousePoint(container, touch);
-      point.identifier = touch.identifier;
-      return point;
-    }) : [];
+  d3.touch = function(container, touches, identifier) {
+    if (arguments.length < 3) identifier = touches, touches = d3_eventSource().changedTouches;
+    if (touches) for (var i = 0, n = touches.length, touch; i < n; ++i) {
+      if ((touch = touches[i]).identifier === identifier) {
+        return d3_mousePoint(container, touch);
+      }
+    }
   };
   d3.behavior.drag = function() {
     var event = d3_eventDispatch(drag, "drag", "dragstart", "dragend"), origin = null, mousedown = dragstart(d3_noop, d3.mouse, d3_behavior_dragMouseSubject, "mousemove", "mouseup"), touchstart = dragstart(d3_behavior_dragTouchId, d3.touch, d3_behavior_dragTouchSubject, "touchmove", "touchend");
@@ -2735,6 +2735,14 @@ module.exports = isArray || function (val) {
   function d3_behavior_dragMouseSubject() {
     return d3_window;
   }
+  d3.touches = function(container, touches) {
+    if (arguments.length < 2) touches = d3_eventSource().touches;
+    return touches ? d3_array(touches).map(function(touch) {
+      var point = d3_mousePoint(container, touch);
+      point.identifier = touch.identifier;
+      return point;
+    }) : [];
+  };
   var π = Math.PI, τ = 2 * π, halfπ = π / 2, ε = 1e-6, ε2 = ε * ε, d3_radians = π / 180, d3_degrees = 180 / π;
   function d3_sgn(x) {
     return x > 0 ? 1 : x < 0 ? -1 : 0;
@@ -2930,10 +2938,11 @@ module.exports = isArray || function (val) {
       }
     }
     function touchstarted() {
-      var that = this, dispatch = event.of(that, arguments), locations0 = {}, distance0 = 0, scale0, zoomName = ".zoom-" + d3.event.changedTouches[0].identifier, touchmove = "touchmove" + zoomName, touchend = "touchend" + zoomName, targets = [], subject = d3.select(that).on(mousedown, null).on(touchstart, started), dragRestore = d3_event_dragSuppress();
+      var that = this, dispatch = event.of(that, arguments), locations0 = {}, distance0 = 0, scale0, zoomName = ".zoom-" + d3.event.changedTouches[0].identifier, touchmove = "touchmove" + zoomName, touchend = "touchend" + zoomName, targets = [], subject = d3.select(that), dragRestore = d3_event_dragSuppress();
       d3_selection_interrupt.call(that);
       started();
       zoomstarted(dispatch);
+      subject.on(mousedown, null).on(touchstart, started);
       function relocate() {
         var touches = d3.touches(that);
         scale0 = view.k;
@@ -3176,7 +3185,7 @@ module.exports = isArray || function (val) {
       }
     }
     if (color = d3_rgb_names.get(format)) return rgb(color.r, color.g, color.b);
-    if (format != null && format.charAt(0) === "#" && !isNaN(color = parseInt(format.substring(1), 16))) {
+    if (format != null && format.charAt(0) === "#" && !isNaN(color = parseInt(format.slice(1), 16))) {
       if (format.length === 4) {
         r = (color & 3840) >> 4;
         r = r >> 4 | r;
@@ -3395,7 +3404,7 @@ module.exports = isArray || function (val) {
     };
     function respond() {
       var status = request.status, result;
-      if (!status && request.responseText || status >= 200 && status < 300 || status === 304) {
+      if (!status && d3_xhrHasResponse(request) || status >= 200 && status < 300 || status === 304) {
         try {
           result = response.call(xhr, request);
         } catch (e) {
@@ -3467,6 +3476,10 @@ module.exports = isArray || function (val) {
       callback(error == null ? request : null);
     } : callback;
   }
+  function d3_xhrHasResponse(request) {
+    var type = request.responseType;
+    return type && type !== "text" ? request.response : request.responseText;
+  }
   d3.dsv = function(delimiter, mimeType) {
     var reFormat = new RegExp('["' + delimiter + "\n]"), delimiterCode = delimiter.charCodeAt(0);
     function dsv(url, row, callback) {
@@ -3519,7 +3532,7 @@ module.exports = isArray || function (val) {
           } else if (c === 10) {
             eol = true;
           }
-          return text.substring(j + 1, i).replace(/""/g, '"');
+          return text.slice(j + 1, i).replace(/""/g, '"');
         }
         while (I < N) {
           var c = text.charCodeAt(I++), k = 1;
@@ -3527,9 +3540,9 @@ module.exports = isArray || function (val) {
             eol = true;
             if (text.charCodeAt(I) === 10) ++I, ++k;
           } else if (c !== delimiterCode) continue;
-          return text.substring(j, I - k);
+          return text.slice(j, I - k);
         }
-        return text.substring(j);
+        return text.slice(j);
       }
       while ((t = token()) !== EOF) {
         var a = [];
@@ -3571,14 +3584,6 @@ module.exports = isArray || function (val) {
   };
   d3.csv = d3.dsv(",", "text/csv");
   d3.tsv = d3.dsv("	", "text/tab-separated-values");
-  d3.touch = function(container, touches, identifier) {
-    if (arguments.length < 3) identifier = touches, touches = d3_eventSource().changedTouches;
-    if (touches) for (var i = 0, n = touches.length, touch; i < n; ++i) {
-      if ((touch = touches[i]).identifier === identifier) {
-        return d3_mousePoint(container, touch);
-      }
-    }
-  };
   var d3_timer_queueHead, d3_timer_queueTail, d3_timer_interval, d3_timer_timeout, d3_timer_active, d3_timer_frame = d3_window[d3_vendorSymbol(d3_window, "requestAnimationFrame")] || function(callback) {
     setTimeout(callback, 17);
   };
@@ -3670,7 +3675,7 @@ module.exports = isArray || function (val) {
   function d3_locale_numberFormat(locale) {
     var locale_decimal = locale.decimal, locale_thousands = locale.thousands, locale_grouping = locale.grouping, locale_currency = locale.currency, formatGroup = locale_grouping ? function(value) {
       var i = value.length, t = [], j = 0, g = locale_grouping[0];
-      while (i > 0 && g > 0) {
+      while (g > 0 && i > 0) {
         t.push(value.substring(i -= g, i + g));
         g = locale_grouping[j = (j + 1) % locale_grouping.length];
       }
@@ -3964,14 +3969,14 @@ module.exports = isArray || function (val) {
         var string = [], i = -1, j = 0, c, p, f;
         while (++i < n) {
           if (template.charCodeAt(i) === 37) {
-            string.push(template.substring(j, i));
+            string.push(template.slice(j, i));
             if ((p = d3_time_formatPads[c = template.charAt(++i)]) != null) c = template.charAt(++i);
             if (f = d3_time_formats[c]) c = f(date, p == null ? c === "e" ? " " : "0" : p);
             string.push(c);
             j = i + 1;
           }
         }
-        string.push(template.substring(j, i));
+        string.push(template.slice(j, i));
         return string.join("");
       }
       format.parse = function(string) {
@@ -3992,7 +3997,7 @@ module.exports = isArray || function (val) {
           date.setFullYear(d.y, 0, 1);
           date.setFullYear(d.y, 0, "W" in d ? (d.w + 6) % 7 + d.W * 7 - (date.getDay() + 5) % 7 : d.w + d.U * 7 - (date.getDay() + 6) % 7);
         } else date.setFullYear(d.y, d.m, d.d);
-        date.setHours(d.H + Math.floor(d.Z / 100), d.M + d.Z % 100, d.S, d.L);
+        date.setHours(d.H + (d.Z / 100 | 0), d.M + d.Z % 100, d.S, d.L);
         return localZ ? date._ : date;
       };
       format.toString = function() {
@@ -4138,22 +4143,22 @@ module.exports = isArray || function (val) {
     };
     function d3_time_parseWeekdayAbbrev(date, string, i) {
       d3_time_dayAbbrevRe.lastIndex = 0;
-      var n = d3_time_dayAbbrevRe.exec(string.substring(i));
+      var n = d3_time_dayAbbrevRe.exec(string.slice(i));
       return n ? (date.w = d3_time_dayAbbrevLookup.get(n[0].toLowerCase()), i + n[0].length) : -1;
     }
     function d3_time_parseWeekday(date, string, i) {
       d3_time_dayRe.lastIndex = 0;
-      var n = d3_time_dayRe.exec(string.substring(i));
+      var n = d3_time_dayRe.exec(string.slice(i));
       return n ? (date.w = d3_time_dayLookup.get(n[0].toLowerCase()), i + n[0].length) : -1;
     }
     function d3_time_parseMonthAbbrev(date, string, i) {
       d3_time_monthAbbrevRe.lastIndex = 0;
-      var n = d3_time_monthAbbrevRe.exec(string.substring(i));
+      var n = d3_time_monthAbbrevRe.exec(string.slice(i));
       return n ? (date.m = d3_time_monthAbbrevLookup.get(n[0].toLowerCase()), i + n[0].length) : -1;
     }
     function d3_time_parseMonth(date, string, i) {
       d3_time_monthRe.lastIndex = 0;
-      var n = d3_time_monthRe.exec(string.substring(i));
+      var n = d3_time_monthRe.exec(string.slice(i));
       return n ? (date.m = d3_time_monthLookup.get(n[0].toLowerCase()), i + n[0].length) : -1;
     }
     function d3_time_parseLocaleFull(date, string, i) {
@@ -4166,7 +4171,7 @@ module.exports = isArray || function (val) {
       return d3_time_parse(date, d3_time_formats.X.toString(), string, i);
     }
     function d3_time_parseAmPm(date, string, i) {
-      var n = d3_time_periodLookup.get(string.substring(i, i += 2).toLowerCase());
+      var n = d3_time_periodLookup.get(string.slice(i, i += 2).toLowerCase());
       return n == null ? -1 : (date.p = n, i);
     }
     return d3_time_format;
@@ -4190,31 +4195,31 @@ module.exports = isArray || function (val) {
   }
   function d3_time_parseWeekdayNumber(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 1));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 1));
     return n ? (date.w = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseWeekNumberSunday(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i));
+    var n = d3_time_numberRe.exec(string.slice(i));
     return n ? (date.U = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseWeekNumberMonday(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i));
+    var n = d3_time_numberRe.exec(string.slice(i));
     return n ? (date.W = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseFullYear(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 4));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 4));
     return n ? (date.y = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseYear(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 2));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 2));
     return n ? (date.y = d3_time_expandYear(+n[0]), i + n[0].length) : -1;
   }
   function d3_time_parseZone(date, string, i) {
-    return /^[+-]\d{4}$/.test(string = string.substring(i, i + 5)) ? (date.Z = -string, 
+    return /^[+-]\d{4}$/.test(string = string.slice(i, i + 5)) ? (date.Z = -string, 
     i + 5) : -1;
   }
   function d3_time_expandYear(d) {
@@ -4222,46 +4227,46 @@ module.exports = isArray || function (val) {
   }
   function d3_time_parseMonthNumber(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 2));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 2));
     return n ? (date.m = n[0] - 1, i + n[0].length) : -1;
   }
   function d3_time_parseDay(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 2));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 2));
     return n ? (date.d = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseDayOfYear(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 3));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 3));
     return n ? (date.j = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseHour24(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 2));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 2));
     return n ? (date.H = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseMinutes(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 2));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 2));
     return n ? (date.M = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseSeconds(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 2));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 2));
     return n ? (date.S = +n[0], i + n[0].length) : -1;
   }
   function d3_time_parseMilliseconds(date, string, i) {
     d3_time_numberRe.lastIndex = 0;
-    var n = d3_time_numberRe.exec(string.substring(i, i + 3));
+    var n = d3_time_numberRe.exec(string.slice(i, i + 3));
     return n ? (date.L = +n[0], i + n[0].length) : -1;
   }
   function d3_time_zone(d) {
-    var z = d.getTimezoneOffset(), zs = z > 0 ? "-" : "+", zh = ~~(abs(z) / 60), zm = abs(z) % 60;
+    var z = d.getTimezoneOffset(), zs = z > 0 ? "-" : "+", zh = abs(z) / 60 | 0, zm = abs(z) % 60;
     return zs + d3_time_formatPad(zh, "0", 2) + d3_time_formatPad(zm, "0", 2);
   }
   function d3_time_parseLiteralPercent(date, string, i) {
     d3_time_percentRe.lastIndex = 0;
-    var n = d3_time_percentRe.exec(string.substring(i, i + 1));
+    var n = d3_time_percentRe.exec(string.slice(i, i + 1));
     return n ? i + n[0].length : -1;
   }
   function d3_time_formatMulti(formats) {
@@ -4869,35 +4874,6 @@ module.exports = isArray || function (val) {
   function d3_geo_clipSort(a, b) {
     return ((a = a.x)[0] < 0 ? a[1] - halfπ - ε : halfπ - a[1]) - ((b = b.x)[0] < 0 ? b[1] - halfπ - ε : halfπ - b[1]);
   }
-  function d3_geo_pointInPolygon(point, polygon) {
-    var meridian = point[0], parallel = point[1], meridianNormal = [ Math.sin(meridian), -Math.cos(meridian), 0 ], polarAngle = 0, winding = 0;
-    d3_geo_areaRingSum.reset();
-    for (var i = 0, n = polygon.length; i < n; ++i) {
-      var ring = polygon[i], m = ring.length;
-      if (!m) continue;
-      var point0 = ring[0], λ0 = point0[0], φ0 = point0[1] / 2 + π / 4, sinφ0 = Math.sin(φ0), cosφ0 = Math.cos(φ0), j = 1;
-      while (true) {
-        if (j === m) j = 0;
-        point = ring[j];
-        var λ = point[0], φ = point[1] / 2 + π / 4, sinφ = Math.sin(φ), cosφ = Math.cos(φ), dλ = λ - λ0, sdλ = dλ >= 0 ? 1 : -1, adλ = sdλ * dλ, antimeridian = adλ > π, k = sinφ0 * sinφ;
-        d3_geo_areaRingSum.add(Math.atan2(k * sdλ * Math.sin(adλ), cosφ0 * cosφ + k * Math.cos(adλ)));
-        polarAngle += antimeridian ? dλ + sdλ * τ : dλ;
-        if (antimeridian ^ λ0 >= meridian ^ λ >= meridian) {
-          var arc = d3_geo_cartesianCross(d3_geo_cartesian(point0), d3_geo_cartesian(point));
-          d3_geo_cartesianNormalize(arc);
-          var intersection = d3_geo_cartesianCross(meridianNormal, arc);
-          d3_geo_cartesianNormalize(intersection);
-          var φarc = (antimeridian ^ dλ >= 0 ? -1 : 1) * d3_asin(intersection[2]);
-          if (parallel > φarc || parallel === φarc && (arc[0] || arc[1])) {
-            winding += antimeridian ^ dλ >= 0 ? 1 : -1;
-          }
-        }
-        if (!j++) break;
-        λ0 = λ, sinφ0 = sinφ, cosφ0 = cosφ, point0 = point;
-      }
-    }
-    return (polarAngle < -ε || polarAngle < ε && d3_geo_areaRingSum < 0) ^ winding & 1;
-  }
   var d3_geo_clipAntimeridian = d3_geo_clip(d3_true, d3_geo_clipAntimeridianLine, d3_geo_clipAntimeridianInterpolate, [ -π, -π / 2 ]);
   function d3_geo_clipAntimeridianLine(listener) {
     var λ0 = NaN, φ0 = NaN, sλ0 = NaN, clean;
@@ -4964,6 +4940,35 @@ module.exports = isArray || function (val) {
     } else {
       listener.point(to[0], to[1]);
     }
+  }
+  function d3_geo_pointInPolygon(point, polygon) {
+    var meridian = point[0], parallel = point[1], meridianNormal = [ Math.sin(meridian), -Math.cos(meridian), 0 ], polarAngle = 0, winding = 0;
+    d3_geo_areaRingSum.reset();
+    for (var i = 0, n = polygon.length; i < n; ++i) {
+      var ring = polygon[i], m = ring.length;
+      if (!m) continue;
+      var point0 = ring[0], λ0 = point0[0], φ0 = point0[1] / 2 + π / 4, sinφ0 = Math.sin(φ0), cosφ0 = Math.cos(φ0), j = 1;
+      while (true) {
+        if (j === m) j = 0;
+        point = ring[j];
+        var λ = point[0], φ = point[1] / 2 + π / 4, sinφ = Math.sin(φ), cosφ = Math.cos(φ), dλ = λ - λ0, sdλ = dλ >= 0 ? 1 : -1, adλ = sdλ * dλ, antimeridian = adλ > π, k = sinφ0 * sinφ;
+        d3_geo_areaRingSum.add(Math.atan2(k * sdλ * Math.sin(adλ), cosφ0 * cosφ + k * Math.cos(adλ)));
+        polarAngle += antimeridian ? dλ + sdλ * τ : dλ;
+        if (antimeridian ^ λ0 >= meridian ^ λ >= meridian) {
+          var arc = d3_geo_cartesianCross(d3_geo_cartesian(point0), d3_geo_cartesian(point));
+          d3_geo_cartesianNormalize(arc);
+          var intersection = d3_geo_cartesianCross(meridianNormal, arc);
+          d3_geo_cartesianNormalize(intersection);
+          var φarc = (antimeridian ^ dλ >= 0 ? -1 : 1) * d3_asin(intersection[2]);
+          if (parallel > φarc || parallel === φarc && (arc[0] || arc[1])) {
+            winding += antimeridian ^ dλ >= 0 ? 1 : -1;
+          }
+        }
+        if (!j++) break;
+        λ0 = λ, sinφ0 = sinφ, cosφ0 = cosφ, point0 = point;
+      }
+    }
+    return (polarAngle < -ε || polarAngle < ε && d3_geo_areaRingSum < 0) ^ winding & 1;
   }
   function d3_geo_clipCircle(radius) {
     var cr = Math.cos(radius), smallRadius = cr > 0, notHemisphere = abs(cr) > ε, interpolate = d3_geo_circleInterpolate(radius, 6 * d3_radians);
@@ -7164,7 +7169,7 @@ module.exports = isArray || function (val) {
     a = a + "", b = b + "";
     while ((am = d3_interpolate_numberA.exec(a)) && (bm = d3_interpolate_numberB.exec(b))) {
       if ((bs = bm.index) > bi) {
-        bs = b.substring(bi, bs);
+        bs = b.slice(bi, bs);
         if (s[i]) s[i] += bs; else s[++i] = bs;
       }
       if ((am = am[0]) === (bm = bm[0])) {
@@ -7179,7 +7184,7 @@ module.exports = isArray || function (val) {
       bi = d3_interpolate_numberB.lastIndex;
     }
     if (bi < b.length) {
-      bs = b.substring(bi);
+      bs = b.slice(bi);
       if (s[i]) s[i] += bs; else s[++i] = bs;
     }
     return s.length < 2 ? q[0] ? (b = q[0].x, function(t) {
@@ -7249,7 +7254,7 @@ module.exports = isArray || function (val) {
     }
   });
   d3.ease = function(name) {
-    var i = name.indexOf("-"), t = i >= 0 ? name.substring(0, i) : name, m = i >= 0 ? name.substring(i + 1) : "in";
+    var i = name.indexOf("-"), t = i >= 0 ? name.slice(0, i) : name, m = i >= 0 ? name.slice(i + 1) : "in";
     t = d3_ease.get(t) || d3_ease_default;
     m = d3_ease_mode.get(m) || d3_identity;
     return d3_ease_clamp(m(t.apply(null, d3_arraySlice.call(arguments, 1))));
@@ -21746,7 +21751,7 @@ module.exports = function(vars,obj,depth) {
 
   if (validObject(obj) && "d3plus" in obj && obj.d3plus.text) {
     names.push(obj.d3plus.text.toString())
-    names.push(vars.format.value(obj.d3plus.text.toString(), undefined, vars))
+    names.push(vars.format.value(obj.d3plus.text.toString(), undefined, vars, obj))
   }
   else {
 
@@ -21755,6 +21760,8 @@ module.exports = function(vars,obj,depth) {
     else if (validObject(ids[0])) {
       ids = uniqueValues(ids,key)
     }
+
+    var formatObj = validObject(obj) ? obj : undefined;
 
     textKeys.forEach(function( t ){
 
@@ -21773,11 +21780,11 @@ module.exports = function(vars,obj,depth) {
         name = name.map(function(n){
           if (n instanceof Array) {
             return n.map(function(nn){
-              return vars.format.value(nn.toString(),t, vars)
+              return vars.format.value(nn.toString(), t, vars, formatObj);
             })
           }
           else if (n) {
-            return vars.format.value(n.toString(),t, vars)
+            return vars.format.value(n.toString(), t, vars, formatObj);
           }
         })
         if (name.length === 1) name = name[0]
@@ -21787,7 +21794,7 @@ module.exports = function(vars,obj,depth) {
     })
 
   }
-  
+
   return names
 
 }
@@ -22664,6 +22671,10 @@ module.exports = function(g) {
   }
   return {
     accepted: [false, Array, Function, Number, Object, String],
+    callback: {
+      accepted: [false, Function],
+      value: false
+    },
     global: g,
     process: Array,
     value: []
@@ -22948,7 +22959,7 @@ stringFormat = require("../../string/format.js");
 updateArray = require("../../array/update.coffee");
 
 module.exports = function(vars, method, object, key, value) {
-  var accepted, c, d3object, hasValue, id, k, longArray, n, parentKey, str, text, typeFunction, valString;
+  var accepted, c, callback, d3object, hasValue, id, k, longArray, n, parentKey, str, text, typeFunction, valString;
   if (key === "value" || !key || key === method) {
     text = "." + method + "()";
   } else {
@@ -23073,7 +23084,10 @@ module.exports = function(vars, method, object, key, value) {
       }
     }
     if (key === "value" && object.callback && !object.url) {
-      object.callback(value);
+      callback = typeof object.callback === "function" ? object.callback : object.callback.value;
+      if (callback) {
+        callback(value);
+      }
     }
   }
 };
@@ -23653,7 +23667,7 @@ var arraySort = require("../array/sort.coffee"),
     fetchData   = require("../core/fetch/data.js"),
     ie          = require("../client/ie.js"),
     methodReset = require("../core/methods/reset.coffee"),
-    print       = require("../core/console/print.coffee")
+    print       = require("../core/console/print.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Form Element shell
 //------------------------------------------------------------------------------
@@ -23669,7 +23683,7 @@ module.exports = function() {
       "drop": require("./types/drop/drop.js"),
       "toggle": require("./types/toggle.js")
     }
-  }
+  };
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create the main drawing function.
@@ -23680,37 +23694,35 @@ module.exports = function() {
     // Set timing to 0 if it's the first time running this function or if the
     // data length is longer than the "large" limit
     //--------------------------------------------------------------------------
-    var large = vars.data.value instanceof Array
-                && vars.data.value.length > vars.data.large
+    var large = vars.data.value instanceof Array && vars.data.value.length > vars.data.large;
 
-    vars.draw.timing = vars.draw.first || large || ie
-                     ? 0 : vars.timing.ui
+    vars.draw.timing = vars.draw.first || large || ie ? 0 : vars.timing.ui;
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create/update the UI element
     //--------------------------------------------------------------------------
     if ( vars.data.value instanceof Array ) {
 
-      if ( vars.dev.value ) print.groupCollapsed("drawing \""+vars.type.value+"\"")
+      if ( vars.dev.value ) print.groupCollapsed("drawing \""+vars.type.value+"\"");
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Analyze new data, if changed.
       //------------------------------------------------------------------------
       if ( vars.data.changed ) {
-        vars.data.cache = {}
-        dataKeys( vars , "data" )
-        dataFormat( vars )
+        vars.data.cache = {};
+        dataKeys( vars , "data" );
+        dataFormat( vars );
       }
 
-      vars.data.viz = fetchData( vars )
+      vars.data.viz = fetchData( vars );
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
       //------------------------------------------------------------------------
-      if ( vars.data.changed || vars.order.changed || vars.order.sort.changed ) {
+      if ( vars.data.sort.value && (vars.data.changed || vars.order.changed || vars.order.sort.changed) ) {
 
-        arraySort( vars.data.viz , vars.order.value || vars.text.value
-                         , vars.order.sort.value , vars.color.value , vars )
+        arraySort( vars.data.viz , vars.order.value || vars.text.value,
+                   vars.order.sort.value , vars.color.value , vars );
 
       }
 
@@ -23719,38 +23731,37 @@ module.exports = function() {
       //------------------------------------------------------------------------
       if ( !vars.focus.value ) {
 
-        var element = vars.data.element.value
+        var element = vars.data.element.value;
 
         if ( element && element.node().tagName.toLowerCase() === "select" ) {
-          var i = element.property("selectedIndex")
-          i = i < 0 ? 0 : i
-          var option = element.selectAll("option")[0][i]
-            , val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value)
-          if (val) vars.focus.value = val
+          var i = element.property("selectedIndex");
+          i = i < 0 ? 0 : i;
+          var option = element.selectAll("option")[0][i],
+              val = option.getAttribute("data-"+vars.id.value) || option.getAttribute(vars.id.value);
+          if (val) vars.focus.value = val;
         }
 
         if ( !vars.focus.value && vars.data.viz.length ) {
-          vars.focus.value = vars.data.viz[0][vars.id.value]
+          vars.focus.value = vars.data.viz[0][vars.id.value];
         }
 
-        if ( vars.dev.value && vars.focus.value ) print.log("\"value\" set to \""+vars.focus.value+"\"")
+        if ( vars.dev.value && vars.focus.value ) print.log("\"value\" set to \""+vars.focus.value+"\"");
 
       }
 
-      function getLevel(d,depth) {
+      var getLevel = function(d,depth) {
 
-        var depth = typeof depth !== "number" ? vars.id.nesting.length === 1
-                  ? 0 : vars.id.nesting.length-1 : depth
-          , level = vars.id.nesting[depth]
+        depth = typeof depth !== "number" ? vars.id.nesting.length === 1 ? 0 : vars.id.nesting.length-1 : depth;
+        var level = vars.id.nesting[depth];
 
         if ( depth > 0 && (!(level in d) || d[level] instanceof Array) ) {
-          return getLevel(d,depth-1)
+          return getLevel(d,depth-1);
         }
         else {
-          return level
+          return level;
         }
 
-      }
+      };
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Run these things if the data has changed.
@@ -23763,64 +23774,62 @@ module.exports = function() {
         if ( vars.search.value === "auto" ) {
 
           if (vars.data.viz.length > 10) {
-            vars.search.enabled = true
-            if ( vars.dev.value ) print.log("Search enabled.")
+            vars.search.enabled = true;
+            if ( vars.dev.value ) print.log("Search enabled.");
           }
           else {
-            vars.search.enabled = false
-            if ( vars.dev.value ) print.log("Search disabled.")
+            vars.search.enabled = false;
+            if ( vars.dev.value ) print.log("Search disabled.");
           }
 
         }
         else {
 
-          vars.search.enabled = vars.search.value
+          vars.search.enabled = vars.search.value;
 
         }
 
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Update OPTION elements with the new data.
         //----------------------------------------------------------------------
-        var elementTag = vars.data.element.value
-                       ? vars.data.element.value.node().tagName.toLowerCase() : ""
+        var elementTag = vars.data.element.value ? vars.data.element.value.node().tagName.toLowerCase() : "";
         if ( vars.data.element.value && elementTag === "select" ) {
 
-          var optionData = []
+          var optionData = [];
           for (var level in vars.data.nested.all) {
-            optionData = optionData.concat(vars.data.nested.all[level])
+            optionData = optionData.concat(vars.data.nested.all[level]);
           }
 
           options = vars.data.element.value.selectAll("option")
             .data(optionData,function(d){
-              var level = d ? getLevel(d) : false
-              return d && level in d ? d[level] : false
-            })
+              var level = d ? getLevel(d) : false;
+              return d && level in d ? d[level] : false;
+            });
 
-          options.exit().remove()
+          options.exit().remove();
 
-          options.enter().append("option")
+          options.enter().append("option");
 
           options
             .each(function(d){
 
-              var level   = getLevel(d)
-                , textKey = level === vars.id.value ? vars.text.value || vars.id.value
-                          : vars.text.nesting !== true && level in vars.text.nesting
-                          ? vars.text.nesting[level] : level
+              var level   = getLevel(d),
+                  textKey = level === vars.id.value ? vars.text.value || vars.id.value
+                          : vars.text.nesting !== true && level in vars.text.nesting ? vars.text.nesting[level] : level;
 
               for ( var k in d ) {
 
                 if ( typeof d[k] !== "object" ) {
 
                   if ( k === textKey ) {
-                    d3.select(this).html(d[k])
+                    d3.select(this).html(d[k]);
                   }
 
                   if ( ["alt","value"].indexOf(k) >= 0 ) {
-                    d3.select(this).attr(k,d[k])
+                    d3.select(this).attr(k,d[k]);
                   }
                   else {
-                    d3.select(this).attr("data-"+k,d[k])
+                    d3.select(this).attr("data-"+k,d[k]);
                   }
 
                 }
@@ -23828,30 +23837,30 @@ module.exports = function() {
               }
 
               if (d[level] === vars.focus.value) {
-                this.selected = true
+                this.selected = true;
               }
               else {
-                this.selected = false
+                this.selected = false;
               }
 
-            })
+            });
 
         }
 
       }
       else if (vars.focus.changed && vars.data.element.value) {
-        var elementTag = vars.data.element.value.node().tagName.toLowerCase()
-        if (elementTag === "select") {
+        var tag = vars.data.element.value.node().tagName.toLowerCase();
+        if (tag === "select") {
           vars.data.element.value.selectAll("option")
             .each(function(d){
-              var level = getLevel(d)
+              var level = getLevel(d);
               if (d[level] === vars.focus.value) {
-                this.selected = true
+                this.selected = true;
               }
               else {
-                this.selected = false
+                this.selected = false;
               }
-            })
+            });
         }
       }
 
@@ -23864,28 +23873,27 @@ module.exports = function() {
           //----------------------------------------------------------------------
           vars.container.ui = vars.container.value
             .selectAll("div#d3plus_"+vars.type.value+"_"+vars.container.id)
-            .data(["container"])
+            .data(["container"]);
 
           //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
           // Create container DIV for UI element
           //----------------------------------------------------------------------
-          var before = vars.data.element.value ? vars.data.element.value[0][0] : null
+          var before = vars.data.element.value ? vars.data.element.value[0][0] : null;
 
           if ( before ) {
 
             if ( before.id ) {
-              before = "#"+before.id
+              before = "#"+before.id;
             }
             else {
 
-              var id = before.getAttribute(vars.id.value)
-                     ? vars.id.value : "data-"+vars.id.value
+              var id = before.getAttribute(vars.id.value) ? vars.id.value : "data-"+vars.id.value;
 
               if ( before.getAttribute(id) ) {
-                before = "["+id+"="+before.getAttribute(id)+"]"
+                before = "["+id+"="+before.getAttribute(id)+"]";
               }
               else {
-                before = null
+                before = null;
               }
 
             }
@@ -23897,7 +23905,7 @@ module.exports = function() {
             .attr("id","d3plus_"+vars.type.value+"_"+vars.container.id)
             .style("position","relative")
             .style("overflow","visible")
-            .style("vertical-align","top")
+            .style("vertical-align","top");
 
         }
 
@@ -23905,20 +23913,20 @@ module.exports = function() {
         // Update Container
         //------------------------------------------------------------------------
         vars.container.ui
-          .style("display",vars.ui.display.value)
+          .style("display",vars.ui.display.value);
 
         vars.container.ui.transition().duration(vars.draw.timing)
-          .style("margin",vars.ui.margin+"px")
+          .style("margin",vars.ui.margin+"px");
 
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Create title, if available.
         //------------------------------------------------------------------------
         var title = vars.container.ui.selectAll("div.d3plus_title")
-          .data(vars.title.value ? [vars.title.value] : [])
+          .data(vars.title.value ? [vars.title.value] : []);
 
         title.enter().insert("div","#d3plus_"+vars.type.value+"_"+vars.container.id)
           .attr("class","d3plus_title")
-          .style("display","inline-block")
+          .style("display","inline-block");
 
         title
           .style("color",vars.font.color)
@@ -23931,8 +23939,8 @@ module.exports = function() {
           .style("border-width",vars.ui.border+"px")
           .text(String)
           .each(function(d){
-            vars.margin.left = this.offsetWidth
-          })
+            vars.margin.left = this.offsetWidth;
+          });
 
       }
 
@@ -23941,29 +23949,29 @@ module.exports = function() {
       //------------------------------------------------------------------------
       if ( vars.data.value.length ) {
 
-        var app = vars.format.locale.value.visualization[vars.type.value]
-        if ( vars.dev.value ) print.time("drawing "+ app)
-        vars.types[vars.type.value]( vars )
-        if ( vars.dev.value ) print.timeEnd("drawing "+ app)
+        var app = vars.format.locale.value.visualization[vars.type.value];
+        if ( vars.dev.value ) print.time("drawing "+ app);
+        vars.types[vars.type.value]( vars );
+        if ( vars.dev.value ) print.timeEnd("drawing "+ app);
 
       }
       else if ( vars.data.url && (!vars.data.loaded || vars.data.stream) ) {
 
-        dataLoad( vars , "data" , vars.self.draw )
+        dataLoad( vars , "data" , vars.self.draw );
 
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Initialization complete
       //------------------------------------------------------------------------
-      methodReset( vars )
-      vars.methodGroup = false
+      methodReset( vars );
+      vars.methodGroup = false;
 
-      if ( vars.dev.value ) print.groupEnd()
+      if ( vars.dev.value ) print.groupEnd();
 
     }
 
-  }
+  };
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Define methods and expose public variables.
@@ -23999,14 +24007,14 @@ module.exports = function() {
     "type":      require("./methods/type.coffee"),
     "ui":        require("./methods/ui.coffee"),
     "width":     require("./methods/width.coffee")
-  })
+  });
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Finally, return the main UI function to the user
   //----------------------------------------------------------------------------
-  return vars.self
+  return vars.self;
 
-}
+};
 
 },{"../array/sort.coffee":40,"../client/ie.js":43,"../core/console/print.coffee":57,"../core/data/format.js":61,"../core/data/keys.js":63,"../core/data/load.coffee":64,"../core/fetch/data.js":68,"../core/methods/attach.coffee":78,"../core/methods/reset.coffee":90,"./methods/active.coffee":101,"./methods/alt.coffee":102,"./methods/color.coffee":103,"./methods/container.coffee":104,"./methods/data.js":105,"./methods/depth.coffee":106,"./methods/dev.coffee":107,"./methods/draw.js":108,"./methods/focus.coffee":109,"./methods/font.coffee":110,"./methods/format.coffee":111,"./methods/height.coffee":112,"./methods/history.coffee":113,"./methods/hover.coffee":114,"./methods/icon.coffee":115,"./methods/id.coffee":116,"./methods/keywords.coffee":117,"./methods/margin.coffee":118,"./methods/open.coffee":119,"./methods/order.coffee":120,"./methods/remove.coffee":121,"./methods/search.coffee":122,"./methods/select.coffee":123,"./methods/selectAll.coffee":124,"./methods/text.coffee":125,"./methods/timing.coffee":126,"./methods/title.coffee":127,"./methods/type.coffee":128,"./methods/ui.coffee":129,"./methods/width.coffee":130,"./types/auto.js":131,"./types/button/button.js":132,"./types/drop/drop.js":137,"./types/toggle.js":154}],101:[function(require,module,exports){
 var filter;
@@ -24069,7 +24077,7 @@ module.exports = {
 
 },{"../../util/d3selection.coffee":195}],105:[function(require,module,exports){
 var d3selection = require("../../util/d3selection.coffee"),
-    process = require("../../core/methods/process/data.coffee")
+    process = require("../../core/methods/process/data.coffee");
 
 module.exports = {
   "accepted" : [ false , Array , Function , String ],
@@ -24080,19 +24088,18 @@ module.exports = {
   "element": {
     "process": function(value, vars) {
 
+      var element = false;
+
       if ( d3selection(value) ) {
-        var element = value
+        element = value;
       }
       else if (typeof value === "string" && !d3.select(value).empty()) {
-        var element = d3.select(value)
-      }
-      else {
-        var element = false
+        element = d3.select(value);
       }
 
       if (element) {
 
-        vars.self.container(d3.select(element.node().parentNode))
+        vars.self.container(d3.select(element.node().parentNode));
 
         element
           .style("position","absolute","important")
@@ -24103,11 +24110,11 @@ module.exports = {
           .style("margin","-1px","important")
           .style("padding","0","important")
           .style("border","0","important")
-          .style("overflow","hidden","important")
+          .style("overflow","hidden","important");
 
       }
 
-      return element
+      return element;
 
     },
     "value": false
@@ -24121,14 +24128,18 @@ module.exports = {
   "process"  : function(value, vars) {
 
     if ( vars.container.id === "default" && value.length ) {
-      vars.self.container({"id": "default"+value.length})
+      vars.self.container({"id": "default"+value.length});
     }
 
-    return process(value, vars, this)
+    return process(value, vars, this);
   },
   "solo"     : [],
+  "sort": {
+    "accepted": [Boolean],
+    "value":    true
+  },
   "value"    : false
-}
+};
 
 },{"../../core/methods/process/data.coffee":85,"../../util/d3selection.coffee":195}],106:[function(require,module,exports){
 module.exports = {
@@ -24335,7 +24346,7 @@ module.exports = {
     accepted: [false, Function],
     value: false
   },
-  value: function(value, key, vars) {
+  value: function(value, key, vars, data) {
     var f, v;
     if (!vars) {
       vars = {};
@@ -24346,10 +24357,10 @@ module.exports = {
       return f(v);
     } else if (typeof value === "number") {
       f = this.number.value || formatNumber;
-      return f(value, key, vars);
+      return f(value, key, vars, data);
     } else if (typeof value === "string") {
       f = this.text.value || titleCase;
-      return f(value, key, vars);
+      return f(value, key, vars, data);
     } else {
       return JSON.stringify(value);
     }
@@ -25419,7 +25430,7 @@ module.exports = function ( vars ) {
 
 },{"../../../../client/pointer.coffee":44,"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":194,"../../../form.js":100}],141:[function(require,module,exports){
 var stringFormat = require("../../../../string/format.js"),
-    stringStrip = require("../../../../string/strip.js")
+    stringStrip = require("../../../../string/strip.js");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
@@ -25427,88 +25438,84 @@ var stringFormat = require("../../../../string/format.js"),
 module.exports = function ( vars ) {
 
   if ( vars.data.url && !vars.data.loaded ) {
-    var loadingObject = {}
-    loadingObject[vars.text.value || vars.id.value] = vars.format.value(vars.format.locale.value.ui.loading)
-    vars.data.filtered = [loadingObject]
+    var loadingObject = {};
+    loadingObject[vars.text.value || vars.id.value] = vars.format.value(vars.format.locale.value.ui.loading);
+    vars.data.filtered = [loadingObject];
     vars.data.changed = vars.data.lastFilter !== "loading";
     vars.data.lastFilter = "loading";
   }
   else if (vars.open.value) {
 
     if (!vars.text.solo.value.length || vars.text.solo.value[0] === "") {
-      vars.data.filtered = vars.data.viz
+      vars.data.filtered = vars.data.viz;
       vars.data.changed = vars.data.lastFilter !== "viz";
       vars.data.lastFilter = "viz";
       if (vars.id.nesting.length > 1 && vars.depth.value < vars.id.nesting.length-1) {
         vars.data.filtered = vars.data.filtered.filter(function(d){
           if ("endPoint" in d.d3plus && d.d3plus.endPoint === vars.depth.value) {
-            d.d3plus.icon = false
+            d.d3plus.icon = false;
           }
-          return true
-        })
+          return true;
+        });
         vars.data.changed = vars.data.lastFilter !== "depth";
         vars.data.lastFilter = "depth";
       }
     }
     else {
 
-      var searchText  = vars.text.solo.value.length
-                      ? vars.text.solo.value[0].toLowerCase() : ""
-        , searchWords = stringStrip(searchText).split("_")
-        , searchKeys  = [ vars.id.value
-                        , vars.text.value
-                        , vars.alt.value
-                        , vars.keywords.value ]
+      var searchText  = vars.text.solo.value.length ? vars.text.solo.value[0].toLowerCase() : "",
+          searchWords = stringStrip(searchText).split("_"),
+          searchKeys  = [vars.id.value, vars.text.value, vars.alt.value, vars.keywords.value ];
 
-      searchKeys = searchKeys.filter(function(t){ return t })
-      searchWords = searchWords.filter(function(t){ return t != ""; })
+      searchKeys = searchKeys.filter(function(t){ return t; });
+      searchWords = searchWords.filter(function(t){ return t !== ""; });
 
-      var startMatches = []
-        , exactMatches = []
-        , softMatches  = []
-        , searchData   = []
+      var startMatches = [],
+          exactMatches = [],
+          softMatches  = [],
+          searchData   = [];
 
       vars.id.nesting.forEach(function(n){
-        searchData = searchData.concat(vars.data.nested.all[n])
-      })
+        searchData = searchData.concat(vars.data.nested.all[n]);
+      });
 
       searchData.forEach(function(d){
 
-        var match = false
+        var match = false;
 
         searchKeys.forEach(function(key){
 
           if ( !match && key in d && typeof d[key] === "string" ) {
 
-            var text = d[key].toLowerCase()
+            var text = d[key].toLowerCase();
 
-            if ( [vars.text.value,vars.id.value].indexOf(key) >= 0 && text.indexOf(searchText) == 0 ) {
-              startMatches.push(d)
-              match = true
+            if ( [vars.text.value,vars.id.value].indexOf(key) >= 0 && text.indexOf(searchText) === 0 ) {
+              startMatches.push(d);
+              match = true;
             }
             else if ( text.indexOf(searchText) >= 0 ) {
-              exactMatches.push(d)
-              match = true
+              exactMatches.push(d);
+              match = true;
             }
             else {
 
-              var texts = stringStrip(text).split("_")
+              var texts = stringStrip(text).split("_");
 
-              for (t in texts) {
+              for (var t in texts) {
 
                 if ( !match ) {
 
-                  for (s in searchWords) {
+                  for (var s in searchWords) {
                     if (texts[t].indexOf(searchWords[s]) === 0) {
-                      softMatches.push(d)
-                      match = true
-                      break
+                      softMatches.push(d);
+                      match = true;
+                      break;
                     }
                   }
 
                 }
                 else {
-                  break
+                  break;
                 }
 
               }
@@ -25516,37 +25523,35 @@ module.exports = function ( vars ) {
             }
           }
 
-        })
+        });
 
-      })
+      });
 
-      vars.data.filtered = d3.merge([ startMatches , exactMatches , softMatches ])
+      vars.data.filtered = d3.merge([ startMatches , exactMatches , softMatches ]);
 
       vars.data.filtered.forEach(function(d,i){
-        d.d3plus_order = i
-      })
-      vars.data.changed = vars.data.lastFilter !== "search";
+        d.d3plus_order = i;
+      });
+
+      vars.data.changed = true;
       vars.data.lastFilter = "search";
 
-    }
+      if ( vars.data.filtered.length === 0 ) {
 
-    if ( vars.data.filtered.length === 0 ) {
+        var noData = {}, str = vars.format.value(vars.format.locale.value.ui.noResults);
+        noData[vars.text.value || vars.id.value] = stringFormat(str,"\""+searchText+"\"");
+        vars.data.filtered = [ noData ];
 
-      var noData = {}
-        , str = vars.format.value(vars.format.locale.value.ui.noResults)
-      noData[vars.text.value || vars.id.value] = stringFormat(str,"\""+searchText+"\"")
-      vars.data.filtered = [ noData ]
-      vars.data.changed = vars.data.lastFilter !== "none";
-      vars.data.lastFilter = "none";
+      }
 
     }
 
   }
   else {
-    vars.data.filtered = []
+    vars.data.filtered = [];
   }
 
-}
+};
 
 },{"../../../../string/format.js":166,"../../../../string/strip.js":168}],142:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -25632,7 +25637,9 @@ module.exports = function(vars) {
       print.time("updating list items");
     }
     if (!("items" in vars.container)) {
-      vars.container.items = form().container(vars.container.list).type("button").ui({
+      vars.container.items = form().container(vars.container.list).data({
+        "sort": false
+      }).type("button").ui({
         border: 0,
         display: "block",
         margin: 0
@@ -27605,10 +27612,10 @@ module.exports = function(edges, source, options) {
 
 
 },{"./normalize.coffee":160}],163:[function(require,module,exports){
-var defaultLocale = require("../core/locale/languages/en_US.coffee")
+var defaultLocale = require("../core/locale/languages/en_US.coffee");
 
 // Formats numbers to look "pretty"
-module.exports = function( number , key , vars ) {
+module.exports = function(number, key, vars, data) {
 
   if ( vars && key && vars.x && vars.y && (
        ( key === vars.x.value && vars.x.scale.value === "log" ) ||
@@ -27855,7 +27862,7 @@ var defaultLocale;
 
 defaultLocale = require("../core/locale/languages/en_US.coffee");
 
-module.exports = function(text, key, vars) {
+module.exports = function(text, key, vars, data) {
   var bigs, locale, smalls;
   if (!text) {
     return "";
@@ -34026,7 +34033,7 @@ module.exports = function(params) {
             , value = fetchValue( vars , id , vars.size.value , nestKey )
             , color = fetchColor( vars , id , nestKey )
 
-          children[name] = value ? vars.format.value( value , vars.size.value , vars) : ""
+          children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
 
           if ( color ) {
             if ( !children.d3plus_colors ) children.d3plus_colors = {}
@@ -34043,7 +34050,7 @@ module.exports = function(params) {
       else if ( nameList && nameList !== "null" ) {
 
         var name  = fetchText( vars , nameList , depth )[0]
-        children[name] = dataValue ? vars.format.value( dataValue , vars.size.value , vars) : ""
+        children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
 
       }
 
@@ -34059,16 +34066,16 @@ module.exports = function(params) {
 
     if (typeof active == "number" && active > 0 && total) {
       var label = vars.active.value || "active"
-      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100,"share")+"%, vars)"
+      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100, "share", vars, d)+"%)"
     }
 
     if (typeof temp == "number" && temp > 0 && total) {
       var label = vars.temp.value || "temp"
-      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100,"share")+"%, vars)"
+      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100, "share", vars, d)+"%)"
     }
 
     if ( vars.tooltip.share.value && d.d3plus.share ) {
-      ex.share = vars.format.value(d.d3plus.share*100,"share", vars)+"%"
+      ex.share = vars.format.value(d.d3plus.share*100, "share", vars, d)+"%"
     }
 
     var depth = "depth" in params ? params.depth : dataDepth,
@@ -34267,11 +34274,11 @@ module.exports = function(vars,id,length,extras,children,depth) {
 
       if ( value instanceof Array ) {
         value.forEach(function(v){
-          v = vars.format.value(v,key, vars)
+          v = vars.format.value(v, key, vars, id)
         })
       }
       else {
-        value = vars.format.value(value,key, vars)
+        value = vars.format.value(value, key, vars, id)
       }
 
       var obj = {"name": name, "value": value, "highlight": h, "group": group}
@@ -35048,7 +35055,7 @@ module.exports = function(vars) {
               y += vars.ui.padding+square_size/2
 
               var idIndex = vars.id.nesting.indexOf(colorKey)
-                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), vars)
+                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), colorName, vars, d)
 
               createTooltip({
                 "data": d,
@@ -35188,7 +35195,7 @@ module.exports = function(vars) {
         .style("text-anchor",vars.legend.font.align)
         .attr("fill",vars.legend.font.color)
         .text(function(d){
-          return vars.format.value(values[d],key, vars)
+          return vars.format.value(values[d], key, vars)
         })
         .attr("y",function(d){
           return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2
@@ -37036,7 +37043,7 @@ module.exports = {
     accepted: [false, Function],
     value: false
   },
-  value: function(value, key, vars) {
+  value: function(value, key, vars, data) {
     var f, v;
     if (!vars) {
       vars = {};
@@ -37047,10 +37054,10 @@ module.exports = {
       return f(v);
     } else if (typeof value === "number") {
       f = this.number.value || formatNumber;
-      return f(value, key, vars);
+      return f(value, key, vars, data);
     } else if (typeof value === "string") {
       f = this.text.value || titleCase;
-      return f(value, key, vars);
+      return f(value, key, vars, data);
     } else {
       return JSON.stringify(value);
     }
