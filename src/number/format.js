@@ -1,7 +1,7 @@
-var defaultLocale = require("../core/locale/languages/en_US.coffee")
+var defaultLocale = require("../core/locale/languages/en_US.coffee");
 
 // Formats numbers to look "pretty"
-module.exports = function( number , key , vars ) {
+module.exports = function(number, key, vars, data) {
 
   if ( vars && key && vars.x && vars.y && (
        ( key === vars.x.value && vars.x.scale.value === "log" ) ||

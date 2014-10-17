@@ -26,7 +26,7 @@ module.exports =
   text:
     accepted: [false, Function]
     value:    false
-  value: (value, key, vars) ->
+  value: (value, key, vars, data) ->
     vars = {} unless vars
     if vars.time and vars.time.value and key is vars.time.value
       f = vars.time.format.value or vars.data.time.format
@@ -34,9 +34,9 @@ module.exports =
       f v
     else if typeof value is "number"
       f = @number.value or formatNumber
-      f value, key, vars
+      f value, key, vars, data
     else if typeof value is "string"
       f = @text.value or titleCase
-      f value, key, vars
+      f value, key, vars, data
     else
       JSON.stringify value

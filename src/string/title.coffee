@@ -1,6 +1,6 @@
 defaultLocale = require "../core/locale/languages/en_US.coffee"
 
-module.exports = (text, key, vars) ->
+module.exports = (text, key, vars, data) ->
 
   return "" unless text
 
