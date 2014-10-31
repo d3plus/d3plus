@@ -25,13 +25,11 @@ bar = (vars) ->
 
   stack vars, nested if vars.axes.stacked
 
-  space  = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
+  space   = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
+  maxSize = space - vars.labels.padding * 4
 
-  if vars.axes.stacked
-    maxSize = space - vars.labels.padding * 4
-  else
-    maxSize  = space / nested.length
-    maxSize -= vars.labels.padding * 2
+  unless vars.axes.stacked
+    maxSize /= nested.length
     offset   = space/2 - maxSize/2 - vars.labels.padding * 2
 
     x = d3.scale.linear()
