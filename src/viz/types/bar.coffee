@@ -42,7 +42,8 @@ bar = (vars) ->
     mod = if vars.axes.stacked then 0 else x(i)
     for d in point.values
 
-      d.d3plus[discrete]  = vars[discrete].scale.viz fetchValue(vars, d, vars[discrete].value)
+      discreteVal = fetchValue(vars, d, vars[discrete].value)
+      d.d3plus[discrete]  = vars[discrete].scale.viz discreteVal
       d.d3plus[discrete] += vars.axes.margin[cMargin] + mod
 
       if vars.axes.stacked
@@ -51,17 +52,22 @@ bar = (vars) ->
         length = base - value
       else
         base   = vars[opposite].scale.viz(0)
-        value  = vars[opposite].scale.viz fetchValue(vars, d, vars[opposite].value)
+        oppVal = fetchValue(vars, d, vars[opposite].value)
+        value  = vars[opposite].scale.viz oppVal
         length = base - value
 
       d.d3plus[opposite]  = base - length/2
       d.d3plus[opposite] += vars.axes.margin[oMargin] unless vars.axes.stacked
 
-      d.d3plus[w]             = maxSize
-      d.d3plus[h]             = Math.abs length
-      d.d3plus.init           = {}
-      d.d3plus.init[opposite] = vars[opposite].scale.viz(0) - d.d3plus[opposite] + vars.axes.margin[oMargin]
-      d.d3plus.init[w]        = d.d3plus[w]
+      d.d3plus[w]              = maxSize
+      d.d3plus[h]              = Math.abs length
+      d.d3plus.init            = {}
+
+      d.d3plus.init[opposite]  = vars[opposite].scale.viz(0)
+      d.d3plus.init[opposite] -= d.d3plus[opposite]
+      d.d3plus.init[opposite] += vars.axes.margin[oMargin]
+
+      d.d3plus.init[w]         = d.d3plus[w]
 
       d.d3plus.label = false
 
@@ -69,8 +75,11 @@ bar = (vars) ->
 
 # Visualization Settings and Helper Functions
 bar.requirements = ["data", "x", "y"]
-bar.setup        = (vars) -> vars.self.x scale: "discrete" unless vars.axes.discrete
-bar.shapes  = ["square"]
-bar.tooltip = "static"
+bar.setup        = (vars) ->
+  unless vars.axes.discrete
+    axis = if vars.time.value is vars.y.value then "y" else "x"
+    vars.self[axis] scale: "discrete"
+bar.shapes       = ["square"]
+bar.tooltip      = "static"
 
 module.exports = bar

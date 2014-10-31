@@ -42,7 +42,9 @@ stacked.filter = (vars, data) ->
 stacked.requirements = ["data", "x", "y"]
 stacked.setup = (vars) ->
 
-  vars.self.x scale: "discrete" unless vars.axes.discrete
+  unless vars.axes.discrete
+    axis = if vars.time.value is vars.y.value then "y" else "x"
+    vars.self[axis] scale: "discrete"
 
   vars.self[vars.axes.discrete]
     zerofill: true

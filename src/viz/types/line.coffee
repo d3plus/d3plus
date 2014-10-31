@@ -31,7 +31,11 @@ line = (vars) ->
 # Visualization Settings and Helper Functions
 line.requirements = ["data", "x", "y"]
 line.setup        = (vars) ->
-  vars.self.x scale: "discrete" unless vars.axes.discrete
+
+  unless vars.axes.discrete
+    axis = if vars.time.value is vars.y.value then "y" else "x"
+    vars.self[axis] scale: "discrete"
+
   y    = vars[vars.axes.opposite].value
   size = vars.size
   if (not y.value and size.value) or (size.changed and size.previous is y.value)

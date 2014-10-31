@@ -166,7 +166,11 @@ box = (vars) ->
 # Visualization Settings and Helper Functions
 box.modes        = ["tukey", "extent", Array, Number]
 box.requirements = ["data", "x", "y"]
-box.shapes       = ["circle", "check", "cross", "diamond", "square", "triangle", "triangle_up", "triangle_down"]
-box.setup        = (vars) -> vars.self.x scale: "discrete" unless vars.axes.discrete
+box.shapes       = ["circle", "check", "cross", "diamond", "square",
+                    "triangle", "triangle_up", "triangle_down"]
+box.setup        = (vars) ->
+  unless vars.axes.discrete
+    axis = if vars.time.value is vars.y.value then "y" else "x"
+    vars.self[axis] scale: "discrete"
 
 module.exports = box
