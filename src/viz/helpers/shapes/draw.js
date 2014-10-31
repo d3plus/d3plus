@@ -13,7 +13,7 @@ var child         = require("../../../util/child.coffee"),
     touch         = require("../../../client/touch.coffee"),
     touchEvent    = require("../zoom/propagation.coffee"),
     uniqueValues  = require("../../../util/uniques.coffee"),
-    zoomDirection = require("../zoom/direction.coffee")
+    zoomDirection = require("../zoom/direction.coffee");
 
 var drawShape = {
   "arc":           require("./arc.coffee"),
@@ -28,7 +28,7 @@ var drawShape = {
   "triangle_down": require("./triangle_down.js"),
   "triangle_up":   require("./triangle_up.js"),
   "whisker":       require("./whisker.coffee")
-}
+};
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws the appropriate shape based on the data
@@ -36,7 +36,7 @@ var drawShape = {
 module.exports = function(vars) {
 
   var data = vars.returned.nodes || [],
-      edges = vars.returned.edges || []
+      edges = vars.returned.edges || [];
 
   vars.draw.timing = data.length < vars.data.large
                      && edges.length < vars.edges.large
@@ -64,7 +64,7 @@ module.exports = function(vars) {
     "triangle":        "triangle_up",
     "triangle_up":     "triangle_up",
     "whisker":         "whisker"
-  }
+  };
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Split the data by each shape type in the data.
@@ -428,7 +428,7 @@ module.exports = function(vars) {
 
           vars.covered = false
 
-          if (vars.focus.value.length !== 1 || vars.focus.value[0] != d[vars.id.value]) {
+          if (vars.focus.value.length !== 1 || (!vars.focus.tooltip.value || vars.focus.value[0] !== d[vars.id.value])) {
 
             if (d.values && vars.axes.discrete) {
 
@@ -468,7 +468,7 @@ module.exports = function(vars) {
 
           vars.covered = false
 
-          if (d.values || (vars.types[vars.type.value].tooltip == "follow" && vars.focus.value[0] != d[vars.id.value])) {
+          if (d.values || (vars.types[vars.type.value].tooltip == "follow" && (!vars.focus.tooltip.value || vars.focus.value[0] !== d[vars.id.value]))) {
 
             if (d.values && vars.axes.discrete) {
 
