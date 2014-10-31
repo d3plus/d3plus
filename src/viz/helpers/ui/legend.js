@@ -570,7 +570,7 @@ module.exports = function(vars) {
     }
     else {
       var key_box = vars.g.legend.node().getBBox(),
-          key_height = key_box.height+key_box.y-vars.ui.padding
+          key_height = key_box.height+key_box.y
     }
 
     if (vars.margin.bottom === 0) {
