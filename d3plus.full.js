@@ -18,7 +18,7 @@ window.d3plus = d3plus;
  * @static
  */
 
-d3plus.version = "1.6.4 - Turquoise";
+d3plus.version = "1.6.5 - Turquoise";
 
 
 /**
@@ -21374,8 +21374,8 @@ validColor = require("../../color/validate.coffee");
 validObject = require("../../object/validate.coffee");
 
 module.exports = function(vars, id, level) {
-  var color, colorLevel, colors, getColor, getRandom, i, o, value;
-  if (id.d3plus && id.d3plus.color) {
+  var color, colorLevel, colors, getColor, getRandom, i, o, returnColor, value;
+  if (validObject(id) && id.d3plus && id.d3plus.color) {
     return id.d3plus.color;
   }
   getRandom = function(c) {
@@ -21394,7 +21394,7 @@ module.exports = function(vars, id, level) {
     level = vars.id.nesting[level];
   }
   if (!vars.color.value) {
-    return getRandom(id);
+    returnColor = getRandom(id);
   } else {
     colors = [];
     i = vars.id.nesting.indexOf(level);
@@ -21417,7 +21417,7 @@ module.exports = function(vars, id, level) {
     while (i >= 0) {
       colorLevel = vars.id.nesting[i];
       if (validObject(id)) {
-        o = (!(colorLevel in id) ? fetchValue(vars, id, colorLevel) : id);
+        o = !(colorLevel in id) ? fetchValue(vars, id, colorLevel) : id;
         value = fetchValue(vars, o, vars.color.value, colorLevel);
       } else {
         value = id;
@@ -21430,12 +21430,12 @@ module.exports = function(vars, id, level) {
       }
       i--;
     }
-    if (colors.length === 1) {
-      return colors[0];
-    } else {
-      return vars.color.missing;
-    }
+    returnColor = colors.length === 1 ? colors[0] : vars.color.missing;
   }
+  if (validObject(id) && id.d3plus) {
+    id.d3plus.color = returnColor;
+  }
+  return returnColor;
 };
 
 
@@ -33617,12 +33617,12 @@ var events = require("../../../client/pointer.coffee"),
     prefix     = require("../../../client/prefix.coffee"),
     print      = require("../../../core/console/print.coffee"),
     touch      = require("../../../client/touch.coffee"),
-    touchEvent = require("../zoom/propagation.coffee")
+    touchEvent = require("../zoom/propagation.coffee");
 
 // Enter SVG Elements
 module.exports = function(vars) {
 
-  if ( vars.dev.value ) print.time("creating SVG elements")
+  if ( vars.dev.value ) print.time("creating SVG elements");
 
   // Enter SVG
   vars.svg = vars.container.value.selectAll("svg#d3plus").data([0]);
@@ -33631,7 +33631,7 @@ module.exports = function(vars) {
     .attr("width",vars.width.value)
     .attr("height",vars.height.value)
     .attr("xmlns","http://www.w3.org/2000/svg")
-    .attr("xmlns:xmlns:xlink","http://www.w3.org/1999/xlink")
+    .attr("xmlns:xmlns:xlink","http://www.w3.org/1999/xlink");
 
   // Enter BG Rectangle
   vars.g.bg = vars.svg.selectAll("rect#bg").data(["bg"]);
@@ -33639,58 +33639,59 @@ module.exports = function(vars) {
     .attr("id","bg")
     .attr("fill",vars.background.value)
     .attr("width",vars.width.value)
-    .attr("height",vars.height.value)
+    .attr("height",vars.height.value);
 
   // Enter Timeline Group
-  vars.g.timeline = vars.svg.selectAll("g#timeline").data(["timeline"])
+  vars.g.timeline = vars.svg.selectAll("g#timeline").data(["timeline"]);
   vars.g.timeline.enter().append("g")
     .attr("id","timeline")
-    .attr("transform","translate(0,"+vars.height.value+")")
+    .attr("transform","translate(0,"+vars.height.value+")");
 
   // Enter Key Group
-  vars.g.legend = vars.svg.selectAll("g#key").data(["key"])
+  vars.g.legend = vars.svg.selectAll("g#key").data(["key"]);
   vars.g.legend.enter().append("g")
     .attr("id","key")
-    .attr("transform","translate(0,"+vars.height.value+")")
+    .attr("transform","translate(0,"+vars.height.value+")");
 
   // Enter Footer Group
-  vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"])
+  vars.g.footer = vars.svg.selectAll("g#footer").data(["footer"]);
   vars.g.footer.enter().append("g")
     .attr("id","footer")
-    .attr("transform","translate(0,"+vars.height.value+")")
+    .attr("transform","translate(0,"+vars.height.value+")");
 
   // Enter App Clipping Mask
-  vars.g.clipping = vars.svg.selectAll("#clipping").data(["clipping"])
+  var clipID = "clipping_" + vars.container.id;
+  vars.g.clipping = vars.svg.selectAll("#clipping").data(["clipping"]);
   vars.g.clipping.enter().append("clipPath")
-    .attr("id","clipping")
+    .attr("id", clipID)
     .append("rect")
       .attr("width",vars.width.viz)
-      .attr("height",vars.height.viz)
+      .attr("height",vars.height.viz);
 
   // Enter Container Group
-  vars.g.container = vars.svg.selectAll("g#container").data(["container"])
+  vars.g.container = vars.svg.selectAll("g#container").data(["container"]);
   vars.g.container.enter().append("g")
     .attr("id","container")
-    .attr("clip-path","url(#clipping)")
-    .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")")
+    .attr("clip-path","url(#" + clipID + ")")
+    .attr("transform","translate("+vars.margin.left+","+vars.margin.top+")");
 
   // Enter Zoom Group
-  vars.g.zoom = vars.g.container.selectAll("g#zoom").data(["zoom"])
+  vars.g.zoom = vars.g.container.selectAll("g#zoom").data(["zoom"]);
   vars.g.zoom.enter().append("g")
-    .attr("id","zoom")
+    .attr("id","zoom");
 
   // Enter App Background Group
-  vars.g.viz = vars.g.zoom.selectAll("g#d3plus_viz").data(["d3plus_viz"])
+  vars.g.viz = vars.g.zoom.selectAll("g#d3plus_viz").data(["d3plus_viz"]);
   vars.g.viz.enter().append("g")
-    .attr("id","d3plus_viz")
+    .attr("id","d3plus_viz");
 
   // Enter App Overlay Rect
-  vars.g.overlay = vars.g.viz.selectAll("rect#d3plus_overlay").data([{"id":"d3plus_overlay"}])
+  vars.g.overlay = vars.g.viz.selectAll("rect#d3plus_overlay").data([{"id":"d3plus_overlay"}]);
   vars.g.overlay.enter().append("rect")
     .attr("id","d3plus_overlay")
     .attr("width",vars.width.value)
     .attr("height",vars.height.value)
-    .attr("opacity",0)
+    .attr("opacity",0);
 
   if (!touch) {
 
@@ -33699,10 +33700,10 @@ module.exports = function(vars) {
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",prefix()+"grab")
+          d3.select(this).style("cursor",prefix()+"grab");
         }
         else {
-          d3.select(this).style("cursor","auto")
+          d3.select(this).style("cursor","auto");
         }
 
       })
@@ -33710,10 +33711,10 @@ module.exports = function(vars) {
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",prefix()+"grab")
+          d3.select(this).style("cursor",prefix()+"grab");
         }
         else {
-          d3.select(this).style("cursor","auto")
+          d3.select(this).style("cursor","auto");
         }
 
       })
@@ -33721,72 +33722,72 @@ module.exports = function(vars) {
 
         if (vars.types[vars.type.value].zoom && vars.zoom.pan.value &&
           vars.zoom.behavior.scaleExtent()[0] < vars.zoom.scale) {
-          d3.select(this).style("cursor",prefix()+"grabbing")
+          d3.select(this).style("cursor",prefix()+"grabbing");
         }
         else {
-          d3.select(this).style("cursor","auto")
+          d3.select(this).style("cursor","auto");
         }
 
-      })
+      });
 
   }
   else {
 
     var mouseEvent = function() {
-      touchEvent(vars, d3.event)
-    }
+      touchEvent(vars, d3.event);
+    };
 
     vars.g.overlay
       .on(events.over, mouseEvent)
       .on(events.move, mouseEvent)
-      .on(events.out , mouseEvent)
+      .on(events.out , mouseEvent);
 
   }
 
   // Enter App Background Group
-  vars.g.app = vars.g.viz.selectAll("g#app").data(["app"])
+  vars.g.app = vars.g.viz.selectAll("g#app").data(["app"]);
   vars.g.app.enter().append("g")
-    .attr("id","app")
+    .attr("id","app");
 
   // Enter Edges Group
-  vars.g.edges = vars.g.viz.selectAll("g#edges").data(["edges"])
+  vars.g.edges = vars.g.viz.selectAll("g#edges").data(["edges"]);
   vars.g.edges.enter().append("g")
     .attr("id","edges")
-    .attr("opacity",0)
+    .attr("opacity",0);
 
   // Enter Edge Focus Group
-  vars.g.edge_focus = vars.g.viz.selectAll("g#focus").data(["focus"])
+  vars.g.edge_focus = vars.g.viz.selectAll("g#focus").data(["focus"]);
   vars.g.edge_focus.enter().append("g")
-    .attr("id","focus")
+    .attr("id","focus");
 
   // Enter Edge Hover Group
-  vars.g.edge_hover = vars.g.viz.selectAll("g#edge_hover").data(["edge_hover"])
+  vars.g.edge_hover = vars.g.viz.selectAll("g#edge_hover").data(["edge_hover"]);
   vars.g.edge_hover.enter().append("g")
     .attr("id","edge_hover")
-    .attr("opacity",0)
+    .attr("opacity",0);
 
   // Enter App Data Group
-  vars.g.data = vars.g.viz.selectAll("g#data").data(["data"])
+  vars.g.data = vars.g.viz.selectAll("g#data").data(["data"]);
   vars.g.data.enter().append("g")
     .attr("id","data")
-    .attr("opacity",0)
+    .attr("opacity",0);
 
   // Enter Data Focus Group
-  vars.g.data_focus = vars.g.viz.selectAll("g#data_focus").data(["data_focus"])
+  vars.g.data_focus = vars.g.viz.selectAll("g#data_focus").data(["data_focus"]);
   vars.g.data_focus.enter().append("g")
-    .attr("id","data_focus")
+    .attr("id","data_focus");
 
   // Enter Top Label Group
-  vars.g.labels = vars.g.viz.selectAll("g#d3plus_labels").data(["d3plus_labels"])
+  vars.g.labels = vars.g.viz.selectAll("g#d3plus_labels").data(["d3plus_labels"]);
   vars.g.labels.enter().append("g")
-    .attr("id","d3plus_labels")
+    .attr("id","d3plus_labels");
 
-  vars.defs = vars.svg.selectAll("defs").data(["defs"])
-  vars.defs.enter().append("defs")
+  vars.defs = vars.svg.selectAll("defs").data(["defs"]);
+  vars.defs.enter().append("defs");
 
-  if ( vars.dev.value ) print.timeEnd("creating SVG elements")
+  if ( vars.dev.value ) print.timeEnd("creating SVG elements");
 
-}
+};
 
 },{"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../client/touch.coffee":48,"../../../core/console/print.coffee":57,"../zoom/propagation.coffee":237}],223:[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
@@ -33865,7 +33866,7 @@ var arraySort     = require("../../../array/sort.coffee"),
     fetchValue    = require("../../../core/fetch/value.js"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
     validObject   = require("../../../object/validate.coffee"),
-    zoomDirection = require("../zoom/direction.coffee")
+    zoomDirection = require("../zoom/direction.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -34031,8 +34032,13 @@ module.exports = function(params) {
 
     }
 
-    if ( vars.size.value && vars.tooltip.size.value && dataValue && ( same || !nameList || nameList instanceof Array ) ) {
-      ex[vars.size.value] = dataValue
+    if ( vars.tooltip.size.value && ( same || !nameList || nameList instanceof Array ) ) {
+      if (dataValue) {
+        ex[vars.size.value] = dataValue
+      }
+      if (vars.axes.opposite && vars[vars.axes.opposite].value !== vars.size.value) {
+        ex[vars[vars.axes.opposite].value] = fetchValue(vars, d, vars[vars.axes.opposite].value);
+      }
     }
 
     var active = vars.active.value ? fetchValue(vars,d,vars.active.value) : d.d3plus.active,
@@ -38437,69 +38443,97 @@ module.exports = geo_map;
 
 
 },{}],292:[function(require,module,exports){
-var color, legible;
+var color, legible, print;
 
 color = require("../../../../core/fetch/color.coffee");
 
 legible = require("../../../../color/legible.coffee");
 
+print = require("../../../../core/console/print.coffee");
+
 module.exports = function(vars) {
-  var axis, axisData, data, style, tick, ticks, _i, _len, _ref;
-  data = vars.axes.stacked ? [] : vars.data.viz;
+  var axes, axis, axisData, data, style, tick, ticks, _i, _len, _ref;
+  axes = vars.axes;
+  data = axes.stacked ? [] : vars.data.viz;
   style = function(line, axis) {
     return line.attr("x1", function(d) {
       if (axis === "y") {
         return -2;
       } else {
-        return d.d3plus.x - vars.axes.margin.left;
+        return d.d3plus.x - axes.margin.left;
       }
     }).attr("x2", function(d) {
       if (axis === "y") {
         return -8;
       } else {
-        return d.d3plus.x - vars.axes.margin.left;
+        return d.d3plus.x - axes.margin.left;
       }
     }).attr("y1", function(d) {
       if (axis === "x") {
-        return vars.axes.height + 2;
+        return axes.height + 2;
       } else {
-        return d.d3plus.y - vars.axes.margin.top;
+        return d.d3plus.y - axes.margin.top;
       }
     }).attr("y2", function(d) {
       if (axis === "x") {
-        return vars.axes.height + 8;
+        return axes.height + 8;
       } else {
-        return d.d3plus.y - vars.axes.margin.top;
+        return d.d3plus.y - axes.margin.top;
       }
     }).style("stroke", function(d) {
       return legible(color(vars, d));
     }).style("stroke-width", vars.data.stroke.width).attr("shape-rendering", vars.shape.rendering.value);
   };
+  if (vars.dev.value) {
+    print.time("creating axis tick groups");
+  }
   ticks = vars.group.select("g#d3plus_graph_plane").selectAll("g.d3plus_data_tick").data(data, function(d) {
     var mod;
-    mod = vars.axes.discrete ? "_" + d.d3plus[vars.axes.discrete] : "";
+    mod = axes.discrete ? "_" + d.d3plus[axes.discrete] : "";
     return "tick_" + d[vars.id.value] + "_" + d.d3plus.depth + mod;
   });
   ticks.enter().append("g").attr("class", "d3plus_data_tick").attr("opacity", 0);
+  if (vars.dev.value) {
+    print.timeEnd("creating axis tick groups");
+  }
   _ref = ["x", "y"];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
-    axisData = axis !== vars.axes.discrete ? data : [];
+    if (vars.dev.value) {
+      print.time("creating " + axis + " ticks");
+    }
+    axisData = axis !== axes.discrete ? data : [];
     tick = ticks.selectAll("line.d3plus_data_" + axis).data(axisData, function(d) {
-      var mod;
-      mod = vars.axes.discrete ? "_" + d.d3plus[vars.axes.discrete] : "";
-      return "tick_" + d[vars.id.value] + "_" + d.d3plus.depth + mod;
+      return "tick_" + d[vars.id.value] + "_" + d.d3plus.depth;
     });
+    if (vars.dev.value) {
+      print.timeEnd("creating " + axis + " ticks");
+    }
+    if (vars.dev.value) {
+      print.time("styling " + axis + " ticks");
+    }
+    if (vars.draw.timing > 0) {
+      tick.transition().duration(vars.draw.timing).call(style, axis);
+    } else {
+      tick.call(style, axis);
+    }
     tick.enter().append("line").attr("class", "d3plus_data_" + axis).call(style, axis);
-    tick.transition().duration(vars.draw.timing).call(style, axis);
+    if (vars.dev.value) {
+      print.timeEnd("styling " + axis + " ticks");
+    }
   }
-  ticks.transition().duration(vars.draw.timing).attr("opacity", 1);
-  ticks.exit().transition().duration(vars.draw.timing).attr("opacity", 0).remove();
+  if (vars.draw.timing > 0) {
+    ticks.transition().duration(vars.draw.timing).attr("opacity", 1);
+    ticks.exit().transition().duration(vars.draw.timing).attr("opacity", 0).remove();
+  } else {
+    ticks.attr("opacity", 1);
+    ticks.exit().remove();
+  }
 };
 
 
 
-},{"../../../../color/legible.coffee":49,"../../../../core/fetch/color.coffee":67}],293:[function(require,module,exports){
+},{"../../../../color/legible.coffee":49,"../../../../core/console/print.coffee":57,"../../../../core/fetch/color.coffee":67}],293:[function(require,module,exports){
 var axes, draw, mouse, plot;
 
 axes = require("./includes/axes.coffee");
@@ -40585,12 +40619,17 @@ scatter.requirements = ["data", "x", "y"];
 scatter.scale = 1.1;
 
 scatter.setup = function(vars) {
-  var axis;
-  if (!vars.axes.discrete) {
-    axis = vars.time.value === vars.y.value ? "y" : "x";
-    return vars.self[axis]({
-      scale: "discrete"
-    });
+  if (vars.time.value && !vars.axes.discrete) {
+    if (vars.time.value === vars.x.value) {
+      vars.self.x({
+        scale: "discrete"
+      });
+    }
+    if (vars.time.value === vars.y.value) {
+      return vars.self.y({
+        scale: "discrete"
+      });
+    }
   }
 };
 
