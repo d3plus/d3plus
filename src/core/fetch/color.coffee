@@ -6,7 +6,8 @@ validObject = require "../../object/validate.coffee"
 # Finds an object's color and returns random if it cannot be found
 module.exports = (vars, id, level) ->
 
-  return id.d3plus.color if id.d3plus and id.d3plus.color
+  if validObject(id) and id.d3plus and id.d3plus.color
+    return id.d3plus.color
 
   getRandom = (c) ->
     c = fetchValue(vars, c, level) if validObject(c)
@@ -17,14 +18,15 @@ module.exports = (vars, id, level) ->
   level = vars.id.nesting[level] if typeof level is "number"
 
   unless vars.color.value
-    getRandom id
+    returnColor = getRandom id
   else
 
     colors   = []
     i        = vars.id.nesting.indexOf(level)
     getColor = (color) ->
       unless color
-        return vars.color.valueScale(0) if vars.color.value and typeof vars.color.valueScale is "function"
+        if vars.color.value and typeof vars.color.valueScale is "function"
+          return vars.color.valueScale(0)
         getRandom id
       else unless vars.color.valueScale
         if validColor(color) then color else getRandom(color)
@@ -34,7 +36,7 @@ module.exports = (vars, id, level) ->
     while i >= 0
       colorLevel = vars.id.nesting[i]
       if validObject(id)
-        o = (unless (colorLevel of id) then fetchValue(vars, id, colorLevel) else id)
+        o = unless (colorLevel of id) then fetchValue(vars, id, colorLevel) else id
         value = fetchValue(vars, o, vars.color.value, colorLevel)
       else
         value = id
@@ -43,4 +45,8 @@ module.exports = (vars, id, level) ->
         colors.push color  if colors.indexOf(color) < 0
       i--
 
-    if colors.length is 1 then colors[0] else vars.color.missing
+    returnColor = if colors.length is 1 then colors[0] else vars.color.missing
+
+  if validObject(id) and id.d3plus
+    id.d3plus.color = returnColor
+  returnColor
