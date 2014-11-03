@@ -6,7 +6,7 @@ var arraySort     = require("../../../array/sort.coffee"),
     fetchValue    = require("../../../core/fetch/value.js"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
     validObject   = require("../../../object/validate.coffee"),
-    zoomDirection = require("../zoom/direction.coffee")
+    zoomDirection = require("../zoom/direction.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates correctly formatted tooltip for Apps
 //-------------------------------------------------------------------
@@ -172,8 +172,13 @@ module.exports = function(params) {
 
     }
 
-    if ( vars.size.value && vars.tooltip.size.value && dataValue && ( same || !nameList || nameList instanceof Array ) ) {
-      ex[vars.size.value] = dataValue
+    if ( vars.tooltip.size.value && ( same || !nameList || nameList instanceof Array ) ) {
+      if (dataValue) {
+        ex[vars.size.value] = dataValue
+      }
+      if (vars.axes.opposite && vars[vars.axes.opposite].value !== vars.size.value) {
+        ex[vars[vars.axes.opposite].value] = fetchValue(vars, d, vars[vars.axes.opposite].value);
+      }
     }
 
     var active = vars.active.value ? fetchValue(vars,d,vars.active.value) : d.d3plus.active,
