@@ -38,9 +38,9 @@ scatter.fill = true
 scatter.requirements = ["data", "x", "y"]
 scatter.scale = 1.1
 scatter.setup = (vars) ->
-  unless vars.axes.discrete
-    axis = if vars.time.value is vars.y.value then "y" else "x"
-    vars.self[axis] scale: "discrete"
+  if vars.time.value and !vars.axes.discrete
+    vars.self.x scale: "discrete" if vars.time.value is vars.x.value
+    vars.self.y scale: "discrete" if vars.time.value is vars.y.value
 scatter.shapes = ["circle", "square", "donut"]
 scatter.tooltip = "static"
 
