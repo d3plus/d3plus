@@ -27,6 +27,7 @@ module.exports = ->
 
   # Define methods and expose public variables.
   attach vars,
+    config:    require "./methods/config.coffee"
     container: require "./methods/container.coffee"
     dev:       require "./methods/dev.coffee"
     draw:      require "./methods/draw.coffee"

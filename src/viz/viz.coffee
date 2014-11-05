@@ -130,6 +130,7 @@ module.exports = ->
     background: require "./methods/background.coffee"
     color:      require "./methods/color.coffee"
     cols:       require "./methods/cols.js"
+    config:     require "./methods/config.coffee"
     container:  require "./methods/container.coffee"
     coords:     require "./methods/coords.coffee"
     csv:        require "./methods/csv.coffee"

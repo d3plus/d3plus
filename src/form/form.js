@@ -319,6 +319,7 @@ module.exports = function() {
     "active":    require("./methods/active.coffee"),
     "alt":       require("./methods/alt.coffee"),
     "color":     require("./methods/color.coffee"),
+    "config":    require("./methods/config.coffee"),
     "container": require("./methods/container.coffee"),
     "data":      require("./methods/data.js"),
     "depth":     require("./methods/depth.coffee"),
