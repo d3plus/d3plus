@@ -47,9 +47,10 @@ module.exports = ->
 
       if vars.error.value
         timing = vars.draw.timing
-        vars.group.transition().duration(timing).attr "opacity", 0
-        vars.g.data.transition().duration(timing).attr "opacity", 0
-        vars.g.edges.transition().duration(timing).attr "opacity", 0
+        if vars.group
+          vars.group.transition().duration(timing).attr "opacity", 0
+          vars.g.data.transition().duration(timing).attr "opacity", 0
+          vars.g.edges.transition().duration(timing).attr "opacity", 0
         vars.messages.style = "large"
         message             = if vars.error.value is true then vars.format.value(vars.format.locale.value.ui.error) else vars.error.value
         lastMessage         = message
