@@ -148,16 +148,23 @@ module.exports = (poly, options) ->
       if p1H? and p2H? then modifOrigins.push [(p1H[0] + p2H[0])/2, (p1H[1] + p2H[1])/2] # average along with height axis
 
       if options.vdebug then events.push type: 'modifOrigin', idx: i, p1W: p1W, p2W: p2W, p1H: p1H, p2H: p2H, modifOrigins: modifOrigins
+
       for origin in modifOrigins
+
         if options.vdebug then events.push type: 'origin', cx: origin[0], cy: origin[1]
+
         [p1W, p2W] = intersectPoints poly, origin, angleRad
+        continue if p1W is null or p2W is null
         minSqDistW = Math.min squaredDist(origin, p1W), squaredDist(origin, p2W)
         maxWidth = 2*Math.sqrt(minSqDistW)
 
         [p1H, p2H] = intersectPoints poly, origin, angleRad + Math.PI/2
+        continue if p1H is null or p2H is null
         minSqDistH = Math.min squaredDist(origin, p1H), squaredDist(origin, p2H)
         maxHeight = 2*Math.sqrt(minSqDistH)
+
         continue if maxWidth * maxHeight < maxArea
+
         if aspectRatios? then aRatios = aspectRatios
         else
           minAspectRatio = Math.max 1, options.minWidth / maxHeight, maxArea/(maxHeight*maxHeight)
@@ -347,4 +354,5 @@ intersectPoints = (poly, origin, alpha) ->
         if sqDist < minSqDistRight
           minSqDistRight = sqDist
           closestPointRight = p
+
   return [closestPointLeft, closestPointRight]
