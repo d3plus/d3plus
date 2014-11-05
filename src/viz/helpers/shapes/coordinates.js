@@ -50,58 +50,69 @@ module.exports = function(vars,selection,enter,exit) {
 
   if (vars.coords.changed || size_change || vars.coords.mute.changed || vars.coords.solo.changed) {
 
-    vars.zoom.bounds = null
-    vars.zoom.coords = {}
-    vars.zoom.labels = {}
+    vars.zoom.bounds = null;
+    vars.zoom.coords = {};
+    vars.zoom.labels = {};
 
     selection.each(function(d){
 
-      var b = vars.path.bounds(d)
+      var b = vars.path.bounds(d);
 
-      var areas = []
-      d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
+      if (d.geometry.coordinates.length > 1) {
 
-        var test = copy(d)
-        test.geometry.coordinates = [test.geometry.coordinates[i]]
-        var a = vars.path.area(test)
-        if (a >= vars.coords.threshold) {
-          areas.push(a)
-          return true
+        var areas = [];
+        d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
+
+          var test = copy(d);
+          test.geometry.coordinates = [test.geometry.coordinates[i]];
+          var a = vars.path.area(test);
+          if (a >= vars.coords.threshold) {
+            areas.push(a);
+            return true;
+          }
+          return false;
+
+        });
+        areas.sort(function(a,b){
+          return a-b;
+        });
+
+        var reduced = copy(d),
+            largest = copy(d);
+
+        reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
+
+          var test = copy(d);
+          test.geometry.coordinates = [test.geometry.coordinates[i]];
+          var a = vars.path.area(test);
+          if (a == areas[areas.length-1]) {
+            largest.geometry.coordinates = test.geometry.coordinates;
+          }
+          return a >= d3.quantile(areas, 0.9);
+
+        });
+
+        vars.zoom.coords[d.d3plus.id] = reduced;
+
+        var coords = largest.geometry.coordinates[0];
+        if (coords && largest.geometry.type === "MultiPolygon") {
+          coords = coords[0];
+          largest.geometry.coordinates[0] = coords;
+          largest.geometry.type = "Polygon";
         }
-        return false
 
-      })
-      areas.sort(function(a,b){
-        return a-b
-      })
+      }
+      else {
+        var reduced = d, largest = d, coords = d.geometry.coordinates[0];
+        vars.zoom.coords[d.d3plus.id] = d;
 
-      var reduced = copy(d),
-          largest = copy(d)
-      reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
-
-        var test = copy(d)
-        test.geometry.coordinates = [test.geometry.coordinates[i]]
-        var a = vars.path.area(test)
-        if (a == areas[areas.length-1]) {
-          largest.geometry.coordinates = test.geometry.coordinates
-        }
-        return a >= d3.quantile(areas,.9)
-
-      })
-      vars.zoom.coords[d.d3plus.id] = reduced
-
-      var coords = largest.geometry.coordinates[0]
-      if (coords && largest.geometry.type === "MultiPolygon") {
-        coords = coords[0]
-        largest.geometry.coordinates[0] = coords
-        largest.geometry.type = "Polygon"
       }
 
-      var names = fetchText(vars,d)
+      var names = fetchText(vars,d);
 
       if (coords && names.length) {
 
-        var path = path2poly(vars.path(largest))
+        var path = path2poly(vars.path(largest));
 
         var style = {
           "font-weight": vars.labels.font.weight,
