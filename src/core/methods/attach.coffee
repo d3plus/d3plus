@@ -81,17 +81,25 @@ createFunction = (vars, key) ->
         print.warning stringFormat(str, "\"" + s + "\"", s), s
         vars.self[s] user[s]
 
-    # Set all font families and weights, if calling .font()
-    if key is "font" and validObject(user) and "family" of user and typeof user.family is "string"
-      checkFamily = (o) ->
+    # Set all font properties, if calling .font()
+    if key is "font" and typeof user is "string"
+      user =
+        family: user
+    if key is "font"
+      checkFont = (o, a, v, start) ->
         if validObject(o)
-          if "family" of o
-            o.family.value = o.family.process(user.family, vars)
+          if a of o
+            if validObject(o[a])
+              o[a].value = if o[a].process then o[a].process(v) else v
+            else
+              o[a] = v
           else
             for m of o
-              checkFamily o[m]
+              checkFont o[m], a, v, false if m isnt "font" or start isnt true
         return
-      checkFamily vars
+      for fontAttr, fontAttrValue of user
+        fontAttrValue = fontAttrValue.value if validObject(fontAttrValue)
+        checkFont vars, fontAttr, fontAttrValue, true if fontAttrValue
 
     # Object
     checkObject vars, key, vars, key, user
