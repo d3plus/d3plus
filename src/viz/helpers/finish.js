@@ -57,16 +57,16 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   if (vars.draw.update) {
     edges(vars)
-    if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
+    // if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
       shapeLabels( vars , "data" )
       if (vars.edges.label) {
 
         setTimeout(function(){
           shapeLabels( vars , "edges" )
-        },vars.draw.timing+200)
+        }, vars.draw.timing+200)
 
       }
-    }
+    // }
   }
   else if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
     setTimeout(function(){
