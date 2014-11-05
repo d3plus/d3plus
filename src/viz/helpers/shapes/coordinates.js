@@ -127,10 +127,10 @@ module.exports = function(vars,selection,enter,exit) {
             "anchor": "middle",
             "valign": "center",
             "group": vars.g.labels,
-            "h": Math.floor(rect.height),
-            "w": Math.floor(rect.width),
-            "x": Math.floor(rect.cx),
-            "y": Math.floor(rect.cy),
+            "h": rect.height,
+            "w": rect.width,
+            "x": rect.cx,
+            "y": rect.cy,
             "names": names
           }
 
