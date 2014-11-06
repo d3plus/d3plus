@@ -26,11 +26,22 @@ bar = (vars) ->
   stack vars, nested if vars.axes.stacked
 
   space   = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
-  maxSize = space - vars.labels.padding * 4
+
+  # Fetches the discrete axis padding to use in between each group of bars.
+  padding = vars[vars.axes.discrete].padding.value
+
+  # Uses the padding as a percentage if it is less than 1.
+  padding *= space if padding < 1
+
+  # Resets the padding to 10% of the overall space if the specified padding does
+  # not leave enough room for the bars.
+  padding = space * 0.1 if padding * 2 > space
+
+  maxSize = space - padding * 2
 
   unless vars.axes.stacked
     maxSize /= nested.length
-    offset   = space/2 - maxSize/2 - vars.labels.padding * 2
+    offset   = space/2 - maxSize/2 - padding
 
     x = d3.scale.linear()
       .domain [0, nested.length-1]

@@ -77,6 +77,9 @@ module.exports = (axis) ->
     width:     2
     value:     true
   mute:  filter(true)
+  padding:
+    accepted: [Number]
+    value:    0.1
   range:
     accepted: [false, Array]
     value:    false
