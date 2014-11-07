@@ -77,6 +77,9 @@ module.exports = function(params) {
       x = vars.zoom.translate[0]+x*vars.zoom.scale
     }
     x += vars.margin.left
+    if (vars.tooltip.small) {
+      x += vars.container.value.node().offsetLeft;
+    }
   }
 
   if ("y" in params) {
@@ -91,6 +94,9 @@ module.exports = function(params) {
       y = vars.zoom.translate[1]+y*vars.zoom.scale
     }
     y += vars.margin.top
+    if (vars.tooltip.small) {
+      y += vars.container.value.node().offsetTop;
+    }
   }
 
   if ("offset" in params) {

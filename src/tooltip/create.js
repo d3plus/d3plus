@@ -43,10 +43,15 @@ module.exports = function(params) {
     params.iconsize = params.size == "small" ? 22 : 50
   }
 
-  params.limit = [
-    parseFloat(params.parent.style("width"),10),
-    parseFloat(params.parent.style("height"),10)
-  ]
+  if (params.parent.node() === document.body) {
+    params.limit = [window.innerWidth, window.innerHeight];
+  }
+  else {
+    params.limit = [
+      parseFloat(params.parent.style("width"),10),
+      parseFloat(params.parent.style("height"),10)
+    ]; 
+  }
 
   if ( params.title instanceof Array ) {
 
