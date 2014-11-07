@@ -89,6 +89,6 @@ bar.setup        = (vars) ->
     axis = if vars.time.value is vars.y.value then "y" else "x"
     vars.self[axis] scale: "discrete"
 bar.shapes       = ["square"]
-bar.tooltip      = "static"
+bar.tooltip      = "follow"
 
 module.exports = bar
