@@ -10,31 +10,22 @@ module.exports = function(vars) {
 
   if (!vars.small && vars.history.states.length > 0) {
 
-    if ( vars.dev.value ) print.time("drawing back button")
+    if ( vars.dev.value ) print.time("drawing back button");
 
     var button = vars.container.value.selectAll("div#d3plus_back_button")
-      .data(["d3plus_back_button"])
+      .data(["d3plus_back_button"]);
 
-    var size = vars.title.value
-      ? vars.title.font.size : vars.title.sub.font.size
-
-    var color = vars.title.sub.value
-      ? vars.title.sub.font.color : vars.title.font.color
-
-    var family = vars.title.sub.value
-      ? vars.title.sub.font.family.value : vars.title.font.family.value
-
-    var weight = vars.title.sub.value
-      ? vars.title.sub.font.weight : vars.title.font.weight
-
-    var padding = vars.title.sub.value
-      ? vars.title.sub["padding"] : vars.title["padding"]
+    var size = vars.title.sub.font.size;
+    var color = vars.title.sub.font.color;
+    var family = vars.title.sub.font.family.value;
+    var weight = vars.title.sub.font.weight;
+    var padding = vars.title.sub.padding;
 
     function style(elem) {
-
+        console.log(vars.margin.top, size, padding)
         elem
           .style("position","absolute")
-          .style("left",vars.ui.padding+"px")
+          .style("left",size/2+"px")
           .style("top",vars.margin.top/2-size/2+"px")
           .style("color", color)
           .style("font-family", family)
