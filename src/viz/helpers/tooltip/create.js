@@ -69,7 +69,7 @@ module.exports = function(params) {
     var x = params.x
   }
   else if (vars.types[vars.type.value].tooltip == "follow") {
-    var x = d3.mouse(vars.container.value.node())[0]
+    var x = d3.mouse(d3.select("html").node())[0]
   }
   else {
     var x = d.d3plus.x
@@ -83,7 +83,7 @@ module.exports = function(params) {
     var y = params.y
   }
   else if (vars.types[vars.type.value].tooltip == "follow") {
-    var y = d3.mouse(vars.container.value.node())[1]
+    var y = d3.mouse(d3.select("html").node())[1]
   }
   else {
     var y = d.d3plus.y
@@ -238,6 +238,8 @@ module.exports = function(params) {
         var width = vars.tooltip.small
       }
 
+      var parent = vars.types[vars.type.value].tooltip == "follow" ? d3.select("body") : vars.container.value
+
       createTooltip({
         "align": align,
         "arrow": arrow,
@@ -261,7 +263,7 @@ module.exports = function(params) {
         "max_width": vars.tooltip.small,
         "mouseevents": mouse,
         "offset": offset,
-        "parent": vars.container.value,
+        "parent": parent,
         "style": icon_style,
         "title": title,
         "width": width,
