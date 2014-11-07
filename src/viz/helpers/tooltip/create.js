@@ -78,7 +78,7 @@ module.exports = function(params) {
     }
     x += vars.margin.left
     if (vars.tooltip.small) {
-      x += vars.container.value.node().offsetLeft;
+      x += vars.container.value.node().getBoundingClientRect().left;
     }
   }
 
@@ -95,7 +95,7 @@ module.exports = function(params) {
     }
     y += vars.margin.top
     if (vars.tooltip.small) {
-      y += vars.container.value.node().offsetTop;
+      y += vars.container.value.node().getBoundingClientRect().top;
     }
   }
 
