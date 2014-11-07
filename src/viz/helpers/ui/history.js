@@ -22,7 +22,7 @@ module.exports = function(vars) {
     var padding = vars.title.sub.padding;
 
     function style(elem) {
-        console.log(vars.margin.top, size, padding)
+
         elem
           .style("position","absolute")
           .style("left",size/2+"px")
