@@ -9,7 +9,7 @@ var copy = require("../../../util/copy.coffee"),
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
-module.exports = function(vars,id,length,extras,children,depth) {
+module.exports = function(vars, id, length, extras, children, depth) {
 
   if (vars.small) {
     return []

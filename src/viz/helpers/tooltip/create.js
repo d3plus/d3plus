@@ -163,7 +163,7 @@ module.exports = function(params) {
         }
 
       }
-      else if ( nameList && nameList !== "null" ) {
+      else if ( nameList && nameList !== "null" && nameList instanceof Array ) {
 
         var name  = fetchText( vars , nameList , depth )[0]
         children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
