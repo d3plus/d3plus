@@ -238,7 +238,7 @@ module.exports = function(params) {
         var width = vars.tooltip.small
       }
 
-      var parent = vars.types[vars.type.value].tooltip == "follow" ? d3.select("body") : vars.container.value
+      var parent = vars.tooltip.small ? d3.select("body") : vars.container.value
 
       createTooltip({
         "align": align,
