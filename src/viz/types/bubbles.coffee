@@ -13,9 +13,6 @@ bubbles = (vars) ->
   maxChildren = d3.max groupedData, (d) -> if d.values instanceof Array then d.values.length else 1
   labelHeight = if vars.labels.value and not vars.small and maxChildren > 1 then 50 else 0
 
-  # Sort Data
-  arraySort groupedData, vars.order.value or vars.size.value, vars.order.sort.value, vars.color.value, vars
-
   # Calculate rows and columns
   dataLength = groupedData.length
   if dataLength < 4
@@ -73,7 +70,7 @@ bubbles = (vars) ->
       else
         obj = d3plus: {}
         obj[vars.id.value] = t.key
-      obj.d3plus.depth = t.depth
+      obj.d3plus.depth = if vars.id.grouping.value then t.depth else vars.depth.value
       obj.d3plus.x = t.x
       obj.d3plus.xOffset = xoffset
       obj.d3plus.y = t.y

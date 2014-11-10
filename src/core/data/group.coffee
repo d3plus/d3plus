@@ -4,13 +4,13 @@ fetchValue = require "../fetch/value.js"
 module.exports = (vars, data, nesting) ->
 
   groupedData = d3.nest()
-  nesting     = vars.id.nesting if nesting is undefined
-
-  for n, i in nesting
-    if i < vars.depth.value
-      do (n) ->
-        groupedData.key (d) ->
-          fetchValue vars, d.d3plus, n
+  if vars.id.grouping.value
+    nesting = vars.id.nesting if nesting is undefined
+    for n, i in nesting
+      if i < vars.depth.value
+        do (n) ->
+          groupedData.key (d) ->
+            fetchValue vars, d.d3plus, n
 
   strippedData = []
   for d in data
