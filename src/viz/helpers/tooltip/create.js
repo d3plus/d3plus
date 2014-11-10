@@ -66,50 +66,50 @@ module.exports = function(params) {
   }
 
   if ("x" in params) {
-    var x = params.x
+    var x = params.x;
   }
-  else if (vars.types[vars.type.value].tooltip == "follow") {
-    var x = d3.mouse(d3.select("html").node())[0]
-  }
-  else {
-    var x = d.d3plus.x
+  else if (vars.types[vars.type.value].tooltip === "static") {
+    var x = d.d3plus.x;
     if (vars.zoom.translate && vars.zoom.scale) {
-      x = vars.zoom.translate[0]+x*vars.zoom.scale
+      x = vars.zoom.translate[0]+x*vars.zoom.scale;
     }
-    x += vars.margin.left
+    x += vars.margin.left;
     if (vars.tooltip.small) {
       x += vars.container.value.node().getBoundingClientRect().left;
     }
   }
+  else {
+    var x = d3.mouse(d3.select("html").node())[0];
+  }
 
   if ("y" in params) {
-    var y = params.y
+    var y = params.y;
   }
-  else if (vars.types[vars.type.value].tooltip == "follow") {
-    var y = d3.mouse(d3.select("html").node())[1]
-  }
-  else {
-    var y = d.d3plus.y
+  else if (vars.types[vars.type.value].tooltip == "static") {
+    var y = d.d3plus.y;
     if (vars.zoom.translate && vars.zoom.scale) {
-      y = vars.zoom.translate[1]+y*vars.zoom.scale
+      y = vars.zoom.translate[1]+y*vars.zoom.scale;
     }
-    y += vars.margin.top
+    y += vars.margin.top;
     if (vars.tooltip.small) {
       y += vars.container.value.node().getBoundingClientRect().top;
     }
   }
+  else {
+    var y = d3.mouse(d3.select("html").node())[1];
+  }
 
   if ("offset" in params) {
-    var offset = params.offset
+    var offset = params.offset;
   }
-  else if (vars.types[vars.type.value].tooltip == "follow") {
-    var offset = 3
+  else if (vars.types[vars.type.value].tooltip == "static") {
+    var offset = d.d3plus.r ? d.d3plus.r : d.d3plus.height/2;
+    if (vars.zoom.scale) {
+      offset = offset * vars.zoom.scale;
+    }
   }
   else {
-    var offset = d.d3plus.r ? d.d3plus.r : d.d3plus.height/2
-    if (vars.zoom.scale) {
-      offset = offset * vars.zoom.scale
-    }
+    var offset = 3;
   }
 
   function make_tooltip(html) {

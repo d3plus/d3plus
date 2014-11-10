@@ -43,5 +43,5 @@ pie.filter       = dataThreshold
 pie.requirements = ["data", "size"]
 pie.shapes       = ["arc"]
 pie.threshold    = (vars) -> (40 * 40) / (vars.width.viz * vars.height.viz)
-pie.tooltip      = "follow"
+
 module.exports   = pie

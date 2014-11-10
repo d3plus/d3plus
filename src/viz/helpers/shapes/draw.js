@@ -467,8 +467,9 @@ module.exports = function(vars) {
         if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           vars.covered = false
+          var tooltipType = vars.types[vars.type.value].tooltip || "follow"
 
-          if (d.values || (vars.types[vars.type.value].tooltip == "follow" && (!vars.focus.tooltip.value || vars.focus.value[0] !== d[vars.id.value]))) {
+          if (d.values || (tooltipType && (!vars.focus.tooltip.value || vars.focus.value[0] !== d[vars.id.value]))) {
 
             if (d.values && vars.axes.discrete) {
 

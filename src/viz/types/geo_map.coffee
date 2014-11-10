@@ -26,7 +26,6 @@ geo_map.nesting      = false
 geo_map.requirements = ["color", "coords"]
 geo_map.scale        = 1
 geo_map.shapes       = ["coordinates"]
-geo_map.tooltip      = "follow"
 geo_map.zoom         = true
 
 module.exports = geo_map

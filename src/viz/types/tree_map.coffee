@@ -50,6 +50,5 @@ tree_map.modes        = ["squarify", "slice", "dice", "slice-dice"]
 tree_map.requirements = ["data", "size"]
 tree_map.shapes       = ["square"]
 tree_map.threshold    = (vars) -> (40 * 40) / (vars.width.viz * vars.height.viz)
-tree_map.tooltip      = "follow"
 
 module.exports = tree_map
