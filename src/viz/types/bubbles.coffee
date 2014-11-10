@@ -42,9 +42,9 @@ bubbles = (vars) ->
     domain = [0, 0]
 
   padding  = 5
-  size_min = 20
   size_max = (d3.min([column_width, column_height]) / 2) - (padding * 2)
   size_max -= labelHeight
+  size_min = d3.min [size_max, vars.size.scale.min.value]
 
   size = vars.size.scale.value
     .domain domain
