@@ -9,12 +9,6 @@ bubbles = (vars) ->
 
   groupedData = groupData vars, vars.data.viz
 
-  groupedData = [groupedData[40], groupedData[41]]
-
-  # Test for labels
-  maxChildren = d3.max groupedData, (d) -> if d.values instanceof Array then d.values.length else 1
-  labelHeight = if vars.labels.value and not vars.small and maxChildren >= 1 then 50 else 0
-  console.log maxChildren, labelHeight
   # Calculate rows and columns
   dataLength = groupedData.length
   if dataLength < 4
@@ -42,6 +36,7 @@ bubbles = (vars) ->
 
   padding  = 5
   size_max = (d3.min([column_width, column_height]) / 2) - (padding * 2)
+  labelHeight = if vars.labels.value and not vars.small and size_max >= 40 then d3.max([20, d3.min [size_max * 0.25, 50]]) else 0
   size_max -= labelHeight
   size_min = d3.min [size_max, vars.size.scale.min.value]
 
@@ -96,12 +91,13 @@ bubbles = (vars) ->
 
     d.d3plus.static = d.d3plus.depth < vars.depth.value and vars.id.grouping.value
 
-    if d.d3plus.depth is 0 or vars.id.grouping.value is false
+    if labelHeight and (d.d3plus.depth is 0 or vars.id.grouping.value is false)
       d.d3plus.label =
         x: 0
         y: -(size_max + labelHeight / 2)
-        w: size_max * 1.5
+        w: size_max * 2
         h: labelHeight
+        padding: 0
         color: legible(fetchColor(vars, d, d.d3plus.depth))
     else
       delete d.d3plus.label
