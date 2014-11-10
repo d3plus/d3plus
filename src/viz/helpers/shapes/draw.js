@@ -198,9 +198,9 @@ module.exports = function(vars) {
             if (!d.d3plus.segments) {
 
               d.d3plus.segments = {"donut": Math.PI*2}
-              var active = vars.active.value ? d.d3plus[vars.active.value] : d.d3plus.active,
-                  temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
-                  total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total
+              var active = d.d3plus.active,
+                  temp  = d.d3plus.temp,
+                  total = d.d3plus.total
 
               if (total) {
                 if (active) {

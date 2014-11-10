@@ -85,8 +85,6 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     // If there's only 1 leaf, and it's been processed, return it as-is.
     //--------------------------------------------------------------------------
     if ( leaves.length === 1 && ("d3plus" in leaves[0]) ) {
-      // var returnObj = leaves[0]
-      // returnObj.d3plus.depth = i
       groupedData.push(leaves[0]);
       return leaves[0];
     }
@@ -119,28 +117,32 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     //--------------------------------------------------------------------------
     segments.forEach(function(c){
 
-      var key = vars[c].value || c;
+      var agg = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum";
 
-      returnObj.d3plus[key] = d3.sum(leaves, function( d ) {
+      if (typeof agg === "function") {
 
-        var a = 0;
+        returnObj.d3plus[c] = agg(leaves);
 
-        if ( vars[c].value ) {
+      }
+      else {
 
-          a = fetchValue(vars,d,vars[c].value);
+        returnObj.d3plus[c] = d3[agg](leaves, function( d ) {
 
-          if ( typeof a !== "number" ) {
-            a = a ? 1 : 0;
+          var a = c === "total" ? 1 : 0;
+
+          if ( vars[c].value ) {
+
+            a = fetchValue(vars,d,vars[c].value);
+
+            if ( typeof a !== "number" ) a = a ? 1 : 0;
+
           }
 
-        }
-        else if ( c === "total" ) {
-          a = 1;
-        }
+          return a;
 
-        return a;
+        });
 
-      });
+      }
 
     });
 

@@ -16,9 +16,9 @@ module.exports = (d, vars) ->
   else if d.d3plus.static
     return lighter fetchColor(vars, d), .75
 
-  active = if vars.active.value then fetchValue(vars, d, vars.active.value) else d.d3plus.active
-  temp   = if vars.temp.value then fetchValue(vars, d, vars.temp.value) else d.d3plus.temp
-  total  = if vars.total.value then fetchValue(vars, d, vars.total.value) else d.d3plus.total
+  active = d.d3plus.active
+  temp   = d.d3plus.temp
+  total  = d.d3plus.total
 
   if (not vars.active.value and not vars.temp.value) or active is true or (active and total and active is total and not temp) or (active and not total)
     fetchColor vars, d
