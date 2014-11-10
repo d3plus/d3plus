@@ -23,6 +23,6 @@ module.exports = (d, vars) ->
   if (not vars.active.value and not vars.temp.value) or active is true or (active and total and active is total and not temp) or (active and not total)
     fetchColor vars, d
   else if vars.active.spotlight.value
-    "#eee"
+    "#fafafa"
   else
     lighter fetchColor(vars, d), .75
