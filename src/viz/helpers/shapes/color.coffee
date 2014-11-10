@@ -20,7 +20,7 @@ module.exports = (d, vars) ->
   temp   = d.d3plus.temp
   total  = d.d3plus.total
 
-  if (not vars.active.value and not vars.temp.value) or active is true or (active and total and active is total and not temp) or (active and not total)
+  if (not vars.active.value and not vars.temp.value) or active is true or (active and total and active >= total and not temp) or (active and not total)
     fetchColor vars, d
   else if vars.active.spotlight.value
     "#fafafa"
