@@ -303,11 +303,9 @@ module.exports = function(vars) {
 
               d3.select(this).style("cursor","pointer")
 
-              var x = start_x + (i*(vars.ui.padding+square_size)),
-                  y = d3.transform(d3.select(this.parentNode).attr("transform")).translate[1]
-
-              x += square_size/2
-              y += vars.ui.padding+square_size/2
+              var bounds = this.getBoundingClientRect(),
+                  x = bounds.left + square_size/2,
+                  y = bounds.top + square_size/2;
 
               var idIndex = vars.id.nesting.indexOf(colorKey)
                 , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), colorName, vars, d)
