@@ -1,6 +1,6 @@
 var copy       = require("../../../util/copy.coffee"),
     fetchColor = require("../../../core/fetch/color.coffee"),
-    shapeStyle = require("./style.coffee")
+    shapeStyle = require("./style.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ module.exports = function(vars,selection,enter,exit) {
       .attr("x",0)
       .attr("y",0)
       .attr("width",0)
-      .attr("height",0)
+      .attr("height",0);
 
   }
 
@@ -23,42 +23,42 @@ module.exports = function(vars,selection,enter,exit) {
   // The position and size of each rectangle on update.
   //----------------------------------------------------------------------------
   function update(nodes,mod) {
-    if (!mod) var mod = 0
+    if (!mod) mod = 0;
     nodes
       .attr("x",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return (-w/2)-(mod/2)
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+        return (-w/2)-(mod/2);
       })
       .attr("y",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return (-h/2)-(mod/2)
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+        return (-h/2)-(mod/2);
       })
       .attr("width",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return w+mod
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+        return w+mod;
       })
       .attr("height",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return h+mod
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+        return h+mod;
       })
       .attr("rx",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
-        return rounded ? (w+mod)/2 : 0
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0;
+        return rounded ? (w+mod)/2 : 0;
       })
       .attr("ry",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
-        return rounded ? (h+mod)/2 : 0
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0;
+        return rounded ? (h+mod)/2 : 0;
       })
       .attr("shape-rendering",function(d){
         if (["square"].indexOf(vars.shape.value) >= 0) {
-          return vars.shape.rendering.value
+          return vars.shape.rendering.value;
         }
         else {
-          return "auto"
+          return "auto";
         }
-      })
+      });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -71,7 +71,7 @@ module.exports = function(vars,selection,enter,exit) {
       "donut": {},
       "active": {},
       "temp": {}
-    }
+    };
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -81,50 +81,50 @@ module.exports = function(vars,selection,enter,exit) {
   var arc = d3.svg.arc()
     .startAngle(0)
     .endAngle(function(d){
-      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a
+      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a;
       return a > Math.PI*2 ? Math.PI*2 : a;
     })
     .innerRadius(function(d){
-      if (shape == "donut" && !d.d3plus.static) {
-        var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
-        return r * vars.data.donut.size
+      if (d.d3plus.shape === "donut" && !d.d3plus.static) {
+        var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
+        return r * vars.data.donut.size;
       }
       else {
-        return 0
+        return 0;
       }
     })
     .outerRadius(function(d){
-      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
-      if (d.d3plus.shape != "donut") return r*2
-      else return r
-    })
+      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
+      if (d.d3plus.shape != "donut") return r*2;
+      else return r;
+    });
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // This is the main "arcTween" function where all of the animation happens
   // for each arc.
   //----------------------------------------------------------------------------
   function size(path,mod,rad,ang) {
-    if (!mod) var mod = 0
-    if (typeof rad != "number") var rad = undefined
-    if (typeof ang != "number") var ang = undefined
+    if (!mod) mod = 0;
+    if (typeof rad != "number") rad = undefined;
+    if (typeof ang != "number") ang = undefined;
     path.attrTween("d", function(d){
-      if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
-      else var r = rad
-      if (ang == undefined) var a = d.d3plus.a[d.d3plus.shape]
-      else var a = ang
+      if (rad === undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height]);
+      else var r = rad;
+      if (ang === undefined) var a = d.d3plus.segments[d.d3plus.shape];
+      else var a = ang;
       if (!vars.arcs[d.d3plus.shape][d.d3plus.id]) {
-        vars.arcs[d.d3plus.shape][d.d3plus.id] = {"r": 0}
-        vars.arcs[d.d3plus.shape][d.d3plus.id].a = d.d3plus.shape == "donut" ? Math.PI * 2 : 0
+        vars.arcs[d.d3plus.shape][d.d3plus.id] = {"r": 0};
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = d.d3plus.shape === "donut" ? Math.PI * 2 : 0;
       }
       var radius = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].r,r+mod),
-          angle = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].a,a)
+          angle = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].a,a);
 
       return function(t) {
-        vars.arcs[d.d3plus.shape][d.d3plus.id].r = radius(t)
-        vars.arcs[d.d3plus.shape][d.d3plus.id].a = angle(t)
-        return arc(d)
-      }
-    })
+        vars.arcs[d.d3plus.shape][d.d3plus.id].r = radius(t);
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = angle(t);
+        return arc(d);
+      };
+    });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -136,23 +136,23 @@ module.exports = function(vars,selection,enter,exit) {
         temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
         total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total,
         group = d3.select(this),
-        color = fetchColor(vars,d)
+        color = fetchColor(vars,d);
 
-    var fill_data = [], hatch_data = []
+    var fill_data = [], hatch_data = [];
 
     if (total && vars.types[vars.type.value].fill) {
 
       if (temp) {
-        var c = copy(d)
-        c.d3plus.shape = "temp"
-        fill_data.push(c)
-        hatch_data = ["temp"]
+        var c = copy(d);
+        c.d3plus.shape = "temp";
+        fill_data.push(c);
+        hatch_data = ["temp"];
       }
 
       if (active && (active < total || temp)) {
-        var c = copy(d)
-        c.d3plus.shape = "active"
-        fill_data.push(c)
+        var c = copy(d);
+        c.d3plus.shape = "active";
+        fill_data.push(c);
       }
 
     }
@@ -161,28 +161,28 @@ module.exports = function(vars,selection,enter,exit) {
       l
         .attr("stroke",color)
         .attr("stroke-width",1)
-        .attr("shape-rendering",vars.shape.rendering.value)
+        .attr("shape-rendering",vars.shape.rendering.value);
     }
 
     var pattern = vars.defs.selectAll("pattern#d3plus_hatch_"+d.d3plus.id)
-      .data(hatch_data)
+      .data(hatch_data);
 
     if (vars.draw.timing) {
 
       pattern.selectAll("rect")
         .transition().duration(vars.draw.timing)
-        .style("fill",color)
+        .style("fill",color);
 
       pattern.selectAll("line")
         .transition().duration(vars.draw.timing)
-        .style("stroke",color)
+        .style("stroke",color);
 
     }
     else {
 
-      pattern.selectAll("rect").style("fill",color)
+      pattern.selectAll("rect").style("fill",color);
 
-      pattern.selectAll("line").style("stroke",color)
+      pattern.selectAll("line").style("stroke",color);
 
     }
 
@@ -193,7 +193,7 @@ module.exports = function(vars,selection,enter,exit) {
       .attr("y","0")
       .attr("width","10")
       .attr("height","10")
-      .append("g")
+      .append("g");
 
     pattern_enter.append("rect")
       .attr("x","0")
@@ -201,63 +201,63 @@ module.exports = function(vars,selection,enter,exit) {
       .attr("width","10")
       .attr("height","10")
       .attr("fill",color)
-      .attr("fill-opacity",0.25)
+      .attr("fill-opacity",0.25);
 
     pattern_enter.append("line")
       .attr("x1","0")
       .attr("x2","10")
       .attr("y1","0")
       .attr("y2","10")
-      .call(hatch_lines)
+      .call(hatch_lines);
 
     pattern_enter.append("line")
       .attr("x1","-1")
       .attr("x2","1")
       .attr("y1","9")
       .attr("y2","11")
-      .call(hatch_lines)
+      .call(hatch_lines);
 
     pattern_enter.append("line")
       .attr("x1","9")
       .attr("x2","11")
       .attr("y1","-1")
       .attr("y2","1")
-      .call(hatch_lines)
+      .call(hatch_lines);
 
-    var clip_data = fill_data.length ? [d] : []
+    var clip_data = fill_data.length ? [d] : [];
 
     var clip = group.selectAll("#d3plus_clip_"+d.d3plus.id)
-      .data(clip_data)
+      .data(clip_data);
 
     clip.enter().insert("clipPath",".d3plus_mouse")
       .attr("id","d3plus_clip_"+d.d3plus.id)
       .append("rect")
       .attr("class","d3plus_clipping")
-      .call(init)
+      .call(init);
 
     if (vars.draw.timing) {
 
       clip.selectAll("rect").transition().duration(vars.draw.timing)
-        .call(update)
+        .call(update);
 
       clip.exit().transition().delay(vars.draw.timing)
-        .remove()
+        .remove();
 
     }
     else {
 
-      clip.selectAll("rect").call(update)
+      clip.selectAll("rect").call(update);
 
-      clip.exit().remove()
+      clip.exit().remove();
 
     }
 
     var fills = group.selectAll("path.d3plus_fill")
-      .data(fill_data)
+      .data(fill_data);
 
     fills.transition().duration(vars.draw.timing)
       .call(shapeStyle,vars)
-      .call(size)
+      .call(size);
 
     fills.enter().insert("path","rect.d3plus_mouse")
       .attr("class","d3plus_fill")
@@ -266,12 +266,12 @@ module.exports = function(vars,selection,enter,exit) {
         .call(size,0,undefined,0)
         .call(shapeStyle,vars)
         .transition().duration(vars.draw.timing)
-          .call(size)
+          .call(size);
 
     fills.exit().transition().duration(vars.draw.timing)
       .call(size,0,undefined,0)
-      .remove()
+      .remove();
 
-  })
+  });
 
-}
+};
