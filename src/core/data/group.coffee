@@ -1,5 +1,6 @@
 fetchValue = require "../fetch/value.js"
-# Groups data into groups to use with D3 layouts. Helps prevent key name mismatches (parent, child, value, etc).
+# Groups data into groups to use with D3 layouts. Helps prevent key name
+# mismatches (parent, child, value, etc).
 module.exports = (vars, data, nesting) ->
 
   groupedData = d3.nest()
@@ -7,8 +8,9 @@ module.exports = (vars, data, nesting) ->
 
   for n, i in nesting
     if i < vars.depth.value
-      key = n
-      groupedData.key (d) -> fetchValue vars, d.d3plus, key
+      do (n) ->
+        groupedData.key (d) ->
+          fetchValue vars, d.d3plus, n
 
   strippedData = []
   for d in data
