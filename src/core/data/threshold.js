@@ -81,19 +81,21 @@ module.exports = function( vars , rawData , split ) {
       }
 
       if (allowed.indexOf(id) < 0) {
-        if (vars.depth.value == 0) {
-          if (val > cutoff) cutoff = val
+        if (val > 0) {
+          if (vars.depth.value === 0) {
+            if (val > cutoff) cutoff = val;
+          }
+          else {
+            var parent = d[vars.id.nesting[vars.depth.value-1]]
+            if (!(parent in cutoff)) cutoff[parent] = 0
+            if (val > cutoff[parent]) cutoff[parent] = val
+          }
+          removed.push(d);
         }
-        else {
-          var parent = d[vars.id.nesting[vars.depth.value-1]]
-          if (!(parent in cutoff)) cutoff[parent] = 0
-          if (val > cutoff[parent]) cutoff[parent] = val
-        }
-        removed.push(d)
-        return false
+        return false;
       }
       else {
-        return true
+        return true;
       }
 
     })
