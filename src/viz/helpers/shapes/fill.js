@@ -264,8 +264,8 @@ module.exports = function(vars,selection,enter,exit) {
       .attr("clip-path","url(#d3plus_clip_"+d.d3plus.id+")")
       .transition().duration(0)
         .call(size,0,undefined,0)
-        .call(shapeStyle,vars)
         .transition().duration(vars.draw.timing)
+          .call(shapeStyle,vars)
           .call(size);
 
     fills.exit().transition().duration(vars.draw.timing)
