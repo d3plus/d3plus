@@ -26,7 +26,7 @@ bubbles = (vars) ->
     columns     = Math.ceil(Math.sqrt(dataLength * screenRatio))
     rows        = Math.ceil(Math.sqrt(dataLength / screenRatio))
 
-  rows-- while (rows - 1) * columns >= vars.data.viz.length  if dataLength > 0
+  rows-- while (rows - 1) * columns >= dataLength if dataLength > 0
 
   column_width  = vars.width.viz / columns
   column_height = vars.height.viz / rows
