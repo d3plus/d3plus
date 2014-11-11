@@ -304,8 +304,8 @@ module.exports = function(vars) {
               d3.select(this).style("cursor","pointer")
 
               var bounds = this.getBoundingClientRect(),
-                  x = bounds.left + square_size/2,
-                  y = bounds.top + square_size/2;
+                  x = bounds.left + square_size/2 + window.scrollX,
+                  y = bounds.top + square_size/2 + window.scrollY;
 
               var idIndex = vars.id.nesting.indexOf(colorKey)
                 , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), colorName, vars, d)
