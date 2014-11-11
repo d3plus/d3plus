@@ -44,13 +44,13 @@ module.exports = function(params) {
   }
 
   if (params.parent.node() === document.body) {
-    params.limit = [window.innerWidth, window.innerHeight];
+    params.limit = [window.innerWidth + window.scrollX, window.innerHeight + window.scrollY];
   }
   else {
     params.limit = [
       parseFloat(params.parent.style("width"),10),
       parseFloat(params.parent.style("height"),10)
-    ]; 
+    ];
   }
 
   if ( params.title instanceof Array ) {

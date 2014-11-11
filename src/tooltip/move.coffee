@@ -26,7 +26,7 @@ module.exports = (x, y, id) ->
         if d.anchor.y is "bottom"
           d.flip = d.cy + d.height + d.offset <= d.limit[1]
         else
-          d.flip = d.cy - d.height - d.offset < 0  if d.anchor.y is "top"
+          d.flip = d.cy - d.height - d.offset < window.scrollY  if d.anchor.y is "top"
 
         if d.flip
           d.y = d.cy + d.offset + d.arrow_offset
@@ -41,7 +41,7 @@ module.exports = (x, y, id) ->
         if d.anchor.x is "right"
           d.flip = d.cx + d.width + d.offset <= d.limit[0]
         else
-          d.flip = d.cx - d.width - d.offset < 0  if d.anchor.x is "left"
+          d.flip = d.cx - d.width - d.offset < window.scrollX  if d.anchor.x is "left"
 
         if d.anchor.x is "center"
           d.flip = false
@@ -52,14 +52,14 @@ module.exports = (x, y, id) ->
           d.x = d.cx - d.width - d.offset
 
       # Limit X to the bounds of the screen
-      if d.x < 0
-        d.x = 0
+      if d.x < window.scrollX
+        d.x = window.scrollX
       else
         d.x = d.limit[0] - d.width  if d.x + d.width > d.limit[0]
 
       # Limit Y to the bounds of the screen
-      if d.y < 0
-        d.y = 0
+      if d.y < window.scrollY
+        d.y = window.scrollY
       else
         d.y = d.limit[1] - d.height  if d.y + d.height > d.limit[1]
 
