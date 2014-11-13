@@ -12,7 +12,7 @@ tree_map = (vars) ->
     .round true
     .size [vars.width.viz, vars.height.viz]
     .children (d) -> d.values
-    .padding 1
+    .padding vars.data.padding.value
     .sort (a, b) ->
       sizeDiff = a.value - b.value
       if sizeDiff is 0 then a.id < b.id else sizeDiff

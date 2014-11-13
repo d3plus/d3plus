@@ -134,7 +134,7 @@ module.exports = ->
     container:  require "./methods/container.coffee"
     coords:     require "./methods/coords.coffee"
     csv:        require "./methods/csv.coffee"
-    data:       require "./methods/data.js"
+    data:       require "./methods/data.coffee"
     depth:      require "./methods/depth.coffee"
     descs:      require "./methods/descs.coffee"
     dev:        require "./methods/dev.coffee"
