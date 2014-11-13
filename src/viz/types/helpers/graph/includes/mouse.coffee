@@ -1,7 +1,7 @@
 copy       = require "../../../../../util/copy.coffee"
 events     = require "../../../../../client/pointer.coffee"
 fetchColor = require "../../../../../core/fetch/color.coffee"
-fetchValue = require "../../../../../core/fetch/value.js"
+fetchValue = require "../../../../../core/fetch/value.coffee"
 legible    = require "../../../../../color/legible.coffee"
 
 module.exports = (node, vars) ->

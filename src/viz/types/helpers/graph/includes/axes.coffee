@@ -1,6 +1,6 @@
 buffer     = require "./buffer.coffee"
 fetchData  = require "../../../../../core/fetch/data.js"
-fetchValue = require "../../../../../core/fetch/value.js"
+fetchValue = require "../../../../../core/fetch/value.coffee"
 print      = require "../../../../../core/console/print.coffee"
 uniques    = require "../../../../../util/uniques.coffee"
 

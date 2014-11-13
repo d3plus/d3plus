@@ -2,19 +2,19 @@ var dataFilter = require("../data/filter.js"),
     dataNest     = require("../data/nest.js"),
     print        = require("../console/print.coffee"),
     stringFormat = require("../../string/format.js"),
-    stringList   = require("../../string/list.coffee")
+    stringList   = require("../../string/list.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches specific years of data
 //-------------------------------------------------------------------
 module.exports = function(vars, years, depth) {
 
-  if (!vars.data.value) return []
+  if (!vars.data.value) return [];
 
-  if (depth === undefined) var depth = vars.depth.value
-  var nestLevel = vars.id.nesting[depth]
+  if (depth === undefined) depth = vars.depth.value;
+  var nestLevel = vars.id.nesting[depth];
 
-  if (years && !(years instanceof Array)) years = [years]
+  if (years && !(years instanceof Array)) years = [years];
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time()
@@ -22,8 +22,8 @@ module.exports = function(vars, years, depth) {
   //----------------------------------------------------------------------------
   if ( !years && "time" in vars ) {
 
-    var key   = vars.time.solo.value.length ? "solo" : "mute"
-      , years = []
+    var key = vars.time.solo.value.length ? "solo" : "mute";
+    years = [];
 
     if ( vars.time[key].value.length ) {
 

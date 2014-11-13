@@ -1,5 +1,5 @@
 var copy = require("../../../util/copy.coffee"),
-    fetchValue   = require("../../../core/fetch/value.js"),
+    fetchValue   = require("../../../core/fetch/value.coffee"),
     fetchColor   = require("../../../core/fetch/color.coffee"),
     fetchText    = require("../../../core/fetch/text.js"),
     legible      = require("../../../color/legible.coffee"),

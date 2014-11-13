@@ -1,4 +1,4 @@
-fetchValue = require "./value.js"
+fetchValue = require "./value.coffee"
 fetchColor = require "./color.coffee"
 fetchText  = require "./text.js"
 

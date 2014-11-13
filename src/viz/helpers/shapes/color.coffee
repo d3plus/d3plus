@@ -1,4 +1,4 @@
-fetchValue = require "../../../core/fetch/value.js"
+fetchValue = require "../../../core/fetch/value.coffee"
 fetchColor = require "../../../core/fetch/color.coffee"
 lighter    = require "../../../color/lighter.coffee"
 

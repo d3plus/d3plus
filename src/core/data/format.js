@@ -1,5 +1,5 @@
 var dataNest   = require("./nest.js"),
-    fetchValue = require("../fetch/value.js"),
+    fetchValue = require("../fetch/value.coffee"),
     print      = require("../console/print.coffee"),
     uniques    = require("../../util/uniques.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

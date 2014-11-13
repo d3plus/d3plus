@@ -1,13 +1,10 @@
-fetchValue  = require "./value.js"
+fetchValue  = require "./value.coffee"
 randomColor = require "../../color/random.coffee"
 validColor  = require "../../color/validate.coffee"
 validObject = require "../../object/validate.coffee"
 
 # Finds an object's color and returns random if it cannot be found
 module.exports = (vars, id, level) ->
-
-  if validObject(id) and id.d3plus and id.d3plus.color and !vars.color.changed
-    return id.d3plus.color
 
   getRandom = (c) ->
     c = fetchValue(vars, c, level) if validObject(c)
@@ -47,6 +44,4 @@ module.exports = (vars, id, level) ->
 
     returnColor = if colors.length is 1 then colors[0] else vars.color.missing
 
-  if validObject(id) and id.d3plus
-    id.d3plus.color = returnColor
   returnColor

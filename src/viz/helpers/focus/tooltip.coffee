@@ -1,5 +1,5 @@
 createTooltip = require "../tooltip/create.js"
-fetchValue    = require "../../../core/fetch/value.js"
+fetchValue    = require "../../../core/fetch/value.coffee"
 print         = require "../../../core/console/print.coffee"
 removeTooltip = require "../../../tooltip/remove.coffee"
 

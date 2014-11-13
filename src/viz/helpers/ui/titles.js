@@ -1,5 +1,5 @@
 var events = require("../../../client/pointer.coffee"),
-    fetchValue = require("../../../core/fetch/value.js"),
+    fetchValue = require("../../../core/fetch/value.coffee"),
     print      = require("../../../core/console/print.coffee"),
     rtl        = require("../../../client/rtl.coffee"),
     textWrap   = require("../../../textwrap/textwrap.coffee")

@@ -1,6 +1,6 @@
 var arraySort = require("../../array/sort.coffee"),
     dataNest   = require("./nest.js"),
-    fetchValue = require("../fetch/value.js"),
+    fetchValue = require("../fetch/value.coffee"),
     fetchColor = require("../fetch/color.coffee"),
     fetchText  = require("../fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

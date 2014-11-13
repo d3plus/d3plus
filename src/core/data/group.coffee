@@ -1,4 +1,4 @@
-fetchValue = require "../fetch/value.js"
+fetchValue = require "../fetch/value.coffee"
 # Groups data into groups to use with D3 layouts. Helps prevent key name
 # mismatches (parent, child, value, etc).
 module.exports = (vars, data, nesting) ->

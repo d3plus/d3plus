@@ -1,4 +1,4 @@
-fetchValue   = require "../../../../core/fetch/value.js"
+fetchValue   = require "../../../../core/fetch/value.coffee"
 stringStrip  = require "../../../../string/strip.js"
 uniqueValues = require "../../../../util/uniques.coffee"
 

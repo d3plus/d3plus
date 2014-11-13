@@ -1,7 +1,7 @@
 var arraySort     = require("../../array/sort.coffee"),
     events        = require("../../client/pointer.coffee"),
     distances     = require("../../network/distances.coffee"),
-    fetchValue    = require("../../core/fetch/value.js"),
+    fetchValue    = require("../../core/fetch/value.coffee"),
     fetchColor    = require("../../core/fetch/color.coffee"),
     legible       = require("../../color/legible.coffee"),
     removeTooltip = require("../../tooltip/remove.coffee"),

@@ -1,4 +1,4 @@
-fetchValue     = require "../core/fetch/value.js"
+fetchValue     = require "../core/fetch/value.coffee"
 objectValidate = require "../object/validate.coffee"
 
 # Returns list of unique values

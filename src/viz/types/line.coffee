@@ -1,4 +1,4 @@
-fetchValue = require "../../core/fetch/value.js"
+fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
 dataTicks  = require "./helpers/graph/dataTicks.coffee"
 nest       = require "./helpers/graph/nest.coffee"

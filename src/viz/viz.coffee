@@ -1,9 +1,10 @@
-attach    = require "../core/methods/attach.coffee"
-axis      = require "./methods/helpers/axis.coffee"
-flash     = require "./helpers/ui/message.js"
-getSteps  = require "./helpers/drawSteps.js"
-print     = require "../core/console/print.coffee"
-container = require "./helpers/container.coffee"
+attach      = require "../core/methods/attach.coffee"
+axis        = require "./methods/helpers/axis.coffee"
+flash       = require "./helpers/ui/message.js"
+getSteps    = require "./helpers/drawSteps.js"
+print       = require "../core/console/print.coffee"
+container   = require "./helpers/container.coffee"
+validObject = require "../object/validate.coffee"
 
 module.exports = ->
 
@@ -173,5 +174,10 @@ module.exports = ->
     x:          axis "x"
     y:          axis "y"
     zoom:       require "./methods/zoom.js"
+
+  vars.methods = d3.keys(vars).filter (m) ->
+    if validObject(vars[m]) and vars[m].objectAccess isnt false
+      return "value" of vars[m] and "accepted" of vars[m]
+    false
 
   vars.self
