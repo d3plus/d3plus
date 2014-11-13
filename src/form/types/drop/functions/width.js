@@ -61,7 +61,7 @@ module.exports = function ( vars ) {
 
     var w = []
     button.selectAll("div.d3plus_node").each(function(o){
-      w.push(this.offsetWidth)
+      w.push(this.offsetWidth + 1)
     }).remove()
 
     var dropWidth = {}
