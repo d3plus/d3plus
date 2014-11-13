@@ -26,7 +26,7 @@ module.exports = (vars) ->
     order.value = (if vars.text.solo.value.length and vars.text.solo.value[0] isnt "" then "d3plus_order" else vars.order.value)
     deepest     = vars.depth.value is vars.id.nesting.length - 1
 
-    if vars.focus.changed or not vars.container.items.focus().length
+    if vars.focus.changed or vars.container.items.focus() is false
 
       vars.container.items
         .focus vars.focus.value, (value) ->
