@@ -36,7 +36,7 @@ fetch = (vars, node, variable, depth) ->
         if vars[m].changed
           changed = true
           break
-      if d3plus of node and variable of node.d3plus.data and !changed
+      if d3plus of node and "data" of node.d3plus and variable of node.d3plus.data and !changed
         return node.d3plus.data[variable]
 
     node = node[depth]
@@ -89,6 +89,7 @@ module.exports = (vars, node, variable, depth) ->
 
   if (nodeObject and typeof variable is "string" and
       variable not of node and "d3plus" of node)
+    node.d3plus.data = {} unless "data" of node.d3plus
     node.d3plus.data[variable] = val
 
   if val instanceof Array and val.length is 1 then val[0] else val
