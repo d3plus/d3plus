@@ -96,10 +96,13 @@ createFunction = (vars, key) ->
           else
             for m of o
               checkFont o[m], a, v, false if m isnt "font" or start isnt true
+              if start
+                checkFont o.font.secondary, a, v, false
         return
       for fontAttr, fontAttrValue of user
-        fontAttrValue = fontAttrValue.value if validObject(fontAttrValue)
-        checkFont vars, fontAttr, fontAttrValue, true if fontAttrValue
+        if fontAttr isnt "secondary"
+          fontAttrValue = fontAttrValue.value if validObject(fontAttrValue)
+          checkFont vars, fontAttr, fontAttrValue, true if fontAttrValue
 
     # Object
     checkObject vars, key, vars, key, user
