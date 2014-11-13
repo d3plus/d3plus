@@ -85,7 +85,7 @@ module.exports = function( vars ) {
 
       if (validObject(o)) {
         obj.id   = o[d3.keys(o)[0]];
-        obj.text = d3.keys(o)[0];
+        obj.text = vars.format.value(d3.keys(o)[0]);
       }
       else {
         obj.id   = o;
