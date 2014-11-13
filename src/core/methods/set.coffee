@@ -107,12 +107,12 @@ module.exports = (vars, method, object, key, value) ->
       vars.data.filters.push method if key is "value" and object.dataFilter and vars.data and vars.data.filters.indexOf(method) < 0
 
       # Display console message, if applicable.
-      if (vars.dev.value or key is "dev") and object.changed and object[key] isnt undefined
+      if vars.dev.value and object.changed and object[key] isnt undefined
         longArray    = object[key] instanceof Array and object[key].length > 10
         d3object     = d3selection(object[key])
         typeFunction = typeof object[key] is "function"
         valString    = (if not longArray and not d3object and not typeFunction then (if typeof object[key] is "string" then object[key] else JSON.stringify(object[key])) else null)
-        if (vars.dev.value or (key is "dev" and user)) and not vars.methodGroup and vars.methodGroup isnt "wait"
+        if vars.dev.value and not vars.methodGroup and vars.methodGroup isnt "wait"
           vars.methodGroup = true
           print.groupCollapsed "method behavior"
         if valString isnt null and valString.length < 260
