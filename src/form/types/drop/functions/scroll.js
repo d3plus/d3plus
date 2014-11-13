@@ -15,8 +15,6 @@ module.exports = function ( vars ) {
 
     if (hidden) vars.container.selector.style("display","block")
 
-    var searchHeight = vars.search.enabled ? vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height : 0
-
     var old_height = vars.container.selector.style("height"),
         old_scroll = vars.container.selector.property("scrollTop"),
         list_height = vars.container.list.style("max-height"),
@@ -81,8 +79,8 @@ module.exports = function ( vars ) {
         if (button_top < list_top) {
           vars.container.listScroll = button_top
         }
-        else if (button_top+button_height > list_top+vars.height.secondary-searchHeight) {
-          vars.container.listScroll = button_top - (vars.height.secondary-button_height-searchHeight)
+        else if (button_top+button_height > list_top+vars.height.secondary-vars.search.height) {
+          vars.container.listScroll = button_top - (vars.height.secondary-button_height-vars.search.height)
         }
 
       }

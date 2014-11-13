@@ -119,7 +119,7 @@ module.exports = function ( vars ) {
 
   }
 
-  var max_height = vars.open.value ? vars.height.secondary-vars.margin.title : 0
+  var max_height = vars.open.value ? vars.height.secondary - vars.margin.title: 0;
 
   if (!vars.draw.timing) {
 
@@ -127,8 +127,8 @@ module.exports = function ( vars ) {
 
     vars.container.list
       .style("width",vars.width.secondary-vars.ui.border*2+"px")
-      .style("max-height",max_height+"px")
-      .property("scrollTop",vars.container.listScroll)
+      .style("max-height", max_height + "px")
+      .property("scrollTop",vars.container.listScroll);
 
   }
   else {

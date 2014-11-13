@@ -82,8 +82,13 @@ module.exports = function ( vars ) {
 
   vars.container.search.exit().remove()
 
+  if (!vars.open.value) {
+    vars.search.height = vars.search.enabled ? vars.container.search.node().offsetHeight || 
+                         vars.container.search.node().getBoundingClientRect().height : 0;
+  }
+
   if ( vars.search.enabled ) {
-    vars.margin.title += vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height
+    vars.margin.title += vars.search.height
   }
 
   if ( vars.dev.value ) print.timeEnd("creating search")
