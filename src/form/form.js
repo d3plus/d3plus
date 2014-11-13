@@ -68,7 +68,7 @@ module.exports = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( !vars.focus.value ) {
+      if ( vars.focus.value === false ) {
 
         var element = vars.data.element.value;
 
@@ -80,7 +80,7 @@ module.exports = function() {
           if (val) vars.focus.value = val;
         }
 
-        if ( !vars.focus.value && vars.data.viz.length ) {
+        if ( vars.focus.value === false && vars.data.viz.length ) {
           vars.focus.value = vars.data.viz[0][vars.id.value];
         }
 
