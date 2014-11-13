@@ -61,6 +61,7 @@ module.exports = function( vars ) {
 
       d.form = form()
         .container(container)
+        .data({"sort": false})
         .focus(focus, callback)
         .id("id")
         .text("text");
