@@ -116,7 +116,7 @@ createFunction = (vars, key) ->
 # Detects is we should set the object or check all keys of object.
 checkObject = (vars, method, object, key, value) ->
 
-  if ["accepted", "previous"].indexOf(key) < 0
+  if ["accepted", "changed", "initialized", "previous", "process"].indexOf(key) < 0
 
     # Determine whether or not to just set the local variable or to dig into
     # the object passed looking for keys.

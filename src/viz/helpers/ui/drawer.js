@@ -97,7 +97,8 @@ module.exports = function( vars ) {
     });
 
     var font = copy(vars.ui.font);
-    font.secondary = vars.ui.font;
+    font.align = copy(vars.font.align);
+    font.secondary = copy(font);
 
     d.form
       .data(data)
