@@ -117,22 +117,24 @@ module.exports = function(vars,selection,enter,exit) {
         var style = {
           "font-weight": vars.labels.font.weight,
           "font-family": vars.labels.font.family.value
-        }
+        };
 
         if (names[0].split(" ").length === 1) {
-          var size = fontSizes(names[0],style)[0]
-            , ratio = size.width/size.height
+          var size = fontSizes(names[0],style)[0],
+              ratio = size.width/size.height;
         }
         else {
-          var ratio = null
+          var ratio = null;
         }
 
         var rect = largestRect(path,{
           "angle": 0,
           "aspectRatio": ratio
-        })[0]
+        });
 
         if (rect) {
+
+          rect = rect[0];
 
           var label = {
             "anchor": "middle",
