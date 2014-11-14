@@ -14,4 +14,4 @@ module.exports =
     accepted:   [Object, String]
     deprecates: "icon_style"
     value:      "default"
-  value: "icon"
+  value: false
