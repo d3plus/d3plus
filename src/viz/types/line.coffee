@@ -11,6 +11,9 @@ line = (vars) ->
     buffer: vars.axes.opposite
     mouse:  true
 
+  domains = vars.x.domain.viz.concat vars.y.domain.viz
+  return [] if domains.indexOf(undefined) >= 0
+
   data = nest vars
 
   # Assign x and y to each data point

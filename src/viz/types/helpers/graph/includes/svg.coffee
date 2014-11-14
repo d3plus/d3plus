@@ -2,6 +2,9 @@ mix = require "../../../../../color/mix.coffee"
 
 module.exports = (vars) ->
 
+  domains = vars.x.domain.viz.concat vars.y.domain.viz
+  return null if domains.indexOf(undefined) >= 0
+
   bgStyle =
     width:  vars.axes.width
     height: vars.axes.height

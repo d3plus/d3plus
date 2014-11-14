@@ -12,6 +12,9 @@ scatter = (vars) ->
     buffer: "size"
     mouse:  true
 
+  domains = vars.x.domain.viz.concat vars.y.domain.viz
+  return [] if domains.indexOf(undefined) >= 0
+
   # Assign x, y, and radius to each data point
   for d in vars.data.viz
     d.d3plus.x  = vars.x.scale.viz fetchValue(vars, d, vars.x.value)

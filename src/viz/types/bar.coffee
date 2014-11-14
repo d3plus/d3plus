@@ -13,13 +13,12 @@ bar = (vars) ->
   cMargin  = if discrete is "x" then "left" else "top"
   oMargin  = if discrete is "x" then "top" else "left"
 
-  data = vars.data.viz.filter (d) -> fetchValue vars, d, vars[opposite].value
-
-  return [] unless data.length
-
   graph vars,
     buffer: true
     zero:   vars.axes.opposite
+
+  domains = vars.x.domain.viz.concat vars.y.domain.viz
+  return [] if domains.indexOf(undefined) >= 0
 
   nested = nest vars, data
 

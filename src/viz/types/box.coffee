@@ -8,6 +8,9 @@ box = (vars) ->
     buffer: true
     mouse:  true
 
+  domains = vars.x.domain.viz.concat vars.y.domain.viz
+  return [] if domains.indexOf(undefined) >= 0
+
   discrete  = vars.axes.discrete
   opposite  = vars.axes.opposite
   disMargin = if discrete is "x" then vars.axes.margin.left else vars.axes.margin.top
