@@ -125,6 +125,6 @@ module.exports = (vars, method, object, key, value) ->
     # If there is a callback function not associated with a URL, run it.
     if key is "value" and object.callback and not object.url
       callback = if typeof object.callback is "function" then object.callback else object.callback.value
-      callback value if callback
+      callback value, vars if callback
 
   return
