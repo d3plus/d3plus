@@ -1,5 +1,6 @@
 var copy       = require("../../../util/copy.coffee"),
     fetchText  = require("../../../core/fetch/text.js"),
+    fetchValue = require("../../../core/fetch/value.coffee"),
     mix        = require("../../../color/mix.coffee"),
     print      = require("../../../core/console/print.coffee"),
     rtl        = require("../../../client/rtl.coffee"),
@@ -274,7 +275,10 @@ module.exports = function( vars , group ) {
           var background = true
         }
         else if (d && "d3plus" in d) {
-          var background = (!d.d3plus.temp && !d.d3plus.active) || (d.d3plus.active === d.d3plus.total)
+          var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
+              temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
+              total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total,
+              background = (!temp && !active) || (active === total)
         }
 
       }

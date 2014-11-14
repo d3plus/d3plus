@@ -132,9 +132,9 @@ module.exports = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
   selection.each(function(d){
 
-    var active = d.d3plus.active,
-        temp  = d.d3plus.temp,
-        total = d.d3plus.total,
+    var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
+        temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
+        total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total,
         group = d3.select(this),
         color = fetchColor(vars,d);
 

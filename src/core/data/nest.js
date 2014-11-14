@@ -133,7 +133,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
           if ( vars[c].value ) {
 
-            a = fetchValue(vars,d,vars[c].value);
+            a = fetchValue(vars, d, vars[c].value);
 
             if ( typeof a !== "number" ) a = a ? 1 : 0;
 
