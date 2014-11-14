@@ -12,6 +12,11 @@ module.exports = (x, y, id) ->
 
     unless d.fixed
 
+      if d.parent.node().tagName.toLowerCase() is "body"
+        mins = [window.scrollX, window.scrollY]
+      else
+        mins = [0, 0]
+
       # Set initial values, based off of anchor
       unless d.anchor.y is "center"
 
@@ -20,13 +25,13 @@ module.exports = (x, y, id) ->
         else if d.anchor.x is "center"
           d.x = d.cx - d.width / 2
         else
-          d.x = d.cx - d.width + d.arrow_offset + 2  if d.anchor.x is "left"
+          d.x = d.cx - d.width + d.arrow_offset + 2 if d.anchor.x is "left"
 
         # Determine whether or not to flip the tooltip
         if d.anchor.y is "bottom"
           d.flip = d.cy + d.height + d.offset <= d.limit[1]
         else
-          d.flip = d.cy - d.height - d.offset < window.scrollY  if d.anchor.y is "top"
+          d.flip = d.cy - d.height - d.offset < mins[1] if d.anchor.y is "top"
 
         if d.flip
           d.y = d.cy + d.offset + d.arrow_offset
@@ -41,7 +46,7 @@ module.exports = (x, y, id) ->
         if d.anchor.x is "right"
           d.flip = d.cx + d.width + d.offset <= d.limit[0]
         else
-          d.flip = d.cx - d.width - d.offset < window.scrollX  if d.anchor.x is "left"
+          d.flip = d.cx - d.width - d.offset < mins[0] if d.anchor.x is "left"
 
         if d.anchor.x is "center"
           d.flip = false
@@ -52,16 +57,16 @@ module.exports = (x, y, id) ->
           d.x = d.cx - d.width - d.offset
 
       # Limit X to the bounds of the screen
-      if d.x < window.scrollX
-        d.x = window.scrollX
+      if d.x < mins[0]
+        d.x = mins[0]
       else
-        d.x = d.limit[0] - d.width  if d.x + d.width > d.limit[0]
+        d.x = d.limit[0] - d.width if d.x + d.width > d.limit[0]
 
       # Limit Y to the bounds of the screen
-      if d.y < window.scrollY
-        d.y = window.scrollY
+      if d.y < mins[1]
+        d.y = mins[1]
       else
-        d.y = d.limit[1] - d.height  if d.y + d.height > d.limit[1]
+        d.y = d.limit[1] - d.height if d.y + d.height > d.limit[1]
 
     tooltip
       .style "top", d.y + "px"

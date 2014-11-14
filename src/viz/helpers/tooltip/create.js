@@ -74,7 +74,8 @@ module.exports = function(params) {
       x = vars.zoom.translate[0]+x*vars.zoom.scale;
     }
     x += vars.margin.left;
-    if (vars.tooltip.small) {
+    if (params.length !== "long") {
+      y += window.scrollX;
       x += vars.container.value.node().getBoundingClientRect().left;
     }
   }
@@ -91,7 +92,8 @@ module.exports = function(params) {
       y = vars.zoom.translate[1]+y*vars.zoom.scale;
     }
     y += vars.margin.top;
-    if (vars.tooltip.small) {
+    if (params.length !== "long") {
+      y += window.scrollY;
       y += vars.container.value.node().getBoundingClientRect().top;
     }
   }
@@ -244,7 +246,7 @@ module.exports = function(params) {
         var width = vars.tooltip.small
       }
 
-      var parent = vars.tooltip.small ? d3.select("body") : vars.container.value
+      var parent = params.length !== "long" ? d3.select("body") : vars.container.value
 
       createTooltip({
         "align": align,
