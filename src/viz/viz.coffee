@@ -175,9 +175,4 @@ module.exports = ->
     y:          axis "y"
     zoom:       require "./methods/zoom.js"
 
-  vars.methods = d3.keys(vars).filter (m) ->
-    if validObject(vars[m]) and vars[m].objectAccess isnt false
-      return "value" of vars[m] and "accepted" of vars[m]
-    false
-
   vars.self

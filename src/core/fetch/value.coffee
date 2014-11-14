@@ -29,15 +29,8 @@ fetch = (vars, node, variable, depth) ->
       return node[variable]
 
     # Checks if the variable has already been fetched.
-    method = vars.methods.filter (m) -> vars[m].value is variable
-    if method.length
-      changed = false
-      for m in method
-        if vars[m].changed
-          changed = true
-          break
-      if d3plus of node and "data" of node.d3plus and variable of node.d3plus.data and !changed
-        return node.d3plus.data[variable]
+    if "d3plus" of node and "data" of node.d3plus and variable of node.d3plus.data
+      return node.d3plus.data[variable]
 
     node = node[depth]
 
