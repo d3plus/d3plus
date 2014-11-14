@@ -37,9 +37,11 @@ module.exports = (vars, id, level) ->
         value = fetchValue(vars, o, vars.color.value, colorLevel)
       else
         value = id
-      if value isnt undefined and value isnt null
+
+      if !(value instanceof Array) and value isnt undefined and value isnt null
         color = getColor(value)
-        colors.push color  if colors.indexOf(color) < 0
+        colors.push color if colors.indexOf(color) < 0
+        break
       i--
 
     returnColor = if colors.length is 1 then colors[0] else vars.color.missing
