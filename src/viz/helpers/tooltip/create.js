@@ -5,6 +5,7 @@ var arraySort     = require("../../../array/sort.coffee"),
     fetchText     = require("../../../core/fetch/text.js"),
     fetchValue    = require("../../../core/fetch/value.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
+    uniques       = require("../../../util/uniques.coffee"),
     validObject   = require("../../../object/validate.coffee"),
     zoomDirection = require("../zoom/direction.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -209,10 +210,15 @@ module.exports = function(params) {
 
     var depth = "depth" in params ? params.depth : dataDepth,
         title = params.title || fetchText(vars,d,depth)[0],
-        icon = fetchValue(vars,d,vars.icon.value,vars.id.nesting[depth]),
+        icon = uniques(d, vars.icon.value, fetchValue, vars, vars.id.nesting[depth]),
         tooltip_data = fetchData(vars,d,length,ex,children,depth)
 
-    if (icon === "null") icon = false
+    if (icon.length === 1 && icon[0] !== null) {
+      icon = icon[0]
+    }
+    else {
+      icon = false
+    }
 
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && (!("visible" in d.d3plus_label) || ("visible" in d.d3plus_label && d.d3plus_label.visible === false))))) {
 

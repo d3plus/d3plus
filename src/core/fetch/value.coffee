@@ -82,15 +82,21 @@ fetch = (vars, node, variable, depth) ->
   if nodeObject and node.values instanceof Array
     val = []
     for item in node.values
-      val.push find vars, item, variable, depth
+      v = uniqueValues find vars, item, variable, depth
+      v = v[0] if v.length is 1
+      val.push v
   else if node instanceof Array
     val = []
     for item in node
-      val.push find vars, item, variable, depth
+      v = uniqueValues find vars, item, variable, depth
+      v = v[0] if v.length is 1
+      val.push v
   else if nodeObject and node[vars.id.value] instanceof Array
     val = []
     for item in node[vars.id.value]
-      val.push find vars, item, variable, depth
+      v = uniqueValues find vars, item, variable, depth
+      v = v[0] if v.length is 1
+      val.push v
   else
     val = find vars, node, variable, depth
 

@@ -161,11 +161,11 @@ module.exports = function(vars) {
 
               d3.select(this.parentNode).select("text").remove();
 
-              var icon = fetchValue(vars, g, vars.icon.value, colorKey),
+              var icon = uniqueValues(g, vars.icon.value, fetchValue, vars, colorKey),
                   color = fetchColor(vars, g, colorKey);
 
-              if (icon && icon !== "null") {
-
+              if (icon.length === 1 && icon[0] !== null) {
+                icon = icon[0];
                 var short_url = stringStrip(icon+"_"+color),
                     iconStyle = vars.icon.style.value,
                     pattern = vars.defs.selectAll("pattern#"+short_url)
