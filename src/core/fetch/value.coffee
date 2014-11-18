@@ -7,9 +7,7 @@ uniqueValues = require "../../util/uniques.coffee"
 find = (vars, node, variable, depth) ->
 
   return variable node, vars if typeof variable is "function"
-  return variable if typeof variable is "number"
 
-  depth      = vars.id.value unless depth
   nodeObject = validObject node
 
   # Checks inside the "node" variable if it is an object. If the variable is not
@@ -21,10 +19,8 @@ find = (vars, node, variable, depth) ->
       return node[variable]
 
     # Checks if the variable has already been fetched.
-    if "d3plus" of node and
-       "data" of node.d3plus and
-       variable of node.d3plus.data
-      return node.d3plus.data[variable]
+    if variable of node.d3plus.data[depth]
+      return node.d3plus.data[depth][variable]
 
     node = fetch vars, node, depth
 
@@ -73,12 +69,15 @@ filterArray = (arr, node, depth) ->
 fetch = (vars, node, variable, depth) ->
 
   return null unless variable
+  return variable if typeof variable is "number"
 
   nodeObject = validObject node
+  depth = vars.id.value unless depth
 
   if nodeObject
     node.d3plus = {} unless "d3plus" of node
     node.d3plus.data = {} unless "data" of node.d3plus
+    node.d3plus.data[depth] = {} unless depth of node.d3plus.data
 
   if nodeObject and node.values instanceof Array
     val = []
@@ -100,7 +99,7 @@ fetch = (vars, node, variable, depth) ->
   if val isnt null and nodeObject and
      typeof variable is "string" and
      variable not of node
-    node.d3plus.data[variable] = val
+    node.d3plus.data[depth][variable] = val
 
   val
 

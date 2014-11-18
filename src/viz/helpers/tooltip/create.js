@@ -116,13 +116,13 @@ module.exports = function(params) {
 
   function make_tooltip(html) {
 
-    var ex = {}
-      , children = {}
-      , depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth+1 : dataDepth
-      , nestKey   = vars.id.nesting[depth]
-      , nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey]
-      , dataValue = fetchValue( vars , d , vars.size.value )
-      , same = (!(nameList instanceof Array) || (nameList instanceof Array && nameList.length === 1)) && depth === vars.depth.value
+    var ex = {},
+        children = {},
+        depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth+1 : dataDepth,
+        nestKey   = vars.id.nesting[depth],
+        nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey],
+        dataValue = fetchValue( vars , d , vars.size.value ),
+        same = (!(nameList instanceof Array) || (nameList instanceof Array && nameList.length === 1)) && depth === vars.depth.value;
 
     if ( !same && vars.tooltip.children.value ) {
 
@@ -152,10 +152,10 @@ module.exports = function(params) {
 
         for ( var i = 0 ; i < max ; i++ ) {
 
-          var id    = nameList[i]
-            , name  = fetchText( vars , id , depth )[0]
-            , value = fetchValue( vars , id , vars.size.value , nestKey )
-            , color = fetchColor( vars , id , nestKey )
+          var id    = nameList[i],
+              name  = fetchText(vars, id, depth)[0],
+              value = fetchValue(vars, id, vars.size.value, nestKey),
+              color = fetchColor(vars, id, nestKey);
 
           children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
 
