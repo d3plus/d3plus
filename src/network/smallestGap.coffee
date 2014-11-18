@@ -1,7 +1,8 @@
 # Returns distances of all objects in array
 module.exports = (arr, accessor) ->
 
-  distance = false
+  distances = []
+
   quad = d3.geom.quadtree()
     .x (d) -> if accessor then accessor(d)[0] else d.x
     .y (d) -> if accessor then accessor(d)[1] else d.y
@@ -16,8 +17,7 @@ module.exports = (arr, accessor) ->
               node2 = n2.point
               xx = Math.abs node1.x - node2.x
               yy = Math.abs node1.y - node2.y
-              d = Math.sqrt((xx * xx) + (yy * yy))
-              distance = d if distance is false or d < distance
+              distances.push Math.sqrt((xx * xx) + (yy * yy))
     false
 
-  distance
+  d3.min distances
