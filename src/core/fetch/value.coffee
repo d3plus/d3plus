@@ -18,6 +18,8 @@ find = (vars, node, variable, depth) ->
     if variable of node
       return node[variable]
 
+    cacheInit node, depth
+
     # Checks if the variable has already been fetched.
     if variable of node.d3plus.data[depth]
       return node.d3plus.data[depth][variable]
@@ -34,12 +36,12 @@ find = (vars, node, variable, depth) ->
 
   # Checks inside of the visualization data array, if available, for the needed
   # variable (given the node ID).
-  if vars.data.viz instanceof Array
+  if vars.data.viz instanceof Array and variable of vars.data.keys
     val = uniqueValues filterArray(vars.data.viz, node, depth), variable
     return val if val.length
 
   # Checks inside of the attribute list, if available
-  if "attrs" of vars and vars.attrs.value
+  if "attrs" of vars and vars.attrs.value and variable of vars.attrs.keys
 
     if validObject(vars.attrs.value) and depth of vars.attrs.value
       attrList = vars.attrs.value[depth]
@@ -66,6 +68,20 @@ filterArray = (arr, node, depth) ->
   else
     arr.filter (d) -> d[depth] is node
 
+cacheInit = (node, depth) ->
+  node.d3plus = {} unless "d3plus" of node
+  node.d3plus.data = {} unless "data" of node.d3plus
+  node.d3plus.data[depth] = {} unless depth of node.d3plus.data
+  node
+
+valueParse = (node, depth, variable, val) ->
+  val = val[0] if val instanceof Array and val.length is 1
+  if val isnt null and validObject(node) and
+     typeof variable is "string" and
+     variable not of node
+    node.d3plus.data[depth][variable] = val
+  val
+
 fetch = (vars, node, variable, depth) ->
 
   return null unless variable
@@ -74,38 +90,24 @@ fetch = (vars, node, variable, depth) ->
   nodeObject = validObject node
   depth = vars.id.value unless depth
 
-  if nodeObject
-    node.d3plus = {} unless "d3plus" of node
-    node.d3plus.data = {} unless "data" of node.d3plus
-    node.d3plus.data[depth] = {} unless depth of node.d3plus.data
-
   if nodeObject and node.values instanceof Array
     val = []
     for item in node.values
       v = uniqueValues find vars, item, variable, depth
-      v = v[0] if v.length is 1
-      val.push v
+      val.push valueParse item, depth, variable, v
   else if node instanceof Array
     val = []
     for item in node
       v = uniqueValues find vars, item, variable, depth
-      v = v[0] if v.length is 1
-      val.push v
-  else if nodeObject and node[vars.id.value] instanceof Array
-    val = []
-    for item in node[vars.id.value]
-      v = uniqueValues find vars, item, variable, depth
-      v = v[0] if v.length is 1
-      val.push v
+      val.push valueParse item, depth, variable, v
   else
     val = find vars, node, variable, depth
-
-  val = if val instanceof Array and val.length is 1 then val[0] else val
-
-  if val isnt null and nodeObject and
-     typeof variable is "string" and
-     variable not of node
-    node.d3plus.data[depth][variable] = val
+    val = valueParse node, depth, variable, val
+    if val is null and nodeObject and node[vars.id.value] instanceof Array
+      val = []
+      for item in node[vars.id.value]
+        v = uniqueValues find vars, item, variable, depth
+        val.push valueParse item, depth, variable, v
 
   val
 
