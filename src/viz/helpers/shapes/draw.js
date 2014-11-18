@@ -428,27 +428,23 @@ module.exports = function(vars) {
 
           vars.covered = false
 
-          if (vars.focus.value.length !== 1 || (!vars.focus.tooltip.value || vars.focus.value[0] !== d[vars.id.value])) {
+          if (d.values && vars.axes.discrete) {
 
-            if (d.values && vars.axes.discrete) {
+            var index = vars.axes.discrete === "x" ? 0 : 1
+              , mouse = d3.mouse(vars.container.value.node())[index]
+              , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
+              , match = closest(positions,mouse)
 
-              var index = vars.axes.discrete === "x" ? 0 : 1
-                , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
-                , match = closest(positions,mouse)
-
-              d.d3plus_data = d.values[positions.indexOf(match)]
-              d.d3plus = d.values[positions.indexOf(match)].d3plus
-
-            }
-
-            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-            createTooltip({
-              "vars": vars,
-              "data": tooltip_data
-            })
+            d.d3plus_data = d.values[positions.indexOf(match)]
+            d.d3plus = d.values[positions.indexOf(match)].d3plus
 
           }
+
+          var tooltip_data = d.d3plus_data ? d.d3plus_data : d
+          createTooltip({
+            "vars": vars,
+            "data": tooltip_data
+          })
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
@@ -469,27 +465,23 @@ module.exports = function(vars) {
           vars.covered = false
           var tooltipType = vars.types[vars.type.value].tooltip || "follow"
 
-          if (d.values || (tooltipType && (!vars.focus.tooltip.value || vars.focus.value[0] !== d[vars.id.value]))) {
+          if (d.values && vars.axes.discrete) {
 
-            if (d.values && vars.axes.discrete) {
+            var index = vars.axes.discrete === "x" ? 0 : 1
+              , mouse = d3.mouse(vars.container.value.node())[index]
+              , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
+              , match = closest(positions,mouse)
 
-              var index = vars.axes.discrete === "x" ? 0 : 1
-                , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
-                , match = closest(positions,mouse)
-
-              d.d3plus_data = d.values[positions.indexOf(match)]
-              d.d3plus = d.values[positions.indexOf(match)].d3plus
-
-            }
-
-            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-            createTooltip({
-              "vars": vars,
-              "data": tooltip_data
-            })
+            d.d3plus_data = d.values[positions.indexOf(match)]
+            d.d3plus = d.values[positions.indexOf(match)].d3plus
 
           }
+
+          var tooltip_data = d.d3plus_data ? d.d3plus_data : d
+          createTooltip({
+            "vars": vars,
+            "data": tooltip_data
+          })
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
@@ -684,7 +676,7 @@ module.exports = function(vars) {
           }
 
         }
-        else if (vars.focus.value.length !== 1 || d[vars.id.value] != vars.focus.value[0]) {
+        else {
 
           edge_update()
 
