@@ -13,13 +13,6 @@ fetch = (vars, node, variable, depth) ->
   depth      = vars.id.value unless depth
   nodeObject = validObject node
 
-  # Filters a given array of data based on the current node ID.
-  filterArray = (arr) ->
-    if node instanceof Array
-      arr.filter (d) -> node.indexOf(d[depth]) >= 0
-    else
-      arr.filter (d) -> d[depth] is node
-
   # Checks inside the "node" variable if it is an object. If the variable is not
   # avaiable inside of the object, "node" gets reset to it's ID value to help
   # searching through the data and attributes lists.
@@ -29,7 +22,9 @@ fetch = (vars, node, variable, depth) ->
       return node[variable]
 
     # Checks if the variable has already been fetched.
-    if "d3plus" of node and "data" of node.d3plus and variable of node.d3plus.data
+    if "d3plus" of node and
+       "data" of node.d3plus and
+       variable of node.d3plus.data
       return node.d3plus.data[variable]
 
     node = node[depth]
@@ -45,10 +40,10 @@ fetch = (vars, node, variable, depth) ->
   # Checks inside of the visualization data array, if available, for the needed
   # variable (given the node ID).
   if vars.data.viz instanceof Array
-    val = uniqueValues filterArray(vars.data.viz), variable
+    val = uniqueValues filterArray(vars.data.viz, node, depth), variable
     return val if val.length
 
-  # Checks inside of the attribute list, if available.
+  # Checks inside of the attribute list, if available
   if "attrs" of vars and vars.attrs.value
 
     if validObject(vars.attrs.value) and depth of vars.attrs.value
@@ -57,7 +52,7 @@ fetch = (vars, node, variable, depth) ->
       attrList = vars.attrs.value
 
     if attrList instanceof Array
-      val = uniqueValues filterArray(attrList), variable
+      val = uniqueValues filterArray(attrList, node, depth), variable
       return val if val.length
     else if node instanceof Array
       attrList = [attrList[n] for n in node if n of attrList]
@@ -68,6 +63,13 @@ fetch = (vars, node, variable, depth) ->
       return attrList[node][variable]
 
   null
+
+# Filters a given array of data based on the current node ID.
+filterArray = (arr, node, depth) ->
+  if node instanceof Array
+    arr.filter (d) -> node.indexOf(d[depth]) >= 0
+  else
+    arr.filter (d) -> d[depth] is node
 
 module.exports = (vars, node, variable, depth) ->
 
@@ -80,8 +82,8 @@ module.exports = (vars, node, variable, depth) ->
   else
     val = fetch vars, node, variable, depth
 
-  if (nodeObject and typeof variable is "string" and
-      variable not of node and "d3plus" of node)
+  if nodeObject and typeof variable is "string" and variable not of node
+    node.d3plus = {} unless "d3plus" of node
     node.d3plus.data = {} unless "data" of node.d3plus
     node.d3plus.data[variable] = val
 
