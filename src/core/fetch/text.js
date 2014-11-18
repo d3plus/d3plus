@@ -48,12 +48,10 @@ module.exports = function(vars, obj, depth) {
     textKeys.forEach(function( t ){
 
       var name = [];
+
       ids.forEach(function(i){
-        var n = fetchValue(vars,i,t,key);
+        var n = fetchValue(vars, i, t, key);
         if (n) {
-          if (n instanceof Array && validObject(n[0])) {
-            n = uniqueValues(n,t);
-          }
           name = name.concat(n);
         }
       });

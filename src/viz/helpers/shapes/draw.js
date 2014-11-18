@@ -38,9 +38,9 @@ module.exports = function(vars) {
   var data = vars.returned.nodes || [],
       edges = vars.returned.edges || [];
 
-  vars.draw.timing = data.length < vars.data.large
-                     && edges.length < vars.edges.large
-                     ? vars.timing.transitions : 0
+  vars.draw.timing = data.length < vars.data.large &&
+                     edges.length < vars.edges.large ?
+                     vars.timing.transitions : 0;
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Match vars.shape types to their respective d3plus.shape functions. For

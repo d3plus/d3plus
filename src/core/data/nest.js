@@ -166,27 +166,22 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
           var keyValues = testVals.length === 1 ? testVals[0][key]
                         : uniqueValues( testVals , key );
 
-          if ( keyValues !== undefined && keyValues !== null ) {
+          if (keyValues !== undefined && keyValues !== null && keyValues.length) {
 
-            if ( !(keyValues instanceof Array) ) {
-              keyValues = [ keyValues ];
+            if (!(keyValues instanceof Array)) {
+              keyValues = [keyValues];
             }
 
-            if ( keyValues.length ) {
-
-              if ( idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1 ) {
-                if (key == "id" && nestingLevels.length == 1 && testVals.length > leaves.length) {
-                  var newNesting = nestingLevels.concat(key);
-                  testVals = dataNest(vars,testVals,newNesting);
-                }
-                returnObj[key] = testVals.length === 1 ? testVals[0] : testVals;
-
+            if (idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1) {
+              if (nestingLevels.length == 1 && testVals.length > leaves.length) {
+                var newNesting = nestingLevels.concat(key);
+                testVals = dataNest(vars,testVals,newNesting);
               }
-              else {
+              returnObj[key] = testVals.length === 1 ? testVals[0] : testVals;
+            }
+            else {
 
-                returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues;
-
-              }
+              returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues;
 
             }
 

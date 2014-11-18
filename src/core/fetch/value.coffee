@@ -29,7 +29,7 @@ fetch = (vars, node, variable, depth) ->
 
     node = node[depth]
 
-  node = uniqueValues(node, depth) if node instanceof Array
+  node = uniqueValues node if node instanceof Array and not validObject node[0]
 
   # Checks for unique values inside of the "node" variable if it is an Array and
   # the first item inside of the object is a keyed Object.
@@ -82,9 +82,13 @@ module.exports = (vars, node, variable, depth) ->
   else
     val = fetch vars, node, variable, depth
 
-  if nodeObject and typeof variable is "string" and variable not of node
+  val = if val instanceof Array and val.length is 1 then val[0] else val
+
+  if val isnt null and nodeObject and
+     typeof variable is "string" and
+     variable not of node
     node.d3plus = {} unless "d3plus" of node
     node.d3plus.data = {} unless "data" of node.d3plus
     node.d3plus.data[variable] = val
 
-  if val instanceof Array and val.length is 1 then val[0] else val
+  val

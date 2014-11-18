@@ -83,9 +83,9 @@ module.exports = function(vars) {
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
 
-      var available_width = vars.width.value
+      var available_width = vars.width.value;
 
-      square_size = vars.legend.size
+      square_size = vars.legend.size;
 
       var key_width = square_size*colors.length+vars.ui.padding*(colors.length+1)
 
@@ -96,57 +96,51 @@ module.exports = function(vars) {
         for (var i = square_size[1]; i >= square_size[0]; i--) {
           key_width = i*colors.length+vars.ui.padding*(colors.length+1)
           if (available_width >= key_width) {
-            square_size = i
+            square_size = i;
             break;
           }
         }
 
-        if ( vars.dev.value ) print.timeEnd("calculating legend size")
+        if ( vars.dev.value ) print.timeEnd("calculating legend size");
 
       }
       else if (typeof square_size != "number" && square_size !== false) {
-        square_size = 30
+        square_size = 30;
       }
 
       if (available_width < key_width || colors.length == 1) {
-        key_display = false
+        key_display = false;
       }
       else {
 
-        key_width -= vars.ui.padding*2
+        key_width -= vars.ui.padding*2;
 
-        if ( vars.dev.value ) print.time("sorting legend")
+        if ( vars.dev.value ) print.time("sorting legend");
 
-        var order = vars[vars.legend.order.value].value
+        var order = vars[vars.legend.order.value].value;
 
-        arraySort( colors , order , vars.legend.order.sort.value
-                         , colorName , vars , colorDepth )
+        arraySort(colors, order, vars.legend.order.sort.value, colorName, vars, colorDepth );
 
-        if ( vars.dev.value ) print.timeEnd("sorting legend")
+        if ( vars.dev.value ) print.timeEnd("sorting legend");
 
-        if ( vars.dev.value ) print.time("drawing legend")
+        if ( vars.dev.value ) print.time("drawing legend");
+
+        var start_x;
 
         if (vars.legend.align == "start") {
-          var start_x = vars.ui.padding
+          start_x = vars.ui.padding;
         }
         else if (vars.legend.align == "end") {
-          var start_x = available_width - vars.ui.padding - key_width
+          start_x = available_width - vars.ui.padding - key_width;
         }
         else {
-          var start_x = available_width/2 - key_width/2
+          start_x = available_width/2 - key_width/2;
         }
 
         vars.g.legend.selectAll("g.d3plus_scale")
           .transition().duration(vars.draw.timing)
           .attr("opacity",0)
-          .remove()
-
-        var keys = vars.g.legend.selectAll("g.d3plus_color")
-          .data(colors,function(d){
-            var col = fetchColor(vars,d,colorKey)
-              , val = fetchValue(vars,d,colorName)
-            return col+val
-          })
+          .remove();
 
         function position(group) {
 
@@ -161,24 +155,24 @@ module.exports = function(vars) {
         function style(rect) {
 
           rect
-            .attr("width",square_size)
-            .attr("height",square_size)
+            .attr("width", square_size)
+            .attr("height", square_size)
             .attr("fill",function(g){
 
-              d3.select(this.parentNode).selectAll("text").remove()
+              d3.select(this.parentNode).select("text").remove();
 
-              var icon = fetchValue( vars , g , vars.icon.value , colorKey )
-                , color = fetchColor( vars , g , colorKey )
+              var icon = fetchValue(vars, g, vars.icon.value, colorKey),
+                  color = fetchColor(vars, g, colorKey);
 
               if (icon && icon !== "null") {
 
-                var short_url = stringStrip(icon+"_"+color)
-                  , iconStyle = vars.icon.style.value
-                  , pattern = vars.defs.selectAll("pattern#"+short_url)
-                      .data([short_url])
+                var short_url = stringStrip(icon+"_"+color),
+                    iconStyle = vars.icon.style.value,
+                    pattern = vars.defs.selectAll("pattern#"+short_url)
+                      .data([short_url]);
 
                 if (typeof iconStyle === "string") {
-                  var icon_style = vars.icon.style.value
+                  var icon_style = vars.icon.style.value;
                 }
                 else if (validObject(iconStyle) && iconStyle[colorKey]) {
                   var icon_style = iconStyle[colorKey]
@@ -237,64 +231,83 @@ module.exports = function(vars) {
               }
               else {
 
-                var text = d3.select(this.parentNode).append("text")
+                var names = fetchText(vars, g, colorDepth);
 
-                text
-                  .attr("font-size",vars.legend.font.size+"px")
-                  .attr("font-weight",vars.legend.font.weight)
-                  .attr("font-family",vars.legend.font.family.value)
-                  .style("text-anchor","start")
-                  .attr("fill",textColor(color))
-                  .attr("x",0)
-                  .attr("y",0)
-                  .each(function(t){
+                if (names.length === 1 && !(names[0] instanceof Array) && names[0].length) {
 
-                    var text = fetchText(vars,t,colorDepth)
+                  var text = d3.select(this.parentNode).append("text");
 
-                    if (text.length === 1 && text[0].length) {
+                  text
+                    .attr("font-size",vars.legend.font.size+"px")
+                    .attr("font-weight",vars.legend.font.weight)
+                    .attr("font-family",vars.legend.font.family.value)
+                    .style("text-anchor","start")
+                    .attr("fill",textColor(color))
+                    .attr("x",0)
+                    .attr("y",0)
+                    .each(function(t){
 
                       textWrap()
                         .container( d3.select(this) )
                         .height( square_size - vars.ui.padding * 2 )
                         .resize( vars.labels.resize.value )
-                        .text( text[0] )
+                        .text( names[0] )
                         .width( square_size - vars.ui.padding * 2 )
-                        .draw()
+                        .draw();
 
-                    }
-
-                  })
-                  .attr("y",function(t){
-                    var h = this.getBBox().height,
-                        diff = parseFloat(d3.select(this).style("font-size"),10)/5
-                    return square_size/2 - h/2 - diff/2
-                  })
-                  .selectAll("tspan")
-                    .attr("x",function(t){
-                      var w = this.getComputedTextLength()
-                      return square_size/2 - w/2
                     })
+                    .attr("y",function(t){
+                      var h = this.getBBox().height,
+                          diff = parseFloat(d3.select(this).style("font-size"),10)/5;
+                      return square_size/2 - h/2 - diff/2;
+                    })
+                    .selectAll("tspan")
+                      .attr("x",function(t){
+                        var w = this.getComputedTextLength();
+                        return square_size/2 - w/2;
+                      });
 
-                if (text.select("tspan").empty()) {
-                  text.remove()
+                  if (text.select("tspan").empty()) {
+                    text.remove();
+                  }
+
                 }
 
-                return color
+                return color;
               }
 
-            })
+            });
 
         }
 
-        var key_enter = keys.enter().append("g")
+        var keys = vars.g.legend.selectAll("g.d3plus_color")
+          .data(colors,function(d){
+            var col = fetchColor(vars, d, colorKey),
+                val = fetchValue(vars, d, colorName, colorKey);
+            return col+val;
+          });
+
+        keys.transition().duration(vars.draw.timing)
+          .call(position)
+          .selectAll("rect.d3plus_color")
+            .call(style);
+
+        keys.enter().append("g")
           .attr("class","d3plus_color")
           .attr("opacity",0)
           .call(position)
-
-        key_enter
           .append("rect")
             .attr("class","d3plus_color")
-            .call(style)
+            .call(style);
+
+        keys.order()
+          .transition().duration(vars.draw.timing)
+          .attr("opacity", 1);
+
+        keys.exit()
+          .transition().duration(vars.draw.timing)
+          .attr("opacity",0)
+          .remove();
 
         if (!touch) {
 
@@ -326,19 +339,6 @@ module.exports = function(vars) {
             })
 
         }
-
-        keys.order()
-          .transition().duration(vars.draw.timing)
-          .attr("opacity",1)
-          .call(position)
-
-        keys.selectAll("rect.d3plus_color").transition().duration(vars.draw.timing)
-          .call(style)
-
-        keys.exit()
-          .transition().duration(vars.draw.timing)
-          .attr("opacity",0)
-          .remove()
 
         if ( vars.dev.value ) print.timeEnd("drawing legend")
 
@@ -592,6 +592,5 @@ module.exports = function(vars) {
     if ( vars.dev.value ) print.timeEnd("hiding legend")
 
   }
-
 
 }
