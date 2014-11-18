@@ -15,7 +15,7 @@ var arraySort = require("../../../array/sort.coffee"),
     stringStrip   = require("../../../string/strip.js"),
     textWrap      = require("../../../textwrap/textwrap.coffee"),
     touch         = require("../../../client/touch.coffee"),
-    validObject   = require("../../../object/validate.coffee")
+    validObject   = require("../../../object/validate.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -23,63 +23,64 @@ module.exports = function(vars) {
 
   var key_display = true,
       square_size = 0,
-      key = vars.color.value
-    , colorName = vars.color.value || "d3plus_color"
+      key = vars.color.value,
+      colorName = vars.color.value || "d3plus_color";
 
   if (!vars.internal_error && key && !vars.small && vars.legend.value) {
 
     if (!vars.color.valueScale) {
 
-      if ( vars.dev.value ) print.time("grouping data by colors")
+      if ( vars.dev.value ) print.time("grouping data by colors");
 
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
-        var data = copy(vars.nodes.restriced || vars.nodes.value)
+        var data = copy(vars.nodes.restriced || vars.nodes.value);
         if ( vars.data.viz.length ) {
           for ( var i = 0 ; i < data.length ; i++ ) {
             var appData = vars.data.viz.filter(function(a){
-              return a[vars.id.value] === data[i][vars.id.value]
-            })
+              return a[vars.id.value] === data[i][vars.id.value];
+            });
             if (appData.length) {
-              data[i] = appData[0]
+              data[i] = appData[0];
             }
           }
         }
       }
       else {
-        var data = vars.data.viz
+        var data = vars.data.viz;
       }
 
       var colorFunction = function( d ){
-            return fetchColor( vars , d , colorKey )
-          }
-        , colorDepth = 0
-        , colorKey = vars.id.value
+            return fetchColor(vars, d, colorKey);
+          },
+          colorDepth = 0,
+          colorKey = vars.id.value;
 
       if (vars.id.nesting.indexOf(colorName) >= 0) {
-        colorDepth = vars.id.nesting.indexOf(vars.color.value)
-        colorKey = vars.id.nesting[vars.id.nesting.indexOf(colorName)]
+        colorDepth = vars.id.nesting.indexOf(vars.color.value);
+        colorKey = vars.id.nesting[vars.id.nesting.indexOf(colorName)];
       }
       else {
 
-        for ( var i = 0 ; i <= vars.depth.value ; i++ ) {
+        for (var i = 0; i <= vars.depth.value; i++) {
 
-          colorDepth = i
-          colorKey   = vars.id.nesting[i]
+          colorDepth = i;
+          colorKey   = vars.id.nesting[i];
 
-          var uniqueIDs = uniqueValues( data , function(d){
-                return fetchValue(vars, d, colorKey)
-              } )
-            , uniqueColors = uniqueValues( data , colorFunction )
+          var uniqueIDs = uniqueValues(data , function(d){
+                return fetchValue(vars, d, colorKey);
+              }),
+              uniqueColors = uniqueValues(data, colorFunction);
 
-          if ( uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1 ) {
-            break
+          if (uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1) {
+            break;
           }
 
         }
 
       }
 
-      var colors = dataNest( vars , data , [ colorFunction ] , [] )
+      var colors = dataNest(vars, data, [colorFunction], []);
+      console.log(colors)
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
 
