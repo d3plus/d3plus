@@ -231,12 +231,12 @@ module.exports = function(vars) {
       "function": function(vars) {
 
         var year = !vars.time.fixed.value ? ["all"] : null
-        if ( vars.dev.value ) {
+        if (vars.dev.value) {
           var timerString = year ? "fetching pool data" : "fetching data"
           print.time( timerString )
         }
         vars.data.pool = fetchData( vars , year )
-        if ( vars.dev.value ) print.timeEnd( timerString )
+        if (vars.dev.value) print.timeEnd( timerString )
         if ( !year ) {
           vars.data.viz = vars.data.pool
         }

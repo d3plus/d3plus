@@ -42,37 +42,26 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
   if (!(requirements instanceof Array)) requirements = [requirements];
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Loop through each nesting level.
-  //----------------------------------------------------------------------------
-  nestingLevels.forEach(function( level , i ){
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Create a nest key for the current level.
-    //--------------------------------------------------------------------------
-    nestedData
-      .key(function(d){
-
-        if ( typeof level === "function" ) {
-          return level(d);
-        }
-
-        return fetchValue( vars , d , level );
-      });
-
-    checkAxes();
-
-  });
-
-  if ( !nestingLevels.length ) {
-
-    nestedData
-      .key(function(d){
-        return true;
-      });
-
-    checkAxes();
+  if (!nestingLevels.length) {
+    nestedData.key(function(d){ return true; });
   }
+  else {
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Loop through each nesting level.
+    //----------------------------------------------------------------------------
+    nestingLevels.forEach(function(level, i){
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Create a nest key for the current level.
+      //--------------------------------------------------------------------------
+      nestedData.key(function(d){ return fetchValue(vars, d, level); });
+
+    });
+
+  }
+
+  checkAxes();
 
   var i = nestingLevels.length ? nestingLevels.length - 1 : 0;
 
@@ -153,27 +142,27 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
             keyType = vars.data.keys[key],
             idKey   = vars.id.nesting.indexOf(key) >= 0,
             timeKey = "time" in vars && key === vars.time.value;
+
         if (key in returnObj.d3plus.data) {
           returnObj[key] = returnObj.d3plus[key];
-        }
-        else if (keyType === "number" && aggType === "string" && !idKey) {
-          returnObj[key] = d3[agg](leaves.map(function(d){return d[key];}));
         }
         else if (aggType === "function") {
           returnObj[key] = vars.aggs.value[key](leaves);
         }
         else if (timeKey) {
 
-          parseDates(uniques);
+          var dates = parseDates(uniques);
 
           if (dates.length === 1) returnObj[key] = dates[0];
           else returnObj[key] = dates;
 
         }
+        else if (keyType === "number" && aggType === "string" && !idKey) {
+          returnObj[key] = d3[agg](leaves.map(function(d){return d[key];}));
+        }
         else {
 
-          var testVals = checkVal(leaves);
-
+          var testVals = checkVal(leaves, key);
           var keyValues = testVals.length === 1 ? testVals[0][key]
                         : uniqueValues( testVals , key );
 
@@ -249,17 +238,17 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
 };
 
-var checkVal = function(leaves) {
+var checkVal = function(leaves, key) {
 
   var returnVals = [];
 
   function run(obj) {
     if (obj instanceof Array) {
-      obj.forEach(checkVal);
+      obj.forEach(run);
     }
     else if (validObject(obj) && key in obj) {
       if (obj[key] instanceof Array) {
-        obj[key].forEach(checkVal);
+        obj[key].forEach(run);
       }
       else {
         returnVals.push(obj);
@@ -277,14 +266,14 @@ var parseDates = function(dateArray) {
 
   var dates = [];
 
-  function parseDates(arr) {
+  function checkDate(arr) {
 
-    for ( var i = 0; i < arr.length ; i++ ) {
+    for (var i = 0; i < arr.length; i++) {
       var d = arr[i];
       if (d !== undefined) {
         if (d.constructor === Date) dates.push(d);
         else if (d.constructor === Array) {
-          parseDates(d);
+          checkDate(d);
         }
         else {
           d = new Date(d.toString());
@@ -298,7 +287,7 @@ var parseDates = function(dateArray) {
 
   }
 
-  parseDates(dateArray);
+  checkDate(dateArray);
 
   return dates;
 

@@ -15,8 +15,9 @@ module.exports = function( vars , data ) {
   }
 
   data = data.filter(function(d){
-    return vars.id.value in d
-  })
+    var val = fetchValue(vars, d, vars.id.value);
+    return val !== null;
+  });
 
   vars.data.filters.forEach( function( key ) {
 
