@@ -80,7 +80,6 @@ module.exports = function(vars) {
       }
 
       var colors = dataNest(vars, data, [colorFunction], []);
-      console.log(colors)
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
 
