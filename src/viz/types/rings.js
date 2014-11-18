@@ -1,10 +1,10 @@
 var arraySort     = require("../../array/sort.coffee"),
     events        = require("../../client/pointer.coffee"),
-    distances     = require("../../network/distances.coffee"),
     fetchValue    = require("../../core/fetch/value.coffee"),
     fetchColor    = require("../../core/fetch/color.coffee"),
     legible       = require("../../color/legible.coffee"),
     removeTooltip = require("../../tooltip/remove.coffee"),
+    smallestGap   = require("../../network/smallestGap.coffee"),
     uniqueValues  = require("../../util/uniques.coffee")
 
 var rings = function(vars) {
@@ -176,12 +176,12 @@ var rings = function(vars) {
 
   })
 
-  var primaryDistance = d3.min(distances(primaries,function(n){
-        return [n.d3plus.x,n.d3plus.y]
-      }))
-    , secondaryDistance = d3.min(distances(secondaries,function(n){
-        return [n.d3plus.x,n.d3plus.y]
-      }))
+  var primaryDistance = smallestGap(primaries,function(n){
+        return [n.d3plus.x, n.d3plus.y]
+      })
+    , secondaryDistance = smallestGap(secondaries,function(n){
+        return [n.d3plus.x, n.d3plus.y]
+      })
 
   if (!primaryDistance) {
     primaryDistance = ring_width/2

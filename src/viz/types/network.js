@@ -1,5 +1,5 @@
-var distances = require("../../network/distances.coffee"),
-    fetchValue = require("../../core/fetch/value.coffee")
+var smallestGap = require("../../network/smallestGap.coffee"),
+    fetchValue = require("../../core/fetch/value.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
@@ -31,7 +31,7 @@ var network = function(vars) {
     var min_size = vars.size.value;
   }
   else {
-    var max_size = d3.min(distances(nodes))
+    var max_size = smallestGap(nodes);
 
     var overlap = vars.size.value ? vars.nodes.overlap : 0.4
     max_size = max_size * overlap
