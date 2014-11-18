@@ -1,6 +1,6 @@
 var fetchValue = require("./value.coffee"),
     validObject = require("../../object/validate.coffee"),
-    uniqueValues = require("../../util/uniques.coffee");
+    uniques     = require("../../util/uniques.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
@@ -37,24 +37,17 @@ module.exports = function(vars, obj, depth) {
   }
   else {
 
-    var ids = validObject(obj) ? key in obj ? obj[key] : fetchValue(vars, obj, key) : obj;
-    if (!(ids instanceof Array)) ids = [ids];
-    else if (validObject(ids[0])) {
-      ids = uniqueValues(ids,key);
-    }
-
     var formatObj = validObject(obj) ? obj : undefined;
+    if (obj[vars.id.value] instanceof Array) {
+      obj = obj[vars.id.value];
+    }
+    else if (!(obj instanceof Array)) {
+      obj = [obj];
+    }
 
     textKeys.forEach(function( t ){
 
-      var name = [];
-
-      ids.forEach(function(i){
-        var n = fetchValue(vars, i, t, key);
-        if (n) {
-          name = name.concat(n);
-        }
-      });
+      var name = uniques(obj, t, fetchValue, vars, key);
 
       if ( name.length ) {
         name = name.map(function(n){

@@ -1,10 +1,11 @@
-fetchValue     = require "../core/fetch/value.coffee"
 objectValidate = require "../object/validate.coffee"
 
 # Returns list of unique values
-module.exports = (data, value, vars) ->
+uniques = (data, value, fetch, vars, depth) ->
 
   return [] if data is undefined
+  depth = vars.id.value if vars and depth is undefined
+  data  = [data] unless data instanceof Array
 
   if value is undefined
     return data.reduce (p, c) ->
@@ -18,10 +19,11 @@ module.exports = (data, value, vars) ->
 
   for d in data
     if objectValidate d
-      if typeof value is "function"
+      if fetch
+        val = uniques fetch(vars, d, value, depth)
+        val = val[0] if val.length is 1
+      else if typeof value is "function"
         val = value d
-      else if vars
-        val = fetchValue vars, d, value
       else
         val = d[value]
       lookup = if [ "number", "string" ].indexOf(typeof val) >= 0 then val else JSON.stringify(val)
@@ -30,3 +32,5 @@ module.exports = (data, value, vars) ->
         lookups.push lookup
 
   vals.sort (a, b) -> a - b
+
+module.exports = uniques

@@ -20,7 +20,7 @@ module.exports = function( vars ) {
       print.time( timerString );
     }
 
-    var uniqueTimes = uniques(vars.data.value, vars.time.value);
+    var uniqueTimes = uniques(vars.data.value, vars.time.value, fetchValue, vars);
 
     for ( var i = 0; i < uniqueTimes.length ; i++ ) {
       var d = new Date(uniqueTimes[i].toString());

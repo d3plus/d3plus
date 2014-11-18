@@ -1,22 +1,23 @@
-var uniques = require("../../util/uniques.coffee")
-var copy    = require("../../util/copy.coffee")
-var rand_col= require("../../color/random.coffee")
+var fetchValue = require("../../core/fetch/value.coffee");
+var uniques    = require("../../util/uniques.coffee");
+var copy       = require("../../util/copy.coffee");
+var rand_col   = require("../../color/random.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Table
 //------------------------------------------------------------------------------
 
 var table = function(vars) {
-  
+
   // get unique IDs and columns
-  var ids = uniques(vars.data.viz, vars.id.value);
+  var ids = uniques(vars.data.viz, vars.id.value, fetchValue, vars);
   var cols = uniques(vars.cols.value);
-  
+
   // if user wants to show the row labels (default behavior) add this as a col
   if (cols.indexOf("label") < 0 && vars.cols.index.value){
     cols.unshift("label");
   }
-  
+
   // width/height are a function of number of IDs and columns
   var item_height = vars.height.viz / (ids.length+1); // add 1 for header offset
   var item_width = vars.width.viz / cols.length;
@@ -55,7 +56,7 @@ var table = function(vars) {
 
   var ret = []
   var colors = {}
-  
+
   // doing 2 things here, first we add our column headers to our ret array as
   // items dor d3plus to draw. We also compute the color scales for each column
   cols.forEach(function(col, col_i){
@@ -79,7 +80,7 @@ var table = function(vars) {
       header.d3plus.stroke = "#fff";
     }
     ret.push(header)
-    
+
     // set up color scales
     if(vars.data.keys[col] == "number"){
       var domain_extent = d3.extent(vars.data.viz, function(d){ return d[col]; })

@@ -4,9 +4,8 @@ uniqueValues = require "../../util/uniques.coffee"
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Finds a given variable by searching through the data and attrs
 #------------------------------------------------------------------------------
-fetch = (vars, node, variable, depth) ->
+find = (vars, node, variable, depth) ->
 
-  return null unless variable
   return variable node, vars if typeof variable is "function"
   return variable if typeof variable is "number"
 
@@ -27,7 +26,7 @@ fetch = (vars, node, variable, depth) ->
        variable of node.d3plus.data
       return node.d3plus.data[variable]
 
-    node = node[depth]
+    node = fetch vars, node, depth
 
   node = uniqueValues node if node instanceof Array and not validObject node[0]
 
@@ -71,24 +70,38 @@ filterArray = (arr, node, depth) ->
   else
     arr.filter (d) -> d[depth] is node
 
-module.exports = (vars, node, variable, depth) ->
+fetch = (vars, node, variable, depth) ->
+
+  return null unless variable
 
   nodeObject = validObject node
 
+  if nodeObject
+    node.d3plus = {} unless "d3plus" of node
+    node.d3plus.data = {} unless "data" of node.d3plus
+
   if nodeObject and node.values instanceof Array
+    val = []
     for item in node.values
-      val = fetch vars, item, variable, depth
-      break if val
+      val.push find vars, item, variable, depth
+  else if node instanceof Array
+    val = []
+    for item in node
+      val.push find vars, item, variable, depth
+  else if nodeObject and node[vars.id.value] instanceof Array
+    val = []
+    for item in node[vars.id.value]
+      val.push find vars, item, variable, depth
   else
-    val = fetch vars, node, variable, depth
+    val = find vars, node, variable, depth
 
   val = if val instanceof Array and val.length is 1 then val[0] else val
 
   if val isnt null and nodeObject and
      typeof variable is "string" and
      variable not of node
-    node.d3plus = {} unless "d3plus" of node
-    node.d3plus.data = {} unless "data" of node.d3plus
     node.d3plus.data[variable] = val
 
   val
+
+module.exports = fetch

@@ -36,8 +36,7 @@ module.exports = (vars, opts) ->
         else
           vars[axis].ticks.values = vars.data.time.ticks
       else if axis is vars.axes.discrete
-        vars[axis].ticks.values = uniques vars.axes.dataset, (d) ->
-          fetchValue vars, d, vars[axis].value
+        vars[axis].ticks.values = uniques vars.axes.dataset, vars[axis].value, fetchValue, vars
 
       # calculate range
       zero  = if [true,axis].indexOf(opts.zero) > 0 then true else false

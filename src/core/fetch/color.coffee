@@ -2,47 +2,35 @@ fetchValue  = require "./value.coffee"
 randomColor = require "../../color/random.coffee"
 validColor  = require "../../color/validate.coffee"
 validObject = require "../../object/validate.coffee"
+uniques     = require "../../util/uniques.coffee"
 
 # Finds an object's color and returns random if it cannot be found
 module.exports = (vars, id, level) ->
 
-  getRandom = (c) ->
-    c = fetchValue(vars, c, level) if validObject(c)
-    c = c[0] if c instanceof Array
-    randomColor c, vars.color.scale.value
-
   level = vars.id.value unless level
   level = vars.id.nesting[level] if typeof level is "number"
 
+  # if id instanceof Array
+  #   id = uniques id, level, fetchValue, vars
+  #   id = if id.length then id[0] else null
+
   unless vars.color.value
-    returnColor = getRandom id
+    returnColor = getRandom vars, id
   else
 
     colors   = []
     i        = vars.id.nesting.indexOf(level)
-    getColor = (color) ->
-      unless color
-        if vars.color.value and typeof vars.color.valueScale is "function"
-          return vars.color.valueScale(0)
-        getRandom id
-      else unless vars.color.valueScale
-        if validColor(color) then color else getRandom(color)
-      else
-        vars.color.valueScale color
 
     while i >= 0
       colorLevel = vars.id.nesting[i]
       if validObject(id)
-        unless (colorLevel of id)
-          o = fetchValue(vars, id, colorLevel)
-        else
-          o = id
-        value = fetchValue(vars, o, vars.color.value, colorLevel)
+        value = uniques id, vars.color.value, fetchValue, vars, colorLevel
+        value = value[0] if value.length is 1
       else
         value = id
 
       if !(value instanceof Array) and value isnt undefined and value isnt null
-        color = getColor(value)
+        color = getColor(vars, id, value)
         colors.push color if colors.indexOf(color) < 0
         break
       i--
@@ -50,3 +38,18 @@ module.exports = (vars, id, level) ->
     returnColor = if colors.length is 1 then colors[0] else vars.color.missing
 
   returnColor
+
+getColor = (vars, id, color) ->
+  unless color
+    if vars.color.value and typeof vars.color.valueScale is "function"
+      return vars.color.valueScale(0)
+    getRandom vars, id
+  else unless vars.color.valueScale
+    if validColor(color) then color else getRandom(vars, color)
+  else
+    vars.color.valueScale color
+
+getRandom = (vars, c) ->
+  c = fetchValue(vars, c, level) if validObject(c)
+  c = c[0] if c instanceof Array
+  randomColor c, vars.color.scale.value

@@ -19,7 +19,7 @@ module.exports = (vars, data) ->
       "line_"+stringStrip(id)+"_"+depth
     .rollup (leaves) ->
 
-      availables = uniqueValues leaves, discrete.value
+      availables = uniqueValues leaves, discrete.value, fetchValue, vars
       timeVar    = availables[0].constructor is Date
       availables = availables.map((t) -> t.getTime()) if timeVar
 

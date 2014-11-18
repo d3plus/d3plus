@@ -190,7 +190,7 @@ viz.filter = (vars, data) ->
         viz.nodes.push target
         added.push target[vars.id.value]
 
-  ids = uniqueValues(viz.nodes, vars.id.value)
+  ids = uniqueValues viz.nodes, vars.id.value, fetchValue, vars
   returnData = []
   for id in ids
     d = data.filter (d) ->

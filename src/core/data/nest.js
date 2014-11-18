@@ -89,19 +89,13 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
       }
     };
 
-    if ("d3plus" in leaves[0]) {
-
-      for (var ll = 0; ll < leaves.length; ll++) {
-        var l = leaves[ll];
-        if ("d3plus" in l) {
-          if (l.d3plus.merged instanceof Array) {
-            if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
-            returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged);
-          }
-          if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text;
-        }
+    for (var ll = 0; ll < leaves.length; ll++) {
+      var l = leaves[ll];
+      if (l.d3plus.merged instanceof Array) {
+        if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
+        returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged);
       }
-
+      if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text;
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -135,7 +129,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     // Aggregate all values detected in the data.
     //--------------------------------------------------------------------------
     for (var key in vars.data.keys) {
-      var uniques = uniqueValues(leaves, key);
+      var uniques = uniqueValues(leaves, key, fetchValue, vars);
       if (uniques.length) {
         var agg     = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum",
             aggType = typeof agg,
@@ -164,7 +158,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
           var testVals = checkVal(leaves, key);
           var keyValues = testVals.length === 1 ? testVals[0][key]
-                        : uniqueValues( testVals , key );
+                        : uniqueValues(testVals, key, fetchValue, vars);
 
           if (keyValues !== undefined && keyValues !== null && keyValues.length) {
 
@@ -172,7 +166,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
               keyValues = [keyValues];
             }
 
-            if (idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1) {
+            if (idKey) {
               if (nestingLevels.length == 1 && testVals.length > leaves.length) {
                 var newNesting = nestingLevels.concat(key);
                 testVals = dataNest(vars,testVals,newNesting);
@@ -265,7 +259,7 @@ var parseDates = function(dateArray) {
 
     for (var i = 0; i < arr.length; i++) {
       var d = arr[i];
-      if (d !== undefined) {
+      if (d) {
         if (d.constructor === Date) dates.push(d);
         else if (d.constructor === Array) {
           checkDate(d);

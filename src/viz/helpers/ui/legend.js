@@ -119,7 +119,7 @@ module.exports = function(vars) {
 
         var order = vars[vars.legend.order.value].value;
 
-        arraySort(colors, order, vars.legend.order.sort.value, colorName, vars, colorDepth );
+        arraySort(colors, order, vars.legend.order.sort.value, colorName, vars, colorDepth);
 
         if ( vars.dev.value ) print.timeEnd("sorting legend");
 
@@ -282,9 +282,7 @@ module.exports = function(vars) {
 
         var keys = vars.g.legend.selectAll("g.d3plus_color")
           .data(colors,function(d){
-            var col = fetchColor(vars, d, colorKey),
-                val = fetchValue(vars, d, colorName, colorKey);
-            return col+val;
+            return fetchColor(vars, d, colorKey);
           });
 
         keys.transition().duration(vars.draw.timing)

@@ -219,8 +219,8 @@ var rings = function(vars) {
   primaryMax = Math.floor(primaryMax)
   secondaryMax = Math.floor(secondaryMax)
 
-  var ids = uniqueValues(primaries,vars.id.value)
-  ids = ids.concat(uniqueValues(secondaries,vars.id.value))
+  var ids = uniqueValues(primaries, vars.id.value, fetchValue, vars)
+  ids = ids.concat(uniqueValues(secondaries, vars.id.value, fetchValue, vars))
   ids.push(vars.focus.value[0])
 
   var data = vars.data.viz.filter(function(d){
@@ -453,7 +453,7 @@ rings.filter       = function( vars , data ) {
   })
 
   var connections = primaries.concat(secondaries)
-    , ids = uniqueValues(connections,vars.id.value)
+    , ids = uniqueValues(connections, vars.id.value, fetchValue, vars)
     , returnData = []
 
   ids.forEach(function(id){

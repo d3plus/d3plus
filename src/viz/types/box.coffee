@@ -27,7 +27,7 @@ box = (vars) ->
   mergeData = (arr) ->
     obj = {}
     for key of vars.data.keys
-      vals = uniques arr, key
+      vals = uniques arr, key, fetchValue, vars
       obj[key] = if vals.length is 1 then vals[0] else vals
     obj
 

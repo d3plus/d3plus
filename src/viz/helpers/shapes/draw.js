@@ -586,7 +586,7 @@ module.exports = function(vars) {
           })
 
           vars.self
-            .id({"solo": uniqueValues(d.d3plus.merged,vars.id.value)})
+            .id({"solo": uniqueValues(d.d3plus.merged, vars.id.value, fetchValue, vars)})
             .title({
               "sub": {
                 "font": {
