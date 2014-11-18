@@ -4,7 +4,8 @@ validObject = require "../../object/validate.coffee"
 # Load Data using JSON
 module.exports = (vars, key, next) ->
 
-  print.time "loading " + key if vars.dev.value
+  consoleMessage = vars.dev.value
+  print.time "loading " + key if consoleMessage
 
   url = vars[key].url
 
@@ -65,5 +66,5 @@ module.exports = (vars, key, next) ->
     else
       vars.internal_error = "Could not load data from: \"" + url + "\""
 
-    print.time "loading " + key if vars.dev.value
+    print.timeEnd "loading " + key if consoleMessage
     next()
