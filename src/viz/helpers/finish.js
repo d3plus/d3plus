@@ -118,8 +118,10 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
-  var new_opacity = (data_req && vars.data.viz.length == 0) || vars.internal_error
-        ? 0 : vars.focus.value.length && vars.types[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
+  var new_opacity = (data_req && vars.data.viz.length === 0) ||
+                     vars.internal_error ? 0 : vars.focus.value.length &&
+                     vars.types[vars.type.value].zoom && vars.zoom.value ?
+                     1 - vars.tooltip.curtain.opacity : 1,
       old_opacity = vars.group.attr("opacity")
 
   if (new_opacity != old_opacity) {
