@@ -1,16 +1,28 @@
 ie   = require "../../client/ie.js"
 wiki = require "./wiki.coffee"
 
+icon = "http://d3plus.org/assets/img/favicon.ico"
+
 # Custom styling and behavior for browser console statements.
 print = (type, message, style) ->
   style = style or ""
   if ie or typeof InstallTrigger isnt 'undefined'
     console.log "[ D3plus ] " + message
-  else if type is "groupCollapsed"
+  else if type.indexOf("group") is 0
     if window.chrome and navigator.onLine
-      console[type] "%c%c " + message, "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');", "font-weight:200;" + style
+
+      console[type] "%c%c " + message, "padding: 3px 10px;" +
+                                       "line-height: 25px;" +
+                                       "background-size: 20px;" +
+                                       "background-position: top left;" +
+                                       "background-image: url('"+icon+"');",
+                                       "font-weight:200;" + style
     else
-      console[type] "%cD3plus%c " + message, "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;", "font-weight:200;" + style
+      console[type] "%cD3plus%c " + message, "line-height: 25px;" +
+                                             "font-weight: 800;" +
+                                             "color: #b35c1e;" +
+                                             "margin-left: 0px;",
+                                             "font-weight:200;" + style
   else
     console[type] "%c" + message, style + "font-weight:200;"
   return
@@ -47,9 +59,10 @@ print.stack = ->
     err = new Error()
     if err.stack
       stack = err.stack.split("\n")
-      stack = stack.filter((e) ->
-        e.indexOf("Error") isnt 0 and e.indexOf("d3plus.js:") < 0 and e.indexOf("d3plus.min.js:") < 0
-      )
+      stack = stack.filter (e) ->
+        e.indexOf("Error") isnt 0 and
+        e.indexOf("d3plus.js:") < 0 and
+        e.indexOf("d3plus.min.js:") < 0
       if stack.length and stack[0].length
         splitter = (if window.chrome then "at " else "@")
         url = stack[0].split(splitter)[1]

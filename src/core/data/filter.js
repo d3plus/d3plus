@@ -89,17 +89,19 @@ module.exports = function( vars , data ) {
     if ( v === "id" ) {
 
       if ("nodes" in vars && vars.nodes.value) {
-        if ( vars.dev.value ) print.log("Filtering Nodes")
+        if ( vars.dev.value ) print.time("filtering nodes")
         vars.nodes.restricted = vars.nodes.value.filter(nest_check)
+        if ( vars.dev.value ) print.timeEnd("filtering nodes")
       }
 
       if ("edges" in vars && vars.edges.value) {
-        if ( vars.dev.value ) print.log("Filtering Connections")
+        if ( vars.dev.value ) print.time("filtering edges")
         vars.edges.restricted = vars.edges.value.filter(function(d){
           var first_match = nest_check(d[vars.edges.source]),
               second_match = nest_check(d[vars.edges.target])
           return first_match && second_match
         })
+        if ( vars.dev.value ) print.timeEnd("filtering edges")
       }
 
     }

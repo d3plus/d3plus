@@ -112,9 +112,6 @@ module.exports = (vars, method, object, key, value) ->
         d3object     = d3selection(object[key])
         typeFunction = typeof object[key] is "function"
         valString    = (if not longArray and not d3object and not typeFunction then (if typeof object[key] is "string" then object[key] else JSON.stringify(object[key])) else null)
-        if vars.dev.value and not vars.methodGroup and vars.methodGroup isnt "wait"
-          vars.methodGroup = true
-          print.groupCollapsed "method behavior"
         if valString isnt null and valString.length < 260
           str = vars.format.locale.value.dev.setLong
           print.log stringFormat(str, text, "\"" + valString + "\"")

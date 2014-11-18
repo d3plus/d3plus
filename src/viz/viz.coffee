@@ -62,10 +62,9 @@ module.exports = ->
           if steps.length
             runStep()
           else
-            vars.methodGroup = false
             if vars.dev.value
-              print.timeEnd "total draw time"
               print.groupEnd()
+              print.timeEnd "total draw time"
               print.log "\n"
           return
 
@@ -88,17 +87,24 @@ module.exports = ->
           run  = run(vars) if typeof run is "function"
 
           if run
-            if not same and vars.draw.update
+            if not same
               if vars.dev.value
-                print.groupEnd()  if lastMessage isnt false
-                print.groupCollapsed step.message
-              lastMessage = (if typeof vars.messages.value is "string" then vars.messages.value else step.message)
-              message = (if typeof vars.messages.value is "string" then vars.messages.value else vars.format.value(step.message))
-              flash vars, message
-              setTimeout (->
+                print.groupEnd() if lastMessage isnt false
+                print.group step.message
+              if typeof vars.messages.value is "string"
+                lastMessage = vars.messages.value
+                message     = vars.messages.value
+              else
+                lastMessage = step.message
+                message     = vars.format.value(step.message)
+              if vars.draw.update
+                flash vars, message
+                setTimeout (->
+                  runFunction step
+                  return
+                ), 10
+              else
                 runFunction step
-                return
-              ), 10
             else
               runFunction step
           else

@@ -1,5 +1,6 @@
 attach     = require "../core/methods/attach.coffee"
 dimensions = require "./helpers/getDimensions.coffee"
+print     = require "../core/console/print.coffee"
 size       = require "./helpers/getSize.coffee"
 text       = require "./helpers/getText.coffee"
 wrap       = require "./helpers/wrap.coffee"
@@ -19,6 +20,8 @@ module.exports = ->
         if vars.size.value[0] <= vars.height.value
           text vars
           wrap vars
+
+        print.timeEnd "total draw time" if vars.dev.value
 
         return
 

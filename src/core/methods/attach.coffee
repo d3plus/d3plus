@@ -41,9 +41,6 @@ initialize = (vars, obj, method) ->
       for d in deps
         vars.self[d] = ((dep, n) ->
           (x) ->
-            if vars.dev.value and vars.methodGroup
-              print.groupEnd()
-              vars.methodGroup = false
             str = vars.format.locale.value.dev.deprecated
             dep = "." + dep + "()"
             print.error stringFormat(str, dep, "." + n + "()"), n
@@ -74,9 +71,6 @@ createFunction = (vars, key) ->
     # Warn if the user is trying to use the old .style() method.
     if key is "style" and typeof user is "object"
       str = vars.format.locale.value.dev.oldStyle
-      if (vars.dev.value or (key is "dev" and user)) and not vars.methodGroup and vars.methodGroup isnt "wait"
-        vars.methodGroup = true
-        print.groupCollapsed "method behavior"
       for s of user
         print.warning stringFormat(str, "\"" + s + "\"", s), s
         vars.self[s] user[s]

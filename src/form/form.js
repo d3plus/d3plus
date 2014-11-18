@@ -42,7 +42,7 @@ module.exports = function() {
     //--------------------------------------------------------------------------
     if ( vars.data.value instanceof Array ) {
 
-      if ( vars.dev.value ) print.groupCollapsed("drawing \""+vars.type.value+"\"");
+      if ( vars.dev.value ) print.group("drawing \""+vars.type.value+"\"");
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Analyze new data, if changed.
@@ -303,10 +303,8 @@ module.exports = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Initialization complete
       //------------------------------------------------------------------------
+      if (vars.dev.value) print.timeEnd("total draw time");
       methodReset( vars );
-      vars.methodGroup = false;
-
-      if ( vars.dev.value ) print.groupEnd();
 
     }
 

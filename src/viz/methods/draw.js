@@ -30,15 +30,9 @@ module.exports = {
     }
     else {
 
-      if ( vars.dev.value ) {
-        if ( vars.methodGroup ) {
-          vars.methodGroup = "wait"
-          print.groupEnd()
-        }
-        print.time("total draw time")
-      }
+      if ( vars.dev.value ) print.time("total draw time");
 
-      vars.container.value.call(vars.self)
+      vars.container.value.call(vars.self);
 
     }
 
