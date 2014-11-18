@@ -177,24 +177,25 @@ module.exports = function( vars ) {
   }
   else {
 
+    var timeData = {};
+    for (var t = 0; t < vars.data.value.length; t++) {
+      var data = vars.data.value[t];
+      var date = new Date(fetchValue(vars, data, vars.time.value).toString());
+      date.setTime( date.getTime() + date.getTimezoneOffset() * 60 * 1000 );
+      var ms = date.getTime();
+      if (!(ms in timeData)) timeData[ms] = [];
+      timeData[ms].push(data);
+    }
+
     vars.data.time.values.forEach( function( t ) {
 
       var ms = t.getTime();
 
       vars.data.nested[ms] = {};
 
-      var timeData = vars.data.value.filter(function(d) {
-        var date = new Date(fetchValue(vars, d, vars.time.value).toString());
-        date.setTime( date.getTime() + date.getTimezoneOffset() * 60 * 1000 );
-        return date.getTime() === ms;
-      });
-
       vars.id.nesting.forEach( function( depth , i ) {
-
         var nestingDepth = vars.id.nesting.slice(0, i + 1);
-
-        vars.data.nested[ ms ][ depth ] = dataNest(vars, timeData, nestingDepth);
-
+        vars.data.nested[ ms ][ depth ] = dataNest(vars, timeData[ms], nestingDepth);
       });
 
     });

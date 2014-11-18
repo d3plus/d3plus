@@ -102,7 +102,8 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
     if ("d3plus" in leaves[0]) {
 
-      leaves.forEach(function(l){
+      for (var ll = 0; ll < leaves.length; ll++) {
+        var l = leaves[ll];
         if ("d3plus" in l) {
           if (l.d3plus.merged instanceof Array) {
             if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
@@ -110,91 +111,58 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
           }
           if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text;
         }
-      });
+      }
+
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create a reference sum for the 3 different "segment" variables.
     //--------------------------------------------------------------------------
-    segments.forEach(function(c){
+    for (var s = 0; s < segments.length; s++) {
 
-      var agg = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum";
+      var c = segments[s];
+      var segmentAgg = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum";
 
-      if (typeof agg === "function") {
-
-        returnObj.d3plus[c] = agg(leaves);
-
+      if (typeof segmentAgg === "function") {
+        returnObj.d3plus[c] = segmentAgg(leaves);
       }
       else {
 
-        returnObj.d3plus[c] = d3[agg](leaves, function( d ) {
+        returnObj.d3plus[c] = d3[segmentAgg](leaves, function(d) {
 
           var a = c === "total" ? 1 : 0;
-
-          if ( vars[c].value ) {
-
+          if (vars[c].value) {
             a = fetchValue(vars, d, vars[c].value);
-
-            if ( typeof a !== "number" ) a = a ? 1 : 0;
-
+            if (typeof a !== "number") a = a ? 1 : 0;
           }
-
           return a;
 
         });
 
       }
-
-    });
+    }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Aggregate all values detected in the data.
     //--------------------------------------------------------------------------
-    for ( var key in vars.data.keys ) {
-
-      var uniques = uniqueValues(leaves,key);
-
+    for (var key in vars.data.keys) {
+      var uniques = uniqueValues(leaves, key);
       if (uniques.length) {
-
         var agg     = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum",
             aggType = typeof agg,
             keyType = vars.data.keys[key],
             idKey   = vars.id.nesting.indexOf(key) >= 0,
             timeKey = "time" in vars && key === vars.time.value;
-
-        if ( key in returnObj.d3plus ) {
-
+        if (key in returnObj.d3plus.data) {
           returnObj[key] = returnObj.d3plus[key];
-
         }
-        else if ( aggType === "function" ) {
-
+        else if (keyType === "number" && aggType === "string" && !idKey) {
+          returnObj[key] = d3[agg](leaves.map(function(d){return d[key];}));
+        }
+        else if (aggType === "function") {
           returnObj[key] = vars.aggs.value[key](leaves);
-
         }
-        else if ( timeKey ) {
-          var dates = [];
-
-          function parseDates(arr) {
-
-            for ( var i = 0; i < arr.length ; i++ ) {
-              var d = arr[i];
-              if (d !== undefined) {
-                if (d.constructor === Date) dates.push(d);
-                else if (d.constructor === Array) {
-                  parseDates(d);
-                }
-                else {
-                  d = new Date(d.toString());
-                  if (d !== "Invalid Date") {
-                    d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
-                    dates.push(d);
-                  }
-                }
-              }
-            }
-
-          }
+        else if (timeKey) {
 
           parseDates(uniques);
 
@@ -202,26 +170,9 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
           else returnObj[key] = dates;
 
         }
-        else if ( keyType === "number" && aggType === "string" && !idKey ) {
-          returnObj[key] = d3[agg](leaves.map(function(d){return d[key];}));
-        }
         else {
 
-          var testVals = [];
-          function checkVal(obj) {
-            if (obj instanceof Array) {
-              obj.forEach(checkVal);
-            }
-            else if (validObject(obj) && key in obj) {
-              if (obj[key] instanceof Array) {
-                obj[key].forEach(checkVal);
-              }
-              else {
-                testVals.push(obj);
-              }
-            }
-          }
-          checkVal(leaves);
+          var testVals = checkVal(leaves);
 
           var keyValues = testVals.length === 1 ? testVals[0][key]
                         : uniqueValues( testVals , key );
@@ -265,26 +216,9 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     }
 
     groupedData.push(returnObj);
-
     return returnObj;
 
   });
-
-  var rename_key_value = function(obj) {
-    if (obj.values && obj.values.length) {
-      obj.children = obj.values.map(function(obj) {
-        return rename_key_value(obj);
-      });
-      delete obj.values;
-      return obj;
-    }
-    else if(obj.values) {
-      return obj.values;
-    }
-    else {
-      return obj;
-    }
-  };
 
   var find_keys = function(obj,depth,keys) {
     if (obj.children) {
@@ -313,6 +247,77 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
   return groupedData;
 
+};
+
+var checkVal = function(leaves) {
+
+  var returnVals = [];
+
+  function run(obj) {
+    if (obj instanceof Array) {
+      obj.forEach(checkVal);
+    }
+    else if (validObject(obj) && key in obj) {
+      if (obj[key] instanceof Array) {
+        obj[key].forEach(checkVal);
+      }
+      else {
+        returnVals.push(obj);
+      }
+    }
+  }
+
+  run(leaves);
+
+  return returnVals;
+
+};
+
+var parseDates = function(dateArray) {
+
+  var dates = [];
+
+  function parseDates(arr) {
+
+    for ( var i = 0; i < arr.length ; i++ ) {
+      var d = arr[i];
+      if (d !== undefined) {
+        if (d.constructor === Date) dates.push(d);
+        else if (d.constructor === Array) {
+          parseDates(d);
+        }
+        else {
+          d = new Date(d.toString());
+          if (d !== "Invalid Date") {
+            d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
+            dates.push(d);
+          }
+        }
+      }
+    }
+
+  }
+
+  parseDates(dateArray);
+
+  return dates;
+
+};
+
+var rename_key_value = function(obj) {
+  if (obj.values && obj.values.length) {
+    obj.children = obj.values.map(function(obj) {
+      return rename_key_value(obj);
+    });
+    delete obj.values;
+    return obj;
+  }
+  else if(obj.values) {
+    return obj.values;
+  }
+  else {
+    return obj;
+  }
 };
 
 module.exports = dataNest;
