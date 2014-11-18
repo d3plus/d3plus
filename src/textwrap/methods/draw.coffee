@@ -12,9 +12,8 @@ module.exports =
     else if vars.container.value.empty()
       str = vars.format.locale.value.dev.noContainer
       print.warning stringFormat(str, "\"" + vars.container.value + "\""), "container"
-    else if vars.dev.value
-      print.time "total draw time"
-
+    else
+      print.time "total draw time" if vars.dev.value
       vars.container.value.call vars.self
 
     value

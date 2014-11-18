@@ -21,7 +21,7 @@ module.exports = ->
           text vars
           wrap vars
 
-        print.timeEnd "total draw time" if vars.dev.value
+        # print.timeEnd "total draw time" if vars.dev.value
 
         return
 
