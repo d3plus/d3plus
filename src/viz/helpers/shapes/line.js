@@ -60,7 +60,6 @@ module.exports = function(vars,selection,enter,exit) {
 
       if ( i + step === index ) {
         temp.values.push(v)
-        temp.key += "_"+segments.length
       }
       else {
         if (i > 0) {
@@ -69,7 +68,6 @@ module.exports = function(vars,selection,enter,exit) {
           temp.values = []
         }
         temp.values.push(v)
-        temp.key += "_"+segments.length
         step++
       }
 
@@ -225,56 +223,56 @@ module.exports = function(vars,selection,enter,exit) {
 
   })
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // The position and size of each anchor point on enter and exit.
-  //----------------------------------------------------------------------------
-  function init(n) {
+}
 
-    n
-      .attr("x",function(d){
-        return d.d3plus.x
-      })
-      .attr("y",function(d){
-        return d.d3plus.y
-      })
-      .attr("width",0)
-      .attr("height",0)
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// The position and size of each anchor point on enter and exit.
+//----------------------------------------------------------------------------
+function init(n) {
 
-  }
+  n
+    .attr("x",function(d){
+      return d.d3plus.x
+    })
+    .attr("y",function(d){
+      return d.d3plus.y
+    })
+    .attr("width",0)
+    .attr("height",0)
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // The position and size of each anchor point on update.
-  //----------------------------------------------------------------------------
-  function update(n,mod) {
+}
 
-    if (!mod) var mod = 0
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// The position and size of each anchor point on update.
+//----------------------------------------------------------------------------
+function update(n,mod) {
 
-    n
-      .attr("x",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return d.d3plus.x - ((w/2)+(mod/2))
-      })
-      .attr("y",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return d.d3plus.y - ((h/2)+(mod/2))
-      })
-      .attr("width",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return w+mod
-      })
-      .attr("height",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return h+mod
-      })
-      .attr("rx",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return (w+mod)/2
-      })
-      .attr("ry",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return (h+mod)/2
-      })
+  if (!mod) var mod = 0
 
-  }
+  n
+    .attr("x",function(d){
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+      return d.d3plus.x - ((w/2)+(mod/2))
+    })
+    .attr("y",function(d){
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+      return d.d3plus.y - ((h/2)+(mod/2))
+    })
+    .attr("width",function(d){
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+      return w+mod
+    })
+    .attr("height",function(d){
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+      return h+mod
+    })
+    .attr("rx",function(d){
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
+      return (w+mod)/2
+    })
+    .attr("ry",function(d){
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
+      return (h+mod)/2
+    })
 
 }
