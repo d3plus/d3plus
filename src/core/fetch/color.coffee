@@ -15,7 +15,7 @@ module.exports = (vars, id, level) ->
   #   id = if id.length then id[0] else null
 
   unless vars.color.value
-    returnColor = getRandom vars, id
+    returnColor = getRandom vars, id, level
   else
 
     colors   = []
@@ -43,13 +43,13 @@ getColor = (vars, id, color) ->
   unless color
     if vars.color.value and typeof vars.color.valueScale is "function"
       return vars.color.valueScale(0)
-    getRandom vars, id
+    getRandom vars, id, level
   else unless vars.color.valueScale
-    if validColor(color) then color else getRandom(vars, color)
+    if validColor color then color else getRandom vars, color, level
   else
     vars.color.valueScale color
 
-getRandom = (vars, c) ->
+getRandom = (vars, c, level) ->
   c = fetchValue(vars, c, level) if validObject(c)
   c = c[0] if c instanceof Array
   randomColor c, vars.color.scale.value

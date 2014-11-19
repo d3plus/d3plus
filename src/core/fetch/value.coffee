@@ -82,6 +82,18 @@ valueParse = (node, depth, variable, val) ->
     node.d3plus.data[depth][variable] = val
   val
 
+aggregate = (vars, arr, variable) ->
+  return arr unless arr instanceof Array
+  if vars.aggs and variable of vars.aggs.value
+    agg = vars.aggs[variable]
+    if typeof agg is "function"
+      return agg(arr)
+    else
+      return d3[agg](arr)
+  else if typeof arr[0] is "number"
+    return d3.sum(arr)
+  uniqueValues arr
+
 fetch = (vars, node, variable, depth) ->
 
   return null unless variable
@@ -93,21 +105,24 @@ fetch = (vars, node, variable, depth) ->
   if nodeObject and node.values instanceof Array
     val = []
     for item in node.values
-      v = uniqueValues find vars, item, variable, depth
+      v = find(vars, item, variable, depth)
       val.push valueParse item, depth, variable, v
+    val = aggregate vars, val, variable
   else if node instanceof Array
     val = []
     for item in node
-      v = uniqueValues find vars, item, variable, depth
+      v = find(vars, item, variable, depth)
       val.push valueParse item, depth, variable, v
+    val = aggregate vars, val, variable
   else
     val = find vars, node, variable, depth
     val = valueParse node, depth, variable, val
     if val is null and nodeObject and node[vars.id.value] instanceof Array
       val = []
       for item in node[vars.id.value]
-        v = uniqueValues find vars, item, variable, depth
+        v = find(vars, item, variable, depth)
         val.push valueParse item, depth, variable, v
+      val = aggregate vars, val, variable
 
   val
 
