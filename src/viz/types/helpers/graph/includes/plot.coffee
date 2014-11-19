@@ -1,5 +1,6 @@
-buffer    = require "./buffer.coffee"
-fontSizes = require "../../../../../font/sizes.coffee"
+buffer     = require "./buffer.coffee"
+fetchValue = require "../../../../../core/fetch/value.coffee"
+fontSizes  = require "../../../../../font/sizes.coffee"
 
 module.exports = (vars, opts) ->
 
@@ -10,9 +11,19 @@ module.exports = (vars, opts) ->
 
   # Set ticks, if not previously set
   for axis in ["x","y"]
-    vars[axis].ticks.values = vars[axis].scale.viz.ticks() if vars[axis].ticks.values is false
+
+    if vars[axis].ticks.values is false
+      vars[axis].ticks.values = vars[axis].scale.viz.ticks()
+
+    unless vars[axis].ticks.values.length
+      values = fetchValue vars, vars.data.viz, vars[axis].value
+      values = [values] unless values instanceof Array
+      vars[axis].ticks.values = values
+
     opp = if axis is "x" then "y" else "x"
-    if opts.buffer and (opts.buffer isnt opp or vars[axis].ticks.values.length is 1) and axis is vars.axes.discrete and vars[axis].reset is true
+    if vars[axis].ticks.values.length is 1 or
+       (opts.buffer and opts.buffer isnt opp and
+       axis is vars.axes.discrete and vars[axis].reset is true)
       buffer vars, axis, opts.buffer
     vars[axis].reset = false
 
