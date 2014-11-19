@@ -18,7 +18,9 @@ uniques = (data, value, fetch, vars, depth) ->
   lookups = []
 
   for d in data
+
     if objectValidate d
+
       if fetch
         val = uniques fetch(vars, d, value, depth)
         val = val[0] if val.length is 1
@@ -26,10 +28,17 @@ uniques = (data, value, fetch, vars, depth) ->
         val = value d
       else
         val = d[value]
-      lookup = if [ "number", "string" ].indexOf(typeof val) >= 0 then val else JSON.stringify(val)
-      if lookup isnt undefined and lookups.indexOf(lookup) < 0
-        vals.push val
-        lookups.push lookup
+
+      if val isnt undefined and val isnt null
+
+        if ["number", "string"].indexOf(typeof val) >= 0
+          lookup = val
+        else
+          lookup = JSON.stringify(val)
+
+        if lookup isnt undefined and lookups.indexOf(lookup) < 0
+          vals.push val
+          lookups.push lookup
 
   vals.sort (a, b) -> a - b
 
