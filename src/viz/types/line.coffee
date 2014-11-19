@@ -1,6 +1,5 @@
 fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
-dataTicks  = require "./helpers/graph/dataTicks.coffee"
 nest       = require "./helpers/graph/nest.coffee"
 stack      = require "./helpers/graph/stack.coffee"
 
@@ -26,8 +25,6 @@ line = (vars) ->
       d.d3plus.y += vars.axes.margin.top
 
       d.d3plus.r = 2
-
-  dataTicks vars
 
   if vars.axes.stacked then stack vars, data else data
 
