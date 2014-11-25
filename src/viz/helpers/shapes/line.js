@@ -1,7 +1,7 @@
-var copy = require("../../../util/copy.coffee"),
-    closest = require("../../../util/closest.coffee"),
+var copy       = require("../../../util/copy.coffee"),
+    closest    = require("../../../util/closest.coffee"),
     events     = require("../../../client/pointer.coffee"),
-    shapeStyle = require("./style.coffee")
+    shapeStyle = require("./style.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
@@ -15,7 +15,7 @@ module.exports = function(vars,selection,enter,exit) {
   var line = d3.svg.line()
     .x(function(d){ return d.d3plus.x; })
     .y(function(d){ return d.d3plus.y; })
-    .interpolate(vars.shape.interpolate.value)
+    .interpolate(vars.shape.interpolate.value);
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Divide each line into it's segments. We do this so that there can be gaps
@@ -28,71 +28,69 @@ module.exports = function(vars,selection,enter,exit) {
   var stroke = vars.data.stroke.width * 2,
       hitarea = stroke < 30 ? 30 : stroke,
       discrete = vars[vars.axes.discrete],
-      ticks = []
+      ticks = [];
 
   discrete.ticks.values.forEach(function(d){
-    if (d.constructor === Date) ticks.push(d.getTime())
-    else ticks.push(d)
-  })
+    if (d.constructor === Date) ticks.push(d.getTime());
+    else ticks.push(d);
+  });
 
   selection.each(function(d){
 
-    var step = false,
+    var lastIndex = false,
         segments = [],
         nodes = [],
         temp = copy(d),
-        group = d3.select(this)
+        group = d3.select(this);
 
-    temp.values = []
+    temp.values = [];
+    temp.segment_key = temp.key;
     d.values.forEach(function(v,i,arr){
 
-      nodes.push(v)
+      nodes.push(v);
 
-      var k = v[discrete.value]
+      var k = v[discrete.value];
 
-      if (k.constructor === Date) k = k.getTime()
+      if (k.constructor === Date) k = k.getTime();
 
-      var index = ticks.indexOf(closest(ticks,k))
+      var index = ticks.indexOf(closest(ticks,k));
 
-      if (step === false) {
-        step = index
-      }
-
-      if ( i + step === index ) {
-        temp.values.push(v)
+      if (lastIndex === false || lastIndex === index - 1) {
+        temp.values.push(v);
+        temp.segment_key += "_" + index;
       }
       else {
-        if (i > 0) {
-          segments.push(temp)
-          temp = copy(d)
-          temp.values = []
+        if (temp.values.length > 1) {
+          segments.push(temp);
         }
-        temp.values.push(v)
-        step++
+        temp = copy(d);
+        temp.values = [v];
       }
 
       if ( i === arr.length - 1 ) {
-        segments.push(temp)
+        segments.push(temp);
       }
 
-    })
+      lastIndex = index;
+
+    });
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind segment data to "paths"
     //--------------------------------------------------------------------------
     var paths = group.selectAll("path.d3plus_line")
       .data(segments, function(d){
-        d.d3plus.shape = "line"
-        return d.key
-      })
+        d.d3plus.shape = "line";
+        return d.segment_key;
+      });
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind node data to "rects"
     //--------------------------------------------------------------------------
     var rects = group.selectAll("rect.d3plus_anchor")
       .data(nodes, function(d){
-        return d.d3plus.id
-      })
+        return d.d3plus.id;
+      });
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // "paths" and "rects" Enter/Update
@@ -100,48 +98,48 @@ module.exports = function(vars,selection,enter,exit) {
     if (vars.draw.timing) {
 
       paths.transition().duration(vars.draw.timing)
-        .attr("d",function(d){ return line(d.values) })
-        .call(shapeStyle,vars)
+        .attr("d",function(d){ return line(d.values); })
+        .call(shapeStyle,vars);
 
       paths.enter().append("path")
         .attr("class","d3plus_line")
-        .attr("d",function(d){ return line(d.values) })
-        .call(shapeStyle,vars)
+        .attr("d",function(d){ return line(d.values); })
+        .call(shapeStyle,vars);
 
       rects.enter().append("rect")
         .attr("class","d3plus_anchor")
         .attr("id",function(d){
-          return d.d3plus.id
+          return d.d3plus.id;
         })
         .call(init)
-        .call(shapeStyle,vars)
+        .call(shapeStyle,vars);
 
       rects.transition().duration(vars.draw.timing)
         .call(update)
-        .call(shapeStyle,vars)
+        .call(shapeStyle,vars);
 
       rects.exit().transition().duration(vars.draw.timing)
         .call(init)
-        .remove()
+        .remove();
 
     }
     else {
 
       paths.enter().append("path")
-        .attr("class","d3plus_line")
+        .attr("class","d3plus_line");
 
       paths
-        .attr("d",function(d){ return line(d.values) })
-        .call(shapeStyle,vars)
+        .attr("d",function(d){ return line(d.values); })
+        .call(shapeStyle,vars);
 
       rects.enter().append("rect")
         .attr("class","d3plus_anchor")
         .attr("id",function(d){
-          return d.d3plus.id
-        })
+          return d.d3plus.id;
+        });
 
       rects.call(update)
-        .call(shapeStyle,vars)
+        .call(shapeStyle,vars);
 
     }
 
@@ -150,20 +148,20 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     var mouse = group.selectAll("path.d3plus_mouse")
       .data(segments, function(d){
-        return d.key
-      })
+        return d.segment_key;
+      });
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mouse "paths" Enter
     //--------------------------------------------------------------------------
     mouse.enter().append("path")
       .attr("class","d3plus_mouse")
-      .attr("d",function(l){ return line(l.values) })
+      .attr("d",function(l){ return line(l.values); })
       .style("stroke","black")
       .style("stroke-width",hitarea)
       .style("fill","none")
       .style("stroke-linecap","round")
-      .attr("opacity",0)
+      .attr("opacity",0);
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mouse "paths" Update
@@ -179,25 +177,25 @@ module.exports = function(vars,selection,enter,exit) {
     if (vars.draw.timing) {
 
       mouse.transition().duration(vars.draw.timing)
-        .attr("d",function(l){ return line(l.values) })
-        .style("stroke-width",hitarea)
+        .attr("d",function(l){ return line(l.values); })
+        .style("stroke-width",hitarea);
 
     }
     else {
 
-      mouse.attr("d",function(l){ return line(l.values) })
-        .style("stroke-width",hitarea)
+      mouse.attr("d",function(l){ return line(l.values); })
+        .style("stroke-width",hitarea);
 
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mouse "paths" Exit
     //--------------------------------------------------------------------------
-    mouse.exit().remove()
+    mouse.exit().remove();
 
-  })
+  });
 
-}
+};
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // The position and size of each anchor point on enter and exit.
@@ -206,13 +204,13 @@ function init(n) {
 
   n
     .attr("x",function(d){
-      return d.d3plus.x
+      return d.d3plus.x;
     })
     .attr("y",function(d){
-      return d.d3plus.y
+      return d.d3plus.y;
     })
     .attr("width",0)
-    .attr("height",0)
+    .attr("height",0);
 
 }
 
@@ -225,29 +223,29 @@ function update(n,mod) {
 
   n
     .attr("x",function(d){
-      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-      return d.d3plus.x - ((w/2)+(mod/2))
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+      return d.d3plus.x - ((w/2)+(mod/2));
     })
     .attr("y",function(d){
-      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-      return d.d3plus.y - ((h/2)+(mod/2))
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+      return d.d3plus.y - ((h/2)+(mod/2));
     })
     .attr("width",function(d){
-      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-      return w+mod
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+      return w+mod;
     })
     .attr("height",function(d){
-      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-      return h+mod
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+      return h+mod;
     })
     .attr("rx",function(d){
-      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-      return (w+mod)/2
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+      return (w+mod)/2;
     })
     .attr("ry",function(d){
-      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-      return (h+mod)/2
-    })
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+      return (h+mod)/2;
+    });
 
 }
 
@@ -278,4 +276,4 @@ function mouseStyle(vars, elem, stroke, mod) {
     .call(update, mod);
   }
 
-};
+}
