@@ -170,37 +170,11 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     mouse
       .on(events.over,function(m){
-
-        if (!vars.draw.frozen) {
-
-          d3.select(this.parentNode).selectAll("path.d3plus_line")
-            .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",stroke*2)
-
-          d3.select(this.parentNode).selectAll("rect")
-            .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",stroke)
-            .call(update,2)
-
-        }
-
+        if (!vars.draw.frozen) mouseStyle(vars, this, stroke, 2);
       })
       .on(events.out,function(d){
-
-        if (!vars.draw.frozen) {
-
-          d3.select(this.parentNode).selectAll("path.d3plus_line")
-            .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",stroke)
-
-          d3.select(this.parentNode).selectAll("rect")
-            .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",vars.data.stroke.width)
-            .call(update)
-
-        }
-
-      })
+        if (!vars.draw.frozen) mouseStyle(vars, this, stroke, 0);
+      });
 
     if (vars.draw.timing) {
 
@@ -247,7 +221,7 @@ function init(n) {
 //----------------------------------------------------------------------------
 function update(n,mod) {
 
-  if (!mod) var mod = 0
+  if (mod === undefined) mod = 0;
 
   n
     .attr("x",function(d){
@@ -276,3 +250,32 @@ function update(n,mod) {
     })
 
 }
+
+function mouseStyle(vars, elem, stroke, mod) {
+
+  var timing = vars.draw.timing ? vars.timing.mouseevents : 0;
+  var pathWidth = mod ? stroke * mod : stroke;
+
+  if (timing) {
+
+    d3.select(elem.parentNode).selectAll("path.d3plus_line")
+    .transition().duration(timing)
+    .style("stroke-width",pathWidth);
+
+    d3.select(elem.parentNode).selectAll("rect")
+    .transition().duration(timing)
+    .style("stroke-width",stroke)
+    .call(update, mod);
+
+  }
+  else {
+
+    d3.select(elem.parentNode).selectAll("path.d3plus_line")
+    .style("stroke-width",pathWidth);
+
+    d3.select(elem.parentNode).selectAll("rect")
+    .style("stroke-width",stroke)
+    .call(update, mod);
+  }
+
+};
