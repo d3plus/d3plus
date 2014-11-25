@@ -36,11 +36,14 @@ line.setup        = (vars) ->
     axis = if vars.time.value is vars.y.value then "y" else "x"
     vars.self[axis] scale: "discrete"
 
-  y    = vars[vars.axes.opposite].value
+  y    = vars[vars.axes.opposite]
   size = vars.size
-  if (not y.value and size.value) or (size.changed and size.previous is y.value)
+
+  if (not y.value and size.value) or
+     (size.changed and size.previous is y.value)
     vars.self[vars.axes.opposite] size.value
-  else if (not size.value and y.value) or (y.changed and y.previous is size.value)
+  else if (not size.value and y.value) or
+          (y.changed and y.previous is size.value)
     vars.self.size y.value
   return
 line.shapes  = ["line"]
