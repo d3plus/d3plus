@@ -121,7 +121,7 @@ getScale = (vars, axis, range) ->
   scaleType = vars[axis].scale.value
   scaleType = "linear" if ["discrete","share"].indexOf(scaleType) >= 0
 
-  if typeof range[0] isnt "number"
+  if typeof range[0] is "string"
     scaleType = "ordinal"
     rangeArray = buckets [0, rangeMax], range.length
   else

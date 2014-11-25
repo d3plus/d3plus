@@ -9,7 +9,7 @@ module.exports = (vars, axis, buffer) ->
 
       domain = vars[axis].scale.viz.domain()
 
-      if typeof domain[0] isnt "number"
+      if typeof domain[0] is "string"
         domain.unshift "d3plus_buffer_first"
         domain.push "d3plus_buffer_last"
         range = vars[axis].scale.viz.range()

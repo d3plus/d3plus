@@ -14,6 +14,7 @@ line = (vars) ->
   return [] if domains.indexOf(undefined) >= 0
 
   data = nest vars
+  console.log data, vars.x.scale.viz.domain()
 
   # Assign x and y to each data point
   for point in data

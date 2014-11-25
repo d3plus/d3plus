@@ -36,7 +36,7 @@ module.exports = (vars, data) ->
 
           leaves.push obj
 
-      if typeof leaves[0][discrete.value] isnt "number"
+      if typeof leaves[0][discrete.value] is "string"
         leaves
       else
         leaves.sort (a, b) ->
