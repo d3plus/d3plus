@@ -24,7 +24,14 @@ find = (vars, node, variable, depth) ->
     if variable of node.d3plus.data[depth]
       return node.d3plus.data[depth][variable]
 
-    node = fetch vars, node, depth
+    if depth of node
+      node = node[depth]
+    else if depth of vars.data.keys or
+            depth of vars.attrs.keys and
+            depth isnt variable
+      node = fetch vars, node, depth
+    else
+      return null
 
   node = uniqueValues node if node instanceof Array and not validObject node[0]
 
