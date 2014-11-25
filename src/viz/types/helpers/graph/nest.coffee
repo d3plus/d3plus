@@ -4,11 +4,11 @@ uniqueValues = require "../../../../util/uniques.coffee"
 
 module.exports = (vars, data) ->
 
-  data       = vars.data.viz unless data
+  data     = vars.data.viz unless data
   discrete = vars[vars.axes.discrete]
-  opposite   = vars[vars.axes.opposite]
-  ticks      = discrete.ticks.values
-  offsets    =
+  opposite = vars[vars.axes.opposite]
+  ticks    = discrete.ticks.values
+  offsets  =
     x: vars.axes.margin.left
     y: vars.axes.margin.top
 
@@ -29,16 +29,19 @@ module.exports = (vars, data) ->
 
         if availables.indexOf(tester) < 0 and discrete.zerofill.value
 
-          obj                   = {d3plus: {}}
-          obj[vars.id.value]    = leaves[0][vars.id.value]
+          obj                 = {d3plus: {}}
+          obj[vars.id.value]  = leaves[0][vars.id.value]
           obj[discrete.value] = tick
-          obj[opposite.value]   = opposite.scale.viz.domain()[1]
+          obj[opposite.value] = opposite.scale.viz.domain()[1]
 
           leaves.push obj
 
-      return leaves.sort (a, b) ->
-        xsort = a[discrete.value] - b[discrete.value]
-        ysort = a[opposite.value] - b[opposite.value]
-        if xsort then xsort else ysort
+      if typeof leaves[0][discrete.value] isnt "number"
+        leaves
+      else
+        leaves.sort (a, b) ->
+          xsort = a[discrete.value] - b[discrete.value]
+          ysort = a[opposite.value] - b[opposite.value]
+          if xsort then xsort else ysort
 
     .entries data

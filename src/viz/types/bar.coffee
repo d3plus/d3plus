@@ -20,11 +20,11 @@ bar = (vars) ->
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
 
-  nested = nest vars, data
+  nested = nest vars
 
   stack vars, nested if vars.axes.stacked
 
-  space   = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
+  space = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
 
   # Fetches the discrete axis padding to use in between each group of bars.
   padding = vars[vars.axes.discrete].padding.value
@@ -46,11 +46,13 @@ bar = (vars) ->
       .domain [0, nested.length-1]
       .range [-offset, offset]
 
+  data = []
   for point, i in nested
     mod = if vars.axes.stacked then 0 else x(i)
     for d in point.values
 
       discreteVal = fetchValue(vars, d, vars[discrete].value)
+
       d.d3plus[discrete]  = vars[discrete].scale.viz discreteVal
       d.d3plus[discrete] += vars.axes.margin[cMargin] + mod
 
@@ -78,6 +80,8 @@ bar = (vars) ->
       d.d3plus.init[w]         = d.d3plus[w]
 
       d.d3plus.label = false
+
+      data.push d
 
   data
 

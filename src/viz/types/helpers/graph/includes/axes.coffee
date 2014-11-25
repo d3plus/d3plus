@@ -1,4 +1,5 @@
 buffer     = require "./buffer.coffee"
+buckets    = require "../../../../../util/buckets.coffee"
 fetchData  = require "../../../../../core/fetch/data.js"
 fetchValue = require "../../../../../core/fetch/value.coffee"
 print      = require "../../../../../core/console/print.coffee"
@@ -108,17 +109,26 @@ axisRange = (vars, axis, zero) ->
     d3.extent vars[axis].ticks.values
   else
     values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value
-    values.push 0 if zero
-    d3.extent values
+    if typeof values[0] is "string"
+      uniques values
+    else
+      values.push 0 if zero
+      d3.extent values
 
 getScale = (vars, axis, range) ->
+
   rangeMax  = if axis is "x" then vars.width.viz else vars.height.viz
   scaleType = vars[axis].scale.value
   scaleType = "linear" if ["discrete","share"].indexOf(scaleType) >= 0
 
+  if typeof range[0] isnt "number"
+    scaleType = "ordinal"
+    rangeArray = buckets [0, rangeMax], range.length
+  else
+    rangeArray = [0, rangeMax]
+
   d3.scale[scaleType]()
-    .domain range
-    .rangeRound [0,rangeMax]
+    .domain(range).range(rangeArray)
 
 sizeScale = (vars, value) ->
 

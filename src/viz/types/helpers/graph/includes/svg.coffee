@@ -84,15 +84,15 @@ module.exports = (vars) ->
     opp = if axis is "x" then "y" else "x"
 
     text
-       .attr opp          , (d) -> d.coords.text[opp] + "px"
-       .attr axis         , (d) -> d.coords.text[axis]+"px"
-       .attr "dy"         , vars[axis].lines.font.position.value
-       .attr "text-anchor", alignMap[vars[axis].lines.font.align.value]
-       .attr "transform"  , (d) -> d.transform
-       .attr "font-size"  , vars[axis].lines.font.size+"px"
-       .attr "fill"       , (d) -> d.color or vars[axis].lines.color
-       .attr "font-family", vars[axis].lines.font.family.value
-       .attr "font-weight", vars[axis].lines.font.weight
+      .attr opp          , (d) -> d.coords.text[opp] + "px"
+      .attr axis         , (d) -> d.coords.text[axis]+"px"
+      .attr "dy"         , vars[axis].lines.font.position.value
+      .attr "text-anchor", alignMap[vars[axis].lines.font.align.value]
+      .attr "transform"  , (d) -> d.transform
+      .attr "font-size"  , vars[axis].lines.font.size+"px"
+      .attr "fill"       , (d) -> d.color or vars[axis].lines.color
+      .attr "font-family", vars[axis].lines.font.family.value
+      .attr "font-weight", vars[axis].lines.font.weight
 
   # Draw Plane Group
   planeTrans = "translate(" + vars.axes.margin.left + "," + vars.axes.margin.top + ")"
@@ -175,7 +175,11 @@ module.exports = (vars) ->
   # Style for both axes text labels
   labelStyle = (label, axis) ->
     label
-      .attr "x", if axis is "x" then vars.width.viz/2 else -(vars.axes.height/2+vars.axes.margin.top)
+      .attr "x",
+        if axis is "x"
+          vars.width.viz/2
+        else
+          -(vars.axes.height/2+vars.axes.margin.top)
       .attr "y", if axis is "x" then vars.height.viz-10 else 15
       .attr "transform", if axis is "y" then "rotate(-90)" else null
       .attr "font-family", vars[axis].label.family.value
@@ -207,7 +211,8 @@ module.exports = (vars) ->
       .remove()
 
     # Draw Axis Text Label
-    label = vars.group.selectAll("text#d3plus_graph_"+axis+"label").data axisData
+    label = vars.group.selectAll("text#d3plus_graph_"+axis+"label")
+      .data axisData
     label.text vars.format.value(vars[axis].value, undefined, vars)
       .transition().duration vars.draw.timing
         .call labelStyle, axis
