@@ -13,6 +13,7 @@ var child         = require("../../../util/child.coffee"),
     touch         = require("../../../client/touch.coffee"),
     touchEvent    = require("../zoom/propagation.coffee"),
     uniqueValues  = require("../../../util/uniques.coffee"),
+    validObject   = require("../../../object/validate.coffee"),
     zoomDirection = require("../zoom/direction.coffee");
 
 var drawShape = {
@@ -112,31 +113,24 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   function transform(g,grow) {
 
-    var scales = vars.types[vars.type.value].scale
-    if (grow && scales && scales[vars.shape.value]) {
-       var scale = scales[vars.shape.value]
+    var scales = vars.types[vars.type.value].scale,
+        scale = 1;
+    if (scales) {
+      if (validObject[scales] && vars.shape.value in scales) {
+        scale = scales[vars.shape.value];
+      }
+      else if (typeof scales == "function") {
+        scale = scales(vars, vars.shape.value);
+      }
+      else if (typeof scales == "number") {
+        scale = scales;
+      }
     }
-    else if (grow && scales && typeof scales == "number") {
-      var scale = scales
+
+    if (scale !== 1) {
+      scale = grow ? scale : 1;
+      g.attr("transform","scale("+scale+")");
     }
-    else {
-      var scale = 1
-    }
-
-    g
-      .attr("transform",function(d){
-
-        var x = d.d3plus.x || 0
-          , y = d.d3plus.y || 0
-
-        if (["line","area","coordinates"].indexOf(shape) < 0) {
-          return "translate("+x+","+y+")scale("+scale+")"
-        }
-        else {
-          return "scale("+scale+")"
-        }
-
-      })
 
   }
 
@@ -443,6 +437,7 @@ module.exports = function(vars) {
           }
 
           var tooltip_data = d.d3plus_data ? d.d3plus_data : d
+
           createTooltip({
             "vars": vars,
             "data": tooltip_data
@@ -455,7 +450,7 @@ module.exports = function(vars) {
             vars.mouse[events.over](d.d3plus_data || d, vars)
           }
 
-          edge_update(d)
+          // edge_update(d)
 
         }
 

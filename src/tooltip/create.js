@@ -62,14 +62,6 @@ module.exports = function(params) {
 
   }
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Function that closes ALL Descriptions
-  //-------------------------------------------------------------------
-  var close_descriptions = function() {
-    d3.selectAll("div.d3plus_tooltip_data_desc").style("height","0px")
-    d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc")
-  }
-
   removeTooltip(params.id)
 
   params.anchor = {}
@@ -119,10 +111,8 @@ module.exports = function(params) {
     .style("font-size",params.fontsize+"px")
     .style(vendor+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
     .style("position","absolute")
-    .style("z-index",params.zindex)
-    .on(events.out,function(){
-      close_descriptions()
-    })
+    // .style("z-index",params.zindex)
+    .on(events.out, close_descriptions)
 
   if (params.max_height) {
     tooltip.style("max-height",params.max_height+"px")
@@ -562,4 +552,14 @@ module.exports = function(params) {
 
   move(params.x, params.y, params.id);
 
+}
+
+
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Function that closes ALL Descriptions
+//-------------------------------------------------------------------
+function close_descriptions() {
+  d3.selectAll("div.d3plus_tooltip_data_desc").style("height","0px");
+  d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc");
 }
