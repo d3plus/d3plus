@@ -30,7 +30,7 @@ module.exports = (vars, id, level) ->
         value = id
 
       if !(value instanceof Array) and value isnt undefined and value isnt null
-        color = getColor(vars, id, value)
+        color = getColor(vars, id, value, level)
         colors.push color if colors.indexOf(color) < 0
         break
       i--
@@ -39,7 +39,7 @@ module.exports = (vars, id, level) ->
 
   returnColor
 
-getColor = (vars, id, color) ->
+getColor = (vars, id, color, level) ->
   unless color
     if vars.color.value and typeof vars.color.valueScale is "function"
       return vars.color.valueScale(0)
