@@ -101,6 +101,13 @@ aggregate = (vars, arr, variable) ->
     return d3.sum(arr)
   uniqueValues arr
 
+fetchArray = (vars, arr, variable, depth) ->
+  val = []
+  for item in arr
+    v = find vars, item, variable, depth
+    val.push valueParse item, depth, variable, v
+  aggregate vars, val, variable
+
 fetch = (vars, node, variable, depth) ->
 
   return null unless variable
@@ -110,26 +117,20 @@ fetch = (vars, node, variable, depth) ->
   depth = vars.id.value unless depth
 
   if nodeObject and node.values instanceof Array
-    val = []
-    for item in node.values
-      v = find(vars, item, variable, depth)
-      val.push valueParse item, depth, variable, v
-    val = aggregate vars, val, variable
+    val = fetchArray vars, node.values, variable, depth
+  else if nodeObject and node[variable] instanceof Array
+    val = fetchArray vars, node[variable], variable, depth
   else if node instanceof Array
-    val = []
-    for item in node
-      v = find(vars, item, variable, depth)
-      val.push valueParse item, depth, variable, v
-    val = aggregate vars, val, variable
+    val = fetchArray vars, node, variable, depth
   else
     val = find vars, node, variable, depth
     val = valueParse node, depth, variable, val
-    if val is null and nodeObject and node[vars.id.value] instanceof Array
-      val = []
-      for item in node[vars.id.value]
-        v = find(vars, item, variable, depth)
-        val.push valueParse item, depth, variable, v
-      val = aggregate vars, val, variable
+    # if val is null and nodeObject and node[vars.id.value] instanceof Array
+    #   val = []
+    #   for item in node[vars.id.value]
+    #     v = find(vars, item, variable, depth)
+    #     val.push valueParse item, depth, variable, v
+    #   val = aggregate vars, val, variable
 
   val
 
