@@ -29,7 +29,9 @@ find = (vars, node, variable, depth) ->
     else if depth of vars.data.keys or
             depth of vars.attrs.keys and
             depth isnt variable
-      node = fetch vars, node, depth
+      node = checkData(vars, node, variable, depth) or
+             checkAttrs(vars, node, variable, depth)
+      return null unless node
     else
       return null
 
@@ -43,11 +45,22 @@ find = (vars, node, variable, depth) ->
 
   # Checks inside of the visualization data array, if available, for the needed
   # variable (given the node ID).
-  if vars.data.viz instanceof Array and variable of vars.data.keys
-    val = uniqueValues filterArray(vars.data.viz, node, depth), variable
-    return val if val.length
+  val = checkData(vars, node, variable, depth)
+  return val if val
 
   # Checks inside of the attribute list, if available
+  val = checkAttrs(vars, node, variable, depth)
+
+  val
+
+checkData = (vars, node, variable, depth) ->
+
+  if vars.data.viz instanceof Array and variable of vars.data.keys
+    val = uniqueValues filterArray(vars.data.viz, node, depth), variable
+  return if val and val.length then val else null
+
+checkAttrs = (vars, node, variable, depth) ->
+
   if "attrs" of vars and vars.attrs.value and variable of vars.attrs.keys
 
     if validObject(vars.attrs.value) and depth of vars.attrs.value
