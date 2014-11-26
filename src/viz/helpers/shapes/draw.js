@@ -130,7 +130,7 @@ module.exports = function(vars) {
     scale = grow ? scale : 1;
     g.attr("transform", function(d){
 
-      if (["line","area","coordinates"].indexOf(d.d3plus.shape) < 0) {
+      if (["line","area","coordinates"].indexOf(shape) < 0) {
           var x = d.d3plus.x || 0, y = d.d3plus.y || 0;
           return "translate("+x+","+y+")scale("+scale+")";
       }
