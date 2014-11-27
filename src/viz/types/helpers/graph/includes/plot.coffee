@@ -120,6 +120,9 @@ createAxis = (vars, axis) ->
         else if d.constructor is Date
           vars.data.time.multiFormat(d)
         else
-          vars.format.value(d, vars[axis].value, vars)
+          10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
       else
         null
+
+superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+formatPower = (d) -> (d + "").split("").map((c) -> superscript[c]).join("")

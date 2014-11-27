@@ -58,8 +58,6 @@ module.exports = (node, vars) ->
 
   lines = vars.g.labels.selectAll("line.d3plus_mouse_axis_label").data lineData
 
-
-
   if timing
 
     lines.enter().append "line"

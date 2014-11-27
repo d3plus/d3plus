@@ -3,21 +3,6 @@ var defaultLocale = require("../core/locale/languages/en_US.coffee");
 // Formats numbers to look "pretty"
 module.exports = function(number, key, vars, data) {
 
-  if ( vars && key && vars.x && vars.y && (
-       ( key === vars.x.value && vars.x.scale.value === "log" ) ||
-       ( key === vars.y.value && vars.y.scale.value === "log" ) ) ) {
-
-    var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹"
-      , formatPower = function(d) {
-          return (d + "").split("").map(function(c) {
-            return superscript[c]
-          }).join("")
-        }
-
-    return 10 + " " + formatPower( Math.round(Math.log(number) / Math.LN10) )
-
-  }
-
   if ( "locale" in this ) {
     var time = this.locale.value.time
   }
