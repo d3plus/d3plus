@@ -31,7 +31,7 @@ find = (vars, node, variable, depth) ->
             depth isnt variable
       node = checkData(vars, node, variable, depth) or
              checkAttrs(vars, node, variable, depth)
-      return null unless node
+      return null if node is null
     else
       return null
 

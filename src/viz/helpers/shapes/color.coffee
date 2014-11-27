@@ -9,7 +9,9 @@ module.exports = (d, vars) ->
 
   if vars.shape.value is "line" and shape isnt "circle"
     return "none"
-  else if vars.shape.value is "area" or shape is "active" or vars.shape.value is "line"
+  else if vars.shape.value is "area" or
+          shape is "active" or
+          vars.shape.value is "line"
     return fetchColor(vars, d)
   else if shape is "temp"
     return "url(#d3plus_hatch_" + d.d3plus.id + ")"
@@ -20,7 +22,9 @@ module.exports = (d, vars) ->
   temp   = if vars.temp.value then fetchValue(vars, d, vars.temp.value) else d.d3plus.temp
   total  = if vars.total.value then fetchValue(vars, d, vars.total.value) else d.d3plus.total
 
-  if (not active and not temp) or (active and total and active >= total) or (active and not total)
+  if (not vars.active.value and not vars.temp.value) or active is true or
+     (active and total and active >= total and not temp) or
+     (active and not total)
     fetchColor vars, d
   else if vars.active.spotlight.value
     "#fafafa"
