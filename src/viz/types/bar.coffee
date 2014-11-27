@@ -47,6 +47,8 @@ bar = (vars) ->
       .range [-offset, offset]
 
   data = []
+  zero = 0
+
   for point, i in nested
     mod = if vars.axes.stacked then 0 else x(i)
     for d in point.values
@@ -57,14 +59,16 @@ bar = (vars) ->
       d.d3plus[discrete] += vars.axes.margin[cMargin] + mod
 
       if vars.axes.stacked
-        base   = d.d3plus[opposite+"0"]
         value  = d.d3plus[opposite]
-        length = base - value
+        base   = d.d3plus[opposite+"0"]
       else
-        base   = vars[opposite].scale.viz(0)
         oppVal = fetchValue(vars, d, vars[opposite].value)
+        if vars[opposite].scale.value is "log"
+          zero = if oppVal < 0 then -1 else 1
         value  = vars[opposite].scale.viz oppVal
-        length = base - value
+        base   = vars[opposite].scale.viz zero
+
+      length = base - value
 
       d.d3plus[opposite]  = base - length/2
       d.d3plus[opposite] += vars.axes.margin[oMargin] unless vars.axes.stacked
@@ -73,7 +77,7 @@ bar = (vars) ->
       d.d3plus[h]              = Math.abs length
       d.d3plus.init            = {}
 
-      d.d3plus.init[opposite]  = vars[opposite].scale.viz(0)
+      d.d3plus.init[opposite]  = vars[opposite].scale.viz zero
       d.d3plus.init[opposite] -= d.d3plus[opposite]
       d.d3plus.init[opposite] += vars.axes.margin[oMargin]
 

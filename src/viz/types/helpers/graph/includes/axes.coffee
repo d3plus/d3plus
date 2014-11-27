@@ -84,7 +84,7 @@ getData = (vars) ->
     depths  = d3.range(0,vars.id.nesting.length)
     d3.merge [fetchData(vars,"all",d) for d in depths]
 
-axisRange = (vars, axis, zero) ->
+axisRange = (vars, axis, zero, buffer) ->
   if vars[axis].range.value and vars[axis].range.value.length is 2
     vars[axis].range.value.slice()
   else if vars[axis].scale.value is "share"
@@ -112,7 +112,12 @@ axisRange = (vars, axis, zero) ->
     if typeof values[0] is "string"
       uniques values
     else
-      values.push 0 if zero
+      if zero
+        allPositive = values[0] >= 0 and values[1] >= 0
+        allNegative = values[0] <= 0 and values[1] <= 0
+        if allPositive or allNegative
+          min = if allPositive then 1 else -1
+          values.push if vars[axis].scale.value is "log" then min else 0
       d3.extent values
 
 getScale = (vars, axis, range) ->
