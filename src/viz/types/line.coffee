@@ -24,8 +24,6 @@ line = (vars) ->
       d.d3plus.y  = vars.y.scale.viz fetchValue(vars, d, vars.y.value)
       d.d3plus.y += vars.axes.margin.top
 
-      d.d3plus.r = 2
-
   if vars.axes.stacked then stack vars, data else data
 
 # Visualization Settings and Helper Functions

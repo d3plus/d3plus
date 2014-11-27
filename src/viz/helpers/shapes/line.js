@@ -47,8 +47,6 @@ module.exports = function(vars,selection,enter,exit) {
     temp.segment_key = temp.key;
     d.values.forEach(function(v,i,arr){
 
-      nodes.push(v);
-
       var k = v[discrete.value];
 
       if (k.constructor === Date) k = k.getTime();
@@ -63,12 +61,20 @@ module.exports = function(vars,selection,enter,exit) {
         if (temp.values.length > 1) {
           segments.push(temp);
         }
+        else {
+          nodes.push(temp.values[0]);
+        }
         temp = copy(d);
         temp.values = [v];
       }
 
       if ( i === arr.length - 1 ) {
-        segments.push(temp);
+        if (temp.values.length > 1) {
+          segments.push(temp);
+        }
+        else {
+          nodes.push(temp.values[0]);
+        }
       }
 
       lastIndex = index;
@@ -89,6 +95,7 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     var rects = group.selectAll("rect.d3plus_anchor")
       .data(nodes, function(d){
+        d.d3plus.r = vars.data.stroke.width * 2;
         return d.d3plus.id;
       });
 
@@ -103,6 +110,7 @@ module.exports = function(vars,selection,enter,exit) {
 
       paths.enter().append("path")
         .attr("class","d3plus_line")
+        .style("stroke-linecap","round")
         .attr("d",function(d){ return line(d.values); })
         .call(shapeStyle,vars);
 
@@ -126,7 +134,8 @@ module.exports = function(vars,selection,enter,exit) {
     else {
 
       paths.enter().append("path")
-        .attr("class","d3plus_line");
+        .attr("class","d3plus_line")
+        .style("stroke-linecap","round");
 
       paths
         .attr("d",function(d){ return line(d.values); })
