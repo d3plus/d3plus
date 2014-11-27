@@ -62,13 +62,21 @@ module.exports = (vars, axis, buffer) ->
 
       additional = Math.abs(domain[1] - domain[0]) * 0.05 or 1
 
+      if vars[axis].scale.value is "log"
+        if allPositive
+          zero = d3.min(domain)/10
+        else
+          zero = d3.max(domain)/10
+      else
+        zero = 0
+
       domain[0] = domain[0] - additional
       domain[1] = domain[1] + additional
 
-      domain[0] = 0 if (allPositive and domain[0] < 0) or
-                       (allNegative and domain[0] > 0)
-      domain[1] = 0 if (allPositive and domain[1] < 0) or
-                       (allNegative and domain[1] > 0)
+      domain[0] = zero if (allPositive and domain[0] < 0) or
+                          (allNegative and domain[0] > 0)
+      domain[1] = zero if (allPositive and domain[1] < 0) or
+                          (allNegative and domain[1] > 0)
 
       domain = domain.reverse() if axis is "y"
 
