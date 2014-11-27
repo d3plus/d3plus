@@ -60,7 +60,9 @@ module.exports = (vars, axis, buffer) ->
       allPositive = domain[0] >= 0 and domain[1] >= 0
       allNegative = domain[0] <= 0 and domain[1] <= 0
 
-      additional = Math.abs(domain[1] - domain[0]) * 0.05 or 1
+      mod = if vars[axis].scale.value is "log" then .5 else 0.05
+
+      additional = Math.abs(domain[1] - domain[0]) * mod or 1
 
       if vars[axis].scale.value is "log"
         if allPositive
