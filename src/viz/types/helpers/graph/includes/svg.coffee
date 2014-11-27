@@ -186,7 +186,7 @@ module.exports = (vars) ->
       .attr "font-weight", vars[axis].label.weight
       .attr "font-size", vars[axis].label.size+"px"
       .attr "fill", vars[axis].label.color
-      .style "text-anchor", vars[axis].label.align
+      .style "text-anchor", "middle"
 
   for axis in ["x","y"]
 
