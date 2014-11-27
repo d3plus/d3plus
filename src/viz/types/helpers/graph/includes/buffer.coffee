@@ -64,9 +64,9 @@ module.exports = (vars, axis, buffer) ->
 
       if vars[axis].scale.value is "log"
         if allPositive
-          zero = d3.min(domain)/10
+          zero = d3.min(domain)/2
         else
-          zero = d3.max(domain)/10
+          zero = d3.max(domain)/2
       else
         zero = 0
 
