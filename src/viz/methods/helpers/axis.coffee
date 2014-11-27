@@ -24,8 +24,10 @@ module.exports = (axis) ->
     accepted: [false, Array]
     value:    false
   grid:
+    accepted:  [Boolean]
     color:     "#ccc"
     rendering: rendering()
+    value:     true
   label:
     color:      "#444"
     decoration: decoration()

@@ -190,12 +190,14 @@ module.exports = (vars) ->
 
   for axis in ["x","y"]
 
+    gridData = if vars[axis].grid.value then vars[axis].ticks.values else []
+
     # Draw Axis Grid Lines
     grid = plane.selectAll("g#d3plus_graph_"+axis+"grid").data [0]
     grid.enter().append "g"
       .attr "id", "d3plus_graph_"+axis+"grid"
     lines = grid.selectAll("line")
-      .data vars[axis].ticks.values, (d) -> d
+      .data gridData, (d) -> d
     lines.transition().duration vars.draw.timing
       .call tickPosition, axis
       .call tickStyle, axis, true
