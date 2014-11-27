@@ -53,6 +53,9 @@ resetMargins = (vars) ->
 
 labelPadding = (vars) ->
 
+  xDomain = vars.x.scale.viz.domain()
+  yDomain = vars.y.scale.viz.domain()
+
   # Calculate Y axis padding
   yAttrs =
     "font-size":   vars.y.ticks.font.size+"px"
@@ -63,7 +66,8 @@ labelPadding = (vars) ->
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
-  vars.axes.width       -= (vars.axes.margin.left - vars.axes.margin.right)
+  vars.axes.width       -= (vars.axes.margin.left + vars.axes.margin.right)
+  vars.x.scale.viz.range buckets([0,vars.axes.width], xDomain.length)
 
   # Calculate X axis padding
   xAttrs =
@@ -92,12 +96,15 @@ labelPadding = (vars) ->
   xAxisHeight              = Math.round xAxisHeight
   xAxisWidth               = Math.round xAxisWidth
   vars.axes.margin.bottom += xAxisHeight
-  vars.axes.height        -= (vars.axes.margin.top + vars.axes.margin.bottom)
-  vars.axes.width         -= Math.round xAxisWidth/2
+  lastTick = vars.x.ticks.values[vars.x.ticks.values.length - 1]
+  rightLabel = vars.x.scale.viz lastTick
+  rightPadding = vars.axes.width - rightLabel
+  if rightPadding < xAxisWidth
+    vars.axes.width -= (xAxisWidth/2 - rightPadding)
 
-  xDomain = vars.x.scale.viz.domain()
+  vars.axes.height -= (vars.axes.margin.top + vars.axes.margin.bottom)
+
   vars.x.scale.viz.range buckets([0,vars.axes.width], xDomain.length)
-  yDomain = vars.y.scale.viz.domain()
   vars.y.scale.viz.range buckets([0,vars.axes.height], yDomain.length)
 
 createAxis = (vars, axis) ->
@@ -119,8 +126,10 @@ createAxis = (vars, axis) ->
           d * 100 + "%"
         else if d.constructor is Date
           vars.data.time.multiFormat(d)
-        else
+        else if scale is "log"
           10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
+        else
+          vars.format.value d, vars[axis].value, vars
       else
         null
 
