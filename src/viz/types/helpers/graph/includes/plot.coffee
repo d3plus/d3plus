@@ -61,8 +61,14 @@ labelPadding = (vars) ->
     "font-size":   vars.y.ticks.font.size+"px"
     "font-family": vars.y.ticks.font.family.value
     "font-weight": vars.y.ticks.font.weight
-  yText = vars.y.ticks.values.map (d) ->
-    vars.format.value(d, vars.y.value, vars)
+  if vars.y.scale.value is "log"
+    yText = vars.y.ticks.values.filter (d) ->
+      d.toString().charAt(0) is "1"
+    yText = yText.map (d) ->
+      10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
+  else
+    yText = vars.y.ticks.values.map (d) ->
+      vars.format.value(d, vars.y.value, vars)
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
@@ -74,8 +80,14 @@ labelPadding = (vars) ->
     "font-size":   vars.x.ticks.font.size+"px"
     "font-family": vars.x.ticks.font.family.value
     "font-weight": vars.x.ticks.font.weight
-  xText = vars.x.ticks.values.map (d) ->
-    vars.format.value(d, vars.x.value, vars)
+  if vars.x.scale.value is "log"
+    xText = vars.x.ticks.values.filter (d) ->
+      d.toString().charAt(0) is "1"
+    xText = xText.map (d) ->
+      10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
+  else
+    xText = vars.x.ticks.values.map (d) ->
+      vars.format.value(d, vars.x.value, vars)
   xSizes      = fontSizes(xText,xAttrs)
   xAxisWidth  = d3.max xSizes, (d) -> d.width
   xAxisHeight = d3.max xSizes, (d) -> d.height
