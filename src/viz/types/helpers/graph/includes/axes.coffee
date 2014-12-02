@@ -112,7 +112,6 @@ axisRange = (vars, axis, zero, buffer) ->
     values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value
     if typeof values[0] is "string"
       sortKey = vars.order.value
-      console.log sortKey
       if sortKey
         sort = vars.order.sort.value
         agg = vars.aggs.value[sortKey] or "sum"
