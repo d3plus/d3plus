@@ -60,25 +60,37 @@ module.exports = (vars, axis, buffer) ->
       allPositive = domain[0] >= 0 and domain[1] >= 0
       allNegative = domain[0] <= 0 and domain[1] <= 0
 
-      mod = if vars[axis].scale.value is "log" then .5 else 0.05
-
-      additional = Math.abs(domain[1] - domain[0]) * mod or 1
-
       if vars[axis].scale.value is "log"
-        if allPositive
-          zero = 1
-        else
-          zero = -1
+
+        zero = if allPositive then 1 else -1
+
+        lowerScale = Math.pow(10, parseInt(Math.abs(domain[0])).toString().length - 1) * zero
+        lowerMod = domain[0] % lowerScale
+        lowerDiff = if allNegative then lowerScale - lowerMod else lowerMod
+        lowerValue = if lowerMod is 0 then lowerScale else lowerDiff
+        domain[0] -= lowerValue * zero
+        domain[0] = zero if domain[0] is 0
+        # console.log domain[0]
+
+        upperScale = Math.pow(10, parseInt(Math.abs(domain[1])).toString().length - 1) * zero
+        upperMod = domain[1] % upperScale
+        upperDiff = if allPositive then upperScale - upperMod else upperMod
+        upperValue = if upperMod is 0 then upperScale else upperDiff
+        domain[1] += upperValue * zero
+        domain[1] = zero if domain[1] is 0
+
       else
         zero = 0
 
-      domain[0] = domain[0] - additional
-      domain[1] = domain[1] + additional
+        additional = Math.abs(domain[1] - domain[0]) * 0.05 or 1
 
-      domain[0] = zero if (allPositive and domain[0] < zero) or
-                          (allNegative and domain[0] > zero)
-      domain[1] = zero if (allPositive and domain[1] < zero) or
-                          (allNegative and domain[1] > zero)
+        domain[0] = domain[0] - additional
+        domain[1] = domain[1] + additional
+
+        domain[0] = zero if (allPositive and domain[0] < zero) or
+                            (allNegative and domain[0] > zero)
+        domain[1] = zero if (allPositive and domain[1] < zero) or
+                            (allNegative and domain[1] > zero)
 
       domain = domain.reverse() if axis is "y"
 
