@@ -10,8 +10,10 @@ module.exports = (vars, axis, buffer) ->
       domain = vars[axis].scale.viz.domain()
 
       if typeof domain[0] is "string"
-        domain.unshift "d3plus_buffer_first"
-        domain.push "d3plus_buffer_last"
+        i = domain.length
+        while i >= 0
+          domain.splice(i, 0, "d3plus_buffer_"+i)
+          i--
         range = vars[axis].scale.viz.range()
         range = buckets d3.extent(range), domain.length
         vars[axis].scale.viz.domain(domain).range(range)
