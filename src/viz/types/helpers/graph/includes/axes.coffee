@@ -15,8 +15,9 @@ module.exports = (vars, opts) ->
 
     filtered = vars[axis].solo.changed or vars[axis].mute.changed
     modified = changed or vars[axis].changed or (vars.time.fixed.value and filtered) or vars[axis].scale.changed
+    reorder = vars.order.changed or vars.order.sort.changed
 
-    if modified or vars[axis].stacked.changed or vars[axis].range.changed
+    if modified or vars[axis].stacked.changed or vars[axis].range.changed or reorder
 
       print.time "calculating "+axis+" axis" if vars.dev.value
 
@@ -85,13 +86,13 @@ getData = (vars) ->
     d3.merge [fetchData(vars,"all",d) for d in depths]
 
 axisRange = (vars, axis, zero, buffer) ->
+  oppAxis = if axis is "x" then "y" else "x"
   if vars[axis].range.value and vars[axis].range.value.length is 2
     vars[axis].range.value.slice()
   else if vars[axis].scale.value is "share"
     vars[axis].ticks.values = d3.range 0, 1.1, 0.1
     [0,1]
   else if vars[axis].stacked.value
-    oppAxis = if axis is "x" then "y" else "x"
     axisSums = d3.nest()
       .key (d) -> fetchValue vars, d, vars[oppAxis].value
       .rollup (leaves) ->
@@ -110,7 +111,28 @@ axisRange = (vars, axis, zero, buffer) ->
   else
     values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value
     if typeof values[0] is "string"
-      uniques values
+      sortKey = vars.order.value
+      console.log sortKey
+      if sortKey
+        sort = vars.order.sort.value
+        agg = vars.aggs.value[sortKey] or "sum"
+        aggType = typeof agg
+        valueNest = d3.nest()
+          .key (d) -> fetchValue vars, d, vars[axis].value
+          .rollup (leaves) ->
+            if aggType is "string"
+              d3[agg] leaves, (d) -> fetchValue vars, d, sortKey
+            else if aggType is "function"
+              agg leaves, sortKey
+          .entries vars.axes.dataset
+        valueNest.sort (a, b) ->
+          if sort is "desc" then b.values - a.values else a.values - b.values
+        valueNest.reduce (arr, v) ->
+          arr.push v.key
+          arr
+        , []
+      else
+        uniques values
     else
       if zero
         allPositive = values[0] >= 0 and values[1] >= 0
