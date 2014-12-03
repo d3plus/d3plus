@@ -57,7 +57,6 @@ module.exports = (vars, axis, buffer) ->
             (buffer is true)
 
       domain = vars[axis].scale.viz.domain()
-      domain = domain.slice().reverse() if axis is "y"
 
       allPositive = domain[0] >= 0 and domain[1] >= 0
       allNegative = domain[0] <= 0 and domain[1] <= 0
@@ -65,10 +64,13 @@ module.exports = (vars, axis, buffer) ->
       if vars[axis].scale.value is "log"
 
         zero = if allPositive then 1 else -1
+        domain = domain.slice().reverse() if allPositive and axis is "y"
 
         lowerScale = Math.pow(10, parseInt(Math.abs(domain[0])).toString().length - 1) * zero
         lowerMod = domain[0] % lowerScale
-        lowerDiff = if allNegative then lowerScale - lowerMod else lowerMod
+        lowerDiff = lowerMod
+        if lowerMod and lowerDiff/lowerScale <= 0.2
+          lowerDiff += lowerScale * zero
         lowerValue = if lowerMod is 0 then lowerScale else lowerDiff
         domain[0] -= lowerValue * zero
         domain[0] = zero if domain[0] is 0
@@ -76,13 +78,18 @@ module.exports = (vars, axis, buffer) ->
 
         upperScale = Math.pow(10, parseInt(Math.abs(domain[1])).toString().length - 1) * zero
         upperMod = domain[1] % upperScale
-        upperDiff = if allPositive then upperScale - upperMod else upperMod
+        upperDiff = Math.abs(upperScale - upperMod)
+        if upperMod and upperDiff/upperScale <= 0.2
+          upperDiff += upperScale * zero
         upperValue = if upperMod is 0 then upperScale else upperDiff
         domain[1] += upperValue * zero
         domain[1] = zero if domain[1] is 0
 
+        domain = domain.reverse() if allPositive and axis is "y"
+
       else
         zero = 0
+        domain = domain.slice().reverse() if axis is "y"
 
         additional = Math.abs(domain[1] - domain[0]) * 0.05 or 1
 
@@ -94,7 +101,7 @@ module.exports = (vars, axis, buffer) ->
         domain[1] = zero if (allPositive and domain[1] < zero) or
                             (allNegative and domain[1] > zero)
 
-      domain = domain.reverse() if axis is "y"
+        domain = domain.reverse() if axis is "y"
 
       vars[axis].scale.viz.domain(domain)
 
