@@ -1,5 +1,5 @@
 module.exports =
-  accepted:   [false, Function, String]
+  accepted:   [Boolean, Function, String]
   agg:
     accepted: [false, Function, "sum", "min", "max", "mean", "median"]
     value:    false

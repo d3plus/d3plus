@@ -13,11 +13,16 @@ module.exports = (vars, opts) ->
 
   for axis in ["x","y"]
 
+    oppAxis  = if axis is "x" then "y" else "x"
     filtered = vars[axis].solo.changed or vars[axis].mute.changed
-    modified = changed or vars[axis].changed or (vars.time.fixed.value and filtered) or vars[axis].scale.changed
-    reorder = vars.order.changed or vars.order.sort.changed
+    modified = changed or vars[axis].changed or
+               (vars.time.fixed.value and filtered) or
+               vars[axis].scale.changed
+    reorder  = vars.order.changed or vars.order.sort.changed or
+               (vars.order.value is true and vars[oppAxis].changed)
 
-    if modified or vars[axis].stacked.changed or vars[axis].range.changed or reorder
+    if modified or vars[axis].stacked.changed or
+       vars[axis].range.changed or reorder
 
       print.time "calculating "+axis+" axis" if vars.dev.value
 
@@ -111,7 +116,10 @@ axisRange = (vars, axis, zero, buffer) ->
   else
     values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value
     if typeof values[0] is "string"
-      sortKey = vars.order.value
+      if vars.order.value is true
+        sortKey = vars[oppAxis].value
+      else
+        sortKey = vars.order.value
       if sortKey
         sort = vars.order.sort.value
         agg = vars.order.agg.value or vars.aggs.value[sortKey] or "max"
