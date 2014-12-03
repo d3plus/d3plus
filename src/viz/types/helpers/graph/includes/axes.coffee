@@ -114,7 +114,7 @@ axisRange = (vars, axis, zero, buffer) ->
       sortKey = vars.order.value
       if sortKey
         sort = vars.order.sort.value
-        agg = vars.aggs.value[sortKey] or "sum"
+        agg = vars.order.agg.value or vars.aggs.value[sortKey] or "max"
         aggType = typeof agg
         valueNest = d3.nest()
           .key (d) -> fetchValue vars, d, vars[axis].value

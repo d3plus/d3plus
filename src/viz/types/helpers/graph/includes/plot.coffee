@@ -101,7 +101,6 @@ labelPadding = (vars) ->
     if typeof xValues[0] is "string"
       xValues = vars.x.scale.viz.domain().filter (d) ->
         d.indexOf("d3plus_buffer_") != 0
-    console.log xValues, vars.x.ticks.values
     xText = xValues.map (d) ->
       vars.format.value(d, vars.x.value, vars)
 
