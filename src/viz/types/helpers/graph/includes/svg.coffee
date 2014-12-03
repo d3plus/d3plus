@@ -1,4 +1,5 @@
-mix = require "../../../../../color/mix.coffee"
+mix      = require "../../../../../color/mix.coffee"
+textwrap = require "../../../../../textwrap/textwrap.coffee"
 
 module.exports = (vars) ->
 
@@ -138,8 +139,15 @@ module.exports = (vars) ->
       .call vars.x.axis.svg.scale(vars.x.scale.viz)
       .selectAll("g.tick").select("text")
         .style "text-anchor", vars.x.ticks.anchor
+        .attr "dominant-baseline", vars.x.ticks.baseline
         .attr "transform", vars.x.ticks.transform
         .call tickFont, "x"
+        .each () ->
+          if vars.x.ticks.wrap
+            textwrap()
+              .container(d3.select(this))
+              .width(vars.x.ticks.maxWidth)
+              .draw()
   xAxis = plane.selectAll("g#d3plus_graph_xticks").data axisData
   xAxis.transition().duration(vars.draw.timing).call xStyle
   xAxis.selectAll("line").transition().duration vars.draw.timing

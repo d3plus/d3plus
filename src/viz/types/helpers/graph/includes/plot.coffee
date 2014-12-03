@@ -2,6 +2,7 @@ buckets    = require "../../../../../util/buckets.coffee"
 buffer     = require "./buffer.coffee"
 fetchValue = require "../../../../../core/fetch/value.coffee"
 fontSizes  = require "../../../../../font/sizes.coffee"
+textwrap   = require "../../../../../textwrap/textwrap.coffee"
 
 module.exports = (vars, opts) ->
 
@@ -91,32 +92,56 @@ labelPadding = (vars) ->
     "font-family": vars.x.ticks.font.family.value
     "font-weight": vars.x.ticks.font.weight
   if vars.x.scale.value is "log"
-    xText = vars.x.ticks.values.filter (d) ->
-      d.toString().charAt(0) is "1"
-    xText = xText.map (d) ->
+    xValues = vars.x.ticks.values.filter (d) -> d.toString().charAt(0) is "1"
+    xText = xValues.map (d) ->
       10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
   else
-    xText = vars.x.ticks.values.map (d) ->
+    xValues = vars.x.ticks.values
+    xText = xValues.map (d) ->
       vars.format.value(d, vars.x.value, vars)
+
   xSizes      = fontSizes(xText,xAttrs)
   xAxisWidth  = d3.max xSizes, (d) -> d.width
   xAxisHeight = d3.max xSizes, (d) -> d.height
-  xMaxWidth   = d3.min([vars.axes.width/(xText.length+1),vars.axes.margin.left*2]) - vars.labels.padding*2
+  xMaxWidth   = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
+  xMaxWidth -= vars.labels.padding * 2
 
-  if xAxisWidth < xMaxWidth
-    xAxisWidth             += vars.labels.padding
-    vars.x.ticks.rotate     = false
-    vars.x.ticks.anchor     = "middle"
-    vars.x.ticks.transform  = "translate(0,0)"
+  if xAxisWidth > xMaxWidth and xText.join("").indexOf(" ") > 0
+    wrapped = true
+    xSizes = fontSizes xText, xAttrs,
+      mod: (elem) ->
+        textwrap().container d3.select(elem)
+          .width(xMaxWidth).draw()
+    xAxisWidth  = d3.max xSizes, (d) -> d.width
+    xAxisHeight = d3.max xSizes, (d) -> d.height
   else
-    xAxisWidth             = xAxisHeight + vars.labels.padding
+    wrapped = false
+
+  vars.x.ticks.hidden = false
+  if xAxisWidth <= xMaxWidth
+    xAxisWidth             += vars.labels.padding
+    vars.x.ticks.rotate    = false
+    vars.x.ticks.anchor    = "middle"
+    vars.x.ticks.baseline  = "auto"
+    yOffset                = if wrapped then -vars.labels.padding else 0
+    vars.x.ticks.transform = "translate(0,"+yOffset+")"
+    vars.x.ticks.wrap      = wrapped
+  else if xAxisWidth < vars.axes.height/2
+    xAxisWidth             = xAxisHeight
     xAxisHeight            = d3.max xSizes, (d) -> d.width
     vars.x.ticks.rotate    = true
     vars.x.ticks.anchor    = "start"
-    vars.x.ticks.transform = "translate("+xAxisWidth+",15)rotate(90)"
+    vars.x.ticks.baseline  = "central"
+    vars.x.ticks.transform = "translate("+xAxisWidth+","+vars.x.ticks.size+")rotate(90)"
+    vars.x.ticks.wrap      = false
+  else
+    vars.x.ticks.hidden = true
+    vars.x.ticks.wrap   = false
+    xAxisWidth          = 0
+    xAxisHeight         = 0
 
-  xAxisHeight              = Math.round xAxisHeight
-  xAxisWidth               = Math.round xAxisWidth
+  xAxisHeight = Math.round xAxisHeight
+  xAxisWidth  = Math.round xAxisWidth
   vars.axes.margin.bottom += xAxisHeight
   lastTick = vars.x.ticks.values[vars.x.ticks.values.length - 1]
   rightLabel = vars.x.scale.viz lastTick
@@ -129,7 +154,8 @@ labelPadding = (vars) ->
     "font-family": vars.x.label.family.value
     "font-weight": vars.x.label.weight
     "font-size":   vars.x.label.size+"px"
-  vars.x.label.height = fontSizes([xLabel], xLabelAttrs)[0].height
+  vars.x.label.height   = fontSizes([xLabel], xLabelAttrs)[0].height
+  vars.x.ticks.maxWidth = xMaxWidth
   vars.axes.margin.bottom += vars.x.label.height
   vars.axes.margin.bottom += vars.x.label.padding * 2
 
@@ -148,6 +174,7 @@ createAxis = (vars, axis) ->
     .tickValues vars[axis].ticks.values
     .tickFormat (d, i) ->
 
+      return null if vars[axis].ticks.hidden
       scale      = vars[axis].scale.value
       hiddenTime = vars[axis].value is vars.time.value and d % 1 isnt 0
       majorLog   = scale is "log" and d.toString().charAt(0) is "1"
