@@ -180,13 +180,18 @@ module.exports = (vars) ->
           vars.width.viz/2
         else
           -(vars.axes.height/2+vars.axes.margin.top)
-      .attr "y", if axis is "x" then vars.height.viz-10 else 15
+      .attr "y",
+        if axis is "x"
+          vars.height.viz - vars[axis].label.height/2 - vars[axis].label.padding
+        else
+          vars[axis].label.height/2 + vars[axis].label.padding
       .attr "transform", if axis is "y" then "rotate(-90)" else null
       .attr "font-family", vars[axis].label.family.value
       .attr "font-weight", vars[axis].label.weight
       .attr "font-size", vars[axis].label.size+"px"
       .attr "fill", vars[axis].label.color
       .style "text-anchor", "middle"
+      .attr "dominant-baseline", "central"
 
   for axis in ["x","y"]
 

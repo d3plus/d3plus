@@ -48,8 +48,8 @@ resetMargins = (vars) ->
     # return
     top:    10
     right:  10
-    bottom: 45
-    left:   40
+    bottom: 10
+    left:   10
 
 labelPadding = (vars) ->
 
@@ -72,7 +72,17 @@ labelPadding = (vars) ->
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
-  vars.axes.width       -= (vars.axes.margin.left + vars.axes.margin.right)
+
+  yLabel = vars.format.value(vars.y.value, undefined, vars)
+  yLabelAttrs =
+    "font-family": vars.y.label.family.value
+    "font-weight": vars.y.label.weight
+    "font-size":   vars.y.label.size+"px"
+  vars.y.label.height = fontSizes([yLabel], yLabelAttrs)[0].height
+  vars.axes.margin.left += vars.y.label.height
+  vars.axes.margin.left += vars.y.label.padding * 2
+
+  vars.axes.width -= (vars.axes.margin.left + vars.axes.margin.right)
   vars.x.scale.viz.range buckets([0,vars.axes.width], xDomain.length)
 
   # Calculate X axis padding
@@ -113,6 +123,15 @@ labelPadding = (vars) ->
   rightPadding = vars.axes.width - rightLabel
   if rightPadding < xAxisWidth
     vars.axes.width -= (xAxisWidth/2 - rightPadding)
+
+  xLabel = vars.format.value(vars.x.value, undefined, vars)
+  xLabelAttrs =
+    "font-family": vars.x.label.family.value
+    "font-weight": vars.x.label.weight
+    "font-size":   vars.x.label.size+"px"
+  vars.x.label.height = fontSizes([xLabel], xLabelAttrs)[0].height
+  vars.axes.margin.bottom += vars.x.label.height
+  vars.axes.margin.bottom += vars.x.label.padding * 2
 
   vars.axes.height -= (vars.axes.margin.top + vars.axes.margin.bottom)
 
