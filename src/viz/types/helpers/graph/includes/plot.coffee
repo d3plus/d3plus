@@ -98,6 +98,10 @@ labelPadding = (vars) ->
       10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
   else
     xValues = vars.x.ticks.values
+    if typeof xValues[0] is "string"
+      xValues = vars.x.scale.viz.domain().filter (d) ->
+        d.indexOf("d3plus_buffer_") != 0
+    console.log xValues, vars.x.ticks.values
     xText = xValues.map (d) ->
       vars.format.value(d, vars.x.value, vars)
 
@@ -106,7 +110,6 @@ labelPadding = (vars) ->
   xAxisHeight = d3.max xSizes, (d) -> d.height
   xMaxWidth   = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
   xMaxWidth -= vars.labels.padding * 2
-
   if xAxisWidth > xMaxWidth and xText.join("").indexOf(" ") > 0
     wrapped = true
     xSizes = fontSizes xText, xAttrs,
