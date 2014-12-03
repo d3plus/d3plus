@@ -110,7 +110,7 @@ labelPadding = (vars) ->
   xMaxWidth   = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
   xMaxWidth -= vars.labels.padding * 2
   if xAxisWidth > xMaxWidth and xText.join("").indexOf(" ") > 0
-    wrapped = true
+    vars.x.ticks.wrap = true
     xSizes = fontSizes xText, xAttrs,
       mod: (elem) ->
         textwrap().container d3.select(elem)
@@ -118,34 +118,31 @@ labelPadding = (vars) ->
     xAxisWidth  = d3.max xSizes, (d) -> d.width
     xAxisHeight = d3.max xSizes, (d) -> d.height
   else
-    wrapped = false
+    vars.x.ticks.wrap = false
 
   vars.x.ticks.hidden = false
   if xAxisWidth <= xMaxWidth
     xAxisWidth             += vars.labels.padding
     vars.x.ticks.rotate    = false
     vars.x.ticks.anchor    = "middle"
-    vars.x.ticks.baseline  = "auto"
-    yOffset                = if wrapped then -vars.labels.padding else 0
+    yOffset = if vars.x.ticks.wrap then -vars.labels.padding else 0
     vars.x.ticks.transform = "translate(0,"+yOffset+")"
-    vars.x.ticks.wrap      = wrapped
   else if xAxisWidth < vars.axes.height/2
     xAxisWidth             = xAxisHeight
     xAxisHeight            = d3.max xSizes, (d) -> d.width
     vars.x.ticks.rotate    = true
-    vars.x.ticks.anchor    = "start"
-    vars.x.ticks.baseline  = "central"
-    vars.x.ticks.transform = "translate("+xAxisWidth+","+vars.x.ticks.size+")rotate(90)"
-    vars.x.ticks.wrap      = false
+    vars.x.ticks.anchor    = "end"
+    yOffset = if vars.x.ticks.wrap then vars.labels.padding else 0
+    vars.x.ticks.transform = "translate(-"+vars.x.ticks.size/2+","+(vars.x.ticks.size+yOffset)+")rotate(-90)"
   else
     vars.x.ticks.hidden = true
-    vars.x.ticks.wrap   = false
     xAxisWidth          = 0
     xAxisHeight         = 0
 
   xAxisHeight = Math.round xAxisHeight
   xAxisWidth  = Math.round xAxisWidth
   vars.axes.margin.bottom += xAxisHeight
+  vars.axes.margin.bottom += vars.x.ticks.size
   lastTick = vars.x.ticks.values[vars.x.ticks.values.length - 1]
   rightLabel = vars.x.scale.viz lastTick
   rightPadding = vars.axes.width - rightLabel
@@ -159,6 +156,7 @@ labelPadding = (vars) ->
     "font-size":   vars.x.label.size+"px"
   vars.x.label.height   = fontSizes([xLabel], xLabelAttrs)[0].height
   vars.x.ticks.maxWidth = xMaxWidth
+  vars.x.ticks.maxHeight = xAxisHeight
   vars.axes.margin.bottom += vars.x.label.height
   vars.axes.margin.bottom += vars.x.label.padding * 2
 

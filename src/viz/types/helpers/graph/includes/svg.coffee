@@ -134,20 +134,29 @@ module.exports = (vars) ->
   # Draw X Axis Tick Marks
   xStyle = (axis) ->
 
+    rotated = vars.x.ticks.transform.indexOf("rotate") > 0
+
     axis
       .attr "transform", "translate(0," + vars.axes.height + ")"
       .call vars.x.axis.svg.scale(vars.x.scale.viz)
       .selectAll("g.tick").select("text")
         .style "text-anchor", vars.x.ticks.anchor
-        .attr "dominant-baseline", vars.x.ticks.baseline
         .attr "transform", vars.x.ticks.transform
         .call tickFont, "x"
         .each () ->
           if vars.x.ticks.wrap
+            width  = if rotated then "maxHeight" else "maxWidth"
+            height = unless rotated then "maxHeight" else "maxWidth"
             textwrap()
               .container(d3.select(this))
-              .width(vars.x.ticks.maxWidth)
+              .height(vars.x.ticks[height])
+              .width(vars.x.ticks[width])
               .draw()
+          if rotated
+            width = this.getBoundingClientRect().width
+            d3.select(this)
+              .attr("y", -Math.round(width/2) + "px")
+              .attr("dy", "0.5em")
   xAxis = plane.selectAll("g#d3plus_graph_xticks").data axisData
   xAxis.transition().duration(vars.draw.timing).call xStyle
   xAxis.selectAll("line").transition().duration vars.draw.timing
