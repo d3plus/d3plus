@@ -32,6 +32,7 @@ module.exports = (axis) ->
     color:      "#444"
     decoration: decoration()
     family:     family()
+    padding:    3
     size:       12
     transform:  transform()
     weight:     200
@@ -81,7 +82,7 @@ module.exports = (axis) ->
   mute:  filter(true)
   padding:
     accepted: [Number]
-    value:    0.1
+    value: 0.1
   range:
     accepted: [false, Array]
     value:    false
