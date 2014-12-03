@@ -1,5 +1,4 @@
 var fetchText = require("../../../core/fetch/text.js"),
-    fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
     shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -13,7 +12,7 @@ module.exports = function(vars,selection,enter,exit) {
   function init(paths){
     paths.attr("transform", "scale(1)")
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Change scale of check on update.
   //---------------------------------------------------------------------------
