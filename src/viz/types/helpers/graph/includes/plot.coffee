@@ -120,7 +120,8 @@ labelPadding = (vars) ->
   else
     vars.x.ticks.wrap = false
 
-  vars.x.ticks.hidden = false
+  vars.x.ticks.hidden   = false
+  vars.x.ticks.baseline = "auto"
   if xAxisWidth <= xMaxWidth
     xAxisWidth             += vars.labels.padding
     vars.x.ticks.rotate    = false
@@ -132,12 +133,16 @@ labelPadding = (vars) ->
     xAxisHeight            = d3.max xSizes, (d) -> d.width
     vars.x.ticks.rotate    = true
     vars.x.ticks.anchor    = "end"
+    vars.x.ticks.baseline  = if vars.x.ticks.wrap then "auto" else "central"
     yOffset = if vars.x.ticks.wrap then vars.labels.padding else 0
-    vars.x.ticks.transform = "translate(-"+vars.x.ticks.size/2+","+(vars.x.ticks.size+yOffset)+")rotate(-90)"
+    yOffset += vars.x.ticks.size
+    xOffset = if vars.x.ticks.wrap then -vars.x.ticks.size/2 else 0
+    vars.x.ticks.transform = "translate("+xOffset+","+yOffset+")rotate(-90)"
   else
-    vars.x.ticks.hidden = true
-    xAxisWidth          = 0
-    xAxisHeight         = 0
+    vars.x.ticks.hidden    = true
+    vars.x.ticks.transform = "translate(0,0)"
+    xAxisWidth             = 0
+    xAxisHeight            = 0
 
   xAxisHeight = Math.round xAxisHeight
   xAxisWidth  = Math.round xAxisWidth

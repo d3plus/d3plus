@@ -132,9 +132,8 @@ module.exports = (vars) ->
       "M "+w+" "+h+" L 0 "+h+" L "+w+" 0 Z"
 
   # Draw X Axis Tick Marks
+  rotated = vars.x.ticks.transform.indexOf("rotate") > 0
   xStyle = (axis) ->
-
-    rotated = vars.x.ticks.transform.indexOf("rotate") > 0
 
     axis
       .attr "transform", "translate(0," + vars.axes.height + ")"
@@ -142,33 +141,47 @@ module.exports = (vars) ->
       .selectAll("g.tick").select("text")
         .style "text-anchor", vars.x.ticks.anchor
         .attr "transform", vars.x.ticks.transform
+        .attr "dominant-baseline", vars.x.ticks.baseline
         .call tickFont, "x"
-        .each () ->
-          if vars.x.ticks.wrap
-            width  = if rotated then "maxHeight" else "maxWidth"
-            height = unless rotated then "maxHeight" else "maxWidth"
-            textwrap()
-              .container(d3.select(this))
-              .height(vars.x.ticks[height])
-              .width(vars.x.ticks[width])
-              .draw()
-          if rotated
-            width = this.getBoundingClientRect().width
-            d3.select(this)
-              .attr("y", -Math.round(width/2) + "px")
-              .attr("dy", "0.5em")
+        .each "end", ->
+          unless vars.x.ticks.hidden
+            if vars.x.ticks.wrap
+              width  = if rotated then "maxHeight" else "maxWidth"
+              height = unless rotated then "maxHeight" else "maxWidth"
+              textwrap()
+                .container(d3.select(this))
+                .height(vars.x.ticks[height])
+                .width(vars.x.ticks[width])
+                .draw()
+            if rotated
+              height = this.getBoundingClientRect().width
+              d3.select(this).transition().duration vars.draw.timing
+                .attr("y", -Math.round(height/2))
+                .attr("dy", "0.5em")
+            # d3.select(this).transition().duration vars.draw.timing
+            #   .attr "opacity", 1
+
   xAxis = plane.selectAll("g#d3plus_graph_xticks").data axisData
-  xAxis.transition().duration(vars.draw.timing).call xStyle
+  # xAxis.selectAll("g.tick").select("text")
+  #   .transition().duration vars.draw.timing
+  #   .attr "opacity", 0
+  xAxis.transition().duration vars.draw.timing
+    # .delay vars.draw.timing
+    .call xStyle
   xAxis.selectAll("line").transition().duration vars.draw.timing
     .call tickStyle, "x"
   xEnter = xAxis.enter().append "g"
     .attr "id", "d3plus_graph_xticks"
+    .transition().duration 0
     .call xStyle
   xEnter.selectAll("path").attr "fill", "none"
   xEnter.selectAll("line").call tickStyle, "x"
   xAxis.exit().transition().duration vars.data.timing
     .attr "opacity", 0
     .remove()
+
+  # xAxis.selectAll("g.tick").select("text").each ->
+  #   console.log d3.select(this).attr("y")
 
   # Draw Y Axis Tick Marks
   yStyle = (axis) ->
