@@ -143,9 +143,9 @@ d3plus.geom = {
 
 d3plus.network = {
   cluster: require("./network/cluster.coffee"),
-  distances: require("./network/distances.coffee"),
   normalize: require("./network/normalize.coffee"),
   shortestPath: require("./network/shortestPath.coffee"),
+  smallestGap: require("./network/smallestGap.coffee"),
   subgraph: require("./network/subgraph.coffee")
 };
 
@@ -248,7 +248,7 @@ if (stylesheet("d3plus.css")) {
 
 
 
-},{"./array/comparator.coffee":38,"./array/contains.coffee":39,"./array/sort.coffee":40,"./array/update.coffee":41,"./client/css.coffee":42,"./client/ie.js":43,"./client/pointer.coffee":44,"./client/prefix.coffee":45,"./client/rtl.coffee":46,"./client/scrollbar.coffee":47,"./client/touch.coffee":48,"./color/legible.coffee":49,"./color/lighter.coffee":50,"./color/mix.coffee":51,"./color/random.coffee":52,"./color/scale.coffee":53,"./color/sort.coffee":54,"./color/text.coffee":55,"./color/validate.coffee":56,"./core/console/print.coffee":57,"./data/bestRegress.coffee":95,"./data/lof.coffee":96,"./data/mad.coffee":97,"./font/sizes.coffee":98,"./font/validate.coffee":99,"./form/form.js":100,"./geom/largestRect.coffee":155,"./geom/offset.coffee":156,"./geom/path2poly.coffee":157,"./network/cluster.coffee":158,"./network/distances.coffee":159,"./network/normalize.coffee":160,"./network/shortestPath.coffee":161,"./network/subgraph.coffee":162,"./number/format.js":163,"./object/merge.coffee":164,"./object/validate.coffee":165,"./string/format.js":166,"./string/list.coffee":167,"./string/strip.js":168,"./string/title.coffee":169,"./textwrap/textwrap.coffee":187,"./tooltip/create.js":188,"./tooltip/move.coffee":189,"./tooltip/remove.coffee":190,"./util/buckets.coffee":191,"./util/child.coffee":192,"./util/closest.coffee":193,"./util/copy.coffee":194,"./util/d3selection.coffee":195,"./util/dataURL.coffee":196,"./util/uniques.coffee":197,"./viz/viz.coffee":310}],2:[function(require,module,exports){
+},{"./array/comparator.coffee":38,"./array/contains.coffee":39,"./array/sort.coffee":40,"./array/update.coffee":41,"./client/css.coffee":42,"./client/ie.js":43,"./client/pointer.coffee":44,"./client/prefix.coffee":45,"./client/rtl.coffee":46,"./client/scrollbar.coffee":47,"./client/touch.coffee":48,"./color/legible.coffee":49,"./color/lighter.coffee":50,"./color/mix.coffee":51,"./color/random.coffee":52,"./color/scale.coffee":53,"./color/sort.coffee":54,"./color/text.coffee":55,"./color/validate.coffee":56,"./core/console/print.coffee":57,"./data/bestRegress.coffee":95,"./data/lof.coffee":96,"./data/mad.coffee":97,"./font/sizes.coffee":98,"./font/validate.coffee":99,"./form/form.js":100,"./geom/largestRect.coffee":156,"./geom/offset.coffee":157,"./geom/path2poly.coffee":158,"./network/cluster.coffee":159,"./network/normalize.coffee":160,"./network/shortestPath.coffee":161,"./network/smallestGap.coffee":162,"./network/subgraph.coffee":163,"./number/format.js":164,"./object/merge.coffee":165,"./object/validate.coffee":166,"./string/format.js":167,"./string/list.coffee":168,"./string/strip.js":169,"./string/title.coffee":170,"./textwrap/textwrap.coffee":189,"./tooltip/create.js":190,"./tooltip/move.coffee":191,"./tooltip/remove.coffee":192,"./util/buckets.coffee":193,"./util/child.coffee":194,"./util/closest.coffee":195,"./util/copy.coffee":196,"./util/d3selection.coffee":197,"./util/dataURL.coffee":198,"./util/uniques.coffee":199,"./viz/viz.coffee":313}],2:[function(require,module,exports){
 window.d3 = require("d3");
 
 window.topojson = require("topojson");
@@ -20123,21 +20123,23 @@ module.exports = function(color) {
 
 
 },{}],57:[function(require,module,exports){
-var ie, print, wiki;
+var icon, ie, print, wiki;
 
 ie = require("../../client/ie.js");
 
 wiki = require("./wiki.coffee");
 
+icon = "http://d3plus.org/assets/img/favicon.ico";
+
 print = function(type, message, style) {
   style = style || "";
   if (ie || typeof InstallTrigger !== 'undefined') {
     console.log("[ D3plus ] " + message);
-  } else if (type === "groupCollapsed") {
+  } else if (type.indexOf("group") === 0) {
     if (window.chrome && navigator.onLine) {
-      console[type]("%c%c " + message, "padding:3px 10px;line-height:25px;background-size:20px;background-position:top left;background-image:url('http://d3plus.org/assets/img/favicon.ico');", "font-weight:200;" + style);
+      console[type]("%c%c " + message, "padding: 3px 10px;" + "line-height: 25px;" + "background-size: 20px;" + "background-position: top left;" + "background-image: url('" + icon + "');", "font-weight:200;" + style);
     } else {
-      console[type]("%cD3plus%c " + message, "line-height:25px;font-weight:800;color:#b35c1e;margin-left:0px;", "font-weight:200;" + style);
+      console[type]("%cD3plus%c " + message, "line-height: 25px;" + "font-weight: 800;" + "color: #b35c1e;" + "margin-left: 0px;", "font-weight:200;" + style);
     }
   } else {
     console[type]("%c" + message, style + "font-weight:200;");
@@ -20295,7 +20297,7 @@ module.exports = {
 
 },{}],59:[function(require,module,exports){
 var buckets = require("../../util/buckets.coffee"),
-    fetchValue = require("../fetch/value.js"),
+    fetchValue = require("../fetch/value.coffee"),
     print      = require("../console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Sets color range of data, if applicable
@@ -20355,8 +20357,8 @@ module.exports = function(vars) {
 
 }
 
-},{"../../util/buckets.coffee":191,"../console/print.coffee":57,"../fetch/value.js":71}],60:[function(require,module,exports){
-var fetchValue = require("../fetch/value.js"),
+},{"../../util/buckets.coffee":193,"../console/print.coffee":57,"../fetch/value.coffee":71}],60:[function(require,module,exports){
+var fetchValue = require("../fetch/value.coffee"),
     print       = require("../console/print.coffee"),
     validObject = require("../../object/validate.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20373,8 +20375,9 @@ module.exports = function( vars , data ) {
   }
 
   data = data.filter(function(d){
-    return vars.id.value in d
-  })
+    var val = fetchValue(vars, d, vars.id.value);
+    return val !== null;
+  });
 
   vars.data.filters.forEach( function( key ) {
 
@@ -20447,17 +20450,19 @@ module.exports = function( vars , data ) {
     if ( v === "id" ) {
 
       if ("nodes" in vars && vars.nodes.value) {
-        if ( vars.dev.value ) print.log("Filtering Nodes")
+        if ( vars.dev.value ) print.time("filtering nodes")
         vars.nodes.restricted = vars.nodes.value.filter(nest_check)
+        if ( vars.dev.value ) print.timeEnd("filtering nodes")
       }
 
       if ("edges" in vars && vars.edges.value) {
-        if ( vars.dev.value ) print.log("Filtering Connections")
+        if ( vars.dev.value ) print.time("filtering edges")
         vars.edges.restricted = vars.edges.value.filter(function(d){
           var first_match = nest_check(d[vars.edges.source]),
               second_match = nest_check(d[vars.edges.target])
           return first_match && second_match
         })
+        if ( vars.dev.value ) print.timeEnd("filtering edges")
       }
 
     }
@@ -20470,232 +20475,236 @@ module.exports = function( vars , data ) {
 
 }
 
-},{"../../object/validate.coffee":165,"../console/print.coffee":57,"../fetch/value.js":71}],61:[function(require,module,exports){
+},{"../../object/validate.coffee":166,"../console/print.coffee":57,"../fetch/value.coffee":71}],61:[function(require,module,exports){
 var dataNest   = require("./nest.js"),
-    fetchValue = require("../fetch/value.js"),
+    fetchValue = require("../fetch/value.coffee"),
     print      = require("../console/print.coffee"),
-    uniques    = require("../../util/uniques.coffee")
+    uniques    = require("../../util/uniques.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats raw data by time and nesting
 //------------------------------------------------------------------------------
 module.exports = function( vars ) {
 
+  var timerString;
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Gets all unique time values
   //----------------------------------------------------------------------------
-  vars.data.time = {"values": []}
-  if ( vars.time && vars.time.value ) {
+  vars.data.time = {"values": []};
+  if (vars.time && vars.time.value) {
 
     if ( vars.dev.value ) {
-      var timerString = "analyzing time periods"
-      print.time( timerString )
+      timerString = "analyzing time periods";
+      print.time( timerString );
     }
 
-    var uniqueTimes = uniques( vars.data.value , vars.time.value )
+    var uniqueTimes = uniques(vars.data.value, vars.time.value, fetchValue, vars);
 
     for ( var i = 0; i < uniqueTimes.length ; i++ ) {
-      var d = new Date(uniqueTimes[i].toString())
+      var d = new Date(uniqueTimes[i].toString());
       if (d !== "Invalid Date") {
-        d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
-        vars.data.time.values.push(d)
+        d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
+        vars.data.time.values.push(d);
       }
     }
-    vars.data.time.values.sort(function(a,b){return a-b})
+    vars.data.time.values.sort(function(a,b){ return a-b; });
 
-    var step = []
+    var step = [];
     vars.data.time.values.forEach(function(y,i){
-      if (i != 0) {
-        var prev = vars.data.time.values[i-1]
-        step.push(y-prev)
+      if (i !== 0) {
+        var prev = vars.data.time.values[i-1];
+        step.push(y-prev);
         if (i === vars.data.time.values.length - 1) {
-          vars.data.time.total = y - vars.data.time.values[0]
+          vars.data.time.total = y - vars.data.time.values[0];
         }
       }
-    })
+    });
 
-    vars.data.time.step = d3.min(step)
+    step = d3.min(step);
+    vars.data.time.step = step;
 
-    var periods = ["Milliseconds","Seconds","Minutes","Hours","Date","Month","FullYear"]
-      , conversions = [1000,60,60,24,30,12,1]
+    var periods = ["Milliseconds","Seconds","Minutes","Hours","Date","Month","FullYear"],
+        conversions = [1000,60,60,24,30,12,1];
 
     var getDiff = function(start,end,i) {
 
       if (!vars.data.time.stepDivider) {
-        vars.data.time.stepDivider = conversions.slice(0,i).reduce(function(a,b){return a*b})
+        vars.data.time.stepDivider = conversions.slice(0,i).reduce(function(a,b){ return a*b; });
       }
 
-      return Math.round(Math.floor(end-start)/vars.data.time.stepDivider)
+      return Math.round(Math.floor(end-start)/vars.data.time.stepDivider);
 
-    }
+    };
 
-    var step = vars.data.time.step, total = vars.data.time.total
+    var total = vars.data.time.total;
     periods.forEach(function(p,i){
-      var c = p === "Date" ? 28 : conversions[i]
+      var c = p === "Date" ? 28 : conversions[i];
       if (!vars.data.time.stepType && (i === periods.length-1 || Math.round(step) < c)) {
-        vars.data.time.stepType = p
-        var start = vars.data.time.values[0]
-          , end = vars.data.time.values[vars.data.time.values.length-1]
-        vars.data.time.stepIntervals = getDiff(start,end,i)
+        vars.data.time.stepType = p;
+        var start = vars.data.time.values[0],
+            end = vars.data.time.values[vars.data.time.values.length-1];
+        vars.data.time.stepIntervals = getDiff(start,end,i);
       }
 
       if (!vars.data.time.totalType && (i === periods.length-1 || Math.round(total) < c)) {
-        vars.data.time.totalType = p
+        vars.data.time.totalType = p;
       }
 
-      step = step/c
-      total = total/c
-    })
+      step = step/c;
+      total = total/c;
+    });
 
     vars.data.time.values.forEach(function(y,i){
-      if (i != 0) {
-        var prev = vars.data.time.values[0]
-        vars.data.time.dataSteps.push(getDiff(prev,y,periods.indexOf(vars.data.time.stepType)))
+      if (i !== 0) {
+        var prev = vars.data.time.values[0];
+        vars.data.time.dataSteps.push(getDiff(prev,y,periods.indexOf(vars.data.time.stepType)));
       }
       else {
-        vars.data.time.dataSteps = [0]
+        vars.data.time.dataSteps = [0];
       }
-    })
+    });
 
-    var stepType = vars.data.time.stepType
-      , totalType = vars.data.time.totalType
-      , locale = vars.format.locale.value
+    var stepType = vars.data.time.stepType,
+        totalType = vars.data.time.totalType,
+        locale = vars.format.locale.value;
 
     var getFormat = function(s,t,small) {
 
       if (s === t) {
-        return small && locale.timeFormat[s+"Small"] ? locale.timeFormat[s+"Small"] : locale.timeFormat[s]
+        return small && locale.timeFormat[s+"Small"] ? locale.timeFormat[s+"Small"] : locale.timeFormat[s];
       }
       else {
         if (periods.indexOf(s) >= 4 || periods.indexOf(t) <= 3) {
-          return locale.timeFormat[t+"-"+s]
+          return locale.timeFormat[t+"-"+s];
         }
         else {
 
+          var format;
+
           if (t === "Date") {
-            var format = locale.timeFormat[t]
+            format = locale.timeFormat[t];
           }
           else {
-            var format = locale.timeFormat[t+"-Date"]
+            format = locale.timeFormat[t+"-Date"];
           }
 
           if (s === "Hours") {
-            return format +" "+ locale.timeFormat[s]
+            return format +" "+ locale.timeFormat[s];
           }
           else {
-            return format +" "+ locale.timeFormat["Hours-"+s]
+            return format +" "+ locale.timeFormat["Hours-"+s];
           }
 
         }
       }
 
+    };
+
+    var multi = [],
+        functions = [
+          function(d) { return d.getMilliseconds(); },
+          function(d) { return d.getSeconds(); },
+          function(d) { return d.getMinutes(); },
+          function(d) { return d.getHours(); },
+          function(d) { return d.getDate() != 1; },
+          function(d) { return d.getMonth(); },
+          function(d) { return true; }
+        ];
+
+    for (var p = periods.indexOf(stepType); p <= periods.indexOf(totalType); p++) {
+      var prev = p-1 < periods.indexOf(stepType) ? periods[p] : periods[p-1];
+      var small = periods[p] === prev && stepType !== totalType;
+      var format = getFormat(prev,periods[p],small);
+      multi.push([format,functions[p]]);
     }
 
-    var multi = []
-      , functions = [
-        , function(d) { return d.getMilliseconds(); }
-        , function(d) { return d.getSeconds(); }
-        , function(d) { return d.getMinutes(); }
-        , function(d) { return d.getHours(); }
-        , function(d) { return d.getDate() != 1; }
-        , function(d) { return d.getMonth(); }
-        , function(d) { return true; }
-      ]
+    vars.data.time.format = d3.locale(locale.format).timeFormat(getFormat(stepType,totalType));
+    vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi);
 
-    for (var i = periods.indexOf(stepType); i <= periods.indexOf(totalType); i++) {
-      var prev = i-1 < periods.indexOf(stepType) ? periods[i] : periods[i-1]
-      var small = periods[i] === prev && stepType !== totalType
-      var format = getFormat(prev,periods[i],small)
-      multi.push([format,functions[i+1]])
+    vars.data.time.ticks = [];
+    var min = d3.min(vars.data.time.values);
+    for (var s = 0; s <= vars.data.time.stepIntervals; s++) {
+      var m = new Date(min);
+      m["set"+vars.data.time.stepType](m["get"+vars.data.time.stepType]() + s);
+      vars.data.time.ticks.push(m);
     }
 
-    vars.data.time.format = d3.locale(locale.format).timeFormat(getFormat(stepType,totalType))
-    vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi)
-
-    vars.data.time.ticks = []
-    var min = d3.min(vars.data.time.values)
-    for (var i = 0; i <= vars.data.time.stepIntervals; i++) {
-      var d = new Date(min)
-      d["set"+vars.data.time.stepType](d["get"+vars.data.time.stepType]() + i)
-      vars.data.time.ticks.push(d)
-    }
-
-    if ( vars.dev.value ) print.timeEnd( timerString )
+    if ( vars.dev.value ) print.timeEnd( timerString );
 
   }
 
   if ( vars.dev.value ) {
-    var timerString = "nesting data by time and depths"
-    print.time( timerString )
+    timerString = "nesting data by time and depths";
+    print.time( timerString );
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Gets all unique time values
   //----------------------------------------------------------------------------
-  vars.data.nested = {}
+  vars.data.nested = {};
   if (vars.data.time.values.length === 0) {
 
-    vars.data.nested.all = {}
+    vars.data.nested.all = {};
     vars.id.nesting.forEach( function( depth , i ) {
 
-      var nestingDepth = vars.id.nesting.slice( 0 , i + 1 )
+      var nestingDepth = vars.id.nesting.slice( 0 , i + 1 );
+      vars.data.nested.all[ depth ] = dataNest(vars, vars.data.value, nestingDepth);
 
-      vars.data.nested.all[ depth ] = dataNest( vars
-                                                      , vars.data.value
-                                                      , nestingDepth )
-
-    })
+    });
 
   }
   else {
 
+    var timeData = {};
+    for (var t = 0; t < vars.data.value.length; t++) {
+      var data = vars.data.value[t];
+      var date = new Date(fetchValue(vars, data, vars.time.value).toString());
+      date.setTime( date.getTime() + date.getTimezoneOffset() * 60 * 1000 );
+      var ms = date.getTime();
+      if (!(ms in timeData)) timeData[ms] = [];
+      timeData[ms].push(data);
+    }
+
     vars.data.time.values.forEach( function( t ) {
 
-      var ms = t.getTime()
+      var ms = t.getTime();
 
-      vars.data.nested[ ms ] = { }
-
-      var timeData = vars.data.value.filter( function(d) {
-        var d = new Date(fetchValue( vars , d , vars.time.value ).toString())
-        d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
-        return d.getTime() === ms
-      })
+      vars.data.nested[ms] = {};
 
       vars.id.nesting.forEach( function( depth , i ) {
+        var nestingDepth = vars.id.nesting.slice(0, i + 1);
+        vars.data.nested[ ms ][ depth ] = dataNest(vars, timeData[ms], nestingDepth);
+      });
 
-        var nestingDepth = vars.id.nesting.slice( 0 , i + 1 )
-
-        vars.data.nested[ ms ][ depth ] = dataNest( vars
-                                                         , timeData
-                                                         , nestingDepth )
-
-      })
-
-    })
+    });
 
   }
 
-  if ( vars.dev.value ) print.timeEnd( timerString )
+  if ( vars.dev.value ) print.timeEnd( timerString );
 
-}
+};
 
-},{"../../util/uniques.coffee":197,"../console/print.coffee":57,"../fetch/value.js":71,"./nest.js":65}],62:[function(require,module,exports){
+},{"../../util/uniques.coffee":199,"../console/print.coffee":57,"../fetch/value.coffee":71,"./nest.js":65}],62:[function(require,module,exports){
 var fetchValue;
 
-fetchValue = require("../fetch/value.js");
+fetchValue = require("../fetch/value.coffee");
 
 module.exports = function(vars, data, nesting) {
-  var d, groupedData, i, key, n, strippedData, val, _i, _j, _len, _len1;
+  var d, groupedData, i, n, strippedData, val, _i, _j, _len, _len1;
   groupedData = d3.nest();
-  if (nesting === void 0) {
-    nesting = vars.id.nesting;
-  }
-  for (i = _i = 0, _len = nesting.length; _i < _len; i = ++_i) {
-    n = nesting[i];
-    if (i < vars.depth.value) {
-      key = n;
-      groupedData.key(function(d) {
-        return fetchValue(vars, d.d3plus, key);
-      });
+  if (vars.id.grouping.value) {
+    if (nesting === void 0) {
+      nesting = vars.id.nesting;
+    }
+    for (i = _i = 0, _len = nesting.length; _i < _len; i = ++_i) {
+      n = nesting[i];
+      if (i < vars.depth.value) {
+        (function(n) {
+          return groupedData.key(function(d) {
+            return fetchValue(vars, d.d3plus, n);
+          });
+        })(n);
+      }
     }
   }
   strippedData = [];
@@ -20718,7 +20727,7 @@ module.exports = function(vars, data, nesting) {
 
 
 
-},{"../fetch/value.js":71}],63:[function(require,module,exports){
+},{"../fetch/value.coffee":71}],63:[function(require,module,exports){
 var validObject = require("../../object/validate.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get Key Types from Data
@@ -20761,7 +20770,7 @@ module.exports = function( vars , type ) {
 
 };
 
-},{"../../object/validate.coffee":165}],64:[function(require,module,exports){
+},{"../../object/validate.coffee":166}],64:[function(require,module,exports){
 var print, validObject;
 
 print = require("../console/print.coffee");
@@ -20769,8 +20778,9 @@ print = require("../console/print.coffee");
 validObject = require("../../object/validate.coffee");
 
 module.exports = function(vars, key, next) {
-  var fileType, parser, url;
-  if (vars.dev.value) {
+  var consoleMessage, fileType, parser, url;
+  consoleMessage = vars.dev.value;
+  if (consoleMessage) {
     print.time("loading " + key);
   }
   url = vars[key].url;
@@ -20847,8 +20857,8 @@ module.exports = function(vars, key, next) {
     } else {
       vars.internal_error = "Could not load data from: \"" + url + "\"";
     }
-    if (vars.dev.value) {
-      print.time("loading " + key);
+    if (consoleMessage) {
+      print.timeEnd("loading " + key);
     }
     return next();
   });
@@ -20856,8 +20866,8 @@ module.exports = function(vars, key, next) {
 
 
 
-},{"../../object/validate.coffee":165,"../console/print.coffee":57}],65:[function(require,module,exports){
-var fetchValue = require("../fetch/value.js"),
+},{"../../object/validate.coffee":166,"../console/print.coffee":57}],65:[function(require,module,exports){
+var fetchValue = require("../fetch/value.coffee"),
     validObject  = require("../../object/validate.coffee"),
     uniqueValues = require("../../util/uniques.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20901,37 +20911,26 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
   if (!(requirements instanceof Array)) requirements = [requirements];
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Loop through each nesting level.
-  //----------------------------------------------------------------------------
-  nestingLevels.forEach(function( level , i ){
-
-    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    // Create a nest key for the current level.
-    //--------------------------------------------------------------------------
-    nestedData
-      .key(function(d){
-
-        if ( typeof level === "function" ) {
-          return level(d);
-        }
-
-        return fetchValue( vars , d , level );
-      });
-
-    checkAxes();
-
-  });
-
-  if ( !nestingLevels.length ) {
-
-    nestedData
-      .key(function(d){
-        return true;
-      });
-
-    checkAxes();
+  if (!nestingLevels.length) {
+    nestedData.key(function(d){ return true; });
   }
+  else {
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // Loop through each nesting level.
+    //----------------------------------------------------------------------------
+    nestingLevels.forEach(function(level, i){
+
+      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+      // Create a nest key for the current level.
+      //--------------------------------------------------------------------------
+      nestedData.key(function(d){ return fetchValue(vars, d, level); });
+
+    });
+
+  }
+
+  checkAxes();
 
   var i = nestingLevels.length ? nestingLevels.length - 1 : 0;
 
@@ -20944,8 +20943,6 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     // If there's only 1 leaf, and it's been processed, return it as-is.
     //--------------------------------------------------------------------------
     if ( leaves.length === 1 && ("d3plus" in leaves[0]) ) {
-      // var returnObj = leaves[0]
-      // returnObj.d3plus.depth = i
       groupedData.push(leaves[0]);
       return leaves[0];
     }
@@ -20956,153 +20953,104 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     //--------------------------------------------------------------------------
     var returnObj = {
       "d3plus": {
+        "data": {},
         "depth": i
       }
     };
 
-    if ("d3plus" in leaves[0]) {
-
-      leaves.forEach(function(l){
-        if ("d3plus" in l) {
-          if (l.d3plus.merged instanceof Array) {
-            if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
-            returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged);
-          }
-          if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text;
+    for (var ll = 0; ll < leaves.length; ll++) {
+      var l = leaves[ll];
+      if ("d3plus" in l) {
+        if (l.d3plus.merged instanceof Array) {
+          if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
+          returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged);
         }
-      });
+        if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text;
+      }
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create a reference sum for the 3 different "segment" variables.
     //--------------------------------------------------------------------------
-    segments.forEach(function(c){
+    for (var s = 0; s < segments.length; s++) {
 
-      var key = vars[c].value || c;
+      var c = segments[s];
+      var segmentAgg = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum";
 
-      returnObj.d3plus[key] = d3.sum(leaves, function( d ) {
+      if (typeof segmentAgg === "function") {
+        returnObj.d3plus[c] = segmentAgg(leaves);
+      }
+      else {
 
-        var a = 0;
+        returnObj.d3plus[c] = d3[segmentAgg](leaves, function(d) {
 
-        if ( vars[c].value ) {
-
-          a = fetchValue(vars,d,vars[c].value);
-
-          if ( typeof a !== "number" ) {
-            a = a ? 1 : 0;
+          var a = c === "total" ? 1 : 0;
+          if (vars[c].value) {
+            a = fetchValue(vars, d, vars[c].value);
+            if (typeof a !== "number") a = a ? 1 : 0;
           }
+          return a;
 
-        }
-        else if ( c === "total" ) {
-          a = 1;
-        }
+        });
 
-        return a;
-
-      });
-
-    });
+      }
+    }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Aggregate all values detected in the data.
     //--------------------------------------------------------------------------
-    for ( var key in vars.data.keys ) {
-
-      var uniques = uniqueValues(leaves,key);
+    for (var key in vars.data.keys) {
+      var uniques = uniqueValues(leaves, key, fetchValue, vars);
 
       if (uniques.length) {
-
         var agg     = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum",
             aggType = typeof agg,
             keyType = vars.data.keys[key],
             idKey   = vars.id.nesting.indexOf(key) >= 0,
             timeKey = "time" in vars && key === vars.time.value;
 
-        if ( key in returnObj.d3plus ) {
-
+        if (key in returnObj.d3plus.data) {
           returnObj[key] = returnObj.d3plus[key];
-
         }
-        else if ( aggType === "function" ) {
-
+        else if (aggType === "function") {
           returnObj[key] = vars.aggs.value[key](leaves);
-
         }
-        else if ( timeKey ) {
-          var dates = [];
+        else if (timeKey) {
 
-          function parseDates(arr) {
-
-            for ( var i = 0; i < arr.length ; i++ ) {
-              var d = arr[i];
-              if (d !== undefined) {
-                if (d.constructor === Date) dates.push(d);
-                else if (d.constructor === Array) {
-                  parseDates(d);
-                }
-                else {
-                  d = new Date(d.toString());
-                  if (d !== "Invalid Date") {
-                    d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
-                    dates.push(d);
-                  }
-                }
-              }
-            }
-
-          }
-
-          parseDates(uniques);
+          var dates = parseDates(uniques);
 
           if (dates.length === 1) returnObj[key] = dates[0];
           else returnObj[key] = dates;
 
         }
-        else if ( keyType === "number" && aggType === "string" && !idKey ) {
+        else if (keyType === "number" && aggType === "string" && !idKey) {
           returnObj[key] = d3[agg](leaves.map(function(d){return d[key];}));
         }
         else {
 
-          var testVals = [];
-          function checkVal(obj) {
-            if (obj instanceof Array) {
-              obj.forEach(checkVal);
-            }
-            else if (validObject(obj) && key in obj) {
-              if (obj[key] instanceof Array) {
-                obj[key].forEach(checkVal);
-              }
-              else {
-                testVals.push(obj);
-              }
-            }
-          }
-          checkVal(leaves);
-
+          var testVals = checkVal(leaves, key);
           var keyValues = testVals.length === 1 ? testVals[0][key]
-                        : uniqueValues( testVals , key );
+                        : uniqueValues(testVals, key, fetchValue, vars, vars.id.nesting[i]);
 
-          if ( keyValues !== undefined && keyValues !== null ) {
+          if (testVals.length === 1) {
+            returnObj[key] = keyValues;
+          }
+          else if (keyValues && keyValues.length) {
 
-            if ( !(keyValues instanceof Array) ) {
-              keyValues = [ keyValues ];
+            if (!(keyValues instanceof Array)) {
+              keyValues = [keyValues];
             }
 
-            if ( keyValues.length ) {
-
-              if ( idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1 ) {
-                if (key == "id" && nestingLevels.length == 1 && testVals.length > leaves.length) {
-                  var newNesting = nestingLevels.concat(key);
-                  testVals = dataNest(vars,testVals,newNesting);
-                }
-                returnObj[key] = testVals.length === 1 ? testVals[0] : testVals;
-
+            if (idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1) {
+              if (nestingLevels.length == 1 && testVals.length > leaves.length) {
+                var newNesting = nestingLevels.concat(key);
+                testVals = dataNest(vars,testVals,newNesting);
               }
-              else {
+              returnObj[key] = testVals.length === 1 ? testVals[0] : testVals;
+            }
+            else {
 
-                returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues;
-
-              }
+              returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues;
 
             }
 
@@ -21125,22 +21073,6 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
     return returnObj;
 
   });
-
-  var rename_key_value = function(obj) {
-    if (obj.values && obj.values.length) {
-      obj.children = obj.values.map(function(obj) {
-        return rename_key_value(obj);
-      });
-      delete obj.values;
-      return obj;
-    }
-    else if(obj.values) {
-      return obj.values;
-    }
-    else {
-      return obj;
-    }
-  };
 
   var find_keys = function(obj,depth,keys) {
     if (obj.children) {
@@ -21171,12 +21103,83 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
 };
 
+var checkVal = function(leaves, key) {
+
+  var returnVals = [];
+
+  function run(obj) {
+    if (obj instanceof Array) {
+      obj.forEach(run);
+    }
+    else if (validObject(obj) && key in obj) {
+      if (obj[key] instanceof Array) {
+        obj[key].forEach(run);
+      }
+      else {
+        returnVals.push(obj);
+      }
+    }
+  }
+
+  run(leaves);
+
+  return returnVals;
+
+};
+
+var parseDates = function(dateArray) {
+
+  var dates = [];
+
+  function checkDate(arr) {
+
+    for (var i = 0; i < arr.length; i++) {
+      var d = arr[i];
+      if (d) {
+        if (d.constructor === Date) dates.push(d);
+        else if (d.constructor === Array) {
+          checkDate(d);
+        }
+        else {
+          d = new Date(d.toString());
+          if (d !== "Invalid Date") {
+            d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
+            dates.push(d);
+          }
+        }
+      }
+    }
+
+  }
+
+  checkDate(dateArray);
+
+  return dates;
+
+};
+
+var rename_key_value = function(obj) {
+  if (obj.values && obj.values.length) {
+    obj.children = obj.values.map(function(obj) {
+      return rename_key_value(obj);
+    });
+    delete obj.values;
+    return obj;
+  }
+  else if(obj.values) {
+    return obj.values;
+  }
+  else {
+    return obj;
+  }
+};
+
 module.exports = dataNest;
 
-},{"../../object/validate.coffee":165,"../../util/uniques.coffee":197,"../fetch/value.js":71}],66:[function(require,module,exports){
+},{"../../object/validate.coffee":166,"../../util/uniques.coffee":199,"../fetch/value.coffee":71}],66:[function(require,module,exports){
 var arraySort = require("../../array/sort.coffee"),
     dataNest   = require("./nest.js"),
-    fetchValue = require("../fetch/value.js"),
+    fetchValue = require("../fetch/value.coffee"),
     fetchColor = require("../fetch/color.coffee"),
     fetchText  = require("../fetch/text.js")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -21257,19 +21260,21 @@ module.exports = function( vars , rawData , split ) {
       }
 
       if (allowed.indexOf(id) < 0) {
-        if (vars.depth.value == 0) {
-          if (val > cutoff) cutoff = val
+        if (val > 0) {
+          if (vars.depth.value === 0) {
+            if (val > cutoff) cutoff = val;
+          }
+          else {
+            var parent = d[vars.id.nesting[vars.depth.value-1]]
+            if (!(parent in cutoff)) cutoff[parent] = 0
+            if (val > cutoff[parent]) cutoff[parent] = val
+          }
+          removed.push(d);
         }
-        else {
-          var parent = d[vars.id.nesting[vars.depth.value-1]]
-          if (!(parent in cutoff)) cutoff[parent] = 0
-          if (val > cutoff[parent]) cutoff[parent] = val
-        }
-        removed.push(d)
-        return false
+        return false;
       }
       else {
-        return true
+        return true;
       }
 
     })
@@ -21362,10 +21367,10 @@ module.exports = function( vars , rawData , split ) {
 
 }
 
-},{"../../array/sort.coffee":40,"../fetch/color.coffee":67,"../fetch/text.js":70,"../fetch/value.js":71,"./nest.js":65}],67:[function(require,module,exports){
-var fetchValue, randomColor, validColor, validObject;
+},{"../../array/sort.coffee":40,"../fetch/color.coffee":67,"../fetch/text.js":70,"../fetch/value.coffee":71,"./nest.js":65}],67:[function(require,module,exports){
+var fetchValue, getColor, getRandom, randomColor, uniques, validColor, validObject;
 
-fetchValue = require("./value.js");
+fetchValue = require("./value.coffee");
 
 randomColor = require("../../color/random.coffee");
 
@@ -21373,20 +21378,10 @@ validColor = require("../../color/validate.coffee");
 
 validObject = require("../../object/validate.coffee");
 
+uniques = require("../../util/uniques.coffee");
+
 module.exports = function(vars, id, level) {
-  var color, colorLevel, colors, getColor, getRandom, i, o, returnColor, value;
-  if (validObject(id) && id.d3plus && id.d3plus.color) {
-    return id.d3plus.color;
-  }
-  getRandom = function(c) {
-    if (validObject(c)) {
-      c = fetchValue(vars, c, level);
-    }
-    if (c instanceof Array) {
-      c = c[0];
-    }
-    return randomColor(c, vars.color.scale.value);
-  };
+  var color, colorLevel, colors, i, returnColor, value;
   if (!level) {
     level = vars.id.value;
   }
@@ -21394,261 +21389,282 @@ module.exports = function(vars, id, level) {
     level = vars.id.nesting[level];
   }
   if (!vars.color.value) {
-    returnColor = getRandom(id);
+    returnColor = getRandom(vars, id, level);
   } else {
     colors = [];
     i = vars.id.nesting.indexOf(level);
-    getColor = function(color) {
-      if (!color) {
-        if (vars.color.value && typeof vars.color.valueScale === "function") {
-          return vars.color.valueScale(0);
-        }
-        return getRandom(id);
-      } else if (!vars.color.valueScale) {
-        if (validColor(color)) {
-          return color;
-        } else {
-          return getRandom(color);
-        }
-      } else {
-        return vars.color.valueScale(color);
-      }
-    };
     while (i >= 0) {
       colorLevel = vars.id.nesting[i];
       if (validObject(id)) {
-        o = !(colorLevel in id) ? fetchValue(vars, id, colorLevel) : id;
-        value = fetchValue(vars, o, vars.color.value, colorLevel);
+        value = uniques(id, vars.color.value, fetchValue, vars, colorLevel);
+        if (value.length === 1) {
+          value = value[0];
+        }
       } else {
         value = id;
       }
-      if (value !== void 0 && value !== null) {
-        color = getColor(value);
+      if (!(value instanceof Array) && value !== void 0 && value !== null) {
+        color = getColor(vars, id, value, level);
         if (colors.indexOf(color) < 0) {
           colors.push(color);
         }
+        break;
       }
       i--;
     }
     returnColor = colors.length === 1 ? colors[0] : vars.color.missing;
   }
-  if (validObject(id) && id.d3plus) {
-    id.d3plus.color = returnColor;
-  }
   return returnColor;
+};
+
+getColor = function(vars, id, color, level) {
+  if (!color) {
+    if (vars.color.value && typeof vars.color.valueScale === "function") {
+      return vars.color.valueScale(0);
+    }
+    return getRandom(vars, id, level);
+  } else if (!vars.color.valueScale) {
+    if (validColor(color)) {
+      return color;
+    } else {
+      return getRandom(vars, color, level);
+    }
+  } else {
+    return vars.color.valueScale(color);
+  }
+};
+
+getRandom = function(vars, c, level) {
+  if (validObject(c)) {
+    c = fetchValue(vars, c, level);
+  }
+  if (c instanceof Array) {
+    c = c[0];
+  }
+  return randomColor(c, vars.color.scale.value);
 };
 
 
 
-},{"../../color/random.coffee":52,"../../color/validate.coffee":56,"../../object/validate.coffee":165,"./value.js":71}],68:[function(require,module,exports){
+},{"../../color/random.coffee":52,"../../color/validate.coffee":56,"../../object/validate.coffee":166,"../../util/uniques.coffee":199,"./value.coffee":71}],68:[function(require,module,exports){
 var dataFilter = require("../data/filter.js"),
     dataNest     = require("../data/nest.js"),
     print        = require("../console/print.coffee"),
     stringFormat = require("../../string/format.js"),
-    stringList   = require("../../string/list.coffee")
+    stringList   = require("../../string/list.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Fetches specific years of data
 //-------------------------------------------------------------------
 module.exports = function(vars, years, depth) {
 
-  if (!vars.data.value) return []
+  if (!vars.data.value) return [];
 
-  if (depth === undefined) var depth = vars.depth.value
-  var nestLevel = vars.id.nesting[depth]
+  if (depth === undefined) depth = vars.depth.value;
+  var nestLevel = vars.id.nesting[depth];
 
-  if (years && !(years instanceof Array)) years = [years]
+  if (years && !(years instanceof Array)) years = [years];
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If "years" have not been requested, determine the years using .time()
   // solo and mute
   //----------------------------------------------------------------------------
-  if ( !years && "time" in vars ) {
+  if (!years && "time" in vars) {
 
-    var key   = vars.time.solo.value.length ? "solo" : "mute"
-      , years = []
+    years = [];
 
-    if ( vars.time[key].value.length ) {
+    var key = vars.time.solo.value.length ? "solo" : "mute",
+        filterList = vars.time[key].value;
 
-      var years = []
-      vars.time[key].value.forEach(function( y ){
-        if ( typeof y === "function" ) {
-          vars.data.time.values.forEach(function( t ){
-            if ( y(t.getTime()) ) years.push( t.getTime() )
-          })
+    if ( filterList.length ) {
+
+      years = [];
+      for (var yi = 0; yi < filterList.length; yi++) {
+        var y = filterList[yi];
+
+        if (typeof y === "function") {
+          for (var ti = 0; ti < vars.data.time.values.length; ti++) {
+            var ms = vars.data.time.values[ti].getTime();
+            if (y(ms)) years.push(ms);
+          }
         }
-        else if ( y.constructor === Date ) {
-          years.push(new Date(y).getTime())
+        else if (y.constructor === Date) {
+          years.push(new Date(y).getTime());
         }
         else {
-          var d = new Date(y.toString())
+          var d = new Date(y.toString());
           if (d !== "Invalid Date") {
-            d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
-            years.push(d.getTime())
+            d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
+            years.push(d.getTime());
           }
         }
 
-      })
+      }
 
       if ( key === "mute" ) {
         years = vars.data.time.values.filter(function( t ){
-          return years.indexOf( t.getTime() ) < 0
-        })
+          return years.indexOf(t.getTime()) < 0;
+        });
       }
 
     }
-    else years.push("all")
+    else years.push("all");
 
   }
   else {
-    years = [ "all" ]
+    years = ["all"];
   }
 
   if (years.indexOf("all") >= 0 && vars.data.time.values.length) {
-    years = vars.data.time.values.slice(0)
+    years = vars.data.time.values.slice(0);
     for (var i = 0; i < years.length; i++) {
-      years[i] = years[i].getTime()
+      years[i] = years[i].getTime();
     }
   }
 
   var cacheID = [ vars.type.value , nestLevel , depth ]
                   .concat( vars.data.filters )
-                  .concat( years )
-    , filter  = vars.data.solo.length ? "solo" : "mute"
-    , cacheKeys = d3.keys(vars.data.cache)
-    , vizFilter = vars.types[vars.type.value].filter || null
+                  .concat( years ),
+      filter  = vars.data.solo.length ? "solo" : "mute",
+      cacheKeys = d3.keys(vars.data.cache),
+      vizFilter = vars.types[vars.type.value].filter || null;
 
   if ( vars.data[filter].length ) {
-    vars.data[filter].forEach(function(f){
-      var vals = vars[f][filter].value.slice(0)
-      vals.unshift(f)
-      cacheID = cacheID.concat(vals)
-    })
+    for (var di = 0; di < vars.data[filter].length; di++) {
+      var f = vars.data[filter][di];
+      var vals = vars[f][filter].value.slice(0);
+      vals.unshift(f);
+      cacheID = cacheID.concat(vals);
+    }
   }
 
-  cacheID = cacheID.join("_")
+  cacheID = cacheID.join("_");
 
-  var match = false
+  var match = false;
 
-  for ( var i = 0 ; i < cacheKeys.length ; i++ ) {
+  for (var c = 0 ; c < cacheKeys.length ; c++) {
 
-    var matchKey = cacheKeys[i].split("_").slice(1).join("_")
+    var matchKey = cacheKeys[c].split("_").slice(1).join("_");
 
     if ( matchKey === cacheID ) {
-      cacheID = new Date().getTime() + "_" + cacheID
-      vars.data.cache[cacheID] = vars.data.cache[cacheKeys[i]]
-      delete vars.data.cache[cacheKeys[i]]
-      break
+      cacheID = new Date().getTime() + "_" + cacheID;
+      vars.data.cache[cacheID] = vars.data.cache[cacheKeys[c]];
+      delete vars.data.cache[cacheKeys[c]];
+      break;
     }
 
   }
+
+  var returnData;
 
   if ( vars.data.cache[cacheID] ) {
 
-    if ( vars.dev.value ) print.comment("data already cached")
+    if ( vars.dev.value ) print.comment("data already cached");
 
-    var returnData = vars.data.cache[cacheID]
+    returnData = vars.data.cache[cacheID];
 
     if ( typeof vizFilter === "function" ) {
-      returnData = vizFilter( vars ,  returnData )
+      returnData = vizFilter( vars ,  returnData );
     }
 
-    return returnData
+    return returnData;
 
   }
   else {
 
-    var missing = []
-      , returnData = []
+    var missing = [];
+    returnData = [];
 
     if ( vars.data.value && vars.data.value.length ) {
 
-      years.forEach(function(y){
-        if ( vars.data.nested[y] ) {
-          returnData = returnData.concat( vars.data.nested[y][nestLevel] )
+      for (var yz = 0; yz < years.length; yz++) {
+        var year = years[yz];
+        if (vars.data.nested[year]) {
+          returnData = returnData.concat(vars.data.nested[year][nestLevel]);
         }
-        else missing.push( y )
-      })
+        else {
+          missing.push(year);
+        }
+      }
 
     }
 
-    if ( returnData.length === 0 && missing.length && !vars.internal_error ) {
+    if (returnData.length === 0 && missing.length && !vars.internal_error) {
 
-      var format = vars.time.format.value || vars.data.time.format
+      var format = vars.time.format.value || vars.data.time.format;
 
       if (missing.length > 1) {
-        missing = d3.extent(missing)
+        missing = d3.extent(missing);
       }
 
       missing = missing.map(function(m){
-        return format(new Date(m))
-      })
-      missing = missing.join(" - ")
+        return format(new Date(m));
+      });
+      missing = missing.join(" - ");
 
-      var str = vars.format.locale.value.error.dataYear
-        , and = vars.format.locale.value.ui.and
-      missing = stringList(missing,and)
-      vars.internal_error = stringFormat(str,missing)
-      vars.time.missing = true
+      var str = vars.format.locale.value.error.dataYear,
+          and = vars.format.locale.value.ui.and;
+      missing = stringList(missing,and);
+      vars.internal_error = stringFormat(str,missing);
+      vars.time.missing = true;
 
     }
     else {
 
-      if (vars.time) vars.time.missing = false
+      if (vars.time) vars.time.missing = false;
 
       if ( years.length > 1 ) {
 
         var separated = false;
         ["x","y"].forEach(function(a){
-          if ( vars[a].value === vars.time.value
-          && vars[a].scale.value === "discrete" ) {
-            separated = true
+          if (vars[a].value === vars.time.value &&
+              vars[a].scale.value === "discrete" ) {
+            separated = true;
           }
-        })
+        });
 
         if (!separated) {
-          var nested = vars.id.nesting.slice(0,depth+1)
-          returnData = dataNest( vars , returnData , nested )
+          var nested = vars.id.nesting.slice(0,depth+1);
+          returnData = dataNest(vars, returnData, nested);
         }
 
       }
 
-      if ( !returnData ) {
-        returnData = []
+      if (!returnData) {
+        returnData = [];
       }
       else {
 
-        returnData = dataFilter( vars , returnData )
+        returnData = dataFilter(vars, returnData);
 
       }
 
-      var cacheKeys = d3.keys(vars.data.cache)
       if ( cacheKeys.length === 20 ) {
-        cacheKeys.sort()
-        delete vars.data.cache(cacheKeys[0])
+        cacheKeys.sort();
+        delete vars.data.cache[cacheKeys[0]];
       }
 
-      cacheID = new Date().getTime() + "_" + cacheID
-      vars.data.cache[cacheID] = returnData
+      cacheID = new Date().getTime() + "_" + cacheID;
+      vars.data.cache[cacheID] = returnData;
 
       if ( typeof vizFilter === "function" ) {
-        returnData = vizFilter( vars , returnData )
+        returnData = vizFilter( vars , returnData );
       }
 
-      if ( vars.dev.value ) print.comment("storing data in cache")
+      if ( vars.dev.value ) print.comment("storing data in cache");
 
     }
 
-    return returnData
+    return returnData;
 
   }
 
-}
+};
 
-},{"../../string/format.js":166,"../../string/list.coffee":167,"../console/print.coffee":57,"../data/filter.js":60,"../data/nest.js":65}],69:[function(require,module,exports){
+},{"../../string/format.js":167,"../../string/list.coffee":168,"../console/print.coffee":57,"../data/filter.js":60,"../data/nest.js":65}],69:[function(require,module,exports){
 var fetchColor, fetchText, fetchValue;
 
-fetchValue = require("./value.js");
+fetchValue = require("./value.coffee");
 
 fetchColor = require("./color.coffee");
 
@@ -21690,240 +21706,276 @@ module.exports = function(vars, d, keys, colors, depth) {
 
 
 
-},{"./color.coffee":67,"./text.js":70,"./value.js":71}],70:[function(require,module,exports){
-var fetchValue = require("./value.js"),
+},{"./color.coffee":67,"./text.js":70,"./value.coffee":71}],70:[function(require,module,exports){
+var fetchValue = require("./value.coffee"),
     validObject = require("../../object/validate.coffee"),
-    uniqueValues = require("../../util/uniques.coffee")
+    uniques     = require("../../util/uniques.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Get array of available text values
 //------------------------------------------------------------------------------
-module.exports = function(vars,obj,depth) {
+module.exports = function(vars, obj, depth) {
 
-  if ( typeof depth !== "number" ) var depth = vars.depth.value
+  if (typeof depth !== "number") depth = vars.depth.value;
 
-  var key = vars.id.nesting[depth]
+  var key = vars.id.nesting[depth], textKeys;
 
   if ( vars.text.nesting && validObject(vars.text.nesting) ) {
     if ( vars.text.nesting[key] ) {
-      var textKeys = vars.text.nesting[key]
+      textKeys = vars.text.nesting[key];
     }
     else {
-      var textKeys = vars.text.value
+      textKeys = vars.text.value;
     }
   }
   else {
-    var textKeys = []
-    if (vars.text.value && depth === vars.depth.value) textKeys.push(vars.text.value)
-    textKeys.push(key)
+    textKeys = [];
+    if (vars.text.value && depth === vars.depth.value) textKeys.push(vars.text.value);
+    textKeys.push(key);
   }
 
   if ( !(textKeys instanceof Array) ) {
-    textKeys = [ textKeys ]
+    textKeys = [ textKeys ];
   }
 
-  var names = []
+  var names = [];
 
   if (validObject(obj) && "d3plus" in obj && obj.d3plus.text) {
-    names.push(obj.d3plus.text.toString())
-    names.push(vars.format.value(obj.d3plus.text.toString(), undefined, vars, obj))
+    names.push(obj.d3plus.text.toString());
+    names.push(vars.format.value(obj.d3plus.text.toString(), undefined, vars, obj));
   }
   else {
 
-    var ids = validObject(obj) && key in obj ? obj[key] : fetchValue(vars, obj, key)
-    if (!(ids instanceof Array)) ids = [ids]
-    else if (validObject(ids[0])) {
-      ids = uniqueValues(ids,key)
-    }
-
     var formatObj = validObject(obj) ? obj : undefined;
+    if (obj[vars.id.value] instanceof Array) {
+      obj = obj[vars.id.value];
+    }
+    else if (!(obj instanceof Array)) {
+      obj = [obj];
+    }
 
     textKeys.forEach(function( t ){
 
-      var name = []
-      ids.forEach(function(i){
-        var n = fetchValue(vars,i,t,key)
-        if (n) {
-          if (n instanceof Array && validObject(n[0])) {
-            n = uniqueValues(n,t)
-          }
-          name = name.concat(n)
-        }
-      })
+      var name = uniques(obj, t, fetchValue, vars, key);
 
       if ( name.length ) {
         name = name.map(function(n){
           if (n instanceof Array) {
             return n.map(function(nn){
               return vars.format.value(nn.toString(), t, vars, formatObj);
-            })
+            });
           }
           else if (n) {
             return vars.format.value(n.toString(), t, vars, formatObj);
           }
-        })
-        if (name.length === 1) name = name[0]
-        names.push(name)
+        });
+        if (name.length === 1) name = name[0];
+        names.push(name);
       }
 
-    })
+    });
 
   }
 
-  return names
+  return names;
 
-}
+};
 
-},{"../../object/validate.coffee":165,"../../util/uniques.coffee":197,"./value.js":71}],71:[function(require,module,exports){
-var validObject = require("../../object/validate.coffee"),
-    uniqueValues = require("../../util/uniques.coffee")
+},{"../../object/validate.coffee":166,"../../util/uniques.coffee":199,"./value.coffee":71}],71:[function(require,module,exports){
+var aggregate, cacheInit, checkAttrs, checkData, fetch, fetchArray, filterArray, find, uniqueValues, validObject, valueParse;
 
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Finds a given variable by searching through the data and attrs
-//------------------------------------------------------------------------------
-fetch = function( vars , id , variable , id_var , agg ) {
+validObject = require("../../object/validate.coffee");
 
-  if ( variable && typeof variable === "function" ) {
-    return variable(id, vars)
+uniqueValues = require("../../util/uniques.coffee");
+
+find = function(vars, node, variable, depth) {
+  var nodeObject, val;
+  if (typeof variable === "function") {
+    return variable(node, vars);
   }
-  else if ( variable && typeof variable === "number" ) {
-    return variable
-  }
-  else if ( !variable ) {
-    return null
-  }
-
-  if (!id_var) {
-    if ( validObject(variable) ) {
-      if (variable[vars.id.value]) {
-        var id_var = vars.id.value
+  nodeObject = validObject(node);
+  if (nodeObject) {
+    if (variable in node) {
+      return node[variable];
+    }
+    cacheInit(node, depth);
+    if (variable in node.d3plus.data[depth]) {
+      return node.d3plus.data[depth][variable];
+    }
+    if (depth in node) {
+      node = node[depth];
+    } else if (depth in vars.data.keys || depth in vars.attrs.keys && depth !== variable) {
+      node = checkData(vars, node, variable, depth) || checkAttrs(vars, node, variable, depth);
+      if (node === null) {
+        return null;
       }
-      else {
-        var id_var = d3.keys(variable)[0]
+    } else {
+      return null;
+    }
+  }
+  if (node instanceof Array && !validObject(node[0])) {
+    node = uniqueValues(node);
+  }
+  if (node instanceof Array && validObject(node[0])) {
+    val = uniqueValues(node, variable);
+    if (val.length) {
+      return val;
+    }
+  }
+  val = checkData(vars, node, variable, depth);
+  if (val) {
+    return val;
+  }
+  val = checkAttrs(vars, node, variable, depth);
+  return val;
+};
+
+checkData = function(vars, node, variable, depth) {
+  var val;
+  if (vars.data.viz instanceof Array && variable in vars.data.keys) {
+    val = uniqueValues(filterArray(vars.data.viz, node, depth), variable);
+  }
+  if (val && val.length) {
+    return val;
+  } else {
+    return null;
+  }
+};
+
+checkAttrs = function(vars, node, variable, depth) {
+  var attrList, n, val, vals;
+  if ("attrs" in vars && vars.attrs.value && variable in vars.attrs.keys) {
+    if (validObject(vars.attrs.value) && depth in vars.attrs.value) {
+      attrList = vars.attrs.value[depth];
+    } else {
+      attrList = vars.attrs.value;
+    }
+    if (attrList instanceof Array) {
+      val = uniqueValues(filterArray(attrList, node, depth), variable);
+      if (val.length) {
+        return val;
       }
-      variable = variable[id_var]
-    }
-    else {
-      var id_var = vars.id.value
-    }
-  }
-
-  if ( variable === id_var ) {
-    if ( validObject(id) && variable in id ) {
-      return id[variable]
-    }
-    else if ( !(id instanceof Array) ) {
-      return id
-    }
-  }
-
-  function filterArray( arr ) {
-
-    if ( id instanceof Array ) {
-      var uniques = uniqueValues( id , id_var )
-      return arr.filter(function(d){
-        return uniques.indexOf(d[id_var]) >= 0
-      })
-    }
-    else {
-      return arr.filter(function(d){
-        return d[id_var] === id
-      })
-    }
-
-  }
-
-  if ( validObject(id) && variable in id ) {
-    return id[variable]
-  }
-  else {
-
-    function checkData( data ) {
-      var vals = uniqueValues( data , variable )
-      if ( vals.length === 1 ) return vals[0]
-    }
-
-    if ( validObject(id) && id_var in id ) {
-      var val = checkData( id )
-      if ( val ) return val
-      id = id[id_var]
-    }
-
-    if ( id instanceof Array ) {
-      var val = checkData( id )
-      if ( val ) return val
-    }
-
-    if ( vars.data.viz instanceof Array ) {
-      var val = checkData( filterArray( vars.data.viz ) )
-      if ( val ) return val
-    }
-
-  }
-
-  if ( "attrs" in vars && vars.attrs.value ) {
-
-    if ( vars.attrs.value instanceof Array ) {
-      var attr = filterArray(vars.attrs.value)
-    }
-    else if ( id_var in vars.attrs.value ) {
-      if ( vars.attrs.value[id_var] instanceof Array ) {
-        var attr = filterArray(vars.attrs.value[id_var])
+    } else if (node instanceof Array) {
+      attrList = [
+        (function() {
+          var _i, _len, _results;
+          if (n in attrList) {
+            _results = [];
+            for (_i = 0, _len = node.length; _i < _len; _i++) {
+              n = node[_i];
+              _results.push(attrList[n]);
+            }
+            return _results;
+          }
+        })()
+      ];
+      if (attrList.length) {
+        vals = uniqueValues(attrList, variable);
+        if (vals.length) {
+          return vals;
+        }
       }
-      else {
-        var attr = vars.attrs.value[id_var]
-      }
+    } else if (node in attrList) {
+      return attrList[node][variable];
     }
-    else {
-      var attr = vars.attrs.value
+  }
+  return null;
+};
+
+filterArray = function(arr, node, depth) {
+  if (node instanceof Array) {
+    return arr.filter(function(d) {
+      return node.indexOf(d[depth]) >= 0;
+    });
+  } else {
+    return arr.filter(function(d) {
+      return d[depth] === node;
+    });
+  }
+};
+
+cacheInit = function(node, depth) {
+  if (!("d3plus" in node)) {
+    node.d3plus = {};
+  }
+  if (!("data" in node.d3plus)) {
+    node.d3plus.data = {};
+  }
+  if (!(depth in node.d3plus.data)) {
+    node.d3plus.data[depth] = {};
+  }
+  return node;
+};
+
+valueParse = function(node, depth, variable, val) {
+  if (val instanceof Array && val.length === 1) {
+    val = val[0];
+  }
+  if (val !== null && validObject(node) && typeof variable === "string" && !(variable in node)) {
+    node.d3plus.data[depth][variable] = val;
+  }
+  return val;
+};
+
+aggregate = function(vars, arr, variable) {
+  var agg;
+  if (!(arr instanceof Array)) {
+    return arr;
+  }
+  if (vars.aggs && variable in vars.aggs.value) {
+    agg = vars.aggs[variable];
+    if (typeof agg === "function") {
+      return agg(arr);
+    } else {
+      return d3[agg](arr);
     }
-
+  } else if (typeof arr[0] === "number") {
+    return d3.sum(arr);
   }
+  return uniqueValues(arr);
+};
 
-  if ( validObject(attr) ) {
-
-    var newAttr = []
-
-    if ( id instanceof Array ) {
-      if (validObject(id[0])) id = uniqueValues(id,id_var)
-      id.forEach(function(d){
-        newAttr.push(attr[d])
-      })
-    }
-    else newAttr.push(attr[id])
-
-    attr = newAttr
-
+fetchArray = function(vars, arr, variable, depth) {
+  var item, v, val, _i, _len;
+  val = [];
+  for (_i = 0, _len = arr.length; _i < _len; _i++) {
+    item = arr[_i];
+    v = find(vars, item, variable, depth);
+    val.push(valueParse(item, depth, variable, v));
   }
+  return aggregate(vars, val, variable);
+};
 
-  if ( attr && attr.length ) {
-    var vals = uniqueValues( attr , variable )
-    if ( vals.length === 1 ) return vals[0]
-    else if (vals.length) return vals
-
+fetch = function(vars, node, variable, depth) {
+  var nodeObject, val;
+  if (!variable) {
+    return null;
   }
-
-  return null
-
-}
-
-module.exports = function( vars , id , variable , id_var , agg ) {
-
-  if (validObject(id) && id.values instanceof Array) {
-    var val = null
-    for(var i = 0; i < id.values.length; i++) {
-      val = fetch( vars , id.values[i] , variable , id_var , agg )
-      if (val) break;
-    }
-    return val
+  if (typeof variable === "number") {
+    return variable;
   }
-  else {
-    return fetch( vars , id , variable , id_var , agg )
+  nodeObject = validObject(node);
+  if (!depth) {
+    depth = vars.id.value;
   }
+  if (nodeObject && node.values instanceof Array) {
+    val = fetchArray(vars, node.values, variable, depth);
+  } else if (nodeObject && node[variable] instanceof Array) {
+    val = fetchArray(vars, node[variable], variable, depth);
+  } else if (node instanceof Array) {
+    val = fetchArray(vars, node, variable, depth);
+  } else {
+    val = find(vars, node, variable, depth);
+    val = valueParse(node, depth, variable, val);
+  }
+  return val;
+};
 
-}
+module.exports = fetch;
 
-},{"../../object/validate.coffee":165,"../../util/uniques.coffee":197}],72:[function(require,module,exports){
+
+
+},{"../../object/validate.coffee":166,"../../util/uniques.coffee":199}],72:[function(require,module,exports){
 module.exports = function(type) {
   var attrs, styles, tester;
   if (["div", "svg"].indexOf(type) < 0) {
@@ -22536,10 +22588,6 @@ initialize = function(vars, obj, method) {
         vars.self[d] = (function(dep, n) {
           return function(x) {
             var str;
-            if (vars.dev.value && vars.methodGroup) {
-              print.groupEnd();
-              vars.methodGroup = false;
-            }
             str = vars.format.locale.value.dev.deprecated;
             dep = "." + dep + "()";
             print.error(stringFormat(str, dep, "." + n + "()"), n);
@@ -22562,7 +22610,7 @@ initialize = function(vars, obj, method) {
 
 createFunction = function(vars, key) {
   return function(user, callback) {
-    var accepted, checkFamily, s, str;
+    var accepted, checkFont, fontAttr, fontAttrValue, s, str;
     accepted = "accepted" in vars[key] ? vars[key].accepted : null;
     if (typeof accepted === "function") {
       accepted = accepted(vars);
@@ -22581,29 +22629,49 @@ createFunction = function(vars, key) {
     }
     if (key === "style" && typeof user === "object") {
       str = vars.format.locale.value.dev.oldStyle;
-      if ((vars.dev.value || (key === "dev" && user)) && !vars.methodGroup && vars.methodGroup !== "wait") {
-        vars.methodGroup = true;
-        print.groupCollapsed("method behavior");
-      }
       for (s in user) {
         print.warning(stringFormat(str, "\"" + s + "\"", s), s);
         vars.self[s](user[s]);
       }
     }
-    if (key === "font" && validObject(user) && "family" in user && typeof user.family === "string") {
-      checkFamily = function(o) {
+    if (key === "font" && typeof user === "string") {
+      user = {
+        family: user
+      };
+    }
+    if (key === "font") {
+      checkFont = function(o, a, v, start) {
         var m;
         if (validObject(o)) {
-          if ("family" in o) {
-            o.family.value = o.family.process(user.family, vars);
+          if (a in o) {
+            if (validObject(o[a])) {
+              o[a].value = o[a].process ? o[a].process(v) : v;
+            } else {
+              o[a] = v;
+            }
           } else {
             for (m in o) {
-              checkFamily(o[m]);
+              if (m !== "font" || start !== true) {
+                checkFont(o[m], a, v, false);
+              }
+              if (start) {
+                checkFont(o.font.secondary, a, v, false);
+              }
             }
           }
         }
       };
-      checkFamily(vars);
+      for (fontAttr in user) {
+        fontAttrValue = user[fontAttr];
+        if (fontAttr !== "secondary") {
+          if (validObject(fontAttrValue)) {
+            fontAttrValue = fontAttrValue.value;
+          }
+          if (fontAttrValue) {
+            checkFont(vars, fontAttr, fontAttrValue, true);
+          }
+        }
+      }
     }
     checkObject(vars, key, vars, key, user);
     if (typeof callback === "function") {
@@ -22619,7 +22687,7 @@ createFunction = function(vars, key) {
 
 checkObject = function(vars, method, object, key, value) {
   var approvedObject, d, objectOnly, passingObject;
-  if (key !== "accepted") {
+  if (["accepted", "changed", "initialized", "previous", "process"].indexOf(key) < 0) {
     passingObject = validObject(value);
     objectOnly = validObject(object[key]) && "objectAccess" in object[key] && object[key]["objectAccess"] === false;
     approvedObject = passingObject && (objectOnly || ((!("value" in value)) && (!(d3.keys(value)[0] in object[key]))));
@@ -22639,7 +22707,7 @@ checkObject = function(vars, method, object, key, value) {
 
 
 
-},{"../../object/validate.coffee":165,"../../string/format.js":166,"../../util/copy.coffee":194,"../console/print.coffee":57,"./process/detect.coffee":86,"./set.coffee":91}],79:[function(require,module,exports){
+},{"../../object/validate.coffee":166,"../../string/format.js":167,"../../util/copy.coffee":196,"../console/print.coffee":57,"./process/detect.coffee":86,"./set.coffee":91}],79:[function(require,module,exports){
 module.exports = function(g) {
   if (!g) {
     g = false;
@@ -22784,7 +22852,7 @@ module.exports = function(value, vars, method) {
 
 
 
-},{"../../../util/d3selection.coffee":195}],86:[function(require,module,exports){
+},{"../../../util/d3selection.coffee":197}],86:[function(require,module,exports){
 var copy, update;
 
 copy = require("../../../util/copy.coffee");
@@ -22805,7 +22873,7 @@ module.exports = function(vars, object, value) {
 
 
 
-},{"../../../array/update.coffee":41,"../../../util/copy.coffee":194}],87:[function(require,module,exports){
+},{"../../../array/update.coffee":41,"../../../util/copy.coffee":196}],87:[function(require,module,exports){
 var stylesheet;
 
 stylesheet = require("../../../client/css.coffee");
@@ -22871,7 +22939,7 @@ module.exports = function(vars, accepted, value, method, text) {
 
 
 
-},{"../../array/contains.coffee":39,"../../string/format.js":166,"../../string/list.coffee":167,"../console/print.coffee":57}],89:[function(require,module,exports){
+},{"../../array/contains.coffee":39,"../../string/format.js":167,"../../string/list.coffee":168,"../console/print.coffee":57}],89:[function(require,module,exports){
 module.exports = function(rendering) {
   var accepted;
   accepted = ["auto", "optimizeSpeed", "crispEdges", "geometricPrecision"];
@@ -22912,7 +22980,7 @@ module.exports = reset;
 
 
 
-},{"../../object/validate.coffee":165}],91:[function(require,module,exports){
+},{"../../object/validate.coffee":166}],91:[function(require,module,exports){
 var copy, d3selection, mergeObject, print, process, rejected, stringFormat, updateArray, validObject;
 
 copy = require("../../util/copy.coffee");
@@ -23040,15 +23108,11 @@ module.exports = function(vars, method, object, key, value) {
       if (key === "value" && object.dataFilter && vars.data && vars.data.filters.indexOf(method) < 0) {
         vars.data.filters.push(method);
       }
-      if ((vars.dev.value || key === "dev") && object.changed && object[key] !== void 0) {
+      if (vars.dev.value && object.changed && object[key] !== void 0) {
         longArray = object[key] instanceof Array && object[key].length > 10;
         d3object = d3selection(object[key]);
         typeFunction = typeof object[key] === "function";
         valString = (!longArray && !d3object && !typeFunction ? (typeof object[key] === "string" ? object[key] : JSON.stringify(object[key])) : null);
-        if ((vars.dev.value || (key === "dev" && user)) && !vars.methodGroup && vars.methodGroup !== "wait") {
-          vars.methodGroup = true;
-          print.groupCollapsed("method behavior");
-        }
         if (valString !== null && valString.length < 260) {
           str = vars.format.locale.value.dev.setLong;
           print.log(stringFormat(str, text, "\"" + valString + "\""));
@@ -23061,7 +23125,7 @@ module.exports = function(vars, method, object, key, value) {
     if (key === "value" && object.callback && !object.url) {
       callback = typeof object.callback === "function" ? object.callback : object.callback.value;
       if (callback) {
-        callback(value);
+        callback(value, vars.self);
       }
     }
   }
@@ -23069,7 +23133,7 @@ module.exports = function(vars, method, object, key, value) {
 
 
 
-},{"../../array/update.coffee":41,"../../object/merge.coffee":164,"../../object/validate.coffee":165,"../../string/format.js":166,"../../util/copy.coffee":194,"../../util/d3selection.coffee":195,"../console/print.coffee":57,"./process/detect.coffee":86,"./rejected.coffee":88}],92:[function(require,module,exports){
+},{"../../array/update.coffee":41,"../../object/merge.coffee":165,"../../object/validate.coffee":166,"../../string/format.js":167,"../../util/copy.coffee":196,"../../util/d3selection.coffee":197,"../console/print.coffee":57,"./process/detect.coffee":86,"./rejected.coffee":88}],92:[function(require,module,exports){
 var print = require("../console/print.coffee"),
     stringFormat = require("../../string/format.js")
 
@@ -23149,7 +23213,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../string/format.js":166,"../console/print.coffee":57}],93:[function(require,module,exports){
+},{"../../string/format.js":167,"../console/print.coffee":57}],93:[function(require,module,exports){
 // Parses an HTML element for data
 module.exports = function( vars ) {
 
@@ -23545,9 +23609,12 @@ var fontTester;
 
 fontTester = require("../core/font/tester.coffee");
 
-module.exports = function(words, style, parent) {
+module.exports = function(words, style, opts) {
   var attr, sizes, tester, tspans;
-  tester = parent || fontTester("svg").append("text");
+  if (!opts) {
+    opts = {};
+  }
+  tester = opts.parent || fontTester("svg").append("text");
   style = style || {};
   sizes = [];
   if (!(words instanceof Array)) {
@@ -23559,14 +23626,29 @@ module.exports = function(words, style, parent) {
     y: 0
   };
   tspans.enter().append("tspan").text(String).attr("position", "absolute").attr("top", "0px").attr("left", "0px").style(style).attr(attr).each(function(d) {
+    var children, height, width;
+    if (typeof opts.mod === "function") {
+      opts.mod(this);
+    }
+    children = d3.select(this).selectAll("tspan");
+    if (children.size()) {
+      width = [];
+      children.each(function() {
+        return width.push(this.getComputedTextLength());
+      });
+      width = d3.max(width);
+    } else {
+      width = this.getComputedTextLength();
+    }
+    height = this.offsetHeight || this.getBoundingClientRect().height || this.parentNode.getBBox().height;
     return sizes.push({
-      height: this.offsetHeight || this.getBoundingClientRect().height || this.parentNode.getBBox().height,
+      height: height,
       text: d,
-      width: this.getComputedTextLength()
+      width: width
     });
   });
   tspans.remove();
-  if (!parent) {
+  if (!opts.parent) {
     tester.remove();
   }
   return sizes;
@@ -23678,7 +23760,7 @@ module.exports = function() {
     //--------------------------------------------------------------------------
     if ( vars.data.value instanceof Array ) {
 
-      if ( vars.dev.value ) print.groupCollapsed("drawing \""+vars.type.value+"\"");
+      if ( vars.dev.value ) print.group("drawing \""+vars.type.value+"\"");
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Analyze new data, if changed.
@@ -23704,7 +23786,7 @@ module.exports = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( !vars.focus.value ) {
+      if ( vars.focus.value === false ) {
 
         var element = vars.data.element.value;
 
@@ -23716,7 +23798,7 @@ module.exports = function() {
           if (val) vars.focus.value = val;
         }
 
-        if ( !vars.focus.value && vars.data.viz.length ) {
+        if ( vars.focus.value === false && vars.data.viz.length ) {
           vars.focus.value = vars.data.viz[0][vars.id.value];
         }
 
@@ -23939,10 +24021,8 @@ module.exports = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Initialization complete
       //------------------------------------------------------------------------
+      if (vars.dev.value) print.timeEnd("total draw time");
       methodReset( vars );
-      vars.methodGroup = false;
-
-      if ( vars.dev.value ) print.groupEnd();
 
     }
 
@@ -23955,6 +24035,7 @@ module.exports = function() {
     "active":    require("./methods/active.coffee"),
     "alt":       require("./methods/alt.coffee"),
     "color":     require("./methods/color.coffee"),
+    "config":    require("./methods/config.coffee"),
     "container": require("./methods/container.coffee"),
     "data":      require("./methods/data.js"),
     "depth":     require("./methods/depth.coffee"),
@@ -23991,7 +24072,7 @@ module.exports = function() {
 
 };
 
-},{"../array/sort.coffee":40,"../client/ie.js":43,"../core/console/print.coffee":57,"../core/data/format.js":61,"../core/data/keys.js":63,"../core/data/load.coffee":64,"../core/fetch/data.js":68,"../core/methods/attach.coffee":78,"../core/methods/reset.coffee":90,"./methods/active.coffee":101,"./methods/alt.coffee":102,"./methods/color.coffee":103,"./methods/container.coffee":104,"./methods/data.js":105,"./methods/depth.coffee":106,"./methods/dev.coffee":107,"./methods/draw.js":108,"./methods/focus.coffee":109,"./methods/font.coffee":110,"./methods/format.coffee":111,"./methods/height.coffee":112,"./methods/history.coffee":113,"./methods/hover.coffee":114,"./methods/icon.coffee":115,"./methods/id.coffee":116,"./methods/keywords.coffee":117,"./methods/margin.coffee":118,"./methods/open.coffee":119,"./methods/order.coffee":120,"./methods/remove.coffee":121,"./methods/search.coffee":122,"./methods/select.coffee":123,"./methods/selectAll.coffee":124,"./methods/text.coffee":125,"./methods/timing.coffee":126,"./methods/title.coffee":127,"./methods/type.coffee":128,"./methods/ui.coffee":129,"./methods/width.coffee":130,"./types/auto.js":131,"./types/button/button.js":132,"./types/drop/drop.js":137,"./types/toggle.js":154}],101:[function(require,module,exports){
+},{"../array/sort.coffee":40,"../client/ie.js":43,"../core/console/print.coffee":57,"../core/data/format.js":61,"../core/data/keys.js":63,"../core/data/load.coffee":64,"../core/fetch/data.js":68,"../core/methods/attach.coffee":78,"../core/methods/reset.coffee":90,"./methods/active.coffee":101,"./methods/alt.coffee":102,"./methods/color.coffee":103,"./methods/config.coffee":104,"./methods/container.coffee":105,"./methods/data.js":106,"./methods/depth.coffee":107,"./methods/dev.coffee":108,"./methods/draw.js":109,"./methods/focus.coffee":110,"./methods/font.coffee":111,"./methods/format.coffee":112,"./methods/height.coffee":113,"./methods/history.coffee":114,"./methods/hover.coffee":115,"./methods/icon.coffee":116,"./methods/id.coffee":117,"./methods/keywords.coffee":118,"./methods/margin.coffee":119,"./methods/open.coffee":120,"./methods/order.coffee":121,"./methods/remove.coffee":122,"./methods/search.coffee":123,"./methods/select.coffee":124,"./methods/selectAll.coffee":125,"./methods/text.coffee":126,"./methods/timing.coffee":127,"./methods/title.coffee":128,"./methods/type.coffee":129,"./methods/ui.coffee":130,"./methods/width.coffee":131,"./types/auto.js":132,"./types/button/button.js":133,"./types/drop/drop.js":138,"./types/toggle.js":155}],101:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -24026,6 +24107,25 @@ module.exports = {
 
 
 },{}],104:[function(require,module,exports){
+module.exports = {
+  accepted: [Object],
+  objectAccess: false,
+  process: function(value, vars) {
+    var method, setting;
+    for (method in value) {
+      setting = value[method];
+      if (method in vars.self) {
+        vars.self[method](setting);
+      }
+    }
+    return value;
+  },
+  value: {}
+};
+
+
+
+},{}],105:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -24050,7 +24150,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":195}],105:[function(require,module,exports){
+},{"../../util/d3selection.coffee":197}],106:[function(require,module,exports){
 var d3selection = require("../../util/d3selection.coffee"),
     process = require("../../core/methods/process/data.coffee");
 
@@ -24116,7 +24216,7 @@ module.exports = {
   "value"    : false
 };
 
-},{"../../core/methods/process/data.coffee":85,"../../util/d3selection.coffee":195}],106:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":85,"../../util/d3selection.coffee":197}],107:[function(require,module,exports){
 module.exports = {
   accepted: [Number],
   value: 0
@@ -24124,7 +24224,7 @@ module.exports = {
 
 
 
-},{}],107:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -24132,7 +24232,7 @@ module.exports = {
 
 
 
-},{}],108:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var d3selection  = require("../../util/d3selection.coffee"),
     parseElement = require("../../core/parse/element.js"),
     print        = require("../../core/console/print.coffee"),
@@ -24171,15 +24271,9 @@ module.exports = {
     }
     else {
 
-      if ( vars.dev.value ) {
-        if ( vars.methodGroup ) {
-          vars.methodGroup = "wait"
-          print.groupEnd()
-        }
-        print.time("total draw time")
-      }
+      if (vars.dev.value) print.time("total draw time");
 
-      vars.container.value.call(vars.self)
+      vars.container.value.call(vars.self);
 
     }
 
@@ -24205,7 +24299,7 @@ module.exports = {
   "value"    : undefined
 }
 
-},{"../../core/console/print.coffee":57,"../../core/parse/element.js":93,"../../string/format.js":166,"../../util/d3selection.coffee":195}],109:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../core/parse/element.js":93,"../../string/format.js":167,"../../util/d3selection.coffee":197}],110:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number, String],
   deprecates: "highlight",
@@ -24237,7 +24331,7 @@ module.exports = {
 
 
 
-},{}],110:[function(require,module,exports){
+},{}],111:[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -24271,7 +24365,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":80,"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],111:[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":80,"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],112:[function(require,module,exports){
 var formatNumber, locale, mergeObject, titleCase;
 
 formatNumber = require("../../number/format.js");
@@ -24344,7 +24438,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":77,"../../number/format.js":163,"../../object/merge.coffee":164,"../../string/title.coffee":169}],112:[function(require,module,exports){
+},{"../../core/locale/locale.coffee":77,"../../number/format.js":164,"../../object/merge.coffee":165,"../../string/title.coffee":170}],113:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   max: 600,
@@ -24354,7 +24448,7 @@ module.exports = {
 
 
 
-},{}],113:[function(require,module,exports){
+},{}],114:[function(require,module,exports){
 module.exports = {
   back: function() {
     if (this.states.length) {
@@ -24367,7 +24461,7 @@ module.exports = {
 
 
 
-},{}],114:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number, String],
   value: false
@@ -24375,7 +24469,7 @@ module.exports = {
 
 
 
-},{}],115:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/icon.coffee");
@@ -24431,7 +24525,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/icon.coffee":87}],116:[function(require,module,exports){
+},{"../../core/methods/process/icon.coffee":87}],117:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -24447,7 +24541,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],117:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],118:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -24461,7 +24555,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],118:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],119:[function(require,module,exports){
 module.exports = {
   accepted: [Number, Object, String],
   process: function(value) {
@@ -24530,7 +24624,7 @@ module.exports = {
 
 
 
-},{}],119:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   flipped: {
@@ -24542,7 +24636,7 @@ module.exports = {
 
 
 
-},{}],120:[function(require,module,exports){
+},{}],121:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, String],
   sort: {
@@ -24555,7 +24649,7 @@ module.exports = {
 
 
 
-},{}],121:[function(require,module,exports){
+},{}],122:[function(require,module,exports){
 module.exports = {
   accepted: void 0,
   process: function(value, vars) {
@@ -24568,7 +24662,7 @@ module.exports = {
 
 
 
-},{}],122:[function(require,module,exports){
+},{}],123:[function(require,module,exports){
 module.exports = {
   accepted: ["auto", Boolean],
   process: function(value) {
@@ -24582,7 +24676,7 @@ module.exports = {
 
 
 
-},{}],123:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   chainable: false,
@@ -24600,7 +24694,7 @@ module.exports = {
 
 
 
-},{}],124:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   chainable: false,
@@ -24618,7 +24712,7 @@ module.exports = {
 
 
 
-},{}],125:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -24638,7 +24732,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],126:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],127:[function(require,module,exports){
 module.exports = {
   mouseevents: 60,
   ui: 200
@@ -24646,7 +24740,7 @@ module.exports = {
 
 
 
-},{}],127:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 var decoration, family, stringStrip, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -24684,7 +24778,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84,"../../string/strip.js":168}],128:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84,"../../string/strip.js":169}],129:[function(require,module,exports){
 module.exports = {
   accepted: function(vars) {
     return d3.keys(vars.types);
@@ -24694,7 +24788,7 @@ module.exports = {
 
 
 
-},{}],129:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -24744,7 +24838,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":80,"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],130:[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":80,"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],131:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   secondary: false,
@@ -24753,7 +24847,7 @@ module.exports = {
 
 
 
-},{}],131:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines form type based on data length.
 //------------------------------------------------------------------------------
@@ -24773,7 +24867,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],132:[function(require,module,exports){
+},{}],133:[function(require,module,exports){
 var print = require("../../../core/console/print.coffee"),
     color = require("./functions/color.js"),
     icons = require("./functions/icons.js"),
@@ -24856,7 +24950,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../../core/console/print.coffee":57,"./functions/color.js":133,"./functions/icons.js":134,"./functions/mouseevents.js":135,"./functions/style.js":136}],133:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57,"./functions/color.js":134,"./functions/icons.js":135,"./functions/mouseevents.js":136,"./functions/style.js":137}],134:[function(require,module,exports){
 var legible = require("../../../../color/legible.coffee"),
     lighter   = require("../../../../color/lighter.coffee"),
     textColor = require("../../../../color/text.coffee")
@@ -24921,7 +25015,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{"../../../../color/legible.coffee":49,"../../../../color/lighter.coffee":50,"../../../../color/text.coffee":55}],134:[function(require,module,exports){
+},{"../../../../color/legible.coffee":49,"../../../../color/lighter.coffee":50,"../../../../color/text.coffee":55}],135:[function(require,module,exports){
 var prefix = require("../../../../client/prefix.coffee"),
     rtl = require("../../../../client/rtl.coffee")
 
@@ -25101,7 +25195,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{"../../../../client/prefix.coffee":45,"../../../../client/rtl.coffee":46}],135:[function(require,module,exports){
+},{"../../../../client/prefix.coffee":45,"../../../../client/rtl.coffee":46}],136:[function(require,module,exports){
 var events = require("../../../../client/pointer.coffee"),
     ie = require("../../../../client/ie.js")
 
@@ -25153,7 +25247,7 @@ module.exports = function ( elem , vars , color ) {
 
 }
 
-},{"../../../../client/ie.js":43,"../../../../client/pointer.coffee":44}],136:[function(require,module,exports){
+},{"../../../../client/ie.js":43,"../../../../client/pointer.coffee":44}],137:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -25172,7 +25266,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{}],137:[function(require,module,exports){
+},{}],138:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Dropdown Menu
 //------------------------------------------------------------------------------
@@ -25250,7 +25344,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"./functions/button.js":140,"./functions/data.js":141,"./functions/element.js":142,"./functions/keyboard.js":145,"./functions/list.js":146,"./functions/search.js":148,"./functions/selector.js":149,"./functions/title.js":150,"./functions/update.js":151,"./functions/width.js":152,"./functions/window.js":153}],138:[function(require,module,exports){
+},{"./functions/button.js":141,"./functions/data.js":142,"./functions/element.js":143,"./functions/keyboard.js":146,"./functions/list.js":147,"./functions/search.js":149,"./functions/selector.js":150,"./functions/title.js":151,"./functions/update.js":152,"./functions/width.js":153,"./functions/window.js":154}],139:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if a given variable is allowed to be selected.
 //------------------------------------------------------------------------------
@@ -25286,7 +25380,7 @@ module.exports = function ( vars , value , active ) {
 
 }
 
-},{}],139:[function(require,module,exports){
+},{}],140:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
@@ -25317,7 +25411,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57}],140:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57}],141:[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     events = require("../../../../client/pointer.coffee"),
     form   = require("../../../form.js"),
@@ -25403,7 +25497,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/pointer.coffee":44,"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":194,"../../../form.js":100}],141:[function(require,module,exports){
+},{"../../../../client/pointer.coffee":44,"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":196,"../../../form.js":100}],142:[function(require,module,exports){
 var stringFormat = require("../../../../string/format.js"),
     stringStrip = require("../../../../string/strip.js");
 
@@ -25528,7 +25622,7 @@ module.exports = function ( vars ) {
 
 };
 
-},{"../../../../string/format.js":166,"../../../../string/strip.js":168}],142:[function(require,module,exports){
+},{"../../../../string/format.js":167,"../../../../string/strip.js":169}],143:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Overrides keyboard behavior of the original input element.
 //------------------------------------------------------------------------------
@@ -25567,7 +25661,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],143:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the height and orientation of the dropdown list, based on
 // available screen space.
@@ -25594,7 +25688,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],144:[function(require,module,exports){
+},{}],145:[function(require,module,exports){
 var active, copy, form, print;
 
 active = require("./active.js");
@@ -25624,7 +25718,7 @@ module.exports = function(vars) {
     order = copy(vars.order);
     order.value = (vars.text.solo.value.length && vars.text.solo.value[0] !== "" ? "d3plus_order" : vars.order.value);
     deepest = vars.depth.value === vars.id.nesting.length - 1;
-    if (vars.focus.changed || !vars.container.items.focus().length) {
+    if (vars.focus.changed || vars.container.items.focus() === false) {
       vars.container.items.focus(vars.focus.value, function(value) {
         var change, data, depth, solo;
         change = value !== vars.focus.value;
@@ -25685,7 +25779,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":194,"../../../form.js":100,"./active.js":138}],145:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":196,"../../../form.js":100,"./active.js":139}],146:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Assigns behavior to the user's keyboard for navigation.
 //------------------------------------------------------------------------------
@@ -25795,7 +25889,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],146:[function(require,module,exports){
+},{}],147:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
@@ -25817,7 +25911,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57}],147:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57}],148:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
@@ -25834,8 +25928,6 @@ module.exports = function ( vars ) {
     }
 
     if (hidden) vars.container.selector.style("display","block")
-
-    var searchHeight = vars.search.enabled ? vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height : 0
 
     var old_height = vars.container.selector.style("height"),
         old_scroll = vars.container.selector.property("scrollTop"),
@@ -25901,8 +25993,8 @@ module.exports = function ( vars ) {
         if (button_top < list_top) {
           vars.container.listScroll = button_top
         }
-        else if (button_top+button_height > list_top+vars.height.secondary-searchHeight) {
-          vars.container.listScroll = button_top - (vars.height.secondary-button_height-searchHeight)
+        else if (button_top+button_height > list_top+vars.height.secondary-vars.search.height) {
+          vars.container.listScroll = button_top - (vars.height.secondary-button_height-vars.search.height)
         }
 
       }
@@ -25922,7 +26014,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57}],148:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57}],149:[function(require,module,exports){
 var prefix = require("../../../../client/prefix.coffee"),
     print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -26007,15 +26099,20 @@ module.exports = function ( vars ) {
 
   vars.container.search.exit().remove()
 
+  if (!vars.open.value) {
+    vars.search.height = vars.search.enabled ? vars.container.search.node().offsetHeight || 
+                         vars.container.search.node().getBoundingClientRect().height : 0;
+  }
+
   if ( vars.search.enabled ) {
-    vars.margin.title += vars.container.search.node().offsetHeight || vars.container.search.node().getBoundingClientRect().height
+    vars.margin.title += vars.search.height
   }
 
   if ( vars.dev.value ) print.timeEnd("creating search")
 
 }
 
-},{"../../../../client/prefix.coffee":45,"../../../../core/console/print.coffee":57,"./data.js":141,"./items.coffee":144,"./update.js":151}],149:[function(require,module,exports){
+},{"../../../../client/prefix.coffee":45,"../../../../core/console/print.coffee":57,"./data.js":142,"./items.coffee":145,"./update.js":152}],150:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
@@ -26037,7 +26134,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],150:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 var events = require("../../../../client/pointer.coffee"),
     lighter   = require("../../../../color/lighter.coffee"),
     print     = require("../../../../core/console/print.coffee"),
@@ -26188,7 +26285,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/pointer.coffee":44,"../../../../color/lighter.coffee":50,"../../../../color/text.coffee":55,"../../../../core/console/print.coffee":57}],151:[function(require,module,exports){
+},{"../../../../client/pointer.coffee":44,"../../../../color/lighter.coffee":50,"../../../../color/text.coffee":55,"../../../../core/console/print.coffee":57}],152:[function(require,module,exports){
 var items = require("./items.coffee"),
     height     = require("./height.js"),
     print      = require("../../../../core/console/print.coffee"),
@@ -26310,7 +26407,7 @@ module.exports = function ( vars ) {
 
   }
 
-  var max_height = vars.open.value ? vars.height.secondary-vars.margin.title : 0
+  var max_height = vars.open.value ? vars.height.secondary - vars.margin.title: 0;
 
   if (!vars.draw.timing) {
 
@@ -26318,8 +26415,8 @@ module.exports = function ( vars ) {
 
     vars.container.list
       .style("width",vars.width.secondary-vars.ui.border*2+"px")
-      .style("max-height",max_height+"px")
-      .property("scrollTop",vars.container.listScroll)
+      .style("max-height", max_height + "px")
+      .property("scrollTop",vars.container.listScroll);
 
   }
   else {
@@ -26353,7 +26450,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57,"./arrow.js":139,"./height.js":143,"./items.coffee":144,"./scroll.js":147}],152:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57,"./arrow.js":140,"./height.js":144,"./items.coffee":145,"./scroll.js":148}],153:[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     fontTester  = require("../../../../core/font/tester.coffee"),
     form        = require("../../../form.js"),
@@ -26417,7 +26514,7 @@ module.exports = function ( vars ) {
 
     var w = []
     button.selectAll("div.d3plus_node").each(function(o){
-      w.push(this.offsetWidth)
+      w.push(this.offsetWidth + 1)
     }).remove()
 
     var dropWidth = {}
@@ -26448,7 +26545,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57,"../../../../core/font/tester.coffee":72,"../../../../object/validate.coffee":165,"../../../../util/copy.coffee":194,"../../../form.js":100}],153:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57,"../../../../core/font/tester.coffee":72,"../../../../object/validate.coffee":166,"../../../../util/copy.coffee":196,"../../../form.js":100}],154:[function(require,module,exports){
 var child = require("../../../../util/child.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -26493,7 +26590,7 @@ var windowEvents = function ( vars , elem ) {
 
 module.exports = windowEvents
 
-},{"../../../../util/child.coffee":192}],154:[function(require,module,exports){
+},{"../../../../util/child.coffee":194}],155:[function(require,module,exports){
 var form = require("../form.js")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -26578,7 +26675,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../form.js":100}],155:[function(require,module,exports){
+},{"../form.js":100}],156:[function(require,module,exports){
 var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, print, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
 
 print = require("../core/console/print.coffee");
@@ -26757,9 +26854,15 @@ module.exports = function(poly, options) {
           });
         }
         _ref7 = intersectPoints(poly, origin, angleRad), p1W = _ref7[0], p2W = _ref7[1];
+        if (p1W === null || p2W === null) {
+          continue;
+        }
         minSqDistW = Math.min(squaredDist(origin, p1W), squaredDist(origin, p2W));
         maxWidth = 2 * Math.sqrt(minSqDistW);
         _ref8 = intersectPoints(poly, origin, angleRad + Math.PI / 2), p1H = _ref8[0], p2H = _ref8[1];
+        if (p1H === null || p2H === null) {
+          continue;
+        }
         minSqDistH = Math.min(squaredDist(origin, p1H), squaredDist(origin, p2H));
         maxHeight = 2 * Math.sqrt(minSqDistH);
         if (maxWidth * maxHeight < maxArea) {
@@ -26992,7 +27095,7 @@ intersectPoints = function(poly, origin, alpha) {
 
 
 
-},{"../core/console/print.coffee":57,"simplify-js":11}],156:[function(require,module,exports){
+},{"../core/console/print.coffee":57,"simplify-js":11}],157:[function(require,module,exports){
 module.exports = function(radians, distance, shape) {
   var adjacentLegLength, coords, diagonal, oppositeLegLength;
   coords = {
@@ -27058,7 +27161,7 @@ module.exports = function(radians, distance, shape) {
 
 
 
-},{}],157:[function(require,module,exports){
+},{}],158:[function(require,module,exports){
 var offset;
 
 offset = require("../geom/offset.coffee");
@@ -27104,7 +27207,7 @@ module.exports = function(path) {
 
 
 
-},{"../geom/offset.coffee":156}],158:[function(require,module,exports){
+},{"../geom/offset.coffee":157}],159:[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -27242,33 +27345,7 @@ module.exports = function(edges, options) {
 
 
 
-},{"./normalize.coffee":160}],159:[function(require,module,exports){
-module.exports = function(arr, accessor) {
-  var checked, distances;
-  distances = [];
-  checked = [];
-  arr.forEach(function(node1) {
-    var n1;
-    n1 = (accessor ? accessor(node1) : [node1.x, node1.y]);
-    checked.push(node1);
-    return arr.forEach(function(node2) {
-      var n2, xx, yy;
-      if (checked.indexOf(node2) < 0) {
-        n2 = (accessor ? accessor(node2) : [node2.x, node2.y]);
-        xx = Math.abs(n1[0] - n2[0]);
-        yy = Math.abs(n1[1] - n2[1]);
-        return distances.push(Math.sqrt((xx * xx) + (yy * yy)));
-      }
-    });
-  });
-  return distances.sort(function(a, b) {
-    return a - b;
-  });
-};
-
-
-
-},{}],160:[function(require,module,exports){
+},{"./normalize.coffee":160}],160:[function(require,module,exports){
 var print;
 
 print = require("../core/console/print.coffee");
@@ -27516,6 +27593,51 @@ module.exports = function(edges, source, options) {
 
 
 },{"./normalize.coffee":160,"heap":8}],162:[function(require,module,exports){
+module.exports = function(arr, accessor) {
+  var distances, quad;
+  distances = [];
+  quad = d3.geom.quadtree().x(function(d) {
+    if (accessor) {
+      return accessor(d)[0];
+    } else {
+      return d.x;
+    }
+  }).y(function(d) {
+    if (accessor) {
+      return accessor(d)[1];
+    } else {
+      return d.y;
+    }
+  });
+  quad(arr).visit(function(node) {
+    var n1, n2, node1, node2, xx, yy, _i, _j, _len, _len1, _ref, _ref1;
+    if (!node.leaf) {
+      _ref = node.nodes;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        n1 = _ref[_i];
+        if (n1 && n1.point) {
+          node1 = n1.point;
+          _ref1 = node.nodes;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            n2 = _ref1[_j];
+            if (n2 && n2.point && n2.point !== node1) {
+              node2 = n2.point;
+              xx = Math.abs(node1.x - node2.x);
+              yy = Math.abs(node1.y - node2.y);
+              distances.push(Math.sqrt((xx * xx) + (yy * yy)));
+            }
+          }
+        }
+      }
+    }
+    return false;
+  });
+  return d3.min(distances);
+};
+
+
+
+},{}],163:[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -27586,26 +27708,11 @@ module.exports = function(edges, source, options) {
 
 
 
-},{"./normalize.coffee":160}],163:[function(require,module,exports){
+},{"./normalize.coffee":160}],164:[function(require,module,exports){
 var defaultLocale = require("../core/locale/languages/en_US.coffee");
 
 // Formats numbers to look "pretty"
 module.exports = function(number, key, vars, data) {
-
-  if ( vars && key && vars.x && vars.y && (
-       ( key === vars.x.value && vars.x.scale.value === "log" ) ||
-       ( key === vars.y.value && vars.y.scale.value === "log" ) ) ) {
-
-    var superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹"
-      , formatPower = function(d) {
-          return (d + "").split("").map(function(c) {
-            return superscript[c]
-          }).join("")
-        }
-
-    return 10 + " " + formatPower( Math.round(Math.log(number) / Math.LN10) )
-
-  }
 
   if ( "locale" in this ) {
     var time = this.locale.value.time
@@ -27642,7 +27749,7 @@ module.exports = function(number, key, vars, data) {
 
 }
 
-},{"../core/locale/languages/en_US.coffee":73}],164:[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":73}],165:[function(require,module,exports){
 var d3selection, validate;
 
 d3selection = require("../util/d3selection.coffee");
@@ -27694,7 +27801,7 @@ module.exports = function(obj1, obj2) {
 
 
 
-},{"../util/d3selection.coffee":195,"./validate.coffee":165}],165:[function(require,module,exports){
+},{"../util/d3selection.coffee":197,"./validate.coffee":166}],166:[function(require,module,exports){
 
 /**
  * This function returns true if the variable passed is a literal javascript keyed Object. It's a small, simple function, but it catches some edge-cases that can throw off your code (such as Arrays and `null`).
@@ -27709,7 +27816,7 @@ module.exports = function(obj) {
 
 
 
-},{}],166:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats a string similar to Python's "format"
 //------------------------------------------------------------------------------
@@ -27740,7 +27847,7 @@ module.exports = function() {
 
 }
 
-},{}],167:[function(require,module,exports){
+},{}],168:[function(require,module,exports){
 var format, locale;
 
 format = require("./format.js");
@@ -27777,7 +27884,7 @@ module.exports = function(list, andText, max, moreText) {
 
 
 
-},{"../core/locale/languages/en_US.coffee":73,"./format.js":166}],168:[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":73,"./format.js":167}],169:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
@@ -27832,7 +27939,7 @@ module.exports = function(str) {
 
 }
 
-},{}],169:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 var defaultLocale;
 
 defaultLocale = require("../core/locale/languages/en_US.coffee");
@@ -27862,7 +27969,7 @@ module.exports = function(text, key, vars, data) {
 
 
 
-},{"../core/locale/languages/en_US.coffee":73}],170:[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":73}],171:[function(require,module,exports){
 var foreign, tspan;
 
 foreign = require("./foreign.coffee");
@@ -27879,7 +27986,7 @@ module.exports = function(vars) {
 
 
 
-},{"./foreign.coffee":171,"./tspan.js":175}],171:[function(require,module,exports){
+},{"./foreign.coffee":172,"./tspan.js":176}],172:[function(require,module,exports){
 module.exports = function(vars) {
   var anchor, color, family, opacity, text;
   text = vars.container.value;
@@ -27893,7 +28000,7 @@ module.exports = function(vars) {
 
 
 
-},{}],172:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 module.exports = function(vars) {
   var circle, height, parent, radius, rect, width;
   if (!vars.width.value || !vars.height.value) {
@@ -27930,10 +28037,10 @@ module.exports = function(vars) {
 
 
 
-},{}],173:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 module.exports = function(vars) {
   var size;
-  size = vars.container.value.attr("font-size" || vars.container.value.style("font-size"));
+  size = vars.container.value.attr("font-size") || vars.container.value.style("font-size");
   vars.container.fontSize = size;
   if (!vars.size.value) {
     size = parseFloat(size, 10);
@@ -27947,7 +28054,7 @@ module.exports = function(vars) {
 
 
 
-},{}],174:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 module.exports = function(vars) {
   var text;
   if (!vars.text.value) {
@@ -27973,7 +28080,7 @@ module.exports = function(vars) {
 
 
 
-},{}],175:[function(require,module,exports){
+},{}],176:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Flows the text into tspans
 //------------------------------------------------------------------------------
@@ -28096,7 +28203,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],176:[function(require,module,exports){
+},{}],177:[function(require,module,exports){
 var flow, fontSizes, resize, wrap;
 
 flow = require("./flow.coffee");
@@ -28132,7 +28239,9 @@ resize = function(vars) {
   lineWidth = vars.shape.value === "circle" ? vars.width.value * 0.785 : vars.width.value;
   sizes = fontSizes(words, {
     "font-size": sizeMax + "px"
-  }, vars.container.value);
+  }, {
+    parent: vars.container.value
+  });
   maxWidth = d3.max(sizes, function(d) {
     return d.width;
   });
@@ -28168,7 +28277,26 @@ resize = function(vars) {
 
 
 
-},{"../../font/sizes.coffee":98,"./flow.coffee":170}],177:[function(require,module,exports){
+},{"../../font/sizes.coffee":98,"./flow.coffee":171}],178:[function(require,module,exports){
+module.exports = {
+  accepted: [Object],
+  objectAccess: false,
+  process: function(value, vars) {
+    var method, setting;
+    for (method in value) {
+      setting = value[method];
+      if (method in vars.self) {
+        vars.self[method](setting);
+      }
+    }
+    return value;
+  },
+  value: {}
+};
+
+
+
+},{}],179:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -28193,7 +28321,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":195}],178:[function(require,module,exports){
+},{"../../util/d3selection.coffee":197}],180:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -28201,7 +28329,7 @@ module.exports = {
 
 
 
-},{}],179:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 var print;
 
 print = require("../../core/console/print.coffee");
@@ -28221,10 +28349,6 @@ module.exports = {
       print.warning(stringFormat(str, "\"" + vars.container.value + "\""), "container");
     } else {
       if (vars.dev.value) {
-        if (vars.methodGroup) {
-          vars.methodGroup = "wait";
-          print.groupEnd();
-        }
         print.time("total draw time");
       }
       vars.container.value.call(vars.self);
@@ -28236,7 +28360,7 @@ module.exports = {
 
 
 
-},{"../../core/console/print.coffee":57}],180:[function(require,module,exports){
+},{"../../core/console/print.coffee":57}],182:[function(require,module,exports){
 var locale, mergeObject;
 
 locale = require("../../core/locale/locale.coffee");
@@ -28278,7 +28402,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":77,"../../object/merge.coffee":164}],181:[function(require,module,exports){
+},{"../../core/locale/locale.coffee":77,"../../object/merge.coffee":165}],183:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   value: false
@@ -28286,7 +28410,7 @@ module.exports = {
 
 
 
-},{}],182:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -28294,7 +28418,7 @@ module.exports = {
 
 
 
-},{}],183:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 module.exports = {
   accepted: ["circle", "square"],
   value: false
@@ -28302,7 +28426,7 @@ module.exports = {
 
 
 
-},{}],184:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 module.exports = {
   accepted: [Array, false],
   value: false
@@ -28310,7 +28434,7 @@ module.exports = {
 
 
 
-},{}],185:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 module.exports = {
   accepted: [false, Array, Number, String],
   html: {
@@ -28331,7 +28455,7 @@ module.exports = {
 
 
 
-},{}],186:[function(require,module,exports){
+},{}],188:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   value: false
@@ -28339,12 +28463,14 @@ module.exports = {
 
 
 
-},{}],187:[function(require,module,exports){
-var attach, dimensions, size, text, wrap;
+},{}],189:[function(require,module,exports){
+var attach, dimensions, print, size, text, wrap;
 
 attach = require("../core/methods/attach.coffee");
 
 dimensions = require("./helpers/getDimensions.coffee");
+
+print = require("../core/console/print.coffee");
 
 size = require("./helpers/getSize.coffee");
 
@@ -28363,11 +28489,15 @@ module.exports = function() {
           text(vars);
           wrap(vars);
         }
+        if (vars.dev.value) {
+          print.timeEnd("total draw time");
+        }
       });
       return vars.self;
     }
   };
   attach(vars, {
+    config: require("./methods/config.coffee"),
     container: require("./methods/container.coffee"),
     dev: require("./methods/dev.coffee"),
     draw: require("./methods/draw.coffee"),
@@ -28384,7 +28514,7 @@ module.exports = function() {
 
 
 
-},{"../core/methods/attach.coffee":78,"./helpers/getDimensions.coffee":172,"./helpers/getSize.coffee":173,"./helpers/getText.coffee":174,"./helpers/wrap.coffee":176,"./methods/container.coffee":177,"./methods/dev.coffee":178,"./methods/draw.coffee":179,"./methods/format.coffee":180,"./methods/height.coffee":181,"./methods/resize.coffee":182,"./methods/shape.coffee":183,"./methods/size.coffee":184,"./methods/text.coffee":185,"./methods/width.coffee":186}],188:[function(require,module,exports){
+},{"../core/console/print.coffee":57,"../core/methods/attach.coffee":78,"./helpers/getDimensions.coffee":173,"./helpers/getSize.coffee":174,"./helpers/getText.coffee":175,"./helpers/wrap.coffee":177,"./methods/config.coffee":178,"./methods/container.coffee":179,"./methods/dev.coffee":180,"./methods/draw.coffee":181,"./methods/format.coffee":182,"./methods/height.coffee":183,"./methods/resize.coffee":184,"./methods/shape.coffee":185,"./methods/size.coffee":186,"./methods/text.coffee":187,"./methods/width.coffee":188}],190:[function(require,module,exports){
 var defaultLocale = require("../core/locale/languages/en_US.coffee"),
     events        = require("../client/pointer.coffee"),
     legible       = require("../color/legible.coffee"),
@@ -28430,10 +28560,15 @@ module.exports = function(params) {
     params.iconsize = params.size == "small" ? 22 : 50
   }
 
-  params.limit = [
-    parseFloat(params.parent.style("width"),10),
-    parseFloat(params.parent.style("height"),10)
-  ]
+  if (params.parent.node() === document.body) {
+    params.limit = [window.innerWidth + window.scrollX, window.innerHeight + window.scrollY];
+  }
+  else {
+    params.limit = [
+      parseFloat(params.parent.style("width"),10),
+      parseFloat(params.parent.style("height"),10)
+    ];
+  }
 
   if ( params.title instanceof Array ) {
 
@@ -28442,14 +28577,6 @@ module.exports = function(params) {
 
     params.title = stringList( params.title , and , 3 , more )
 
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Function that closes ALL Descriptions
-  //-------------------------------------------------------------------
-  var close_descriptions = function() {
-    d3.selectAll("div.d3plus_tooltip_data_desc").style("height","0px")
-    d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc")
   }
 
   removeTooltip(params.id)
@@ -28501,10 +28628,8 @@ module.exports = function(params) {
     .style("font-size",params.fontsize+"px")
     .style(vendor+"box-shadow","0px 1px 3px rgba(0, 0, 0, 0.25)")
     .style("position","absolute")
-    .style("z-index",params.zindex)
-    .on(events.out,function(){
-      close_descriptions()
-    })
+    // .style("z-index",params.zindex)
+    .on(events.out, close_descriptions)
 
   if (params.max_height) {
     tooltip.style("max-height",params.max_height+"px")
@@ -28946,11 +29071,21 @@ module.exports = function(params) {
 
 }
 
-},{"../client/pointer.coffee":44,"../client/prefix.coffee":45,"../client/rtl.coffee":46,"../color/legible.coffee":49,"../color/text.coffee":55,"../core/locale/languages/en_US.coffee":73,"../string/list.coffee":167,"./move.coffee":189,"./remove.coffee":190}],189:[function(require,module,exports){
+
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// Function that closes ALL Descriptions
+//-------------------------------------------------------------------
+function close_descriptions() {
+  d3.selectAll("div.d3plus_tooltip_data_desc").style("height","0px");
+  d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc");
+}
+
+},{"../client/pointer.coffee":44,"../client/prefix.coffee":45,"../client/rtl.coffee":46,"../color/legible.coffee":49,"../color/text.coffee":55,"../core/locale/languages/en_US.coffee":73,"../string/list.coffee":168,"./move.coffee":191,"./remove.coffee":192}],191:[function(require,module,exports){
 var arrowStyle;
 
 module.exports = function(x, y, id) {
-  var d, tooltip;
+  var d, mins, tooltip;
   if (!id) {
     id = "default";
   }
@@ -28960,6 +29095,11 @@ module.exports = function(x, y, id) {
     d.cx = x;
     d.cy = y;
     if (!d.fixed) {
+      if (d.parent.node().tagName.toLowerCase() === "body") {
+        mins = [window.scrollX, window.scrollY];
+      } else {
+        mins = [0, 0];
+      }
       if (d.anchor.y !== "center") {
         if (d.anchor.x === "right") {
           d.x = d.cx - d.arrow_offset - 4;
@@ -28974,7 +29114,7 @@ module.exports = function(x, y, id) {
           d.flip = d.cy + d.height + d.offset <= d.limit[1];
         } else {
           if (d.anchor.y === "top") {
-            d.flip = d.cy - d.height - d.offset < 0;
+            d.flip = d.cy - d.height - d.offset < mins[1];
           }
         }
         if (d.flip) {
@@ -28988,7 +29128,7 @@ module.exports = function(x, y, id) {
           d.flip = d.cx + d.width + d.offset <= d.limit[0];
         } else {
           if (d.anchor.x === "left") {
-            d.flip = d.cx - d.width - d.offset < 0;
+            d.flip = d.cx - d.width - d.offset < mins[0];
           }
         }
         if (d.anchor.x === "center") {
@@ -29000,15 +29140,15 @@ module.exports = function(x, y, id) {
           d.x = d.cx - d.width - d.offset;
         }
       }
-      if (d.x < 0) {
-        d.x = 0;
+      if (d.x < mins[0]) {
+        d.x = mins[0];
       } else {
         if (d.x + d.width > d.limit[0]) {
           d.x = d.limit[0] - d.width;
         }
       }
-      if (d.y < 0) {
-        d.y = 0;
+      if (d.y < mins[1]) {
+        d.y = mins[1];
       } else {
         if (d.y + d.height > d.limit[1]) {
           d.y = d.limit[1] - d.height;
@@ -29107,7 +29247,7 @@ arrowStyle = function(arrow) {
 
 
 
-},{}],190:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 module.exports = function(id) {
   if (id) {
     d3.selectAll("div#d3plus_tooltip_curtain_" + id).remove();
@@ -29120,7 +29260,7 @@ module.exports = function(id) {
 
 
 
-},{}],191:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 module.exports = function(arr, n) {
   var buckets, step;
   buckets = [];
@@ -29130,7 +29270,7 @@ module.exports = function(arr, n) {
 
 
 
-},{}],192:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("./d3selection.coffee");
@@ -29158,7 +29298,7 @@ module.exports = function(parent, child) {
 
 
 
-},{"./d3selection.coffee":195}],193:[function(require,module,exports){
+},{"./d3selection.coffee":197}],195:[function(require,module,exports){
 module.exports = function(arr, value) {
   var closest;
   closest = arr[0];
@@ -29172,7 +29312,7 @@ module.exports = function(arr, value) {
 
 
 
-},{}],194:[function(require,module,exports){
+},{}],196:[function(require,module,exports){
 var copy, objectMerge, objectValidate;
 
 objectMerge = require("../object/merge.coffee");
@@ -29198,7 +29338,7 @@ module.exports = copy;
 
 
 
-},{"../object/merge.coffee":164,"../object/validate.coffee":165}],195:[function(require,module,exports){
+},{"../object/merge.coffee":165,"../object/validate.coffee":166}],197:[function(require,module,exports){
 var ie;
 
 ie = require("../client/ie.js");
@@ -29213,7 +29353,7 @@ module.exports = function(elem) {
 
 
 
-},{"../client/ie.js":43}],196:[function(require,module,exports){
+},{"../client/ie.js":43}],198:[function(require,module,exports){
 module.exports = function(url, callback) {
   var img;
   img = new Image();
@@ -29233,17 +29373,21 @@ module.exports = function(url, callback) {
 
 
 
-},{}],197:[function(require,module,exports){
-var fetchValue, objectValidate;
-
-fetchValue = require("../core/fetch/value.js");
+},{}],199:[function(require,module,exports){
+var objectValidate, uniques;
 
 objectValidate = require("../object/validate.coffee");
 
-module.exports = function(data, value, vars) {
+uniques = function(data, value, fetch, vars, depth) {
   var d, lookup, lookups, val, vals, _i, _len;
   if (data === void 0) {
     return [];
+  }
+  if (vars && depth === void 0) {
+    depth = vars.id.value;
+  }
+  if (!(data instanceof Array)) {
+    data = [data];
   }
   if (value === void 0) {
     return data.reduce(function(p, c) {
@@ -29261,17 +29405,26 @@ module.exports = function(data, value, vars) {
   for (_i = 0, _len = data.length; _i < _len; _i++) {
     d = data[_i];
     if (objectValidate(d)) {
-      if (typeof value === "function") {
+      if (fetch) {
+        val = uniques(fetch(vars, d, value, depth));
+        if (val.length === 1) {
+          val = val[0];
+        }
+      } else if (typeof value === "function") {
         val = value(d);
-      } else if (vars) {
-        val = fetchValue(vars, d, value);
       } else {
         val = d[value];
       }
-      lookup = ["number", "string"].indexOf(typeof val) >= 0 ? val : JSON.stringify(val);
-      if (lookup !== void 0 && lookups.indexOf(lookup) < 0) {
-        vals.push(val);
-        lookups.push(lookup);
+      if (val !== void 0 && val !== null) {
+        if (["number", "string"].indexOf(typeof val) >= 0) {
+          lookup = val;
+        } else {
+          lookup = JSON.stringify(val);
+        }
+        if (lookup !== void 0 && lookups.indexOf(lookup) < 0) {
+          vals.push(val);
+          lookups.push(lookup);
+        }
       }
     }
   }
@@ -29280,9 +29433,11 @@ module.exports = function(data, value, vars) {
   });
 };
 
+module.exports = uniques;
 
 
-},{"../core/fetch/value.js":71,"../object/validate.coffee":165}],198:[function(require,module,exports){
+
+},{"../object/validate.coffee":166}],200:[function(require,module,exports){
 module.exports = function(vars) {
   var checkParent, s, _i, _len, _ref;
   vars.container.value.style("position", function() {
@@ -29338,7 +29493,7 @@ module.exports = function(vars) {
 
 
 
-},{}],199:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 var dataFormat    = require("../../core/data/format.js"),
     dataColor     = require("../../core/data/color.js"),
     dataKeys      = require("../../core/data/keys.js"),
@@ -29572,12 +29727,12 @@ module.exports = function(vars) {
       "function": function(vars) {
 
         var year = !vars.time.fixed.value ? ["all"] : null
-        if ( vars.dev.value ) {
+        if (vars.dev.value) {
           var timerString = year ? "fetching pool data" : "fetching data"
           print.time( timerString )
         }
         vars.data.pool = fetchData( vars , year )
-        if ( vars.dev.value ) print.timeEnd( timerString )
+        if (vars.dev.value) print.timeEnd( timerString )
         if ( !year ) {
           vars.data.viz = vars.data.pool
         }
@@ -29699,7 +29854,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":57,"../../core/data/color.js":59,"../../core/data/format.js":61,"../../core/data/keys.js":63,"../../core/data/load.coffee":64,"../../core/fetch/data.js":68,"../../core/parse/edges.js":92,"../../core/parse/nodes.js":94,"../../object/validate.coffee":165,"../../string/format.js":166,"../../tooltip/remove.coffee":190,"./errorCheck.js":200,"./finish.js":201,"./focus/tooltip.coffee":202,"./focus/viz.js":203,"./shapes/draw.js":212,"./svg/enter.js":222,"./svg/update.js":223,"./types/run.coffee":226,"./ui/drawer.js":227,"./ui/history.js":228,"./ui/legend.js":229,"./ui/timeline.js":231,"./ui/titles.js":232}],200:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../core/data/color.js":59,"../../core/data/format.js":61,"../../core/data/keys.js":63,"../../core/data/load.coffee":64,"../../core/fetch/data.js":68,"../../core/parse/edges.js":92,"../../core/parse/nodes.js":94,"../../object/validate.coffee":166,"../../string/format.js":167,"../../tooltip/remove.coffee":192,"./errorCheck.js":202,"./finish.js":203,"./focus/tooltip.coffee":204,"./focus/viz.js":205,"./shapes/draw.js":214,"./svg/enter.js":224,"./svg/update.js":225,"./types/run.coffee":228,"./ui/drawer.js":229,"./ui/history.js":230,"./ui/legend.js":231,"./ui/timeline.js":233,"./ui/titles.js":234}],202:[function(require,module,exports){
 var fetchText    = require("../../core/fetch/text.js"),
     print        = require("../../core/console/print.coffee"),
     rejected     = require("../../core/methods/rejected.coffee"),
@@ -29816,7 +29971,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":57,"../../core/fetch/text.js":70,"../../core/methods/rejected.coffee":88,"../../string/format.js":166,"../../string/list.coffee":167}],201:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../core/fetch/text.js":70,"../../core/methods/rejected.coffee":88,"../../string/format.js":167,"../../string/list.coffee":168}],203:[function(require,module,exports){
 var edges = require("./shapes/edges.js"),
     flash       = require("./ui/message.js"),
     methodReset = require("../../core/methods/reset.coffee"),
@@ -29876,16 +30031,16 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   if (vars.draw.update) {
     edges(vars)
-    if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
+    // if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
       shapeLabels( vars , "data" )
       if (vars.edges.label) {
 
         setTimeout(function(){
           shapeLabels( vars , "edges" )
-        },vars.draw.timing+200)
+        }, vars.draw.timing+200)
 
       }
-    }
+    // }
   }
   else if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
     setTimeout(function(){
@@ -29937,8 +30092,10 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
-  var new_opacity = (data_req && vars.data.viz.length == 0) || vars.internal_error
-        ? 0 : vars.focus.value.length && vars.types[vars.type.value].zoom && vars.zoom.value ? 0.4 : 1,
+  var new_opacity = (data_req && vars.data.viz.length === 0) ||
+                     vars.internal_error ? 0 : vars.focus.value.length &&
+                     vars.types[vars.type.value].zoom && vars.zoom.value ?
+                     1 - vars.tooltip.curtain.opacity : 1,
       old_opacity = vars.group.attr("opacity")
 
   if (new_opacity != old_opacity) {
@@ -30009,12 +30166,12 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":57,"../../core/methods/reset.coffee":90,"../../string/title.coffee":169,"./shapes/edges.js":213,"./shapes/labels.js":215,"./ui/message.js":230,"./zoom/bounds.js":233,"./zoom/labels.js":235,"./zoom/mouse.coffee":236}],202:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../core/methods/reset.coffee":90,"../../string/title.coffee":170,"./shapes/edges.js":215,"./shapes/labels.js":217,"./ui/message.js":232,"./zoom/bounds.js":235,"./zoom/labels.js":237,"./zoom/mouse.coffee":238}],204:[function(require,module,exports){
 var createTooltip, fetchValue, print, removeTooltip;
 
 createTooltip = require("../tooltip/create.js");
 
-fetchValue = require("../../../core/fetch/value.js");
+fetchValue = require("../../../core/fetch/value.coffee");
 
 print = require("../../../core/console/print.coffee");
 
@@ -30065,8 +30222,9 @@ module.exports = function(vars) {
 
 
 
-},{"../../../core/console/print.coffee":57,"../../../core/fetch/value.js":71,"../../../tooltip/remove.coffee":190,"../tooltip/create.js":224}],203:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":71,"../../../tooltip/remove.coffee":192,"../tooltip/create.js":226}],205:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
+    fetchValue   = require("../../../core/fetch/value.coffee"),
     print        = require("../../../core/console/print.coffee"),
     uniqueValues = require("../../../util/uniques.coffee")
 
@@ -30150,7 +30308,7 @@ module.exports = function(vars) {
 
     }
 
-    var focii = uniqueValues(vars.edges.connections(vars.focus.value[0],vars.id.value,true),vars.id.value)
+    var focii = uniqueValues(vars.edges.connections(vars.focus.value[0],vars.id.value,true),vars.id.value, fetchValue, vars)
     focii.push(vars.focus.value[0])
 
     var x_bounds = [], y_bounds = [], x_buffer = [0], y_buffer = [0]
@@ -30223,7 +30381,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../core/console/print.coffee":57,"../../../util/uniques.coffee":197}],204:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":71,"../../../util/uniques.coffee":199}],206:[function(require,module,exports){
 var largestRect, path2poly, shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -30315,7 +30473,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{"../../../geom/largestRect.coffee":155,"../../../geom/path2poly.coffee":157,"./style.coffee":218}],205:[function(require,module,exports){
+},{"../../../geom/largestRect.coffee":156,"../../../geom/path2poly.coffee":158,"./style.coffee":220}],207:[function(require,module,exports){
 var fetchText = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
@@ -30425,9 +30583,8 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":70,"../../../font/sizes.coffee":98,"../../../geom/largestRect.coffee":155,"./style.coffee":218}],206:[function(require,module,exports){
+},{"../../../core/fetch/text.js":70,"../../../font/sizes.coffee":98,"../../../geom/largestRect.coffee":156,"./style.coffee":220}],208:[function(require,module,exports){
 var fetchText = require("../../../core/fetch/text.js"),
-    fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
     shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -30441,7 +30598,7 @@ module.exports = function(vars,selection,enter,exit) {
   function init(paths){
     paths.attr("transform", "scale(1)")
   }
-  
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Change scale of check on update.
   //---------------------------------------------------------------------------
@@ -30483,10 +30640,10 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":70,"../../../font/sizes.coffee":98,"../../../geom/largestRect.coffee":155,"./style.coffee":218}],207:[function(require,module,exports){
+},{"../../../core/fetch/text.js":70,"../../../geom/largestRect.coffee":156,"./style.coffee":220}],209:[function(require,module,exports){
 var fetchColor, fetchValue, lighter;
 
-fetchValue = require("../../../core/fetch/value.js");
+fetchValue = require("../../../core/fetch/value.coffee");
 
 fetchColor = require("../../../core/fetch/color.coffee");
 
@@ -30507,10 +30664,10 @@ module.exports = function(d, vars) {
   active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active;
   temp = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp;
   total = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total;
-  if ((!vars.active.value && !vars.temp.value) || active === true || (active && total && active === total && !temp) || (active && !total)) {
+  if ((!vars.active.value && !vars.temp.value) || active === true || (active && total && active >= total && !temp) || (active && !total)) {
     return fetchColor(vars, d);
   } else if (vars.active.spotlight.value) {
-    return "#eee";
+    return "#fafafa";
   } else {
     return lighter(fetchColor(vars, d), .75);
   }
@@ -30518,7 +30675,7 @@ module.exports = function(d, vars) {
 
 
 
-},{"../../../color/lighter.coffee":50,"../../../core/fetch/color.coffee":67,"../../../core/fetch/value.js":71}],208:[function(require,module,exports){
+},{"../../../color/lighter.coffee":50,"../../../core/fetch/color.coffee":67,"../../../core/fetch/value.coffee":71}],210:[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
     fetchText   = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
@@ -30571,87 +30728,100 @@ module.exports = function(vars,selection,enter,exit) {
 
   if (vars.coords.changed || size_change || vars.coords.mute.changed || vars.coords.solo.changed) {
 
-    vars.zoom.bounds = null
-    vars.zoom.coords = {}
-    vars.zoom.labels = {}
+    vars.zoom.bounds = null;
+    vars.zoom.coords = {};
+    vars.zoom.labels = {};
 
     selection.each(function(d){
 
-      var b = vars.path.bounds(d)
+      var b = vars.path.bounds(d);
 
-      var areas = []
-      d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
+      if (d.geometry.coordinates.length > 1) {
 
-        var test = copy(d)
-        test.geometry.coordinates = [test.geometry.coordinates[i]]
-        var a = vars.path.area(test)
-        if (a >= vars.coords.threshold) {
-          areas.push(a)
-          return true
+        var areas = [];
+        d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
+
+          var test = copy(d);
+          test.geometry.coordinates = [test.geometry.coordinates[i]];
+          var a = vars.path.area(test);
+          if (a >= vars.coords.threshold) {
+            areas.push(a);
+            return true;
+          }
+          return false;
+
+        });
+        areas.sort(function(a,b){
+          return a-b;
+        });
+
+        var reduced = copy(d),
+            largest = copy(d);
+
+        reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
+
+          var test = copy(d);
+          test.geometry.coordinates = [test.geometry.coordinates[i]];
+          var a = vars.path.area(test);
+          if (a == areas[areas.length-1]) {
+            largest.geometry.coordinates = test.geometry.coordinates;
+          }
+          return a >= d3.quantile(areas, 0.9);
+
+        });
+
+        vars.zoom.coords[d.d3plus.id] = reduced;
+
+        var coords = largest.geometry.coordinates[0];
+        if (coords && largest.geometry.type === "MultiPolygon") {
+          coords = coords[0];
+          largest.geometry.coordinates[0] = coords;
+          largest.geometry.type = "Polygon";
         }
-        return false
 
-      })
-      areas.sort(function(a,b){
-        return a-b
-      })
+      }
+      else {
+        var reduced = d, largest = d, coords = d.geometry.coordinates[0];
+        vars.zoom.coords[d.d3plus.id] = d;
 
-      var reduced = copy(d),
-          largest = copy(d)
-      reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
-
-        var test = copy(d)
-        test.geometry.coordinates = [test.geometry.coordinates[i]]
-        var a = vars.path.area(test)
-        if (a == areas[areas.length-1]) {
-          largest.geometry.coordinates = test.geometry.coordinates
-        }
-        return a >= d3.quantile(areas,.9)
-
-      })
-      vars.zoom.coords[d.d3plus.id] = reduced
-
-      var coords = largest.geometry.coordinates[0]
-      if (coords && largest.geometry.type === "MultiPolygon") {
-        coords = coords[0]
-        largest.geometry.coordinates[0] = coords
-        largest.geometry.type = "Polygon"
       }
 
-      var names = fetchText(vars,d)
+      var names = fetchText(vars,d);
 
       if (coords && names.length) {
 
-        var path = path2poly(vars.path(largest))
+        var path = path2poly(vars.path(largest));
 
         var style = {
           "font-weight": vars.labels.font.weight,
           "font-family": vars.labels.font.family.value
-        }
+        };
 
         if (names[0].split(" ").length === 1) {
-          var size = fontSizes(names[0],style)[0]
-            , ratio = size.width/size.height
+          var size = fontSizes(names[0],style)[0],
+              ratio = size.width/size.height;
         }
         else {
-          var ratio = null
+          var ratio = null;
         }
 
         var rect = largestRect(path,{
           "angle": 0,
           "aspectRatio": ratio
-        })[0]
+        });
 
         if (rect) {
+
+          rect = rect[0];
 
           var label = {
             "anchor": "middle",
             "valign": "center",
             "group": vars.g.labels,
-            "h": Math.floor(rect.height),
-            "w": Math.floor(rect.width),
-            "x": Math.floor(rect.cx),
-            "y": Math.floor(rect.cy),
+            "h": rect.height,
+            "w": rect.width,
+            "x": rect.cx,
+            "y": rect.cy,
             "names": names
           }
 
@@ -30694,7 +30864,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":70,"../../../font/sizes.coffee":98,"../../../geom/largestRect.coffee":155,"../../../geom/path2poly.coffee":157,"../../../util/copy.coffee":194,"./style.coffee":218}],209:[function(require,module,exports){
+},{"../../../core/fetch/text.js":70,"../../../font/sizes.coffee":98,"../../../geom/largestRect.coffee":156,"../../../geom/path2poly.coffee":158,"../../../util/copy.coffee":196,"./style.coffee":220}],211:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -30747,7 +30917,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":218}],210:[function(require,module,exports){
+},{"./style.coffee":220}],212:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -30800,7 +30970,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":218}],211:[function(require,module,exports){
+},{"./style.coffee":220}],213:[function(require,module,exports){
 var shapeStyle = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
@@ -30902,12 +31072,12 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":218}],212:[function(require,module,exports){
+},{"./style.coffee":220}],214:[function(require,module,exports){
 var child         = require("../../../util/child.coffee"),
     closest       = require("../../../util/closest.coffee"),
     createTooltip = require("../tooltip/create.js"),
     events        = require("../../../client/pointer.coffee"),
-    fetchValue    = require("../../../core/fetch/value.js"),
+    fetchValue    = require("../../../core/fetch/value.coffee"),
     fetchColor    = require("../../../core/fetch/color.coffee"),
     fetchText     = require("../../../core/fetch/text.js"),
     legible       = require("../../../color/legible.coffee"),
@@ -30918,6 +31088,7 @@ var child         = require("../../../util/child.coffee"),
     touch         = require("../../../client/touch.coffee"),
     touchEvent    = require("../zoom/propagation.coffee"),
     uniqueValues  = require("../../../util/uniques.coffee"),
+    validObject   = require("../../../object/validate.coffee"),
     zoomDirection = require("../zoom/direction.coffee");
 
 var drawShape = {
@@ -30943,9 +31114,9 @@ module.exports = function(vars) {
   var data = vars.returned.nodes || [],
       edges = vars.returned.edges || [];
 
-  vars.draw.timing = data.length < vars.data.large
-                     && edges.length < vars.edges.large
-                     ? vars.timing.transitions : 0
+  vars.draw.timing = data.length < vars.data.large &&
+                     edges.length < vars.edges.large ?
+                     vars.timing.transitions : 0;
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Match vars.shape types to their respective d3plus.shape functions. For
@@ -31000,7 +31171,9 @@ module.exports = function(vars) {
 
       ["x","y"].forEach(function(axis){
         if (vars[axis].scale.value == "discrete") {
-          d.d3plus.id += "_"+fetchValue(vars,d,vars[axis].value)
+          var val = fetchValue(vars,d,vars[axis].value)
+          if (val.constructor === Date) val = val.getTime()
+          d.d3plus.id += "_"+val
         }
       })
 
@@ -31015,31 +31188,32 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   function transform(g,grow) {
 
-    var scales = vars.types[vars.type.value].scale
-    if (grow && scales && scales[vars.shape.value]) {
-       var scale = scales[vars.shape.value]
+    var scales = vars.types[vars.type.value].scale,
+        scale = 1;
+    if (scales) {
+      if (validObject[scales] && vars.shape.value in scales) {
+        scale = scales[vars.shape.value];
+      }
+      else if (typeof scales == "function") {
+        scale = scales(vars, vars.shape.value);
+      }
+      else if (typeof scales == "number") {
+        scale = scales;
+      }
     }
-    else if (grow && scales && typeof scales == "number") {
-      var scale = scales
-    }
-    else {
-      var scale = 1
-    }
 
-    g
-      .attr("transform",function(d){
+    scale = grow ? scale : 1;
+    g.attr("transform", function(d){
 
-        var x = d.d3plus.x || 0
-          , y = d.d3plus.y || 0
+      if (["line","area","coordinates"].indexOf(shape) < 0) {
+          var x = d.d3plus.x || 0, y = d.d3plus.y || 0;
+          return "translate("+x+","+y+")scale("+scale+")";
+      }
+      else {
+        return "scale("+scale+")";
+      }
 
-        if (["line","area","coordinates"].indexOf(shape) < 0) {
-          return "translate("+x+","+y+")scale("+scale+")"
-        }
-        else {
-          return "scale("+scale+")"
-        }
-
-      })
+    });
 
   }
 
@@ -31103,9 +31277,9 @@ module.exports = function(vars) {
             if (!d.d3plus.segments) {
 
               d.d3plus.segments = {"donut": Math.PI*2}
-              var active = vars.active.value ? d.d3plus[vars.active.value] : d.d3plus.active,
-                  temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
-                  total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total
+              var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
+                  temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
+                  total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total;
 
               if (total) {
                 if (active) {
@@ -31333,27 +31507,24 @@ module.exports = function(vars) {
 
           vars.covered = false
 
-          if (vars.focus.value.length !== 1 || (!vars.focus.tooltip.value || vars.focus.value[0] !== d[vars.id.value])) {
+          if (d.values && vars.axes.discrete) {
 
-            if (d.values && vars.axes.discrete) {
+            var index = vars.axes.discrete === "x" ? 0 : 1
+              , mouse = d3.mouse(vars.container.value.node())[index]
+              , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
+              , match = closest(positions,mouse)
 
-              var index = vars.axes.discrete === "x" ? 0 : 1
-                , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
-                , match = closest(positions,mouse)
-
-              d.d3plus_data = d.values[positions.indexOf(match)]
-              d.d3plus = d.values[positions.indexOf(match)].d3plus
-
-            }
-
-            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-            createTooltip({
-              "vars": vars,
-              "data": tooltip_data
-            })
+            d.d3plus_data = d.values[positions.indexOf(match)]
+            d.d3plus = d.values[positions.indexOf(match)].d3plus
 
           }
+
+          var tooltip_data = d.d3plus_data ? d.d3plus_data : d
+
+          createTooltip({
+            "vars": vars,
+            "data": tooltip_data
+          })
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
@@ -31362,7 +31533,7 @@ module.exports = function(vars) {
             vars.mouse[events.over](d.d3plus_data || d, vars)
           }
 
-          edge_update(d)
+          // edge_update(d)
 
         }
 
@@ -31372,28 +31543,25 @@ module.exports = function(vars) {
         if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           vars.covered = false
+          var tooltipType = vars.types[vars.type.value].tooltip || "follow"
 
-          if (d.values || (vars.types[vars.type.value].tooltip == "follow" && (!vars.focus.tooltip.value || vars.focus.value[0] !== d[vars.id.value]))) {
+          if (d.values && vars.axes.discrete) {
 
-            if (d.values && vars.axes.discrete) {
+            var index = vars.axes.discrete === "x" ? 0 : 1
+              , mouse = d3.mouse(vars.container.value.node())[index]
+              , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
+              , match = closest(positions,mouse)
 
-              var index = vars.axes.discrete === "x" ? 0 : 1
-                , mouse = d3.mouse(vars.container.value.node())[index]
-                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
-                , match = closest(positions,mouse)
-
-              d.d3plus_data = d.values[positions.indexOf(match)]
-              d.d3plus = d.values[positions.indexOf(match)].d3plus
-
-            }
-
-            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-            createTooltip({
-              "vars": vars,
-              "data": tooltip_data
-            })
+            d.d3plus_data = d.values[positions.indexOf(match)]
+            d.d3plus = d.values[positions.indexOf(match)].d3plus
 
           }
+
+          var tooltip_data = d.d3plus_data ? d.d3plus_data : d
+          createTooltip({
+            "vars": vars,
+            "data": tooltip_data
+          })
 
           if (typeof vars.mouse == "function") {
             vars.mouse(d.d3plus_data || d, vars)
@@ -31498,7 +31666,7 @@ module.exports = function(vars) {
           })
 
           vars.self
-            .id({"solo": uniqueValues(d.d3plus.merged,vars.id.value)})
+            .id({"solo": uniqueValues(d.d3plus.merged, vars.id.value, fetchValue, vars)})
             .title({
               "sub": {
                 "font": {
@@ -31588,7 +31756,7 @@ module.exports = function(vars) {
           }
 
         }
-        else if (vars.focus.value.length !== 1 || d[vars.id.value] != vars.focus.value[0]) {
+        else {
 
           edge_update()
 
@@ -31607,7 +31775,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../client/touch.coffee":48,"../../../color/legible.coffee":49,"../../../core/console/print.coffee":57,"../../../core/fetch/color.coffee":67,"../../../core/fetch/text.js":70,"../../../core/fetch/value.js":71,"../../../string/strip.js":168,"../../../tooltip/remove.coffee":190,"../../../util/child.coffee":192,"../../../util/closest.coffee":193,"../../../util/uniques.coffee":197,"../tooltip/create.js":224,"../zoom/direction.coffee":234,"../zoom/propagation.coffee":237,"./arc.coffee":204,"./area.js":205,"./check.js":206,"./coordinates.js":208,"./cross.js":209,"./diamond.js":210,"./donut.js":211,"./fill.js":214,"./line.js":216,"./rect.coffee":217,"./triangle_down.js":219,"./triangle_up.js":220,"./whisker.coffee":221}],213:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../client/touch.coffee":48,"../../../color/legible.coffee":49,"../../../core/console/print.coffee":57,"../../../core/fetch/color.coffee":67,"../../../core/fetch/text.js":70,"../../../core/fetch/value.coffee":71,"../../../object/validate.coffee":166,"../../../string/strip.js":169,"../../../tooltip/remove.coffee":192,"../../../util/child.coffee":194,"../../../util/closest.coffee":195,"../../../util/uniques.coffee":199,"../tooltip/create.js":226,"../zoom/direction.coffee":236,"../zoom/propagation.coffee":239,"./arc.coffee":206,"./area.js":207,"./check.js":208,"./coordinates.js":210,"./cross.js":211,"./diamond.js":212,"./donut.js":213,"./fill.js":216,"./line.js":218,"./rect.coffee":219,"./triangle_down.js":221,"./triangle_up.js":222,"./whisker.coffee":223}],215:[function(require,module,exports){
 var buckets = require("../../../util/buckets.coffee"),
     offset  = require("../../../geom/offset.coffee")
 
@@ -32166,10 +32334,11 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../geom/offset.coffee":156,"../../../util/buckets.coffee":191}],214:[function(require,module,exports){
+},{"../../../geom/offset.coffee":157,"../../../util/buckets.coffee":193}],216:[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchColor = require("../../../core/fetch/color.coffee"),
-    shapeStyle = require("./style.coffee")
+    fetchValue = require("../../../core/fetch/value.coffee"),
+    shapeStyle = require("./style.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -32184,7 +32353,7 @@ module.exports = function(vars,selection,enter,exit) {
       .attr("x",0)
       .attr("y",0)
       .attr("width",0)
-      .attr("height",0)
+      .attr("height",0);
 
   }
 
@@ -32192,42 +32361,42 @@ module.exports = function(vars,selection,enter,exit) {
   // The position and size of each rectangle on update.
   //----------------------------------------------------------------------------
   function update(nodes,mod) {
-    if (!mod) var mod = 0
+    if (!mod) mod = 0;
     nodes
       .attr("x",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return (-w/2)-(mod/2)
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+        return (-w/2)-(mod/2);
       })
       .attr("y",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return (-h/2)-(mod/2)
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+        return (-h/2)-(mod/2);
       })
       .attr("width",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return w+mod
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+        return w+mod;
       })
       .attr("height",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return h+mod
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+        return h+mod;
       })
       .attr("rx",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
-        return rounded ? (w+mod)/2 : 0
+        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0;
+        return rounded ? (w+mod)/2 : 0;
       })
       .attr("ry",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0
-        return rounded ? (h+mod)/2 : 0
+        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+        var rounded = ["circle","donut"].indexOf(vars.shape.value) >= 0;
+        return rounded ? (h+mod)/2 : 0;
       })
       .attr("shape-rendering",function(d){
         if (["square"].indexOf(vars.shape.value) >= 0) {
-          return vars.shape.rendering.value
+          return vars.shape.rendering.value;
         }
         else {
-          return "auto"
+          return "auto";
         }
-      })
+      });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32240,7 +32409,7 @@ module.exports = function(vars,selection,enter,exit) {
       "donut": {},
       "active": {},
       "temp": {}
-    }
+    };
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32250,50 +32419,50 @@ module.exports = function(vars,selection,enter,exit) {
   var arc = d3.svg.arc()
     .startAngle(0)
     .endAngle(function(d){
-      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a
+      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a;
       return a > Math.PI*2 ? Math.PI*2 : a;
     })
     .innerRadius(function(d){
-      if (shape == "donut" && !d.d3plus.static) {
-        var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
-        return r * vars.data.donut.size
+      if (d.d3plus.shape === "donut" && !d.d3plus.static) {
+        var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
+        return r * vars.data.donut.size;
       }
       else {
-        return 0
+        return 0;
       }
     })
     .outerRadius(function(d){
-      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
-      if (d.d3plus.shape != "donut") return r*2
-      else return r
-    })
+      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
+      if (d.d3plus.shape != "donut") return r*2;
+      else return r;
+    });
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // This is the main "arcTween" function where all of the animation happens
   // for each arc.
   //----------------------------------------------------------------------------
   function size(path,mod,rad,ang) {
-    if (!mod) var mod = 0
-    if (typeof rad != "number") var rad = undefined
-    if (typeof ang != "number") var ang = undefined
+    if (!mod) mod = 0;
+    if (typeof rad != "number") rad = undefined;
+    if (typeof ang != "number") ang = undefined;
     path.attrTween("d", function(d){
-      if (rad == undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height])
-      else var r = rad
-      if (ang == undefined) var a = d.d3plus.a[d.d3plus.shape]
-      else var a = ang
+      if (rad === undefined) var r = d.d3plus.r ? d.d3plus.r : d3.max([d.d3plus.width,d.d3plus.height]);
+      else var r = rad;
+      if (ang === undefined) var a = d.d3plus.segments[d.d3plus.shape];
+      else var a = ang;
       if (!vars.arcs[d.d3plus.shape][d.d3plus.id]) {
-        vars.arcs[d.d3plus.shape][d.d3plus.id] = {"r": 0}
-        vars.arcs[d.d3plus.shape][d.d3plus.id].a = d.d3plus.shape == "donut" ? Math.PI * 2 : 0
+        vars.arcs[d.d3plus.shape][d.d3plus.id] = {"r": 0};
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = d.d3plus.shape === "donut" ? Math.PI * 2 : 0;
       }
       var radius = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].r,r+mod),
-          angle = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].a,a)
+          angle = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].a,a);
 
       return function(t) {
-        vars.arcs[d.d3plus.shape][d.d3plus.id].r = radius(t)
-        vars.arcs[d.d3plus.shape][d.d3plus.id].a = angle(t)
-        return arc(d)
-      }
-    })
+        vars.arcs[d.d3plus.shape][d.d3plus.id].r = radius(t);
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = angle(t);
+        return arc(d);
+      };
+    });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -32301,27 +32470,27 @@ module.exports = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
   selection.each(function(d){
 
-    var active = vars.active.value ? d.d3plus[vars.active.value] : d.d3plus.active,
-        temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
-        total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total,
+    var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
+        temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
+        total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total,
         group = d3.select(this),
-        color = fetchColor(vars,d)
+        color = fetchColor(vars,d);
 
-    var fill_data = [], hatch_data = []
+    var fill_data = [], hatch_data = [];
 
     if (total && vars.types[vars.type.value].fill) {
 
       if (temp) {
-        var c = copy(d)
-        c.d3plus.shape = "temp"
-        fill_data.push(c)
-        hatch_data = ["temp"]
+        var c = copy(d);
+        c.d3plus.shape = "temp";
+        fill_data.push(c);
+        hatch_data = ["temp"];
       }
 
       if (active && (active < total || temp)) {
-        var c = copy(d)
-        c.d3plus.shape = "active"
-        fill_data.push(c)
+        var c = copy(d);
+        c.d3plus.shape = "active";
+        fill_data.push(c);
       }
 
     }
@@ -32330,28 +32499,28 @@ module.exports = function(vars,selection,enter,exit) {
       l
         .attr("stroke",color)
         .attr("stroke-width",1)
-        .attr("shape-rendering",vars.shape.rendering.value)
+        .attr("shape-rendering",vars.shape.rendering.value);
     }
 
     var pattern = vars.defs.selectAll("pattern#d3plus_hatch_"+d.d3plus.id)
-      .data(hatch_data)
+      .data(hatch_data);
 
     if (vars.draw.timing) {
 
       pattern.selectAll("rect")
         .transition().duration(vars.draw.timing)
-        .style("fill",color)
+        .style("fill",color);
 
       pattern.selectAll("line")
         .transition().duration(vars.draw.timing)
-        .style("stroke",color)
+        .style("stroke",color);
 
     }
     else {
 
-      pattern.selectAll("rect").style("fill",color)
+      pattern.selectAll("rect").style("fill",color);
 
-      pattern.selectAll("line").style("stroke",color)
+      pattern.selectAll("line").style("stroke",color);
 
     }
 
@@ -32362,7 +32531,7 @@ module.exports = function(vars,selection,enter,exit) {
       .attr("y","0")
       .attr("width","10")
       .attr("height","10")
-      .append("g")
+      .append("g");
 
     pattern_enter.append("rect")
       .attr("x","0")
@@ -32370,84 +32539,85 @@ module.exports = function(vars,selection,enter,exit) {
       .attr("width","10")
       .attr("height","10")
       .attr("fill",color)
-      .attr("fill-opacity",0.25)
+      .attr("fill-opacity",0.25);
 
     pattern_enter.append("line")
       .attr("x1","0")
       .attr("x2","10")
       .attr("y1","0")
       .attr("y2","10")
-      .call(hatch_lines)
+      .call(hatch_lines);
 
     pattern_enter.append("line")
       .attr("x1","-1")
       .attr("x2","1")
       .attr("y1","9")
       .attr("y2","11")
-      .call(hatch_lines)
+      .call(hatch_lines);
 
     pattern_enter.append("line")
       .attr("x1","9")
       .attr("x2","11")
       .attr("y1","-1")
       .attr("y2","1")
-      .call(hatch_lines)
+      .call(hatch_lines);
 
-    var clip_data = fill_data.length ? [d] : []
+    var clip_data = fill_data.length ? [d] : [];
 
     var clip = group.selectAll("#d3plus_clip_"+d.d3plus.id)
-      .data(clip_data)
+      .data(clip_data);
 
     clip.enter().insert("clipPath",".d3plus_mouse")
       .attr("id","d3plus_clip_"+d.d3plus.id)
       .append("rect")
       .attr("class","d3plus_clipping")
-      .call(init)
+      .call(init);
 
     if (vars.draw.timing) {
 
       clip.selectAll("rect").transition().duration(vars.draw.timing)
-        .call(update)
+        .call(update);
 
       clip.exit().transition().delay(vars.draw.timing)
-        .remove()
+        .remove();
 
     }
     else {
 
-      clip.selectAll("rect").call(update)
+      clip.selectAll("rect").call(update);
 
-      clip.exit().remove()
+      clip.exit().remove();
 
     }
 
     var fills = group.selectAll("path.d3plus_fill")
-      .data(fill_data)
+      .data(fill_data);
 
     fills.transition().duration(vars.draw.timing)
       .call(shapeStyle,vars)
-      .call(size)
+      .call(size);
 
     fills.enter().insert("path","rect.d3plus_mouse")
       .attr("class","d3plus_fill")
       .attr("clip-path","url(#d3plus_clip_"+d.d3plus.id+")")
       .transition().duration(0)
         .call(size,0,undefined,0)
-        .call(shapeStyle,vars)
         .transition().duration(vars.draw.timing)
-          .call(size)
+          .call(shapeStyle,vars)
+          .call(size);
 
     fills.exit().transition().duration(vars.draw.timing)
       .call(size,0,undefined,0)
-      .remove()
+      .remove();
 
-  })
+  });
 
-}
+};
 
-},{"../../../core/fetch/color.coffee":67,"../../../util/copy.coffee":194,"./style.coffee":218}],215:[function(require,module,exports){
+},{"../../../core/fetch/color.coffee":67,"../../../core/fetch/value.coffee":71,"../../../util/copy.coffee":196,"./style.coffee":220}],217:[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchText  = require("../../../core/fetch/text.js"),
+    fetchValue = require("../../../core/fetch/value.coffee"),
     mix        = require("../../../color/mix.coffee"),
     print      = require("../../../core/console/print.coffee"),
     rtl        = require("../../../client/rtl.coffee"),
@@ -32722,10 +32892,10 @@ module.exports = function( vars , group ) {
           var background = true
         }
         else if (d && "d3plus" in d) {
-          var active = vars.active.value ? d.d3plus[vars.active.value] : d.d3plus.active,
-              temp = vars.temp.value ? d.d3plus[vars.temp.value] : d.d3plus.temp,
-              total = vars.total.value ? d.d3plus[vars.total.value] : d.d3plus.total,
-              background = (!temp && !active) || (active == total)
+          var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
+              temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
+              total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total,
+              background = (!temp && !active) || (active === total)
         }
 
       }
@@ -32977,11 +33147,11 @@ module.exports = function( vars , group ) {
   }
 }
 
-},{"../../../client/rtl.coffee":46,"../../../color/mix.coffee":51,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/fetch/text.js":70,"../../../string/list.coffee":167,"../../../textwrap/textwrap.coffee":187,"../../../util/copy.coffee":194,"./color.coffee":207}],216:[function(require,module,exports){
-var copy = require("../../../util/copy.coffee"),
-    closest = require("../../../util/closest.coffee"),
+},{"../../../client/rtl.coffee":46,"../../../color/mix.coffee":51,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/fetch/text.js":70,"../../../core/fetch/value.coffee":71,"../../../string/list.coffee":168,"../../../textwrap/textwrap.coffee":189,"../../../util/copy.coffee":196,"./color.coffee":209}],218:[function(require,module,exports){
+var copy       = require("../../../util/copy.coffee"),
+    closest    = require("../../../util/closest.coffee"),
     events     = require("../../../client/pointer.coffee"),
-    shapeStyle = require("./style.coffee")
+    shapeStyle = require("./style.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
@@ -32995,7 +33165,7 @@ module.exports = function(vars,selection,enter,exit) {
   var line = d3.svg.line()
     .x(function(d){ return d.d3plus.x; })
     .y(function(d){ return d.d3plus.y; })
-    .interpolate(vars.shape.interpolate.value)
+    .interpolate(vars.shape.interpolate.value);
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Divide each line into it's segments. We do this so that there can be gaps
@@ -33008,73 +33178,76 @@ module.exports = function(vars,selection,enter,exit) {
   var stroke = vars.data.stroke.width * 2,
       hitarea = stroke < 30 ? 30 : stroke,
       discrete = vars[vars.axes.discrete],
-      ticks = []
+      ticks = [];
 
   discrete.ticks.values.forEach(function(d){
-    if (d.constructor === Date) ticks.push(d.getTime())
-    else ticks.push(d)
-  })
+    if (d.constructor === Date) ticks.push(d.getTime());
+    else ticks.push(d);
+  });
 
   selection.each(function(d){
 
-    var step = false,
+    var lastIndex = false,
         segments = [],
         nodes = [],
         temp = copy(d),
-        group = d3.select(this)
+        group = d3.select(this);
 
-    temp.values = []
+    temp.values = [];
+    temp.segment_key = temp.key;
     d.values.forEach(function(v,i,arr){
 
-      nodes.push(v)
+      var k = v[discrete.value];
 
-      var k = v[discrete.value]
+      if (k.constructor === Date) k = k.getTime();
 
-      if (k.constructor === Date) k = k.getTime()
+      var index = ticks.indexOf(closest(ticks,k));
 
-      var index = ticks.indexOf(closest(ticks,k))
-
-      if (step === false) {
-        step = index
-      }
-
-      if ( i + step === index ) {
-        temp.values.push(v)
-        temp.key += "_"+segments.length
+      if (lastIndex === false || lastIndex === index - 1) {
+        temp.values.push(v);
+        temp.segment_key += "_" + index;
       }
       else {
-        if (i > 0) {
-          segments.push(temp)
-          temp = copy(d)
-          temp.values = []
+        if (temp.values.length > 1) {
+          segments.push(temp);
         }
-        temp.values.push(v)
-        temp.key += "_"+segments.length
-        step++
+        else {
+          nodes.push(temp.values[0]);
+        }
+        temp = copy(d);
+        temp.values = [v];
       }
 
       if ( i === arr.length - 1 ) {
-        segments.push(temp)
+        if (temp.values.length > 1) {
+          segments.push(temp);
+        }
+        else {
+          nodes.push(temp.values[0]);
+        }
       }
 
-    })
+      lastIndex = index;
+
+    });
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind segment data to "paths"
     //--------------------------------------------------------------------------
     var paths = group.selectAll("path.d3plus_line")
       .data(segments, function(d){
-        d.d3plus.shape = "line"
-        return d.key
-      })
+        d.d3plus.shape = "line";
+        return d.segment_key;
+      });
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Bind node data to "rects"
     //--------------------------------------------------------------------------
     var rects = group.selectAll("rect.d3plus_anchor")
       .data(nodes, function(d){
-        return d.d3plus.id
-      })
+        d.d3plus.r = vars.data.stroke.width * 2;
+        return d.d3plus.id;
+      });
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // "paths" and "rects" Enter/Update
@@ -33082,48 +33255,50 @@ module.exports = function(vars,selection,enter,exit) {
     if (vars.draw.timing) {
 
       paths.transition().duration(vars.draw.timing)
-        .attr("d",function(d){ return line(d.values) })
-        .call(shapeStyle,vars)
+        .attr("d",function(d){ return line(d.values); })
+        .call(shapeStyle,vars);
 
       paths.enter().append("path")
         .attr("class","d3plus_line")
-        .attr("d",function(d){ return line(d.values) })
-        .call(shapeStyle,vars)
+        .style("stroke-linecap","round")
+        .attr("d",function(d){ return line(d.values); })
+        .call(shapeStyle,vars);
 
       rects.enter().append("rect")
         .attr("class","d3plus_anchor")
         .attr("id",function(d){
-          return d.d3plus.id
+          return d.d3plus.id;
         })
         .call(init)
-        .call(shapeStyle,vars)
+        .call(shapeStyle,vars);
 
       rects.transition().duration(vars.draw.timing)
         .call(update)
-        .call(shapeStyle,vars)
+        .call(shapeStyle,vars);
 
       rects.exit().transition().duration(vars.draw.timing)
         .call(init)
-        .remove()
+        .remove();
 
     }
     else {
 
       paths.enter().append("path")
         .attr("class","d3plus_line")
+        .style("stroke-linecap","round");
 
       paths
-        .attr("d",function(d){ return line(d.values) })
-        .call(shapeStyle,vars)
+        .attr("d",function(d){ return line(d.values); })
+        .call(shapeStyle,vars);
 
       rects.enter().append("rect")
         .attr("class","d3plus_anchor")
         .attr("id",function(d){
-          return d.d3plus.id
-        })
+          return d.d3plus.id;
+        });
 
       rects.call(update)
-        .call(shapeStyle,vars)
+        .call(shapeStyle,vars);
 
     }
 
@@ -33132,134 +33307,137 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     var mouse = group.selectAll("path.d3plus_mouse")
       .data(segments, function(d){
-        return d.key
-      })
+        return d.segment_key;
+      });
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mouse "paths" Enter
     //--------------------------------------------------------------------------
     mouse.enter().append("path")
       .attr("class","d3plus_mouse")
-      .attr("d",function(l){ return line(l.values) })
+      .attr("d",function(l){ return line(l.values); })
       .style("stroke","black")
       .style("stroke-width",hitarea)
       .style("fill","none")
       .style("stroke-linecap","round")
-      .attr("opacity",0)
+      .attr("opacity",0);
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mouse "paths" Update
     //--------------------------------------------------------------------------
     mouse
       .on(events.over,function(m){
-
-        if (!vars.draw.frozen) {
-
-          d3.select(this.parentNode).selectAll("path.d3plus_line")
-            .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",stroke*2)
-
-          d3.select(this.parentNode).selectAll("rect")
-            .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",stroke)
-            .call(update,2)
-
-        }
-
+        if (!vars.draw.frozen) mouseStyle(vars, this, stroke, 2);
       })
       .on(events.out,function(d){
-
-        if (!vars.draw.frozen) {
-
-          d3.select(this.parentNode).selectAll("path.d3plus_line")
-            .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",stroke)
-
-          d3.select(this.parentNode).selectAll("rect")
-            .transition().duration(vars.timing.mouseevents)
-            .style("stroke-width",vars.data.stroke.width)
-            .call(update)
-
-        }
-
-      })
+        if (!vars.draw.frozen) mouseStyle(vars, this, stroke, 0);
+      });
 
     if (vars.draw.timing) {
 
       mouse.transition().duration(vars.draw.timing)
-        .attr("d",function(l){ return line(l.values) })
-        .style("stroke-width",hitarea)
+        .attr("d",function(l){ return line(l.values); })
+        .style("stroke-width",hitarea);
 
     }
     else {
 
-      mouse.attr("d",function(l){ return line(l.values) })
-        .style("stroke-width",hitarea)
+      mouse.attr("d",function(l){ return line(l.values); })
+        .style("stroke-width",hitarea);
 
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Mouse "paths" Exit
     //--------------------------------------------------------------------------
-    mouse.exit().remove()
+    mouse.exit().remove();
 
-  })
+  });
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // The position and size of each anchor point on enter and exit.
-  //----------------------------------------------------------------------------
-  function init(n) {
+};
 
-    n
-      .attr("x",function(d){
-        return d.d3plus.x
-      })
-      .attr("y",function(d){
-        return d.d3plus.y
-      })
-      .attr("width",0)
-      .attr("height",0)
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// The position and size of each anchor point on enter and exit.
+//----------------------------------------------------------------------------
+function init(n) {
+
+  n
+    .attr("x",function(d){
+      return d.d3plus.x;
+    })
+    .attr("y",function(d){
+      return d.d3plus.y;
+    })
+    .attr("width",0)
+    .attr("height",0);
+
+}
+
+//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+// The position and size of each anchor point on update.
+//----------------------------------------------------------------------------
+function update(n,mod) {
+
+  if (mod === undefined) mod = 0;
+
+  n
+    .attr("x",function(d){
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+      return d.d3plus.x - ((w/2)+(mod/2));
+    })
+    .attr("y",function(d){
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+      return d.d3plus.y - ((h/2)+(mod/2));
+    })
+    .attr("width",function(d){
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+      return w+mod;
+    })
+    .attr("height",function(d){
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+      return h+mod;
+    })
+    .attr("rx",function(d){
+      var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width;
+      return (w+mod)/2;
+    })
+    .attr("ry",function(d){
+      var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height;
+      return (h+mod)/2;
+    });
+
+}
+
+function mouseStyle(vars, elem, stroke, mod) {
+
+  var timing = vars.draw.timing ? vars.timing.mouseevents : 0;
+  var pathWidth = mod ? stroke * mod : stroke;
+
+  if (timing) {
+
+    d3.select(elem.parentNode).selectAll("path.d3plus_line")
+    .transition().duration(timing)
+    .style("stroke-width",pathWidth);
+
+    d3.select(elem.parentNode).selectAll("rect")
+    .transition().duration(timing)
+    .style("stroke-width",stroke)
+    .call(update, mod);
 
   }
+  else {
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // The position and size of each anchor point on update.
-  //----------------------------------------------------------------------------
-  function update(n,mod) {
+    d3.select(elem.parentNode).selectAll("path.d3plus_line")
+    .style("stroke-width",pathWidth);
 
-    if (!mod) var mod = 0
-
-    n
-      .attr("x",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return d.d3plus.x - ((w/2)+(mod/2))
-      })
-      .attr("y",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return d.d3plus.y - ((h/2)+(mod/2))
-      })
-      .attr("width",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return w+mod
-      })
-      .attr("height",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return h+mod
-      })
-      .attr("rx",function(d){
-        var w = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.width
-        return (w+mod)/2
-      })
-      .attr("ry",function(d){
-        var h = d.d3plus.r ? d.d3plus.r*2 : d.d3plus.height
-        return (h+mod)/2
-      })
-
+    d3.select(elem.parentNode).selectAll("rect")
+    .style("stroke-width",stroke)
+    .call(update, mod);
   }
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../util/closest.coffee":193,"../../../util/copy.coffee":194,"./style.coffee":218}],217:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../util/closest.coffee":195,"../../../util/copy.coffee":196,"./style.coffee":220}],219:[function(require,module,exports){
 var shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -33393,7 +33571,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{"./style.coffee":218}],218:[function(require,module,exports){
+},{"./style.coffee":220}],220:[function(require,module,exports){
 var color;
 
 color = require("./color.coffee");
@@ -33411,7 +33589,7 @@ module.exports = function(nodes, vars) {
       return d.d3plus.stroke;
     } else {
       c = d.values ? color(d.values[0], vars) : color(d, vars);
-      return d3.rgb(c).darker(0.7);
+      return d3.rgb(c).darker(0.5);
     }
   }).style("stroke-width", function(d) {
     var mod;
@@ -33422,7 +33600,7 @@ module.exports = function(nodes, vars) {
 
 
 
-},{"./color.coffee":207}],219:[function(require,module,exports){
+},{"./color.coffee":209}],221:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -33475,7 +33653,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":218}],220:[function(require,module,exports){
+},{"./style.coffee":220}],222:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -33528,7 +33706,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":218}],221:[function(require,module,exports){
+},{"./style.coffee":220}],223:[function(require,module,exports){
 module.exports = function(vars, selection, enter, exit) {
   var d, data, init, marker, orient, pos, position, size, style;
   data = function(d) {
@@ -33612,7 +33790,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{}],222:[function(require,module,exports){
+},{}],224:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     prefix     = require("../../../client/prefix.coffee"),
     print      = require("../../../core/console/print.coffee"),
@@ -33789,7 +33967,7 @@ module.exports = function(vars) {
 
 };
 
-},{"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../client/touch.coffee":48,"../../../core/console/print.coffee":57,"../zoom/propagation.coffee":237}],223:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../client/touch.coffee":48,"../../../core/console/print.coffee":57,"../zoom/propagation.coffee":239}],225:[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
@@ -33857,14 +34035,15 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":57}],224:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57}],226:[function(require,module,exports){
 var arraySort     = require("../../../array/sort.coffee"),
     createTooltip = require("../../../tooltip/create.js"),
     fetchData     = require("./data.js"),
     fetchColor    = require("../../../core/fetch/color.coffee"),
     fetchText     = require("../../../core/fetch/text.js"),
-    fetchValue    = require("../../../core/fetch/value.js"),
+    fetchValue    = require("../../../core/fetch/value.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
+    uniques       = require("../../../util/uniques.coffee"),
     validObject   = require("../../../object/validate.coffee"),
     zoomDirection = require("../zoom/direction.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -33926,55 +34105,63 @@ module.exports = function(params) {
   }
 
   if ("x" in params) {
-    var x = params.x
+    var x = params.x;
   }
-  else if (vars.types[vars.type.value].tooltip == "follow") {
-    var x = d3.mouse(vars.container.value.node())[0]
+  else if (vars.types[vars.type.value].tooltip === "static") {
+    var x = d.d3plus.x;
+    if (vars.zoom.translate && vars.zoom.scale) {
+      x = vars.zoom.translate[0]+x*vars.zoom.scale;
+    }
+    x += vars.margin.left;
+    if (params.length !== "long") {
+      y += window.scrollX;
+      x += vars.container.value.node().getBoundingClientRect().left;
+    }
   }
   else {
-    var x = d.d3plus.x
-    if (vars.zoom.translate && vars.zoom.scale) {
-      x = vars.zoom.translate[0]+x*vars.zoom.scale
-    }
-    x += vars.margin.left
+    var x = d3.mouse(d3.select("html").node())[0];
   }
 
   if ("y" in params) {
-    var y = params.y
+    var y = params.y;
   }
-  else if (vars.types[vars.type.value].tooltip == "follow") {
-    var y = d3.mouse(vars.container.value.node())[1]
+  else if (vars.types[vars.type.value].tooltip == "static") {
+    var y = d.d3plus.y;
+    if (vars.zoom.translate && vars.zoom.scale) {
+      y = vars.zoom.translate[1]+y*vars.zoom.scale;
+    }
+    y += vars.margin.top;
+    if (params.length !== "long") {
+      y += window.scrollY;
+      y += vars.container.value.node().getBoundingClientRect().top;
+    }
   }
   else {
-    var y = d.d3plus.y
-    if (vars.zoom.translate && vars.zoom.scale) {
-      y = vars.zoom.translate[1]+y*vars.zoom.scale
-    }
-    y += vars.margin.top
+    var y = d3.mouse(d3.select("html").node())[1];
   }
 
   if ("offset" in params) {
-    var offset = params.offset
+    var offset = params.offset;
   }
-  else if (vars.types[vars.type.value].tooltip == "follow") {
-    var offset = 3
+  else if (vars.types[vars.type.value].tooltip == "static") {
+    var offset = d.d3plus.r ? d.d3plus.r : d.d3plus.height/2;
+    if (vars.zoom.scale) {
+      offset = offset * vars.zoom.scale;
+    }
   }
   else {
-    var offset = d.d3plus.r ? d.d3plus.r : d.d3plus.height/2
-    if (vars.zoom.scale) {
-      offset = offset * vars.zoom.scale
-    }
+    var offset = 3;
   }
 
   function make_tooltip(html) {
 
-    var ex = {}
-      , children = {}
-      , depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth+1 : dataDepth
-      , nestKey   = vars.id.nesting[depth]
-      , nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey]
-      , dataValue = fetchValue( vars , d , vars.size.value )
-      , same = (!(nameList instanceof Array) || (nameList instanceof Array && nameList.length === 1)) && depth === vars.depth.value
+    var ex = {},
+        children = {},
+        depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth+1 : dataDepth,
+        nestKey   = vars.id.nesting[depth],
+        nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey],
+        dataValue = fetchValue( vars , d , vars.size.value ),
+        same = (!(nameList instanceof Array) || (nameList instanceof Array && nameList.length === 1)) && depth === vars.depth.value;
 
     if ( !same && vars.tooltip.children.value ) {
 
@@ -34004,10 +34191,10 @@ module.exports = function(params) {
 
         for ( var i = 0 ; i < max ; i++ ) {
 
-          var id    = nameList[i]
-            , name  = fetchText( vars , id , depth )[0]
-            , value = fetchValue( vars , id , vars.size.value , nestKey )
-            , color = fetchColor( vars , id , nestKey )
+          var id    = nameList[i],
+              name  = fetchText(vars, id, depth)[0],
+              value = fetchValue(vars, id, vars.size.value, nestKey),
+              color = fetchColor(vars, id, nestKey);
 
           children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
 
@@ -34041,9 +34228,9 @@ module.exports = function(params) {
       }
     }
 
-    var active = vars.active.value ? fetchValue(vars,d,vars.active.value) : d.d3plus.active,
-        temp = vars.temp.value ? fetchValue(vars,d,vars.temp.value) : d.d3plus.temp,
-        total = vars.total.value ? fetchValue(vars,d,vars.total.value) : d.d3plus.total
+    var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
+        temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
+        total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total;
 
     if (typeof active == "number" && active > 0 && total) {
       var label = vars.active.value || "active"
@@ -34061,10 +34248,15 @@ module.exports = function(params) {
 
     var depth = "depth" in params ? params.depth : dataDepth,
         title = params.title || fetchText(vars,d,depth)[0],
-        icon = fetchValue(vars,d,vars.icon.value,vars.id.nesting[depth]),
+        icon = uniques(d, vars.icon.value, fetchValue, vars, vars.id.nesting[depth]),
         tooltip_data = fetchData(vars,d,length,ex,children,depth)
 
-    if (icon === "null") icon = false
+    if (icon.length === 1 && icon[0] !== null) {
+      icon = icon[0]
+    }
+    else {
+      icon = false
+    }
 
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && (!("visible" in d.d3plus_label) || ("visible" in d.d3plus_label && d.d3plus_label.visible === false))))) {
 
@@ -34098,6 +34290,8 @@ module.exports = function(params) {
         var width = vars.tooltip.small
       }
 
+      var parent = params.length !== "long" ? d3.select("body") : vars.container.value
+
       createTooltip({
         "align": align,
         "arrow": arrow,
@@ -34121,7 +34315,7 @@ module.exports = function(params) {
         "max_width": vars.tooltip.small,
         "mouseevents": mouse,
         "offset": offset,
-        "parent": vars.container.value,
+        "parent": parent,
         "style": icon_style,
         "title": title,
         "width": width,
@@ -34161,9 +34355,9 @@ module.exports = function(params) {
 
 }
 
-},{"../../../array/sort.coffee":40,"../../../core/fetch/color.coffee":67,"../../../core/fetch/text.js":70,"../../../core/fetch/value.js":71,"../../../object/validate.coffee":165,"../../../tooltip/create.js":188,"../../../tooltip/remove.coffee":190,"../zoom/direction.coffee":234,"./data.js":225}],225:[function(require,module,exports){
+},{"../../../array/sort.coffee":40,"../../../core/fetch/color.coffee":67,"../../../core/fetch/text.js":70,"../../../core/fetch/value.coffee":71,"../../../object/validate.coffee":166,"../../../tooltip/create.js":190,"../../../tooltip/remove.coffee":192,"../../../util/uniques.coffee":199,"../zoom/direction.coffee":236,"./data.js":227}],227:[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
-    fetchValue   = require("../../../core/fetch/value.js"),
+    fetchValue   = require("../../../core/fetch/value.coffee"),
     fetchColor   = require("../../../core/fetch/color.coffee"),
     fetchText    = require("../../../core/fetch/text.js"),
     legible      = require("../../../color/legible.coffee"),
@@ -34173,7 +34367,7 @@ var copy = require("../../../util/copy.coffee"),
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
-module.exports = function(vars,id,length,extras,children,depth) {
+module.exports = function(vars, id, length, extras, children, depth) {
 
   if (vars.small) {
     return []
@@ -34459,7 +34653,7 @@ module.exports = function(vars,id,length,extras,children,depth) {
 
 }
 
-},{"../../../client/prefix.coffee":45,"../../../color/legible.coffee":49,"../../../core/fetch/color.coffee":67,"../../../core/fetch/text.js":70,"../../../core/fetch/value.js":71,"../../../object/merge.coffee":164,"../../../string/format.js":166,"../../../util/copy.coffee":194}],226:[function(require,module,exports){
+},{"../../../client/prefix.coffee":45,"../../../color/legible.coffee":49,"../../../core/fetch/color.coffee":67,"../../../core/fetch/text.js":70,"../../../core/fetch/value.coffee":71,"../../../object/merge.coffee":165,"../../../string/format.js":167,"../../../util/copy.coffee":196}],228:[function(require,module,exports){
 var print;
 
 print = require("../../../core/console/print.coffee");
@@ -34502,7 +34696,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../core/console/print.coffee":57}],227:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57}],229:[function(require,module,exports){
 var copy        = require("../../../util/copy.coffee"),
     form        = require("../../../form/form.js"),
     print       = require("../../../core/console/print.coffee"),
@@ -34561,11 +34755,16 @@ module.exports = function( vars ) {
       else {
         focus = d.value[0];
         if (validObject(focus)) focus = focus[d3.keys(focus)[0]];
-        if (typeof d.method === "function") callback = d.method;
+        if (typeof d.method === "function") {
+          callback = function(value) {
+            d.method(value, vars.self);
+          };
+        }
       }
 
       d.form = form()
         .container(container)
+        .data({"sort": false})
         .focus(focus, callback)
         .id("id")
         .text("text");
@@ -34589,7 +34788,7 @@ module.exports = function( vars ) {
 
       if (validObject(o)) {
         obj.id   = o[d3.keys(o)[0]];
-        obj.text = d3.keys(o)[0];
+        obj.text = vars.format.value(d3.keys(o)[0]);
       }
       else {
         obj.id   = o;
@@ -34601,7 +34800,8 @@ module.exports = function( vars ) {
     });
 
     var font = copy(vars.ui.font);
-    font.secondary = vars.ui.font;
+    font.align = copy(vars.font.align);
+    font.secondary = copy(font);
 
     d.form
       .data(data)
@@ -34631,7 +34831,7 @@ module.exports = function( vars ) {
 
 };
 
-},{"../../../core/console/print.coffee":57,"../../../form/form.js":100,"../../../object/validate.coffee":165,"../../../util/copy.coffee":194}],228:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57,"../../../form/form.js":100,"../../../object/validate.coffee":166,"../../../util/copy.coffee":196}],230:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     lighter    = require("../../../color/lighter.coffee"),
     print      = require("../../../core/console/print.coffee"),
@@ -34644,31 +34844,22 @@ module.exports = function(vars) {
 
   if (!vars.small && vars.history.states.length > 0) {
 
-    if ( vars.dev.value ) print.time("drawing back button")
+    if ( vars.dev.value ) print.time("drawing back button");
 
     var button = vars.container.value.selectAll("div#d3plus_back_button")
-      .data(["d3plus_back_button"])
+      .data(["d3plus_back_button"]);
 
-    var size = vars.title.value
-      ? vars.title.font.size : vars.title.sub.font.size
-
-    var color = vars.title.sub.value
-      ? vars.title.sub.font.color : vars.title.font.color
-
-    var family = vars.title.sub.value
-      ? vars.title.sub.font.family.value : vars.title.font.family.value
-
-    var weight = vars.title.sub.value
-      ? vars.title.sub.font.weight : vars.title.font.weight
-
-    var padding = vars.title.sub.value
-      ? vars.title.sub["padding"] : vars.title["padding"]
+    var size = vars.title.sub.font.size;
+    var color = vars.title.sub.font.color;
+    var family = vars.title.sub.font.family.value;
+    var weight = vars.title.sub.font.weight;
+    var padding = vars.title.sub.padding;
 
     function style(elem) {
 
         elem
           .style("position","absolute")
-          .style("left",vars.ui.padding+"px")
+          .style("left",size/2+"px")
           .style("top",vars.margin.top/2-size/2+"px")
           .style("color", color)
           .style("font-family", family)
@@ -34746,7 +34937,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/css.coffee":42,"../../../client/pointer.coffee":44,"../../../color/lighter.coffee":50,"../../../core/console/print.coffee":57}],229:[function(require,module,exports){
+},{"../../../client/css.coffee":42,"../../../client/pointer.coffee":44,"../../../color/lighter.coffee":50,"../../../core/console/print.coffee":57}],231:[function(require,module,exports){
 var arraySort = require("../../../array/sort.coffee"),
     buckets       = require("../../../util/buckets.coffee"),
     copy          = require("../../../util/copy.coffee"),
@@ -34754,7 +34945,7 @@ var arraySort = require("../../../array/sort.coffee"),
     dataNest      = require("../../../core/data/nest.js"),
     dataURL       = require("../../../util/dataURL.coffee"),
     events        = require("../../../client/pointer.coffee"),
-    fetchValue    = require("../../../core/fetch/value.js"),
+    fetchValue    = require("../../../core/fetch/value.coffee"),
     fetchColor    = require("../../../core/fetch/color.coffee"),
     fetchText     = require("../../../core/fetch/text.js"),
     print         = require("../../../core/console/print.coffee"),
@@ -34764,7 +34955,7 @@ var arraySort = require("../../../array/sort.coffee"),
     stringStrip   = require("../../../string/strip.js"),
     textWrap      = require("../../../textwrap/textwrap.coffee"),
     touch         = require("../../../client/touch.coffee"),
-    validObject   = require("../../../object/validate.coffee")
+    validObject   = require("../../../object/validate.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates color key
 //------------------------------------------------------------------------------
@@ -34772,69 +34963,69 @@ module.exports = function(vars) {
 
   var key_display = true,
       square_size = 0,
-      key = vars.color.value
-    , colorName = vars.color.value || "d3plus_color"
+      key = vars.color.value,
+      colorName = vars.color.value || "d3plus_color";
 
   if (!vars.internal_error && key && !vars.small && vars.legend.value) {
 
     if (!vars.color.valueScale) {
 
-      if ( vars.dev.value ) print.time("grouping data by colors")
+      if ( vars.dev.value ) print.time("grouping data by colors");
 
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
-        var data = copy(vars.nodes.restriced || vars.nodes.value)
+        var data = copy(vars.nodes.restriced || vars.nodes.value);
         if ( vars.data.viz.length ) {
           for ( var i = 0 ; i < data.length ; i++ ) {
             var appData = vars.data.viz.filter(function(a){
-              return a[vars.id.value] === data[i][vars.id.value]
-            })
+              return a[vars.id.value] === data[i][vars.id.value];
+            });
             if (appData.length) {
-              data[i] = appData[0]
+              data[i] = appData[0];
             }
           }
         }
       }
       else {
-        var data = vars.data.viz
+        var data = vars.data.viz;
       }
 
       var colorFunction = function( d ){
-            return fetchColor( vars , d , colorKey )
-          }
-        , colorDepth = 0
-        , colorKey = vars.id.value
+            return fetchColor(vars, d, colorKey);
+          },
+          colorDepth = 0,
+          colorKey = vars.id.value;
 
       if (vars.id.nesting.indexOf(colorName) >= 0) {
-        colorDepth = vars.id.nesting.indexOf(vars.color.value)
-        colorKey = vars.id.nesting[vars.id.nesting.indexOf(colorName)]
+        colorDepth = vars.id.nesting.indexOf(vars.color.value);
+        colorKey = vars.id.nesting[vars.id.nesting.indexOf(colorName)];
       }
       else {
 
-        for ( var i = 0 ; i <= vars.depth.value ; i++ ) {
+        for (var i = 0; i <= vars.depth.value; i++) {
 
-          colorDepth = i
-          colorKey   = vars.id.nesting[i]
+          colorDepth = i;
+          colorKey   = vars.id.nesting[i];
 
-          var uniqueIDs = uniqueValues( data , function(d){
-                return fetchValue(vars, d, colorKey)
-              } )
-            , uniqueColors = uniqueValues( data , colorFunction )
+          var uniqueIDs = uniqueValues(data , function(d){
+                return fetchValue(vars, d, colorKey);
+              }),
+              uniqueColors = uniqueValues(data, colorFunction);
 
-          if ( uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1 ) {
-            break
+          if (uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1) {
+            break;
           }
 
         }
 
       }
 
-      var colors = dataNest( vars , data , [ colorFunction ] , [] )
+      var colors = dataNest(vars, data, [colorFunction], []);
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
 
-      var available_width = vars.width.value
+      var available_width = vars.width.value;
 
-      square_size = vars.legend.size
+      square_size = vars.legend.size;
 
       var key_width = square_size*colors.length+vars.ui.padding*(colors.length+1)
 
@@ -34845,57 +35036,51 @@ module.exports = function(vars) {
         for (var i = square_size[1]; i >= square_size[0]; i--) {
           key_width = i*colors.length+vars.ui.padding*(colors.length+1)
           if (available_width >= key_width) {
-            square_size = i
+            square_size = i;
             break;
           }
         }
 
-        if ( vars.dev.value ) print.timeEnd("calculating legend size")
+        if ( vars.dev.value ) print.timeEnd("calculating legend size");
 
       }
       else if (typeof square_size != "number" && square_size !== false) {
-        square_size = 30
+        square_size = 30;
       }
 
       if (available_width < key_width || colors.length == 1) {
-        key_display = false
+        key_display = false;
       }
       else {
 
-        key_width -= vars.ui.padding*2
+        key_width -= vars.ui.padding*2;
 
-        if ( vars.dev.value ) print.time("sorting legend")
+        if ( vars.dev.value ) print.time("sorting legend");
 
-        var order = vars[vars.legend.order.value].value
+        var order = vars[vars.legend.order.value].value;
 
-        arraySort( colors , order , vars.legend.order.sort.value
-                         , colorName , vars , colorDepth )
+        arraySort(colors, order, vars.legend.order.sort.value, colorName, vars, colorDepth);
 
-        if ( vars.dev.value ) print.timeEnd("sorting legend")
+        if ( vars.dev.value ) print.timeEnd("sorting legend");
 
-        if ( vars.dev.value ) print.time("drawing legend")
+        if ( vars.dev.value ) print.time("drawing legend");
+
+        var start_x;
 
         if (vars.legend.align == "start") {
-          var start_x = vars.ui.padding
+          start_x = vars.ui.padding;
         }
         else if (vars.legend.align == "end") {
-          var start_x = available_width - vars.ui.padding - key_width
+          start_x = available_width - vars.ui.padding - key_width;
         }
         else {
-          var start_x = available_width/2 - key_width/2
+          start_x = available_width/2 - key_width/2;
         }
 
         vars.g.legend.selectAll("g.d3plus_scale")
           .transition().duration(vars.draw.timing)
           .attr("opacity",0)
-          .remove()
-
-        var keys = vars.g.legend.selectAll("g.d3plus_color")
-          .data(colors,function(d){
-            var col = fetchColor(vars,d,colorKey)
-              , val = fetchValue(vars,d,colorName)
-            return col+val
-          })
+          .remove();
 
         function position(group) {
 
@@ -34910,24 +35095,24 @@ module.exports = function(vars) {
         function style(rect) {
 
           rect
-            .attr("width",square_size)
-            .attr("height",square_size)
+            .attr("width", square_size)
+            .attr("height", square_size)
             .attr("fill",function(g){
 
-              d3.select(this.parentNode).selectAll("text").remove()
+              d3.select(this.parentNode).select("text").remove();
 
-              var icon = fetchValue( vars , g , vars.icon.value , colorKey )
-                , color = fetchColor( vars , g , colorKey )
+              var icon = uniqueValues(g, vars.icon.value, fetchValue, vars, colorKey),
+                  color = fetchColor(vars, g, colorKey);
 
-              if (icon && icon !== "null") {
-
-                var short_url = stringStrip(icon+"_"+color)
-                  , iconStyle = vars.icon.style.value
-                  , pattern = vars.defs.selectAll("pattern#"+short_url)
-                      .data([short_url])
+              if (icon.length === 1 && icon[0] !== null) {
+                icon = icon[0];
+                var short_url = stringStrip(icon+"_"+color),
+                    iconStyle = vars.icon.style.value,
+                    pattern = vars.defs.selectAll("pattern#"+short_url)
+                      .data([short_url]);
 
                 if (typeof iconStyle === "string") {
-                  var icon_style = vars.icon.style.value
+                  var icon_style = vars.icon.style.value;
                 }
                 else if (validObject(iconStyle) && iconStyle[colorKey]) {
                   var icon_style = iconStyle[colorKey]
@@ -34986,64 +35171,81 @@ module.exports = function(vars) {
               }
               else {
 
-                var text = d3.select(this.parentNode).append("text")
+                var names = fetchText(vars, g, colorDepth);
 
-                text
-                  .attr("font-size",vars.legend.font.size+"px")
-                  .attr("font-weight",vars.legend.font.weight)
-                  .attr("font-family",vars.legend.font.family.value)
-                  .style("text-anchor","start")
-                  .attr("fill",textColor(color))
-                  .attr("x",0)
-                  .attr("y",0)
-                  .each(function(t){
+                if (names.length === 1 && !(names[0] instanceof Array) && names[0].length) {
 
-                    var text = fetchText(vars,t,colorDepth)
+                  var text = d3.select(this.parentNode).append("text");
 
-                    if (text.length === 1 && text[0].length) {
+                  text
+                    .attr("font-size",vars.legend.font.size+"px")
+                    .attr("font-weight",vars.legend.font.weight)
+                    .attr("font-family",vars.legend.font.family.value)
+                    .style("text-anchor","start")
+                    .attr("fill",textColor(color))
+                    .attr("x",0)
+                    .attr("y",0)
+                    .each(function(t){
 
                       textWrap()
                         .container( d3.select(this) )
                         .height( square_size - vars.ui.padding * 2 )
                         .resize( vars.labels.resize.value )
-                        .text( text[0] )
+                        .text( names[0] )
                         .width( square_size - vars.ui.padding * 2 )
-                        .draw()
+                        .draw();
 
-                    }
-
-                  })
-                  .attr("y",function(t){
-                    var h = this.getBBox().height,
-                        diff = parseFloat(d3.select(this).style("font-size"),10)/5
-                    return square_size/2 - h/2 - diff/2
-                  })
-                  .selectAll("tspan")
-                    .attr("x",function(t){
-                      var w = this.getComputedTextLength()
-                      return square_size/2 - w/2
                     })
+                    .attr("y",function(t){
+                      var h = this.getBBox().height,
+                          diff = parseFloat(d3.select(this).style("font-size"),10)/5;
+                      return square_size/2 - h/2 - diff/2;
+                    })
+                    .selectAll("tspan")
+                      .attr("x",function(t){
+                        var w = this.getComputedTextLength();
+                        return square_size/2 - w/2;
+                      });
 
-                if (text.select("tspan").empty()) {
-                  text.remove()
+                  if (text.select("tspan").empty()) {
+                    text.remove();
+                  }
+
                 }
 
-                return color
+                return color;
               }
 
-            })
+            });
 
         }
 
-        var key_enter = keys.enter().append("g")
+        var keys = vars.g.legend.selectAll("g.d3plus_color")
+          .data(colors,function(d){
+            return fetchColor(vars, d, colorKey);
+          });
+
+        keys.transition().duration(vars.draw.timing)
+          .call(position)
+          .selectAll("rect.d3plus_color")
+            .call(style);
+
+        keys.enter().append("g")
           .attr("class","d3plus_color")
           .attr("opacity",0)
           .call(position)
-
-        key_enter
           .append("rect")
             .attr("class","d3plus_color")
-            .call(style)
+            .call(style);
+
+        keys.order()
+          .transition().duration(vars.draw.timing)
+          .attr("opacity", 1);
+
+        keys.exit()
+          .transition().duration(vars.draw.timing)
+          .attr("opacity",0)
+          .remove();
 
         if (!touch) {
 
@@ -35052,11 +35254,9 @@ module.exports = function(vars) {
 
               d3.select(this).style("cursor","pointer")
 
-              var x = start_x + (i*(vars.ui.padding+square_size)),
-                  y = d3.transform(d3.select(this.parentNode).attr("transform")).translate[1]
-
-              x += square_size/2
-              y += vars.ui.padding+square_size/2
+              var bounds = this.getBoundingClientRect(),
+                  x = bounds.left + square_size/2 + window.scrollX,
+                  y = bounds.top + square_size/2 + window.scrollY;
 
               var idIndex = vars.id.nesting.indexOf(colorKey)
                 , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), colorName, vars, d)
@@ -35077,19 +35277,6 @@ module.exports = function(vars) {
             })
 
         }
-
-        keys.order()
-          .transition().duration(vars.draw.timing)
-          .attr("opacity",1)
-          .call(position)
-
-        keys.selectAll("rect.d3plus_color").transition().duration(vars.draw.timing)
-          .call(style)
-
-        keys.exit()
-          .transition().duration(vars.draw.timing)
-          .attr("opacity",0)
-          .remove()
 
         if ( vars.dev.value ) print.timeEnd("drawing legend")
 
@@ -35344,10 +35531,9 @@ module.exports = function(vars) {
 
   }
 
-
 }
 
-},{"../../../array/sort.coffee":40,"../../../client/pointer.coffee":44,"../../../client/touch.coffee":48,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/data/nest.js":65,"../../../core/fetch/color.coffee":67,"../../../core/fetch/text.js":70,"../../../core/fetch/value.js":71,"../../../object/validate.coffee":165,"../../../string/strip.js":168,"../../../textwrap/textwrap.coffee":187,"../../../tooltip/remove.coffee":190,"../../../util/buckets.coffee":191,"../../../util/copy.coffee":194,"../../../util/dataURL.coffee":196,"../../../util/uniques.coffee":197,"../tooltip/create.js":224}],230:[function(require,module,exports){
+},{"../../../array/sort.coffee":40,"../../../client/pointer.coffee":44,"../../../client/touch.coffee":48,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/data/nest.js":65,"../../../core/fetch/color.coffee":67,"../../../core/fetch/text.js":70,"../../../core/fetch/value.coffee":71,"../../../object/validate.coffee":166,"../../../string/strip.js":169,"../../../textwrap/textwrap.coffee":189,"../../../tooltip/remove.coffee":192,"../../../util/buckets.coffee":193,"../../../util/copy.coffee":196,"../../../util/dataURL.coffee":198,"../../../util/uniques.coffee":199,"../tooltip/create.js":226}],232:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -35458,7 +35644,7 @@ module.exports = function(vars,message) {
 
 }
 
-},{}],231:[function(require,module,exports){
+},{}],233:[function(require,module,exports){
 var closest = require("../../../util/closest.coffee"),
     fontSizes = require("../../../font/sizes.coffee"),
     events    = require("../../../client/pointer.coffee"),
@@ -35901,9 +36087,9 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../font/sizes.coffee":98,"../../../util/closest.coffee":193}],232:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../font/sizes.coffee":98,"../../../util/closest.coffee":195}],234:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
-    fetchValue = require("../../../core/fetch/value.js"),
+    fetchValue = require("../../../core/fetch/value.coffee"),
     print      = require("../../../core/console/print.coffee"),
     rtl        = require("../../../client/rtl.coffee"),
     textWrap   = require("../../../textwrap/textwrap.coffee")
@@ -36221,78 +36407,80 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../client/rtl.coffee":46,"../../../core/console/print.coffee":57,"../../../core/fetch/value.js":71,"../../../textwrap/textwrap.coffee":187}],233:[function(require,module,exports){
-var transform = require("./transform.coffee")
+},{"../../../client/pointer.coffee":44,"../../../client/rtl.coffee":46,"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":71,"../../../textwrap/textwrap.coffee":189}],235:[function(require,module,exports){
+var labels = require("./labels.js"),
+    transform = require("./transform.coffee");
 
 module.exports = function( vars , b , timing ) {
 
   if (!b) {
-    var b = vars.zoom.bounds
+    b = vars.zoom.bounds;
   }
 
   if (typeof timing !== "number") {
-    var timing = vars.timing.transitions
+    timing = vars.timing.transitions;
   }
 
   vars.zoom.size = {
     "height": b[1][1]-b[0][1],
     "width": b[1][0]-b[0][0]
-  }
+  };
 
-  var fit = vars.coords.fit.value
+  var fit = vars.coords.fit.value, aspect;
   if (fit == "auto" || vars.types[vars.type.value].requirements.indexOf("coords") < 0) {
-    var aspect = d3.max([vars.zoom.size.width/vars.width.viz,vars.zoom.size.height/vars.height.viz])
+    aspect = d3.max([vars.zoom.size.width/vars.width.viz,vars.zoom.size.height/vars.height.viz]);
   }
   else {
-    var aspect = vars.zoom.size[fit]/vars["app_"+fit]
+    aspect = vars.zoom.size[fit]/vars["app_"+fit];
   }
 
-  var min = d3.min([vars.width.viz,vars.height.viz])
+  var min = d3.min([vars.width.viz,vars.height.viz]);
 
-  var padding = vars.types[vars.type.value].zoom ? vars.coords.padding*2 : 0
+  var padding = vars.types[vars.type.value].zoom ? vars.coords.padding*2 : 0;
 
-  var scale = ((min-padding) / min) / aspect
+  var scale = ((min-padding) / min) / aspect;
 
-  var extent = vars.zoom.behavior.scaleExtent()
+  var extent = vars.zoom.behavior.scaleExtent();
 
   if (extent[0] == extent[1] || b == vars.zoom.bounds) {
-    vars.zoom.behavior.scaleExtent([scale,scale*16])
+    vars.zoom.behavior.scaleExtent([scale,scale*16]);
   }
 
-  var max_scale = vars.zoom.behavior.scaleExtent()[1]
+  var max_scale = vars.zoom.behavior.scaleExtent()[1];
   if (scale > max_scale) {
-    scale = max_scale
+    scale = max_scale;
   }
-  vars.zoom.scale = scale
+  vars.zoom.scale = scale;
 
-  var translate = []
+  var translate = [];
 
-  translate[0] = vars.width.viz/2-(vars.zoom.size.width*scale)/2-(b[0][0]*scale)
-  translate[1] = vars.height.viz/2-(vars.zoom.size.height*scale)/2-(b[0][1]*scale)
+  translate[0] = vars.width.viz/2-(vars.zoom.size.width*scale)/2-(b[0][0]*scale);
+  translate[1] = vars.height.viz/2-(vars.zoom.size.height*scale)/2-(b[0][1]*scale);
 
-  vars.zoom.translate = translate
-  vars.zoom.behavior.translate(translate).scale(scale)
+  vars.zoom.translate = translate;
+  vars.zoom.behavior.translate(translate).scale(scale);
 
   vars.zoom.size = {
     "height": vars.zoom.bounds[1][1]-vars.zoom.bounds[0][1],
     "width": vars.zoom.bounds[1][0]-vars.zoom.bounds[0][0]
-  }
+  };
 
-  transform(vars,timing)
+  labels(vars);
+  transform(vars,timing);
 
-}
+};
 
-},{"./transform.coffee":238}],234:[function(require,module,exports){
+},{"./labels.js":237,"./transform.coffee":240}],236:[function(require,module,exports){
 module.exports = function(data, vars) {
-  var current_depth, max_depth, restricted;
+  var depth, max_depth, nextDepth;
   max_depth = vars.id.nesting.length - 1;
-  current_depth = vars.depth.value;
-  restricted = vars.types[vars.type.value].nesting === false;
-  if (restricted) {
+  depth = vars.depth.value;
+  nextDepth = vars.id.nesting[vars.depth.value + 1];
+  if (vars.types[vars.type.value].nesting === false) {
     return 0;
-  } else if (data.d3plus.merged || current_depth < max_depth && (!data || vars.id.nesting[vars.depth.value + 1] in data)) {
+  } else if ((data.d3plus.merged || (data[nextDepth] instanceof Array && depth < max_depth)) && (!data || nextDepth in data)) {
     return 1;
-  } else if ((current_depth === max_depth || (data && (!(vars.id.nesting[vars.depth.value + 1] in data)))) && (vars.small || !vars.tooltip.html.value)) {
+  } else if ((depth === max_depth || (data && (!(nextDepth in data)))) && (vars.small || !vars.tooltip.html.value)) {
     return -1;
   } else {
     return 0;
@@ -36301,7 +36489,7 @@ module.exports = function(data, vars) {
 
 
 
-},{}],235:[function(require,module,exports){
+},{}],237:[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 
 // Sets label opacity based on zoom
@@ -36339,7 +36527,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":57}],236:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57}],238:[function(require,module,exports){
 var labels, transform;
 
 labels = require("./labels.js");
@@ -36388,7 +36576,7 @@ module.exports = function(vars) {
 
 
 
-},{"./labels.js":235,"./transform.coffee":238}],237:[function(require,module,exports){
+},{"./labels.js":237,"./transform.coffee":240}],239:[function(require,module,exports){
 module.exports = function(vars, event) {
   var enabled, zoom, zoomable, zoomed;
   zoom = vars.zoom;
@@ -36405,7 +36593,7 @@ module.exports = function(vars, event) {
 
 
 
-},{}],238:[function(require,module,exports){
+},{}],240:[function(require,module,exports){
 module.exports = function(vars, timing) {
   var scale, translate;
   if (typeof timing !== "number") {
@@ -36422,7 +36610,7 @@ module.exports = function(vars, timing) {
 
 
 
-},{}],239:[function(require,module,exports){
+},{}],241:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -36442,7 +36630,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],240:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],242:[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   deprecated: "nesting_aggs",
@@ -36452,7 +36640,7 @@ module.exports = {
 
 
 
-},{}],241:[function(require,module,exports){
+},{}],243:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -36473,7 +36661,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/data.coffee":85}],242:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":85}],244:[function(require,module,exports){
 var rendering;
 
 rendering = require("../../core/methods/rendering.coffee");
@@ -36496,7 +36684,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/rendering.coffee":89}],243:[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":89}],245:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   value: "#ffffff"
@@ -36504,7 +36692,7 @@ module.exports = {
 
 
 
-},{}],244:[function(require,module,exports){
+},{}],246:[function(require,module,exports){
 var filter, scale;
 
 filter = require("../../core/methods/filter.coffee");
@@ -36542,7 +36730,7 @@ module.exports = {
 
 
 
-},{"../../color/scale.coffee":53,"../../core/methods/filter.coffee":79}],245:[function(require,module,exports){
+},{"../../color/scale.coffee":53,"../../core/methods/filter.coffee":79}],247:[function(require,module,exports){
 module.exports = {
   "accepted": [Array, Function, String],
   "index": {
@@ -36556,7 +36744,26 @@ module.exports = {
   "value": false
 }
 
-},{}],246:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
+module.exports = {
+  accepted: [Object],
+  objectAccess: false,
+  process: function(value, vars) {
+    var method, setting;
+    for (method in value) {
+      setting = value[method];
+      if (method in vars.self) {
+        vars.self[method](setting);
+      }
+    }
+    return value;
+  },
+  value: {}
+};
+
+
+
+},{}],249:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -36580,7 +36787,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":195}],247:[function(require,module,exports){
+},{"../../util/d3selection.coffee":197}],250:[function(require,module,exports){
 var filter, process;
 
 filter = require("../../core/methods/filter.coffee");
@@ -36612,10 +36819,10 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79,"../../core/methods/process/data.coffee":85}],248:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79,"../../core/methods/process/data.coffee":85}],251:[function(require,module,exports){
 var fetchValue, ie, stringStrip;
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 ie = require("../../client/ie.js");
 
@@ -36692,43 +36899,51 @@ module.exports = {
 
 
 
-},{"../../client/ie.js":43,"../../core/fetch/value.js":71,"../../string/strip.js":168}],249:[function(require,module,exports){
-var process = require("../../core/methods/process/data.coffee")
+},{"../../client/ie.js":43,"../../core/fetch/value.coffee":71,"../../string/strip.js":169}],252:[function(require,module,exports){
+var process;
+
+process = require("../../core/methods/process/data.coffee");
 
 module.exports = {
-  "accepted" : [ false , Array , Function , String ],
-  "cache"    : {},
-  "delimiter" : {
-    "accepted" : [ String ],
-    "value"    : "|"
+  accepted: [false, Array, Function, String],
+  cache: {},
+  delimiter: {
+    accepted: [String],
+    value: "|"
   },
-  "donut"   : {
-    "size" : 0.35
+  donut: {
+    size: 0.35
   },
-  "filetype" : {
-    "accepted" : [false, "json", "xml", "html", "csv", "dsv", "tsv", "txt"],
-    "value"    : false
+  filetype: {
+    accepted: [false, "json", "xml", "html", "csv", "dsv", "tsv", "txt"],
+    value: false
   },
-  "filters"  : [],
-  "mute"     : [],
-  "large"   : 400,
-  "opacity" : 0.9,
-  "process"  : function(value, vars) {
-
-    if ( vars.container.id === "default" && value.length ) {
-      vars.self.container({"id": "default"+value.length})
+  filters: [],
+  mute: [],
+  large: 400,
+  opacity: 0.9,
+  padding: {
+    accepted: [Number],
+    value: 1
+  },
+  process: function(value, vars) {
+    if (vars.container.id === "default" && value.length) {
+      vars.self.container({
+        id: "default" + value.length
+      });
     }
-
-    return process(value, vars, this)
+    return process(value, vars, this);
   },
-  "solo"     : [],
-  "stroke"  : {
-    "width" : 1
+  solo: [],
+  stroke: {
+    width: 1
   },
-  "value"    : false
-}
+  value: false
+};
 
-},{"../../core/methods/process/data.coffee":85}],250:[function(require,module,exports){
+
+
+},{"../../core/methods/process/data.coffee":85}],253:[function(require,module,exports){
 module.exports = {
   accepted: [Function, Number],
   value: 0
@@ -36736,7 +36951,7 @@ module.exports = {
 
 
 
-},{}],251:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, Object],
   value: false
@@ -36744,7 +36959,7 @@ module.exports = {
 
 
 
-},{}],252:[function(require,module,exports){
+},{}],255:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -36752,7 +36967,7 @@ module.exports = {
 
 
 
-},{}],253:[function(require,module,exports){
+},{}],256:[function(require,module,exports){
 var print        = require("../../core/console/print.coffee"),
     stringFormat = require("../../string/format.js")
 
@@ -36785,15 +37000,9 @@ module.exports = {
     }
     else {
 
-      if ( vars.dev.value ) {
-        if ( vars.methodGroup ) {
-          vars.methodGroup = "wait"
-          print.groupEnd()
-        }
-        print.time("total draw time")
-      }
+      if ( vars.dev.value ) print.time("total draw time");
 
-      vars.container.value.call(vars.self)
+      vars.container.value.call(vars.self);
 
     }
 
@@ -36819,7 +37028,7 @@ module.exports = {
   "value"    : undefined
 }
 
-},{"../../core/console/print.coffee":57,"../../string/format.js":166}],254:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../string/format.js":167}],257:[function(require,module,exports){
 var process = require("../../core/methods/process/data.coffee")
 
 module.exports = {
@@ -36905,7 +37114,7 @@ module.exports = {
   "width":  1
 }
 
-},{"../../core/methods/process/data.coffee":85}],255:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":85}],258:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean, String],
   value: false
@@ -36913,7 +37122,7 @@ module.exports = {
 
 
 
-},{}],256:[function(require,module,exports){
+},{}],259:[function(require,module,exports){
 module.exports = {
   accepted: [false, Array, Function, Number, String],
   deprecates: "highlight",
@@ -36935,7 +37144,7 @@ module.exports = {
 
 
 
-},{}],257:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 var align, decoration, family, transform;
 
 align = require("../../core/methods/font/align.coffee");
@@ -36969,7 +37178,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":80,"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],258:[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":80,"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],261:[function(require,module,exports){
 var decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -36997,7 +37206,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],259:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],262:[function(require,module,exports){
 var formatNumber, locale, mergeObject, titleCase;
 
 formatNumber = require("../../number/format.js");
@@ -37070,7 +37279,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":77,"../../number/format.js":163,"../../object/merge.coffee":164,"../../string/title.coffee":169}],260:[function(require,module,exports){
+},{"../../core/locale/locale.coffee":77,"../../number/format.js":164,"../../object/merge.coffee":165,"../../string/title.coffee":170}],263:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   max: 600,
@@ -37081,7 +37290,7 @@ module.exports = {
 
 
 
-},{}],261:[function(require,module,exports){
+},{}],264:[function(require,module,exports){
 var align, decoration, family, filter, position, rendering, transform;
 
 align = require("../../../core/methods/font/align.coffee");
@@ -37120,13 +37329,16 @@ module.exports = function(axis) {
       value: false
     },
     grid: {
+      accepted: [Boolean],
       color: "#ccc",
-      rendering: rendering()
+      rendering: rendering(),
+      value: true
     },
     label: {
       color: "#444",
       decoration: decoration(),
       family: family(),
+      padding: 3,
       size: 12,
       transform: transform(),
       weight: 200
@@ -37190,6 +37402,10 @@ module.exports = function(axis) {
       value: true
     },
     mute: filter(true),
+    padding: {
+      accepted: [Number],
+      value: 0.1
+    },
     range: {
       accepted: [false, Array],
       value: false
@@ -37256,7 +37472,7 @@ module.exports = function(axis) {
 
 
 
-},{"../../../core/methods/filter.coffee":79,"../../../core/methods/font/align.coffee":80,"../../../core/methods/font/decoration.coffee":81,"../../../core/methods/font/family.coffee":82,"../../../core/methods/font/position.coffee":83,"../../../core/methods/font/transform.coffee":84,"../../../core/methods/rendering.coffee":89}],262:[function(require,module,exports){
+},{"../../../core/methods/filter.coffee":79,"../../../core/methods/font/align.coffee":80,"../../../core/methods/font/decoration.coffee":81,"../../../core/methods/font/family.coffee":82,"../../../core/methods/font/position.coffee":83,"../../../core/methods/font/transform.coffee":84,"../../../core/methods/rendering.coffee":89}],265:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   back: function() {
@@ -37271,7 +37487,7 @@ module.exports = {
 
 
 
-},{}],263:[function(require,module,exports){
+},{}],266:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/icon.coffee");
@@ -37292,12 +37508,12 @@ module.exports = {
     deprecates: "icon_style",
     value: "default"
   },
-  value: "icon"
+  value: false
 };
 
 
 
-},{"../../core/methods/process/icon.coffee":87}],264:[function(require,module,exports){
+},{"../../core/methods/process/icon.coffee":87}],267:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37306,6 +37522,10 @@ module.exports = {
   accepted: [Array, String],
   dataFilter: true,
   deprecates: ["id_var", "nesting"],
+  grouping: {
+    accepted: [Boolean],
+    value: true
+  },
   mute: filter(true),
   nesting: ["id"],
   solo: filter(true),
@@ -37314,7 +37534,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],265:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],268:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -37344,7 +37564,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],266:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],269:[function(require,module,exports){
 var family;
 
 family = require("../../core/methods/font/family.coffee");
@@ -37376,7 +37596,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/family.coffee":82}],267:[function(require,module,exports){
+},{"../../core/methods/font/family.coffee":82}],270:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -37404,7 +37624,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],268:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],271:[function(require,module,exports){
 module.exports = {
   accepted: [Number, Object, String],
   process: function(value) {
@@ -37473,7 +37693,7 @@ module.exports = {
 
 
 
-},{}],269:[function(require,module,exports){
+},{}],272:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -37498,7 +37718,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],270:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],273:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -37520,9 +37740,13 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/data.coffee":85}],271:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":85}],274:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, String],
+  agg: {
+    accepted: [false, Function, "sum", "min", "max", "mean", "median"],
+    value: false
+  },
   deprecates: ["sort"],
   sort: {
     accepted: ["asc", "desc"],
@@ -37533,7 +37757,7 @@ module.exports = {
 
 
 
-},{}],272:[function(require,module,exports){
+},{}],275:[function(require,module,exports){
 var rendering;
 
 rendering = require("../../core/methods/rendering.coffee");
@@ -37562,7 +37786,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/rendering.coffee":89}],273:[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":89}],276:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37597,14 +37821,14 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],274:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],277:[function(require,module,exports){
 module.exports = {
   value: false
 };
 
 
 
-},{}],275:[function(require,module,exports){
+},{}],278:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37619,7 +37843,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],276:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],279:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37635,7 +37859,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],277:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],280:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37660,7 +37884,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],278:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],281:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   align: "middle",
@@ -37687,7 +37911,7 @@ module.exports = {
 
 
 
-},{}],279:[function(require,module,exports){
+},{}],282:[function(require,module,exports){
 module.exports = {
   mouseevents: 60,
   transitions: 600,
@@ -37696,7 +37920,7 @@ module.exports = {
 
 
 
-},{}],280:[function(require,module,exports){
+},{}],283:[function(require,module,exports){
 var decoration, family, stringStrip, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -37773,7 +37997,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84,"../../string/strip.js":168}],281:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84,"../../string/strip.js":169}],284:[function(require,module,exports){
 var family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -37824,7 +38048,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],282:[function(require,module,exports){
+},{"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],285:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37839,7 +38063,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":79}],283:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":79}],286:[function(require,module,exports){
 module.exports = {
   accepted: function(vars) {
     return d3.keys(vars.types);
@@ -37855,7 +38079,7 @@ module.exports = {
 
 
 
-},{}],284:[function(require,module,exports){
+},{}],287:[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -37911,7 +38135,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":80,"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],285:[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":80,"../../core/methods/font/decoration.coffee":81,"../../core/methods/font/family.coffee":82,"../../core/methods/font/transform.coffee":84}],288:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   secondary: false,
@@ -37921,7 +38145,7 @@ module.exports = {
 
 
 
-},{}],286:[function(require,module,exports){
+},{}],289:[function(require,module,exports){
 module.exports = {
   "accepted"   : [ Boolean ],
   "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
@@ -37941,10 +38165,10 @@ module.exports = {
   "value"      : true
 }
 
-},{}],287:[function(require,module,exports){
+},{}],290:[function(require,module,exports){
 var bar, fetchValue, graph, nest, stack;
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 graph = require("./helpers/graph/draw.coffee");
 
@@ -37953,34 +38177,41 @@ nest = require("./helpers/graph/nest.coffee");
 stack = require("./helpers/graph/stack.coffee");
 
 bar = function(vars) {
-  var base, cMargin, d, data, discrete, discreteVal, h, i, length, maxSize, mod, nested, oMargin, offset, oppVal, opposite, point, space, value, w, x, _i, _j, _len, _len1, _ref;
+  var base, cMargin, d, data, discrete, discreteVal, domains, h, i, length, maxSize, mod, nested, oMargin, offset, oppVal, opposite, padding, point, space, value, w, x, zero, _i, _j, _len, _len1, _ref;
   discrete = vars.axes.discrete;
   h = discrete === "x" ? "height" : "width";
   w = discrete === "x" ? "width" : "height";
   opposite = vars.axes.opposite;
   cMargin = discrete === "x" ? "left" : "top";
   oMargin = discrete === "x" ? "top" : "left";
-  data = vars.data.viz.filter(function(d) {
-    return fetchValue(vars, d, vars[opposite].value);
-  });
-  if (!data.length) {
-    return [];
-  }
   graph(vars, {
     buffer: true,
     zero: vars.axes.opposite
   });
-  nested = nest(vars, data);
+  domains = vars.x.domain.viz.concat(vars.y.domain.viz);
+  if (domains.indexOf(void 0) >= 0) {
+    return [];
+  }
+  nested = nest(vars);
   if (vars.axes.stacked) {
     stack(vars, nested);
   }
   space = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length;
-  maxSize = space - vars.labels.padding * 4;
+  padding = vars[vars.axes.discrete].padding.value;
+  if (padding < 1) {
+    padding *= space;
+  }
+  if (padding * 2 > space) {
+    padding = space * 0.1;
+  }
+  maxSize = space - padding * 2;
   if (!vars.axes.stacked) {
     maxSize /= nested.length;
-    offset = space / 2 - maxSize / 2 - vars.labels.padding * 2;
+    offset = space / 2 - maxSize / 2 - padding;
     x = d3.scale.linear().domain([0, nested.length - 1]).range([-offset, offset]);
   }
+  data = [];
+  zero = 0;
   for (i = _i = 0, _len = nested.length; _i < _len; i = ++_i) {
     point = nested[i];
     mod = vars.axes.stacked ? 0 : x(i);
@@ -37991,15 +38222,17 @@ bar = function(vars) {
       d.d3plus[discrete] = vars[discrete].scale.viz(discreteVal);
       d.d3plus[discrete] += vars.axes.margin[cMargin] + mod;
       if (vars.axes.stacked) {
-        base = d.d3plus[opposite + "0"];
         value = d.d3plus[opposite];
-        length = base - value;
+        base = d.d3plus[opposite + "0"];
       } else {
-        base = vars[opposite].scale.viz(0);
         oppVal = fetchValue(vars, d, vars[opposite].value);
+        if (vars[opposite].scale.value === "log") {
+          zero = oppVal < 0 ? -1 : 1;
+        }
         value = vars[opposite].scale.viz(oppVal);
-        length = base - value;
+        base = vars[opposite].scale.viz(zero);
       }
+      length = base - value;
       d.d3plus[opposite] = base - length / 2;
       if (!vars.axes.stacked) {
         d.d3plus[opposite] += vars.axes.margin[oMargin];
@@ -38007,11 +38240,12 @@ bar = function(vars) {
       d.d3plus[w] = maxSize;
       d.d3plus[h] = Math.abs(length);
       d.d3plus.init = {};
-      d.d3plus.init[opposite] = vars[opposite].scale.viz(0);
+      d.d3plus.init[opposite] = vars[opposite].scale.viz(zero);
       d.d3plus.init[opposite] -= d.d3plus[opposite];
       d.d3plus.init[opposite] += vars.axes.margin[oMargin];
       d.d3plus.init[w] = d.d3plus[w];
       d.d3plus.label = false;
+      data.push(d);
     }
   }
   return data;
@@ -38031,27 +38265,29 @@ bar.setup = function(vars) {
 
 bar.shapes = ["square"];
 
-bar.tooltip = "static";
-
 module.exports = bar;
 
 
 
-},{"../../core/fetch/value.js":71,"./helpers/graph/draw.coffee":293,"./helpers/graph/nest.coffee":299,"./helpers/graph/stack.coffee":300}],288:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":71,"./helpers/graph/draw.coffee":296,"./helpers/graph/nest.coffee":302,"./helpers/graph/stack.coffee":303}],291:[function(require,module,exports){
 var box, fetchValue, graph, uniques;
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 graph = require("./helpers/graph/draw.coffee");
 
 uniques = require("../../util/uniques.coffee");
 
 box = function(vars) {
-  var disMargin, discrete, h, mergeData, mode, oppMargin, opposite, returnData, space, w;
+  var disMargin, discrete, domains, h, mergeData, mode, oppMargin, opposite, returnData, space, w;
   graph(vars, {
     buffer: true,
     mouse: true
   });
+  domains = vars.x.domain.viz.concat(vars.y.domain.viz);
+  if (domains.indexOf(void 0) >= 0) {
+    return [];
+  }
   discrete = vars.axes.discrete;
   opposite = vars.axes.opposite;
   disMargin = discrete === "x" ? vars.axes.margin.left : vars.axes.margin.top;
@@ -38068,7 +38304,7 @@ box = function(vars) {
     var key, obj, vals;
     obj = {};
     for (key in vars.data.keys) {
-      vals = uniques(arr, key);
+      vals = uniques(arr, key, fetchValue, vars);
       obj[key] = vals.length === 1 ? vals[0] : vals;
     }
     return obj;
@@ -38227,12 +38463,12 @@ module.exports = box;
 
 
 
-},{"../../core/fetch/value.js":71,"../../util/uniques.coffee":197,"./helpers/graph/draw.coffee":293}],289:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":71,"../../util/uniques.coffee":199,"./helpers/graph/draw.coffee":296}],292:[function(require,module,exports){
 var arraySort, bubbles, fetchColor, fetchText, fetchValue, groupData, legible;
 
 arraySort = require("../../array/sort.coffee");
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 fetchColor = require("../../core/fetch/color.coffee");
 
@@ -38243,17 +38479,8 @@ legible = require("../../color/legible.coffee");
 groupData = require("../../core/data/group.coffee");
 
 bubbles = function(vars) {
-  var column_height, column_width, columns, d, data, dataLength, domain, domainMax, domainMin, downscale, groupedData, i, labelHeight, maxChildren, obj, pack, padding, row, rows, screenRatio, size, size_max, size_min, t, temp, xPadding, xoffset, yPadding, yoffset, _i, _j, _k, _len, _len1, _len2;
+  var column_height, column_width, columns, d, data, dataLength, domain, domainMax, domainMin, downscale, groupedData, i, labelHeight, obj, pack, padding, row, rows, screenRatio, size, size_max, size_min, t, temp, xPadding, xoffset, yPadding, yoffset, _i, _j, _k, _len, _len1, _len2;
   groupedData = groupData(vars, vars.data.viz);
-  maxChildren = d3.max(groupedData, function(d) {
-    if (d.values instanceof Array) {
-      return d.values.length;
-    } else {
-      return 1;
-    }
-  });
-  labelHeight = vars.labels.value && !vars.small && maxChildren > 1 ? 50 : 0;
-  arraySort(groupedData, vars.order.value || vars.size.value, vars.order.sort.value, vars.color.value, vars);
   dataLength = groupedData.length;
   if (dataLength < 4) {
     columns = dataLength;
@@ -38264,7 +38491,7 @@ bubbles = function(vars) {
     rows = Math.ceil(Math.sqrt(dataLength / screenRatio));
   }
   if (dataLength > 0) {
-    while ((rows - 1) * columns >= vars.data.viz.length) {
+    while ((rows - 1) * columns >= dataLength) {
       rows--;
     }
   }
@@ -38282,9 +38509,10 @@ bubbles = function(vars) {
     domain = [0, 0];
   }
   padding = 5;
-  size_min = 20;
   size_max = (d3.min([column_width, column_height]) / 2) - (padding * 2);
+  labelHeight = vars.labels.value && !vars.small && size_max >= 40 ? d3.max([20, d3.min([size_max * 0.25, 50])]) : 0;
   size_max -= labelHeight;
+  size_min = d3.min([size_max, vars.size.scale.min.value]);
   size = vars.size.scale.value.domain(domain).rangeRound([size_min, size_max]);
   pack = d3.layout.pack().children(function(d) {
     return d.values;
@@ -38313,7 +38541,7 @@ bubbles = function(vars) {
         };
         obj[vars.id.value] = t.key;
       }
-      obj.d3plus.depth = t.depth;
+      obj.d3plus.depth = vars.id.grouping.value ? t.depth : vars.depth.value;
       obj.d3plus.x = t.x;
       obj.d3plus.xOffset = xoffset;
       obj.d3plus.y = t.y;
@@ -38337,21 +38565,17 @@ bubbles = function(vars) {
     d.d3plus.r = d.d3plus.r * downscale;
     delete d.d3plus.xOffset;
     delete d.d3plus.yOffset;
-    if (d.d3plus.depth < vars.depth.value) {
-      d.d3plus["static"] = true;
-      if (d.d3plus.depth === 0) {
-        d.d3plus.label = {
-          x: 0,
-          y: -(size_max + labelHeight / 2),
-          w: size_max * 1.5,
-          h: labelHeight,
-          color: legible(fetchColor(vars, d, d.d3plus.depth))
-        };
-      } else {
-        d.d3plus.label = false;
-      }
+    d.d3plus["static"] = d.d3plus.depth < vars.depth.value && vars.id.grouping.value;
+    if (labelHeight && (d.d3plus.depth === 0 || vars.id.grouping.value === false)) {
+      d.d3plus.label = {
+        x: 0,
+        y: -(size_max + labelHeight / 2),
+        w: size_max * 2,
+        h: labelHeight,
+        padding: 0,
+        color: legible(fetchColor(vars, d, d.d3plus.depth))
+      };
     } else {
-      d.d3plus["static"] = false;
       delete d.d3plus.label;
     }
   }
@@ -38368,13 +38592,11 @@ bubbles.scale = 1.05;
 
 bubbles.shapes = ["circle", "donut"];
 
-bubbles.tooltip = "static";
-
 module.exports = bubbles;
 
 
 
-},{"../../array/sort.coffee":40,"../../color/legible.coffee":49,"../../core/data/group.coffee":62,"../../core/fetch/color.coffee":67,"../../core/fetch/text.js":70,"../../core/fetch/value.js":71}],290:[function(require,module,exports){
+},{"../../array/sort.coffee":40,"../../color/legible.coffee":49,"../../core/data/group.coffee":62,"../../core/fetch/color.coffee":67,"../../core/fetch/text.js":70,"../../core/fetch/value.coffee":71}],293:[function(require,module,exports){
 var chart, print;
 
 print = require("../../../core/console/print.coffee");
@@ -38399,7 +38621,7 @@ module.exports = chart;
 
 
 
-},{"../../../core/console/print.coffee":57}],291:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57}],294:[function(require,module,exports){
 var geo_map;
 
 geo_map = function(vars) {
@@ -38434,15 +38656,13 @@ geo_map.scale = 1;
 
 geo_map.shapes = ["coordinates"];
 
-geo_map.tooltip = "follow";
-
 geo_map.zoom = true;
 
 module.exports = geo_map;
 
 
 
-},{}],292:[function(require,module,exports){
+},{}],295:[function(require,module,exports){
 var color, legible, print;
 
 color = require("../../../../core/fetch/color.coffee");
@@ -38533,7 +38753,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../../color/legible.coffee":49,"../../../../core/console/print.coffee":57,"../../../../core/fetch/color.coffee":67}],293:[function(require,module,exports){
+},{"../../../../color/legible.coffee":49,"../../../../core/console/print.coffee":57,"../../../../core/fetch/color.coffee":67}],296:[function(require,module,exports){
 var axes, draw, mouse, plot;
 
 axes = require("./includes/axes.coffee");
@@ -38556,21 +38776,23 @@ module.exports = function(vars, opts) {
 
 
 
-},{"./includes/axes.coffee":294,"./includes/mouse.coffee":296,"./includes/plot.coffee":297,"./includes/svg.coffee":298}],294:[function(require,module,exports){
-var axisRange, buffer, dataChange, fetchData, fetchValue, getData, getScale, print, sizeScale, uniques;
+},{"./includes/axes.coffee":297,"./includes/mouse.coffee":299,"./includes/plot.coffee":300,"./includes/svg.coffee":301}],297:[function(require,module,exports){
+var axisRange, buckets, buffer, dataChange, fetchData, fetchValue, getData, getScale, print, sizeScale, uniques;
 
 buffer = require("./buffer.coffee");
 
+buckets = require("../../../../../util/buckets.coffee");
+
 fetchData = require("../../../../../core/fetch/data.js");
 
-fetchValue = require("../../../../../core/fetch/value.js");
+fetchValue = require("../../../../../core/fetch/value.coffee");
 
 print = require("../../../../../core/console/print.coffee");
 
 uniques = require("../../../../../util/uniques.coffee");
 
 module.exports = function(vars, opts) {
-  var axis, changed, d, domains, filtered, i, modified, range, t, ticks, zero, _i, _j, _len, _len1, _ref;
+  var axis, changed, d, domains, filtered, i, modified, range, reorder, t, ticks, zero, _i, _j, _len, _len1, _ref;
   changed = dataChange(vars);
   if (changed) {
     vars.axes.dataset = getData(vars);
@@ -38581,7 +38803,8 @@ module.exports = function(vars, opts) {
     axis = _ref[_i];
     filtered = vars[axis].solo.changed || vars[axis].mute.changed;
     modified = changed || vars[axis].changed || (vars.time.fixed.value && filtered) || vars[axis].scale.changed;
-    if (modified || vars[axis].stacked.changed || vars[axis].range.changed) {
+    reorder = vars.order.changed || vars.order.sort.changed;
+    if (modified || vars[axis].stacked.changed || vars[axis].range.changed || reorder) {
       if (vars.dev.value) {
         print.time("calculating " + axis + " axis");
       }
@@ -38603,9 +38826,7 @@ module.exports = function(vars, opts) {
           vars[axis].ticks.values = vars.data.time.ticks;
         }
       } else if (axis === vars.axes.discrete) {
-        vars[axis].ticks.values = uniques(vars.axes.dataset, function(d) {
-          return fetchValue(vars, d, vars[axis].value);
-        });
+        vars[axis].ticks.values = uniques(vars.axes.dataset, vars[axis].value, fetchValue, vars);
       }
       zero = [true, axis].indexOf(opts.zero) > 0 ? true : false;
       range = axisRange(vars, axis, zero);
@@ -38663,15 +38884,15 @@ getData = function(vars) {
   }
 };
 
-axisRange = function(vars, axis, zero) {
-  var axisSums, oppAxis, values;
+axisRange = function(vars, axis, zero, buffer) {
+  var agg, aggType, allNegative, allPositive, axisSums, min, oppAxis, sort, sortKey, valueNest, values;
+  oppAxis = axis === "x" ? "y" : "x";
   if (vars[axis].range.value && vars[axis].range.value.length === 2) {
     return vars[axis].range.value.slice();
   } else if (vars[axis].scale.value === "share") {
     vars[axis].ticks.values = d3.range(0, 1.1, 0.1);
     return [0, 1];
   } else if (vars[axis].stacked.value) {
-    oppAxis = axis === "x" ? "y" : "x";
     axisSums = d3.nest().key(function(d) {
       return fetchValue(vars, d, vars[oppAxis].value);
     }).rollup(function(leaves) {
@@ -38706,21 +38927,65 @@ axisRange = function(vars, axis, zero) {
     values = vars.axes.dataset.map(function(d) {
       return fetchValue(vars, d, vars[axis].value);
     });
-    if (zero) {
-      values.push(0);
+    if (typeof values[0] === "string") {
+      sortKey = vars.order.value;
+      if (sortKey) {
+        sort = vars.order.sort.value;
+        agg = vars.order.agg.value || vars.aggs.value[sortKey] || "max";
+        aggType = typeof agg;
+        valueNest = d3.nest().key(function(d) {
+          return fetchValue(vars, d, vars[axis].value);
+        }).rollup(function(leaves) {
+          if (aggType === "string") {
+            return d3[agg](leaves, function(d) {
+              return fetchValue(vars, d, sortKey);
+            });
+          } else if (aggType === "function") {
+            return agg(leaves, sortKey);
+          }
+        }).entries(vars.axes.dataset);
+        valueNest.sort(function(a, b) {
+          if (sort === "desc") {
+            return b.values - a.values;
+          } else {
+            return a.values - b.values;
+          }
+        });
+        return valueNest.reduce(function(arr, v) {
+          arr.push(v.key);
+          return arr;
+        }, []);
+      } else {
+        return uniques(values);
+      }
+    } else {
+      if (zero) {
+        allPositive = values[0] >= 0 && values[1] >= 0;
+        allNegative = values[0] <= 0 && values[1] <= 0;
+        if (allPositive || allNegative) {
+          min = allPositive ? 1 : -1;
+          values.push(vars[axis].scale.value === "log" ? min : 0);
+        }
+      }
+      return d3.extent(values);
     }
-    return d3.extent(values);
   }
 };
 
 getScale = function(vars, axis, range) {
-  var rangeMax, scaleType;
+  var rangeArray, rangeMax, scaleType;
   rangeMax = axis === "x" ? vars.width.viz : vars.height.viz;
   scaleType = vars[axis].scale.value;
   if (["discrete", "share"].indexOf(scaleType) >= 0) {
     scaleType = "linear";
   }
-  return d3.scale[scaleType]().domain(range).rangeRound([0, rangeMax]);
+  if (typeof range[0] === "string") {
+    scaleType = "ordinal";
+    rangeArray = buckets([0, rangeMax], range.length);
+  } else {
+    rangeArray = [0, rangeMax];
+  }
+  return d3.scale[scaleType]().domain(range).range(rangeArray);
 };
 
 sizeScale = function(vars, value) {
@@ -38768,68 +39033,114 @@ sizeScale = function(vars, value) {
 
 
 
-},{"../../../../../core/console/print.coffee":57,"../../../../../core/fetch/data.js":68,"../../../../../core/fetch/value.js":71,"../../../../../util/uniques.coffee":197,"./buffer.coffee":295}],295:[function(require,module,exports){
-var closest;
+},{"../../../../../core/console/print.coffee":57,"../../../../../core/fetch/data.js":68,"../../../../../core/fetch/value.coffee":71,"../../../../../util/buckets.coffee":193,"../../../../../util/uniques.coffee":199,"./buffer.coffee":298}],298:[function(require,module,exports){
+var buckets, closest;
+
+buckets = require("../../../../../util/buckets.coffee");
 
 closest = require("../../../../../util/closest.coffee");
 
 module.exports = function(vars, axis, buffer) {
-  var additional, allNegative, allPositive, closestTime, diff, difference, domain, domainHigh, domainLow, maxSize, rangeMax, timeIndex;
+  var additional, allNegative, allPositive, closestTime, diff, difference, domain, domainHigh, domainLow, i, lowerDiff, lowerMod, lowerScale, lowerValue, maxSize, range, rangeMax, timeIndex, upperDiff, upperMod, upperScale, upperValue, zero;
   if (vars[axis].scale.value !== "share" && !vars[axis].range.value) {
     if (axis === vars.axes.discrete) {
       domain = vars[axis].scale.viz.domain();
-      if (axis === "y") {
-        domain = domain.slice().reverse();
-      }
-      if (vars[axis].ticks.values.length === 1) {
-        if (vars[axis].value === vars.time.value && vars.data.time.ticks.length !== 1) {
-          closestTime = closest(vars.data.time.ticks, domain[0]);
-          timeIndex = vars.data.time.ticks.indexOf(closestTime);
-          if (timeIndex > 0) {
-            domain[0] = vars.data.time.ticks[timeIndex - 1];
+      if (typeof domain[0] === "string") {
+        i = domain.length;
+        while (i >= 0) {
+          domain.splice(i, 0, "d3plus_buffer_" + i);
+          i--;
+        }
+        range = vars[axis].scale.viz.range();
+        range = buckets(d3.extent(range), domain.length);
+        return vars[axis].scale.viz.domain(domain).range(range);
+      } else {
+        if (axis === "y") {
+          domain = domain.slice().reverse();
+        }
+        if (vars[axis].ticks.values.length === 1) {
+          if (vars[axis].value === vars.time.value && vars.data.time.ticks.length !== 1) {
+            closestTime = closest(vars.data.time.ticks, domain[0]);
+            timeIndex = vars.data.time.ticks.indexOf(closestTime);
+            if (timeIndex > 0) {
+              domain[0] = vars.data.time.ticks[timeIndex - 1];
+            } else {
+              diff = vars.data.time.ticks[timeIndex + 1] - closestTime;
+              domain[0] = new Date(closestTime.getTime() - diff);
+            }
+            if (timeIndex < vars.data.time.ticks.length - 1) {
+              domain[1] = vars.data.time.ticks[timeIndex + 1];
+            } else {
+              diff = closestTime - vars.data.time.ticks[timeIndex - 1];
+              domain[1] = new Date(closestTime.getTime() + diff);
+            }
           } else {
-            diff = vars.data.time.ticks[timeIndex + 1] - closestTime;
-            domain[0] = new Date(closestTime.getTime() - diff);
-          }
-          if (timeIndex < vars.data.time.ticks.length - 1) {
-            domain[1] = vars.data.time.ticks[timeIndex + 1];
-          } else {
-            diff = closestTime - vars.data.time.ticks[timeIndex - 1];
-            domain[1] = new Date(closestTime.getTime() + diff);
+            domain[0] -= 1;
+            domain[1] += 1;
           }
         } else {
-          domain[0] -= 1;
-          domain[1] += 1;
+          difference = Math.abs(domain[1] - domain[0]);
+          additional = difference / (vars[axis].ticks.values.length - 1);
+          additional = additional / 2;
+          domain[0] = domain[0] - additional;
+          domain[1] = domain[1] + additional;
         }
-      } else {
-        difference = Math.abs(domain[1] - domain[0]);
-        additional = difference / (vars[axis].ticks.values.length - 1);
-        additional = additional / 2;
-        domain[0] = domain[0] - additional;
-        domain[1] = domain[1] + additional;
+        if (axis === "y") {
+          domain = domain.reverse();
+        }
+        return vars[axis].scale.viz.domain(domain);
       }
-      if (axis === "y") {
-        domain = domain.reverse();
-      }
-      return vars[axis].scale.viz.domain(domain);
     } else if ((buffer === "x" && axis === "x") || (buffer === "y" && axis === "y") || (buffer === true)) {
       domain = vars[axis].scale.viz.domain();
-      if (axis === "y") {
-        domain = domain.slice().reverse();
-      }
       allPositive = domain[0] >= 0 && domain[1] >= 0;
       allNegative = domain[0] <= 0 && domain[1] <= 0;
-      additional = Math.abs(domain[1] - domain[0]) * 0.05;
-      domain[0] = domain[0] - additional;
-      domain[1] = domain[1] + additional;
-      if ((allPositive && domain[0] < 0) || (allNegative && domain[0] > 0)) {
-        domain[0] = 0;
-      }
-      if ((allPositive && domain[1] < 0) || (allNegative && domain[1] > 0)) {
-        domain[1] = 0;
-      }
-      if (axis === "y") {
-        domain = domain.reverse();
+      if (vars[axis].scale.value === "log") {
+        zero = allPositive ? 1 : -1;
+        if (allPositive && axis === "y") {
+          domain = domain.slice().reverse();
+        }
+        lowerScale = Math.pow(10, parseInt(Math.abs(domain[0])).toString().length - 1) * zero;
+        lowerMod = domain[0] % lowerScale;
+        lowerDiff = lowerMod;
+        if (lowerMod && lowerDiff / lowerScale <= 0.2) {
+          lowerDiff += lowerScale * zero;
+        }
+        lowerValue = lowerMod === 0 ? lowerScale : lowerDiff;
+        domain[0] -= lowerValue * zero;
+        if (domain[0] === 0) {
+          domain[0] = zero;
+        }
+        upperScale = Math.pow(10, parseInt(Math.abs(domain[1])).toString().length - 1) * zero;
+        upperMod = domain[1] % upperScale;
+        upperDiff = Math.abs(upperScale - upperMod);
+        if (upperMod && upperDiff / upperScale <= 0.2) {
+          upperDiff += upperScale * zero;
+        }
+        upperValue = upperMod === 0 ? upperScale : upperDiff;
+        domain[1] += upperValue * zero;
+        if (domain[1] === 0) {
+          domain[1] = zero;
+        }
+        if (allPositive && axis === "y") {
+          domain = domain.reverse();
+        }
+      } else {
+        zero = 0;
+        if (axis === "y") {
+          domain = domain.slice().reverse();
+        }
+        additional = Math.abs(domain[1] - domain[0]) * 0.05 || 1;
+        domain[0] = domain[0] - additional;
+        domain[1] = domain[1] + additional;
+        if ((allPositive && domain[0] < zero) || (allNegative && domain[0] > zero)) {
+          domain[0] = zero;
+        }
+        if ((allPositive && domain[1] < zero) || (allNegative && domain[1] > zero)) {
+          domain[1] = zero;
+        }
+        if (axis === "y") {
+          domain = domain.reverse();
+        }
       }
       return vars[axis].scale.viz.domain(domain);
     } else if (vars.axes.scale) {
@@ -38848,7 +39159,7 @@ module.exports = function(vars, axis, buffer) {
 
 
 
-},{"../../../../../util/closest.coffee":193}],296:[function(require,module,exports){
+},{"../../../../../util/buckets.coffee":193,"../../../../../util/closest.coffee":195}],299:[function(require,module,exports){
 var copy, events, fetchColor, fetchValue, legible;
 
 copy = require("../../../../../util/copy.coffee");
@@ -38857,19 +39168,19 @@ events = require("../../../../../client/pointer.coffee");
 
 fetchColor = require("../../../../../core/fetch/color.coffee");
 
-fetchValue = require("../../../../../core/fetch/value.js");
+fetchValue = require("../../../../../core/fetch/value.coffee");
 
 legible = require("../../../../../color/legible.coffee");
 
 module.exports = function(node, vars) {
-  var clickRemove, color, create, graph, lineData, lineInit, lineStyle, lines, r, rectStyle, rects, textStyle, texts, timing, x, y;
+  var clickRemove, color, create, graph, lineData, lineInit, lineStyle, lineUpdate, lines, r, rectStyle, rects, textStyle, texts, timing, x, y;
   clickRemove = d3.event.type === events.click && (vars.tooltip.value.long || vars.tooltip.html.value);
   create = [events.over, events.move].indexOf(d3.event.type) >= 0;
   x = node.d3plus.x;
   y = node.d3plus.y;
   r = node.d3plus.r || 0;
   graph = vars.axes;
-  timing = vars.timing.mouseevents;
+  timing = vars.draw.timing ? vars.timing.mouseevents : 0;
   if (!clickRemove && create) {
     color = legible(fetchColor(vars, node));
     lineData = ["x", "y"].filter(function(axis) {
@@ -38881,7 +39192,7 @@ module.exports = function(node, vars) {
     lineData = [];
   }
   lineInit = function(line) {
-    return line.attr("x2", function(d) {
+    return line.attr("x1", x).attr("y1", y).attr("x2", function(d) {
       if (d === "x") {
         return x;
       } else {
@@ -38896,19 +39207,7 @@ module.exports = function(node, vars) {
     }).attr("opacity", 0);
   };
   lineStyle = function(line) {
-    return line.attr("x1", function(d) {
-      if (d === "x") {
-        return x;
-      } else {
-        return x - r;
-      }
-    }).attr("y1", function(d) {
-      if (d === "y") {
-        return y;
-      } else {
-        return y + r;
-      }
-    }).style("stroke", function(d) {
+    return line.style("stroke", function(d) {
       if (vars.shape.value === "area") {
         return "white";
       } else {
@@ -38922,22 +39221,43 @@ module.exports = function(node, vars) {
       return vars[d].mouse.width;
     });
   };
+  lineUpdate = function(line) {
+    return line.attr("x1", function(d) {
+      if (d === "x") {
+        return x;
+      } else {
+        return x - r;
+      }
+    }).attr("y1", function(d) {
+      if (d === "y") {
+        return y;
+      } else {
+        return y + r;
+      }
+    }).attr("x2", function(d) {
+      if (d === "x") {
+        return x;
+      } else {
+        return node.d3plus.x0 || graph.margin.left - vars[d].ticks.size;
+      }
+    }).attr("y2", function(d) {
+      if (d === "y") {
+        return y;
+      } else {
+        return node.d3plus.y0 || graph.height + graph.margin.top + vars[d].ticks.size;
+      }
+    }).style("opacity", 1);
+  };
   lines = vars.g.labels.selectAll("line.d3plus_mouse_axis_label").data(lineData);
-  lines.enter().append("line").attr("class", "d3plus_mouse_axis_label").attr("pointer-events", "none").call(lineInit).call(lineStyle);
-  lines.transition().duration(timing).attr("x2", function(d) {
-    if (d === "x") {
-      return x;
-    } else {
-      return node.d3plus.x0 || graph.margin.left - vars[d].ticks.size;
-    }
-  }).attr("y2", function(d) {
-    if (d === "y") {
-      return y;
-    } else {
-      return node.d3plus.y0 || graph.height + graph.margin.top + vars[d].ticks.size;
-    }
-  }).style("opacity", 1).call(lineStyle);
-  lines.exit().transition().duration(timing).call(lineInit).remove();
+  if (timing) {
+    lines.enter().append("line").attr("class", "d3plus_mouse_axis_label").attr("pointer-events", "none").call(lineInit).call(lineStyle);
+    lines.transition().duration(timing).call(lineUpdate).call(lineStyle);
+    lines.exit().transition().duration(timing).call(lineInit).remove();
+  } else {
+    lines.call(lineUpdate).call(lineStyle);
+    lines.enter().append("line").attr("class", "d3plus_mouse_axis_label").attr("pointer-events", "none").call(lineInit).call(lineStyle);
+    lines.exit().remove();
+  }
   textStyle = function(text) {
     return text.attr("font-size", function(d) {
       return vars[d].ticks.font.size + "px";
@@ -38986,8 +39306,14 @@ module.exports = function(node, vars) {
     axis = vars.axes.stacked || d;
     val = fetchValue(vars, node, vars[axis].value);
     return vars.format.value(val, vars[axis].value, vars);
-  }).transition().duration(timing).delay(timing).attr("opacity", 1).call(textStyle);
-  texts.exit().transition().duration(timing).attr("opacity", 0).remove();
+  });
+  if (timing) {
+    texts.transition().duration(timing).delay(timing).attr("opacity", 1).call(textStyle);
+    texts.exit().transition().duration(timing).attr("opacity", 0).remove();
+  } else {
+    texts.attr("opacity", 1).call(textStyle);
+    texts.exit().remove();
+  }
   rectStyle = function(rect) {
     var getText;
     getText = function(axis) {
@@ -39024,22 +39350,34 @@ module.exports = function(node, vars) {
     });
   };
   rects = vars.g.labels.selectAll("rect.d3plus_mouse_axis_label").data(lineData);
-  rects.enter().insert("rect", "text.d3plus_mouse_axis_label").attr("class", "d3plus_mouse_axis_label").attr("pointer-events", "none").attr("opacity", 0).call(rectStyle);
-  rects.transition().duration(timing).delay(timing).attr("opacity", 1).call(rectStyle);
-  return rects.exit().transition().duration(timing).attr("opacity", 0).remove();
+  if (timing) {
+    rects.enter().insert("rect", "text.d3plus_mouse_axis_label").attr("class", "d3plus_mouse_axis_label").attr("pointer-events", "none").attr("opacity", 0).call(rectStyle);
+    rects.transition().duration(timing).delay(timing).attr("opacity", 1).call(rectStyle);
+    return rects.exit().transition().duration(timing).attr("opacity", 0).remove();
+  } else {
+    rects.attr("opacity", 1).call(rectStyle);
+    rects.enter().insert("rect", "text.d3plus_mouse_axis_label").attr("class", "d3plus_mouse_axis_label").attr("pointer-events", "none").call(rectStyle);
+    return rects.exit().remove();
+  }
 };
 
 
 
-},{"../../../../../client/pointer.coffee":44,"../../../../../color/legible.coffee":49,"../../../../../core/fetch/color.coffee":67,"../../../../../core/fetch/value.js":71,"../../../../../util/copy.coffee":194}],297:[function(require,module,exports){
-var buffer, createAxis, fontSizes, labelPadding, resetMargins;
+},{"../../../../../client/pointer.coffee":44,"../../../../../color/legible.coffee":49,"../../../../../core/fetch/color.coffee":67,"../../../../../core/fetch/value.coffee":71,"../../../../../util/copy.coffee":196}],300:[function(require,module,exports){
+var buckets, buffer, createAxis, fetchValue, fontSizes, formatPower, labelPadding, resetMargins, superscript, textwrap;
+
+buckets = require("../../../../../util/buckets.coffee");
 
 buffer = require("./buffer.coffee");
 
+fetchValue = require("../../../../../core/fetch/value.coffee");
+
 fontSizes = require("../../../../../font/sizes.coffee");
 
+textwrap = require("../../../../../textwrap/textwrap.coffee");
+
 module.exports = function(vars, opts) {
-  var axis, opp, _i, _j, _len, _len1, _ref, _ref1;
+  var axis, opp, values, _i, _j, _len, _len1, _ref, _ref1;
   vars.axes.margin = resetMargins(vars);
   vars.axes.height = vars.height.viz;
   vars.axes.width = vars.width.viz;
@@ -39049,8 +39387,15 @@ module.exports = function(vars, opts) {
     if (vars[axis].ticks.values === false) {
       vars[axis].ticks.values = vars[axis].scale.viz.ticks();
     }
+    if (!vars[axis].ticks.values.length) {
+      values = fetchValue(vars, vars.data.viz, vars[axis].value);
+      if (!(values instanceof Array)) {
+        values = [values];
+      }
+      vars[axis].ticks.values = values;
+    }
     opp = axis === "x" ? "y" : "x";
-    if (opts.buffer && (opts.buffer !== opp || vars[axis].ticks.values.length === 1) && axis === vars.axes.discrete && vars[axis].reset === true) {
+    if (vars[axis].ticks.values.length === 1 || (opts.buffer && opts.buffer !== opp && axis === vars.axes.discrete && vars[axis].reset === true)) {
       buffer(vars, axis, opts.buffer);
     }
     vars[axis].reset = false;
@@ -39077,36 +39422,78 @@ resetMargins = function(vars) {
     return {
       top: 10,
       right: 10,
-      bottom: 45,
-      left: 40
+      bottom: 10,
+      left: 10
     };
   }
 };
 
 labelPadding = function(vars) {
-  var xAttrs, xAxisHeight, xAxisWidth, xMaxWidth, xSizes, xText, yAttrs, yAxisWidth, yText;
+  var lastTick, rightLabel, rightPadding, xAttrs, xAxisHeight, xAxisWidth, xDomain, xLabel, xLabelAttrs, xMaxWidth, xOffset, xSizes, xText, xValues, yAttrs, yAxisWidth, yDomain, yLabel, yLabelAttrs, yOffset, yText;
+  xDomain = vars.x.scale.viz.domain();
+  yDomain = vars.y.scale.viz.domain();
   yAttrs = {
     "font-size": vars.y.ticks.font.size + "px",
     "font-family": vars.y.ticks.font.family.value,
     "font-weight": vars.y.ticks.font.weight
   };
-  yText = vars.y.ticks.values.map(function(d) {
-    return vars.format.value(d, vars.y.value, vars);
-  });
+  if (vars.y.scale.value === "log") {
+    yText = vars.y.ticks.values.filter(function(d) {
+      return Math.abs(d).toString().charAt(0) === "1";
+    });
+    yText = yText.map(function(d) {
+      var n;
+      n = 10 + " " + formatPower(Math.round(Math.log(Math.abs(d)) / Math.LN10));
+      if (d < 0) {
+        return "-" + n;
+      } else {
+        return n;
+      }
+    });
+  } else {
+    yText = vars.y.ticks.values.map(function(d) {
+      return vars.format.value(d, vars.y.value, vars);
+    });
+  }
   yAxisWidth = d3.max(fontSizes(yText, yAttrs), function(d) {
     return d.width;
   });
   yAxisWidth = Math.round(yAxisWidth + vars.labels.padding);
   vars.axes.margin.left += yAxisWidth;
-  vars.axes.width -= vars.axes.margin.left - vars.axes.margin.right;
+  yLabel = vars.format.value(vars.y.value, void 0, vars);
+  yLabelAttrs = {
+    "font-family": vars.y.label.family.value,
+    "font-weight": vars.y.label.weight,
+    "font-size": vars.y.label.size + "px"
+  };
+  vars.y.label.height = fontSizes([yLabel], yLabelAttrs)[0].height;
+  vars.axes.margin.left += vars.y.label.height;
+  vars.axes.margin.left += vars.y.label.padding * 2;
+  vars.axes.width -= vars.axes.margin.left + vars.axes.margin.right;
+  vars.x.scale.viz.range(buckets([0, vars.axes.width], xDomain.length));
   xAttrs = {
     "font-size": vars.x.ticks.font.size + "px",
     "font-family": vars.x.ticks.font.family.value,
     "font-weight": vars.x.ticks.font.weight
   };
-  xText = vars.x.ticks.values.map(function(d) {
-    return vars.format.value(d, vars.x.value, vars);
-  });
+  if (vars.x.scale.value === "log") {
+    xValues = vars.x.ticks.values.filter(function(d) {
+      return d.toString().charAt(0) === "1";
+    });
+    xText = xValues.map(function(d) {
+      return 10 + " " + formatPower(Math.round(Math.log(d) / Math.LN10));
+    });
+  } else {
+    xValues = vars.x.ticks.values;
+    if (typeof xValues[0] === "string") {
+      xValues = vars.x.scale.viz.domain().filter(function(d) {
+        return d.indexOf("d3plus_buffer_") !== 0;
+      });
+    }
+    xText = xValues.map(function(d) {
+      return vars.format.value(d, vars.x.value, vars);
+    });
+  }
   xSizes = fontSizes(xText, xAttrs);
   xAxisWidth = d3.max(xSizes, function(d) {
     return d.width;
@@ -39114,41 +39501,97 @@ labelPadding = function(vars) {
   xAxisHeight = d3.max(xSizes, function(d) {
     return d.height;
   });
-  xMaxWidth = d3.min([vars.axes.width / (xText.length + 1), vars.axes.margin.left * 2]) - vars.labels.padding * 2;
-  if (xAxisWidth < xMaxWidth) {
+  xMaxWidth = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0]);
+  xMaxWidth -= vars.labels.padding * 2;
+  if (xAxisWidth > xMaxWidth && xText.join("").indexOf(" ") > 0) {
+    vars.x.ticks.wrap = true;
+    xSizes = fontSizes(xText, xAttrs, {
+      mod: function(elem) {
+        return textwrap().container(d3.select(elem)).width(xMaxWidth).draw();
+      }
+    });
+    xAxisWidth = d3.max(xSizes, function(d) {
+      return d.width;
+    });
+    xAxisHeight = d3.max(xSizes, function(d) {
+      return d.height;
+    });
+  } else {
+    vars.x.ticks.wrap = false;
+  }
+  vars.x.ticks.hidden = false;
+  vars.x.ticks.baseline = "auto";
+  if (xAxisWidth <= xMaxWidth) {
     xAxisWidth += vars.labels.padding;
     vars.x.ticks.rotate = false;
     vars.x.ticks.anchor = "middle";
-    vars.x.ticks.transform = "translate(0,0)";
-  } else {
-    xAxisWidth = xAxisHeight + vars.labels.padding;
+    yOffset = vars.x.ticks.wrap ? -vars.labels.padding : 0;
+    vars.x.ticks.transform = "translate(0," + yOffset + ")";
+  } else if (xAxisWidth < vars.axes.height / 2) {
+    xAxisWidth = xAxisHeight;
     xAxisHeight = d3.max(xSizes, function(d) {
       return d.width;
     });
     vars.x.ticks.rotate = true;
-    vars.x.ticks.anchor = "start";
-    vars.x.ticks.transform = "translate(" + xAxisWidth + ",15)rotate(90)";
+    vars.x.ticks.anchor = "end";
+    vars.x.ticks.baseline = vars.x.ticks.wrap ? "auto" : "central";
+    yOffset = vars.x.ticks.wrap ? vars.labels.padding : 0;
+    yOffset += vars.x.ticks.size;
+    xOffset = vars.x.ticks.wrap ? -vars.x.ticks.size / 2 : 0;
+    vars.x.ticks.transform = "translate(" + xOffset + "," + yOffset + ")rotate(-90)";
+  } else {
+    vars.x.ticks.hidden = true;
+    vars.x.ticks.transform = "translate(0,0)";
+    xAxisWidth = 0;
+    xAxisHeight = 0;
   }
   xAxisHeight = Math.round(xAxisHeight);
   xAxisWidth = Math.round(xAxisWidth);
   vars.axes.margin.bottom += xAxisHeight;
+  vars.axes.margin.bottom += vars.x.ticks.size;
+  lastTick = vars.x.ticks.values[vars.x.ticks.values.length - 1];
+  rightLabel = vars.x.scale.viz(lastTick);
+  rightPadding = vars.axes.width - rightLabel;
+  if (rightPadding < xAxisWidth) {
+    vars.axes.width -= xAxisWidth / 2 - rightPadding;
+  }
+  xLabel = vars.format.value(vars.x.value, void 0, vars);
+  xLabelAttrs = {
+    "font-family": vars.x.label.family.value,
+    "font-weight": vars.x.label.weight,
+    "font-size": vars.x.label.size + "px"
+  };
+  vars.x.label.height = fontSizes([xLabel], xLabelAttrs)[0].height;
+  vars.x.ticks.maxWidth = xMaxWidth;
+  vars.x.ticks.maxHeight = xAxisHeight;
+  vars.axes.margin.bottom += vars.x.label.height;
+  vars.axes.margin.bottom += vars.x.label.padding * 2;
   vars.axes.height -= vars.axes.margin.top + vars.axes.margin.bottom;
-  vars.axes.width -= Math.round(xAxisWidth / 2);
-  vars.x.scale.viz.rangeRound([0, vars.axes.width]);
-  return vars.y.scale.viz.rangeRound([0, vars.axes.height]);
+  vars.x.scale.viz.range(buckets([0, vars.axes.width], xDomain.length));
+  return vars.y.scale.viz.range(buckets([0, vars.axes.height], yDomain.length));
 };
 
 createAxis = function(vars, axis) {
   return d3.svg.axis().tickSize(vars[axis].ticks.size).tickPadding(5).orient(axis === "x" ? "bottom" : "left").scale(vars[axis].scale.viz).tickValues(vars[axis].ticks.values).tickFormat(function(d, i) {
-    var hiddenTime, majorLog, scale;
+    var hiddenTime, majorLog, n, scale;
+    if (vars[axis].ticks.hidden) {
+      return null;
+    }
     scale = vars[axis].scale.value;
     hiddenTime = vars[axis].value === vars.time.value && d % 1 !== 0;
-    majorLog = scale === "log" && d.toString().charAt(0) === "1";
+    majorLog = scale === "log" && Math.abs(d).toString().charAt(0) === "1";
     if (!hiddenTime && (majorLog || scale !== "log")) {
       if (scale === "share") {
         return d * 100 + "%";
       } else if (d.constructor === Date) {
         return vars.data.time.multiFormat(d);
+      } else if (scale === "log") {
+        n = 10 + " " + formatPower(Math.round(Math.log(Math.abs(d)) / Math.LN10));
+        if (d < 0) {
+          return "-" + n;
+        } else {
+          return n;
+        }
       } else {
         return vars.format.value(d, vars[axis].value, vars);
       }
@@ -39158,15 +39601,29 @@ createAxis = function(vars, axis) {
   });
 };
 
+superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+
+formatPower = function(d) {
+  return (d + "").split("").map(function(c) {
+    return superscript[c];
+  }).join("");
+};
 
 
-},{"../../../../../font/sizes.coffee":98,"./buffer.coffee":295}],298:[function(require,module,exports){
-var mix;
+
+},{"../../../../../core/fetch/value.coffee":71,"../../../../../font/sizes.coffee":98,"../../../../../textwrap/textwrap.coffee":189,"../../../../../util/buckets.coffee":193,"./buffer.coffee":298}],301:[function(require,module,exports){
+var mix, textwrap;
 
 mix = require("../../../../../color/mix.coffee");
 
+textwrap = require("../../../../../textwrap/textwrap.coffee");
+
 module.exports = function(vars) {
-  var alignMap, axis, axisData, bg, bgStyle, d, domain, grid, label, labelStyle, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, mirror, plane, planeTrans, position, rectData, rectStyle, textData, textPad, textPos, tickFont, tickPosition, tickStyle, xAxis, xEnter, xStyle, yAxis, yEnter, yStyle, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+  var alignMap, axis, axisData, bg, bgStyle, d, domain, domains, grid, gridData, label, labelStyle, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, mirror, plane, planeTrans, position, rectData, rectStyle, rotated, textData, textPad, textPos, tickFont, tickPosition, tickStyle, xAxis, xEnter, xStyle, yAxis, yEnter, yStyle, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+  domains = vars.x.domain.viz.concat(vars.y.domain.viz);
+  if (domains.indexOf(void 0) >= 0) {
+    return null;
+  }
   bgStyle = {
     width: vars.axes.width,
     height: vars.axes.height,
@@ -39290,13 +39747,27 @@ module.exports = function(vars) {
     h = bgStyle.height;
     return "M " + w + " " + h + " L 0 " + h + " L " + w + " 0 Z";
   });
+  rotated = vars.x.ticks.transform.indexOf("rotate") > 0;
   xStyle = function(axis) {
-    return axis.attr("transform", "translate(0," + vars.axes.height + ")").call(vars.x.axis.svg.scale(vars.x.scale.viz)).selectAll("g.tick").select("text").style("text-anchor", vars.x.ticks.anchor).attr("transform", vars.x.ticks.transform).call(tickFont, "x");
+    return axis.attr("transform", "translate(0," + vars.axes.height + ")").call(vars.x.axis.svg.scale(vars.x.scale.viz)).selectAll("g.tick").select("text").style("text-anchor", vars.x.ticks.anchor).attr("transform", vars.x.ticks.transform).attr("dominant-baseline", vars.x.ticks.baseline).call(tickFont, "x").each("end", function() {
+      var height, width;
+      if (!vars.x.ticks.hidden) {
+        if (vars.x.ticks.wrap) {
+          width = rotated ? "maxHeight" : "maxWidth";
+          height = !rotated ? "maxHeight" : "maxWidth";
+          textwrap().container(d3.select(this)).height(vars.x.ticks[height]).width(vars.x.ticks[width]).draw();
+        }
+        if (rotated) {
+          height = this.getBoundingClientRect().width;
+          return d3.select(this).transition().duration(vars.draw.timing).attr("y", -Math.round(height / 2)).attr("dy", "0.5em");
+        }
+      }
+    });
   };
   xAxis = plane.selectAll("g#d3plus_graph_xticks").data(axisData);
   xAxis.transition().duration(vars.draw.timing).call(xStyle);
   xAxis.selectAll("line").transition().duration(vars.draw.timing).call(tickStyle, "x");
-  xEnter = xAxis.enter().append("g").attr("id", "d3plus_graph_xticks").call(xStyle);
+  xEnter = xAxis.enter().append("g").attr("id", "d3plus_graph_xticks").transition().duration(0).call(xStyle);
   xEnter.selectAll("path").attr("fill", "none");
   xEnter.selectAll("line").call(tickStyle, "x");
   xAxis.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
@@ -39311,14 +39782,15 @@ module.exports = function(vars) {
   yEnter.selectAll("line").call(tickStyle, "y");
   yAxis.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   labelStyle = function(label, axis) {
-    return label.attr("x", axis === "x" ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.top)).attr("y", axis === "x" ? vars.height.viz - 10 : 15).attr("transform", axis === "y" ? "rotate(-90)" : null).attr("font-family", vars[axis].label.family.value).attr("font-weight", vars[axis].label.weight).attr("font-size", vars[axis].label.size + "px").attr("fill", vars[axis].label.color).style("text-anchor", vars[axis].label.align);
+    return label.attr("x", axis === "x" ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.top)).attr("y", axis === "x" ? vars.height.viz - vars[axis].label.height / 2 - vars[axis].label.padding : vars[axis].label.height / 2 + vars[axis].label.padding).attr("transform", axis === "y" ? "rotate(-90)" : null).attr("font-family", vars[axis].label.family.value).attr("font-weight", vars[axis].label.weight).attr("font-size", vars[axis].label.size + "px").attr("fill", vars[axis].label.color).style("text-anchor", "middle").attr("dominant-baseline", "central");
   };
   _ref = ["x", "y"];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
+    gridData = vars[axis].grid.value ? vars[axis].ticks.values : [];
     grid = plane.selectAll("g#d3plus_graph_" + axis + "grid").data([0]);
     grid.enter().append("g").attr("id", "d3plus_graph_" + axis + "grid");
-    lines = grid.selectAll("line").data(vars[axis].ticks.values, function(d) {
+    lines = grid.selectAll("line").data(gridData, function(d) {
       return d;
     });
     lines.transition().duration(vars.draw.timing).call(tickPosition, axis).call(tickStyle, axis, true);
@@ -39438,10 +39910,10 @@ module.exports = function(vars) {
 
 
 
-},{"../../../../../color/mix.coffee":51}],299:[function(require,module,exports){
+},{"../../../../../color/mix.coffee":51,"../../../../../textwrap/textwrap.coffee":189}],302:[function(require,module,exports){
 var fetchValue, stringStrip, uniqueValues;
 
-fetchValue = require("../../../../core/fetch/value.js");
+fetchValue = require("../../../../core/fetch/value.coffee");
 
 stringStrip = require("../../../../string/strip.js");
 
@@ -39466,7 +39938,7 @@ module.exports = function(vars, data) {
     return "line_" + stringStrip(id) + "_" + depth;
   }).rollup(function(leaves) {
     var availables, i, obj, tester, tick, timeVar, _i, _len;
-    availables = uniqueValues(leaves, discrete.value);
+    availables = uniqueValues(leaves, discrete.value, fetchValue, vars);
     timeVar = availables[0].constructor === Date;
     if (timeVar) {
       availables = availables.map(function(t) {
@@ -39486,25 +39958,29 @@ module.exports = function(vars, data) {
         leaves.push(obj);
       }
     }
-    return leaves.sort(function(a, b) {
-      var xsort, ysort;
-      xsort = a[discrete.value] - b[discrete.value];
-      ysort = a[opposite.value] - b[opposite.value];
-      if (xsort) {
-        return xsort;
-      } else {
-        return ysort;
-      }
-    });
+    if (typeof leaves[0][discrete.value] === "string") {
+      return leaves;
+    } else {
+      return leaves.sort(function(a, b) {
+        var xsort, ysort;
+        xsort = a[discrete.value] - b[discrete.value];
+        ysort = a[opposite.value] - b[opposite.value];
+        if (xsort) {
+          return xsort;
+        } else {
+          return ysort;
+        }
+      });
+    }
   }).entries(data);
 };
 
 
 
-},{"../../../../core/fetch/value.js":71,"../../../../string/strip.js":168,"../../../../util/uniques.coffee":197}],300:[function(require,module,exports){
+},{"../../../../core/fetch/value.coffee":71,"../../../../string/strip.js":169,"../../../../util/uniques.coffee":199}],303:[function(require,module,exports){
 var fetchValue;
 
-fetchValue = require("../../../../core/fetch/value.js");
+fetchValue = require("../../../../core/fetch/value.coffee");
 
 module.exports = function(vars, data) {
   var flip, margin, negativeData, offset, opposite, positiveData, scale, stack, stacked;
@@ -39540,36 +40016,42 @@ module.exports = function(vars, data) {
   negativeData = data.filter(function(d) {
     return fetchValue(vars, d, vars[stacked].value) < 0;
   });
-  if (positiveData.length) {
-    positiveData = stack(positiveData);
+  if (!(positiveData.length || negativeData.length)) {
+    return stack(data);
+  } else {
+    if (positiveData.length) {
+      positiveData = stack(positiveData);
+    }
+    if (negativeData.length) {
+      negativeData = stack(negativeData);
+    }
+    return positiveData.concat(negativeData);
   }
-  if (negativeData.length) {
-    negativeData = stack(negativeData);
-  }
-  return positiveData.concat(negativeData);
 };
 
 
 
-},{"../../../../core/fetch/value.js":71}],301:[function(require,module,exports){
-var dataTicks, fetchValue, graph, line, nest, stack;
+},{"../../../../core/fetch/value.coffee":71}],304:[function(require,module,exports){
+var fetchValue, graph, line, nest, stack;
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 graph = require("./helpers/graph/draw.coffee");
-
-dataTicks = require("./helpers/graph/dataTicks.coffee");
 
 nest = require("./helpers/graph/nest.coffee");
 
 stack = require("./helpers/graph/stack.coffee");
 
 line = function(vars) {
-  var d, data, point, _i, _j, _len, _len1, _ref;
+  var d, data, domains, point, _i, _j, _len, _len1, _ref;
   graph(vars, {
     buffer: vars.axes.opposite,
     mouse: true
   });
+  domains = vars.x.domain.viz.concat(vars.y.domain.viz);
+  if (domains.indexOf(void 0) >= 0) {
+    return [];
+  }
   data = nest(vars);
   for (_i = 0, _len = data.length; _i < _len; _i++) {
     point = data[_i];
@@ -39580,10 +40062,8 @@ line = function(vars) {
       d.d3plus.x += vars.axes.margin.left;
       d.d3plus.y = vars.y.scale.viz(fetchValue(vars, d, vars.y.value));
       d.d3plus.y += vars.axes.margin.top;
-      d.d3plus.r = 2;
     }
   }
-  dataTicks(vars);
   if (vars.axes.stacked) {
     return stack(vars, data);
   } else {
@@ -39601,7 +40081,7 @@ line.setup = function(vars) {
       scale: "discrete"
     });
   }
-  y = vars[vars.axes.opposite].value;
+  y = vars[vars.axes.opposite];
   size = vars.size;
   if ((!y.value && size.value) || (size.changed && size.previous === y.value)) {
     vars.self[vars.axes.opposite](size.value);
@@ -39618,9 +40098,9 @@ module.exports = line;
 
 
 
-},{"../../core/fetch/value.js":71,"./helpers/graph/dataTicks.coffee":292,"./helpers/graph/draw.coffee":293,"./helpers/graph/nest.coffee":299,"./helpers/graph/stack.coffee":300}],302:[function(require,module,exports){
-var distances = require("../../network/distances.coffee"),
-    fetchValue = require("../../core/fetch/value.js")
+},{"../../core/fetch/value.coffee":71,"./helpers/graph/draw.coffee":296,"./helpers/graph/nest.coffee":302,"./helpers/graph/stack.coffee":303}],305:[function(require,module,exports){
+var smallestGap = require("../../network/smallestGap.coffee"),
+    fetchValue = require("../../core/fetch/value.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Network
 //------------------------------------------------------------------------------
@@ -39652,7 +40132,7 @@ var network = function(vars) {
     var min_size = vars.size.value;
   }
   else {
-    var max_size = d3.min(distances(nodes))
+    var max_size = smallestGap(nodes);
 
     var overlap = vars.size.value ? vars.nodes.overlap : 0.4
     max_size = max_size * overlap
@@ -39761,13 +40241,13 @@ network.zoom         = true
 
 module.exports = network
 
-},{"../../core/fetch/value.js":71,"../../network/distances.coffee":159}],303:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":71,"../../network/smallestGap.coffee":162}],306:[function(require,module,exports){
 var fetchValue, shortestPath, uniqueValues, viz,
   __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
 shortestPath = require("../../network/shortestPath.coffee");
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 uniqueValues = require("../../util/uniques.coffee");
 
@@ -39978,7 +40458,7 @@ viz.filter = function(vars, data) {
       }
     }
   }
-  ids = uniqueValues(viz.nodes, vars.id.value);
+  ids = uniqueValues(viz.nodes, vars.id.value, fetchValue, vars);
   returnData = [];
   for (_k = 0, _len2 = ids.length; _k < _len2; _k++) {
     id = ids[_k];
@@ -40019,14 +40499,14 @@ module.exports = viz;
 
 
 
-},{"../../core/fetch/value.js":71,"../../network/shortestPath.coffee":161,"../../util/uniques.coffee":197}],304:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":71,"../../network/shortestPath.coffee":161,"../../util/uniques.coffee":199}],307:[function(require,module,exports){
 var comparator, dataThreshold, fetchValue, groupData, order, pie;
 
 comparator = require("../../array/comparator.coffee");
 
 dataThreshold = require("../../core/data/threshold.js");
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 groupData = require("../../core/data/group.coffee");
 
@@ -40083,20 +40563,18 @@ pie.threshold = function(vars) {
   return (40 * 40) / (vars.width.viz * vars.height.viz);
 };
 
-pie.tooltip = "follow";
-
 module.exports = pie;
 
 
 
-},{"../../array/comparator.coffee":38,"../../core/data/group.coffee":62,"../../core/data/threshold.js":66,"../../core/fetch/value.js":71}],305:[function(require,module,exports){
+},{"../../array/comparator.coffee":38,"../../core/data/group.coffee":62,"../../core/data/threshold.js":66,"../../core/fetch/value.coffee":71}],308:[function(require,module,exports){
 var arraySort     = require("../../array/sort.coffee"),
     events        = require("../../client/pointer.coffee"),
-    distances     = require("../../network/distances.coffee"),
-    fetchValue    = require("../../core/fetch/value.js"),
+    fetchValue    = require("../../core/fetch/value.coffee"),
     fetchColor    = require("../../core/fetch/color.coffee"),
     legible       = require("../../color/legible.coffee"),
     removeTooltip = require("../../tooltip/remove.coffee"),
+    smallestGap   = require("../../network/smallestGap.coffee"),
     uniqueValues  = require("../../util/uniques.coffee")
 
 var rings = function(vars) {
@@ -40268,12 +40746,12 @@ var rings = function(vars) {
 
   })
 
-  var primaryDistance = d3.min(distances(primaries,function(n){
-        return [n.d3plus.x,n.d3plus.y]
-      }))
-    , secondaryDistance = d3.min(distances(secondaries,function(n){
-        return [n.d3plus.x,n.d3plus.y]
-      }))
+  var primaryDistance = smallestGap(primaries,function(n){
+        return [n.d3plus.x, n.d3plus.y]
+      })
+    , secondaryDistance = smallestGap(secondaries,function(n){
+        return [n.d3plus.x, n.d3plus.y]
+      })
 
   if (!primaryDistance) {
     primaryDistance = ring_width/2
@@ -40311,8 +40789,8 @@ var rings = function(vars) {
   primaryMax = Math.floor(primaryMax)
   secondaryMax = Math.floor(secondaryMax)
 
-  var ids = uniqueValues(primaries,vars.id.value)
-  ids = ids.concat(uniqueValues(secondaries,vars.id.value))
+  var ids = uniqueValues(primaries, vars.id.value, fetchValue, vars)
+  ids = ids.concat(uniqueValues(secondaries, vars.id.value, fetchValue, vars))
   ids.push(vars.focus.value[0])
 
   var data = vars.data.viz.filter(function(d){
@@ -40545,7 +41023,7 @@ rings.filter       = function( vars , data ) {
   })
 
   var connections = primaries.concat(secondaries)
-    , ids = uniqueValues(connections,vars.id.value)
+    , ids = uniqueValues(connections, vars.id.value, fetchValue, vars)
     , returnData = []
 
   ids.forEach(function(id){
@@ -40576,10 +41054,10 @@ rings.tooltip      = "static"
 
 module.exports = rings
 
-},{"../../array/sort.coffee":40,"../../client/pointer.coffee":44,"../../color/legible.coffee":49,"../../core/fetch/color.coffee":67,"../../core/fetch/value.js":71,"../../network/distances.coffee":159,"../../tooltip/remove.coffee":190,"../../util/uniques.coffee":197}],306:[function(require,module,exports){
+},{"../../array/sort.coffee":40,"../../client/pointer.coffee":44,"../../color/legible.coffee":49,"../../core/fetch/color.coffee":67,"../../core/fetch/value.coffee":71,"../../network/smallestGap.coffee":162,"../../tooltip/remove.coffee":192,"../../util/uniques.coffee":199}],309:[function(require,module,exports){
 var fetchValue, graph, print, scatter, sort, ticks;
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 graph = require("./helpers/graph/draw.coffee");
 
@@ -40590,11 +41068,15 @@ sort = require("../../array/sort.coffee");
 ticks = require("./helpers/graph/dataTicks.coffee");
 
 scatter = function(vars) {
-  var d, _i, _len, _ref;
+  var d, domains, _i, _len, _ref;
   graph(vars, {
     buffer: "size",
     mouse: true
   });
+  domains = vars.x.domain.viz.concat(vars.y.domain.viz);
+  if (domains.indexOf(void 0) >= 0) {
+    return [];
+  }
   _ref = vars.data.viz;
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     d = _ref[_i];
@@ -40641,10 +41123,10 @@ module.exports = scatter;
 
 
 
-},{"../../array/sort.coffee":40,"../../core/console/print.coffee":57,"../../core/fetch/value.js":71,"./helpers/graph/dataTicks.coffee":292,"./helpers/graph/draw.coffee":293}],307:[function(require,module,exports){
+},{"../../array/sort.coffee":40,"../../core/console/print.coffee":57,"../../core/fetch/value.coffee":71,"./helpers/graph/dataTicks.coffee":295,"./helpers/graph/draw.coffee":296}],310:[function(require,module,exports){
 var fetchValue, graph, nest, sort, stack, stacked, threshold;
 
-fetchValue = require("../../core/fetch/value.js");
+fetchValue = require("../../core/fetch/value.coffee");
 
 graph = require("./helpers/graph/draw.coffee");
 
@@ -40657,10 +41139,14 @@ stack = require("./helpers/graph/stack.coffee");
 threshold = require("../../core/data/threshold.js");
 
 stacked = function(vars) {
-  var d, data, order, point, sortOrder, _i, _j, _len, _len1, _ref;
+  var d, data, domains, order, point, sortOrder, _i, _j, _len, _len1, _ref;
   graph(vars, {
     buffer: vars.axes.opposite
   });
+  domains = vars.x.domain.viz.concat(vars.y.domain.viz);
+  if (domains.indexOf(void 0) >= 0) {
+    return [];
+  }
   data = nest(vars);
   for (_i = 0, _len = data.length; _i < _len; _i++) {
     point = data[_i];
@@ -40732,26 +41218,27 @@ module.exports = stacked;
 
 
 
-},{"../../array/sort.coffee":40,"../../core/data/threshold.js":66,"../../core/fetch/value.js":71,"./helpers/graph/draw.coffee":293,"./helpers/graph/nest.coffee":299,"./helpers/graph/stack.coffee":300}],308:[function(require,module,exports){
-var uniques = require("../../util/uniques.coffee")
-var copy    = require("../../util/copy.coffee")
-var rand_col= require("../../color/random.coffee")
+},{"../../array/sort.coffee":40,"../../core/data/threshold.js":66,"../../core/fetch/value.coffee":71,"./helpers/graph/draw.coffee":296,"./helpers/graph/nest.coffee":302,"./helpers/graph/stack.coffee":303}],311:[function(require,module,exports){
+var fetchValue = require("../../core/fetch/value.coffee");
+var uniques    = require("../../util/uniques.coffee");
+var copy       = require("../../util/copy.coffee");
+var rand_col   = require("../../color/random.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Table
 //------------------------------------------------------------------------------
 
 var table = function(vars) {
-  
+
   // get unique IDs and columns
-  var ids = uniques(vars.data.viz, vars.id.value);
+  var ids = uniques(vars.data.viz, vars.id.value, fetchValue, vars);
   var cols = uniques(vars.cols.value);
-  
+
   // if user wants to show the row labels (default behavior) add this as a col
   if (cols.indexOf("label") < 0 && vars.cols.index.value){
     cols.unshift("label");
   }
-  
+
   // width/height are a function of number of IDs and columns
   var item_height = vars.height.viz / (ids.length+1); // add 1 for header offset
   var item_width = vars.width.viz / cols.length;
@@ -40790,7 +41277,7 @@ var table = function(vars) {
 
   var ret = []
   var colors = {}
-  
+
   // doing 2 things here, first we add our column headers to our ret array as
   // items dor d3plus to draw. We also compute the color scales for each column
   cols.forEach(function(col, col_i){
@@ -40814,7 +41301,7 @@ var table = function(vars) {
       header.d3plus.stroke = "#fff";
     }
     ret.push(header)
-    
+
     // set up color scales
     if(vars.data.keys[col] == "number"){
       var domain_extent = d3.extent(vars.data.viz, function(d){ return d[col]; })
@@ -40886,7 +41373,7 @@ table.requirements = ["data", "cols"]
 
 module.exports = table
 
-},{"../../color/random.coffee":52,"../../util/copy.coffee":194,"../../util/uniques.coffee":197}],309:[function(require,module,exports){
+},{"../../color/random.coffee":52,"../../core/fetch/value.coffee":71,"../../util/copy.coffee":196,"../../util/uniques.coffee":199}],312:[function(require,module,exports){
 var dataThreshold, groupData, mergeObject, tree_map;
 
 dataThreshold = require("../../core/data/threshold.js");
@@ -40900,7 +41387,7 @@ tree_map = function(vars) {
   groupedData = groupData(vars, vars.data.viz);
   data = d3.layout.treemap().mode(vars.type.mode.value).round(true).size([vars.width.viz, vars.height.viz]).children(function(d) {
     return d.values;
-  }).padding(1).sort(function(a, b) {
+  }).padding(vars.data.padding.value).sort(function(a, b) {
     var sizeDiff;
     sizeDiff = a.value - b.value;
     if (sizeDiff === 0) {
@@ -40947,14 +41434,12 @@ tree_map.threshold = function(vars) {
   return (40 * 40) / (vars.width.viz * vars.height.viz);
 };
 
-tree_map.tooltip = "follow";
-
 module.exports = tree_map;
 
 
 
-},{"../../core/data/group.coffee":62,"../../core/data/threshold.js":66,"../../object/merge.coffee":164}],310:[function(require,module,exports){
-var attach, axis, container, flash, getSteps, print;
+},{"../../core/data/group.coffee":62,"../../core/data/threshold.js":66,"../../object/merge.coffee":165}],313:[function(require,module,exports){
+var attach, axis, container, flash, getSteps, print, validObject;
 
 attach = require("../core/methods/attach.coffee");
 
@@ -40967,6 +41452,8 @@ getSteps = require("./helpers/drawSteps.js");
 print = require("../core/console/print.coffee");
 
 container = require("./helpers/container.coffee");
+
+validObject = require("../object/validate.coffee");
 
 module.exports = function() {
   var vars;
@@ -41010,9 +41497,11 @@ module.exports = function() {
       lastMessage = false;
       if (vars.error.value) {
         timing = vars.draw.timing;
-        vars.group.transition().duration(timing).attr("opacity", 0);
-        vars.g.data.transition().duration(timing).attr("opacity", 0);
-        vars.g.edges.transition().duration(timing).attr("opacity", 0);
+        if (vars.group) {
+          vars.group.transition().duration(timing).attr("opacity", 0);
+          vars.g.data.transition().duration(timing).attr("opacity", 0);
+          vars.g.edges.transition().duration(timing).attr("opacity", 0);
+        }
         vars.messages.style = "large";
         message = vars.error.value === true ? vars.format.value(vars.format.locale.value.ui.error) : vars.error.value;
         lastMessage = message;
@@ -41022,10 +41511,9 @@ module.exports = function() {
           if (steps.length) {
             runStep();
           } else {
-            vars.methodGroup = false;
             if (vars.dev.value) {
-              print.timeEnd("total draw time");
               print.groupEnd();
+              print.timeEnd("total draw time");
               print.log("\n");
             }
           }
@@ -41054,19 +41542,28 @@ module.exports = function() {
             run = run(vars);
           }
           if (run) {
-            if (!same && vars.draw.update) {
+            if (!same) {
               if (vars.dev.value) {
                 if (lastMessage !== false) {
                   print.groupEnd();
                 }
-                print.groupCollapsed(step.message);
+                print.group(step.message);
               }
-              lastMessage = (typeof vars.messages.value === "string" ? vars.messages.value : step.message);
-              message = (typeof vars.messages.value === "string" ? vars.messages.value : vars.format.value(step.message));
-              flash(vars, message);
-              setTimeout((function() {
+              if (typeof vars.messages.value === "string") {
+                lastMessage = vars.messages.value;
+                message = vars.messages.value;
+              } else {
+                lastMessage = step.message;
+                message = vars.format.value(step.message);
+              }
+              if (vars.draw.update) {
+                flash(vars, message);
+                setTimeout((function() {
+                  runFunction(step);
+                }), 10);
+              } else {
                 runFunction(step);
-              }), 10);
+              }
             } else {
               runFunction(step);
             }
@@ -41095,10 +41592,11 @@ module.exports = function() {
     background: require("./methods/background.coffee"),
     color: require("./methods/color.coffee"),
     cols: require("./methods/cols.js"),
+    config: require("./methods/config.coffee"),
     container: require("./methods/container.coffee"),
     coords: require("./methods/coords.coffee"),
     csv: require("./methods/csv.coffee"),
-    data: require("./methods/data.js"),
+    data: require("./methods/data.coffee"),
     depth: require("./methods/depth.coffee"),
     descs: require("./methods/descs.coffee"),
     dev: require("./methods/dev.coffee"),
@@ -41143,4 +41641,4 @@ module.exports = function() {
 
 
 
-},{"../core/console/print.coffee":57,"../core/methods/attach.coffee":78,"./helpers/container.coffee":198,"./helpers/drawSteps.js":199,"./helpers/ui/message.js":230,"./methods/active.coffee":239,"./methods/aggs.coffee":240,"./methods/attrs.coffee":241,"./methods/axes.coffee":242,"./methods/background.coffee":243,"./methods/color.coffee":244,"./methods/cols.js":245,"./methods/container.coffee":246,"./methods/coords.coffee":247,"./methods/csv.coffee":248,"./methods/data.js":249,"./methods/depth.coffee":250,"./methods/descs.coffee":251,"./methods/dev.coffee":252,"./methods/draw.js":253,"./methods/edges.js":254,"./methods/error.coffee":255,"./methods/focus.coffee":256,"./methods/font.coffee":257,"./methods/footer.coffee":258,"./methods/format.coffee":259,"./methods/height.coffee":260,"./methods/helpers/axis.coffee":261,"./methods/history.coffee":262,"./methods/icon.coffee":263,"./methods/id.coffee":264,"./methods/labels.coffee":265,"./methods/legend.coffee":266,"./methods/links.coffee":267,"./methods/margin.coffee":268,"./methods/messages.coffee":269,"./methods/nodes.coffee":270,"./methods/order.coffee":271,"./methods/shape.coffee":272,"./methods/size.coffee":273,"./methods/style.coffee":274,"./methods/temp.coffee":275,"./methods/text.coffee":276,"./methods/time.coffee":277,"./methods/timeline.coffee":278,"./methods/timing.coffee":279,"./methods/title.coffee":280,"./methods/tooltip.coffee":281,"./methods/total.coffee":282,"./methods/type.coffee":283,"./methods/ui.coffee":284,"./methods/width.coffee":285,"./methods/zoom.js":286,"./types/bar.coffee":287,"./types/box.coffee":288,"./types/bubbles.coffee":289,"./types/deprecated/chart.coffee":290,"./types/geo_map.coffee":291,"./types/line.coffee":301,"./types/network.js":302,"./types/paths.coffee":303,"./types/pie.coffee":304,"./types/rings.js":305,"./types/scatter.coffee":306,"./types/stacked.coffee":307,"./types/table.js":308,"./types/tree_map.coffee":309}]},{},[2,1]);
+},{"../core/console/print.coffee":57,"../core/methods/attach.coffee":78,"../object/validate.coffee":166,"./helpers/container.coffee":200,"./helpers/drawSteps.js":201,"./helpers/ui/message.js":232,"./methods/active.coffee":241,"./methods/aggs.coffee":242,"./methods/attrs.coffee":243,"./methods/axes.coffee":244,"./methods/background.coffee":245,"./methods/color.coffee":246,"./methods/cols.js":247,"./methods/config.coffee":248,"./methods/container.coffee":249,"./methods/coords.coffee":250,"./methods/csv.coffee":251,"./methods/data.coffee":252,"./methods/depth.coffee":253,"./methods/descs.coffee":254,"./methods/dev.coffee":255,"./methods/draw.js":256,"./methods/edges.js":257,"./methods/error.coffee":258,"./methods/focus.coffee":259,"./methods/font.coffee":260,"./methods/footer.coffee":261,"./methods/format.coffee":262,"./methods/height.coffee":263,"./methods/helpers/axis.coffee":264,"./methods/history.coffee":265,"./methods/icon.coffee":266,"./methods/id.coffee":267,"./methods/labels.coffee":268,"./methods/legend.coffee":269,"./methods/links.coffee":270,"./methods/margin.coffee":271,"./methods/messages.coffee":272,"./methods/nodes.coffee":273,"./methods/order.coffee":274,"./methods/shape.coffee":275,"./methods/size.coffee":276,"./methods/style.coffee":277,"./methods/temp.coffee":278,"./methods/text.coffee":279,"./methods/time.coffee":280,"./methods/timeline.coffee":281,"./methods/timing.coffee":282,"./methods/title.coffee":283,"./methods/tooltip.coffee":284,"./methods/total.coffee":285,"./methods/type.coffee":286,"./methods/ui.coffee":287,"./methods/width.coffee":288,"./methods/zoom.js":289,"./types/bar.coffee":290,"./types/box.coffee":291,"./types/bubbles.coffee":292,"./types/deprecated/chart.coffee":293,"./types/geo_map.coffee":294,"./types/line.coffee":304,"./types/network.js":305,"./types/paths.coffee":306,"./types/pie.coffee":307,"./types/rings.js":308,"./types/scatter.coffee":309,"./types/stacked.coffee":310,"./types/table.js":311,"./types/tree_map.coffee":312}]},{},[2,1]);
