@@ -64,9 +64,10 @@ labelPadding = (vars) ->
     "font-weight": vars.y.ticks.font.weight
   if vars.y.scale.value is "log"
     yText = vars.y.ticks.values.filter (d) ->
-      d.toString().charAt(0) is "1"
+      Math.abs(d).toString().charAt(0) is "1"
     yText = yText.map (d) ->
-      10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
+      n = 10+" "+formatPower Math.round(Math.log(Math.abs(d)) / Math.LN10)
+      if d < 0 then "-"+n else n
   else
     yText = vars.y.ticks.values.map (d) ->
       vars.format.value(d, vars.y.value, vars)
@@ -177,7 +178,7 @@ createAxis = (vars, axis) ->
       return null if vars[axis].ticks.hidden
       scale      = vars[axis].scale.value
       hiddenTime = vars[axis].value is vars.time.value and d % 1 isnt 0
-      majorLog   = scale is "log" and d.toString().charAt(0) is "1"
+      majorLog   = scale is "log" and Math.abs(d).toString().charAt(0) is "1"
 
       if !hiddenTime and (majorLog or scale isnt "log")
         if scale is "share"
@@ -185,7 +186,8 @@ createAxis = (vars, axis) ->
         else if d.constructor is Date
           vars.data.time.multiFormat(d)
         else if scale is "log"
-          10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
+          n = 10+" "+formatPower Math.round(Math.log(Math.abs(d)) / Math.LN10)
+          if d < 0 then "-"+n else n
         else
           vars.format.value d, vars[axis].value, vars
       else
