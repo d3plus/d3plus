@@ -21789,7 +21789,7 @@ validObject = require("../../object/validate.coffee");
 uniqueValues = require("../../util/uniques.coffee");
 
 find = function(vars, node, variable, depth) {
-  var nodeObject, val;
+  var nodeObject, returned, val;
   if (typeof variable === "function") {
     return variable(node, vars);
   }
@@ -21804,11 +21804,18 @@ find = function(vars, node, variable, depth) {
     }
     if (depth in node) {
       node = node[depth];
-    } else if (depth in vars.data.keys || depth in vars.attrs.keys && depth !== variable) {
-      node = checkData(vars, node, variable, depth) || checkAttrs(vars, node, variable, depth);
-      if (node === null) {
+    } else if (vars.id.value in node) {
+      node = node[vars.id.value];
+      if (depth !== variable) {
+        returned = checkData(vars, node, depth, vars.id.value);
+      }
+      if (returned === null) {
+        returned = checkAttrs(vars, node, depth, vars.id.value);
+      }
+      if (returned === null) {
         return null;
       }
+      node = returned;
     } else {
       return null;
     }
@@ -27731,7 +27738,7 @@ module.exports = function(number, key, vars, data) {
   else if (number < 10 && number > -10) {
     return d3.round(number,2)
   }
-  else if (number.toString().split(".")[0].length > 4) {
+  else if (number.toString().split(".")[0].length > 3) {
     var symbol = d3.formatPrefix(number).symbol
     symbol = symbol.replace("G", "B") // d3 uses G for giga
 
@@ -34975,7 +34982,7 @@ module.exports = function(vars) {
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
         var data = copy(vars.nodes.restriced || vars.nodes.value);
         if ( vars.data.viz.length ) {
-          for ( var i = 0 ; i < data.length ; i++ ) {
+          for (var i = 0 ; i < data.length ; i++) {
             var appData = vars.data.viz.filter(function(a){
               return a[vars.id.value] === data[i][vars.id.value];
             });
@@ -34989,7 +34996,7 @@ module.exports = function(vars) {
         var data = vars.data.viz;
       }
 
-      var colorFunction = function( d ){
+      var colorFunction = function(d){
             return fetchColor(vars, d, colorKey);
           },
           colorDepth = 0,
@@ -35001,10 +35008,10 @@ module.exports = function(vars) {
       }
       else {
 
-        for (var i = 0; i <= vars.depth.value; i++) {
+        for (var n = 0; n <= vars.depth.value; n++) {
 
-          colorDepth = i;
-          colorKey   = vars.id.nesting[i];
+          colorDepth = n;
+          colorKey   = vars.id.nesting[n];
 
           var uniqueIDs = uniqueValues(data , function(d){
                 return fetchValue(vars, d, colorKey);
@@ -35108,39 +35115,40 @@ module.exports = function(vars) {
                 icon = icon[0];
                 var short_url = stringStrip(icon+"_"+color),
                     iconStyle = vars.icon.style.value,
+                    icon_style,
                     pattern = vars.defs.selectAll("pattern#"+short_url)
                       .data([short_url]);
 
                 if (typeof iconStyle === "string") {
-                  var icon_style = vars.icon.style.value;
+                  icon_style = vars.icon.style.value;
                 }
                 else if (validObject(iconStyle) && iconStyle[colorKey]) {
-                  var icon_style = iconStyle[colorKey]
+                  icon_style = iconStyle[colorKey];
                 }
                 else {
-                  var icon_style = "default"
+                  icon_style = "default";
                 }
 
-                var color = icon_style == "knockout" ? color : "none"
+                color = icon_style == "knockout" ? color : "none";
 
                 pattern.select("rect").transition().duration(vars.draw.timing)
                   .attr("fill",color)
                   .attr("width",square_size)
-                  .attr("height",square_size)
+                  .attr("height",square_size);
 
                 pattern.select("image").transition().duration(vars.draw.timing)
                   .attr("width",square_size)
-                  .attr("height",square_size)
+                  .attr("height",square_size);
 
                 var pattern_enter = pattern.enter().append("pattern")
                   .attr("id",short_url)
                   .attr("width",square_size)
-                  .attr("height",square_size)
+                  .attr("height",square_size);
 
                 pattern_enter.append("rect")
                   .attr("fill",color)
                   .attr("width",square_size)
-                  .attr("height",square_size)
+                  .attr("height",square_size);
 
                 pattern_enter.append("image")
                   .attr("xlink:href",icon)
@@ -35148,30 +35156,28 @@ module.exports = function(vars) {
                   .attr("height",square_size)
                   .each(function(d){
 
-                    if (icon.indexOf("/") == 0 || icon.indexOf(window.location.hostname) >= 0) {
-
+                    if (icon.indexOf("/") === 0 || icon.indexOf(window.location.hostname) >= 0) {
                       dataURL(icon,function(base64){
-
-                        pattern.select("image")
-                          .attr("xlink:href",base64)
-
-                      })
-
+                        pattern.select("image").attr("xlink:href",base64);
+                      });
                     }
                     else {
-
-                      pattern.select("image")
-                        .attr("xlink:href",icon)
-
+                      pattern.select("image").attr("xlink:href",icon);
                     }
 
-                  })
+                  });
 
-                return "url(#"+short_url+")"
+                return "url(#"+short_url+")";
               }
               else {
 
-                var names = fetchText(vars, g, colorDepth);
+                var names;
+                if (vars.legend.text.value) {
+                  names = [fetchValue(vars, g, vars.legend.text.value, colorDepth)];
+                }
+                else {
+                  names = fetchText(vars, g, colorDepth);
+                }
 
                 if (names.length === 1 && !(names[0] instanceof Array) && names[0].length) {
 
@@ -35252,14 +35258,15 @@ module.exports = function(vars) {
           keys
             .on(events.over,function(d,i){
 
-              d3.select(this).style("cursor","pointer")
+              d3.select(this).style("cursor","pointer");
 
               var bounds = this.getBoundingClientRect(),
                   x = bounds.left + square_size/2 + window.scrollX,
                   y = bounds.top + square_size/2 + window.scrollY;
 
-              var idIndex = vars.id.nesting.indexOf(colorKey)
-                , title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] : vars.format.value(fetchValue(vars,d,colorName,colorKey), colorName, vars, d)
+              var idIndex = vars.id.nesting.indexOf(colorKey),
+                  title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] :
+                          vars.format.value(fetchValue(vars,d,colorName,colorKey), colorName, vars, d);
 
               createTooltip({
                 "data": d,
@@ -35268,46 +35275,46 @@ module.exports = function(vars) {
                 "x": x,
                 "y": y,
                 "title": title,
-                "offset": square_size*.4
-              })
+                "offset": square_size*0.4
+              });
 
             })
             .on(events.out,function(d){
-              removeTooltip(vars.type.value)
-            })
+              removeTooltip(vars.type.value);
+            });
 
         }
 
-        if ( vars.dev.value ) print.timeEnd("drawing legend")
+        if ( vars.dev.value ) print.timeEnd("drawing legend");
 
       }
 
     }
     else if (vars.color.valueScale) {
 
-      if ( vars.dev.value ) print.time("drawing color scale")
+      if ( vars.dev.value ) print.time("drawing color scale");
 
       vars.g.legend.selectAll("g.d3plus_color")
         .transition().duration(vars.draw.timing)
         .attr("opacity",0)
-        .remove()
+        .remove();
 
       var values = vars.color.valueScale.domain(),
-          colors = vars.color.valueScale.range()
+          colors = vars.color.valueScale.range();
 
       if (values.length <= 2) {
-        values = buckets(values,6)
+        values = buckets(values,6);
       }
 
       var scale = vars.g.legend.selectAll("g.d3plus_scale")
-        .data(["scale"])
+        .data(["scale"]);
 
       scale.enter().append("g")
         .attr("class","d3plus_scale")
-        .attr("opacity",0)
+        .attr("opacity",0);
 
       var heatmap = scale.selectAll("#d3plus_legend_heatmap")
-        .data(["heatmap"])
+        .data(["heatmap"]);
 
       heatmap.enter().append("linearGradient")
         .attr("id", "d3plus_legend_heatmap")
@@ -35318,35 +35325,35 @@ module.exports = function(vars) {
         .attr("spreadMethod", "pad");
 
       var stops = heatmap.selectAll("stop")
-        .data(d3.range(0,colors.length))
+        .data(d3.range(0,colors.length));
 
       stops.enter().append("stop")
-        .attr("stop-opacity",1)
+        .attr("stop-opacity",1);
 
       stops
         .attr("offset",function(i){
-          return Math.round((i/(colors.length-1))*100)+"%"
+          return Math.round((i/(colors.length-1))*100)+"%";
         })
         .attr("stop-color",function(i){
-          return colors[i]
-        })
+          return colors[i];
+        });
 
-      stops.exit().remove()
+      stops.exit().remove();
 
       var gradient = scale.selectAll("rect#gradient")
-        .data(["gradient"])
+        .data(["gradient"]);
 
       gradient.enter().append("rect")
         .attr("id","gradient")
         .attr("x",function(d){
           if (vars.legend.align == "middle") {
-            return vars.width.value/2
+            return vars.width.value/2;
           }
           else if (vars.legend.align == "end") {
-            return vars.width.value
+            return vars.width.value;
           }
           else {
-            return 0
+            return 0;
           }
         })
         .attr("y",vars.ui.padding)
@@ -35354,29 +35361,29 @@ module.exports = function(vars) {
         .attr("height", vars.legend.gradient.height)
         .attr("stroke",vars.legend.font.color)
         .attr("stroke-width",1)
-        .style("fill", "url(#d3plus_legend_heatmap)")
+        .style("fill", "url(#d3plus_legend_heatmap)");
 
       var text = scale.selectAll("text.d3plus_tick")
-        .data(d3.range(0,values.length))
+        .data(d3.range(0,values.length));
 
       text.enter().append("text")
         .attr("class","d3plus_tick")
         .attr("x",function(d){
           if (vars.legend.align == "middle") {
-            return vars.width.value/2
+            return vars.width.value/2;
           }
           else if (vars.legend.align == "end") {
-            return vars.width.value
+            return vars.width.value;
           }
           else {
-            return 0
+            return 0;
           }
         })
         .attr("y",function(d){
-          return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2
-        })
+          return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2;
+        });
 
-      var label_width = 0
+      var label_width = 0;
 
       text
         .order()
@@ -35386,133 +35393,134 @@ module.exports = function(vars) {
         .style("text-anchor",vars.legend.font.align)
         .attr("fill",vars.legend.font.color)
         .text(function(d){
-          return vars.format.value(values[d], key, vars)
+          return vars.format.value(values[d], key, vars);
         })
         .attr("y",function(d){
-          return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2
+          return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2;
         })
         .each(function(d){
-          var w = this.offsetWidth
-          if (w > label_width) label_width = w
-        })
+          var w = this.offsetWidth;
+          if (w > label_width) label_width = w;
+        });
 
-      label_width += vars.labels.padding*2
+      label_width += vars.labels.padding*2;
 
-      var key_width = label_width * (values.length-1)
+      var key_width = label_width * (values.length-1);
 
       if (key_width+label_width < vars.width.value) {
 
         if (key_width+label_width < vars.width.value/2) {
-          key_width = vars.width.value/2
-          label_width = key_width/values.length
-          key_width -= label_width
+          key_width = vars.width.value/2;
+          label_width = key_width/values.length;
+          key_width -= label_width;
         }
 
+        var start_x;
         if (vars.legend.align == "start") {
-          var start_x = vars.ui.padding
+          start_x = vars.ui.padding;
         }
         else if (vars.legend.align == "end") {
-          var start_x = vars.width.value - vars.ui.padding - key_width
+          start_x = vars.width.value - vars.ui.padding - key_width;
         }
         else {
-          var start_x = vars.width.value/2 - key_width/2
+          start_x = vars.width.value/2 - key_width/2;
         }
 
         text.transition().duration(vars.draw.timing)
           .attr("x",function(d){
-            return start_x + (label_width*d)
-          })
+            return start_x + (label_width*d);
+          });
 
         text.exit().transition().duration(vars.draw.timing)
           .attr("opacity",0)
-          .remove()
+          .remove();
 
         var ticks = scale.selectAll("rect.d3plus_tick")
-          .data(d3.range(0,values.length))
+          .data(d3.range(0,values.length));
 
         ticks.enter().append("rect")
           .attr("class","d3plus_tick")
           .attr("x",function(d){
             if (vars.legend.align == "middle") {
-              return vars.width.value/2
+              return vars.width.value/2;
             }
             else if (vars.legend.align == "end") {
-              return vars.width.value
+              return vars.width.value;
             }
             else {
-              return 0
+              return 0;
             }
           })
           .attr("y",vars.ui.padding)
           .attr("width",0)
           .attr("height",vars.ui.padding+vars.legend.gradient.height)
-          .attr("fill",vars.legend.font.color)
+          .attr("fill",vars.legend.font.color);
 
         ticks.transition().duration(vars.draw.timing)
           .attr("x",function(d){
-            var mod = d == 0 ? 1 : 0
-            return start_x + (label_width*d) - mod
+            var mod = d === 0 ? 1 : 0;
+            return start_x + (label_width*d) - mod;
           })
           .attr("y",vars.ui.padding)
           .attr("width",1)
           .attr("height",vars.ui.padding+vars.legend.gradient.height)
-          .attr("fill",vars.legend.font.color)
+          .attr("fill",vars.legend.font.color);
 
         ticks.exit().transition().duration(vars.draw.timing)
           .attr("width",0)
-          .remove()
+          .remove();
 
         gradient.transition().duration(vars.draw.timing)
           .attr("x",function(d){
             if (vars.legend.align == "middle") {
-              return vars.width.value/2 - key_width/2
+              return vars.width.value/2 - key_width/2;
             }
             else if (vars.legend.align == "end") {
-              return vars.width.value - key_width - vars.ui.padding
+              return vars.width.value - key_width - vars.ui.padding;
             }
             else {
-              return vars.ui.padding
+              return vars.ui.padding;
             }
           })
           .attr("y",vars.ui.padding)
           .attr("width", key_width)
-          .attr("height", vars.legend.gradient.height)
+          .attr("height", vars.legend.gradient.height);
 
         scale.transition().duration(vars.draw.timing)
-          .attr("opacity",1)
+          .attr("opacity",1);
 
-        if ( vars.dev.value ) print.timeEnd("drawing color scale")
+        if ( vars.dev.value ) print.timeEnd("drawing color scale");
 
       }
       else {
-        key_display = false
+        key_display = false;
       }
 
     }
     else {
-      key_display = false
+      key_display = false;
     }
 
   }
   else {
-    key_display = false
+    key_display = false;
   }
   if (vars.legend.value && key && key_display) {
 
-    if ( vars.dev.value ) print.time("positioning legend")
+    if ( vars.dev.value ) print.time("positioning legend");
 
     if (square_size) {
-      var key_height = square_size+vars.ui.padding
+      var key_height = square_size+vars.ui.padding;
     }
     else {
       var key_box = vars.g.legend.node().getBBox(),
-          key_height = key_box.height+key_box.y
+          key_height = key_box.height+key_box.y;
     }
 
     if (vars.margin.bottom === 0) {
-      vars.margin.bottom += vars.ui.padding
+      vars.margin.bottom += vars.ui.padding;
     }
-    vars.margin.bottom += key_height
+    vars.margin.bottom += key_height;
 
     vars.g.legend.transition().duration(vars.draw.timing)
       .attr("transform","translate(0,"+(vars.height.value-vars.margin.bottom)+")")
@@ -37591,6 +37599,10 @@ module.exports = {
     value: "color"
   },
   size: [8, 30],
+  text: {
+    accepted: [false, Function, String],
+    value: false
+  },
   value: true
 };
 
@@ -37742,7 +37754,7 @@ module.exports = {
 
 },{"../../core/methods/process/data.coffee":85}],274:[function(require,module,exports){
 module.exports = {
-  accepted: [false, Function, String],
+  accepted: [Boolean, Function, String],
   agg: {
     accepted: [false, Function, "sum", "min", "max", "mean", "median"],
     value: false
@@ -38792,7 +38804,7 @@ print = require("../../../../../core/console/print.coffee");
 uniques = require("../../../../../util/uniques.coffee");
 
 module.exports = function(vars, opts) {
-  var axis, changed, d, domains, filtered, i, modified, range, reorder, t, ticks, zero, _i, _j, _len, _len1, _ref;
+  var axis, changed, d, domains, filtered, i, modified, oppAxis, range, reorder, t, ticks, zero, _i, _j, _len, _len1, _ref;
   changed = dataChange(vars);
   if (changed) {
     vars.axes.dataset = getData(vars);
@@ -38801,9 +38813,10 @@ module.exports = function(vars, opts) {
   _ref = ["x", "y"];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
+    oppAxis = axis === "x" ? "y" : "x";
     filtered = vars[axis].solo.changed || vars[axis].mute.changed;
     modified = changed || vars[axis].changed || (vars.time.fixed.value && filtered) || vars[axis].scale.changed;
-    reorder = vars.order.changed || vars.order.sort.changed;
+    reorder = vars.order.changed || vars.order.sort.changed || (vars.order.value === true && vars[oppAxis].changed);
     if (modified || vars[axis].stacked.changed || vars[axis].range.changed || reorder) {
       if (vars.dev.value) {
         print.time("calculating " + axis + " axis");
@@ -38928,7 +38941,11 @@ axisRange = function(vars, axis, zero, buffer) {
       return fetchValue(vars, d, vars[axis].value);
     });
     if (typeof values[0] === "string") {
-      sortKey = vars.order.value;
+      if (vars.order.value === true) {
+        sortKey = vars[oppAxis].value;
+      } else {
+        sortKey = vars.order.value;
+      }
       if (sortKey) {
         sort = vars.order.sort.value;
         agg = vars.order.agg.value || vars.aggs.value[sortKey] || "max";
