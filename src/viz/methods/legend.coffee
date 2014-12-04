@@ -18,4 +18,7 @@ module.exports =
       value:    "asc"
     value: "color"
   size:  [8,30]
+  text:
+    accepted: [false, Function, String]
+    value:    false
   value: true
