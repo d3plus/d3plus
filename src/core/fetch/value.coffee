@@ -26,12 +26,14 @@ find = (vars, node, variable, depth) ->
 
     if depth of node
       node = node[depth]
-    else if depth of vars.data.keys or
-            depth of vars.attrs.keys and
-            depth isnt variable
-      node = checkData(vars, node, variable, depth) or
-             checkAttrs(vars, node, variable, depth)
-      return null if node is null
+    else if vars.id.value of node
+      node = node[vars.id.value]
+      if depth isnt variable
+        returned = checkData(vars, node, depth, vars.id.value)
+      if returned is null
+        returned = checkAttrs(vars, node, depth, vars.id.value)
+      return null if returned is null
+      node = returned
     else
       return null
 

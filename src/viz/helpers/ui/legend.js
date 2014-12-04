@@ -35,7 +35,7 @@ module.exports = function(vars) {
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
         var data = copy(vars.nodes.restriced || vars.nodes.value);
         if ( vars.data.viz.length ) {
-          for ( var i = 0 ; i < data.length ; i++ ) {
+          for (var i = 0 ; i < data.length ; i++) {
             var appData = vars.data.viz.filter(function(a){
               return a[vars.id.value] === data[i][vars.id.value];
             });
@@ -49,7 +49,7 @@ module.exports = function(vars) {
         var data = vars.data.viz;
       }
 
-      var colorFunction = function( d ){
+      var colorFunction = function(d){
             return fetchColor(vars, d, colorKey);
           },
           colorDepth = 0,
@@ -61,10 +61,10 @@ module.exports = function(vars) {
       }
       else {
 
-        for (var i = 0; i <= vars.depth.value; i++) {
+        for (var n = 0; n <= vars.depth.value; n++) {
 
-          colorDepth = i;
-          colorKey   = vars.id.nesting[i];
+          colorDepth = n;
+          colorKey   = vars.id.nesting[n];
 
           var uniqueIDs = uniqueValues(data , function(d){
                 return fetchValue(vars, d, colorKey);
