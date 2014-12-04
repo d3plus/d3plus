@@ -20,7 +20,7 @@ module.exports = function(number, key, vars, data) {
   else if (number < 10 && number > -10) {
     return d3.round(number,2)
   }
-  else if (number.toString().split(".")[0].length > 4) {
+  else if (number.toString().split(".")[0].length > 3) {
     var symbol = d3.formatPrefix(number).symbol
     symbol = symbol.replace("G", "B") // d3 uses G for giga
 
