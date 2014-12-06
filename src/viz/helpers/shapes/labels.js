@@ -218,12 +218,12 @@ module.exports = function( vars , group ) {
 
             textWrap()
               .container( d3.select(this) )
-              .height( height * t.scale - t.padding )
+              .height( height * t.scale - t.padding * t.scale )
               .resize( resize )
               .size( size )
               .shape( shape )
               .text( t.names )
-              .width( t.w * t.scale - t.padding )
+              .width( t.w * t.scale - t.padding * t.scale )
               .draw()
 
           }
