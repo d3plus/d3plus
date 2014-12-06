@@ -1,4 +1,4 @@
-var labels = require("./labels.js"),
+var labels = require("./labels.coffee"),
     transform = require("./transform.coffee");
 
 module.exports = function( vars , b , timing ) {

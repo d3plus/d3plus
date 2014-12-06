@@ -6,7 +6,7 @@ var edges = require("./shapes/edges.js"),
     titleCase   = require("../../string/title.coffee")
 
 var bounds = require("./zoom/bounds.js")
-var labels = require("./zoom/labels.js")
+var labels = require("./zoom/labels.coffee")
 var mouse  = require("./zoom/mouse.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -1,4 +1,4 @@
-labels    = require "./labels.js"
+labels    = require "./labels.coffee"
 transform = require "./transform.coffee"
 
 module.exports = (vars) ->

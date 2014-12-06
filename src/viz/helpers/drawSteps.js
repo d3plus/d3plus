@@ -313,10 +313,10 @@ module.exports = function(vars) {
                   || vars.container.value.select("div#d3plus_drawer").node().getBoundingClientRect().height
 
         var timeline = vars.g.timeline.node().getBBox()
-        timeline = vars.timeline.value ? timeline.height+timeline.y : 0
+        timeline = vars.timeline.value ? timeline.height+vars.ui.padding : 0
 
         var legend = vars.g.legend.node().getBBox()
-        legend = vars.legend.value ? legend.height+legend.y : 0
+        legend = vars.legend.value ? legend.height+vars.ui.padding : 0
 
         vars.margin.bottom += drawer+timeline+legend
 
