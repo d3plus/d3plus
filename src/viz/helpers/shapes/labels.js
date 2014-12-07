@@ -198,7 +198,6 @@ module.exports = function( vars , group ) {
 
             var height;
             if (vars.labels.align !== "middle" && t.share) {
-              console.log(t.names[0], t.h, t.share, scale, t.padding);
               height = t.h * scale[1] - t.padding/2 - t.share;
             }
             else {
