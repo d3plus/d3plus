@@ -15,5 +15,8 @@ module.exports =
   resize:
     accepted: [Boolean]
     value:    true
+  text:
+    accepted: [false, Function, String]
+    value:    false
   segments: 2
   value:    true

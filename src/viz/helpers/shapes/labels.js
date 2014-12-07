@@ -257,7 +257,11 @@ module.exports = function( vars , group ) {
       var disabled = d.d3plus && "label" in d.d3plus && !d.d3plus.label,
           label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
           share = d.d3plus_share,
-          names = d.d3plus.text ? d.d3plus.text : label && label.names ? label.names : fetchText(vars,d),
+          names = d.d3plus.text ? d.d3plus.text :
+                  label && label.names ? label.names :
+                  vars.labels.text.value ?
+                  fetchValue(vars, d, vars.labels.text.value) :
+                  fetchText(vars,d),
           group = label && "group" in label ? label.group : d3.select(this),
           share_size = 0,
           fill = vars.types[vars.type.value].fill;
