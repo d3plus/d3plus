@@ -5,13 +5,14 @@ module.exports = (vars) ->
 
   print.time "determining label visibility" if vars.dev.value
 
-  max_scale = vars.zoom.behavior.scaleExtent()[1]
+  scale = vars.zoom.behavior.scaleExtent()
 
   opacity = (text) ->
+    # console.log text.size()
     text.attr "opacity", (d) ->
-      d = scale: max_scale  unless d
+      d = {} unless d
       size = parseFloat(d3.select(this).attr("font-size"), 10)
-      d.visible = size / d.scale * vars.zoom.scale >= 7
+      d.visible = size * (vars.zoom.scale/scale[1]) >= 2
       if d.visible then 1 else 0
 
   if vars.draw.timing
