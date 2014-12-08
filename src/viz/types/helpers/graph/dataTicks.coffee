@@ -6,17 +6,22 @@ module.exports = (vars) ->
 
   axes = vars.axes
   data = if axes.stacked then [] else vars.data.viz
+  timing = if data.length * 2 > vars.data.large then 0 else vars.draw.timing
 
   style = (line, axis) ->
+    if axis is "y"
+      line
+        .attr "x1", -2
+        .attr "x2", -8
+        .attr "y1", (d) -> d.d3plus.y - axes.margin.top
+        .attr "y2", (d) -> d.d3plus.y - axes.margin.top
+    else
+      line
+        .attr "x1", (d) -> d.d3plus.x - axes.margin.left
+        .attr "x2", (d) -> d.d3plus.x - axes.margin.left
+        .attr "y1", axes.height + 2
+        .attr "y2", axes.height + 8
     line
-      .attr "x1", (d) ->
-        if axis is "y" then -2 else d.d3plus.x - axes.margin.left
-      .attr "x2", (d) ->
-        if axis is "y" then -8 else d.d3plus.x - axes.margin.left
-      .attr "y1", (d) ->
-        if axis is "x" then axes.height + 2 else d.d3plus.y - axes.margin.top
-      .attr "y2", (d) ->
-        if axis is "x" then axes.height + 8 else d.d3plus.y - axes.margin.top
       .style "stroke", (d) -> legible color vars, d
       .style "stroke-width", vars.data.stroke.width
       .attr "shape-rendering", vars.shape.rendering.value
@@ -37,20 +42,20 @@ module.exports = (vars) ->
 
   for axis in ["x","y"]
 
-    print.time "creating " + axis + " ticks" if vars.dev.value
+    print.time "creating " + axis + " ticks" if vars.dev.value and timing
 
-    axisData = if axis isnt axes.discrete then data else []
+    axisData = if timing and axis isnt axes.discrete then data else []
 
     tick = ticks.selectAll "line.d3plus_data_"+axis
       .data axisData, (d) ->
         "tick_" + d[vars.id.value] + "_" + d.d3plus.depth
 
-    print.timeEnd "creating " + axis + " ticks" if vars.dev.value
+    print.timeEnd "creating " + axis + " ticks" if vars.dev.value and timing
 
-    print.time "styling " + axis + " ticks" if vars.dev.value
+    print.time "styling " + axis + " ticks" if vars.dev.value and timing
 
-    if vars.draw.timing > 0
-      tick.transition().duration vars.draw.timing
+    if timing > 0
+      tick.transition().duration timing
         .call style, axis
     else
       tick.call style, axis
@@ -59,14 +64,14 @@ module.exports = (vars) ->
       .attr "class","d3plus_data_"+axis
       .call style, axis
 
-    print.timeEnd "styling " + axis + " ticks" if vars.dev.value
+    print.timeEnd "styling " + axis + " ticks" if vars.dev.value and timing
 
-  if vars.draw.timing > 0
+  if timing > 0
 
-    ticks.transition().duration vars.draw.timing
+    ticks.transition().duration timing
       .attr("opacity",1)
 
-    ticks.exit().transition().duration vars.draw.timing
+    ticks.exit().transition().duration timing
       .attr("opacity",0).remove()
 
   else

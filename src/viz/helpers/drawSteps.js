@@ -246,6 +246,9 @@ module.exports = function(vars) {
           if ( vars.dev.value ) print.timeEnd("fetching data for current year")
         }
 
+        vars.draw.timing = vars.data.viz.length < vars.data.large ?
+                           vars.timing.transitions : 0;
+
       },
       "message": dataMessage
     })
