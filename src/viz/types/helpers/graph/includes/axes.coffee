@@ -74,10 +74,13 @@ module.exports = (vars, opts) ->
 dataChange = (vars) ->
 
   check   = ["data", "time", "id", "depth", "type"]
-  changed = vars.time.fixed.value and (vars.time.solo.changed or vars.time.mute.changed)
+  changed = vars.time.fixed.value and
+            (vars.time.solo.changed or vars.time.mute.changed)
+  changed = vars.id.solo.changed or vars.id.mute.changed unless changed
+  return changed if changed
 
   for k in check
-    if changed or vars[k].changed
+    if vars[k].changed
       changed = true
       break
 
