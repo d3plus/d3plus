@@ -1,11 +1,13 @@
 ###*
 # @class d3plus
 ###
-d3plus        = window.d3plus or {}
-window.d3plus = d3plus
+d3plus         = {}
+window.d3plus  = d3plus if typeof window isnt "undefined"
+module.exports = d3plus
 
 ###*
-# The current version of **D3plus** you are using. Returns a string in [semantic versioning](http://semver.org/) format.
+# The current version of **D3plus** you are using. Returns a string in
+# [semantic versioning](http://semver.org/) format.
 # @property d3plus.version
 # @for d3plus
 # @type String
