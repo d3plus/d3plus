@@ -285,11 +285,6 @@ module.exports = function(vars) {
             return fetchColor(vars, d, colorKey);
           });
 
-        keys.transition().duration(vars.draw.timing)
-          .call(position)
-          .selectAll("rect.d3plus_color")
-            .call(style);
-
         keys.enter().append("g")
           .attr("class","d3plus_color")
           .attr("opacity",0)
@@ -300,7 +295,10 @@ module.exports = function(vars) {
 
         keys.order()
           .transition().duration(vars.draw.timing)
-          .attr("opacity", 1);
+          .call(position)
+          .attr("opacity", 1)
+          .selectAll("rect.d3plus_color")
+            .call(style);
 
         keys.exit()
           .transition().duration(vars.draw.timing)
