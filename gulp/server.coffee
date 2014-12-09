@@ -1,19 +1,20 @@
-express    = require "express"
-gulp       = require "gulp"
-gutil      = require "gulp-util"
-livereload = require "gulp-livereload"
-lr         = require("tiny-lr")()
-path       = require "path"
+connect = require "gulp-connect"
+gulp    = require "gulp"
+gutil   = require "gulp-util"
+path    = require "path"
+
+test_dir = "./tests/**/*.*"
 
 gulp.task "server", ->
 
-  app = express()
-  app.use require("connect-livereload")(hostname: "0.0.0.0")
-  app.use express.static("./")
-  app.listen 4000
+  connect.server
+    livereload: true
+    port: 4000
+    root: "./"
 
-  gulp.watch ["./tests/**/*.*"], (evt) ->
+  gulp.watch [test_dir], (file) ->
 
-    fileName = path.relative("./", evt.path)
+    fileName = path.relative("./", file.path)
     gutil.log gutil.colors.cyan(fileName), "changed"
-    gulp.src(evt.path, read: false).pipe livereload(lr)
+
+    gulp.src(test_dir).pipe connect.reload()
