@@ -97,9 +97,10 @@ cacheInit = (node, depth) ->
   node
 
 valueParse = (vars, node, depth, variable, val) ->
-  val = [val] unless val instanceof Array
+  timeVar = "time" of vars and vars.time.value is variable
+  val     = [val] unless val instanceof Array
   for v, i in val
-    if variable is vars.time.value and v.constructor isnt Date
+    if timeVar and v.constructor isnt Date
       d = new Date v.toString()
       if d isnt "Invalid Date"
         d.setTime d.getTime() + d.getTimezoneOffset() * 60 * 1000
@@ -136,7 +137,7 @@ fetch = (vars, node, variable, depth) ->
   return variable if typeof variable is "number"
 
   nodeObject = validObject node
-  depth = vars.id.value unless depth
+  depth      = vars.id.value unless depth
 
   if nodeObject and node.values instanceof Array
     val = fetchArray vars, node.values, variable, depth
