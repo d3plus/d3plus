@@ -136,11 +136,11 @@ module.exports = function(params) {
         if (vars.size.value && validObject(nameList[0])) {
 
           var namesWithValues = nameList.filter(function(n){
-            return vars.size.value in n && !n.d3plus.merged;
+            return vars.size.value in n && (!("d3plus" in n) || !n.d3plus.merged);
           });
 
           var namesNoValues = nameList.filter(function(n){
-            return !(vars.size.value in n) || n.d3plus.merged;
+            return !(vars.size.value in n) || (n.d3plus && n.d3plus.merged);
           });
 
           arraySort(namesWithValues, vars.size.value, "desc", [], vars);
