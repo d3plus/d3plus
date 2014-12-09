@@ -287,7 +287,7 @@ var parseDates = function(dateArray) {
 
   checkDate(dateArray);
 
-  return dates;
+  return uniqueValues(dates);
 
 };
 

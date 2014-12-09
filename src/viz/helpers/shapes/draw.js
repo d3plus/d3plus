@@ -610,7 +610,7 @@ module.exports = function(vars) {
         }
         else if (depth_delta === 1 && vars.zoom.value) {
 
-          var id = fetchValue(vars,d.d3plus_data || d,vars.id.value)
+          var id = fetchValue(vars, d.d3plus_data || d, vars.id.value)
 
           vars.history.states.push(function(){
 

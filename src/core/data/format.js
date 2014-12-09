@@ -25,10 +25,10 @@ module.exports = function( vars ) {
     for ( var i = 0; i < uniqueTimes.length ; i++ ) {
       var d = new Date(uniqueTimes[i].toString());
       if (d !== "Invalid Date") {
-        d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
         vars.data.time.values.push(d);
       }
     }
+
     vars.data.time.values.sort(function(a,b){ return a-b; });
 
     var step = [];
@@ -180,9 +180,7 @@ module.exports = function( vars ) {
     var timeData = {};
     for (var t = 0; t < vars.data.value.length; t++) {
       var data = vars.data.value[t];
-      var date = new Date(fetchValue(vars, data, vars.time.value).toString());
-      date.setTime( date.getTime() + date.getTimezoneOffset() * 60 * 1000 );
-      var ms = date.getTime();
+      var ms = fetchValue(vars, data, vars.time.value).getTime();
       if (!(ms in timeData)) timeData[ms] = [];
       timeData[ms].push(data);
     }

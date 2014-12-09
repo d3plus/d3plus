@@ -96,8 +96,15 @@ cacheInit = (node, depth) ->
   node.d3plus.data[depth] = {} unless depth of node.d3plus.data
   node
 
-valueParse = (node, depth, variable, val) ->
-  val = val[0] if val instanceof Array and val.length is 1
+valueParse = (vars, node, depth, variable, val) ->
+  val = [val] unless val instanceof Array
+  for v, i in val
+    if variable is vars.time.value and v.constructor isnt Date
+      d = new Date v.toString()
+      if d isnt "Invalid Date"
+        d.setTime d.getTime() + d.getTimezoneOffset() * 60 * 1000
+        val[i] = d
+  val = val[0] if val.length is 1
   if val isnt null and validObject(node) and
      typeof variable is "string" and
      variable not of node
@@ -120,7 +127,7 @@ fetchArray = (vars, arr, variable, depth) ->
   val = []
   for item in arr
     v = find vars, item, variable, depth
-    val.push valueParse item, depth, variable, v
+    val.push valueParse vars, item, depth, variable, v
   aggregate vars, val, variable
 
 fetch = (vars, node, variable, depth) ->
@@ -139,12 +146,12 @@ fetch = (vars, node, variable, depth) ->
     val = fetchArray vars, node, variable, depth
   else
     val = find vars, node, variable, depth
-    val = valueParse node, depth, variable, val
+    val = valueParse vars, node, depth, variable, val
     # if val is null and nodeObject and node[vars.id.value] instanceof Array
     #   val = []
     #   for item in node[vars.id.value]
     #     v = find(vars, item, variable, depth)
-    #     val.push valueParse item, depth, variable, v
+    #     val.push valueParse vars, item, depth, variable, v
     #   val = aggregate vars, val, variable
 
   val
