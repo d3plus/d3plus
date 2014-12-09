@@ -4,18 +4,21 @@ objectValidate = require "../object/validate.coffee"
 uniques = (data, value, fetch, vars, depth) ->
 
   return [] if data is undefined
-  depth = vars.id.value if vars and depth is undefined
-  data  = [data] unless data instanceof Array
+
+  depth   = vars.id.value if vars and depth is undefined
+  data    = [data] unless data instanceof Array
+  vals    = []
+  lookups = []
 
   if value is undefined
     return data.reduce (p, c) ->
-      p.push c if p.indexOf(c) < 0
+      lookup = JSON.stringify(c)
+      if lookups.indexOf(lookup) < 0
+        p.push c if p.indexOf(c) < 0
+        lookups.push lookup
       p
     , []
 
-  data = [ data ] unless data instanceof Array
-  vals = []
-  lookups = []
 
   for d in data
 
@@ -31,15 +34,13 @@ uniques = (data, value, fetch, vars, depth) ->
 
       if val isnt undefined and val isnt null
 
-        if ["number", "string"].indexOf(typeof val) >= 0
-          lookup = val
-        else
-          lookup = JSON.stringify(val)
+        lookup = JSON.stringify(val)
 
         if lookup isnt undefined and lookups.indexOf(lookup) < 0
           vals.push val
           lookups.push lookup
 
   vals.sort (a, b) -> a - b
+
 
 module.exports = uniques
