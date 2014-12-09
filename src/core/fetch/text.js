@@ -38,6 +38,7 @@ module.exports = function(vars, obj, depth) {
   else {
 
     var formatObj = validObject(obj) ? obj : undefined;
+
     if (obj[vars.id.value] instanceof Array) {
       obj = obj[vars.id.value];
     }
@@ -50,6 +51,11 @@ module.exports = function(vars, obj, depth) {
       var name = uniques(obj, t, fetchValue, vars, key);
 
       if ( name.length ) {
+        if (name.length > 1) {
+          name = name.filter(function(n){
+            return (n instanceof Array) || (n.indexOf(" < ") < 0);
+          });
+        }
         name = name.map(function(n){
           if (n instanceof Array) {
             return n.map(function(nn){

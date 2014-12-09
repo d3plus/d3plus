@@ -1,5 +1,6 @@
 var arraySort     = require("../../../array/sort.coffee"),
     createTooltip = require("../../../tooltip/create.js"),
+    dataNest      = require("../../../core/data/nest.js"),
     fetchData     = require("./data.js"),
     fetchColor    = require("../../../core/fetch/color.coffee"),
     fetchText     = require("../../../core/fetch/text.js"),
@@ -130,46 +131,55 @@ module.exports = function(params) {
 
       if ( nameList instanceof Array ) {
 
-        nameList = nameList.slice(0)
+        nameList = nameList.slice(0);
 
         if (vars.size.value && validObject(nameList[0])) {
 
           var namesWithValues = nameList.filter(function(n){
-            return vars.size.value in n;
+            return vars.size.value in n && !n.d3plus.merged;
           });
 
           var namesNoValues = nameList.filter(function(n){
-            return !(vars.size.value in n);
+            return !(vars.size.value in n) || n.d3plus.merged;
           });
 
-          arraySort( namesWithValues , vars.size.value , "desc" , [] , vars )
+          arraySort(namesWithValues, vars.size.value, "desc", [], vars);
 
-          nameList = namesWithValues.concat(namesNoValues)
+          nameList = namesWithValues.concat(namesNoValues);
 
         }
 
-        var limit = length === "short" ? 3 : vars.data.large
-          , max   = d3.min([nameList.length , limit])
-          , objs  = []
+        var limit = length === "short" ? 3 : vars.data.large,
+            max   = d3.min([nameList.length , limit]),
+            objs  = [],
+            listLength = nameList.length;
 
-        for ( var i = 0 ; i < max ; i++ ) {
+        for (var i = 0; i < max; i++) {
 
-          var id    = nameList[i],
-              name  = fetchText(vars, id, depth)[0],
-              value = fetchValue(vars, id, vars.size.value, nestKey),
-              color = fetchColor(vars, id, nestKey);
+          var id    = nameList.shift(),
+              name  = fetchText(vars, id, depth)[0];
 
-          children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
+          if (!children[name]) {
 
-          if ( color ) {
-            if ( !children.d3plus_colors ) children.d3plus_colors = {}
-            children.d3plus_colors[name] = color
+            var value = fetchValue(vars, id, vars.size.value, nestKey),
+            color = fetchColor(vars, id, nestKey);
+
+            children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
+
+            if ( color ) {
+              if ( !children.d3plus_colors ) children.d3plus_colors = {}
+              children.d3plus_colors[name] = color
+            }
+
+          }
+          else {
+            i--;
           }
 
         }
 
-        if ( nameList.length > max ) {
-          children.d3plusMore = nameList.length - max
+        if ( listLength > max ) {
+          children.d3plusMore = listLength - max
         }
 
       }

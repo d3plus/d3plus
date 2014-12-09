@@ -4,7 +4,7 @@ var fetchValue = require("../fetch/value.coffee"),
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
-var dataNest = function( vars , flatData , nestingLevels , requirements ) {
+var dataNest = function(vars, flatData, nestingLevels, requirements) {
 
   requirements = requirements || vars.types[vars.type.value].requirements || [];
 
@@ -63,7 +63,9 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
   checkAxes();
 
-  var i = nestingLevels.length ? nestingLevels.length - 1 : 0;
+  var deepest_is_id = nestingLevels.length && vars.id.nesting.indexOf(nestingLevels[nestingLevels.length - 1]) >= 0;
+  var i = nestingLevels.length && deepest_is_id ? nestingLevels.length - 1 : 0;
+  var depthKey = deepest_is_id ? vars.id.nesting[i] : vars.depth.value;
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If we're at the deepest level, create the rollup function.
@@ -89,13 +91,13 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
       }
     };
 
-    for (var ll = 0; ll < leaves.length; ll++) {
-      var l = leaves[ll];
-      if ("d3plus" in l) {
-        if (l.d3plus.merged instanceof Array) {
-          if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
-          returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged);
-        }
+    var merged = d3.sum(leaves, function(ll){ return "d3plus" in ll && ll.d3plus.merged ? 1 : 0; });
+
+    if (merged === leaves.length) {
+      for (var ll = 0; ll < leaves.length; ll++) {
+        var l = leaves[ll];
+        if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
+        returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged);
         if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text;
       }
     }
@@ -161,7 +163,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
           var testVals = checkVal(leaves, key);
           var keyValues = testVals.length === 1 ? testVals[0][key]
-                        : uniqueValues(testVals, key, fetchValue, vars, vars.id.nesting[i]);
+                        : uniqueValues(testVals, key, fetchValue, vars, depthKey);
 
           if (testVals.length === 1) {
             returnObj[key] = keyValues;
@@ -172,7 +174,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
               keyValues = [keyValues];
             }
 
-            if (idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1) {
+            if (idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1) {
               if (nestingLevels.length == 1 && testVals.length > leaves.length) {
                 var newNesting = nestingLevels.concat(key);
                 testVals = dataNest(vars,testVals,newNesting);
