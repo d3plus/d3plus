@@ -119,11 +119,12 @@ module.exports = function(params) {
 
     var ex = {},
         children = {},
-        depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth+1 : dataDepth,
+        depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth + 1 : dataDepth,
         nestKey   = vars.id.nesting[depth],
         nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey],
+        uniqueNames = uniques(nameList, nestKey),
         dataValue = fetchValue( vars , d , vars.size.value ),
-        same = (!(nameList instanceof Array) || (nameList instanceof Array && nameList.length === 1)) && depth === vars.depth.value;
+        same = (!(nameList instanceof Array) || (nameList instanceof Array && uniqueNames.length === 1)) && depth === vars.depth.value;
 
     if ( !same && vars.tooltip.children.value ) {
 
@@ -134,12 +135,12 @@ module.exports = function(params) {
         if (vars.size.value && validObject(nameList[0])) {
 
           var namesWithValues = nameList.filter(function(n){
-            return vars.size.value in n
-          })
+            return vars.size.value in n;
+          });
 
           var namesNoValues = nameList.filter(function(n){
-            return !(vars.size.value in n)
-          })
+            return !(vars.size.value in n);
+          });
 
           arraySort( namesWithValues , vars.size.value , "desc" , [] , vars )
 

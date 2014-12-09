@@ -32,8 +32,9 @@ module.exports = function(vars) {
 
       if ( vars.dev.value ) print.time("grouping data by colors");
 
+      var data;
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
-        var data = copy(vars.nodes.restriced || vars.nodes.value);
+        data = copy(vars.nodes.restriced || vars.nodes.value);
         if ( vars.data.viz.length ) {
           for (var i = 0 ; i < data.length ; i++) {
             var appData = vars.data.viz.filter(function(a){
@@ -46,7 +47,7 @@ module.exports = function(vars) {
         }
       }
       else {
-        var data = vars.data.viz;
+        data = vars.data.viz;
       }
 
       var colorFunction = function(d){
