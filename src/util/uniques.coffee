@@ -22,23 +22,21 @@ uniques = (data, value, fetch, vars, depth) ->
 
   for d in data
 
-    if objectValidate d
+    if fetch
+      val = uniques fetch(vars, d, value, depth)
+      val = val[0] if val.length is 1
+    else if typeof value is "function"
+      val = value d
+    else if objectValidate d
+      val = d[value]
 
-      if fetch
-        val = uniques fetch(vars, d, value, depth)
-        val = val[0] if val.length is 1
-      else if typeof value is "function"
-        val = value d
-      else
-        val = d[value]
+    if val isnt undefined and val isnt null
 
-      if val isnt undefined and val isnt null
+      lookup = JSON.stringify(val)
 
-        lookup = JSON.stringify(val)
-
-        if lookup isnt undefined and lookups.indexOf(lookup) < 0
-          vals.push val
-          lookups.push lookup
+      if lookup isnt undefined and lookups.indexOf(lookup) < 0
+        vals.push val
+        lookups.push lookup
 
   vals.sort (a, b) -> a - b
 

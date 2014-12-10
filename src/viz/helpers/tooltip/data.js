@@ -227,8 +227,8 @@ module.exports = function(vars, id, length, extras, children, depth) {
 
         }
         else {
-          var name = child
-            , highlight = colors && colors[name] ? colors[name] : false
+          var name = child,
+              highlight = colors && colors[name] ? colors[name] : false
         }
 
         tooltip_data.push({

@@ -131,7 +131,7 @@ module.exports = function(params) {
     else uniqueNames = uniques(nameList);
 
     var dataValue = fetchValue( vars , d , vars.size.value ),
-        firstName = fetchText(vars, uniqueNames[0], depth),
+        firstName = fetchText(vars, uniqueNames[0], depth)[0],
         same = (uniqueNames.length === 1 && firstName === params.title) && depth <= vars.depth.value;
 
     if ( !same && vars.tooltip.children.value ) {
@@ -175,7 +175,7 @@ module.exports = function(params) {
 
             children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
 
-            if ( color ) {
+            if (color) {
               if ( !children.d3plus_colors ) children.d3plus_colors = {}
               children.d3plus_colors[name] = color
             }
@@ -286,7 +286,7 @@ module.exports = function(params) {
         "fontsize": vars.tooltip.font.size,
         "fontweight": vars.tooltip.font.weight,
         "data": tooltip_data,
-        "color": fetchColor(vars,d),
+        "color": fetchColor(vars, d),
         "allColors": true,
         "footer": params.footer === false ? params.footer : footer,
         "fullscreen": fullscreen,
