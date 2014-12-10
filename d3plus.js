@@ -5,13 +5,18 @@
  */
 var d3plus, message, stylesheet;
 
-d3plus = window.d3plus || {};
+d3plus = {};
 
-window.d3plus = d3plus;
+if (typeof window !== "undefined") {
+  window.d3plus = d3plus;
+}
+
+module.exports = d3plus;
 
 
 /**
- * The current version of **D3plus** you are using. Returns a string in [semantic versioning](http://semver.org/) format.
+ * The current version of **D3plus** you are using. Returns a string in
+ * [semantic versioning](http://semver.org/) format.
  * @property d3plus.version
  * @for d3plus
  * @type String
@@ -600,7 +605,7 @@ function base64Write (buf, string, offset, length) {
 }
 
 function utf16leWrite (buf, string, offset, length) {
-  var charsWritten = blitBuffer(utf16leToBytes(string), buf, offset, length)
+  var charsWritten = blitBuffer(utf16leToBytes(string), buf, offset, length, 2)
   return charsWritten
 }
 
@@ -1284,7 +1289,8 @@ function base64ToBytes (str) {
   return base64.toByteArray(str)
 }
 
-function blitBuffer (src, dst, offset, length) {
+function blitBuffer (src, dst, offset, length, unitSize) {
+  if (unitSize) length -= length % unitSize;
   for (var i = 0; i < length; i++) {
     if ((i + offset >= dst.length) || (i >= src.length))
       break
@@ -10744,10 +10750,10 @@ module.exports = function( vars ) {
     for ( var i = 0; i < uniqueTimes.length ; i++ ) {
       var d = new Date(uniqueTimes[i].toString());
       if (d !== "Invalid Date") {
-        d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
         vars.data.time.values.push(d);
       }
     }
+
     vars.data.time.values.sort(function(a,b){ return a-b; });
 
     var step = [];
@@ -10899,9 +10905,7 @@ module.exports = function( vars ) {
     var timeData = {};
     for (var t = 0; t < vars.data.value.length; t++) {
       var data = vars.data.value[t];
-      var date = new Date(fetchValue(vars, data, vars.time.value).toString());
-      date.setTime( date.getTime() + date.getTimezoneOffset() * 60 * 1000 );
-      var ms = date.getTime();
+      var ms = fetchValue(vars, data, vars.time.value).getTime();
       if (!(ms in timeData)) timeData[ms] = [];
       timeData[ms].push(data);
     }
@@ -11114,7 +11118,7 @@ var fetchValue = require("../fetch/value.coffee"),
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
-var dataNest = function( vars , flatData , nestingLevels , requirements ) {
+var dataNest = function(vars, flatData, nestingLevels, requirements) {
 
   requirements = requirements || vars.types[vars.type.value].requirements || [];
 
@@ -11173,7 +11177,9 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
   checkAxes();
 
-  var i = nestingLevels.length ? nestingLevels.length - 1 : 0;
+  var deepest_is_id = nestingLevels.length && vars.id.nesting.indexOf(nestingLevels[nestingLevels.length - 1]) >= 0;
+  var i = nestingLevels.length && deepest_is_id ? nestingLevels.length - 1 : 0;
+  var depthKey = deepest_is_id ? vars.id.nesting[i] : vars.depth.value;
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If we're at the deepest level, create the rollup function.
@@ -11199,13 +11205,13 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
       }
     };
 
-    for (var ll = 0; ll < leaves.length; ll++) {
-      var l = leaves[ll];
-      if ("d3plus" in l) {
-        if (l.d3plus.merged instanceof Array) {
-          if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
-          returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged);
-        }
+    var merged = d3.sum(leaves, function(ll){ return "d3plus" in ll && ll.d3plus.merged ? 1 : 0; });
+
+    if (merged === leaves.length) {
+      for (var ll = 0; ll < leaves.length; ll++) {
+        var l = leaves[ll];
+        if (!returnObj.d3plus.merged) returnObj.d3plus.merged = [];
+        returnObj.d3plus.merged = returnObj.d3plus.merged.concat(l.d3plus.merged);
         if (l.d3plus.text) returnObj.d3plus.text = l.d3plus.text;
       }
     }
@@ -11271,7 +11277,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
 
           var testVals = checkVal(leaves, key);
           var keyValues = testVals.length === 1 ? testVals[0][key]
-                        : uniqueValues(testVals, key, fetchValue, vars, vars.id.nesting[i]);
+                        : uniqueValues(testVals, key, fetchValue, vars, depthKey);
 
           if (testVals.length === 1) {
             returnObj[key] = keyValues;
@@ -11282,7 +11288,7 @@ var dataNest = function( vars , flatData , nestingLevels , requirements ) {
               keyValues = [keyValues];
             }
 
-            if (idKey && vars.id.nesting.indexOf(key) > i && testVals.length > 1) {
+            if (idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1) {
               if (nestingLevels.length == 1 && testVals.length > leaves.length) {
                 var newNesting = nestingLevels.concat(key);
                 testVals = dataNest(vars,testVals,newNesting);
@@ -11395,7 +11401,7 @@ var parseDates = function(dateArray) {
 
   checkDate(dateArray);
 
-  return dates;
+  return uniqueValues(dates);
 
 };
 
@@ -11422,191 +11428,192 @@ var arraySort = require("../../array/sort.coffee"),
     dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.coffee"),
     fetchColor = require("../fetch/color.coffee"),
-    fetchText  = require("../fetch/text.js")
+    fetchText  = require("../fetch/text.js");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Merges data underneath the size threshold
 //-------------------------------------------------------------------
 module.exports = function( vars , rawData , split ) {
 
+  var threshold;
   if ( vars.size.threshold.value === false ) {
-    var threshold = 0
+    threshold = 0;
   }
   else if (typeof vars.size.threshold.value === "number") {
-    var threshold = vars.size.threshold.value
+    threshold = vars.size.threshold.value;
   }
   else if (typeof vars.size.threshold.value === "function") {
-    var threshold = vars.size.threshold.value(vars)
+    threshold = vars.size.threshold.value(vars);
   }
   else if (typeof vars.types[vars.type.value].threshold === "number") {
-    var threshold = vars.types[vars.type.value].threshold
+    threshold = vars.types[vars.type.value].threshold;
   }
   else if (typeof vars.types[vars.type.value].threshold === "function") {
-    var threshold = vars.types[vars.type.value].threshold(vars)
+    threshold = vars.types[vars.type.value].threshold(vars);
   }
   else {
-    var threshold = 0.02
+    threshold = 0.02;
   }
 
   if (typeof threshold == "number" && threshold > 0) {
 
-    var allowed = [],
-        cutoff = vars.depth.value == 0 ? 0 : {},
+    var largeEnough = [],
+        cutoff = vars.depth.value === 0 ? 0 : {},
         removed = [],
-        largest = {}
+        largest = {};
 
-    var nest = d3.nest()
+    var nest = d3.nest();
 
     if (split) {
       nest
         .key(function(d){
-          return fetchValue(vars,d,split)
-        })
+          return fetchValue(vars, d, split);
+        });
     }
 
     nest
       .rollup(function(leaves){
-        var total = leaves.length
+        var total = leaves.length;
         if (vars.aggs[vars.size.value]) {
           if (typeof vars.aggs[vars.size.value] == "function") {
-            total = vars.aggs[vars.size.value](leaves)
+            total = vars.aggs[vars.size.value](leaves);
           }
           else if (typeof vars.aggs[vars.size.value] == "string") {
             total = d3[vars.aggs[vars.size.value]](leaves,function(l){
-              return fetchValue(vars,l,vars.size.value)
-            })
+              return fetchValue(vars,l,vars.size.value);
+            });
           }
         }
         else {
           total = d3.sum(leaves,function(l){
-            return fetchValue(vars,l,vars.size.value)
-          })
+            return fetchValue(vars,l,vars.size.value);
+          });
         }
-        var x = split ? fetchValue(vars,leaves[0],split) : "all"
-        largest[x] = total
-        return total
+        var x = split ? fetchValue(vars,leaves[0],split) : "all";
+        largest[x] = total;
+        return total;
       })
-      .entries(rawData)
+      .entries(rawData);
+
+    rawData.forEach(function(d){
+      var id = fetchValue(vars, d, vars.id.value),
+          val = fetchValue(vars, d, vars.size.value),
+          x = split ? fetchValue(vars, d, split) : "all",
+          allowed = val/largest[x] >= threshold;
+
+      if (allowed && largeEnough.indexOf(id) < 0) {
+        largeEnough.push(id);
+      }
+
+    });
 
     var filteredData = rawData.filter(function(d){
 
-      var id = fetchValue(vars,d,vars.id.value),
-          val = fetchValue(vars,d,vars.size.value),
-          x = split ? fetchValue(vars,d,split) : "all"
+      var id = fetchValue(vars, d, vars.id.value),
+          allowed = largeEnough.indexOf(id) >= 0;
 
-      if (allowed.indexOf(id) < 0) {
-        if (val/largest[x] >= threshold) {
-          allowed.push(id)
-        }
-
-      }
-
-      if (allowed.indexOf(id) < 0) {
+      if (!allowed) {
+        var val = fetchValue(vars, d, vars.size.value);
         if (val > 0) {
           if (vars.depth.value === 0) {
             if (val > cutoff) cutoff = val;
           }
           else {
-            var parent = d[vars.id.nesting[vars.depth.value-1]]
-            if (!(parent in cutoff)) cutoff[parent] = 0
-            if (val > cutoff[parent]) cutoff[parent] = val
+            var parent = d[vars.id.nesting[vars.depth.value-1]];
+            if (!(parent in cutoff)) cutoff[parent] = 0;
+            if (val > cutoff[parent]) cutoff[parent] = val;
           }
           removed.push(d);
         }
-        return false;
       }
-      else {
-        return true;
-      }
+      return allowed;
 
-    })
+    });
 
     if ( removed.length > 1 ) {
 
-      removed = arraySort( removed , vars.size.value , "desc" , [] , vars )
+      removed = arraySort( removed , vars.size.value , "desc" , [] , vars );
 
-      var levels = vars.id.nesting.slice(0,vars.depth.value)
-      var merged = dataNest(vars,removed,levels)
+      var levels = vars.id.nesting.slice(0,vars.depth.value);
+      var merged = dataNest(vars, removed, levels);
 
       merged.forEach(function(m){
 
-        var parent = vars.id.nesting[vars.depth.value-1]
+        var parent = vars.id.nesting[vars.depth.value-1];
+        children = parent ? removed.filter(function(r){
+          return r[parent] === m[parent];
+        }) : removed;
 
-        vars.id.nesting.forEach(function(d,i){
+        if (children.length > 1) {
 
-          if (vars.depth.value == i) {
-            var prev = m[vars.id.nesting[i-1]]
-            if ( typeof prev === "string" ) {
-              m[d] = "d3plus_other_"+prev
+          vars.id.nesting.forEach(function(d,i){
+
+            if (vars.depth.value == i) {
+              var prev = m[d];
+              if ( typeof prev === "string" ) {
+                m[d] = "d3plus_other_"+prev;
+              }
+              else {
+                m[d] = "d3plus_other";
+              }
+            }
+            else if (i > vars.depth.value) {
+              delete m[d];
+            }
+          });
+
+          if (vars.color.value && vars.color.type === "string") {
+            if (vars.depth.value === 0) {
+              m[vars.color.value] = vars.color.missing;
             }
             else {
-              m[d] = "d3plus_other"
+              m[vars.color.value] = fetchValue(vars,m[parent],vars.color.value,parent);
             }
           }
-          else if (i > vars.depth.value) {
-            delete m[d]
-          }
-        })
 
-        if (vars.color.value && vars.color.type === "string") {
-          if (vars.depth.value == 0) {
-            m[vars.color.value] = vars.color.missing
+          if (vars.icon.value) {
+            m[vars.icon.value] = fetchValue(vars,m[parent],vars.icon.value,parent);
+          }
+
+          if (m[parent]) {
+            m.d3plus.depth = vars.depth.value;
+          }
+
+          var textLabel;
+          if (vars.depth.value === 0) {
+            textLabel = vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
+            textLabel += " < "+vars.format.value(cutoff, vars.size.value, vars);
           }
           else {
-            m[vars.color.value] = fetchValue(vars,m[parent],vars.color.value,parent)
+            textLabel = fetchText(vars,m,vars.depth.value-1);
+            textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
+            textLabel += " < "+vars.format.value(cutoff[m[parent]], vars.size.value, vars);
           }
+          textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)";
+
+          m.d3plus.threshold = cutoff;
+          m.d3plus.merged = children;
+
+          if (vars.text.value) {
+            m[vars.text.value] = textLabel;
+          }
+          m.d3plus.text = textLabel;
+
         }
 
-        if (vars.icon.value) {
-          m[vars.icon.value] = fetchValue(vars,m[parent],vars.icon.value,parent)
-        }
-
-        if (m[parent]) {
-          m.d3plus.depth = vars.depth.value
-        }
-
-        if (vars.depth.value === 0) {
-          var textLabel = vars.format.value(vars.format.locale.value.ui.values, "threshold", vars)
-          textLabel += " < "+vars.format.value(cutoff, vars.size.value, vars)
-        }
-        else {
-          var textLabel = fetchText(vars,m,vars.depth.value-1)
-          textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars)
-          textLabel += " < "+vars.format.value(cutoff[m[parent]], vars.size.value, vars)
-        }
-        textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)"
-
-        m.d3plus.threshold = cutoff
-        if (parent) {
-          m.d3plus.merged = []
-          removed.forEach(function(r){
-            if (m[parent] == r[parent]) {
-              m.d3plus.merged.push(r)
-            }
-          })
-        }
-        else {
-          m.d3plus.merged = removed
-        }
-
-        if (vars.text.value) {
-          m[vars.text.value] = textLabel
-        }
-        m.d3plus.text = textLabel
-
-      })
+      });
 
     }
     else {
-      merged = removed
+      merged = removed;
     }
 
-    return filteredData.concat(merged)
+    return filteredData.concat(merged);
 
   }
 
-  return rawData
+  return rawData;
 
-}
+};
 
 },{"../../array/sort.coffee":37,"../fetch/color.coffee":64,"../fetch/text.js":67,"../fetch/value.coffee":68,"./nest.js":62}],64:[function(require,module,exports){
 var fetchValue, getColor, getRandom, randomColor, uniques, validColor, validObject;
@@ -11988,6 +11995,7 @@ module.exports = function(vars, obj, depth) {
   else {
 
     var formatObj = validObject(obj) ? obj : undefined;
+
     if (obj[vars.id.value] instanceof Array) {
       obj = obj[vars.id.value];
     }
@@ -12000,6 +12008,11 @@ module.exports = function(vars, obj, depth) {
       var name = uniques(obj, t, fetchValue, vars, key);
 
       if ( name.length ) {
+        if (name.length > 1) {
+          name = name.filter(function(n){
+            return (n instanceof Array) || (n.indexOf(" < ") < 0);
+          });
+        }
         name = name.map(function(n){
           if (n instanceof Array) {
             return n.map(function(nn){
@@ -12155,8 +12168,26 @@ cacheInit = function(node, depth) {
   return node;
 };
 
-valueParse = function(node, depth, variable, val) {
-  if (val instanceof Array && val.length === 1) {
+valueParse = function(vars, node, depth, variable, val) {
+  var d, i, timeVar, v, _i, _len;
+  if (val === null) {
+    return val;
+  }
+  timeVar = "time" in vars && vars.time.value === variable;
+  if (!(val instanceof Array)) {
+    val = [val];
+  }
+  for (i = _i = 0, _len = val.length; _i < _len; i = ++_i) {
+    v = val[i];
+    if (timeVar && v !== null && v.constructor !== Date) {
+      d = new Date(v.toString());
+      if (d !== "Invalid Date") {
+        d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
+        val[i] = d;
+      }
+    }
+  }
+  if (val.length === 1) {
     val = val[0];
   }
   if (val !== null && validObject(node) && typeof variable === "string" && !(variable in node)) {
@@ -12189,7 +12220,7 @@ fetchArray = function(vars, arr, variable, depth) {
   for (_i = 0, _len = arr.length; _i < _len; _i++) {
     item = arr[_i];
     v = find(vars, item, variable, depth);
-    val.push(valueParse(item, depth, variable, v));
+    val.push(valueParse(vars, item, depth, variable, v));
   }
   return aggregate(vars, val, variable);
 };
@@ -12214,7 +12245,7 @@ fetch = function(vars, node, variable, depth) {
     val = fetchArray(vars, node, variable, depth);
   } else {
     val = find(vars, node, variable, depth);
-    val = valueParse(node, depth, variable, val);
+    val = valueParse(vars, node, depth, variable, val);
   }
   return val;
 };
@@ -19637,42 +19668,38 @@ uniques = function(data, value, fetch, vars, depth) {
   if (!(data instanceof Array)) {
     data = [data];
   }
+  vals = [];
+  lookups = [];
   if (value === void 0) {
     return data.reduce(function(p, c) {
-      if (p.indexOf(c) < 0) {
-        p.push(c);
+      var lookup;
+      lookup = JSON.stringify(c);
+      if (lookups.indexOf(lookup) < 0) {
+        if (p.indexOf(c) < 0) {
+          p.push(c);
+        }
+        lookups.push(lookup);
       }
       return p;
     }, []);
   }
-  if (!(data instanceof Array)) {
-    data = [data];
-  }
-  vals = [];
-  lookups = [];
   for (_i = 0, _len = data.length; _i < _len; _i++) {
     d = data[_i];
-    if (objectValidate(d)) {
-      if (fetch) {
-        val = uniques(fetch(vars, d, value, depth));
-        if (val.length === 1) {
-          val = val[0];
-        }
-      } else if (typeof value === "function") {
-        val = value(d);
-      } else {
-        val = d[value];
+    if (fetch) {
+      val = uniques(fetch(vars, d, value, depth));
+      if (val.length === 1) {
+        val = val[0];
       }
-      if (val !== void 0 && val !== null) {
-        if (["number", "string"].indexOf(typeof val) >= 0) {
-          lookup = val;
-        } else {
-          lookup = JSON.stringify(val);
-        }
-        if (lookup !== void 0 && lookups.indexOf(lookup) < 0) {
-          vals.push(val);
-          lookups.push(lookup);
-        }
+    } else if (typeof value === "function") {
+      val = value(d);
+    } else if (objectValidate(d)) {
+      val = d[value];
+    }
+    if (val !== void 0 && val !== null) {
+      lookup = JSON.stringify(val);
+      if (lookup !== void 0 && lookups.indexOf(lookup) < 0) {
+        vals.push(val);
+        lookups.push(lookup);
       }
     }
   }
@@ -21934,7 +21961,7 @@ module.exports = function(vars) {
         }
         else if (depth_delta === 1 && vars.zoom.value) {
 
-          var id = fetchValue(vars,d.d3plus_data || d,vars.id.value)
+          var id = fetchValue(vars, d.d3plus_data || d, vars.id.value)
 
           vars.history.states.push(function(){
 
@@ -24282,6 +24309,7 @@ module.exports = function(vars) {
 },{"../../../core/console/print.coffee":54}],223:[function(require,module,exports){
 var arraySort     = require("../../../array/sort.coffee"),
     createTooltip = require("../../../tooltip/create.js"),
+    dataNest      = require("../../../core/data/nest.js"),
     fetchData     = require("./data.js"),
     fetchColor    = require("../../../core/fetch/color.coffee"),
     fetchText     = require("../../../core/fetch/text.js"),
@@ -24401,65 +24429,84 @@ module.exports = function(params) {
 
     var ex = {},
         children = {},
-        depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth+1 : dataDepth,
+        depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth + 1 : dataDepth,
         nestKey   = vars.id.nesting[depth],
-        nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey],
-        dataValue = fetchValue( vars , d , vars.size.value ),
-        same = (!(nameList instanceof Array) || (nameList instanceof Array && nameList.length === 1)) && depth === vars.depth.value;
+        nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey];
+
+    if (!(nameList instanceof Array)) nameList = [nameList];
+
+    var uniqueNames;
+    if (validObject(nameList[0])) uniqueNames = uniques(nameList, nestKey);
+    else uniqueNames = uniques(nameList);
+
+    var dataValue = fetchValue( vars , d , vars.size.value ),
+        firstName = fetchText(vars, uniqueNames[0], depth)[0],
+        same = (uniqueNames.length === 1 && firstName === params.title) && depth <= vars.depth.value;
 
     if ( !same && vars.tooltip.children.value ) {
 
       if ( nameList instanceof Array ) {
 
-        nameList = nameList.slice(0)
+        nameList = nameList.slice(0);
 
         if (vars.size.value && validObject(nameList[0])) {
 
           var namesWithValues = nameList.filter(function(n){
-            return vars.size.value in n
-          })
+            return vars.size.value in n && (!("d3plus" in n) || !n.d3plus.merged);
+          });
 
           var namesNoValues = nameList.filter(function(n){
-            return !(vars.size.value in n)
-          })
+            return !(vars.size.value in n) || (n.d3plus && n.d3plus.merged);
+          });
 
-          arraySort( namesWithValues , vars.size.value , "desc" , [] , vars )
+          arraySort(namesWithValues, vars.size.value, "desc", [], vars);
 
-          nameList = namesWithValues.concat(namesNoValues)
+          nameList = namesWithValues.concat(namesNoValues);
 
         }
 
-        var limit = length === "short" ? 3 : vars.data.large
-          , max   = d3.min([nameList.length , limit])
-          , objs  = []
+        var limit = length === "short" ? 3 : vars.data.large,
+            listLength = nameList.length,
+            max   = d3.min([listLength , limit]),
+            objs  = [];
 
-        for ( var i = 0 ; i < max ; i++ ) {
+        for (var i = 0; i < max; i++) {
 
-          var id    = nameList[i],
-              name  = fetchText(vars, id, depth)[0],
-              value = fetchValue(vars, id, vars.size.value, nestKey),
-              color = fetchColor(vars, id, nestKey);
+          if (!nameList.length) break;
 
-          children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
+          var id    = nameList.shift(),
+              name  = fetchText(vars, id, depth)[0];
 
-          if ( color ) {
-            if ( !children.d3plus_colors ) children.d3plus_colors = {}
-            children.d3plus_colors[name] = color
+          if (name && !children[name]) {
+
+            var value = fetchValue(vars, id, vars.size.value, nestKey),
+            color = fetchColor(vars, id, nestKey);
+
+            children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
+
+            if (color) {
+              if ( !children.d3plus_colors ) children.d3plus_colors = {}
+              children.d3plus_colors[name] = color
+            }
+
+          }
+          else {
+            i--;
           }
 
         }
 
-        if ( nameList.length > max ) {
-          children.d3plusMore = nameList.length - max
+        if ( listLength > max ) {
+          children.d3plusMore = listLength - max
         }
 
       }
-      else if ( nameList && nameList !== "null" ) {
-
-        var name  = fetchText( vars , nameList , depth )[0]
-        children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
-
-      }
+      // else if ( nameList && nameList !== "null" ) {
+      //
+      //   var name  = fetchText( vars , nameList , depth )[0]
+      //   children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
+      //
+      // }
 
     }
 
@@ -24548,7 +24595,7 @@ module.exports = function(params) {
         "fontsize": vars.tooltip.font.size,
         "fontweight": vars.tooltip.font.weight,
         "data": tooltip_data,
-        "color": fetchColor(vars,d),
+        "color": fetchColor(vars, d),
         "allColors": true,
         "footer": params.footer === false ? params.footer : footer,
         "fullscreen": fullscreen,
@@ -24599,7 +24646,7 @@ module.exports = function(params) {
 
 }
 
-},{"../../../array/sort.coffee":37,"../../../core/fetch/color.coffee":64,"../../../core/fetch/text.js":67,"../../../core/fetch/value.coffee":68,"../../../object/validate.coffee":163,"../../../tooltip/create.js":187,"../../../tooltip/remove.coffee":189,"../../../util/uniques.coffee":196,"../zoom/direction.coffee":233,"./data.js":224}],224:[function(require,module,exports){
+},{"../../../array/sort.coffee":37,"../../../core/data/nest.js":62,"../../../core/fetch/color.coffee":64,"../../../core/fetch/text.js":67,"../../../core/fetch/value.coffee":68,"../../../object/validate.coffee":163,"../../../tooltip/create.js":187,"../../../tooltip/remove.coffee":189,"../../../util/uniques.coffee":196,"../zoom/direction.coffee":233,"./data.js":224}],224:[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
     fetchValue   = require("../../../core/fetch/value.coffee"),
     fetchColor   = require("../../../core/fetch/color.coffee"),
@@ -24829,8 +24876,8 @@ module.exports = function(vars, id, length, extras, children, depth) {
 
         }
         else {
-          var name = child
-            , highlight = colors && colors[name] ? colors[name] : false
+          var name = child,
+              highlight = colors && colors[name] ? colors[name] : false
         }
 
         tooltip_data.push({
@@ -25216,8 +25263,9 @@ module.exports = function(vars) {
 
       if ( vars.dev.value ) print.time("grouping data by colors");
 
+      var data;
       if ( vars.nodes.value && vars.types[vars.type.value].requirements.indexOf("nodes") >= 0 ) {
-        var data = copy(vars.nodes.restriced || vars.nodes.value);
+        data = copy(vars.nodes.restriced || vars.nodes.value);
         if ( vars.data.viz.length ) {
           for (var i = 0 ; i < data.length ; i++) {
             var appData = vars.data.viz.filter(function(a){
@@ -25230,7 +25278,7 @@ module.exports = function(vars) {
         }
       }
       else {
-        var data = vars.data.viz;
+        data = vars.data.viz;
       }
 
       var colorFunction = function(d){
@@ -25468,11 +25516,6 @@ module.exports = function(vars) {
             return fetchColor(vars, d, colorKey);
           });
 
-        keys.transition().duration(vars.draw.timing)
-          .call(position)
-          .selectAll("rect.d3plus_color")
-            .call(style);
-
         keys.enter().append("g")
           .attr("class","d3plus_color")
           .attr("opacity",0)
@@ -25483,7 +25526,10 @@ module.exports = function(vars) {
 
         keys.order()
           .transition().duration(vars.draw.timing)
-          .attr("opacity", 1);
+          .call(position)
+          .attr("opacity", 1)
+          .selectAll("rect.d3plus_color")
+            .call(style);
 
         keys.exit()
           .transition().duration(vars.draw.timing)
@@ -29098,9 +29144,15 @@ dataChange = function(vars) {
   var changed, check, k, _i, _len;
   check = ["data", "time", "id", "depth", "type"];
   changed = vars.time.fixed.value && (vars.time.solo.changed || vars.time.mute.changed);
+  if (!changed) {
+    changed = vars.id.solo.changed || vars.id.mute.changed;
+  }
+  if (changed) {
+    return changed;
+  }
   for (_i = 0, _len = check.length; _i < _len; _i++) {
     k = check[_i];
-    if (changed || vars[k].changed) {
+    if (vars[k].changed) {
       changed = true;
       break;
     }
