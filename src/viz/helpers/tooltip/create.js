@@ -122,10 +122,17 @@ module.exports = function(params) {
         children = {},
         depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth + 1 : dataDepth,
         nestKey   = vars.id.nesting[depth],
-        nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey],
-        uniqueNames = uniques(nameList, nestKey),
-        dataValue = fetchValue( vars , d , vars.size.value ),
-        same = (!(nameList instanceof Array) || (nameList instanceof Array && uniqueNames.length === 1)) && depth === vars.depth.value;
+        nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey];
+
+    if (!(nameList instanceof Array)) nameList = [nameList];
+
+    var uniqueNames;
+    if (validObject(nameList[0])) uniqueNames = uniques(nameList, nestKey);
+    else uniqueNames = uniques(nameList);
+
+    var dataValue = fetchValue( vars , d , vars.size.value ),
+        firstName = fetchText(vars, uniqueNames[0], depth),
+        same = (uniqueNames.length === 1 && firstName === params.title) && depth <= vars.depth.value;
 
     if ( !same && vars.tooltip.children.value ) {
 
@@ -150,16 +157,18 @@ module.exports = function(params) {
         }
 
         var limit = length === "short" ? 3 : vars.data.large,
-            max   = d3.min([nameList.length , limit]),
-            objs  = [],
-            listLength = nameList.length;
+            listLength = nameList.length,
+            max   = d3.min([listLength , limit]),
+            objs  = [];
 
         for (var i = 0; i < max; i++) {
+
+          if (!nameList.length) break;
 
           var id    = nameList.shift(),
               name  = fetchText(vars, id, depth)[0];
 
-          if (!children[name]) {
+          if (name && !children[name]) {
 
             var value = fetchValue(vars, id, vars.size.value, nestKey),
             color = fetchColor(vars, id, nestKey);
@@ -183,12 +192,12 @@ module.exports = function(params) {
         }
 
       }
-      else if ( nameList && nameList !== "null" ) {
-
-        var name  = fetchText( vars , nameList , depth )[0]
-        children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
-
-      }
+      // else if ( nameList && nameList !== "null" ) {
+      //
+      //   var name  = fetchText( vars , nameList , depth )[0]
+      //   children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
+      //
+      // }
 
     }
 

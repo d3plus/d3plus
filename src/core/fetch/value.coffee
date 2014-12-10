@@ -97,10 +97,11 @@ cacheInit = (node, depth) ->
   node
 
 valueParse = (vars, node, depth, variable, val) ->
+  return val if val is null
   timeVar = "time" of vars and vars.time.value is variable
   val     = [val] unless val instanceof Array
   for v, i in val
-    if timeVar and v.constructor isnt Date
+    if timeVar and v isnt null and v.constructor isnt Date
       d = new Date v.toString()
       if d isnt "Invalid Date"
         d.setTime d.getTime() + d.getTimezoneOffset() * 60 * 1000

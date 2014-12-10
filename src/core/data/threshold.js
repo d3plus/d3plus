@@ -102,80 +102,77 @@ module.exports = function( vars , rawData , split ) {
       return allowed;
 
     });
-    // console.log(allowed, largest, removed)
+
     if ( removed.length > 1 ) {
 
       removed = arraySort( removed , vars.size.value , "desc" , [] , vars );
 
       var levels = vars.id.nesting.slice(0,vars.depth.value);
-      var merged = dataNest(vars,removed,levels);
+      var merged = dataNest(vars, removed, levels);
 
       merged.forEach(function(m){
 
         var parent = vars.id.nesting[vars.depth.value-1];
+        children = parent ? removed.filter(function(r){
+          return r[parent] === m[parent];
+        }) : removed;
 
-        vars.id.nesting.forEach(function(d,i){
+        if (children.length > 1) {
 
-          if (vars.depth.value == i) {
-            var prev = m[d];
-            if ( typeof prev === "string" ) {
-              m[d] = "d3plus_other_"+prev;
+          vars.id.nesting.forEach(function(d,i){
+
+            if (vars.depth.value == i) {
+              var prev = m[d];
+              if ( typeof prev === "string" ) {
+                m[d] = "d3plus_other_"+prev;
+              }
+              else {
+                m[d] = "d3plus_other";
+              }
             }
-            else {
-              m[d] = "d3plus_other";
-            }
-          }
-          else if (i > vars.depth.value) {
-            delete m[d];
-          }
-        });
-
-        if (vars.color.value && vars.color.type === "string") {
-          if (vars.depth.value === 0) {
-            m[vars.color.value] = vars.color.missing;
-          }
-          else {
-            m[vars.color.value] = fetchValue(vars,m[parent],vars.color.value,parent);
-          }
-        }
-
-        if (vars.icon.value) {
-          m[vars.icon.value] = fetchValue(vars,m[parent],vars.icon.value,parent);
-        }
-
-        if (m[parent]) {
-          m.d3plus.depth = vars.depth.value;
-        }
-
-        var textLabel;
-        if (vars.depth.value === 0) {
-          textLabel = vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
-          textLabel += " < "+vars.format.value(cutoff, vars.size.value, vars);
-        }
-        else {
-          textLabel = fetchText(vars,m,vars.depth.value-1);
-          textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
-          textLabel += " < "+vars.format.value(cutoff[m[parent]], vars.size.value, vars);
-        }
-        textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)";
-
-        m.d3plus.threshold = cutoff;
-        if (parent) {
-          m.d3plus.merged = [];
-          removed.forEach(function(r){
-            if (m[parent] == r[parent]) {
-              m.d3plus.merged.push(r);
+            else if (i > vars.depth.value) {
+              delete m[d];
             }
           });
-        }
-        else {
-          m.d3plus.merged = removed;
-        }
 
-        if (vars.text.value) {
-          m[vars.text.value] = textLabel;
+          if (vars.color.value && vars.color.type === "string") {
+            if (vars.depth.value === 0) {
+              m[vars.color.value] = vars.color.missing;
+            }
+            else {
+              m[vars.color.value] = fetchValue(vars,m[parent],vars.color.value,parent);
+            }
+          }
+
+          if (vars.icon.value) {
+            m[vars.icon.value] = fetchValue(vars,m[parent],vars.icon.value,parent);
+          }
+
+          if (m[parent]) {
+            m.d3plus.depth = vars.depth.value;
+          }
+
+          var textLabel;
+          if (vars.depth.value === 0) {
+            textLabel = vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
+            textLabel += " < "+vars.format.value(cutoff, vars.size.value, vars);
+          }
+          else {
+            textLabel = fetchText(vars,m,vars.depth.value-1);
+            textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
+            textLabel += " < "+vars.format.value(cutoff[m[parent]], vars.size.value, vars);
+          }
+          textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)";
+
+          m.d3plus.threshold = cutoff;
+          m.d3plus.merged = children;
+
+          if (vars.text.value) {
+            m[vars.text.value] = textLabel;
+          }
+          m.d3plus.text = textLabel;
+
         }
-        m.d3plus.text = textLabel;
 
       });
 
