@@ -225,7 +225,12 @@ module.exports = (vars) ->
 
   for axis in ["x","y"]
 
-    gridData = if vars[axis].grid.value then vars[axis].ticks.values else []
+    if vars[axis].grid.value
+      gridData = vars[axis].ticks.values
+    else
+      gridData = []
+      if vars[axis].ticks.values.indexOf(0) >= 0 and vars[axis].axis.value
+        gridData = [0]
 
     # Draw Axis Grid Lines
     grid = plane.selectAll("g#d3plus_graph_"+axis+"grid").data [0]

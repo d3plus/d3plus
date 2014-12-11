@@ -9,6 +9,7 @@ transform  = require "../../../core/methods/font/transform.coffee"
 module.exports = (axis) ->
   accepted:   [Array, Boolean, Function, Object, String]
   axis:
+    accepted: [Boolean]
     color:     "#444"
     font:
       color:      "#444"
@@ -18,6 +19,7 @@ module.exports = (axis) ->
       transform:  transform()
       weight:     200
     rendering: rendering()
+    value: true
   dataFilter: true
   deprecates: [axis + "axis", axis + "axis_val", axis + "axis_var"]
   domain:
