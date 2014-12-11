@@ -58,6 +58,7 @@ module.exports = function(vars, obj, depth) {
         }
         name = name.map(function(n){
           if (n instanceof Array) {
+            n = n.filter(function(nn){ return nn; });
             return n.map(function(nn){
               return vars.format.value(nn.toString(), t, vars, formatObj);
             });
