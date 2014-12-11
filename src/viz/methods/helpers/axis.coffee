@@ -31,6 +31,7 @@ module.exports = (axis) ->
     rendering: rendering()
     value:     true
   label:
+    accepted:   [false, String]
     color:      "#444"
     decoration: decoration()
     family:     family()
@@ -38,6 +39,7 @@ module.exports = (axis) ->
     size:       12
     transform:  transform()
     weight:     200
+    value:      false
   lines:
     accept:    [false, Array, Number, Object]
     dasharray:

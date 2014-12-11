@@ -252,15 +252,18 @@ module.exports = (vars) ->
       .style "opacity", 0
       .remove()
 
+    axisLabel = vars[axis].label.value or
+                vars.format.value(vars[axis].value, undefined, vars)
+
     # Draw Axis Text Label
     label = vars.group.selectAll("text#d3plus_graph_"+axis+"label")
       .data axisData
-    label.text vars.format.value(vars[axis].value, undefined, vars)
+    label.text axisLabel
       .transition().duration vars.draw.timing
         .call labelStyle, axis
     label.enter().append("text")
       .attr "id", "d3plus_graph_"+axis+"label"
-      .text vars.format.value(vars[axis].value, undefined, vars)
+      .text axisLabel
       .call labelStyle, axis
     label.exit().transition().duration vars.data.timing
       .attr "opacity", 0
