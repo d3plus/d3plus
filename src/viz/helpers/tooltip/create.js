@@ -118,90 +118,77 @@ module.exports = function(params) {
 
   function make_tooltip(html) {
 
+    var titleDepth = "depth" in params ? params.depth : dataDepth;
+
     var ex = {},
         children = {},
-        depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth + 1 : dataDepth,
+        depth     = vars.id.nesting[titleDepth+1] in d ? titleDepth + 1 : titleDepth,
         nestKey   = vars.id.nesting[depth],
         nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey];
 
     if (!(nameList instanceof Array)) nameList = [nameList];
 
-    var uniqueNames;
-    if (validObject(nameList[0])) uniqueNames = uniques(nameList, nestKey);
-    else uniqueNames = uniques(nameList);
+    var dataValue = fetchValue( vars , d , vars.size.value );
+    // console.log(nameList, nestKey, depth)
+    if (vars.tooltip.children.value) {
 
-    var dataValue = fetchValue( vars , d , vars.size.value ),
-        firstName = fetchText(vars, uniqueNames[0], depth)[0],
-        same = (uniqueNames.length === 1 && firstName === params.title) && depth <= vars.depth.value;
+      nameList = nameList.slice(0);
 
-    if ( !same && vars.tooltip.children.value ) {
+      if (vars.size.value && validObject(nameList[0])) {
 
-      if ( nameList instanceof Array ) {
+        var namesWithValues = nameList.filter(function(n){
+          return vars.size.value in n && (!("d3plus" in n) || !n.d3plus.merged);
+        });
 
-        nameList = nameList.slice(0);
+        var namesNoValues = nameList.filter(function(n){
+          return !(vars.size.value in n) || (n.d3plus && n.d3plus.merged);
+        });
 
-        if (vars.size.value && validObject(nameList[0])) {
+        arraySort(namesWithValues, vars.size.value, "desc", [], vars);
 
-          var namesWithValues = nameList.filter(function(n){
-            return vars.size.value in n && (!("d3plus" in n) || !n.d3plus.merged);
-          });
+        nameList = namesWithValues.concat(namesNoValues);
 
-          var namesNoValues = nameList.filter(function(n){
-            return !(vars.size.value in n) || (n.d3plus && n.d3plus.merged);
-          });
+      }
 
-          arraySort(namesWithValues, vars.size.value, "desc", [], vars);
+      var limit = length === "short" ? 3 : vars.data.large,
+          listLength = nameList.length,
+          max   = d3.min([listLength , limit]),
+          objs  = [];
 
-          nameList = namesWithValues.concat(namesNoValues);
+      for (var i = 0; i < max; i++) {
 
-        }
+        if (!nameList.length) break;
 
-        var limit = length === "short" ? 3 : vars.data.large,
-            listLength = nameList.length,
-            max   = d3.min([listLength , limit]),
-            objs  = [];
+        var obj  = nameList.shift(),
+            name = fetchText(vars, obj, depth)[0],
+            id   = validObject(obj) ? fetchValue(vars, obj, nestKey, depth) : obj;
 
-        for (var i = 0; i < max; i++) {
+        if (id !== d[vars.id.nesting[titleDepth]] && name && !children[name]) {
 
-          if (!nameList.length) break;
+          var value = fetchValue(vars, obj, vars.size.value, nestKey),
+          color = fetchColor(vars, obj, nestKey);
 
-          var id    = nameList.shift(),
-              name  = fetchText(vars, id, depth)[0];
+          children[name] = value ? vars.format.value(value, vars.size.value, vars, obj) : "";
 
-          if (name && !children[name]) {
-
-            var value = fetchValue(vars, id, vars.size.value, nestKey),
-            color = fetchColor(vars, id, nestKey);
-
-            children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
-
-            if (color) {
-              if ( !children.d3plus_colors ) children.d3plus_colors = {}
-              children.d3plus_colors[name] = color
-            }
-
-          }
-          else {
-            i--;
+          if (color) {
+            if ( !children.d3plus_colors ) children.d3plus_colors = {};
+            children.d3plus_colors[name] = color;
           }
 
         }
-
-        if ( listLength > max ) {
-          children.d3plusMore = listLength - max
+        else {
+          i--;
         }
 
       }
-      // else if ( nameList && nameList !== "null" ) {
-      //
-      //   var name  = fetchText( vars , nameList , depth )[0]
-      //   children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
-      //
-      // }
+
+      if ( listLength > max ) {
+        children.d3plusMore = listLength - max
+      }
 
     }
 
-    if ( vars.tooltip.size.value && ( same || !nameList || nameList instanceof Array ) ) {
+    if ( vars.tooltip.size.value ) {
       if (dataValue) {
         ex[vars.size.value] = dataValue
       }

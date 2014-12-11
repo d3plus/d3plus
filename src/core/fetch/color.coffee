@@ -10,10 +10,6 @@ module.exports = (vars, id, level) ->
   level = vars.id.value unless level
   level = vars.id.nesting[level] if typeof level is "number"
 
-  # if id instanceof Array
-  #   id = uniques id, level, fetchValue, vars
-  #   id = if id.length then id[0] else null
-
   unless vars.color.value
     returnColor = getRandom vars, id, level
   else

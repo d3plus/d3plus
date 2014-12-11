@@ -174,11 +174,12 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
               keyValues = [keyValues];
             }
 
-            if (idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1) {
-              if (nestingLevels.length == 1 && testVals.length > leaves.length) {
-                var newNesting = nestingLevels.concat(key);
-                testVals = dataNest(vars,testVals,newNesting);
-              }
+            if (idKey && vars.id.nesting.indexOf(key) > i) {
+            // if (idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1) {
+              // if (nestingLevels.length == 1 && testVals.length > leaves.length) {
+              //   var newNesting = nestingLevels.concat(key);
+              //   testVals = dataNest(vars,testVals,newNesting);
+              // }
               returnObj[key] = testVals.length === 1 ? testVals[0] : testVals;
             }
             else {
