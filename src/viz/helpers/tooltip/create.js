@@ -230,7 +230,7 @@ module.exports = function(params) {
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && (!("visible" in d.d3plus_label) || ("visible" in d.d3plus_label && d.d3plus_label.visible === false))))) {
 
       if (!title) {
-        title = id
+        title = id;
       }
 
       var depth = "d3plus" in d && "merged" in d.d3plus ? dataDepth - 1 : dataDepth

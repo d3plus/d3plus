@@ -33,6 +33,8 @@ module.exports = function( vars , rawData , split ) {
     var largeEnough = [],
         cutoff = vars.depth.value === 0 ? 0 : {},
         removed = [],
+        parents = [],
+        labelException = [],
         largest = {};
 
     var nest = d3.nest();
@@ -76,6 +78,12 @@ module.exports = function( vars , rawData , split ) {
 
       if (allowed && largeEnough.indexOf(id) < 0) {
         largeEnough.push(id);
+        if (vars.depth.value) {
+          var p = fetchValue(vars, d, vars.id.nesting[vars.depth.value-1]);
+          if (parents.indexOf(p) < 0) {
+            parents.push(p);
+          }
+        }
       }
 
     });
@@ -85,6 +93,14 @@ module.exports = function( vars , rawData , split ) {
       var id = fetchValue(vars, d, vars.id.value),
           allowed = largeEnough.indexOf(id) >= 0;
 
+      var p = vars.depth.value ?
+              fetchValue(vars, d, vars.id.nesting[vars.depth.value-1]) :
+              null;
+
+      if (p !== null && parents.indexOf(p) < 0 && labelException.indexOf(p) < 0) {
+        labelException.push(p);
+      }
+
       if (!allowed) {
         var val = fetchValue(vars, d, vars.size.value);
         if (val > 0) {
@@ -92,9 +108,8 @@ module.exports = function( vars , rawData , split ) {
             if (val > cutoff) cutoff = val;
           }
           else {
-            var parent = d[vars.id.nesting[vars.depth.value-1]];
-            if (!(parent in cutoff)) cutoff[parent] = 0;
-            if (val > cutoff[parent]) cutoff[parent] = val;
+            if (!(p in cutoff)) cutoff[p] = 0;
+            if (val > cutoff[p]) cutoff[p] = val;
           }
           removed.push(d);
         }
@@ -113,8 +128,9 @@ module.exports = function( vars , rawData , split ) {
       merged.forEach(function(m){
 
         var parent = vars.id.nesting[vars.depth.value-1];
+        var p_id = fetchValue(vars, m, parent);
         children = parent ? removed.filter(function(r){
-          return r[parent] === m[parent];
+          return fetchValue(vars, r, parent) === p_id;
         }) : removed;
 
         if (children.length > 1) {
@@ -140,15 +156,15 @@ module.exports = function( vars , rawData , split ) {
               m[vars.color.value] = vars.color.missing;
             }
             else {
-              m[vars.color.value] = fetchValue(vars,m[parent],vars.color.value,parent);
+              m[vars.color.value] = fetchValue(vars,p_id,vars.color.value,parent);
             }
           }
 
           if (vars.icon.value) {
-            m[vars.icon.value] = fetchValue(vars,m[parent],vars.icon.value,parent);
+            m[vars.icon.value] = fetchValue(vars,p_id,vars.icon.value,parent);
           }
 
-          if (m[parent]) {
+          if (p_id) {
             m.d3plus.depth = vars.depth.value;
           }
 
@@ -160,9 +176,13 @@ module.exports = function( vars , rawData , split ) {
           else {
             textLabel = fetchText(vars,m,vars.depth.value-1);
             textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
-            textLabel += " < "+vars.format.value(cutoff[m[parent]], vars.size.value, vars);
+            if (p_id, labelException.indexOf(p_id) < 0) {
+              textLabel += " < "+vars.format.value(cutoff[p_id], vars.size.value, vars);
+            }
           }
-          textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)";
+          if (p_id, labelException.indexOf(p_id) < 0) {
+            textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)";
+          }
 
           m.d3plus.threshold = cutoff;
           m.d3plus.merged = children;
