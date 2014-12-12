@@ -270,17 +270,23 @@ var parseDates = function(dateArray) {
     for (var i = 0; i < arr.length; i++) {
       var d = arr[i];
       if (d) {
-        if (d.constructor === Date) dates.push(d);
-        else if (d.constructor === Array) {
+        if (d.constructor === Array) {
           checkDate(d);
         }
         else {
-          d = new Date(d.toString());
-          if (d !== "Invalid Date") {
-            d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
-            dates.push(d);
-          }
+          dates.push(d);
         }
+        // if (d.constructor === Date) dates.push(d);
+        // else if (d.constructor === Array) {
+        //   checkDate(d);
+        // }
+        // else {
+        //   d = new Date(d.toString());
+        //   if (d !== "Invalid Date") {
+        //     d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
+        //     dates.push(d);
+        //   }
+        // }
       }
     }
 

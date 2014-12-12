@@ -1,7 +1,8 @@
 var copy       = require("../../../util/copy.coffee"),
     closest    = require("../../../util/closest.coffee"),
     events     = require("../../../client/pointer.coffee"),
-    shapeStyle = require("./style.coffee");
+    shapeStyle = require("./style.coffee"),
+    fetchValue = require("../../../core/fetch/value.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
@@ -47,7 +48,7 @@ module.exports = function(vars,selection,enter,exit) {
     temp.segment_key = temp.key;
     d.values.forEach(function(v,i,arr){
 
-      var k = v[discrete.value];
+      var k = fetchValue(vars, v, discrete.value);
 
       if (k.constructor === Date) k = k.getTime();
 
