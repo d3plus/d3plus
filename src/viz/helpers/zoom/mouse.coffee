@@ -3,6 +3,7 @@ transform = require "./transform.coffee"
 
 module.exports = (vars) ->
 
+  eventType = if d3.event.sourceEvent then d3.event.sourceEvent.type else null
   translate = d3.event.translate
   scale     = d3.event.scale
   limits    = vars.zoom.bounds
@@ -29,7 +30,7 @@ module.exports = (vars) ->
   vars.zoom.translate = translate
   vars.zoom.scale     = scale
 
-  if d3.event.sourceEvent.type is "wheel"
+  if eventType is "wheel"
     delay = (if vars.draw.timing then 100 else 250)
     clearTimeout vars.zoom.wheel
     vars.zoom.wheel = setTimeout( ->
@@ -38,7 +39,7 @@ module.exports = (vars) ->
   else
     labels vars
 
-  if d3.event.sourceEvent.type is "dblclick"
+  if eventType is "dblclick"
     transform vars, vars.timing.transitions
   else
     transform vars, 0
