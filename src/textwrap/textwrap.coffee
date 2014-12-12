@@ -1,6 +1,6 @@
 attach     = require "../core/methods/attach.coffee"
 dimensions = require "./helpers/getDimensions.coffee"
-print     = require "../core/console/print.coffee"
+print      = require "../core/console/print.coffee"
 size       = require "./helpers/getSize.coffee"
 text       = require "./helpers/getText.coffee"
 wrap       = require "./helpers/wrap.coffee"

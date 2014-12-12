@@ -34,18 +34,27 @@ module.exports = function(vars) {
 
   }
 
+  var o = vars.edges.opacity.value;
+  var o_type = typeof o;
+
+  if (vars.edges.opacity.changed && o_type === "string") {
+    var opacityScale = vars.edges.opacity.scale.value
+      .domain(d3.extent(edges, function(d){
+        return d[o];
+      }))
+      .range([vars.edges.opacity.min.value,1]);
+  }
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Initialization of Lines
   //----------------------------------------------------------------------------
   function init(l) {
 
-    var opacity = vars.edges.opacity == 1 ? vars.edges.opacity : 0
-
     l
-      .attr("opacity",opacity)
+      .attr("opacity", 0)
       .style("stroke-width",0)
       .style("stroke",vars.background.value)
-      .style("fill","none")
+      .style("fill","none");
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -53,23 +62,27 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   function style(edges) {
 
-    var marker = vars.edges.arrows.value
+    var marker = vars.edges.arrows.value;
 
     edges
+      .attr("opacity", function(d){
+        return o_type === "number" ? o :
+               o_type === "function" ? o(d, vars) :
+               opacityScale(d[o]);
+      })
       .style("stroke-width",function(e){
-        return vars.edges.scale(e[vars.edges.size.value])
+        return vars.edges.scale(e[vars.edges.size.value]);
       })
       .style("stroke",vars.edges.color)
-      .attr("opacity",vars.edges.opacity)
       .attr("marker-start",function(e){
 
-        var direction = vars.edges.arrows.direction.value
+        var direction = vars.edges.arrows.direction.value;
 
         if ("bucket" in e.d3plus) {
-          var d = "_"+e.d3plus.bucket
+          var d = "_"+e.d3plus.bucket;
         }
         else {
-          var d = ""
+          var d = "";
         }
 
         return direction == "source" && marker
@@ -101,23 +114,23 @@ module.exports = function(vars) {
   function line(l) {
     l
       .attr("x1",function(d){
-        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].x
+        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].x;
       })
       .attr("y1",function(d){
-        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].y
+        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].y;
       })
       .attr("x2",function(d){
-        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].x
+        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].x;
       })
       .attr("y2",function(d){
-        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].y
-      })
+        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].y;
+      });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Positioning of Splines
   //----------------------------------------------------------------------------
-  var curve = d3.svg.line().interpolate(vars.edges.interpolate.value)
+  var curve = d3.svg.line().interpolate(vars.edges.interpolate.value);
 
   function spline(l) {
     l
@@ -125,7 +138,7 @@ module.exports = function(vars) {
 
         return curve(d.d3plus.spline);
 
-      })
+      });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

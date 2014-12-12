@@ -70,7 +70,18 @@ module.exports = {
     "accepted": [false, Function, Number],
     "value":    false
   },
-  "opacity":  1,
+  "opacity": {
+    "accepted": [Function, Number, String],
+    "min": {
+      "accepted": [Number],
+      "value": 0.25
+    },
+    "scale": {
+      "accepted": [Function],
+      "value": d3.scale.linear()
+    },
+    "value": 1
+  },
   "process":  process,
   "size": {
     "accepted": [false, Number, String],
