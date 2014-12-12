@@ -27,6 +27,6 @@ module.exports = (d, vars) ->
      (active and not total)
     fetchColor vars, d
   else if vars.active.spotlight.value
-    "#fafafa"
+    "#eee"
   else
     lighter fetchColor(vars, d), .75
