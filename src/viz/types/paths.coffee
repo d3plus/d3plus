@@ -171,7 +171,7 @@ viz.filter = (vars, data) ->
 
   viz.paths = shortestPath edges, vars.focus.value[0],
     target:     vars.focus.value[1]
-    distance:   vars.edges.size or undefined
+    distance:   vars.edges.size.value or undefined
     nodeid:     vars.id.value
     startpoint: vars.edges.source
     endpoint:   vars.edges.target

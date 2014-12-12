@@ -328,7 +328,7 @@ module.exports = function(vars) {
         .selectAll("line, path")
           .style("stroke",vars.color.primary)
           .style("stroke-width",function(){
-            return vars.edges.size ? d3.select(this).style("stroke-width")
+            return vars.edges.size.value ? d3.select(this).style("stroke-width")
                  : vars.data.stroke.width*2
           })
           .attr("marker-start",function(e){

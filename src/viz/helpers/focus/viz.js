@@ -44,7 +44,7 @@ module.exports = function(vars) {
         .attr("vector-effect","non-scaling-stroke")
         .style("stroke",vars.color.focus)
         .style("stroke-width",function(){
-          return vars.edges.size ? d3.select(this).style("stroke-width")
+          return vars.edges.size.value ? d3.select(this).style("stroke-width")
                : vars.data.stroke.width*2
         })
         .attr("marker-start",function(e){

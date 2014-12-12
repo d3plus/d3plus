@@ -1,4 +1,4 @@
-var process = require("../../core/methods/process/data.coffee")
+var process = require("../../core/methods/process/data.coffee");
 
 module.exports = {
   "accepted": [false, Array, Function, String],
@@ -72,13 +72,17 @@ module.exports = {
   },
   "opacity":  1,
   "process":  process,
-  "size":     false,
+  "size": {
+    "accepted": [false, Number, String],
+    "min": 1,
+    "scale": 0.5,
+    "value": false
+  },
   "source":   "source",
   "strength": {
     "accepted": [false, Function, Number, String],
     "value":    false
   },
   "target": "target",
-  "value":  false,
-  "width":  1
-}
+  "value":  false
+};

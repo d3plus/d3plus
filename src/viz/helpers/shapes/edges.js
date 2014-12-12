@@ -1,5 +1,5 @@
 var buckets = require("../../../util/buckets.coffee"),
-    offset  = require("../../../geom/offset.coffee")
+    offset  = require("../../../geom/offset.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -7,30 +7,30 @@ var buckets = require("../../../util/buckets.coffee"),
 module.exports = function(vars) {
 
   var edges = vars.returned.edges || [],
-      scale = vars.zoom.behavior.scaleExtent()[0]
+      scale = vars.zoom.behavior.scaleExtent()[0];
 
-  if (typeof vars.edges.size === "string") {
+  if (typeof vars.edges.size.value === "string") {
 
     var strokeDomain = d3.extent(edges, function(e){
-                         return e[vars.edges.size]
-                       })
-      , maxSize = d3.min(vars.returned.nodes || [], function(n){
-                        return n.d3plus.r
-                      })*.5
+                         return e[vars.edges.size.value];
+                       }),
+        maxSize = d3.min(vars.returned.nodes || [], function(n){
+                        return n.d3plus.r;
+                      }) * (vars.edges.size.scale * 2);
 
     vars.edges.scale = d3.scale.sqrt()
-                        .domain(strokeDomain)
-                        .range([vars.edges.width,maxSize*scale])
+      .domain(strokeDomain)
+      .range([vars.edges.size.min,maxSize*scale]);
 
   }
   else {
 
-    var defaultWidth = typeof vars.edges.size == "number"
-                     ? vars.edges.size : vars.edges.width
+    var defaultWidth = typeof vars.edges.size.value == "number" ?
+                       vars.edges.size.value : vars.edges.size.min;
 
     vars.edges.scale = function(){
-      return defaultWidth
-    }
+      return defaultWidth;
+    };
 
   }
 
@@ -57,7 +57,7 @@ module.exports = function(vars) {
 
     edges
       .style("stroke-width",function(e){
-        return vars.edges.scale(e[vars.edges.size])
+        return vars.edges.scale(e[vars.edges.size.value])
       })
       .style("stroke",vars.edges.color)
       .attr("opacity",vars.edges.opacity)
@@ -210,13 +210,13 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter/update/exit the Arrow Marker
   //----------------------------------------------------------------------------
-  var markerData = vars.edges.arrows.value ? typeof vars.edges.size == "string"
+  var markerData = vars.edges.arrows.value ? typeof vars.edges.size.value == "string"
                   ? [ "default_0", "default_1", "default_2",
                       "highlight_0", "highlight_1", "highlight_2",
                       "focus_0", "focus_1", "focus_2" ]
                   : [ "default", "highlight", "focus" ] : []
 
-  if (typeof vars.edges.size == "string") {
+  if (typeof vars.edges.size.value == "string") {
     var b = buckets(vars.edges.scale.range(),4)
       , markerSize = []
     for (var i = 0; i < 3; i++) {
@@ -227,8 +227,8 @@ module.exports = function(vars) {
     var m = typeof vars.edges.arrows.value === "number"
           ? vars.edges.arrows.value : 8
 
-    var markerSize = typeof vars.edges.size === "number"
-                    ? vars.edges.size/m : m
+    var markerSize = typeof vars.edges.size.value === "number"
+                    ? vars.edges.size.value/m : m
   }
 
   var marker = vars.defs.selectAll(".d3plus_edge_marker")
@@ -311,7 +311,7 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Bind "edges" data to lines in the "edges" group
   //----------------------------------------------------------------------------
-  var strokeBuckets = typeof vars.edges.size == "string"
+  var strokeBuckets = typeof vars.edges.size.value == "string"
                     ? buckets(vars.edges.scale.domain(),4)
                     : null
     , direction = vars.edges.arrows.direction.value
@@ -325,7 +325,7 @@ module.exports = function(vars) {
     if ( l.d3plus.spline !== true ) {
 
       if (strokeBuckets) {
-        var size = l[vars.edges.size]
+        var size = l[vars.edges.size.value]
         l.d3plus.bucket = size < strokeBuckets[1] ? 0
                         : size < strokeBuckets[2] ? 1 : 2
         var marker = markerSize[l.d3plus.bucket]*.85/scale
@@ -388,7 +388,7 @@ module.exports = function(vars) {
     if (l.d3plus.spline) {
 
       if (strokeBuckets) {
-        var size = l[vars.edges.size]
+        var size = l[vars.edges.size.value]
         l.d3plus.bucket = size < strokeBuckets[1] ? 0
                         : size < strokeBuckets[2] ? 1 : 2
         var marker = markerSize[l.d3plus.bucket]*.85/scale
