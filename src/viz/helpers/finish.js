@@ -72,19 +72,6 @@ module.exports = function(vars) {
     },vars.draw.timing)
   }
 
-  if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.focus.value.length && !vars.draw.timing) {
-    if ( vars.dev.value ) print.time("focus labels")
-    shapeLabels( vars , "data_focus" )
-    if (vars.edges.label) {
-
-      setTimeout(function(){
-        shapeLabels( vars , "edge_focus" )
-      },vars.draw.timing+200)
-
-    }
-    if ( vars.dev.value ) print.timeEnd("focus labels")
-  }
-
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check for Errors
   //----------------------------------------------------------------------------

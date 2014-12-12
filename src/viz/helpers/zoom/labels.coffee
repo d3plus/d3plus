@@ -8,7 +8,6 @@ module.exports = (vars) ->
   scale = vars.zoom.behavior.scaleExtent()
 
   opacity = (text) ->
-    # console.log text.size()
     text.attr "opacity", (d) ->
       d = {} unless d
       size = parseFloat(d3.select(this).attr("font-size"), 10)
