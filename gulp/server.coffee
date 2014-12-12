@@ -10,7 +10,7 @@ gulp.task "server", ->
   connect.server
     livereload: true
     port: 4000
-    root: "./"
+    root: path.resolve("./")
 
   gulp.watch [test_dir], (file) ->
 
