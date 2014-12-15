@@ -7,6 +7,9 @@ uniques     = require "../../util/uniques.coffee"
 # Finds an object's color and returns random if it cannot be found
 module.exports = (vars, id, level) ->
 
+  obj = validObject id
+  return id.d3plus.color if obj and "d3plus" of id and "color" of id.d3plus
+
   level = vars.id.value unless level
   level = vars.id.nesting[level] if typeof level is "number"
 
@@ -19,7 +22,7 @@ module.exports = (vars, id, level) ->
 
     while i >= 0
       colorLevel = vars.id.nesting[i]
-      if validObject(id)
+      if obj
         value = uniques id, vars.color.value, fetchValue, vars, colorLevel
         value = value[0] if value.length is 1
       else
