@@ -23,7 +23,7 @@ module.exports = d3plus;
  * @static
  */
 
-d3plus.version = "1.6.5 - Turquoise";
+d3plus.version = "1.6.6 - Turquoise";
 
 
 /**
@@ -11288,11 +11288,12 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
               keyValues = [keyValues];
             }
 
-            if (idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1) {
-              if (nestingLevels.length == 1 && testVals.length > leaves.length) {
-                var newNesting = nestingLevels.concat(key);
-                testVals = dataNest(vars,testVals,newNesting);
-              }
+            if (idKey && vars.id.nesting.indexOf(key) > i) {
+            // if (idKey && vars.id.nesting.indexOf(key) > i && keyValues.length > 1) {
+              // if (nestingLevels.length == 1 && testVals.length > leaves.length) {
+              //   var newNesting = nestingLevels.concat(key);
+              //   testVals = dataNest(vars,testVals,newNesting);
+              // }
               returnObj[key] = testVals.length === 1 ? testVals[0] : testVals;
             }
             else {
@@ -11383,17 +11384,23 @@ var parseDates = function(dateArray) {
     for (var i = 0; i < arr.length; i++) {
       var d = arr[i];
       if (d) {
-        if (d.constructor === Date) dates.push(d);
-        else if (d.constructor === Array) {
+        if (d.constructor === Array) {
           checkDate(d);
         }
         else {
-          d = new Date(d.toString());
-          if (d !== "Invalid Date") {
-            d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
-            dates.push(d);
-          }
+          dates.push(d);
         }
+        // if (d.constructor === Date) dates.push(d);
+        // else if (d.constructor === Array) {
+        //   checkDate(d);
+        // }
+        // else {
+        //   d = new Date(d.toString());
+        //   if (d !== "Invalid Date") {
+        //     d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 );
+        //     dates.push(d);
+        //   }
+        // }
       }
     }
 
@@ -11459,6 +11466,8 @@ module.exports = function( vars , rawData , split ) {
     var largeEnough = [],
         cutoff = vars.depth.value === 0 ? 0 : {},
         removed = [],
+        parents = [],
+        labelException = [],
         largest = {};
 
     var nest = d3.nest();
@@ -11502,6 +11511,12 @@ module.exports = function( vars , rawData , split ) {
 
       if (allowed && largeEnough.indexOf(id) < 0) {
         largeEnough.push(id);
+        if (vars.depth.value) {
+          var p = fetchValue(vars, d, vars.id.nesting[vars.depth.value-1]);
+          if (parents.indexOf(p) < 0) {
+            parents.push(p);
+          }
+        }
       }
 
     });
@@ -11511,6 +11526,14 @@ module.exports = function( vars , rawData , split ) {
       var id = fetchValue(vars, d, vars.id.value),
           allowed = largeEnough.indexOf(id) >= 0;
 
+      var p = vars.depth.value ?
+              fetchValue(vars, d, vars.id.nesting[vars.depth.value-1]) :
+              null;
+
+      if (p !== null && parents.indexOf(p) < 0 && labelException.indexOf(p) < 0) {
+        labelException.push(p);
+      }
+
       if (!allowed) {
         var val = fetchValue(vars, d, vars.size.value);
         if (val > 0) {
@@ -11518,9 +11541,8 @@ module.exports = function( vars , rawData , split ) {
             if (val > cutoff) cutoff = val;
           }
           else {
-            var parent = d[vars.id.nesting[vars.depth.value-1]];
-            if (!(parent in cutoff)) cutoff[parent] = 0;
-            if (val > cutoff[parent]) cutoff[parent] = val;
+            if (!(p in cutoff)) cutoff[p] = 0;
+            if (val > cutoff[p]) cutoff[p] = val;
           }
           removed.push(d);
         }
@@ -11539,8 +11561,9 @@ module.exports = function( vars , rawData , split ) {
       merged.forEach(function(m){
 
         var parent = vars.id.nesting[vars.depth.value-1];
+        var p_id = fetchValue(vars, m, parent);
         children = parent ? removed.filter(function(r){
-          return r[parent] === m[parent];
+          return fetchValue(vars, r, parent) === p_id;
         }) : removed;
 
         if (children.length > 1) {
@@ -11566,15 +11589,15 @@ module.exports = function( vars , rawData , split ) {
               m[vars.color.value] = vars.color.missing;
             }
             else {
-              m[vars.color.value] = fetchValue(vars,m[parent],vars.color.value,parent);
+              m[vars.color.value] = fetchValue(vars,p_id,vars.color.value,parent);
             }
           }
 
           if (vars.icon.value) {
-            m[vars.icon.value] = fetchValue(vars,m[parent],vars.icon.value,parent);
+            m[vars.icon.value] = fetchValue(vars,p_id,vars.icon.value,parent);
           }
 
-          if (m[parent]) {
+          if (p_id) {
             m.d3plus.depth = vars.depth.value;
           }
 
@@ -11586,9 +11609,13 @@ module.exports = function( vars , rawData , split ) {
           else {
             textLabel = fetchText(vars,m,vars.depth.value-1);
             textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
-            textLabel += " < "+vars.format.value(cutoff[m[parent]], vars.size.value, vars);
+            if (p_id, labelException.indexOf(p_id) < 0) {
+              textLabel += " < "+vars.format.value(cutoff[p_id], vars.size.value, vars);
+            }
           }
-          textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)";
+          if (p_id, labelException.indexOf(p_id) < 0) {
+            textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)";
+          }
 
           m.d3plus.threshold = cutoff;
           m.d3plus.merged = children;
@@ -11629,7 +11656,11 @@ validObject = require("../../object/validate.coffee");
 uniques = require("../../util/uniques.coffee");
 
 module.exports = function(vars, id, level) {
-  var color, colorLevel, colors, i, returnColor, value;
+  var color, colorLevel, colors, i, obj, returnColor, value;
+  obj = validObject(id);
+  if (obj && "d3plus" in id && "color" in id.d3plus) {
+    return id.d3plus.color;
+  }
   if (!level) {
     level = vars.id.value;
   }
@@ -11643,13 +11674,9 @@ module.exports = function(vars, id, level) {
     i = vars.id.nesting.indexOf(level);
     while (i >= 0) {
       colorLevel = vars.id.nesting[i];
-      if (validObject(id)) {
-        value = uniques(id, vars.color.value, fetchValue, vars, colorLevel);
-        if (value.length === 1) {
-          value = value[0];
-        }
-      } else {
-        value = id;
+      value = uniques(id, vars.color.value, fetchValue, vars, colorLevel);
+      if (value.length === 1) {
+        value = value[0];
       }
       if (!(value instanceof Array) && value !== void 0 && value !== null) {
         color = getColor(vars, id, value, level);
@@ -11996,7 +12023,7 @@ module.exports = function(vars, obj, depth) {
 
     var formatObj = validObject(obj) ? obj : undefined;
 
-    if (obj[vars.id.value] instanceof Array) {
+    if (formatObj && obj[vars.id.value] instanceof Array) {
       obj = obj[vars.id.value];
     }
     else if (!(obj instanceof Array)) {
@@ -12015,6 +12042,7 @@ module.exports = function(vars, obj, depth) {
         }
         name = name.map(function(n){
           if (n instanceof Array) {
+            n = n.filter(function(nn){ return nn; });
             return n.map(function(nn){
               return vars.format.value(nn.toString(), t, vars, formatObj);
             });
@@ -12044,10 +12072,10 @@ uniqueValues = require("../../util/uniques.coffee");
 
 find = function(vars, node, variable, depth) {
   var nodeObject, returned, val;
-  if (typeof variable === "function") {
+  nodeObject = validObject(node);
+  if (typeof variable === "function" && nodeObject) {
     return variable(node, vars);
   }
-  nodeObject = validObject(node);
   if (nodeObject) {
     if (variable in node) {
       return node[variable];
@@ -12094,7 +12122,7 @@ find = function(vars, node, variable, depth) {
 checkData = function(vars, node, variable, depth) {
   var val;
   if (vars.data.viz instanceof Array && variable in vars.data.keys) {
-    val = uniqueValues(filterArray(vars.data.viz, node, depth), variable);
+    val = uniqueValues(filterArray(vars.data.viz, node, depth), variable, fetch, vars, depth);
   }
   if (val && val.length) {
     return val;
@@ -12112,7 +12140,7 @@ checkAttrs = function(vars, node, variable, depth) {
       attrList = vars.attrs.value;
     }
     if (attrList instanceof Array) {
-      val = uniqueValues(filterArray(attrList, node, depth), variable);
+      val = uniqueValues(filterArray(attrList, node, depth), variable, fetch, vars, depth);
       if (val.length) {
         return val;
       }
@@ -12131,7 +12159,7 @@ checkAttrs = function(vars, node, variable, depth) {
         })()
       ];
       if (attrList.length) {
-        vals = uniqueValues(attrList, variable);
+        vals = uniqueValues(attrList, variable, fetch, vars, depth);
         if (vals.length) {
           return vals;
         }
@@ -12889,7 +12917,7 @@ initialize = function(vars, obj, method) {
 
 createFunction = function(vars, key) {
   return function(user, callback) {
-    var accepted, checkFont, fontAttr, fontAttrValue, s, str;
+    var accepted, checkFont, checkValue, fontAttr, fontAttrValue, s, starting, str;
     accepted = "accepted" in vars[key] ? vars[key].accepted : null;
     if (typeof accepted === "function") {
       accepted = accepted(vars);
@@ -12913,30 +12941,39 @@ createFunction = function(vars, key) {
         vars.self[s](user[s]);
       }
     }
-    if (key === "font" && typeof user === "string") {
-      user = {
-        family: user
-      };
-    }
     if (key === "font") {
-      checkFont = function(o, a, v, start) {
-        var m;
-        if (validObject(o)) {
-          if (a in o) {
-            if (validObject(o[a])) {
-              o[a].value = o[a].process ? o[a].process(v) : v;
+      if (typeof user === "string") {
+        user = {
+          family: user
+        };
+      }
+      starting = true;
+      checkValue = function(o, a, m, v) {
+        if (a in o[m]) {
+          if (validObject(o[m][a])) {
+            if (o[m][a].process) {
+              o[m][a].value = o[m][a].process(v);
             } else {
-              o[a] = v;
+              o[m][a].value = v;
             }
           } else {
+            o[m][a] = v;
+          }
+        }
+      };
+      checkFont = function(o, a, v) {
+        var m;
+        if (validObject(o)) {
+          if (starting) {
             for (m in o) {
-              if (m !== "font" || start !== true) {
-                checkFont(o[m], a, v, false);
-              }
-              if (start) {
-                checkFont(o.font.secondary, a, v, false);
-              }
+              checkValue(o, a, m, v);
             }
+          } else if ("font" in o) {
+            checkValue(o, a, "font", v);
+          }
+          starting = false;
+          for (m in o) {
+            checkFont(o[m], a, v);
           }
         }
       };
@@ -12947,7 +12984,7 @@ createFunction = function(vars, key) {
             fontAttrValue = fontAttrValue.value;
           }
           if (fontAttrValue) {
-            checkFont(vars, fontAttr, fontAttrValue, true);
+            checkFont(vars, fontAttr, fontAttrValue);
           }
         }
       }
@@ -20324,19 +20361,6 @@ module.exports = function(vars) {
     },vars.draw.timing)
   }
 
-  if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.focus.value.length && !vars.draw.timing) {
-    if ( vars.dev.value ) print.time("focus labels")
-    shapeLabels( vars , "data_focus" )
-    if (vars.edges.label) {
-
-      setTimeout(function(){
-        shapeLabels( vars , "edge_focus" )
-      },vars.draw.timing+200)
-
-    }
-    if ( vars.dev.value ) print.timeEnd("focus labels")
-  }
-
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check for Errors
   //----------------------------------------------------------------------------
@@ -20545,7 +20569,7 @@ module.exports = function(vars) {
         .attr("vector-effect","non-scaling-stroke")
         .style("stroke",vars.color.focus)
         .style("stroke-width",function(){
-          return vars.edges.size ? d3.select(this).style("stroke-width")
+          return vars.edges.size.value ? d3.select(this).style("stroke-width")
                : vars.data.stroke.width*2
         })
         .attr("marker-start",function(e){
@@ -20943,7 +20967,7 @@ module.exports = function(d, vars) {
   if ((!vars.active.value && !vars.temp.value) || active === true || (active && total && active >= total && !temp) || (active && !total)) {
     return fetchColor(vars, d);
   } else if (vars.active.spotlight.value) {
-    return "#fafafa";
+    return "#eee";
   } else {
     return lighter(fetchColor(vars, d), .75);
   }
@@ -21679,7 +21703,7 @@ module.exports = function(vars) {
         .selectAll("line, path")
           .style("stroke",vars.color.primary)
           .style("stroke-width",function(){
-            return vars.edges.size ? d3.select(this).style("stroke-width")
+            return vars.edges.size.value ? d3.select(this).style("stroke-width")
                  : vars.data.stroke.width*2
           })
           .attr("marker-start",function(e){
@@ -22053,7 +22077,7 @@ module.exports = function(vars) {
 
 },{"../../../client/pointer.coffee":41,"../../../client/touch.coffee":45,"../../../color/legible.coffee":46,"../../../core/console/print.coffee":54,"../../../core/fetch/color.coffee":64,"../../../core/fetch/text.js":67,"../../../core/fetch/value.coffee":68,"../../../object/validate.coffee":163,"../../../string/strip.js":166,"../../../tooltip/remove.coffee":189,"../../../util/child.coffee":191,"../../../util/closest.coffee":192,"../../../util/uniques.coffee":196,"../tooltip/create.js":223,"../zoom/direction.coffee":233,"../zoom/propagation.coffee":236,"./arc.coffee":203,"./area.js":204,"./check.js":205,"./coordinates.js":207,"./cross.js":208,"./diamond.js":209,"./donut.js":210,"./fill.js":213,"./line.js":215,"./rect.coffee":216,"./triangle_down.js":218,"./triangle_up.js":219,"./whisker.coffee":220}],212:[function(require,module,exports){
 var buckets = require("../../../util/buckets.coffee"),
-    offset  = require("../../../geom/offset.coffee")
+    offset  = require("../../../geom/offset.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -22061,31 +22085,42 @@ var buckets = require("../../../util/buckets.coffee"),
 module.exports = function(vars) {
 
   var edges = vars.returned.edges || [],
-      scale = vars.zoom.behavior.scaleExtent()[0]
+      scale = vars.zoom.behavior.scaleExtent()[0];
 
-  if (typeof vars.edges.size === "string") {
+  if (typeof vars.edges.size.value === "string") {
 
     var strokeDomain = d3.extent(edges, function(e){
-                         return e[vars.edges.size]
-                       })
-      , maxSize = d3.min(vars.returned.nodes || [], function(n){
-                        return n.d3plus.r
-                      })*.5
+                         return e[vars.edges.size.value];
+                       }),
+        maxSize = d3.min(vars.returned.nodes || [], function(n){
+                        return n.d3plus.r;
+                      }) * (vars.edges.size.scale * 2);
 
     vars.edges.scale = d3.scale.sqrt()
-                        .domain(strokeDomain)
-                        .range([vars.edges.width,maxSize*scale])
+      .domain(strokeDomain)
+      .range([vars.edges.size.min,maxSize*scale]);
 
   }
   else {
 
-    var defaultWidth = typeof vars.edges.size == "number"
-                     ? vars.edges.size : vars.edges.width
+    var defaultWidth = typeof vars.edges.size.value == "number" ?
+                       vars.edges.size.value : vars.edges.size.min;
 
     vars.edges.scale = function(){
-      return defaultWidth
-    }
+      return defaultWidth;
+    };
 
+  }
+
+  var o = vars.edges.opacity.value;
+  var o_type = typeof o;
+
+  if (vars.edges.opacity.changed && o_type === "string") {
+    var opacityScale = vars.edges.opacity.scale.value
+      .domain(d3.extent(edges, function(d){
+        return d[o];
+      }))
+      .range([vars.edges.opacity.min.value,1]);
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -22093,13 +22128,11 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   function init(l) {
 
-    var opacity = vars.edges.opacity == 1 ? vars.edges.opacity : 0
-
     l
-      .attr("opacity",opacity)
+      .attr("opacity", 0)
       .style("stroke-width",0)
       .style("stroke",vars.background.value)
-      .style("fill","none")
+      .style("fill","none");
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -22107,23 +22140,27 @@ module.exports = function(vars) {
   //----------------------------------------------------------------------------
   function style(edges) {
 
-    var marker = vars.edges.arrows.value
+    var marker = vars.edges.arrows.value;
 
     edges
+      .attr("opacity", function(d){
+        return o_type === "number" ? o :
+               o_type === "function" ? o(d, vars) :
+               opacityScale(d[o]);
+      })
       .style("stroke-width",function(e){
-        return vars.edges.scale(e[vars.edges.size])
+        return vars.edges.scale(e[vars.edges.size.value]);
       })
       .style("stroke",vars.edges.color)
-      .attr("opacity",vars.edges.opacity)
       .attr("marker-start",function(e){
 
-        var direction = vars.edges.arrows.direction.value
+        var direction = vars.edges.arrows.direction.value;
 
         if ("bucket" in e.d3plus) {
-          var d = "_"+e.d3plus.bucket
+          var d = "_"+e.d3plus.bucket;
         }
         else {
-          var d = ""
+          var d = "";
         }
 
         return direction == "source" && marker
@@ -22155,23 +22192,23 @@ module.exports = function(vars) {
   function line(l) {
     l
       .attr("x1",function(d){
-        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].x
+        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].x;
       })
       .attr("y1",function(d){
-        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].y
+        return d[vars.edges.source].d3plus.edges[d[vars.edges.target][vars.id.value]].y;
       })
       .attr("x2",function(d){
-        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].x
+        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].x;
       })
       .attr("y2",function(d){
-        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].y
-      })
+        return d[vars.edges.target].d3plus.edges[d[vars.edges.source][vars.id.value]].y;
+      });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Positioning of Splines
   //----------------------------------------------------------------------------
-  var curve = d3.svg.line().interpolate(vars.edges.interpolate.value)
+  var curve = d3.svg.line().interpolate(vars.edges.interpolate.value);
 
   function spline(l) {
     l
@@ -22179,7 +22216,7 @@ module.exports = function(vars) {
 
         return curve(d.d3plus.spline);
 
-      })
+      });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -22264,13 +22301,13 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter/update/exit the Arrow Marker
   //----------------------------------------------------------------------------
-  var markerData = vars.edges.arrows.value ? typeof vars.edges.size == "string"
+  var markerData = vars.edges.arrows.value ? typeof vars.edges.size.value == "string"
                   ? [ "default_0", "default_1", "default_2",
                       "highlight_0", "highlight_1", "highlight_2",
                       "focus_0", "focus_1", "focus_2" ]
                   : [ "default", "highlight", "focus" ] : []
 
-  if (typeof vars.edges.size == "string") {
+  if (typeof vars.edges.size.value == "string") {
     var b = buckets(vars.edges.scale.range(),4)
       , markerSize = []
     for (var i = 0; i < 3; i++) {
@@ -22281,8 +22318,8 @@ module.exports = function(vars) {
     var m = typeof vars.edges.arrows.value === "number"
           ? vars.edges.arrows.value : 8
 
-    var markerSize = typeof vars.edges.size === "number"
-                    ? vars.edges.size/m : m
+    var markerSize = typeof vars.edges.size.value === "number"
+                    ? vars.edges.size.value/m : m
   }
 
   var marker = vars.defs.selectAll(".d3plus_edge_marker")
@@ -22365,7 +22402,7 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Bind "edges" data to lines in the "edges" group
   //----------------------------------------------------------------------------
-  var strokeBuckets = typeof vars.edges.size == "string"
+  var strokeBuckets = typeof vars.edges.size.value == "string"
                     ? buckets(vars.edges.scale.domain(),4)
                     : null
     , direction = vars.edges.arrows.direction.value
@@ -22379,7 +22416,7 @@ module.exports = function(vars) {
     if ( l.d3plus.spline !== true ) {
 
       if (strokeBuckets) {
-        var size = l[vars.edges.size]
+        var size = l[vars.edges.size.value]
         l.d3plus.bucket = size < strokeBuckets[1] ? 0
                         : size < strokeBuckets[2] ? 1 : 2
         var marker = markerSize[l.d3plus.bucket]*.85/scale
@@ -22442,7 +22479,7 @@ module.exports = function(vars) {
     if (l.d3plus.spline) {
 
       if (strokeBuckets) {
-        var size = l[vars.edges.size]
+        var size = l[vars.edges.size.value]
         l.d3plus.bucket = size < strokeBuckets[1] ? 0
                         : size < strokeBuckets[2] ? 1 : 2
         var marker = markerSize[l.d3plus.bucket]*.85/scale
@@ -23422,7 +23459,8 @@ module.exports = function( vars , group ) {
 var copy       = require("../../../util/copy.coffee"),
     closest    = require("../../../util/closest.coffee"),
     events     = require("../../../client/pointer.coffee"),
-    shapeStyle = require("./style.coffee");
+    shapeStyle = require("./style.coffee"),
+    fetchValue = require("../../../core/fetch/value.coffee");
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "line" shapes using svg:line
@@ -23447,7 +23485,7 @@ module.exports = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
 
   var stroke = vars.data.stroke.width * 2,
-      hitarea = stroke < 30 ? 30 : stroke,
+      hitarea = stroke < 15 ? 15 : stroke,
       discrete = vars[vars.axes.discrete],
       ticks = [];
 
@@ -23468,7 +23506,7 @@ module.exports = function(vars,selection,enter,exit) {
     temp.segment_key = temp.key;
     d.values.forEach(function(v,i,arr){
 
-      var k = v[discrete.value];
+      var k = fetchValue(vars, v, discrete.value);
 
       if (k.constructor === Date) k = k.getTime();
 
@@ -23573,11 +23611,13 @@ module.exports = function(vars,selection,enter,exit) {
 
     }
 
+    var mouseData = selection.size() * discrete.ticks.values.length < vars.data.large ? segments : [];
+
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create mouse event lines
     //--------------------------------------------------------------------------
     var mouse = group.selectAll("path.d3plus_mouse")
-      .data(segments, function(d){
+      .data(mouseData, function(d){
         return d.segment_key;
       });
 
@@ -23586,7 +23626,7 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     mouse.enter().append("path")
       .attr("class","d3plus_mouse")
-      .attr("d",function(l){ return line(l.values); })
+      .attr("d", function(l){ return line(l.values); })
       .style("stroke","black")
       .style("stroke-width",hitarea)
       .style("fill","none")
@@ -23708,7 +23748,7 @@ function mouseStyle(vars, elem, stroke, mod) {
 
 }
 
-},{"../../../client/pointer.coffee":41,"../../../util/closest.coffee":192,"../../../util/copy.coffee":193,"./style.coffee":217}],216:[function(require,module,exports){
+},{"../../../client/pointer.coffee":41,"../../../core/fetch/value.coffee":68,"../../../util/closest.coffee":192,"../../../util/copy.coffee":193,"./style.coffee":217}],216:[function(require,module,exports){
 var shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -23860,7 +23900,7 @@ module.exports = function(nodes, vars) {
       return d.d3plus.stroke;
     } else {
       c = d.values ? color(d.values[0], vars) : color(d, vars);
-      return d3.rgb(c).darker(0.5);
+      return d3.rgb(c).darker(0.6);
     }
   }).style("stroke-width", function(d) {
     var mod;
@@ -24427,90 +24467,77 @@ module.exports = function(params) {
 
   function make_tooltip(html) {
 
+    var titleDepth = "depth" in params ? params.depth : dataDepth;
+
     var ex = {},
         children = {},
-        depth     = vars.id.nesting[dataDepth+1] in d ? dataDepth + 1 : dataDepth,
+        depth     = vars.id.nesting[titleDepth+1] in d ? titleDepth + 1 : titleDepth,
         nestKey   = vars.id.nesting[depth],
         nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey];
 
     if (!(nameList instanceof Array)) nameList = [nameList];
 
-    var uniqueNames;
-    if (validObject(nameList[0])) uniqueNames = uniques(nameList, nestKey);
-    else uniqueNames = uniques(nameList);
+    var dataValue = fetchValue( vars , d , vars.size.value );
+    // console.log(nameList, nestKey, depth)
+    if (vars.tooltip.children.value) {
 
-    var dataValue = fetchValue( vars , d , vars.size.value ),
-        firstName = fetchText(vars, uniqueNames[0], depth)[0],
-        same = (uniqueNames.length === 1 && firstName === params.title) && depth <= vars.depth.value;
+      nameList = nameList.slice(0);
 
-    if ( !same && vars.tooltip.children.value ) {
+      if (vars.size.value && validObject(nameList[0])) {
 
-      if ( nameList instanceof Array ) {
+        var namesWithValues = nameList.filter(function(n){
+          return vars.size.value in n && (!("d3plus" in n) || !n.d3plus.merged);
+        });
 
-        nameList = nameList.slice(0);
+        var namesNoValues = nameList.filter(function(n){
+          return !(vars.size.value in n) || (n.d3plus && n.d3plus.merged);
+        });
 
-        if (vars.size.value && validObject(nameList[0])) {
+        arraySort(namesWithValues, vars.size.value, "desc", [], vars);
 
-          var namesWithValues = nameList.filter(function(n){
-            return vars.size.value in n && (!("d3plus" in n) || !n.d3plus.merged);
-          });
+        nameList = namesWithValues.concat(namesNoValues);
 
-          var namesNoValues = nameList.filter(function(n){
-            return !(vars.size.value in n) || (n.d3plus && n.d3plus.merged);
-          });
+      }
 
-          arraySort(namesWithValues, vars.size.value, "desc", [], vars);
+      var limit = length === "short" ? 3 : vars.data.large,
+          listLength = nameList.length,
+          max   = d3.min([listLength , limit]),
+          objs  = [];
 
-          nameList = namesWithValues.concat(namesNoValues);
+      for (var i = 0; i < max; i++) {
 
-        }
+        if (!nameList.length) break;
 
-        var limit = length === "short" ? 3 : vars.data.large,
-            listLength = nameList.length,
-            max   = d3.min([listLength , limit]),
-            objs  = [];
+        var obj  = nameList.shift(),
+            name = fetchText(vars, obj, depth)[0],
+            id   = validObject(obj) ? fetchValue(vars, obj, nestKey, depth) : obj;
 
-        for (var i = 0; i < max; i++) {
+        if (id !== d[vars.id.nesting[titleDepth]] && name && !children[name]) {
 
-          if (!nameList.length) break;
+          var value = fetchValue(vars, obj, vars.size.value, nestKey),
+          color = fetchColor(vars, obj, nestKey);
 
-          var id    = nameList.shift(),
-              name  = fetchText(vars, id, depth)[0];
+          children[name] = value ? vars.format.value(value, vars.size.value, vars, obj) : "";
 
-          if (name && !children[name]) {
-
-            var value = fetchValue(vars, id, vars.size.value, nestKey),
-            color = fetchColor(vars, id, nestKey);
-
-            children[name] = value ? vars.format.value(value, vars.size.value, vars, id) : ""
-
-            if (color) {
-              if ( !children.d3plus_colors ) children.d3plus_colors = {}
-              children.d3plus_colors[name] = color
-            }
-
-          }
-          else {
-            i--;
+          if (color) {
+            if ( !children.d3plus_colors ) children.d3plus_colors = {};
+            children.d3plus_colors[name] = color;
           }
 
         }
-
-        if ( listLength > max ) {
-          children.d3plusMore = listLength - max
+        else {
+          i--;
         }
 
       }
-      // else if ( nameList && nameList !== "null" ) {
-      //
-      //   var name  = fetchText( vars , nameList , depth )[0]
-      //   children[name] = dataValue ? vars.format.value(dataValue, vars.size.value, vars, d) : ""
-      //
-      // }
+
+      if ( listLength > max ) {
+        children.d3plusMore = listLength - max
+      }
 
     }
 
-    if ( vars.tooltip.size.value && ( same || !nameList || nameList instanceof Array ) ) {
+    if ( vars.tooltip.size.value ) {
       if (dataValue) {
         ex[vars.size.value] = dataValue
       }
@@ -24552,7 +24579,7 @@ module.exports = function(params) {
     if ((tooltip_data.length > 0 || footer) || ((!d.d3plus_label && length == "short" && title) || (d.d3plus_label && (!("visible" in d.d3plus_label) || ("visible" in d.d3plus_label && d.d3plus_label.visible === false))))) {
 
       if (!title) {
-        title = id
+        title = id;
       }
 
       var depth = "d3plus" in d && "merged" in d.d3plus ? dataDepth - 1 : dataDepth
@@ -26826,7 +26853,8 @@ labels = require("./labels.coffee");
 transform = require("./transform.coffee");
 
 module.exports = function(vars) {
-  var delay, limits, scale, translate, xmax, xmin, xoffset, ymax, ymin, yoffset;
+  var delay, eventType, limits, scale, translate, xmax, xmin, xoffset, ymax, ymin, yoffset;
+  eventType = d3.event.sourceEvent ? d3.event.sourceEvent.type : null;
   translate = d3.event.translate;
   scale = d3.event.scale;
   limits = vars.zoom.bounds;
@@ -26849,7 +26877,7 @@ module.exports = function(vars) {
   vars.zoom.behavior.translate(translate).scale(scale);
   vars.zoom.translate = translate;
   vars.zoom.scale = scale;
-  if (d3.event.sourceEvent.type === "wheel") {
+  if (eventType === "wheel") {
     delay = (vars.draw.timing ? 100 : 250);
     clearTimeout(vars.zoom.wheel);
     vars.zoom.wheel = setTimeout(function() {
@@ -26858,7 +26886,7 @@ module.exports = function(vars) {
   } else {
     labels(vars);
   }
-  if (d3.event.sourceEvent.type === "dblclick") {
+  if (eventType === "dblclick") {
     return transform(vars, vars.timing.transitions);
   } else {
     return transform(vars, 0);
@@ -27320,7 +27348,7 @@ module.exports = {
 }
 
 },{"../../core/console/print.coffee":54,"../../string/format.js":164}],254:[function(require,module,exports){
-var process = require("../../core/methods/process/data.coffee")
+var process = require("../../core/methods/process/data.coffee");
 
 module.exports = {
   "accepted": [false, Array, Function, String],
@@ -27392,18 +27420,33 @@ module.exports = {
     "accepted": [false, Function, Number],
     "value":    false
   },
-  "opacity":  1,
+  "opacity": {
+    "accepted": [Function, Number, String],
+    "min": {
+      "accepted": [Number],
+      "value": 0.25
+    },
+    "scale": {
+      "accepted": [Function],
+      "value": d3.scale.linear()
+    },
+    "value": 1
+  },
   "process":  process,
-  "size":     false,
+  "size": {
+    "accepted": [false, Number, String],
+    "min": 1,
+    "scale": 0.5,
+    "value": false
+  },
   "source":   "source",
   "strength": {
     "accepted": [false, Function, Number, String],
     "value":    false
   },
   "target": "target",
-  "value":  false,
-  "width":  1
-}
+  "value":  false
+};
 
 },{"../../core/methods/process/data.coffee":82}],255:[function(require,module,exports){
 module.exports = {
@@ -27602,6 +27645,7 @@ module.exports = function(axis) {
   return {
     accepted: [Array, Boolean, Function, Object, String],
     axis: {
+      accepted: [Boolean],
       color: "#444",
       font: {
         color: "#444",
@@ -27611,7 +27655,8 @@ module.exports = function(axis) {
         transform: transform(),
         weight: 200
       },
-      rendering: rendering()
+      rendering: rendering(),
+      value: true
     },
     dataFilter: true,
     deprecates: [axis + "axis", axis + "axis_val", axis + "axis_var"],
@@ -27626,13 +27671,17 @@ module.exports = function(axis) {
       value: true
     },
     label: {
-      color: "#444",
-      decoration: decoration(),
-      family: family(),
+      accepted: [false, String],
+      font: {
+        color: "#444",
+        decoration: decoration(),
+        family: family(),
+        size: 12,
+        transform: transform(),
+        weight: 200
+      },
       padding: 3,
-      size: 12,
-      transform: transform(),
-      weight: 200
+      value: false
     },
     lines: {
       accept: [false, Array, Number, Object],
@@ -28447,7 +28496,7 @@ module.exports = {
 },{}],286:[function(require,module,exports){
 module.exports = {
   "accepted"   : [ Boolean ],
-  "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]),
+  "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]).duration(0),
   "click"      : {
     "accepted" : [ Boolean ],
     "value"    : true
@@ -29402,7 +29451,7 @@ module.exports = function(vars, axis, buffer) {
         lowerScale = Math.pow(10, parseInt(Math.abs(domain[0])).toString().length - 1) * zero;
         lowerMod = domain[0] % lowerScale;
         lowerDiff = lowerMod;
-        if (lowerMod && lowerDiff / lowerScale <= 0.2) {
+        if (lowerMod && lowerDiff / lowerScale <= 0.1) {
           lowerDiff += lowerScale * zero;
         }
         lowerValue = lowerMod === 0 ? lowerScale : lowerDiff;
@@ -29413,7 +29462,7 @@ module.exports = function(vars, axis, buffer) {
         upperScale = Math.pow(10, parseInt(Math.abs(domain[1])).toString().length - 1) * zero;
         upperMod = domain[1] % upperScale;
         upperDiff = Math.abs(upperScale - upperMod);
-        if (upperMod && upperDiff / upperScale <= 0.2) {
+        if (upperMod && upperDiff / upperScale <= 0.1) {
           upperDiff += upperScale * zero;
         }
         upperValue = upperMod === 0 ? upperScale : upperDiff;
@@ -29762,9 +29811,9 @@ labelPadding = function(vars) {
   vars.axes.margin.left += yAxisWidth;
   yLabel = vars.format.value(vars.y.value, void 0, vars);
   yLabelAttrs = {
-    "font-family": vars.y.label.family.value,
-    "font-weight": vars.y.label.weight,
-    "font-size": vars.y.label.size + "px"
+    "font-family": vars.y.label.font.family.value,
+    "font-weight": vars.y.label.font.weight,
+    "font-size": vars.y.label.font.size + "px"
   };
   vars.y.label.height = fontSizes([yLabel], yLabelAttrs)[0].height;
   vars.axes.margin.left += vars.y.label.height;
@@ -29857,9 +29906,9 @@ labelPadding = function(vars) {
   }
   xLabel = vars.format.value(vars.x.value, void 0, vars);
   xLabelAttrs = {
-    "font-family": vars.x.label.family.value,
-    "font-weight": vars.x.label.weight,
-    "font-size": vars.x.label.size + "px"
+    "font-family": vars.x.label.font.family.value,
+    "font-weight": vars.x.label.font.weight,
+    "font-size": vars.x.label.font.size + "px"
   };
   vars.x.label.height = fontSizes([xLabel], xLabelAttrs)[0].height;
   vars.x.ticks.maxWidth = xMaxWidth;
@@ -29919,7 +29968,7 @@ mix = require("../../../../../color/mix.coffee");
 textwrap = require("../../../../../textwrap/textwrap.coffee");
 
 module.exports = function(vars) {
-  var alignMap, axis, axisData, bg, bgStyle, d, domain, domains, grid, gridData, label, labelStyle, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, mirror, plane, planeTrans, position, rectData, rectStyle, rotated, textData, textPad, textPos, tickFont, tickPosition, tickStyle, xAxis, xEnter, xStyle, yAxis, yEnter, yStyle, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+  var alignMap, axis, axisData, axisLabel, bg, bgStyle, d, domain, domains, grid, gridData, label, labelStyle, line, lineData, lineFont, lineGroup, lineRects, lineStyle, lines, linetexts, mirror, plane, planeTrans, position, rectData, rectStyle, rotated, textData, textPad, textPos, tickFont, tickPosition, tickStyle, xAxis, xEnter, xStyle, yAxis, yEnter, yStyle, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
   domains = vars.x.domain.viz.concat(vars.y.domain.viz);
   if (domains.indexOf(void 0) >= 0) {
     return null;
@@ -30082,12 +30131,19 @@ module.exports = function(vars) {
   yEnter.selectAll("line").call(tickStyle, "y");
   yAxis.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   labelStyle = function(label, axis) {
-    return label.attr("x", axis === "x" ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.top)).attr("y", axis === "x" ? vars.height.viz - vars[axis].label.height / 2 - vars[axis].label.padding : vars[axis].label.height / 2 + vars[axis].label.padding).attr("transform", axis === "y" ? "rotate(-90)" : null).attr("font-family", vars[axis].label.family.value).attr("font-weight", vars[axis].label.weight).attr("font-size", vars[axis].label.size + "px").attr("fill", vars[axis].label.color).style("text-anchor", "middle").attr("dominant-baseline", "central");
+    return label.attr("x", axis === "x" ? vars.width.viz / 2 : -(vars.axes.height / 2 + vars.axes.margin.top)).attr("y", axis === "x" ? vars.height.viz - vars[axis].label.height / 2 - vars[axis].label.padding : vars[axis].label.height / 2 + vars[axis].label.padding).attr("transform", axis === "y" ? "rotate(-90)" : null).attr("font-family", vars[axis].label.font.family.value).attr("font-weight", vars[axis].label.font.weight).attr("font-size", vars[axis].label.font.size + "px").attr("fill", vars[axis].label.font.color).style("text-anchor", "middle").attr("dominant-baseline", "central");
   };
   _ref = ["x", "y"];
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
-    gridData = vars[axis].grid.value ? vars[axis].ticks.values : [];
+    if (vars[axis].grid.value) {
+      gridData = vars[axis].ticks.values;
+    } else {
+      gridData = [];
+      if (vars[axis].ticks.values.indexOf(0) >= 0 && vars[axis].axis.value) {
+        gridData = [0];
+      }
+    }
     grid = plane.selectAll("g#d3plus_graph_" + axis + "grid").data([0]);
     grid.enter().append("g").attr("id", "d3plus_graph_" + axis + "grid");
     lines = grid.selectAll("line").data(gridData, function(d) {
@@ -30096,9 +30152,10 @@ module.exports = function(vars) {
     lines.transition().duration(vars.draw.timing).call(tickPosition, axis).call(tickStyle, axis, true);
     lines.enter().append("line").style("opacity", 0).call(tickPosition, axis).call(tickStyle, axis, true).transition().duration(vars.draw.timing).delay(vars.draw.timing / 2).style("opacity", 1);
     lines.exit().transition().duration(vars.draw.timing / 2).style("opacity", 0).remove();
+    axisLabel = vars[axis].label.value || vars.format.value(vars[axis].value, void 0, vars);
     label = vars.group.selectAll("text#d3plus_graph_" + axis + "label").data(axisData);
-    label.text(vars.format.value(vars[axis].value, void 0, vars)).transition().duration(vars.draw.timing).call(labelStyle, axis);
-    label.enter().append("text").attr("id", "d3plus_graph_" + axis + "label").text(vars.format.value(vars[axis].value, void 0, vars)).call(labelStyle, axis);
+    label.text(axisLabel).transition().duration(vars.draw.timing).call(labelStyle, axis);
+    label.enter().append("text").attr("id", "d3plus_graph_" + axis + "label").text(axisLabel).call(labelStyle, axis);
     label.exit().transition().duration(vars.data.timing).attr("opacity", 0).remove();
   }
   _ref1 = ["x", "y"];
@@ -30732,7 +30789,7 @@ viz.filter = function(vars, data) {
   edges = vars.edges.filtered || vars.edges.value;
   viz.paths = shortestPath(edges, vars.focus.value[0], {
     target: vars.focus.value[1],
-    distance: vars.edges.size || void 0,
+    distance: vars.edges.size.value || void 0,
     nodeid: vars.id.value,
     startpoint: vars.edges.source,
     endpoint: vars.edges.target,

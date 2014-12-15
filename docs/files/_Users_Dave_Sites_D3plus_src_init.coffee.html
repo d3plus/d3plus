@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 1.6.5</em>
+            <em>API Docs for: 1.6.6</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -119,17 +119,19 @@
 ###*
 # @class d3plus
 ###
-d3plus        = window.d3plus or {}
-window.d3plus = d3plus
+d3plus         = {}
+window.d3plus  = d3plus if typeof window isnt &quot;undefined&quot;
+module.exports = d3plus
 
 ###*
-# The current version of **D3plus** you are using. Returns a string in [semantic versioning](http://semver.org/) format.
+# The current version of **D3plus** you are using. Returns a string in
+# [semantic versioning](http://semver.org/) format.
 # @property d3plus.version
 # @for d3plus
 # @type String
 # @static
 ###
-d3plus.version = &quot;1.6.5 - Turquoise&quot;
+d3plus.version = &quot;1.6.6 - Turquoise&quot;
 
 ###*
 # The URL for the repo, used internally for certain error messages.
@@ -230,9 +232,9 @@ d3plus.geom =
 ###
 d3plus.network =
   cluster:      require &quot;./network/cluster.coffee&quot;
-  distances:    require &quot;./network/distances.coffee&quot;
   normalize:    require &quot;./network/normalize.coffee&quot;
   shortestPath: require &quot;./network/shortestPath.coffee&quot;
+  smallestGap:  require &quot;./network/smallestGap.coffee&quot;
   subgraph:     require &quot;./network/subgraph.coffee&quot;
 
 ###*
