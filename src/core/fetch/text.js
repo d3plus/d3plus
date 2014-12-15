@@ -39,7 +39,7 @@ module.exports = function(vars, obj, depth) {
 
     var formatObj = validObject(obj) ? obj : undefined;
 
-    if (obj[vars.id.value] instanceof Array) {
+    if (formatObj && obj[vars.id.value] instanceof Array) {
       obj = obj[vars.id.value];
     }
     else if (!(obj instanceof Array)) {
