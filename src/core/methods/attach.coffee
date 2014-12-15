@@ -76,27 +76,38 @@ createFunction = (vars, key) ->
         vars.self[s] user[s]
 
     # Set all font properties, if calling .font()
-    if key is "font" and typeof user is "string"
-      user =
-        family: user
+
     if key is "font"
-      checkFont = (o, a, v, start) ->
-        if validObject(o)
-          if a of o
-            if validObject(o[a])
-              o[a].value = if o[a].process then o[a].process(v) else v
+      user = {family: user} if typeof user is "string"
+      starting = true
+
+      checkValue = (o, a, m, v) ->
+        if a of o[m]
+          if validObject(o[m][a])
+            if o[m][a].process
+              o[m][a].value = o[m][a].process(v)
             else
-              o[a] = v
+              o[m][a].value = v
           else
-            for m of o
-              checkFont o[m], a, v, false if m isnt "font" or start isnt true
-              if start
-                checkFont o.font.secondary, a, v, false
+            o[m][a] = v
         return
+
+      checkFont = (o, a, v) ->
+        if validObject(o)
+          if starting
+            for m of o
+              checkValue o, a, m, v
+          else if "font" of o
+            checkValue o, a, "font", v
+          starting = false
+          for m of o
+            checkFont o[m], a, v
+        return
+
       for fontAttr, fontAttrValue of user
         if fontAttr isnt "secondary"
           fontAttrValue = fontAttrValue.value if validObject(fontAttrValue)
-          checkFont vars, fontAttr, fontAttrValue, true if fontAttrValue
+          checkFont vars, fontAttr, fontAttrValue if fontAttrValue
 
     # Object
     checkObject vars, key, vars, key, user

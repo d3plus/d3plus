@@ -216,10 +216,10 @@ module.exports = (vars) ->
         else
           vars[axis].label.height/2 + vars[axis].label.padding
       .attr "transform", if axis is "y" then "rotate(-90)" else null
-      .attr "font-family", vars[axis].label.family.value
-      .attr "font-weight", vars[axis].label.weight
-      .attr "font-size", vars[axis].label.size+"px"
-      .attr "fill", vars[axis].label.color
+      .attr "font-family", vars[axis].label.font.family.value
+      .attr "font-weight", vars[axis].label.font.weight
+      .attr "font-size", vars[axis].label.font.size+"px"
+      .attr "fill", vars[axis].label.font.color
       .style "text-anchor", "middle"
       .attr "dominant-baseline", "central"
 

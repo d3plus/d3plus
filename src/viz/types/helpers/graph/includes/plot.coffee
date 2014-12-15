@@ -77,9 +77,9 @@ labelPadding = (vars) ->
 
   yLabel = vars.format.value(vars.y.value, undefined, vars)
   yLabelAttrs =
-    "font-family": vars.y.label.family.value
-    "font-weight": vars.y.label.weight
-    "font-size":   vars.y.label.size+"px"
+    "font-family": vars.y.label.font.family.value
+    "font-weight": vars.y.label.font.weight
+    "font-size":   vars.y.label.font.size+"px"
   vars.y.label.height = fontSizes([yLabel], yLabelAttrs)[0].height
   vars.axes.margin.left += vars.y.label.height
   vars.axes.margin.left += vars.y.label.padding * 2
@@ -156,9 +156,9 @@ labelPadding = (vars) ->
 
   xLabel = vars.format.value(vars.x.value, undefined, vars)
   xLabelAttrs =
-    "font-family": vars.x.label.family.value
-    "font-weight": vars.x.label.weight
-    "font-size":   vars.x.label.size+"px"
+    "font-family": vars.x.label.font.family.value
+    "font-weight": vars.x.label.font.weight
+    "font-size":   vars.x.label.font.size+"px"
   vars.x.label.height   = fontSizes([xLabel], xLabelAttrs)[0].height
   vars.x.ticks.maxWidth = xMaxWidth
   vars.x.ticks.maxHeight = xAxisHeight
