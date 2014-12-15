@@ -27,7 +27,7 @@ module.exports = function(vars,selection,enter,exit) {
   //----------------------------------------------------------------------------
 
   var stroke = vars.data.stroke.width * 2,
-      hitarea = stroke < 30 ? 30 : stroke,
+      hitarea = stroke < 15 ? 15 : stroke,
       discrete = vars[vars.axes.discrete],
       ticks = [];
 
@@ -153,11 +153,13 @@ module.exports = function(vars,selection,enter,exit) {
 
     }
 
+    var mouseData = selection.size() * discrete.ticks.values.length < vars.data.large ? segments : [];
+
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create mouse event lines
     //--------------------------------------------------------------------------
     var mouse = group.selectAll("path.d3plus_mouse")
-      .data(segments, function(d){
+      .data(mouseData, function(d){
         return d.segment_key;
       });
 
@@ -166,7 +168,7 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     mouse.enter().append("path")
       .attr("class","d3plus_mouse")
-      .attr("d",function(l){ return line(l.values); })
+      .attr("d", function(l){ return line(l.values); })
       .style("stroke","black")
       .style("stroke-width",hitarea)
       .style("fill","none")
