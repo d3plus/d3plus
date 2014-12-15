@@ -22,11 +22,9 @@ module.exports = (vars, id, level) ->
 
     while i >= 0
       colorLevel = vars.id.nesting[i]
-      if obj
-        value = uniques id, vars.color.value, fetchValue, vars, colorLevel
-        value = value[0] if value.length is 1
-      else
-        value = id
+
+      value = uniques id, vars.color.value, fetchValue, vars, colorLevel
+      value = value[0] if value.length is 1
 
       if !(value instanceof Array) and value isnt undefined and value isnt null
         color = getColor(vars, id, value, level)

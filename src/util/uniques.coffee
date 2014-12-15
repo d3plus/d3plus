@@ -19,7 +19,6 @@ uniques = (data, value, fetch, vars, depth) ->
       p
     , []
 
-
   for d in data
 
     if fetch

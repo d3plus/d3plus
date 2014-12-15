@@ -6,9 +6,8 @@ uniqueValues = require "../../util/uniques.coffee"
 #------------------------------------------------------------------------------
 find = (vars, node, variable, depth) ->
 
-  return variable node, vars if typeof variable is "function"
-
   nodeObject = validObject node
+  return variable node, vars if typeof variable is "function" and nodeObject
 
   # Checks inside the "node" variable if it is an object. If the variable is not
   # avaiable inside of the object, "node" gets reset to it's ID value to help
@@ -58,7 +57,7 @@ find = (vars, node, variable, depth) ->
 checkData = (vars, node, variable, depth) ->
 
   if vars.data.viz instanceof Array and variable of vars.data.keys
-    val = uniqueValues filterArray(vars.data.viz, node, depth), variable
+    val = uniqueValues filterArray(vars.data.viz, node, depth), variable, fetch, vars, depth
   return if val and val.length then val else null
 
 checkAttrs = (vars, node, variable, depth) ->
@@ -71,12 +70,12 @@ checkAttrs = (vars, node, variable, depth) ->
       attrList = vars.attrs.value
 
     if attrList instanceof Array
-      val = uniqueValues filterArray(attrList, node, depth), variable
+      val = uniqueValues filterArray(attrList, node, depth), variable, fetch, vars, depth
       return val if val.length
     else if node instanceof Array
       attrList = [attrList[n] for n in node if n of attrList]
       if attrList.length
-        vals = uniqueValues(attrList, variable)
+        vals = uniqueValues attrList, variable, fetch, vars, depth
         return vals if vals.length
     else if node of attrList
       return attrList[node][variable]
