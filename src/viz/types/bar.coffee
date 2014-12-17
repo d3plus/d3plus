@@ -53,20 +53,20 @@ bar = (vars) ->
     mod = if vars.axes.stacked then 0 else x(i)
     for d in point.values
 
-      discreteVal = fetchValue(vars, d, vars[discrete].value)
-
-      d.d3plus[discrete]  = vars[discrete].scale.viz discreteVal
-      d.d3plus[discrete] += vars.axes.margin[cMargin] + mod
-
       if vars.axes.stacked
         value  = d.d3plus[opposite]
         base   = d.d3plus[opposite+"0"]
       else
         oppVal = fetchValue(vars, d, vars[opposite].value)
+        continue if oppVal is 0
         if vars[opposite].scale.value is "log"
           zero = if oppVal < 0 then -1 else 1
         value  = vars[opposite].scale.viz oppVal
         base   = vars[opposite].scale.viz zero
+
+      discreteVal = fetchValue(vars, d, vars[discrete].value)
+      d.d3plus[discrete]  = vars[discrete].scale.viz discreteVal
+      d.d3plus[discrete] += vars.axes.margin[cMargin] + mod
 
       length = base - value
 

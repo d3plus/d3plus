@@ -144,6 +144,10 @@ axisRange = (vars, axis, zero, buffer) ->
       else
         uniques values
     else
+      values.sort (a, b) -> a - b
+      if vars[axis].scale.value is "log"
+        values[0] = 1 if values[0] is 0
+        values[values.length-1] = -1 if values[values.length-1] is 0
       if zero
         allPositive = values[0] >= 0 and values[1] >= 0
         allNegative = values[0] <= 0 and values[1] <= 0

@@ -72,7 +72,7 @@ module.exports = (vars, axis, buffer) ->
         if lowerMod and lowerDiff/lowerScale <= 0.1
           lowerDiff += lowerScale * zero
         lowerValue = if lowerMod is 0 then lowerScale else lowerDiff
-        domain[0] -= lowerValue * zero
+        domain[0] -= lowerValue
         domain[0] = zero if domain[0] is 0
 
         upperScale = Math.pow(10, parseInt(Math.abs(domain[1])).toString().length - 1) * zero
@@ -81,7 +81,7 @@ module.exports = (vars, axis, buffer) ->
         if upperMod and upperDiff/upperScale <= 0.1
           upperDiff += upperScale * zero
         upperValue = if upperMod is 0 then upperScale else upperDiff
-        domain[1] += upperValue * zero
+        domain[1] += upperValue
         domain[1] = zero if domain[1] is 0
 
         domain = domain.reverse() if allPositive and axis is "y"
