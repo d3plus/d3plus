@@ -23,7 +23,7 @@ module.exports = d3plus;
  * @static
  */
 
-d3plus.version = "1.6.6 - Turquoise";
+d3plus.version = "1.6.7 - Turquoise";
 
 
 /**
@@ -1560,7 +1560,7 @@ module.exports = isArray || function (val) {
 },{}],7:[function(require,module,exports){
 !function() {
   var d3 = {
-    version: "3.5.1"
+    version: "3.5.2"
   };
   if (!Date.now) Date.now = function() {
     return +new Date();
@@ -1692,6 +1692,31 @@ module.exports = isArray || function (val) {
       while (++i < n) if (d3_numeric(a = d3_number(f.call(array, array[i], i)))) numbers.push(a);
     }
     if (numbers.length) return d3.quantile(numbers.sort(d3_ascending), .5);
+  };
+  d3.variance = function(array, f) {
+    var n = array.length, m = 0, a, d, s = 0, i = -1, j = 0;
+    if (arguments.length === 1) {
+      while (++i < n) {
+        if (d3_numeric(a = d3_number(array[i]))) {
+          d = a - m;
+          m += d / ++j;
+          s += d * (a - m);
+        }
+      }
+    } else {
+      while (++i < n) {
+        if (d3_numeric(a = d3_number(f.call(array, array[i], i)))) {
+          d = a - m;
+          m += d / ++j;
+          s += d * (a - m);
+        }
+      }
+    }
+    if (j > 1) return s / (j - 1);
+  };
+  d3.deviation = function() {
+    var v = d3.variance.apply(this, arguments);
+    return v ? Math.sqrt(v) : v;
   };
   function d3_bisector(compare) {
     return {
@@ -10132,7 +10157,7 @@ module.exports = isArray || function (val) {
   d3_transitionPrototype.node = d3_selectionPrototype.node;
   d3_transitionPrototype.size = d3_selectionPrototype.size;
   d3.transition = function(selection, name) {
-    return arguments.length ? d3_transitionInheritId ? selection.transition(name) : selection : d3_selectionRoot.transition(name);
+    return selection && selection.transition ? d3_transitionInheritId ? selection.transition(name) : selection : d3_selectionRoot.transition(selection);
   };
   d3.transition.prototype = d3_transitionPrototype;
   d3_transitionPrototype.select = function(selector) {
@@ -28279,7 +28304,7 @@ var foreign, tspan;
 
 foreign = require("./foreign.coffee");
 
-tspan = require("./tspan.js");
+tspan = require("./tspan.coffee");
 
 module.exports = function(vars) {
   if (vars.text.html.value) {
@@ -28291,7 +28316,7 @@ module.exports = function(vars) {
 
 
 
-},{"./foreign.coffee":172,"./tspan.js":176}],172:[function(require,module,exports){
+},{"./foreign.coffee":172,"./tspan.coffee":176}],172:[function(require,module,exports){
 module.exports = function(vars) {
   var anchor, color, family, opacity, text;
   text = vars.container.value;
@@ -28307,22 +28332,24 @@ module.exports = function(vars) {
 
 },{}],173:[function(require,module,exports){
 module.exports = function(vars) {
-  var circle, height, parent, radius, rect, width;
+  var height, prev, radius, shape, width;
   if (!vars.width.value || !vars.height.value) {
-    parent = d3.select(vars.container.value.node().parentNode);
-    rect = parent.select("rect");
-    circle = parent.select("circle");
-    if (!rect.empty()) {
+    prev = vars.container.value.node().previousElementSibling;
+    shape = prev ? prev.tagName.toLowerCase() : "";
+    if (prev) {
+      prev = d3.select(prev);
+    }
+    if (shape === "rect") {
       if (!vars.width.value) {
-        width = rect.attr("width" || rect.style("width"));
+        width = prev.attr("width" || prev.style("width"));
         vars.self.width(parseFloat(width, 10));
       }
       if (!vars.height.value) {
-        height = rect.attr("height" || rect.style("height"));
+        height = prev.attr("height" || prev.style("height"));
         vars.self.height(parseFloat(height, 10));
       }
-    } else if (!circle.empty()) {
-      radius = circle.attr("r");
+    } else if (shape === "circle") {
+      radius = prev.attr("r");
       if (!vars.width.value) {
         vars.self.width(parseFloat(radius * 2, 10));
       }
@@ -28386,127 +28413,95 @@ module.exports = function(vars) {
 
 
 },{}],176:[function(require,module,exports){
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Flows the text into tspans
-//------------------------------------------------------------------------------
-module.exports = function( vars ) {
-
-  var xPosition  = vars.container.value.attr("x") || "0px"
-    , words      = vars.text.words.slice(0)
-    , tspans     = false
-    , fontSize   = vars.resize.value ? vars.size.value[1]+"px" : vars.container.fontSize || vars.size.value[0]+"px"
-    , textBox    = vars.container.value.append("tspan").text( words[0] )
-                     .attr( "dy" , fontSize )
-    , textHeight = textBox.node().offsetHeight || textBox.node().getBoundingClientRect().height
-    , line       = 1
-    , newLine    = function( ) {
-      return vars.container.value.append("tspan")
-              .attr( "x" , xPosition )
-              .attr( "dy" , fontSize )
+module.exports = function(vars) {
+  var current, ellipsis, fontSize, joiner, lastChar, line, lineWidth, newLine, next_char, textBox, textHeight, truncate, word, words, xPosition, _i, _len, _results;
+  newLine = function(w) {
+    if (!w) {
+      w = "";
     }
-    , truncate   = function( ) {
-
-      if ( !textBox.empty() ) {
-
-        words = textBox.text().match(/[^\s-]+-?/g)
-
-        ellipsis()
-
-      }
-
+    return vars.container.value.append("tspan").attr("x", xPosition).attr("dy", fontSize).text(w);
+  };
+  truncate = function() {
+    var words;
+    if (!textBox.empty()) {
+      words = textBox.text().match(/[^\s-]+-?/g);
+      ellipsis();
     }
-    , ellipsis   = function( ) {
-
-      if ( words && words.length ) {
-
-        var lastWord = words.pop()
-          , lastChar = lastWord.charAt( lastWord.length-1 )
-
-        if ( lastWord.length === 1
-        && vars.text.split.value.indexOf( lastWord ) >= 0 ) {
-          ellipsis()
-        }
-        else {
-
-          if ( vars.text.split.value.indexOf( lastChar ) >= 0 ) {
-            lastWord = lastWord.substr( 0 , lastWord.length - 1 )
-          }
-
-          textBox.text( words.join(" ") + " " + lastWord + " ..." )
-
-          var baseline = (line-1) * textHeight
-            , lineWidth = vars.shape.value === "circle"
-                        ? 2*Math.sqrt( baseline*( (2*(vars.width.value/2))-baseline ) )
-                        : vars.width.value
-
-          if ( textBox.node().getComputedTextLength() > lineWidth ) {
-            ellipsis()
-          }
-
-        }
-
-      }
-      else {
-
-        textBox.remove()
-        textBox = d3.select( vars.container.value.node().lastChild )
-        if ( !textBox.empty() ) {
-          line--
-          truncate()
-        }
-
-      }
-
+  };
+  lineWidth = function() {
+    var b;
+    if (vars.shape.value === "circle") {
+      b = (line - 1) * textHeight;
+      return 2 * Math.sqrt(b * ((2 * (vars.width.value / 2)) - b));
+    } else {
+      return vars.width.value;
     }
-
-  if ( vars.shape.value === "circle" ) {
-    vars.container.value.attr( "text-anchor" , "middle" )
+  };
+  ellipsis = function() {
+    var lastChar, lastWord, textBox;
+    if (words && words.length) {
+      lastWord = words.pop();
+      lastChar = lastWord.charAt(lastWord.length - 1);
+      if (lastWord.length === 1 && vars.text.split.value.indexOf(lastWord) >= 0) {
+        return ellipsis();
+      } else {
+        if (vars.text.split.value.indexOf(lastChar) >= 0) {
+          lastWord = lastWord.substr(0, lastWord.length - 1);
+        }
+        textBox.text(words.join(" ") + " " + lastWord + " ...");
+        if (textBox.node().getComputedTextLength() > lineWidth()) {
+          return ellipsis();
+        }
+      }
+    } else {
+      textBox.remove();
+      textBox = d3.select(vars.container.value.node().lastChild);
+      if (!textBox.empty()) {
+        line--;
+        truncate();
+      }
+    }
+  };
+  xPosition = vars.container.value.attr("x") || "0px";
+  words = vars.text.words.slice(0);
+  fontSize = vars.resize.value ? vars.size.value[1] + "px" : vars.container.fontSize || vars.size.value[0] + "px";
+  textBox = newLine(words.shift());
+  textHeight = textBox.node().offsetHeight || textBox.node().getBoundingClientRect().height;
+  line = 1;
+  if (vars.shape.value === "circle") {
+    vars.container.value.attr("text-anchor", "middle");
   }
-
-  for ( var i = 1 ; i < words.length ; i++ ) {
-
-    if ( line * textHeight > vars.height.value ) {
-      textBox.remove()
-      if ( i !== 1 ) {
-        textBox = d3.select( vars.container.value.node().lastChild )
-        if ( !textBox.empty() ) truncate()
+  _results = [];
+  for (_i = 0, _len = words.length; _i < _len; _i++) {
+    word = words[_i];
+    if (line * textHeight > vars.height.value) {
+      textBox.remove();
+      if (i !== 1) {
+        textBox = d3.select(vars.container.value.node().lastChild);
+        if (!textBox.empty()) {
+          truncate();
+        }
       }
-      break
-
+      break;
     }
-
-    var current   = textBox.text()
-      , lastChar = current.slice(-1)
-      , next_char = vars.text.current.charAt( vars.text.current.indexOf(current) + current.length )
-      , joiner    = next_char == " " ? " " : ""
-
-    textBox.text( current + joiner + words[i] )
-
-
-    var baseline = (line-1) * textHeight
-      , lineWidth = vars.shape.value === "circle"
-                  ? 2*Math.sqrt( baseline*( (2*(vars.width.value/2))-baseline ) )
-                  : vars.width.value
-
-    if ( textBox.node().getComputedTextLength() > lineWidth ) {
-
-      if ( !tspans ) {
-        textBox.text("")
-        textBox = newLine()
-      }
-
-      textBox.text( current )
-
-      textBox = newLine()
-      textBox.text( words[i] )
-
-      line++
-
+    current = textBox.text();
+    lastChar = current.slice(-1);
+    next_char = vars.text.current.charAt(vars.text.current.indexOf(current) + current.length);
+    joiner = next_char === " " ? " " : "";
+    textBox.text(current + joiner + word);
+    if (textBox.node().getComputedTextLength() > lineWidth()) {
+      textBox.text(current);
+      textBox = newLine();
+      textBox.text(word);
+      _results.push(line++);
+    } else {
+      _results.push(void 0);
     }
-
   }
+  return _results;
+};
 
-}
+
 
 },{}],177:[function(require,module,exports){
 var flow, fontSizes, resize, wrap;
@@ -38555,20 +38550,23 @@ bar = function(vars) {
     _ref = point.values;
     for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
       d = _ref[_j];
-      discreteVal = fetchValue(vars, d, vars[discrete].value);
-      d.d3plus[discrete] = vars[discrete].scale.viz(discreteVal);
-      d.d3plus[discrete] += vars.axes.margin[cMargin] + mod;
       if (vars.axes.stacked) {
         value = d.d3plus[opposite];
         base = d.d3plus[opposite + "0"];
       } else {
         oppVal = fetchValue(vars, d, vars[opposite].value);
+        if (oppVal === 0) {
+          continue;
+        }
         if (vars[opposite].scale.value === "log") {
           zero = oppVal < 0 ? -1 : 1;
         }
         value = vars[opposite].scale.viz(oppVal);
         base = vars[opposite].scale.viz(zero);
       }
+      discreteVal = fetchValue(vars, d, vars[discrete].value);
+      d.d3plus[discrete] = vars[discrete].scale.viz(discreteVal);
+      d.d3plus[discrete] += vars.axes.margin[cMargin] + mod;
       length = base - value;
       d.d3plus[opposite] = base - length / 2;
       if (!vars.axes.stacked) {
@@ -39297,6 +39295,17 @@ axisRange = function(vars, axis, zero, buffer) {
         return uniques(values);
       }
     } else {
+      values.sort(function(a, b) {
+        return a - b;
+      });
+      if (vars[axis].scale.value === "log") {
+        if (values[0] === 0) {
+          values[0] = 1;
+        }
+        if (values[values.length - 1] === 0) {
+          values[values.length - 1] = -1;
+        }
+      }
       if (zero) {
         allPositive = values[0] >= 0 && values[1] >= 0;
         allNegative = values[0] <= 0 && values[1] <= 0;
@@ -39444,7 +39453,7 @@ module.exports = function(vars, axis, buffer) {
           lowerDiff += lowerScale * zero;
         }
         lowerValue = lowerMod === 0 ? lowerScale : lowerDiff;
-        domain[0] -= lowerValue * zero;
+        domain[0] -= lowerValue;
         if (domain[0] === 0) {
           domain[0] = zero;
         }
@@ -39455,7 +39464,7 @@ module.exports = function(vars, axis, buffer) {
           upperDiff += upperScale * zero;
         }
         upperValue = upperMod === 0 ? upperScale : upperDiff;
-        domain[1] += upperValue * zero;
+        domain[1] += upperValue;
         if (domain[1] === 0) {
           domain[1] = zero;
         }
