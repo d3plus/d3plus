@@ -1,5 +1,5 @@
 foreign = require "./foreign.coffee"
-tspan   = require "./tspan.js"
+tspan   = require "./tspan.coffee"
 
 # Flows the text into the container
 module.exports = (vars) ->
