@@ -3,19 +3,19 @@ module.exports = (vars) ->
 
   if not vars.width.value or not vars.height.value
 
-    parent = d3.select vars.container.value.node().parentNode
-    rect   = parent.select "rect"
-    circle = parent.select "circle"
+    prev  = vars.container.value.node().previousElementSibling
+    shape = if prev then prev.tagName.toLowerCase() else ""
+    prev  = d3.select(prev) if prev
 
-    unless rect.empty()
+    if shape is "rect"
       unless vars.width.value
-        width = rect.attr "width" or rect.style "width"
+        width = prev.attr "width" or prev.style "width"
         vars.self.width parseFloat width, 10
       unless vars.height.value
-        height = rect.attr "height" or rect.style "height"
+        height = prev.attr "height" or prev.style "height"
         vars.self.height parseFloat height, 10
-    else unless circle.empty()
-      radius = circle.attr "r"
+    else if shape is "circle"
+      radius = prev.attr "r"
       vars.self.width parseFloat radius * 2, 10 unless vars.width.value
       vars.self.height parseFloat radius * 2, 10 unless vars.height.value
     else
