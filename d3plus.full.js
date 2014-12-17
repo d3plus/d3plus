@@ -28351,10 +28351,10 @@ module.exports = function(vars) {
     } else if (shape === "circle") {
       radius = prev.attr("r");
       if (!vars.width.value) {
-        vars.self.width(parseFloat(radius * 2, 10));
+        vars.self.width(parseFloat(radius) * 2, 10);
       }
       if (!vars.height.value) {
-        vars.self.height(parseFloat(radius * 2, 10));
+        vars.self.height(parseFloat(radius) * 2, 10);
       }
     } else {
       if (!vars.width.value) {

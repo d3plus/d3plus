@@ -16,8 +16,8 @@ module.exports = (vars) ->
         vars.self.height parseFloat height, 10
     else if shape is "circle"
       radius = prev.attr "r"
-      vars.self.width parseFloat radius * 2, 10 unless vars.width.value
-      vars.self.height parseFloat radius * 2, 10 unless vars.height.value
+      vars.self.width parseFloat(radius) * 2, 10 unless vars.width.value
+      vars.self.height parseFloat(radius) * 2, 10 unless vars.height.value
     else
       vars.self.width 500 unless vars.width.value
       vars.self.height 500 unless vars.height.value
