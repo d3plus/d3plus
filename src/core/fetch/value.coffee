@@ -57,7 +57,7 @@ find = (vars, node, variable, depth) ->
 checkData = (vars, node, variable, depth) ->
 
   if vars.data.viz instanceof Array and variable of vars.data.keys
-    val = uniqueValues filterArray(vars.data.viz, node, depth), variable, fetch, vars, depth
+    val = uniqueValues filterArray(vars.data.viz, node, depth), variable
   return if val and val.length then val else null
 
 checkAttrs = (vars, node, variable, depth) ->
@@ -70,12 +70,12 @@ checkAttrs = (vars, node, variable, depth) ->
       attrList = vars.attrs.value
 
     if attrList instanceof Array
-      val = uniqueValues filterArray(attrList, node, depth), variable, fetch, vars, depth
+      val = uniqueValues filterArray(attrList, node, depth), variable
       return val if val.length
     else if node instanceof Array
       attrList = [attrList[n] for n in node if n of attrList]
       if attrList.length
-        vals = uniqueValues attrList, variable, fetch, vars, depth
+        vals = uniqueValues attrList, variable
         return vals if vals.length
     else if node of attrList
       return attrList[node][variable]

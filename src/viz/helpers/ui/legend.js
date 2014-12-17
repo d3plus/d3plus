@@ -51,7 +51,7 @@ module.exports = function(vars) {
       }
 
       var colorFunction = function(d){
-            return fetchColor(vars, d, colorKey);
+            return fetchColor(vars, d, colorDepth);
           },
           colorDepth = 0,
           colorKey = vars.id.value;

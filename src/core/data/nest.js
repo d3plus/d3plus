@@ -133,9 +133,13 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
     // Aggregate all values detected in the data.
     //--------------------------------------------------------------------------
     for (var key in vars.data.keys) {
+
       var uniques = uniqueValues(leaves, key, fetchValue, vars);
 
-      if (uniques.length) {
+      if (uniques.length === 1) {
+        returnObj[key] = uniques[0];
+      }
+      else if (uniques.length) {
         var agg     = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum",
             aggType = typeof agg,
             keyType = vars.data.keys[key],

@@ -10,7 +10,7 @@ module.exports = (vars, id, level) ->
   obj = validObject id
   return id.d3plus.color if obj and "d3plus" of id and "color" of id.d3plus
 
-  level = vars.id.value unless level
+  level = vars.id.value if level is undefined
   level = vars.id.nesting[level] if typeof level is "number"
 
   unless vars.color.value
