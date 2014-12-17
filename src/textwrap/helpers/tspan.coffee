@@ -10,6 +10,13 @@ module.exports = (vars) ->
       .attr "dy", fontSize
       .text w
 
+  xPosition = vars.container.value.attr("x") or "0px"
+  words = vars.text.words.slice(0)
+  fontSize = if vars.resize.value then vars.size.value[1] + "px" else vars.container.fontSize or vars.size.value[0] + "px"
+  textBox = newLine words.shift()
+  textHeight = textBox.node().offsetHeight or textBox.node().getBoundingClientRect().height
+  line = 1
+
   truncate = ->
     unless textBox.empty()
       words = textBox.text().match(/[^\s-]+-?/g)
@@ -42,23 +49,16 @@ module.exports = (vars) ->
         truncate()
         return
 
-  xPosition = vars.container.value.attr("x") or "0px"
-  words = vars.text.words.slice(0)
-  fontSize = if vars.resize.value then vars.size.value[1] + "px" else vars.container.fontSize or vars.size.value[0] + "px"
-  textBox = newLine words.shift()
-  textHeight = textBox.node().offsetHeight or textBox.node().getBoundingClientRect().height
-  line = 1
-
   if vars.shape.value is "circle"
     vars.container.value.attr "text-anchor", "middle"
 
-  for word in words
+  for word, i in words
 
     if line * textHeight > vars.height.value
       textBox.remove()
-      if i isnt 1
+      if i isnt 0
         textBox = d3.select(vars.container.value.node().lastChild)
-        truncate() unless textBox.empty()
+        truncate()
       break
 
     current   = textBox.text()
