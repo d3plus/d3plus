@@ -97,7 +97,6 @@ module.exports = (vars) ->
 
   # Draw Plane Group
   planeTrans = "translate(" + vars.axes.margin.left + "," + vars.axes.margin.top + ")"
-  console.log vars.group.node()
   plane = vars.group.selectAll("g#d3plus_graph_plane").data [0]
   plane.transition().duration vars.draw.timing
     .attr "transform", planeTrans
