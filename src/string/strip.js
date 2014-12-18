@@ -35,8 +35,7 @@ module.exports = function(str) {
       return ""
     }
 
-    var ret = ""
-
+    var ret = chr;
     for ( var d in diacritics ) {
 
       if (diacritics[d][0].test(chr)) {
