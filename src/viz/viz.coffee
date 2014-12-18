@@ -32,7 +32,7 @@ module.exports = ->
     selection.each ->
 
       vars.draw.frozen    = true
-      vars.internal_error = null
+      vars.error.internal = null
       vars.draw.timing    = vars.timing.transitions unless "timing" of vars.draw
 
       # Analyze Container
@@ -46,82 +46,70 @@ module.exports = ->
       vars.height.viz = vars.height.value
       lastMessage     = false
 
-      if vars.error.value
-        timing = vars.draw.timing
-        if vars.group
-          vars.group.transition().duration(timing).attr "opacity", 0
-          vars.g.data.transition().duration(timing).attr "opacity", 0
-          vars.g.edges.transition().duration(timing).attr "opacity", 0
-        vars.messages.style = "large"
-        message             = if vars.error.value is true then vars.format.value(vars.format.locale.value.ui.error) else vars.error.value
-        lastMessage         = message
-        flash vars, message
-      else
+      nextStep = ->
+        if steps.length
+          runStep()
+        else
+          if vars.dev.value
+            print.groupEnd()
+            print.timeEnd "total draw time"
+            print.log "\n"
+        return
 
-        nextStep = ->
-          if steps.length
-            runStep()
-          else
+      runFunction = (step, name) ->
+
+        name = name or "function"
+        if step[name] instanceof Array
+          step[name].forEach (f) ->
+            f vars, nextStep
+            return
+        else step[name] vars, nextStep if typeof step[name] is "function"
+        nextStep() unless step.wait
+        return
+
+      runStep = ->
+
+        step = steps.shift()
+        same = vars.g.message and lastMessage is step.message
+        run  = if "check" of step then step.check else true
+        run  = run(vars) if typeof run is "function"
+
+        if run
+          if not same
             if vars.dev.value
-              print.groupEnd()
-              print.timeEnd "total draw time"
-              print.log "\n"
-          return
-
-        runFunction = (step, name) ->
-
-          name = name or "function"
-          if step[name] instanceof Array
-            step[name].forEach (f) ->
-              f vars, nextStep
-              return
-          else step[name] vars, nextStep if typeof step[name] is "function"
-          nextStep() unless step.wait
-          return
-
-        runStep = ->
-
-          step = steps.shift()
-          same = vars.g.message and lastMessage is step.message
-          run  = if "check" of step then step.check else true
-          run  = run(vars) if typeof run is "function"
-
-          if run
-            if not same
-              if vars.dev.value
-                print.groupEnd() if lastMessage isnt false
-                print.group step.message
-              if typeof vars.messages.value is "string"
-                lastMessage = vars.messages.value
-                message     = vars.messages.value
-              else
-                lastMessage = step.message
-                message     = vars.format.value(step.message)
-              if vars.draw.update
-                flash vars, message
-                setTimeout (->
-                  runFunction step
-                  return
-                ), 10
-              else
-                runFunction step
+              print.groupEnd() if lastMessage isnt false
+              print.group step.message
+            if typeof vars.messages.value is "string"
+              lastMessage = vars.messages.value
+              message     = vars.messages.value
             else
-              runFunction step
-          else
-            if "otherwise" of step
+              lastMessage = step.message
+              message     = vars.format.value(step.message)
+            if vars.draw.update
+              flash vars, message
               setTimeout (->
-                runFunction step, "otherwise"
+                runFunction step
                 return
               ), 10
             else
-              nextStep()
-          return
+              runFunction step
+          else
+            runFunction step
+        else
+          if "otherwise" of step
+            setTimeout (->
+              runFunction step, "otherwise"
+              return
+            ), 10
+          else
+            nextStep()
+        return
 
-        vars.messages.style = if vars.group and vars.group.attr("opacity") is "1" then "small" else "large"
+      vars.messages.style = if vars.group and vars.group.attr("opacity") is "1" then "small" else "large"
 
-        steps = getSteps vars
+      steps = getSteps vars
 
-        runStep()
+      runStep()
 
       return
 

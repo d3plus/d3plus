@@ -39,23 +39,23 @@ module.exports = function(vars) {
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
       , and = vars.format.locale.value.ui.and
     missing = stringList(missing,and)
-    vars.internal_error = stringFormat(str,app,missing)
+    vars.error.internal = stringFormat(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.method
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-    vars.internal_error = stringFormat(str,app,missing[0])
+    vars.error.internal = stringFormat(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if we have focus connections, if needed
   //----------------------------------------------------------------------------
-  if (!vars.internal_error && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
+  if (!vars.error.internal && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
     var connections = vars.edges.connections(vars.focus.value[0],vars.id.value)
     if (connections.length == 0) {
       var name = fetchText(vars,vars.focus.value[0],vars.depth.value)
         , str = vars.format.locale.value.error.connections
-      vars.internal_error = stringFormat(str,"\""+name+"\"")
+      vars.error.internal = stringFormat(str,"\""+name+"\"")
     }
   }
 
@@ -76,12 +76,12 @@ module.exports = function(vars) {
       , app = vars.format.locale.value.visualization[vars.type.value]
       , and = vars.format.locale.value.ui.and
     missing = stringList(missing,and)
-    vars.internal_error = stringFormat(str,app,missing)
+    vars.error.internal = stringFormat(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.lib
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = stringFormat(str,app,missing[0])
+    vars.error.internal = stringFormat(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

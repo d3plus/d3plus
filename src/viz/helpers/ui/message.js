@@ -4,7 +4,7 @@
 module.exports = function(vars,message) {
 
   var message = vars.messages.value ? message : null,
-      size = message == vars.internal_error ? "large" : vars.messages.style
+      size = message == vars.error.internal ? "large" : vars.messages.style
 
   if (size == "large") {
     var font = vars.messages,

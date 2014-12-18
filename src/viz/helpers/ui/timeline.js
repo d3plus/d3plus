@@ -10,7 +10,7 @@ var closest = require("../../../util/closest.coffee"),
 //-------------------------------------------------------------------
 module.exports = function(vars) {
 
-  if ((!vars.internal_error || !vars.data.missing) && !vars.small && vars.data.time && vars.data.time.values.length > 1 && vars.timeline.value) {
+  if ((!vars.error.internal || !vars.data.missing) && !vars.small && vars.data.time && vars.data.time.values.length > 1 && vars.timeline.value) {
 
     var years = []
     vars.data.time.values.forEach(function(d){

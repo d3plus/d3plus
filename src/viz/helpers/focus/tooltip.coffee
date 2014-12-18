@@ -8,7 +8,7 @@ module.exports = (vars) ->
 
   focus = vars.focus
 
-  if not vars.internal_error and focus.value.length is 1 and focus.value.length and not vars.small and focus.tooltip.value
+  if not vars.error.internal and focus.value.length is 1 and focus.value.length and not vars.small and focus.tooltip.value
 
     print.time "drawing focus tooltip" if vars.dev.value
     data = vars.data.pool.filter (d) ->

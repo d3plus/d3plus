@@ -26,7 +26,7 @@ module.exports = function(vars) {
       key = vars.color.value,
       colorName = vars.color.value || "d3plus_color";
 
-  if (!vars.internal_error && key && !vars.small && vars.legend.value) {
+  if (!vars.error.internal && key && !vars.small && vars.legend.value) {
 
     if (!vars.color.valueScale) {
 

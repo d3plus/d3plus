@@ -12,6 +12,7 @@ module.exports =
     accepted: [false, "json", "xml", "html", "csv", "dsv", "tsv", "txt"]
     value: false
   filters: []
+  keys: {}
   mute: []
   large: 400
   opacity: 0.9

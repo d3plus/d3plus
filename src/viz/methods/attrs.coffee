@@ -8,5 +8,6 @@ module.exports =
   filetype:
     accepted: [false, "json", "xml", "html", "csv", "dsv", "tsv", "txt"]
     value:    false
+  keys: {}
   process: process
   value:   false

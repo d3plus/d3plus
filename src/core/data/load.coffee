@@ -64,7 +64,7 @@ module.exports = (vars, key, next) ->
       vars[key].loaded = true
 
     else
-      vars.internal_error = "Could not load data from: \"" + url + "\""
+      vars.error.internal = "Could not load data from: \"" + url + "\""
 
     print.timeEnd "loading " + key if consoleMessage
     next()

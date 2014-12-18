@@ -13,7 +13,7 @@ module.exports = (vars) ->
   dataRequired  = requirements.indexOf("data") >= 0
   drawable      = not dataRequired or (dataRequired and vars.data.viz.length)
 
-  if not vars.internal_error and drawable
+  if not vars.error.internal and drawable
     app = vars.format.locale.value.visualization[vars.type.value]
     print.time "running " + app if vars.dev.value
     returned = visualization(vars)

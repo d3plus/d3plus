@@ -78,9 +78,9 @@ module.exports = function(vars) {
   var reqs = vars.types[vars.type.value].requirements || []
   if (!(reqs instanceof Array)) reqs = [reqs]
   var data_req = reqs.indexOf("data") >= 0
-  if (!vars.internal_error) {
+  if (!vars.error.internal) {
     if ((!vars.data.viz || !vars.returned.nodes.length) && data_req) {
-      vars.internal_error = vars.format.locale.value.error.data
+      vars.error.internal = vars.format.locale.value.error.data
     }
   }
 
@@ -104,7 +104,7 @@ module.exports = function(vars) {
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
   var new_opacity = (data_req && vars.data.viz.length === 0) ||
-                     vars.internal_error ? 0 : vars.focus.value.length &&
+                     vars.error.internal ? 0 : vars.focus.value.length &&
                      vars.types[vars.type.value].zoom && vars.zoom.value ?
                      1 - vars.tooltip.curtain.opacity : 1,
       old_opacity = vars.group.attr("opacity")
@@ -125,14 +125,22 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Display and reset internal_error, if applicable
   //----------------------------------------------------------------------------
-  if (vars.internal_error) {
-    vars.internal_error = titleCase( vars.internal_error )
-    print.warning(vars.internal_error)
-    flash(vars,vars.internal_error)
-    vars.internal_error = null
+  if (vars.error.value) {
+    if (vars.group) {
+      vars.group.transition().duration(vars.draw.timing).attr("opacity", 0);
+      vars.g.data.transition().duration(vars.draw.timing).attr("opacity", 0);
+      vars.g.edges.transition().duration(vars.draw.timing).attr("opacity", 0);
+    }
+    flash(vars, vars.error.value);
+  }
+  else if (vars.error.internal) {
+    vars.error.internal = titleCase(vars.error.internal);
+    print.warning(vars.error.internal);
+    flash(vars, vars.error.internal);
+    vars.error.internal = null;
   }
   else {
-    flash(vars)
+    flash(vars);
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

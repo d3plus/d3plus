@@ -140,7 +140,7 @@ module.exports = function(vars, years, depth) {
 
     }
 
-    if (returnData.length === 0 && missing.length && !vars.internal_error) {
+    if (returnData.length === 0 && missing.length && !vars.error.internal) {
 
       var format = vars.time.format.value || vars.data.time.format;
 
@@ -156,7 +156,7 @@ module.exports = function(vars, years, depth) {
       var str = vars.format.locale.value.error.dataYear,
           and = vars.format.locale.value.ui.and;
       missing = stringList(missing,and);
-      vars.internal_error = stringFormat(str,missing);
+      vars.error.internal = stringFormat(str,missing);
       vars.time.missing = true;
 
     }
