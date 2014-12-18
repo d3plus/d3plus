@@ -34,6 +34,7 @@ module.exports = ->
       vars.draw.frozen    = true
       vars.error.internal = null
       vars.draw.timing    = vars.timing.transitions unless "timing" of vars.draw
+      vars.draw.timing    = 0 if vars.error.value
 
       # Analyze Container
       container vars if vars.container.changed
@@ -87,20 +88,24 @@ module.exports = ->
               message     = vars.format.value(step.message)
             if vars.draw.update
               flash vars, message
-              setTimeout (->
+              if vars.error.value
                 runFunction step
-                return
-              ), 10
+              else
+                setTimeout (->
+                  runFunction step
+                ), 10
             else
               runFunction step
           else
             runFunction step
         else
           if "otherwise" of step
-            setTimeout (->
+            if vars.error.value
               runFunction step, "otherwise"
-              return
-            ), 10
+            else
+              setTimeout (->
+                runFunction step, "otherwise"
+              ), 10
           else
             nextStep()
         return

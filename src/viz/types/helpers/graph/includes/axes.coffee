@@ -8,7 +8,7 @@ uniques    = require "../../../../../util/uniques.coffee"
 module.exports = (vars, opts) ->
 
   changed           = dataChange vars
-  vars.axes.dataset = getData vars if changed
+  vars.axes.dataset = getData vars if changed or !vars.axes.dataset
   vars.axes.scale   = if opts.buffer and opts.buffer isnt true then sizeScale vars, opts.buffer else false
 
   for axis in ["x","y"]
@@ -21,7 +21,8 @@ module.exports = (vars, opts) ->
     reorder  = vars.order.changed or vars.order.sort.changed or
                (vars.order.value is true and vars[oppAxis].changed)
 
-    if modified or vars[axis].stacked.changed or
+    if !("values" of vars[axis].ticks) or
+       modified or vars[axis].stacked.changed or
        vars[axis].range.changed or reorder
 
       print.time "calculating "+axis+" axis" if vars.dev.value

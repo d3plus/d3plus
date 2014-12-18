@@ -39,7 +39,7 @@ module.exports = function(vars) {
   var urlLoads = [ "data" , "attrs" , "coords" , "nodes" , "edges" ]
   urlLoads.forEach(function(u){
 
-    if ( !vars[u].loaded && vars[u].url ) {
+    if (!vars.error.value && !vars[u].loaded && vars[u].url) {
 
       steps.push({
         "function": function( vars , next ){
@@ -67,7 +67,7 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it has one, run the current app's setup function.
     //--------------------------------------------------------------------------
-    if ( typeof appSetup === "function" ) {
+    if (!vars.error.value && typeof appSetup === "function") {
 
       steps.push({
         "function": function( vars ) {
@@ -90,7 +90,7 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create SVG group elements if the container is new or has changed
     //--------------------------------------------------------------------------
-    if ( vars.container.changed ) {
+    if (vars.container.changed) {
 
       steps.push({ "function" : svgSetup , "message" : appMessage })
 
@@ -99,7 +99,7 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create group for current app, if it doesn't exist.
     //--------------------------------------------------------------------------
-    if ( !( appType in vars.g.apps ) ) {
+    if (!(appType in vars.g.apps)) {
 
       steps.push({
         "function": function( vars ) {
@@ -128,14 +128,14 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If new data is detected, analyze and reset it.
     //--------------------------------------------------------------------------
-    if ( vars.data.changed ) {
+    if (vars.data.changed) {
 
       steps.push({
         "function": function(vars) {
           vars.data.cache = {}
           delete vars.nodes.restricted
           delete vars.edges.restricted
-          dataKeys( vars , "data" )
+          dataKeys(vars, "data")
         },
         "message": dataMessage
       })
@@ -145,11 +145,11 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If new attributes are detected, analyze them.
     //--------------------------------------------------------------------------
-    if ( vars.attrs.changed ) {
+    if (vars.attrs.changed) {
 
       steps.push({
         "function": function( vars ) {
-          dataKeys( vars , "attrs" )
+          dataKeys(vars, "attrs")
         },
         "message": dataMessage
       })
@@ -162,7 +162,7 @@ module.exports = function(vars) {
     steps.push({
       "function": function(vars) {
 
-          if ( vars.color.changed && vars.color.value ) {
+          if (vars.color.changed && vars.color.value) {
 
             vars.color.valueScale = null
 
@@ -220,59 +220,63 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Groups data by time and nesting.
     //--------------------------------------------------------------------------
-    if ( vars.data.changed || vars.time.changed || vars.id.changed ) {
+    if (vars.data.changed || vars.time.changed || vars.id.changed) {
       steps.push({ "function" : dataFormat , "message" : dataMessage })
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Fetches data for app and "pool"
     //--------------------------------------------------------------------------
-    steps.push({
-      "function": function(vars) {
+    if (!vars.error.value) {
+      steps.push({
+        "function": function(vars) {
 
-        var year = !vars.time.fixed.value ? ["all"] : null
-        if (vars.dev.value) {
-          var timerString = year ? "fetching pool data" : "fetching data"
-          print.time( timerString )
-        }
-        vars.data.pool = fetchData( vars , year )
-        if (vars.dev.value) print.timeEnd( timerString )
-        if ( !year ) {
-          vars.data.viz = vars.data.pool
-        }
-        else {
-          if ( vars.dev.value ) print.time("fetching data for current year")
-          vars.data.viz = fetchData( vars )
-          if ( vars.dev.value ) print.timeEnd("fetching data for current year")
-        }
+          var year = !vars.time.fixed.value ? ["all"] : null
+          if (vars.dev.value) {
+            var timerString = year ? "fetching pool data" : "fetching data"
+            print.time( timerString )
+          }
+          vars.data.pool = fetchData( vars , year )
+          if (vars.dev.value) print.timeEnd( timerString )
+          if ( !year ) {
+            vars.data.viz = vars.data.pool
+          }
+          else {
+            if ( vars.dev.value ) print.time("fetching data for current year")
+            vars.data.viz = fetchData( vars )
+            if ( vars.dev.value ) print.timeEnd("fetching data for current year")
+          }
 
-        vars.draw.timing = vars.data.viz.length < vars.data.large ?
-                           vars.timing.transitions : 0;
+          vars.draw.timing = vars.data.viz.length < vars.data.large ?
+                             vars.timing.transitions : 0;
 
-      },
-      "message": dataMessage
-    })
+        },
+        "message": dataMessage
+      })
+    }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Calculate color scale if type is number
     //--------------------------------------------------------------------------
-    steps.push({
-      "check": function(vars) {
+    if (!vars.error.value) {
+      steps.push({
+        "check": function(vars) {
 
-        return vars.color.value && vars.color.type === "number" &&
-               vars.id.nesting.indexOf(vars.color.value) < 0 &&
-               vars.data.value && vars.color.value != vars.id.value &&
-                 (vars.color.changed || vars.data.changed || vars.depth.changed ||
-                   (vars.time.fixed.value &&
-                     (vars.time.solo.changed || vars.time.mute.changed)
+          return vars.color.value && vars.color.type === "number" &&
+                 vars.id.nesting.indexOf(vars.color.value) < 0 &&
+                 vars.data.value && vars.color.value != vars.id.value &&
+                   (vars.color.changed || vars.data.changed || vars.depth.changed ||
+                     (vars.time.fixed.value &&
+                       (vars.time.solo.changed || vars.time.mute.changed)
+                     )
                    )
-                 )
 
-      },
-      "function": dataColor,
-      "message": dataMessage
-    })
+        },
+        "function": dataColor,
+        "message": dataMessage
+      })
 
+    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -293,7 +297,9 @@ module.exports = function(vars) {
     "message": uiMessage
   })
 
-  steps.push({"function": errorCheck, "message": uiMessage})
+  if (!vars.error.value) {
+    steps.push({"function": errorCheck, "message": uiMessage})
+  }
 
   steps.push({
     "function": function(vars) {
@@ -301,30 +307,32 @@ module.exports = function(vars) {
       vars.margin.process()
       titles(vars)
 
-      if ( vars.draw.update ) {
+      if (!vars.error.value) {
+        if (vars.draw.update) {
 
-        drawDrawer(vars)
-        drawTimeline(vars)
-        drawLegend(vars)
+          drawDrawer(vars)
+          drawTimeline(vars)
+          drawLegend(vars)
 
-      }
-      else {
+        }
+        else {
 
-        if ( vars.dev.value ) print.time("calculating margins")
+          if ( vars.dev.value ) print.time("calculating margins")
 
-        var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
-                  || vars.container.value.select("div#d3plus_drawer").node().getBoundingClientRect().height
+          var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
+                    || vars.container.value.select("div#d3plus_drawer").node().getBoundingClientRect().height
 
-        var timeline = vars.g.timeline.node().getBBox()
-        timeline = vars.timeline.value ? timeline.height+vars.ui.padding : 0
+          var timeline = vars.g.timeline.node().getBBox()
+          timeline = vars.timeline.value ? timeline.height+vars.ui.padding : 0
 
-        var legend = vars.g.legend.node().getBBox()
-        legend = vars.legend.value ? legend.height+vars.ui.padding : 0
+          var legend = vars.g.legend.node().getBBox()
+          legend = vars.legend.value ? legend.height+vars.ui.padding : 0
 
-        vars.margin.bottom += drawer+timeline+legend
+          vars.margin.bottom += drawer+timeline+legend
 
-        if ( vars.dev.value ) print.timeEnd("calculating margins")
+          if ( vars.dev.value ) print.timeEnd("calculating margins")
 
+        }
       }
 
       history(vars)
@@ -335,17 +343,19 @@ module.exports = function(vars) {
     "message": uiMessage
   })
 
-  steps.push({
-    "function": focusTooltip,
-    "message": uiMessage
-  })
+  if (!vars.error.value) {
+    steps.push({
+      "function": focusTooltip,
+      "message": uiMessage
+    })
+  }
 
   steps.push({
     "function": svgUpdate,
     "message": drawMessage
   })
 
-  if ( vars.draw.update ) {
+  if (!vars.error.value && vars.draw.update) {
     steps.push({
       "function" : [ runType, shapes ],
       "message"  : drawMessage

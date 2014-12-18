@@ -17,25 +17,29 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Zoom to fit bounds, if applicable
   //----------------------------------------------------------------------------
-  var zoom = vars.zoom.viewport || vars.zoom.bounds
-  if (vars.types[vars.type.value].zoom && vars.zoom.value && zoom) {
+  if (!vars.error.value) {
 
-    if ( vars.dev.value ) print.time("calculating zoom")
+    var zoom = vars.zoom.viewport || vars.zoom.bounds
+    if (vars.types[vars.type.value].zoom && vars.zoom.value && zoom) {
 
-    if (vars.draw.first) {
-      bounds(vars,zoom,0)
+      if ( vars.dev.value ) print.time("calculating zoom")
+
+      if (vars.draw.first) {
+        bounds(vars,zoom,0)
+      }
+      else if (vars.type.changed || vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
+        bounds(vars,zoom)
+      }
+
+      if ( vars.dev.value ) print.timeEnd("calculating zoom")
+
     }
-    else if (vars.type.changed || vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
-      bounds(vars,zoom)
+    else {
+      vars.zoom.bounds = [[0,0],[vars.width.viz,vars.height.viz]]
+      vars.zoom.scale = 1
+      bounds(vars)
     }
 
-    if ( vars.dev.value ) print.timeEnd("calculating zoom")
-
-  }
-  else {
-    vars.zoom.bounds = [[0,0],[vars.width.viz,vars.height.viz]]
-    vars.zoom.scale = 1
-    bounds(vars)
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -55,32 +59,36 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create labels
   //----------------------------------------------------------------------------
-  if (vars.draw.update) {
-    edges(vars)
-    // if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
-    shapeLabels( vars , "data" )
-    if (vars.edges.label) {
-      setTimeout(function(){
-        shapeLabels( vars , "edges" )
-      }, vars.draw.timing+200)
+  if (!vars.error.value) {
+    if (vars.draw.update) {
+      edges(vars)
+      // if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
+      shapeLabels( vars , "data" )
+      if (vars.edges.label) {
+        setTimeout(function(){
+          shapeLabels( vars , "edges" )
+        }, vars.draw.timing+200)
+      }
+      // }
     }
-    // }
-  }
-  else if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
-    setTimeout(function(){
-      labels(vars)
-    },vars.draw.timing)
+    else if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
+      setTimeout(function(){
+        labels(vars)
+      },vars.draw.timing)
+    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check for Errors
   //----------------------------------------------------------------------------
-  var reqs = vars.types[vars.type.value].requirements || []
-  if (!(reqs instanceof Array)) reqs = [reqs]
-  var data_req = reqs.indexOf("data") >= 0
-  if (!vars.error.internal) {
-    if ((!vars.data.viz || !vars.returned.nodes.length) && data_req) {
-      vars.error.internal = vars.format.locale.value.error.data
+  if (!vars.error.value) {
+    var reqs = vars.types[vars.type.value].requirements || []
+    if (!(reqs instanceof Array)) reqs = [reqs]
+    var data_req = reqs.indexOf("data") >= 0
+    if (!vars.error.internal) {
+      if ((!vars.data.viz || !vars.returned.nodes.length) && data_req) {
+        vars.error.internal = vars.format.locale.value.error.data
+      }
     }
   }
 
@@ -103,34 +111,31 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
-  var new_opacity = (data_req && vars.data.viz.length === 0) ||
-                     vars.error.internal ? 0 : vars.focus.value.length &&
-                     vars.types[vars.type.value].zoom && vars.zoom.value ?
-                     1 - vars.tooltip.curtain.opacity : 1,
-      old_opacity = vars.group.attr("opacity")
+  if (!vars.error.value) {
+    var new_opacity = (data_req && vars.data.viz.length === 0) ||
+                       vars.error.internal || vars.error.value ? 0 : vars.focus.value.length &&
+                       vars.types[vars.type.value].zoom && vars.zoom.value ?
+                       1 - vars.tooltip.curtain.opacity : 1,
+        old_opacity = vars.group.attr("opacity")
 
-  if (new_opacity != old_opacity) {
+    if (new_opacity != old_opacity) {
 
-    var timing = vars.draw.timing
+      var timing = vars.draw.timing
 
-    vars.group.transition().duration(timing)
-      .attr("opacity",new_opacity)
-    vars.g.data.transition().duration(timing)
-      .attr("opacity",new_opacity)
-    vars.g.edges.transition().duration(timing)
-      .attr("opacity",new_opacity)
+      vars.group.transition().duration(timing)
+        .attr("opacity",new_opacity)
+      vars.g.data.transition().duration(timing)
+        .attr("opacity",new_opacity)
+      vars.g.edges.transition().duration(timing)
+        .attr("opacity",new_opacity)
 
+    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Display and reset internal_error, if applicable
   //----------------------------------------------------------------------------
   if (vars.error.value) {
-    if (vars.group) {
-      vars.group.transition().duration(vars.draw.timing).attr("opacity", 0);
-      vars.g.data.transition().duration(vars.draw.timing).attr("opacity", 0);
-      vars.g.edges.transition().duration(vars.draw.timing).attr("opacity", 0);
-    }
     flash(vars, vars.error.value);
   }
   else if (vars.error.internal) {
