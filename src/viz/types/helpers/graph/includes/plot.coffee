@@ -107,8 +107,13 @@ labelPadding = (vars) ->
   xSizes      = fontSizes(xText,xAttrs)
   xAxisWidth  = d3.max xSizes, (d) -> d.width
   xAxisHeight = d3.max xSizes, (d) -> d.height
-  xMaxWidth   = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
-  xMaxWidth -= vars.labels.padding * 2
+
+  if xValues.length is 1
+    xMaxWidth = vars.axes.width
+  else
+    xMaxWidth   = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
+    xMaxWidth -= vars.labels.padding * 2
+
   if xAxisWidth > xMaxWidth and xText.join("").indexOf(" ") > 0
     vars.x.ticks.wrap = true
     xSizes = fontSizes xText, xAttrs,
