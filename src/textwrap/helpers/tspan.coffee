@@ -12,6 +12,7 @@ module.exports = (vars) ->
 
   xPosition = vars.container.value.attr("x") or "0px"
   words = vars.text.words.slice(0)
+  progress = words[0]
   fontSize = if vars.resize.value then vars.size.value[1] + "px" else vars.container.fontSize or vars.size.value[0] + "px"
   textBox = newLine words.shift()
   textHeight = textBox.node().offsetHeight or textBox.node().getBoundingClientRect().height
@@ -63,13 +64,13 @@ module.exports = (vars) ->
 
     current   = textBox.text()
     lastChar  = current.slice(-1)
-    next_char = vars.text.current.charAt(vars.text.current.indexOf(current) + current.length)
+    next_char = vars.text.current.charAt(progress.length)
     joiner    = if next_char is " " then " " else ""
 
     textBox.text current + joiner + word
+    progress += joiner + word
 
     if textBox.node().getComputedTextLength() > lineWidth()
       textBox.text current
-      textBox = newLine()
-      textBox.text word
+      textBox = newLine(word)
       line++
