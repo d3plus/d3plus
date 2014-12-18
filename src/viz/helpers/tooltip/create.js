@@ -129,7 +129,7 @@ module.exports = function(params) {
     if (!(nameList instanceof Array)) nameList = [nameList];
 
     var dataValue = fetchValue( vars , d , vars.size.value );
-    // console.log(nameList, nestKey, depth)
+
     if (vars.tooltip.children.value) {
 
       nameList = nameList.slice(0);
@@ -166,9 +166,9 @@ module.exports = function(params) {
         if (id !== d[vars.id.nesting[titleDepth]] && name && !children[name]) {
 
           var value = fetchValue(vars, obj, vars.size.value, nestKey),
-          color = fetchColor(vars, obj, nestKey);
+              color = fetchColor(vars, obj, nestKey);
 
-          children[name] = value ? vars.format.value(value, vars.size.value, vars, obj) : "";
+          children[name] = value && !(value instanceof Array) ? vars.format.value(value, vars.size.value, vars, obj) : "";
 
           if (color) {
             if ( !children.d3plus_colors ) children.d3plus_colors = {};
