@@ -8,6 +8,8 @@ module.exports = (vars) ->
         text.replace /\<\/tspan\>\<tspan\>/g, " "
         text.replace /\<\/tspan\>/g, ""
         text.replace /\<tspan\>/g, ""
+      text = text.replace /(\r\n|\n|\r)/gm, ""
+      text = text.replace /^\s+|\s+$/g, ""
       vars.self.text text
 
   if vars.text.value instanceof Array
