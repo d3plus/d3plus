@@ -18,7 +18,14 @@ module.exports = (vars) ->
   textHeight = textBox.node().offsetHeight or textBox.node().getBoundingClientRect().height
   line = 1
 
+  if vars.shape.value is "circle"
+    vars.container.value.attr "text-anchor", "middle"
+
   truncate = ->
+    textBox.remove()
+    line--
+    if line isnt 1
+      textBox = d3.select(vars.container.value.node().lastChild)
     unless textBox.empty()
       words = textBox.text().match(/[^\s-]+-?/g)
       ellipsis()
@@ -43,30 +50,15 @@ module.exports = (vars) ->
         textBox.text words.join(" ") + " " + lastWord + " ..."
         ellipsis() if textBox.node().getComputedTextLength() > lineWidth()
     else
-      textBox.remove()
-      textBox = d3.select(vars.container.value.node().lastChild)
-      unless textBox.empty()
-        line--
-        truncate()
-        return
+      truncate()
+      return
 
-  if vars.shape.value is "circle"
-    vars.container.value.attr "text-anchor", "middle"
-
-  for word, i in words
-
-    if line * textHeight > vars.height.value
-      textBox.remove()
-      if i isnt 0
-        textBox = d3.select(vars.container.value.node().lastChild)
-        truncate()
-      break
+  placeWord = (word) ->
 
     current   = textBox.text()
     lastChar  = current.slice(-1)
     next_char = vars.text.current.charAt(progress.length)
     joiner    = if next_char is " " then " " else ""
-
     textBox.text current + joiner + word
     progress += joiner + word
 
@@ -74,3 +66,17 @@ module.exports = (vars) ->
       textBox.text current
       textBox = newLine(word)
       line++
+
+  for word in words
+
+    if line * textHeight > vars.height.value
+      truncate()
+      break
+
+    placeWord word
+
+    unsafe = true
+    while unsafe
+      next_char = vars.text.current.charAt(progress.length + 1)
+      unsafe = vars.text.split.value.indexOf(next_char) >= 0
+      placeWord next_char if unsafe
