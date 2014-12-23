@@ -124,8 +124,5 @@ module.exports = {
         "tooltipReset": "ресетирање на објаснувањата",
         "ui": "ажурирање на кориничкиот интерфејс"
     },
-    "uppercase": [
-        "TV",
-        "UI"
-    ]
+    "uppercase": ["CEOs", "CFOs", "CNC", "COOs", "HVAC", "TV", "UI"]
 }

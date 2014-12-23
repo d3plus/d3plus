@@ -105,7 +105,7 @@ module.exports =
     share:     "share"
     total:     "total"
     values:    "values"
-  uppercase: ["tv", "ui"]
+  uppercase: ["CEOs", "CFOs", "CNC", "COOs", "HVAC", "R&D", "TV", "UI"]
   visualization:
     bar:      "Bar Chart"
     box:      "Box Plot"

@@ -4,16 +4,31 @@ module.exports = (text, key, vars, data) ->
 
   return "" unless text
 
-  locale = if "locale" of this then @locale.value else defaultLocale
-
   # If it's a sentence, just capitalize the first letter.
-  return text.charAt(0).toUpperCase() + text.substr(1)  if text.charAt(text.length - 1) is "."
+  if text.charAt(text.length - 1) is "."
+    return text.charAt(0).toUpperCase() + text.substr(1)
 
-  smalls = locale.lowercase
+  locale = if "locale" of this then @locale.value else defaultLocale
+  smalls = locale.lowercase.map (b) -> b.toLowerCase()
   bigs   = locale.uppercase
+  biglow = bigs.map (b) -> b.toLowerCase()
 
   text.replace /\S*/g, (txt, i) ->
-    if bigs.indexOf(txt.toLowerCase()) >= 0
-      return txt.toUpperCase()
-    else return txt.toLowerCase() if smalls.indexOf(txt.toLowerCase()) >= 0 and i isnt 0 and i isnt text.length - 1
-    txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+
+    bigindex = biglow.indexOf(txt.toLowerCase())
+    prefix = txt.charAt(0).search(/[^A-Za-z0-9\-_]/g) is 0
+
+    if prefix
+      prefix = txt.charAt(0)
+      txt = txt.slice(1)
+    else
+      prefix = ""
+
+    if bigindex >= 0
+      new_txt = bigs[bigindex]
+    else if smalls.indexOf(txt.toLowerCase()) >= 0 and i isnt 0
+      new_txt = txt.toLowerCase()
+    else
+      new_txt = txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+
+    prefix + new_txt

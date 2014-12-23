@@ -124,7 +124,5 @@ module.exports = {
         "tooltipReset": "redefinindo as dicas",
         "ui": "atualizando interface"
     },
-    "uppercase": [
-        "TV"
-    ]
+    "uppercase": ["CEOs", "CFOs", "CNC", "COOs", "HVAC", "P&D", "TV", "UI"]
 }
