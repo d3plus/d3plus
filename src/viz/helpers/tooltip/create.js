@@ -183,14 +183,14 @@ module.exports = function(params) {
       }
 
       if ( listLength > max ) {
-        children.d3plusMore = listLength - max
+        children.d3plusMore = listLength - max;
       }
 
     }
 
     if ( vars.tooltip.size.value ) {
-      if (dataValue) {
-        ex[vars.size.value] = dataValue
+      if (dataValue && typeof vars.size.value !== "number") {
+        ex[vars.size.value] = dataValue;
       }
       if (vars.axes.opposite && vars[vars.axes.opposite].value !== vars.size.value) {
         ex[vars[vars.axes.opposite].value] = fetchValue(vars, d, vars[vars.axes.opposite].value);
