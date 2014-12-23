@@ -7,7 +7,7 @@ module.exports = (vars, data) ->
   data     = vars.data.viz unless data
   discrete = vars[vars.axes.discrete]
   opposite = vars[vars.axes.opposite]
-  ticks    = discrete.ticks.values
+  ticks    = if discrete.value is vars.time.value then vars.data.time.values else discrete.ticks.values
   offsets  =
     x: vars.axes.margin.left
     y: vars.axes.margin.top
@@ -16,7 +16,7 @@ module.exports = (vars, data) ->
     .key (d) ->
       id = fetchValue vars, d, vars.id.value
       depth = if "depth" of d.d3plus then d.d3plus.depth else vars.depth.value
-      "line_"+stringStrip(id)+"_"+depth
+      "nested_"+stringStrip(id)+"_"+depth
     .rollup (leaves) ->
 
       availables = uniqueValues leaves, discrete.value, fetchValue, vars
@@ -25,7 +25,7 @@ module.exports = (vars, data) ->
 
       for tick, i in ticks
 
-        tester = if timeVar then tick.getTime() else tick
+        tester = if tick.constructor is Date then tick.getTime() else tick
 
         if availables.indexOf(tester) < 0 and discrete.zerofill.value
 

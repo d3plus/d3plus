@@ -29,11 +29,12 @@ module.exports = function(vars,selection,enter,exit) {
   var stroke = vars.data.stroke.width * 2,
       hitarea = stroke < 15 ? 15 : stroke,
       discrete = vars[vars.axes.discrete],
-      ticks = [];
+      ticks = discrete.value === vars.time.value ?
+              vars.data.time.values : discrete.ticks.values;
 
-  discrete.ticks.values.forEach(function(d){
-    if (d.constructor === Date) ticks.push(d.getTime());
-    else ticks.push(d);
+  ticks = ticks.map(function(d){
+    if (d.constructor === Date) return d.getTime();
+    else return d;
   });
 
   selection.each(function(d){
@@ -105,6 +106,10 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     if (vars.draw.timing) {
 
+      paths.exit().transition().duration(vars.draw.timing)
+        .attr("opacity", 0)
+        .remove();
+
       paths.transition().duration(vars.draw.timing)
         .attr("d",function(d){ return line(d.values); })
         .call(shapeStyle,vars);
@@ -113,7 +118,10 @@ module.exports = function(vars,selection,enter,exit) {
         .attr("class","d3plus_line")
         .style("stroke-linecap","round")
         .attr("d",function(d){ return line(d.values); })
-        .call(shapeStyle,vars);
+        .call(shapeStyle,vars)
+        .attr("opacity", 0)
+        .transition().duration(vars.draw.timing)
+          .attr("opacity", 1);
 
       rects.enter().append("rect")
         .attr("class","d3plus_anchor")
@@ -133,6 +141,9 @@ module.exports = function(vars,selection,enter,exit) {
 
     }
     else {
+
+      paths.exit().attr("opacity", 0)
+        .remove();
 
       paths.enter().append("path")
         .attr("class","d3plus_line")

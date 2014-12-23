@@ -34,12 +34,15 @@ module.exports = (vars, opts) ->
       # calculate ticks if the axis is the time variable
       if vars[axis].value is vars.time.value
         ticks = vars.time.solo.value
-        if ticks.length > 0 and ticks.length < vars.width.viz/20
-          for t, i in ticks
-            if t.constructor isnt Date
+        if ticks.length
+          ticks = ticks.map (d) ->
+            if d.constructor isnt Date
               d = new Date(t.toString())
               d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
-              ticks[i] = d
+            d
+        else
+          ticks = vars.data.time.values
+        if ticks.length > 0 and ticks.length < vars.width.viz/40
           vars[axis].ticks.values = ticks
         else
           vars[axis].ticks.values = false
