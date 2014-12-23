@@ -5,5 +5,4 @@
 # @param obj {Object} The object to validate.
 # @return {Boolean}
 ###
-module.exports = (obj) ->
-  obj isnt null and typeof obj is "object" and (obj not instanceof Array)
+module.exports = (obj) -> obj and obj.constructor is Object
