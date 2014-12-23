@@ -33,8 +33,8 @@ module.exports = (vars, opts) ->
 
       # calculate ticks if the axis is the time variable
       if vars[axis].value is vars.time.value
-        if vars.time.solo.value.length
-          ticks = vars.time.solo.value
+        ticks = vars.time.solo.value
+        if ticks.length > 0 and ticks.length < vars.width.viz/20
           for t, i in ticks
             if t.constructor isnt Date
               d = new Date(t.toString())
@@ -42,7 +42,7 @@ module.exports = (vars, opts) ->
               ticks[i] = d
           vars[axis].ticks.values = ticks
         else
-          vars[axis].ticks.values = vars.data.time.ticks
+          vars[axis].ticks.values = false
       else if axis is vars.axes.discrete
         vars[axis].ticks.values = uniques vars.axes.dataset, vars[axis].value, fetchValue, vars
 
@@ -115,7 +115,7 @@ axisRange = (vars, axis, zero, buffer) ->
       .entries vars.axes.dataset
     values = d3.merge axisSums.map (d) -> d.values
     d3.extent values
-  else if vars[axis].value is vars.time.value
+  else if vars[axis].value is vars.time.value and vars[axis].ticks.values
     d3.extent vars[axis].ticks.values
   else
     values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value

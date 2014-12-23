@@ -20,14 +20,7 @@ module.exports = function( vars ) {
       print.time( timerString );
     }
 
-    var uniqueTimes = uniques(vars.data.value, vars.time.value, fetchValue, vars);
-
-    for ( var i = 0; i < uniqueTimes.length ; i++ ) {
-      var d = new Date(uniqueTimes[i].toString());
-      if (d !== "Invalid Date") {
-        vars.data.time.values.push(d);
-      }
-    }
+    vars.data.time.values = uniques(vars.data.value, vars.time.value, fetchValue, vars);
 
     vars.data.time.values.sort(function(a,b){ return a-b; });
 
@@ -51,7 +44,13 @@ module.exports = function( vars ) {
     var getDiff = function(start,end,i) {
 
       if (!vars.data.time.stepDivider) {
-        vars.data.time.stepDivider = conversions.slice(0,i).reduce(function(a,b){ return a*b; });
+        arr = conversions.slice(0,i);
+        if (arr.length) {
+          vars.data.time.stepDivider = arr.reduce(function(a,b){ return a*b; });
+        }
+        else {
+          vars.data.time.stepDivider = 1;
+        }
       }
 
       return Math.round(Math.floor(end-start)/vars.data.time.stepDivider);
@@ -177,13 +176,12 @@ module.exports = function( vars ) {
   }
   else {
 
-    var timeData = {};
-    for (var t = 0; t < vars.data.value.length; t++) {
-      var data = vars.data.value[t];
-      var ms = fetchValue(vars, data, vars.time.value).getTime();
-      if (!(ms in timeData)) timeData[ms] = [];
-      timeData[ms].push(data);
-    }
+    var timeData = vars.data.value.reduce(function(o, d){
+      var ms = fetchValue(vars, d, vars.time.value).getTime();
+      if (!(ms in o)) o[ms] = [];
+      o[ms].push(d);
+      return o;
+    }, {});
 
     vars.data.time.values.forEach( function( t ) {
 

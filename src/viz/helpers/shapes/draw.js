@@ -96,7 +96,7 @@ module.exports = function(vars) {
 
       ["x","y"].forEach(function(axis){
         if (vars[axis].scale.value == "discrete") {
-          var val = fetchValue(vars,d,vars[axis].value)
+          var val = fetchValue(vars, d, vars[axis].value)
           if (val.constructor === Date) val = val.getTime()
           d.d3plus.id += "_"+val
         }

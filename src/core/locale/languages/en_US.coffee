@@ -86,6 +86,9 @@ module.exports =
     "Hours-Minutes":      "%I:%M %p"
     "Hours-Seconds":      "%I:%M:%S %p"
     "Hours-Milliseconds": "%H:%M:%S.%L"
+    "Minutes-Seconds":      "%I:%M:%S %p"
+    "Minutes-Milliseconds": "%H:%M:%S.%L"
+    "Seconds-Milliseconds": "%H:%M:%S.%L"
   ui:
     and:       "and"
     back:      "back"
