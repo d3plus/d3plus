@@ -237,7 +237,8 @@ module.exports = (vars) ->
     grid.enter().append "g"
       .attr "id", "d3plus_graph_"+axis+"grid"
     lines = grid.selectAll("line")
-      .data gridData, (d) -> d
+      .data gridData, (d, i) ->
+        if d.constructor is Date then d.getTime() else d
     lines.transition().duration vars.draw.timing
       .call tickPosition, axis
       .call tickStyle, axis, true
