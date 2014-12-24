@@ -151,8 +151,8 @@ module.exports = (vars) ->
         .attr "transform", vars.x.ticks.transform
         .attr "dominant-baseline", vars.x.ticks.baseline
         .call tickFont, "x"
-        .each "end", ->
-          unless vars.x.ticks.hidden
+        .each "end", (d) ->
+          if !vars.x.ticks.hidden and vars.x.ticks.visible.indexOf(d) >= 0
             if vars.x.ticks.wrap
               width  = if rotated then "maxHeight" else "maxWidth"
               height = unless rotated then "maxHeight" else "maxWidth"
