@@ -34,30 +34,38 @@ module.exports = (vars) ->
 
   tickStyle = (tick, axis, grid) ->
 
-    logScale = vars[axis].scale.value is "log"
+    color = if grid then vars[axis].grid.color else vars[axis].ticks.color
+    log   = vars[axis].scale.value is "log"
 
     tick
-      .attr "stroke"         , (d) ->
-        log = logScale and d.toString().charAt(0) isnt "1"
-        if d is 0
-          vars[axis].axis.color
-        else if !grid
-          vars[axis].ticks.color
-        else if log
-          mix(vars[axis].grid.color, vars.axes.background.color, 0.5, 1)
+      .attr "stroke", (d) ->
+
+        return vars[axis].axis.color if d is 0
+
+        visible = vars[axis].ticks.visible.indexOf(d) >= 0
+
+        if visible and (!log or Math.abs(d).toString().charAt(0) is "1")
+          color
+        else if grid
+          mix(color, vars.axes.background.color, 0.4, 1)
         else
-          vars[axis].grid.color
+          mix(color, vars.background.value, 0.4, 1)
+
       .attr "stroke-width"   , vars[axis].ticks.width
       .attr "shape-rendering", vars[axis].ticks.rendering.value
 
   tickFont = (tick, axis) ->
+    log = vars[axis].scale.value is "log"
     tick
       .attr "font-size"  , (d) ->
         type = if d is 0 then "axis" else "ticks"
         vars[axis][type].font.size+"px"
       .attr "fill"       , (d) ->
         type = if d is 0 then "axis" else "ticks"
-        vars[axis][type].font.color
+        if !log or Math.abs(d).toString().charAt(0) is "1"
+          vars[axis][type].font.color
+        else
+          mix(vars[axis][type].font.color, vars.background.value, 0.4, 1)
       .attr "font-family", (d) ->
         type = if d is 0 then "axis" else "ticks"
         vars[axis][type].font.family.value

@@ -3,6 +3,7 @@ buffer     = require "./buffer.coffee"
 fetchValue = require "../../../../../core/fetch/value.coffee"
 fontSizes  = require "../../../../../font/sizes.coffee"
 textwrap   = require "../../../../../textwrap/textwrap.coffee"
+uniques    = require "../../../../../util/uniques.coffee"
 
 module.exports = (vars, opts) ->
 
@@ -15,7 +16,22 @@ module.exports = (vars, opts) ->
   for axis in ["x","y"]
 
     if vars[axis].ticks.values is false
-      vars[axis].ticks.values = vars[axis].scale.viz.ticks()
+      if vars[axis].value is vars.time.value
+
+        ticks = vars.time.solo.value
+        if ticks.length
+          ticks = ticks.map (d) ->
+            if d.constructor isnt Date
+              d = new Date(t.toString())
+              d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
+            d
+        else
+          ticks = vars.data.time.values
+
+        vars[axis].ticks.values = ticks
+
+      else
+        vars[axis].ticks.values = vars[axis].scale.viz.ticks()
 
     unless vars[axis].ticks.values.length
       values = fetchValue vars, vars.data.viz, vars[axis].value
@@ -28,6 +44,31 @@ module.exports = (vars, opts) ->
        axis is vars.axes.discrete and vars[axis].reset is true)
       buffer vars, axis, opts.buffer
     vars[axis].reset = false
+
+    if vars[axis].value is vars.time.value
+      ticks = vars[axis].ticks.values
+      formatted = ticks.map (t) -> vars.data.time.multiFormat(t)
+      lengths = uniques formatted.map (f) -> f.length
+      lengths.sort (a, b) -> b - a
+      while lengths.length
+        l = lengths.pop()
+        t = formatted.filter (f) -> f.length >= l
+        if t.length > 0 and t.length < vars.width.viz/40
+          ticks = vars[axis].ticks.values.filter (t) ->
+            vars.data.time.multiFormat(t).length >= l
+          break
+      vars[axis].ticks.visible = ticks
+    else if vars[axis].scale.value is "log"
+      ticks = vars[axis].ticks.values
+      tens = ticks.filter (t) -> Math.abs(t).toString().charAt(0) is "1"
+      if tens.length < 3
+        vars[axis].ticks.visible = ticks
+      else
+        vars[axis].ticks.visible = tens
+    else
+      vars[axis].ticks.visible = vars[axis].ticks.values
+
+
 
   # Calculate padding for tick labels
   labelPadding vars unless vars.small
@@ -63,13 +104,9 @@ labelPadding = (vars) ->
     "font-family": vars.y.ticks.font.family.value
     "font-weight": vars.y.ticks.font.weight
   if vars.y.scale.value is "log"
-    yText = vars.y.ticks.values.filter (d) ->
-      Math.abs(d).toString().charAt(0) is "1"
-    yText = yText.map (d) ->
-      n = 10+" "+formatPower Math.round(Math.log(Math.abs(d)) / Math.LN10)
-      if d < 0 then "-"+n else n
+    yText = vars.y.ticks.visible.map (d) -> formatPower d
   else
-    yText = vars.y.ticks.values.map (d) ->
+    yText = vars.y.ticks.visible.map (d) ->
       vars.format.value(d, vars.y.value, vars)
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
@@ -93,11 +130,10 @@ labelPadding = (vars) ->
     "font-family": vars.x.ticks.font.family.value
     "font-weight": vars.x.ticks.font.weight
   if vars.x.scale.value is "log"
-    xValues = vars.x.ticks.values.filter (d) -> d.toString().charAt(0) is "1"
-    xText = xValues.map (d) ->
-      10 + " " + formatPower Math.round(Math.log(d) / Math.LN10)
+    xValues = vars.x.ticks.visible
+    xText = xValues.map (d) -> formatPower d
   else
-    xValues = vars.x.ticks.values
+    xValues = vars.x.ticks.visible
     if typeof xValues[0] is "string"
       xValues = vars.x.scale.viz.domain().filter (d) ->
         d.indexOf("d3plus_buffer_") != 0
@@ -186,22 +222,25 @@ createAxis = (vars, axis) ->
     .tickFormat (d, i) ->
 
       return null if vars[axis].ticks.hidden
-      scale      = vars[axis].scale.value
-      hiddenTime = vars[axis].value is vars.time.value and d % 1 isnt 0
-      majorLog   = scale is "log" and Math.abs(d).toString().charAt(0) is "1"
+      scale = vars[axis].scale.value
 
-      if !hiddenTime and (majorLog or scale isnt "log")
+      if vars[axis].ticks.visible.indexOf(d) >= 0
         if scale is "share"
           d * 100 + "%"
         else if d.constructor is Date
           vars.data.time.multiFormat(d)
         else if scale is "log"
-          n = 10+" "+formatPower Math.round(Math.log(Math.abs(d)) / Math.LN10)
-          if d < 0 then "-"+n else n
+          formatPower d
         else
           vars.format.value d, vars[axis].value, vars
       else
         null
 
 superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹"
-formatPower = (d) -> (d + "").split("").map((c) -> superscript[c]).join("")
+formatPower = (d) ->
+  p = Math.round(Math.log(Math.abs(d)) / Math.LN10)
+  t = Math.abs(d).toString().charAt(0)
+  n = 10 + " " + (p + "").split("").map((c) -> superscript[c]).join("")
+  if t isnt "1"
+    n = t + " x " + n
+  if d < 0 then "-"+n else n

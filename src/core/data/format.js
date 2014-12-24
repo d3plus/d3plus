@@ -41,6 +41,8 @@ module.exports = function( vars ) {
     var periods = ["Milliseconds","Seconds","Minutes","Hours","Date","Month","FullYear"],
         conversions = [1000,60,60,24,30,12,1];
 
+    vars.data.time.periods = periods;
+
     var getDiff = function(start,end,i) {
 
       if (!vars.data.time.stepDivider) {

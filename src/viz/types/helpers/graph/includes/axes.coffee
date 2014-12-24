@@ -31,22 +31,8 @@ module.exports = (vars, opts) ->
       vars[axis].reset        = true
       vars[axis].ticks.values = false
 
-      # calculate ticks if the axis is the time variable
-      if vars[axis].value is vars.time.value
-        ticks = vars.time.solo.value
-        if ticks.length
-          ticks = ticks.map (d) ->
-            if d.constructor isnt Date
-              d = new Date(t.toString())
-              d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
-            d
-        else
-          ticks = vars.data.time.values
-        if ticks.length > 0 and ticks.length < vars.width.viz/40
-          vars[axis].ticks.values = ticks
-        else
-          vars[axis].ticks.values = false
-      else if axis is vars.axes.discrete
+      # calculate ticks if the axis is discrete and not the time variable
+      if axis is vars.axes.discrete and vars[axis].value isnt vars.time.value
         vars[axis].ticks.values = uniques vars.axes.dataset, vars[axis].value, fetchValue, vars
 
       # calculate range
