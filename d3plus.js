@@ -10745,14 +10745,7 @@ module.exports = function( vars ) {
       print.time( timerString );
     }
 
-    var uniqueTimes = uniques(vars.data.value, vars.time.value, fetchValue, vars);
-
-    for ( var i = 0; i < uniqueTimes.length ; i++ ) {
-      var d = new Date(uniqueTimes[i].toString());
-      if (d !== "Invalid Date") {
-        vars.data.time.values.push(d);
-      }
-    }
+    vars.data.time.values = uniques(vars.data.value, vars.time.value, fetchValue, vars);
 
     vars.data.time.values.sort(function(a,b){ return a-b; });
 
@@ -10773,10 +10766,18 @@ module.exports = function( vars ) {
     var periods = ["Milliseconds","Seconds","Minutes","Hours","Date","Month","FullYear"],
         conversions = [1000,60,60,24,30,12,1];
 
+    vars.data.time.periods = periods;
+
     var getDiff = function(start,end,i) {
 
       if (!vars.data.time.stepDivider) {
-        vars.data.time.stepDivider = conversions.slice(0,i).reduce(function(a,b){ return a*b; });
+        arr = conversions.slice(0,i);
+        if (arr.length) {
+          vars.data.time.stepDivider = arr.reduce(function(a,b){ return a*b; });
+        }
+        else {
+          vars.data.time.stepDivider = 1;
+        }
       }
 
       return Math.round(Math.floor(end-start)/vars.data.time.stepDivider);
@@ -10902,13 +10903,12 @@ module.exports = function( vars ) {
   }
   else {
 
-    var timeData = {};
-    for (var t = 0; t < vars.data.value.length; t++) {
-      var data = vars.data.value[t];
-      var ms = fetchValue(vars, data, vars.time.value).getTime();
-      if (!(ms in timeData)) timeData[ms] = [];
-      timeData[ms].push(data);
-    }
+    var timeData = vars.data.value.reduce(function(o, d){
+      var ms = fetchValue(vars, d, vars.time.value).getTime();
+      if (!(ms in o)) o[ms] = [];
+      o[ms].push(d);
+      return o;
+    }, {});
 
     vars.data.time.values.forEach( function( t ) {
 
@@ -11100,7 +11100,7 @@ module.exports = function(vars, key, next) {
       vars[key].changed = true;
       vars[key].loaded = true;
     } else {
-      vars.internal_error = "Could not load data from: \"" + url + "\"";
+      vars.error.internal = "Could not load data from: \"" + url + "\"";
     }
     if (consoleMessage) {
       print.timeEnd("loading " + key);
@@ -11184,7 +11184,7 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If we're at the deepest level, create the rollup function.
   //----------------------------------------------------------------------------
-  nestedData.rollup(function( leaves ) {
+  nestedData.rollup(function(leaves) {
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there's only 1 leaf, and it's been processed, return it as-is.
@@ -11247,9 +11247,12 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
     // Aggregate all values detected in the data.
     //--------------------------------------------------------------------------
     for (var key in vars.data.keys) {
-      var uniques = uniqueValues(leaves, key, fetchValue, vars);
 
-      if (uniques.length) {
+      if (key in returnObj.d3plus.data) {
+        returnObj[key] = returnObj.d3plus[key];
+      }
+      else {
+
         var agg     = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum",
             aggType = typeof agg,
             keyType = vars.data.keys[key],
@@ -11259,16 +11262,11 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
         if (key in returnObj.d3plus.data) {
           returnObj[key] = returnObj.d3plus[key];
         }
-        else if (aggType === "function") {
+        if (aggType === "function") {
           returnObj[key] = vars.aggs.value[key](leaves);
         }
         else if (timeKey) {
-
-          var dates = parseDates(uniques);
-
-          if (dates.length === 1) returnObj[key] = dates[0];
-          else returnObj[key] = dates;
-
+          returnObj[key] = parseDates(uniqueValues(leaves, key));
         }
         else if (keyType === "number" && aggType === "string" && !idKey) {
           returnObj[key] = d3[agg](leaves.map(function(d){return d[key];}));
@@ -11277,7 +11275,7 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
 
           var testVals = checkVal(leaves, key);
           var keyValues = testVals.length === 1 ? testVals[0][key]
-                        : uniqueValues(testVals, key, fetchValue, vars, depthKey);
+                        : uniqueValues(testVals, key);
 
           if (testVals.length === 1) {
             returnObj[key] = keyValues;
@@ -11294,11 +11292,11 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
               //   var newNesting = nestingLevels.concat(key);
               //   testVals = dataNest(vars,testVals,newNesting);
               // }
-              returnObj[key] = testVals.length === 1 ? testVals[0] : testVals;
+              returnObj[key] = testVals;
             }
             else {
 
-              returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues;
+              returnObj[key] = keyValues;
 
             }
 
@@ -11312,6 +11310,10 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
 
         }
 
+      }
+
+      if (key in returnObj && returnObj[key] instanceof Array && returnObj[key].length === 1) {
+        returnObj[key] = returnObj[key][0];
       }
 
     }
@@ -11661,7 +11663,7 @@ module.exports = function(vars, id, level) {
   if (obj && "d3plus" in id && "color" in id.d3plus) {
     return id.d3plus.color;
   }
-  if (!level) {
+  if (level === void 0) {
     level = vars.id.value;
   }
   if (typeof level === "number") {
@@ -11864,7 +11866,7 @@ module.exports = function(vars, years, depth) {
 
     }
 
-    if (returnData.length === 0 && missing.length && !vars.internal_error) {
+    if (returnData.length === 0 && missing.length && !vars.error.internal) {
 
       var format = vars.time.format.value || vars.data.time.format;
 
@@ -11880,7 +11882,7 @@ module.exports = function(vars, years, depth) {
       var str = vars.format.locale.value.error.dataYear,
           and = vars.format.locale.value.ui.and;
       missing = stringList(missing,and);
-      vars.internal_error = stringFormat(str,missing);
+      vars.error.internal = stringFormat(str,missing);
       vars.time.missing = true;
 
     }
@@ -12122,7 +12124,7 @@ find = function(vars, node, variable, depth) {
 checkData = function(vars, node, variable, depth) {
   var val;
   if (vars.data.viz instanceof Array && variable in vars.data.keys) {
-    val = uniqueValues(filterArray(vars.data.viz, node, depth), variable, fetch, vars, depth);
+    val = uniqueValues(filterArray(vars.data.viz, node, depth), variable);
   }
   if (val && val.length) {
     return val;
@@ -12140,7 +12142,7 @@ checkAttrs = function(vars, node, variable, depth) {
       attrList = vars.attrs.value;
     }
     if (attrList instanceof Array) {
-      val = uniqueValues(filterArray(attrList, node, depth), variable, fetch, vars, depth);
+      val = uniqueValues(filterArray(attrList, node, depth), variable);
       if (val.length) {
         return val;
       }
@@ -12159,7 +12161,7 @@ checkAttrs = function(vars, node, variable, depth) {
         })()
       ];
       if (attrList.length) {
-        vals = uniqueValues(attrList, variable, fetch, vars, depth);
+        vals = uniqueValues(attrList, variable);
         if (vals.length) {
           return vals;
         }
@@ -12398,7 +12400,10 @@ module.exports = {
     "Month-Date": "%b %-d",
     "Hours-Minutes": "%I:%M %p",
     "Hours-Seconds": "%I:%M:%S %p",
-    "Hours-Milliseconds": "%H:%M:%S.%L"
+    "Hours-Milliseconds": "%H:%M:%S.%L",
+    "Minutes-Seconds": "%I:%M:%S %p",
+    "Minutes-Milliseconds": "%H:%M:%S.%L",
+    "Seconds-Milliseconds": "%H:%M:%S.%L"
   },
   ui: {
     and: "and",
@@ -12417,7 +12422,7 @@ module.exports = {
     total: "total",
     values: "values"
   },
-  uppercase: ["tv", "ui"],
+  uppercase: ["CEOs", "CFOs", "CNC", "COOs", "HVAC", "R&D", "TV", "UI"],
   visualization: {
     bar: "Bar Chart",
     box: "Box Plot",
@@ -12565,10 +12570,7 @@ module.exports = {
         "tooltipReset": "ресетирање на објаснувањата",
         "ui": "ажурирање на кориничкиот интерфејс"
     },
-    "uppercase": [
-        "TV",
-        "UI"
-    ]
+    "uppercase": ["CEOs", "CFOs", "CNC", "COOs", "HVAC", "TV", "UI"]
 }
 
 },{}],72:[function(require,module,exports){
@@ -12698,9 +12700,7 @@ module.exports = {
         "tooltipReset": "redefinindo as dicas",
         "ui": "atualizando interface"
     },
-    "uppercase": [
-        "TV"
-    ]
+    "uppercase": ["CEOs", "CFOs", "CNC", "COOs", "HVAC", "P&D", "TV", "UI"]
 }
 
 },{}],73:[function(require,module,exports){
@@ -18127,7 +18127,7 @@ module.exports = function(obj1, obj2) {
  * @return {Boolean}
  */
 module.exports = function(obj) {
-  return obj !== null && typeof obj === "object" && (!(obj instanceof Array));
+  return obj && obj.constructor === Object;
 };
 
 
@@ -18238,8 +18238,7 @@ module.exports = function(str) {
       return ""
     }
 
-    var ret = ""
-
+    var ret = chr;
     for ( var d in diacritics ) {
 
       if (diacritics[d][0].test(chr)) {
@@ -18261,25 +18260,39 @@ var defaultLocale;
 defaultLocale = require("../core/locale/languages/en_US.coffee");
 
 module.exports = function(text, key, vars, data) {
-  var bigs, locale, smalls;
+  var biglow, bigs, locale, smalls;
   if (!text) {
     return "";
   }
-  locale = "locale" in this ? this.locale.value : defaultLocale;
   if (text.charAt(text.length - 1) === ".") {
     return text.charAt(0).toUpperCase() + text.substr(1);
   }
-  smalls = locale.lowercase;
+  locale = "locale" in this ? this.locale.value : defaultLocale;
+  smalls = locale.lowercase.map(function(b) {
+    return b.toLowerCase();
+  });
   bigs = locale.uppercase;
+  biglow = bigs.map(function(b) {
+    return b.toLowerCase();
+  });
   return text.replace(/\S*/g, function(txt, i) {
-    if (bigs.indexOf(txt.toLowerCase()) >= 0) {
-      return txt.toUpperCase();
+    var bigindex, new_txt, prefix;
+    bigindex = biglow.indexOf(txt.toLowerCase());
+    prefix = txt.charAt(0).search(/[^A-Za-z0-9\-_]/g) === 0;
+    if (prefix) {
+      prefix = txt.charAt(0);
+      txt = txt.slice(1);
     } else {
-      if (smalls.indexOf(txt.toLowerCase()) >= 0 && i !== 0 && i !== text.length - 1) {
-        return txt.toLowerCase();
-      }
+      prefix = "";
     }
-    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    if (bigindex >= 0) {
+      new_txt = bigs[bigindex];
+    } else if (smalls.indexOf(txt.toLowerCase()) >= 0 && i !== 0) {
+      new_txt = txt.toLowerCase();
+    } else {
+      new_txt = txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    }
+    return prefix + new_txt;
   });
 };
 
@@ -18383,6 +18396,8 @@ module.exports = function(vars) {
         text.replace(/\<\/tspan\>/g, "");
         text.replace(/\<tspan\>/g, "");
       }
+      text = text.replace(/(\r\n|\n|\r)/gm, "");
+      text = text.replace(/^\s+|\s+$/g, "");
       vars.self.text(text);
     }
   }
@@ -18400,15 +18415,29 @@ module.exports = function(vars) {
 
 },{}],173:[function(require,module,exports){
 module.exports = function(vars) {
-  var current, ellipsis, fontSize, joiner, lastChar, line, lineWidth, newLine, next_char, textBox, textHeight, truncate, word, words, xPosition, _i, _len, _results;
+  var ellipsis, fontSize, line, lineWidth, newLine, next_char, placeWord, progress, textBox, textHeight, truncate, unsafe, word, words, xPosition, _i, _len, _results;
   newLine = function(w) {
     if (!w) {
       w = "";
     }
     return vars.container.value.append("tspan").attr("x", xPosition).attr("dy", fontSize).text(w);
   };
+  xPosition = vars.container.value.attr("x") || "0px";
+  words = vars.text.words.slice(0);
+  progress = words[0];
+  fontSize = vars.resize.value ? vars.size.value[1] + "px" : vars.container.fontSize || vars.size.value[0] + "px";
+  textBox = newLine(words.shift());
+  textHeight = textBox.node().offsetHeight || textBox.node().getBoundingClientRect().height;
+  line = 1;
+  if (vars.shape.value === "circle") {
+    vars.container.value.attr("text-anchor", "middle");
+  }
   truncate = function() {
-    var words;
+    textBox.remove();
+    line--;
+    if (line !== 1) {
+      textBox = d3.select(vars.container.value.node().lastChild);
+    }
     if (!textBox.empty()) {
       words = textBox.text().match(/[^\s-]+-?/g);
       ellipsis();
@@ -18424,7 +18453,7 @@ module.exports = function(vars) {
     }
   };
   ellipsis = function() {
-    var lastChar, lastWord, textBox;
+    var lastChar, lastWord;
     if (words && words.length) {
       lastWord = words.pop();
       lastChar = lastWord.charAt(lastWord.length - 1);
@@ -18440,49 +18469,46 @@ module.exports = function(vars) {
         }
       }
     } else {
-      textBox.remove();
-      textBox = d3.select(vars.container.value.node().lastChild);
-      if (!textBox.empty()) {
-        line--;
-        truncate();
-      }
+      truncate();
     }
   };
-  xPosition = vars.container.value.attr("x") || "0px";
-  words = vars.text.words.slice(0);
-  fontSize = vars.resize.value ? vars.size.value[1] + "px" : vars.container.fontSize || vars.size.value[0] + "px";
-  textBox = newLine(words.shift());
-  textHeight = textBox.node().offsetHeight || textBox.node().getBoundingClientRect().height;
-  line = 1;
-  if (vars.shape.value === "circle") {
-    vars.container.value.attr("text-anchor", "middle");
-  }
+  placeWord = function(word) {
+    var current, joiner, lastChar, next_char;
+    current = textBox.text();
+    lastChar = current.slice(-1);
+    next_char = vars.text.current.charAt(progress.length);
+    joiner = next_char === " " ? " " : "";
+    textBox.text(current + joiner + word);
+    progress += joiner + word;
+    if (textBox.node().getComputedTextLength() > lineWidth()) {
+      textBox.text(current);
+      textBox = newLine(word);
+      return line++;
+    }
+  };
   _results = [];
   for (_i = 0, _len = words.length; _i < _len; _i++) {
     word = words[_i];
     if (line * textHeight > vars.height.value) {
-      textBox.remove();
-      if (i !== 1) {
-        textBox = d3.select(vars.container.value.node().lastChild);
-        if (!textBox.empty()) {
-          truncate();
-        }
-      }
+      truncate();
       break;
     }
-    current = textBox.text();
-    lastChar = current.slice(-1);
-    next_char = vars.text.current.charAt(vars.text.current.indexOf(current) + current.length);
-    joiner = next_char === " " ? " " : "";
-    textBox.text(current + joiner + word);
-    if (textBox.node().getComputedTextLength() > lineWidth()) {
-      textBox.text(current);
-      textBox = newLine();
-      textBox.text(word);
-      _results.push(line++);
-    } else {
-      _results.push(void 0);
-    }
+    placeWord(word);
+    unsafe = true;
+    _results.push((function() {
+      var _results1;
+      _results1 = [];
+      while (unsafe) {
+        next_char = vars.text.current.charAt(progress.length + 1);
+        unsafe = vars.text.split.value.indexOf(next_char) >= 0;
+        if (unsafe) {
+          _results1.push(placeWord(next_char));
+        } else {
+          _results1.push(void 0);
+        }
+      }
+      return _results1;
+    })());
   }
   return _results;
 };
@@ -19665,7 +19691,7 @@ var objectValidate, uniques;
 objectValidate = require("../object/validate.coffee");
 
 uniques = function(data, value, fetch, vars, depth) {
-  var d, lookup, lookups, val, vals, _i, _len;
+  var check, d, lookups, val, vals, _i, _j, _k, _len, _len1, _len2;
   if (data === void 0) {
     return [];
   }
@@ -19675,7 +19701,6 @@ uniques = function(data, value, fetch, vars, depth) {
   if (!(data instanceof Array)) {
     data = [data];
   }
-  vals = [];
   lookups = [];
   if (value === void 0) {
     return data.reduce(function(p, c) {
@@ -19690,23 +19715,38 @@ uniques = function(data, value, fetch, vars, depth) {
       return p;
     }, []);
   }
-  for (_i = 0, _len = data.length; _i < _len; _i++) {
-    d = data[_i];
-    if (fetch) {
+  vals = [];
+  check = function(v) {
+    var l;
+    if (v !== void 0 && v !== null) {
+      l = JSON.stringify(v);
+      if (lookups.indexOf(l) < 0) {
+        vals.push(v);
+        return lookups.push(l);
+      }
+    }
+  };
+  if (typeof fetch === "function") {
+    for (_i = 0, _len = data.length; _i < _len; _i++) {
+      d = data[_i];
       val = uniques(fetch(vars, d, value, depth));
       if (val.length === 1) {
         val = val[0];
       }
-    } else if (typeof value === "function") {
-      val = value(d);
-    } else if (objectValidate(d)) {
-      val = d[value];
+      check(val);
     }
-    if (val !== void 0 && val !== null) {
-      lookup = JSON.stringify(val);
-      if (lookup !== void 0 && lookups.indexOf(lookup) < 0) {
-        vals.push(val);
-        lookups.push(lookup);
+  } else if (typeof value === "function") {
+    for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
+      d = data[_j];
+      val = value(d);
+      check(val);
+    }
+  } else {
+    for (_k = 0, _len2 = data.length; _k < _len2; _k++) {
+      d = data[_k];
+      if (objectValidate(d)) {
+        val = d[value];
+        check(val);
       }
     }
   }
@@ -19817,7 +19857,7 @@ module.exports = function(vars) {
   var urlLoads = [ "data" , "attrs" , "coords" , "nodes" , "edges" ]
   urlLoads.forEach(function(u){
 
-    if ( !vars[u].loaded && vars[u].url ) {
+    if (!vars.error.value && !vars[u].loaded && vars[u].url) {
 
       steps.push({
         "function": function( vars , next ){
@@ -19845,7 +19885,7 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If it has one, run the current app's setup function.
     //--------------------------------------------------------------------------
-    if ( typeof appSetup === "function" ) {
+    if (!vars.error.value && typeof appSetup === "function") {
 
       steps.push({
         "function": function( vars ) {
@@ -19868,7 +19908,7 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create SVG group elements if the container is new or has changed
     //--------------------------------------------------------------------------
-    if ( vars.container.changed ) {
+    if (vars.container.changed) {
 
       steps.push({ "function" : svgSetup , "message" : appMessage })
 
@@ -19877,7 +19917,7 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create group for current app, if it doesn't exist.
     //--------------------------------------------------------------------------
-    if ( !( appType in vars.g.apps ) ) {
+    if (!(appType in vars.g.apps)) {
 
       steps.push({
         "function": function( vars ) {
@@ -19906,14 +19946,14 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If new data is detected, analyze and reset it.
     //--------------------------------------------------------------------------
-    if ( vars.data.changed ) {
+    if (vars.data.changed) {
 
       steps.push({
         "function": function(vars) {
           vars.data.cache = {}
           delete vars.nodes.restricted
           delete vars.edges.restricted
-          dataKeys( vars , "data" )
+          dataKeys(vars, "data")
         },
         "message": dataMessage
       })
@@ -19923,11 +19963,11 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If new attributes are detected, analyze them.
     //--------------------------------------------------------------------------
-    if ( vars.attrs.changed ) {
+    if (vars.attrs.changed) {
 
       steps.push({
         "function": function( vars ) {
-          dataKeys( vars , "attrs" )
+          dataKeys(vars, "attrs")
         },
         "message": dataMessage
       })
@@ -19940,7 +19980,7 @@ module.exports = function(vars) {
     steps.push({
       "function": function(vars) {
 
-          if ( vars.color.changed && vars.color.value ) {
+          if (vars.color.changed && vars.color.value) {
 
             vars.color.valueScale = null
 
@@ -19998,59 +20038,63 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Groups data by time and nesting.
     //--------------------------------------------------------------------------
-    if ( vars.data.changed || vars.time.changed || vars.id.changed ) {
+    if (vars.data.changed || vars.time.changed || vars.id.changed) {
       steps.push({ "function" : dataFormat , "message" : dataMessage })
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Fetches data for app and "pool"
     //--------------------------------------------------------------------------
-    steps.push({
-      "function": function(vars) {
+    if (!vars.error.value) {
+      steps.push({
+        "function": function(vars) {
 
-        var year = !vars.time.fixed.value ? ["all"] : null
-        if (vars.dev.value) {
-          var timerString = year ? "fetching pool data" : "fetching data"
-          print.time( timerString )
-        }
-        vars.data.pool = fetchData( vars , year )
-        if (vars.dev.value) print.timeEnd( timerString )
-        if ( !year ) {
-          vars.data.viz = vars.data.pool
-        }
-        else {
-          if ( vars.dev.value ) print.time("fetching data for current year")
-          vars.data.viz = fetchData( vars )
-          if ( vars.dev.value ) print.timeEnd("fetching data for current year")
-        }
+          var year = !vars.time.fixed.value ? ["all"] : null
+          if (vars.dev.value) {
+            var timerString = year ? "fetching pool data" : "fetching data"
+            print.time( timerString )
+          }
+          vars.data.pool = fetchData( vars , year )
+          if (vars.dev.value) print.timeEnd( timerString )
+          if ( !year ) {
+            vars.data.viz = vars.data.pool
+          }
+          else {
+            if ( vars.dev.value ) print.time("fetching data for current year")
+            vars.data.viz = fetchData( vars )
+            if ( vars.dev.value ) print.timeEnd("fetching data for current year")
+          }
 
-        vars.draw.timing = vars.data.viz.length < vars.data.large ?
-                           vars.timing.transitions : 0;
+          vars.draw.timing = vars.data.viz.length < vars.data.large ?
+                             vars.timing.transitions : 0;
 
-      },
-      "message": dataMessage
-    })
+        },
+        "message": dataMessage
+      })
+    }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Calculate color scale if type is number
     //--------------------------------------------------------------------------
-    steps.push({
-      "check": function(vars) {
+    if (!vars.error.value) {
+      steps.push({
+        "check": function(vars) {
 
-        return vars.color.value && vars.color.type === "number" &&
-               vars.id.nesting.indexOf(vars.color.value) < 0 &&
-               vars.data.value && vars.color.value != vars.id.value &&
-                 (vars.color.changed || vars.data.changed || vars.depth.changed ||
-                   (vars.time.fixed.value &&
-                     (vars.time.solo.changed || vars.time.mute.changed)
+          return vars.color.value && vars.color.type === "number" &&
+                 vars.id.nesting.indexOf(vars.color.value) < 0 &&
+                 vars.data.value && vars.color.value != vars.id.value &&
+                   (vars.color.changed || vars.data.changed || vars.depth.changed ||
+                     (vars.time.fixed.value &&
+                       (vars.time.solo.changed || vars.time.mute.changed)
+                     )
                    )
-                 )
 
-      },
-      "function": dataColor,
-      "message": dataMessage
-    })
+        },
+        "function": dataColor,
+        "message": dataMessage
+      })
 
+    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20071,7 +20115,9 @@ module.exports = function(vars) {
     "message": uiMessage
   })
 
-  steps.push({"function": errorCheck, "message": uiMessage})
+  if (!vars.error.value) {
+    steps.push({"function": errorCheck, "message": uiMessage})
+  }
 
   steps.push({
     "function": function(vars) {
@@ -20079,30 +20125,32 @@ module.exports = function(vars) {
       vars.margin.process()
       titles(vars)
 
-      if ( vars.draw.update ) {
+      if (!vars.error.value) {
+        if (vars.draw.update) {
 
-        drawDrawer(vars)
-        drawTimeline(vars)
-        drawLegend(vars)
+          drawDrawer(vars)
+          drawTimeline(vars)
+          drawLegend(vars)
 
-      }
-      else {
+        }
+        else {
 
-        if ( vars.dev.value ) print.time("calculating margins")
+          if ( vars.dev.value ) print.time("calculating margins")
 
-        var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
-                  || vars.container.value.select("div#d3plus_drawer").node().getBoundingClientRect().height
+          var drawer = vars.container.value.select("div#d3plus_drawer").node().offsetHeight
+                    || vars.container.value.select("div#d3plus_drawer").node().getBoundingClientRect().height
 
-        var timeline = vars.g.timeline.node().getBBox()
-        timeline = vars.timeline.value ? timeline.height+vars.ui.padding : 0
+          var timeline = vars.g.timeline.node().getBBox()
+          timeline = vars.timeline.value ? timeline.height+vars.ui.padding : 0
 
-        var legend = vars.g.legend.node().getBBox()
-        legend = vars.legend.value ? legend.height+vars.ui.padding : 0
+          var legend = vars.g.legend.node().getBBox()
+          legend = vars.legend.value ? legend.height+vars.ui.padding : 0
 
-        vars.margin.bottom += drawer+timeline+legend
+          vars.margin.bottom += drawer+timeline+legend
 
-        if ( vars.dev.value ) print.timeEnd("calculating margins")
+          if ( vars.dev.value ) print.timeEnd("calculating margins")
 
+        }
       }
 
       history(vars)
@@ -20113,17 +20161,19 @@ module.exports = function(vars) {
     "message": uiMessage
   })
 
-  steps.push({
-    "function": focusTooltip,
-    "message": uiMessage
-  })
+  if (!vars.error.value) {
+    steps.push({
+      "function": focusTooltip,
+      "message": uiMessage
+    })
+  }
 
   steps.push({
     "function": svgUpdate,
     "message": drawMessage
   })
 
-  if ( vars.draw.update ) {
+  if (!vars.error.value && vars.draw.update) {
     steps.push({
       "function" : [ runType, shapes ],
       "message"  : drawMessage
@@ -20181,23 +20231,23 @@ module.exports = function(vars) {
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
       , and = vars.format.locale.value.ui.and
     missing = stringList(missing,and)
-    vars.internal_error = stringFormat(str,app,missing)
+    vars.error.internal = stringFormat(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.method
       , app = vars.format.locale.value.visualization[vars.type.value] || vars.type.value
-    vars.internal_error = stringFormat(str,app,missing[0])
+    vars.error.internal = stringFormat(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check to see if we have focus connections, if needed
   //----------------------------------------------------------------------------
-  if (!vars.internal_error && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
+  if (!vars.error.internal && reqs.indexOf("edges") >= 0 && reqs.indexOf("focus") >= 0) {
     var connections = vars.edges.connections(vars.focus.value[0],vars.id.value)
     if (connections.length == 0) {
       var name = fetchText(vars,vars.focus.value[0],vars.depth.value)
         , str = vars.format.locale.value.error.connections
-      vars.internal_error = stringFormat(str,"\""+name+"\"")
+      vars.error.internal = stringFormat(str,"\""+name+"\"")
     }
   }
 
@@ -20218,12 +20268,12 @@ module.exports = function(vars) {
       , app = vars.format.locale.value.visualization[vars.type.value]
       , and = vars.format.locale.value.ui.and
     missing = stringList(missing,and)
-    vars.internal_error = stringFormat(str,app,missing)
+    vars.error.internal = stringFormat(str,app,missing)
   }
   else if ( missing.length === 1 ) {
     var str = vars.format.locale.value.error.lib
       , app = vars.format.locale.value.visualization[vars.type.value]
-    vars.internal_error = stringFormat(str,app,missing[0])
+    vars.error.internal = stringFormat(str,app,missing[0])
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20276,25 +20326,29 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Zoom to fit bounds, if applicable
   //----------------------------------------------------------------------------
-  var zoom = vars.zoom.viewport || vars.zoom.bounds
-  if (vars.types[vars.type.value].zoom && vars.zoom.value && zoom) {
+  if (!vars.error.value) {
 
-    if ( vars.dev.value ) print.time("calculating zoom")
+    var zoom = vars.zoom.viewport || vars.zoom.bounds
+    if (vars.types[vars.type.value].zoom && vars.zoom.value && zoom) {
 
-    if (vars.draw.first) {
-      bounds(vars,zoom,0)
+      if ( vars.dev.value ) print.time("calculating zoom")
+
+      if (vars.draw.first) {
+        bounds(vars,zoom,0)
+      }
+      else if (vars.type.changed || vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
+        bounds(vars,zoom)
+      }
+
+      if ( vars.dev.value ) print.timeEnd("calculating zoom")
+
     }
-    else if (vars.type.changed || vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed) {
-      bounds(vars,zoom)
+    else {
+      vars.zoom.bounds = [[0,0],[vars.width.viz,vars.height.viz]]
+      vars.zoom.scale = 1
+      bounds(vars)
     }
 
-    if ( vars.dev.value ) print.timeEnd("calculating zoom")
-
-  }
-  else {
-    vars.zoom.bounds = [[0,0],[vars.width.viz,vars.height.viz]]
-    vars.zoom.scale = 1
-    bounds(vars)
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20314,32 +20368,36 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create labels
   //----------------------------------------------------------------------------
-  if (vars.draw.update) {
-    edges(vars)
-    // if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
-    shapeLabels( vars , "data" )
-    if (vars.edges.label) {
-      setTimeout(function(){
-        shapeLabels( vars , "edges" )
-      }, vars.draw.timing+200)
+  if (!vars.error.value) {
+    if (vars.draw.update) {
+      edges(vars)
+      // if (vars.draw.timing || (!vars.types[vars.type.value].zoom && !vars.draw.timing)) {
+      shapeLabels( vars , "data" )
+      if (vars.edges.label) {
+        setTimeout(function(){
+          shapeLabels( vars , "edges" )
+        }, vars.draw.timing+200)
+      }
+      // }
     }
-    // }
-  }
-  else if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
-    setTimeout(function(){
-      labels(vars)
-    },vars.draw.timing)
+    else if (vars.types[vars.type.value].zoom && vars.zoom.value && vars.draw.timing) {
+      setTimeout(function(){
+        labels(vars)
+      },vars.draw.timing)
+    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check for Errors
   //----------------------------------------------------------------------------
-  var reqs = vars.types[vars.type.value].requirements || []
-  if (!(reqs instanceof Array)) reqs = [reqs]
-  var data_req = reqs.indexOf("data") >= 0
-  if (!vars.internal_error) {
-    if ((!vars.data.viz || !vars.returned.nodes.length) && data_req) {
-      vars.internal_error = vars.format.locale.value.error.data
+  if (!vars.error.value) {
+    var reqs = vars.types[vars.type.value].requirements || []
+    if (!(reqs instanceof Array)) reqs = [reqs]
+    var data_req = reqs.indexOf("data") >= 0
+    if (!vars.error.internal) {
+      if ((!vars.data.viz || !vars.returned.nodes.length) && data_req) {
+        vars.error.internal = vars.format.locale.value.error.data
+      }
     }
   }
 
@@ -20362,36 +20420,41 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Show the current app, data, and edges groups
   //----------------------------------------------------------------------------
-  var new_opacity = (data_req && vars.data.viz.length === 0) ||
-                     vars.internal_error ? 0 : vars.focus.value.length &&
-                     vars.types[vars.type.value].zoom && vars.zoom.value ?
-                     1 - vars.tooltip.curtain.opacity : 1,
-      old_opacity = vars.group.attr("opacity")
+  if (!vars.error.value) {
+    var new_opacity = (data_req && vars.data.viz.length === 0) ||
+                       vars.error.internal || vars.error.value ? 0 : vars.focus.value.length &&
+                       vars.types[vars.type.value].zoom && vars.zoom.value ?
+                       1 - vars.tooltip.curtain.opacity : 1,
+        old_opacity = vars.group.attr("opacity")
 
-  if (new_opacity != old_opacity) {
+    if (new_opacity != old_opacity) {
 
-    var timing = vars.draw.timing
+      var timing = vars.draw.timing
 
-    vars.group.transition().duration(timing)
-      .attr("opacity",new_opacity)
-    vars.g.data.transition().duration(timing)
-      .attr("opacity",new_opacity)
-    vars.g.edges.transition().duration(timing)
-      .attr("opacity",new_opacity)
+      vars.group.transition().duration(timing)
+        .attr("opacity",new_opacity)
+      vars.g.data.transition().duration(timing)
+        .attr("opacity",new_opacity)
+      vars.g.edges.transition().duration(timing)
+        .attr("opacity",new_opacity)
 
+    }
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Display and reset internal_error, if applicable
   //----------------------------------------------------------------------------
-  if (vars.internal_error) {
-    vars.internal_error = titleCase( vars.internal_error )
-    print.warning(vars.internal_error)
-    flash(vars,vars.internal_error)
-    vars.internal_error = null
+  if (vars.error.value) {
+    flash(vars, vars.error.value);
+  }
+  else if (vars.error.internal) {
+    vars.error.internal = titleCase(vars.error.internal);
+    print.warning(vars.error.internal);
+    flash(vars, vars.error.internal);
+    vars.error.internal = null;
   }
   else {
-    flash(vars)
+    flash(vars);
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -20450,7 +20513,7 @@ removeTooltip = require("../../../tooltip/remove.coffee");
 module.exports = function(vars) {
   var data, focus, offset;
   focus = vars.focus;
-  if (!vars.internal_error && focus.value.length === 1 && focus.value.length && !vars.small && focus.tooltip.value) {
+  if (!vars.error.internal && focus.value.length === 1 && focus.value.length && !vars.small && focus.tooltip.value) {
     if (vars.dev.value) {
       print.time("drawing focus tooltip");
     }
@@ -21441,7 +21504,7 @@ module.exports = function(vars) {
 
       ["x","y"].forEach(function(axis){
         if (vars[axis].scale.value == "discrete") {
-          var val = fetchValue(vars,d,vars[axis].value)
+          var val = fetchValue(vars, d, vars[axis].value)
           if (val.constructor === Date) val = val.getTime()
           d.d3plus.id += "_"+val
         }
@@ -22049,9 +22112,6 @@ module.exports = function(vars) {
 var buckets = require("../../../util/buckets.coffee"),
     offset  = require("../../../geom/offset.coffee");
 
-//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-// Draws "square" and "circle" shapes using svg:rect
-//------------------------------------------------------------------------------
 module.exports = function(vars) {
 
   var edges = vars.returned.edges || [],
@@ -23457,11 +23517,12 @@ module.exports = function(vars,selection,enter,exit) {
   var stroke = vars.data.stroke.width * 2,
       hitarea = stroke < 15 ? 15 : stroke,
       discrete = vars[vars.axes.discrete],
-      ticks = [];
+      ticks = discrete.value === vars.time.value ?
+              vars.data.time.values : discrete.ticks.values;
 
-  discrete.ticks.values.forEach(function(d){
-    if (d.constructor === Date) ticks.push(d.getTime());
-    else ticks.push(d);
+  ticks = ticks.map(function(d){
+    if (d.constructor === Date) return d.getTime();
+    else return d;
   });
 
   selection.each(function(d){
@@ -23533,6 +23594,10 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     if (vars.draw.timing) {
 
+      paths.exit().transition().duration(vars.draw.timing)
+        .attr("opacity", 0)
+        .remove();
+
       paths.transition().duration(vars.draw.timing)
         .attr("d",function(d){ return line(d.values); })
         .call(shapeStyle,vars);
@@ -23541,7 +23606,10 @@ module.exports = function(vars,selection,enter,exit) {
         .attr("class","d3plus_line")
         .style("stroke-linecap","round")
         .attr("d",function(d){ return line(d.values); })
-        .call(shapeStyle,vars);
+        .call(shapeStyle,vars)
+        .attr("opacity", 0)
+        .transition().duration(vars.draw.timing)
+          .attr("opacity", 1);
 
       rects.enter().append("rect")
         .attr("class","d3plus_anchor")
@@ -23561,6 +23629,9 @@ module.exports = function(vars,selection,enter,exit) {
 
     }
     else {
+
+      paths.exit().attr("opacity", 0)
+        .remove();
 
       paths.enter().append("path")
         .attr("class","d3plus_line")
@@ -24448,7 +24519,7 @@ module.exports = function(params) {
     if (!(nameList instanceof Array)) nameList = [nameList];
 
     var dataValue = fetchValue( vars , d , vars.size.value );
-    // console.log(nameList, nestKey, depth)
+
     if (vars.tooltip.children.value) {
 
       nameList = nameList.slice(0);
@@ -24485,9 +24556,9 @@ module.exports = function(params) {
         if (id !== d[vars.id.nesting[titleDepth]] && name && !children[name]) {
 
           var value = fetchValue(vars, obj, vars.size.value, nestKey),
-          color = fetchColor(vars, obj, nestKey);
+              color = fetchColor(vars, obj, nestKey);
 
-          children[name] = value ? vars.format.value(value, vars.size.value, vars, obj) : "";
+          children[name] = value && !(value instanceof Array) ? vars.format.value(value, vars.size.value, vars, obj) : "";
 
           if (color) {
             if ( !children.d3plus_colors ) children.d3plus_colors = {};
@@ -24502,14 +24573,14 @@ module.exports = function(params) {
       }
 
       if ( listLength > max ) {
-        children.d3plusMore = listLength - max
+        children.d3plusMore = listLength - max;
       }
 
     }
 
     if ( vars.tooltip.size.value ) {
-      if (dataValue) {
-        ex[vars.size.value] = dataValue
+      if (dataValue && typeof vars.size.value !== "number") {
+        ex[vars.size.value] = dataValue;
       }
       if (vars.axes.opposite && vars[vars.axes.opposite].value !== vars.size.value) {
         ex[vars[vars.axes.opposite].value] = fetchValue(vars, d, vars[vars.axes.opposite].value);
@@ -24954,7 +25025,7 @@ module.exports = function(vars) {
   requirements = visualization.requirements || [];
   dataRequired = requirements.indexOf("data") >= 0;
   drawable = !dataRequired || (dataRequired && vars.data.viz.length);
-  if (!vars.internal_error && drawable) {
+  if (!vars.error.internal && drawable) {
     app = vars.format.locale.value.visualization[vars.type.value];
     if (vars.dev.value) {
       print.time("running " + app);
@@ -25254,7 +25325,7 @@ module.exports = function(vars) {
       key = vars.color.value,
       colorName = vars.color.value || "d3plus_color";
 
-  if (!vars.internal_error && key && !vars.small && vars.legend.value) {
+  if (!vars.error.internal && key && !vars.small && vars.legend.value) {
 
     if (!vars.color.valueScale) {
 
@@ -25279,7 +25350,7 @@ module.exports = function(vars) {
       }
 
       var colorFunction = function(d){
-            return fetchColor(vars, d, colorKey);
+            return fetchColor(vars, d, colorDepth);
           },
           colorDepth = 0,
           colorKey = vars.id.value;
@@ -25828,7 +25899,7 @@ module.exports = function(vars) {
 module.exports = function(vars,message) {
 
   var message = vars.messages.value ? message : null,
-      size = message == vars.internal_error ? "large" : vars.messages.style
+      size = message == vars.error.internal ? "large" : vars.messages.style
 
   if (size == "large") {
     var font = vars.messages,
@@ -25945,7 +26016,7 @@ var closest = require("../../../util/closest.coffee"),
 //-------------------------------------------------------------------
 module.exports = function(vars) {
 
-  if ((!vars.internal_error || !vars.data.missing) && !vars.small && vars.data.time && vars.data.time.values.length > 1 && vars.timeline.value) {
+  if ((!vars.error.internal || !vars.data.missing) && !vars.small && vars.data.time && vars.data.time.values.length > 1 && vars.timeline.value) {
 
     var years = []
     vars.data.time.values.forEach(function(d){
@@ -26944,6 +27015,7 @@ module.exports = {
     accepted: [false, "json", "xml", "html", "csv", "dsv", "tsv", "txt"],
     value: false
   },
+  keys: {},
   process: process,
   value: false
 };
@@ -27208,6 +27280,7 @@ module.exports = {
     value: false
   },
   filters: [],
+  keys: {},
   mute: [],
   large: 400,
   opacity: 0.9,
@@ -29103,9 +29176,9 @@ print = require("../../../../../core/console/print.coffee");
 uniques = require("../../../../../util/uniques.coffee");
 
 module.exports = function(vars, opts) {
-  var axis, changed, d, domains, filtered, i, modified, oppAxis, range, reorder, t, ticks, zero, _i, _j, _len, _len1, _ref;
+  var axis, changed, domains, filtered, modified, oppAxis, range, reorder, zero, _i, _len, _ref;
   changed = dataChange(vars);
-  if (changed) {
+  if (changed || !vars.axes.dataset) {
     vars.axes.dataset = getData(vars);
   }
   vars.axes.scale = opts.buffer && opts.buffer !== true ? sizeScale(vars, opts.buffer) : false;
@@ -29116,28 +29189,13 @@ module.exports = function(vars, opts) {
     filtered = vars[axis].solo.changed || vars[axis].mute.changed;
     modified = changed || vars[axis].changed || (vars.time.fixed.value && filtered) || vars[axis].scale.changed;
     reorder = vars.order.changed || vars.order.sort.changed || (vars.order.value === true && vars[oppAxis].changed);
-    if (modified || vars[axis].stacked.changed || vars[axis].range.changed || reorder) {
+    if (!("values" in vars[axis].ticks) || modified || vars[axis].stacked.changed || vars[axis].range.changed || reorder) {
       if (vars.dev.value) {
         print.time("calculating " + axis + " axis");
       }
       vars[axis].reset = true;
       vars[axis].ticks.values = false;
-      if (vars[axis].value === vars.time.value) {
-        if (vars.time.solo.value.length) {
-          ticks = vars.time.solo.value;
-          for (i = _j = 0, _len1 = ticks.length; _j < _len1; i = ++_j) {
-            t = ticks[i];
-            if (t.constructor !== Date) {
-              d = new Date(t.toString());
-              d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
-              ticks[i] = d;
-            }
-          }
-          vars[axis].ticks.values = ticks;
-        } else {
-          vars[axis].ticks.values = vars.data.time.ticks;
-        }
-      } else if (axis === vars.axes.discrete) {
+      if (axis === vars.axes.discrete && vars[axis].value !== vars.time.value) {
         vars[axis].ticks.values = uniques(vars.axes.dataset, vars[axis].value, fetchValue, vars);
       }
       zero = [true, axis].indexOf(opts.zero) > 0 ? true : false;
@@ -29239,7 +29297,7 @@ axisRange = function(vars, axis, zero, buffer) {
       return d.values;
     }));
     return d3.extent(values);
-  } else if (vars[axis].value === vars.time.value) {
+  } else if (vars[axis].value === vars.time.value && vars[axis].ticks.values) {
     return d3.extent(vars[axis].ticks.values);
   } else {
     values = vars.axes.dataset.map(function(d) {
@@ -29481,7 +29539,7 @@ module.exports = function(vars, axis, buffer) {
       maxSize = vars.axes.scale.range()[1];
       domainHigh = vars[axis].scale.viz.invert(-maxSize * 2);
       domainLow = vars[axis].scale.viz.invert(rangeMax + maxSize * 2);
-      if (domainHigh === domainLow) {
+      if (Math.round(domainHigh) === Math.round(domainLow)) {
         domainHigh += 1;
         domainLow -= 1;
       }
@@ -29697,7 +29755,7 @@ module.exports = function(node, vars) {
 
 
 },{"../../../../../client/pointer.coffee":41,"../../../../../color/legible.coffee":46,"../../../../../core/fetch/color.coffee":64,"../../../../../core/fetch/value.coffee":68,"../../../../../util/copy.coffee":193}],297:[function(require,module,exports){
-var buckets, buffer, createAxis, fetchValue, fontSizes, formatPower, labelPadding, resetMargins, superscript, textwrap;
+var buckets, buffer, createAxis, fetchValue, fontSizes, formatPower, labelPadding, resetMargins, superscript, textwrap, uniques;
 
 buckets = require("../../../../../util/buckets.coffee");
 
@@ -29709,8 +29767,10 @@ fontSizes = require("../../../../../font/sizes.coffee");
 
 textwrap = require("../../../../../textwrap/textwrap.coffee");
 
+uniques = require("../../../../../util/uniques.coffee");
+
 module.exports = function(vars, opts) {
-  var axis, opp, values, _i, _j, _len, _len1, _ref, _ref1;
+  var axis, formatted, l, lengths, opp, t, tens, ticks, values, _i, _j, _len, _len1, _ref, _ref1;
   vars.axes.margin = resetMargins(vars);
   vars.axes.height = vars.height.viz;
   vars.axes.width = vars.width.viz;
@@ -29718,7 +29778,23 @@ module.exports = function(vars, opts) {
   for (_i = 0, _len = _ref.length; _i < _len; _i++) {
     axis = _ref[_i];
     if (vars[axis].ticks.values === false) {
-      vars[axis].ticks.values = vars[axis].scale.viz.ticks();
+      if (vars[axis].value === vars.time.value) {
+        ticks = vars.time.solo.value;
+        if (ticks.length) {
+          ticks = ticks.map(function(d) {
+            if (d.constructor !== Date) {
+              d = new Date(t.toString());
+              d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
+            }
+            return d;
+          });
+        } else {
+          ticks = vars.data.time.values;
+        }
+        vars[axis].ticks.values = ticks;
+      } else {
+        vars[axis].ticks.values = vars[axis].scale.viz.ticks();
+      }
     }
     if (!vars[axis].ticks.values.length) {
       values = fetchValue(vars, vars.data.viz, vars[axis].value);
@@ -29732,6 +29808,43 @@ module.exports = function(vars, opts) {
       buffer(vars, axis, opts.buffer);
     }
     vars[axis].reset = false;
+    if (vars[axis].value === vars.time.value) {
+      ticks = vars[axis].ticks.values;
+      formatted = ticks.map(function(t) {
+        return vars.data.time.multiFormat(t);
+      });
+      lengths = uniques(formatted.map(function(f) {
+        return f.length;
+      }));
+      lengths.sort(function(a, b) {
+        return b - a;
+      });
+      while (lengths.length) {
+        l = lengths.pop();
+        t = formatted.filter(function(f) {
+          return f.length >= l;
+        });
+        if (t.length > 0 && t.length < vars.width.viz / 40) {
+          ticks = vars[axis].ticks.values.filter(function(t) {
+            return vars.data.time.multiFormat(t).length >= l;
+          });
+          break;
+        }
+      }
+      vars[axis].ticks.visible = ticks;
+    } else if (vars[axis].scale.value === "log") {
+      ticks = vars[axis].ticks.values;
+      tens = ticks.filter(function(t) {
+        return Math.abs(t).toString().charAt(0) === "1";
+      });
+      if (tens.length < 3) {
+        vars[axis].ticks.visible = ticks;
+      } else {
+        vars[axis].ticks.visible = tens;
+      }
+    } else {
+      vars[axis].ticks.visible = vars[axis].ticks.values;
+    }
   }
   if (!vars.small) {
     labelPadding(vars);
@@ -29771,20 +29884,11 @@ labelPadding = function(vars) {
     "font-weight": vars.y.ticks.font.weight
   };
   if (vars.y.scale.value === "log") {
-    yText = vars.y.ticks.values.filter(function(d) {
-      return Math.abs(d).toString().charAt(0) === "1";
-    });
-    yText = yText.map(function(d) {
-      var n;
-      n = 10 + " " + formatPower(Math.round(Math.log(Math.abs(d)) / Math.LN10));
-      if (d < 0) {
-        return "-" + n;
-      } else {
-        return n;
-      }
+    yText = vars.y.ticks.visible.map(function(d) {
+      return formatPower(d);
     });
   } else {
-    yText = vars.y.ticks.values.map(function(d) {
+    yText = vars.y.ticks.visible.map(function(d) {
       return vars.format.value(d, vars.y.value, vars);
     });
   }
@@ -29810,14 +29914,12 @@ labelPadding = function(vars) {
     "font-weight": vars.x.ticks.font.weight
   };
   if (vars.x.scale.value === "log") {
-    xValues = vars.x.ticks.values.filter(function(d) {
-      return d.toString().charAt(0) === "1";
-    });
+    xValues = vars.x.ticks.visible;
     xText = xValues.map(function(d) {
-      return 10 + " " + formatPower(Math.round(Math.log(d) / Math.LN10));
+      return formatPower(d);
     });
   } else {
-    xValues = vars.x.ticks.values;
+    xValues = vars.x.ticks.visible;
     if (typeof xValues[0] === "string") {
       xValues = vars.x.scale.viz.domain().filter(function(d) {
         return d.indexOf("d3plus_buffer_") !== 0;
@@ -29834,8 +29936,12 @@ labelPadding = function(vars) {
   xAxisHeight = d3.max(xSizes, function(d) {
     return d.height;
   });
-  xMaxWidth = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0]);
-  xMaxWidth -= vars.labels.padding * 2;
+  if (xValues.length === 1) {
+    xMaxWidth = vars.axes.width;
+  } else {
+    xMaxWidth = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0]);
+    xMaxWidth -= vars.labels.padding * 2;
+  }
   if (xAxisWidth > xMaxWidth && xText.join("").indexOf(" ") > 0) {
     vars.x.ticks.wrap = true;
     xSizes = fontSizes(xText, xAttrs, {
@@ -29906,25 +30012,18 @@ labelPadding = function(vars) {
 
 createAxis = function(vars, axis) {
   return d3.svg.axis().tickSize(vars[axis].ticks.size).tickPadding(5).orient(axis === "x" ? "bottom" : "left").scale(vars[axis].scale.viz).tickValues(vars[axis].ticks.values).tickFormat(function(d, i) {
-    var hiddenTime, majorLog, n, scale;
+    var scale;
     if (vars[axis].ticks.hidden) {
       return null;
     }
     scale = vars[axis].scale.value;
-    hiddenTime = vars[axis].value === vars.time.value && d % 1 !== 0;
-    majorLog = scale === "log" && Math.abs(d).toString().charAt(0) === "1";
-    if (!hiddenTime && (majorLog || scale !== "log")) {
+    if (vars[axis].ticks.visible.indexOf(d) >= 0) {
       if (scale === "share") {
         return d * 100 + "%";
       } else if (d.constructor === Date) {
         return vars.data.time.multiFormat(d);
       } else if (scale === "log") {
-        n = 10 + " " + formatPower(Math.round(Math.log(Math.abs(d)) / Math.LN10));
-        if (d < 0) {
-          return "-" + n;
-        } else {
-          return n;
-        }
+        return formatPower(d);
       } else {
         return vars.format.value(d, vars[axis].value, vars);
       }
@@ -29937,14 +30036,25 @@ createAxis = function(vars, axis) {
 superscript = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 
 formatPower = function(d) {
-  return (d + "").split("").map(function(c) {
+  var n, p, t;
+  p = Math.round(Math.log(Math.abs(d)) / Math.LN10);
+  t = Math.abs(d).toString().charAt(0);
+  n = 10 + " " + (p + "").split("").map(function(c) {
     return superscript[c];
   }).join("");
+  if (t !== "1") {
+    n = t + " x " + n;
+  }
+  if (d < 0) {
+    return "-" + n;
+  } else {
+    return n;
+  }
 };
 
 
 
-},{"../../../../../core/fetch/value.coffee":68,"../../../../../font/sizes.coffee":95,"../../../../../textwrap/textwrap.coffee":186,"../../../../../util/buckets.coffee":190,"./buffer.coffee":295}],298:[function(require,module,exports){
+},{"../../../../../core/fetch/value.coffee":68,"../../../../../font/sizes.coffee":95,"../../../../../textwrap/textwrap.coffee":186,"../../../../../util/buckets.coffee":190,"../../../../../util/uniques.coffee":196,"./buffer.coffee":295}],298:[function(require,module,exports){
 var mix, textwrap;
 
 mix = require("../../../../../color/mix.coffee");
@@ -29999,23 +30109,27 @@ module.exports = function(vars) {
     });
   };
   tickStyle = function(tick, axis, grid) {
-    var logScale;
-    logScale = vars[axis].scale.value === "log";
+    var color, log;
+    color = grid ? vars[axis].grid.color : vars[axis].ticks.color;
+    log = vars[axis].scale.value === "log";
     return tick.attr("stroke", function(d) {
-      var log;
-      log = logScale && d.toString().charAt(0) !== "1";
+      var visible;
       if (d === 0) {
         return vars[axis].axis.color;
-      } else if (!grid) {
-        return vars[axis].ticks.color;
-      } else if (log) {
-        return mix(vars[axis].grid.color, vars.axes.background.color, 0.5, 1);
+      }
+      visible = vars[axis].ticks.visible.indexOf(d) >= 0;
+      if (visible && (!log || Math.abs(d).toString().charAt(0) === "1")) {
+        return color;
+      } else if (grid) {
+        return mix(color, vars.axes.background.color, 0.4, 1);
       } else {
-        return vars[axis].grid.color;
+        return mix(color, vars.background.value, 0.4, 1);
       }
     }).attr("stroke-width", vars[axis].ticks.width).attr("shape-rendering", vars[axis].ticks.rendering.value);
   };
   tickFont = function(tick, axis) {
+    var log;
+    log = vars[axis].scale.value === "log";
     return tick.attr("font-size", function(d) {
       var type;
       type = d === 0 ? "axis" : "ticks";
@@ -30023,7 +30137,11 @@ module.exports = function(vars) {
     }).attr("fill", function(d) {
       var type;
       type = d === 0 ? "axis" : "ticks";
-      return vars[axis][type].font.color;
+      if (!log || Math.abs(d).toString().charAt(0) === "1") {
+        return vars[axis][type].font.color;
+      } else {
+        return mix(vars[axis][type].font.color, vars.background.value, 0.4, 1);
+      }
     }).attr("font-family", function(d) {
       var type;
       type = d === 0 ? "axis" : "ticks";
@@ -30082,9 +30200,9 @@ module.exports = function(vars) {
   });
   rotated = vars.x.ticks.transform.indexOf("rotate") > 0;
   xStyle = function(axis) {
-    return axis.attr("transform", "translate(0," + vars.axes.height + ")").call(vars.x.axis.svg.scale(vars.x.scale.viz)).selectAll("g.tick").select("text").style("text-anchor", vars.x.ticks.anchor).attr("transform", vars.x.ticks.transform).attr("dominant-baseline", vars.x.ticks.baseline).call(tickFont, "x").each("end", function() {
+    return axis.attr("transform", "translate(0," + vars.axes.height + ")").call(vars.x.axis.svg.scale(vars.x.scale.viz)).selectAll("g.tick").select("text").style("text-anchor", vars.x.ticks.anchor).attr("transform", vars.x.ticks.transform).attr("dominant-baseline", vars.x.ticks.baseline).call(tickFont, "x").each("end", function(d) {
       var height, width;
-      if (!vars.x.ticks.hidden) {
+      if (!vars.x.ticks.hidden && vars.x.ticks.visible.indexOf(d) >= 0) {
         if (vars.x.ticks.wrap) {
           width = rotated ? "maxHeight" : "maxWidth";
           height = !rotated ? "maxHeight" : "maxWidth";
@@ -30130,8 +30248,12 @@ module.exports = function(vars) {
     }
     grid = plane.selectAll("g#d3plus_graph_" + axis + "grid").data([0]);
     grid.enter().append("g").attr("id", "d3plus_graph_" + axis + "grid");
-    lines = grid.selectAll("line").data(gridData, function(d) {
-      return d;
+    lines = grid.selectAll("line").data(gridData, function(d, i) {
+      if (d.constructor === Date) {
+        return d.getTime();
+      } else {
+        return d;
+      }
     });
     lines.transition().duration(vars.draw.timing).call(tickPosition, axis).call(tickStyle, axis, true);
     lines.enter().append("line").style("opacity", 0).call(tickPosition, axis).call(tickStyle, axis, true).transition().duration(vars.draw.timing).delay(vars.draw.timing / 2).style("opacity", 1);
@@ -30267,7 +30389,7 @@ module.exports = function(vars, data) {
   }
   discrete = vars[vars.axes.discrete];
   opposite = vars[vars.axes.opposite];
-  ticks = discrete.ticks.values;
+  ticks = discrete.value === vars.time.value ? vars.data.time.values : discrete.ticks.values;
   offsets = {
     x: vars.axes.margin.left,
     y: vars.axes.margin.top
@@ -30276,7 +30398,7 @@ module.exports = function(vars, data) {
     var depth, id;
     id = fetchValue(vars, d, vars.id.value);
     depth = "depth" in d.d3plus ? d.d3plus.depth : vars.depth.value;
-    return "line_" + stringStrip(id) + "_" + depth;
+    return "nested_" + stringStrip(id) + "_" + depth;
   }).rollup(function(leaves) {
     var availables, i, obj, tester, tick, timeVar, _i, _len;
     availables = uniqueValues(leaves, discrete.value, fetchValue, vars);
@@ -30288,7 +30410,7 @@ module.exports = function(vars, data) {
     }
     for (i = _i = 0, _len = ticks.length; _i < _len; i = ++_i) {
       tick = ticks[i];
-      tester = timeVar ? tick.getTime() : tick;
+      tester = tick.constructor === Date ? tick.getTime() : tick;
       if (availables.indexOf(tester) < 0 && discrete.zerofill.value) {
         obj = {
           d3plus: {}
@@ -31821,11 +31943,14 @@ module.exports = function() {
   };
   vars.self = function(selection) {
     selection.each(function() {
-      var lastMessage, message, nextStep, runFunction, runStep, small_height, small_width, steps, timing;
+      var lastMessage, nextStep, runFunction, runStep, small_height, small_width, steps;
       vars.draw.frozen = true;
-      vars.internal_error = null;
+      vars.error.internal = null;
       if (!("timing" in vars.draw)) {
         vars.draw.timing = vars.timing.transitions;
+      }
+      if (vars.error.value) {
+        vars.draw.timing = 0;
       }
       if (vars.container.changed) {
         container(vars);
@@ -31836,92 +31961,87 @@ module.exports = function() {
       vars.width.viz = vars.width.value;
       vars.height.viz = vars.height.value;
       lastMessage = false;
-      if (vars.error.value) {
-        timing = vars.draw.timing;
-        if (vars.group) {
-          vars.group.transition().duration(timing).attr("opacity", 0);
-          vars.g.data.transition().duration(timing).attr("opacity", 0);
-          vars.g.edges.transition().duration(timing).attr("opacity", 0);
+      nextStep = function() {
+        if (steps.length) {
+          runStep();
+        } else {
+          if (vars.dev.value) {
+            print.groupEnd();
+            print.timeEnd("total draw time");
+            print.log("\n");
+          }
         }
-        vars.messages.style = "large";
-        message = vars.error.value === true ? vars.format.value(vars.format.locale.value.ui.error) : vars.error.value;
-        lastMessage = message;
-        flash(vars, message);
-      } else {
-        nextStep = function() {
-          if (steps.length) {
-            runStep();
-          } else {
+      };
+      runFunction = function(step, name) {
+        name = name || "function";
+        if (step[name] instanceof Array) {
+          step[name].forEach(function(f) {
+            f(vars, nextStep);
+          });
+        } else {
+          if (typeof step[name] === "function") {
+            step[name](vars, nextStep);
+          }
+        }
+        if (!step.wait) {
+          nextStep();
+        }
+      };
+      runStep = function() {
+        var message, run, same, step;
+        step = steps.shift();
+        same = vars.g.message && lastMessage === step.message;
+        run = "check" in step ? step.check : true;
+        if (typeof run === "function") {
+          run = run(vars);
+        }
+        if (run) {
+          if (!same) {
             if (vars.dev.value) {
-              print.groupEnd();
-              print.timeEnd("total draw time");
-              print.log("\n");
-            }
-          }
-        };
-        runFunction = function(step, name) {
-          name = name || "function";
-          if (step[name] instanceof Array) {
-            step[name].forEach(function(f) {
-              f(vars, nextStep);
-            });
-          } else {
-            if (typeof step[name] === "function") {
-              step[name](vars, nextStep);
-            }
-          }
-          if (!step.wait) {
-            nextStep();
-          }
-        };
-        runStep = function() {
-          var run, same, step;
-          step = steps.shift();
-          same = vars.g.message && lastMessage === step.message;
-          run = "check" in step ? step.check : true;
-          if (typeof run === "function") {
-            run = run(vars);
-          }
-          if (run) {
-            if (!same) {
-              if (vars.dev.value) {
-                if (lastMessage !== false) {
-                  print.groupEnd();
-                }
-                print.group(step.message);
+              if (lastMessage !== false) {
+                print.groupEnd();
               }
-              if (typeof vars.messages.value === "string") {
-                lastMessage = vars.messages.value;
-                message = vars.messages.value;
-              } else {
-                lastMessage = step.message;
-                message = vars.format.value(step.message);
-              }
-              if (vars.draw.update) {
-                flash(vars, message);
-                setTimeout((function() {
-                  runFunction(step);
-                }), 10);
-              } else {
+              print.group(step.message);
+            }
+            if (typeof vars.messages.value === "string") {
+              lastMessage = vars.messages.value;
+              message = vars.messages.value;
+            } else {
+              lastMessage = step.message;
+              message = vars.format.value(step.message);
+            }
+            if (vars.draw.update) {
+              flash(vars, message);
+              if (vars.error.value) {
                 runFunction(step);
+              } else {
+                setTimeout((function() {
+                  return runFunction(step);
+                }), 10);
               }
             } else {
               runFunction(step);
             }
           } else {
-            if ("otherwise" in step) {
-              setTimeout((function() {
-                runFunction(step, "otherwise");
-              }), 10);
-            } else {
-              nextStep();
-            }
+            runFunction(step);
           }
-        };
-        vars.messages.style = vars.group && vars.group.attr("opacity") === "1" ? "small" : "large";
-        steps = getSteps(vars);
-        runStep();
-      }
+        } else {
+          if ("otherwise" in step) {
+            if (vars.error.value) {
+              runFunction(step, "otherwise");
+            } else {
+              setTimeout((function() {
+                return runFunction(step, "otherwise");
+              }), 10);
+            }
+          } else {
+            nextStep();
+          }
+        }
+      };
+      vars.messages.style = vars.group && vars.group.attr("opacity") === "1" ? "small" : "large";
+      steps = getSteps(vars);
+      runStep();
     });
     return vars.self;
   };
