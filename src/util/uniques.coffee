@@ -7,7 +7,6 @@ uniques = (data, value, fetch, vars, depth) ->
 
   depth   = vars.id.value if vars and depth is undefined
   data    = [data] unless data instanceof Array
-  vals    = []
   lookups = []
 
   if value is undefined
@@ -19,25 +18,32 @@ uniques = (data, value, fetch, vars, depth) ->
       p
     , []
 
-  for d in data
+  vals = []
 
-    if fetch
+  check = (v) ->
+    if v isnt undefined and v isnt null
+
+      l = JSON.stringify(v)
+
+      if lookups.indexOf(l) < 0
+        vals.push v
+        lookups.push l
+
+  if typeof fetch is "function"
+    for d in data
       val = uniques fetch(vars, d, value, depth)
       val = val[0] if val.length is 1
-    else if typeof value is "function"
+      check val
+  else if typeof value is "function"
+    for d in data
       val = value d
-    else if objectValidate d
-      val = d[value]
-
-    if val isnt undefined and val isnt null
-
-      lookup = JSON.stringify(val)
-
-      if lookup isnt undefined and lookups.indexOf(lookup) < 0
-        vals.push val
-        lookups.push lookup
+      check val
+  else
+    for d in data
+      if objectValidate d
+        val = d[value]
+        check val
 
   vals.sort (a, b) -> a - b
-
 
 module.exports = uniques
