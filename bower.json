@@ -11,7 +11,7 @@
     "Daniel Smilkov <dsmilkov@gmail.com>"
   ],
   "dependencies": {
-    "d3": "^3.5.2",
+    "d3": "^3.5.3",
     "heap": "^0.2.5",
     "numericjs": "^1.2.6",
     "simplify-js": "https://github.com/mourner/simplify-js.git",
