@@ -70,7 +70,7 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If we're at the deepest level, create the rollup function.
   //----------------------------------------------------------------------------
-  nestedData.rollup(function( leaves ) {
+  nestedData.rollup(function(leaves) {
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there's only 1 leaf, and it's been processed, return it as-is.
@@ -134,12 +134,11 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
     //--------------------------------------------------------------------------
     for (var key in vars.data.keys) {
 
-      var uniques = uniqueValues(leaves, key, fetchValue, vars);
-
-      if (uniques.length === 1) {
-        returnObj[key] = uniques[0];
+      if (key in returnObj.d3plus.data) {
+        returnObj[key] = returnObj.d3plus[key];
       }
-      else if (uniques.length) {
+      else {
+
         var agg     = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum",
             aggType = typeof agg,
             keyType = vars.data.keys[key],
@@ -149,16 +148,11 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
         if (key in returnObj.d3plus.data) {
           returnObj[key] = returnObj.d3plus[key];
         }
-        else if (aggType === "function") {
+        if (aggType === "function") {
           returnObj[key] = vars.aggs.value[key](leaves);
         }
         else if (timeKey) {
-
-          var dates = parseDates(uniques);
-
-          if (dates.length === 1) returnObj[key] = dates[0];
-          else returnObj[key] = dates;
-
+          returnObj[key] = parseDates(uniqueValues(leaves, key));
         }
         else if (keyType === "number" && aggType === "string" && !idKey) {
           returnObj[key] = d3[agg](leaves.map(function(d){return d[key];}));
@@ -167,7 +161,7 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
 
           var testVals = checkVal(leaves, key);
           var keyValues = testVals.length === 1 ? testVals[0][key]
-                        : uniqueValues(testVals, key, fetchValue, vars, depthKey);
+                        : uniqueValues(testVals, key);
 
           if (testVals.length === 1) {
             returnObj[key] = keyValues;
@@ -184,11 +178,11 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
               //   var newNesting = nestingLevels.concat(key);
               //   testVals = dataNest(vars,testVals,newNesting);
               // }
-              returnObj[key] = testVals.length === 1 ? testVals[0] : testVals;
+              returnObj[key] = testVals;
             }
             else {
 
-              returnObj[key] = keyValues.length === 1 ? keyValues[0] : keyValues;
+              returnObj[key] = keyValues;
 
             }
 
@@ -202,6 +196,10 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
 
         }
 
+      }
+
+      if (key in returnObj && returnObj[key] instanceof Array && returnObj[key].length === 1) {
+        returnObj[key] = returnObj[key][0];
       }
 
     }
