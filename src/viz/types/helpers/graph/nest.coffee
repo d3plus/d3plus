@@ -7,7 +7,8 @@ module.exports = (vars, data) ->
   data     = vars.data.viz unless data
   discrete = vars[vars.axes.discrete]
   opposite = vars[vars.axes.opposite]
-  ticks    = if discrete.value is vars.time.value then vars.data.time.values else discrete.ticks.values
+  timeAxis = discrete.value is vars.time.value
+  ticks    = if timeAxis then vars.data.time.values else discrete.ticks.values
   offsets  =
     x: vars.axes.margin.left
     y: vars.axes.margin.top
@@ -40,8 +41,12 @@ module.exports = (vars, data) ->
         leaves
       else
         leaves.sort (a, b) ->
-          xsort = a[discrete.value] - b[discrete.value]
-          ysort = a[opposite.value] - b[opposite.value]
-          if xsort then xsort else ysort
+          ad = fetchValue vars, a, discrete.value
+          bd = fetchValue vars, b, discrete.value
+          xsort = ad - bd
+          return xsort if xsort
+          ao = fetchValue vars, a, opposite.value
+          bo = fetchValue vars, b, opposite.value
+          ao - bo
 
     .entries data
