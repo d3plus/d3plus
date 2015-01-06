@@ -105,9 +105,12 @@ labelPadding = (vars) ->
     "font-weight": vars.y.ticks.font.weight
   if vars.y.scale.value is "log"
     yText = vars.y.ticks.visible.map (d) -> formatPower d
+  else if vars.y.scale.value is "share"
+    yText = vars.y.ticks.visible.map (d) -> d * 100 + "%"
   else
     yText = vars.y.ticks.visible.map (d) ->
       vars.format.value(d, vars.y.value, vars)
+
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
@@ -129,11 +132,12 @@ labelPadding = (vars) ->
     "font-size":   vars.x.ticks.font.size+"px"
     "font-family": vars.x.ticks.font.family.value
     "font-weight": vars.x.ticks.font.weight
+  xValues = vars.x.ticks.visible
   if vars.x.scale.value is "log"
-    xValues = vars.x.ticks.visible
     xText = xValues.map (d) -> formatPower d
+  else if vars.x.scale.value is "share"
+    xText = vars.x.ticks.visible.map (d) -> d * 100 + "%"
   else
-    xValues = vars.x.ticks.visible
     if typeof xValues[0] is "string"
       xValues = vars.x.scale.viz.domain().filter (d) ->
         d.indexOf("d3plus_buffer_") != 0
