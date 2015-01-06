@@ -26,7 +26,8 @@ module.exports = (text, key, vars, data) ->
 
     if bigindex >= 0
       new_txt = bigs[bigindex]
-    else if smalls.indexOf(txt.toLowerCase()) >= 0 and i isnt 0
+    else if smalls.indexOf(txt.toLowerCase()) >= 0 and
+            i isnt 0 and i isnt text.length - 1
       new_txt = txt.toLowerCase()
     else
       new_txt = txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
