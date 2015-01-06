@@ -19,7 +19,7 @@
             
         </div>
         <div class="yui3-u-1-4 version">
-            <em>API Docs for: 1.6.6</em>
+            <em>API Docs for: 1.6.8</em>
         </div>
     </div>
     <div id="bd" class="yui3-g">
@@ -123,8 +123,7 @@
 # @param obj {Object} The object to validate.
 # @return {Boolean}
 ###
-module.exports = (obj) -&gt;
-  obj isnt null and typeof obj is &quot;object&quot; and (obj not instanceof Array)
+module.exports = (obj) -&gt; obj and obj.constructor is Object
 
     </pre>
 </div>

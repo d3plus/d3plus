@@ -23,7 +23,7 @@ module.exports = d3plus;
  * @static
  */
 
-d3plus.version = "1.6.7 - Turquoise";
+d3plus.version = "1.6.8 - Turquoise";
 
 
 /**
@@ -1560,7 +1560,7 @@ module.exports = isArray || function (val) {
 },{}],7:[function(require,module,exports){
 !function() {
   var d3 = {
-    version: "3.5.2"
+    version: "3.5.3"
   };
   if (!Date.now) Date.now = function() {
     return +new Date();
@@ -10135,12 +10135,8 @@ module.exports = isArray || function (val) {
     return function() {
       var lock, active;
       if ((lock = this[ns]) && (active = lock[lock.active])) {
-        if (--lock.count) {
-          delete lock[lock.active];
-          lock.active += .5;
-        } else {
-          delete this[ns];
-        }
+        if (--lock.count) delete lock[lock.active]; else delete this[ns];
+        lock.active += .5;
         active.event && active.event.interrupt.call(this, this.__data__, active.index);
       }
     };
@@ -28301,7 +28297,7 @@ module.exports = function(text, key, vars, data) {
     }
     if (bigindex >= 0) {
       new_txt = bigs[bigindex];
-    } else if (smalls.indexOf(txt.toLowerCase()) >= 0 && i !== 0) {
+    } else if (smalls.indexOf(txt.toLowerCase()) >= 0 && i !== 0 && i !== text.length - 1) {
       new_txt = txt.toLowerCase();
     } else {
       new_txt = txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
@@ -39901,6 +39897,10 @@ labelPadding = function(vars) {
     yText = vars.y.ticks.visible.map(function(d) {
       return formatPower(d);
     });
+  } else if (vars.y.scale.value === "share") {
+    yText = vars.y.ticks.visible.map(function(d) {
+      return d * 100 + "%";
+    });
   } else {
     yText = vars.y.ticks.visible.map(function(d) {
       return vars.format.value(d, vars.y.value, vars);
@@ -39927,13 +39927,16 @@ labelPadding = function(vars) {
     "font-family": vars.x.ticks.font.family.value,
     "font-weight": vars.x.ticks.font.weight
   };
+  xValues = vars.x.ticks.visible;
   if (vars.x.scale.value === "log") {
-    xValues = vars.x.ticks.visible;
     xText = xValues.map(function(d) {
       return formatPower(d);
     });
+  } else if (vars.x.scale.value === "share") {
+    xText = vars.x.ticks.visible.map(function(d) {
+      return d * 100 + "%";
+    });
   } else {
-    xValues = vars.x.ticks.visible;
     if (typeof xValues[0] === "string") {
       xValues = vars.x.scale.viz.domain().filter(function(d) {
         return d.indexOf("d3plus_buffer_") !== 0;
@@ -40397,13 +40400,14 @@ stringStrip = require("../../../../string/strip.js");
 uniqueValues = require("../../../../util/uniques.coffee");
 
 module.exports = function(vars, data) {
-  var discrete, offsets, opposite, ticks;
+  var discrete, offsets, opposite, ticks, timeAxis;
   if (!data) {
     data = vars.data.viz;
   }
   discrete = vars[vars.axes.discrete];
   opposite = vars[vars.axes.opposite];
-  ticks = discrete.value === vars.time.value ? vars.data.time.values : discrete.ticks.values;
+  timeAxis = discrete.value === vars.time.value;
+  ticks = timeAxis ? vars.data.time.values : discrete.ticks.values;
   offsets = {
     x: vars.axes.margin.left,
     y: vars.axes.margin.top
@@ -40439,14 +40443,16 @@ module.exports = function(vars, data) {
       return leaves;
     } else {
       return leaves.sort(function(a, b) {
-        var xsort, ysort;
-        xsort = a[discrete.value] - b[discrete.value];
-        ysort = a[opposite.value] - b[opposite.value];
+        var ad, ao, bd, bo, xsort;
+        ad = fetchValue(vars, a, discrete.value);
+        bd = fetchValue(vars, b, discrete.value);
+        xsort = ad - bd;
         if (xsort) {
           return xsort;
-        } else {
-          return ysort;
         }
+        ao = fetchValue(vars, a, opposite.value);
+        bo = fetchValue(vars, b, opposite.value);
+        return ao - bo;
       });
     }
   }).entries(data);
