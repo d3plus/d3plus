@@ -1,9 +1,8 @@
-attach     = require "../core/methods/attach.coffee"
-dimensions = require "./helpers/getDimensions.coffee"
-print      = require "../core/console/print.coffee"
-size       = require "./helpers/getSize.coffee"
-text       = require "./helpers/getText.coffee"
-wrap       = require "./helpers/wrap.coffee"
+attach = require "../core/methods/attach.coffee"
+sizes  = require "./helpers/parseSize.coffee"
+print  = require "../core/console/print.coffee"
+text   = require "./helpers/parseText.coffee"
+wrap   = require "./helpers/wrap.coffee"
 
 # Word wraps SVG text
 module.exports = ->
@@ -14,8 +13,7 @@ module.exports = ->
 
       selection.each ->
 
-        dimensions vars
-        size vars
+        sizes vars
 
         if vars.size.value[0] <= vars.height.value
           text vars
@@ -30,6 +28,7 @@ module.exports = ->
 
   # Define methods and expose public variables.
   attach vars,
+    align:     require "./methods/align.coffee"
     config:    require "./methods/config.coffee"
     container: require "./methods/container.coffee"
     dev:       require "./methods/dev.coffee"

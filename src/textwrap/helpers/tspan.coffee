@@ -6,20 +6,33 @@ module.exports = (vars) ->
   newLine = (w) ->
     w = "" unless w
     vars.container.value.append("tspan")
-      .attr "x", xPosition
-      .attr "dy", fontSize
+      .attr "x", x + "px"
+      .attr "dx", dx + "px"
+      .attr "dy", dy + "px"
       .text w
 
-  xPosition = vars.container.value.attr("x") or "0px"
-  words = vars.text.words.slice(0)
-  progress = words[0]
-  fontSize = if vars.resize.value then vars.size.value[1] + "px" else vars.container.fontSize or vars.size.value[0] + "px"
-  textBox = newLine words.shift()
-  textHeight = textBox.node().offsetHeight or textBox.node().getBoundingClientRect().height
-  line = 1
-
   if vars.shape.value is "circle"
-    vars.container.value.attr "text-anchor", "middle"
+    anchor = "middle"
+    dx = 0
+  else
+    anchor = vars.align.value or vars.container.align or "start"
+    if anchor is "end"
+      dx = vars.width.value
+    else if anchor is "middle"
+      dx = vars.width.value/2
+    else
+      dx = 0
+
+  x        = parseFloat(vars.container.value.attr("x"), 10) or 0
+  words    = vars.text.words.slice(0)
+  progress = words[0]
+  fontSize = if vars.resize.value then vars.size.value[1] else vars.container.fontSize or vars.size.value[0]
+  dy       = vars.container.dy or fontSize
+  vars.container.value
+    .attr "text-anchor", anchor
+    .attr "font-size", fontSize + "px"
+  textBox = newLine words.shift()
+  line = 1
 
   truncate = ->
     textBox.remove()
@@ -33,7 +46,7 @@ module.exports = (vars) ->
 
   lineWidth = () ->
     if vars.shape.value is "circle"
-      b = (line - 1) * textHeight
+      b = (line - 1) * dy
       2 * Math.sqrt(b * ((2 * (vars.width.value / 2)) - b))
     else
       vars.width.value
@@ -69,7 +82,7 @@ module.exports = (vars) ->
 
   for word in words
 
-    if line * textHeight > vars.height.value
+    if line * dy > vars.height.value
       truncate()
       break
 
