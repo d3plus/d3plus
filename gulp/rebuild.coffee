@@ -3,7 +3,6 @@ connect    = require "gulp-connect"
 error      = require "./error.coffee"
 gulp       = require "gulp"
 notify     = require "gulp-notify"
-pack       = require "../package.json"
 source     = require "vinyl-source-stream"
 timer      = require "gulp-duration"
 watchify   = require "watchify"
@@ -11,7 +10,7 @@ watchify   = require "watchify"
 gulp.task "rebuild", ->
 
   bundler = watchify(browserify watchify.args)
-    .add pack.main
+    .add "./src/init.coffee"
     .transform "coffeeify"
 
   rebundle = ->
