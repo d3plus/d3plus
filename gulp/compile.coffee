@@ -8,6 +8,7 @@ source     = require "vinyl-source-stream"
 streamify  = require "gulp-streamify"
 timer      = require "gulp-duration"
 uglify     = require "gulp-uglify"
+chmod      = require "gulp-chmod"
 
 gulp.task "compile", ->
 
@@ -16,9 +17,11 @@ gulp.task "compile", ->
     .bundle()
     .on("error", notify.onError(error))
     .pipe(source("d3plus.js"))
+    .pipe(chmod(644))
     .pipe(gulp.dest("./"))
     .pipe(rename("d3plus.min.js"))
     .pipe(streamify(uglify()))
+    .pipe(chmod(644))
     .pipe(gulp.dest("./"))
     .on("error", notify.onError(error))
 
@@ -27,9 +30,11 @@ gulp.task "compile", ->
     .bundle()
     .on("error", notify.onError(error))
     .pipe(source("d3plus.full.js"))
+    .pipe(chmod(644))
     .pipe(gulp.dest("./"))
     .pipe(rename("d3plus.full.min.js"))
     .pipe(streamify(uglify()))
+    .pipe(chmod(644))
     .pipe(gulp.dest("./"))
     .pipe(timer("Total Build Time"))
     .pipe(notify(
