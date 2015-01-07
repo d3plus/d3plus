@@ -16,5 +16,5 @@ scan = (type) ->
       project: project
       syntaxtype: type
     ))
-    .pipe(chmod(644))
+    .pipe chmod(644)
     .pipe gulp.dest("./docs")
