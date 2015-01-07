@@ -39,6 +39,7 @@ module.exports = ->
     text:      require "./methods/text.coffee"
     shape:     require "./methods/shape.coffee"
     size:      require "./methods/size.coffee"
+    valign:    require "./methods/valign.coffee"
     width:     require "./methods/width.coffee"
 
   vars.self
