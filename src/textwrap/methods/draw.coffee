@@ -1,4 +1,5 @@
-print = require "../../core/console/print.coffee"
+print        = require "../../core/console/print.coffee"
+stringFormat = require "../../string/format.js"
 
 module.exports =
   accepted: [undefined]
