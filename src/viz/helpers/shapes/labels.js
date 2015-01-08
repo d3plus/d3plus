@@ -116,8 +116,6 @@ module.exports = function( vars , group ) {
 
             var yOffset = vars.labels.valign.value === "bottom" ? t.share : 0;
 
-            console.log(t.w, t.padding)
-
             textWrap()
               .align(vars.labels.align.value)
               .container( d3.select(this) )
@@ -145,7 +143,7 @@ module.exports = function( vars , group ) {
         var a = t.angle || 0,
             x = t.translate && t.translate.x ? t.translate.x : 0,
             y = t.translate && t.translate.y ? t.translate.y : 0;
-        console.log(translate)
+
         return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")" + translate;
       });
 

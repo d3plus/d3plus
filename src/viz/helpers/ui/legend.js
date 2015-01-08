@@ -241,31 +241,23 @@ module.exports = function(vars) {
                     .attr("font-size",vars.legend.font.size+"px")
                     .attr("font-weight",vars.legend.font.weight)
                     .attr("font-family",vars.legend.font.family.value)
-                    .style("text-anchor","start")
                     .attr("fill",textColor(color))
                     .attr("x",0)
                     .attr("y",0)
                     .each(function(t){
 
                       textWrap()
+                        .align("middle")
                         .container( d3.select(this) )
-                        .height( square_size - vars.ui.padding * 2 )
+                        .height(square_size)
+                        .padding(vars.ui.padding)
                         .resize( vars.labels.resize.value )
                         .text( names[0] )
-                        .width( square_size - vars.ui.padding * 2 )
+                        .width(square_size)
+                        .valign("middle")
                         .draw();
 
                     })
-                    .attr("y",function(t){
-                      var h = this.getBBox().height,
-                          diff = parseFloat(d3.select(this).style("font-size"),10)/5;
-                      return square_size/2 - h/2 - diff/2;
-                    })
-                    .selectAll("tspan")
-                      .attr("x",function(t){
-                        var w = this.getComputedTextLength();
-                        return square_size/2 - w/2;
-                      });
 
                   if (text.select("tspan").empty()) {
                     text.remove();

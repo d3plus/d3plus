@@ -14,7 +14,7 @@ module.exports = (vars) ->
       .attr "x", x + "px"
       .attr "dx", dx + "px"
       .attr "dy", if first and valign is "top" then "0px" else dy + "px"
-      .style "baseline-shift", if valign is "top" then "-5%" else "10%"
+      .style "baseline-shift", if valign is "top" then "-5%" else if valign is "middle" then "13%" else "10%"
       .attr "dominant-baseline", if valign is "top" then "hanging" else "alphabetical"
       .text w
 
