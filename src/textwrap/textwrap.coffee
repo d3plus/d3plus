@@ -37,6 +37,7 @@ module.exports = ->
     height:    require "./methods/height.coffee"
     padding:   require "./methods/padding.coffee"
     resize:    require "./methods/resize.coffee"
+    rotate:    require "./methods/rotate.coffee"
     text:      require "./methods/text.coffee"
     shape:     require "./methods/shape.coffee"
     size:      require "./methods/size.coffee"

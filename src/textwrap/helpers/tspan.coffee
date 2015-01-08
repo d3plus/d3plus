@@ -18,8 +18,9 @@ module.exports = (vars) ->
       .attr "dominant-baseline", if valign is "top" then "hanging" else "alphabetical"
       .text w
 
-  width = vars.width.inner
-  height = vars.height.inner
+  mirror = vars.rotate.value is -90 or vars.rotate.value is 90
+  width = if mirror then vars.height.inner else vars.width.inner
+  height = if mirror then vars.width.inner else vars.height.inner
 
   if vars.shape.value is "circle"
     anchor = "middle"
@@ -158,4 +159,14 @@ module.exports = (vars) ->
     h = lines * dy
     y = if valign is "middle" then height/2 - h/2 else height - h
 
-  vars.container.value.attr("transform","translate(0," + y + ")")
+  translate = "translate(0," + y + ")"
+  rmod = if vars.rotate.value < 0 then width else height
+  flip = vars.rotate.value is 180 or vars.rotate.value is -180
+  if flip
+    rx = vars.container.x + width/2
+    ry = vars.container.y + height/2
+  else
+    rx = vars.container.x + rmod/2
+    ry = vars.container.y + rmod/2
+  rotate = "rotate(" + vars.rotate.value + ", " + rx + ", " + ry + ")"
+  vars.container.value.attr "transform", rotate + translate
