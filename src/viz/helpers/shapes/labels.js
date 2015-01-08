@@ -51,104 +51,9 @@ module.exports = function( vars , group ) {
   //----------------------------------------------------------------------------
   style = function(text,wrap) {
 
-    function x_pos(t) {
-
-      if ( t.shape === "circle" ) {
-        return "0px";
-      }
-
-      var align = t.anchor || vars.labels.align,
-          tspan = this.tagName.toLowerCase() === "tspan",
-          share = tspan ? this.parentNode.className.baseVal == "d3plus_share" : this.className.baseVal == "d3plus_share",
-          width = d3.select(this).node().getComputedTextLength()/scale[1];
-
-      var pos;
-      if (align == "middle" || share) {
-        pos = t.x-width/2;
-      }
-      else if ((align == "end" && !rtl) || (align == "start" && rtl)) {
-        pos = t.x+(t.w-t.padding)/2-width;
-      }
-      else {
-        pos = t.x-(t.w-t.padding)/2;
-      }
-
-      if (tspan) {
-        var t_width = this.getComputedTextLength()/scale[1];
-        if (align == "middle") {
-          if (rtl) {
-            pos -= (width-t_width)/2;
-          }
-          else {
-            pos += (width-t_width)/2;
-          }
-        }
-        else if (align == "end") {
-          if (rtl) {
-            pos -= (width-t_width);
-          }
-          else {
-            pos += (width-t_width);
-          }
-        }
-      }
-
-      if (rtl) {
-        pos += width;
-      }
-
-      return pos*scale[1];
-
-    }
-
-    function y_pos(t) {
-
-      if (d3.select(this).select("tspan").empty()) {
-        return 0;
-      }
-      else {
-
-        var align = vars.labels.align,
-            height = d3.select(this).node().getBBox().height/scale[1],
-            diff = (parseFloat(d3.select(this).style("font-size"),10)/5)/scale[1],
-            y;
-
-        if (this.className.baseVal == "d3plus_share") {
-          var data = d3.select(this.parentNode).datum();
-          var pheight = data.d3plus.r ? data.d3plus.r*2 : data.d3plus.height;
-          pheight = pheight/scale[1];
-          if (align == "end") {
-            y = t.y-pheight/2+diff/2;
-          }
-          else {
-            y = t.y+pheight/2-height-diff/2;
-          }
-        }
-        else {
-
-          if (t.shape === "circle" || align === "middle" || t.valign === "center") {
-            y = t.y-height/2-diff/2;
-          }
-          else if (align == "end") {
-            y = t.y+(t.h-t.padding)/2-height+diff/2;
-          }
-          else {
-            y = t.y-(t.h-t.padding)/2-diff;
-          }
-
-        }
-
-        return y*scale[1];
-
-      }
-    }
-
     text
       .attr("font-weight",vars.labels.font.weight)
       .attr("font-family",vars.labels.font.family.value)
-      .style("text-anchor",function(t){
-        return t.shape === "circle" ? "middle" : "start";
-      })
       .attr("pointer-events",function(t){
         return t.mouse ? "auto": "none";
       })
@@ -163,10 +68,10 @@ module.exports = function( vars , group ) {
         return mix( color , legible , 0.2 , opacity );
 
       })
-      .attr("x",x_pos)
-      .attr("y",y_pos);
 
     if (wrap) {
+
+      var salign = vars.labels.valign.value === "bottom" ? "top" : "bottom"
 
       text
         .each(function(t){
@@ -184,61 +89,65 @@ module.exports = function( vars , group ) {
               resize = t.resize;
             }
 
+            var y = t.y - t.h*scale[1]/2 + t.padding/2
+            if (salign === "bottom") y += (t.h * scale[1])/2
+
             textWrap()
-              .container( d3.select(this) )
-              .height( t.h*scale[0]-t.padding )
+              .align("center")
+              .container(d3.select(this))
+              .height((t.h * scale[1])/2)
+              .padding(t.padding/2)
               .resize( resize )
               .size( size )
               .text( vars.format.value(t.text*100,"share")+"%" , vars)
-              .width( t.w*scale[0]-t.padding )
+              .width(t.w * scale[1])
+              .valign(salign)
+              .x(t.x - t.w*scale[1]/2 + t.padding/2)
+              .y(y)
               .draw();
 
           }
           else {
-
-            var height;
-            if (vars.labels.align !== "middle" && t.share) {
-              height = t.h * scale[1] - t.padding/2 - t.share;
-            }
-            else {
-              height = t.h * scale[1] - t.padding;
-            }
 
             if ( !(t.resize instanceof Array) ) {
               size = [7, 40*(scale[1]/scale[0])];
               resize = t.resize;
             }
 
-            var shape = t.shape || "square";
+            var yOffset = vars.labels.valign.value === "bottom" ? t.share : 0;
+
+            console.log(t.padding,t.w, scale[1])
 
             textWrap()
+              .align(vars.labels.align.value)
               .container( d3.select(this) )
-              .height( height )
+              .height(t.h * scale[1] - t.share)
+              .padding(t.padding/2)
               .resize( resize )
               .size( size )
-              .shape( shape )
+              .shape(t.shape || "square")
               .text( t.names )
-              .width( t.w*scale[1] - t.padding )
+              .valign(vars.labels.valign.value)
+              .width(t.w * scale[1])
+              .x(t.x - t.w*scale[1]/2 + t.padding/2)
+              .y(t.y - t.h*scale[1]/2 + t.padding/2 + yOffset)
               .draw();
 
           }
 
-        })
-        .attr("x",x_pos)
-        .attr("y",y_pos);
+        });
 
     }
 
     text
       .attr("transform",function(t){
+        var translate = d3.select(this).attr("transform") || "";
         var a = t.angle || 0,
             x = t.translate && t.translate.x ? t.translate.x : 0,
             y = t.translate && t.translate.y ? t.translate.y : 0;
 
-        return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")";
-      })
-      .selectAll("tspan")
-        .attr("x",x_pos);
+        return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")" + translate;
+      });
 
   };
 
@@ -284,7 +193,7 @@ module.exports = function( vars , group ) {
 
       if (!disabled && (background || !fill)) {
 
-        if (share && d.d3plus.share && vars.labels.align != "middle") {
+        if (share && d.d3plus.share && vars.labels.valign.value != "middle") {
 
           share.resize = vars.labels.resize.value === false ? false :
             share && "resize" in share ? share.resize : true;

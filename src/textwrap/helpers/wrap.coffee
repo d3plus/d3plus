@@ -31,19 +31,19 @@ resize = (vars) ->
 
   # Start by trying the largest font size
   sizeMax   = Math.floor(vars.size.value[1])
-  lineWidth = if vars.shape.value is "circle" then vars.width.value * 0.785 else vars.width.value
+  lineWidth = if vars.shape.value is "circle" then vars.width.inner * 0.75 else vars.width.inner
   sizes     = fontSizes words, {"font-size": sizeMax + "px"}, {parent: vars.container.value}
   maxWidth  = d3.max sizes, (d) -> d.width
-  areaMod   = 1.165 + (vars.width.value / vars.height.value * 0.037)
+  areaMod   = 1.165 + (vars.width.inner / vars.height.inner * 0.11)
   textArea  = d3.sum(sizes, (d) ->
-      h = vars.container.dy or d.height
+      h = vars.container.dy or sizeMax * 1.1
       d.width * h
     ) * areaMod
 
   if vars.shape.value is "circle"
-    boxArea = Math.PI * Math.pow(vars.width.value / 2, 2)
+    boxArea = Math.PI * Math.pow(vars.width.inner / 2, 2)
   else
-    boxArea = lineWidth * vars.height.value
+    boxArea = lineWidth * vars.height.inner
 
   if maxWidth > lineWidth or textArea > boxArea
     areaRatio  = Math.sqrt(boxArea / textArea)
@@ -51,7 +51,7 @@ resize = (vars) ->
     sizeRatio  = d3.min [areaRatio, widthRatio]
     sizeMax    = d3.max [vars.size.value[0], Math.floor(sizeMax * sizeRatio)]
 
-  heightMax = Math.floor(vars.height.value * 0.8)
+  heightMax = Math.floor(vars.height.inner * 0.8)
   sizeMax   = heightMax if sizeMax > heightMax
 
   if maxWidth * (sizeMax / vars.size.value[1]) <= lineWidth

@@ -3,9 +3,9 @@
 #------------------------------------------------------------------------------
 module.exports = (vars) ->
 
-  newLine = (w, append) ->
+  newLine = (w, first) ->
     w = "" unless w
-    if not reverse or append
+    if not reverse or first
       tspan = vars.container.value.append("tspan")
     else
       tspan = vars.container.value.insert("tspan", "tspan")
@@ -13,39 +13,46 @@ module.exports = (vars) ->
     tspan
       .attr "x", x + "px"
       .attr "dx", dx + "px"
-      .attr "dy", dy + "px"
-      .style "baseline-shift", if valign is "middle" then "-32%" else "10%"
+      .attr "dy", if first and valign is "top" then "0px" else dy + "px"
+      .style "baseline-shift", if valign is "top" then "-5%" else "10%"
+      .attr "dominant-baseline", if valign is "top" then "hanging" else "alphabetical"
       .text w
+
+  width = vars.width.inner
+  height = vars.height.inner
 
   if vars.shape.value is "circle"
     anchor = "middle"
-    dx = 0
   else
     anchor = vars.align.value or vars.container.align or "start"
-    if anchor is "end"
-      dx = vars.width.value
-    else if anchor is "middle"
-      dx = vars.width.value/2
-    else
-      dx = 0
+
+  if anchor is "end"
+    dx = width
+  else if anchor is "middle"
+    dx = width/2
+  else
+    dx = 0
 
   valign   = vars.valign.value or "top"
-  x        = parseFloat(vars.container.value.attr("x"), 10) or 0
+  x        = vars.container.x
   fontSize = if vars.resize.value then vars.size.value[1] else vars.container.fontSize or vars.size.value[0]
-  dy       = vars.container.dy or fontSize
+  dy       = vars.container.dy or fontSize * 1.1
   textBox  = null
   progress = null
   reverse  = false
   yOffset = 0
   if vars.shape.value is "circle"
     if valign is "middle"
-      yOffset = ((vars.height.value/dy % 1) * dy)/2
+      yOffset = ((height/dy % 1) * dy)/2
     else if valign is "end"
-      yOffset = (vars.height.value/dy % 1) * dy
+      yOffset = (height/dy % 1) * dy
 
   vars.container.value
     .attr "text-anchor", anchor
     .attr "font-size", fontSize + "px"
+    .style "font-size", fontSize + "px"
+    .attr "x", vars.container.x
+    .attr "y", vars.container.y
 
   truncate = ->
     textBox.remove()
@@ -62,10 +69,10 @@ module.exports = (vars) ->
   lineWidth = () ->
     if vars.shape.value is "circle"
       b = ((line - 1) * dy) + yOffset
-      b += dy if b > vars.height.value/2
-      (2 * Math.sqrt(b * ((2 * (vars.width.value / 2)) - b)))
+      b += dy if b > height/2
+      (2 * Math.sqrt(b * ((2 * (width / 2)) - b)))
     else
-      vars.width.value
+      width
 
   ellipsis = ->
     if words and words.length
@@ -117,7 +124,7 @@ module.exports = (vars) ->
 
     for word in words
 
-      if line * dy > vars.height.value
+      if line * dy > height
         truncate()
         break
 
@@ -135,26 +142,20 @@ module.exports = (vars) ->
 
   lines = line
   if vars.shape.value is "circle"
-    space = vars.height.value - lines * dy
+    space = height - lines * dy
     if space > dy
       if valign is "middle"
         start = (space/dy/2 >> 0) + 1
         wrap()
       else if valign is "bottom"
         reverse = true
-        start = (vars.height.value/dy >> 0)
+        start = (height/dy >> 0)
         wrap()
 
   if valign is "top"
     y = 0
   else
     h = lines * dy
-    yOffset = (vars.height.value/dy % 1) * dy
-    if valign is "middle"
-      yOffset /= 2
-      y = vars.height.value/2 - h/2
-    else
-      y = vars.height.value - h
-    y -= yOffset if vars.shape.value is "circle"
+    y = if valign is "middle" then height/2 - h/2 else height - h
 
   vars.container.value.attr("transform","translate(0," + y + ")")

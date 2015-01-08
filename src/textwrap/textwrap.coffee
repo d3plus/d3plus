@@ -35,11 +35,14 @@ module.exports = ->
     draw:      require "./methods/draw.coffee"
     format:    require "./methods/format.coffee"
     height:    require "./methods/height.coffee"
+    padding:   require "./methods/padding.coffee"
     resize:    require "./methods/resize.coffee"
     text:      require "./methods/text.coffee"
     shape:     require "./methods/shape.coffee"
     size:      require "./methods/size.coffee"
     valign:    require "./methods/valign.coffee"
     width:     require "./methods/width.coffee"
+    x:         require "./methods/x.coffee"
+    y:         require "./methods/y.coffee"
 
   vars.self

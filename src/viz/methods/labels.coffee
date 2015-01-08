@@ -4,7 +4,13 @@ transform  = require "../../core/methods/font/transform.coffee"
 
 module.exports =
   accepted: [Boolean]
-  align:    "middle"
+  align:
+    accepted: ["start", "middle", "end", "left", "center", "right"]
+    process: (value) ->
+      css = ["left", "center", "right"].indexOf(value)
+      value = @accepted[css] if css >= 0
+      value
+    value: "middle"
   font:
     decoration: decoration()
     family:     family()
@@ -19,4 +25,7 @@ module.exports =
     accepted: [false, Function, String]
     value:    false
   segments: 2
+  valign:
+    accepted: [false, "top", "middle", "bottom"]
+    value:    "middle"
   value:    true
