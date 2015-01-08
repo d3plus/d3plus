@@ -14,7 +14,7 @@ module.exports = (vars) ->
       .attr "x", x + "px"
       .attr "dx", dx + "px"
       .attr "dy", dy + "px"
-      .attr "dominant-baseline", if valign is "middle" then "central" else "ideographic"
+      .style "baseline-shift", if valign is "middle" then "-32%" else "10%"
       .text w
 
   if vars.shape.value is "circle"
@@ -107,6 +107,7 @@ module.exports = (vars) ->
   words = null
   wrap  = ->
 
+    vars.container.value.selectAll("tspan").remove()
     vars.container.value.html ""
     words    = vars.text.words.slice(0)
     words.reverse() if reverse
