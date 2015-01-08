@@ -142,46 +142,6 @@ module.exports = function(vars) {
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // Title positioning
-  //----------------------------------------------------------------------------
-  function position(title) {
-
-    title
-      .style("text-anchor",function(t){
-
-        var align = t.style.font.align
-
-        if (align == "center") {
-          return "middle"
-        }
-        else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
-          return "start"
-        }
-        else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
-          return "end"
-        }
-
-      })
-      .attr("x",function(t){
-
-        var align = t.style.font.align
-
-        if (align == "center") {
-          return vars.width.value/2
-        }
-        else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
-          return vars.padding
-        }
-        else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
-          return vars.width.value-vars.padding
-        }
-
-      })
-      .attr("y",0)
-
-  }
-
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Enter Titles
   //----------------------------------------------------------------------------
   function style(title) {
@@ -227,7 +187,6 @@ module.exports = function(vars) {
       return "translate(0,"+y+")"
     })
     .append("text")
-      .call(position)
       .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -236,12 +195,27 @@ module.exports = function(vars) {
   titles
     .each(function(d){
 
+      var container = d3.select(this).select("text").call(style);
+
+      var align = d.style.font.align
+
+      if (align == "center") {
+        align = "middle"
+      }
+      else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
+        align = "start"
+      }
+      else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
+        align = "end"
+      }
+
       textWrap()
-        .container( d3.select(this).select("text") )
-        .height( vars.height.value / 8 )
+        .align(align)
+        .container(container)
+        .height(vars.height.value / 8)
         .size(false)
-        .text( d.value )
-        .width( titleWidth )
+        .text(d.value)
+        .width(titleWidth)
         .draw()
 
       d.y = vars.margin[d.style.position]
@@ -289,9 +263,6 @@ module.exports = function(vars) {
         }
         return "translate(0,"+y+")"
       })
-      .select("text")
-        .call(position)
-        .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Exit unused titles
