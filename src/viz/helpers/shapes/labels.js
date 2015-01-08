@@ -116,8 +116,6 @@ module.exports = function( vars , group ) {
 
             var yOffset = vars.labels.valign.value === "bottom" ? t.share : 0;
 
-            console.log(t.padding,t.w, scale[1])
-
             textWrap()
               .align(vars.labels.align.value)
               .container( d3.select(this) )
