@@ -53,7 +53,7 @@ module.exports = function(vars, obj, depth) {
       if ( name.length ) {
         if (name.length > 1) {
           name = name.filter(function(n){
-            return (n instanceof Array) || (n.indexOf(" < ") < 0);
+            return (n instanceof Array) || (typeof n === "string" && n.indexOf(" < ") < 0);
           });
         }
         name = name.map(function(n){
