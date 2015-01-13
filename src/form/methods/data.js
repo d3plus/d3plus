@@ -58,7 +58,7 @@ module.exports = {
   "solo"     : [],
   "sort": {
     "accepted": [Boolean],
-    "value":    true
+    "value":    false
   },
   "value"    : false
 };
