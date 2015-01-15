@@ -115,21 +115,19 @@ module.exports = function(vars) {
     var new_opacity = (data_req && vars.data.viz.length === 0) ||
                        vars.error.internal || vars.error.value ? 0 : vars.focus.value.length &&
                        vars.types[vars.type.value].zoom && vars.zoom.value ?
-                       1 - vars.tooltip.curtain.opacity : 1,
-        old_opacity = vars.group.attr("opacity")
+                       1 - vars.tooltip.curtain.opacity : 1;
 
-    if (new_opacity != old_opacity) {
+    var timing = vars.draw.timing;
 
-      var timing = vars.draw.timing
+    vars.group.transition().duration(timing)
+      .attr("opacity",new_opacity);
 
-      vars.group.transition().duration(timing)
-        .attr("opacity",new_opacity)
-      vars.g.data.transition().duration(timing)
-        .attr("opacity",new_opacity)
-      vars.g.edges.transition().duration(timing)
-        .attr("opacity",new_opacity)
+    vars.g.data.transition().duration(timing)
+      .attr("opacity",new_opacity);
 
-    }
+    vars.g.edges.transition().duration(timing)
+      .attr("opacity",new_opacity);
+
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
