@@ -1,6 +1,9 @@
 # Updates an array, either overwriting it with a new array, removing an entry
 module.exports = (arr, x) ->
 
+  # Return original array if the user has passed `undefined`
+  return arr if x is undefined
+
   # Return an empty array if the user has passed `false`
   return [] if x is false
 
