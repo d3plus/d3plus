@@ -33182,7 +33182,7 @@ module.exports = function( vars , group ) {
 
     elem
       .attr("opacity",function(d){
-        if (vars.draw.timing) return 1;
+        // if (vars.draw.timing) return 1;
         var size = parseFloat(d3.select(this).attr("font-size"),10);
         d.visible = size * (vars.zoom.scale/scale[1]) >= 2;
         return d.visible ? 1 : 0;
@@ -33305,7 +33305,8 @@ module.exports = function( vars , group ) {
             x = t.translate && t.translate.x ? t.translate.x : 0,
             y = t.translate && t.translate.y ? t.translate.y : 0;
 
-        return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")" + translate;
+        return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")translate("+(t.x*scale[1]-t.x)+","+(t.y*scale[1]-t.y)+")" + translate;
+
       });
 
   };
@@ -33454,8 +33455,8 @@ module.exports = function( vars , group ) {
               .attr("opacity",0)
               .call(style,true)
               .transition().duration(vars.draw.timing/2)
-              .delay(vars.draw.timing/2)
-              .call(opacity);
+                .delay(vars.draw.timing/2)
+                .call(opacity);
 
           }
           else {
