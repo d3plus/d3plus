@@ -33305,6 +33305,10 @@ module.exports = function( vars , group ) {
             x = t.translate && t.translate.x ? t.translate.x : 0,
             y = t.translate && t.translate.y ? t.translate.y : 0;
 
+        if (translate.length) {
+          translate = translate.split(")").slice(-3).join(")");
+        }
+
         return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")translate("+(t.x*scale[1]-t.x)+","+(t.y*scale[1]-t.y)+")" + translate;
 
       });
