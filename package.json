@@ -1,6 +1,6 @@
 {
   "name": "d3plus",
-  "version": "1.6.8",
+  "version": "1.6.9",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "d3plus.js",
   "devDependencies": {

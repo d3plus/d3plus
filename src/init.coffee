@@ -13,7 +13,7 @@ module.exports = d3plus
 # @type String
 # @static
 ###
-d3plus.version = "1.6.8 - Turquoise"
+d3plus.version = "1.6.9 - Turquoise"
 
 ###*
 # The URL for the repo, used internally for certain error messages.

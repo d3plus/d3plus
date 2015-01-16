@@ -23,7 +23,7 @@ module.exports = d3plus;
  * @static
  */
 
-d3plus.version = "1.6.8 - Turquoise";
+d3plus.version = "1.6.9 - Turquoise";
 
 
 /**
@@ -20070,8 +20070,8 @@ module.exports = function(a, b, keys, sort, colors, vars, depth) {
 module.exports = function(arr, value) {
   var constructor;
   if (arr instanceof Array) {
-    constructor = value === void 0 ? value : value.constructor;
-    return arr.indexOf(value) >= 0 || (value !== void 0 && arr.indexOf(constructor) >= 0);
+    constructor = value === void 0 || value === null ? value : value.constructor;
+    return arr.indexOf(value) >= 0 || arr.indexOf(constructor) >= 0;
   } else {
     return false;
   }
@@ -20109,6 +20109,9 @@ module.exports = function(arr, keys, sort, colors, vars, depth) {
 
 },{"../core/fetch/sort.coffee":69,"./comparator.coffee":38}],41:[function(require,module,exports){
 module.exports = function(arr, x) {
+  if (x === void 0) {
+    return arr;
+  }
   if (x === false) {
     return [];
   }
@@ -24537,7 +24540,7 @@ module.exports = {
   "solo"     : [],
   "sort": {
     "accepted": [Boolean],
-    "value":    true
+    "value":    false
   },
   "value"    : false
 };
@@ -30624,21 +30627,19 @@ module.exports = function(vars) {
     var new_opacity = (data_req && vars.data.viz.length === 0) ||
                        vars.error.internal || vars.error.value ? 0 : vars.focus.value.length &&
                        vars.types[vars.type.value].zoom && vars.zoom.value ?
-                       1 - vars.tooltip.curtain.opacity : 1,
-        old_opacity = vars.group.attr("opacity")
+                       1 - vars.tooltip.curtain.opacity : 1;
 
-    if (new_opacity != old_opacity) {
+    var timing = vars.draw.timing;
 
-      var timing = vars.draw.timing
+    vars.group.transition().duration(timing)
+      .attr("opacity",new_opacity);
 
-      vars.group.transition().duration(timing)
-        .attr("opacity",new_opacity)
-      vars.g.data.transition().duration(timing)
-        .attr("opacity",new_opacity)
-      vars.g.edges.transition().duration(timing)
-        .attr("opacity",new_opacity)
+    vars.g.data.transition().duration(timing)
+      .attr("opacity",new_opacity);
 
-    }
+    vars.g.edges.transition().duration(timing)
+      .attr("opacity",new_opacity);
+
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
