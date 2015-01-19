@@ -6,5 +6,5 @@ module.exports =
   deprecates: ["sort"]
   sort:
     accepted:   ["asc", "desc"]
-    value:      "asc"
+    value:      "desc"
   value:    false
