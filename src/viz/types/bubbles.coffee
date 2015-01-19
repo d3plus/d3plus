@@ -8,6 +8,7 @@ groupData  = require("../../core/data/group.coffee")
 bubbles = (vars) ->
 
   groupedData = groupData vars, vars.data.viz
+  groupedData = arraySort groupedData, null, null, null, vars
 
   # Calculate rows and columns
   dataLength = groupedData.length
@@ -61,12 +62,11 @@ bubbles = (vars) ->
     yoffset = column_height * row
 
     for t in temp
-      obj = t.d3plus or d3plus: {}
-      if t.d3plus
-        obj = t.d3plus
-      else
+      if t.children
         obj = d3plus: {}
         obj[vars.id.value] = t.key
+      else
+        obj = t.d3plus
       obj.d3plus.depth = if vars.id.grouping.value then t.depth else vars.depth.value
       obj.d3plus.x = t.x
       obj.d3plus.xOffset = xoffset

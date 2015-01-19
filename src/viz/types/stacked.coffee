@@ -14,7 +14,7 @@ stacked = (vars) ->
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
 
-  data = nest vars
+  data = sort nest(vars), null, null, null, vars
 
   # Assign x and y to each data point
   for point in data
@@ -32,12 +32,7 @@ stacked = (vars) ->
         point.d3plus.merged = point.d3plus.merged.concat(d.d3plus.merged)
       point.d3plus.text = d.d3plus.text if d.d3plus.text and !point.d3plus.text
 
-  data      = stack vars, data
-  order     = vars.order.value or vars.size.value or vars.id.value
-  sortOrder = if vars.order.sort.value is "desc" then "asc" else "desc"
-
-  # Return the data, sorted
-  sort data, order, sortOrder, vars.color.value or [], vars
+  stack vars, data
 
 # Visualization Settings and Helper Functions
 stacked.filter = (vars, data) ->
