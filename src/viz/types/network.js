@@ -46,19 +46,19 @@ var network = function(vars) {
     else {
 
       var width = (x_range[1]+max_size*1.1)-(x_range[0]-max_size*1.1),
-          height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1)
+          height = (y_range[1]+max_size*1.1)-(y_range[0]-max_size*1.1),
           aspect = width/height,
-          app = vars.width.viz/vars.height.viz
+          app = vars.width.viz/vars.height.viz;
 
       if ( app > aspect ) {
-        var scale = vars.height.viz/height
+        var scale = vars.height.viz/height;
       }
       else {
-        var scale = vars.width.viz/width
+        var scale = vars.width.viz/width;
       }
-      var min_size = max_size * 0.25
+      var min_size = max_size * 0.25;
       if ( min_size * scale < 2 ) {
-        min_size = 2/scale
+        min_size = 2/scale;
       }
 
     }
