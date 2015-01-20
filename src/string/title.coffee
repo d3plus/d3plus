@@ -15,21 +15,24 @@ module.exports = (text, key, vars, data) ->
 
   text.replace /\S*/g, (txt, i) ->
 
-    bigindex = biglow.indexOf(txt.toLowerCase())
-    prefix = txt.charAt(0).search(/[\W\s]/g) is 0
+    if txt
 
-    if prefix
-      prefix = txt.charAt(0)
-      txt = txt.slice(1)
-    else
-      prefix = ""
+      bigindex = biglow.indexOf(txt.toLowerCase())
 
-    if bigindex >= 0
-      new_txt = bigs[bigindex]
-    else if smalls.indexOf(txt.toLowerCase()) >= 0 and
-            i isnt 0 and i isnt text.length - 1
-      new_txt = txt.toLowerCase()
-    else
-      new_txt = txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+      if /^[^\W\s]/.test(txt)
+        prefix = ""
+      else
+        prefix = txt.charAt(0)
+        txt = txt.slice(1)
 
-    prefix + new_txt
+      if bigindex >= 0
+        new_txt = bigs[bigindex]
+      else if smalls.indexOf(txt.toLowerCase()) >= 0 and
+              i isnt 0 and i isnt text.length - 1
+        new_txt = txt.toLowerCase()
+      else
+        new_txt = txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+
+      prefix + new_txt
+
+    else ""
