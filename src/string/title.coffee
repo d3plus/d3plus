@@ -16,7 +16,7 @@ module.exports = (text, key, vars, data) ->
   text.replace /\S*/g, (txt, i) ->
 
     bigindex = biglow.indexOf(txt.toLowerCase())
-    prefix = txt.charAt(0).search(/[^A-Za-z0-9\-_]/g) is 0
+    prefix = txt.charAt(0).search(/[\W\s]/g) is 0
 
     if prefix
       prefix = txt.charAt(0)
