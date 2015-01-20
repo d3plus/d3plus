@@ -49,12 +49,12 @@ module.exports = function( vars , rawData , split ) {
     nest
       .rollup(function(leaves){
         var total = leaves.length;
-        if (vars.aggs[vars.size.value]) {
-          if (typeof vars.aggs[vars.size.value] == "function") {
-            total = vars.aggs[vars.size.value](leaves);
+        if (vars.aggs.value[vars.size.value]) {
+          if (typeof vars.aggs.value[vars.size.value] == "function") {
+            total = vars.aggs.value[vars.size.value](leaves);
           }
-          else if (typeof vars.aggs[vars.size.value] == "string") {
-            total = d3[vars.aggs[vars.size.value]](leaves,function(l){
+          else if (typeof vars.aggs.value[vars.size.value] == "string") {
+            total = d3[vars.aggs.value[vars.size.value]](leaves,function(l){
               return fetchValue(vars,l,vars.size.value);
             });
           }

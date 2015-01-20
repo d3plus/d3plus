@@ -115,7 +115,7 @@ valueParse = (vars, node, depth, variable, val) ->
 aggregate = (vars, arr, variable) ->
   return arr unless arr instanceof Array
   if vars.aggs and variable of vars.aggs.value
-    agg = vars.aggs[variable]
+    agg = vars.aggs.value[variable]
     if typeof agg is "function"
       return agg(arr)
     else
