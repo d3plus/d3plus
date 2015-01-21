@@ -24,22 +24,16 @@ module.exports = function(vars,selection,enter,exit) {
   var arc = d3.svg.arc()
     .startAngle(0)
     .endAngle(function(d){
-      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a
+      var a = vars.arcs[d.d3plus.shape][d.d3plus.id].a;
       return a > Math.PI*2 ? Math.PI*2 : a;
     })
     .innerRadius(function(d){
-      if (shape == "donut" && !d.d3plus.static) {
-        var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
-        return r * vars.data.donut.size
-      }
-      else {
-        return 0
-      }
+      if (d.d3plus.static) return 0;
+      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
+      return r * vars.data.donut.size;
     })
     .outerRadius(function(d){
-      var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r
-      if (d.d3plus.shape != "donut") return r*2
-      else return r
+      return vars.arcs[d.d3plus.shape][d.d3plus.id].r;
     })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -57,7 +51,7 @@ module.exports = function(vars,selection,enter,exit) {
       else var a = ang
       if (!vars.arcs[d.d3plus.shape][d.d3plus.id]) {
         vars.arcs[d.d3plus.shape][d.d3plus.id] = {"r": 0}
-        vars.arcs[d.d3plus.shape][d.d3plus.id].a = d.d3plus.shape == "donut" ? Math.PI * 2 : 0
+        vars.arcs[d.d3plus.shape][d.d3plus.id].a = Math.PI * 2
       }
       var radius = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].r,r+mod),
           angle = d3.interpolate(vars.arcs[d.d3plus.shape][d.d3plus.id].a,a)
@@ -72,8 +66,7 @@ module.exports = function(vars,selection,enter,exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Exit
   //----------------------------------------------------------------------------
-  exit.selectAll("path.d3plus_data")
-  .transition().duration(vars.draw.timing)
+  exit.selectAll("path.d3plus_data").transition().duration(vars.draw.timing)
     .call(size,0,0)
     .each("end",function(d){
       delete vars.arcs[d.d3plus.shape][d.d3plus.id]
@@ -96,5 +89,8 @@ module.exports = function(vars,selection,enter,exit) {
     .transition().duration(0)
       .call(size,0,0)
       .call(shapeStyle,vars)
+      .transition().duration(vars.draw.timing)
+        .call(size)
+        .call(shapeStyle,vars)
 
 }

@@ -86,7 +86,7 @@ module.exports = function(vars,selection,enter,exit) {
       return a > Math.PI*2 ? Math.PI*2 : a;
     })
     .innerRadius(function(d){
-      if (d.d3plus.shape === "donut" && !d.d3plus.static) {
+      if (!d.d3plus.static) {
         var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
         return r * vars.data.donut.size;
       }
@@ -96,8 +96,7 @@ module.exports = function(vars,selection,enter,exit) {
     })
     .outerRadius(function(d){
       var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
-      if (d.d3plus.shape != "donut") return r*2;
-      else return r;
+      return r*2;
     });
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -264,10 +263,11 @@ module.exports = function(vars,selection,enter,exit) {
       .attr("class","d3plus_fill")
       .attr("clip-path","url(#d3plus_clip_"+d.d3plus.id+")")
       .transition().duration(0)
+        .call(shapeStyle,vars)
         .call(size,0,undefined,0)
         .transition().duration(vars.draw.timing)
-          .call(shapeStyle,vars)
-          .call(size);
+          .call(size)
+          .call(shapeStyle,vars);
 
     fills.exit().transition().duration(vars.draw.timing)
       .call(size,0,undefined,0)
