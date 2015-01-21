@@ -1,5 +1,6 @@
-mix      = require "../../../../../color/mix.coffee"
-textwrap = require "../../../../../textwrap/textwrap.coffee"
+mix         = require "../../../../../color/mix.coffee"
+textwrap    = require "../../../../../textwrap/textwrap.coffee"
+validObject = require "../../../../../object/validate.coffee"
 
 module.exports = (vars) ->
 
@@ -281,11 +282,11 @@ module.exports = (vars) ->
       lineData = []
 
       for line in vars[axis].lines.value
-        d = if typeof line is "object" then line.position else line
+        d = if validObject(line) then line.position else line
         unless isNaN(d)
           d = parseFloat(d)
           if d > domain[0] and d < domain[1]
-            d = unless typeof line is "object" then {"position": d} else line
+            d = unless validObject(line) then {"position": d} else line
             d.coords =
               line: vars[axis].scale.viz(d.position)
             lineData.push d
