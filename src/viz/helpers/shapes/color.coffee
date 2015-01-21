@@ -3,7 +3,7 @@ fetchColor = require "../../../core/fetch/color.coffee"
 lighter    = require "../../../color/lighter.coffee"
 
 # Returns the correct fill color for a node
-module.exports = (d, vars) ->
+module.exports = (d, vars, stroke) ->
 
   shape = d.d3plus.shape or vars.shape.value
 
@@ -14,7 +14,10 @@ module.exports = (d, vars) ->
           vars.shape.value is "line"
     return fetchColor(vars, d)
   else if shape is "temp"
-    return "url(#d3plus_hatch_" + d.d3plus.id + ")"
+    if stroke
+      return fetchColor(vars, d)
+    else
+      return "url(#d3plus_hatch_" + d.d3plus.id + ")"
   else if d.d3plus.static
     return lighter fetchColor(vars, d), .75
 

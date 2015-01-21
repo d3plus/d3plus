@@ -10,7 +10,7 @@ module.exports = (nodes, vars) ->
       if d.d3plus and d.d3plus.stroke
         d.d3plus.stroke
       else
-        c = if d.values then color(d.values[0], vars) else color(d, vars)
+        c = if d.values then color(d.values[0], vars) else color(d, vars, true)
         d3.rgb(c).darker 0.6
     .style "stroke-width", (d) ->
       mod = if d.d3plus.shape is "line" then 2 else 1

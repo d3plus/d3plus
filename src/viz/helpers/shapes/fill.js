@@ -96,7 +96,7 @@ module.exports = function(vars,selection,enter,exit) {
     })
     .outerRadius(function(d){
       var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
-      return r*2;
+      return vars.shape.value === "donut" ? r : r*2;
     });
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
