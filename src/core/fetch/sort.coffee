@@ -9,17 +9,16 @@ module.exports = (vars, d, keys, colors, depth) ->
   depth  = vars.id.nesting.indexOf(depth) if vars and depth isnt undefined and typeof depth isnt "number"
 
   obj = {}
-  i   = 0
 
-  while i < keys.length
-
-    key = keys[i]
+  for key in keys
 
     if vars
       if colors.indexOf(key) >= 0
         value = fetchColor vars, d, depth
+      else if key is vars.text.value
+        value = fetchText vars, d, depth
       else
-        value = if key is vars.text.value then fetchText vars, d, depth else fetchValue vars, d, key, depth
+        value = fetchValue vars, d, key, depth
     else
       value = d[key]
 
@@ -27,7 +26,5 @@ module.exports = (vars, d, keys, colors, depth) ->
     value = if typeof value is "string" then value.toLowerCase() else value
 
     obj[key] = value
-
-    i++
 
   obj

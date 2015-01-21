@@ -16,6 +16,7 @@ module.exports = (arr, keys, sort, colors, vars, depth) ->
 
       for d in arr
         d.d3plus = {} unless d.d3plus
-        d.d3plus.sortKeys = fetchSort vars, d, keys, colors, depth
+        data = if "d3plus" of d and "d3plus" of d.d3plus then d.d3plus else d
+        d.d3plus.sortKeys = fetchSort vars, data, keys, colors, depth
 
     arr.sort (a, b) -> comparator a, b, keys, sort, colors, vars, depth
