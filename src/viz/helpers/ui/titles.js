@@ -184,7 +184,13 @@ module.exports = function(vars) {
     .attr("opacity",0)
     .attr("transform",function(t){
       var y = t.style.position == "top" ? 0 : vars.height.value
-      return "translate(0,"+y+")"
+      if (vars.title.width) {
+        var x = vars.width.value/2 - vars.title.width/2;
+      }
+      else {
+        var x = 0;
+      }
+      return "translate("+x+","+y+")";
     })
     .append("text")
       .call(style)
@@ -261,7 +267,13 @@ module.exports = function(vars) {
         else {
           y += t.style.padding
         }
-        return "translate(0,"+y+")"
+        if (vars.title.width) {
+          var x = vars.width.value/2 - vars.title.width/2;
+        }
+        else {
+          var x = 0;
+        }
+        return "translate("+x+","+y+")";
       })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
