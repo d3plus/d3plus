@@ -14,9 +14,8 @@ module.exports = (vars) ->
       .attr "x", x + "px"
       .attr "dx", dx + "px"
       .attr "dy", dy + "px"
-      # .attr "dy", if first and valign is "top" then "0px" else dy + "px"
       .style "baseline-shift", "0%"
-      .style "dominant-baseling", "alphabetical"
+      .style "dominant-baseline", "alphabetical"
       .text w
 
   mirror = vars.rotate.value is -90 or vars.rotate.value is 90
