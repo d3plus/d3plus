@@ -13,9 +13,10 @@ module.exports = (vars) ->
     tspan
       .attr "x", x + "px"
       .attr "dx", dx + "px"
-      .attr "dy", if first and valign is "top" then "0px" else dy + "px"
-      .style "baseline-shift", if valign is "top" then "-5%" else if valign is "middle" then "13%" else "10%"
-      .attr "dominant-baseline", if valign is "top" then "hanging" else "alphabetical"
+      .attr "dy", dy + "px"
+      # .attr "dy", if first and valign is "top" then "0px" else dy + "px"
+      .style "baseline-shift", "0%"
+      .style "dominant-baseling", "alphabetical"
       .text w
 
   mirror = vars.rotate.value is -90 or vars.rotate.value is 90
@@ -158,14 +159,14 @@ module.exports = (vars) ->
   else
     h = lines * dy
     y = if valign is "middle" then height/2 - h/2 else height - h
+  y -= dy * 0.2
 
   translate = "translate(0," + y + ")"
-  rmod = if vars.rotate.value < 0 then width else height
-  flip = vars.rotate.value is 180 or vars.rotate.value is -180
-  if flip
+  if vars.rotate.value is 180 or vars.rotate.value is -180
     rx = vars.container.x + width/2
     ry = vars.container.y + height/2
   else
+    rmod = if vars.rotate.value < 0 then width else height
     rx = vars.container.x + rmod/2
     ry = vars.container.y + rmod/2
   rotate = "rotate(" + vars.rotate.value + ", " + rx + ", " + ry + ")"
