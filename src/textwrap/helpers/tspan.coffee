@@ -15,7 +15,7 @@ module.exports = (vars) ->
       .attr "dx", dx + "px"
       .attr "dy", dy + "px"
       .style "baseline-shift", "0%"
-      .style "dominant-baseline", "alphabetical"
+      .attr "dominant-baseline", "alphabetical"
       .text w
 
   mirror = vars.rotate.value is -90 or vars.rotate.value is 90
