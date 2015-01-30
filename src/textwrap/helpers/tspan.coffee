@@ -40,8 +40,9 @@ module.exports = (vars) ->
   dy       = vars.container.dy or fontSize * 1.1
   textBox  = null
   progress = null
+  words    = null
   reverse  = false
-  yOffset = 0
+  yOffset  = 0
   if vars.shape.value is "circle"
     if valign is "middle"
       yOffset = ((height/dy % 1) * dy)/2
@@ -65,6 +66,8 @@ module.exports = (vars) ->
         textBox = d3.select(vars.container.value.node().lastChild)
     unless textBox.empty()
       words = textBox.text().match(/[^\s-]+-?/g)
+      console.log words
+      console.log "\n"
       ellipsis()
 
   lineWidth = () ->
@@ -76,6 +79,7 @@ module.exports = (vars) ->
       width
 
   ellipsis = ->
+    console.log words
     if words and words.length
       lastWord = words.pop()
       lastChar = lastWord.charAt(lastWord.length - 1)
@@ -112,7 +116,6 @@ module.exports = (vars) ->
   start = 1
   line  = null
   lines = null
-  words = null
   wrap  = ->
 
     vars.container.value.selectAll("tspan").remove()
