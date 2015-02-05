@@ -204,6 +204,13 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
 
     }
 
+    for (var lll = 0; lll < nestingLevels.length; lll++) {
+      var level = nestingLevels[lll];
+      if (!(level in returnObj)) {
+        returnObj[level] = fetchValue(vars, leaves[0], level);
+      }
+    }
+
     groupedData.push(returnObj);
 
     return returnObj;
