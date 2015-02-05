@@ -3,10 +3,12 @@
 //------------------------------------------------------------------------------
 module.exports = function(vars,message) {
 
-  var message = vars.messages.value ? message : null,
-      size = message == vars.error.internal ? "large" : vars.messages.style
+  message = vars.messages.value ? message : null;
 
-  if (size == "large") {
+  var size = vars.messages.style.value || (message === vars.error.internal ?
+             "large" : vars.messages.style.backup);
+
+  if (size === "large") {
     var font = vars.messages,
         position = "center"
   }

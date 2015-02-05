@@ -110,7 +110,7 @@ module.exports = ->
             nextStep()
         return
 
-      vars.messages.style = if vars.group and vars.group.attr("opacity") is "1" then "small" else "large"
+      vars.messages.style.backup = if vars.group and vars.group.attr("opacity") is "1" then "small" else "large"
 
       steps = getSteps vars
 

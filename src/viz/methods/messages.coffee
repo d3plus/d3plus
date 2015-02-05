@@ -12,4 +12,7 @@ module.exports =
     transform:  transform()
     weight:     200
   padding:  5
+  style:
+    accepted: [false, "small", "large"]
+    value:    false
   value:    true
