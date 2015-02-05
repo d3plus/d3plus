@@ -66,8 +66,6 @@ module.exports = (vars) ->
         textBox = d3.select(vars.container.value.node().lastChild)
     unless textBox.empty()
       words = textBox.text().match(/[^\s-]+-?/g)
-      console.log words
-      console.log "\n"
       ellipsis()
 
   lineWidth = () ->
@@ -79,7 +77,6 @@ module.exports = (vars) ->
       width
 
   ellipsis = ->
-    console.log words
     if words and words.length
       lastWord = words.pop()
       lastChar = lastWord.charAt(lastWord.length - 1)
