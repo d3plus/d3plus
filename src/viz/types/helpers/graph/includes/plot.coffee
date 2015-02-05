@@ -17,12 +17,11 @@ module.exports = (vars, opts) ->
 
     if vars[axis].ticks.values is false
       if vars[axis].value is vars.time.value
-
         ticks = vars.time.solo.value
         if ticks.length
           ticks = ticks.map (d) ->
             if d.constructor isnt Date
-              d = new Date(t.toString())
+              d = new Date(d.toString())
               d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
             d
         else
