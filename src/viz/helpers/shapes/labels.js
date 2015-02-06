@@ -49,7 +49,9 @@ module.exports = function( vars , group ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Label Styling
   //----------------------------------------------------------------------------
-  style = function(text,wrap) {
+  style = function(text) {
+
+    var salign = vars.labels.valign.value === "bottom" ? "top" : "bottom";
 
     text
       .attr("font-weight",vars.labels.font.weight)
@@ -68,76 +70,66 @@ module.exports = function( vars , group ) {
         return mix( color , legible , 0.2 , opacity );
 
       })
+      .each(function(t){
 
-    if (wrap) {
+        if (t.resize instanceof Array) {
+          var min = t.resize[0], max = t.resize[1];
+        }
 
-      var salign = vars.labels.valign.value === "bottom" ? "top" : "bottom"
+        var size = t.resize, resize = true;
 
-      text
-        .each(function(t){
+        if (t.text) {
 
-          if (t.resize instanceof Array) {
-            var min = t.resize[0], max = t.resize[1];
+          if ( !(size instanceof Array) ) {
+            size = [9, 50];
+            resize = t.resize;
           }
 
-          var size = t.resize, resize = true;
+          var y = t.y - t.h*scale[1]/2 + t.padding/2;
+          if (salign === "bottom") y += (t.h * scale[1])/2;
 
-          if (t.text) {
+          textWrap()
+            .align("center")
+            .container(d3.select(this))
+            .height((t.h * scale[1])/2)
+            .padding(t.padding/2)
+            .resize( resize )
+            .size( size )
+            .text( vars.format.value(t.text*100,"share")+"%" , vars)
+            .width(t.w * scale[1])
+            .valign(salign)
+            .x(t.x - t.w*scale[1]/2 + t.padding/2)
+            .y(y)
+            .draw();
 
-            if ( !(size instanceof Array) ) {
-              size = [9, 50];
-              resize = t.resize;
-            }
+        }
+        else {
 
-            var y = t.y - t.h*scale[1]/2 + t.padding/2
-            if (salign === "bottom") y += (t.h * scale[1])/2
-
-            textWrap()
-              .align("center")
-              .container(d3.select(this))
-              .height((t.h * scale[1])/2)
-              .padding(t.padding/2)
-              .resize( resize )
-              .size( size )
-              .text( vars.format.value(t.text*100,"share")+"%" , vars)
-              .width(t.w * scale[1])
-              .valign(salign)
-              .x(t.x - t.w*scale[1]/2 + t.padding/2)
-              .y(y)
-              .draw();
-
-          }
-          else {
-
-            if ( !(t.resize instanceof Array) ) {
-              size = [7, 40*(scale[1]/scale[0])];
-              resize = t.resize;
-            }
-
-            var yOffset = vars.labels.valign.value === "bottom" ? t.share : 0;
-
-            textWrap()
-              .align(vars.labels.align.value)
-              .container( d3.select(this) )
-              .height(t.h * scale[1] - t.share)
-              .padding(t.padding/2)
-              .resize( resize )
-              .size( size )
-              .shape(t.shape || "square")
-              .text( t.names )
-              .valign(vars.labels.valign.value)
-              .width(t.w * scale[1])
-              .x(t.x - t.w*scale[1]/2 + t.padding/2)
-              .y(t.y - t.h*scale[1]/2 + t.padding/2 + yOffset)
-              .draw();
-
+          if ( !(t.resize instanceof Array) ) {
+            size = [7, 40*(scale[1]/scale[0])];
+            resize = t.resize;
           }
 
-        });
+          var yOffset = vars.labels.valign.value === "bottom" ? t.share : 0;
 
-    }
+          textWrap()
+            .align(vars.labels.align.value)
+            .container( d3.select(this) )
+            .height(t.h * scale[1] - t.share)
+            .padding(t.padding/2)
+            .resize( resize )
+            .size( size )
+            .shape(t.shape || "square")
+            .text( t.names )
+            .valign(vars.labels.valign.value)
+            .width(t.w * scale[1])
+            .x(t.x - t.w*scale[1]/2 + t.padding/2)
+            .y(t.y - t.h*scale[1]/2 + t.padding/2 + yOffset)
+            .draw();
 
-    text
+        }
+
+      })
       .attr("transform",function(t){
         var translate = d3.select(this).attr("transform") || "";
         var a = t.angle || 0,
@@ -221,7 +213,7 @@ module.exports = function( vars , group ) {
               .attr("id","d3plus_share_"+d.d3plus.id)
               .attr("class","d3plus_share")
               .attr("opacity",0)
-              .call(style,true)
+              .call(style)
               .transition().duration(vars.draw.timing/2)
               .delay(vars.draw.timing/2)
               .attr("opacity",1);
@@ -237,7 +229,7 @@ module.exports = function( vars , group ) {
               .attr("id","d3plus_share_"+d.d3plus.id)
               .attr("class","d3plus_share")
               .attr("opacity",1)
-              .call(style,true);
+              .call(style);
 
           }
 
@@ -296,7 +288,7 @@ module.exports = function( vars , group ) {
               .attr("id","d3plus_label_"+d.d3plus.id)
               .attr("class","d3plus_label")
               .attr("opacity",0)
-              .call(style,true)
+              .call(style)
               .transition().duration(vars.draw.timing/2)
                 .delay(vars.draw.timing/2)
                 .call(opacity);
@@ -313,7 +305,7 @@ module.exports = function( vars , group ) {
               .attr("font-size",fontSize)
               .attr("id","d3plus_label_"+d.d3plus.id)
               .attr("class","d3plus_label")
-              .call(style,true)
+              .call(style)
               .call(opacity);
 
           }
