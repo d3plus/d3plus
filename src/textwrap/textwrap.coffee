@@ -15,7 +15,7 @@ module.exports = ->
 
         sizes vars
 
-        if vars.size.value[0] <= vars.height.value
+        if vars.size.value[0] <= vars.height.inner
           text vars
           wrap vars
 
