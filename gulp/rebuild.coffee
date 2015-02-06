@@ -7,14 +7,8 @@ source     = require "vinyl-source-stream"
 timer      = require "gulp-duration"
 watchify   = require "watchify"
 
-gulp.task "rebuild", ->
-
-  bundler = watchify(browserify watchify.args)
-    .add "./src/init.coffee"
-    .transform "coffeeify"
-
-  rebundle = ->
-    bundler.bundle()
+rebundle = ->
+  bundler.bundle()
     .on "error", notify.onError(error)
     .pipe source("d3plus.js")
     .pipe gulp.dest("./")
@@ -27,6 +21,9 @@ gulp.task "rebuild", ->
     .pipe connect.reload()
     .on "error", notify.onError(error)
 
-  bundler.on "update", rebundle
+bundler = watchify(browserify(watchify.args))
+  .add "./src/init.coffee"
+  .transform "coffeeify"
+  .on "update", rebundle
 
-  rebundle()
+gulp.task "rebuild", rebundle
