@@ -58,7 +58,7 @@
   },
   "homepage": "http://www.d3plus.org",
   "dependencies": {
-    "d3": "^3.5.3",
+    "d3": "^3.5.4",
     "heap": "^0.2.5",
     "numeric": "^1.2.6",
     "simplify-js": "^1.2.1",
