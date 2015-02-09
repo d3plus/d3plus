@@ -142,7 +142,12 @@ module.exports = function( vars ) {
     }
 
     vars.data.time.format = d3.locale(locale.format).timeFormat(getFormat(stepType,totalType));
-    vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi);
+    if (multi.length > 1) {
+      vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi);
+    }
+    else {
+      vars.data.time.multiFormat = vars.data.time.format
+    }
 
     vars.data.time.ticks = [];
     var min = d3.min(vars.data.time.values);

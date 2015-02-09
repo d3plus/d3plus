@@ -32,20 +32,30 @@ module.exports = (vars, data) ->
       timeVar    = availables[0].constructor is Date
       availables = availables.map((t) -> t.getTime()) if timeVar
 
-      for tick, i in ticks
+      if discrete.zerofill.value
 
-        tester = if tick.constructor is Date then tick.getTime() else tick
+        if discrete.scale.value is "log"
+          if opposite.scale.viz.domain().every((d) -> d < 0)
+            filler = -1
+          else
+            filler = 1
+        else
+          filler = 0
 
-        if availables.indexOf(tester) < 0 and discrete.zerofill.value
+        for tick, i in ticks
 
-          obj                 = {d3plus: {}}
-          for key in vars.id.nesting
-            obj[key] = leaves[0][key] if key of leaves[0]
-          obj[discrete.value] = tick
-          obj[opposite.value] = 0
-          # obj[opposite.value] = opposite.scale.viz.domain()[1]
+          tester = if tick.constructor is Date then tick.getTime() else tick
 
-          leaves.push obj
+          if availables.indexOf(tester) < 0
+
+            obj                 = {d3plus: {}}
+            for key in vars.id.nesting
+              obj[key] = leaves[0][key] if key of leaves[0]
+            obj[discrete.value] = tick
+            obj[opposite.value] = 0
+            obj[opposite.value] = filler
+
+            leaves.splice i, 0, obj
 
       if typeof leaves[0][discrete.value] is "string"
         leaves
