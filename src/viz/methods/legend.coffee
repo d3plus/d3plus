@@ -18,6 +18,9 @@ module.exports =
       value:    "asc"
     value: "color"
   size:  [8,30]
+  tooltip:
+    accepted: [Boolean]
+    value:    true
   text:
     accepted: [false, Function, String]
     value:    false

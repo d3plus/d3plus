@@ -15,6 +15,9 @@ module.exports =
     color:   "#ffffff"
     opacity: 0.8
   deprecates: "tooltip_info"
+  display:
+    accepted: [Boolean]
+    value:    true
   font:
     color:     "#444"
     family:    family()
