@@ -157,8 +157,8 @@ axisRange = (vars, axis, zero, buffer) ->
         values[0] = 1 if values[0] is 0
         values[values.length-1] = -1 if values[values.length-1] is 0
       if zero
-        allPositive = values[0] >= 0 and values[1] >= 0
-        allNegative = values[0] <= 0 and values[1] <= 0
+        allPositive = values.every (v) -> v > 0
+        allNegative = values.every (v) -> v < 0
         if allPositive or allNegative
           min = if allPositive then 1 else -1
           values.push if vars[axis].scale.value is "log" then min else 0
