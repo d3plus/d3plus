@@ -2,7 +2,7 @@ family    = require "../../core/methods/font/family.coffee"
 transform = require "../../core/methods/font/transform.coffee"
 
 module.exports =
-  accepted:   [false, Array, Function, Object, String]
+  accepted:   [Boolean, Array, Function, Object, String]
   anchor:     "top center"
   background: "#ffffff"
   children:
@@ -15,9 +15,6 @@ module.exports =
     color:   "#ffffff"
     opacity: 0.8
   deprecates: "tooltip_info"
-  display:
-    accepted: [Boolean]
-    value:    true
   font:
     color:     "#444"
     family:    family()
@@ -36,4 +33,4 @@ module.exports =
     accepted: [Boolean]
     value:    true
   small: 225
-  value: false
+  value: true

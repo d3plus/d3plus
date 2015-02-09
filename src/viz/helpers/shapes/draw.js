@@ -415,7 +415,7 @@ module.exports = function(vars) {
 
   edge_update()
 
-  if (!touch && vars.tooltip.display.value) {
+  if (!touch && vars.tooltip.value) {
 
     vars.g.data.selectAll("g")
       .on(events.over,function(d){
