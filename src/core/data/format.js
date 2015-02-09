@@ -87,66 +87,86 @@ module.exports = function( vars ) {
       }
     });
 
-    var stepType = vars.data.time.stepType,
-        totalType = vars.data.time.totalType,
+    var userFormat = vars.time.format.value,
         locale = vars.format.locale.value;
 
-    var getFormat = function(s,t,small) {
+    if (userFormat) {
 
-      if (s === t) {
-        return small && locale.timeFormat[s+"Small"] ? locale.timeFormat[s+"Small"] : locale.timeFormat[s];
+      if (typeof userFormat === "string") {
+        vars.data.time.format = d3.locale(locale.format).timeFormat(userFormat);
       }
-      else {
-        if (periods.indexOf(s) >= 4 || periods.indexOf(t) <= 3) {
-          return locale.timeFormat[t+"-"+s];
-        }
-        else {
-
-          var format;
-
-          if (t === "Date") {
-            format = locale.timeFormat[t];
-          }
-          else {
-            format = locale.timeFormat[t+"-Date"];
-          }
-
-          if (s === "Hours") {
-            return format +" "+ locale.timeFormat[s];
-          }
-          else {
-            return format +" "+ locale.timeFormat["Hours-"+s];
-          }
-
-        }
+      else if (typeof userFormat === "function") {
+        vars.data.time.format = userFormat;
       }
+      else if (userFormat instanceof Array) {
+        vars.data.time.format = d3.locale(locale.format).timeFormat.multi(multi);
+      }
+      vars.data.time.multiFormat = vars.data.time.format;
 
-    };
-
-    var multi = [],
-        functions = [
-          function(d) { return d.getMilliseconds(); },
-          function(d) { return d.getSeconds(); },
-          function(d) { return d.getMinutes(); },
-          function(d) { return d.getHours(); },
-          function(d) { return d.getDate() != 1; },
-          function(d) { return d.getMonth(); },
-          function(d) { return true; }
-        ];
-
-    for (var p = periods.indexOf(stepType); p <= periods.indexOf(totalType); p++) {
-      var prev = p-1 < periods.indexOf(stepType) ? periods[p] : periods[p-1];
-      var small = periods[p] === prev && stepType !== totalType;
-      var format = getFormat(prev,periods[p],small);
-      multi.push([format,functions[p]]);
-    }
-
-    vars.data.time.format = d3.locale(locale.format).timeFormat(getFormat(stepType,totalType));
-    if (multi.length > 1) {
-      vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi);
     }
     else {
-      vars.data.time.multiFormat = vars.data.time.format
+
+      var stepType = vars.data.time.stepType,
+          totalType = vars.data.time.totalType;
+
+      var getFormat = function(s,t,small) {
+
+        if (s === t) {
+          return small && locale.timeFormat[s+"Small"] ? locale.timeFormat[s+"Small"] : locale.timeFormat[s];
+        }
+        else {
+          if (periods.indexOf(s) >= 4 || periods.indexOf(t) <= 3) {
+            return locale.timeFormat[t+"-"+s];
+          }
+          else {
+
+            var format;
+
+            if (t === "Date") {
+              format = locale.timeFormat[t];
+            }
+            else {
+              format = locale.timeFormat[t+"-Date"];
+            }
+
+            if (s === "Hours") {
+              return format +" "+ locale.timeFormat[s];
+            }
+            else {
+              return format +" "+ locale.timeFormat["Hours-"+s];
+            }
+
+          }
+        }
+
+      };
+
+      var multi = [],
+          functions = [
+            function(d) { return d.getMilliseconds(); },
+            function(d) { return d.getSeconds(); },
+            function(d) { return d.getMinutes(); },
+            function(d) { return d.getHours(); },
+            function(d) { return d.getDate() != 1; },
+            function(d) { return d.getMonth(); },
+            function(d) { return true; }
+          ];
+
+      for (var p = periods.indexOf(stepType); p <= periods.indexOf(totalType); p++) {
+        var prev = p-1 < periods.indexOf(stepType) ? periods[p] : periods[p-1];
+        var small = periods[p] === prev && stepType !== totalType;
+        var format = getFormat(prev,periods[p],small);
+        multi.push([format,functions[p]]);
+      }
+
+      vars.data.time.format = d3.locale(locale.format).timeFormat(getFormat(stepType,totalType));
+      if (multi.length > 1) {
+        vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi);
+      }
+      else {
+        vars.data.time.multiFormat = vars.data.time.format
+      }
+
     }
 
     vars.data.time.ticks = [];

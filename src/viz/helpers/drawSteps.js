@@ -220,7 +220,7 @@ module.exports = function(vars) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Groups data by time and nesting.
     //--------------------------------------------------------------------------
-    if (vars.data.changed || vars.time.changed || vars.id.changed) {
+    if (vars.data.changed || vars.time.changed || vars.time.format.changed || vars.id.changed) {
       steps.push({ "function" : dataFormat , "message" : dataMessage })
     }
 

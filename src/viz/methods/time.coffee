@@ -9,7 +9,7 @@ module.exports =
     deprecates: ["static_axis", "static_axes"]
     value:      true
   format:
-    accepted: [false, String]
+    accepted: [false, Array, Function, String]
     value:    false
   mute:       filter(false)
   solo:       filter(false)

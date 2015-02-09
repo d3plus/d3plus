@@ -142,14 +142,12 @@ module.exports = function(vars, years, depth) {
 
     if (returnData.length === 0 && missing.length && !vars.error.internal) {
 
-      var format = vars.time.format.value || vars.data.time.format;
-
       if (missing.length > 1) {
         missing = d3.extent(missing);
       }
 
       missing = missing.map(function(m){
-        return format(new Date(m));
+        return vars.data.time.format(new Date(m));
       });
       missing = missing.join(" - ");
 

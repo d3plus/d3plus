@@ -19,8 +19,8 @@ module.exports = function(vars) {
 
     if ( vars.dev.value ) print.time("drawing timeline")
 
-    var timeFormat = vars.time.format.value || vars.data.time.format
-      , timeMultiFormat = vars.time.format.value || vars.data.time.multiFormat
+    var timeFormat = vars.data.time.format,
+        timeMultiFormat = vars.data.time.multiFormat;
 
     if ((vars.time.value == vars.x.value && vars.x.scale.value == "discrete") || (vars.time.value == vars.y.value && vars.y.scale.value == "discrete")) {
       var min_required = 2

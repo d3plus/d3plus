@@ -29,9 +29,8 @@ module.exports =
   value: (value, key, vars, data) ->
     vars = {} unless vars
     if vars.time and vars.time.value and key is vars.time.value
-      f = vars.time.format.value or vars.data.time.format
       v = (if value.constructor is Date then value else new Date(value))
-      f v
+      vars.data.time.format v
     else if typeof value is "number"
       f = @number.value or formatNumber
       f value, key, vars, data
