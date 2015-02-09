@@ -22,11 +22,9 @@ var arraySort = require("../../../array/sort.coffee"),
 module.exports = function(vars) {
 
   var key_display = true,
-      square_size = 0,
-      key = vars.color.value,
-      colorName = vars.color.value || "d3plus_color";
+      square_size = 0;
 
-  if (!vars.error.internal && key && !vars.small && vars.legend.value) {
+  if (!vars.error.internal && vars.color.value && !vars.small && vars.legend.value) {
 
     if (!vars.color.valueScale) {
 
@@ -56,9 +54,9 @@ module.exports = function(vars) {
           colorDepth = 0,
           colorKey = vars.id.value;
 
-      if (vars.id.nesting.indexOf(colorName) >= 0) {
+      if (vars.id.nesting.indexOf(vars.color.value) >= 0) {
         colorDepth = vars.id.nesting.indexOf(vars.color.value);
-        colorKey = vars.id.nesting[vars.id.nesting.indexOf(colorName)];
+        colorKey = vars.id.nesting[vars.id.nesting.indexOf(vars.color.value)];
       }
       else {
 
@@ -80,7 +78,7 @@ module.exports = function(vars) {
 
       }
 
-      var colors = dataNest(vars, data, [colorFunction], []);
+      var colors = dataNest(vars, data, [vars.color.value], []);
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
 
@@ -120,7 +118,7 @@ module.exports = function(vars) {
 
         var order = vars[vars.legend.order.value].value;
 
-        arraySort(colors, order, vars.legend.order.sort.value, colorName, vars, colorDepth);
+        arraySort(colors, order, vars.legend.order.sort.value, vars.color.value, vars, colorDepth);
 
         if ( vars.dev.value ) print.timeEnd("sorting legend");
 
@@ -272,9 +270,13 @@ module.exports = function(vars) {
 
         }
 
+        var colorInt = {};
         var keys = vars.g.legend.selectAll("g.d3plus_color")
           .data(colors,function(d){
-            return fetchColor(vars, d, colorKey);
+            var c = fetchColor(vars, d, colorKey);
+            if (!(c in colorInt)) colorInt[c] = -1;
+            colorInt[c]++;
+            return colorInt[c]+"_"+c;
           });
 
         keys.enter().append("g")
@@ -310,7 +312,7 @@ module.exports = function(vars) {
 
               var idIndex = vars.id.nesting.indexOf(colorKey),
                   title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] :
-                          vars.format.value(fetchValue(vars,d,colorName,colorKey), colorName, vars, d);
+                          vars.format.value(fetchValue(vars,d,vars.color.value,colorKey), vars.color.value, vars, d);
 
               createTooltip({
                 "data": d,

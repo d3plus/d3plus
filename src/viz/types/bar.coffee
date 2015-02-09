@@ -20,7 +20,7 @@ bar = (vars) ->
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
 
-  nested = nest vars
+  nested = vars.data.viz
 
   stack vars, nested if vars.axes.stacked
 
@@ -90,6 +90,8 @@ bar = (vars) ->
   data
 
 # Visualization Settings and Helper Functions
+bar.filter = (vars, data) ->
+  nest vars, data
 bar.requirements = ["data", "x", "y"]
 bar.setup        = (vars) ->
   unless vars.axes.discrete

@@ -84,13 +84,23 @@ getData = (vars) ->
     d3.merge [fetchData(vars,"all",d) for d in depths]
 
 axisRange = (vars, axis, zero, buffer) ->
+
   oppAxis = if axis is "x" then "y" else "x"
+
   if vars[axis].range.value and vars[axis].range.value.length is 2
     vars[axis].range.value.slice()
+
   else if vars[axis].scale.value is "share"
     vars[axis].ticks.values = d3.range 0, 1.1, 0.1
     [0,1]
+
   else if vars[axis].stacked.value
+    splitData = []
+    for d in vars.axes.dataset
+      if d.values
+        splitData = splitData.concat d.values
+      else
+        splitData.push d
     axisSums = d3.nest()
       .key (d) -> fetchValue vars, d, vars[oppAxis].value
       .rollup (leaves) ->
@@ -101,13 +111,21 @@ axisRange = (vars, axis, zero, buffer) ->
           val = fetchValue vars, d, vars[axis].value
           if val < 0 then val else 0
         [negatives,positives]
-      .entries vars.axes.dataset
+      .entries splitData
     values = d3.merge axisSums.map (d) -> d.values
     d3.extent values
+
   else if vars[axis].value is vars.time.value and vars[axis].ticks.values
     d3.extent vars[axis].ticks.values
+
   else
-    values = vars.axes.dataset.map (d) -> fetchValue vars, d, vars[axis].value
+    values = []
+    for d in vars.axes.dataset
+      val = fetchValue vars, d, vars[axis].value
+      if val instanceof Array
+        values = values.concat val
+      else
+        values.push val
     if typeof values[0] is "string"
       if vars.order.value is true
         sortKey = vars[oppAxis].value

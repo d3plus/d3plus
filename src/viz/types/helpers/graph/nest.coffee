@@ -8,10 +8,18 @@ module.exports = (vars, data) ->
   discrete = vars[vars.axes.discrete]
   opposite = vars[vars.axes.opposite]
   timeAxis = discrete.value is vars.time.value
-  ticks    = if timeAxis then vars.data.time.values else discrete.ticks.values
-  offsets  =
-    x: vars.axes.margin.left
-    y: vars.axes.margin.top
+  if timeAxis
+    ticks = vars.data.time.values
+    if vars.time.solo.value.length
+      serialized = vars.time.solo.value.map(Number)
+      ticks = ticks.filter (f) ->
+        serialized.indexOf(+f) >= 0
+    else if vars.time.mute.value.length
+      serialized = vars.time.mute.value.map(Number)
+      ticks = ticks.filter (f) ->
+        serialized.indexOf(+f) < 0
+  else
+    ticks = discrete.ticks.values
 
   d3.nest()
     .key (d) ->
@@ -31,9 +39,11 @@ module.exports = (vars, data) ->
         if availables.indexOf(tester) < 0 and discrete.zerofill.value
 
           obj                 = {d3plus: {}}
-          obj[vars.id.value]  = leaves[0][vars.id.value]
+          for key in vars.id.nesting
+            obj[key] = leaves[0][key] if key of leaves[0]
           obj[discrete.value] = tick
-          obj[opposite.value] = opposite.scale.viz.domain()[1]
+          obj[opposite.value] = 0
+          # obj[opposite.value] = opposite.scale.viz.domain()[1]
 
           leaves.push obj
 

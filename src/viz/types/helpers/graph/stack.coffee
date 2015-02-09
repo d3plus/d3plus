@@ -12,10 +12,8 @@ module.exports = (vars, data) ->
   stack = d3.layout.stack()
     .values (d) -> d.values
     .offset offset
-    .x (d) ->
-      d.d3plus[opposite]
-    .y (d) ->
-      flip - vars[stacked].scale.viz fetchValue vars, d, vars[stacked].value
+    .x (d) -> d.d3plus[opposite]
+    .y (d) -> flip - vars[stacked].scale.viz fetchValue vars, d, vars[stacked].value
     .out (d, y0, y) ->
 
       value    = fetchValue vars, d, vars[stacked].value
@@ -31,10 +29,16 @@ module.exports = (vars, data) ->
       d.d3plus[stacked]     += margin
       d.d3plus[stacked+"0"] += margin
 
-  positiveData = data.filter (d) ->
-    fetchValue(vars, d, vars[stacked].value) > 0
-  negativeData = data.filter (d) ->
-    fetchValue(vars, d, vars[stacked].value) < 0
+  positiveData = []
+  negativeData = []
+  for d in data
+    val = fetchValue(vars, d, vars[stacked].value)
+    if val instanceof Array
+      positiveData.push d if val.filter((v) -> v > 0).length
+      negativeData.push d if val.filter((v) -> v < 0).length
+    else
+      positiveData.push d if val > 0
+      negativeData.push d if val < 0
 
   unless positiveData.length or negativeData.length
     stack data

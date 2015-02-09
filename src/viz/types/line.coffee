@@ -13,20 +13,22 @@ line = (vars) ->
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
 
-  data = nest vars
+  # data = nest vars
+  data = vars.data.viz
 
   # Assign x and y to each data point
   for point in data
     for d in point.values
       d.d3plus.x  = vars.x.scale.viz fetchValue(vars, d, vars.x.value)
       d.d3plus.x += vars.axes.margin.left
-
       d.d3plus.y  = vars.y.scale.viz fetchValue(vars, d, vars.y.value)
       d.d3plus.y += vars.axes.margin.top
 
   if vars.axes.stacked then stack vars, data else data
 
 # Visualization Settings and Helper Functions
+line.filter = (vars, data) ->
+  nest vars, data
 line.requirements = ["data", "x", "y"]
 line.setup        = (vars) ->
 

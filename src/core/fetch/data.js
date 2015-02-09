@@ -78,7 +78,7 @@ module.exports = function(vars, years, depth) {
                   .concat( years ),
       filter  = vars.data.solo.length ? "solo" : "mute",
       cacheKeys = d3.keys(vars.data.cache),
-      vizFilter = vars.types[vars.type.value].filter || null;
+      vizFilter = vars.types[vars.type.value].filter || undefined;
 
   if ( vars.data[filter].length ) {
     for (var di = 0; di < vars.data[filter].length; di++) {

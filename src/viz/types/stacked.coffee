@@ -14,7 +14,7 @@ stacked = (vars) ->
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
 
-  data = sort nest(vars), null, null, null, vars
+  data = sort vars.data.viz, null, null, null, vars
 
   # Assign x and y to each data point
   for point in data
@@ -36,7 +36,7 @@ stacked = (vars) ->
 
 # Visualization Settings and Helper Functions
 stacked.filter = (vars, data) ->
-  threshold vars, data, vars.x.value
+  nest vars, threshold(vars, data, vars.x.value)
 stacked.requirements = ["data", "x", "y"]
 stacked.setup = (vars) ->
 

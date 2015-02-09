@@ -4,43 +4,12 @@ var fetchValue = require("../fetch/value.coffee"),
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
-var dataNest = function(vars, flatData, nestingLevels, requirements) {
-
-  requirements = requirements || vars.types[vars.type.value].requirements || [];
+var dataNest = function(vars, flatData, nestingLevels) {
 
   var nestedData   = d3.nest(),
       groupedData  = [],
       segments     = "temp" in vars ? [ "active" , "temp" , "total" ] : [],
-      exceptions   = "time" in vars ? [ vars.time.value , vars.icon.value ] : [],
-      checkAxes    = function() {
-
-      //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-      // If the visualization has method requirements, check to see if we need
-      // to key the data by a discrete scale variable.
-      //------------------------------------------------------------------------
-      if ( requirements && requirements.length ) {
-
-        ["x","y"].forEach(function(axis){
-
-          var axisKey = vars[axis].value;
-
-          if (requirements.indexOf(axis) >= 0 && axisKey && vars[axis].scale.value === "discrete") {
-
-            exceptions.push(axisKey);
-
-            nestedData.key(function(d){
-              return fetchValue( vars , d , axisKey );
-            });
-
-          }
-
-        });
-
-      }
-
-    };
-
-  if (!(requirements instanceof Array)) requirements = [requirements];
+      exceptions   = "time" in vars ? [ vars.time.value , vars.icon.value ] : [];
 
   if (!nestingLevels.length) {
     nestedData.key(function(d){ return true; });
@@ -61,8 +30,6 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
 
   }
 
-  checkAxes();
-
   var deepest_is_id = nestingLevels.length && vars.id.nesting.indexOf(nestingLevels[nestingLevels.length - 1]) >= 0;
   var i = nestingLevels.length && deepest_is_id ? nestingLevels.length - 1 : 0;
   var depthKey = deepest_is_id ? vars.id.nesting[i] : vars.depth.value;
@@ -79,6 +46,14 @@ var dataNest = function(vars, flatData, nestingLevels, requirements) {
       groupedData.push(leaves[0]);
       return leaves[0];
     }
+
+    leaves = leaves.reduce(function(arr, ll){
+      if (ll.values instanceof Array) {
+        return arr.concat(ll.values);
+      }
+      arr.push(ll);
+      return arr;
+    }, []);
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create the "d3plus" object for the return variable, starting with

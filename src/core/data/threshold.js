@@ -123,6 +123,9 @@ module.exports = function( vars , rawData , split ) {
       removed = arraySort( removed , vars.size.value , "desc" , [] , vars );
 
       var levels = vars.id.nesting.slice(0,vars.depth.value);
+      if (vars.types[vars.type.value].requirements.indexOf(vars.axes.discrete) >= 0) {
+        levels.push(vars[vars.axes.discrete].value);
+      }
       var merged = dataNest(vars, removed, levels);
 
       merged.forEach(function(m){

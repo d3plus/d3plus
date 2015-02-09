@@ -14,7 +14,7 @@ module.exports = (vars, id, level) ->
   level = vars.id.nesting[level] if typeof level is "number"
 
   unless vars.color.value
-    returnColor = getRandom vars, id, level
+    getRandom vars, id, level
   else
 
     colors   = []
@@ -32,9 +32,7 @@ module.exports = (vars, id, level) ->
         break
       i--
 
-    returnColor = if colors.length is 1 then colors[0] else vars.color.missing
-
-  returnColor
+    if colors.length is 1 then colors[0] else vars.color.missing
 
 getColor = (vars, id, color, level) ->
   unless color

@@ -37,7 +37,7 @@ module.exports = function( vars , data ) {
 
     }
 
-  })
+  });
 
   // if "solo", only check against "solo" (disregard "mute")
   var key = vars.data.solo.length ? "solo" : "mute"
