@@ -88,11 +88,6 @@ module.exports = function( vars , group ) {
           var y = t.y - t.h*scale[1]/2 + t.padding/2;
           if (salign === "bottom") y += (t.h * scale[1])/2;
 
-          if (t.w < 20) {
-            console.log(t.text*100)
-            console.log(t.w, t.padding/2)
-          }
-
           textWrap()
             .align("center")
             .container(d3.select(this))
@@ -238,7 +233,7 @@ module.exports = function( vars , group ) {
 
           }
 
-          share_size = text.node().getBBox().height;
+          share_size = text.node().getBBox().height + vars.labels.padding;
 
           text.exit().call(remove);
 
