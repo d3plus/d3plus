@@ -115,19 +115,23 @@ module.exports = function(vars) {
   if (!vars.small) {
 
     if (vars.title.value) {
+      var title = vars.title.value;
+      if (typeof title === "function") title = title(vars.self);
       title_data.push({
         "link": vars.title.link,
         "style": vars.title,
         "type": "title",
-        "value": vars.title.value
+        "value": title
       })
     }
     if (vars.title.sub.value) {
+      var title = vars.title.sub.value;
+      if (typeof title === "function") title = title(vars.self);
       title_data.push({
         "link": vars.title.sub.link,
         "style": vars.title.sub,
         "type": "sub",
-        "value": vars.title.sub.value
+        "value": title
       })
     }
     if (vars.title.total.value && total) {

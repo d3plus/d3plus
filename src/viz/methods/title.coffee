@@ -24,7 +24,7 @@ module.exports =
       vars.self.container id: id
     value
   sub:
-    accepted:   [false, String]
+    accepted:   [false, Function, String]
     deprecates: "sub_title"
     font:
       align:      "center"

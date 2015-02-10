@@ -19,7 +19,13 @@ module.exports =
 
     csv_to_return = []
     titles        = []
-    title         = stringStrip vars.title.value or "My D3plus App Data"
+
+    if vars.title.value
+      title = vars.title.string
+      title = title(vars.self) if typeof title is "function"
+      title = stringStrip title
+    else
+      title = "D3plus Visualization Data"
 
     unless columns
       columns = [vars.id.value]
