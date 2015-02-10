@@ -308,7 +308,9 @@ module.exports = function(params) {
       make_tooltip(vars.tooltip.html.value(id))
     }
     else if (vars.tooltip.html.value && typeof vars.tooltip.html.value == "object" && vars.tooltip.html.value.url) {
-      d3.json(vars.tooltip.html.value.url,function(data){
+      var tooltip_url = vars.tooltip.html.value.url;
+      if (typeof tooltip_url === "function") tooltip_url = tooltip_url(id);
+      d3.json(tooltip_url,function(data){
         var html = vars.tooltip.html.value.callback ? vars.tooltip.html.value.callback(data) : data
         make_tooltip(html)
       })

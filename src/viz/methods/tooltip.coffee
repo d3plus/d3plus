@@ -22,7 +22,7 @@ module.exports =
     transform: transform()
     weight:    200
   html:
-    accepted:   [false, Function, String]
+    accepted:   [false, Function, Object, String]
     deprecates: "click_function"
     value:      false
   large: 250
