@@ -3,4 +3,5 @@ module.exports =
   process:  (value) ->
     @enabled = value if typeof value is "Boolean"
     value
-  value:    "auto"
+  term:  ""
+  value: "auto"

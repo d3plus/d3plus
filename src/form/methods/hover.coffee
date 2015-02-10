@@ -1,3 +1,3 @@
 module.exports =
-  accepted: [false, Number, String]
+  accepted: [Boolean, Number, String]
   value:    false

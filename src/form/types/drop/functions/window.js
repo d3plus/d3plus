@@ -19,8 +19,8 @@ var windowEvents = function ( vars , elem ) {
       element = parent.parentNode
     }
 
-    if (element && parent && !child(vars.container.ui, element) && vars.open.value) {
-      vars.self.open(!vars.open.value).draw()
+    if (element && parent && !child(vars.container.ui, element) && (vars.open.value || vars.hover.value)) {
+      vars.self.open(false).hover(false).draw()
     }
 
   })

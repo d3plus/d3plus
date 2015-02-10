@@ -117,21 +117,6 @@ module.exports = function( vars ) {
 
   }
 
-  function hideElement( elem ) {
-
-    elem
-      .style("position","absolute","important")
-      .style("clip","rect(1px 1px 1px 1px)","important")
-      .style("clip","rect(1px, 1px, 1px, 1px)","important")
-      .style("width","1px","important")
-      .style("height","1px","important")
-      .style("margin","-1px","important")
-      .style("padding","0","important")
-      .style("border","0","important")
-      .style("overflow","hidden","important")
-
-  }
-
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // If a <legend> element exists, use it as the title.
   //----------------------------------------------------------------------------
@@ -150,6 +135,23 @@ module.exports = function( vars ) {
     vars.container.value = d3.select(vars.data.element.value.node().parentNode)
   }
 
+  vars.data.element.value.call(hideElement)
+
   return elementData
+
+};
+
+function hideElement( elem ) {
+
+  elem
+    .style("position","absolute","important")
+    .style("clip","rect(1px 1px 1px 1px)","important")
+    .style("clip","rect(1px, 1px, 1px, 1px)","important")
+    .style("width","1px","important")
+    .style("height","1px","important")
+    .style("margin","-1px","important")
+    .style("padding","0","important")
+    .style("border","0","important")
+    .style("overflow","hidden","important");
 
 }

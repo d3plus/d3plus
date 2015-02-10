@@ -42,19 +42,19 @@ module.exports = function( vars , data ) {
   // if "solo", only check against "solo" (disregard "mute")
   var key = vars.data.solo.length ? "solo" : "mute"
 
-  vars.data[key].forEach( function( v ) {
+  vars.data[key].forEach(function(v) {
 
     function test_value( val ) {
 
-      var arr = vars[v][key].value
+      var arr = vars[v][key].value;
 
-      var match = false
+      var match = false;
       arr.forEach(function(f){
         if (typeof f === "function") {
-          match = f(val)
+          match = f(val);
         }
         else if ( f === val ) {
-          match = true
+          match = true;
         }
 
       })
@@ -62,14 +62,14 @@ module.exports = function( vars , data ) {
       return match
     }
 
-    function nest_check( d ) {
+    function nest_check(d) {
 
       // if the variable has nesting, check all levels
       var match = false
       if (vars[v].nesting) {
         var nesting = vars[v].nesting
         if (validObject(nesting)) {
-          nesting = d3.keys(nesting)
+          nesting = d3.values(nesting)
         }
         nesting.forEach(function(n){
           if (!match) {
@@ -85,7 +85,9 @@ module.exports = function( vars , data ) {
 
     }
 
+    if (vars.data.value.length === 32) console.log("before", data.length)
     data = data.filter(nest_check)
+    if (vars.data.value.length === 32) console.log("nest", data.length)
 
     if ( v === "id" ) {
 

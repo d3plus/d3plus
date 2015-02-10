@@ -51,12 +51,15 @@ module.exports = function ( vars ) {
 
   }
 
+  var hover = vars.hover.value === true ? vars.focus.value : false;
+
   vars.container.button
     .draw({
       "update": vars.draw.update
     })
     .focus(vars.focus.value)
     .font( vars.font )
+    .hover(hover)
     .icon({
       "button": vars.icon.drop.value,
       "select": vars.icon.drop.value,

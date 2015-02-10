@@ -23,8 +23,10 @@ module.exports = (vars, accepted, value, method, text) ->
         recs.push "\"" + a + "\""
       else if typeof a is "function"
         recs.push a.toString().split("()")[0].substring(9)
+      else if a is undefined
+        recs.push "undefined"
       else
-        recs.push a.toString()
+        recs.push JSON.stringify(a)
 
     recs = list recs, vars.format.locale.value.ui.or
 

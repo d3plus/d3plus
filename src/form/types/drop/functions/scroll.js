@@ -49,8 +49,9 @@ module.exports = function ( vars ) {
 
       var options = vars.container.list.select("div").selectAll("div.d3plus_node")
       var option = options[0][0]
+      var matchID = typeof vars.hover.value !== "boolean" ? vars.hover.value : vars.focus.value;
       options.each(function(d,i){
-        if (d[vars.id.value] == vars.focus.value) {
+        if (d[vars.id.value] === matchID) {
           option = this
         }
       })
@@ -75,6 +76,7 @@ module.exports = function ( vars ) {
       else {
 
         vars.container.listScroll = list_top
+        // console.log(vars.search.height)
 
         if (button_top < list_top) {
           vars.container.listScroll = button_top

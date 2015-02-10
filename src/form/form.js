@@ -18,8 +18,8 @@ module.exports = function() {
   var vars = {
     "types": {
       "auto": require("./types/auto.js"),
-      "button": require("./types/button/button.js"),
-      "drop": require("./types/drop/drop.js"),
+      "button": require("./types/button/button.coffee"),
+      "drop": require("./types/drop/drop.coffee"),
       "toggle": require("./types/toggle.js")
     }
   };
@@ -192,14 +192,27 @@ module.exports = function() {
         if (tag === "select") {
           vars.data.element.value.selectAll("option")
             .each(function(d){
-              var level = getLevel(d);
-              if (d[level] === vars.focus.value) {
+              if (d[getLevel(d)] === vars.focus.value) {
                 this.selected = true;
               }
               else {
                 this.selected = false;
               }
             });
+        }
+        else {
+          var tag = vars.data.element.value.attr("type").toLowerCase();
+          if (tag === "radio") {
+            vars.data.element.value
+              .each(function(d){
+                if (this.value === vars.focus.value) {
+                  this.checked = true;
+                }
+                else {
+                  this.checked = false;
+                }
+              })
+          }
         }
       }
 

@@ -72,20 +72,22 @@ module.exports = function ( vars ) {
         .call(inputStyle)
 
   vars.container.search.select("input").on("keyup."+vars.container.id,function(d){
-    if (vars.text.solo[0] !== this.value) {
-      vars.self.text({"solo":[this.value]})
-      data( vars )
-      items( vars )
-      update( vars )
+    var term = this.value;
+    if (vars.search.term !== term) {
+      vars.search.term = term;
+      data(vars);
+      items(vars);
+      update(vars);
     }
-  })
+  });
 
   vars.container.search.exit().remove()
 
-  if (!vars.open.value) {
-    vars.search.height = vars.search.enabled ? vars.container.search.node().offsetHeight || 
-                         vars.container.search.node().getBoundingClientRect().height : 0;
-  }
+  var oldDisplay = vars.container.selector.style("display")
+  vars.container.selector.style("display", "block")
+  vars.search.height = vars.search.enabled ? vars.container.search.node().offsetHeight ||
+                       vars.container.search.node().getBoundingClientRect().height : 0;
+  vars.container.selector.style("display", oldDisplay)
 
   if ( vars.search.enabled ) {
     vars.margin.title += vars.search.height

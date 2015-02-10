@@ -15,7 +15,7 @@ module.exports = function ( vars ) {
   }
   else if (vars.open.value) {
 
-    if (!vars.text.solo.value.length || vars.text.solo.value[0] === "") {
+    if (!vars.search.term) {
       vars.data.filtered = vars.data.viz;
       vars.data.changed = vars.data.lastFilter !== "viz";
       vars.data.lastFilter = "viz";
@@ -32,8 +32,7 @@ module.exports = function ( vars ) {
     }
     else {
 
-      var searchText  = vars.text.solo.value.length ? vars.text.solo.value[0].toLowerCase() : "",
-          searchWords = stringStrip(searchText).split("_"),
+      var searchWords = stringStrip(vars.search.term).split("_"),
           searchKeys  = [vars.id.value, vars.text.value, vars.alt.value, vars.keywords.value ];
 
       searchKeys = searchKeys.filter(function(t){ return t; });
@@ -58,11 +57,11 @@ module.exports = function ( vars ) {
 
             var text = d[key].toLowerCase();
 
-            if ( [vars.text.value,vars.id.value].indexOf(key) >= 0 && text.indexOf(searchText) === 0 ) {
+            if ( [vars.text.value,vars.id.value].indexOf(key) >= 0 && text.indexOf(vars.search.term) === 0 ) {
               startMatches.push(d);
               match = true;
             }
-            else if ( text.indexOf(searchText) >= 0 ) {
+            else if ( text.indexOf(vars.search.term) >= 0 ) {
               exactMatches.push(d);
               match = true;
             }
@@ -108,7 +107,7 @@ module.exports = function ( vars ) {
       if ( vars.data.filtered.length === 0 ) {
 
         var noData = {}, str = vars.format.value(vars.format.locale.value.ui.noResults);
-        noData[vars.text.value || vars.id.value] = stringFormat(str,"\""+searchText+"\"");
+        noData[vars.text.value || vars.id.value] = stringFormat(str,"\""+vars.search.term+"\"");
         vars.data.filtered = [ noData ];
 
       }

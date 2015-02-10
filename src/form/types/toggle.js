@@ -60,6 +60,7 @@ module.exports = function( vars ) {
           }
 
         })
+        .hover(vars.hover.value)
         .icon({
           "select": false,
           "value": vars.icon.value
@@ -79,5 +80,15 @@ module.exports = function( vars ) {
         .draw()
 
     })
+
+  if (vars.data.element.value) {
+    vars.data.element.value
+      .on("focus."+vars.container.id, function(){
+        vars.self.focus(this.value).hover(this.value).draw();
+      })
+      .on("blur."+vars.container.id, function(){
+        vars.self.hover(false).draw();
+      })
+  }
 
 }

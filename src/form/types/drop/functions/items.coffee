@@ -23,18 +23,13 @@ module.exports = (vars) ->
 
     large       = if vars.draw.timing then vars.data.large else 1
     order       = copy vars.order
-    order.value = (if vars.text.solo.value.length and vars.text.solo.value[0] isnt "" then "d3plus_order" else vars.order.value)
+    order.value = if vars.search.term.length then "d3plus_order" else vars.order.value
     deepest     = vars.depth.value is vars.id.nesting.length - 1
 
     if vars.focus.changed or vars.container.items.focus() is false
 
       vars.container.items
         .focus vars.focus.value, (value) ->
-
-          change = value isnt vars.focus.value
-          change = active(vars, value) if change and vars.active.value
-
-          vars.self.focus value if change
 
           data = vars.data.filtered.filter((f) ->
             f[vars.id.value] is value
@@ -45,9 +40,12 @@ module.exports = (vars) ->
             solo = vars.id.solo.value
             vars.history.states.push -> vars.self.depth(depth).id(solo: solo).draw()
             vars.self.depth(vars.depth.value + 1).id(solo: [value]).draw()
-          else unless vars.depth.changed
-            vars.self.open(false).draw()
-          else vars.self.draw() if change
+          else
+            unless vars.depth.changed
+              vars.self.open(false)
+            change = value isnt vars.focus.value
+            change = active(vars, value) if change and vars.active.value
+            vars.self.focus(value).draw() if change
 
           return
 
@@ -62,6 +60,7 @@ module.exports = (vars) ->
       .draw
         update: vars.draw.update
       .font vars.font.secondary
+      .hover vars.hover.value
       .id vars.id.value
       .icon
         button: (if deepest then false else vars.icon.next)

@@ -126,7 +126,7 @@ module.exports = function(vars, years, depth) {
     var missing = [];
     returnData = [];
 
-    if ( vars.data.value && vars.data.value.length ) {
+    if (vars.data.value && vars.data.value.length) {
 
       for (var yz = 0; yz < years.length; yz++) {
         var year = years[yz];
@@ -183,9 +183,7 @@ module.exports = function(vars, years, depth) {
         returnData = [];
       }
       else {
-
         returnData = dataFilter(vars, returnData);
-
       }
 
       if ( cacheKeys.length === 20 ) {
