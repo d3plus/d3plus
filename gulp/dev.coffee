@@ -2,10 +2,19 @@ browserify = require "browserify"
 connect    = require "gulp-connect"
 error      = require "./error.coffee"
 gulp       = require "gulp"
+gutil      = require "gulp-util"
 notify     = require "gulp-notify"
+path       = require "path"
 source     = require "vinyl-source-stream"
 timer      = require "gulp-duration"
 watchify   = require "watchify"
+
+test_dir = "./tests/**/*.*"
+
+connect.server
+  livereload: true
+  port: 4000
+  root: path.resolve("./")
 
 rebundle = ->
   bundler.bundle()
@@ -26,4 +35,13 @@ bundler = watchify(browserify(watchify.args))
   .transform "coffeeify"
   .on "update", rebundle
 
-gulp.task "rebuild", rebundle
+gulp.task "dev", ->
+
+  rebundle()
+
+  gulp.watch [test_dir], (file) ->
+
+    fileName = path.relative("./", file.path)
+    gutil.log gutil.colors.cyan(fileName), "changed"
+
+    gulp.src(test_dir).pipe connect.reload()
