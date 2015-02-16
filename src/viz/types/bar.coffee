@@ -2,6 +2,7 @@ fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
 nest       = require "./helpers/graph/nest.coffee"
 stack      = require "./helpers/graph/stack.coffee"
+uniques    = require "../../util/uniques.coffee"
 
 # Line Plot
 bar = (vars) ->
@@ -39,18 +40,20 @@ bar = (vars) ->
   maxSize = space - padding * 2
 
   unless vars.axes.stacked
-    maxSize /= nested.length
+    bars = uniques nested, vars.id.value, fetchValue, vars
+    divisions = bars.length
+    maxSize /= divisions
     offset   = space/2 - maxSize/2 - padding
 
     x = d3.scale.linear()
-      .domain [0, nested.length-1]
+      .domain [0, bars.length-1]
       .range [-offset, offset]
 
   data = []
   zero = 0
 
   for point, i in nested
-    mod = if vars.axes.stacked then 0 else x(i)
+    mod = if vars.axes.stacked then 0 else x(i % divisions)
     for d in point.values
 
       if vars.axes.stacked

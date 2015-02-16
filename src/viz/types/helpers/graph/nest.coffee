@@ -23,9 +23,10 @@ module.exports = (vars, data) ->
 
   d3.nest()
     .key (d) ->
-      id = fetchValue vars, d, vars.id.value
-      depth = if "depth" of d.d3plus then d.d3plus.depth else vars.depth.value
-      "nested_"+stringStrip(id)+"_"+depth
+      return_id = "nesting"
+      for id in vars.id.nesting
+        return_id += "_"+fetchValue vars, d, id
+      return_id
     .rollup (leaves) ->
 
       availables = uniqueValues leaves, discrete.value, fetchValue, vars
