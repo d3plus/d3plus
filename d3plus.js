@@ -23,7 +23,7 @@ module.exports = d3plus;
  * @static
  */
 
-d3plus.version = "1.6.9 - Turquoise";
+d3plus.version = "1.6.10 - Turquoise (Dev)";
 
 
 /**
@@ -20023,7 +20023,7 @@ var objectValidate, uniques;
 objectValidate = require("../object/validate.coffee");
 
 uniques = function(data, value, fetch, vars, depth) {
-  var check, d, lookups, val, vals, _i, _j, _k, _len, _len1, _len2;
+  var check, d, lookups, v, val, vals, _i, _j, _k, _l, _len, _len1, _len2, _len3;
   if (data === void 0) {
     return [];
   }
@@ -20058,24 +20058,24 @@ uniques = function(data, value, fetch, vars, depth) {
       }
     }
   };
-  if (typeof fetch === "function") {
+  if (typeof fetch === "function" && vars) {
     for (_i = 0, _len = data.length; _i < _len; _i++) {
       d = data[_i];
       val = uniques(fetch(vars, d, value, depth));
-      if (val.length === 1) {
-        val = val[0];
+      for (_j = 0, _len1 = val.length; _j < _len1; _j++) {
+        v = val[_j];
+        check(v);
       }
-      check(val);
     }
   } else if (typeof value === "function") {
-    for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
-      d = data[_j];
+    for (_k = 0, _len2 = data.length; _k < _len2; _k++) {
+      d = data[_k];
       val = value(d);
       check(val);
     }
   } else {
-    for (_k = 0, _len2 = data.length; _k < _len2; _k++) {
-      d = data[_k];
+    for (_l = 0, _len3 = data.length; _l < _len3; _l++) {
+      d = data[_l];
       if (objectValidate(d)) {
         val = d[value];
         check(val);
@@ -24930,7 +24930,9 @@ module.exports = function(params) {
       make_tooltip(vars.tooltip.html.value(id))
     }
     else if (vars.tooltip.html.value && typeof vars.tooltip.html.value == "object" && vars.tooltip.html.value.url) {
-      d3.json(vars.tooltip.html.value.url,function(data){
+      var tooltip_url = vars.tooltip.html.value.url;
+      if (typeof tooltip_url === "function") tooltip_url = tooltip_url(id);
+      d3.json(tooltip_url,function(data){
         var html = vars.tooltip.html.value.callback ? vars.tooltip.html.value.callback(data) : data
         make_tooltip(html)
       })
@@ -28665,7 +28667,7 @@ module.exports = {
     weight: 200
   },
   html: {
-    accepted: [false, Function, String],
+    accepted: [false, Function, Object, String],
     deprecates: "click_function",
     value: false
   },
@@ -28802,7 +28804,7 @@ module.exports = {
 }
 
 },{}],292:[function(require,module,exports){
-var bar, fetchValue, graph, nest, stack;
+var bar, fetchValue, graph, nest, stack, uniques;
 
 fetchValue = require("../../core/fetch/value.coffee");
 
@@ -28812,8 +28814,10 @@ nest = require("./helpers/graph/nest.coffee");
 
 stack = require("./helpers/graph/stack.coffee");
 
+uniques = require("../../util/uniques.coffee");
+
 bar = function(vars) {
-  var base, cMargin, d, data, discrete, discreteVal, domains, h, i, length, maxSize, mod, nested, oMargin, offset, oppVal, opposite, padding, point, space, value, w, x, zero, _i, _j, _len, _len1, _ref;
+  var bars, base, cMargin, d, data, discrete, discreteVal, divisions, domains, h, i, length, maxSize, mod, nested, oMargin, offset, oppVal, opposite, padding, point, space, value, w, x, zero, _i, _j, _len, _len1, _ref;
   discrete = vars.axes.discrete;
   h = discrete === "x" ? "height" : "width";
   w = discrete === "x" ? "width" : "height";
@@ -28842,15 +28846,17 @@ bar = function(vars) {
   }
   maxSize = space - padding * 2;
   if (!vars.axes.stacked) {
-    maxSize /= nested.length;
+    bars = uniques(nested, vars.id.value, fetchValue, vars);
+    divisions = bars.length;
+    maxSize /= divisions;
     offset = space / 2 - maxSize / 2 - padding;
-    x = d3.scale.linear().domain([0, nested.length - 1]).range([-offset, offset]);
+    x = d3.scale.linear().domain([0, bars.length - 1]).range([-offset, offset]);
   }
   data = [];
   zero = 0;
   for (i = _i = 0, _len = nested.length; _i < _len; i = ++_i) {
     point = nested[i];
-    mod = vars.axes.stacked ? 0 : x(i);
+    mod = vars.axes.stacked ? 0 : x(i % divisions);
     _ref = point.values;
     for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
       d = _ref[_j];
@@ -28912,7 +28918,7 @@ module.exports = bar;
 
 
 
-},{"../../core/fetch/value.coffee":68,"./helpers/graph/draw.coffee":298,"./helpers/graph/nest.coffee":304,"./helpers/graph/stack.coffee":305}],293:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":68,"../../util/uniques.coffee":201,"./helpers/graph/draw.coffee":298,"./helpers/graph/nest.coffee":304,"./helpers/graph/stack.coffee":305}],293:[function(require,module,exports){
 var box, fetchValue, graph, uniques;
 
 fetchValue = require("../../core/fetch/value.coffee");
@@ -30668,10 +30674,14 @@ module.exports = function(vars, data) {
     ticks = discrete.ticks.values;
   }
   return d3.nest().key(function(d) {
-    var depth, id;
-    id = fetchValue(vars, d, vars.id.value);
-    depth = "depth" in d.d3plus ? d.d3plus.depth : vars.depth.value;
-    return "nested_" + stringStrip(id) + "_" + depth;
+    var id, return_id, _i, _len, _ref;
+    return_id = "nesting";
+    _ref = vars.id.nesting;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      id = _ref[_i];
+      return_id += "_" + fetchValue(vars, d, id);
+    }
+    return return_id;
   }).rollup(function(leaves) {
     var availables, filler, i, key, obj, tester, tick, timeVar, _i, _j, _len, _len1, _ref;
     availables = uniqueValues(leaves, discrete.value, fetchValue, vars);
