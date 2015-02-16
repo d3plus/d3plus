@@ -29,11 +29,11 @@ uniques = (data, value, fetch, vars, depth) ->
         vals.push v
         lookups.push l
 
-  if typeof fetch is "function"
+  if typeof fetch is "function" and vars
     for d in data
       val = uniques fetch(vars, d, value, depth)
-      val = val[0] if val.length is 1
-      check val
+      for v in val
+        check v
   else if typeof value is "function"
     for d in data
       val = value d
