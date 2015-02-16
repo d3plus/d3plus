@@ -8,8 +8,7 @@ var dataNest = function(vars, flatData, nestingLevels) {
 
   var nestedData   = d3.nest(),
       groupedData  = [],
-      segments     = "temp" in vars ? [ "active" , "temp" , "total" ] : [],
-      exceptions   = "time" in vars ? [ vars.time.value , vars.icon.value ] : [];
+      segments     = "temp" in vars ? [ "active" , "temp" , "total" ] : [];
 
   if (!nestingLevels.length) {
     nestedData.key(function(d){ return true; });
@@ -28,6 +27,12 @@ var dataNest = function(vars, flatData, nestingLevels) {
 
     });
 
+  }
+
+  if (vars.axes.discrete) {
+    nestedData.key(function(d){
+      return fetchValue(vars, d, vars[vars.axes.discrete].value);
+    });
   }
 
   var deepest_is_id = nestingLevels.length && vars.id.nesting.indexOf(nestingLevels[nestingLevels.length - 1]) >= 0;
