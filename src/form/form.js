@@ -1,7 +1,7 @@
 var arraySort = require("../array/sort.coffee"),
     attach      = require("../core/methods/attach.coffee"),
     dataFormat  = require("../core/data/format.js"),
-    dataKeys    = require("../core/data/keys.js"),
+    dataKeys    = require("../core/data/keys.coffee"),
     dataLoad    = require("../core/data/load.coffee"),
     fetchData   = require("../core/fetch/data.js"),
     ie          = require("../client/ie.js"),

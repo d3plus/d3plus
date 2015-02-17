@@ -1,6 +1,6 @@
 var dataFormat    = require("../../core/data/format.js"),
     dataColor     = require("../../core/data/color.js"),
-    dataKeys      = require("../../core/data/keys.js"),
+    dataKeys      = require("../../core/data/keys.coffee"),
     dataLoad      = require("../../core/data/load.coffee"),
     drawDrawer    = require("./ui/drawer.js"),
     drawLegend    = require("./ui/legend.js"),
