@@ -85,9 +85,7 @@ module.exports = function( vars , data ) {
 
     }
 
-    if (vars.data.value.length === 32) console.log("before", data.length)
     data = data.filter(nest_check)
-    if (vars.data.value.length === 32) console.log("nest", data.length)
 
     if ( v === "id" ) {
 

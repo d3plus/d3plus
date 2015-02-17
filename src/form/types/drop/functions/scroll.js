@@ -75,8 +75,7 @@ module.exports = function ( vars ) {
       }
       else {
 
-        vars.container.listScroll = list_top
-        // console.log(vars.search.height)
+        vars.container.listScroll = list_top;
 
         if (button_top < list_top) {
           vars.container.listScroll = button_top
