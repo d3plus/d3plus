@@ -37,6 +37,7 @@ tree_map = (vars) ->
         y:      d.y + d.dy / 2
         width:  d.dx
         height: d.dy
+        rotate: 0
         share:  d.value / root.value
 
       returnData.push d.d3plus

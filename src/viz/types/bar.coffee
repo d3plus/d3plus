@@ -76,9 +76,10 @@ bar = (vars) ->
       d.d3plus[opposite]  = base - length/2
       d.d3plus[opposite] += vars.axes.margin[oMargin] unless vars.axes.stacked
 
-      d.d3plus[w]              = maxSize
-      d.d3plus[h]              = Math.abs length
-      d.d3plus.init            = {}
+      d.d3plus[w]     = maxSize
+      d.d3plus[h]     = Math.abs length
+      d.d3plus.init   = {}
+      d.d3plus.rotate = 0
 
       d.d3plus.init[opposite]  = vars[opposite].scale.viz zero
       d.d3plus.init[opposite] -= d.d3plus[opposite]

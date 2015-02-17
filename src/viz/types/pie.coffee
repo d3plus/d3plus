@@ -27,12 +27,13 @@ pie = (vars) ->
 
   for d in pieData
 
-    item = d.data.d3plus
+    item                   = d.data.d3plus
     item.d3plus.startAngle = d.startAngle
     item.d3plus.endAngle   = d.endAngle
     item.d3plus.r          = radius
     item.d3plus.x          = vars.width.viz/2
     item.d3plus.y          = vars.height.viz/2
+    item.d3plus.rotate     = 0
 
     returnData.push item
 

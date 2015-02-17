@@ -67,12 +67,13 @@ bubbles = (vars) ->
         obj[vars.id.value] = t.key
       else
         obj = t.d3plus
-      obj.d3plus.depth = if vars.id.grouping.value then t.depth else vars.depth.value
-      obj.d3plus.x = t.x
+      obj.d3plus.depth   = if vars.id.grouping.value then t.depth else vars.depth.value
+      obj.d3plus.x       = t.x
       obj.d3plus.xOffset = xoffset
-      obj.d3plus.y = t.y
+      obj.d3plus.y       = t.y
       obj.d3plus.yOffset = yoffset + labelHeight
-      obj.d3plus.r = t.r
+      obj.d3plus.r       = t.r
+      obj.d3plus.rotate  = 0
       data.push obj
 
     row++ if (i + 1) % columns is 0
