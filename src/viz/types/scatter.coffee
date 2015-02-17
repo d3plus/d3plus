@@ -18,8 +18,6 @@ scatter = (vars) ->
   # Assign x, y, and radius to each data point
   for d in vars.data.viz
 
-    d.d3plus.rotate = 0
-
     d.d3plus.x  = vars.x.scale.viz fetchValue(vars, d, vars.x.value)
     d.d3plus.x += vars.axes.margin.left
 

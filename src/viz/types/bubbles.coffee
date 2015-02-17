@@ -73,7 +73,7 @@ bubbles = (vars) ->
       obj.d3plus.y       = t.y
       obj.d3plus.yOffset = yoffset + labelHeight
       obj.d3plus.r       = t.r
-      obj.d3plus.rotate  = 0
+
       data.push obj
 
     row++ if (i + 1) % columns is 0

@@ -94,8 +94,7 @@ var network = function(vars) {
     lookup[obj[vars.id.value]] = {
       "x": obj.d3plus.x,
       "y": obj.d3plus.y,
-      "r": obj.d3plus.r,
-      "rotate": 0
+      "r": obj.d3plus.r
     }
 
     data.push(obj)

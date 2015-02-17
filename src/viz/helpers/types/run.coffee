@@ -16,6 +16,11 @@ module.exports = (vars) ->
   if not vars.error.internal and drawable
     app = vars.format.locale.value.visualization[vars.type.value]
     print.time "running " + app if vars.dev.value
+    for d in vars.data.viz
+      if d.d3plus
+        delete d.d3plus.shape
+        delete d.d3plus.label
+        delete d.d3plus.rotate
     returned = visualization(vars)
     print.timeEnd "running " + app if vars.dev.value
   else
