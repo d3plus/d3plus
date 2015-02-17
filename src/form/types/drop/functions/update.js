@@ -68,22 +68,33 @@ module.exports = function ( vars ) {
   //----------------------------------------------------------------------------
   if ( vars.dev.value ) print.time("drawing list")
 
+  function position(elem) {
+    var flipped = vars.open.flipped.value
+    elem
+      .style("top",function(){
+        return flipped ? "auto" : vars.margin.top-vars.ui.border+"px";
+      })
+      .style("bottom",function(){
+        return flipped ? vars.margin.top+vars.ui.border+"px" : "auto";
+      });
+  }
+
   function update(elem) {
 
     elem
       .style("left",function(){
         if (vars.font.align.value === "left") {
-          return vars.margin.left+"px"
+          return vars.margin.left+"px";
         }
         else if (vars.font.align.value === "center") {
-          return vars.margin.left-((vars.width.secondary-vars.width.value)/2)+"px"
+          return vars.margin.left-((vars.width.secondary-vars.width.value)/2)+"px";
         }
         else {
-          return "auto"
+          return "auto";
         }
       })
       .style("right",function(){
-        return vars.font.align.value === "right" ? "0px" : "auto"
+        return vars.font.align.value === "right" ? "0px" : "auto";
       })
       .style("height",vars.container.listHeight+"px")
       .style("padding",vars.ui.border+"px")
@@ -92,26 +103,16 @@ module.exports = function ( vars ) {
         return vars.open.value ? "9999" : "-1";
       })
       .style("width",(vars.width.secondary-(vars.ui.border*2))+"px")
-      .style("top",function(){
-        return vars.open.flipped.value ? "auto" : vars.margin.top+"px"
-      })
-      .style("bottom",function(){
-        return vars.open.flipped.value ? vars.margin.top+"px" : "auto"
-      })
       .style("opacity",vars.open.value ? 1 : 0)
+      .call(position);
 
   }
 
   function finish(elem) {
 
-    elem
-      .style("top",function(){
-        return vars.open.flipped.value ? "auto" : vars.margin.top+"px"
-      })
-      .style("bottom",function(){
-        return vars.open.flipped.value ? vars.margin.top+"px" : "auto"
-      })
-      .style("display",!vars.open.value ? "none" : null)
+    elem.style("display", vars.open.value ? null : "none")
+      .call(position);
+
 
     if (vars.search.enabled && vars.open.value) {
       vars.container.selector.select("div.d3plus_drop_search input").node().focus()

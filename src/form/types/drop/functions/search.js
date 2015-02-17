@@ -19,18 +19,17 @@ module.exports = function ( vars ) {
     elem
       .style("padding",vars.ui.padding+"px")
       .style("display","block")
-      .style("background-color",vars.ui.color.secondary.value)
+      .style("background-color",d3.rgb(vars.ui.color.primary.value).darker(0.15).toString())
 
   }
 
   function inputStyle(elem) {
 
-    var width = vars.width.secondary - vars.ui.padding*4 - vars.ui.border*2
+    var width = vars.width.secondary - vars.ui.padding*4 + vars.ui.border*2
 
     elem
-      .style("padding",vars.ui.padding+"px")
+      .style("padding",vars.ui.padding/2+"px")
       .style("width",width+"px")
-      .style("border-style","solid")
       .style("border-width","0px")
       .style("font-family",vars.font.secondary.family.value)
       .style("font-size",vars.font.secondary.size+"px")

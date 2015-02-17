@@ -57,7 +57,7 @@ module.exports = function ( vars ) {
     .draw({
       "update": vars.draw.update
     })
-    .focus(vars.focus.value)
+    .focus("")
     .font( vars.font )
     .hover(hover)
     .icon({
