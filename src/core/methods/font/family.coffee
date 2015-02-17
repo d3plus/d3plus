@@ -4,7 +4,7 @@ helvetica = ["Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-seri
 # Constructs font family property using the validate function
 module.exports = (family) ->
 
-  family = helvetica unless family
+  family = helvetica if family is undefined
 
   process: validate
   value:   family

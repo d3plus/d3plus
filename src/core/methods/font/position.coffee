@@ -1,8 +1,10 @@
 module.exports = (position) ->
 
-  position = "bottom" unless position
+  accepted = ["top", "middle", "bottom"]
+  accepted.unshift false if position is false
+  position = "bottom" if accepted.indexOf(position) < 0
 
-  accepted: ["top", "middle", "bottom"]
+  accepted: accepted
   mapping:
     top: "0ex"
     middle: "0.5ex"

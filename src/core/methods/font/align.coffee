@@ -2,9 +2,11 @@ rtl = require "../../../client/rtl.coffee"
 
 module.exports = (align) ->
 
-  align = "left" unless align
+  accepted = ["left", "center", "right"]
+  accepted.unshift false if align is false
+  align = "left" if accepted.indexOf(align) < 0
 
-  accepted: ["left", "center", "right"]
+  accepted: accepted
   process: (value) ->
     if rtl
       if value is "left"

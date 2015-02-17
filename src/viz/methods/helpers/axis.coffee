@@ -12,12 +12,12 @@ module.exports = (axis) ->
     accepted: [Boolean]
     color:     "#444"
     font:
-      color:      "#444"
-      decoration: decoration()
-      family:     family()
-      size:       10
-      transform:  transform()
-      weight:     200
+      color:      false
+      decoration: decoration(false)
+      family:     family("")
+      size:       false
+      transform:  transform(false)
+      weight:     false
     rendering: rendering()
     value: true
   dataFilter: true

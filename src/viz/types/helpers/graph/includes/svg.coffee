@@ -55,24 +55,23 @@ module.exports = (vars) ->
       .attr "stroke-width"   , vars[axis].ticks.width
       .attr "shape-rendering", vars[axis].ticks.rendering.value
 
+  getFontStyle = (axis, val, style) ->
+    type = if val is 0 then "axis" else "ticks"
+    val = vars[axis][type].font[style]
+    if val and (val.length or typeof val is "number") then val else vars[axis].ticks.font[style]
+
   tickFont = (tick, axis) ->
     log = vars[axis].scale.value is "log"
     tick
-      .attr "font-size"  , (d) ->
-        type = if d is 0 then "axis" else "ticks"
-        vars[axis][type].font.size+"px"
+      .attr "font-size"  , (d) -> getFontStyle(axis, d, "size") + "px"
       .attr "fill"       , (d) ->
-        type = if d is 0 then "axis" else "ticks"
+        color = getFontStyle(axis, d, "color")
         if !log or Math.abs(d).toString().charAt(0) is "1"
-          vars[axis][type].font.color
+          color
         else
-          mix(vars[axis][type].font.color, vars.background.value, 0.4, 1)
-      .attr "font-family", (d) ->
-        type = if d is 0 then "axis" else "ticks"
-        vars[axis][type].font.family.value
-      .attr "font-weight", (d) ->
-        type = if d is 0 then "axis" else "ticks"
-        vars[axis][type].font.weight
+          mix(color, vars.background.value, 0.4, 1)
+      .attr "font-family", (d) -> getFontStyle(axis, d, "family").value
+      .attr "font-weight", (d) -> getFontStyle(axis, d, "weight")
 
   lineStyle = (line, axis) ->
 
