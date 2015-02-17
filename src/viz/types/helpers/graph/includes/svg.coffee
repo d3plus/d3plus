@@ -248,12 +248,12 @@ module.exports = (vars) ->
       .style "opacity", 0
       .remove()
 
-    axisLabel = vars[axis].label.value or
-                vars.format.value(vars[axis].value, undefined, vars)
+    axisLabel = vars[axis].label.fetch vars
+    labelData = if axisData and axisLabel then [0] else []
 
     # Draw Axis Text Label
     label = vars.group.selectAll("text#d3plus_graph_"+axis+"label")
-      .data axisData
+      .data labelData
     label.text axisLabel
       .transition().duration vars.draw.timing
         .call labelStyle, axis

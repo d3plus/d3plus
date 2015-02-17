@@ -31,7 +31,10 @@ module.exports = (axis) ->
     rendering: rendering()
     value:     true
   label:
-    accepted: [false, String]
+    accepted: [Boolean, String]
+    fetch: (vars) ->
+      return vars.format.value(vars[axis].value, axis, vars) if @value is true
+      @value
     font:
       color:      "#444"
       decoration: decoration()
@@ -40,7 +43,7 @@ module.exports = (axis) ->
       transform:  transform()
       weight:     200
     padding: 3
-    value:   false
+    value:   true
   lines:
     accept:    [false, Array, Number, Object]
     dasharray:

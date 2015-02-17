@@ -114,14 +114,18 @@ labelPadding = (vars) ->
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
 
-  yLabel = vars.format.value(vars.y.value, undefined, vars)
-  yLabelAttrs =
-    "font-family": vars.y.label.font.family.value
-    "font-weight": vars.y.label.font.weight
-    "font-size":   vars.y.label.font.size+"px"
-  vars.y.label.height = fontSizes([yLabel], yLabelAttrs)[0].height
-  vars.axes.margin.left += vars.y.label.height
-  vars.axes.margin.left += vars.y.label.padding * 2
+  yLabel = vars.y.label.fetch vars
+  if yLabel
+    yLabelAttrs =
+      "font-family": vars.y.label.font.family.value
+      "font-weight": vars.y.label.font.weight
+      "font-size":   vars.y.label.font.size+"px"
+    vars.y.label.height = fontSizes([yLabel], yLabelAttrs)[0].height
+  else
+    vars.y.label.height = 0
+  if vars.y.label.value
+    vars.axes.margin.left += vars.y.label.height
+    vars.axes.margin.left += vars.y.label.padding * 2
 
   vars.axes.width -= (vars.axes.margin.left + vars.axes.margin.right)
   vars.x.scale.viz.range buckets([0,vars.axes.width], xDomain.length)
@@ -183,23 +187,27 @@ labelPadding = (vars) ->
   xAxisHeight = Math.round xAxisHeight
   xAxisWidth  = Math.round xAxisWidth
   vars.axes.margin.bottom += xAxisHeight
-  vars.axes.margin.bottom += vars.x.ticks.size
+  # vars.axes.margin.bottom += vars.x.ticks.size
   lastTick = vars.x.ticks.values[vars.x.ticks.values.length - 1]
   rightLabel = vars.x.scale.viz lastTick
   rightPadding = vars.axes.width - rightLabel
   if rightPadding < xAxisWidth
     vars.axes.width -= (xAxisWidth/2 - rightPadding)
 
-  xLabel = vars.format.value(vars.x.value, undefined, vars)
-  xLabelAttrs =
-    "font-family": vars.x.label.font.family.value
-    "font-weight": vars.x.label.font.weight
-    "font-size":   vars.x.label.font.size+"px"
-  vars.x.label.height   = fontSizes([xLabel], xLabelAttrs)[0].height
+  xLabel = vars.x.label.fetch vars
+  if xLabel
+    xLabelAttrs =
+      "font-family": vars.x.label.font.family.value
+      "font-weight": vars.x.label.font.weight
+      "font-size":   vars.x.label.font.size+"px"
+    vars.x.label.height = fontSizes([xLabel], xLabelAttrs)[0].height
+  else
+    vars.x.label.height = 0
   vars.x.ticks.maxWidth = xMaxWidth
   vars.x.ticks.maxHeight = xAxisHeight
-  vars.axes.margin.bottom += vars.x.label.height
-  vars.axes.margin.bottom += vars.x.label.padding * 2
+  if vars.x.label.value
+    vars.axes.margin.bottom += vars.x.label.height
+    vars.axes.margin.bottom += vars.x.label.padding * 2
 
   vars.axes.height -= (vars.axes.margin.top + vars.axes.margin.bottom)
 
