@@ -9,9 +9,9 @@ module.exports =
   color:
     primary:
       process: (value, vars) ->
-        primary = @value
-        secondary = vars.ui.color.secondary.value
-        vars.ui.color.secondary.value = d3.rgb(value).darker(2).toString() if not secondary or secondary is d3.rgb(primary).darker(2).toString()
+        primary   = @value
+        unless vars.ui.color.secondary.value
+          vars.ui.color.secondary.value = d3.rgb(primary).darker(0.75).toString()
         value
       value: "#ffffff"
     secondary:
