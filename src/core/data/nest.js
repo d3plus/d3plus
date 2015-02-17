@@ -29,7 +29,7 @@ var dataNest = function(vars, flatData, nestingLevels) {
 
   }
 
-  if (vars.axes.discrete) {
+  if (vars.axes && vars.axes.discrete) {
     nestedData.key(function(d){
       return fetchValue(vars, d, vars[vars.axes.discrete].value);
     });
