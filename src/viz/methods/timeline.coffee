@@ -1,3 +1,5 @@
+process = require "../../core/methods/process/icon.coffee"
+
 module.exports =
   accepted: [Boolean]
   align:    "middle"
@@ -15,5 +17,23 @@ module.exports =
   height:
     accepted: [Number]
     value:    23
+  play:
+    accepted: [Boolean]
+    icon:
+      accepted: [false, String]
+      fallback: "►"
+      process:  process
+      rotate:   0
+      value:    "fa-play"
+    pause:
+      accepted: [false, String]
+      fallback: "❚❚"
+      process:  process
+      rotate:   0
+      value:    "fa-pause"
+    timing:
+      accepted: [Number]
+      value:    1500
+    value:    true
   tick:  "#818181"
   value: true

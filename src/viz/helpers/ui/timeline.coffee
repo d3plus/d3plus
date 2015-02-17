@@ -5,6 +5,8 @@ prefix    = require("../../../client/prefix.coffee")
 print     = require("../../../core/console/print.coffee")
 textColor = require("../../../color/text.coffee")
 
+playInterval = false
+
 # Creates color key
 module.exports = (vars) ->
 
@@ -51,9 +53,16 @@ module.exports = (vars) ->
     max_index   = yearMS.indexOf +end
     brushExtent = [start,end]
 
+    stopPlayback = ->
+      clearInterval playInterval
+      playInterval = false
+      playIcon.call playIconChar, "icon"
+
     brushed = () ->
 
       if d3.event.sourceEvent isnt null
+
+        stopPlayback() if playInterval
 
         brushExtent = brush.extent()
 
@@ -90,6 +99,18 @@ module.exports = (vars) ->
         text.attr "fill", textFill
         d3.select(this).call brush.extent(extent)
 
+    setYears = () ->
+
+      if max_index - min_index is years.length
+        newYears = []
+      else
+        newYears = d3.range(min_index,max_index).map (y) ->
+          i = vars.data.time.dataSteps.indexOf(y)
+          if i >= 0 then vars.data.time.values[i] else years[y]
+
+      playUpdate()
+      vars.self.time({"solo": newYears}).draw()
+
     brushend = () ->
 
       if d3.event.sourceEvent isnt null
@@ -102,16 +123,7 @@ module.exports = (vars) ->
         else
           change = max_index-min_index isnt years.length
 
-        if change
-
-          if max_index-min_index is years.length
-            newYears = []
-          else
-            newYears = d3.range(min_index,max_index).map (y) ->
-              i = vars.data.time.dataSteps.indexOf(y)
-              if i >= 0 then vars.data.time.values[i] else years[y]
-
-          vars.self.time({"solo": newYears}).draw()
+        setYears() if change
 
     textStyle =
       "font-weight": vars.ui.font.weight
@@ -161,6 +173,109 @@ module.exports = (vars) ->
       start_x = vars.width.value - vars.ui.padding - timelineWidth
     else
       start_x = vars.width.value/2 - timelineWidth/2
+
+    if vars.timeline.play.value
+      start_x += (timelineHeight + vars.ui.padding)/2
+
+    playButton = vars.g.timeline.selectAll("rect.d3plus_timeline_play")
+      .data if vars.timeline.play.value then [0] else []
+
+    playStyle = (btn) ->
+      btn
+        .attr "width", timelineHeight + 1
+        .attr "height", timelineHeight + 1
+        .attr "fill", vars.ui.color.primary.value
+        .attr "stroke", vars.timeline.tick
+        .attr "stroke-width", 1
+        .attr "x", start_x - timelineHeight - 1 - vars.ui.padding
+        .attr "y", vars.ui.padding
+
+    playButton.enter().append("rect")
+      .attr "class", "d3plus_timeline_play"
+      .attr "shape-rendering", "crispEdges"
+      .attr "opacity", 0
+      .call playStyle
+
+    playButton.transition().duration(vars.draw.timing)
+      .call playStyle
+
+    playButton.exit().transition().duration(vars.draw.timing)
+      .attr("opacity", 0).remove()
+
+    playIcon = vars.g.timeline.selectAll("text.d3plus_timeline_playIcon")
+      .data if vars.timeline.play.value then [0] else []
+
+    playIconChar = (text, char) ->
+      char = vars.timeline.play[char].value
+      className = if char.indexOf("fa-") is 0 then " fa "+char else ""
+      text
+        .attr "class", "d3plus_timeline_playIcon" + className
+        .text if char.indexOf("fa-") is 0 then "" else char
+
+    playIconStyle = (text) ->
+      y = timelineHeight/2 + vars.ui.padding + 1
+      text
+        .attr "fill", textColor vars.ui.color.primary.value
+        .attr textStyle
+        .attr "x", start_x - (timelineHeight - 1)/2 - vars.ui.padding
+        .attr "y", y
+        .attr "dy", "0.5ex"
+        .call playIconChar, if playInterval then "pause" else "icon"
+
+    playIcon.enter().append("text")
+      .attr "class", "d3plus_timeline_playIcon"
+      .call playIconStyle
+      .style "pointer-events", "none"
+      .attr "opacity", 0
+
+    playIcon
+      .call playIconStyle
+      .transition().duration(vars.draw.timing).attr("opacity", 1)
+
+    playIcon.exit().transition().duration(vars.draw.timing)
+      .attr("opacity", 0).remove()
+
+    playUpdate = ->
+      if max_index-min_index is years.length
+        playButton
+          .on events.hover, null
+          .on events.click, null
+          .transition().duration(vars.draw.timing)
+          .attr "opacity", 0.3
+        playIcon.transition().duration(vars.draw.timing)
+          .attr "opacity", 0.3
+      else
+        playButton
+          .on events.over, ->
+            d3.select(this).style "cursor", "pointer"
+          .on events.out, ->
+            d3.select(this).style "cursor", "auto"
+          .on events.click, ->
+            if playInterval
+              stopPlayback()
+            else
+              playIcon.call playIconChar, "pause"
+              if max_index is years.length
+                max_index = max_index-min_index
+                min_index = 0
+              else
+                min_index++
+                max_index++
+              setYears()
+              playInterval = setInterval ->
+                if max_index is years.length
+                  stopPlayback()
+                else
+                  min_index++
+                  max_index++
+                  setYears()
+              , vars.timeline.play.timing.value
+          .transition().duration(vars.draw.timing)
+            .attr "opacity", 1
+        playIcon.transition().duration(vars.draw.timing)
+          .attr "opacity", 1
+
+    playUpdate()
 
     textFill = (d) ->
       if d >= brushExtent[0] and d < brushExtent[1]
