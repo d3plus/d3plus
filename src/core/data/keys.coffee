@@ -11,7 +11,7 @@ module.exports = (vars, type) ->
 
   get_keys = (arr) ->
     if arr instanceof Array
-      get_keys d for a in arr
+      get_keys a for a in arr
     else if validObject arr
       for k, v of arr
         if k.indexOf("d3plus") isnt 0 and
