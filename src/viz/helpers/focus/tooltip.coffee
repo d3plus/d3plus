@@ -8,7 +8,8 @@ module.exports = (vars) ->
 
   focus = vars.focus
 
-  if not vars.error.internal and focus.value.length is 1 and focus.value.length and not vars.small and focus.tooltip.value
+  if not vars.error.internal and focus.value.length is 1 and
+     focus.value.length and not vars.small and focus.tooltip.value
 
     print.time "drawing focus tooltip" if vars.dev.value
     data = vars.data.pool.filter (d) ->
@@ -37,7 +38,7 @@ module.exports = (vars) ->
       x:           vars.width.value - vars.margin.right - offset
       y:           vars.margin.top + offset
 
-    vars.width.viz -= (vars.tooltip.large + offset * 2) unless d3.select("div#d3plus_tooltip_id_visualization_focus").empty()
+    vars.width.viz -= (vars.tooltip.large + offset * 2)
 
     print.timeEnd "drawing focus tooltip" if vars.dev.value
 
