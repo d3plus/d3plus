@@ -328,6 +328,8 @@ module.exports = function( vars , group ) {
               bounds.height += vars.labels.padding*scale[0];
               bounds.x -= (vars.labels.padding*scale[0])/2;
               bounds.y -= (vars.labels.padding*scale[0])/2;
+              var t = text.attr("transform").split(")");
+              bounds.y += parseFloat(t[t.length-2].split(",")[1]);
 
             }
             else {
