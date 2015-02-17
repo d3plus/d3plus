@@ -12,15 +12,15 @@ validate    = require "./validate.coffee"
 module.exports = (obj1, obj2) ->
 
   copyObject = (obj, ret) ->
-    for a of obj
-      unless typeof obj[a] is "undefined"
-        if validate(obj[a])
-          ret[a] = {}  if typeof ret[a] isnt "object"
-          copyObject obj[a], ret[a]
-        else if not d3selection(obj[a]) and obj[a] instanceof Array
-          ret[a] = obj[a].slice(0)
+    for k, v of obj
+      unless typeof v is "undefined" or k.indexOf("d3plus") is 0
+        if validate v
+          ret[k] = {} if typeof ret[k] isnt "object"
+          copyObject v, ret[k]
+        else if not d3selection(v) and v instanceof Array
+          ret[k] = v.slice 0
         else
-          ret[a] = obj[a]
+          ret[k] = v
 
   obj3 = {}
 
