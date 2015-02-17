@@ -11,18 +11,22 @@ module.exports = (vars, type) ->
 
   get_keys = (arr) ->
     if arr instanceof Array
-      for d in arr
-        get_keys d
+      get_keys d for a in arr
     else if validObject arr
       for k, v of arr
-        if validObject v
-          get_keys v
-        else if !(k in vars[type].keys) and v isnt null
+        if k.indexOf("d3plus") isnt 0 and
+           !(k in vars[type].keys) and
+           v isnt null
           vars[type].keys[k] = typeof v
 
   if validObject vars[type].value
-    get_keys v for k, v of vars[type].value
+    lengthMatch = d3.keys(vars[type].value).length is vars.id.nesting.length
+    for k, v of vars[type].value
+      if lengthMatch and vars.id.nesting.indexOf(k) >= 0 and validObject v
+        get_keys vv for kk, vv of v
+      else
+        get_keys v
   else
-    get_keys vars[type].value
+    get_keys v for k, v of vars[type].value
 
   print.time timerString if vars.dev.value
