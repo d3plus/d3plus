@@ -25,7 +25,9 @@ module.exports = (vars, data) ->
     .key (d) ->
       return_id = "nesting"
       for id in vars.id.nesting
-        return_id += "_"+fetchValue vars, d, id
+        val = fetchValue vars, d, id
+        val = val.join("_") if val instanceof Array
+        return_id += "_"+val
       return_id
     .rollup (leaves) ->
 
