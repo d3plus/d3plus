@@ -63,10 +63,10 @@ module.exports = function(vars,selection,enter,exit) {
         if (lr && lr[0]) {
 
           var label = {
-            "w": Math.floor(lr[0].width),
-            "h": Math.floor(lr[0].height),
-            "x": Math.floor(lr[0].cx),
-            "y": Math.floor(lr[0].cy),
+            "w": ~~(lr[0].width),
+            "h": ~~(lr[0].height),
+            "x": ~~(lr[0].cx),
+            "y": ~~(lr[0].cy),
             "angle": lr[0].angle*-1,
             "padding": 2,
             "names": names

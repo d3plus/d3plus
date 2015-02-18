@@ -139,7 +139,7 @@ module.exports = (vars) ->
 
     textSizes      = fontSizes(years.map(timeFormatter),textStyle)
     yearWidths     = textSizes.map (t) -> t.width
-    yearWidth      = Math.ceil d3.max(yearWidths)
+    yearWidth      = ~~(d3.max(yearWidths))+1
     yearHeight     = d3.max(textSizes.map (t) -> t.height)
     labelWidth     = yearWidth+vars.ui.padding*2
     timelineHeight = yearHeight+vars.ui.padding*2
@@ -162,7 +162,7 @@ module.exports = (vars) ->
       oldWidth = labelWidth-vars.ui.padding*2
       labelWidth = timelineWidth/years.length
       if oldWidth > labelWidth
-        tickStep = Math.ceil(oldWidth/(timelineWidth/years.length))
+        tickStep = ~~(oldWidth/(timelineWidth/years.length))+1
         while tickStep < years.length - 1
           break if (years.length-1) % tickStep is 0
           tickStep++
