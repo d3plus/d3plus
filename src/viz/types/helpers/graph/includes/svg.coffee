@@ -152,8 +152,7 @@ module.exports = (vars) ->
         .style "text-anchor", if rotated then "end" else "middle"
         .call tickFont, "x"
         .each "end", (d) ->
-          if vars.x.ticks.wrap and !vars.x.ticks.hidden and
-             vars.x.ticks.visible.indexOf(d) >= 0
+          if !vars.x.ticks.hidden and vars.x.ticks.visible.indexOf(d) >= 0
             textwrap()
               .container(d3.select(this))
               .height(vars.x.ticks.maxHeight)
