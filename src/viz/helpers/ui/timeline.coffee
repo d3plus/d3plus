@@ -147,6 +147,10 @@ module.exports = (vars) ->
     availableWidth = vars.width.value-vars.ui.padding*2
     tickStep       = 1
     textRotate     = 0
+    playbackWidth  = timelineHeight
+
+    if vars.timeline.play.value
+      availableWidth -= playbackWidth + vars.ui.padding
 
     if timelineWidth > availableWidth
       labelWidth     = yearHeight+vars.ui.padding*2
@@ -175,19 +179,19 @@ module.exports = (vars) ->
       start_x = vars.width.value/2 - timelineWidth/2
 
     if vars.timeline.play.value
-      start_x += (timelineHeight + vars.ui.padding)/2
+      start_x += (playbackWidth + vars.ui.padding)/2
 
     playButton = vars.g.timeline.selectAll("rect.d3plus_timeline_play")
       .data if vars.timeline.play.value then [0] else []
 
     playStyle = (btn) ->
       btn
-        .attr "width", timelineHeight + 1
+        .attr "width", playbackWidth + 1
         .attr "height", timelineHeight + 1
         .attr "fill", vars.ui.color.primary.value
         .attr "stroke", vars.timeline.tick
         .attr "stroke-width", 1
-        .attr "x", start_x - timelineHeight - 1 - vars.ui.padding
+        .attr "x", start_x - playbackWidth - 1 - vars.ui.padding
         .attr "y", vars.ui.padding
 
     playButton.enter().append("rect")
@@ -217,7 +221,7 @@ module.exports = (vars) ->
       text
         .attr "fill", textColor vars.ui.color.primary.value
         .attr textStyle
-        .attr "x", start_x - (timelineHeight - 1)/2 - vars.ui.padding
+        .attr "x", start_x - (playbackWidth - 1)/2 - vars.ui.padding
         .attr "y", y
         .attr "dy", "0.5ex"
         .call playIconChar, if playInterval then "pause" else "icon"
