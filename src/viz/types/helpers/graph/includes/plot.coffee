@@ -27,6 +27,15 @@ module.exports = (vars, opts) ->
         else
           ticks = vars.data.time.values
 
+        extent = d3.extent ticks
+        step = vars.data.time.stepType
+        ticks = [extent[0]]
+        tick = extent[0]
+        while tick < extent[1]
+          newtick = new Date tick
+          tick = new Date newtick["set"+step](newtick["get"+step]()+1)
+          ticks.push tick
+
         vars[axis].ticks.values = ticks
 
       else
