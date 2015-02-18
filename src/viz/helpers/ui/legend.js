@@ -54,9 +54,10 @@ module.exports = function(vars) {
           colorDepth = 0,
           colorKey = vars.id.value;
 
-      if (vars.id.nesting.indexOf(vars.color.value) >= 0) {
-        colorDepth = vars.id.nesting.indexOf(vars.color.value);
-        colorKey = vars.id.nesting[vars.id.nesting.indexOf(vars.color.value)];
+      var colorIndex = vars.id.nesting.indexOf(vars.color.value);
+      if (colorIndex >= 0) {
+        colorDepth = colorIndex;
+        colorKey = vars.id.nesting[colorIndex];
       }
       else {
 
@@ -70,7 +71,7 @@ module.exports = function(vars) {
               }),
               uniqueColors = uniqueValues(data, colorFunction);
 
-          if (uniqueIDs.length === uniqueColors.length && uniqueColors.length > 1) {
+          if (uniqueIDs.length <= uniqueColors.length && uniqueColors.length > 1) {
             break;
           }
 
