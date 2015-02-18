@@ -1,23 +1,25 @@
-# Returns distances of all objects in array
-module.exports = (arr, accessor) ->
+distance = require "./distance.coffee"
 
+# Returns distances of all objects in array
+module.exports = (arr, opts) ->
+
+  opts      = {} unless opts
   distances = []
 
   quad = d3.geom.quadtree()
-    .x (d) -> if accessor then accessor(d)[0] else d.x
-    .y (d) -> if accessor then accessor(d)[1] else d.y
+    .x (d) -> if opts.accessor then opts.accessor(d)[0] else d[0]
+    .y (d) -> if opts.accessor then opts.accessor(d)[1] else d[1]
 
   quad(arr).visit (node) ->
     unless node.leaf
       for n1 in node.nodes
         if n1 and n1.point
-          node1 = n1.point
-          for n2 in node.nodes
-            if n2 and n2.point and n2.point isnt node1
-              node2 = n2.point
-              xx = Math.abs node1.x - node2.x
-              yy = Math.abs node1.y - node2.y
-              distances.push Math.sqrt((xx * xx) + (yy * yy))
+          if opts.origin
+            distances.push(distance n1.point, opts.origin)
+          else
+            for n2 in node.nodes
+              if n2 and n2.point and n2.point isnt n1.point
+                distances.push(distance n1.point, n2.point)
     false
 
-  d3.min distances
+  if opts.all then distances.sort((aa, bb) -> aa-bb) else d3.min distances
