@@ -31,7 +31,9 @@ var network = function(vars) {
     var min_size = vars.size.value;
   }
   else {
-    var max_size = smallestGap(nodes);
+    var max_size = smallestGap(nodes, {"accessor": function(n){
+      return [n.x, n.y];
+    }});
 
     var overlap = vars.size.value ? vars.nodes.overlap : 0.4
     max_size = max_size * overlap

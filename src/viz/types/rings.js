@@ -176,12 +176,12 @@ var rings = function(vars) {
 
   })
 
-  var primaryDistance = smallestGap(primaries,function(n){
+  var primaryDistance = smallestGap(primaries,{"accessor": function(n){
         return [n.d3plus.x, n.d3plus.y]
-      })
-    , secondaryDistance = smallestGap(secondaries,function(n){
+      }})
+    , secondaryDistance = smallestGap(secondaries,{"accessor": function(n){
         return [n.d3plus.x, n.d3plus.y]
-      })
+      }})
 
   if (!primaryDistance) {
     primaryDistance = ring_width/2
