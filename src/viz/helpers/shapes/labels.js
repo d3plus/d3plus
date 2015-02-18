@@ -314,7 +314,9 @@ module.exports = function( vars , group ) {
 
           if (text.size() === 0 || text.selectAll("tspan").size() === 0) {
             delete d.d3plus_label;
-            group.selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
+            d3.select(this).selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
+              .call(remove);
+            vars.g.labels.selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
               .call(remove);
           }
           else {
@@ -398,14 +400,18 @@ module.exports = function( vars , group ) {
         }
         else {
           delete d.d3plus_label;
-          group.selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
+          d3.select(this).selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
+            .call(remove);
+          vars.g.labels.selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
             .call(remove);
         }
 
       }
       else {
         delete d.d3plus_label;
-        group.selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
+        d3.select(this).selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
+          .call(remove);
+        vars.g.labels.selectAll("text#d3plus_label_"+d.d3plus.id+", rect#d3plus_label_bg_"+d.d3plus.id)
           .call(remove);
       }
     });
