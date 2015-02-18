@@ -187,12 +187,13 @@ labelPadding = (vars) ->
   xAxisHeight = Math.round xAxisHeight
   xAxisWidth  = Math.round xAxisWidth
   vars.axes.margin.bottom += xAxisHeight
-  # vars.axes.margin.bottom += vars.x.ticks.size
-  lastTick = vars.x.ticks.values[vars.x.ticks.values.length - 1]
+  lastTick = vars.x.ticks.visible[vars.x.ticks.visible.length - 1]
   rightLabel = vars.x.scale.viz lastTick
-  rightPadding = vars.axes.width - rightLabel
-  if rightPadding < xAxisWidth
-    vars.axes.width -= (xAxisWidth/2 - rightPadding)
+  rightLabel += xAxisWidth/2 + vars.axes.margin.left
+  if rightLabel > vars.width.value
+    rightMod = rightLabel - vars.width.value + vars.axes.margin.right
+    vars.axes.width -= rightMod
+    vars.axes.margin.right += rightMod
 
   xLabel = vars.x.label.fetch vars
   if xLabel
