@@ -88,6 +88,7 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     var paths = group.selectAll("path.d3plus_line")
       .data(segments, function(d){
+        if (!d.d3plus) d.d3plus = {};
         d.d3plus.shape = "line";
         return d.segment_key;
       });
@@ -97,6 +98,7 @@ module.exports = function(vars,selection,enter,exit) {
     //--------------------------------------------------------------------------
     var rects = group.selectAll("rect.d3plus_anchor")
       .data(nodes, function(d){
+        if (!d.d3plus) d.d3plus = {};
         d.d3plus.r = vars.data.stroke.width * 2;
         return d.d3plus.id;
       });
