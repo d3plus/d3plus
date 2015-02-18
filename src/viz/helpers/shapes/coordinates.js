@@ -56,8 +56,6 @@ module.exports = function(vars,selection,enter,exit) {
 
     selection.each(function(d){
 
-      var b = vars.path.bounds(d);
-
       if (d.geometry.coordinates.length > 1) {
 
         var areas = [];
@@ -66,16 +64,15 @@ module.exports = function(vars,selection,enter,exit) {
           var test = copy(d);
           test.geometry.coordinates = [test.geometry.coordinates[i]];
           var a = vars.path.area(test);
-          if (a >= vars.coords.threshold) {
+          if (a >= vars.coords.threshold.value) {
             areas.push(a);
             return true;
           }
           return false;
 
         });
-        areas.sort(function(a,b){
-          return a-b;
-        });
+
+        areas.sort(function(aa, bb){ return aa-bb; });
 
         var reduced = copy(d),
             largest = copy(d);
@@ -94,6 +91,8 @@ module.exports = function(vars,selection,enter,exit) {
 
         vars.zoom.coords[d.d3plus.id] = reduced;
 
+        var b = vars.path.bounds(reduced);
+
         var coords = largest.geometry.coordinates[0];
         if (coords && largest.geometry.type === "MultiPolygon") {
           coords = coords[0];
@@ -103,7 +102,8 @@ module.exports = function(vars,selection,enter,exit) {
 
       }
       else {
-        var reduced = d, largest = d, coords = d.geometry.coordinates[0];
+        var b = vars.path.bounds(d), reduced = d, largest = d, 
+            coords = d.geometry.coordinates[0];
         vars.zoom.coords[d.d3plus.id] = d;
 
       }

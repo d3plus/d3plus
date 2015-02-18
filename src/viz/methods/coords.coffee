@@ -17,5 +17,7 @@ module.exports =
     accepted: ["mercator", "equirectangular"]
     value:    "mercator"
   solo:      filter false
-  threshold:  0.1
+  threshold:
+    accepted: [Number]
+    value:    0.1
   value:      false
