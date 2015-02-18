@@ -114,6 +114,7 @@ d3plus.geom =
 ###
 d3plus.network =
   cluster:      require "./network/cluster.coffee"
+  distance:     require "./network/distance.coffee"
   normalize:    require "./network/normalize.coffee"
   shortestPath: require "./network/shortestPath.coffee"
   smallestGap:  require "./network/smallestGap.coffee"
