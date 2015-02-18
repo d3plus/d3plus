@@ -24,10 +24,10 @@ module.exports = (vars, data) ->
   d3.nest()
     .key (d) ->
       return_id = "nesting"
-      for id in vars.id.nesting
+      for id in vars.id.nesting.slice 0, vars.depth.value+1
         val = fetchValue vars, d, id
         val = val.join("_") if val instanceof Array
-        return_id += "_"+val
+        return_id += "_"+stringStrip val
       return_id
     .rollup (leaves) ->
 
