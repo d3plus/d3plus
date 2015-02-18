@@ -31,6 +31,7 @@ var network = function(vars) {
     var min_size = vars.size.value;
   }
   else {
+
     var max_size = smallestGap(nodes, {"accessor": function(n){
       return [n.x, n.y];
     }});
