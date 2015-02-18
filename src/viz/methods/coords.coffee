@@ -19,5 +19,5 @@ module.exports =
   solo:      filter false
   threshold:
     accepted: [Number]
-    value:    0.1
+    value:    0.9
   value:      false

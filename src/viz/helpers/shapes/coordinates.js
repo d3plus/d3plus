@@ -1,4 +1,5 @@
 var copy = require("../../../util/copy.coffee"),
+    distance    = require("../../../network/distance.coffee"),
     fetchText   = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
@@ -58,40 +59,48 @@ module.exports = function(vars,selection,enter,exit) {
 
       if (d.geometry.coordinates.length > 1) {
 
-        var areas = [];
+        var distances = [],
+            areas = [],
+            test = copy(d),
+            largest = copy(d),
+            largest_area = 0;
+
         d.geometry.coordinates = d.geometry.coordinates.filter(function(c,i){
 
-          var test = copy(d);
-          test.geometry.coordinates = [test.geometry.coordinates[i]];
+          test.geometry.coordinates = [c];
           var a = vars.path.area(test);
-          if (a >= vars.coords.threshold.value) {
+          if (a > 0) {
             areas.push(a);
+            if (a > largest_area) {
+              largest.geometry.coordinates = [c];
+              largest_area = a;
+            }
             return true;
           }
           return false;
 
         });
 
-        areas.sort(function(aa, bb){ return aa-bb; });
+        var center = vars.path.centroid(largest),
+            reduced = copy(d);
 
-        var reduced = copy(d),
-            largest = copy(d);
-
-        reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
-
-          var test = copy(d);
-          test.geometry.coordinates = [test.geometry.coordinates[i]];
-          var a = vars.path.area(test);
-          if (a == areas[areas.length-1]) {
-            largest.geometry.coordinates = test.geometry.coordinates;
-          }
-          return a >= d3.quantile(areas, 0.9);
-
+        d.geometry.coordinates.forEach(function(c,i){
+          test.geometry.coordinates = [c];
+          distances.push(distance(vars.path.centroid(test),center));
         });
 
-        vars.zoom.coords[d.d3plus.id] = reduced;
+        var dist_values = distances.reduce(function(arr, dist, i){
+              if (dist) {
+                arr.push(areas[i]/dist);
+              }
+              return arr;
+            }, []),
+            dist_cutoff = d3.quantile(dist_values, vars.coords.threshold.value);
 
-        var b = vars.path.bounds(reduced);
+        reduced.geometry.coordinates = reduced.geometry.coordinates.filter(function(c,i){
+          var dist = distances[i], a = areas[i];
+          return dist === 0 || a/dist > dist_cutoff;
+        });
 
         var coords = largest.geometry.coordinates[0];
         if (coords && largest.geometry.type === "MultiPolygon") {
@@ -102,11 +111,12 @@ module.exports = function(vars,selection,enter,exit) {
 
       }
       else {
-        var b = vars.path.bounds(d), reduced = d, largest = d, 
-            coords = d.geometry.coordinates[0];
-        vars.zoom.coords[d.d3plus.id] = d;
-
+        var reduced = d, largest = d, coords = d.geometry.coordinates[0];
       }
+
+      vars.zoom.coords[d.d3plus.id] = reduced;
+
+      var b = vars.path.bounds(reduced);
 
       var names = fetchText(vars,d);
 
