@@ -8,11 +8,10 @@ module.exports =
     value:    "pointer"
   handles:
     accepted: [Boolean]
-    color:    "#e5e5e5"
-    hover:    "#cccccc"
+    color:    "#666"
     opacity:  1
-    size:     2
-    stroke:   "#818181"
+    size:     3
+    stroke:   "#666"
     value:    true
   height:
     accepted: [Number]
@@ -35,5 +34,4 @@ module.exports =
       accepted: [Number]
       value:    1500
     value:    true
-  tick:  "#818181"
   value: true

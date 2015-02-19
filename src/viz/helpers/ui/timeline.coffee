@@ -189,7 +189,7 @@ module.exports = (vars) ->
         .attr "width", playbackWidth + 1
         .attr "height", timelineHeight + 1
         .attr "fill", vars.ui.color.primary.value
-        .attr "stroke", vars.timeline.tick
+        .attr "stroke", vars.ui.color.primary.value
         .attr "stroke-width", 1
         .attr "x", start_x - playbackWidth - 1 - vars.ui.padding
         .attr "y", vars.ui.padding
@@ -284,10 +284,10 @@ module.exports = (vars) ->
     textFill = (d) ->
       if d >= brushExtent[0] and d < brushExtent[1]
         opacity = 1
-        color = textColor vars.ui.color.primary.value
+        color = textColor vars.ui.color.secondary.value
       else
         opacity = 0.5
-        color = textColor vars.ui.color.secondary.value
+        color = textColor vars.ui.color.primary.value
       color = d3.rgb(color)
       "rgba("+color.r+","+color.g+","+color.b+","+opacity+")"
 
@@ -299,14 +299,14 @@ module.exports = (vars) ->
       .attr("shape-rendering","crispEdges")
       .attr("width",timelineWidth+2)
       .attr("height",timelineHeight+2)
-      .attr("fill",vars.ui.color.secondary.value)
+      .attr("fill",vars.ui.color.primary.value)
       .attr("x",start_x-1)
       .attr("y",vars.ui.padding)
 
     background.transition().duration(vars.draw.timing)
       .attr("width",timelineWidth+2)
       .attr("height",timelineHeight+2)
-      .attr("fill",vars.ui.color.secondary.value)
+      .attr("fill",vars.ui.color.primary.value)
       .attr("x",start_x-1)
       .attr("y",vars.ui.padding)
 
@@ -375,7 +375,7 @@ module.exports = (vars) ->
       .selectAll("path").attr("fill","none")
 
     ticks.selectAll("line")
-      .attr("stroke",vars.timeline.tick)
+      .attr("stroke",vars.ui.color.secondary.color)
       .attr("stroke-width",1)
       .attr("shape-rendering","crispEdges")
 
@@ -389,7 +389,7 @@ module.exports = (vars) ->
     brush_group.selectAll("rect.background")
       .attr("fill","none")
       # .attr("stroke-width",1)
-      # .attr("stroke",vars.ui.color.secondary.value)
+      # .attr("stroke",vars.ui.color.primary.value)
       .style("visibility","visible")
       .attr("height",timelineHeight)
       .attr("shape-rendering","crispEdges")
@@ -400,9 +400,9 @@ module.exports = (vars) ->
 
     brush_group.selectAll("rect.extent")
       # .attr("stroke-width",1)
-      # .attr("stroke",vars.ui.color.secondary.value)
+      # .attr("stroke",vars.ui.color.primary.value)
       .attr("height",timelineHeight)
-      .attr("fill",vars.ui.color.primary.value)
+      .attr("fill",vars.ui.color.secondary.value)
       .attr("shape-rendering","crispEdges")
       .on events.move, () ->
         c = vars.timeline.hover.value
@@ -429,14 +429,6 @@ module.exports = (vars) ->
         .style("visibility","visible")
         .attr("shape-rendering","crispEdges")
         .attr("opacity",vars.timeline.handles.opacity)
-        .on events.over, () ->
-          d3.select(this).select("rect")
-            .transition().duration(vars.timing.mouseevents)
-            .attr("fill",vars.timeline.handles.hover)
-        .on events.out, () ->
-          d3.select(this).select("rect")
-            .transition().duration(vars.timing.mouseevents)
-            .attr("fill",vars.timeline.handles.color)
 
       brush_group.selectAll("g.resize").selectAll("rect")
         .attr("height",timelineHeight)
