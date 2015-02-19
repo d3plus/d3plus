@@ -1,9 +1,10 @@
-closest   = require("../../../util/closest.coffee")
-fontSizes = require("../../../font/sizes.coffee")
-events    = require("../../../client/pointer.coffee")
-prefix    = require("../../../client/prefix.coffee")
-print     = require("../../../core/console/print.coffee")
-textColor = require("../../../color/text.coffee")
+closest   = require "../../../util/closest.coffee"
+css       = require "../../../client/css.coffee"
+fontSizes = require "../../../font/sizes.coffee"
+events    = require "../../../client/pointer.coffee"
+prefix    = require "../../../client/prefix.coffee"
+print     = require "../../../core/console/print.coffee"
+textColor = require "../../../color/text.coffee"
 
 playInterval = false
 
@@ -210,11 +211,16 @@ module.exports = (vars) ->
       .data if vars.timeline.play.value then [0] else []
 
     playIconChar = (text, char) ->
-      char = vars.timeline.play[char].value
-      className = if char.indexOf("fa-") is 0 then " fa "+char else ""
+      char = vars.timeline.play[char]
+      if css "font-awesome"
+        char = char.awesome
+        font = "FontAwesome"
+      else
+        char = char.fallback
+        font = "inherit"
       text
-        .attr "class", "d3plus_timeline_playIcon" + className
-        .text if char.indexOf("fa-") is 0 then "" else char
+        .style "font-family", font
+        .text char
 
     playIconStyle = (text) ->
       y = timelineHeight/2 + vars.ui.padding + 1
