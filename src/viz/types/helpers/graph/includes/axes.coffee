@@ -135,17 +135,23 @@ axisRange = (vars, axis, zero, buffer) ->
         sort = vars.order.sort.value
         agg = vars.order.agg.value or vars.aggs.value[sortKey] or "max"
         aggType = typeof agg
-        valueNest = d3.nest()
-          .key (d) -> fetchValue vars, d, vars[axis].value
-          .rollup (leaves) ->
-            if aggType is "string"
-              d3[agg] leaves, (d) -> fetchValue vars, d, sortKey
-            else if aggType is "function"
-              agg leaves, sortKey
-          .entries vars.axes.dataset
-        valueNest.sort (a, b) ->
-          if sort is "desc" then b.values - a.values else a.values - b.values
-        valueNest.reduce (arr, v) ->
+        counts = values.reduce (obj, val) ->
+          obj[val] = []
+          obj
+        , {}
+        for d in vars.axes.dataset
+          for v in d.values
+            group = fetchValue vars, v, vars[axis].value
+            counts[group].push fetchValue vars, v, sortKey
+        for k, v of counts
+          if aggType is "string"
+            counts[k] = d3[agg] v
+          else if aggType is "function"
+            counts[k] = agg v, sortKey
+        counts = d3.entries(counts)
+        counts.sort (a, b) ->
+          if sort is "desc" then b.value - a.value else a.value - b.value
+        counts.reduce (arr, v) ->
           arr.push v.key
           arr
         , []
