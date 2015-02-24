@@ -276,7 +276,7 @@ module.exports = function(vars) {
         }
         var align = getAlign(t);
         if (align === "start") {
-          var x = vars.margin.left;
+          var x = vars.margin.left + vars.title.padding;
         }
         else {
           var w = d3.select(this).select("text").node().getBBox().width;
@@ -284,7 +284,7 @@ module.exports = function(vars) {
             x = vars.width.value/2 - titleWidth/2;
           }
           else {
-            x = vars.width.value - titleWidth - vars.margin.right;
+            x = vars.width.value - titleWidth - vars.margin.right - vars.title.padding;
           }
         }
         return "translate("+x+","+y+")";
