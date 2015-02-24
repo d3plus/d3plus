@@ -181,43 +181,46 @@ module.exports = function(vars) {
       return t.type
     })
 
-  var titleWidth = vars.title.width || vars.width.value
+  var titleWidth = vars.title.width || vars.width.value-vars.margin.left-vars.margin.right;
 
   titles.enter().append("g")
     .attr("class","d3plus_title")
     .attr("opacity",0)
-    .attr("transform",function(t){
-      var y = t.style.position == "top" ? 0 : vars.height.value
-      if (vars.title.width) {
-        var x = vars.width.value/2 - vars.title.width/2;
-      }
-      else {
-        var x = 0;
-      }
-      return "translate("+x+","+y+")";
-    })
+    // .attr("transform",function(t){
+    //   var y = t.style.position == "top" ? 0 : vars.height.value
+    //   if (vars.title.width) {
+    //     var x = vars.width.value/2 - vars.title.width/2;
+    //   }
+    //   else {
+    //     var x = 0;
+    //   }
+    //   return "translate("+x+","+y+")";
+    // })
     .append("text")
       .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Wrap text and calculate positions, then transition style and opacity
   //----------------------------------------------------------------------------
+  function getAlign(d) {
+    var align = d.style.font.align;
+    if (align == "center") {
+      return "middle";
+    }
+    else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
+      return "start";
+    }
+    else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
+      return "end";
+    }
+    return align;
+  }
   titles
     .each(function(d){
 
       var container = d3.select(this).select("text").call(style);
 
-      var align = d.style.font.align
-
-      if (align == "center") {
-        align = "middle"
-      }
-      else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
-        align = "start"
-      }
-      else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
-        align = "end"
-      }
+      var align = getAlign(d);
 
       textWrap()
         .align(align)
@@ -271,11 +274,18 @@ module.exports = function(vars) {
         else {
           y += t.style.padding
         }
-        if (vars.title.width) {
-          var x = vars.width.value/2 - vars.title.width/2;
+        var align = getAlign(t);
+        if (align === "start") {
+          var x = vars.margin.left;
         }
         else {
-          var x = 0;
+          var w = d3.select(this).select("text").node().getBBox().width;
+          if (align === "middle") {
+            x = vars.width.value/2 - titleWidth/2;
+          }
+          else {
+            x = vars.width.value - titleWidth - vars.margin.right;
+          }
         }
         return "translate("+x+","+y+")";
       })
