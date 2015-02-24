@@ -65,6 +65,7 @@ module.exports = (vars) ->
       .icon
         button: (if deepest then false else vars.icon.next)
         select: (if deepest then vars.icon.select else false)
+        value:  vars.icon.value
       .order order
       .text vars.text.secondary.value or vars.text.value
       .timing

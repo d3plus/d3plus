@@ -33,6 +33,7 @@ module.exports = {
     "value"    : false
   },
   "filters"  : [],
+  "large": 400,
   "mute"     : [],
   "process"  : function(value, vars) {
 
