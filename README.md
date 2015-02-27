@@ -13,10 +13,10 @@
 A javascript library that extends the popular [D3.js](http://d3js.org) to enable fast and beautiful visualizations.
 
 ### Helpful Links
-* [Examples](http://d3plus.org/examples/)
+* [Live Examples](http://d3plus.org/examples/)
 * [Documentation](https://github.com/alexandersimoes/d3plus/wiki)
-* [Google Group](https://groups.google.com/forum/#!forum/d3plus)
-* [Issues](https://github.com/alexandersimoes/d3plus/issues?state=open)
+* [Bug Reporting](https://github.com/alexandersimoes/d3plus/issues?state=open)
+* [Google Group Discussions](https://groups.google.com/forum/#!forum/d3plus)
 * [Help with the Localization](https://docs.google.com/spreadsheets/d/1JPFkLTDqnF3azUU2ssWs_M918Rr1mXIR-Flh8ccjYlo/edit#gid=0)
 
 ### Environment Setup
