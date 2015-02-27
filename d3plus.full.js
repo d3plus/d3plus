@@ -24899,6 +24899,7 @@ module.exports = {
     "value"    : false
   },
   "filters"  : [],
+  "large": 400,
   "mute"     : [],
   "process"  : function(value, vars) {
 
@@ -26320,7 +26321,8 @@ module.exports = function(vars) {
       update: vars.draw.update
     }).font(vars.font.secondary).hover(vars.hover.value).id(vars.id.value).icon({
       button: (deepest ? false : vars.icon.next),
-      select: (deepest ? vars.icon.select : false)
+      select: (deepest ? vars.icon.select : false),
+      value: vars.icon.value
     }).order(order).text(vars.text.secondary.value || vars.text.value).timing({
       ui: vars.draw.timing
     }).ui({
@@ -28313,7 +28315,7 @@ module.exports = function(number, key, vars, data) {
     return number + symbol;
   }
   else if (key == "share") {
-    return d3.format(".2f")(number)
+    return d3.format(".2g")(number)
   }
   else {
     return d3.format(",f")(number)
@@ -28340,17 +28342,17 @@ validate = require("./validate.coffee");
 
 module.exports = function(obj1, obj2) {
   var copyObject, obj3;
-  copyObject = function(obj, ret) {
+  copyObject = function(obj, ret, plus) {
     var k, v, _results;
     _results = [];
     for (k in obj) {
       v = obj[k];
-      if (!(typeof v === "undefined" || k.indexOf("d3plus") === 0)) {
-        if (validate(v)) {
+      if (typeof v !== "undefined") {
+        if (!plus && validate(v)) {
           if (typeof ret[k] !== "object") {
             ret[k] = {};
           }
-          _results.push(copyObject(v, ret[k]));
+          _results.push(copyObject(v, ret[k], k === "d3plus"));
         } else if (!d3selection(v) && v instanceof Array) {
           _results.push(ret[k] = v.slice(0));
         } else {
@@ -31160,13 +31162,18 @@ module.exports = function(vars) {
 }
 
 },{"../../../client/pointer.coffee":44,"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":71,"../../../util/uniques.coffee":205}],212:[function(require,module,exports){
-var largestRect, path2poly, shapeStyle;
+var angles, largestRect, path2poly, shapeStyle;
 
 shapeStyle = require("./style.coffee");
 
 largestRect = require("../../../geom/largestRect.coffee");
 
 path2poly = require("../../../geom/path2poly.coffee");
+
+angles = {
+  start: {},
+  end: {}
+};
 
 module.exports = function(vars, selection, enter, exit) {
   var arc, arcTween, data, newarc;
@@ -31205,21 +31212,21 @@ module.exports = function(vars, selection, enter, exit) {
     newarc = d3.svg.arc().innerRadius(0).outerRadius(function(d) {
       return d.d3plus.r;
     }).startAngle(function(d) {
-      if (d.d3plus.startAngleCurrent === void 0) {
-        d.d3plus.startAngleCurrent = 0;
+      if (angles.start[d.d3plus.id] === void 0) {
+        angles.start[d.d3plus.id] = 0;
       }
-      if (isNaN(d.d3plus.startAngleCurrent)) {
-        d.d3plus.startAngleCurrent = d.d3plus.startAngle;
+      if (isNaN(angles.start[d.d3plus.id])) {
+        angles.start[d.d3plus.id] = d.d3plus.startAngle;
       }
-      return d.d3plus.startAngleCurrent;
+      return angles.start[d.d3plus.id];
     }).endAngle(function(d) {
-      if (d.d3plus.endAngleCurrent === void 0) {
-        d.d3plus.endAngleCurrent = 0;
+      if (angles.end[d.d3plus.id] === void 0) {
+        angles.end[d.d3plus.id] = 0;
       }
-      if (isNaN(d.d3plus.endAngleCurrent)) {
-        d.d3plus.endAngleCurrent = d.d3plus.endAngle;
+      if (isNaN(angles.end[d.d3plus.id])) {
+        angles.end[d.d3plus.id] = d.d3plus.endAngle;
       }
-      return d.d3plus.endAngleCurrent;
+      return angles.end[d.d3plus.id];
     });
     arcTween = function(arcs, newAngle) {
       return arcs.attrTween("d", function(d) {
@@ -31231,11 +31238,11 @@ module.exports = function(vars, selection, enter, exit) {
           s = 0;
           e = 0;
         }
-        interpolateS = d3.interpolate(d.d3plus.startAngleCurrent, s);
-        interpolateE = d3.interpolate(d.d3plus.endAngleCurrent, e);
+        interpolateS = d3.interpolate(angles.start[d.d3plus.id], s);
+        interpolateE = d3.interpolate(angles.end[d.d3plus.id], e);
         return function(t) {
-          d.d3plus.startAngleCurrent = interpolateS(t);
-          d.d3plus.endAngleCurrent = interpolateE(t);
+          angles.start[d.d3plus.id] = interpolateS(t);
+          angles.end[d.d3plus.id] = interpolateE(t);
           return newarc(d);
         };
       });
@@ -36945,43 +36952,46 @@ module.exports = function(vars) {
       return t.type
     })
 
-  var titleWidth = vars.title.width || vars.width.value
+  var titleWidth = vars.title.width || vars.width.value-vars.margin.left-vars.margin.right;
 
   titles.enter().append("g")
     .attr("class","d3plus_title")
     .attr("opacity",0)
-    .attr("transform",function(t){
-      var y = t.style.position == "top" ? 0 : vars.height.value
-      if (vars.title.width) {
-        var x = vars.width.value/2 - vars.title.width/2;
-      }
-      else {
-        var x = 0;
-      }
-      return "translate("+x+","+y+")";
-    })
+    // .attr("transform",function(t){
+    //   var y = t.style.position == "top" ? 0 : vars.height.value
+    //   if (vars.title.width) {
+    //     var x = vars.width.value/2 - vars.title.width/2;
+    //   }
+    //   else {
+    //     var x = 0;
+    //   }
+    //   return "translate("+x+","+y+")";
+    // })
     .append("text")
       .call(style)
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Wrap text and calculate positions, then transition style and opacity
   //----------------------------------------------------------------------------
+  function getAlign(d) {
+    var align = d.style.font.align;
+    if (align == "center") {
+      return "middle";
+    }
+    else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
+      return "start";
+    }
+    else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
+      return "end";
+    }
+    return align;
+  }
   titles
     .each(function(d){
 
       var container = d3.select(this).select("text").call(style);
 
-      var align = d.style.font.align
-
-      if (align == "center") {
-        align = "middle"
-      }
-      else if ((align == "left" && !rtl) || (align == "right" && rtl)) {
-        align = "start"
-      }
-      else if ((align == "left" && rtl) || (align == "right" && !rtl)) {
-        align = "end"
-      }
+      var align = getAlign(d);
 
       textWrap()
         .align(align)
@@ -37035,11 +37045,18 @@ module.exports = function(vars) {
         else {
           y += t.style.padding
         }
-        if (vars.title.width) {
-          var x = vars.width.value/2 - vars.title.width/2;
+        var align = getAlign(t);
+        if (align === "start") {
+          var x = vars.margin.left + vars.title.padding;
         }
         else {
-          var x = 0;
+          var w = d3.select(this).select("text").node().getBBox().width;
+          if (align === "middle") {
+            x = vars.width.value/2 - titleWidth/2;
+          }
+          else {
+            x = vars.width.value - titleWidth - vars.margin.right - vars.title.padding;
+          }
         }
         return "translate("+x+","+y+")";
       })
