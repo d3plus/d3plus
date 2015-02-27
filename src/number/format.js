@@ -30,7 +30,7 @@ module.exports = function(number, key, vars, data) {
     return number + symbol;
   }
   else if (key == "share") {
-    return d3.format(".2f")(number)
+    return d3.format(".2g")(number)
   }
   else {
     return d3.format(",f")(number)
