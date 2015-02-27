@@ -13,72 +13,35 @@
 A javascript library that extends the popular [D3.js](http://d3js.org) to enable fast and beautiful visualizations.
 
 ### Helpful Links
+* [Getting Started](http://d3plus.org/blog/getting-started/2014/06/12/getting-started-1/)
 * [Live Examples](http://d3plus.org/examples/)
 * [Documentation](https://github.com/alexandersimoes/d3plus/wiki)
 * [Bug Reporting](https://github.com/alexandersimoes/d3plus/issues?state=open)
 * [Google Group Discussions](https://groups.google.com/forum/#!forum/d3plus)
 * [Help with the Localization](https://docs.google.com/spreadsheets/d/1JPFkLTDqnF3azUU2ssWs_M918Rr1mXIR-Flh8ccjYlo/edit#gid=0)
 
-### Environment Setup
+### Development Environment
 
-Download the latest versions of D3plus (directory includes all dependencies):
-
-> <http://d3plus.org/d3plus.zip>
-
-Note that because we will be running these files locally, our browser will raise errors when trying to do AJAX requests. The best way around this is to run a local server, if you have python installed this can be accomplished on the command line via:
-
-```js
-python -m SimpleHTTPServer 8888 &
+Clone the repo:
+```sh
+git clone https://github.com/alexandersimoes/d3plus.git
 ```
 
-or for Python 3+
-
-```js
-python -m http.server 8888 &
+Move into that directory:
+```sh
+cd d3plus
 ```
 
-Once this is running, go to <http://localhost:8888/>.
-
-Another alternative is using [MAMP](http://www.mamp.info/) (on OSX) or [WampServer](http://www.wampserver.com/) (on Windows), which will install a local version of the Apache web server.
-
-### Creating a Visualization
-
-To initialize a **D3plus** visualization, you must first create a container element in the page body:
-
-```html
-<div id="viz"></div>
+Install the dependencies:
+```sh
+npm install
 ```
 
-Then, you must initialize the visualization:
-
-```js
-var visualization = d3plus.viz()
+Run the gulp process:
+```sh
+gulp
 ```
 
-Finally, given we have a "data" variable as an array of objects, we pass both that "data" and our container element (using standard [D3 Selection Methods](https://github.com/mbostock/d3/wiki/Selections#selecting-elements)) to the visualization:
+Gulp will run a server on your local machine at port 4000, and whenever you change a source file it will re-compile d3plus.js and reload your browser!
 
-```js
-visualization
-	.data(data)
-	.container("#viz")
-```
-
-And that's it! All you have to do now is invoke the [Draw](https://github.com/alexandersimoes/d3plus/wiki/Visualizations#draw) method to draw the visualization on the page.
-
-```js
-visualization.draw()
-```
-
-### Changing Variables
-Given you followed the tutorial above to create a **D3plus** visualization, your page should look, well, fairly empty and broken.
-
-That is because there are some specific methods you should invoke on your visualization that will tell it a little more about your data and what you would like to display. For example, if you want to display a [Tree Map](https://github.com/alexandersimoes/d3plus/wiki/Tree-Map) and your data is keyed with an id of "person", you would call the following methods:
-
-```js
-visualization
-	.type("tree_map")
-	.id("person")
-	.draw()
-```
-
-Once you set the [methods](https://github.com/alexandersimoes/d3plus/wiki/Visualizations#available-methods) you need to change, you just need to invoke the [Draw](https://github.com/alexandersimoes/d3plus/wiki/Visualizations#draw) method again to display your changes.
+Additionally, the gulp process watches for any files in a directory titles "/tests". If you place all of your test .html files in a directory of that name, the gulp process will also detect any file changes and refresh the browser.
