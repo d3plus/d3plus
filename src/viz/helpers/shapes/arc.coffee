@@ -1,6 +1,7 @@
 shapeStyle  = require "./style.coffee"
 largestRect = require "../../../geom/largestRect.coffee"
 path2poly   = require "../../../geom/path2poly.coffee"
+angles      = {start: {}, end: {}}
 
 module.exports = (vars, selection, enter, exit) ->
 
@@ -21,10 +22,10 @@ module.exports = (vars, selection, enter, exit) ->
           angle: 0
         if rect[0]
           d.d3plus_label =
-            w:         rect[0].width
-            h:         rect[0].height
-            x:         rect[0].cx
-            y:         rect[0].cy
+            w: rect[0].width
+            h: rect[0].height
+            x: rect[0].cx
+            y: rect[0].cy
         else
           delete d.d3plus_label
     [d]
@@ -35,13 +36,13 @@ module.exports = (vars, selection, enter, exit) ->
       .innerRadius 0
       .outerRadius (d) -> d.d3plus.r
       .startAngle (d) ->
-        d.d3plus.startAngleCurrent = 0 if d.d3plus.startAngleCurrent is undefined
-        d.d3plus.startAngleCurrent = d.d3plus.startAngle if isNaN(d.d3plus.startAngleCurrent)
-        d.d3plus.startAngleCurrent
+        angles.start[d.d3plus.id] = 0 if angles.start[d.d3plus.id] is undefined
+        angles.start[d.d3plus.id] = d.d3plus.startAngle if isNaN(angles.start[d.d3plus.id])
+        angles.start[d.d3plus.id]
       .endAngle (d) ->
-        d.d3plus.endAngleCurrent = 0 if d.d3plus.endAngleCurrent is undefined
-        d.d3plus.endAngleCurrent = d.d3plus.endAngle if isNaN(d.d3plus.endAngleCurrent)
-        d.d3plus.endAngleCurrent
+        angles.end[d.d3plus.id] = 0 if angles.end[d.d3plus.id] is undefined
+        angles.end[d.d3plus.id] = d.d3plus.endAngle if isNaN(angles.end[d.d3plus.id])
+        angles.end[d.d3plus.id]
 
     arcTween = (arcs, newAngle) ->
       arcs.attrTween "d", (d) ->
@@ -53,11 +54,11 @@ module.exports = (vars, selection, enter, exit) ->
           s = 0
           e = 0
 
-        interpolateS = d3.interpolate(d.d3plus.startAngleCurrent, s)
-        interpolateE = d3.interpolate(d.d3plus.endAngleCurrent, e)
+        interpolateS = d3.interpolate(angles.start[d.d3plus.id], s)
+        interpolateE = d3.interpolate(angles.end[d.d3plus.id], e)
         (t) ->
-          d.d3plus.startAngleCurrent = interpolateS(t)
-          d.d3plus.endAngleCurrent   = interpolateE(t)
+          angles.start[d.d3plus.id] = interpolateS(t)
+          angles.end[d.d3plus.id] = interpolateE(t)
           newarc d
 
     enter.append("path")
