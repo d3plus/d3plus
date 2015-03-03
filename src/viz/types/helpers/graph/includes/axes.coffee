@@ -14,16 +14,10 @@ module.exports = (vars, opts) ->
   for axis in ["x","y"]
 
     oppAxis  = if axis is "x" then "y" else "x"
-    filtered = vars[axis].solo.changed or vars[axis].mute.changed
-    modified = changed or vars[axis].changed or
-               (vars.time.fixed.value and filtered) or
-               vars[axis].scale.changed
     reorder  = vars.order.changed or vars.order.sort.changed or
                (vars.order.value is true and vars[oppAxis].changed)
 
-    if !("values" of vars[axis].ticks) or
-       modified or vars[axis].stacked.changed or
-       vars[axis].range.changed or reorder
+    if !("values" of vars[axis].ticks) or changed or reorder
 
       print.time "calculating "+axis+" axis" if vars.dev.value
 
@@ -63,16 +57,23 @@ module.exports = (vars, opts) ->
 
 dataChange = (vars) ->
 
-  check   = ["data", "time", "id", "depth", "type"]
   changed = vars.time.fixed.value and
             (vars.time.solo.changed or vars.time.mute.changed)
   changed = vars.id.solo.changed or vars.id.mute.changed unless changed
   return changed if changed
 
+  check = ["data", "time", "id", "depth", "type", "x", "y"]
   for k in check
     if vars[k].changed
       changed = true
       break
+
+  subs = ["mute", "range", "scale", "solo", "stacked"]
+  for axis in ["x", "y"]
+    for sub in subs
+      if vars[axis][sub].changed
+        changed = true
+        break
 
   changed
 
