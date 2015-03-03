@@ -1,11 +1,11 @@
 var fetchText = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
-    shapeStyle  = require("./style.coffee")
+    shapeStyle  = require("./style.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
-module.exports = function(vars,selection,enter,exit) {
+module.exports = function(vars, selection, enter, exit) {
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // D3 area definition
@@ -14,14 +14,20 @@ module.exports = function(vars,selection,enter,exit) {
     .x(function(d) { return d.d3plus.x; })
     .y0(function(d) { return d.d3plus.y0; })
     .y1(function(d) { return d.d3plus.y; })
-    .interpolate(vars.shape.interpolate.value)
+    .interpolate(vars.shape.interpolate.value);
+
+  var startArea = d3.svg.area()
+    .x(function(d) { return d.d3plus.x; })
+    .y0(function(d) { return d.d3plus.y0; })
+    .y1(function(d) { return d.d3plus.y0; })
+    .interpolate(vars.shape.interpolate.value);
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Enter
   //----------------------------------------------------------------------------
   enter.append("path").attr("class","d3plus_data")
-    .attr("d",function(d){ return area(d.values) })
-    .call(shapeStyle,vars)
+    .attr("d",function(d){ return startArea(d.values); })
+    .call(shapeStyle,vars);
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Update
