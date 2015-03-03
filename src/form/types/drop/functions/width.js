@@ -54,7 +54,7 @@ module.exports = function ( vars ) {
         "border": type === "primary" ? vars.ui.border : 0,
         "display": "inline-block",
         "margin": 0,
-        "padding": vars.ui.padding
+        "padding": vars.ui.padding.css
       })
       .width(false)
       .draw()

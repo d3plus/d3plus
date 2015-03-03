@@ -20,7 +20,7 @@ module.exports = function ( vars ) {
           d3.select(this).style("z-index",9999)
         }
       })
-      .style("margin",vars.ui.margin+"px")
+      .style("margin",vars.ui.margin.css)
       .each("end",function(){
         if (!vars.open.value) {
           d3.select(this).style("z-index","auto")
@@ -31,7 +31,7 @@ module.exports = function ( vars ) {
   else {
 
     vars.container.ui
-      .style("margin",vars.ui.margin+"px")
+      .style("margin",vars.ui.margin.css)
       .style("z-index",function(){
         if (vars.open.value) {
           return 9999

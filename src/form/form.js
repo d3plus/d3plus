@@ -265,10 +265,10 @@ module.exports = function() {
         // Update Container
         //------------------------------------------------------------------------
         vars.container.ui
-          .style("display",vars.ui.display.value);
+          .style("display", vars.ui.display.value);
 
         vars.container.ui.transition().duration(vars.draw.timing)
-          .style("margin",vars.ui.margin+"px");
+          .style("margin", vars.ui.margin.css);
 
         //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         // Create title, if available.
@@ -285,7 +285,7 @@ module.exports = function() {
           .style("font-family",vars.font.family.value)
           .style("font-size",vars.font.size+"px")
           .style("font-weight",vars.font.weight)
-          .style("padding",vars.ui.padding+"px")
+          .style("padding",vars.ui.padding.css)
           .style("border-color","transparent")
           .style("border-style","solid")
           .style("border-width",vars.ui.border+"px")

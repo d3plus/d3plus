@@ -1,6 +1,7 @@
 family     = require "../../core/methods/font/family.coffee"
 align      = require "../../core/methods/font/align.coffee"
 decoration = require "../../core/methods/font/decoration.coffee"
+margin     = require "../../core/methods/process/margin.coffee"
 transform  = require "../../core/methods/font/transform.coffee"
 
 module.exports =
@@ -27,5 +28,21 @@ module.exports =
     size:       11
     transform:  transform()
     weight:     200
-  margin:   5
-  padding:  5
+  margin:
+    process: (value) ->
+
+      value     = @value if value is undefined
+      userValue = value
+      margin value, this
+      userValue
+
+    value: 5
+  padding:
+    process: (value) ->
+
+      value     = @value if value is undefined
+      userValue = value
+      margin value, this
+      userValue
+
+    value: 5

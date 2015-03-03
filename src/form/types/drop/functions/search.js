@@ -17,7 +17,7 @@ module.exports = function ( vars ) {
   function searchStyle(elem) {
 
     elem
-      .style("padding",vars.ui.padding+"px")
+      .style("padding",vars.ui.padding.css)
       .style("display","block")
       .style("background-color",d3.rgb(vars.ui.color.primary.value).darker(0.15).toString())
 
@@ -25,10 +25,10 @@ module.exports = function ( vars ) {
 
   function inputStyle(elem) {
 
-    var width = vars.width.secondary - vars.ui.padding*4 + vars.ui.border*2
+    var width = vars.width.secondary - vars.ui.padding.left*2 - vars.ui.padding.right*2 + vars.ui.border*2
 
     elem
-      .style("padding",vars.ui.padding/2+"px")
+      .style("padding",vars.ui.padding.left/2+vars.ui.padding.right/2+"px")
       .style("width",width+"px")
       .style("border-width","0px")
       .style("font-family",vars.font.secondary.family.value)

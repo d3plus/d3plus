@@ -79,10 +79,10 @@ module.exports = function ( elem , vars ) {
           }
 
           if (vars.height.value) {
-            buffer = (vars.height.value-(vars.ui.padding*2)-(vars.ui.border*2))
+            buffer = (vars.height.value-(vars.ui.padding.top + vars.ui.padding.bottom)-(vars.ui.border*2));
           }
           else {
-            buffer = vars.font.size+vars.ui.padding+vars.ui.border
+            buffer = vars.font.size+vars.ui.border;
           }
           return buffer+"px"
         })
@@ -112,13 +112,13 @@ module.exports = function ( elem , vars ) {
         })
         .style("left",function(c){
           if ((c === "icon" && !reversed) || (c === "selected" && reversed)) {
-            return vars.ui.padding+"px"
+            return vars.ui.padding.left+"px"
           }
           return "auto"
         })
         .style("right",function(c){
           if ((c === "icon" && reversed) || (c === "selected" && !reversed)) {
-            return vars.ui.padding+"px"
+            return vars.ui.padding.right+"px"
           }
           return "auto"
         })
@@ -139,25 +139,23 @@ module.exports = function ( elem , vars ) {
 
       if (buffer > 0) {
 
-        buffer += vars.ui.padding*2
-
-        var p = vars.ui.padding
+        var p = vars.ui.padding;
 
         if (children.length === 3) {
-          var padding = p+"px "+buffer+"px"
+          p = p.top+"px "+(p.right*2+buffer)+"px "+p.bottom+"px "+(p.left*2+buffer)+"px";
         }
         else if ((children.indexOf("icon") >= 0 && !rtl) || (children.indexOf("selected") >= 0 && rtl)) {
-          var padding = p+"px "+p+"px "+p+"px "+buffer+"px"
+          p = p.top+"px "+p.right+"px "+p.bottom+"px "+(p.left*2+buffer)+"px";
         }
         else {
-          var padding = p+"px "+buffer+"px "+p+"px "+p+"px"
+          p = p.top+"px "+(p.right*2+buffer)+"px "+p.bottom+"px "+p.left+"px";
         }
 
-        text.style("padding",padding)
+        text.style("padding", p)
 
       }
       else {
-        text.style("padding",vars.ui.padding+"px")
+        text.style("padding",vars.ui.padding.css)
       }
 
       if (typeof vars.width.value === "number") {

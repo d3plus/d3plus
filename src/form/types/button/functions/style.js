@@ -5,7 +5,7 @@ module.exports = function ( elem , vars ) {
 
   elem
     .style("position","relative")
-    .style("margin",vars.ui.margin+"px")
+    .style("margin",vars.ui.margin.css)
     .style("display",vars.ui.display.value)
     .style("border-style","solid")
     .style("border-width",vars.ui.border+"px")

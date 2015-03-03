@@ -74,7 +74,7 @@ module.exports = (vars) ->
         color:
           primary:   (if vars.id.nesting.length is 1 then vars.ui.color.primary.value else vars.ui.color.secondary.value)
           secondary: vars.ui.color.secondary.value
-        padding: vars.ui.padding
+        padding: vars.ui.padding.css
       .draw()
 
     print.timeEnd "updating list items" if vars.dev.value

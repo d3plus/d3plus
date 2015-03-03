@@ -74,7 +74,7 @@ module.exports = function( vars ) {
           "color": vars.ui.color,
           "display": "inline-block",
           "margin": 0,
-          "padding": vars.ui.padding
+          "padding": vars.ui.padding.css
         })
         .width(buttonWidth)
         .draw()

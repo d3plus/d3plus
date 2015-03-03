@@ -32,7 +32,7 @@ module.exports = function ( vars ) {
     function boxStyle(elem) {
 
       elem
-        .style("padding",vars.ui.padding+"px")
+        .style("padding",vars.ui.padding.css)
         .style("display","block")
         .style("background-color",vars.ui.color.secondary.value)
         .style("font-family",vars.font.secondary.family.value)
@@ -55,7 +55,7 @@ module.exports = function ( vars ) {
         elem
           .style("position","absolute")
           .attr("class",className)
-          .style("top",vars.ui.padding+(vars.font.secondary.size/2)/2.5+"px")
+          .style("top",vars.ui.padding.top+(vars.font.secondary.size/2)/2.5+"px")
           .html(text)
 
       }
@@ -68,7 +68,7 @@ module.exports = function ( vars ) {
 
       elem
         .text(vars.format.value(text))
-        .style("padding","0px "+vars.ui.padding*2+"px")
+        .style("padding","0px "+(vars.ui.padding.left+vars.ui.padding.right)+"px")
 
     }
 

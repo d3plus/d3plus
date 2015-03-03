@@ -71,7 +71,7 @@ module.exports = function ( vars ) {
     })
     .ui({
       "color": vars.ui.color,
-      "padding": vars.ui.padding
+      "padding": vars.ui.padding.css
     })
     .width(vars.width.value)
     .draw()
