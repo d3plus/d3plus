@@ -11,6 +11,9 @@ module.exports =
     weight: 200
   gradient:
     height: 10
+  icons:
+    accepted: [Boolean]
+    value:    true
   order:
     accepted: ["color", "id", "size", "text"]
     sort:
