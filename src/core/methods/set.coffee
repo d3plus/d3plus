@@ -45,6 +45,7 @@ module.exports = (vars, method, object, key, value) ->
 
       # Mark the method as being changed.
       object.changed = true
+      object.loaded  = false if object.loaded
       if "history" of vars and method isnt "draw"
         c = copy(object)
         c.method = method
