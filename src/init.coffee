@@ -127,7 +127,7 @@ d3plus.network =
 # @static
 ###
 d3plus.number =
-  format: require "./number/format.js"
+  format: require "./number/format.coffee"
 
 ###*
 # D3plus features a set of methods that relate to various object properties. These methods may be used outside of the normal constraints of the visualizations.

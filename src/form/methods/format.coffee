@@ -1,4 +1,4 @@
-formatNumber = require "../../number/format.js"
+formatNumber = require "../../number/format.coffee"
 locale       = require "../../core/locale/locale.coffee"
 mergeObject  = require "../../object/merge.coffee"
 titleCase    = require "../../string/title.coffee"
