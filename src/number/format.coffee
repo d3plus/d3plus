@@ -1,23 +1,26 @@
 defaultLocale = require "../core/locale/languages/en_US.coffee"
 
 # Formats numbers to look "pretty"
-module.exports = (number, key, vars, data) ->
+module.exports = (number, opts) ->
 
   if "locale" of this
     time = this.locale.value.time
   else
     time = defaultLocale.time
 
-  if vars and vars.time and typeof vars.time.value is "string"
-    time.push vars.time.value
+  opts   = {} unless opts
+  vars   = opts.vars or {}
+  key    = opts.key
+  labels = if "labels" of opts then opts.labels else true
+
+  time.push vars.time.value if vars.time and vars.time.value
 
   if typeof key is "string" and time.indexOf(key.toLowerCase()) >= 0
-    number
+    ret = number
   else if key is "share"
-    return number if number is 100
-    d3.format(".2g") number
+    ret = if number is 100 then number else d3.format(".2g") number
   else if number < 10 and number > -10
-    d3.round number, 2
+    ret = d3.round number, 2
   else if number.toString().split(".")[0].length > 3
     symbol = d3.formatPrefix(number).symbol
     symbol = symbol.replace("G", "B") # d3 uses G for giga
@@ -25,6 +28,12 @@ module.exports = (number, key, vars, data) ->
     # Format number to precision level using proper scale
     number = d3.formatPrefix(number).scale(number)
     number = parseFloat d3.format(".3g")(number)
-    number + symbol
+    ret = number + symbol
   else
-    d3.format(",f") number
+    ret = d3.format(",f") number
+
+  if labels and key and "format" of vars and key of vars.format.affixes.value
+    affixes = vars.format.affixes.value[key]
+    affixes[0] + ret + affixes[1]
+  else
+    ret

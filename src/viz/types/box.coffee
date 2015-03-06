@@ -81,7 +81,7 @@ box = (vars) ->
       x    = vars[discrete].scale.viz key
       x   += disMargin
 
-      label = vars.format.value(key, vars[discrete].value, vars)
+      label = vars.format.value(key, {key: vars[discrete].value, vars: vars})
       key = key.getTime() if key.constructor is Date
 
       # Create center box

@@ -123,7 +123,7 @@ module.exports = (node, vars) ->
     .text (d) ->
       axis = vars.axes.stacked or d
       val  = fetchValue vars, node, vars[axis].value
-      vars.format.value val, vars[axis].value, vars
+      vars.format.value val, {key: vars[axis].value, vars: vars}
 
   if timing
     texts.transition().duration(timing).delay timing

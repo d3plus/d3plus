@@ -316,7 +316,7 @@ module.exports = function(vars) {
 
               var idIndex = vars.id.nesting.indexOf(colorKey),
                   title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] :
-                          vars.format.value(fetchValue(vars,d,vars.color.value,colorKey), vars.color.value, vars, d);
+                          vars.format.value(fetchValue(vars,d,vars.color.value,colorKey), {"key": vars.color.value, "vars": vars, "data": d});
 
               createTooltip({
                 "data": d,
@@ -443,7 +443,7 @@ module.exports = function(vars) {
         .style("text-anchor",vars.legend.font.align)
         .attr("fill",vars.legend.font.color)
         .text(function(d){
-          return vars.format.value(values[d], key, vars);
+          return vars.format.value(values[d], {"key": key, "vars": vars});
         })
         .attr("y",function(d){
           return this.getBBox().height+vars.legend.gradient.height+vars.ui.padding*2;

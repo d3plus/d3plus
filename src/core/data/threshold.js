@@ -173,18 +173,18 @@ module.exports = function( vars , rawData , split ) {
 
           var textLabel;
           if (vars.depth.value === 0) {
-            textLabel = vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
-            textLabel += " < "+vars.format.value(cutoff, vars.size.value, vars);
+            textLabel = vars.format.value(vars.format.locale.value.ui.values, {"key": "threshold", "vars": vars});
+            textLabel += " < "+vars.format.value(cutoff, {"key": vars.size.value, "vars": vars});
           }
           else {
             textLabel = fetchText(vars,m,vars.depth.value-1);
-            textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, "threshold", vars);
+            textLabel = textLabel.length ? textLabel[0].split(" < ")[0] : vars.format.value(vars.format.locale.value.ui.values, {"key": "threshold", "vars": vars});
             if (p_id, labelException.indexOf(p_id) < 0) {
-              textLabel += " < "+vars.format.value(cutoff[p_id], vars.size.value, vars);
+              textLabel += " < "+vars.format.value(cutoff[p_id], {"key": vars.size.value, "vars": vars});
             }
           }
           if (p_id, labelException.indexOf(p_id) < 0) {
-            textLabel += " ("+vars.format.value(threshold*100, "share", vars)+"%)";
+            textLabel += " ("+vars.format.value(threshold*100, {"key": "share", "vars": vars})+"%)";
           }
 
           m.d3plus.threshold = cutoff;

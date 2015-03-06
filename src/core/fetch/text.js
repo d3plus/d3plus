@@ -33,7 +33,7 @@ module.exports = function(vars, obj, depth) {
 
   if (validObject(obj) && "d3plus" in obj && obj.d3plus.text) {
     names.push(obj.d3plus.text.toString());
-    names.push(vars.format.value(obj.d3plus.text.toString(), undefined, vars, obj));
+    names.push(vars.format.value(obj.d3plus.text.toString(), {"vars": vars, "data": obj}));
   }
   else {
 
@@ -60,11 +60,11 @@ module.exports = function(vars, obj, depth) {
           if (n instanceof Array) {
             n = n.filter(function(nn){ return nn; });
             return n.map(function(nn){
-              return vars.format.value(nn.toString(), t, vars, formatObj);
+              return vars.format.value(nn.toString(), {"vars": vars, "data": formatObj, "key": t});
             });
           }
           else if (n) {
-            return vars.format.value(n.toString(), t, vars, formatObj);
+            return vars.format.value(n.toString(), {"vars": vars, "data": formatObj, "key": t});
           }
         });
         if (name.length === 1) name = name[0];

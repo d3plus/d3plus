@@ -33,7 +33,8 @@ module.exports = (axis) ->
   label:
     accepted: [Boolean, String]
     fetch: (vars) ->
-      return vars.format.value(vars[axis].value, axis, vars) if @value is true
+      if @value is true
+        return vars.format.value(vars[axis].value, {key: axis, vars: vars})
       @value
     font:
       color:      "#444"

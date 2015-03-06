@@ -50,7 +50,8 @@ initialize = (vars, obj, method) ->
     else if o is "global"
       vars[method] = [] unless method of vars
 
-    else initialize vars, obj[o], o if validObject(obj[o])
+    else if o isnt "value"
+      initialize vars, obj[o], o if validObject(obj[o])
 
   true
 
@@ -131,10 +132,7 @@ checkObject = (vars, method, object, key, value) ->
 
     # Set value of key.
     if value is null or not passingObject or approvedObject
-      if approvedObject
-        setMethod vars, method, object[key], "value", value
-      else
-        setMethod vars, method, object, key, value
+      setMethod vars, method, object, key, value
 
     # If it's an object, dig through it and set inner values.
     else if passingObject

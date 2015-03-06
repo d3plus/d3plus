@@ -95,7 +95,7 @@ module.exports = function( vars , group ) {
             .padding(t.padding/2)
             .resize( resize )
             .size( size )
-            .text( vars.format.value(t.text*100,"share")+"%" , vars)
+            .text( vars.format.value(t.text*100,{"key": "share", "vars": vars})+"%")
             .width(t.w * scale[1])
             .valign(salign)
             .x(t.x - t.w*scale[1]/2 + t.padding/2)

@@ -63,7 +63,7 @@ module.exports = function(params) {
       var text = ""
     }
 
-    var footer = text.length ? vars.format.value(text,"footer", vars) : false
+    var footer = text.length ? vars.format.value(text,{"key": "footer", "vars": vars}) : false
 
   }
 
@@ -168,7 +168,7 @@ module.exports = function(params) {
           var value = fetchValue(vars, obj, vars.size.value, nestKey),
               color = fetchColor(vars, obj, nestKey);
 
-          children[name] = value && !(value instanceof Array) ? vars.format.value(value, vars.size.value, vars, obj) : "";
+          children[name] = value && !(value instanceof Array) ? vars.format.value(value, {"key": vars.size.value, "vars": vars, "data": obj}) : "";
 
           if (color) {
             if ( !children.d3plus_colors ) children.d3plus_colors = {};
@@ -202,17 +202,17 @@ module.exports = function(params) {
         total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total;
 
     if (typeof active == "number" && active > 0 && total) {
-      var label = vars.active.value || "active"
-      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100, "share", vars, d)+"%)"
+      var label = vars.active.value || "active";
+      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100, {"key": "share", "vars": vars, "data": d})+"%)";
     }
 
     if (typeof temp == "number" && temp > 0 && total) {
-      var label = vars.temp.value || "temp"
-      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100, "share", vars, d)+"%)"
+      var label = vars.temp.value || "temp";
+      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100, {"key": "share", "vars": vars, "data": d})+"%)";
     }
 
     if ( vars.tooltip.share.value && d.d3plus.share ) {
-      ex.share = vars.format.value(d.d3plus.share*100, "share", vars, d)+"%"
+      ex.share = vars.format.value(d.d3plus.share*100, {"key": "share", "vars": vars, "data": d})+"%";
     }
 
     var depth = "depth" in params ? params.depth : dataDepth,

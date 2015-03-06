@@ -57,12 +57,12 @@ module.exports = (vars, method, object, key, value) ->
       # Set the variable!
       if "id" of vars and key is "value" and "nesting" of object
         if method isnt "id"
-          object.nesting = {}  if typeof object.nesting isnt "object"
+          object.nesting = {} if typeof object.nesting isnt "object"
           if validObject(value)
             for id of value
-              value[id] = [value[id]]  if typeof value[id] is "string"
+              value[id] = [value[id]] if typeof value[id] is "string"
             object.nesting = mergeObject(object.nesting, value)
-            object.nesting[vars.id.value] = value[d3.keys(value)[0]]  unless vars.id.value of object.nesting
+            object.nesting[vars.id.value] = value[d3.keys(value)[0]] unless vars.id.value of object.nesting
           else if value instanceof Array
             object.nesting[vars.id.value] = value
           else
@@ -91,7 +91,7 @@ module.exports = (vars, method, object, key, value) ->
         if typeof vars.text.nesting is "object"
           n = vars.text.nesting[vars.id.value]
           if n
-            vars.text.nesting[vars.id.value] = (if typeof n is "string" then [n] else n)
+            vars.text.nesting[vars.id.value] = if typeof n is "string" then [n] else n
             vars.text.value = (if n instanceof Array then n[0] else n)
       else if validObject(object[key]) and validObject(value)
         object[key] = mergeObject(object[key], value)

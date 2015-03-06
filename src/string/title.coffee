@@ -1,8 +1,11 @@
 defaultLocale = require "../core/locale/languages/en_US.coffee"
 
-module.exports = (text, key, vars, data) ->
+module.exports = (text, opts) ->
 
   return "" unless text
+
+  opts = {} unless opts
+  key  = opts.key
 
   # If it's a sentence, just capitalize the first letter.
   if text.charAt(text.length - 1) is "."

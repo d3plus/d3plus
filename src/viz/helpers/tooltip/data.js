@@ -91,11 +91,11 @@ module.exports = function(vars, id, length, extras, children, depth) {
 
       if ( value instanceof Array ) {
         value.forEach(function(v){
-          v = vars.format.value(v, key, vars, id)
+          v = vars.format.value(v, {"key": key, "vars": vars, "data": id})
         })
       }
       else {
-        value = vars.format.value(value, key, vars, id)
+        value = vars.format.value(value, {"key": key, "vars": vars, "data": id})
       }
 
       var obj = {"name": name, "value": value, "highlight": h, "group": group}
