@@ -1,3 +1,4 @@
+arraySort  = require "../../../../../array/sort.coffee"
 buffer     = require "./buffer.coffee"
 buckets    = require "../../../../../util/buckets.coffee"
 fetchData  = require "../../../../../core/fetch/data.js"
@@ -141,21 +142,24 @@ axisRange = (vars, axis, zero, buffer) ->
           obj
         , {}
         for d in vars.axes.dataset
-          for v in d.values
-            group = fetchValue vars, v, vars[axis].value
-            counts[group].push fetchValue vars, v, sortKey
+          if d.values
+            for v in d.values
+              group = fetchValue vars, v, vars[axis].value
+              counts[group].push fetchValue vars, v, sortKey
+          else
+            group = fetchValue vars, d, vars[axis].value
+            counts[group].push fetchValue vars, d, sortKey
         for k, v of counts
           if aggType is "string"
             counts[k] = d3[agg] v
           else if aggType is "function"
             counts[k] = agg v, sortKey
-        counts = d3.entries(counts)
-        counts.sort (a, b) ->
-          if sort is "desc" then b.value - a.value else a.value - b.value
-        counts.reduce (arr, v) ->
+        counts = arraySort d3.entries(counts), "value", sort
+        counts = counts.reduce (arr, v) ->
           arr.push v.key
           arr
         , []
+        counts
       else
         uniques values
     else
