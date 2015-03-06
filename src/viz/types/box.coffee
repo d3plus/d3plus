@@ -1,5 +1,6 @@
 fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
+strip      = require "../../string/strip.js"
 uniques    = require "../../util/uniques.coffee"
 
 box = (vars) ->
@@ -83,6 +84,7 @@ box = (vars) ->
 
       label = vars.format.value(key, {key: vars[discrete].value, vars: vars})
       key = key.getTime() if key.constructor is Date
+      key = strip key
 
       # Create center box
       boxData = mergeData boxData
