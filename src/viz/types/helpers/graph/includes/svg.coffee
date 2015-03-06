@@ -249,6 +249,14 @@ module.exports = (vars) ->
 
     axisLabel = vars[axis].label.fetch vars
     labelData = if axisData and axisLabel then [0] else []
+    affixes   = vars.format.affixes.value[vars[axis].value]
+    if axisLabel and !vars[axis].affixes.value and affixes
+      sep = vars[axis].affixes.separator.value
+      if sep is true
+        sep = ["[","]"]
+      else if sep is false
+        sep = ["",""]
+      axisLabel += " "+sep[0]+affixes[0]+" "+affixes[1]+sep[1]
 
     # Draw Axis Text Label
     label = vars.group.selectAll("text#d3plus_graph_"+axis+"label")

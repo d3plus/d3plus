@@ -117,7 +117,7 @@ labelPadding = (vars) ->
     yText = vars.y.ticks.visible.map (d) -> d * 100 + "%"
   else
     yText = vars.y.ticks.visible.map (d) ->
-      vars.format.value d, {key: vars.y.value, vars: vars}
+      vars.format.value d, {key: vars.y.value, vars: vars, labels: vars.y.affixes.value}
 
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
   yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
@@ -154,7 +154,7 @@ labelPadding = (vars) ->
       xValues = vars.x.scale.viz.domain().filter (d) ->
         d.indexOf("d3plus_buffer_") != 0
     xText = xValues.map (d) ->
-      vars.format.value d, {key: vars.x.value, vars: vars}
+      vars.format.value d, {key: vars.x.value, vars: vars, labels: vars.x.affixes.value}
 
   xSizes      = fontSizes(xText,xAttrs)
   xAxisWidth  = d3.max xSizes, (d) -> d.width
@@ -245,7 +245,7 @@ createAxis = (vars, axis) ->
         else if scale is "log"
           formatPower d
         else
-          vars.format.value d, {key: vars[axis].value, vars: vars}
+          vars.format.value d, {key: vars[axis].value, vars: vars, labels: vars[axis].affixes.value}
       else
         null
 

@@ -8,6 +8,12 @@ transform  = require "../../../core/methods/font/transform.coffee"
 
 module.exports = (axis) ->
   accepted:   [Array, Boolean, Function, Object, String]
+  affixes:
+    accepted: [Boolean]
+    separator:
+      accepted: [Boolean, Array]
+      value:    true
+    value:    false
   axis:
     accepted: [Boolean]
     color:     "#444"
