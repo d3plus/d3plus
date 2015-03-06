@@ -115,7 +115,7 @@ box = (vars) ->
           position: if h is "height" then "top" else "right"
           shape:    "whisker"
           static:   true
-          text:     median
+          text:     if boxData.d3plus[h] > 20 then median else false
 
       medianData.d3plus[w]        = space
       medianData.d3plus[discrete] = x
