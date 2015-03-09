@@ -187,7 +187,7 @@ module.exports = function( vars ) {
     while(lengths.length) {
       var l = lengths.pop();
       var t = formatted.filter(function(f){return f.length >= l;});
-      if (t.length > 0 && t.length < vars.width.value/100) {
+      if (t.length > 0 && t.length < vars.width.value/40) {
         vars.data.time.visible = vars.data.time.ticks.filter(function(t){
           return vars.data.time.multiFormat(t).length >= l;
         });
