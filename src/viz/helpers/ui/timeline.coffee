@@ -64,8 +64,6 @@ module.exports = (vars) ->
       min["set"+step] min["get"+step]() + years.length
       year_ticks.push(min)
 
-    console.log visible
-
     start = new Date init[0]
     start = closest year_ticks, start
 
