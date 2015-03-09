@@ -43,6 +43,7 @@ module.exports = (vars) ->
 
         return vars[axis].axis.color if d is 0
 
+        d = +d if d.constructor is Date
         visible = vars[axis].ticks.visible.indexOf(d) >= 0
 
         if visible and (!log or Math.abs(d).toString().charAt(0) is "1")
@@ -152,6 +153,7 @@ module.exports = (vars) ->
         .style "text-anchor", if rotated then "end" else "middle"
         .call tickFont, "x"
         .each "end", (d) ->
+          d = +d if d.constructor is Date
           if !vars.x.ticks.hidden and vars.x.ticks.visible.indexOf(d) >= 0
             textwrap()
               .container(d3.select(this))

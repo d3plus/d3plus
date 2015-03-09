@@ -2,6 +2,7 @@ closest   = require "../../../util/closest.coffee"
 css       = require "../../../client/css.coffee"
 fontSizes = require "../../../font/sizes.coffee"
 events    = require "../../../client/pointer.coffee"
+mix       = require "../../../color/mix.coffee"
 prefix    = require "../../../client/prefix.coffee"
 print     = require "../../../core/console/print.coffee"
 textColor = require "../../../color/text.coffee"
@@ -15,14 +16,15 @@ module.exports = (vars) ->
 
     print.time "drawing timeline" if vars.dev.value
 
-    if vars.axes.discrete and vars.time.value is vars[vars.axes.discrete].value
-      min_required = 2
-    else
-      min_required = 1
-
-    years           = vars.data.time.values.map (d) -> new Date d
     timeFormat      = vars.data.time.format
     timeMultiFormat = vars.data.time.multiFormat
+    years           = vars.data.time.ticks.map (d) -> new Date(d)
+
+    timeFormatter = (v, i) ->
+      if i is 0 or i is years.length-1
+        timeFormat(v)
+      else
+        timeMultiFormat(v)
 
     if vars.time.solo.value.length
       init = d3.extent vars.time.solo.value
@@ -34,25 +36,54 @@ module.exports = (vars) ->
     else
       init = d3.extent years
 
-    min = new Date years[0]
-    step = vars.data.time.stepType
-    min["set"+step] min["get"+step]() + years.length
-    years = vars.data.time.ticks
-    year_ticks = years.slice()
-    year_ticks.push(min)
+    year_ticks     = years.slice()
+    textSizes      = fontSizes(years.map(timeFormatter),textStyle)
+    yearWidths     = textSizes.map (t) -> t.width
+    yearWidth      = ~~(d3.max(yearWidths))+1
+    yearHeight     = d3.max(textSizes.map (t) -> t.height)
+    labelWidth     = yearWidth+vars.ui.padding*2
+    timelineHeight = yearHeight+vars.ui.padding*2
+    timelineWidth  = labelWidth*years.length
+    availableWidth = vars.width.value-vars.ui.padding*2
+    tickStep       = 1
+    playbackWidth  = timelineHeight
+    timelineOffset = 0
+
+    if vars.timeline.play.value
+      availableWidth -= playbackWidth + vars.ui.padding
+
+    if timelineWidth > availableWidth
+      labelWidth     = (availableWidth-labelWidth)/years.length
+      timelineWidth  = labelWidth*years.length
+      timelineOffset = 1
+    else
+      min = new Date years[0]
+      step = vars.data.time.stepType
+      min["set"+step] min["get"+step]() + years.length
+      year_ticks.push(min)
 
     start = new Date init[0]
     start = closest year_ticks, start
 
     end = new Date init[1]
-    end["set"+vars.data.time.stepType] end["get"+vars.data.time.stepType]() + 1
+    unless timelineOffset
+      end["set"+vars.data.time.stepType] end["get"+vars.data.time.stepType]() + 1
     end = closest year_ticks, end
 
-    yearMS = year_ticks.map Number
-
+    yearMS      = year_ticks.map Number
     min_index   = yearMS.indexOf +start
     max_index   = yearMS.indexOf +end
     brushExtent = [start,end]
+
+    if vars.timeline.align is "start"
+      start_x = vars.ui.padding
+    else if vars.timeline.align is "end"
+      start_x = vars.width.value - vars.ui.padding - timelineWidth
+    else
+      start_x = vars.width.value/2 - timelineWidth/2
+
+    if vars.timeline.play.value
+      start_x += (playbackWidth + vars.ui.padding)/2
 
     stopPlayback = ->
       clearInterval playInterval
@@ -80,15 +111,15 @@ module.exports = (vars) ->
         min_index = yearMS.indexOf +min_val
         max_index = yearMS.indexOf +max_val
 
-        if  max_index-min_index >= min_required
+        if max_index-min_index >= 1
           extent = [min_val,max_val]
-        else if min_index+min_required <= years.length
-          extent = [min_val,year_ticks[min_index+min_required]]
+        else if min_index+1 <= years.length
+          extent = [min_val,year_ticks[min_index+1]]
         else
 
           extent = [min_val]
           i = 1
-          while i <= min_required
+          while i <= 1
             if min_index+i <= years.length
               extent.push year_ticks[min_index+i]
             else
@@ -102,13 +133,12 @@ module.exports = (vars) ->
 
     setYears = () ->
 
-      if max_index - min_index is years.length
+      if max_index - min_index is years.length - timelineOffset
         newYears = []
       else
-        newYears = d3.range(min_index,max_index).map (y) ->
-          i = vars.data.time.dataSteps.indexOf(y)
-          if i >= 0 then vars.data.time.values[i] else years[y]
-
+        newYears = yearMS.filter (t, i) ->
+          i >= min_index and i < (max_index + timelineOffset)
+        newYears = newYears.map (t) -> new Date t
       playUpdate()
       vars.self.time({"solo": newYears}).draw()
 
@@ -116,14 +146,13 @@ module.exports = (vars) ->
 
       if d3.event.sourceEvent isnt null
 
-        if  vars.time.solo.value.length
-          solod = d3.extent(vars.time.solo.value)
-          old_min = yearMS.indexOf(+closest(year_ticks,solod[0]))
-          old_max = yearMS.indexOf(+closest(year_ticks,solod[1]))+1
+        if vars.time.solo.value.length
+          solo = d3.extent(vars.time.solo.value)
+          old_min = yearMS.indexOf(+closest(year_ticks, solo[0]))
+          old_max = yearMS.indexOf(+closest(year_ticks, solo[1]))
           change = old_min isnt min_index or old_max isnt max_index
         else
-          change = max_index-min_index isnt years.length
-
+          change = max_index - min_index isnt years.length - timelineOffset
         setYears() if change
 
     textStyle =
@@ -131,56 +160,6 @@ module.exports = (vars) ->
       "font-family": vars.ui.font.family.value
       "font-size":   vars.ui.font.size + "px"
       "text-anchor": "middle"
-
-    timeFormatter = (v,i) ->
-      if i is 0 or i is years.length-1
-        timeFormat(v)
-      else
-        timeMultiFormat(v)
-
-    textSizes      = fontSizes(years.map(timeFormatter),textStyle)
-    yearWidths     = textSizes.map (t) -> t.width
-    yearWidth      = ~~(d3.max(yearWidths))+1
-    yearHeight     = d3.max(textSizes.map (t) -> t.height)
-    labelWidth     = yearWidth+vars.ui.padding*2
-    timelineHeight = yearHeight+vars.ui.padding*2
-    timelineWidth  = labelWidth*years.length
-    availableWidth = vars.width.value-vars.ui.padding*2
-    tickStep       = 1
-    textRotate     = 0
-    playbackWidth  = timelineHeight
-
-    if vars.timeline.play.value
-      availableWidth -= playbackWidth + vars.ui.padding
-
-    if timelineWidth > availableWidth
-      labelWidth     = yearHeight+vars.ui.padding*2
-      timelineHeight = yearWidth+vars.ui.padding*2
-      timelineWidth  = labelWidth*years.length
-      textRotate     = 90
-
-    timelineHeight = d3.max([timelineHeight,vars.timeline.height.value])
-
-    oldWidth = labelWidth
-    if timelineWidth > availableWidth
-      timelineWidth = availableWidth
-      oldWidth = labelWidth-vars.ui.padding*2
-      labelWidth = timelineWidth/years.length
-      if oldWidth > labelWidth
-        tickStep = ~~(oldWidth/(timelineWidth/years.length))+1
-        while tickStep < years.length - 1
-          break if (years.length-1) % tickStep is 0
-          tickStep++
-
-    if vars.timeline.align is "start"
-      start_x = vars.ui.padding
-    else if vars.timeline.align is "end"
-      start_x = vars.width.value - vars.ui.padding - timelineWidth
-    else
-      start_x = vars.width.value/2 - timelineWidth/2
-
-    if vars.timeline.play.value
-      start_x += (playbackWidth + vars.ui.padding)/2
 
     playButton = vars.g.timeline.selectAll("rect.d3plus_timeline_play")
       .data if vars.timeline.play.value then [0] else []
@@ -246,7 +225,7 @@ module.exports = (vars) ->
       .attr("opacity", 0).remove()
 
     playUpdate = ->
-      if max_index-min_index is years.length
+      if max_index-min_index is years.length-timelineOffset
         playButton
           .on events.hover, null
           .on events.click, null
@@ -273,7 +252,7 @@ module.exports = (vars) ->
                 max_index++
               setYears()
               playInterval = setInterval ->
-                if max_index is years.length
+                if max_index is years.length - timelineOffset
                   stopPlayback()
                 else
                   min_index++
@@ -288,7 +267,8 @@ module.exports = (vars) ->
     playUpdate()
 
     textFill = (d) ->
-      if d >= brushExtent[0] and d < brushExtent[1]
+      less = if timelineOffset then d <= brushExtent[1] else d < brushExtent[1]
+      if d >= brushExtent[0] and less
         opacity = 1
         color = textColor vars.ui.color.secondary.value
       else
@@ -334,39 +314,38 @@ module.exports = (vars) ->
       .attr("dy","0.5ex")
       .attr("x",0)
 
+    x = d3.time.scale()
+      .domain(d3.extent year_ticks)
+      .rangeRound([0,timelineWidth])
+
     text
       .order()
       .attr textStyle
       .text (d, i) ->
-
-        return timeFormat(d) if i is 0 or i is years.length-1
-
-        prev = (i-1)%tickStep is 0
-        next = (i+1)%tickStep is 0
-        data = vars.data.time.dataSteps.indexOf(i) >= 0
-        fits = (yearWidths[i-1]/2 + yearWidths[i] + yearWidths[i+1]/2 + vars.ui.padding*4) < labelWidth*2
-
-        if i%tickStep is 0 or (!prev and !next and data and oldWidth < labelWidth*3) then timeMultiFormat(d) else ""
+        if vars.data.time.visible.indexOf(+d) >= 0 then timeFormat(d) else ""
       .attr "opacity", (d, i) ->
         if vars.data.time.dataSteps.indexOf(i) >= 0 then 1 else 0.4
       .attr "fill", textFill
       .attr "transform", (d,i) ->
-        x = start_x + (labelWidth*i) + labelWidth/2
-        y = timelineHeight/2 + vars.ui.padding + 1
-        "translate("+Math.round(x)+","+Math.round(y)+")rotate("+textRotate+")"
+        dx = start_x + x(d)
+        dx += labelWidth/2 unless timelineOffset
+        dy = timelineHeight/2 + vars.ui.padding + 1
+        dy += timelineHeight if timelineOffset
+        "translate("+Math.round(dx)+","+Math.round(dy)+")"
 
     text.exit().transition().duration(vars.draw.timing)
       .attr("opacity",0).remove()
-
-    x = d3.time.scale()
-      .domain(d3.extent(year_ticks))
-      .rangeRound([0,timelineWidth])
 
     brush = d3.svg.brush()
       .x(x)
       .extent(brushExtent)
       .on("brush", brushed)
       .on("brushend", brushend)
+
+    if vars[vars.axes.discrete].value is vars.time.value
+      tickColor = vars[vars.axes.discrete].ticks.color
+    else
+      tickColor = vars.x.ticks.color
 
     ticks
       .attr("transform","translate("+start_x+","+vars.ui.padding+")")
@@ -378,15 +357,19 @@ module.exports = (vars) ->
               .tickFormat("")
               .tickSize(-timelineHeight)
               .tickPadding(0))
-      .selectAll("path").attr("fill","none")
+      .selectAll("line")
+        .attr("stroke-width",1)
+        .attr("shape-rendering","crispEdges")
+        .attr "stroke", (d) ->
+          if vars.data.time.visible.indexOf(+d) >= 0
+            tickColor
+          else
+            mix(tickColor, vars.background.value, 0.4, 1)
 
-    ticks.selectAll("line")
-      .attr("stroke",vars.ui.color.secondary.color)
-      .attr("stroke-width",1)
-      .attr("shape-rendering","crispEdges")
+    ticks.selectAll("path").attr("fill","none")
 
     brush_group
-      .attr("transform","translate("+start_x+","+(vars.ui.padding+1)+")")
+      .attr("transform","translate("+start_x+","+vars.ui.padding+")")
       .attr("opacity",1)
       .call(brush)
 
@@ -407,6 +390,7 @@ module.exports = (vars) ->
     brush_group.selectAll("rect.extent")
       # .attr("stroke-width",1)
       # .attr("stroke",vars.ui.color.primary.value)
+      .attr("opacity", 0.75)
       .attr("height",timelineHeight)
       .attr("fill",vars.ui.color.secondary.value)
       .attr("shape-rendering","crispEdges")

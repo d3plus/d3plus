@@ -54,6 +54,7 @@ module.exports = (vars, opts) ->
     vars[axis].reset = false
 
     if vars[axis].value is vars.time.value
+
       ticks = vars[axis].ticks.values
       formatted = ticks.map (t) -> vars.data.time.multiFormat(t)
       lengths = uniques formatted.map (f) -> f.length
@@ -65,7 +66,8 @@ module.exports = (vars, opts) ->
           ticks = vars[axis].ticks.values.filter (t) ->
             vars.data.time.multiFormat(t).length >= l
           break
-      vars[axis].ticks.visible = ticks
+      vars[axis].ticks.visible = ticks.map Number
+
     else if vars[axis].scale.value is "log"
       ticks = vars[axis].ticks.values
       tens = ticks.filter (t) -> Math.abs(t).toString().charAt(0) is "1"
@@ -111,12 +113,20 @@ labelPadding = (vars) ->
     "font-size":   vars.y.ticks.font.size+"px"
     "font-family": vars.y.ticks.font.family.value
     "font-weight": vars.y.ticks.font.weight
+  yValues = vars.x.ticks.visible
   if vars.y.scale.value is "log"
-    yText = vars.y.ticks.visible.map (d) -> formatPower d
+    yText = yValues.map (d) -> formatPower d
   else if vars.y.scale.value is "share"
-    yText = vars.y.ticks.visible.map (d) -> d * 100 + "%"
+    yText = yValues.map (d) -> d * 100 + "%"
+  else if vars.y.value is vars.time.value
+    yText = yValues.map (d, i) ->
+      return vars.data.time.format new Date(d) unless i
+      vars.data.time.multiFormat new Date(d)
   else
-    yText = vars.y.ticks.visible.map (d) ->
+    if typeof yValues[0] is "string"
+      yValues = vars.y.scale.viz.domain().filter (d) ->
+        d.indexOf("d3plus_buffer_") isnt 0
+    yText = yValues.map (d) ->
       vars.format.value d, {key: vars.y.value, vars: vars, labels: vars.y.affixes.value}
 
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
@@ -148,11 +158,15 @@ labelPadding = (vars) ->
   if vars.x.scale.value is "log"
     xText = xValues.map (d) -> formatPower d
   else if vars.x.scale.value is "share"
-    xText = vars.x.ticks.visible.map (d) -> d * 100 + "%"
+    xText = xValues.map (d) -> d * 100 + "%"
+  else if vars.x.value is vars.time.value
+    xText = xValues.map (d, i) ->
+      return vars.data.time.format new Date(d) unless i
+      vars.data.time.multiFormat new Date(d)
   else
     if typeof xValues[0] is "string"
       xValues = vars.x.scale.viz.domain().filter (d) ->
-        d.indexOf("d3plus_buffer_") != 0
+        d.indexOf("d3plus_buffer_") isnt 0
     xText = xValues.map (d) ->
       vars.format.value d, {key: vars.x.value, vars: vars, labels: vars.x.affixes.value}
 
@@ -236,16 +250,21 @@ createAxis = (vars, axis) ->
 
       return null if vars[axis].ticks.hidden
       scale = vars[axis].scale.value
+      c = if d.constructor is Date then +d else d
 
-      if vars[axis].ticks.visible.indexOf(d) >= 0
+      if vars[axis].ticks.visible.indexOf(c) >= 0
         if scale is "share"
           d * 100 + "%"
         else if d.constructor is Date
+          return vars.data.time.format(d) unless i
           vars.data.time.multiFormat(d)
         else if scale is "log"
           formatPower d
         else
-          vars.format.value d, {key: vars[axis].value, vars: vars, labels: vars[axis].affixes.value}
+          vars.format.value d,
+            key: vars[axis].value
+            vars: vars
+            labels: vars[axis].affixes.value
       else
         null
 

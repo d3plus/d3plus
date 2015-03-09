@@ -171,11 +171,30 @@ module.exports = function( vars ) {
 
     vars.data.time.ticks = [];
     var min = d3.min(vars.data.time.values);
+    var max = d3.max(vars.data.time.values);
     for (var s = 0; s <= vars.data.time.stepIntervals; s++) {
       var m = new Date(min);
       m["set"+vars.data.time.stepType](m["get"+vars.data.time.stepType]() + s);
-      vars.data.time.ticks.push(m);
+      if (m <= max) vars.data.time.ticks.push(m);
     }
+
+    var formatted = vars.data.time.ticks.map(function(t){
+      return vars.data.time.multiFormat(t);
+    });
+    vars.data.time.visible = [];
+    var lengths = uniques(formatted.map(function(f){return f.length;}));
+    lengths.sort(function(a, b){return b - a;});
+    while(lengths.length) {
+      var l = lengths.pop();
+      var t = formatted.filter(function(f){return f.length >= l;});
+      if (t.length > 0 && t.length < vars.width.value/100) {
+        vars.data.time.visible = vars.data.time.ticks.filter(function(t){
+          return vars.data.time.multiFormat(t).length >= l;
+        });
+        break;
+      }
+    }
+    vars.data.time.visible = vars.data.time.visible.map(Number);
 
     if ( vars.dev.value ) print.timeEnd( timerString );
 
