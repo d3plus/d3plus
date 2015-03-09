@@ -3,6 +3,7 @@ buffer     = require "./buffer.coffee"
 fetchValue = require "../../../../../core/fetch/value.coffee"
 fontSizes  = require "../../../../../font/sizes.coffee"
 textwrap   = require "../../../../../textwrap/textwrap.coffee"
+timeDetect = require "../../../../../core/data/time.coffee"
 uniques    = require "../../../../../util/uniques.coffee"
 
 module.exports = (vars, opts) ->
@@ -55,18 +56,18 @@ module.exports = (vars, opts) ->
 
     if vars[axis].value is vars.time.value
 
-      ticks = vars[axis].ticks.values
-      formatted = ticks.map (t) -> vars.data.time.multiFormat(t)
-      lengths = uniques formatted.map (f) -> f.length
-      lengths.sort (a, b) -> b - a
-      while lengths.length
-        l = lengths.pop()
-        t = formatted.filter (f) -> f.length >= l
-        if t.length > 0 and t.length < vars.width.viz/40
-          ticks = vars[axis].ticks.values.filter (t) ->
-            vars.data.time.multiFormat(t).length >= l
-          break
-      vars[axis].ticks.visible = ticks.map Number
+      axisStyle =
+        "font-family": vars[axis].label.font.family.value
+        "font-weight": vars[axis].label.font.weight
+        "font-size":   vars[axis].label.font.size+"px"
+
+      timeReturn = timeDetect vars,
+        values: vars[axis].ticks.values
+        limit:  vars.width.viz
+        style:  axisStyle
+
+      vars[axis].ticks.visible = timeReturn.values.map Number
+      vars[axis].ticks.format  = timeReturn.format
 
     else if vars[axis].scale.value is "log"
       ticks = vars[axis].ticks.values
@@ -120,8 +121,7 @@ labelPadding = (vars) ->
     yText = yValues.map (d) -> d * 100 + "%"
   else if vars.y.value is vars.time.value
     yText = yValues.map (d, i) ->
-      return vars.data.time.format new Date(d) unless i
-      vars.data.time.multiFormat new Date(d)
+      vars.y.ticks.format new Date(d)
   else
     if typeof yValues[0] is "string"
       yValues = vars.y.scale.viz.domain().filter (d) ->
@@ -161,8 +161,7 @@ labelPadding = (vars) ->
     xText = xValues.map (d) -> d * 100 + "%"
   else if vars.x.value is vars.time.value
     xText = xValues.map (d, i) ->
-      return vars.data.time.format new Date(d) unless i
-      vars.data.time.multiFormat new Date(d)
+      vars.x.ticks.format new Date(d)
   else
     if typeof xValues[0] is "string"
       xValues = vars.x.scale.viz.domain().filter (d) ->
@@ -256,8 +255,7 @@ createAxis = (vars, axis) ->
         if scale is "share"
           d * 100 + "%"
         else if d.constructor is Date
-          return vars.data.time.format(d) unless i
-          vars.data.time.multiFormat(d)
+          vars[axis].ticks.format d
         else if scale is "log"
           formatPower d
         else

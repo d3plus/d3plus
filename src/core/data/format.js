@@ -141,6 +141,8 @@ module.exports = function( vars ) {
 
       };
 
+      vars.data.time.getFormat = getFormat;
+
       var multi = [],
           functions = [
             function(d) { return d.getMilliseconds(); },
@@ -151,6 +153,8 @@ module.exports = function( vars ) {
             function(d) { return d.getMonth(); },
             function(d) { return true; }
           ];
+
+      vars.data.time.functions = functions;
 
       for (var p = periods.indexOf(stepType); p <= periods.indexOf(totalType); p++) {
         var prev = p-1 < periods.indexOf(stepType) ? periods[p] : periods[p-1];
@@ -167,34 +171,16 @@ module.exports = function( vars ) {
         vars.data.time.multiFormat = vars.data.time.format
       }
 
-    }
-
-    vars.data.time.ticks = [];
-    var min = d3.min(vars.data.time.values);
-    var max = d3.max(vars.data.time.values);
-    for (var s = 0; s <= vars.data.time.stepIntervals; s++) {
-      var m = new Date(min);
-      m["set"+vars.data.time.stepType](m["get"+vars.data.time.stepType]() + s);
-      if (m <= max) vars.data.time.ticks.push(m);
-    }
-
-    var formatted = vars.data.time.ticks.map(function(t){
-      return vars.data.time.multiFormat(t);
-    });
-    vars.data.time.visible = [];
-    var lengths = uniques(formatted.map(function(f){return f.length;}));
-    lengths.sort(function(a, b){return b - a;});
-    while(lengths.length) {
-      var l = lengths.pop();
-      var t = formatted.filter(function(f){return f.length >= l;});
-      if (t.length > 0 && t.length < vars.width.value/40) {
-        vars.data.time.visible = vars.data.time.ticks.filter(function(t){
-          return vars.data.time.multiFormat(t).length >= l;
-        });
-        break;
+      vars.data.time.ticks = [];
+      var min = d3.min(vars.data.time.values);
+      var max = d3.max(vars.data.time.values);
+      for (var s = 0; s <= vars.data.time.stepIntervals; s++) {
+        var m = new Date(min);
+        m["set"+vars.data.time.stepType](m["get"+vars.data.time.stepType]() + s);
+        if (m <= max) vars.data.time.ticks.push(m);
       }
+
     }
-    vars.data.time.visible = vars.data.time.visible.map(Number);
 
     if ( vars.dev.value ) print.timeEnd( timerString );
 

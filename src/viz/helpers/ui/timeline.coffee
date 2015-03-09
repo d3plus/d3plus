@@ -1,11 +1,12 @@
-closest   = require "../../../util/closest.coffee"
-css       = require "../../../client/css.coffee"
-fontSizes = require "../../../font/sizes.coffee"
-events    = require "../../../client/pointer.coffee"
-mix       = require "../../../color/mix.coffee"
-prefix    = require "../../../client/prefix.coffee"
-print     = require "../../../core/console/print.coffee"
-textColor = require "../../../color/text.coffee"
+closest    = require "../../../util/closest.coffee"
+css        = require "../../../client/css.coffee"
+fontSizes  = require "../../../font/sizes.coffee"
+events     = require "../../../client/pointer.coffee"
+mix        = require "../../../color/mix.coffee"
+prefix     = require "../../../client/prefix.coffee"
+print      = require "../../../core/console/print.coffee"
+textColor  = require "../../../color/text.coffee"
+timeDetect = require "../../../core/data/time.coffee"
 
 playInterval = false
 
@@ -16,15 +17,18 @@ module.exports = (vars) ->
 
     print.time "drawing timeline" if vars.dev.value
 
-    timeFormat      = vars.data.time.format
-    timeMultiFormat = vars.data.time.multiFormat
-    years           = vars.data.time.ticks.map (d) -> new Date(d)
+    textStyle =
+      "font-weight": vars.ui.font.weight
+      "font-family": vars.ui.font.family.value
+      "font-size":   vars.ui.font.size + "px"
+      "text-anchor": "middle"
 
-    timeFormatter = (v, i) ->
-      if i is 0 or i is years.length-1
-        timeFormat(v)
-      else
-        timeMultiFormat(v)
+    years           = vars.data.time.ticks.map (d) -> new Date(d)
+    timeReturn      = timeDetect vars,
+      values: years
+      style:  textStyle
+    visible    = timeReturn.values.map Number
+    timeFormat = timeReturn.format
 
     if vars.time.solo.value.length
       init = d3.extent vars.time.solo.value
@@ -36,31 +40,31 @@ module.exports = (vars) ->
     else
       init = d3.extent years
 
-    year_ticks     = years.slice()
-    textSizes      = fontSizes(years.map(timeFormatter),textStyle)
-    yearWidths     = textSizes.map (t) -> t.width
-    yearWidth      = ~~(d3.max(yearWidths))+1
-    yearHeight     = d3.max(textSizes.map (t) -> t.height)
-    labelWidth     = yearWidth+vars.ui.padding*2
-    timelineHeight = yearHeight+vars.ui.padding*2
-    timelineWidth  = labelWidth*years.length
-    availableWidth = vars.width.value-vars.ui.padding*2
-    tickStep       = 1
-    playbackWidth  = timelineHeight
-    timelineOffset = 0
+    year_ticks      = years.slice()
+    yearHeight      = d3.max(timeReturn.sizes.map (t) -> t.height)
+    labelWidth      = ~~(d3.max(timeReturn.sizes.map (t) -> t.width))+1
+    labelWidth     += vars.ui.padding*2
+    timelineHeight  = yearHeight+vars.ui.padding*2
+    timelineWidth   = labelWidth * years.length
+    playbackWidth   = timelineHeight
 
+    availableWidth = vars.width.value-vars.ui.padding*2
     if vars.timeline.play.value
       availableWidth -= playbackWidth + vars.ui.padding
 
-    if timelineWidth > availableWidth
+    if visible.length < years.length
       labelWidth     = (availableWidth-labelWidth)/years.length
       timelineWidth  = labelWidth*years.length
       timelineOffset = 1
     else
+      timelineOffset = 0
+
       min = new Date years[0]
       step = vars.data.time.stepType
       min["set"+step] min["get"+step]() + years.length
       year_ticks.push(min)
+
+    console.log visible
 
     start = new Date init[0]
     start = closest year_ticks, start
@@ -154,12 +158,6 @@ module.exports = (vars) ->
         else
           change = max_index - min_index isnt years.length - timelineOffset
         setYears() if change
-
-    textStyle =
-      "font-weight": vars.ui.font.weight
-      "font-family": vars.ui.font.family.value
-      "font-size":   vars.ui.font.size + "px"
-      "text-anchor": "middle"
 
     playButton = vars.g.timeline.selectAll("rect.d3plus_timeline_play")
       .data if vars.timeline.play.value then [0] else []
@@ -322,7 +320,7 @@ module.exports = (vars) ->
       .order()
       .attr textStyle
       .text (d, i) ->
-        if vars.data.time.visible.indexOf(+d) >= 0 then timeFormat(d) else ""
+        if visible.indexOf(+d) >= 0 then timeFormat(d) else ""
       .attr "opacity", (d, i) ->
         if vars.data.time.dataSteps.indexOf(i) >= 0 then 1 else 0.4
       .attr "fill", textFill
@@ -361,7 +359,7 @@ module.exports = (vars) ->
         .attr("stroke-width",1)
         .attr("shape-rendering","crispEdges")
         .attr "stroke", (d) ->
-          if vars.data.time.visible.indexOf(+d) >= 0
+          if visible.indexOf(+d) >= 0
             tickColor
           else
             mix(tickColor, vars.background.value, 0.4, 1)
