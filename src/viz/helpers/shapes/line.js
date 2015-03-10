@@ -144,8 +144,7 @@ module.exports = function(vars,selection,enter,exit) {
     }
     else {
 
-      paths.exit().attr("opacity", 0)
-        .remove();
+      paths.exit().remove();
 
       paths.enter().append("path")
         .attr("class","d3plus_line")
@@ -160,6 +159,8 @@ module.exports = function(vars,selection,enter,exit) {
         .attr("id",function(d){
           return d.d3plus.id;
         });
+
+      rects.exit().remove();
 
       rects.call(update)
         .call(shapeStyle,vars);
