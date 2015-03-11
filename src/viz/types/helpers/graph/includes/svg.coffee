@@ -142,8 +142,7 @@ module.exports = (vars) ->
 
   # Draw X Axis Tick Marks
   rotated = vars.x.ticks.rotate isnt 0
-  xmod = if rotated then vars.x.ticks.size/2 else 0
-  xStyle = (axis) ->
+  xStyle  = (axis) ->
 
     axis
       .attr "transform", "translate(0," + vars.axes.height + ")"
@@ -157,11 +156,12 @@ module.exports = (vars) ->
           if !vars.x.ticks.hidden and vars.x.ticks.visible.indexOf(d) >= 0
             textwrap()
               .container(d3.select(this))
-              .height(vars.x.ticks.maxHeight)
               .rotate(vars.x.ticks.rotate)
               .valign(if rotated then "middle" else "top")
               .width(vars.x.ticks.maxWidth)
-              .x(-vars.x.ticks.maxWidth/2-xmod)
+              .height(vars.x.ticks.maxHeight)
+              .padding(0)
+              .x(-vars.x.ticks.maxWidth/2)
               .draw()
 
   xAxis = plane.selectAll("g#d3plus_graph_xticks").data axisData

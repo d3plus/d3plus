@@ -57,9 +57,9 @@ module.exports = (vars, opts) ->
     if vars[axis].value is vars.time.value
 
       axisStyle =
-        "font-family": vars[axis].label.font.family.value
-        "font-weight": vars[axis].label.font.weight
-        "font-size":   vars[axis].label.font.size+"px"
+        "font-family": vars[axis].ticks.font.family.value
+        "font-weight": vars[axis].ticks.font.weight
+        "font-size":   vars[axis].ticks.font.size+"px"
 
       timeReturn = timeDetect vars,
         values: vars[axis].ticks.values
@@ -127,10 +127,13 @@ labelPadding = (vars) ->
       yValues = vars.y.scale.viz.domain().filter (d) ->
         d.indexOf("d3plus_buffer_") isnt 0
     yText = yValues.map (d) ->
-      vars.format.value d, {key: vars.y.value, vars: vars, labels: vars.y.affixes.value}
+      vars.format.value d,
+        key:    vars.y.value
+        vars:   vars
+        labels: vars.y.affixes.value
 
   yAxisWidth             = d3.max fontSizes(yText,yAttrs), (d) -> d.width
-  yAxisWidth             = Math.round yAxisWidth + vars.labels.padding
+  yAxisWidth             = Math.ceil yAxisWidth + vars.labels.padding
   vars.axes.margin.left += yAxisWidth
 
   yLabel = vars.y.label.fetch vars
@@ -167,7 +170,10 @@ labelPadding = (vars) ->
       xValues = vars.x.scale.viz.domain().filter (d) ->
         d.indexOf("d3plus_buffer_") isnt 0
     xText = xValues.map (d) ->
-      vars.format.value d, {key: vars.x.value, vars: vars, labels: vars.x.affixes.value}
+      vars.format.value d,
+        key:    vars.x.value
+        vars:   vars
+        labels: vars.x.affixes.value
 
   xSizes      = fontSizes(xText,xAttrs)
   xAxisWidth  = d3.max xSizes, (d) -> d.width
@@ -194,20 +200,26 @@ labelPadding = (vars) ->
   vars.x.ticks.hidden   = false
   vars.x.ticks.baseline = "auto"
   if xAxisWidth <= xMaxWidth
-    xAxisWidth             += vars.labels.padding
-    vars.x.ticks.rotate    = 0
+    vars.x.ticks.rotate = 0
   else if xAxisWidth < vars.axes.height/2
-    xAxisWidth             = xAxisHeight
-    xAxisHeight            = d3.max xSizes, (d) -> d.width
-    vars.x.ticks.rotate    = -90
+    xSizes = fontSizes xText, xAttrs,
+      mod: (elem) ->
+        textwrap().container d3.select(elem)
+          .width(vars.axes.height/2)
+          .height(xMaxWidth).draw()
+    xAxisHeight         = d3.max xSizes, (d) -> d.width
+    xAxisWidth          = d3.max xSizes, (d) -> d.height
+    vars.x.ticks.rotate = -90
   else
     vars.x.ticks.hidden    = true
     vars.x.ticks.rotate    = 0
     xAxisWidth             = 0
     xAxisHeight            = 0
 
-  xAxisHeight = Math.round xAxisHeight
-  xAxisWidth  = Math.round xAxisWidth
+  xAxisHeight = Math.ceil xAxisHeight
+  xAxisWidth  = Math.ceil xAxisWidth
+  vars.x.ticks.maxHeight = xAxisHeight
+  vars.x.ticks.maxWidth = xAxisWidth
   vars.axes.margin.bottom += xAxisHeight + vars.labels.padding
   lastTick = vars.x.ticks.visible[vars.x.ticks.visible.length - 1]
   rightLabel = vars.x.scale.viz lastTick
@@ -226,8 +238,6 @@ labelPadding = (vars) ->
     vars.x.label.height = fontSizes([xLabel], xLabelAttrs)[0].height
   else
     vars.x.label.height = 0
-  vars.x.ticks.maxWidth = xMaxWidth
-  vars.x.ticks.maxHeight = xAxisHeight
   if vars.x.label.value
     vars.axes.margin.bottom += vars.x.label.height
     vars.axes.margin.bottom += vars.x.label.padding * 2
