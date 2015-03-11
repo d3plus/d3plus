@@ -144,10 +144,18 @@ module.exports = (vars) ->
   rotated = vars.x.ticks.rotate isnt 0
   xStyle  = (axis) ->
 
-    axis
+    groups = axis
       .attr "transform", "translate(0," + vars.axes.height + ")"
       .call vars.x.axis.svg.scale(vars.x.scale.viz)
-      .selectAll("g.tick").select("text")
+      .selectAll("g.tick")
+
+    groups.selectAll("line")
+      .attr "y2", (d) ->
+        d  = +d if d.constructor is Date
+        y2 = d3.select(this).attr("y2")
+        if vars.x.ticks.visible.indexOf(d) >= 0 then y2 else y2/2
+
+    groups.select("text")
         .attr "dy", ""
         .style "text-anchor", if rotated then "end" else "middle"
         .call tickFont, "x"
@@ -181,10 +189,20 @@ module.exports = (vars) ->
 
   # Draw Y Axis Tick Marks
   yStyle = (axis) ->
-    axis
+
+    groups = axis
       .call vars.y.axis.svg.scale(vars.y.scale.viz)
-      .selectAll("g.tick").select("text")
-        .call tickFont, "y"
+      .selectAll("g.tick")
+
+    groups.selectAll("line")
+      .attr "y2", (d) ->
+        d  = +d if d.constructor is Date
+        y2 = d3.select(this).attr("y2")
+        if vars.x.ticks.visible.indexOf(d) >= 0 then y2 else y2/2
+
+    groups.select("text")
+      .call tickFont, "y"
+
   yAxis = plane.selectAll("g#d3plus_graph_yticks").data axisData
   yAxis.transition().duration(vars.draw.timing).call yStyle
   yAxis.selectAll("line").transition().duration vars.draw.timing
