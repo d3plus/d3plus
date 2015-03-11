@@ -18,6 +18,8 @@ module.exports = ->
         if vars.size.value[0] <= vars.height.inner
           text vars
           wrap vars
+        else
+          vars.container.value.html(false)
 
         print.timeEnd "total draw time" if vars.dev.value
 
