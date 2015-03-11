@@ -114,7 +114,7 @@ labelPadding = (vars) ->
     "font-size":   vars.y.ticks.font.size+"px"
     "font-family": vars.y.ticks.font.family.value
     "font-weight": vars.y.ticks.font.weight
-  yValues = vars.x.ticks.visible
+  yValues = vars.y.ticks.visible
   if vars.y.scale.value is "log"
     yText = yValues.map (d) -> formatPower d
   else if vars.y.scale.value is "share"
