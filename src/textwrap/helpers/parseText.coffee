@@ -21,5 +21,5 @@ module.exports = (vars) ->
 
   # Detects text-align if not specified with .align( )
   unless vars.align.value
-    vars.container.align = vars.container.value.attr("text-anchor") or
-                           vars.container.value.style("text-anchor")
+    vars.container.align = vars.container.value.style("text-anchor") or
+                           vars.container.value.attr("text-anchor")
