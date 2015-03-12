@@ -8,7 +8,7 @@ reset = (obj, method) ->
     obj.update = true
     obj.first = false
   for o of obj
-    reset obj[o], o  if validObject(obj[o])
+    reset obj[o], o if o.indexOf("d3plus") < 0 and validObject(obj[o])
   return
 
 module.exports = reset
