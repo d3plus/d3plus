@@ -159,7 +159,7 @@ module.exports = function( vars , group ) {
     selection.each(function(d){
 
       var disabled = d.d3plus && "label" in d.d3plus && !d.d3plus.label,
-          label = d.d3plus_label ? d.d3plus_label : vars.zoom.labels ? vars.zoom.labels[d.d3plus.id] : null,
+          label = d.d3plus_label || null,
           share = d.d3plus_share,
           names = d.d3plus.text ? d.d3plus.text :
                   label && label.names ? label.names :

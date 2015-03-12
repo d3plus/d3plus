@@ -53,7 +53,6 @@ module.exports = function(vars,selection,enter,exit) {
 
     vars.zoom.bounds = null;
     vars.zoom.coords = {};
-    vars.zoom.labels = {};
 
     selection.each(function(d){
 
@@ -146,27 +145,24 @@ module.exports = function(vars,selection,enter,exit) {
 
           rect = rect[0];
 
-          var label = {
+          d.d3plus_label = {
             "anchor": "middle",
             "valign": "center",
-            "group": vars.g.labels,
             "h": rect.height,
             "w": rect.width,
             "x": rect.cx,
             "y": rect.cy,
             "names": names
-          }
-
-          vars.zoom.labels[d.d3plus.id] = label
+          };
 
         }
         else {
-          delete vars.zoom.labels[d.d3plus.id]
+          delete d.d3plus_label
         }
 
       }
       else {
-        delete vars.zoom.labels[d.d3plus.id]
+        delete d.d3plus_label
       }
 
       if (!vars.zoom.bounds) {

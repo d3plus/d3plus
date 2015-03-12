@@ -145,17 +145,18 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Remove old groups
   //----------------------------------------------------------------------------
-  for (shape in shapeLookup) {
-    if (!(shapeLookup[shape] in shapes) || d3.keys(shapes).length === 0) {
+  for (var s in shapeLookup) {
+    if (!(shapeLookup[s] in shapes) || d3.keys(shapes).length === 0) {
+      var oldShapes = vars.g.data.selectAll("g.d3plus_"+shapeLookup[s]);
       if (vars.draw.timing) {
-        vars.g.data.selectAll("g.d3plus_"+shapeLookup[shape])
+        oldShapes
           .transition().duration(vars.draw.timing)
           .attr("opacity",0)
-          .remove()
+          .remove();
       }
       else {
-        vars.g.data.selectAll("g.d3plus_"+shapeLookup[shape])
-          .remove()
+        oldShapes
+          .remove();
       }
     }
   }
@@ -163,8 +164,7 @@ module.exports = function(vars) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Initialize arrays for labels and sizes
   //----------------------------------------------------------------------------
-  var labels = [],
-      shares = []
+  var labels = [], shares = [];
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Create groups by shape, apply data, and call specific shape drawing class.
