@@ -64,7 +64,7 @@ module.exports = (vars) ->
   vars.container.y = 0 unless vars.container.y
 
   # Sets the inner width and weight.
-  vars.width.inner = vars.width.value - vars.padding.value * 2
+  vars.width.inner  = vars.width.value - vars.padding.value * 2
   vars.height.inner = vars.height.value - vars.padding.value * 2
 
   # Detects the font size.

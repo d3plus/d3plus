@@ -139,7 +139,6 @@ module.exports = function( vars , group ) {
         if (translate.length) {
           translate = translate.split(")").slice(-3).join(")");
         }
-
         return "rotate("+a+","+x+","+y+")scale("+1/scale[1]+")translate("+(t.x*scale[1]-t.x)+","+(t.y*scale[1]-t.y)+")" + translate;
 
       });
@@ -193,7 +192,7 @@ module.exports = function( vars , group ) {
           share.resize = vars.labels.resize.value === false ? false :
             share && "resize" in share ? share.resize : true;
 
-          share.padding = vars.labels.padding * 2;
+          share.padding = vars.labels.padding;
 
           share.text = d.d3plus.share;
           share.parent = d;
@@ -203,7 +202,7 @@ module.exports = function( vars , group ) {
               return t.w+""+t.h+""+t.text;
             });
 
-          if (vars.draw.timing) {
+          if (vars.draw.timing && vars.zoom.scale === 1) {
 
             text
               .transition().duration(vars.draw.timing/2)
@@ -248,8 +247,7 @@ module.exports = function( vars , group ) {
           label.resize = vars.labels.resize.value === false ? false :
             label && "resize" in label ? label.resize : true;
 
-          var padding = typeof label.padding === "number" ? label.padding : vars.labels.padding;
-          label.padding = padding * 2;
+          label.padding = typeof label.padding === "number" ? label.padding : vars.labels.padding;
 
         }
 
@@ -276,7 +274,7 @@ module.exports = function( vars , group ) {
             }), fontSize = label.resize ? undefined :
                            (vars.labels.font.size * scale[0]) + "px";
 
-          if ( vars.draw.timing ) {
+          if (vars.draw.timing && vars.zoom.scale === 1) {
 
             text
               .transition().duration(vars.draw.timing/2)
