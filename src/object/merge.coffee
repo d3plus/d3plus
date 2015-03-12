@@ -13,7 +13,7 @@ module.exports = (obj1, obj2) ->
 
   copyObject = (obj, ret) ->
     for k, v of obj
-      unless typeof v is "undefined" or k.indexOf("d3plus") is 0
+      unless typeof v is "undefined"
         if validate v
           ret[k] = {} if typeof ret[k] isnt "object"
           copyObject v, ret[k]
