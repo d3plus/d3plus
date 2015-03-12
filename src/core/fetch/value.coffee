@@ -21,7 +21,12 @@ find = (vars, node, variable, depth) ->
 
     # Checks if the variable has already been fetched.
     if variable of node.d3plus.data[depth]
-      return node.d3plus.data[depth][variable]
+      if variable is vars.color.value and
+         (vars.color.changed or
+         vars.time.solo.changed or vars.time.mute.changed)
+        delete node.d3plus.data[depth][variable]
+      else
+        return node.d3plus.data[depth][variable]
 
     if depth of node
       node = node[depth]
