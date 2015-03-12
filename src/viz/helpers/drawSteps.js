@@ -162,42 +162,47 @@ module.exports = function(vars) {
     steps.push({
       "function": function(vars) {
 
-          if (vars.color.changed && vars.color.value) {
+          if (!vars.color.type || vars.color.changed || vars.data.changed ||
+              vars.attrs.changed || vars.id.changed || vars.depth.changed ||
+              (vars.time.fixed.value &&
+                (vars.time.solo.changed || vars.time.mute.changed))) {
 
-            vars.color.valueScale = null
+            vars.color.valueScale = false;
 
             if ( vars.dev.value ) {
-              var timerString = "determining color type"
-              print.time( timerString )
+              var timerString = "checking color type";
+              print.time(timerString);
             }
 
-            var colorKey = vars.color.value
+            vars.color.type = false;
 
-            if ( validObject(colorKey) ) {
-              if (colorKey[vars.id.value]) {
-                colorKey = colorKey[vars.id.value]
+            if (vars.color.value) {
+
+              var colorKey = vars.color.value;
+
+              if ( validObject(colorKey) ) {
+                if (colorKey[vars.id.value]) {
+                  colorKey = colorKey[vars.id.value];
+                }
+                else {
+                  colorKey = colorKey[d3.keys(colorKey)[0]];
+                }
               }
-              else {
-                colorKey = colorKey[d3.keys(colorKey)[0]]
+
+              if (vars.data.keys && colorKey in vars.data.keys) {
+                vars.color.type = vars.data.keys[colorKey];
               }
+              else if (vars.attrs.keys && colorKey in vars.attrs.keys) {
+                vars.color.type = vars.attrs.keys[colorKey];
+              }
+
+            }
+            else if (vars.data.keys) {
+              vars.color.type = vars.data.keys[vars.id.value];
             }
 
-            if ( vars.data.keys && colorKey in vars.data.keys ) {
-              vars.color.type = vars.data.keys[colorKey]
-            }
-            else if ( vars.attrs.keys && colorKey in vars.attrs.keys ) {
-              vars.color.type = vars.attrs.keys[colorKey]
-            }
-            else {
-              vars.color.type = undefined
-            }
+            if (vars.dev.value) print.timeEnd(timerString);
 
-            if ( vars.dev.value ) print.timeEnd( timerString )
-
-          }
-          else if (!vars.color.value) {
-            vars.color.type = "keys" in vars.data
-                            ? vars.data.keys[vars.id.value] : false
           }
 
       },
@@ -263,13 +268,7 @@ module.exports = function(vars) {
         "check": function(vars) {
 
           return vars.color.value && vars.color.type === "number" &&
-                 vars.id.nesting.indexOf(vars.color.value) < 0 &&
-                 vars.data.value && vars.color.value != vars.id.value &&
-                   (vars.color.changed || vars.data.changed || vars.depth.changed ||
-                     (vars.time.fixed.value &&
-                       (vars.time.solo.changed || vars.time.mute.changed)
-                     )
-                   )
+                 vars.color.valueScale === false
 
         },
         "function": dataColor,
