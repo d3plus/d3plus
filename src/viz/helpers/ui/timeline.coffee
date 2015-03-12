@@ -338,7 +338,7 @@ module.exports = (vars) ->
       .on("brush", brushed)
       .on("brushend", brushend)
 
-    if vars[vars.axes.discrete].value is vars.time.value
+    if vars.axes.discrete and vars[vars.axes.discrete].value is vars.time.value
       tickColor = vars[vars.axes.discrete].ticks.color
     else
       tickColor = vars.x.ticks.color
