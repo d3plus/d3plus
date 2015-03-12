@@ -90,6 +90,7 @@ module.exports = function(vars, years, depth) {
   }
 
   cacheID = cacheID.join("_");
+  vars.data.cacheID = cacheID;
 
   var match = false;
 

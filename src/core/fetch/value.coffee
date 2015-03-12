@@ -17,16 +17,11 @@ find = (vars, node, variable, depth) ->
     if variable of node
       return node[variable]
 
-    cacheInit node, depth
+    cacheInit node, vars.data.cacheID
 
     # Checks if the variable has already been fetched.
-    if variable of node.d3plus.data[depth]
-      if variable is vars.color.value and
-         (vars.color.changed or
-         vars.time.solo.changed or vars.time.mute.changed)
-        delete node.d3plus.data[depth][variable]
-      else
-        return node.d3plus.data[depth][variable]
+    if variable of node.d3plus.data[vars.data.cacheID]
+      return node.d3plus.data[vars.data.cacheID][variable]
 
     if depth of node
       node = node[depth]
@@ -94,10 +89,10 @@ filterArray = (arr, node, depth) ->
   else
     arr.filter (d) -> d[depth] is node
 
-cacheInit = (node, depth) ->
+cacheInit = (node, cache) ->
   node.d3plus = {} unless "d3plus" of node
   node.d3plus.data = {} unless "data" of node.d3plus
-  node.d3plus.data[depth] = {} unless depth of node.d3plus.data
+  node.d3plus.data[cache] = {} unless cache of node.d3plus.data
   node
 
 valueParse = (vars, node, depth, variable, val) ->
@@ -114,7 +109,7 @@ valueParse = (vars, node, depth, variable, val) ->
   if val isnt null and validObject(node) and
      typeof variable is "string" and
      variable not of node
-    node.d3plus.data[depth][variable] = val
+    node.d3plus.data[vars.data.cacheID][variable] = val
   val
 
 # aggregate = (vars, arr, variable) ->
