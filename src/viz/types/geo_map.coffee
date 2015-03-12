@@ -14,10 +14,11 @@ geo_map = (vars) ->
   mute = vars.coords.mute.value
 
   features = features.filter (f) ->
+    f[vars.id.value] = f.id
     if solo.length
-      solo.indexOf(f[vars.id.value]) >= 0
+      solo.indexOf(f.id) >= 0
     else if mute.length
-      mute.indexOf(f[vars.id.value]) < 0
+      mute.indexOf(f.id) < 0
     else
       true
 
