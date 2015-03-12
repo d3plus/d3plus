@@ -49,7 +49,7 @@ module.exports = function(vars,selection,enter,exit) {
   vars.old_height = vars.height.viz
   vars.old_width = vars.width.viz
 
-  if (vars.coords.changed || size_change || vars.coords.mute.changed || vars.coords.solo.changed) {
+  if (vars.coords.changed || size_change || vars.coords.mute.changed || vars.coords.solo.changed || vars.type.changed) {
 
     vars.zoom.bounds = null;
     vars.zoom.coords = {};
@@ -166,7 +166,7 @@ module.exports = function(vars,selection,enter,exit) {
       }
 
       if (!vars.zoom.bounds) {
-        vars.zoom.bounds =  b
+        vars.zoom.bounds =  b;
       }
       else {
         if (vars.zoom.bounds[0][0] > b[0][0]) {
