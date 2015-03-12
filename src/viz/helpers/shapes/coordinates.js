@@ -5,6 +5,8 @@ var copy = require("../../../util/copy.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
     path2poly   = require("../../../geom/path2poly.coffee"),
     shapeStyle  = require("./style.coffee")
+
+var labels = {};
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
 //------------------------------------------------------------------------------
@@ -158,13 +160,15 @@ module.exports = function(vars,selection,enter,exit) {
 
         }
         else {
-          delete d.d3plus_label
+          delete d.d3plus_label;
         }
 
       }
       else {
-        delete d.d3plus_label
+        delete d.d3plus_label;
       }
+
+      labels[d.id] = d.d3plus_label;
 
       if (!vars.zoom.bounds) {
         vars.zoom.bounds =  b;
@@ -184,11 +188,14 @@ module.exports = function(vars,selection,enter,exit) {
         }
       }
 
-    })
+    });
 
   }
   else if (!vars.focus.value.length) {
-    vars.zoom.viewport = false
+    vars.zoom.viewport = false;
+    selection.each(function(d){
+      d.d3plus_label = labels[d.id];
+    })
   }
 
-}
+};
