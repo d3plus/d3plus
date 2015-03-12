@@ -52,6 +52,7 @@ module.exports = function(vars,selection,enter,exit) {
   if (vars.coords.changed || size_change || vars.coords.mute.changed || vars.coords.solo.changed || vars.type.changed) {
 
     vars.zoom.bounds = null;
+    vars.zoom.reset = true;
     vars.zoom.coords = {};
 
     selection.each(function(d){

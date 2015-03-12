@@ -44,5 +44,7 @@ module.exports = (vars, b, timing) ->
     height: vars.zoom.bounds[1][1] - vars.zoom.bounds[0][1]
     width:  vars.zoom.bounds[1][0] - vars.zoom.bounds[0][0]
 
+  vars.zoom.reset = false
+
   labels vars
   transform vars, timing
