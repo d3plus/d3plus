@@ -14,19 +14,20 @@ module.exports = (text, opts) ->
   locale = if "locale" of this then @locale.value else defaultLocale
   smalls = locale.lowercase.map (b) -> b.toLowerCase()
   bigs   = locale.uppercase
+  bigs   = bigs.concat(bigs.map (b) -> b + "s")
   biglow = bigs.map (b) -> b.toLowerCase()
 
   text.replace /\S*/g, (txt, i) ->
 
     if txt
 
-      bigindex = biglow.indexOf(txt.toLowerCase())
-
       if /^[^\W\s]/.test(txt)
         prefix = ""
       else
         prefix = txt.charAt(0)
         txt = txt.slice(1)
+
+      bigindex = biglow.indexOf(txt.toLowerCase())
 
       if bigindex >= 0
         new_txt = bigs[bigindex]
