@@ -24,11 +24,11 @@ module.exports = function(vars) {
 
       if ( vars.dev.value ) print.time("calculating zoom")
 
-      if (vars.draw.first) {
-        bounds(vars,zoom,0);
+      if (vars.draw.first || vars.zoom.reset) {
+        bounds(vars, zoom, 0);
       }
-      else if (vars.zoom.reset || vars.type.changed || vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed || vars.legend.changed || vars.timeline.changed || vars.ui.changed) {
-        bounds(vars,zoom);
+      else if (vars.type.changed || vars.focus.changed || vars.height.changed || vars.width.changed || vars.nodes.changed || vars.legend.changed || vars.timeline.changed || vars.ui.changed) {
+        bounds(vars, zoom);
       }
 
       if ( vars.dev.value ) print.timeEnd("calculating zoom")
