@@ -17,11 +17,13 @@ find = (vars, node, variable, depth) ->
     if variable of node
       return node[variable]
 
-    cacheInit node, vars.data.cacheID
+
+    cache = vars.data.cacheID + "_" + depth
+    cacheInit node, cache
 
     # Checks if the variable has already been fetched.
-    if variable of node.d3plus.data[vars.data.cacheID]
-      return node.d3plus.data[vars.data.cacheID][variable]
+    if variable of node.d3plus.data[cache]
+      return node.d3plus.data[cache][variable]
 
     if depth of node
       node = node[depth]
@@ -109,7 +111,8 @@ valueParse = (vars, node, depth, variable, val) ->
   if val isnt null and validObject(node) and
      typeof variable is "string" and
      variable not of node
-    node.d3plus.data[vars.data.cacheID][variable] = val
+    cache = vars.data.cacheID + "_" + depth
+    node.d3plus.data[cache][variable] = val
   val
 
 fetchArray = (vars, arr, variable, depth) ->
