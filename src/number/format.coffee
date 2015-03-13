@@ -19,6 +19,7 @@ module.exports = (number, opts) ->
     ret = number
   else if key is "share"
     ret = if number is 100 then number else d3.format(".2g") number
+    ret += "%"
   else if number < 10 and number > -10
     ret = d3.round number, 2
   else if number.toString().split(".")[0].length > 3

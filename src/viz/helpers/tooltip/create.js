@@ -212,7 +212,7 @@ module.exports = function(params) {
     }
 
     if ( vars.tooltip.share.value && d.d3plus.share ) {
-      ex.share = vars.format.value(d.d3plus.share*100, {"key": "share", "vars": vars, "data": d})+"%";
+      ex.share = vars.format.value(d.d3plus.share*100, {"key": "share", "vars": vars, "data": d});
     }
 
     var depth = "depth" in params ? params.depth : dataDepth,
