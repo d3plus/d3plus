@@ -1,6 +1,8 @@
 # Function to process data by url or element.
 module.exports = (value, vars, method) ->
 
+  vars.history.reset() if vars.history
+
   if typeof value is "string"
     if value.indexOf("/") >= 0
       method.url = value
