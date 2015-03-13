@@ -19,7 +19,7 @@ module.exports = ->
           text vars
           wrap vars
         else
-          vars.container.value.html(false)
+          vars.container.value.html("")
 
         print.timeEnd "total draw time" if vars.dev.value
 
