@@ -184,7 +184,9 @@ module.exports = function(vars) {
   var titleWidth = vars.title.width || vars.width.value-vars.margin.left-vars.margin.right;
 
   titles.enter().append("g")
-    .attr("class","d3plus_title")
+    .attr("class", function(t){
+      return "d3plus_title " + t.type;
+    })
     .attr("opacity",0)
     // .attr("transform",function(t){
     //   var y = t.style.position == "top" ? 0 : vars.height.value
