@@ -46,11 +46,16 @@ module.exports = (vars) ->
       min_height = size + padding * 2
       vars.margin.top += min_height
 
+    containerPadding = parseFloat vars.container.value.style("padding-top"), 10
+    top += containerPadding
+    containerPadding = parseFloat vars.container.value.style("padding-left"), 10
+    left = vars.margin.left + size/2 + containerPadding
+
     style = (elem) ->
 
       elem
         .style "position", "absolute"
-        .style "left", vars.margin.left + size/2 + "px"
+        .style "left", left + "px"
         .style "top", top + "px"
         .style "color", color
         .style "font-family", family
