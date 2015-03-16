@@ -40,7 +40,6 @@ module.exports = (vars) ->
 
       titleGroup = vars.svg.select(".d3plus_title." + titleClass)
       top = stripY(titleGroup) + stripY(titleGroup.select("text"))
-      # top + padding
     else
       top = vars.margin.top - vars.title.padding
       min_height = size + padding * 2

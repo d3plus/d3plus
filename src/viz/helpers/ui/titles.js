@@ -188,16 +188,6 @@ module.exports = function(vars) {
       return "d3plus_title " + t.type;
     })
     .attr("opacity",0)
-    // .attr("transform",function(t){
-    //   var y = t.style.position == "top" ? 0 : vars.height.value
-    //   if (vars.title.width) {
-    //     var x = vars.width.value/2 - vars.title.width/2;
-    //   }
-    //   else {
-    //     var x = 0;
-    //   }
-    //   return "translate("+x+","+y+")";
-    // })
     .append("text")
       .call(style)
 
@@ -265,32 +255,31 @@ module.exports = function(vars) {
         window.open(t.link,target)
       }
     })
-    .transition().duration(vars.draw.timing)
-      .attr("opacity",1)
-      .attr("transform",function(t){
-        var pos = t.style.position,
-            y = pos == "top" ? 0+t.y : vars.height.value-t.y
-        if (pos == "bottom") {
-          y -= this.getBBox().height+t.style.padding
+    .attr("opacity",1)
+    .attr("transform",function(t){
+      var pos = t.style.position,
+          y = pos == "top" ? 0+t.y : vars.height.value-t.y
+      if (pos == "bottom") {
+        y -= this.getBBox().height+t.style.padding
+      }
+      else {
+        y += t.style.padding
+      }
+      var align = getAlign(t);
+      if (align === "start") {
+        var x = vars.margin.left + vars.title.padding;
+      }
+      else {
+        var w = d3.select(this).select("text").node().getBBox().width;
+        if (align === "middle") {
+          x = vars.width.value/2 - titleWidth/2;
         }
         else {
-          y += t.style.padding
+          x = vars.width.value - titleWidth - vars.margin.right - vars.title.padding;
         }
-        var align = getAlign(t);
-        if (align === "start") {
-          var x = vars.margin.left + vars.title.padding;
-        }
-        else {
-          var w = d3.select(this).select("text").node().getBBox().width;
-          if (align === "middle") {
-            x = vars.width.value/2 - titleWidth/2;
-          }
-          else {
-            x = vars.width.value - titleWidth - vars.margin.right - vars.title.padding;
-          }
-        }
-        return "translate("+x+","+y+")";
-      })
+      }
+      return "translate("+x+","+y+")";
+    })
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Exit unused titles
