@@ -165,13 +165,11 @@ module.exports = function(vars,selection,enter,exit) {
 
     }
 
-    var mouseData = selection.size() * discrete.ticks.values.length < vars.data.large ? segments : [];
-
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // Create mouse event lines
     //--------------------------------------------------------------------------
     var mouse = group.selectAll("path.d3plus_mouse")
-      .data(mouseData, function(d){
+      .data(segments, function(d){
         return d.segment_key;
       });
 
