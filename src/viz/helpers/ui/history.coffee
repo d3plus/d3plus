@@ -22,15 +22,15 @@ module.exports = (vars) ->
     padding = vars.title.sub.padding
 
     titleClass = false
-    if vars.title.value and
-       ["start", "left"].indexOf(vars.title.font.align) < 0
-      titleClass = "title"
-    else if vars.title.sub.value and
+    if vars.title.sub.value and
             ["start", "left"].indexOf(vars.title.sub.font.align) < 0
       titleClass = "sub"
     else if vars.title.total.value and
             ["start", "left"].indexOf(vars.title.total.font.align) < 0
       titleClass = "total"
+    else if vars.title.value and
+       ["start", "left"].indexOf(vars.title.font.align) < 0
+      titleClass = "title"
 
     if titleClass
       stripY = (elem) ->
