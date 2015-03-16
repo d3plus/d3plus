@@ -109,13 +109,18 @@ box = (vars) ->
 
       returnData.push boxData
 
+      if boxData.d3plus[h] < 20
+        medianText = false
+      else
+        medianText = vars.format.value median, {key: vars[opposite].value}
+
       medianData =
         d3plus:
           id:       "median_line_"+key
           position: if h is "height" then "top" else "right"
           shape:    "whisker"
           static:   true
-          text:     if boxData.d3plus[h] > 20 then median else false
+          text:     medianText
 
       medianData.d3plus[w]        = space
       medianData.d3plus[discrete] = x
