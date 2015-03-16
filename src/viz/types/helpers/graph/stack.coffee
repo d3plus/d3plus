@@ -34,8 +34,7 @@ module.exports = (vars, data) ->
   for d in data
     val = fetchValue(vars, d, vars[stacked].value)
     if val instanceof Array
-      positiveData.push d if val.filter((v) -> v > 0).length
-      negativeData.push d if val.filter((v) -> v < 0).length
+      positiveData.push d
     else
       positiveData.push d if val > 0
       negativeData.push d if val < 0

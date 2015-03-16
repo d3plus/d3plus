@@ -1,3 +1,4 @@
+closest    = require "../../util/closest.coffee"
 fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
 nest       = require "./helpers/graph/nest.coffee"
@@ -15,16 +16,20 @@ stacked = (vars) ->
   return [] if domains.indexOf(undefined) >= 0
 
   data = sort vars.data.viz, null, null, null, vars
+  discrete = vars[vars.axes.discrete]
+  opposite = vars[vars.axes.opposite]
 
   # Assign x and y to each data point
   for point in data
     point.d3plus = {} unless point.d3plus
     for d in point.values
 
-      d.d3plus.x  = vars.x.scale.viz fetchValue vars, d, vars.x.value
+      d.d3plus = {} unless d.d3plus
+
+      d.d3plus.x  = discrete.scale.viz fetchValue vars, d, discrete.value
       d.d3plus.x += vars.axes.margin.left
 
-      d.d3plus.y  = vars.y.scale.viz fetchValue vars, d, vars.y.value
+      d.d3plus.y  = opposite.scale.viz fetchValue vars, d, opposite.value
       d.d3plus.y += vars.axes.margin.top
 
       if d.d3plus.merged instanceof Array
@@ -36,7 +41,7 @@ stacked = (vars) ->
 
 # Visualization Settings and Helper Functions
 stacked.filter = (vars, data) ->
-  nest vars, threshold(vars, data, vars.x.value)
+  nest vars, threshold(vars, data, vars[vars.axes.discrete].value)
 stacked.requirements = ["data", "x", "y"]
 stacked.setup = (vars) ->
 

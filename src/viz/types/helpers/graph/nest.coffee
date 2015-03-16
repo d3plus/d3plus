@@ -9,15 +9,13 @@ module.exports = (vars, data) ->
   opposite = vars[vars.axes.opposite]
   timeAxis = discrete.value is vars.time.value
   if timeAxis
-    ticks = vars.data.time.values
+    ticks = vars.data.time.ticks
     if vars.time.solo.value.length
       serialized = vars.time.solo.value.map(Number)
-      ticks = ticks.filter (f) ->
-        serialized.indexOf(+f) >= 0
+      ticks = ticks.filter (f) -> serialized.indexOf(+f) >= 0
     else if vars.time.mute.value.length
       serialized = vars.time.mute.value.map(Number)
-      ticks = ticks.filter (f) ->
-        serialized.indexOf(+f) < 0
+      ticks = ticks.filter (f) -> serialized.indexOf(+f) < 0
   else
     ticks = discrete.ticks.values
 
@@ -33,7 +31,7 @@ module.exports = (vars, data) ->
 
       availables = uniqueValues leaves, discrete.value, fetchValue, vars
       timeVar    = availables[0].constructor is Date
-      availables = availables.map((t) -> t.getTime()) if timeVar
+      availables = availables.map(Number) if timeVar
 
       if discrete.zerofill.value
 
@@ -47,7 +45,7 @@ module.exports = (vars, data) ->
 
         for tick, i in ticks
 
-          tester = if tick.constructor is Date then tick.getTime() else tick
+          tester = if timeAxis then +tick else tick
 
           if availables.indexOf(tester) < 0
 

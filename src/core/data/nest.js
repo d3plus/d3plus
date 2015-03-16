@@ -29,11 +29,11 @@ var dataNest = function(vars, flatData, nestingLevels) {
 
   }
 
-  if (vars.axes && vars.axes.discrete) {
-    nestedData.key(function(d){
-      return fetchValue(vars, d, vars[vars.axes.discrete].value);
-    });
-  }
+  // if (vars.axes && vars.axes.discrete) {
+  //   nestedData.key(function(d){
+  //     return fetchValue(vars, d, vars[vars.axes.discrete].value);
+  //   });
+  // }
 
   var deepest_is_id = nestingLevels.length && vars.id.nesting.indexOf(nestingLevels[nestingLevels.length - 1]) >= 0;
   var i = nestingLevels.length && deepest_is_id ? nestingLevels.length - 1 : 0;
