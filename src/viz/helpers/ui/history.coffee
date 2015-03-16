@@ -69,7 +69,7 @@ module.exports = (vars) ->
       .html () ->
 
         if stylesheet "font-awesome"
-          arrow = "<span style='font-family:FontAwesome;margin-right:5px;'>&#xf104</span>"
+          arrow = "<i class='fa fa-angle-left' style='margin-top:2px;margin-right:4px;'></i>"
         else
           arrow = "&laquo; "
 
