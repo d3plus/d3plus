@@ -28,11 +28,9 @@ module.exports = function(vars,selection,enter,exit) {
 
   var stroke = vars.data.stroke.width * 2,
       hitarea = stroke < 15 ? 15 : stroke,
-      discrete = vars[vars.axes.discrete],
-      ticks = discrete.value === vars.time.value ?
-              vars.data.time.values : discrete.ticks.values;
+      discrete = vars[vars.axes.discrete];
 
-  ticks = ticks.map(function(d){
+  var ticks = discrete.ticks.values.map(function(d){
     if (d.constructor === Date) return d.getTime();
     else return d;
   });
