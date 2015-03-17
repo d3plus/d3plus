@@ -121,92 +121,66 @@ module.exports = function(vars, id, length, extras, children, depth) {
   }
 
   var tooltip_data = []
-  if (a instanceof Array) {
+  if (a.constructor === Array) a = {"": a};
 
-    extras.forEach(function(e){
-      if (a.indexOf(e) < 0) a.push(e)
+  if (vars.id.nesting.length && depth < vars.id.nesting.length-1) {
+    var a = copy(a)
+    vars.id.nesting.forEach(function(n,i){
+      if (i > depth && a[n]) delete a[n]
     })
+  }
 
-    a.forEach(function(t){
-      format_key(t)
-    })
+  for (var group in a) {
+    for (var i = extras.length; i > 0; i--) {
+      var e = extras[i-1];
+      if (a[group] instanceof Array && a[group].indexOf(e) >= 0) {
+        extras.pop();
+      }
+      else if (typeof a[group] == "string" && a[group] == e) {
+        extras.pop();
+      }
+    }
+  }
+
+  if (vars.tooltip.value.long && typeof vars.tooltip.value.long == "object") {
+    var placed = []
+
+    for (var group in vars.tooltip.value.long) {
+
+      for (var i = extras.length; i > 0; i--) {
+        var e = extras[i-1];
+        if (vars.tooltip.value.long[group].indexOf(e) >= 0) {
+          if (!a[group]) a[group] = [];
+          a[group].push(e);
+          extras.pop();
+        }
+      }
+
+    }
 
   }
-  else {
 
-    if (vars.id.nesting.length && depth < vars.id.nesting.length-1) {
-      var a = copy(a)
-      vars.id.nesting.forEach(function(n,i){
-        if (i > depth && a[n]) delete a[n]
+  if (extras.length) {
+    if (!a[""]) a[""] = []
+    a[""] = a[""].concat(extras);
+  }
+
+  // if (a[""]) {
+  //   a[""].forEach(function(t){
+  //     format_key(t,"")
+  //   })
+  //   delete a[""]
+  // }
+
+  for ( var group in a ) {
+    if (a[group] instanceof Array) {
+      a[group].forEach(function(t){
+        format_key(t,group)
       })
     }
-
-    if (vars.tooltip.value.long && typeof vars.tooltip.value.long == "object") {
-      var placed = []
-      for ( var group in vars.tooltip.value.long ) {
-
-        extras.forEach(function(e){
-          if (vars.tooltip.value.long[group].indexOf(e) >= 0 && ((a[group] && a[group].indexOf(e) < 0) || !a[group])) {
-            if (!a[group]) a[group] = []
-            a[group].push(e)
-            placed.push(e)
-          }
-          else if (a[group] && a[group].indexOf(e) >= 0) {
-            placed.push(e)
-          }
-        })
-      }
-      extras.forEach(function(e){
-        if (placed.indexOf(e) < 0) {
-          if (!a[""]) a[""] = []
-          a[""].push(e)
-        }
-      })
+    else if (typeof a[group] == "string") {
+      format_key(a[group],group)
     }
-    else {
-
-      var present = []
-
-      for ( var group in a ) {
-        extras.forEach(function(e){
-          if (a[group] instanceof Array && a[group].indexOf(e) >= 0) {
-            present.push(e)
-          }
-          else if (typeof a[group] == "string" && a[group] == e) {
-            present.push(e)
-          }
-        })
-      }
-
-      if (present.length != extras.length) {
-        if (!a[""]) a[""] = []
-        extras.forEach(function(e){
-          if (present.indexOf(e) < 0) {
-            a[""].push(e)
-          }
-        })
-      }
-
-    }
-
-    if (a[""]) {
-      a[""].forEach(function(t){
-        format_key(t,"")
-      })
-      delete a[""]
-    }
-
-    for ( var group in a ) {
-      if (a[group] instanceof Array) {
-        a[group].forEach(function(t){
-          format_key(t,group)
-        })
-      }
-      else if (typeof a[group] == "string") {
-        format_key(a[group],group)
-      }
-    }
-
   }
 
   if ( children ) {
