@@ -9,6 +9,10 @@ wrap = (vars) ->
     vars.text.current = vars.text.phrases.shift() + ""
     vars.text.words   = vars.text.current.match vars.text.break
 
+    firstChar = vars.text.current.charAt(0)
+    if firstChar isnt vars.text.words[0].charAt(0)
+      vars.text.words[0] = firstChar + vars.text.words[0]
+
     # Clears out the current container text.
     vars.container.value.text ""
 
@@ -36,13 +40,15 @@ resize = (vars) ->
   # Start by trying the largest font size
   sizeMax   = Math.floor(vars.size.value[1])
   lineWidth = if vars.shape.value is "circle" then width * 0.75 else width
-  sizes     = fontSizes words, {"font-size": sizeMax + "px"}, {parent: vars.container.value}
+  sizes     = fontSizes words,
+    "font-size": sizeMax + "px"
+    parent: vars.container.value
   maxWidth  = d3.max sizes, (d) -> d.width
   areaMod   = 1.165 + (width / height * 0.11)
   textArea  = d3.sum(sizes, (d) ->
-      h = vars.container.dy or sizeMax * 1.1
-      d.width * h
-    ) * areaMod
+    h = vars.container.dy or sizeMax * 1.1
+    d.width * h
+  ) * areaMod
 
   if vars.shape.value is "circle"
     boxArea = Math.PI * Math.pow(width / 2, 2)
