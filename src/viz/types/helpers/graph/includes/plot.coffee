@@ -186,7 +186,8 @@ labelPadding = (vars) ->
   if xValues.length is 1
     xMaxWidth = vars.axes.width
   else
-    xMaxWidth   = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
+    xMaxWidth  = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
+    xMaxWidth  = Math.abs xMaxWidth
     xMaxWidth -= vars.labels.padding * 2
 
   if xAxisWidth > xMaxWidth and xText.join("").indexOf(" ") > 0
@@ -203,6 +204,7 @@ labelPadding = (vars) ->
 
   vars.x.ticks.hidden   = false
   vars.x.ticks.baseline = "auto"
+
   if xAxisWidth <= xMaxWidth
     vars.x.ticks.rotate = 0
   else if xAxisWidth < vars.axes.height/2
