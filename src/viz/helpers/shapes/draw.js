@@ -653,7 +653,8 @@ module.exports = function(vars) {
             .draw()
 
         }
-        else if (depth_delta === -1 && vars.zoom.value) {
+        else if (depth_delta === -1 && vars.zoom.value &&
+                 vars.history.states.length && !vars.tooltip.value.long) {
 
           vars.history.back()
 
