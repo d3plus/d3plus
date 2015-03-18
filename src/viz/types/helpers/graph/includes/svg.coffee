@@ -300,112 +300,119 @@ module.exports = (vars) ->
       .attr "id", "d3plus_graph_"+axis+"_userlines"
 
     # Draw Axis Lines
-    if vars[axis].lines.value.length
+    domain   = vars[axis].scale.viz.domain()
+    domain   = domain.slice().reverse() if axis is "y"
+    textData = []
+    lineData = []
+    userLines = vars[axis].lines.value or []
 
-      domain   = vars[axis].scale.viz.domain()
-      domain   = domain.slice().reverse() if axis is "y"
-      textData = []
-      lineData = []
+    for line in userLines
+      d = if validObject(line) then line.position else line
+      unless isNaN(d)
+        d = parseFloat(d)
+        if d > domain[0] and d < domain[1]
+          d = unless validObject(line) then {"position": d} else line
+          d.coords =
+            line: vars[axis].scale.viz(d.position)
+          lineData.push d
+          if d.text
 
-      for line in vars[axis].lines.value
-        d = if validObject(line) then line.position else line
-        unless isNaN(d)
-          d = parseFloat(d)
-          if d > domain[0] and d < domain[1]
-            d = unless validObject(line) then {"position": d} else line
-            d.coords =
-              line: vars[axis].scale.viz(d.position)
-            lineData.push d
-            if d.text
+            d.axis    = axis
+            d.padding = vars[axis].lines.font.padding.value * 0.5
+            d.align   = vars[axis].lines.font.align.value
 
-              d.axis    = axis
-              d.padding = vars[axis].lines.font.padding.value * 0.5
-              d.align   = vars[axis].lines.font.align.value
+            position = vars[axis].lines.font.position.text
+            textPad  = if position is "middle" then 0 else d.padding * 2
+            textPad  = -textPad if position is "top"
 
-              position = vars[axis].lines.font.position.text
-              textPad  = if position is "middle" then 0 else d.padding * 2
-              textPad  = -textPad if position is "top"
+            if axis is "x"
+              textPos  = if d.align is "left" then vars.axes.height else if d.align is "center" then vars.axes.height/2 else 0
+              textPos -= d.padding * 2 if d.align is "left"
+              textPos += d.padding * 2 if d.align is "right"
+            else
+              textPos  = if d.align is "left" then 0 else if d.align is "center" then vars.axes.width/2 else vars.axes.width
+              textPos -= d.padding * 2 if d.align is "right"
+              textPos += d.padding * 2 if d.align is "left"
 
-              if axis is "x"
-                textPos  = if d.align is "left" then vars.axes.height else if d.align is "center" then vars.axes.height/2 else 0
-                textPos -= d.padding * 2 if d.align is "left"
-                textPos += d.padding * 2 if d.align is "right"
-              else
-                textPos  = if d.align is "left" then 0 else if d.align is "center" then vars.axes.width/2 else vars.axes.width
-                textPos -= d.padding * 2 if d.align is "right"
-                textPos += d.padding * 2 if d.align is "left"
+            d.coords.text = {}
+            d.coords.text[if axis is "x" then "y" else "x"] = textPos
+            d.coords.text[axis] = vars[axis].scale.viz(d.position)+textPad
 
-              d.coords.text = {}
-              d.coords.text[if axis is "x" then "y" else "x"] = textPos
-              d.coords.text[axis] = vars[axis].scale.viz(d.position)+textPad
+            d.transform = if axis is "x" then "rotate(-90,"+d.coords.text.x+","+d.coords.text.y+")" else null
 
-              d.transform = if axis is "x" then "rotate(-90,"+d.coords.text.x+","+d.coords.text.y+")" else null
+            textData.push d
 
-              textData.push d
+    lines = lineGroup.selectAll "line.d3plus_graph_"+axis+"line"
+      .data lineData, (d) -> d.position
 
-      lines = lineGroup.selectAll "line.d3plus_graph_"+axis+"line"
-        .data lineData, (d) -> d.position
+    lines.enter().append "line"
+      .attr "class", "d3plus_graph_"+axis+"line"
+      .attr "opacity", 0
+      .call lineStyle, axis
 
-      lines.enter().append "line"
-        .attr "class", "d3plus_graph_"+axis+"line"
-        .attr "opacity", 0
-        .call lineStyle, axis
+    lines.transition().duration vars.draw.timing
+      .attr "opacity", 1
+      .call lineStyle, axis
 
-      lines.transition().duration vars.draw.timing
-        .attr "opacity", 1
-        .call lineStyle, axis
+    lines.exit().transition().duration vars.draw.timing
+      .attr "opacity", 0
+      .remove()
 
-      lines.exit().transition().duration vars.draw.timing
-        .attr "opacity", 0
-        .remove()
+    linetexts = lineGroup.selectAll "text.d3plus_graph_"+axis+"line_text"
+      .data textData, (d) -> d.position
 
-      linetexts = lineGroup.selectAll "text.d3plus_graph_"+axis+"line_text"
-        .data textData, (d) -> d.position
+    linetexts.enter().append "text"
+      .attr "class", "d3plus_graph_"+axis+"line_text"
+      .attr "id", (d) ->
+        id = d.position+""
+        id = id.replace("-", "neg")
+        id = id.replace(".", "p")
+        "d3plus_graph_"+axis+"line_text_"+id
+      .attr "opacity", 0
+      .call lineFont, axis
 
-      linetexts.enter().append "text"
-        .attr "class", "d3plus_graph_"+axis+"line_text"
-        .attr "id", (d) -> "d3plus_graph_"+axis+"line_text_"+d.position
-        .attr "opacity", 0
-        .call lineFont, axis
+    linetexts
+      .text (d) -> d.text
+      .transition().duration vars.draw.timing
+      .attr "opacity", 1
+      .call lineFont, axis
 
-      linetexts
-        .text (d) -> d.text
-        .transition().duration vars.draw.timing
-        .attr "opacity", 1
-        .call lineFont, axis
+    linetexts.exit().transition().duration vars.draw.timing
+      .attr "opacity", 0
+      .remove()
 
-      linetexts.exit().transition().duration vars.draw.timing
-        .attr "opacity", 0
-        .remove()
+    rectStyle = (rect) ->
 
-      rectStyle = (rect) ->
+      getText  = (d) ->
+        id = d.position+""
+        id = id.replace("-", "neg")
+        id = id.replace(".", "p")
+        plane.select("text#d3plus_graph_"+d.axis+"line_text_"+id).node().getBBox()
 
-        getText  = (d) -> plane.select("text#d3plus_graph_"+d.axis+"line_text_"+d.position).node().getBBox()
+      rect
+        .attr "x", (d) -> getText(d).x - d.padding
+        .attr "y", (d) -> getText(d).y - d.padding
+        .attr "transform"  , (d) -> d.transform
+        .attr "width", (d) -> getText(d).width + (d.padding * 2)
+        .attr "height", (d) -> getText(d).height + (d.padding * 2)
+        .attr "fill", vars.axes.background.color
 
-        rect
-          .attr "x", (d) -> getText(d).x - d.padding
-          .attr "y", (d) -> getText(d).y - d.padding
-          .attr "transform"  , (d) -> d.transform
-          .attr "width", (d) -> getText(d).width + (d.padding * 2)
-          .attr "height", (d) -> getText(d).height + (d.padding * 2)
-          .attr "fill", vars.axes.background.color
+    rectData = if vars[axis].lines.font.background.value then textData else []
 
-      rectData = if vars[axis].lines.font.background.value then textData else []
+    lineRects = lineGroup.selectAll "rect.d3plus_graph_"+axis+"line_rect"
+      .data rectData, (d) -> d.position
 
-      lineRects = lineGroup.selectAll "rect.d3plus_graph_"+axis+"line_rect"
-        .data rectData, (d) -> d.position
+    lineRects.enter().insert("rect", "text.d3plus_graph_"+axis+"line_text")
+      .attr "class", "d3plus_graph_"+axis+"line_rect"
+      .attr "pointer-events", "none"
+      .attr("opacity", 0).call rectStyle
 
-      lineRects.enter().insert("rect", "text.d3plus_graph_"+axis+"line_text")
-        .attr "class", "d3plus_graph_"+axis+"line_rect"
-        .attr "pointer-events", "none"
-        .attr("opacity", 0).call rectStyle
+    lineRects.transition().delay vars.draw.timing
+      .each "end", (d) ->
+        d3.select(this).transition().duration vars.draw.timing
+          .attr("opacity", 1).call rectStyle
 
-      lineRects.transition().delay vars.draw.timing
-        .each "end", (d) ->
-          d3.select(this).transition().duration vars.draw.timing
-            .attr("opacity", 1).call rectStyle
-
-      lineRects.exit().transition().duration vars.draw.timing
-        .attr("opacity", 0).remove()
+    lineRects.exit().transition().duration vars.draw.timing
+      .attr("opacity", 0).remove()
 
   return
