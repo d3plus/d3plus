@@ -131,13 +131,10 @@ module.exports = function(vars, id, length, extras, children, depth) {
   }
 
   for (var group in a) {
+    if (a[group].constructor !== Array) a[group] = [a[group]]
     for (var i = extras.length; i > 0; i--) {
-      var e = extras[i-1];
-      if (a[group] instanceof Array && a[group].indexOf(e) >= 0) {
-        extras.pop();
-      }
-      else if (typeof a[group] == "string" && a[group] == e) {
-        extras.pop();
+      if (a[group].indexOf(extras[i-1]) >= 0) {
+        extras.splice(i-1, 1);
       }
     }
   }
@@ -152,7 +149,7 @@ module.exports = function(vars, id, length, extras, children, depth) {
         if (vars.tooltip.value.long[group].indexOf(e) >= 0) {
           if (!a[group]) a[group] = [];
           a[group].push(e);
-          extras.pop();
+          extras.splice(i-1, 1);
         }
       }
 
@@ -165,22 +162,10 @@ module.exports = function(vars, id, length, extras, children, depth) {
     a[""] = a[""].concat(extras);
   }
 
-  // if (a[""]) {
-  //   a[""].forEach(function(t){
-  //     format_key(t,"")
-  //   })
-  //   delete a[""]
-  // }
-
-  for ( var group in a ) {
-    if (a[group] instanceof Array) {
-      a[group].forEach(function(t){
-        format_key(t,group)
-      })
-    }
-    else if (typeof a[group] == "string") {
-      format_key(a[group],group)
-    }
+  for (var group in a) {
+    a[group].forEach(function(t){
+      format_key(t, group);
+    });
   }
 
   if ( children ) {
