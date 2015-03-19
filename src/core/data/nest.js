@@ -135,7 +135,8 @@ var dataNest = function(vars, flatData, nestingLevels) {
           returnObj[key] = parseDates(uniqueValues(leaves, key));
         }
         else if (keyType === "number" && aggType === "string" && !idKey) {
-          var vals = uniqueValues(leaves, key);
+          var vals = leaves.map(function(d){ return d[key]; });
+          vals = vals.filter(function(d){ return typeof d === keyType; });
           if (vals.length) returnObj[key] = d3[agg](vals);
         }
         else {
