@@ -19,8 +19,10 @@ module.exports = (number, opts) ->
   if typeof key is "string" and time.indexOf(key.toLowerCase()) >= 0
     ret = number
   else if key is "share"
-    if length > 2
+    if number >= 100
       ret = d3.format(",f") number
+    else if number > 99
+      ret = d3.format(".3g") number
     else
       ret = d3.format(".2g") number
     ret += "%"
