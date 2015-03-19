@@ -117,7 +117,7 @@ module.exports = function(vars,selection,enter,exit) {
       paths.enter().append("path")
         .attr("class","d3plus_line")
         .style("stroke-linecap","round")
-        .attr("d",function(d){ return line(d.values); })
+        .attr("d", function(d){ return line(d.values); })
         .call(shapeStyle,vars)
         .attr("opacity", 0)
         .transition().duration(vars.draw.timing)
@@ -125,9 +125,7 @@ module.exports = function(vars,selection,enter,exit) {
 
       rects.enter().append("rect")
         .attr("class","d3plus_anchor")
-        .attr("id",function(d){
-          return d.d3plus.id;
-        })
+        .attr("id",function(d){ return d.d3plus.id; })
         .call(init)
         .call(shapeStyle,vars);
 

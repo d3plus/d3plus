@@ -36,7 +36,7 @@ module.exports = (vars, data) ->
     if val instanceof Array
       positiveData.push d
     else
-      positiveData.push d if val > 0
+      positiveData.push d if val >= 0
       negativeData.push d if val < 0
 
   unless positiveData.length or negativeData.length
