@@ -37,7 +37,7 @@ module.exports =
       titles.push vars.format.value(c)
 
     csv_to_return.push titles
-    for n in vars.returned.nodes.forEach
+    for n in vars.returned.nodes
       arr = []
       for c in columns
         arr.push fetchValue(vars, n, c)
