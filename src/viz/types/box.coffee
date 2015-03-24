@@ -19,7 +19,7 @@ box = (vars) ->
   h         = if discrete is "x" then "height" else "width"
   w         = if discrete is "x" then "width" else "height"
   space     = vars.axes[w] / vars[discrete].ticks.values.length
-  space     = d3.max [d3.min([space/2,40]), 10]
+  space     = d3.min [space - vars.labels.padding * 2, 100]
   mode      = vars.type.mode.value
 
   if !(mode instanceof Array)
@@ -109,18 +109,32 @@ box = (vars) ->
 
       returnData.push boxData
 
-      if boxData.d3plus[h] < 20
-        medianText = false
-      else
-        medianText = vars.format.value median, {key: vars[opposite].value}
-
       medianData =
         d3plus:
           id:       "median_line_"+key
           position: if h is "height" then "top" else "right"
           shape:    "whisker"
           static:   true
-          text:     medianText
+
+      medianText = vars.format.value median,
+        key:  vars[opposite].value
+        vars: vars
+
+      label =
+        background: "#fff"
+        names:      [medianText]
+        padding:    0
+        resize:     false
+        x:          0
+        y:          0
+      diff1 = Math.abs scale(median) - scale(first)
+      diff2 = Math.abs scale(median) - scale(second)
+      medianHeight = d3.min([diff1, diff2]) * 2
+      medianBuffer = vars.data.stroke.width * 2 + vars.labels.padding * 2
+      label[if w is "width" then "w" else "h"] = space - medianBuffer
+      label[if h is "width" then "w" else "h"] = medianHeight - medianBuffer
+
+      medianData.d3plus.label = label
 
       medianData.d3plus[w]        = space
       medianData.d3plus[discrete] = x

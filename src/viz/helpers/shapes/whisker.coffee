@@ -11,6 +11,8 @@ module.exports = (vars, selection, enter, exit) ->
         background: "#fff"
         resize:     false
         angle:      if ["left","right"].indexOf(d.d3plus.position) >= 0 then 90 else 0
+    else if d.d3plus.label
+      d.d3plus_label = d.d3plus.label
     else delete d.d3plus_label
 
     [d]
