@@ -58,11 +58,9 @@ module.exports = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Sort the data, if needed.
       //------------------------------------------------------------------------
-      if ( vars.data.sort.value && (vars.data.changed || vars.order.changed || vars.order.sort.changed) ) {
-
+      if (vars.data.sort.value && (vars.data.changed || vars.order.changed || vars.order.sort.changed) ) {
         arraySort( vars.data.viz , vars.order.value || vars.text.value,
                    vars.order.sort.value , vars.color.value , vars );
-
       }
 
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -13,7 +13,6 @@ module.exports = (vars) ->
     unless "items" of vars.container
       vars.container.items = form()
         .container vars.container.list
-        .data {"sort": false}
         .type "button"
         .ui
           border:  0
@@ -57,6 +56,7 @@ module.exports = (vars) ->
 
     vars.container.items
       .active vars.active.value
+      .data {"sort": vars.data.sort.value}
       .draw
         update: vars.draw.update
       .font vars.font.secondary
