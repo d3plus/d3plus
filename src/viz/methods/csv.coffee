@@ -21,9 +21,11 @@ module.exports =
     titles        = []
 
     if vars.title.value
-      title = vars.title.string
+      title = vars.title.value
       title = title(vars.self) if typeof title is "function"
       title = stringStrip title
+      max_filename_len = 250
+      title = title.substr(0, max_filename_len)
     else
       title = "D3plus Visualization Data"
 
