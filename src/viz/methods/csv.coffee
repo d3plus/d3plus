@@ -39,11 +39,19 @@ module.exports =
       titles.push vars.format.value(c)
 
     csv_to_return.push titles
-    for n in vars.returned.nodes
-      arr = []
-      for c in columns
-        arr.push fetchValue(vars, n, c)
-      csv_to_return.push arr
+    for node in vars.returned.nodes
+      console.log(node.values)
+      if node.values? and node.values instanceof Array
+        for val in node.values
+          row = []
+          for col in columns
+            row.push fetchValue(vars, val, col)
+          csv_to_return.push row
+      else
+        row = []
+        for col in columns
+          row.push fetchValue(vars, node, col)
+        csv_to_return.push row
 
     csv_data = "data:text/csv;charset=utf-8,"
     for c, i in csv_to_return
