@@ -63,34 +63,74 @@ module.exports = function(vars,selection,enter,exit) {
     })
   }
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // "paths" Exit
-  //----------------------------------------------------------------------------
-  exit.selectAll("path.d3plus_data").transition().duration(vars.draw.timing)
-    .call(size,0,0)
-    .each("end",function(d){
-      delete vars.arcs[d.d3plus.shape][d.d3plus.id]
-    })
+  function data(d) {
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // "paths" Update
-  //----------------------------------------------------------------------------
-  selection.selectAll("path.d3plus_data")
-    .data(function(d) { return [d]; })
-    .transition().duration(vars.draw.timing)
-      .call(size)
-      .call(shapeStyle,vars)
+    if (d.d3plus.label) {
+      d.d3plus_label = d.d3plus.label;
+    }
+    else {
+      delete d.d3plus_label;
+    }
 
-  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  // "paths" Enter
-  //----------------------------------------------------------------------------
-  enter.append("path")
-    .attr("class","d3plus_data")
-    .transition().duration(0)
+    return [d];
+  }
+
+  if (vars.draw.timing) {
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // "paths" Exit
+    //----------------------------------------------------------------------------
+    exit.selectAll("path.d3plus_data").transition().duration(vars.draw.timing)
       .call(size,0,0)
-      .call(shapeStyle,vars)
+      .each("end",function(d){
+        delete vars.arcs[d.d3plus.shape][d.d3plus.id];
+      });
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // "paths" Update
+    //----------------------------------------------------------------------------
+    selection.selectAll("path.d3plus_data")
+      .data(data)
       .transition().duration(vars.draw.timing)
         .call(size)
-        .call(shapeStyle,vars)
+        .call(shapeStyle,vars);
 
-}
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // "paths" Enter
+    //----------------------------------------------------------------------------
+    enter.append("path")
+      .attr("class","d3plus_data")
+      .transition().duration(0)
+        .call(size,0,0)
+        .call(shapeStyle,vars)
+        .transition().duration(vars.draw.timing)
+          .call(size)
+          .call(shapeStyle,vars);
+
+  }
+  else {
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // "paths" Exit
+    //----------------------------------------------------------------------------
+    exit.selectAll("path.d3plus_data")
+      .each(function(d){
+        delete vars.arcs[d.d3plus.shape][d.d3plus.id];
+      });
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // "paths" Enter
+    //----------------------------------------------------------------------------
+    enter.append("path")
+      .attr("class","d3plus_data");
+
+    //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    // "paths" Update
+    //----------------------------------------------------------------------------
+    selection.selectAll("path.d3plus_data")
+      .data(data)
+      .call(size)
+      .call(shapeStyle,vars);
+  }
+
+};

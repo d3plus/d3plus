@@ -93,13 +93,17 @@ bubbles = (vars) ->
     d.d3plus.static = d.d3plus.depth < vars.depth.value and vars.id.grouping.value
 
     if labelHeight and (d.d3plus.depth is 0 or vars.id.grouping.value is false)
+      d.d3plus.text = fetchText vars, d[vars.id.value], d.d3plus.depth
+      yMod = if labelHeight > vars.labels.padding * 3 then vars.labels.padding else 0
       d.d3plus.label =
-        x: 0
-        y: -(size_max + labelHeight / 2)
-        w: size_max * 2
-        h: labelHeight
+        x:       0
+        y:       -(size_max + yMod + labelHeight / 2)
+        w:       size_max * 2
+        h:       labelHeight - yMod
         padding: 0
-        color: legible(fetchColor(vars, d, d.d3plus.depth))
+        resize:  false
+        color:   legible(fetchColor(vars, d, d.d3plus.depth))
+        force:   true
     else
       delete d.d3plus.label
 

@@ -4,6 +4,7 @@ module.exports = (vars, selection, enter, exit) ->
 
   # Calculate label position and pass data from parent.
   data = (d) ->
+
     if vars.labels.value and not d.d3plus.label
 
       w = (if d.d3plus.r then d.d3plus.r * 2 else d.d3plus.width)
@@ -23,8 +24,11 @@ module.exports = (vars, selection, enter, exit) ->
 
       d.d3plus_label.shape = (if d.d3plus.shape is "circle" then "circle" else "square")
 
+    else if d.d3plus.label
+      d.d3plus_label = d.d3plus.label
     else
-      d.d3plus_label = d.d3plus.label  if d.d3plus.label
+      delete d.d3plus_label
+
     [d]
 
   #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -180,12 +180,12 @@ module.exports = function( vars , group ) {
           var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
               temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
               total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total,
-              background = (!temp && !active) || (active === total);
+              background = (!temp && !active) || (active >= total) || (!active && temp >= total);
         }
 
       }
 
-      if (!disabled && (background || !fill)) {
+      if (!disabled && ((label && label.force) || background || !fill)) {
 
         if (share && d.d3plus.share && share.w-vars.labels.padding*2 >= 10 && share.h-vars.labels.padding*2 >= 10 && vars.labels.valign.value != "middle") {
 
