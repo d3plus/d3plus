@@ -209,10 +209,10 @@ var rings = function(vars) {
     secondaryMax = ring_width/10
   }
 
-  if (secondaryMax > primaryMax) {
+  if (secondaryMax > primaryMax && secondaryMax > 10) {
     secondaryMax = primaryMax*.75
   }
-  else if (primaryMax > secondaryMax*1.5) {
+  if (primaryMax > secondaryMax*1.5) {
     primaryMax = secondaryMax*1.5
   }
 
@@ -383,7 +383,6 @@ var rings = function(vars) {
         var background = primaries.indexOf(n) >= 0 ? true : false
 
         var height = n.d3plus.ring == 1 ? primaryDistance : secondaryDistance
-        height += vars.labels.padding*2
 
         n.d3plus.label = {
           "x": buffer,
@@ -394,7 +393,7 @@ var rings = function(vars) {
           "anchor": anchor,
           "valign": "center",
           "color": legible(fetchColor(vars,n)),
-          "resize": [8,vars.labels.font.size],
+          "resize": [8, vars.labels.font.size],
           "background": background,
           "mouse": true
         }
