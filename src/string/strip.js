@@ -5,7 +5,7 @@ module.exports = function(str) {
 
   var removed = [ "!","@","#","$","%","^","&","*","(",")",
                   "[","]","{","}",".",",","/","\\","|",
-                  "'","\"",";",":","<",">","?","=","+"]
+                  "'","\"",";",":","<",">","?","=","+"];
 
   var diacritics = [
       [/[\300-\306]/g, "A"],
@@ -21,32 +21,30 @@ module.exports = function(str) {
       [/[\321]/g, "N"],
       [/[\361]/g, "n"],
       [/[\307]/g, "C"],
-      [/[\347]/g, "c"],
+      [/[\347]/g, "c"]
   ];
 
-  str += ""
+  str += "";
 
   return ""+str.replace(/[^A-Za-z0-9\-_]/g, function(chr) {
 
-    if (" " == chr) {
-      return "_"
+    if (" " === chr) {
+      return "_";
     }
     else if (removed.indexOf(chr) >= 0) {
-      return ""
+      return "";
     }
 
     var ret = chr;
-    for ( var d in diacritics ) {
-
-      if (diacritics[d][0].test(chr)) {
-        ret = diacritics[d][1]
+    for (var d = 0; d < diacritics.length; d++) {
+      if (new RegExp(diacritics[d][0]).test(chr)) {
+        ret = diacritics[d][1];
         break;
       }
-
     }
 
     return ret;
 
   });
 
-}
+};
