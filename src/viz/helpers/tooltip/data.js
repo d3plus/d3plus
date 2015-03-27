@@ -5,7 +5,8 @@ var copy = require("../../../util/copy.coffee"),
     legible      = require("../../../color/legible.coffee"),
     mergeObject  = require("../../../object/merge.coffee"),
     prefix       = require("../../../client/prefix.coffee"),
-    stringFormat = require("../../../string/format.js")
+    stringFormat = require("../../../string/format.js"),
+    validObject  = require("../../../object/validate.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates a data object for the Tooltip
 //------------------------------------------------------------------------------
@@ -83,7 +84,14 @@ module.exports = function(vars, id, length, extras, children, depth) {
 
     var value = extra_data[key] || fetchValue(vars,id,key,id_var)
 
-    if (value != null && value != "undefined" && !(value instanceof Array) && ((typeof value === "string" && value.indexOf("d3plus_other") < 0) || !(typeof value === "string"))) {
+    if (validObject(value)) {
+      tooltip_data.push({
+        "name": vars.format.value(key),
+        "value": vars.format.value(value.value, {"key": value.key, "vars": vars}),
+        "group": group
+      })
+    }
+    else if (value != null && value != "undefined" && !(value instanceof Array) && ((typeof value === "string" && value.indexOf("d3plus_other") < 0) || !(typeof value === "string"))) {
       var name = vars.format.locale.value.ui[key]
                ? vars.format.value(vars.format.locale.value.ui[key])
                : vars.format.value(key),

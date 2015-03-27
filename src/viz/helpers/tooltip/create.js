@@ -5,6 +5,7 @@ var arraySort     = require("../../../array/sort.coffee"),
     fetchColor    = require("../../../core/fetch/color.coffee"),
     fetchText     = require("../../../core/fetch/text.js"),
     fetchValue    = require("../../../core/fetch/value.coffee"),
+    mergeObject   = require("../../../object/merge.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
     uniques       = require("../../../util/uniques.coffee"),
     validObject   = require("../../../object/validate.coffee"),
@@ -187,7 +188,9 @@ module.exports = function(params) {
       }
 
     }
-
+    if (d.d3plus.tooltip) {
+      ex = mergeObject(ex, d.d3plus.tooltip);
+    }
     if ( vars.tooltip.size.value ) {
       if (dataValue && typeof vars.size.value !== "number") {
         ex[vars.size.value] = dataValue;

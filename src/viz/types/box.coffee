@@ -107,6 +107,17 @@ box = (vars) ->
       y += oppMargin
       boxData.d3plus[opposite] = y
 
+      boxData.d3plus.tooltip =
+        "third quartile":
+          key:  vars[opposite].value
+          value: second
+        "median":
+          key:  vars[opposite].value
+          value: median
+        "first quartile":
+          key:  vars[opposite].value
+          value: first
+
       returnData.push boxData
 
       medianData =
