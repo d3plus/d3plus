@@ -15,11 +15,11 @@ module.exports = (arr, opts) ->
       for n1 in node.nodes
         if n1 and n1.point
           if opts.origin
-            distances.push(distance n1.point, opts.origin)
+            distances.push(distance n1, opts)
           else
             for n2 in node.nodes
               if n2 and n2.point and n2.point isnt n1.point
-                distances.push(distance n1.point, n2.point)
+                distances.push(distance n1, n2)
     false
 
   if opts.all then distances.sort((aa, bb) -> aa-bb) else d3.min distances
