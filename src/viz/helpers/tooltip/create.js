@@ -195,6 +195,9 @@ module.exports = function(params) {
       if (vars.axes.opposite && vars[vars.axes.opposite].value !== vars.size.value) {
         ex[vars[vars.axes.opposite].value] = fetchValue(vars, d, vars[vars.axes.opposite].value);
       }
+      if (vars.color.valueScale) {
+        ex[vars.color.value] = fetchValue(vars, d, vars.color.value);
+      }
     }
 
     var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
