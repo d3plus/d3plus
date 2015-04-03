@@ -19,7 +19,7 @@ find = (vars, node, variable, depth) ->
 
 
     cache = vars.data.cacheID + "_" + depth
-    cacheInit node, cache
+    cacheInit node, cache, vars
 
     # Checks if the variable has already been fetched.
     if variable of node.d3plus.data[cache]
@@ -91,10 +91,11 @@ filterArray = (arr, node, depth) ->
   else
     arr.filter (d) -> d[depth] is node
 
-cacheInit = (node, cache) ->
+cacheInit = (node, cache, vars) ->
   node.d3plus = {} unless "d3plus" of node
   node.d3plus.data = {} unless "data" of node.d3plus
-  node.d3plus.data[cache] = {} unless cache of node.d3plus.data
+  if vars.data.changed or vars.attrs.changed or !(cache of node.d3plus.data)
+    node.d3plus.data[cache] = {}
   node
 
 valueParse = (vars, node, depth, variable, val) ->
