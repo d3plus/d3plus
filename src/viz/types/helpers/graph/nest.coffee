@@ -30,7 +30,7 @@ module.exports = (vars, data) ->
     .rollup (leaves) ->
 
       availables = uniqueValues leaves, discrete.value, fetchValue, vars
-      timeVar    = availables[0].constructor is Date
+      timeVar    = availables.length and availables[0].constructor is Date
       availables = availables.map(Number) if timeVar
 
       if discrete.zerofill.value
