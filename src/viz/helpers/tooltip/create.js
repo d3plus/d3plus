@@ -188,18 +188,25 @@ module.exports = function(params) {
       }
 
     }
+
     if (d.d3plus.tooltip) {
       ex = mergeObject(ex, d.d3plus.tooltip);
     }
+
+    function getLabel(method) {
+      return typeof vars[method].value === "string" ? vars[method].value :
+             vars.format.locale.value.method[method];
+    }
+
     if ( vars.tooltip.size.value ) {
       if (dataValue && typeof vars.size.value !== "number") {
-        ex[vars.size.value] = dataValue;
+        ex[getLabel("size")] = dataValue;
       }
       if (vars.axes.opposite && vars[vars.axes.opposite].value !== vars.size.value) {
-        ex[vars[vars.axes.opposite].value] = fetchValue(vars, d, vars[vars.axes.opposite].value);
+        ex[getLabel(vars.axes.opposite)] = fetchValue(vars, d, vars[vars.axes.opposite].value);
       }
       if (vars.color.valueScale) {
-        ex[vars.color.value] = fetchValue(vars, d, vars.color.value);
+        ex[getLabel("color")] = fetchValue(vars, d, vars.color.value);
       }
     }
 
@@ -208,13 +215,11 @@ module.exports = function(params) {
         total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total;
 
     if (typeof active == "number" && active > 0 && total) {
-      var label = vars.active.value || "active";
-      ex[label] = active+"/"+total+" ("+vars.format.value((active/total)*100, {"key": "share", "vars": vars, "data": d})+")";
+      ex[getLabel("active")] = active+"/"+total+" ("+vars.format.value((active/total)*100, {"key": "share", "vars": vars, "data": d})+")";
     }
 
     if (typeof temp == "number" && temp > 0 && total) {
-      var label = vars.temp.value || "temp";
-      ex[label] = temp+"/"+total+" ("+vars.format.value((temp/total)*100, {"key": "share", "vars": vars, "data": d})+")";
+      ex[getLabel("temp")] = temp+"/"+total+" ("+vars.format.value((temp/total)*100, {"key": "share", "vars": vars, "data": d})+")";
     }
 
     if ( vars.tooltip.share.value && d.d3plus.share ) {
