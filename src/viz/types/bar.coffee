@@ -40,13 +40,21 @@ bar = (vars) ->
   maxSize = space - padding * 2
 
   unless vars.axes.stacked
-    bars = uniques nested, vars.id.value, fetchValue, vars
-    divisions = bars.length
+
+    if vars[discrete].value in vars.id.nesting
+      bars = d3.nest()
+        .key (d) ->
+          fetchValue vars, d, vars[discrete].value
+        .entries nested
+      divisions = d3.max bars, (b) -> b.values.length
+    else
+      bars = uniques nested, vars.id.value, fetchValue, vars
+      divisions = bars.length
     maxSize /= divisions
     offset   = space/2 - maxSize/2 - padding
 
     x = d3.scale.linear()
-      .domain [0, bars.length-1]
+      .domain [0, divisions-1]
       .range [-offset, offset]
 
   data = []
