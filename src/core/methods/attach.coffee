@@ -83,7 +83,7 @@ createFunction = (vars, key) ->
       starting = true
 
       checkValue = (o, a, m, v) ->
-        if a of o[m]
+        if validObject(o[m]) and a of o[m]
           if validObject(o[m][a])
             if o[m][a].process
               o[m][a].value = o[m][a].process(v)
