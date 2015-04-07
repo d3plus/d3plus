@@ -90,7 +90,12 @@ var dataNest = function(vars, flatData, nestingLevels) {
       var c = segments[s];
       var segmentAgg = vars.aggs && vars.aggs.value[key] ? vars.aggs.value[key] : "sum";
 
-      if (typeof segmentAgg === "function") {
+      if ("d3plus" in leaves[0] && c in leaves[0].d3plus) {
+        returnObj.d3plus[c] = d3.sum(leaves, function(d){
+          return d.d3plus[c];
+        });
+      }
+      else if (typeof segmentAgg === "function") {
         returnObj.d3plus[c] = segmentAgg(leaves);
       }
       else {
