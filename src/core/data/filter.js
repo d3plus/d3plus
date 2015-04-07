@@ -24,7 +24,7 @@ module.exports = function( vars , data ) {
   vars.data.filters.forEach( function( key ) {
 
     if (availableKeys.indexOf(vars[key].value) >= 0 &&
-        typeReqs.indexOf(vars[key].value) >= 0) {
+        typeReqs.indexOf(key) >= 0) {
 
       data = data.filter( function( d ) {
 
