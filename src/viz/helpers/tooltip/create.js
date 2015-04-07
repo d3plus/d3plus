@@ -7,6 +7,7 @@ var arraySort     = require("../../../array/sort.coffee"),
     fetchValue    = require("../../../core/fetch/value.coffee"),
     mergeObject   = require("../../../object/merge.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
+    segments      = require("../shapes/segments.coffee"),
     uniques       = require("../../../util/uniques.coffee"),
     validObject   = require("../../../object/validate.coffee"),
     zoomDirection = require("../zoom/direction.coffee");
@@ -210,9 +211,9 @@ module.exports = function(params) {
       }
     }
 
-    var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
-        temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
-        total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total;
+    var active = segments(vars, d, "active"),
+        temp   = segments(vars, d, "temp"),
+        total  = segments(vars, d, "total");
 
     if (typeof active == "number" && active > 0 && total) {
       ex[getLabel("active")] = active+"/"+total+" ("+vars.format.value((active/total)*100, {"key": "share", "vars": vars, "data": d})+")";

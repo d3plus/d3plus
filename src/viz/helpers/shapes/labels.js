@@ -4,6 +4,7 @@ var copy       = require("../../../util/copy.coffee"),
     mix        = require("../../../color/mix.coffee"),
     print      = require("../../../core/console/print.coffee"),
     rtl        = require("../../../client/rtl.coffee"),
+    segments   = require("./segments.coffee"),
     shapeColor = require("./color.coffee"),
     stringList = require("../../../string/list.coffee"),
     textColor  = require("../../../color/text.coffee"),
@@ -177,9 +178,9 @@ module.exports = function( vars , group ) {
           var background = true;
         }
         else if (d && "d3plus" in d) {
-          var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
-              temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
-              total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total,
+          var active = segments(vars, d, "active"),
+              temp   = segments(vars, d, "temp"),
+              total  = segments(vars, d, "total"),
               background = (!temp && !active) || (active >= total) || (!active && temp >= total);
         }
 

@@ -8,6 +8,7 @@ var child         = require("../../../util/child.coffee"),
     legible       = require("../../../color/legible.coffee"),
     print         = require("../../../core/console/print.coffee"),
     removeTooltip = require("../../../tooltip/remove.coffee"),
+    segments      = require("./segments.coffee"),
     shapeFill     = require("./fill.js"),
     stringStrip   = require("../../../string/strip.js"),
     touch         = require("../../../client/touch.coffee"),
@@ -202,9 +203,9 @@ module.exports = function(vars) {
             if (!d.d3plus.segments) {
 
               d.d3plus.segments = {"donut": Math.PI*2}
-              var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
-                  temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
-                  total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total;
+              var active = segments(vars, d, "active"),
+                  temp   = segments(vars, d, "temp"),
+                  total  = segments(vars, d, "total");
 
               if (total) {
                 if (active) {

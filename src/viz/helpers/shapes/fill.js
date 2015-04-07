@@ -1,6 +1,7 @@
 var copy       = require("../../../util/copy.coffee"),
     fetchColor = require("../../../core/fetch/color.coffee"),
     fetchValue = require("../../../core/fetch/value.coffee"),
+    segments   = require("./segments.coffee"),
     shapeStyle = require("./style.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -127,25 +128,14 @@ module.exports = function(vars,selection,enter,exit) {
     });
   }
 
-  var getSegment = function(d, segment) {
-      ret = vars[segment].value;
-      if (ret) {
-        return segment in d.d3plus ? d.d3plus[segment] :
-               fetchValue(vars, d, ret);
-      }
-      else {
-        return d.d3plus[segment];
-      }
-  }
-
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check each data point for active and temp data
   //----------------------------------------------------------------------------
   selection.each(function(d){
 
-    var active = getSegment(d, "active"),
-        temp  = getSegment(d, "temp"),
-        total = getSegment(d, "total"),
+    var active = segments(vars, d, "active"),
+        temp  = segments(vars, d, "temp"),
+        total = segments(vars, d, "total"),
         group = d3.select(this),
         color = fetchColor(vars,d);
 
