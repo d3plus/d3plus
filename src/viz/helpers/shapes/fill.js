@@ -86,7 +86,7 @@ module.exports = function(vars,selection,enter,exit) {
       return a > Math.PI*2 ? Math.PI*2 : a;
     })
     .innerRadius(function(d){
-      if (!d.d3plus.static) {
+      if (!d.d3plus.static && vars.shape.value === "donut") {
         var r = vars.arcs[d.d3plus.shape][d.d3plus.id].r;
         return r * vars.data.donut.size;
       }
@@ -127,14 +127,25 @@ module.exports = function(vars,selection,enter,exit) {
     });
   }
 
+  var getSegment = function(d, segment) {
+      ret = vars[segment].value;
+      if (ret) {
+        return segment in d.d3plus ? d.d3plus[segment] :
+               fetchValue(vars, d, ret);
+      }
+      else {
+        return d.d3plus[segment];
+      }
+  }
+
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Check each data point for active and temp data
   //----------------------------------------------------------------------------
   selection.each(function(d){
 
-    var active = vars.active.value ? fetchValue(vars, d, vars.active.value) : d.d3plus.active,
-        temp   = vars.temp.value ? fetchValue(vars, d, vars.temp.value) : d.d3plus.temp,
-        total  = vars.total.value ? fetchValue(vars, d, vars.total.value) : d.d3plus.total,
+    var active = getSegment(d, "active"),
+        temp  = getSegment(d, "temp"),
+        total = getSegment(d, "total"),
         group = d3.select(this),
         color = fetchColor(vars,d);
 
