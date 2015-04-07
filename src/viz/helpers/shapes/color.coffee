@@ -21,12 +21,16 @@ module.exports = (d, vars, stroke) ->
   else if d.d3plus.static
     return lighter fetchColor(vars, d), .75
 
-  active = vars.active.value
-  active = if active then fetchValue(vars, d, active) else d.d3plus.active
-  temp   = vars.temp.value
-  temp   = if temp then fetchValue(vars, d, temp) else d.d3plus.temp
-  total  = vars.total.value
-  total  = if total then fetchValue(vars, d, total) else d.d3plus.total
+  getSegment = (segment) ->
+    ret = vars[segment].value
+    if ret
+      if segment of d.d3plus then d.d3plus[segment] else fetchValue vars, d, ret
+    else
+      d.d3plus[segment]
+
+  active = getSegment "active"
+  temp   = getSegment "temp"
+  total  = getSegment "total"
 
   if (not vars.active.value and not vars.temp.value) or active is true or
      (active and total and active >= total and not temp) or
