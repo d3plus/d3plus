@@ -19,9 +19,12 @@ module.exports = function( vars , data ) {
     return val !== null;
   });
 
+  var typeReqs = vars.types[vars.type.value].requirements || [];
+
   vars.data.filters.forEach( function( key ) {
 
-    if ( availableKeys.indexOf(vars[key].value) >= 0 ) {
+    if (availableKeys.indexOf(vars[key].value) >= 0 &&
+        typeReqs.indexOf(vars[key].value) >= 0) {
 
       data = data.filter( function( d ) {
 
