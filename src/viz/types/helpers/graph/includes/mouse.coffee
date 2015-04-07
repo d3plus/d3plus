@@ -8,10 +8,12 @@ module.exports = (node, vars) ->
 
   clickRemove = d3.event.type is events.click and
                 (vars.tooltip.value.long or vars.tooltip.html.value)
-  create      = [events.over, events.move].indexOf(d3.event.type) >= 0
-  x           = node.d3plus.x
-  y           = node.d3plus.y
-  r           = node.d3plus.r or 0
+  create = [events.over, events.move].indexOf(d3.event.type) >= 0
+  x      = node.d3plus.x
+  y      = node.d3plus.y
+  r      = node.d3plus.r or 0
+  s      = vars.types[vars.type.value].scale or 1
+  r      = r * s
   graph       = vars.axes
   timing      = if vars.draw.timing then vars.timing.mouseevents else 0
 
@@ -26,8 +28,8 @@ module.exports = (node, vars) ->
 
   lineInit = (line) ->
     line
-      .attr "x1", x
-      .attr "y1", y
+      .attr "x1", (d) -> if d is "x" then x else x - r
+      .attr "y1", (d) -> if d is "y" then y else y + r
       .attr "x2", (d) -> if d is "x" then x else x - r
       .attr "y2", (d) -> if d is "y" then y else y + r
       .attr "opacity", 0
