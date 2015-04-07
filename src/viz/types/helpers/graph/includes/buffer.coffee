@@ -109,12 +109,19 @@ module.exports = (vars, axis, buffer) ->
       rangeMax = vars[axis].scale.viz.range()[1]
       maxSize  = vars.axes.scale.range()[1]
 
-      domainHigh = vars[axis].scale.viz.invert -maxSize * 2
-      domainLow  = vars[axis].scale.viz.invert rangeMax + maxSize * 2
-      difference = Math.abs domainHigh - domainLow
+      domainLow = vars[axis].scale.viz.invert -maxSize*1.5
+      domainHigh  = vars[axis].scale.viz.invert rangeMax + maxSize*1.5
 
-      if Math.round(domainHigh) is Math.round(domainLow)
-        domainHigh -= difference/8
-        domainLow  += difference/8
+      domain = [domainLow, domainHigh]
+      domain = domain.reverse() if axis is "y"
 
-      vars[axis].scale.viz.domain([domainHigh,domainLow])
+      domainCompare = vars[axis].scale.viz.domain()
+      domainCompare = domainCompare[1] - domainCompare[0]
+
+      unless domainCompare
+        domain[0] -= 1
+        domain[1] += 1
+
+      domain = domain.reverse() if axis is "y"
+
+      vars[axis].scale.viz.domain(domain)
