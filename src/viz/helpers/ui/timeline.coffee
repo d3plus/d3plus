@@ -52,10 +52,17 @@ module.exports = (vars) ->
     if vars.timeline.play.value
       availableWidth -= playbackWidth + vars.ui.padding
 
-    if visible.length < years.length
+    if visible.length < years.length or
+       availableWidth < labelWidth * visible.length
+      oldWidth       = labelWidth
       labelWidth     = (availableWidth-labelWidth)/years.length
       timelineWidth  = labelWidth*years.length
       timelineOffset = 1
+      tickStep = ~~(oldWidth/(timelineWidth/visible.length))+1
+      while tickStep < visible.length - 1
+        break if (visible.length - 1) % tickStep is 0
+        tickStep++
+      visible = visible.filter (t, i) -> i % tickStep is 0
     else
       timelineOffset = 0
 

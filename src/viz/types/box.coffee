@@ -32,6 +32,8 @@ box = (vars) ->
       obj[key] = if vals.length is 1 then vals[0] else vals
     obj
 
+  noData = false
+
   returnData = []
   d3.nest()
     .key (d) -> fetchValue(vars, d, vars[discrete].value)
@@ -40,6 +42,7 @@ box = (vars) ->
       scale  = vars[opposite].scale.viz
       values = leaves.map (d) -> fetchValue(vars, d, vars[opposite].value)
       values.sort (a, b) -> a - b
+      uniqs = uniques values
 
       first  = d3.quantile values, 0.25
       median = d3.quantile values, 0.50
@@ -205,12 +208,14 @@ box = (vars) ->
         d.d3plus.r = 4
         d.d3plus.shape = vars.shape.value
 
+      noData = !outliers.length and top - bottom is 0
+
       returnData = returnData.concat(outliers)
 
       return leaves
     .entries vars.data.viz
 
-  returnData
+  if noData then [] else returnData
 
 # Visualization Settings and Helper Functions
 box.modes        = ["tukey", "extent", Array, Number]
