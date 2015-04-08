@@ -468,7 +468,7 @@ module.exports = function(vars) {
 
         if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-          vars.covered = false
+          // vars.covered = false
           var tooltipType = vars.types[vars.type.value].tooltip || "follow"
 
           if (d.values && vars.axes.discrete) {
@@ -512,7 +512,6 @@ module.exports = function(vars) {
           d3.select(this).selectAll(".d3plus_data")
             .transition().duration(vars.timing.mouseevents)
             .attr("opacity",vars.data.opacity)
-
 
           if (!vars.covered) {
             removeTooltip(vars.type.value)
