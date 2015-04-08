@@ -49,10 +49,10 @@ stacked.setup = (vars) ->
     axis = if vars.time.value is vars.y.value then "y" else "x"
     vars.self[axis] scale: "discrete"
 
-  vars.self[vars.axes.discrete]
-    zerofill: true
-  vars.self[vars.axes.opposite]
-    stacked: true
+  unless vars[vars.axes.discrete].zerofill.value
+    vars.self[vars.axes.discrete] zerofill: true
+  unless vars[vars.axes.opposite].stacked.value
+    vars.self[vars.axes.opposite] stacked: true
 
   y    = vars[vars.axes.opposite]
   size = vars.size

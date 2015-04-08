@@ -18,7 +18,7 @@ module.exports = (vars, opts) ->
     reorder  = vars.order.changed or vars.order.sort.changed or
                (vars.order.value is true and vars[oppAxis].changed)
 
-    if !("values" of vars[axis].ticks) or changed or reorder
+    if !vars[axis].ticks.values or changed or reorder
 
       print.time "calculating "+axis+" axis" if vars.dev.value
 
@@ -69,7 +69,9 @@ dataChange = (vars) ->
       changed = true
       break
 
-  subs = ["mute", "range", "scale", "solo", "stacked"]
+  return changed if changed
+
+  subs = ["mute", "range", "scale", "solo", "stacked", "zerofill"]
   for axis in ["x", "y"]
     for sub in subs
       if vars[axis][sub].changed
