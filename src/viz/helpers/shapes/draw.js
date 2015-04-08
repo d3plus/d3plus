@@ -459,7 +459,7 @@ module.exports = function(vars) {
             vars.mouse[events.over](d.d3plus_data || d, vars)
           }
 
-          // edge_update(d)
+          edge_update(d)
 
         }
 
