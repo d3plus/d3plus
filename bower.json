@@ -11,32 +11,32 @@
     "Daniel Smilkov <dsmilkov@gmail.com>"
   ],
   "dependencies": {
-    "d3": "^3.5.4",
-    "heap": "^0.2.5",
+    "d3": "^3.5.5",
+    "heap": "^0.2.6",
     "numericjs": "^1.2.6",
     "simplify-js": "https://github.com/mourner/simplify-js.git",
     "static-kdtree": "https://github.com/mikolalysenko/static-kdtree.git",
-    "topojson": "^1.6.18"
+    "topojson": "^1.6.19"
   },
   "devDependencies": {
-    "browserify": "^9.0.3",
-    "coffee-script": "^1.9.0",
+    "browserify": "^9.0.8",
+    "coffee-script": "^1.9.1",
     "coffeeify": "^1.0.0",
-    "event-stream": "^3.2.2",
-    "gulp": "^3.8.10",
+    "event-stream": "^3.3.0",
+    "gulp": "^3.8.11",
     "gulp-chmod": "^1.2.0",
     "gulp-connect": "^2.2.0",
     "gulp-duration": "^0.0.0",
     "gulp-notify": "^2.2.0",
-    "gulp-rename": "^1.2.0",
+    "gulp-rename": "^1.2.2",
     "gulp-rimraf": "^0.1.1",
     "gulp-streamify": "^0.0.5",
     "gulp-uglify": "^1.1.0",
-    "gulp-util": "^3.0.3",
+    "gulp-util": "^3.0.4",
     "gulp-yuidoc": "^0.1.2",
-    "require-dir": "^0.1.0",
-    "vinyl-source-stream": "^1.0.0",
-    "watchify": "^2.4.0"
+    "require-dir": "^0.3.0",
+    "vinyl-source-stream": "^1.1.0",
+    "watchify": "^3.1.0"
   },
   "keywords": ["charts", "d3", "d3plus", "data", "visualization"],
   "license": "MIT"
