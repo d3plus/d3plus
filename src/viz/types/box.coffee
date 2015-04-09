@@ -32,7 +32,8 @@ box = (vars) ->
       obj[key] = if vals.length is 1 then vals[0] else vals
     obj
 
-  noData = false
+  noData  = false
+  medians = []
 
   returnData = []
   d3.nest()
@@ -209,13 +210,14 @@ box = (vars) ->
         d.d3plus.shape = vars.shape.value
 
       noData = !outliers.length and top - bottom is 0
+      medians.push median
 
       returnData = returnData.concat(outliers)
 
       return leaves
     .entries vars.data.viz
 
-  if noData then [] else returnData
+  if noData and uniques(medians).length is 1 then [] else returnData
 
 # Visualization Settings and Helper Functions
 box.modes        = ["tukey", "extent", Array, Number]
