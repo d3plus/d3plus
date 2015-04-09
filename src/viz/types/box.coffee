@@ -62,19 +62,22 @@ box = (vars) ->
         top = d3.quantile values, (100 - mode[1])/100
         topLabel = mode[1] + " percentile"
       top = d3.min [d3.max(values), top]
-      tooltipData[topLabel] =
-        key:   vars[opposite].value
-        value: top
 
-      tooltipData["third quartile"] =
+      if vars.tooltip.extent.value
+        tooltipData[topLabel] =
           key:   vars[opposite].value
-          value: second
-      tooltipData["median"] =
-          key:   vars[opposite].value
-          value: median
-      tooltipData["first quartile"] =
-          key:   vars[opposite].value
-          value: first
+          value: top
+
+      if vars.tooltip.iqr.value
+        tooltipData["third quartile"] =
+            key:   vars[opposite].value
+            value: second
+        tooltipData["median"] =
+            key:   vars[opposite].value
+            value: median
+        tooltipData["first quartile"] =
+            key:   vars[opposite].value
+            value: first
 
       if mode[0] is "tukey"
         iqr    = first - second
@@ -87,9 +90,11 @@ box = (vars) ->
         bottom = d3.quantile values, mode[0]/100
         bottomLabel = mode[0] + " percentile"
       bottom = d3.max [d3.min(values), bottom]
-      tooltipData[bottomLabel] =
-        key:   vars[opposite].value
-        value: bottom
+
+      if vars.tooltip.extent.value
+        tooltipData[bottomLabel] =
+          key:   vars[opposite].value
+          value: bottom
 
       boxData       = []
       bottomWhisker = []

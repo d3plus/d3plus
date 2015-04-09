@@ -15,6 +15,9 @@ module.exports =
     color:   "#ffffff"
     opacity: 0.8
   deprecates: "tooltip_info"
+  extent:
+    accepted: [Boolean]
+    value:    true
   font:
     color:     "#444"
     family:    family()
@@ -25,6 +28,9 @@ module.exports =
     accepted:   [false, Function, Object, String]
     deprecates: "click_function"
     value:      false
+  iqr:
+    accepted: [Boolean]
+    value:    true
   large: 250
   share:
     accepted: [Boolean]
