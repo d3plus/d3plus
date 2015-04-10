@@ -31237,7 +31237,7 @@ var fetchValue;
 fetchValue = require("../../../../core/fetch/value.coffee");
 
 module.exports = function(vars, data) {
-  var d, flip, i, len, margin, negativeData, offset, opposite, positiveData, scale, stack, stacked, val;
+  var d, flip, i, j, len, len1, margin, neg, negativeData, offset, opposite, positiveData, scale, stack, stacked, v, val;
   stacked = vars.axes.stacked;
   flip = vars[stacked].scale.viz(0);
   scale = vars[stacked].scale.value;
@@ -31270,7 +31270,19 @@ module.exports = function(vars, data) {
     d = data[i];
     val = fetchValue(vars, d, vars[stacked].value);
     if (val instanceof Array) {
-      positiveData.push(d);
+      neg = true;
+      for (j = 0, len1 = val.length; j < len1; j++) {
+        v = val[j];
+        if (v >= 0) {
+          neg = false;
+          break;
+        }
+      }
+      if (neg) {
+        negativeData.push(d);
+      } else {
+        positiveData.push(d);
+      }
     } else {
       if (val >= 0) {
         positiveData.push(d);
