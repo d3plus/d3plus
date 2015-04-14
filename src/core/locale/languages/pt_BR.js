@@ -85,11 +85,11 @@ module.exports = {
     ],
     "visualization": {
         "bar": "Gráfico de Barras",
-        "box": "Box Plot",
+        "box": "Eaixa de Enredo",
         "bubbles": "Bolhas",
         "chart": "Gráfico",
         "geo_map": "Mapa",
-        "line": "Gráfico de Linha",
+        "line": "Enredo",
         "network": "Rede",
         "path": "Caminhos",
         "pie": "Pie Chart",
