@@ -23,37 +23,43 @@ module.exports = function( vars ) {
 
   vars.edges.value.forEach(function(e){
 
-    if (typeof e[vars.edges.source] !== "object") {
-      var obj = {}
-      obj[vars.id.value] = e[vars.edges.source]
-      e[vars.edges.source] = obj
-    }
-    if (typeof e[vars.edges.target] !== "object") {
-      var obj = {}
-      obj[vars.id.value] = e[vars.edges.target]
-      e[vars.edges.target] = obj
-    }
+    ["source", "target"].forEach(function(dir){
+      var dirType = typeof e[vars.edges[dir]];
+      if (dirType !== "object") {
+        if (dirType === "number" && !createNodes) {
+          e[vars.edges[dir]] = vars.nodes.value[e[vars.edges[dir]]];
+        }
+        else {
+          if (createNodes && placed.indexOf(e[vars.edges[dir]]) >= 0) {
+            e[vars.edges[dir]] = vars.nodes.value.filter(function(n){
+              return n[vars.id.value] === e[vars.edges[dir]];
+            })[0];
+          }
+          else {
+            var obj = {};
+            obj[vars.id.value] = e[vars.edges[dir]];
+            e[vars.edges[dir]] = obj;
+          }
+        }
+      }
+      var newNode = e[vars.edges[dir]];
+      if (createNodes) {
+        if (placed.indexOf(newNode[vars.id.value]) < 0) {
+          placed.push(newNode[vars.id.value]);
+          vars.nodes.value.push(newNode);
+        }
+      }
+    });
 
     if (!("keys" in vars.data)) {
-      vars.data.keys = {}
+      vars.data.keys = {};
     }
 
     if (!(vars.id.value in vars.data.keys)) {
-      vars.data.keys[vars.id.value] = typeof e[vars.edges.source][vars.id.value]
+      vars.data.keys[vars.id.value] = typeof e[vars.edges.source][vars.id.value];
     }
 
-    if ( createNodes ) {
-      if (placed.indexOf(e[vars.edges.source][vars.id.value]) < 0) {
-        placed.push(e[vars.edges.source][vars.id.value])
-        vars.nodes.value.push(e[vars.edges.source])
-      }
-      if (placed.indexOf(e[vars.edges.target][vars.id.value]) < 0) {
-        placed.push(e[vars.edges.target][vars.id.value])
-        vars.nodes.value.push(e[vars.edges.target])
-      }
-    }
-
-  })
+  });
 
   vars.edges.value = vars.edges.value.filter(function(e){
 

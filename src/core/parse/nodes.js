@@ -1,36 +1,36 @@
-var print = require("../console/print.coffee")
+var print = require("../console/print.coffee");
 
 // Calculates node positions, if needed for network.
 module.exports = function(vars) {
 
-  if ( vars.dev.value ) {
-    var timerString = "analyzing node positions"
-    print.time( timerString )
+  if (vars.dev.value) {
+    var timerString = "analyzing node positions";
+    print.time(timerString);
   }
 
   var set = vars.nodes.value.filter(function(n){
-    return typeof n.x == "number" && typeof n.y == "number"
-  }).length
+    return typeof n.x === "number" && typeof n.y === "number";
+  }).length;
 
-  if (set == vars.nodes.value.length) {
-    vars.nodes.positions = true
+  if (set === vars.nodes.value.length) {
+    vars.nodes.positions = true;
   }
   else {
 
     var force = d3.layout.force()
-      .size([vars.width.viz,vars.height.viz])
+      .size([vars.width.viz, vars.height.viz])
       .nodes(vars.nodes.value)
-      .links(vars.edges.value)
+      .links(vars.edges.value);
 
-    var strength = vars.edges.strength.value
+    var strength = vars.edges.strength.value;
     if (strength) {
       if (typeof strength === "string") {
         force.linkStrength(function(e){
-          return e[strength]
-        })
+          return e[strength];
+        });
       }
       else {
-        force.linkStrength(strength)
+        force.linkStrength(strength);
       }
     }
 
@@ -46,10 +46,10 @@ module.exports = function(vars) {
     }
     force.stop();
 
-    vars.nodes.positions = true
+    vars.nodes.positions = true;
 
   }
 
-  if ( vars.dev.value ) print.timeEnd( timerString )
+  if (vars.dev.value) print.timeEnd(timerString);
 
 }
