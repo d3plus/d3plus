@@ -23,7 +23,7 @@ module.exports = d3plus;
  * @static
  */
 
-d3plus.version = "1.7.0 - Viridian";
+d3plus.version = "1.7.1 - Viridian";
 
 
 /**
@@ -13085,11 +13085,11 @@ module.exports = {
     ],
     "visualization": {
         "bar": "Gráfico de Barras",
-        "box": "Box Plot",
+        "box": "Eaixa de Enredo",
         "bubbles": "Bolhas",
         "chart": "Gráfico",
         "geo_map": "Mapa",
-        "line": "Gráfico de Linha",
+        "line": "Enredo",
         "network": "Rede",
         "path": "Caminhos",
         "pie": "Pie Chart",
@@ -13977,37 +13977,43 @@ module.exports = function( vars ) {
 
   vars.edges.value.forEach(function(e){
 
-    if (typeof e[vars.edges.source] !== "object") {
-      var obj = {}
-      obj[vars.id.value] = e[vars.edges.source]
-      e[vars.edges.source] = obj
-    }
-    if (typeof e[vars.edges.target] !== "object") {
-      var obj = {}
-      obj[vars.id.value] = e[vars.edges.target]
-      e[vars.edges.target] = obj
-    }
+    ["source", "target"].forEach(function(dir){
+      var dirType = typeof e[vars.edges[dir]];
+      if (dirType !== "object") {
+        if (dirType === "number" && !createNodes) {
+          e[vars.edges[dir]] = vars.nodes.value[e[vars.edges[dir]]];
+        }
+        else {
+          if (createNodes && placed.indexOf(e[vars.edges[dir]]) >= 0) {
+            e[vars.edges[dir]] = vars.nodes.value.filter(function(n){
+              return n[vars.id.value] === e[vars.edges[dir]];
+            })[0];
+          }
+          else {
+            var obj = {};
+            obj[vars.id.value] = e[vars.edges[dir]];
+            e[vars.edges[dir]] = obj;
+          }
+        }
+      }
+      var newNode = e[vars.edges[dir]];
+      if (createNodes) {
+        if (placed.indexOf(newNode[vars.id.value]) < 0) {
+          placed.push(newNode[vars.id.value]);
+          vars.nodes.value.push(newNode);
+        }
+      }
+    });
 
     if (!("keys" in vars.data)) {
-      vars.data.keys = {}
+      vars.data.keys = {};
     }
 
     if (!(vars.id.value in vars.data.keys)) {
-      vars.data.keys[vars.id.value] = typeof e[vars.edges.source][vars.id.value]
+      vars.data.keys[vars.id.value] = typeof e[vars.edges.source][vars.id.value];
     }
 
-    if ( createNodes ) {
-      if (placed.indexOf(e[vars.edges.source][vars.id.value]) < 0) {
-        placed.push(e[vars.edges.source][vars.id.value])
-        vars.nodes.value.push(e[vars.edges.source])
-      }
-      if (placed.indexOf(e[vars.edges.target][vars.id.value]) < 0) {
-        placed.push(e[vars.edges.target][vars.id.value])
-        vars.nodes.value.push(e[vars.edges.target])
-      }
-    }
-
-  })
+  });
 
   vars.edges.value = vars.edges.value.filter(function(e){
 
@@ -14191,39 +14197,39 @@ function hideElement( elem ) {
 }
 
 },{}],93:[function(require,module,exports){
-var print = require("../console/print.coffee")
+var print = require("../console/print.coffee");
 
 // Calculates node positions, if needed for network.
 module.exports = function(vars) {
 
-  if ( vars.dev.value ) {
-    var timerString = "analyzing node positions"
-    print.time( timerString )
+  if (vars.dev.value) {
+    var timerString = "analyzing node positions";
+    print.time(timerString);
   }
 
   var set = vars.nodes.value.filter(function(n){
-    return typeof n.x == "number" && typeof n.y == "number"
-  }).length
+    return typeof n.x === "number" && typeof n.y === "number";
+  }).length;
 
-  if (set == vars.nodes.value.length) {
-    vars.nodes.positions = true
+  if (set === vars.nodes.value.length) {
+    vars.nodes.positions = true;
   }
   else {
 
     var force = d3.layout.force()
-      .size([vars.width.viz,vars.height.viz])
+      .size([vars.width.viz, vars.height.viz])
       .nodes(vars.nodes.value)
-      .links(vars.edges.value)
+      .links(vars.edges.value);
 
-    var strength = vars.edges.strength.value
+    var strength = vars.edges.strength.value;
     if (strength) {
       if (typeof strength === "string") {
         force.linkStrength(function(e){
-          return e[strength]
-        })
+          return e[strength];
+        });
       }
       else {
-        force.linkStrength(strength)
+        force.linkStrength(strength);
       }
     }
 
@@ -14239,11 +14245,11 @@ module.exports = function(vars) {
     }
     force.stop();
 
-    vars.nodes.positions = true
+    vars.nodes.positions = true;
 
   }
 
-  if ( vars.dev.value ) print.timeEnd( timerString )
+  if (vars.dev.value) print.timeEnd(timerString);
 
 }
 
@@ -18872,7 +18878,7 @@ module.exports = function(vars) {
     } else {
       tspan = vars.container.value.insert("tspan", "tspan");
     }
-    return tspan.attr("x", x + "px").attr("dx", dx + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetical").text(w);
+    return tspan.attr("x", x + "px").attr("dx", dx + "px").attr("dy", dy + "px").style("baseline-shift", "0%").attr("dominant-baseline", "alphabetic").text(w);
   };
   mirror = vars.rotate.value === -90 || vars.rotate.value === 90;
   width = mirror ? vars.height.inner : vars.width.inner;
