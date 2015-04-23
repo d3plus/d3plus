@@ -247,7 +247,7 @@ module.exports = function(params) {
         title = id;
       }
 
-      var depth = "d3plus" in d && "merged" in d.d3plus ? dataDepth - 1 : dataDepth
+      var depth = "d3plus" in d && "merged" in d.d3plus ? dataDepth - 1 : "depth" in params ? params.depth : dataDepth;
 
       if (depth < 0) depth = 0
 

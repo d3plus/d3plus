@@ -320,6 +320,7 @@ module.exports = function(vars) {
 
               createTooltip({
                 "data": d,
+                "depth": colorDepth,
                 "footer": false,
                 "vars": vars,
                 "x": x,
