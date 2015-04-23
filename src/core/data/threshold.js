@@ -184,7 +184,7 @@ module.exports = function( vars , rawData , split ) {
             }
           }
           if (p_id, labelException.indexOf(p_id) < 0) {
-            textLabel += " ("+vars.format.value(threshold*100, {"key": "share", "vars": vars})+"%)";
+            textLabel += " ("+vars.format.value(threshold*100, {"key": "share", "vars": vars})+")";
           }
 
           m.d3plus.threshold = cutoff;
