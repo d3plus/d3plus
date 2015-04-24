@@ -85,7 +85,7 @@ module.exports = {
     ],
     "visualization": {
         "bar": "Gráfico de Barras",
-        "box": "Eaixa de Enredo",
+        "box": "Box Plot",
         "bubbles": "Bolhas",
         "chart": "Gráfico",
         "geo_map": "Mapa",
