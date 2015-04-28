@@ -58,12 +58,12 @@ module.exports = (vars) ->
 
   truncate = ->
     textBox.remove()
-    line--
-    if line isnt 1
-      if reverse
-        textBox = vars.container.value.select("tspan")
-      else
-        textBox = d3.select(vars.container.value.node().lastChild)
+    if reverse
+      line++
+      textBox = vars.container.value.select("tspan")
+    else
+      line--
+      textBox = d3.select(vars.container.value.node().lastChild)
     unless textBox.empty()
       words = textBox.text().match(/[^\s-]+-?/g)
       ellipsis()
@@ -85,7 +85,7 @@ module.exports = (vars) ->
       else
         if vars.text.split.value.indexOf(lastChar) >= 0
           lastWord = lastWord.substr(0, lastWord.length - 1)
-        textBox.text words.join(" ") + " " + lastWord + " ..."
+        textBox.text words.join(" ") + " " + lastWord + "..."
         ellipsis() if textBox.node().getComputedTextLength() > lineWidth()
     else
       truncate()
@@ -136,6 +136,9 @@ module.exports = (vars) ->
         next_char = vars.text.current.charAt(progress.length + 1)
         unsafe = vars.text.split.value.indexOf(next_char) >= 0
         placeWord next_char if unsafe
+
+    if line * dy > height
+      truncate()
 
     lines = Math.abs(line - start) + 1
 
