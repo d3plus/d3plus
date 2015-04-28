@@ -188,7 +188,6 @@ labelPadding = (vars) ->
   else
     xMaxWidth  = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0])
     xMaxWidth  = Math.abs xMaxWidth
-    xMaxWidth -= vars.labels.padding * 2
 
   if xAxisWidth > xMaxWidth and xText.join("").indexOf(" ") > 0
     vars.x.ticks.wrap = true
@@ -217,10 +216,12 @@ labelPadding = (vars) ->
     xAxisWidth          = d3.max xSizes, (d) -> d.height
     vars.x.ticks.rotate = -90
   else
-    vars.x.ticks.hidden    = true
-    vars.x.ticks.rotate    = 0
-    xAxisWidth             = 0
-    xAxisHeight            = 0
+    xAxisWidth  = 0
+    xAxisHeight = 0
+
+  unless xAxisWidth and xAxisHeight
+    vars.x.ticks.hidden = true
+    vars.x.ticks.rotate = 0
 
   xAxisHeight = Math.ceil xAxisHeight
   xAxisWidth  = Math.ceil xAxisWidth
