@@ -223,8 +223,10 @@ labelPadding = (vars) ->
     vars.x.ticks.hidden = true
     vars.x.ticks.rotate = 0
 
-  xAxisHeight = Math.ceil xAxisHeight
   xAxisWidth  = Math.ceil xAxisWidth
+  xAxisHeight = Math.ceil xAxisHeight
+  xAxisWidth++
+  xAxisHeight++
   vars.x.ticks.maxHeight = xAxisHeight
   vars.x.ticks.maxWidth = xAxisWidth
   vars.axes.margin.bottom += xAxisHeight + vars.labels.padding
