@@ -71,7 +71,7 @@ module.exports = function(vars) {
               }),
               uniqueColors = uniqueValues(data, colorFunction);
 
-          if (uniqueIDs.length <= uniqueColors.length && uniqueColors.length > 1) {
+          if (uniqueIDs.length >= uniqueColors.length && uniqueColors.length > 1) {
             break;
           }
 
@@ -80,7 +80,7 @@ module.exports = function(vars) {
       }
 
       var legendNesting = [vars.color.value];
-      if (vars.icon.value && vars.legend.icons.value) legendNesting.push(vars.icon.value);
+      // if (vars.icon.value && vars.legend.icons.value) legendNesting.push(vars.icon.value);
       var colors = dataNest(vars, data, legendNesting, []);
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
