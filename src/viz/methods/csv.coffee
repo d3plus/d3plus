@@ -3,7 +3,7 @@ ie          = require "../../client/ie.js"
 stringStrip = require "../../string/strip.js"
 
 module.exports =
-  accepted:  [undefined, Array, String]
+  accepted:  [undefined, true, Array, String]
   chainable: false
   data:      []
   process:   (value, vars) ->
@@ -29,29 +29,41 @@ module.exports =
     else
       title = "D3plus Visualization Data"
 
-    unless columns
-      columns = [vars.id.value]
-      columns.push vars.time.value if vars.time.value
-      columns.push vars.size.value if vars.size.value
-      columns.push vars.text.value if vars.text.value
+    if value is true
+      columns = d3.keys vars.data.keys
+      csv_to_return.push columns
+      for d in vars.data.value
+        row = []
+        for c in columns
+          val = d[c]
+          val = '"'+val+'"' if vars.data.keys[c] is "string"
+          row.push val
+        csv_to_return.push row
+    else
+      unless columns
+        columns = [vars.id.value]
+        columns.push vars.time.value if vars.time.value
+        columns.push vars.size.value if vars.size.value
+        columns.push vars.text.value if vars.text.value
 
-    for c in columns
-      titles.push vars.format.value(c)
+      for c in columns
+        titles.push vars.format.value(c)
 
-    csv_to_return.push titles
-    for node in vars.returned.nodes
-      console.log(node.values)
-      if node.values? and node.values instanceof Array
-        for val in node.values
+      csv_to_return.push titles
+      for node in vars.returned.nodes
+        if node.values? and node.values instanceof Array
+          for val in node.values
+            row = []
+            for col in columns
+              val = fetchValue(vars, val, col)
+              val = '"'+val+'"' if typeof val is "string"
+              row.push val
+            csv_to_return.push row
+        else
           row = []
           for col in columns
-            row.push fetchValue(vars, val, col)
+            row.push fetchValue(vars, node, col)
           csv_to_return.push row
-      else
-        row = []
-        for col in columns
-          row.push fetchValue(vars, node, col)
-        csv_to_return.push row
 
     csv_data = "data:text/csv;charset=utf-8,"
     for c, i in csv_to_return
@@ -70,4 +82,5 @@ module.exports =
 
     @data = csv_to_return
     columns
+
   value: undefined
