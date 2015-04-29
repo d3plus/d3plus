@@ -36,15 +36,18 @@ var network = function(vars) {
       return [n.x, n.y];
     }});
 
+    var limit = max_size/2;
+
     var overlap = vars.size.value ? vars.nodes.overlap : 0.4
-    max_size = max_size * overlap
+    max_size = max_size * overlap;
 
     if (vars.edges.arrows.value) {
-      max_size = max_size * 0.5
+      max_size = max_size * 0.5;
     }
 
-    if ( val_range[0] === val_range[1] ) {
-      var min_size = max_size
+    if (val_range[0] === val_range[1]) {
+      var min_size = limit;
+      max_size = limit;
     }
     else {
 
