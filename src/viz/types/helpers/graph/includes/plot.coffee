@@ -12,9 +12,10 @@ module.exports = (vars, opts) ->
   vars.axes.margin = resetMargins vars
   vars.axes.height = vars.height.viz
   vars.axes.width  = vars.width.viz
+  axes = if vars.width.viz > vars.height.viz then ["y", "x"] else ["x", "y"]
 
   # Set ticks, if not previously set
-  for axis in ["x","y"]
+  for axis in axes
 
     if vars[axis].ticks.values is false
       if vars[axis].value is vars.time.value

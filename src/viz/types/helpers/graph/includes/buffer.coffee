@@ -106,22 +106,34 @@ module.exports = (vars, axis, buffer) ->
 
     else if vars.axes.scale
 
-      rangeMax = vars[axis].scale.viz.range()[1]
-      maxSize  = vars.axes.scale.range()[1]
+      copy = false
+      if vars.axes.mirror.value
 
-      domainLow = vars[axis].scale.viz.invert -maxSize*1.5
-      domainHigh  = vars[axis].scale.viz.invert rangeMax + maxSize*1.5
+        opp = if axis is "y" then "x" else "y"
+        copy = vars[opp].scale.viz
 
-      domain = [domainLow, domainHigh]
-      domain = domain.reverse() if axis is "y"
+      if copy
 
-      domainCompare = vars[axis].scale.viz.domain()
-      domainCompare = domainCompare[1] - domainCompare[0]
+        domain = copy.domain().slice().reverse()
 
-      unless domainCompare
-        domain[0] -= 1
-        domain[1] += 1
+      else
 
-      domain = domain.reverse() if axis is "y"
+        rangeMax = vars[axis].scale.viz.range()[1]
+        maxSize  = vars.axes.scale.range()[1]
+
+        domainLow = vars[axis].scale.viz.invert -maxSize*1.5
+        domainHigh  = vars[axis].scale.viz.invert rangeMax + maxSize*1.5
+
+        domain = [domainLow, domainHigh]
+        domain = domain.reverse() if axis is "y"
+
+        domainCompare = vars[axis].scale.viz.domain()
+        domainCompare = domainCompare[1] - domainCompare[0]
+
+        unless domainCompare
+          domain[0] -= 1
+          domain[1] += 1
+
+        domain = domain.reverse() if axis is "y"
 
       vars[axis].scale.viz.domain(domain)

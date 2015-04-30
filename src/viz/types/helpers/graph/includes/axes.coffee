@@ -11,8 +11,9 @@ module.exports = (vars, opts) ->
   changed           = dataChange vars
   vars.axes.dataset = getData vars if changed or !vars.axes.dataset
   vars.axes.scale   = if opts.buffer and opts.buffer isnt true then sizeScale vars, opts.buffer else false
+  axes = if vars.width.viz > vars.height.viz then ["y", "x"] else ["x", "y"]
 
-  for axis in ["x","y"]
+  for axis in axes
 
     oppAxis  = if axis is "x" then "y" else "x"
     reorder  = vars.order.changed or vars.order.sort.changed or
