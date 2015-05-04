@@ -32,39 +32,44 @@ module.exports = function(vars, selection, enter, exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Update
   //----------------------------------------------------------------------------
+
+  var style = {
+    "font-weight": vars.labels.font.weight,
+    "font-family": vars.labels.font.family.value
+  };
+
   selection.selectAll("path.d3plus_data")
     .data(function(d) {
 
       if (vars.labels.value && d.values.length > 1) {
 
-        var tops = []
-          , bottoms = []
-          , names = fetchText(vars,d)
+        var max = d3.max(d.values, function(v){
+          return v.d3plus.y0 - v.d3plus.y;
+        }), lr = false;
 
-        d.values.forEach(function(v){
-          tops.push([v.d3plus.x,v.d3plus.y])
-          bottoms.push([v.d3plus.x,v.d3plus.y0])
-        })
-        tops = tops.concat(bottoms.reverse())
+        if (max > vars.labels.font.size) {
 
-        var style = {
-          "font-weight": vars.labels.font.weight,
-          "font-family": vars.labels.font.family.value
+          var tops = [], bottoms = [], names = fetchText(vars, d);
+
+          d.values.forEach(function(v){
+            tops.push([v.d3plus.x,v.d3plus.y]);
+            bottoms.push([v.d3plus.x,v.d3plus.y0]);
+          });
+          tops = tops.concat(bottoms.reverse());
+
+          var ratio = null;
+          if (names.length) {
+            var size = fontSizes(names[0],style);
+            ratio = size[0].width/size[0].height;
+          }
+
+          lr = largestRect(tops,{
+            "angle": d3.range(-70, 71, 1),
+            "aspectRatio": ratio,
+            "tolerance": 0
+          });
+
         }
-
-        if (names.length) {
-          var size = fontSizes(names[0],style)
-            , ratio = size[0].width/size[0].height
-        }
-        else {
-          var ratio = null
-        }
-
-        var lr = largestRect(tops,{
-          "angle": d3.range(-70,71,1),
-          "aspectRatio": ratio,
-          "tolerance": 0
-        })
 
         if (lr && lr[0]) {
 
