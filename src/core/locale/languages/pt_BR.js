@@ -149,7 +149,7 @@ module.exports = {
         "COOs",
         "CPU",
         "CPUs",
-        "GDP",
+        "PIB",
         "HVAC",
         "ID",
         "TI",
