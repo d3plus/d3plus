@@ -33,6 +33,7 @@ module.exports =
     value:    false
   value: (value, opts) ->
     opts = {} unless opts
+    opts.locale = this.locale.value unless opts.locale
     vars = opts.vars or {}
     if vars.time and vars.time.value and opts.key is vars.time.value
       v = if value.constructor is Date then value else new Date(value)

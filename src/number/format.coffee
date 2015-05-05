@@ -3,10 +3,13 @@ defaultLocale = require "../core/locale/languages/en_US.coffee"
 # Formats numbers to look "pretty"
 module.exports = (number, opts) ->
 
-  if "locale" of this
-    time = this.locale.value.time
+  if "locale" of opts
+    locale = opts.locale.format
   else
-    time = defaultLocale.time
+    locale = defaultLocale.format
+
+  time   = locale.time.slice()
+  format = d3.locale locale
 
   opts   = {} unless opts
   vars   = opts.vars or {}
@@ -22,11 +25,11 @@ module.exports = (number, opts) ->
     if number is 0
       ret = 0
     else if number >= 100
-      ret = d3.format(",f") number
+      ret = format.numberFormat(",f") number
     else if number > 99
-      ret = d3.format(".3g") number
+      ret = format.numberFormat(".3g") number
     else
-      ret = d3.format(".2g") number
+      ret = format.numberFormat(".2g") number
     ret += "%"
   else if number < 10 and number > -10
     ret = d3.round number, 2
@@ -36,14 +39,17 @@ module.exports = (number, opts) ->
 
     # Format number to precision level using proper scale
     number = d3.formatPrefix(number).scale number
-    number = parseFloat d3.format(".3g")(number)
+    number = format.numberFormat(".3g") number
+    number = number.replace locale.decimal, "."
+    number = parseFloat(number) + ""
+    number = number.replace ".", locale.decimal
     ret = number + symbol
   else if length is 3
-    ret = d3.format(",f") number
+    ret = format.numberFormat(",f") number
   else if number is 0
     ret = 0
   else
-    ret = d3.format(".3g") number
+    ret = format.numberFormat(".3g") number
 
   if labels and key and "format" of vars and key of vars.format.affixes.value
     affixes = vars.format.affixes.value[key]
