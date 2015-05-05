@@ -20,7 +20,7 @@ module.exports = (vars) ->
       y = parseFloat(prev.attr("y"), 10) or 0
 
       # Detects padding.
-      unless vars.padding.value
+      if vars.padding.value is false
         diff = Math.abs x - vars.container.x
         vars.self.padding(diff) if diff
 
@@ -45,7 +45,7 @@ module.exports = (vars) ->
       y -= radius
 
       # Detects padding.
-      unless vars.padding.value
+      if vars.padding.value is false
         diff = Math.abs x - vars.container.x
         vars.self.padding(diff) if diff
 
