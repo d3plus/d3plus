@@ -32,7 +32,7 @@ module.exports =
     shortDays:   ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
     months:      ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-  lowercase: ["a", "and", "at", "but", "in", "of", "or", "the", "to", "with"]
+  lowercase: ["a", "an", "and", "as", "at", "but", "by", "for", "from", "if", "in", "into", "near", "nor", "of", "on", "onto", "or", "per", "that", "the", "to", "with", "via", "vs", "vs."]
   message:
     data:         "analyzing data"
     draw:         "drawing visualization"
@@ -105,7 +105,7 @@ module.exports =
     share:     "share"
     total:     "total"
     values:    "values"
-  uppercase: ["CEO", "CFO", "CNC", "COO", "CPU", "HVAC", "R&D", "TV", "UI"]
+  uppercase: ["CEO", "CEOs", "CFO", "CFOs", "CNC", "COO", "COOs", "CPU", "CPUs", "GDP", "HVAC", "ID", "IT", "R&D", "TV", "UI"]
   visualization:
     bar:      "Bar Chart"
     box:      "Box Plot"
