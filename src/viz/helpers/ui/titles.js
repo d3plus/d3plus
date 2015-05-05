@@ -71,7 +71,7 @@ module.exports = function(vars) {
           var pct = (total/overall_total)*100,
               ot = vars.format.value(overall_total, {"key": vars.size.value, "vars": vars});
 
-          pct = " ("+vars.format.value(pct,{"key": "share", "vars": vars})+"% of "+ot+")";
+          pct = " ("+vars.format.value(pct,{"key": "share", "vars": vars})+" of "+ot+")";
 
         }
       }
