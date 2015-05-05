@@ -1,4 +1,18 @@
 module.exports = {
+    "format": {
+        "decimal": ".",
+        "thousands": ",",
+        "grouping": [3],
+        "currency": ["¥", ""],
+        "dateTime": "%A %B %e %Y %X",
+        "date": "%Y/%-m/%-d",
+        "time": "%H:%M:%S",
+        "periods": ["上午", "下午"],
+        "days": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+        "shortDays": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+        "months": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+        "shortMonths": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
+    },
     "dev": {
         "accepted": "{0}不是{1}的可接受值, 请用下列之一的值:{2}",
         "deprecated": "{0}的方法已被移除, 请更新您的代码去使用{1}",
@@ -20,20 +34,6 @@ module.exports = {
         "libs": "{0}的可视化需要加载以下库：{1}。",
         "method": "{0}的可视化要求设置{1}方法。",
         "methods": "{0}的可视化要求设置以下方法：{1}。"
-    },
-    "format": {
-        decimal: ".",
-        thousands: ",",
-        grouping: [3],
-        currency: ["¥", ""],
-        dateTime: "%A %B %e %Y %X",
-        date: "%Y/%-m/%-d",
-        time: "%H:%M:%S",
-        periods: ["上午", "下午"],
-        days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
-        shortDays: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
-        months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-        shortMonths: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
     },
     "lowercase": [
         "一个",
@@ -85,20 +85,20 @@ module.exports = {
         "年"
     ],
     "visualization": {
-        "bar": "条形图",
-        "box": "箱线图",
         "bubbles": "气泡",
         "chart": "图表",
         "geo_map": "地理地图",
         "line": "线图",
         "network": "网络",
-        "path": "路径",
-        "pie": "饼图",
         "rings": "特性",
         "scatter": "散点图",
         "stacked": "堆积面积图",
-        "table": "表",
-        "tree_map": "树图"
+        "tree_map": "树图",
+        "bar": "条图",
+        "box": "箱线图",
+        "paths": "路径",
+        "pie": "饼图",
+        "table": "表"
     },
     "ui": {
         "and": "和",
@@ -110,12 +110,12 @@ module.exports = {
         "more": "{0}更多",
         "moreInfo": "点击了解更多信息",
         "noResults": "没有结果匹配{0}。",
-        "or": "或",
         "primary": "主要连接",
         "share": "共享",
         "total": "总",
         "values": "值",
-        "including": "包括"
+        "including": "包括",
+        "or": "或"
     },
     "message": {
         "data": "分析数据",
@@ -126,6 +126,18 @@ module.exports = {
         "ui": "更新UI"
     },
     "uppercase": [
+        "CEO",
+        "CEOs",
+        "CFO",
+        "CFOs",
+        "CNC",
+        "COO",
+        "COOs",
+        "CPU",
+        "CPUs",
+        "GDP",
+        "HVAC",
+        "ID",
         "电视",
         "用户界面",
         "研发"
