@@ -41,9 +41,6 @@ module.exports = (vars, opts) ->
       # calculate scale
       vars[axis].scale.viz = getScale vars, axis, range
 
-      # Add buffer to scale if it needs it
-      buffer vars, axis, opts.buffer if opts.buffer and axis isnt vars.axes.discrete
-
       # store axis domain
       vars[axis].domain.viz = range
 
@@ -51,9 +48,17 @@ module.exports = (vars, opts) ->
 
   # Mirror axes, if applicable
   if vars.axes.mirror.value
-    domains = vars.y.domain.viz.concat(vars.x.domain.viz)
-    vars.x.domain.viz = d3.extent(domains)
-    vars.y.domain.viz = d3.extent(domains).reverse()
+    domains = d3.extent vars.y.domain.viz.concat(vars.x.domain.viz)
+    vars.x.domain.viz = domains
+    vars.x.scale.viz.domain(domains)
+    domains = domains.slice().reverse()
+    vars.y.domain.viz = domains
+    vars.y.scale.viz.domain(domains)
+
+  # Add buffer to scale if it needs it
+  if opts.buffer
+    for axis in axes
+      buffer vars, axis, opts.buffer if axis isnt vars.axes.discrete
 
   return
 
