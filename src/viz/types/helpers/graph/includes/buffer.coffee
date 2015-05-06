@@ -111,8 +111,9 @@ module.exports = (vars, axis, buffer) ->
 
         opp = if axis is "y" then "x" else "y"
         copy = vars[opp].scale.viz
+        second = if vars.width.viz > vars.height.viz then "x" else "y"
 
-      if copy
+      if axis is second and copy
 
         domain = copy.domain().slice().reverse()
 
