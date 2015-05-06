@@ -45,7 +45,21 @@ module.exports = {
         "les",
         "ou",
         "pour",
-        "avec"
+        "avec",
+        "comme",
+        "par",
+        "vers",
+        "si",
+        "dans",
+        "près",
+        "ni",
+        "dessus",
+        "que",
+        "le",
+        "la",
+        "via",
+        "sinon",
+        "alors"
     ],
     "method": {
         "active": "segments actifs",
@@ -69,7 +83,7 @@ module.exports = {
         "text": "texte",
         "time": "temps",
         "timeline": "ligne temporelle",
-        "total": "segments totales",
+        "total": "segments totaux",
         "type": "type",
         "width": "largeur",
         "x": "axe x",
@@ -79,7 +93,7 @@ module.exports = {
     },
     "time": [
         "année",
-        "data",
+        "date",
         "jour",
         "heure",
         "mois"
@@ -119,7 +133,7 @@ module.exports = {
     },
     "message": {
         "data": "analyse des données",
-        "draw": "Tracé en cours",
+        "draw": "tracé en cours",
         "initializing": "Initialisation {0}",
         "loading": "chargement",
         "tooltipReset": "réinitialisation des bulles",
