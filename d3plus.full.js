@@ -23,7 +23,7 @@ module.exports = d3plus;
  * @static
  */
 
-d3plus.version = "1.7.1 - Viridian";
+d3plus.version = "1.7.2 - Viridian";
 
 
 /**
@@ -254,7 +254,7 @@ if (stylesheet("d3plus.css")) {
 
 
 
-},{"./array/comparator.coffee":38,"./array/contains.coffee":39,"./array/sort.coffee":40,"./array/update.coffee":41,"./client/css.coffee":42,"./client/ie.js":43,"./client/pointer.coffee":44,"./client/prefix.coffee":45,"./client/rtl.coffee":46,"./client/scrollbar.coffee":47,"./client/touch.coffee":48,"./color/legible.coffee":49,"./color/lighter.coffee":50,"./color/mix.coffee":51,"./color/random.coffee":52,"./color/scale.coffee":53,"./color/sort.coffee":54,"./color/text.coffee":55,"./color/validate.coffee":56,"./core/console/print.coffee":57,"./data/bestRegress.coffee":97,"./data/lof.coffee":98,"./data/mad.coffee":99,"./font/sizes.coffee":100,"./font/validate.coffee":101,"./form/form.js":102,"./geom/largestRect.coffee":158,"./geom/offset.coffee":159,"./geom/path2poly.coffee":160,"./network/cluster.coffee":161,"./network/distance.coffee":162,"./network/normalize.coffee":163,"./network/shortestPath.coffee":164,"./network/smallestGap.coffee":165,"./network/subgraph.coffee":166,"./number/format.coffee":167,"./object/merge.coffee":168,"./object/validate.coffee":169,"./string/format.js":170,"./string/list.coffee":171,"./string/strip.js":172,"./string/title.coffee":173,"./textwrap/textwrap.coffee":197,"./tooltip/create.js":198,"./tooltip/move.coffee":199,"./tooltip/remove.coffee":200,"./util/buckets.coffee":201,"./util/child.coffee":202,"./util/closest.coffee":203,"./util/copy.coffee":204,"./util/d3selection.coffee":205,"./util/dataURL.coffee":206,"./util/uniques.coffee":207,"./viz/viz.coffee":322}],2:[function(require,module,exports){
+},{"./array/comparator.coffee":38,"./array/contains.coffee":39,"./array/sort.coffee":40,"./array/update.coffee":41,"./client/css.coffee":42,"./client/ie.js":43,"./client/pointer.coffee":44,"./client/prefix.coffee":45,"./client/rtl.coffee":46,"./client/scrollbar.coffee":47,"./client/touch.coffee":48,"./color/legible.coffee":49,"./color/lighter.coffee":50,"./color/mix.coffee":51,"./color/random.coffee":52,"./color/scale.coffee":53,"./color/sort.coffee":54,"./color/text.coffee":55,"./color/validate.coffee":56,"./core/console/print.coffee":57,"./data/bestRegress.coffee":99,"./data/lof.coffee":100,"./data/mad.coffee":101,"./font/sizes.coffee":102,"./font/validate.coffee":103,"./form/form.js":104,"./geom/largestRect.coffee":160,"./geom/offset.coffee":161,"./geom/path2poly.coffee":162,"./network/cluster.coffee":163,"./network/distance.coffee":164,"./network/normalize.coffee":165,"./network/shortestPath.coffee":166,"./network/smallestGap.coffee":167,"./network/subgraph.coffee":168,"./number/format.coffee":169,"./object/merge.coffee":170,"./object/validate.coffee":171,"./string/format.js":172,"./string/list.coffee":173,"./string/strip.js":174,"./string/title.coffee":175,"./textwrap/textwrap.coffee":199,"./tooltip/create.js":200,"./tooltip/move.coffee":201,"./tooltip/remove.coffee":202,"./util/buckets.coffee":203,"./util/child.coffee":204,"./util/closest.coffee":205,"./util/copy.coffee":206,"./util/d3selection.coffee":207,"./util/dataURL.coffee":208,"./util/uniques.coffee":209,"./viz/viz.coffee":324}],2:[function(require,module,exports){
 window.d3 = require("d3");
 
 window.topojson = require("topojson");
@@ -328,68 +328,149 @@ Buffer.TYPED_ARRAY_SUPPORT = (function () {
  * By augmenting the instances, we can avoid modifying the `Uint8Array`
  * prototype.
  */
-function Buffer (subject, encoding) {
-  var self = this
-  if (!(self instanceof Buffer)) return new Buffer(subject, encoding)
+function Buffer (arg) {
+  if (!(this instanceof Buffer)) {
+    // Avoid going through an ArgumentsAdaptorTrampoline in the common case.
+    if (arguments.length > 1) return new Buffer(arg, arguments[1])
+    return new Buffer(arg)
+  }
 
-  var type = typeof subject
-  var length
+  this.length = 0
+  this.parent = undefined
 
-  if (type === 'number') {
-    length = +subject
-  } else if (type === 'string') {
-    length = Buffer.byteLength(subject, encoding)
-  } else if (type === 'object' && subject !== null) {
-    // assume object is array-like
-    if (subject.type === 'Buffer' && isArray(subject.data)) subject = subject.data
-    length = +subject.length
-  } else {
+  // Common case.
+  if (typeof arg === 'number') {
+    return fromNumber(this, arg)
+  }
+
+  // Slightly less common case.
+  if (typeof arg === 'string') {
+    return fromString(this, arg, arguments.length > 1 ? arguments[1] : 'utf8')
+  }
+
+  // Unusual.
+  return fromObject(this, arg)
+}
+
+function fromNumber (that, length) {
+  that = allocate(that, length < 0 ? 0 : checked(length) | 0)
+  if (!Buffer.TYPED_ARRAY_SUPPORT) {
+    for (var i = 0; i < length; i++) {
+      that[i] = 0
+    }
+  }
+  return that
+}
+
+function fromString (that, string, encoding) {
+  if (typeof encoding !== 'string' || encoding === '') encoding = 'utf8'
+
+  // Assumption: byteLength() return value is always < kMaxLength.
+  var length = byteLength(string, encoding) | 0
+  that = allocate(that, length)
+
+  that.write(string, encoding)
+  return that
+}
+
+function fromObject (that, object) {
+  if (Buffer.isBuffer(object)) return fromBuffer(that, object)
+
+  if (isArray(object)) return fromArray(that, object)
+
+  if (object == null) {
     throw new TypeError('must start with number, buffer, array or string')
   }
 
-  if (length > kMaxLength) {
-    throw new RangeError('Attempt to allocate Buffer larger than maximum size: 0x' +
-      kMaxLength.toString(16) + ' bytes')
+  if (typeof ArrayBuffer !== 'undefined' && object.buffer instanceof ArrayBuffer) {
+    return fromTypedArray(that, object)
   }
 
-  if (length < 0) length = 0
-  else length >>>= 0 // coerce to uint32
+  if (object.length) return fromArrayLike(that, object)
 
+  return fromJsonObject(that, object)
+}
+
+function fromBuffer (that, buffer) {
+  var length = checked(buffer.length) | 0
+  that = allocate(that, length)
+  buffer.copy(that, 0, 0, length)
+  return that
+}
+
+function fromArray (that, array) {
+  var length = checked(array.length) | 0
+  that = allocate(that, length)
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+// Duplicate of fromArray() to keep fromArray() monomorphic.
+function fromTypedArray (that, array) {
+  var length = checked(array.length) | 0
+  that = allocate(that, length)
+  // Truncating the elements is probably not what people expect from typed
+  // arrays with BYTES_PER_ELEMENT > 1 but it's compatible with the behavior
+  // of the old Buffer constructor.
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+function fromArrayLike (that, array) {
+  var length = checked(array.length) | 0
+  that = allocate(that, length)
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+// Deserialize { type: 'Buffer', data: [1,2,3,...] } into a Buffer object.
+// Returns a zero-length buffer for inputs that don't conform to the spec.
+function fromJsonObject (that, object) {
+  var array
+  var length = 0
+
+  if (object.type === 'Buffer' && isArray(object.data)) {
+    array = object.data
+    length = checked(array.length) | 0
+  }
+  that = allocate(that, length)
+
+  for (var i = 0; i < length; i += 1) {
+    that[i] = array[i] & 255
+  }
+  return that
+}
+
+function allocate (that, length) {
   if (Buffer.TYPED_ARRAY_SUPPORT) {
-    // Preferred: Return an augmented `Uint8Array` instance for best performance
-    self = Buffer._augment(new Uint8Array(length)) // eslint-disable-line consistent-this
+    // Return an augmented `Uint8Array` instance, for best performance
+    that = Buffer._augment(new Uint8Array(length))
   } else {
-    // Fallback: Return THIS instance of Buffer (created by `new`)
-    self.length = length
-    self._isBuffer = true
+    // Fallback: Return an object instance of the Buffer class
+    that.length = length
+    that._isBuffer = true
   }
 
-  var i
-  if (Buffer.TYPED_ARRAY_SUPPORT && typeof subject.byteLength === 'number') {
-    // Speed optimization -- use set if we're copying from a typed array
-    self._set(subject)
-  } else if (isArrayish(subject)) {
-    // Treat array-ish objects as a byte array
-    if (Buffer.isBuffer(subject)) {
-      for (i = 0; i < length; i++) {
-        self[i] = subject.readUInt8(i)
-      }
-    } else {
-      for (i = 0; i < length; i++) {
-        self[i] = ((subject[i] % 256) + 256) % 256
-      }
-    }
-  } else if (type === 'string') {
-    self.write(subject, 0, encoding)
-  } else if (type === 'number' && !Buffer.TYPED_ARRAY_SUPPORT) {
-    for (i = 0; i < length; i++) {
-      self[i] = 0
-    }
+  var fromPool = length !== 0 && length <= Buffer.poolSize >>> 1
+  if (fromPool) that.parent = rootParent
+
+  return that
+}
+
+function checked (length) {
+  // Note: cannot use `length < kMaxLength` here because that fails when
+  // length is NaN (which is otherwise coerced to zero.)
+  if (length >= kMaxLength) {
+    throw new RangeError('Attempt to allocate Buffer larger than maximum ' +
+                         'size: 0x' + kMaxLength.toString(16) + ' bytes')
   }
-
-  if (length > 0 && length <= Buffer.poolSize) self.parent = rootParent
-
-  return self
+  return length | 0
 }
 
 function SlowBuffer (subject, encoding) {
@@ -413,11 +494,20 @@ Buffer.compare = function compare (a, b) {
 
   var x = a.length
   var y = b.length
-  for (var i = 0, len = Math.min(x, y); i < len && a[i] === b[i]; i++) {}
+
+  var i = 0
+  var len = Math.min(x, y)
+  while (i < len) {
+    if (a[i] !== b[i]) break
+
+    ++i
+  }
+
   if (i !== len) {
     x = a[i]
     y = b[i]
   }
+
   if (x < y) return -1
   if (y < x) return 1
   return 0
@@ -442,7 +532,7 @@ Buffer.isEncoding = function isEncoding (encoding) {
   }
 }
 
-Buffer.concat = function concat (list, totalLength) {
+Buffer.concat = function concat (list, length) {
   if (!isArray(list)) throw new TypeError('list argument must be an Array of Buffers.')
 
   if (list.length === 0) {
@@ -452,14 +542,14 @@ Buffer.concat = function concat (list, totalLength) {
   }
 
   var i
-  if (totalLength === undefined) {
-    totalLength = 0
+  if (length === undefined) {
+    length = 0
     for (i = 0; i < list.length; i++) {
-      totalLength += list[i].length
+      length += list[i].length
     }
   }
 
-  var buf = new Buffer(totalLength)
+  var buf = new Buffer(length)
   var pos = 0
   for (i = 0; i < list.length; i++) {
     var item = list[i]
@@ -469,36 +559,33 @@ Buffer.concat = function concat (list, totalLength) {
   return buf
 }
 
-Buffer.byteLength = function byteLength (str, encoding) {
-  var ret
-  str = str + ''
+function byteLength (string, encoding) {
+  if (typeof string !== 'string') string = String(string)
+
+  if (string.length === 0) return 0
+
   switch (encoding || 'utf8') {
     case 'ascii':
     case 'binary':
     case 'raw':
-      ret = str.length
-      break
+      return string.length
     case 'ucs2':
     case 'ucs-2':
     case 'utf16le':
     case 'utf-16le':
-      ret = str.length * 2
-      break
+      return string.length * 2
     case 'hex':
-      ret = str.length >>> 1
-      break
+      return string.length >>> 1
     case 'utf8':
     case 'utf-8':
-      ret = utf8ToBytes(str).length
-      break
+      return utf8ToBytes(string).length
     case 'base64':
-      ret = base64ToBytes(str).length
-      break
+      return base64ToBytes(string).length
     default:
-      ret = str.length
+      return string.length
   }
-  return ret
 }
+Buffer.byteLength = byteLength
 
 // pre-set for values that may exist in the future
 Buffer.prototype.length = undefined
@@ -508,8 +595,8 @@ Buffer.prototype.parent = undefined
 Buffer.prototype.toString = function toString (encoding, start, end) {
   var loweredCase = false
 
-  start = start >>> 0
-  end = end === undefined || end === Infinity ? this.length : end >>> 0
+  start = start | 0
+  end = end === undefined || end === Infinity ? this.length : end | 0
 
   if (!encoding) encoding = 'utf8'
   if (start < 0) start = 0
@@ -651,13 +738,11 @@ function hexWrite (buf, string, offset, length) {
 }
 
 function utf8Write (buf, string, offset, length) {
-  var charsWritten = blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
-  return charsWritten
+  return blitBuffer(utf8ToBytes(string, buf.length - offset), buf, offset, length)
 }
 
 function asciiWrite (buf, string, offset, length) {
-  var charsWritten = blitBuffer(asciiToBytes(string), buf, offset, length)
-  return charsWritten
+  return blitBuffer(asciiToBytes(string), buf, offset, length)
 }
 
 function binaryWrite (buf, string, offset, length) {
@@ -665,75 +750,83 @@ function binaryWrite (buf, string, offset, length) {
 }
 
 function base64Write (buf, string, offset, length) {
-  var charsWritten = blitBuffer(base64ToBytes(string), buf, offset, length)
-  return charsWritten
+  return blitBuffer(base64ToBytes(string), buf, offset, length)
 }
 
-function utf16leWrite (buf, string, offset, length) {
-  var charsWritten = blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
-  return charsWritten
+function ucs2Write (buf, string, offset, length) {
+  return blitBuffer(utf16leToBytes(string, buf.length - offset), buf, offset, length)
 }
 
 Buffer.prototype.write = function write (string, offset, length, encoding) {
-  // Support both (string, offset, length, encoding)
-  // and the legacy (string, encoding, offset, length)
-  if (isFinite(offset)) {
-    if (!isFinite(length)) {
+  // Buffer#write(string)
+  if (offset === undefined) {
+    encoding = 'utf8'
+    length = this.length
+    offset = 0
+  // Buffer#write(string, encoding)
+  } else if (length === undefined && typeof offset === 'string') {
+    encoding = offset
+    length = this.length
+    offset = 0
+  // Buffer#write(string, offset[, length][, encoding])
+  } else if (isFinite(offset)) {
+    offset = offset | 0
+    if (isFinite(length)) {
+      length = length | 0
+      if (encoding === undefined) encoding = 'utf8'
+    } else {
       encoding = length
       length = undefined
     }
-  } else {  // legacy
+  // legacy write(string, encoding, offset, length) - remove in v0.13
+  } else {
     var swap = encoding
     encoding = offset
-    offset = length
+    offset = length | 0
     length = swap
   }
 
-  offset = Number(offset) || 0
+  var remaining = this.length - offset
+  if (length === undefined || length > remaining) length = remaining
 
-  if (length < 0 || offset < 0 || offset > this.length) {
+  if ((string.length > 0 && (length < 0 || offset < 0)) || offset > this.length) {
     throw new RangeError('attempt to write outside buffer bounds')
   }
 
-  var remaining = this.length - offset
-  if (!length) {
-    length = remaining
-  } else {
-    length = Number(length)
-    if (length > remaining) {
-      length = remaining
+  if (!encoding) encoding = 'utf8'
+
+  var loweredCase = false
+  for (;;) {
+    switch (encoding) {
+      case 'hex':
+        return hexWrite(this, string, offset, length)
+
+      case 'utf8':
+      case 'utf-8':
+        return utf8Write(this, string, offset, length)
+
+      case 'ascii':
+        return asciiWrite(this, string, offset, length)
+
+      case 'binary':
+        return binaryWrite(this, string, offset, length)
+
+      case 'base64':
+        // Warning: maxLength not taken into account in base64Write
+        return base64Write(this, string, offset, length)
+
+      case 'ucs2':
+      case 'ucs-2':
+      case 'utf16le':
+      case 'utf-16le':
+        return ucs2Write(this, string, offset, length)
+
+      default:
+        if (loweredCase) throw new TypeError('Unknown encoding: ' + encoding)
+        encoding = ('' + encoding).toLowerCase()
+        loweredCase = true
     }
   }
-  encoding = String(encoding || 'utf8').toLowerCase()
-
-  var ret
-  switch (encoding) {
-    case 'hex':
-      ret = hexWrite(this, string, offset, length)
-      break
-    case 'utf8':
-    case 'utf-8':
-      ret = utf8Write(this, string, offset, length)
-      break
-    case 'ascii':
-      ret = asciiWrite(this, string, offset, length)
-      break
-    case 'binary':
-      ret = binaryWrite(this, string, offset, length)
-      break
-    case 'base64':
-      ret = base64Write(this, string, offset, length)
-      break
-    case 'ucs2':
-    case 'ucs-2':
-    case 'utf16le':
-    case 'utf-16le':
-      ret = utf16leWrite(this, string, offset, length)
-      break
-    default:
-      throw new TypeError('Unknown encoding: ' + encoding)
-  }
-  return ret
 }
 
 Buffer.prototype.toJSON = function toJSON () {
@@ -856,8 +949,8 @@ function checkOffset (offset, ext, length) {
 }
 
 Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert) {
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
+  offset = offset | 0
+  byteLength = byteLength | 0
   if (!noAssert) checkOffset(offset, byteLength, this.length)
 
   var val = this[offset]
@@ -871,8 +964,8 @@ Buffer.prototype.readUIntLE = function readUIntLE (offset, byteLength, noAssert)
 }
 
 Buffer.prototype.readUIntBE = function readUIntBE (offset, byteLength, noAssert) {
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
+  offset = offset | 0
+  byteLength = byteLength | 0
   if (!noAssert) {
     checkOffset(offset, byteLength, this.length)
   }
@@ -920,8 +1013,8 @@ Buffer.prototype.readUInt32BE = function readUInt32BE (offset, noAssert) {
 }
 
 Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
+  offset = offset | 0
+  byteLength = byteLength | 0
   if (!noAssert) checkOffset(offset, byteLength, this.length)
 
   var val = this[offset]
@@ -938,8 +1031,8 @@ Buffer.prototype.readIntLE = function readIntLE (offset, byteLength, noAssert) {
 }
 
 Buffer.prototype.readIntBE = function readIntBE (offset, byteLength, noAssert) {
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
+  offset = offset | 0
+  byteLength = byteLength | 0
   if (!noAssert) checkOffset(offset, byteLength, this.length)
 
   var i = byteLength
@@ -1019,15 +1112,15 @@ function checkInt (buf, value, offset, ext, max, min) {
 
 Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, noAssert) {
   value = +value
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
+  offset = offset | 0
+  byteLength = byteLength | 0
   if (!noAssert) checkInt(this, value, offset, byteLength, Math.pow(2, 8 * byteLength), 0)
 
   var mul = 1
   var i = 0
   this[offset] = value & 0xFF
   while (++i < byteLength && (mul *= 0x100)) {
-    this[offset + i] = (value / mul) >>> 0 & 0xFF
+    this[offset + i] = (value / mul) & 0xFF
   }
 
   return offset + byteLength
@@ -1035,15 +1128,15 @@ Buffer.prototype.writeUIntLE = function writeUIntLE (value, offset, byteLength, 
 
 Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, noAssert) {
   value = +value
-  offset = offset >>> 0
-  byteLength = byteLength >>> 0
+  offset = offset | 0
+  byteLength = byteLength | 0
   if (!noAssert) checkInt(this, value, offset, byteLength, Math.pow(2, 8 * byteLength), 0)
 
   var i = byteLength - 1
   var mul = 1
   this[offset + i] = value & 0xFF
   while (--i >= 0 && (mul *= 0x100)) {
-    this[offset + i] = (value / mul) >>> 0 & 0xFF
+    this[offset + i] = (value / mul) & 0xFF
   }
 
   return offset + byteLength
@@ -1051,7 +1144,7 @@ Buffer.prototype.writeUIntBE = function writeUIntBE (value, offset, byteLength, 
 
 Buffer.prototype.writeUInt8 = function writeUInt8 (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 1, 0xff, 0)
   if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
   this[offset] = value
@@ -1068,7 +1161,7 @@ function objectWriteUInt16 (buf, value, offset, littleEndian) {
 
 Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = value
@@ -1081,7 +1174,7 @@ Buffer.prototype.writeUInt16LE = function writeUInt16LE (value, offset, noAssert
 
 Buffer.prototype.writeUInt16BE = function writeUInt16BE (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 2, 0xffff, 0)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 8)
@@ -1101,7 +1194,7 @@ function objectWriteUInt32 (buf, value, offset, littleEndian) {
 
 Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset + 3] = (value >>> 24)
@@ -1116,7 +1209,7 @@ Buffer.prototype.writeUInt32LE = function writeUInt32LE (value, offset, noAssert
 
 Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 4, 0xffffffff, 0)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 24)
@@ -1131,13 +1224,11 @@ Buffer.prototype.writeUInt32BE = function writeUInt32BE (value, offset, noAssert
 
 Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) {
-    checkInt(
-      this, value, offset, byteLength,
-      Math.pow(2, 8 * byteLength - 1) - 1,
-      -Math.pow(2, 8 * byteLength - 1)
-    )
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
   }
 
   var i = 0
@@ -1153,13 +1244,11 @@ Buffer.prototype.writeIntLE = function writeIntLE (value, offset, byteLength, no
 
 Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) {
-    checkInt(
-      this, value, offset, byteLength,
-      Math.pow(2, 8 * byteLength - 1) - 1,
-      -Math.pow(2, 8 * byteLength - 1)
-    )
+    var limit = Math.pow(2, 8 * byteLength - 1)
+
+    checkInt(this, value, offset, byteLength, limit - 1, -limit)
   }
 
   var i = byteLength - 1
@@ -1175,7 +1264,7 @@ Buffer.prototype.writeIntBE = function writeIntBE (value, offset, byteLength, no
 
 Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 1, 0x7f, -0x80)
   if (!Buffer.TYPED_ARRAY_SUPPORT) value = Math.floor(value)
   if (value < 0) value = 0xff + value + 1
@@ -1185,7 +1274,7 @@ Buffer.prototype.writeInt8 = function writeInt8 (value, offset, noAssert) {
 
 Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = value
@@ -1198,7 +1287,7 @@ Buffer.prototype.writeInt16LE = function writeInt16LE (value, offset, noAssert) 
 
 Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 2, 0x7fff, -0x8000)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = (value >>> 8)
@@ -1211,7 +1300,7 @@ Buffer.prototype.writeInt16BE = function writeInt16BE (value, offset, noAssert) 
 
 Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
   if (Buffer.TYPED_ARRAY_SUPPORT) {
     this[offset] = value
@@ -1226,7 +1315,7 @@ Buffer.prototype.writeInt32LE = function writeInt32LE (value, offset, noAssert) 
 
 Buffer.prototype.writeInt32BE = function writeInt32BE (value, offset, noAssert) {
   value = +value
-  offset = offset >>> 0
+  offset = offset | 0
   if (!noAssert) checkInt(this, value, offset, 4, 0x7fffffff, -0x80000000)
   if (value < 0) value = 0xffffffff + value + 1
   if (Buffer.TYPED_ARRAY_SUPPORT) {
@@ -1279,11 +1368,11 @@ Buffer.prototype.writeDoubleBE = function writeDoubleBE (value, offset, noAssert
 }
 
 // copy(targetBuffer, targetStart=0, sourceStart=0, sourceEnd=buffer.length)
-Buffer.prototype.copy = function copy (target, target_start, start, end) {
+Buffer.prototype.copy = function copy (target, targetStart, start, end) {
   if (!start) start = 0
   if (!end && end !== 0) end = this.length
-  if (target_start >= target.length) target_start = target.length
-  if (!target_start) target_start = 0
+  if (targetStart >= target.length) targetStart = target.length
+  if (!targetStart) targetStart = 0
   if (end > 0 && end < start) end = start
 
   // Copy 0 bytes; we're done
@@ -1291,7 +1380,7 @@ Buffer.prototype.copy = function copy (target, target_start, start, end) {
   if (target.length === 0 || this.length === 0) return 0
 
   // Fatal error conditions
-  if (target_start < 0) {
+  if (targetStart < 0) {
     throw new RangeError('targetStart out of bounds')
   }
   if (start < 0 || start >= this.length) throw new RangeError('sourceStart out of bounds')
@@ -1299,18 +1388,18 @@ Buffer.prototype.copy = function copy (target, target_start, start, end) {
 
   // Are we oob?
   if (end > this.length) end = this.length
-  if (target.length - target_start < end - start) {
-    end = target.length - target_start + start
+  if (target.length - targetStart < end - start) {
+    end = target.length - targetStart + start
   }
 
   var len = end - start
 
   if (len < 1000 || !Buffer.TYPED_ARRAY_SUPPORT) {
     for (var i = 0; i < len; i++) {
-      target[i + target_start] = this[i + start]
+      target[i + targetStart] = this[i + start]
     }
   } else {
-    target._set(this.subarray(start, start + len), target_start)
+    target._set(this.subarray(start, start + len), targetStart)
   }
 
   return len
@@ -1455,12 +1544,6 @@ function base64clean (str) {
 function stringtrim (str) {
   if (str.trim) return str.trim()
   return str.replace(/^\s+|\s+$/g, '')
-}
-
-function isArrayish (subject) {
-  return isArray(subject) || Buffer.isBuffer(subject) ||
-      subject && typeof subject === 'object' &&
-      typeof subject.length === 'number'
 }
 
 function toHex (n) {
@@ -1721,7 +1804,7 @@ var lookup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 }(typeof exports === 'undefined' ? (this.base64js = {}) : exports))
 
 },{}],5:[function(require,module,exports){
-exports.read = function(buffer, offset, isLE, mLen, nBytes) {
+exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m,
       eLen = nBytes * 8 - mLen - 1,
       eMax = (1 << eLen) - 1,
@@ -1729,32 +1812,32 @@ exports.read = function(buffer, offset, isLE, mLen, nBytes) {
       nBits = -7,
       i = isLE ? (nBytes - 1) : 0,
       d = isLE ? -1 : 1,
-      s = buffer[offset + i];
+      s = buffer[offset + i]
 
-  i += d;
+  i += d
 
-  e = s & ((1 << (-nBits)) - 1);
-  s >>= (-nBits);
-  nBits += eLen;
-  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8);
+  e = s & ((1 << (-nBits)) - 1)
+  s >>= (-nBits)
+  nBits += eLen
+  for (; nBits > 0; e = e * 256 + buffer[offset + i], i += d, nBits -= 8) {}
 
-  m = e & ((1 << (-nBits)) - 1);
-  e >>= (-nBits);
-  nBits += mLen;
-  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8);
+  m = e & ((1 << (-nBits)) - 1)
+  e >>= (-nBits)
+  nBits += mLen
+  for (; nBits > 0; m = m * 256 + buffer[offset + i], i += d, nBits -= 8) {}
 
   if (e === 0) {
-    e = 1 - eBias;
+    e = 1 - eBias
   } else if (e === eMax) {
-    return m ? NaN : ((s ? -1 : 1) * Infinity);
+    return m ? NaN : ((s ? -1 : 1) * Infinity)
   } else {
-    m = m + Math.pow(2, mLen);
-    e = e - eBias;
+    m = m + Math.pow(2, mLen)
+    e = e - eBias
   }
-  return (s ? -1 : 1) * m * Math.pow(2, e - mLen);
-};
+  return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
+}
 
-exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
+exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   var e, m, c,
       eLen = nBytes * 8 - mLen - 1,
       eMax = (1 << eLen) - 1,
@@ -1762,49 +1845,49 @@ exports.write = function(buffer, value, offset, isLE, mLen, nBytes) {
       rt = (mLen === 23 ? Math.pow(2, -24) - Math.pow(2, -77) : 0),
       i = isLE ? 0 : (nBytes - 1),
       d = isLE ? 1 : -1,
-      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0;
+      s = value < 0 || (value === 0 && 1 / value < 0) ? 1 : 0
 
-  value = Math.abs(value);
+  value = Math.abs(value)
 
   if (isNaN(value) || value === Infinity) {
-    m = isNaN(value) ? 1 : 0;
-    e = eMax;
+    m = isNaN(value) ? 1 : 0
+    e = eMax
   } else {
-    e = Math.floor(Math.log(value) / Math.LN2);
+    e = Math.floor(Math.log(value) / Math.LN2)
     if (value * (c = Math.pow(2, -e)) < 1) {
-      e--;
-      c *= 2;
+      e--
+      c *= 2
     }
     if (e + eBias >= 1) {
-      value += rt / c;
+      value += rt / c
     } else {
-      value += rt * Math.pow(2, 1 - eBias);
+      value += rt * Math.pow(2, 1 - eBias)
     }
     if (value * c >= 2) {
-      e++;
-      c /= 2;
+      e++
+      c /= 2
     }
 
     if (e + eBias >= eMax) {
-      m = 0;
-      e = eMax;
+      m = 0
+      e = eMax
     } else if (e + eBias >= 1) {
-      m = (value * c - 1) * Math.pow(2, mLen);
-      e = e + eBias;
+      m = (value * c - 1) * Math.pow(2, mLen)
+      e = e + eBias
     } else {
-      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen);
-      e = 0;
+      m = value * Math.pow(2, eBias - 1) * Math.pow(2, mLen)
+      e = 0
     }
   }
 
-  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8);
+  for (; mLen >= 8; buffer[offset + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
 
-  e = (e << mLen) | m;
-  eLen += mLen;
-  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8);
+  e = (e << mLen) | m
+  eLen += mLen
+  for (; eLen > 0; buffer[offset + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
 
-  buffer[offset + i - d] |= s * 128;
-};
+  buffer[offset + i - d] |= s * 128
+}
 
 },{}],6:[function(require,module,exports){
 
@@ -20958,7 +21041,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../util/buckets.coffee":201,"../console/print.coffee":57,"../fetch/value.coffee":72}],60:[function(require,module,exports){
+},{"../../util/buckets.coffee":203,"../console/print.coffee":57,"../fetch/value.coffee":72}],60:[function(require,module,exports){
 var fetchValue = require("../fetch/value.coffee"),
     print       = require("../console/print.coffee"),
     validObject = require("../../object/validate.coffee")
@@ -21079,7 +21162,7 @@ module.exports = function( vars , data ) {
 
 }
 
-},{"../../object/validate.coffee":169,"../console/print.coffee":57,"../fetch/value.coffee":72}],61:[function(require,module,exports){
+},{"../../object/validate.coffee":171,"../console/print.coffee":57,"../fetch/value.coffee":72}],61:[function(require,module,exports){
 var dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.coffee"),
     print      = require("../console/print.coffee"),
@@ -21316,7 +21399,7 @@ module.exports = function( vars ) {
 
 };
 
-},{"../../util/uniques.coffee":207,"../console/print.coffee":57,"../fetch/value.coffee":72,"./nest.js":65}],62:[function(require,module,exports){
+},{"../../util/uniques.coffee":209,"../console/print.coffee":57,"../fetch/value.coffee":72,"./nest.js":65}],62:[function(require,module,exports){
 var fetchValue;
 
 fetchValue = require("../fetch/value.coffee");
@@ -21424,7 +21507,7 @@ module.exports = function(vars, type) {
 
 
 
-},{"../../object/validate.coffee":169,"../console/print.coffee":57}],64:[function(require,module,exports){
+},{"../../object/validate.coffee":171,"../console/print.coffee":57}],64:[function(require,module,exports){
 var print, validObject;
 
 print = require("../console/print.coffee");
@@ -21520,7 +21603,7 @@ module.exports = function(vars, key, next) {
 
 
 
-},{"../../object/validate.coffee":169,"../console/print.coffee":57}],65:[function(require,module,exports){
+},{"../../object/validate.coffee":171,"../console/print.coffee":57}],65:[function(require,module,exports){
 var fetchValue = require("../fetch/value.coffee"),
     validObject  = require("../../object/validate.coffee"),
     uniqueValues = require("../../util/uniques.coffee");
@@ -21835,7 +21918,7 @@ var rename_key_value = function(obj) {
 
 module.exports = dataNest;
 
-},{"../../object/validate.coffee":169,"../../util/uniques.coffee":207,"../fetch/value.coffee":72}],66:[function(require,module,exports){
+},{"../../object/validate.coffee":171,"../../util/uniques.coffee":209,"../fetch/value.coffee":72}],66:[function(require,module,exports){
 var arraySort = require("../../array/sort.coffee"),
     dataNest   = require("./nest.js"),
     fetchValue = require("../fetch/value.coffee"),
@@ -22022,7 +22105,7 @@ module.exports = function( vars , rawData , split ) {
             }
           }
           if (p_id, labelException.indexOf(p_id) < 0) {
-            textLabel += " ("+vars.format.value(threshold*100, {"key": "share", "vars": vars})+"%)";
+            textLabel += " ("+vars.format.value(threshold*100, {"key": "share", "vars": vars})+")";
           }
 
           m.d3plus.threshold = cutoff;
@@ -22121,7 +22204,7 @@ module.exports = function(vars, opts) {
 
 
 
-},{"../../font/sizes.coffee":100}],68:[function(require,module,exports){
+},{"../../font/sizes.coffee":102}],68:[function(require,module,exports){
 var fetchValue, getColor, getRandom, randomColor, uniques, validColor, validObject;
 
 fetchValue = require("./value.coffee");
@@ -22203,7 +22286,7 @@ getRandom = function(vars, c, level) {
 
 
 
-},{"../../color/random.coffee":52,"../../color/validate.coffee":56,"../../object/validate.coffee":169,"../../util/uniques.coffee":207,"./value.coffee":72}],69:[function(require,module,exports){
+},{"../../color/random.coffee":52,"../../color/validate.coffee":56,"../../object/validate.coffee":171,"../../util/uniques.coffee":209,"./value.coffee":72}],69:[function(require,module,exports){
 var dataFilter = require("../data/filter.js"),
     dataNest     = require("../data/nest.js"),
     print        = require("../console/print.coffee"),
@@ -22251,7 +22334,7 @@ module.exports = function(vars, years, depth) {
         else {
           var d = new Date(y.toString());
           if (d !== "Invalid Date") {
-            d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
+            // d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
             years.push(d.getTime());
           }
         }
@@ -22294,6 +22377,8 @@ module.exports = function(vars, years, depth) {
       cacheID = cacheID.concat(vals);
     }
   }
+
+  if (vars.axes && vars.axes.discrete) cacheID.push(vars.axes.discrete);
 
   cacheID = cacheID.join("_");
   vars.data.cacheID = cacheID;
@@ -22415,7 +22500,7 @@ module.exports = function(vars, years, depth) {
 
 };
 
-},{"../../string/format.js":170,"../../string/list.coffee":171,"../console/print.coffee":57,"../data/filter.js":60,"../data/nest.js":65}],70:[function(require,module,exports){
+},{"../../string/format.js":172,"../../string/list.coffee":173,"../console/print.coffee":57,"../data/filter.js":60,"../data/nest.js":65}],70:[function(require,module,exports){
 var fetchColor, fetchText, fetchValue;
 
 fetchValue = require("./value.coffee");
@@ -22542,7 +22627,7 @@ module.exports = function(vars, obj, depth) {
 
 };
 
-},{"../../object/validate.coffee":169,"../../util/uniques.coffee":207,"./value.coffee":72}],72:[function(require,module,exports){
+},{"../../object/validate.coffee":171,"../../util/uniques.coffee":209,"./value.coffee":72}],72:[function(require,module,exports){
 var cacheInit, checkAttrs, checkData, fetch, fetchArray, filterArray, find, uniqueValues, validObject, valueParse;
 
 validObject = require("../../object/validate.coffee");
@@ -22670,7 +22755,7 @@ cacheInit = function(node, cache, vars) {
   if (!("data" in node.d3plus)) {
     node.d3plus.data = {};
   }
-  if (vars.data.changed || vars.attrs.changed || !(cache in node.d3plus.data)) {
+  if (vars.data.changed || (vars.attrs && vars.attrs.changed) || !(cache in node.d3plus.data)) {
     node.d3plus.data[cache] = {};
   }
   return node;
@@ -22690,7 +22775,6 @@ valueParse = function(vars, node, depth, variable, val) {
     if (timeVar && v !== null && v.constructor !== Date) {
       d = new Date(v.toString());
       if (d !== "Invalid Date") {
-        d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
         val[i] = d;
       }
     }
@@ -22756,7 +22840,7 @@ module.exports = fetch;
 
 
 
-},{"../../object/validate.coffee":169,"../../util/uniques.coffee":207}],73:[function(require,module,exports){
+},{"../../object/validate.coffee":171,"../../util/uniques.coffee":209}],73:[function(require,module,exports){
 module.exports = function(type) {
   var attrs, styles, tester;
   if (["div", "svg"].indexOf(type) < 0) {
@@ -22817,7 +22901,7 @@ module.exports = {
     months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
     shortMonths: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
   },
-  lowercase: ["a", "and", "at", "but", "in", "of", "or", "the", "to", "with"],
+  lowercase: ["a", "an", "and", "as", "at", "but", "by", "for", "from", "if", "in", "into", "near", "nor", "of", "on", "onto", "or", "per", "that", "the", "to", "with", "via", "vs", "vs."],
   message: {
     data: "analyzing data",
     draw: "drawing visualization",
@@ -22894,7 +22978,7 @@ module.exports = {
     total: "total",
     values: "values"
   },
-  uppercase: ["CEO", "CFO", "CNC", "COO", "CPU", "HVAC", "R&D", "TV", "UI"],
+  uppercase: ["CEO", "CEOs", "CFO", "CFOs", "CNC", "COO", "COOs", "CPU", "CPUs", "GDP", "HVAC", "ID", "IT", "R&D", "TV", "UI"],
   visualization: {
     bar: "Bar Chart",
     box: "Box Plot",
@@ -22917,6 +23001,333 @@ module.exports = {
 
 },{}],75:[function(require,module,exports){
 module.exports = {
+    "format": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [3],
+        "currency": ["", " €"],
+        "dateTime": "%A, %e de %B de %Y, %X",
+        "date": "%d/%m/%Y",
+        "time": "%H:%M:%S",
+        "periods": ["AM", "PM"],
+        "days": ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"],
+        "shortDays": ["dom", "lun", "mar", "mié", "jue", "vie", "sáb"],
+        "months": ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"],
+        "shortMonths": ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+    },
+    "dev": {
+        "accepted": "{0} no es un valor aceptado para {1}, por favor utilice uno de los siguientes: {2}.",
+        "deprecated": "el método {0} ha sido eliminado, por favor, actualiza tu código para utilizar {1}.",
+        "noChange": "{0} no se actualiza porque no cambió.",
+        "noContainer": "no se puede encontrar un contenedor en la página correspondiente a {0}.",
+        "of": "de",
+        "oldStyle": "propiedades de estilo para {0} ahora se han incorporado directamente en. {1} ().",
+        "sameEdge": "los vínculos no se pueden enlazar con si mismos. eliminando automáticamente el vínculo {0} que se autorreferencia.",
+        "set": "{0} se ha establecido.",
+        "setLong": "{0} ha sido establecido a {1}.",
+        "setContainer": "defina un div contenedor utilizando .container ()"
+    },
+    "error": {
+        "accepted": "{0} no es un {1} aceptado para visualizaciones de {2}, por favor utilice uno de los siguientes: {3}.",
+        "connections": "no hay conexiones disponibles para {0}.",
+        "data": "No hay datos disponibles",
+        "dataYear": "no hay datos disponibles para {0}.",
+        "lib": "{0} visualizaciones requieren cargar las siguientes librerías: {1}.",
+        "libs": "{0} visualizaciones requieren cargar las siguientes librerías: {1}.",
+        "method": "{0} visualizaciones requieren establecer el ​​método {1}.",
+        "methods": "{0} visualizaciones requieren establecer los siguientes métodos: {1}."
+    },
+    "lowercase": [
+        "una",
+        "y",
+        "en",
+        "pero",
+        "en",
+        "de",
+        "o",
+        "el",
+        "la",
+        "los",
+        "las",
+        "para",
+        "a",
+        "con"
+    ],
+    "method": {
+        "active": "segmentos activos",
+        "color": "color",
+        "depth": "profundidad",
+        "dev": "detallado",
+        "focus": "foco",
+        "icon": "ícono",
+        "id": "id",
+        "height": "alto",
+        "labels": "rótulo",
+        "legend": "leyenda",
+        "margin": "margen",
+        "messages": "mensajes de estado",
+        "order": "orden",
+        "search": "búsqueda",
+        "shape": "forma",
+        "size": "tamaño",
+        "style": "estilo",
+        "temp": "segmentos temporales",
+        "text": "texto",
+        "time": "tiempo",
+        "timeline": "línea de tiempo",
+        "total": "segmentos totales",
+        "type": "tipo",
+        "width": "anchura",
+        "x": "eje x",
+        "y": "eje Y",
+        "zoom": "#ERROR!",
+        "mode": "modo"
+    },
+    "time": [
+        "fecha",
+        "día",
+        "mes",
+        "hora",
+        "año"
+    ],
+    "visualization": {
+        "bubbles": "Burbujas",
+        "chart": "Tabla",
+        "geo_map": "Mapa Geo",
+        "line": "Línea Solar",
+        "network": "Red",
+        "rings": "Anillos",
+        "scatter": "Gráfico De Dispersión",
+        "stacked": "Área Apilada",
+        "tree_map": "Mapa de Árbol",
+        "bar": "Gráfico De Barras",
+        "box": "Diagrama de Cajas",
+        "paths": "Caminos",
+        "pie": "Gráfico de Pastel",
+        "table": "Tabla"
+    },
+    "ui": {
+        "and": "y",
+        "back": "atrás",
+        "collapse": "click para cerrar",
+        "error": "error",
+        "expand": "haga clic para ampliar",
+        "loading": "Cargando ...",
+        "more": "{0} más",
+        "moreInfo": "clic para más información",
+        "noResults": "no se encontraron resultados para {0}.",
+        "primary": "relaciones principales",
+        "share": "porcentaje",
+        "total": "total",
+        "values": "valores",
+        "including": "Incluyendo",
+        "or": "o"
+    },
+    "message": {
+        "data": "analizando los datos",
+        "draw": "visualizando",
+        "initializing": "inicializando {0}",
+        "loading": "cargando datos",
+        "tooltipReset": "restableciendo las descripciones emergentes",
+        "ui": "actualizando la interfaz de usuario"
+    },
+    "uppercase": [
+        "CEO",
+        "CEOs",
+        "CFO",
+        "CFOs",
+        "CNC",
+        "COO",
+        "COOs",
+        "CPU",
+        "CPUs",
+        "PIB",
+        "HVAC",
+        "ID",
+        "TI",
+        "I&D",
+        "TV",
+        "UI"
+    ]
+}
+
+},{}],76:[function(require,module,exports){
+module.exports = {
+    "format": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [3],
+        "currency": ["", " €"],
+        "dateTime": "%A, le %e %B %Y, %X",
+        "date": "%d/%m/%Y",
+        "time": "%H:%M:%S",
+        "periods": ["AM", "PM"], // unused
+        "days": ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"],
+        "shortDays": ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
+        "months": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+        "shortMonths": ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]
+    },
+    "dev": {
+        "accepted": "{0} n'est pas une option valide pour {1}, les valeurs possibles sont: {2}.",
+        "deprecated": "{0} a été éliminé de la version courante, mettez à jour votre code source avec {1}.",
+        "noChange": "{0} n'a pas été mis à jour car inchangé.",
+        "noContainer": "impossible de trouver un contenant correspondant à {0}.",
+        "of": "de",
+        "oldStyle": "les propriétés de {0} ont été imbriquées dans .{1}().",
+        "sameEdge": "un arc ne peut pas boucler sur lui même. L'auto-référence est automatiquement éliminée {0}.",
+        "set": "{0} a été mis à jour.",
+        "setLong": "{0} a été mis à jour à {1}.",
+        "setContainer": "merci de choisir un div qui utilise .container()"
+    },
+    "error": {
+        "accepted": "{0} n'est pas correct {1} pour {2} visualisations, merci d'utilisez une des options suivantes: {3}.",
+        "connections": "Pas de connections disponibles pour {0}.",
+        "data": "Pas de données disponibles",
+        "dataYear": "Pas de données disponibles pour {0}.",
+        "lib": "La visualisation de {0} nécessite le chargement de la librairie {1}.",
+        "libs": "La visualisation de {0} nécessite le chargement des librairies {1}.",
+        "method": "La visualisation du {0} exige la définition de {1}.",
+        "methods": "La visualisation du {0} exige les définitions de {1}."
+    },
+    "lowercase": [
+        "un",
+        "une",
+        "de",
+        "des",
+        "et",
+        "mais",
+        "les",
+        "ou",
+        "pour",
+        "avec",
+        "comme",
+        "par",
+        "vers",
+        "si",
+        "dans",
+        "près",
+        "ni",
+        "dessus",
+        "que",
+        "le",
+        "la",
+        "via",
+        "sinon",
+        "alors"
+    ],
+    "method": {
+        "active": "segments actifs",
+        "color": "couleur",
+        "depth": "profondeur",
+        "dev": "verbeux",
+        "focus": "focus",
+        "icon": "ícone",
+        "id": "id",
+        "height": "hauteur",
+        "labels": "labels",
+        "legend": "légende",
+        "margin": "marge",
+        "messages": "messages",
+        "order": "ordre",
+        "search": "recherche",
+        "shape": "format",
+        "size": "taille",
+        "style": "style",
+        "temp": "segments temporaires",
+        "text": "texte",
+        "time": "temps",
+        "timeline": "ligne temporelle",
+        "total": "segments totaux",
+        "type": "type",
+        "width": "largeur",
+        "x": "axe x",
+        "y": "axe y",
+        "zoom": "zoom",
+        "mode": "mode"
+    },
+    "time": [
+        "année",
+        "date",
+        "jour",
+        "heure",
+        "mois"
+    ],
+    "visualization": {
+        "bubbles": "Bulles",
+        "chart": "Graphique",
+        "geo_map": "Carte",
+        "line": "Courbes",
+        "network": "Réseau",
+        "rings": "Anneaux",
+        "scatter": "Nuage de points",
+        "stacked": "Aires empilées",
+        "tree_map": "Arbre",
+        "bar": "Diagramme en barres",
+        "box": "Boîtes à Moustaches",
+        "paths": "Chemins",
+        "pie": "Camembert",
+        "table": "Table"
+    },
+    "ui": {
+        "and": "et",
+        "back": "retour",
+        "collapse": "clic pour réduire",
+        "error": "erreur",
+        "expand": "clic pour agrandir",
+        "loading": "chargement ...",
+        "more": "plus {0}",
+        "moreInfo": "clic pour plus d'information",
+        "noResults": "pas de résultat correspondant à {0}.",
+        "primary": "connections primaires",
+        "share": "partage",
+        "total": "total",
+        "values": "valeurs",
+        "including": "incluant",
+        "or": "ou"
+    },
+    "message": {
+        "data": "analyse des données",
+        "draw": "tracé en cours",
+        "initializing": "Initialisation {0}",
+        "loading": "chargement",
+        "tooltipReset": "réinitialisation des bulles",
+        "ui": "rafraichissement de l'interface"
+    },
+    "uppercase": [
+        "CEO",
+        "CEOs",
+        "CFO",
+        "CFOs",
+        "CNC",
+        "COO",
+        "COOs",
+        "CPU",
+        "CPUs",
+        "PIB",
+        "HVAC",
+        "ID",
+        "IT",
+        "TV",
+        "UI"
+    ]
+}
+
+},{}],77:[function(require,module,exports){
+module.exports = {
+    "format": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [3],
+        "currency": ["", " ден."],
+        "dateTime": "%A, %e %B %Y г. %X",
+        "date": "%d.%m.%Y",
+        "time": "%H:%M:%S",
+        "periods": ["AM", "PM"],
+        "days": ["недела", "понеделник", "вторник", "среда", "четврток", "петок", "сабота"],
+        "shortDays": ["нед", "пон", "вто", "сре", "чет", "пет", "саб"],
+        "months": ["јануари", "февруари", "март", "април", "мај", "јуни", "јули", "август", "септември", "октомври", "ноември", "декември"],
+        "shortMonths": ["јан", "фев", "мар", "апр", "мај", "јун", "јул", "авг", "сеп", "окт", "ное", "дек"]
+    },
     "dev": {
         "accepted": "{0} не е прифатенa вредноста за {1}, ве молиме користете еднa од следниве вредности: {2}.",
         "deprecated": "{0} метод е отстранета, ве молиме обновете го вашиот код за да се користи {1}.",
@@ -22931,27 +23342,13 @@ module.exports = {
     },
     "error": {
         "accepted": "{0} не е прифатлива за {1} {2} визуелизација, ве молиме користете една од следниве: {3}.",
-        "connections": "нема конекции на располагање за {0}.",
+        "connections": "не е достапна за врски {0}.",
         "data": "нема податоци",
         "dataYear": "Нема достапни податоци за {0}.",
         "lib": "{0} визуализации бараат вчитување на библиотеката {1} .",
-        "libs": "{0} визуализации бараат вчитување на следниве библиотеки: {1}.",
+        "libs": "{0} визуализации бараат вчитување следниве библиотеки: {1}.",
         "method": "{0} визуализации бара поставување на {1} методот.",
         "methods": "{0} визуализации бараат поставување на следниве методи: {1}."
-    },
-    "format": {
-        decimal: ",",
-        thousands: ".",
-        grouping: [3],
-        currency: ["", " ден."],
-        dateTime: "%A, %e %B %Y г. %X",
-        date: "%d.%m.%Y",
-        time: "%H:%M:%S",
-        periods: ["AM", "PM"],
-        days: ["недела", "понеделник", "вторник", "среда", "четврток", "петок", "сабота"],
-        shortDays: ["нед", "пон", "вто", "сре", "чет", "пет", "саб"],
-        months: ["јануари", "февруари", "март", "април", "мај", "јуни", "јули", "август", "септември", "октомври", "ноември", "декември"],
-        shortMonths: ["јан", "фев", "мар", "апр", "мај", "јун", "јул", "авг", "сеп", "окт", "ное", "дек"]
     },
     "lowercase": [
         "a",
@@ -22971,7 +23368,7 @@ module.exports = {
         "dev": "опширно",
         "focus": "фокус",
         "icon": "икона",
-        "id": "ID",
+        "id": "id",
         "height": "висина",
         "labels": "етикети",
         "legend": "легенда",
@@ -22990,7 +23387,7 @@ module.exports = {
         "type": "тип",
         "width": "ширина",
         "x": "x оската",
-        "y": "y оската",
+        "y": "оската y",
         "zoom": "зум",
         "mode": "режим"
     },
@@ -23002,20 +23399,20 @@ module.exports = {
         "година"
     ],
     "visualization": {
-        "bar": "Бар табела",
-        "box": "Кутија Парцел",
         "bubbles": "Меурчиња",
-        "chart": "Табела",
+        "chart": "Шема",
         "geo_map": "Гео мапа",
         "line": "Линиски график",
         "network": "Мрежа",
-        "path": "Патеки",
-        "pie": "Пита графикон",
         "rings": "Прстени",
         "scatter": "Распрскан график",
         "stacked": "Наредена површина",
-        "table": "Табела",
-        "tree_map": "Мапа во вид на дрво"
+        "tree_map": "Мапа во вид на дрво",
+        "bar": "Бар табела",
+        "box": "Кутија Парцел",
+        "paths": "Патеки",
+        "pie": "Пита графикон",
+        "table": "Табела"
     },
     "ui": {
         "and": "и",
@@ -23026,41 +23423,72 @@ module.exports = {
         "loading": "Се вчитува ...",
         "more": "{0} повеќе",
         "moreInfo": "кликнете за повеќе информации",
-        "noResults": "Нема резултати за појавување на {0}.",
-        "or": "или",
+        "noResults": "Не се пронајдени појавување на {0}.",
         "primary": "основно врски",
         "share": "удел",
-        "total": "Вкупно",
+        "total": "Вкупниот",
         "values": "вредности",
-        "including": "вклучувајќи"
+        "including": "Вклучувајќи",
+        "or": "или"
     },
     "message": {
-        "data": "анализирање на податоците",
+        "data": "анализа на податоци",
         "draw": "цртање на визуелизација",
         "initializing": "иницијализација {0}",
-        "loading": "вчитување на податоци",
+        "loading": "податоци за вчитување",
         "tooltipReset": "ресетирање на објаснувањата",
         "ui": "ажурирање на кориничкиот интерфејс"
     },
-    "uppercase": ["CEOs", "CFOs", "CNC", "COOs", "HVAC", "TV", "UI"]
+    "uppercase": [
+        "CEO",
+        "CEOs",
+        "CFO",
+        "CFOs",
+        "CNC",
+        "COO",
+        "COOs",
+        "CPU",
+        "CPUs",
+        "GDP",
+        "HVAC",
+        "ID",
+        "IT",
+        "R&D",
+        "TV",
+        "UI"
+    ]
 }
 
-},{}],76:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 module.exports = {
+    "format": {
+        "decimal": ",",
+        "thousands": ".",
+        "grouping": [3],
+        "currency": ["R$", ""],
+        "dateTime": "%A, %e de %B de %Y. %X",
+        "date": "%d/%m/%Y",
+        "time": "%H:%M:%S",
+        "periods": ["AM", "PM"],
+        "days": ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"],
+        "shortDays": ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"],
+        "months": ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+        "shortMonths": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
+    },
     "dev": {
         "accepted": "{0} não é um valor aceito para {1}, por favor, use um dos seguintes procedimentos: {2}.",
         "deprecated": "{0} método foi removido, por favor atualize seu código para utilizar {1}.",
         "noChange": "{0} não foi atualizado porque ele não mudou.",
         "noContainer": "Não foi possível encontrar um local na página correspondente a {0}.",
         "of": "de",
-        "oldStyle": "propriedades de estilo para {0} já foram incorporados diretamente no. {1} ().",
+        "oldStyle": "propriedades de estilo para {0} já foi incorporado diretamente no. {1} ().",
         "sameEdge": "bordas não podem vincular a si mesmos. removendo automaticamente borda de auto-referência {0}.",
-        "set": "{0} foi definida.",
+        "set": "{0} foi definido.",
         "setLong": "{0} foi definida para {1}.",
         "setContainer": "por favor, defina um div utilizando .container()"
     },
     "error": {
-        "accepted": "{0} não é um reconhecido {1} para {2} visualizações, por favor, use um dos seguintes procedimentos: {3}.",
+        "accepted": "{0} não é um {1} reconhecido para visualizações {2}, favor usar um dos seguintes procedimentos: {3}.",
         "connections": "Não há conexões disponíveis para {0}.",
         "data": "Não há dados disponíveis",
         "dataYear": "Não há dados disponíveis para {0}.",
@@ -23069,41 +23497,42 @@ module.exports = {
         "method": "A visualização {0} exige a definição do método {1}.",
         "methods": "A visualização {0} exige a definição dos métodos {1}."
     },
-    "format": {
-        decimal: ',',
-        thousands: '.',
-        grouping: [3],
-        currency: ['R$', ''],
-        dateTime: '%A, %e de %B de %Y. %X',
-        date: '%d/%m/%Y',
-        time: '%H:%M:%S',
-        periods: ['AM', 'PM'],
-        days: ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'],
-        shortDays: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
-        months: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'],
-        shortMonths: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
-    },
     "lowercase": [
+        "um",
+        "uma",
+        "e",
+        "como",
+        "em",
+        "no",
+        "na",
+        "mas",
+        "por",
+        "para",
+        "pelo",
+        "pela",
+        "de",
+        "do",
+        "da",
+        "se",
+        "perto",
+        "nem",
+        "ou",
+        "que",
+        "o",
         "a",
         "com",
-        "de",
-        "e",
-        "em",
-        "mas",
-        "ou",
-        "para",
-        "um"
+        "v"
     ],
     "method": {
-        "active": "segmentos ativos",
+        "active": "segmentos activos",
         "color": "cor",
         "depth": "profundidade",
         "dev": "verboso",
         "focus": "foco",
         "icon": "ícone",
-        "id": "id",
+        "id": "identificador",
         "height": "altura",
-        "labels": "rótulos",
+        "labels": "etiquetas",
         "legend": "legenda",
         "margin": "margem",
         "messages": "mensagens de status",
@@ -23115,8 +23544,8 @@ module.exports = {
         "temp": "segmentos temporários",
         "text": "texto",
         "time": "tempo",
-        "timeline": "cronograma",
-        "total": "segmentos totais",
+        "timeline": "linha do tempo",
+        "total": "segmentos no total",
         "type": "tipo",
         "width": "largura",
         "x": "eixo x",
@@ -23125,44 +23554,44 @@ module.exports = {
         "mode": "modo"
     },
     "time": [
-        "ano",
         "data",
         "dia",
+        "mês",
         "hora",
-        "mês"
+        "ano"
     ],
     "visualization": {
-        "bar": "Gráfico de Barras",
-        "box": "Eaixa de Enredo",
         "bubbles": "Bolhas",
         "chart": "Gráfico",
         "geo_map": "Mapa",
-        "line": "Enredo",
+        "line": "Gráfico de Linha",
         "network": "Rede",
-        "path": "Caminhos",
-        "pie": "Pie Chart",
         "rings": "Anéis",
         "scatter": "Dispersão",
         "stacked": "Evolução",
-        "table": "Tabela",
-        "tree_map": "Tree Map"
+        "tree_map": "Tree Map",
+        "bar": "Gráfico de Barras",
+        "box": "Box Plot",
+        "paths": "Caminhos",
+        "pie": "Pie Chart",
+        "table": "Tabela"
     },
     "ui": {
         "and": "e",
-        "back": "de volta",
+        "back": "voltar",
         "collapse": "Clique para fechar",
         "error": "erro",
         "expand": "clique para expandir",
         "loading": "carregando ...",
         "more": "mais {0}",
-        "moreInfo": "clique para mais informações",
+        "moreInfo": "Clique para mais informações",
         "noResults": "nenhum resultado para {0}.",
-        "or": "ou",
         "primary": "conexões primárias",
         "share": "participação",
         "total": "total",
         "values": "valores",
-        "including": "incluindo"
+        "including": "Incluindo",
+        "or": "ou"
     },
     "message": {
         "data": "analisando dados",
@@ -23172,11 +23601,42 @@ module.exports = {
         "tooltipReset": "redefinindo as dicas",
         "ui": "atualizando interface"
     },
-    "uppercase": ["CEOs", "CFOs", "CNC", "COOs", "HVAC", "P&D", "TV", "UI"]
+    "uppercase": [
+        "CEO",
+        "CEOs",
+        "CFO",
+        "CFOs",
+        "CNC",
+        "COO",
+        "COOs",
+        "CPU",
+        "CPUs",
+        "PIB",
+        "HVAC",
+        "ID",
+        "TI",
+        "P&D",
+        "TV",
+        "IU"
+    ]
 }
 
-},{}],77:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 module.exports = {
+    "format": {
+        "decimal": ".",
+        "thousands": ",",
+        "grouping": [3],
+        "currency": ["¥", ""],
+        "dateTime": "%A %B %e %Y %X",
+        "date": "%Y/%-m/%-d",
+        "time": "%H:%M:%S",
+        "periods": ["上午", "下午"],
+        "days": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+        "shortDays": ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
+        "months": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+        "shortMonths": ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
+    },
     "dev": {
         "accepted": "{0}不是{1}的可接受值, 请用下列之一的值:{2}",
         "deprecated": "{0}的方法已被移除, 请更新您的代码去使用{1}",
@@ -23198,20 +23658,6 @@ module.exports = {
         "libs": "{0}的可视化需要加载以下库：{1}。",
         "method": "{0}的可视化要求设置{1}方法。",
         "methods": "{0}的可视化要求设置以下方法：{1}。"
-    },
-    "format": {
-        decimal: ".",
-        thousands: ",",
-        grouping: [3],
-        currency: ["¥", ""],
-        dateTime: "%A %B %e %Y %X",
-        date: "%Y/%-m/%-d",
-        time: "%H:%M:%S",
-        periods: ["上午", "下午"],
-        days: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
-        shortDays: ["星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"],
-        months: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
-        shortMonths: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"]
     },
     "lowercase": [
         "一个",
@@ -23263,20 +23709,20 @@ module.exports = {
         "年"
     ],
     "visualization": {
-        "bar": "条形图",
-        "box": "箱线图",
         "bubbles": "气泡",
         "chart": "图表",
         "geo_map": "地理地图",
         "line": "线图",
         "network": "网络",
-        "path": "路径",
-        "pie": "饼图",
         "rings": "特性",
         "scatter": "散点图",
         "stacked": "堆积面积图",
-        "table": "表",
-        "tree_map": "树图"
+        "tree_map": "树图",
+        "bar": "条图",
+        "box": "箱线图",
+        "paths": "路径",
+        "pie": "饼图",
+        "table": "表"
     },
     "ui": {
         "and": "和",
@@ -23288,12 +23734,12 @@ module.exports = {
         "more": "{0}更多",
         "moreInfo": "点击了解更多信息",
         "noResults": "没有结果匹配{0}。",
-        "or": "或",
         "primary": "主要连接",
         "share": "共享",
         "total": "总",
         "values": "值",
-        "including": "包括"
+        "including": "包括",
+        "or": "或"
     },
     "message": {
         "data": "分析数据",
@@ -23304,15 +23750,29 @@ module.exports = {
         "ui": "更新UI"
     },
     "uppercase": [
+        "CEO",
+        "CEOs",
+        "CFO",
+        "CFOs",
+        "CNC",
+        "COO",
+        "COOs",
+        "CPU",
+        "CPUs",
+        "GDP",
+        "HVAC",
+        "ID",
         "电视",
         "用户界面",
         "研发"
     ]
 }
 
-},{}],78:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 module.exports = {
   en_US: require("./languages/en_US.coffee"),
+  es_ES: require("./languages/es_ES.js"),
+  fr_FR: require("./languages/fr_FR.js"),
   mk_MK: require("./languages/mk_MK.js"),
   pt_BR: require("./languages/pt_BR.js"),
   zh_CN: require("./languages/zh_CN.js")
@@ -23320,7 +23780,7 @@ module.exports = {
 
 
 
-},{"./languages/en_US.coffee":74,"./languages/mk_MK.js":75,"./languages/pt_BR.js":76,"./languages/zh_CN.js":77}],79:[function(require,module,exports){
+},{"./languages/en_US.coffee":74,"./languages/es_ES.js":75,"./languages/fr_FR.js":76,"./languages/mk_MK.js":77,"./languages/pt_BR.js":78,"./languages/zh_CN.js":79}],81:[function(require,module,exports){
 var checkObject, copy, createFunction, initialize, print, process, setMethod, stringFormat, validObject;
 
 copy = require("../../util/copy.coffee");
@@ -23491,7 +23951,7 @@ checkObject = function(vars, method, object, key, value) {
 
 
 
-},{"../../object/validate.coffee":169,"../../string/format.js":170,"../../util/copy.coffee":204,"../console/print.coffee":57,"./process/detect.coffee":87,"./set.coffee":93}],80:[function(require,module,exports){
+},{"../../object/validate.coffee":171,"../../string/format.js":172,"../../util/copy.coffee":206,"../console/print.coffee":57,"./process/detect.coffee":89,"./set.coffee":95}],82:[function(require,module,exports){
 module.exports = function(g) {
   if (!g) {
     g = false;
@@ -23510,7 +23970,7 @@ module.exports = function(g) {
 
 
 
-},{}],81:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 var rtl;
 
 rtl = require("../../../client/rtl.coffee");
@@ -23547,7 +24007,7 @@ module.exports = function(align) {
 
 
 
-},{"../../../client/rtl.coffee":46}],82:[function(require,module,exports){
+},{"../../../client/rtl.coffee":46}],84:[function(require,module,exports){
 module.exports = function(decoration) {
   var accepted;
   accepted = ["line-through", "none", "overline", "underline"];
@@ -23565,7 +24025,7 @@ module.exports = function(decoration) {
 
 
 
-},{}],83:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 var helvetica, validate;
 
 validate = require("../../../font/validate.coffee");
@@ -23584,7 +24044,7 @@ module.exports = function(family) {
 
 
 
-},{"../../../font/validate.coffee":101}],84:[function(require,module,exports){
+},{"../../../font/validate.coffee":103}],86:[function(require,module,exports){
 module.exports = function(position) {
   var accepted;
   accepted = ["top", "middle", "bottom"];
@@ -23611,7 +24071,7 @@ module.exports = function(position) {
 
 
 
-},{}],85:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 module.exports = function(transform) {
   var accepted;
   accepted = ["capitalize", "lowercase", "none", "uppercase"];
@@ -23629,21 +24089,25 @@ module.exports = function(transform) {
 
 
 
-},{}],86:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 module.exports = function(value, vars, method) {
+  var elem;
   if (vars.history) {
     vars.history.reset();
   }
-  if (typeof value === "string") {
+  if (value.constructor === String) {
     if (value.indexOf("/") >= 0) {
       method.url = value;
       return [];
     }
-    if (d3.selectAll(value).size()) {
-      return d3.selectAll(value);
-    } else {
-      return [];
+    elem = d3.selectAll(value);
+    if (elem.size()) {
+      return elem;
     }
+    if (value.indexOf(".") >= 0) {
+      method.url = value;
+    }
+    return [];
   } else {
     return value;
   }
@@ -23651,7 +24115,7 @@ module.exports = function(value, vars, method) {
 
 
 
-},{}],87:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 var copy, update;
 
 copy = require("../../../util/copy.coffee");
@@ -23672,7 +24136,7 @@ module.exports = function(vars, object, value) {
 
 
 
-},{"../../../array/update.coffee":41,"../../../util/copy.coffee":204}],88:[function(require,module,exports){
+},{"../../../array/update.coffee":41,"../../../util/copy.coffee":206}],90:[function(require,module,exports){
 var stylesheet;
 
 stylesheet = require("../../../client/css.coffee");
@@ -23687,7 +24151,7 @@ module.exports = function(value, vars, method) {
 
 
 
-},{"../../../client/css.coffee":42}],89:[function(require,module,exports){
+},{"../../../client/css.coffee":42}],91:[function(require,module,exports){
 module.exports = function(value, self) {
   var i, j, k, l, len, len1, len2, len3, m, results, side, sides, v;
   if (typeof value === "string") {
@@ -23749,7 +24213,7 @@ module.exports = function(value, self) {
 
 
 
-},{}],90:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 var contains, format, list, print;
 
 contains = require("../../array/contains.coffee");
@@ -23802,7 +24266,7 @@ module.exports = function(vars, accepted, value, method, text) {
 
 
 
-},{"../../array/contains.coffee":39,"../../string/format.js":170,"../../string/list.coffee":171,"../console/print.coffee":57}],91:[function(require,module,exports){
+},{"../../array/contains.coffee":39,"../../string/format.js":172,"../../string/list.coffee":173,"../console/print.coffee":57}],93:[function(require,module,exports){
 module.exports = function(rendering) {
   var accepted;
   accepted = ["auto", "optimizeSpeed", "crispEdges", "geometricPrecision"];
@@ -23817,7 +24281,7 @@ module.exports = function(rendering) {
 
 
 
-},{}],92:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 var reset, validObject;
 
 validObject = require("../../object/validate.coffee");
@@ -23843,7 +24307,7 @@ module.exports = reset;
 
 
 
-},{"../../object/validate.coffee":169}],93:[function(require,module,exports){
+},{"../../object/validate.coffee":171}],95:[function(require,module,exports){
 var copy, d3selection, mergeObject, print, process, rejected, stringFormat, updateArray, validObject;
 
 copy = require("../../util/copy.coffee");
@@ -23999,7 +24463,7 @@ module.exports = function(vars, method, object, key, value) {
 
 
 
-},{"../../array/update.coffee":41,"../../object/merge.coffee":168,"../../object/validate.coffee":169,"../../string/format.js":170,"../../util/copy.coffee":204,"../../util/d3selection.coffee":205,"../console/print.coffee":57,"./process/detect.coffee":87,"./rejected.coffee":90}],94:[function(require,module,exports){
+},{"../../array/update.coffee":41,"../../object/merge.coffee":170,"../../object/validate.coffee":171,"../../string/format.js":172,"../../util/copy.coffee":206,"../../util/d3selection.coffee":207,"../console/print.coffee":57,"./process/detect.coffee":89,"./rejected.coffee":92}],96:[function(require,module,exports){
 var print = require("../console/print.coffee"),
     stringFormat = require("../../string/format.js")
 
@@ -24085,7 +24549,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../../string/format.js":170,"../console/print.coffee":57}],95:[function(require,module,exports){
+},{"../../string/format.js":172,"../console/print.coffee":57}],97:[function(require,module,exports){
 // Parses an HTML element for data
 module.exports = function( vars ) {
 
@@ -24244,7 +24708,7 @@ function hideElement( elem ) {
 
 }
 
-},{}],96:[function(require,module,exports){
+},{}],98:[function(require,module,exports){
 var print = require("../console/print.coffee");
 
 // Calculates node positions, if needed for network.
@@ -24301,7 +24765,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../console/print.coffee":57}],97:[function(require,module,exports){
+},{"../console/print.coffee":57}],99:[function(require,module,exports){
 var numeric;
 
 numeric = require('numeric');
@@ -24379,7 +24843,7 @@ module.exports = function(data, options) {
 
 
 
-},{"numeric":10}],98:[function(require,module,exports){
+},{"numeric":10}],100:[function(require,module,exports){
 var kdtree;
 
 kdtree = require('static-kdtree');
@@ -24461,7 +24925,7 @@ module.exports = function(points, K) {
 
 
 
-},{"static-kdtree":12}],99:[function(require,module,exports){
+},{"static-kdtree":12}],101:[function(require,module,exports){
 module.exports = function(points) {
   var mad, median, result;
   median = d3.median(points);
@@ -24478,7 +24942,7 @@ module.exports = function(points) {
 
 
 
-},{}],100:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 var fontTester, getHeight, getWidth;
 
 fontTester = require("../core/font/tester.coffee");
@@ -24542,7 +25006,7 @@ getHeight = function(elem) {
 
 
 
-},{"../core/font/tester.coffee":73}],101:[function(require,module,exports){
+},{"../core/font/tester.coffee":73}],103:[function(require,module,exports){
 var fontTester, validate;
 
 fontTester = require("../core/font/tester.coffee");
@@ -24601,7 +25065,7 @@ module.exports = validate;
 
 
 
-},{"../core/font/tester.coffee":73}],102:[function(require,module,exports){
+},{"../core/font/tester.coffee":73}],104:[function(require,module,exports){
 var arraySort = require("../array/sort.coffee"),
     attach      = require("../core/methods/attach.coffee"),
     dataFormat  = require("../core/data/format.js"),
@@ -24969,7 +25433,7 @@ module.exports = function() {
 
 };
 
-},{"../array/sort.coffee":40,"../client/ie.js":43,"../core/console/print.coffee":57,"../core/data/format.js":61,"../core/data/keys.coffee":63,"../core/data/load.coffee":64,"../core/fetch/data.js":69,"../core/methods/attach.coffee":79,"../core/methods/reset.coffee":92,"./methods/active.coffee":103,"./methods/alt.coffee":104,"./methods/color.coffee":105,"./methods/config.coffee":106,"./methods/container.coffee":107,"./methods/data.js":108,"./methods/depth.coffee":109,"./methods/dev.coffee":110,"./methods/draw.js":111,"./methods/focus.coffee":112,"./methods/font.coffee":113,"./methods/format.coffee":114,"./methods/height.coffee":115,"./methods/history.coffee":116,"./methods/hover.coffee":117,"./methods/icon.coffee":118,"./methods/id.coffee":119,"./methods/keywords.coffee":120,"./methods/margin.coffee":121,"./methods/open.coffee":122,"./methods/order.coffee":123,"./methods/remove.coffee":124,"./methods/search.coffee":125,"./methods/select.coffee":126,"./methods/selectAll.coffee":127,"./methods/text.coffee":128,"./methods/timing.coffee":129,"./methods/title.coffee":130,"./methods/type.coffee":131,"./methods/ui.coffee":132,"./methods/width.coffee":133,"./types/auto.js":134,"./types/button/button.coffee":135,"./types/drop/drop.coffee":140,"./types/toggle.js":157}],103:[function(require,module,exports){
+},{"../array/sort.coffee":40,"../client/ie.js":43,"../core/console/print.coffee":57,"../core/data/format.js":61,"../core/data/keys.coffee":63,"../core/data/load.coffee":64,"../core/fetch/data.js":69,"../core/methods/attach.coffee":81,"../core/methods/reset.coffee":94,"./methods/active.coffee":105,"./methods/alt.coffee":106,"./methods/color.coffee":107,"./methods/config.coffee":108,"./methods/container.coffee":109,"./methods/data.js":110,"./methods/depth.coffee":111,"./methods/dev.coffee":112,"./methods/draw.js":113,"./methods/focus.coffee":114,"./methods/font.coffee":115,"./methods/format.coffee":116,"./methods/height.coffee":117,"./methods/history.coffee":118,"./methods/hover.coffee":119,"./methods/icon.coffee":120,"./methods/id.coffee":121,"./methods/keywords.coffee":122,"./methods/margin.coffee":123,"./methods/open.coffee":124,"./methods/order.coffee":125,"./methods/remove.coffee":126,"./methods/search.coffee":127,"./methods/select.coffee":128,"./methods/selectAll.coffee":129,"./methods/text.coffee":130,"./methods/timing.coffee":131,"./methods/title.coffee":132,"./methods/type.coffee":133,"./methods/ui.coffee":134,"./methods/width.coffee":135,"./types/auto.js":136,"./types/button/button.coffee":137,"./types/drop/drop.coffee":142,"./types/toggle.js":159}],105:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -24981,7 +25445,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],104:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],106:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -24995,7 +25459,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],105:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],107:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   value: "color"
@@ -25003,7 +25467,7 @@ module.exports = {
 
 
 
-},{}],106:[function(require,module,exports){
+},{}],108:[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   objectAccess: false,
@@ -25022,7 +25486,7 @@ module.exports = {
 
 
 
-},{}],107:[function(require,module,exports){
+},{}],109:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -25047,7 +25511,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":205}],108:[function(require,module,exports){
+},{"../../util/d3selection.coffee":207}],110:[function(require,module,exports){
 var d3selection = require("../../util/d3selection.coffee"),
     process = require("../../core/methods/process/data.coffee");
 
@@ -25101,7 +25565,7 @@ module.exports = {
   "value"    : false
 };
 
-},{"../../core/methods/process/data.coffee":86,"../../util/d3selection.coffee":205}],109:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":88,"../../util/d3selection.coffee":207}],111:[function(require,module,exports){
 module.exports = {
   accepted: [Number],
   value: 0
@@ -25109,7 +25573,7 @@ module.exports = {
 
 
 
-},{}],110:[function(require,module,exports){
+},{}],112:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -25117,7 +25581,7 @@ module.exports = {
 
 
 
-},{}],111:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 var d3selection  = require("../../util/d3selection.coffee"),
     parseElement = require("../../core/parse/element.js"),
     print        = require("../../core/console/print.coffee"),
@@ -25184,7 +25648,7 @@ module.exports = {
   "value"    : undefined
 }
 
-},{"../../core/console/print.coffee":57,"../../core/parse/element.js":95,"../../string/format.js":170,"../../util/d3selection.coffee":205}],112:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../core/parse/element.js":97,"../../string/format.js":172,"../../util/d3selection.coffee":207}],114:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number, String],
   deprecates: "highlight",
@@ -25216,7 +25680,7 @@ module.exports = {
 
 
 
-},{}],113:[function(require,module,exports){
+},{}],115:[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -25250,7 +25714,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":81,"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85}],114:[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":83,"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87}],116:[function(require,module,exports){
 var formatNumber, locale, mergeObject, titleCase;
 
 formatNumber = require("../../number/format.coffee");
@@ -25328,7 +25792,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":78,"../../number/format.coffee":167,"../../object/merge.coffee":168,"../../string/title.coffee":173}],115:[function(require,module,exports){
+},{"../../core/locale/locale.coffee":80,"../../number/format.coffee":169,"../../object/merge.coffee":170,"../../string/title.coffee":175}],117:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   max: 600,
@@ -25338,7 +25802,7 @@ module.exports = {
 
 
 
-},{}],116:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 module.exports = {
   back: function() {
     if (this.states.length) {
@@ -25359,7 +25823,7 @@ module.exports = {
 
 
 
-},{}],117:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean, Number, String],
   value: false
@@ -25367,7 +25831,7 @@ module.exports = {
 
 
 
-},{}],118:[function(require,module,exports){
+},{}],120:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/icon.coffee");
@@ -25423,7 +25887,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/icon.coffee":88}],119:[function(require,module,exports){
+},{"../../core/methods/process/icon.coffee":90}],121:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -25439,7 +25903,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],120:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],122:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -25453,7 +25917,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],121:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],123:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/margin.coffee");
@@ -25474,7 +25938,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/margin.coffee":89}],122:[function(require,module,exports){
+},{"../../core/methods/process/margin.coffee":91}],124:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   flipped: {
@@ -25486,7 +25950,7 @@ module.exports = {
 
 
 
-},{}],123:[function(require,module,exports){
+},{}],125:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, String],
   sort: {
@@ -25499,7 +25963,7 @@ module.exports = {
 
 
 
-},{}],124:[function(require,module,exports){
+},{}],126:[function(require,module,exports){
 module.exports = {
   accepted: void 0,
   process: function(value, vars) {
@@ -25512,7 +25976,7 @@ module.exports = {
 
 
 
-},{}],125:[function(require,module,exports){
+},{}],127:[function(require,module,exports){
 module.exports = {
   accepted: ["auto", Boolean],
   process: function(value) {
@@ -25527,7 +25991,7 @@ module.exports = {
 
 
 
-},{}],126:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   chainable: false,
@@ -25545,7 +26009,7 @@ module.exports = {
 
 
 
-},{}],127:[function(require,module,exports){
+},{}],129:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   chainable: false,
@@ -25563,7 +26027,7 @@ module.exports = {
 
 
 
-},{}],128:[function(require,module,exports){
+},{}],130:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -25583,7 +26047,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],129:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],131:[function(require,module,exports){
 module.exports = {
   mouseevents: 60,
   ui: 200
@@ -25591,7 +26055,7 @@ module.exports = {
 
 
 
-},{}],130:[function(require,module,exports){
+},{}],132:[function(require,module,exports){
 var decoration, family, stringStrip, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -25629,7 +26093,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85,"../../string/strip.js":172}],131:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87,"../../string/strip.js":174}],133:[function(require,module,exports){
 module.exports = {
   accepted: function(vars) {
     return d3.keys(vars.types);
@@ -25639,7 +26103,7 @@ module.exports = {
 
 
 
-},{}],132:[function(require,module,exports){
+},{}],134:[function(require,module,exports){
 var align, decoration, family, margin, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -25712,7 +26176,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":81,"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85,"../../core/methods/process/margin.coffee":89}],133:[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":83,"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87,"../../core/methods/process/margin.coffee":91}],135:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   secondary: false,
@@ -25721,7 +26185,7 @@ module.exports = {
 
 
 
-},{}],134:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Determines form type based on data length.
 //------------------------------------------------------------------------------
@@ -25741,7 +26205,7 @@ module.exports = function( vars ) {
 
 }
 
-},{}],135:[function(require,module,exports){
+},{}],137:[function(require,module,exports){
 module.exports = function(vars) {
   var button, checks, color, icons, mouseevents, print, style, updatedButtons;
   print = require("../../../core/console/print.coffee");
@@ -25793,7 +26257,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../core/console/print.coffee":57,"./functions/color.coffee":136,"./functions/icons.js":137,"./functions/mouseevents.coffee":138,"./functions/style.js":139}],136:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57,"./functions/color.coffee":138,"./functions/icons.js":139,"./functions/mouseevents.coffee":140,"./functions/style.js":141}],138:[function(require,module,exports){
 module.exports = function(elem, vars) {
   var legible, lighter, textColor;
   legible = require("../../../../color/legible.coffee");
@@ -25830,7 +26294,7 @@ module.exports = function(elem, vars) {
 
 
 
-},{"../../../../color/legible.coffee":49,"../../../../color/lighter.coffee":50,"../../../../color/text.coffee":55}],137:[function(require,module,exports){
+},{"../../../../color/legible.coffee":49,"../../../../color/lighter.coffee":50,"../../../../color/text.coffee":55}],139:[function(require,module,exports){
 var prefix = require("../../../../client/prefix.coffee"),
     rtl = require("../../../../client/rtl.coffee")
 
@@ -26008,7 +26472,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{"../../../../client/prefix.coffee":45,"../../../../client/rtl.coffee":46}],138:[function(require,module,exports){
+},{"../../../../client/prefix.coffee":45,"../../../../client/rtl.coffee":46}],140:[function(require,module,exports){
 module.exports = function(elem, vars, color) {
   var events, ie;
   color = require("./color.coffee");
@@ -26035,7 +26499,7 @@ module.exports = function(elem, vars, color) {
 
 
 
-},{"../../../../client/ie.js":43,"../../../../client/pointer.coffee":44,"./color.coffee":136}],139:[function(require,module,exports){
+},{"../../../../client/ie.js":43,"../../../../client/pointer.coffee":44,"./color.coffee":138}],141:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 //
 //------------------------------------------------------------------------------
@@ -26054,7 +26518,7 @@ module.exports = function ( elem , vars ) {
 
 }
 
-},{}],140:[function(require,module,exports){
+},{}],142:[function(require,module,exports){
 module.exports = function(vars) {
   var button, data, element, keyboard, list, search, selector, title, update, width, windowevent;
   element = require("./functions/element.coffee");
@@ -26085,7 +26549,7 @@ module.exports = function(vars) {
 
 
 
-},{"./functions/button.js":143,"./functions/data.js":144,"./functions/element.coffee":145,"./functions/keyboard.coffee":148,"./functions/list.js":149,"./functions/search.js":151,"./functions/selector.js":152,"./functions/title.js":153,"./functions/update.js":154,"./functions/width.js":155,"./functions/window.js":156}],141:[function(require,module,exports){
+},{"./functions/button.js":145,"./functions/data.js":146,"./functions/element.coffee":147,"./functions/keyboard.coffee":150,"./functions/list.js":151,"./functions/search.js":153,"./functions/selector.js":154,"./functions/title.js":155,"./functions/update.js":156,"./functions/width.js":157,"./functions/window.js":158}],143:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Checks to see if a given variable is allowed to be selected.
 //------------------------------------------------------------------------------
@@ -26121,7 +26585,7 @@ module.exports = function ( vars , value , active ) {
 
 }
 
-},{}],142:[function(require,module,exports){
+},{}],144:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Toggles the state of the dropdown menu.
@@ -26152,7 +26616,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57}],143:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57}],145:[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     events = require("../../../../client/pointer.coffee"),
     form   = require("../../../form.js"),
@@ -26241,7 +26705,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/pointer.coffee":44,"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":204,"../../../form.js":102}],144:[function(require,module,exports){
+},{"../../../../client/pointer.coffee":44,"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":206,"../../../form.js":104}],146:[function(require,module,exports){
 var stringFormat = require("../../../../string/format.js"),
     stringStrip = require("../../../../string/strip.js");
 
@@ -26365,7 +26829,7 @@ module.exports = function ( vars ) {
 
 };
 
-},{"../../../../string/format.js":170,"../../../../string/strip.js":172}],145:[function(require,module,exports){
+},{"../../../../string/format.js":172,"../../../../string/strip.js":174}],147:[function(require,module,exports){
 module.exports = function(vars) {
   if (vars.data.element.value) {
     vars.data.element.value.on("focus." + vars.container.id, function() {
@@ -26395,7 +26859,7 @@ module.exports = function(vars) {
 
 
 
-},{}],146:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates the height and orientation of the dropdown list, based on
 // available screen space.
@@ -26428,7 +26892,7 @@ module.exports = function ( vars ) {
 
 };
 
-},{}],147:[function(require,module,exports){
+},{}],149:[function(require,module,exports){
 var active, copy, form, print;
 
 active = require("./active.js");
@@ -26518,7 +26982,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":204,"../../../form.js":102,"./active.js":141}],148:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57,"../../../../util/copy.coffee":206,"../../../form.js":104,"./active.js":143}],150:[function(require,module,exports){
 module.exports = function(vars) {
   return d3.select(window).on("keydown." + vars.container.id, function() {
     var d, data, depth, hist, hover, i, index, j, key, len, matchKey, ref, solo;
@@ -26598,7 +27062,7 @@ module.exports = function(vars) {
 
 
 
-},{}],149:[function(require,module,exports){
+},{}],151:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and populates the dropdown list of items.
@@ -26620,7 +27084,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57}],150:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57}],152:[function(require,module,exports){
 var print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Calculates scroll position of list.
@@ -26724,7 +27188,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57}],151:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57}],153:[function(require,module,exports){
 var prefix = require("../../../../client/prefix.coffee"),
     print = require("../../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -26823,7 +27287,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/prefix.coffee":45,"../../../../core/console/print.coffee":57,"./data.js":144,"./items.coffee":147,"./update.js":154}],152:[function(require,module,exports){
+},{"../../../../client/prefix.coffee":45,"../../../../core/console/print.coffee":57,"./data.js":146,"./items.coffee":149,"./update.js":156}],154:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates and styles the div that holds the search box and item list.
 //------------------------------------------------------------------------------
@@ -26845,7 +27309,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{}],153:[function(require,module,exports){
+},{}],155:[function(require,module,exports){
 var events = require("../../../../client/pointer.coffee"),
     lighter   = require("../../../../color/lighter.coffee"),
     print     = require("../../../../core/console/print.coffee"),
@@ -26996,7 +27460,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../client/pointer.coffee":44,"../../../../color/lighter.coffee":50,"../../../../color/text.coffee":55,"../../../../core/console/print.coffee":57}],154:[function(require,module,exports){
+},{"../../../../client/pointer.coffee":44,"../../../../color/lighter.coffee":50,"../../../../color/text.coffee":55,"../../../../core/console/print.coffee":57}],156:[function(require,module,exports){
 var items = require("./items.coffee"),
     height     = require("./height.js"),
     print      = require("../../../../core/console/print.coffee"),
@@ -27162,7 +27626,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57,"./arrow.js":142,"./height.js":146,"./items.coffee":147,"./scroll.js":150}],155:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57,"./arrow.js":144,"./height.js":148,"./items.coffee":149,"./scroll.js":152}],157:[function(require,module,exports){
 var copy = require("../../../../util/copy.coffee"),
     fontTester  = require("../../../../core/font/tester.coffee"),
     form        = require("../../../form.js"),
@@ -27257,7 +27721,7 @@ module.exports = function ( vars ) {
 
 }
 
-},{"../../../../core/console/print.coffee":57,"../../../../core/font/tester.coffee":73,"../../../../object/validate.coffee":169,"../../../../util/copy.coffee":204,"../../../form.js":102}],156:[function(require,module,exports){
+},{"../../../../core/console/print.coffee":57,"../../../../core/font/tester.coffee":73,"../../../../object/validate.coffee":171,"../../../../util/copy.coffee":206,"../../../form.js":104}],158:[function(require,module,exports){
 var child = require("../../../../util/child.coffee")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -27302,7 +27766,7 @@ var windowEvents = function ( vars , elem ) {
 
 module.exports = windowEvents
 
-},{"../../../../util/child.coffee":202}],157:[function(require,module,exports){
+},{"../../../../util/child.coffee":204}],159:[function(require,module,exports){
 var form = require("../form.js")
 
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -27398,7 +27862,7 @@ module.exports = function( vars ) {
 
 }
 
-},{"../form.js":102}],158:[function(require,module,exports){
+},{"../form.js":104}],160:[function(require,module,exports){
 var intersectPoints, lineIntersection, pointInPoly, pointInSegmentBox, polyInsidePoly, print, rayIntersectsSegment, rotatePoint, rotatePoly, segmentsIntersect, simplify, squaredDist;
 
 print = require("../core/console/print.coffee");
@@ -27818,7 +28282,7 @@ intersectPoints = function(poly, origin, alpha) {
 
 
 
-},{"../core/console/print.coffee":57,"simplify-js":11}],159:[function(require,module,exports){
+},{"../core/console/print.coffee":57,"simplify-js":11}],161:[function(require,module,exports){
 module.exports = function(radians, distance, shape) {
   var adjacentLegLength, coords, diagonal, oppositeLegLength;
   coords = {
@@ -27884,7 +28348,7 @@ module.exports = function(radians, distance, shape) {
 
 
 
-},{}],160:[function(require,module,exports){
+},{}],162:[function(require,module,exports){
 var offset;
 
 offset = require("../geom/offset.coffee");
@@ -27930,7 +28394,7 @@ module.exports = function(path) {
 
 
 
-},{"../geom/offset.coffee":159}],161:[function(require,module,exports){
+},{"../geom/offset.coffee":161}],163:[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -28068,7 +28532,7 @@ module.exports = function(edges, options) {
 
 
 
-},{"./normalize.coffee":163}],162:[function(require,module,exports){
+},{"./normalize.coffee":165}],164:[function(require,module,exports){
 module.exports = function(n1, n2) {
   var xx, yy;
   if (!(n1 instanceof Array)) {
@@ -28084,7 +28548,7 @@ module.exports = function(n1, n2) {
 
 
 
-},{}],163:[function(require,module,exports){
+},{}],165:[function(require,module,exports){
 var print;
 
 print = require("../core/console/print.coffee");
@@ -28233,7 +28697,7 @@ module.exports = function(edges, options) {
 
 
 
-},{"../core/console/print.coffee":57}],164:[function(require,module,exports){
+},{"../core/console/print.coffee":57}],166:[function(require,module,exports){
 var Heap, normalize;
 
 Heap = require('heap');
@@ -28331,7 +28795,7 @@ module.exports = function(edges, source, options) {
 
 
 
-},{"./normalize.coffee":163,"heap":8}],165:[function(require,module,exports){
+},{"./normalize.coffee":165,"heap":8}],167:[function(require,module,exports){
 var distance;
 
 distance = require("./distance.coffee");
@@ -28389,7 +28853,7 @@ module.exports = function(arr, opts) {
 
 
 
-},{"./distance.coffee":162}],166:[function(require,module,exports){
+},{"./distance.coffee":164}],168:[function(require,module,exports){
 var normalize;
 
 normalize = require("./normalize.coffee");
@@ -28460,18 +28924,20 @@ module.exports = function(edges, source, options) {
 
 
 
-},{"./normalize.coffee":163}],167:[function(require,module,exports){
+},{"./normalize.coffee":165}],169:[function(require,module,exports){
 var defaultLocale;
 
 defaultLocale = require("../core/locale/languages/en_US.coffee");
 
 module.exports = function(number, opts) {
-  var affixes, key, labels, length, ret, symbol, time, vars;
-  if ("locale" in this) {
-    time = this.locale.value.time;
+  var affixes, format, key, labels, length, locale, ret, symbol, time, vars;
+  if ("locale" in opts) {
+    locale = opts.locale;
   } else {
-    time = defaultLocale.time;
+    locale = defaultLocale;
   }
+  time = locale.time.slice();
+  format = d3.locale(locale.format);
   if (!opts) {
     opts = {};
   }
@@ -28485,12 +28951,14 @@ module.exports = function(number, opts) {
   if (typeof key === "string" && time.indexOf(key.toLowerCase()) >= 0) {
     ret = number;
   } else if (key === "share") {
-    if (number >= 100) {
-      ret = d3.format(",f")(number);
+    if (number === 0) {
+      ret = 0;
+    } else if (number >= 100) {
+      ret = format.numberFormat(",f")(number);
     } else if (number > 99) {
-      ret = d3.format(".3g")(number);
+      ret = format.numberFormat(".3g")(number);
     } else {
-      ret = d3.format(".2g")(number);
+      ret = format.numberFormat(".2g")(number);
     }
     ret += "%";
   } else if (number < 10 && number > -10) {
@@ -28499,12 +28967,17 @@ module.exports = function(number, opts) {
     symbol = d3.formatPrefix(number).symbol;
     symbol = symbol.replace("G", "B");
     number = d3.formatPrefix(number).scale(number);
-    number = parseFloat(d3.format(".3g")(number));
+    number = format.numberFormat(".3g")(number);
+    number = number.replace(locale.format.decimal, ".");
+    number = parseFloat(number) + "";
+    number = number.replace(".", locale.format.decimal);
     ret = number + symbol;
   } else if (length === 3) {
-    ret = d3.format(",f")(number);
+    ret = format.numberFormat(",f")(number);
+  } else if (number === 0) {
+    ret = 0;
   } else {
-    ret = d3.format(".3g")(number);
+    ret = format.numberFormat(".3g")(number);
   }
   if (labels && key && "format" in vars && key in vars.format.affixes.value) {
     affixes = vars.format.affixes.value[key];
@@ -28516,7 +28989,7 @@ module.exports = function(number, opts) {
 
 
 
-},{"../core/locale/languages/en_US.coffee":74}],168:[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":74}],170:[function(require,module,exports){
 var d3selection, validate;
 
 d3selection = require("../util/d3selection.coffee");
@@ -28569,7 +29042,7 @@ module.exports = function(obj1, obj2) {
 
 
 
-},{"../util/d3selection.coffee":205,"./validate.coffee":169}],169:[function(require,module,exports){
+},{"../util/d3selection.coffee":207,"./validate.coffee":171}],171:[function(require,module,exports){
 
 /**
  * This function returns true if the variable passed is a literal javascript keyed Object. It's a small, simple function, but it catches some edge-cases that can throw off your code (such as Arrays and `null`).
@@ -28584,7 +29057,7 @@ module.exports = function(obj) {
 
 
 
-},{}],170:[function(require,module,exports){
+},{}],172:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Formats a string similar to Python's "format"
 //------------------------------------------------------------------------------
@@ -28615,7 +29088,7 @@ module.exports = function() {
 
 }
 
-},{}],171:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 var format, locale;
 
 format = require("./format.js");
@@ -28652,7 +29125,7 @@ module.exports = function(list, andText, max, moreText) {
 
 
 
-},{"../core/locale/languages/en_US.coffee":74,"./format.js":170}],172:[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":74,"./format.js":172}],174:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Removes all non ASCII characters
 //------------------------------------------------------------------------------
@@ -28704,7 +29177,7 @@ module.exports = function(str) {
 
 };
 
-},{}],173:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 var defaultLocale;
 
 defaultLocale = require("../core/locale/languages/en_US.coffee");
@@ -28758,7 +29231,7 @@ module.exports = function(text, opts) {
 
 
 
-},{"../core/locale/languages/en_US.coffee":74}],174:[function(require,module,exports){
+},{"../core/locale/languages/en_US.coffee":74}],176:[function(require,module,exports){
 var foreign, tspan;
 
 foreign = require("./foreign.coffee");
@@ -28775,7 +29248,7 @@ module.exports = function(vars) {
 
 
 
-},{"./foreign.coffee":175,"./tspan.coffee":178}],175:[function(require,module,exports){
+},{"./foreign.coffee":177,"./tspan.coffee":180}],177:[function(require,module,exports){
 module.exports = function(vars) {
   var anchor, color, family, opacity, text;
   text = vars.container.value;
@@ -28789,7 +29262,7 @@ module.exports = function(vars) {
 
 
 
-},{}],176:[function(require,module,exports){
+},{}],178:[function(require,module,exports){
 module.exports = function(vars) {
   var diff, elem, height, prev, radius, shape, size, width, x, y;
   elem = vars.container.value;
@@ -28807,7 +29280,7 @@ module.exports = function(vars) {
     if (shape === "rect") {
       x = parseFloat(prev.attr("x"), 10) || 0;
       y = parseFloat(prev.attr("y"), 10) || 0;
-      if (!vars.padding.value) {
+      if (vars.padding.value === false) {
         diff = Math.abs(x - vars.container.x);
         if (diff) {
           vars.self.padding(diff);
@@ -28833,7 +29306,7 @@ module.exports = function(vars) {
       x -= radius;
       y = parseFloat(prev.attr("cy"), 10) || 0;
       y -= radius;
-      if (!vars.padding.value) {
+      if (vars.padding.value === false) {
         diff = Math.abs(x - vars.container.x);
         if (diff) {
           vars.self.padding(diff);
@@ -28883,7 +29356,7 @@ module.exports = function(vars) {
 
 
 
-},{}],177:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 module.exports = function(vars) {
   var text;
   if (!vars.text.value) {
@@ -28913,7 +29386,7 @@ module.exports = function(vars) {
 
 
 
-},{}],178:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 module.exports = function(vars) {
   var anchor, dx, dy, ellipsis, fontSize, h, height, line, lineWidth, lines, mirror, newLine, placeWord, progress, reverse, rmod, rotate, rx, ry, space, start, textBox, translate, truncate, valign, width, words, wrap, x, y, yOffset;
   newLine = function(w, first) {
@@ -28962,13 +29435,12 @@ module.exports = function(vars) {
   vars.container.value.attr("text-anchor", anchor).attr("font-size", fontSize + "px").style("font-size", fontSize + "px").attr("x", vars.container.x).attr("y", vars.container.y);
   truncate = function() {
     textBox.remove();
-    line--;
-    if (line !== 1) {
-      if (reverse) {
-        textBox = vars.container.value.select("tspan");
-      } else {
-        textBox = d3.select(vars.container.value.node().lastChild);
-      }
+    if (reverse) {
+      line++;
+      textBox = vars.container.value.select("tspan");
+    } else {
+      line--;
+      textBox = d3.select(vars.container.value.node().lastChild);
     }
     if (!textBox.empty()) {
       words = textBox.text().match(/[^\s-]+-?/g);
@@ -28998,7 +29470,7 @@ module.exports = function(vars) {
         if (vars.text.split.value.indexOf(lastChar) >= 0) {
           lastWord = lastWord.substr(0, lastWord.length - 1);
         }
-        textBox.text(words.join(" ") + " " + lastWord + " ...");
+        textBox.text(words.join(" ") + " " + lastWord + "...");
         if (textBox.node().getComputedTextLength() > lineWidth()) {
           return ellipsis();
         }
@@ -29061,6 +29533,9 @@ module.exports = function(vars) {
         }
       }
     }
+    if (line * dy > height) {
+      truncate();
+    }
     return lines = Math.abs(line - start) + 1;
   };
   wrap();
@@ -29100,7 +29575,7 @@ module.exports = function(vars) {
 
 
 
-},{}],179:[function(require,module,exports){
+},{}],181:[function(require,module,exports){
 var flow, fontSizes, resize, wrap;
 
 flow = require("./flow.coffee");
@@ -29151,7 +29626,7 @@ resize = function(vars) {
   areaMod = 1.165 + (width / height * 0.11);
   textArea = d3.sum(sizes, function(d) {
     var h;
-    h = vars.container.dy || sizeMax * 1.1;
+    h = vars.container.dy || sizeMax * 1.2;
     return d.width * h;
   }) * areaMod;
   if (vars.shape.value === "circle") {
@@ -29181,7 +29656,7 @@ resize = function(vars) {
 
 
 
-},{"../../font/sizes.coffee":100,"./flow.coffee":174}],180:[function(require,module,exports){
+},{"../../font/sizes.coffee":102,"./flow.coffee":176}],182:[function(require,module,exports){
 module.exports = {
   accepted: [false, "start", "middle", "end", "left", "center", "right"],
   process: function(value) {
@@ -29197,7 +29672,7 @@ module.exports = {
 
 
 
-},{}],181:[function(require,module,exports){
+},{}],183:[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   objectAccess: false,
@@ -29216,7 +29691,7 @@ module.exports = {
 
 
 
-},{}],182:[function(require,module,exports){
+},{}],184:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -29241,7 +29716,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":205}],183:[function(require,module,exports){
+},{"../../util/d3selection.coffee":207}],185:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -29249,7 +29724,7 @@ module.exports = {
 
 
 
-},{}],184:[function(require,module,exports){
+},{}],186:[function(require,module,exports){
 var print, stringFormat;
 
 print = require("../../core/console/print.coffee");
@@ -29282,7 +29757,7 @@ module.exports = {
 
 
 
-},{"../../core/console/print.coffee":57,"../../string/format.js":170}],185:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../string/format.js":172}],187:[function(require,module,exports){
 var locale, mergeObject;
 
 locale = require("../../core/locale/locale.coffee");
@@ -29324,7 +29799,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":78,"../../object/merge.coffee":168}],186:[function(require,module,exports){
+},{"../../core/locale/locale.coffee":80,"../../object/merge.coffee":170}],188:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   value: false
@@ -29332,15 +29807,15 @@ module.exports = {
 
 
 
-},{}],187:[function(require,module,exports){
+},{}],189:[function(require,module,exports){
 module.exports = {
-  accepted: [Number],
-  value: 0
+  accepted: [false, Number],
+  value: false
 };
 
 
 
-},{}],188:[function(require,module,exports){
+},{}],190:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -29348,7 +29823,7 @@ module.exports = {
 
 
 
-},{}],189:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 module.exports = {
   accepted: [-180, -90, 0, 90, 180],
   value: 0
@@ -29356,7 +29831,7 @@ module.exports = {
 
 
 
-},{}],190:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 module.exports = {
   accepted: ["circle", "square"],
   value: false
@@ -29364,7 +29839,7 @@ module.exports = {
 
 
 
-},{}],191:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 module.exports = {
   accepted: [Array, false],
   value: false
@@ -29372,7 +29847,7 @@ module.exports = {
 
 
 
-},{}],192:[function(require,module,exports){
+},{}],194:[function(require,module,exports){
 module.exports = {
   accepted: [false, Array, Number, String],
   html: {
@@ -29393,25 +29868,9 @@ module.exports = {
 
 
 
-},{}],193:[function(require,module,exports){
-module.exports = {
-  accepted: [false, "top", "middle", "bottom"],
-  value: false
-};
-
-
-
-},{}],194:[function(require,module,exports){
-module.exports = {
-  accepted: [false, Number],
-  value: false
-};
-
-
-
 },{}],195:[function(require,module,exports){
 module.exports = {
-  accepted: [false, Number],
+  accepted: [false, "top", "middle", "bottom"],
   value: false
 };
 
@@ -29426,6 +29885,22 @@ module.exports = {
 
 
 },{}],197:[function(require,module,exports){
+module.exports = {
+  accepted: [false, Number],
+  value: false
+};
+
+
+
+},{}],198:[function(require,module,exports){
+module.exports = {
+  accepted: [false, Number],
+  value: false
+};
+
+
+
+},{}],199:[function(require,module,exports){
 var attach, print, sizes, text, wrap;
 
 attach = require("../core/methods/attach.coffee");
@@ -29481,7 +29956,7 @@ module.exports = function() {
 
 
 
-},{"../core/console/print.coffee":57,"../core/methods/attach.coffee":79,"./helpers/parseSize.coffee":176,"./helpers/parseText.coffee":177,"./helpers/wrap.coffee":179,"./methods/align.coffee":180,"./methods/config.coffee":181,"./methods/container.coffee":182,"./methods/dev.coffee":183,"./methods/draw.coffee":184,"./methods/format.coffee":185,"./methods/height.coffee":186,"./methods/padding.coffee":187,"./methods/resize.coffee":188,"./methods/rotate.coffee":189,"./methods/shape.coffee":190,"./methods/size.coffee":191,"./methods/text.coffee":192,"./methods/valign.coffee":193,"./methods/width.coffee":194,"./methods/x.coffee":195,"./methods/y.coffee":196}],198:[function(require,module,exports){
+},{"../core/console/print.coffee":57,"../core/methods/attach.coffee":81,"./helpers/parseSize.coffee":178,"./helpers/parseText.coffee":179,"./helpers/wrap.coffee":181,"./methods/align.coffee":182,"./methods/config.coffee":183,"./methods/container.coffee":184,"./methods/dev.coffee":185,"./methods/draw.coffee":186,"./methods/format.coffee":187,"./methods/height.coffee":188,"./methods/padding.coffee":189,"./methods/resize.coffee":190,"./methods/rotate.coffee":191,"./methods/shape.coffee":192,"./methods/size.coffee":193,"./methods/text.coffee":194,"./methods/valign.coffee":195,"./methods/width.coffee":196,"./methods/x.coffee":197,"./methods/y.coffee":198}],200:[function(require,module,exports){
 var defaultLocale = require("../core/locale/languages/en_US.coffee"),
     events        = require("../client/pointer.coffee"),
     legible       = require("../color/legible.coffee"),
@@ -30048,7 +30523,7 @@ function close_descriptions() {
   d3.selectAll("div.d3plus_tooltip_data_help").style("background-color","#ccc");
 }
 
-},{"../client/pointer.coffee":44,"../client/prefix.coffee":45,"../client/rtl.coffee":46,"../color/legible.coffee":49,"../color/text.coffee":55,"../core/locale/languages/en_US.coffee":74,"../string/list.coffee":171,"./move.coffee":199,"./remove.coffee":200}],199:[function(require,module,exports){
+},{"../client/pointer.coffee":44,"../client/prefix.coffee":45,"../client/rtl.coffee":46,"../color/legible.coffee":49,"../color/text.coffee":55,"../core/locale/languages/en_US.coffee":74,"../string/list.coffee":173,"./move.coffee":201,"./remove.coffee":202}],201:[function(require,module,exports){
 var arrowStyle;
 
 module.exports = function(x, y, id) {
@@ -30214,7 +30689,7 @@ arrowStyle = function(arrow) {
 
 
 
-},{}],200:[function(require,module,exports){
+},{}],202:[function(require,module,exports){
 module.exports = function(id) {
   if (id) {
     d3.selectAll("div#d3plus_tooltip_curtain_" + id).remove();
@@ -30227,7 +30702,7 @@ module.exports = function(id) {
 
 
 
-},{}],201:[function(require,module,exports){
+},{}],203:[function(require,module,exports){
 module.exports = function(arr, n) {
   var buckets, step;
   buckets = [];
@@ -30237,7 +30712,7 @@ module.exports = function(arr, n) {
 
 
 
-},{}],202:[function(require,module,exports){
+},{}],204:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("./d3selection.coffee");
@@ -30265,7 +30740,7 @@ module.exports = function(parent, child) {
 
 
 
-},{"./d3selection.coffee":205}],203:[function(require,module,exports){
+},{"./d3selection.coffee":207}],205:[function(require,module,exports){
 module.exports = function(arr, value) {
   var closest;
   closest = arr[0];
@@ -30279,7 +30754,7 @@ module.exports = function(arr, value) {
 
 
 
-},{}],204:[function(require,module,exports){
+},{}],206:[function(require,module,exports){
 var copy, objectMerge, objectValidate;
 
 objectMerge = require("../object/merge.coffee");
@@ -30305,7 +30780,7 @@ module.exports = copy;
 
 
 
-},{"../object/merge.coffee":168,"../object/validate.coffee":169}],205:[function(require,module,exports){
+},{"../object/merge.coffee":170,"../object/validate.coffee":171}],207:[function(require,module,exports){
 var ie;
 
 ie = require("../client/ie.js");
@@ -30320,7 +30795,7 @@ module.exports = function(elem) {
 
 
 
-},{"../client/ie.js":43}],206:[function(require,module,exports){
+},{"../client/ie.js":43}],208:[function(require,module,exports){
 module.exports = function(url, callback) {
   var img;
   img = new Image();
@@ -30340,7 +30815,7 @@ module.exports = function(url, callback) {
 
 
 
-},{}],207:[function(require,module,exports){
+},{}],209:[function(require,module,exports){
 var objectValidate, uniques;
 
 objectValidate = require("../object/validate.coffee");
@@ -30414,7 +30889,7 @@ module.exports = uniques;
 
 
 
-},{"../object/validate.coffee":169}],208:[function(require,module,exports){
+},{"../object/validate.coffee":171}],210:[function(require,module,exports){
 module.exports = function(vars) {
   var checkParent, i, len, ref, s;
   vars.container.value.style("position", function() {
@@ -30470,7 +30945,7 @@ module.exports = function(vars) {
 
 
 
-},{}],209:[function(require,module,exports){
+},{}],211:[function(require,module,exports){
 var dataFormat    = require("../../core/data/format.js"),
     dataColor     = require("../../core/data/color.js"),
     dataKeys      = require("../../core/data/keys.coffee"),
@@ -30843,7 +31318,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":57,"../../core/data/color.js":59,"../../core/data/format.js":61,"../../core/data/keys.coffee":63,"../../core/data/load.coffee":64,"../../core/fetch/data.js":69,"../../core/parse/edges.js":94,"../../core/parse/nodes.js":96,"../../object/validate.coffee":169,"../../string/format.js":170,"../../tooltip/remove.coffee":200,"./errorCheck.js":210,"./finish.js":211,"./focus/tooltip.coffee":212,"./focus/viz.js":213,"./shapes/draw.js":222,"./svg/enter.js":233,"./svg/update.js":234,"./types/run.coffee":237,"./ui/drawer.js":238,"./ui/history.coffee":239,"./ui/legend.js":240,"./ui/timeline.coffee":242,"./ui/titles.js":243}],210:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../core/data/color.js":59,"../../core/data/format.js":61,"../../core/data/keys.coffee":63,"../../core/data/load.coffee":64,"../../core/fetch/data.js":69,"../../core/parse/edges.js":96,"../../core/parse/nodes.js":98,"../../object/validate.coffee":171,"../../string/format.js":172,"../../tooltip/remove.coffee":202,"./errorCheck.js":212,"./finish.js":213,"./focus/tooltip.coffee":214,"./focus/viz.js":215,"./shapes/draw.js":224,"./svg/enter.js":235,"./svg/update.js":236,"./types/run.coffee":239,"./ui/drawer.js":240,"./ui/history.coffee":241,"./ui/legend.js":242,"./ui/timeline.coffee":244,"./ui/titles.js":245}],212:[function(require,module,exports){
 var fetchText    = require("../../core/fetch/text.js"),
     print        = require("../../core/console/print.coffee"),
     rejected     = require("../../core/methods/rejected.coffee"),
@@ -30960,7 +31435,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":57,"../../core/fetch/text.js":71,"../../core/methods/rejected.coffee":90,"../../string/format.js":170,"../../string/list.coffee":171}],211:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../core/fetch/text.js":71,"../../core/methods/rejected.coffee":92,"../../string/format.js":172,"../../string/list.coffee":173}],213:[function(require,module,exports){
 var edges = require("./shapes/edges.js"),
     flash       = require("./ui/message.js"),
     methodReset = require("../../core/methods/reset.coffee"),
@@ -31151,7 +31626,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../core/console/print.coffee":57,"../../core/methods/reset.coffee":92,"../../string/title.coffee":173,"./shapes/edges.js":223,"./shapes/labels.js":225,"./ui/message.js":241,"./zoom/bounds.coffee":244,"./zoom/labels.coffee":246,"./zoom/mouse.coffee":247}],212:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../core/methods/reset.coffee":94,"../../string/title.coffee":175,"./shapes/edges.js":225,"./shapes/labels.js":227,"./ui/message.js":243,"./zoom/bounds.coffee":246,"./zoom/labels.coffee":248,"./zoom/mouse.coffee":249}],214:[function(require,module,exports){
 var createTooltip, fetchValue, print, removeTooltip;
 
 createTooltip = require("../tooltip/create.js");
@@ -31205,7 +31680,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":72,"../../../tooltip/remove.coffee":200,"../tooltip/create.js":235}],213:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":72,"../../../tooltip/remove.coffee":202,"../tooltip/create.js":237}],215:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     fetchValue   = require("../../../core/fetch/value.coffee"),
     print        = require("../../../core/console/print.coffee"),
@@ -31364,7 +31839,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":72,"../../../util/uniques.coffee":207}],214:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":72,"../../../util/uniques.coffee":209}],216:[function(require,module,exports){
 var angles, largestRect, path2poly, shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -31461,7 +31936,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{"../../../geom/largestRect.coffee":158,"../../../geom/path2poly.coffee":160,"./style.coffee":229}],215:[function(require,module,exports){
+},{"../../../geom/largestRect.coffee":160,"../../../geom/path2poly.coffee":162,"./style.coffee":231}],217:[function(require,module,exports){
 var fetchText = require("../../../core/fetch/text.js"),
     fontSizes   = require("../../../font/sizes.coffee"),
     largestRect = require("../../../geom/largestRect.coffee"),
@@ -31496,39 +31971,44 @@ module.exports = function(vars, selection, enter, exit) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // "paths" Update
   //----------------------------------------------------------------------------
+
+  var style = {
+    "font-weight": vars.labels.font.weight,
+    "font-family": vars.labels.font.family.value
+  };
+
   selection.selectAll("path.d3plus_data")
     .data(function(d) {
 
       if (vars.labels.value && d.values.length > 1) {
 
-        var tops = []
-          , bottoms = []
-          , names = fetchText(vars,d)
+        var max = d3.max(d.values, function(v){
+          return v.d3plus.y0 - v.d3plus.y;
+        }), lr = false;
 
-        d.values.forEach(function(v){
-          tops.push([v.d3plus.x,v.d3plus.y])
-          bottoms.push([v.d3plus.x,v.d3plus.y0])
-        })
-        tops = tops.concat(bottoms.reverse())
+        if (max > vars.labels.font.size) {
 
-        var style = {
-          "font-weight": vars.labels.font.weight,
-          "font-family": vars.labels.font.family.value
+          var tops = [], bottoms = [], names = fetchText(vars, d);
+
+          d.values.forEach(function(v){
+            tops.push([v.d3plus.x,v.d3plus.y]);
+            bottoms.push([v.d3plus.x,v.d3plus.y0]);
+          });
+          tops = tops.concat(bottoms.reverse());
+
+          var ratio = null;
+          if (names.length) {
+            var size = fontSizes(names[0],style);
+            ratio = size[0].width/size[0].height;
+          }
+
+          lr = largestRect(tops,{
+            "angle": d3.range(-70, 71, 1),
+            "aspectRatio": ratio,
+            "tolerance": 0
+          });
+
         }
-
-        if (names.length) {
-          var size = fontSizes(names[0],style)
-            , ratio = size[0].width/size[0].height
-        }
-        else {
-          var ratio = null
-        }
-
-        var lr = largestRect(tops,{
-          "angle": d3.range(-70,71,1),
-          "aspectRatio": ratio,
-          "tolerance": 0
-        })
 
         if (lr && lr[0]) {
 
@@ -31577,7 +32057,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 }
 
-},{"../../../core/fetch/text.js":71,"../../../font/sizes.coffee":100,"../../../geom/largestRect.coffee":158,"./style.coffee":229}],216:[function(require,module,exports){
+},{"../../../core/fetch/text.js":71,"../../../font/sizes.coffee":102,"../../../geom/largestRect.coffee":160,"./style.coffee":231}],218:[function(require,module,exports){
 var fetchText = require("../../../core/fetch/text.js"),
     largestRect = require("../../../geom/largestRect.coffee"),
     shapeStyle  = require("./style.coffee")
@@ -31634,7 +32114,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"../../../core/fetch/text.js":71,"../../../geom/largestRect.coffee":158,"./style.coffee":229}],217:[function(require,module,exports){
+},{"../../../core/fetch/text.js":71,"../../../geom/largestRect.coffee":160,"./style.coffee":231}],219:[function(require,module,exports){
 var fetchColor, fetchValue, lighter, segments;
 
 fetchValue = require("../../../core/fetch/value.coffee");
@@ -31675,7 +32155,7 @@ module.exports = function(d, vars, stroke) {
 
 
 
-},{"../../../color/lighter.coffee":50,"../../../core/fetch/color.coffee":68,"../../../core/fetch/value.coffee":72,"./segments.coffee":228}],218:[function(require,module,exports){
+},{"../../../color/lighter.coffee":50,"../../../core/fetch/color.coffee":68,"../../../core/fetch/value.coffee":72,"./segments.coffee":230}],220:[function(require,module,exports){
 var copy, distance, fetchText, fontSizes, labels, largestRect, path2poly, shapeStyle;
 
 copy = require("../../../util/copy.coffee");
@@ -31832,7 +32312,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{"../../../core/fetch/text.js":71,"../../../font/sizes.coffee":100,"../../../geom/largestRect.coffee":158,"../../../geom/path2poly.coffee":160,"../../../network/distance.coffee":162,"../../../util/copy.coffee":204,"./style.coffee":229}],219:[function(require,module,exports){
+},{"../../../core/fetch/text.js":71,"../../../font/sizes.coffee":102,"../../../geom/largestRect.coffee":160,"../../../geom/path2poly.coffee":162,"../../../network/distance.coffee":164,"../../../util/copy.coffee":206,"./style.coffee":231}],221:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -31885,7 +32365,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":229}],220:[function(require,module,exports){
+},{"./style.coffee":231}],222:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -31938,7 +32418,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":229}],221:[function(require,module,exports){
+},{"./style.coffee":231}],223:[function(require,module,exports){
 var shapeStyle = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "donut" shapes using svg:path with arcs
@@ -32076,7 +32556,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 };
 
-},{"./style.coffee":229}],222:[function(require,module,exports){
+},{"./style.coffee":231}],224:[function(require,module,exports){
 var child         = require("../../../util/child.coffee"),
     closest       = require("../../../util/closest.coffee"),
     createTooltip = require("../tooltip/create.js"),
@@ -32780,7 +33260,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../client/touch.coffee":48,"../../../color/legible.coffee":49,"../../../core/console/print.coffee":57,"../../../core/fetch/color.coffee":68,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../object/validate.coffee":169,"../../../string/strip.js":172,"../../../tooltip/remove.coffee":200,"../../../util/child.coffee":202,"../../../util/closest.coffee":203,"../../../util/uniques.coffee":207,"../tooltip/create.js":235,"../zoom/direction.coffee":245,"../zoom/propagation.coffee":248,"./arc.coffee":214,"./area.js":215,"./check.js":216,"./coordinates.coffee":218,"./cross.js":219,"./diamond.js":220,"./donut.js":221,"./fill.js":224,"./line.js":226,"./rect.coffee":227,"./segments.coffee":228,"./triangle_down.js":230,"./triangle_up.js":231,"./whisker.coffee":232}],223:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../client/touch.coffee":48,"../../../color/legible.coffee":49,"../../../core/console/print.coffee":57,"../../../core/fetch/color.coffee":68,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../object/validate.coffee":171,"../../../string/strip.js":174,"../../../tooltip/remove.coffee":202,"../../../util/child.coffee":204,"../../../util/closest.coffee":205,"../../../util/uniques.coffee":209,"../tooltip/create.js":237,"../zoom/direction.coffee":247,"../zoom/propagation.coffee":250,"./arc.coffee":216,"./area.js":217,"./check.js":218,"./coordinates.coffee":220,"./cross.js":221,"./diamond.js":222,"./donut.js":223,"./fill.js":226,"./line.js":228,"./rect.coffee":229,"./segments.coffee":230,"./triangle_down.js":232,"./triangle_up.js":233,"./whisker.coffee":234}],225:[function(require,module,exports){
 var buckets = require("../../../util/buckets.coffee"),
     offset  = require("../../../geom/offset.coffee");
 
@@ -33349,7 +33829,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../geom/offset.coffee":159,"../../../util/buckets.coffee":201}],224:[function(require,module,exports){
+},{"../../../geom/offset.coffee":161,"../../../util/buckets.coffee":203}],226:[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchColor = require("../../../core/fetch/color.coffee"),
     fetchValue = require("../../../core/fetch/value.coffee"),
@@ -33630,7 +34110,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 };
 
-},{"../../../core/fetch/color.coffee":68,"../../../core/fetch/value.coffee":72,"../../../util/copy.coffee":204,"./segments.coffee":228,"./style.coffee":229}],225:[function(require,module,exports){
+},{"../../../core/fetch/color.coffee":68,"../../../core/fetch/value.coffee":72,"../../../util/copy.coffee":206,"./segments.coffee":230,"./style.coffee":231}],227:[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     fetchText  = require("../../../core/fetch/text.js"),
     fetchValue = require("../../../core/fetch/value.coffee"),
@@ -34069,7 +34549,7 @@ module.exports = function( vars , group ) {
   }
 }
 
-},{"../../../client/rtl.coffee":46,"../../../color/mix.coffee":51,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../string/list.coffee":171,"../../../textwrap/textwrap.coffee":197,"../../../util/copy.coffee":204,"./color.coffee":217,"./segments.coffee":228}],226:[function(require,module,exports){
+},{"../../../client/rtl.coffee":46,"../../../color/mix.coffee":51,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../string/list.coffee":173,"../../../textwrap/textwrap.coffee":199,"../../../util/copy.coffee":206,"./color.coffee":219,"./segments.coffee":230}],228:[function(require,module,exports){
 var copy       = require("../../../util/copy.coffee"),
     closest    = require("../../../util/closest.coffee"),
     events     = require("../../../client/pointer.coffee"),
@@ -34370,7 +34850,7 @@ function mouseStyle(vars, elem, stroke, mod) {
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../core/fetch/value.coffee":72,"../../../util/closest.coffee":203,"../../../util/copy.coffee":204,"./style.coffee":229}],227:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../core/fetch/value.coffee":72,"../../../util/closest.coffee":205,"../../../util/copy.coffee":206,"./style.coffee":231}],229:[function(require,module,exports){
 var shapeStyle;
 
 shapeStyle = require("./style.coffee");
@@ -34502,7 +34982,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{"./style.coffee":229}],228:[function(require,module,exports){
+},{"./style.coffee":231}],230:[function(require,module,exports){
 var fetchValue;
 
 fetchValue = require("../../../core/fetch/value.coffee");
@@ -34523,7 +35003,7 @@ module.exports = function(vars, d, segment) {
 
 
 
-},{"../../../core/fetch/value.coffee":72}],229:[function(require,module,exports){
+},{"../../../core/fetch/value.coffee":72}],231:[function(require,module,exports){
 var color;
 
 color = require("./color.coffee");
@@ -34552,7 +35032,7 @@ module.exports = function(nodes, vars) {
 
 
 
-},{"./color.coffee":217}],230:[function(require,module,exports){
+},{"./color.coffee":219}],232:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -34605,7 +35085,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":229}],231:[function(require,module,exports){
+},{"./style.coffee":231}],233:[function(require,module,exports){
 var shapeStyle  = require("./style.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Draws "square" and "circle" shapes using svg:rect
@@ -34658,7 +35138,7 @@ module.exports = function(vars,selection,enter,exit) {
 
 }
 
-},{"./style.coffee":229}],232:[function(require,module,exports){
+},{"./style.coffee":231}],234:[function(require,module,exports){
 module.exports = function(vars, selection, enter, exit) {
   var d, data, init, marker, orient, pos, position, size, style;
   data = function(d) {
@@ -34744,7 +35224,7 @@ module.exports = function(vars, selection, enter, exit) {
 
 
 
-},{}],233:[function(require,module,exports){
+},{}],235:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     prefix     = require("../../../client/prefix.coffee"),
     print      = require("../../../core/console/print.coffee"),
@@ -34921,7 +35401,7 @@ module.exports = function(vars) {
 
 };
 
-},{"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../client/touch.coffee":48,"../../../core/console/print.coffee":57,"../zoom/propagation.coffee":248}],234:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../client/touch.coffee":48,"../../../core/console/print.coffee":57,"../zoom/propagation.coffee":250}],236:[function(require,module,exports){
 var print = require("../../../core/console/print.coffee")
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Updating Elements
@@ -34989,7 +35469,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../core/console/print.coffee":57}],235:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57}],237:[function(require,module,exports){
 var arraySort     = require("../../../array/sort.coffee"),
     createTooltip = require("../../../tooltip/create.js"),
     dataNest      = require("../../../core/data/nest.js"),
@@ -35239,7 +35719,7 @@ module.exports = function(params) {
         title = id;
       }
 
-      var depth = "d3plus" in d && "merged" in d.d3plus ? dataDepth - 1 : dataDepth
+      var depth = "d3plus" in d && "merged" in d.d3plus ? dataDepth - 1 : "depth" in params ? params.depth : dataDepth;
 
       if (depth < 0) depth = 0
 
@@ -35332,7 +35812,7 @@ module.exports = function(params) {
 
 }
 
-},{"../../../array/sort.coffee":40,"../../../core/data/nest.js":65,"../../../core/fetch/color.coffee":68,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../object/merge.coffee":168,"../../../object/validate.coffee":169,"../../../tooltip/create.js":198,"../../../tooltip/remove.coffee":200,"../../../util/uniques.coffee":207,"../shapes/segments.coffee":228,"../zoom/direction.coffee":245,"./data.js":236}],236:[function(require,module,exports){
+},{"../../../array/sort.coffee":40,"../../../core/data/nest.js":65,"../../../core/fetch/color.coffee":68,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../object/merge.coffee":170,"../../../object/validate.coffee":171,"../../../tooltip/create.js":200,"../../../tooltip/remove.coffee":202,"../../../util/uniques.coffee":209,"../shapes/segments.coffee":230,"../zoom/direction.coffee":247,"./data.js":238}],238:[function(require,module,exports){
 var copy = require("../../../util/copy.coffee"),
     fetchValue   = require("../../../core/fetch/value.coffee"),
     fetchColor   = require("../../../core/fetch/color.coffee"),
@@ -35597,7 +36077,7 @@ module.exports = function(vars, id, length, extras, children, depth) {
 
 }
 
-},{"../../../client/prefix.coffee":45,"../../../color/legible.coffee":49,"../../../core/fetch/color.coffee":68,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../object/merge.coffee":168,"../../../object/validate.coffee":169,"../../../string/format.js":170,"../../../util/copy.coffee":204}],237:[function(require,module,exports){
+},{"../../../client/prefix.coffee":45,"../../../color/legible.coffee":49,"../../../core/fetch/color.coffee":68,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../object/merge.coffee":170,"../../../object/validate.coffee":171,"../../../string/format.js":172,"../../../util/copy.coffee":206}],239:[function(require,module,exports){
 var print;
 
 print = require("../../../core/console/print.coffee");
@@ -35649,7 +36129,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../core/console/print.coffee":57}],238:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57}],240:[function(require,module,exports){
 var copy        = require("../../../util/copy.coffee"),
     form        = require("../../../form/form.js"),
     print       = require("../../../core/console/print.coffee"),
@@ -35784,7 +36264,7 @@ module.exports = function( vars ) {
 
 };
 
-},{"../../../core/console/print.coffee":57,"../../../form/form.js":102,"../../../object/validate.coffee":169,"../../../util/copy.coffee":204}],239:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57,"../../../form/form.js":104,"../../../object/validate.coffee":171,"../../../util/copy.coffee":206}],241:[function(require,module,exports){
 var events, lighter, print, stylesheet;
 
 events = require("../../../client/pointer.coffee");
@@ -35866,7 +36346,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../client/css.coffee":42,"../../../client/pointer.coffee":44,"../../../color/lighter.coffee":50,"../../../core/console/print.coffee":57}],240:[function(require,module,exports){
+},{"../../../client/css.coffee":42,"../../../client/pointer.coffee":44,"../../../color/lighter.coffee":50,"../../../core/console/print.coffee":57}],242:[function(require,module,exports){
 var arraySort = require("../../../array/sort.coffee"),
     buckets       = require("../../../util/buckets.coffee"),
     copy          = require("../../../util/copy.coffee"),
@@ -35940,7 +36420,7 @@ module.exports = function(vars) {
               }),
               uniqueColors = uniqueValues(data, colorFunction);
 
-          if (uniqueIDs.length <= uniqueColors.length && uniqueColors.length > 1) {
+          if (uniqueIDs.length >= uniqueColors.length && uniqueColors.length > 1) {
             break;
           }
 
@@ -35949,7 +36429,7 @@ module.exports = function(vars) {
       }
 
       var legendNesting = [vars.color.value];
-      if (vars.icon.value && vars.legend.icons.value) legendNesting.push(vars.icon.value);
+      // if (vars.icon.value && vars.legend.icons.value) legendNesting.push(vars.icon.value);
       var colors = dataNest(vars, data, legendNesting, []);
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
@@ -36189,6 +36669,7 @@ module.exports = function(vars) {
 
               createTooltip({
                 "data": d,
+                "depth": colorDepth,
                 "footer": false,
                 "vars": vars,
                 "x": x,
@@ -36460,7 +36941,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../array/sort.coffee":40,"../../../client/pointer.coffee":44,"../../../client/touch.coffee":48,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/data/nest.js":65,"../../../core/fetch/color.coffee":68,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../object/validate.coffee":169,"../../../string/strip.js":172,"../../../textwrap/textwrap.coffee":197,"../../../tooltip/remove.coffee":200,"../../../util/buckets.coffee":201,"../../../util/copy.coffee":204,"../../../util/dataURL.coffee":206,"../../../util/uniques.coffee":207,"../tooltip/create.js":235}],241:[function(require,module,exports){
+},{"../../../array/sort.coffee":40,"../../../client/pointer.coffee":44,"../../../client/touch.coffee":48,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/data/nest.js":65,"../../../core/fetch/color.coffee":68,"../../../core/fetch/text.js":71,"../../../core/fetch/value.coffee":72,"../../../object/validate.coffee":171,"../../../string/strip.js":174,"../../../textwrap/textwrap.coffee":199,"../../../tooltip/remove.coffee":202,"../../../util/buckets.coffee":203,"../../../util/copy.coffee":206,"../../../util/dataURL.coffee":208,"../../../util/uniques.coffee":209,"../tooltip/create.js":237}],243:[function(require,module,exports){
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -36573,7 +37054,7 @@ module.exports = function(vars,message) {
 
 }
 
-},{}],242:[function(require,module,exports){
+},{}],244:[function(require,module,exports){
 var closest, css, events, fontSizes, mix, playInterval, prefix, print, textColor, timeDetect;
 
 closest = require("../../../util/closest.coffee");
@@ -36623,7 +37104,6 @@ module.exports = function(vars) {
         d = init[i];
         if (d.constructor !== Date) {
           d = new Date(d.toString());
-          d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
           init[i] = d;
         }
       }
@@ -36951,7 +37431,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../client/css.coffee":42,"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../color/mix.coffee":51,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/data/time.coffee":67,"../../../font/sizes.coffee":100,"../../../util/closest.coffee":203}],243:[function(require,module,exports){
+},{"../../../client/css.coffee":42,"../../../client/pointer.coffee":44,"../../../client/prefix.coffee":45,"../../../color/mix.coffee":51,"../../../color/text.coffee":55,"../../../core/console/print.coffee":57,"../../../core/data/time.coffee":67,"../../../font/sizes.coffee":102,"../../../util/closest.coffee":205}],245:[function(require,module,exports){
 var events = require("../../../client/pointer.coffee"),
     fetchValue = require("../../../core/fetch/value.coffee"),
     print      = require("../../../core/console/print.coffee"),
@@ -37025,7 +37505,7 @@ module.exports = function(vars) {
           var pct = (total/overall_total)*100,
               ot = vars.format.value(overall_total, {"key": vars.size.value, "vars": vars});
 
-          pct = " ("+vars.format.value(pct,{"key": "share", "vars": vars})+"% of "+ot+")";
+          pct = " ("+vars.format.value(pct,{"key": "share", "vars": vars})+" of "+ot+")";
 
         }
       }
@@ -37259,7 +37739,7 @@ module.exports = function(vars) {
 
 }
 
-},{"../../../client/pointer.coffee":44,"../../../client/rtl.coffee":46,"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":72,"../../../textwrap/textwrap.coffee":197}],244:[function(require,module,exports){
+},{"../../../client/pointer.coffee":44,"../../../client/rtl.coffee":46,"../../../core/console/print.coffee":57,"../../../core/fetch/value.coffee":72,"../../../textwrap/textwrap.coffee":199}],246:[function(require,module,exports){
 var labels, transform;
 
 labels = require("./labels.coffee");
@@ -37311,7 +37791,7 @@ module.exports = function(vars, b, timing) {
 
 
 
-},{"./labels.coffee":246,"./transform.coffee":249}],245:[function(require,module,exports){
+},{"./labels.coffee":248,"./transform.coffee":251}],247:[function(require,module,exports){
 module.exports = function(data, vars) {
   var depth, max_depth, nextDepth;
   max_depth = vars.id.nesting.length - 1;
@@ -37330,7 +37810,7 @@ module.exports = function(data, vars) {
 
 
 
-},{}],246:[function(require,module,exports){
+},{}],248:[function(require,module,exports){
 var print;
 
 print = require("../../../core/console/print.coffee");
@@ -37368,7 +37848,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../core/console/print.coffee":57}],247:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57}],249:[function(require,module,exports){
 var labels, transform;
 
 labels = require("./labels.coffee");
@@ -37418,7 +37898,7 @@ module.exports = function(vars) {
 
 
 
-},{"./labels.coffee":246,"./transform.coffee":249}],248:[function(require,module,exports){
+},{"./labels.coffee":248,"./transform.coffee":251}],250:[function(require,module,exports){
 module.exports = function(vars, event) {
   var enabled, zoom, zoomable, zoomed;
   zoom = vars.zoom;
@@ -37435,7 +37915,7 @@ module.exports = function(vars, event) {
 
 
 
-},{}],249:[function(require,module,exports){
+},{}],251:[function(require,module,exports){
 module.exports = function(vars, timing) {
   var translate;
   if (typeof timing !== "number") {
@@ -37452,7 +37932,7 @@ module.exports = function(vars, timing) {
 
 
 
-},{}],250:[function(require,module,exports){
+},{}],252:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37472,7 +37952,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],251:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],253:[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   deprecated: "nesting_aggs",
@@ -37482,7 +37962,7 @@ module.exports = {
 
 
 
-},{}],252:[function(require,module,exports){
+},{}],254:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -37504,7 +37984,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/data.coffee":86}],253:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":88}],255:[function(require,module,exports){
 var rendering;
 
 rendering = require("../../core/methods/rendering.coffee");
@@ -37527,7 +38007,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/rendering.coffee":91}],254:[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":93}],256:[function(require,module,exports){
 module.exports = {
   accepted: [String],
   value: "#ffffff"
@@ -37535,7 +38015,7 @@ module.exports = {
 
 
 
-},{}],255:[function(require,module,exports){
+},{}],257:[function(require,module,exports){
 var filter, scale;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37573,7 +38053,7 @@ module.exports = {
 
 
 
-},{"../../color/scale.coffee":53,"../../core/methods/filter.coffee":80}],256:[function(require,module,exports){
+},{"../../color/scale.coffee":53,"../../core/methods/filter.coffee":82}],258:[function(require,module,exports){
 module.exports = {
   "accepted": [Array, Function, String],
   "index": {
@@ -37587,7 +38067,7 @@ module.exports = {
   "value": false
 }
 
-},{}],257:[function(require,module,exports){
+},{}],259:[function(require,module,exports){
 module.exports = {
   accepted: [Object],
   objectAccess: false,
@@ -37606,7 +38086,7 @@ module.exports = {
 
 
 
-},{}],258:[function(require,module,exports){
+},{}],260:[function(require,module,exports){
 var d3selection;
 
 d3selection = require("../../util/d3selection.coffee");
@@ -37630,7 +38110,7 @@ module.exports = {
 
 
 
-},{"../../util/d3selection.coffee":205}],259:[function(require,module,exports){
+},{"../../util/d3selection.coffee":207}],261:[function(require,module,exports){
 var filter, process;
 
 filter = require("../../core/methods/filter.coffee");
@@ -37665,7 +38145,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80,"../../core/methods/process/data.coffee":86}],260:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82,"../../core/methods/process/data.coffee":88}],262:[function(require,module,exports){
 var fetchValue, ie, stringStrip;
 
 fetchValue = require("../../core/fetch/value.coffee");
@@ -37675,11 +38155,11 @@ ie = require("../../client/ie.js");
 stringStrip = require("../../string/strip.js");
 
 module.exports = {
-  accepted: [void 0, Array, String],
+  accepted: [void 0, true, Array, String],
   chainable: false,
   data: [],
   process: function(value, vars) {
-    var blob, c, col, columns, csv_data, csv_to_return, dataString, encodedUri, i, j, k, l, len, len1, len2, len3, len4, len5, link, m, max_filename_len, n, node, o, ref, ref1, row, title, titles, val;
+    var blob, c, col, columns, csv_data, csv_to_return, d, dataString, encodedUri, i, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, link, m, max_filename_len, n, node, o, p, q, ref, ref1, ref2, row, title, titles, val;
     if (vars.returned === void 0) {
       return [];
     }
@@ -37702,49 +38182,71 @@ module.exports = {
     } else {
       title = "D3plus Visualization Data";
     }
-    if (!columns) {
-      columns = [vars.id.value];
-      if (vars.time.value) {
-        columns.push(vars.time.value);
-      }
-      if (vars.size.value) {
-        columns.push(vars.size.value);
-      }
-      if (vars.text.value) {
-        columns.push(vars.text.value);
-      }
-    }
-    for (j = 0, len = columns.length; j < len; j++) {
-      c = columns[j];
-      titles.push(vars.format.value(c));
-    }
-    csv_to_return.push(titles);
-    ref = vars.returned.nodes;
-    for (k = 0, len1 = ref.length; k < len1; k++) {
-      node = ref[k];
-      console.log(node.values);
-      if ((node.values != null) && node.values instanceof Array) {
-        ref1 = node.values;
-        for (l = 0, len2 = ref1.length; l < len2; l++) {
-          val = ref1[l];
-          row = [];
-          for (m = 0, len3 = columns.length; m < len3; m++) {
-            col = columns[m];
-            row.push(fetchValue(vars, val, col));
-          }
-          csv_to_return.push(row);
-        }
-      } else {
+    if (value === true) {
+      columns = d3.keys(vars.data.keys);
+      csv_to_return.push(columns);
+      ref = vars.data.value;
+      for (j = 0, len = ref.length; j < len; j++) {
+        d = ref[j];
         row = [];
-        for (n = 0, len4 = columns.length; n < len4; n++) {
-          col = columns[n];
-          row.push(fetchValue(vars, node, col));
+        for (k = 0, len1 = columns.length; k < len1; k++) {
+          c = columns[k];
+          val = d[c];
+          if (vars.data.keys[c] === "string") {
+            val = '"' + val + '"';
+          }
+          row.push(val);
         }
         csv_to_return.push(row);
       }
+    } else {
+      if (!columns) {
+        columns = [vars.id.value];
+        if (vars.time.value) {
+          columns.push(vars.time.value);
+        }
+        if (vars.size.value) {
+          columns.push(vars.size.value);
+        }
+        if (vars.text.value) {
+          columns.push(vars.text.value);
+        }
+      }
+      for (l = 0, len2 = columns.length; l < len2; l++) {
+        c = columns[l];
+        titles.push(vars.format.value(c));
+      }
+      csv_to_return.push(titles);
+      ref1 = vars.returned.nodes;
+      for (m = 0, len3 = ref1.length; m < len3; m++) {
+        node = ref1[m];
+        if ((node.values != null) && node.values instanceof Array) {
+          ref2 = node.values;
+          for (n = 0, len4 = ref2.length; n < len4; n++) {
+            val = ref2[n];
+            row = [];
+            for (o = 0, len5 = columns.length; o < len5; o++) {
+              col = columns[o];
+              val = fetchValue(vars, val, col);
+              if (typeof val === "string") {
+                val = '"' + val + '"';
+              }
+              row.push(val);
+            }
+            csv_to_return.push(row);
+          }
+        } else {
+          row = [];
+          for (p = 0, len6 = columns.length; p < len6; p++) {
+            col = columns[p];
+            row.push(fetchValue(vars, node, col));
+          }
+          csv_to_return.push(row);
+        }
+      }
     }
     csv_data = "data:text/csv;charset=utf-8,";
-    for (i = o = 0, len5 = csv_to_return.length; o < len5; i = ++o) {
+    for (i = q = 0, len7 = csv_to_return.length; q < len7; i = ++q) {
       c = csv_to_return[i];
       dataString = c.join(",");
       csv_data += (i < csv_to_return.length ? dataString + "\n" : dataString);
@@ -37769,7 +38271,7 @@ module.exports = {
 
 
 
-},{"../../client/ie.js":43,"../../core/fetch/value.coffee":72,"../../string/strip.js":172}],261:[function(require,module,exports){
+},{"../../client/ie.js":43,"../../core/fetch/value.coffee":72,"../../string/strip.js":174}],263:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -37814,7 +38316,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/data.coffee":86}],262:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":88}],264:[function(require,module,exports){
 module.exports = {
   accepted: [Function, Number],
   value: 0
@@ -37822,7 +38324,7 @@ module.exports = {
 
 
 
-},{}],263:[function(require,module,exports){
+},{}],265:[function(require,module,exports){
 module.exports = {
   accepted: [false, Function, Object],
   value: false
@@ -37830,7 +38332,7 @@ module.exports = {
 
 
 
-},{}],264:[function(require,module,exports){
+},{}],266:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   value: false
@@ -37838,7 +38340,7 @@ module.exports = {
 
 
 
-},{}],265:[function(require,module,exports){
+},{}],267:[function(require,module,exports){
 var print        = require("../../core/console/print.coffee"),
     stringFormat = require("../../string/format.js")
 
@@ -37899,7 +38401,7 @@ module.exports = {
   "value"    : undefined
 }
 
-},{"../../core/console/print.coffee":57,"../../string/format.js":170}],266:[function(require,module,exports){
+},{"../../core/console/print.coffee":57,"../../string/format.js":172}],268:[function(require,module,exports){
 var process = require("../../core/methods/process/data.coffee");
 
 module.exports = {
@@ -38000,7 +38502,7 @@ module.exports = {
   "value":  false
 };
 
-},{"../../core/methods/process/data.coffee":86}],267:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":88}],269:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean, String],
   value: false
@@ -38008,7 +38510,7 @@ module.exports = {
 
 
 
-},{}],268:[function(require,module,exports){
+},{}],270:[function(require,module,exports){
 module.exports = {
   accepted: [false, Array, Function, Number, String],
   deprecates: "highlight",
@@ -38030,7 +38532,7 @@ module.exports = {
 
 
 
-},{}],269:[function(require,module,exports){
+},{}],271:[function(require,module,exports){
 var align, decoration, family, transform;
 
 align = require("../../core/methods/font/align.coffee");
@@ -38064,7 +38566,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":81,"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85}],270:[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":83,"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87}],272:[function(require,module,exports){
 var decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -38092,7 +38594,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85}],271:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87}],273:[function(require,module,exports){
 var formatNumber, locale, mergeObject, titleCase;
 
 formatNumber = require("../../number/format.coffee");
@@ -38152,6 +38654,9 @@ module.exports = {
     if (!opts) {
       opts = {};
     }
+    if (!opts.locale) {
+      opts.locale = this.locale.value;
+    }
     vars = opts.vars || {};
     if (vars.time && vars.time.value && opts.key === vars.time.value) {
       v = value.constructor === Date ? value : new Date(value);
@@ -38170,7 +38675,7 @@ module.exports = {
 
 
 
-},{"../../core/locale/locale.coffee":78,"../../number/format.coffee":167,"../../object/merge.coffee":168,"../../string/title.coffee":173}],272:[function(require,module,exports){
+},{"../../core/locale/locale.coffee":80,"../../number/format.coffee":169,"../../object/merge.coffee":170,"../../string/title.coffee":175}],274:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   max: 600,
@@ -38181,7 +38686,7 @@ module.exports = {
 
 
 
-},{}],273:[function(require,module,exports){
+},{}],275:[function(require,module,exports){
 var align, decoration, family, filter, position, rendering, transform;
 
 align = require("../../../core/methods/font/align.coffee");
@@ -38386,7 +38891,7 @@ module.exports = function(axis) {
 
 
 
-},{"../../../core/methods/filter.coffee":80,"../../../core/methods/font/align.coffee":81,"../../../core/methods/font/decoration.coffee":82,"../../../core/methods/font/family.coffee":83,"../../../core/methods/font/position.coffee":84,"../../../core/methods/font/transform.coffee":85,"../../../core/methods/rendering.coffee":91}],274:[function(require,module,exports){
+},{"../../../core/methods/filter.coffee":82,"../../../core/methods/font/align.coffee":83,"../../../core/methods/font/decoration.coffee":84,"../../../core/methods/font/family.coffee":85,"../../../core/methods/font/position.coffee":86,"../../../core/methods/font/transform.coffee":87,"../../../core/methods/rendering.coffee":93}],276:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   back: function() {
@@ -38409,7 +38914,7 @@ module.exports = {
 
 
 
-},{}],275:[function(require,module,exports){
+},{}],277:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/icon.coffee");
@@ -38435,7 +38940,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/icon.coffee":88}],276:[function(require,module,exports){
+},{"../../core/methods/process/icon.coffee":90}],278:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -38456,7 +38961,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],277:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],279:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -38505,7 +39010,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85}],278:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87}],280:[function(require,module,exports){
 var family;
 
 family = require("../../core/methods/font/family.coffee");
@@ -38549,7 +39054,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/family.coffee":83}],279:[function(require,module,exports){
+},{"../../core/methods/font/family.coffee":85}],281:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -38577,7 +39082,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85}],280:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87}],282:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/margin.coffee");
@@ -38598,7 +39103,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/margin.coffee":89}],281:[function(require,module,exports){
+},{"../../core/methods/process/margin.coffee":91}],283:[function(require,module,exports){
 var decoration, family, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -38627,7 +39132,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85}],282:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87}],284:[function(require,module,exports){
 var process;
 
 process = require("../../core/methods/process/data.coffee");
@@ -38649,7 +39154,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/process/data.coffee":86}],283:[function(require,module,exports){
+},{"../../core/methods/process/data.coffee":88}],285:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean, Function, String],
   agg: {
@@ -38666,7 +39171,7 @@ module.exports = {
 
 
 
-},{}],284:[function(require,module,exports){
+},{}],286:[function(require,module,exports){
 var rendering;
 
 rendering = require("../../core/methods/rendering.coffee");
@@ -38695,7 +39200,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/rendering.coffee":91}],285:[function(require,module,exports){
+},{"../../core/methods/rendering.coffee":93}],287:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -38730,14 +39235,14 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],286:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],288:[function(require,module,exports){
 module.exports = {
   value: false
 };
 
 
 
-},{}],287:[function(require,module,exports){
+},{}],289:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -38752,7 +39257,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],288:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],290:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -38768,7 +39273,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],289:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],291:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -38793,7 +39298,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],290:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],292:[function(require,module,exports){
 module.exports = {
   accepted: [Boolean],
   align: "middle",
@@ -38836,7 +39341,7 @@ module.exports = {
 
 
 
-},{}],291:[function(require,module,exports){
+},{}],293:[function(require,module,exports){
 module.exports = {
   mouseevents: 60,
   transitions: 600,
@@ -38845,7 +39350,7 @@ module.exports = {
 
 
 
-},{}],292:[function(require,module,exports){
+},{}],294:[function(require,module,exports){
 var decoration, family, stringStrip, transform;
 
 decoration = require("../../core/methods/font/decoration.coffee");
@@ -38922,7 +39427,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85,"../../string/strip.js":172}],293:[function(require,module,exports){
+},{"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87,"../../string/strip.js":174}],295:[function(require,module,exports){
 var family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -38981,7 +39486,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85}],294:[function(require,module,exports){
+},{"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87}],296:[function(require,module,exports){
 var filter;
 
 filter = require("../../core/methods/filter.coffee");
@@ -38996,7 +39501,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/filter.coffee":80}],295:[function(require,module,exports){
+},{"../../core/methods/filter.coffee":82}],297:[function(require,module,exports){
 module.exports = {
   accepted: function(vars) {
     return d3.keys(vars.types);
@@ -39012,7 +39517,7 @@ module.exports = {
 
 
 
-},{}],296:[function(require,module,exports){
+},{}],298:[function(require,module,exports){
 var align, decoration, family, transform;
 
 family = require("../../core/methods/font/family.coffee");
@@ -39067,7 +39572,7 @@ module.exports = {
 
 
 
-},{"../../core/methods/font/align.coffee":81,"../../core/methods/font/decoration.coffee":82,"../../core/methods/font/family.coffee":83,"../../core/methods/font/transform.coffee":85}],297:[function(require,module,exports){
+},{"../../core/methods/font/align.coffee":83,"../../core/methods/font/decoration.coffee":84,"../../core/methods/font/family.coffee":85,"../../core/methods/font/transform.coffee":87}],299:[function(require,module,exports){
 module.exports = {
   accepted: [false, Number],
   secondary: false,
@@ -39077,7 +39582,7 @@ module.exports = {
 
 
 
-},{}],298:[function(require,module,exports){
+},{}],300:[function(require,module,exports){
 module.exports = {
   "accepted"   : [ Boolean ],
   "behavior"   : d3.behavior.zoom().scaleExtent([ 1 , 1 ]).duration(0),
@@ -39097,7 +39602,7 @@ module.exports = {
   "value"      : true
 }
 
-},{}],299:[function(require,module,exports){
+},{}],301:[function(require,module,exports){
 var bar, fetchValue, graph, nest, stack, uniques,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -39207,12 +39712,19 @@ bar.filter = function(vars, data) {
 bar.requirements = ["data", "x", "y"];
 
 bar.setup = function(vars) {
-  var axis;
+  var axis, size, y;
   if (!vars.axes.discrete) {
     axis = vars.time.value === vars.y.value ? "y" : "x";
-    return vars.self[axis]({
+    vars.self[axis]({
       scale: "discrete"
     });
+  }
+  y = vars[vars.axes.opposite];
+  size = vars.size;
+  if ((!y.value && size.value) || (size.changed && size.previous === y.value)) {
+    return vars.self[vars.axes.opposite](size.value);
+  } else if ((!size.value && y.value) || (y.changed && y.previous === size.value)) {
+    return vars.self.size(y.value);
   }
 };
 
@@ -39222,7 +39734,7 @@ module.exports = bar;
 
 
 
-},{"../../core/fetch/value.coffee":72,"../../util/uniques.coffee":207,"./helpers/graph/draw.coffee":305,"./helpers/graph/nest.coffee":311,"./helpers/graph/stack.coffee":312}],300:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":72,"../../util/uniques.coffee":209,"./helpers/graph/draw.coffee":307,"./helpers/graph/nest.coffee":313,"./helpers/graph/stack.coffee":314}],302:[function(require,module,exports){
 var box, fetchValue, graph, strip, uniques;
 
 fetchValue = require("../../core/fetch/value.coffee");
@@ -39483,7 +39995,7 @@ module.exports = box;
 
 
 
-},{"../../core/fetch/value.coffee":72,"../../string/strip.js":172,"../../util/uniques.coffee":207,"./helpers/graph/draw.coffee":305}],301:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":72,"../../string/strip.js":174,"../../util/uniques.coffee":209,"./helpers/graph/draw.coffee":307}],303:[function(require,module,exports){
 var arraySort, bubbles, fetchColor, fetchText, fetchValue, groupData, legible;
 
 arraySort = require("../../array/sort.coffee");
@@ -39618,7 +40130,7 @@ module.exports = bubbles;
 
 
 
-},{"../../array/sort.coffee":40,"../../color/legible.coffee":49,"../../core/data/group.coffee":62,"../../core/fetch/color.coffee":68,"../../core/fetch/text.js":71,"../../core/fetch/value.coffee":72}],302:[function(require,module,exports){
+},{"../../array/sort.coffee":40,"../../color/legible.coffee":49,"../../core/data/group.coffee":62,"../../core/fetch/color.coffee":68,"../../core/fetch/text.js":71,"../../core/fetch/value.coffee":72}],304:[function(require,module,exports){
 var chart, print;
 
 print = require("../../../core/console/print.coffee");
@@ -39643,7 +40155,7 @@ module.exports = chart;
 
 
 
-},{"../../../core/console/print.coffee":57}],303:[function(require,module,exports){
+},{"../../../core/console/print.coffee":57}],305:[function(require,module,exports){
 var geo_map;
 
 geo_map = function(vars) {
@@ -39684,7 +40196,7 @@ module.exports = geo_map;
 
 
 
-},{}],304:[function(require,module,exports){
+},{}],306:[function(require,module,exports){
 var color, legible, print;
 
 color = require("../../../../core/fetch/color.coffee");
@@ -39765,7 +40277,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../../color/legible.coffee":49,"../../../../core/console/print.coffee":57,"../../../../core/fetch/color.coffee":68}],305:[function(require,module,exports){
+},{"../../../../color/legible.coffee":49,"../../../../core/console/print.coffee":57,"../../../../core/fetch/color.coffee":68}],307:[function(require,module,exports){
 var axes, draw, mouse, plot;
 
 axes = require("./includes/axes.coffee");
@@ -39788,7 +40300,7 @@ module.exports = function(vars, opts) {
 
 
 
-},{"./includes/axes.coffee":306,"./includes/mouse.coffee":308,"./includes/plot.coffee":309,"./includes/svg.coffee":310}],306:[function(require,module,exports){
+},{"./includes/axes.coffee":308,"./includes/mouse.coffee":310,"./includes/plot.coffee":311,"./includes/svg.coffee":312}],308:[function(require,module,exports){
 var arraySort, axisRange, buckets, buffer, dataChange, fetchData, fetchValue, getData, getScale, print, sizeScale, uniques;
 
 arraySort = require("../../../../../array/sort.coffee");
@@ -39806,15 +40318,15 @@ print = require("../../../../../core/console/print.coffee");
 uniques = require("../../../../../util/uniques.coffee");
 
 module.exports = function(vars, opts) {
-  var axis, changed, domains, i, len, oppAxis, range, ref, reorder, zero;
+  var axes, axis, changed, domains, i, j, len, len1, oppAxis, range, reorder, zero;
   changed = dataChange(vars);
   if (changed || !vars.axes.dataset) {
     vars.axes.dataset = getData(vars);
   }
   vars.axes.scale = opts.buffer && opts.buffer !== true ? sizeScale(vars, opts.buffer) : false;
-  ref = ["x", "y"];
-  for (i = 0, len = ref.length; i < len; i++) {
-    axis = ref[i];
+  axes = vars.width.viz > vars.height.viz ? ["y", "x"] : ["x", "y"];
+  for (i = 0, len = axes.length; i < len; i++) {
+    axis = axes[i];
     oppAxis = axis === "x" ? "y" : "x";
     reorder = vars.order.changed || vars.order.sort.changed || (vars.order.value === true && vars[oppAxis].changed);
     if (!vars[axis].ticks.values || changed || reorder) {
@@ -39832,9 +40344,6 @@ module.exports = function(vars, opts) {
         range = range.reverse();
       }
       vars[axis].scale.viz = getScale(vars, axis, range);
-      if (opts.buffer && axis !== vars.axes.discrete) {
-        buffer(vars, axis, opts.buffer);
-      }
       vars[axis].domain.viz = range;
       if (vars.dev.value) {
         print.timeEnd("calculating " + axis + " axis");
@@ -39842,9 +40351,20 @@ module.exports = function(vars, opts) {
     }
   }
   if (vars.axes.mirror.value) {
-    domains = vars.y.domain.viz.concat(vars.x.domain.viz);
-    vars.x.domain.viz = d3.extent(domains);
-    vars.y.domain.viz = d3.extent(domains).reverse();
+    domains = d3.extent(vars.y.domain.viz.concat(vars.x.domain.viz));
+    vars.x.domain.viz = domains;
+    vars.x.scale.viz.domain(domains);
+    domains = domains.slice().reverse();
+    vars.y.domain.viz = domains;
+    vars.y.scale.viz.domain(domains);
+  }
+  if (opts.buffer) {
+    for (j = 0, len1 = axes.length; j < len1; j++) {
+      axis = axes[j];
+      if (axis !== vars.axes.discrete) {
+        buffer(vars, axis, opts.buffer);
+      }
+    }
   }
 };
 
@@ -39950,8 +40470,12 @@ axisRange = function(vars, axis, zero, buffer) {
       return d.values;
     }));
     return d3.extent(values);
-  } else if (vars[axis].value === vars.time.value && vars[axis].ticks.values) {
-    return d3.extent(vars[axis].ticks.values);
+  } else if (vars[axis].value === vars.time.value) {
+    if (vars.time.solo.value.length) {
+      return d3.extent(vars.time.solo.value);
+    } else {
+      return d3.extent(vars.data.time.ticks);
+    }
   } else {
     values = [];
     ref1 = vars.axes.dataset;
@@ -40100,7 +40624,7 @@ sizeScale = function(vars, value) {
 
 
 
-},{"../../../../../array/sort.coffee":40,"../../../../../core/console/print.coffee":57,"../../../../../core/fetch/data.js":69,"../../../../../core/fetch/value.coffee":72,"../../../../../util/buckets.coffee":201,"../../../../../util/uniques.coffee":207,"./buffer.coffee":307}],307:[function(require,module,exports){
+},{"../../../../../array/sort.coffee":40,"../../../../../core/console/print.coffee":57,"../../../../../core/fetch/data.js":69,"../../../../../core/fetch/value.coffee":72,"../../../../../util/buckets.coffee":203,"../../../../../util/uniques.coffee":209,"./buffer.coffee":309}],309:[function(require,module,exports){
 var buckets, closest;
 
 buckets = require("../../../../../util/buckets.coffee");
@@ -40108,7 +40632,7 @@ buckets = require("../../../../../util/buckets.coffee");
 closest = require("../../../../../util/closest.coffee");
 
 module.exports = function(vars, axis, buffer) {
-  var additional, allNegative, allPositive, closestTime, diff, difference, domain, domainCompare, domainHigh, domainLow, i, lowerDiff, lowerMod, lowerScale, lowerValue, maxSize, range, rangeMax, timeIndex, upperDiff, upperMod, upperScale, upperValue, zero;
+  var additional, allNegative, allPositive, closestTime, copy, diff, difference, domain, domainCompare, domainHigh, domainLow, i, lowerDiff, lowerMod, lowerScale, lowerValue, maxSize, opp, range, rangeMax, second, timeIndex, upperDiff, upperMod, upperScale, upperValue, zero;
   if (vars[axis].scale.value !== "share" && !vars[axis].range.value) {
     if (axis === vars.axes.discrete) {
       domain = vars[axis].scale.viz.domain();
@@ -40144,6 +40668,29 @@ module.exports = function(vars, axis, buffer) {
           } else {
             domain[0] -= 1;
             domain[1] += 1;
+          }
+        } else if (vars.axes.scale) {
+          difference = Math.abs(domain[1] - domain[0]);
+          additional = difference / (vars[axis].ticks.values.length - 1);
+          additional = additional / 2;
+          rangeMax = vars[axis].scale.viz.range()[1];
+          maxSize = vars.axes.scale.range()[1] * 1.5;
+          domainLow = vars[axis].scale.viz.invert(-maxSize);
+          domainHigh = vars[axis].scale.viz.invert(rangeMax + maxSize);
+          if (domain[0] - additional < domainLow) {
+            domain[0] = domain[0] - additional;
+            domain[1] = domain[1] + additional;
+          } else {
+            domain = [domainLow, domainHigh];
+            if (axis === "y") {
+              domain = domain.reverse();
+            }
+            domainCompare = vars[axis].scale.viz.domain();
+            domainCompare = domainCompare[1] - domainCompare[0];
+            if (!domainCompare) {
+              domain[0] -= 1;
+              domain[1] += 1;
+            }
           }
         } else {
           difference = Math.abs(domain[1] - domain[0]);
@@ -40211,22 +40758,32 @@ module.exports = function(vars, axis, buffer) {
       }
       return vars[axis].scale.viz.domain(domain);
     } else if (vars.axes.scale) {
-      rangeMax = vars[axis].scale.viz.range()[1];
-      maxSize = vars.axes.scale.range()[1];
-      domainLow = vars[axis].scale.viz.invert(-maxSize * 1.5);
-      domainHigh = vars[axis].scale.viz.invert(rangeMax + maxSize * 1.5);
-      domain = [domainLow, domainHigh];
-      if (axis === "y") {
-        domain = domain.reverse();
+      copy = false;
+      if (vars.axes.mirror.value) {
+        opp = axis === "y" ? "x" : "y";
+        copy = vars[opp].scale.viz;
+        second = vars.width.viz > vars.height.viz ? "x" : "y";
       }
-      domainCompare = vars[axis].scale.viz.domain();
-      domainCompare = domainCompare[1] - domainCompare[0];
-      if (!domainCompare) {
-        domain[0] -= 1;
-        domain[1] += 1;
-      }
-      if (axis === "y") {
-        domain = domain.reverse();
+      if (axis === second && copy) {
+        domain = copy.domain().slice().reverse();
+      } else {
+        rangeMax = vars[axis].scale.viz.range()[1];
+        maxSize = vars.axes.scale.range()[1];
+        domainLow = vars[axis].scale.viz.invert(-maxSize * 1.5);
+        domainHigh = vars[axis].scale.viz.invert(rangeMax + maxSize * 1.5);
+        domain = [domainLow, domainHigh];
+        if (axis === "y") {
+          domain = domain.reverse();
+        }
+        domainCompare = vars[axis].scale.viz.domain();
+        domainCompare = domainCompare[1] - domainCompare[0];
+        if (!domainCompare) {
+          domain[0] -= 1;
+          domain[1] += 1;
+        }
+        if (axis === "y") {
+          domain = domain.reverse();
+        }
       }
       return vars[axis].scale.viz.domain(domain);
     }
@@ -40235,7 +40792,7 @@ module.exports = function(vars, axis, buffer) {
 
 
 
-},{"../../../../../util/buckets.coffee":201,"../../../../../util/closest.coffee":203}],308:[function(require,module,exports){
+},{"../../../../../util/buckets.coffee":203,"../../../../../util/closest.coffee":205}],310:[function(require,module,exports){
 var copy, events, fetchColor, fetchValue, legible;
 
 copy = require("../../../../../util/copy.coffee");
@@ -40397,7 +40954,8 @@ module.exports = function(node, vars) {
     val = fetchValue(vars, node, vars[axis].value);
     return vars.format.value(val, {
       key: vars[axis].value,
-      vars: vars
+      vars: vars,
+      labels: vars[axis].affixes.value
     });
   });
   if (timing) {
@@ -40456,7 +41014,7 @@ module.exports = function(node, vars) {
 
 
 
-},{"../../../../../client/pointer.coffee":44,"../../../../../color/legible.coffee":49,"../../../../../core/fetch/color.coffee":68,"../../../../../core/fetch/value.coffee":72,"../../../../../util/copy.coffee":204}],309:[function(require,module,exports){
+},{"../../../../../client/pointer.coffee":44,"../../../../../color/legible.coffee":49,"../../../../../core/fetch/color.coffee":68,"../../../../../core/fetch/value.coffee":72,"../../../../../util/copy.coffee":206}],311:[function(require,module,exports){
 var buckets, buffer, createAxis, fetchValue, fontSizes, formatPower, labelPadding, resetMargins, superscript, textwrap, timeDetect, uniques;
 
 buckets = require("../../../../../util/buckets.coffee");
@@ -40474,13 +41032,13 @@ timeDetect = require("../../../../../core/data/time.coffee");
 uniques = require("../../../../../util/uniques.coffee");
 
 module.exports = function(vars, opts) {
-  var axis, axisStyle, extent, j, k, len, len1, newtick, opp, ref, ref1, step, tens, tick, ticks, timeReturn, values;
+  var axes, axis, axisStyle, extent, j, k, len, len1, newtick, opp, ref, step, tens, tick, ticks, timeReturn, values;
   vars.axes.margin = resetMargins(vars);
   vars.axes.height = vars.height.viz;
   vars.axes.width = vars.width.viz;
-  ref = ["x", "y"];
-  for (j = 0, len = ref.length; j < len; j++) {
-    axis = ref[j];
+  axes = vars.width.viz > vars.height.viz ? ["y", "x"] : ["x", "y"];
+  for (j = 0, len = axes.length; j < len; j++) {
+    axis = axes[j];
     if (vars[axis].ticks.values === false) {
       if (vars[axis].value === vars.time.value) {
         ticks = vars.time.solo.value;
@@ -40488,7 +41046,6 @@ module.exports = function(vars, opts) {
           ticks = ticks.map(function(d) {
             if (d.constructor !== Date) {
               d = new Date(d.toString());
-              d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
             }
             return d;
           });
@@ -40551,9 +41108,9 @@ module.exports = function(vars, opts) {
   if (!vars.small) {
     labelPadding(vars);
   }
-  ref1 = ["x", "y"];
-  for (k = 0, len1 = ref1.length; k < len1; k++) {
-    axis = ref1[k];
+  ref = ["x", "y"];
+  for (k = 0, len1 = ref.length; k < len1; k++) {
+    axis = ref[k];
     vars[axis].axis.svg = createAxis(vars, axis);
   }
 };
@@ -40684,7 +41241,6 @@ labelPadding = function(vars) {
   } else {
     xMaxWidth = vars.x.scale.viz(xValues[1]) - vars.x.scale.viz(xValues[0]);
     xMaxWidth = Math.abs(xMaxWidth);
-    xMaxWidth -= vars.labels.padding * 2;
   }
   if (xAxisWidth > xMaxWidth && xText.join("").indexOf(" ") > 0) {
     vars.x.ticks.wrap = true;
@@ -40720,13 +41276,17 @@ labelPadding = function(vars) {
     });
     vars.x.ticks.rotate = -90;
   } else {
-    vars.x.ticks.hidden = true;
-    vars.x.ticks.rotate = 0;
     xAxisWidth = 0;
     xAxisHeight = 0;
   }
-  xAxisHeight = Math.ceil(xAxisHeight);
+  if (!(xAxisWidth && xAxisHeight)) {
+    vars.x.ticks.hidden = true;
+    vars.x.ticks.rotate = 0;
+  }
   xAxisWidth = Math.ceil(xAxisWidth);
+  xAxisHeight = Math.ceil(xAxisHeight);
+  xAxisWidth++;
+  xAxisHeight++;
   vars.x.ticks.maxHeight = xAxisHeight;
   vars.x.ticks.maxWidth = xAxisWidth;
   vars.axes.margin.bottom += xAxisHeight + vars.labels.padding;
@@ -40811,7 +41371,7 @@ formatPower = function(d) {
 
 
 
-},{"../../../../../core/data/time.coffee":67,"../../../../../core/fetch/value.coffee":72,"../../../../../font/sizes.coffee":100,"../../../../../textwrap/textwrap.coffee":197,"../../../../../util/buckets.coffee":201,"../../../../../util/uniques.coffee":207,"./buffer.coffee":307}],310:[function(require,module,exports){
+},{"../../../../../core/data/time.coffee":67,"../../../../../core/fetch/value.coffee":72,"../../../../../font/sizes.coffee":102,"../../../../../textwrap/textwrap.coffee":199,"../../../../../util/buckets.coffee":203,"../../../../../util/uniques.coffee":209,"./buffer.coffee":309}],312:[function(require,module,exports){
 var mix, textwrap, validObject;
 
 mix = require("../../../../../color/mix.coffee");
@@ -41178,7 +41738,7 @@ module.exports = function(vars) {
 
 
 
-},{"../../../../../color/mix.coffee":51,"../../../../../object/validate.coffee":169,"../../../../../textwrap/textwrap.coffee":197}],311:[function(require,module,exports){
+},{"../../../../../color/mix.coffee":51,"../../../../../object/validate.coffee":171,"../../../../../textwrap/textwrap.coffee":199}],313:[function(require,module,exports){
 var fetchValue, stringStrip, uniqueValues;
 
 fetchValue = require("../../../../core/fetch/value.coffee");
@@ -41208,8 +41768,10 @@ module.exports = function(vars, data) {
         return serialized.indexOf(+f) < 0;
       });
     }
-  } else {
+  } else if (discrete.ticks.values) {
     ticks = discrete.ticks.values;
+  } else {
+    ticks = uniqueValues(data, discrete.value, fetchValue, vars);
   }
   return d3.nest().key(function(d) {
     var id, j, len, ref, return_id, val;
@@ -41285,7 +41847,7 @@ module.exports = function(vars, data) {
 
 
 
-},{"../../../../core/fetch/value.coffee":72,"../../../../string/strip.js":172,"../../../../util/uniques.coffee":207}],312:[function(require,module,exports){
+},{"../../../../core/fetch/value.coffee":72,"../../../../string/strip.js":174,"../../../../util/uniques.coffee":209}],314:[function(require,module,exports){
 var fetchValue;
 
 fetchValue = require("../../../../core/fetch/value.coffee");
@@ -41361,7 +41923,7 @@ module.exports = function(vars, data) {
 
 
 
-},{"../../../../core/fetch/value.coffee":72}],313:[function(require,module,exports){
+},{"../../../../core/fetch/value.coffee":72}],315:[function(require,module,exports){
 var fetchValue, graph, line, nest, stack;
 
 fetchValue = require("../../core/fetch/value.coffee");
@@ -41432,7 +41994,7 @@ module.exports = line;
 
 
 
-},{"../../core/fetch/value.coffee":72,"./helpers/graph/draw.coffee":305,"./helpers/graph/nest.coffee":311,"./helpers/graph/stack.coffee":312}],314:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":72,"./helpers/graph/draw.coffee":307,"./helpers/graph/nest.coffee":313,"./helpers/graph/stack.coffee":314}],316:[function(require,module,exports){
 var smallestGap = require("../../network/smallestGap.coffee"),
     fetchValue = require("../../core/fetch/value.coffee");
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -41471,15 +42033,18 @@ var network = function(vars) {
       return [n.x, n.y];
     }});
 
+    var limit = max_size/2;
+
     var overlap = vars.size.value ? vars.nodes.overlap : 0.4
-    max_size = max_size * overlap
+    max_size = max_size * overlap;
 
     if (vars.edges.arrows.value) {
-      max_size = max_size * 0.5
+      max_size = max_size * 0.5;
     }
 
-    if ( val_range[0] === val_range[1] ) {
-      var min_size = max_size
+    if (val_range[0] === val_range[1]) {
+      var min_size = limit;
+      max_size = limit;
     }
     else {
 
@@ -41578,7 +42143,7 @@ network.zoom         = true
 
 module.exports = network
 
-},{"../../core/fetch/value.coffee":72,"../../network/smallestGap.coffee":165}],315:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":72,"../../network/smallestGap.coffee":167}],317:[function(require,module,exports){
 var fetchValue, shortestPath, uniqueValues, viz,
   indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -41836,7 +42401,7 @@ module.exports = viz;
 
 
 
-},{"../../core/fetch/value.coffee":72,"../../network/shortestPath.coffee":164,"../../util/uniques.coffee":207}],316:[function(require,module,exports){
+},{"../../core/fetch/value.coffee":72,"../../network/shortestPath.coffee":166,"../../util/uniques.coffee":209}],318:[function(require,module,exports){
 var comparator, dataThreshold, fetchValue, groupData, order, pie;
 
 comparator = require("../../array/comparator.coffee");
@@ -41904,7 +42469,7 @@ module.exports = pie;
 
 
 
-},{"../../array/comparator.coffee":38,"../../core/data/group.coffee":62,"../../core/data/threshold.js":66,"../../core/fetch/value.coffee":72}],317:[function(require,module,exports){
+},{"../../array/comparator.coffee":38,"../../core/data/group.coffee":62,"../../core/data/threshold.js":66,"../../core/fetch/value.coffee":72}],319:[function(require,module,exports){
 var arraySort     = require("../../array/sort.coffee"),
     events        = require("../../client/pointer.coffee"),
     fetchValue    = require("../../core/fetch/value.coffee"),
@@ -42390,7 +42955,7 @@ rings.tooltip      = "static"
 
 module.exports = rings
 
-},{"../../array/sort.coffee":40,"../../client/pointer.coffee":44,"../../color/legible.coffee":49,"../../core/fetch/color.coffee":68,"../../core/fetch/value.coffee":72,"../../network/smallestGap.coffee":165,"../../tooltip/remove.coffee":200,"../../util/uniques.coffee":207}],318:[function(require,module,exports){
+},{"../../array/sort.coffee":40,"../../client/pointer.coffee":44,"../../color/legible.coffee":49,"../../core/fetch/color.coffee":68,"../../core/fetch/value.coffee":72,"../../network/smallestGap.coffee":167,"../../tooltip/remove.coffee":202,"../../util/uniques.coffee":209}],320:[function(require,module,exports){
 var fetchValue, graph, print, scatter, sort, ticks;
 
 fetchValue = require("../../core/fetch/value.coffee");
@@ -42459,7 +43024,7 @@ module.exports = scatter;
 
 
 
-},{"../../array/sort.coffee":40,"../../core/console/print.coffee":57,"../../core/fetch/value.coffee":72,"./helpers/graph/dataTicks.coffee":304,"./helpers/graph/draw.coffee":305}],319:[function(require,module,exports){
+},{"../../array/sort.coffee":40,"../../core/console/print.coffee":57,"../../core/fetch/value.coffee":72,"./helpers/graph/dataTicks.coffee":306,"./helpers/graph/draw.coffee":307}],321:[function(require,module,exports){
 var closest, fetchValue, graph, nest, sort, stack, stacked, threshold;
 
 closest = require("../../util/closest.coffee");
@@ -42562,7 +43127,7 @@ module.exports = stacked;
 
 
 
-},{"../../array/sort.coffee":40,"../../core/data/threshold.js":66,"../../core/fetch/value.coffee":72,"../../util/closest.coffee":203,"./helpers/graph/draw.coffee":305,"./helpers/graph/nest.coffee":311,"./helpers/graph/stack.coffee":312}],320:[function(require,module,exports){
+},{"../../array/sort.coffee":40,"../../core/data/threshold.js":66,"../../core/fetch/value.coffee":72,"../../util/closest.coffee":205,"./helpers/graph/draw.coffee":307,"./helpers/graph/nest.coffee":313,"./helpers/graph/stack.coffee":314}],322:[function(require,module,exports){
 var fetchValue = require("../../core/fetch/value.coffee");
 var uniques    = require("../../util/uniques.coffee");
 var copy       = require("../../util/copy.coffee");
@@ -42717,7 +43282,7 @@ table.requirements = ["data", "cols"]
 
 module.exports = table
 
-},{"../../color/random.coffee":52,"../../core/fetch/value.coffee":72,"../../util/copy.coffee":204,"../../util/uniques.coffee":207}],321:[function(require,module,exports){
+},{"../../color/random.coffee":52,"../../core/fetch/value.coffee":72,"../../util/copy.coffee":206,"../../util/uniques.coffee":209}],323:[function(require,module,exports){
 var dataThreshold, groupData, mergeObject, tree_map;
 
 dataThreshold = require("../../core/data/threshold.js");
@@ -42782,7 +43347,7 @@ module.exports = tree_map;
 
 
 
-},{"../../core/data/group.coffee":62,"../../core/data/threshold.js":66,"../../object/merge.coffee":168}],322:[function(require,module,exports){
+},{"../../core/data/group.coffee":62,"../../core/data/threshold.js":66,"../../object/merge.coffee":170}],324:[function(require,module,exports){
 var attach, axis, container, flash, getSteps, print, validObject;
 
 attach = require("../core/methods/attach.coffee");
@@ -42983,4 +43548,4 @@ module.exports = function() {
 
 
 
-},{"../core/console/print.coffee":57,"../core/methods/attach.coffee":79,"../object/validate.coffee":169,"./helpers/container.coffee":208,"./helpers/drawSteps.js":209,"./helpers/ui/message.js":241,"./methods/active.coffee":250,"./methods/aggs.coffee":251,"./methods/attrs.coffee":252,"./methods/axes.coffee":253,"./methods/background.coffee":254,"./methods/color.coffee":255,"./methods/cols.js":256,"./methods/config.coffee":257,"./methods/container.coffee":258,"./methods/coords.coffee":259,"./methods/csv.coffee":260,"./methods/data.coffee":261,"./methods/depth.coffee":262,"./methods/descs.coffee":263,"./methods/dev.coffee":264,"./methods/draw.js":265,"./methods/edges.js":266,"./methods/error.coffee":267,"./methods/focus.coffee":268,"./methods/font.coffee":269,"./methods/footer.coffee":270,"./methods/format.coffee":271,"./methods/height.coffee":272,"./methods/helpers/axis.coffee":273,"./methods/history.coffee":274,"./methods/icon.coffee":275,"./methods/id.coffee":276,"./methods/labels.coffee":277,"./methods/legend.coffee":278,"./methods/links.coffee":279,"./methods/margin.coffee":280,"./methods/messages.coffee":281,"./methods/nodes.coffee":282,"./methods/order.coffee":283,"./methods/shape.coffee":284,"./methods/size.coffee":285,"./methods/style.coffee":286,"./methods/temp.coffee":287,"./methods/text.coffee":288,"./methods/time.coffee":289,"./methods/timeline.coffee":290,"./methods/timing.coffee":291,"./methods/title.coffee":292,"./methods/tooltip.coffee":293,"./methods/total.coffee":294,"./methods/type.coffee":295,"./methods/ui.coffee":296,"./methods/width.coffee":297,"./methods/zoom.js":298,"./types/bar.coffee":299,"./types/box.coffee":300,"./types/bubbles.coffee":301,"./types/deprecated/chart.coffee":302,"./types/geo_map.coffee":303,"./types/line.coffee":313,"./types/network.js":314,"./types/paths.coffee":315,"./types/pie.coffee":316,"./types/rings.js":317,"./types/scatter.coffee":318,"./types/stacked.coffee":319,"./types/table.js":320,"./types/tree_map.coffee":321}]},{},[2,1]);
+},{"../core/console/print.coffee":57,"../core/methods/attach.coffee":81,"../object/validate.coffee":171,"./helpers/container.coffee":210,"./helpers/drawSteps.js":211,"./helpers/ui/message.js":243,"./methods/active.coffee":252,"./methods/aggs.coffee":253,"./methods/attrs.coffee":254,"./methods/axes.coffee":255,"./methods/background.coffee":256,"./methods/color.coffee":257,"./methods/cols.js":258,"./methods/config.coffee":259,"./methods/container.coffee":260,"./methods/coords.coffee":261,"./methods/csv.coffee":262,"./methods/data.coffee":263,"./methods/depth.coffee":264,"./methods/descs.coffee":265,"./methods/dev.coffee":266,"./methods/draw.js":267,"./methods/edges.js":268,"./methods/error.coffee":269,"./methods/focus.coffee":270,"./methods/font.coffee":271,"./methods/footer.coffee":272,"./methods/format.coffee":273,"./methods/height.coffee":274,"./methods/helpers/axis.coffee":275,"./methods/history.coffee":276,"./methods/icon.coffee":277,"./methods/id.coffee":278,"./methods/labels.coffee":279,"./methods/legend.coffee":280,"./methods/links.coffee":281,"./methods/margin.coffee":282,"./methods/messages.coffee":283,"./methods/nodes.coffee":284,"./methods/order.coffee":285,"./methods/shape.coffee":286,"./methods/size.coffee":287,"./methods/style.coffee":288,"./methods/temp.coffee":289,"./methods/text.coffee":290,"./methods/time.coffee":291,"./methods/timeline.coffee":292,"./methods/timing.coffee":293,"./methods/title.coffee":294,"./methods/tooltip.coffee":295,"./methods/total.coffee":296,"./methods/type.coffee":297,"./methods/ui.coffee":298,"./methods/width.coffee":299,"./methods/zoom.js":300,"./types/bar.coffee":301,"./types/box.coffee":302,"./types/bubbles.coffee":303,"./types/deprecated/chart.coffee":304,"./types/geo_map.coffee":305,"./types/line.coffee":315,"./types/network.js":316,"./types/paths.coffee":317,"./types/pie.coffee":318,"./types/rings.js":319,"./types/scatter.coffee":320,"./types/stacked.coffee":321,"./types/table.js":322,"./types/tree_map.coffee":323}]},{},[2,1]);
