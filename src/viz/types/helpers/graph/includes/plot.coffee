@@ -24,7 +24,7 @@ module.exports = (vars, opts) ->
           ticks = ticks.map (d) ->
             if d.constructor isnt Date
               d = new Date(d.toString())
-              d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
+              # d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
             d
         else
           ticks = vars.data.time.values

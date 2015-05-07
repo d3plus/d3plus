@@ -35,7 +35,7 @@ module.exports = (vars) ->
       for d, i in init
         if d.constructor isnt Date
           d = new Date d.toString()
-          d.setTime d.getTime() + d.getTimezoneOffset() * 60 * 1000
+          # d.setTime d.getTime() + d.getTimezoneOffset() * 60 * 1000
           init[i] = d
     else
       init = d3.extent years

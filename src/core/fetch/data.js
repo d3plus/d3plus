@@ -45,7 +45,7 @@ module.exports = function(vars, years, depth) {
         else {
           var d = new Date(y.toString());
           if (d !== "Invalid Date") {
-            d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
+            // d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
             years.push(d.getTime());
           }
         }

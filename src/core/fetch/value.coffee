@@ -106,9 +106,7 @@ valueParse = (vars, node, depth, variable, val) ->
     if timeVar and v isnt null and v.constructor isnt Date
       d = new Date v.toString()
       if d isnt "Invalid Date"
-        # console.log d
         # d.setTime d.getTime() + d.getTimezoneOffset() * 60 * 1000
-        # console.log d
         val[i] = d
   val = val[0] if val.length is 1
   if val isnt null and validObject(node) and
