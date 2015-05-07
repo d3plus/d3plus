@@ -3,10 +3,13 @@ module.exports = (value, vars, method) ->
 
   vars.history.reset() if vars.history
 
-  if typeof value is "string"
+  if value.constructor is String
     if value.indexOf("/") >= 0
       method.url = value
       return []
-    if d3.selectAll(value).size() then d3.selectAll(value) else []
+    elem = d3.selectAll(value)
+    return elem if elem.size()
+    method.url = value if value.indexOf(".") >= 0
+    return []
   else
     value
