@@ -89,7 +89,7 @@ module.exports = function(vars, years, depth) {
     }
   }
 
-  if (vars.axes.discrete) cacheID.push(vars.axes.discrete);
+  if (vars.axes && vars.axes.discrete) cacheID.push(vars.axes.discrete);
 
   cacheID = cacheID.join("_");
   vars.data.cacheID = cacheID;
