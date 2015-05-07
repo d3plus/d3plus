@@ -94,7 +94,7 @@ filterArray = (arr, node, depth) ->
 cacheInit = (node, cache, vars) ->
   node.d3plus = {} unless "d3plus" of node
   node.d3plus.data = {} unless "data" of node.d3plus
-  if vars.data.changed or vars.attrs.changed or !(cache of node.d3plus.data)
+  if vars.data.changed or (vars.attrs and vars.attrs.changed) or !(cache of node.d3plus.data)
     node.d3plus.data[cache] = {}
   node
 
