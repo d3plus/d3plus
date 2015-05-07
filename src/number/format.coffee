@@ -4,12 +4,12 @@ defaultLocale = require "../core/locale/languages/en_US.coffee"
 module.exports = (number, opts) ->
 
   if "locale" of opts
-    locale = opts.locale.format
+    locale = opts.locale
   else
-    locale = defaultLocale.format
+    locale = defaultLocale
 
   time   = locale.time.slice()
-  format = d3.locale locale
+  format = d3.locale locale.format
 
   opts   = {} unless opts
   vars   = opts.vars or {}
@@ -40,9 +40,9 @@ module.exports = (number, opts) ->
     # Format number to precision level using proper scale
     number = d3.formatPrefix(number).scale number
     number = format.numberFormat(".3g") number
-    number = number.replace locale.decimal, "."
+    number = number.replace locale.format.decimal, "."
     number = parseFloat(number) + ""
-    number = number.replace ".", locale.decimal
+    number = number.replace ".", locale.format.decimal
     ret = number + symbol
   else if length is 3
     ret = format.numberFormat(",f") number
