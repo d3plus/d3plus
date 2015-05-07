@@ -40,6 +40,25 @@ module.exports = (vars, axis, buffer) ->
           else
             domain[0] -= 1
             domain[1] += 1
+
+        else if vars.axes.scale
+
+          rangeMax = vars[axis].scale.viz.range()[1]
+          maxSize  = vars.axes.scale.range()[1]
+
+          domainLow = vars[axis].scale.viz.invert -maxSize*1.5
+          domainHigh  = vars[axis].scale.viz.invert rangeMax + maxSize*1.5
+
+          domain = [domainLow, domainHigh]
+          domain = domain.reverse() if axis is "y"
+
+          domainCompare = vars[axis].scale.viz.domain()
+          domainCompare = domainCompare[1] - domainCompare[0]
+
+          unless domainCompare
+            domain[0] -= 1
+            domain[1] += 1
+
         else
           difference = Math.abs domain[1] - domain[0]
           additional = difference / (vars[axis].ticks.values.length - 1)
