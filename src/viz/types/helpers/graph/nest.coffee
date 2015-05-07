@@ -16,8 +16,10 @@ module.exports = (vars, data) ->
     else if vars.time.mute.value.length
       serialized = vars.time.mute.value.map(Number)
       ticks = ticks.filter (f) -> serialized.indexOf(+f) < 0
-  else
+  else if discrete.ticks.values
     ticks = discrete.ticks.values
+  else
+    ticks = uniqueValues data, discrete.value, fetchValue, vars
 
   d3.nest()
     .key (d) ->
