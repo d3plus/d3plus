@@ -32,7 +32,7 @@ module.exports = (vars, opts) ->
         vars[axis].ticks.values = uniques vars.axes.dataset, vars[axis].value, fetchValue, vars
 
       # calculate range
-      zero  = if [true,axis].indexOf(opts.zero) > 0 then true else false
+      zero  = if [true, axis].indexOf(opts.zero) > 0 then true else false
       range = axisRange vars, axis, zero
 
       # flip range if Y axis
@@ -125,8 +125,12 @@ axisRange = (vars, axis, zero, buffer) ->
     values = d3.merge axisSums.map (d) -> d.values
     d3.extent values
 
-  else if vars[axis].value is vars.time.value and vars[axis].ticks.values
-    d3.extent vars[axis].ticks.values
+  else if vars[axis].value is vars.time.value
+
+    if vars.time.solo.value.length
+      d3.extent vars.time.solo.value
+    else
+      d3.extent vars.data.time.ticks
 
   else
     values = []
