@@ -46,7 +46,7 @@ resize = (vars) ->
   maxWidth  = d3.max sizes, (d) -> d.width
   areaMod   = 1.165 + (width / height * 0.11)
   textArea  = d3.sum(sizes, (d) ->
-    h = vars.container.dy or sizeMax * 1.1
+    h = vars.container.dy or sizeMax * 1.2
     d.width * h
   ) * areaMod
 
