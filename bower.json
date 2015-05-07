@@ -19,10 +19,10 @@
     "topojson": "^1.6.19"
   },
   "devDependencies": {
-    "browserify": "^9.0.8",
-    "coffee-script": "^1.9.1",
-    "coffeeify": "^1.0.0",
-    "event-stream": "^3.3.0",
+    "browserify": "^10.1.2",
+    "coffee-script": "^1.9.2",
+    "coffeeify": "^1.1.0",
+    "event-stream": "^3.3.1",
     "gulp": "^3.8.11",
     "gulp-chmod": "^1.2.0",
     "gulp-connect": "^2.2.0",
@@ -31,12 +31,12 @@
     "gulp-rename": "^1.2.2",
     "gulp-rimraf": "^0.1.1",
     "gulp-streamify": "^0.0.5",
-    "gulp-uglify": "^1.1.0",
+    "gulp-uglify": "^1.2.0",
     "gulp-util": "^3.0.4",
     "gulp-yuidoc": "^0.1.2",
     "require-dir": "^0.3.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.1.0"
+    "watchify": "^3.2.1"
   },
   "keywords": ["charts", "d3", "d3plus", "data", "visualization"],
   "license": "MIT"
