@@ -77,6 +77,6 @@ module.exports = (vars) ->
   # Sets .size( ) method, if not specififed.
   unless vars.size.value
     if vars.resize.value
-      vars.self.size [size, size * 2]
+      vars.self.size [4, 80]
     else
       vars.self.size [size / 2, size]
