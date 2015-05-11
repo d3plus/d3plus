@@ -3,6 +3,7 @@ defaultLocale = require "../core/locale/languages/en_US.coffee"
 # Formats numbers to look "pretty"
 module.exports = (number, opts) ->
 
+  opts = {} unless opts
   if "locale" of opts
     locale = opts.locale
   else
