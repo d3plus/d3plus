@@ -59,7 +59,7 @@
   "homepage": "http://www.d3plus.org",
   "dependencies": {
     "d3": "^3.5.5",
-    "heap": "^0.2.6",
+    "heap": "^0.2.5",
     "numeric": "^1.2.6",
     "simplify-js": "^1.2.1",
     "static-kdtree": "^1.0.1",
