@@ -4,4 +4,5 @@ module.exports =
   fr_FR: require "./languages/fr_FR.js"
   mk_MK: require "./languages/mk_MK.js"
   pt_BR: require "./languages/pt_BR.js"
+  ru_RU: require "./languages/ru_RU.js"
   zh_CN: require "./languages/zh_CN.js"
