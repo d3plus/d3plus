@@ -21,6 +21,7 @@ module.exports = (vars) ->
         delete d.d3plus.shape
         delete d.d3plus.label
         delete d.d3plus.rotate
+        delete d.d3plus.share
     returned = visualization(vars)
     print.timeEnd "running " + app if vars.dev.value
   else
