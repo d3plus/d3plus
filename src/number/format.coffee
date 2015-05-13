@@ -50,7 +50,10 @@ module.exports = (number, opts) ->
   else if number is 0
     ret = 0
   else
-    ret = format.numberFormat(".3g") number
+    if number is parseInt(number, 10)
+      ret = format.numberFormat(".2") number
+    else
+      ret = format.numberFormat(".3g") number
 
   if labels and key and "format" of vars and key of vars.format.affixes.value
     affixes = vars.format.affixes.value[key]
