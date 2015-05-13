@@ -1,4 +1,5 @@
 var events = require("../../../client/pointer.coffee"),
+    ie           = require("../../../client/ie.js"),
     fetchValue   = require("../../../core/fetch/value.coffee"),
     print        = require("../../../core/console/print.coffee"),
     uniqueValues = require("../../../util/uniques.coffee")
@@ -44,6 +45,7 @@ module.exports = function(vars) {
         .attr("vector-effect","non-scaling-stroke")
         .style("stroke",vars.color.focus)
         .style("stroke-width",function(){
+          if (ie && vars.types[vars.type.value].zoom) return 0;
           return vars.edges.size.value ? d3.select(this).style("stroke-width")
                : vars.data.stroke.width*2
         })
@@ -145,7 +147,8 @@ module.exports = function(vars) {
     }
 
     vars.g.data_focus.selectAll("path")
-      .style("stroke-width",vars.data.stroke.width*2)
+      .style("stroke-width", ie && vars.types[vars.type.value].zoom ?
+                             0 : vars.data.stroke.width * 2);
 
     if ( vars.dev.value ) print.timeEnd("drawing focus elements")
 
