@@ -3,7 +3,7 @@ closest = require "../../../../../util/closest.coffee"
 
 module.exports = (vars, axis, buffer) ->
 
-  if vars[axis].scale.value isnt "share" and !vars[axis].range.value
+  if vars[axis].scale.value isnt "share" and !vars[axis].range.value and vars[axis].reset
 
     if axis is vars.axes.discrete
 
