@@ -101,7 +101,7 @@ bubbles = (vars) ->
         w:       size_max * 2
         h:       labelHeight - yMod
         padding: 0
-        resize:  false
+        resize:  true
         color:   legible(fetchColor(vars, d, d.d3plus.depth))
         force:   true
     else
