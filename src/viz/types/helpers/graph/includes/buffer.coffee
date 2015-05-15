@@ -119,15 +119,18 @@ module.exports = (vars, axis, buffer) ->
         zero = 0
         domain = domain.slice().reverse() if axis is "y"
 
+        strings = domain.filter (d) -> d.constructor is String
         additional = Math.abs(domain[1] - domain[0]) * 0.05 or 1
 
-        domain[0] = domain[0] - additional
-        domain[1] = domain[1] + additional
+        unless strings.length
 
-        domain[0] = zero if (allPositive and domain[0] < zero) or
-                            (allNegative and domain[0] > zero)
-        domain[1] = zero if (allPositive and domain[1] < zero) or
-                            (allNegative and domain[1] > zero)
+          domain[0] = domain[0] - additional
+          domain[1] = domain[1] + additional
+
+          domain[0] = zero if (allPositive and domain[0] < zero) or
+                              (allNegative and domain[0] > zero)
+          domain[1] = zero if (allPositive and domain[1] < zero) or
+                              (allNegative and domain[1] > zero)
 
         domain = domain.reverse() if axis is "y"
 
