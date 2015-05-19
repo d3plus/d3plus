@@ -27,21 +27,31 @@ module.exports = function(vars) {
       print.time("calculating total value")
     }
 
+    var total_data = vars.data.pool;
     if (vars.focus.value.length) {
-      var total = vars.data.viz.filter(function(d){
-        return d[vars.id.value] == vars.focus.value[0]
-      })
-      total = d3.sum(total,function(d){
-        return fetchValue(vars,d,total_key)
-      })
-    }
-    else {
-      var total = d3.sum(vars.data.pool,function(d){
-        return fetchValue(vars,d,total_key)
-      })
+      total_data = vars.data.viz.filter(function(d){
+        return d[vars.id.value] == vars.focus.value[0];
+      });
     }
 
-    if (total === 0) {
+    var agg = vars.aggs[total_key] || "sum";
+    var total;
+    if (agg.constructor === Function) {
+      total = agg(total_data);
+    }
+    else {
+
+      total_data = total_data.reduce(function(arr, d){
+        var vals = fetchValue(vars, d, total_key);
+        if (vals instanceof Array) arr = arr.concat(vals);
+        else arr.push(vals);
+        return arr;
+      }, []);
+
+      total = d3[agg](total_data);
+    }
+
+    if (total === 0 || total === null || total === undefined) {
       total = false
     }
 
