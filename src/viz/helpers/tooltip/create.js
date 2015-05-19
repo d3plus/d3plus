@@ -273,7 +273,7 @@ module.exports = function(params) {
         var width = vars.tooltip.small
       }
 
-      var parent = params.length !== "long" ? d3.select("body") : vars.container.value
+      var parent = params.length !== "long" ? d3.select("body") : vars.container.value;
 
       createTooltip({
         "align": align,
@@ -292,6 +292,7 @@ module.exports = function(params) {
         "footer": params.footer === false ? params.footer : footer,
         "fullscreen": fullscreen,
         "html": html,
+        "js": params.js,
         "icon": icon,
         "id": tooltip_id,
         "max_height": params.maxheight,
@@ -301,6 +302,7 @@ module.exports = function(params) {
         "parent": parent,
         "style": icon_style,
         "title": title,
+        "description": params.description,
         "width": width,
         "x": x,
         "y": y
@@ -330,12 +332,12 @@ module.exports = function(params) {
       })
     }
     else {
-      make_tooltip("")
+      make_tooltip(params.html)
     }
 
   }
   else {
-    make_tooltip("")
+    make_tooltip(params.html)
   }
 
 }

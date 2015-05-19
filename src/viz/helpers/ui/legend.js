@@ -312,19 +312,64 @@ module.exports = function(vars) {
 
               var bounds = this.getBoundingClientRect(),
                   x = bounds.left + square_size/2 + window.scrollX,
-                  y = bounds.top + square_size/2 + window.scrollY;
+                  y = bounds.top + square_size/2 + window.scrollY + 5;
 
-              var idIndex = vars.id.nesting.indexOf(colorKey),
+              var id = fetchValue(vars, d, colorKey),
+                  idIndex = vars.id.nesting.indexOf(colorKey),
                   title = idIndex >= 0 ? fetchText(vars,d,idIndex)[0] :
                           vars.format.value(fetchValue(vars,d,vars.color.value,colorKey), {"key": vars.color.value, "vars": vars, "data": d});
 
+              var html, js;
+              if (vars.legend.filters.value && !(id instanceof Array)) {
+                html = "<div style='text-align:center;'>";
+                var loc = vars.format.locale.value;
+                html += "<div class='mute'>"+vars.format.value(loc.method.mute)+"</div>";
+                html += "<div class='solo'>"+vars.format.value(loc.method.solo)+"</div>";
+                html += "</div>"
+                js = function(tooltip) {
+                  var style = {
+                    "border": "1px solid #ccc",
+                    "display": "inline-block",
+                    "margin": "1px 2px",
+                    "padding": "3px 5px"
+                  }
+                  tooltip.select(".mute")
+                    .style(style)
+                    .on(events.over, function(){
+                      d3.select(this).style("cursor", "pointer");
+                    })
+                    .on(events.click, function(){
+                      var mute = vars.id.mute.value;
+                      vars.history.states.push(function(){
+                        vars.self.id({"mute": mute}).draw();
+                      })
+                      vars.self.id({"mute": id}).draw();
+                    });
+                  tooltip.select(".solo")
+                    .style(style)
+                    .on(events.over, function(){
+                      d3.select(this).style("cursor", "pointer");
+                    })
+                    .on(events.click, function(){
+                      var solo = vars.id.solo.value;
+                      vars.history.states.push(function(){
+                        vars.self.id({"solo": solo}).draw();
+                      })
+                      vars.self.id({"solo": id}).draw();
+                    });
+                }
+              }
+
               createTooltip({
                 "data": d,
+                "html": html,
+                "js": js,
                 "depth": colorDepth,
                 "footer": false,
                 "vars": vars,
                 "x": x,
                 "y": y,
+                "mouseevents": this,
                 "title": title,
                 "offset": square_size*0.4
               });

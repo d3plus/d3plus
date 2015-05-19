@@ -488,6 +488,9 @@ module.exports = function(params) {
   if (params.html && !params.fullscreen) {
     data_container.append("div")
       .html(params.html)
+    if (params.js) {
+      params.js(container)
+    }
   }
 
   var footer = body.append("div")
@@ -515,6 +518,9 @@ module.exports = function(params) {
       .style("padding","0px 12px")
       .style("position","absolute")
       .html(params.html)
+    if (params.js) {
+      params.js(container)
+    }
   }
 
   params.width = tooltip.node().offsetWidth
