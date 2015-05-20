@@ -104,7 +104,9 @@ valueParse = (vars, node, depth, variable, val) ->
   val     = [val] unless val instanceof Array
   for v, i in val
     if timeVar and v isnt null and v.constructor isnt Date
-      d = new Date v.toString()
+      v = v + ""
+      v += "/01/01" if v.length is 4 and parseInt(v)+"" is v
+      d = new Date v
       if d isnt "Invalid Date"
         # d.setTime d.getTime() + d.getTimezoneOffset() * 60 * 1000
         val[i] = d
