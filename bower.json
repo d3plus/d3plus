@@ -1,6 +1,6 @@
 {
   "name": "d3plus",
-  "main": "src/init.coffee",
+  "main": "./d3plus.js",
   "version": "1.7.3",
   "moduleType": ["node"],
   "homepage": "https://github.com/alexandersimoes/d3plus",
