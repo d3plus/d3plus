@@ -44,7 +44,7 @@ module.exports = (vars, opts) ->
         pp++
       format = d3.locale(locale).timeFormat.multi(format)
     render = sizes vals.map((v) -> format(v)), style
-    if d3.sum(render, (r) -> r.width) < limit
+    if d3.sum(render, (r) -> r.width) < limit or p is periods.indexOf total
       time.format = format
       time.values = vals
       time.sizes  = render
