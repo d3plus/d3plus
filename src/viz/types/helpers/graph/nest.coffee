@@ -10,12 +10,19 @@ module.exports = (vars, data) ->
   timeAxis = discrete.value is vars.time.value
   if timeAxis
     ticks = vars.data.time.ticks
-    if vars.time.solo.value.length
-      serialized = vars.time.solo.value.map(Number)
-      ticks = ticks.filter (f) -> serialized.indexOf(+f) >= 0
-    else if vars.time.mute.value.length
-      serialized = vars.time.mute.value.map(Number)
-      ticks = ticks.filter (f) -> serialized.indexOf(+f) < 0
+    key = if vars.time.solo.value.length then "solo" else "mute"
+    if vars.time[key].value.length
+      serialized = vars.time[key].value.slice().map (f) ->
+        if f.constructor isnt Date
+          f = f + ""
+          f += "/01/01" if f.length is 4 and parseInt(f)+"" is f
+          f = new Date f
+        +f
+      ticks = ticks.filter (f) ->
+        if key is "solo"
+          serialized.indexOf(+f) >= 0
+        else
+          serialized.indexOf(+f) < 0
   else if discrete.ticks.values
     ticks = discrete.ticks.values
   else
