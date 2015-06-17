@@ -137,15 +137,19 @@ module.exports = function(params) {
     if (vars.tooltip.children.value) {
 
       nameList = nameList.slice(0);
+      if (nameList.length > 1) nameList = dataNest(vars, nameList, [nestKey]);
 
       if (vars.size.value && validObject(nameList[0])) {
 
+        var namesNoValues = [];
         var namesWithValues = nameList.filter(function(n){
-          return vars.size.value in n && (!("d3plus" in n) || !n.d3plus.merged);
-        });
-
-        var namesNoValues = nameList.filter(function(n){
-          return !(vars.size.value in n) || (n.d3plus && n.d3plus.merged);
+          var val = fetchValue(vars, n, vars.size.value);
+          if (val !== null && (!("d3plus" in n) || !n.d3plus.merged)) {
+            return true;
+          }
+          else {
+            namesNoValues.push(n);
+          }
         });
 
         arraySort(namesWithValues, vars.size.value, "desc", [], vars);
@@ -159,6 +163,7 @@ module.exports = function(params) {
           max   = d3.min([listLength , limit]),
           objs  = [];
 
+      children.values = [];
       for (var i = 0; i < max; i++) {
 
         if (!nameList.length) break;
@@ -173,6 +178,9 @@ module.exports = function(params) {
               color = fetchColor(vars, obj, nestKey);
 
           children[name] = value && !(value instanceof Array) ? vars.format.value(value, {"key": vars.size.value, "vars": vars, "data": obj}) : "";
+          var child = {};
+          child[name] = children[name];
+          children.values.push(child);
 
           if (color) {
             if ( !children.d3plus_colors ) children.d3plus_colors = {};

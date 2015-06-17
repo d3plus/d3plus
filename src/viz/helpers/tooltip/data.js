@@ -181,33 +181,27 @@ module.exports = function(vars, id, length, extras, children, depth) {
     var title  = vars.format.locale.value.ui.including
       , colors = children.d3plus_colors
 
-    for ( var child in children ) {
+    children.values.forEach(function(child) {
+      var name = d3.keys(child)[0];
+      tooltip_data.push({
+        "group": vars.format.value(title),
+        "highlight": colors && colors[name] ? colors[name] : false,
+        "name": name,
+        "value": child[name]
+      })
+    });
 
-      if ( child !== "d3plus_colors" ) {
+    if (children.d3plusMore) {
 
-        if ( child === "d3plusMore" ) {
-
-          var more = vars.format.locale.value.ui.more
-            , name = stringFormat(more,children[child])
-            , highlight = true
-          children[child] = ""
-
-        }
-        else {
-          var name = child,
-              highlight = colors && colors[name] ? colors[name] : false
-        }
-
-        tooltip_data.push({
-          "group": vars.format.value(title),
-          "highlight": highlight,
-          "name": name,
-          "value": children[child]
-        })
-
-      }
+      tooltip_data.push({
+        "group": vars.format.value(title),
+        "highlight": true,
+        "name": stringFormat(vars.format.locale.value.ui.more, children[child]),
+        "value": ""
+      })
 
     }
+
   }
 
   if ( vars.tooltip.connections.value && length === "long" ) {
