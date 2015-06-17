@@ -47,7 +47,7 @@ module.exports = function( vars , data ) {
 
   vars.data[key].forEach(function(v) {
 
-    function test_value( val ) {
+    function test_value(val) {
 
       var arr = vars[v][key].value;
 
@@ -56,54 +56,47 @@ module.exports = function( vars , data ) {
         if (typeof f === "function") {
           match = f(val);
         }
-        else if ( f === val ) {
+        else if (f === val) {
           match = true;
         }
 
       })
 
-      return match
+      return key === "solo" ? match : !match;
+
     }
 
-    function nest_check(d) {
-
-      // if the variable has nesting, check all levels
-      var match = false
+    function filter_data(d) {
       if (vars[v].nesting) {
-        var nesting = vars[v].nesting
+        var nesting = vars[v].nesting;
         if (validObject(nesting)) {
-          nesting = d3.values(nesting)
+          nesting = d3.values(nesting);
         }
-        nesting.forEach(function(n){
-          if (!match) {
-            match = test_value(fetchValue(vars,d,n))
-          }
-        })
+        for (var n = 0; n < nesting.length; n++) {
+          var new_data = d.filter(function(dd){
+            return test_value(fetchValue(vars, dd, nesting[n]))
+          });
+          if (new_data.length) d = new_data;
+        }
       }
-      else {
-        match = test_value(fetchValue(vars,d,vars[v].value))
-      }
-
-      return key === "solo" ? match : !match
-
+      return d;
     }
 
-    data = data.filter(nest_check)
+    data = filter_data(data);
 
     if ( v === "id" ) {
 
       if ("nodes" in vars && vars.nodes.value) {
         if ( vars.dev.value ) print.time("filtering nodes")
-        vars.nodes.restricted = vars.nodes.value.filter(nest_check)
+        vars.nodes.restricted = filter_data(vars.nodes.value)
         if ( vars.dev.value ) print.timeEnd("filtering nodes")
       }
 
       if ("edges" in vars && vars.edges.value) {
         if ( vars.dev.value ) print.time("filtering edges")
         vars.edges.restricted = vars.edges.value.filter(function(d){
-          var first_match = nest_check(d[vars.edges.source]),
-              second_match = nest_check(d[vars.edges.target])
-          return first_match && second_match
+          var points = filter_data([d[vars.edges.source], d[vars.edges.target]]);
+          return points.length === 2;
         })
         if ( vars.dev.value ) print.timeEnd("filtering edges")
       }
