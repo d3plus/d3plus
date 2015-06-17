@@ -591,7 +591,7 @@ module.exports = function(vars) {
           })
 
           vars.self
-            .id({"solo": uniqueValues(d.d3plus.merged, vars.id.value, fetchValue, vars)})
+            .id({"solo": previous.concat(uniqueValues(d.d3plus.merged, vars.id.value, fetchValue, vars))})
             .title({
               "sub": {
                 "font": {
@@ -636,7 +636,7 @@ module.exports = function(vars) {
 
           vars.self
             .depth(vars.depth.value+1)
-            .id({"solo": [id]})
+            .id({"solo": previous.concat(id)})
             .title({
               "sub": {
                 "font": {
