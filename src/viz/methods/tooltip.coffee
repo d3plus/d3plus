@@ -39,4 +39,7 @@ module.exports =
     accepted: [Boolean]
     value:    true
   small: 225
+  sub:
+    accepted: [false, Function, String]
+    value:    false
   value: true

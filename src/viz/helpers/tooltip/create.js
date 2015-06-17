@@ -283,6 +283,10 @@ module.exports = function(params) {
 
       var parent = params.length !== "long" ? d3.select("body") : vars.container.value;
 
+      if (!params.description && d && vars.tooltip.sub.value) {
+        params.description = fetchValue(vars, d, vars.tooltip.sub.value);
+      }
+
       createTooltip({
         "align": align,
         "arrow": arrow,
