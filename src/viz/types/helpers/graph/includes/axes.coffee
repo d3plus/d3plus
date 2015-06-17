@@ -128,7 +128,13 @@ axisRange = (vars, axis, zero, buffer) ->
   else if vars[axis].value is vars.time.value
 
     if vars.time.solo.value.length
-      d3.extent vars.time.solo.value
+      d3.extent(vars.time.solo.value).map (v) ->
+        if v.constructor isnt Date
+          v = v + ""
+          v += "/01/01" if v.length is 4 and parseInt(v)+"" is v
+          new Date v
+        else
+          v
     else
       d3.extent vars.data.time.ticks
 

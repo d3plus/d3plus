@@ -23,7 +23,9 @@ module.exports = (vars, opts) ->
         if ticks.length
           ticks = ticks.map (d) ->
             if d.constructor isnt Date
-              d = new Date(d.toString())
+              d = d + ""
+              d += "/01/01" if d.length is 4 and parseInt(d)+"" is d
+              d = new Date d
               # d.setTime( d.getTime() + d.getTimezoneOffset() * 60 * 1000 )
             d
         else

@@ -34,7 +34,9 @@ module.exports = (vars) ->
       init = d3.extent vars.time.solo.value
       for d, i in init
         if d.constructor isnt Date
-          d = new Date d.toString()
+          d += ""
+          d += "/01/01" if d.length is 4 and parseInt(d)+"" is d
+          d = new Date d
           # d.setTime d.getTime() + d.getTimezoneOffset() * 60 * 1000
           init[i] = d
     else
