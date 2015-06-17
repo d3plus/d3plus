@@ -34,7 +34,7 @@ module.exports = function(vars) {
       });
     }
 
-    var agg = vars.aggs[total_key] || "sum";
+    var agg = vars.aggs.value[total_key] || "sum";
     var total;
     if (agg.constructor === Function) {
       total = agg(total_data);
