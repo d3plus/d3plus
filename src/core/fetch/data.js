@@ -27,7 +27,7 @@ module.exports = function(vars, years, depth) {
     var key = vars.time.solo.value.length ? "solo" : "mute",
         filterList = vars.time[key].value;
 
-    if ( filterList.length ) {
+    if (filterList.length) {
 
       years = [];
       for (var yi = 0; yi < filterList.length; yi++) {
@@ -43,7 +43,9 @@ module.exports = function(vars, years, depth) {
           years.push(new Date(y).getTime());
         }
         else {
-          var d = new Date(y.toString());
+          y += "";
+          if (y.length === 4 && parseInt(y)+"" === y) y = y + "/01/01";
+          var d = new Date(y);
           if (d !== "Invalid Date") {
             // d.setTime(d.getTime() + d.getTimezoneOffset() * 60 * 1000);
             years.push(d.getTime());
