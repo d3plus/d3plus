@@ -196,7 +196,7 @@ module.exports = function(vars, id, length, extras, children, depth) {
       tooltip_data.push({
         "group": vars.format.value(title),
         "highlight": true,
-        "name": stringFormat(vars.format.locale.value.ui.more, children[child]),
+        "name": stringFormat(vars.format.locale.value.ui.more, children.d3plusMore),
         "value": ""
       })
 
