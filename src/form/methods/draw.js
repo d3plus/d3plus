@@ -1,4 +1,5 @@
 var d3selection  = require("../../util/d3selection.coffee"),
+    hideElement  = require("../../core/parse/hideElement.js"),
     parseElement = require("../../core/parse/element.js"),
     print        = require("../../core/console/print.coffee"),
     stringFormat = require("../../string/format.js")
@@ -16,6 +17,9 @@ module.exports = {
 
     if (vars.data.value && (!(vars.data.value instanceof Array) || d3selection(vars.data.value))) {
       vars.data.value = parseElement( vars )
+    }
+    else if (vars.data.element.value) {
+      vars.data.element.value.call(hideElement);
     }
 
     if ( value === undefined && typeof this.value === "function" ) {
