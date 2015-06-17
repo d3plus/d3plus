@@ -33,7 +33,14 @@ module.exports = (number, opts) ->
       ret = format.numberFormat(".2g") number
     ret += "%"
   else if number < 10 and number > -10
-    ret = d3.round number, 2
+    length = number.toString().split(".")
+    sigs = 1
+    if length.length > 1
+      sigs = d3.min [parseFloat(length[1]).toString().length, 2]
+      unless -1 < number < 1
+        zeros = length[1].length - parseFloat(length[1]).toString().length
+        sigs += 1 + zeros
+    ret = format.numberFormat("."+sigs+"g") number
   else if length > 3
     symbol = d3.formatPrefix(number).symbol
     symbol = symbol.replace("G", "B") # d3 uses G for giga
