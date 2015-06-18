@@ -14,26 +14,26 @@ module.exports = {
         "shortMonths": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
     },
     "dev": {
-        "accepted": "{0} não é um valor aceito para {1}, por favor, use um dos seguintes procedimentos: {2}.",
+        "accepted": "{0} não é um valor válido para {1}, por favor escolha uma das seguintes opções: {2}.",
         "deprecated": "o método {0} foi removido, por favor atualize o seu código para usar {1}.",
-        "noChange": "{0} não foi atualizado porque ele não mudou.",
-        "noContainer": "Não foi possível encontrar um local na página correspondente a {0}.",
+        "noChange": "{0} não foi atualizado porque não houve modificações.",
+        "noContainer": "Não foi possível encontrar um elemento na página correspondente a {0}.",
         "of": "de",
-        "oldStyle": "propriedades de estilo para {0} já foi incorporado diretamente no. {1} ().",
+        "oldStyle": "as propriedades de {0} já foram incluídas em .{1}().",
         "sameEdge": "bordas não podem vincular a si mesmos. removendo automaticamente borda de auto-referência {0}.",
         "set": "{0} foi definido.",
-        "setLong": "{0} foi definida para {1}.",
-        "setContainer": "por favor, defina um div utilizando .container()"
+        "setLong": "{0} foi alterado para {1}.",
+        "setContainer": "por favor indique um elemento div através do método .container()"
     },
     "error": {
-        "accepted": "{0} não é um {1} reconhecido para visualizações {2}, favor usar um dos seguintes procedimentos: {3}.",
-        "connections": "Não existem ligações disponíveis para {0}.",
-        "data": "Não há dados disponíveis",
-        "dataYear": "Não há dados disponíveis para {0}.",
-        "lib": "A visualização {0} necessita que seja carregado a biblioteca {1}.",
-        "libs": "A visualização {0} necessita que seja carregado as bibliotecas {1}.",
+        "accepted": "{0} não é uma {1} válida para a visualização {2}, por favor escolha uma das seguintes: {3}.",
+        "connections": "não existem ligações disponíveis para {0}.",
+        "data": "não existem dados disponíveis",
+        "dataYear": "não existem dados disponíveis para {0}.",
+        "lib": "a visualização {0} necessita que a biblioteca {1} seja carregada.",
+        "libs": "a visualização {0} necessita que as seguintes bibliotecas sejam carregadas: {1}.",
         "method": "A visualização {0} exige a definição do método {1}.",
-        "methods": "A visualização {0} exige a definição dos métodos {1}."
+        "methods": "A visualização {0} exige a definição dos seguintes métodos {1}."
     },
     "lowercase": [
         "um",
@@ -73,25 +73,25 @@ module.exports = {
         "labels": "etiquetas",
         "legend": "legenda",
         "margin": "margem",
-        "messages": "mensagens de status",
-        "mute": "ocultar",
+        "messages": "estado",
         "order": "ordenar",
         "search": "pesquisar",
         "shape": "forma",
         "size": "tamanho",
-        "solo": "isolar",
         "style": "estilo",
         "temp": "segmentos temporários",
         "text": "texto",
         "time": "tempo",
-        "timeline": "linha do tempo",
+        "timeline": "linha temporal",
         "total": "segmentos no total",
         "type": "tipo",
         "width": "largura",
         "x": "eixo x",
         "y": "eixo y",
         "zoom": "zoom",
-        "mode": "modo"
+        "mode": "#ERROR!",
+        "mute": "ocultar",
+        "solo": "isolar"
     },
     "time": [
         "data",
@@ -102,18 +102,18 @@ module.exports = {
     ],
     "visualization": {
         "bubbles": "Bolhas",
-        "chart": "Gráfico",
+        "chart": "Diagrama",
         "geo_map": "Mapa",
         "line": "Gráfico de Linha",
-        "network": "Rede",
+        "network": "Grafo",
         "rings": "Anéis",
         "scatter": "Gráfico de Dispersão",
-        "stacked": "Evolução",
+        "stacked": "Gráfico de Área",
         "tree_map": "Tree Map",
         "bar": "Gráfico de Barras",
-        "box": "Box Plot",
+        "box": "Diagrama de Caixa e Bigodes",
         "paths": "Caminhos",
-        "pie": "Pie Chart",
+        "pie": "Gráfico de Setores",
         "table": "Tabela"
     },
     "ui": {
@@ -126,7 +126,7 @@ module.exports = {
         "more": "mais {0}",
         "moreInfo": "Clique para mais informações",
         "noResults": "nenhum resultado para {0}.",
-        "primary": "conexões primárias",
+        "primary": "ligações principais",
         "share": "proporção",
         "total": "total",
         "values": "valores",
@@ -134,12 +134,12 @@ module.exports = {
         "or": "ou"
     },
     "message": {
-        "data": "analisando dados",
-        "draw": "desenhando visualização",
-        "initializing": "inicializando {0}",
-        "loading": "carregando dados",
-        "tooltipReset": "redefinindo as dicas",
-        "ui": "atualizando interface"
+        "data": "a analisar os dados",
+        "draw": "a desenhar a visualização",
+        "initializing": "a inicializar {0}",
+        "loading": "a carregar os dados",
+        "tooltipReset": "a actualizar as caixas de informação",
+        "ui": "a actualizar o interface"
     },
     "uppercase": [
         "CEO",
@@ -155,7 +155,7 @@ module.exports = {
         "HVAC",
         "ID",
         "TI",
-        "P&D",
+        "I&D",
         "TV",
         "IU"
     ]
