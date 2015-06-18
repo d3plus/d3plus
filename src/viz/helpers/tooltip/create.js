@@ -125,7 +125,7 @@ module.exports = function(params) {
     var titleDepth = "depth" in params ? params.depth : dataDepth;
 
     var ex = {},
-        children = {},
+        children,
         depth     = vars.id.nesting[titleDepth+1] in d ? titleDepth + 1 : titleDepth,
         nestKey   = vars.id.nesting[depth],
         nameList  = "merged" in d.d3plus ? d.d3plus.merged : d[nestKey];
@@ -163,7 +163,7 @@ module.exports = function(params) {
           max   = d3.min([listLength , limit]),
           objs  = [];
 
-      children.values = [];
+      children = {"values": []};
       for (var i = 0; i < max; i++) {
 
         if (!nameList.length) break;
