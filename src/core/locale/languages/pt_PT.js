@@ -3,7 +3,7 @@ module.exports = {
         "decimal": ",",
         "thousands": ".",
         "grouping": [3],
-        "currency": ["R$", ""],
+        "currency": ["€", ""],
         "dateTime": "%A, %e de %B de %Y. %X",
         "date": "%d/%m/%Y",
         "time": "%H:%M:%S",
