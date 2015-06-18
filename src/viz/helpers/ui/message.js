@@ -1,3 +1,5 @@
+var events = require("../../../client/pointer.coffee");
+
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Creates Centered Server Message
 //------------------------------------------------------------------------------
@@ -42,14 +44,12 @@ module.exports = function(vars,message) {
     "padding": font.padding+"px"
   }
 
-  var background = vars.background.value != "none" ? vars.background.value : "white"
-
   function style(elem) {
 
     elem
       .style(font)
       .style("position","absolute")
-      .style("background",background)
+      .style("background","white")
       .style("text-align","center")
       .style("left",function(){
         return position == "center" ? "50%" : "0px"
@@ -58,8 +58,7 @@ module.exports = function(vars,message) {
         return position == "center" ? "auto" : vars.width.value+"px"
       })
       .style("margin-left",function(){
-        var offset = vars.width.value-vars.width.viz
-        return position == "center" ? -(this.offsetWidth/2+offset/2)+"px" : "0px"
+        return position == "center" ? -(this.offsetWidth/2)+"px" : "0px";
       })
       .style("top",function(){
         if (position == "center") {
@@ -94,18 +93,47 @@ module.exports = function(vars,message) {
   vars.g.message = vars.container.value.selectAll("div#d3plus_message")
     .data(["message"])
 
-  vars.g.message.enter().append("div")
+  var enter = vars.g.message.enter().append("div")
     .attr("id","d3plus_message")
-    .attr("opacity",0)
+    .attr("opacity",0);
 
-  var opacity = message ? 1 : 0,
-      text = message ? message : vars.g.message.text(),
-      display = message ? "inline-block" : "none"
+  enter.append("div")
+    .attr("class", "d3plus_message_text")
+    .style("display", "block");
+
+  vars.g.message.select(".d3plus_message_text")
+    .text(message ? message : vars.g.message.text())
+
+  var online = navigator.onLine, square = 75;
+
+  var branding = vars.g.message.selectAll(".d3plus_message_branding")
+    .data(vars.messages.branding.value && position === "center" ? [0] : []);
+
+  branding.enter().append("div")
+    .attr("class", "d3plus_message_branding")
+    .style("margin-top", "15px")
+    .style("padding-top", "0px")
+    .style("display", "block")
+    .style("font-size", "11px")
+    .style("background-size", square + "px")
+    .style("background-position", "center 10px")
+    .style("background-repeat", "no-repeat")
+    .style("cursor", "pointer")
+    .on(events.click, function(){
+      window.open("http://www.d3plus.org/", "_blank");
+    });
+
+  branding
+    .text(online ? "Powered by:" : "Powered by D3plus")
+    .style("background-color", online ? "white" : "transparent")
+    .style("background-image", online ? "url('http://d3plus.org/assets/img/d3plus-icon.png')" : "none")
+    .style("min-width", online ? square + "px" : "auto")
+    .style("height", online ? square + "px" : "auto");
+
+  branding.exit().remove();
 
   vars.g.message
-    .text(text)
-    .style("display",display)
-    .call(style).transition().duration(vars.draw.timing)
-      .style("opacity",opacity)
+    .style("display", message ? "inline-block" : "none")
+    .call(style).style("opacity", message ? 1 : 0)
 
 }

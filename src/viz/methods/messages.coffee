@@ -4,6 +4,9 @@ transform  = require "../../core/methods/font/transform.coffee"
 
 module.exports =
   accepted: [Boolean, String]
+  branding:
+    accepted: [Boolean]
+    value:    false
   font:
     color:      "#444"
     decoration: decoration()
