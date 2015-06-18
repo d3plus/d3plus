@@ -47,7 +47,7 @@ var dataNest = function(vars, flatData, nestingLevels) {
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
     // If there's only 1 leaf, and it's been processed, return it as-is.
     //--------------------------------------------------------------------------
-    if ( leaves.length === 1 && ("d3plus" in leaves[0]) ) {
+    if (leaves.length === 1 && ("d3plus" in leaves[0])) {
       groupedData.push(leaves[0]);
       return leaves[0];
     }

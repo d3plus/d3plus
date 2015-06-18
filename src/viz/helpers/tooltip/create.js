@@ -137,7 +137,7 @@ module.exports = function(params) {
     if (vars.tooltip.children.value) {
 
       nameList = nameList.slice(0);
-      if (nameList.length > 1) nameList = dataNest(vars, nameList, [nestKey]);
+      if (nameList.length > 1 && validObject(nameList[0])) nameList = dataNest(vars, nameList, [nestKey]);
 
       if (vars.size.value && validObject(nameList[0])) {
 
@@ -174,7 +174,7 @@ module.exports = function(params) {
 
         if (id !== d[vars.id.nesting[titleDepth]] && name && !children[name]) {
 
-          var value = fetchValue(vars, obj, vars.size.value, nestKey),
+          var value = validObject(obj) ? fetchValue(vars, obj, vars.size.value, nestKey) : null,
               color = fetchColor(vars, obj, nestKey);
 
           children[name] = value && !(value instanceof Array) ? vars.format.value(value, {"key": vars.size.value, "vars": vars, "data": obj}) : "";
