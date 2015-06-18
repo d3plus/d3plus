@@ -88,7 +88,52 @@ module.exports = function( vars ) {
     });
 
     var userFormat = vars.time.format.value,
-        locale = vars.format.locale.value;
+        locale = vars.format.locale.value,
+        functions = [
+          function(d) { return d.getMilliseconds(); },
+          function(d) { return d.getSeconds(); },
+          function(d) { return d.getMinutes(); },
+          function(d) { return d.getHours(); },
+          function(d) { return d.getDate() != 1; },
+          function(d) { return d.getMonth(); },
+          function(d) { return true; }
+        ];
+
+    vars.data.time.functions = functions;
+
+    var getFormat = function(s,t,small) {
+
+      if (s === t) {
+        return small && locale.timeFormat[s+"Small"] ? locale.timeFormat[s+"Small"] : locale.timeFormat[s];
+      }
+      else {
+        if (periods.indexOf(s) >= 4 || periods.indexOf(t) <= 3) {
+          return locale.timeFormat[t+"-"+s];
+        }
+        else {
+
+          var format;
+
+          if (t === "Date") {
+            format = locale.timeFormat[t];
+          }
+          else {
+            format = locale.timeFormat[t+"-Date"];
+          }
+
+          if (s === "Hours") {
+            return format +" "+ locale.timeFormat[s];
+          }
+          else {
+            return format +" "+ locale.timeFormat["Hours-"+s];
+          }
+
+        }
+      }
+
+    };
+
+    vars.data.time.getFormat = getFormat;
 
     if (userFormat) {
 
@@ -109,52 +154,7 @@ module.exports = function( vars ) {
       var stepType = vars.data.time.stepType,
           totalType = vars.data.time.totalType;
 
-      var getFormat = function(s,t,small) {
-
-        if (s === t) {
-          return small && locale.timeFormat[s+"Small"] ? locale.timeFormat[s+"Small"] : locale.timeFormat[s];
-        }
-        else {
-          if (periods.indexOf(s) >= 4 || periods.indexOf(t) <= 3) {
-            return locale.timeFormat[t+"-"+s];
-          }
-          else {
-
-            var format;
-
-            if (t === "Date") {
-              format = locale.timeFormat[t];
-            }
-            else {
-              format = locale.timeFormat[t+"-Date"];
-            }
-
-            if (s === "Hours") {
-              return format +" "+ locale.timeFormat[s];
-            }
-            else {
-              return format +" "+ locale.timeFormat["Hours-"+s];
-            }
-
-          }
-        }
-
-      };
-
-      vars.data.time.getFormat = getFormat;
-
-      var multi = [],
-          functions = [
-            function(d) { return d.getMilliseconds(); },
-            function(d) { return d.getSeconds(); },
-            function(d) { return d.getMinutes(); },
-            function(d) { return d.getHours(); },
-            function(d) { return d.getDate() != 1; },
-            function(d) { return d.getMonth(); },
-            function(d) { return true; }
-          ];
-
-      vars.data.time.functions = functions;
+      var multi = [];
 
       for (var p = periods.indexOf(stepType); p <= periods.indexOf(totalType); p++) {
         var prev = p-1 < periods.indexOf(stepType) ? periods[p] : periods[p-1];
@@ -171,15 +171,15 @@ module.exports = function( vars ) {
         vars.data.time.multiFormat = vars.data.time.format
       }
 
-      vars.data.time.ticks = [];
-      var min = d3.min(vars.data.time.values);
-      var max = d3.max(vars.data.time.values);
-      for (var s = 0; s <= vars.data.time.stepIntervals; s++) {
-        var m = new Date(min);
-        m["set"+vars.data.time.stepType](m["get"+vars.data.time.stepType]() + s);
-        if (m <= max) vars.data.time.ticks.push(m);
-      }
+    }
 
+    vars.data.time.ticks = [];
+    var min = d3.min(vars.data.time.values);
+    var max = d3.max(vars.data.time.values);
+    for (var s = 0; s <= vars.data.time.stepIntervals; s++) {
+      var m = new Date(min);
+      m["set"+vars.data.time.stepType](m["get"+vars.data.time.stepType]() + s);
+      if (m <= max) vars.data.time.ticks.push(m);
     }
 
     if ( vars.dev.value ) print.timeEnd( timerString );
