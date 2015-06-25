@@ -48,7 +48,10 @@ module.exports = (vars, opts) ->
           f = getFormat(prev,periods[pp],small)
           format.push [f, func[pp]]
           pp++
+
+        format[format.length-1][1] = () -> true
         format = d3.locale(locale).timeFormat.multi(format)
+
       render = sizes vals.map((v) -> format(v)), style
       if d3.sum(render, (r) -> r.width) < limit or p is periods.indexOf total
         time.format = format

@@ -144,7 +144,7 @@ module.exports = function( vars ) {
         vars.data.time.format = userFormat;
       }
       else if (userFormat instanceof Array) {
-        vars.data.time.format = d3.locale(locale.format).timeFormat.multi(multi);
+        vars.data.time.format = d3.locale(locale.format).timeFormat.multi(userFormat);
       }
       vars.data.time.multiFormat = vars.data.time.format;
 
@@ -165,10 +165,11 @@ module.exports = function( vars ) {
 
       vars.data.time.format = d3.locale(locale.format).timeFormat(getFormat(stepType,totalType));
       if (multi.length > 1) {
+        multi[multi.length-1][1] = function (d) { return true; }
         vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi);
       }
       else {
-        vars.data.time.multiFormat = vars.data.time.format
+        vars.data.time.multiFormat = vars.data.time.format;
       }
 
     }
