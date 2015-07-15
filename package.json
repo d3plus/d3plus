@@ -27,6 +27,9 @@
     "type": "git",
     "url": "https://github.com/alexandersimoes/d3plus.git"
   },
+  "browserify": {
+    "transform": ["coffeeify"]
+  },
   "keywords": [
     "charts",
     "d3",
