@@ -35,7 +35,7 @@ module.exports = function(vars) {
   var o_type = typeof o;
 
   if (vars.edges.opacity.changed && o_type === "string") {
-    var opacityScale = vars.edges.opacity.scale.value
+    vars.edges.opacity.scale.value
       .domain(d3.extent(edges, function(d){
         return d[o];
       }))
@@ -65,7 +65,7 @@ module.exports = function(vars) {
       .attr("opacity", function(d){
         return o_type === "number" ? o :
                o_type === "function" ? o(d, vars) :
-               opacityScale(d[o]);
+               vars.edges.opacity.scale.value(d[o]);
       })
       .style("stroke-width",function(e){
         return vars.edges.scale(e[vars.edges.size.value]);
