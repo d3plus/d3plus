@@ -36,43 +36,7 @@ module.exports = function( vars ) {
       return d.method || false;
     });
 
-  ui.enter().append("div")
-    .attr("class","d3plus_drawer_ui")
-    .style("padding",vars.ui.padding+"px")
-    .style("display","inline-block")
-    .each(function(d){
-
-      var container = d3.select(this);
-      var focus, callback;
-
-      if (typeof d.method === "string" && d.method in vars) {
-        focus = vars[d.method].value;
-        callback = function(value) {
-          if ( value !== vars[d.method].value ) {
-            vars.self[d.method](value).draw();
-          }
-        };
-      }
-      else {
-        focus = d.value[0];
-        if (validObject(focus)) focus = focus[d3.keys(focus)[0]];
-        if (typeof d.method === "function") {
-          callback = function(value) {
-            d.method(value, vars.self);
-          };
-        }
-      }
-
-      d.form = form()
-        .container(container)
-        .data({"sort": false})
-        .focus(focus, callback)
-        .id("id")
-        .text("text");
-
-    });
-
-  ui.each(function(d){
+  function create(d) {
 
     var data = [], title;
 
@@ -118,9 +82,48 @@ module.exports = function( vars ) {
       .width(d.width || false)
       .draw();
 
-  });
+  }
 
   ui.exit().remove();
+
+  ui.each(create);
+
+  ui.enter().append("div")
+    .attr("class","d3plus_drawer_ui")
+    .style("padding",vars.ui.padding+"px")
+    .style("display","inline-block")
+    .each(function(d){
+
+      var container = d3.select(this);
+      var focus, callback;
+
+      if (typeof d.method === "string" && d.method in vars) {
+        focus = vars[d.method].value;
+        callback = function(value) {
+          if ( value !== vars[d.method].value ) {
+            vars.self[d.method](value).draw();
+          }
+        };
+      }
+      else {
+        focus = d.value[0];
+        if (validObject(focus)) focus = focus[d3.keys(focus)[0]];
+        if (typeof d.method === "function") {
+          callback = function(value) {
+            d.method(value, vars.self);
+          };
+        }
+      }
+
+      d.form = form()
+        .container(container)
+        .data({"sort": false})
+        .focus(focus, callback)
+        .id("id")
+        .text("text");
+
+    })
+    .each(create);
 
   var drawerHeight = drawer.node().offsetHeight || drawer.node().getBoundingClientRect().height;
 
