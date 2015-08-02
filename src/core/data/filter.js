@@ -66,15 +66,15 @@ module.exports = function( vars , data ) {
 
     }
 
-    function filter_data(d) {
-      if (vars[v].nesting) {
+    function filter_data(d, flat) {
+      if (!flat && vars[v].nesting) {
         var nesting = vars[v].nesting;
         if (validObject(nesting)) {
           nesting = d3.values(nesting);
         }
         for (var n = 0; n < nesting.length; n++) {
           var new_data = d.filter(function(dd){
-            return test_value(fetchValue(vars, dd, nesting[n]))
+            return test_value(fetchValue(vars, dd, nesting[n]));
           });
           if (new_data.length) d = new_data;
         }
@@ -100,7 +100,7 @@ module.exports = function( vars , data ) {
       if ("edges" in vars && vars.edges.value) {
         if ( vars.dev.value ) print.time("filtering edges")
         vars.edges.restricted = vars.edges.value.filter(function(d){
-          var points = filter_data([d[vars.edges.source], d[vars.edges.target]]);
+          var points = filter_data([d[vars.edges.source], d[vars.edges.target]], true);
           return points.length === 2;
         })
         if ( vars.dev.value ) print.timeEnd("filtering edges")
