@@ -24,9 +24,11 @@ module.exports = function( vars ) {
   vars.edges.value.forEach(function(e){
 
     ["source", "target"].forEach(function(dir){
+
       var dirType = typeof e[vars.edges[dir]];
+
       if (dirType !== "object") {
-        if (dirType === "number" && !createNodes) {
+        if (dirType === "number" && !createNodes && vars.data.keys[vars.id.value] !== "number") {
           e[vars.edges[dir]] = vars.nodes.value[e[vars.edges[dir]]];
         }
         else {
@@ -42,6 +44,7 @@ module.exports = function( vars ) {
           }
         }
       }
+
       var newNode = e[vars.edges[dir]];
       if (createNodes) {
         if (placed.indexOf(newNode[vars.id.value]) < 0) {
