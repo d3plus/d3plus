@@ -109,13 +109,9 @@ module.exports = function(vars) {
             print.time( timerString )
           }
 
-          vars.g.apps[appType] = vars.g.app
-            .selectAll("g#"+appType)
-            .data([appType])
-
-          vars.g.apps[appType].enter().append("g")
-            .attr("id",appType)
-            .attr("opacity",0)
+          vars.g.apps[appType] = vars.g.app.append("g")
+            .attr("id", appType)
+            .attr("opacity", 0);
 
           if ( vars.dev.value ) print.timeEnd( timerString )
 

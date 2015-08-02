@@ -20,12 +20,7 @@ module.exports =
     accepted: [Number]
     value: 1
   process: (value, vars) ->
-
-    if vars.container.id is "default" and value.length
-      vars.self.container id: "default" + value.length
-
     process value, vars, this
-
   solo: []
   stroke:
     width: 1
