@@ -19,7 +19,9 @@ box = (vars) ->
   h         = if discrete is "x" then "height" else "width"
   w         = if discrete is "x" then "width" else "height"
   space     = vars.axes[w] / vars[discrete].ticks.values.length
-  space     = d3.min [space - vars.labels.padding * 2, 100]
+  size      = vars.size.value
+  size      = if typeof size is "number" then size else 100
+  space     = d3.min [space - vars.labels.padding * 2, size]
   mode      = vars.type.mode.value
 
   if !(mode instanceof Array)
