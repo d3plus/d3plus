@@ -13,7 +13,6 @@ chmod      = require "gulp-chmod"
 gulp.task "compile", ->
 
   normal = browserify ["./src/init.coffee"]
-    .transform "coffeeify"
     .bundle()
     .on "error", notify.onError(error)
     .pipe source("d3plus.js")
@@ -26,7 +25,6 @@ gulp.task "compile", ->
     .on "error", notify.onError(error)
 
   full = browserify ["./src/libs.coffee", "./src/init.coffee"]
-    .transform("coffeeify")
     .bundle()
     .on "error", notify.onError(error)
     .pipe source("d3plus.full.js")

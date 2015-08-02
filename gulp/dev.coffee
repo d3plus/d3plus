@@ -32,7 +32,6 @@ rebundle = ->
 
 bundler = watchify(browserify(watchify.args))
   .add "./src/init.coffee"
-  .transform "coffeeify"
   .on "update", rebundle
 
 gulp.task "dev", ->
