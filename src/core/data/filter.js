@@ -43,7 +43,7 @@ module.exports = function( vars , data ) {
   });
 
   // if "solo", only check against "solo" (disregard "mute")
-  var key = vars.data.solo.length ? "solo" : "mute"
+  var key = vars.data.solo.length ? "solo" : "mute";
 
   vars.data[key].forEach(function(v) {
 
@@ -78,6 +78,11 @@ module.exports = function( vars , data ) {
           });
           if (new_data.length) d = new_data;
         }
+      }
+      else {
+        d = d.filter(function(dd){
+          return test_value(fetchValue(vars, dd, vars[v].value));
+        });
       }
       return d;
     }
