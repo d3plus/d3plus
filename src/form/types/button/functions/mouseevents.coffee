@@ -28,4 +28,5 @@ module.exports = (elem, vars, color) ->
         .transition().duration(vars.timing.mouseevents)
         .call color, vars
 
-  .on events.click, (d) -> vars.self.focus(d[vars.id.value]).draw()
+  .on events.click, (d) ->
+    vars.self.focus(d[vars.id.value]).draw() if vars.focus.value

@@ -66,7 +66,7 @@ module.exports = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( vars.focus.value === false ) {
+      if (vars.focus.value === false && ["auto", "button"].indexOf(vars.type.value) < 0) {
 
         var element = vars.data.element.value;
 
