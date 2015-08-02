@@ -350,10 +350,11 @@ module.exports = function( vars , group ) {
                         ? "#ffffff" : vars.background.value
                 , fill = typeof label.background === "string"
                        ? label.background : color
-                , a = label.angle || 0
-                , x = label.translate ? bounds.x+bounds.width/2 : 0
-                , y = label.translate ? bounds.y+bounds.height/2 : 0
-                , transform = "scale("+1/scale[1]+")rotate("+a+","+x+","+y+")";
+                , transform = text.attr("transform").split(")");
+              transform.pop();
+              transform.pop();
+              transform.push("");
+              transform = transform.join(")");
 
               elem
                 .attr("fill",fill)
