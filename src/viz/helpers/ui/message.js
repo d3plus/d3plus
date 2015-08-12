@@ -44,13 +44,18 @@ module.exports = function(vars,message) {
     "padding": font.padding+"px"
   }
 
+  var bg = vars.background.value;
+  if (bg === "none") {
+    bg = "white";
+  }
+
   function style(elem) {
 
     elem
       .style(font)
-      .style("position","absolute")
-      .style("background","white")
-      .style("text-align","center")
+      .style("position", "absolute")
+      .style("background-color", bg)
+      .style("text-align", "center")
       .style("left",function(){
         return position == "center" ? "50%" : "0px"
       })
@@ -125,8 +130,8 @@ module.exports = function(vars,message) {
 
   branding
     .text(online ? "Powered by:" : "Powered by D3plus")
-    .style("background-color", online ? "white" : "transparent")
-    .style("background-image", online ? "url('http://d3plus.org/assets/img/d3plus-icon.png')" : "none")
+    .style("background-color", online ? bg : "transparent")
+    .style("background-image", online ? "url('http://d3plus.org/assets/img/icon-transparent.png')" : "none")
     .style("min-width", online ? square + "px" : "auto")
     .style("height", online ? square + "px" : "auto");
 

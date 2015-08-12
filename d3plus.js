@@ -10763,7 +10763,7 @@ module.exports = function( vars , data ) {
   });
 
   // if "solo", only check against "solo" (disregard "mute")
-  var key = vars.data.solo.length ? "solo" : "mute"
+  var key = vars.data.solo.length ? "solo" : "mute";
 
   vars.data[key].forEach(function(v) {
 
@@ -10786,18 +10786,23 @@ module.exports = function( vars , data ) {
 
     }
 
-    function filter_data(d) {
-      if (vars[v].nesting) {
+    function filter_data(d, flat) {
+      if (!flat && vars[v].nesting) {
         var nesting = vars[v].nesting;
         if (validObject(nesting)) {
           nesting = d3.values(nesting);
         }
         for (var n = 0; n < nesting.length; n++) {
           var new_data = d.filter(function(dd){
-            return test_value(fetchValue(vars, dd, nesting[n]))
+            return test_value(fetchValue(vars, dd, nesting[n]));
           });
           if (new_data.length) d = new_data;
         }
+      }
+      else {
+        d = d.filter(function(dd){
+          return test_value(fetchValue(vars, dd, vars[v].value));
+        });
       }
       return d;
     }
@@ -10815,7 +10820,7 @@ module.exports = function( vars , data ) {
       if ("edges" in vars && vars.edges.value) {
         if ( vars.dev.value ) print.time("filtering edges")
         vars.edges.restricted = vars.edges.value.filter(function(d){
-          var points = filter_data([d[vars.edges.source], d[vars.edges.target]]);
+          var points = filter_data([d[vars.edges.source], d[vars.edges.target]], true);
           return points.length === 2;
         })
         if ( vars.dev.value ) print.timeEnd("filtering edges")
@@ -10978,7 +10983,7 @@ module.exports = function( vars ) {
         vars.data.time.format = userFormat;
       }
       else if (userFormat instanceof Array) {
-        vars.data.time.format = d3.locale(locale.format).timeFormat.multi(multi);
+        vars.data.time.format = d3.locale(locale.format).timeFormat.multi(userFormat);
       }
       vars.data.time.multiFormat = vars.data.time.format;
 
@@ -10999,10 +11004,11 @@ module.exports = function( vars ) {
 
       vars.data.time.format = d3.locale(locale.format).timeFormat(getFormat(stepType,totalType));
       if (multi.length > 1) {
+        multi[multi.length-1][1] = function (d) { return true; }
         vars.data.time.multiFormat = d3.locale(locale.format).timeFormat.multi(multi);
       }
       else {
-        vars.data.time.multiFormat = vars.data.time.format
+        vars.data.time.multiFormat = vars.data.time.format;
       }
 
     }
@@ -11857,6 +11863,9 @@ module.exports = function(vars, opts) {
           format.push([f, func[pp]]);
           pp++;
         }
+        format[format.length - 1][1] = function() {
+          return true;
+        };
         format = d3.locale(locale).timeFormat.multi(format);
       }
       render = sizes(vals.map(function(v) {
@@ -13394,8 +13403,8 @@ module.exports = {
         "total": "segmentos no total",
         "type": "tipo",
         "width": "largura",
-        "x": "eixo x",
-        "y": "eixo y",
+        "x": "eixo dos xx",
+        "y": "eixo dos yy",
         "zoom": "zoom",
         "mode": "#ERROR!",
         "mute": "ocultar",
@@ -14471,9 +14480,11 @@ module.exports = function( vars ) {
   vars.edges.value.forEach(function(e){
 
     ["source", "target"].forEach(function(dir){
+
       var dirType = typeof e[vars.edges[dir]];
+
       if (dirType !== "object") {
-        if (dirType === "number" && !createNodes) {
+        if (dirType === "number" && !createNodes && vars.data.keys[vars.id.value] !== "number") {
           e[vars.edges[dir]] = vars.nodes.value[e[vars.edges[dir]]];
         }
         else {
@@ -14489,6 +14500,7 @@ module.exports = function( vars ) {
           }
         }
       }
+
       var newNode = e[vars.edges[dir]];
       if (createNodes) {
         if (placed.indexOf(newNode[vars.id.value]) < 0) {
@@ -15113,7 +15125,7 @@ module.exports = function() {
       //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
       // Set first element in data as focus if there is no focus set.
       //------------------------------------------------------------------------
-      if ( vars.focus.value === false ) {
+      if (vars.focus.value === false && ["auto", "button"].indexOf(vars.type.value) < 0) {
 
         var element = vars.data.element.value;
 
@@ -16445,7 +16457,9 @@ module.exports = function(elem, vars, color) {
       return d3.select(this).style("cursor", "auto").transition().duration(vars.timing.mouseevents).call(color, vars);
     }
   }).on(events.click, function(d) {
-    return vars.self.focus(d[vars.id.value]).draw();
+    if (vars.focus.value) {
+      return vars.self.focus(d[vars.id.value]).draw();
+    }
   });
 };
 
@@ -21226,13 +21240,9 @@ module.exports = function(vars) {
             print.time( timerString )
           }
 
-          vars.g.apps[appType] = vars.g.app
-            .selectAll("g#"+appType)
-            .data([appType])
-
-          vars.g.apps[appType].enter().append("g")
-            .attr("id",appType)
-            .attr("opacity",0)
+          vars.g.apps[appType] = vars.g.app.append("g")
+            .attr("id", appType)
+            .attr("opacity", 0);
 
           if ( vars.dev.value ) print.timeEnd( timerString )
 
@@ -23466,7 +23476,7 @@ module.exports = function(vars) {
   var o_type = typeof o;
 
   if (vars.edges.opacity.changed && o_type === "string") {
-    var opacityScale = vars.edges.opacity.scale.value
+    vars.edges.opacity.scale.value
       .domain(d3.extent(edges, function(d){
         return d[o];
       }))
@@ -23496,7 +23506,7 @@ module.exports = function(vars) {
       .attr("opacity", function(d){
         return o_type === "number" ? o :
                o_type === "function" ? o(d, vars) :
-               opacityScale(d[o]);
+               vars.edges.opacity.scale.value(d[o]);
       })
       .style("stroke-width",function(e){
         return vars.edges.scale(e[vars.edges.size.value]);
@@ -24631,10 +24641,11 @@ module.exports = function( vars , group ) {
                         ? "#ffffff" : vars.background.value
                 , fill = typeof label.background === "string"
                        ? label.background : color
-                , a = label.angle || 0
-                , x = label.translate ? bounds.x+bounds.width/2 : 0
-                , y = label.translate ? bounds.y+bounds.height/2 : 0
-                , transform = "scale("+1/scale[1]+")rotate("+a+","+x+","+y+")";
+                , transform = text.attr("transform").split(")");
+              transform.pop();
+              transform.pop();
+              transform.push("");
+              transform = transform.join(")");
 
               elem
                 .attr("fill",fill)
@@ -26345,43 +26356,7 @@ module.exports = function( vars ) {
       return d.method || false;
     });
 
-  ui.enter().append("div")
-    .attr("class","d3plus_drawer_ui")
-    .style("padding",vars.ui.padding+"px")
-    .style("display","inline-block")
-    .each(function(d){
-
-      var container = d3.select(this);
-      var focus, callback;
-
-      if (typeof d.method === "string" && d.method in vars) {
-        focus = vars[d.method].value;
-        callback = function(value) {
-          if ( value !== vars[d.method].value ) {
-            vars.self[d.method](value).draw();
-          }
-        };
-      }
-      else {
-        focus = d.value[0];
-        if (validObject(focus)) focus = focus[d3.keys(focus)[0]];
-        if (typeof d.method === "function") {
-          callback = function(value) {
-            d.method(value, vars.self);
-          };
-        }
-      }
-
-      d.form = form()
-        .container(container)
-        .data({"sort": false})
-        .focus(focus, callback)
-        .id("id")
-        .text("text");
-
-    });
-
-  ui.each(function(d){
+  function create(d) {
 
     var data = [], title;
 
@@ -26427,9 +26402,48 @@ module.exports = function( vars ) {
       .width(d.width || false)
       .draw();
 
-  });
+  }
 
   ui.exit().remove();
+
+  ui.each(create);
+
+  ui.enter().append("div")
+    .attr("class","d3plus_drawer_ui")
+    .style("padding",vars.ui.padding+"px")
+    .style("display","inline-block")
+    .each(function(d){
+
+      var container = d3.select(this);
+      var focus, callback;
+
+      if (typeof d.method === "string" && d.method in vars) {
+        focus = vars[d.method].value;
+        callback = function(value) {
+          if ( value !== vars[d.method].value ) {
+            vars.self[d.method](value).draw();
+          }
+        };
+      }
+      else {
+        focus = d.value[0];
+        if (validObject(focus)) focus = focus[d3.keys(focus)[0]];
+        if (typeof d.method === "function") {
+          callback = function(value) {
+            d.method(value, vars.self);
+          };
+        }
+      }
+
+      d.form = form()
+        .container(container)
+        .data({"sort": false})
+        .focus(focus, callback)
+        .id("id")
+        .text("text");
+
+    })
+    .each(create);
 
   var drawerHeight = drawer.node().offsetHeight || drawer.node().getBoundingClientRect().height;
 
@@ -27209,13 +27223,18 @@ module.exports = function(vars,message) {
     "padding": font.padding+"px"
   }
 
+  var bg = vars.background.value;
+  if (bg === "none") {
+    bg = "white";
+  }
+
   function style(elem) {
 
     elem
       .style(font)
-      .style("position","absolute")
-      .style("background","white")
-      .style("text-align","center")
+      .style("position", "absolute")
+      .style("background-color", bg)
+      .style("text-align", "center")
       .style("left",function(){
         return position == "center" ? "50%" : "0px"
       })
@@ -27290,8 +27309,8 @@ module.exports = function(vars,message) {
 
   branding
     .text(online ? "Powered by:" : "Powered by D3plus")
-    .style("background-color", online ? "white" : "transparent")
-    .style("background-image", online ? "url('http://d3plus.org/assets/img/d3plus-icon.png')" : "none")
+    .style("background-color", online ? bg : "transparent")
+    .style("background-image", online ? "url('http://d3plus.org/assets/img/icon-transparent.png')" : "none")
     .style("min-width", online ? square + "px" : "auto")
     .style("height", online ? square + "px" : "auto");
 
@@ -28343,10 +28362,16 @@ d3selection = require("../../util/d3selection.coffee");
 module.exports = {
   accepted: [false, Array, Object, String],
   id: "default",
-  process: function(value) {
+  process: function(value, vars) {
     if (value === false) {
       return false;
-    } else if (d3selection(value)) {
+    }
+    if (vars.container.id === "default") {
+      vars.self.container({
+        id: "d3plus_" + +new Date()
+      });
+    }
+    if (d3selection(value)) {
       return value;
     } else if (value instanceof Array) {
       return d3.select(value[0][0]);
@@ -28546,11 +28571,6 @@ module.exports = {
     value: 1
   },
   process: function(value, vars) {
-    if (vars.container.id === "default" && value.length) {
-      vars.self.container({
-        id: "default" + value.length
-      });
-    }
     return process(value, vars, this);
   },
   solo: [],
@@ -29968,7 +29988,7 @@ strip = require("../../string/strip.js");
 uniques = require("../../util/uniques.coffee");
 
 box = function(vars) {
-  var disMargin, discrete, domains, h, medians, mergeData, mode, noData, oppMargin, opposite, returnData, space, w;
+  var disMargin, discrete, domains, h, medians, mergeData, mode, noData, oppMargin, opposite, returnData, size, space, w;
   graph(vars, {
     buffer: true,
     mouse: true
@@ -29984,7 +30004,9 @@ box = function(vars) {
   h = discrete === "x" ? "height" : "width";
   w = discrete === "x" ? "width" : "height";
   space = vars.axes[w] / vars[discrete].ticks.values.length;
-  space = d3.min([space - vars.labels.padding * 2, 100]);
+  size = vars.size.value;
+  size = typeof size === "number" ? size : 100;
+  space = d3.min([space - vars.labels.padding * 2, size]);
   mode = vars.type.mode.value;
   if (!(mode instanceof Array)) {
     mode = [mode, mode];
