@@ -428,7 +428,8 @@ var rings = function(vars) {
 
   })
 
-  vars.mouse[events.click] = function(d) {
+  vars.mouse.viz = {};
+  vars.mouse.viz[events.click] = function(d) {
     if (d[vars.id.value] != vars.focus.value[0]) {
       removeTooltip(vars.type.value)
       vars.self.focus(d[vars.id.value]).draw()

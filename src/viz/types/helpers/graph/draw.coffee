@@ -8,5 +8,5 @@ module.exports = (vars, opts) ->
   axes vars, opts
   plot vars, opts
   draw vars, opts
-  vars.mouse = if opts.mouse is true then mouse else false
+  vars.mouse.viz = if opts.mouse is true then mouse else false
   return

@@ -154,6 +154,7 @@ module.exports = ->
     links:      require "./methods/links.coffee"
     margin:     require "./methods/margin.coffee"
     messages:   require "./methods/messages.coffee"
+    mouse:      require "./methods/mouse.coffee"
     nodes:      require "./methods/nodes.coffee"
     order:      require "./methods/order.coffee"
     shape:      require "./methods/shape.coffee"

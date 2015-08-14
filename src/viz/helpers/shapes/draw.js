@@ -421,79 +421,93 @@ module.exports = function(vars) {
     vars.g.data.selectAll("g")
       .on(events.over,function(d){
 
-        if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (vars.mouse.value && vars.mouse.over.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-          d3.select(this).style("cursor","pointer")
-            .transition().duration(vars.timing.mouseevents)
-            .call(transform,true)
+          if (typeof vars.mouse.over.value === "function") {
+            vars.mouse.over.value(d, vars.self);
+          }
+          else {
 
-          d3.select(this).selectAll(".d3plus_data")
-            .transition().duration(vars.timing.mouseevents)
-            .attr("opacity",1)
+            d3.select(this).style("cursor","pointer")
+              .transition().duration(vars.timing.mouseevents)
+              .call(transform,true)
 
-          vars.covered = false
+            d3.select(this).selectAll(".d3plus_data")
+              .transition().duration(vars.timing.mouseevents)
+              .attr("opacity",1)
 
-          if (d.values && vars.axes.discrete) {
+            vars.covered = false
 
-            var index = vars.axes.discrete === "x" ? 0 : 1
-              , mouse = d3.mouse(vars.container.value.node())[index]
-              , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
-              , match = closest(positions,mouse)
+            if (d.values && vars.axes.discrete) {
 
-            d.d3plus_data = d.values[positions.indexOf(match)]
-            d.d3plus = d.values[positions.indexOf(match)].d3plus
+              var index = vars.axes.discrete === "x" ? 0 : 1
+                , mouse = d3.mouse(vars.container.value.node())[index]
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
+                , match = closest(positions,mouse)
+
+              d.d3plus_data = d.values[positions.indexOf(match)]
+              d.d3plus = d.values[positions.indexOf(match)].d3plus
+
+            }
+
+            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
+
+            createTooltip({
+              "vars": vars,
+              "data": tooltip_data
+            })
+
+            if (typeof vars.mouse.viz == "function") {
+              vars.mouse.viz(d.d3plus_data || d, vars)
+            }
+            else if (vars.mouse.viz[events.over]) {
+              vars.mouse.viz[events.over](d.d3plus_data || d, vars)
+            }
+
+            edge_update(d)
 
           }
-
-          var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-
-          createTooltip({
-            "vars": vars,
-            "data": tooltip_data
-          })
-
-          if (typeof vars.mouse == "function") {
-            vars.mouse(d.d3plus_data || d, vars)
-          }
-          else if (vars.mouse[events.over]) {
-            vars.mouse[events.over](d.d3plus_data || d, vars)
-          }
-
-          edge_update(d)
 
         }
 
       })
       .on(events.move,function(d){
 
-        if (!vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (vars.mouse.value && vars.mouse.move.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-          // vars.covered = false
-          var tooltipType = vars.types[vars.type.value].tooltip || "follow"
-
-          if (d.values && vars.axes.discrete) {
-
-            var index = vars.axes.discrete === "x" ? 0 : 1
-              , mouse = d3.mouse(vars.container.value.node())[index]
-              , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
-              , match = closest(positions,mouse)
-
-            d.d3plus_data = d.values[positions.indexOf(match)]
-            d.d3plus = d.values[positions.indexOf(match)].d3plus
-
+          if (typeof vars.mouse.move.value === "function") {
+            vars.mouse.move.value(d, vars.self);
           }
+          else {
 
-          var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-          createTooltip({
-            "vars": vars,
-            "data": tooltip_data
-          })
+            // vars.covered = false
+            var tooltipType = vars.types[vars.type.value].tooltip || "follow"
 
-          if (typeof vars.mouse == "function") {
-            vars.mouse(d.d3plus_data || d, vars)
-          }
-          else if (vars.mouse[events.move]) {
-            vars.mouse[events.move](d.d3plus_data || d, vars)
+            if (d.values && vars.axes.discrete) {
+
+              var index = vars.axes.discrete === "x" ? 0 : 1
+                , mouse = d3.mouse(vars.container.value.node())[index]
+                , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
+                , match = closest(positions,mouse)
+
+              d.d3plus_data = d.values[positions.indexOf(match)]
+              d.d3plus = d.values[positions.indexOf(match)].d3plus
+
+            }
+
+            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
+            createTooltip({
+              "vars": vars,
+              "data": tooltip_data
+            })
+
+            if (typeof vars.mouse.viz == "function") {
+              vars.mouse.viz(d.d3plus_data || d, vars)
+            }
+            else if (vars.mouse.viz[events.move]) {
+              vars.mouse.viz[events.move](d.d3plus_data || d, vars)
+            }
+
           }
 
         }
@@ -501,30 +515,41 @@ module.exports = function(vars) {
       })
       .on(events.out,function(d){
 
-        var childElement = child(this,d3.event.toElement)
+        if (vars.mouse.value && vars.mouse.out.value) {
 
-        if (!childElement && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
-
-          d3.select(this)
-            .transition().duration(vars.timing.mouseevents)
-            .call(transform)
-
-          d3.select(this).selectAll(".d3plus_data")
-            .transition().duration(vars.timing.mouseevents)
-            .attr("opacity",vars.data.opacity)
-
-          if (!vars.covered) {
-            removeTooltip(vars.type.value)
+          if (typeof vars.mouse.out.value === "function") {
+            vars.mouse.out.value(d, vars.self);
           }
+          else {
 
-          if (typeof vars.mouse == "function") {
-            vars.mouse(d.d3plus_data || d, vars)
-          }
-          else if (vars.mouse[events.out]) {
-            vars.mouse[events.out](d.d3plus_data || d, vars)
-          }
+            var childElement = child(this,d3.event.toElement)
 
-          edge_update()
+            if (!childElement && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+
+              d3.select(this)
+                .transition().duration(vars.timing.mouseevents)
+                .call(transform)
+
+              d3.select(this).selectAll(".d3plus_data")
+                .transition().duration(vars.timing.mouseevents)
+                .attr("opacity",vars.data.opacity)
+
+              if (!vars.covered) {
+                removeTooltip(vars.type.value)
+              }
+
+              if (typeof vars.mouse.viz == "function") {
+                vars.mouse.viz(d.d3plus_data || d, vars)
+              }
+              else if (vars.mouse.viz[events.out]) {
+                vars.mouse.viz[events.out](d.d3plus_data || d, vars)
+              }
+
+              edge_update()
+
+            }
+
+          }
 
         }
 
@@ -547,151 +572,158 @@ module.exports = function(vars) {
   vars.g.data.selectAll("g")
     .on(events.click,function(d){
 
-      if (!d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (vars.mouse.value && vars.mouse.click.value && !d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
-        if (typeof vars.mouse == "function") {
-          vars.mouse(d.d3plus_data || d, vars)
+        if (typeof vars.mouse.click.value === "function") {
+          vars.mouse.click.value(d, vars.self);
         }
-        else if (vars.mouse[events.out]) {
-          vars.mouse[events.out](d.d3plus_data || d, vars)
-        }
-        else if (vars.mouse[events.click]) {
-          vars.mouse[events.click](d.d3plus_data || d, vars)
-        }
+        else {
 
-        var depth_delta = zoomDirection(d.d3plus_data || d, vars)
-          , previous = vars.id.solo.value
-          , title = fetchText(vars,d)[0]
-          , color = legible(fetchColor(vars,d))
-          , prev_sub = vars.title.sub.value || false
-          , prev_color = vars.title.sub.font.color
-          , prev_total = vars.title.total.font.color
+          if (typeof vars.mouse.viz == "function") {
+            vars.mouse.viz(d.d3plus_data || d, vars)
+          }
+          else if (vars.mouse.viz[events.out]) {
+            vars.mouse.viz[events.out](d.d3plus_data || d, vars)
+          }
+          else if (vars.mouse.viz[events.click]) {
+            vars.mouse.viz[events.click](d.d3plus_data || d, vars)
+          }
 
-        if (d.d3plus.threshold && d.d3plus.merged && vars.zoom.value) {
+          var depth_delta = zoomDirection(d.d3plus_data || d, vars)
+            , previous = vars.id.solo.value
+            , title = fetchText(vars,d)[0]
+            , color = legible(fetchColor(vars,d))
+            , prev_sub = vars.title.sub.value || false
+            , prev_color = vars.title.sub.font.color
+            , prev_total = vars.title.total.font.color
 
-          vars.history.states.push(function(){
+          if (d.d3plus.threshold && d.d3plus.merged && vars.zoom.value) {
+
+            vars.history.states.push(function(){
+
+              vars.self
+                .id({"solo": previous})
+                .title({
+                  "sub": {
+                    "font": {
+                      "color": prev_color
+                    },
+                    "value": prev_sub
+                  },
+                  "total": {
+                    "font": {
+                      "color": prev_total
+                    }
+                  }
+                })
+                .draw()
+
+            })
 
             vars.self
-              .id({"solo": previous})
+              .id({"solo": previous.concat(uniqueValues(d.d3plus.merged, vars.id.value, fetchValue, vars))})
               .title({
                 "sub": {
                   "font": {
-                    "color": prev_color
+                    "color": color
                   },
-                  "value": prev_sub
+                  "value": title
                 },
                 "total": {
                   "font": {
-                    "color": prev_total
+                    "color": color
                   }
                 }
               })
               .draw()
 
-          })
+          }
+          else if (depth_delta === 1 && vars.zoom.value) {
 
-          vars.self
-            .id({"solo": previous.concat(uniqueValues(d.d3plus.merged, vars.id.value, fetchValue, vars))})
-            .title({
-              "sub": {
-                "font": {
-                  "color": color
-                },
-                "value": title
-              },
-              "total": {
-                "font": {
-                  "color": color
-                }
-              }
+            var id = fetchValue(vars, d.d3plus_data || d, vars.id.value)
+
+            vars.history.states.push(function(){
+
+              vars.self
+                .depth(vars.depth.value-1)
+                .id({"solo": previous})
+                .title({
+                  "sub": {
+                    "font": {
+                      "color": prev_color
+                    },
+                    "value": prev_sub
+                  },
+                  "total": {
+                    "font": {
+                      "color": prev_total
+                    }
+                  }
+                })
+                .draw()
+
             })
-            .draw()
-
-        }
-        else if (depth_delta === 1 && vars.zoom.value) {
-
-          var id = fetchValue(vars, d.d3plus_data || d, vars.id.value)
-
-          vars.history.states.push(function(){
 
             vars.self
-              .depth(vars.depth.value-1)
-              .id({"solo": previous})
+              .depth(vars.depth.value+1)
+              .id({"solo": previous.concat(id)})
               .title({
                 "sub": {
                   "font": {
-                    "color": prev_color
+                    "color": color
                   },
-                  "value": prev_sub
+                  "value": title
                 },
                 "total": {
                   "font": {
-                    "color": prev_total
+                    "color": color
                   }
                 }
               })
               .draw()
 
-          })
+          }
+          else if (depth_delta === -1 && vars.zoom.value &&
+                   vars.history.states.length && !vars.tooltip.value.long) {
 
-          vars.self
-            .depth(vars.depth.value+1)
-            .id({"solo": previous.concat(id)})
-            .title({
-              "sub": {
-                "font": {
-                  "color": color
-                },
-                "value": title
-              },
-              "total": {
-                "font": {
-                  "color": color
-                }
-              }
+            vars.history.back()
+
+          }
+          else if (vars.types[vars.type.value].zoom && vars.zoom.value) {
+
+            edge_update()
+
+            d3.select(this)
+              .transition().duration(vars.timing.mouseevents)
+              .call(transform)
+
+            d3.select(this).selectAll(".d3plus_data")
+              .transition().duration(vars.timing.mouseevents)
+              .attr("opacity",vars.data.opacity)
+
+            removeTooltip(vars.type.value)
+            vars.draw.update = false
+
+            if (!d || d[vars.id.value] == vars.focus.value[0]) {
+              vars.self.focus(false).draw()
+            }
+            else {
+              vars.self.focus(d[vars.id.value]).draw()
+            }
+
+          }
+          else if (vars.types[vars.type.value].requirements.indexOf("focus") < 0) {
+
+            edge_update()
+
+            var tooltip_data = d.d3plus_data ? d.d3plus_data : d
+
+            createTooltip({
+              "vars": vars,
+              "data": tooltip_data
             })
-            .draw()
 
-        }
-        else if (depth_delta === -1 && vars.zoom.value &&
-                 vars.history.states.length && !vars.tooltip.value.long) {
-
-          vars.history.back()
-
-        }
-        else if (vars.types[vars.type.value].zoom && vars.zoom.value) {
-
-          edge_update()
-
-          d3.select(this)
-            .transition().duration(vars.timing.mouseevents)
-            .call(transform)
-
-          d3.select(this).selectAll(".d3plus_data")
-            .transition().duration(vars.timing.mouseevents)
-            .attr("opacity",vars.data.opacity)
-
-          removeTooltip(vars.type.value)
-          vars.draw.update = false
-
-          if (!d || d[vars.id.value] == vars.focus.value[0]) {
-            vars.self.focus(false).draw()
           }
-          else {
-            vars.self.focus(d[vars.id.value]).draw()
-          }
-
-        }
-        else if (vars.types[vars.type.value].requirements.indexOf("focus") < 0) {
-
-          edge_update()
-
-          var tooltip_data = d.d3plus_data ? d.d3plus_data : d
-
-          createTooltip({
-            "vars": vars,
-            "data": tooltip_data
-          })
 
         }
 

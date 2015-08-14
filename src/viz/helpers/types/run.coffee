@@ -6,7 +6,7 @@ module.exports = (vars) ->
   vars.group = vars.g.apps[vars.type.value]
 
   # Reset mouse events for the app to use
-  vars.mouse = {}
+  vars.mouse.viz = false
 
   visualization = vars.types[vars.type.value]
   requirements  = visualization.requirements or []
