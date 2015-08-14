@@ -81,7 +81,7 @@ module.exports = (vars, selection, enter, exit) ->
         reduced.geometry.coordinates = reduced.geometry.coordinates.filter (c,i) ->
           dist = distances[i]
           a = areas[i]
-          dist is 0 or a/dist > dist_cutoff
+          dist is 0 or a/dist >= dist_cutoff
 
         coords = largest.geometry.coordinates[0]
         if coords and largest.geometry.type is "MultiPolygon"
