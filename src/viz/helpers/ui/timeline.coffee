@@ -46,15 +46,16 @@ module.exports = (vars) ->
     yearHeight      = d3.max(timeReturn.sizes.map (t) -> t.height)
     labelWidth      = ~~(d3.max(timeReturn.sizes.map (t) -> t.width))+1
     labelWidth     += vars.ui.padding*2
-    timelineHeight  = yearHeight+vars.ui.padding*2
+    timelineHeight  = vars.timeline.height.value or yearHeight + vars.ui.padding * 2
     timelineWidth   = labelWidth * years.length
-    playbackWidth   = timelineHeight
+    playbackWidth   = labelWidth
+    tallEnough      = timelineHeight - vars.ui.padding * 2 >= yearHeight
 
     availableWidth = vars.width.value-vars.ui.padding*2
-    if vars.timeline.play.value
+    if tallEnough and vars.timeline.play.value
       availableWidth -= playbackWidth + vars.ui.padding
 
-    if visible.length < years.length or
+    if not tallEnough or visible.length < years.length or
        availableWidth < labelWidth * visible.length
       oldWidth       = labelWidth
       labelWidth     = (availableWidth-labelWidth)/years.length
@@ -93,7 +94,7 @@ module.exports = (vars) ->
     else
       start_x = vars.width.value/2 - timelineWidth/2
 
-    if vars.timeline.play.value
+    if tallEnough and vars.timeline.play.value
       start_x += (playbackWidth + vars.ui.padding)/2
 
     stopPlayback = ->
@@ -167,7 +168,7 @@ module.exports = (vars) ->
         setYears() if change
 
     playButton = vars.g.timeline.selectAll("rect.d3plus_timeline_play")
-      .data if vars.timeline.play.value then [0] else []
+      .data if tallEnough and vars.timeline.play.value then [0] else []
 
     playStyle = (btn) ->
       btn
@@ -192,7 +193,7 @@ module.exports = (vars) ->
       .attr("opacity", 0).remove()
 
     playIcon = vars.g.timeline.selectAll("text.d3plus_timeline_playIcon")
-      .data if vars.timeline.play.value then [0] else []
+      .data if tallEnough and vars.timeline.play.value then [0] else []
 
     playIconChar = (text, char) ->
       char = vars.timeline.play[char]
@@ -335,7 +336,7 @@ module.exports = (vars) ->
         dx = start_x + x(d)
         dx += labelWidth/2 unless timelineOffset
         dy = timelineHeight/2 + vars.ui.padding + 1
-        dy += timelineHeight if timelineOffset
+        dy += timelineHeight/2 + yearHeight if timelineOffset
         "translate("+Math.round(dx)+","+Math.round(dy)+")"
 
     text.exit().transition().duration(vars.draw.timing)

@@ -12,8 +12,8 @@ module.exports =
     stroke:   "#666"
     value:    true
   height:
-    accepted: [Number]
-    value:    23
+    accepted: [false, Number]
+    value:    false
   play:
     accepted: [Boolean]
     icon:
