@@ -4,7 +4,7 @@
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "src/init.coffee",
   "devDependencies": {
-    "browserify": "^10.2.4",
+    "browserify": "^11.0.1",
     "coffee-script": "^1.9.3",
     "coffeeify": "^1.1.0",
     "event-stream": "^3.3.1",
@@ -14,12 +14,12 @@
     "gulp-duration": "^0.0.0",
     "gulp-notify": "^2.2.0",
     "gulp-rename": "^1.2.2",
-    "gulp-streamify": "^0.0.5",
+    "gulp-streamify": "^1.0.0",
     "gulp-uglify": "^1.2.0",
-    "gulp-util": "^3.0.5",
+    "gulp-util": "^3.0.6",
     "require-dir": "^0.3.0",
     "vinyl-source-stream": "^1.1.0",
-    "watchify": "^3.2.2"
+    "watchify": "^3.3.1"
   },
   "repository": {
     "type": "git",
@@ -61,7 +61,7 @@
   },
   "homepage": "http://www.d3plus.org",
   "dependencies": {
-    "d3": "^3.5.5",
+    "d3": "^3.5.6",
     "heap": "^0.2.6",
     "numeric": "^1.2.6",
     "simplify-js": "^1.2.1",
