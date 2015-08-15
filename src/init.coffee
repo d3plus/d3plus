@@ -13,7 +13,7 @@ module.exports = d3plus
 # @type String
 # @static
 ###
-d3plus.version = "1.7.4 - Viridian"
+d3plus.version = "1.8.0 - Cerulean"
 
 ###*
 # The URL for the repo, used internally for certain error messages.
