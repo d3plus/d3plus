@@ -59,6 +59,7 @@ module.exports = function ( vars ) {
     })
     .focus("")
     .font( vars.font )
+    .format(vars.format)
     .hover(hover)
     .icon({
       "button": vars.icon.drop.value,

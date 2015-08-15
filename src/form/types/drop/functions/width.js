@@ -43,6 +43,7 @@ module.exports = function ( vars ) {
       })
       .draw({ "update": false })
       .font( font )
+      .format(vars.format)
       .icon({ "button": icon, "value": vars.icon.value })
       .id(vars.id.value)
       .timing({

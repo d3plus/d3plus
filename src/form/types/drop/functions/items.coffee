@@ -60,6 +60,7 @@ module.exports = (vars) ->
       .draw
         update: vars.draw.update
       .font vars.font.secondary
+      .format vars.format
       .hover vars.hover.value
       .id vars.id.value
       .icon
