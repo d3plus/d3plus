@@ -29,4 +29,7 @@ module.exports = (elem, vars, color) ->
         .call color, vars
 
   .on events.click, (d) ->
-    vars.self.focus(d[vars.id.value]).draw() if vars.focus.value
+    if vars.focus.value
+      vars.self.focus(d[vars.id.value]).draw()
+    else if vars.focus.callback
+      vars.focus.callback d, vars.self

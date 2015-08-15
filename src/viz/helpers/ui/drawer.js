@@ -118,7 +118,8 @@ module.exports = function( vars ) {
       d.form = form()
         .container(container)
         .data({"sort": false})
-        .focus(focus, callback)
+        .focus(d.value.length > 1 ? focus : false)
+        .focus({"callback": callback})
         .id("id")
         .text("text");
 

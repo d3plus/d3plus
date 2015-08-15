@@ -25,6 +25,7 @@ initialize = (vars, obj, method) ->
   obj.previous    = false
   obj.changed     = false
   obj.initialized = false
+  obj.callback    = false
 
   if "init" of obj and ("value" not of obj)
     obj.value = obj.init(vars)
