@@ -82,7 +82,7 @@ module.exports = function() {
           vars.focus.value = vars.data.viz[0][vars.id.value];
         }
 
-        if ( vars.dev.value && vars.focus.value ) print.log("\"value\" set to \""+vars.focus.value+"\"");
+        if (vars.dev.value && vars.focus.value !== false) print.log("\"value\" set to \""+vars.focus.value+"\"");
 
       }
 
