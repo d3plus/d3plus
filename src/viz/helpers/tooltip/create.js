@@ -281,7 +281,7 @@ module.exports = function(params) {
         var width = vars.tooltip.small
       }
 
-      var parent = params.length !== "long" ? d3.select("body") : vars.container.value;
+      var parent = params.length !== "long" && vars.tooltip.fullscreen.value ? d3.select("body") : vars.container.value;
 
       if (!params.description && d && vars.tooltip.sub.value) {
         params.description = fetchValue(vars, d, vars.tooltip.sub.value);

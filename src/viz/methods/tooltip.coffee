@@ -24,6 +24,9 @@ module.exports =
     size:      12
     transform: transform()
     weight:    200
+  fullscreen:
+    accepted: [Boolean]
+    value:    false
   html:
     accepted:   [false, Function, Object, String]
     deprecates: "click_function"
