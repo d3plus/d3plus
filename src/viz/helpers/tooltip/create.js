@@ -271,14 +271,12 @@ module.exports = function(params) {
         var icon_style = "default"
       }
 
+      var width = vars.tooltip.small;
       if (params.width) {
-        var width = params.width
+        width = params.width;
       }
-      else if (!fullscreen && tooltip_data.length == 0) {
-        var width = "auto"
-      }
-      else {
-        var width = vars.tooltip.small
+      else if (fullscreen) {
+        width = vars.tooltip.large;
       }
 
       var parent = (!fullscreen && params.length !== "long") || (fullscreen && vars.tooltip.fullscreen.value) ? d3.select("body") : vars.container.value;
@@ -308,14 +306,14 @@ module.exports = function(params) {
         "icon": icon,
         "id": tooltip_id,
         "max_height": params.maxheight,
-        "max_width": vars.tooltip.small,
+        "max_width": width,
         "mouseevents": mouse,
         "offset": offset,
         "parent": parent,
         "style": icon_style,
         "title": title,
         "description": params.description,
-        "width": width,
+        "width": !params.width && !fullscreen && tooltip_data.length == 0 ? "auto" : width,
         "x": x,
         "y": y
       })
