@@ -76,6 +76,10 @@ module.exports = function( vars ) {
       .type(d.type || "auto")
       .ui({
         "align": vars.ui.align.value,
+        "color": {
+          "primary": vars.ui.color.primary.value,
+          "secondary": vars.ui.color.secondary.value
+        },
         "padding": vars.ui.padding,
         "margin": 0
       })
