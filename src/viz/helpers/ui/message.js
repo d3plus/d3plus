@@ -128,10 +128,15 @@ module.exports = function(vars,message) {
       window.open("http://www.d3plus.org/", "_blank");
     });
 
+  var logo = "";
+  if (d3.hsl(bg).l < 0.5) {
+    logo = "-invert";
+  }
+
   branding
     .text(online ? "Powered by:" : "Powered by D3plus")
     .style("background-color", online ? bg : "transparent")
-    .style("background-image", online ? "url('http://d3plus.org/assets/img/icon-transparent.png')" : "none")
+    .style("background-image", online ? "url('http://d3plus.org/assets/img/icon-transparent"+logo+".png')" : "none")
     .style("min-width", online ? square + "px" : "auto")
     .style("height", online ? square + "px" : "auto");
 
