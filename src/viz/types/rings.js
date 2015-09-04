@@ -5,6 +5,7 @@ var arraySort     = require("../../array/sort.coffee"),
     legible       = require("../../color/legible.coffee"),
     removeTooltip = require("../../tooltip/remove.coffee"),
     smallestGap   = require("../../network/smallestGap.coffee"),
+    textColor     = require("../../color/text.coffee"),
     uniqueValues  = require("../../util/uniques.coffee")
 
 var rings = function(vars) {
@@ -359,6 +360,13 @@ var rings = function(vars) {
 
   })
 
+  var labelColor = false;
+  if (vars.background.value &&
+      ["transparent", "none"].indexOf(vars.background.value) < 0 &&
+      d3.hsl(vars.background.value).l < 0.5) {
+    labelColor = textColor(vars.background.value);
+  }
+
   nodes.forEach(function(n) {
 
     if (!vars.small && vars.labels.value) {
@@ -392,7 +400,7 @@ var rings = function(vars) {
           "angle": angle,
           "anchor": anchor,
           "valign": "center",
-          "color": legible(fetchColor(vars,n)),
+          "color": labelColor || legible(fetchColor(vars,n)),
           "resize": [8, vars.labels.font.size],
           "background": background,
           "mouse": true
@@ -408,7 +416,7 @@ var rings = function(vars) {
           "y": n.d3plus.r+height/2,
           "w": primaryRing,
           "h": height,
-          "color": legible(fetchColor(vars,n)),
+          "color": labelColor || legible(fetchColor(vars,n)),
           "resize": [10,40],
           "background": true,
           "mouse": true

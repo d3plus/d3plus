@@ -11,6 +11,9 @@ module.exports =
       value = @accepted[css] if css >= 0
       value
     value: "middle"
+  color:
+    accepted: [false, String]
+    value:    false
   font:
     decoration: decoration()
     family:     family()
