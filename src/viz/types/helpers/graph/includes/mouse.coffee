@@ -3,6 +3,7 @@ events     = require "../../../../../client/pointer.coffee"
 fetchColor = require "../../../../../core/fetch/color.coffee"
 fetchValue = require "../../../../../core/fetch/value.coffee"
 legible    = require "../../../../../color/legible.coffee"
+textColor  = require "../../../../../color/text.coffee"
 
 module.exports = (node, vars) ->
 
@@ -92,7 +93,6 @@ module.exports = (node, vars) ->
   textStyle = (text) ->
     text
       .attr "font-size",   (d) -> vars[d].ticks.font.size+"px"
-      .attr "fill",        (d) -> vars[d].ticks.font.color
       .attr "font-family", (d) -> vars[d].ticks.font.family.value
       .attr "font-weight", (d) -> vars[d].ticks.font.weight
       .attr "x", (d) ->
@@ -104,7 +104,11 @@ module.exports = (node, vars) ->
             graph.margin.top - 6
           else
             graph.height + graph.margin.top + 5 + vars[d].ticks.size
-      .attr "fill", if vars.shape.value is "area" then "white" else color
+      .attr "fill",
+        if vars.shape.value is "area"
+          "white"
+        else
+          textColor color
 
   texts = vars.g.labels.selectAll("text.d3plus_mouse_axis_label").data lineData
 
@@ -163,8 +167,7 @@ module.exports = (node, vars) ->
       .attr "height", (d) -> getText(d).height + 10
       .style "stroke",
         if vars.shape.value is "area" then "transparent" else color
-      .attr "fill",
-        if vars.shape.value is "area" then color else vars.background.value
+      .attr "fill", color
       .attr "shape-rendering", (d) -> vars[d].mouse.rendering.value
       .style "stroke-width", (d) -> vars[d].mouse.width
 
