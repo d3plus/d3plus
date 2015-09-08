@@ -31,6 +31,6 @@ module.exports = (d, vars, stroke) ->
      (active and not total)
     fetchColor vars, d
   else if vars.active.spotlight.value
-    "#eee"
+    vars.color.missing
   else
     lighter fetchColor(vars, d), .75
