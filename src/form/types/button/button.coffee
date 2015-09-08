@@ -36,6 +36,9 @@ module.exports = (vars) ->
       checks.indexOf(b[vars.id.value]) >= 0
 
   print.time "update" if vars.dev.value
+  updatedButtons.classed "d3plus_button_active", (d) ->
+    vars.focus.value is d[vars.id.value]
+
   if vars.draw.timing
     updatedButtons.transition().duration(vars.draw.timing)
       .call(color, vars).call style, vars
