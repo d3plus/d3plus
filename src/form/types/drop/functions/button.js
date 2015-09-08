@@ -71,6 +71,7 @@ module.exports = function ( vars ) {
       "ui": vars.draw.timing
     })
     .ui({
+      "border": vars.ui.border,
       "color": vars.ui.color,
       "padding": vars.ui.padding.css
     })

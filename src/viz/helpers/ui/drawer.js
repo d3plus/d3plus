@@ -80,6 +80,7 @@ module.exports = function( vars ) {
       .type(d.type || "auto")
       .ui({
         "align": vars.ui.align.value,
+        "border": vars.ui.border,
         "color": {
           "primary": vars.ui.color.primary.value,
           "secondary": vars.ui.color.secondary.value
