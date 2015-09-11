@@ -121,7 +121,15 @@ module.exports = function(vars) {
 
         var order = vars[vars.legend.order.value].value;
 
-        arraySort(colors, order, vars.legend.order.sort.value, vars.color.value, vars, colorDepth);
+        var sort_color = vars.color.value;
+        if (!order) {
+          order = vars[vars.color.value].value;
+        }
+        else if (vars.legend.order.value !== "color") {
+          sort_color = [];
+        }
+
+        arraySort(colors, order, vars.legend.order.sort.value, sort_color, vars, colorDepth);
 
         if ( vars.dev.value ) print.timeEnd("sorting legend");
 
