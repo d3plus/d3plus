@@ -227,42 +227,52 @@ module.exports = function(vars) {
               }
               else {
 
-                var names;
-                if (vars.legend.text.value) {
-                  names = [fetchValue(vars, g, vars.legend.text.value, colorDepth)];
-                }
-                else {
-                  names = fetchText(vars, g, colorDepth);
-                }
+                if (vars.legend.labels.value) {
 
-                if (names.length === 1 && !(names[0] instanceof Array) && names[0].length) {
+                  var names;
+                  if (vars.legend.text.value) {
+                    names = [fetchValue(vars, g, vars.legend.text.value, colorDepth)];
+                  }
+                  else {
+                    names = fetchText(vars, g, colorDepth);
+                  }
 
-                  var text = d3.select(this.parentNode).append("text");
+                  if (names.length === 1 && !(names[0] instanceof Array) && names[0].length) {
 
-                  text
-                    .attr("font-size",vars.legend.font.size+"px")
-                    .attr("font-weight",vars.legend.font.weight)
-                    .attr("font-family",vars.legend.font.family.value)
-                    .attr("fill",textColor(color))
-                    .attr("x",0)
-                    .attr("y",0)
-                    .each(function(t){
+                    var text = d3.select(this.parentNode).append("text"),
+                        size = vars.legend.font.size;
 
-                      textWrap()
-                        .align("middle")
-                        .container( d3.select(this) )
-                        .height(square_size)
-                        .padding(vars.ui.padding)
-                        .resize( vars.labels.resize.value )
-                        .text( names[0] )
-                        .width(square_size)
-                        .valign("middle")
-                        .draw();
+                    if (!(size instanceof Array)) {
+                      size = [size]
+                    }
 
-                    })
+                    text
+                      .attr("font-size", size[size.length-1]+"px")
+                      .attr("font-weight", vars.legend.font.weight)
+                      .attr("font-family", vars.legend.font.family.value)
+                      .attr("fill", textColor(color))
+                      .attr("x", 0)
+                      .attr("y", 0)
+                      .each(function(t){
 
-                  if (text.select("tspan").empty()) {
-                    text.remove();
+                        textWrap()
+                          .align("middle")
+                          .container( d3.select(this) )
+                          .height(square_size)
+                          .padding(vars.ui.padding)
+                          .resize(size.length > 1)
+                          .size(size)
+                          .text( names[0] )
+                          .width(square_size)
+                          .valign("middle")
+                          .draw();
+
+                      })
+
+                    if (text.select("tspan").empty()) {
+                      text.remove();
+                    }
+
                   }
 
                 }

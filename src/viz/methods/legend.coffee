@@ -10,11 +10,14 @@ module.exports =
     align:  "middle"
     color:  "#444444"
     family: family()
-    size:   10
+    size:   [8, 14]
     weight: 200
   gradient:
     height: 10
   icons:
+    accepted: [Boolean]
+    value:    true
+  labels:
     accepted: [Boolean]
     value:    true
   order:
@@ -23,7 +26,7 @@ module.exports =
       accepted: ["asc", "desc"]
       value:    "asc"
     value: "color"
-  size:  [8,30]
+  size:  [8, 30]
   tooltip:
     accepted: [Boolean]
     value:    true
