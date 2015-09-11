@@ -3,8 +3,6 @@ dataThreshold = require("../../core/data/threshold.js")
 fetchValue    = require("../../core/fetch/value.coffee")
 groupData     = require("../../core/data/group.coffee")
 
-order = {}
-
 pie = (vars) ->
 
   pieLayout   = d3.layout.pie()
@@ -12,12 +10,10 @@ pie = (vars) ->
     .sort (a, b) ->
       if vars.order.value
         comparator a.d3plus, b.d3plus, [vars.order.value], vars.order.sort.value, [], vars
+      else if vars.id.nesting.length > 1
+        comparator a.d3plus, b.d3plus, vars.id.nesting.concat([vars.size.value]), undefined, [], vars
       else
-        aID = fetchValue vars, a.d3plus, vars.id.value
-        order[aID] = a.value if order[aID] is undefined
-        bID = fetchValue vars, b.d3plus, vars.id.value
-        order[bID] = b.value if order[bID] is undefined
-        if order[bID] < order[aID] then -1 else 1
+        comparator a.d3plus, b.d3plus, [vars.size.value], "desc", [], vars
 
   groupedData = groupData vars, vars.data.viz, []
   pieData     = pieLayout groupedData
