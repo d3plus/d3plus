@@ -33,6 +33,7 @@ pie = (vars) ->
     item.d3plus.r          = radius
     item.d3plus.x          = vars.width.viz/2
     item.d3plus.y          = vars.height.viz/2
+    item.d3plus.share      = (d.endAngle-d.startAngle)/(Math.PI * 2)
 
     returnData.push item
 
