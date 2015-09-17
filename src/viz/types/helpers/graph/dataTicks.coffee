@@ -5,7 +5,7 @@ print   = require "../../../../core/console/print.coffee"
 module.exports = (vars) ->
 
   axes = vars.axes
-  data = if axes.stacked then [] else vars.data.viz
+  data = if axes.stacked or not axes.ticks.value then [] else vars.data.viz
   timing = if data.length * 2 > vars.data.large then 0 else vars.draw.timing
 
   style = (line, axis) ->
