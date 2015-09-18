@@ -94,6 +94,7 @@ module.exports = (vars) ->
 
     current   = textBox.text()
 
+    next_char = ""
     if reverse
       next_char = vars.text.current.charAt(vars.text.current.length - progress.length - 1)
       joiner    = if next_char is " " then " " else ""
@@ -105,7 +106,7 @@ module.exports = (vars) ->
       progress += joiner + word
       textBox.text current + joiner + word
 
-    if textBox.node().getComputedTextLength() > lineWidth()
+    if textBox.node().getComputedTextLength() > lineWidth() or next_char is "\n"
       textBox.text current
       textBox = newLine(word)
       if reverse then line-- else line++
