@@ -1,6 +1,6 @@
 {
   "name": "d3plus",
-  "main": "./d3plus.js",
+  "main": "./d3plus.full.js",
   "version": "1.8.0",
   "moduleType": ["node"],
   "homepage": "https://github.com/alexandersimoes/d3plus",
