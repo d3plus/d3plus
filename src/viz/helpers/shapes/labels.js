@@ -33,7 +33,7 @@ module.exports = function( vars , group ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Label Exiting
   //----------------------------------------------------------------------------
-  remove = function(text) {
+  var remove = function(text) {
 
     if (vars.draw.timing) {
       text
@@ -50,7 +50,7 @@ module.exports = function( vars , group ) {
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Label Styling
   //----------------------------------------------------------------------------
-  style = function(text) {
+  var style = function(text) {
 
     var salign = vars.labels.valign.value === "bottom" ? "top" : "bottom";
 
