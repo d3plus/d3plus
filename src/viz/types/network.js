@@ -9,7 +9,7 @@ var network = function(vars) {
   // Use filtered lists if they are available
   //----------------------------------------------------------------------------
   var nodes = vars.nodes.restricted || vars.nodes.value,
-      edges = vars.edges.restricted || vars.edges.value
+      edges = vars.edges.restricted || vars.edges.value;
 
   var x_range = d3.extent(nodes,function(n){return n.x}),
       y_range = d3.extent(nodes,function(n){return n.y})

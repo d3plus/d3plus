@@ -117,7 +117,11 @@ module.exports = function(vars, years, depth) {
 
     if ( vars.dev.value ) print.comment("data already cached");
 
-    returnData = vars.data.cache[cacheID];
+    returnData = vars.data.cache[cacheID].data;
+    if ("nodes" in vars) {
+      vars.nodes.restricted = vars.data.cache[cacheID].nodes;
+      vars.edges.restricted = vars.data.cache[cacheID].edges;
+    }
 
     if ( typeof vizFilter === "function" ) {
       returnData = vizFilter( vars ,  returnData );
@@ -197,7 +201,11 @@ module.exports = function(vars, years, depth) {
       }
 
       cacheID = new Date().getTime() + "_" + cacheID;
-      vars.data.cache[cacheID] = returnData;
+      vars.data.cache[cacheID] = {"data": returnData};
+      if ("nodes" in vars) {
+        vars.data.cache[cacheID].nodes = vars.nodes.restricted;
+        vars.data.cache[cacheID].edges = vars.edges.restricted;
+      }
 
       if ( typeof vizFilter === "function" ) {
         returnData = vizFilter( vars , returnData );

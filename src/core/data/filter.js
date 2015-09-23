@@ -45,70 +45,78 @@ module.exports = function( vars , data ) {
   // if "solo", only check against "solo" (disregard "mute")
   var key = vars.data.solo.length ? "solo" : "mute";
 
-  vars.data[key].forEach(function(v) {
+  if (vars.data[key].length) {
 
-    function test_value(val) {
+    vars.data[key].forEach(function(v) {
 
-      var arr = vars[v][key].value;
+      function test_value(val) {
 
-      var match = false;
-      arr.forEach(function(f){
-        if (typeof f === "function") {
-          match = f(val);
-        }
-        else if (f === val) {
-          match = true;
-        }
+        var arr = vars[v][key].value;
 
-      })
+        var match = false;
+        arr.forEach(function(f){
+          if (typeof f === "function") {
+            match = f(val);
+          }
+          else if (f === val) {
+            match = true;
+          }
 
-      return key === "solo" ? match : !match;
-
-    }
-
-    function filter_data(d, flat) {
-      if (!flat && vars[v].nesting) {
-        var nesting = vars[v].nesting;
-        if (validObject(nesting)) {
-          nesting = d3.values(nesting);
-        }
-        for (var n = 0; n < nesting.length; n++) {
-          var new_data = d.filter(function(dd){
-            return test_value(fetchValue(vars, dd, nesting[n]));
-          });
-          if (new_data.length) d = new_data;
-        }
-      }
-      else {
-        d = d.filter(function(dd){
-          return test_value(fetchValue(vars, dd, vars[v].value));
-        });
-      }
-      return d;
-    }
-
-    data = filter_data(data);
-
-    if ( v === "id" ) {
-
-      if ("nodes" in vars && vars.nodes.value) {
-        if ( vars.dev.value ) print.time("filtering nodes")
-        vars.nodes.restricted = filter_data(vars.nodes.value)
-        if ( vars.dev.value ) print.timeEnd("filtering nodes")
-      }
-
-      if ("edges" in vars && vars.edges.value) {
-        if ( vars.dev.value ) print.time("filtering edges")
-        vars.edges.restricted = vars.edges.value.filter(function(d){
-          var points = filter_data([d[vars.edges.source], d[vars.edges.target]], true);
-          return points.length === 2;
         })
-        if ( vars.dev.value ) print.timeEnd("filtering edges")
+
+        return key === "solo" ? match : !match;
+
       }
 
-    }
+      function filter_data(d, flat) {
+        if (!flat && vars[v].nesting) {
+          var nesting = vars[v].nesting;
+          if (validObject(nesting)) {
+            nesting = d3.values(nesting);
+          }
+          for (var n = 0; n < nesting.length; n++) {
+            var new_data = d.filter(function(dd){
+              return test_value(fetchValue(vars, dd, nesting[n]));
+            });
+            if (new_data.length) d = new_data;
+          }
+        }
+        else {
+          d = d.filter(function(dd){
+            return test_value(fetchValue(vars, dd, vars[v].value));
+          });
+        }
+        return d;
+      }
 
-  })
+      data = filter_data(data);
+
+      if ( v === "id" ) {
+
+        if ("nodes" in vars && vars.nodes.value) {
+          if ( vars.dev.value ) print.time("filtering nodes")
+          vars.nodes.restricted = filter_data(vars.nodes.value);
+          if ( vars.dev.value ) print.timeEnd("filtering nodes")
+        }
+
+        if ("edges" in vars && vars.edges.value) {
+          if ( vars.dev.value ) print.time("filtering edges")
+          vars.edges.restricted = vars.edges.value.filter(function(d){
+            var points = filter_data([d[vars.edges.source], d[vars.edges.target]]);
+            return points.length === 2;
+          })
+          if ( vars.dev.value ) print.timeEnd("filtering edges")
+        }
+
+      }
+
+    })
+
+  }
+  else {
+    vars.nodes.restricted = undefined;
+    vars.edges.restricted = undefined;
+  }
 
   if ( vars.dev.value ) print.timeEnd("filtering data")
 
