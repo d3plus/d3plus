@@ -36,7 +36,7 @@ module.exports = (vars, selection, enter, exit) ->
   vars.old_width  = vars.width.viz
 
   if vars.coords.changed or size_change or vars.coords.mute.changed or
-     vars.coords.solo.changed or vars.type.changed
+     vars.coords.solo.changed or vars.type.changed or vars.text.changed
 
     vars.zoom.bounds = null
     vars.zoom.reset  = true
