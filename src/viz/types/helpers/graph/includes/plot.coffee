@@ -17,9 +17,7 @@ module.exports = (vars, opts) ->
   # Set ticks, if not previously set
   for axis in axes
 
-    if vars[axis].ticks.value
-      vars[axis].ticks.values = vars[axis].ticks.value
-    else if vars[axis].ticks.values is false
+    if vars[axis].ticks.values is false
       if vars[axis].value is vars.time.value
         ticks = vars.time.solo.value
         if ticks.length
@@ -59,11 +57,7 @@ module.exports = (vars, opts) ->
       buffer vars, axis, opts.buffer
     vars[axis].reset = false
 
-    if vars[axis].ticks.value
-
-      vars[axis].ticks.visible = vars[axis].ticks.value
-
-    else if vars[axis].value is vars.time.value
+    if vars[axis].value is vars.time.value
 
       axisStyle =
         "font-family": vars[axis].ticks.font.family.value
@@ -75,8 +69,15 @@ module.exports = (vars, opts) ->
         limit:  vars.width.viz
         style:  axisStyle
 
-      vars[axis].ticks.visible = timeReturn.values.map Number
+      if vars[axis].ticks.value
+        vars[axis].ticks.visible = vars[axis].ticks.value.map Number
+      else
+        vars[axis].ticks.visible = timeReturn.values.map Number
       vars[axis].ticks.format  = timeReturn.format
+
+    else if vars[axis].ticks.value
+      vars[axis].ticks.values = vars[axis].ticks.value
+      vars[axis].ticks.visible = vars[axis].ticks.value
 
     else if vars[axis].scale.value is "log"
       ticks = vars[axis].ticks.values

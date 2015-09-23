@@ -240,7 +240,10 @@ module.exports = (vars) ->
   for axis in ["x","y"]
 
     if vars[axis].grid.value
-      gridData = vars[axis].ticks.values
+      if vars[axis].ticks.value
+        gridData = vars[axis].ticks.value
+      else
+        gridData = vars[axis].ticks.values
     else
       gridData = []
       if vars[axis].ticks.values.indexOf(0) >= 0 and vars[axis].axis.value
