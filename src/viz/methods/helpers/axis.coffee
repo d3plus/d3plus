@@ -122,6 +122,7 @@ module.exports = (axis) ->
       value
     value: false
   ticks:
+    accepted: [false, Array]
     color:     "#ccc"
     font:
       color:      "#666"
@@ -133,6 +134,7 @@ module.exports = (axis) ->
     rendering: rendering()
     size:      10
     width:     1
+    value:     false
   value:    false
   zerofill:
     accepted: [Boolean]

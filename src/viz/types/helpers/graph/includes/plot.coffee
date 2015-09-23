@@ -57,7 +57,11 @@ module.exports = (vars, opts) ->
       buffer vars, axis, opts.buffer
     vars[axis].reset = false
 
-    if vars[axis].value is vars.time.value
+    if vars[axis].ticks.value
+
+      vars[axis].ticks.visible = vars[axis].ticks.value
+
+    else if vars[axis].value is vars.time.value
 
       axisStyle =
         "font-family": vars[axis].ticks.font.family.value
