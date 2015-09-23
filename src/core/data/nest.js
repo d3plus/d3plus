@@ -133,11 +133,14 @@ var dataNest = function(vars, flatData, nestingLevels) {
         if (key in returnObj.d3plus.data) {
           returnObj[key] = returnObj.d3plus[key];
         }
-        if (aggType === "function") {
+        else if (aggType === "function") {
           returnObj[key] = vars.aggs.value[key](leaves);
         }
         else if (timeKey) {
           returnObj[key] = parseDates(uniqueValues(leaves, key));
+        }
+        else if (vars.axes.discrete && vars[vars.axes.discrete].value === key) {
+          returnObj[key] = uniqueValues(leaves, key);
         }
         else if (keyType === "number" && aggType === "string" && !idKey) {
           var vals = leaves.map(function(d){ return d[key]; });
