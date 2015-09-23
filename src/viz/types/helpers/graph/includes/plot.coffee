@@ -17,7 +17,9 @@ module.exports = (vars, opts) ->
   # Set ticks, if not previously set
   for axis in axes
 
-    if vars[axis].ticks.values is false
+    if vars[axis].ticks.value
+      vars[axis].ticks.values = vars[axis].ticks.value
+    else if vars[axis].ticks.values is false
       if vars[axis].value is vars.time.value
         ticks = vars.time.solo.value
         if ticks.length
