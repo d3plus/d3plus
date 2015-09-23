@@ -139,7 +139,7 @@ var dataNest = function(vars, flatData, nestingLevels) {
         else if (timeKey) {
           returnObj[key] = parseDates(uniqueValues(leaves, key));
         }
-        else if (vars.axes.discrete && vars[vars.axes.discrete].value === key) {
+        else if (vars.axes && vars.axes.discrete && vars[vars.axes.discrete].value === key) {
           returnObj[key] = uniqueValues(leaves, key);
         }
         else if (keyType === "number" && aggType === "string" && !idKey) {

@@ -113,7 +113,7 @@ module.exports = function( vars , data ) {
     })
 
   }
-  else {
+  else if ("nodes" in vars) {
     vars.nodes.restricted = undefined;
     vars.edges.restricted = undefined;
   }
