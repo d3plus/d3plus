@@ -280,7 +280,9 @@ module.exports = (vars) ->
       else
         opacity = 0.5
         color = textColor vars.ui.color.primary.value
-      color = d3.rgb(color)
+      if timelineOffset and vars.background.value and vars.background.value isnt "none"
+        color = d3.rgb(textColor(vars.background.value))
+      color = d3.rgb color
       "rgba("+color.r+","+color.g+","+color.b+","+opacity+")"
 
     background = vars.g.timeline.selectAll("rect.d3plus_timeline_background")
