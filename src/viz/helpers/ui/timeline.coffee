@@ -48,7 +48,7 @@ module.exports = (vars) ->
     labelWidth     += vars.ui.padding*2
     timelineHeight  = vars.timeline.height.value or yearHeight + vars.ui.padding * 2
     timelineWidth   = labelWidth * years.length
-    playbackWidth   = labelWidth
+    playbackWidth   = timelineHeight
     tallEnough      = timelineHeight - vars.ui.padding * 2 >= yearHeight
 
     availableWidth = vars.width.value-vars.ui.padding*2
@@ -356,7 +356,7 @@ module.exports = (vars) ->
       tickColor = vars.x.ticks.color
 
     ticks
-      .attr("transform","translate("+start_x+","+vars.ui.padding+")")
+      .attr("transform","translate("+start_x+","+(vars.ui.padding+1)+")")
       .transition().duration(vars.draw.timing)
       .call(d3.svg.axis()
               .scale(x)
@@ -377,7 +377,7 @@ module.exports = (vars) ->
     ticks.selectAll("path").attr("fill","none")
 
     brush_group
-      .attr("transform","translate("+start_x+","+vars.ui.padding+")")
+      .attr("transform","translate("+start_x+","+(vars.ui.padding+1)+")")
       .attr("opacity",1)
       .call(brush)
 
