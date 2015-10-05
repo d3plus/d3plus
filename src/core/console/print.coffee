@@ -1,5 +1,6 @@
-ie   = require "../../client/ie.js"
-wiki = require "./wiki.coffee"
+ie    = require "../../client/ie.js"
+touch = require "../../client/touch.coffee"
+wiki  = require "./wiki.coffee"
 
 icon = "http://d3plus.org/assets/img/favicon.ico"
 
@@ -64,8 +65,9 @@ print.stack = ->
         e.indexOf("d3plus.js:") < 0 and
         e.indexOf("d3plus.min.js:") < 0
       if stack.length and stack[0].length
-        splitter = (if window.chrome then "at " else "@")
-        url = stack[0].split(splitter)[1]
+        splitter = if window.chrome then "at " else "@"
+        url = stack[0]
+        url = url.split(splitter)[1] if url.indexOf(splitter) >= 0
         stack = url.split(":")
         stack.pop()  if stack.length is 3
         line = stack.pop()
