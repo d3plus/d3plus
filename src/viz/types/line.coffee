@@ -1,6 +1,7 @@
 fetchValue = require "../../core/fetch/value.coffee"
 graph      = require "./helpers/graph/draw.coffee"
 nest       = require "./helpers/graph/nest.coffee"
+sort       = require "../../array/sort.coffee"
 stack      = require "./helpers/graph/stack.coffee"
 
 # Line Plot
@@ -13,8 +14,8 @@ line = (vars) ->
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
 
-  # data = nest vars
-  data = vars.data.viz
+  # sort lines
+  data = sort vars.data.viz, null, null, null, vars
 
   # Assign x and y to each data point
   for point in data
