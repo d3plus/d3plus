@@ -67,10 +67,12 @@ module.exports = (vars) ->
       .call style
       .html () ->
 
-        if stylesheet "font-awesome"
-          arrow = "<i class='fa fa-angle-left' style='margin-top:2px;margin-right:4px;'></i>"
+        if stylesheet("font-awesome") and
+           vars.icon.back.value.indexOf("fa-") is 0
+          arrow = "<i class='fa " + vars.icon.back.value
+          arrow += "' style='margin-top:2px;margin-right:4px;'></i>"
         else
-          arrow = "&laquo; "
+          arrow = vars.icon.back.value + " "
 
         arrow + vars.format.value(vars.format.locale.value.ui.back)
 
