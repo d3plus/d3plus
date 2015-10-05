@@ -26,9 +26,12 @@ module.exports = function(vars,selection,enter,exit) {
   // point on the line.
   //----------------------------------------------------------------------------
 
-  var stroke = vars.data.stroke.width * 2,
-      hitarea = stroke < 15 ? 15 : stroke,
-      discrete = vars[vars.axes.discrete];
+  var stroke = vars.size.value || vars.data.stroke.width * 2,
+      discrete = vars[vars.axes.discrete],
+      hitarea = function(l){
+        var s = stroke.constructor === Number ? stroke : d3.max(fetchValue(vars, l, stroke));
+        return s < 15 ? 15 : s;
+      };
 
   var ticks = discrete.ticks.values.map(function(d){
     if (d.constructor === Date) return d.getTime();
@@ -272,27 +275,37 @@ function update(n,mod) {
 function mouseStyle(vars, elem, stroke, mod) {
 
   var timing = vars.draw.timing ? vars.timing.mouseevents : 0;
-  var pathWidth = mod ? stroke * mod : stroke;
+  if (mod === undefined) mod = 0;
 
   if (timing) {
 
     d3.select(elem.parentNode).selectAll("path.d3plus_line")
     .transition().duration(timing)
-    .style("stroke-width",pathWidth);
+    .style("stroke-width",function(l){
+      var s = stroke.constructor === Number ? stroke : d3.max(fetchValue(vars, l, stroke));
+      return s + mod;
+    });
 
     d3.select(elem.parentNode).selectAll("rect")
     .transition().duration(timing)
-    .style("stroke-width",stroke)
+    .style("stroke-width",function(l){
+      return stroke.constructor === Number ? stroke : d3.max(fetchValue(vars, l, stroke));
+    })
     .call(update, mod);
 
   }
   else {
 
     d3.select(elem.parentNode).selectAll("path.d3plus_line")
-    .style("stroke-width",pathWidth);
+    .style("stroke-width",function(l){
+      var s = stroke.constructor === Number ? stroke : d3.max(fetchValue(vars, l, stroke));
+      return s + mod;
+    });
 
     d3.select(elem.parentNode).selectAll("rect")
-    .style("stroke-width",stroke)
+    .style("stroke-width",function(l){
+      return stroke.constructor === Number ? stroke : d3.max(fetchValue(vars, l, stroke));
+    })
     .call(update, mod);
   }
 
