@@ -17,9 +17,8 @@ module.exports = (nodes, vars) ->
     .style "stroke-width", (d) ->
       return 0 if ie and vars.types[vars.type.value].zoom
       if d.d3plus.shape is "line" and vars.size.value
-        d3.max value(vars, d, vars.size.value)
-      else
-        mod = if d.d3plus.shape is "line" then 2 else 1
-        vars.data.stroke.width * mod
+        v = value(vars, d, vars.size.value)
+        return d3.max v if v and v.length
+      vars.data.stroke.width
     .attr "opacity", vars.data.opacity
     .attr "vector-effect", "non-scaling-stroke"
