@@ -529,9 +529,9 @@ module.exports = function(params) {
   if (params.anchor.y != "center") params.height += params.arrow_offset
   else params.width += params.arrow_offset
 
-  if (params.data || (!params.fullscreen && params.html)) {
+  if (params.data || ((!params.fullscreen || params.stacked) && params.html)) {
 
-    if (!params.fullscreen) {
+    if (!params.fullscreen || params.stacked) {
       var limit = params.fixed ? parentHeight-params.y-10 : parentHeight-10
       var h = params.height < limit ? params.height : limit
     }
