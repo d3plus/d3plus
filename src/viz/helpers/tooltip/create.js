@@ -310,6 +310,7 @@ module.exports = function(params) {
         "mouseevents": mouse,
         "offset": offset,
         "parent": parent,
+        "stacked": vars.tooltip.stacked.value,
         "style": icon_style,
         "title": title,
         "description": params.description,

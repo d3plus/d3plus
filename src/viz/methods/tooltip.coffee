@@ -42,6 +42,9 @@ module.exports =
     accepted: [Boolean]
     value:    true
   small: 225
+  stacked:
+    accepted: [Boolean]
+    value:    false
   sub:
     accepted: [false, Function, String]
     value:    false

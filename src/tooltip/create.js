@@ -34,6 +34,7 @@ module.exports = function(params) {
   params.style = params.style || "default"
   params.zindex = params.size == "small" ? 2000 : 500
   params.locale = params.locale || defaultLocale
+  params.stacked = params.stacked || false;
 
 
   var parentHeight = params.parent ? params.parent.node().offsetHeight
@@ -132,7 +133,7 @@ module.exports = function(params) {
     .style("background-color",params.background)
     .style("padding","6px")
 
-  if (params.fullscreen && params.html) {
+  if (params.fullscreen && params.html && !params.stacked) {
 
     w = params.parent ? params.parent.node().offsetWidth*0.75 : window.innerWidth*0.75
     h = params.parent ? parentHeight*0.75 : window.innerHeight*0.75
@@ -485,7 +486,7 @@ module.exports = function(params) {
 
   }
 
-  if (params.html && !params.fullscreen) {
+  if (params.html && (!params.fullscreen || params.stacked)) {
     data_container.append("div")
       .html(params.html)
     if (params.js) {
@@ -505,7 +506,7 @@ module.exports = function(params) {
 
   params.height = tooltip.node().offsetHeight || tooltip.node().getBoundingClientRect().height
 
-  if (params.html && params.fullscreen) {
+  if (params.html && params.fullscreen && !params.stacked) {
     var h = params.height-12
     var w = tooltip.node().offsetWidth-params.width-44
     container.append("div")
