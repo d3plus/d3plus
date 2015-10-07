@@ -1,3 +1,5 @@
+rtl = require "../../client/rtl.coffee"
+
 #^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 # Flows the text into tspans
 #------------------------------------------------------------------------------
@@ -27,7 +29,7 @@ module.exports = (vars) ->
   else
     anchor = vars.align.value or vars.container.align or "start"
 
-  if anchor is "end"
+  if anchor is "end" or (anchor is "start" and rtl)
     dx = width
   else if anchor is "middle"
     dx = width/2
