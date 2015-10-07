@@ -17,6 +17,7 @@ module.exports = (nodes, vars) ->
     .style "stroke-width", (d) ->
       return 0 if ie and vars.types[vars.type.value].zoom
       if d.d3plus.shape is "line" and vars.size.value
+        return vars.size.value if vars.size.value.constructor is Number
         v = value(vars, d, vars.size.value)
         return d3.max v if v and v.length
       vars.data.stroke.width
