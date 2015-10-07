@@ -199,6 +199,14 @@ module.exports = function(params) {
       .on(events.click,function(){
         removeTooltip(params.id)
       })
+
+    d3.select("body").on("keydown.esc_" + params.id, function(){
+      if (d3.event.keyCode === 27) {
+        removeTooltip(params.id);
+        d3.select("body").on("keydown.esc_" + params.id, null);
+      }
+    })
+
   }
 
   if (!params.mouseevents) {
