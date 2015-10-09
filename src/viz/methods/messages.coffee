@@ -6,6 +6,9 @@ module.exports =
   accepted: [Boolean, String]
   branding:
     accepted: [Boolean]
+    image:
+      dark: "http://d3plus.org/assets/img/icon-transparent-invert.png"
+      light: "http://d3plus.org/assets/img/icon-transparent.png"
     value:    false
   font:
     color:      "#444"
