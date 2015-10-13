@@ -11,11 +11,17 @@ labels = {}
 module.exports = (vars, selection, enter, exit) ->
 
   # Define the geographical projection
-  projection = d3.geo[vars.coords.projection.value]().center(vars.coords.center)
+  projection = d3.geo[vars.coords.projection.value]()
+
+  projection.center(vars.coords.center) if projection.center
 
   vars.zoom.scale = 1 unless vars.zoom.scale
   vars.zoom.area  = 1/vars.zoom.scale/vars.zoom.scale
   vars.path = d3.geo.path().projection(projection)
+
+  selection.selectAll("path")
+    .attr "d", vars.path
+    .call shapeStyle, vars
 
   enter.append "path"
     .attr "id", (d) -> d.id
@@ -36,7 +42,8 @@ module.exports = (vars, selection, enter, exit) ->
   vars.old_width  = vars.width.viz
 
   if vars.coords.changed or size_change or vars.coords.mute.changed or
-     vars.coords.solo.changed or vars.type.changed or vars.text.changed
+     vars.coords.solo.changed or vars.type.changed or vars.text.changed or
+     vars.coords.projection.changed
 
     vars.zoom.bounds = null
     vars.zoom.reset  = true

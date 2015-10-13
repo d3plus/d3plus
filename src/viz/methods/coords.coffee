@@ -15,7 +15,10 @@ module.exports =
   padding:    20
   process:    process
   projection:
-    accepted: ["mercator", "equirectangular"]
+    accepted: ["albers", "albersUsa", "azimuthalEqualArea",
+               "azimuthalEquidistant", "conicConformal", "conicEqualArea",
+               "conicEquidistant", "equirectangular", "gnomonic", "mercator",
+               "orthographic", "stereographic", "transverseMercator", Function]
     value:    "mercator"
   solo:      filter false
   threshold:
