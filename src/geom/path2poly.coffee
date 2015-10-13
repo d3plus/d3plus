@@ -2,6 +2,7 @@ offset = require "../geom/offset.coffee"
 
 module.exports = (path) ->
 
+  return [] unless path
   path = path.slice(1).slice(0,-1).split(/L|A/)
   poly = []
 
