@@ -48,12 +48,12 @@
   # cy - the y coordinate of the rectangle's center
   # angle - rotation angle in degrees. The anchor of rotation is the center point
 
-print    = require "../core/console/print.coffee"
+# print    = require "../core/console/print.coffee"
 simplify = require "simplify-js"
 
 module.exports = (poly, options) ->
   if poly.length < 3
-    print.error 'polygon has to have at least 3 points'
+    # print.error 'polygon has to have at least 3 points'
     return null
   ## For visualization debugging purposes ##
   events = []
@@ -95,7 +95,7 @@ module.exports = (poly, options) ->
   ########################################
   area = Math.abs(d3.geom.polygon(poly).area()) # take absolute value of the signed area
   if area is 0
-    print.error 'polygon has 0 area'
+    # print.error 'polygon has 0 area'
     return null
   # get the width of the bounding box of the original polygon to determine tolerance
   [minx, maxx] = d3.extent poly, (d) -> d[0]
