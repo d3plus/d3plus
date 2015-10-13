@@ -10,6 +10,7 @@ module.exports =
   fit:
     accepted: ["auto", "height", "width"]
     value:    "auto"
+  key:        false
   mute:       filter false
   padding:    20
   process:    process

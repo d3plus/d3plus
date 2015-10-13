@@ -6,7 +6,7 @@ geo_map = (vars) ->
   topojson.presimplify vars.coords.value
 
   coords   = vars.coords.value
-  key      = d3.keys(coords.objects)[0]
+  key      = vars.coords.key || d3.keys(coords.objects)[0]
   topo     = topojson.feature coords, coords.objects[key]
   features = topo.features
 
