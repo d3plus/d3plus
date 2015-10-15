@@ -2,8 +2,14 @@ fetchValue   = require "../../../../core/fetch/value.coffee"
 stringStrip  = require "../../../../string/strip.js"
 uniqueValues = require "../../../../util/uniques.coffee"
 
-module.exports = (vars, data) ->
+module.exports = (vars, data, keys) ->
 
+  if keys is undefined
+    keys = vars.id.nesting.slice(0, vars.depth.value+1)
+  else if keys.constructor isnt Array
+    keys = [keys]
+
+  extras   = [] if extras is undefined
   data     = vars.data.viz unless data
   discrete = vars[vars.axes.discrete]
   opposite = vars[vars.axes.opposite]
@@ -31,10 +37,10 @@ module.exports = (vars, data) ->
   d3.nest()
     .key (d) ->
       return_id = "nesting"
-      for id in vars.id.nesting.slice 0, vars.depth.value+1
+      for id in keys
         val = fetchValue vars, d, id
         val = val.join("_") if val instanceof Array
-        return_id += "_"+stringStrip val
+        return_id += "_" + stringStrip val
       return_id
     .rollup (leaves) ->
 

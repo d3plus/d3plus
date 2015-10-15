@@ -23,7 +23,9 @@ bar = (vars) ->
 
   nested = vars.data.viz
 
-  stack vars, nested if vars.axes.stacked
+  if vars.axes.stacked
+    for point in nested
+      stack vars, point.values
 
   space = vars.axes[w] / vars[vars.axes.discrete].ticks.values.length
 
@@ -41,28 +43,49 @@ bar = (vars) ->
 
   unless vars.axes.stacked
 
-    if vars[discrete].value in vars.id.nesting
-      bars = d3.nest()
-        .key (d) ->
-          fetchValue vars, d, vars[discrete].value
-        .entries nested
-      divisions = d3.max bars, (b) -> b.values.length
-    else
-      bars = uniques nested, vars.id.value, fetchValue, vars
-      divisions = bars.length
-    maxSize /= divisions
-    offset   = space/2 - maxSize/2 - padding
+    if vars[discrete].persist.position.value
 
-    x = d3.scale.linear()
-      .domain [0, divisions-1]
-      .range [-offset, offset]
+      if vars[discrete].value in vars.id.nesting
+        divisions = d3.max nested, (b) -> b.values.length
+      else
+        divisions = uniques(nested, vars.id.value, fetchValue, vars).length
+
+      maxSize /= divisions
+      offset   = space/2 - maxSize/2 - padding
+
+      x = d3.scale.linear()
+        .domain [0, divisions-1]
+        .range [-offset, offset]
+
+    else
+      x = d3.scale.linear()
 
   data = []
   zero = 0
 
-  for point, i in nested
-    mod = if vars.axes.stacked then 0 else x(i % divisions)
-    for d in point.values
+  maxBars = d3.max nested, (b) -> b.values.length
+  for p in nested
+
+    if vars.axes.stacked
+      bars = 1
+      newSize = maxSize
+    else if vars[discrete].persist.position.value
+      bars = divisions
+      newSize = maxSize/divisions
+    else
+      bars = p.values.length
+      if vars[discrete].persist.size.value
+        newSize = maxSize / maxBars
+        offset  = space/2 - ((maxBars-bars)*(newSize/2)) - newSize/2 - padding
+      else
+        newSize = maxSize / bars
+        offset  = space/2 - newSize/2 - padding
+      x.domain [0, bars - 1]
+      x.range [-offset, offset]
+
+    for d, i in p.values
+
+      mod = if vars.axes.stacked then 0 else x(i % bars)
 
       if vars.axes.stacked
         value  = d.d3plus[opposite]
@@ -84,7 +107,7 @@ bar = (vars) ->
       d.d3plus[opposite]  = base - length/2
       d.d3plus[opposite] += vars.axes.margin[oMargin] unless vars.axes.stacked
 
-      d.d3plus[w]     = maxSize
+      d.d3plus[w]     = newSize
       d.d3plus[h]     = Math.abs length
       d.d3plus.init   = {}
 
@@ -102,7 +125,7 @@ bar = (vars) ->
 
 # Visualization Settings and Helper Functions
 bar.filter = (vars, data) ->
-  nest vars, data
+  nest vars, data, vars[vars.axes.discrete].value
 bar.requirements = ["data", "x", "y"]
 bar.setup        = (vars) ->
   unless vars.axes.discrete

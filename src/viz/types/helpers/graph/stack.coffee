@@ -10,7 +10,7 @@ module.exports = (vars, data) ->
   offset   = if scale is "share" then "expand" else "zero"
 
   stack = d3.layout.stack()
-    .values (d) -> d.values
+    .values (d) -> d.values || [d]
     .offset offset
     .x (d) -> d.d3plus[opposite]
     .y (d) -> flip - vars[stacked].scale.viz fetchValue vars, d, vars[stacked].value
@@ -43,7 +43,8 @@ module.exports = (vars, data) ->
     else
       positiveData.push d if val >= 0
       negativeData.push d if val < 0
-  unless positiveData.length or negativeData.length
+
+  if positiveData.length is 0 or negativeData.length is 0
     stack data
   else
     positiveData = stack positiveData if positiveData.length

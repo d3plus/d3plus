@@ -98,6 +98,13 @@ module.exports = (axis) ->
   padding:
     accepted: [Number]
     value: 0.1
+  persist:
+    position:
+      accepted: [Boolean]
+      value: false
+    size:
+      accepted: [Boolean]
+      value: true
   range:
     accepted: [false, Array]
     value:    false
