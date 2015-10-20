@@ -43,7 +43,7 @@ module.exports = (vars, selection, enter, exit) ->
 
   if vars.coords.changed or size_change or vars.coords.mute.changed or
      vars.coords.solo.changed or vars.type.changed or vars.text.changed or
-     vars.coords.projection.changed
+     vars.coords.projection.changed or vars.labels.changed
 
     vars.zoom.bounds = null
     vars.zoom.reset  = true
@@ -107,7 +107,7 @@ module.exports = (vars, selection, enter, exit) ->
       names = fetchText vars, d
       delete d.d3plus_label
 
-      if coords and names.length
+      if coords and names.length and vars.labels.value
 
         path = path2poly vars.path(largest)
         style =
