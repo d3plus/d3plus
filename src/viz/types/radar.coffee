@@ -39,10 +39,10 @@ radar = (vars) ->
       textwrap().container d3.select(elem)
         .height(vars.height.viz/8)
         .width(labelWidth).draw()
-  labelHeight = d3.max sizes, (d) -> d.height
+  labelHeight = d3.median sizes, (d) -> d.height
 
-  maxRadius -= labelHeight * 2
-  maxRadius -= vars.labels.padding * 4
+  maxRadius -= (labelHeight * 2)
+  maxRadius -= (vars.labels.padding * 2)
   maxData = (fetchValue(vars, d, vars.size.value) for d in c for c in children)
   maxData = d3.max(d3.merge(maxData))
 
@@ -71,22 +71,32 @@ radar = (vars) ->
       intervals = i
       break
 
-  rings = vars.group.selectAll "#d3plus_radar_rings"
-    .data buckets([maxRadius/intervals, maxRadius], intervals-1).reverse()
+  ringData = buckets([maxRadius/intervals, maxRadius], intervals-1).reverse()
+
+  rings = vars.group.selectAll ".d3plus_radar_rings"
+    .data ringData, (d) -> d
 
   ringStyle = (ring) ->
     ring
-      .attr "fill", (d, i) -> if i is 0 then vars.axes.background.color else "transparent"
+      .attr "fill", (d, i) ->
+        if i is 0 then vars.axes.background.color else "transparent"
       .attr "cx", vars.width.viz/2 + vars.margin.top
       .attr "cy", vars.height.viz/2 + vars.margin.left
-      .attr "stroke", if vars.x.grid.value then vars.x.grid.color else "transparent"
+      .attr "stroke",
+        if vars.x.grid.value then vars.x.grid.color else "transparent"
 
   rings.enter().append "circle"
+    .attr "class", "d3plus_radar_rings"
     .call ringStyle
     .attr "r", 0
 
   rings.transition().duration(vars.draw.timing)
+    .call ringStyle
     .attr "r", (d) -> d
+
+  rings.exit().transition().duration(vars.draw.timing)
+    .attr "opacity", 0
+    .remove()
 
   labelIndex = d3.scale.ordinal()
     .domain(labels)
