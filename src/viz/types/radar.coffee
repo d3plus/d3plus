@@ -108,16 +108,19 @@ radar = (vars) ->
     top = a < 0 or a > Math.PI
     righty = a < Math.PI/2
     o = offset a, maxRadius + vars.labels.padding
-    o.x -= labelWidth unless righty
-    o.y -= labelHeight if top
+    x = o.x
+    y = o.y
+    x -= labelWidth unless righty
+    y -= labelHeight if top
     center = [0, Math.PI].indexOf(angle * labelIndex(l)) >= 0
-    o.x -= labelWidth/2 if center
+    x -= labelWidth/2 if center
     labelData.push {
       "text": l,
-      "x": o.x + vars.width.viz/2 + vars.margin.top,
-      "y": o.y + vars.height.viz/2 + vars.margin.left,
+      "x": x + vars.width.viz/2 + vars.margin.top,
+      "y": y + vars.height.viz/2 + vars.margin.left,
       "align": if center then "center" else if righty then "left" else "right",
-      "valign": if top then "bottom" else "top"
+      "valign": if top then "bottom" else "top",
+      "offset": o
     }
 
   text = vars.group.selectAll ".d3plus_radar_labels"
@@ -149,6 +152,31 @@ radar = (vars) ->
   text.exit().transition().duration(vars.draw.timing)
     .attr "opacity", 0
     .remove()
+
+  grid = vars.group.selectAll ".d3plus_radar_lines"
+    .data labelData, (d) -> d.text
+
+  gridStyle = (grid) ->
+    grid
+      .attr "stroke", vars.x.grid.color
+      .attr "x1", vars.width.viz/2 + vars.margin.left
+      .attr "y1", vars.height.viz/2 + vars.margin.top
+
+  grid.enter().append "line"
+    .attr "class", "d3plus_radar_lines"
+    .call gridStyle
+    .attr "x2", vars.width.viz/2 + vars.margin.left
+    .attr "y2", vars.height.viz/2 + vars.margin.top
+
+  grid.transition().duration(vars.draw.timing)
+    .call gridStyle
+    .attr "x2", (d) -> vars.width.viz/2 + vars.margin.left + d.offset.x
+    .attr "y2", (d) -> vars.height.viz/2 + vars.margin.top + d.offset.y
+
+  grid.exit().transition().duration(vars.draw.timing)
+    .attr "opacity", 0
+    .remove()
+
 
   data
 
