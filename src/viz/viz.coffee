@@ -20,6 +20,7 @@ module.exports = ->
       network:  require "./types/network.js"
       paths:    require "./types/paths.coffee"
       pie:      require "./types/pie.coffee"
+      radar:    require "./types/radar.coffee"
       rings:    require "./types/rings.js"
       scatter:  require "./types/scatter.coffee"
       stacked:  require "./types/stacked.coffee"
