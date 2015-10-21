@@ -96,7 +96,8 @@ var network = function(vars) {
     obj.d3plus.x = n.x
     obj.d3plus.y = n.y
     var val = fetchValue(vars,obj,vars.size.value)
-    obj.d3plus.r = val ? radius(val) : radius.range()[0]
+    var valRadius = (vars.size.radius) ? radius(val) : val
+    obj.d3plus.r = val ? valRadius : radius.range()[0]
     lookup[obj[vars.id.value]] = {
       "x": obj.d3plus.x,
       "y": obj.d3plus.y,
