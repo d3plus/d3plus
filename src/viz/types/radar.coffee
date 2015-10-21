@@ -29,8 +29,10 @@ radar = (vars) ->
   labels = (fetchText(vars, c, nextDepth)[0] for c in children)
   labels = uniques(d3.merge(labels))
   textStyle = {
-    "fill": "#444"
-    "font-size": "12px"
+    "fill": vars.x.ticks.font.color
+    "font-family": vars.x.ticks.font.family.value
+    "font-weight": vars.x.ticks.font.weight
+    "font-size":   vars.x.ticks.font.size+"px"
   }
   sizes = fontSizes labels, textStyle,
     mod: (elem) ->
