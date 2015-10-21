@@ -120,7 +120,7 @@ radar = (vars) ->
       "valign": if top then "bottom" else "top"
     }
 
-  text = vars.group.selectAll "#d3plus_radar_labels"
+  text = vars.group.selectAll ".d3plus_radar_labels"
     .data labelData, (d) -> d.text
 
   labelStyle = (label) ->
@@ -140,6 +140,7 @@ radar = (vars) ->
   text.call labelStyle
 
   text.enter().append "text"
+    .attr "class", "d3plus_radar_labels"
     .attr "opacity", 0
     .call labelStyle
     .transition().duration(vars.draw.timing)
