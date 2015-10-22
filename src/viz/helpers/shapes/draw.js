@@ -262,8 +262,9 @@ module.exports = function(vars) {
     // Groups Enter
     //--------------------------------------------------------------------------
     var opacity = vars.draw.timing ? 0 : 1
+    var classNames = (vars.color.classNames)? " "+vars.color.classNames: ""
     var enter = selection.enter().append("g")
-      .attr("class","d3plus_"+shape)
+      .attr("class","d3plus_"+shape+classNames)
       .attr("opacity",opacity)
       .call(transform)
 
