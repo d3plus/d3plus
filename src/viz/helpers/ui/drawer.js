@@ -36,74 +36,25 @@ module.exports = function( vars ) {
       return d.method || false;
     });
 
-  function create(d) {
-
-    var data = [], title;
-
-    if (d.label) {
-      title = d.label;
-    }
-    else if (typeof d.method === "string" && d.method in vars) {
-      title = vars.format.locale.value.method[d.method] || d.method;
-    }
-
-    d.value.forEach(function(o){
-
-      var obj = {};
-
-      if (validObject(o)) {
-        obj.id   = o[d3.keys(o)[0]];
-        obj.text = vars.format.value(d3.keys(o)[0]);
-      }
-      else {
-        obj.id   = o;
-        obj.text = vars.format.value(o);
-      }
-
-      data.push(obj);
-
-    });
-
-    var font = copy(vars.ui.font);
-    font.align = copy(vars.font.align);
-    font.secondary = copy(font);
-
-    d.form
-      .data(data)
-      .font(font)
-      .format(vars.format.locale.language)
-      .format({
-        "number": vars.format.number.value,
-        "text": vars.format.text.value
-      })
-      .title(vars.format.value(title))
-      .type(d.type || "auto")
-      .ui({
-        "align": vars.ui.align.value,
-        "border": vars.ui.border,
-        "color": {
-          "primary": vars.ui.color.primary.value,
-          "secondary": vars.ui.color.secondary.value
-        },
-        "padding": vars.ui.padding,
-        "margin": 0
-      })
-      .width(d.width || false)
-      .draw();
-
-  }
-
   ui.exit().remove();
-
-  ui.each(create);
 
   ui.enter().append("div")
     .attr("class","d3plus_drawer_ui")
-    .style("padding",vars.ui.padding+"px")
-    .style("display","inline-block")
+    .style("display","inline-block");
+
+  ui.style("padding",vars.ui.padding+"px")
     .each(function(d){
 
-      var container = d3.select(this);
+      if (!d.form) {
+
+        d.form = form()
+          .container(d3.select(this))
+          .data({"sort": false})
+          .id("id")
+          .text("text");
+
+      }
+
       var focus, callback;
 
       if (typeof d.method === "string" && d.method in vars) {
@@ -124,16 +75,62 @@ module.exports = function( vars ) {
         }
       }
 
-      d.form = form()
-        .container(container)
-        .data({"sort": false})
+      var data = [], title;
+
+      if (d.label) {
+        title = d.label;
+      }
+      else if (typeof d.method === "string" && d.method in vars) {
+        title = vars.format.locale.value.method[d.method] || d.method;
+      }
+
+      d.value.forEach(function(o){
+
+        var obj = {};
+
+        if (validObject(o)) {
+          obj.id   = o[d3.keys(o)[0]];
+          obj.text = vars.format.value(d3.keys(o)[0]);
+        }
+        else {
+          obj.id   = o;
+          obj.text = vars.format.value(o);
+        }
+
+        data.push(obj);
+
+      });
+
+      var font = copy(vars.ui.font);
+      font.align = copy(vars.font.align);
+      font.secondary = copy(font);
+
+      d.form
+        .data(data)
+        .font(font)
         .focus(d.value.length > 1 ? focus : false)
         .focus({"callback": callback})
-        .id("id")
-        .text("text");
+        .format(vars.format.locale.language)
+        .format({
+          "number": vars.format.number.value,
+          "text": vars.format.text.value
+        })
+        .title(vars.format.value(title))
+        .type(d.type || "auto")
+        .ui({
+          "align": vars.ui.align.value,
+          "border": vars.ui.border,
+          "color": {
+            "primary": vars.ui.color.primary.value,
+            "secondary": vars.ui.color.secondary.value
+          },
+          "padding": vars.ui.padding,
+          "margin": 0
+        })
+        .width(d.width || false)
+        .draw();
 
-    })
-    .each(create);
+    });
 
   var drawerHeight = drawer.node().offsetHeight || drawer.node().getBoundingClientRect().height;
 
