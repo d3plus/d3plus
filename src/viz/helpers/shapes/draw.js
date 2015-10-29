@@ -151,7 +151,6 @@ module.exports = function(vars) {
   function className(g) {
     g.attr("class", function(d){
       var c = vars.class.value ? " " + fetchValue(vars, d, vars.class.value) : "";
-      console.log(c);
       return "d3plus_" + shape + c;
     });
   }
