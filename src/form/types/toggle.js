@@ -20,8 +20,10 @@ module.exports = function( vars ) {
 
   var toggles = vars.container.ui.selectAll("div.d3plus_toggle")
     .data(vars.data.viz,function(d){
-      return d[vars.id.value]
+      return d[vars.id.value];
     })
+
+  toggles.exit().remove();
 
   toggles.enter().append("div")
     .attr("class","d3plus_toggle")
