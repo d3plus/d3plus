@@ -146,6 +146,17 @@ module.exports = function(vars) {
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Sets the class name for a group
+  //----------------------------------------------------------------------------
+  function className(g) {
+    g.attr("class", function(d){
+      var c = vars.class.value ? " " + fetchValue(vars, d, vars.class.value) : "";
+      console.log(c);
+      return "d3plus_" + shape + c;
+    });
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Remove old groups
   //----------------------------------------------------------------------------
   for (var s in shapeLookup) {
@@ -255,9 +266,10 @@ module.exports = function(vars) {
       selection
         .transition().duration(vars.draw.timing)
         .call(transform)
+        .call(className);
     }
     else {
-      selection.call(transform)
+      selection.call(transform).call(className);
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -265,9 +277,9 @@ module.exports = function(vars) {
     //--------------------------------------------------------------------------
     var opacity = vars.draw.timing ? 0 : 1
     var enter = selection.enter().append("g")
-      .attr("class","d3plus_"+shape)
       .attr("opacity",opacity)
       .call(transform)
+      .call(className);
 
     if (vars.draw.timing) {
       enter.transition().duration(vars.draw.timing)

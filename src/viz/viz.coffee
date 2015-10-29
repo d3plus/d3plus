@@ -129,6 +129,7 @@ module.exports = ->
     attrs:      require "./methods/attrs.coffee"
     axes:       require "./methods/axes.coffee"
     background: require "./methods/background.coffee"
+    class:      require "./methods/class.coffee"
     color:      require "./methods/color.coffee"
     cols:       require "./methods/cols.js"
     config:     require "./methods/config.coffee"
