@@ -1,5 +1,6 @@
 var edges = require("./shapes/edges.js"),
     flash       = require("./ui/message.js"),
+    focusViz    = require("./focus/viz.js"),
     methodReset = require("../../core/methods/reset.coffee"),
     print       = require("../../core/console/print.coffee"),
     shapeLabels = require("./shapes/labels.js"),
@@ -13,6 +14,16 @@ var mouse  = require("./zoom/mouse.coffee")
 // Finalize Visualization
 //------------------------------------------------------------------------------
 module.exports = function(vars) {
+
+  // Highlight focus nodes/edges
+  if (vars.draw.first) {
+    setTimeout(function(){
+      focusViz(vars);
+    }, vars.draw.timing);
+  }
+  else {
+    focusViz(vars);
+  }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   // Zoom to fit bounds, if applicable
