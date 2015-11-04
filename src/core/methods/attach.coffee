@@ -19,7 +19,7 @@ module.exports = (vars, methods) ->
     # Create the main set/get function.
     vars.self[method] = (createFunction)(vars, method)
 
-initialize = (vars, obj, method) ->
+initialize = (vars, obj, method, p) ->
 
   # Initialize a few globals.
   obj.previous    = false
@@ -44,7 +44,9 @@ initialize = (vars, obj, method) ->
           (x) ->
             str = vars.format.locale.value.dev.deprecated
             dep = "." + dep + "()"
-            print.error stringFormat(str, dep, "." + n + "()"), n
+            rec = if p then "\"" + n + "\" in ." + p + "()" else "." + n + "()"
+            doc = p or n
+            print.error stringFormat(str, dep, rec), doc
             vars.self
         )(d, method)
 
@@ -52,7 +54,7 @@ initialize = (vars, obj, method) ->
       vars[method] = [] unless method of vars
 
     else if o isnt "value"
-      initialize vars, obj[o], o if validObject(obj[o])
+      initialize vars, obj[o], o, method if validObject(obj[o])
 
   true
 

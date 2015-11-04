@@ -2,28 +2,16 @@ ie    = require "../../client/ie.js"
 touch = require "../../client/touch.coffee"
 wiki  = require "./wiki.coffee"
 
-icon = "http://d3plus.org/assets/img/favicon.ico"
-
 # Custom styling and behavior for browser console statements.
 print = (type, message, style) ->
   style = style or ""
   if ie or typeof InstallTrigger isnt 'undefined'
     console.log "[ D3plus ] " + message
   else if type.indexOf("group") is 0
-    if window.chrome and navigator.onLine
-
-      console[type] "%c%c " + message, "padding: 3px 10px;" +
-                                       "line-height: 25px;" +
-                                       "background-size: 20px;" +
-                                       "background-position: top left;" +
-                                       "background-image: url('"+icon+"');",
-                                       "font-weight:200;" + style
-    else
-      console[type] "%cD3plus%c " + message, "line-height: 25px;" +
-                                             "font-weight: 800;" +
-                                             "color: #b35c1e;" +
-                                             "margin-left: 0px;",
-                                             "font-weight:200;" + style
+    console[type] "%c[ D3plus ]%c " + message, "font-weight: 800;" +
+                                           "color: #b35c1e;" +
+                                           "margin-left: 0px;",
+                                           "font-weight:200;" + style
   else
     console[type] "%c" + message, style + "font-weight:200;"
   return

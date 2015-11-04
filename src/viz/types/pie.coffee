@@ -1,7 +1,6 @@
 comparator    = require "../../array/comparator.coffee"
-dataThreshold = require("../../core/data/threshold.js")
-fetchValue    = require("../../core/fetch/value.coffee")
-groupData     = require("../../core/data/group.coffee")
+dataThreshold = require "../../core/data/threshold.js"
+groupData     = require "../../core/data/group.coffee"
 
 pie = (vars) ->
 

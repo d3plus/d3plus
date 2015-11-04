@@ -26,6 +26,7 @@ var drawShape = {
   "diamond":       require("./diamond.js"),
   "donut":         require("./donut.js"),
   "line":          require("./line.js"),
+  "radial":        require("./radial.coffee"),
   "rect":          require("./rect.coffee"),
   "triangle_down": require("./triangle_down.js"),
   "triangle_up":   require("./triangle_up.js"),
@@ -50,22 +51,23 @@ module.exports = function(vars) {
   // class.
   //----------------------------------------------------------------------------
   var shapeLookup = {
-    "arc":             "arc",
-    "area":            "area",
-    "check":           "check",
-    "circle":          "rect",
-    "coordinates":     "coordinates",
-    "cross":           "cross",
-    "donut":           "donut",
-    "diamond":         "diamond",
-    "line":            "line",
-    "plus":            "cross",
-    "rect":            "rect",
-    "square":          "rect",
-    "triangle_down":   "triangle_down",
-    "triangle":        "triangle_up",
-    "triangle_up":     "triangle_up",
-    "whisker":         "whisker"
+    "arc":           "arc",
+    "area":          "area",
+    "check":         "check",
+    "circle":        "rect",
+    "coordinates":   "coordinates",
+    "cross":         "cross",
+    "donut":         "donut",
+    "diamond":       "diamond",
+    "line":          "line",
+    "plus":          "cross",
+    "radial":        "radial",
+    "rect":          "rect",
+    "square":        "rect",
+    "triangle_down": "triangle_down",
+    "triangle":      "triangle_up",
+    "triangle_up":   "triangle_up",
+    "whisker":       "whisker"
   };
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -131,7 +133,7 @@ module.exports = function(vars) {
     scale = grow ? scale : 1;
     g.attr("transform", function(d){
 
-      if (["line","area","coordinates"].indexOf(shape) < 0) {
+      if (["line", "area", "coordinates"].indexOf(shape) < 0) {
           var x = d.d3plus.x || 0, y = d.d3plus.y || 0;
           return "translate("+x+","+y+")scale("+scale+")";
       }
@@ -141,6 +143,16 @@ module.exports = function(vars) {
 
     });
 
+  }
+
+  //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  // Sets the class name for a group
+  //----------------------------------------------------------------------------
+  function className(g) {
+    g.attr("class", function(d){
+      var c = vars.class.value ? " " + fetchValue(vars, d, vars.class.value) : "";
+      return "d3plus_" + shape + c;
+    });
   }
 
   //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -253,9 +265,10 @@ module.exports = function(vars) {
       selection
         .transition().duration(vars.draw.timing)
         .call(transform)
+        .call(className);
     }
     else {
-      selection.call(transform)
+      selection.call(transform).call(className);
     }
 
     //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -263,12 +276,9 @@ module.exports = function(vars) {
     //--------------------------------------------------------------------------
     var opacity = vars.draw.timing ? 0 : 1
     var enter = selection.enter().append("g")
-      .attr("class", function(d){
-        var classNames = (d.className)? " " + d.className: ""
-        return "d3plus_" + shape + classNames
-      })
       .attr("opacity",opacity)
       .call(transform)
+      .call(className);
 
     if (vars.draw.timing) {
       enter.transition().duration(vars.draw.timing)

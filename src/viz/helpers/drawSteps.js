@@ -9,7 +9,6 @@ var dataFormat    = require("../../core/data/format.js"),
     fetchData     = require("../../core/fetch/data.js"),
     finish        = require("./finish.js"),
     focusTooltip  = require("./focus/tooltip.coffee"),
-    focusViz      = require("./focus/viz.js"),
     history       = require("./ui/history.coffee"),
     parseEdges    = require("../../core/parse/edges.js"),
     parseNodes    = require("../../core/parse/nodes.js"),
@@ -358,7 +357,7 @@ module.exports = function(vars) {
   }
 
   steps.push({
-    "function" : [ focusViz , finish ],
+    "function" : finish,
     "message" : drawMessage
   })
 
