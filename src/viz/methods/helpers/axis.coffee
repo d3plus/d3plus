@@ -138,6 +138,9 @@ module.exports = (axis) ->
       size:       10
       transform:  transform()
       weight:     200
+    labels:
+      accepted: [Boolean]
+      value:    true
     rendering: rendering()
     size:      10
     width:     1
