@@ -71,7 +71,7 @@ bar = (vars) ->
       newSize = maxSize
     else if vars[discrete].persist.position.value
       bars = divisions
-      newSize = maxSize/divisions
+      newSize = maxSize
     else
       bars = p.values.length
       if vars[discrete].persist.size.value
