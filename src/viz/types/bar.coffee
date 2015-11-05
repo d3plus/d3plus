@@ -117,7 +117,10 @@ bar = (vars) ->
 
       d.d3plus.init[w]         = d.d3plus[w]
 
-      d.d3plus.label = false
+      if vars.text.value
+        delete d.d3plus.label
+      else
+        d.d3plus.label = false
 
       data.push d
 
