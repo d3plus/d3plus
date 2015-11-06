@@ -81,7 +81,7 @@ module.exports = function(vars) {
 
       var legendNesting = [vars.color.value];
       // if (vars.icon.value && vars.legend.icons.value) legendNesting.push(vars.icon.value);
-      var colors = dataNest(vars, data, legendNesting, []);
+      var colors = dataNest(vars, data, legendNesting, false);
 
       if ( vars.dev.value ) print.timeEnd("grouping data by color")
 

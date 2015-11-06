@@ -4,7 +4,9 @@ var fetchValue = require("../fetch/value.coffee"),
 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 // Nests and groups the data.
 //------------------------------------------------------------------------------
-var dataNest = function(vars, flatData, nestingLevels) {
+var dataNest = function(vars, flatData, nestingLevels, discrete) {
+
+  if (discrete === undefined) discrete = true;
 
   var nestedData   = d3.nest(),
       groupedData  = [],
@@ -29,7 +31,7 @@ var dataNest = function(vars, flatData, nestingLevels) {
 
   }
 
-  if (vars.axes && vars.axes.discrete && (!vars.time || vars[vars.axes.discrete].value !== vars.time.value)) {
+  if (discrete && vars.axes && vars.axes.discrete && (!vars.time || vars[vars.axes.discrete].value !== vars.time.value)) {
     nestedData.key(function(d){
       return fetchValue(vars, d, vars[vars.axes.discrete].value);
     });
