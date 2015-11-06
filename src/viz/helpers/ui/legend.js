@@ -48,6 +48,12 @@ module.exports = function(vars) {
         data = vars.data.viz;
       }
 
+      if ("key" in data[0] && "values" in data[0]) {
+        data = d3.merge(data.map(function(d){
+          return d.values;
+        }));
+      }
+
       var colorFunction = function(d){
             return fetchColor(vars, d, colorDepth);
           },
