@@ -592,6 +592,18 @@ module.exports = function(vars) {
         }
         else {
 
+          if (d.values && vars.axes.discrete) {
+
+            var index = vars.axes.discrete === "x" ? 0 : 1
+              , mouse = d3.mouse(vars.container.value.node())[index]
+              , positions = uniqueValues(d.values,function(x){return x.d3plus[vars.axes.discrete]})
+              , match = closest(positions,mouse)
+
+            d.d3plus_data = d.values[positions.indexOf(match)]
+            d.d3plus = d.values[positions.indexOf(match)].d3plus
+
+          }
+
           if (typeof vars.mouse.viz == "function") {
             vars.mouse.viz(d.d3plus_data || d, vars)
           }
