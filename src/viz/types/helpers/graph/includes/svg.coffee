@@ -48,7 +48,7 @@ module.exports = (vars) ->
 
         if visible and (!log or Math.abs(d).toString().charAt(0) is "1")
           color
-        else if grid
+        else if grid and vars.axes.background.color isnt "transparent"
           mix(color, vars.axes.background.color, 0.4, 1)
         else
           mix(color, vars.background.value, 0.4, 1)
