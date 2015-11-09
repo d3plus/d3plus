@@ -11,15 +11,15 @@ module.exports = (vars, opts) ->
   changed           = dataChange vars
   vars.axes.dataset = getData vars if changed or !vars.axes.dataset
   vars.axes.scale   = if opts.buffer and opts.buffer isnt true then sizeScale vars, opts.buffer else false
-  axes = if vars.width.viz > vars.height.viz then ["y", "x"] else ["x", "y"]
+  axes = if vars.width.viz > vars.height.viz then ["y", "y2", "x", "x2"] else ["x", "x2", "y", "y2"]
 
   for axis in axes
 
-    oppAxis  = if axis is "x" then "y" else "x"
+    oppAxis  = if axis.indexOf("x") is 0 then "y" else "x"
     reorder  = vars.order.changed or vars.order.sort.changed or
                (vars.order.value is true and vars[oppAxis].changed)
 
-    if !vars[axis].ticks.values or changed or reorder
+    if vars[axis].value and (!vars[axis].ticks.values or changed or reorder)
 
       print.time "calculating "+axis+" axis" if vars.dev.value
 
@@ -32,11 +32,11 @@ module.exports = (vars, opts) ->
         vars[axis].ticks.values = uniques vars.axes.dataset, vars[axis].value, fetchValue, vars
 
       # calculate range
-      zero  = if [true, axis].indexOf(opts.zero) > 0 then true else false
+      zero  = if opts.zero is true or axis.indexOf(opts.zero) is 0 then true else false
       range = axisRange vars, axis, zero
 
       # flip range if Y axis
-      range = range.reverse() if axis is "y"
+      range = range.reverse() if axis.indexOf("y") is 0
 
       # calculate scale
       vars[axis].scale.viz = getScale vars, axis, range
@@ -69,7 +69,7 @@ dataChange = (vars) ->
   changed = vars.id.solo.changed or vars.id.mute.changed unless changed
   return changed if changed
 
-  check = ["data", "time", "id", "depth", "type", "x", "y"]
+  check = ["data", "time", "id", "depth", "type", "x", "y", "x2", "y2"]
   for k in check
     if vars[k].changed
       changed = true
@@ -78,7 +78,7 @@ dataChange = (vars) ->
   return changed if changed
 
   subs = ["mute", "range", "scale", "solo", "stacked", "zerofill"]
-  for axis in ["x", "y"]
+  for axis in ["x", "y", "x2", "y2"]
     for sub in subs
       if vars[axis][sub].changed
         changed = true
@@ -95,7 +95,7 @@ getData = (vars) ->
 
 axisRange = (vars, axis, zero, buffer) ->
 
-  oppAxis = if axis is "x" then "y" else "x"
+  oppAxis = if axis.indexOf("x") is 0 then "y" else "x"
 
   if vars[axis].range.value and vars[axis].range.value.length is 2
     vars[axis].range.value.slice()
@@ -146,6 +146,7 @@ axisRange = (vars, axis, zero, buffer) ->
         values = values.concat val
       else
         values.push val
+    values = values.filter (d) -> d isnt null
     if typeof values[0] is "string"
       if vars.order.value is true
         sortKey = vars[oppAxis].value
@@ -195,15 +196,20 @@ axisRange = (vars, axis, zero, buffer) ->
 
 getScale = (vars, axis, range) ->
 
-  rangeMax  = if axis is "x" then vars.width.viz else vars.height.viz
+  rangeMax  = if axis.indexOf("x") is 0 then vars.width.viz else vars.height.viz
   scaleType = vars[axis].scale.value
   scaleType = "linear" if ["discrete","share"].indexOf(scaleType) >= 0
 
+  t = 10
   if typeof range[0] is "string"
     scaleType = "ordinal"
     rangeArray = buckets [0, rangeMax], range.length
   else
     rangeArray = [0, rangeMax]
+    if vars[axis].scale.value is "linear"
+      t = Math.floor(rangeMax/(vars[axis].ticks.font.size * 4))
+
+  vars[axis].scale.ticks = t
 
   d3.scale[scaleType]()
     .domain(range).range(rangeArray)

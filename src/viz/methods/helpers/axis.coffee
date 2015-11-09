@@ -6,6 +6,12 @@ position   = require "../../../core/methods/font/position.coffee"
 rendering  = require "../../../core/methods/rendering.coffee"
 transform  = require "../../../core/methods/font/transform.coffee"
 
+orientMap =
+  x:  "bottom"
+  x2: "top"
+  y:  "left"
+  y2: "right"
+
 module.exports = (axis) ->
   accepted:   [Array, Boolean, Function, Object, String]
   affixes:
@@ -95,6 +101,9 @@ module.exports = (axis) ->
     width:     2
     value:     true
   mute:  filter(true)
+  orient:
+    accepted: ["top", "right", "bottom", "left"]
+    value:    orientMap[axis]
   padding:
     accepted: [Number]
     value: 0.1
@@ -116,7 +125,7 @@ module.exports = (axis) ->
         if scale is value
           vars.axes[scale] = axis
         else vars.axes[scale] = false if vars.axes[scale] is axis
-      vars.axes.opposite = (if axis is "x" then "y" else "x") if value is "discrete"
+      vars.axes.opposite = (if axis.indexOf("x") is 0 then "y" else "x") if value is "discrete"
       value
     value: "linear"
   solo:    filter(true)

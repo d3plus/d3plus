@@ -216,6 +216,9 @@ module.exports = function(params) {
       if (vars.axes.opposite && vars[vars.axes.opposite].value !== vars.size.value) {
         ex[getLabel(vars.axes.opposite)] = fetchValue(vars, d, vars[vars.axes.opposite].value);
       }
+      if (vars.axes.opposite && vars[vars.axes.opposite + "2"].value !== vars.size.value) {
+        ex[getLabel(vars.axes.opposite + "2")] = fetchValue(vars, d, vars[vars.axes.opposite + "2"].value);
+      }
       if (vars.color.valueScale) {
         ex[getLabel("color")] = fetchValue(vars, d, vars.color.value);
       }

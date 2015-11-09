@@ -16,7 +16,7 @@ bar = (vars) ->
 
   graph vars,
     buffer: true
-    zero:   vars.axes.opposite
+    zero:   opposite
 
   domains = vars.x.domain.viz.concat vars.y.domain.viz
   return [] if domains.indexOf(undefined) >= 0
@@ -86,17 +86,21 @@ bar = (vars) ->
     for d, i in p.values
 
       mod = if vars.axes.stacked then 0 else x(i % bars)
+      oppMethod = vars[opposite]
 
       if vars.axes.stacked
         value  = d.d3plus[opposite]
         base   = d.d3plus[opposite+"0"]
       else
-        oppVal = fetchValue(vars, d, vars[opposite].value)
+        oppVal = fetchValue(vars, d, oppMethod.value)
+        if oppVal is null
+          oppMethod = vars[opposite + "2"]
+          oppVal = fetchValue(vars, d, oppMethod.value)
         continue if oppVal is 0
-        if vars[opposite].scale.value is "log"
+        if oppMethod.scale.value is "log"
           zero = if oppVal < 0 then -1 else 1
-        value  = vars[opposite].scale.viz oppVal
-        base   = vars[opposite].scale.viz zero
+        value  = oppMethod.scale.viz oppVal
+        base   = oppMethod.scale.viz zero
 
       discreteVal = fetchValue(vars, d, vars[discrete].value)
       d.d3plus[discrete]  = vars[discrete].scale.viz discreteVal
@@ -111,7 +115,7 @@ bar = (vars) ->
       d.d3plus[h]     = Math.abs length
       d.d3plus.init   = {}
 
-      d.d3plus.init[opposite]  = vars[opposite].scale.viz zero
+      d.d3plus.init[opposite]  = oppMethod.scale.viz zero
       d.d3plus.init[opposite] -= d.d3plus[opposite]
       d.d3plus.init[opposite] += vars.axes.margin[oMargin]
 

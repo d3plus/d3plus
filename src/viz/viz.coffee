@@ -174,7 +174,9 @@ module.exports = ->
     ui:         require "./methods/ui.coffee"
     width:      require "./methods/width.coffee"
     x:          axis "x"
+    x2:         axis "x2"
     y:          axis "y"
+    y2:         axis "y2"
     zoom:       require "./methods/zoom.js"
 
   vars.self
