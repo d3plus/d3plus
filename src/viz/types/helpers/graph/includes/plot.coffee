@@ -80,13 +80,21 @@ module.exports = (vars, opts) ->
 
         if vars[axis].ticks.value
           vars[axis].ticks.visible = vars[axis].ticks.value.map Number
+        else if vars[axis].ticks.labels.value.constructor is Array
+          vars[axis].ticks.visible = vars[axis].ticks.labels.value.map Number
         else
           vars[axis].ticks.visible = timeReturn.values.map Number
         vars[axis].ticks.format  = timeReturn.format
 
       else if vars[axis].ticks.value
         vars[axis].ticks.values = vars[axis].ticks.value
-        vars[axis].ticks.visible = vars[axis].ticks.value
+        if vars[axis].ticks.labels.value.constructor is Array
+          vars[axis].ticks.visible = vars[axis].ticks.labels.value
+        else
+          vars[axis].ticks.visible = vars[axis].ticks.value
+
+      else if vars[axis].ticks.labels.value.constructor is Array
+        vars[axis].ticks.visible = vars[axis].ticks.labels.value
 
       else if vars[axis].scale.value is "log"
         ticks = vars[axis].ticks.values
