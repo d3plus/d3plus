@@ -31,9 +31,12 @@ find = (vars, node, variable, depth) ->
       node = node[vars.id.value]
       if depth isnt variable
         returned = checkData(vars, node, depth, vars.id.value)
-      if returned is null
+      if returned is null or returned is undefined
         returned = checkAttrs(vars, node, depth, vars.id.value)
-      return null if returned is null
+      if returned is null or returned is undefined
+        return null
+      else if depth is variable
+        return returned
       node = returned
     else
       return null
