@@ -4,7 +4,7 @@
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "main": "d3plus.full.js",
   "devDependencies": {
-    "browserify": "^11.0.1",
+    "browserify": "^12.0.*",
     "coffee-script": "^1.9.3",
     "coffeeify": "^1.1.0",
     "event-stream": "^3.3.1",
