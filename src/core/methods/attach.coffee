@@ -131,7 +131,7 @@ checkObject = (vars, method, object, key, value) ->
     # the object passed looking for keys.
     passingObject  = validObject(value)
     objectOnly     = validObject(object[key]) and "objectAccess" of object[key] and object[key]["objectAccess"] is false
-    approvedObject = passingObject and (objectOnly or (("value" not of value) and (d3.keys(value)[0] not of object[key])))
+    approvedObject = passingObject and (objectOnly or (("value" not of value) and ((not validObject(object[key])) or (d3.keys(value)[0] not of object[key]))))
 
     # Set value of key.
     if value is null or not passingObject or approvedObject
