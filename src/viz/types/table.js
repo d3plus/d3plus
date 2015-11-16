@@ -69,7 +69,7 @@ var table = function(vars) {
       "id": "d3p_header_"+col.toString().replace(/ /g,"_"),
       "shape": "square",
       "color": "#fff",
-      "text": col
+      "text": vars.format.value(col)
     }}
     if(col == vars.id.value){
       header.d3plus.color = "#fff";
@@ -125,7 +125,7 @@ var table = function(vars) {
         if(colors[col]){
           d_clone.d3plus.color = colors[col](d_clone[col]);
         }
-        d_clone.d3plus.text = d_clone[col];
+        d_clone.d3plus.text = vars.format.value(d_clone[col]);
         if(vars.data.keys[col] == "boolean"){
           d_clone.d3plus.label = false;
         }
