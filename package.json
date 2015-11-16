@@ -62,6 +62,7 @@
   "homepage": "http://www.d3plus.org",
   "dependencies": {
     "d3": "^3.5.6",
+    "d3-plugins-sankey-fixed": "^1.2.2",
     "heap": "^0.2.6",
     "numeric": "^1.2.6",
     "simplify-js": "^1.2.1",

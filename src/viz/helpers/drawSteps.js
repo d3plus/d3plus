@@ -213,7 +213,7 @@ module.exports = function(vars) {
     }
 
     if ( appReqs.indexOf("nodes") >= 0 && vars.edges.value
-    && ( !vars.nodes.positions || vars.nodes.changed ) ) {
+    && ( !vars.nodes.positions || vars.nodes.changed || vars.type.changed ) ) {
       steps.push({ "function" : parseNodes , "message" : dataMessage })
     }
 

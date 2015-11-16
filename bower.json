@@ -12,6 +12,7 @@
   ],
   "dependencies": {
     "d3": "^3.5.6",
+    "d3-plugins-sankey-fixed": "^1.2.2",
     "heap": "^0.2.6",
     "numericjs": "^1.2.6",
     "simplify-js": "https://github.com/mourner/simplify-js.git",

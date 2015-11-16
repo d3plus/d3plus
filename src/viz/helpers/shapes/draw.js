@@ -90,7 +90,7 @@ module.exports = function(vars) {
   function id(d) {
 
     if (!d.d3plus.id) {
-      d.d3plus.id = ""
+      d.d3plus.id = "";
       for (var i = 0; i <= vars.depth.value; i++) {
         d.d3plus.id += fetchValue(vars,d,vars.id.nesting[i])+"_"
       }
@@ -104,6 +104,10 @@ module.exports = function(vars) {
           d.d3plus.id += "_"+val
         }
       })
+
+      if (d.d3plus.suffix) {
+        d.d3plus.id += "_" + d.d3plus.suffix;
+      }
 
       d.d3plus.id = stringStrip(d.d3plus.id)
     }
@@ -324,9 +328,10 @@ module.exports = function(vars) {
 
           var id = d[vars.id.value],
               source = l[vars.edges.source][vars.id.value],
-              target = l[vars.edges.target][vars.id.value]
+              target = l[vars.edges.target][vars.id.value];
 
-          if (source == id || target == id) {
+          if (source == id || source == "left_" + id || source == "right_" + id ||
+              target == id || target == "left_" + id || target == "right_" + id) {
             var elem = vars.g.edge_hover.node().appendChild(this.cloneNode(true))
             d3.select(elem).datum(l).attr("opacity",1)
               .selectAll("line, path").datum(l)
@@ -341,7 +346,10 @@ module.exports = function(vars) {
         .attr("opacity",0)
         .selectAll("line, path")
           .style("stroke",vars.color.primary)
-          .style("stroke-width",function(){
+          .style("stroke-width",function(d){
+            if (vars.edges.path && d.dy) {
+              return Math.max(1, d.dy);
+            }
             return vars.edges.size.value ? d3.select(this).style("stroke-width")
                  : vars.data.stroke.width*2
           })

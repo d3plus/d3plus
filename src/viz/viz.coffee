@@ -22,6 +22,7 @@ module.exports = ->
       pie:      require "./types/pie.coffee"
       radar:    require "./types/radar.coffee"
       rings:    require "./types/rings.js"
+      sankey:   require "./types/sankey.coffee"
       scatter:  require "./types/scatter.coffee"
       stacked:  require "./types/stacked.coffee"
       table:    require "./types/table.js"

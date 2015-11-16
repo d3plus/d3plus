@@ -7,6 +7,7 @@ module.exports = (vars) ->
 
   # Reset mouse events for the app to use
   vars.mouse.viz = false
+  vars.edges.path = false
 
   visualization = vars.types[vars.type.value]
   requirements  = visualization.requirements or []
