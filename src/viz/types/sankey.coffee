@@ -1,5 +1,5 @@
-require "d3-plugins-sankey-fixed"
 
+d3sankey      = require "./sankey.js"
 events        = require "../../client/pointer.coffee"
 removeTooltip = require "../../tooltip/remove.coffee"
 uniques       = require "../../util/uniques.coffee"
@@ -38,7 +38,7 @@ sankey = (vars) ->
     target: t
     value: e[vars.edges.strength.value] || 1
 
-  sankey = d3.sankey()
+  layout = d3sankey()
     .nodeWidth size
     .nodePadding vars.data.padding.value
     .size [vars.width.viz - padding * 2, vars.height.viz - padding * 2]
@@ -59,7 +59,7 @@ sankey = (vars) ->
       suffix: n.dupe
     returnData.push d
 
-  vars.edges.path = sankey.link()
+  vars.edges.path = layout.link()
 
   for e in edges
     e.d3plus =
