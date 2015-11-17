@@ -49,20 +49,20 @@ module.exports = function(params) {
           parent = fetchValue(vars,id,key)
     }
 
-    if (zoom === 1 && vars.zoom.value) {
-      var text = vars.format.value(vars.format.locale.value.ui.expand)
-    }
-    else if (zoom === -1 && vars.zoom.value && vars.history.states.length && !vars.tooltip.value.long) {
-      var text = vars.format.value(vars.format.locale.value.ui.collapse)
-    }
-    else if (!vars.small && length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && (vars.focus.value.length !== 1 || vars.focus.value[0] != id)) {
-      var text = vars.format.locale.value.ui.moreInfo
-    }
-    else if (length == "long") {
-      var text = vars.footer.value || ""
-    }
-    else {
-      var text = ""
+    var text = "";
+    if (!(!vars.mouse.click.value || (vars.mouse.viz && vars.mouse.viz.click === false))) {
+      if (zoom === 1 && vars.zoom.value) {
+        var text = vars.format.value(vars.format.locale.value.ui.expand)
+      }
+      else if (zoom === -1 && vars.zoom.value && vars.history.states.length && !vars.tooltip.value.long) {
+        var text = vars.format.value(vars.format.locale.value.ui.collapse)
+      }
+      else if (!vars.small && length == "short" && (vars.tooltip.html.value || vars.tooltip.value.long) && (vars.focus.value.length !== 1 || vars.focus.value[0] != id)) {
+        var text = vars.format.locale.value.ui.moreInfo
+      }
+      else if (length == "long") {
+        var text = vars.footer.value || ""
+      }
     }
 
     var footer = text.length ? vars.format.value(text,{"key": "footer", "vars": vars}) : false
