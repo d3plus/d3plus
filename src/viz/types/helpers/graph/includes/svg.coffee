@@ -326,39 +326,41 @@ module.exports = (vars) ->
 
       for line in userLines
         d = if validObject(line) then line.position else line
-        unless isNaN(d)
-          d = parseFloat(d)
-          if d > domain[0] and d < domain[1]
-            d = unless validObject(line) then {"position": d} else line
-            d.coords =
-              line: vars[axis].scale.viz(d.position)
-            lineData.push d
-            if d.text
+        if axis is vars.axes.discrete
+          valid = domain.indexOf(d) >= 0
+        else
+          valid = d >= domain[0] and d <= domain[1]
+        if valid
+          d = unless validObject(line) then {"position": d} else line
+          d.coords =
+            line: vars[axis].scale.viz(d.position)
+          lineData.push d
+          if d.text
 
-              d.axis    = axis
-              d.padding = vars[axis].lines.font.padding.value * 0.5
-              d.align   = vars[axis].lines.font.align.value
+            d.axis    = axis
+            d.padding = vars[axis].lines.font.padding.value * 0.5
+            d.align   = vars[axis].lines.font.align.value
 
-              position = vars[axis].lines.font.position.text
-              textPad  = if position is "middle" then 0 else d.padding * 2
-              textPad  = -textPad if position is "top"
+            position = vars[axis].lines.font.position.text
+            textPad  = if position is "middle" then 0 else d.padding * 2
+            textPad  = -textPad if position is "top"
 
-              if axis.indexOf("x") is 0
-                textPos  = if d.align is "left" then vars.axes.height else if d.align is "center" then vars.axes.height/2 else 0
-                textPos -= d.padding * 2 if d.align is "left"
-                textPos += d.padding * 2 if d.align is "right"
-              else
-                textPos  = if d.align is "left" then 0 else if d.align is "center" then vars.axes.width/2 else vars.axes.width
-                textPos -= d.padding * 2 if d.align is "right"
-                textPos += d.padding * 2 if d.align is "left"
+            if axis.indexOf("x") is 0
+              textPos  = if d.align is "left" then vars.axes.height else if d.align is "center" then vars.axes.height/2 else 0
+              textPos -= d.padding * 2 if d.align is "left"
+              textPos += d.padding * 2 if d.align is "right"
+            else
+              textPos  = if d.align is "left" then 0 else if d.align is "center" then vars.axes.width/2 else vars.axes.width
+              textPos -= d.padding * 2 if d.align is "right"
+              textPos += d.padding * 2 if d.align is "left"
 
-              d.coords.text = {}
-              d.coords.text[if axis.indexOf("x") is 0 then "y" else "x"] = textPos
-              d.coords.text[axis] = vars[axis].scale.viz(d.position)+textPad
+            d.coords.text = {}
+            d.coords.text[if axis.indexOf("x") is 0 then "y" else "x"] = textPos
+            d.coords.text[axis] = vars[axis].scale.viz(d.position)+textPad
 
-              d.transform = if axis.indexOf("x") is 0 then "rotate(-90,"+d.coords.text.x+","+d.coords.text.y+")" else null
+            d.transform = if axis.indexOf("x") is 0 then "rotate(-90,"+d.coords.text.x+","+d.coords.text.y+")" else null
 
-              textData.push d
+            textData.push d
 
       lines = lineGroup.selectAll "line.d3plus_graph_"+axis+"line"
         .data lineData, (d) -> d.position
@@ -413,7 +415,7 @@ module.exports = (vars) ->
           .attr "transform"  , (d) -> d.transform
           .attr "width", (d) -> getText(d).width + (d.padding * 2)
           .attr "height", (d) -> getText(d).height + (d.padding * 2)
-          .attr "fill", vars.axes.background.color
+          .attr "fill",  if vars.axes.background.color isnt "transparent" then vars.axes.background.color else "white"
 
       rectData = if vars[axis].lines.font.background.value then textData else []
 
