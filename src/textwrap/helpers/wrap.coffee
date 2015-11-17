@@ -40,8 +40,7 @@ resize = (vars) ->
   # Start by trying the largest font size
   sizeMax   = Math.floor(vars.size.value[1])
   lineWidth = if vars.shape.value is "circle" then width * 0.75 else width
-  sizes     = fontSizes words,
-    "font-size": sizeMax + "px"
+  sizes     = fontSizes words, {"font-size": sizeMax + "px"},
     parent: vars.container.value
   maxWidth  = d3.max sizes, (d) -> d.width
   areaMod   = 1.165 + (width / height * 0.11)
