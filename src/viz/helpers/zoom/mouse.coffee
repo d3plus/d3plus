@@ -1,5 +1,6 @@
-labels    = require "./labels.coffee"
-transform = require "./transform.coffee"
+labels        = require "./labels.coffee"
+removeTooltip = require "../../../tooltip/remove.coffee"
+transform     = require "./transform.coffee"
 
 module.exports = (vars) ->
 
@@ -29,6 +30,9 @@ module.exports = (vars) ->
 
   vars.zoom.translate = translate
   vars.zoom.scale     = scale
+
+  if eventType is "wheel"
+    removeTooltip vars.type.value
 
   if vars.labels.value or vars.labels.changed
     if eventType is "wheel"

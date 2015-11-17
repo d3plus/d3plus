@@ -442,7 +442,7 @@ module.exports = function(vars) {
     vars.g.data.selectAll("g")
       .on(events.over,function(d){
 
-        if (vars.mouse.value && vars.mouse.over.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (!d3.event.buttons && vars.mouse.value && vars.mouse.over.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           if (typeof vars.mouse.over.value === "function") {
             vars.mouse.over.value(d, vars.self);
@@ -490,11 +490,14 @@ module.exports = function(vars) {
           }
 
         }
+        else {
+          removeTooltip(vars.type.value);
+        }
 
       })
       .on(events.move,function(d){
 
-        if (vars.mouse.value && vars.mouse.move.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+        if (!d3.event.buttons && vars.mouse.value && vars.mouse.move.value && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
           if (typeof vars.mouse.move.value === "function") {
             vars.mouse.move.value(d, vars.self);
@@ -532,11 +535,14 @@ module.exports = function(vars) {
           }
 
         }
+        else {
+          removeTooltip(vars.type.value);
+        }
 
       })
       .on(events.out,function(d){
 
-        if (vars.mouse.value && vars.mouse.out.value) {
+        if (!d3.event.buttons && vars.mouse.value && vars.mouse.out.value) {
 
           if (typeof vars.mouse.out.value === "function") {
             vars.mouse.out.value(d, vars.self);
@@ -572,6 +578,9 @@ module.exports = function(vars) {
 
           }
 
+        }
+        else {
+          removeTooltip(vars.type.value);
         }
 
       })
