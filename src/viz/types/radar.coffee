@@ -183,6 +183,8 @@ radar = (vars) ->
     .attr "opacity", 0
     .remove()
 
+  vars.mouse.viz =
+    click: false
 
   data
 

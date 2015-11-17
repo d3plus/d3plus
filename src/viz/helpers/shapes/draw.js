@@ -593,7 +593,7 @@ module.exports = function(vars) {
   vars.g.data.selectAll("g")
     .on(events.click,function(d){
 
-      if (vars.mouse.value && vars.mouse.click.value && !d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
+      if (!(vars.mouse.viz && vars.mouse.viz.click === false) && vars.mouse.value && vars.mouse.click.value && !d3.event.defaultPrevented && !vars.draw.frozen && (!d.d3plus || !d.d3plus.static)) {
 
         if (typeof vars.mouse.click.value === "function") {
           vars.mouse.click.value(d, vars.self);
